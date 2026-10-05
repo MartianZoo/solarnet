@@ -291,7 +291,7 @@ The test thread allocated an estimated 395.2 GB in 119 seconds, about 132 GB per
 
 The sampled owners below overlap; nested rows must not be added:
 
-| Owner | CPU samples | Allocation pressure |
+| Work | CPU samples | Allocation pressure |
 | --- | ---: | ---: |
 | Replay recording export | 32.0% | 33.4% |
 | Recording JSON decode | 28.2% | 29.9% |

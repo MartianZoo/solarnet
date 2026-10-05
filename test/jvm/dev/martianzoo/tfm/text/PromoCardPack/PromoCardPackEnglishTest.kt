@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.tfm.canon.Canon
 import io.kotest.matchers.shouldBe
@@ -31,10 +31,13 @@ internal class PromoCardPackEnglishTest {
   @Test
   internal fun describesInteractionRecords() {
     english.describe(
-        parse<Effect>(
-            "MyResourceWasRemoved<Anyone> OR MyProductionWasDecreased<Anyone>: " +
-                "3 MC<Anyone FROM Owner>."
-        )
+        parseClasses(
+                "CLASS Rule<Me@Anyone> { MyResourceWasRemoved<Anyone> OR MyProductionWasDecreased<Anyone>: " +
+                    "3 MC<Anyone FROM Me@>. }"
+            )
+            .single()
+            .authoredEffects
+            .single()
     ) shouldBe
         "When any player has their resources removed by another player, or has their production " +
             "decreased by another player, pay 3 M€ to that player, or as much as possible."

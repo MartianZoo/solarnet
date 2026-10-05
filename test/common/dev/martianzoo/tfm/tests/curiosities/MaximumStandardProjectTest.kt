@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.curiosities
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.replays.AbstractSoloTest
 import io.kotest.matchers.shouldBe
@@ -34,8 +34,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
     me.playCorp(Spire, 10)
 
     me.turn {
-      playPrelude(Merger) { me.playCorp(LakefrontResorts, location = cn("Selecting")) }
-      playPrelude(NewPartner) { playPrelude(BoardOfDirectors, location = cn("Selecting")) }
+      playPrelude(Merger) { me.playCorp(LakefrontResorts) }
+      playPrelude(NewPartner) { playPrelude(BoardOfDirectors) }
     }
 
     me.count("MC") shouldBe 32
@@ -46,7 +46,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
         doTask("-12 MC")
         playPrelude(DoubleDown) {
           doTask("CopyPrelude<$Merger>")
-          me.playCorp(CrediCor, location = cn("Selecting"))
+          me.playCorp(CrediCor)
         }
       }
       playProject(MediaGroup, 6)
@@ -187,6 +187,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
     // 27 ocean adjacency + 6 Terraforming Deal + 4 CrediCor + 4 Greens + 3 each
     // from Standard Technology and Homeostasis Bureau + 2 each from Suitable Infrastructure and
     // Meat Industry.
+    val previousPolicy = me.autoExecPolicy
     me.autoExecPolicy = NONE
     me.stdProject(
             "GreeneryProject",
@@ -234,7 +235,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
           doTask("TerraformRating", cn("OceanTile"))
           doTask("2 MC", TerraformingDeal)
           doTask("PROD[1 MC]", LakefrontResorts)
-          // Suitable Infrastructure: 2 MC (automatic)
+          // Finish the ordinary history and Suitable Infrastructure effects.
+          me.autoExecPolicy = previousPolicy
         }
         .expect("51 MC, OxygenStep, TemperatureStep, OceanTile, 3 TerraformRating")
 

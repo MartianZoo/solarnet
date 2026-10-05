@@ -307,6 +307,12 @@ capitalization and spelling (the Successful Organisms scan misspells its title `
 titles, flavor text, icons, and spreadsheet notes are outside this effect-text corpus; Dry Deserts'
 upper title is `Minimal Impact Policy` on the scan, not the sheet's `Free Academia Treaty`.
 
+Card text reads persistent resource-value grants from exact invariants. Other exact, non-tag
+invariants remain visible as unresolved Pets in the effect region until their meaning is supported.
+Tags remain card metadata. Lexical `Me` references mean the current owner; a named player fanout
+must explicitly target its selected player, while `EACH Me@Player` rebinds ownership in its body.
+Event attribution uses `Actor`, independently of ownership.
+
 The card goals cover the same corpus as the card current and corrected files. That corpus follows
 the published wording evidence, including replay-only cards and the abstract Beginner Corporation.
 Retain supported printed constraints in reviewed goals even when Pets does not yet enforce them;

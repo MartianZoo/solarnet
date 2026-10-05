@@ -1,6 +1,6 @@
 # Projects: printed and generated wording
 
-[All categories](README.md) · 426 entries
+[All categories](README.md) · 427 entries
 
 Printed text: [wording evidence](../../src/jvm/dev/martianzoo/tfm/text/english-published-wording-evidence.tsv).
 Generated text comes directly from the current English renderer. See the [reading notes](README.md#reading-the-comparisons).
@@ -20,8 +20,8 @@ Pets declaration:
 
 ```pets
 CLASS AdaptationTechnology : ActiveCard {
+  HAS =1 ScienceTag<This>
   cost = 12
-  This:: ScienceTag<This>
   CheckRequirement:: -2 Required<Class<GlobalParameter>>
   End: VictoryPoint
 }
@@ -40,8 +40,8 @@ Pets declaration:
 
 ```pets
 CLASS AdaptedLichen : AutomatedCard {
+  HAS =1 PlantTag<This>
   cost = 9
-  This:: PlantTag<This>
   This: PROD[Plant]
 }
 ```
@@ -59,9 +59,9 @@ Pets declaration:
 
 ```pets
 CLASS AdvancedEcosystems : AutomatedCard {
+  HAS =1 PlantTag<This>, =1 MicrobeTag<This>, =1 AnimalTag<This>
   cost = 11
   requirement = HAS "PlantTag, MicrobeTag, AnimalTag"
-  This:: PlantTag<This>, MicrobeTag<This>, AnimalTag<This>
   End: 3 VictoryPoint
 }
 ```
@@ -79,8 +79,8 @@ Pets declaration:
 
 ```pets
 CLASS AerobrakedAmmoniaAsteroid : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 26
-  This:: SpaceTag<This>, EventTag<This>
   This: 2 Microbe, PROD[3 Heat, Plant]
 }
 ```
@@ -98,9 +98,9 @@ Pets declaration:
 
 ```pets
 CLASS Algae : AutomatedCard {
+  HAS =1 PlantTag<This>
   cost = 10
   requirement = HAS "5 OceanTile"
-  This:: PlantTag<This>
   This: Plant, PROD[2 Plant]
 }
 ```
@@ -117,10 +117,10 @@ Class: `Ants`
 Pets declaration:
 
 ```pets
-CLASS Ants : ActionCard, ActiveCard, ResourceCard<Class<Microbe>> {
+CLASS Ants : ActiveCard, ResourceCard<Class<Microbe>>, ActionCard {
+  HAS =1 MicrobeTag<This>
   cost = 9
   requirement = HAS "4 OxygenStep"
-  This:: MicrobeTag<This>
   End: VictoryPoint / 2 Microbe<This>
   Microbe<Anyone> -> Microbe<This>
 }
@@ -138,9 +138,9 @@ Class: `AquiferPumping`
 Pets declaration:
 
 ```pets
-CLASS AquiferPumping : ActionCard, ActiveCard {
+CLASS AquiferPumping : ActiveCard, ActionCard {
+  HAS =1 BuildingTag<This>
   cost = 18
-  This:: BuildingTag<This>
   UseAction<This>:: Accepting<Class<Steel>>
   8 MC -> OceanTile<>
 }
@@ -159,9 +159,9 @@ Pets declaration:
 
 ```pets
 CLASS Archaebacteria : AutomatedCard {
+  HAS =1 MicrobeTag<This>
   cost = 6
   requirement = HAS "MAX 6 TemperatureStep"
-  This:: MicrobeTag<This>
   This: PROD[Plant]
 }
 ```
@@ -179,11 +179,11 @@ Pets declaration:
 
 ```pets
 CLASS ArcticAlgae : ActiveCard {
+  HAS =1 PlantTag<This>
   cost = 12
   requirement = HAS "MAX 9 TemperatureStep"
-  This:: PlantTag<This>
   This: Plant
-  OceanTile BY Anyone: 2 Plant
+  OceanTile BY Actor: 2 Plant
 }
 ```
 
@@ -194,16 +194,16 @@ Class: `ArtificialLake`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Requires -6°C or warmer. Place 1 ocean tile ON AN AREA NOT RESERVED FOR OCEAN. | — |
-| Generated text | Requires -6°C or warmer. Place an ocean tile on a land area, or if there are 9 ocean tiles, do nothing. | — |
+| Generated text | Requires -6°C or warmer. If the number of ocean tiles has not reached its maximum, place an ocean tile on a land area, or if the number of ocean tiles has reached its maximum, do nothing. | — |
 
 Pets declaration:
 
 ```pets
 CLASS ArtificialLake : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 15
   requirement = HAS "12 TemperatureStep"
-  This:: BuildingTag<This>
-  This: OceanTile<LandArea>! OR (9 OceanTile: Ok)
+  This: (GpIncomplete<Class<OceanTile>>: OceanTile<LandArea>!) OR (GpComplete<Class<OceanTile>>: Ok)
   End: VictoryPoint
 }
 ```
@@ -221,8 +221,8 @@ Pets declaration:
 
 ```pets
 CLASS ArtificialPhotosynthesis : AutomatedCard {
+  HAS =1 ScienceTag<This>
   cost = 12
-  This:: ScienceTag<This>
   This: PROD[Plant OR 2 Energy]
 }
 ```
@@ -240,8 +240,8 @@ Pets declaration:
 
 ```pets
 CLASS AsteroidCard : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 14
-  This:: SpaceTag<This>, EventTag<This>
   This: TemperatureStep, 2 Titanium, -3 Plant<Anyone>?
 }
 ```
@@ -259,8 +259,8 @@ Pets declaration:
 
 ```pets
 CLASS AsteroidMining : AutomatedCard {
+  HAS =1 JovianTag<This>, =1 SpaceTag<This>
   cost = 30
-  This:: JovianTag<This>, SpaceTag<This>
   This: PROD[2 Titanium]
   End: 2 VictoryPoint
 }
@@ -279,9 +279,9 @@ Pets declaration:
 
 ```pets
 CLASS BeamFromAThoriumAsteroid : AutomatedCard {
+  HAS =1 JovianTag<This>, =1 SpaceTag<This>, =1 PowerTag<This>
   cost = 32
   requirement = HAS "JovianTag"
-  This:: JovianTag<This>, SpaceTag<This>, PowerTag<This>
   This: PROD[3 Heat, 3 Energy]
   End: VictoryPoint
 }
@@ -300,8 +300,8 @@ Pets declaration:
 
 ```pets
 CLASS BigAsteroid : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 27
-  This:: SpaceTag<This>, EventTag<This>
   This: 2 TemperatureStep, 4 Titanium, -4 Plant<Anyone>?
 }
 ```
@@ -319,9 +319,9 @@ Pets declaration:
 
 ```pets
 CLASS BiomassCombustors : AutomatedCard {
+  HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 4
   requirement = HAS "6 OxygenStep"
-  This:: PowerTag<This>, BuildingTag<This>
   This: PROD[-Plant<Anyone>, 2 Energy]
   End: -VictoryPoint
 }
@@ -339,10 +339,10 @@ Class: `Birds`
 Pets declaration:
 
 ```pets
-CLASS Birds : ActionCard, ActiveCard, ResourceCard<Class<Animal>> {
+CLASS Birds : ActiveCard, ResourceCard<Class<Animal>>, ActionCard {
+  HAS =1 AnimalTag<This>
   cost = 10
   requirement = HAS "13 OxygenStep"
-  This:: AnimalTag<This>
   This: PROD[-2 Plant<Anyone>]
   End: VictoryPoint / Animal<This>
   -> Animal<This>
@@ -380,9 +380,9 @@ Pets declaration:
 
 ```pets
 CLASS BreathingFilters : AutomatedCard {
+  HAS =1 ScienceTag<This>
   cost = 11
   requirement = HAS "7 OxygenStep"
-  This:: ScienceTag<This>
   End: 2 VictoryPoint
 }
 ```
@@ -400,9 +400,9 @@ Pets declaration:
 
 ```pets
 CLASS Bushes : AutomatedCard {
+  HAS =1 PlantTag<This>
   cost = 10
   requirement = HAS "10 TemperatureStep"
-  This:: PlantTag<This>
   This: PROD[2 Plant], 2 Plant
 }
 ```
@@ -420,10 +420,9 @@ Pets declaration:
 
 ```pets
 CLASS Capital : AutomatedCard {
-  HAS MAX 1 CapitalTile<This>
+  HAS MAX 1 CapitalTile<This>, =1 CityTag<This>, =1 BuildingTag<This>
   cost = 26
   requirement = HAS "4 OceanTile"
-  This:: CityTag<This>, BuildingTag<This>
   This: CapitalTile<This>, PROD[-2 Energy, 5 MC]
   End: VictoryPoint / Adjacency<CapitalTile<This>, OceanTile>
 }
@@ -442,8 +441,8 @@ Pets declaration:
 
 ```pets
 CLASS CarbonateProcessing : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 6
-  This:: BuildingTag<This>
   This: PROD[-Energy, 3 Heat]
 }
 ```
@@ -480,9 +479,9 @@ Pets declaration:
 
 ```pets
 CLASS ColonizerTrainingCamp : AutomatedCard {
+  HAS =1 JovianTag<This>, =1 BuildingTag<This>
   cost = 8
   requirement = HAS "MAX 5 OxygenStep"
-  This:: JovianTag<This>, BuildingTag<This>
   End: 2 VictoryPoint
 }
 ```
@@ -500,8 +499,8 @@ Pets declaration:
 
 ```pets
 CLASS Comet : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 21
-  This:: SpaceTag<This>, EventTag<This>
   This: TemperatureStep, OceanTile<>, -3 Plant<Anyone>?
 }
 ```
@@ -519,8 +518,8 @@ Pets declaration:
 
 ```pets
 CLASS ConvoyFromEuropa : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 15
-  This:: SpaceTag<This>, EventTag<This>
   This: OceanTile<>, ProjectCard
 }
 ```
@@ -538,9 +537,9 @@ Pets declaration:
 
 ```pets
 CLASS CupolaCity : AutomatedCard {
+  HAS =1 CityTag<This>, =1 BuildingTag<This>
   cost = 16
   requirement = HAS "MAX 9 OxygenStep"
-  This:: CityTag<This>, BuildingTag<This>
   This: CityTile<>, PROD[-Energy, 3 MC]
 }
 ```
@@ -558,9 +557,9 @@ Pets declaration:
 
 ```pets
 CLASS Decomposers : ActiveCard, ResourceCard<Class<Microbe>> {
+  HAS =1 MicrobeTag<This>
   cost = 5
   requirement = HAS "3 OxygenStep"
-  This:: MicrobeTag<This>
   BioTag: Microbe<This>
   End: VictoryPoint / 3 Microbe<This>
 }
@@ -579,8 +578,8 @@ Pets declaration:
 
 ```pets
 CLASS DeepWellHeating : AutomatedCard {
+  HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 13
-  This:: PowerTag<This>, BuildingTag<This>
   This: PROD[Energy], TemperatureStep
 }
 ```
@@ -598,9 +597,9 @@ Pets declaration:
 
 ```pets
 CLASS DeimosDown : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 31
   autoSelectWhen = HAS "MAX 0 PromoCardPack"
-  This:: SpaceTag<This>, EventTag<This>
   This: 3 TemperatureStep, 4 Steel, -8 Plant<Anyone>?
 }
 ```
@@ -618,9 +617,9 @@ Pets declaration:
 
 ```pets
 CLASS DesignedMicroorganisms : AutomatedCard {
+  HAS =1 ScienceTag<This>, =1 MicrobeTag<This>
   cost = 16
   requirement = HAS "MAX 8 TemperatureStep"
-  This:: ScienceTag<This>, MicrobeTag<This>
   This: PROD[2 Plant]
 }
 ```
@@ -638,9 +637,9 @@ Pets declaration:
 
 ```pets
 CLASS DomedCrater : AutomatedCard {
+  HAS =1 CityTag<This>, =1 BuildingTag<This>
   cost = 24
   requirement = HAS "MAX 7 OxygenStep"
-  This:: CityTag<This>, BuildingTag<This>
   This: 3 Plant, CityTile<>, PROD[-Energy, 3 MC]
   End: VictoryPoint
 }
@@ -678,9 +677,9 @@ Pets declaration:
 
 ```pets
 CLASS EcologicalZone : ActiveCard, ResourceCard<Class<Animal>> {
+  HAS =1 AnimalTag<This>, =1 PlantTag<This>
   cost = 12
   requirement = HAS "GreeneryTile"
-  This:: AnimalTag<This>, PlantTag<This>
   This: EcologicalZone_SpecialTile<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)>
   AnimalTag OR PlantTag: Animal<This>
   End: VictoryPoint / 2 Animal<This>
@@ -700,8 +699,8 @@ Pets declaration:
 
 ```pets
 CLASS EnergySaving : AutomatedCard {
+  HAS =1 PowerTag<This>
   cost = 15
-  This:: PowerTag<This>
   This: PROD[Energy / CityTile<Anyone>]
 }
 ```
@@ -719,9 +718,9 @@ Pets declaration:
 
 ```pets
 CLASS EosChasmaNationalPark : AutomatedCard {
+  HAS =1 PlantTag<This>, =1 BuildingTag<This>
   cost = 16
   requirement = HAS "9 TemperatureStep"
-  This:: PlantTag<This>, BuildingTag<This>
   This: Animal, 3 Plant, PROD[2 MC]
   End: VictoryPoint
 }
@@ -739,9 +738,9 @@ Class: `EquatorialMagnetizer`
 Pets declaration:
 
 ```pets
-CLASS EquatorialMagnetizer : ActionCard, ActiveCard {
+CLASS EquatorialMagnetizer : ActiveCard, ActionCard {
+  HAS =1 BuildingTag<This>
   cost = 11
-  This:: BuildingTag<This>
   PROD[Energy] -> TerraformRating
 }
 ```
@@ -758,10 +757,10 @@ Class: `ExtremeColdFungus`
 Pets declaration:
 
 ```pets
-CLASS ExtremeColdFungus : ActionCard, ActiveCard {
+CLASS ExtremeColdFungus : ActiveCard, ActionCard {
+  HAS =1 MicrobeTag<This>
   cost = 13
   requirement = HAS "MAX 10 TemperatureStep"
-  This:: MicrobeTag<This>
   -> Plant
   -> 2 Microbe
 }
@@ -780,9 +779,9 @@ Pets declaration:
 
 ```pets
 CLASS Farming : AutomatedCard {
+  HAS =1 PlantTag<This>
   cost = 16
   requirement = HAS "17 TemperatureStep"
-  This:: PlantTag<This>
   This: PROD[2 MC, 2 Plant], 2 Plant
   End: 2 VictoryPoint
 }
@@ -800,10 +799,10 @@ Class: `Fish`
 Pets declaration:
 
 ```pets
-CLASS Fish : ActionCard, ActiveCard, ResourceCard<Class<Animal>> {
+CLASS Fish : ActiveCard, ResourceCard<Class<Animal>>, ActionCard {
+  HAS =1 AnimalTag<This>
   cost = 9
   requirement = HAS "16 TemperatureStep"
-  This:: AnimalTag<This>
   This: PROD[-Plant<Anyone>]
   End: VictoryPoint / Animal<This>
   -> Animal<This>
@@ -817,15 +816,15 @@ Class: `Flooding`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Place an ocean tile. IF THERE ARE TILES ADJACENT TO THIS OCEAN TILE, YOU MAY REMOVE 4 M€ FROM THE OWNER OF ONE OF THOSE TILES. | — |
-| Generated text | Place an ocean tile or \[OceanTile&lt;WaterArea(HAS MAX 0 Tile, HAS Neighbor&lt;OwnedTile&lt;@Anyone&gt;&gt;)&gt;!\], then \[-4 MC&lt;@Anyone&gt;?\]. | — |
+| Generated text | Place an ocean tile, or if the number of ocean tiles has not reached its maximum, \[OceanTile&lt;WaterArea(HAS MAX 0 Tile, HAS Neighbor&lt;OwnedTile&lt;@Anyone&gt;&gt;)&gt;!\], then \[-4 MC&lt;@Anyone&gt;?\]. | — |
 
 Pets declaration:
 
 ```pets
 CLASS Flooding : EventCard {
+  HAS =1 EventTag<This>
   cost = 7
-  This:: EventTag<This>
-  This: OceanTile<> OR (OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>! THEN -4 MC<@Anyone>?)
+  This: OceanTile<> OR (GpIncomplete<Class<OceanTile>>: (OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>! THEN -4 MC<@Anyone>?))
   End: -VictoryPoint
 }
 ```
@@ -843,8 +842,8 @@ Pets declaration:
 
 ```pets
 CLASS FoodFactory : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 12
-  This:: BuildingTag<This>
   This: PROD[-Plant, 4 MC]
   End: VictoryPoint
 }
@@ -863,8 +862,8 @@ Pets declaration:
 
 ```pets
 CLASS FueledGenerators : AutomatedCard {
+  HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 1
-  This:: PowerTag<This>, BuildingTag<This>
   This: PROD[-MC, Energy]
 }
 ```
@@ -882,9 +881,9 @@ Pets declaration:
 
 ```pets
 CLASS FusionPower : AutomatedCard {
+  HAS =1 ScienceTag<This>, =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 14
   requirement = HAS "2 PowerTag"
-  This:: ScienceTag<This>, PowerTag<This>, BuildingTag<This>
   This: PROD[3 Energy]
 }
 ```
@@ -902,8 +901,8 @@ Pets declaration:
 
 ```pets
 CLASS GanymedeColony : AutomatedCard {
+  HAS =1 JovianTag<This>, =1 SpaceTag<This>, =1 CityTag<This>
   cost = 20
-  This:: JovianTag<This>, SpaceTag<This>, CityTag<This>
   This: CityTile<GanymedeColony_RemoteArea>
   End: VictoryPoint / JovianTag
 }
@@ -922,8 +921,8 @@ Pets declaration:
 
 ```pets
 CLASS GeothermalPower : AutomatedCard {
+  HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 11
-  This:: PowerTag<This>, BuildingTag<This>
   This: PROD[2 Energy]
 }
 ```
@@ -941,8 +940,8 @@ Pets declaration:
 
 ```pets
 CLASS GhgFactories : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 11
-  This:: BuildingTag<This>
   This: PROD[-Energy, 4 Heat]
 }
 ```
@@ -959,10 +958,10 @@ Class: `GhgProducingBacteria`
 Pets declaration:
 
 ```pets
-CLASS GhgProducingBacteria : ActionCard, ActiveCard, ResourceCard<Class<Microbe>> {
+CLASS GhgProducingBacteria : ActiveCard, ResourceCard<Class<Microbe>>, ActionCard {
+  HAS =1 ScienceTag<This>, =1 MicrobeTag<This>
   cost = 8
   requirement = HAS "4 OxygenStep"
-  This:: ScienceTag<This>, MicrobeTag<This>
   -> Microbe<This>
   2 Microbe<This> -> TemperatureStep
 }
@@ -981,8 +980,8 @@ Pets declaration:
 
 ```pets
 CLASS GiantIceAsteroid : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 36
-  This:: SpaceTag<This>, EventTag<This>
   This: 2 TemperatureStep, 2 OceanTile<>, -6 Plant<Anyone>?
 }
 ```
@@ -1000,8 +999,8 @@ Pets declaration:
 
 ```pets
 CLASS GiantSpaceMirror : AutomatedCard {
+  HAS =1 PowerTag<This>, =1 SpaceTag<This>
   cost = 17
-  This:: PowerTag<This>, SpaceTag<This>
   This: PROD[3 Energy]
 }
 ```
@@ -1019,9 +1018,9 @@ Pets declaration:
 
 ```pets
 CLASS Grass : AutomatedCard {
+  HAS =1 PlantTag<This>
   cost = 11
   requirement = HAS "7 TemperatureStep"
-  This:: PlantTag<This>
   This: PROD[Plant], 3 Plant
 }
 ```
@@ -1039,10 +1038,10 @@ Pets declaration:
 
 ```pets
 CLASS GreatDam : AutomatedCard {
+  HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 12
   requirement = HAS "4 OceanTile"
   autoSelectWhen = HAS "MAX 0 PromoCardPack"
-  This:: PowerTag<This>, BuildingTag<This>
   This: PROD[2 Energy]
   End: VictoryPoint
 }
@@ -1061,8 +1060,8 @@ Pets declaration:
 
 ```pets
 CLASS Greenhouses : AutomatedCard {
+  HAS =1 PlantTag<This>, =1 BuildingTag<This>
   cost = 6
-  This:: PlantTag<This>, BuildingTag<This>
   This: Plant / CityTile<Anyone>
 }
 ```
@@ -1080,9 +1079,9 @@ Pets declaration:
 
 ```pets
 CLASS Heather : AutomatedCard {
+  HAS =1 PlantTag<This>
   cost = 6
   requirement = HAS "8 TemperatureStep"
-  This:: PlantTag<This>
   This: PROD[Plant], Plant
 }
 ```
@@ -1100,8 +1099,8 @@ Pets declaration:
 
 ```pets
 CLASS HeatTrappers : AutomatedCard {
+  HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 6
-  This:: PowerTag<This>, BuildingTag<This>
   This: PROD[-2 Heat<Anyone>, Energy]
   End: -VictoryPoint
 }
@@ -1120,9 +1119,9 @@ Pets declaration:
 
 ```pets
 CLASS Herbivores : ActiveCard, ResourceCard<Class<Animal>> {
+  HAS =1 AnimalTag<This>
   cost = 12
   requirement = HAS "8 OxygenStep"
-  This:: AnimalTag<This>
   This: Animal<This>, PROD[-Plant<Anyone>]
   GreeneryTile: Animal<This>
   End: VictoryPoint / 2 Animal<This>
@@ -1142,8 +1141,8 @@ Pets declaration:
 
 ```pets
 CLASS IceAsteroid : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 23
-  This:: SpaceTag<This>, EventTag<This>
   This: 2 OceanTile<>
 }
 ```
@@ -1161,9 +1160,9 @@ Pets declaration:
 
 ```pets
 CLASS IceCapMelting : EventCard {
+  HAS =1 EventTag<This>
   cost = 5
   requirement = HAS "16 TemperatureStep"
-  This:: EventTag<This>
   This: OceanTile<>
 }
 ```
@@ -1181,8 +1180,8 @@ Pets declaration:
 
 ```pets
 CLASS ImmigrantCity : ActiveCard {
+  HAS =1 CityTag<This>, =1 BuildingTag<This>
   cost = 13
-  This:: CityTag<This>, BuildingTag<This>
   This: PROD[-Energy, -2 MC], CityTile<>
   CityTile<Anyone>: PROD[MC]
 }
@@ -1201,8 +1200,8 @@ Pets declaration:
 
 ```pets
 CLASS ImmigrationShuttles : AutomatedCard {
+  HAS =1 EarthTag<This>, =1 SpaceTag<This>
   cost = 31
-  This:: EarthTag<This>, SpaceTag<This>
   This: PROD[5 MC]
   End: VictoryPoint / 3 CityTile<Anyone>
 }
@@ -1221,8 +1220,8 @@ Pets declaration:
 
 ```pets
 CLASS ImportedGhg : EventCard {
+  HAS =1 EarthTag<This>, =1 SpaceTag<This>, =1 EventTag<This>
   cost = 7
-  This:: EarthTag<This>, SpaceTag<This>, EventTag<This>
   This: PROD[Heat], 3 Heat
 }
 ```
@@ -1240,8 +1239,8 @@ Pets declaration:
 
 ```pets
 CLASS ImportedHydrogen : EventCard {
+  HAS =1 EarthTag<This>, =1 SpaceTag<This>, =1 EventTag<This>
   cost = 16
-  This:: EarthTag<This>, SpaceTag<This>, EventTag<This>
   This: 3 Plant OR 3 Microbe OR 2 Animal, OceanTile<>
 }
 ```
@@ -1259,8 +1258,8 @@ Pets declaration:
 
 ```pets
 CLASS ImportedNitrogen : EventCard {
+  HAS =1 EarthTag<This>, =1 SpaceTag<This>, =1 EventTag<This>
   cost = 23
-  This:: EarthTag<This>, SpaceTag<This>, EventTag<This>
   This: TerraformRating, 4 Plant, 3 Microbe, 2 Animal
 }
 ```
@@ -1278,8 +1277,8 @@ Pets declaration:
 
 ```pets
 CLASS ImportOfAdvancedGhg : EventCard {
+  HAS =1 EarthTag<This>, =1 SpaceTag<This>, =1 EventTag<This>
   cost = 9
-  This:: EarthTag<This>, SpaceTag<This>, EventTag<This>
   This: PROD[2 Heat]
 }
 ```
@@ -1297,8 +1296,8 @@ Pets declaration:
 
 ```pets
 CLASS IndustrialMicrobes : AutomatedCard {
+  HAS =1 MicrobeTag<This>, =1 BuildingTag<This>
   cost = 12
-  This:: MicrobeTag<This>, BuildingTag<This>
   This: PROD[Energy, Steel]
 }
 ```
@@ -1316,9 +1315,9 @@ Pets declaration:
 
 ```pets
 CLASS Insects : AutomatedCard {
+  HAS =1 MicrobeTag<This>
   cost = 9
   requirement = HAS "6 OxygenStep"
-  This:: MicrobeTag<This>
   This: PROD[Plant / PlantTag]
 }
 ```
@@ -1353,9 +1352,9 @@ Class: `Ironworks`
 Pets declaration:
 
 ```pets
-CLASS Ironworks : ActionCard, ActiveCard {
+CLASS Ironworks : ActiveCard, ActionCard {
+  HAS =1 BuildingTag<This>
   cost = 11
-  This:: BuildingTag<This>
   4 Energy -> Steel, OxygenStep
 }
 ```
@@ -1373,9 +1372,9 @@ Pets declaration:
 
 ```pets
 CLASS KelpFarming : AutomatedCard {
+  HAS =1 PlantTag<This>
   cost = 17
   requirement = HAS "6 OceanTile"
-  This:: PlantTag<This>
   This: PROD[2 MC, 3 Plant], 2 Plant
   End: VictoryPoint
 }
@@ -1414,8 +1413,8 @@ Pets declaration:
 
 ```pets
 CLASS LargeConvoy : EventCard {
+  HAS =1 EarthTag<This>, =1 SpaceTag<This>, =1 EventTag<This>
   cost = 36
-  This:: EarthTag<This>, SpaceTag<This>, EventTag<This>
   This: OceanTile<>, 2 ProjectCard, 5 Plant OR 4 Animal
   End: 2 VictoryPoint
 }
@@ -1434,8 +1433,8 @@ Pets declaration:
 
 ```pets
 CLASS LavaFlows : EventCard {
+  HAS =1 EventTag<This>
   cost = 18
-  This:: EventTag<This>
   This: 2 TemperatureStep, LavaFlows_SpecialTile<VolcanicArea> OR (MAX 0 VolcanicArea: LavaFlows_SpecialTile<>)
 }
 ```
@@ -1453,9 +1452,9 @@ Pets declaration:
 
 ```pets
 CLASS Lichen : AutomatedCard {
+  HAS =1 PlantTag<This>
   cost = 7
   requirement = HAS "3 TemperatureStep"
-  This:: PlantTag<This>
   This: PROD[Plant]
 }
 ```
@@ -1472,10 +1471,10 @@ Class: `Livestock`
 Pets declaration:
 
 ```pets
-CLASS Livestock : ActionCard, ActiveCard, ResourceCard<Class<Animal>> {
+CLASS Livestock : ActiveCard, ResourceCard<Class<Animal>>, ActionCard {
+  HAS =1 AnimalTag<This>
   cost = 13
   requirement = HAS "9 OxygenStep"
-  This:: AnimalTag<This>
   This: PROD[-Plant, 2 MC]
   End: VictoryPoint / Animal<This>
   -> Animal<This>
@@ -1495,8 +1494,8 @@ Pets declaration:
 
 ```pets
 CLASS LocalHeatTrapping : EventCard {
+  HAS =1 EventTag<This>
   cost = 1
-  This:: EventTag<This>
   This: -5 Heat, 4 Plant OR 2 Animal
 }
 ```
@@ -1514,8 +1513,8 @@ Pets declaration:
 
 ```pets
 CLASS LunarBeam : AutomatedCard {
+  HAS =1 EarthTag<This>, =1 PowerTag<This>
   cost = 13
-  This:: EarthTag<This>, PowerTag<This>
   This: PROD[-2 MC, 2 Heat, 2 Energy]
 }
 ```
@@ -1533,8 +1532,8 @@ Pets declaration:
 
 ```pets
 CLASS MagneticFieldDome : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 5
-  This:: BuildingTag<This>
   This: PROD[-2 Energy, Plant], TerraformRating
 }
 ```
@@ -1552,9 +1551,9 @@ Pets declaration:
 
 ```pets
 CLASS MagneticFieldGenerators : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 20
   autoSelectWhen = HAS "MAX 0 PromoCardPack"
-  This:: BuildingTag<This>
   This: PROD[-4 Energy, 2 Plant], 3 TerraformRating
 }
 ```
@@ -1572,9 +1571,9 @@ Pets declaration:
 
 ```pets
 CLASS Mangrove : AutomatedCard {
+  HAS =1 PlantTag<This>
   cost = 12
   requirement = HAS "17 TemperatureStep"
-  This:: PlantTag<This>
   This: GreeneryTile<WaterArea>
   End: VictoryPoint
 }
@@ -1592,9 +1591,9 @@ Class: `MartianRails`
 Pets declaration:
 
 ```pets
-CLASS MartianRails : ActionCard, ActiveCard {
+CLASS MartianRails : ActiveCard, ActionCard {
+  HAS =1 BuildingTag<This>
   cost = 13
-  This:: BuildingTag<This>
   Energy -> MC / CityTile<Anyone, MarsArea>
 }
 ```
@@ -1612,9 +1611,9 @@ Pets declaration:
 
 ```pets
 CLASS MethaneFromTitan : AutomatedCard {
+  HAS =1 JovianTag<This>, =1 SpaceTag<This>
   cost = 28
   requirement = HAS "2 OxygenStep"
-  This:: JovianTag<This>, SpaceTag<This>
   This: PROD[2 Heat, 2 Plant]
   End: 2 VictoryPoint
 }
@@ -1651,8 +1650,8 @@ Pets declaration:
 
 ```pets
 CLASS MiningExpedition : EventCard {
+  HAS =1 EventTag<This>
   cost = 12
-  This:: EventTag<This>
   This: OxygenStep, -2 Plant<Anyone>?, 2 Steel
 }
 ```
@@ -1670,9 +1669,9 @@ Pets declaration:
 
 ```pets
 CLASS MiningRights : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 9
   autoSelectWhen = HAS "Unsafe OR MAX 0 AmazonisMap"
-  This:: BuildingTag<This>
   This: MiningRights_SpecialTile<> THEN PROD[(LandArea(HAS MiningRights_SpecialTile, HAS PlacementBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningRights_SpecialTile, HAS PlacementBonus<Class<Titanium>>): Titanium)]
 }
 ```
@@ -1690,8 +1689,8 @@ Pets declaration:
 
 ```pets
 CLASS MoholeArea : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 20
-  This:: BuildingTag<This>
   This: PROD[4 Heat], MoholeArea_SpecialTile<WaterArea>
 }
 ```
@@ -1709,9 +1708,9 @@ Pets declaration:
 
 ```pets
 CLASS Moss : AutomatedCard {
+  HAS =1 PlantTag<This>
   cost = 4
   requirement = HAS "3 OceanTile"
-  This:: PlantTag<This>
   This: PROD[Plant], -Plant
 }
 ```
@@ -1729,9 +1728,9 @@ Pets declaration:
 
 ```pets
 CLASS NaturalPreserve : AutomatedCard {
+  HAS =1 ScienceTag<This>, =1 BuildingTag<This>
   cost = 9
   requirement = HAS "MAX 4 OxygenStep"
-  This:: ScienceTag<This>, BuildingTag<This>
   This: NaturalPreserve_SpecialTile<LandArea(HAS MAX 0 Neighbor)>, PROD[MC]
   End: VictoryPoint
 }
@@ -1749,9 +1748,9 @@ Class: `NitriteReducingBacteria`
 Pets declaration:
 
 ```pets
-CLASS NitriteReducingBacteria : ActionCard, ActiveCard, ResourceCard<Class<Microbe>> {
+CLASS NitriteReducingBacteria : ActiveCard, ResourceCard<Class<Microbe>>, ActionCard {
+  HAS =1 MicrobeTag<This>
   cost = 11
-  This:: MicrobeTag<This>
   This: 3 Microbe<This>
   -> Microbe<This>
   3 Microbe<This> -> TerraformRating
@@ -1771,8 +1770,8 @@ Pets declaration:
 
 ```pets
 CLASS NitrogenRichAsteroid : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 31
-  This:: SpaceTag<This>, EventTag<This>
   This: 2 TerraformRating, TemperatureStep, PROD[Plant OR (3 PlantTag: 4 Plant)]
 }
 ```
@@ -1790,9 +1789,9 @@ Pets declaration:
 
 ```pets
 CLASS NitrophilicMoss : AutomatedCard {
+  HAS =1 PlantTag<This>
   cost = 8
   requirement = HAS "3 OceanTile"
-  This:: PlantTag<This>
   This: PROD[2 Plant], -2 Plant
 }
 ```
@@ -1810,8 +1809,8 @@ Pets declaration:
 
 ```pets
 CLASS NoctisCity : AutomatedCard {
+  HAS =1 CityTag<This>, =1 BuildingTag<This>
   cost = 18
-  This:: CityTag<This>, BuildingTag<This>
   This: PROD[-Energy, 3 MC], CityTile<NoctisArea> OR (MAX 0 NoctisArea: CityTile<>)
 }
 ```
@@ -1829,9 +1828,9 @@ Pets declaration:
 
 ```pets
 CLASS NoctisFarming : AutomatedCard {
+  HAS =1 PlantTag<This>, =1 BuildingTag<This>
   cost = 10
   requirement = HAS "5 TemperatureStep"
-  This:: PlantTag<This>, BuildingTag<This>
   This: PROD[MC], 2 Plant
   End: VictoryPoint
 }
@@ -1850,8 +1849,8 @@ Pets declaration:
 
 ```pets
 CLASS NuclearPower : AutomatedCard {
+  HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 10
-  This:: PowerTag<This>, BuildingTag<This>
   This: PROD[-2 MC, 3 Energy]
 }
 ```
@@ -1869,8 +1868,8 @@ Pets declaration:
 
 ```pets
 CLASS NuclearZone : AutomatedCard {
+  HAS =1 EarthTag<This>
   cost = 10
-  This:: EarthTag<This>
   This: NuclearZone_SpecialTile<>, 2 TemperatureStep
   End: -2 VictoryPoint
 }
@@ -1889,9 +1888,9 @@ Pets declaration:
 
 ```pets
 CLASS OpenCity : AutomatedCard {
+  HAS =1 CityTag<This>, =1 BuildingTag<This>
   cost = 23
   requirement = HAS "12 OxygenStep"
-  This:: CityTag<This>, BuildingTag<This>
   This: PROD[-Energy, 4 MC], 2 Plant, CityTile<>
   End: VictoryPoint
 }
@@ -1910,8 +1909,8 @@ Pets declaration:
 
 ```pets
 CLASS OptimalAerobraking : ActiveCard {
+  HAS =1 SpaceTag<This>
   cost = 7
-  This:: SpaceTag<This>
   EventCard(HAS SpaceTag): 3 MC, 3 Heat
 }
 ```
@@ -1928,9 +1927,9 @@ Class: `OreProcessor`
 Pets declaration:
 
 ```pets
-CLASS OreProcessor : ActionCard, ActiveCard {
+CLASS OreProcessor : ActiveCard, ActionCard {
+  HAS =1 BuildingTag<This>
   cost = 13
-  This:: BuildingTag<This>
   4 Energy -> Titanium, OxygenStep
 }
 ```
@@ -1948,9 +1947,9 @@ Pets declaration:
 
 ```pets
 CLASS PermafrostExtraction : EventCard {
+  HAS =1 EventTag<This>
   cost = 8
   requirement = HAS "11 TemperatureStep"
-  This:: EventTag<This>
   This: OceanTile<>
 }
 ```
@@ -1968,8 +1967,8 @@ Pets declaration:
 
 ```pets
 CLASS PeroxidePower : AutomatedCard {
+  HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 7
-  This:: PowerTag<This>, BuildingTag<This>
   This: PROD[-MC, 2 Energy]
 }
 ```
@@ -1987,11 +1986,11 @@ Pets declaration:
 
 ```pets
 CLASS Pets : ActiveCard, ResourceCard<Class<Animal>> {
+  HAS =1 EarthTag<This>, =1 AnimalTag<This>
   cost = 10
-  This:: EarthTag<This>, AnimalTag<This>
   This: Animal<This>
   CityTile<Anyone>: Animal<This>
-  -Animal<This>:: Die
+  -Animal<This>: Die
   End: VictoryPoint / 2 Animal<This>
 }
 ```
@@ -2009,8 +2008,8 @@ Pets declaration:
 
 ```pets
 CLASS PhobosSpaceHaven : AutomatedCard {
+  HAS =1 SpaceTag<This>, =1 CityTag<This>
   cost = 25
-  This:: SpaceTag<This>, CityTag<This>
   This: PROD[Titanium], CityTile<PhobosSpaceHaven_RemoteArea>
   End: 3 VictoryPoint
 }
@@ -2029,9 +2028,9 @@ Pets declaration:
 
 ```pets
 CLASS Plantation : AutomatedCard {
+  HAS =1 PlantTag<This>
   cost = 15
   requirement = HAS "2 ScienceTag"
-  This:: PlantTag<This>
   This: DefaultGreeneryTile
 }
 ```
@@ -2049,8 +2048,8 @@ Pets declaration:
 
 ```pets
 CLASS PowerGrid : AutomatedCard {
+  HAS =1 PowerTag<This>
   cost = 18
-  This:: PowerTag<This>
   This: PROD[Energy / PowerTag]
 }
 ```
@@ -2068,8 +2067,8 @@ Pets declaration:
 
 ```pets
 CLASS PowerPlant : AutomatedCard {
+  HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 4
-  This:: PowerTag<This>, BuildingTag<This>
   This: PROD[Energy]
 }
 ```
@@ -2086,10 +2085,10 @@ Class: `Predators`
 Pets declaration:
 
 ```pets
-CLASS Predators : ActionCard, ActiveCard, ResourceCard<Class<Animal>> {
+CLASS Predators : ActiveCard, ResourceCard<Class<Animal>>, ActionCard {
+  HAS =1 AnimalTag<This>
   cost = 14
   requirement = HAS "11 OxygenStep"
-  This:: AnimalTag<This>
   End: VictoryPoint / Animal<This>
   Animal<Anyone> -> Animal<This>
 }
@@ -2108,8 +2107,8 @@ Pets declaration:
 
 ```pets
 CLASS ProtectedValley : AutomatedCard {
+  HAS =1 PlantTag<This>, =1 BuildingTag<This>
   cost = 23
-  This:: PlantTag<This>, BuildingTag<This>
   This: PROD[2 MC], GreeneryTile<WaterArea>
 }
 ```
@@ -2127,8 +2126,8 @@ Pets declaration:
 
 ```pets
 CLASS RadChemFactory : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 8
-  This:: BuildingTag<This>
   This: PROD[-Energy], 2 TerraformRating
 }
 ```
@@ -2145,9 +2144,9 @@ Class: `RegolithEaters`
 Pets declaration:
 
 ```pets
-CLASS RegolithEaters : ActionCard, ActiveCard, ResourceCard<Class<Microbe>> {
+CLASS RegolithEaters : ActiveCard, ResourceCard<Class<Microbe>>, ActionCard {
+  HAS =1 ScienceTag<This>, =1 MicrobeTag<This>
   cost = 13
-  This:: ScienceTag<This>, MicrobeTag<This>
   -> Microbe<This>
   2 Microbe<This> -> OxygenStep
 }
@@ -2166,8 +2165,8 @@ Pets declaration:
 
 ```pets
 CLASS ReleaseOfInertGases : EventCard {
+  HAS =1 EventTag<This>
   cost = 14
-  This:: EventTag<This>
   This: 2 TerraformRating
 }
 ```
@@ -2185,8 +2184,8 @@ Pets declaration:
 
 ```pets
 CLASS ResearchOutpost : ActiveCard {
+  HAS =1 ScienceTag<This>, =1 CityTag<This>, =1 BuildingTag<This>
   cost = 18
-  This:: ScienceTag<This>, CityTag<This>, BuildingTag<This>
   This: CityTile<LandArea(HAS MAX 0 Neighbor)>
   PayingFor<Class<CardFront>>:: -Owed
 }
@@ -2205,8 +2204,8 @@ Pets declaration:
 
 ```pets
 CLASS RoverConstruction : ActiveCard {
+  HAS =1 BuildingTag<This>
   cost = 8
-  This:: BuildingTag<This>
   CityTile<Anyone>: 2 MC
   End: VictoryPoint
 }
@@ -2224,10 +2223,10 @@ Class: `SearchForLife`
 Pets declaration:
 
 ```pets
-CLASS SearchForLife : ActionCard, ActiveCard, ResourceCard<Class<Science>> {
+CLASS SearchForLife : ActiveCard, ResourceCard<Class<Science>>, ActionCard {
+  HAS =1 ScienceTag<This>
   cost = 3
   requirement = HAS "MAX 6 OxygenStep"
-  This:: ScienceTag<This>
   End IF Science<This>: 3 VictoryPoint
   MC -> ProjectCard<Revealed> THEN (ClaimCardReward<TagFilter<Class<MicrobeTag>>, This> OR Ok) THEN -ProjectCard<Revealed>
 }
@@ -2246,9 +2245,9 @@ Pets declaration:
 
 ```pets
 CLASS Shuttles : ActiveCard {
+  HAS =1 SpaceTag<This>
   cost = 10
   requirement = HAS "5 OxygenStep"
-  This:: SpaceTag<This>
   This: PROD[-Energy, 2 MC]
   PayingFor<Class<SpaceTag>>:: -2 Owed
   End: VictoryPoint
@@ -2267,10 +2266,10 @@ Class: `SmallAnimals`
 Pets declaration:
 
 ```pets
-CLASS SmallAnimals : ActionCard, ActiveCard, ResourceCard<Class<Animal>> {
+CLASS SmallAnimals : ActiveCard, ResourceCard<Class<Animal>>, ActionCard {
+  HAS =1 AnimalTag<This>
   cost = 6
   requirement = HAS "6 OxygenStep"
-  This:: AnimalTag<This>
   This: PROD[-Plant<Anyone>]
   End: VictoryPoint / 2 Animal<This>
   -> Animal<This>
@@ -2290,8 +2289,8 @@ Pets declaration:
 
 ```pets
 CLASS SoilFactory : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 9
-  This:: BuildingTag<This>
   This: PROD[-Energy, Plant]
   End: VictoryPoint
 }
@@ -2310,8 +2309,8 @@ Pets declaration:
 
 ```pets
 CLASS SolarPower : AutomatedCard {
+  HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 11
-  This:: PowerTag<This>, BuildingTag<This>
   This: PROD[Energy]
   End: VictoryPoint
 }
@@ -2330,8 +2329,8 @@ Pets declaration:
 
 ```pets
 CLASS SolarWindPower : AutomatedCard {
+  HAS =1 ScienceTag<This>, =1 SpaceTag<This>, =1 PowerTag<This>
   cost = 11
-  This:: ScienceTag<This>, SpaceTag<This>, PowerTag<This>
   This: PROD[Energy], 2 Titanium
 }
 ```
@@ -2349,8 +2348,8 @@ Pets declaration:
 
 ```pets
 CLASS Soletta : AutomatedCard {
+  HAS =1 SpaceTag<This>
   cost = 35
-  This:: SpaceTag<This>
   This: PROD[7 Heat]
 }
 ```
@@ -2367,9 +2366,9 @@ Class: `SpaceMirrors`
 Pets declaration:
 
 ```pets
-CLASS SpaceMirrors : ActionCard, ActiveCard {
+CLASS SpaceMirrors : ActiveCard, ActionCard {
+  HAS =1 PowerTag<This>, =1 SpaceTag<This>
   cost = 3
-  This:: PowerTag<This>, SpaceTag<This>
   7 MC -> PROD[Energy]
 }
 ```
@@ -2387,8 +2386,8 @@ Pets declaration:
 
 ```pets
 CLASS SpecialDesign : EventCard {
+  HAS =1 ScienceTag<This>, =1 EventTag<This>
   cost = 4
-  This:: ScienceTag<This>, EventTag<This>
   This: SpecialDesign_NextCardEffect
 }
 ```
@@ -2405,9 +2404,9 @@ Class: `Steelworks`
 Pets declaration:
 
 ```pets
-CLASS Steelworks : ActionCard, ActiveCard {
+CLASS Steelworks : ActiveCard, ActionCard {
+  HAS =1 BuildingTag<This>
   cost = 15
-  This:: BuildingTag<This>
   4 Energy -> 2 Steel, OxygenStep
 }
 ```
@@ -2425,8 +2424,8 @@ Pets declaration:
 
 ```pets
 CLASS StripMine : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 25
-  This:: BuildingTag<This>
   This: PROD[-2 Energy, 2 Steel, Titanium], 2 OxygenStep
 }
 ```
@@ -2444,8 +2443,8 @@ Pets declaration:
 
 ```pets
 CLASS SubterraneanReservoir : EventCard {
+  HAS =1 EventTag<This>
   cost = 11
-  This:: EventTag<This>
   This: OceanTile<>
 }
 ```
@@ -2462,10 +2461,10 @@ Class: `SymbioticFungus`
 Pets declaration:
 
 ```pets
-CLASS SymbioticFungus : ActionCard, ActiveCard {
+CLASS SymbioticFungus : ActiveCard, ActionCard {
+  HAS =1 MicrobeTag<This>
   cost = 4
   requirement = HAS "8 TemperatureStep"
-  This:: MicrobeTag<This>
   -> Microbe
 }
 ```
@@ -2483,9 +2482,9 @@ Pets declaration:
 
 ```pets
 CLASS TectonicStressPower : AutomatedCard {
+  HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 18
   requirement = HAS "2 ScienceTag"
-  This:: PowerTag<This>, BuildingTag<This>
   This: PROD[3 Energy]
   End: VictoryPoint
 }
@@ -2504,8 +2503,8 @@ Pets declaration:
 
 ```pets
 CLASS TowingAComet : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 23
-  This:: SpaceTag<This>, EventTag<This>
   This: 2 Plant, OxygenStep, OceanTile<>
 }
 ```
@@ -2523,9 +2522,9 @@ Pets declaration:
 
 ```pets
 CLASS Trees : AutomatedCard {
+  HAS =1 PlantTag<This>
   cost = 13
   requirement = HAS "13 TemperatureStep"
-  This:: PlantTag<This>
   This: PROD[3 Plant], Plant
   End: VictoryPoint
 }
@@ -2544,9 +2543,9 @@ Pets declaration:
 
 ```pets
 CLASS TundraFarming : AutomatedCard {
+  HAS =1 PlantTag<This>
   cost = 16
   requirement = HAS "12 TemperatureStep"
-  This:: PlantTag<This>
   This: PROD[Plant, 2 MC], Plant
   End: 2 VictoryPoint
 }
@@ -2565,8 +2564,8 @@ Pets declaration:
 
 ```pets
 CLASS UndergroundCity : AutomatedCard {
+  HAS =1 CityTag<This>, =1 BuildingTag<This>
   cost = 18
-  This:: CityTag<This>, BuildingTag<This>
   This: CityTile<>, PROD[-2 Energy, 2 Steel]
 }
 ```
@@ -2583,9 +2582,9 @@ Class: `UndergroundDetonations`
 Pets declaration:
 
 ```pets
-CLASS UndergroundDetonations : ActionCard, ActiveCard {
+CLASS UndergroundDetonations : ActiveCard, ActionCard {
+  HAS =1 BuildingTag<This>
   cost = 6
-  This:: BuildingTag<This>
   10 MC -> PROD[2 Heat]
 }
 ```
@@ -2603,8 +2602,8 @@ Pets declaration:
 
 ```pets
 CLASS UrbanizedArea : AutomatedCard {
+  HAS =1 CityTag<This>, =1 BuildingTag<This>
   cost = 10
-  This:: CityTag<This>, BuildingTag<This>
   This: PROD[-Energy, 2 MC], CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>
 }
 ```
@@ -2621,9 +2620,9 @@ Class: `WaterImportFromEuropa`
 Pets declaration:
 
 ```pets
-CLASS WaterImportFromEuropa : ActionCard, ActiveCard {
+CLASS WaterImportFromEuropa : ActiveCard, ActionCard {
+  HAS =1 JovianTag<This>, =1 SpaceTag<This>
   cost = 25
-  This:: JovianTag<This>, SpaceTag<This>
   UseAction<This>:: Accepting<Class<Titanium>>
   End: VictoryPoint / JovianTag
   12 MC -> OceanTile<>
@@ -2642,10 +2641,10 @@ Class: `WaterSplittingPlant`
 Pets declaration:
 
 ```pets
-CLASS WaterSplittingPlant : ActionCard, ActiveCard {
+CLASS WaterSplittingPlant : ActiveCard, ActionCard {
+  HAS =1 BuildingTag<This>
   cost = 12
   requirement = HAS "2 OceanTile"
-  This:: BuildingTag<This>
   3 Energy -> OxygenStep
 }
 ```
@@ -2663,9 +2662,9 @@ Pets declaration:
 
 ```pets
 CLASS WavePower : AutomatedCard {
+  HAS =1 PowerTag<This>
   cost = 8
   requirement = HAS "3 OceanTile"
-  This:: PowerTag<This>
   This: PROD[Energy]
   End: VictoryPoint
 }
@@ -2684,9 +2683,9 @@ Pets declaration:
 
 ```pets
 CLASS Windmills : AutomatedCard {
+  HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 6
   requirement = HAS "7 OxygenStep"
-  This:: PowerTag<This>, BuildingTag<This>
   This: PROD[Energy]
   End: VictoryPoint
 }
@@ -2705,9 +2704,9 @@ Pets declaration:
 
 ```pets
 CLASS Worms : AutomatedCard {
+  HAS =1 MicrobeTag<This>
   cost = 8
   requirement = HAS "4 OxygenStep"
-  This:: MicrobeTag<This>
   This: PROD[Plant / 2 MicrobeTag]
 }
 ```
@@ -2747,8 +2746,8 @@ Pets declaration:
 
 ```pets
 CLASS AcquiredCompany : AutomatedCard {
+  HAS =1 EarthTag<This>
   cost = 10
-  This:: EarthTag<This>
   This: PROD[3 MC]
 }
 ```
@@ -2766,9 +2765,8 @@ Pets declaration:
 
 ```pets
 CLASS AdvancedAlloys : ActiveCard {
+  HAS =1 GrantedResourceValue<Class<Titanium>, This>, =1 GrantedResourceValue<Class<Steel>, This>, =1 ScienceTag<This>
   cost = 9
-  This:: GrantedResourceValue<Class<Titanium>, This>, GrantedResourceValue<Class<Steel>, This>
-  This:: ScienceTag<This>
 }
 ```
 
@@ -2784,10 +2782,10 @@ Class: `AiCentral`
 Pets declaration:
 
 ```pets
-CLASS AiCentral : ActionCard, ActiveCard {
+CLASS AiCentral : ActiveCard, ActionCard {
+  HAS =1 ScienceTag<This>, =1 BuildingTag<This>
   cost = 21
   requirement = HAS "3 ScienceTag"
-  This:: ScienceTag<This>, BuildingTag<This>
   This: PROD[-Energy]
   End: VictoryPoint
   -> 2 ProjectCard
@@ -2807,9 +2805,9 @@ Pets declaration:
 
 ```pets
 CLASS AntiGravityTechnology : ActiveCard {
+  HAS =1 ScienceTag<This>
   cost = 14
   requirement = HAS "7 ScienceTag"
-  This:: ScienceTag<This>
   PayingFor<Class<CardFront>>:: -2 Owed
   End: 3 VictoryPoint
 }
@@ -2828,9 +2826,9 @@ Pets declaration:
 
 ```pets
 CLASS AsteroidMiningConsortium : AutomatedCard {
+  HAS =1 JovianTag<This>
   cost = 13
   requirement = HAS "PROD[Titanium]"
-  This:: JovianTag<This>
   This: PROD[-Titanium<Anyone>, Titanium]
   End: VictoryPoint
 }
@@ -2849,8 +2847,8 @@ Pets declaration:
 
 ```pets
 CLASS BribedCommittee : EventCard {
+  HAS =1 EarthTag<This>, =1 EventTag<This>
   cost = 7
-  This:: EarthTag<This>, EventTag<This>
   This: 2 TerraformRating
   End: -2 VictoryPoint
 }
@@ -2869,8 +2867,8 @@ Pets declaration:
 
 ```pets
 CLASS BuildingIndustries : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 6
-  This:: BuildingTag<This>
   This: PROD[-Energy, 2 Steel]
 }
 ```
@@ -2888,8 +2886,8 @@ Pets declaration:
 
 ```pets
 CLASS BusinessContacts : EventCard {
+  HAS =1 EarthTag<This>, =1 EventTag<This>
   cost = 7
-  This:: EarthTag<This>, EventTag<This>
   This: 4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>, -2 ProjectCard<Selecting>
 }
 ```
@@ -2906,9 +2904,9 @@ Class: `BusinessNetwork`
 Pets declaration:
 
 ```pets
-CLASS BusinessNetwork : ActionCard, ActiveCard {
+CLASS BusinessNetwork : ActiveCard, ActionCard {
+  HAS =1 EarthTag<This>
   cost = 4
-  This:: EarthTag<This>
   This: PROD[-MC]
   -> ProjectCard<Selecting> THEN -ProjectCard<Selecting>? THEN BuySelectedCards
 }
@@ -2927,8 +2925,8 @@ Pets declaration:
 
 ```pets
 CLASS CallistoPenalMines : AutomatedCard {
+  HAS =1 JovianTag<This>, =1 SpaceTag<This>
   cost = 24
-  This:: JovianTag<This>, SpaceTag<This>
   This: PROD[3 MC]
   End: 2 VictoryPoint
 }
@@ -2946,7 +2944,7 @@ Class: `CaretakerContract`
 Pets declaration:
 
 ```pets
-CLASS CaretakerContract : ActionCard, ActiveCard {
+CLASS CaretakerContract : ActiveCard, ActionCard {
   cost = 3
   requirement = HAS "15 TemperatureStep"
   8 Heat -> TerraformRating
@@ -2966,8 +2964,8 @@ Pets declaration:
 
 ```pets
 CLASS Cartel : AutomatedCard {
+  HAS =1 EarthTag<This>
   cost = 8
-  This:: EarthTag<This>
   This: PROD[MC / EarthTag]
 }
 ```
@@ -2985,8 +2983,8 @@ Pets declaration:
 
 ```pets
 CLASS CeosFavoriteProject : EventCard {
+  HAS =1 EventTag<This>
   cost = 1
-  This:: EventTag<This>
   This: CardResource<CardFront(HAS CardResource)>
 }
 ```
@@ -3004,8 +3002,8 @@ Pets declaration:
 
 ```pets
 CLASS CommercialDistrict : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 16
-  This:: BuildingTag<This>
   This: PROD[-Energy, 4 MC], CommercialDistrict_SpecialTile<>
   End: VictoryPoint / Adjacency<CommercialDistrict_SpecialTile, CityTile<Anyone>>
 }
@@ -3024,8 +3022,8 @@ Pets declaration:
 
 ```pets
 CLASS CorporateStronghold : AutomatedCard {
+  HAS =1 CityTag<This>, =1 BuildingTag<This>
   cost = 11
-  This:: CityTag<This>, BuildingTag<This>
   This: PROD[-Energy, 3 MC], CityTile<>
   End: -2 VictoryPoint
 }
@@ -3043,9 +3041,9 @@ Class: `DevelopmentCenter`
 Pets declaration:
 
 ```pets
-CLASS DevelopmentCenter : ActionCard, ActiveCard {
+CLASS DevelopmentCenter : ActiveCard, ActionCard {
+  HAS =1 ScienceTag<This>, =1 BuildingTag<This>
   cost = 11
-  This:: ScienceTag<This>, BuildingTag<This>
   Energy -> ProjectCard
 }
 ```
@@ -3063,8 +3061,8 @@ Pets declaration:
 
 ```pets
 CLASS EarthCatapult : ActiveCard {
+  HAS =1 EarthTag<This>
   cost = 23
-  This:: EarthTag<This>
   PayingFor<Class<CardFront>>:: -2 Owed
   End: 2 VictoryPoint
 }
@@ -3083,8 +3081,8 @@ Pets declaration:
 
 ```pets
 CLASS EarthOffice : ActiveCard {
+  HAS =1 EarthTag<This>
   cost = 1
-  This:: EarthTag<This>
   PayingFor<Class<EarthTag>>:: -3 Owed
 }
 ```
@@ -3101,10 +3099,10 @@ Class: `ElectroCatapult`
 Pets declaration:
 
 ```pets
-CLASS ElectroCatapult : ActionCard, ActiveCard {
+CLASS ElectroCatapult : ActiveCard, ActionCard {
+  HAS =1 BuildingTag<This>
   cost = 17
   requirement = HAS "MAX 8 OxygenStep"
-  This:: BuildingTag<This>
   This: PROD[-Energy]
   End: VictoryPoint
   Plant -> 7 MC
@@ -3125,8 +3123,8 @@ Pets declaration:
 
 ```pets
 CLASS EnergyTapping : AutomatedCard {
+  HAS =1 PowerTag<This>
   cost = 3
-  This:: PowerTag<This>
   This: PROD[-Energy<Anyone>, Energy]
   End: -VictoryPoint
 }
@@ -3145,8 +3143,8 @@ Pets declaration:
 
 ```pets
 CLASS FuelFactory : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 6
-  This:: BuildingTag<This>
   This: PROD[-Energy, Titanium, MC]
 }
 ```
@@ -3164,9 +3162,9 @@ Pets declaration:
 
 ```pets
 CLASS GeneRepair : AutomatedCard {
+  HAS =1 ScienceTag<This>
   cost = 12
   requirement = HAS "3 ScienceTag"
-  This:: ScienceTag<This>
   This: PROD[2 MC]
   End: 2 VictoryPoint
 }
@@ -3223,9 +3221,9 @@ Pets declaration:
 
 ```pets
 CLASS HiredRaiders : EventCard {
+  HAS =1 EventTag<This>
   cost = 1
-  This:: EventTag<This>
-  This: Steel<Owner FROM Anyone> OR 2 Steel<Owner FROM Anyone> OR MC<Owner FROM Anyone> OR 2 MC<Owner FROM Anyone> OR 3 MC<Owner FROM Anyone>
+  This: Steel<Me@ FROM Anyone> OR 2 Steel<Me@ FROM Anyone> OR MC<Me@ FROM Anyone> OR 2 MC<Me@ FROM Anyone> OR 3 MC<Me@ FROM Anyone>
 }
 ```
 
@@ -3242,8 +3240,8 @@ Pets declaration:
 
 ```pets
 CLASS IndenturedWorkers : EventCard {
+  HAS =1 EventTag<This>
   cost = 0
-  This:: EventTag<This>
   This: IndenturedWorkers_NextCardEffect
   End: -VictoryPoint
 }
@@ -3261,9 +3259,9 @@ Class: `IndustrialCenter`
 Pets declaration:
 
 ```pets
-CLASS IndustrialCenter : ActionCard, ActiveCard {
+CLASS IndustrialCenter : ActiveCard, ActionCard {
+  HAS =1 BuildingTag<This>
   cost = 4
-  This:: BuildingTag<This>
   This: IndustrialCenter_SpecialTile<LandArea(HAS Neighbor<CityTile<Anyone>>)>
   7 MC -> PROD[Steel]
 }
@@ -3282,9 +3280,9 @@ Pets declaration:
 
 ```pets
 CLASS InterstellarColonyShip : EventCard {
+  HAS =1 EarthTag<This>, =1 SpaceTag<This>, =1 EventTag<This>
   cost = 24
   requirement = HAS "5 ScienceTag"
-  This:: EarthTag<This>, SpaceTag<This>, EventTag<This>
   End: 4 VictoryPoint
 }
 ```
@@ -3302,8 +3300,8 @@ Pets declaration:
 
 ```pets
 CLASS InventionContest : EventCard {
+  HAS =1 ScienceTag<This>, =1 EventTag<This>
   cost = 2
-  This:: ScienceTag<This>, EventTag<This>
   This: 3 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>, -2 ProjectCard<Selecting>
 }
 ```
@@ -3320,9 +3318,9 @@ Class: `InventorsGuild`
 Pets declaration:
 
 ```pets
-CLASS InventorsGuild : ActionCard, ActiveCard {
+CLASS InventorsGuild : ActiveCard, ActionCard {
+  HAS =1 ScienceTag<This>
   cost = 9
-  This:: ScienceTag<This>
   -> ProjectCard<Selecting> THEN -ProjectCard<Selecting>? THEN BuySelectedCards
 }
 ```
@@ -3340,8 +3338,8 @@ Pets declaration:
 
 ```pets
 CLASS InvestmentLoan : EventCard {
+  HAS =1 EarthTag<This>, =1 EventTag<This>
   cost = 3
-  This:: EarthTag<This>, EventTag<This>
   This: PROD[-MC], 10 MC
 }
 ```
@@ -3359,8 +3357,8 @@ Pets declaration:
 
 ```pets
 CLASS IoMiningIndustries : AutomatedCard {
+  HAS =1 JovianTag<This>, =1 SpaceTag<This>
   cost = 41
-  This:: JovianTag<This>, SpaceTag<This>
   This: PROD[2 Titanium, 2 MC]
   End: VictoryPoint / JovianTag
 }
@@ -3379,8 +3377,8 @@ Pets declaration:
 
 ```pets
 CLASS LagrangeObservatory : AutomatedCard {
+  HAS =1 ScienceTag<This>, =1 SpaceTag<This>
   cost = 9
-  This:: ScienceTag<This>, SpaceTag<This>
   This: ProjectCard
   End: VictoryPoint
 }
@@ -3399,8 +3397,8 @@ Pets declaration:
 
 ```pets
 CLASS LandClaim : EventCard {
+  HAS =1 EventTag<This>
   cost = 1
-  This:: EventTag<This>
   This: Community<LandArea(HAS MAX 0 Occupant)>
 }
 ```
@@ -3418,9 +3416,9 @@ Pets declaration:
 
 ```pets
 CLASS LightningHarvest : AutomatedCard {
+  HAS =1 PowerTag<This>
   cost = 8
   requirement = HAS "3 ScienceTag"
-  This:: PowerTag<This>
   This: PROD[Energy, MC]
   End: VictoryPoint
 }
@@ -3439,8 +3437,8 @@ Pets declaration:
 
 ```pets
 CLASS MarsUniversity : ActiveCard {
+  HAS =1 ScienceTag<This>, =1 BuildingTag<This>
   cost = 8
-  This:: ScienceTag<This>, BuildingTag<This>
   ScienceTag: ProjectCard FROM ProjectCard?
   End: VictoryPoint
 }
@@ -3459,9 +3457,9 @@ Pets declaration:
 
 ```pets
 CLASS MassConverter : ActiveCard {
+  HAS =1 ScienceTag<This>, =1 PowerTag<This>
   cost = 8
   requirement = HAS "5 ScienceTag"
-  This:: ScienceTag<This>, PowerTag<This>
   This: PROD[6 Energy]
   PayingFor<Class<SpaceTag>>:: -2 Owed
 }
@@ -3480,8 +3478,8 @@ Pets declaration:
 
 ```pets
 CLASS MediaArchives : AutomatedCard {
+  HAS =1 EarthTag<This>
   cost = 8
-  This:: EarthTag<This>
   This: MC / PlayedEvent<Anyone>
 }
 ```
@@ -3499,8 +3497,8 @@ Pets declaration:
 
 ```pets
 CLASS MediaGroup : ActiveCard {
+  HAS =1 EarthTag<This>
   cost = 6
-  This:: EarthTag<This>
   EventCard: 3 MC
 }
 ```
@@ -3518,8 +3516,8 @@ Pets declaration:
 
 ```pets
 CLASS MedicalLab : AutomatedCard {
+  HAS =1 ScienceTag<This>, =1 BuildingTag<This>
   cost = 13
-  This:: ScienceTag<This>, BuildingTag<This>
   This: PROD[MC / 2 BuildingTag]
   End: VictoryPoint
 }
@@ -3538,8 +3536,8 @@ Pets declaration:
 
 ```pets
 CLASS Mine : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 4
-  This:: BuildingTag<This>
   This: PROD[Steel]
 }
 ```
@@ -3557,8 +3555,8 @@ Pets declaration:
 
 ```pets
 CLASS MineralDeposit : EventCard {
+  HAS =1 EventTag<This>
   cost = 5
-  This:: EventTag<This>
   This: 5 Steel
 }
 ```
@@ -3576,9 +3574,9 @@ Pets declaration:
 
 ```pets
 CLASS MiningArea : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 4
   autoSelectWhen = HAS "Unsafe OR MAX 0 AmazonisMap"
-  This:: BuildingTag<This>
   This: MiningArea_SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> THEN PROD[(LandArea(HAS MiningArea_SpecialTile, HAS PlacementBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningArea_SpecialTile, HAS PlacementBonus<Class<Titanium>>): Titanium)]
 }
 ```
@@ -3596,8 +3594,8 @@ Pets declaration:
 
 ```pets
 CLASS MirandaResort : AutomatedCard {
+  HAS =1 JovianTag<This>, =1 SpaceTag<This>
   cost = 12
-  This:: JovianTag<This>, SpaceTag<This>
   This: PROD[MC / EarthTag]
   End: VictoryPoint
 }
@@ -3616,8 +3614,8 @@ Pets declaration:
 
 ```pets
 CLASS OlympusConference : ActiveCard, ResourceCard<Class<Science>> {
+  HAS =1 ScienceTag<This>, =1 EarthTag<This>, =1 BuildingTag<This>
   cost = 10
-  This:: ScienceTag<This>, EarthTag<This>, BuildingTag<This>
   ScienceTag: Science<This> OR ProjectCard FROM Science<This>
   End: VictoryPoint
 }
@@ -3635,9 +3633,9 @@ Class: `PhysicsComplex`
 Pets declaration:
 
 ```pets
-CLASS PhysicsComplex : ActionCard, ActiveCard, ResourceCard<Class<Science>> {
+CLASS PhysicsComplex : ActiveCard, ResourceCard<Class<Science>>, ActionCard {
+  HAS =1 ScienceTag<This>, =1 BuildingTag<This>
   cost = 12
-  This:: ScienceTag<This>, BuildingTag<This>
   End: 2 VictoryPoint / Science<This>
   6 Energy -> Science<This>
 }
@@ -3655,9 +3653,9 @@ Class: `PowerInfrastructure`
 Pets declaration:
 
 ```pets
-CLASS PowerInfrastructure : ActionCard, ActiveCard {
+CLASS PowerInfrastructure : ActiveCard, ActionCard {
+  HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 4
-  This:: PowerTag<This>, BuildingTag<This>
   X Energy -> X MC
 }
 ```
@@ -3675,9 +3673,9 @@ Pets declaration:
 
 ```pets
 CLASS PowerSupplyConsortium : AutomatedCard {
+  HAS =1 PowerTag<This>
   cost = 5
   requirement = HAS "2 PowerTag"
-  This:: PowerTag<This>
   This: PROD[-Energy<Anyone>, Energy]
 }
 ```
@@ -3696,7 +3694,7 @@ Pets declaration:
 ```pets
 CLASS ProtectedHabitats : ActiveCard {
   cost = 5
-  -Plant OR -Animal OR -Microbe BY Player(NOT Owner):: Die
+  -Plant OR -Animal OR -Microbe BY Player(NOT Me@): Die
 }
 ```
 
@@ -3713,9 +3711,9 @@ Pets declaration:
 
 ```pets
 CLASS QuantumExtractor : ActiveCard {
+  HAS =1 ScienceTag<This>, =1 PowerTag<This>
   cost = 13
   requirement = HAS "4 ScienceTag"
-  This:: ScienceTag<This>, PowerTag<This>
   This: PROD[4 Energy]
   PayingFor<Class<SpaceTag>>:: -2 Owed
 }
@@ -3754,8 +3752,8 @@ Pets declaration:
 
 ```pets
 CLASS Research : AutomatedCard {
+  HAS =2 ScienceTag<This>
   cost = 11
-  This:: 2 ScienceTag<This>
   This: 2 ProjectCard
   End: VictoryPoint
 }
@@ -3773,9 +3771,9 @@ Class: `RestrictedArea`
 Pets declaration:
 
 ```pets
-CLASS RestrictedArea : ActionCard, ActiveCard {
+CLASS RestrictedArea : ActiveCard, ActionCard {
+  HAS =1 ScienceTag<This>
   cost = 11
-  This:: ScienceTag<This>
   This: RestrictedArea_SpecialTile<>
   2 MC -> ProjectCard
 }
@@ -3794,8 +3792,8 @@ Pets declaration:
 
 ```pets
 CLASS RoboticWorkforce : AutomatedCard {
+  HAS =1 ScienceTag<This>
   cost = 9
-  This:: ScienceTag<This>
   This: CopyProductionBox<CardFront(HAS BuildingTag)>
 }
 ```
@@ -3813,8 +3811,8 @@ Pets declaration:
 
 ```pets
 CLASS Sabotage : EventCard {
+  HAS =1 EventTag<This>
   cost = 1
-  This:: EventTag<This>
   This: -3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 MC<Anyone>?
 }
 ```
@@ -3832,8 +3830,8 @@ Pets declaration:
 
 ```pets
 CLASS Satellites : AutomatedCard {
+  HAS =1 SpaceTag<This>
   cost = 10
-  This:: SpaceTag<This>
   This: PROD[MC / SpaceTag]
 }
 ```
@@ -3850,9 +3848,9 @@ Class: `SecurityFleet`
 Pets declaration:
 
 ```pets
-CLASS SecurityFleet : ActionCard, ActiveCard, ResourceCard<Class<Fighter>> {
+CLASS SecurityFleet : ActiveCard, ResourceCard<Class<Fighter>>, ActionCard {
+  HAS =1 SpaceTag<This>
   cost = 12
-  This:: SpaceTag<This>
   End: VictoryPoint / Fighter<This>
   Titanium -> Fighter<This>
 }
@@ -3870,9 +3868,9 @@ Class: `SpaceElevator`
 Pets declaration:
 
 ```pets
-CLASS SpaceElevator : ActionCard, ActiveCard {
+CLASS SpaceElevator : ActiveCard, ActionCard {
+  HAS =1 SpaceTag<This>, =1 BuildingTag<This>
   cost = 27
-  This:: SpaceTag<This>, BuildingTag<This>
   This: PROD[Titanium]
   End: 2 VictoryPoint
   Steel -> 5 MC
@@ -3892,8 +3890,8 @@ Pets declaration:
 
 ```pets
 CLASS SpaceStation : ActiveCard {
+  HAS =1 SpaceTag<This>
   cost = 10
-  This:: SpaceTag<This>
   PayingFor<Class<SpaceTag>>:: -2 Owed
   End: VictoryPoint
 }
@@ -3912,8 +3910,8 @@ Pets declaration:
 
 ```pets
 CLASS Sponsors : AutomatedCard {
+  HAS =1 EarthTag<This>
   cost = 6
-  This:: EarthTag<This>
   This: PROD[2 MC]
 }
 ```
@@ -3931,8 +3929,8 @@ Pets declaration:
 
 ```pets
 CLASS StandardTechnology : ActiveCard {
+  HAS =1 ScienceTag<This>
   cost = 6
-  This:: ScienceTag<This>
   -ActionBilling<StandardProject(HAS cost)>: 3 MC
 }
 ```
@@ -3949,9 +3947,9 @@ Class: `Tardigrades`
 Pets declaration:
 
 ```pets
-CLASS Tardigrades : ActionCard, ActiveCard, ResourceCard<Class<Microbe>> {
+CLASS Tardigrades : ActiveCard, ResourceCard<Class<Microbe>>, ActionCard {
+  HAS =1 MicrobeTag<This>
   cost = 4
-  This:: MicrobeTag<This>
   End: VictoryPoint / 4 Microbe<This>
   -> Microbe<This>
 }
@@ -3970,8 +3968,8 @@ Pets declaration:
 
 ```pets
 CLASS TechnologyDemonstration : EventCard {
+  HAS =1 ScienceTag<This>, =1 SpaceTag<This>, =1 EventTag<This>
   cost = 5
-  This:: ScienceTag<This>, SpaceTag<This>, EventTag<This>
   This: 2 ProjectCard
 }
 ```
@@ -3989,8 +3987,8 @@ Pets declaration:
 
 ```pets
 CLASS TerraformingGanymede : AutomatedCard {
+  HAS =1 JovianTag<This>, =1 SpaceTag<This>
   cost = 33
-  This:: JovianTag<This>, SpaceTag<This>
   This: TerraformRating / JovianTag
   End: 2 VictoryPoint
 }
@@ -4009,8 +4007,8 @@ Pets declaration:
 
 ```pets
 CLASS TitaniumMine : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 7
-  This:: BuildingTag<This>
   This: PROD[Titanium]
 }
 ```
@@ -4028,9 +4026,9 @@ Pets declaration:
 
 ```pets
 CLASS TollStation : AutomatedCard {
+  HAS =1 SpaceTag<This>
   cost = 12
-  This:: SpaceTag<This>
-  This: PROD[MC / SpaceTag<Player(NOT Owner)>]
+  This: PROD[MC / SpaceTag<Player(NOT Me@)>]
 }
 ```
 
@@ -4047,8 +4045,8 @@ Pets declaration:
 
 ```pets
 CLASS TransNeptuneProbe : AutomatedCard {
+  HAS =1 ScienceTag<This>, =1 SpaceTag<This>
   cost = 6
-  This:: ScienceTag<This>, SpaceTag<This>
   End: VictoryPoint
 }
 ```
@@ -4066,8 +4064,8 @@ Pets declaration:
 
 ```pets
 CLASS TropicalResort : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 13
-  This:: BuildingTag<This>
   This: PROD[-2 Heat, 3 MC]
   End: 2 VictoryPoint
 }
@@ -4086,8 +4084,8 @@ Pets declaration:
 
 ```pets
 CLASS VestaShipyard : AutomatedCard {
+  HAS =1 JovianTag<This>, =1 SpaceTag<This>
   cost = 15
-  This:: JovianTag<This>, SpaceTag<This>
   This: PROD[Titanium]
   End: VictoryPoint
 }
@@ -4106,8 +4104,8 @@ Pets declaration:
 
 ```pets
 CLASS ViralEnhancers : ActiveCard {
+  HAS =1 ScienceTag<This>, =1 MicrobeTag<This>
   cost = 9
-  This:: ScienceTag<This>, MicrobeTag<This>
   BioTag<@CardFront>: Plant OR Animal<@CardFront> OR Microbe<@CardFront>
 }
 ```
@@ -4125,8 +4123,8 @@ Pets declaration:
 
 ```pets
 CLASS Virus : EventCard {
+  HAS =1 MicrobeTag<This>, =1 EventTag<This>
   cost = 1
-  This:: MicrobeTag<This>, EventTag<This>
   This: -2 Animal<Anyone>? OR -5 Plant<Anyone>?
 }
 ```
@@ -4145,9 +4143,9 @@ Class: `AerialMappers`
 Pets declaration:
 
 ```pets
-CLASS AerialMappers : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS AerialMappers : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 VenusTag<This>
   cost = 11
-  This:: VenusTag<This>
   End: VictoryPoint
   -> Floater
   Floater<This> -> ProjectCard
@@ -4167,9 +4165,9 @@ Pets declaration:
 
 ```pets
 CLASS AerosportTournament : EventCard {
+  HAS =1 EventTag<This>
   cost = 7
   requirement = HAS "5 Floater"
-  This:: EventTag<This>
   This: MC / CityTile<Anyone>
   End: VictoryPoint
 }
@@ -4188,8 +4186,8 @@ Pets declaration:
 
 ```pets
 CLASS AirScrappingExpedition : EventCard {
+  HAS =1 VenusTag<This>, =1 EventTag<This>
   cost = 13
-  This:: VenusTag<This>, EventTag<This>
   This: VenusStep, 3 Floater<CardFront(HAS VenusTag)>
 }
 ```
@@ -4207,9 +4205,9 @@ Pets declaration:
 
 ```pets
 CLASS AtalantaPlanitiaLab : AutomatedCard {
+  HAS =1 VenusTag<This>, =1 ScienceTag<This>
   cost = 10
   requirement = HAS "3 ScienceTag"
-  This:: VenusTag<This>, ScienceTag<This>
   This: 2 ProjectCard
   End: 2 VictoryPoint
 }
@@ -4228,9 +4226,9 @@ Pets declaration:
 
 ```pets
 CLASS Atmoscoop : AutomatedCard {
+  HAS =1 JovianTag<This>, =1 SpaceTag<This>
   cost = 22
   requirement = HAS "3 ScienceTag"
-  This:: JovianTag<This>, SpaceTag<This>
   This: 2 TemperatureStep OR 2 VenusStep, 2 Floater
   End: VictoryPoint
 }
@@ -4249,9 +4247,9 @@ Pets declaration:
 
 ```pets
 CLASS CometForVenus : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 11
-  This:: SpaceTag<This>, EventTag<This>
-  This: VenusStep, -4 MC<Anyone(HAS VenusTag)>?
+  This: VenusStep, -4 MC<Anyone(HAS VenusTag<Anyone>)>?
 }
 ```
 
@@ -4268,8 +4266,8 @@ Pets declaration:
 
 ```pets
 CLASS CorroderSuits : AutomatedCard {
+  HAS =1 VenusTag<This>
   cost = 8
-  This:: VenusTag<This>
   This: PROD[2 MC], CardResource<CardFront(HAS VenusTag)>
 }
 ```
@@ -4287,9 +4285,9 @@ Pets declaration:
 
 ```pets
 CLASS DawnCity : AutomatedCard {
+  HAS =1 SpaceTag<This>, =1 CityTag<This>
   cost = 15
   requirement = HAS "4 ScienceTag"
-  This:: SpaceTag<This>, CityTag<This>
   This: PROD[-Energy, Titanium], CityTile<DawnCity_RemoteArea>
   End: 3 VictoryPoint
 }
@@ -4307,9 +4305,9 @@ Class: `DeuteriumExport`
 Pets declaration:
 
 ```pets
-CLASS DeuteriumExport : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS DeuteriumExport : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 VenusTag<This>, =1 PowerTag<This>, =1 SpaceTag<This>
   cost = 11
-  This:: VenusTag<This>, PowerTag<This>, SpaceTag<This>
   -> Floater<This>
   Floater<This> -> PROD[Energy]
 }
@@ -4327,9 +4325,9 @@ Class: `Dirigibles`
 Pets declaration:
 
 ```pets
-CLASS Dirigibles : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS Dirigibles : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 VenusTag<This>
   cost = 11
-  This:: VenusTag<This>
   PayingFor<Class<VenusTag>>:: AcceptingFromCard<This>
   PayFromCard<This>:: -3 Owed
   -> Floater
@@ -4348,9 +4346,9 @@ Class: `ExtractorBalloons`
 Pets declaration:
 
 ```pets
-CLASS ExtractorBalloons : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS ExtractorBalloons : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 VenusTag<This>
   cost = 21
-  This:: VenusTag<This>
   This: 3 Floater<This>
   -> Floater<This>
   2 Floater<This> -> VenusStep
@@ -4369,10 +4367,10 @@ Class: `Extremophiles`
 Pets declaration:
 
 ```pets
-CLASS Extremophiles : ActionCard, ActiveCard, ResourceCard<Class<Microbe>> {
+CLASS Extremophiles : ActiveCard, ResourceCard<Class<Microbe>>, ActionCard {
+  HAS =1 VenusTag<This>, =1 MicrobeTag<This>
   cost = 3
   requirement = HAS "2 ScienceTag"
-  This:: VenusTag<This>, MicrobeTag<This>
   End: VictoryPoint / 3 Microbe<This>
   -> Microbe
 }
@@ -4390,10 +4388,10 @@ Class: `FloatingHabs`
 Pets declaration:
 
 ```pets
-CLASS FloatingHabs : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS FloatingHabs : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 VenusTag<This>
   cost = 5
   requirement = HAS "2 ScienceTag"
-  This:: VenusTag<This>
   End: VictoryPoint / 2 Floater<This>
   2 MC -> Floater
 }
@@ -4411,9 +4409,9 @@ Class: `ForcedPrecipitation`
 Pets declaration:
 
 ```pets
-CLASS ForcedPrecipitation : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS ForcedPrecipitation : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 VenusTag<This>
   cost = 8
-  This:: VenusTag<This>
   2 MC -> Floater<This>
   2 Floater<This> -> VenusStep
 }
@@ -4432,9 +4430,9 @@ Pets declaration:
 
 ```pets
 CLASS FreyjaBiodomes : AutomatedCard {
+  HAS =1 VenusTag<This>, =1 PlantTag<This>
   cost = 14
   requirement = HAS "5 VenusStep"
-  This:: VenusTag<This>, PlantTag<This>
   This: 2 Microbe<CardFront(HAS VenusTag)> OR 2 Animal<CardFront(HAS VenusTag)>, PROD[-Energy, 2 MC]
   End: 2 VictoryPoint
 }
@@ -4453,8 +4451,8 @@ Pets declaration:
 
 ```pets
 CLASS GhgImportFromVenus : EventCard {
+  HAS =1 VenusTag<This>, =1 SpaceTag<This>, =1 EventTag<This>
   cost = 23
-  This:: VenusTag<This>, SpaceTag<This>, EventTag<This>
   This: VenusStep, PROD[3 Heat]
 }
 ```
@@ -4472,8 +4470,8 @@ Pets declaration:
 
 ```pets
 CLASS GiantSolarShade : AutomatedCard {
+  HAS =1 VenusTag<This>, =1 SpaceTag<This>
   cost = 27
-  This:: VenusTag<This>, SpaceTag<This>
   This: 3 VenusStep
 }
 ```
@@ -4491,8 +4489,8 @@ Pets declaration:
 
 ```pets
 CLASS Gyropolis : AutomatedCard {
+  HAS =1 CityTag<This>, =1 BuildingTag<This>
   cost = 20
-  This:: CityTag<This>, BuildingTag<This>
   This: PROD[-2 Energy, MC / VenusTag, MC / EarthTag], CityTile<>
 }
 ```
@@ -4510,8 +4508,8 @@ Pets declaration:
 
 ```pets
 CLASS HydrogenToVenus : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 11
-  This:: SpaceTag<This>, EventTag<This>
   This: VenusStep, Floater<CardFront(HAS VenusTag)> / JovianTag
 }
 ```
@@ -4529,8 +4527,8 @@ Pets declaration:
 
 ```pets
 CLASS IoSulphurResearch : AutomatedCard {
+  HAS =1 ScienceTag<This>, =1 JovianTag<This>
   cost = 17
-  This:: ScienceTag<This>, JovianTag<This>
   This: ProjectCard OR (3 VenusTag: 3 ProjectCard)
   End: 2 VictoryPoint
 }
@@ -4549,9 +4547,9 @@ Pets declaration:
 
 ```pets
 CLASS IshtarMining : AutomatedCard {
+  HAS =1 VenusTag<This>
   cost = 5
   requirement = HAS "4 VenusStep"
-  This:: VenusTag<This>
   This: PROD[Titanium]
 }
 ```
@@ -4568,9 +4566,9 @@ Class: `JetStreamMicroscrappers`
 Pets declaration:
 
 ```pets
-CLASS JetStreamMicroscrappers : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS JetStreamMicroscrappers : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 VenusTag<This>
   cost = 12
-  This:: VenusTag<This>
   Titanium -> 2 Floater<This>
   2 Floater<This> -> VenusStep
 }
@@ -4588,9 +4586,9 @@ Class: `LocalShading`
 Pets declaration:
 
 ```pets
-CLASS LocalShading : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS LocalShading : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 VenusTag<This>
   cost = 4
-  This:: VenusTag<This>
   -> Floater<This>
   Floater<This> -> PROD[MC]
 }
@@ -4609,8 +4607,8 @@ Pets declaration:
 
 ```pets
 CLASS LunaMetropolis : AutomatedCard {
+  HAS =1 SpaceTag<This>, =1 EarthTag<This>, =1 CityTag<This>
   cost = 21
-  This:: SpaceTag<This>, EarthTag<This>, CityTag<This>
   This: PROD[MC / EarthTag], CityTile<LunaMetropolis_RemoteArea>
   End: 2 VictoryPoint
 }
@@ -4647,10 +4645,10 @@ Class: `MaxwellBase`
 Pets declaration:
 
 ```pets
-CLASS MaxwellBase : ActionCard, ActiveCard {
+CLASS MaxwellBase : ActiveCard, ActionCard {
+  HAS =1 VenusTag<This>, =1 CityTag<This>
   cost = 18
   requirement = HAS "6 VenusStep"
-  This:: VenusTag<This>, CityTag<This>
   This: PROD[-Energy], CityTile<MaxwellBase_RemoteArea>
   End: 3 VictoryPoint
   -> CardResource<CardFront(HAS VenusTag)>
@@ -4670,9 +4668,9 @@ Pets declaration:
 
 ```pets
 CLASS MiningQuota : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 5
   requirement = HAS "VenusTag, EarthTag, JovianTag"
-  This:: BuildingTag<This>
   This: PROD[2 Steel]
 }
 ```
@@ -4690,9 +4688,9 @@ Pets declaration:
 
 ```pets
 CLASS NeutralizerFactory : AutomatedCard {
+  HAS =1 VenusTag<This>
   cost = 7
   requirement = HAS "5 VenusStep"
-  This:: VenusTag<This>
   This: VenusStep
 }
 ```
@@ -4710,9 +4708,9 @@ Pets declaration:
 
 ```pets
 CLASS Omnicourt : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 11
   requirement = HAS "VenusTag, EarthTag, JovianTag"
-  This:: BuildingTag<This>
   This: 2 TerraformRating
 }
 ```
@@ -4730,8 +4728,8 @@ Pets declaration:
 
 ```pets
 CLASS OrbitalReflectors : AutomatedCard {
+  HAS =1 VenusTag<This>, =1 SpaceTag<This>
   cost = 26
-  This:: VenusTag<This>, SpaceTag<This>
   This: 2 VenusStep, PROD[2 Heat]
 }
 ```
@@ -4748,10 +4746,10 @@ Class: `RotatorImpacts`
 Pets declaration:
 
 ```pets
-CLASS RotatorImpacts : ActionCard, ActiveCard, ResourceCard<Class<Asteroid>> {
+CLASS RotatorImpacts : ActiveCard, ResourceCard<Class<Asteroid>>, ActionCard {
+  HAS =1 SpaceTag<This>
   cost = 6
   requirement = HAS "MAX 7 VenusStep"
-  This:: SpaceTag<This>
   UseAction<This, Action1>:: Accepting<Class<Titanium>>
   6 MC -> Asteroid<This>
   Asteroid<This> -> VenusStep
@@ -4771,9 +4769,9 @@ Pets declaration:
 
 ```pets
 CLASS SisterPlanetSupport : AutomatedCard {
+  HAS =1 VenusTag<This>, =1 EarthTag<This>
   cost = 7
   requirement = HAS "VenusTag, EarthTag"
-  This:: VenusTag<This>, EarthTag<This>
   This: PROD[3 MC]
 }
 ```
@@ -4811,9 +4809,9 @@ Pets declaration:
 
 ```pets
 CLASS SpinInducingAsteroid : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 16
   requirement = HAS "MAX 5 VenusStep"
-  This:: SpaceTag<This>, EventTag<This>
   This: 2 VenusStep
 }
 ```
@@ -4831,9 +4829,9 @@ Pets declaration:
 
 ```pets
 CLASS SponsoredAcademies : AutomatedCard {
+  HAS =1 ScienceTag<This>, =1 EarthTag<This>
   cost = 9
-  This:: ScienceTag<This>, EarthTag<This>
-  This: -ProjectCard THEN 3 ProjectCard, EACH Player(NOT Owner) { ProjectCard }
+  This: -ProjectCard THEN 3 ProjectCard, EACH Other@Player(NOT Me@) { ProjectCard<Other@Player> }
   End: VictoryPoint
 }
 ```
@@ -4850,10 +4848,10 @@ Class: `Stratopolis`
 Pets declaration:
 
 ```pets
-CLASS Stratopolis : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS Stratopolis : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 VenusTag<This>, =1 CityTag<This>
   cost = 22
   requirement = HAS "2 ScienceTag"
-  This:: VenusTag<This>, CityTag<This>
   This: PROD[2 MC], CityTile<Stratopolis_RemoteArea>
   End: VictoryPoint / 3 Floater<This>
   -> 2 Floater<CardFront(HAS VenusTag)>
@@ -4872,10 +4870,10 @@ Class: `StratosphericBirds`
 Pets declaration:
 
 ```pets
-CLASS StratosphericBirds : ActionCard, ActiveCard, ResourceCard<Class<Animal>> {
+CLASS StratosphericBirds : ActiveCard, ResourceCard<Class<Animal>>, ActionCard {
+  HAS =1 VenusTag<This>, =1 AnimalTag<This>
   cost = 12
   requirement = HAS "6 VenusStep"
-  This:: VenusTag<This>, AnimalTag<This>
   This: -Floater
   End: VictoryPoint / Animal<This>
   -> Animal<This>
@@ -4894,10 +4892,10 @@ Class: `SulphurEatingBacteria`
 Pets declaration:
 
 ```pets
-CLASS SulphurEatingBacteria : ActionCard, ActiveCard, ResourceCard<Class<Microbe>> {
+CLASS SulphurEatingBacteria : ActiveCard, ResourceCard<Class<Microbe>>, ActionCard {
+  HAS =1 VenusTag<This>, =1 MicrobeTag<This>
   cost = 6
   requirement = HAS "3 VenusStep"
-  This:: VenusTag<This>, MicrobeTag<This>
   -> Microbe<This>
   X Microbe<This> -> 3X MC
 }
@@ -4916,8 +4914,8 @@ Pets declaration:
 
 ```pets
 CLASS SulphurExports : AutomatedCard {
+  HAS =1 VenusTag<This>, =1 SpaceTag<This>
   cost = 21
-  This:: VenusTag<This>, SpaceTag<This>
   This: VenusStep, PROD[MC / VenusTag]
 }
 ```
@@ -4935,9 +4933,9 @@ Pets declaration:
 
 ```pets
 CLASS TerraformingContract : AutomatedCard {
+  HAS =1 EarthTag<This>
   cost = 8
   requirement = HAS "25 TerraformRating"
-  This:: EarthTag<This>
   This: PROD[4 MC]
 }
 ```
@@ -4954,10 +4952,10 @@ Class: `Thermophiles`
 Pets declaration:
 
 ```pets
-CLASS Thermophiles : ActionCard, ActiveCard, ResourceCard<Class<Microbe>> {
+CLASS Thermophiles : ActiveCard, ResourceCard<Class<Microbe>>, ActionCard {
+  HAS =1 VenusTag<This>, =1 MicrobeTag<This>
   cost = 9
   requirement = HAS "3 VenusStep"
-  This:: VenusTag<This>, MicrobeTag<This>
   -> Microbe<CardFront(HAS VenusTag)>
   2 Microbe<This> -> VenusStep
 }
@@ -4976,9 +4974,9 @@ Pets declaration:
 
 ```pets
 CLASS VenusGovernor : AutomatedCard {
+  HAS =2 VenusTag<This>
   cost = 4
   requirement = HAS "2 VenusTag"
-  This:: 2 VenusTag<This>
   This: PROD[2 MC]
 }
 ```
@@ -4996,9 +4994,9 @@ Pets declaration:
 
 ```pets
 CLASS VenusianAnimals : ActiveCard, ResourceCard<Class<Animal>> {
+  HAS =1 VenusTag<This>, =1 ScienceTag<This>, =1 AnimalTag<This>
   cost = 15
   requirement = HAS "9 VenusStep"
-  This:: VenusTag<This>, ScienceTag<This>, AnimalTag<This>
   ScienceTag: Animal<This>
   End: VictoryPoint / Animal<This>
 }
@@ -5016,10 +5014,10 @@ Class: `VenusianInsects`
 Pets declaration:
 
 ```pets
-CLASS VenusianInsects : ActionCard, ActiveCard, ResourceCard<Class<Microbe>> {
+CLASS VenusianInsects : ActiveCard, ResourceCard<Class<Microbe>>, ActionCard {
+  HAS =1 VenusTag<This>, =1 MicrobeTag<This>
   cost = 5
   requirement = HAS "6 VenusStep"
-  This:: VenusTag<This>, MicrobeTag<This>
   End: VictoryPoint / 2 Microbe<This>
   -> Microbe<This>
 }
@@ -5038,9 +5036,9 @@ Pets declaration:
 
 ```pets
 CLASS VenusianPlants : AutomatedCard {
+  HAS =1 VenusTag<This>, =1 PlantTag<This>
   cost = 13
   requirement = HAS "8 VenusStep"
-  This:: VenusTag<This>, PlantTag<This>
   This: VenusStep, Microbe<CardFront(HAS VenusTag)> OR Animal<CardFront(HAS VenusTag)>
   End: VictoryPoint
 }
@@ -5058,10 +5056,10 @@ Class: `VenusMagnetizer`
 Pets declaration:
 
 ```pets
-CLASS VenusMagnetizer : ActionCard, ActiveCard {
+CLASS VenusMagnetizer : ActiveCard, ActionCard {
+  HAS =1 VenusTag<This>
   cost = 7
   requirement = HAS "5 VenusStep"
-  This:: VenusTag<This>
   PROD[Energy] -> VenusStep
 }
 ```
@@ -5079,8 +5077,8 @@ Pets declaration:
 
 ```pets
 CLASS VenusSoils : AutomatedCard {
+  HAS =1 VenusTag<This>, =1 PlantTag<This>
   cost = 20
-  This:: VenusTag<This>, PlantTag<This>
   This: VenusStep, PROD[Plant], 2 Microbe
 }
 ```
@@ -5098,8 +5096,8 @@ Pets declaration:
 
 ```pets
 CLASS VenusWaystation : ActiveCard {
+  HAS =1 VenusTag<This>, =1 SpaceTag<This>
   cost = 9
-  This:: VenusTag<This>, SpaceTag<This>
   PayingFor<Class<VenusTag>>:: -2 Owed
   End: VictoryPoint
 }
@@ -5118,8 +5116,8 @@ Pets declaration:
 
 ```pets
 CLASS WaterToVenus : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 9
-  This:: SpaceTag<This>, EventTag<This>
   This: VenusStep
 }
 ```
@@ -5139,8 +5137,8 @@ Pets declaration:
 
 ```pets
 CLASS HousePrinting : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 10
-  This:: BuildingTag<This>
   This: PROD[Steel]
   End: VictoryPoint
 }
@@ -5159,8 +5157,8 @@ Pets declaration:
 
 ```pets
 CLASS LavaTubeSettlement : AutomatedCard {
+  HAS =1 CityTag<This>, =1 BuildingTag<This>
   cost = 15
-  This:: CityTag<This>, BuildingTag<This>
   This: PROD[-Energy, 2 MC], CityTile<VolcanicArea> OR (MAX 0 VolcanicArea: CityTile<>)
 }
 ```
@@ -5178,9 +5176,9 @@ Pets declaration:
 
 ```pets
 CLASS MartianSurvey : EventCard {
+  HAS =1 ScienceTag<This>, =1 EventTag<This>
   cost = 9
   requirement = HAS "MAX 4 OxygenStep"
-  This:: ScienceTag<This>, EventTag<This>
   This: 2 ProjectCard
   End: VictoryPoint
 }
@@ -5198,10 +5196,10 @@ Class: `Psychrophiles`
 Pets declaration:
 
 ```pets
-CLASS Psychrophiles : ActionCard, ActiveCard, ResourceCard<Class<Microbe>> {
+CLASS Psychrophiles : ActiveCard, ResourceCard<Class<Microbe>>, ActionCard {
+  HAS =1 MicrobeTag<This>
   cost = 2
   requirement = HAS "MAX 5 TemperatureStep"
-  This:: MicrobeTag<This>
   PayingFor<Class<PlantTag>>:: AcceptingFromCard<This>
   PayFromCard<This>:: -2 Owed
   -> Microbe<This>
@@ -5221,8 +5219,8 @@ Pets declaration:
 
 ```pets
 CLASS SfMemorial : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 7
-  This:: BuildingTag<This>
   This: ProjectCard
   End: VictoryPoint
 }
@@ -5241,9 +5239,9 @@ Pets declaration:
 
 ```pets
 CLASS SpaceHotels : AutomatedCard {
+  HAS =1 EarthTag<This>, =1 SpaceTag<This>
   cost = 12
   requirement = HAS "2 EarthTag"
-  This:: EarthTag<This>, SpaceTag<This>
   This: PROD[4 MC]
 }
 ```
@@ -5283,9 +5281,9 @@ Pets declaration:
 
 ```pets
 CLASS AirRaid : EventCard {
+  HAS =1 EventTag<This>
   cost = 0
-  This:: EventTag<This>
-  This: -Floater, 5 MC<Owner FROM Anyone>
+  This: -Floater, 5 MC<Me@ FROM Anyone>
 }
 ```
 
@@ -5301,7 +5299,7 @@ Class: `AtmoCollectors`
 Pets declaration:
 
 ```pets
-CLASS AtmoCollectors : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS AtmoCollectors : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
   cost = 15
   This: 2 Floater
   -> Floater<This>
@@ -5341,9 +5339,9 @@ Pets declaration:
 
 ```pets
 CLASS Conscription : EventCard {
+  HAS =1 EarthTag<This>, =1 EventTag<This>
   cost = 5
   requirement = HAS "2 EarthTag"
-  This:: EarthTag<This>, EventTag<This>
   This: Conscription_NextCardEffect
   End: -VictoryPoint
 }
@@ -5362,9 +5360,9 @@ Pets declaration:
 
 ```pets
 CLASS CoronaExtractor : AutomatedCard {
+  HAS =1 PowerTag<This>, =1 SpaceTag<This>
   cost = 10
   requirement = HAS "4 ScienceTag"
-  This:: PowerTag<This>, SpaceTag<This>
   This: PROD[4 Energy]
 }
 ```
@@ -5376,15 +5374,15 @@ Class: `CryoSleep`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | — | Effect: When you trade, you pay 1 less resource for it. |
-| Generated text | — | Effect: When you use the Trade standard action, you pay 1 M€ less for it. |
+| Generated text | — | Effect: When you use the Trade standard action, you pay 1 standard resource less for it. |
 
 Pets declaration:
 
 ```pets
 CLASS CryoSleep : ActiveCard {
+  HAS =1 ScienceTag<This>
   cost = 10
-  This:: ScienceTag<This>
-  ActionBilling<TradeAction>:: -Owed
+  ActionBilling<TradeAction>:: -Owed<Class<StandardResource>>
   End: VictoryPoint
 }
 ```
@@ -5402,8 +5400,8 @@ Pets declaration:
 
 ```pets
 CLASS EarthElevator : AutomatedCard {
+  HAS =1 EarthTag<This>, =1 SpaceTag<This>
   cost = 43
-  This:: EarthTag<This>, SpaceTag<This>
   This: PROD[3 Titanium]
   End: 4 VictoryPoint
 }
@@ -5422,8 +5420,8 @@ Pets declaration:
 
 ```pets
 CLASS EcologyResearch : AutomatedCard {
+  HAS =1 ScienceTag<This>, =1 AnimalTag<This>, =1 MicrobeTag<This>, =1 PlantTag<This>
   cost = 21
-  This:: ScienceTag<This>, AnimalTag<This>, MicrobeTag<This>, PlantTag<This>
   This: PROD[Plant / Colony], Animal, 2 Microbe
   End: VictoryPoint
 }
@@ -5460,8 +5458,8 @@ Pets declaration:
 
 ```pets
 CLASS FloaterPrototypes : EventCard {
+  HAS =1 ScienceTag<This>, =1 EventTag<This>
   cost = 2
-  This:: ScienceTag<This>, EventTag<This>
   This: 2 Floater
 }
 ```
@@ -5478,9 +5476,9 @@ Class: `FloaterTechnology`
 Pets declaration:
 
 ```pets
-CLASS FloaterTechnology : ActionCard, ActiveCard {
+CLASS FloaterTechnology : ActiveCard, ActionCard {
+  HAS =1 ScienceTag<This>
   cost = 7
-  This:: ScienceTag<This>
   -> Floater
 }
 ```
@@ -5498,8 +5496,8 @@ Pets declaration:
 
 ```pets
 CLASS GalileanWaystation : AutomatedCard {
+  HAS =1 SpaceTag<This>
   cost = 15
-  This:: SpaceTag<This>
   This: PROD[MC / JovianTag<Anyone>]
   End: VictoryPoint
 }
@@ -5518,9 +5516,9 @@ Pets declaration:
 
 ```pets
 CLASS HeavyTaxation : AutomatedCard {
+  HAS =1 EarthTag<This>
   cost = 3
   requirement = HAS "2 EarthTag"
-  This:: EarthTag<This>
   This: PROD[2 MC], 4 MC
   End: -VictoryPoint
 }
@@ -5539,8 +5537,8 @@ Pets declaration:
 
 ```pets
 CLASS IceMoonColony : AutomatedCard {
+  HAS =1 SpaceTag<This>
   cost = 23
-  This:: SpaceTag<This>
   This: Colony<>, OceanTile<>
 }
 ```
@@ -5558,9 +5556,9 @@ Pets declaration:
 
 ```pets
 CLASS ImpactorSwarm : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 11
   requirement = HAS "2 JovianTag"
-  This:: SpaceTag<This>, EventTag<This>
   This: 12 Heat, -2 Plant<Anyone>?
 }
 ```
@@ -5578,8 +5576,8 @@ Pets declaration:
 
 ```pets
 CLASS InterplanetaryColonyShip : EventCard {
+  HAS =1 EarthTag<This>, =1 SpaceTag<This>, =1 EventTag<This>
   cost = 12
-  This:: EarthTag<This>, SpaceTag<This>, EventTag<This>
   This: Colony<>
 }
 ```
@@ -5596,10 +5594,10 @@ Class: `JovianLanterns`
 Pets declaration:
 
 ```pets
-CLASS JovianLanterns : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS JovianLanterns : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 JovianTag<This>
   cost = 20
   requirement = HAS "JovianTag"
-  This:: JovianTag<This>
   This: TerraformRating, 2 Floater
   End: VictoryPoint / 2 Floater<This>
   Titanium -> 2 Floater<This>
@@ -5618,10 +5616,10 @@ Class: `JupiterFloatingStation`
 Pets declaration:
 
 ```pets
-CLASS JupiterFloatingStation : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS JupiterFloatingStation : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 JovianTag<This>
   cost = 9
   requirement = HAS "3 ScienceTag"
-  This:: JovianTag<This>
   End: VictoryPoint
   -> Floater<CardFront(HAS JovianTag)>
   -> MC / Floater<This> MAX 4
@@ -5641,9 +5639,9 @@ Pets declaration:
 
 ```pets
 CLASS LunaGovernor : AutomatedCard {
+  HAS =2 EarthTag<This>
   cost = 4
   requirement = HAS "3 EarthTag"
-  This:: 2 EarthTag<This>
   This: PROD[2 MC]
 }
 ```
@@ -5661,8 +5659,8 @@ Pets declaration:
 
 ```pets
 CLASS LunarExports : AutomatedCard {
+  HAS =1 SpaceTag<This>, =1 EarthTag<This>
   cost = 19
-  This:: SpaceTag<This>, EarthTag<This>
   This: PROD[2 Plant OR 5 MC]
 }
 ```
@@ -5680,8 +5678,8 @@ Pets declaration:
 
 ```pets
 CLASS LunarMining : AutomatedCard {
+  HAS =1 EarthTag<This>
   cost = 11
-  This:: EarthTag<This>
   This: PROD[Titanium / 2 EarthTag]
 }
 ```
@@ -5699,8 +5697,8 @@ Pets declaration:
 
 ```pets
 CLASS MarketManipulation : EventCard {
+  HAS =1 EarthTag<This>, =1 EventTag<This>
   cost = 1
-  This:: EarthTag<This>, EventTag<This>
   This: ColonyProduction(NOT Source@ColonyProduction) FROM Source@ColonyProduction
 }
 ```
@@ -5717,10 +5715,10 @@ Class: `MartianZoo`
 Pets declaration:
 
 ```pets
-CLASS MartianZoo : ActionCard, ActiveCard, ResourceCard<Class<Animal>> {
+CLASS MartianZoo : ActiveCard, ResourceCard<Class<Animal>>, ActionCard {
+  HAS =1 AnimalTag<This>, =1 BuildingTag<This>
   cost = 12
   requirement = HAS "2 CityTile<Anyone>"
-  This:: AnimalTag<This>, BuildingTag<This>
   EarthTag: Animal<This>
   End: VictoryPoint
   -> MC / Animal<This>
@@ -5740,8 +5738,8 @@ Pets declaration:
 
 ```pets
 CLASS MiningColony : AutomatedCard {
+  HAS =1 SpaceTag<This>
   cost = 20
-  This:: SpaceTag<This>
   This: PROD[Titanium], Colony<>
 }
 ```
@@ -5759,8 +5757,8 @@ Pets declaration:
 
 ```pets
 CLASS MinorityRefuge : AutomatedCard {
+  HAS =1 SpaceTag<This>
   cost = 5
-  This:: SpaceTag<This>
   This: PROD[-2 MC], Colony<>
 }
 ```
@@ -5778,8 +5776,8 @@ Pets declaration:
 
 ```pets
 CLASS MolecularPrinting : AutomatedCard {
+  HAS =1 ScienceTag<This>
   cost = 11
-  This:: ScienceTag<This>
   This: MC / CityTile<Anyone>, MC / Colony<Anyone>
   End: VictoryPoint
 }
@@ -5798,8 +5796,8 @@ Pets declaration:
 
 ```pets
 CLASS NitrogenFromTitan : AutomatedCard {
+  HAS =1 JovianTag<This>, =1 SpaceTag<This>
   cost = 25
-  This:: JovianTag<This>, SpaceTag<This>
   This: 2 TerraformRating, 2 Floater<CardFront(HAS JovianTag)>
   End: VictoryPoint
 }
@@ -5818,9 +5816,9 @@ Pets declaration:
 
 ```pets
 CLASS PioneerSettlement : AutomatedCard {
+  HAS =1 SpaceTag<This>
   cost = 13
   requirement = HAS "MAX 1 Colony"
-  This:: SpaceTag<This>
   This: PROD[-2 MC], Colony<>
   End: 2 VictoryPoint
 }
@@ -5876,10 +5874,10 @@ Class: `RedSpotObservatory`
 Pets declaration:
 
 ```pets
-CLASS RedSpotObservatory : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS RedSpotObservatory : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 ScienceTag<This>, =1 JovianTag<This>
   cost = 17
   requirement = HAS "3 ScienceTag"
-  This:: ScienceTag<This>, JovianTag<This>
   This: 2 ProjectCard
   End: 2 VictoryPoint
   -> Floater<This>
@@ -5899,9 +5897,9 @@ Class: `RefugeeCamps`
 Pets declaration:
 
 ```pets
-CLASS RefugeeCamps : ActionCard, ActiveCard, ResourceCard<Class<Camp>> {
+CLASS RefugeeCamps : ActiveCard, ResourceCard<Class<Camp>>, ActionCard {
+  HAS =1 EarthTag<This>
   cost = 10
-  This:: EarthTag<This>
   End: VictoryPoint / Camp<This>
   PROD[MC] -> Camp<This>
 }
@@ -5920,8 +5918,8 @@ Pets declaration:
 
 ```pets
 CLASS ResearchColony : AutomatedCard {
+  HAS =1 ScienceTag<This>, =1 SpaceTag<This>
   cost = 20
-  This:: ScienceTag<This>, SpaceTag<This>
   This: Colony<ColonyTile>, 2 ProjectCard
 }
 ```
@@ -5933,15 +5931,15 @@ Class: `RimFreighters`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | — | Effect: When you trade, you pay 1 less resource for it. |
-| Generated text | — | Effect: When you use the Trade standard action, you pay 1 M€ less for it. |
+| Generated text | — | Effect: When you use the Trade standard action, you pay 1 standard resource less for it. |
 
 Pets declaration:
 
 ```pets
 CLASS RimFreighters : ActiveCard {
+  HAS =1 SpaceTag<This>
   cost = 4
-  This:: SpaceTag<This>
-  ActionBilling<TradeAction>:: -Owed
+  ActionBilling<TradeAction>:: -Owed<Class<StandardResource>>
 }
 ```
 
@@ -5958,9 +5956,9 @@ Pets declaration:
 
 ```pets
 CLASS SkyDocks : ActiveCard {
+  HAS =1 EarthTag<This>, =1 SpaceTag<This>
   cost = 18
   requirement = HAS "2 EarthTag"
-  This:: EarthTag<This>, SpaceTag<This>
   This: TradeFleet
   PayingFor<Class<CardFront>>:: -Owed
   End: 2 VictoryPoint
@@ -5980,8 +5978,8 @@ Pets declaration:
 
 ```pets
 CLASS SolarProbe : EventCard {
+  HAS =1 ScienceTag<This>, =1 SpaceTag<This>, =1 EventTag<This>
   cost = 9
-  This:: ScienceTag<This>, SpaceTag<This>, EventTag<This>
   This: ProjectCard / 3 ScienceTag
   End: VictoryPoint
 }
@@ -6000,8 +5998,8 @@ Pets declaration:
 
 ```pets
 CLASS SolarReflectors : AutomatedCard {
+  HAS =1 SpaceTag<This>
   cost = 23
-  This:: SpaceTag<This>
   This: PROD[5 Heat]
 }
 ```
@@ -6019,9 +6017,9 @@ Pets declaration:
 
 ```pets
 CLASS SpacePort : AutomatedCard {
+  HAS =1 CityTag<This>, =1 BuildingTag<This>
   cost = 22
   requirement = HAS "Colony"
-  This:: CityTag<This>, BuildingTag<This>
   This: TradeFleet, CityTile<>, PROD[-Energy, 4 MC]
 }
 ```
@@ -6039,9 +6037,9 @@ Pets declaration:
 
 ```pets
 CLASS SpacePortColony : AutomatedCard {
+  HAS =1 SpaceTag<This>
   cost = 27
   requirement = HAS "Colony"
-  This:: SpaceTag<This>
   This: Colony<ColonyTile>, TradeFleet
   End: VictoryPoint / 2 Colony<Anyone>
 }
@@ -6060,8 +6058,8 @@ Pets declaration:
 
 ```pets
 CLASS SpinOffDepartment : ActiveCard {
+  HAS =1 BuildingTag<This>
   cost = 10
-  This:: BuildingTag<This>
   This: PROD[2 MC]
   CardFront(HAS 20 cost): ProjectCard
 }
@@ -6079,10 +6077,10 @@ Class: `SubZeroSaltFish`
 Pets declaration:
 
 ```pets
-CLASS SubZeroSaltFish : ActionCard, ActiveCard, ResourceCard<Class<Animal>> {
+CLASS SubZeroSaltFish : ActiveCard, ResourceCard<Class<Animal>>, ActionCard {
+  HAS =1 AnimalTag<This>
   cost = 5
   requirement = HAS "12 TemperatureStep"
-  This:: AnimalTag<This>
   This: PROD[-Plant<Anyone>]
   End: VictoryPoint / 2 Animal<This>
   -> Animal<This>
@@ -6101,9 +6099,9 @@ Class: `TitanAirScrapping`
 Pets declaration:
 
 ```pets
-CLASS TitanAirScrapping : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS TitanAirScrapping : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 JovianTag<This>
   cost = 21
-  This:: JovianTag<This>
   End: 2 VictoryPoint
   Titanium -> 2 Floater<This>
   2 Floater<This> -> TerraformRating
@@ -6122,9 +6120,9 @@ Class: `TitanFloatingLaunchPad`
 Pets declaration:
 
 ```pets
-CLASS TitanFloatingLaunchPad : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS TitanFloatingLaunchPad : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 JovianTag<This>
   cost = 18
-  This:: JovianTag<This>
   This: 2 Floater<CardFront(HAS JovianTag)>
   End: VictoryPoint
   -> Floater<CardFront(HAS JovianTag)>
@@ -6144,9 +6142,9 @@ Class: `TitanShuttles`
 Pets declaration:
 
 ```pets
-CLASS TitanShuttles : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS TitanShuttles : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 JovianTag<This>, =1 SpaceTag<This>
   cost = 23
-  This:: JovianTag<This>, SpaceTag<This>
   End: VictoryPoint
   -> 2 Floater<CardFront(HAS JovianTag)>
   X Floater<This> -> X Titanium
@@ -6185,8 +6183,8 @@ Pets declaration:
 
 ```pets
 CLASS TradingColony : ActiveCard {
+  HAS =1 SpaceTag<This>
   cost = 18
-  This:: SpaceTag<This>
   This: Colony<>
   Trade<@ColonyTile>:: TradeBarrier<@ColonyTile>
   Trade<@ColonyTile>: ColonyProduction<@ColonyTile>? THEN -TradeBarrier<@ColonyTile>
@@ -6206,9 +6204,9 @@ Pets declaration:
 
 ```pets
 CLASS UrbanDecomposers : AutomatedCard {
+  HAS =1 MicrobeTag<This>
   cost = 6
   requirement = HAS "CityTile, Colony"
-  This:: MicrobeTag<This>
   This: PROD[Plant], 2 Microbe
 }
 ```
@@ -6226,9 +6224,9 @@ Pets declaration:
 
 ```pets
 CLASS WarpDrive : ActiveCard {
+  HAS =1 ScienceTag<This>
   cost = 14
   requirement = HAS "5 ScienceTag"
-  This:: ScienceTag<This>
   PayingFor<Class<SpaceTag>>:: -4 Owed
   End: 2 VictoryPoint
 }
@@ -6269,9 +6267,9 @@ Pets declaration:
 
 ```pets
 CLASS BannedDelegate : EventCard {
+  HAS =1 EventTag<This>
   cost = 0
   requirement = HAS "Chairman"
-  This:: EventTag<This>
   This: BannedDelegateRemoval<Party, Anyone>. / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1
 }
 ```
@@ -6289,9 +6287,9 @@ Pets declaration:
 
 ```pets
 CLASS CulturalMetropolis : AutomatedCard {
+  HAS =1 CityTag<This>, =1 BuildingTag<This>
   cost = 20
   requirement = HAS "PartyRequirement<Unity>"
-  This:: CityTag<This>, BuildingTag<This>
   This: PROD[-Energy, 3 MC], CityTile<>, 2 PartyDelegate
 }
 ```
@@ -6309,9 +6307,9 @@ Pets declaration:
 
 ```pets
 CLASS DiasporaMovement : AutomatedCard {
+  HAS =1 JovianTag<This>
   cost = 7
   requirement = HAS "PartyRequirement<Reds>"
-  This:: JovianTag<This>
   This: MC / JovianTag<Anyone>
   End: VictoryPoint
 }
@@ -6330,9 +6328,9 @@ Pets declaration:
 
 ```pets
 CLASS EventAnalysts : ActiveCard {
+  HAS =1 ScienceTag<This>
   cost = 5
   requirement = HAS "PartyRequirement<Scientists>"
-  This:: ScienceTag<This>
   MeasureInfluence:: EventAnalystsInfluence
 }
 ```
@@ -6350,9 +6348,9 @@ Pets declaration:
 
 ```pets
 CLASS GmoContract : ActiveCard {
+  HAS =1 MicrobeTag<This>, =1 ScienceTag<This>
   cost = 3
   requirement = HAS "PartyRequirement<Greens>"
-  This:: MicrobeTag<This>, ScienceTag<This>
   BioTag: 2 MC
 }
 ```
@@ -6369,10 +6367,10 @@ Class: `MartianMediaCenter`
 Pets declaration:
 
 ```pets
-CLASS MartianMediaCenter : ActionCard, ActiveCard {
+CLASS MartianMediaCenter : ActiveCard, ActionCard {
+  HAS =1 BuildingTag<This>
   cost = 7
   requirement = HAS "PartyRequirement<MarsFirst>"
-  This:: BuildingTag<This>
   This: PROD[2 MC]
   3 MC -> PartyDelegate
 }
@@ -6391,9 +6389,9 @@ Pets declaration:
 
 ```pets
 CLASS ParliamentHall : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 8
   requirement = HAS "PartyRequirement<MarsFirst>"
-  This:: BuildingTag<This>
   This: PROD[MC / 3 BuildingTag]
   End: VictoryPoint
 }
@@ -6412,9 +6410,9 @@ Pets declaration:
 
 ```pets
 CLASS PrOffice : AutomatedCard {
+  HAS =1 EarthTag<This>
   cost = 7
   requirement = HAS "PartyRequirement<Unity>"
-  This:: EarthTag<This>
   This: TerraformRating, MC / EarthTag
 }
 ```
@@ -6432,9 +6430,9 @@ Pets declaration:
 
 ```pets
 CLASS PublicCelebrations : EventCard {
+  HAS =1 EventTag<This>
   cost = 8
   requirement = HAS "Chairman"
-  This:: EventTag<This>
   End: 2 VictoryPoint
 }
 ```
@@ -6446,15 +6444,15 @@ Class: `Recruitment`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Exchange one NEUTRAL NON-LEADER delegate with one of your own from the reserve. | — |
-| Generated text | \[PartyDelegate&lt;Party(HAS 1 (PartyDelegate&lt;Neutral&gt; - PartyLeader&lt;Neutral&gt;)), Owner FROM Neutral&gt;\]. | — |
+| Generated text | \[PartyDelegate&lt;Party(HAS 1 (PartyDelegate&lt;Neutral&gt; - PartyLeader&lt;Neutral&gt;)), Me@Anyone FROM Neutral&gt;\]. | — |
 
 Pets declaration:
 
 ```pets
 CLASS Recruitment : EventCard {
+  HAS =1 EventTag<This>
   cost = 2
-  This:: EventTag<This>
-  This: PartyDelegate<Party(HAS 1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)), Owner FROM Neutral>
+  This: PartyDelegate<Party(HAS 1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)), Me@ FROM Neutral>
 }
 ```
 
@@ -6471,9 +6469,9 @@ Pets declaration:
 
 ```pets
 CLASS RedTourismWave : EventCard {
+  HAS =1 EarthTag<This>, =1 EventTag<This>
   cost = 3
   requirement = HAS "PartyRequirement<Reds>"
-  This:: EarthTag<This>, EventTag<This>
   This: MC / MarsArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile>)
 }
 ```
@@ -6491,9 +6489,9 @@ Pets declaration:
 
 ```pets
 CLASS SponsoredMohole : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 5
   requirement = HAS "PartyRequirement<Kelvinists>"
-  This:: BuildingTag<This>
   This: PROD[2 Heat]
 }
 ```
@@ -6511,9 +6509,9 @@ Pets declaration:
 
 ```pets
 CLASS SupportedResearch : AutomatedCard {
+  HAS =1 ScienceTag<This>
   cost = 3
   requirement = HAS "PartyRequirement<Scientists>"
-  This:: ScienceTag<This>
   This: 2 ProjectCard
 }
 ```
@@ -6531,10 +6529,10 @@ Pets declaration:
 
 ```pets
 CLASS VoteOfNoConfidence : EventCard {
+  HAS =1 EventTag<This>
   cost = 5
   requirement = HAS "PartyLeader"
-  This:: EventTag<This>
-  This: Chairman<Owner FROM Neutral>, TerraformRating
+  This: Chairman<Me@ FROM Neutral>, TerraformRating
 }
 ```
 
@@ -6551,9 +6549,9 @@ Pets declaration:
 
 ```pets
 CLASS WildlifeDome : AutomatedCard {
+  HAS =1 AnimalTag<This>, =1 PlantTag<This>, =1 BuildingTag<This>
   cost = 15
   requirement = HAS "PartyRequirement<Greens>"
-  This:: AnimalTag<This>, PlantTag<This>, BuildingTag<This>
   This: GreeneryTile<>
 }
 ```
@@ -6573,8 +6571,8 @@ Pets declaration:
 
 ```pets
 CLASS Advertising : ActiveCard {
+  HAS =1 EarthTag<This>
   cost = 4
-  This:: EarthTag<This>
   CardFront(HAS 20 cost): PROD[MC]
 }
 ```
@@ -6592,9 +6590,9 @@ Pets declaration:
 
 ```pets
 CLASS AqueductSystems : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 9
   requirement = HAS "Adjacency<CityTile, OceanTile>"
-  This:: BuildingTag<This>
   This: 3 SearchForCard<TagFilter<Class<BuildingTag>>>
   End: VictoryPoint
 }
@@ -6612,11 +6610,11 @@ Class: `AsteroidDeflectionSystem`
 Pets declaration:
 
 ```pets
-CLASS AsteroidDeflectionSystem : ActionCard, ActiveCard, ResourceCard<Class<Asteroid>> {
+CLASS AsteroidDeflectionSystem : ActiveCard, ResourceCard<Class<Asteroid>>, ActionCard {
+  HAS =1 EarthTag<This>, =1 SpaceTag<This>, =1 BuildingTag<This>
   cost = 13
-  This:: EarthTag<This>, SpaceTag<This>, BuildingTag<This>
   This: PROD[-Energy]
-  -Plant BY Player(NOT Owner):: Die
+  -Plant BY Player(NOT Me@): Die
   End: VictoryPoint / Asteroid<This>
   -> ProjectCard<Revealed> THEN (ClaimCardReward<TagFilter<Class<SpaceTag>>, This> OR Ok) THEN -ProjectCard<Revealed>
 }
@@ -6634,9 +6632,9 @@ Class: `AsteroidHollowing`
 Pets declaration:
 
 ```pets
-CLASS AsteroidHollowing : ActionCard, ActiveCard, ResourceCard<Class<Asteroid>> {
+CLASS AsteroidHollowing : ActiveCard, ResourceCard<Class<Asteroid>>, ActionCard {
+  HAS =1 SpaceTag<This>
   cost = 16
-  This:: SpaceTag<This>
   End: VictoryPoint / 2 Asteroid<This>
   Titanium -> Asteroid<This>, PROD[MC]
 }
@@ -6654,9 +6652,9 @@ Class: `AsteroidRights`
 Pets declaration:
 
 ```pets
-CLASS AsteroidRights : ActionCard, ActiveCard, ResourceCard<Class<Asteroid>> {
+CLASS AsteroidRights : ActiveCard, ResourceCard<Class<Asteroid>>, ActionCard {
+  HAS =1 EarthTag<This>, =1 SpaceTag<This>
   cost = 10
-  This:: EarthTag<This>, SpaceTag<This>
   This: 2 Asteroid<This>
   MC -> Asteroid
   Asteroid<This> -> PROD[MC] OR 2 Titanium
@@ -6676,8 +6674,8 @@ Pets declaration:
 
 ```pets
 CLASS AstraMechanica : AutomatedCard {
+  HAS =1 ScienceTag<This>
   cost = 7
-  This:: ScienceTag<This>
   This: ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)>?, ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)>?
 }
 ```
@@ -6695,8 +6693,8 @@ Pets declaration:
 
 ```pets
 CLASS BactoviralResearch : AutomatedCard {
+  HAS =1 MicrobeTag<This>, =1 ScienceTag<This>
   cost = 10
-  This:: MicrobeTag<This>, ScienceTag<This>
   This: ProjectCard, Microbe / ScienceTag
 }
 ```
@@ -6713,9 +6711,9 @@ Class: `BioPrintingFacility`
 Pets declaration:
 
 ```pets
-CLASS BioPrintingFacility : ActionCard, ActiveCard {
+CLASS BioPrintingFacility : ActiveCard, ActionCard {
+  HAS =1 BuildingTag<This>
   cost = 7
-  This:: BuildingTag<This>
   2 Energy -> 2 Plant OR Animal
 }
 ```
@@ -6733,8 +6731,8 @@ Pets declaration:
 
 ```pets
 CLASS CarbonNanosystems : ActiveCard, ResourceCard<Class<Graphene>> {
+  HAS =1 ScienceTag<This>, =1 BuildingTag<This>
   cost = 14
-  This:: ScienceTag<This>, BuildingTag<This>
   ScienceTag: Graphene<This>
   PayingFor<Class<SpaceTag>> OR PayingFor<Class<CityTag>>:: AcceptingFromCard<This>
   PayFromCard<This>:: -4 Owed
@@ -6755,9 +6753,9 @@ Pets declaration:
 
 ```pets
 CLASS Casinos : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 5
   requirement = HAS "CityTile"
-  This:: BuildingTag<This>
   This: PROD[-Energy, 4 MC]
 }
 ```
@@ -6775,9 +6773,9 @@ Pets declaration:
 
 ```pets
 CLASS CityParks : AutomatedCard {
+  HAS =1 PlantTag<This>
   cost = 7
   requirement = HAS "3 CityTile"
-  This:: PlantTag<This>
   This: 2 Plant
   End: 2 VictoryPoint
 }
@@ -6795,9 +6793,9 @@ Class: `CometAiming`
 Pets declaration:
 
 ```pets
-CLASS CometAiming : ActionCard, ActiveCard, ResourceCard<Class<Asteroid>> {
+CLASS CometAiming : ActiveCard, ResourceCard<Class<Asteroid>>, ActionCard {
+  HAS =1 SpaceTag<This>
   cost = 17
-  This:: SpaceTag<This>
   Titanium -> Asteroid
   Asteroid<This> -> OceanTile<>
 }
@@ -6810,15 +6808,15 @@ Class: `CrashSiteCleanup`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | REQUIRES THAT A PLAYER REMOVED ANOTHER PLAYER'S PLANTS THIS GENERATION. Gain 1 titanium or 2 steel. | — |
-| Generated text | \[MyResourceWasRemoved&lt;Anyone, Class&lt;Plant&gt;, Owner&gt;\]. Gain 1 titanium or 2 steel. | — |
+| Generated text | \[MyResourceWasRemoved&lt;Anyone, Class&lt;Plant&gt;, Me@&gt;\]. Gain 1 titanium or 2 steel. | — |
 
 Pets declaration:
 
 ```pets
 CLASS CrashSiteCleanup : EventCard {
+  HAS =1 EventTag<This>
   cost = 4
-  requirement = HAS "MyResourceWasRemoved<Anyone, Class<Plant>, Owner>"
-  This:: EventTag<This>
+  requirement = HAS "MyResourceWasRemoved<Anyone, Class<Plant>, Me@>"
   This: Titanium OR 2 Steel
   End: VictoryPoint
 }
@@ -6837,8 +6835,8 @@ Pets declaration:
 
 ```pets
 CLASS CuttingEdgeTechnology : ActiveCard {
+  HAS =1 ScienceTag<This>
   cost = 12
-  This:: ScienceTag<This>
   PayingFor<Class<CardFront>(HAS requirement)>:: -2 Owed
   End: VictoryPoint
 }
@@ -6875,8 +6873,8 @@ Pets declaration:
 
 ```pets
 CLASS DeimosDownPromo : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 31
-  This:: SpaceTag<This>, EventTag<This>
   This: 3 TemperatureStep, DeimosDownPromo_SpecialTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>, 4 Steel, -6 Plant<Anyone>?
 }
 ```
@@ -6893,7 +6891,7 @@ Class: `DirectedHeatUsage`
 Pets declaration:
 
 ```pets
-CLASS DirectedHeatUsage : ActionCard, ActiveCard {
+CLASS DirectedHeatUsage : ActiveCard, ActionCard {
   cost = 1
   3 Heat -> 4 MC OR 2 Plant
 }
@@ -6911,9 +6909,9 @@ Class: `DirectedImpactors`
 Pets declaration:
 
 ```pets
-CLASS DirectedImpactors : ActionCard, ActiveCard, ResourceCard<Class<Asteroid>> {
+CLASS DirectedImpactors : ActiveCard, ResourceCard<Class<Asteroid>>, ActionCard {
+  HAS =1 SpaceTag<This>
   cost = 8
-  This:: SpaceTag<This>
   UseAction<This, Action1>:: Accepting<Class<Titanium>>
   6 MC -> Asteroid
   Asteroid<This> -> TemperatureStep
@@ -6933,9 +6931,9 @@ Pets declaration:
 
 ```pets
 CLASS DiversitySupport : EventCard {
+  HAS =1 EventTag<This>
   cost = 1
-  requirement = HAS "9 Class<@Resource>(HAS @Resource<Owner>)"
-  This:: EventTag<This>
+  requirement = HAS "9 Class<@Resource>(HAS @Resource)"
   This: TerraformRating
 }
 ```
@@ -6953,9 +6951,9 @@ Pets declaration:
 
 ```pets
 CLASS DuskLaserMining : AutomatedCard {
+  HAS =1 SpaceTag<This>
   cost = 8
   requirement = HAS "2 ScienceTag"
-  This:: SpaceTag<This>
   This: PROD[-Energy, Titanium], 4 Titanium
 }
 ```
@@ -6972,9 +6970,9 @@ Class: `EnergyMarket`
 Pets declaration:
 
 ```pets
-CLASS EnergyMarket : ActionCard, ActiveCard {
+CLASS EnergyMarket : ActiveCard, ActionCard {
+  HAS =1 PowerTag<This>
   cost = 3
-  This:: PowerTag<This>
   2X MC -> X Energy
   PROD[Energy] -> 8 MC
 }
@@ -6993,8 +6991,8 @@ Pets declaration:
 
 ```pets
 CLASS FieldCappedCity : AutomatedCard {
+  HAS =1 PowerTag<This>, =1 CityTag<This>, =1 BuildingTag<This>
   cost = 29
-  This:: PowerTag<This>, CityTag<This>, BuildingTag<This>
   This: PROD[2 MC, Energy], 3 Plant, CityTile<>
 }
 ```
@@ -7012,9 +7010,9 @@ Pets declaration:
 
 ```pets
 CLASS GreatDamPromo : AutomatedCard {
+  HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 15
   requirement = HAS "4 OceanTile"
-  This:: PowerTag<This>, BuildingTag<This>
   This: PROD[2 Energy], GreatDamPromo_SpecialTile<LandArea(HAS Neighbor<OceanTile>)>
   End: VictoryPoint
 }
@@ -7033,9 +7031,9 @@ Pets declaration:
 
 ```pets
 CLASS Harvest : EventCard {
+  HAS =1 PlantTag<This>, =1 EventTag<This>
   cost = 4
   requirement = HAS "3 GreeneryTile"
-  This:: PlantTag<This>, EventTag<This>
   This: 12 MC
 }
 ```
@@ -7071,9 +7069,9 @@ Class: `HiTechLab`
 Pets declaration:
 
 ```pets
-CLASS HiTechLab : ActionCard, ActiveCard {
+CLASS HiTechLab : ActiveCard, ActionCard {
+  HAS =1 ScienceTag<This>, =1 BuildingTag<This>
   cost = 17
-  This:: ScienceTag<This>, BuildingTag<This>
   End: VictoryPoint
   X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting> THEN -X ProjectCard<Selecting>.
 }
@@ -7092,8 +7090,8 @@ Pets declaration:
 
 ```pets
 CLASS HomeostasisBureau : ActiveCard {
+  HAS =1 BuildingTag<This>
   cost = 16
-  This:: BuildingTag<This>
   This: PROD[2 Heat]
   TemperatureStep: 3 MC
 }
@@ -7111,9 +7109,9 @@ Class: `Hospitals`
 Pets declaration:
 
 ```pets
-CLASS Hospitals : ActionCard, ActiveCard, ResourceCard<Class<Disease>> {
+CLASS Hospitals : ActiveCard, ResourceCard<Class<Disease>>, ActionCard {
+  HAS =1 BuildingTag<This>
   cost = 8
-  This:: BuildingTag<This>
   This: PROD[-Energy]
   CityTile<Anyone>: Disease<This>
   End: VictoryPoint
@@ -7128,17 +7126,17 @@ Class: `IcyImpactors`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | — | Action: Spend 10 M€ (titanium may be used) to add 2 asteroids here, or spend 1 asteroid here to place an ocean tile. FIRST PLAYER CHOOSES WHERE YOU MUST PLACE IT. |
-| Generated text | — | Action: Spend 10 M€ (titanium may be used) to add 2 asteroids to this card, or spend 1 asteroid from this card to \[EACH Player(HAS StartToken) { ChooseOceanArea }\]. |
+| Generated text | — | Action: Spend 10 M€ (titanium may be used) to add 2 asteroids to this card, or spend 1 asteroid from this card to \[EACH Starter@Player(HAS StartToken) { ChooseOceanArea&lt;Starter@Player&gt; }\]. |
 
 Pets declaration:
 
 ```pets
-CLASS IcyImpactors : ActionCard, ActiveCard, ResourceCard<Class<Asteroid>> {
+CLASS IcyImpactors : ActiveCard, ResourceCard<Class<Asteroid>>, ActionCard {
+  HAS =1 SpaceTag<This>
   cost = 15
-  This:: SpaceTag<This>
   UseAction<This, Action1>:: Accepting<Class<Titanium>>
   10 MC -> 2 Asteroid<This>
-  Asteroid<This> -> EACH Player(HAS StartToken) { ChooseOceanArea }
+  Asteroid<This> -> EACH Starter@Player(HAS StartToken) { ChooseOceanArea<Starter@Player> }
 }
 ```
 
@@ -7155,8 +7153,8 @@ Pets declaration:
 
 ```pets
 CLASS ImportedNutrients : EventCard {
+  HAS =1 EarthTag<This>, =1 SpaceTag<This>, =1 EventTag<This>
   cost = 14
-  This:: EarthTag<This>, SpaceTag<This>, EventTag<This>
   This: 4 Plant, 4 Microbe
 }
 ```
@@ -7174,9 +7172,9 @@ Pets declaration:
 
 ```pets
 CLASS InterplanetaryTrade : AutomatedCard {
+  HAS =1 SpaceTag<This>
   cost = 27
-  This:: SpaceTag<This>
-  This: PROD[MC / Class<@Tag>(HAS @Tag<Owner>)]
+  This: PROD[MC / Class<@Tag>(HAS @Tag)]
   End: VictoryPoint
 }
 ```
@@ -7194,8 +7192,8 @@ Pets declaration:
 
 ```pets
 CLASS JovianEmbassy : AutomatedCard {
+  HAS =1 JovianTag<This>, =1 BuildingTag<This>
   cost = 14
-  This:: JovianTag<This>, BuildingTag<This>
   This: TerraformRating
   End: VictoryPoint
 }
@@ -7214,8 +7212,8 @@ Pets declaration:
 
 ```pets
 CLASS KaguyaTech : AutomatedCard {
+  HAS =1 CityTag<This>, =1 PlantTag<This>
   cost = 10
-  This:: CityTag<This>, PlantTag<This>
   This: PROD[2 MC], ProjectCard, CityTile<@MarsArea> FROM GreeneryTile<@MarsArea>
 }
 ```
@@ -7227,15 +7225,15 @@ Class: `LawSuit`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Steal 3 M€ from a player that REMOVED YOUR RESOURCES OR DECREASED YOUR PRODUCTION this generation. Place this card face down in THAT PLAYER'S EVENT PILE. | — |
-| Generated text | \[(MyResourceWasRemoved&lt;Owner, Attacker@Player&gt; OR MyProductionWasDecreased&lt;Owner, Attacker@Player&gt;): 3 MC FROM MC&lt;Attacker@Player&gt;\], then \[PlayedEvent&lt;Attacker@Player, Class&lt;This&gt;&gt; FROM This\]. | — |
+| Generated text | \[(MyResourceWasRemoved&lt;Me@Anyone, Attacker@Player&gt; OR MyProductionWasDecreased&lt;Me@Anyone, Attacker@Player&gt;): 3 MC FROM MC&lt;Attacker@Player&gt;\], then \[PlayedEvent&lt;Attacker@Player, Class&lt;This&gt;&gt; FROM This\]. | — |
 
 Pets declaration:
 
 ```pets
 CLASS LawSuit : EventCard {
+  HAS =1 EarthTag<This>, =1 EventTag<This>
   cost = 2
-  This:: EarthTag<This>, EventTag<This>
-  This: (MyResourceWasRemoved<Owner, Attacker@Player> OR MyProductionWasDecreased<Owner, Attacker@Player>): 3 MC FROM MC<Attacker@Player> THEN PlayedEvent<Attacker@Player, Class<This>> FROM This
+  This: (MyResourceWasRemoved<Me@, Attacker@Player> OR MyProductionWasDecreased<Me@, Attacker@Player>): 3 MC FROM MC<Attacker@Player> THEN PlayedEvent<Attacker@Player, Class<This>> FROM This
   End: -VictoryPoint
 }
 ```
@@ -7253,8 +7251,8 @@ Pets declaration:
 
 ```pets
 CLASS MagneticFieldGeneratorsPromo : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 22
-  This:: BuildingTag<This>
   This: PROD[-4 Energy, 2 Plant], 3 TerraformRating, MagneticFieldGeneratorsPromo_SpecialTile<>
 }
 ```
@@ -7272,9 +7270,9 @@ Pets declaration:
 
 ```pets
 CLASS MagneticShield : AutomatedCard {
+  HAS =1 SpaceTag<This>
   cost = 24
   requirement = HAS "3 PowerTag"
-  This:: SpaceTag<This>
   This: 4 TerraformRating
 }
 ```
@@ -7286,15 +7284,15 @@ Class: `MarsNomads`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | PLACE THE NOMADS (a gold cube) on a non-reserved, empty area on the game board. | Action: Move the Nomads to an adjacent, non-reserved, empty area, and GAIN PLACEMENT BONUSES as if placing a special tile there. No tiles may be placed on the Nomad area. |
-| Generated text | Place a nomads marker on a land area with no occupant. | Action: \[NomadsMarker&lt;LandArea(HAS MAX 0 Occupant, HAS Neighbor&lt;NomadsMarker&lt;Owner&gt;&gt;, NOT Source@LandArea)&gt; FROM NomadsMarker&lt;Owner, Source@LandArea&gt;\], then \[EACH Destination@MarsArea(HAS NomadsMarker) { Placement&lt;Destination@MarsArea&gt; }\]. |
+| Generated text | Place a nomads marker on a land area with no occupant. | Action: \[NomadsMarker&lt;LandArea(HAS MAX 0 Occupant, HAS Neighbor&lt;NomadsMarker&gt;, NOT Source@LandArea)&gt; FROM NomadsMarker&lt;Source@LandArea&gt;\], then \[EACH Destination@MarsArea(HAS NomadsMarker) { Placement&lt;Destination@MarsArea&gt; }\]. |
 
 Pets declaration:
 
 ```pets
-CLASS MarsNomads : ActionCard, ActiveCard {
+CLASS MarsNomads : ActiveCard, ActionCard {
   cost = 13
   This: NomadsMarker<LandArea(HAS MAX 0 Occupant)>
-  -> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>, NOT Source@LandArea)> FROM NomadsMarker<Owner, Source@LandArea> THEN EACH Destination@MarsArea(HAS NomadsMarker) { Placement<Destination@MarsArea> }
+  -> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker>, NOT Source@LandArea)> FROM NomadsMarker<Source@LandArea> THEN EACH Destination@MarsArea(HAS NomadsMarker) { Placement<Destination@MarsArea> }
 }
 ```
 
@@ -7311,10 +7309,9 @@ Pets declaration:
 
 ```pets
 CLASS MartianLumberCorp : ActiveCard {
+  HAS =3 GrantedResourceValue<Class<Plant>, This>, =1 BuildingTag<This>, =1 PlantTag<This>
   cost = 6
   requirement = HAS "2 GreeneryTile"
-  This:: 3 GrantedResourceValue<Class<Plant>, This>
-  This:: BuildingTag<This>, PlantTag<This>
   This: PROD[Plant]
   PayingFor<Class<BuildingTag>>:: Accepting<Class<Plant>>
 }
@@ -7333,8 +7330,8 @@ Pets declaration:
 
 ```pets
 CLASS MeatIndustry : ActiveCard {
+  HAS =1 BuildingTag<This>
   cost = 5
-  This:: BuildingTag<This>
   Animal: 2 MC
 }
 ```
@@ -7351,9 +7348,9 @@ Class: `Meltworks`
 Pets declaration:
 
 ```pets
-CLASS Meltworks : ActionCard, ActiveCard {
+CLASS Meltworks : ActiveCard, ActionCard {
+  HAS =1 BuildingTag<This>
   cost = 4
-  This:: BuildingTag<This>
   5 Heat -> 3 Steel
 }
 ```
@@ -7371,10 +7368,9 @@ Pets declaration:
 
 ```pets
 CLASS MercurianAlloys : ActiveCard {
+  HAS =1 GrantedResourceValue<Class<Titanium>, This>, =1 SpaceTag<This>
   cost = 3
   requirement = HAS "2 ScienceTag"
-  This:: GrantedResourceValue<Class<Titanium>, This>
-  This:: SpaceTag<This>
 }
 ```
 
@@ -7390,9 +7386,9 @@ Class: `MoholeLake`
 Pets declaration:
 
 ```pets
-CLASS MoholeLake : ActionCard, ActiveCard {
+CLASS MoholeLake : ActiveCard, ActionCard {
+  HAS =1 BuildingTag<This>
   cost = 31
-  This:: BuildingTag<This>
   This: OceanTile<>, TemperatureStep, 3 Plant
   -> Microbe OR Animal
 }
@@ -7405,16 +7401,15 @@ Class: `NeptunianPowerConsultants`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | 1 VP per hydroelectric resource on this card. | Effect: When any ocean is placed, you MAY spend 5 M€ (steel may be used), to raise your energy production 1 step and add 1 hydroelectric resource here. |
-| Generated text | \[NeptunianOption&lt;This&gt;\]. 1 VP per hydroelectric resource on this card. | Effect: When any ocean tile is placed, \[UseAction&lt;NeptunianOption&lt;This&gt;&gt;?\]. |
+| Generated text | 1 VP per hydroelectric resource on this card. | Effect: When any ocean tile is placed, \[UseAction&lt;NeptunianOption&lt;This&gt;&gt;?\]. \[=1 NeptunianOption&lt;This&gt;\]. |
 
 Pets declaration:
 
 ```pets
 CLASS NeptunianPowerConsultants : ActiveCard, ResourceCard<Class<Hydroelectric>> {
+  HAS =1 NeptunianOption<This>, =1 PowerTag<This>
   cost = 14
-  This:: NeptunianOption<This>
-  This:: PowerTag<This>
-  OceanTile BY Anyone: UseAction<NeptunianOption<This>>?
+  OceanTile BY Actor: UseAction<NeptunianOption<This>>?
   End: VictoryPoint / Hydroelectric<This>
 }
 ```
@@ -7431,9 +7426,9 @@ Class: `OrbitalCleanup`
 Pets declaration:
 
 ```pets
-CLASS OrbitalCleanup : ActionCard, ActiveCard {
+CLASS OrbitalCleanup : ActiveCard, ActionCard {
+  HAS =1 EarthTag<This>, =1 SpaceTag<This>
   cost = 14
-  This:: EarthTag<This>, SpaceTag<This>
   This: PROD[-2 MC]
   End: 2 VictoryPoint
   -> MC / ScienceTag
@@ -7471,10 +7466,10 @@ Class: `Penguins`
 Pets declaration:
 
 ```pets
-CLASS Penguins : ActionCard, ActiveCard, ResourceCard<Class<Animal>> {
+CLASS Penguins : ActiveCard, ResourceCard<Class<Animal>>, ActionCard {
+  HAS =1 AnimalTag<This>
   cost = 7
   requirement = HAS "8 OceanTile"
-  This:: AnimalTag<This>
   End: VictoryPoint / Animal<This>
   -> Animal<This>
 }
@@ -7493,8 +7488,8 @@ Pets declaration:
 
 ```pets
 CLASS Potatoes : AutomatedCard {
+  HAS =1 PlantTag<This>
   cost = 2
-  This:: PlantTag<This>
   This: -2 Plant, PROD[2 MC]
 }
 ```
@@ -7512,8 +7507,8 @@ Pets declaration:
 
 ```pets
 CLASS ProjectInspection : EventCard {
+  HAS =1 EventTag<This>
   cost = 0
-  This:: EventTag<This>
   This: UseAction<ActionCard(HAS ActionUsedMarker)>
 }
 ```
@@ -7531,9 +7526,9 @@ Pets declaration:
 
 ```pets
 CLASS ProtectedGrowth : EventCard {
+  HAS =1 PlantTag<This>, =1 EventTag<This>
   cost = 2
   requirement = HAS "MAX 7 OxygenStep"
-  This:: PlantTag<This>, EventTag<This>
   This: Plant / PowerTag
 }
 ```
@@ -7551,9 +7546,9 @@ Pets declaration:
 
 ```pets
 CLASS PublicBaths : AutomatedCard {
+  HAS =1 BuildingTag<This>
   cost = 6
   requirement = HAS "6 OceanTile"
-  This:: BuildingTag<This>
   This: 6 MC
   End: VictoryPoint
 }
@@ -7572,8 +7567,8 @@ Pets declaration:
 
 ```pets
 CLASS PublicPlans : EventCard {
+  HAS =1 EventTag<This>
   cost = 7
-  This:: EventTag<This>
   This: X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X MC
   End: VictoryPoint
 }
@@ -7591,7 +7586,7 @@ Class: `RedShips`
 Pets declaration:
 
 ```pets
-CLASS RedShips : ActionCard, ActiveCard {
+CLASS RedShips : ActiveCard, ActionCard {
   cost = 2
   requirement = HAS "4 OxygenStep"
   -> MC / (CityTile<Anyone, MarsArea(HAS Neighbor<OceanTile>)> OR SpecialTile<Anyone, MarsArea(HAS Neighbor<OceanTile>)>)
@@ -7611,9 +7606,8 @@ Pets declaration:
 
 ```pets
 CLASS RegoPlastics : ActiveCard {
+  HAS =1 GrantedResourceValue<Class<Steel>, This>, =1 BuildingTag<This>
   cost = 10
-  This:: GrantedResourceValue<Class<Steel>, This>
-  This:: BuildingTag<This>
   End: VictoryPoint
 }
 ```
@@ -7649,12 +7643,31 @@ Class: `SaturnSurfing`
 Pets declaration:
 
 ```pets
-CLASS SaturnSurfing : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS SaturnSurfing : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 JovianTag<This>, =1 EarthTag<This>
   cost = 13
-  This:: JovianTag<This>, EarthTag<This>
   This: Floater<This> / EarthTag
   End: VictoryPoint
   Floater<This> -> MC / Floater<This> MAX 4, MC
+}
+```
+
+### Shipment to Earth
+
+Class: `ShipmentToEarth`
+
+| | Bottom | Top |
+| --- | --- | --- |
+| Printed text | ? | — |
+| Generated text | Remove 3 plants and 3 steel. Raise your terraform rating 3 steps. Gain 2 M€ per Earth tag you have. | — |
+
+Pets declaration:
+
+```pets
+CLASS ShipmentToEarth : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
+  cost = 17
+  This: -3 Plant, -3 Steel, 3 TerraformRating, 2 MC / EarthTag
 }
 ```
 
@@ -7671,8 +7684,8 @@ Pets declaration:
 
 ```pets
 CLASS SixteenPsyche : AutomatedCard {
+  HAS =1 SpaceTag<This>
   cost = 31
-  This:: SpaceTag<This>
   This: PROD[2 Titanium], 3 Titanium
   End: 2 VictoryPoint
 }
@@ -7691,8 +7704,8 @@ Pets declaration:
 
 ```pets
 CLASS SmallAsteroid : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 10
-  This:: SpaceTag<This>, EventTag<This>
   This: TemperatureStep, -2 Plant<Anyone>?
 }
 ```
@@ -7710,9 +7723,9 @@ Pets declaration:
 
 ```pets
 CLASS SnowAlgae : AutomatedCard {
+  HAS =1 PlantTag<This>
   cost = 12
   requirement = HAS "2 OceanTile"
-  This:: PlantTag<This>
   This: PROD[Plant, Heat]
 }
 ```
@@ -7730,8 +7743,8 @@ Pets declaration:
 
 ```pets
 CLASS SoilEnrichment : EventCard {
+  HAS =1 MicrobeTag<This>, =1 PlantTag<This>, =1 EventTag<This>
   cost = 6
-  This:: MicrobeTag<This>, PlantTag<This>, EventTag<This>
   This: -Microbe, 5 Plant
 }
 ```
@@ -7749,8 +7762,8 @@ Pets declaration:
 
 ```pets
 CLASS SolarLogistics : ActiveCard {
+  HAS =1 EarthTag<This>, =1 SpaceTag<This>
   cost = 20
-  This:: EarthTag<This>, SpaceTag<This>
   This: 2 Titanium
   PayingFor<Class<EarthTag>>:: -2 Owed
   EventCard<Anyone>(HAS SpaceTag): ProjectCard
@@ -7771,8 +7784,8 @@ Pets declaration:
 
 ```pets
 CLASS StanfordTorus : AutomatedCard {
+  HAS =1 CityTag<This>, =1 SpaceTag<This>
   cost = 12
-  This:: CityTag<This>, SpaceTag<This>
   This: CityTile<StanfordTorus_RemoteArea>
   End: 2 VictoryPoint
 }
@@ -7791,9 +7804,9 @@ Pets declaration:
 
 ```pets
 CLASS StaticHarvesting : AutomatedCard {
+  HAS =1 PowerTag<This>
   cost = 5
   requirement = HAS "MAX 3 OceanTile"
-  This:: PowerTag<This>
   This: PROD[Energy], MC / BuildingTag
 }
 ```
@@ -7811,8 +7824,8 @@ Pets declaration:
 
 ```pets
 CLASS SterlingVents : AutomatedCard {
+  HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 5
-  This:: PowerTag<This>, BuildingTag<This>
   This: PROD[-2 Heat, 2 Energy]
   End: VictoryPoint
 }
@@ -7825,14 +7838,14 @@ Class: `StJosephOfCupertinoMission`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | 1 VP per cathedral in play. | Action: Spend 5 M€ (steel may be used) to place a cathedral (silver cube) on a city tile. Max 1 per city. THE CITY OWNER MAY PAY 2 M€ TO DRAW 1 CARD. |
-| Generated text | \[CathedralOption\]. 1 VP per cathedral in play. | Action: Spend 5 M€ (steel may be used) to \[Cathedral&lt;CityTile&lt;Anyone&gt;&gt;\]. |
+| Generated text | 1 VP per cathedral in play. | Action: Spend 5 M€ (steel may be used) to \[Cathedral&lt;CityTile&lt;Anyone&gt;&gt;\]. / Effect: \[=1 CathedralOption&lt;This&gt;\]. |
 
 Pets declaration:
 
 ```pets
-CLASS StJosephOfCupertinoMission : ActionCard, ActiveCard {
+CLASS StJosephOfCupertinoMission : ActiveCard, ActionCard {
+  HAS =1 CathedralOption<This>
   cost = 7
-  This: CathedralOption
   UseAction<This>:: Accepting<Class<Steel>>
   End: VictoryPoint / Cathedral
   5 MC -> Cathedral<CityTile<Anyone>>
@@ -7851,10 +7864,10 @@ Class: `SubCrustMeasurements`
 Pets declaration:
 
 ```pets
-CLASS SubCrustMeasurements : ActionCard, ActiveCard {
+CLASS SubCrustMeasurements : ActiveCard, ActionCard {
+  HAS =1 EarthTag<This>, =1 ScienceTag<This>, =1 BuildingTag<This>
   cost = 20
   requirement = HAS "2 ScienceTag"
-  This:: EarthTag<This>, ScienceTag<This>, BuildingTag<This>
   End: 2 VictoryPoint
   -> ProjectCard
 }
@@ -7873,8 +7886,8 @@ Pets declaration:
 
 ```pets
 CLASS Supercapacitors : ActiveCard {
+  HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 4
-  This:: PowerTag<This>, BuildingTag<This>
   This: PROD[MC]
   -Energy IF ProductionPhase: Energy FROM Heat?
 }
@@ -7912,9 +7925,9 @@ Class: `Teslaract`
 Pets declaration:
 
 ```pets
-CLASS Teslaract : ActionCard, ActiveCard {
+CLASS Teslaract : ActiveCard, ActionCard {
+  HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 14
-  This:: PowerTag<This>, BuildingTag<This>
   This: TerraformRating
   PROD[Energy] -> PROD[Plant]
 }
@@ -7933,8 +7946,8 @@ Pets declaration:
 
 ```pets
 CLASS TopsoilContract : ActiveCard {
+  HAS =1 EarthTag<This>, =1 MicrobeTag<This>
   cost = 8
-  This:: EarthTag<This>, MicrobeTag<This>
   This: 3 Plant
   Microbe: MC
 }
@@ -7947,16 +7960,16 @@ Class: `Vermin`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Each player, including you, gets -1 VP per city they have IF THERE ARE AT LEAST 10 ANIMALS HERE. | Effect: When any city is placed, add 1 animal here. Action: Add 1 animal here, or add 1 microbe to ANOTHER card. |
-| Generated text | \[End IF 10 Animal&lt;This&gt;: EACH Player { -VictoryPoint / CityTile }\]. | Action: Add 1 animal to this card or add 1 microbe to another card. / Effect: When any city tile is placed, add 1 animal to this card. |
+| Generated text | \[End IF 10 Animal&lt;This&gt;: EACH Me@Player { -VictoryPoint / CityTile }\]. | Action: Add 1 animal to this card or add 1 microbe to another card. / Effect: When any city tile is placed, add 1 animal to this card. |
 
 Pets declaration:
 
 ```pets
-CLASS Vermin : ActionCard, ActiveCard, ResourceCard<Class<Animal>> {
+CLASS Vermin : ActiveCard, ResourceCard<Class<Animal>>, ActionCard {
+  HAS =1 MicrobeTag<This>, =1 AnimalTag<This>
   cost = 8
-  This:: MicrobeTag<This>, AnimalTag<This>
   CityTile<Anyone>: Animal<This>
-  End IF 10 Animal<This>: EACH Player { -VictoryPoint / CityTile }
+  End IF 10 Animal<This>: EACH Me@Player { -VictoryPoint / CityTile }
   -> Animal<This> OR Microbe
 }
 ```
@@ -7973,9 +7986,9 @@ Class: `WeatherBalloons`
 Pets declaration:
 
 ```pets
-CLASS WeatherBalloons : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS WeatherBalloons : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 ScienceTag<This>
   cost = 11
-  This:: ScienceTag<This>
   This: ProjectCard
   -> Floater<This>
   Floater<This> -> MC / CityTile<MarsArea, Anyone>
@@ -7995,9 +8008,9 @@ Pets declaration:
 
 ```pets
 CLASS PoliticalAlliance : EventCard {
+  HAS =1 EventTag<This>
   cost = 4
   requirement = HAS "2 PartyLeader"
-  This:: EventTag<This>
   This: TerraformRating
 }
 ```
@@ -8016,9 +8029,9 @@ Class: `CeresTechMarket`
 Pets declaration:
 
 ```pets
-CLASS CeresTechMarket : ActionCard, ActiveCard {
+CLASS CeresTechMarket : ActiveCard, ActionCard {
+  HAS =1 ScienceTag<This>, =1 SpaceTag<This>
   cost = 12
-  This:: ScienceTag<This>, SpaceTag<This>
   This: 2 MC / Colony
   End: VictoryPoint
   X ProjectCard -> 2X MC
@@ -8037,9 +8050,9 @@ Class: `CloudTourism`
 Pets declaration:
 
 ```pets
-CLASS CloudTourism : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS CloudTourism : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 JovianTag<This>, =1 VenusTag<This>
   cost = 11
-  This:: JovianTag<This>, VenusTag<This>
   This: PROD[MC / EarthTag MAX VenusTag]
   End: VictoryPoint / 3 Floater<This>
   -> Floater<This>
@@ -8058,9 +8071,9 @@ Class: `FloatingRefinery`
 Pets declaration:
 
 ```pets
-CLASS FloatingRefinery : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
+CLASS FloatingRefinery : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
+  HAS =1 VenusTag<This>
   cost = 7
-  This:: VenusTag<This>
   This: Floater<This> / VenusTag
   -> Floater<This>
   2 Floater -> Titanium, 2 MC
@@ -8080,9 +8093,9 @@ Pets declaration:
 
 ```pets
 CLASS IshtarExpedition : EventCard {
+  HAS =1 VenusTag<This>, =1 EventTag<This>
   cost = 6
   requirement = HAS "5 VenusStep"
-  This:: VenusTag<This>, EventTag<This>
   This: 3 Titanium, 2 SearchForCard<TagFilter<Class<VenusTag>>>
 }
 ```
@@ -8100,8 +8113,8 @@ Pets declaration:
 
 ```pets
 CLASS L1TradeTerminal : ActiveCard {
+  HAS =1 SpaceTag<This>
   cost = 25
-  This:: SpaceTag<This>
   This: L1GiftWatcher THEN EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }
   Trade<@ColonyTile>:: TradeBarrier<@ColonyTile>
   Trade<@ColonyTile>: (2 ColonyProduction<@ColonyTile> OR Ok) THEN -TradeBarrier<@ColonyTile>
@@ -8122,8 +8135,8 @@ Pets declaration:
 
 ```pets
 CLASS MicrogravityNutrition : AutomatedCard {
+  HAS =1 MicrobeTag<This>, =1 PlantTag<This>
   cost = 11
-  This:: MicrobeTag<This>, PlantTag<This>
   This: PROD[MC / Colony]
   End: VictoryPoint
 }
@@ -8142,9 +8155,9 @@ Pets declaration:
 
 ```pets
 CLASS SoilStudies : EventCard {
+  HAS =1 MicrobeTag<This>, =1 PlantTag<This>, =1 EventTag<This>
   cost = 13
   requirement = HAS "MAX 13 TemperatureStep"
-  This:: MicrobeTag<This>, PlantTag<This>, EventTag<This>
   This: Plant / (VenusTag OR PlantTag OR Colony)
 }
 ```
@@ -8162,8 +8175,8 @@ Pets declaration:
 
 ```pets
 CLASS StratosphericExpedition : EventCard {
+  HAS =1 VenusTag<This>, =1 SpaceTag<This>, =1 EventTag<This>
   cost = 12
-  This:: VenusTag<This>, SpaceTag<This>, EventTag<This>
   This: 2 Floater, 2 SearchForCard<TagFilter<Class<VenusTag>>>
   End: VictoryPoint
 }
@@ -8182,8 +8195,8 @@ Pets declaration:
 
 ```pets
 CLASS UnexpectedApplication : EventCard {
+  HAS =1 VenusTag<This>, =1 EventTag<This>
   cost = 4
-  This:: VenusTag<This>, EventTag<This>
   This: -ProjectCard THEN VenusStep
 }
 ```
@@ -8201,8 +8214,8 @@ Pets declaration:
 
 ```pets
 CLASS VenusAllies : AutomatedCard {
+  HAS =1 VenusTag<This>, =1 SpaceTag<This>
   cost = 30
-  This:: VenusTag<This>, SpaceTag<This>
   This: 2 VenusStep, 4 MC / Colony
   End: 2 VictoryPoint
 }
@@ -8220,9 +8233,9 @@ Class: `VenusOrbitalSurvey`
 Pets declaration:
 
 ```pets
-CLASS VenusOrbitalSurvey : ActionCard, ActiveCard {
+CLASS VenusOrbitalSurvey : ActiveCard, ActionCard {
+  HAS =1 VenusTag<This>, =1 SpaceTag<This>
   cost = 18
-  This:: VenusTag<This>, SpaceTag<This>
   -> 2 ProjectCard<Selecting> THEN 2 TakeSelectedCard<TagFilter<Class<VenusTag>>>? THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards
 }
 ```
@@ -8239,9 +8252,9 @@ Class: `VenusShuttles`
 Pets declaration:
 
 ```pets
-CLASS VenusShuttles : ActionCard, ActiveCard {
+CLASS VenusShuttles : ActiveCard, ActionCard {
+  HAS =1 VenusTag<This>
   cost = 9
-  This:: VenusTag<This>
   This: 2 Floater<CardFront(HAS VenusTag)>
   MC / 12 - VenusTag -> VenusStep
 }
@@ -8260,9 +8273,9 @@ Pets declaration:
 
 ```pets
 CLASS VenusTradeHub : ActiveCard {
+  HAS =1 VenusTag<This>, =1 SpaceTag<This>
   cost = 12
   requirement = HAS "2 VenusTag"
-  This:: VenusTag<This>, SpaceTag<This>
   Trade: 3 MC
   End: VictoryPoint
 }
@@ -8281,9 +8294,9 @@ Pets declaration:
 
 ```pets
 CLASS ColonialEnvoys : EventCard {
+  HAS =1 EventTag<This>
   cost = 4
   requirement = HAS "PartyRequirement<Unity>"
-  This:: EventTag<This>
   This: EACH Colony { PartyDelegate }
 }
 ```
@@ -8320,9 +8333,9 @@ Pets declaration:
 
 ```pets
 CLASS EnvoysFromVenus : EventCard {
+  HAS =1 VenusTag<This>, =1 EventTag<This>
   cost = 1
   requirement = HAS "3 VenusTag"
-  This:: VenusTag<This>, EventTag<This>
   This: 2 PartyDelegate
 }
 ```
@@ -8340,10 +8353,10 @@ Pets declaration:
 
 ```pets
 CLASS FrontierTown : AutomatedCard {
+  HAS =1 CityTag<This>, =1 BuildingTag<This>
   cost = 11
   requirement = HAS "PartyRequirement<MarsFirst>"
-  This:: CityTag<This>, BuildingTag<This>
-  This: FrontierTownBonus, PROD[-Energy], CityTile<> THEN -FrontierTownBonus.
+  This: FrontierTownBonus, PROD[-Energy], CityTile<>
 }
 ```
 
@@ -8360,9 +8373,9 @@ Pets declaration:
 
 ```pets
 CLASS GhgShipment : EventCard {
+  HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 3
   requirement = HAS "PartyRequirement<Kelvinists>"
-  This:: SpaceTag<This>, EventTag<This>
   This: PROD[Heat], Heat / Floater
 }
 ```
@@ -8380,9 +8393,9 @@ Pets declaration:
 
 ```pets
 CLASS JovianEnvoys : EventCard {
+  HAS =1 EventTag<This>
   cost = 2
   requirement = HAS "2 JovianTag"
-  This:: EventTag<This>
   This: 2 PartyDelegate
 }
 ```
@@ -8400,9 +8413,9 @@ Pets declaration:
 
 ```pets
 CLASS RedAppeasement : EventCard {
+  HAS =1 EventTag<This>
   cost = 0
   requirement = HAS "PartyRequirement<Reds>, MAX 0 Pass<Anyone>"
-  This:: EventTag<This>
   This: PROD[2 MC], Pass
 }
 ```
@@ -8420,10 +8433,10 @@ Pets declaration:
 
 ```pets
 CLASS SpecialPermit : EventCard {
+  HAS =1 PlantTag<This>, =1 EventTag<This>
   cost = 5
   requirement = HAS "PartyRequirement<Greens>"
-  This:: PlantTag<This>, EventTag<This>
-  This: 4 Plant<Owner FROM Anyone>
+  This: 4 Plant<Me@ FROM Anyone>
 }
 ```
 
@@ -8440,9 +8453,9 @@ Pets declaration:
 
 ```pets
 CLASS SponsoringNation : AutomatedCard {
+  HAS =1 EarthTag<This>
   cost = 21
   requirement = HAS "4 EarthTag"
-  This:: EarthTag<This>
   This: 3 TerraformRating, 2 PartyDelegate
 }
 ```
@@ -8460,9 +8473,9 @@ Pets declaration:
 
 ```pets
 CLASS SummitLogistics : AutomatedCard {
+  HAS =1 BuildingTag<This>, =1 SpaceTag<This>
   cost = 10
   requirement = HAS "PartyRequirement<Scientists>"
-  This:: BuildingTag<This>, SpaceTag<This>
   This: MC / (PlanetaryTag OR Colony), 2 ProjectCard
 }
 ```
@@ -8480,9 +8493,9 @@ Pets declaration:
 
 ```pets
 CLASS WgProject : AutomatedCard {
+  HAS =1 EarthTag<This>
   cost = 9
   requirement = HAS "Chairman"
-  This:: EarthTag<This>
   This: 3 PreludeCard<Selecting> THEN -2 PreludeCard<Selecting> THEN PlayOrFizzle<Selecting>
 }
 ```
@@ -8496,14 +8509,14 @@ Class: `FakeResearchCoordination`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | After being played, when you perform an action, the wild tag counts as any tag of your choice. | — |
-| Generated text | \[FakeWildTag&lt;This&gt;\]. | — |
+| Generated text | — | Effect: \[=1 FakeWildTag&lt;This&gt;\]. |
 
 Pets declaration:
 
 ```pets
 CLASS FakeResearchCoordination : AutomatedCard {
+  HAS =1 FakeWildTag<This>
   cost = 4
-  This:: FakeWildTag<This>
 }
 ```
 

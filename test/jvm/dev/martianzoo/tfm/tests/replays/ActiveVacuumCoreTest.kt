@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -30,10 +30,10 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
 
   override val playerClassPets =
       """
-      CLASS Blue : Player { SetupPhase: 4 TerraformRating }
+      CLASS Blue : Player { SetupPhase: 4 TerraformRating<This> }
       CLASS Pink : Player
       CLASS Green : Player
-      CLASS Purple : Player { SetupPhase: 2 TerraformRating }
+      CLASS Purple : Player { SetupPhase: 2 TerraformRating<This> }
       """
           .trimIndent()
 

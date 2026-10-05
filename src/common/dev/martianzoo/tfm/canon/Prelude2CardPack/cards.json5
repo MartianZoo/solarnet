@@ -126,8 +126,8 @@
             "X TerraformRating IF ActionPhase, MAX 0 ActionPhaseTrGain:: -TerraformRating",
           ],
           "components": [
-            "CLASS PreservationTrWatcher : CardWatcher { TerraformRating IF ActionPhase:: ActionPhaseTrGain. }",
-            "CLASS ActionPhaseTrGain<GenerationScope> : Owned { HAS MAX 1 This }",
+            "CLASS PreservationTrWatcher : CardWatcher { TerraformRating IF ActionPhase:: ActionPhaseTrGain }",
+            "CLASS ActionPhaseTrGain<GenerationScope> : Owned",
           ],
         },
         {
@@ -137,7 +137,7 @@
         },
         {
           "name": "Recession",
-          "immediate": "10 MC, EACH Player(NOT Owner) { -5 MC., PROD[-1 MC] }",
+          "immediate": "10 MC, EACH Other@Player(NOT Me@) { -5 MC<Other@>., PROD[-1 MC<Other@>] }",
         },
         {
           "name": "SoilBacteria",
@@ -162,7 +162,7 @@
             "NewTurn IF PreludePhase:: SuitableInfrastructureBonus<This>.",
           ],
           "components": [
-            "CLASS SuitableInfrastructureBonus : Cardbound<SuitableInfrastructure<Player>>, Hidden, Atomized { HAS MAX 1 This; X Production<Class<StandardResource>>:: 2 MC, -This! }",
+            "CLASS SuitableInfrastructureBonus : Cardbound<SuitableInfrastructure<Player>>, Hidden, Atomized { HAS MAX 1 This; X Production<Class<StandardResource>>: (This: -This! THEN 2 MC) OR (MAX 0 This: Ok) }",
           ],
         },
         {
@@ -310,7 +310,7 @@
           "name": "CorridorsOfPower",
           "tags": [ "EarthTag" ],
           "immediate": "TerraformRating, 4 MC",
-          "effects": [ "PartyLeader<Party>:: ProjectCard" ],
+          "effects": [ "PartyLeader<Party>: ProjectCard" ],
         },
         {
           "name": "HighCircles",
@@ -358,9 +358,9 @@
           "requirement": "PartyRequirement<MarsFirst>",
           "cost": 11,
           "tags": [ "CityTag", "BuildingTag" ],
-          "immediate": "FrontierTownBonus, PROD[-Energy], CityTile<> THEN -FrontierTownBonus.",
+          "immediate": "FrontierTownBonus, PROD[-Energy], CityTile<>",
           "components": [
-            "CLASS FrontierTownBonus : Owned<Player>, Hidden { HAS MAX 1 This; Placement<Area@MarsArea>:: -This! THEN RepeatPlacementBonus<Area@MarsArea> }",
+            "CLASS FrontierTownBonus : Owned<Player>, Hidden { HAS MAX 1 This; CityTile<Area@MarsArea>: -This! THEN RepeatPlacementBonus<Area@> }",
             "CLASS RepeatPlacementBonus<MarsArea> : Owned<Player>, CustomInstruction",
           ],
         },
@@ -390,7 +390,7 @@
           "requirement": "PartyRequirement<Greens>",
           "cost": 5,
           "tags": [ "PlantTag", "EventTag" ],
-          "immediate": "4 Plant<Owner FROM Anyone>",
+          "immediate": "4 Plant<Me@ FROM Anyone>",
         },
         {
           "name": "SponsoringNation",

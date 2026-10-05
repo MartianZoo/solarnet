@@ -324,7 +324,7 @@ private fun renderRemovalPrevention(
     effect: Effect,
     describers: Describers,
 ): EnglishText? {
-  if (!effect.automatic || !isDeadEndInstruction(effect.instruction, describers)) return null
+  if (!isDeadEndInstruction(effect.instruction, describers)) return null
   val (trigger, actor) =
       when (val authoredTrigger = effect.trigger) {
         is ByTrigger -> authoredTrigger.inner to authoredTrigger.by
@@ -437,24 +437,34 @@ private fun renderOncePerActionProductionReward(
 
   val declaration = describers.declaration(rewardMarker.className)
   if (!hasUnitLatchInvariant(declaration.invariants, describers.thisExpression)) return null
-  val rewardEffect = declaration.effects.singleOrNull() ?: return null
-  if (!rewardEffect.automatic) return null
+  val rewardEffect = declaration.authoredEffects.singleOrNull() ?: return null
   val sizedTrigger = rewardEffect.trigger as? XTrigger ?: return null
   val productionTrigger = sizedTrigger.inner as? OnGainOf ?: return null
   val production =
       productionCategoryExpression(productionTrigger.expression, describers) ?: return null
   if (production.owner != null || describers.concrete(production.resource)) return null
 
-  val rewardInstructions = InstructionGroup.of(rewardEffect.instruction).instructions
-  val markerRemoval = rewardInstructions.lastOrNull() as? Remove ?: return null
+  val alternatives = (rewardEffect.instruction as? Instruction.Or)?.instructions ?: return null
+  if (alternatives.size != 2) return null
+  val sequence = alternatives.filterIsInstance<Then>().singleOrNull() ?: return null
+  val present = sequence.stages.singleOrNull() as? Instruction.Gated ?: return null
+  if (countedPresence(present.gate) != describers.thisExpression) return null
+  val absent = alternatives.filterIsInstance<Instruction.Gated>().singleOrNull() ?: return null
+  val absentCount = absent.gate as? Requirement.Max ?: return null
+  if (
+      absentCount.maximum != 0 ||
+          (absentCount.countedMetric as? Metric.Count)?.expression != describers.thisExpression ||
+          absent.inner != NoOp
+  )
+      return null
+  val markerRemoval = present.inner as? Remove ?: return null
   if (
       markerRemoval.removing != describers.thisExpression ||
           markerRemoval.quantifier.modality() != Modality.REQUIRED ||
           markerRemoval.count.fixedQuantity() != 1
-  ) {
-    return null
-  }
-  val reward = renderInstructions(InstructionGroup(rewardInstructions.dropLast(1)), describers)
+  )
+      return null
+  val reward = renderInstructions(sequence.continuation, describers)
   val rewardClause = reward.clauses.singleOrNull() as? Clause.Simple ?: return null
   if (reward.unresolved.isNotEmpty()) return null
   val conditionalReward =

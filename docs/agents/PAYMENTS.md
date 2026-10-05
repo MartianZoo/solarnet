@@ -171,8 +171,8 @@ necessarily one physical unit. Determine how the complete allocation accumulates
 finishes or corrects it, how excess is validated, and what resumes the enclosing operation. Reject
 any version that creates a parallel ledger or leaves cash comparably noisy.
 
-**D. Owner-scoped escrow.** Transfer selected resources temporarily to an
-`Escrow<Payer, Obligation>` Owner, then validate and consume the collected tender or return it on
+**D. Escrow as an owner.** Transfer selected resources temporarily to an
+`Escrow<Payer, Obligation>` subtype of `Anyone`, then validate and consume the collected resources or return them on
 cancellation. This may let existing single-resource choices assemble a complete allocation without
 a multi-quantity task.
 
@@ -180,7 +180,7 @@ Escrow must answer:
 
 - Can standard resources be owned by Escrow without firing Player resource rules against the wrong
   owner?
-- Can card-held resources move there without breaking the rule that their Owner follows their
+- Can card-held resources move there without breaking the rule that their owner follows their
   holder, or would escrow require duplicate tender tokens?
 - Do deposits fire loss, gain, conversion, or payment effects before acceptance?
 - Can invalid completion restore resources and consequences when deposits came from separately

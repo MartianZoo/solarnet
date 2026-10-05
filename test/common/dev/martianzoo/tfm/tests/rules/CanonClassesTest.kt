@@ -9,7 +9,7 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
@@ -35,7 +35,7 @@ internal class CanonClassesTest {
   internal fun setupSeparatesPlayersFromActors() {
     val premise = canonicalPremise()
     premise.actors
-        .filterIsInstance<dev.martianzoo.pets.data.Player>()
+        .filterIsInstance<dev.martianzoo.state.Player>()
         .shouldContainExactly(PLAYER1, PLAYER2)
     premise.actors.shouldContainExactly(PLAYER1, PLAYER2, ADMIN)
     val game = Engine.newGame(premise)

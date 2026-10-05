@@ -83,7 +83,7 @@ internal class TurmoilProjectCardsTest : CardTest() {
 
     shouldThrow<NotNowException> {
       p1.playProject(Recruitment, 2) {
-        doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
+        doTask("PartyDelegate<MarsFirst, Player1 FROM Neutral>")
       }
     }
   }
@@ -103,7 +103,7 @@ internal class TurmoilProjectCardsTest : CardTest() {
     val neutralDelegatesBefore = admin.count("Delegate<Neutral>")
 
     p1.playProject(Recruitment, 2) {
-      doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
+      doTask("PartyDelegate<MarsFirst, Player1 FROM Neutral>")
     }
 
     p1.count("PartyDelegate<MarsFirst>") shouldBe 1
@@ -124,7 +124,7 @@ internal class TurmoilProjectCardsTest : CardTest() {
     admin.phase("Action")
 
     p1.playProject(Recruitment, 2) {
-          doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
+          doTask("PartyDelegate<MarsFirst, Player1 FROM Neutral>")
         }
         .expect(
             "PartyLeader<MarsFirst>, -PartyLeader<MarsFirst, Neutral>, 0 PartyLeader<MarsFirst, Player2>"
@@ -141,7 +141,7 @@ internal class TurmoilProjectCardsTest : CardTest() {
     admin.phase("Action")
 
     p1.playProject(Recruitment, 2) {
-          doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
+          doTask("PartyDelegate<MarsFirst, Player1 FROM Neutral>")
         }
         .expect(
             "PartyLeader<MarsFirst, Player2>, -PartyLeader<MarsFirst, Neutral>, 0 PartyLeader<MarsFirst>"
@@ -158,7 +158,7 @@ internal class TurmoilProjectCardsTest : CardTest() {
     admin.phase("Action")
 
     p1.playProject(Recruitment, 2) {
-          doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
+          doTask("PartyDelegate<MarsFirst, Player1 FROM Neutral>")
         }
         .expect("0 PartyLeader<MarsFirst>, 0 PartyLeader<MarsFirst, Player2>")
   }
@@ -174,7 +174,7 @@ internal class TurmoilProjectCardsTest : CardTest() {
     admin.phase("Action")
 
     p1.playProject(Recruitment, 2) {
-          doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
+          doTask("PartyDelegate<MarsFirst, Player1 FROM Neutral>")
         }
         .expect(
             "PartyLeader<MarsFirst, Player2>, 0 PartyLeader<MarsFirst, Player3>, " +
@@ -193,7 +193,7 @@ internal class TurmoilProjectCardsTest : CardTest() {
     admin.phase("Action")
 
     p2.playProject(Recruitment, 2) {
-          doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
+          doTask("PartyDelegate<MarsFirst, Player2 FROM Neutral>")
         }
         .expect(
             "PartyLeader<MarsFirst, Player3>, 0 PartyLeader<MarsFirst, Player1>, " +
@@ -211,7 +211,7 @@ internal class TurmoilProjectCardsTest : CardTest() {
 
     shouldThrow<DeadEndException> {
       p1.playProject(Recruitment, 2) {
-        doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
+        doTask("PartyDelegate<MarsFirst, Player1 FROM Neutral>")
       }
     }
 

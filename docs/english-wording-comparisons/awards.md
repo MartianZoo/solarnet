@@ -337,7 +337,7 @@ Pets declaration:
 CLASS Politician : Award {
   metric = COUNT "PartyLeader OR Influence"
   MeasureAward<This>:: EACH Measured@Influence<Anyone> { -Measured@Influence! }
-  MeasureAward<This>:: EACH Player { MeasureInfluence }
+  MeasureAward<This>:: EACH Scored@Player { MeasureInfluence<Scored@Player> }
 }
 ```
 
@@ -373,7 +373,7 @@ Pets declaration:
 
 ```pets
 CLASS Collector : Award {
-  metric = COUNT "Class<@Resource>(HAS @Resource<Owner>)"
+  metric = COUNT "Class<@Resource>(HAS @Resource)"
 }
 ```
 

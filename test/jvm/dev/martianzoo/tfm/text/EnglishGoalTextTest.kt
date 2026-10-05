@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.displayName
+import dev.martianzoo.state.displayName
 import dev.martianzoo.tfm.canon.Canon
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe

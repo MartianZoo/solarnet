@@ -7,7 +7,6 @@ import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.OK
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.FromExpression.Compact
@@ -315,11 +314,13 @@ public sealed class Instruction : InstructionTree() {
           variables.variables.filter {
             info.isAbstract(variables.expressionOf(it.declaration))
           }) {
-        val classTable = (info as? GameReader)?.classTable ?: variable.bound.classTable
+        val classTable = info.classTable
         val bindings =
             variables.bindings(gaining, proposed.gaining, variable, info, classTable) +
                 variables.bindings(removing, proposed.removing, variable, info, classTable)
-        val distinct = bindings.distinct()
+        val declaration = variables.expressionOf(variable.declaration).copy(typeVariableName = null)
+        val distinct =
+            bindings.filter { it.copy(typeVariableName = null) != declaration }.distinct()
         if (distinct.size > 1) {
           throw NarrowingException(
               "type variable `$variable` has conflicting bindings: `${bindings.toSet()}`"
@@ -329,21 +330,18 @@ public sealed class Instruction : InstructionTree() {
           selected[variable] = classTable.resolve(it).groundType
         }
       }
-      val table =
-          (info as? GameReader)?.classTable ?: variables.variables.firstOrNull()?.bound?.classTable
+      val table = info.classTable
       val scoped = copy().withTypeVariables(variables)
       val specialized =
           if (selected.isEmpty()) scoped
           else variables.bind(selected).transformInstruction(scoped) as Transmute
-      if (table != null) {
-        specialized.typeVariables.ensureChoicesRetained(
-            specialized,
-            proposed,
-            info,
-            table,
-            specialized.typeVariables.variables.toSet(),
-        )
-      }
+      specialized.typeVariables.ensureChoicesRetained(
+          specialized,
+          proposed,
+          info,
+          table,
+          specialized.typeVariables.variables.toSet(),
+      )
       ensureChangeIsNarrowedBy(specialized, proposed, info)
     }
   }
@@ -478,9 +476,8 @@ public sealed class Instruction : InstructionTree() {
    * Fans [body] out over the components matching [selector] in one World snapshot, producing one
    * independent branch per matching component occurrence present ([rule
    * L2-14](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
-   * In a branch, the authored [selector] expression denotes that concrete Type, and when the
-   * selector is an `Owner`, so does the contextual `Owner`, so an ordinary owned body reads exactly
-   * as it does on a card.
+   * In a branch, a marked [selector] exposes that concrete Type to the body. `Me@Player` explicitly
+   * rebinds lexical ownership; an unmarked selector preserves the enclosing `Me`.
    *
    * A selector refinement chooses which components take part. An `@` marker exposes the selected
    * component for use in [body]. A gate in [body] behaves like any other gate and fails when its
@@ -495,7 +492,7 @@ public sealed class Instruction : InstructionTree() {
   public data class Each(val selector: Expression, val body: InstructionTree) : Instruction() {
     init {
       if (body == NoOp) throw PetSyntaxException("`EACH` requires a non-`Ok` body")
-      // Nesting would make `Owner` and each selector name ambiguous between two fanouts, and no
+      // Nesting would make `Anyone` and each selector name ambiguous between two fanouts, and no
       // rule needs it. Banning it keeps one selection in scope at a time.
       if (body.descendantsOfType<Each>().any()) {
         throw PetSyntaxException("`EACH` cannot contain another `EACH`")
@@ -651,17 +648,14 @@ public sealed class Instruction : InstructionTree() {
       }
       val specialized = bindTypeVariablesFrom(proposed, info)
       val variables = typeVariablesFor(info)
-      val table =
-          (info as? GameReader)?.classTable ?: variables.variables.firstOrNull()?.bound?.classTable
-      if (table != null) {
-        val live =
-            specialized.typeVariables.variables
-                .filter { variable ->
-                  variables.bindings(this, proposed, variable, info, table).isNotEmpty()
-                }
-                .toSet()
-        specialized.typeVariables.ensureChoicesRetained(specialized, proposed, info, table, live)
-      }
+      val table = info.classTable
+      val live =
+          specialized.typeVariables.variables
+              .filter { variable ->
+                variables.bindings(this, proposed, variable, info, table).isNotEmpty()
+              }
+              .toSet()
+      specialized.typeVariables.ensureChoicesRetained(specialized, proposed, info, table, live)
       for ((wide, narrow) in specialized.instructions.zip(proposed.instructions)) {
         narrow.ensureNarrows(wide, info)
       }
@@ -687,7 +681,7 @@ public sealed class Instruction : InstructionTree() {
                     proposed,
                     variable,
                     info,
-                    (info as? GameReader)?.classTable ?: variable.bound.classTable,
+                    info.classTable,
                 )
                 .filter {
                   !sameAfterNameConsumption(it, declaration)
@@ -703,10 +697,7 @@ public sealed class Instruction : InstructionTree() {
             lowered?.takeIf { candidate -> bindings.all { candidate.narrows(it, info) } }
                 ?: bindings.singleOrNull()
         binding?.let {
-          val captured =
-              ((info as? GameReader)?.resolve(binding)
-                      ?: variable.bound.classTable.resolve(binding))
-                  .groundType
+          val captured = info.classTable.resolve(binding).groundType
           captures[variable] = captured
         }
       }
@@ -715,7 +706,7 @@ public sealed class Instruction : InstructionTree() {
       val transformer =
           variables.bind(
               captures,
-              (info as? GameReader)?.classTable ?: captures.values.first().classTable,
+              info.classTable,
           )
       for ((variable, captured) in captures) {
         if (!captured.abstract) {
@@ -765,25 +756,20 @@ public sealed class Instruction : InstructionTree() {
       val fullySpecialized =
           selectedX?.let { bindXTo(it).transformInstruction(specialized) as Then } ?: specialized
       val variables = typeVariablesFor(info)
-      val table =
-          (info as? GameReader)?.classTable ?: variables.variables.firstOrNull()?.bound?.classTable
+      val table = info.classTable
       val live =
           variables.variables
               .filter { variable ->
-                variables
-                    .bindings(this, partial, variable, info, table ?: variable.bound.classTable)
-                    .isNotEmpty()
+                variables.bindings(this, partial, variable, info, table).isNotEmpty()
               }
               .toSet()
-      if (table != null) {
-        fullySpecialized.typeVariables.ensureChoicesRetained(
-            fullySpecialized,
-            partial,
-            info,
-            table,
-            live,
-        )
-      }
+      fullySpecialized.typeVariables.ensureChoicesRetained(
+          fullySpecialized,
+          partial,
+          info,
+          table,
+          live,
+      )
       val selected =
           fullySpecialized
               .withParts(

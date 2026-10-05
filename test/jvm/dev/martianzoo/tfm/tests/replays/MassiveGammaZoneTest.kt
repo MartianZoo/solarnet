@@ -2,8 +2,7 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -194,7 +193,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       buyCards(2)
       cardAction1(BoardOfDirectors) {
         doTask("-12 MC")
-        playPrelude(Merger) { playCorp(LakefrontResorts, location = cn("Selecting")) }
+        playPrelude(Merger) { playCorp(LakefrontResorts) }
       }
       cardAction1(FakeAppliedScience) { addCardResources(BoardOfDirectors) }
       stdProject("AquiferProject") { placeTile(6, 7) }
@@ -401,8 +400,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         pay(2)
       }
       playProject(RedShips, 2)
-      stdProject("CityProject") { placeTile(6, 3) }
-      playProject(NoctisCity, 18)
+      stdProject("CityProject") { doTask("NormalCityTile<Tharsis_6_3>") }
+      playProject(NoctisCity, 18) { doTask("NormalCityTile<NoctisArea>") }
       // Applied Science's wild tag supplies the second Jovian tag for this play.
       exMachina(fakeWildTags("JovianTag"))
       playProject(JovianEnvoys, 2) {
@@ -450,7 +449,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       cardAction1(Meltworks)
       playProject(TectonicStressPower, mc = 2, steel = 4)
       playProject(LavaTubeSettlement, 13) {
-        placeTile(3, 1)
+        doTask("NormalCityTile<Tharsis_3_1>")
       }
       convertPlants { placeTile(5, 2) }
       convertPlants { placeTile(4, 2) }
@@ -459,7 +458,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       convertPlants { placeTile(6, 2) }
       convertPlants { placeTile(7, 4) }
       convertPlants { placeTile(2, 4) }
-      playProject(OpenCity, 19) { placeTile(5, 1) }
+      playProject(OpenCity, 19) { doTask("NormalCityTile<Tharsis_5_1>") }
       playProject(ViralEnhancers, 7) { doTask("Plant") }
       playProject(Farming, 12) { doTask("Plant") }
       playProject(TundraFarming, 12) { doTask("Plant") }
@@ -470,7 +469,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Greens>")
       }
-      stdProject("CityProject") { placeTile(3, 4) }
+      stdProject("CityProject") { doTask("NormalCityTile<Tharsis_3_4>") }
       pass(unused = setOf(BoardOfDirectors, FakeAppliedScience, UndergroundDetonations))
       admin.doTask("GlobalDustStorm")
     }
@@ -490,7 +489,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         pay(2)
       }
       playProject(Recruitment, 0) {
-        doTask("PartyDelegate<Reds, Owner FROM Neutral>")
+        doTask("PartyDelegate<Reds, EK FROM Neutral>")
       }
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Reds>")
@@ -510,17 +509,17 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("Steel")
       }
       playProject(CommercialDistrict, steel = 4) { placeTile(2, 1) }
-      stdProject("CityProject") { placeTile(8, 4) }
+      stdProject("CityProject") { doTask("NormalCityTile<Tharsis_8_4>") }
       convertPlants { placeTile(9, 5) }
       playProject(MedicalLab, steel = 3)
       playProject(MethaneFromTitan, mc = 2, titanium = 5)
       stdProject("CityProject") {
-        placeTile(8, 7)
+        doTask("NormalCityTile<Tharsis_8_7>")
       }
       sellPatents(7)
       cardAction1(RedShips)
       playProject(StanfordTorus, 8)
-      stdProject("CityProject") { placeTile(9, 6) }
+      stdProject("CityProject") { doTask("NormalCityTile<Tharsis_9_6>") }
       convertPlants { placeTile(8, 5) }
       stdProject("GreeneryProject") { placeTile(7, 6) }
       pass(unused = setOf(BoardOfDirectors, FakeAppliedScience, UndergroundDetonations))
@@ -615,9 +614,9 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       )
 
       admin.assertCounts(
-          1 to "Current<Class<EcoSabotage>>",
-          1 to "Coming<Class<SabotageGlobalEvent>>",
-          1 to "Distant<Class<GlobalDustStorm>>",
+          1 to "Current<EcoSabotage>",
+          1 to "Coming<SabotageGlobalEvent>",
+          1 to "Distant<GlobalDustStorm>",
           1 to "Ruling<Kelvinists>",
           1 to "Dominant<Reds>",
           1 to "Chairman<EK>",

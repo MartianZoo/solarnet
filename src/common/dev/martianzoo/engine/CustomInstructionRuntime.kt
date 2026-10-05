@@ -1,15 +1,15 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.PetElaborator
-import dev.martianzoo.pets.api.CustomInstruction
 import dev.martianzoo.pets.api.Exceptions.CustomCodeException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.PetException
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.data.Catalog
+import dev.martianzoo.state.Catalog
 import dev.martianzoo.state.Component
+import dev.martianzoo.state.CustomInstruction
+import dev.martianzoo.state.GameReader
 
 /** Engine runtime for Kotlin-provided instructions of computed Signals. */
 internal class CustomInstructionRuntime(

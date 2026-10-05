@@ -1,7 +1,6 @@
 package dev.martianzoo.state
 
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.Actor
 
 public sealed class GameEvent {
   public abstract val ordinal: Int

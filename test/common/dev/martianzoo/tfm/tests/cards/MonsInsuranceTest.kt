@@ -4,8 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testTfm
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
@@ -45,7 +44,7 @@ internal class MonsInsuranceTest : CardTest() {
     val moneyBefore = p1.count("MC")
 
     p1.playPrelude(Merger) {
-      p1.playCorp(MonsInsurance, location = cn("Selecting"))
+      p1.playCorp(MonsInsurance)
     }
 
     p1.count("MC") shouldBe moneyBefore + 10 // -42 + 48 starting money + 4 from Manutech
@@ -133,6 +132,7 @@ internal class MonsInsuranceTest : CardTest() {
     val manual = p1.also { it.autoExecPolicy = NONE }
     manual.addTasks("-Plant<Player2>, 2 MC")
     manual.doTask("-Plant<Player2>")
+    manual.doTask("MyResourceWasRemoved<Player2, Class<Plant>, Player1>.")
     manual.doTask("Ok")
     manual.doTask("2 MC<Player1>")
 
@@ -150,7 +150,7 @@ internal class MonsInsuranceTest : CardTest() {
     val pharmacyMoneyBefore = p2.count("MC")
     val checkpoint = game.timeline.checkpoint()
 
-    p1.runOperation("MicrobeTag<$Decomposers>")
+    p1.runOperation("$NitriteReducingBacteria")
 
     p1.count("MC") shouldBe monsMoneyBefore
     p2.count("MC") shouldBe pharmacyMoneyBefore - 4
@@ -215,22 +215,27 @@ internal class MonsInsuranceTest : CardTest() {
     p3.autoExecPolicy = CONCRETE
 
     p2.playPrelude(Recession) {
-      doTask("EACH Player(NOT Player2) { -5 MC<Owner>., PROD[-1 MC<Owner>] }")
+      doTask("EACH Other@Player(NOT Player2) { -5 MC<Other@Player>., PROD[-1 MC<Other@Player>] }")
       if (compensateFirst) {
         doTask("-5 MC<Player3>")
+        doTask("MyResourceWasRemoved<Player3, Class<MC>, Player2>.")
         doTask("3 MC<Player3> FROM MC<Player1>")
         doTask("-2 MC<Player1>")
       } else {
         doTask("-5 MC<Player1>")
       }
+      doTask("MyResourceWasRemoved<Player1, Class<MC>, Player2>.")
       doTask("3 MC<Player1> FROM MC<Player1>.")
       if (!compensateFirst) {
         doTask("-5 MC<Player3>")
+        doTask("MyResourceWasRemoved<Player3, Class<MC>, Player2>.")
         doTask("3 MC<Player3> FROM MC<Player1>.")
       }
       doTask("PROD[-MC<Player1>]")
+      doTask("MyProductionWasDecreased<Player1, Class<MC>, Player2>.")
       doTask("3 MC<Player1> FROM MC<Player1>.")
       doTask("PROD[-MC<Player3>]")
+      doTask("MyProductionWasDecreased<Player3, Class<MC>, Player2>.")
       doTask("3 MC<Player3> FROM MC<Player1>.")
     }
 

@@ -35,7 +35,7 @@ matches a row, read the linked section before editing.
 | Replace a result expectation with broad absolute-state assertions around an action | Use `.expect()` for the action's interesting partial net delta; reserve absolute assertions for sourced checkpoints. | [`TESTING.md`](TESTING.md#expectations) |
 | Use `EAGER` or another autoexecution policy to make a test or replay proceed | Treat `EAGER` as a strategic choice, not settlement or test infrastructure. | [`AUTOEXEC.md`](AUTOEXEC.md#choice-safety-check) |
 | Add `THEN`, `::`, a latch, priority, or pre-pruning | Begin with no extra ordering and identify the illegal committed result the new order prevents. | [`SEQUENCING.md`](SEQUENCING.md#before-adding-order) |
-| Infer control, assignment, narrowing, attribution, or `Owner` from another identity role | Name all six roles independently. | [`IDENTITY.md`](IDENTITY.md#six-identities) |
+| Infer control, assignment, narrowing, attribution, or ownership from another identity role | Name all six roles independently. | [`IDENTITY.md`](IDENTITY.md#six-identities) |
 | Give `Class` or `Type` a path to game-specific downward enumeration, or rebuild stable master facts for each premise | Pass the game universe explicitly and preserve its reusable master table. | [`CLASS_TABLES.md`](CLASS_TABLES.md#selected-replacement-master-tables-premise-tables-and-class-universes) |
 | Add an explicit quantifier because a repeated effect changed the wrong count | Inspect the changed Class's defaults and the number of matching effect activations first. | [`QUANTIFIERS.md`](QUANTIFIERS.md#before-writing-an-explicit-quantifier) |
 | Characterize behavior known to be wrong as an ordinary rule or accepted hack | Put a passing observable characterization in `BugsTest`; move it when fixed. | [`TESTING.md`](TESTING.md#known-defect-tests) |
@@ -53,6 +53,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Game World ownership, passive component/task data, recording internals, or playback | [`GAMEWORLD.md`](GAMEWORLD.md) | Selected direction |
 | Exact event exports, decision exports, combined files, or game import | [`EXPORT.md`](EXPORT.md) | Current event export and decision-design record |
 | Current World construction, components, tasks, effects, or Agent | [`ENGINE.md`](ENGINE.md) | Current model |
+| Direct corrections, `exMachina`/`sneak`, or consequences that effect suppression must preserve | [`EX_MACHINA.md`](EX_MACHINA.md) | Current contract and remaining audit |
 | Current live event, transaction, checkpoint, or rollback implementation | [`ENGINE.md`](ENGINE.md#concrete-state-and-its-history) | Current model |
 | Task ordering, `THEN`, automatic effects, barriers, or completion | [`SEQUENCING.md`](SEQUENCING.md) | Working rules and selected direction |
 | Admin, Actor attribution, task assignee, context owner, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md) | Current model and selected direction |
@@ -70,11 +71,12 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 
 | Concept being changed | Read | Authority |
 | --- | --- | --- |
-| Classes, Types, dependencies, refinements, Type variables, or uninhabited types | The cited rule of [`type-system-spec.md`](../type-system-spec.md) | Specification, checked rule-by-rule by `pets/types/Spec*Test.kt` |
+| Auditing agreement among Pets specs, conformance tests, KDoc/API, and implementation | [`SPEC_FIDELITY.md`](SPEC_FIDELITY.md) | Audit procedure and unfinished-work handoff |
+| Classes, Types, dependencies, refinements, Type variables, or uninhabited types | The cited rule of [`type-system-spec.md`](../type-system-spec.md) | Specification, checked rule-by-rule by `pets/types/Spec*Test.kt`; T2-9 external implementation checks live in `state/CustomImplementationValidationTest.kt` |
 | Pets syntax, declarations, instructions, effects, actions, narrowing, owner-local Classes, or elaboration | The cited rule of [`pets-language-spec.md`](../pets-language-spec.md) | Specification, checked rule-by-rule by `pets/Lang*Test.kt` |
 | Type-variable lifetime in the engine | The matching section of [`TYPES.md`](TYPES.md) | Current model and working direction |
 | Class-property syntax, defaults, cardinality, or property groups | The matching section of [`PROPERTIES.md`](PROPERTIES.md) | Current model and working rules |
-| Catalogs, Modules, Bundles, configuration, premise resolution, or projection policy | KDoc on [`Catalog`](../../src/common/dev/martianzoo/pets/data/Catalog.kt), [`GamePremise`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt), and [`Bundle`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt); then the matching tests | Current model |
+| Catalogs, Modules, Bundles, configuration, premise resolution, or projection policy | KDoc on [`Catalog`](../../src/common/dev/martianzoo/state/Catalog.kt), [`GamePremise`](../../src/common/dev/martianzoo/state/GamePremise.kt), and [`Bundle`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt); then the matching tests | Current model |
 | Master Class identity versus game-filtered enumeration | [`CLASS_TABLES.md`](CLASS_TABLES.md) | Current model |
 | Generated Kotlin types for the canonical Pets vocabulary | [`PETS_TYPE_GENERATOR.md`](PETS_TYPE_GENERATOR.md) | Current tool behavior |
 | Generic component fanout (`EACH`) | [`EACH.md`](EACH.md) | Current model |

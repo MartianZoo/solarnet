@@ -37,6 +37,8 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
   )
 
   private val restrictionsByClass: Map<Class, List<Restriction>> = compileRestrictions()
+  private val scopedRequiredRestrictions: List<Restriction>
+  private val unscopedRequiredLimits: Set<Limit>
 
   init {
     val inhabitedConcreteClasses = classTable.allInhabitedConcreteClasses()
@@ -56,6 +58,15 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
           sourceLocation = invalidDependencies.first().first.className.sourceLocation,
       )
     }
+
+    val (scoped, unscoped) =
+        restrictionsByClass.values
+            .flatten()
+            .distinct()
+            .filter { it.range.first > 0 }
+            .partition { it.requiredLimits(emptySet()).none() }
+    scopedRequiredRestrictions = scoped
+    unscopedRequiredLimits = unscoped.flatMap { it.requiredLimits(emptySet()) }.toSet()
   }
 
   private fun hasSingleTargetLimit(target: Type): Boolean =
@@ -92,13 +103,32 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
   public fun requiredLimits(liveTypes: Collection<Type>): Set<Limit> {
     liveTypes.forEach { require(classTable.knows(it)) { "`$it` belongs to a different Catalog" } }
     val liveTypeSet = liveTypes.toSet()
-    return restrictionsByClass.values
+    return unscopedRequiredLimits +
+        scopedRequiredRestrictions.asSequence().flatMap { it.requiredLimits(liveTypeSet) }.toSet()
+  }
+
+  /**
+   * Exact, positive counts of concrete parts directly dependent on [owner]. Creating the owner
+   * establishes these parts; validation alone never creates them. Abstract requirements and
+   * requirements for the owner itself remain constraints without choosing any components.
+   */
+  public fun requiredParts(owner: Type): List<Limit> {
+    require(classTable.knows(owner)) { "`$owner` belongs to a different Catalog" }
+    return classTable.classLimitTemplates
+        .templatesFor(owner.rootClass)
         .asSequence()
-        .flatten()
+        .filter { it.range.first > 0 && it.range.first == it.range.last }
+        .map { template ->
+          val bound =
+              replaceThisExpressionsWith(owner.expressionFull)
+                  .transformExpression(template.expression)
+          Limit(classTable.resolve(bound), template.range)
+        }
+        .filter { limit ->
+          !limit.type.abstract && limit.type.typeDependencies.any { it.boundType == owner }
+        }
         .distinct()
-        .filter { it.range.first > 0 }
-        .flatMap { it.requiredLimits(liveTypeSet) }
-        .toSet()
+        .toList()
   }
 
   private fun compileRestrictions(): Map<Class, List<Restriction>> {

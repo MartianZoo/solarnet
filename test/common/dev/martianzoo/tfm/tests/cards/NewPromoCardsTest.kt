@@ -4,6 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -86,6 +87,7 @@ internal class NewPromoCardsTest : CardTest() {
         shouldThrow<TaskException> { p3.doTask("TerraformRating<Player1>") }
         doTask("2 Steel")
         doTask("TerraformRating")
+        p1.autoExecPolicy = previousAutoExecPolicy
       }
     } finally {
       p1.autoExecPolicy = previousAutoExecPolicy
@@ -124,6 +126,20 @@ internal class NewPromoCardsTest : CardTest() {
   }
 
   @Test
+  internal fun `Neptunian option remains required until its card leaves play`() {
+    newGame(PromoCardPack)
+    p1.runOperation("$NeptunianPowerConsultants")
+
+    shouldThrow<LimitsException> {
+      p1.runOperation("-NeptunianOption<$NeptunianPowerConsultants>!")
+    }
+    p1.count("NeptunianOption<$NeptunianPowerConsultants>") shouldBe 1
+
+    p1.runOperation("-$NeptunianPowerConsultants")
+    p1.count("NeptunianOption") shouldBe 0
+  }
+
+  @Test
   internal fun `Neptunian Power Consultants may pay for its ocean bonus with steel`() {
     newGame(PromoCardPack)
     admin.phase("Action")
@@ -154,9 +170,7 @@ internal class NewPromoCardsTest : CardTest() {
 
     p2.stdProject("AquiferProject") {
       doTask("OceanTile<Tharsis_1_2>")
-      p2.selectTask(
-          "UseAction<Player1, " + "NeptunianOption<Player1, NeptunianPowerConsultants<Player1>>>?"
-      )
+      p2.selectTask("UseAction<Player1, NeptunianOption<NeptunianPowerConsultants<Player1>>>?")
       p1.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
       p1.pay(5)
       p2.autoExecPolicy = EAGER
@@ -220,9 +234,9 @@ internal class NewPromoCardsTest : CardTest() {
     p1.playProject(StJosephOfCupertinoMission, 7)
     p1.cardAction1(StJosephOfCupertinoMission) {
       p1.pay(5)
-      val wrongOwner = shouldThrow<Exception> { doTask("Cathedral<CityTile<Tharsis_4_2>>") }
-      wrongOwner.message.orEmpty() shouldContain "missing dependencies"
-      wrongOwner.message.orEmpty() shouldContain "CityTile<Player1, Tharsis_4_2>"
+      val wrongHolder = shouldThrow<Exception> { doTask("Cathedral<CityTile<Tharsis_4_2>>") }
+      wrongHolder.message.orEmpty() shouldContain "missing dependencies"
+      wrongHolder.message.orEmpty() shouldContain "CityTile<Player1, Tharsis_4_2>"
       val emptyArea = shouldThrow<Exception> { doTask("Cathedral<CityTile<Anyone, Tharsis_4_3>>") }
       emptyArea.message.orEmpty() shouldContain "missing dependencies"
       emptyArea.message.orEmpty() shouldContain "Tharsis_4_3"

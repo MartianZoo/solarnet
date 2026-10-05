@@ -3,12 +3,12 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.TransformHandler
-import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger
@@ -20,21 +20,23 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.Requirement.Exact
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.Requirement.Or
-import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
-import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.ModuleProperties.AUTO_SELECT_WHEN
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.pets.types.Class as PetClass
-import dev.martianzoo.pets.types.ClassLoader
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.PremiseClassTable
 import dev.martianzoo.pets.util.associateByStrict
+import dev.martianzoo.state.Catalog
+import dev.martianzoo.state.ClassSelection
+import dev.martianzoo.state.CustomClass
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.GamePremise
+import dev.martianzoo.state.Player
+import dev.martianzoo.state.createClassLoader
 
 /** A Terraforming Mars Catalog with declarations, structured card/map data, and selection rules. */
 public open class TfmCatalog : Catalog {
@@ -44,7 +46,7 @@ public open class TfmCatalog : Catalog {
       )
 
   final override val classTable: ClassTable by lazy {
-    ClassLoader(this).loadEverything().also(::validateCards)
+    createClassLoader(this).loadEverything().also(::validateCards)
   }
 
   private val universe: ClassTable
@@ -83,6 +85,13 @@ public open class TfmCatalog : Catalog {
       ) {
         val hasNontrivialBehavior =
             cardActions(card).isNotEmpty() ||
+                card.invariants.filterIsInstance<Exact>().any {
+                  val expression = (it.countedMetric as? Count)?.expression
+                  it.expected > 0 &&
+                      expression != null &&
+                      THIS.expression in expression.arguments &&
+                      table.getClass(expression.className).carriesPersistentBehavior()
+                } ||
                 cardEffects(card).any { effect ->
                   when {
                     effect.trigger.isEndTrigger() -> false

@@ -4,11 +4,11 @@ import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.cardTags
 import dev.martianzoo.tfm.engine.TfmGameplay
@@ -216,7 +216,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
       val claimed =
           following.take(end).any {
             it.change.gaining?.className == claim.className &&
-                it.playerOwner(checkNotNull(it.change.gaining)) == player
+                it.owningPlayer(checkNotNull(it.change.gaining)) == player
           }
       val names = eventCards[event to true].orEmpty()
       check(!claimed || names.size == event.change.count) {
@@ -302,14 +302,14 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
     when {
       gaining.isProjectCardAt(HAND) && removing?.className == PLAYED_EVENT -> {
         val cardClass = checkNotNull(removing.trackedCardClass())
-        val player = event.playerOwner(checkNotNull(gaining))
+        val player = event.owningPlayer(checkNotNull(gaining))
         cards[cardClass] = Hand(player)
         event.noteCards(listOf(cardClass), gaining = true)
       }
       gaining.isProjectCardAt(HAND) -> observeProjectCardArrival(event)
       removing.isProjectCardAt(HAND) && gaining?.className != null -> {
         val cardClass = gaining.className
-        val player = event.playerOwner(checkNotNull(removing))
+        val player = event.owningPlayer(checkNotNull(removing))
         val state = cards[cardClass] ?: return
         check(state == Hand(player)) { "$player played $cardClass from $state" }
         cards[cardClass] = Played(player)
@@ -430,7 +430,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
         listOfNotNull(change.gaining, change.removing).firstOrNull {
           it.className == PROJECT_CARD
         } ?: return null
-    return playerOwner(component)
+    return owningPlayer(component)
   }
 
   private fun ChangeEvent.involvesHandCard(): Boolean =
@@ -482,7 +482,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   private fun remainingCardCapacity(event: ChangeEvent, gaining: Boolean): Int =
       event.change.count - eventCards[event to gaining].orEmpty().size
 
-  private fun ChangeEvent.playerOwner(component: Component): Player =
+  private fun ChangeEvent.owningPlayer(component: Component): Player =
       checkNotNull(
           component.owner?.className?.let { ownerName ->
             game.actors.filterIsInstance<Player>().singleOrNull { it.className == ownerName }

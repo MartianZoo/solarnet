@@ -1,13 +1,13 @@
 count	reason	examples
-19	UNKNOWN_CHANGE_FRAME	FakeSeptemTribus: FakeWildTag<This> | SpliceTacticalGenomics: Splicer<This>
+12	UNKNOWN_CHANGE_FRAME	FakeHelion: BaseResourceValue<Class<Heat>> | ExcentricSponsor: -25 Owed
 11	UNSUPPORTED_EFFECT_TRIGGER	FakeHelion: Billing<HasActions, ActionSlot, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>> | MiningGuild: Tile<MarsArea(HAS 1 (PlacementBonus<Class<StandardResource>> - PlacementBonus<Class<MC>> - PlacementBonus<Class<Metal>> - PlacementBonus<Class<Plant>> - PlacementBonus<Class<Energy>> - PlacementBonus<Class<Heat>>), HAS MAX 0 PlacementBonus<Class<Metal>>)>: PROD[Steel], Audit
+9	UNKNOWN_REQUIREMENT_FRAME	FakeSeptemTribus: =1 FakeWildTag<This> | SpliceTacticalGenomics: =1 Splicer<This>
 6	UNSUPPORTED_FANOUT	Aridor: EACH @Class<Tag> { AridorTagWatcher<@Class, This> } | EarlyColonization: EACH @ColonyTile { 2 ColonyProduction<@ColonyTile> }
 4	UNSUPPORTED_DECLARED_CHANGE	EcologyExperts: PlayCard<Class<ProjectCard>, Class<CardFront>, Hand> | ExcentricSponsor: PlayCard<Class<ProjectCard>, Class<CardFront>, Hand>
 3	UNSUPPORTED_DISCARD	MarsUniversity: ProjectCard FROM ProjectCard? | AstraMechanica: ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)>?
-3	UNSUPPORTED_SCALING	FakeSeptemTribus: 2 MC / Class<@Party>(HAS PartyDelegate<@Party, Owner>) | EcologyExperts: -Required / Required
-2	UNSUPPORTED_GATE	LawSuit: (MyResourceWasRemoved<Owner, Attacker@Player> OR MyProductionWasDecreased<Owner, Attacker@Player>): 3 MC FROM MC<Attacker@Player> | CyberiaSystems: BuildingTag<First@CardFront>: CopyProductionBox<First@CardFront>
-2	UNSUPPORTED_PLACEMENT_CHANGE	Flooding: OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>! | MarsNomads: NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>, NOT Source@LandArea)> FROM NomadsMarker<Owner, Source@LandArea>
-1	UNKNOWN_REQUIREMENT_FRAME	CrashSiteCleanup: MyResourceWasRemoved<Anyone, Class<Plant>, Owner>
-1	UNSUPPORTED_END_EFFECT	Vermin: End IF 10 Animal<This>: EACH Player { -VictoryPoint / CityTile }
+3	UNSUPPORTED_SCALING	FakeSeptemTribus: 2 MC / Class<@Party>(HAS PartyDelegate<@Party>) | EcologyExperts: -Required / Required
+2	UNSUPPORTED_GATE	LawSuit: (MyResourceWasRemoved<Me@Anyone, Attacker@Player> OR MyProductionWasDecreased<Me@Anyone, Attacker@Player>): 3 MC FROM MC<Attacker@Player> | CyberiaSystems: BuildingTag<First@CardFront>: CopyProductionBox<First@CardFront>
+2	UNSUPPORTED_PLACEMENT_CHANGE	Flooding: OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>! | MarsNomads: NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker>, NOT Source@LandArea)> FROM NomadsMarker<Source@LandArea>
+1	UNSUPPORTED_END_EFFECT	Vermin: End IF 10 Animal<This>: EACH Me@Player { -VictoryPoint / CityTile }
 1	UNSUPPORTED_INSTRUCTION_KIND	WorldGovernmentAdvisor: GlobalParameter BY Admin
 1	UNSUPPORTED_STANDARD_RESOURCE_CHANGE	Flooding: -4 MC<@Anyone>?

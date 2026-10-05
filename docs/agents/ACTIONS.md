@@ -187,7 +187,7 @@ Current permission has the five improvised shapes summarized above. `UseAction<P
 ActionSlot>` also admits meaningless pairs such as `UseAction<ConvertPlantsAction, Action2>`. These
 facts justify the redesign; they are not a migration checklist.
 
-## Ownership
+## Division of responsibility
 
 Generic Pets owns arrow syntax, the abstract action protocol, concrete action identity, left-side
 handling, and the transition from successful left side to Signal.

@@ -89,6 +89,9 @@ that stage for subsequent lines. `CHOOSE` is explicit when a line only selects o
 task and does not complete the named stage. In particular, a line such as `2 VenusStep` must never
 silently mean “only choose this; execute VenusStep again later.”
 
+Unsubmitted task drafts are absent from the game record and need no decision lines. A `CHOOSE` line
+represents a submitted selection or narrowing, not each private step that led to it.
+
 Export component-change instructions after resolution, at the successful execution boundary.
 For a custom translation, export its concrete input when that stage completes. Do not export a
 pre-resolution `Per`, gated instruction, unresolved `.` or `?`, or an abstract template merely

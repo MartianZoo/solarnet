@@ -4,7 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -21,7 +21,7 @@ internal class ValleyTrustTest : CardTest() {
     admin.phase("Action")
     val result =
         p1.stdAction("DoRequiredActionsAction") {
-          p1.playPrelude(MartianIndustries, location = cn("Selecting"))
+          p1.playPrelude(MartianIndustries)
         }
     result.expect("PROD[Steel, Energy]")
     result.changes
@@ -82,7 +82,7 @@ internal class ValleyTrustTest : CardTest() {
     p1.playCorp(ValleyTrust, 5)
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction") {
-      p1.playPrelude(selectedPrelude, location = cn("Selecting"))
+      p1.playPrelude(selectedPrelude)
     }
   }
 
@@ -96,7 +96,7 @@ internal class ValleyTrustTest : CardTest() {
     admin.phase("Action")
     shouldThrow<LimitsException> {
       p1.stdAction("DoRequiredActionsAction") {
-        p1.playPrelude(IndustrialComplex, location = cn("Selecting"))
+        p1.playPrelude(IndustrialComplex)
       }
     }
 

@@ -40,6 +40,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.UnqualifiedReference
 import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Quantifier.AMAP
@@ -117,13 +118,13 @@ public object Parsing {
    * This is how a declaration embedded in structured card data is read; syntax examples can be seen
    * in `"components"` fields of `cards.json`.
    *
-   * Owner-local class syntax is rejected here, since that syntax is available only where a
+   * Inline derived-class syntax is rejected here, since that syntax is available only where a
    * declaration file is being read ([rule
    * L12-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-owner-local-classes)).
    */
   public fun parseOneLinerClass(declarationSource: String): ClassDeclaration =
       parse(PetsGrammar.oneLineDeclaration, declarationSource).let { declaration ->
-        declaration.allNodes.forEach(::rejectOwnerLocalClasses)
+        declaration.allNodes.forEach(::rejectInlineClasses)
         completeDeclaration(declaration)
       }
 
@@ -132,8 +133,8 @@ public object Parsing {
    * `RAW` block. [P] can only be one of the published node kinds like [Effect], [Action],
    * [InstructionTree], [Expression], etc.
    *
-   * Owner-local derived Class syntax belongs only to declaration-file grammar. A submitted element
-   * has no definition owner ([rule
+   * Inline derived Class syntax belongs only to declaration-file grammar. A submitted element has
+   * no definition owner ([rule
    * L12-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-owner-local-classes)).
    * Parsing that far is what keeps the specific error distinct from malformed syntax.
    */
@@ -155,16 +156,18 @@ public object Parsing {
       expectedType: KClass<P>,
       elementSource: String,
       derivedClasses: DerivedClassLowerer? = null,
+      inheritedNamesPossible: Boolean = false,
   ): P {
     require(expectedType != PetNode::class) { "missing type info" }
     val parsed = parse(nodeParser(expectedType), elementSource, expectedType.simpleName)
     val ordinary =
         if (derivedClasses == null) {
-          parsed.also(::rejectOwnerLocalClasses)
+          parsed.also(::rejectInlineClasses)
         } else {
           derivedClasses.transformWithoutKindCheck(parsed)
         }
-    val completed = completeNode(ordinary)
+    // Card snippets acquire their Class header only after CardPetsGenerator assembles the card.
+    val completed = completeNode(ordinary, inheritedNamesPossible || derivedClasses != null)
     check(expectedType.isInstance(completed)) {
       "expected `${expectedType.simpleName}` kind, found `${completed.kind.simpleName}`"
     }
@@ -172,7 +175,7 @@ public object Parsing {
     return completed as P
   }
 
-  private fun rejectOwnerLocalClasses(node: PetNode) {
+  private fun rejectInlineClasses(node: PetNode) {
     node
         .descendantsOfType<Expression>()
         .firstOrNull { it is SourceExpression }
@@ -247,10 +250,10 @@ public object Parsing {
   }
 
   /** Source-only expressions must be extracted before selectors or local scopes copy nodes. */
-  private fun completeNode(node: PetNode): PetNode =
+  private fun completeNode(node: PetNode, inheritedNamesPossible: Boolean = false): PetNode =
       localScopeNormalizer
           .transformWithoutKindCheck(selectorNormalizer.transformWithoutKindCheck(node))
-          .also(::rejectUnsupportedSyntax)
+          .also { rejectUnsupportedSyntax(it, inheritedNamesPossible) }
 
   private val selectorNormalizer =
       object : PetTransformer() {
@@ -357,7 +360,7 @@ public object Parsing {
         }
     return declaration.copy(
         dependencies = declaration.dependencies.map(pruner::transformExpression),
-        supertypes = declaration.supertypes.map(pruner::transformExpression).toSet(),
+        supertypes = declaration.supertypes.map(pruner::transformExpression).distinct(),
     )
   }
 
@@ -371,7 +374,8 @@ public object Parsing {
     val defaults = declaration.defaultsDeclaration
     return declaration.copy(
         dependencies = declaration.dependencies.map(transformer::transformExpression),
-        supertypes = declaration.supertypes.map(transformer::transformExpression).toSetStrict(),
+        supertypes =
+            declaration.supertypes.map(transformer::transformExpression).toSetStrict().toList(),
         invariants = declaration.invariants.map(transformer::transformRequirement).toSetStrict(),
         authoredEffects = declaration.authoredEffects.map(transformer::transformEffect),
         authoredActions = declaration.authoredActions.map(transformer::transformAction),
@@ -391,13 +395,30 @@ public object Parsing {
     )
   }
 
-  private fun rejectUnsupportedSyntax(parsed: Any?, inheritedNamesPossible: Boolean = false) {
+  private fun rejectUnsupportedSyntax(
+      parsed: Any?,
+      inheritedNamesPossible: Boolean = false,
+      propertyMePossible: Boolean = false,
+  ) {
     if (parsed is PetNode && !inheritedNamesPossible) {
       val expressions = parsed.descendantsOfType<Expression>()
       expressions
           .firstOrNull {
+            it.typeVariableName is UnqualifiedReference &&
+                !(propertyMePossible && it.typeVariableName.name == "Me")
+          }
+          ?.let {
+            throw PetSyntaxException(
+                "type variable reference `$it` has no supplying occurrence",
+                sourceLocation = it.sourceLocation,
+            )
+          }
+      expressions
+          .firstOrNull {
             val marker = it.typeVariableName
-            marker is Expression.TypeVariableName.Declaration && !marker.resolved
+            marker is Expression.TypeVariableName.Declaration &&
+                !marker.resolved &&
+                !(propertyMePossible && marker.name == "Me")
           }
           ?.let {
             val marker = it.typeVariableName!!
@@ -408,7 +429,7 @@ public object Parsing {
           }
       expressions
           .mapNotNull { it.typeVariableName as? Expression.TypeVariableName.Reference }
-          .firstOrNull { !it.resolved }
+          .firstOrNull { !it.resolved && !(propertyMePossible && it.name == "Me") }
           ?.let {
             throw PetSyntaxException(
                 "type variable marker `${it.authoredSpelling}` has no supplying occurrence",
@@ -420,7 +441,11 @@ public object Parsing {
       is ClassDeclaration ->
           (parsed.allNodes - parsed.dependencies.toSet() - parsed.supertypes).forEach {
             // Class loading resolves inherited header names in effects and actions only.
-            rejectUnsupportedSyntax(it, parsed.supertypes.isNotEmpty() && it is Effect)
+            rejectUnsupportedSyntax(
+                it,
+                inheritedNamesPossible = parsed.supertypes.isNotEmpty() && it is Effect,
+                propertyMePossible = it is PropertyValue,
+            )
           }
       is PetNode ->
           parsed.visitDescendants {
@@ -438,7 +463,6 @@ public object Parsing {
             }
             true
           }
-      is Iterable<*> -> parsed.forEach { rejectUnsupportedSyntax(it, inheritedNamesPossible) }
     }
   }
 
@@ -496,7 +520,6 @@ public object Parsing {
     private val doubleColon by literalToken("doubleColon", "::")
     private val bang by literalToken("!", "!")
     private val at by literalToken("@", "@")
-    private val caret by literalToken("^", "^")
     private val plus by literalToken("+", "+")
     private val comma by literalToken(",", ",")
     private val minus by literalToken("-", "-")
@@ -604,13 +627,18 @@ public object Parsing {
       val arguments =
           skip(langle) and separatedTerms(argument, comma, acceptZero = true) and skip(rangle)
       val base =
-          optional(typeVariableMarker) and
+          (optional(typeVariableMarker) and
               className and
               optional(arguments) and
               optional(refinement) map
               { (marker, clazz, args, ref) ->
                 expression(marker, clazz, args, ref)
-              }
+              }) or
+              (namedMarker map
+                  {
+                    val marker = UnqualifiedReference(requireNotNull(it.name))
+                    Expression(marker.boundClassName, typeVariableName = marker)
+                  })
       return locatedNode(
           if (allowDerivedClass) {
             base and
@@ -697,7 +725,16 @@ public object Parsing {
         locatedNode(
             transform(parser { metric }) map { (name, node) -> Metric.Transform(node, name.text) }
         )
-    private val metricEval by locatedNode(skip(evalKeyword) and property map Metric::Eval)
+    private val evalContext by optional(skip(langle) and expression and skip(rangle))
+    private val metricEval by
+        locatedNode(
+            skip(evalKeyword) and
+                evalContext and
+                property map
+                { (me, property) ->
+                  Metric.Eval(property, me)
+                }
+        )
     private val metricCount by expression map Metric::Count
     private val nonconstantMetric: Parser<Metric> by
         rank or metricEval or metricTransform or property or metricCount or group(parser { metric })
@@ -723,7 +760,7 @@ public object Parsing {
               if (flattened.distinct().size != flattened.size) {
                 throw PetSyntaxException("duplicate metric `OR` alternatives: `$flattened`")
               }
-              if (authored.size == 1) authored.single() else Metric.Or.create(authored)!!
+              if (authored.size == 1) authored.single() else Metric.Or.create(authored)
             }
 
     // Requirements: atom, OR, comma conjunction. An atom is also the gate of an instruction.
@@ -747,7 +784,15 @@ public object Parsing {
                   Requirement.Transform(node, name.text)
                 }
         )
-    private val requirementEval by locatedNode(skip(evalKeyword) and property map Requirement::Eval)
+    private val requirementEval by
+        locatedNode(
+            skip(evalKeyword) and
+                evalContext and
+                property map
+                { (me, property) ->
+                  Requirement.Eval(property, me)
+                }
+        )
     private val requirementAtom: Parser<Requirement> by
         requirementEval or
             requirementTransform or
@@ -940,8 +985,7 @@ public object Parsing {
               className = name,
               kind = kind,
               dependencies = deps.orEmpty(),
-              supertypes =
-                  buildSet {
+              supertypes = buildSet {
                     supes.orEmpty().forEach { supertype ->
                       if (!add(supertype))
                           throw PetSyntaxException(
@@ -949,7 +993,8 @@ public object Parsing {
                               sourceLocation = supertype.sourceLocation,
                           )
                     }
-                  },
+                  }
+                      .toList(),
           )
         }
     private val invariant by skip(hasKeyword) and locatedNode(requirement) map ::InvariantElement
@@ -1131,7 +1176,7 @@ public object Parsing {
                       offset = token.offset + 1 + location.offset,
                   )
               try {
-                Parsing.parse(type, source).also { parsed ->
+                Parsing.parseNode(type, source, inheritedNamesPossible = true).also { parsed ->
                   parsed.visitDescendants { node ->
                     node.sourceLocation
                         ?.takeIf { it.source == source }

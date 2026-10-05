@@ -47,8 +47,8 @@ internal class TurmoilEventsTest :
     newGame(TurmoilExpansion)
 
     admin.count("GlobalEvent") shouldBe 2
-    admin.count("Coming<Class<AquiferReleasedByPublicCouncil>>") shouldBe 1
-    admin.count("Distant<Class<DryDeserts>>") shouldBe 1
+    admin.count("Coming<AquiferReleasedByPublicCouncil>") shouldBe 1
+    admin.count("Distant<DryDeserts>") shouldBe 1
     admin.count("Current") shouldBe 0
     admin.count("PartyDelegate<MarsFirst, Neutral>") shouldBe 1
     admin.count("PartyDelegate<Reds, Neutral>") shouldBe 1
@@ -62,12 +62,12 @@ internal class TurmoilEventsTest :
     admin.runOperation("CelebrityLeaders")
 
     shouldThrow<LimitsException> {
-      admin.runOperation("Current<Class<AquiferReleasedByPublicCouncil>>")
+      admin.runOperation("Current<AquiferReleasedByPublicCouncil>")
     }
-    shouldThrow<LimitsException> { admin.runOperation("Coming<Class<CelebrityLeaders>>") }
+    shouldThrow<LimitsException> { admin.runOperation("Coming<CelebrityLeaders>") }
 
-    admin.count("Coming<Class<AquiferReleasedByPublicCouncil>>") shouldBe 1
-    admin.count("Distant<Class<DryDeserts>>") shouldBe 1
+    admin.count("Coming<AquiferReleasedByPublicCouncil>") shouldBe 1
+    admin.count("Distant<DryDeserts>") shouldBe 1
     admin.count("Current") shouldBe 0
   }
 
@@ -78,9 +78,9 @@ internal class TurmoilEventsTest :
     admin.runOperation("ChangingTimes") { doTask("CelebrityLeaders") }
 
     admin.count("GlobalEvent") shouldBe 3
-    admin.count("Current<Class<AquiferReleasedByPublicCouncil>>") shouldBe 1
-    admin.count("Coming<Class<DryDeserts>>") shouldBe 1
-    admin.count("Distant<Class<CelebrityLeaders>>") shouldBe 1
+    admin.count("Current<AquiferReleasedByPublicCouncil>") shouldBe 1
+    admin.count("Coming<DryDeserts>") shouldBe 1
+    admin.count("Distant<CelebrityLeaders>") shouldBe 1
     admin.count("PartyDelegate<Greens, Neutral>") shouldBe 1
     admin.count("PartyDelegate<Unity, Neutral>") shouldBe 1
     admin.count("Delegate<Neutral>") shouldBe 5
@@ -89,9 +89,9 @@ internal class TurmoilEventsTest :
 
     admin.count("GlobalEvent") shouldBe 3
     admin.count("AquiferReleasedByPublicCouncil") shouldBe 0
-    admin.count("Current<Class<DryDeserts>>") shouldBe 1
-    admin.count("Coming<Class<CelebrityLeaders>>") shouldBe 1
-    admin.count("Distant<Class<Diversity>>") shouldBe 1
+    admin.count("Current<DryDeserts>") shouldBe 1
+    admin.count("Coming<CelebrityLeaders>") shouldBe 1
+    admin.count("Distant<Diversity>") shouldBe 1
     admin.count("PartyDelegate<Unity, Neutral>") shouldBe 2
     admin.count("PartyDelegate<Scientists, Neutral>") shouldBe 1
     admin.count("Delegate<Neutral>") shouldBe 7
@@ -109,7 +109,7 @@ internal class TurmoilEventsTest :
 
     admin.count("Delegate<Neutral>") shouldBe 14
     admin.count("PartyDelegate<Neutral>") shouldBe placedBefore
-    admin.count("Distant<Class<CelebrityLeaders>>") shouldBe 1
+    admin.count("Distant<CelebrityLeaders>") shouldBe 1
   }
 
   @Test
@@ -536,11 +536,9 @@ internal class TurmoilEventsTest :
   }
 
   private fun makeCurrent(event: String) {
-    admin.runOperation(
-        "-Coming<Class<AquiferReleasedByPublicCouncil>>!, -AquiferReleasedByPublicCouncil!"
-    )
+    admin.runOperation("-Coming<AquiferReleasedByPublicCouncil>!, -AquiferReleasedByPublicCouncil!")
     admin.runOperation(event)
-    admin.runOperation("Current<Class<$event>>")
+    admin.runOperation("Current<$event>")
   }
 
   private fun seatPlayerOneAsChairman() {

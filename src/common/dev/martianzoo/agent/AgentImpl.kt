@@ -9,7 +9,6 @@ import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -17,11 +16,12 @@ import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetElement
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.util.Multiset
+import dev.martianzoo.state.Actor
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
+import dev.martianzoo.state.GameReader
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
 import dev.martianzoo.state.TaskResult
@@ -94,9 +94,8 @@ internal class AgentImpl(
 
   // CHANGES
 
-  override fun sneak(changes: String, fakeCause: Cause?): TaskResult = atomicWithoutAutoExec {
-    engine.sneak(parseInstructionGroup(changes), fakeCause)
-  }
+  override fun sneak(changes: String, fakeCause: Cause?): TaskResult =
+      engine.sneak(parseInstructionGroup(changes), fakeCause)
 
   // TASKS
 
@@ -231,6 +230,21 @@ internal class AgentImpl(
   // GAMES (methods that can't break game-integrity)
   // This layer is only usable if you have a running workflow, so that >0 players always have a
   // task in their queue at any given time
+
+  override fun taskDraft(taskId: TaskId): TaskDraft =
+      TaskDraft(taskId, tasks.getTaskData(taskId).instruction, this)
+
+  internal fun prepareDraftNarrowing(taskId: TaskId, narrowing: String): InstructionTree {
+    val parsed = parseTaskNarrowing(narrowing)
+    return engine.prepareTaskNarrowing(taskId, parsed.instruction, parsed.quantifierOmitted)
+  }
+
+  internal fun recheckDraft(taskId: TaskId, narrowing: InstructionTree): InstructionTree =
+      engine.prepareTaskNarrowing(taskId, narrowing)
+
+  internal fun commitDraft(taskId: TaskId, narrowing: InstructionTree): TaskResult = atomic {
+    engine.narrowTask(taskId, narrowing)
+  }
 
   override fun narrowTask(narrowing: String) = atomic {
     val parsed = parseTaskNarrowing(narrowing)

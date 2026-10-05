@@ -32,6 +32,7 @@ internal class InstructionResolutionTest {
           effector,
           game.classTable,
           elaborator,
+          TimelineImpl(gameWorld, Changer(game.reader, gameWorld, effector), RecordingPositions()),
       )
 
   init {
@@ -106,7 +107,7 @@ internal class InstructionResolutionTest {
   @Test
   internal fun reflexiveTransmutationUsesAvailableSourceCount() {
     checkResolution("Plant FROM Plant", "Plant<Player1> FROM Plant<Player1>!")
-    checkResolution("Plant<Owner> FROM Plant!", "Plant<Player1> FROM Plant<Player1>!")
+    checkResolution("Plant<Player1> FROM Plant!", "Plant<Player1> FROM Plant<Player1>!")
     checkResolution("2 Plant FROM Plant?", "Plant<Player1> FROM Plant<Player1>?")
     checkResolution("2 Plant FROM Plant.", "Plant<Player1> FROM Plant<Player1>!")
     shouldThrow<LimitsException> { preprocessAndResolve("2 Plant FROM Plant!") }
@@ -146,9 +147,9 @@ internal class InstructionResolutionTest {
   @Test
   internal fun testFanoutGivesEachSelectionItsOwnBranch() {
     // The selected player, not the surrounding one, owns everything inside the braces.
-    checkResolution("EACH Player { Plant }", "Plant<Player1>!, Plant<Player2>!")
+    checkResolution("EACH Me@Player { Plant }", "Plant<Player1>!, Plant<Player2>!")
     checkResolution(
-        "EACH Player { 2 Plant, Heat }",
+        "EACH Me@Player { 2 Plant, Heat }",
         "2 Plant<Player1>!, Heat<Player1>!, 2 Plant<Player2>!, Heat<Player2>!",
     )
   }
@@ -172,18 +173,18 @@ internal class InstructionResolutionTest {
   }
 
   @Test
-  internal fun testOnlyAnOwnerSelectionSuppliesTheOwnerOfItsBranch() {
-    checkResolution("EACH Player { Plant }", "Plant<Player1>!, Plant<Player2>!")
+  internal fun `only a named Me selection rebinds ownership in its branch`() {
+    checkResolution("EACH Me@Player { Plant }", "Plant<Player1>!, Plant<Player2>!")
     checkResolution(
         "EACH @ProjectCard<Anyone> { -@ProjectCard, Plant }",
         List(10) { "-ProjectCard<Player1, Hand>!, Plant<Player1>!" }.joinToString(", "),
     )
-    // A selector reads its enclosing context, so `Owner` there is one component, not every owner.
-    shouldThrow<ExpressionException> { preprocessAndResolve("EACH Owner { Plant }") }
-    // ...and it concretizes dependencies in a selector rooted in the enclosing owner's context.
-    shouldThrow<ExpressionException> {
-      preprocessAndResolve("EACH ProjectCard<Owner> { Plant }")
-    }
+    // An unnamed selector leaves the enclosing owner in force.
+    checkResolution("EACH Anyone { Plant }", "Plant<Player1>!, Plant<Player1>!")
+    checkResolution(
+        "EACH ProjectCard<Anyone> { Plant }",
+        List(10) { "Plant<Player1>!" }.joinToString(", "),
+    )
   }
 
   @Test

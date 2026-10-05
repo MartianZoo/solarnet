@@ -6,7 +6,7 @@ import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
@@ -48,7 +48,12 @@ internal class StartTokenTest {
   @Test
   internal fun passesAccordingToTheExplicitAfterMeRelation() {
     val admin = setUpGame(players = 3).testTfm(ADMIN)
-    admin.sneak("AfterMe<Player1, Player3> FROM AfterMe<Player1, Player2>")
+    // Reverse the whole ring in one correction, preserving one predecessor and successor each.
+    admin.sneak(
+        "AfterMe<Player1, Player3> FROM AfterMe<Player1, Player2>, " +
+            "AfterMe<Player3, Player2> FROM AfterMe<Player3, Player1>, " +
+            "AfterMe<Player2, Player1> FROM AfterMe<Player2, Player3>"
+    )
 
     admin.nextGeneration(0, 0, 0)
 
@@ -86,7 +91,7 @@ internal class StartTokenTest {
   }
 
   @Test
-  internal fun autoWorkflowReadsTheTokenOwner() {
+  internal fun autoWorkflowReadsTheTokenHolder() {
     val setup = canonicalPremise(Hellas, PromoCardPack, players = 2)
     val game = Engine.newGame(setup)
     val admin = game.testTfm(ADMIN)

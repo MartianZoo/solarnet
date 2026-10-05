@@ -8,8 +8,8 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.util.toStrings
 import dev.martianzoo.testsupport.PLAYER1
-import dev.martianzoo.tfm.canon.ApiUtils.getOwner
-import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
+import dev.martianzoo.tfm.canon.ApiUtils.getOwningPlayer
+import dev.martianzoo.tfm.canon.ApiUtils.getOwningType
 import dev.martianzoo.tfm.canon.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.engine.*
@@ -20,12 +20,12 @@ import kotlin.test.Test
 
 internal class ApiUtilsTest {
   @Test
-  internal fun componentOwnershipUsesTheOwnerRole() {
+  internal fun componentPossessionUsesTheAnyoneRole() {
     val game = Engine.newGame(canonicalPremise())
     val plant = game.testAgent(PLAYER1).resolve("Plant")
 
-    getOwner(game.reader, plant).className shouldBe PLAYER1.className
-    getPlayerOwner(game.reader, plant) shouldBe PLAYER1
+    getOwningType(game.reader, plant).className shouldBe PLAYER1.className
+    getOwningPlayer(game.reader, plant) shouldBe PLAYER1
   }
 
   @Test

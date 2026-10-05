@@ -169,6 +169,10 @@ spell out `public` and their public types; declarations used only within one mod
 
 ## Test design
 
+Do not add tests whose sole purpose is to specify what happens after `exMachina` or `sneak`.
+Keep coverage focused on ordinary gameplay and shared engine behavior. Evidence-backed corrections
+inside whole-game replays remain appropriate; the replay tests the game, not correction semantics.
+
 > **Recurring failure warning:** Card and rule tests operate through player-facing gameplay and
 > assert observable results. They do not inspect rendered task text, causes, incidental queue order,
 > or mirrored Canon data. A test-support helper must express a recurring component-independent
@@ -290,7 +294,7 @@ overload in `CardTest` uses the same resolution path.
 
 `CardTest` and the full-game tests provide `TaskResult.expect()`. Expectations are partial net
 deltas: name only changes that matter to the behavior under test. Unqualified owned Types are scoped
-to the Player inferred from the result's ordered change events; qualify an Owner explicitly when
+to the Player inferred from the result's ordered change events; qualify the owner explicitly when
 checking another Player or an intentionally cross-player total. Do not restate costs, test setup,
 literal `doTask()` choices, or every incidental resource movement. In source-backed whole-game
 tests, include explicitly narrated gains/removals and interesting automatic effects, even when the

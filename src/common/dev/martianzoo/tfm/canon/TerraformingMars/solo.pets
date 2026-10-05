@@ -26,7 +26,7 @@ ABSTRACT CLASS SoloObjective : Module {
   CLASS Tr63SoloObjective {
     This: BufferGasProject
 
-    CheckGameEnd IF 63 TerraformRating: Victory
+    CheckGameEnd IF 63 TerraformRating: EACH Me@Player { Victory }
   }
 }
 
@@ -40,7 +40,7 @@ CLASS BufferGasProject : StandardProject {
 CLASS SoloGenerationsLeft : GameEndBarrier
 
 "The passive owner of the removable neutral stock in solo mode"
-CLASS SoloOpponent : Owner, System {
+CLASS SoloOpponent : Anyone, System {
   HAS =1 This
   This:: EACH @Class<StandardResource> { SoloStandardResourceReserve<@Class> }
   This:: EACH @Class<CardResource> { SoloCardResourceReserve<@Class> }
@@ -60,10 +60,10 @@ CLASS SoloStandardResourceReserve<Class<@StandardResource>> : Owned<SoloOpponent
   SetupPhase: 42 @StandardResource
   SetupPhase: PROD[42 @StandardResource]
 
-  -@StandardResource BY Player:: @StandardResource BY Admin
-  @StandardResource BY Player:: -@StandardResource BY Admin
-  PROD[-@StandardResource] BY Player:: PROD[@StandardResource] BY Admin
-  PROD[@StandardResource] BY Player:: PROD[-@StandardResource] BY Admin
+  -@StandardResource BY Player: @StandardResource BY Admin
+  @StandardResource BY Player: -@StandardResource BY Admin
+  PROD[-@StandardResource] BY Player: PROD[@StandardResource] BY Admin
+  PROD[@StandardResource] BY Player: PROD[-@StandardResource] BY Admin
 }
 
 "A neutral solo-mode holder for each kind of removable card resource"
@@ -71,6 +71,6 @@ CLASS SoloCardResourceReserve : ResourceHolder<Class<@CardResource>>, Owned<Solo
   HAS =1 This
   SetupPhase: 42 @CardResource<This>
 
-  -@CardResource<This> BY Player:: @CardResource<This> BY Admin
-  @CardResource<This> BY Player:: -@CardResource<This> BY Admin
+  -@CardResource<This> BY Player: @CardResource<This> BY Admin
+  @CardResource<This> BY Player: -@CardResource<This> BY Admin
 }

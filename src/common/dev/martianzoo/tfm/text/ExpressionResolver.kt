@@ -48,7 +48,8 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
             when {
               argument == thisExpression && contextualThisType != null ->
                   contextualThisType.expression
-              playerOwned && (argument == anyoneExpression || isNotOwner(argument)) ->
+              playerOwned &&
+                  (isOwner(argument) || argument == anyoneExpression || isNotOwner(argument)) ->
                   playerExpression
               else -> argument
             }
@@ -63,7 +64,10 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
             }
     val rootClass = sourceType.rootClass
     val sourceKeys = rootClass.matchDependencyKeys(semanticSourceArguments)
-    val sourceDependencies = sourceKeys.zip(expression.arguments).toMap()
+    val sourceDependencies =
+        sourceKeys
+            .zip(expression.arguments.map { if (isOwner(it)) ownerExpression else it })
+            .toMap()
     val semanticSourceDependencies = sourceKeys.zip(semanticSourceArguments).toMap()
     val defaultArguments = rootClass.defaultType.expressionFull.arguments
     val argumentKeys = rootClass.matchDependencyKeys(defaultArguments)
@@ -179,7 +183,7 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
 
   internal fun isNotOwner(expression: Expression): Boolean {
     val excluded = (expression.refinement as? Expression.Refinement.Not)?.excluded ?: return false
-    return excluded == ownerExpression && isSubtypeOf(expression.className, ANYONE)
+    return isOwner(excluded) && isSubtypeOf(expression.className, ANYONE)
   }
 
   internal fun isGenerationScoped(className: ClassName): Boolean =
@@ -200,7 +204,13 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
       classesByName.getValue(className).isSubtypeOf(classesByName.getValue(superclassName))
 
   internal val anyoneExpression = cn("Anyone").expression
-  internal val ownerExpression = cn("Owner").expression
+  internal val ownerExpression =
+      cn("Anyone")
+          .expression
+          .copy(typeVariableName = Expression.TypeVariableName.Declaration("Me", cn("Anyone")))
+
+  internal fun isOwner(expression: Expression): Boolean = expression.typeVariableName?.name == "Me"
+
   internal val playerExpression = cn("Player").expression
   internal val thisExpression = cn("This").expression
 

@@ -94,8 +94,14 @@ private fun paymentResourceAmount(
   val represented = describers.representedClass(expression)
   val nouns =
       if (represented != null) {
-        val singular = describers.plainGainNoun(represented.className, 1) ?: return null
-        val plural = describers.plainGainNoun(represented.className, 2) ?: return null
+        val singular =
+            describers.plainGainNoun(represented.className, 1)
+                ?: describers.plainGainCategoryNoun(represented.className, 1)
+                ?: return null
+        val plural =
+            describers.plainGainNoun(represented.className, 2)
+                ?: describers.plainGainCategoryNoun(represented.className, 2)
+                ?: return null
         singular to plural
       } else {
         if (describers.resolveExpression(expression)?.sourceDependencies?.isNotEmpty() != false) {

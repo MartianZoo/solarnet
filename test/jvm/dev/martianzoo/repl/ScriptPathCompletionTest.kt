@@ -16,10 +16,10 @@ internal class ScriptPathCompletionTest {
       assertThat(newScriptSession().command("script $script"))
           .containsExactly(
               ">>> count Steel",
-              "0 Steel<Owner>",
+              "0 Steel",
               "",
               ">>> count Plant",
-              "0 Plant<Owner>",
+              "0 Plant",
               "",
           )
           .inOrder()

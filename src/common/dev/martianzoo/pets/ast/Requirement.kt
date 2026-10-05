@@ -81,10 +81,14 @@ public sealed class Requirement : PetElement() {
    * Until elaboration expands it, an `EVAL` has no truth value of its own, and [isMetBy] treats a
    * request for one as a programming error.
    */
-  public data class Eval(val property: Property) : Requirement() {
-    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(property)
+  public data class Eval(
+      val property: Property,
+      /** Lexical ownership captured at the evaluation site; rendered as `EVAL<Me>`. */
+      val me: Expression? = null,
+  ) : Requirement() {
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(property, me)
 
-    override fun toString(): String = "EVAL $property"
+    override fun toString(): String = "EVAL${me?.let { "<$it>" }.orEmpty()} $property"
 
     override fun precedence(): Int = 12
   }

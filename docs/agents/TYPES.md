@@ -19,14 +19,14 @@
 
 ## Where each concern lives
 
-| Concern | Owner |
+| Concern | Source of truth |
 | --- | --- |
 | Classes, Types, dependencies, refinements, Type variables, uninhabited Types | [`type-system-spec.md`](../type-system-spec.md) |
-| Owner-local derived Classes, and default insertion into instructions | [`pets-language-spec.md`](../pets-language-spec.md) sections 11 and 12 |
-| Which Classes a premise selects | [`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt) and tests in `PremiseSelectionTest.kt` |
+| Inline derived Classes, and default insertion into instructions | [`pets-language-spec.md`](../pets-language-spec.md) sections 11 and 12 |
+| Which Classes a premise selects | [`GamePremise.kt`](../../src/common/dev/martianzoo/state/GamePremise.kt) and tests in `PremiseSelectionTest.kt` |
 | Master Class identity versus game-filtered enumeration | [`CLASS_TABLES.md`](CLASS_TABLES.md) |
 | Class-property cardinality, groups, and direction | [`PROPERTIES.md`](PROPERTIES.md) |
-| Contextual `Owner`, Actor attribution, delegated narrowing | [`IDENTITY.md`](IDENTITY.md) |
+| Lexical ownership, Actor attribution, delegated narrowing | [`IDENTITY.md`](IDENTITY.md) |
 | `EACH` fanout | [`EACH.md`](EACH.md) |
 | Gain/removal counts, AMAP, abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) |
 | Trigger and Actor specialization at runtime | [`ENGINE.md`](ENGINE.md) |
@@ -77,8 +77,8 @@ execution; no Type variable is involved.
 
 The [`EACH`](EACH.md) fanout enumerates its selector. A marker on the selector explicitly makes each
 selected concrete Type available through the same marker on its root in the body; other body
-expressions retain their ordinary meanings. Inside the body, an Owner selection supplies contextual `Owner`; a
-non-Owner selection retains the enclosing contextual owner. `This` is the effect-bearing component.
+expressions retain their ordinary meanings. An explicitly marked `EACH Me@Player` rebinds the
+lexical owner in its body; an unmarked selection retains the enclosing `Me`. `This` is the effect-bearing component.
 The body need not use the selection.
 
 ## 2. Implementation direction for Type-variable identity

@@ -6,7 +6,7 @@ CLASS TurmoilExpansion : Module {
   // Party derives each successor edge from this committee-order creation sequence.
   This: MarsFirst THEN Kelvinists THEN Reds THEN Greens THEN Unity THEN Scientists
 
-  SetupPhase:: EACH Player { TurmoilPlayer, LobbyActionAvailable }
+  SetupPhase:: EACH Me@Player { TurmoilPlayer, LobbyActionAvailable }
   SetupPhase:: Chairman<Neutral>, Ruling<Greens>
   SetupPhase: RevealComingEvent
   TurmoilSolarPhase: TurmoilSolarOperation
@@ -17,34 +17,33 @@ CLASS Terraformer26 : Milestone { requirement = HAS "26 TerraformRating" }
 "Runs TR revision and the current event, then changes government and advances the event queue"
 CLASS TurmoilSolarOperation : Temporary, System, Hidden {
   HAS MAX 1 This
-  This:: EACH Player { -TerraformRating., MeasureInfluence }
-  This:: EACH Event@Class<GlobalEvent>(HAS Current) { \
-    ResolveGlobalEvent<Event@Class> \
+  This:: EACH Me@Player { -TerraformRating., MeasureInfluence }
+  This:: EACH Event@GlobalEvent(HAS Current) { \
+    ResolveGlobalEvent<Class<Event@>> \
   }
   -This: FormGovernment THEN ChangingTimes
 }
 
-"A revealed Global Event card, discarded once it leaves the Current position"
+"A revealed Global Event card, discarded by ChangingTimes after its Current generation"
 ABSTRACT CLASS GlobalEvent {
   HAS MAX 1 This
-  HAS MAX 1 GlobalEventPosition<Class<This>>
-  This IF RevealComingEvent:: Coming<Class<This>>
-  This IF RevealDistantEvent:: Distant<Class<This>>
-  -Current<Class<This>>:: -This!
+  HAS MAX 1 GlobalEventPosition<This>
+  This IF RevealComingEvent:: Coming<This>
+  This IF RevealDistantEvent:: Distant<This>
 }
 
 "The party receiving the neutral delegate printed in a Global Event's distant position"
-ABSTRACT CLASS GePartyDistant<EventParty@Party> : GlobalEvent {
-  This:: PartyDelegate<EventParty@Party, Neutral>.
+ABSTRACT CLASS GePartyDistant<DistantParty@Party> : GlobalEvent {
+  This: PartyDelegate<DistantParty@, Neutral>.
 }
 
 "The party receiving the neutral delegate when a Global Event becomes current"
-ABSTRACT CLASS GePartyCurrent<EventParty@Party> : GlobalEvent {
-  Current<Class<This>>:: PartyDelegate<EventParty@Party, Neutral>.
+ABSTRACT CLASS GePartyCurrent<CurrentParty@Party> : GlobalEvent {
+  Current<This>: PartyDelegate<CurrentParty@, Neutral>.
 }
 
 "One printed board position, occupied by at most one Global Event card"
-ABSTRACT CLASS GlobalEventPosition<Class<GlobalEvent>> {
+ABSTRACT CLASS GlobalEventPosition<GlobalEvent> {
   CLASS Current { HAS MAX 1 Current }
   CLASS Coming { HAS MAX 1 Coming }
   CLASS Distant { HAS MAX 1 Distant }
@@ -68,12 +67,12 @@ CLASS ResolveGlobalEvent<Class<GlobalEvent>> : Signal
 "Moves every revealed Global Event one position and requests the next event"
 CLASS ChangingTimes : Signal {
   This:: \
-    -Current., \
-    EACH Event@Class<GlobalEvent>(HAS Coming) { \
-      Current<Event@Class> FROM Coming<Event@Class> \
+    EACH Event@GlobalEvent(HAS Current) { -Event@ }, \
+    EACH Event@GlobalEvent(HAS Coming) { \
+      Current<Event@> FROM Coming<Event@> \
     }, \
-    EACH Event@Class<GlobalEvent>(HAS Distant) { \
-      Coming<Event@Class> FROM Distant<Event@Class> \
+    EACH Event@GlobalEvent(HAS Distant) { \
+      Coming<Event@> FROM Distant<Event@> \
     }, \
     RevealDistantEvent
 }
@@ -81,60 +80,61 @@ CLASS ChangingTimes : Signal {
 "A player's reserve of seven delegates, held for as long as Turmoil is in play"
 CLASS TurmoilPlayer : Owned<Player>, System, Hidden {
   HAS MAX 1 This
-  // This is the TurmoilPlayer component, so only an effect has its contextual Player owner.
+  // This is the TurmoilPlayer component, whose effect inherits its lexical Me.
   Delegate IF 8 Delegate:: Die
 }
 
 "The owner of gray delegates, who holds a reserve of fourteen"
-CLASS Neutral : Owner {
+CLASS Neutral : Anyone {
   HAS =1 This
   HAS MAX 14 Delegate<This>
 }
 
 ABSTRACT CLASS Party {
-  HAS MAX 1 This
+  HAS =1 This
   HAS MAX 1 AfterParty<This, Party>, MAX 1 AfterParty<Party, This>
+  HAS MAX 1 PartyLeader<This, Anyone>
   This:: EACH Previous@Party( \
     NOT This, HAS MAX 0 AfterParty<Party> \
-  ) { AfterParty<Previous@Party, This> }
+  ) { AfterParty<Previous@, This> }
   FormGovernment IF Dominant<This>:: \
     -Ruling! THEN Ruling<This>, \
     ApplyRulingBonus<This>, \
     EACH FormerChairman@Anyone(HAS Chairman<Anyone>) { \
-      -Chairman<FormerChairman@Anyone> \
+      -Chairman<FormerChairman@> \
     }, \
-    EACH DelegateOwner@Anyone(HAS PartyDelegate<This, Anyone>) { \
-      -PartyDelegate<This, DelegateOwner@Anyone> / ( \
-        PartyDelegate<This, DelegateOwner@Anyone> - \
-        PartyLeader<This, DelegateOwner@Anyone> \
+    EACH DelegateHolder@Anyone(HAS PartyDelegate<This, Anyone>) { \
+      -PartyDelegate<This, DelegateHolder@> / ( \
+        PartyDelegate<This, DelegateHolder@> - \
+        PartyLeader<This, DelegateHolder@> \
       ) \
     }, \
     EACH Leader@Player(HAS PartyLeader<This, Player>) { \
-      Chairman<Leader@Player> FROM PartyDelegate<This, Leader@Player> THEN \
-      TerraformRating<Leader@Player> \
+      Chairman<Leader@> FROM PartyDelegate<This, Leader@> THEN \
+      TerraformRating<Leader@> \
     }, \
     EACH Leader@Neutral(HAS PartyLeader<This, Neutral>) { \
-      Chairman<Leader@Neutral> FROM PartyDelegate<This, Leader@Neutral> \
+      Chairman<Leader@> FROM PartyDelegate<This, Leader@> \
     }, \
     EACH Next@Party(HAS MAX 0 Dominant, HAS =1 (RANK Ranked@Party { \
-      PartyDelegate<Ranked@Party, Anyone>, PartyDistance<Ranked@Party, This> \
-    })) { Dominant<Next@Party> FROM Dominant }, \
+      PartyDelegate<Ranked@, Anyone>, PartyDistance<Ranked@, This> \
+    })) { Dominant<Next@> }, \
     RefillLobby
 }
 CLASS MarsFirst : Party {
-  ApplyRulingBonus<This>:: EACH Player { 1 MC / BuildingTag }
-  ActionPhase IF Ruling<This>:: MarsFirstPolicy
+  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / BuildingTag }
+  ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: MarsFirstPolicy.
 }
-CLASS MarsFirstPolicy : Policy<MarsFirst> {
+CLASS MarsFirstPolicy : Policy<Ruling<MarsFirst>> {
   Tile<MarsArea>: Steel
 }
 
 CLASS Scientists : Party {
   This:: AfterParty<This, MarsFirst>
-  ApplyRulingBonus<This>:: EACH Player { 1 MC / ScienceTag }
-  ActionPhase IF Ruling<This>:: ScientistsPolicy
+  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / ScienceTag }
+  ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: ScientistsPolicy.
 }
-CLASS ScientistsPolicy : Policy<Scientists>, HasActions {
+CLASS ScientistsPolicy : Policy<Ruling<Scientists>>, HasActions {
   10 MC -> 3 ProjectCard, ScientistsUsedMarker
 }
 CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player> {
@@ -142,45 +142,45 @@ CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player> {
 }
 
 CLASS Unity : Party {
-  ApplyRulingBonus<This>:: EACH Player { 1 MC / PlanetaryTag }
-  ActionPhase IF Ruling<This>:: UnityPolicy
+  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / PlanetaryTag }
+  ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: UnityPolicy.
 }
-CLASS UnityPolicy : Policy<Unity> {
-  This:: EACH Player { UnityTitaniumValue }
+CLASS UnityPolicy : Policy<Ruling<Unity>> {
+  This:: EACH Me@Player { UnityTitaniumValue }
 }
 CLASS UnityTitaniumValue<UnityPolicy> : ResourceValue<Class<Titanium>> {
   HAS MAX 1 This
 }
 
 CLASS Greens : Party {
-  ApplyRulingBonus<This>:: EACH Player { 1 MC / BioTag }
-  ActionPhase IF Ruling<This>:: GreensPolicy
+  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / BioTag }
+  ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: GreensPolicy.
 }
-CLASS GreensPolicy : Policy<Greens> {
+CLASS GreensPolicy : Policy<Ruling<Greens>> {
   GreeneryTile: 4 MC
 }
 
 CLASS Reds : Party {
   // Ranking is highest-first, so rank each player by everyone else's rating to find the lowest.
   ApplyRulingBonus<This> IF MAX 0 SoloMode:: EACH Lowest@Player( \
-    HAS =1 (RANK Ranked@Player { TerraformRating<Owner(NOT Ranked@Player)> }) \
+    HAS =1 (RANK Ranked@Player { TerraformRating<Anyone(NOT Ranked@)> }) \
   ) { \
-    TerraformRating<Lowest@Player> \
+    TerraformRating<Lowest@> \
   }
-  ApplyRulingBonus<This> IF SoloMode:: EACH Player(HAS MAX 20 TerraformRating) { \
+  ApplyRulingBonus<This> IF SoloMode:: EACH Me@Player(HAS MAX 20 TerraformRating) { \
     TerraformRating \
   }
-  ActionPhase IF Ruling<This>:: RedsPolicy
+  ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: RedsPolicy.
 }
-CLASS RedsPolicy : Policy<Reds> {
+CLASS RedsPolicy : Policy<Ruling<Reds>> {
   TerraformRating: -3 MC!
 }
 
 CLASS Kelvinists : Party {
-  ApplyRulingBonus<This>:: EACH Player { 1 MC / PROD[Heat] }
-  ActionPhase IF Ruling<This>:: KelvinistsPolicy
+  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / PROD[Heat] }
+  ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: KelvinistsPolicy.
 }
-CLASS KelvinistsPolicy : Policy<Kelvinists>, HasActions {
+CLASS KelvinistsPolicy : Policy<Ruling<Kelvinists>>, HasActions {
   10 MC -> PROD[Heat, Energy]
 }
 
@@ -197,7 +197,7 @@ CLASS AfterParty<Party, Party> : System, Hidden { HAS MAX 1 This }
 CLASS PartyDistance<Party, Party> : CustomMetric
 
 "The clockwise seat distance between owners, with unseated owners last"
-CLASS PlayerDistance<Owner, Owner> : CustomMetric
+CLASS PlayerDistance<Anyone, Anyone> : CustomMetric
 
 "Whether one player meets the ruling-party or two-delegate requirement for a party"
 CLASS PartyRequirement<Party> : Owned<Player>, CustomMetric
@@ -206,6 +206,7 @@ ABSTRACT CLASS PartyStatus<Party> {
   "The party with the greatest delegate count"
   CLASS Dominant {
     HAS MAX 1 Dominant
+    This:: -Dominant(NOT This).
   }
 
   "The party whose policy and bonus govern the current generation"
@@ -215,7 +216,7 @@ ABSTRACT CLASS PartyStatus<Party> {
 }
 
 "One of an owner's delegates, while it is placed on the committee"
-ABSTRACT CLASS Delegate : Owned<Owner> {
+ABSTRACT CLASS Delegate : Owned {
   "The delegate holding the committee chair"
   CLASS Chairman {
     HAS MAX 1 Chairman
@@ -228,46 +229,38 @@ ABSTRACT CLASS Delegate : Owned<Owner> {
     // Preserve the incumbent on a count tie. For a player gain, choose the nearest tied
     // challenger clockwise from that player; Neutral and other unseated owners rank last.
     X This:: EACH Leader@Anyone( \
-      HAS MAX 0 PartyLeader<Delegation@Party, Anyone>, \
+      HAS MAX 0 PartyLeader<Delegation@, Anyone>, \
       HAS =1 (RANK Ranked@Anyone { \
-        PartyDelegate<Delegation@Party, Ranked@Anyone>, \
-        PartyLeader<Delegation@Party, Ranked@Anyone>, \
-        Player - PlayerDistance<Owner, Ranked@Anyone> \
+        PartyDelegate<Delegation@, Ranked@>, \
+        PartyLeader<Delegation@, Ranked@>, \
+        Player - PlayerDistance<Me@, Ranked@> \
       }) \
     ) { \
-      PartyLeader<Delegation@Party, Leader@Anyone> \
+      PartyLeader<Delegation@, Leader@> \
     }
-    X This OR -X This:: RecalculateDominance<Delegation@Party>
-    MeasureInfluence IF Dominant<Delegation@Party>, \
-      1 (PartyDelegate<Delegation@Party, Owner> - PartyLeader<Delegation@Party, Owner>):: \
+    X This OR -X This:: RecalculateDominance<Delegation@>
+    MeasureInfluence IF Dominant<Delegation@>, \
+      1 (PartyDelegate<Delegation@> - PartyLeader<Delegation@>):: \
       DelegateInfluence.
   }
 }
 
 
 "The owner whose delegate occupies one party's leader seat"
-CLASS PartyLeader<Delegation@Party> : Owned<Owner> {
-  This:: EACH FormerLeader@Anyone( \
-    HAS PartyLeader<Delegation@Party, Anyone>, \
-    HAS 2 (RANK Ranked@Anyone { \
-      PartyDelegate<Delegation@Party, Ranked@Anyone>, \
-      PartyLeader<Delegation@Party, Ranked@Anyone> \
-    }) \
-  ) { \
-    -PartyLeader<Delegation@Party, FormerLeader@Anyone> \
-  }
-  -PartyDelegate<Delegation@Party, Owner> \
-    IF MAX 0 PartyDelegate<Delegation@Party, Owner>:: \
+CLASS PartyLeader<Delegation@Party> : Owned {
+  This:: -PartyLeader<Delegation@, Anyone>(NOT This).
+  -PartyDelegate<Delegation@> \
+    IF MAX 0 PartyDelegate<Delegation@>:: \
     -This! THEN \
       EACH Leader@Anyone( \
-        HAS PartyDelegate<Delegation@Party, Anyone>, \
-        HAS MAX 0 PartyLeader<Delegation@Party, Anyone>, \
+        HAS PartyDelegate<Delegation@, Anyone>, \
+        HAS MAX 0 PartyLeader<Delegation@, Anyone>, \
         HAS =1 (RANK Ranked@Anyone { \
-          PartyDelegate<Delegation@Party, Ranked@Anyone>, \
-          PartyLeader<Delegation@Party, Ranked@Anyone> \
+          PartyDelegate<Delegation@, Ranked@>, \
+          PartyLeader<Delegation@, Ranked@> \
         }) \
-      ) { PartyLeader<Delegation@Party, Leader@Anyone> }
-  MeasureInfluence IF Dominant<Delegation@Party>:: PartyLeaderInfluence
+      ) { PartyLeader<Delegation@, Leader@> }
+  MeasureInfluence IF Dominant<Delegation@>:: PartyLeaderInfluence
   End: VictoryPoint
 }
 
@@ -280,11 +273,10 @@ CLASS LobbyActionAvailable : Owned<Player>, System, Hidden {
 "Gives dominance to the largest delegation, then incumbency and committee order"
 CLASS RecalculateDominance<Source@Party> : Signal {
   This:: EACH Next@Party(HAS MAX 0 Dominant, HAS =1 (RANK Ranked@Party { \
-    PartyDelegate<Ranked@Party, Anyone>, Dominant<Ranked@Party>, \
-    Party - PartyDistance<Source@Party, Ranked@Party> \
+    PartyDelegate<Ranked@, Anyone>, Dominant<Ranked@>, \
+    Party - PartyDistance<Source@, Ranked@> \
   })) { \
-    (Dominant<Party>: Dominant<Next@Party FROM Party>) OR \
-    (MAX 0 Dominant<Party>: Dominant<Next@Party>) \
+    Dominant<Next@> \
   }
 }
 
@@ -296,7 +288,7 @@ CLASS LobbyAction : StandardAction {
 
 "Restores free lobbying for each player who has an available delegate"
 CLASS RefillLobby : Signal {
-  This:: EACH Player(HAS MAX 6 Delegate) { LobbyActionAvailable. }
+  This:: EACH Me@Player(HAS MAX 6 Delegate) { LobbyActionAvailable. }
 }
 
 "Requests the current political influence snapshot for one player"
@@ -314,7 +306,7 @@ ABSTRACT CLASS Influence<GenerationScope> : Owned<Player> {
 }
 
 "A ruling party's capability during the Action phase"
-ABSTRACT CLASS Policy<Party, ActionPhase> {
+ABSTRACT CLASS Policy<Ruling<Party>, ActionPhase> {
   HAS MAX 1 Policy
 }
 

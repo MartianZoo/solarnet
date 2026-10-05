@@ -1,16 +1,16 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.PetElaborator
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
 import dev.martianzoo.pets.ast.InstructionGroup
-import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.HashMultiset
 import dev.martianzoo.pets.util.invoke
+import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.ComponentChange
 import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.toComponent
 
 /** Maintains the live-effect index and fires matching effects for component changes. */
@@ -104,7 +104,7 @@ internal class Effector(
         context = component,
         triggerEvent = triggerEvent,
         controller = controller,
-        changedComponentPlayer = component.playerOwner,
+        changedComponentPlayer = component.owningPlayer,
         automatic = false,
         instruction = InstructionGroup.of(instruction) * triggerEvent.change.count,
     )

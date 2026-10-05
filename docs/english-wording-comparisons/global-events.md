@@ -19,9 +19,9 @@ Class: `AquiferReleasedByPublicCouncil`
 Pets declaration:
 
 ```pets
-CLASS AquiferReleasedByPublicCouncil : GePartyCurrent<Greens>, GePartyDistant<MarsFirst> {
-  ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<OceanTile>>:: EACH Player(HAS StartToken) { AdminOceanPlacement }
-  ResolveGlobalEvent<Class<This>>:: EACH Player { Plant / Influence, Steel / Influence }
+CLASS AquiferReleasedByPublicCouncil : GePartyDistant<MarsFirst>, GePartyCurrent<Greens> {
+  ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<OceanTile>>:: EACH Starter@Player(HAS StartToken) { AdminOceanPlacement<Starter@Player> }
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { Plant / Influence, Steel / Influence }
 }
 ```
 
@@ -37,8 +37,8 @@ Class: `AsteroidMiningGlobalEvent`
 Pets declaration:
 
 ```pets
-CLASS AsteroidMiningGlobalEvent : GePartyCurrent<Unity>, GePartyDistant<Reds> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { Titanium / JovianTag MAX 5, Titanium / Influence }
+CLASS AsteroidMiningGlobalEvent : GePartyDistant<Reds>, GePartyCurrent<Unity> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { Titanium / JovianTag MAX 5, Titanium / Influence }
 }
 ```
 
@@ -54,8 +54,8 @@ Class: `CelebrityLeaders`
 Pets declaration:
 
 ```pets
-CLASS CelebrityLeaders : GePartyCurrent<Greens>, GePartyDistant<Unity> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { 2 MC / PlayedEvent MAX 5, 2 MC / Influence }
+CLASS CelebrityLeaders : GePartyDistant<Unity>, GePartyCurrent<Greens> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { 2 MC / PlayedEvent MAX 5, 2 MC / Influence }
 }
 ```
 
@@ -71,8 +71,8 @@ Class: `Diversity`
 Pets declaration:
 
 ```pets
-CLASS Diversity : GePartyCurrent<Scientists>, GePartyDistant<Scientists> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { 10 MC / 9 (Class<@Tag>(HAS @Tag<Owner>) OR Influence) MAX 1 }
+CLASS Diversity : GePartyDistant<Scientists>, GePartyCurrent<Scientists> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { 10 MC / 9 (Class<@Tag>(HAS @Tag) OR Influence) MAX 1 }
 }
 ```
 
@@ -88,9 +88,9 @@ Class: `DryDeserts`
 Pets declaration:
 
 ```pets
-CLASS DryDeserts : GePartyCurrent<Unity>, GePartyDistant<Reds> {
-  ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<OceanTile>>:: EACH Player(HAS StartToken) { RemoveOceanForGlobalEvent }
-  ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveDryDeserts }
+CLASS DryDeserts : GePartyDistant<Reds>, GePartyCurrent<Unity> {
+  ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<OceanTile>>:: EACH Starter@Player(HAS StartToken) { RemoveOceanForGlobalEvent<Starter@Player> }
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { ResolveDryDeserts }
 }
 ```
 
@@ -106,8 +106,8 @@ Class: `EcoSabotage`
 Pets declaration:
 
 ```pets
-CLASS EcoSabotage : GePartyCurrent<Reds>, GePartyDistant<Greens> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { -Plant! / Plant - Influence - 3 }
+CLASS EcoSabotage : GePartyDistant<Greens>, GePartyCurrent<Reds> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { -Plant! / Plant - Influence - 3 }
 }
 ```
 
@@ -118,15 +118,15 @@ Class: `Election`
 | | Text |
 | --- | --- |
 | Printed text | Count your influence plus building tags and city tiles (no limits). The player with most (or 10 in solo) gains 2 TR, the 2nd (or counting 5 in solo) gains 1 TR (ties are friendly). |
-| Generated text | If this is a multiplayer game, \[EACH Player(HAS =1 (RANK Ranked@Player { Influence&lt;Ranked@Player&gt; OR BuildingTag&lt;Ranked@Player&gt; OR CityTile&lt;Ranked@Player&gt; })) { 2 TerraformRating }\]. If this is a multiplayer game, \[EACH Player(HAS =2 (RANK Ranked@Player { Influence&lt;Ranked@Player&gt; OR BuildingTag&lt;Ranked@Player&gt; OR CityTile&lt;Ranked@Player&gt; })) { TerraformRating }\]. If this is a solo game, raise your terraform rating 1 step per complete set of 5 influence, building tags, and city tiles combined (max 2). |
+| Generated text | If this is a multiplayer game, \[EACH Me@Player(HAS =1 (RANK Ranked@Player { Influence&lt;Ranked@Player&gt; OR BuildingTag&lt;Ranked@Player&gt; OR CityTile&lt;Ranked@Player&gt; })) { 2 TerraformRating }\]. If this is a multiplayer game, \[EACH Me@Player(HAS =2 (RANK Ranked@Player { Influence&lt;Ranked@Player&gt; OR BuildingTag&lt;Ranked@Player&gt; OR CityTile&lt;Ranked@Player&gt; })) { TerraformRating }\]. If this is a solo game, raise your terraform rating 1 step per complete set of 5 influence, building tags, and city tiles combined (max 2). |
 
 Pets declaration:
 
 ```pets
-CLASS Election : GePartyCurrent<MarsFirst>, GePartyDistant<Greens> {
-  ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: EACH Player(HAS =1 (RANK Ranked@Player { Influence<Ranked@Player> OR BuildingTag<Ranked@Player> OR CityTile<Ranked@Player> })) { 2 TerraformRating }
-  ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: EACH Player(HAS =2 (RANK Ranked@Player { Influence<Ranked@Player> OR BuildingTag<Ranked@Player> OR CityTile<Ranked@Player> })) { TerraformRating }
-  ResolveGlobalEvent<Class<This>> IF SoloMode:: EACH Player { TerraformRating / 5 (Influence OR BuildingTag OR CityTile) MAX 2 }
+CLASS Election : GePartyDistant<Greens>, GePartyCurrent<MarsFirst> {
+  ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: EACH Me@Player(HAS =1 (RANK Ranked@Player { Influence<Ranked@Player> OR BuildingTag<Ranked@Player> OR CityTile<Ranked@Player> })) { 2 TerraformRating }
+  ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: EACH Me@Player(HAS =2 (RANK Ranked@Player { Influence<Ranked@Player> OR BuildingTag<Ranked@Player> OR CityTile<Ranked@Player> })) { TerraformRating }
+  ResolveGlobalEvent<Class<This>> IF SoloMode:: EACH Me@Player { TerraformRating / 5 (Influence OR BuildingTag OR CityTile) MAX 2 }
 }
 ```
 
@@ -142,8 +142,8 @@ Class: `GenerousFunding`
 Pets declaration:
 
 ```pets
-CLASS GenerousFunding : GePartyCurrent<Unity>, GePartyDistant<Kelvinists> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { 2 MC / 5 (TerraformRating - 15) MAX 5, 2 MC / Influence }
+CLASS GenerousFunding : GePartyDistant<Kelvinists>, GePartyCurrent<Unity> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { 2 MC / 5 (TerraformRating - 15) MAX 5, 2 MC / Influence }
 }
 ```
 
@@ -159,8 +159,8 @@ Class: `GlobalDustStorm`
 Pets declaration:
 
 ```pets
-CLASS GlobalDustStorm : GePartyCurrent<Greens>, GePartyDistant<Kelvinists> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { -Heat! / Heat, -2 MC. / BuildingTag MAX 5 - Influence }
+CLASS GlobalDustStorm : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { -Heat! / Heat, -2 MC. / BuildingTag MAX 5 - Influence }
 }
 ```
 
@@ -176,8 +176,8 @@ Class: `HomeworldSupport`
 Pets declaration:
 
 ```pets
-CLASS HomeworldSupport : GePartyCurrent<Unity>, GePartyDistant<Reds> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { 2 MC / EarthTag MAX 5, 2 MC / Influence }
+CLASS HomeworldSupport : GePartyDistant<Reds>, GePartyCurrent<Unity> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { 2 MC / EarthTag MAX 5, 2 MC / Influence }
 }
 ```
 
@@ -193,8 +193,8 @@ Class: `ImprovedEnergyTemplates`
 Pets declaration:
 
 ```pets
-CLASS ImprovedEnergyTemplates : GePartyCurrent<Kelvinists>, GePartyDistant<Scientists> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { PROD[Energy / 2 (PowerTag OR Influence)] }
+CLASS ImprovedEnergyTemplates : GePartyDistant<Scientists>, GePartyCurrent<Kelvinists> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { PROD[Energy / 2 (PowerTag OR Influence)] }
 }
 ```
 
@@ -210,8 +210,8 @@ Class: `InterplanetaryTradeGlobalEvent`
 Pets declaration:
 
 ```pets
-CLASS InterplanetaryTradeGlobalEvent : GePartyCurrent<Unity>, GePartyDistant<Unity> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { 2 MC / SpaceTag MAX 5, 2 MC / Influence }
+CLASS InterplanetaryTradeGlobalEvent : GePartyDistant<Unity>, GePartyCurrent<Unity> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { 2 MC / SpaceTag MAX 5, 2 MC / Influence }
 }
 ```
 
@@ -227,8 +227,8 @@ Class: `MinersOnStrike`
 Pets declaration:
 
 ```pets
-CLASS MinersOnStrike : GePartyCurrent<Greens>, GePartyDistant<MarsFirst> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { -Titanium. / JovianTag MAX 5 - Influence }
+CLASS MinersOnStrike : GePartyDistant<MarsFirst>, GePartyCurrent<Greens> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { -Titanium. / JovianTag MAX 5 - Influence }
 }
 ```
 
@@ -244,8 +244,8 @@ Class: `MudSlides`
 Pets declaration:
 
 ```pets
-CLASS MudSlides : GePartyCurrent<Greens>, GePartyDistant<Kelvinists> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { -4 MC. / OwnedTile<MarsArea(HAS Neighbor<OceanTile>)> MAX 5 - Influence }
+CLASS MudSlides : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { -4 MC. / OwnedTile<MarsArea(HAS Neighbor<OceanTile>)> MAX 5 - Influence }
 }
 ```
 
@@ -261,8 +261,8 @@ Class: `Pandemic`
 Pets declaration:
 
 ```pets
-CLASS Pandemic : GePartyCurrent<MarsFirst>, GePartyDistant<Greens> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { -3 MC. / BuildingTag MAX 5 - Influence }
+CLASS Pandemic : GePartyDistant<Greens>, GePartyCurrent<MarsFirst> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { -3 MC. / BuildingTag MAX 5 - Influence }
 }
 ```
 
@@ -278,8 +278,8 @@ Class: `ParadigmBreakdown`
 Pets declaration:
 
 ```pets
-CLASS ParadigmBreakdown : GePartyCurrent<Reds>, GePartyDistant<Kelvinists> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { -2 ProjectCard., 2 MC / Influence }
+CLASS ParadigmBreakdown : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { -2 ProjectCard., 2 MC / Influence }
 }
 ```
 
@@ -295,8 +295,8 @@ Class: `Productivity`
 Pets declaration:
 
 ```pets
-CLASS Productivity : GePartyCurrent<MarsFirst>, GePartyDistant<Scientists> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { Steel / PROD[Steel] MAX 5, Steel / Influence }
+CLASS Productivity : GePartyDistant<Scientists>, GePartyCurrent<MarsFirst> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { Steel / PROD[Steel] MAX 5, Steel / Influence }
 }
 ```
 
@@ -312,8 +312,8 @@ Class: `RedInfluence`
 Pets declaration:
 
 ```pets
-CLASS RedInfluence : GePartyCurrent<Reds>, GePartyDistant<Kelvinists> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { -3 MC. / 5 (TerraformRating - 10) MAX 5, PROD[MC / Influence] }
+CLASS RedInfluence : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { -3 MC. / 5 (TerraformRating - 10) MAX 5, PROD[MC / Influence] }
 }
 ```
 
@@ -324,15 +324,15 @@ Class: `Revolution`
 | | Text |
 | --- | --- |
 | Printed text | Count Earth tags and ADD(!) influence. The player(s) with most (at least 1) loses 2 TR, and 2nd most (at least 1) loses 1 TR. SOLO: Lose 2 TR if the sum is 4 or more. |
-| Generated text | If this is a multiplayer game, \[EACH Player(HAS 1 (EarthTag OR Influence), HAS =1 (RANK Ranked@Player { EarthTag&lt;Ranked@Player&gt; OR Influence&lt;Ranked@Player&gt; })) { -2 TerraformRating. }\]. If this is a multiplayer game, \[EACH Player(HAS 1 (EarthTag OR Influence), HAS =2 (RANK Ranked@Player { EarthTag&lt;Ranked@Player&gt; OR Influence&lt;Ranked@Player&gt; })) { -TerraformRating. }\]. If this is a solo game, \[EACH Player(HAS 4 (EarthTag OR Influence)) { -2 TerraformRating. }\]. |
+| Generated text | If this is a multiplayer game, \[EACH Me@Player(HAS 1 (EarthTag OR Influence), HAS =1 (RANK Ranked@Player { EarthTag&lt;Ranked@Player&gt; OR Influence&lt;Ranked@Player&gt; })) { -2 TerraformRating. }\]. If this is a multiplayer game, \[EACH Me@Player(HAS 1 (EarthTag OR Influence), HAS =2 (RANK Ranked@Player { EarthTag&lt;Ranked@Player&gt; OR Influence&lt;Ranked@Player&gt; })) { -TerraformRating. }\]. If this is a solo game, \[EACH Me@Player(HAS 4 (EarthTag OR Influence)) { -2 TerraformRating. }\]. |
 
 Pets declaration:
 
 ```pets
-CLASS Revolution : GePartyCurrent<MarsFirst>, GePartyDistant<Unity> {
-  ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: EACH Player(HAS 1 (EarthTag OR Influence), HAS =1 (RANK Ranked@Player { EarthTag<Ranked@Player> OR Influence<Ranked@Player> })) { -2 TerraformRating. }
-  ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: EACH Player(HAS 1 (EarthTag OR Influence), HAS =2 (RANK Ranked@Player { EarthTag<Ranked@Player> OR Influence<Ranked@Player> })) { -TerraformRating. }
-  ResolveGlobalEvent<Class<This>> IF SoloMode:: EACH Player(HAS 4 (EarthTag OR Influence)) { -2 TerraformRating. }
+CLASS Revolution : GePartyDistant<Unity>, GePartyCurrent<MarsFirst> {
+  ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: EACH Me@Player(HAS 1 (EarthTag OR Influence), HAS =1 (RANK Ranked@Player { EarthTag<Ranked@Player> OR Influence<Ranked@Player> })) { -2 TerraformRating. }
+  ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: EACH Me@Player(HAS 1 (EarthTag OR Influence), HAS =2 (RANK Ranked@Player { EarthTag<Ranked@Player> OR Influence<Ranked@Player> })) { -TerraformRating. }
+  ResolveGlobalEvent<Class<This>> IF SoloMode:: EACH Me@Player(HAS 4 (EarthTag OR Influence)) { -2 TerraformRating. }
 }
 ```
 
@@ -348,8 +348,8 @@ Class: `Riots`
 Pets declaration:
 
 ```pets
-CLASS Riots : GePartyCurrent<Reds>, GePartyDistant<MarsFirst> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { -4 MC. / CityTile MAX 5 - Influence }
+CLASS Riots : GePartyDistant<MarsFirst>, GePartyCurrent<Reds> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { -4 MC. / CityTile MAX 5 - Influence }
 }
 ```
 
@@ -365,8 +365,8 @@ Class: `SabotageGlobalEvent`
 Pets declaration:
 
 ```pets
-CLASS SabotageGlobalEvent : GePartyCurrent<Reds>, GePartyDistant<Unity> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { PROD[-Steel., -Energy.], Steel / Influence }
+CLASS SabotageGlobalEvent : GePartyDistant<Unity>, GePartyCurrent<Reds> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { PROD[-Steel., -Energy.], Steel / Influence }
 }
 ```
 
@@ -382,8 +382,8 @@ Class: `ScientificCommunity`
 Pets declaration:
 
 ```pets
-CLASS ScientificCommunity : GePartyCurrent<Scientists>, GePartyDistant<Reds> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { MC / ProjectCard, MC / Influence }
+CLASS ScientificCommunity : GePartyDistant<Reds>, GePartyCurrent<Scientists> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { MC / ProjectCard, MC / Influence }
 }
 ```
 
@@ -399,9 +399,9 @@ Class: `SnowCover`
 Pets declaration:
 
 ```pets
-CLASS SnowCover : GePartyCurrent<Kelvinists>, GePartyDistant<Kelvinists> {
+CLASS SnowCover : GePartyDistant<Kelvinists>, GePartyCurrent<Kelvinists> {
   ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<TemperatureStep>>:: -2 TemperatureStep. BY Admin
-  ResolveGlobalEvent<Class<This>>:: EACH Player { ProjectCard / Influence }
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { ProjectCard / Influence }
 }
 ```
 
@@ -417,8 +417,8 @@ Class: `SolarFlare`
 Pets declaration:
 
 ```pets
-CLASS SolarFlare : GePartyCurrent<Kelvinists>, GePartyDistant<Unity> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { -3 MC. / SpaceTag MAX 5 - Influence }
+CLASS SolarFlare : GePartyDistant<Unity>, GePartyCurrent<Kelvinists> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { -3 MC. / SpaceTag MAX 5 - Influence }
 }
 ```
 
@@ -434,8 +434,8 @@ Class: `SolarnetShutdown`
 Pets declaration:
 
 ```pets
-CLASS SolarnetShutdown : GePartyCurrent<MarsFirst>, GePartyDistant<Scientists> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { -3 MC. / ActiveCard MAX 5 - Influence }
+CLASS SolarnetShutdown : GePartyDistant<Scientists>, GePartyCurrent<MarsFirst> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { -3 MC. / ActiveCard MAX 5 - Influence }
 }
 ```
 
@@ -451,8 +451,8 @@ Class: `SpinOffProducts`
 Pets declaration:
 
 ```pets
-CLASS SpinOffProducts : GePartyCurrent<Scientists>, GePartyDistant<Greens> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { 2 MC / ScienceTag MAX 5, 2 MC / Influence }
+CLASS SpinOffProducts : GePartyDistant<Greens>, GePartyCurrent<Scientists> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { 2 MC / ScienceTag MAX 5, 2 MC / Influence }
 }
 ```
 
@@ -463,14 +463,14 @@ Class: `SponsoredProjects`
 | | Text |
 | --- | --- |
 | Printed text | All cards with resources on them gain 1 resource. Draw 1 card for each influence. |
-| Generated text | \[EACH Card@ResourceCard&lt;Anyone&gt;(HAS CardResource) { CardResource&lt;Card@ResourceCard&gt; }\]. Draw 1 card per influence. |
+| Generated text | \[EACH Card@ResourceCard&lt;Anyone&gt;(HAS CardResource&lt;Anyone&gt;) { CardResource&lt;Card@ResourceCard&gt; }\]. Draw 1 card per influence. |
 
 Pets declaration:
 
 ```pets
-CLASS SponsoredProjects : GePartyCurrent<Greens>, GePartyDistant<Scientists> {
-  ResolveGlobalEvent<Class<This>>:: EACH Card@ResourceCard<Anyone>(HAS CardResource) { CardResource<Card@ResourceCard> }
-  ResolveGlobalEvent<Class<This>>:: EACH Player { ProjectCard / Influence }
+CLASS SponsoredProjects : GePartyDistant<Scientists>, GePartyCurrent<Greens> {
+  ResolveGlobalEvent<Class<This>>:: EACH Card@ResourceCard<Anyone>(HAS CardResource<Anyone>) { CardResource<Card@ResourceCard> }
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { ProjectCard / Influence }
 }
 ```
 
@@ -486,8 +486,8 @@ Class: `StrongSociety`
 Pets declaration:
 
 ```pets
-CLASS StrongSociety : GePartyCurrent<MarsFirst>, GePartyDistant<Reds> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { 2 MC / CityTile MAX 5, 2 MC / Influence }
+CLASS StrongSociety : GePartyDistant<Reds>, GePartyCurrent<MarsFirst> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { 2 MC / CityTile MAX 5, 2 MC / Influence }
 }
 ```
 
@@ -503,8 +503,8 @@ Class: `SuccessfulOrganisms`
 Pets declaration:
 
 ```pets
-CLASS SuccessfulOrganisms : GePartyCurrent<Scientists>, GePartyDistant<MarsFirst> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { Plant / PROD[Plant] MAX 5, Plant / Influence }
+CLASS SuccessfulOrganisms : GePartyDistant<MarsFirst>, GePartyCurrent<Scientists> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { Plant / PROD[Plant] MAX 5, Plant / Influence }
 }
 ```
 
@@ -520,9 +520,9 @@ Class: `VolcanicEruptions`
 Pets declaration:
 
 ```pets
-CLASS VolcanicEruptions : GePartyCurrent<Kelvinists>, GePartyDistant<Scientists> {
+CLASS VolcanicEruptions : GePartyDistant<Scientists>, GePartyCurrent<Kelvinists> {
   ResolveGlobalEvent<Class<This>>:: 2 TemperatureStep. BY Admin
-  ResolveGlobalEvent<Class<This>>:: EACH Player { PROD[Heat / Influence] }
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { PROD[Heat / Influence] }
 }
 ```
 
@@ -538,8 +538,8 @@ Class: `WarOnEarth`
 Pets declaration:
 
 ```pets
-CLASS WarOnEarth : GePartyCurrent<Kelvinists>, GePartyDistant<MarsFirst> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { -TerraformRating. / 4 - Influence }
+CLASS WarOnEarth : GePartyDistant<MarsFirst>, GePartyCurrent<Kelvinists> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { -TerraformRating. / 4 - Influence }
 }
 ```
 
@@ -557,8 +557,8 @@ Class: `JovianTaxRights`
 Pets declaration:
 
 ```pets
-CLASS JovianTaxRights : GePartyCurrent<Unity>, GePartyDistant<Scientists> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { PROD[MC / Colony MAX 5], Titanium / Influence }
+CLASS JovianTaxRights : GePartyDistant<Scientists>, GePartyCurrent<Unity> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { PROD[MC / Colony MAX 5], Titanium / Influence }
 }
 ```
 
@@ -574,8 +574,8 @@ Class: `MicrogravityHealthProblems`
 Pets declaration:
 
 ```pets
-CLASS MicrogravityHealthProblems : GePartyCurrent<Scientists>, GePartyDistant<MarsFirst> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { -3 MC. / Colony MAX 5 - Influence }
+CLASS MicrogravityHealthProblems : GePartyDistant<MarsFirst>, GePartyCurrent<Scientists> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { -3 MC. / Colony MAX 5 - Influence }
 }
 ```
 
@@ -591,8 +591,8 @@ Class: `VenusInfrastructure`
 Pets declaration:
 
 ```pets
-CLASS VenusInfrastructure : GePartyCurrent<Unity>, GePartyDistant<MarsFirst> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { 2 MC / VenusTag MAX 5, 2 MC / Influence }
+CLASS VenusInfrastructure : GePartyDistant<MarsFirst>, GePartyCurrent<Unity> {
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { 2 MC / VenusTag MAX 5, 2 MC / Influence }
 }
 ```
 
@@ -608,10 +608,10 @@ Class: `CloudSocieties`
 Pets declaration:
 
 ```pets
-CLASS CloudSocieties : GePartyCurrent<Reds>, GePartyDistant<Unity> {
+CLASS CloudSocieties : GePartyDistant<Unity>, GePartyCurrent<Reds> {
   HAS Class<VenusTag>, Class<Colony>
   ResolveGlobalEvent<Class<This>>:: EACH @ResourceCard<Class<Floater>, Anyone> { Floater<@ResourceCard> }
-  ResolveGlobalEvent<Class<This>>:: EACH Player { ChooseInfluenceFloaterCard }
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { ChooseInfluenceFloaterCard }
 }
 ```
 
@@ -627,8 +627,8 @@ Class: `CorrosiveRain`
 Pets declaration:
 
 ```pets
-CLASS CorrosiveRain : GePartyCurrent<Greens>, GePartyDistant<Kelvinists> {
+CLASS CorrosiveRain : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
   HAS Class<VenusTag>, Class<Colony>
-  ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveCorrosiveRain }
+  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { ResolveCorrosiveRain }
 }
 ```

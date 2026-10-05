@@ -31,9 +31,7 @@ internal class Prelude2CardPackEnglishTest {
   @Test
   internal fun describesFrontierTownBonus() {
     english.describe(
-        parse<InstructionTree>(
-            "FrontierTownBonus, PROD[-Energy], CityTile<> THEN -FrontierTownBonus."
-        )
+        parse<InstructionTree>("FrontierTownBonus, PROD[-Energy], CityTile<>")
     ) shouldBe
         "Decrease your energy production 1 step. Place a city tile and gain its placement bonus twice."
   }

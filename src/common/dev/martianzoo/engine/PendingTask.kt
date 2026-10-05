@@ -1,11 +1,11 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.ast.InstructionGroup
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.Player
 
 /** Triggered work that has not yet been admitted to a task queue. */
 internal data class PendingTask(
@@ -21,7 +21,7 @@ internal data class PendingTask(
      * Routes effect work to the component's Player owner, then the changed component's Player
      * owner, then the triggering Actor. For automatic work, an unowned effect uses the triggering
      * Actor in place of the changed component's owner. The operation's Player controller retains
-     * the task until selection. Passive Owners never gain task authority.
+     * the task until selection. Passive owners never gain task authority.
      */
     fun fromEffect(
         context: Component,
@@ -31,15 +31,15 @@ internal data class PendingTask(
         automatic: Boolean,
         instruction: InstructionGroup,
     ): PendingTask {
-      val effectOwner = context.playerOwner
+      val effectPlayer = context.owningPlayer
       return PendingTask(
           controller =
               (controller as? Player)
-                  ?: effectOwner
+                  ?: effectPlayer
                   ?: changedComponentPlayer
                   ?: triggerEvent.actor,
           actor =
-              effectOwner ?: changedComponentPlayer.takeUnless { automatic } ?: triggerEvent.actor,
+              effectPlayer ?: changedComponentPlayer.takeUnless { automatic } ?: triggerEvent.actor,
           instruction = instruction,
           cause = Cause(context.expression, triggerEvent.ordinal),
       )

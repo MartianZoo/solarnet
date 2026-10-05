@@ -16,7 +16,6 @@ import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
-import dev.martianzoo.pets.ast.PropertyValue.MetricValue
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
@@ -135,13 +134,6 @@ internal constructor(
       (rootClass.properties.getValue(PropertyName(propertyName)) as NumberValue).value
 
   /**
-   * Returns the concrete metric value of [propertyName], as specified by
-   * [rule T9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
-   */
-  override fun getMetricPropertyValue(propertyName: String): Metric =
-      (rootClass.properties.getValue(PropertyName(propertyName)) as MetricValue).value
-
-  /**
    * Returns the concrete requirement value of [propertyName], or null for an absent optional, as
    * specified by
    * [rule T9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
@@ -170,6 +162,8 @@ internal constructor(
    * Values supplied to selected class-header [variables] when this type specializes [general].
    * Variables unrelated to the header are omitted, following
    * [rule T13-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   *
+   * @throws IllegalArgumentException if [general] and this type have different root classes.
    */
   override fun variableBindingsFrom(
       general: Type,
@@ -310,7 +304,7 @@ internal constructor(
     fun retain(narrow: GroundType, wide: GroundType) {
       if (narrow.rootClass.abstract || narrow.dependencies.abstract) {
         wide.refinement?.conjuncts()?.filterIsInstance<Has>()?.forEach { predicate ->
-          if (!narrow.alreadyGuarantees(predicate) || !narrow.readsPredicatesAlike(wide)) {
+          if (!narrow.alreadyGuarantees(predicate)) {
             throw NarrowingException("unsettled choice `$narrow` must retain `$predicate`")
           }
         }
@@ -350,7 +344,7 @@ internal constructor(
         }
         is Has -> {
           if (refinement != null) {
-            if (!alreadyGuarantees(targetRefinement) || !readsPredicatesAlike(that)) {
+            if (!alreadyGuarantees(targetRefinement)) {
               throw NarrowingException("`$this` does not have refinement `$targetRefinement`")
             }
           } else {
@@ -393,7 +387,7 @@ internal constructor(
                 isDisjointFrom(targetRefinement.excluded, comparisonTable)
         is Has -> {
           if (refinement != null) {
-            alreadyGuarantees(targetRefinement) && readsPredicatesAlike(that)
+            alreadyGuarantees(targetRefinement)
           } else {
             val requirement =
                 try {
@@ -412,22 +406,6 @@ internal constructor(
       }
     } ?: true
   }
-
-  /**
-   * Whether comparing our predicate with [that]'s as written is meaningful. It is, unless the two
-   * are class literals for different classes: a refined class literal rewrites its own represented
-   * class into its predicate before testing it, so the same words say different things about each
-   * of them.
-   */
-  private fun readsPredicatesAlike(that: GroundType): Boolean =
-      representedClass == null ||
-          representedClass == that.representedClass ||
-          (!namesRepresentedClass(refinement) && !namesRepresentedClass(that.refinement))
-
-  private fun namesRepresentedClass(refinement: Refinement?): Boolean =
-      refinement?.descendantsOfType<Expression>()?.any {
-        it.typeVariableName is RepresentedClassReference
-      } == true
 
   /** Whether our own refinement conjoins at least all of [target]'s requirements. */
   private fun alreadyGuarantees(target: Has): Boolean {

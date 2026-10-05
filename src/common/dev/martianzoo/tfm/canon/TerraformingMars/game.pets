@@ -33,7 +33,7 @@ CLASS Unsafe : Module
 CLASS QuickStartVariant : Module {
   autoSelectWhen = HAS "TerraformingMars, MAX 0 CorporateEraExpansion"
 
-  SetupPhase: EACH Player { PROD[MC, Steel, Titanium, Plant, Energy, Heat] }
+  SetupPhase: EACH Me@Player { PROD[MC, Steel, Titanium, Plant, Energy, Heat] }
 }
 
 "A singleton immutable provider of rule content based on game options"
@@ -59,32 +59,33 @@ ABSTRACT CLASS GameMode : Module {
 
     This: ClaimMilestoneAction, FundAwardAction
     This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
-    SetupPhase: EACH Player { 20 TerraformRating }
+    SetupPhase: EACH Me@Player { 20 TerraformRating }
 
     // TODO.md: move final scoring and victory assignment into their real phase boundaries
-    -FinalScoringPending: EACH Player(HAS =1 (RANK { VictoryPoint, MC })) { Victory }
+    -FinalScoringPending: EACH Me@Player(HAS =1 (RANK Me@Player { VictoryPoint, MC })) { Victory }
   }
 }
 
 "One of the actual people or bots playing Terraforming Mars"
-ABSTRACT CLASS Player : Owner, Actor {
+ABSTRACT CLASS Player : Anyone, Actor {
   HAS =1 This
   HAS MAX 1 AfterMe<This, Anyone>, MAX 1 AfterMe<Anyone, This>
 
   // Queued `This` work gives every Player its production floor and payment values only after the
   // complete seat layer exists.
   This: 5 ProdOffset<This, Class<MC>> BY Admin
-  This: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
+  This: 2 BaseResourceValue<This, Class<Steel>>, 3 BaseResourceValue<This, Class<Titanium>>
 
   SetupPhase IF MAX 0 BeginnerVariant: \
-    2 StandardCorporationCard<Selecting> THEN StandardCorporationCard<Hand FROM Selecting> \
-      THEN -StandardCorporationCard<Selecting> THEN NewTurn
+    2 StandardCorporationCard<This, Selecting> THEN \
+      (StandardCorporationCard<This, Hand> FROM StandardCorporationCard<This, Selecting>) \
+      THEN -StandardCorporationCard<This, Selecting> THEN NewTurn<This>
   SetupPhase IF BeginnerVariant: \
-    2 StandardCorporationCard<Selecting> THEN \
-      ((BeginnerCorporationCard THEN -2 StandardCorporationCard<Selecting> THEN NewTurn) OR \
-        (StandardCorporationCard<Hand FROM Selecting> \
-          THEN -StandardCorporationCard<Selecting> THEN NewTurn))
-  ResearchPhase: 4 ProjectCard<Selecting> THEN -4 ProjectCard<Selecting>? THEN BuySelectedCards
+    2 StandardCorporationCard<This, Selecting> THEN \
+      ((BeginnerCorporationCard<This> THEN -2 StandardCorporationCard<This, Selecting> THEN NewTurn<This>) OR \
+        ((StandardCorporationCard<This, Hand> FROM StandardCorporationCard<This, Selecting>) \
+          THEN -StandardCorporationCard<This, Selecting> THEN NewTurn<This>))
+  ResearchPhase: 4 ProjectCard<This, Selecting> THEN -4 ProjectCard<This, Selecting>? THEN BuySelectedCards<This>
 }
 
 "One step on the terraform rating track; you generally start with 20 of them"
@@ -97,9 +98,9 @@ CLASS TerraformRating : Owned<Player>, Atomized {
 CLASS StartToken : Owned<Player> { HAS =1 StartToken }
 
 "Identifies the Player immediately after another Player in seat order"
-CLASS AfterMe<Previous@Owner, Next@Player> : System, Hidden {
+CLASS AfterMe<Previous@Anyone, Next@Player> : System, Hidden {
   HAS MAX 1 This
-  ResearchPhase IF StartToken<Previous@Owner>: StartToken<Next@Player FROM Previous@Owner>.
+  ResearchPhase IF StartToken<Previous@>: StartToken<Next@ FROM Previous@>.
 }
 
 "The current game phase; exactly one exists from bootstrap through the terminal End phase"

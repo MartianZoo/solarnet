@@ -64,6 +64,9 @@ never disagree with that prefix.
 Task instructions, assignment, selection state, continuations, causes, and ids are facts about the
 game. Storing those facts does not give Game World any task behavior. In particular, `:state`
 does not select, narrow, normalize, resolve, split, execute, or automatically process tasks.
+An unsubmitted, caller-held task draft stays outside this game record.
+Only a narrowing committed through the engine can change a stored Task or appear in its event
+history.
 
 ## Dependency direction
 

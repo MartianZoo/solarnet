@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
@@ -24,7 +24,7 @@ internal class MergerTest : CardTest() {
     admin.phase("Prelude")
     p1.playPrelude(UnmiContractor)
     p1.playPrelude(Merger) {
-      p1.playCorp(Celestic, location = cn("Selecting"))
+      p1.playCorp(Celestic)
     }
   }
 
@@ -48,7 +48,7 @@ internal class MergerTest : CardTest() {
           0 to "Heat",
       )
 
-      p1.playPrelude(SocietySupport, location = cn("Selecting"))
+      p1.playPrelude(SocietySupport)
       p1.assertProds(
           -1 to "MC",
           0 to "Steel",
@@ -69,7 +69,7 @@ internal class MergerTest : CardTest() {
 
     val result =
         p1.playPrelude(Merger) {
-          p1.playCorp(Celestic, location = cn("Selecting"))
+          p1.playCorp(Celestic)
         }
 
     p1.assertCounts(1 to "$Celestic")
@@ -86,8 +86,8 @@ internal class MergerTest : CardTest() {
     admin.phase("Prelude")
 
     p1.playPrelude(NewPartner) {
-      p1.playPrelude(Merger, location = cn("Selecting")) {
-        p1.playCorp(Celestic, location = cn("Selecting"))
+      p1.playPrelude(Merger) {
+        p1.playCorp(Celestic)
       }
     }
 
@@ -109,7 +109,7 @@ internal class MergerTest : CardTest() {
     playCorporationWithoutStartingProjects(p1, Polyphemos)
     admin.phase("Prelude")
     p1.playPrelude(Merger) {
-      p1.playCorp(TerraLabsResearch, location = cn("Selecting"))
+      p1.playCorp(TerraLabsResearch)
     }
 
     p1.runOperation("ProjectCard<Selecting> THEN BuySelectedCards") { p1.pay(3) }
@@ -124,8 +124,7 @@ internal class MergerTest : CardTest() {
     admin.phase("Prelude")
     p1.count("MC") shouldBe 0
 
-    p1.playPrelude(Merger) { p1.playCorp(PharmacyUnion, location = cn("Selecting")) }
-        .expect("4 MC, 2 Disease<$PharmacyUnion>")
+    p1.playPrelude(Merger) { p1.playCorp(PharmacyUnion) }.expect("4 MC, 2 Disease<$PharmacyUnion>")
     p1.assertCounts(1 to "$PharmacyUnion", 4 to "MC")
   }
 
@@ -135,8 +134,7 @@ internal class MergerTest : CardTest() {
     p1.playCorp(SaturnSystems, 0)
     admin.phase("Prelude")
 
-    p1.playPrelude(Merger) { p1.playCorp(PharmacyUnion, location = cn("Selecting")) }
-        .expect("4 MC, 2 Disease<$PharmacyUnion>")
+    p1.playPrelude(Merger) { p1.playCorp(PharmacyUnion) }.expect("4 MC, 2 Disease<$PharmacyUnion>")
   }
 
   @Test
@@ -149,11 +147,28 @@ internal class MergerTest : CardTest() {
     admin.phase("Action")
     p1.count("MC") shouldBe 17
 
-    shouldThrow<LimitsException> {
-      p1.cardAction1(BoardOfDirectors) {
-        doTask("-12 MC")
-        p1.playPrelude(Merger) { p1.playCorp(Recyclon, location = cn("Selecting")) }
+    val previousPolicy = p1.autoExecPolicy
+    try {
+      shouldThrow<LimitsException> {
+        p1.cardAction1(BoardOfDirectors) {
+          doTask("-12 MC")
+          p1.playPrelude(Merger) {
+            p1.autoExecPolicy = NONE
+            p1.playCorp(Recyclon) {
+              doTask("Owed<> / $Recyclon.cost")
+              doTask("PriceCard<Class<$Recyclon>>")
+              doTask("CardBilling<Class<$Recyclon>>")
+              doTask("$Recyclon FROM StandardCorporationCard<Selecting>")
+              doTask("38 MC")
+              // Choose the disease loss before Merger's payment; both are queued.
+              doTask("-4 MC.")
+              doTask("-42 MC")
+            }
+          }
+        }
       }
+    } finally {
+      p1.autoExecPolicy = previousPolicy
     }
     p1.count("MC") shouldBe 17
     p1.count("Disease<$PharmacyUnion>") shouldBe 2

@@ -1,7 +1,6 @@
 package dev.martianzoo.state
 
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.state.Task.TaskId
 
 internal class TaskStore {

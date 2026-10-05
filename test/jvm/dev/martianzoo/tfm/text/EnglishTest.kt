@@ -57,8 +57,6 @@ internal class EnglishTest {
   internal fun describesStandalonePetsElements() {
     english.describe(parse<Effect>("End: VictoryPoint / Animal<This>")) shouldBe
         "1 VP per animal on this card."
-    english.describe(parse<Effect>("End: VictoryPoint / Animal<This, Owner>")) shouldBe
-        "1 VP per animal on this card."
     english.describe(parse<Effect>("CityTile<MarsArea, Anyone>: Steel")) shouldBe
         "When any city tile is placed on Mars, gain 1 steel."
     english.describe(
@@ -79,7 +77,7 @@ internal class EnglishTest {
     ) shouldBe "When any animal tag is played, you may remove up to 2 heat from that player."
     english.describe(listOf(parse<Action>("4 Energy -> 2 Steel, OxygenStep"))) shouldBe
         "Spend 4 energy to gain 2 steel and raise oxygen 1 step."
-    english.describe(listOf(parse<Action>("Animal<This, Owner> -> Steel"))) shouldBe
+    english.describe(listOf(parse<Action>("Animal<This> -> Steel"))) shouldBe
         "Spend 1 animal from this card to gain 1 steel."
     english.describe(listOf(parse<Action>("X Floater<This> -> X StandardResource"))) shouldBe
         "Spend 1 or more floaters from this card to gain the same number of one standard resource."
@@ -111,7 +109,7 @@ internal class EnglishTest {
     english.describe(parse<InstructionTree>("-3 MC THEN TemperatureStep")) shouldBe
         "Pay 3 M€ to raise temperature 1 step."
     english.describe(parse<InstructionTree>("-2 Plant")) shouldBe "Remove 2 plants."
-    english.describe(parse<InstructionTree>("Animal<Owner, This>?")) shouldBe
+    english.describe(parse<InstructionTree>("Animal<This>?")) shouldBe
         "You may add up to 1 animal to this card."
     english.describe(
         parse<InstructionTree>("3 MC<Anyone> FROM MC."),
@@ -125,14 +123,14 @@ internal class EnglishTest {
     english.describe(
         parse<Effect>("CardBilling<Class<CardFront>(HAS requirement)>:: -2 Owed<>")
     ) shouldBe "When you play a card with a requirement, you pay 2 M€ less for it."
-    english.describe(parse<Effect>("PayingFor<Owner, Class<ProjectCard>>:: 2 Owed<>")) shouldBe
+    english.describe(parse<Effect>("PayingFor<Class<ProjectCard>>:: 2 Owed<>")) shouldBe
         "When you buy a card, pay 2 M€ extra."
     english.describe(
         parse<Effect>("UseAction<This, Action1>:: Accepting<Class<Titanium>>")
     ) shouldBe "When you pay for this action, titanium may be used."
-    english.describe(parse<Effect>("PayingFor<Owner, Class<PlanetaryTag>>:: -2 Owed<>")) shouldBe
+    english.describe(parse<Effect>("PayingFor<Class<PlanetaryTag>>:: -2 Owed<>")) shouldBe
         "When you play a planetary tag, you pay 2 M€ less for it."
-    english.describe(parse<Effect>("PayingFor<Owner, Class<EarthTag>>:: -2 Owed<>")) shouldBe
+    english.describe(parse<Effect>("PayingFor<Class<EarthTag>>:: -2 Owed<>")) shouldBe
         "When you play an Earth tag, you pay 2 M€ less for it."
     english.describe(parse<InstructionTree>("ProjectCard")) shouldBe "Draw 1 card."
     english.describe(parse<InstructionTree>("OceanTile")) shouldBe "Place an ocean tile."
@@ -145,24 +143,32 @@ internal class EnglishTest {
         )
     ) shouldBe
         "Place a community marker on a land area with no occupant next to a tile or community you own."
-    english.describe(parse<InstructionTree>("EACH Player { ProjectCard }")) shouldBe
+    english.describe(parse<InstructionTree>("EACH Me@Player { ProjectCard }")) shouldBe
         "Have each player draw 1 card."
     english.describe(
         parse<InstructionTree>("EACH Player(HAS StartToken) { ChooseOceanArea }")
     ) shouldBe "[EACH Player(HAS StartToken) { ChooseOceanArea }]."
     english.describe(
-        parse<InstructionTree>("EACH Player(NOT Owner) { PROD[-2 MC] BY Owner }")
+        parseClasses(
+                "CLASS Rule<Me@Anyone> { This: EACH Other@Player(NOT Me@) { PROD[-2 MC<Other@>] BY Other@ } }"
+            )
+            .single()
+            .authoredEffects
+            .single()
+            .instruction
     ) shouldBe "Each other player decreases their own M€ production 2 steps."
     english.describe(parse<InstructionTree>("WorldGovernmentTerraforming")) shouldBe
         "Raise 1 global parameter without gaining terraform rating or other bonuses."
     english.describe(
-        parse<InstructionTree>("EACH Player(HAS MAX 0 This<Anyone>) { -5 MC., PROD[-1 MC] }")
+        parse<InstructionTree>(
+            "EACH Other@Player(HAS MAX 0 This<Anyone>) { -5 MC<Other@Player>., PROD[-1 MC<Other@Player>] }"
+        )
     ) shouldBe "Remove 5 M€ from each opponent and decrease their M€ production 1 step."
     english.describe(parse<Requirement>("ScienceTag")) shouldBe "Requires a science tag."
     english.describe(parse<Requirement>("4 BioTag")) shouldBe "Requires 4 bio tags."
     english.describe(parse<Requirement>("2 EarthTag, 2 VenusTag, 2 JovianTag")) shouldBe
         "Requires 2 Earth tags, 2 Venus tags, and 2 Jovian tags."
-    english.describe(parse<Requirement>("8 Class<Tag>(HAS Tag<Owner>)")) shouldBe
+    english.describe(parse<Requirement>("8 Class<@Tag>(HAS @Tag)")) shouldBe
         "Requires 8 different tags."
     english.describe(parse<Requirement>("3 CityTile")) shouldBe
         "Requires that you have 3 city tiles."
@@ -314,7 +320,7 @@ internal class EnglishTest {
             """
             CLASS Unintroduced<StandardResource> : ActiveCard {
               cost = 0
-              PayingFor<Owner, Class<ProjectCard>>: StandardResource
+              PayingFor<Class<ProjectCard>>: StandardResource
             }
             """
         )
@@ -323,8 +329,20 @@ internal class EnglishTest {
 
   @Test
   internal fun compactAndExpandedTransmutationsRenderIdentically() {
-    english.describe(parse<InstructionTree>("2 Steel<Owner FROM Anyone>?")) shouldBe
-        english.describe(parse<InstructionTree>("2 Steel<Owner> FROM Steel<Anyone>?"))
+    val compact =
+        parseClasses("CLASS Rule<Me@Anyone> { This: 2 Steel<Me@ FROM Anyone>? }")
+            .single()
+            .authoredEffects
+            .single()
+            .instruction
+    val expanded =
+        parseClasses("CLASS Rule<Me@Anyone> { This: 2 Steel<Me@> FROM Steel<Anyone>? }")
+            .single()
+            .authoredEffects
+            .single()
+            .instruction
+    english.describe(compact) shouldBe "You may steal up to 2 steel from any player."
+    english.describe(compact) shouldBe english.describe(expanded)
   }
 
   @Test
@@ -418,7 +436,7 @@ internal class EnglishTest {
             """
             CLASS SelfCounting : ActiveCard {
               cost = 0
-              This:: JovianTag<This>
+              HAS =1 JovianTag<This>
               This: TerraformRating / JovianTag
               -> MC / JovianTag
               JovianTag: 2 MC
@@ -564,8 +582,8 @@ internal class EnglishTest {
                 CLASS Fanium : StandardResource
                 CLASS FaniumConverter : ActiveCard {
                   cost = 0
-                  This:: GrantedResourceValue<Class<Fanium>, This>
-                  PayingFor<Owner, Class<BuildingTag>>:: Accepting<Class<Fanium>>
+                  HAS =1 GrantedResourceValue<Class<Fanium>, This>, =1 ScienceTag<This>
+                  PayingFor<Class<BuildingTag>>:: Accepting<Class<Fanium>>
                 }
                 """
                     .trimIndent()

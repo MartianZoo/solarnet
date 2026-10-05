@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.displayName
+import dev.martianzoo.state.displayName
 import dev.martianzoo.tfm.canon.Canon
 import java.io.File
 

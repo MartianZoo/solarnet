@@ -6,7 +6,7 @@ import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameEvent
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
@@ -82,6 +82,120 @@ internal class TaskNarrowingTest {
     shouldThrow<TaskException> { writer.narrowTask("Plant?") }
 
     tasksAsText().shouldContainExactly("StandardResource<Player1>?")
+  }
+
+  @Test
+  internal fun `an unselected task can be drafted progressively without changing the World`() {
+    val id = initiate("3 StandardResource?").single()
+    val before = game.timeline.checkpoint()
+    val draft = writer.taskDraft(id)
+
+    draft.narrow("2 StandardResource?")
+    draft.narrow("Plant!")
+
+    events.entriesSince(before).shouldBeEmpty()
+    tasks.selectedTask() shouldBe null
+    tasksAsText().shouldContainExactly("3 StandardResource<Player1>?")
+    draft.instruction.toString() shouldBe "Plant<Player1>!"
+
+    draft.commit()
+    writer.count("Plant") shouldBe 1
+    tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun `a draft cannot change an earlier voluntary choice`() {
+    val id = initiate("StandardResource?").single()
+    val draft = writer.taskDraft(id)
+    draft.narrow("Steel?")
+
+    shouldThrow<NarrowingException> { draft.narrow("Plant!") }
+
+    draft.instruction.toString() shouldBe "Steel<Player1>?"
+    tasksAsText().shouldContainExactly("StandardResource<Player1>?")
+  }
+
+  @Test
+  internal fun `committing a partial draft selects the task and leaves it pending`() {
+    val id = initiate("StandardResource?").single()
+    val draft = writer.taskDraft(id)
+    draft.narrow("Steel?")
+
+    draft.commit()
+
+    tasks.selectedTask() shouldBe id
+    tasksAsText().shouldContainExactly("Steel<Player1>?")
+    writer.count("Steel") shouldBe 0
+  }
+
+  @Test
+  internal fun `a draft cannot be used after its task disappears`() {
+    val id = initiate("StandardResource?").single()
+    val draft = writer.taskDraft(id)
+    draft.narrow("Steel?")
+
+    writer.dropTask(id)
+
+    shouldThrow<TaskException> { draft.commit() }
+  }
+
+  @Test
+  internal fun `a selected task can keep a draft private until it is committed`() {
+    val id = initiate("StandardResource?").single()
+    writer.selectTask(id)
+    val before = game.timeline.checkpoint()
+    val draft = writer.taskDraft(id)
+
+    draft.narrow("Steel!")
+
+    events.entriesSince(before).shouldBeEmpty()
+    tasksAsText().shouldContainExactly("StandardResource<Player1>?")
+    draft.commit()
+    writer.count("Steel") shouldBe 1
+  }
+
+  @Test
+  internal fun `a draft of a THEN first stage retains its continuation`() {
+    val id = initiate("Chosen@StandardResource THEN Chosen@StandardResource").single()
+    val before = tasks.getTaskData(id).instruction
+    val draft = writer.taskDraft(id)
+    draft.narrow("Steel")
+
+    tasks.getTaskData(id).instruction shouldBe before
+    draft.commit()
+
+    writer.count("Steel") shouldBe 1
+    writer.doTask("Steel")
+    writer.count("Steel") shouldBe 2
+  }
+
+  @Test
+  internal fun `independent drafts of one task do not share choices`() {
+    val id = initiate("StandardResource?").single()
+    val steel = writer.taskDraft(id)
+    val plant = writer.taskDraft(id)
+
+    steel.narrow("Steel?")
+    plant.narrow("Plant?")
+
+    steel.instruction.toString() shouldBe "Steel<Player1>?"
+    plant.instruction.toString() shouldBe "Plant<Player1>?"
+    tasksAsText().shouldContainExactly("StandardResource<Player1>?")
+  }
+
+  @Test
+  internal fun `a competing draft is rechecked when another draft commits`() {
+    val id = initiate("StandardResource?").single()
+    val steel = writer.taskDraft(id)
+    val plant = writer.taskDraft(id)
+    steel.narrow("Steel?")
+    plant.narrow("Plant?")
+
+    steel.commit()
+
+    shouldThrow<NarrowingException> { plant.commit() }
+    tasksAsText().shouldContainExactly("Steel<Player1>?")
+    writer.count("Plant") shouldBe 0
   }
 
   @Test

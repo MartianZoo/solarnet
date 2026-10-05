@@ -79,28 +79,56 @@ The current flat Agent exposes narrowing only for its selected task and one expl
 removal. It has no arbitrary task replacement or bulk task-removal command. Internal task-data edits
 remain engine bookkeeping, including restoration around an evidenced replay correction.
 
-## Narrowing after selection
+## Committed narrowing and Agent drafts
 
 Narrowing is allowed to discard options. That is a legitimate Actor decision, not a defect. A
 candidate is valid only when the engine proves it narrows the stored task and cannot introduce an
 option the task did not already permit.
 
-Selection establishes the promise to act next and the select-lock before narrowing resolves live
-World facts. `Agent.narrowTask(narrowing)` therefore applies only to the selected task; callers that
-need to identify a task first use `selectTask(taskId)`. A partial narrowing remains selected, while a
-concrete result executes before the call returns.
+**Current behavior:** Selection establishes the promise to act next and the select-lock before
+narrowing resolves live World facts. `Agent.narrowTask(narrowing)` applies only to the selected task;
+callers that need to identify a task first use `selectTask(taskId)`. Each accepted partial narrowing
+edits the engine's task. A partial result remains selected, while a concrete result executes before
+the call returns. `Agent.taskDraft(taskId)` creates an independent, caller-held `TaskDraft`.
+`draft.narrow(narrowing)` keeps a provisional instruction in that object; `draft.instruction`
+revalidates it against the current task and World; `draft.commit()` submits it to the engine,
+selecting the task if necessary. Dropping the object forgets the draft. Drafting itself makes no
+game event. There is no choice enumeration yet.
+
+**Selected direction:** A caller may keep a disposable draft narrowing for one of its Actor's tasks
+without submitting it. This works for selected and unselected tasks. Future read-only choice
+analysis can use that draft and the current World to offer another narrowing, while the engine
+still stores the last committed task instruction. A draft is the client's chosen restriction, not a
+resolved instruction: state-dependent results such as `3 Plant.` becoming `2 Plant!` are derived
+for display or execution and need not narrow the original instruction.
+
+The client calls `draft.commit()` when the next game action needs the narrowed task, such as a real
+split or execution. The engine validates the submission against its current task, then records any
+task edits and consequences. It remains free to accept earlier partial submissions or perform sound
+simplifications itself, but progressive Agent assistance must not depend on the engine recording
+every intermediate step.
+
+An unselected draft does not select or lock its task. Other actions may change the World, the task,
+or its assignee; the draft rechecks against them before reading its instruction or submitting it.
+If the task is reassigned to another Actor, the former assignee's draft has no game effect and can
+be discarded.
+
+A selected task's World lock makes its draft more stable, but the engine still validates submission.
+Drafts may be discarded when stale, on rollback, or when the caller drops them. They are absent from
+the shared task queue, event log, and recordings. This keeps tentative choices outside the public
+game record; actual opponent privacy also requires the application to restrict access to each Agent.
 
 ## Agent
 
 A configured Game World has exactly one Agent per Actor, including Admin. Every ordinary mutation
 chosen autonomously or explicitly requested by an interactive client enters through that Actor's
 Agent. Replay correction, tests, and workflows may deliberately use the lower-level engine API.
-The Agent serializes its requests and calls the engine's Actor-attributed methods directly. An Agent
-with no active autoexecution policy is a thin Actor-scoped client facade; a separate passive access
-object would add no present responsibility and is not planned.
+The Agent serializes its requests and calls the engine's Actor-attributed methods directly. It can
+create caller-held drafts without retaining them or making them game state or an autoexecution
+policy. A separate passive access object is not planned.
 
 `Agent.reader` is a `ScopedGameReader`. In Player scope, contextual input such as `Plant` is
-interpreted as `Plant<that Player>`, matching the current contextual `Owner` substitution.
+interpreted as `Plant<that Player>` through the Owned-specific lexical insertion rule.
 `agent.reader.unscoped` returns the underlying `GameReader` so callers can deliberately inspect the
 whole game without leaving the Agent API. This scoping supplies contextual input; it does not
 require hidden-information views or player-specific universes.
@@ -151,9 +179,9 @@ or delegate narrowing to Admin. Which legal strategy an Admin policy uses is not
 
 ## Remaining question
 
-- Should provably permanent forced narrowing happen during engine task admission, or should an
-  Agent policy record it as an Actor mutation? Decide from whether the simplification represents a
-  game action or merely removes a specification that never denoted more than one possibility.
+- Whether the engine performs a provably forced narrowing during task admission remains open. It
+  is not required for progressive Agent drafts. Agent assistance with an unambiguous draft step
+  does not itself commit an Actor mutation or need an autoexecution policy.
 
 ## Current implementation divergence
 
@@ -178,6 +206,9 @@ setting rather than the planned attachable policy system. Remaining extraction w
 2. replace public many-queue language with one Game World task queue plus Agent-filtered views;
 3. reduce the normal Agent surface while keeping direct engine cheats explicit; and
 4. replace the legacy global queue drain with the policy-relative shared loop in [AUTOEXEC.md](AUTOEXEC.md).
+
+Choice enumeration and read-only resolution of drafts still need implementation without copying
+engine legality rules.
 
 Do not retain obsolete aliases simply to preserve the current public API. User-visible script
 syntax must be migrated deliberately.

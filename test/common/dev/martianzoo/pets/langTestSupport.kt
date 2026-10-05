@@ -6,11 +6,8 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.data.Catalog
-import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.types.ClassLoader
 import dev.martianzoo.pets.types.ClassTable
-import dev.martianzoo.pets.types.testCatalog
+import dev.martianzoo.pets.types.loadTypes
 import io.kotest.matchers.shouldBe
 import kotlin.reflect.KClass
 
@@ -45,7 +42,7 @@ internal fun <P : PetNode> roundTripAll(type: KClass<P>, sources: String) {
  */
 internal const val LANG_DECLARATIONS: String =
     """
-    ABSTRACT CLASS Player : Owner, Actor {
+    ABSTRACT CLASS Player : Anyone, Actor {
       CLASS Player1
       CLASS Player2
     }
@@ -78,8 +75,8 @@ internal const val LANG_DECLARATIONS: String =
     CLASS Slug : Owned<Anyone> { DEFAULT -Slug. }
 
     "A card, and a resource whose owner is forced to be its card's owner (T3-8)"
-    ABSTRACT CLASS CardFront : Owned<Owner> { CLASS Ants }
-    ABSTRACT CLASS Cardbound<CardFront<@Owner>> : Owned<@Owner> { CLASS Animal }
+    ABSTRACT CLASS CardFront : Owned<Anyone> { CLASS Ants }
+    ABSTRACT CLASS Cardbound<CardFront<@Anyone>> : Owned<@Anyone> { CLASS Animal }
 
     "A class whose removal-only default differs from its all-use default"
     CLASS Marker<Area> : Owned<Anyone> { DEFAULT -Marker<LandArea> }
@@ -98,34 +95,29 @@ internal const val LANG_DECLARATIONS: String =
  * The declarations above, plus one registered transform handler so that dispatching marked syntax
  * (L8-1) is observable. `UNWRAP[x]` rewrites to `x`.
  */
-internal val langCatalog: Catalog by lazy {
-  val base = testCatalog(LANG_DECLARATIONS.trimIndent())
-  object : Catalog by base {
-    override val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> =
-        mapOf("UNWRAP" to { _ -> TransformHandler { inner -> inner } })
-
-    override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
-  }
+internal val langTable: ClassTable by lazy {
+  loadTypes(
+      LANG_DECLARATIONS.trimIndent(),
+      transformHandlerFactories = mapOf("UNWRAP" to { _ -> TransformHandler { inner -> inner } }),
+  )
 }
-
-internal val langTable: ClassTable by lazy { langCatalog.classTable }
 
 internal val langElaborator: PetElaborator by lazy { PetElaborator(langTable) }
 
-internal val player1: Player = Player(parse("Player1"))
+internal val player1: Expression = parse("Player1")
 
-/** A world that resolves types in [table] and answers [answer] to every requirement. */
+/** A world that resolves types in [classTable] and answers [answer] to every requirement. */
 internal class TableWorld(
-    private val table: ClassTable,
+    override val classTable: ClassTable,
     private val answer: Boolean = true,
 ) : TypeInfo {
-  override fun isAbstract(e: Expression): Boolean = table.resolve(e).abstract
+  override fun isAbstract(e: Expression): Boolean = classTable.resolve(e).abstract
 
   override fun ensureNarrows(wide: Expression, narrow: Expression): Unit =
-      table.resolve(narrow).ensureNarrows(table.resolve(wide), this)
+      classTable.resolve(narrow).ensureNarrows(classTable.resolve(wide), this)
 
   override fun ensureSelectionNarrows(wide: Expression, narrow: Expression): Unit =
-      table.resolve(narrow).ensureSelectionNarrows(table.resolve(wide), this)
+      classTable.resolve(narrow).ensureSelectionNarrows(classTable.resolve(wide), this)
 
   override fun has(requirement: Requirement): Boolean = answer
 }

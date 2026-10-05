@@ -40,7 +40,10 @@ and everything that proves it.
 
 Blockquoted insets are not rules. A **Non-normative example** shows a rule at work in real game
 content; a **Non-normative design note** explains why an otherwise surprising provision exists; a
-**Present limitation** says what Pets cannot yet express.
+**Present limitation** says what Pets cannot yet express. Examples explain why the illustrated
+capability matters to a named card or mechanic. Authoring conventions and provisions without a
+known canonical TfM witness are distinguished from game requirements; one example need not justify
+every subcase of the accompanying rule.
 
 ### Notation
 
@@ -79,11 +82,10 @@ rule here depends on, but what it shows matches canon:
 
 ```pets
 ABSTRACT CLASS Anyone
-ABSTRACT CLASS Owner : Anyone
 ABSTRACT CLASS Actor
-ABSTRACT CLASS Player : Owner, Actor
+ABSTRACT CLASS Player : Anyone, Actor
 CLASS Admin : Actor
-ABSTRACT CLASS Owned<Anyone> { DEFAULT Owned<Owner> }
+ABSTRACT CLASS Owned<Me@Anyone>
 
 ABSTRACT CLASS Area {
   ABSTRACT CLASS MarsArea {
@@ -167,7 +169,8 @@ restrictions do not make refinement types a separate kind of expression.
   of the game universe and defines inhabitance relative to it. Which classes a premise selects is
   decided when the premise is constructed, not by the type system.
 - **Component-count invariants**, except for the one rule the type system leans on (T3-9): a
-  dependency may only target a type limited to a single copy.
+  dependency may only target a type limited to a single copy. Runtime enforcement at
+  [operation completion](type-system.md#invariants-and-operation-completion) belongs to the engine.
 - **What the rest of Pets means.** Instructions, requirements, metrics, triggers and declarations
   are the subject of [the Pets language specification](pets-language-spec.md), whose rules are cited
   here as `L2-10`. How an engine brings a change about is outside both documents.
@@ -271,6 +274,10 @@ ABSTRACT CLASS Area {
 
 is exactly `ABSTRACT CLASS MarsArea : Area`, `ABSTRACT CLASS LandArea : MarsArea`, and so on.
 
+> **Non-normative example — Predators.** It is a blue project card with an action and an animal
+> holder. The same component must qualify for `ActiveCard` queries, `ActionCard` actions, and
+> `ResourceCard` storage. Choosing just one role would lose real queries or operations on the card.
+
 **T2-3. A concrete class is final.** No class may extend a concrete one, so a concrete class's only
 subclass is itself. This is what makes "narrow this to a concrete type" a terminating operation: a
 player who chooses `GreeneryTile<Player1, Tharsis_2_2>` cannot then be asked to choose again.
@@ -293,6 +300,11 @@ defined. A game universe may hold subclasses its catalog universe lacks (T12-2).
 `LandArea`'s superclasses are `LandArea`, `MarsArea`, `Area` and `Component` in every universe. Its
 subclasses are itself, `VolcanicArea`, and every land area of every map the universe knows.
 
+> **Non-normative example — choosing a map.** `SpecialTile` inherits its area dependency from
+> `Tile<MarsArea>` in both Hellas and Tharsis games, and its gain default selects `LandArea` in both.
+> The playable concrete land areas differ. Treating all catalog subclasses as the current game's
+> candidates would offer areas from the wrong map.
+
 **T2-8. Greatest lower bound of two classes (`⊓`).** If one operand is a subclass of the other,
 the subclass is the answer. Otherwise the answer is the unique **greatest common subclass**: a class
 below both, which every other class below both is also below. If there is no such class, because
@@ -311,16 +323,17 @@ well. If a catalog also declared a class extending both `Tile` and `Owned` outsi
 `Tile ⊓ Owned` would be absent. Pets does not manufacture a conjunction class; it only recognizes
 one a catalog declared.
 
-**T2-9. Kotlin-backed classes.** A class directly extending `CustomMetric` is a virtual metric: no
-component of it exists, and Catalog host code supplies its count. It cannot declare or inherit Pets
-behavior. A class directly extending `CustomInstruction` is an ordinary Signal that may declare Pets
-behavior. On its gain, Catalog host code supplies an instruction tree queued as an additional
-effect. The Catalog must supply exactly one implementation of the matching kind for each such class
-and must not supply one for an ordinary class, `Component` and `Class` included (T10-2).
+**T2-9. Externally defined meanings.** A class directly extending `CustomMetric` is a virtual
+metric: no component of it exists, and its count is defined outside Pets. It cannot declare or
+inherit Pets behavior. A class directly extending `CustomInstruction` is an ordinary Signal that
+may declare Pets behavior. Its gain specifies an additional ordinary effect whose instruction is
+externally defined from the gained component and the state. Each such class has exactly one
+external definition of the matching kind. Ordinary classes, including `Component` and `Class`,
+have no external definitions (T10-2).
 
 > **Non-normative example — Robotic Workforce.** It gains
-> `CopyProductionBox<CardFront(HAS BuildingTag)>`, a `CustomInstruction` whose host code queues the
-> chosen building card's production box. `Neighbor` is a `CustomMetric`: the board's geometry,
+> `CopyProductionBox<CardFront(HAS BuildingTag)>`, a `CustomInstruction` whose additional consequence
+> is the chosen building card's production box. `Neighbor` is a `CustomMetric`: the board's geometry,
 > not any component, says which areas are adjacent.
 
 ---
@@ -373,8 +386,8 @@ argument is an error. A dependency whose bound is already concrete in the class'
 argument position. `Pets` fixes both its card back and the resource it holds, so its one argument
 position is its owner: `Pets<Player1>`.
 
-This is what makes `Anyone` work. `Anyone` is an ordinary class at the top of the ownership
-hierarchy, so `Anyone` intersected with a narrower bound is that narrower bound:
+`Anyone` is the ordinary root of the ownership hierarchy. Intersecting it with a narrower bound
+gives that narrower bound:
 
 ```text
 ProjectCard : Owned<Player>        →  ProjectCard<Anyone>     is  ProjectCard<Player>
@@ -384,9 +397,11 @@ ProjectCard<SoloOpponent>                                     →   error: not a
 ```
 
 > **Non-normative example — Solar Logistics.** It draws a card whenever any player plays a space
-> event, and its trigger is `EventCard<Anyone>(HAS SpaceTag)`. Bare `EventCard` would receive the
-> contextual-owner default and see only its own owner's events (L9-4). `Anyone` removes that
-> restriction, and intersecting it with `EventCard`'s `Player` bound gives `EventCard<Player>`.
+> event, and its trigger is `EventCard<Anyone>(HAS SpaceTag)`. Bare `EventCard` receives the
+> enclosing lexical `Me` (L9-3) and sees only its own owner's events. The literal `Anyone` removes
+> that restriction, and intersecting it with `EventCard`'s `Player` bound gives `EventCard<Player>`.
+> The `HAS` candidate supplies `SpaceTag`'s card dependency, so its owner follows the selected
+> event card.
 > Replacing the bound would make the trigger a type its class cannot have (T5-7).
 
 > **Non-normative example — Protected Valley.** It places `GreeneryTile<WaterArea>`. The written
@@ -404,15 +419,15 @@ Order *is* meaningful when two bounds overlap. In `Adjacency<Tile<Area>, Tile<Ar
 open.
 
 > **Non-normative example — Law Suit.** The removal record its trigger matches is written
-> `MyResourceWasRemoved<Owner, Attacker@Player>`. The record's dependencies are the victim
-> (`Owned_0`, bound `Owner`), the resource class, the attacker (bound `Player`) and the generation.
-> `Owner` takes the victim position. The attacker skips the resource-class position, which cannot
+> `MyResourceWasRemoved<Anyone, Attacker@Player>`. The record's dependencies are the victim
+> (`Owned_0`, bound `Anyone`), the resource class, the attacker (bound `Player`) and the generation.
+> `Anyone` takes the victim position. The attacker skips the resource-class position, which cannot
 > hold a player, and takes the attacker position. Written `MyResourceWasRemoved<Attacker@Player,
-> Owner>`, the attacker would take the victim position, which accepts any owner, and the two parties
+> Anyone>`, the attacker would take the victim position, which accepts any owner, and the two parties
 > would swap.
 
 > **Non-normative example — Turmoil.** Party rules write
-> `PartyDelegate<This, DelegateOwner@Anyone>`, party first, although the inherited owner key
+> `PartyDelegate<This, DelegateHolder@Anyone>`, party first, although the inherited owner key
 > precedes the party key. Because the two bounds are disjoint, each argument lands in the one
 > position it can occupy.
 
@@ -438,19 +453,25 @@ Canon's only use of `This` in a header is `Class<This>` in a dependency bound, d
 > in a header, or `This` in a supertype argument. T3-7 states the general rebinding rule rather
 > than an exception shaped to the one canonical use.
 
+> **Non-normative example — Pets and Ants.** `CardResource` declares a holder bound containing
+> `ResourceHolder<Class<This>, ...>`. Inherited by `Animal`, that means a holder accepting animals;
+> inherited by `Microbe`, it means one accepting microbes. Freezing `Class<This>` at `CardResource`
+> would lose the distinction between Pets' animals and Ants' microbes. This witnesses `Class<This>`
+> in a dependency bound, not the unused bare-`This` header cases noted above.
+
 **T3-8. One header variable in two positions forces them to agree.** When one type variable occupies
 two dependency paths of a class header (T13-2), resolving a type of that class propagates a choice
 from either position into the other:
 
 ```pets
-ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Owner>
-ABSTRACT CLASS CardResource<ResourceHolder<Class<This>, @Owner>> : Owned<@Owner> {
+ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Anyone>
+ABSTRACT CLASS CardResource<ResourceHolder<Class<This>, @Anyone>> : Owned<@Anyone> {
   CLASS Animal
   CLASS Microbe
 }
 ```
 
-The marker `@Owner` makes the holder's owner and the resource's own owner one variable. An animal's
+The marker `@Anyone` makes the holder's owner and the resource's own owner one variable. An animal's
 owner is therefore necessarily the owner of the card it lives on:
 
 ```text
@@ -464,14 +485,16 @@ The two tiles of `Adjacency<Tile<Area>, Tile<Area>>` are independent. `Adjacency
 would require them to be the same tile.
 
 > **Non-normative example — Pets.** An animal on Player 1's Pets card must also be owned by
-> Player 1. Without propagation between the two occurrences of `@Owner`, it could acquire Player 2
+> Player 1. Without propagation between the two occurrences of `@Anyone`, it could acquire Player 2
 > as its independent owner, and Player 2 could spend it.
 
 **T3-9. A dependency may only target a type limited to one copy.** An edge names its target by
 exact type alone, so a type that admitted two identical components could not say which one it
-meant. Every concrete type a dependency bound admits must therefore carry an applicable `MAX 1` or
-`=1` invariant. A game universe that breaks this is ill-formed. This is the only place
-component-count invariants enter this specification.
+meant. For each inhabited concrete class, every inhabited concrete type admitted by one of its
+dependency bounds must therefore have an applicable invariant limiting it to at most one copy.
+An upper bound of zero also satisfies this uniqueness condition. An abstract class may leave a
+broader bound; the rule applies to its inhabited concrete subclasses. A game universe that breaks
+this is ill-formed. This is the only place component-count invariants enter this specification.
 
 `Signal` and all its subclasses, and `Die`, are never valid dependency targets, whatever their
 invariants. A signal is a point event removed immediately after it happens, and `Die` has no legal
@@ -513,6 +536,11 @@ represented class itself. Another occurrence with the same marker denotes that c
 and `@X<dependencies>` applies ordinary dependency arguments to it (T13-1). Neither form denotes the
 `Class<X>` component.
 
+> **Non-normative example — Utopia Invest.** `PROD[@StandardResource] -> 4 @StandardResource`
+> names a resource kind through `Class<@StandardResource>` in the expanded production dependency,
+> then gains four resources of that kind. Confusing the represented Class with its component would
+> gain a class literal instead of the resources the card promises.
+
 **T4-2. Concreteness depends only on the class named,** and not on that class's dependencies:
 
 ```text
@@ -542,8 +570,17 @@ Production<Class<Metal>>`.
 class literal represents no class. Refined class literals (T8-10) and represented-class variables
 (T13-1) are defined in terms of this.
 
+> **Non-normative example — Diversifier.** Its requirement examines
+> `Class<@Tag>(HAS @Tag<Me@Anyone>)`. A candidate `Class<ScienceTag>` must test the player's science
+> tags, not merely the existence of the class literal. Otherwise every catalog tag would count
+> toward the milestone even when the player has none (T8-10).
+
 **T4-5. Meets follow the class hierarchy.** `Class<Metal> ⊓ Class<Steel>` is `Class<Steel>`. The
 meet of literals for disjoint classes is absent.
+
+> **Non-normative example — Predators.** Its `ActiveCard` ancestry fixes its card back to
+> `Class<ProjectCard>`, while `ActionCard` allows the broader card-back Class. Their inherited
+> dependency must meet at `Class<ProjectCard>` so both roles refer to the same project-card back.
 
 **T4-6. The operand is one bare, existing class name.** All of these are errors:
 
@@ -558,7 +595,7 @@ Class<Oxygen>                  no such class (the class is OxygenStep)
 exist even where an expression merely counts one, as in `HAS MAX 0 Class<Oxygen>`. An instruction
 may not gain a class literal: its components are fixed by the universe, not created by play.
 
-> **Non-normative example — the Collector award.** It counts `Class<@Resource>(HAS @Resource<Owner>)`,
+> **Non-normative example — the Collector award.** It counts `Class<@Resource>(HAS @Resource<Me@Player>)`,
 > the resource kinds a player holds. Allowing an argument-bearing operand such as
 > `Class<Resource<Player1>>` would turn the global representative of a kind into player-specific
 > data with no defined component identity.
@@ -588,8 +625,8 @@ nothing.
 resource knows which cards can hold it:
 
 ```pets
-ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Owner>
-ABSTRACT CLASS CardResource<ResourceHolder<Class<This>, @Owner>> : Owned<@Owner> {
+ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Anyone>
+ABSTRACT CLASS CardResource<ResourceHolder<Class<This>, @Anyone>> : Owned<@Anyone> {
   CLASS Animal
   CLASS Microbe
 }
@@ -674,6 +711,11 @@ greenery would fill the first position. `Adjacency<GreeneryTile<Player1, Tharsis
 drops its second argument. `Animal<Player1, Pets<Player1>>` is written `Animal<Pets<Player1>>`,
 because the owner of the card determines the animal's owner through T3-8.
 
+> **Non-normative design note — compact spelling.** The Pets example above needs its holder and
+> owner to agree; omitting a redundant argument is a readability convention. The positional filler
+> in the adjacency example is necessary only when rendering that query compactly: city scoring's
+> distinction between the scored city and neighboring greeneries must survive shortening.
+
 **T5-6. Both forms round-trip.** Resolving either form of a type yields that same type.
 
 **T5-7. A type never escapes its class's declaration.** Every type of a class has exactly that
@@ -708,6 +750,10 @@ answer.
 > whether a concrete area satisfies `HAS Neighbor`. Answering "no" would call a legal placement
 > impossible in some states. The error exposes a caller that asked the wrong question.
 
+> **Non-normative example — Research Outpost.** A concrete area satisfies its no-neighbor
+> placement condition only while the surrounding spaces are empty. Structural membership in
+> `LandArea` cannot answer that board query; narrowing against the current world can.
+
 **T6-2. The shared structural rule.** A narrows B when all of these hold:
 
 1. A's root class is a subclass of B's root class;
@@ -726,6 +772,11 @@ dependency describes a *set of possible* concrete types to query or narrow, not 
 would accept any member of the set. `ResourceValue<Class<Metal>>` counts the separate steel-value
 and titanium-value components; it is not one component that accepts either.
 
+> **Non-normative example — Tharsis Republic.** Its `CityTile<Anyone, MarsArea>: PROD[1 MC]` must
+> respond to a city on the specific area `Tharsis_2_2`. That area's narrowing of `MarsArea` also
+> narrows the containing city type. Requiring equal area arguments would miss the concrete cities
+> whose placement the corporation rewards.
+
 **T6-4. Shape of the relations.** Over structural types, both judgments are reflexive, transitive
 and antisymmetric: two structural types that narrow each other are the same type. With refinements
 and a world, contextual narrowing need not be antisymmetric or transitive. If `First` and `Second`
@@ -737,6 +788,12 @@ as written in that world, not every member of an abstract candidate's domain.
 Instruction narrowing additionally preserves predicates on unfinished choices (L3-4). An aggregate
 answer cannot erase a condition from a pending instruction.
 
+> **Non-normative example — CEO's Favorite Project.** An aggregate query can establish that
+> `CardFront` has some card resource without establishing that an individually chosen empty card
+> has one. Treating that query relation like structural subtyping and chaining through the broad
+> card domain would let the card add a resource to an ineligible holder. Each candidate needs its
+> own state check (T8-8).
+
 **T6-5. Cross-universe comparisons are errors**, per T1-2.
 
 **T6-6. A constraint read inside a domain.** Some positions constrain a value that already has a
@@ -747,10 +804,10 @@ intersection an argument undergoes (T3-4). With domain `Actor`, the constraint `
 constraint that cannot meet the domain at all accepts nothing.
 
 > **Non-normative example — actor constraints.** Protected Habitats forbids removal
-> `BY Player(NOT Owner)`: a player, other than the card's owner, performing the change. By contrast,
-> `BY Anyone` is the spelling that removes a trigger's usual actor restriction (L6-9) altogether, so
-> Aphrodite's `VenusStep BY Anyone: 2 MC` also reacts to a Venus step performed by Admin. That
-> wildcard is not the ownership class `Anyone` read inside `Actor`.
+> `BY Player(NOT Me@Anyone)`: a player, other than the card's owner, performing the change. By contrast,
+> `BY Actor` is the spelling that removes a trigger's usual actor restriction (L6-9) altogether, so
+> Aphrodite's `VenusStep BY Actor: 2 MC` also reacts to a Venus step performed by Admin. That
+> broad actor constraint is distinct from the ownership class `Anyone`.
 
 ---
 
@@ -783,6 +840,11 @@ one it is:
 
 Where a meet exists it narrows both operands, and every type below both narrows it.
 
+> **Non-normative example — Protected Valley.** In `GreeneryTile<WaterArea>`, the card's `WaterArea`
+> meets the greenery's inherited `MarsArea` bound and yields `WaterArea`. The containing type keeps
+> the greenery's other dependencies and rules while restricting its area to the card's exceptional
+> placement. Widening back to `MarsArea` would lose that restriction.
+
 **T7-2. `⊓` is idempotent and commutative.** Refinement clauses form a set (T8-9), so two meets
 that list their clauses in different orders are equal types, even though they may render
 differently.
@@ -806,6 +868,10 @@ differently:
 **T8-1. A refined type is abstract and lies below its unrefined domain.** Narrowing the domain while
 keeping the same predicate narrows the refined type: `Tharsis_2_2(HAS Neighbor) <: LandArea(HAS
 Neighbor)`.
+
+> **Non-normative example — Research Outpost.** Its “no adjacent tiles” refinement restricts the
+> placement choice, which remains open until a legal area is selected. It does not become a new
+> concrete city identity that stops existing when another tile is later placed beside it (T5-3).
 
 **T8-2. `HAS` asks the world about the candidate.** Testing whether candidate `c` narrows
 `D(HAS R)` substitutes `c` into `R` (T8-3) and asks the world whether the result holds. Testing
@@ -856,16 +922,16 @@ narrows the written `Player` to `Player1` and asks `PartyLeader<Player1, MarsFir
 candidate satisfies it only when its **entire** structural extension avoids `X`:
 
 ```text
-Player2 <: Owner(NOT Player1)     yes
-Player1 <: Owner(NOT Player1)     no
-Player  <: Owner(NOT Player1)     no — abstract Player still admits Player1
+Player2 <: Anyone(NOT Player1)     yes
+Player1 <: Anyone(NOT Player1)     no
+Player  <: Anyone(NOT Player1)     no — abstract Player still admits Player1
 ```
 
 The exclusion need not narrow the domain; the difference is taken through their structural overlap.
-`Actor(NOT Owner)` excludes the players, who are both actors and owners, and keeps `Admin`. Overlap
+`Actor(NOT Anyone)` excludes the players, who are both actors and owners, and keeps `Admin`. Overlap
 is detected even where the two have no unique greatest common subclass (T2-8), and only concrete
 overlap counts: an abstract class below both is not evidence of overlap. The test never consults a
-world, and works the same inside a dependency, as in `Plant<Owner(NOT Player1)>`.
+world, and works the same inside a dependency, as in `Plant<Anyone(NOT Player1)>`.
 
 > **Non-normative example — Protected Habitats.** After specialization for its owner, its selector
 > is `Player(NOT Player1)`. That must mean "a player other than Player1" by type, whatever the state
@@ -873,7 +939,7 @@ world, and works the same inside a dependency, as in `Plant<Owner(NOT Player1)>`
 > board.
 
 **T8-5. The excluded operand must be refinement-free, recursively.** Neither
-`Owner(NOT Player(HAS StartToken))` nor a nested `NOT` is accepted. This keeps the difference
+`Anyone(NOT Player(HAS StartToken))` nor a nested `NOT` is accepted. This keeps the difference
 decidable without a world, and prevents negating a world query.
 
 > **Non-normative design note — a deliberate language boundary.** No canonical card needs to negate
@@ -894,7 +960,7 @@ refinement, is abstract, and enumerates nothing. It stays representable because 
 variable may be specialized later, making the difference non-empty again.
 
 > **Non-normative example — resource-removal watchers.** Their victim is
-> `Victim@Owner(NOT Attacker@Player)` until the attacker is bound. Before then it excludes every
+> `Victim@Anyone(NOT Attacker@Player)` until the attacker is bound. Before then it excludes every
 > player, and in a game with no other owners it excludes everything. Discarding it early would lose
 > the restriction that the victim is someone other than the attacker (T13-9).
 
@@ -911,10 +977,6 @@ domain (T6-2) and satisfies every one of B's clauses. The clauses are decided as
 - An *unrefined* type is tested against a `HAS` clause by asking the world (T8-2). Without a world
   there is no answer (T6-1).
 - A `NOT` clause is satisfied by an identical clause in A, or by the structural test of T8-4.
-- These comparisons read the two predicates *as written*. That is meaningful only when both types
-  substitute the same candidate into them. Two class literals for different classes do not (T8-10),
-  so neither shortcut applies to them. `Class<@BuildingTag>(HAS @BuildingTag)` does not narrow
-  `Class<@Tag>(HAS @Tag)`, because each predicate refers to its own represented class.
 
 > **Non-normative example — Cyberia Systems.** It copies the production boxes of two different
 > building cards: `(BuildingTag<First@CardFront>: CopyProductionBox<First@CardFront>) THEN
@@ -928,6 +990,12 @@ equality. A rendering lists distinct clauses in the order they were first met. S
 `LandArea(HAS Neighbor) ⊓ Area(NOT Tharsis_2_2)` is `LandArea(HAS Neighbor, NOT Tharsis_2_2)`, and
 `Area(NOT Tharsis_2_2) ⊓ Area(NOT WaterArea)` is `Area(NOT Tharsis_2_2, NOT WaterArea)`.
 
+> **Non-normative example — Cyberia Systems.** Its second copy names
+> `CardFront(HAS BuildingTag, NOT First@CardFront)`. Meeting that expression with `CopyProductionBox`'s
+> unrefined card dependency keeps both clauses: the selected card must have a building tag and differ
+> from the first. This demonstrates retaining an operand's conjunction; it does not establish a need
+> to merge two separately refined operands.
+
 **T8-10. Refined class literals.** A refinement on `Class<X>` tests the class the candidate
 represents (T4-4). To refer to that represented class inside the refinement, mark both the operand
 and its uses: `Class<@X>(HAS @X)`. Testing `Class<BuildingTag>` against
@@ -940,7 +1008,7 @@ a dependency is left unchanged after explicit represented-class substitution. It
 of the requirement; unlike an ordinary component refinement (T8-3), the unmatched binding does not
 make the refinement fail.
 
-> **Non-normative example — Diversifier.** The milestone requires `8 Class<@Tag>(HAS @Tag<Owner>)`:
+> **Non-normative example — Diversifier.** The milestone requires `8 Class<@Tag>(HAS @Tag<Me@Anyone>)`:
 > eight distinct kinds of tag the player has, not eight tags. Testing the represented class is what
 > makes five Earth tags count as one kind.
 
@@ -1003,6 +1071,11 @@ when the type's root class fixes it, with an unfilled `Requirement?` having the 
 Asking for the value of a property that is still only a bound, or that the class does not have, is
 an error.
 
+> **Non-normative example — CrediCor.** Its `CardFront(HAS 20 cost)` trigger reads the played
+> card's printed cost even if the player paid less through discounts. Binding a card's owner must
+> preserve its root class's cost property; the same card class does not acquire a different printed
+> cost for a different owner or payment.
+
 **T9-6. Properties take no part in type identity or subtyping.** They are facts about a class, not
 dependencies. Two cards with different costs are different types because they are different
 classes, not because of the costs.
@@ -1023,7 +1096,8 @@ expression *resolves*. It never changes which types exist.
 (`DEFAULT Foo<...>`), for gains (`DEFAULT +Foo<...>`) and for removals (`DEFAULT -Foo<...>`). A
 class's all-uses defaults give it a **default template**, its base type written with those
 defaults filled in, and a **default type**, the type that template denotes. The two differ only as
-T10-5 says. Instructions consume the gain and removal sets (L9-5); resolution does not.
+T10-5 says. Elaboration applies defaults according to the expression's use (L9-4 through L9-8);
+resolution alone applies none of the three sets.
 
 ```pets
 ABSTRACT CLASS SpecialTile : Tile<MarsArea> {
@@ -1068,20 +1142,21 @@ class's own bound for the key, records nothing at all.
 > Had the tile been declared `SpecialTile<VolcanicArea>`, the inherited default would have narrowed
 > to `VolcanicArea` with it.
 
-**T10-5. `Owner` in a default stays as written.** This is the one deliberate exception to T10-4. A
-literal `Owner` written in a default is *not* intersected with the class's bound, so it can later
-be replaced by whichever player supplies the context (L9-3).
+> **Non-normative design note — the precedence cases still need a witness.** Lava Flows motivates
+> inheriting defaults and intersecting them with bounds. It does not demonstrate competing defaults
+> from several nearest ancestors or a nearer override hiding an incompatible ancestor. No current
+> canonical TfM example has been identified for those cases; their necessity remains under audit.
 
-The visible consequence is that a class's default template may lie outside its own bounds. `Owned`
-declares `DEFAULT Owned<Owner>`, and `TerraformRating : Owned<Player>` inherits it. The base type
-and the default type are both `TerraformRating<Player>`, but the default template is
-`TerraformRating<Owner>`. The template deliberately awaits a context, while every type formed from
-it still respects the class's bounds (T5-7).
+**T10-5. `Anyone` in a declared default obeys T10-4.** It is an ordinary class expression and is
+intersected with the class's bound. `Card : Owned<Player> { DEFAULT Card<Anyone> }` therefore has
+`Card<Player>` as its default expression and type. `Owned` itself declares no dependency default;
+omitted owners are inserted during elaboration by L9-3.
 
-> **Non-normative example — setting up terraform rating.** Multiplayer setup runs
-> `EACH Player { 20 TerraformRating }`, and inside that body `Owner` is the player selected for the
-> branch (L9-3). If the default were normalized early to `TerraformRating<Player>`, the body would
-> name "some player's" rating instead of the selected player's.
+> **Non-normative design note — no current TfM witness for this declared-default case.** No current
+> canonical declaration defaults an owner dependency to `Anyone`. Multiplayer setup's
+> `EACH Me@Player { 20 TerraformRating }` instead relies on omitted-owner insertion (L9-3), so it
+> does not justify this special mention of `Anyone` in the default rules. The example above states
+> the consequence of ordinary intersection, not a demonstrated extra gameplay capability.
 
 ---
 
@@ -1114,9 +1189,9 @@ enumerates nothing.
 > operation to tiles and other dependent components.
 
 **T11-2. Refinements during enumeration.** Every `NOT` clause filters the candidates, because it can
-be decided structurally. `HAS` clauses are **not** applied: enumeration is world-free, and whoever
-enumerates tests the survivors against a state. So `LandArea(HAS Neighbor<OwnedTile>)` enumerates
-every land area.
+be decided structurally. `HAS` clauses are **not** applied: enumeration is world-free, and satisfying
+those predicates is a separate, state-dependent condition. So `LandArea(HAS Neighbor<OwnedTile>)`
+enumerates every land area.
 
 > **Non-normative example — the standard greenery placement.** The legal areas are the land areas
 > next to one of the player's tiles at the moment of placement. Enumeration lists every land area,
@@ -1127,37 +1202,29 @@ every land area.
 is its only choice in every respect. Its root class must have exactly one inhabited concrete
 subclass compatible with it, every dependency must in turn have exactly one concrete choice, and the
 type's refinement must accept the result. This is stricter than "one candidate satisfies the
-refinement". Any remaining choice, anywhere, prevents it, deliberately, so that a decision a player
-should make is never made silently.
+refinement": any remaining structural choice, anywhere, prevents it, subject to the refined
+class-literal exception below.
 
 Within those limits it is thorough:
 
-- It sees through a `NOT`. In a two-player game, `Owner(NOT Player1)` narrows automatically to
+- It sees through a `NOT`. In a two-player game, `Anyone(NOT Player1)` narrows automatically to
   `Player2`; in a three-player game it does not.
 - It skips a concrete class whose bounds are incompatible with the requested type. That class is
   not one of the choices. `CardResource<Pets<Player1>>` narrows to `Animal<Player1, Pets<Player1>>`,
   because a microbe cannot live on Pets.
 - It yields nothing when the requested type is incompatible with every concrete class.
 
-A `HAS` clause can decide between candidates only where enumeration happens anyway, as with a
-refined class literal (T8-10).
+A refined class literal is the exception: its `HAS` clauses may distinguish its enumerated
+candidates (T8-10).
 
-The engine can also use the current World to finish a gain after its Task is selected. That later
-step can exclude a subtype whose added dependency is absent or whose gain limit is full. If only
-one executable concrete gain remains, it may also settle the gain's area. This does not change the
-world-free type rule.
+For other types, this is an under-approximation of uniqueness in a state. If the universe contains
+several water areas, `WaterArea(HAS MAX 0 Tile)` does not narrow automatically merely because only
+one satisfies the requirement in the current state. The judgment leaves the same structural choice
+open regardless of how many of those areas currently hold tiles.
 
-This is an under-approximation, and knowingly so. A type narrows automatically when the *universe*
-leaves one candidate, not when the current state does. An ocean placement asking for
-`WaterArea(HAS MAX 0 Tile)` never narrows automatically, however few empty water areas remain,
-because the map declares many water areas and only a state can say which of them are empty. Asking
-a world about every candidate on every resolution would cost more than it saves, and the answer
-would change under the player's feet.
-
-> **Non-normative example — Aquifer.** Late in a game only one ocean area may still be empty, and
-> Aquifer's ocean is still an ordinary choice. What automatic narrowing does settle is a choice the
-> universe itself has reduced to one: `MarsMap` in a game on one map (T12-3), or which of two
-> players is "the other one".
+> **Non-normative example — Aquifer.** Late in a game only one ocean area may still be empty, but
+> that state alone does not establish automatic narrowing under T11-3. The universe does establish
+> a unique `MarsMap` in a game on one map (T12-3), or which of two players is "the other one".
 
 ---
 
@@ -1245,8 +1312,8 @@ its refinement and still rejects bare `Left`. Only enumeration under it is restr
 closure (T12-3).
 
 A game universe adds classes, so a difference can bite in a game where it could not in the catalog.
-The catalog declares no concrete player class. In the catalog universe, `Owner(NOT Player)` cannot
-bite and resolves to plain `Owner` (T8-6); in a game universe it keeps its refinement. An expression
+The catalog declares no concrete player class. In the catalog universe, `Anyone(NOT Player)` cannot
+bite and resolves to plain `Anyone` (T8-6); in a game universe it keeps its refinement. An expression
 that writes a difference means what the universe resolving it says (T1-3).
 
 > **Non-normative example — Viron.** Its action reuses another card's action:
@@ -1344,7 +1411,7 @@ ABSTRACT CLASS Cardbound<CardFront<@Player>> : Owned<@Player>
 action-used marker belongs to the player whose card it marks.
 
 > **Non-normative example — separate parties.** Law Suit's removal record is
-> `CLASS MyResourceWasRemoved<Class<Resource>, Player, GenerationScope> : Owned<Owner>`. Its owner
+> `CLASS MyResourceWasRemoved<Class<Resource>, Player, GenerationScope> : Owned<Anyone>`. Its owner
 > is the victim and its `Player` dependency the attacker. They are separate variables, as they must
 > be: the record exists precisely because two different players are involved.
 
@@ -1355,6 +1422,12 @@ variable. A marker is anonymous or has a class-name-shaped local name (L1-7). A 
 may be declared for descendants without a use in the declaring class's body. A represented-class
 header variable follows T13-1, so the body of a class declaring `Class<@CardResource>` may write
 `@CardResource<This>`.
+
+A represented-class header reference can take arguments for the selected class's dependencies. For
+example, `Production<Class<@StandardResource>> : Owned` may write
+`ProductionPhase: @StandardResource<Me@Anyone>`: the resource kind comes from the represented class
+variable, while its owner comes from the inherited `Me`. L9-3 inserts that owner argument when it
+is omitted.
 
 A header name takes precedence over the variable that an effect, action, `THEN` sequence, or full
 transmutation would otherwise declare for a matching marker (T13-6, T13-7). An explicitly marked
@@ -1374,9 +1447,15 @@ superclass's scope.
 Several names can denote one binding. Inheritance paths that reach one ancestor's dependency merge
 into one binding, and every name given to that dependency on any of those paths, or by marking it
 again in a supertype argument, denotes it. A class header cannot give an inherited name to a
-different dependency. A class may inherit one name for distinct bindings from different
-superclasses; their inherited effects keep their own scopes, but a use of that name in the class's
-own body is ambiguous and fails.
+different dependency. If a class inherits one name for distinct bindings from different
+superclasses, its declaration fails even when its own body does not use the name. Repeated paths to
+one ancestor's dependency still agree.
+
+A use may state a narrower bound while retaining the inherited name: `Me@Player` uses an inherited
+`Me@Anyone` binding when `Player` is a subtype of `Anyone`. The narrower expression constrains that
+use; it does not declare another variable. A wider or unrelated bound cannot reuse the name this
+way. Two independent inherited bindings with that name remain ambiguous; repeated paths to one
+ancestor's binding are not.
 
 An explicit supertype argument supplies the value of an inherited variable. A subclass may mark
 that argument to name a previously unmarked dependency, as
@@ -1420,13 +1499,6 @@ an occurrence that does not supply the variable may not add a refinement.
 Binding substitutes at every occurrence at once. Manutech's effect, lowered to
 `Production<Class<@StandardResource>>: @StandardResource` and bound to `Plant`, becomes
 `Production<Class<Plant>>: Plant`.
-
-> **Present limitation — two-stage specialization.** When component specialization supplies an
-> abstract value for a class-header variable, that value replaces the variable before trigger
-> matching. Pets cannot currently both constrain an effect-local trigger variable to that header
-> value and then bind it to the triggering event's more specific type for use in the instruction. A
-> separate local marker can capture the event's type, but has no relationship to the header
-> variable.
 
 > **Non-normative example — Manutech.** The production increase is one choice region and the gained
 > resource is another. The anonymous marker makes both regions choose the same resource, so an
@@ -1476,6 +1548,11 @@ no variable (L2-4).
 > different role from the other; together they say that the two areas vary as one. Without the
 > markers, the city could go on any Mars area at all.
 
+> **Non-normative example — Changing Times.** Its
+> `EACH Event@GlobalEvent(HAS Coming) { Current<Event@GlobalEvent> FROM Coming<Event@GlobalEvent> }`
+> advances the already-selected event. The nested full transmutation must reuse that outer value;
+> forming a fresh inner choice could pair the wrong current and coming events (L2-13).
+
 **T13-8. Only choosing and matching occurrences supply construct-local variables.** An ordinary
 unmarked expression has no variable identity. An observing expression may use a visible variable,
 but cannot introduce one.
@@ -1508,29 +1585,28 @@ event. An unmarked selector is only a filter. A marker joins the selector to oth
 variable, whose value the event's concrete actor supplies. That value is bound before the inner
 trigger is matched.
 
-Other selectors do not become declarations merely by following `BY`. `BY Anyone` alone is the
-unrestricted wildcard (T6-6), and a refined selector alone is a constraint. A selector exposes its
-actor elsewhere in the effect only through an explicit marker, as `BY @Player` referenced as
-`@Player`. `BY Anyone` stays a wildcard unless it is marked.
+Other selectors do not become declarations merely by following `BY`. `BY Actor` is an ordinary
+constraint accepting every actor, including Admin. A selector exposes its actor elsewhere in the
+effect only through an explicit marker, as `BY @Player` referenced as `@Player`.
 
 Where an actor variable is visible, an exclusion may use it, and the difference is tested only
 after the actor is bound. The canonical resource-removal watcher is:
 
 ```text
--X @Resource<Victim@Owner(NOT Attacker@Player)> BY Attacker@Player::
-    MyResourceWasRemoved<Victim@Owner, Class<@Resource>, Attacker@Player>.
+-X @Resource<Victim@Anyone(NOT Attacker@Player)> BY Attacker@Player::
+    MyResourceWasRemoved<Victim@Anyone, Class<@Resource>, Attacker@Player>.
 ```
 
 When Player1 removes a resource, `Attacker@Player` is bound to `Player1`, giving
-`@Resource<Victim@Owner(NOT Player1)> BY Player1`. `Victim@Owner` then captures the particular
+`@Resource<Victim@Anyone(NOT Player1)> BY Player1`. `Victim@Anyone` then captures the particular
 other player whose resource it was. This keeps "anyone but the actor" distinct from "the particular
 other player this event was about".
 
 > **Non-normative examples — Hydrologist and Aphrodite.** The Hydrologist milestone's watcher says
 > `OceanTile BY @Player: OceanCredit<@Player>`. When Player 2 places an ocean,
 > `@Player` is bound to `Player2`, so the credit belongs to the placer. Aphrodite says
-> `VenusStep BY Anyone: 2 MC`. It does not name the wildcard, so the wildcard only removes the actor
-> restriction, and the money goes to Aphrodite's owner.
+> `VenusStep BY Actor: 2 MC`. The broad actor constraint removes the usual actor restriction, and
+> the money goes to Aphrodite's owner through its inherited `Me`.
 
 > **Non-normative design note — `BY` supplies an explicitly marked value.** `BY` identifies the
 > event field that supplies the value, and matching markers identify where it is reused. Binding it
@@ -1588,6 +1664,12 @@ Predicates retained on an unfinished choice are checked when that choice is even
 > of that leader's delegates, so asking it again at a later occurrence could give a different
 > answer. Binding reuses the selected player instead.
 
+> **Non-normative example — Utopia Invest.** Exchanging production for four units of the same
+> resource requires one resource-kind choice shared by cost and result. If a partial proposal only
+> restricts that kind, the later choice must remain shared; equal but unlinked abstract domains
+> could spend steel production and gain titanium. The card motivates preserved identity, while
+> exposing partial binding itself is a language/API choice.
+
 **T13-11. Capture follows dependency paths.** Capturing a variable's value from a specialized
 expression reads, for each marked occurrence, the key path its written arguments filled (T3-6,
 T3-10), and takes the specialized type's bound at that path. A candidate that lacks the path a
@@ -1602,7 +1684,7 @@ invalid.
 
 > **Non-normative example — Law Suit.** The removal watchers record the victim, the resource class
 > and the attacker in distinct dependency positions, and Law Suit later reads that exact record.
-> Path-aware capture leaves the unrelated `Player` and `Owner` positions alone.
+> Path-aware capture leaves the unrelated `Player` and `Anyone` positions alone.
 
 ---
 

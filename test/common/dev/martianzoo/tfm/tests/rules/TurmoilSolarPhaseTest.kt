@@ -11,10 +11,9 @@ internal class TurmoilSolarPhaseTest : CardTest() {
   internal fun `solar turmoil waits for the current event before government and changing times`() {
     newGame(TurmoilExpansion)
     admin.runOperation(
-        "Current<Class<AquiferReleasedByPublicCouncil>> " +
-            "FROM Coming<Class<AquiferReleasedByPublicCouncil>>"
+        "Current<AquiferReleasedByPublicCouncil> " + "FROM Coming<AquiferReleasedByPublicCouncil>"
     )
-    admin.runOperation("Coming<Class<DryDeserts>> FROM Distant<Class<DryDeserts>>")
+    admin.runOperation("Coming<DryDeserts> FROM Distant<DryDeserts>")
     admin.runOperation("RevealDistantEvent") { doTask("CelebrityLeaders") }
 
     with(TfmWorkflow.Stepwise(agents)) {
@@ -25,26 +24,26 @@ internal class TurmoilSolarPhaseTest : CardTest() {
     p1.count("TerraformRating") shouldBe 19
     requireP2().count("TerraformRating") shouldBe 19
     admin.count("Ruling<Greens>") shouldBe 1
-    admin.count("Current<Class<AquiferReleasedByPublicCouncil>>") shouldBe 1
+    admin.count("Current<AquiferReleasedByPublicCouncil>") shouldBe 1
 
     p1.doTask("OceanTile<Tharsis_1_2> BY Admin")
 
     admin.count("Ruling<MarsFirst>") shouldBe 1
     admin.count("AquiferReleasedByPublicCouncil") shouldBe 0
-    admin.count("Current<Class<DryDeserts>>") shouldBe 1
-    admin.count("Coming<Class<CelebrityLeaders>>") shouldBe 1
+    admin.count("Current<DryDeserts>") shouldBe 1
+    admin.count("Coming<CelebrityLeaders>") shouldBe 1
     admin.count("Distant") shouldBe 0
 
     admin.doTask("Diversity")
 
-    admin.count("Distant<Class<Diversity>>") shouldBe 1
+    admin.count("Distant<Diversity>") shouldBe 1
   }
 
   @Test
   internal fun `terraform rating revision precedes the current global event`() {
     newGame(TurmoilExpansion)
     p1.runOperation("10 MC")
-    admin.runOperation("RedInfluence, Current<Class<RedInfluence>>")
+    admin.runOperation("RedInfluence, Current<RedInfluence>")
 
     with(TfmWorkflow.Stepwise(agents)) {
       solarPhase()

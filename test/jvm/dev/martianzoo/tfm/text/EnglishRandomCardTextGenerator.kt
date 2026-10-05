@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.tfm.canon.Canon
@@ -96,11 +97,16 @@ private object EnglishRandomCardTextGenerator {
 
   private fun topPets(card: Class, describers: Describers): List<String> {
     val effects = cardEffects(card)
-    val resourceValueEffects = renderCardResourceValueEffects(effects, describers).first
-    return cardActions(card).map { it.toString() } +
-        effects
-            .filterNot { it in resourceValueEffects || isEndEffect(it, describers) }
-            .map { it.toString() }
+    val invariants =
+        Requirement.split(card.declaration.invariants)
+            .filterIsInstance<Requirement.Exact>()
+            .filterNot {
+              countedExpression(it)?.let { expression -> describers.isTag(expression.className) } ==
+                  true
+            }
+    return invariants.map { "HAS $it" } +
+        cardActions(card).map { it.toString() } +
+        effects.filterNot { isEndEffect(it, describers) }.map { it.toString() }
   }
 
   private fun bottomPets(card: Class, describers: Describers): List<String> =

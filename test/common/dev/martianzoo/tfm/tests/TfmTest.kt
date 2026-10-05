@@ -12,8 +12,8 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
@@ -104,18 +104,17 @@ internal abstract class TfmTest {
 
   protected fun TfmGameplay.playCorp(
       cardName: ClassName,
-      location: ClassName? = null,
       body: TfmGameplay.() -> Unit = {},
   ): TaskResult {
     val player = this
     return inTurn {
-      playCorp(cardName, location = location)
+      playCorp(cardName)
       player.body()
     }
   }
 
   private fun tilePlacement(
-      reader: dev.martianzoo.pets.api.GameReader,
+      reader: dev.martianzoo.state.GameReader,
       tasks: List<Task>,
       row: Int,
       column: Int,
@@ -136,7 +135,7 @@ internal abstract class TfmTest {
   }
 
   private fun cardResources(
-      reader: dev.martianzoo.pets.api.GameReader,
+      reader: dev.martianzoo.state.GameReader,
       tasks: List<Task>,
       card: ClassName,
       count: Int?,
@@ -166,7 +165,7 @@ internal abstract class TfmTest {
 
   private fun singleDeclinableTaskId(
       tasks: List<Task>,
-      reader: dev.martianzoo.pets.api.GameReader,
+      reader: dev.martianzoo.state.GameReader,
       instruction: String,
   ): TaskId {
     val matches = tasks.filter { task ->

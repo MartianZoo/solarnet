@@ -8,8 +8,8 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameWorld
 import dev.martianzoo.state.Task.TaskId
@@ -25,10 +25,9 @@ internal class TaskAssignmentCharacterizationTest {
       Engine.newGame(
           testGamePremise(
               """
-              CLASS Token<Owner>
-              CLASS Marker<Owner>
+              CLASS Token<Anyone>
+              CLASS Marker<Anyone>
               CLASS AdminToken
-              CLASS Blocked<Owner> { HAS MAX 0 This }
               """,
               players = 2,
           )
@@ -125,7 +124,7 @@ internal class TaskAssignmentCharacterizationTest {
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
 
     val task =
-        p1.addTasks("((X Token<Player1>? THEN X Marker<Player1>?) OR Blocked<Player1>) BY Player2")
+        p1.addTasks("((X Token<Player1>? THEN X Marker<Player1>?) OR -Marker<Player1>) BY Player2")
             .single()
     p1.selectTask(task)
     p1.doTask("2 Token<Player1> BY Player2")

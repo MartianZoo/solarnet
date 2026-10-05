@@ -78,7 +78,12 @@ internal class English(
   ): EnglishText {
     val enteringCardDescribers = cardDescribers.whileEnteringCard()
     val interpretedEffects = interpretedCardEffects(card)
-    val resourceValueEffects = renderCardResourceValueEffects(interpretedEffects, cardDescribers)
+    val resourceValueEffects =
+        renderCardResourceValueEffects(
+            card.declaration.invariants,
+            interpretedEffects,
+            cardDescribers,
+        )
     val requirement = cardRequirement(card)?.let { renderRequirement(it, cardDescribers) }
     val immediateEffects =
         renderImmediateSelfEffects(
@@ -105,7 +110,12 @@ internal class English(
   ): EnglishText {
     val interpretedEffects = interpretedCardEffects(card)
     val cardActions = cardActions(card)
-    val resourceValueEffects = renderCardResourceValueEffects(interpretedEffects, cardDescribers)
+    val resourceValueEffects =
+        renderCardResourceValueEffects(
+            card.declaration.invariants,
+            interpretedEffects,
+            cardDescribers,
+        )
     val persistentEffects =
         interpretedEffects
             .filterNot { it in resourceValueEffects.first }
@@ -141,7 +151,21 @@ internal class English(
                   cardResourceType = cardResourceType(card),
               )
             }
-    val effectTexts = listOfNotNull(renderedPersistentEffects, resourceValueEffects.second)
+    val invariantTexts =
+        Requirement.split(card.declaration.invariants)
+            .filterIsInstance<Requirement.Exact>()
+            .filterNot { invariant ->
+              invariant in resourceValueEffects.first ||
+                  countedExpression(invariant)?.let { cardDescribers.isTag(it.className) } == true
+            }
+            .map { invariant ->
+              Sentence(
+                      Clause.RawPets(Unresolved(invariant, RefusalReason.UNKNOWN_REQUIREMENT_FRAME))
+                  )
+                  .asText()
+            }
+    val effectTexts =
+        listOfNotNull(renderedPersistentEffects, resourceValueEffects.second) + invariantTexts
     val effects =
         effectTexts
             .takeIf(List<EnglishText>::isNotEmpty)

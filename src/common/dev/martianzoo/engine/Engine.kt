@@ -6,7 +6,6 @@ import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
@@ -17,11 +16,12 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.ModuleProperties.PREMISE_REQUIREMENT
 import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.GamePremise
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameWorld
 
 /** Entry point to the solarnet engine -- create new games here. */
@@ -55,7 +55,8 @@ public object Engine {
             recordingPositions,
             ::removeTemporaryComponent,
         )
-    private val instructor = Instructor(reader, limiter, changer, effector, classTable, elaborator)
+    private val instructor =
+        Instructor(reader, limiter, changer, effector, classTable, elaborator, timeline)
     private val actorEngines: Map<Actor, ActorEngine> =
         premise.actors.associateWith(::createActorEngine)
     private val initializer =
@@ -83,6 +84,7 @@ public object Engine {
     internal fun createWorld(): WholeWorld {
       try {
         initializer.initialize()
+        limiter.checkRequiredCounts = true
       } catch (e: GameplayException) {
         throw InvalidGameConfigException(
             "game setup cannot complete: ${e.detail}",
@@ -253,7 +255,6 @@ public object Engine {
             timeline,
             actor,
             instructor,
-            changer,
             worldTransaction,
             elaborator,
         )

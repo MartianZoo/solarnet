@@ -9,34 +9,43 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.Requirement
 
 /** Renders card-owned resource-value changes as the persistent effect they implement. */
 internal fun renderCardResourceValueEffects(
+    invariants: Set<Requirement>,
     effects: List<Effect>,
     describers: Describers,
-): Pair<Set<Effect>, EnglishText?> {
+): Pair<Set<PetNode>, EnglishText?> {
   val resourceValueEffects = effects.filter { effect ->
     val instructions = InstructionGroup.of(effect.instruction).instructions
     instructions.isNotEmpty() && instructions.all(::isResourceValueChange)
   }
-  if (resourceValueEffects.isEmpty()) return emptySet<Effect>() to null
-
   val grants =
-      resourceValueEffects
-          .filter { it.automatic && it.trigger == WhenGain }
-          .flatMap { effect ->
-            InstructionGroup.of(effect.instruction).instructions.mapNotNull { instruction ->
-              (instruction as? Gain)?.resourceValue(effect, describers)
-            }
+      Requirement.split(invariants)
+          .filterIsInstance<Requirement.Exact>()
+          .mapNotNull { invariant ->
+            val expression =
+                (invariant.countedMetric as? Metric.Count)?.expression ?: return@mapNotNull null
+            if (
+                expression.className != GRANTED_RESOURCE_VALUE ||
+                    expression.arguments.lastOrNull() != describers.thisExpression ||
+                    expression.refinement != null ||
+                    invariant.expected <= 0
+            )
+                return@mapNotNull null
+            val resource =
+                expression.arguments.firstOrNull()?.let(describers::representedClassArgument)
+                    ?: return@mapNotNull null
+            invariant to (resource to invariant.expected)
           }
-  if (
-      grants.mapTo(linkedSetOf(), ResourceValueGrant::effect) == resourceValueEffects.toSet() &&
-          grants.all { it.source == describers.thisExpression }
-  ) {
+          .toMap()
+  if (grants.isNotEmpty()) {
     val valuesByResource = linkedMapOf<Expression, Int>()
-    grants.forEach { grant ->
-      valuesByResource[grant.resource] =
-          valuesByResource.getOrElse(grant.resource) { 0 } + grant.value
+    grants.values.forEach { grant ->
+      valuesByResource[grant.first] = valuesByResource.getOrElse(grant.first) { 0 } + grant.second
     }
     val value =
         valuesByResource.values.distinct().singleOrNull() ?: return emptySet<Effect>() to null
@@ -64,13 +73,12 @@ internal fun renderCardResourceValueEffects(
         )
       }
       if (acceptance != null && integrated != null) {
-        return (grants.mapTo(linkedSetOf(), ResourceValueGrant::effect) + acceptance.first) to
-            integrated
+        return (grants.keys + acceptance.first) to integrated
       }
     }
     val nouns = valuesByResource.keys.map { describers.componentNoun(it.className, 1) }
     val resources = if (nouns.size == 1) nouns.single() else englishAlternatives(nouns)
-    return grants.mapTo(linkedSetOf(), ResourceValueGrant::effect) to
+    return grants.keys to
         Sentence(NounPhrase.text("each $resources you pay is worth $value M€ extra")).asText()
   }
 
@@ -99,29 +107,6 @@ private fun isResourceValueChange(instruction: Instruction): Boolean =
       is Remove -> instruction.removing.className == BASE_RESOURCE_VALUE
       else -> false
     }
-
-private fun Gain.resourceValue(effect: Effect, describers: Describers): ResourceValueGrant? {
-  val expression = gaining
-  if (
-      expression.className != GRANTED_RESOURCE_VALUE ||
-          quantifier.modality() != Modality.REQUIRED ||
-          expression.refinement != null
-  ) {
-    return null
-  }
-  val value = count.fixedQuantity()?.takeIf { it > 0 } ?: return null
-  val resource =
-      expression.arguments.firstOrNull()?.let(describers::representedClassArgument) ?: return null
-  val source = expression.arguments.lastOrNull() ?: return null
-  return ResourceValueGrant(effect, resource, source, value)
-}
-
-private data class ResourceValueGrant(
-    val effect: Effect,
-    val resource: Expression,
-    val source: Expression,
-    val value: Int,
-)
 
 private fun Effect.singleBaseGain(describers: Describers): Expression? =
     (InstructionGroup.of(instruction).instructions.singleOrNull() as? Gain)?.baseResource(

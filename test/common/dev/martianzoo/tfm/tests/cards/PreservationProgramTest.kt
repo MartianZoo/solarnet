@@ -16,7 +16,7 @@ internal class PreservationProgramTest :
                 """
         CLASS TrAttributionProbe : Owned<Player> {
           TerraformRating BY Admin:: Plant
-          TerraformRating BY Owner:: Heat
+          TerraformRating BY Me@Player:: Heat
         }
         """
             )
@@ -76,7 +76,7 @@ internal class PreservationProgramTest :
     p1.playPrelude(Donation)
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction") {
-          p1.playPrelude(PreservationProgram, location = cn("Selecting"))
+          p1.playPrelude(PreservationProgram)
         }
         .expect("4 TerraformRating")
     p1.stdProject("AsteroidProject").expect("TerraformRating")
@@ -88,7 +88,7 @@ internal class PreservationProgramTest :
     p1.playCorp(ValleyTrust, 0)
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction") {
-          p1.playPrelude(PreservationProgram, location = cn("Selecting"))
+          p1.playPrelude(PreservationProgram)
         }
         .expect("4 TerraformRating")
     p1.stdProject("AsteroidProject").expect("TerraformRating")
@@ -272,7 +272,7 @@ internal class PreservationProgramTest :
     admin.phase("Action")
 
     p1.stdAction("DoRequiredActionsAction") {
-          p1.playPrelude(DoubleDown, location = cn("Selecting")) {
+          p1.playPrelude(DoubleDown) {
             doTask("CopyPrelude<PreservationProgram>")
           }
         }

@@ -16,10 +16,10 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.TaskResult
 
@@ -62,7 +62,7 @@ public class TfmGameplay(
 
   public fun playCorp(cardName: ClassName, buyCards: Int, body: OperationBlock = {}): TaskResult {
     return inTurn {
-      doTask("PlayCard<Class<StandardCorporationCard>, Class<$cardName>, Hand>")
+      doTask("PlayCard<Class<StandardCorporationCard>, Class<$cardName>>")
       buyOfferedCards(buyCards)
       body()
     }
@@ -237,43 +237,31 @@ public class TfmGameplay(
 
   public fun playPrelude(
       cardName: ClassName,
-      location: ClassName? = null,
       body: OperationBlock = {},
   ): TaskResult {
-    return inTurn { playPreludeWithinOperation(cardName, location, body) }
+    return inTurn { playPrelude(cardName, body) }
   }
 
   public fun OperationScope.playPrelude(
       cardName: ClassName,
-      location: ClassName? = null,
       body: OperationBlock = {},
   ) {
-    playPreludeWithinOperation(cardName, location, body)
-  }
-
-  private fun OperationScope.playPreludeWithinOperation(
-      cardName: ClassName,
-      location: ClassName?,
-      body: OperationBlock,
-  ) {
-    playCardWithinOperation(cn("PreludeCard"), cardName, location, body)
+    playCardWithinOperation(cn("PreludeCard"), cardName, body)
   }
 
   public fun OperationScope.playCorp(
       cardName: ClassName,
-      location: ClassName? = null,
       body: OperationBlock = {},
   ) {
-    playCardWithinOperation(cn("StandardCorporationCard"), cardName, location, body)
+    playCardWithinOperation(cn("StandardCorporationCard"), cardName, body)
   }
 
   private fun OperationScope.playCardWithinOperation(
       cardBack: ClassName,
       cardName: ClassName,
-      location: ClassName?,
       body: OperationBlock,
   ) {
-    doTask("PlayCard<Class<$cardBack>, Class<$cardName>, ${location ?: cn("Hand")}>")
+    doTask("PlayCard<Class<$cardBack>, Class<$cardName>>")
     body()
   }
 
@@ -317,7 +305,7 @@ public class TfmGameplay(
       payment: OperationBlock,
       body: OperationBlock,
   ) {
-    doTask("PlayCard<Class<ProjectCard>, Class<$cardName>, Hand>")
+    doTask("PlayCard<Class<ProjectCard>, Class<$cardName>>")
 
     payment()
     body()

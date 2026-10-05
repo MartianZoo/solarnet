@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.text
 
+import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect.Trigger
@@ -15,7 +16,7 @@ import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as TriggerFrame
 
 internal fun Describers.renderEvent(trigger: Trigger): Event? {
   if (trigger is ByTrigger) {
-    if (trigger.by != anyoneExpression) return null
+    if (trigger.by != ACTOR.expression) return null
     val expression = (trigger.inner as? OnGainOf)?.expression ?: return null
     relationshipEvent(expression, Event.ActorConstraint.UNRESTRICTED)?.let {
       return it
@@ -240,7 +241,9 @@ private fun Describers.relationshipParticipant(expression: Expression): NounPhra
   val ownerKey = Key(OWNED, 0)
   return when {
     resolved.sourceDependencies.isEmpty() ->
-        NounPhrase(placement.noun.singular, determiner = Determiner.INDEFINITE)
+        if (placement.unqualifiedOwnership == ComponentDescriber.OwnershipPhrase.YOURS)
+            oneOfYour(placement.noun.plural)
+        else NounPhrase(placement.noun.singular, determiner = Determiner.INDEFINITE)
     resolved.hasOnlySourceDependency(ownerKey, ownerExpression) -> oneOfYour(placement.noun.plural)
     resolved.sourceDependencies.size == 1 &&
         resolved.sourceDependency(ownerKey)?.let(::isNotOwner) == true ->

@@ -7,28 +7,28 @@ CLASS FakeWildTagUse : TagHolder, Temporary { HAS MAX 1 This }
 CLASS FakeResearchNetwork : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This:: FakeWildTag<This>
+  HAS =1 FakeWildTag<This>
   This: PROD[1 MC], 3 ProjectCard
 }
 
 CLASS FakeResearchCoordination : AutomatedCard {
   cost = 4
 
-  This:: FakeWildTag<This>
+  HAS =1 FakeWildTag<This>
 }
 
 "Floyd Continuum as represented by the source replay"
 CLASS FakeFloydContinuum : ActionCard, ActiveCard {
   cost = 4
 
-  This:: ScienceTag<This>
+  HAS =1 ScienceTag<This>
   -> 3 MC / GpComplete
 }
 
 CLASS FakeAppliedScience : ActionCard, ResourceCard<Class<Science>, Class<PreludeCard>> {
   cost = 0
 
-  This:: FakeWildTag<This>
+  HAS =1 FakeWildTag<This>
   This: 6 Science<This>
 
   Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource
@@ -37,7 +37,7 @@ CLASS FakeAppliedScience : ActionCard, ResourceCard<Class<Science>, Class<Prelud
 CLASS FakeNobelPrize : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This:: FakeWildTag<This>
+  HAS =1 FakeWildTag<This>
   // SearchForCard(HAS requirement)
   This: 5 MC, 2 ProjectCard
   End: 2 VictoryPoint
@@ -47,7 +47,8 @@ CLASS FakeNobelPrize : CardFront<Class<PreludeCard>> {
 CLASS FakeHelion : CardFront<Class<StandardCorporationCard>> {
   cost = 0
 
-  This:: SpaceTag<This>, BaseResourceValue<Class<Heat>>
+  HAS =1 SpaceTag<This>
+  This:: BaseResourceValue<Class<Heat>>
   This: 42 MC, PROD[3 Heat]
 
   Billing<HasActions, ActionSlot, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
@@ -57,7 +58,7 @@ CLASS FakeHelion : CardFront<Class<StandardCorporationCard>> {
 CLASS FakePolderTechDutch : CardFront<Class<StandardCorporationCard>> {
   cost = 0
 
-  This:: EarthTag<This>
+  HAS =1 EarthTag<This>
   This: 35 MC, RequiredAction { -> OceanTile<> THEN GreeneryTile<LandArea(HAS Neighbor<OceanTile>)> }
   OceanTile: Energy
   GreeneryTile: Plant
@@ -67,9 +68,10 @@ CLASS FakePolderTechDutch : CardFront<Class<StandardCorporationCard>> {
 CLASS FakeSeptemTribus : ActionCard<Class<StandardCorporationCard>> {
   cost = 0
 
-  This: 36 MC, FakeWildTag<This>
+  HAS =1 FakeWildTag<This>
+  This: 36 MC
 
-  -> 2 MC / Class<@Party>(HAS PartyDelegate<@Party, Owner>)
+  -> 2 MC / Class<@Party>(HAS PartyDelegate<@Party>)
 }
 
 "Head Start with independently interleavable immediate actions"

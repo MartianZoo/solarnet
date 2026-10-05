@@ -5,7 +5,7 @@ Printed wording, current generated English, and authored Pets, grouped by catego
 | Category | Entries | Missing printed transcription |
 | --- | ---: | ---: |
 | [Corporations](corporations.md) | 53 | 5 |
-| [Projects](projects.md) | 426 | 0 |
+| [Projects](projects.md) | 427 | 0 |
 | [Preludes](preludes.md) | 71 | 0 |
 | [Milestones](milestones.md) | 51 | 16 |
 | [Awards](awards.md) | 40 | 5 |

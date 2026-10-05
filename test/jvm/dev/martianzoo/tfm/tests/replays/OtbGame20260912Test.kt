@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -33,9 +33,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
   // Tycho Magnetics and the initial project purchase.
   override val playerClassPets =
       """
-      CLASS Green : Player { SetupPhase: PreludeCard }
-      CLASS Yellow : Player { SetupPhase: PreludeCard }
-      CLASS Blue : Player { SetupPhase: 3 TerraformRating, PreludeCard }
+      CLASS Green : Player { SetupPhase: PreludeCard<This> }
+      CLASS Yellow : Player { SetupPhase: PreludeCard<This> }
+      CLASS Blue : Player { SetupPhase: 3 TerraformRating<This>, PreludeCard<This> }
       """
           .trimIndent()
 
@@ -257,9 +257,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     admin.assertCounts(
         1 to "Ruling<Scientists>",
         1 to "Dominant<Greens>",
-        1 to "Current<Class<MudSlides>>",
-        1 to "Coming<Class<VenusInfrastructure>>",
-        1 to "Distant<Class<SponsoredProjects>>",
+        1 to "Current<MudSlides>",
+        1 to "Coming<VenusInfrastructure>",
+        1 to "Distant<SponsoredProjects>",
     )
 
     // Green consistently uses the inert wild tags on Septem Tribus and Nobel Prize as Science for
@@ -309,7 +309,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     green.turn {
       // "Recruitment in the Greens ... I become the party leader. I paid two for that."
       playProject(Recruitment, 2) {
-        doTask("PartyDelegate<Greens, Owner FROM Neutral>")
+        doTask("PartyDelegate<Greens, Green FROM Neutral>")
       }
     }
 
@@ -451,9 +451,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     admin.assertCounts(
         1 to "Ruling<Greens>",
         1 to "Dominant<Unity>",
-        1 to "Current<Class<VenusInfrastructure>>",
-        1 to "Coming<Class<SponsoredProjects>>",
-        1 to "Distant<Class<SpinOffProducts>>",
+        1 to "Current<VenusInfrastructure>",
+        1 to "Coming<SponsoredProjects>",
+        1 to "Distant<SpinOffProducts>",
     )
 
     // Generation 3 Research: all three players buy three projects.
@@ -595,9 +595,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     admin.assertCounts(
         1 to "Ruling<Unity>",
         1 to "Dominant<Reds>",
-        1 to "Current<Class<SponsoredProjects>>",
-        1 to "Coming<Class<SpinOffProducts>>",
-        1 to "Distant<Class<Diversity>>",
+        1 to "Current<SponsoredProjects>",
+        1 to "Coming<SpinOffProducts>",
+        1 to "Distant<Diversity>",
     )
 
     // Generation 4 Research: Green buys zero, Yellow buys one, and Blue buys three. The complete
@@ -730,9 +730,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     admin.assertCounts(
         1 to "Ruling<Reds>",
         1 to "Dominant<Scientists>",
-        1 to "Current<Class<SpinOffProducts>>",
-        1 to "Coming<Class<Diversity>>",
-        1 to "Distant<Class<ImprovedEnergyTemplates>>",
+        1 to "Current<SpinOffProducts>",
+        1 to "Coming<Diversity>",
+        1 to "Distant<ImprovedEnergyTemplates>",
     )
     // "Yellow, six. Blue has ten. Green has fourteen."
     yellow.assertCounts(6 to "ProjectCard")
@@ -1076,7 +1076,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       convertPlants { placeTile(7, 9) }
     }
     yellow.turn {
-      playProject(WgProject, 9) { playPrelude(CorporateArchives, location = cn("Selecting")) }
+      playProject(WgProject, 9) { playPrelude(CorporateArchives) }
     }
     blue.turn {
       // The phone call obscures this play in the transcript. Blue's continuous ledger records its

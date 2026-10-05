@@ -62,5 +62,5 @@ ABSTRACT CLASS ResourceValue<@Class<StandardResource>> : Owned<Player> {
   CLASS BaseResourceValue : Hidden
 
   "One M€ of resource value represented separately from the component granting it"
-  CLASS GrantedResourceValue<CardFront> : Hidden
+  CLASS GrantedResourceValue : Cardbound, Hidden
 }

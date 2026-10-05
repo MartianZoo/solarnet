@@ -34,7 +34,7 @@ The selector can explicitly mark each selected concrete Type for use in its body
 unmarked selector Type in the body is independent:
 
 ```pets
-EACH Player { Plant }                         // each selected Player gains a Plant
+EACH Me@Player { Plant }                      // each selected Player gains a Plant
 EACH Player(HAS StartToken) { ChooseOceanArea } // only the start Player gets the request
 EACH @Player(HAS StartToken) { AdminOceanPlacement<@Player> }
 ```
@@ -52,17 +52,18 @@ representative to create one component of the Class it represents:
 EACH Class<@MarsArea> { @MarsArea }
 ```
 
-The selector's main expression still reads the enclosing context. For example,
-`EACH ProjectCard<Owner> { ... }` selects cards belonging to the enclosing owner, while
-`EACH ProjectCard<Anyone> { ... }` can select cards belonging to any owner. Its refinement instead
-describes each candidate: dependencies omitted there remain available for candidate specialization.
-Thus `Player(HAS StartToken)` tests each concrete Player for their own StartToken without requiring
-`StartToken<Anyone>`. A nested `RANK` establishes its own candidate context instead.
+The selector's main expression still reads the enclosing lexical context. For example, in an
+`Owned` class, `EACH ProjectCard { ... }` selects cards belonging to its owner, while
+`EACH ProjectCard<Anyone> { ... }` selects cards belonging to any owner. Its refinement describes
+each candidate. `EACH Starter@Player(HAS StartToken)` tests each candidate for their own
+StartToken; the `HAS` candidate fills its omitted owner before lexical `Me` does. A nested `RANK`
+evaluates its comparison keys separately for each candidate, with `RANK Me@Player` explicitly
+rebinding `Me` to that candidate.
 
 Selector refinements decide participation using requirement semantics:
 
 ```pets
-EACH Player(NOT Owner) { PROD[-2 MC] BY Owner }
+EACH Other@Player(NOT Me@Anyone) { PROD[-2 MC<Other@Player>] BY Other@Player }
 ```
 
 An unmet gate inside the body fails normally; it does not omit that branch. The body need not name
@@ -71,25 +72,24 @@ the selected component: the selector may exist only to determine how many branch
 its selector like any other refinement.
 
 Class-property syntax in the body remains inert while the enclosing Class effect is prepared. Once
-the fanout snapshot is selected, each branch binds its selected component and, for an Owner
-selection, contextual `Owner`, then evaluates its class properties independently. Property syntax
-in the selector instead belongs to the enclosing context; award ranking expands the funded Award's
-metric there. A marker on a `RANK` selector likewise exposes a candidate only through its marked
-reference:
+the fanout snapshot is selected, each branch binds its selected component, then evaluates its class
+properties independently. Property syntax in the selector belongs to the enclosing context, except
+that a `RANK` comparison key is evaluated for each candidate. An explicit `Me@Player` selector
+rebinds the lexical owner for its body or comparison keys:
 
 ```pets
-EACH Player(HAS =1 (RANK Player { EVAL Award.metric })) { FirstPlace<Award> }
+EACH Me@Player(HAS =1 (RANK Me@Player { EVAL @Award.metric })) { FirstPlace<@Award> }
 ```
 
-## Ownership and attribution
+## Lexical binding and attribution
 
-Inside the body, `Owner` means the selected component only when it is an `Owner`. A non-Owner
-selection leaves the enclosing contextual owner unchanged; it does not implicitly expose the owner
-of an `Owned` component. `This` continues to mean the surrounding effect-bearing component.
+An unnamed selector leaves the enclosing lexical `Me` in scope. `EACH Me@Player` explicitly
+rebinds it to each selected player. Literal `Anyone` remains the broad ownership class. `This`
+continues to mean the surrounding effect-bearing component.
 
 The selected owner does not automatically become the actor, controller, or assignee. Every branch
-inherits attribution and task control from the surrounding effect. Use `BY Owner` when the selected
-owner must receive attribution. A fanout can produce independently narrowed choices for one
+inherits attribution and task control from the surrounding effect. Use `BY Me@Player` when the
+selected player must receive attribution. A fanout can produce independently narrowed choices for one
 surrounding controller, as Colonial Envoys does. It cannot express “each player makes their own
 choice”; such work must remain on an owned component that gives the existing task-routing machinery
 the correct player context.
@@ -112,7 +112,7 @@ waits for one task, and `EACH` provides no fanout-wide join or additional atomic
 A branch corresponds to a component occurrence, even though occurrences of one concrete Type are
 otherwise indistinguishable. Multiplicity repeats the branch; it does not scale the body. This is
 observable whenever the body remains abstract: two identical colonies in
-`EACH Colony<Owner> { PartyDelegate }` produce two delegate choices that may be narrowed
+`EACH Colony<Anyone> { PartyDelegate }` produce two delegate choices that may be narrowed
 independently, not one instruction to place two delegates in the same party.
 
 The selected expression still records only the occurrence's concrete Type. Selector substitution,
@@ -139,8 +139,8 @@ unsupported; it is separate from per-branch class-property evaluation and is not
   restrictions (`class Each` and `_each`).
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — snapshot enumeration,
   refinement filtering, specialization, and branch creation (`resolveEach`).
-- [`PetElaborator.kt`](../../src/common/dev/martianzoo/pets/PetElaborator.kt) — Owner-selection body
-  binding and contextual-owner shielding (`selectionSuppliesOwner`).
+- [`PetElaborator.kt`](../../src/common/dev/martianzoo/pets/PetElaborator.kt) — lexical `Me`
+  insertion and selector rebinding (`insertOwnedContext`).
 - [`InstructionResolutionTest.kt`](../../test/common/dev/martianzoo/engine/InstructionResolutionTest.kt)
   — runtime semantics (`testFanout`).
 - [`Lang02InstructionsTest.kt`](../../test/common/dev/martianzoo/pets/Lang02InstructionsTest.kt) —

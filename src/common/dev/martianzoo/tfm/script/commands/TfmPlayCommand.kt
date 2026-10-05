@@ -34,7 +34,7 @@ internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("
           if (choosingStandardAction) {
             TaskCommand(repl).withArgs("UseAction<PlayCardFromHandAction, Action1>")
           }
-          TaskCommand(repl).withArgs("PlayCard<Class<$kind>, Class<$cardName>, Hand>")
+          TaskCommand(repl).withArgs("PlayCard<Class<$kind>, Class<$cardName>>")
           if (payment.isNotEmpty()) TfmPayCommand(repl).withArgs(payment)
         }
     return repl.describeExecutionResults(result)

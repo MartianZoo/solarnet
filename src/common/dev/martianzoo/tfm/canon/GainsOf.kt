@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.pets.api.CustomMetric
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.CustomMetric
+import dev.martianzoo.state.GameReader
 
 /** Counts gain instructions authored by a card class, including subtypes of the target class. */
 internal object GainsOf : CustomMetric() {

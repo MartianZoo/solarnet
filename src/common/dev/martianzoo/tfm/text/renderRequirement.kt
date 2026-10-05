@@ -33,7 +33,7 @@ private fun renderLoweredRequirement(requirement: Requirement, describers: Descr
           is Requirement.Transform -> null
         }
 
-private fun Describers.renderDescribedRequirementCondition(
+internal fun Describers.renderDescribedRequirementCondition(
     requirement: Requirement,
 ): Clause? =
     when (requirement) {
@@ -64,11 +64,17 @@ private fun Describers.renderDescribedMinimumCondition(
     is ComponentDescriber.RequirementCondition.ArgumentState -> {
       if (requirement.target != 1 || expression.refinement != null) return null
       val subject = resolveExpression(expression)?.sourceDependency(frame.dependency) ?: return null
-      if (!subject.simple || !concrete(subject.className)) return null
-      Clause.Simple(
-          Predicate(Verb(frame.predicate)),
-          NounPhrase.text(componentNoun(subject.className, 1)),
-      )
+      val represented = representedClassArgument(subject)
+      val noun =
+          if (represented != null) {
+            if (!concrete(represented.className)) return null
+            scaleFrame(represented.className)?.subject
+                ?: "the number of ${positionedFrame(represented.className)?.noun?.plural ?: return null}"
+          } else {
+            if (!subject.simple || !concrete(subject.className)) return null
+            componentNoun(subject.className, 1)
+          }
+      Clause.Simple(Predicate(Verb(frame.predicate)), NounPhrase.text(noun))
     }
     is ComponentDescriber.RequirementCondition.OwnedCount ->
         renderOwnedCountCondition(expression, requirement.target, frame)

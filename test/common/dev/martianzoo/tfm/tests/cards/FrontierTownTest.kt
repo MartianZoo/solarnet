@@ -12,6 +12,23 @@ import kotlin.test.Test
 
 internal class FrontierTownTest : CardTest() {
   @Test
+  internal fun `An ocean placement reward does not consume the city's pending repeat bonus`() {
+    newGame(Hellas, PreludeExpansion, Prelude2CardPack, TurmoilExpansion)
+    p1.runOperation("18 MC, PROD[Energy]")
+
+    p1.runOperation("FrontierTown") {
+      doWithoutAutoExec(p1) {
+        placeTile(9, 7)
+        placeTile(5, 7)
+      }
+      placeTile(5, 8)
+      placeTile(6, 7)
+    }
+
+    p1.assertCounts(1 to "CityTile", 3 to "OceanTile", 0 to "FrontierTownBonus")
+  }
+
+  @Test
   internal fun `MSL Curiosity's tripled bonus builds three colonies and costs fifteen mc`() {
     initialize()
 

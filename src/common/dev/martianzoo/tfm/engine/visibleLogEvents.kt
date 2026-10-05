@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.HIDDEN
 import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.GameReader
 
 /** Whether this change belongs in the ordinary player-facing event log. */
 public fun ChangeEvent.isVisibleInLog(game: GameReader): Boolean {

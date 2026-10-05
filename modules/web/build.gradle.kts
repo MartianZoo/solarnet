@@ -20,6 +20,7 @@ kotlin {
       dependencies {
         implementation(project(":engine"))
         implementation(project(":pets"))
+        implementation(project(":state"))
         implementation(project(":script"))
         implementation(project(":tfm-canon"))
         implementation(npm("jquery", "3.7.1"))

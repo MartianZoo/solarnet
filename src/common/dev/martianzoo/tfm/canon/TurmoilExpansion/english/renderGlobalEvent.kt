@@ -1,12 +1,15 @@
 package dev.martianzoo.tfm.text.turmoilexpansion
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.tfm.text.Clause
 import dev.martianzoo.tfm.text.Describers
 import dev.martianzoo.tfm.text.EnglishText
@@ -18,6 +21,7 @@ import dev.martianzoo.tfm.text.Verb
 import dev.martianzoo.tfm.text.renderEffect
 import dev.martianzoo.tfm.text.renderGateCondition
 import dev.martianzoo.tfm.text.renderInstructions
+import dev.martianzoo.tfm.text.sameNamedTypeVariable
 
 /** The resolution signal and universal player scope supply the printed event's context. */
 internal fun renderGlobalEvent(event: Class, describers: Describers): EnglishText =
@@ -43,9 +47,33 @@ private fun renderResolution(
 ): RenderedInstructions {
   when (instruction) {
     is Instruction.Each -> {
-      if (instruction.selector == player) return renderInstructions(instruction.body, describers)
-      if (instruction.selector == firstPlayer) {
-        val body = renderInstructions(instruction.body, describers)
+      if (
+          instruction.selector.copy(typeVariableName = null) == player &&
+              instruction.selector.typeVariableName?.name == "Me"
+      )
+          return renderInstructions(instruction.body, describers)
+      if (instruction.selector.copy(typeVariableName = null) == firstPlayer) {
+        val gain = instruction.body as? Instruction.Gain
+        val owner =
+            gain?.gaining?.let(describers::resolveExpression)?.sourceDependency(Key(OWNED, 0))
+        if (gain == null || owner == null || !sameNamedTypeVariable(owner, instruction.selector)) {
+          return renderInstructions(instruction, describers)
+        }
+        val local =
+            gain.copy(
+                scaledEx =
+                    scaledEx(
+                        gain.gaining.copy(
+                            arguments =
+                                gain.gaining.arguments.filterNot {
+                                  sameNamedTypeVariable(it, instruction.selector)
+                                },
+                            argumentsSpecified = false,
+                        ),
+                        gain.count,
+                    )
+            )
+        val body = renderInstructions(local, describers)
         if (body.clauses.all { it is Clause.Simple && it.subject == null }) {
           return RenderedInstructions(
               body.clauses.map {

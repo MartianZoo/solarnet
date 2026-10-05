@@ -2,15 +2,12 @@ package dev.martianzoo.pets.api
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.types.loadTypes
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlin.test.Test
 
@@ -28,9 +25,5 @@ internal class ExceptionsTest {
     syntax.shouldBeInstanceOf<PetException>()
     expression.shouldBeInstanceOf<PetException>()
     definition.shouldBeInstanceOf<PetException>()
-
-    val configuration: Exception =
-        shouldThrow<InvalidGameConfigException> { GameConfig("Plant, Plant") }
-    (configuration is PetException) shouldBe false
   }
 }

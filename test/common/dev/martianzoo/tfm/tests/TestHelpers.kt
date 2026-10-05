@@ -17,13 +17,13 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.ClassDeclaration
-import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.ClassSelection
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.GamePremise
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -155,7 +155,7 @@ object TestHelpers {
       game: World,
       expectedAsInstructions: String,
   ) {
-    val inferredOwner = result.inferredExpectationOwner(game)
+    val inferredHolder = result.inferredExpectationHolder(game)
     val elaborator = PetElaborator(game.classTable)
     // Gain/Remove are only signed-count notation in this assertion DSL. Elaborating the whole
     // instruction would wrongly apply mutation defaults and atomization, so elaborate each queried
@@ -167,7 +167,7 @@ object TestHelpers {
             object : PetTransformer() {
               override fun transformNode(node: PetNode): PetNode =
                   if (node is Expression) {
-                    elaborator.elaborateInput(node, inferredOwner)
+                    elaborator.elaborateInput(node, inferredHolder)
                   } else {
                     transformChildren(node)
                   }
@@ -220,7 +220,7 @@ object TestHelpers {
 
   private fun Int.expectedCount(): Int = if (this == ZERO_SCALAR_SENTINEL) 0 else this
 
-  private fun TaskResult.inferredExpectationOwner(game: World): Player? {
+  private fun TaskResult.inferredExpectationHolder(game: World): Player? {
     // The first change normally retains the agent caller. An explicit `BY Admin` loses that
     // signal, so fall back only when every owned change points to the same Player.
     (changes.firstOrNull()?.actor as? Player)?.let {

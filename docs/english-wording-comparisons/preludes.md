@@ -38,8 +38,8 @@ Pets declaration:
 
 ```pets
 CLASS AlliedBank : CardFront<Class<PreludeCard>> {
+  HAS =1 EarthTag<This>
   cost = 0
-  This:: EarthTag<This>
   This: PROD[4 MC], 3 MC
 }
 ```
@@ -57,8 +57,8 @@ Pets declaration:
 
 ```pets
 CLASS AquiferTurbines : CardFront<Class<PreludeCard>> {
+  HAS =1 PowerTag<This>
   cost = 0
-  This:: PowerTag<This>
   This: OceanTile<>, PROD[2 Energy], -3 MC
 }
 ```
@@ -76,8 +76,8 @@ Pets declaration:
 
 ```pets
 CLASS Biofuels : CardFront<Class<PreludeCard>> {
+  HAS =1 MicrobeTag<This>
   cost = 0
-  This:: MicrobeTag<This>
   This: PROD[Plant, Energy], 2 Plant
 }
 ```
@@ -95,8 +95,8 @@ Pets declaration:
 
 ```pets
 CLASS Biolab : CardFront<Class<PreludeCard>> {
+  HAS =1 ScienceTag<This>
   cost = 0
-  This:: ScienceTag<This>
   This: PROD[Plant], 3 ProjectCard
 }
 ```
@@ -114,8 +114,8 @@ Pets declaration:
 
 ```pets
 CLASS BiosphereSupport : CardFront<Class<PreludeCard>> {
+  HAS =1 PlantTag<This>
   cost = 0
-  This:: PlantTag<This>
   This: PROD[-MC, 2 Plant]
 }
 ```
@@ -133,8 +133,8 @@ Pets declaration:
 
 ```pets
 CLASS BusinessEmpire : CardFront<Class<PreludeCard>> {
+  HAS =1 EarthTag<This>
   cost = 0
-  This:: EarthTag<This>
   This: PROD[6 MC], -6 MC
 }
 ```
@@ -152,8 +152,8 @@ Pets declaration:
 
 ```pets
 CLASS DomeFarming : CardFront<Class<PreludeCard>> {
+  HAS =1 PlantTag<This>, =1 BuildingTag<This>
   cost = 0
-  This:: PlantTag<This>, BuildingTag<This>
   This: PROD[Plant, 2 MC]
 }
 ```
@@ -189,8 +189,8 @@ Pets declaration:
 
 ```pets
 CLASS EarlySettlement : CardFront<Class<PreludeCard>> {
+  HAS =1 CityTag<This>, =1 BuildingTag<This>
   cost = 0
-  This:: CityTag<This>, BuildingTag<This>
   This: CityTile<>, PROD[Plant]
 }
 ```
@@ -208,9 +208,9 @@ Pets declaration:
 
 ```pets
 CLASS EcologyExperts : CardFront<Class<PreludeCard>> {
+  HAS =1 PlantTag<This>, =1 MicrobeTag<This>
   cost = 0
   autoSelectWhen = HAS "MAX 0 Prelude1CardPack"
-  This:: PlantTag<This>, MicrobeTag<This>
   This: PROD[Plant], PlayCard<Class<ProjectCard>, Class<CardFront>, Hand> THEN -Required / Required
 }
 ```
@@ -246,8 +246,8 @@ Pets declaration:
 
 ```pets
 CLASS ExperimentalForest : CardFront<Class<PreludeCard>> {
+  HAS =1 PlantTag<This>
   cost = 0
-  This:: PlantTag<This>
   This: DefaultGreeneryTile, 2 SearchForCard<TagFilter<Class<PlantTag>>>
 }
 ```
@@ -265,8 +265,8 @@ Pets declaration:
 
 ```pets
 CLASS GalileanMining : CardFront<Class<PreludeCard>> {
+  HAS =1 JovianTag<This>
   cost = 0
-  This:: JovianTag<This>
   This: PROD[2 Titanium], -5 MC
 }
 ```
@@ -320,8 +320,8 @@ Pets declaration:
 
 ```pets
 CLASS IoResearchOutpost : CardFront<Class<PreludeCard>> {
+  HAS =1 ScienceTag<This>, =1 JovianTag<This>
   cost = 0
-  This:: ScienceTag<This>, JovianTag<This>
   This: PROD[Titanium], ProjectCard
 }
 ```
@@ -357,8 +357,8 @@ Pets declaration:
 
 ```pets
 CLASS MartianIndustries : CardFront<Class<PreludeCard>> {
+  HAS =1 BuildingTag<This>
   cost = 0
-  This:: BuildingTag<This>
   This: PROD[Energy, Steel], 6 MC
 }
 ```
@@ -412,8 +412,8 @@ Pets declaration:
 
 ```pets
 CLASS MiningOperations : CardFront<Class<PreludeCard>> {
+  HAS =1 BuildingTag<This>
   cost = 0
-  This:: BuildingTag<This>
   This: PROD[2 Steel], 4 Steel
 }
 ```
@@ -431,8 +431,8 @@ Pets declaration:
 
 ```pets
 CLASS Mohole : CardFront<Class<PreludeCard>> {
+  HAS =1 BuildingTag<This>
   cost = 0
-  This:: BuildingTag<This>
   This: PROD[3 Heat], 3 Heat
 }
 ```
@@ -450,8 +450,8 @@ Pets declaration:
 
 ```pets
 CLASS MoholeExcavation : CardFront<Class<PreludeCard>> {
+  HAS =1 BuildingTag<This>
   cost = 0
-  This:: BuildingTag<This>
   This: PROD[Steel, 2 Heat], 2 Heat
 }
 ```
@@ -487,8 +487,8 @@ Pets declaration:
 
 ```pets
 CLASS OrbitalConstructionYard : CardFront<Class<PreludeCard>> {
+  HAS =1 SpaceTag<This>
   cost = 0
-  This:: SpaceTag<This>
   This: PROD[Titanium], 4 Titanium
 }
 ```
@@ -506,8 +506,8 @@ Pets declaration:
 
 ```pets
 CLASS PolarIndustries : CardFront<Class<PreludeCard>> {
+  HAS =1 BuildingTag<This>
   cost = 0
-  This:: BuildingTag<This>
   This: OceanTile<>, PROD[2 Heat]
 }
 ```
@@ -525,8 +525,8 @@ Pets declaration:
 
 ```pets
 CLASS PowerGeneration : CardFront<Class<PreludeCard>> {
+  HAS =1 PowerTag<This>
   cost = 0
-  This:: PowerTag<This>
   This: PROD[3 Energy]
 }
 ```
@@ -544,8 +544,8 @@ Pets declaration:
 
 ```pets
 CLASS SelfSufficientSettlement : CardFront<Class<PreludeCard>> {
+  HAS =1 CityTag<This>, =1 BuildingTag<This>
   cost = 0
-  This:: CityTag<This>, BuildingTag<This>
   This: CityTile<>, PROD[2 MC]
 }
 ```
@@ -563,8 +563,8 @@ Pets declaration:
 
 ```pets
 CLASS SmeltingPlant : CardFront<Class<PreludeCard>> {
+  HAS =1 BuildingTag<This>
   cost = 0
-  This:: BuildingTag<This>
   This: 2 OxygenStep, 5 Steel
 }
 ```
@@ -600,8 +600,8 @@ Pets declaration:
 
 ```pets
 CLASS Supplier : CardFront<Class<PreludeCard>> {
+  HAS =1 PowerTag<This>
   cost = 0
-  This:: PowerTag<This>
   This: PROD[2 Energy], 4 Steel
 }
 ```
@@ -637,8 +637,8 @@ Pets declaration:
 
 ```pets
 CLASS UnmiContractor : CardFront<Class<PreludeCard>> {
+  HAS =1 EarthTag<This>
   cost = 0
-  This:: EarthTag<This>
   This: 3 TerraformRating, ProjectCard
 }
 ```
@@ -658,8 +658,8 @@ Pets declaration:
 
 ```pets
 CLASS AlbedoPlants : CardFront<Class<PreludeCard>> {
+  HAS =1 PlantTag<This>
   cost = 0
-  This:: PlantTag<This>
   This: PROD[Plant], Plant
   PlantTag: 3 Heat
 }
@@ -678,8 +678,8 @@ Pets declaration:
 
 ```pets
 CLASS AntiDesertificationTechniques : CardFront<Class<PreludeCard>> {
+  HAS =1 MicrobeTag<This>, =1 PlantTag<This>
   cost = 0
-  This:: MicrobeTag<This>, PlantTag<This>
   This: 3 MC, PROD[Plant, Steel]
 }
 ```
@@ -697,9 +697,9 @@ Pets declaration:
 
 ```pets
 CLASS BoomTown : CardFront<Class<PreludeCard>> {
+  HAS =1 BuildingTag<This>, =1 CityTag<This>
   cost = 0
   This:: -BaseResourceValue<Class<Titanium>>
-  This:: BuildingTag<This>, CityTag<This>
   This: CityTile<LandArea(HAS PlacementBonus<Class<Metal>>, HAS MAX 0 Neighbor<CityTile<Anyone>>)>, PROD[2 Titanium]
   -This:: BaseResourceValue<Class<Titanium>>
 }
@@ -718,8 +718,8 @@ Pets declaration:
 
 ```pets
 CLASS CorporateArchives : CardFront<Class<PreludeCard>> {
+  HAS =1 ScienceTag<This>
   cost = 0
-  This:: ScienceTag<This>
   This: 13 MC, 7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>, -5 ProjectCard<Selecting>
 }
 ```
@@ -773,8 +773,8 @@ Pets declaration:
 
 ```pets
 CLASS GiantSolarCollector : CardFront<Class<PreludeCard>> {
+  HAS =1 PowerTag<This>, =1 SpaceTag<This>
   cost = 0
-  This:: PowerTag<This>, SpaceTag<This>
   This: PROD[2 Energy], VenusStep
 }
 ```
@@ -829,8 +829,8 @@ Pets declaration:
 
 ```pets
 CLASS StrategicBasePlanning : CardFront<Class<PreludeCard>> {
+  HAS =1 CityTag<This>, =1 BuildingTag<This>, =1 SpaceTag<This>
   cost = 0
-  This:: CityTag<This>, BuildingTag<This>, SpaceTag<This>
   This: -3 MC, CityTile<>, Colony<>
 }
 ```
@@ -850,8 +850,8 @@ Pets declaration:
 
 ```pets
 CLASS AtmosphericEnhancers : CardFront<Class<PreludeCard>> {
+  HAS =1 VenusTag<This>
   cost = 0
-  This:: VenusTag<This>
   This: 2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep, 2 SearchForCard<ReferenceFilter<Class<Floater>>>
 }
 ```
@@ -868,9 +868,9 @@ Class: `BoardOfDirectors`
 Pets declaration:
 
 ```pets
-CLASS BoardOfDirectors : ActionCard, ResourceCard<Class<Director>, Class<PreludeCard>> {
+CLASS BoardOfDirectors : ResourceCard<Class<Director>, Class<PreludeCard>>, ActionCard {
+  HAS =1 EarthTag<This>
   cost = 0
-  This:: EarthTag<This>
   This: 4 Director<This>
   -> PreludeCard, -PreludeCard OR (-12 MC THEN -Director<This> THEN PlayOrFizzle)
 }
@@ -889,8 +889,8 @@ Pets declaration:
 
 ```pets
 CLASS ColonyTradeHub : CardFront<Class<PreludeCard>> {
+  HAS =1 SpaceTag<This>
   cost = 0
-  This:: SpaceTag<This>
   This: PROD[Energy], 2 Titanium
   Colony<Anyone>: 2 MC
 }
@@ -909,8 +909,8 @@ Pets declaration:
 
 ```pets
 CLASS EarlyColonization : CardFront<Class<PreludeCard>> {
+  HAS =1 SpaceTag<This>
   cost = 0
-  This:: SpaceTag<This>
   This: Colony<>, 3 Energy, EACH @ColonyTile { 2 ColonyProduction<@ColonyTile> }
 }
 ```
@@ -927,9 +927,9 @@ Class: `FloatingTradeHub`
 Pets declaration:
 
 ```pets
-CLASS FloatingTradeHub : ActionCard, ResourceCard<Class<Floater>, Class<PreludeCard>> {
+CLASS FloatingTradeHub : ResourceCard<Class<Floater>, Class<PreludeCard>>, ActionCard {
+  HAS =1 SpaceTag<This>
   cost = 0
-  This:: SpaceTag<This>
   -> 2 Floater
   X Floater<This> -> X StandardResource
 }
@@ -967,8 +967,8 @@ Pets declaration:
 
 ```pets
 CLASS IndustrialComplex : CardFront<Class<PreludeCard>> {
+  HAS =1 BuildingTag<This>
   cost = 0
-  This:: BuildingTag<This>
   This: -18 MC, PROD[EACH Class<@StandardResource> { @StandardResource / (Class<@StandardResource> OR QuickStartVariant OR ProdOffset<Class<@StandardResource>>) - Production<Class<@StandardResource>> }]
 }
 ```
@@ -985,9 +985,9 @@ Class: `MainBeltAsteroids`
 Pets declaration:
 
 ```pets
-CLASS MainBeltAsteroids : ActionCard, ResourceCard<Class<Asteroid>, Class<PreludeCard>> {
+CLASS MainBeltAsteroids : ResourceCard<Class<Asteroid>, Class<PreludeCard>>, ActionCard {
+  HAS =1 SpaceTag<This>
   cost = 0
-  This:: SpaceTag<This>
   This: -5 MC
   Asteroid<This>: Titanium
   End: VictoryPoint / 2 Asteroid<This>
@@ -1008,8 +1008,8 @@ Pets declaration:
 
 ```pets
 CLASS OldMiningColony : CardFront<Class<PreludeCard>> {
+  HAS =1 SpaceTag<This>
   cost = 0
-  This:: SpaceTag<This>
   This: PROD[Titanium], Colony<>, -ProjectCard
 }
 ```
@@ -1027,8 +1027,8 @@ Pets declaration:
 
 ```pets
 CLASS PlanetaryAlliance : CardFront<Class<PreludeCard>> {
+  HAS =1 EarthTag<This>, =1 JovianTag<This>, =1 VenusTag<This>
   cost = 0
-  This:: EarthTag<This>, JovianTag<This>, VenusTag<This>
   This: 2 TerraformRating, SearchForCard<TagFilter<Class<JovianTag>>>, SearchForCard<TagFilter<Class<VenusTag>>>
 }
 ```
@@ -1067,8 +1067,8 @@ Pets declaration:
 
 ```pets
 CLASS ProjectEden : CardFront<Class<PreludeCard>> {
+  HAS =1 CityTag<This>, =1 PlantTag<This>
   cost = 0
-  This:: CityTag<This>, PlantTag<This>
   This: OceanTile<>, CityTile<>, DefaultGreeneryTile, -3 ProjectCard
 }
 ```
@@ -1087,7 +1087,7 @@ Pets declaration:
 ```pets
 CLASS Recession : CardFront<Class<PreludeCard>> {
   cost = 0
-  This: 10 MC, EACH Player(NOT Owner) { -5 MC., PROD[-MC] }
+  This: 10 MC, EACH Other@Player(NOT Me@) { -5 MC<Other@Player>., PROD[-MC<Other@Player>] }
 }
 ```
 
@@ -1104,8 +1104,8 @@ Pets declaration:
 
 ```pets
 CLASS SoilBacteria : CardFront<Class<PreludeCard>> {
+  HAS =1 MicrobeTag<This>
   cost = 0
-  This:: MicrobeTag<This>
   This: 2 SearchForCard<TagFilter<Class<MicrobeTag>>>, 3 Plant
   PlantTag OR MicrobeTag: Plant
 }
@@ -1124,8 +1124,8 @@ Pets declaration:
 
 ```pets
 CLASS SpaceLanes : CardFront<Class<PreludeCard>> {
+  HAS =1 SpaceTag<This>
   cost = 0
-  This:: SpaceTag<This>
   This: 3 Titanium
   PayingFor<Class<PlanetaryTag>>:: -2 Owed
 }
@@ -1144,8 +1144,8 @@ Pets declaration:
 
 ```pets
 CLASS SuitableInfrastructure : CardFront<Class<PreludeCard>> {
+  HAS =1 BuildingTag<This>
   cost = 0
-  This:: BuildingTag<This>
   This: 5 Steel
   UseAction<StandardAction>:: SuitableInfrastructureBonus<This>.
   NewTurn IF PreludePhase:: SuitableInfrastructureBonus<This>.
@@ -1165,8 +1165,8 @@ Pets declaration:
 
 ```pets
 CLASS TerraformingDeal : CardFront<Class<PreludeCard>> {
+  HAS =1 EarthTag<This>
   cost = 0
-  This:: EarthTag<This>
   TerraformRating: 2 MC
 }
 ```
@@ -1184,8 +1184,8 @@ Pets declaration:
 
 ```pets
 CLASS VenusContract : CardFront<Class<PreludeCard>> {
+  HAS =1 VenusTag<This>
   cost = 0
-  This:: VenusTag<This>
   This: SearchForCard<TagFilter<Class<VenusTag>>>, TerraformRating
   VenusStep: 3 MC
 }
@@ -1204,8 +1204,8 @@ Pets declaration:
 
 ```pets
 CLASS VenusL1Shade : CardFront<Class<PreludeCard>> {
+  HAS =1 SpaceTag<This>
   cost = 0
-  This:: SpaceTag<This>
   This: 3 VenusStep
 }
 ```
@@ -1223,8 +1223,8 @@ Pets declaration:
 
 ```pets
 CLASS WorldGovernmentAdvisor : ActionCard<Class<PreludeCard>> {
+  HAS =1 EarthTag<This>
   cost = 0
-  This:: EarthTag<This>
   This: 2 TerraformRating, ProjectCard
   -> GlobalParameter BY Admin
 }
@@ -1243,10 +1243,10 @@ Pets declaration:
 
 ```pets
 CLASS CorridorsOfPower : CardFront<Class<PreludeCard>> {
+  HAS =1 EarthTag<This>
   cost = 0
-  This:: EarthTag<This>
   This: TerraformRating, 4 MC
-  PartyLeader<Party>:: ProjectCard
+  PartyLeader<Party>: ProjectCard
 }
 ```
 
@@ -1263,8 +1263,8 @@ Pets declaration:
 
 ```pets
 CLASS HighCircles : CardFront<Class<PreludeCard>> {
+  HAS =1 EarthTag<This>
   cost = 0
-  This:: EarthTag<This>
   This: TerraformRating, SearchForCard<ReferenceFilter<Class<PartyRequirement>>>, 2 PartyDelegate
   MeasureInfluence:: HighCirclesInfluence
 }
@@ -1297,14 +1297,14 @@ Class: `FakeResearchNetwork`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Draw 3 cards, and increase your M€ production 1 step. After being played, when you perform an action, the wild tag is any tag of your choice. | — |
-| Generated text | \[FakeWildTag&lt;This&gt;\]. Increase your M€ production 1 step. Draw 3 cards. | — |
+| Generated text | Increase your M€ production 1 step. Draw 3 cards. | Effect: \[=1 FakeWildTag&lt;This&gt;\]. |
 
 Pets declaration:
 
 ```pets
 CLASS FakeResearchNetwork : CardFront<Class<PreludeCard>> {
+  HAS =1 FakeWildTag<This>
   cost = 0
-  This:: FakeWildTag<This>
   This: PROD[MC], 3 ProjectCard
 }
 ```
@@ -1336,14 +1336,14 @@ Class: `FakeAppliedScience`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Add 6 science resources here. | Action: Remove 1 science resource here to either add 1 resource to ANY CARD WITH A RESOURCE or gain 1 standard resource. |
-| Generated text | \[FakeWildTag&lt;This&gt;\]. Add 6 science resources to this card. | Action: Spend 1 science resource from this card to add 1 resource to a card with 1 or more resources on it or gain 1 standard resource. |
+| Generated text | Add 6 science resources to this card. | Action: Spend 1 science resource from this card to add 1 resource to a card with 1 or more resources on it or gain 1 standard resource. / Effect: \[=1 FakeWildTag&lt;This&gt;\]. |
 
 Pets declaration:
 
 ```pets
 CLASS FakeAppliedScience : ActionCard, ResourceCard<Class<Science>, Class<PreludeCard>> {
+  HAS =1 FakeWildTag<This>
   cost = 0
-  This:: FakeWildTag<This>
   This: 6 Science<This>
   Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource
 }
@@ -1356,14 +1356,14 @@ Class: `FakeNobelPrize`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Gain 5 M€. Draw 2 cards with requirements. | — |
-| Generated text | \[FakeWildTag&lt;This&gt;\]. Gain 5 M€. Draw 2 cards. | — |
+| Generated text | Gain 5 M€. Draw 2 cards. | Effect: \[=1 FakeWildTag&lt;This&gt;\]. |
 
 Pets declaration:
 
 ```pets
 CLASS FakeNobelPrize : CardFront<Class<PreludeCard>> {
+  HAS =1 FakeWildTag<This>
   cost = 0
-  This:: FakeWildTag<This>
   This: 5 MC, 2 ProjectCard
   End: 2 VictoryPoint
 }

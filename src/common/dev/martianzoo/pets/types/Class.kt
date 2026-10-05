@@ -19,6 +19,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.UnqualifiedReference
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.PropertyName
@@ -75,6 +76,18 @@ internal constructor(
         .distinctBy(Declaration::identity)
   }
 
+  private fun refersToInherited(
+      marker: Expression.TypeVariableName,
+      declaration: Declaration,
+  ): Boolean =
+      (marker is UnqualifiedReference && marker.name == declaration.name) ||
+          marker.key == declaration.key ||
+          (marker.name != null &&
+              marker.name == declaration.name &&
+              loader
+                  .getClass(marker.boundClassName)
+                  .isSubtypeOf(loader.getClass(declaration.boundClassName)))
+
   private fun inheritHeaderNames(source: ClassDeclaration): ClassDeclaration {
     fun bodyNodes(declaration: ClassDeclaration): List<PetNode> =
         declaration.authoredEffects +
@@ -96,6 +109,7 @@ internal constructor(
               .flatMap { it.descendantsOfType<Expression>() }
               .firstOrNull { expression ->
                 when (val marker = expression.typeVariableName) {
+                  is UnqualifiedReference -> true
                   is Declaration -> !marker.resolved
                   is Reference -> !marker.resolved
                   else -> false
@@ -115,8 +129,7 @@ internal constructor(
             .mapNotNull { it.typeVariableName }
             .filter { it.key !in ownHeaderKeys && it.identity !in localIdentities }
     val inherited = directSuperclasses.flatMap { it.inheritableHeaderMarkers }
-    val possibleKeys = inherited.mapTo(mutableSetOf(), Declaration::key)
-    if (bodyMarkers.none { it.key in possibleKeys }) {
+    if (bodyMarkers.none { marker -> inherited.any { refersToInherited(marker, it) } }) {
       rejectUnresolved(source)
       return source
     }
@@ -129,14 +142,19 @@ internal constructor(
               return transformChildren(node)
             }
             val matches =
-                inherited.filter { it.key == marker.key }.distinctBy(Declaration::identity)
+                inherited.filter { refersToInherited(marker, it) }.distinctBy(Declaration::identity)
             if (matches.isEmpty()) return transformChildren(node)
+            val boundClassName =
+                if (marker is UnqualifiedReference) matches.first().boundClassName
+                else marker.boundClassName
             // All matching declarations must denote one binding; headerVariableBindings checks it.
             return transformChildren(
                 node.copy(
+                    className =
+                        if (marker is UnqualifiedReference) boundClassName else node.className,
                     typeVariableName =
-                        Reference(marker.name, marker.boundClassName, node.argumentsSpecified)
-                            .resolved(requireNotNull(matches.first().resolution))
+                        Reference(marker.name, boundClassName, node.argumentsSpecified)
+                            .resolved(requireNotNull(matches.first().resolution)),
                 )
             )
           }
@@ -360,7 +378,7 @@ internal constructor(
     }
   }
 
-  private val sups: Set<Expression>
+  private val sups: List<Expression>
     get() = declaration.supertypes
 
   private fun replaceThis(expression: Expression): Expression =
@@ -561,6 +579,15 @@ internal constructor(
         DependencyPath(key) in it.paths
       }
 
+  /** Whether a supplied dependency already determines [key] through a header variable. */
+  internal fun dependencyDeterminedBy(key: Key, supplied: Collection<Key>): Boolean =
+      dependencyEqualities().any { equality ->
+        DependencyPath(key) in equality.paths &&
+            equality.paths.any { path ->
+              path.keyList.first() != key && path.keyList.first() in supplied
+            }
+      }
+
   private fun equalityError(equality: DependencyEquality, dependencies: DependencySet): Nothing =
       throw ExpressionException(
           "type-variable `${equality.expressions.joinToString()}` dependencies disagree in " +
@@ -742,22 +769,17 @@ internal constructor(
 
     val occurrenceGroups = mutableListOf<MutableList<HeaderOccurrence>>()
     headerOccurrences().forEach { occurrence ->
-      val matching = occurrenceGroups.filter { group ->
+      val matching = occurrenceGroups.firstOrNull { group ->
         group.any { prior ->
           val priorIdentity = prior.expression.typeVariableName?.identity
           val occurrenceIdentity = occurrence.expression.typeVariableName?.identity
           priorIdentity != null && priorIdentity == occurrenceIdentity
         }
       }
-      if (matching.isEmpty()) {
+      if (matching == null) {
         occurrenceGroups += mutableListOf(occurrence)
       } else {
-        val merged = matching.first()
-        matching.drop(1).forEach {
-          merged += it
-          occurrenceGroups.remove(it)
-        }
-        merged += occurrence
+        matching += occurrence
       }
     }
 
@@ -864,11 +886,23 @@ internal constructor(
       putAll(markedVariables)
     }
     val inheritedMarkers = directSuperclasses.flatMap { it.inheritableHeaderMarkers }
+    inheritedMarkers
+        .filter { it.name != null }
+        .groupBy { it.name }
+        .values
+        .forEach { markers ->
+          if (markers.map { variablesByIdentity.getValue(it.identity) }.distinct().size > 1) {
+            throw InvalidPetDefinitionException(
+                "`$className` inherits ambiguous type variable `${markers.first().authoredSpelling}`",
+                sourceLocation = className.sourceLocation,
+            )
+          }
+        }
     markedVariables.forEach { (_, seed) ->
       val marker = requireNotNull(seed.declaration.expression.typeVariableName)
       // Marking an inherited binding again is legal; giving its name to another one is not.
       val namesAnotherBinding = inheritedMarkers.any {
-        it.key == marker.key && variablesByIdentity.getValue(it.identity) !== seed
+        refersToInherited(marker, it) && variablesByIdentity.getValue(it.identity) !== seed
       }
       if (namesAnotherBinding) {
         throw InvalidPetDefinitionException(
@@ -883,7 +917,7 @@ internal constructor(
         val marker = expression.typeVariableName as? Reference
         val identity = marker?.identity
         if (marker != null) {
-          val candidates = inheritedMarkers.filter { it.key == marker.key }
+          val candidates = inheritedMarkers.filter { refersToInherited(marker, it) }
           if (candidates.any { it.identity == identity }) {
             // Distinct declarations may still name one dependency reached through two parents.
             val bindings = candidates.map { variablesByIdentity.getValue(it.identity) }.distinct()
@@ -930,9 +964,12 @@ internal constructor(
   }
 
   private val typeVariablesLazy = lazy {
-    headerVariableBindings().filter(HeaderVariableBinding::lexicallyDeclared).map {
-      it.variable
-    }
+    headerVariableBindings()
+        .flatMap { binding ->
+          listOfNotNull(binding.variable.takeIf { binding.lexicallyDeclared }) +
+              binding.aliases.filter { it.name != null }
+        }
+        .distinctBy { it.declaration.expression.typeVariableName?.identity ?: it }
   }
 
   /**
@@ -977,7 +1014,14 @@ internal constructor(
 
     return buildMap {
       headerVariableBindings().forEach { binding ->
-        val aliases = binding.aliases.intersect(requested)
+        val markerIdentities =
+            (binding.aliases + binding.variable)
+                .mapNotNull { it.declaration.expression.typeVariableName?.identity }
+                .toSet()
+        val aliases = requested.filter { variable ->
+          variable in binding.aliases ||
+              variable.declaration.expression.typeVariableName?.identity in markerIdentities
+        }
         if (aliases.isEmpty()) return@forEach
         val previous =
             binding.paths.map { path -> capturedAt(general, path) }.distinct().singleOrNull()
@@ -1030,11 +1074,7 @@ internal constructor(
     className.of(templateDependencies.subMapInOrder(argumentDependencies.keys).expressionsFull())
   }
 
-  /**
-   * The authored dependency-default template for this class. Unlike a [GroundType], this expression
-   * may retain contextual `Owner` outside the class's declared bound until elaboration supplies its
-   * component context.
-   */
+  /** The authored dependency-default template for this class. */
   internal val defaultExpression: Expression
     get() = defaultExpressionLazy.value
 

@@ -97,11 +97,19 @@ internal class TaskResolutionTest {
   }
 
   @Test
-  internal fun `selection resolves an OR by pruning impossible options`() {
+  internal fun `selection checks prerequisites but leaves count dead ends available`() {
     initiate("-TerraformRating OR -Plant OR Heat OR Tharsis_5_5!")
     agent.selectTask("-TerraformRating OR -Plant OR Heat OR Tharsis_5_5!")
 
-    tasksAsText().shouldContainExactlyInAnyOrder("-TerraformRating<Player1>! OR Heat<Player1>!")
+    tasksAsText()
+        .shouldContainExactlyInAnyOrder(
+            "-TerraformRating<Player1>! OR Heat<Player1>! OR Tharsis_5_5!"
+        )
+    val before = game.timeline.checkpoint()
+    shouldThrow<LimitsException> { agent.doTask("Tharsis_5_5!") }
+    game.timeline.checkpoint() shouldBe before
+    agent.doTask("Heat!")
+    agent.count("Heat") shouldBe 1
   }
 
   private fun initiate(ins: String) = (agent as Agent).addTasks(ins)

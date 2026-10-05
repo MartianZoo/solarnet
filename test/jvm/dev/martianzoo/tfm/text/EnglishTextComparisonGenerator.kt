@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.displayName
+import dev.martianzoo.state.displayName
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.canon.cardBack

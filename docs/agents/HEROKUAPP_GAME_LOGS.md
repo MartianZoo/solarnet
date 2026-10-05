@@ -242,7 +242,7 @@ Before retaining an `exMachina()`:
 6. add a focused regression when a production defect is found;
 7. record unsupported real behavior in `TODO.md`.
 
-In nested owned expressions, an outer `<Anyone>` does not necessarily bind an inner owned component to
+In nested owned expressions, an outer literal `<Anyone>` does not necessarily bind an inner owned component to
 the same owner. When a passive effect should match another player's nested component, make ownership
 explicit in the canon data and cover every opponent in a focused multiplayer regression.
 

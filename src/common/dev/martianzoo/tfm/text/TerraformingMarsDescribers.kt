@@ -106,8 +106,18 @@ internal object TerraformingMarsDescribers {
                     )
             ),
         klass("GlobalParameter") to ComponentDescriber(requirementKind = "global parameter"),
+        klass("GpIncomplete") to
+            ComponentDescriber(
+                requirementCondition =
+                    Condition.ArgumentState(
+                        Key(klass("GpIncomplete"), 0),
+                        "has not reached its maximum",
+                    ),
+            ),
         klass("GpComplete") to
             ComponentDescriber(
+                requirementCondition =
+                    Condition.ArgumentState(Key(klass("GpComplete"), 0), "has reached its maximum"),
                 metricCount =
                     ComponentDescriber.MetricCount(
                         noun =
@@ -116,7 +126,7 @@ internal object TerraformingMarsDescribers {
                                 "completed global parameters",
                             ),
                         unqualifiedSuffix = "",
-                    )
+                    ),
             ),
         klass("ResourceHolder") to
             ComponentDescriber(

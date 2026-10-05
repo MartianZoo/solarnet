@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
@@ -170,7 +170,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
     admin.runOperation("7 VenusStep")
     fillSelectedColonySlots()
 
-    shouldThrow<LimitsException> { p1.runOperation("VenusStep") }
+    shouldThrow<LimitsException> { p1.runOperation("VenusStep") { doTask("Colony<Luna>") } }
     admin.count("VenusStep") shouldBe 7
     p1.count("Colony") shouldBe 0
   }

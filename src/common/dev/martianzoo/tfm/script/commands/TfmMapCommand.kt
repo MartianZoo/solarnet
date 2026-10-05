@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.script.commands
 
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.script.ScriptSession
 import dev.martianzoo.tfm.script.TfmMapRenderer
 

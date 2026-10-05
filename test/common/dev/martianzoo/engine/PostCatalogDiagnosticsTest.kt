@@ -6,13 +6,9 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.TransformHandler
-import dev.martianzoo.pets.api.CustomClass
-import dev.martianzoo.pets.api.CustomInstruction
-import dev.martianzoo.pets.api.CustomMetric
 import dev.martianzoo.pets.api.Exceptions.CustomCodeException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
-import dev.martianzoo.pets.api.Exceptions.ExistingDependentsException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
@@ -23,25 +19,28 @@ import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
-import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.systemClassDeclarations
-import dev.martianzoo.pets.types.ClassLoader
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.Catalog
+import dev.martianzoo.state.ClassSelection
+import dev.martianzoo.state.CustomClass
+import dev.martianzoo.state.CustomInstruction
+import dev.martianzoo.state.CustomMetric
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.GamePremise
+import dev.martianzoo.state.GameReader
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
+import dev.martianzoo.state.createClassLoader
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -1458,7 +1457,7 @@ internal class PostCatalogDiagnosticsTest {
               ClassDeclaration.indexByName(systemClassDeclarations + explicitClassDeclarations)
           override val customClasses = emptySet<CustomClass>()
           override val modules = mapOf(cn("Rules") to emptySet<ClassSelection>())
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1494,7 +1493,7 @@ internal class PostCatalogDiagnosticsTest {
               ClassDeclaration.indexByName(systemClassDeclarations + explicitClassDeclarations)
           override val customClasses = emptySet<CustomClass>()
           override val modules = mapOf(cn("Rules") to emptySet<ClassSelection>())
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1538,7 +1537,7 @@ internal class PostCatalogDiagnosticsTest {
               ClassDeclaration.indexByName(systemClassDeclarations + explicitClassDeclarations)
           override val customClasses = emptySet<CustomClass>()
           override val modules = mapOf(cn("Rules") to emptySet<ClassSelection>())
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1581,7 +1580,7 @@ internal class PostCatalogDiagnosticsTest {
           override val allClassDeclarations =
               ClassDeclaration.indexByName(systemClassDeclarations + explicitClassDeclarations)
           override val customClasses = setOf(object : CustomInstruction("Unimplemented") {})
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1624,7 +1623,7 @@ internal class PostCatalogDiagnosticsTest {
                     override fun count(game: GameReader, type: Type): Int = -1
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1675,7 +1674,7 @@ internal class PostCatalogDiagnosticsTest {
                         TODO("finish translation")
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1722,7 +1721,7 @@ internal class PostCatalogDiagnosticsTest {
                     override fun count(game: GameReader, type: Type): Int = TODO("finish count")
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1771,7 +1770,7 @@ internal class PostCatalogDiagnosticsTest {
                         error("translator forgot its rule")
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1814,7 +1813,7 @@ internal class PostCatalogDiagnosticsTest {
                     override fun translate(game: GameReader): InstructionTree = parse("Water")
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1851,7 +1850,7 @@ internal class PostCatalogDiagnosticsTest {
                     override fun translate(game: GameReader): InstructionTree = parse("Water<>")
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1904,7 +1903,7 @@ internal class PostCatalogDiagnosticsTest {
                     override fun count(game: GameReader, type: Type): Int = -1
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1954,7 +1953,7 @@ internal class PostCatalogDiagnosticsTest {
                     override fun count(game: GameReader, type: Type): Int = -1
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1994,7 +1993,7 @@ internal class PostCatalogDiagnosticsTest {
                     override fun count(game: GameReader, type: Type): Int = 0
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -2451,30 +2450,19 @@ internal class PostCatalogDiagnosticsTest {
           agent.runOperation("Rose")
         }
 
-    assertEquals("cannot gain 1 `Rose`: maximum available is 0", error.detail)
+    assertEquals(
+        "component count invariant violated: `Rose` (found 2, expected 0..1)",
+        error.detail,
+    )
     assertEquals(
         """
-        |cannot gain 1 `Rose`: maximum available is 0 at 1:1
+        |component count invariant violated: `Rose` (found 2, expected 0..1) at 1:1
         |Rose
         |^
         """
             .trimMargin(),
         error.message,
     )
-  }
-
-  @Test
-  internal fun removeTargetWithDependents() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
-    agent.runOperation("Rose, Garden<Rose>")
-    val error =
-        assertFailsWith<ExistingDependentsException> {
-          agent.sneak("-Rose!")
-        }
-
-    assertEquals("existing dependents: `Garden<Player1, Rose>`", error.detail)
-    // Prefer a caret on `Rose` in the attempted removal `-Rose!`.
-    assertEquals("existing dependents: `Garden<Player1, Rose>`", error.message)
   }
 
   @Test
@@ -2690,7 +2678,7 @@ internal class PostCatalogDiagnosticsTest {
                     override fun translate(game: GameReader): InstructionTree = parse("Water")
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =

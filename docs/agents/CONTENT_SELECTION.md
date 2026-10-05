@@ -81,7 +81,23 @@ Promo's `Disease` does. Bundle-level rule helpers in ordinary `.pets` files are 
 same-named Module, as Promo's `MyResourceWasRemoved` and `MyProductionWasDecreased` are. A bundle
 can own core vocabulary without a Module, though `PromoCardPack` currently is one. `Asteroid` and
 `Floater` are core to the wider game. Turmoil's ruling bonus effects live on their Party
-declarations; each party's policy Class sits immediately below it.
+declarations; each party's policy Class sits immediately below it. Policies depend on the live
+`Ruling<Party>` and `ActionPhase`; event positions depend on the live `GlobalEvent`. Removing those
+owners through ordinary gameplay removes their dependents. Parties themselves are required
+singletons. Card-granted resource values and Cathedral Option remain dependent on their granting
+cards.
+
+## Card-data compilation
+
+`CardPetsGenerator` emits printed tags and attached capabilities as exact-count invariants, without
+extra creation effects. Ordinary engine construction creates their concrete dependent parts; see
+[ENGINE.md](ENGINE.md#queries-invariants-and-dead-ends) for the construction boundary. Identical
+requirements are deduplicated, and repeated printed tags retain their exact counts.
+
+Card metadata reads tags from inherited exact-count invariants. A required attachment carrying
+persistent behavior counts toward the card's active role. Initial spendable resources, choices,
+and shared-state changes remain ordinary instructions. Pharmacy Union's automatic starting-money
+effect still precedes execution of the queued consequences of its microbe tags.
 
 ## Inclusion when an expansion is absent
 

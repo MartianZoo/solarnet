@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -97,7 +96,7 @@ internal class DoubleDownTest : CardTest() {
     admin.phase("Prelude")
     // Seven MC plus Nirgal's thirty cannot pay Merger's forty-two MC cost.
     shouldThrow<LimitsException> {
-      p1.playPrelude(Merger) { p1.playCorp(NirgalEnterprises, location = cn("Selecting")) }
+      p1.playPrelude(Merger) { p1.playCorp(NirgalEnterprises) }
     }
     // The declared fizzle leaves no Prelude face for Double Down.
     p1.startTurn()

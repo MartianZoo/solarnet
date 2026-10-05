@@ -2,18 +2,17 @@ package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.data.ClassDeclaration
-import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.util.toSetStrict
 
 /**
  * Pets runtime declarations that are available to every Catalog, as required by
  * [rule L11-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations):
  * the universal `Audit` signal plus the classes this language and the type system depend on,
- * including `Component` and `Class`, the ownership vocabulary `Anyone`, `Owner` and `Owned`, the
- * actor root `Actor`, the identity signal `Ok`, the impossible type `Die`, and `Atomized` and
- * `CustomMetric` and `CustomInstruction`. A catalog's own source is loaded alongside them.
+ * including `Component` and `Class`, the ownership vocabulary `Anyone` and `Owned`, the actor root
+ * `Actor`, the identity signal `Ok`, the impossible type `Die`, and `Atomized` and `CustomMetric`
+ * and `CustomInstruction`. A catalog's own source is loaded alongside them.
  *
- * [GamePremise.classTable] always roots `Audit`; it decides which of the remaining declarations a
+ * `GamePremise.classTable` always roots `Audit`; it decides which of the remaining declarations a
  * particular game contains.
  */
 // TODO: Replace this temporary tfm-canon seam with the generic Catalog contract.
@@ -74,16 +73,11 @@ private val systemDeclarationsSource =
     "An entity that can initiate or continue game operations"
     ABSTRACT CLASS Actor
 
-    "The unrestricted target for an ownership dependency"
+    "An entity that can own Components"
     ABSTRACT CLASS Anyone
 
-    "An entity that can own Components"
-    ABSTRACT CLASS Owner : Anyone
-
     "A Component whose Type carries an ownership dependency"
-    ABSTRACT CLASS Owned<Anyone> {
-      DEFAULT Owned<Owner>
-    }
+    ABSTRACT CLASS Owned<Me@Anyone>
 
     "The neutral table administrator created first to perform system operations"
     CLASS Admin : System, Actor { HAS =1 This }

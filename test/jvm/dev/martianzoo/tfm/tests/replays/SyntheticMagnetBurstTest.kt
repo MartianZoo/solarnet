@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -73,7 +72,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       playPrelude(Merger) {
             // You drew Interplanetary Cinematics,Inventrix,Sagitta Frontier Services,Teractor
             // Pink played Sagitta Frontier Services
-            playCorp(SagittaFrontierServices, location = cn("Selecting"))
+            playCorp(SagittaFrontierServices)
             // Pink gained 2 M€ production
             // Pink gained 1 energy production
             /* Discarded 49 cards Freyja Biodomes,Atalanta Planitia Lab,Adaptation Technology,Mining Rights,Urbanized Area,Lichen,Extractor Balloons,Forced Precipitation,Luna Metropolis,Sister Planet Support,Ants,Corroder Suits,Artificial Photosynthesis,Cloud Tourism,Sulphur-Eating Bacteria,Strip Mine,Imported Nitrogen,Standard Technology,Trans-Neptune Probe,Quantum Extractor,Mass Converter,Nitrophilic Moss,Carbonate Processing,Psychrophiles,Mining Area,Towing A Comet,Rover Construction,Extreme-Cold Fungus,Spin-Inducing Asteroid,Indentured Workers,Worms,Immigration Shuttles,Symbiotic Fungus,Livestock,Local Heat Trapping,Underground Detonations,Corporate Stronghold,SF Memorial,Nitrogen-Rich Asteroid,Io Sulphur Research,Imported GHG,Cupola City,Biomass Combustors,Special Design,Inventors' Guild,Comet,Greenhouses,Methane From Titan,Advanced Alloys */

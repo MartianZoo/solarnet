@@ -463,7 +463,8 @@ internal fun distinctOwnedKinds(
   val ownerKey = Key(OWNED, 0)
   if (
       member.className != kind.className ||
-          !resolvedMember.hasOnlySourceDependency(ownerKey, describers.ownerExpression) ||
+          !(resolvedMember.sourceDependencies.isEmpty() ||
+              resolvedMember.hasOnlySourceDependency(ownerKey, describers.ownerExpression)) ||
           member.refinement != null
   ) {
     return null
@@ -574,7 +575,8 @@ private fun Describers.placementCountPhrase(
   val explicitlyUnrestricted = resolved.sourceDependency(ownerKey) == anyoneExpression
   val ownedByYou =
       !explicitlyUnrestricted &&
-          (ownerType.expression == ownerExpression ||
+          (resolved.sourceDependency(ownerKey) == null ||
+              resolved.sourceDependency(ownerKey) == ownerExpression ||
               isGameParticipant(ownerType.rootClass.className))
   val (owner, location) =
       when {

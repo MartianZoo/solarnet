@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.testlib
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.PetException
-import dev.martianzoo.pets.api.SystemClasses.OWNER
+import dev.martianzoo.pets.api.SystemClasses.ANYONE
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -28,7 +28,6 @@ import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
-import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import kotlin.math.pow
@@ -198,7 +197,11 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register {
         Trigger.ByTrigger(
             recurse(),
-            choose(1 to OWNER.expression, 1 to PLAYER2.className.expression, 2 to recurse()),
+            choose(
+                1 to ANYONE.expression,
+                1 to cn("Player2").expression,
+                2 to recurse(),
+            ),
         )
       }
       register { Trigger.IfTrigger(recurse(), recurse()) }
@@ -300,7 +303,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     var drySpell = 0
     while (set.size < count && drySpell < stopAtDrySpell) {
       val node = makeRandomNode<T>()
-      if (node.descendantCount() <= depthLimit && set.add(node)) {
+      if (node.descendantsOfType<PetNode>().size <= depthLimit && set.add(node)) {
         drySpell = 0
       } else {
         drySpell++

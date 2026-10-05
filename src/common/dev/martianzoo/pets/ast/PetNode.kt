@@ -91,16 +91,6 @@ public sealed class PetNode {
    */
   public fun visitDescendants(visitor: (PetNode) -> Boolean): Unit = Visitor(visitor).visit(this)
 
-  /** Returns the total number of [PetNode]s in this subtree, including this. */
-  public fun descendantCount(): Int {
-    var count = 0
-    visitDescendants {
-      count++
-      true
-    }
-    return count
-  }
-
   /** Returns every child node (including this) that is of type [P]. */
   public inline fun <reified P : PetNode> descendantsOfType(): List<P> = descendantsOfType(P::class)
 

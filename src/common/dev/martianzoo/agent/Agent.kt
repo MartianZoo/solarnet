@@ -5,15 +5,15 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetElement
-import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.Multiset
+import dev.martianzoo.state.Actor
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
 import dev.martianzoo.state.TaskResult
@@ -49,6 +49,9 @@ public interface Agent {
   public fun resolve(expression: String): Type
 
   // Purple mode (and below)
+
+  /** Creates an independent, caller-held draft for one of this Actor's tasks. */
+  public fun taskDraft(taskId: TaskId): TaskDraft
 
   /**
    * Narrows this Actor's selected task and resolves it again. A partial narrowing remains selected;
@@ -156,6 +159,11 @@ public interface Agent {
   /** Removes the identified task ex-machina. */
   public fun dropTask(taskId: TaskId): TaskRemovedEvent
 
+  /**
+   * Atomically applies concrete corrections, constructs required parts, and removes dependents.
+   * Runs automatic effects and checks every applicable count invariant. Queued effects, task
+   * settlement, and idle cleanup are omitted.
+   */
   public fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
 
   public interface OperationScope {

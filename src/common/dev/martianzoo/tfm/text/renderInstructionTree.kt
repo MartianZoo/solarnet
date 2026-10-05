@@ -10,6 +10,7 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as TriggerFrame
 
@@ -140,8 +141,9 @@ private fun renderPlayerFanout(
     references: TypeVariableReferences,
 ): Clause.Simple? {
   val selector = instruction.selector
-  if (selector.copy(refinement = null) != describers.playerExpression) return null
-  if (selector.refinement != null) return null
+  if (selector.copy(refinement = null, typeVariableName = null) != describers.playerExpression)
+      return null
+  if (selector.refinement != null || selector.typeVariableName?.name != "Me") return null
   val subject = NounPhrase.text("each player")
   val result =
       renderLoweredInstructions(instruction.body, describers, references).clauses.singleOrNull()
@@ -224,10 +226,11 @@ private fun renderOpponentFanout(
     references: TypeVariableReferences,
 ): Clause? {
   val selector = instruction.selector
-  if (selector.copy(refinement = null) != describers.playerExpression) return null
+  if (selector.copy(refinement = null, typeVariableName = null) != describers.playerExpression)
+      return null
   val selectsOpponents =
       when (val refinement = selector.refinement) {
-        is Expression.Refinement.Not -> refinement.excluded == describers.ownerExpression
+        is Expression.Refinement.Not -> describers.expressions.isOwner(refinement.excluded)
         is Expression.Refinement.Has -> {
           val absent = refinement.requirement as? Requirement.Max
           val excluded = (absent?.countedMetric as? Metric.Count)?.expression
@@ -244,8 +247,24 @@ private fun renderOpponentFanout(
   val changes = InstructionGroup.of(instruction.body).instructions
   val clauses = changes.map { change ->
     val attributed = change as? Instruction.By
-    if (attributed != null && attributed.actor != describers.ownerExpression) return null
-    val inner = attributed?.inner ?: change
+    if (attributed != null && !sameNamedTypeVariable(attributed.actor, selector)) return null
+    val selectedChange = (attributed?.inner ?: change) as? Instruction.Change ?: return null
+    val selected = selectedChange.gaining ?: selectedChange.removing ?: return null
+    val ownerKey = Key(OWNED, 0)
+    val owner = describers.resolveExpression(selected)?.sourceDependency(ownerKey)
+    if (owner == null || !sameNamedTypeVariable(owner, selector)) return null
+    val local =
+        selected.copy(
+            arguments = selected.arguments.filterNot { sameNamedTypeVariable(it, selector) },
+            argumentsSpecified = false,
+        )
+    val inner =
+        when (selectedChange) {
+          is Gain -> selectedChange.copy(scaledEx = scaledEx(local, selectedChange.count))
+          is Remove ->
+              Remove.remove(scaledEx(local, selectedChange.count), selectedChange.quantifier)
+          else -> return null
+        }
     if (
         playersAct &&
             inner is Gain &&
@@ -643,16 +662,14 @@ private fun renderScopedInstruction(
   val frame =
       describers.changeFrame(start.gaining.className)
           as? ComponentDescriber.ChangeFrame.ScopedInstruction ?: return null
-  val sequence = instructions.last() as? Instruction.Then ?: return null
-  val main = sequence.stages.singleOrNull() ?: return null
-  val stop = sequence.continuation as? Remove ?: return null
-  if (
-      describers.resolvedRemovalModality(stop) != Modality.BEST_EFFORT ||
-          stop.count.fixedQuantity() != 1 ||
-          stop.removing != start.gaining
-  ) {
-    return null
-  }
+  val main = instructions.last()
+  val trigger =
+      describers.declaration(start.gaining.className).authoredEffects.singleOrNull()?.trigger
+          ?: return null
+  val event =
+      (trigger as? dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf)?.expression ?: return null
+  val placement = main as? Gain ?: return null
+  if (event.className != placement.gaining.className) return null
   val mainClause =
       renderLoweredInstructions(main, describers, references).clauses.singleOrNull()
           as? Clause.Simple ?: return null
@@ -778,6 +795,9 @@ internal fun Describers.renderGateCondition(requirement: Requirement): Clause? {
     return it
   }
   val resolved = resolveExpression(expression) ?: return null
+  renderDescribedRequirementCondition(requirement)?.let {
+    return it
+  }
   if (resolved.sourceDependencies.isNotEmpty() || expression.refinement != null) {
     return null
   }

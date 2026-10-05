@@ -1,24 +1,40 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.GameplayException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
+import dev.martianzoo.tfm.tests.TestOption.Amazonis
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class ArtificialLakeTest : CardTest() {
   @Test
-  internal fun `Cannot be played when every land area is occupied`() {
+  internal fun `A full land board blocks placement at eight oceans but permits card play at nine`() {
     startTerraforming(startingMc = 1_500)
     raiseTemperatureTo(12)
+    placeOceans(8)
     connectedLandAreas().forEach { area ->
       p1.stdProject("GreeneryProject") { placeTile(area.row, area.column) }
     }
+    val moneyBefore = p1.count("MC")
+    val cardsBefore = p1.count("ProjectCard")
 
-    shouldThrow<GameplayException> { p1.playProject(ArtificialLake, 15) }
+    shouldThrow<LimitsException> { p1.playProject(ArtificialLake, 15) { placeTile(2, 3) } }
+
+    p1.count("MC") shouldBe moneyBefore
+    p1.count("ProjectCard") shouldBe cardsBefore
+    p1.count("$ArtificialLake") shouldBe 0
+    p1.count("OceanTile") shouldBe 8
+
+    placeOceans(1)
+    p1.count("OceanTile") shouldBe 9
+
+    p1.playProject(ArtificialLake, 15).expect("0 Tile")
+    p1.count("$ArtificialLake") shouldBe 1
   }
 
   @Test
@@ -37,6 +53,21 @@ internal class ArtificialLakeTest : CardTest() {
     placeOceans(9)
 
     p1.playProject(ArtificialLake, 15).expect("0 OceanTile")
+  }
+
+  @Test
+  internal fun `Nine oceans on Amazonis still require placing the next ocean`() {
+    newGame(Amazonis)
+    p1.runOperation("500 MC, ProjectCard, 12 TemperatureStep")
+    admin.phase("Action")
+    placeOceans(9)
+    val area = connectedLandAreas().first()
+
+    p1.playProject(ArtificialLake, 15) {
+          shouldThrow<NarrowingException> { declineTask() }
+          placeTile(area.row, area.column)
+        }
+        .expect("OceanTile")
   }
 
   @Test
@@ -73,7 +104,7 @@ internal class ArtificialLakeTest : CardTest() {
   }
 
   private fun placeOceans(count: Int) {
-    p1.list("WaterArea").take(count).forEach { area ->
+    p1.list("WaterArea(HAS MAX 0 Tile)").take(count).forEach { area ->
       p1.stdProject("AquiferProject") { doTask("OceanTile<$area>") }
     }
   }

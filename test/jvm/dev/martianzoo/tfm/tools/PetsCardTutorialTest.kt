@@ -53,7 +53,7 @@ internal class PetsCardTutorialTest {
                       !isRequirementOnlyAboutCardResources(requirement)
                 },
                 excludeCardsMatching { card, _, _, _, _ ->
-                  card.declaration.invariants.isNotEmpty()
+                  hasNonTagInvariants(card)
                 },
                 excludeCardsMatching { card, _, _, _, _ ->
                   PropertyName("autoSelectWhen") in card.declaration.properties
@@ -372,6 +372,7 @@ internal class PetsCardTutorialTest {
             "PowerGrid",
             "RobotPollinators",
             "Satellites",
+            "ShipmentToEarth",
             "SulphurExports",
         ),
         sieve.removeLastPredicateAndFindNewMatches(),
@@ -584,7 +585,7 @@ internal class PetsCardTutorialTest {
         candidateMatches(
             deckClassNames =
                 setOf(cn("PreludeCard"), cn("ProjectCard"), cn("StandardCorporationCard")),
-            extraClassNames = setOf(cn("Anyone")),
+            extraClassNames = setOf(cn("Actor"), cn("Anyone")),
             allowByTrigger = true,
             allowRequirement = { requirement ->
               isRequirementOnlyAboutTags(requirement) ||
@@ -723,6 +724,18 @@ internal class PetsCardTutorialTest {
     )
   }
 
+  // Printed tags now carry generated exact-count invariants; they add no tutorial concept.
+  private fun hasNonTagInvariants(card: PetClass): Boolean =
+      card.declaration.invariants.flatMap(Requirement::split).any { invariant ->
+        val expression =
+            ((invariant as? Requirement.Exact)?.countedMetric as? Metric.Count)?.expression
+        expression == null ||
+            !hasExactlyThisAsItsOnlyArgumentWithoutRefinement(expression) ||
+            !Canon.classTable
+                .getClass(expression.className)
+                .isSubtypeOf(Canon.classTable.getClass(cn("Tag")))
+      }
+
   private fun candidateMatches(
       extraClassNames: Set<ClassName> = emptySet(),
       deckClassNames: Set<ClassName> =
@@ -760,7 +773,7 @@ internal class PetsCardTutorialTest {
         .asSequence()
         .filter { cardBack(it)?.className in deckClassNames }
         .filter { card -> cardRequirement(card)?.let(allowRequirement) != false }
-        .filter { it.declaration.invariants.isEmpty() }
+        .filter { !hasNonTagInvariants(it) }
         .filter { PropertyName("autoSelectWhen") !in it.declaration.properties }
         .filter { card ->
           !containsUnsupportedTutorialSyntax(

@@ -24,8 +24,8 @@ import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration
  *
  * Members of each kind retain source order; duplicate property assignments are rejected.
  * Declaration construction checks invariants and defaults and attaches nested declarations to their
- * immediate container. Owner-local expressions carry this body until extraction supplies their
- * generated class name; scope resolution follows extraction.
+ * immediate container. Inline derived-class expressions carry this body until extraction supplies
+ * their generated class name; scope resolution follows extraction.
  */
 internal class ClassBody(elements: List<Element> = emptyList()) {
   private val invariants = elements.filterIsInstance<InvariantElement>().map { it.invariant }
@@ -49,7 +49,7 @@ internal class ClassBody(elements: List<Element> = emptyList()) {
 
   /** Builds the concrete declaration of an owner-local class. */
   public fun asDerivedDeclaration(className: ClassName, supertype: Expression): ClassDeclaration =
-      toDeclarations(ClassDeclaration(className, CONCRETE, supertypes = setOf(supertype))).single()
+      toDeclarations(ClassDeclaration(className, CONCRETE, supertypes = listOf(supertype))).single()
 
   /** Container first, followed by its descendants in source order. */
   public fun toDeclarations(
@@ -84,7 +84,7 @@ internal class ClassBody(elements: List<Element> = emptyList()) {
         // name their own containers; preserve an explicitly supplied parent specialization.
         add(
             if (child.supertypes.any { it.className == header.className }) child
-            else child.copy(supertypes = setOf(header.className.expression) + child.supertypes)
+            else child.copy(supertypes = listOf(header.className.expression) + child.supertypes)
         )
         addAll(nested.declarations.drop(1))
       }
