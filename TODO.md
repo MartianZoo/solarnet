@@ -11,9 +11,16 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Make `ComponentGraph.listenToCount` update only subscriptions affected by a component change,
+  instead of recounting every watched Type after every change. Preserve immediate initial delivery,
+  notifications only when the count changes, cancellation, and correct subtype/refinement handling
+  through gains, removals, transmutations, and rollback. Prefer existing indexes and a small design;
+  callers should continue receiving changes without polling.
 - When preparing the [PETS repository draft](docs/pets-repo-draft.md) for publication, decide
   whether to include Sponsored Academies, currently retained as a draft note after the gallery.
 - Add scenario saving and reloading to [Mars Playground](PLAYGROUND.md) after the initial version.
+- Add shareable URLs for [Mars Playground](PLAYGROUND.md#technology-and-experience) later. First
+  decide what restoring the same view includes: scenario, history position, camera, and windows.
 - Review derived lookups on delegated Catalogs: `customClass`, `customMetric`, `classDeclaration`,
   and `allClassNames` use the delegate's properties even when the wrapper overrides them. Keep this
   existing issue separate from the class-loading boundary cleanup.
