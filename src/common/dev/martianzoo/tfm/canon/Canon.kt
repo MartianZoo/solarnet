@@ -16,6 +16,6 @@ private val canonBundles: Array<TfmCatalog> =
     CanonResources.bundleNames.map(::StandardFormBundle).toTypedArray()
 
 /** Terraforming Mars Catalog assembled from its resource directories and custom implementations. */
-public object Canon : TfmCatalog.Composite(*canonBundles) {
+public object Canon : TfmCatalog(*canonBundles) {
   override val customClasses: Set<CustomClass> = canonCustomClasses
 }

@@ -60,7 +60,7 @@ internal class PropertyTest {
 
   @Test
   internal fun metricPropertiesAreEvaluatedExplicitlyInsideEffectsAndReadQueries() {
-    val catalog = TfmCatalog.Composite(Canon, MetricPropertyProbeCatalog)
+    val catalog = TfmCatalog(Canon, MetricPropertyProbeCatalog)
     val game = Engine.newGame(canonicalPremise(catalog = catalog, players = 2))
     val p1 = game.testTfm(PLAYER1)
 
@@ -75,7 +75,7 @@ internal class PropertyTest {
 
   @Test
   internal fun requirementPropertiesAreEvaluatedAfterTheirEffectReceiverBecomesConcrete() {
-    val catalog = TfmCatalog.Composite(Canon, RequirementPropertyProbeCatalog)
+    val catalog = TfmCatalog(Canon, RequirementPropertyProbeCatalog)
     val game = Engine.newGame(canonicalPremise(catalog = catalog, players = 2))
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)

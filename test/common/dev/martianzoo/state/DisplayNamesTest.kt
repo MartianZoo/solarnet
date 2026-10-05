@@ -18,7 +18,7 @@ internal class DisplayNamesTest {
   internal fun requestedLocaleFallsBackPerEntry() {
     val base = testCatalog("CLASS First\nCLASS Second")
     val catalog =
-        object : Catalog by base {
+        object : Catalog(base) {
           override val displayNamesByLanguage =
               mapOf(
                   "en" to mapOf(cn("First") to "First card", cn("Second") to "Second card"),

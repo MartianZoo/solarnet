@@ -124,7 +124,7 @@ internal class GamePremiseTest {
                   )
                   .toSetStrict()
         }
-    val catalog = TfmCatalog.compose(Canon, observers)
+    val catalog = TfmCatalog(Canon, observers)
     val premise = catalog.gamePremise(GameConfig("ObserverA, ObserverB", "Player1", "Player2"))
 
     val game = Engine.newGame(premise)

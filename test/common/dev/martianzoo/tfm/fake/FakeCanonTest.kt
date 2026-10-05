@@ -15,7 +15,7 @@ internal class FakeCanonTest {
     val config = GameConfig("PreludeExpansion, FakeStuffBundle", "Player1", "Player2")
     assertFailsWith<InvalidGameConfigException> { Canon.gamePremise(config) }
 
-    val premise = TfmCatalog.compose(Canon, FakeCanon).gamePremise(config)
+    val premise = TfmCatalog(Canon, FakeCanon).gamePremise(config)
 
     assertTrue(premise.classTable.isInhabited(cn("FakeResearchNetwork")))
   }

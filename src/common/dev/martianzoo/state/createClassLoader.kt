@@ -7,9 +7,9 @@ import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.types.ClassLoader
 
 /**
- * Supplies [catalog]'s declarations, transforms, and Kotlin implementation checks to a loader.
- * Ordinary function dispatch preserves overridden declarations and transforms on delegating
- * Catalogs.
+ * Supplies [catalog]'s declarations, transforms, and Kotlin implementation checks to a loader. The
+ * loader reads the assembled declarations and any game-specific transforms and implementations from
+ * the receiving Catalog.
  */
 public fun createClassLoader(catalog: Catalog): ClassLoader =
     ClassLoader(

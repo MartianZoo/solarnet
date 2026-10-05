@@ -108,7 +108,7 @@ public fun main(args: Array<String>) {
       val config = document.config
       val catalog =
           if (cn("FakeStuffBundle") in config.includedClassNames) {
-            TfmCatalog.compose(Canon, FakeCanon)
+            TfmCatalog(Canon, FakeCanon)
           } else {
             Canon
           }
