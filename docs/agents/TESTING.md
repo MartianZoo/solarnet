@@ -185,6 +185,12 @@ for correct ownership.
 
 ### Test categories we care about
 
+The selected migration direction is to use full automatic phase and turn progression in ordinary
+card and game-rule scenarios. Existing manual fixtures have not all migrated. Dedicated REPL mode
+tests and lower-level engine or bootstrap tests retain their distinct subjects;
+[COLOR_MODES.md](COLOR_MODES.md#test-migration-and-acceptance) owns this distinction and the open
+mode contracts. Do not replace manual phase calls with helpers that recreate the workflow in Kotlin.
+
 These are the repository's protected test categories. Test placement may evolve, but preserving
 clear coverage of these contracts matters more than preserving every current test class:
 

@@ -19,6 +19,8 @@
   search `decisions`, `options`, `choose`, and `commit`.
 - [`Agents.kt`](../../src/common/dev/martianzoo/agent/Agents.kt) pairs a World with its stable Agents.
 - [`Access.kt`](../../src/common/dev/martianzoo/tfm/script/Access.kt) supplies script access modes.
+  [COLOR_MODES.md](COLOR_MODES.md) owns their intended contracts; current access checks do not
+  implement those contracts throughout.
 - [GAMEWORLD.md](GAMEWORLD.md) owns passive task data and recording navigation;
   [AUTOEXEC.md](AUTOEXEC.md) owns policy; [CARD_HANDLING.md](CARD_HANDLING.md) owns the separate
   Terraforming Mars card-tracking direction.

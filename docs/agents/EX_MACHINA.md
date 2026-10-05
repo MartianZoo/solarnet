@@ -10,6 +10,10 @@
 
 ## Scope and acceptance criteria
 
+[COLOR_MODES.md](COLOR_MODES.md) selects a red-mode correction path that does not advance pending
+gameplay. The selected-task reselection and autoexecution described below do not yet satisfy that
+target; exact task-refresh semantics remain open there.
+
 The audit covers all 29 handwritten Pets files in `tfm/canon`, all 536 definitions in its eight
 `cards.json5` files, card generation (including owner-local declarations), action lowering, custom
 instructions/metrics, and the inherited Pets system declarations. The seven maps contribute 457

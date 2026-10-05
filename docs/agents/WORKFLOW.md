@@ -64,9 +64,9 @@ The required primitives already exist:
   parent and is mandatory cleanup removed only after its own dependent cleanup finishes.
 
 Clients begin automatic play with `agents[ADMIN].beginOperation("WorkflowStarted")`. Phase-owned
-and mode-owned Pets rules choose the transitions and grant player work. Manual setup uses
-`agents[ADMIN].beginOperation("SetupPhase FROM Phase")`; later manual phase changes are ordinary
-Admin operations. Neither path needs a retained workflow object or lifecycle disposal.
+and game-mode-owned Pets rules choose the transitions and grant player work. Lower-level explicit
+phase operations remain available in the current engine, without a retained workflow object.
+[COLOR_MODES.md](COLOR_MODES.md) owns the intended REPL controls and their implementation gaps.
 
 Setup and Research are simultaneous player-work windows. Setup offers each Player two anonymous
 standard corporation backs in `Selecting`. The Player moves one to `Hand` and discards the other;
@@ -292,13 +292,11 @@ Phase advancement does not run without `WorkflowStarted`. Participation states s
 stepwise play, but the last Pass does not request advancement. Replay VP snapshots temporarily remove the marker before constructing a
 hypothetical Production/End state, then restore the live workflow through rollback.
 
-This same opt-in boundary defines the manual workflow. A game started without `WorkflowStarted`, as
-in the default non-purple script path, leaves explicit `phase` and `turn` operations authoritative;
-blue mode is the access level that permits those turns, not separate workflow state. Changing the
-script's color after starting a game does not add or remove `WorkflowStarted`. Removing that marker
-stops phase-local continuations from granting later turns. An already
-granted task remains authoritative GameWorld state and may be completed or declined; its marker then
-retires without a successor, leaving explicit manual phase control available.
+Removing `WorkflowStarted` stops phase-local continuations from granting later turns. Already
+granted tasks remain in Game World and may still be completed or declined. Removing the marker is
+therefore insufficient to isolate a manually granted turn from previously pending work.
+[COLOR_MODES.md](COLOR_MODES.md) supersedes the former REPL mode guidance here and owns the selected
+manual-mode direction, including the removal of blue's `phase` command and unresolved task disposal.
 
 The intended coarse Terraforming Mars shape is:
 

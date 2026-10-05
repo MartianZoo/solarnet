@@ -67,13 +67,23 @@ See [`ACTIONS.md`](ACTIONS.md#open-design-questions),
 
 ### Express phase progression through Pets
 
-Phase progression should follow authored game rules without a mirrored Kotlin sequence. Current
-phase components do not accomplish that: the coroutine still chooses the order and waits for global
-idleness. How phase transitions, Player decisions, event cleanup, and Admin work share the proposed
-scheduling model remains open.
+Phase and turn progression now follows authored Pets rules without a retained Kotlin runner.
+Topology lowering still runs during catalog construction, and completion uses global idleness.
+Operation-local completion remains separate design work.
 
 See [`WORKFLOW.md`](WORKFLOW.md) and
 [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md#workflow-progression-and-task-scheduling).
+
+### Align REPL color modes and migrate manual gameplay tests
+
+Purple provides full-game workflow; blue grants an action slot, green initiates an arbitrary
+operation, yellow permits task abandonment, and red applies corrections without advancing gameplay.
+Blue and green reject overlapping initiation, isolate their new work from existing game work, and
+must not restart automatic progression. Red preserves pending tasks. Pending-work disposal for
+blue/green, other transitions, and yellow's exact atomicity guarantee remain open.
+Migrate ordinary gameplay tests to the full workflow while preserving dedicated mode coverage.
+
+See [`COLOR_MODES.md`](COLOR_MODES.md) for the selected contracts and unresolved decisions.
 
 ### Complete the Agent boundary and policy system
 
