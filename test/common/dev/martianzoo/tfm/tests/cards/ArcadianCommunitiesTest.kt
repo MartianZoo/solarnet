@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
@@ -30,8 +31,8 @@ internal class ArcadianCommunitiesTest : CardTest() {
     admin.phase("Action")
 
     p1.stdAction("DoRequiredActionsAction") {
-      shouldThrow<NarrowingException> { doTask("Community<Tharsis_1_1>") }
-      shouldThrow<NarrowingException> { doTask("Community<Tharsis_1_3>") }
+      shouldThrow<LimitsException> { doTask("Community<Tharsis_1_1>") }
+      shouldThrow<LimitsException> { doTask("Community<Tharsis_1_3>") }
       doTask("Community<Tharsis_9_7>")
     }
 
@@ -43,11 +44,13 @@ internal class ArcadianCommunitiesTest : CardTest() {
     newGame(PromoCardPack)
     playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
     p1.runOperation("CityTile<Tharsis_1_1>")
+    p1.runOperation("GreeneryTile<Tharsis_2_2>")
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_9_7>") }
 
     p1.cardAction1(ArcadianCommunities) {
       shouldThrow<NarrowingException> { doTask("Community<Tharsis_4_2>") }
+      shouldThrow<LimitsException> { doTask("Community<Tharsis_2_2>") }
       doTask("Community<Tharsis_2_1>")
     }
 
@@ -89,7 +92,7 @@ internal class ArcadianCommunitiesTest : CardTest() {
     val p2 = requireP2()
     playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
     p1.runOperation("Community<Tharsis_1_1>")
-    p1.sneak("-40 MC")
+    p1.runOperation("-40 MC")
 
     p1.runOperation("GreeneryTile<Tharsis_1_1>").expect("-Community, 3 MC")
 
@@ -102,10 +105,38 @@ internal class ArcadianCommunitiesTest : CardTest() {
     newGame(PromoCardPack, CorporateEraExpansion)
     playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
     p1.runOperation("$LandClaim") { doTask("Community<Tharsis_1_1>") }
-    p1.sneak("-40 MC")
+    p1.runOperation("-40 MC")
 
     p1.runOperation("GreeneryTile<Tharsis_1_1>").expect("-Community, 3 MC")
 
     p1.assertCounts(3 to "MC", 0 to "Community<Tharsis_1_1>")
+  }
+
+  @Test
+  internal fun `Removing a community without building does not pay`() {
+    newGame(PromoCardPack)
+    playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
+    p1.runOperation("Community<Tharsis_1_1>")
+
+    p1.runOperation("-Community THEN 2 Steel")
+
+    p1.assertCounts(40 to "MC", 12 to "Steel", 0 to "Community")
+  }
+
+  @Test
+  internal fun `Artificial Lake pays the claim owner even though oceans are unowned`() {
+    newGame(PromoCardPack, CorporateEraExpansion)
+    playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
+    p1.runOperation("Community<Tharsis_1_3>")
+
+    shouldThrow<LimitsException> {
+      requireP2().runOperation("$ArtificialLake") { placeTile(1, 3) }
+    }
+    p1.assertCounts(40 to "MC", 1 to "Community<Tharsis_1_3>", 0 to "OceanTile<Tharsis_1_3>")
+
+    p1.runOperation("$ArtificialLake") { placeTile(1, 3) }.expect("-Community, 3 MC")
+
+    p1.assertCounts(43 to "MC", 0 to "Community", 1 to "OceanTile<Tharsis_1_3>")
+    requireP2().assertCounts(0 to "MC")
   }
 }

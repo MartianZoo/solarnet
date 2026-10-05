@@ -5,9 +5,9 @@
       "cards": [
         {
           "name": "ArcadianCommunities",
-          "immediate": "40 MC, 10 Steel, RequiredAction { -> Community<LandArea(HAS MAX 0 Occupant)> }",
-          "actions": [ "-> Community<LandArea(HAS MAX 0 Occupant, HAS Neighbor<OwnedOccupant>)>" ],
-          "effects": [ "-Community: 3 MC" ],
+          "immediate": "40 MC, 10 Steel, RequiredAction { -> Community }",
+          "actions": [ "-> Community<LandArea(HAS Neighbor<OwnedOccupant>)>" ],
+          "effects": [ "-Community<LandArea(HAS Tile)>: 3 MC" ],
         },
         {
           "name": "AstroDrill",

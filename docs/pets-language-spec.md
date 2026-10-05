@@ -778,7 +778,7 @@ RequirementAtom ::= CountedMetric
 CountedMetric   ::= Integer MetricAtom | Expression
 ```
 
-> **Non-normative example — Arcadian Communities.** Its community must begin on a land area with
+> **Non-normative example — Mars Nomads.** Its marker must begin on a land area with
 > `MAX 0 Occupant`. Ordinary minimum syntax cannot express “empty”; exact zero would also work for
 > this non-negative metric, but the authored maximum form states the absence test directly.
 

@@ -38,10 +38,10 @@ Areas don't get created for maps you aren't using in that game. So for example i
 
 `Tile` is declared as `ABSTRACT CLASS Tile<Area>` which gives it a dependency onto `Area`. This means no tile can ever exist without having a specific `Area` that it relates to. Of course, tiles that aren't on the board yet are treated as simply not existing.
 
-Area, by the way, was declared with `HAS MAX 1 Tile<This>`. That's our first example of an
-*invariant*: a completed operation may leave at most one Tile on each Area. The engine checks the
-initiating change together with all its recursive automatic consequences; effects can still observe
-intermediate counts. See
+Area, by the way, was declared with `HAS MAX 1 Occupant<This>`. That's our first example of an
+*invariant*: a completed operation may leave at most one occupant (a tile or a claim) on each Area.
+The engine checks the initiating change together with all its recursive automatic consequences;
+effects can still observe intermediate counts. See
 [invariants and operation completion](type-system.md#invariants-and-operation-completion).
 
 As for tile subtypes, we mentioned `OceanTile`, but will get to the rest in the player-specific section below.

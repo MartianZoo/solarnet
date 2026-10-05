@@ -165,10 +165,17 @@ replacing runtime work without creating a second semantic model.
 
 See [`JVM_TEST_PERFORMANCE.md`](JVM_TEST_PERFORMANCE.md) and the reusable-universe program above.
 
+### Retain claims through shared occupancy
+
+Keep Land Claim and Arcadian Communities: the shared `Area` occupancy limit and automatic removal
+of an owner's claim express their placement rules without dedicated engine machinery. `Community`,
+the `Occupant`/`OwnedOccupant` roles, and the opposing-occupant check in `DefaultGreeneryTile` earn
+their cost here. The positive reward trigger and a shorter greenery expression remain in
+[`TODO.md`](../../TODO.md); revisit the retained cost if a smaller coherent model emerges.
+
 ### Delete machinery justified only by marginal content
 
-Desupport Land Claim and Arcadian Communities, then remove the reservation/occupancy machinery they
-alone require. Separately desupport Mons Insurance, Crash Site Cleanup, and Law Suit; express
+Desupport Mons Insurance, Crash Site Cleanup, and Law Suit; express
 Hydrologist with player-owned watchers; then remove unused attack-history and Actor-value-reuse
 machinery. These are deliberate applications of the project's willingness to trade minor card
 coverage for a smaller honest model.
