@@ -28,8 +28,8 @@ Almost all the published game content except Automa works.
 | Prelude | Prelude | Research Network | Wild tag |
 | Turmoil | Corporation | Septem Tribus | Wild tag |
 | Prelude 2 | Prelude | Applied Science, Nobel Prize | Wild tag |
-| Promos through 2026-08 | Project | Self-Replicating Robots (`210`) | Several problems |
-| Promos through 2026-08 | Prelude | Head Start | Actions within actions |
+| Promos | Project | Self-Replicating Robots (`210`) | Several problems |
+| Promos | Prelude | Head Start | Actions within actions |
 | Automa | Other | entire Automa rules | Wow that's a lot |
 
 ### Incompatibilities
