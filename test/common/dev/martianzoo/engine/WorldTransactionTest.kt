@@ -165,7 +165,7 @@ internal class WorldTransactionTest {
     game.onTransactionComplete = {
       if (startFollowUp) {
         startFollowUp = false
-        player.sneak("CleanupProbe")
+        player.runOperation("CleanupProbe")
         followUpCompletedBeforeReturning =
             player.count("CleanupProbe") == 0 && player.count("Done") == 1
       }
@@ -218,7 +218,7 @@ internal class WorldTransactionTest {
   }
 
   @Test
-  internal fun directMutationPerformsIdleCleanupBeforeCompletion() {
+  internal fun correctionsLeaveTemporaryStateForTheNextGameplayInteraction() {
     val game =
         Engine.newGame(
             testGamePremise(
@@ -231,6 +231,9 @@ internal class WorldTransactionTest {
 
     player.sneak("CleanupProbe")
 
+    player.count("CleanupProbe") shouldBe 1
+    game.isIdle() shouldBe false
+    player.runOperation("Ok")
     player.count("CleanupProbe") shouldBe 0
     game.tasks.isEmpty() shouldBe true
     game.isIdle() shouldBe true
@@ -249,7 +252,7 @@ internal class WorldTransactionTest {
     agent.narrowTask("-Token")
     agent.dropTask(agent.addTasks("Token?").single())
 
-    completions shouldBe 6
+    completions shouldBe 5
     agent.count("Token") shouldBe 0
     agent.tasks.isEmpty() shouldBe true
   }

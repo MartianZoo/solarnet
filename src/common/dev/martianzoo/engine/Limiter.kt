@@ -22,6 +22,24 @@ internal class Limiter(
   // Bootstrap constructs an incomplete world and audits all required counts when it finishes.
   internal var checkRequiredCounts: Boolean = false
 
+  /** Audits the complete World, including required components that are absent. */
+  internal fun checkAllInvariants() {
+    val liveTypes =
+        gameWorld.components.getAll(classTable.componentClass.baseType, NoGameState).elements.map {
+          it.type
+        }
+    val allLimits = liveTypes.flatMap(limits::limitsFor).toSet() + limits.requiredLimits(liveTypes)
+    for (limit in allLimits) {
+      val count = gameWorld.components.count(limit.type, NoGameState)
+      if (count !in limit.range) {
+        throw LimitsException(
+            "component count invariant violated: `${limit.type.expression}` " +
+                "(found $count, expected ${limit.range})"
+        )
+      }
+    }
+  }
+
   internal fun checkInvariantsSince(checkpoint: Checkpoint) {
     val changed =
         gameWorld.events

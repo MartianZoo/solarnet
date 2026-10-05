@@ -72,7 +72,7 @@
 - **game world:** The complete live engine state of a game: its component graph, global task queue, event log, timeline, and class table, together with the catalog and immutable premise behind them. ActorAccess, agents, agent drivers, and generic pulse dispatch are configured above that state.
 - **game world revision:**
 - **gated instruction:** An instruction guarded by a requirement, such as `HasRaisedTr: -3 THEN TerraformRating`. An unsatisfied gate does not mean “do nothing”; it makes that task uncompletable unless its quantifier or enclosing choice permits another result.
-- **Hidden:** A presentation classification for types normally omitted from user-visible output. It concerns rendering only, not information concealed from Players.
+- **Hidden:** A presentation classification for types normally omitted from user-visible output. It does not mean information concealed from Players. `exMachina` also excludes Hidden types from direct correction targets.
 - **immediate instruction:** An on-create instruction expressed with `This:`, or supplied by transitional card data's `immediate` field.
 - **instruction:** A Pets specification of work that may change a game world.
 - **invariant:** A class-declared requirement. Component-count invariants must hold at [operation completion](type-system.md#invariants-and-operation-completion); positive exact counts of concrete dependent parts also construct those parts when their owner is gained. Selected Module requirements also participate in premise validation.

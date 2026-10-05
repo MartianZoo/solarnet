@@ -82,6 +82,23 @@ internal constructor(
       val ancestors: List<PendingTask>,
   )
 
+  /** Applies a complete correction with required parts but without queued effects. */
+  internal fun sneak(changes: InstructionGroup, cause: Cause?, actor: Actor) {
+    changes.instructions.forEach {
+      if (it.isAbstract(reader)) {
+        throw NotFullySpecifiedException("instruction is abstract: `$it`", it.sourceLocation)
+      }
+      val change =
+          it as? Change
+              ?: throw ExpressionException(
+                  "sneak accepts only direct changes; found `$it`",
+                  sourceLocation = it.sourceLocation,
+              )
+      executeChange(change, cause, mutableListOf(), actor, actor, queuedEffects = false)
+    }
+    limiter.checkAllInvariants()
+  }
+
   internal fun execute(
       instruction: Instruction,
       cause: Cause?,
@@ -107,13 +124,17 @@ internal constructor(
       deferred: MutableList<PendingTask>,
       actor: Actor,
       controller: Actor,
+      queuedEffects: Boolean = true,
   ) {
     when (val resolved = resolve(instruction)) {
-      is Instruction -> doExecuteResolved(resolved, cause, deferred, actor, controller)
+      is Instruction ->
+          doExecuteResolved(resolved, cause, deferred, actor, controller, queuedEffects)
       // Independent siblings, such as the branches of a fanout, execute in place here; only an
       // enqueued task turns them into separately selectable work.
       is InstructionGroup ->
-          resolved.instructions.forEach { doExecute(it, cause, deferred, actor, controller) }
+          resolved.instructions.forEach {
+            doExecute(it, cause, deferred, actor, controller, queuedEffects)
+          }
     }
   }
 
@@ -123,6 +144,7 @@ internal constructor(
       deferred: MutableList<PendingTask>,
       actor: Actor,
       controller: Actor,
+      queuedEffects: Boolean = true,
   ) {
     if (resolved !is Then && resolved.isAbstract(reader)) {
       throw NotFullySpecifiedException(
@@ -131,13 +153,21 @@ internal constructor(
       )
     }
     when (resolved) {
-      is Change -> executeChange(resolved, cause, deferred, actor, controller)
-      is By -> doExecuteResolved(resolved.inner, cause, deferred, actorFor(resolved), controller)
+      is Change -> executeChange(resolved, cause, deferred, actor, controller, queuedEffects)
+      is By ->
+          doExecuteResolved(
+              resolved.inner,
+              cause,
+              deferred,
+              actorFor(resolved),
+              controller,
+              queuedEffects,
+          )
       is Then -> {
-        doExecuteResolved(resolved.first, cause, deferred, actor, controller)
+        doExecuteResolved(resolved.first, cause, deferred, actor, controller, queuedEffects)
         resolved.instructions.drop(1).forEach { tree ->
           InstructionGroup.of(tree).instructions.forEach {
-            doExecute(it, cause, deferred, actor, controller)
+            doExecute(it, cause, deferred, actor, controller, queuedEffects)
           }
         }
       }
@@ -153,9 +183,10 @@ internal constructor(
       deferred: MutableList<PendingTask>,
       actor: Actor,
       controller: Actor,
+      queuedEffects: Boolean,
   ) {
     val ct = instruction.count as ActualScalar
-    check(instruction.quantifier == MANDATORY)
+    check(!queuedEffects || instruction.quantifier == MANDATORY)
 
     val gaining = instruction.gaining?.toComponent(reader)
     val removing = instruction.removing?.toComponent(reader)
@@ -172,10 +203,10 @@ internal constructor(
               actor = actor,
           )
 
-      constructPartsAndFire(result, controller, deferred)
+      constructPartsAndFire(result, controller, deferred, queuedEffects)
       if (done) break
     }
-    if (automaticEffectStack.isEmpty()) {
+    if (queuedEffects && automaticEffectStack.isEmpty()) {
       try {
         limiter.checkInvariantsSince(checkpoint)
       } catch (e: LimitsException) {
@@ -193,6 +224,7 @@ internal constructor(
       event: ChangeEvent,
       controller: Actor,
       deferred: MutableList<PendingTask>,
+      queuedEffects: Boolean,
   ) {
     val recorded = ConstructionEvent(event, controller, automaticEffectStack)
     constructionEvents?.let {
@@ -237,6 +269,7 @@ internal constructor(
                 instruction = InstructionGroup.of(instruction),
             ),
             deferred,
+            queuedEffects,
             origin.ancestors,
         )
       }
@@ -245,17 +278,20 @@ internal constructor(
     }
     for ((change, changeController) in events.asReversed()) {
       for (task in effector.fire(change, changeController, automatic = true)) {
-        executeAutomaticEffect(task, deferred)
+        executeAutomaticEffect(task, deferred, queuedEffects)
       }
     }
-    for ((change, changeController) in events) {
-      deferred += effector.fire(change, changeController, automatic = false)
+    if (queuedEffects) {
+      for ((change, changeController) in events) {
+        deferred += effector.fire(change, changeController, automatic = false)
+      }
     }
   }
 
   private fun executeAutomaticEffect(
       task: PendingTask,
       deferred: MutableList<PendingTask>,
+      queuedEffects: Boolean,
       ancestors: List<PendingTask> = automaticEffectStack,
   ) {
     if (ancestors.size >= MAX_AUTOMATIC_EFFECT_DEPTH) {
@@ -268,7 +304,7 @@ internal constructor(
     automaticEffectStack = ancestors + task
     try {
       task.instruction.instructions.forEach {
-        doExecute(it, task.cause, deferred, task.actor, task.controller)
+        doExecute(it, task.cause, deferred, task.actor, task.controller, queuedEffects)
       }
     } finally {
       automaticEffectStack = enclosingStack

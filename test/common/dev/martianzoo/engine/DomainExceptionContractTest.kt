@@ -73,7 +73,7 @@ internal class DomainExceptionContractTest {
   }
 
   @Test
-  internal fun directRemovalWithDependentsIsUnavailableGameplay() {
+  internal fun directRemovalIncludesDependents() {
     val agent =
         Engine.newGame(
                 testGamePremise(
@@ -87,10 +87,10 @@ internal class DomainExceptionContractTest {
             .testAgent(PLAYER1)
     agent.sneak("Token!, Holder!")
 
-    shouldThrow<NotNowException> { agent.sneak("-Token!") }
+    agent.sneak("-Token!")
 
-    agent.count("Token") shouldBe 1
-    agent.count("Holder") shouldBe 1
+    agent.count("Token") shouldBe 0
+    agent.count("Holder") shouldBe 0
   }
 
   @Test

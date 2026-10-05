@@ -274,8 +274,8 @@ invariant templates used for validation.
 
 Abstract or refined Types, minimum-only bounds, self-counts, and indirect or unrelated requirements
 remain constraints; construction neither chooses their components nor invents missing prerequisites.
-Signals and same-Type transmutations do not reconstruct parts. This construction rule belongs to
-ordinary instruction execution; direct `sneak` changes retain their existing bypass behavior.
+Signals and same-Type transmutations do not reconstruct parts. Ordinary instruction execution and
+direct `sneak` corrections share this construction rule; corrections suppress queued reactions.
 
 Completed-state validation instantiates a self-count for every inhabited concrete specialization.
 A dependent count containing `This` is instantiated only for live declaring Types, so an absent
@@ -335,9 +335,13 @@ World.
 All ordinary Agent mutations use the shared outer transaction-completion path. `runOperation`
 admits new work, lets the body finish it, runs configured autoexecution, preserves unrelated
 pre-existing unselected Tasks, and rejects newly unfinished Tasks or `MustCleanUp` state. It cannot
-start while a pre-existing selected Task holds the World lock. `sneak` remains an engine cheat: it
-applies fully concrete changes through the timeline and graph but skips normal instruction
-resolution and effects.
+start while a pre-existing selected Task holds the World lock. `sneak` applies a fully concrete
+correction group, constructs exact required parts, removes dependents, and audits every applicable
+count invariant. The entire group rolls back on failure. It runs automatic effects and suppresses queued effects recursively
+while bypassing settlement, idle cleanup, and completion callbacks. `exMachina` rejects direct System,
+Hidden, and MustCleanUp targets and any correction that leaves new MustCleanUp state.
+It additionally restores and resumes an existing selection within one atomic lifecycle. See
+[EX_MACHINA.md](EX_MACHINA.md) for the contract and the remaining canon consistency gaps.
 
 Current autoexecution lives in `:agent`, not in the core engine. Policy selects legal Task commands;
 it does not alter their semantics. Direct engine primitives remain available to trusted workflow,

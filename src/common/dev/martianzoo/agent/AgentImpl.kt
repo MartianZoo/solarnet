@@ -94,9 +94,8 @@ internal class AgentImpl(
 
   // CHANGES
 
-  override fun sneak(changes: String, fakeCause: Cause?): TaskResult = atomicWithoutAutoExec {
-    engine.sneak(parseInstructionGroup(changes), fakeCause)
-  }
+  override fun sneak(changes: String, fakeCause: Cause?): TaskResult =
+      engine.sneak(parseInstructionGroup(changes), fakeCause)
 
   // TASKS
 
