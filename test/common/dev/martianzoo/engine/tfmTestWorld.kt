@@ -4,12 +4,12 @@ import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.ClassSelection
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.GamePremise
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
-import dev.martianzoo.tfm.engine.TfmWorkflow
 
 internal fun canonicalPremise(
     vararg included: ClassName,
@@ -35,5 +35,5 @@ internal fun canonicalPremise(
 
 internal fun setUpGame(premise: GamePremise = canonicalPremise()): World =
     Engine.newGame(premise).apply {
-      TfmWorkflow.Stepwise(testAgents()).setupPhase()
+      testAgents()[ADMIN].beginOperation("SetupPhase FROM Phase")
     }

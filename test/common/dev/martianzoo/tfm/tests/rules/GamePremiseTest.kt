@@ -18,7 +18,6 @@ import dev.martianzoo.tfm.canon.Bundle
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.cards.cardnames.ColonizerTrainingCamp
 import io.kotest.assertions.throwables.shouldThrow
@@ -78,7 +77,7 @@ internal class GamePremiseTest {
     val second = Engine.newGame(premise)
 
     first.classTable shouldBe second.classTable
-    TfmWorkflow.Stepwise(first.testAgents()).setupPhase()
+    first.testAgents()[ADMIN].beginOperation("SetupPhase FROM Phase")
     first.testAgent(ADMIN).count("SetupPhase") shouldBe 1
     second.testAgent(ADMIN).count("SetupPhase") shouldBe 0
   }
@@ -150,7 +149,7 @@ internal class GamePremiseTest {
     game.actors.shouldContainExactly(Player(blue), Player(yellow), ADMIN)
     game.reader.getComponents(cn("Player").expression).map { it.className }.toSet() shouldBe
         setOf(blue, yellow)
-    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    game.testAgents()[ADMIN].beginOperation("SetupPhase FROM Phase")
     game.testAgent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
     game.testAgent(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
     getOwningPlayer(
@@ -210,13 +209,12 @@ internal class GamePremiseTest {
             )
         )
     val admin = game.testAgent(ADMIN)
-    val workflow = TfmWorkflow.Stepwise(game.testAgents())
 
     admin.count("SelectedColonyTile") shouldBe 3
     admin.count("SelectedColonyTile<Class<Ceres>>") shouldBe 0
 
-    workflow.setupPhase()
-    workflow.corporationPhase()
+    admin.beginOperation("SetupPhase FROM Phase")
+    admin.runOperation("CorporationPhase FROM Phase")
 
     admin.count("SelectedColonyTile") shouldBe 0
     admin.count("Callisto") shouldBe 1

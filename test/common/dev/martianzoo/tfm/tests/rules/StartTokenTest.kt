@@ -98,12 +98,11 @@ internal class StartTokenTest {
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
 
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
     p1.playCorp(InterplanetaryCinematics, 7)
     admin.sneak("StartToken<Player2> FROM StartToken<Player1>")
     p2.playCorp(PharmacyUnion, 5)
 
     game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
-    workflow.shutdown()
   }
 }

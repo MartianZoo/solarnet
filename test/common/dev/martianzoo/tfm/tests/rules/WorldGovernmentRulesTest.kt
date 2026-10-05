@@ -2,9 +2,9 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.Amazonis
@@ -39,9 +39,9 @@ internal class WorldGovernmentRulesTest : CardTest() {
   internal fun `Solar phase World Government cannot choose a completed parameter`() {
     newGame(VenusNextExpansion)
     p1.runOperation("15 VenusStep")
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      venusSolarPhase()
+    with(agents[ADMIN]) {
+      beginOperation("SolarPhase FROM Phase")
+      beginOperation("VenusSolarPhase FROM Phase")
     }
 
     shouldThrow<LimitsException> { p1.doTask("VenusStep! BY Admin") }
@@ -54,9 +54,9 @@ internal class WorldGovernmentRulesTest : CardTest() {
     p1.runOperation("$Aphrodite")
     val moneyBefore = p1.count("MC")
     val ratingBefore = p1.count("TerraformRating")
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      venusSolarPhase()
+    with(agents[ADMIN]) {
+      beginOperation("SolarPhase FROM Phase")
+      beginOperation("VenusSolarPhase FROM Phase")
     }
 
     p1.doTask("VenusStep! BY Admin")
@@ -69,9 +69,9 @@ internal class WorldGovernmentRulesTest : CardTest() {
   internal fun `Admin terraforming does not trigger an owner-only effect`() {
     newGame(VenusNextExpansion, PromoCardPack)
     p1.runOperation("$HomeostasisBureau")
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      venusSolarPhase()
+    with(agents[ADMIN]) {
+      beginOperation("SolarPhase FROM Phase")
+      beginOperation("VenusSolarPhase FROM Phase")
     }
 
     p1.doTask("TemperatureStep! BY Admin")
@@ -82,9 +82,9 @@ internal class WorldGovernmentRulesTest : CardTest() {
   @Test
   internal fun `World Government is absent when unselected or disabled in Venus`() {
     newGame()
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      venusSolarPhase()
+    with(agents[ADMIN]) {
+      beginOperation("SolarPhase FROM Phase")
+      beginOperation("VenusSolarPhase FROM Phase")
     }
     game.isIdle() shouldBe true
 
@@ -95,9 +95,9 @@ internal class WorldGovernmentRulesTest : CardTest() {
             "Player2",
         )
     )
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      venusSolarPhase()
+    with(agents[ADMIN]) {
+      beginOperation("SolarPhase FROM Phase")
+      beginOperation("VenusSolarPhase FROM Phase")
     }
 
     game.isIdle() shouldBe true
@@ -107,9 +107,9 @@ internal class WorldGovernmentRulesTest : CardTest() {
   internal fun `World Government can be selected without Venus`() {
     newGame(GameConfig("WorldGovernmentRule", "Player1", "Player2"))
 
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      venusSolarPhase()
+    with(agents[ADMIN]) {
+      beginOperation("SolarPhase FROM Phase")
+      beginOperation("VenusSolarPhase FROM Phase")
     }
     p1.doTask("TemperatureStep! BY Admin")
 
@@ -122,9 +122,9 @@ internal class WorldGovernmentRulesTest : CardTest() {
     newGame(GameConfig("WorldGovernmentRule", "Player1", "Player2"))
     admin.runOperation("14 TemperatureStep")
 
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      venusSolarPhase()
+    with(agents[ADMIN]) {
+      beginOperation("SolarPhase FROM Phase")
+      beginOperation("VenusSolarPhase FROM Phase")
     }
     p1.doTask("TemperatureStep! BY Admin")
     p1.doTask("OceanTile<Tharsis_1_2> BY Admin")
@@ -139,9 +139,9 @@ internal class WorldGovernmentRulesTest : CardTest() {
     newGame(GameConfig("AmazonisMap, WorldGovernmentRule", "Player1", "Player2"))
     admin.runOperation("14 TemperatureStep")
 
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      venusSolarPhase()
+    with(agents[ADMIN]) {
+      beginOperation("SolarPhase FROM Phase")
+      beginOperation("VenusSolarPhase FROM Phase")
     }
     p1.doTask("TemperatureStep! BY Admin")
     p1.doTask("OceanTile<Amazonis_02_01> BY Admin")

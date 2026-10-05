@@ -7,6 +7,7 @@ import dev.martianzoo.pets.api.SystemClasses.HIDDEN
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.EventLog
 import dev.martianzoo.state.GameConfig
@@ -17,7 +18,6 @@ import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.fake.FakeCanon
 import java.nio.file.Files
 import java.nio.file.Path
@@ -48,12 +48,12 @@ private fun createGame(playerCount: Int): World {
       )
   return Engine.newGame(premise).also { game ->
     val agents = Agents(game)
-    TfmWorkflow.Stepwise(agents).setupPhase()
+    agents[ADMIN].beginOperation("SetupPhase FROM Phase")
     val players = game.actors.filterIsInstance<Player>()
     if (playerCount == 1) {
       agents.tfm(players.first()).doTask("-SelectedColonyTile<Class<${colonies.first()}>>")
     }
-    TfmWorkflow.Stepwise(agents).corporationPhase()
+    agents[ADMIN].runOperation("CorporationPhase FROM Phase")
     agents.tfm(players.first()).playCorp(cn("InterplanetaryCinematics"), buyCards = 4)
   }
 }

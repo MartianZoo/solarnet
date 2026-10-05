@@ -365,8 +365,8 @@ MustCleanUp` means "the player must remove this to unblock a task" and backs the
 which spans `Required` there, `Owed` and `Billing` in
 [`payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets),
 and `TradeBarrier` in Colonies. `GameEndBarrier` extends nothing, means "the game
-may not end yet", and is queried by name from
-[`TfmWorkflow.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt) and four tests. We are
+may not end yet", and is queried by the Production phase in
+[`game.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/game.pets). We are
 keeping the shared word. The trap to watch: a new class that blocks game end will compile just as
 happily under `Barrier`, and would then silently join the payment query — check which supertype you
 mean.

@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -28,7 +28,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
 
   @Test
   internal fun otbGame20260825() {
-    TfmWorkflow.Automatic(agents).launch()
+    agents[ADMIN].beginOperation("WorkflowStarted")
     val green = player(1)
     val yellow = player(2)
 
@@ -1318,12 +1318,12 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     assertSidebar(gen = 10, temp = 8, oxygen = 14, oceans = 9, venus = 30)
 
     // "Do you get to plant a forest?" "I do not because you took me down to seven."
-    yellow.declineTask()
+    yellow.doTask("FinishFinalGreenery")
     // "Okay, I get to plant a forest. And there's not that many places I can put it. I think
     // literally this is the only ... oh, I guess that also works. But I get a steel for that."
     // The replacement photograph identifies the legal adjacent space at 5,4.
     green.convertPlants { placeTile(5, 4) }
-    green.declineTask()
+    green.doTask("FinishFinalGreenery")
     // board-18-47-04.jpg is the replacement final photograph after this greenery. It also confirms
     // Asteroid Deflection System in Yellow's tableau, directly below Shuttles.
 

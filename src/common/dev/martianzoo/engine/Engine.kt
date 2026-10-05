@@ -52,7 +52,6 @@ public object Engine {
     private val worldTransaction: WorldTransaction =
         WorldTransaction(
             timeline,
-            { world.onTransactionComplete() },
             recordingPositions,
             { removeIdleComponent(TEMPORARY) },
             { removeIdleComponent(CONTINUATION) },

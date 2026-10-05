@@ -4,8 +4,8 @@ import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
@@ -184,9 +184,9 @@ internal class CoreRulesTest : CardTest() {
   internal fun `World Government terraforming gives no terraform rating`() {
     newGame(VenusNextExpansion)
 
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      venusSolarPhase()
+    with(agents[ADMIN]) {
+      beginOperation("SolarPhase FROM Phase")
+      beginOperation("VenusSolarPhase FROM Phase")
     }
 
     p1.doTask("TemperatureStep! BY Admin").expect("TemperatureStep, 0 TerraformRating")

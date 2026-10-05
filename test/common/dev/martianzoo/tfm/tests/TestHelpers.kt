@@ -33,7 +33,7 @@ import io.kotest.matchers.shouldBe
 
 internal fun setUpGame(premise: GamePremise): World =
     Engine.newGame(premise).apply {
-      TfmWorkflow.Stepwise(testAgents()).setupPhase()
+      testAgents()[ADMIN].beginOperation("SetupPhase FROM Phase")
       revealTurmoilSetupEvents(this)
     }
 

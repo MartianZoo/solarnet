@@ -3,9 +3,9 @@ package dev.martianzoo.tfm.script
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.World
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -16,7 +16,7 @@ internal fun setUpGame(
 ): World {
   val setup = OptionCodeTranslation.setup(optionCodes, players)
   return createGame(setup).apply {
-    TfmWorkflow.Stepwise(testAgents()).setupPhase()
+    testAgents()[ADMIN].beginOperation("SetupPhase FROM Phase")
   }
 }
 

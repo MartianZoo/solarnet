@@ -51,7 +51,7 @@ positive requirements whose target is absent, not just types touched by the corr
 rolls back the entire group, including events and derived effect indexes. Validation never repairs.
 
 The correction path runs `::` and suppresses `:` throughout recursive construction and removal.
-It does not settle pending tasks, perform idle cleanup, or call the gameplay completion callback.
+It does not settle pending tasks or perform idle cleanup.
 Temporary components remain for a later gameplay interaction or explicit removal. Effect
 subscriptions still follow component presence. Signals remain recorded nonpersistent changes.
 Source availability, concrete types, inhabitance, non-metric targets, and dependency integrity

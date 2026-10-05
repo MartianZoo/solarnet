@@ -3,8 +3,8 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -34,7 +34,7 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
 
   @Test
   internal fun activeProtonFlowThroughGeneration2() {
-    TfmWorkflow.Automatic(agents).launch()
+    agents[ADMIN].beginOperation("WorkflowStarted")
 
     green.autoExecPolicy = NONE
     pink.autoExecPolicy = NONE

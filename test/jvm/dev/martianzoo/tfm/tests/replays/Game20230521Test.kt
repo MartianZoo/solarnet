@@ -4,8 +4,8 @@ import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.World
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -25,7 +25,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
   @Test
   internal fun game20230521() {
-    val workflow = TfmWorkflow.Automatic(agents).launch()
+    agents[ADMIN].beginOperation("WorkflowStarted")
     // Good luck Player1!
     // Good luck Player2!
     // Generation 1
@@ -1922,18 +1922,19 @@ internal class Game20230521Test : AbstractFullGameTest() {
           }
           .expect("PROD[2 MC]")
     }
-    workflow.shutdown()
-    // Player2 passed
-    p2.pass()
+    // Player2 passed; stop automatic progression before continuing this ending manually.
+    p2.inTurn {
+      doTask("Pass")
+      admin.runOperation("-WorkflowStarted")
+    }
     // Player1 passed
     p1.pass()
     admin.autoExecPolicy = NONE
     listOf(p1, p2).forEach { it.autoExecPolicy = EAGER }
-    val stepwise = TfmWorkflow.Stepwise(agents)
-    stepwise.productionPhase()
+    admin.runOperation("ProductionPhase FROM Phase")
     listOf(p1, p2).forEach { it.autoExecPolicy = NONE }
     admin.autoExecPolicy = EAGER
-    stepwise.finalGreeneryPhase()
+    admin.runOperation("FinalGreeneryPhase FROM Phase")
     admin.autoExecPolicy = NONE
     // Final greenery placement
     p1.convertPlants {
@@ -1959,7 +1960,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.declineTask()
     listOf(p1, p2).forEach { it.autoExecPolicy = EAGER }
     admin.autoExecPolicy = EAGER
-    stepwise.endPhase()
+    admin.runOperation("End FROM Phase")
     // This game id was gf386a4cd5de1
 
     val summ = Summarizer(game)

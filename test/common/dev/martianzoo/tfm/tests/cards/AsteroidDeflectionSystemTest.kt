@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
-import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -62,9 +62,11 @@ internal class AsteroidDeflectionSystemTest : CardTest() {
     p1.count("ProjectCard<Revealed>") shouldBe 0
     p1.auditGainsSince(checkpoint) shouldBe 1
 
-    shutdownWorkflow()
-    p1.declineSecondAction()
-    TfmWorkflow.Stepwise(agents).endPhase()
+    p1.inTurn {
+      doTask("Ok") // Decline the second action before switching to manual scoring.
+      admin.runOperation("-WorkflowStarted")
+    }
+    agents[ADMIN].runOperation("End FROM Phase")
     p1.count("VictoryPoint") shouldBe 21
   }
 }

@@ -6,7 +6,7 @@ CLASS TerraformingMars : Module {
   HAS =1 GameMode, =1 MarsMap
   HAS Class<Production>, Class<NormalCityTile>
   HAS Class<BootstrapPhase>, Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>, Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>, Class<End>
-  HAS Class<WorkflowStarted>, Class<BootstrapPhaseScope>, Class<SetupPhaseScope>, Class<CorporationPhaseScope>, Class<ActionPhaseScope>, Class<ProductionPhaseScope>, Class<SolarPhaseScope>, Class<ResearchPhaseScope>, Class<FinalGreeneryPhaseScope>
+  HAS Class<WorkflowStarted>, Class<AdvancePhase>
   HAS Class<VenusSolarPhase>, Class<ColoniesSolarPhase>, Class<TurmoilSolarPhase>
   HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
 
@@ -71,12 +71,10 @@ ABSTRACT CLASS GameMode : Module {
 "One of the actual people or bots playing Terraforming Mars"
 ABSTRACT CLASS Player : Anyone, Actor {
   HAS =1 This
-  HAS =1 ActionPhaseStatus<This>
   HAS MAX 1 AfterMe<This, Anyone>, MAX 1 AfterMe<Anyone, This>
 
   // Queued `This` work gives every Player its production floor and payment values only after the
   // complete seat layer exists.
-  This:: HaveNotPassed<This>
   This: 5 ProdOffset<This, Class<MC>> BY Admin
   This: 2 BaseResourceValue<This, Class<Steel>>, 3 BaseResourceValue<This, Class<Titanium>>
 
@@ -113,13 +111,19 @@ ABSTRACT CLASS Phase : System {
 
   HAS =1 Phase
 
-  CLASS BootstrapPhase
+  CLASS BootstrapPhase {
+    -AdvancePhase<This> IF WorkflowStarted:: SetupPhase FROM This
+  }
   CLASS SetupPhase {
-    This IF WorkflowStarted:: SetupPhaseScope
+    This IF WorkflowStarted:: AdvancePhase<This>
+    -AdvancePhase<This> IF WorkflowStarted:: CorporationPhase FROM This
     This:: Generation
   }
   CLASS CorporationPhase {
-    phaseSegment = HAS "CorporationPhase, ActionPhase"
+    phaseSegment = HAS "ActionPhase"
+    This IF WorkflowStarted:: EACH @Player(HAS StartToken) { NewTurn<@Player> BY @Player }
+    -CorporationCard<Previous@Anyone> IF WorkflowStarted:: \
+      EACH Seat@AfterMe<Previous@, Anyone> { CorporationPhaseCompletionCheck<Seat@> BY Admin }
     This: Photosynthesis
     This:: EACH Class<@CardWatcher> { @CardWatcher }
 
@@ -133,23 +137,35 @@ ABSTRACT CLASS Phase : System {
       PlayCard<Class<CorporationCard>, Class<BeginnerCorporation>, Hand>
   }
   CLASS ResearchPhase {
-    This IF WorkflowStarted:: ResearchPhaseScope
+    This IF WorkflowStarted:: AdvancePhase<This>
+    -AdvancePhase<This> IF WorkflowStarted:: ActionPhase FROM This
     This:: Generation
   }
   CLASS ActionPhase {
-    This:: ActionPhaseScope
-    This:: EACH Me@Player(HAS Pass) { HaveNotPassed FROM Pass }
-    NewTurn: UseAction<StandardAction> OR (Pass FROM HaveNotPassed)
+    This IF WorkflowStarted:: EACH @Player(HAS StartToken) { FirstActionTurn<@Player> BY Admin }
+    -AdvancePhase<This> IF WorkflowStarted:: ProductionPhase FROM This
+    This:: EACH Me@Player(HAS Pass) { -Pass }
+    NewTurn: UseAction<StandardAction> OR Pass
     SecondAction: UseAction<StandardAction>?
   }
-  CLASS ProductionPhase { This IF WorkflowStarted:: ProductionPhaseScope }
-  CLASS SolarPhase { phaseSegment = HAS "SolarPhase, ResearchPhase" }
-  CLASS VenusSolarPhase
-  CLASS ColoniesSolarPhase
-  CLASS TurmoilSolarPhase
+  CLASS ProductionPhase {
+    This IF WorkflowStarted:: AdvancePhase<This>
+    -AdvancePhase<This> IF WorkflowStarted, GameEndBarrier:: SolarPhase FROM This
+    -AdvancePhase<This> IF WorkflowStarted, MAX 0 GameEndBarrier:: CheckGameEnd
+  }
+  CLASS SolarPhase {
+    phaseSegment = HAS "ResearchPhase"
+    This IF WorkflowStarted:: AdvancePhase<This>
+  }
+  CLASS VenusSolarPhase { This IF WorkflowStarted:: AdvancePhase<This> }
+  CLASS ColoniesSolarPhase { This IF WorkflowStarted:: AdvancePhase<This> }
+  CLASS TurmoilSolarPhase { This IF WorkflowStarted:: AdvancePhase<This> }
   CLASS FinalGreeneryPhase {
-    This IF WorkflowStarted:: FinalGreeneryPhaseScope
-    NewTurn: UseAction<ConvertPlantsAction, Action1>?
+    This IF WorkflowStarted:: EACH @Player(HAS StartToken) { FinalGreeneryTurn<@Player> BY Admin }
+    -AdvancePhase<This> IF WorkflowStarted:: End FROM This
+    NewTurn<Me@Player> IF WorkflowStarted: UseAction<ConvertPlantsAction, Action1> OR FinishFinalGreenery<Me@>
+    NewTurn IF MAX 0 WorkflowStarted: UseAction<ConvertPlantsAction, Action1>?
+    UseAction<Me@Player, ConvertPlantsAction, Action1> IF WorkflowStarted:: FinalGreeneryTurn<Me@>
   }
 
   "The terminal game phase"
@@ -161,64 +177,33 @@ ABSTRACT CLASS Phase : System {
 "Records that the phase workflow has been explicitly started"
 CLASS WorkflowStarted : System {
   HAS MAX 1 This
-  This:: BootstrapPhaseScope
+  This:: AdvancePhase<BootstrapPhase>
 }
 
-"The lifetime anchor for components belonging to one occurrence of a phase"
-ABSTRACT CLASS PhaseScope<Phase> : System { HAS MAX 1 PhaseScope }
-
-"The bootstrap phase's lifetime anchor and continuation"
-CLASS BootstrapPhaseScope : PhaseScope<BootstrapPhase>, Temporary {
-  -This IF WorkflowStarted:: SetupPhase FROM BootstrapPhase
-}
-
-"The setup phase's lifetime anchor and continuation"
-CLASS SetupPhaseScope : PhaseScope<SetupPhase>, Temporary {
-  -This IF WorkflowStarted:: CorporationPhase FROM SetupPhase
-}
-
-"The corporation phase's lifetime anchor"
-CLASS CorporationPhaseScope : PhaseScope<CorporationPhase> {
-  This IF WorkflowStarted:: EACH @Player(HAS StartToken) { NewTurn<@Player> BY @Player }
-  -CorporationCard<Previous@Anyone> IF WorkflowStarted:: \
-    EACH Seat@AfterMe<Previous@Anyone, Anyone> { \
-      CorporationPhaseCompletionCheck<Seat@AfterMe> BY Admin \
-    }
-}
+"Requests phase advancement after pending work and its initiating operation have completed"
+CLASS AdvancePhase<Phase> : Continuation, System { HAS MAX 1 This }
 
 "Continues corporation selection with the next player after one settled choice"
 CLASS CorporationPhaseCompletionCheck<AfterMe<Anyone, Next@Player>> : Continuation, System {
-  -This IF WorkflowStarted, CorporationPhaseScope, CorporationCard<Next@Player>:: \
-    NewTurn<Next@Player> BY Next@Player
-  -This IF WorkflowStarted, CorporationPhaseScope, MAX 0 CorporationCard<Anyone>:: \
-    -CorporationPhaseScope BY Admin
+  -This IF WorkflowStarted, CorporationPhase, CorporationCard<Next@>:: \
+    NewTurn<Next@> BY Next@
+  -This IF WorkflowStarted, CorporationPhase, MAX 0 CorporationCard<Anyone>:: \
+    AdvancePhase<CorporationPhase> BY Admin
 }
 
-"The open action phase's lifetime anchor"
-CLASS ActionPhaseScope : PhaseScope<ActionPhase> {
-  This IF WorkflowStarted:: \
-    EACH @Player(HAS StartToken) { FirstActionTurn<@Player> BY Admin }
+"Offers another final greenery conversion after the preceding operation has settled"
+CLASS FinalGreeneryTurn<Current@Player> : Continuation, Owned<Current@Player> {
+  -This IF WorkflowStarted, FinalGreeneryPhase:: NewTurn<Current@> BY Current@
 }
 
-"The completed action phase, removed only after the operation completing it has validated"
-CLASS ActionPhaseComplete : PhaseScope<ActionPhase>, Continuation {
-  -This IF WorkflowStarted:: ProductionPhase FROM ActionPhase
-}
-
-"The production phase's lifetime anchor and continuation"
-CLASS ProductionPhaseScope : PhaseScope<ProductionPhase>, Temporary {
-  -This IF WorkflowStarted, GameEndBarrier:: SolarPhase FROM ProductionPhase
-  -This IF WorkflowStarted, MAX 0 GameEndBarrier:: CheckGameEnd
-}
-
-"The research phase's lifetime anchor and continuation"
-CLASS ResearchPhaseScope : PhaseScope<ResearchPhase>, Temporary {
-  -This IF WorkflowStarted:: ActionPhase FROM ResearchPhase
-}
-
-"The final greenery phase's lifetime anchor and terminal continuation"
-CLASS FinalGreeneryPhaseScope : PhaseScope<FinalGreeneryPhase> {
-  -This IF WorkflowStarted:: End FROM FinalGreeneryPhase
+"Continues final greenery in seat order, ending after the last player finishes"
+CLASS FinishFinalGreenery<Current@Player> : Continuation, Owned<Current@Player> {
+  -This IF WorkflowStarted, FinalGreeneryPhase:: \
+    EACH Next@Player(HAS AfterMe<Current@, Player>, HAS MAX 0 StartToken) { \
+      FinalGreeneryTurn<Next@> BY Admin \
+    }
+  -This IF WorkflowStarted, FinalGreeneryPhase, AfterMe<Current@, Player(HAS StartToken)>:: \
+    AdvancePhase<FinalGreeneryPhase> BY Admin
 }
 
 "This is what the engine creates to grant you a 'turn' (note in some phases you get two in a row)"
@@ -228,57 +213,46 @@ CLASS NewTurn : Owned<Player>, Signal
 CLASS SecondAction : Owned<Player>, Signal
 
 "One action slot, open until its work settles"
-ABSTRACT CLASS ActionTurn : Temporary, System {
+ABSTRACT CLASS ActionTurn<ActionPhase> : Continuation, System {
   HAS MAX 1 ActionTurn
 }
 
 "The mandatory first action slot in a Player's turn"
 CLASS FirstActionTurn<Current@Player> : ActionTurn {
-  This:: NewTurn<Current@Player> BY Current@Player
-  -This IF WorkflowStarted, ActionPhaseScope, HaveNotPassed<Current@Player>, 2 HaveNotPassed<Anyone>:: \
-    SecondActionStart<Current@Player> BY Admin
-  -This IF WorkflowStarted, ActionPhaseScope, HaveNotPassed<Current@Player>, MAX 1 HaveNotPassed<Anyone>:: \
-    NextActionTurn<Current@Player> BY Admin
-  -This IF WorkflowStarted, ActionPhaseScope, Pass<Current@Player>:: \
-    EACH Next@Player(HAS AfterMe<Current@Player, Player>) { \
-      NextActionTurn<Next@Player> BY Admin \
+  This:: NewTurn<Current@> BY Current@
+  -This IF WorkflowStarted, ActionPhase, MAX 0 Pass<Current@>, 2 Player(HAS MAX 0 Pass):: \
+    SecondActionTurn<Current@> BY Admin
+  -This IF WorkflowStarted, ActionPhase, MAX 0 Pass<Current@>, MAX 1 Player(HAS MAX 0 Pass):: \
+    NextActionTurn<Current@> BY Admin
+  -This IF WorkflowStarted, ActionPhase, Player(HAS MAX 0 Pass), Pass<Current@>:: \
+    EACH Next@Player(HAS AfterMe<Current@, Player>) { \
+      NextActionTurn<Next@> BY Admin \
     }
-}
-
-"Starts a second action only after the first action operation validates"
-CLASS SecondActionStart<Current@Player> : Continuation, System {
-  -This IF WorkflowStarted, ActionPhaseScope:: SecondActionTurn<Current@Player> BY Admin
 }
 
 "The optional second action slot in a Player's turn"
 CLASS SecondActionTurn<Current@Player> : ActionTurn {
-  This:: SecondAction<Current@Player> BY Current@Player
-  -This IF WorkflowStarted, ActionPhaseScope:: \
-    EACH Next@Player(HAS AfterMe<Current@Player, Player>) { \
-      NextActionTurn<Next@Player> BY Admin \
+  This:: SecondAction<Current@> BY Current@
+  -This IF WorkflowStarted, ActionPhase, Player(HAS MAX 0 Pass):: \
+    EACH Next@Player(HAS AfterMe<Current@, Player>) { \
+      NextActionTurn<Next@> BY Admin \
     }
 }
 
 "Finds the next Player who has not passed"
 CLASS NextActionTurn<Candidate@Player> : Continuation, System {
-  -This IF WorkflowStarted, ActionPhaseScope, HaveNotPassed<Candidate@Player>:: \
-    FirstActionTurn<Candidate@Player> BY Admin
-  -This IF WorkflowStarted, ActionPhaseScope, Pass<Candidate@Player>:: \
-    EACH Next@Player(HAS AfterMe<Candidate@Player, Player>) { \
-      NextActionTurn<Next@Player> BY Admin \
+  -This IF WorkflowStarted, ActionPhase, MAX 0 Pass<Candidate@>:: \
+    FirstActionTurn<Candidate@> BY Admin
+  -This IF WorkflowStarted, ActionPhase, Player(HAS MAX 0 Pass), Pass<Candidate@>:: \
+    EACH Next@Player(HAS AfterMe<Candidate@, Player>) { \
+      NextActionTurn<Next@> BY Admin \
     }
 }
 
-"A player's exhaustive Action-phase participation state, reset whenever Action begins"
-ABSTRACT CLASS ActionPhaseStatus : Owned<Player>
-
-"The player remains eligible to take a turn"
-CLASS HaveNotPassed : ActionPhaseStatus
-
-"The player is out for the remainder of this Action phase"
-CLASS Pass : ActionPhaseStatus {
-  This IF WorkflowStarted, MAX 0 HaveNotPassed<Anyone>:: \
-    ActionPhaseComplete FROM ActionPhaseScope BY Admin
+"The player has passed; cleared when the next Action phase begins"
+CLASS Pass : Owned<Player> {
+  HAS MAX 1 This
+  This IF WorkflowStarted, ActionPhase, MAX 0 Player(HAS MAX 0 Pass):: AdvancePhase<ActionPhase> BY Admin
 }
 
 "Tells what generation we're in"

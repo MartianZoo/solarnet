@@ -55,28 +55,29 @@ internal class GameRecordingTest {
   }
 
   @Test
-  internal fun automaticFollowUpWorkIsOneSeparateRecordedStep() {
-    val game = Engine.newGame(canonicalPremise())
-    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    var addAutomaticResources = true
-    game.onTransactionComplete = {
-      if (addAutomaticResources) {
-        addAutomaticResources = false
-        agent.runOperation("Plant")
-        agent.runOperation("Steel")
-      }
-    }
+  internal fun automaticFollowUpWorkSharesTheInitiatingRecordedStep() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS Start : Owned<Player> { This:: ContinueWork<Me@> }
+                CLASS ContinueWork : Owned<Player>, Continuation { -This:: FinishWork<Me@> }
+                CLASS FinishWork : Owned<Player>, Temporary { -This:: Token<Me@> }
+                CLASS Token : Owned<Player>
+                """
+            )
+        )
+    val agent = game.testAgent(PLAYER1)
 
-    agent.runOperation("Heat")
+    agent.runOperation("Start")
     val playback = game.recording().open()
 
-    playback.positions.size shouldBe 3
+    playback.positions.size shouldBe 2
+    playback.seek(0)
+    playback.world.reader.count(playback.world.reader.resolve(parse("Start<Player1>"))) shouldBe 0
+    playback.world.reader.count(playback.world.reader.resolve(parse("Token<Player1>"))) shouldBe 0
     playback.seek(1)
-    playback.world.reader.count(playback.world.reader.resolve(parse("Heat<Player1>"))) shouldBe 1
-    playback.world.reader.count(playback.world.reader.resolve(parse("Plant<Player1>"))) shouldBe 0
-    playback.world.reader.count(playback.world.reader.resolve(parse("Steel<Player1>"))) shouldBe 0
-    playback.seek(2)
-    playback.world.reader.count(playback.world.reader.resolve(parse("Plant<Player1>"))) shouldBe 1
-    playback.world.reader.count(playback.world.reader.resolve(parse("Steel<Player1>"))) shouldBe 1
+    playback.world.reader.count(playback.world.reader.resolve(parse("Start<Player1>"))) shouldBe 1
+    playback.world.reader.count(playback.world.reader.resolve(parse("Token<Player1>"))) shouldBe 1
   }
 }

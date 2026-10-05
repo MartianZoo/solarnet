@@ -1,6 +1,6 @@
 "Expansion adding colony tiles, player colonies, and trade fleets"
 CLASS ColoniesExpansion : Module {
-  phaseAfter = HAS "ColoniesSolarPhase, SolarPhase, VenusSolarPhase"
+  phaseAfter = HAS "ColoniesSolarPhase, VenusSolarPhase"
 
   This: TradeAction, BuildColonyProject
   SetupPhase: EACH Me@Player { TradeFleet }

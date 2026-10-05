@@ -116,7 +116,7 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun manualWorkflowStartsFullyEffectfulGenerationOneSetup() {
     val game = Engine.newGame(canonicalPremise())
-    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    game.testAgents()[ADMIN].beginOperation("SetupPhase FROM Phase")
 
     val admin = game.testAgent(ADMIN)
     admin.count("BootstrapPhase") shouldBe 0
@@ -130,7 +130,7 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun soloModeProvidesItsStartingTerraformRatingDirectly() {
     val game = Engine.newGame(canonicalPremise(players = 1))
-    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    game.testAgents()[ADMIN].beginOperation("SetupPhase FROM Phase")
 
     game.testAgent(ADMIN).count("TerraformRating<Player1>") shouldBe 14
   }
@@ -139,7 +139,7 @@ internal class BootstrapLifecycleTest {
   internal fun soloNeutralCitiesCannotBePlacedNextToEachOther() {
     val game = Engine.newGame(canonicalPremise(players = 1))
     val admin = game.testAgent(ADMIN)
-    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    game.testAgents()[ADMIN].beginOperation("SetupPhase FROM Phase")
 
     admin.doTask("CityTile<Tharsis_4_1>")
     admin.doTask("GreeneryTile<Tharsis_5_1>")
@@ -158,7 +158,7 @@ internal class BootstrapLifecycleTest {
   internal fun soloColoniesSetupIsAbsentWithoutSelectedColonies() {
     val game = Engine.newGame(canonicalPremise(ColoniesExpansion, players = 1))
 
-    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    game.testAgents()[ADMIN].beginOperation("SetupPhase FROM Phase")
 
     game.testAgent(ADMIN).count("SoloColoniesSetup") shouldBe 0
   }
@@ -180,11 +180,11 @@ internal class BootstrapLifecycleTest {
     admin.count("SelectedColonyTile") shouldBe 4
     admin.count("SoloColoniesSetup") shouldBe 0
 
-    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
-    admin.doTask("CityTile<Tharsis_4_1>")
-    admin.doTask("GreeneryTile<Tharsis_5_1>")
-    admin.doTask("CityTile<Tharsis_2_2>")
-    admin.doTask("GreeneryTile<Tharsis_2_3>")
+    game.testAgents()[ADMIN].beginOperation("SetupPhase FROM Phase")
+    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
 
     admin.count("SoloColoniesSetup") shouldBe 1
     player.doTask("-SelectedColonyTile<Class<${colonies.first()}>>")
@@ -201,17 +201,16 @@ internal class BootstrapLifecycleTest {
             colonyTiles = setOf(cn("Callisto"), cn("Enceladus")),
         )
     val game = Engine.newGame(premise)
-    val workflow = TfmWorkflow.Stepwise(game.testAgents())
     val admin = game.testAgent(ADMIN)
 
     admin.count("SelectedColonyTile") shouldBe 2
     admin.count("Callisto") shouldBe 0
     admin.count("DelayedEnceladus") shouldBe 0
 
-    workflow.setupPhase()
+    admin.beginOperation("SetupPhase FROM Phase")
     admin.count("SelectedColonyTile") shouldBe 2
 
-    workflow.corporationPhase()
+    admin.runOperation("CorporationPhase FROM Phase")
 
     admin.count("SelectedColonyTile") shouldBe 0
     admin.count("Callisto") shouldBe 1
@@ -222,7 +221,7 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun automaticSetupKeepsOnlyCardCountsUntilCorporationTurns() {
     val game = Engine.newGame(canonicalPremise(PreludeExpansion))
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
     val admin = game.testAgent(ADMIN)
     val p1 = game.testTfm(PLAYER1)
 
@@ -233,23 +232,18 @@ internal class BootstrapLifecycleTest {
     p1.playCorp(cn("InterplanetaryCinematics"), 7)
 
     p1.count("ProjectCard") shouldBe 7
-    workflow.shutdown()
   }
 
   @Test
   internal fun automaticWorkflowWaitsForSoloSetupChoices() {
     val setup = canonicalPremise(players = 1)
     val game = Engine.newGame(setup)
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
 
     val admin = game.testAgent(ADMIN)
     admin.count("SetupPhase") shouldBe 1
     admin.count("CorporationPhase") shouldBe 0
     admin.count("Generation") shouldBe 1
     game.tasks.isEmpty() shouldBe false
-    workflow.isRunning shouldBe true
-
-    workflow.shutdown()
-    workflow.isRunning shouldBe false
   }
 }

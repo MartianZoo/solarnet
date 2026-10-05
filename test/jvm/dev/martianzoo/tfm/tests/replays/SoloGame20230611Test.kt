@@ -255,7 +255,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       assertCounts(12 to "Tile") // checking for the heck of it
 
       // Decline the final greenery placement.
-      declineTask()
+      doTask("FinishFinalGreenery")
       assertCounts(78 to "VictoryPoint") // wow that was not good
     }
   }

@@ -120,12 +120,11 @@ one production assembler. Card and map lowering now happens outside runtime in t
 until a real second implementation reveals a coherent reusable unit. Do not redesign premise
 resolution as part of that extraction.
 
-### Workflow runner mechanics are general
+### Phase and turn progression
 
-The phase sequence and victory conditions are Terraforming Mars. Coroutine lifecycle, single launch,
-queue-drained wakeup, checkpoint/rollback shutdown, and cancellation are engine mechanics. A native
-workflow project should extract those mechanics while moving phase topology to the domain; see
-[WORKFLOW.md](WORKFLOW.md).
+Pets phases and turn continuations own Terraforming Mars progression. Clients issue the
+initial Admin operation and perform pending choices; they retain no Kotlin workflow runner. Generic
+transaction settlement and continuation cleanup remain in the engine; see [WORKFLOW.md](WORKFLOW.md).
 
 ### Minor presentation helpers
 

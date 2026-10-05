@@ -24,14 +24,13 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     p1.runOperation("8 Plant")
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
     playCorporationWithoutStartingProjects(p1, Ecoline)
     playCorporationWithoutStartingProjects(game.testTfm(PLAYER2), TharsisRepublic)
 
     p1.convertPlants { doTask("GreeneryTile<Tharsis_3_6>") }
 
     admin.oxygenPercent() shouldBe 1
-    workflow.shutdown()
   }
 
   @Test
@@ -39,12 +38,11 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(canonicalPremise())
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
-    val workflow = TfmWorkflow.Stepwise(game.testAgents())
 
-    workflow.setupPhase()
-    workflow.corporationPhase()
+    admin.beginOperation("SetupPhase FROM Phase")
+    admin.runOperation("CorporationPhase FROM Phase")
     p1.runOperation("8 Plant")
-    workflow.finalGreeneryPhase()
+    admin.runOperation("FinalGreeneryPhase FROM Phase")
     p1.startTurn()
     p1.convertPlants { doTask("GreeneryTile<Tharsis_3_5>") }
 
@@ -57,7 +55,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(setup)
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
@@ -73,8 +71,6 @@ internal class FinalGreeneryPhaseTest {
     admin.count("TemperatureStep") shouldBe 0
     admin.count("OxygenStep") shouldBe 0
     admin.count("OceanTile") shouldBe 0
-    workflow.isRunning shouldBe false
-    workflow.shutdown()
   }
 
   @Test
@@ -83,7 +79,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(setup)
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
@@ -91,16 +87,15 @@ internal class FinalGreeneryPhaseTest {
     playCorporationWithoutStartingProjects(p1, Ecoline)
     admin.sneak(
         "-13 SoloGenerationsLeft, " +
-            "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
-            "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
-            "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
+            "GpComplete<Class<TemperatureStep>>, " +
+            "GpComplete<Class<OxygenStep>>, " +
+            "GpComplete<Class<OceanTile>>"
     )
 
     p1.pass()
 
     admin.count("Victory<Player1>") shouldBe 1
     admin.count("FinalGreeneryPhase") shouldBe 1
-    workflow.shutdown()
   }
 
   @Test
@@ -109,7 +104,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(setup)
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
@@ -117,9 +112,9 @@ internal class FinalGreeneryPhaseTest {
     playCorporationWithoutStartingProjects(p1, Ecoline)
     admin.sneak(
         "-13 SoloGenerationsLeft, " +
-            "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
-            "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
-            "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
+            "GpComplete<Class<TemperatureStep>>, " +
+            "GpComplete<Class<OxygenStep>>, " +
+            "GpComplete<Class<OceanTile>>"
     )
 
     p1.pass()
@@ -127,8 +122,6 @@ internal class FinalGreeneryPhaseTest {
     admin.count("FinalGreeneryPhase") shouldBe 0
     admin.count("End") shouldBe 0
     admin.count("Victory<Player1>") shouldBe 0
-    workflow.isRunning shouldBe false
-    workflow.shutdown()
   }
 
   @Test
@@ -138,7 +131,7 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
     playCorporationWithoutStartingProjects(p1, Ecoline)
     playCorporationWithoutStartingProjects(p2, TharsisRepublic)
     p1.pass()
@@ -147,49 +140,69 @@ internal class FinalGreeneryPhaseTest {
     game.classTable.allClassNames.shouldNotContain(cn("SoloGenerationsLeft"))
     admin.count("ResearchPhase") shouldBe 1
     admin.count("FinalGreeneryPhase") shouldBe 0
-    workflow.shutdown()
   }
 
   @Test
-  internal fun multiplayerFinalGreeneryAdvancesAfterAPlayerCanNoLongerConvert() {
+  internal fun finalGreeneryRunsInSeatOrderThroughScoringAndSupportsRollback() {
     val game = Engine.newGame(canonicalPremise(players = 3))
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     val p3 = game.testTfm(PLAYER3)
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
-    playCorporationWithoutStartingProjects(p1, CrediCor)
+    admin.runOperation("StartToken<Player2> FROM StartToken<Player1>")
+    admin.runOperation("19 TemperatureStep") {
+      p2.doTask("OceanTile<Tharsis_1_2> BY Admin")
+    }
+    admin.runOperation("14 OxygenStep")
+    listOf("1_4", "1_5", "2_6", "4_8", "5_4", "5_5", "5_6", "6_6").forEach {
+      admin.runOperation("OceanTile<Tharsis_$it>")
+    }
+    p1.runOperation("8 Plant, PROD[Steel]")
+    p2.runOperation("8 Plant")
+    p3.runOperation("8 Plant")
+    admin.beginOperation("WorkflowStarted")
     playCorporationWithoutStartingProjects(p2, MiningGuild)
     playCorporationWithoutStartingProjects(p3, InterplanetaryCinematics)
-    p1.sneak("8 Plant")
-    p2.sneak("8 Plant")
-    p3.sneak("8 Plant")
-    admin.sneak(
-        "-GpGameEndBarrier<Class<TemperatureStep>>, " +
-            "-GpGameEndBarrier<Class<OxygenStep>>, " +
-            "-GpGameEndBarrier<Class<OceanTile>>, " +
-            "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
-            "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
-            "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
-    )
+    playCorporationWithoutStartingProjects(p1, CrediCor)
 
-    p1.pass()
     p2.pass()
     p3.pass()
-    p1.convertPlants { doTask("GreeneryTile<Tharsis_3_5>") }
-    p1.doTask("Ok")
-    p2.convertPlants { doTask("GreeneryTile<Tharsis_3_6>") }
-    p2.doTask("Ok")
-    p3.convertPlants { doTask("GreeneryTile<Tharsis_3_7>") }
-    p3.doTask("Ok")
+    p1.pass()
 
-    p1.count("GreeneryTile<Player1>") shouldBe 1
-    p2.count("GreeneryTile<Player2>") shouldBe 1
-    p3.count("GreeneryTile<Player3>") shouldBe 1
-    admin.count("FinalGreeneryPhaseScope") shouldBe 0
+    admin.count("FinalGreeneryPhase") shouldBe 1
+    p1.count("Steel") shouldBe 1 // Final production precedes the greenery choices.
+    p1.tasks.isEmpty() shouldBe true
+    p2.tasks.isEmpty() shouldBe false
+    p3.tasks.isEmpty() shouldBe true
+
+    // Finishing is allowed even with enough plants; rollback restores that player's choice.
+    val beforeFinishing = game.timeline.checkpoint()
+    p2.doTask("FinishFinalGreenery")
+    p2.tasks.isEmpty() shouldBe true
+    p3.tasks.isEmpty() shouldBe false
+    game.timeline.rollBack(beforeFinishing)
+    p2.tasks.isEmpty() shouldBe false
+    p3.tasks.isEmpty() shouldBe true
+
+    val beforeConversion = game.timeline.checkpoint()
+    p2.convertPlants { doTask("GreeneryTile<Tharsis_3_6>") }
+    game.timeline.rollBack(beforeConversion)
+    p2.count("GreeneryTile") shouldBe 0
+    p2.count("Plant") shouldBe 8
+    p2.convertPlants { doTask("GreeneryTile<Tharsis_3_6>") }
+    p2.doTask("FinishFinalGreenery")
+    p3.convertPlants { doTask("GreeneryTile<Tharsis_3_7>") }
+    p3.doTask("FinishFinalGreenery")
+    p1.convertPlants { doTask("GreeneryTile<Tharsis_3_5>") }
+    p1.doTask("FinishFinalGreenery")
+
+    listOf(p1, p2, p3).forEach {
+      it.count("GreeneryTile") shouldBe 1
+      it.count("TerraformRating") shouldBe 20
+      it.count("VictoryPoint") shouldBe 21
+    }
     admin.count("End") shouldBe 1
-    workflow.isRunning shouldBe false
-    workflow.shutdown()
+    game.tasks.isEmpty() shouldBe true
   }
 
   @Test
@@ -198,7 +211,7 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
     playCorporationWithoutStartingProjects(p1, CrediCor)
     playCorporationWithoutStartingProjects(p2, MiningGuild)
     p1.sneak("$Ecoline, 11 Plant")
@@ -206,9 +219,9 @@ internal class FinalGreeneryPhaseTest {
         "-GpGameEndBarrier<Class<TemperatureStep>>, " +
             "-GpGameEndBarrier<Class<OxygenStep>>, " +
             "-GpGameEndBarrier<Class<OceanTile>>, " +
-            "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
-            "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
-            "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
+            "GpComplete<Class<TemperatureStep>>, " +
+            "GpComplete<Class<OxygenStep>>, " +
+            "GpComplete<Class<OceanTile>>"
     )
 
     p1.pass()
@@ -220,10 +233,9 @@ internal class FinalGreeneryPhaseTest {
     }
     p1.count("Plant") shouldBe 7
     p1.convertPlants { doTask("GreeneryTile<Elysium_5_5>") }
-    p1.doTask("Ok")
+    p1.doTask("FinishFinalGreenery")
 
     p1.count("GreeneryTile<Player1>") shouldBe 2
-    workflow.shutdown()
   }
 
   @Test
@@ -232,7 +244,7 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
     playCorporationWithoutStartingProjects(p1, CrediCor)
     playCorporationWithoutStartingProjects(p2, MiningGuild)
     p1.sneak("GreeneryTile<Elysium_4_5>")
@@ -242,9 +254,9 @@ internal class FinalGreeneryPhaseTest {
         "-GpGameEndBarrier<Class<TemperatureStep>>, " +
             "-GpGameEndBarrier<Class<OxygenStep>>, " +
             "-GpGameEndBarrier<Class<OceanTile>>, " +
-            "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
-            "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
-            "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
+            "GpComplete<Class<TemperatureStep>>, " +
+            "GpComplete<Class<OxygenStep>>, " +
+            "GpComplete<Class<OceanTile>>"
     )
 
     p1.pass()
@@ -261,10 +273,9 @@ internal class FinalGreeneryPhaseTest {
       doTask("GreeneryTile<Elysium_6_7>")
       repeat(2) { doTask("Plant") }
     }
-    p1.doTask("Ok")
+    p1.doTask("FinishFinalGreenery")
 
     p1.count("GreeneryTile<Player1>") shouldBe 3
-    workflow.shutdown()
   }
 
   @Test
@@ -273,7 +284,7 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
     playCorporationWithoutStartingProjects(p1, CrediCor)
     playCorporationWithoutStartingProjects(p2, MiningGuild)
     p1.sneak("GreeneryTile<Elysium_4_5>")
@@ -286,9 +297,9 @@ internal class FinalGreeneryPhaseTest {
         "-GpGameEndBarrier<Class<TemperatureStep>>, " +
             "-GpGameEndBarrier<Class<OxygenStep>>, " +
             "-GpGameEndBarrier<Class<OceanTile>>, " +
-            "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
-            "GpComplete<Class<OxygenStep>> FROM GpIncomplete<Class<OxygenStep>>, " +
-            "GpComplete<Class<OceanTile>> FROM GpIncomplete<Class<OceanTile>>"
+            "GpComplete<Class<TemperatureStep>>, " +
+            "GpComplete<Class<OxygenStep>>, " +
+            "GpComplete<Class<OceanTile>>"
     )
 
     p1.pass()
@@ -302,10 +313,9 @@ internal class FinalGreeneryPhaseTest {
     }
     p1.count("Plant") shouldBe 7
     p1.convertPlants { doTask("GreeneryTile<Elysium_3_4>") }
-    p1.doTask("Ok")
+    p1.doTask("FinishFinalGreenery")
 
     p1.count("GreeneryTile<Player1>") shouldBe 3
-    workflow.shutdown()
   }
 
   @Test

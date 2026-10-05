@@ -330,7 +330,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
 
       pass()
       // Decline the final greenery placement.
-      declineTask()
+      doTask("FinishFinalGreenery")
       assertCounts(0 to "ProjectCard")
 
       assertResources(m = 106, s = 4, t = 6, p = 4, e = 1, h = 17)

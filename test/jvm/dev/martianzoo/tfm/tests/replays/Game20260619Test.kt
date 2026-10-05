@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
@@ -20,7 +20,7 @@ internal class Game20260619Test : AbstractFullGameTest() {
 
   @Test
   internal fun gameThroughGeneration5() {
-    TfmWorkflow.Automatic(agents).launch()
+    agents[ADMIN].beginOperation("WorkflowStarted")
     // Game id: peae6273d6b33
     // First player this generation is ER
     // Good luck ER!

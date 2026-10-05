@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
@@ -25,9 +26,9 @@ internal class WorldGovernmentTerraformingTest {
     admin.runOperation("StartToken<Player2> FROM StartToken<Player1>")
     val checkpoint = game.timeline.checkpoint()
 
-    with(TfmWorkflow.Stepwise(game.testAgents())) {
-      solarPhase()
-      venusSolarPhase()
+    with(game.testAgents()[ADMIN]) {
+      beginOperation("SolarPhase FROM Phase")
+      beginOperation("VenusSolarPhase FROM Phase")
     }
 
     admin.count("VenusSolarPhase") shouldBe 1
@@ -54,9 +55,9 @@ internal class WorldGovernmentTerraformingTest {
     )
     admin.count("GpIncomplete") shouldBe 0
 
-    with(TfmWorkflow.Stepwise(game.testAgents())) {
-      solarPhase()
-      venusSolarPhase()
+    with(game.testAgents()[ADMIN]) {
+      beginOperation("SolarPhase FROM Phase")
+      beginOperation("VenusSolarPhase FROM Phase")
     }
 
     game.tasks.ids() shouldBe emptySet()
@@ -64,16 +65,29 @@ internal class WorldGovernmentTerraformingTest {
 
   @Test
   internal fun `Solar phase is skipped when production ends the game`() {
-    val game = setUpGame(VenusNextExpansion)
+    val game = Engine.newGame(canonicalPremise(VenusNextExpansion))
     val admin = game.testTfm(ADMIN)
-    admin.runOperation(
-        "GpComplete<Class<TemperatureStep>>, " +
-            "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
-    )
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
+    admin.runOperation("19 TemperatureStep") {
+      p1.doTask("OceanTile<Tharsis_1_2> BY Admin")
+    }
+    admin.runOperation("14 OxygenStep")
+    listOf("1_4", "1_5", "2_6", "4_8", "5_4", "5_5", "5_6", "6_6").forEach {
+      admin.runOperation("OceanTile<Tharsis_$it>")
+    }
+    admin.beginOperation("WorkflowStarted")
+    playCorporationWithoutStartingProjects(p1, cn("CrediCor"))
+    playCorporationWithoutStartingProjects(p2, cn("InterplanetaryCinematics"))
 
-    TfmWorkflow.Stepwise(game.testAgents()).solarPhase()
+    p1.pass()
+    p2.pass()
 
     admin.count("SolarPhase") shouldBe 0
-    game.tasks.ids() shouldBe emptySet()
+    admin.count("FinalGreeneryPhase") shouldBe 1
+    p1.doTask("FinishFinalGreenery")
+    p2.doTask("FinishFinalGreenery")
+    admin.count("End") shouldBe 1
+    game.tasks.isEmpty() shouldBe true
   }
 }

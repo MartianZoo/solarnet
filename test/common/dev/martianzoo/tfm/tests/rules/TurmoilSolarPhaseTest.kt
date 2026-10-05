@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.cards.CardTest
 import io.kotest.matchers.shouldBe
@@ -16,9 +16,9 @@ internal class TurmoilSolarPhaseTest : CardTest() {
     admin.runOperation("Coming<DryDeserts> FROM Distant<DryDeserts>")
     admin.runOperation("RevealDistantEvent") { doTask("CelebrityLeaders") }
 
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      turmoilSolarPhase()
+    with(agents[ADMIN]) {
+      beginOperation("SolarPhase FROM Phase")
+      beginOperation("TurmoilSolarPhase FROM Phase")
     }
 
     p1.count("TerraformRating") shouldBe 19
@@ -45,9 +45,9 @@ internal class TurmoilSolarPhaseTest : CardTest() {
     p1.runOperation("10 MC")
     admin.runOperation("RedInfluence, Current<RedInfluence>")
 
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      turmoilSolarPhase()
+    with(agents[ADMIN]) {
+      beginOperation("SolarPhase FROM Phase")
+      beginOperation("TurmoilSolarPhase FROM Phase")
     }
 
     p1.count("TerraformRating") shouldBe 20

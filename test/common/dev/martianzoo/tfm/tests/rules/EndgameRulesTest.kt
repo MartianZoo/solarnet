@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.Tr63SoloObjective
@@ -21,11 +21,9 @@ internal class EndgameRulesTest : CardTest() {
         "GpComplete<Class<TemperatureStep>>, " +
             "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
     )
-    val workflow = TfmWorkflow.Stepwise(agents)
 
-    workflow.productionPhase()
-    workflow.solarPhase() shouldBe null
-    workflow.finalGreeneryPhase()
+    admin.runOperation("ProductionPhase FROM Phase")
+    admin.runOperation("FinalGreeneryPhase FROM Phase")
     p1.startTurn()
     p1.convertPlants { doTask("GreeneryTile<Tharsis_3_3>") }
 
@@ -79,7 +77,6 @@ internal class EndgameRulesTest : CardTest() {
             "GpComplete<Class<OceanTile>>"
     )
     admin.count("GameEndBarrier") shouldBe 1
-    (TfmWorkflow.Stepwise(agents).solarPhase() == null) shouldBe false
 
     newGame(GameConfig("VenusNextExpansion, MandatoryVenusVariant", "Player1", "Player2"))
     admin.runOperation(
@@ -87,7 +84,6 @@ internal class EndgameRulesTest : CardTest() {
             "GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>"
     )
     admin.count("GameEndBarrier") shouldBe 0
-    TfmWorkflow.Stepwise(agents).solarPhase() shouldBe null
   }
 
   @Test
@@ -130,7 +126,7 @@ internal class EndgameRulesTest : CardTest() {
     p1.count("Victory") shouldBe 1
     p1.count("TerraformRating") shouldBe 63
 
-    TfmWorkflow.Stepwise(agents).finalGreeneryPhase()
+    agents[ADMIN].runOperation("FinalGreeneryPhase FROM Phase")
     p1.startTurn()
     p1.convertPlants { placeTile(3, 3) }
     admin.runOperation("End FROM Phase")

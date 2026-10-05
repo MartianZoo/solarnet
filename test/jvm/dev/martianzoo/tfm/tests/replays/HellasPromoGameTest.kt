@@ -3,10 +3,10 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.Hellas
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
@@ -28,8 +28,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
 
   @Test
   internal fun hellasPromoGame() {
-    val workflow = TfmWorkflow.Automatic(agents).launch()
-    workflow.isRunning shouldBe true
+    agents[ADMIN].beginOperation("WorkflowStarted")
 
     p1.playCorp(InterplanetaryCinematics, 7)
     p2.playCorp(PharmacyUnion, 5)
@@ -105,10 +104,11 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
         placeTile(5, 6) // 1 TR<Player1>
       }
     }
-    workflow.shutdown()
-    workflow.isRunning shouldBe false
     // Finish the already granted turn without starting another before manual scoring.
-    p2.pass()
+    p2.inTurn {
+      doTask("Pass")
+      admin.runOperation("-WorkflowStarted")
+    }
 
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 1)
 
@@ -156,7 +156,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
 
-    TfmWorkflow.Automatic(game.testAgents()).launch()
+    game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
     p1.playCorp(InterplanetaryCinematics, 7)
     p2.playCorp(PharmacyUnion, 5)
 

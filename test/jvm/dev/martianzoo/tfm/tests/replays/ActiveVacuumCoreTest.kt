@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -56,7 +56,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
 
   @Test
   internal fun completeGame() {
-    TfmWorkflow.Automatic(agents).launch()
+    agents[ADMIN].beginOperation("WorkflowStarted")
     generation1()
     generation2()
     generation3()
@@ -998,12 +998,12 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     assertSidebar(gen = 8, temp = 8, oxygen = 14, oceans = 9, venus = 24)
 
     purple.convertPlants { placeTile(1, 3) }
-    purple.declineTask()
-    blue.declineTask()
-    pink.declineTask()
+    purple.doTask("FinishFinalGreenery")
+    blue.doTask("FinishFinalGreenery")
+    pink.doTask("FinishFinalGreenery")
     green.convertPlants { placeTile(4, 2) }
     green.convertPlants { placeTile(8, 8) }
-    green.declineTask()
+    green.doTask("FinishFinalGreenery")
 
     blue.assertResources(m = 58, s = 1, t = 3, p = 5, e = 0, h = 12)
     blue.assertProduction(m = 18, s = 1, t = 3, p = 4, e = 0, h = 2)

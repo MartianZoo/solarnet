@@ -2,7 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.state.Checkpoint
 
-/** Event-log positions after completed outer gameplay operations and automatic follow-up work. */
+/** Event-log positions after completed outer gameplay operations, including their continuations. */
 internal class RecordingPositions {
   private val ordinals = mutableListOf<Int>()
 

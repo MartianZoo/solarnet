@@ -9,11 +9,10 @@ import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.data.ClassDeclaration
 
-/** Compiles authored phase-order facts into the concrete scopes that advance each segment. */
+/** Compiles authored phase-order facts into ordinary phase advancement effects. */
 internal object PhaseTopologyCompiler {
   private val MODULE = cn("Module")
   private val PHASE_AFTER = PropertyName("phaseAfter")
-  private val PHASE_SCOPE = cn("PhaseScope")
   private val PHASE_SEGMENT = PropertyName("phaseSegment")
 
   fun lower(source: Collection<ClassDeclaration>): List<ClassDeclaration> {
@@ -21,11 +20,8 @@ internal object PhaseTopologyCompiler {
     val modules = source.filter { isSubtypeOf(it.className, MODULE, byName) }
     val segments = source.mapNotNull { declaration ->
       metadata(declaration, PHASE_SEGMENT)?.let { phases ->
-        if (phases.size != 2) invalid("phaseSegment must name its start and endpoint: $phases")
-        if (phases.first() != declaration.className) {
-          invalid("phaseSegment must be declared by its start phase: ${declaration.className}")
-        }
-        Segment(phases[0], phases[1])
+        if (phases.size != 1) invalid("phaseSegment must name its endpoint: $phases")
+        Segment(declaration.className, phases.single())
       }
     }
     val edges = modules.flatMap { module ->
@@ -48,33 +44,15 @@ internal object PhaseTopologyCompiler {
       invalid("PhaseAfter constraints do not belong to one PhaseSegment: $unusedEdges")
     }
 
-    val phaseContributions = compiled.flatMap { it.phaseEffects }
-    val scopeContributions = compiled.flatMap { it.scopes }
-    val additions = phaseContributions + scopeContributions
-    val duplicateAdditions =
-        additions.groupBy(ClassDeclaration::className).filterValues {
-          it.size > 1
-        }
-    if (duplicateAdditions.isNotEmpty()) {
-      invalid(
-          "compiled topology contributes to a declaration more than once: ${duplicateAdditions.keys}"
-      )
+    val additions = compiled.flatMap { it.phases }
+    if (additions.map(ClassDeclaration::className).distinct().size != additions.size) {
+      invalid("compiled topology contributes to a phase more than once")
     }
     val additionsByName = additions.associateBy(ClassDeclaration::className)
-    scopeContributions.forEach { contribution ->
-      val existing = byName[contribution.className] ?: return@forEach
-      val phaseScope = contribution.supertypes.single { it.className == PHASE_SCOPE }
-      if (phaseScope !in existing.supertypes) {
-        invalid("authored ${existing.className} must directly extend $phaseScope")
-      }
-    }
-
     return source.map { declaration ->
       val addition = additionsByName[declaration.className] ?: return@map declaration
-      declaration.copy(
-          authoredEffects = declaration.authoredEffects + addition.authoredEffects,
-      )
-    } + scopeContributions.filter { it.className !in byName }
+      declaration.copy(authoredEffects = declaration.authoredEffects + addition.authoredEffects)
+    }
   }
 
   private fun compile(
@@ -109,25 +87,11 @@ internal object PhaseTopologyCompiler {
     if (owners.keys != reachable) invalid("every non-start segment phase must have an owner")
 
     val order = uniqueOrder(phases, edges)
-    order.indices.forEach { laterIndex ->
-      for (earlierIndex in 0 until laterIndex) {
-        val required =
-            Edge(
-                order[earlierIndex],
-                order[laterIndex],
-                owners.getValue(order[laterIndex])!!,
-            )
-        if (required !in edges) {
-          invalid("phase ${required.later} must declare that it follows ${required.earlier}")
-        }
-      }
-    }
 
-    val phaseEffects = order.map { phase -> parsePhaseEffect(phase) }
-    val scopes = order.mapIndexed { index, phase ->
-      parseScope(phase, index, order, owners, segment.end)
+    val contributions = order.mapIndexed { index, phase ->
+      parseTransitions(phase, index, order, owners, segment.end)
     }
-    return CompiledSegment(edges.toSet(), phaseEffects, scopes)
+    return CompiledSegment(edges.toSet(), contributions)
   }
 
   private fun uniqueOrder(phases: List<ClassName>, edges: List<Edge>): List<ClassName> {
@@ -144,18 +108,7 @@ internal object PhaseTopologyCompiler {
     return result
   }
 
-  private fun parsePhaseEffect(phase: ClassName): ClassDeclaration =
-      parseClasses(
-              """
-              CLASS $phase {
-                This IF WorkflowStarted:: ${phase}Scope
-              }
-              """
-                  .trimIndent()
-          )
-          .single()
-
-  private fun parseScope(
+  private fun parseTransitions(
       phase: ClassName,
       index: Int,
       order: List<ClassName>,
@@ -171,12 +124,11 @@ internal object PhaseTopologyCompiler {
               module ->
             "MAX 0 $module"
           }
-          "-This IF ${requirements.distinct().joinToString()}:: $target FROM $phase"
+          "-AdvancePhase<This> IF ${requirements.distinct().joinToString()}:: $target FROM This"
         }
     return parseClasses(
             """
-            "The compiled lifetime anchor and continuation for $phase"
-            CLASS ${phase}Scope : PhaseScope<$phase>, Temporary {
+            CLASS $phase {
               ${transitions.joinToString("\n")}
             }
             """
@@ -222,7 +174,6 @@ internal object PhaseTopologyCompiler {
 
   private data class CompiledSegment(
       val edges: Set<Edge>,
-      val phaseEffects: List<ClassDeclaration>,
-      val scopes: List<ClassDeclaration>,
+      val phases: List<ClassDeclaration>,
   )
 }

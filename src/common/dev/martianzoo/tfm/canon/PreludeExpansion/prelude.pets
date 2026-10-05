@@ -2,7 +2,7 @@
 CLASS PreludeExpansion : Module {
   phaseAfter = HAS "PreludePhase, CorporationPhase"
 
-  HAS Class<PreludePhase>, Class<PreludePhaseScope>
+  HAS Class<PreludePhase>
   X SoloGenerationsLeft:: -2 SoloGenerationsLeft!
 
   SetupPhase:: EACH Me@Player { 4 PreludeCard }
@@ -11,25 +11,21 @@ CLASS PreludeExpansion : Module {
 
 CLASS PreludePhase : Phase {
   NewTurn: PlayOrFizzle
-}
-
-"The Prelude phase's lifetime anchor"
-CLASS PreludePhaseScope : PhaseScope<PreludePhase> {
   This IF WorkflowStarted:: \
     EACH @Player(HAS StartToken) { PreludeTurnContinuation<@Player> BY Admin }
   -PreludeCard<Previous@Anyone> IF WorkflowStarted:: \
-    PreludeTurnContinuation<Previous@Anyone>. BY Admin
+    PreludeTurnContinuation<Previous@>. BY Admin
 }
 
 "Continues ordered Prelude turns after the previous choice settles"
 CLASS PreludeTurnContinuation<Current@Player> : Continuation, System {
   HAS MAX 1 This
-  -This IF WorkflowStarted, PreludePhaseScope, PreludeCard<Current@Player>:: \
-    NewTurn<Current@Player> BY Current@Player
-  -This IF WorkflowStarted, PreludePhaseScope, MAX 0 PreludeCard<Current@Player>, PreludeCard<Anyone>:: \
-    EACH Next@Player(HAS AfterMe<Current@Player, Player>) { \
-      PreludeTurnContinuation<Next@Player> BY Admin \
+  -This IF WorkflowStarted, PreludePhase, PreludeCard<Current@>:: \
+    NewTurn<Current@> BY Current@
+  -This IF WorkflowStarted, PreludePhase, MAX 0 PreludeCard<Current@>, PreludeCard<Anyone>:: \
+    EACH Next@Player(HAS AfterMe<Current@, Player>) { \
+      PreludeTurnContinuation<Next@> BY Admin \
     }
-  -This IF WorkflowStarted, PreludePhaseScope, MAX 0 PreludeCard<Anyone>:: \
-    -PreludePhaseScope. BY Admin
+  -This IF WorkflowStarted, PreludePhase, MAX 0 PreludeCard<Anyone>:: \
+    AdvancePhase<PreludePhase>. BY Admin
 }

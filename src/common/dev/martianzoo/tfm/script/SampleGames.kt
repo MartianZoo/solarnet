@@ -5,7 +5,6 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.TfmWorkflow
 
 internal object SampleGames {
   internal fun sampleGame(generations: Int): Agents {
@@ -16,7 +15,7 @@ internal object SampleGames {
     val admin = agents.tfm(ADMIN)
     val (p1, p2) = agents.world.actors.filterIsInstance<Player>().map { agents.tfm(it) }
 
-    TfmWorkflow.Stepwise(agents).setupPhase()
+    agents[ADMIN].beginOperation("SetupPhase FROM Phase")
     admin.phase("Corporation")
     p1.playCorp(cn("Manutech"), 5)
     p2.playCorp(cn("Factorum"), 4)

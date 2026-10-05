@@ -14,10 +14,10 @@ import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.Player
 import dev.martianzoo.testsupport.PLAYER3
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
@@ -628,9 +628,9 @@ internal class Prelude2CardsTest : CardTest() {
     p1.count("Energy") shouldBe 3
 
     admin.phase("Production")
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      coloniesSolarPhase()
+    with(agents[ADMIN]) {
+      beginOperation("SolarPhase FROM Phase")
+      beginOperation("ColoniesSolarPhase FROM Phase")
     }
     colonyTiles.forEach { tile ->
       admin.count("ColonyProduction<$tile>") shouldBe if (tile == cn("Luna")) 6 else 4
@@ -1091,7 +1091,7 @@ internal class Prelude2CardsTest : CardTest() {
     newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion)
     admin.phase("Action")
     p1.runOperation("ProjectCard, PartyDelegate<Reds>, PartyDelegate<Reds>")
-    requireP2().runOperation("Pass FROM HaveNotPassed")
+    requireP2().runOperation("Pass")
 
     shouldThrow<RequirementException> { p1.playProject(RedAppeasement, 0) }
 

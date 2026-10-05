@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -41,7 +41,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
 
   @Test
   internal fun completeGame() {
-    TfmWorkflow.Automatic(agents).launch()
+    agents[ADMIN].beginOperation("WorkflowStarted")
     val green = p1.requireExplicitUnusedActionCards()
     val yellow = p2.requireExplicitUnusedActionCards()
     val blue = p3.requireExplicitUnusedActionCards()
@@ -1519,10 +1519,10 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
 
     // Final greenery placement in start-player order. Blue and Green each have fewer than eight
     // plants; Yellow's photographed greenery is adjacent to Dawn City at 8-6.
-    blue.declineTask()
-    green.declineTask()
+    blue.doTask("FinishFinalGreenery")
+    green.doTask("FinishFinalGreenery")
     yellow.convertPlants { placeTile(8, 6) }
-    yellow.declineTask()
+    yellow.doTask("FinishFinalGreenery")
 
     val score = Summarizer(game)
     assertEquals(

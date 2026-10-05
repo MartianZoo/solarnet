@@ -383,7 +383,7 @@
           "requirement": "PartyRequirement<Reds>, MAX 0 Pass<Anyone>",
           "cost": 0,
           "tags": [ "EventTag" ],
-          "immediate": "PROD[2 MC], Pass FROM HaveNotPassed",
+          "immediate": "PROD[2 MC], Pass",
         },
         {
           "name": "SpecialPermit",

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -32,7 +32,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
 
   @Test
   internal fun game20260819() {
-    TfmWorkflow.Automatic(agents).launch()
+    agents[ADMIN].beginOperation("WorkflowStarted")
     val JR = p1
     val KB = p2
     val ER = p3
@@ -469,14 +469,14 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     KB.pass()
 
     // Decline ER's final greenery placement.
-    ER.declineTask()
+    ER.doTask("FinishFinalGreenery")
     JR.convertPlants { placeTile(5, 7) }
     // Decline another final greenery placement for JR.
-    JR.declineTask()
+    JR.doTask("FinishFinalGreenery")
     KB.convertPlants { placeTile(7, 4) }
     KB.convertPlants { placeTile(8, 5) }
     // Decline another final greenery placement for KB.
-    KB.declineTask()
+    KB.doTask("FinishFinalGreenery")
     JR.assertCounts(1 to "ProjectCard")
     KB.assertCounts(0 to "ProjectCard")
     ER.assertCounts(0 to "ProjectCard")

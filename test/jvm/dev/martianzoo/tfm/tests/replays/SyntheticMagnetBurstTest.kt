@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -33,7 +33,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
 
   @Test
   internal fun gameThroughGeneration10() {
-    TfmWorkflow.Automatic(agents).launch()
+    agents[ADMIN].beginOperation("WorkflowStarted")
     val pink = p1
     val green = p2
 
@@ -1213,9 +1213,9 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
 
     // Final greenery placement
     // Pink declines the final greenery placement.
-    pink.declineTask()
+    pink.doTask("FinishFinalGreenery")
     // Green declines the final greenery placement.
-    green.declineTask()
+    green.doTask("FinishFinalGreenery")
     pink.assertCounts(0 to "ProjectCard")
     green.assertCounts(0 to "ProjectCard")
 

@@ -5,23 +5,19 @@ import dev.martianzoo.state.TaskResult
 /**
  * Coordinates nested game mutations as one failure-atomic interaction.
  *
- * For ordinary gameplay, the outermost call and a direct reentry from its completion callback,
- * settle configured policy, repeatedly offer the engine one eligible idle-cleanup step, and
- * validate the caller's completion rule. The outermost call then records the resulting position and
- * reports completion. Work started synchronously by that callback is settled and cleaned up before
- * the final position is recorded. A cleanup step can create new work; [settleAndCleanUp] settles it
- * before another cleanup step can be attempted. Corrections use [correct] to validate and record
- * state without advancing gameplay.
+ * The outermost call settles configured policy and temporary cleanup, validates the caller's
+ * completion rule, then processes continuations and records the resulting position. Nested calls
+ * share that transaction. A cleanup step can create new work; [settleAndCleanUp] settles it before
+ * another cleanup step can be attempted. Corrections use [correct] to validate and record state
+ * without advancing gameplay.
  */
 internal class WorldTransaction(
     private val timeline: Timeline,
-    private val onComplete: () -> Unit,
     private val recordingPositions: RecordingPositions,
     private val removeTemporaryComponent: () -> Boolean,
     private val removeContinuation: () -> Boolean,
 ) {
   private var depth: Int = 0
-  private var reportingCompletion: Boolean = false
 
   internal fun run(
       block: () -> Unit,
@@ -29,30 +25,19 @@ internal class WorldTransaction(
       settle: () -> Unit,
   ): TaskResult {
     val outermost = depth == 0
-    val completionFollowUp = reportingCompletion && depth == 1
     depth++
     return try {
       timeline
           .atomic {
             block()
-            if (outermost || completionFollowUp) {
+            if (outermost) {
               settleAndCleanUp(settle)
               validateCompletion()
               continueAfterCompletion(settle)
             }
           }
           .also {
-            if (outermost) {
-              recordingPositions.record(timeline.checkpoint().ordinal)
-              reportingCompletion = true
-              try {
-                onComplete()
-              } finally {
-                reportingCompletion = false
-              }
-              timeline.atomic { settleAndCleanUp(settle) }
-              recordingPositions.record(timeline.checkpoint().ordinal)
-            }
+            if (outermost) recordingPositions.record(timeline.checkpoint().ordinal)
           }
     } finally {
       depth--

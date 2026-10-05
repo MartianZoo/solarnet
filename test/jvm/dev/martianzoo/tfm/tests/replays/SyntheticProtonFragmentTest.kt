@@ -4,8 +4,8 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -38,7 +38,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
 
   @Test
   internal fun game20260811() {
-    TfmWorkflow.Automatic(agents).launch()
+    agents[ADMIN].beginOperation("WorkflowStarted")
     val purple = p1
     val pink = p2
     val green = p3
@@ -145,7 +145,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
       pink.pay(6)
       addCardResources(DirectedImpactors)
     }
-    pink.doTask("Pass FROM HaveNotPassed")
+    pink.doTask("Pass")
 
     // Game20260811-dashboards-gen3.png was taken before cards were bought.
     purple.assertResources(m = 36, s = 1, t = 0, p = 7, e = 0, h = 7)
@@ -334,7 +334,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     green.convertPlants {
       placeTile(1, 4)
     }
-    green.doTask("Pass FROM HaveNotPassed")
+    green.doTask("Pass")
 
     // Game20260811-dashboards-gen6.png was taken before cards were bought.
     purple.assertResources(m = 40, s = 5, t = 0, p = 6, e = 2, h = 7)
@@ -478,7 +478,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
       placeTile(3, 2)
     }
     green.cardAction1(WeatherBalloons)
-    green.doTask("Pass FROM HaveNotPassed")
+    green.doTask("Pass")
 
     // Game20260811-dashboards-gen8.png was taken before cards were bought.
     purple.assertResources(m = 55, s = 2, t = 0, p = 10, e = 2, h = 6)
@@ -573,7 +573,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     // (Purple already passed early)
     purple.pass()
     // (Green already passed early)
-    green.doTask("Pass FROM HaveNotPassed")
+    green.doTask("Pass")
 
     // Game20260811-dashboards-gen9.png was taken before cards were bought.
     purple.assertResources(m = 62, s = 2, t = 0, p = 12, e = 4, h = 7)
@@ -671,13 +671,13 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     purple.declineTask()
     green.convertPlants { placeTile(3, 5) }
     // Decline another final greenery placement for Green.
-    green.declineTask()
+    green.doTask("FinishFinalGreenery")
     purple.convertPlants { placeTile(2, 6) }
     // Decline another final greenery placement for Purple.
-    purple.declineTask()
+    purple.doTask("FinishFinalGreenery")
     pink.convertPlants { placeTile(7, 8) }
     // Decline another final greenery placement for Pink.
-    pink.declineTask()
+    pink.doTask("FinishFinalGreenery")
     purple.assertCounts(0 to "ProjectCard")
     pink.assertCounts(0 to "ProjectCard")
     green.assertCounts(0 to "ProjectCard")

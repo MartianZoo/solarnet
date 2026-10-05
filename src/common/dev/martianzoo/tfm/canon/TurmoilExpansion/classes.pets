@@ -1,6 +1,6 @@
 "Expansion adding the Terraforming Committee and Global Events"
 CLASS TurmoilExpansion : Module {
-  phaseAfter = HAS "TurmoilSolarPhase, SolarPhase, VenusSolarPhase, ColoniesSolarPhase"
+  phaseAfter = HAS "TurmoilSolarPhase, ColoniesSolarPhase"
 
   This: Neutral, ReferenceFilter<Class<PartyRequirement>>
   This: LobbyAction, UseTurmoilPolicyAction

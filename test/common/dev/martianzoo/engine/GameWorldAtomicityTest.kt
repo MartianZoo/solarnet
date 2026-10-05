@@ -19,8 +19,7 @@ internal class GameWorldAtomicityTest {
     val world = Engine.newGame(premise) as WholeWorld
     val admin = world.testAgent(ADMIN)
     val checkpoint = world.timeline.checkpoint()
-    var successfulCompletions = 0
-    world.onTransactionComplete = { successfulCompletions++ }
+    val positions = world.recording().open().positions
 
     shouldThrow<IllegalStateException> {
       admin.runOperation("Marker") {
@@ -33,7 +32,7 @@ internal class GameWorldAtomicityTest {
     world.tasks.isEmpty() shouldBe true
     world.events.entriesSince(checkpoint).shouldBeEmpty()
     world.timeline.checkpoint() shouldBe checkpoint
-    successfulCompletions shouldBe 0
+    world.recording().open().positions shouldBe positions
   }
 
   private companion object {

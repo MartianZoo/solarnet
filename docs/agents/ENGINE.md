@@ -338,7 +338,7 @@ pre-existing unselected Tasks, and rejects newly unfinished Tasks or `MustCleanU
 start while a pre-existing selected Task holds the World lock. `sneak` applies a fully concrete
 correction group, constructs exact required parts, removes dependents, and audits every applicable
 count invariant. The entire group rolls back on failure. It runs automatic effects and suppresses queued effects recursively
-while bypassing settlement, idle cleanup, and completion callbacks. `exMachina` rejects direct System,
+while bypassing settlement and idle cleanup. `exMachina` rejects direct System,
 Hidden, and MustCleanUp targets and any correction that leaves new MustCleanUp state.
 It additionally restores and resumes an existing selection within one atomic lifecycle. See
 [EX_MACHINA.md](EX_MACHINA.md) for the contract and the remaining canon consistency gaps.

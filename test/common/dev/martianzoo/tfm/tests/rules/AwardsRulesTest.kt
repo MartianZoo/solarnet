@@ -2,9 +2,9 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.cards.CardTest
 import io.kotest.matchers.shouldBe
@@ -20,7 +20,7 @@ internal class AwardsRulesTest : CardTest() {
     p2.runOperation("2 Heat, 3 Steel")
     p3.runOperation("2 Heat, 2 Steel")
 
-    TfmWorkflow.Stepwise(agents).endPhase()
+    agents[ADMIN].runOperation("End FROM Phase")
 
     p1.count("VictoryPoint") shouldBe 30
     p2.count("VictoryPoint") shouldBe 27
@@ -33,7 +33,7 @@ internal class AwardsRulesTest : CardTest() {
     val p2 = requireP2()
     p1.runOperation("Thermalist, Heat")
 
-    TfmWorkflow.Stepwise(agents).endPhase()
+    agents[ADMIN].runOperation("End FROM Phase")
 
     p1.count("VictoryPoint") shouldBe 25
     p2.count("VictoryPoint") shouldBe 20
@@ -46,7 +46,7 @@ internal class AwardsRulesTest : CardTest() {
     p1.runOperation("2 VictoryPoint, 5 MC")
     p2.runOperation("2 VictoryPoint, 4 MC")
 
-    TfmWorkflow.Stepwise(agents).endPhase()
+    agents[ADMIN].runOperation("End FROM Phase")
 
     p1.count("Victory") shouldBe 1
     p2.count("Victory") shouldBe 0

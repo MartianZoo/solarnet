@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -41,7 +41,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
 
   @Test
   internal fun distantPressureMass() {
-    TfmWorkflow.Automatic(agents).launch()
+    agents[ADMIN].beginOperation("WorkflowStarted")
     generation1()
     generation2()
     generation3()
@@ -714,9 +714,9 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
     keen.convertPlants {
       placeTile(8, 5)
     }
-    keen.declineTask()
+    keen.doTask("FinishFinalGreenery")
     been.convertPlants { placeTile(6, 3) }
-    been.declineTask()
+    been.doTask("FinishFinalGreenery")
     keen.assertCounts(1 to "ProjectCard")
     been.assertCounts(0 to "ProjectCard")
     admin.assertCounts(1 to "End", 1 to "Phase")

@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.tfm.tests.TestOption.Amazonis
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
@@ -67,9 +67,11 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
     }
     p1.fundAward(cn("Manufacturer"), 8).expect("Manufacturer")
 
-    shutdownWorkflow()
-    p1.declineSecondAction()
-    TfmWorkflow.Stepwise(agents).endPhase()
+    p1.inTurn {
+      doTask("Ok") // Decline the second action before switching to manual scoring.
+      admin.runOperation("-WorkflowStarted")
+    }
+    agents[ADMIN].runOperation("End FROM Phase")
 
     p1.count("PROD[Steel OR Heat]") shouldBe 5
     p2.count("PROD[Steel OR Heat]") shouldBe 3

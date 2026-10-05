@@ -7,61 +7,106 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.data.ClassDeclaration
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.collections.shouldNotContain
 import kotlin.test.Test
 
 internal class PhaseTopologyCompilerTest {
   @Test
-  internal fun `multiple segments compile while an authored scope keeps its wake policy`() {
+  internal fun `multiple segments add transitions directly to their phases`() {
     val lowered =
         PhaseTopologyCompiler.lower(
             parseClasses(
                 """
                 ABSTRACT CLASS Module { phaseAfter = Requirement? }
                 ABSTRACT CLASS Phase { phaseSegment = Requirement? }
-                ABSTRACT CLASS PhaseScope<Phase>
-                CLASS Temporary
+                CLASS AdvancePhase<Phase>
                 CLASS WorkflowStarted
 
-                CLASS FirstStart : Phase { phaseSegment = HAS "FirstStart, FirstEnd" }
+                CLASS FirstStart : Phase { phaseSegment = HAS "FirstEnd" }
                 CLASS FirstEnd : Phase
 
-                CLASS SecondStart : Phase { phaseSegment = HAS "SecondStart, SecondEnd" }
+                CLASS SecondStart : Phase {
+                  phaseSegment = HAS "SecondEnd"
+                  This:: AdvancePhase<This>
+                }
                 CLASS OptionalPhase : Phase
                 CLASS SecondEnd : Phase
                 CLASS OptionalModule : Module {
                   phaseAfter = HAS "OptionalPhase, SecondStart"
                 }
-                CLASS SecondStartScope : PhaseScope<SecondStart>
                 """
                     .trimIndent()
             )
         )
 
-    lowered.declaration("FirstStartScope").supertypes.map { it.className } shouldContain
-        cn("Temporary")
-    lowered.declaration("SecondStartScope").supertypes.map { it.className } shouldNotContain
-        cn("Temporary")
     lowered
-        .declaration("SecondStartScope")
+        .declaration("FirstStart")
         .authoredEffects
         .shouldContainExactly(
+            parse<Effect>("-AdvancePhase<This> IF WorkflowStarted:: FirstEnd FROM This")
+        )
+    lowered
+        .declaration("SecondStart")
+        .authoredEffects
+        .shouldContainExactly(
+            parse<Effect>("This:: AdvancePhase<This>"),
             parse<Effect>(
-                "-This IF WorkflowStarted, OptionalModule:: OptionalPhase FROM SecondStart"
+                "-AdvancePhase<This> IF WorkflowStarted, OptionalModule:: OptionalPhase FROM This"
             ),
             parse<Effect>(
-                "-This IF WorkflowStarted, MAX 0 OptionalModule:: SecondEnd FROM SecondStart"
+                "-AdvancePhase<This> IF WorkflowStarted, MAX 0 OptionalModule:: SecondEnd FROM This"
             ),
         )
-    lowered.declaration("SecondStart").authoredEffects shouldContain
-        parse<Effect>("This IF WorkflowStarted:: SecondStartScope")
     lowered
-        .declaration("OptionalPhaseScope")
+        .declaration("OptionalPhase")
         .authoredEffects
         .shouldContainExactly(
-            parse<Effect>("-This IF WorkflowStarted:: SecondEnd FROM OptionalPhase")
+            parse<Effect>("-AdvancePhase<This> IF WorkflowStarted:: SecondEnd FROM This")
+        )
+  }
+
+  @Test
+  internal fun `transitive order preserves routes when an intermediate module is absent`() {
+    val lowered =
+        PhaseTopologyCompiler.lower(
+            parseClasses(
+                """
+                ABSTRACT CLASS Module { phaseAfter = Requirement? }
+                ABSTRACT CLASS Phase { phaseSegment = Requirement? }
+                CLASS AdvancePhase<Phase>
+                CLASS WorkflowStarted
+                CLASS Start : Phase { phaseSegment = HAS "End" }
+                CLASS Middle : Phase
+                CLASS Last : Phase
+                CLASS End : Phase
+                CLASS MiddleModule : Module { phaseAfter = HAS "Middle, Start" }
+                CLASS LastModule : Module { phaseAfter = HAS "Last, Middle" }
+                """
+            )
+        )
+
+    lowered
+        .declaration("Start")
+        .authoredEffects
+        .shouldContainExactly(
+            parse<Effect>(
+                "-AdvancePhase<This> IF WorkflowStarted, MiddleModule:: Middle FROM This"
+            ),
+            parse<Effect>(
+                "-AdvancePhase<This> IF WorkflowStarted, LastModule, MAX 0 MiddleModule:: Last FROM This"
+            ),
+            parse<Effect>(
+                "-AdvancePhase<This> IF WorkflowStarted, MAX 0 MiddleModule, MAX 0 LastModule:: End FROM This"
+            ),
+        )
+    lowered
+        .declaration("Middle")
+        .authoredEffects
+        .shouldContainExactly(
+            parse<Effect>("-AdvancePhase<This> IF WorkflowStarted, LastModule:: Last FROM This"),
+            parse<Effect>(
+                "-AdvancePhase<This> IF WorkflowStarted, MAX 0 LastModule:: End FROM This"
+            ),
         )
   }
 
@@ -72,7 +117,7 @@ internal class PhaseTopologyCompilerTest {
             """
             ABSTRACT CLASS Module { phaseAfter = Requirement? }
             ABSTRACT CLASS Phase { phaseSegment = Requirement? }
-            CLASS Start : Phase { phaseSegment = HAS "Start, End" }
+            CLASS Start : Phase { phaseSegment = HAS "End" }
             CLASS Left : Phase
             CLASS Right : Phase
             CLASS End : Phase

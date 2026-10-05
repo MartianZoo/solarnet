@@ -529,7 +529,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
 
       convertPlants { placeTile(9, 7) }
       convertPlants { placeTile(2, 3) }
-      declineTask() // Decline another final greenery with only 5 plants remaining.
+      doTask("FinishFinalGreenery") // Decline another final greenery with only 5 plants remaining.
       assertCounts(0 to "ProjectCard")
       admin.assertCounts(1 to "End", 1 to "Phase")
 

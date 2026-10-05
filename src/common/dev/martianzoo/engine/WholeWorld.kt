@@ -28,6 +28,4 @@ internal constructor(
     get() = gameWorld.tasks
 
   override fun actorEngine(actor: Actor): ActorEngine = actorEngines.getValue(actor)
-
-  override var onTransactionComplete: () -> Unit = {}
 }

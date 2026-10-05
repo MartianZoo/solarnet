@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -18,7 +18,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
 
   @Test
   internal fun fourWholeGenerations() {
-    val workflow = TfmWorkflow.Automatic(agents).launch()
+    agents[ADMIN].beginOperation("WorkflowStarted")
     p1.playCorp(LakefrontResorts, 3)
     p2.playCorp(InterplanetaryCinematics, 8)
 
@@ -130,9 +130,11 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
       stdProject("CityProject") { placeTile(6, 5) }
     }
 
-    workflow.shutdown()
-    p1.pass()
-    TfmWorkflow.Stepwise(game.testAgents()).productionPhase()
+    p1.inTurn {
+      doTask("Pass")
+      admin.runOperation("-WorkflowStarted")
+    }
+    game.testAgents()[ADMIN].runOperation("ProductionPhase FROM Phase")
 
     admin.assertCounts(4 to "Generation")
     admin.assertCounts(0 to "OceanTile", 0 to "OxygenStep", 0 to "TemperatureStep")

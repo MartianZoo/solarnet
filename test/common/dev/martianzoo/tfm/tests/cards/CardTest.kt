@@ -14,14 +14,12 @@ import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestOption as Option
 import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalCatalog
 import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.setUpGame as setUpTfmGame
-import kotlin.test.AfterTest
 
 internal abstract class CardTest(
     /**
@@ -39,8 +37,6 @@ internal abstract class CardTest(
 
   private var p2: TfmGameplay? = null
     private set
-
-  private var workflow: TfmWorkflow.Automatic? = null
 
   protected fun newGame(config: GameConfig): World = startGame(premise(config))
 
@@ -97,15 +93,13 @@ internal abstract class CardTest(
       dev.martianzoo.tfm.tests.playCorporationWithoutStartingProjects(player, corporation)
 
   private fun startGame(premise: GamePremise): World {
-    workflow?.shutdown()
     return setUpTfmGame(premise).initializeCardTestGame()
   }
 
   private fun startAutoGame(premise: GamePremise): World {
-    workflow?.shutdown()
     return Engine.newGame(premise).apply {
       bindPlayers()
-      workflow = TfmWorkflow.Automatic(testAgents()).launch()
+      testAgents()[ADMIN].beginOperation("WorkflowStarted")
       finishSoloSetup()
     }
   }
@@ -195,11 +189,6 @@ internal abstract class CardTest(
     val amount = target - count("MC")
     require(amount >= 0) { "$actor already has more than $target MC" }
     if (amount > 0) runOperation("$amount MC")
-  }
-
-  @AfterTest
-  fun shutdownWorkflow() {
-    workflow?.shutdown()
   }
 
   private companion object {

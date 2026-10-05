@@ -2,9 +2,9 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -48,7 +48,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
 
   @Test
   internal fun otbGame20260904() {
-    TfmWorkflow.Automatic(agents).launch()
+    agents[ADMIN].beginOperation("WorkflowStarted")
     val yellow = p1.requireExplicitUnusedActionCards()
     val rainbow = p2.requireExplicitUnusedActionCards()
     val blue = p3.requireExplicitUnusedActionCards()
@@ -2217,14 +2217,14 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // have
     // enough?"
     yellow.convertPlants { placeTile(11, 10) }
-    yellow.declineTask()
+    yellow.doTask("FinishFinalGreenery")
     // 9:41:26 PM — Rainbow: "I do not. I only have five."
-    rainbow.declineTask()
-    blue.declineTask()
+    rainbow.doTask("FinishFinalGreenery")
+    blue.doTask("FinishFinalGreenery")
     // 9:41:51 PM — Green: "I guess I might as well take four money here on seven five."
     // 9:42:04 PM — Green: "And it gives me two energy for whatever that's worth."
     green.convertPlants { placeTile(7, 5) }
-    green.declineTask()
+    green.doTask("FinishFinalGreenery")
 
     yellow.assertResources(m = 46, s = 4, t = 0, p = 2, e = 3, h = 9)
     rainbow.assertResources(m = 60, s = 1, t = 1, p = 5, e = 0, h = 4)

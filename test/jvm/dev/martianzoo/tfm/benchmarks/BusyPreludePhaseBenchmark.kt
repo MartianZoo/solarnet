@@ -12,7 +12,6 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.fake.FakeCanon
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations.Benchmark
@@ -32,7 +31,7 @@ public open class BusyPreludePhaseBenchmark {
   private val fakeHeadStart = cn("FakeHeadStart")
   private lateinit var game: World
   private lateinit var me: TfmGameplay
-  private lateinit var workflow: TfmWorkflow.Stepwise
+  private lateinit var admin: TfmGameplay
   private lateinit var beforeCorporationPhase: Checkpoint
 
   @Setup(Level.Trial)
@@ -51,10 +50,9 @@ public open class BusyPreludePhaseBenchmark {
         )
     val agents = Agents(game)
     me = agents.tfm(PLAYER1)
-    val admin = agents.tfm(ADMIN)
-    workflow = TfmWorkflow.Stepwise(agents)
+    admin = agents.tfm(ADMIN)
 
-    workflow.setupPhase()
+    admin.beginOperation("SetupPhase FROM Phase")
     me.doTask("-SelectedColonyTile<Class<Ceres>>")
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
@@ -67,10 +65,10 @@ public open class BusyPreludePhaseBenchmark {
 
   @Benchmark
   public fun corporationThroughFirstActionPhase(): Int {
-    workflow.corporationPhase()
+    admin.runOperation("CorporationPhase FROM Phase")
     me.playCorp(cn("Teractor"), 10)
 
-    workflow.preludePhase()
+    admin.runOperation("PreludePhase FROM Phase")
     me.playPrelude(fakeHeadStart) {
       doTask("UseAction<PlayCardFromHandAction, Action1>")
       doTask("PlayCard<Class<ProjectCard>, Class<EarthOffice>, Hand>")
@@ -85,7 +83,7 @@ public open class BusyPreludePhaseBenchmark {
       }
     }
 
-    workflow.actionPhase()
+    admin.runOperation("ActionPhase FROM Phase")
     // Jacob Fryxelius's ruling makes Valley Trust's required action the first action-phase action.
     // https://boardgamegeek.com/thread/3055761/article/41996773#41996773
     me.stdAction("DoRequiredActionsAction") {

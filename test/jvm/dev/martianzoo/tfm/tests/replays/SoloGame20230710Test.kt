@@ -254,7 +254,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       pass()
       has("Victory") shouldBe true
       // Decline another final greenery placement.
-      declineTask()
+      doTask("FinishFinalGreenery")
       // Check the summary data on the you-won page
       val sum = Summarizer(game)
       assertCounts(70 to "TerraformRating")

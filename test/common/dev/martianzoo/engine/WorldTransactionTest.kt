@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -13,20 +14,24 @@ import kotlin.test.Test
 
 internal class WorldTransactionTest {
   @Test
-  internal fun nestedOperationsAcrossActorsReportOnlyTheOutermostCompletion() {
-    val game = Engine.newGame(testGamePremise(players = 2))
+  internal fun nestedOperationsAcrossActorsRecordOnlyTheOutermostResult() {
+    val game = Engine.newGame(testGamePremise("CLASS Token : Owned<Player>", players = 2))
     val player1 = game.testAgent(PLAYER1)
     val player2 = game.testAgent(PLAYER2)
-    var completions = 0
-    game.onTransactionComplete = { completions++ }
 
-    player1.runOperation("Ok") { player2.runOperation("Ok") }
+    player1.runOperation("Token") { player2.runOperation("Token") }
 
-    completions shouldBe 1
+    val playback = game.recording().open()
+    playback.positions.size shouldBe 2
+    playback.seek(0)
+    playback.world.reader.count(playback.world.reader.resolve(parse("Token<Anyone>"))) shouldBe 0
+    playback.seek(1)
+    playback.world.reader.count(playback.world.reader.resolve(parse("Token<Player1>"))) shouldBe 1
+    playback.world.reader.count(playback.world.reader.resolve(parse("Token<Player2>"))) shouldBe 1
 
-    player1.runOperation("Ok")
+    player1.runOperation("Token")
 
-    completions shouldBe 2
+    game.recording().open().positions.size shouldBe 3
   }
 
   @Test
@@ -50,31 +55,31 @@ internal class WorldTransactionTest {
                 CLASS CleanupProbe : Owned<Player>, Temporary { -This: Followup }
                 CLASS Followup : Owned<Player>
                 CLASS Blocker
+                CLASS Advance : Continuation { -This:: Advanced }
+                CLASS Advanced
                 """
             )
         )
     val player = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    var workflowPulses = 0
-    game.onTransactionComplete = { if (game.tasks.isEmpty()) workflowPulses++ }
 
     player.addTasks("Blocker")
-    player.runOperation("CleanupProbe")
+    player.runOperation("CleanupProbe, Advance")
 
     player.count("CleanupProbe") shouldBe 1
-    workflowPulses shouldBe 0
+    player.count("Advanced") shouldBe 0
 
     player.doTask("Blocker")
 
     player.count("CleanupProbe") shouldBe 0
     player.count("Followup") shouldBe 0
     game.tasks.isEmpty() shouldBe false
-    workflowPulses shouldBe 0
+    player.count("Advanced") shouldBe 0
 
     player.doTask("Followup")
 
     player.count("Followup") shouldBe 1
     game.tasks.isEmpty() shouldBe true
-    workflowPulses shouldBe 1
+    player.count("Advanced") shouldBe 1
   }
 
   @Test
@@ -90,15 +95,12 @@ internal class WorldTransactionTest {
             )
         )
     val player = game.testAgent(PLAYER1)
-    var workflowPulses = 0
-    game.onTransactionComplete = { if (game.tasks.isEmpty()) workflowPulses++ }
 
     player.runOperation("FirstCleanup")
 
     player.count("FirstCleanup") shouldBe 0
     player.count("SecondCleanup") shouldBe 0
     player.count("Done") shouldBe 1
-    workflowPulses shouldBe 1
   }
 
   @Test
@@ -149,33 +151,24 @@ internal class WorldTransactionTest {
   }
 
   @Test
-  internal fun workStartedByCompletionCallbackAlsoReceivesIdleCleanup() {
+  internal fun continuationWorkAlsoReceivesIdleCleanup() {
     val game =
         Engine.newGame(
             testGamePremise(
                 """
+                CLASS ContinueWork : Continuation { -This:: CleanupProbe }
                 CLASS CleanupProbe : Temporary { -This:: Done }
                 CLASS Done
                 """
             )
         )
     val player = game.testAgent(PLAYER1)
-    var startFollowUp = true
-    var followUpCompletedBeforeReturning = false
-    game.onTransactionComplete = {
-      if (startFollowUp) {
-        startFollowUp = false
-        player.runOperation("CleanupProbe")
-        followUpCompletedBeforeReturning =
-            player.count("CleanupProbe") == 0 && player.count("Done") == 1
-      }
-    }
 
-    player.runOperation("Ok")
+    player.runOperation("ContinueWork")
 
+    player.count("ContinueWork") shouldBe 0
     player.count("CleanupProbe") shouldBe 0
     player.count("Done") shouldBe 1
-    followUpCompletedBeforeReturning shouldBe true
   }
 
   @Test
@@ -287,19 +280,18 @@ internal class WorldTransactionTest {
   }
 
   @Test
-  internal fun directAgentMutationsReportAtomicCompletion() {
+  internal fun directAgentMutationsRecordSeparatePositions() {
     val game = Engine.newGame(testGamePremise())
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     agent.sneak("Token")
-    var completions = 0
-    game.onTransactionComplete = { completions++ }
+    val positionsBefore = game.recording().open().positions.size
 
     val taskId = agent.addTasks("-Token?").single()
     agent.selectTask(taskId)
     agent.narrowTask("-Token")
     agent.dropTask(agent.addTasks("Token?").single())
 
-    completions shouldBe 5
+    game.recording().open().positions.size shouldBe positionsBefore + 5
     agent.count("Token") shouldBe 0
     agent.tasks.isEmpty() shouldBe true
   }

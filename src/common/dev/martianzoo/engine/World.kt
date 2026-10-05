@@ -51,7 +51,4 @@ public interface World {
 
   /** Returns the stable mutation engine for [actor]. */
   public fun actorEngine(actor: Actor): ActorEngine
-
-  /** Called after every outermost gameplay transaction completes; corrections do not invoke it. */
-  public var onTransactionComplete: () -> Unit
 }

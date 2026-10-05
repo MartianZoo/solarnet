@@ -308,7 +308,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       assertCounts(3 to "MC")
       pass()
       // Decline the final greenery placement.
-      declineTask()
+      doTask("FinishFinalGreenery")
       assertCounts(0 to "ProjectCard")
       // Final state and score come from /api/player?id=pb64886c6e682.
       assertProduction(m = 3, s = 1, t = 2, p = 4, e = 11, h = 13)

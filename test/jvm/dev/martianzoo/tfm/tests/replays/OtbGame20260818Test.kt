@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.EventLogJson
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.GameWorld
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -39,7 +39,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
   @Test
   internal fun otbGame20260818() {
-    TfmWorkflow.Automatic(agents).launch()
+    agents[ADMIN].beginOperation("WorkflowStarted")
     val green = player(1)
     val yellow = player(2)
 
@@ -1678,9 +1678,9 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     green.convertPlants { placeTile(1, 2) }.expect("-8 Plant")
     green.convertPlants { placeTile(1, 3) }.expect("-8 Plant")
     // Decline another final greenery placement.
-    green.declineTask()
+    green.doTask("FinishFinalGreenery")
     // Decline the final greenery placement.
-    yellow.declineTask()
+    yellow.doTask("FinishFinalGreenery")
 
     val score = Summarizer(game)
     green.assertCounts(

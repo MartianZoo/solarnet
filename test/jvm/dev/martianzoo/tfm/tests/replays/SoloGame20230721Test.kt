@@ -572,7 +572,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
         placeTile(8, 8)
       }
       // Decline another final greenery placement.
-      declineTask()
+      doTask("FinishFinalGreenery")
       // This game id was gf33a06d07a1c
       // herokuapp results image: https://tinyurl.com/39xerd7w
 

@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -32,7 +32,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
 
   @Test
   internal fun otbGame20260828() {
-    TfmWorkflow.Automatic(agents).launch()
+    agents[ADMIN].beginOperation("WorkflowStarted")
     val green = p1.requireExplicitUnusedActionCards()
     val blue = p2.requireExplicitUnusedActionCards()
     val yellow = p3.requireExplicitUnusedActionCards()
@@ -2003,10 +2003,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
 
     // Final greenery placement, in start-player order.
     yellow.convertPlants { placeTile(6, 3) }
-    yellow.declineTask()
-    green.declineTask()
+    yellow.doTask("FinishFinalGreenery")
+    green.doTask("FinishFinalGreenery")
     blue.convertPlants { placeTile(6, 8) }
-    blue.declineTask()
+    blue.doTask("FinishFinalGreenery")
 
     green.assertCounts(
         0 to "ProjectCard",

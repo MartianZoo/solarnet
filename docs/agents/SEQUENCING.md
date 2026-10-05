@@ -233,6 +233,7 @@ completion boundary, and who removes it.
 | `Barrier` | `MustCleanUp` state whose owning game rule removes it. |
 | `Signal` | An unscoped point event that removes itself automatically. |
 | `Temporary` | State the engine removes only when the whole task pool is empty. |
+| `Continuation` | State removed at global idleness after the initiating operation validates, allowing follow-up work. |
 | `TemporaryScope<Parent>` | A parent-dependent `Scope` that is both `Temporary` and `MustCleanUp`. |
 
 Plain `Temporary` is deliberately not `MustCleanUp`: it may survive a narrower manual operation
@@ -245,9 +246,11 @@ its retirement is still whole-World-idle rather than causally local.
 At the outer transaction boundary, policy settlement runs first. If every task queue is empty, the
 engine removes all instances of one concrete `Temporary` Type that has no direct or indirect
 dependent matching `Temporary` or `MustCleanUp`. It then settles work caused by that removal and
-rechecks the live queues and dependencies before attempting another Type. Only after this loop can
-the workflow completion callback run; synchronous callback work receives the same settlement and
-cleanup protocol before the final position is recorded. Every step remains inside rollback.
+rechecks the live queues and dependencies before attempting another Type. The initiating operation
+then validates, and the engine removes eligible `Continuation` components, settling policy and
+Temporary cleanup after each removal. It records the final position after this work; nested calls
+share the outer transaction and create no intermediate recorded positions. Every step remains
+inside rollback.
 
 This policy is exact for genuinely global resting points such as final-scoring settlement. It is
 too broad for action-local cleanup and currently makes an `EventCard` wait for unrelated pending

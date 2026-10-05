@@ -45,7 +45,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
   init {
     game = setUpGame(premise)
-    TfmWorkflow.Stepwise(game.testAgents()).corporationPhase()
+    game.testAgents()[ADMIN].runOperation("CorporationPhase FROM Phase")
   }
 
   private val p1 = game.testTfm(PLAYER1)
@@ -84,7 +84,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
             colonyTiles = colonies,
         )
     val game = setUpGame(premise)
-    TfmWorkflow.Stepwise(game.testAgents()).corporationPhase()
+    game.testAgents()[ADMIN].runOperation("CorporationPhase FROM Phase")
     val admin = game.testTfm(ADMIN)
     val p1 = admin.asPlayer(PLAYER1)
 
@@ -123,7 +123,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     val p1 = game.testTfm(PLAYER1)
 
     admin.assertCounts(0 to "ColonyTile", 4 to "SelectedColonyTile")
-    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    game.testAgents()[ADMIN].beginOperation("SetupPhase FROM Phase")
     p1.doTask("-SelectedColonyTile<Class<Luna>>")
     admin.assertCounts(
         0 to "ColonyTile",
@@ -147,7 +147,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
             colonyTiles = colonies,
         )
     val game = setUpGame(premise)
-    TfmWorkflow.Stepwise(game.testAgents()).corporationPhase()
+    game.testAgents()[ADMIN].runOperation("CorporationPhase FROM Phase")
     val admin = game.testTfm(ADMIN)
     val p1 = admin.asPlayer(PLAYER1)
 
@@ -233,9 +233,9 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     // When the generation ends, the recorded trades clear and all white markers move 1 step up the
     // Colony track. The players' trade-fleet capacities remain.
     admin.phase("Production")
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      coloniesSolarPhase()
+    with(agents[ADMIN]) {
+      beginOperation("SolarPhase FROM Phase")
+      beginOperation("ColoniesSolarPhase FROM Phase")
     }
     admin.runOperation("Generation")
     admin.assertCounts(
@@ -250,9 +250,9 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     admin.runOperation("5 ColonyProduction<Luna>")
     admin.phase("Production")
 
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      coloniesSolarPhase()
+    with(agents[ADMIN]) {
+      beginOperation("SolarPhase FROM Phase")
+      beginOperation("ColoniesSolarPhase FROM Phase")
     }
 
     admin.count("ColonyProduction<Luna>") shouldBe 6

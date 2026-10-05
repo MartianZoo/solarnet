@@ -123,7 +123,7 @@ public class TfmGameplay(
   }
 
   private fun passWithoutUnusedActionCardCheck(): TaskResult = inTurn {
-    doTask("Pass FROM HaveNotPassed")
+    doTask("Pass")
   }
 
   /**
@@ -620,9 +620,7 @@ public class TfmGameplay(
 
   public fun phase(phase: String, body: OperationBlock = {}) {
     if (count("Phase") != 1) {
-      throw NotNowException(
-          "No current Phase; start SetupPhase through TfmWorkflow before changing phases"
-      )
+      throw NotNowException("No current Phase; start SetupPhase before changing phases")
     }
     asActor(ADMIN).runOperation("${phase}Phase FROM Phase", body)
   }
