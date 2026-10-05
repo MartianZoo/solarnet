@@ -58,7 +58,7 @@ internal class Limiter(
           }
           changed.forEach(::addScope)
           val liveScopes = scopes.filter { it in gameWorld.components }.map { it.type }
-          limits.requiredLimits(liveScopes)
+          limits.requiredLimits(liveScopes, changedTypes = changed.map { it.type })
         } else {
           emptySet()
         }
@@ -122,6 +122,9 @@ internal class Limiter(
 
   private fun missingDependencies(gaining: Component?): List<Component> =
       gaining?.dependencyComponents?.filterNot { it in gameWorld.components }.orEmpty()
+
+  internal fun hasComponents(type: Type, info: TypeInfo): Boolean =
+      gameWorld.components.containsAny(type, info)
 
   /**
    * Narrows a gain when present dependencies identify one target after task selection. Declared

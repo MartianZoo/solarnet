@@ -4,12 +4,59 @@ import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.testGamePremise
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class SafeAutoExecTest {
+  @Test
+  internal fun failingSingletonRestoresItsTaskAndAutomaticEffects() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS Token {
+                  HAS MAX 1 This
+                  This:: Notice!
+                }
+                CLASS Notice
+                """
+                    .trimIndent()
+            )
+        )
+    val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
+    val taskId = player.addTasks("2 Token!").single()
+    val task = game.tasks.getTaskData(taskId)
+    val before = game.timeline.checkpoint()
+
+    player.autoExecNow()
+    game.timeline.checkpoint() shouldBe before
+
+    shouldThrow<LimitsException> { player.autoExecPolicy = CONCRETE }
+
+    game.timeline.checkpoint() shouldBe before
+    game.tasks.getTaskData(taskId) shouldBe task
+    player.count("Token") shouldBe 0
+    player.count("Notice") shouldBe 0
+  }
+
+  @Test
+  internal fun safeExecutesTheAvailableTaskBeforeTheTaskItEnables() {
+    val game = Engine.newGame(testGamePremise("CLASS Token\nCLASS Reward"))
+    val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
+    player.addTasks("Token: Reward!")
+    player.addTasks("Token!")
+
+    player.autoExecPolicy = CONCRETE
+
+    player.count("Token") shouldBe 1
+    player.count("Reward") shouldBe 1
+    game.tasks.isEmpty() shouldBe true
+  }
+
   @Test
   internal fun safeActsOnOnlyItsOwnUnambiguousTask() {
     val game =

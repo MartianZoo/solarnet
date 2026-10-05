@@ -250,6 +250,8 @@ current graph. A metric union is a multiset union: for each concrete Type it ret
 matching multiplicity rather than double-counting overlapping arms. Custom metrics over abstract
 dependencies normally specialize only through live dependency targets, not the full structural
 cross-product.
+Resolution's component-existence checks use `Limiter` to query the graph directly, stopping at the
+first match without constructing a result collection. Refinements still use the current World.
 
 The game `ClassTable` view compiles inherited invariants into immutable per-Class limits. Each
 World's `Limiter` combines those facts with live multiplicity. An invariant constrains the state at
@@ -288,6 +290,10 @@ executes consequences to predict a choice's outcome; failure at completion uses 
 transaction rollback path. [QUANTIFIERS.md](QUANTIFIERS.md#invariants-at-operation-completion) owns
 the bounds and choice-resolution contract.
 Initialization still audits all applicable positive minimums after constructing the initial world.
+Ordinary gameplay selects global minimum checks through the changed components' existing per-Class
+limit index. It still checks required dependents of live affected owners, including absent parts;
+unchanged global counts need no recheck. Initialization and direct corrections retain the full
+invariant query.
 
 Prefer atomic transmutation when two faces share a stable invariant. Separate queued tasks and
 `THEN` stages outside the initiating automatic cascade cannot repair a completed operation: lifecycle
