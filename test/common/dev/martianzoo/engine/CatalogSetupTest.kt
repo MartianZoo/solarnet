@@ -18,7 +18,7 @@ internal class CatalogSetupTest {
           override val explicitClassDeclarations =
               parseClasses(
                       """
-                      ABSTRACT CLASS Player : Anyone, Actor { HAS =1 This }
+                      ABSTRACT CLASS Player : Owner, Actor { HAS =1 This }
                       CLASS Rules : System { HAS =1 This; This:: Marker }
                       CLASS Marker : System
                       CLASS Supply : System

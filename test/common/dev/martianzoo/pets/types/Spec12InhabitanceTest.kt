@@ -22,8 +22,8 @@ internal class Spec12InhabitanceTest {
   private val master =
       loadTypes(
           """
-          CLASS Player1 : Anyone
-          ABSTRACT CLASS Milestone : Owned<Anyone> {
+          CLASS Player1 : Owner
+          ABSTRACT CLASS Milestone : Owned {
             CLASS Gardener
             CLASS Terraformer
           }
@@ -50,7 +50,7 @@ internal class Spec12InhabitanceTest {
   internal fun `T12-1 a known Class retains its nominal meaning when its base Type is uninhabited`() {
     val terraformer = view.getClass(cn("Terraformer"))
 
-    view.resolve(te("Terraformer")).expressionFull shouldBe te("Terraformer<Anyone>")
+    view.resolve(te("Terraformer")).expressionFull shouldBe te("Terraformer<Owner>")
     terraformer.isSubtypeOf(view.getClass(cn("Milestone"))) shouldBe true
     view.resolve(te("Terraformer<Player1>")).isSubtypeOf(view.resolve(te("Milestone"))) shouldBe
         true
@@ -369,7 +369,7 @@ internal class Spec12InhabitanceTest {
   internal fun `T12-4 missing inhabitants propagate through represented-class dependencies`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS CardResource : Owned<Anyone> { CLASS Animal }",
+            "ABSTRACT CLASS CardResource : Owned { CLASS Animal }",
             "ABSTRACT CLASS ResourceHolder<Class<CardResource>>",
             "CLASS Pets : ResourceHolder<Class<Animal>>",
         )
@@ -401,7 +401,7 @@ internal class Spec12InhabitanceTest {
 
   @Test
   internal fun `T12-5 nested differences see premise-only realizations`() {
-    val master = loadTypes("ABSTRACT CLASS Player : Anyone\nCLASS Holder<Anyone>")
+    val master = loadTypes("ABSTRACT CLASS Player : Owner\nCLASS Holder<Owner>")
     val view =
         ClassLoader.forPremise(
             premiseTable =
@@ -411,14 +411,14 @@ internal class Spec12InhabitanceTest {
 
     val otherHolder = view.resolve(te("Holder<Anyone(NOT Player)>"))
 
-    otherHolder.expressionFull shouldBe te("Holder<Anyone(NOT Player)>")
+    otherHolder.expressionFull shouldBe te("Holder<Owner(NOT Player)>")
     otherHolder.classTable shouldBe view
     view.resolve(te("Holder<Player1>")).isSubtypeOf(otherHolder) shouldBe false
   }
 
   @Test
   internal fun `T12-5 master candidates use the shared universe for premise differences`() {
-    val master = loadTypes("ABSTRACT CLASS Player : Anyone\nCLASS SoloOpponent : Anyone")
+    val master = loadTypes("ABSTRACT CLASS Player : Owner\nCLASS SoloOpponent : Owner")
 
     val view =
         ClassLoader.forPremise(
@@ -426,7 +426,7 @@ internal class Spec12InhabitanceTest {
                 PremiseClassTable(master, parseClasses("CLASS Player1 : Player").toSet()),
             roots = setOf(cn("Player1")),
         )
-    val otherThanPlayer1 = view.resolve(te("Anyone(NOT Player1)"))
+    val otherThanPlayer1 = view.resolve(te("Owner(NOT Player1)"))
 
     master.resolve(te("SoloOpponent")).isSubtypeOf(otherThanPlayer1) shouldBe true
     view.resolve(te("Player1")).isSubtypeOf(otherThanPlayer1) shouldBe false

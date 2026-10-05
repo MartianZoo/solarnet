@@ -13,7 +13,7 @@ internal class SafeAutoExecTest {
   @Test
   internal fun safeActsOnOnlyItsOwnUnambiguousTask() {
     val game =
-        Engine.newGame(testGamePremise("CLASS Token<Anyone>\nCLASS Marker<Anyone>", players = 2))
+        Engine.newGame(testGamePremise("CLASS Token<Owner>\nCLASS Marker<Owner>", players = 2))
     val agents = Agents(game)
     val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }

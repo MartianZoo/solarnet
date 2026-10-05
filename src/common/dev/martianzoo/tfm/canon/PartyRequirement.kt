@@ -5,7 +5,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.CustomMetric
 import dev.martianzoo.state.GameReader
-import dev.martianzoo.tfm.canon.ApiUtils.getOwningPlayer
+import dev.martianzoo.state.toComponent
 
 /** Counts one when the player meets a party's printed project-card requirement. */
 internal object PartyRequirement : CustomMetric() {
@@ -18,7 +18,7 @@ internal object PartyRequirement : CustomMetric() {
   override fun count(game: GameReader, type: Type): Int {
     val partyType = game.resolve(PARTY.expression)
     val party = type.typeDependencies.map { it.boundType }.single { it.narrows(partyType, game) }
-    val player = getOwningPlayer(game, type)
+    val player = checkNotNull(type.toComponent().owningPlayer)
     val ruling = game.count(game.resolve(RULING.of(party.expression))) == 1
     val delegates = game.count(game.resolve(PARTY_DELEGATE.of(party.expression, player.expression)))
     return if (ruling || delegates >= 2) 1 else 0

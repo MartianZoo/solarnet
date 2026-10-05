@@ -67,7 +67,7 @@
           "tags": [ "BuildingTag" ],
           "immediate": "47 MC, RequiredAction { -> DefaultGreeneryTile }",
           "effects": [
-            "Adjacency<OwnedTile, OwnedTile<Anyone(NOT Me@)>> BY Actor: StandardResource",
+            "Adjacency<OwnedTile, OwnedTile<Anyone(NOT Me@)>> BY Anyone: StandardResource",
           ],
         },
         {
@@ -488,7 +488,7 @@
           "tags": [ "PowerTag" ],
           "invariants": [ "=1 NeptunianOption<This>" ],
           "effects": [
-            "OceanTile BY Actor: UseAction<NeptunianOption<This>>?",
+            "OceanTile BY Anyone: UseAction<NeptunianOption<This>>?",
             "End: VictoryPoint / Hydroelectric<This>"
           ],
           "components": [

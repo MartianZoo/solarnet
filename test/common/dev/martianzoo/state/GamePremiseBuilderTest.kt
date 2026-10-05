@@ -14,7 +14,7 @@ internal class GamePremiseBuilderTest {
     val catalog =
         testCatalog(
             """
-            ABSTRACT CLASS Player : Anyone, Actor { HAS =1 This }
+            ABSTRACT CLASS Player : Owner, Actor { HAS =1 This }
             ABSTRACT CLASS Rules : System { autoSelectWhen = Requirement? }
             CLASS GroupRules : Rules { autoSelectWhen = HAS "2 Player" }
             CLASS ExtraRules : Rules { autoSelectWhen = HAS "GroupRules" }
@@ -69,7 +69,7 @@ internal class GamePremiseBuilderTest {
     val rules =
         testCatalog(
             """
-            ABSTRACT CLASS Player : Anyone, Actor { HAS =1 This }
+            ABSTRACT CLASS Player : Owner, Actor { HAS =1 This }
             CLASS Rules : System
             CLASS SelectedPiece
             """

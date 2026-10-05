@@ -172,7 +172,7 @@ finishes or corrects it, how excess is validated, and what resumes the enclosing
 any version that creates a parallel ledger or leaves cash comparably noisy.
 
 **D. Escrow as an owner.** Transfer selected resources temporarily to an
-`Escrow<Payer, Obligation>` subtype of `Anyone`, then validate and consume the collected resources or return them on
+`Escrow<Payer, Obligation>` subtype of `Owner`, then validate and consume the collected resources or return them on
 cancellation. This may let existing single-resource choices assemble a complete allocation without
 a multi-quantity task.
 

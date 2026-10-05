@@ -122,8 +122,8 @@ internal class Lang01ExpressionsTest {
   // L1-6 Anyone
 
   @Test
-  internal fun `L1-6 Anyone and Anyone are ordinary expressions here`() {
-    parse<Expression>("Plant<Anyone>").arguments shouldContainExactly listOf(parse("Anyone"))
+  internal fun `L1-6 Anyone and Owner are ordinary expressions here`() {
+    parse<Expression>("Plant<Owner>").arguments shouldContainExactly listOf(parse("Owner"))
     parse<Expression>("Plant<Anyone>").arguments shouldContainExactly listOf(parse("Anyone"))
   }
 
@@ -170,11 +170,9 @@ internal class Lang01ExpressionsTest {
 
   @Test
   internal fun `L1-7 effect references can precede their supplying occurrence`() {
-    parse<Effect>(
-        "-Plant<Victim@Anyone(NOT Attacker@)> BY Attacker@Player: Plant<Victim@>"
-    ) shouldBe
+    parse<Effect>("-Plant<Victim@Owner(NOT Attacker@)> BY Attacker@Player: Plant<Victim@>") shouldBe
         parse<Effect>(
-            "-Plant<Victim@Anyone(NOT Attacker@Player)> BY Attacker@Player: Plant<Victim@Anyone>"
+            "-Plant<Victim@Owner(NOT Attacker@Player)> BY Attacker@Player: Plant<Victim@Owner>"
         )
   }
 

@@ -340,15 +340,15 @@ internal class InvariantCompletionTest {
         world(
                 """
                 ABSTRACT CLASS Holder { HAS MAX 1 This, =2 Marker<This> }
-                CLASS Owner : Holder
+                CLASS Assembly : Holder
                 CLASS Marker<Holder> { This: Reward }
                 CLASS Reward
                 """,
-                "Owner",
+                "Assembly",
             )
             .testAgent(ADMIN)
 
-    admin.count("Marker<Owner>") shouldBe 2
+    admin.count("Marker<Assembly>") shouldBe 2
     admin.count("Reward") shouldBe 2
   }
 
@@ -358,7 +358,7 @@ internal class InvariantCompletionTest {
         world(
             """
             ABSTRACT CLASS Holder { HAS MAX 1 This }
-            CLASS Owner : Holder { HAS =1 Choice<This> }
+            CLASS Assembly : Holder { HAS =1 Choice<This> }
             ABSTRACT CLASS Choice<Holder>
             CLASS OnlyChoice : Choice
             """
@@ -366,10 +366,10 @@ internal class InvariantCompletionTest {
     val admin = world.testAgent(ADMIN)
     val before = world.timeline.checkpoint()
 
-    shouldThrow<LimitsException> { admin.runOperation("Owner!") }
+    shouldThrow<LimitsException> { admin.runOperation("Assembly!") }
 
     world.timeline.checkpoint() shouldBe before
-    admin.count("Owner") shouldBe 0
+    admin.count("Assembly") shouldBe 0
     admin.count("Choice") shouldBe 0
   }
 
@@ -379,17 +379,17 @@ internal class InvariantCompletionTest {
         world(
             """
             ABSTRACT CLASS Holder { HAS MAX 1 This }
-            CLASS Owner : Holder { HAS 1 Marker<This> }
+            CLASS Assembly : Holder { HAS 1 Marker<This> }
             CLASS Marker<Holder>
             """
         )
     val admin = world.testAgent(ADMIN)
     val before = world.timeline.checkpoint()
 
-    shouldThrow<LimitsException> { admin.runOperation("Owner!") }
+    shouldThrow<LimitsException> { admin.runOperation("Assembly!") }
 
     world.timeline.checkpoint() shouldBe before
-    admin.count("Owner") shouldBe 0
+    admin.count("Assembly") shouldBe 0
     admin.count("Marker") shouldBe 0
   }
 
@@ -400,7 +400,7 @@ internal class InvariantCompletionTest {
             """
             ABSTRACT CLASS Anchor { HAS MAX 1 This }
             ABSTRACT CLASS Prerequisite { HAS MAX 1 This }
-            CLASS Owner : Anchor { HAS =1 Part<This, Other> }
+            CLASS Assembly : Anchor { HAS =1 Part<This, Other> }
             CLASS Other : Prerequisite
             CLASS Part<Anchor, Prerequisite>
             """
@@ -408,11 +408,11 @@ internal class InvariantCompletionTest {
     val admin = world.testAgent(ADMIN)
     val before = world.timeline.checkpoint()
 
-    shouldThrow<DependencyException> { admin.runOperation("Owner!") }
+    shouldThrow<DependencyException> { admin.runOperation("Assembly!") }
     world.timeline.checkpoint() shouldBe before
     admin.count("Other") shouldBe 0
 
-    admin.runOperation("Other! THEN Owner!")
+    admin.runOperation("Other! THEN Assembly!")
     admin.count("Part") shouldBe 1
   }
 
@@ -424,17 +424,17 @@ internal class InvariantCompletionTest {
                 ABSTRACT CLASS Holder {
                   HAS MAX 1 This, =1 Mounted<This, Bracket<This>>, =1 Bracket<This>
                 }
-                CLASS Owner : Holder
+                CLASS Assembly : Holder
                 CLASS Bracket<Holder> { HAS MAX 1 This }
                 CLASS Mounted<Holder, Bracket>
                 """
             )
             .testAgent(ADMIN)
 
-    admin.runOperation("Owner!")
+    admin.runOperation("Assembly!")
 
-    admin.count("Bracket<Owner>") shouldBe 1
-    admin.count("Mounted<Owner, Bracket<Owner>>") shouldBe 1
+    admin.count("Bracket<Assembly>") shouldBe 1
+    admin.count("Mounted<Assembly, Bracket<Assembly>>") shouldBe 1
   }
 
   @Test
@@ -452,15 +452,15 @@ internal class InvariantCompletionTest {
         world(
                 """
                 ABSTRACT CLASS Holder { HAS MAX 1 This }
-                CLASS Owner : Holder { HAS $requirements }
-                CLASS Branch<Holder> { HAS MAX 1 This, =1 Mounted<This, Bracket<Owner>> }
+                CLASS Assembly : Holder { HAS $requirements }
+                CLASS Branch<Holder> { HAS MAX 1 This, =1 Mounted<This, Bracket<Assembly>> }
                 CLASS Bracket<Holder> { HAS MAX 1 This }
                 CLASS Mounted<Branch, Bracket>
                 """
             )
             .testAgent(ADMIN)
 
-    admin.runOperation("Owner!")
+    admin.runOperation("Assembly!")
 
     admin.count("Branch") shouldBe 1
     admin.count("Bracket") shouldBe 1
@@ -473,9 +473,9 @@ internal class InvariantCompletionTest {
         world(
                 """
                 ABSTRACT CLASS Holder { HAS MAX 1 This }
-                CLASS Owner : Holder { HAS =1 Branch<This>, =1 Bracket<This> }
+                CLASS Assembly : Holder { HAS =1 Branch<This>, =1 Bracket<This> }
                 CLASS Branch<Holder> {
-                  HAS MAX 1 This, =1 Mounted<This, Bolt<Bracket<Owner>>>
+                  HAS MAX 1 This, =1 Mounted<This, Bolt<Bracket<Assembly>>>
                 }
                 CLASS Bracket<Holder> { HAS MAX 1 This, =1 Bolt<This> }
                 CLASS Bolt<Bracket> { HAS MAX 1 This }
@@ -484,7 +484,7 @@ internal class InvariantCompletionTest {
             )
             .testAgent(ADMIN)
 
-    admin.runOperation("Owner!")
+    admin.runOperation("Assembly!")
 
     admin.count("Branch") shouldBe 1
     admin.count("Bracket") shouldBe 1
@@ -507,7 +507,7 @@ internal class InvariantCompletionTest {
         world(
                 """
                 ABSTRACT CLASS Holder { HAS MAX 1 This }
-                CLASS Owner : Holder {
+                CLASS Assembly : Holder {
                   $construction
                   This:: -This!
                 }
@@ -518,9 +518,9 @@ internal class InvariantCompletionTest {
             )
             .testAgent(ADMIN)
 
-    admin.runOperation("Owner!")
+    admin.runOperation("Assembly!")
 
-    admin.count("Owner") shouldBe 0
+    admin.count("Assembly") shouldBe 0
     admin.count("Marker") shouldBe 0
     admin.count("Reward") shouldBe 0
     admin.count("Observed") shouldBe 1
@@ -536,15 +536,15 @@ internal class InvariantCompletionTest {
 
     failure.maximumDepth shouldBe 8
     failure.effectChain.size shouldBe 9
-    failure.effectChain.first().instructions.single() shouldBe parse<Instruction>("Owner!")
+    failure.effectChain.first().instructions.single() shouldBe parse<Instruction>("Assembly!")
     world.timeline.checkpoint() shouldBe before
     world.tasks.isEmpty() shouldBe true
     admin.count("Seed") shouldBe 0
-    admin.count("Owner") shouldBe 0
+    admin.count("Assembly") shouldBe 0
     admin.count("Part1") shouldBe 0
 
     // Without the enclosing Seed effect, the same construction fits the depth budget.
-    admin.runOperation("Owner!")
+    admin.runOperation("Assembly!")
     admin.count("Part8") shouldBe 1
   }
 
@@ -554,7 +554,7 @@ internal class InvariantCompletionTest {
 
     admin.runOperation("Seed!")
 
-    admin.count("Owner") shouldBe 1
+    admin.count("Assembly") shouldBe 1
     admin.count("Part7") shouldBe 1
   }
 
@@ -568,8 +568,8 @@ internal class InvariantCompletionTest {
     return world(
         """
         ABSTRACT CLASS Holder { HAS MAX 1 This }
-        CLASS Seed { This:: Owner! }
-        CLASS Owner : Holder { HAS =1 Part1<This> }
+        CLASS Seed { This:: Assembly! }
+        CLASS Assembly : Holder { HAS =1 Part1<This> }
         $declarations
         """
     )
@@ -581,7 +581,7 @@ internal class InvariantCompletionTest {
         world(
                 """
                 ABSTRACT CLASS Holder { HAS MAX 1 This }
-                CLASS Owner : Holder {
+                CLASS Assembly : Holder {
                   HAS MAX 1 This, =1 Bracket<This>
                   This IF =2 Bolt<Bracket<This>>:: Reward
                   This IF =2 ReadyBolt:: AutomaticallyObserved
@@ -597,13 +597,13 @@ internal class InvariantCompletionTest {
             )
             .testAgent(ADMIN)
 
-    admin.runOperation("Owner!")
+    admin.runOperation("Assembly!")
 
-    admin.count("Bolt<Bracket<Owner>>") shouldBe 2
+    admin.count("Bolt<Bracket<Assembly>>") shouldBe 2
     admin.count("Reward") shouldBe 1
     admin.count("Observed") shouldBe 1
     admin.count("AutomaticallyObserved") shouldBe 1
-    admin.runOperation("-Owner!")
+    admin.runOperation("-Assembly!")
     admin.count("Bracket") shouldBe 0
     admin.count("Bolt") shouldBe 0
   }
@@ -623,7 +623,7 @@ internal class InvariantCompletionTest {
         world(
                 """
                 ABSTRACT CLASS Holder { HAS MAX 1 This }
-                CLASS Owner : Holder { HAS $requirements }
+                CLASS Assembly : Holder { HAS $requirements }
                 CLASS Marker<Holder> { This IF =1 Listener<Holder>:: Snapshot }
                 CLASS Listener<Holder> { Marker<Holder>: Reward }
                 CLASS Snapshot
@@ -632,7 +632,7 @@ internal class InvariantCompletionTest {
             )
             .testAgent(ADMIN)
 
-    admin.runOperation("Owner!")
+    admin.runOperation("Assembly!")
 
     admin.count("Marker") shouldBe 1
     admin.count("Listener") shouldBe 1
@@ -646,19 +646,19 @@ internal class InvariantCompletionTest {
         world(
                 """
                 ABSTRACT CLASS Holder { HAS MAX 1 This }
-                CLASS Owner : Holder {
+                CLASS Assembly : Holder {
                   HAS =1 Bracket<This>, =2 Bolt<This, Bracket<This>>
                 }
-                CLASS Bracket<Holder> { HAS MAX 1 This, =2 Bolt<Owner, This> }
+                CLASS Bracket<Holder> { HAS MAX 1 This, =2 Bolt<Assembly, This> }
                 CLASS Bolt<Holder, Bracket> { This: Reward }
                 CLASS Reward
                 """
             )
             .testAgent(ADMIN)
 
-    admin.runOperation("Owner!")
+    admin.runOperation("Assembly!")
 
-    admin.count("Bolt<Owner>") shouldBe 2
+    admin.count("Bolt<Assembly>") shouldBe 2
     admin.count("Reward") shouldBe 2
   }
 
@@ -668,14 +668,14 @@ internal class InvariantCompletionTest {
         world(
                 """
                 ABSTRACT CLASS Holder { HAS MAX 1 This }
-                CLASS Owner : Holder { HAS MAX 1 This, =2 Marker<This> }
+                CLASS Assembly : Holder { HAS MAX 1 This, =2 Marker<This> }
                 CLASS Marker<Holder> : Atomized { This IF =2 Marker<Holder>: Reward }
                 CLASS Reward
                 """
             )
             .testAgent(ADMIN)
 
-    val result = admin.runOperation("Owner!")
+    val result = admin.runOperation("Assembly!")
 
     admin.count("Marker") shouldBe 2
     admin.count("Reward") shouldBe 2
@@ -690,7 +690,7 @@ internal class InvariantCompletionTest {
         world(
             """
             ABSTRACT CLASS Holder { HAS MAX 1 This }
-            CLASS Owner : Holder { HAS =1 Notifier<This>, =1 Part<This> }
+            CLASS Assembly : Holder { HAS =1 Notifier<This>, =1 Part<This> }
             CLASS Notifier<Holder> {
               This:: Progress
               This: Reward
@@ -710,17 +710,17 @@ internal class InvariantCompletionTest {
     val admin = world.testAgent(ADMIN)
     val before = world.timeline.checkpoint()
 
-    shouldThrow<DependencyException> { admin.runOperation("Owner!") }
+    shouldThrow<DependencyException> { admin.runOperation("Assembly!") }
 
     world.timeline.checkpoint() shouldBe before
     world.tasks.isEmpty() shouldBe true
-    admin.count("Owner") shouldBe 0
+    admin.count("Assembly") shouldBe 0
     admin.count("Notifier") shouldBe 0
     admin.count("Part") shouldBe 0
     admin.count("Progress") shouldBe 0
     admin.runOperation("Pulse!")
     admin.count("Reward") shouldBe 0
-    admin.runOperation("Other! THEN Owner! THEN Pulse!")
+    admin.runOperation("Other! THEN Assembly! THEN Pulse!")
     admin.count("MissingPart") shouldBe 1
     admin.count("Reward") shouldBe 2
   }
@@ -730,10 +730,10 @@ internal class InvariantCompletionTest {
     val admin =
         world(
                 """
-                ABSTRACT CLASS Owner { HAS MAX 1 This, =1 Part<This> }
-                CLASS First : Owner
-                CLASS Second : Owner
-                CLASS Part<Owner> { This: Reward }
+                ABSTRACT CLASS Assembly { HAS MAX 1 This, =1 Part<This> }
+                CLASS First : Assembly
+                CLASS Second : Assembly
+                CLASS Part<Assembly> { This: Reward }
                 CLASS Reward
                 """
             )

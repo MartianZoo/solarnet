@@ -140,10 +140,12 @@ different expressions (L1-2).
 > Recognizing `This<>` too is a uniformity rule for the placeholder; no current canonical card uses
 > that spelling or needs it as an additional capability.
 
-**L1-6. `Anyone` is an ordinary class.** It names every component that can own another component.
+**L1-6. `Anyone` is an ordinary class.** It is the common supertype of `Owner` and `Actor`, the
+identities that can own components or perform operations. `Player` is both; Admin is only an Actor; passive owners are only Owners.
 It is never replaced with the current player. A bare expression of an `Owned` class instead gets
 its owner argument from lexical `Me` or the supplied input context (L9-3). Write an explicit
-`<Anyone>` when the type should accept every owner (T3-4).
+`<Anyone>` when the type should accept every eligible owner: it intersects the declared ownership
+bound (T3-4). Standalone owner fanout and ranking use `Owner` to exclude actor-only identities.
 
 > **Non-normative example — CrediCor.** Its setup says `This: 57 MC` without naming a player.
 > The bare money gain takes its owner from the player's input context. `MC<Anyone>` instead names
@@ -299,7 +301,7 @@ FromExpression ::= Expression "FROM" Expression
                    Refinement?
 ```
 
-> **Non-normative example — Air Raid.** `5 MC<Me@Anyone FROM Anyone>` transfers five MC by changing only
+> **Non-normative example — Air Raid.** `5 MC<Me@Owner FROM Anyone>` transfers five MC by changing only
 > the ownership argument. Compact transmutation preserves the resource class and amount on both
 > sides, so the card cannot accidentally remove one currency and grant another.
 
@@ -928,7 +930,7 @@ the event Actor (T13-9).
 Trigger ::= TriggerChoice ( "BY" Expression )? ( "IF" Requirement )?
 ```
 
-> **Non-normative example — Lakefront Resorts.** `OceanTile BY Actor: PROD[1 MC]` pays its owner
+> **Non-normative example — Lakefront Resorts.** `OceanTile BY Anyone: PROD[1 MC]` pays its owner
 > whenever any player places an ocean. The actor qualifier belongs to the trigger event, while an
 > `IF` would ask about board state rather than attribute who performed the placement.
 
@@ -945,19 +947,19 @@ increase supplies the resource kind, and the instruction shares that choice.
 or effect compilation makes this restriction explicit. How it is expressed depends on whether the
 watched type has an owner dependency.
 
-- When it does, the bare watched type gains `<Me@Anyone>` (L9-3), and no actor restriction is added.
+- When it does, the bare watched type gains `<Me@Owner>` (L9-3), and no actor restriction is added.
 - When it does not, there is no ownership to say it with, so the rule watches only events that
   player performed: `OceanTile` on a card reacts to the oceans its owner places, not an opponent's.
 - A `System` type is exempt: `ProductionPhase` and other Admin-only machinery are the table's own
   events, belonging to no player, and every owner's rule sees them.
 
-Writing any `BY` selector replaces this implicit restriction. `BY Actor` accepts every event actor,
-including Admin. A rule on a component with no owner has no such restriction to begin with. When
+Writing any `BY` selector replaces this implicit restriction. `BY Anyone` (equivalently `BY Actor`)
+accepts every event actor, including Admin. A rule on a component with no owner has no such restriction to begin with. When
 its result needs a player, elaboration introduces `Me@Player` in its owned trigger or a `BY`
 selector (L9-13).
 
 > **Non-normative example — Arctic Algae and Tharsis Republic.** Arctic Algae writes
-> `OceanTile BY Actor: 2 Plant` because it must react to everyone's oceans; without the marking it
+> `OceanTile BY Anyone: 2 Plant` because it must react to everyone's oceans; without the marking it
 > would react only to its owner's. Tharsis Republic needs no such marking on
 > `CityTile<Anyone, MarsArea>`: it says whose cities it watches by naming the owner it accepts.
 
@@ -1138,7 +1140,7 @@ the context's class, and `This<Foo>` keeps its own arguments while adopting the 
 > component.
 
 **L9-3. A bare `Owned` expression receives its omitted owner argument from lexical `Me`.** An
-`Owned` class inherits `Me@Anyone` from its supertype (T13-4). An explicitly named `EACH Me@Player`
+`Owned` class inherits `Me@Owner` from its supertype (T13-4). An explicitly named `EACH Me@Player`
 or `RANK Me@Player` selector rebinds `Me` in its body or metrics. An unnamed `EACH` or `RANK` lets
 the outer binding propagate. A named rank selector supplies each candidate as `Me` while scoring
 its comparison keys, including property syntax expanded for that candidate. A submitted instruction
@@ -1152,7 +1154,7 @@ captured by its declaration; it does not acquire a different owner from its refe
 Represented-Class references that name a resource kind still receive the lexical owner on the
 resulting owned component, including inside class-literal predicates such as
 `Class<@Tag>(HAS @Tag)`.
-An `Anyone` class does not bind `Me` to `This` merely because it is an Anyone; its effects must name
+An `Owner` class does not bind `Me` to `This` merely because it is an Owner; its effects must name
 that relationship where they need it.
 
 > **Non-normative example — Sponsored Academies.** `EACH Me@Player { ProjectCard }` gives a card to
@@ -1359,7 +1361,7 @@ shadow:
 | Construct | What it binds | Where |
 | --- | --- | --- |
 | `This` | the component the declaration is about | the whole declaration (L1-5) |
-| inherited `Me@Anyone` | the component's owner dependency | the class and its descendants, unless a selector explicitly shadows it (L9-3, T13-4) |
+| inherited `Me@Owner` | the component's owner dependency | the class and its descendants, unless a selector explicitly shadows it (L9-3, T13-4) |
 | `X` | one open amount | one instruction, across the stages of a `THEN` (L2-11) |
 | `@Type` or `Name@Type` in an `EACH` or `RANK` selector | each selected component | that construct's body or metrics (L2-14, L4-8) |
 | a refinement's domain | the candidate | that refinement (T8-3) |
@@ -1412,7 +1414,7 @@ Signature   ::= ClassName ( "<" PlainExpression ( "," PlainExpression )* ">" )?
 ```
 
 ```pets
-ABSTRACT CLASS Tile<Area> : Occupant, Owned<Anyone>
+ABSTRACT CLASS Tile<Area> : Occupant, Owned<Owner>
 ```
 
 **L11-4. Signature expressions carry no refinements**, at any depth. A dependency bound or supertype
@@ -1528,8 +1530,8 @@ OneLineDeclaration ::= "ABSTRACT"? "CLASS" Signature OneLineBody?
 
 **L11-12. Every class catalog includes the system declarations:**
 the universal audit signal `Audit` plus the classes this specification and the type system depend
-on — `Component` and `Class` (T1-4, T1-5), the ownership vocabulary `Anyone` and `Owned`,
-the actor root `Actor`, the identity signal `Ok` (L2-5), and the impossible type `Die` (L9-14) —
+on — `Component` and `Class` (T1-4, T1-5), the identity root `Anyone`, ownership vocabulary `Owner`
+and `Owned`, the actor root `Actor`, the identity signal `Ok` (L2-5), and the impossible type `Die` (L9-14) —
 plus `Atomized` (L9-11), `CustomMetric`, and `CustomInstruction` (T2-9).
 A game's own declarations join these. Its premise always includes `Audit` and determines which of
 the remaining system declarations that game contains.

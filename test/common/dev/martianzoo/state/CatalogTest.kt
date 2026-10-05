@@ -42,7 +42,7 @@ internal class CatalogTest {
         catalog(
                 *parseClasses(
                         """
-                        ABSTRACT CLASS Player : Anyone {
+                        ABSTRACT CLASS Player : Owner {
                           HAS =1 This
                           CLASS Player1
                           CLASS Player2

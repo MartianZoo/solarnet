@@ -4,16 +4,13 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 
-/** One occupied seat; both an [Actor] and an [Anyone]. */
-public data class Player(override val className: ClassName) : Actor, Anyone {
+/** One occupied seat, represented by an [Actor]. */
+public data class Player(override val className: ClassName) : Actor {
   init {
     require(className != Actor.ADMIN.className) { "`Admin` is not a Player" }
   }
 
   override val expression: Expression = className.expression
-
-  override val expressionFull: Expression
-    get() = expression
 
   override fun toString(): String = className.toString()
 

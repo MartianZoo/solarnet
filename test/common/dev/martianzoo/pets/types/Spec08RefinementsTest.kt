@@ -15,8 +15,8 @@ internal class Spec08RefinementsTest {
   private val mars =
       loadTypes(
           """
-          CLASS Player1 : Anyone
-          CLASS Player2 : Anyone
+          CLASS Player1 : Owner
+          CLASS Player2 : Owner
           ABSTRACT CLASS Area {
             ABSTRACT CLASS LandArea {
               CLASS Tharsis_2_2
@@ -26,8 +26,8 @@ internal class Spec08RefinementsTest {
           }
           ABSTRACT CLASS Occupant<Area>
           ABSTRACT CLASS Tile : Occupant
-          CLASS GreeneryTile : Tile, Owned<Anyone>
-          CLASS CityTile : Tile, Owned<Anyone>
+          CLASS GreeneryTile : Tile, Owned
+          CLASS CityTile : Tile, Owned
           CLASS Neighbor<Occupant, Area>
           """
               .trimIndent()
@@ -61,7 +61,7 @@ internal class Spec08RefinementsTest {
     val world = RecordingWorld(answer = true)
 
     type("Tharsis_2_2").narrows(type("LandArea(HAS Neighbor<CityTile>)"), world) shouldBe true
-    world.questions shouldContainExactly listOf("Neighbor<CityTile<Area, Anyone>, Tharsis_2_2>")
+    world.questions shouldContainExactly listOf("Neighbor<CityTile<Area, Owner>, Tharsis_2_2>")
   }
 
   @Test
@@ -77,7 +77,7 @@ internal class Spec08RefinementsTest {
   internal fun `T8-3 the candidate fills the first dependency of each expression that accepts it`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Player : Anyone { CLASS Player1 }",
+            "ABSTRACT CLASS Player : Owner { CLASS Player1 }",
             "CLASS StartToken<Player>",
             "CLASS Rock",
         )
@@ -98,7 +98,7 @@ internal class Spec08RefinementsTest {
   internal fun `T8-3 a candidate no expression can accept fails the refinement, without a world`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Player : Anyone { CLASS Player1 }",
+            "ABSTRACT CLASS Player : Owner { CLASS Player1 }",
             "CLASS StartToken<Player>",
             "CLASS Rock",
         )
@@ -176,8 +176,8 @@ internal class Spec08RefinementsTest {
   private val cardMetrics =
       loadTypes(
           """
-          CLASS Player1 : Anyone
-          ABSTRACT CLASS CardFront : Owned<Anyone> {
+          CLASS Player1 : Owner
+          ABSTRACT CLASS CardFront : Owned {
             CLASS Ants
             CLASS Birds
           }
@@ -257,7 +257,7 @@ internal class Spec08RefinementsTest {
   private val actors =
       loadTypes(
           """
-          ABSTRACT CLASS Player : Anyone, Actor {
+          ABSTRACT CLASS Player : Owner, Actor {
             CLASS Player1
             CLASS Player2
           }
@@ -281,8 +281,8 @@ internal class Spec08RefinementsTest {
 
   @Test
   internal fun `T8-4 the exclusion is subtracted through the structural intersection`() {
-    // Players inherit both Actor and Anyone, so excluding Anyone excludes them; Admin survives.
-    val unowningActor = actors.resolve(te("Actor(NOT Anyone)"))
+    // Players inherit both Actor and Owner, so excluding Owner excludes them; Admin survives.
+    val unowningActor = actors.resolve(te("Actor(NOT Owner)"))
 
     actors.resolve(te("Admin")).isSubtypeOf(unowningActor) shouldBe true
     actors.resolve(te("Player1")).isSubtypeOf(unowningActor) shouldBe false
@@ -498,8 +498,8 @@ internal class Spec08RefinementsTest {
   internal fun `T8-10 a refined class literal tests the class the candidate names`() {
     val tags =
         loadTypes(
-            "CLASS Player1 : Anyone",
-            "ABSTRACT CLASS Tag : Owned<Anyone> {\nCLASS BuildingTag\nCLASS SpaceTag\n}",
+            "CLASS Player1 : Owner",
+            "ABSTRACT CLASS Tag : Owned {\nCLASS BuildingTag\nCLASS SpaceTag\n}",
             "CLASS TagCount<Class<Tag>>",
         )
     val world = RecordingWorld(answer = true)
@@ -517,8 +517,8 @@ internal class Spec08RefinementsTest {
   internal fun `T8-10 only a marked class literal predicate refers to its represented class`() {
     val tags =
         loadTypes(
-            "CLASS Player1 : Anyone",
-            "ABSTRACT CLASS Tag : Owned<Anyone> {\nCLASS BuildingTag\nCLASS SpaceTag\n}",
+            "CLASS Player1 : Owner",
+            "ABSTRACT CLASS Tag : Owned {\nCLASS BuildingTag\nCLASS SpaceTag\n}",
         )
 
     tags
