@@ -36,7 +36,7 @@ internal class Lang12InlineClassesTest {
 
     declarations.first().authoredEffects shouldContainExactly
         listOf(parse<Effect>("This: Inventrix_RequiredAction"))
-    declarations.last().supertypes shouldBe setOf(parse<Expression>("RequiredAction"))
+    declarations.last().supertypes shouldBe listOf(parse<Expression>("RequiredAction"))
     declarations.last().abstract shouldBe false
     declarations.last().authoredActions shouldContainExactly
         listOf(parse<Action>("-> 3 ProjectCard"))
@@ -58,7 +58,7 @@ internal class Lang12InlineClassesTest {
 
     declarations.first().authoredEffects shouldContainExactly
         listOf(parse<Effect>("This: MiningArea_SpecialTile<LandArea(HAS Neighbor<OwnedTile>)>"))
-    declarations.last().supertypes shouldBe setOf(parse<Expression>("SpecialTile<LandArea>"))
+    declarations.last().supertypes shouldBe listOf(parse<Expression>("SpecialTile<LandArea>"))
   }
 
   @Test
@@ -66,7 +66,7 @@ internal class Lang12InlineClassesTest {
     val declarations =
         parseClasses("CLASS Host1 { This: Base<Outer<Inner(HAS Marker)>(NOT Other)> {} }")
 
-    declarations.last().supertypes shouldBe setOf(parse<Expression>("Base<Outer<Inner>>"))
+    declarations.last().supertypes shouldBe listOf(parse<Expression>("Base<Outer<Inner>>"))
   }
 
   @Test
@@ -89,7 +89,7 @@ internal class Lang12InlineClassesTest {
 
     declarations.first().authoredEffects shouldContainExactly
         listOf(parse<Effect>("This: Card_Action1<This>"))
-    declarations.last().supertypes shouldBe setOf(parse<Expression>("Action1<Card>"))
+    declarations.last().supertypes shouldBe listOf(parse<Expression>("Action1<Card>"))
   }
 
   // L12-4 What a local body may contain

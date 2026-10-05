@@ -1385,7 +1385,8 @@ CLASS Ants : CardFront {
 ```
 
 **L11-10. A declaration renders as parseable source, and round-trips.** Its multiline and
-semicolon-separated forms both read back as the same declaration.
+semicolon-separated forms both read back as the same declaration. Supertype order is preserved:
+it determines inherited dependency positions (T3-2), so reversing it changes the declaration.
 
 **L11-11. A declaration can also stand alone.** This form contains exactly one declaration, with an
 optional semicolon-separated body, and excludes owner-local class syntax (L12-7). A declaration

@@ -160,7 +160,7 @@ internal class RandomCardGenerator(seed: Int) :
       val authoredEffects =
           listOfNotNull(tags.effect(event), immediateEffect, scoring.value?.value) +
               persistentEffects.values.map(PersistentEffect::value)
-      val supertypes = buildSet {
+      val supertypes = buildList {
         add(
             parse<Expression>(
                 when {

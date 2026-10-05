@@ -99,11 +99,11 @@ internal object CardPetsGenerator {
           )
       val supertypes =
           if (projectKind != null) {
-            roles.toSet()
+            roles
           } else if (roles.isEmpty()) {
-            setOf(CARD_FRONT.of(cardBack))
+            listOf(CARD_FRONT.of(cardBack))
           } else {
-            buildSet {
+            buildList {
               add(roles.first().appendArguments(listOf(cardBack)))
               addAll(roles.drop(1))
             }
@@ -137,7 +137,7 @@ internal object CardPetsGenerator {
 
     internal fun render(): String = buildString {
       append("CLASS ${declaration.className}")
-      declaration.supertypes.sortedBy(Expression::toString).joinTo(this, ", ", " : ")
+      declaration.supertypes.joinTo(this, ", ", " : ")
       appendLine(" {")
       declaration.properties.forEach { (name, value) -> appendLine("  $name = $value") }
       if (invariants.isNotEmpty()) {

@@ -82,7 +82,9 @@ the bounded-repair rule still applies. Re-rank these leads using current evidenc
 
 - **Declaration order and round trips.** Can rendering, equality, or normalization change the
   meaning of inherited dependency positions? Which ordering distinctions are semantic, and which
-  are incidental?
+  are incidental? Direct supertypes now retain authored order in declaration equality and rendering;
+  `Spec03DependenciesTest` checks argument binding after both source-rendering forms, and
+  `ClassDeclarationTest` rejects conflicting declarations with reversed supertypes.
 - **Property evaluation and partial binding.** Do deferral descriptions distinguish an abstract
   receiver from an unknown property value or an unresolved lexical binding? Check whether stated
   limitations on later specialization still hold.
