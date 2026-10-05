@@ -86,8 +86,9 @@ the bounded-repair rule still applies. Re-rank these leads using current evidenc
   `Spec03DependenciesTest` checks argument binding after both source-rendering forms, and
   `ClassDeclarationTest` rejects conflicting declarations with reversed supertypes.
 - **Property evaluation and partial binding.** Do deferral descriptions distinguish an abstract
-  receiver from an unknown property value or an unresolved lexical binding? Check whether stated
-  limitations on later specialization still hold.
+  receiver from an unknown property value or an unresolved lexical binding?
+  `Spec13TypeVariablesTest` checks that an abstract header binding constrains the trigger while
+  preserving the shared variable for a later concrete event capture, as required by T13-10.
 - **Type meets and inherited defaults.** Dependency constraints may resolve an apparently ambiguous
   nominal intersection. An incompatible nearer default raises questions about precedence and whether
   an overridden ancestor can reappear. Earlier repair attempts here encountered wider design pressure.

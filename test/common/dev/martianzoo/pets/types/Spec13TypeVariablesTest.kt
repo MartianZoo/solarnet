@@ -1869,6 +1869,40 @@ internal class Spec13TypeVariablesTest {
     after.questions shouldContainExactly listOf("Marker<Spot>")
   }
 
+  @Test
+  internal fun `T13-10 a partial header binding preserves a later event's specific type`() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Resource {
+              ABSTRACT CLASS StandardResource { CLASS Steel }
+              CLASS Microbe
+            }
+            CLASS ResourceReward<Resource>
+            CLASS ResourceWatcher<Watched@Resource> {
+              Watched@Resource: ResourceReward<Watched@Resource>
+            }
+            """
+        )
+    val watcher = table.getClass(cn("ResourceWatcher"))
+    val effect = watcher.interpretTypeVariablesIn(watcher.declaration.effects.single())
+    val partial = table.resolve(te("ResourceWatcher<StandardResource>"))
+    val specialized =
+        effect.typeVariables
+            .bind(partial.variableBindingsFrom(watcher.defaultType, effect.typeVariables.variables))
+            .transformEffect(effect)
+    val trigger = (specialized.trigger as Effect.Trigger.OnGainOf).expression
+    val triggerType = table.resolve(trigger)
+
+    triggerType shouldBe table.resolve(te("StandardResource"))
+    table.resolve(te("Microbe")).narrows(triggerType, TableWorld(table)) shouldBe false
+
+    val captures =
+        specialized.typeVariables.bindingsFrom(trigger, triggerType, table.resolve(te("Steel")))
+    specialized.typeVariables.bind(captures).transformEffect(specialized) shouldBe
+        parse<Effect>("Steel: ResourceReward<Steel>")
+  }
+
   // T13-11 Capture follows dependency paths
 
   @Test
