@@ -81,7 +81,11 @@ Promo's `Disease` does. Bundle-level rule helpers in ordinary `.pets` files are 
 same-named Module, as Promo's `MyResourceWasRemoved` and `MyProductionWasDecreased` are. A bundle
 can own core vocabulary without a Module, though `PromoCardPack` currently is one. `Asteroid` and
 `Floater` are core to the wider game. Turmoil's ruling bonus effects live on their Party
-declarations; each party's policy Class sits immediately below it.
+declarations; each party's policy Class sits immediately below it. Policies depend on the live
+`Ruling<Party>` and `ActionPhase`; event positions depend on the live `GlobalEvent`. Removing those
+owners through ordinary gameplay removes their dependents. Parties themselves are required
+singletons. Card-granted resource values and Cathedral Option remain dependent on their granting
+cards.
 
 ## Card-data compilation
 

@@ -18,33 +18,32 @@ CLASS Terraformer26 : Milestone { requirement = HAS "26 TerraformRating" }
 CLASS TurmoilSolarOperation : Temporary, System, Hidden {
   HAS MAX 1 This
   This:: EACH Me@Player { -TerraformRating., MeasureInfluence }
-  This:: EACH Event@Class<GlobalEvent>(HAS Current) { \
-    ResolveGlobalEvent<Event@Class> \
+  This:: EACH Event@GlobalEvent(HAS Current) { \
+    ResolveGlobalEvent<Class<Event@GlobalEvent>> \
   }
   -This: FormGovernment THEN ChangingTimes
 }
 
-"A revealed Global Event card, discarded once it leaves the Current position"
+"A revealed Global Event card, discarded by ChangingTimes after its Current generation"
 ABSTRACT CLASS GlobalEvent {
   HAS MAX 1 This
-  HAS MAX 1 GlobalEventPosition<Class<This>>
-  This IF RevealComingEvent:: Coming<Class<This>>
-  This IF RevealDistantEvent:: Distant<Class<This>>
-  -Current<Class<This>>:: -This!
+  HAS MAX 1 GlobalEventPosition<This>
+  This IF RevealComingEvent:: Coming<This>
+  This IF RevealDistantEvent:: Distant<This>
 }
 
 "The party receiving the neutral delegate printed in a Global Event's distant position"
 ABSTRACT CLASS GePartyDistant<DistantParty@Party> : GlobalEvent {
-  This:: PartyDelegate<DistantParty@Party, Neutral>.
+  This: PartyDelegate<DistantParty@Party, Neutral>.
 }
 
 "The party receiving the neutral delegate when a Global Event becomes current"
 ABSTRACT CLASS GePartyCurrent<CurrentParty@Party> : GlobalEvent {
-  Current<Class<This>>:: PartyDelegate<CurrentParty@Party, Neutral>.
+  Current<This>: PartyDelegate<CurrentParty@Party, Neutral>.
 }
 
 "One printed board position, occupied by at most one Global Event card"
-ABSTRACT CLASS GlobalEventPosition<Class<GlobalEvent>> {
+ABSTRACT CLASS GlobalEventPosition<GlobalEvent> {
   CLASS Current { HAS MAX 1 Current }
   CLASS Coming { HAS MAX 1 Coming }
   CLASS Distant { HAS MAX 1 Distant }
@@ -68,12 +67,12 @@ CLASS ResolveGlobalEvent<Class<GlobalEvent>> : Signal
 "Moves every revealed Global Event one position and requests the next event"
 CLASS ChangingTimes : Signal {
   This:: \
-    -Current., \
-    EACH Event@Class<GlobalEvent>(HAS Coming) { \
-      Current<Event@Class> FROM Coming<Event@Class> \
+    EACH Event@GlobalEvent(HAS Current) { -Event@GlobalEvent }, \
+    EACH Event@GlobalEvent(HAS Coming) { \
+      Current<Event@GlobalEvent> FROM Coming<Event@GlobalEvent> \
     }, \
-    EACH Event@Class<GlobalEvent>(HAS Distant) { \
-      Coming<Event@Class> FROM Distant<Event@Class> \
+    EACH Event@GlobalEvent(HAS Distant) { \
+      Coming<Event@GlobalEvent> FROM Distant<Event@GlobalEvent> \
     }, \
     RevealDistantEvent
 }
@@ -92,7 +91,7 @@ CLASS Neutral : Anyone {
 }
 
 ABSTRACT CLASS Party {
-  HAS MAX 1 This
+  HAS =1 This
   HAS MAX 1 AfterParty<This, Party>, MAX 1 AfterParty<Party, This>
   HAS MAX 1 PartyLeader<This, Anyone>
   This:: EACH Previous@Party( \
@@ -124,18 +123,18 @@ ABSTRACT CLASS Party {
 }
 CLASS MarsFirst : Party {
   ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / BuildingTag }
-  ActionPhase IF Ruling<This>:: MarsFirstPolicy
+  ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: MarsFirstPolicy.
 }
-CLASS MarsFirstPolicy : Policy<MarsFirst> {
+CLASS MarsFirstPolicy : Policy<Ruling<MarsFirst>> {
   Tile<MarsArea>: Steel
 }
 
 CLASS Scientists : Party {
   This:: AfterParty<This, MarsFirst>
   ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / ScienceTag }
-  ActionPhase IF Ruling<This>:: ScientistsPolicy
+  ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: ScientistsPolicy.
 }
-CLASS ScientistsPolicy : Policy<Scientists>, HasActions {
+CLASS ScientistsPolicy : Policy<Ruling<Scientists>>, HasActions {
   10 MC -> 3 ProjectCard, ScientistsUsedMarker
 }
 CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player> {
@@ -144,9 +143,9 @@ CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player> {
 
 CLASS Unity : Party {
   ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / PlanetaryTag }
-  ActionPhase IF Ruling<This>:: UnityPolicy
+  ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: UnityPolicy.
 }
-CLASS UnityPolicy : Policy<Unity> {
+CLASS UnityPolicy : Policy<Ruling<Unity>> {
   This:: EACH Me@Player { UnityTitaniumValue }
 }
 CLASS UnityTitaniumValue<UnityPolicy> : ResourceValue<Class<Titanium>> {
@@ -155,9 +154,9 @@ CLASS UnityTitaniumValue<UnityPolicy> : ResourceValue<Class<Titanium>> {
 
 CLASS Greens : Party {
   ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / BioTag }
-  ActionPhase IF Ruling<This>:: GreensPolicy
+  ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: GreensPolicy.
 }
-CLASS GreensPolicy : Policy<Greens> {
+CLASS GreensPolicy : Policy<Ruling<Greens>> {
   GreeneryTile: 4 MC
 }
 
@@ -171,17 +170,17 @@ CLASS Reds : Party {
   ApplyRulingBonus<This> IF SoloMode:: EACH Me@Player(HAS MAX 20 TerraformRating) { \
     TerraformRating \
   }
-  ActionPhase IF Ruling<This>:: RedsPolicy
+  ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: RedsPolicy.
 }
-CLASS RedsPolicy : Policy<Reds> {
+CLASS RedsPolicy : Policy<Ruling<Reds>> {
   TerraformRating: -3 MC!
 }
 
 CLASS Kelvinists : Party {
   ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / PROD[Heat] }
-  ActionPhase IF Ruling<This>:: KelvinistsPolicy
+  ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: KelvinistsPolicy.
 }
-CLASS KelvinistsPolicy : Policy<Kelvinists>, HasActions {
+CLASS KelvinistsPolicy : Policy<Ruling<Kelvinists>>, HasActions {
   10 MC -> PROD[Heat, Energy]
 }
 
@@ -307,7 +306,7 @@ ABSTRACT CLASS Influence<GenerationScope> : Owned<Player> {
 }
 
 "A ruling party's capability during the Action phase"
-ABSTRACT CLASS Policy<Party, ActionPhase> {
+ABSTRACT CLASS Policy<Ruling<Party>, ActionPhase> {
   HAS MAX 1 Policy
 }
 

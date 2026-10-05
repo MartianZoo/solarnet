@@ -24,6 +24,18 @@ import kotlin.test.Test
 
 internal class ColoniesRulesTest : CardTest() {
   @Test
+  internal fun `A second owners colony raises the trade track above the first colony`() {
+    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(players = 2, "Luna"))
+    val p2 = requireP2()
+    p1.runOperation("17 MC")
+    p2.runOperation("17 MC")
+    admin.phase("Action")
+    p1.stdProject("BuildColonyProject") { doTask("Colony<Luna>") }
+
+    p2.stdProject("BuildColonyProject") { doTask("Colony<Luna>") }.expect("ColonyProduction<Luna>")
+  }
+
+  @Test
   internal fun `A card-resource colony bonus goes to the colony owner`() {
     newGame(
         ColoniesExpansion,

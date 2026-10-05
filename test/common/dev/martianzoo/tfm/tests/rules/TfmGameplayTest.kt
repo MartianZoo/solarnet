@@ -49,7 +49,7 @@ internal class TfmGameplayTest :
   @Test
   internal fun `Standard action helper rejects a non-standard action provider`() {
     newGame(TestOption.PromoCardPack)
-    p1.runOperation("CathedralOption")
+    p1.runOperation("StJosephOfCupertinoMission")
     admin.phase("Action")
 
     shouldThrow<IllegalArgumentException> { p1.stdAction("CathedralOption") }.message shouldBe

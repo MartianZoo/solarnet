@@ -611,9 +611,9 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       )
 
       admin.assertCounts(
-          1 to "Current<Class<EcoSabotage>>",
-          1 to "Coming<Class<SabotageGlobalEvent>>",
-          1 to "Distant<Class<GlobalDustStorm>>",
+          1 to "Current<EcoSabotage>",
+          1 to "Coming<SabotageGlobalEvent>",
+          1 to "Distant<GlobalDustStorm>",
           1 to "Ruling<Kelvinists>",
           1 to "Dominant<Reds>",
           1 to "Chairman<EK>",

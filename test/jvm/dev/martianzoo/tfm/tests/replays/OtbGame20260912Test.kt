@@ -257,9 +257,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     admin.assertCounts(
         1 to "Ruling<Scientists>",
         1 to "Dominant<Greens>",
-        1 to "Current<Class<MudSlides>>",
-        1 to "Coming<Class<VenusInfrastructure>>",
-        1 to "Distant<Class<SponsoredProjects>>",
+        1 to "Current<MudSlides>",
+        1 to "Coming<VenusInfrastructure>",
+        1 to "Distant<SponsoredProjects>",
     )
 
     // Green consistently uses the inert wild tags on Septem Tribus and Nobel Prize as Science for
@@ -451,9 +451,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     admin.assertCounts(
         1 to "Ruling<Greens>",
         1 to "Dominant<Unity>",
-        1 to "Current<Class<VenusInfrastructure>>",
-        1 to "Coming<Class<SponsoredProjects>>",
-        1 to "Distant<Class<SpinOffProducts>>",
+        1 to "Current<VenusInfrastructure>",
+        1 to "Coming<SponsoredProjects>",
+        1 to "Distant<SpinOffProducts>",
     )
 
     // Generation 3 Research: all three players buy three projects.
@@ -595,9 +595,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     admin.assertCounts(
         1 to "Ruling<Unity>",
         1 to "Dominant<Reds>",
-        1 to "Current<Class<SponsoredProjects>>",
-        1 to "Coming<Class<SpinOffProducts>>",
-        1 to "Distant<Class<Diversity>>",
+        1 to "Current<SponsoredProjects>",
+        1 to "Coming<SpinOffProducts>",
+        1 to "Distant<Diversity>",
     )
 
     // Generation 4 Research: Green buys zero, Yellow buys one, and Blue buys three. The complete
@@ -730,9 +730,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     admin.assertCounts(
         1 to "Ruling<Reds>",
         1 to "Dominant<Scientists>",
-        1 to "Current<Class<SpinOffProducts>>",
-        1 to "Coming<Class<Diversity>>",
-        1 to "Distant<Class<ImprovedEnergyTemplates>>",
+        1 to "Current<SpinOffProducts>",
+        1 to "Coming<Diversity>",
+        1 to "Distant<ImprovedEnergyTemplates>",
     )
     // "Yellow, six. Blue has ten. Green has fourteen."
     yellow.assertCounts(6 to "ProjectCard")

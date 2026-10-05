@@ -87,6 +87,7 @@ internal class NewPromoCardsTest : CardTest() {
         shouldThrow<TaskException> { p3.doTask("TerraformRating<Player1>") }
         doTask("2 Steel")
         doTask("TerraformRating")
+        p1.autoExecPolicy = previousAutoExecPolicy
       }
     } finally {
       p1.autoExecPolicy = previousAutoExecPolicy

@@ -180,7 +180,7 @@
           "effects": [
             // TODO: in what cases do we want to trigger this way vs by the AttackHappened thingies?
             // are we being consistent?
-            "-Plant BY Player(NOT Me@Anyone):: Die",
+            "-Plant BY Player(NOT Me@Anyone): Die",
             "End: VictoryPoint / Asteroid<This>"
           ],
         },
@@ -650,14 +650,14 @@
         {
           "name": "StJosephOfCupertinoMission",
           "cost": 7,
-          "immediate": "CathedralOption",
+          "invariants": [ "=1 CathedralOption<This>" ],
           "actions": [ "5 MC -> Cathedral<CityTile<Anyone>>" ],
           "effects": [
             "UseAction<This>:: Accepting<Class<Steel>>",
             "End: VictoryPoint / Cathedral"
           ],
           "components": [
-            "CLASS CathedralOption : HasActions, Hidden { 2 MC -> ProjectCard }",
+            "CLASS CathedralOption<StJosephOfCupertinoMission<Player>> : HasActions, Hidden { HAS MAX 1 This; 2 MC -> ProjectCard }",
             "CLASS CathedralOffer : Owned<Anyone>, Signal { This: UseAction<CathedralOption>? }",
             "CLASS Cathedral<CityTile<@Anyone>> : Owned { HAS MAX 1 This; This: CathedralOffer<@Anyone> }"
           ],

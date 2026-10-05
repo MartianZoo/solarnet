@@ -357,7 +357,7 @@
         {
           "name": "ProtectedHabitats",
           "cost": 5,
-          "effects": [ "-Plant OR -Animal OR -Microbe BY Player(NOT Me@Anyone):: Die" ],
+          "effects": [ "-Plant OR -Animal OR -Microbe BY Player(NOT Me@Anyone): Die" ],
         },
         {
           "name": "QuantumExtractor",
