@@ -225,24 +225,25 @@ public class PetElaborator(public val classTable: ClassTable) {
       }
 
   /**
-   * Expands Class-property evaluations that are concrete in the supplied instruction context ([rule
+   * Expands Class-property syntax in the supplied instruction context ([rule
    * L9-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration)).
-   * One whose receiver is still abstract stays unexpanded until it is not.
+   * An evaluation reached here requires a fixed property value; a value that is still only a bound
+   * is an error. [classEffects] may retain such evaluations for later specialization.
    */
   public fun evaluateProperties(
       input: InstructionTree,
       context: Expression,
   ): InstructionTree = propertyEvaluator(context).transformInstructionTree(input)
 
-  /** Expands Class-property evaluations that are concrete in the supplied Metric context. */
+  /** Expands Class-property syntax in the supplied Metric context, requiring fixed values. */
   public fun evaluateProperties(
       input: Metric,
       context: Expression,
   ): Metric = propertyEvaluator(context).transformMetric(input)
 
   /**
-   * Expands explicit property evaluations after their receivers have become concrete, deferring
-   * fanout bodies until their selected component has been bound.
+   * Expands explicit property syntax in context, optionally retaining evaluations for later
+   * specialization. Fanout bodies wait until their selected component has been bound.
    */
   private fun propertyEvaluator(
       context: Expression,

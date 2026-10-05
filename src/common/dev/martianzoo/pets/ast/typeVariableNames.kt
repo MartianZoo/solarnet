@@ -502,7 +502,7 @@ public fun resolveClassTypeVariableNames(declaration: ClassDeclaration): ClassDe
               .map {
                 it as Expression
               }
-              .toSet(),
+              .distinct(),
       authoredEffects = resolved.drop(headerCount).take(effectCount).map { it as Effect },
       authoredActions = resolved.drop(headerCount + effectCount).map { it as Action },
   )

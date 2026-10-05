@@ -370,7 +370,7 @@ internal constructor(
     }
   }
 
-  private val sups: Set<Expression>
+  private val sups: List<Expression>
     get() = declaration.supertypes
 
   private fun replaceThis(expression: Expression): Expression =

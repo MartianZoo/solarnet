@@ -1421,13 +1421,6 @@ Binding substitutes at every occurrence at once. Manutech's effect, lowered to
 `Production<Class<@StandardResource>>: @StandardResource` and bound to `Plant`, becomes
 `Production<Class<Plant>>: Plant`.
 
-> **Present limitation — two-stage specialization.** When component specialization supplies an
-> abstract value for a class-header variable, that value replaces the variable before trigger
-> matching. Pets cannot currently both constrain an effect-local trigger variable to that header
-> value and then bind it to the triggering event's more specific type for use in the instruction. A
-> separate local marker can capture the event's type, but has no relationship to the header
-> variable.
-
 > **Non-normative example — Manutech.** The production increase is one choice region and the gained
 > resource is another. The anonymous marker makes both regions choose the same resource, so an
 > increase in titanium production rewards titanium.

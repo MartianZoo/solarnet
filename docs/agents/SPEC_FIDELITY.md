@@ -82,10 +82,14 @@ the bounded-repair rule still applies. Re-rank these leads using current evidenc
 
 - **Declaration order and round trips.** Can rendering, equality, or normalization change the
   meaning of inherited dependency positions? Which ordering distinctions are semantic, and which
-  are incidental?
-- **Property evaluation and partial binding.** Do deferral descriptions distinguish an abstract
-  receiver from an unknown property value or an unresolved lexical binding? Check whether stated
-  limitations on later specialization still hold.
+  are incidental? Direct supertypes now retain authored order in declaration equality and rendering;
+  `Spec03DependenciesTest` checks argument binding after both source-rendering forms, and
+  `ClassDeclarationTest` rejects conflicting declarations with reversed supertypes.
+- **Property evaluation with free lexical `Me`.** `PetElaborator.propertyEvaluator` retains
+  evaluations whose raw property syntax contains free `Me`, even before applying an evaluation's
+  captured owner. The direct class-effect path needs a focused witness or bounded removal
+  experiment; the `EACH` and `RANK` cases retain their bodies before reaching this guard and do not
+  establish its necessity.
 - **Type meets and inherited defaults.** Dependency constraints may resolve an apparently ambiguous
   nominal intersection. An incompatible nearer default raises questions about precedence and whether
   an overridden ancestor can reappear. Earlier repair attempts here encountered wider design pressure.

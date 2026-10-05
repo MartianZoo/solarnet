@@ -359,7 +359,7 @@ public object Parsing {
         }
     return declaration.copy(
         dependencies = declaration.dependencies.map(pruner::transformExpression),
-        supertypes = declaration.supertypes.map(pruner::transformExpression).toSet(),
+        supertypes = declaration.supertypes.map(pruner::transformExpression).distinct(),
     )
   }
 
@@ -373,7 +373,8 @@ public object Parsing {
     val defaults = declaration.defaultsDeclaration
     return declaration.copy(
         dependencies = declaration.dependencies.map(transformer::transformExpression),
-        supertypes = declaration.supertypes.map(transformer::transformExpression).toSetStrict(),
+        supertypes =
+            declaration.supertypes.map(transformer::transformExpression).toSetStrict().toList(),
         invariants = declaration.invariants.map(transformer::transformRequirement).toSetStrict(),
         authoredEffects = declaration.authoredEffects.map(transformer::transformEffect),
         authoredActions = declaration.authoredActions.map(transformer::transformAction),
@@ -967,8 +968,7 @@ public object Parsing {
               className = name,
               kind = kind,
               dependencies = deps.orEmpty(),
-              supertypes =
-                  buildSet {
+              supertypes = buildSet {
                     supes.orEmpty().forEach { supertype ->
                       if (!add(supertype))
                           throw PetSyntaxException(
@@ -976,7 +976,8 @@ public object Parsing {
                               sourceLocation = supertype.sourceLocation,
                           )
                     }
-                  },
+                  }
+                      .toList(),
           )
         }
     private val invariant by skip(hasKeyword) and locatedNode(requirement) map ::InvariantElement

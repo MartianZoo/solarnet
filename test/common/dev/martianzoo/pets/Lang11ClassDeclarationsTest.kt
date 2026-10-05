@@ -136,7 +136,7 @@ internal class Lang11ClassDeclarationsTest {
     declaration.abstract shouldBe true
     declaration.dependencies shouldContainExactly listOf(parse<Expression>("Area"))
     declaration.supertypes shouldBe
-        setOf(parse<Expression>("Occupant"), parse<Expression>("Owned<Anyone>"))
+        listOf(parse<Expression>("Occupant"), parse<Expression>("Owned<Anyone>"))
     parseClasses("CLASS GreeneryTile").single().abstract shouldBe false
     shouldRejectSource("CLASS Alpha, Beta")
     shouldRejectSource("CLASS Alpha {\n  CLASS Beta, Gamma\n}")
@@ -222,10 +222,10 @@ internal class Lang11ClassDeclarationsTest {
         listOf(cn("Area"), cn("MarsArea"), cn("Mars1"), cn("RemoteArea"))
     declarations.map { it.supertypes } shouldContainExactly
         listOf(
-            setOf(),
-            setOf(parse<Expression>("Area")),
-            setOf(parse<Expression>("MarsArea")),
-            setOf(parse<Expression>("Area"), parse<Expression>("Extra")),
+            listOf(),
+            listOf(parse<Expression>("Area")),
+            listOf(parse<Expression>("MarsArea")),
+            listOf(parse<Expression>("Area"), parse<Expression>("Extra")),
         )
   }
 
@@ -245,9 +245,9 @@ internal class Lang11ClassDeclarationsTest {
 
     declarations.map { it.supertypes } shouldContainExactly
         listOf(
-            emptySet(),
-            setOf(parse<Expression>("Area<Player>")),
-            setOf(parse<Expression>("MarsArea")),
+            emptyList(),
+            listOf(parse<Expression>("Area<Player>")),
+            listOf(parse<Expression>("MarsArea")),
         )
   }
 
@@ -363,7 +363,7 @@ internal class Lang11ClassDeclarationsTest {
     val source =
         """
         "A useful class"
-        ABSTRACT CLASS Alpha<Beta, Qux> : Eep, Root {
+        ABSTRACT CLASS Alpha<Beta, Qux> : Root, Eep {
           HAS =1 This
           DEFAULT Alpha<Xyz>
           DEFAULT +Alpha<Abc>?
@@ -380,7 +380,7 @@ internal class Lang11ClassDeclarationsTest {
     parseClasses(declaration.toString()).single() shouldBe declaration
     parseClasses(declaration.toString(oneLine = true)).single() shouldBe declaration
     declaration.toString(oneLine = true) shouldBe
-        "\"A useful class\"\nABSTRACT CLASS Alpha<Beta, Qux> : Eep, Root " +
+        "\"A useful class\"\nABSTRACT CLASS Alpha<Beta, Qux> : Root, Eep " +
             "{ HAS =1 This; DEFAULT Alpha<Xyz>; DEFAULT +Alpha<Abc>?; DEFAULT -Alpha<Def>!; " +
             "row = Number; column = 2; This: DoStuff }"
   }

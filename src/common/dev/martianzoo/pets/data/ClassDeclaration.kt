@@ -54,8 +54,12 @@ public data class ClassDeclaration(
     /** Any "new" dependencies being declared by this class (not inherited from a supertype). */
     public val dependencies: List<Expression> = emptyList(),
 
-    /** This class's listed direct supertypes, as they were expressed in the source. */
-    public val supertypes: Set<Expression> = emptySet(),
+    /**
+     * This class's direct supertypes in authored order, which determines inherited dependency-key
+     * order under
+     * [rule T3-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+     */
+    public val supertypes: List<Expression> = emptyList(),
 
     /**
      * Any class invariants declared with `HAS` in the class body ([rule
@@ -314,7 +318,7 @@ public data class ClassDeclaration(
     append("CLASS ").append(className)
     if (dependencies.isNotEmpty()) dependencies.joinTo(this, ", ", "<", ">")
     if (supertypes.isNotEmpty()) {
-      supertypes.sortedBy(Expression::toString).joinTo(this, ", ", " : ")
+      supertypes.joinTo(this, ", ", " : ")
     }
 
     val body = buildList {

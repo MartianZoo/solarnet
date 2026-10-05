@@ -1,5 +1,6 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -88,6 +89,32 @@ internal class Spec03DependenciesTest {
         listOf(Key(cn("Card"), 0), Key(cn("HeldCard"), 0))
     table.getClass(cn("HeldCard")).baseType.expressionFull shouldBe
         te("HeldCard<CardBack, CardLocation>")
+  }
+
+  @Test
+  internal fun `T3-2 multiline rendering preserves inherited argument positions`() {
+    checkRenderedArgumentPositions(oneLine = false)
+  }
+
+  @Test
+  internal fun `T3-2 single-line rendering preserves inherited argument positions`() {
+    checkRenderedArgumentPositions(oneLine = true)
+  }
+
+  private fun checkRenderedArgumentPositions(oneLine: Boolean) {
+    val source =
+        """
+        ABSTRACT CLASS Area { CLASS Tharsis_2_2 }
+        ABSTRACT CLASS Neighbor<Area>
+        ABSTRACT CLASS Occupant<Area>
+        CLASS Adjacency : Occupant, Neighbor
+        """
+    val declarations = parseClasses(source)
+    val pets = declarations.joinToString("\n") { it.toString(oneLine) }
+    val adjacency = loadTypes(pets).resolve(te("Adjacency<Tharsis_2_2>"))
+
+    adjacency.dependencies.get(Key(cn("Occupant"), 0)).expressionFull shouldBe te("Tharsis_2_2")
+    adjacency.dependencies.get(Key(cn("Neighbor"), 0)).expressionFull shouldBe te("Area")
   }
 
   // T3-3 Several supertypes constraining one key

@@ -16,6 +16,7 @@ import dev.martianzoo.pets.types.gameView
 import dev.martianzoo.pets.types.loadTypes
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 /**
@@ -238,7 +239,7 @@ internal class Lang09ElaborationTest {
   }
 
   @Test
-  internal fun `L9-12 an evaluation stays unexpanded while its receiver is abstract`() {
+  internal fun `L9-12 a class effect retains an evaluation whose property value is still a bound`() {
     // Simplified from Award.metric and Landlord: the selected award supplies the scoring metric.
     val table =
         loadTypes(
@@ -258,6 +259,56 @@ internal class Lang09ElaborationTest {
         parse<Effect>("This: VictoryPoint! / EVAL This.metric")
     elaborator.classEffects(table.getClass(cn("Landlord"))).single() shouldBe
         parse<Effect>("This: VictoryPoint! / OwnedTile")
+
+    val error =
+        shouldThrow<ExpressionException> {
+          elaborator.evaluateProperties(
+              parse<InstructionTree>("VictoryPoint / EVAL Award.metric"),
+              parse("Award"),
+          )
+        }
+    error.detail shouldContain "property `metric` is not a concrete metric on `Award`"
+  }
+
+  @Test
+  internal fun `L9-12 an abstract receiver can expand a fixed property independent of This`() {
+    val table =
+        loadTypes(
+            """
+            CLASS VictoryPoint
+            CLASS OwnedTile
+            ABSTRACT CLASS Award {
+              metric = COUNT "OwnedTile"
+              This: VictoryPoint / EVAL This.metric
+            }
+            CLASS Landlord : Award
+            """
+        )
+
+    PetElaborator(table).classEffects(table.getClass(cn("Award"))).single() shouldBe
+        parse<Effect>("This: VictoryPoint! / OwnedTile")
+  }
+
+  @Test
+  internal fun `L9-12 a property using This retains its receiver until specialization`() {
+    val table =
+        loadTypes(
+            """
+            CLASS VictoryPoint
+            ABSTRACT CLASS ResourceCard {
+              metric = COUNT "Stock<This>"
+              This: VictoryPoint / EVAL This.metric
+            }
+            CLASS Ants : ResourceCard
+            CLASS Stock<ResourceCard>
+            """
+        )
+    val elaborator = PetElaborator(table)
+
+    elaborator.classEffects(table.getClass(cn("ResourceCard"))).single() shouldBe
+        parse<Effect>("This: VictoryPoint! / EVAL This.metric")
+    elaborator.classEffects(table.getClass(cn("Ants"))).single() shouldBe
+        parse<Effect>("This: VictoryPoint! / Stock<Ants>")
   }
 
   @Test
