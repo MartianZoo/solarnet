@@ -134,6 +134,11 @@ branch. `EACH Player { A } THEN B` does not join the branches or wait for their 
 
 ## Automatic effects
 
+An ordinary gain first constructs its exact required dependent parts. Their complete structure is
+present before gain reactions run. Parts' automatic reactions precede their owners' automatic
+reactions, and all construction events' automatic effects precede matching their queued effects.
+[ENGINE.md](ENGINE.md#queries-invariants-and-dead-ends) owns that boundary.
+
 For one component change, the engine first materializes the complete matching `::` batch. It then
 executes that batch recursively. Only after those automatic chains finish does it evaluate the
 matching queued `:` effects for the original event. An automatic reaction never becomes a task or

@@ -17,7 +17,7 @@ internal class CardClassTest {
           cost = 7
           requirement = HAS "3 OceanTile"
 
-          This:: EarthTag<This>, BuildingTag<This>
+          HAS =1 EarthTag<This>, =1 BuildingTag<This>
           This: 2 MC
           End: VictoryPoint
 
@@ -50,13 +50,32 @@ internal class CardClassTest {
   }
 
   @Test
+  internal fun printedTagsIncludeInheritedCountsWithoutDuplicatingInheritedDeclarations() {
+    val source =
+        catalogWith(
+            """
+            ABSTRACT CLASS SciencePair : AutomatedCard { HAS =2 ScienceTag<This> }
+            ABSTRACT CLASS FirstFamily : SciencePair
+            ABSTRACT CLASS SecondFamily : SciencePair
+            CLASS InheritedTags : FirstFamily, SecondFamily {
+              cost = 0
+              HAS =1 EarthTag<This>
+            }
+            """
+        )
+
+    cardTags(source.card(cn("InheritedTags")))
+        .shouldContainExactlyInAnyOrder(cn("ScienceTag"), cn("ScienceTag"), cn("EarthTag"))
+  }
+
+  @Test
   internal fun nonEventCardsCannotCarryTheEventTag() {
     val invalid =
         catalogWith(
             """
             CLASS Mistagged : AutomatedCard {
               cost = 0
-              This:: EventTag<This>
+              HAS =1 EventTag<This>
             }
             """
         )
@@ -91,6 +110,11 @@ internal class CardClassTest {
             CLASS ConcreteCapability : PersistentCapability
 
             CLASS ComponentBacked : ActiveCard {
+              cost = 0
+              HAS =1 ConcreteCapability<This>
+            }
+
+            CLASS EffectBacked : ActiveCard {
               cost = 0
               This:: ConcreteCapability<This>
             }

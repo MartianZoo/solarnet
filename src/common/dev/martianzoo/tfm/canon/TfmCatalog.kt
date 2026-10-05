@@ -8,6 +8,7 @@ import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger
@@ -19,6 +20,7 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.Requirement.Exact
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.Requirement.Or
 import dev.martianzoo.pets.data.ClassDeclaration
@@ -83,6 +85,13 @@ public open class TfmCatalog : Catalog {
       ) {
         val hasNontrivialBehavior =
             cardActions(card).isNotEmpty() ||
+                card.invariants.filterIsInstance<Exact>().any {
+                  val expression = (it.countedMetric as? Count)?.expression
+                  it.expected > 0 &&
+                      expression != null &&
+                      THIS.expression in expression.arguments &&
+                      table.getClass(expression.className).carriesPersistentBehavior()
+                } ||
                 cardEffects(card).any { effect ->
                   when {
                     effect.trigger.isEndTrigger() -> false

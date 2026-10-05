@@ -1,18 +1,19 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
-import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.ast.Requirement.Exact
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.util.HashMultiset
 import dev.martianzoo.pets.util.Multiset
@@ -30,17 +31,18 @@ public fun cardBack(card: Class): Class? {
 public fun cardTags(card: Class): Multiset<ClassName> {
   val tag = card.classTable.getClass(TAG)
   val names =
-      card.declaration.authoredEffects
-          .filter { it.automatic && it.trigger == WhenGain }
-          .flatMap { it.instruction.descendantsOfType<Gain>() }
-          .flatMap { gained ->
-            val gainedClass = card.classTable.getClass(gained.gaining.className)
-            if (gainedClass.isSubtypeOf(tag)) {
-              List((gained.count as ActualScalar).value) { gainedClass.className }
-            } else {
-              emptyList()
-            }
-          }
+      card.invariants.filterIsInstance<Exact>().flatMap { required ->
+        val expression = (required.countedMetric as? Count)?.expression
+        val part =
+            expression
+                ?.takeIf { THIS.expression in it.arguments }
+                ?.let { card.classTable.getClass(it.className) }
+        if (part != null && part.isSubtypeOf(tag)) {
+          List(required.expected) { part.className }
+        } else {
+          emptyList()
+        }
+      }
   return HashMultiset.of(names)
 }
 
@@ -61,7 +63,7 @@ public fun cardActions(card: Class): List<Action> = card.declaration.authoredAct
 /** Non-action effects authored by this card declaration. */
 public fun cardEffects(card: Class): List<Effect> =
     card.declaration.authoredEffects.filterNot { effect ->
-      effect.trigger == WhenGain && (!effect.automatic || containsTagGain(effect, card))
+      effect.trigger == WhenGain && !effect.automatic
     }
 
 /** This card's printed play requirement, if any. */
@@ -83,13 +85,6 @@ private fun representedClasses(card: Class): List<Class> =
     card.dependencies.typeDependencies().mapNotNull { dependency ->
       dependency.boundType.takeIf { it.rootClass.className == CLASS }?.representedClass
     }
-
-private fun containsTagGain(effect: Effect, card: Class): Boolean {
-  val tag = card.classTable.getClass(TAG)
-  return effect.instruction.descendantsOfType<Gain>().any { gain ->
-    card.classTable.getClass(gain.gaining.className).isSubtypeOf(tag)
-  }
-}
 
 private val CARD_BACK = cn("CardBack")
 private val COST_PROPERTY = PropertyName("cost")

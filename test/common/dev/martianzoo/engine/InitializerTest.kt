@@ -136,7 +136,9 @@ internal class InitializerTest {
                   CLASS Right
                   CLASS Absent
                 }
-                CLASS Marker<Anchor>
+                ABSTRACT CLASS Marker<Anchor>
+                CLASS FirstMarker : Marker
+                CLASS SecondMarker : Marker
                 """,
                 players = 0,
             )
@@ -145,7 +147,7 @@ internal class InitializerTest {
                     setOf(
                         cn("Left").expression,
                         cn("Right").expression,
-                        cn("Marker").of(cn("Left").expression),
+                        cn("FirstMarker").of(cn("Left").expression),
                     )
             )
 

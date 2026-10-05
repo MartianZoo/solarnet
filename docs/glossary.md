@@ -75,7 +75,7 @@
 - **Hidden:** A presentation classification for types normally omitted from user-visible output. It concerns rendering only, not information concealed from Players.
 - **immediate instruction:** An on-create instruction expressed with `This:`, or supplied by transitional card data's `immediate` field.
 - **instruction:** A Pets specification of work that may change a game world.
-- **invariant:** A class-declared requirement. Component-count invariants must hold at [operation completion](type-system.md#invariants-and-operation-completion); they do not create Components. Selected Module requirements also participate in premise validation.
+- **invariant:** A class-declared requirement. Component-count invariants must hold at [operation completion](type-system.md#invariants-and-operation-completion); positive exact counts of concrete dependent parts also construct those parts when their owner is gained. Selected Module requirements also participate in premise validation.
 - **limit:** A counting invariant that places a minimum, maximum, or exact bound on matching Components, such as `HAS MAX 1 This`. Limits constrain completed operations and also bound AMAP and optional quantities in the current World.
 - **live effect:** A component effect paired with its existing context Component, so that it can respond to change events. It counts according to the multiplicity of that type.
 - **manual:** Initiated by a Solarnet client rather than caused by an effect or workflow. Selecting or narrowing an already pending task is not a new manual action. With fully automatic workflow, a game can contain no manual operations.

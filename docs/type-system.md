@@ -139,9 +139,12 @@ can add a new member of a maximum-one family whose automatic effect removes the 
 engine validates the resulting counts before completing the operation; if they still violate an
 invariant, it rolls back the transaction, including its changes, tasks, and events.
 
-An invariant does not create components or arrange repairs. Authors supply those consequences and
-express their causal dependencies. Queued (`:`) work and separate initiating changes must satisfy
-invariants at their own completion boundaries; a later task cannot repair an earlier operation.
+A positive exact-count invariant constructs missing concrete parts directly dependent on a newly
+gained component, recursively and in dependency order before any of their gain reactions. Parts'
+automatic reactions then run before their owners' automatic reactions. Abstract
+requirements, minimum-only bounds, self-counts, and unrelated prerequisites remain constraints;
+authors supply any consequences needed to satisfy them. Queued (`:`) work and separate initiating
+changes must satisfy invariants at their own completion boundaries; a later task cannot repair an earlier operation.
 `THEN` stages inside automatic consequences belong to the same operation, but `THEN` between queued
 tasks does not combine their invariant checks. Bootstrap validates required counts after constructing
 the initial world.
