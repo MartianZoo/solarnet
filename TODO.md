@@ -215,7 +215,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `ClassTableSelectionTest`. Keep each distinct selection boundary tested once and remove
   repetitive assertions without losing the readable scenarios or broad module/content cases.
 
-- Add Jacob Fryxelius's ruling that moving Mars Nomads does not trigger the Mars First ruling policy.
 - Find a principled way for narrower dependency defaults to retain compatible refinements from
   wider defaults, so `Tile` can own area occupancy once while its subclasses select their kinds of
   areas and add placement rules.
