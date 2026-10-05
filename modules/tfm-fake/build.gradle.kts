@@ -22,6 +22,7 @@ kotlin {
       kotlin.srcDir(generateFakeCanonSources)
       dependencies {
         implementation(project(":pets"))
+        implementation(project(":state"))
         implementation(project(":tfm-canon"))
       }
     }

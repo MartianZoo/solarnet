@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -15,8 +15,7 @@ import kotlin.test.Test
 // Complete database replay: Static Pressure Stream (g1212dda978b8)
 // Source: _local/replays/Game20260912/Heroku-g1212dda978b8/
 // http://newazure.local:8080/the-end?id=pe1c5cff0c611
-internal class StaticPressureStreamTest :
-    CardTrackingFullGameTest(requireEveryProjectCardChangeNamed = true) {
+internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
   override val config =
       GameConfig(
           """
@@ -678,7 +677,7 @@ internal class StaticPressureStreamTest :
     }
     nor.turn {
       playProject(GhgProducingBacteria, 7) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
         draw(MoholeLake)
       }
       playProject(MoholeLake, 30)

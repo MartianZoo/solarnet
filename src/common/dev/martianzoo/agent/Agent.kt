@@ -5,15 +5,15 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetElement
-import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.Multiset
+import dev.martianzoo.state.Actor
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
 import dev.martianzoo.state.TaskResult
@@ -49,6 +49,9 @@ public interface Agent {
   public fun resolve(expression: String): Type
 
   // Purple mode (and below)
+
+  /** Creates an independent, caller-held draft for one of this Actor's tasks. */
+  public fun taskDraft(taskId: TaskId): TaskDraft
 
   /**
    * Narrows this Actor's selected task and resolves it again. A partial narrowing remains selected;
@@ -99,10 +102,12 @@ public interface Agent {
    * *automatic* effects, enqueues tasks for queued effects and any contents of [Task.then], and
    * removes the original task from the game's task queue. Throws an exception if any of this fails.
    *
-   * A selected task always wins. Otherwise, the narrowing must match exactly one task, except that
-   * fully identical tasks are interchangeable. When the narrowing omits a quantifier and its Class
-   * default would weaken the pending task's quantifier, the pending quantifier is retained; an
-   * explicitly written quantifier must narrow normally.
+   * The submitted constraints are intersected with the task: each can supply choices left open by
+   * the other. A selected task always wins. Otherwise, exactly one distinct task must intersect,
+   * including tasks the submission would not strictly narrow; fully identical tasks remain
+   * interchangeable. When the narrowing omits a quantifier and its Class default would weaken the
+   * pending task's quantifier, the pending quantifier is retained; an explicitly written quantifier
+   * must be compatible with the task's quantifier.
    *
    * @throws [NotFullySpecifiedException] if the task is abstract
    * @throws [NotNowException] if the task can't currently be resolved
@@ -154,6 +159,11 @@ public interface Agent {
   /** Removes the identified task ex-machina. */
   public fun dropTask(taskId: TaskId): TaskRemovedEvent
 
+  /**
+   * Atomically applies concrete corrections, constructs required parts, and removes dependents.
+   * Runs automatic effects and checks every applicable count invariant. Queued effects, task
+   * settlement, and idle cleanup are omitted.
+   */
   public fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
 
   public interface OperationScope {

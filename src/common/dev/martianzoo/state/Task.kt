@@ -2,7 +2,6 @@ package dev.martianzoo.state
 
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
-import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import kotlin.jvm.JvmInline
 

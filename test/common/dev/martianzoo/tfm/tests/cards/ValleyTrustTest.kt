@@ -4,7 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -19,8 +19,15 @@ internal class ValleyTrustTest : CardTest() {
     p1.playCorp(ValleyTrust, 5).expect("22 MC")
 
     admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(MartianIndustries) }
-        .expect("PROD[Steel, Energy]")
+    val result =
+        p1.stdAction("DoRequiredActionsAction") {
+          p1.playPrelude(MartianIndustries)
+        }
+    result.expect("PROD[Steel, Energy]")
+    result.changes
+        .filter { it.change.gaining?.type == p1.resolve("PreludeCard<Selecting>") }
+        .sumOf { it.change.count } shouldBe 3
+    p1.assertCounts(0 to "PreludeCard<Selecting>")
   }
 
   @Test
@@ -74,7 +81,9 @@ internal class ValleyTrustTest : CardTest() {
 
     p1.playCorp(ValleyTrust, 5)
     admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(selectedPrelude) }
+    p1.stdAction("DoRequiredActionsAction") {
+      p1.playPrelude(selectedPrelude)
+    }
   }
 
   @Test
@@ -86,11 +95,13 @@ internal class ValleyTrustTest : CardTest() {
     p1.playPrelude(Biolab)
     admin.phase("Action")
     shouldThrow<LimitsException> {
-      p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(IndustrialComplex) }
+      p1.stdAction("DoRequiredActionsAction") {
+        p1.playPrelude(IndustrialComplex)
+      }
     }
 
     val checkpoint = game.timeline.checkpoint()
-    p1.stdAction("DoRequiredActionsAction") { doTask("-PreludeCard") }.expect("15 MC")
+    p1.stdAction("DoRequiredActionsAction") { doTask("-PreludeCard<Selecting>") }.expect("15 MC")
     p1.assertCounts(
         28 to "MC",
         0 to "RequiredAction",

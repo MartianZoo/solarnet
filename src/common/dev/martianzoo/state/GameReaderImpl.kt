@@ -1,9 +1,7 @@
 package dev.martianzoo.state
 
 import dev.martianzoo.pets.PetElaborator
-import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Or
@@ -18,7 +16,6 @@ import dev.martianzoo.pets.ast.PropertyValue.OptionalRequirementType
 import dev.martianzoo.pets.ast.PropertyValue.RequirementType
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.HashMultiset
 
@@ -78,15 +75,11 @@ internal class GameReaderImpl(
   }
 
   private fun rankScore(metric: Rank, candidate: Type): List<Int> {
-    val owner = candidate.toComponent().owner
-    val binding = chain(owner?.let(elaborator::contextualOwnerBinding))
     return metric.metricsFor(candidate.expressionFull).map { score ->
-      val bound = binding.transformMetric(score)
       val evaluated =
           elaborator.evaluateProperties(
-              bound,
+              score,
               context = candidate.expressionFull,
-              owner = owner,
           )
       count(evaluated)
     }

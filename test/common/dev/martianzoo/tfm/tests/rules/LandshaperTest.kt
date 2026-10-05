@@ -42,7 +42,7 @@ internal class LandshaperTest : CardTest() {
     setupLandshaperCapital()
     p1.runOperation("25 MC")
     p1.stdProject("GreeneryProject") { placeTile(5, 2) }
-    p1.stdProject("CityProject") { placeTile(1, 1) }
+    p1.stdProject("CityProject") { doTask("NormalCityTile<Amazonis_01_01>") }
 
     p1.claimMilestone(cn("Landshaper")).expect("Landshaper")
   }

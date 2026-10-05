@@ -2,6 +2,7 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasClassName.Companion.classNames
+import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -18,6 +19,8 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.UnqualifiedReference
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue
@@ -25,6 +28,7 @@ import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
 import dev.martianzoo.pets.ast.PropertyValue.OptionalRequirementType
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Companion.split
+import dev.martianzoo.pets.ast.constructLocalTypeVariableDeclarations
 import dev.martianzoo.pets.ast.withTypeVariables
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.types.Dependency.Companion.depsForClassType
@@ -44,8 +48,7 @@ import dev.martianzoo.pets.util.toSetStrict
  */
 public class Class
 internal constructor(
-    /** The source declaration this class was compiled from. */
-    public val declaration: ClassDeclaration,
+    sourceDeclaration: ClassDeclaration,
 
     /** The class loader used while constructing this class. */
     private val loader: ClassLoader,
@@ -57,8 +60,114 @@ internal constructor(
      * The declared direct supertypes; empty only for the root class, under
      * [rules T1-4 and T2-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
      */
-    public val directSuperclasses: List<Class> = superclasses(declaration, loader, includeRelated),
+    public val directSuperclasses: List<Class> =
+        superclasses(sourceDeclaration, loader, includeRelated),
 ) : HasClassName, Specification<Class> {
+
+  /** The declaration with inherited header names resolved in this class's own body. */
+  public val declaration: ClassDeclaration = inheritHeaderNames(sourceDeclaration)
+
+  /** Marker identities can be inherited without resolving dependency paths before table freeze. */
+  private val inheritableHeaderMarkers: List<Declaration> by lazy {
+    ((declaration.dependencies + declaration.supertypes)
+            .flatMap { it.descendantsOfType<Expression>() }
+            .mapNotNull { it.typeVariableName as? Declaration } +
+            directSuperclasses.flatMap { it.inheritableHeaderMarkers })
+        .distinctBy(Declaration::identity)
+  }
+
+  private fun refersToInherited(
+      marker: Expression.TypeVariableName,
+      declaration: Declaration,
+  ): Boolean =
+      (marker is UnqualifiedReference && marker.name == declaration.name) ||
+          marker.key == declaration.key ||
+          (marker.name != null &&
+              marker.name == declaration.name &&
+              loader
+                  .getClass(marker.boundClassName)
+                  .isSubtypeOf(loader.getClass(declaration.boundClassName)))
+
+  private fun inheritHeaderNames(source: ClassDeclaration): ClassDeclaration {
+    fun bodyNodes(declaration: ClassDeclaration): List<PetNode> =
+        declaration.authoredEffects +
+            declaration.authoredActions +
+            declaration.executableEffects.orEmpty()
+    val ownHeaderKeys =
+        (source.dependencies + source.supertypes)
+            .flatMap { it.descendantsOfType<Expression>() }
+            .mapNotNull { (it.typeVariableName as? Declaration)?.key }
+            .toSet()
+    val localIdentities =
+        bodyNodes(source)
+            .flatMap { it.constructLocalTypeVariableDeclarations() }
+            .mapNotNull { it.typeVariableName?.identity }
+            .toSet()
+    fun rejectUnresolved(declaration: ClassDeclaration) {
+      val unresolved =
+          bodyNodes(declaration)
+              .flatMap { it.descendantsOfType<Expression>() }
+              .firstOrNull { expression ->
+                when (val marker = expression.typeVariableName) {
+                  is UnqualifiedReference -> true
+                  is Declaration -> !marker.resolved
+                  is Reference -> !marker.resolved
+                  else -> false
+                }
+              }
+      if (unresolved != null) {
+        val marker = requireNotNull(unresolved.typeVariableName)
+        throw InvalidPetDefinitionException(
+            "`${source.className}` has no inherited type variable `${marker.authoredSpelling}`",
+            sourceLocation = unresolved.sourceLocation,
+        )
+      }
+    }
+    val bodyMarkers =
+        bodyNodes(source)
+            .flatMap { it.descendantsOfType<Expression>() }
+            .mapNotNull { it.typeVariableName }
+            .filter { it.key !in ownHeaderKeys && it.identity !in localIdentities }
+    val inherited = directSuperclasses.flatMap { it.inheritableHeaderMarkers }
+    if (bodyMarkers.none { marker -> inherited.any { refersToInherited(marker, it) } }) {
+      rejectUnresolved(source)
+      return source
+    }
+    val resolver =
+        object : PetTransformer() {
+          override fun transformNode(node: PetNode): PetNode {
+            if (node !is Expression) return transformChildren(node)
+            val marker = node.typeVariableName ?: return transformChildren(node)
+            if (marker.key in ownHeaderKeys || marker.identity in localIdentities) {
+              return transformChildren(node)
+            }
+            val matches =
+                inherited.filter { refersToInherited(marker, it) }.distinctBy(Declaration::identity)
+            if (matches.isEmpty()) return transformChildren(node)
+            val boundClassName =
+                if (marker is UnqualifiedReference) matches.first().boundClassName
+                else marker.boundClassName
+            // All matching declarations must denote one binding; headerVariableBindings checks it.
+            return transformChildren(
+                node.copy(
+                    className =
+                        if (marker is UnqualifiedReference) boundClassName else node.className,
+                    typeVariableName =
+                        Reference(marker.name, boundClassName, node.argumentsSpecified)
+                            .resolved(requireNotNull(matches.first().resolution)),
+                )
+            )
+          }
+        }
+    val interpreted =
+        source.copy(
+            authoredEffects = source.authoredEffects.map(resolver::transformEffect),
+            authoredActions = source.authoredActions.map(resolver::transformAction),
+            executableEffects = source.executableEffects?.map(resolver::transformEffect),
+        )
+    rejectUnresolved(interpreted)
+    return interpreted
+  }
 
   /**
    * The master universe containing this class, as required by
@@ -269,7 +378,7 @@ internal constructor(
     }
   }
 
-  private val sups: Set<Expression>
+  private val sups: List<Expression>
     get() = declaration.supertypes
 
   private fun replaceThis(expression: Expression): Expression =
@@ -470,6 +579,15 @@ internal constructor(
         DependencyPath(key) in it.paths
       }
 
+  /** Whether a supplied dependency already determines [key] through a header variable. */
+  internal fun dependencyDeterminedBy(key: Key, supplied: Collection<Key>): Boolean =
+      dependencyEqualities().any { equality ->
+        DependencyPath(key) in equality.paths &&
+            equality.paths.any { path ->
+              path.keyList.first() != key && path.keyList.first() in supplied
+            }
+      }
+
   private fun equalityError(equality: DependencyEquality, dependencies: DependencySet): Nothing =
       throw ExpressionException(
           "type-variable `${equality.expressions.joinToString()}` dependencies disagree in " +
@@ -651,22 +769,17 @@ internal constructor(
 
     val occurrenceGroups = mutableListOf<MutableList<HeaderOccurrence>>()
     headerOccurrences().forEach { occurrence ->
-      val matching = occurrenceGroups.filter { group ->
+      val matching = occurrenceGroups.firstOrNull { group ->
         group.any { prior ->
           val priorIdentity = prior.expression.typeVariableName?.identity
           val occurrenceIdentity = occurrence.expression.typeVariableName?.identity
           priorIdentity != null && priorIdentity == occurrenceIdentity
         }
       }
-      if (matching.isEmpty()) {
+      if (matching == null) {
         occurrenceGroups += mutableListOf(occurrence)
       } else {
-        val merged = matching.first()
-        matching.drop(1).forEach {
-          merged += it
-          occurrenceGroups.remove(it)
-        }
-        merged += occurrence
+        matching += occurrence
       }
     }
 
@@ -764,21 +877,67 @@ internal constructor(
           sourceLocation = className.sourceLocation,
       )
     }
-    val variablesByIdentity = markedVariables.toMap()
+    val variablesByIdentity = buildMap {
+      seeds.forEach { seed ->
+        seed.aliases.forEach { alias ->
+          alias.declaration.expression.typeVariableName?.identity?.let { put(it, seed) }
+        }
+      }
+      putAll(markedVariables)
+    }
+    val inheritedMarkers = directSuperclasses.flatMap { it.inheritableHeaderMarkers }
+    inheritedMarkers
+        .filter { it.name != null }
+        .groupBy { it.name }
+        .values
+        .forEach { markers ->
+          if (markers.map { variablesByIdentity.getValue(it.identity) }.distinct().size > 1) {
+            throw InvalidPetDefinitionException(
+                "`$className` inherits ambiguous type variable `${markers.first().authoredSpelling}`",
+                sourceLocation = className.sourceLocation,
+            )
+          }
+        }
+    markedVariables.forEach { (_, seed) ->
+      val marker = requireNotNull(seed.declaration.expression.typeVariableName)
+      // Marking an inherited binding again is legal; giving its name to another one is not.
+      val namesAnotherBinding = inheritedMarkers.any {
+        refersToInherited(marker, it) && variablesByIdentity.getValue(it.identity) !== seed
+      }
+      if (namesAnotherBinding) {
+        throw InvalidPetDefinitionException(
+            "`$className` reuses inherited type variable `${marker.authoredSpelling}` for another dependency",
+            sourceLocation = seed.declaration.expression.sourceLocation,
+        )
+      }
+    }
     var bodyOrdinal = headerOccurrences().size
     declaration.effects.forEachIndexed { effectIndex, effect ->
       effect.descendantsOfType<Expression>().forEach { expression ->
-        val identity = (expression.typeVariableName as? Reference)?.identity
-        identity
-            ?.let(variablesByIdentity::get)
-            ?.usages
-            ?.add(
-                TypeVariable.Site(
-                    expression,
-                    declaration.dependencies.size + declaration.supertypes.size + effectIndex,
-                    bodyOrdinal++,
-                )
-            )
+        val marker = expression.typeVariableName as? Reference
+        val identity = marker?.identity
+        if (marker != null) {
+          val candidates = inheritedMarkers.filter { refersToInherited(marker, it) }
+          if (candidates.any { it.identity == identity }) {
+            // Distinct declarations may still name one dependency reached through two parents.
+            val bindings = candidates.map { variablesByIdentity.getValue(it.identity) }.distinct()
+            if (bindings.size > 1) {
+              throw InvalidPetDefinitionException(
+                  "`$className` inherits ambiguous type variable `${marker.authoredSpelling}`",
+                  sourceLocation = expression.sourceLocation,
+              )
+            }
+          }
+        }
+        identity?.let(variablesByIdentity::get)?.let { seed ->
+          seed.usages +=
+              TypeVariable.Site(
+                  expression,
+                  declaration.dependencies.size + declaration.supertypes.size + effectIndex,
+                  bodyOrdinal++,
+              )
+          seed.lexicallyDeclared = true
+        }
       }
     }
 
@@ -805,13 +964,16 @@ internal constructor(
   }
 
   private val typeVariablesLazy = lazy {
-    headerVariableBindings().filter(HeaderVariableBinding::lexicallyDeclared).map {
-      it.variable
-    }
+    headerVariableBindings()
+        .flatMap { binding ->
+          listOfNotNull(binding.variable.takeIf { binding.lexicallyDeclared }) +
+              binding.aliases.filter { it.name != null }
+        }
+        .distinctBy { it.declaration.expression.typeVariableName?.identity ?: it }
   }
 
   /**
-   * The eligible type variables declared by this class header under
+   * The eligible type variables declared by this class header or used here by inherited name, under
    * [rules T13-2 through T13-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
   public val typeVariables: List<TypeVariable>
@@ -852,7 +1014,14 @@ internal constructor(
 
     return buildMap {
       headerVariableBindings().forEach { binding ->
-        val aliases = binding.aliases.intersect(requested)
+        val markerIdentities =
+            (binding.aliases + binding.variable)
+                .mapNotNull { it.declaration.expression.typeVariableName?.identity }
+                .toSet()
+        val aliases = requested.filter { variable ->
+          variable in binding.aliases ||
+              variable.declaration.expression.typeVariableName?.identity in markerIdentities
+        }
         if (aliases.isEmpty()) return@forEach
         val previous =
             binding.paths.map { path -> capturedAt(general, path) }.distinct().singleOrNull()
@@ -905,11 +1074,7 @@ internal constructor(
     className.of(templateDependencies.subMapInOrder(argumentDependencies.keys).expressionsFull())
   }
 
-  /**
-   * The authored dependency-default template for this class. Unlike a [GroundType], this expression
-   * may retain contextual `Owner` outside the class's declared bound until elaboration supplies its
-   * component context.
-   */
+  /** The authored dependency-default template for this class. */
   internal val defaultExpression: Expression
     get() = defaultExpressionLazy.value
 

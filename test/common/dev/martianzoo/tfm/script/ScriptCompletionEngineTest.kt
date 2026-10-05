@@ -92,7 +92,7 @@ internal class ScriptCompletionEngineTest {
 
     val remaining = repl.command("tasks").single()
     assertTrue(remaining.startsWith("[Admin] "), remaining)
-    assertTrue("3 Heat<Owner>?" in remaining, remaining)
+    assertTrue("3 Heat?" in remaining, remaining)
   }
 
   @Test

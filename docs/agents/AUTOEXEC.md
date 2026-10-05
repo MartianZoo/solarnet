@@ -58,6 +58,10 @@ An Agent policy can choose anything the same Agent could issue for an explicit c
 including strategically bad or peculiar actions. The engine enforces validity, not strategy.
 Stronger promises belong to a named policy and its tests.
 
+Refining an unsubmitted task draft makes no engine mutation and does not invoke the shared
+autoexecution loop. Future assistance with an unambiguous draft step should behave the same way.
+Committing a choice still uses the ordinary Agent-to-engine path and may trigger policies afterward.
+
 ## Shared autoexecution loop
 
 The engine knows nothing about Agents, policies, or autonomy. After one engine mutation has
@@ -125,7 +129,7 @@ does not define that production API.
 
 Do not lower the replay Player's whole autoexecution level for this purpose. A replay policy should
 otherwise make the same eager choices as the ordinary first-choice policy, but decline a task that
-would purely remove a `ProjectCard`. The replay then performs that removal explicitly with the
+would purely remove a `ProjectCard<Hand>`. The replay then performs that removal explicitly with the
 sourced card names and can associate those names with the exact resulting events. Playing a project
 card is not such a removal: its transmutation into the named card preserves the identity needed by
 the replay.

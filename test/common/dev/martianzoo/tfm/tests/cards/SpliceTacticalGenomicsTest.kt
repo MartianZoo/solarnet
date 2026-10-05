@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -16,6 +17,11 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
     addSpliceChoosingMoney()
     p1.count("Splicer<$SpliceTacticalGenomics>") shouldBe 1
 
+    shouldThrow<LimitsException> {
+      p1.runOperation("-Splicer<$SpliceTacticalGenomics>!")
+    }
+    p1.count("Splicer<$SpliceTacticalGenomics>") shouldBe 1
+
     p1.runOperation("-$SpliceTacticalGenomics")
 
     p1.count("Splicer") shouldBe 0
@@ -26,9 +32,9 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
     newGame(PromoCardPack)
 
     p1.inTurn {
-          doTask("PlayCard<Class<StandardCorporationCard>, Class<$SpliceTacticalGenomics>>")
+          doTask("PlayCard<Class<StandardCorporationCard>, Class<$SpliceTacticalGenomics>, Hand>")
           doTask("2 MC")
-          doTask("Ok")
+          p1.buyCards(0)
         }
         .expect("48 MC")
 
@@ -49,7 +55,7 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
       shouldThrow<TaskException> { p1.doTask("2 MC") }
       doTask("2 MC<Player1>")
       doTask("2 MC")
-      doTask("Microbe<$Decomposers>")
+      doTask("Microbe")
     }
 
     p1.count("MC") shouldBe p1MoneyBefore + 2

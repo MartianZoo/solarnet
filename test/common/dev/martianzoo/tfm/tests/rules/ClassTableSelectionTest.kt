@@ -3,8 +3,8 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import io.kotest.assertions.assertSoftly
@@ -265,6 +265,21 @@ internal class ClassTableSelectionTest {
   }
 
   // Other deliberate configuration omissions
+
+  @Test
+  internal fun `two-player games omit SecondPlace`() {
+    val view = gameView("", "Green", "Yellow")
+
+    assertSelected(view, setOf(cn("FirstPlace")))
+    assertOmitted(view, setOf(cn("SecondPlace")))
+  }
+
+  @Test
+  internal fun `three-player games include SecondPlace`() {
+    val view = gameView("", "Green", "Yellow", "Blue")
+
+    assertSelected(view, setOf(cn("FirstPlace"), cn("SecondPlace")))
+  }
 
   @Test
   internal fun `cross-bundle Colonies classes stay unselected without Colonies`() {

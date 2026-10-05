@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
@@ -50,7 +50,7 @@ internal class SoloGenerationCountdownTest {
 
     player.runOperation("16 MC")
     player.runOperation("UseAction<BufferGasProject, Action1>") {
-      doTask("16 Pay<Class<MC>> FROM MC")
+      doTask("16 Pay<> FROM MC")
     }
     player.count("MC<Player1>") shouldBe 0
     player.count("TerraformRating<Player1>") shouldBe 15
@@ -62,9 +62,9 @@ internal class SoloGenerationCountdownTest {
   }
 
   private fun finishNeutralSetup(admin: TfmGameplay) {
-    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_4_1>")
+    admin.doTask("GreeneryTile<Tharsis_5_1>")
+    admin.doTask("CityTile<Tharsis_2_2>")
+    admin.doTask("GreeneryTile<Tharsis_2_3>")
   }
 }

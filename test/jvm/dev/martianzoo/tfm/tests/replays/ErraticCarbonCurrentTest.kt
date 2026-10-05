@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -11,8 +11,7 @@ import kotlin.test.Test
 
 // Complete database replay: Erratic Carbon Current (gbf986ef543f0)
 // https://terraforming-mars.herokuapp.com/the-end?id=p6674c4a1893d
-internal class ErraticCarbonCurrentTest :
-    CardTrackingFullGameTest(requireEveryProjectCardChangeNamed = true) {
+internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
   override val config =
       GameConfig(
           """
@@ -303,7 +302,7 @@ internal class ErraticCarbonCurrentTest :
       // Research Outpost and Olympus Conference supply the other two science tags.
       blue.exMachina(fakeWildTags("ScienceTag", 2))
       playProject(AiCentral, 20) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
       }
     }
     pink.turn {

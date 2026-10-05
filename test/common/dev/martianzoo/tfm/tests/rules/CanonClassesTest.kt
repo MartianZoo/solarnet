@@ -9,7 +9,7 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
@@ -35,7 +35,7 @@ internal class CanonClassesTest {
   internal fun setupSeparatesPlayersFromActors() {
     val premise = canonicalPremise()
     premise.actors
-        .filterIsInstance<dev.martianzoo.pets.data.Player>()
+        .filterIsInstance<dev.martianzoo.state.Player>()
         .shouldContainExactly(PLAYER1, PLAYER2)
     premise.actors.shouldContainExactly(PLAYER1, PLAYER2, ADMIN)
     val game = Engine.newGame(premise)
@@ -128,10 +128,10 @@ internal class CanonClassesTest {
         .testAgent(PLAYER1)
         .count("Animal<SoloOpponent, SoloCardResourceReserve<Class<Animal>>>") shouldBe 42
     val admin = game.testAgent(ADMIN) as Agent
-    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_4_1>")
+    admin.doTask("GreeneryTile<Tharsis_5_1>")
+    admin.doTask("CityTile<Tharsis_2_2>")
+    admin.doTask("GreeneryTile<Tharsis_2_3>")
     admin.runOperation("OceanTile<Tharsis_1_2>")
     game.testAgent(PLAYER1).count("CityTile<SoloOpponent>") shouldBe 2
     game.testAgent(PLAYER1).count("GreeneryTile<SoloOpponent>") shouldBe 2

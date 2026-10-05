@@ -2,9 +2,10 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -24,7 +25,7 @@ internal class BugsTest : CardTest() {
     p1.runOperation("9 MC, ProjectCard, Chairman")
 
     // WG Project should make the Prelude 1 pool available without enabling the Prelude phase.
-    shouldThrow<DeadEndException> {
+    shouldThrow<NarrowingException> {
           p1.playProject(WgProject, 9) { p1.playPrelude(Donation) }
         }
         .detail shouldContain "$Donation"
@@ -313,7 +314,9 @@ internal class BugsTest : CardTest() {
     p1.playPrelude(Donation)
     admin.runOperation("Ruling<Reds> FROM Ruling")
     admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(PreservationProgram) }
+    p1.stdAction("DoRequiredActionsAction") {
+          p1.playPrelude(PreservationProgram)
+        }
         .expect("4 TerraformRating, -5 MC")
     p1.stdProject("AsteroidProject").expect("TerraformRating, -15 MC")
   }
@@ -402,7 +405,9 @@ internal class BugsTest : CardTest() {
     p1.runOperation("54 MC")
     admin.phase("Prelude")
 
-    p1.turn { playPrelude(Merger) { playCorp(SagittaFrontierServices) } }
+    p1.turn {
+      playPrelude(Merger) { playCorp(SagittaFrontierServices) }
+    }
 
     // Jacob rules that Sagitta earns 4 MC for the tagless Merger as well as for itself.
     p1.count("MC") shouldBe 47

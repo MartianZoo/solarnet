@@ -168,6 +168,21 @@ internal class MarsNomadsTest : CardTest() {
   }
 
   @Test
+  internal fun `Nomads movement collects its placement bonus without triggering Mars First`() {
+    newGame(PromoCardPack, TurmoilExpansion)
+    p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_2_1>") }
+    admin.runOperation("Ruling<MarsFirst> FROM Ruling")
+    admin.phase("Action")
+
+    p1.runOperation("CityTile<Tharsis_3_3>").expect("Steel")
+
+    p1.cardAction1(MarsNomads) {
+          doTask("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>")
+        }
+        .expect("2 Steel")
+  }
+
+  @Test
   internal fun `Nomads may return to an area they previously occupied`() {
     newGame(PromoCardPack)
     p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_1_1>") }

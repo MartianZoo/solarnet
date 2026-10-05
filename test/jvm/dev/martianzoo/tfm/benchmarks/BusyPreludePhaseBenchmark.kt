@@ -4,9 +4,9 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -73,15 +73,15 @@ public open class BusyPreludePhaseBenchmark {
     workflow.preludePhase()
     me.playPrelude(fakeHeadStart) {
       doTask("UseAction<PlayCardFromHandAction, Action1>")
-      doTask("PlayCard<Class<ProjectCard>, Class<EarthOffice>>")
+      doTask("PlayCard<Class<ProjectCard>, Class<EarthOffice>, Hand>")
       me.pay(0)
       doTask("UseAction<PlayCardFromHandAction, Action1>")
-      doTask("PlayCard<Class<ProjectCard>, Class<HeavyTaxation>>")
+      doTask("PlayCard<Class<ProjectCard>, Class<HeavyTaxation>, Hand>")
       me.pay(0)
     }
     me.playPrelude(cn("NewPartner")) {
       me.playPrelude(cn("Merger")) {
-        doTask("PlayCard<Class<StandardCorporationCard>, Class<ValleyTrust>>")
+        doTask("PlayCard<Class<StandardCorporationCard>, Class<ValleyTrust>, Selecting>")
       }
     }
 
@@ -92,10 +92,10 @@ public open class BusyPreludePhaseBenchmark {
       me.playPrelude(cn("DoubleDown")) {
         doTask("CopyPrelude<$fakeHeadStart>")
         doTask("UseAction<PlayCardFromHandAction, Action1>")
-        doTask("PlayCard<Class<ProjectCard>, Class<LunaGovernor>>")
+        doTask("PlayCard<Class<ProjectCard>, Class<LunaGovernor>, Hand>")
         me.pay(0)
         doTask("UseAction<PlayCardFromHandAction, Action1>")
-        doTask("PlayCard<Class<ProjectCard>, Class<ProductiveOutpost>>")
+        doTask("PlayCard<Class<ProjectCard>, Class<ProductiveOutpost>, Hand>")
         me.pay(0)
       }
     }

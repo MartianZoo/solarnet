@@ -5,12 +5,12 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.displayName
 import dev.martianzoo.state.ComponentGraph.CountSubscription
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameRecording
 import dev.martianzoo.state.GameRecordingJson
+import dev.martianzoo.state.Player
+import dev.martianzoo.state.displayName
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition

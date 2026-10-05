@@ -95,7 +95,9 @@ internal class DoubleDownTest : CardTest() {
     p1.playCorp(ValleyTrust, 10)
     admin.phase("Prelude")
     // Seven MC plus Nirgal's thirty cannot pay Merger's forty-two MC cost.
-    shouldThrow<LimitsException> { p1.playPrelude(Merger) { p1.playCorp(NirgalEnterprises) } }
+    shouldThrow<LimitsException> {
+      p1.playPrelude(Merger) { p1.playCorp(NirgalEnterprises) }
+    }
     // The declared fizzle leaves no Prelude face for Double Down.
     p1.startTurn()
     p1.doTask("-PreludeCard").expect("15 MC")

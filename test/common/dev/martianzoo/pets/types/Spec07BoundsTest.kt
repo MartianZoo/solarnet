@@ -9,8 +9,8 @@ internal class Spec07BoundsTest {
   private val mars =
       loadTypes(
           """
-          CLASS Player1 : Owner
-          CLASS Player2 : Owner
+          CLASS Player1 : Anyone
+          CLASS Player2 : Anyone
           ABSTRACT CLASS Area {
             ABSTRACT CLASS MarsArea {
               ABSTRACT CLASS LandArea {
@@ -22,7 +22,7 @@ internal class Spec07BoundsTest {
           }
           ABSTRACT CLASS Occupant<Area>
           ABSTRACT CLASS Tile : Occupant
-          ABSTRACT CLASS OwnedTile : Tile, Owned<Owner>
+          ABSTRACT CLASS OwnedTile : Tile, Owned<Anyone>
           CLASS GreeneryTile : OwnedTile, Tile<MarsArea>
           CLASS OceanTile : Tile<WaterArea>
           """
@@ -136,10 +136,10 @@ internal class Spec07BoundsTest {
             "ABSTRACT CLASS Area",
             "ABSTRACT CLASS LandArea : Area { CLASS Land1 }",
             "CLASS Water1 : Area",
-            "CLASS Player1 : Owner",
+            "CLASS Player1 : Anyone",
             "ABSTRACT CLASS Left<Area>",
             "ABSTRACT CLASS Right",
-            "CLASS Both<Owner> : Left<LandArea>, Right",
+            "CLASS Both<Anyone> : Left<LandArea>, Right",
         )
 
     val intersection = table.glb(table.resolve(te("Left")), table.resolve(te("Right")))

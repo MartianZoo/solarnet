@@ -7,7 +7,7 @@ import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.types.testCatalog
+import dev.martianzoo.pets.types.loadTypes
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -18,16 +18,15 @@ internal class BugsTest {
   @Test
   internal fun `an owner-local class incorrectly repeats an argument fixed by specialization`() {
     val table =
-        testCatalog(
-                """
+        loadTypes(
+            """
                 ABSTRACT CLASS Party
                 ABSTRACT CLASS Policy<Party>
                 CLASS MarsFirst : Party {
                   This: Policy<This> {}
                 }
                 """
-            )
-            .classTable
+        )
 
     // The generated Policy already fixes its Party to MarsFirst; the gain needs no argument.
     val error =
@@ -42,13 +41,12 @@ internal class BugsTest {
   internal fun `a type-variable marker on a DEFAULT root is incorrectly discarded`() {
     // This declaration should be rejected, not silently treated as DEFAULT +Piece<First>.
     val table =
-        testCatalog(
-                """
+        loadTypes(
+            """
                 ABSTRACT CLASS Area { CLASS First }
                 CLASS Piece<Area> { DEFAULT +@Piece<First> }
                 """
-            )
-            .classTable
+        )
 
     PetElaborator(table).elaborateInput(parse<InstructionTree>("Piece<>")).toString() shouldBe
         "Piece<First>!"
@@ -86,14 +84,13 @@ internal class BugsTest {
 
   private fun rejectsGainReference(source: String) {
     val table =
-        testCatalog(
-                """
+        loadTypes(
+            """
                 ABSTRACT CLASS Area { CLASS First }
                 CLASS Piece<Area> { DEFAULT +Piece<First> }
                 CLASS Notice<Piece<Area>>
                 """
-            )
-            .classTable
+        )
     val elaborator = PetElaborator(table)
 
     // The supplier accepts gain defaults; its bare reference does not request all-use defaults.
@@ -105,8 +102,8 @@ internal class BugsTest {
 
   private fun rejectsRemovalReference(source: String) {
     val table =
-        testCatalog(
-                """
+        loadTypes(
+            """
                 ABSTRACT CLASS Area {
                   CLASS First
                   CLASS Second
@@ -118,8 +115,7 @@ internal class BugsTest {
                 CLASS Marker
                 CLASS Notice<Piece<Area>>
                 """
-            )
-            .classTable
+        )
     val elaborator = PetElaborator(table)
 
     shouldThrow<ExpressionException> {

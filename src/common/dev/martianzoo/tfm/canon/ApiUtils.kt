@@ -1,14 +1,14 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.pets.api.GameReader
-import dev.martianzoo.pets.api.SystemClasses.OWNER
+import dev.martianzoo.pets.api.SystemClasses.ANYONE
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.toSetStrict
+import dev.martianzoo.state.GameReader
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.TfmClasses.MARS_MAP
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.canon.TfmClasses.PROD_OFFSET
@@ -16,16 +16,16 @@ import dev.martianzoo.tfm.canon.TfmClasses.PROD_OFFSET
 /** Simple TfM-specific client helper functions, mostly for use by custom instructions. */
 public object ApiUtils {
   /** Returns the direct owner dependency of a concrete component type. */
-  public fun getOwner(game: GameReader, component: Type): Type {
-    val ownerType = game.resolve(OWNER.expression)
+  public fun getOwningType(game: GameReader, component: Type): Type {
+    val ownerType = game.resolve(ANYONE.expression)
     val owner =
         component.typeDependencies.map { it.boundType }.single { it.narrows(ownerType, game) }
     return owner
   }
 
-  /** Returns [getOwner], requiring that the component is owned by a seated [Player]. */
-  public fun getPlayerOwner(game: GameReader, component: Type): Player {
-    val ownerName = getOwner(game, component).className
+  /** Returns [getOwningType], requiring that the component is owned by a seated [Player]. */
+  public fun getOwningPlayer(game: GameReader, component: Type): Player {
+    val ownerName = getOwningType(game, component).className
     return game.actors.filterIsInstance<Player>().singleOrNull { it.className == ownerName }
         ?: error("component is not owned by a Player: $component")
   }

@@ -6,16 +6,16 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgents as retainedTestAgents
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskResult

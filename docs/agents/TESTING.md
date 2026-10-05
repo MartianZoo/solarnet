@@ -164,6 +164,10 @@ spell out `public` and their public types; declarations used only within one mod
 
 ## Test design
 
+Do not add tests whose sole purpose is to specify what happens after `exMachina` or `sneak`.
+Keep coverage focused on ordinary gameplay and shared engine behavior. Evidence-backed corrections
+inside whole-game replays remain appropriate; the replay tests the game, not correction semantics.
+
 > **Recurring failure warning:** Card and rule tests operate through player-facing gameplay and
 > assert observable results. They do not inspect rendered task text, causes, incidental queue order,
 > or mirrored Canon data. A test-support helper must express a recurring component-independent
@@ -288,7 +292,7 @@ overload in `CardTest` uses the same resolution path.
 
 `CardTest` and the full-game tests provide `TaskResult.expect()`. Expectations are partial net
 deltas: name only changes that matter to the behavior under test. Unqualified owned Types are scoped
-to the Player inferred from the result's ordered change events; qualify an Owner explicitly when
+to the Player inferred from the result's ordered change events; qualify the owner explicitly when
 checking another Player or an intentionally cross-player total. Do not restate costs, test setup,
 literal `doTask()` choices, or every incidental resource movement. In source-backed whole-game
 tests, include explicitly narrated gains/removals and interesting automatic effects, even when the
@@ -323,18 +327,22 @@ Whole-game tests are high-value integration coverage. When translating a supplie
   or physical deck order. The tracker consumes the fixture according to anonymous hand-gain counts.
   It rejects duplicate arrivals, an exhausted or partly unused fixture, and any attempt to discard
   a card that never entered the indicated Player's hand.
-  Strict completion requires an identity label for every card in every project-card event and
-  checks the tracked hand sizes against the World. When a source omits a hand card's identity,
-  `unknownProjectCards()` supplies distinct replay-local `UnknownCardNN` labels for cards that did
+  Completion requires an identity label for each lasting project-card hand arrival and
+  departure, including both sides of an exchange, and checks tracked hand sizes against the World.
+  Temporary Hand–Revealed–Hand movements do not consume arrival names, but the strict tracker
+  requires both movements to be labeled with the names of cards already held.
+  When a source omits a hand card's identity, `unknownProjectCards()` supplies distinct replay-local
+  `UnknownCardNN` labels for cards that did
   enter a hand; keep the source gap visible beside their use. These labels prove complete hand
-  accounting, not complete source knowledge. The database-backed Herokuapp conversions use strict
-  mode without unknown labels. A named discard is terminal unless an exact played Event later
+  accounting, not complete source knowledge. The database-backed Herokuapp conversions use this
+  base without unknown labels. A named discard is terminal unless an exact played Event later
   returns to the hand.
   Research archives that used drafting may assign each recovered post-draft four-card set as that
   player's ordinary hand arrivals when the tested engine does not support drafting. Buy only the
   evidenced count; never name cards that were not retained.
-  `AbstractSoloTest` inherits this capability, but a solo test opts into tracking only by using
-  the named calls.
+  Ordinary full-game and solo replays use `AbstractFullGameTest` and `AbstractSoloTest` without an
+  external card ledger. Only the four database-backed conversions and `StinaGameTest` currently use
+  `CardTrackingFullGameTest`.
   When a source gives only a discard count, an exact tracked hand requires the test to select
   names explicitly and label that selection as test inference.
 - Before editing a dated whole-game test, explicitly inspect its matching

@@ -1,0 +1,49 @@
+package dev.martianzoo.state
+
+import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.Multiset
+
+/** A readable view of a live Pets world. */
+public interface GameReader : TypeInfo {
+  /** Every Actor participating in this game, with seated Players in seat order. */
+  public val actors: List<Actor>
+
+  /** The Catalog used by the world. */
+  public val catalog: Catalog
+
+  /** The complete class universe selected for this game. */
+  override val classTable: ClassTable
+
+  /** Returns the type represented by the fully contextualized [expression]. */
+  public fun resolve(expression: Expression): Type
+
+  /** Determines whether the fully contextualized [requirement] is met in the current world. */
+  override fun has(requirement: Requirement): Boolean
+
+  /**
+   * Evaluates the fully contextualized [metric] in the current world. A count whose root is a
+   * virtual `CustomMetric` is computed by its Kotlin implementation rather than from components.
+   */
+  public fun count(metric: Metric): Int
+
+  /** Returns the number of component instances having type [type] in the current world. */
+  public fun count(type: Type): Int
+
+  /** Returns the number of instances of [concreteType] in the current world. */
+  public fun countComponent(concreteType: Type): Int
+
+  /** Returns the types of all concrete components in the current world. */
+  public fun getComponents(type: Type): Multiset<Type>
+
+  /** Returns the distinct component types that directly depend on [component]. */
+  public fun getDependents(component: Type): Set<Type>
+
+  /** Returns the types of all concrete components matching [expression] in this world. */
+  public fun getComponents(expression: Expression): Multiset<Type> =
+      getComponents(resolve(expression))
+}

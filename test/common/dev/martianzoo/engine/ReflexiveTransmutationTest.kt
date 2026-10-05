@@ -2,7 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.ComponentChange
 import dev.martianzoo.state.toComponent
 import io.kotest.assertions.throwables.shouldThrow

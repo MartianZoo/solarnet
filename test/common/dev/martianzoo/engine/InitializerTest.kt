@@ -3,7 +3,7 @@ package dev.martianzoo.engine
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
@@ -136,7 +136,9 @@ internal class InitializerTest {
                   CLASS Right
                   CLASS Absent
                 }
-                CLASS Marker<Anchor>
+                ABSTRACT CLASS Marker<Anchor>
+                CLASS FirstMarker : Marker
+                CLASS SecondMarker : Marker
                 """,
                 players = 0,
             )
@@ -145,7 +147,7 @@ internal class InitializerTest {
                     setOf(
                         cn("Left").expression,
                         cn("Right").expression,
-                        cn("Marker").of(cn("Left").expression),
+                        cn("FirstMarker").of(cn("Left").expression),
                     )
             )
 

@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.cards.cardnames.PublicPlans
@@ -9,18 +9,19 @@ import kotlin.test.Test
 
 internal class PublicPlansTest : CardTest() {
   @Test
-  internal fun `Rewards two revealed cards without moving them`() {
+  internal fun `Rewards two revealed cards and returns them to hand`() {
     newGame(PromoCardPack)
     admin.phase("Action")
     p1.runOperation("7 MC, 3 ProjectCard")
 
     p1.playProject(PublicPlans, 7) {
-          doTask("MC")
+          doTask("2 ProjectCard<Revealed FROM Hand>")
         }
         .expect("-5 MC, -ProjectCard")
 
     p1.assertCounts(
         2 to "ProjectCard",
+        0 to "ProjectCard<Revealed>",
         1 to "PlayedEvent<Class<$PublicPlans>>",
     )
   }
@@ -31,8 +32,13 @@ internal class PublicPlansTest : CardTest() {
     admin.phase("Action")
     p1.runOperation("7 MC, 2 ProjectCard")
 
-    p1.playProject(PublicPlans, 7).expect("-6 MC, -ProjectCard")
-    p1.assertCounts(1 to "ProjectCard", 1 to "PlayedEvent<Class<$PublicPlans>>")
+    p1.playProject(PublicPlans, 7) { doTask("ProjectCard<Revealed FROM Hand>") }
+        .expect("-6 MC, -ProjectCard")
+    p1.assertCounts(
+        1 to "ProjectCard",
+        0 to "ProjectCard<Revealed>",
+        1 to "PlayedEvent<Class<$PublicPlans>>",
+    )
   }
 
   @Test
@@ -41,8 +47,13 @@ internal class PublicPlansTest : CardTest() {
     admin.phase("Action")
     p1.runOperation("7 MC, 3 ProjectCard")
 
-    p1.playProject(PublicPlans, 7) { declineTask() }.expect("-6 MC, -ProjectCard")
-    p1.assertCounts(2 to "ProjectCard", 1 to "PlayedEvent<Class<$PublicPlans>>")
+    p1.playProject(PublicPlans, 7) { doTask("ProjectCard<Revealed FROM Hand>") }
+        .expect("-6 MC, -ProjectCard")
+    p1.assertCounts(
+        2 to "ProjectCard",
+        0 to "ProjectCard<Revealed>",
+        1 to "PlayedEvent<Class<$PublicPlans>>",
+    )
   }
 
   @Test
@@ -51,7 +62,9 @@ internal class PublicPlansTest : CardTest() {
     admin.phase("Action")
     p1.runOperation("7 MC, ProjectCard")
 
-    shouldThrow<RequirementException> { p1.playProject(PublicPlans, 7) }
+    shouldThrow<NotNowException> {
+      p1.playProject(PublicPlans, 7) { doTask("ProjectCard<Revealed FROM Hand>") }
+    }
     p1.assertCounts(7 to "MC", 1 to "ProjectCard", 0 to "PlayedEvent<Class<$PublicPlans>>")
   }
 }

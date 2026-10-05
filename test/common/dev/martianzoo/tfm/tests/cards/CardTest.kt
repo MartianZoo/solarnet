@@ -6,12 +6,12 @@ import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.ClassDeclaration
-import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.ClassSelection
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.GamePremise
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -130,8 +130,8 @@ internal abstract class CardTest(
         }
 
     cities.zip(greeneries).forEach { (city, greenery) ->
-      admin.doTask("CityTile<$city, SoloOpponent>")
-      admin.doTask("GreeneryTile<$greenery, SoloOpponent>")
+      admin.doTask("CityTile<$city>")
+      admin.doTask("GreeneryTile<$greenery>")
     }
   }
 

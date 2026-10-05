@@ -3,8 +3,8 @@ CLASS ColoniesExpansion : Module {
   phaseAfter = HAS "ColoniesSolarPhase, SolarPhase, VenusSolarPhase"
 
   This: TradeAction, BuildColonyProject
-  SetupPhase: EACH Player { TradeFleet }
-  SetupPhase IF SoloMode, SelectedColonyTile: EACH Player { SoloColoniesSetup }
+  SetupPhase: EACH Me@Player { TradeFleet }
+  SetupPhase IF SoloMode, SelectedColonyTile: EACH Me@Player { SoloColoniesSetup }
   SetupPhase IF SoloMode: PROD[-2 MC<Player>]
   ColoniesSolarPhase: AdvanceColonyTracks
 }
@@ -14,7 +14,7 @@ ABSTRACT CLASS ColonyTile {
   HAS MAX 1 This, MAX 3 Colony<This>, MAX 1 Trade<This>
 
   This:: ColonyProduction<This>
-  Colony<This>:: ColonyProduction<This> / Colony<This> - ColonyProduction<This>
+  Colony<This>:: ColonyProduction<This> / Colony<This, Anyone> - ColonyProduction<This>
   ResetColonyProduction<This>: -ColonyProduction<This>. / ColonyProduction<This> - Colony<This, Anyone>
   AdvanceColonyTracks: ColonyProduction<This>.
   FinishTrade<This>: ResetColonyProduction<This>
@@ -126,7 +126,7 @@ CLASS Miranda : ColonyTile {
 
 CLASS Pluto : ColonyTile, ColonyTileSelection<Class<Pluto>> {
   Colony<This>: 2 ProjectCard
-  GainColonyBonus<This>: ProjectCard THEN -ProjectCard
+  GainColonyBonus<This>: PlutoLock! THEN ProjectCard THEN -ProjectCard THEN -PlutoLock!
 
   FinishTrade<This> IF =0 ColonyProduction<This>: Ok
   FinishTrade<This> IF =1 ColonyProduction<This>: ProjectCard
@@ -136,6 +136,8 @@ CLASS Pluto : ColonyTile, ColonyTileSelection<Class<Pluto>> {
   FinishTrade<This> IF =5 ColonyProduction<This>: 3 ProjectCard
   FinishTrade<This> IF =6 ColonyProduction<This>: 4 ProjectCard
 }
+
+CLASS PlutoLock : Owned<Player> { HAS MAX 1 This }
 
 CLASS Titan : ColonyTile {
   Colony<This>: 3 Floater
@@ -179,8 +181,8 @@ CLASS Trade<@ColonyTile, GenerationScope> : Owned<Player> {
 }
 
 "One unresolved barrier to completing a Trade"
-CLASS TradeBarrier<@ColonyTile> : Owned<Player>, Barrier {
-  -This IF MAX 0 This:: FinishTrade<@ColonyTile> BY Owner
+CLASS TradeBarrier<@ColonyTile> : Owned<Player>, Barrier, Hidden {
+  -This IF MAX 0 This:: FinishTrade<@ColonyTile> BY Me@
 }
 
 "The owner-attributed event that begins a Trade's completion consequences"
@@ -208,7 +210,7 @@ CLASS SelectedColonyTile<Class<@ColonyTile>> : Hidden {
 }
 
 "Lets the solo player discard one selected colony tile; owned so that player makes the choice"
-CLASS SoloColoniesSetup : Owned<Player>, System {
+CLASS SoloColoniesSetup : Owned<Player>, System, Hidden {
   HAS MAX 1 This
   This: -SelectedColonyTile THEN -This!
 }

@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -32,7 +32,7 @@ internal class EcologyExpertsTest : CardTest() {
     p1.runOperation("10 MC, ProjectCard, PreludeCard")
 
     p1.playPrelude(EcologyExperts) {
-      doTask("PlayCard<Class<ProjectCard>, Class<$Decomposers>>")
+      doTask("PlayCard<Class<ProjectCard>, Class<$Decomposers>, Hand>")
       p1.pay(mc = 5)
     }
 

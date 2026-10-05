@@ -30,7 +30,7 @@ internal class StormcraftIncorporatedTest : CardTest() {
     p1.stdAction(
             "ConvertHeatAction",
             payment = {
-              doTask("PayFromCard<$StormcraftIncorporated> FROM Floater<$StormcraftIncorporated>")
+              doTask("PayFromCard FROM Floater<$StormcraftIncorporated>")
               doTask("6 Pay<Class<Heat>> FROM Heat")
             },
         )
@@ -55,7 +55,7 @@ internal class StormcraftIncorporatedTest : CardTest() {
 
     p1.playProject(LocalHeatTrapping, 1) {
           doTask("4 Plant")
-          doTask("-2 Floater<$StormcraftIncorporated> THEN 4 Heat")
+          doTask("-2 Floater THEN 4 Heat")
         }
         .expect("-2 Floater<$StormcraftIncorporated>, -Heat, 4 Plant")
   }
@@ -65,7 +65,7 @@ internal class StormcraftIncorporatedTest : CardTest() {
     initializeStormcraftGame(floaters = 3, heat = 0)
 
     p1.playProject(LocalHeatTrapping, 1) {
-          doTask("-3 Floater<$StormcraftIncorporated> THEN 5 Heat")
+          doTask("-3 Floater THEN 5 Heat")
           doTask("4 Plant")
         }
         .expect("-3 Floater<$StormcraftIncorporated>, 4 Plant")
@@ -101,7 +101,7 @@ internal class StormcraftIncorporatedTest : CardTest() {
     p1.stdAction(
             "ConvertHeatAction",
             payment = {
-              doTask("4 PayFromCard<$StormcraftIncorporated> FROM Floater<$StormcraftIncorporated>")
+              doTask("4 PayFromCard FROM Floater<$StormcraftIncorporated>")
               declineTask()
             },
         )

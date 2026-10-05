@@ -3,6 +3,7 @@ package dev.martianzoo.pets.data
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -11,6 +12,7 @@ import dev.martianzoo.pets.ast.Instruction.Quantifier
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.testlib.te
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -70,6 +72,17 @@ internal class ClassDeclarationTest {
             .effects
 
     effects.shouldContainExactly(parse<Effect>("This: Bar"), parse<Effect>("This: Bar"))
+  }
+
+  @Test
+  internal fun declarationsWithDifferentInheritedArgumentOrderConflict() {
+    val first = Parsing.parseClasses("CLASS Adjacency : Occupant, Neighbor").single()
+    val reordered = Parsing.parseClasses("CLASS Adjacency : Neighbor, Occupant").single()
+
+    ClassDeclaration.indexByName(listOf(first, first.copy())).values.toList() shouldBe listOf(first)
+    shouldThrow<InvalidPetDefinitionException> {
+      ClassDeclaration.indexByName(listOf(first, reordered))
+    }
   }
 
   @Test

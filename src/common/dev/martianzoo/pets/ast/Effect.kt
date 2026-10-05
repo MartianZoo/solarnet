@@ -215,7 +215,7 @@ public data class Effect(
     /**
      * Restricts [inner] to events performed by an actor matching [by] ([rule
      * L6-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)).
-     * Because the selector is an expression, `BY Player(NOT Owner)` and `BY Player` filter while
+     * Because the selector is an expression, `BY Player(NOT Anyone)` and `BY Player` filter while
      * `BY @Player` marks an actor variable reused as `@Player` ([rule
      * T13-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables)).
      * It binds less tightly than `OR` and more tightly than `IF`.

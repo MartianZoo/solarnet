@@ -11,19 +11,19 @@ internal class DependencyVariableTest {
   private val table =
       testClassTable(
           """
-          CLASS Player1 : Owner
-          CLASS Player2 : Owner
+          CLASS Player1 : Anyone
+          CLASS Player2 : Anyone
 
-          CLASS Token<Owner>
-          CLASS Card : Owned<Owner>
+          CLASS Token<Anyone>
+          CLASS Card : Owned<Anyone>
 
-          ABSTRACT CLASS Linked<Card<CardOwner@Owner>> : Owned<CardOwner@Owner> {
-            This: Token<CardOwner@Owner>
+          ABSTRACT CLASS Linked<Card<CardHolder@Anyone>> : Owned<CardHolder@Anyone> {
+            This: Token<CardHolder@Anyone>
           }
           CLASS InheritedLink : Linked
 
           CLASS Independent<Card> : Owned {
-            This: Token<Owner>
+            This: Token<Me@Anyone>
           }
           """
               .trimIndent()
@@ -41,7 +41,7 @@ internal class DependencyVariableTest {
   }
 
   @Test
-  internal fun `an independent nested owner does not capture contextual Owner in effects`() {
+  internal fun `an independent nested owner does not capture lexical Me in effects`() {
     val component = Component(table.resolve(te("Independent<Player1, Card<Player2>>")))
 
     LiveEffect.compile(component, elaborator)

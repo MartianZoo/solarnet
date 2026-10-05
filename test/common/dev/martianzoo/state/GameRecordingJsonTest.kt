@@ -4,9 +4,7 @@ import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test

@@ -5,11 +5,11 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.ComponentChange
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.toComponent
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -51,7 +51,10 @@ internal class GameQueriesParityTest {
 
   @Test
   internal fun visibleLogSelectionMatchesTheEngineRule() {
-    val game = Engine.newGame(Canon.gamePremise(GameConfig("", "Player1")))
+    val game =
+        Engine.newGame(
+            Canon.gamePremise(GameConfig("Prelude2CardPack, ColoniesExpansion", "Player1"))
+        )
 
     fun event(ordinal: Int, expression: String): ChangeEvent =
         ChangeEvent(
@@ -68,10 +71,11 @@ internal class GameQueriesParityTest {
             event(0, "MC<Player1>"),
             event(1, "ActionPhase"),
             event(2, "GpIncomplete<Class<TemperatureStep>>"),
+            event(3, "L1Gift<Player1>"),
         )
     val engineSelection = events.filter { it.isVisibleInEngineLog(game.reader) }
 
-    assertEquals(listOf(true, true, false), events.map { it in engineSelection })
+    assertEquals(listOf(true, true, false, false), events.map { it in engineSelection })
     assertEquals(engineSelection, visibleLogEvents(events, game.reader))
   }
 }

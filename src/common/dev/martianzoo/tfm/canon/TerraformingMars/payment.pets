@@ -1,5 +1,5 @@
 "A finalized quantity still owed in one standard-resource denomination"
-CLASS Owed<@Class<StandardResource>> : Owned<Player>, Barrier {
+CLASS Owed<@Class<StandardResource>> : Owned<Player>, Barrier, Hidden {
   DEFAULT +Owed<Class<MC>>
   DEFAULT -Owed<Class<MC>>.
   X This:: Accepting<@Class>
@@ -16,7 +16,7 @@ ABSTRACT CLASS Billing<HasActions, ActionSlot, @Class<StandardResource>> : Owned
 }
 
 "The billing produced by an action with a standard-resource cost"
-CLASS ActionBilling : Billing {
+CLASS ActionBilling : Billing, Hidden {
   DEFAULT +ActionBilling<HasActions, ActionSlot, Class<MC>>
 }
 
@@ -24,9 +24,9 @@ CLASS ActionBilling : Billing {
 CLASS CardPlay : HasActions { HAS =1 This }
 
 "The finalized debt for playing a particular card"
-CLASS CardBilling<Class<CardFront>> : Billing<CardPlay, Action1, Class<MC>>
+CLASS CardBilling<Class<CardFront>> : Billing<CardPlay, Action1, Class<MC>>, Hidden
 
-CLASS Accepting<Class<@StandardResource>> : Owned<Player>, MustCleanUp {
+CLASS Accepting<Class<@StandardResource>> : Owned<Player>, MustCleanUp, Hidden {
   HAS MAX 1 This
   DEFAULT +Accepting.
   Billing: X Pay<Class<@StandardResource>> FROM @StandardResource?
@@ -39,7 +39,7 @@ CLASS Pay<@Class<StandardResource>> : Owned<Player>, Signal {
 }
 
 "Offers payment using the resource held by a specific card"
-CLASS AcceptingFromCard<@ResourceCard<Class<@CardResource>, @Player>> : Owned<@Player>, MustCleanUp {
+CLASS AcceptingFromCard<@ResourceCard<Class<@CardResource>, @Player>> : Owned<@Player>, MustCleanUp, Hidden {
   HAS MAX 1 This
   Billing: X PayFromCard<@ResourceCard> FROM @CardResource<@ResourceCard>?
   -X Billing:: -This!
@@ -59,8 +59,8 @@ ABSTRACT CLASS ResourceValue<@Class<StandardResource>> : Owned<Player> {
   Pay<@Class>:: -Owed<Class<MC>>
 
   "One M€ of a standard resource's ordinary payment value"
-  CLASS BaseResourceValue
+  CLASS BaseResourceValue : Hidden
 
   "One M€ of resource value represented separately from the component granting it"
-  CLASS GrantedResourceValue<CardFront>
+  CLASS GrantedResourceValue : Cardbound, Hidden
 }

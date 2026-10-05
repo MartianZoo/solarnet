@@ -3,9 +3,9 @@ package dev.martianzoo.engine
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.ClassSelection
+import dev.martianzoo.state.GamePremise
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -44,7 +44,7 @@ internal class GameWorldAtomicityTest {
                       """
                       CLASS Marker
                       CLASS Decision
-                      ABSTRACT CLASS Player : Owner, Actor
+                      ABSTRACT CLASS Player : Anyone, Actor
                       """
                           .trimIndent()
                   )

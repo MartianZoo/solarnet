@@ -6,8 +6,7 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import kotlin.test.BeforeTest
 
 /** Follow-along solo tests driven by the engine-owned game workflow. */
-internal abstract class AbstractSoloTest(requireEveryProjectCardChangeNamed: Boolean = false) :
-    CardTrackingFullGameTest(requireEveryProjectCardChangeNamed) {
+internal abstract class AbstractSoloTest : AbstractFullGameTest() {
   protected lateinit var me: TfmGameplay
   private lateinit var workflow: TfmWorkflow.Automatic
 

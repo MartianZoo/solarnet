@@ -2,7 +2,6 @@ package dev.martianzoo.pets
 
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
-import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.SystemClasses.USE_ACTION
 import dev.martianzoo.pets.ast.Action
@@ -12,7 +11,6 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
@@ -47,40 +45,6 @@ public object Transforming {
             }
           },
       )
-
-  /**
-   * Replaces each occurrence of the contextual `Owner` placeholder with [owner], except inside any
-   * subtree [shielded] accepts. An Owner-selecting fanout shields its body because the selection
-   * supplies the owner there instead, so an ordinary owned body reads on a card exactly as it does
-   * anywhere else ([rules
-   * L1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)
-   * and
-   * [L9-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration)).
-   * `Anyone` is an ordinary class and stands for itself.
-   */
-  public fun replaceOwnerWith(
-      owner: HasClassName,
-      shielded: (PetNode) -> Boolean = { false },
-  ): PetTransformer =
-      object : PetTransformer() {
-        override fun transformNode(node: PetNode): PetNode {
-          if (shielded(node)) {
-            // Only the body is shielded. A selector still names components in the enclosing
-            // context, so `EACH ProjectCard<Owner>` means the cards this component's owner holds.
-            return if (node is Each) node.copy(selector = transformExpression(node.selector))
-            else node
-          }
-          if (
-              node is Expression &&
-                  node.className == OWNER &&
-                  node.arguments.isEmpty() &&
-                  node.refinement == null
-          ) {
-            return node.copy(className = owner.className)
-          }
-          return transformChildren(node)
-        }
-      }
 
   /**
    * Replaces every authored X scalar with [value], retaining written coefficients: `X Plant THEN 2X

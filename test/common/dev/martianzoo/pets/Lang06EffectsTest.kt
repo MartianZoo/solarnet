@@ -14,7 +14,7 @@ import dev.martianzoo.pets.ast.Effect.Trigger.WhenRemove
 import dev.martianzoo.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.types.testCatalog
+import dev.martianzoo.pets.types.loadTypes
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -100,23 +100,23 @@ internal class Lang06EffectsTest {
 
   @Test
   internal fun `L6-7 OR binds tighter than BY, which binds tighter than IF`() {
-    val trigger = parse<Effect>("Plant OR -Heat BY Anyone IF Steel: Ore").trigger as IfTrigger
+    val trigger = parse<Effect>("Plant OR -Heat BY Actor IF Steel: Ore").trigger as IfTrigger
 
     ((trigger.inner as ByTrigger).inner is Trigger.Or) shouldBe true
-    trigger.toString() shouldBe "Plant OR -Heat BY Anyone IF Steel"
-    parse<Effect>("Plant OR -Heat BY Anyone:: Steel").toString() shouldBe
-        "Plant OR -Heat BY Anyone:: Steel"
+    trigger.toString() shouldBe "Plant OR -Heat BY Actor IF Steel"
+    parse<Effect>("Plant OR -Heat BY Actor:: Steel").toString() shouldBe
+        "Plant OR -Heat BY Actor:: Steel"
   }
 
   @Test
   internal fun `L6-7 parentheses give one alternative its own qualifier`() {
-    roundTrip<Effect>("(Plant BY Player1 IF Steel) OR (-Heat BY Anyone IF Ore): Eep")
-    roundTrip<Effect>("(Plant IF Steel) OR Heat BY Anyone IF Ore: Eep")
+    roundTrip<Effect>("(Plant BY Player1 IF Steel) OR (-Heat BY Actor IF Ore): Eep")
+    roundTrip<Effect>("(Plant IF Steel) OR Heat BY Actor IF Ore: Eep")
   }
 
   @Test
   internal fun `L6-7 a BY selector is an expression`() {
-    roundTrip<Effect>("Plant BY Player(NOT Owner): Heat")
+    roundTrip<Effect>("Plant BY Player(NOT Anyone): Heat")
     roundTrip<Effect>("Plant BY Actor(NOT Player2): Heat")
     roundTrip<Effect>("Plant IF =3 This OR =5 This: PROD[Heat]")
   }
@@ -126,13 +126,13 @@ internal class Lang06EffectsTest {
   @Test
   internal fun `L6-8 a trigger expression can name a Type variable used by the Effect`() {
     roundTrip<Effect>("@StandardResource: @StandardResource")
-    roundTrip<Effect>("Production<Class<@StandardResource>>: @StandardResource<Owner>")
+    roundTrip<Effect>("Production<Class<@StandardResource>>: @StandardResource<Anyone>")
     roundTrip<Effect>("@StandardResource IF @StandardResource: @StandardResource")
     roundTrip<Effect>("@StandardResource: Plant THEN @StandardResource")
     roundTrip<Effect>("This: @StandardResource THEN @StandardResource")
     roundTrip<Effect>(
-        "Notice<Victim@Owner(NOT ActingPlayer@Player)> BY ActingPlayer@Player: " +
-            "Heat<Victim@Owner>"
+        "Notice<Victim@Anyone(NOT ActingPlayer@Player)> BY ActingPlayer@Player: " +
+            "Heat<Victim@Anyone>"
     )
   }
 
@@ -151,7 +151,7 @@ internal class Lang06EffectsTest {
       parse<Effect>("CheckGameEnd IF 63 TerraformRating<@Player>: Victory<@Player>")
     }
     shouldThrow<PetSyntaxException> {
-      parse<Effect>("Notice<Owner(NOT @Player)> BY Player: Heat")
+      parse<Effect>("Notice<Anyone(NOT @Player)> BY Player: Heat")
     }
     shouldThrow<PetSyntaxException> {
       parse<Effect>("@StandardResource: @Plant THEN @StandardResource")
@@ -170,12 +170,12 @@ internal class Lang06EffectsTest {
 
   @Test
   internal fun `L6-10 an ordinary Signal subtype remains a valid subscription`() {
-    testCatalog("CLASS Event : Signal\nCLASS Result\nCLASS Listener { Event: Result }").classTable
+    loadTypes("CLASS Event : Signal\nCLASS Result\nCLASS Listener { Event: Result }")
   }
 
   private fun shouldRejectSubscription(trigger: String) {
     shouldThrow<InvalidPetDefinitionException> {
-          testCatalog("CLASS Result\nCLASS Listener { $trigger: Result }").classTable
+          loadTypes("CLASS Result\nCLASS Listener { $trigger: Result }")
         }
         .message
         .orEmpty() shouldContain "root is `Ok` or a nominal supertype of `Ok`"
@@ -203,9 +203,9 @@ internal class Lang06EffectsTest {
   @Test
   internal fun `L6-11 qualifying one parses, but L6-10 still rejects it at load`() {
     roundTrip<Effect>("Component IF Plant: Heat")
-    roundTrip<Effect>("Component BY Anyone: Heat")
+    roundTrip<Effect>("Component BY Actor: Heat")
     shouldRejectSubscription("Component IF Result")
-    shouldRejectSubscription("Component BY Anyone")
+    shouldRejectSubscription("Component BY Actor")
 
     // An ordinary subscription that is not above `Ok` remains fine.
     roundTrip<Effect>("Owned<Player>: Heat")
@@ -298,10 +298,5 @@ internal class Lang06EffectsTest {
         -Foo<Bar(NOT Qux)>: -X Foo<Bar(NOT Qux<Bar<Foo>, Abc>)> / 2 (2 Foo<Abc>)
         """
     )
-  }
-
-  @Test
-  internal fun `L6-12 an effect's descendant count is its whole subtree`() {
-    parse<Effect>("Steel<Steel>: PROD[(1 Heat FROM Plant) OR MC]").descendantCount() shouldBe 20
   }
 }

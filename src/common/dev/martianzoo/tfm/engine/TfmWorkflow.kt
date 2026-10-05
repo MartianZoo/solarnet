@@ -5,9 +5,9 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.state.toComponent
 import kotlinx.coroutines.CoroutineScope

@@ -7,8 +7,8 @@ import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
@@ -181,9 +181,13 @@ internal class TfmWorkflowTest {
     val p2 = game.testTfm(PLAYER2).also { it.autoExecPolicy = NONE }
 
     workflow.setupPhase()
+    p1.doTask("2 StandardCorporationCard<Selecting>")
     p1.doTask("BeginnerCorporationCard")
+    p1.doTask("-2 StandardCorporationCard<Selecting>")
     p1.doTask("NewTurn")
-    p2.doTask("StandardCorporationCard")
+    p2.doTask("2 StandardCorporationCard<Selecting>")
+    p2.doTask("StandardCorporationCard<Hand FROM Selecting>")
+    p2.doTask("-StandardCorporationCard<Selecting>")
     p2.doTask("NewTurn")
 
     p1.doTask("-2 PreludeCard")
@@ -205,9 +209,9 @@ internal class TfmWorkflowTest {
     workflow.corporationPhase()
     p1.startTurn()
     shouldThrow<TaskException> {
-      p1.doTask("PlayCard<Class<StandardCorporationCard>, Class<CrediCor>>")
+      p1.doTask("PlayCard<Class<StandardCorporationCard>, Class<CrediCor>, Hand>")
     }
-    p1.doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation1>>")
+    p1.doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation1>, Hand>")
     p1.pay()
     p1.doTask("42 MC")
     p1.doTask("10 ProjectCard")
@@ -220,12 +224,14 @@ internal class TfmWorkflowTest {
 
     p2.startTurn()
     shouldThrow<TaskException> {
-      p2.doTask("PlayCard<Class<StandardCorporationCard>, Class<BeginnerCorporation2>>")
+      p2.doTask("PlayCard<Class<StandardCorporationCard>, Class<BeginnerCorporation2>, Hand>")
     }
-    p2.doTask("PlayCard<Class<StandardCorporationCard>, Class<CrediCor>>")
+    p2.doTask("PlayCard<Class<StandardCorporationCard>, Class<CrediCor>, Hand>")
     p2.pay()
     p2.doTask("57 MC")
-    p2.doTask("5 BuyCard")
+    p2.doTask("10 ProjectCard<Selecting>")
+    p2.doTask("-5 ProjectCard<Selecting>")
+    p2.doTask("BuySelectedCards")
     p2.pay(15)
     p2.assertCounts(
         1 to "CrediCor",
@@ -243,13 +249,15 @@ internal class TfmWorkflowTest {
 
     workflow.setupPhase()
     listOf(p1, p2).forEach { player ->
+      player.doTask("2 StandardCorporationCard<Selecting>")
       player.doTask("BeginnerCorporationCard")
+      player.doTask("-2 StandardCorporationCard<Selecting>")
       player.doTask("NewTurn")
     }
 
     workflow.corporationPhase()
     p1.startTurn()
-    p1.doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation1>>")
+    p1.doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation1>, Hand>")
     p1.pay()
     p1.doTask("42 MC")
     p1.doTask("10 ProjectCard")
@@ -262,7 +270,7 @@ internal class TfmWorkflowTest {
     )
 
     p2.startTurn()
-    p2.doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation2>>")
+    p2.doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation2>, Hand>")
     p2.pay()
     p2.doTask("42 MC")
     p2.doTask("10 ProjectCard")
@@ -282,7 +290,10 @@ internal class TfmWorkflowTest {
     p2.autoExecPolicy = NONE
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
     listOf(p1, p2).forEach { player ->
-      player.doTask("StandardCorporationCard")
+      player.doTask("2 StandardCorporationCard<Selecting>")
+      player.assertCounts(2 to "StandardCorporationCard<Selecting>")
+      player.doTask("StandardCorporationCard<Hand FROM Selecting>")
+      player.doTask("-StandardCorporationCard<Selecting>")
       player.doTask("NewTurn")
     }
 
@@ -309,8 +320,12 @@ internal class TfmWorkflowTest {
     game.testTfm(PLAYER2).runOperation("20 MC")
     agents[ADMIN].beginOperation("ResearchPhase FROM Phase")
 
-    agents[PLAYER2].doTask("2 BuyCard")
-    agents[PLAYER1].doTask("BuyCard")
+    agents[PLAYER2].doTask("4 ProjectCard<Selecting>")
+    agents[PLAYER2].doTask("-2 ProjectCard<Selecting>")
+    agents[PLAYER2].doTask("BuySelectedCards")
+    agents[PLAYER1].doTask("4 ProjectCard<Selecting>")
+    agents[PLAYER1].doTask("-3 ProjectCard<Selecting>")
+    agents[PLAYER1].doTask("BuySelectedCards")
     game.testTfm(PLAYER2).pay(6)
     game.testTfm(PLAYER1).pay(3)
 

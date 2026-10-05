@@ -75,6 +75,6 @@ internal class KuiperCooperativeTest : CardTest() {
 
   private fun payWithKuiperAsteroids(body: OperationScope) {
     body.doTask("2 PayFromCard<$KuiperCooperative> FROM Asteroid<$KuiperCooperative>")
-    body.doTask("Pay<Class<MC>> FROM MC / Owed<>")
+    body.doTask("Pay<Class<MC>> FROM MC / Owed")
   }
 }

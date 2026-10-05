@@ -5,9 +5,6 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause

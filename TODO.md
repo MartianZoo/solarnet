@@ -4,16 +4,54 @@
 
 Issue links provide background. Inline TODOs should be brief context pointers.
 
+## Pets specification fidelity audit
+
+- [ ] Continue the Pets fidelity audit using the principles and investigation leads in
+  [SPEC_FIDELITY.md](docs/agents/SPEC_FIDELITY.md), reassessing them against the current code.
+
 ## User Ideas and Agreed Directions
 
+- Find a simple, natural way for the presence of `Class<Aridor>` to bring all unused
+  `Class<ColonyTile>` definitions into the game. Without Aridor present, only the explicitly
+  selected colony tiles should be defined. This should depend on Aridor's Class being present,
+  not on anyone playing the corporation; the implementation remains open.
+- Consider extending `Name@` shorthand to represented-Class applications such as `Chosen@<Player>`.
+  Inferring types at supplying occurrences (especially `EACH` and `RANK` domains) and retaining
+  short spelling after resolution also remain deferred; supported shorthand references one
+  uniquely named typed binding.
+- Make `ComponentGraph.listenToCount` update only subscriptions affected by a component change,
+  instead of recounting every watched Type after every change. Preserve immediate initial delivery,
+  notifications only when the count changes, cancellation, and correct subtype/refinement handling
+  through gains, removals, transmutations, and rollback. Prefer existing indexes and a small design;
+  callers should continue receiving changes without polling.
+- When preparing the [PETS repository draft](docs/pets-repo-draft.md) for publication, decide
+  whether to include Sponsored Academies, currently retained as a draft note after the gallery.
+- Add scenario saving and reloading to [Mars Playground](PLAYGROUND.md) after the initial version.
+- Add shareable URLs for [Mars Playground](PLAYGROUND.md#technology-and-experience) later. First
+  decide what restoring the same view includes: scenario, history position, camera, and windows.
+- Review derived lookups on delegated Catalogs: `customClass`, `customMetric`, `classDeclaration`,
+  and `allClassNames` use the delegate's properties even when the wrapper overrides them. Keep this
+  existing issue separate from the class-loading boundary cleanup.
+- Try to simplify Flooding and Artificial Lake's ocean instructions without engine prediction.
+  Preserve full-track no-placement behavior (including Amazonis), Artificial Lake's required
+  placement below the cap, and Flooding's linked placement and victim choice.
+- Look for a small way to evaluate the existing `CardFilter` criteria against a card Class in Pets.
+  Replay tracking currently checks them in Kotlin; avoid adding engine card identities or a new
+  processing stage just for this. Named-header specialization of Requirement properties and
+  inspecting authored references are the current obstacles (see
+  [card handling](docs/agents/CARD_HANDLING.md#external-offer-procedures)).
+- Make L1 Trade Terminal's resource allowance count only its own gifts, not resource gains from
+  other cards reacting to them. First reproduce the interaction with a literal `Microbe: Animal`
+  fan-card effect, then find the smallest correction that preserves the Terminal's required
+  distribution across eligible cards. See [game hack #7](docs/agents/GAME_HACKS.md#7-l1-trade-terminals-quota-counts-unrelated-resource-gains).
 - Find a small, exact way for Ecology Experts' plant and microbe tags to trigger a newly played
   bio listener without replaying those tags or rewarding an older copy of that listener. Double
   Down copies the Prelude's immediate instruction but not its effects, so the solution must also
   cover that path. Until then, keep the four affected combinations Unsafe-only; `BugsTest`
   characterizes the Viral Enhancers and Ecological Zone outcomes.
 - Consider a shared party-leader recalculation helper for the ranking repeated on delegate gains
-  and Banned Delegate. Keep it only if it simplifies the Pets model overall and preserves leadership
-  through Recruitment's neutral-delegate transfer.
+  and Banned Delegate. Replacement cleanup belongs to `PartyLeader`; share the remaining winner
+  selection only if it simplifies the model overall and preserves Recruitment's transfer semantics.
 - Place the neutral solo tiles immediately after the original corporation play, then remove Tharsis
   Republic's solo-only +2 M€ production effect. Its normal city-placement effect should grant the
   two production steps; verify that neutral greeneries still do not raise oxygen and that a
@@ -85,8 +123,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   phase-caused tasks as soon as the required runtime state can express them.
 - Let refinements reference their candidate explicitly, so a selector can relate a nested
   dependency to that candidate without repeating its complete expression.
-- Revisit contextual `Owner` as a broad language redesign; the explicit Type-variable work leaves
-  its ambient binding semantics unchanged for now.
+- Make `PROD[@StandardResource]` retain its represented-Class marker through lowering; Utopia
+  Invest currently writes `Production<Class<@StandardResource>>` in its action for this reason.
 - Give Pets a real structural conjunction, spelled something like `Tile(IS Owned)`, and retire the
   nominal `OwnedTile` class once `Landlord` and the other owned-tile rules can name the intersection
   directly. Until then a master-universe Canon test checks the nominal `OwnedOccupant` and
@@ -101,11 +139,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `PayFromCard` need not inherit `Hidden` through `MustCleanUp`.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
-- **Low priority:** [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)
+- **Low priority:** [#54: ownership-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)
   — Resolve contextual ownership correctly and display the resolved player.
-- **Low priority:** Investigate why the oxygen steps created by SoloOpponent's setup greeneries do
-  not award it TR, and whether adding and then removing those steps has any other observable
-  consequences.
 - Consider requirement-gated action costs, using United Nations Mars Initiative to make
   `HasRaisedTr` a prerequisite to paying its 3 M€ rather than a gate around the result.
 - Derive selected singleton card watchers without explicit support-Class invariants. The current
@@ -117,6 +152,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   is explicitly included. Deimos Down and Magnetic Field Generators follow the same pattern.
 - **Low priority:** [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve
   hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
+- Replace the [archived Life of an Effect walkthrough](docs/archive/life-of-an-effect.md) with a
+  current account of lexical `Me` and the transformation pipeline.
 - Give Admin an installable autoexecution policy for Global Events that pulls exact cards from an
   ordered list; until then callers explicitly complete reveal tasks.
 - Reconsider Turmoil's `PartyLeader` representation and name. It currently supplements the actual
@@ -147,6 +184,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Preserve authored provenance when runtime narrowing and task normalization synthesize new trees.
   Definition, query, and direct-change diagnostics retain available spans; some generated tasks and
   failures computed solely from component Types still have no authored location.
+- Preserve the empty-intersection reason when rejecting a partial task submission. For an
+  unavailable Type, the current fallback can misleadingly blame an omitted dependency instead.
 - Improve the specific caret targets and related-source context recorded beside message assertions
   in `CatalogDiagnosticsTest` and `PostCatalogDiagnosticsTest`; consider rendering span widths as
   well as their starting positions.
@@ -167,12 +206,17 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   gains instead of editing completion flags. Preserve the existing scenario coverage without adding
   gameplay helpers solely for these fixtures.
 
+- Extend instruction intersection to preserve unresolved shared aliases and unnamed Type unions.
+  These currently require a more specific submitted choice; keep task matching conservative and
+  never substitute `Ok` for an unrepresentable nonempty intersection.
+
+- Add choice enumeration over caller-held `TaskDraft`s, one sub-Specification at a time, using
+  read-only engine analysis. Cover `OR`, abstract targets, transmutation pairs, linked Type choices
+  across `THEN`, nested wrappers, and bounded `X`; account for AMAP, optional changes, and
+  zero-capacity targets.
 - Extend the Mining Rights/Area wild-resource regression after placement is fixed: Robotic
   Workforce and Cyberia Systems may choose either originally available metal production even if
   the placement awarded a nonmetal resource. No remembered resource choice is required.
-- Fix the two-colony Pluto trade characterized in `rules/BugsTest`: separate draw/discard bonuses
-  can still interleave, allowing both draws before either discard. Each bonus must finish before
-  the next begins.
 
 - Revisit aligning multiplatform JVM tests with the repository JUnit BOM. Setup overrides now
   explicitly declare `@BeforeTest`, including `ActiveVacuumCoreTest.commonSetup`. Verify lifecycle
@@ -187,7 +231,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `ClassTableSelectionTest`. Keep each distinct selection boundary tested once and remove
   repetitive assertions without losing the readable scenarios or broad module/content cases.
 
-- Add Jacob Fryxelius's ruling that moving Mars Nomads does not trigger the Mars First ruling policy.
 - Find a principled way for narrower dependency defaults to retain compatible refinements from
   wider defaults, so `Tile` can own area occupancy once while its subclasses select their kinds of
   areas and add placement rules.

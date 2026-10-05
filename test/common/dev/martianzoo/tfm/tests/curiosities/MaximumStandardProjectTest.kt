@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.curiosities
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.replays.AbstractSoloTest
 import io.kotest.matchers.shouldBe
@@ -158,8 +158,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       stdProject(
           "AquiferProject",
           payment = {
-            doTask("6 PayFromCard<Spire> FROM Science<Spire>")
-            doTask("6 Pay<Class<MC>> FROM MC")
+            doTask("6 PayFromCard FROM Science<Spire>")
+            doTask("6 Pay<> FROM MC")
           },
       ) {
         placeTile(1, 1)
@@ -187,6 +187,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
     // 27 ocean adjacency + 6 Terraforming Deal + 4 CrediCor + 4 Greens + 3 each
     // from Standard Technology and Homeostasis Bureau + 2 each from Suitable Infrastructure and
     // Meat Industry.
+    val previousPolicy = me.autoExecPolicy
     me.autoExecPolicy = NONE
     me.stdProject(
             "GreeneryProject",
@@ -197,7 +198,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
                   "ActionBilling<GreeneryProject, Action1, Class<MC>>",
                   cn("GreeneryProject"),
               )
-              doTask("12 PayFromCard<Spire> FROM Science<Spire>")
+              doTask("12 PayFromCard FROM Science<Spire>")
               // Twelve science are worth 24 MC; decline the unused MC tender after overpaying by
               // one.
               declineTask()
@@ -212,7 +213,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
           doTask("2 MC", cn("OceanTile"))
           doTask("2 MC", cn("OceanTile"))
           doTask("2 MC", cn("OceanTile"))
-          doTask("Animal<Herbivores>", Herbivores)
+          doTask("Animal", Herbivores)
           doTask("2 MC", MeatIndustry)
           doTask("OxygenStep", cn("GreeneryTile"))
           doTask("TerraformRating", cn("OxygenStep"))
@@ -234,7 +235,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
           doTask("TerraformRating", cn("OceanTile"))
           doTask("2 MC", TerraformingDeal)
           doTask("PROD[1 MC]", LakefrontResorts)
-          // Suitable Infrastructure: 2 MC (automatic)
+          // Finish the ordinary history and Suitable Infrastructure effects.
+          me.autoExecPolicy = previousPolicy
         }
         .expect("51 MC, OxygenStep, TemperatureStep, OceanTile, 3 TerraformRating")
 

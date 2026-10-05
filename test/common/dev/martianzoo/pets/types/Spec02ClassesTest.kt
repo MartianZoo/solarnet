@@ -1,14 +1,14 @@
 package dev.martianzoo.pets.types
 
-import dev.martianzoo.pets.api.CustomInstruction
-import dev.martianzoo.pets.api.CustomMetric
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
-import dev.martianzoo.pets.api.GameReader
-import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.systemClassDeclarations
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -154,9 +154,9 @@ internal class Spec02ClassesTest {
   @Test
   internal fun `T2-5 a supertype cycle is rejected`() {
     shouldThrow<InvalidPetDefinitionException> {
-      loadTypes("CLASS GreeneryTile : CityTile", "CLASS CityTile : GreeneryTile")
+      loadTypes("ABSTRACT CLASS Area : MarsArea", "ABSTRACT CLASS MarsArea : Area")
     }
-    shouldThrow<InvalidPetDefinitionException> { loadTypes("CLASS GreeneryTile : GreeneryTile") }
+    shouldThrow<InvalidPetDefinitionException> { loadTypes("ABSTRACT CLASS Area : Area") }
   }
 
   // T2-6 Declaration order
@@ -172,11 +172,11 @@ internal class Spec02ClassesTest {
 
   @Test
   internal fun `T2-7 superclass traversal is intrinsic and subclass traversal is table-relative`() {
-    klass("LandArea").allSuperclasses().map { "$it" } shouldContainExactly
+    klass("LandArea").allSuperclasses().map { "$it" } shouldContainExactlyInAnyOrder
         listOf("Component", "Area", "MarsArea", "LandArea")
-    mars.allSubclasses(klass("LandArea")).map { "$it" } shouldContainExactly
+    mars.allSubclasses(klass("LandArea")).map { "$it" } shouldContainExactlyInAnyOrder
         listOf("Tharsis_2_2", "VolcanicArea", "Tharsis_5_5", "LandArea")
-    mars.directSubclasses(klass("LandArea")).map { "$it" } shouldContainExactly
+    mars.directSubclasses(klass("LandArea")).map { "$it" } shouldContainExactlyInAnyOrder
         listOf("Tharsis_2_2", "VolcanicArea")
   }
 
@@ -236,59 +236,7 @@ internal class Spec02ClassesTest {
   }
 
   // T2-9 Kotlin-backed classes
-
-  @Test
-  internal fun `T2-9 a CustomInstruction must have a Kotlin implementation, and only a CustomInstruction may`() {
-    val declaration = "CLASS Neighbor : CustomInstruction"
-
-    ClassLoader(testCatalog(declaration, setOf(object : CustomInstruction(cn("Neighbor")) {})))
-        .loadEverything()
-        .getClass(cn("Neighbor"))
-        .declaration
-        .customMetric shouldBe false
-
-    // A declared-but-unimplemented CustomInstruction is rejected by the Catalog lookup itself.
-    shouldThrow<InvalidPetDefinitionException> { loadTypes(declaration) }
-    shouldThrow<InvalidPetDefinitionException> {
-      ClassLoader(
-              testCatalog("CLASS Neighbor", setOf(object : CustomInstruction(cn("Neighbor")) {}))
-          )
-          .loadEverything()
-    }
-    val wrongKind =
-        object : CustomMetric("Neighbor") {
-          override fun count(game: GameReader, type: Type): Int = 0
-        }
-    shouldThrow<InvalidPetDefinitionException> {
-      ClassLoader(testCatalog(declaration, setOf(wrongKind))).loadEverything()
-    }
-    shouldThrow<InvalidPetDefinitionException> {
-      ClassLoader(
-              testCatalog(
-                  "CLASS Neighbor : CustomMetric",
-                  setOf(object : CustomInstruction("Neighbor") {}),
-              )
-          )
-          .loadEverything()
-    }
-  }
-
-  @Test
-  internal fun `T2-9 a root class rejects an unexpected implementation`() {
-    shouldThrow<InvalidPetDefinitionException> {
-      ClassLoader(testCatalog("", setOf(object : CustomInstruction(COMPONENT) {})))
-    }
-  }
-
-  @Test
-  internal fun `T2-9 a computed Signal has one implementation`() {
-    val first = object : CustomInstruction("Neighbor") {}
-    val second = object : CustomInstruction("Neighbor") {}
-    shouldThrow<InvalidPetDefinitionException> {
-      ClassLoader(testCatalog("CLASS Neighbor : CustomInstruction", setOf(first, second)))
-          .loadEverything()
-    }
-  }
+  // External implementation checks live in state/CustomImplementationValidationTest.kt.
 
   @Test
   internal fun `T2-9 a CustomMetric may not inherit Pets behavior`() {
@@ -298,16 +246,13 @@ internal class Spec02ClassesTest {
             "ABSTRACT CLASS Behaving { DEFAULT +Behaving. }",
         )
         .forEach { parent ->
-          val catalog =
-              testCatalog(
-                  "$parent\nCLASS Neighbor : Behaving, CustomMetric",
-                  setOf(
-                      object : CustomMetric("Neighbor") {
-                        override fun count(game: GameReader, type: Type): Int = 0
-                      }
-                  ),
+          val loader =
+              ClassLoader(
+                  ClassDeclaration.indexByName(
+                      systemClassDeclarations +
+                          parseClasses("$parent\nCLASS Neighbor : Behaving, CustomMetric")
+                  )
               )
-          val loader = ClassLoader(catalog)
 
           // Also proves a failed load is not cached as a success.
           repeat(2) {

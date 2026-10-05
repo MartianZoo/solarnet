@@ -3,18 +3,19 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.GameEvent.TaskAddedEvent
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
+import dev.martianzoo.tfm.canon.cardTags
 import dev.martianzoo.tfm.engine.TfmGameplay
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 
-internal abstract class CardTrackingFullGameTest(
-    private val requireEveryProjectCardChangeNamed: Boolean = false,
-) : AbstractFullGameTest() {
+internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   /** Source-known card identities in the order they enter each Player's modeled hand. */
   protected open val projectCardArrivalOrder: Map<ClassName, List<ClassName>> = emptyMap()
 
@@ -97,7 +98,7 @@ internal abstract class CardTrackingFullGameTest(
     val earliestOrdinal = recentProjectCardStarts[player] ?: trackingStartOrdinal
     return projectCardEvents.any { event ->
       event.ordinal >= earliestOrdinal &&
-          event.change.gaining?.className == PROJECT_CARD &&
+          event.change.gaining.isProjectCardAt(HAND) &&
           event.projectCardPlayer() == player &&
           cardClass in eventCards[event to true].orEmpty()
     }
@@ -120,6 +121,22 @@ internal abstract class CardTrackingFullGameTest(
     annotateProjectCardChange(player, cardClasses.asList(), gaining = false)
   }
 
+  /** Names both movements on the acting Player, like the replay's draw and discard annotations. */
+  protected fun TfmGameplay.nameRevealedCards(vararg cardClasses: ClassName) {
+    syncCardPlays()
+    cardClasses.forEach { cardClass ->
+      check(cards[cardClass] == Hand(player)) {
+        "$cardClass should be back in ${player}'s hand, but is at ${cards[cardClass]}"
+      }
+    }
+    annotateProjectCardChange(player, cardClasses.asList(), gaining = false) {
+      it.movesBetweenHandAndReveal()
+    }
+    annotateProjectCardChange(player, cardClasses.asList(), gaining = true) {
+      it.movesBetweenHandAndReveal()
+    }
+  }
+
   protected fun TfmGameplay.sellPatents(vararg cardClasses: ClassName): TaskResult {
     return stdProject("SellPatentsProject") {
       doTask("${cardClasses.size} MC FROM ProjectCard!")
@@ -139,12 +156,106 @@ internal abstract class CardTrackingFullGameTest(
             .filterValues { it.isNotEmpty() }
     check(unusedArrivals.isEmpty()) { "unused project-card arrivals: $unusedArrivals" }
     assertHandSizesMatch()
-    if (requireEveryProjectCardChangeNamed) {
-      val unnamedEvents = projectCardEvents.filterNot { it.hasCompleteCardNote() }
-      check(unnamedEvents.isEmpty()) {
-        "project-card events without every card name: " +
-            unnamedEvents.joinToString { "${it.ordinal}: ${it.change}" }
+    val unnamedEvents = projectCardEvents.filterNot { it.hasCompleteCardNote() }
+    check(unnamedEvents.isEmpty()) {
+      "project-card events without every card name: " +
+          unnamedEvents.joinToString { "${it.ordinal}: ${it.change}" }
+    }
+    assertCardCriteria()
+  }
+
+  /** Names the deck card flipped by this action without adding it to the hand ledger. */
+  protected fun nameFlippedCard(result: TaskResult, cardClass: ClassName) {
+    val reveal =
+        result.changes.single {
+          it.change.gaining.isProjectCardAt(REVEALED) && !it.movesBetweenHandAndReveal()
+        }
+    check(eventCards[reveal to true].isNullOrEmpty()) { "flip already named: $reveal" }
+    reveal.noteCards(listOf(cardClass), gaining = true)
+  }
+
+  private fun assertCardCriteria() {
+    val events = game.events.entriesSince(Checkpoint(trackingStartOrdinal))
+    val changes = events.filterIsInstance<ChangeEvent>()
+    changes.forEachIndexed { index, event ->
+      val context = event.cause?.context ?: return@forEachIndexed
+      if (
+          event.change.gaining.isProjectCardAt(HAND) &&
+              context.className in setOf(cn("SearchForCard"), cn("TakeSelectedCard"))
+      ) {
+        val filter = cardFilter(context)
+        eventCards[event to true].orEmpty().forEach { card ->
+          check(cardMatchesFilter(card, filter)) {
+            "$card does not satisfy $filter at event ${event.ordinal}"
+          }
+        }
       }
+      if (!event.change.gaining.isProjectCardAt(REVEALED) || event.movesBetweenHandAndReveal()) {
+        return@forEachIndexed
+      }
+      val player = event.projectCardPlayer()
+      val following = changes.drop(index + 1)
+      val end = following.indexOfFirst {
+        it.projectCardPlayer() == player && it.change.removing.isProjectCardAt(REVEALED)
+      }
+      check(end >= 0) { "flipped card was not discarded: $event" }
+      // Read the actual offered choice, so even a declined claim carries its Pets criterion.
+      val claim =
+          events
+              .filterIsInstance<TaskAddedEvent>()
+              .filter {
+                it.ordinal > event.ordinal &&
+                    it.ordinal < following[end].ordinal &&
+                    it.task.assignee == player
+              }
+              .flatMap { it.task.instruction.descendantsOfType<Expression>() }
+              .filter { it.className == cn("ClaimCardReward") }
+              .distinct()
+              .single()
+      val filter = cardFilter(claim)
+      val claimed =
+          following.take(end).any {
+            it.change.gaining?.className == claim.className &&
+                it.owningPlayer(checkNotNull(it.change.gaining)) == player
+          }
+      val names = eventCards[event to true].orEmpty()
+      check(!claimed || names.size == event.change.count) {
+        "$claim requires the flipped card's identity at event ${event.ordinal}"
+      }
+      names.forEach { card ->
+        check(cardMatchesFilter(card, filter) == claimed) {
+          "$card ${if (claimed) "does not satisfy" else "satisfies"} $filter, but claim=$claimed at event ${event.ordinal}"
+        }
+      }
+    }
+  }
+
+  private fun cardFilter(expression: Expression): Expression =
+      expression.arguments.single {
+        game.classTable
+            .getClass(it.className)
+            .isSubtypeOf(game.classTable.getClass(cn("CardFilter")))
+      }
+
+  private fun cardMatchesFilter(cardClass: ClassName, filter: Expression): Boolean {
+    val card = catalog.card(cardClass)
+    return when (filter.className) {
+      cn("TagFilter") -> {
+        val tag =
+            catalog.classTable.getClass(filter.arguments.single().arguments.single().className)
+        cardTags(card).elements.any { catalog.classTable.getClass(it).isSubtypeOf(tag) }
+      }
+      cn("NoTagsFilter") -> cardTags(card).isEmpty()
+      cn("ReferenceFilter") -> {
+        val reference =
+            catalog.classTable.getClass(filter.arguments.single().arguments.single().className)
+        card.declaration.allNodes.any { node ->
+          node.descendantsOfType<ClassName>().any {
+            catalog.classTable.findClass(it)?.isSubtypeOf(reference) == true
+          }
+        }
+      }
+      else -> error("unrecognized card filter: $filter")
     }
   }
 
@@ -172,7 +283,7 @@ internal abstract class CardTrackingFullGameTest(
       "card tracking crossed an unannounced timeline rollback"
     }
     game.events.entriesSince(trackingCheckpoint).filterIsInstance<ChangeEvent>().forEach { event ->
-      if (event.involvesProjectCard()) {
+      if (event.involvesHandCard()) {
         projectCardEvents += event
         val player = event.projectCardPlayer()
         if (player != null) recentProjectCardStarts[player] = syncStart
@@ -184,19 +295,21 @@ internal abstract class CardTrackingFullGameTest(
   }
 
   private fun observeCardChange(event: ChangeEvent) {
+    // Hand membership is unchanged after a full reveal cycle; its two events still need names.
+    if (event.movesBetweenHandAndReveal()) return
     val gaining = event.change.gaining
     val removing = event.change.removing
     when {
-      gaining?.className == PROJECT_CARD && removing?.className == PLAYED_EVENT -> {
+      gaining.isProjectCardAt(HAND) && removing?.className == PLAYED_EVENT -> {
         val cardClass = checkNotNull(removing.trackedCardClass())
-        val player = event.playerOwner(gaining)
+        val player = event.owningPlayer(checkNotNull(gaining))
         cards[cardClass] = Hand(player)
         event.noteCards(listOf(cardClass), gaining = true)
       }
-      gaining?.className == PROJECT_CARD -> observeProjectCardArrival(event)
-      removing?.className == PROJECT_CARD && gaining?.className != null -> {
+      gaining.isProjectCardAt(HAND) -> observeProjectCardArrival(event)
+      removing.isProjectCardAt(HAND) && gaining?.className != null -> {
         val cardClass = gaining.className
-        val player = event.playerOwner(removing)
+        val player = event.owningPlayer(checkNotNull(removing))
         val state = cards[cardClass] ?: return
         check(state == Hand(player)) { "$player played $cardClass from $state" }
         cards[cardClass] = Played(player)
@@ -212,6 +325,7 @@ internal abstract class CardTrackingFullGameTest(
   }
 
   private fun observeProjectCardArrival(event: ChangeEvent) {
+    if (!event.change.gaining.isProjectCardAt(HAND)) return
     val player = event.projectCardPlayer() ?: return
     val arrivals = projectCardArrivalOrder[player.className] ?: return
     val offset = arrivalOffsets.getValue(player.className)
@@ -232,14 +346,13 @@ internal abstract class CardTrackingFullGameTest(
       player: Player,
       cardClasses: List<ClassName>,
       gaining: Boolean,
+      additionalMatch: (ChangeEvent) -> Boolean = { !it.movesBetweenHandAndReveal() },
   ) {
     val matches: (ChangeEvent) -> Boolean = { event ->
       event.projectCardPlayer() == player &&
-          if (gaining) {
-            event.change.gaining?.className == PROJECT_CARD
-          } else {
-            event.change.removing?.className == PROJECT_CARD
-          }
+          additionalMatch(event) &&
+          if (gaining) event.change.gaining.isProjectCardAt(HAND)
+          else event.change.removing.isProjectCardAt(HAND)
     }
     val annotation =
         PendingAnnotation(
@@ -317,11 +430,18 @@ internal abstract class CardTrackingFullGameTest(
         listOfNotNull(change.gaining, change.removing).firstOrNull {
           it.className == PROJECT_CARD
         } ?: return null
-    return playerOwner(component)
+    return owningPlayer(component)
   }
 
-  private fun ChangeEvent.involvesProjectCard(): Boolean =
-      change.gaining?.className == PROJECT_CARD || change.removing?.className == PROJECT_CARD
+  private fun ChangeEvent.involvesHandCard(): Boolean =
+      change.gaining.isProjectCardAt(HAND) || change.removing.isProjectCardAt(HAND)
+
+  private fun ChangeEvent.movesBetweenHandAndReveal(): Boolean =
+      (change.removing.isProjectCardAt(HAND) && change.gaining.isProjectCardAt(REVEALED)) ||
+          (change.removing.isProjectCardAt(REVEALED) && change.gaining.isProjectCardAt(HAND))
+
+  private fun Component?.isProjectCardAt(location: ClassName): Boolean =
+      this?.className == PROJECT_CARD && expressionFull.arguments.any { it.className == location }
 
   private fun ChangeEvent.noteCards(cardClasses: List<ClassName>, gaining: Boolean) {
     val notedCards = eventCards.getOrPut(this to gaining) { mutableListOf() }
@@ -343,8 +463,8 @@ internal abstract class CardTrackingFullGameTest(
   }
 
   private fun ChangeEvent.hasCompleteCardNote(): Boolean =
-      (change.gaining?.className != PROJECT_CARD || remainingCardCapacity(this, true) == 0) &&
-          (change.removing?.className != PROJECT_CARD || remainingCardCapacity(this, false) == 0) &&
+      (!change.gaining.isProjectCardAt(HAND) || remainingCardCapacity(this, true) == 0) &&
+          (!change.removing.isProjectCardAt(HAND) || remainingCardCapacity(this, false) == 0) &&
           trackedCardNote?.let { expected -> notes?.lineSequence()?.any { it == expected } } == true
 
   private val ChangeEvent.trackedCardNote: String?
@@ -362,7 +482,7 @@ internal abstract class CardTrackingFullGameTest(
   private fun remainingCardCapacity(event: ChangeEvent, gaining: Boolean): Int =
       event.change.count - eventCards[event to gaining].orEmpty().size
 
-  private fun ChangeEvent.playerOwner(component: Component): Player =
+  private fun ChangeEvent.owningPlayer(component: Component): Player =
       checkNotNull(
           component.owner?.className?.let { ownerName ->
             game.actors.filterIsInstance<Player>().singleOrNull { it.className == ownerName }
@@ -403,5 +523,7 @@ internal abstract class CardTrackingFullGameTest(
   private companion object {
     val PROJECT_CARD: ClassName = cn("ProjectCard")
     val PLAYED_EVENT: ClassName = cn("PlayedEvent")
+    val HAND: ClassName = cn("Hand")
+    val REVEALED: ClassName = cn("Revealed")
   }
 }

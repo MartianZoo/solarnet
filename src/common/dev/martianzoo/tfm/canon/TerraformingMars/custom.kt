@@ -4,12 +4,8 @@ package dev.martianzoo.tfm.canon.terraformingmars
 
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.api.CustomClass
-import dev.martianzoo.pets.api.CustomInstruction
-import dev.martianzoo.pets.api.CustomMetric
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
@@ -29,6 +25,10 @@ import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.CustomClass
+import dev.martianzoo.state.CustomInstruction
+import dev.martianzoo.state.CustomMetric
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.TfmClasses.PROJECT_CARD
@@ -196,7 +196,7 @@ private val scoreEventVps =
     object : CustomInstruction("ScoreEventVps") {
       override fun translate(
           reader: GameReader,
-          ignoredOwner: Type,
+          ignoredOwningType: Type,
           classType: Type,
       ): InstructionTree {
         val effects = cardEffects(cardFromClassType(classType, reader))

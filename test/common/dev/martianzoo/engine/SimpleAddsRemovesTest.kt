@@ -6,8 +6,8 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.util.toStrings
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.ComponentChange
 import dev.martianzoo.state.toComponent
 import dev.martianzoo.testsupport.PLAYER1
@@ -51,7 +51,7 @@ internal class SimpleAddsRemovesTest {
                 """
                 CLASS Token
                 CLASS Card : Owned { HAS MAX 1 This }
-                ABSTRACT CLASS Linked<Card<SameOwner@Owner>> : Owned<SameOwner@Owner>
+                ABSTRACT CLASS Linked<Card<SharedHolder@Anyone>> : Owned<SharedHolder@Anyone>
                 CLASS Holder : Linked {
                   HAS MAX 1 This
                   This:: Token

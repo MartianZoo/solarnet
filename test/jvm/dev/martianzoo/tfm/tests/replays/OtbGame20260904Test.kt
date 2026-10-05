@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -40,8 +40,8 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
   override val playerClassPets =
       """
       CLASS Yellow : Player
-      CLASS Rainbow : Player { SetupPhase: 4 TerraformRating }
-      CLASS Blue : Player { SetupPhase: 2 TerraformRating }
+      CLASS Rainbow : Player { SetupPhase: 4 TerraformRating<This> }
+      CLASS Blue : Player { SetupPhase: 2 TerraformRating<This> }
       CLASS Green : Player
       """
           .trimIndent()
@@ -197,7 +197,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // raised production it gives me two money can't complain about that [Rainbow]'s turn"
       playProject(RoboticWorkforce, 9) {
             doTask("CopyProductionBox<$TitaniumMine>")
-            doTask("ProjectCard FROM Science<$OlympusConference>")
+            doTask("ProjectCard FROM Science")
           }
           .expect("PROD[Titanium], -7 MC, -Science<$OlympusConference>, 0 ProjectCard")
     }
@@ -755,7 +755,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
             // two plants."
             placeTile(7, 4)
             autoExecNow()
-            selectTask("UseAction<Blue, NeptunianOption<Blue, NeptunianPowerConsultants<Blue>>>?")
+            selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
             blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
             // 3:59:00 PM — Green: "All right this would be nine four."
@@ -764,7 +764,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
             // one? Only two money or two plants. Do I need another card? Do I need another card?"
             placeTile(9, 4)
             autoExecNow()
-            selectTask("UseAction<Blue, NeptunianOption<Blue, NeptunianPowerConsultants<Blue>>>?")
+            selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
             blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
             // Crossing 0°C supplies Amazonis's temperature-track ocean bonus.
@@ -772,7 +772,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
             // events."
             placeTile(6, 11)
             autoExecNow()
-            selectTask("UseAction<Blue, NeptunianOption<Blue, NeptunianPowerConsultants<Blue>>>?")
+            selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
             blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
             doTask("-5 Plant<Yellow>!")
@@ -1142,7 +1142,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       cardAction2(IcyImpactors) {
         rainbow.doTask("OceanTile<Amazonis_02_01> BY Green")
         green.doTask("TerraformRating")
-        selectTask("UseAction<Blue, NeptunianOption<Blue, NeptunianPowerConsultants<Blue>>>?")
+        selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
         blue.narrowTask("Ok")
       }
     }
@@ -1608,7 +1608,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // tag removes my only science resource from Olympus conference and gives me this guy it's
       // actually reasonable That's actually useful in this circumstance, I don't believe it."
       playProject(FusionPower, 10, steel = 2) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
       }
     }
     yellow.turn {
@@ -1799,7 +1799,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // a
       // city actually."
       // 6:08:59 PM — Green: "Okay, on six nine."
-      stdProject("CityProject") { placeTile(6, 9) }
+      stdProject("CityProject") { doTask("NormalCityTile<Amazonis_06_09>") }
     }
     rainbow.turn {
       // 6:09:38 PM — Rainbow: "You need other fish. Okay. Exactly. Um okay, so I am going to take
@@ -1921,7 +1921,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 9:20:50 PM — Yellow: "I pay for it because it has space tag and then science tag adds
       // carbon nano back oh right and I use University pitch and drop"
       playProject(TransNeptuneProbe, 2) {
-            doTask("PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>")
+            doTask("PayFromCard FROM Graphene<$CarbonNanosystems>")
             doTask("ProjectCard FROM ProjectCard")
           }
           .expect("-2 MC")
@@ -2079,7 +2079,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       playProject(
               ImportedHydrogen,
               payment = {
-                doTask("2 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>")
+                doTask("2 PayFromCard FROM Graphene<$CarbonNanosystems>")
                 assertCardResources(0 to CarbonNanosystems)
                 pay(8)
               },

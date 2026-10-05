@@ -20,7 +20,7 @@ internal class PublicAstParsingTest {
     parse<Refinement>("(NOT Foo)").toString() shouldBe "NOT Foo"
     (parse<Refinement>("(HAS Foo, NOT Bar)") as And).refinements.map { it::class } shouldBe
         listOf(Has::class, Not::class)
-    parse<Property>("Owner.amount").propertyName.value shouldBe "amount"
+    parse<Property>("Anyone.amount").propertyName.value shouldBe "amount"
     parse<Scalar>("2X") shouldBe XScalar(2)
   }
 }

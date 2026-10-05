@@ -5,9 +5,10 @@ import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
@@ -135,6 +136,25 @@ internal class BootstrapLifecycleTest {
   }
 
   @Test
+  internal fun soloNeutralCitiesCannotBePlacedNextToEachOther() {
+    val game = Engine.newGame(canonicalPremise(players = 1))
+    val admin = game.testAgent(ADMIN)
+    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+
+    admin.doTask("CityTile<Tharsis_4_1>")
+    admin.doTask("GreeneryTile<Tharsis_5_1>")
+    shouldThrow<NarrowingException> { admin.doTask("CityTile<Tharsis_4_2>") }
+    admin.count("CityTile") shouldBe 1
+    admin.count("Occupant<Tharsis_4_2>") shouldBe 0
+
+    admin.doTask("CityTile<Tharsis_2_2>")
+    shouldThrow<NarrowingException> { admin.doTask("GreeneryTile<Tharsis_4_2>") }
+    admin.doTask("GreeneryTile<Tharsis_2_3>")
+    admin.count("CityTile<SoloOpponent>") shouldBe 2
+    admin.count("GreeneryTile<SoloOpponent>") shouldBe 2
+  }
+
+  @Test
   internal fun soloColoniesSetupIsAbsentWithoutSelectedColonies() {
     val game = Engine.newGame(canonicalPremise(ColoniesExpansion, players = 1))
 
@@ -161,10 +181,10 @@ internal class BootstrapLifecycleTest {
     admin.count("SoloColoniesSetup") shouldBe 0
 
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
-    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_4_1>")
+    admin.doTask("GreeneryTile<Tharsis_5_1>")
+    admin.doTask("CityTile<Tharsis_2_2>")
+    admin.doTask("GreeneryTile<Tharsis_2_3>")
 
     admin.count("SoloColoniesSetup") shouldBe 1
     player.doTask("-SelectedColonyTile<Class<${colonies.first()}>>")

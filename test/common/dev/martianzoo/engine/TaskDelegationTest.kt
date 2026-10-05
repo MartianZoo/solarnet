@@ -3,7 +3,7 @@ package dev.martianzoo.engine
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.assertions.throwables.shouldThrow
@@ -90,11 +90,11 @@ internal class TaskDelegationTest {
                 CLASS RewardB
               }
               CLASS ConcreteReactor : Owned<Player> {
-                This: Result<Owner>
+                This: Result
               }
               CLASS AbstractReactor : Owned<Player> {
-                This: Reward<Owner>
-                Reward<Owner>: FollowUp
+                This: Reward
+                Reward: FollowUp
               }
               CLASS Observer {
                 Result<Player2> BY Player1: Wrong

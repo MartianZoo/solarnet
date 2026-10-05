@@ -30,7 +30,7 @@
           "name": "AdvancedAlloys",
           "cost": 9,
           "tags": [ "ScienceTag" ],
-          "effects": [ "This:: 1 GrantedResourceValue<Class<Titanium>, This>, 1 GrantedResourceValue<Class<Steel>, This>" ],
+          "invariants": [ "=1 GrantedResourceValue<Class<Titanium>, This>", "=1 GrantedResourceValue<Class<Steel>, This>" ],
         },
         {
           "name": "AiCentral",
@@ -76,16 +76,14 @@
           "name": "BusinessContacts",
           "cost": 7,
           "tags": [ "EarthTag", "EventTag" ],
-          // 4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>
-          "immediate": "2 ProjectCard",
+          "immediate": "4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>, -2 ProjectCard<Selecting>",
         },
         {
           "name": "BusinessNetwork",
           "cost": 4,
           "tags": [ "EarthTag" ],
           "immediate": "PROD[-1 MC]",
-          // ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards
-          "actions": [ "-> BuyCard?" ],
+          "actions": [ "-> ProjectCard<Selecting> THEN -ProjectCard<Selecting>? THEN BuySelectedCards" ],
         },
         {
           "name": "CallistoPenalMines",
@@ -195,7 +193,7 @@
           "name": "HiredRaiders",
           "cost": 1,
           "tags": [ "EventTag" ],
-          "immediate": "Steel<Owner FROM Anyone> OR 2 Steel<Owner FROM Anyone> OR MC<Owner FROM Anyone> OR 2 MC<Owner FROM Anyone> OR 3 MC<Owner FROM Anyone>",
+          "immediate": "Steel<Me@ FROM Anyone> OR 2 Steel<Me@ FROM Anyone> OR MC<Me@ FROM Anyone> OR 2 MC<Me@ FROM Anyone> OR 3 MC<Me@ FROM Anyone>",
         },
         {
           "name": "IndenturedWorkers",
@@ -222,15 +220,13 @@
           "name": "InventionContest",
           "cost": 2,
           "tags": [ "ScienceTag", "EventTag" ],
-          // 3 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>
-          "immediate": "ProjectCard",
+          "immediate": "3 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>, -2 ProjectCard<Selecting>",
         },
         {
           "name": "InventorsGuild",
           "cost": 9,
           "tags": [ "ScienceTag" ],
-          // ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards
-          "actions": [ "-> BuyCard?" ],
+          "actions": [ "-> ProjectCard<Selecting> THEN -ProjectCard<Selecting>? THEN BuySelectedCards" ],
         },
         {
           "name": "InvestmentLoan",
@@ -361,7 +357,7 @@
         {
           "name": "ProtectedHabitats",
           "cost": 5,
-          "effects": [ "-Plant OR -Animal OR -Microbe BY Player(NOT Owner):: Die" ],
+          "effects": [ "-Plant OR -Animal OR -Microbe BY Player(NOT Me@): Die" ],
         },
         {
           "name": "QuantumExtractor",
@@ -480,7 +476,7 @@
           "name": "TollStation",
           "cost": 12,
           "tags": [ "SpaceTag" ],
-          "immediate": "PROD[1 MC / SpaceTag<Player(NOT Owner)>]",
+          "immediate": "PROD[1 MC / SpaceTag<Player(NOT Me@)>]",
         },
         {
           "name": "TransNeptuneProbe",

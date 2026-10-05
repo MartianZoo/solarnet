@@ -1,7 +1,5 @@
 package dev.martianzoo.state
 
-import dev.martianzoo.pets.data.GamePremise
-
 /** Immutable event history and the completed gameplay positions it exposes. */
 public class GameRecording(
     public val premise: GamePremise,

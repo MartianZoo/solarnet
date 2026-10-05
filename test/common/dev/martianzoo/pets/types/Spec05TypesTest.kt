@@ -11,8 +11,8 @@ internal class Spec05TypesTest {
   private val mars =
       loadTypes(
           """
-          CLASS Player1 : Owner
-          CLASS Player2 : Owner
+          CLASS Player1 : Anyone
+          CLASS Player2 : Anyone
           ABSTRACT CLASS Area {
             ABSTRACT CLASS MarsArea {
               ABSTRACT CLASS LandArea {
@@ -24,7 +24,7 @@ internal class Spec05TypesTest {
           }
           ABSTRACT CLASS Occupant<Area>
           ABSTRACT CLASS Tile : Occupant
-          CLASS GreeneryTile : Tile<MarsArea>, Owned<Owner>
+          CLASS GreeneryTile : Tile<MarsArea>, Owned<Anyone>
           CLASS Neighbor<Area, Area>
           """
               .trimIndent()
@@ -57,8 +57,8 @@ internal class Spec05TypesTest {
   @Test
   internal fun `T5-2 a bare class name means that class's base type`() {
     type("GreeneryTile") shouldBe mars.getClass(cn("GreeneryTile")).baseType
-    type("GreeneryTile").expressionFull shouldBe te("GreeneryTile<MarsArea, Owner>")
-    type("GreeneryTile<MarsArea, Owner>") shouldBe type("GreeneryTile")
+    type("GreeneryTile").expressionFull shouldBe te("GreeneryTile<MarsArea, Anyone>")
+    type("GreeneryTile<MarsArea, Anyone>") shouldBe type("GreeneryTile")
   }
 
   @Test
@@ -98,7 +98,7 @@ internal class Spec05TypesTest {
 
   @Test
   internal fun `T5-4 the full form states every open dependency in key order`() {
-    type("GreeneryTile").expressionFull shouldBe te("GreeneryTile<MarsArea, Owner>")
+    type("GreeneryTile").expressionFull shouldBe te("GreeneryTile<MarsArea, Anyone>")
     type("GreeneryTile<Player1>").expressionFull shouldBe te("GreeneryTile<MarsArea, Player1>")
     type("Neighbor<Tharsis_2_2>").expressionFull shouldBe te("Neighbor<Tharsis_2_2, Area>")
   }
@@ -107,13 +107,13 @@ internal class Spec05TypesTest {
   internal fun `T5-4 the full form omits dependencies fixed by the class`() {
     val table =
         loadTypes(
-            "CLASS Player1 : Owner",
+            "CLASS Player1 : Anyone",
             "ABSTRACT CLASS Choice { CLASS Fixed }",
             "ABSTRACT CLASS Holder<Choice>",
-            "ABSTRACT CLASS FixedOwned : Holder<Fixed>, Owned<Owner>",
+            "ABSTRACT CLASS FixedOwned : Holder<Fixed>, Owned<Anyone>",
         )
 
-    table.resolve(te("FixedOwned")).expressionFull shouldBe te("FixedOwned<Owner>")
+    table.resolve(te("FixedOwned")).expressionFull shouldBe te("FixedOwned<Anyone>")
     table.resolve(te("FixedOwned<Player1>")).expressionFull shouldBe te("FixedOwned<Player1>")
     table.resolve(table.resolve(te("FixedOwned<Player1>")).expressionFull) shouldBe
         table.resolve(te("FixedOwned<Player1>"))
@@ -123,9 +123,9 @@ internal class Spec05TypesTest {
 
   @Test
   internal fun `T5-5 the compact form omits every argument equal to the inherited bound`() {
-    type("GreeneryTile<MarsArea, Owner>").expression shouldBe te("GreeneryTile")
+    type("GreeneryTile<MarsArea, Anyone>").expression shouldBe te("GreeneryTile")
     type("GreeneryTile<Area>").expression shouldBe te("GreeneryTile")
-    type("GreeneryTile<Tharsis_2_2, Owner>").expression shouldBe te("GreeneryTile<Tharsis_2_2>")
+    type("GreeneryTile<Tharsis_2_2, Anyone>").expression shouldBe te("GreeneryTile<Tharsis_2_2>")
     // The area slot cannot accept `Player1`, so it need not be written to protect the owner.
     type("GreeneryTile<Player1>").expression shouldBe te("GreeneryTile<Player1>")
   }
@@ -150,10 +150,10 @@ internal class Spec05TypesTest {
   internal fun `T5-5 the compact form removes a bound already implied by a later one`() {
     val cards =
         loadTypes(
-            "CLASS Player1 : Owner",
-            "ABSTRACT CLASS CardFront : Owned<Owner> { CLASS Pets }",
-            "ABSTRACT CLASS Cardbound<CardFront<CardOwner@Owner>> : " +
-                "Owned<CardOwner@Owner> { CLASS Animal }",
+            "CLASS Player1 : Anyone",
+            "ABSTRACT CLASS CardFront : Owned<Anyone> { CLASS Pets }",
+            "ABSTRACT CLASS Cardbound<CardFront<CardHolder@Anyone>> : " +
+                "Owned<CardHolder@Anyone> { CLASS Animal }",
         )
 
     cards.resolve(te("Animal<Player1, Pets<Player1>>")).expression shouldBe

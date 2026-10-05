@@ -5,7 +5,7 @@ CLASS PreludeExpansion : Module {
   HAS Class<PreludePhase>, Class<PreludePhaseScope>
   X SoloGenerationsLeft:: -2 SoloGenerationsLeft!
 
-  SetupPhase:: EACH Player { 4 PreludeCard }
+  SetupPhase:: EACH Me@Player { 4 PreludeCard }
   NewTurn IF SetupPhase: -2 PreludeCard
 }
 
@@ -17,8 +17,8 @@ CLASS PreludePhase : Phase {
 CLASS PreludePhaseScope : PhaseScope<PreludePhase> {
   This IF WorkflowStarted:: \
     EACH @Player(HAS StartToken) { PreludeTurnContinuation<@Player> BY Admin }
-  -PreludeCard<Previous@Owner> IF WorkflowStarted:: \
-    PreludeTurnContinuation<Previous@Owner>. BY Admin
+  -PreludeCard<Previous@Anyone> IF WorkflowStarted:: \
+    PreludeTurnContinuation<Previous@Anyone>. BY Admin
 }
 
 "Continues ordered Prelude turns after the previous choice settles"

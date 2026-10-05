@@ -1,5 +1,5 @@
 CLASS VenusNextExpansion : Module {
-  This: AirScrappingProject
+  This: AirScrappingProject, ReferenceFilter<Class<Floater>>
 
   ModulesReady IF MAX 0 ExtendedGlobalParametersRule: StandardVenusTrackRules
   ModulesReady IF ExtendedGlobalParametersRule: ExtendedVenusTrackRules
@@ -9,7 +9,7 @@ CLASS VenusNextExpansion : Module {
 CLASS VenusStep : GlobalParameter
 
 "Enforces the limit, rewards, and completion step printed on the standard Venus track"
-CLASS StandardVenusTrackRules : System {
+CLASS StandardVenusTrackRules : System, Hidden {
   HAS =1 This
   HAS MAX 15 VenusStep
 
@@ -19,7 +19,7 @@ CLASS StandardVenusTrackRules : System {
 }
 
 "Enforces the extended Venus track when the extended global parameters are active"
-CLASS ExtendedVenusTrackRules : System {
+CLASS ExtendedVenusTrackRules : System, Hidden {
   HAS =1 This
   HAS MAX 18 VenusStep
 
@@ -34,7 +34,7 @@ CLASS WorldGovernmentRule : Module {
   autoSelectWhen = HAS "VenusNextExpansion"
   phaseAfter = HAS "VenusSolarPhase, SolarPhase"
 
-  VenusSolarPhase:: EACH Player(HAS StartToken) { WorldGovernmentTerraforming }
+  VenusSolarPhase:: EACH Starter@Player(HAS StartToken) { WorldGovernmentTerraforming<Starter@> }
 }
 
 "Makes Venus a required global parameter for ending a multiplayer game"

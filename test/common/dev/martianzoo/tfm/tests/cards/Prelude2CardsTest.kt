@@ -14,8 +14,8 @@ import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.Player
 import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -286,7 +286,9 @@ internal class Prelude2CardsTest : CardTest() {
       }
     }
     shouldThrow<RequirementException> { p1.stdProject("PowerPlantProject") }
-    p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(DomeFarming) }
+    p1.stdAction("DoRequiredActionsAction") {
+          p1.playPrelude(DomeFarming)
+        }
         .expect("PROD[Plant, 2 MC]")
     p1.stdProject("PowerPlantProject").expect("PROD[Energy]")
   }
@@ -490,7 +492,7 @@ internal class Prelude2CardsTest : CardTest() {
             "PowerPlantProject",
             payment = {
               doTask("PayFromCard<$Spire> FROM Science<$Spire>")
-              doTask("Pay<Class<MC>> FROM MC / Owed<>")
+              doTask("Pay<Class<MC>> FROM MC / Owed")
             },
         )
         .expect("-Science<$Spire>, -9 MC, PROD[Energy]")
@@ -502,7 +504,7 @@ internal class Prelude2CardsTest : CardTest() {
     p1.runOperation("$Spire, Science<$Spire>")
 
     shouldThrow<TaskException> {
-      p1.runOperation("10 Owed<>") { doTask("PayFromCard<$Spire> FROM Science<$Spire>") }
+      p1.runOperation("10 Owed<>") { doTask("PayFromCard FROM Science<$Spire>") }
     }
   }
 
@@ -515,7 +517,7 @@ internal class Prelude2CardsTest : CardTest() {
     p1.sellPatents(1)
 
     shouldThrow<TaskException> {
-      p1.runOperation("10 Owed<>") { doTask("PayFromCard<$Spire> FROM Science<$Spire>") }
+      p1.runOperation("10 Owed<>") { doTask("PayFromCard FROM Science<$Spire>") }
     }
   }
 
@@ -537,14 +539,14 @@ internal class Prelude2CardsTest : CardTest() {
     p1.runOperation("NewTurn") {
       doTask("UseAction<UseStandardProjectAction, Action1>")
       doTask("UseAction<PowerPlantProject, Action1>")
-      doTask("Pay<Class<MC>> FROM MC / Owed<>")
+      doTask("Pay<Class<MC>> FROM MC / Owed")
     }
     p1.count("MC") shouldBe startingMoney - 9
 
     p1.runOperation("SecondAction") {
       doTask("UseAction<UseStandardProjectAction, Action1>")
       doTask("UseAction<PowerPlantProject, Action1>")
-      doTask("Pay<Class<MC>> FROM MC / Owed<>")
+      doTask("Pay<Class<MC>> FROM MC / Owed")
     }
 
     p1.count("MC") shouldBe startingMoney - 18
@@ -557,7 +559,9 @@ internal class Prelude2CardsTest : CardTest() {
     admin.phase("Action")
     val startingMoney = p1.count("MC")
 
-    p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(DomeFarming) }
+    p1.stdAction("DoRequiredActionsAction") {
+      p1.playPrelude(DomeFarming)
+    }
 
     p1.assertProds(2 to "MC", 1 to "Plant")
     p1.count("MC") shouldBe startingMoney + 2
@@ -829,16 +833,20 @@ internal class Prelude2CardsTest : CardTest() {
         secondPayout: Int = 3,
     ) {
       doTask("-5 MC<$victim>")
+      doTask("MyResourceWasRemoved<$victim, Class<MC>, Player1>.")
       doTask("3 MC<$victim> FROM MC<Player2>")
       doTask("PROD[-1 MC<$victim>]")
+      doTask("MyProductionWasDecreased<$victim, Class<MC>, Player1>.")
       doTask("$secondPayout MC<$victim> FROM MC<Player2>")
     }
 
     p1.playPrelude(Recession) {
       p1.autoExecPolicy = NONE
-      doTask("EACH Player(NOT Player1) { -5 MC<Owner>., PROD[-1 MC<Owner>] }")
+      doTask("EACH Other@Player(NOT Player1) { -5 MC<Other@Player>., PROD[-1 MC<Other@Player>] }")
       doTask("-5 MC<Player2>")
       doTask("PROD[-1 MC<Player2>]")
+      doTask("MyResourceWasRemoved<Player2, Class<MC>, Player1>.")
+      doTask("MyProductionWasDecreased<Player2, Class<MC>, Player1>.")
       doTask("3 MC<Player2> FROM MC<Player2>")
       doTask("3 MC<Player2> FROM MC<Player2>")
       settle(victimActors[0])
@@ -1000,9 +1008,8 @@ internal class Prelude2CardsTest : CardTest() {
     admin.phase("Action")
 
     p1.cardAction1(VenusOrbitalSurvey) {
-      // The two modeled offers are indistinguishable; identify either before choosing the free
-      // tagged outcome, then buy the other.
-      doTask("SearchForCard<TagFilter<Class<VenusTag>>>", tasks.extract { it }.first().id)
+      // One of the two offered cards has a Venus tag and is kept free.
+      doTask("TakeSelectedCard<TagFilter<Class<VenusTag>>>")
       p1.buyCards(1)
     }
 
@@ -1033,7 +1040,7 @@ internal class Prelude2CardsTest : CardTest() {
     admin.phase("Action")
     p1.runOperation("10 MC, ProjectCard")
 
-    shouldThrow<DeadEndException> { p1.playProject(SummitLogistics, 10) }
+    shouldThrow<NarrowingException> { p1.playProject(SummitLogistics, 10) }
   }
 
   @Test
@@ -1253,12 +1260,17 @@ internal class Prelude2CardsTest : CardTest() {
     p1.runOperation("Chairman, 9 MC, ProjectCard")
     admin.phase("Action")
 
-    p1.playProject(WgProject, 9) {
-      p1.playPrelude(HighCircles) {
-        doTask("2 PartyDelegate<Unity>")
-      }
-    }
+    val result =
+        p1.playProject(WgProject, 9) {
+          p1.playPrelude(HighCircles) {
+            doTask("2 PartyDelegate<Unity>")
+          }
+        }
 
+    result.changes
+        .filter { it.change.gaining?.type == p1.resolve("PreludeCard<Selecting>") }
+        .sumOf { it.change.count } shouldBe 3
+    p1.assertCounts(0 to "PreludeCard<Selecting>")
     p1.count("PreludeCard") shouldBe 2
     p1.count("$HighCircles") shouldBe 1
   }
@@ -1277,11 +1289,13 @@ internal class Prelude2CardsTest : CardTest() {
     // WG Project leaves too little money to pay Industrial Complex.
     p1.count("MC") shouldBe 19
     shouldThrow<LimitsException> {
-      p1.playProject(WgProject, 9) { p1.playPrelude(IndustrialComplex) }
+      p1.playProject(WgProject, 9) {
+        p1.playPrelude(IndustrialComplex)
+      }
     }
 
     val checkpoint = game.timeline.checkpoint()
-    p1.playProject(WgProject, 9) { doTask("-PreludeCard") }.expect("6 MC")
+    p1.playProject(WgProject, 9) { doTask("-PreludeCard<Selecting>") }.expect("6 MC")
     p1.assertCounts(25 to "MC", 0 to "PreludeCard", 0 to "$IndustrialComplex", 1 to "$WgProject")
     p1.auditGainsSince(checkpoint) shouldBe 1
   }

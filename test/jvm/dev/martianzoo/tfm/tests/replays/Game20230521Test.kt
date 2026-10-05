@@ -4,7 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -289,6 +289,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         declineTask()
         doTask("TemperatureStep")
         doTask("TerraformRating")
+        doTask("2 Titanium")
       }
     }
 
@@ -409,6 +410,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         placeTile(2, 6)
         doTask("TerraformRating")
         doTask("2 ProjectCard")
+        doTask("2 Plant")
       }
       // Player2 played Search For Life
       playProject(SearchForLife, 3) {
@@ -514,6 +516,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       playProject(SmallAsteroid, 10) {
             // Player2's plants amount decreased by 2 by Player1
             doTask("-2 Plant<Player2>")
+            doTask("MyResourceWasRemoved<Player2, Class<Plant>, Player1>.")
             doTask("TemperatureStep")
             doTask("3 MC")
             doTask("3 Heat")
@@ -654,6 +657,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         placeTile(8, 7) // r-5 + c
         doTask("OxygenStep")
         doTask("TerraformRating")
+        doTask("ProjectCard")
       }
       // Player2 used Factorum action
       // 3 card(s) were discarded
@@ -833,6 +837,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player2 drew 1 card(s)
       // You drew Aerial Mappers
       playProject(InventionContest, 0) {
+            doTask("3 ProjectCard<Selecting>")
+            doTask("ProjectCard<Hand FROM Selecting>")
+            doTask("-2 ProjectCard<Selecting>")
             // Player2 is using their Mars University effect to draw a card by discarding a card.
             // You discarded Gyropolis
             // Player2 drew 1 card(s)
@@ -853,7 +860,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player1's energy production increased by 4
       playProject(QuantumExtractor, 13) {
             // Decline spending an Olympus Conference science resource to draw a card.
-            doTask("Science<$OlympusConference>")
+            doTask("Science")
           }
           .expect("-13 MC, PROD[4 Energy], 4 Energy")
     }
@@ -890,6 +897,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       playProject(PowerSupplyConsortium, 3) {
         // Player1's energy production decreased by 1 stolen by Player2
         doTask("PROD[-Energy<Player1>]")
+        doTask("PROD[Energy]")
       }
     }
 
@@ -1009,6 +1017,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
       playProject(SulphurExports, 13, titanium = 2) {
             doTask("VenusStep")
             doTask("TerraformRating")
+            doTask("PROD[8 MC]")
+            doTask("8 MC")
           }
           .expect("PROD[8 MC], -5 MC, VenusStep")
       // Player1 used Extractor Balloons action
@@ -1153,11 +1163,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
         p2.placeTile(2, 5)
         // Player1's plants amount decreased by 4 by Player2
         p2.doTask("-4 Plant<Player1>")
+        doTask("MyResourceWasRemoved<Player1, Class<Plant>, Player2>.")
         // Player2 gained 2 plants from Arctic Algae
         doTask("4 Steel")
         doTask("Plant<Player2>")
         doTask("2 Plant<Player2>")
-        repeat(4) { doTask("TerraformRating") }
+        doTask("TerraformRating")
+        doTask("HasRaisedTr")
+        repeat(3) { doTask("TerraformRating") }
         repeat(2) { doTask("2 MC") }
       }
       // Player2 used AI Central action
@@ -1571,7 +1584,10 @@ internal class Game20230521Test : AbstractFullGameTest() {
       }
       // Player2 played Energy Tapping
       // Player1's energy production decreased by 1 stolen by Player2
-      playProject(EnergyTapping, 1) { doTask("PROD[-Energy<Player1>]") }
+      playProject(EnergyTapping, 1) {
+        doTask("PROD[-Energy<Player1>]")
+        doTask("PROD[Energy]")
+      }
     }
     // Player1 used Floating Habs action
     // Player1 added 1 floater(s) to Floating Habs
@@ -1589,7 +1605,10 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player2 played Biomass Combustors
       // Player2's energy production increased by 2
       // Player1's plants production decreased by 1 by Player2
-      playProject(BiomassCombustors, steel = 1) { doTask("PROD[-Plant<Player1>]") }
+      playProject(BiomassCombustors, steel = 1) {
+        doTask("PROD[-Plant<Player1>]")
+        doTask("PROD[2 Energy]")
+      }
     }
     // Player1 passed
     p1.pass()
@@ -1623,6 +1642,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         doTask("TerraformRating")
         doTask("4 Plant")
         doTask("3 MC")
+        doTask("3 Heat")
       }
       // Player1 used Development Center action
       // Player1 drew 1 card(s)
@@ -1659,10 +1679,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player1's plants amount decreased by 2 by Player2
       playProject(MiningExpedition, 10) {
         doTask("-2 Plant<Player1>")
+        doTask("MyResourceWasRemoved<Player1, Class<Plant>, Player2>.")
         doTask("OxygenStep")
         doTask("TerraformRating")
         doTask("2 Steel")
         doTask("3 MC")
+        doTask("TemperatureStep")
       }
     }
     // Player1 used Power Infrastructure action
@@ -1782,7 +1804,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player1 drew 1 card(s)
       // You drew Zeppelins
       playProject(StandardTechnology, 6) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
       }
     }
     // Player2 played Atalanta Planitia Lab
@@ -1896,7 +1918,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       playProject(GeneRepair, 12) {
             doTask("PROD[2 MC]")
-            doTask("Science<$OlympusConference>")
+            doTask("Science")
           }
           .expect("PROD[2 MC]")
     }

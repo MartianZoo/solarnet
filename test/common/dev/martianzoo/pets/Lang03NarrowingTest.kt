@@ -12,7 +12,7 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.pets.types.isExpandedFrom
-import dev.martianzoo.pets.types.testCatalog
+import dev.martianzoo.pets.types.loadTypes
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -139,6 +139,15 @@ internal class Lang03NarrowingTest {
         true
   }
 
+  @Test
+  internal fun `L2-4 a compact transmutation retains one value for each unchanged argument`() {
+    // L2-4: the retained owner is one choice shared by the gained and removed projections.
+    val compact = "Marker<Anyone, Mars1 FROM Mars2>!"
+
+    narrows(compact, "Marker<Player1, Mars1> FROM Marker<Player1, Mars2>!") shouldBe true
+    refuses(compact, "Marker<Player1, Mars1> FROM Marker<Player2, Mars2>!")
+  }
+
   // L3-5 Ok
 
   @Test
@@ -208,10 +217,10 @@ internal class Lang03NarrowingTest {
     refuses("@Token FROM @Token", "RedToken FROM BlueToken")
 
     narrows(
-        "@Tile<> THEN @Tile",
+        "@Tile<LandArea> THEN @Tile<LandArea>",
         "GreeneryTile<Land1> THEN GreeneryTile<Land1>",
     ) shouldBe true
-    refuses("@Tile<> THEN @Tile", "GreeneryTile<Land1> THEN OceanTile<Land1>")
+    refuses("@Tile<LandArea> THEN @Tile<LandArea>", "GreeneryTile<Land1> THEN OceanTile<Land1>")
 
     narrows(
         "@Tile<LandArea> THEN @Tile",
@@ -254,7 +263,7 @@ internal class Lang03NarrowingTest {
 
   @Test
   internal fun `L3-8 expansion matching ignores an occurrence unavailable in its universe`() {
-    val table = testCatalog("ABSTRACT CLASS Shade\nCLASS Token<Shade>").classTable
+    val table = loadTypes("ABSTRACT CLASS Shade\nCLASS Token<Shade>")
     val expanded = parse<Expression>("Token<Shade>")
     val unavailable = parse<Expression>("Token<PremiseShade>")
 
@@ -313,18 +322,17 @@ internal class Lang03NarrowingTest {
   @Test
   internal fun `L3-8 partial binding keeps shared identity through subsequent choices`() {
     val table =
-        testCatalog(
-                """
-                ABSTRACT CLASS Place {
-                  CLASS First
-                  CLASS Second
-                }
-                CLASS Pair<Place, Place>
-                CLASS Notice<Pair<Place, Place>>
-                """
-                    .trimIndent()
-            )
-            .classTable
+        loadTypes(
+            """
+            ABSTRACT CLASS Place {
+              CLASS First
+              CLASS Second
+            }
+            CLASS Pair<Place, Place>
+            CLASS Notice<Pair<Place, Place>>
+            """
+                .trimIndent()
+        )
     val elaborator = PetElaborator(table)
     fun instruction(source: String) = elaborator.elaborateInput(parse<InstructionTree>(source))
     val authored = instruction("Chosen@Pair<Place, Place> THEN Notice<Chosen@Pair>") as Then
@@ -348,18 +356,17 @@ internal class Lang03NarrowingTest {
   @Test
   internal fun `L3-8 conflicting captures within one expression are narrowing refusals`() {
     val table =
-        testCatalog(
-                """
-                ABSTRACT CLASS Place {
-                  CLASS First
-                  CLASS Second
-                }
-                CLASS Pair<Place, Place>
-                CLASS Notice<Place>
-                """
-                    .trimIndent()
-            )
-            .classTable
+        loadTypes(
+            """
+            ABSTRACT CLASS Place {
+              CLASS First
+              CLASS Second
+            }
+            CLASS Pair<Place, Place>
+            CLASS Notice<Place>
+            """
+                .trimIndent()
+        )
     val elaborator = PetElaborator(table)
     val authored =
         elaborator.elaborateInput(
@@ -374,19 +381,18 @@ internal class Lang03NarrowingTest {
   @Test
   internal fun `L3-8 OR compatibility does not test an unbound aggregate HAS MAX predicate`() {
     val table =
-        testCatalog(
-                """
-                ABSTRACT CLASS Place {
-                  CLASS First
-                  CLASS Second
-                }
-                CLASS Marker<Place>
-                CLASS Notice<Place>
-                CLASS Other
-                """
-                    .trimIndent()
-            )
-            .classTable
+        loadTypes(
+            """
+            ABSTRACT CLASS Place {
+              CLASS First
+              CLASS Second
+            }
+            CLASS Marker<Place>
+            CLASS Notice<Place>
+            CLASS Other
+            """
+                .trimIndent()
+        )
     val elaborator = PetElaborator(table)
     val authored =
         elaborator.elaborateInput(

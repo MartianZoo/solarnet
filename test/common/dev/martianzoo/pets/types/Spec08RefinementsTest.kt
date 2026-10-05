@@ -15,8 +15,8 @@ internal class Spec08RefinementsTest {
   private val mars =
       loadTypes(
           """
-          CLASS Player1 : Owner
-          CLASS Player2 : Owner
+          CLASS Player1 : Anyone
+          CLASS Player2 : Anyone
           ABSTRACT CLASS Area {
             ABSTRACT CLASS LandArea {
               CLASS Tharsis_2_2
@@ -26,8 +26,8 @@ internal class Spec08RefinementsTest {
           }
           ABSTRACT CLASS Occupant<Area>
           ABSTRACT CLASS Tile : Occupant
-          CLASS GreeneryTile : Tile, Owned<Owner>
-          CLASS CityTile : Tile, Owned<Owner>
+          CLASS GreeneryTile : Tile, Owned<Anyone>
+          CLASS CityTile : Tile, Owned<Anyone>
           CLASS Neighbor<Occupant, Area>
           """
               .trimIndent()
@@ -61,7 +61,7 @@ internal class Spec08RefinementsTest {
     val world = RecordingWorld(answer = true)
 
     type("Tharsis_2_2").narrows(type("LandArea(HAS Neighbor<CityTile>)"), world) shouldBe true
-    world.questions shouldContainExactly listOf("Neighbor<CityTile<Area, Owner>, Tharsis_2_2>")
+    world.questions shouldContainExactly listOf("Neighbor<CityTile<Area, Anyone>, Tharsis_2_2>")
   }
 
   @Test
@@ -77,7 +77,7 @@ internal class Spec08RefinementsTest {
   internal fun `T8-3 the candidate fills the first dependency of each expression that accepts it`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Player : Owner { CLASS Player1 }",
+            "ABSTRACT CLASS Player : Anyone { CLASS Player1 }",
             "CLASS StartToken<Player>",
             "CLASS Rock",
         )
@@ -98,7 +98,7 @@ internal class Spec08RefinementsTest {
   internal fun `T8-3 a candidate no expression can accept fails the refinement, without a world`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Player : Owner { CLASS Player1 }",
+            "ABSTRACT CLASS Player : Anyone { CLASS Player1 }",
             "CLASS StartToken<Player>",
             "CLASS Rock",
         )
@@ -176,8 +176,8 @@ internal class Spec08RefinementsTest {
   private val cardMetrics =
       loadTypes(
           """
-          CLASS Player1 : Owner
-          ABSTRACT CLASS CardFront : Owned<Owner> {
+          CLASS Player1 : Anyone
+          ABSTRACT CLASS CardFront : Owned<Anyone> {
             CLASS Ants
             CLASS Birds
           }
@@ -257,7 +257,7 @@ internal class Spec08RefinementsTest {
   private val actors =
       loadTypes(
           """
-          ABSTRACT CLASS Player : Owner, Actor {
+          ABSTRACT CLASS Player : Anyone, Actor {
             CLASS Player1
             CLASS Player2
           }
@@ -268,7 +268,7 @@ internal class Spec08RefinementsTest {
 
   @Test
   internal fun `T8-4 a candidate satisfies NOT only when its whole domain avoids the exclusion`() {
-    val notPlayer1 = actors.resolve(te("Owner(NOT Player1)"))
+    val notPlayer1 = actors.resolve(te("Anyone(NOT Player1)"))
 
     actors.resolve(te("Player2")).isSubtypeOf(notPlayer1) shouldBe true
     actors.resolve(te("Player1")).isSubtypeOf(notPlayer1) shouldBe false
@@ -281,18 +281,18 @@ internal class Spec08RefinementsTest {
 
   @Test
   internal fun `T8-4 the exclusion is subtracted through the structural intersection`() {
-    // Players inherit both Actor and Owner, so excluding Owner excludes them; Admin survives.
-    val nonOwnerActor = actors.resolve(te("Actor(NOT Owner)"))
+    // Players inherit both Actor and Anyone, so excluding Anyone excludes them; Admin survives.
+    val unowningActor = actors.resolve(te("Actor(NOT Anyone)"))
 
-    actors.resolve(te("Admin")).isSubtypeOf(nonOwnerActor) shouldBe true
-    actors.resolve(te("Player1")).isSubtypeOf(nonOwnerActor) shouldBe false
+    actors.resolve(te("Admin")).isSubtypeOf(unowningActor) shouldBe true
+    actors.resolve(te("Player1")).isSubtypeOf(unowningActor) shouldBe false
   }
 
   @Test
   internal fun `T8-4 the difference test never consults a world`() {
     actors
         .resolve(te("Player2"))
-        .narrows(actors.resolve(te("Owner(NOT Player1)")), NoGameState) shouldBe true
+        .narrows(actors.resolve(te("Anyone(NOT Player1)")), NoGameState) shouldBe true
   }
 
   @Test
@@ -347,10 +347,10 @@ internal class Spec08RefinementsTest {
   @Test
   internal fun `T8-5 the excluded operand must be free of refinements, recursively`() {
     shouldThrow<ExpressionException> {
-      actors.resolve(te("Owner(NOT Player(HAS Marker))"))
+      actors.resolve(te("Anyone(NOT Player(HAS Marker))"))
     }
     shouldThrow<ExpressionException> {
-      actors.resolve(te("Owner(NOT Player(NOT Player1))"))
+      actors.resolve(te("Anyone(NOT Player(NOT Player1))"))
     }
     shouldThrow<ExpressionException> {
       actors.resolve(te("Marker<Player(NOT Player(HAS Marker))>"))
@@ -480,14 +480,26 @@ internal class Spec08RefinementsTest {
         .toList() shouldContainExactly listOf("Tharsis_2_3")
   }
 
+  @Test
+  internal fun `T8-9 a class-literal meet retains its represented-class predicate`() {
+    val tags = loadTypes("ABSTRACT CLASS Tag { CLASS BuildingTag }")
+    val refined = tags.resolve(te("Class<@Tag>(HAS @Tag)"))
+    val building = tags.resolve(te("Class<BuildingTag>"))
+    val intersection = tags.glb(refined, building)!!
+
+    // T7-1: specializing the represented class must keep a meet below both operands.
+    intersection.isSubtypeOf(refined) shouldBe true
+    intersection.isSubtypeOf(building) shouldBe true
+  }
+
   // T8-10 Refined class literals
 
   @Test
   internal fun `T8-10 a refined class literal tests the class the candidate names`() {
     val tags =
         loadTypes(
-            "CLASS Player1 : Owner",
-            "ABSTRACT CLASS Tag : Owned<Owner> {\nCLASS BuildingTag\nCLASS SpaceTag\n}",
+            "CLASS Player1 : Anyone",
+            "ABSTRACT CLASS Tag : Owned<Anyone> {\nCLASS BuildingTag\nCLASS SpaceTag\n}",
             "CLASS TagCount<Class<Tag>>",
         )
     val world = RecordingWorld(answer = true)
@@ -505,8 +517,8 @@ internal class Spec08RefinementsTest {
   internal fun `T8-10 only a marked class literal predicate refers to its represented class`() {
     val tags =
         loadTypes(
-            "CLASS Player1 : Owner",
-            "ABSTRACT CLASS Tag : Owned<Owner> {\nCLASS BuildingTag\nCLASS SpaceTag\n}",
+            "CLASS Player1 : Anyone",
+            "ABSTRACT CLASS Tag : Owned<Anyone> {\nCLASS BuildingTag\nCLASS SpaceTag\n}",
         )
 
     tags

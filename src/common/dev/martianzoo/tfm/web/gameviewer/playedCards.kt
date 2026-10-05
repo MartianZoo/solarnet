@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.web.gameviewer
 
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameWorld
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.cardResourceType
 import dev.martianzoo.tfm.canon.tfmCatalog
 

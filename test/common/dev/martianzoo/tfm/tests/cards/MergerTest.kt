@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -37,7 +38,7 @@ internal class MergerTest : CardTest() {
     admin.phase("Action")
 
     p1.stdAction("DoRequiredActionsAction") {
-      p1.assertCounts(8 to "ProjectCard", 1 to "PreludeCard")
+      p1.assertCounts(8 to "ProjectCard", 0 to "PreludeCard")
       p1.assertProds(
           0 to "MC",
           0 to "Steel",
@@ -66,11 +67,16 @@ internal class MergerTest : CardTest() {
     admin.phase("Prelude")
     p1.runOperation("PreludeCard")
 
-    p1.playPrelude(Merger) {
-      p1.playCorp(Celestic)
-    }
+    val result =
+        p1.playPrelude(Merger) {
+          p1.playCorp(Celestic)
+        }
 
     p1.assertCounts(1 to "$Celestic")
+    result.changes
+        .filter { it.change.gaining?.type == p1.resolve("StandardCorporationCard<Selecting>") }
+        .sumOf { it.change.count } shouldBe 4
+    p1.assertCounts(0 to "StandardCorporationCard<Selecting>")
   }
 
   @Test
@@ -106,7 +112,8 @@ internal class MergerTest : CardTest() {
       p1.playCorp(TerraLabsResearch)
     }
 
-    p1.runOperation("BuyCard") { p1.pay(3) }.expect("ProjectCard, -3 MC")
+    p1.runOperation("ProjectCard<Selecting> THEN BuySelectedCards") { p1.pay(3) }
+        .expect("ProjectCard, -3 MC")
   }
 
   @Test
@@ -140,11 +147,28 @@ internal class MergerTest : CardTest() {
     admin.phase("Action")
     p1.count("MC") shouldBe 17
 
-    shouldThrow<LimitsException> {
-      p1.cardAction1(BoardOfDirectors) {
-        doTask("-12 MC")
-        p1.playPrelude(Merger) { p1.playCorp(Recyclon) }
+    val previousPolicy = p1.autoExecPolicy
+    try {
+      shouldThrow<LimitsException> {
+        p1.cardAction1(BoardOfDirectors) {
+          doTask("-12 MC")
+          p1.playPrelude(Merger) {
+            p1.autoExecPolicy = NONE
+            p1.playCorp(Recyclon) {
+              doTask("Owed<> / $Recyclon.cost")
+              doTask("PriceCard<Class<$Recyclon>>")
+              doTask("CardBilling<Class<$Recyclon>>")
+              doTask("$Recyclon FROM StandardCorporationCard<Selecting>")
+              doTask("38 MC")
+              // Choose the disease loss before Merger's payment; both are queued.
+              doTask("-4 MC.")
+              doTask("-42 MC")
+            }
+          }
+        }
       }
+    } finally {
+      p1.autoExecPolicy = previousPolicy
     }
     p1.count("MC") shouldBe 17
     p1.count("Disease<$PharmacyUnion>") shouldBe 2

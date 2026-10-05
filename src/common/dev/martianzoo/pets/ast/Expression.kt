@@ -17,7 +17,7 @@ import kotlin.reflect.KClass
  * L1-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)).
  * Each argument (like `Ants` in `Microbe<Player1, Ants>`) is itself an expression; a refinement is
  * a conjunction of state-aware requirements (as in `Card(HAS VenusTag)`) and structural differences
- * (as in `Owner(NOT Player1)`) ([rule
+ * (as in `Anyone(NOT Player1)`) ([rule
  * L1-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)).
  *
  * Two expressions are equal only when their spellings agree ([rule
@@ -105,6 +105,10 @@ public open class Expression(
   }
 
   final override fun toString(): String = buildString {
+    if (typeVariableName is TypeVariableName.UnqualifiedReference) {
+      append(typeVariableName.name).append('@')
+      return@buildString
+    }
     val authoredMarker = typeVariableName?.takeIf {
       it is TypeVariableName.Declaration || it is TypeVariableName.Reference
     }
@@ -136,13 +140,20 @@ public open class Expression(
 
     /** The marker as it appears before arguments or refinements in authored Pets. */
     public val authoredSpelling: String
-      get() = "${name.orEmpty()}@$boundClassName"
+      get() = "${name.orEmpty()}@" + if (this is UnqualifiedReference) "" else boundClassName
 
     internal abstract val resolution: Resolution?
 
     /** Resolved occurrences compare by lexical scope; unresolved parser markers compare by key. */
     internal val identity: Any
       get() = resolution ?: key
+
+    /** Source shorthand awaiting a uniquely named binding in an enclosing scope. */
+    internal data class UnqualifiedReference(override val name: String) : TypeVariableName() {
+      // This structural placeholder is replaced before Type interpretation.
+      override val boundClassName: ClassName = dev.martianzoo.pets.api.SystemClasses.COMPONENT
+      override val resolution: Resolution? = null
+    }
 
     /** The occurrence selected internally to supply the value shared by matching markers. */
     public class Declaration

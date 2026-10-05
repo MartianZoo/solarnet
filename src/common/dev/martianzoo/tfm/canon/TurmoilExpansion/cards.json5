@@ -82,7 +82,7 @@
           "cost": 2,
           "tags": [ "EventTag" ],
           "immediate":
-            "PartyDelegate<Party(HAS 1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)), Owner FROM Neutral>",
+            "PartyDelegate<Party(HAS 1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)), Me@ FROM Neutral>",
         },
         {
           "name": "RedTourismWave",
@@ -110,7 +110,7 @@
           "requirement": "PartyLeader",
           "cost": 5,
           "tags": [ "EventTag" ],
-          "immediate": "Chairman<Owner FROM Neutral>, TerraformRating",
+          "immediate": "Chairman<Me@ FROM Neutral>, TerraformRating",
         },
         {
           "name": "WildlifeDome",
@@ -129,7 +129,7 @@
           "tags": [ "BuildingTag" ],
           "immediate": "54 MC",
           "effects": [
-            "OceanTile BY Anyone: PROD[1 MC]",
+            "OceanTile BY Actor: PROD[1 MC]",
             "Placement<@MarsArea>: 1 MC / Neighbor<OceanTile, @MarsArea>"
           ],
         },
@@ -144,9 +144,9 @@
           "components": [
             "CLASS Preservation : CardResource",
             // Must be identical to UnitedNationsMarsInitiative's declarations in TerraformingMars.
-            "CLASS HasRaisedTr<GenerationScope> : Owned { HAS MAX 1 This }",
-            // The first Action-phase gain removed by PP must not count toward this history.
-            "CLASS TrWatcher : CardWatcher { TerraformRating IF (MAX 0 ActionPhase OR MAX 0 PreservationProgram OR ActionPhaseTrGain):: HasRaisedTr. }"
+            "CLASS HasRaisedTr<GenerationScope> : Owned, Hidden { HAS MAX 1 This }",
+            // PP counts attempts automatically; only its second and later Action-phase gains qualify.
+            "CLASS TrWatcher : CardWatcher { TerraformRating IF MAX 0 HasRaisedTr, (MAX 0 ActionPhase OR MAX 0 PreservationProgram OR 2 ActionPhaseTrGain): HasRaisedTr. }"
           ],
         },
         {

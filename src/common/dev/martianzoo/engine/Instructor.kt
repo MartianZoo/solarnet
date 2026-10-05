@@ -3,7 +3,6 @@ package dev.martianzoo.engine
 import dev.martianzoo.engine.Exceptions.RunawayEffectChainException
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
-import dev.martianzoo.pets.Transforming
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -14,7 +13,6 @@ import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
 import dev.martianzoo.pets.api.SystemClasses.DIE
@@ -26,6 +24,7 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Each
+import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
@@ -40,24 +39,29 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.types.ClassLimitTable.Limit
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.types.recordTypeVariableScopes
+import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Component.Companion.toComponent
+import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.GameReader
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.toComponent
 import kotlin.math.min
 
 /**
  * Resolves instructions and executes their concrete changes.
  *
- * For each recorded change, all matching automatic effects are executed recursively before queued
- * effects from that change are evaluated and admitted as tasks. Automatic execution may itself
- * produce queued work, but it never enters the task pool. [Effector.fire] owns selection of each
- * effect batch; this class owns the automatic-before-queued execution boundary.
+ * A gained component's exact concrete required parts are constructed in dependency order before
+ * reactions to any of their gains. Parts' automatic reactions run before their owners'. Each
+ * recorded change executes matching automatic effects recursively before evaluating and admitting
+ * its queued effects. Automatic execution may itself produce queued work, but it never enters the
+ * task pool. [Effector.fire] owns selection of each effect batch; this class owns construction and
+ * the automatic-before-queued execution boundary.
  */
 internal class Instructor
 internal constructor(
@@ -67,8 +71,33 @@ internal constructor(
     private val effector: Effector,
     private val classTable: ClassTable,
     private val elaborator: PetElaborator,
+    private val timeline: Timeline,
 ) {
-  private val automaticEffectStack = mutableListOf<PendingTask>()
+  private var automaticEffectStack: List<PendingTask> = emptyList()
+  private var constructionEvents: MutableList<ConstructionEvent>? = null
+
+  private data class ConstructionEvent(
+      val event: ChangeEvent,
+      val controller: Actor,
+      val ancestors: List<PendingTask>,
+  )
+
+  /** Applies a complete correction with required parts but without queued effects. */
+  internal fun sneak(changes: InstructionGroup, cause: Cause?, actor: Actor) {
+    changes.instructions.forEach {
+      if (it.isAbstract(reader)) {
+        throw NotFullySpecifiedException("instruction is abstract: `$it`", it.sourceLocation)
+      }
+      val change =
+          it as? Change
+              ?: throw ExpressionException(
+                  "sneak accepts only direct changes; found `$it`",
+                  sourceLocation = it.sourceLocation,
+              )
+      executeChange(change, cause, mutableListOf(), actor, actor, queuedEffects = false)
+    }
+    limiter.checkAllInvariants()
+  }
 
   internal fun execute(
       instruction: Instruction,
@@ -95,13 +124,17 @@ internal constructor(
       deferred: MutableList<PendingTask>,
       actor: Actor,
       controller: Actor,
+      queuedEffects: Boolean = true,
   ) {
     when (val resolved = resolve(instruction)) {
-      is Instruction -> doExecuteResolved(resolved, cause, deferred, actor, controller)
+      is Instruction ->
+          doExecuteResolved(resolved, cause, deferred, actor, controller, queuedEffects)
       // Independent siblings, such as the branches of a fanout, execute in place here; only an
       // enqueued task turns them into separately selectable work.
       is InstructionGroup ->
-          resolved.instructions.forEach { doExecute(it, cause, deferred, actor, controller) }
+          resolved.instructions.forEach {
+            doExecute(it, cause, deferred, actor, controller, queuedEffects)
+          }
     }
   }
 
@@ -111,6 +144,7 @@ internal constructor(
       deferred: MutableList<PendingTask>,
       actor: Actor,
       controller: Actor,
+      queuedEffects: Boolean = true,
   ) {
     if (resolved !is Then && resolved.isAbstract(reader)) {
       throw NotFullySpecifiedException(
@@ -119,13 +153,21 @@ internal constructor(
       )
     }
     when (resolved) {
-      is Change -> executeChange(resolved, cause, deferred, actor, controller)
-      is By -> doExecuteResolved(resolved.inner, cause, deferred, actorFor(resolved), controller)
+      is Change -> executeChange(resolved, cause, deferred, actor, controller, queuedEffects)
+      is By ->
+          doExecuteResolved(
+              resolved.inner,
+              cause,
+              deferred,
+              actorFor(resolved),
+              controller,
+              queuedEffects,
+          )
       is Then -> {
-        doExecuteResolved(resolved.first, cause, deferred, actor, controller)
+        doExecuteResolved(resolved.first, cause, deferred, actor, controller, queuedEffects)
         resolved.instructions.drop(1).forEach { tree ->
           InstructionGroup.of(tree).instructions.forEach {
-            doExecute(it, cause, deferred, actor, controller)
+            doExecute(it, cause, deferred, actor, controller, queuedEffects)
           }
         }
       }
@@ -141,13 +183,15 @@ internal constructor(
       deferred: MutableList<PendingTask>,
       actor: Actor,
       controller: Actor,
+      queuedEffects: Boolean,
   ) {
     val ct = instruction.count as ActualScalar
-    check(instruction.quantifier == MANDATORY)
+    check(!queuedEffects || instruction.quantifier == MANDATORY)
 
     val gaining = instruction.gaining?.toComponent(reader)
     val removing = instruction.removing?.toComponent(reader)
 
+    val checkpoint = timeline.checkpoint()
     while (true) {
       val (result, done) =
           changer.change(
@@ -155,36 +199,114 @@ internal constructor(
               gaining = gaining,
               removing = removing,
               cause = cause,
-              orRemoveOneDependent = true,
               actor = actor,
           )
 
-      val now = effector.fire(result, controller, automatic = true)
-      for (task in now) {
-        executeAutomaticEffect(task, deferred)
-      }
-      deferred += effector.fire(result, controller, automatic = false)
+      constructPartsAndFire(result, controller, deferred, queuedEffects)
       if (done) break
+    }
+    if (queuedEffects && automaticEffectStack.isEmpty()) {
+      try {
+        limiter.checkInvariantsSince(checkpoint)
+      } catch (e: LimitsException) {
+        e.sourceLocation =
+            instruction.sourceLocation
+                ?: instruction.gaining?.sourceLocation
+                ?: instruction.removing?.sourceLocation
+        throw e
+      }
+    }
+  }
+
+  /** Required parts all exist before any event in their construction dispatches effects. */
+  private fun constructPartsAndFire(
+      event: ChangeEvent,
+      controller: Actor,
+      deferred: MutableList<PendingTask>,
+      queuedEffects: Boolean,
+  ) {
+    val recorded = ConstructionEvent(event, controller, automaticEffectStack)
+    constructionEvents?.let {
+      it += recorded
+      return
+    }
+    val events = mutableListOf(recorded)
+    val pending = mutableListOf<Pair<Limit, ConstructionEvent>>()
+    constructionEvents = events
+    try {
+      var discovered = 0
+      while (true) {
+        while (discovered < events.size) {
+          val origin = events[discovered++]
+          origin.event.change.gaining
+              ?.takeIf {
+                it != origin.event.change.removing && reader.countComponent(it.type) > 0
+              }
+              ?.let { owner ->
+                classTable.componentLimits.requiredParts(owner.type).forEach {
+                  pending += it to origin
+                }
+              }
+        }
+        pending.removeAll { (part, _) -> reader.countComponent(part.type) >= part.range.first }
+        if (pending.isEmpty()) break
+        val ready = pending.indexOfFirst { (part, _) ->
+          part.type.typeDependencies.all { reader.countComponent(it.boundType) > 0 }
+        }
+        // If none can proceed, ordinary gain resolution reports the missing dependencies.
+        val (part, origin) = pending.removeAt(ready.takeIf { it >= 0 } ?: 0)
+        val owner = checkNotNull(origin.event.change.gaining)
+        val missing = part.range.first - reader.countComponent(part.type)
+        val instruction = elaborator.atomizeGains(gain(part.type.expression, missing))
+        executeAutomaticEffect(
+            PendingTask.fromEffect(
+                context = owner,
+                triggerEvent = origin.event,
+                controller = origin.controller,
+                changedComponentPlayer = owner.owningPlayer,
+                automatic = true,
+                instruction = InstructionGroup.of(instruction),
+            ),
+            deferred,
+            queuedEffects,
+            origin.ancestors,
+        )
+      }
+    } finally {
+      constructionEvents = null
+    }
+    for ((change, changeController) in events.asReversed()) {
+      for (task in effector.fire(change, changeController, automatic = true)) {
+        executeAutomaticEffect(task, deferred, queuedEffects)
+      }
+    }
+    if (queuedEffects) {
+      for ((change, changeController) in events) {
+        deferred += effector.fire(change, changeController, automatic = false)
+      }
     }
   }
 
   private fun executeAutomaticEffect(
       task: PendingTask,
       deferred: MutableList<PendingTask>,
+      queuedEffects: Boolean,
+      ancestors: List<PendingTask> = automaticEffectStack,
   ) {
-    if (automaticEffectStack.size >= MAX_AUTOMATIC_EFFECT_DEPTH) {
+    if (ancestors.size >= MAX_AUTOMATIC_EFFECT_DEPTH) {
       throw RunawayEffectChainException(
           MAX_AUTOMATIC_EFFECT_DEPTH,
-          (automaticEffectStack + task).map(PendingTask::instruction),
+          (ancestors + task).map(PendingTask::instruction),
       )
     }
-    automaticEffectStack += task
+    val enclosingStack = automaticEffectStack
+    automaticEffectStack = ancestors + task
     try {
       task.instruction.instructions.forEach {
-        doExecute(it, task.cause, deferred, task.actor, task.controller)
+        doExecute(it, task.cause, deferred, task.actor, task.controller, queuedEffects)
       }
     } finally {
-      automaticEffectStack.removeLast()
+      automaticEffectStack = enclosingStack
     }
   }
 
@@ -261,9 +383,19 @@ internal constructor(
           val possible =
               when {
                 gain != null && removal == null && !gain.rootClass.declaration.customMetric ->
-                    limiter.hasExecutableConcreteGain(gain, required, reader)
+                    limiter.hasAvailableConcreteGain(
+                        gain,
+                        required,
+                        reader,
+                        invariants = first.quantifier != MANDATORY,
+                    )
                 gain == null && removal != null ->
-                    limiter.hasExecutableConcreteRemoval(removal, required, reader)
+                    limiter.hasAvailableConcreteRemoval(
+                        removal,
+                        required,
+                        reader,
+                        invariants = first.quantifier != MANDATORY,
+                    )
                 else -> true
               }
           if (!possible) {
@@ -417,7 +549,12 @@ internal constructor(
               r == null &&
               intens != OPTIONAL &&
               !g.rootClass.declaration.customMetric &&
-              !limiter.hasExecutableConcreteGain(g, required, reader)
+              !limiter.hasAvailableConcreteGain(
+                  g,
+                  required,
+                  reader,
+                  invariants = intens != MANDATORY,
+              )
       ) {
         return unavailable("no concrete narrowing can execute")
       }
@@ -426,7 +563,12 @@ internal constructor(
             if (intens == OPTIONAL) {
               reader.hasAnyComponents(r)
             } else {
-              limiter.hasExecutableConcreteRemoval(r, required, reader)
+              limiter.hasAvailableConcreteRemoval(
+                  r,
+                  required,
+                  reader,
+                  invariants = intens != MANDATORY,
+              )
             }
         if (!canRemove) return unavailable("maximum available is 0")
       }
@@ -493,7 +635,7 @@ internal constructor(
   ): Instruction {
     val gaining = gainingType?.toComponent()
     val removing = removingType?.toComponent()
-    val limit = limiter.findLimit(gaining, removing)
+    val limit = limiter.findLimit(gaining, removing, invariants = quantifier != MANDATORY)
     val adjusted: Int = min(count, limit)
 
     if (quantifier == MANDATORY && adjusted != count) {
@@ -534,17 +676,10 @@ internal constructor(
       selected: Expression,
       worldGainNarrowing: Boolean,
   ): InstructionTree {
-    val owner = selected.takeIf { elaborator.selectionSuppliesOwner(each.selector) }
-    val bind =
-        PetTransformer.chain(
-            // This selection, rather than the enclosing context, supplies Owner. The unshielded
-            // replacement is intentional.
-            owner?.let(Transforming::replaceOwnerWith),
-        )
-    val bound = bind.transformInstructionTree(each.bodyFor(selected))
+    val bound = each.bodyFor(selected)
     val evaluated =
         try {
-          elaborator.evaluateProperties(bound, context = selected, owner = owner)
+          elaborator.evaluateProperties(bound, context = selected)
         } catch (e: PetException) {
           throw InvalidPetDefinitionException(
               "invalid `EACH` body for `$selected`: ${e.detail}",
@@ -606,7 +741,7 @@ internal constructor(
       g =
           classTable.singleConcreteSubtype(g, reader)
               ?: (if (worldGainNarrowing) {
-                limiter.singleConcreteGainWithPresentDependencies(g, r, reader)
+                limiter.singleConcreteGainWithPresentDependencies(g, reader)
               } else null)
               ?: g
     }

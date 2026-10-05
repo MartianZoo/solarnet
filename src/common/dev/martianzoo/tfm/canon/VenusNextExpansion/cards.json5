@@ -7,13 +7,12 @@
           "name": "Aphrodite",
           "tags": [ "VenusTag", "PlantTag" ],
           "immediate": "47 MC, PROD[Plant]",
-          "effects": [ "VenusStep BY Anyone: 2 MC" ],
+          "effects": [ "VenusStep BY Actor: 2 MC" ],
         },
         {
           "name": "Celestic",
           "tags": [ "VenusTag" ],
-          // SearchForCard(HAS ReferenceTo<Class<Floater>>)
-          "immediate": "42 MC, RequiredAction { -> 2 ProjectCard }",
+          "immediate": "42 MC, RequiredAction { -> 2 SearchForCard<ReferenceFilter<Class<Floater>>> }",
           "actions": [ "-> Floater" ],
           "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
         },
@@ -84,7 +83,7 @@
           "name": "CometForVenus",
           "cost": 11,
           "tags": [ "SpaceTag", "EventTag" ],
-          "immediate": "VenusStep, -4 MC<Anyone(HAS VenusTag)>?",
+          "immediate": "VenusStep, -4 MC<Anyone(HAS VenusTag<Anyone>)>?",
         },
         {
           "name": "CorroderSuits",
@@ -303,7 +302,7 @@
           "name": "SponsoredAcademies",
           "cost": 9,
           "tags": [ "ScienceTag", "EarthTag" ],
-          "immediate": "-ProjectCard THEN 3 ProjectCard, EACH Player(NOT Owner) { ProjectCard }",
+          "immediate": "-ProjectCard THEN 3 ProjectCard, EACH Other@Player(NOT Me@) { ProjectCard<Other@> }",
           "effects": [ "End: VictoryPoint" ],
         },
         {

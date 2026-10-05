@@ -40,8 +40,8 @@
         {
           "name": "PhoboLog",
           "tags": [ "SpaceTag" ],
+          "invariants": [ "=1 GrantedResourceValue<Class<Titanium>, This>" ],
           "effects": [
-            "This:: GrantedResourceValue<Class<Titanium>, This>",
             "This: 23 MC, 10 Titanium"
           ],
         },
@@ -69,9 +69,9 @@
           "invariants": [ "Class<TrWatcher>" ],
           "components": [
             // Must be identical to Pristar's declarations in TurmoilExpansion.
-            "CLASS HasRaisedTr<GenerationScope> : Owned { HAS MAX 1 This }",
-            // The first Action-phase gain removed by PP must not count toward this history.
-            "CLASS TrWatcher : CardWatcher { TerraformRating IF (MAX 0 ActionPhase OR MAX 0 PreservationProgram OR ActionPhaseTrGain):: HasRaisedTr. }"
+            "CLASS HasRaisedTr<GenerationScope> : Owned, Hidden { HAS MAX 1 This }",
+            // PP counts attempts automatically; only its second and later Action-phase gains qualify.
+            "CLASS TrWatcher : CardWatcher { TerraformRating IF MAX 0 HasRaisedTr, (MAX 0 ActionPhase OR MAX 0 PreservationProgram OR 2 ActionPhaseTrGain): HasRaisedTr. }"
           ],
         },
       ],
@@ -144,14 +144,14 @@
           "cost": 12,
           "tags": [ "PlantTag" ],
           "immediate": "Plant",
-          "effects": [ "OceanTile BY Anyone: 2 Plant" ],
+          "effects": [ "OceanTile BY Actor: 2 Plant" ],
         },
         {
           "name": "ArtificialLake",
           "requirement": "12 TemperatureStep",
           "cost": 15,
           "tags": [ "BuildingTag" ],
-          "immediate": "OceanTile<LandArea>! OR (9 OceanTile: Ok)",
+          "immediate": "(GpIncomplete<Class<OceanTile>>: OceanTile<LandArea>!) OR (GpComplete<Class<OceanTile>>: Ok)",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -379,7 +379,7 @@
           "name": "Flooding",
           "cost": 7,
           "tags": [ "EventTag" ],
-          "immediate": "OceanTile<> OR (OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>! THEN -4 MC<@Anyone>?)",
+          "immediate": "OceanTile<> OR (GpIncomplete<Class<OceanTile>>: (OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>! THEN -4 MC<@Anyone>?))",
           "effects": [ "End: -VictoryPoint" ],
         },
         {
@@ -788,7 +788,7 @@
           "immediate": "Animal<This>",
           "effects": [
             "CityTile<Anyone>: Animal<This>",
-            "-Animal<This>:: Die",
+            "-Animal<This>: Die",
             "End: VictoryPoint / 2 Animal<This>"
           ],
         },
@@ -874,8 +874,7 @@
           "requirement": "MAX 6 OxygenStep",
           "cost": 3,
           "tags": [ "ScienceTag" ],
-          // ProjectCard<Revealed> THEN (ProjectCard<Revealed>(HAS PrintedTag<Class<MicrobeTag>>): Science<This>)
-          "actions": [ "1 MC -> Science<This>?" ],
+          "actions": [ "1 MC -> ProjectCard<Revealed> THEN ClaimCardReward<TagFilter<Class<MicrobeTag>>, This> OR Ok THEN -ProjectCard<Revealed>" ],
           "effects": [ "End IF Science<This>: 3 VictoryPoint" ],
         },
         {

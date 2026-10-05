@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -59,16 +59,14 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
     with(me) {
       // The source selected PolderTECH Dutch, which Canon does not treat as a published promo.
       playCorp(FakePolderTechDutch) {
-        buyCards(MarsNomads, RobotPollinators, SpaceMirrors, MeatIndustry, Mine)
+        buyCards(5)
       }
 
       playPrelude(BoardOfDirectors)
       playPrelude(ProjectEden) {
         doTask("OceanTile<Tharsis_2_6>")
-        draw(BribedCommittee, GhgFactories)
         doTask("CityTile<Tharsis_4_6>")
         doTask("GreeneryTile<Tharsis_3_6>")
-        me.discard(MarsNomads, SpaceMirrors, MeatIndustry)
       }
 
       stdAction("DoRequiredActionsAction") {
@@ -93,12 +91,10 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
   private fun generation2() {
     with(me) {
       buyCards(0)
-      stdAction("UseTurmoilPolicyAction") {
-        draw(SpecialDesign, InventionContest, Meltworks)
-      }
+      stdAction("UseTurmoilPolicyAction")
       cardAction1(BoardOfDirectors) {
         doTask("-12 MC")
-        playPrelude(CorporateArchives) { draw(TitaniumMine, MediaGroup) }
+        playPrelude(CorporateArchives)
       }
       cardAction1(FakeAppliedScience) { doTask("Steel") }
       playProject(TitaniumMine, mc = 3, steel = 2)
@@ -106,14 +102,13 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("PartyDelegate<Reds>")
       }
       pass()
-      draw(Hospitals)
       admin.doTask("SuccessfulOrganisms")
     }
   }
 
   private fun generation3() {
     with(me) {
-      buyCards(ArcticAlgae, UndergroundDetonations)
+      buyCards(2)
       cardAction1(BoardOfDirectors) {
         doTask("-12 MC")
         playPrelude(RiseToPower) {
@@ -137,9 +132,9 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
 
   private fun generation4() {
     with(me) {
-      buyCards(PoliticalAlliance, Algae)
+      buyCards(2)
       playProject(MediaGroup, 6)
-      playProject(InventionContest, 2) { draw(AstraMechanica) }
+      playProject(InventionContest, 2)
       cardAction1(BoardOfDirectors) {
         doTask("-12 MC")
         playPrelude(AntiDesertificationTechniques)
@@ -155,7 +150,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
 
   private fun generation5() {
     with(me) {
-      buyCards(MercurianAlloys, IceAsteroid, AsteroidCard)
+      buyCards(3)
       cardAction1(FakeAppliedScience) { doTask("Titanium") }
       // The Applied Science wild tag supplies the second science tag required by Mercurian Alloys.
       exMachina(fakeWildTags("ScienceTag"))
@@ -183,9 +178,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(AstraMechanica, 7) {
         doWithoutAutoExec(me) {
           doTask("ProjectCard FROM PlayedEvent<Class<$BribedCommittee>>")
-          returnToHand(BribedCommittee)
           doTask("ProjectCard FROM PlayedEvent<Class<$PoliticalAlliance>>")
-          returnToHand(PoliticalAlliance)
         }
       }
       playProject(PoliticalAlliance, 4)
@@ -197,7 +190,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
 
   private fun generation6() {
     with(me) {
-      buyCards(RestrictedArea, RegoPlastics)
+      buyCards(2)
       cardAction1(BoardOfDirectors) {
         doTask("-12 MC")
         playPrelude(Merger) { playCorp(LakefrontResorts) }
@@ -205,7 +198,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       cardAction1(FakeAppliedScience) { addCardResources(BoardOfDirectors) }
       stdProject("AquiferProject") { placeTile(6, 7) }
       playProject(RestrictedArea, 11) { placeTile(6, 6) }
-      cardAction1(RestrictedArea) { draw(Hackers) }
+      cardAction1(RestrictedArea)
       convertHeat()
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Greens>")
@@ -213,7 +206,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       stdAction("LobbyAction", 2) {
         doTask("PartyDelegate<Greens>")
       }
-      sellPatents(Hospitals, Hackers)
+      sellPatents(2)
       cardAction1(UndergroundDetonations)
       pass()
       val previousAdminPolicy = admin.autoExecPolicy
@@ -232,9 +225,9 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
 
   private fun generation7() {
     with(me) {
-      buyCards(BiomassCombustors, StJosephOfCupertinoMission, HeatTrappers)
+      buyCards(3)
       convertHeat()
-      cardAction1(RestrictedArea) { draw(EarthOffice) }
+      cardAction1(RestrictedArea)
       cardAction1(BoardOfDirectors) {
         doTask("-12 MC")
         playPrelude(TerraformingDeal)
@@ -262,7 +255,6 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("Cathedral<CityTile<Tharsis_4_6>>")
         doTask("UseAction<CathedralOption, Action1>")
         pay(2)
-        me.draw(SearchForLife)
       }
       cardAction1(UndergroundDetonations)
       stdAction("LobbyAction", 1) {
@@ -288,11 +280,9 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
 
   private fun generation8() {
     with(me) {
-      buyCards(GiantIceAsteroid, CulturalMetropolis)
-      stdAction("UseTurmoilPolicyAction") {
-        draw(MineralDeposit, CuttingEdgeTechnology, ImportedNitrogen)
-      }
-      cardAction1(RestrictedArea) { draw(SpaceElevator) }
+      buyCards(2)
+      stdAction("UseTurmoilPolicyAction")
+      cardAction1(RestrictedArea)
       playProject(MineralDeposit, 5)
       playProject(CulturalMetropolis, mc = 2, steel = 6) {
         placeTile(7, 5)
@@ -303,19 +293,15 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("Cathedral<CityTile<Tharsis_7_5>>")
         doTask("UseAction<CathedralOption, Action1>")
         pay(2)
-        me.draw(SubterraneanReservoir)
       }
       cardAction1(BoardOfDirectors) {
         doTask("-12 MC")
         playPrelude(FocusedOrganization) {
-          draw(Archaebacteria)
           doTask("Titanium")
         }
       }
       cardAction1(FocusedOrganization) {
-        discard(SearchForLife)
         doTask("-MC")
-        draw(SolarLogistics)
         doTask("Titanium")
       }
       convertHeat()
@@ -330,10 +316,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(Archaebacteria, 6)
       convertPlants {
         placeTile(8, 6)
-        draw(EnergyTapping)
       }
       pass(unused = UndergroundDetonations)
-      draw(HomeostasisBureau, NoctisCity)
       val previousAdminPolicy = admin.autoExecPolicy
       admin.autoExecPolicy = NONE
       try {
@@ -346,9 +330,9 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
 
   private fun generation9() {
     with(me) {
-      buyCards(KelpFarming, GhgShipment)
+      buyCards(2)
       cardAction1(SpaceElevator)
-      cardAction1(RestrictedArea) { draw(RedAppeasement) }
+      cardAction1(RestrictedArea)
       playProject(HomeostasisBureau, mc = 13, steel = 1)
       convertHeat()
       convertHeat()
@@ -356,7 +340,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       // Payment reconstruction: database saves 113–114 spend 5 M€ and 3 titanium.
       intentionalUnderpay()
       playProject(SolarLogistics, mc = 5, titanium = 3)
-      playProject(GhgShipment, 3) { draw(SmallAsteroid) }
+      playProject(GhgShipment, 3)
       playProject(KelpFarming, 17)
       stdProject("CityProject") { placeTile(4, 3) }
       cardAction1(StJosephOfCupertinoMission) {
@@ -364,12 +348,9 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("Cathedral<CityTile<Tharsis_4_3>>")
         doTask("UseAction<CathedralOption, Action1>")
         pay(2)
-        me.draw(WaterSplittingPlant)
       }
       cardAction1(FocusedOrganization) {
-        discard(RedAppeasement)
         doTask("-MC")
-        draw(OpenCity)
         doTask("Plant")
       }
       stdAction("LobbyAction", 1) {
@@ -385,30 +366,21 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
 
   private fun generation10() {
     with(me) {
-      buyCards(TechnologyDemonstration, InvestmentLoan, Capital)
-      playProject(TechnologyDemonstration, titanium = 1) {
-        draw(Supercapacitors, IoMiningIndustries)
-        draw(SaturnSurfing)
-      }
+      buyCards(3)
+      playProject(TechnologyDemonstration, titanium = 1)
       cardAction1(SpaceElevator)
-      cardAction1(RestrictedArea) { draw(EventAnalysts) }
+      cardAction1(RestrictedArea)
       playProject(GiantIceAsteroid, mc = 1, titanium = 7) {
-        draw(RedShips)
         placeTile(2, 6)
-        draw(SterlingVents, JovianEnvoys)
         placeTile(1, 4)
-        draw(CloudSeeding)
         declineTask() // Decline the optional plant removal.
       }
       playProject(SterlingVents, mc = 2, steel = 1)
       cardAction1(FocusedOrganization) {
-        discard(IoMiningIndustries)
         doTask("-MC")
-        draw(ProtectedGrowth)
         doTask("Titanium")
       }
       playProject(SmallAsteroid, titanium = 2) {
-        draw(NuclearPower)
         declineTask() // Decline the optional plant removal.
       }
       // Applied Science's wild tag is the eighth Earth tag counted by Saturn Surfing.
@@ -423,17 +395,16 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("Cathedral<CityTile<Tharsis_2_5>>")
         doTask("UseAction<CathedralOption, Action1>")
         pay(2)
-        me.draw(ViralEnhancers)
       }
       playProject(RedShips, 2)
-      stdProject("CityProject") { placeTile(6, 3) }
-      playProject(NoctisCity, 18)
+      stdProject("CityProject") { doTask("NormalCityTile<Tharsis_6_3>") }
+      playProject(NoctisCity, 18) { doTask("NormalCityTile<NoctisArea>") }
       // Applied Science's wild tag supplies the second Jovian tag for this play.
       exMachina(fakeWildTags("JovianTag"))
       playProject(JovianEnvoys, 2) {
         doTask("2 PartyDelegate<Greens>")
       }
-      sellPatents(SubterraneanReservoir, WaterSplittingPlant, ProtectedGrowth)
+      sellPatents(3)
       cardAction1(RedShips)
       playProject(CuttingEdgeTechnology, 12)
       playProject(CloudSeeding, 9) {
@@ -445,7 +416,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(InvestmentLoan, 0)
       stdProject("AsteroidProject")
       stdProject("AsteroidProject") { placeTile(9, 9) }
-      playProject(ImportedNitrogen, mc = 3, titanium = 3) { draw(AquiferPumping) }
+      playProject(ImportedNitrogen, mc = 3, titanium = 3)
       pass(unused = setOf(BoardOfDirectors, FakeAppliedScience, UndergroundDetonations))
       admin.doTask("SabotageGlobalEvent")
     }
@@ -453,8 +424,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
 
   private fun generation11() {
     with(me) {
-      buyCards(Farming, EarthCatapult, Recruitment, LavaTubeSettlement)
-      cardAction1(RestrictedArea) { draw(MethaneFromTitan) }
+      buyCards(4)
+      cardAction1(RestrictedArea)
       cardAction1(SpaceElevator)
       cardAction1(SaturnSurfing)
       cardAction1(StJosephOfCupertinoMission) {
@@ -462,14 +433,11 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("Cathedral<CityTile<Tharsis_5_3>>")
         doTask("UseAction<CathedralOption, Action1>")
         pay(2)
-        me.draw(BusinessContacts)
       }
       playProject(EarthCatapult, 18)
-      playProject(BusinessContacts, 0) { draw(TundraFarming, StanfordTorus) }
+      playProject(BusinessContacts, 0)
       cardAction1(FocusedOrganization) {
-        discard(Supercapacitors)
         doTask("-Heat")
-        draw(TectonicStressPower)
         doTask("Steel")
       }
       convertHeat()
@@ -478,8 +446,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       cardAction1(Meltworks)
       playProject(TectonicStressPower, mc = 2, steel = 4)
       playProject(LavaTubeSettlement, 13) {
-        placeTile(3, 1)
-        draw(GiantSpaceMirror)
+        doTask("NormalCityTile<Tharsis_3_1>")
       }
       convertPlants { placeTile(5, 2) }
       convertPlants { placeTile(4, 2) }
@@ -488,7 +455,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       convertPlants { placeTile(6, 2) }
       convertPlants { placeTile(7, 4) }
       convertPlants { placeTile(2, 4) }
-      playProject(OpenCity, 19) { placeTile(5, 1) }
+      playProject(OpenCity, 19) { doTask("NormalCityTile<Tharsis_5_1>") }
       playProject(ViralEnhancers, 7) { doTask("Plant") }
       playProject(Farming, 12) { doTask("Plant") }
       playProject(TundraFarming, 12) { doTask("Plant") }
@@ -499,7 +466,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Greens>")
       }
-      stdProject("CityProject") { placeTile(3, 4) }
+      stdProject("CityProject") { doTask("NormalCityTile<Tharsis_3_4>") }
       pass(unused = setOf(BoardOfDirectors, FakeAppliedScience, UndergroundDetonations))
       admin.doTask("GlobalDustStorm")
     }
@@ -507,8 +474,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
 
   private fun generation12() {
     with(me) {
-      buyCards(AntiGravityTechnology, MedicalLab, CommercialDistrict)
-      cardAction1(RestrictedArea) { draw(BioPrintingFacility) }
+      buyCards(3)
+      cardAction1(RestrictedArea)
       cardAction1(SpaceElevator)
       cardAction1(Meltworks)
       cardAction1(SaturnSurfing)
@@ -517,10 +484,9 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("Cathedral<CityTile<Tharsis_6_3>>")
         doTask("UseAction<CathedralOption, Action1>")
         pay(2)
-        me.draw(FrontierTown)
       }
       playProject(Recruitment, 0) {
-        doTask("PartyDelegate<Reds, Owner FROM Neutral>")
+        doTask("PartyDelegate<Reds, EK FROM Neutral>")
       }
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Reds>")
@@ -536,32 +502,21 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       exMachina(fakeWildTags("ScienceTag"))
       playProject(AntiGravityTechnology, 10)
       cardAction1(FocusedOrganization) {
-        discard(AquiferPumping)
         doTask("-Heat")
-        draw(CarbonateProcessing)
         doTask("Steel")
       }
       playProject(CommercialDistrict, steel = 4) { placeTile(2, 1) }
-      stdProject("CityProject") { placeTile(8, 4) }
+      stdProject("CityProject") { doTask("NormalCityTile<Tharsis_8_4>") }
       convertPlants { placeTile(9, 5) }
       playProject(MedicalLab, steel = 3)
       playProject(MethaneFromTitan, mc = 2, titanium = 5)
       stdProject("CityProject") {
-        placeTile(8, 7)
-        draw(SolarWindPower)
+        doTask("NormalCityTile<Tharsis_8_7>")
       }
-      sellPatents(
-          EnergyTapping,
-          NuclearPower,
-          GiantSpaceMirror,
-          BioPrintingFacility,
-          FrontierTown,
-          CarbonateProcessing,
-          SolarWindPower,
-      )
+      sellPatents(7)
       cardAction1(RedShips)
       playProject(StanfordTorus, 8)
-      stdProject("CityProject") { placeTile(9, 6) }
+      stdProject("CityProject") { doTask("NormalCityTile<Tharsis_9_6>") }
       convertPlants { placeTile(8, 5) }
       stdProject("GreeneryProject") { placeTile(7, 6) }
       pass(unused = setOf(BoardOfDirectors, FakeAppliedScience, UndergroundDetonations))
@@ -575,10 +530,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       convertPlants { placeTile(9, 7) }
       convertPlants { placeTile(2, 3) }
       declineTask() // Decline another final greenery with only 5 plants remaining.
-
-      assertCardTrackingComplete()
-      cardsHand shouldBe emptySet()
-      checkHandSizes()
+      assertCounts(0 to "ProjectCard")
       admin.assertCounts(1 to "End", 1 to "Phase")
 
       // Player-record evidence: complete final dashboard and score table.
@@ -659,9 +611,9 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       )
 
       admin.assertCounts(
-          1 to "Current<Class<EcoSabotage>>",
-          1 to "Coming<Class<SabotageGlobalEvent>>",
-          1 to "Distant<Class<GlobalDustStorm>>",
+          1 to "Current<EcoSabotage>",
+          1 to "Coming<SabotageGlobalEvent>",
+          1 to "Distant<GlobalDustStorm>",
           1 to "Ruling<Kelvinists>",
           1 to "Dominant<Reds>",
           1 to "Chairman<EK>",

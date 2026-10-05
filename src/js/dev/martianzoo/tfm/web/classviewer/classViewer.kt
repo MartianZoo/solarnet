@@ -11,9 +11,9 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.displayName
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.state.displayName
 import dev.martianzoo.tfm.canon.Canon
 import kotlin.js.JSON
 import kotlin.js.json

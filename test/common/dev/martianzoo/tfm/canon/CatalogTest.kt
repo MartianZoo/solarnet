@@ -8,7 +8,7 @@ import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.ClassDeclaration
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -31,12 +31,12 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun specializedThisInvariantCanLimitOneConcreteClassAcrossOwners() {
+  internal fun specializedThisInvariantCanLimitOneConcreteClassAcrossPlayers() {
     val table =
         catalog(
                 *parseClasses(
                         """
-                        ABSTRACT CLASS Player : Owner {
+                        ABSTRACT CLASS Player : Anyone {
                           HAS =1 This
                           CLASS Player1
                           CLASS Player2
@@ -93,7 +93,7 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun compositionRejectsAmbiguousModuleOwnership() {
+  internal fun compositionRejectsAmbiguousModuleSelection() {
     val declarations =
         "ABSTRACT CLASS Module\nCLASS SharedModule : Module"
             .lines()
@@ -268,7 +268,7 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun bundleOwnershipFiltersAndRejectsDependentContent() {
+  internal fun bundleSelectionFiltersAndRejectsDependentContent() {
     val base =
         bundle(
             "Base",

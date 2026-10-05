@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -85,7 +85,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
 
     p1.turn {
       playProject(DevelopmentCenter, 1, steel = 4) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
       }
       playProject(GeothermalPower, 1, steel = 4)
       playProject(MirandaResort, 10) // 1 VP<Player1>

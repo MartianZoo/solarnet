@@ -51,8 +51,10 @@ The target runtime has three library responsibilities with one-way dependencies:
    correction, cheats, and tests; it does not try to prevent clients from using them.
 3. **Agent:** depends on engine and is the normal client API. It creates exactly one Agent per Actor,
    gives each Agent an Actor-scoped reader with deliberate access to the unscoped reader, and keeps
-   task selection and narrowing small. Each Agent owns its optional autoexecution policies. Shared
-   wiring repeatedly gives all Agents a chance to act after an engine mutation until none does.
+   task selection and narrowing small. It creates caller-held drafts of an Actor's unsubmitted
+   task choices and uses read-only engine validation to continue them; the engine still validates
+   every submitted narrowing. Each Agent owns its optional autoexecution policies. Shared wiring
+   repeatedly gives all Agents a chance to act after an engine mutation until none does.
 
 Applications compose those libraries and add game-specific workflow and presentation. Agent
 construction returns one `Agents`, pairing a World with its immutable set of Agents; its shared loop
@@ -112,7 +114,7 @@ Card, milestone, award, map, standard-action, and colony registries are Terrafor
 responsibilities.
 
 The module-organization audit found no useful implementation split today. The generic contract
-already lives in `pets`, while Terraforming Mars content selection is absent from it. There is only
+already lives in `state`, while Terraforming Mars content selection is absent from it. There is only
 one production assembler. Card and map lowering now happens outside runtime in the JVM generator;
 `TfmCatalog` receives only explicit declarations. Do not introduce a generic base implementation
 until a real second implementation reveals a coherent reusable unit. Do not redesign premise
@@ -130,18 +132,25 @@ workflow project should extract those mechanics while moving phase topology to t
 Hex-to-ANSI color rendering and half-space centering are generic helpers inside Terraforming Mars UI
 classes. They are too small to drive an architecture change. Move them only with nearby work.
 
-### Presentation and assembly data sit inside `:pets`
+### Game assembly and runtime APIs belong to `:state`
 
-`docs/pets-language-spec.md` deliberately stops at the language: source, declarations, expressions,
-requirements, metrics, instructions, narrowing, effects, actions, transform blocks, owner-local
-Classes, and elaboration. Four surfaces in `dev.martianzoo.pets` are outside that line and would
-plausibly belong elsewhere:
+Pets owns source, declarations, types, requirements, metrics, instructions, narrowing, effects,
+actions, transform blocks, owner-local Classes, and elaboration. `:state` owns `Catalog`,
+`GameConfig`, `GamePremise`, `ClassSelection`, runtime Actor/Player identities, `GameReader`, and the
+Kotlin custom metric/instruction APIs. Its `displayNames.kt` supplies Catalog-based presentation
+names; [NAMING.md](NAMING.md) owns naming policy.
 
-- [`displayNames.kt`](../../src/common/dev/martianzoo/pets/displayNames.kt) provides stateless
-  presentation names. It is not part of what a source may mean. [`NAMING.md`](NAMING.md) owns naming.
-- [`Catalog.kt`](../../src/common/dev/martianzoo/pets/data/Catalog.kt),
-  [`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt) and
-  `ClassSelection` implement game assembly rather than Pets language semantics.
+The loading boundary accepts data and callbacks supplied by Catalog and GamePremise; it has no
+dependency on either. `TypeInfo` supplies the active class table without a `GameReader` downcast.
+[CLASS_TABLES.md](CLASS_TABLES.md#game-view-shape) owns those construction contracts.
+`PremiseViability` stays with game assembly and uses Pets' public `InhabitanceInterpreter` for
+empty-domain facts. Providers of Catalogs and custom runtime behavior depend on `:state`, which
+in turn depends on `:pets`. Pets production code and tests have no dependency on `:state`.
+
+Pure language and type tests construct tables directly. Catalog, configuration, runtime identity,
+and Kotlin implementation tests live with `:state`; their game-assembly fixtures are not compiled
+into the Pets test module.
+
 Runtime `Task`, `GameEvent`, and `TaskResult` data have moved to `:state`; their instruction-bearing
 values remain inert there, while task construction and normalization stay in `:engine`.
 
@@ -167,7 +176,7 @@ One internal declaration traversal serves extraction and both normalization pass
 
 Local roots cannot carry a type-variable marker or use the `This` placeholder. A `DEFAULT` root
 names its declaring class and cannot declare another one, though its argument occurrences may.
-Ownerless entry points reject local bodies directly instead of inventing a `Submitted` owner.
+WithoutEnclosingClass entry points reject local bodies directly instead of inventing a `Submitted` owner.
 Separate model/parser compilation succeeds with no better-parse dependency in the model and no
 friend paths. The real Gradle extraction remains follow-up work.
 

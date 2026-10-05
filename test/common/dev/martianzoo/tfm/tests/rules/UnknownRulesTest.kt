@@ -22,7 +22,7 @@ internal class UnknownRulesTest : CardTest() {
 
     p1.inTurn {
       doTask("UseAction<PlayCardFromHandAction, Action1>")
-      doTask("PlayCard<Class<ProjectCard>, Class<$SpaceElevator>>")
+      doTask("PlayCard<Class<ProjectCard>, Class<$SpaceElevator>, Hand>")
       doTask("7 Pay<Class<Steel>> FROM Steel")
       doTask("5 Pay<Class<Titanium>> FROM Titanium")
       doTask("Ok")
@@ -85,7 +85,9 @@ internal class UnknownRulesTest : CardTest() {
     fillSelectedColonySlots()
     admin.phase("Action")
 
-    shouldThrow<LimitsException> { p1.stdAction("DoRequiredActionsAction") }
+    shouldThrow<LimitsException> {
+      p1.stdAction("DoRequiredActionsAction") { doTask("Colony<Luna>") }
+    }
     p1.count("RequiredAction") shouldBe 1
     p1.count("Colony") shouldBe 0
   }
@@ -102,7 +104,9 @@ internal class UnknownRulesTest : CardTest() {
     fillSelectedColonySlots()
     admin.phase("Action")
 
-    shouldThrow<LimitsException> { p1.stdAction("DoRequiredActionsAction") }
+    shouldThrow<LimitsException> {
+      p1.stdAction("DoRequiredActionsAction") { doTask("Colony<Luna>") }
+    }
     p1.count("$Poseidon") shouldBe 1
     p1.count("$Merger") shouldBe 1
     p1.count("MC") shouldBe moneyAfterMerger

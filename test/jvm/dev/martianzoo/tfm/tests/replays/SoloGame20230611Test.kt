@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -44,7 +44,9 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       playPrelude(Biolab).expect("3 Card")
       playPrelude(NewPartner) { playPrelude(BusinessEmpire) }.expect("PROD[7 MC]")
 
-      stdAction("DoRequiredActionsAction") { playPrelude(GalileanMining) }
+      stdAction("DoRequiredActionsAction") {
+            playPrelude(GalileanMining)
+          }
           .expect("PROD[2 Titanium]")
       playProject(IndenturedWorkers, 0)
       playProject(IndustrialMicrobes, 4).expect("PROD[Steel, Energy], MicrobeTag")

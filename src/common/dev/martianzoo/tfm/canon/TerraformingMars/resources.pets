@@ -1,6 +1,4 @@
 // Anything represented by a copper cube IRL
-// IMPL: This should narrow ownership to Owner, but bare resources rely on the Owned default
-// inserting an explicit Owner variable; making Owner the bound erases that contextual binding.
 ABSTRACT CLASS Resource : Owned {
   "A resource that doesn't need a card to live on"
   ABSTRACT CLASS StandardResource {
@@ -15,8 +13,8 @@ ABSTRACT CLASS Resource : Owned {
   }
 
   "A resource cube living on a compatible card, such as `Animal<Pets>`"
-  // The explicit Owned occurrence links the holder's Owner to the resource's inherited Owner.
-  ABSTRACT CLASS CardResource<ResourceHolder<Class<This>, @Owner>> : Owned<@Owner> {
+  // The explicit Owned occurrence ties the holder's owner to this resource's inherited Me.
+  ABSTRACT CLASS CardResource<ResourceHolder<Class<This>, @Anyone>> : Owned<@Anyone> {
     DEFAULT +CardResource.
 
     CLASS Microbe
@@ -28,14 +26,12 @@ ABSTRACT CLASS Resource : Owned {
 }
 
 "Each instance of this creates an instance of a standard resource during ProductionPhase"
-// IMPL: This should narrow ownership to Owner, but bare production uses the same contextual
-// Owner binding as Resource and becomes incorrectly unbound when Owner is the declared bound.
 CLASS Production<Class<@StandardResource>> : Owned {
   ProductionPhase: @StandardResource
 }
 
 "TODO: consider rename to ProductionBasement"
-CLASS ProdOffset<Class<@StandardResource>> : Owned<Player>, System {
+CLASS ProdOffset<Class<@StandardResource>> : Owned<Player>, System, Hidden {
   This:: PROD[@StandardResource]
   ProductionPhase: -@StandardResource
 }

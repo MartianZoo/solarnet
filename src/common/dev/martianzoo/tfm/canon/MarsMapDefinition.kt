@@ -63,7 +63,7 @@ public data class MarsMapDefinition(
           ClassDeclaration(
               className = className,
               kind = CONCRETE,
-              supertypes = setOf(kind.expression),
+              supertypes = listOf(kind.expression),
               properties =
                   mapOf(
                       PropertyName("row") to NumberValue(row),

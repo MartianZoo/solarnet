@@ -3,8 +3,6 @@ package dev.martianzoo.state
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.CustomCodeException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.GameReader
-import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.types.Type
 
 /** Invokes Catalog-provided metrics as passive queries over game state. */

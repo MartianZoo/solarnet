@@ -42,6 +42,7 @@ kotlin {
       dependencies {
         implementation(libs.kotlinx.serialization.json)
         implementation(project(":pets"))
+        implementation(project(":state"))
       }
     }
     commonTest {
