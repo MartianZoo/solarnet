@@ -164,6 +164,10 @@ spell out `public` and their public types; declarations used only within one mod
 
 ## Test design
 
+Do not add tests whose sole purpose is to specify what happens after `exMachina` or `sneak`.
+Keep coverage focused on ordinary gameplay and shared engine behavior. Evidence-backed corrections
+inside whole-game replays remain appropriate; the replay tests the game, not correction semantics.
+
 > **Recurring failure warning:** Card and rule tests operate through player-facing gameplay and
 > assert observable results. They do not inspect rendered task text, causes, incidental queue order,
 > or mirrored Canon data. A test-support helper must express a recurring component-independent

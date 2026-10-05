@@ -199,7 +199,6 @@ internal constructor(
               gaining = gaining,
               removing = removing,
               cause = cause,
-              orRemoveOneDependent = true,
               actor = actor,
           )
 

@@ -23,7 +23,6 @@ internal class Changer(
       gaining: Component?,
       removing: Component?,
       cause: Cause?,
-      orRemoveOneDependent: Boolean,
       actor: Actor,
   ): Pair<ChangeEvent, Boolean> {
     return try {
@@ -39,7 +38,6 @@ internal class Changer(
       val event = ChangeEvent(gameWorld.nextOrdinal, actor, change, cause)
       applyEvent(event) to true
     } catch (e: ExistingDependentsException) {
-      if (!orRemoveOneDependent) throw e
       removeAll(e.dependents.first(), cause, actor) to false
     }
   }
@@ -67,7 +65,6 @@ internal class Changer(
               gaining = null,
               removing = dependent.toComponent(reader),
               cause = cause,
-              orRemoveOneDependent = true,
               actor = actor,
           )
           .first
