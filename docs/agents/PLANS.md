@@ -141,11 +141,12 @@ See [`API.md`](API.md#layer-responsibility), [`VISIBILITY.md`](VISIBILITY.md), a
   players-by-standard-resources production as the concrete proof case.
 - Separate the expression API's natural, compact resolved, and full resolved intents, with an
   explicit `ClassTable` for resolution.
-- Assess whether a future `OWN[...]` transform can subsume the current Owned-specific insertion
-  and implicit trigger-actor filter without worsening authored Pets. Lexical `Me`, inherited header
-  names, and ordinary `Anyone` are the current model; [`IDENTITY.md`](IDENTITY.md#lexical-ownership-model)
-  records the remaining property-evaluation boundary. Separately, divide `Instructor`'s resolution
-  capability from execution.
+- Replace implicit ownership shorthand with explicit `OWN[...]`, including whole-effect transforms
+  and automatic card/map marks. Study removal of runtime ownership inference in the same work;
+  [`IDENTITY.md`](IDENTITY.md#future-direction) records the source audit, the proposed explicit Effect
+  actor, and unresolved deferred-property and passive-owner cases. Ordinary `Owned`/`Owner`
+  declarations are the longer-term goal. Separately, divide `Instructor`'s resolution capability
+  from execution.
 - Represent direct point-event `Signal`s honestly rather than as self-transmutations, preserving
   their paired gain/removal triggers and distinguishing them from source-requiring exchanges; and
   separate cleanup lifetime from log visibility.

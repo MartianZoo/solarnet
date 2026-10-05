@@ -11,8 +11,9 @@
 > lexical `Me` binding; read sections 3, 10, and 13 of
 > [type-system-spec.md](../type-system-spec.md).
 >
-> **Status:** current identity and lexical-ownership semantics. The interaction between CONCRETE
-> auto-selection and cross-Player handoff remains open.
+> **Status:** current identity and lexical-ownership semantics, plus the selected `OWN[...]`
+> direction and a source audit of remaining ownership inference. Runtime replacements below are
+> proposals, not implemented behavior. CONCRETE auto-selection across Players remains open.
 
 ## Source map
 
@@ -20,8 +21,8 @@
   for `public sealed interface Actor` for the operation identity mechanism.
 - [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt) — inspect `controller`, the derived
   `assignee`, `actor`, and selection state before changing queued work.
-- [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt) — search
-  for `taskController` to see trigger-time routing.
+- [`PendingTask.kt`](../../src/common/dev/martianzoo/engine/PendingTask.kt) — search
+  for `fromEffect` to see trigger-time routing.
 - [`PetElaborator.kt`](../../src/common/dev/martianzoo/pets/PetElaborator.kt) — search for
   `insertOwnedContext` to see lexical owner insertion.
 - [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt) — search for
@@ -229,8 +230,8 @@ one shared `Me@Player` declaration in an owned
 trigger when possible, or in `BY` for an ownerless trigger. An owned component's unowned watched
 type also receives an explicit actor filter during effect compilation. Submitted instructions use
 the submitting Player as the insertion context. This Owned-specific insertion is provisional syntax;
-`OWN[...]` may eventually request it explicitly around a whole effect or action. General `DEFAULT`
-is not part of the ownership rule.
+the selected direction is to request it explicitly through `OWN[...]`, including whole effects.
+General `DEFAULT` is not part of the ownership rule.
 
 The lexical model removes the old ownership default, its special preservation, effect-time
 contextual substitution, and special handling of an unbound ownership `BY`.
@@ -247,12 +248,85 @@ tests each candidate's token. An incompatible candidate leaves the owner open fo
 
 ## Future direction
 
-An explicit `OWN[...]` transform may replace the current implicit Owned-specific insertion while
-leaving compact card JSON nearly unchanged. Before selecting it, check whether the resulting
-`.pets` authoring improves and whether whole-effect wrapping expresses both trigger and result
-without extra owner machinery. Keep the current lexical model coherent on its own, including the
-player versus passive-owner boundary and property evaluation, rather than preserving old runtime
-substitution as an unnoticed dependency.
+**Selected direction, unimplemented:** `OWN[...]` requests ownership shorthand explicitly, and
+transforms support entire Effects. The card compiler and map generator insert the marks so their
+compact inputs remain compact. `Owned<Me@Owner>` can continue supplying an ordinary inherited
+variable; inheriting it must eventually stop requesting implicit rewrites. The longer-term goal is
+ordinary `Owned` and `Owner` declarations, potentially outside `SystemDeclarations`.
 
-The class elaborator still records scopes around its post-dispatch ownership insertion; remove
-further passes only when transformed variable occurrences continue to specialize correctly.
+### Why the Kotlin is ownership-specific
+
+The type-system implementation under `pets/types` does not name `Owned`, `Owner`, or `Me` in its
+rules. Their dependency and inherited-variable behavior already uses ordinary types. Most special
+treatment is authored-syntax completion and runtime inference of facts absent from an Effect.
+"Owner-local" declaration lowering names the enclosing declaration, not a component's game owner;
+it is unrelated to this work.
+
+| Current code | Why it exists | Removal or simplification candidate |
+| --- | --- | --- |
+| `PetElaborator.insertOwnedContext` | Finds omitted ownership, supplies trigger-local `Me`, handles selector shadowing, represented Classes, and refinement candidates. | A catalog-owned `OWN` handler; retain ordinary dependency matching and variable identity. Moving the existing traversal unchanged does not by itself reduce complexity. |
+| `finishAuthoredSyntax`, `attachToClassTransformer`, `classEffects`, and `propertyEvaluator` | Revisit ownership because transforms and property expansion can introduce new bare types. | Explicit marks and preserved lexical capture across delayed expansion; eliminate repeated inference only where the resulting scopes prove equivalent. |
+| `LiveEffect.create` | Adds a Player actor filter for an owned listener watching an ownerless, non-System type. | Have whole-effect `OWN` produce the filter, preserving explicit `BY` and System-event behavior. |
+| `PendingTask.fromEffect` | Infers who chooses and performs work from the effect component, changed component, and triggering Actor. | Explore an explicit Effect actor selector that supplies the existing `Task.actor`; `OWN` can emit that selector. Syntax and fallback semantics are unresolved. |
+| `LiveEffect.specialize` | Passive owners inherit effects whose outputs require a Player. A separate path skips an entire effect when specialized type checking fails but source type checking succeeds. | Express applicability in ordinary Pets where possible, then use a shared specialization path. Do not generalize exception-based effect suppression. |
+| `Component.owner` / `owningPlayer` | Treats an Owner as its own owner; otherwise reads `Key(Owned, 0)` and optionally converts to Player. | Once generic callers are gone, any remaining game queries can use ordinary dependencies in TFM code. Renaming this lookup or using `Me` as a new runtime convention would retain the inference. |
+
+### Runtime actor proposal
+
+An explicit Effect actor would describe information already stored on `Task`, not introduce a
+second runtime owner or change the selection lifecycle. This is a proposal to examine alongside
+whole-effect transforms, not a selected syntax or proven replacement.
+
+The ordinary instruction `BY` cannot supply it: `Instruction.By` and `Instructor` deliberately
+override only the performer. Philares requires the active Player to retain ordering control until
+the card owner's resource choice is selected. Icy Impactors requires the start Player to choose
+an ocean while crediting the card owner. Those are distinct facts even when they normally agree.
+Do not infer choice authority from an output resource's owner or from an arbitrary variable named
+`Me`.
+
+Ownerless listeners also need this study: Enceladus receives choice authority from the owned
+`GainColonyBonus` event, whereas a map bonus takes its recipient from the placement Actor. The
+current automatic-effect fallback ignores the changed component for Actor attribution; the
+controller fallback still considers it when the surrounding controller is Admin. Replacing both
+fallback chains with a shared expression would change behavior. Preserve or explicitly reconsider
+these cases, including effects whose results contain no owned expression.
+
+### Remaining design obligations
+
+- The transform handler currently receives only its inner node and its catalog's ClassTable.
+  Whole-effect rewriting needs the visible class/selector bindings. First reuse the existing
+  Type-variable scopes; do not create a parallel ownership environment or another global pass.
+- `Metric.Eval` and `Requirement.Eval` explicitly capture `me`; the parser also permits free `Me`
+  in properties. An outer `OWN` cannot simply disappear before a deferred property produces its
+  syntax. Preserve the captured binding through `EACH` and `RANK`; a general closure framework is
+  not justified merely to remove this small capture. `PROD` composition must retain represented
+  resource variables as well.
+- Agent input and custom Kotlin output also use implicit insertion. Preserve compact player
+  commands through explicit game-supplied authoring policy. Custom implementations such as
+  `RepeatPlacementBonus`, `CopyProductionBox`, `CopyPrelude`, and `ScoreEventVps` return copied
+  source syntax, so they must request `OWN` with the caller's binding rather than inherit hidden
+  behavior from `CustomInstructionRuntime`.
+- Passive-owner handling remains unresolved. Solo cities/greeneries inherit Player-only scoring;
+  Neutral chairmen/leaders inherit Player-only influence and scoring. Their other effects remain
+  meaningful. First test existing guards, selectors, and quantifiers where semantically correct;
+  neither discarding every passive-owner effect nor weakening every mandatory gain is acceptable.
+- Moving the two declarations also requires resolving the system `Audit : Owned` declaration and
+  removing generic `Component.owner` callers. Declaration relocation alone proves nothing about
+  semantic independence.
+
+### Acceptance checklist for the experiment
+
+- Outside explicit marks, ownership adds no contextual argument or implicit trigger filter.
+- Card/map generation retains compact inputs; actions, requirements, metrics, and copied syntax
+  receive the intended marks without wrapping or rebinding the same fact twice.
+- Explicit owners and `BY` selectors remain authoritative; inherited names, selector shadowing,
+  refinement candidates, linked dependencies, and represented-Class references retain their scope.
+- Deferred properties retain their evaluation-site binding. Relevant evidence is
+  `DeferredPropertyBindingTest`, `EachSelectorBindingTest`, `RankMetricTest`, and
+  `Lang09ElaborationTest`.
+- Attribution and delegation preserve `TaskDelegationTest`, `ByTriggerCharacterizationTest`,
+  `EffectActorCharacterizationTest`, Philares, Icy Impactors, and Enceladus behavior; passive solo
+  owners and Neutral keep their valid effects. Run the relevant scenarios and source-backed
+  replays when implementing, not just transform round-trip tests.
+- Count removed inference, special cases, and repeated traversals. Do not report a net
+  simplification merely because owner-specific code moved to a new file.
