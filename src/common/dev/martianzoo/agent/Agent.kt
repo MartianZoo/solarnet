@@ -50,8 +50,8 @@ public interface Agent {
 
   // Purple mode (and below)
 
-  /** Creates an independent, caller-held draft for one of this Actor's tasks. */
-  public fun taskDraft(taskId: TaskId): TaskDraft
+  /** Creates an independent, caller-held form for one of this Actor's tasks. */
+  public fun fillInTask(taskId: TaskId): TaskForm
 
   /**
    * Narrows this Actor's selected task and resolves it again. A partial narrowing remains selected;

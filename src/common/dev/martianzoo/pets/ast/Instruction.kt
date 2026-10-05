@@ -822,6 +822,7 @@ public sealed class Instruction : InstructionTree() {
           }
         }
         if (wideNode is XScalar) {
+          if (narrowNode == wideNode) return unbound
           val narrowScalar = narrowNode as? ActualScalar ?: return emptySet()
           if (narrowScalar.value % wideNode.multiple != 0) return emptySet()
           return setOf(narrowScalar.value / wideNode.multiple)
@@ -841,6 +842,9 @@ public sealed class Instruction : InstructionTree() {
         throw NarrowingException("cannot match `X` occurrences in `$narrow`")
       }
       val concreteValues = xValues.filterNotNull()
+      if (concreteValues.isNotEmpty() && narrow.descendantsOfType<XScalar>().isNotEmpty()) {
+        throw NarrowingException("a bound `X` must be substituted at every occurrence in `$narrow`")
+      }
       if (concreteValues.size > 1) {
         throw NarrowingException("`X` has conflicting values: `$concreteValues`")
       }
