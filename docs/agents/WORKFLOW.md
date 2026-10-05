@@ -9,6 +9,9 @@
 
 ## Purpose
 
+[COLOR_MODES.md](COLOR_MODES.md) owns the intended REPL mode contracts and supersedes earlier
+color-mode guidance. The current runner described here does not yet implement those contracts.
+
 After an explicit start, ordinary game rules should determine phase progression. The current Kotlin
 runner supplies phase order, player rotation, extra action offers, and completion decisions. Moving
 those responsibilities into Pets requires an account of when the relevant work has finished, not

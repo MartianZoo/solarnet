@@ -75,6 +75,17 @@ scheduling model remains open.
 See [`WORKFLOW.md`](WORKFLOW.md) and
 [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md#workflow-progression-and-task-scheduling).
 
+### Align REPL color modes and migrate manual gameplay tests
+
+Purple provides full-game workflow; blue grants an action slot, green initiates an arbitrary
+operation, yellow permits task abandonment, and red applies corrections without advancing gameplay.
+Blue and green reject overlapping initiation, isolate their new work from existing game work, and
+must not restart automatic progression. Red preserves pending tasks. Pending-work disposal for
+blue/green, other transitions, and yellow's exact atomicity guarantee remain open.
+Migrate ordinary gameplay tests to the full workflow while preserving dedicated mode coverage.
+
+See [`COLOR_MODES.md`](COLOR_MODES.md) for the selected contracts and unresolved decisions.
+
 ### Complete the Agent boundary and policy system
 
 Keep passive Game World data below a policy-free engine and an Actor-scoped Agent above it.

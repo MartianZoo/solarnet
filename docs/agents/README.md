@@ -62,6 +62,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Payment choices, resource value, excess, or delegated payment control | [`PAYMENTS.md`](PAYMENTS.md) | Current behavior and open design options |
 | Truthful representations, observable game cheats, or extension hazards | The matching entry in [`GAME_HACKS.md`](GAME_HACKS.md) | Current source audit |
 | Phase topology or replacing the Kotlin workflow | [`WORKFLOW.md`](WORKFLOW.md) | Domain rules and proposal |
+| REPL color modes, manual turns, arbitrary operations, or switching out of automatic play | [`COLOR_MODES.md`](COLOR_MODES.md) | Selected direction, open decisions, and implementation gaps |
 | Agent policies, shared autoexecution, or policy-relative stable points | [`AUTOEXEC.md`](AUTOEXEC.md) | Working direction and audit |
 | Admin routing, on-turn identity, or fixed housekeeping work | [`TASK_ROUTING_EXPERIMENT.md`](TASK_ROUTING_EXPERIMENT.md) | Open questions and research constraints |
 | Proof that an automatic task command is safe | [`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md) | Research and proposal |
