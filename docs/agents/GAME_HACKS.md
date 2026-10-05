@@ -106,18 +106,6 @@ corporation rather than another special payout.
 `TharsisRepublic` in [base cards](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/cards.json5),
 and [TharsisRepublicTest](../../test/common/dev/martianzoo/tfm/tests/cards/TharsisRepublicTest.kt).
 
-### 6. Arcadian Communities treats claim removal as construction
-
-**Hack:** its reward listens to `-Community`, relying on building a tile being the only reason the
-claim disappears.
-
-**Fan card — Zoning Reversal:** “Remove one of your land claims and gain 2 steel.” **Literal:**
-`-Community THEN 2 Steel`. Arcadian additionally pays 3 M€, although no tile was placed there.
-The claim's separate rollback-based protection remains truthful.
-
-**Source:** `ArcadianCommunities` in [promo cards](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.json5)
-and `Community` in [board.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/board.pets).
-
 ### 7. L1 Trade Terminal's quota counts unrelated resource gains
 
 **Hack:** `L1GiftWatcher` creates up to three `L1Gift` allowances and consumes one on **every**

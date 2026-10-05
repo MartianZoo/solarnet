@@ -18,6 +18,23 @@ import kotlin.test.Test
 /** Passing characterizations of known incorrect behavior. */
 internal class BugsTest : CardTest() {
   @Test
+  internal fun `Mars Nomads incorrectly prevents greenery fallback from the last adjacent area`() {
+    newGame(PromoCardPack)
+    p1.runOperation("GreeneryTile<Tharsis_1_1>, 8 Plant")
+    val p2 = requireP2()
+    p2.runOperation("CityTile<Tharsis_2_1>")
+    p2.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_2_2>") }
+    admin.phase("Action")
+
+    shouldThrow<DeadEndException> { p1.convertPlants { placeTile(2, 2) } }
+    // With the last adjacent land area blocked, greenery should be allowed elsewhere.
+    shouldThrow<NarrowingException> { p1.convertPlants { placeTile(9, 7) } }
+
+    p1.assertCounts(8 to "Plant", 1 to "GreeneryTile", 0 to "GreeneryTile<Tharsis_9_7>")
+    p2.assertCounts(1 to "NomadsMarker<Tharsis_2_2>")
+  }
+
+  @Test
   internal fun `WG Project incorrectly cannot play a drawn Prelude without selecting its pool`() {
     newGame(GameConfig("WgProject, TurmoilExpansion", "Player1", "Player2"))
     admin.runOperation("-Chairman<Neutral>")

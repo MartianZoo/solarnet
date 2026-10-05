@@ -80,8 +80,8 @@ operation; it does not make an already committed result harmless.
 - **Protected Habitats:** [`-Plant OR -Animal OR -Microbe BY Player(NOT Me@Owner):: Die`](../src/common/dev/martianzoo/tfm/canon/CorporateEraExpansion/cards.json5) catches an opponent's attack regardless of which action caused the removal. The attempted removal rolls back.
 - **Global parameter completion:** [`-@GlobalParameter:: Die`](../src/common/dev/martianzoo/tfm/canon/TerraformingMars/board.pets) rejects any later attempt to lower a completed track, no matter which card or event requested it.
 
-The same pattern protects Community cubes and the Mars Nomads marker. It depends on transaction
-rollback, not on `Die` somehow preventing the triggering event from starting.
+The same rollback pattern protects the Mars Nomads marker through its ordinary `: Die` effect.
+It depends on transaction rollback, not on `Die` somehow preventing the triggering event from starting.
 
 ## 7. Use a zero-or-one metric as an `if` without a branch
 

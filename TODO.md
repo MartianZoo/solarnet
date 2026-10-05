@@ -35,6 +35,18 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Try to simplify Flooding and Artificial Lake's ocean instructions without engine prediction.
   Preserve full-track no-placement behavior (including Amazonis), Artificial Lake's required
   placement below the cap, and Flooding's linked placement and victim choice.
+- Shorten `DefaultGreeneryTile` using existing Pets. Keep it independent of `Community`, preserve
+  own and opposing claims' different effects on fallback, and do not treat unaffordable placement
+  consequences as permitting fallback. This is a local expression simplification, not an `ELSE`
+  language or execution-search project.
+- Fix greenery fallback when Mars Nomads blocks the last adjacent land area. `BugsTest` records
+  that both the blocked placement and a distant placement currently fail. Keep promo-specific
+  names out of the core greenery rule.
+- Prefer the positive Arcadian Communities reward trigger `Tile<LandArea(HAS Community)>: 3 MC`
+  when it can observe the claim before automatic ejection while keeping the reward queued.
+  Currently ordinary trigger matching sees the area after ejection; making the reward automatic
+  would also pay during corrections. Until a small solution exists, retain
+  `-Community<LandArea(HAS Tile)>: 3 MC`.
 - Look for a small way to evaluate the existing `CardFilter` criteria against a card Class in Pets.
   Replay tracking currently checks them in Kotlin; avoid adding engine card identities or a new
   processing stage just for this. Named-header specialization of Requirement properties and
