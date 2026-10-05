@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.Transforming.replaceOwnerWith
-import dev.martianzoo.pets.api.Exceptions.KindException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -22,7 +20,7 @@ import kotlin.test.Test
 
 /**
  * The [dev.martianzoo.pets.PetTransformer] contract. What the individual transformations *mean* is
- * `docs/pets-language-spec.md` (L9-4, L9-6, L12-2).
+ * `docs/pets-language-spec.md` (L7-5, L7-7, L9-2).
  */
 internal class TransformingTest {
 
@@ -36,8 +34,8 @@ internal class TransformingTest {
   @Test
   internal fun instructionTransformDeduplicatesCollapsedOrArms() {
     val transformed =
-        replaceOwnerWith(cn("Player1").expression)
-            .transformInstructionTree(parse("Foo<Owner> OR Foo<Player1>"))
+        replacer(cn("Anyone").expression, cn("Player1").expression)
+            .transformInstructionTree(parse("Foo<Anyone> OR Foo<Player1>"))
 
     transformed shouldBe parse<Instruction>("Foo<Player1>")
   }
@@ -82,6 +80,6 @@ internal class TransformingTest {
     val transformer = replacer(original, expanded)
 
     transformer.transformInstructionTree(original) shouldBe expanded
-    shouldThrow<KindException> { transformer.transformInstruction(original) }
+    shouldThrow<IllegalStateException> { transformer.transformInstruction(original) }
   }
 }

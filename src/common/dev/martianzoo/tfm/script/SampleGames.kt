@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.script
 
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 
@@ -17,8 +17,6 @@ internal object SampleGames {
     val (p1, p2) = agents.world.actors.filterIsInstance<Player>().map { agents.tfm(it) }
 
     TfmWorkflow.Stepwise(agents).setupPhase()
-    p1.doTask("-5 ProjectCard<Selecting>")
-    p2.doTask("-6 ProjectCard<Selecting>")
     admin.phase("Corporation")
     p1.playCorp(cn("Manutech"), 5)
     p2.playCorp(cn("Factorum"), 4)
@@ -67,7 +65,9 @@ internal object SampleGames {
     p2.playProject(cn("AsteroidCard"), 2, steel = 0, titanium = 4) { doTask("Ok") }
     p1.playProject(cn("CorporateStronghold"), 5, steel = 3) { doTask("CityTile<Tharsis_4_6>") }
     p1.playProject(cn("OptimalAerobraking"), 7)
-    p2.playProject(cn("TransNeptuneProbe"), 0, titanium = 2) { doTask("-ProjectCard") }
+    p2.playProject(cn("TransNeptuneProbe"), 0, titanium = 2) {
+      doTask("-ProjectCard")
+    }
     p2.cardAction1(cn("RotatorImpacts")) { p2.pay(6) }
     p1.cardAction2(cn("DeuteriumExport"))
     p1.playProject(cn("ImportedGhg"), 4)
@@ -178,7 +178,10 @@ internal object SampleGames {
     admin.nextGeneration(2, 2)
 
     p2.playProject(cn("AdvancedAlloys"), 7) { doTask("-ProjectCard") }
-    p2.playProject(cn("AiCentral"), 13, steel = 2) { doTask("-ProjectCard") }
+    p2.playProject(cn("AiCentral"), 13, steel = 2) {
+      doTask("PROD[-Energy]")
+      doTask("-ProjectCard")
+    }
     p1.playProject(cn("ExtractorBalloons"), 21)
     p1.cardAction1(cn("DevelopmentCenter"))
     p2.cardAction1(cn("AiCentral"))
@@ -240,6 +243,7 @@ internal object SampleGames {
     p2.cardAction2(cn("Factorum"))
     p2.playProject(cn("NaturalPreserve"), 1, steel = 2) {
       doTask("-ProjectCard")
+      doTask("ProjectCard")
       doTask("NaturalPreserve_SpecialTile<Tharsis_3_1>")
     }
     p1.sellPatents(3)

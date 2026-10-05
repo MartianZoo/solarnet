@@ -5,9 +5,10 @@ import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.state.GameEvent.TaskEditedEvent
@@ -89,7 +90,7 @@ internal class PhantomTypeTest {
   }
 
   @Test
-  internal fun `choices discard both structurally empty and zero-capacity branches`() {
+  internal fun `choices discard empty types but leave mandatory count failures to execution`() {
     val game =
         Engine.newGame(
             testGamePremise(
@@ -104,11 +105,17 @@ internal class PhantomTypeTest {
     val agent = game.testAgent(ADMIN)
 
     agent.runOperation("Empty! OR Live!")
-    agent.runOperation("ZeroCapacity! OR Live!")
+    agent.runOperation("ZeroCapacity! OR Live!") {
+      val before = game.timeline.checkpoint()
+      shouldThrow<LimitsException> { doTask("ZeroCapacity!") }
+      game.timeline.checkpoint() shouldBe before
+      doTask("Live!")
+    }
     agent.runOperation("Empty?")
     agent.runOperation("ZeroCapacity?")
 
     agent.count("Live") shouldBe 2
+    agent.count("ZeroCapacity") shouldBe 0
   }
 
   @Test
@@ -181,10 +188,10 @@ internal class PhantomTypeTest {
     // The probe names Player1, so the seats have to exist before its declaration is loaded.
     val premise =
         canonicalPremise(
-            catalog = TfmCatalog.Composite(Canon.withPlayers(2), probeCatalog),
+            catalog = TfmCatalog(Canon.withPlayers(2), probeCatalog),
             initialComponentTypes = setOf(cn("PhantomEffectProbe").expression),
         )
 
-    shouldThrow<PetException> { Engine.newGame(premise) }
+    shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
   }
 }

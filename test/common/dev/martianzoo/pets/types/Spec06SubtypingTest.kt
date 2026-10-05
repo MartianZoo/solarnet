@@ -1,13 +1,11 @@
 package dev.martianzoo.pets.types
 
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlin.test.Test
 
-/** Section 6 of `docs/type-system-spec.md`: the subtype relation on types. */
+/** Section 6 of `docs/type-system-spec.md`: subtyping and narrowing. */
 internal class Spec06SubtypingTest {
 
   private val mars =
@@ -17,13 +15,16 @@ internal class Spec06SubtypingTest {
           CLASS Player2 : Owner
           ABSTRACT CLASS Area {
             ABSTRACT CLASS MarsArea {
-              ABSTRACT CLASS LandArea { CLASS Tharsis_2_2, Tharsis_2_3 }
+              ABSTRACT CLASS LandArea {
+                CLASS Tharsis_2_2
+                CLASS Tharsis_2_3
+              }
               ABSTRACT CLASS WaterArea { CLASS Tharsis_1_1 }
             }
           }
           ABSTRACT CLASS Occupant<Area>
           ABSTRACT CLASS Tile : Occupant
-          CLASS GreeneryTile : Tile<MarsArea>, Owned<Owner>
+          CLASS GreeneryTile : Tile<MarsArea>, Owned
           CLASS OceanTile : Tile<WaterArea>
           CLASS Neighbor<Occupant, Area>
           """
@@ -34,18 +35,7 @@ internal class Spec06SubtypingTest {
 
   private fun narrows(narrow: String, wide: String) = type(narrow).isSubtypeOf(type(wide))
 
-  // T6-1 The two forms of the test
-
-  @Test
-  internal fun `T6-1 narrows answers, ensureNarrows explains`() {
-    type("Tharsis_2_2").narrows(type("LandArea"), NoGameState) shouldBe true
-    type("Tharsis_2_2").ensureNarrows(type("LandArea"), NoGameState)
-
-    type("LandArea").narrows(type("Tharsis_2_2"), NoGameState) shouldBe false
-    shouldThrow<NarrowingException> {
-      type("LandArea").ensureNarrows(type("Tharsis_2_2"), NoGameState)
-    }
-  }
+  // T6-1 The two judgments
 
   @Test
   internal fun `T6-1 isSubtypeOf and isSupertypeOf are the world-free spellings`() {
@@ -142,13 +132,26 @@ internal class Spec06SubtypingTest {
   }
 
   @Test
-  internal fun `T6-4 narrowing with a world is only a preorder`() {
+  internal fun `T6-4 contextual narrowing is not antisymmetric`() {
     // In a world where every land area has a neighbour, these two narrow each other...
     type("LandArea").narrows(type("LandArea(HAS Neighbor)"), fullWorld) shouldBe true
     type("LandArea(HAS Neighbor)").narrows(type("LandArea"), fullWorld) shouldBe true
 
     // ...while remaining distinct types, so antisymmetry fails.
     type("LandArea") shouldNotBe type("LandArea(HAS Neighbor)")
+  }
+
+  @Test
+  internal fun `T6-4 aggregate contextual narrowing is not transitive`() {
+    val table =
+        loadTypes("ABSTRACT CLASS Place {\nCLASS First\nCLASS Second\n}", "CLASS Marker<Place>")
+    val info = world("Marker<Place>")
+    val concrete = table.resolve(te("Second"))
+    val domain = table.resolve(te("Place"))
+    val refined = table.resolve(te("Place(HAS Marker)"))
+    concrete.narrows(domain, info) shouldBe true
+    domain.narrows(refined, info) shouldBe true
+    concrete.narrows(refined, info) shouldBe false
   }
 
   // T6-5 Universe safety
@@ -164,13 +167,13 @@ internal class Spec06SubtypingTest {
     shouldThrowIae { type("Tharsis_2_2").isSubtypeOf(other.resolve(te("Area"))) }
   }
 
-  // T6-6 Constrained narrowing
+  // T6-6 A constraint read inside a domain
 
   @Test
   internal fun `T6-6 matchesConstraint reads a constraint inside a domain`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Player : Owner, Actor { CLASS Player1, Player2 }",
+            "ABSTRACT CLASS Player : Owner, Actor {\nCLASS Player1\nCLASS Player2\n}",
         )
     val actor = table.resolve(te("Actor"))
 
@@ -185,7 +188,7 @@ internal class Spec06SubtypingTest {
 
   @Test
   internal fun `T6-6 a constraint may exclude part of the domain`() {
-    val table = loadTypes("ABSTRACT CLASS Player : Owner, Actor { CLASS Player1, Player2 }")
+    val table = loadTypes("ABSTRACT CLASS Player : Owner, Actor {\nCLASS Player1\nCLASS Player2\n}")
     val actor = table.resolve(te("Actor"))
 
     fun matches(candidate: String) =

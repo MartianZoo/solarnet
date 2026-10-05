@@ -4,9 +4,9 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -29,7 +29,7 @@ import org.openjdk.jmh.annotations.TearDown
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 public open class BusyPreludePhaseBenchmark {
-  private val fakeEstablishedMethods = cn("FakeEstablishedMethods")
+  private val fakeHeadStart = cn("FakeHeadStart")
   private lateinit var game: World
   private lateinit var me: TfmGameplay<*>
   private lateinit var workflow: TfmWorkflow.Stepwise
@@ -39,7 +39,7 @@ public open class BusyPreludePhaseBenchmark {
   public fun setUp() {
     game =
         Engine.newGame(
-            TfmCatalog.compose(Canon, FakeCanon)
+            TfmCatalog(Canon, FakeCanon)
                 .gamePremise(
                     GameConfig(
                         "TerraformingMars, TharsisMap, PreludeExpansion, " +
@@ -55,7 +55,7 @@ public open class BusyPreludePhaseBenchmark {
     workflow = TfmWorkflow.Stepwise(agents)
 
     workflow.setupPhase()
-    me.doTask("-ColonyTileSelection<Class<Ceres>>")
+    me.doTask("-SelectedColonyTile<Class<Ceres>>")
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     admin.doTask("CityTile<Tharsis_5_8, SoloOpponent>")
@@ -71,7 +71,7 @@ public open class BusyPreludePhaseBenchmark {
     me.playCorp(cn("Teractor"), 10)
 
     workflow.preludePhase()
-    me.playPrelude(fakeEstablishedMethods) {
+    me.playPrelude(fakeHeadStart) {
       doTask("UseAction<PlayCardFromHandAction, Action1>")
       doTask("PlayCard<Class<ProjectCard>, Class<EarthOffice>, Hand>")
       me.pay(0)
@@ -81,7 +81,7 @@ public open class BusyPreludePhaseBenchmark {
     }
     me.playPrelude(cn("NewPartner")) {
       me.playPrelude(cn("Merger")) {
-        doTask("PlayCard<Class<CorporationCard>, Class<ValleyTrust>, Selecting>")
+        doTask("PlayCard<Class<StandardCorporationCard>, Class<ValleyTrust>, Selecting>")
       }
     }
 
@@ -90,7 +90,7 @@ public open class BusyPreludePhaseBenchmark {
     // https://boardgamegeek.com/thread/3055761/article/41996773#41996773
     me.stdAction("DoRequiredActionsAction") {
       me.playPrelude(cn("DoubleDown")) {
-        doTask("CopyPrelude<$fakeEstablishedMethods>")
+        doTask("CopyPrelude<$fakeHeadStart>")
         doTask("UseAction<PlayCardFromHandAction, Action1>")
         doTask("PlayCard<Class<ProjectCard>, Class<LunaGovernor>, Hand>")
         me.pay(0)
@@ -107,7 +107,7 @@ public open class BusyPreludePhaseBenchmark {
     // Teractor + Valley Trust, four Preludes, and four projects.
     check(me.count("CardFront") == 10)
     val mc = me.count("MC")
-    check(mc == 89) { "expected 89 MC, found $mc" }
+    check(mc == 65) { "expected 65 MC, found $mc" }
     game.timeline.rollBack(beforeCorporationPhase)
   }
 }

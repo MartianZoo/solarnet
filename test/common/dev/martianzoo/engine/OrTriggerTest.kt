@@ -73,7 +73,7 @@ internal class OrTriggerTest {
   }
 }
 
-private object OrProbeCatalog : TfmCatalog.Composite(Canon, OrProbeDeclarations)
+private object OrProbeCatalog : TfmCatalog(Canon, OrProbeDeclarations)
 
 private object OrProbeDeclarations : TfmCatalog() {
   override val explicitClassDeclarations =
@@ -90,7 +90,8 @@ private object OrProbeDeclarations : TfmCatalog() {
               CLASS ConcreteIndexedSignal : IndexedSignal
               CLASS IndexedReward
               CLASS ConcreteOrderedSignal : IndexedSignal
-              CLASS OrderedReward1, OrderedReward2
+              CLASS OrderedReward1
+              CLASS OrderedReward2
 
               CLASS IndexedProbe {
                 HAS =1 This
@@ -105,12 +106,12 @@ private object OrProbeDeclarations : TfmCatalog() {
 
               CLASS LeftFirstOrProbe {
                 HAS =1 This
-                LeftSpecializedSignal OR RightSpecializedSignal IF =1 LeftSpecializedSignal: LeftFirstReward<LeftSpecializedSignal, RightSpecializedSignal>
+                @LeftSpecializedSignal OR @RightSpecializedSignal IF =1 @LeftSpecializedSignal: LeftFirstReward<@LeftSpecializedSignal, @RightSpecializedSignal>
               }
 
               CLASS RightFirstOrProbe {
                 HAS =1 This
-                RightSpecializedSignal OR LeftSpecializedSignal IF =1 RightSpecializedSignal: RightFirstReward<LeftSpecializedSignal, RightSpecializedSignal>
+                @RightSpecializedSignal OR @LeftSpecializedSignal IF =1 @RightSpecializedSignal: RightFirstReward<@LeftSpecializedSignal, @RightSpecializedSignal>
               }
               """
                   .trimIndent()

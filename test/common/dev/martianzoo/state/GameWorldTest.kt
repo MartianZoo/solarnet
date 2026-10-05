@@ -4,10 +4,11 @@ import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExistingDependentsException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.state.GameEvent.TaskEditedEvent
@@ -22,8 +23,57 @@ internal class GameWorldTest {
       testGamePremise("CLASS Token\nCLASS Holder<Token>\nCLASS Moment : Signal", players = 0)
   private val table = premise.classTable
   private val token = table.resolve(parse<Expression>("Token")).toComponent()
-  private val holder = table.resolve(parse<Expression>("Holder<Token>")).toComponent()
+  private val holder = table.resolve(parse<Expression>("Holder")).toComponent()
   private val moment = table.resolve(parse<Expression>("Moment")).toComponent()
+
+  @Test
+  internal fun rejectsSelfTransmutationInPassiveState() {
+    val world = GameWorld(premise)
+    world.apply(changeEvent(world, ComponentChange.Gain(component = token)))
+    shouldThrow<ExpressionException> {
+      world.apply(changeEvent(world, ComponentChange.Transmute(1, token, token)))
+    }
+    world.components.count(token.type, NoGameState) shouldBe 1
+  }
+
+  @Test
+  internal fun componentExistenceFollowsLiveRefinementsAndRollback() {
+    val world =
+        GameWorld(
+            testGamePremise(
+                """
+                ABSTRACT CLASS Space {
+                  CLASS Left
+                  CLASS Right
+                }
+                CLASS Occupant<Space>
+                """
+                    .trimIndent(),
+                players = 0,
+            )
+        )
+    val left = world.reader.resolve(parse("Left")).toComponent()
+    val right = world.reader.resolve(parse("Right")).toComponent()
+    val occupant = world.reader.resolve(parse("Occupant<Right>")).toComponent()
+    val occupied = world.reader.resolve(parse("Space(HAS Occupant)"))
+    world.components.containsAny(right.type, world.reader) shouldBe false
+
+    world.apply(changeEvent(world, ComponentChange.Gain(component = left)))
+    world.apply(changeEvent(world, ComponentChange.Gain(component = right)))
+
+    world.components.containsAny(right.type, world.reader) shouldBe true
+    world.components.containsAny(occupant.type, world.reader) shouldBe false
+    world.components.containsAny(occupied, world.reader) shouldBe false
+
+    world.apply(changeEvent(world, ComponentChange.Gain(component = occupant)))
+
+    world.components.containsAny(occupied, world.reader) shouldBe true
+    world.rollBackTo(2)
+    world.components.containsAny(occupied, world.reader) shouldBe false
+    world.components.containsAny(right.type, world.reader) shouldBe true
+    world.rollBackTo(0)
+    world.components.containsAny(right.type, world.reader) shouldBe false
+  }
 
   @Test
   internal fun appliesAndReversesOnlyExactConcreteChanges() {
@@ -107,9 +157,8 @@ internal class GameWorldTest {
   }
 
   @Test
-  internal fun rejectedOrdinalDoesNotAdvanceStateHistoryOrRevision() {
+  internal fun rejectedOrdinalDoesNotAdvanceStateHistory() {
     val world = GameWorld(premise)
-    val revision = world.revision
 
     shouldThrow<IllegalArgumentException> {
       world.apply(ChangeEvent(1, ADMIN, ComponentChange.Gain(component = token), cause = null))
@@ -117,7 +166,6 @@ internal class GameWorldTest {
 
     world.components.countComponent(token) shouldBe 0
     world.events.entriesSince(Checkpoint(0)) shouldBe emptyList()
-    world.revision shouldBe revision
   }
 
   @Test

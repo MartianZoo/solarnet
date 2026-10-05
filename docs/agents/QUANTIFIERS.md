@@ -43,6 +43,7 @@ compose with quantification but have their own rules.
 | Task | Read |
 | --- | --- |
 | Establish terminology, evaluation time, or syntax | Vocabulary and evaluation time; Syntax and defaults |
+| Change when count invariants are enforced | Invariants at operation completion |
 | Change a concrete target | The matching concrete gain/removal/transmutation section |
 | Change an abstract target or AMAP choice | Abstract pure gains and removals; Abstract transmutations |
 | Handle absent dependencies, uninhabited types, or zero | Uninhabited and computed-zero changes |
@@ -58,19 +59,61 @@ compose with quantification but have their own rules.
 - A gain or transmutation destination has a **missing dependency** when a component named by its
   resolved dependency Type does not exist. This is different from an existing target having no
   invariant headroom.
-- The **limit** `m` is the greatest count the concrete change can execute without violating an
-  invariant. It is never negative.
+- The **limit** `m` is the concrete change's capacity under the current invariant bounds and
+  physical source count. AMAP and optional quantities use it. Mandatory quantities require physical
+  sources immediately and satisfy count bounds at operation completion. Negative capacity is
+  clamped to zero.
 - `Ok` is the resolved representation of executing no change. Pets has no zero-count `Change` node.
 
 Instructions normally resolve against the World in which their task is selected, not the World in
 which an effect originally created the task. The resolved instruction must execute next against that
 same World. Quantifiers do not preserve trigger-time target existence.
 
+Resolution checks immediate prerequisites and calculates quantities; it does not predict whether
+the completed operation will satisfy count invariants. Mandatory choices can lead to recoverable
+dead ends. Exploring and pruning those branches for a client belongs to its Agent, not engine
+resolution.
+
+## Invariants at operation completion
+
+Declared component-count invariants must hold when a full operation completes. For this check, an
+operation consists of one initiating component change and its entire recursive `::` cascade,
+including `THEN` stages within that automatic work. Mandatory changes may cross count bounds in
+intermediate states. Before completing the operation, the engine validates affected bounds,
+including positive minimums activated by newly gained components. Failure rolls the transaction
+back, including components, tasks, events, and derived effects. Bootstrap audits all required counts
+after constructing its initial world.
+
+Creation also establishes positive exact-count concrete parts directly dependent on the newly
+created component, recursively, before its own effects. This is construction from the invariant,
+not repair during validation. Abstract/minimum-only requirements and unrelated prerequisites do not
+construct anything. A correction group instead validates all applicable invariants once after its
+explicit changes, required construction, and automatic effects, with queued effects suppressed; see [EX_MACHINA.md](EX_MACHINA.md).
+
+Physical source availability and dependency integrity are checked immediately. AMAP and optional
+quantity resolution also consult invariant bounds in the current World; negative headroom or
+footroom becomes zero. These quantities cannot assume that later consequences will make room.
+
+Completion determines when count invariants are enforced, not when changes become observable.
+Trigger batches keep their existing snapshots, and nested effects can observe intermediate counts.
+Authors must express causal dependencies through the events that actually cause their consequences.
+
+Queued tasks, `THEN` stages outside the initiating automatic cascade, and separate initiating changes
+each belong to separate operations for this check. They cannot repair an earlier operation. A game
+action or client transaction can contain several such operations; its wider rollback boundary does
+not postpone their invariant checks.
+
+A family can own replacement with `This:: -Family(NOT This).` and a family-wide maximum of one.
+The initiating gain must be mandatory to cross that maximum. Repeating the same concrete value
+still fails: `NOT This` excludes both copies, and adding `HAS MAX 1 This` would only restate the
+rejection. Turmoil's `Dominant` and party-scoped `PartyLeader` use this pattern after their callers
+select the new value; the cleanup does not choose the winner.
+
 ## Syntax and defaults
 
 | Syntax | Name | Contract |
 | --- | --- | --- |
-| `!` | mandatory | Execute exactly `n`, or be unavailable. |
+| `!` | mandatory | Execute exactly `n`: require sources and dependencies immediately, validate count bounds at operation completion. |
 | `?` | optional | Let the player choose any count from zero through `min(n, m)`. |
 | `.` | AMAP | Execute `min(n, m)`; the engine, not the player, chooses the count. |
 
@@ -81,8 +124,8 @@ AMAP. An explicit symbol always wins.
 
 For `Gaining FROM Removing` with no explicit quantifier, the gain and removal defaults are combined
 into the transmutation's one quantifier: it permits exactly the counts both defaults permit, which
-works out to mandatory beating AMAP and AMAP beating optional (L12-8). That is a combination of two
-policies, not a ranking — narrowing still treats mandatory and AMAP as incomparable (L7-3). Each
+works out to mandatory beating AMAP and AMAP beating optional (L9-8). That is a combination of two
+policies, not a ranking — narrowing still treats mandatory and AMAP as incomparable (L3-4). Each
 side still supplies its own dependency defaults before the Types are resolved.
 
 ## Concrete pure gains
@@ -92,8 +135,8 @@ The destination dependency is checked before its invariant limit. Given requeste
 | Current World | mandatory | optional | AMAP |
 | --- | --- | --- | --- |
 | Destination dependency is missing | `DependencyException` | `Ok` | `DependencyException` |
-| Dependency exists and `m = 0` | `LimitsException` | `Ok` | `Ok` |
-| `0 < m < n` | `LimitsException` | `m?` | `m!` |
+| Dependency exists and `m = 0` | `n!`, validated at operation completion | `Ok` | `Ok` |
+| `0 < m < n` | `n!`, validated at operation completion | `m?` | `m!` |
 | `m >= n` | `n!` | `n?` | `n!` |
 
 Thus concrete AMAP is strict about the identity of its target but forgiving about the target's
@@ -107,16 +150,18 @@ quantifiers.
 ## Concrete pure removals
 
 A removal does not require the removed Type's dependency component to exist separately: if no
-matching removable component exists, its footroom is zero. It uses the same limit table:
+matching removable component exists, its footroom is zero. A mandatory removal requires all `n`
+physical copies immediately and validates declared minimums at operation completion. Optional and
+AMAP removals use the invariant-limited footroom:
 
 | Limit | mandatory | optional | AMAP |
 | --- | --- | --- | --- |
-| `m = 0` | `LimitsException` | `Ok` | `Ok` |
-| `0 < m < n` | `LimitsException` | `m?` | `m!` |
+| `m = 0` | `n!` if physically available, validated at operation completion | `Ok` | `Ok` |
+| `0 < m < n` | `n!` if physically available, validated at operation completion | `m?` | `m!` |
 | `m >= n` | `n!` | `n?` | `n!` |
 
-The limit includes every applicable minimum invariant. Merely finding a matching component is not
-enough when removing it would cross such a minimum.
+The AMAP/optional limit includes every applicable minimum invariant. A mandatory removal may cross
+that minimum only if its automatic consequences restore it by operation completion.
 
 ## Concrete transmutations
 
@@ -124,29 +169,34 @@ A transmutation is one atomic source/destination pair. Its limit is the most res
 changed by either side. An invariant common to both sides is held constant and does not limit the
 transfer.
 
-When the destination dependency exists, the concrete limit table above applies to the pair. A
+When the destination dependency exists, the concrete quantifier rules above apply to the pair. A
 missing destination dependency makes the pair unavailable for every quantifier; optional and AMAP
 do not convert it to `Ok`. If source footroom is zero, however, optional and AMAP do become `Ok`.
 
-Transmuting a concrete Type into itself is `Ok` when optional or AMAP and is an
-`ExpressionException` when mandatory. This is the ordinary reflexive-transmutation rule (L6-3),
-including when the Type is a Signal subtype; only a direct Signal gain has the distinct point-event
-semantics of L6-1. A zero AMAP transmutation can still bind Type Variables in a following `THEN`;
-target selection and component movement are separate consequences of that stage.
+Transmuting a concrete Type into itself is invalid for every quantifier, including when a trigger,
+class header, or `EACH` binding makes the Types equal. Content must exclude those bindings, as Mons
+Insurance and StartToken do. A self-target selected by automatic narrowing of an open transfer has
+zero capacity instead: mandatory resolution fails, while optional and AMAP can become `Ok`.
+Direct Signal gains remain valid point events (L2-1), not self-transmutation instructions.
+
+A zero AMAP transmutation can still bind Type Variables in a
+following `THEN`; target selection and component movement are separate consequences of that stage.
 
 ## Abstract pure gains and removals
 
 Resolution first performs unique-Type narrowing. If the target remains abstract, the
 following rules apply.
 
-For mandatory and AMAP, the engine can search whether a pure change's concrete domain can execute.
-A concrete gain candidate must be active, narrow the authored Type, have all destination
-dependencies, and have the required invariant headroom. A concrete removal candidate must be a
-matching existing component with the required footroom. This search decides whether the entire
-change is meaningful; it does not make a target eligible.
+For mandatory and AMAP, the engine searches the concrete domain using current prerequisites. A gain
+candidate must be active, narrow the authored Type, and have all destination dependencies. A removal
+candidate must be a matching existing component with enough physical copies. Mandatory availability
+search ignores declared count bounds; AMAP requires at least one candidate with positive capacity
+under those bounds. Target narrowing uses identity and present dependencies, without filtering by
+capacity. Neither search executes consequences or predicts the result of an operation.
 
-- Mandatory uses required count `n`. If no candidate can execute all `n`, resolution throws
-  `LimitsException`. Otherwise every candidate that the player selects must execute all `n`.
+- Mandatory uses required count `n`. If no candidate meets the immediate prerequisites for all `n`,
+  resolution throws `LimitsException`. A selected candidate must execute all `n` and satisfy
+  invariants at operation completion. It can fail then even when resolution left it available.
 - AMAP uses required count one when deciding whether a useful target exists. If no candidate can
   execute one, the whole abstract change becomes `Ok` rather than presenting a meaningless choice.
   Otherwise Type narrowing chooses the target. Capacity does not filter that Type domain.
@@ -163,9 +213,9 @@ of the candidate with the largest limit and does not distribute one count among 
 A missing concrete dependency remains unavailable because it does not name an existing target;
 zero capacity on an existing eligible target is different and resolves to `Ok`.
 
-Abstract custom gains are not searched using pure-gain feasibility. They narrow normally; after a
-concrete custom target is chosen, it translates to its instructions. Custom removal and
-custom transmutation are unsupported.
+Abstract `CustomInstruction` gains use ordinary pure-gain feasibility. After a concrete target is
+gained, its event queues the Kotlin-produced instruction tree. Virtual `CustomMetric` types cannot
+be gained, removed, or transmuted.
 
 ## Abstract transmutations
 
@@ -188,9 +238,14 @@ When a `PER` metric or other scalar calculation makes the requested count zero, 
 
 ## Composition
 
-- `A OR B`: each arm resolves independently against the same current World. An unavailable arm is
-  discarded. `Ok` is a real surviving arm, and equal surviving arms are deduplicated. If no arm
-  survives, the `OR` reports the strongest applicable failure rather than becoming `Ok`.
+- `A OR B`: each arm resolves independently against the same current World. Failed gates, missing
+  physical sources or dependencies, and mandatory uninhabited changes can eliminate arms. Declared
+  count bounds do not eliminate mandatory arms, even when no automatic consequence will repair
+  them. A surviving arm can fail at execution; the transaction then rolls back. `Ok` is a real
+  surviving arm, and equal surviving arms are deduplicated. If no arm survives, the `OR` reports the
+  strongest applicable failure rather than becoming `Ok`. An automatic effect must still resolve
+  without a choice: use an authored condition if one arm is intended, or queued work if an Actor
+  should choose. Admin can make such ordinary queued choices too.
 - `A THEN B`: only `A` resolves initially. `B` resolves against the World produced by `A`, after
   Type Variables selected by `A` have been substituted. `B` still follows when nonmandatory `A`
   resolves to `Ok`; author `A` as mandatory when the continuation requires a positive change.
@@ -199,7 +254,8 @@ When a `PER` metric or other scalar calculation makes the requested count zero, 
 - `requirement: A`: the requirement is checked before `A`. Failure makes that arm unavailable; it
   does not change `A`'s quantifier.
 - `A / metric`: the metric is evaluated first and multiplies `A`'s requested count. Zero becomes
-  `Ok`; a positive result follows the normal rules.
+  `Ok`; a positive gain of an `Atomized` type splits into independent gains of one before resolving
+  their choices and limits. Other changes follow the normal rules.
 - `A BY actor`: `BY` changes the performer, not the target domain, count, or limit.
 - `PROD[A]`: production lowering changes the component Types first; the resulting changes
   then follow this specification.
@@ -220,9 +276,10 @@ discarded when it is an arm of `OR`. The fallback comes from `OR`, not from AMAP
   AMAP placement is `Ok`.
 - Atmoscoop authors separate concrete AMAP global-parameter arms. A maxed arm resolves to `Ok` and
   remains selectable because it is an explicit arm; Atmoscoop is not one abstract parameter domain.
-- Viral Enhancers authors `Plant OR CardResource<CardFront>!`. When the entering bio card cannot
-  hold a resource, the concrete mandatory resource arm has a missing dependency and is discarded,
-  forcing Plant. This is an engine characterization, not a claim about an official ruling.
+- Viral Enhancers authors separate plant, animal, and microbe choices. An uncollectible
+  animal or microbe arm specializes to `Ok`, allowing no bonus even when the entering bio card
+  can hold the other resource. Only animals and microbes are eligible; diseases are excluded.
+  Splice's microbe-or-MC choice behaves the same way for a card that cannot hold microbes.
 - Pharmacy Union does not rely on AMAP treating a vanished card as zero. Its microbe effect
   explicitly chooses between adding Disease while Pharmacy Union exists and `Ok` after it has
   flipped; its independent 4 M€ loss remains pending either way.
@@ -236,9 +293,9 @@ not rediscover one locally and accidentally change unrelated cards.
 
 This would make Pharmacy Union's stale Disease task disappear without special Pets, but it would
 also make concrete references implicit weak references. Local Heat Trapping could select absent
-Fish even while Pets can receive animals. Viral Enhancers could retain an `Ok` resource arm and let
-the player avoid the otherwise forced Plant. Misspelled, stale, or incorrectly specialized targets
-would silently succeed. Pharmacy Union instead states its genuine lifetime exception explicitly.
+Fish even while Pets can receive animals. A once-valid target removed before a concrete AMAP gain
+resolves would silently succeed. Pharmacy Union instead states its genuine lifetime exception
+explicitly.
 
 ### Require the globally largest target
 

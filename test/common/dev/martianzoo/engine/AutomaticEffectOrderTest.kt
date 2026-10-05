@@ -2,7 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -49,12 +49,13 @@ internal class AutomaticEffectOrderTest {
     val selfEffectPremise =
         testGamePremise(
             """
-            CLASS Source {
+            ABSTRACT CLASS Subject
+            CLASS Source : Subject {
               HAS MAX 1 This
               This:: Watcher<This>
               This:: Pulse
             }
-            CLASS Watcher<Source> { Pulse:: Observed. }
+            CLASS Watcher<Subject> { Pulse:: Observed. }
             CLASS Pulse
             CLASS Observed
             """,

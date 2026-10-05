@@ -15,13 +15,16 @@ internal class Spec05TypesTest {
           CLASS Player2 : Owner
           ABSTRACT CLASS Area {
             ABSTRACT CLASS MarsArea {
-              ABSTRACT CLASS LandArea { CLASS Tharsis_2_2, Tharsis_2_3 }
+              ABSTRACT CLASS LandArea {
+                CLASS Tharsis_2_2
+                CLASS Tharsis_2_3
+              }
               ABSTRACT CLASS WaterArea { CLASS Tharsis_1_1 }
             }
           }
           ABSTRACT CLASS Occupant<Area>
           ABSTRACT CLASS Tile : Occupant
-          CLASS GreeneryTile : Tile<MarsArea>, Owned<Owner>
+          CLASS GreeneryTile : Tile<MarsArea>, Owned
           CLASS Neighbor<Area, Area>
           """
               .trimIndent()
@@ -55,7 +58,7 @@ internal class Spec05TypesTest {
   internal fun `T5-2 a bare class name means that class's base type`() {
     type("GreeneryTile") shouldBe mars.getClass(cn("GreeneryTile")).baseType
     type("GreeneryTile").expressionFull shouldBe te("GreeneryTile<MarsArea, Owner>")
-    type("GreeneryTile<MarsArea, Owner>") shouldBe type("GreeneryTile")
+    type("GreeneryTile<MarsArea, Anyone>") shouldBe type("GreeneryTile")
   }
 
   @Test
@@ -94,19 +97,35 @@ internal class Spec05TypesTest {
   // T5-4 Full form
 
   @Test
-  internal fun `T5-4 the full form states every dependency in key order`() {
+  internal fun `T5-4 the full form states every open dependency in key order`() {
     type("GreeneryTile").expressionFull shouldBe te("GreeneryTile<MarsArea, Owner>")
     type("GreeneryTile<Player1>").expressionFull shouldBe te("GreeneryTile<MarsArea, Player1>")
     type("Neighbor<Tharsis_2_2>").expressionFull shouldBe te("Neighbor<Tharsis_2_2, Area>")
+  }
+
+  @Test
+  internal fun `T5-4 the full form omits dependencies fixed by the class`() {
+    val table =
+        loadTypes(
+            "CLASS Player1 : Owner",
+            "ABSTRACT CLASS Choice { CLASS Fixed }",
+            "ABSTRACT CLASS Holder<Choice>",
+            "ABSTRACT CLASS FixedOwned : Holder<Fixed>, Owned",
+        )
+
+    table.resolve(te("FixedOwned")).expressionFull shouldBe te("FixedOwned<Owner>")
+    table.resolve(te("FixedOwned<Player1>")).expressionFull shouldBe te("FixedOwned<Player1>")
+    table.resolve(table.resolve(te("FixedOwned<Player1>")).expressionFull) shouldBe
+        table.resolve(te("FixedOwned<Player1>"))
   }
 
   // T5-5 Compact form
 
   @Test
   internal fun `T5-5 the compact form omits every argument equal to the inherited bound`() {
-    type("GreeneryTile<MarsArea, Owner>").expression shouldBe te("GreeneryTile")
+    type("GreeneryTile<MarsArea, Anyone>").expression shouldBe te("GreeneryTile")
     type("GreeneryTile<Area>").expression shouldBe te("GreeneryTile")
-    type("GreeneryTile<Tharsis_2_2, Owner>").expression shouldBe te("GreeneryTile<Tharsis_2_2>")
+    type("GreeneryTile<Tharsis_2_2, Anyone>").expression shouldBe te("GreeneryTile<Tharsis_2_2>")
     // The area slot cannot accept `Player1`, so it need not be written to protect the owner.
     type("GreeneryTile<Player1>").expression shouldBe te("GreeneryTile<Player1>")
   }
@@ -132,8 +151,9 @@ internal class Spec05TypesTest {
     val cards =
         loadTypes(
             "CLASS Player1 : Owner",
-            "ABSTRACT CLASS CardFront : Owned<Owner> { CLASS Pets }",
-            "ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner> { CLASS Animal }",
+            "ABSTRACT CLASS CardFront : Owned { CLASS Pets }",
+            "ABSTRACT CLASS Cardbound<CardFront<CardHolder@Owner>> : " +
+                "Owned<CardHolder@Owner> { CLASS Animal }",
         )
 
     cards.resolve(te("Animal<Player1, Pets<Player1>>")).expression shouldBe
@@ -172,7 +192,7 @@ internal class Spec05TypesTest {
 
   @Test
   internal fun `T5-6 both forms round-trip every concrete type in the test universe`() {
-    mars.componentClass.baseType.allConcreteSubtypes().forEach { resolved ->
+    mars.allConcreteSubtypes(mars.componentClass.baseType).forEach { resolved ->
       mars.resolve(resolved.expression) shouldBe resolved
       mars.resolve(resolved.expressionFull) shouldBe resolved
     }
@@ -183,7 +203,7 @@ internal class Spec05TypesTest {
     "${type("GreeneryTile<Player1, Tharsis_2_2>")}" shouldBe "GreeneryTile<Tharsis_2_2, Player1>"
   }
 
-  // T5-7 Building a type directly
+  // T5-7 A type never escapes its class's declaration
 
   @Test
   internal fun `T5-7 withAllDependencies needs every one of the class's own keys`() {
@@ -209,7 +229,7 @@ internal class Spec05TypesTest {
   internal fun `T5-7 withAllDependencies enforces the class's declared bounds`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Area { CLASS Land, Water }",
+            "ABSTRACT CLASS Area {\nCLASS Land\nCLASS Water\n}",
             "ABSTRACT CLASS Holder<Area>",
             "ABSTRACT CLASS Narrow : Holder<Land>",
             "ABSTRACT CLASS Wide : Holder<Area>",
@@ -224,16 +244,5 @@ internal class Spec05TypesTest {
     mars.getClass(cn("GreeneryTile")).specialize(listOf(te("Tharsis_2_2"))) shouldBe
         type("GreeneryTile<Tharsis_2_2>")
     mars.getClass(cn("GreeneryTile")).specialize(listOf()) shouldBe type("GreeneryTile")
-  }
-
-  // T5-8 Every type view
-
-  @Test
-  internal fun `T5-8 a ground type is its own structural view and has no type variable`() {
-    val greenery = type("GreeneryTile")
-
-    greenery.groundType shouldBe greenery
-    (greenery.groundType === greenery) shouldBe true
-    greenery.typeVariable shouldBe null
   }
 }

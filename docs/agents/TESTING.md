@@ -38,20 +38,35 @@
 
 The wrapper supports and directly uses the JDK selected by `JAVA_HOME` from 17 through 26. JVM code
 targets the Java 17 bytecode and API surface, while Kotlin source and standard-library APIs target
-Kotlin 2.2. Contributors do not need another JDK installed.
+Kotlin 2.2. CI uses Temurin 25 LTS. Contributors do not need another JDK installed.
 
 Start with the smallest test or build task that verifies the changed behavior. Expand verification
 only when the change crosses a wider scope or the narrower result leaves a material risk.
 
-- `./gradlew build` checks the whole repository: every JVM test plus all production JavaScript
-  compilation and packaging. Use it only when repository-wide verification is warranted by the
-  scope of the change or explicitly requested.
-- `./gradlew test` runs every repository JVM test suite, including the multiplatform modules whose
-  JVM test tasks are named `jvmTest`.
+- `./gradlew build` checks the whole repository: the same tests as `test`, plus all production
+  JavaScript compilation and packaging. Use it only when repository-wide verification is warranted
+  by the scope of the change or explicitly requested.
+- `./gradlew test` runs every repository JVM test suite, every browser-specific test, and the
+  `OtbGame20260828Test` replay once in a browser. The multiplatform modules' JVM test tasks are named
+  `jvmTest`; their generated browser tasks are inert outside the one intentionally commented-out
+  full-browser target in the root build.
+- Temporarily uncomment `allBrowserTests` in the root build and run
+  `./gradlew allBrowserTests --rerun-tasks` to exercise every shared and browser-specific suite,
+  including all portable replay scenarios. The browser replay source set also reads the legacy
+  `test/jvm/dev/martianzoo/tfm/tests/replays` directory, excluding only its JUnit file-export hook.
+  JVM-only tools and filesystem/terminal tests remain outside this target. Comment the target back
+  out after a successful run.
 - `./gradlew :tfm-tests:jvmTest` runs the replay tests and writes one opaque JSON recording per
   successful `AbstractFullGameTest` subclass under that module's
-  `generated/replay-event-logs` build directory. Generated browser-test tasks are disabled; the
-  browser viewer applies those recordings through `:state` and never runs the engine.
+  `generated/replay-event-logs` build directory. The browser viewer applies those recordings through
+  `:state` and never runs the engine.
+- `./gradlew :tfm-tests:replayTestCoverage` runs only tests in the replay package and writes HTML and
+  XML production-code coverage reports under that module's `reports/jacoco/replayTestCoverage`
+  build directory. Its execution data comes from the separate `replayTest` task, so card, rule,
+  random-card, and browser tests do not contribute to the report.
+- `./gradlew :pets:jvmTestCoverage` runs only the Pets module's JVM test suite and writes HTML and
+  XML coverage reports for Pets production code under that module's
+  `reports/jacoco/jvmTestCoverage` build directory.
 - `./gradlew :tfm-tests:sampleRandomCards` prints randomly generated project cards as raw Pets.
   Use `-PrandomCardCount=N` and `-PrandomCardSeed=N` to control and reproduce a sample, and add
   `-PrandomCardOutput=PATH` to write it to a text file. Its weights favor nested selectors,
@@ -76,9 +91,10 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   not proof of a user choice: an automatic or queued effect carried by a Player-owned component may
   attribute its derived changes to that Player. Use the cause columns to trace derivation; because
   task events are omitted, the TSV cannot by itself classify every row as chosen versus automatic.
-- `./gradlew :tools:dumpOtbGame20260828EventLog` runs the JVM replay suite, reads the generated
-  August 28, 2026 recording, and writes every change event in the same format to
-  `_local/eventlogs/otb-game-20260828-eventlog.tsv`.
+- `./gradlew :tools:dumpOtbGame20260828EventLog` and
+  `./gradlew :tools:dumpOtbGame20260912EventLog` run the JVM replay suite, read those generated
+  physical-game recordings, and write every change event in the same format under
+  `_local/eventlogs/`.
 - `SOLARNET_RANDOM_AUTOMATIC_EFFECTS=true ./gradlew test --rerun-tasks` runs the unchanged JVM suites
   while choosing a random execution order for each batch of independent automatic-effect listeners.
   A component's own automatic Effects retain declaration order. This is a diagnostic mode for
@@ -136,9 +152,9 @@ Detekt, Dokka, and test logging. `solarnet.jvm` adds the JVM plugin and the repo
 Kotlin/JUnit 5 test dependencies. `solarnet.kmp-jvm-js` configures the JVM and browser targets, adds
 shared `kotlin.test`, and exposes each module's `jvmTest` as `test`.
 Module build scripts under `modules/` keep only module-specific configuration and select their
-non-overlapping package roots from the repository-wide `src/` and `test/` trees; the JavaScript-only
-application configures its target directly. Repository-wide formatting and Yarn policy remain in
-the root build.
+non-overlapping package roots from the repository-wide `src/` and `test/` trees; JavaScript-only
+applications configure their targets directly. Repository-wide formatting, the Node.js version, and
+Yarn policy remain in the root build.
 Dependency and plugin versions are declared in `gradle/libs.versions.toml`, while dependency
 repositories are declared centrally in `settings.gradle.kts`; JitPack is restricted to the pinned
 better-parse fork.
@@ -148,6 +164,10 @@ spell out `public` and their public types; declarations used only within one mod
 `internal` or `private`. This makes accidental API growth and signature changes visible in review.
 
 ## Test design
+
+Do not add tests whose sole purpose is to specify what happens after `exMachina` or `sneak`.
+Keep coverage focused on ordinary gameplay and shared engine behavior. Evidence-backed corrections
+inside whole-game replays remain appropriate; the replay tests the game, not correction semantics.
 
 > **Recurring failure warning:** Card and rule tests operate through player-facing gameplay and
 > assert observable results. They do not inspect rendered task text, causes, incidental queue order,
@@ -177,8 +197,8 @@ clear coverage of these contracts matters more than preserving every current tes
    component/task events, materialized projections, history, completed recording positions, and
    independent playback views remain coherent without firing effects. Cross-module engine
    scenarios cover consequence calculation and failure atomicity: a failed operation must restore
-   present components, pending work, and recorded history together while retaining a fresh revision
-   identity. [GAMEWORLD.md](GAMEWORLD.md) owns the detailed split.
+   present components, pending work, and recorded history together. [GAMEWORLD.md](GAMEWORLD.md)
+   owns the detailed split.
 4. **Player-level card and game-rule tests.** `CardTest` scenarios count when they use actions and
    observations available to a player rather than internal state or implementation details.
    `CoreRulesTest` documents game-wide rules in this same style.
@@ -192,11 +212,20 @@ clear coverage of these contracts matters more than preserving every current tes
    wrong, visibly quarantined in `BugsTest` until the behavior is corrected.
 8. **Script-command contract tests.** Terraforming-independent checks of each command's public
    contract. These are useful interface coverage even though they are not a development priority.
-9. **Cross-runtime packaging coverage.** JavaScript compilation and resource assembly show that the
-   viewer, generated Canon data, and passive state playback compose without the engine.
+9. **Cross-runtime browser coverage.** Browser-specific tests cover browser APIs, one representative
+   replay checks the shared engine on JavaScript, and production JavaScript compilation and resource
+   assembly cover the engine-free viewer.
 
 This list does not itself decide which current tests should be retained. Test-deletion proposals
 are a separate review.
+
+Give each scenario variant its own named test, using a private helper for shared steps. Do not put
+variants in a `for` loop inside one test: the failing test name should identify the case.
+Build the cards, production, and tiles the behavior under test depends on through gameplay.
+Use normal operations for incidental setup, including initial money, anonymous card budgets, and
+explicitly acknowledged stand-ins such as `fakeWildTags`; their triggers must still run.
+Use `CONCRETE` when ordering choices matter; reserve `NONE` for tests that must control otherwise
+unambiguous automatic steps.
 
 Prefer tests that exercise several pieces together. Do not mirror a production list or data object
 in a test just to detect that the list changed. Test observable behavior through the normal
@@ -209,6 +238,13 @@ player-level card or rule scenario should instead demonstrate routing through pu
 which Player can select or narrow, whether competing gameplay is blocked, the resulting state, and,
 when necessary, an authored `BY` reaction that makes attribution observable. Do not locate card
 reactions by exact rendered instruction, `Task.cause`, `Task.actor`, or raw Event Log inspection.
+
+For delegated payment, final resource totals do not prove continuous authority. A helper that
+selects through another Actor can conceal missing engine control. Exercise separate Player
+commands, including attempted intervention between payment choices, and verify legality with
+autoexecution disabled where necessary. [SEQUENCING.md](SEQUENCING.md#delegated-operations-and-scheduling-options)
+records the unresolved operation-level rule; current task-level return-to-controller tests
+characterize existing behavior, not acceptance of that proposed rule.
 
 Keep trigger matching separate from queue routing. A `BY` characterization should show which
 triggers fire and how Actor variables bind through observable changes. Do not make its continued
@@ -231,12 +267,16 @@ belongs in player-level scenarios.
 Keep scenarios minimal and legible. Card tests use the base game and two players by default unless
 the behavior requires something else, add only relevant options and components, and consistently
 name the gameplay objects `p1` and `p2`. Use `runOperation()` when only the resulting setup matters instead
-of replaying an irrelevant play-card sequence. Avoid `sneak`: it can create impossible states.
+of replaying an irrelevant play-card sequence. Do not use `sneak` in card or rule scenarios: it
+bypasses triggers and can make a broken rule appear to pass.
 Synthetic card scenarios pass their card and supporting `ClassDeclaration`s to the `CardTest`
 constructor; they are composed with Canon and selected in that test's premise.
+When a custom instruction reads authored card metadata from the catalog, compose the synthetic
+card into a fixture `TfmCatalog`; premise-only declarations do not populate that metadata.
 Use `placeTile(row, column)`, `addCardResources(card)`, and `wgt(choice)` instead of spelling their
 routine task expressions. The tile and card-resource helpers require a single matching pending
-choice; keep raw `doTask()` calls where multiple placements are pending.
+choice; card-resource matching includes the destination card, so offers for different cards can
+coexist. Keep raw `doTask()` calls where multiple placements are pending.
 When unrelated optional tasks are pending, pass the pending instruction to `declineTask(instruction)`.
 Inside an existing operation that directly offers a repeated card action, such as Project Inspection,
 use `cardAction1()` or `cardAction2()`; the operation-body overload selects and pays that action
@@ -257,7 +297,7 @@ overload in `CardTest` uses the same resolution path.
 
 `CardTest` and the full-game tests provide `TaskResult.expect()`. Expectations are partial net
 deltas: name only changes that matter to the behavior under test. Unqualified owned Types are scoped
-to the Player inferred from the result's ordered change events; qualify an Owner explicitly when
+to the Player inferred from the result's ordered change events; qualify the owner explicitly when
 checking another Player or an intentionally cross-player total. Do not restate costs, test setup,
 literal `doTask()` choices, or every incidental resource movement. In source-backed whole-game
 tests, include explicitly narrated gains/removals and interesting automatic effects, even when the
@@ -269,10 +309,9 @@ Cover meaningful interfaces, negative cases, non-targets, and option combination
 the happy path. A filtering or Type-variable test should include several tempting Components that must not
 match. Preserve this coverage during refactoring.
 
-Assert a particular exception subclass only when callers or game semantics depend on that
-classification. Otherwise assert that the command is rejected, state and history remain atomic, and
-the diagnostic identifies the problem. The current distinction among task, abstractness, and
-narrowing exceptions is provisional and should not make an otherwise behavioral test brittle.
+Assert the actual exception type with `shouldThrow<ExpectedException>`; do not use `shouldThrowAny`
+or a catch-all superclass. An unrelated failure must not satisfy a rejection test. Also check the
+relevant unchanged state and, when useful, the diagnostic identifying the problem.
 
 ### Known-defect tests
 
@@ -285,29 +324,30 @@ workaround. Once the bug is fixed, move the useful scenario to its proper behavi
 Whole-game tests are high-value integration coverage. When translating a supplied game log:
 
 - `CardTrackingFullGameTest` is an opt-in full-game base for source archives that identify project
-  cards. Named draw, offer, purchase, discard, and return calls update one test-owned location
-  ledger and annotate the corresponding project-card events. Naming may happen immediately before
-  or after the engine change.
+  cards. Named draw, purchase, discard, and return calls update one test-owned hand ledger and
+  annotate the corresponding project-card events. Naming may happen immediately before or after the
+  engine change.
   A replay with complete source data may instead override `projectCardArrivalOrder` for each Player.
-  This is the order in which cards enter that Player's modeled Hand or Selecting state, not a claim
-  about the physical deck order. The tracker consumes the fixture according to the anonymous event
-  counts; the replay names selection discards, and the retained cards are the remainder of the known
-  offer. It rejects duplicate arrivals, an exhausted or partly unused fixture, and any attempt to
-  discard a card that never arrived or is not in the indicated Player's Hand or selection.
-  Strict completion requires an identity label for every card in every project-card event and
-  checks the tracked hand sizes against the World. When a source omits a rejected card's identity,
-  `unknownProjectCards()` supplies distinct replay-local `UnknownCardNN` labels; keep the source gap
-  visible beside their use. These labels prove complete accounting, not complete source knowledge.
-  The database-backed Herokuapp conversions use strict mode without unknown labels. A named discard
-  is terminal; cards do not return to the deck. For source-known direct deck exits that the model
-  omits, record the terminal exit explicitly; those cards are not arrivals.
-  Inside an operation, `discardUnselectedProjectCards()` also resolves an already-open anonymous
-  selection-removal task.
+  This is only the order in which cards enter that Player's modeled hand, not a claim about offers
+  or physical deck order. The tracker consumes the fixture according to anonymous hand-gain counts.
+  It rejects duplicate arrivals, an exhausted or partly unused fixture, and any attempt to discard
+  a card that never entered the indicated Player's hand.
+  Completion requires an identity label for each lasting project-card hand arrival and
+  departure, including both sides of an exchange, and checks tracked hand sizes against the World.
+  Temporary Hand–Revealed–Hand movements do not consume arrival names, but the strict tracker
+  requires both movements to be labeled with the names of cards already held.
+  When a source omits a hand card's identity, `unknownProjectCards()` supplies distinct replay-local
+  `UnknownCardNN` labels for cards that did
+  enter a hand; keep the source gap visible beside their use. These labels prove complete hand
+  accounting, not complete source knowledge. The database-backed Herokuapp conversions use this
+  base without unknown labels. A named discard is terminal unless an exact played Event later
+  returns to the hand.
   Research archives that used drafting may assign each recovered post-draft four-card set as that
-  player's ordinary deal when the tested engine does not support drafting. In an arrival-ordered
-  replay, buy only the evidenced count and name the unselected cards.
-  `AbstractSoloTest` inherits this capability, but a solo test opts into tracking only by using
-  the named calls.
+  player's ordinary hand arrivals when the tested engine does not support drafting. Buy only the
+  evidenced count; never name cards that were not retained.
+  Ordinary full-game and solo replays use `AbstractFullGameTest` and `AbstractSoloTest` without an
+  external card ledger. Only the four database-backed conversions and `StinaGameTest` currently use
+  `CardTrackingFullGameTest`.
   When a source gives only a discard count, an exact tracked hand requires the test to select
   names explicitly and label that selection as test inference.
 - Before editing a dated whole-game test, explicitly inspect its matching

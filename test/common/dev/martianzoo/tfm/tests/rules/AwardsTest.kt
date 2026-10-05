@@ -97,7 +97,7 @@ internal class AwardsTest : TfmTest() {
 
     val first =
         p1.runOperation("UseAction<FundAwardAction, Action1>") {
-          doTask("Pay<Class<MC>> FROM MC / Owed<>")
+          doTask("-MC / Owed")
           doTask("Landlord")
         }
     first.expect("-8 MC")
@@ -105,7 +105,7 @@ internal class AwardsTest : TfmTest() {
 
     shouldThrow<RequirementException> {
       p1.runOperation("UseAction<FundAwardAction, Action1>") {
-        doTask("Pay<Class<MC>> FROM MC / Owed<>")
+        doTask("-MC / Owed")
         doTask("Landlord")
       }
     }
@@ -113,7 +113,7 @@ internal class AwardsTest : TfmTest() {
 
     val second =
         p1.runOperation("UseAction<FundAwardAction, Action2>") {
-          doTask("Pay<Class<MC>> FROM MC / Owed<>")
+          doTask("-MC / Owed")
           doTask("Scientist")
         }
     second.expect("-14 MC")
@@ -121,7 +121,7 @@ internal class AwardsTest : TfmTest() {
 
     val third =
         p1.runOperation("UseAction<FundAwardAction, Action3>") {
-          doTask("Pay<Class<MC>> FROM MC / Owed<>")
+          doTask("-MC / Owed")
           doTask("Thermalist")
         }
     third.expect("-20 MC")
@@ -129,7 +129,7 @@ internal class AwardsTest : TfmTest() {
 
     shouldThrow<RequirementException> {
       p1.runOperation("UseAction<FundAwardAction, Action3>") {
-        doTask("Pay<Class<MC>> FROM MC / Owed<>")
+        doTask("-MC / Owed")
         doTask("Miner")
       }
     }

@@ -1,27 +1,30 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.generated.Class
-import dev.martianzoo.generated.ElysiumMap
-import dev.martianzoo.generated.PreludeExpansion
-import dev.martianzoo.generated.gameConfig
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class StinaGameTest : AbstractSoloTest(requireEveryProjectCardChangeNamed = true) {
-  override val config =
-      gameConfig(
-          modules = listOf(Class.of(ElysiumMap), Class.of(PreludeExpansion)),
-          playerNames = listOf("Me"),
-      )
+internal class StinaGameTest : CardTrackingFullGameTest() {
+  override val config = GameConfig("ElysiumMap, PreludeExpansion", "Me")
 
-  override fun cityAreas() = "Elysium_5_6" to "Elysium_7_7"
+  private val me
+    get() = p1
 
-  override fun greeneryAreas() = "Elysium_5_5" to "Elysium_7_6"
+  @BeforeTest
+  override fun commonSetup() {
+    super.commonSetup()
+    TfmWorkflow.Automatic(agents).launch()
+    admin.doTask("CityTile<Elysium_5_6, SoloOpponent>")
+    admin.doTask("GreeneryTile<Elysium_5_5, SoloOpponent>")
+    admin.doTask("CityTile<Elysium_7_7, SoloOpponent>")
+    admin.doTask("GreeneryTile<Elysium_7_6, SoloOpponent>")
+  }
 
   @Test
   internal fun stinaSaturnSystemsGame() {
-    retainStartingProjects(10)
     with(me) {
       // Test inference: unnamed draws are assigned in the order the cards are later played.
       playCorp(SaturnSystems) {
@@ -61,7 +64,7 @@ internal class StinaGameTest : AbstractSoloTest(requireEveryProjectCardChangeNam
       playProject(OlympusConference, 1, steel = 2)
       playProject(AdvancedAlloys, 7) {
             draw(TechnologyDemonstration)
-            doTask("ProjectCard FROM Science<OlympusConference>")
+            doTask("ProjectCard FROM Science")
           }
           .expect("0 ProjectCard")
       playProject(MineralDeposit, 3).expect("5 Steel")
@@ -70,20 +73,13 @@ internal class StinaGameTest : AbstractSoloTest(requireEveryProjectCardChangeNam
             placeTile(9, 7)
           }
           .expect("0 ProjectCard")
-      // The source does not identify the cards rejected from these two offers.
-      val unknownInventionContestCards = unknownProjectCards(2)
-      expectProjectCards(ImportedGhg, *unknownInventionContestCards)
       playProject(InventionContest, 0) {
             draw(ImportedGhg, MassConverter)
-            discardUnselectedProjectCards(*unknownInventionContestCards)
-            doTask("ProjectCard FROM Science<OlympusConference>")
+            doTask("ProjectCard FROM Science")
           }
           .expect("ProjectCard, 3 MC")
-      val unknownBusinessContactsCards = unknownProjectCards(2)
-      expectProjectCards(TowingAComet, AdaptationTechnology, *unknownBusinessContactsCards)
       playProject(BusinessContacts, 1) {
             draw(TowingAComet, AdaptationTechnology)
-            discardUnselectedProjectCards(*unknownBusinessContactsCards)
           }
           .expect("ProjectCard, 2 MC")
       playProject(QuantumExtractor, 10).expect("PROD[4 Energy]")
@@ -94,7 +90,7 @@ internal class StinaGameTest : AbstractSoloTest(requireEveryProjectCardChangeNam
       // replacement card, and places an ocean.
       playProject(TechnologyDemonstration, 0) {
             draw(SpecialDesign, Shuttles, LagrangeObservatory)
-            doTask("ProjectCard FROM Science<OlympusConference>")
+            doTask("ProjectCard FROM Science")
           }
           .expect("2 ProjectCard, 6 MC, 3 Heat")
       playProject(ImportOfAdvancedGhg, 0).expect("PROD[2 Heat], 6 MC, 3 Heat")
@@ -109,7 +105,7 @@ internal class StinaGameTest : AbstractSoloTest(requireEveryProjectCardChangeNam
       }
       playProject(SpecialDesign, 1) {
             draw(ConvoyFromEuropa)
-            doTask("ProjectCard FROM Science<OlympusConference>")
+            doTask("ProjectCard FROM Science")
           }
           .expect("2 MC, 0 ProjectCard")
       playProject(Shuttles, 1).expect("PROD[-Energy, 2 MC]")

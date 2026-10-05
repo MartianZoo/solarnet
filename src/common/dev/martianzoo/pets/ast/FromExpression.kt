@@ -1,21 +1,14 @@
 package dev.martianzoo.pets.ast
 
-import com.github.h0tk3y.betterParse.combinators.and
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.combinators.optional
-import com.github.h0tk3y.betterParse.combinators.or
-import com.github.h0tk3y.betterParse.combinators.skip
-import com.github.h0tk3y.betterParse.combinators.zeroOrMore
-import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.TypeInfo
 import kotlin.reflect.KClass
 
 /**
  * The main part of a transmutation instruction, without its scalar or quantifier — the `Foo FROM
  * Bar` of
- * [rule L6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions).
+ * [rule L2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions).
  */
 public sealed class FromExpression : PetNode() {
   override val kind: KClass<out PetNode> = FromExpression::class
@@ -28,6 +21,7 @@ public sealed class FromExpression : PetNode() {
 
   /** An argument retained unchanged by a compact transmutation. */
   public data class Unchanged(public val expression: Expression) : FromExpression() {
+
     override val toExpression: Expression
       get() = expression
 
@@ -51,7 +45,7 @@ public sealed class FromExpression : PetNode() {
 
   /**
    * A same-Class transmutation with exactly one changed argument — the compact spelling of
-   * [rule L6-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions),
+   * [rule L2-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions),
    * where `Foo<Same, Here, To FROM From>` means `Foo<Same, Here, To> FROM Foo<Same, Here, From>`.
    * The unchanged arguments occupy both roles.
    */
@@ -67,7 +61,7 @@ public sealed class FromExpression : PetNode() {
   ) : FromExpression() {
     init {
       if (arguments.count { it !is Unchanged } != 1) {
-        throw PetSyntaxException("A compact transmutation must contain exactly one FROM")
+        throw PetSyntaxException("a compact transmutation must contain exactly one `FROM`")
       }
     }
 
@@ -85,36 +79,40 @@ public sealed class FromExpression : PetNode() {
       append(className).append(arguments.joinToString(", ", "<", ">"))
       refinement?.let { append("(").append(it).append(")") }
     }
-  }
 
-  internal companion object : PetTokenizer() {
-    fun parser(): Parser<FromExpression> {
-      return parser {
-        val unchanged = Expression.parser() map FromExpression::Unchanged
-        val full =
-            Expression.parser() and
-                skip(_from) and
-                Expression.parser() map
-                { (to, from) ->
-                  Full(to, from)
-                }
+    /** Requires every retained slot to have one value in a proposed transmutation's projections. */
+    internal fun ensureRetainedArgumentsAgree(
+        proposedTo: Expression,
+        proposedFrom: Expression,
+        info: TypeInfo,
+    ) {
+      fun correspondingExpression(
+          projection: PetNode,
+          proposed: PetNode,
+          retained: Expression,
+      ): Expression? {
+        if (projection === retained) return proposed as? Expression
+        return projection
+            .immediateChildren()
+            .zip(proposed.immediateChildren())
+            .firstNotNullOfOrNull { (wide, narrow) ->
+              correspondingExpression(wide, narrow, retained)
+            }
+      }
 
-        val argumentList =
-            zeroOrMore(unchanged and skipChar(',')) and
-                parser() and
-                zeroOrMore(skipChar(',') and unchanged) map
-                { (before, from, after) ->
-                  before + from + after
-                }
-        val compact =
-            ClassName.parser() and
-                (skipChar('<') and argumentList and skipChar('>')) and
-                optional(Expression.refinementParser()) map
-                { (name, arguments, refinement) ->
-                  Compact(name, arguments, refinement)
-                }
-
-        full or compact
+      descendantsOfType<Unchanged>().forEach { unchanged ->
+        val proposedGain =
+            correspondingExpression(toExpression, proposedTo, unchanged.expression)
+                ?: throw NarrowingException(
+                    "cannot preserve compact argument `${unchanged.expression}`"
+                )
+        val proposedRemoval =
+            correspondingExpression(fromExpression, proposedFrom, unchanged.expression)
+                ?: throw NarrowingException(
+                    "cannot preserve compact argument `${unchanged.expression}`"
+                )
+        proposedGain.ensureNarrows(proposedRemoval, info)
+        proposedRemoval.ensureNarrows(proposedGain, info)
       }
     }
   }

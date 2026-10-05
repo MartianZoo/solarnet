@@ -1,175 +1,134 @@
 # Agent API
 
-> **NOTE:** This document is used by agents to capture information for themselves to read later; a
-> human didn't write it and we don't expect humans to read it. The project owner can't personally
-> vouch for the information here.
-
-> **Read when:** changing the core mutation surface, `Agent`, `World.actorEngine`, task-command
-> authority, script access modes, or client-visible state.
+> **NOTE:** Agent-maintained map; source and meaningful tests remain authoritative.
 >
-> **Status:** selected layering direction with the Agent/engine dependency reversal implemented.
-> The scoped-reader and policy-system portions remain forward-looking.
+> **Read when:** changing `Agent`, `World.actorEngine`, task-command authority, task forms,
+> script access modes, or client-visible state.
+>
+> **Status:** current Agent/engine contract, with unresolved API and policy directions listed
+> separately. Persistent delegated operation control is not implemented.
 
 ## Source map
 
-- [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt) is the policy-free,
-  Actor-attributed core mutation API.
-- [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) is the current fully permissive,
-  Actor-scoped client API in `:agent`.
-- [`AgentImpl.kt`](../../src/common/dev/martianzoo/agent/AgentImpl.kt) translates string input and
-  coordinates operations over `ActorEngine`; [`AutoExecLoop.kt`](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt)
-  owns the preserved legacy queue drain.
-- [`World.kt`](../../src/common/dev/martianzoo/engine/World.kt) returns stable ActorEngines;
-  [`Agents.kt`](../../src/common/dev/martianzoo/agent/Agents.kt) pairs one World with its Agents.
-- [`TaskStore.kt`](../../src/common/dev/martianzoo/state/TaskStore.kt) stores one global task set;
-  [`TaskQueue.kt`](../../src/common/dev/martianzoo/state/TaskQueue.kt) is its filtered read view, and
-  [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) constructs normalized task
-  events.
-- [`Access.kt`](../../src/common/dev/martianzoo/tfm/script/Access.kt) implements current script-only
-  access modes.
-- [GAMEWORLD.md](GAMEWORLD.md) owns task data and recording navigation;
-  [RESPONSIBILITIES.md](RESPONSIBILITIES.md#selected-runtime-dependency-direction) owns the target
-  dependency direction; [AUTOEXEC.md](AUTOEXEC.md) owns Agent policies and stable points.
+- [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) declares the Actor-scoped client API.
+- [`AgentImpl.kt`](../../src/common/dev/martianzoo/agent/AgentImpl.kt) owns contextual parsing and
+  operation coordination; search `atomic`, `commitForm`, and `autoExecPolicy`.
+- [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt) owns policy-free task
+  validation; search `enforceSelectLock`, `replace1WithN`, and `executeSelectedTask`.
+- [`TaskForm.kt`](../../src/common/dev/martianzoo/agent/TaskForm.kt) owns provisional choices;
+  search `decisions`, `options`, `choose`, and `commit`.
+- [`Agents.kt`](../../src/common/dev/martianzoo/agent/Agents.kt) pairs a World with its stable Agents.
+- [`Access.kt`](../../src/common/dev/martianzoo/tfm/script/Access.kt) supplies script access modes.
+- [GAMEWORLD.md](GAMEWORLD.md) owns passive task data and recording navigation;
+  [AUTOEXEC.md](AUTOEXEC.md) owns policy; [CARD_HANDLING.md](CARD_HANDLING.md) owns the separate
+  Terraforming Mars card-tracking direction.
 
 ## Core mutation surface
 
-The core engine has no `Agent`, permissions policy, or autoexecution concept. It offers a few
-distinct mutation methods, validates each call against one live World, and returns its atomic
-result. A task retains one assignee in the global unordered task queue. Ordinary task calls name the
-acting Actor, and the engine rejects action by anyone other than the task's current assignee. That
-is game semantics, not caller permission.
+`ActorEngine` has no Agent or autoexecution dependency. Ordinary task commands validate the
+acting Actor against the task's current assignee and enforce the global selection lock.
+Assignment and eligibility are game semantics, independent of whether a human or policy chose
+that command. The global task pool has Actor-filtered views; display order is not task identity.
 
-The audited mutation families are:
+`selectTask` resolves current work and executes it if concrete. Otherwise the selected task
+remains for narrowing, possibly assigned to its contextual Actor. `narrowTask` validates that a
+submission only removes choices; the Agent method requires an already selected task, while a form
+can commit by task id. A selected group can become independent unselected siblings. `THEN`
+continuations retain the original controller. Triggered work retains a Player controller;
+Admin-controlled work uses the ownership fallback in [IDENTITY.md](IDENTITY.md).
+The current lock ends when the selected task finishes, including structural replacement.
 
-- select a task;
-- narrow a task;
-- roll the live timeline back to an allowed Checkpoint;
-- add one or more ex-machina tasks;
-- drop one ex-machina task; and
-- sneak an ex-machina state change.
+This is insufficient for an opponent-controlled payment process. A client must not manufacture
+continuous control by chasing payment tasks across Agents. The unresolved engine choices are
+recorded in [delegated operations and scheduling options](SEQUENCING.md#delegated-operations-and-scheduling-options).
+Any eventual rule must govern selection, narrowing, form commits, and explicit and automatic
+execution consistently.
 
-Timeline commit-floor advancement and the atomic transaction wrapper are engine/workflow lifecycle
-mechanics, not Actor mutations. `doTask` and `tryTask` compose task identification, selection,
-narrowing, and error handling. `runOperation`, turn, and phase conveniences compose ex-machina task
-addition with ordinary task action. None justifies a universal request type or
-`engine.submit(actor, request)`.
+`doTask` and `tryTask` compose identification, selection, and narrowing. Submitted constraints
+intersect the pending instruction, so each can fill choices left open by the other. Every distinct
+intersecting task participates in ambiguity detection; a strict match does not hide another
+intersection. Fully identical tasks are interchangeable. The intersection must preserve fixed
+structure and compatible counts and quantifiers. Omitted quantifiers can retain a stronger pending
+quantifier; explicit incompatible quantifiers fail. `narrowTask` itself remains strict.
 
-`doTask` and `tryTask` normally match the submitted narrowing semantically. Their `TaskId`
-overloads are the explicit escape hatch when distinct tasks accept the same narrowing; no engine
-API accepts a presentation index.
+The `TaskId` overloads identify exact tasks. `doTask` also accepts the exact effect-context Class
+for source-facing disambiguation. No command accepts a presentation index. `tryTask` leaves work
+pending when incomplete or temporarily unavailable, but does not conceal invalid selection,
+invalid narrowing, or dead ends.
 
-The current flat Agent now exposes one checked id-based narrowing and one explicit ex-machina task
-removal. It has no arbitrary task replacement or bulk task-removal command. Internal task-data edits
-remain engine bookkeeping, including restoration around an evidenced replay correction.
+The current Agent additionally exposes task addition/removal, concrete corrections, and operation
+and turn conveniences. These are deliberate powers, separate from ordinary task authority.
+Internal task edits remain engine bookkeeping; the public Agent has no arbitrary task replacement
+or bulk-removal command. [EX_MACHINA.md](EX_MACHINA.md) owns correction behavior.
 
-## Narrowing before selection
+## Committed narrowing and Agent forms
 
-Narrowing is allowed to discard options. That is a legitimate Actor decision, not a defect. A
-candidate is valid only when the engine proves it narrows the stored task and cannot introduce an
-option the task did not already permit.
+An accepted partial narrowing edits the selected task in game state. A concrete result executes
+before the command returns. Committing a restriction is a legitimate Actor decision even when it
+removes otherwise legal options.
 
-An unselected task may receive a state-independent narrowing, such as replacing a Type with a
-subtype established by immutable Class facts. It remains unselected and unexecuted. This operation
-must not evaluate AMAP, a gate, a Metric, current viability, or any other mutable-World fact.
-When narrowing removes the shared variables that required a `THEN` sequence to remain one task, the
-same task exposes its first stage and retains the rest as its continuation without executing either.
-Selection establishes the promise to act next and the select-lock before those facts are resolved.
-The current `Agent.narrowTask(taskId, narrowing)` implements this check; the selected-task overload
-retains state-aware resolution and immediate execution when the result becomes concrete.
-Consequently, a task whose target has a live refinement cannot be narrowed to one concrete target
-before selection, even when that target happens to satisfy the refinement in the current World.
+`fillInTask(taskId)` instead creates a caller-held `TaskForm` for a currently assigned task.
+`form.narrow` and `form.choose` keep provisional choices locally. Reading `form.instruction`
+rechecks the task and World; `form.commit()` submits through normal engine validation, selecting
+if necessary. Discarding the form makes no event. Forms are absent from the task pool and recording,
+and cannot retain authority after their task changes assignee.
 
-Provably permanent forced narrowing may likewise simplify an unselected task. “Probably forever”
-is insufficient: the proof must use only immutable premise, Class, and task structure. Whether that
-normalization belongs to engine task admission or an Agent policy is still open; both must use the
-same checked narrowing relation.
+`form.decisions()` identifies the next supported choice. Target choices proceed through the root
+Class and then open dependencies, avoiding a Cartesian product of complete instructions. Shared
+Type and amount variables preserve their relationships. Class literals enumerate represented
+Classes without requiring component instances. Amount bounds follow target selection. Optional
+changes may retain absent-dependency choices because a later zero choice can still be legal.
+
+This is choice assistance, not proof that the entire operation can succeed. Broad partial choices
+must not be rejected merely because they cannot yet resolve. Broad target options can include
+self-transmutations that selection rejects. Unsupported abstract shapes fail
+explicitly; current gaps include `EACH`, optional changes inside unresolved `PER`, and certain
+state-dependent refinements. The implementation and focused Agent tests own the detailed supported
+shapes, rather than a duplicated inventory here.
+
+An unselected form holds no lock, so intervening work can make it stale. Selected forms still
+revalidate before commitment. Tentative choices remain client state; privacy requires the
+application to control access to its Agents.
 
 ## Agent
 
-A configured Game World has exactly one Agent per Actor, including Admin. Every ordinary mutation
-chosen autonomously or explicitly requested by an interactive client enters through that Actor's
-Agent. Replay correction, tests, and workflows may deliberately use the lower-level engine API.
-The Agent serializes its requests and calls the engine's Actor-attributed methods directly. An Agent
-with no active autoexecution policy is a thin Actor-scoped client facade; a separate passive access
-object would add no present responsibility and is not planned.
+`Agents(world)` constructs a stable Agent per Actor, including Admin, sharing an autoexecution loop.
+Applications keep that pairing. Ordinary explicit and autonomous task commands use the same
+Actor-attributed engine validation; workflow, tests, and corrections may deliberately use the
+lower-level engine API.
 
-`Agent.reader` is a `ScopedGameReader`. In Player scope, contextual input such as `Plant` is
-interpreted as `Plant<that Player>`, matching the current contextual `Owner` substitution.
-`agent.reader.unscoped` returns the underlying `GameReader` so callers can deliberately inspect the
-whole game without leaving the Agent API.
+`Agent.reader` currently exposes the unscoped `GameReader`. Actor context comes from Agent parsing:
+for a Player, bare owned input such as `Plant` receives that Player through lexical ownership
+insertion. This does not establish hidden-information views or a separate player universe.
 
-An Agent owns the policies that may autonomously choose further actions for its Actor. This makes
-human and artificial players one model: a human-directed Agent may have no active policies, while
-installing enough policies can make the same Agent fully autonomous. Public `autoExecNow` and
-policy addition/removal belong on Agent. Policy ordering and implementation remain internal unless
-a concrete client need requires more control. [AUTOEXEC.md](AUTOEXEC.md) owns the policy and shared
-autoexecution-loop contract.
-
-`Agents(world)` constructs one Agent per Actor for an engine game, all sharing the same
-autoexecution loop, and holds them alongside the World they act on. Applications retain that one
-object and pass it wherever both a World and its Agents are needed; it carries no gameplay of its
-own, so it is a pairing rather than another public game wrapper.
+Each Agent currently has an `AutoExecPolicy` enum setting and `autoExecNow()`. Changing the setting
+runs the shared loop. Editing a provisional form does not. Defaults and policy limitations belong
+in [AUTOEXEC.md](AUTOEXEC.md).
 
 ## Layer responsibility
 
-Agent depends on engine; engine does not depend on Agent. Every explicit and autonomous
-action for one Actor enters through the same Agent methods and therefore uses the same validation
-path.
+Agent depends on engine; engine does not depend on Agent. The engine decides whether a command is
+legal without judging strategy. Policies choose among legal commands and own any stronger promise
+about preserving choices.
 
-The engine is indifferent to why an Actor chose one legal action. A policy that always chooses one
-die face, a bot that plays badly, and a human strategy are equal from the engine's perspective.
-Named policy quality or fairness guarantees belong to policy implementations and their tests.
-
-There are no known external clients requiring obsolete aliases. Rename or remove public APIs when
-the model improves instead of keeping compatibility wrappers. Script syntax is a separate
-user-visible contract: call out any needed change before adopting it.
-
-Direct engine mutation remains deliberately available to callers that choose the lower-level
-module. This is architectural guidance, not an attempt to prevent trusted clients from cheating.
-Ex-machina task addition/removal and concrete state changes belong to that engine API. The current
-`runOperation`, resumable-operation, turn, and completion conveniences may remain as engine test helpers
-while tests are migrated; they do not define the player-facing Agent contract.
-
-Recording navigation belongs to an independent Game World view and does not belong on the Agent
-command surface. See [GAMEWORLD.md](GAMEWORLD.md).
+Recording navigation belongs to the passive Game World view, not the Agent command surface.
+There are no known external clients requiring obsolete aliases. Remove obsolete APIs when the
+model improves; treat user-visible script syntax as a separate contract requiring deliberate change.
 
 ## Admin
 
-A configured N-Player game has N seated Player Actors plus one Admin Actor. `Admin` is a real Pets
-Component extending `Actor`, not another name for the engine mechanism. The application creates an
-Agent for every Actor and normally gives Admin enough policies to be fully autonomous.
-
-Admin can receive abstract tasks and make choices. Card dealing, dice, neutral setup, and similar
-rules may assign or delegate narrowing to Admin. Whether Admin policies follow a seeded dealer,
-choose adversarially, or use another legal strategy is not an engine concern.
-
-## Remaining question
-
-- Should provably permanent forced narrowing happen during engine task admission, or should an
-  Agent policy record it as an Actor mutation? Decide from whether the simplification represents a
-  game action or merely removes a specification that never denoted more than one possibility.
+Admin is a real Pets Actor and Component, distinct from the engine. Its Agent may receive abstract
+work and choose among legal outcomes. Autonomy comes from policy configuration, not from an
+assumption that neutral work is choice-free. Assignment to Admin does not itself grant precedence
+over Player work.
 
 ## Current implementation divergence
 
-`:agent` now depends on `:engine`; engine source has no Agent or autoexecution dependency.
-`World.actorEngine(actor)` returns one stable policy-free engine per Actor, and applications retain
-one `Agents(world)`. That type is the unit every client passes: it holds the World and one stable
-Agent per Actor, so no API takes a World and its Agents as separate arguments that could disagree.
-Parsing, operation conveniences, policy state, and the shared legacy drain live in `:agent`.
+The Agent/engine dependency direction and shared Agent loop are implemented. An Actor-scoped
+reader, a narrower ordinary client surface, and configurable policy attachment remain proposed.
+There is no implemented `ScopedGameReader` or policy-addition/removal API. These possible API
+changes do not establish task priority, payment control, or operation completion.
 
-`TfmTest` fixtures hold the `Agents` for their current World. Standalone engine integration tests
-still use `testAgents.kt`'s one-World cache so a World's Agent identity survives repeated lookups.
-Those tests also depend upward on `:agent` and `:tfm-engine`, because they exercise the Agent API
-rather than the engine independently. These are accepted costs, not the target state.
-
-The current Agent is still fully permissive and exposes an unscoped `GameReader`, operation and
-turn conveniences, and ex-machina mutation. `AutoExecPolicy` is still the legacy three-value
-setting rather than the planned attachable policy system. Remaining extraction work should:
-
-1. add the selected Actor-scoped reader without duplicating World state;
-2. replace public many-queue language with one Game World task queue plus Agent-filtered views;
-3. reduce the normal Agent surface while keeping direct engine cheats explicit; and
-4. replace the legacy global queue drain with the policy-relative shared loop in [AUTOEXEC.md](AUTOEXEC.md).
-
-Do not retain obsolete aliases simply to preserve the current public API. User-visible script
-syntax must be migrated deliberately.
+Whether admission should perform additional provably forced narrowing remains open. Existing
+caller-held forms do not require that decision, and changing it must preserve the distinction
+between draft assistance and a committed Actor choice.

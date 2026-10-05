@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
-internal class CredicorTest : CardTest() {
+internal class CrediCorTest : CardTest() {
   @Test
   internal fun `Discounts both an expensive card and an expensive standard project`() {
     newGame()

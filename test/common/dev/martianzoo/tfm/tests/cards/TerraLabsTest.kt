@@ -1,0 +1,31 @@
+package dev.martianzoo.tfm.tests.cards
+
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
+import dev.martianzoo.tfm.tests.TestOption.*
+import dev.martianzoo.tfm.tests.cards.cardnames.*
+import kotlin.test.Test
+
+internal class TerraLabsTest : CardTest() {
+
+  @Test
+  internal fun `Buys project cards for one mc each`() {
+    newGame(GameConfig("TerraLabsResearch", "Player1", "Player2"))
+    p1.playCorp(TerraLabsResearch, 10)
+    p1.runOperation("4 ProjectCard<Selecting> THEN BuySelectedCards") { p1.pay(4) }
+        .expect("4 ProjectCard, -4 MC")
+  }
+
+  @Test
+  internal fun `TerraLabs and Polyphemos cancel each other's card-purchase modifiers`() {
+    newGame(
+        TurmoilExpansion,
+        ColoniesExpansion,
+        colonyTiles = testColonyTiles(2),
+    )
+    p1.runOperation("$TerraLabsResearch, $Polyphemos")
+
+    p1.runOperation("ProjectCard<Selecting> THEN BuySelectedCards") { p1.pay(3) }
+        .expect("ProjectCard, -3 MC")
+  }
+}

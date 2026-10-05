@@ -1,14 +1,32 @@
 package dev.martianzoo.tfm.canon
 
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.state.GameConfig
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class CanonBundlesTest {
+  @Test
+  internal fun beginnerCorporationsRequireTheBeginnerVariant() {
+    val standard = table()
+    val beginner = table(cn("BeginnerVariant"))
+    val beginnerCorporations = (1..5).map { cn("BeginnerCorporation$it") }
+
+    listOf(cn("BeginnerVariant"), cn("BeginnerCorporationCard")).forEach { className ->
+      standard.isInhabited(className) shouldBe false
+      beginner.isInhabited(className) shouldBe true
+    }
+    beginnerCorporations.forEach { corporation ->
+      standard.isInhabited(corporation) shouldBe false
+      (corporation in standard.allClassNames) shouldBe false
+      beginner.isInhabited(corporation) shouldBe true
+    }
+  }
+
   @Test
   internal fun modulesInOneBundleRemainIndependent() {
     val utopia = table(cn("UtopiaMap"))
@@ -35,7 +53,7 @@ internal class CanonBundlesTest {
     // These cover an observed standard action, a count, a direct fleet gain, and an optional trade.
     listOf("CryoSleep", "EcologyResearch", "SkyDocks", "TitanFloatingLaunchPad").forEach { cardName
       ->
-      shouldThrow<IllegalArgumentException> { table(cn(cardName)) }
+      shouldThrow<InvalidGameConfigException> { table(cn(cardName)) }
     }
   }
 
@@ -60,6 +78,25 @@ internal class CanonBundlesTest {
     prelude2VenusWithoutColonies.isInhabited(cn("VenusTradeHub")) shouldBe false
     (cn("VenusTradeHub") in prelude2VenusWithoutColonies.allClassNames) shouldBe false
     prelude2VenusWithColonies.isInhabited(cn("VenusTradeHub")) shouldBe true
+
+    val prelude2TurmoilOnly =
+        table(cn("PreludeExpansion"), cn("Prelude2CardPack"), cn("TurmoilExpansion"))
+    val prelude2ColoniesOnly =
+        table(cn("PreludeExpansion"), cn("Prelude2CardPack"), cn("ColoniesExpansion"))
+    val prelude2ColoniesAndTurmoil =
+        table(
+            cn("PreludeExpansion"),
+            cn("Prelude2CardPack"),
+            cn("ColoniesExpansion"),
+            cn("TurmoilExpansion"),
+        )
+    listOf("ColonialEnvoys", "ColonialRepresentation").forEach { cardName ->
+      prelude2TurmoilOnly.isInhabited(cn(cardName)) shouldBe false
+      (cn(cardName) in prelude2TurmoilOnly.allClassNames) shouldBe false
+      prelude2ColoniesOnly.isInhabited(cn(cardName)) shouldBe false
+      (cn(cardName) in prelude2ColoniesOnly.allClassNames) shouldBe false
+      prelude2ColoniesAndTurmoil.isInhabited(cn(cardName)) shouldBe true
+    }
   }
 
   @Test
@@ -82,7 +119,7 @@ internal class CanonBundlesTest {
                 playerNames = listOf(cn("Player1")),
             )
         )
-    val solo = ClassTable.forPremise(premise)
+    val solo = premise.classTable
 
     solo.isInhabited(cn("Vitor")) shouldBe true
     solo.isInhabited(cn("MultiplayerMode")) shouldBe false
@@ -123,7 +160,7 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  internal fun promoModuleReplacesCardsWithoutRemovingEitherFromTheCatalog() {
+  internal fun promoReplacementDefaultsYieldToExplicitOriginalCardSelection() {
     val relevant =
         setOf(
             cn("DeimosDown"),
@@ -133,8 +170,15 @@ internal class CanonBundlesTest {
             cn("GreatDamPromo"),
             cn("MagneticFieldGeneratorsPromo"),
         )
-    val withoutPromos = table(cn("TharsisMap"))
-    val withPromos = table(cn("TharsisMap"), cn("PromoCardPack"))
+    val withoutPromos = table(cn("TharsisMap"), cn("CorporateEraExpansion"))
+    val withPromos = table(cn("TharsisMap"), cn("CorporateEraExpansion"), cn("PromoCardPack"))
+    val withPromosAndGreatDam =
+        table(
+            cn("TharsisMap"),
+            cn("CorporateEraExpansion"),
+            cn("PromoCardPack"),
+            cn("GreatDam"),
+        )
 
     relevant.filterTo(linkedSetOf(), withoutPromos::isInhabited) shouldBe
         setOf(cn("DeimosDown"), cn("GreatDam"), cn("MagneticFieldGenerators"))
@@ -144,6 +188,16 @@ internal class CanonBundlesTest {
         setOf(cn("DeimosDownPromo"), cn("GreatDamPromo"), cn("MagneticFieldGeneratorsPromo"))
     relevant.filterTo(linkedSetOf(), withPromos.allClassNames::contains) shouldBe
         setOf(cn("DeimosDownPromo"), cn("GreatDamPromo"), cn("MagneticFieldGeneratorsPromo"))
+    val greatDamVersions = setOf(cn("GreatDam"), cn("GreatDamPromo"))
+    listOf(
+            withoutPromos to setOf(cn("GreatDam")),
+            withPromos to setOf(cn("GreatDamPromo")),
+            withPromosAndGreatDam to greatDamVersions,
+        )
+        .forEach { (table, expected) ->
+          greatDamVersions.filterTo(linkedSetOf(), table::isInhabited) shouldBe expected
+          greatDamVersions.filterTo(linkedSetOf(), table.allClassNames::contains) shouldBe expected
+        }
     Canon.allClassNames.containsAll(relevant) shouldBe true
   }
 
@@ -216,10 +270,9 @@ internal class CanonBundlesTest {
             *selectedModules,
             cn("TerraformingMars"),
         )
-    return ClassTable.forPremise(
-        Canon.gamePremise(
+    return Canon.gamePremise(
             GameConfig.create(included, playerNames = listOf(cn("Player1"), cn("Player2")))
         )
-    )
+        .classTable
   }
 }

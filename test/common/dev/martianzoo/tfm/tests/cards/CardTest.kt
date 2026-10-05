@@ -1,18 +1,19 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.ClassDeclaration
-import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.ClassSelection
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.GamePremise
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -21,7 +22,6 @@ import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalCatalog
 import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.retainStartingProjects
 import dev.martianzoo.tfm.tests.setUpGame as setUpTfmGame
 import kotlin.test.AfterTest
 
@@ -44,17 +44,13 @@ internal abstract class CardTest(
 
   private var workflow: TfmWorkflow.Automatic? = null
 
-  protected fun newGame(
-      config: GameConfig,
-      retainedStartingProjects: Int = 0,
-  ): World = startGame(premise(config), retainedStartingProjects)
+  protected fun newGame(config: GameConfig): World = startGame(premise(config))
 
   protected fun newGame(
       vararg selectedOptions: Option,
       players: Int = 2,
       colonyTiles: Set<ClassName> = emptySet(),
-      retainedStartingProjects: Int = 0,
-  ): World = startGame(premise(selectedOptions, players, colonyTiles), retainedStartingProjects)
+  ): World = startGame(premise(selectedOptions, players, colonyTiles))
 
   protected fun newGameWithAutoWorkflow(
       vararg selectedOptions: Option,
@@ -102,9 +98,9 @@ internal abstract class CardTest(
   ): TaskResult =
       dev.martianzoo.tfm.tests.playCorporationWithoutStartingProjects(player, corporation)
 
-  private fun startGame(premise: GamePremise, retainedStartingProjects: Int): World {
+  private fun startGame(premise: GamePremise): World {
     workflow?.shutdown()
-    return setUpTfmGame(premise, retainedStartingProjects).initializeCardTestGame()
+    return setUpTfmGame(premise).initializeCardTestGame()
   }
 
   private fun startAutoGame(premise: GamePremise): World {
@@ -112,7 +108,6 @@ internal abstract class CardTest(
     return Engine.newGame(premise).apply {
       bindPlayers()
       workflow = TfmWorkflow.Automatic(testAgents()).launch()
-      retainStartingProjects(this, *IntArray(actors.filterIsInstance<Player>().size))
       finishSoloSetup()
     }
   }
@@ -137,8 +132,8 @@ internal abstract class CardTest(
         }
 
     cities.zip(greeneries).forEach { (city, greenery) ->
-      admin.doTask("CityTile<$city, SoloOpponent>")
-      admin.doTask("GreeneryTile<$greenery, SoloOpponent>")
+      admin.doTask("CityTile<$city>")
+      admin.doTask("GreeneryTile<$greenery>")
     }
   }
 
@@ -153,41 +148,55 @@ internal abstract class CardTest(
       vararg corporations: ClassName,
       startingMc: Int = 500,
   ) {
-    playCorporations(corporations.toList())
+    val previousPolicy = p1.autoExecPolicy
+    playCorporations(corporations.toList()) { p1.autoExecPolicy = NONE }
     check(admin.count("PreludePhase") == 1) { "This game has no Prelude phase" }
     p1.topOffMoney(startingMc)
+    p1.autoExecPolicy = previousPolicy
+    p1.autoExecNow()
   }
 
   protected fun playUntilFirstActionPhase(
       vararg corporations: ClassName,
       startingMc: Int = 500,
   ) {
-    playCorporations(corporations.toList())
+    val previousPolicy = p1.autoExecPolicy
+    playCorporations(corporations.toList()) {
+      if (admin.count("PreludeExpansion") == 0) p1.autoExecPolicy = NONE
+    }
     if (admin.count("PreludePhase") == 1) {
       val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
-      players.zip(BORING_PRELUDES).forEach { (player, preludes) ->
-        player.turn { preludes.forEach { playPrelude(it) } }
+      players.zip(BORING_PRELUDES).forEachIndexed { index, (player, preludes) ->
+        player.turn {
+          preludes.forEach { playPrelude(it) }
+          if (index == players.lastIndex) p1.autoExecPolicy = NONE
+        }
       }
     }
     check(admin.count("ActionPhase") == 1) { "The game did not reach its first Action phase" }
     p1.topOffMoney(startingMc)
+    p1.autoExecPolicy = previousPolicy
+    p1.autoExecNow()
   }
 
-  private fun playCorporations(requested: List<ClassName>) {
+  private fun playCorporations(requested: List<ClassName>, beforeNextPhase: () -> Unit) {
     check(admin.count("CorporationPhase") == 1) { "The Corporation phase has already ended" }
     val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
     val corporations = if (requested.isEmpty()) BORING_CORPORATIONS else requested
     require(corporations.size >= players.size) { "Provide one corporation per player" }
-    players.zip(corporations).forEach { (player, corporation) ->
-      playCorporationWithoutStartingProjects(player, corporation)
-      player.sneak("5 ProjectCard, -15 MC")
+    players.zip(corporations).forEachIndexed { index, (player, corporation) ->
+      player.playCorp(corporation, 5) {
+        // Defer even the unambiguous NewTurn so incidental setup can run with triggers enabled
+        // before a workflow choice is selected. The caller restores the previous policy afterward.
+        if (index == players.lastIndex) beforeNextPhase()
+      }
     }
   }
 
   private fun TfmGameplay<*>.topOffMoney(target: Int) {
     val amount = target - count("MC")
     require(amount >= 0) { "$actor already has more than $target MC" }
-    if (amount > 0) sneak("$amount MC")
+    if (amount > 0) runOperation("$amount MC")
   }
 
   @AfterTest

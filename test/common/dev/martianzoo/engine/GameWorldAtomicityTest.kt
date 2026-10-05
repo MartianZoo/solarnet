@@ -3,15 +3,14 @@ package dev.martianzoo.engine
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.ClassSelection
+import dev.martianzoo.state.GamePremise
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import kotlin.test.Test
 
 internal class GameWorldAtomicityTest {
@@ -20,7 +19,6 @@ internal class GameWorldAtomicityTest {
     val world = Engine.newGame(premise) as WholeWorld
     val admin = world.testAgent(ADMIN)
     val checkpoint = world.timeline.checkpoint()
-    val revision = world.revision
     var successfulCompletions = 0
     world.onTransactionComplete = { successfulCompletions++ }
 
@@ -35,7 +33,6 @@ internal class GameWorldAtomicityTest {
     world.tasks.isEmpty() shouldBe true
     world.events.entriesSince(checkpoint).shouldBeEmpty()
     world.timeline.checkpoint() shouldBe checkpoint
-    world.revision shouldNotBe revision
     successfulCompletions shouldBe 0
   }
 

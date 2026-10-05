@@ -55,7 +55,7 @@ represented class's name rather than `Class`. Typed class-literal dependencies t
 their subject without inspecting the expression argument.
 Concrete payload constructors are internal. Each concrete class provides an `invoke` factory which
 uses reified Kotlin parameters and `typeOf` to build the corresponding Pets AST directly. Thus
-`CityTile<Player, Tharsis_4_4>()` has expression `CityTile<Player, Tharsis_4_4>` without accepting
+`NormalCityTile<Player, Tharsis_4_4>()` has expression `NormalCityTile<Player, Tharsis_4_4>` without accepting
 a caller-supplied expression or parsing a string. Each final concrete class also implements
 `toString()` as `expression.toString()`.
 The generated `Class` component is covariant in the generated `Component` hierarchy. A Pets class
@@ -66,6 +66,11 @@ parallel marker hierarchy while preserving class-root subtype relationships. Whe
 class-literal bound would create a direct or mutual recursive Kotlin upper bound, the generator
 widens only that bound to the represented class's first proper superclass. The stored runtime
 `Expression` remains exact.
+
+Shared Kotlin parameters follow the identity of Pets class-header variables, including inherited
+relationships; equal unmarked expressions remain independent. A variable shared only by nested
+positions becomes a helper parameter in the enclosing dependency bounds. Expression reconstruction
+projects only the parameters representing open dependency roots back into Pets arguments.
 
 Declarations use hierarchy-aware depth-first ordering. Every superclass precedes its subclasses,
 and a class is grouped with the branch of its first declared superclass whenever its other
@@ -80,11 +85,13 @@ syntax is parsed once in the concrete class's companion and shared by its instan
 
 Every generated component exposes `_authoredEffects`. It is empty by default; a concrete class with
 effects authored directly in its declaration overrides it with a companion-cached parsed list.
+The generator parses the complete declaration before extracting those effects so class-header
+variables retain their supplying scope.
 This is deliberately the direct authored declaration view: it neither accumulates inherited
 effects nor substitutes defaults, lowers actions, or applies engine transformations. The leading
 underscore distinguishes generated declaration metadata from a Pets class property.
 
-The generator deliberately omits invariants, defaults, executable effects, and component values. The
+Generated APIs omit invariants, defaults, inherited executable effects, and component values. The
 multiplatform `generated` module treats `:codegen:generatePetsTypes` as its `commonMain` source
 producer, so ordinary JVM and JavaScript compilation generates and compiles all four files. Its
 small authored support source lives beside that generated vocabulary. The `gameConfig` factory

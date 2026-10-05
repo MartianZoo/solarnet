@@ -6,7 +6,7 @@ import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
@@ -47,8 +47,8 @@ internal class PropertyTest {
     val p1 = game.testTfm(PLAYER1)
 
     p1.sneak(
-        "CityTile<Player1, Hellas_7_4>, CityTile<Player1, Hellas_8_4>, " +
-            "CityTile<Player1, Hellas_8_5>, CityTile<Player1, Hellas_9_5>"
+        "NormalCityTile<Player1, Hellas_7_4>, NormalCityTile<Player1, Hellas_8_4>, " +
+            "NormalCityTile<Player1, Hellas_8_5>, NormalCityTile<Player1, Hellas_9_5>"
     )
 
     p1.count("OwnedTile<MarsArea(HAS 8 row)>") shouldBe 3
@@ -60,7 +60,7 @@ internal class PropertyTest {
 
   @Test
   internal fun metricPropertiesAreEvaluatedExplicitlyInsideEffectsAndReadQueries() {
-    val catalog = TfmCatalog.Composite(Canon, MetricPropertyProbeCatalog)
+    val catalog = TfmCatalog(Canon, MetricPropertyProbeCatalog)
     val game = Engine.newGame(canonicalPremise(catalog = catalog, players = 2))
     val p1 = game.testTfm(PLAYER1)
 
@@ -75,7 +75,7 @@ internal class PropertyTest {
 
   @Test
   internal fun requirementPropertiesAreEvaluatedAfterTheirEffectReceiverBecomesConcrete() {
-    val catalog = TfmCatalog.Composite(Canon, RequirementPropertyProbeCatalog)
+    val catalog = TfmCatalog(Canon, RequirementPropertyProbeCatalog)
     val game = Engine.newGame(canonicalPremise(catalog = catalog, players = 2))
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
@@ -116,7 +116,9 @@ internal class PropertyTest {
     p2.count("RequirementPropertyPassed") shouldBe 1
     p2.count("RequirementPropertyFinished") shouldBe 2
 
-    shouldThrow<PetException> { p1.runOperation("RecursiveRequirementPropertyProbe") }
+    shouldThrow<InvalidPetDefinitionException> {
+          p1.runOperation("RecursiveRequirementPropertyProbe")
+        }
         .message shouldContain "is recursive"
   }
 }
@@ -149,11 +151,11 @@ private object RequirementPropertyProbeCatalog : TfmCatalog() {
               """
               ABSTRACT CLASS RequirementPropertyProbe : Owned<Player> {
                 requirement = Requirement?
-                This: RequirementPropertyStarted<Owner>? THEN (EVAL This.requirement: RequirementPropertyPassed<Owner>?, RequirementPropertyFinished<Owner>?)
+                This: RequirementPropertyStarted? THEN (EVAL This.requirement: RequirementPropertyPassed?, RequirementPropertyFinished?)
               }
               CLASS OptionalRequirementPropertyProbe : RequirementPropertyProbe
               CLASS RequiredRequirementPropertyProbe : RequirementPropertyProbe {
-                requirement = HAS "This, RequirementPropertyMarker<Owner>"
+                requirement = HAS "This, RequirementPropertyMarker"
               }
               CLASS RecursiveRequirementPropertyProbe : RequirementPropertyProbe {
                 requirement = HAS "EVAL This.requirement"

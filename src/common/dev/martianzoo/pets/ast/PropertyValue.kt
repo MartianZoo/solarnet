@@ -1,19 +1,12 @@
 package dev.martianzoo.pets.ast
 
-import com.github.h0tk3y.betterParse.combinators.and
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.combinators.or
-import com.github.h0tk3y.betterParse.combinators.skip
-import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo
 
 /**
  * A value or abstract value type assigned to a class property by `name = value`. Per
- * [rule L1-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)
+ * [rule L11-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations)
  * the right-hand side is one of the bound words `Number`, `Metric`, `Requirement` and
  * `Requirement?`, a literal non-negative number, a metric quoted after `COUNT`, or a requirement
  * quoted after `HAS`. What these bounds and values mean is
@@ -21,9 +14,6 @@ import dev.martianzoo.pets.api.TypeInfo
  * of the type system specification.
  */
 public sealed class PropertyValue : PetNode(), Specification<PropertyValue> {
-  internal companion object {
-    internal fun parser(): Parser<PropertyValue> = Parsers.parser
-  }
 
   /** Whether this is an abstract property type rather than a concrete value. */
   public val abstract: Boolean
@@ -63,7 +53,7 @@ public sealed class PropertyValue : PetNode(), Specification<PropertyValue> {
   /** One concrete, non-negative, world-independent property value. */
   public data class NumberValue(public val value: Int) : PropertyValue() {
     init {
-      require(value >= 0) { "Number property cannot be negative: $value" }
+      require(value >= 0) { "number property cannot be negative: `$value`" }
     }
 
     override fun toString(): String = "$value"
@@ -81,7 +71,7 @@ public sealed class PropertyValue : PetNode(), Specification<PropertyValue> {
 
   override fun ensureNarrows(that: PropertyValue, info: TypeInfo) {
     if (this != that && !that.accepts(this)) {
-      throw NarrowingException("$this does not narrow property value $that")
+      throw NarrowingException("property value `$this` does not narrow `$that`")
     }
   }
 
@@ -111,18 +101,4 @@ public sealed class PropertyValue : PetNode(), Specification<PropertyValue> {
         is MetricValue -> visitor.visit(value)
         is RequirementValue -> visitor.visit(value)
       }
-
-  private object Parsers : PetTokenizer() {
-    val requirement: Parser<PropertyValue> =
-        _has and quotedText map { (_, source) -> RequirementValue(parse<Requirement>(source)) }
-
-    val parser: Parser<PropertyValue> =
-        (_metric map { MetricType }) or
-            (_number map { NumberType }) or
-            (_requirement and skipChar('?') map { OptionalRequirementType }) or
-            (_requirement map { RequirementType }) or
-            requirement or
-            (skip(_count) and quotedText map { MetricValue(parse<Metric>(it)) }) or
-            (rawScalar map { NumberValue(it) })
-  }
 }

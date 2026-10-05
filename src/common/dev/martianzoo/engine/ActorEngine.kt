@@ -3,17 +3,14 @@ package dev.martianzoo.engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
-import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
-import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.api.Exceptions.abstractInstruction
-import dev.martianzoo.pets.api.Exceptions.orWithoutChoice
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -27,11 +24,10 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.state.Component.Companion.toComponent
+import dev.martianzoo.state.Actor
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameWorld
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.Selection
@@ -52,7 +48,6 @@ internal constructor(
     /** The Actor to which ordinary mutations through this engine are attributed. */
     public val actor: Actor,
     private val instructor: Instructor,
-    private val changer: Changer,
     private val worldTransaction: WorldTransaction,
     private val elaborator: PetElaborator,
 ) {
@@ -62,7 +57,6 @@ internal constructor(
 
   private object ExecutionProbeSucceeded : RuntimeException()
 
-  private val immutableClassFacts = narrowingFacts(requirementsHold = false)
   private val possibleWorldFacts = narrowingFacts(requirementsHold = true)
 
   /** Runs one engine transaction and returns its net result. */
@@ -73,11 +67,15 @@ internal constructor(
   ): TaskResult = worldTransaction.run(block, validateCompletion, settle)
 
   private fun narrowingFacts(requirementsHold: Boolean): TypeInfo =
-      object : TypeInfo {
+      object : TypeInfo by reader {
         override fun isAbstract(e: Expression): Boolean = reader.resolve(e).isAbstract(this)
 
         override fun ensureNarrows(wide: Expression, narrow: Expression) {
           reader.resolve(narrow).ensureNarrows(reader.resolve(wide), this)
+        }
+
+        override fun ensureSelectionNarrows(wide: Expression, narrow: Expression) {
+          reader.resolve(narrow).groundType.ensureSelectionNarrows(reader.resolve(wide), this)
         }
 
         override fun has(requirement: Requirement): Boolean = requirementsHold
@@ -85,22 +83,13 @@ internal constructor(
 
   // CHANGES LAYER
 
-  public fun sneak(changes: InstructionGroup, cause: Cause? = null) {
-    changes.instructions.forEach {
-      if (it is Instruction.Or) throw orWithoutChoice(it)
-      val change =
-          it as? Change ?: throw ExpressionException("sneak accepts only direct changes, not: $it")
-      val count = change.count as? ActualScalar ?: throw abstractInstruction(change)
-      changer.change(
-          count.value,
-          change.gaining?.toComponent(reader),
-          change.removing?.toComponent(reader),
-          cause,
-          orRemoveOneDependent = false,
-          actor = actor,
-      )
-    }
-  }
+  /**
+   * Applies and validates a correction with automatic effects, but no queued effects or cleanup.
+   */
+  public fun sneak(changes: InstructionGroup, cause: Cause? = null): TaskResult =
+      worldTransaction.correct {
+        instructor.sneak(changes, cause, actor)
+      }
 
   // TASKS LAYER
 
@@ -117,8 +106,8 @@ internal constructor(
     val current = tasks.getTaskData(task.id)
     if (task.assignee != current.assignee) {
       throw TaskException(
-          "can't restore task ${task.id} assigned to ${task.assignee} over its current " +
-              "${current.assignee} assignment"
+          "cannot restore task ${task.id} assigned to `${task.assignee}` over its current " +
+              "`${current.assignee}` assignment"
       )
     }
     taskQueues.editTask(task)
@@ -129,14 +118,14 @@ internal constructor(
     val pending = allTasks.extract { it }.filter { it.id !in allowedPendingTasks }
     if (pending.isNotEmpty()) {
       if (pending.any { it.instruction.isAbstract(reader) }) {
-        throw AbstractException("pending abstract tasks:\n${pending.joinToString("\n")}")
+        throw NotFullySpecifiedException("pending abstract tasks:\n${pending.joinToString("\n")}")
       }
       throw TaskException("pending tasks:\n${pending.joinToString("\n")}")
     }
     if (!reader.has(parse("MAX 0 $MUST_CLEAN_UP"))) {
       throw DeadEndException(
           "components requiring cleanup remained after the operation: " +
-              reader.getComponents("MustCleanUp").elements
+              reader.getComponents(MUST_CLEAN_UP.expression).elements
       )
     }
   }
@@ -171,33 +160,58 @@ internal constructor(
   // TASK COMMANDS
 
   public fun narrowTask(narrowing: InstructionTree, quantifierOmitted: Boolean = false) {
-    val taskId = tasks.selectedTask() ?: throw TaskException("$actor has no selected task")
+    val taskId = tasks.selectedTask() ?: throw TaskException("`$actor` has no selected task")
     narrowSelectedTask(taskId, narrowing, quantifierOmitted)
   }
 
+  /** Validates a proposed narrowing without changing the task or selecting it. */
+  public fun prepareTaskNarrowing(
+      taskId: TaskId,
+      narrowing: InstructionTree,
+      quantifierOmitted: Boolean = false,
+  ): InstructionTree =
+      prepareNarrowing(taskId, narrowing, quantifierOmitted).let {
+        it.selectedThen ?: it.effective
+      }
+
+  /** Current executable capacity for a concrete change; null means a missing destination. */
+  public fun changeLimit(change: Change): Int? = instructor.changeLimit(change)
+
+  private data class PreparedNarrowing(
+      val effective: InstructionTree,
+      val selectedThen: Then?,
+  )
+
+  private fun prepareNarrowing(
+      taskId: TaskId,
+      narrowing: InstructionTree,
+      quantifierOmitted: Boolean,
+  ): PreparedNarrowing {
+    val task = tasks.getTaskData(taskId)
+    if (actor != task.assignee) {
+      throw TaskException("`$actor` cannot narrow a task assigned to `${task.assignee}`")
+    }
+    val effective = effectiveNarrowing(narrowing, task.instruction, quantifierOmitted)
+    if (effective.narrows(task.instruction, reader)) return PreparedNarrowing(effective, null)
+    val selectedThen = selectFirstStageOrNull(task.instruction, effective)
+    if (selectedThen != null) {
+      if (task.then != null) {
+        throw TaskException("cannot select the first stage of a `THEN` with an outer continuation")
+      }
+      return PreparedNarrowing(effective, selectedThen)
+    }
+    effective.ensureNarrows(task.instruction, reader)
+    return PreparedNarrowing(effective, null)
+  }
+
+  /** Commits a narrowing of this Actor's task, selecting it if necessary. */
   public fun narrowTask(
       taskId: TaskId,
       narrowing: InstructionTree,
       quantifierOmitted: Boolean = false,
   ) {
-    val task = tasks.getTaskData(taskId)
-    if (actor != task.assignee) {
-      throw TaskException("$actor can't narrow a task assigned to ${task.assignee}")
-    }
     enforceSelectLock(taskId)
-    if (task.selected) {
-      narrowSelectedTask(taskId, narrowing, quantifierOmitted)
-      return
-    }
-
-    val effectiveNarrowing =
-        effectiveNarrowing(narrowing, task.instruction, quantifierOmitted, immutableClassFacts)
-    effectiveNarrowing.ensureNarrows(task.instruction, immutableClassFacts)
-    if (effectiveNarrowing == task.instruction) return
-    val instruction =
-        effectiveNarrowing as? Instruction
-            ?: throw TaskException("one task can't be narrowed to independent tasks")
-    taskQueues.editTask(task.copy(instruction = instruction))
+    narrowSelectedTask(taskId, narrowing, quantifierOmitted)
   }
 
   private fun narrowSelectedTask(
@@ -206,29 +220,19 @@ internal constructor(
       quantifierOmitted: Boolean,
   ) {
     val task = tasks.getTaskData(taskId)
-    if (actor != task.assignee) {
-      throw TaskException("$actor can't narrow a task assigned to ${task.assignee}")
-    }
-
-    val effectiveNarrowing = effectiveNarrowing(narrowing, task.instruction, quantifierOmitted)
+    val prepared = prepareNarrowing(taskId, narrowing, quantifierOmitted)
+    val effectiveNarrowing = prepared.effective
     if (effectiveNarrowing == task.instruction) {
       selectAndExecuteIfConcrete(tasks, taskId)
       return
     }
-    val directlyNarrows = effectiveNarrowing.narrows(task.instruction, reader)
-    val selectedThen =
-        if (directlyNarrows) null else selectFirstStageOrNull(task.instruction, effectiveNarrowing)
-    if (selectedThen == null) effectiveNarrowing.ensureNarrows(task.instruction, reader)
-
-    if (selectedThen != null && task.then != null) {
-      throw TaskException("can't select the first stage of a THEN with an outer continuation")
-    }
-    val continuation = selectedThen?.continuationAfterFirst() ?: task.then
+    val continuation = prepared.selectedThen?.continuationAfterFirst() ?: task.then
 
     // A selected group completes structurally before its children resolve against successive
     // worlds.
     val replacement =
-        if (effectiveNarrowing is Instruction) instructor.resolve(effectiveNarrowing)
+        if (effectiveNarrowing is Instruction)
+            instructor.resolve(effectiveNarrowing, worldGainNarrowing = true)
         else effectiveNarrowing
     replace1WithN(tasks, task, replacement, then = continuation)
     if (taskId in allTasks) executeSelectedIfConcrete(queueForAnyTask(taskId), taskId)
@@ -267,7 +271,7 @@ internal constructor(
   public fun selectTask(taskId: TaskId) {
     val task = tasks.getTaskData(taskId)
     if (actor != task.assignee) {
-      throw TaskException("$actor can't select a task assigned to ${task.assignee}")
+      throw TaskException("`$actor` cannot select a task assigned to `${task.assignee}`")
     }
     selectAndExecuteIfConcrete(tasks, taskId)
   }
@@ -290,7 +294,7 @@ internal constructor(
   private fun selectTask(queue: TaskQueue, task: Task): TaskId? {
     enforceSelectLock(task.id)
     if (task.selected) return task.id
-    val replacement = instructor.resolve(task.instruction)
+    val replacement = instructor.resolve(task.instruction, worldGainNarrowing = true)
     replace1WithN(queue, task, replacement, then = task.then)
     return task.id.takeIf { it in allTasks }
   }
@@ -335,9 +339,6 @@ internal constructor(
     val selected = selectTask(queue, original) ?: return original
     val selectedQueue = queueForAnyTask(selected)
     val selectedTask = selectedQueue.getTaskData(selected)
-    if (selectedTask.instruction.isAbstract(reader)) {
-      throw abstractInstruction(selectedTask.instruction)
-    }
     executeSelectedTask(selectedQueue, selected)
     return selectedTask
   }
@@ -361,17 +362,23 @@ internal constructor(
       quantifierOmitted: Boolean = false,
       executeSubmittedGroup: Boolean = false,
       taskId: TaskId? = null,
+      contextClass: ClassName? = null,
   ) {
     val evaluated = evaluatePer(narrowing)
-    val id = matchingTask(evaluated, taskId, quantifierOmitted)
+    val id = matchingTask(evaluated, taskId, quantifierOmitted, contextClass)
     val tasksBefore = tasks.ids()
     val task = tasks.getTaskData(id)
-    if (narrowsTask(evaluated, task.instruction, quantifierOmitted)) {
+    val intersection = intersectTask(evaluated, task.instruction, quantifierOmitted)
+    if (intersection != null) {
       enforceSelectLock(id)
-      narrowSelectedTask(id, evaluated, quantifierOmitted)
+      narrowSelectedTask(id, intersection, quantifierOmitted)
     } else {
-      selectTask(tasks, task) ?: return
-      narrowTask(evaluated, quantifierOmitted)
+      val selected = selectTask(tasks, task) ?: return
+      val instruction = queueForAnyTask(selected).getTaskData(selected).instruction
+      narrowTask(
+          intersectTask(evaluated, instruction, quantifierOmitted) ?: evaluated,
+          quantifierOmitted,
+      )
     }
     if (id !in tasks) {
       if (executeSubmittedGroup) {
@@ -379,7 +386,7 @@ internal constructor(
       }
       return
     }
-    throw abstractInstruction(tasks.getTaskData(id).instruction)
+    executeSelectedTask(queueForAnyTask(id), id)
   }
 
   private fun evaluatePer(instruction: InstructionTree): InstructionTree =
@@ -389,6 +396,7 @@ internal constructor(
       narrowing: InstructionTree,
       taskId: TaskId? = null,
       quantifierOmitted: Boolean = false,
+      contextClass: ClassName? = null,
   ): TaskId {
     tasks.selectedTask()?.let { selected ->
       if (taskId != null && taskId != selected) {
@@ -402,26 +410,35 @@ internal constructor(
     fun weCanNarrowIt(taskData: Task): Boolean {
       if (taskData.assignee != actor) return false
       val instruction = taskData.instruction
-      if (narrowsTask(narrowing, instruction, quantifierOmitted)) return true
+      if (intersectTask(narrowing, instruction, quantifierOmitted) != null) return true
       if (targetsThenFirstStage(narrowing, instruction, quantifierOmitted)) return false
       return try {
-        narrowsTask(narrowing, instructor.resolve(instruction), quantifierOmitted)
+        intersectTask(narrowing, instructor.resolve(instruction), quantifierOmitted) != null
       } catch (_: NotNowException) {
         false
       }
     }
 
-    val assigned = tasks.extract { it }.filter { it.assignee == actor }
-    val matches = assigned.filter(::weCanNarrowIt)
-    if (matches.isNotEmpty()) return uniqueMatchingTask(matches)
+    val assigned =
+        tasks
+            .extract { it }
+            .filter {
+              it.assignee == actor &&
+                  (contextClass == null || it.cause?.context?.className == contextClass)
+            }
+    try {
+      val matches = assigned.filter(::weCanNarrowIt)
+      if (matches.isNotEmpty()) return uniqueMatchingTask(matches)
 
-    // A failed live refinement can still identify the intended task. Let normal narrowing report
-    // which requirement failed instead of replacing that reason with a generic no-task match.
-    val possibleMatches = assigned.filter { task ->
-      effectiveNarrowing(narrowing, task.instruction, quantifierOmitted, possibleWorldFacts)
-          .narrows(task.instruction, possibleWorldFacts)
+      // A failed live refinement can still identify the intended task. Let normal narrowing report
+      // which requirement failed instead of replacing that reason with a generic no-task match.
+      val possibleMatches = assigned.filter { task ->
+        intersectTask(narrowing, task.instruction, quantifierOmitted, possibleWorldFacts) != null
+      }
+      return uniqueMatchingTask(possibleMatches)
+    } catch (e: NarrowingException) {
+      throw TaskException("cannot identify a task for `$narrowing`: ${e.message}", e)
     }
-    return uniqueMatchingTask(possibleMatches)
   }
 
   private fun targetsThenFirstStage(
@@ -444,14 +461,35 @@ internal constructor(
     }
   }
 
-  private fun narrowsTask(
+  private fun intersectTask(
       narrowing: InstructionTree,
       existing: InstructionTree,
       quantifierOmitted: Boolean,
-  ): Boolean {
-    val effectiveNarrowing = effectiveNarrowing(narrowing, existing, quantifierOmitted)
-    return effectiveNarrowing.narrows(existing, reader) ||
-        selectFirstStageOrNull(existing, effectiveNarrowing) != null
+      info: TypeInfo = reader,
+  ): InstructionTree? {
+    val effective =
+        effectiveNarrowing(narrowing, existing, quantifierOmitted, info, intersect = true)
+    effective.intersect(existing, reader.classTable, info)?.let {
+      return it
+    }
+    if (selectFirstStageOrNull(existing, effective) != null) return effective
+    val sequences =
+        when (existing) {
+          is Then -> listOf(existing)
+          is Or -> existing.instructions.filterIsInstance<Then>()
+          else -> emptyList()
+        }
+    return sequences
+        .mapNotNull { then ->
+          val first = then.first
+          val selectable = if (first is Gated) first.inner else first
+          val head =
+              effectiveNarrowing(narrowing, selectable, quantifierOmitted, info, intersect = true)
+                  .intersect(selectable, reader.classTable, info)
+          head?.takeIf { selectFirstStageOrNull(existing, it) != null }
+        }
+        .distinct()
+        .singleOrNull()
   }
 
   private fun effectiveNarrowing(
@@ -459,9 +497,13 @@ internal constructor(
       existing: InstructionTree,
       quantifierOmitted: Boolean,
       info: TypeInfo = reader,
+      intersect: Boolean = false,
   ): InstructionTree {
     if (!quantifierOmitted || narrowing !is Change) return narrowing
-    if (narrowing.narrows(existing, info)) return narrowing
+    fun matches(proposed: InstructionTree, instruction: InstructionTree): Boolean =
+        if (intersect) proposed.intersect(instruction, reader.classTable, info) != null
+        else proposed.narrows(instruction, info)
+    if (matches(narrowing, existing)) return narrowing
 
     fun inheritQuantifier(change: Change): InstructionTree =
         when (narrowing) {
@@ -478,7 +520,12 @@ internal constructor(
         }
     return choices
         .mapNotNull { choice ->
-          inheritQuantifier(choice).takeIf { inherited -> inherited.narrows(choice, info) }
+          // Inheritance repairs a quantifier mismatch, not incompatible Types or counts. In
+          // particular, do not turn an unrelated mandatory request into an optional Ok match.
+          if (intersect && narrowing.quantifier!!.narrows(choice.quantifier!!, info)) {
+            return@mapNotNull null
+          }
+          inheritQuantifier(choice).takeIf { inherited -> matches(inherited, choice) }
         }
         .distinct()
         .singleOrNull() ?: narrowing
@@ -490,21 +537,25 @@ internal constructor(
   ): Then? {
     if (narrowing is Then) return null
     val revisedInstruction = narrowing as? Instruction ?: return null
-    val candidates: List<Pair<Then, Boolean>> =
+    val candidates: List<Then> =
         when (instruction) {
-          is Then -> listOf(instruction to false)
-          is Or -> instruction.instructions.filterIsInstance<Then>().map { it to true }
+          is Then -> listOf(instruction)
+          is Or -> instruction.instructions.filterIsInstance<Then>()
           else -> emptyList()
         }
+    val firstStageInfo =
+        object : TypeInfo by reader {
+          override fun ensureSelectionNarrows(wide: Expression, narrow: Expression) {
+            val type = reader.resolve(narrow)
+            val selected = reader.classTable.singleConcreteSubtype(type, reader) ?: type
+            selected.groundType.ensureSelectionNarrows(reader.resolve(wide), this)
+          }
+        }
     return candidates
-        .mapNotNull { (then, selectedFromOr) ->
+        .mapNotNull { then ->
           try {
-            val loweredBinding = loweredRemovalBinding(then, revisedInstruction)
-            if (selectedFromOr) {
-              then.selectFirstStage(revisedInstruction, reader, loweredBinding)
-            } else {
-              then.bindFirstStage(revisedInstruction, reader, loweredBinding)
-            }
+            val loweredBinding = loweredTypeBinding(then, revisedInstruction)
+            then.selectFirstStage(revisedInstruction, firstStageInfo, loweredBinding)
           } catch (_: NarrowingException) {
             null
           }
@@ -512,14 +563,23 @@ internal constructor(
         .singleOrNull()
   }
 
-  private fun loweredRemovalBinding(then: Then, narrow: Instruction): PetTransformer? {
-    val general = (then.first as? Change)?.removing ?: return null
-    val specific = (narrow as? Change)?.removing ?: return null
-    return elaborator.specializeVariables(
-        reader.resolve(general),
-        reader.resolve(specific),
-        general,
-        then.typeVariables,
+  private fun loweredTypeBinding(then: Then, narrow: Instruction): PetTransformer? {
+    val general = then.first as? Change ?: return null
+    val specific = narrow as? Change ?: return null
+    return PetTransformer.chain(
+        listOf(general.gaining to specific.gaining, general.removing to specific.removing)
+            .mapNotNull { (authored, proposed) ->
+              if (authored == null || proposed == null) return@mapNotNull null
+              val proposedType = reader.resolve(proposed)
+              val selected =
+                  reader.classTable.singleConcreteSubtype(proposedType, reader) ?: proposedType
+              elaborator.specializeVariables(
+                  reader.resolve(authored),
+                  selected,
+                  authored,
+                  then.typeVariables,
+              )
+            }
     )
   }
 
@@ -529,19 +589,23 @@ internal constructor(
   private fun uniqueMatchingTask(matches: List<Task>): TaskId {
     val first =
         matches.firstOrNull()
-            ?: throw TaskException("there wasn't exactly one matching task; tasks are:\n$tasks")
+            ?: throw TaskException(
+                "no matching task; available tasks: ${if (tasks.isEmpty()) "none" else "\n$tasks"}"
+            )
     // Origin metadata does not distinguish choices that otherwise present and behave identically.
     if (matches.map { it.copy(id = first.id, cause = first.cause) }.distinct().size == 1) {
       return first.id
     }
-    throw TaskException("there wasn't exactly one matching task; tasks are:\n$tasks")
+    throw TaskException(
+        "${matches.size} matching tasks are ambiguous; select one by its task ID:\n${matches.joinToString("\n")}"
+    )
   }
 
   /** Tries [id], leaving it pending when it needs a choice or is unavailable. */
   public fun tryTask(id: TaskId) {
     try {
       timeline.atomic { doTask(id) }
-    } catch (_: AbstractException) {
+    } catch (_: NotFullySpecifiedException) {
       // A probe that needs narrowing leaves the task and event history unchanged.
     } catch (_: NotNowException) {
       // A probe that is unavailable in the current World likewise changes nothing.
@@ -556,8 +620,8 @@ internal constructor(
   ) {
     val evaluated = evaluatePer(narrowing)
     try {
-      doTask(evaluated, quantifierOmitted, executeSubmittedGroup, taskId)
-    } catch (_: AbstractException) {
+      timeline.atomic { doTask(evaluated, quantifierOmitted, executeSubmittedGroup, taskId) }
+    } catch (_: NotFullySpecifiedException) {
       // A probe that needs narrowing leaves the task and event history unchanged.
     } catch (_: NotNowException) {
       // A probe that is unavailable in the current World likewise changes nothing.
@@ -572,7 +636,7 @@ internal constructor(
       true
     } catch (e: NotNowException) {
       throw DeadEndException(e)
-    } catch (_: AbstractException) {
+    } catch (_: NotFullySpecifiedException) {
       false
     }
   }

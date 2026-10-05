@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -21,16 +21,17 @@ internal class LavaFlowsTest : CardTest() {
   }
 
   @Test
-  internal fun `Cannot be played when every volcanic area is occupied`() {
+  internal fun `An occupied volcanic placement rolls back the card and temperature increase`() {
     newGame()
     p1.runOperation(
         "GreeneryTile<Tharsis_2_2>, GreeneryTile<Tharsis_3_1>, " +
             "GreeneryTile<Tharsis_4_1>, GreeneryTile<Tharsis_5_1>"
     )
 
-    shouldThrow<NotNowException> { p1.runOperation("$LavaFlows") }
+    shouldThrow<LimitsException> { p1.runOperation("$LavaFlows") { placeTile(2, 2) } }
 
-    p1.count("Tile<Tharsis_2_3>") shouldBe 0
+    p1.count("Tile<Tharsis_2_2>") shouldBe 1
+    p1.count("$LavaFlows") shouldBe 0
     p1.temperatureC() shouldBe -30
   }
 }

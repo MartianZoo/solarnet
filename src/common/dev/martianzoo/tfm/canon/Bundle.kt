@@ -1,9 +1,21 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.state.Catalog
 
 /**
- * An organizational provider of declarations, category-specific data, metadata, and custom code.
+ * An internal organizational provider of declarations, data, metadata, and custom code.
+ *
+ * A Bundle is provenance and loading structure, not a selectable option or live component. It may
+ * provide both Modules and Content. A Module is an ambient-rule choice whose own declaration
+ * closure is intrinsic; Content names authored game items intended for individual selection.
+ * [Catalog.modules] associates a Module with applicable Content it selects by default. Neither role
+ * requires another Pets supertype. Maps currently fill both roles, while parties do not yet support
+ * individual selection.
+ *
+ * The current conventional loader associates card resources and colony tiles with a same-named
+ * Module when one exists. That naming convention is packaging policy, not the semantic identity of
+ * the Bundle, Module, or Content.
  */
 public abstract class Bundle(
     public val bundleName: ClassName,

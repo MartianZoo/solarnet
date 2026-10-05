@@ -2,7 +2,6 @@ package dev.martianzoo.state
 
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
-import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import kotlin.jvm.JvmInline
 
@@ -25,7 +24,11 @@ public data class Task(
     /** What to do. Can be abstract and is stored exactly as supplied by the engine. */
     val instruction: Instruction,
 
-    /** Independent work enqueued when this task is removed. Used for `THEN` instructions. */
+    /**
+     * Independent work admitted immediately before this task's removal is recorded. Used for `THEN`
+     * instructions. The continuation receives no priority and does not wait for queued consequences
+     * of this task.
+     */
     val then: InstructionGroup? = null,
 
     /** Why was this task born? */

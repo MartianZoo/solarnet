@@ -1,7 +1,7 @@
 {
   "decks": [
     {
-      "deck": "CorporationCard",
+      "deck": "StandardCorporationCard",
       "cards": [
         {
           "name": "SaturnSystems",
@@ -13,7 +13,7 @@
           "name": "Teractor",
           "tags": [ "EarthTag" ],
           "immediate": "60 MC",
-          "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed" ],
+          "effects": [ "PayingFor<Class<EarthTag>>:: -3 Owed" ],
         },
       ],
     },
@@ -30,7 +30,7 @@
           "name": "AdvancedAlloys",
           "cost": 9,
           "tags": [ "ScienceTag" ],
-          "effects": [ "This:: 1 GrantedResourceValue<Class<Titanium>, This>, 1 GrantedResourceValue<Class<Steel>, This>" ],
+          "invariants": [ "=1 GrantedResourceValue<Class<Titanium>, This>", "=1 GrantedResourceValue<Class<Steel>, This>" ],
         },
         {
           "name": "AiCentral",
@@ -47,7 +47,7 @@
           "cost": 14,
           "tags": [ "ScienceTag" ],
           "effects": [
-            "Billing<CardPlay>:: -2 Owed",
+            "PayingFor<Class<CardFront>>:: -2 Owed",
             "End: 3 VictoryPoint"
           ],
         },
@@ -76,14 +76,14 @@
           "name": "BusinessContacts",
           "cost": 7,
           "tags": [ "EarthTag", "EventTag" ],
-          "immediate": "4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>",
+          "immediate": "4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>, -2 ProjectCard<Selecting>",
         },
         {
           "name": "BusinessNetwork",
           "cost": 4,
           "tags": [ "EarthTag" ],
           "immediate": "PROD[-1 MC]",
-          "actions": [ "-> ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards" ],
+          "actions": [ "-> ProjectCard<Selecting> THEN -ProjectCard<Selecting>? THEN BuySelectedCards" ],
         },
         {
           "name": "CallistoPenalMines",
@@ -135,7 +135,7 @@
           "cost": 23,
           "tags": [ "EarthTag" ],
           "effects": [
-            "Billing<CardPlay>:: -2 Owed",
+            "PayingFor<Class<CardFront>>:: -2 Owed",
             "End: 2 VictoryPoint"
           ],
         },
@@ -143,7 +143,7 @@
           "name": "EarthOffice",
           "cost": 1,
           "tags": [ "EarthTag" ],
-          "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed" ],
+          "effects": [ "PayingFor<Class<EarthTag>>:: -3 Owed" ],
         },
         {
           "name": "ElectroCatapult",
@@ -193,13 +193,13 @@
           "name": "HiredRaiders",
           "cost": 1,
           "tags": [ "EventTag" ],
-          "immediate": "2 Steel<Owner FROM Anyone>? OR 3 MC<Owner FROM Anyone>?",
+          "immediate": "Steel<Me@ FROM Anyone> OR 2 Steel<Me@ FROM Anyone> OR MC<Me@ FROM Anyone> OR 2 MC<Me@ FROM Anyone> OR 3 MC<Me@ FROM Anyone>",
         },
         {
           "name": "IndenturedWorkers",
           "cost": 0,
           "tags": [ "EventTag" ],
-          "immediate": "NextCardEffect { Billing<CardPlay>:: -8 Owed }",
+          "immediate": "NextCardEffect { PayingFor<Class<CardFront>>:: -8 Owed }",
           "effects": [ "End: -VictoryPoint" ],
         },
         {
@@ -220,13 +220,13 @@
           "name": "InventionContest",
           "cost": 2,
           "tags": [ "ScienceTag", "EventTag" ],
-          "immediate": "3 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>",
+          "immediate": "3 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>, -2 ProjectCard<Selecting>",
         },
         {
           "name": "InventorsGuild",
           "cost": 9,
           "tags": [ "ScienceTag" ],
-          "actions": [ "-> ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards" ],
+          "actions": [ "-> ProjectCard<Selecting> THEN -ProjectCard<Selecting>? THEN BuySelectedCards" ],
         },
         {
           "name": "InvestmentLoan",
@@ -252,7 +252,7 @@
           "name": "LandClaim",
           "cost": 1,
           "tags": [ "EventTag" ],
-          "immediate": "Community<LandArea(HAS MAX 0 Occupant)>",
+          "immediate": "Community",
         },
         {
           "name": "LightningHarvest",
@@ -277,7 +277,7 @@
           "cost": 8,
           "tags": [ "ScienceTag", "PowerTag" ],
           "immediate": "PROD[6 Energy]",
-          "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed" ],
+          "effects": [ "PayingFor<Class<SpaceTag>>:: -2 Owed" ],
         },
         {
           "name": "MediaArchives",
@@ -312,6 +312,7 @@
         },
         {
           "name": "MiningArea",
+          "autoSelectWhen": "Unsafe OR MAX 0 AmazonisMap",
           "cost": 4,
           "tags": [ "BuildingTag" ],
           "immediate": "MiningArea_SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> THEN PROD[(LandArea(HAS MiningArea_SpecialTile, HAS PlacementBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningArea_SpecialTile, HAS PlacementBonus<Class<Titanium>>): Titanium)]",
@@ -356,7 +357,7 @@
         {
           "name": "ProtectedHabitats",
           "cost": 5,
-          "effects": [ "-Plant OR -Animal OR -Microbe BY Player(NOT Owner):: Die" ],
+          "effects": [ "-Plant OR -Animal OR -Microbe BY Player(NOT Me@): Die" ],
         },
         {
           "name": "QuantumExtractor",
@@ -364,7 +365,7 @@
           "cost": 13,
           "tags": [ "ScienceTag", "PowerTag" ],
           "immediate": "PROD[4 Energy]",
-          "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed" ],
+          "effects": [ "PayingFor<Class<SpaceTag>>:: -2 Owed" ],
         },
         {
           "name": "RadSuits",
@@ -392,6 +393,9 @@
           "cost": 9,
           "tags": [ "ScienceTag" ],
           "immediate": "CopyProductionBox<CardFront(HAS BuildingTag)>",
+          // Copies the single immediate production box on a chosen card.
+          // Must be identical to CyberiaSystems' declaration in PromoCardPack.
+          "components": [ "CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, CustomInstruction" ],
         },
         {
           "name": "Sabotage",
@@ -426,7 +430,7 @@
           "cost": 10,
           "tags": [ "SpaceTag" ],
           "effects": [
-            "PlayTag<Class<SpaceTag>>:: -2 Owed",
+            "PayingFor<Class<SpaceTag>>:: -2 Owed",
             "End: VictoryPoint"
           ],
         },
@@ -472,7 +476,7 @@
           "name": "TollStation",
           "cost": 12,
           "tags": [ "SpaceTag" ],
-          "immediate": "PROD[1 MC / SpaceTag<Player(NOT Owner)>]",
+          "immediate": "PROD[1 MC / SpaceTag<Player(NOT Me@)>]",
         },
         {
           "name": "TransNeptuneProbe",
@@ -498,7 +502,7 @@
           "name": "ViralEnhancers",
           "cost": 9,
           "tags": [ "ScienceTag", "MicrobeTag" ],
-          "effects": [ "BioTag<CardFront>: Plant OR CardResource<CardFront>!" ],
+          "effects": [ "BioTag<@CardFront>: Plant OR Animal<@CardFront> OR Microbe<@CardFront>" ],
         },
         {
           "name": "Virus",

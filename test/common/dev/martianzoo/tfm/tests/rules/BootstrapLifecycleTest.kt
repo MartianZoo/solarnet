@@ -5,9 +5,10 @@ import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
@@ -135,39 +136,103 @@ internal class BootstrapLifecycleTest {
   }
 
   @Test
-  internal fun soloColoniesSetupAutoNarrowsThePlayerOwner() {
+  internal fun soloNeutralCitiesCannotBePlacedNextToEachOther() {
+    val game = Engine.newGame(canonicalPremise(players = 1))
+    val admin = game.testAgent(ADMIN)
+    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+
+    admin.doTask("CityTile<Tharsis_4_1>")
+    admin.doTask("GreeneryTile<Tharsis_5_1>")
+    shouldThrow<NarrowingException> { admin.doTask("CityTile<Tharsis_4_2>") }
+    admin.count("CityTile") shouldBe 1
+    admin.count("Occupant<Tharsis_4_2>") shouldBe 0
+
+    admin.doTask("CityTile<Tharsis_2_2>")
+    shouldThrow<NarrowingException> { admin.doTask("GreeneryTile<Tharsis_4_2>") }
+    admin.doTask("GreeneryTile<Tharsis_2_3>")
+    admin.count("CityTile<SoloOpponent>") shouldBe 2
+    admin.count("GreeneryTile<SoloOpponent>") shouldBe 2
+  }
+
+  @Test
+  internal fun soloColoniesSetupIsAbsentWithoutSelectedColonies() {
+    val game = Engine.newGame(canonicalPremise(ColoniesExpansion, players = 1))
+
+    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+
+    game.testAgent(ADMIN).count("SoloColoniesSetup") shouldBe 0
+  }
+
+  @Test
+  internal fun soloColoniesSetupRemovesOneSelectedColony() {
+    val colonies = testColonyTiles(players = 1)
     val game =
         Engine.newGame(
             canonicalPremise(
                 ColoniesExpansion,
                 players = 1,
-                colonyTiles = testColonyTiles(players = 1),
+                colonyTiles = colonies,
             )
         )
+    val admin = game.testAgent(ADMIN)
+    val player = game.testTfm(PLAYER1)
+
+    admin.count("SelectedColonyTile") shouldBe 4
+    admin.count("SoloColoniesSetup") shouldBe 0
 
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    admin.doTask("CityTile<Tharsis_4_1>")
+    admin.doTask("GreeneryTile<Tharsis_5_1>")
+    admin.doTask("CityTile<Tharsis_2_2>")
+    admin.doTask("GreeneryTile<Tharsis_2_3>")
 
-    game.testTfm(PLAYER1).production(cn("MC")) shouldBe -2
+    admin.count("SoloColoniesSetup") shouldBe 1
+    player.doTask("-SelectedColonyTile<Class<${colonies.first()}>>")
+    admin.count("SelectedColonyTile") shouldBe 3
+    admin.count("SoloColoniesSetup") shouldBe 0
+    player.production(cn("MC")) shouldBe -2
   }
 
   @Test
-  internal fun setupRetainsStartingCardsUntilCorporationTurns() {
+  internal fun selectedColoniesAreRealizedBeforeCorporationTurns() {
+    val premise =
+        canonicalPremise(
+            ColoniesExpansion,
+            colonyTiles = setOf(cn("Callisto"), cn("Enceladus")),
+        )
+    val game = Engine.newGame(premise)
+    val workflow = TfmWorkflow.Stepwise(game.testAgents())
+    val admin = game.testAgent(ADMIN)
+
+    admin.count("SelectedColonyTile") shouldBe 2
+    admin.count("Callisto") shouldBe 0
+    admin.count("DelayedEnceladus") shouldBe 0
+
+    workflow.setupPhase()
+    admin.count("SelectedColonyTile") shouldBe 2
+
+    workflow.corporationPhase()
+
+    admin.count("SelectedColonyTile") shouldBe 0
+    admin.count("Callisto") shouldBe 1
+    admin.count("DelayedEnceladus") shouldBe 1
+    admin.count("Enceladus") shouldBe 0
+  }
+
+  @Test
+  internal fun automaticSetupKeepsOnlyCardCountsUntilCorporationTurns() {
     val game = Engine.newGame(canonicalPremise(PreludeExpansion))
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     val admin = game.testAgent(ADMIN)
     val p1 = game.testTfm(PLAYER1)
 
-    admin.count("SetupPhase") shouldBe 1
-    p1.count("CorporationCard<Hand>") shouldBe 1
-    p1.count("ProjectCard<Selecting>") shouldBe 10
-    p1.count("PreludeCard<Hand>") shouldBe 2
-
-    retainStartingProjects(game, 7, 5)
+    p1.count("CorporationCard") shouldBe 1
+    p1.count("ProjectCard") shouldBe 0
+    p1.count("PreludeCard") shouldBe 2
     admin.count("CorporationPhase") shouldBe 1
     p1.playCorp(cn("InterplanetaryCinematics"), 7)
 
-    p1.count("ProjectCard<Hand>") shouldBe 7
-    p1.count("ProjectCard<Selecting>") shouldBe 0
+    p1.count("ProjectCard") shouldBe 7
     workflow.shutdown()
   }
 

@@ -1,25 +1,15 @@
 package dev.martianzoo.pets.ast
 
-import com.github.h0tk3y.betterParse.combinators.and
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.combinators.optional
-import com.github.h0tk3y.betterParse.combinators.or
-import com.github.h0tk3y.betterParse.combinators.separatedTerms
-import com.github.h0tk3y.betterParse.combinators.skip
-import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.pets.HasExpression
-import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
-import dev.martianzoo.pets.api.GameReader
-import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.OK
 import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
@@ -31,11 +21,11 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.pets.types.GroundType
 import dev.martianzoo.pets.types.TypeVariable
 import dev.martianzoo.pets.util.invoke
-import dev.martianzoo.pets.util.toSetStrict
 
 /**
- * A relation between a before-state and an after-state, as defined by
- * [section 6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)
+ * A transition between a before-state and an after-state, including gain and removal events, as
+ * defined by
+ * [section 2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)
  * — the only kind of element that denotes one. Instructions appear as the right-hand side of
  * [Action]s and [Effect]s, on map areas, in the "do this now" section of cards, in an engine's task
  * queues, and so forth.
@@ -44,17 +34,6 @@ import dev.martianzoo.pets.util.toSetStrict
  * while scheduling, choice presentation and attribution belong to the engine.
  */
 public sealed class Instruction : InstructionTree() {
-  internal companion object {
-    internal fun parser(): Parser<Instruction> =
-        Parsers.parser() map
-            {
-              it as? Instruction
-                  ?: throw PetSyntaxException("Expected one instruction, got group: $it")
-            }
-
-    internal fun treeParser(): Parser<InstructionTree> = Parsers.parser()
-  }
-
   /**
    * Returns an instruction that (in essence) does this instruction [factor] times. The [factor]
    * must be non-negative, and if zero, [NoOp] is returned.
@@ -62,7 +41,8 @@ public sealed class Instruction : InstructionTree() {
   final override operator fun times(factor: Int): Instruction {
     if (factor == 0) return NoOp
     require(factor > 0)
-    return scale(factor)
+    if (factor == 1) return this
+    return scale(factor).also { it.sourceLocation = sourceLocation }
   }
 
   override val kind: kotlin.reflect.KClass<out PetNode> = Instruction::class
@@ -70,11 +50,11 @@ public sealed class Instruction : InstructionTree() {
   protected abstract fun scale(factor: Int): Instruction
 
   /**
-   * The instruction relating a state to itself, spelled `Ok` ([rule
-   * L6-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * The instruction leaving a state unchanged without events, spelled `Ok` ([rule
+   * L2-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * It vanishes from a group rather than appearing as an empty member, and a group left with
    * nothing in it *is* `Ok`. `Ok` narrows an optional change and nothing else ([rule
-   * L7-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * L3-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    */
   public object NoOp : Instruction() {
     override fun scale(factor: Int): Instruction = this
@@ -82,7 +62,7 @@ public sealed class Instruction : InstructionTree() {
     override fun isAbstract(info: TypeInfo): Boolean = false
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      if (proposed != NoOp) throw NarrowingException("not Ok")
+      if (proposed != NoOp) throw NarrowingException("`$proposed` does not narrow `Ok`")
     }
 
     override fun visitChildren(visitor: Visitor): Unit = Unit
@@ -92,9 +72,9 @@ public sealed class Instruction : InstructionTree() {
 
   /**
    * One of the three elementary instructions of
-   * [rule L6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions):
+   * [rule L2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions):
    * a [Gain], a [Remove] or a [Transmute]. Each says that the after-state holds some number more,
-   * fewer, or differently-typed components than the before-state.
+   * fewer, or differently typed components relative to the before-state.
    */
   public sealed class Change : Instruction() {
     public companion object {
@@ -118,20 +98,22 @@ public sealed class Instruction : InstructionTree() {
     /**
      * How many components change: a positive integer or an `X` standing for an amount left open
      * ([rule
-     * L6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+     * L2-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
      * Zero is rejected.
      */
     public abstract val count: Scalar
 
-    /** What the after-state holds more of, or null for a pure removal. */
+    /**
+     * The gained Type, or null for a pure removal. A transmutation must change its concrete Type.
+     */
     public abstract val gaining: Expression?
 
-    /** What the after-state holds fewer of, or null for a pure gain. */
+    /** The removed Type, or null for a pure gain. A transmutation must change its concrete Type. */
     public abstract val removing: Expression?
 
     /**
      * How much of [count] must happen ([rule
-     * L6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)),
+     * L2-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)),
      * or null in authored Pets that has not yet been elaborated — elaboration supplies the class's
      * default ([rule
      * T10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults)).
@@ -156,25 +138,34 @@ public sealed class Instruction : InstructionTree() {
     ) {
       val quantifier = authored.quantifier
       if (proposed == NoOp && quantifier == OPTIONAL) return
-      proposed as? Change ?: throw NarrowingException("$this  /  $proposed")
+      proposed as? Change
+          ?: throw NarrowingException("expected a change narrowing of `$this`, found `$proposed`")
       proposed.quantifier!!.ensureNarrows(quantifier!!, info)
-      val proposedCount = proposed.count
-      val authoredCount = authored.count
+      authored.ensureCountIsNarrowedBy(proposed.count, info)
+      authored.gaining?.let { info.ensureSelectionNarrows(it, proposed.gaining!!) }
+      authored.removing?.let { info.ensureSelectionNarrows(it, proposed.removing!!) }
+    }
+
+    internal fun ensureCountIsNarrowedBy(proposedCount: Scalar, info: TypeInfo) {
+      val authoredCount = count
       if (
           quantifier == OPTIONAL && proposedCount is ActualScalar && authoredCount is ActualScalar
       ) {
-        if (proposedCount.value > authoredCount.value) throw NarrowingException("")
+        if (proposedCount.value > authoredCount.value) {
+          throw NarrowingException(
+              "change count `${proposedCount.value}` exceeds optional maximum " +
+                  "`${authoredCount.value}`"
+          )
+        }
       } else {
         proposedCount.ensureNarrows(authoredCount, info)
       }
-      authored.gaining?.let { proposed.gaining!!.ensureNarrows(it, info) }
-      authored.removing?.let { proposed.removing!!.ensureNarrows(it, info) }
     }
   }
 
   /**
    * Says the after-state holds [scaledEx]'s count more of its expression — the `n Foo` form of
-   * [rule L6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions).
+   * [rule L2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions).
    */
   public data class Gain
   public constructor(
@@ -217,7 +208,7 @@ public sealed class Instruction : InstructionTree() {
 
   /**
    * Says the after-state holds [scaledEx]'s count fewer of its expression — the `-n Foo` form of
-   * [rule L6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions).
+   * [rule L2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions).
    */
   @ConsistentCopyVisibility
   public data class Remove
@@ -261,13 +252,13 @@ public sealed class Instruction : InstructionTree() {
   /**
    * Says that [scalar] components of one type have become that many of another — the `n Foo FROM
    * Bar` form of
-   * [rule L6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions).
+   * [rule L2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions).
    * See [FromExpression] for the compact spelling available when both sides share a class ([rule
-   * L6-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * L2-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    *
-   * Because both sides may repeat one abstract expression, narrowing a transmutation must supply a
-   * single consistent value for each shared type variable ([rule
-   * L7-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * Either side may explicitly name a choice used by the other. Narrowing must supply a single
+   * consistent value for each such type variable ([rule
+   * L3-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    */
   public data class Transmute(
       val fromEx: FromExpression,
@@ -291,59 +282,86 @@ public sealed class Instruction : InstructionTree() {
       checkNonzero(count)
     }
 
-    // A transmutation written in full needs parentheses inside an OR, where its bare FROM would
-    // otherwise be ambiguous; rule L6-13 requires rendering to re-insert that grouping.
-    override fun safeToNestIn(container: PetNode): Boolean =
-        super.safeToNestIn(container) && (fromEx !is Full || container !is Or)
-
     override fun precedence(): Int = if (fromEx is Full) 7 else 10
+
+    public companion object {
+      /** Resolves shared named variables across both sides of a constructed transmutation. */
+      public fun resolveTypeVariableNames(transmute: Transmute): Transmute {
+        return dev.martianzoo.pets.ast.resolveTypeVariableNames(
+            transmute,
+            transmute.localTypeVariableDeclarations(),
+        )
+      }
+    }
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       if (proposed == NoOp) {
         ensureChangeIsNarrowedBy(this, proposed, info)
         return
       }
-      proposed as? Transmute ?: throw NarrowingException("$this  /  $proposed")
+      proposed as? Transmute
+          ?: throw NarrowingException(
+              "expected a transmutation narrowing of `$this`, found `$proposed`"
+          )
+      val proposedGain = info.classTable.resolve(proposed.gaining)
+      if (!proposedGain.abstract && proposedGain == info.classTable.resolve(proposed.removing)) {
+        throw NarrowingException("a transmutation must change its type: $proposed")
+      }
+      (fromEx as? Compact)?.ensureRetainedArgumentsAgree(
+          proposed.gaining,
+          proposed.removing,
+          info,
+      )
       val variables = typeVariablesFor(info)
       val selected = mutableMapOf<TypeVariable, GroundType>()
       for (variable in
           variables.variables.filter {
             info.isAbstract(variables.expressionOf(it.declaration))
           }) {
+        val classTable = info.classTable
         val bindings =
-            variables.bindings(gaining, proposed.gaining, variable) +
-                variables.bindings(removing, proposed.removing, variable)
-        val distinct = bindings.distinct()
+            variables.bindings(gaining, proposed.gaining, variable, info, classTable) +
+                variables.bindings(removing, proposed.removing, variable, info, classTable)
+        val declaration = variables.expressionOf(variable.declaration).copy(typeVariableName = null)
+        val distinct =
+            bindings.filter { it.copy(typeVariableName = null) != declaration }.distinct()
         if (distinct.size > 1) {
           throw NarrowingException(
-              "Can't set Type variable $variable differently: ${bindings.toSet()}"
+              "type variable `$variable` has conflicting bindings: `${bindings.toSet()}`"
           )
         }
         distinct.singleOrNull()?.let {
-          selected[variable] = variable.bound.classTable.resolve(it).groundType
+          selected[variable] = classTable.resolve(it).groundType
         }
       }
-      if (selected.isNotEmpty()) {
-        val specialized = variables.bind(selected).transformInstruction(this) as Transmute
-        ensureChangeIsNarrowedBy(specialized, proposed, info)
-        return
-      }
-      ensureChangeIsNarrowedBy(this, proposed, info)
+      val table = info.classTable
+      val scoped = copy().withTypeVariables(variables)
+      val specialized =
+          if (selected.isEmpty()) scoped
+          else variables.bind(selected).transformInstruction(scoped) as Transmute
+      specialized.typeVariables.ensureChoicesRetained(
+          specialized,
+          proposed,
+          info,
+          table,
+          specialized.typeVariables.variables.toSet(),
+      )
+      ensureChangeIsNarrowedBy(specialized, proposed, info)
     }
   }
 
   /**
    * Scales [inner] by the value of [metric] — `Titanium / 3 EarthTag` grants one titanium per three
    * complete Earth tags ([rule
-   * L6-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * L2-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * Only an elementary [Change] may be scaled this way. The metric is not a choice: a proposal must
    * reproduce it exactly ([rule
-   * L7-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * L3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    */
   public data class Per(val inner: Instruction, val metric: Metric) : Instruction() {
     init {
       if (inner !is Change) {
-        throw PetSyntaxException("Per can only contain gain/remove/transmute for now")
+        throw PetSyntaxException("`PER` requires a gain, removal, or transmutation: `$inner`")
       }
     }
 
@@ -356,9 +374,9 @@ public sealed class Instruction : InstructionTree() {
     override fun isAbstract(info: TypeInfo): Boolean = inner.isAbstract(info)
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      proposed as? Per ?: throw NarrowingException("$proposed does not preserve metric $metric")
+      proposed as? Per ?: throw NarrowingException("`$proposed` does not preserve metric `$metric`")
       if (proposed.metric != metric) {
-        throw NarrowingException("can't change the metric")
+        throw NarrowingException("cannot change metric `$metric` to `${proposed.metric}`")
       }
       proposed.inner.ensureNarrows(inner, info)
     }
@@ -368,9 +386,9 @@ public sealed class Instruction : InstructionTree() {
 
   /**
    * Carries out [inner] as the concrete [actor], independently of who narrows the task ([rule
-   * L6-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * L2-15](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * Like a gate or a metric, the actor is not a choice: a proposal must reproduce it exactly ([rule
-   * L7-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * L3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    * Attribution itself is `IDENTITY.md`'s subject.
    */
   public data class By(val inner: Instruction, val actor: Expression) : Instruction() {
@@ -380,7 +398,7 @@ public sealed class Instruction : InstructionTree() {
 
       /**
        * Creates a performer override, distributing it over independent instructions as
-       * [rule L6-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)
+       * [rule L2-15](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)
        * requires: `(A, B) BY Player1` is `A BY Player1, B BY Player1`.
        */
       public fun createTree(inner: InstructionTree, actor: Expression): InstructionTree =
@@ -398,8 +416,11 @@ public sealed class Instruction : InstructionTree() {
         inner.isAbstract(info) || actor.isAbstract(info)
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      proposed as? By ?: throw NarrowingException("$proposed does not preserve performer $actor")
-      if (proposed.actor != actor) throw NarrowingException("can't change performer $actor")
+      proposed as? By
+          ?: throw NarrowingException("`$proposed` does not preserve performer `$actor`")
+      if (proposed.actor != actor) {
+        throw NarrowingException("cannot change performer `$actor` to `${proposed.actor}`")
+      }
       proposed.inner.ensureNarrows(inner, info)
     }
 
@@ -410,10 +431,10 @@ public sealed class Instruction : InstructionTree() {
 
   /**
    * Makes [inner] available only while [gate] holds ([rule
-   * L6-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * L2-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * The gate is not a choice: it decides whether the result is available at all, and a proposal
    * must reproduce it exactly ([rule
-   * L7-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * L3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    * `OR` binds more tightly than a gate, so `3 PlantTag: Plant OR 4 Plant` gates both alternatives;
    * a gate does not directly contain another gate.
    */
@@ -431,7 +452,8 @@ public sealed class Instruction : InstructionTree() {
     }
 
     init {
-      if (inner is Gated) throw PetSyntaxException("You don't gate a gater")
+      if (inner is Gated)
+          throw PetSyntaxException("a gated instruction cannot contain another gate")
     }
 
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(gate, inner)
@@ -441,9 +463,10 @@ public sealed class Instruction : InstructionTree() {
     override fun isAbstract(info: TypeInfo): Boolean = inner.isAbstract(info)
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      proposed as? Gated ?: throw NarrowingException("$proposed does not preserve condition $gate")
+      proposed as? Gated
+          ?: throw NarrowingException("`$proposed` does not preserve condition `$gate`")
       if (proposed.gate != gate) {
-        throw NarrowingException("can't change the condition")
+        throw NarrowingException("cannot change condition `$gate` to `${proposed.gate}`")
       }
       proposed.inner.ensureNarrows(inner, info)
     }
@@ -456,42 +479,33 @@ public sealed class Instruction : InstructionTree() {
   /**
    * Fans [body] out over the components matching [selector] in one World snapshot, producing one
    * independent branch per matching component occurrence present ([rule
-   * L6-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
-   * In a branch, the authored [selector] expression denotes that concrete Type, and when the
-   * selector is an `Owner`, so does the contextual `Owner`, so an ordinary owned body reads exactly
-   * as it does on a card.
+   * L2-14](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
+   * In a branch, a marked [selector] exposes that concrete Type to the body. `Me@Player` explicitly
+   * rebinds lexical ownership; an unmarked selector preserves the enclosing `Me`.
    *
-   * A selector refinement chooses which components take part, without becoming part of the name the
-   * body uses (see [selectorName]). A gate in [body] behaves like any other gate and fails when its
+   * A selector refinement chooses which components take part. An `@` marker exposes the selected
+   * component for use in [body]. A gate in [body] behaves like any other gate and fails when its
    * requirement is unmet. Class properties in [body] are evaluated separately after each branch has
    * bound its selection. The body may not be empty and fanouts do not nest.
    *
    * The body need not name the selected component: the selector may serve only as the repetition
    * source. The selector is not a choice: a proposal must reproduce it exactly ([rule
-   * L7-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * L3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    * How the live world is enumerated, and when, is `EACH.md`'s subject.
    */
   public data class Each(val selector: Expression, val body: InstructionTree) : Instruction() {
     init {
-      if (body == NoOp) throw PetSyntaxException("EACH needs a body")
-      // Nesting would make `Owner` and each selector name ambiguous between two fanouts, and no
+      if (body == NoOp) throw PetSyntaxException("`EACH` requires a non-`Ok` body")
+      // Nesting would make `Anyone` and each selector name ambiguous between two fanouts, and no
       // rule needs it. Banning it keeps one selection in scope at a time.
       if (body.descendantsOfType<Each>().any()) {
-        throw PetSyntaxException("EACH can't contain another EACH")
+        throw PetSyntaxException("`EACH` cannot contain another `EACH`")
       }
     }
 
-    /**
-     * The authored expression a body occurrence must equal in order to denote the selected
-     * component: [selector] without its refinement, since
-     * [rule L6-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)
-     * keeps that filter out of the name the body uses.
-     */
-    public val selectorName: Expression = selector.copy(refinement = null)
-
-    /** The Class name represented by a `Class<T>` selector, when this is a Class fanout. */
-    public val representedSelectorName: Expression? =
-        selectorName.arguments.singleOrNull()?.takeIf { selectorName.className == CLASS }
+    /** Returns this fanout's body with its marked selector occurrences bound to [selected]. */
+    public fun bodyFor(selected: Expression): InstructionTree =
+        selectorReferenceBinder(selector, selected).transformInstructionTree(body)
 
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(selector, body)
 
@@ -500,9 +514,12 @@ public sealed class Instruction : InstructionTree() {
     override fun isAbstract(info: TypeInfo): Boolean = body.isAbstract(info)
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      proposed as? Each ?: throw NarrowingException("$proposed does not preserve `EACH $selector`")
+      proposed as? Each
+          ?: throw NarrowingException("`$proposed` does not preserve `EACH $selector`")
       if (proposed.selector != selector) {
-        throw NarrowingException("can't change the EACH selector")
+        throw NarrowingException(
+            "cannot change `EACH` selector `$selector` to `${proposed.selector}`"
+        )
       }
       proposed.body.ensureNarrows(body, info)
     }
@@ -512,16 +529,16 @@ public sealed class Instruction : InstructionTree() {
 
   /**
    * Says that each stage happens before the next ([rule
-   * L6-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * L2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * The relation is stated between the changes themselves and is right-associative, so `A THEN B
    * THEN C` is one sequence of three stages rather than nested pairs. Every stage before the last
    * must be a single instruction: a group or another sequence on the left is rejected, because
    * "before" needs one identifiable change to be before.
    *
    * A sequence is also the one place independent instructions may share an `X` ([rule
-   * L6-14](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)),
+   * L2-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)),
    * and narrowing must then give every occurrence one consistent value ([rule
-   * L7-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * L3-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    * What waiting means for pending work is `SEQUENCING.md`'s subject.
    */
   @ConsistentCopyVisibility
@@ -543,7 +560,7 @@ public sealed class Instruction : InstructionTree() {
     init {
       require(stages.isNotEmpty())
       if (continuation is Then) {
-        throw PetSyntaxException("Nested THEN continuations must be flattened")
+        throw PetSyntaxException("`THEN` continuation cannot contain another `THEN`")
       }
       // Every left operand must remain one task and cannot itself contain an enqueue sequence.
       if (
@@ -551,7 +568,7 @@ public sealed class Instruction : InstructionTree() {
             it.descendantsOfType<InstructionGroup>().any() || it.descendantsOfType<Then>().any()
           }
       ) {
-        throw PetSyntaxException("THEN left operands cannot contain groups or other THENs")
+        throw PetSyntaxException("`THEN` left operands cannot contain groups or other `THEN`s")
       }
     }
 
@@ -565,7 +582,8 @@ public sealed class Instruction : InstructionTree() {
 
     /** Replaces stages while preserving the authored Type variables carried by this `THEN`. */
     public fun withInstructions(instructions: List<InstructionTree>): Then {
-      val replacement = createTree(instructions) as? Then ?: error("THEN requires two stages")
+      val replacement =
+          createTree(instructions) as? Then ?: error("`THEN` requires at least two stages")
       return replacement.withTypeVariables(typeVariables)
     }
 
@@ -577,20 +595,75 @@ public sealed class Instruction : InstructionTree() {
 
     override fun isAbstract(info: TypeInfo): Boolean = instructions.any { it.isAbstract(info) }
 
-    private val hasSharedX: Lazy<Boolean> = lazy {
+    internal val hasSharedX: Lazy<Boolean> = lazy {
       instructions.count { it.descendantsOfType<XScalar>().isNotEmpty() } >= 2
     }
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      proposed as? Then ?: throw NarrowingException("Can't narrow $this to $proposed")
+      proposed as? Then
+          ?: throw NarrowingException("expected a `THEN` narrowing of `$this`, found `$proposed`")
       if (instructions.size != proposed.instructions.size) {
-        throw NarrowingException("Can't change the number of THEN stages")
+        throw NarrowingException(
+            "`THEN` stage count cannot change from `${instructions.size}` to " +
+                "`${proposed.instructions.size}`"
+        )
+      }
+      val values = narrowingXValues(proposed, info, hasSharedX()).filterNotNull().toSet()
+      if (values.size > 1) throw NarrowingException("`X` has conflicting values: `$values`")
+    }
+
+    private fun narrowingXValues(proposed: Then, info: TypeInfo, sharedX: Boolean): Set<Int?> {
+      fun firstChoice(wide: PetNode, narrow: PetNode): Pair<Or, InstructionTree>? {
+        if (wide is Or) return (narrow as? InstructionTree)?.let { wide to it }
+        if (wide::class != narrow::class) return null
+        return wide.immediateChildren().zip(narrow.immediateChildren()).firstNotNullOfOrNull {
+            (w, n) ->
+          firstChoice(w, n)
+        }
+      }
+      fun replacing(root: Then, target: InstructionTree, replacement: InstructionTree): Then =
+          object : PetTransformer() {
+                override fun transformNode(node: PetNode): PetNode =
+                    if (node === target) replacement else transformChildren(node)
+              }
+              .transformInstruction(root) as Then
+
+      val alternatives = firstChoice(this, proposed)
+      if (alternatives != null) {
+        val (choice, selected) = alternatives
+        val proposals = if (selected is Or) selected.instructions else listOf(selected)
+        return proposals
+            .flatMap { proposal ->
+              val narrower = replacing(proposed, selected, proposal)
+              val accepted =
+                  choice.instructions.flatMap { arm ->
+                    val candidate = replacing(this, choice, arm)
+                    try {
+                      candidate.narrowingXValues(narrower, info, sharedX)
+                    } catch (_: NarrowingException) {
+                      emptySet()
+                    }
+                  }
+              if (accepted.isEmpty())
+                  throw NarrowingException("no `OR` arm preserves this sequence's shared choices")
+              accepted
+            }
+            .toSet()
       }
       val specialized = bindTypeVariablesFrom(proposed, info)
+      val variables = typeVariablesFor(info)
+      val table = info.classTable
+      val live =
+          specialized.typeVariables.variables
+              .filter { variable ->
+                variables.bindings(this, proposed, variable, info, table).isNotEmpty()
+              }
+              .toSet()
+      specialized.typeVariables.ensureChoicesRetained(specialized, proposed, info, table, live)
       for ((wide, narrow) in specialized.instructions.zip(proposed.instructions)) {
         narrow.ensureNarrows(wide, info)
       }
-      if (hasSharedX()) sharedXValue(this, proposed, info)
+      return setOf(if (sharedX) sharedXValue(specialized, proposed, info) else null)
     }
 
     private fun bindTypeVariablesFrom(
@@ -598,8 +671,8 @@ public sealed class Instruction : InstructionTree() {
         info: TypeInfo,
         fallback: PetTransformer? = null,
     ): Then {
-      var specialized = this
       val variables = typeVariablesFor(info)
+      val captures = mutableMapOf<TypeVariable, GroundType>()
       for (variable in
           variables.variables.filter {
             info.isAbstract(variables.expressionOf(it.declaration))
@@ -607,64 +680,58 @@ public sealed class Instruction : InstructionTree() {
         val declaration = variables.expressionOf(variable.declaration)
         val bindings =
             variables
-                .bindings(this, proposed, variable)
+                .bindings(
+                    this,
+                    proposed,
+                    variable,
+                    info,
+                    info.classTable,
+                )
                 .filter {
-                  it != declaration && narrowsExpression(it, declaration, info)
+                  !sameAfterNameConsumption(it, declaration)
                 }
                 .distinct()
         if (bindings.size > 1) {
-          throw NarrowingException("Can't bind Type variable $variable differently: $bindings")
+          throw NarrowingException(
+              "type variable `$variable` has conflicting bindings: `$bindings`"
+          )
         }
+        val lowered = fallback?.transformExpression(declaration)?.takeIf { it != declaration }
         val binding =
-            bindings.singleOrNull()
-                ?: fallback
-                    ?.takeIf { bindings.isEmpty() }
-                    ?.transformExpression(declaration)
-                    ?.takeIf { it != declaration }
+            lowered?.takeIf { candidate -> bindings.all { candidate.narrows(it, info) } }
+                ?: bindings.singleOrNull()
         binding?.let {
-          val captured =
-              ((info as? GameReader)?.resolve(binding)
-                      ?: variable.bound.classTable.resolve(binding))
-                  .groundType
-          val transformed =
-              variables
-                  .bind(
-                      mapOf(variable to captured),
-                      (info as? GameReader)?.classTable ?: captured.classTable,
-                  )
-                  .transformInstruction(specialized)
-          specialized =
-              transformed as? Then ?: error("expression replacement changed THEN into $transformed")
+          val captured = info.classTable.resolve(binding).groundType
+          captures[variable] = captured
         }
       }
-      return specialized
+      val scoped = withParts(stages, continuation).withTypeVariables(variables)
+      if (captures.isEmpty()) return scoped
+      val transformer =
+          variables.bind(
+              captures,
+              info.classTable,
+          )
+      for ((variable, captured) in captures) {
+        if (!captured.abstract) {
+          val constraint =
+              transformer.transformExpression(
+                  variables.expressionOf(variable.declaration).copy(typeVariableName = null)
+              )
+          captured.expression.ensureNarrows(constraint, info)
+        }
+      }
+      return transformer.transformInstruction(scoped) as Then
     }
 
-    private fun narrowsExpression(
-        narrow: Expression,
-        wide: Expression,
-        info: TypeInfo,
-    ): Boolean = narrow.narrows(wide, info)
+    private fun sameAfterNameConsumption(left: Expression, right: Expression): Boolean =
+        left.copy(typeVariableName = null) == right.copy(typeVariableName = null)
 
-    /** Narrows the first stage and carries every shared choice into later stages. */
-    public fun bindFirstStage(
-        proposed: Instruction,
-        info: TypeInfo,
-        loweredBinding: PetTransformer? = null,
-    ): Then = replaceFirstStage(proposed, info, loweredBinding, requireBinding = true)
-
-    /** Selects and narrows the first stage, including when no cross-stage type is specialized. */
+    /** Selects the first stage after every shared Type it uses has been chosen. */
     public fun selectFirstStage(
         proposed: Instruction,
         info: TypeInfo,
         loweredBinding: PetTransformer? = null,
-    ): Then = replaceFirstStage(proposed, info, loweredBinding, requireBinding = false)
-
-    private fun replaceFirstStage(
-        proposed: Instruction,
-        info: TypeInfo,
-        loweredBinding: PetTransformer?,
-        requireBinding: Boolean,
     ): Then {
       val firstStage = first
       val selectableFirst =
@@ -673,66 +740,51 @@ public sealed class Instruction : InstructionTree() {
           } else {
             firstStage
           }
-      proposed.ensureNarrows(selectableFirst, info)
-      val partial = withParts(listOf(proposed) + stages.drop(1), continuation)
-      val variables = typeVariablesFor(info)
-      val authoredBinding =
-          PetTransformer.chain(
-              variables.variables.mapNotNull { variable ->
-                val declaration = variables.expressionOf(variable.declaration)
-                if (
-                    loweredBinding != null &&
-                        loweredBinding.transformExpression(declaration) != declaration
-                ) {
-                  return@mapNotNull null
-                }
-                val positionalBindings =
-                    variables
-                        .bindings(selectableFirst, proposed, variable)
-                        .filter { it != declaration && narrowsExpression(it, declaration, info) }
-                        .map { expression ->
-                          ((info as? GameReader)?.resolve(expression)
-                                  ?: variable.bound.classTable.resolve(expression))
-                              .groundType
-                        }
-                        .distinct()
-                val bindings = positionalBindings.ifEmpty {
-                  variables.bindingsIn(proposed, variable, info)
-                }
-                if (bindings.size > 1) {
-                  throw NarrowingException(
-                      "Can't bind Type variable $variable differently: ${bindings.toSet()}"
-                  )
-                }
-                bindings.singleOrNull()?.let { binding ->
-                  variables.bind(
-                      mapOf(variable to binding),
-                      (info as? GameReader)?.classTable ?: binding.classTable,
-                  )
-                }
-              }
-          )
-      val selectionBinding = PetTransformer.chain(loweredBinding, authoredBinding)
-      val selectedFirstStage = selectionBinding.transformInstruction(firstStage)
-      if (selectedFirstStage is Gated && !info.has(selectedFirstStage.gate)) {
-        throw NarrowingException("Condition is not met: ${selectedFirstStage.gate}")
+      if (
+          proposed.descendantsOfType<Then>().isNotEmpty() ||
+              proposed.descendantsOfType<InstructionGroup>().isNotEmpty()
+      ) {
+        throw NarrowingException("a first-stage selection cannot contain a sequence or group")
       }
-      val specialized =
-          bindTypeVariablesFrom(
-              partial,
-              info,
-              selectionBinding,
-          )
-      val selectedX = if (hasSharedX()) sharedXValue(first, proposed, info) else null
+      val proposedFirst = if (firstStage is Gated) firstStage.copy(inner = proposed) else proposed
+      val partial = withParts(listOf(proposedFirst) + stages.drop(1), continuation)
+      val specialized = bindTypeVariablesFrom(partial, info, loweredBinding)
+      val selectedFirstStage = specialized.first
+      val selectable =
+          if (selectedFirstStage is Gated) selectedFirstStage.inner else selectedFirstStage
+      proposed.ensureNarrows(selectable, info)
+      if (selectedFirstStage is Gated && !info.has(selectedFirstStage.gate)) {
+        throw NarrowingException("condition is not met: `${selectedFirstStage.gate}`")
+      }
+      val selectedX = if (hasSharedX()) sharedXValue(selectableFirst, proposed, info) else null
       val fullySpecialized =
           selectedX?.let { bindXTo(it).transformInstruction(specialized) as Then } ?: specialized
-      if (requireBinding && fullySpecialized == this) {
-        throw NarrowingException("The first stage does not bind this THEN's Type variable")
-      }
-      return fullySpecialized.withParts(
-          listOf(proposed) + fullySpecialized.stages.drop(1),
-          fullySpecialized.continuation,
+      val variables = typeVariablesFor(info)
+      val table = info.classTable
+      val live =
+          variables.variables
+              .filter { variable ->
+                variables.bindings(this, partial, variable, info, table).isNotEmpty()
+              }
+              .toSet()
+      fullySpecialized.typeVariables.ensureChoicesRetained(
+          fullySpecialized,
+          partial,
+          info,
+          table,
+          live,
       )
+      val selected =
+          fullySpecialized
+              .withParts(
+                  listOf(proposed) + fullySpecialized.stages.drop(1),
+                  fullySpecialized.continuation,
+              )
+              .withTypeVariables(fullySpecialized.typeVariables.retaining(live))
+      if (selected.mustRemainOneTask(info::isAbstract)) {
+        throw NarrowingException("first stage still uses an unsettled shared choice")
+      }
+      return selected
     }
 
     private fun sharedXValue(
@@ -774,6 +826,7 @@ public sealed class Instruction : InstructionTree() {
           }
         }
         if (wideNode is XScalar) {
+          if (narrowNode == wideNode) return unbound
           val narrowScalar = narrowNode as? ActualScalar ?: return emptySet()
           if (narrowScalar.value % wideNode.multiple != 0) return emptySet()
           return setOf(narrowScalar.value / wideNode.multiple)
@@ -789,26 +842,39 @@ public sealed class Instruction : InstructionTree() {
       }
 
       val xValues = bindings(wide, narrow)
-      if (xValues.isEmpty()) throw NarrowingException("Can't match X occurrences in $narrow")
+      if (xValues.isEmpty()) {
+        throw NarrowingException("cannot match `X` occurrences in `$narrow`")
+      }
       val concreteValues = xValues.filterNotNull()
+      if (concreteValues.isNotEmpty() && narrow.descendantsOfType<XScalar>().isNotEmpty()) {
+        throw NarrowingException("a bound `X` must be substituted at every occurrence in `$narrow`")
+      }
       if (concreteValues.size > 1) {
-        throw NarrowingException("Can't set different values for X: $concreteValues")
+        throw NarrowingException("`X` has conflicting values: `$concreteValues`")
       }
       return concreteValues.singleOrNull()
     }
 
     /** Whether task admission must retain this complete sequence as one pending instruction. */
     public fun mustRemainOneTask(isAbstract: ((Expression) -> Boolean)?): Boolean =
-        hasSharedX() ||
+        (hasSharedX() && first.descendantsOfType<XScalar>().isNotEmpty()) ||
             isAbstract?.let { check ->
               typeVariables.variables.any { variable ->
-                check(typeVariables.expressionOf(variable.declaration))
+                first.descendantsOfType<Expression>().any {
+                  typeVariables.variableAt(it) === variable
+                } && check(typeVariables.expressionOf(variable.declaration))
               }
             } == true
 
     /** Returns the right-associated continuation enqueued after the first stage. */
-    public fun continuationAfterFirst(): InstructionGroup =
-        InstructionGroup.of(createTree(stages.drop(1) + continuation))
+    public fun continuationAfterFirst(): InstructionGroup {
+      val expander = typeVariables.expandNames()
+      val remaining = expander.transformInstructionTree(createTree(stages.drop(1) + continuation))
+      return InstructionGroup.of(
+          if (remaining == NoOp) remaining
+          else remaining.withTypeVariables(typeVariables.transformedBy(expander))
+      )
+    }
 
     override fun toString(): String = instructions.joinToString(" THEN ") { groupPartIfNeeded(it) }
 
@@ -829,27 +895,69 @@ public sealed class Instruction : InstructionTree() {
                   else -> {
                     val leading =
                         stages.dropLast(1).map { stage ->
-                          stage as? Instruction ?: throw PetSyntaxException("Bad THEN")
+                          stage as? Instruction
+                              ?: throw PetSyntaxException(
+                                  "`THEN` left stage must be one instruction: `$stage`"
+                              )
                         }
                     Then(leading, stages.last())
                   }
                 }
               }
+
+      /** Resolves shared named variables after the complete sequence has been constructed. */
+      public fun resolveTypeVariableNames(then: Then): Then {
+        val declarations = then.localTypeVariableDeclarations()
+        then.descendantsOfType<Transmute>().forEach { transmute ->
+          transmute.localTypeVariableDeclarations().forEach { declaration ->
+            val identity = declaration.typeVariableName!!.identity
+            fun usedOutside(node: PetNode): Boolean {
+              if (node === transmute) return false
+              if (
+                  node is Transmute &&
+                      node.localTypeVariableDeclarations().any {
+                        it.typeVariableName!!.identity == identity
+                      }
+              ) {
+                return false
+              }
+              if (
+                  node is Expression &&
+                      node.typeVariableName !is Expression.TypeVariableName.Declaration &&
+                      node.typeVariableName?.identity == identity
+              ) {
+                return true
+              }
+              return node.immediateChildren().any(::usedOutside)
+            }
+            if (usedOutside(then)) {
+              throw PetSyntaxException(
+                  "type variable `${declaration.typeVariableName!!.authoredSpelling}` cannot be used outside " +
+                      "its transmutation"
+              )
+            }
+          }
+        }
+        return dev.martianzoo.pets.ast.resolveTypeVariableNames(
+            then,
+            declarations,
+        )
+      }
     }
   }
 
   /**
    * Offers a choice among [instructions] ([rule
-   * L6-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * L2-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * The parser rejects duplicate authored alternatives. Construction and rewriting collapse arms
    * that have become equal; a single remaining outcome is returned without an `Or` wrapper.
    *
    * An `OR` that remains is always abstract ([rule
-   * L7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * L3-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    * It is also one of only two exceptions to a narrowing preserving node shape — the other being
    * [NoOp] narrowing an optional change: any instruction narrows an `OR` by narrowing one arm,
-   * while a proposed `OR` narrows it only when every arm does ([rules L7-2 and
-   * L7-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * while a proposed `OR` narrows it only when every arm does ([rules L3-2 and
+   * L3-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    */
   @ConsistentCopyVisibility
   public data class Or internal constructor(val instructions: List<InstructionTree>) :
@@ -857,7 +965,7 @@ public sealed class Instruction : InstructionTree() {
     init {
       require(instructions.size >= 2)
       if (instructions.distinct().size != instructions.size) {
-        throw PetSyntaxException("duplicates")
+        throw PetSyntaxException("duplicate `OR` alternatives: `$instructions`")
       }
     }
 
@@ -888,7 +996,7 @@ public sealed class Instruction : InstructionTree() {
         }
       }
       throw NarrowingException(
-          "Instruction `$proposed` doesn't narrow any arm of `$this`:\n$messages",
+          "instruction `$proposed` does not narrow any arm of `$this`:\n$messages",
       )
     }
 
@@ -901,7 +1009,7 @@ public sealed class Instruction : InstructionTree() {
        *
        * This collapses duplicate alternatives rather than rejecting them; it is the parser that
        * enforces
-       * [rule L6-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)'s
+       * [rule L2-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)'s
        * rejection of a duplicate an author actually wrote.
        */
       public fun create(instructions: Collection<Instruction>): Instruction {
@@ -917,7 +1025,7 @@ public sealed class Instruction : InstructionTree() {
       /**
        * Creates an OR while preserving any grouped options produced by preprocessing. Like
        * [create], this collapses duplicate alternatives rather than applying
-       * [rule L6-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)'s
+       * [rule L2-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)'s
        * rejection.
        */
       public fun createTree(instructions: Collection<InstructionTree>): InstructionTree {
@@ -937,10 +1045,10 @@ public sealed class Instruction : InstructionTree() {
 
   /**
    * An [instruction] marked for rewriting by the handler named by [transformKind] ([rule
-   * L10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks)).
+   * L8-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-transform-blocks)).
    * A handler rewrites only inside its own block and must return the same kind of Pets; a block
    * expanding into several independent instructions splices into the surrounding group ([rule
-   * L10-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks)).
+   * L8-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-transform-blocks)).
    * Every other operation here rejects a transform that survived to it.
    */
   public data class Transform(
@@ -952,10 +1060,10 @@ public sealed class Instruction : InstructionTree() {
     override fun scale(factor: Int): Instruction = copy(instruction = instruction * factor)
 
     override fun isAbstract(info: TypeInfo): Boolean =
-        throw ExpressionException("unhandled instruction transform: $this")
+        throw ExpressionException("unhandled instruction transform: `$this`")
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo): Unit =
-        throw ExpressionException("unhandled instruction transform: $this")
+        throw ExpressionException("unhandled instruction transform: `$this`")
 
     override fun toString(): String = "$transformKind[$instruction]"
 
@@ -964,10 +1072,10 @@ public sealed class Instruction : InstructionTree() {
 
   /**
    * How much of a [Change]'s count must actually happen ([rule
-   * L6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * L2-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * Only [OPTIONAL] leaves anything open; [MANDATORY] and [AMAP] are incompatible with each other,
    * so neither narrows to the other ([rule
-   * L7-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * L3-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    */
   public enum class Quantifier(public val symbol: String, public val abstract: Boolean = false) :
       Specification<Quantifier> {
@@ -988,92 +1096,12 @@ public sealed class Instruction : InstructionTree() {
 
     override fun ensureNarrows(that: Quantifier, info: TypeInfo) {
       if (that != this && that != OPTIONAL) {
-        throw NarrowingException("")
+        throw NarrowingException("quantifier `${this.symbol}` does not narrow `${that.symbol}`")
       }
     }
 
     private companion object {
       private fun from(symbol: String) = entries.first { it.symbol == symbol }
-    }
-  }
-
-  private object Parsers : PetTokenizer() {
-    internal fun parser(): Parser<InstructionTree> {
-      return parser {
-        val gain: Parser<Instruction> =
-            ScaledExpression.parser() and
-                optional(quantifier) map
-                { (ste, int) ->
-                  Gain.gain(ste, int)
-                }
-
-        val remove: Parser<Instruction> =
-            skipChar('-') and
-                ScaledExpression.parser() and
-                optional(quantifier) map
-                { (ste, int) ->
-                  Remove.remove(ste, int)
-                }
-
-        val transmute: Parser<Transmute> =
-            optional(ScaledExpression.scalar()) and
-                FromExpression.parser() and
-                optional(quantifier) map
-                { (scalar, fro, int) ->
-                  Transmute(fro, scalar ?: ActualScalar(1), int)
-                }
-
-        val perable: Parser<Instruction> = transmute or group(transmute) or gain or remove
-
-        val maybePer: Parser<Instruction> =
-            perable and
-                optional(skipChar('/') and Metric.subtractionParser()) map
-                { (instr, metric) ->
-                  if (metric == null) instr else Per(instr, metric)
-                }
-
-        val transform: Parser<Transform> =
-            transform(parser()) map { (node, tname) -> Transform(node, tname) }
-
-        val maybeTransform: Parser<InstructionTree> = transform or maybePer
-
-        val each: Parser<Instruction> =
-            skip(_each) and
-                Expression.parser(allowDerivedClass = false) and
-                skipChar('{') and
-                parser() and
-                skipChar('}') map
-                { (selector, body) ->
-                  Each(selector, body)
-                }
-
-        val atomBase: Parser<InstructionTree> = each or maybeTransform or group(parser())
-
-        val atom: Parser<InstructionTree> =
-            atomBase and
-                optional(skip(_by) and Expression.parser()) map
-                { (instruction, actor) ->
-                  if (actor == null) instruction else By.createTree(instruction, actor)
-                }
-
-        val orInstr: Parser<InstructionTree> =
-            separatedTerms(atom, _or) map
-                {
-                  val set = it.toSetStrict().toList()
-                  Or.createTree(set)
-                }
-
-        val gated: Parser<InstructionTree> =
-            optional(Requirement.atomParser() and skipChar(':')) and
-                orInstr map
-                { (gate, ins) ->
-                  Gated.createTree(gate, ins)
-                }
-
-        val then = separatedTerms(gated, _then) map { Then.createTree(it) }
-
-        commaSeparated(then) map { InstructionGroup.createTree(it) }
-      }
     }
   }
 }

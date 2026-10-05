@@ -1,6 +1,6 @@
 package dev.martianzoo.pets
 
-import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Instruction
@@ -12,10 +12,10 @@ import dev.martianzoo.pets.ast.TransformNode
 
 /**
  * Rewrites the contents of one explicitly marked Pets transform block, as defined by
- * [section 10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks).
+ * [section 8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-transform-blocks).
  * A handler rewrites only inside its own block, and what it returns must be the same kind of Pets
  * it was given ([rule
- * L10-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks)).
+ * L8-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-transform-blocks)).
  */
 public fun interface TransformHandler {
   /** Returns a replacement for the unwrapped [inner] tree, or null to preserve the transform. */
@@ -24,10 +24,10 @@ public fun interface TransformHandler {
   public companion object {
     /**
      * Creates a transformer that dispatches marked syntax to [handlers] by transform kind ([rule
-     * L10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks)).
+     * L8-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-transform-blocks)).
      * Kinds absent from [handlers] are left in place for a later pass; that a Catalog defines every
      * kind its source uses is checked once, at load ([rule
-     * L10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks)).
+     * L8-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-transform-blocks)).
      */
     public fun dispatcher(handlers: Map<String, TransformHandler>): PetTransformer =
         Dispatcher(handlers)
@@ -42,17 +42,23 @@ public fun interface TransformHandler {
       val kind = node.transformKind
       // One pass need not claim every kind: a Catalog may dispatch `CARDS` while assembling
       // declarations and `PROD` only once a class table exists. A kind no *Catalog* handler claims
-      // is rejected when the declaration is loaded (rule L10-2), not here.
+      // is rejected when the declaration is loaded (rule L8-2), not here.
       val handler = handlers[kind] ?: return transformChildren(node)
-      // Rule L10-5: the syntax admits PROD[PROD[...]], but a second mark could only mean what the
+      // Rule L8-5: the syntax admits PROD[PROD[...]], but a second mark could only mean what the
       // first already means, so the handler for that kind rejects it.
-      if (!activeKinds.add(kind)) throw PetSyntaxException("$kind transforms cannot be nested")
+      if (!activeKinds.add(kind)) {
+        throw ExpressionException(
+            "`$kind` transforms cannot be nested",
+            sourceLocation = node.sourceLocation,
+        )
+      }
       return try {
         val inner = transformWithoutKindCheck(node.extract())
         val replacement = handler.transform(inner) ?: return rewrap(node, inner, kind)
         if (!accepts(node, replacement)) {
-          throw PetSyntaxException(
-              "$kind handler returned ${replacement.kind.simpleName} for ${inner.kind.simpleName}"
+          throw IllegalStateException(
+              "`$kind` handler returned `${replacement.kind.simpleName}` for " +
+                  "`${inner.kind.simpleName}`"
           )
         }
         transformWithoutKindCheck(replacement)
@@ -78,7 +84,7 @@ public fun interface TransformHandler {
           is Metric.Transform -> TransformNode.wrap(inner as Metric, kind)
           is Requirement.Transform -> TransformNode.wrap(inner as Requirement, kind)
           is Trigger.Transform -> TransformNode.wrap(inner as Trigger, kind)
-          else -> error("Unknown transform node: $zone")
+          else -> error("unknown transform node: `$zone`")
         }
   }
 }

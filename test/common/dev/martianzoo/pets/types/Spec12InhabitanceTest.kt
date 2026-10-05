@@ -2,27 +2,28 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.GamePremise
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 import kotlin.test.assertSame
 
 /** Section 12 of `docs/type-system-spec.md`: game universes and Type inhabitance. */
 internal class Spec12InhabitanceTest {
 
-  /** A Catalog with two known milestones and a game view containing one of them. */
-  private val catalog =
-      testCatalog(
+  /** A master with two known milestones and a game view containing one of them. */
+  private val master =
+      loadTypes(
           """
           CLASS Player1 : Owner
-          ABSTRACT CLASS Milestone : Owned<Owner> {
+          ABSTRACT CLASS Milestone : Owned {
             CLASS Gardener
             CLASS Terraformer
           }
@@ -31,9 +32,7 @@ internal class Spec12InhabitanceTest {
               .trimIndent()
       )
 
-  private val master = catalog.classTable
-
-  private val view = gameView(catalog, "Player1", "Gardener", "ClaimMilestoneAction")
+  private val view = gameView(master, "Player1", "Gardener", "ClaimMilestoneAction")
 
   // T12-1 Known and unknown names
 
@@ -63,8 +62,21 @@ internal class Spec12InhabitanceTest {
   @Test
   internal fun `T12-2 a view shares the master's classes and types`() {
     (view.getClass(cn("Gardener")) === master.getClass(cn("Gardener"))) shouldBe true
-    (view.resolve(te("Gardener")) === master.resolve(te("Gardener"))) shouldBe true
+    view.resolve(te("Gardener")) shouldBe master.resolve(te("Gardener"))
+    master.knows(view.resolve(te("Gardener"))) shouldBe true
     view.knows(master.resolve(te("Gardener"))) shouldBe true
+  }
+
+  @Test
+  internal fun `T12-2 premises share compiled Classes but own their selected domains`() {
+    val otherView = gameView(master, "Player1", "Terraformer", "ClaimMilestoneAction")
+
+    assertSame(master.getClass(cn("Milestone")), view.getClass(cn("Milestone")))
+    assertSame(master.getClass(cn("Milestone")), otherView.getClass(cn("Milestone")))
+    view.isInhabited(cn("Gardener")) shouldBe true
+    otherView.isInhabited(cn("Gardener")) shouldBe false
+    view.isInhabited(cn("Terraformer")) shouldBe false
+    otherView.isInhabited(cn("Terraformer")) shouldBe true
   }
 
   @Test
@@ -76,17 +88,13 @@ internal class Spec12InhabitanceTest {
 
   @Test
   internal fun `T12-2 master Types retain equality in an interpreting view`() {
-    val catalog = testCatalog("CLASS MasterLeaf")
-    val master = catalog.classTable
+    val master = loadTypes("CLASS MasterLeaf")
+
     val view =
-        GamePremise(
-                catalog = catalog,
-                modules = emptySet(),
-                classSelections = emptySet(),
-                initialComponentTypes = emptySet(),
-                premiseClassDeclarations = parseClasses("CLASS LocalLeaf").toSet(),
-            )
-            .classTable
+        ClassLoader.forPremise(
+            premiseTable = PremiseClassTable(master, parseClasses("CLASS LocalLeaf").toSet()),
+            roots = emptySet(),
+        )
     val masterType = master.resolve(te("Component(NOT MasterLeaf)"))
     val viewType = view.resolve(te("Component(NOT MasterLeaf)"))
 
@@ -97,8 +105,8 @@ internal class Spec12InhabitanceTest {
 
   @Test
   internal fun `T12-2 premise Classes extend the shared master universe`() {
-    val catalog =
-        testCatalog(
+    val master =
+        loadTypes(
             """
             ABSTRACT CLASS Player
             ABSTRACT CLASS Feature
@@ -107,38 +115,39 @@ internal class Spec12InhabitanceTest {
             """
                 .trimIndent()
         )
-    val master = catalog.classTable
-    val premise =
-        GamePremise(
-            catalog = catalog,
-            modules = emptySet(),
-            classSelections = setOf(ClassSelection(cn("LocalFeature"))),
-            initialComponentTypes = emptySet(),
-            playerNames = listOf(cn("Player1")),
-            premiseClassDeclarations =
-                parseClasses(
-                        """
-                        CLASS Player1 : Player
-                        CLASS LocalFeature : Feature
-                        CLASS UnselectedFeature : UnselectedBase
-                        CLASS LocalRoot
-                        """
-                            .trimIndent()
-                    )
-                    .toSet(),
-        )
-    val view = premise.classTable
 
+    val premiseDeclarations =
+        PremiseClassTable(
+            master,
+            parseClasses(
+                    """
+                    CLASS Player1 : Player
+                    CLASS LocalFeature : Feature
+                    CLASS UnselectedFeature : UnselectedBase
+                    CLASS LocalRoot
+                    """
+                        .trimIndent()
+                )
+                .toSet(),
+        )
+    val view =
+        ClassLoader.forPremise(
+            premiseTable = premiseDeclarations,
+            roots = setOf(cn("LocalFeature"), cn("Player1")),
+        )
+
+    assertSame(master, premiseDeclarations.master)
     master.findClass(cn("LocalFeature")) shouldBe null
     assertSame(master.getClass(cn("Holder")), view.getClass(cn("Holder")))
     view.getClass(cn("LocalFeature")).isSubtypeOf(master.getClass(cn("Feature"))) shouldBe true
     view.resolve(te("Holder<LocalFeature>")).classTable shouldBe view
-    view.allSubclasses(master.getClass(cn("Feature"))).map { it.className } shouldContainExactly
-        listOf(cn("Feature"), cn("LocalFeature"))
+    view.allSubclasses(master.getClass(cn("Feature"))).map {
+      it.className
+    } shouldContainExactlyInAnyOrder listOf(cn("Feature"), cn("LocalFeature"))
     val masterPlayer = master.getClass(cn("Player"))
     master.allSubclasses(masterPlayer).map { it.className } shouldContainExactly
         listOf(cn("Player"))
-    view.allSubclasses(masterPlayer).map { it.className } shouldContainExactly
+    view.allSubclasses(masterPlayer).map { it.className } shouldContainExactlyInAnyOrder
         listOf(cn("Player"), cn("Player1"))
     view.directSubclasses(masterPlayer).map { it.className } shouldContainExactly
         listOf(cn("Player1"))
@@ -151,13 +160,28 @@ internal class Spec12InhabitanceTest {
     view.findClass(cn("UnselectedFeature")) shouldNotBe null
     view.isInhabited(cn("UnselectedFeature")) shouldBe false
     view.isInhabited(cn("UnselectedBase")) shouldBe false
-    premise.premiseClassTable.isSubtypeOf(cn("LocalRoot"), COMPONENT) shouldBe true
+    premiseDeclarations.isSubtypeOf(cn("LocalRoot"), COMPONENT) shouldBe true
+    view.getClass(cn("LocalRoot")).isSubtypeOf(view.componentClass) shouldBe true
+  }
+
+  @Test
+  internal fun `T12-2 master dependencies validate premise-local targets`() {
+    val master = loadTypes("ABSTRACT CLASS Target\nCLASS Holder<Target>")
+    val view =
+        ClassLoader.forPremise(
+            premiseTable =
+                PremiseClassTable(master, parseClasses("CLASS LocalTarget : Target").toSet()),
+            roots = setOf(cn("Holder"), cn("LocalTarget")),
+        )
+
+    shouldThrow<InvalidPetDefinitionException> { view.componentLimits }.message shouldContain
+        "`Holder` -> `LocalTarget`"
   }
 
   @Test
   internal fun `T12-2 glb is relative to the table interpreting the classes`() {
-    val catalog =
-        testCatalog(
+    val master =
+        loadTypes(
             """
             ABSTRACT CLASS Left
             ABSTRACT CLASS Right
@@ -166,15 +190,12 @@ internal class Spec12InhabitanceTest {
             """
                 .trimIndent()
         )
-    val master = catalog.classTable
+
     val view =
-        GamePremise(
-                catalog = catalog,
-                modules = emptySet(),
-                classSelections =
-                    setOf(ClassSelection(cn("LocalBoth")), ClassSelection(cn("LocalOnly"))),
-                initialComponentTypes = emptySet(),
-                premiseClassDeclarations =
+        ClassLoader.forPremise(
+            premiseTable =
+                PremiseClassTable(
+                    master,
                     parseClasses(
                             """
                             ABSTRACT CLASS LocalBoth : Left, Right
@@ -183,8 +204,9 @@ internal class Spec12InhabitanceTest {
                                 .trimIndent()
                         )
                         .toSet(),
-            )
-            .classTable
+                ),
+            roots = setOf(cn("LocalBoth"), cn("LocalOnly")),
+        )
     val left = master.getClass(cn("Left"))
     val right = master.getClass(cn("Right"))
     val third = master.getClass(cn("Third"))
@@ -200,67 +222,56 @@ internal class Spec12InhabitanceTest {
 
   @Test
   internal fun `T12-2 premise class names cannot replace master classes`() {
-    val catalog = testCatalog("CLASS Existing")
+    val master = loadTypes("CLASS Existing")
 
-    shouldThrowIae {
-      GamePremise(
-          catalog = catalog,
-          modules = emptySet(),
-          classSelections = emptySet(),
-          initialComponentTypes = emptySet(),
-          premiseClassDeclarations = parseClasses("CLASS Existing").toSet(),
+    shouldThrow<InvalidGameConfigException> {
+      ClassLoader.forPremise(
+          premiseTable = PremiseClassTable(master, parseClasses("CLASS Existing").toSet()),
+          roots = emptySet(),
       )
     }
   }
 
   @Test
   internal fun `T12-2 premise declarations cannot add broad Signal subscriptions`() {
-    val catalog = testCatalog("CLASS Result")
+    val master = loadTypes("CLASS Result")
 
-    shouldThrow<PetException> {
-      GamePremise(
-              catalog = catalog,
-              modules = emptySet(),
-              classSelections = emptySet(),
-              initialComponentTypes = emptySet(),
-              premiseClassDeclarations =
+    shouldThrow<InvalidPetDefinitionException> {
+      ClassLoader.forPremise(
+          premiseTable =
+              PremiseClassTable(
+                  master,
                   parseClasses("CLASS LocalListener { Signal(NOT Ok): Result }").toSet(),
-          )
-          .classTable
+              ),
+          roots = emptySet(),
+      )
     }
   }
 
   @Test
   internal fun `T12-2 premise declarations cannot add Signal dependency targets`() {
-    val catalog = testCatalog("CLASS Result")
+    val master = loadTypes("CLASS Result")
 
-    shouldThrow<PetException> {
-      GamePremise(
-              catalog = catalog,
-              modules = emptySet(),
-              classSelections = emptySet(),
-              initialComponentTypes = emptySet(),
-              premiseClassDeclarations = parseClasses("ABSTRACT CLASS Local<Signal>").toSet(),
-          )
-          .classTable
+    shouldThrow<InvalidPetDefinitionException> {
+      ClassLoader.forPremise(
+          premiseTable =
+              PremiseClassTable(master, parseClasses("ABSTRACT CLASS Local<Signal>").toSet()),
+          roots = emptySet(),
+      )
     }
   }
 
   @Test
   internal fun `T12-2 sibling premise class tables are distinct universes`() {
-    val catalog = testCatalog("ABSTRACT CLASS Feature\nCLASS Holder<Feature>")
+    val master = loadTypes("ABSTRACT CLASS Feature\nCLASS Holder<Feature>")
     val declaration = parseClasses("CLASS LocalFeature : Feature").toSet()
-    fun projection(): ClassTable =
-        GamePremise(
-                catalog = catalog,
-                modules = emptySet(),
-                classSelections = setOf(ClassSelection(cn("LocalFeature"))),
-                initialComponentTypes = emptySet(),
-                premiseClassDeclarations = declaration,
-            )
-            .classTable
-    val left = projection()
-    val right = projection()
+    fun gameView(): ClassTable =
+        ClassLoader.forPremise(
+            premiseTable = PremiseClassTable(master, declaration),
+            roots = setOf(cn("LocalFeature")),
+        )
+    val left = gameView()
+    val right = gameView()
 
     left.getClass(cn("LocalFeature")) shouldNotBe right.getClass(cn("LocalFeature"))
     shouldThrowIae {
@@ -278,9 +289,10 @@ internal class Spec12InhabitanceTest {
 
   @Test
   internal fun `T12-3 subclass enumeration follows the premise closure`() {
-    master.allSubclasses(master.getClass(cn("Milestone"))).map { "$it" } shouldContainExactly
-        listOf("Gardener", "Terraformer", "Milestone")
-    view.allSubclasses(view.getClass(cn("Milestone"))).map { "$it" } shouldContainExactly
+    master.allSubclasses(master.getClass(cn("Milestone"))).map {
+      "$it"
+    } shouldContainExactlyInAnyOrder listOf("Gardener", "Terraformer", "Milestone")
+    view.allSubclasses(view.getClass(cn("Milestone"))).map { "$it" } shouldContainExactlyInAnyOrder
         listOf("Gardener", "Milestone")
     view.directSubclasses(view.getClass(cn("Milestone"))).map { "$it" } shouldContainExactly
         listOf("Gardener")
@@ -291,7 +303,7 @@ internal class Spec12InhabitanceTest {
     master
         .allConcreteSubtypes(master.resolve(te("Milestone")))
         .map { "$it" }
-        .toList() shouldContainExactly listOf("Gardener<Player1>", "Terraformer<Player1>")
+        .toList() shouldContainExactlyInAnyOrder listOf("Gardener<Player1>", "Terraformer<Player1>")
     view
         .allConcreteSubtypes(view.resolve(te("Milestone")))
         .map { "$it" }
@@ -329,8 +341,8 @@ internal class Spec12InhabitanceTest {
 
   @Test
   internal fun `T12-4 abstract and dependent Types can have empty concrete domains`() {
-    val catalog = testCatalog("ABSTRACT CLASS Empty\nCLASS Holder<Empty>\nCLASS Live")
-    val view = gameView(catalog, "Empty", "Holder", "Live")
+    val master = loadTypes("ABSTRACT CLASS Empty\nCLASS Holder<Empty>\nCLASS Live")
+    val view = gameView(master, "Empty", "Holder", "Live")
 
     view.isIncluded(cn("Empty")) shouldBe true
     view.isIncluded(cn("Holder")) shouldBe true
@@ -354,6 +366,23 @@ internal class Spec12InhabitanceTest {
   }
 
   @Test
+  internal fun `T12-4 missing inhabitants propagate through represented-class dependencies`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS CardResource : Owned { CLASS Animal }",
+            "ABSTRACT CLASS ResourceHolder<Class<CardResource>>",
+            "CLASS Pets : ResourceHolder<Class<Animal>>",
+        )
+
+    // ResourceHolder omits canon's Owned superclass so only its resource dependency excludes Pets.
+    // With no player, no animal can exist. Its class representative is then absent, so Pets
+    // cannot exist either; the representative of Pets must disappear in turn.
+    table.isInhabited(table.resolve(te("Animal"))) shouldBe false
+    table.isInhabited(table.resolve(te("Pets"))) shouldBe false
+    table.isInhabited(table.resolve(te("Class<Pets>"))) shouldBe false
+  }
+
+  @Test
   internal fun `T12-4 a structurally empty difference is uninhabited`() {
     val table = loadTypes("CLASS Rabbit")
 
@@ -361,8 +390,8 @@ internal class Spec12InhabitanceTest {
   }
 
   @Test
-  internal fun `T12-4 a Type from another Catalog is not known in this universe`() {
-    val other = testCatalog("ABSTRACT CLASS Milestone { CLASS Gardener }").classTable
+  internal fun `T12-4 a Type from another universe is not known in this universe`() {
+    val other = loadTypes("ABSTRACT CLASS Milestone { CLASS Gardener }")
 
     view.knows(other.resolve(te("Gardener"))) shouldBe false
     view.isInhabited(other.resolve(te("Gardener"))) shouldBe false
@@ -372,39 +401,31 @@ internal class Spec12InhabitanceTest {
 
   @Test
   internal fun `T12-5 nested differences see premise-only realizations`() {
-    val catalog = testCatalog("ABSTRACT CLASS Player : Owner\nCLASS Holder<Owner>")
+    val master = loadTypes("ABSTRACT CLASS Player : Owner\nCLASS Holder<Owner>")
     val view =
-        GamePremise(
-                catalog = catalog,
-                modules = emptySet(),
-                classSelections = setOf(ClassSelection(cn("Player1"))),
-                initialComponentTypes = emptySet(),
-                playerNames = listOf(cn("Player1")),
-                premiseClassDeclarations = parseClasses("CLASS Player1 : Player").toSet(),
-            )
-            .classTable
+        ClassLoader.forPremise(
+            premiseTable =
+                PremiseClassTable(master, parseClasses("CLASS Player1 : Player").toSet()),
+            roots = setOf(cn("Player1")),
+        )
 
-    val otherOwner = view.resolve(te("Holder<Owner(NOT Player)>"))
+    val otherHolder = view.resolve(te("Holder<Anyone(NOT Player)>"))
 
-    otherOwner.expressionFull shouldBe te("Holder<Owner(NOT Player)>")
-    otherOwner.classTable shouldBe view
-    view.resolve(te("Holder<Player1>")).isSubtypeOf(otherOwner) shouldBe false
+    otherHolder.expressionFull shouldBe te("Holder<Owner(NOT Player)>")
+    otherHolder.classTable shouldBe view
+    view.resolve(te("Holder<Player1>")).isSubtypeOf(otherHolder) shouldBe false
   }
 
   @Test
   internal fun `T12-5 master candidates use the shared universe for premise differences`() {
-    val catalog = testCatalog("ABSTRACT CLASS Player : Owner\nCLASS SoloOpponent : Owner")
-    val master = catalog.classTable
+    val master = loadTypes("ABSTRACT CLASS Player : Owner\nCLASS SoloOpponent : Owner")
+
     val view =
-        GamePremise(
-                catalog = catalog,
-                modules = emptySet(),
-                classSelections = setOf(ClassSelection(cn("Player1"))),
-                initialComponentTypes = emptySet(),
-                playerNames = listOf(cn("Player1")),
-                premiseClassDeclarations = parseClasses("CLASS Player1 : Player").toSet(),
-            )
-            .classTable
+        ClassLoader.forPremise(
+            premiseTable =
+                PremiseClassTable(master, parseClasses("CLASS Player1 : Player").toSet()),
+            roots = setOf(cn("Player1")),
+        )
     val otherThanPlayer1 = view.resolve(te("Owner(NOT Player1)"))
 
     master.resolve(te("SoloOpponent")).isSubtypeOf(otherThanPlayer1) shouldBe true
@@ -413,24 +434,23 @@ internal class Spec12InhabitanceTest {
 
   @Test
   internal fun `T12-5 structural overlap includes every premise Class`() {
-    val catalog = testCatalog("ABSTRACT CLASS Left\nABSTRACT CLASS Right")
-    val premise =
-        GamePremise(
-            catalog = catalog,
-            modules = emptySet(),
-            classSelections = setOf(ClassSelection(cn("LeftOnly"))),
-            initialComponentTypes = emptySet(),
-            premiseClassDeclarations =
-                parseClasses(
-                        """
-                        CLASS LeftOnly : Left
-                        CLASS Overlap : Left, Right
-                        """
-                            .trimIndent()
-                    )
-                    .toSet(),
+    val master = loadTypes("ABSTRACT CLASS Left\nABSTRACT CLASS Right")
+    val view =
+        ClassLoader.forPremise(
+            premiseTable =
+                PremiseClassTable(
+                    master,
+                    parseClasses(
+                            """
+                            CLASS LeftOnly : Left
+                            CLASS Overlap : Left, Right
+                            """
+                                .trimIndent()
+                        )
+                        .toSet(),
+                ),
+            roots = setOf(cn("LeftOnly")),
         )
-    val view = premise.classTable
 
     view.isInhabited(cn("Overlap")) shouldBe false
     view.resolve(te("Left(NOT Right)")).refinement shouldBe te("Left(NOT Right)").refinement
@@ -440,7 +460,7 @@ internal class Spec12InhabitanceTest {
   @Test
   internal fun `T12-5 structural overlap includes every master Class`() {
     val overlaps =
-        testCatalog(
+        loadTypes(
             """
             CLASS Root
             ABSTRACT CLASS Left

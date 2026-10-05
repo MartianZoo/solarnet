@@ -19,7 +19,7 @@ import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.state.Actor
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
@@ -55,7 +55,11 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
       is Change if tree.gaining != DIE.expression -> tree
       is Change ->
           if (tree.quantifier == OPTIONAL || tree.quantifier == AMAP) NoOp
-          else throw DeadEndException("a Die instruction was reached")
+          else
+              throw DeadEndException(
+                  "a `Die` instruction was reached",
+                  sourceLocation = tree.sourceLocation,
+              )
       is By -> {
         val inner = normalizeForTask(tree.inner)
         when (inner) {
@@ -79,7 +83,9 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
           tree.copy(
               inner =
                   inner as? Instruction
-                      ?: throw TaskException("PER normalized to independent instructions: $inner")
+                      ?: throw TaskException(
+                          "`PER` normalized to independent instructions: `$inner`"
+                      )
           )
         }
       }
@@ -92,7 +98,7 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
                 null
               }
             }
-        if (liveOptions.isEmpty()) throw DeadEndException("every choice reaches Die")
+        if (liveOptions.isEmpty()) throw DeadEndException("every choice reaches `Die`")
         Or.createTree(liveOptions)
       }
       is Then -> {
@@ -104,13 +110,17 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
         }
       }
       is NoOp -> NoOp
-      is Transform -> throw ExpressionException("unhandled transform in task: $tree")
+      is Transform ->
+          throw ExpressionException(
+              "unhandled instruction transform: `$tree`",
+              sourceLocation = tree.sourceLocation,
+          )
     }
 
 /**
  * Applies engine-owned normalization while preserving this task's identity and lifecycle. A
  * separable sequence moves into [Task.then] only when that continuation slot is free; otherwise
- * both sequence boundaries remain intact so their implicit variables stay independent.
+ * both sequence boundaries remain intact so their local Type-variable scopes stay independent.
  */
 internal fun normalizeTask(
     task: Task,
@@ -119,14 +129,17 @@ internal fun normalizeTask(
   val instruction =
       normalizeForTask(task.instruction) as? Instruction
           ?: throw TaskException(
-              "task input must be split into individual instructions: ${task.instruction}"
+              "task input must be split into individual instructions: `${task.instruction}`"
           )
   val then = task.then?.let(::normalizeForTask)?.let(InstructionGroup::of)?.takeIf { !it.isEmpty() }
   val normalized = task.copy(instruction = instruction, then = then)
   val sequence = normalized.instruction as? Then ?: return normalized
-  if (normalized.then != null || sequence.mustRemainOneTask(isAbstract)) return normalized
-  return normalized.copy(
-      instruction = sequence.first,
-      then = sequence.continuationAfterFirst(),
+  val runtimeSequence =
+      sequence.typeVariables.expandNames().transformInstruction(sequence) as Instruction.Then
+  val runtime = normalized.copy(instruction = runtimeSequence)
+  if (runtime.then != null || runtimeSequence.mustRemainOneTask(isAbstract)) return runtime
+  return runtime.copy(
+      instruction = runtimeSequence.first,
+      then = runtimeSequence.continuationAfterFirst(),
   )
 }

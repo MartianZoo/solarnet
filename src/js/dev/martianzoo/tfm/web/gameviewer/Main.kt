@@ -5,12 +5,12 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.displayName
 import dev.martianzoo.state.ComponentGraph.CountSubscription
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameRecording
 import dev.martianzoo.state.GameRecordingJson
+import dev.martianzoo.state.Player
+import dev.martianzoo.state.displayName
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
@@ -86,15 +86,16 @@ public fun main() {
             clearBenchmarkEntries()
             mark("load.start")
             mapSubscriptions.forEach(CountSubscription::cancel)
-            val config = GameRecordingJson.config(text)
+            val document = GameRecordingJson.parse(text)
+            val config = document.config
             val catalog: TfmCatalog =
                 if (cn("FakeStuffBundle") in config.includedClassNames) {
-                  TfmCatalog.compose(Canon, FakeCanon)
+                  TfmCatalog(Canon, FakeCanon)
                 } else {
                   Canon
                 }
             val premise = catalog.gamePremise(config)
-            val active = GameRecordingJson.decode(text, premise).open()
+            val active = document.decode(premise).open()
             val logEvents =
                 visibleLogEvents(active.world.events.changesSinceSetup(), active.world.reader)
             selectablePositions =
@@ -347,7 +348,7 @@ private fun renderDashboard(recording: GameRecording.Playback, player: Player) {
       corporation?.className,
       corporation?.let { displayName(game.reader.catalog, it.className) },
   )
-  val phase = game.reader.getComponents("Phase").singleOrNull()
+  val phase = game.reader.getComponents(cn("Phase").expression).singleOrNull()
   setClassValue(
       "phase",
       phase?.className,
@@ -608,7 +609,8 @@ private fun renderAreaState(recording: GameRecording.Playback, area: AreaDefinit
         emptyAreaSvg(area, centerX, centerY)
       } else {
         val owner =
-            tile.expressionFull.arguments
+            tile.typeDependencies
+                .map { it.boundType }
                 .firstOrNull { it.className in playerClassNames }
                 ?.className
                 ?.let { ownerName ->

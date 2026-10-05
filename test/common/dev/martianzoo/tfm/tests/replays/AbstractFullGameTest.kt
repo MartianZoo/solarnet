@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.exMachina
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.recording
 import dev.martianzoo.generated.Class as PetsClass
@@ -12,9 +11,9 @@ import dev.martianzoo.generated.ResourceCard
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.data.Player as RuntimePlayer
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.GamePremise
+import dev.martianzoo.state.Player as RuntimePlayer
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -23,9 +22,7 @@ import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalCatalog
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(ReplayExportExtension::class)
 internal abstract class AbstractFullGameTest : TfmTest() {
   protected lateinit var p1: TfmGameplay<GeneratedPlayer>
   protected lateinit var p2: TfmGameplay<GeneratedPlayer>
@@ -43,14 +40,15 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   internal fun completedRecordingJson(): String? {
     if (game.events.entriesSinceSetup().isEmpty()) return null
     val json = dev.martianzoo.state.GameRecordingJson.encode(game.recording())
-    val viewerPremise = catalog.gamePremise(dev.martianzoo.state.GameRecordingJson.config(json))
+    val document = dev.martianzoo.state.GameRecordingJson.parse(json)
+    val viewerPremise = catalog.gamePremise(document.config)
     check(viewerPremise.modules == gamePremise.modules) {
       "recording changed selected Modules: ${gamePremise.modules} -> ${viewerPremise.modules}"
     }
     check(viewerPremise.classSelections == gamePremise.classSelections) {
       "recording changed individual Class selections"
     }
-    dev.martianzoo.state.GameRecordingJson.decode(json, viewerPremise).open()
+    document.decode(viewerPremise).open()
     return json
   }
 
@@ -138,10 +136,6 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     agents.exMachina(actor, adjustment)
   }
 
-  protected fun retainStartingProjects(vararg retainedCounts: Int) {
-    dev.martianzoo.tfm.tests.retainStartingProjects(game, *retainedCounts)
-  }
-
   protected fun TfmGameplay<*>.assertDashMiddle(
       played: Int,
       actions: Int? = null,
@@ -173,7 +167,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     )
     if (
         game.classTable.isInhabited(cn("ColoniesExpansion")) &&
-            game.reader.getComponents("ColoniesExpansion").isNotEmpty()
+            game.reader.getComponents(cn("ColoniesExpansion").expression).isNotEmpty()
     ) {
       assertCounts(colonies to "Colony")
     }
@@ -208,14 +202,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   }
 
   // Pending choices describe future play, so a snapshot must neither execute nor count them.
-  // Unbought research cards need to leave Selecting before task removal; the
-  // enclosing checkpoint restores both the components and tasks afterward.
   private fun dropPendingTasksForSnapshot() {
-    game.actors
-        .filterIsInstance<RuntimePlayer>()
-        .map { game.testTfm(it) }
-        .filter { it.count("ProjectCard<Selecting>") > 0 }
-        .forEach { it.buyCards(0) }
     game.tasks
         .extract { it.id to it.assignee }
         .forEach { (id, assignee) ->

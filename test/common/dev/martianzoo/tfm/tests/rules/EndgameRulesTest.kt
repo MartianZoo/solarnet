@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
@@ -71,6 +72,25 @@ internal class EndgameRulesTest : CardTest() {
   }
 
   @Test
+  internal fun `Mandatory Venus variant delays multiplayer end until Venus is complete`() {
+    newGame(GameConfig("VenusNextExpansion, MandatoryVenusVariant", "Player1", "Player2"))
+    admin.runOperation(
+        "GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, " +
+            "GpComplete<Class<OceanTile>>"
+    )
+    admin.count("GameEndBarrier") shouldBe 1
+    (TfmWorkflow.Stepwise(agents).solarPhase() == null) shouldBe false
+
+    newGame(GameConfig("VenusNextExpansion, MandatoryVenusVariant", "Player1", "Player2"))
+    admin.runOperation(
+        "GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, " +
+            "GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>"
+    )
+    admin.count("GameEndBarrier") shouldBe 0
+    TfmWorkflow.Stepwise(agents).solarPhase() shouldBe null
+  }
+
+  @Test
   internal fun `Prelude shortens either solo objective by two generations`() {
     newGame(players = 1)
     admin.count("SoloGenerationsLeft") shouldBe 13
@@ -97,6 +117,27 @@ internal class EndgameRulesTest : CardTest() {
     p1.runOperation("TerraformRating")
     admin.runOperation("CheckGameEnd")
 
+    p1.count("Victory") shouldBe 1
+  }
+
+  @Test
+  internal fun `TR 63 final greenery scores without raising oxygen or rating`() {
+    // Jacob corrected his earlier TR 63 ruling: https://boardgamegeek.com/article/37132579
+    newGame(Tr63SoloObjective, players = 1)
+    p1.runOperation("49 TerraformRating, 8 Plant")
+    exhaustSoloCountdown()
+    admin.runOperation("CheckGameEnd")
+    p1.count("Victory") shouldBe 1
+    p1.count("TerraformRating") shouldBe 63
+
+    TfmWorkflow.Stepwise(agents).finalGreeneryPhase()
+    p1.startTurn()
+    p1.convertPlants { placeTile(3, 3) }
+    admin.runOperation("End FROM Phase")
+
+    admin.count("OxygenStep") shouldBe 0
+    p1.count("TerraformRating") shouldBe 63
+    p1.count("VictoryPoint") shouldBe 64
     p1.count("Victory") shouldBe 1
   }
 

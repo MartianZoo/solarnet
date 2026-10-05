@@ -2,21 +2,26 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.TransformHandler
-import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.ast.Action.Cost.Spend
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.Expression.Refinement.And
 import dev.martianzoo.pets.ast.Expression.Refinement.Has
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
+import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
 
 internal object Prod {
-  /** Creates the `PROD[...]` handler for one game class table. */
+  /**
+   * Creates the `PROD[...]` handler for one game class table. Changes and action costs must target
+   * standard resources; metrics used to scale those changes remain unrestricted.
+   */
   public fun handler(classTable: ClassTable): TransformHandler =
       handler(findResourceClassNames(classTable))
 
@@ -32,7 +37,7 @@ internal object Prod {
     return TransformHandler { inner ->
       lowerer.transformWithoutKindCheck(inner).also { lowered ->
         if (lowered == inner) {
-          throw PetSyntaxException("No standard resources found in PROD box: $inner")
+          throw ExpressionException("No standard resources found in PROD box: $inner")
         }
       }
     }
@@ -41,6 +46,12 @@ internal object Prod {
   private fun resourceLowerer(resourceClassNames: Set<ClassName>): PetTransformer =
       object : PetTransformer() {
         override fun transformNode(node: PetNode): PetNode {
+          when (node) {
+            is Change ->
+                listOfNotNull(node.gaining, node.removing).forEach(::requireStandardResource)
+            is Spend -> requireStandardResource(node.scaledEx.expression)
+            else -> Unit
+          }
           if (node is Expression && node.className == CLASS) return node
           if (node !is Expression || node.className !in resourceClassNames) {
             return transformChildren(node)
@@ -49,19 +60,28 @@ internal object Prod {
           // selector's refinement belongs on that represented class after lowering.
           return PRODUCTION.of(node.arguments + node.toClassSelector())
         }
+
+        private fun requireStandardResource(expression: Expression) {
+          if (expression.className !in resourceClassNames) {
+            throw ExpressionException(
+                "PROD cannot gain or remove non-standard resource `$expression`"
+            )
+          }
+        }
       }
 
   private fun Expression.toClassSelector(
       expectedArguments: List<Expression> = arguments
   ): Expression {
     if (arguments != expectedArguments) {
-      throw PetSyntaxException(
+      throw ExpressionException(
           "PROD cannot represent a resource difference with different dependencies: $this"
       )
     }
-    return className
-        .classExpression()
-        .copy(refinement = refinement?.let { toClassRefinement(it, expectedArguments) })
+    return CLASS.of(className.expression.copy(typeVariableName = typeVariableName))
+        .copy(
+            refinement = refinement?.let { toClassRefinement(it, expectedArguments) },
+        )
   }
 
   private fun toClassRefinement(

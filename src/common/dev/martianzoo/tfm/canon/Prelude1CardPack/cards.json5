@@ -1,13 +1,13 @@
 {
   "decks": [
     {
-      "deck": "CorporationCard",
+      "deck": "StandardCorporationCard",
       "cards": [
         {
           "name": "CheungShingMars",
           "tags": [ "BuildingTag" ],
           "immediate": "44 MC, PROD[3 MC]",
-          "effects": [ "PlayTag<Class<BuildingTag>>:: -2 Owed" ],
+          "effects": [ "PayingFor<Class<BuildingTag>>:: -2 Owed" ],
         },
         {
           "name": "PointLuna",
@@ -18,13 +18,13 @@
         {
           "name": "RobinsonIndustries",
           "immediate": "47 MC",
-          "actions": [ "4 MC -> PROD[StandardResource(HAS =1 (RANK Class<StandardResource> { Production<Class<StandardResource>(NOT Class<StandardResource>)> OR ProdOffset<Class<StandardResource>> }))]" ],
+          "actions": [ "4 MC -> PROD[StandardResource(HAS =1 (RANK @Class<StandardResource> { Production<Class<StandardResource>(NOT @Class)> OR ProdOffset<@Class> }))]" ],
         },
         {
           "name": "ValleyTrust",
           "tags": [ "EarthTag" ],
-          "immediate": "37 MC, RequiredAction { -> 3 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting> }",
-          "effects": [ "PlayTag<Class<ScienceTag>>:: -2 Owed" ],
+          "immediate": "37 MC, RequiredAction { -> 3 PreludeCard<Selecting> THEN PlayOrFizzle<Selecting> THEN -2 PreludeCard<Selecting> }",
+          "effects": [ "PayingFor<Class<ScienceTag>>:: -2 Owed" ],
         },
         {
           "name": "Vitor",
@@ -35,7 +35,7 @@
             "CardFront(HAS NonNegativeIconsOf<Class<VictoryPoint>>): 3 MC"
           ],
           "components": [
-            "CLASS NonNegativeIconsOf<CardFront, Class<Component>> : Custom",
+            "CLASS NonNegativeIconsOf<CardFront, Class<Component>> : CustomMetric",
           ],
         },
       ],
@@ -45,7 +45,7 @@
       "cards": [
         {
           "name": "AcquiredSpaceAgency",
-          "immediate": "6 Titanium, CARDS[2 SearchForCard(HAS PrintedTag<Class<SpaceTag>>)]",
+          "immediate": "6 Titanium, 2 SearchForCard<TagFilter<Class<SpaceTag>>>",
         },
         {
           "name": "AlliedBank",
@@ -93,17 +93,18 @@
         },
         {
           "name": "EcologyExperts",
+          "autoSelectWhen": "MAX 0 Prelude1CardPack",
           "tags": [ "PlantTag", "MicrobeTag" ],
-          "immediate": "PROD[Plant], PlayCard THEN -Required / Required",
+          "immediate": "PROD[Plant], PlayCard<Class<ProjectCard>, Class<CardFront>, Hand> THEN -Required / Required",
         },
         {
           "name": "ExcentricSponsor",
-          "immediate": "PlayCard<Class<ProjectCard>, Hand> THEN -25 Owed",
+          "immediate": "PlayCard<Class<ProjectCard>, Class<CardFront>, Hand> THEN -25 Owed",
         },
         {
           "name": "ExperimentalForest",
           "tags": [ "PlantTag" ],
-          "immediate": "DefaultGreeneryTile, CARDS[2 SearchForCard(HAS PrintedTag<Class<PlantTag>>)]",
+          "immediate": "DefaultGreeneryTile, 2 SearchForCard<TagFilter<Class<PlantTag>>>",
         },
         {
           "name": "GalileanMining",
@@ -235,8 +236,8 @@
           "tags": [ "MicrobeTag" ],
           "actions": [ "-> Microbe<This>" ],
           "effects": [
-            "PlayTag<Class<PlantTag>>:: AcceptingFromCard<This>",
-            "PayFromCard<This>:: -2 Owed"
+            "PayingFor<Class<PlantTag>>:: AcceptingFromCard<This>",
+            "-Microbe<This> BY Me@ IF AcceptingFromCard<This>:: -2 Owed"
           ],
         },
         {

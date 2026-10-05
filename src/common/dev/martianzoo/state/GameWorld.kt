@@ -1,9 +1,6 @@
 package dev.martianzoo.state
 
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.api.GameReader
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.TaskEvent
@@ -47,10 +44,6 @@ public class GameWorld(
   /** The ordinal required for the next exact event. */
   public val nextOrdinal: Int
     get() = events.nextOrdinal
-
-  /** An identity which advances on every forward or reverse event application. */
-  public val revision: WorldRevision
-    get() = events.revision
 
   /** A live task view restricted to [assignee]. */
   public fun tasksFor(assignee: Actor): TaskQueue = taskStore.forAssignee(assignee)

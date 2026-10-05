@@ -1,7 +1,9 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
+import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.cards.CardTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -28,8 +30,8 @@ internal class StormcraftIncorporatedTest : CardTest() {
     p1.stdAction(
             "ConvertHeatAction",
             payment = {
-              doTask("PayFromCard<$StormcraftIncorporated> FROM Floater<$StormcraftIncorporated>")
-              doTask("6 Pay<Class<Heat>> FROM Heat")
+              doTask("-Floater<$StormcraftIncorporated>")
+              doTask("-6 Heat")
             },
         )
         .expect("-Floater<$StormcraftIncorporated>, -6 Heat, TemperatureStep")
@@ -53,7 +55,7 @@ internal class StormcraftIncorporatedTest : CardTest() {
 
     p1.playProject(LocalHeatTrapping, 1) {
           doTask("4 Plant")
-          doTask("-2 Floater<$StormcraftIncorporated> THEN 4 Heat")
+          doTask("-2 Floater THEN 4 Heat")
         }
         .expect("-2 Floater<$StormcraftIncorporated>, -Heat, 4 Plant")
   }
@@ -63,7 +65,7 @@ internal class StormcraftIncorporatedTest : CardTest() {
     initializeStormcraftGame(floaters = 3, heat = 0)
 
     p1.playProject(LocalHeatTrapping, 1) {
-          doTask("-3 Floater<$StormcraftIncorporated> THEN 5 Heat")
+          doTask("-3 Floater THEN 5 Heat")
           doTask("4 Plant")
         }
         .expect("-3 Floater<$StormcraftIncorporated>, 4 Plant")
@@ -76,5 +78,36 @@ internal class StormcraftIncorporatedTest : CardTest() {
     p1.runOperation(
         "$StormcraftIncorporated, $floaters Floater<$StormcraftIncorporated>$heatSetup, ProjectCard, 1 MC"
     )
+  }
+
+  @Test
+  internal fun `Stormcraft floaters spend as heat without counting for Thermalist`() {
+    newGame(PreludeExpansion, ColoniesExpansion, colonyTiles = testColonyTiles(2))
+    val p2 = requireP2()
+    p1.playCorp(StormcraftIncorporated, 0)
+    p2.playCorp(CrediCor, 0)
+    admin.phase("Prelude")
+    p2.playPrelude(PolarIndustries) { placeTile(1, 2) }
+    admin.phase("Action")
+    p1.fundAward(cn("Thermalist"), 8)
+    repeat(9) {
+      p1.cardAction1(StormcraftIncorporated) { addCardResources(StormcraftIncorporated) }
+      admin.nextGeneration(0, 0)
+    }
+
+    p2.convertHeat()
+    p2.convertHeat()
+    p2.count("Heat") shouldBe 2
+    p1.stdAction(
+            "ConvertHeatAction",
+            payment = {
+              doTask("-4 Floater<$StormcraftIncorporated>")
+              declineTask()
+            },
+        )
+        .expect("TemperatureStep, 0 Heat")
+    admin.runOperation("End FROM Phase")
+    p1.count("FirstPlace<Thermalist>") shouldBe 0
+    p2.count("FirstPlace<Thermalist>") shouldBe 1
   }
 }

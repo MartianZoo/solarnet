@@ -6,13 +6,15 @@ import dev.martianzoo.pets.util.toSetStrict
 
 /**
  * Pets runtime declarations that are available to every Catalog, as required by
- * [rule L1-13](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations):
- * the classes this language and the type system depend on, including `Component` and `Class`, the
- * ownership vocabulary `Anyone`, `Owner` and `Owned`, the actor root `Actor`, the identity signal
- * `Ok`, the impossible type `Die`, and `Atomized` and `Custom`. A catalog's own source is loaded
- * alongside them.
+ * [rule L11-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations):
+ * the universal `Audit` signal plus the classes this language and the type system depend on,
+ * including `Component` and `Class`, the identity root `Anyone`, ownership vocabulary `Owner` and
+ * `Owned`, the actor root `Actor`, the identity signal `Ok`, the impossible type `Die`, and
+ * `Atomized` and `CustomMetric` and `CustomInstruction`. A catalog's own source is loaded alongside
+ * them.
  *
- * Which of these a particular *game* then contains is `OPTIONS.md`'s question, not this module's.
+ * `GamePremise.classTable` always roots `Audit`; it decides which of the remaining declarations a
+ * particular game contains.
  */
 // TODO: Replace this temporary tfm-canon seam with the generic Catalog contract.
 public val systemClassDeclarations: Set<ClassDeclaration> by lazy {
@@ -30,8 +32,8 @@ private val systemDeclarationsSource =
     "Magic rules: only a class name can go inside `<>`; `Class<Foo>` is concrete iff `Foo` is"
     CLASS Class<Component> : System { HAS =1 This }
 
-    "Instances of this type never exist; Kotlin can instead define its instruction or metric behavior"
-    ABSTRACT CLASS Custom
+    "Virtual metrics computed by Kotlin rather than stored as Components"
+    ABSTRACT CLASS CustomMetric
 
     "Extend this to have plural instructions automatically split into individual instructions"
     ABSTRACT CLASS Atomized
@@ -40,51 +42,55 @@ private val systemDeclarationsSource =
     ABSTRACT CLASS Hidden
 
     "No one but Admin can create these"
-    ABSTRACT CLASS System : Hidden {
+    ABSTRACT CLASS System {
       This BY Actor(NOT Admin): Die
     }
 
-    "Anything that cannot remain once its owning operation or scope completes"
-    ABSTRACT CLASS MustCleanUp : Hidden
+    "Mandatory unfinished state that a completed operation may not leave behind"
+    ABSTRACT CLASS MustCleanUp
 
-    "Instances are removed at an empty task queue once no dependent Temporary or MustCleanUp remains"
+    "Removed only at a whole-World empty task pool, once no dependent Temporary or MustCleanUp remains"
     ABSTRACT CLASS Temporary
 
     "A lifetime anchor for components that depend on it"
     ABSTRACT CLASS Scope
 
-    "A child Scope removed after queued work and dependent cleanup finish"
+    "A child Scope combining whole-World idle removal with mandatory completion"
     ABSTRACT CLASS TemporaryScope<Scope> : Scope, Temporary, MustCleanUp {
       HAS MAX 1 This
     }
 
-    "Something the player must remove to unblock some other task (i.e., `MAX 0 Barrier:` is common"
+    "Mandatory unfinished state removed by its owning game rule; `MAX 0 Barrier:` is a common gate"
     ABSTRACT CLASS Barrier : MustCleanUp
 
     "An unscoped point event; `IF This` skips self-removal when no instance entered live state"
-    ABSTRACT CLASS Signal : MustCleanUp {
+    ABSTRACT CLASS Signal : MustCleanUp, Hidden {
       This IF This:: -This!
     }
 
-    "An entity that can initiate or continue game operations"
-    ABSTRACT CLASS Actor
+    "A Signal whose gain also queues an instruction computed by Kotlin"
+    ABSTRACT CLASS CustomInstruction : Signal
 
-    "The unrestricted target for an ownership dependency"
+    "An identity that can own components or perform operations"
     ABSTRACT CLASS Anyone
+
+    "An entity that can initiate or continue game operations"
+    ABSTRACT CLASS Actor : Anyone
 
     "An entity that can own Components"
     ABSTRACT CLASS Owner : Anyone
 
     "A Component whose Type carries an ownership dependency"
-    ABSTRACT CLASS Owned<Anyone> {
-      DEFAULT Owned<Owner>
-    }
+    ABSTRACT CLASS Owned<Me@Owner>
 
     "The neutral table administrator created first to perform system operations"
     CLASS Admin : System, Actor { HAS =1 This }
 
     "Gaining `Ok` is the standard 'do-nothing' instruction; can't trigger anything"
     CLASS Ok : Signal
+
+    "An owned signal recording behavior whose legality the game cannot prove"
+    CLASS Audit : Owned, Signal
 
     "A component that can never be created"
     CLASS Die { HAS MAX 0 This }

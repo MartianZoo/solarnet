@@ -40,13 +40,13 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
 
   /**
    * Tests covariant narrowing of this dependency's bound against [that], following
-   * [rules T6-2 and T6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rules T6-2 and T6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing).
    */
   public abstract fun isSubtypeOf(that: Dependency): Boolean
 
   /**
    * Tests the converse of [isSubtypeOf], including equality ([rule
-   * T6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping)).
+   * T6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing)).
    */
   public fun isSupertypeOf(that: Dependency): Boolean = that.isSubtypeOf(this)
 
@@ -90,7 +90,7 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
   /**
    * Tests contextual narrowing of this dependency against [that], propagating [info] to a refined
    * bound under
-   * [rules T6-2 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rules T6-2 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing).
    */
   public abstract override fun narrows(that: Dependency, info: TypeInfo): Boolean
 
@@ -126,14 +126,11 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
       get() = boundType.rootClass
 
     /**
-     * The canonical name of [boundType]'s root class, following
-     * [rule T2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+     * The canonical name of [boundType]'s root class, which identifies it under
+     * [rule T1-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
      */
     override val className: ClassName
       get() = boundClass.className
-
-    internal fun allConcreteSpecializations(): Sequence<TypeDependency> =
-        boundType.allConcreteSubtypes().map { TypeDependency(key, it) }
 
     /**
      * The canonical `key=full-bound` rendering of this dependency ([rules T3-1 and
@@ -152,13 +149,13 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
 
     /**
      * Tests context-free covariance of [boundType] against [that] ([rule
-     * T6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping)).
+     * T6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing)).
      */
     override fun isSubtypeOf(that: Dependency): Boolean = boundType.isSubtypeOf(boundOf(that))
 
     /**
      * Intersects [boundType] with [that]'s bound, following
-     * [rule T7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds).
+     * [rule T7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-greatest-lower-bounds).
      */
     override fun glb(that: Dependency, classTable: ClassTable): Dependency? {
       if (that !is TypeDependency) return null
@@ -174,14 +171,14 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
 
     /**
      * Asserts contextual covariance against [that], forwarding [info] to refinements under
-     * [rules T6-2 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+     * [rules T6-2 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing).
      */
     override fun ensureNarrows(that: Dependency, info: TypeInfo): Unit =
         boundType.ensureNarrows(boundOf(that), info)
 
     /**
      * Tests contextual covariance against [that], forwarding [info] to refinements under
-     * [rules T6-2 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+     * [rules T6-2 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing).
      */
     override fun narrows(that: Dependency, info: TypeInfo): Boolean =
         that is TypeDependency && boundType.narrows(boundOf(that), info)
@@ -246,7 +243,7 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
     internal fun validate(deps: List<Dependency>): ClassTable? {
       deps.indices.forEach { index ->
         for (previous in 0 until index) {
-          require(deps[index].key != deps[previous].key) { "duplicate dependency keys: $deps" }
+          require(deps[index].key != deps[previous].key) { "duplicate dependency keys: `$deps`" }
         }
       }
       require(deps.none { it is FakeDependency } || deps.single() is FakeDependency)

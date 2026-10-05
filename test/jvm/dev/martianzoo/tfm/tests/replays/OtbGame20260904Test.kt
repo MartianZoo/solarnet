@@ -1,28 +1,13 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agenttestsupport.testTfm
-import dev.martianzoo.generated.Administrator
-import dev.martianzoo.generated.AmazonisMap
-import dev.martianzoo.generated.Builder
-import dev.martianzoo.generated.Class
-import dev.martianzoo.generated.Diversifier
-import dev.martianzoo.generated.Excentric
-import dev.martianzoo.generated.Generalist
-import dev.martianzoo.generated.Highlander
-import dev.martianzoo.generated.Landshaper
-import dev.martianzoo.generated.Prelude2CardPack
-import dev.martianzoo.generated.PreludeExpansion
-import dev.martianzoo.generated.PromoCardPack
-import dev.martianzoo.generated.Promoter
-import dev.martianzoo.generated.Tactician
-import dev.martianzoo.generated.Thermalist
-import dev.martianzoo.generated.VenusNextExpansion
-import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -34,32 +19,15 @@ import kotlin.test.Test
  */
 internal class OtbGame20260904Test : AbstractFullGameTest() {
   override val config =
-      gameConfig(
-          modules =
-              listOf(
-                  Class.of(AmazonisMap),
-                  Class.of(VenusNextExpansion),
-                  Class.of(PreludeExpansion),
-                  Class.of(Prelude2CardPack),
-                  Class.of(PromoCardPack),
-              ),
-          milestones =
-              listOf(
-                  Class.of(Builder),
-                  Class.of(Diversifier),
-                  Class.of(Generalist),
-                  Class.of(Landshaper),
-                  Class.of(Tactician),
-              ),
-          awards =
-              listOf(
-                  Class.of(Administrator),
-                  Class.of(Excentric),
-                  Class.of(Highlander),
-                  Class.of(Promoter),
-                  Class.of(Thermalist),
-              ),
-          extra = "FakeStuffBundle",
+      GameConfig(
+          """
+          AmazonisMap, Unsafe
+          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack
+          FakeStuffBundle
+
+          Builder, Diversifier, Generalist, Landshaper, Tactician
+          Administrator, Excentric, Highlander, Promoter, Thermalist
+          """
       )
   // 2:01:56 PM — Green: "We're playing on Amazonas Planitia, the smooth plain. Our expansions are
   // Prelude 1, Prelude 2, Venus, and all the promo cards that we have. Our milestones are builder,
@@ -72,8 +40,8 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
   override val playerClassPets =
       """
       CLASS Yellow : Player
-      CLASS Rainbow : Player { SetupPhase: 4 TerraformRating }
-      CLASS Blue : Player { SetupPhase: 2 TerraformRating }
+      CLASS Rainbow : Player { SetupPhase: 4 TerraformRating<This> }
+      CLASS Blue : Player { SetupPhase: 2 TerraformRating<This> }
       CLASS Green : Player
       """
           .trimIndent()
@@ -81,7 +49,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
   @Test
   internal fun otbGame20260904() {
     TfmWorkflow.Automatic(agents).launch()
-    retainStartingProjects(4, 6, 5, 4)
     val yellow = p1.requireExplicitUnusedActionCards()
     val rainbow = p2.requireExplicitUnusedActionCards()
     val blue = p3.requireExplicitUnusedActionCards()
@@ -230,7 +197,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // raised production it gives me two money can't complain about that [Rainbow]'s turn"
       playProject(RoboticWorkforce, 9) {
             doTask("CopyProductionBox<$TitaniumMine>")
-            doTask("ProjectCard FROM Science<$OlympusConference>")
+            doTask("ProjectCard FROM Science")
           }
           .expect("PROD[Titanium], -7 MC, -Science<$OlympusConference>, 0 ProjectCard")
     }
@@ -788,7 +755,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
             // two plants."
             placeTile(7, 4)
             autoExecNow()
-            selectTask("UseAction<Blue, NeptunianOption<Blue, NeptunianPowerConsultants<Blue>>>?")
+            selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
             blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
             // 3:59:00 PM — Green: "All right this would be nine four."
@@ -797,7 +764,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
             // one? Only two money or two plants. Do I need another card? Do I need another card?"
             placeTile(9, 4)
             autoExecNow()
-            selectTask("UseAction<Blue, NeptunianOption<Blue, NeptunianPowerConsultants<Blue>>>?")
+            selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
             blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
             // Crossing 0°C supplies Amazonis's temperature-track ocean bonus.
@@ -805,14 +772,15 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
             // events."
             placeTile(6, 11)
             autoExecNow()
-            selectTask("UseAction<Blue, NeptunianOption<Blue, NeptunianPowerConsultants<Blue>>>?")
+            selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
             blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
             doTask("-5 Plant<Yellow>!")
           }
           .expect("-16 MC, -2 Titanium, Steel, 2 Plant, PROD[3 Energy<Blue>]")
     }
-    // The real card operation includes Media Group's 3 M€ event response, but Rainbow's app has no
+    // The printed card operation includes Media Group's 3 M€ event response, but Rainbow's app has
+    // no
     // corresponding credit in entries 89–98.
     rainbow.exMachina("-3 MC")
     // 3:59:44 PM — Rainbow: "Did I pay for that?"
@@ -898,20 +866,20 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // 2:59:32–2:59:45 PM — Spoken counts are Green 9, then machine-labeled Yellow 6, Blue 8, and
     // Rainbow 11. The later complete card flows establish Yellow 8, Blue 6, and Rainbow 12 here;
     // machine speaker labels and the off-by-one Rainbow count do not override those owned cards.
-    yellow.assertCounts(8 to "CardBack<Hand>")
-    rainbow.assertCounts(12 to "CardBack<Hand>")
-    blue.assertCounts(6 to "CardBack<Hand>")
+    yellow.assertCounts(8 to "CardBack")
+    rainbow.assertCounts(12 to "CardBack")
+    blue.assertCounts(6 to "CardBack")
 
     // board-16-07-06.jpg and all four app histories: Generation 6 before Research.
     with(yellow) {
       assertProduction(m = 3, s = 4, t = 0, p = 4, e = 1, h = 1)
       assertResources(m = 29, s = 12, t = 0, p = 4, e = 1, h = 7)
-      assertCounts(26 to "TerraformRating", 8 to "CardBack<Hand>")
+      assertCounts(26 to "TerraformRating", 8 to "CardBack")
     }
     with(rainbow) {
       assertProduction(m = 6, s = 0, t = 1, p = 1, e = 1, h = 0)
       assertResources(m = 45, s = 1, t = 2, p = 2, e = 1, h = 1)
-      assertCounts(33 to "TerraformRating", 1 to "Tactician", 12 to "CardBack<Hand>")
+      assertCounts(33 to "TerraformRating", 1 to "Tactician", 12 to "CardBack")
       assertCardResources(
           2 to FloatingRefinery,
           1 to SulphurEatingBacteria,
@@ -921,13 +889,13 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     with(blue) {
       assertProduction(m = 4, s = 0, t = 0, p = 1, e = 10, h = 7)
       assertResources(m = 45, s = 0, t = 0, p = 5, e = 10, h = 13)
-      assertCounts(29 to "TerraformRating", 1 to "Landshaper", 6 to "CardBack<Hand>")
+      assertCounts(29 to "TerraformRating", 1 to "Landshaper", 6 to "CardBack")
       assertCardResources(4 to NeptunianPowerConsultants)
     }
     with(green) {
       assertProduction(m = 4, s = 1, t = 2, p = 0, e = 0, h = 1)
       assertResources(m = 33, s = 1, t = 2, p = 3, e = 0, h = 9)
-      assertCounts(25 to "TerraformRating", 1 to "Diversifier", 9 to "CardBack<Hand>")
+      assertCounts(25 to "TerraformRating", 1 to "Diversifier", 9 to "CardBack")
       assertCardResources(2 to Pets, 5 to CloudTourism, 2 to IcyImpactors, 1 to OlympusConference)
     }
     assertSidebar(gen = 6, temp = 2, oxygen = 4, oceans = 6, venus = 8)
@@ -1174,7 +1142,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       cardAction2(IcyImpactors) {
         rainbow.doTask("OceanTile<Amazonis_02_01> BY Green")
         green.doTask("TerraformRating")
-        selectTask("UseAction<Blue, NeptunianOption<Blue, NeptunianPowerConsultants<Blue>>>?")
+        selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
         blue.narrowTask("Ok")
       }
     }
@@ -1640,7 +1608,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // tag removes my only science resource from Olympus conference and gives me this guy it's
       // actually reasonable That's actually useful in this circumstance, I don't believe it."
       playProject(FusionPower, 10, steel = 2) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
       }
     }
     yellow.turn {
@@ -1831,7 +1799,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // a
       // city actually."
       // 6:08:59 PM — Green: "Okay, on six nine."
-      stdProject("CityProject") { placeTile(6, 9) }
+      stdProject("CityProject") { doTask("NormalCityTile<Amazonis_06_09>") }
     }
     rainbow.turn {
       // 6:09:38 PM — Rainbow: "You need other fish. Okay. Exactly. Um okay, so I am going to take
@@ -1953,7 +1921,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 9:20:50 PM — Yellow: "I pay for it because it has space tag and then science tag adds
       // carbon nano back oh right and I use University pitch and drop"
       playProject(TransNeptuneProbe, 2) {
-            doTask("PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>")
+            doTask("-Graphene<$CarbonNanosystems>")
             doTask("-ProjectCard")
           }
           .expect("-2 MC")
@@ -2111,7 +2079,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       playProject(
               ImportedHydrogen,
               payment = {
-                doTask("2 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>")
+                doTask("-2 Graphene<$CarbonNanosystems>")
                 assertCardResources(0 to CarbonNanosystems)
                 pay(8)
               },

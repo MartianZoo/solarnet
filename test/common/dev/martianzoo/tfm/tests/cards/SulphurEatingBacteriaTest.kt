@@ -25,7 +25,7 @@ internal class SulphurEatingBacteriaTest : CardTest() {
   @Test
   internal fun `Can add a microbe with its first action`() {
     p1.cardAction1(SulphurEatingBacteria) {
-          doTask("Microbe<$SulphurEatingBacteria>")
+          doTask("Microbe")
         }
         .expect("Microbe, 0 MC")
   }
@@ -33,7 +33,7 @@ internal class SulphurEatingBacteriaTest : CardTest() {
   @Test
   internal fun `Can convert 3 microbes into 9 mc`() {
     p1.cardAction2(SulphurEatingBacteria) {
-          doTask("-3 Microbe<$SulphurEatingBacteria>")
+          doTask("-3 Microbe")
           doTask("9 MC")
         }
         .expect("-3 Microbe, 9 MC")
@@ -41,17 +41,13 @@ internal class SulphurEatingBacteriaTest : CardTest() {
 
   @Test
   internal fun `Can convert 3 microbes into 9 mc by setting X`() {
-    p1.cardAction2(SulphurEatingBacteria, x = 3) {
-          doTask("-3 Microbe<$SulphurEatingBacteria>")
-          doTask("9 MC")
-        }
-        .expect("-3 Microbe, 9 MC")
+    p1.cardAction2(SulphurEatingBacteria, x = 3) { doTask("9 MC") }.expect("-3 Microbe, 9 MC")
   }
 
   @Test
   internal fun `Can convert 1 microbe into 3 mc`() {
     p1.cardAction2(SulphurEatingBacteria) {
-          doTask("-Microbe<$SulphurEatingBacteria>")
+          doTask("-Microbe")
           doTask("3 MC")
         }
         .expect("-Microbe, 3 MC")
@@ -59,17 +55,13 @@ internal class SulphurEatingBacteriaTest : CardTest() {
 
   @Test
   internal fun `Can convert 1 microbe into 3 mc by setting X`() {
-    p1.cardAction2(SulphurEatingBacteria, x = 1) {
-          doTask("-Microbe<$SulphurEatingBacteria>")
-          doTask("3 MC")
-        }
-        .expect("-Microbe, 3 MC")
+    p1.cardAction2(SulphurEatingBacteria, x = 1) { doTask("3 MC") }.expect("-Microbe, 3 MC")
   }
 
   @Test
   internal fun `Can convert all 4 microbes into 12 mc`() {
     p1.cardAction2(SulphurEatingBacteria) {
-          doTask("-4 Microbe<$SulphurEatingBacteria>")
+          doTask("-4 Microbe")
           doTask("12 MC")
         }
         .expect("-4 Microbe, 12 MC")
@@ -77,11 +69,7 @@ internal class SulphurEatingBacteriaTest : CardTest() {
 
   @Test
   internal fun `Can convert all 4 microbes into 12 mc by setting X`() {
-    p1.cardAction2(SulphurEatingBacteria, x = 4) {
-          doTask("-4 Microbe<$SulphurEatingBacteria>")
-          doTask("12 MC")
-        }
-        .expect("-4 Microbe, 12 MC")
+    p1.cardAction2(SulphurEatingBacteria, x = 4) { doTask("12 MC") }.expect("-4 Microbe, 12 MC")
   }
 
   @Test
@@ -97,14 +85,14 @@ internal class SulphurEatingBacteriaTest : CardTest() {
   @Test
   internal fun `Cannot remove microbes without taking their payment`() {
     shouldThrow<TaskException> {
-      p1.cardAction2(SulphurEatingBacteria) { doTask("-Microbe<$SulphurEatingBacteria>") }
+      p1.cardAction2(SulphurEatingBacteria) { doTask("-Microbe") }
     }
   }
 
   @Test
   internal fun `Cannot remove microbes without taking their payment after setting X`() {
     shouldThrow<TaskException> {
-      p1.cardAction2(SulphurEatingBacteria, x = 1) { doTask("-Microbe<$SulphurEatingBacteria>") }
+      p1.cardAction2(SulphurEatingBacteria, x = 1) { doTask("-Microbe") }
     }
   }
 
@@ -117,7 +105,7 @@ internal class SulphurEatingBacteriaTest : CardTest() {
   internal fun `Can set X higher than its microbe count but cannot execute the resulting task`() {
     shouldThrow<LimitsException> {
       p1.cardAction2(SulphurEatingBacteria, x = 5) {
-        doTask("-5 Microbe<$SulphurEatingBacteria>")
+        doTask("-5 Microbe")
       }
     }
     p1.assertCounts(4 to "Microbe<$SulphurEatingBacteria>")

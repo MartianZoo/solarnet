@@ -108,12 +108,19 @@ This:: Result / EVAL This.score
 This:: (EVAL This.requirement: Ok)
 ```
 
-Expansion substitutes the concrete receiver for `This`, supplies the effect's contextual Owner,
-and then applies the normal defaults and lowering. Expansion may wait until trigger matching has
-specialized an abstract receiver. Inside `EACH`, it waits further until each fanout branch has bound
-its selected component and contextual Owner. An `Agent.count` read may also use `EVAL`; the Agent's
-Player supplies contextual `Owner`. Mutation input continues to reject property evaluation outside
-a class effect.
+Expansion substitutes the concrete receiver for `This`, binds any free lexical `Me` from the
+evaluation site's capture, and then applies defaults and lowering. The capture lives on the
+`EVAL` expression and renders as `EVAL<Player1> Receiver.score` once bound, so deferred evaluation
+and reparsing retain the same ownership. Expansion may wait until trigger matching
+has specialized an abstract receiver. Inside `EACH`, it waits until each fanout branch has bound
+its selected component. A `RANK` comparison key waits until its candidate is known. An
+`Agent.count` read may also use `EVAL`; the Agent's Player supplies a free `Me`. Mutation input
+continues to reject property evaluation outside a class effect.
+
+Unlike effects, a loaded `ClassDeclaration` has no parallel authored and executable property slots.
+Declaration transforms replace the one stored property value, and later readers see that transformed
+value. A consumer that requires original source shape must read it before that transformation rather
+than treating the loaded property as an authored-data archive.
 
 ## Why class properties earn their cost
 
@@ -272,7 +279,8 @@ tags = Instruction*
 A concrete card might then hold instructions that gain its printed Tag components when the front
 comes into existence. Because the instructions belong to the card Class, they would also be
 available through `Class<CardFront>` before a live CardFront component exists. This could subsume the
-current Kotlin metadata bridge that handles card tags during play.
+current Kotlin metadata bridge that `PriceCard` uses to emit counted
+`PayingFor<Class<Component>>` events.
 
 The direction is promising but not yet a design. It must answer:
 
@@ -280,10 +288,10 @@ The direction is promising but not yet a design. It must answer:
 - how a query asks for a particular tag without executing the instructions;
 - how duplicate printed tags are represented and counted;
 - whether order matters, given that `InstructionGroup` is ordered while tags are not;
-- how `This`, Owner, defaults, and trigger-time specialization are contextualized;
+- how `This`, inherited `Me`, defaults, and trigger-time specialization are contextualized;
 - whether `Instruction*` is a group value, a cardinality-bearing property, or both.
 
-The goal is not merely to move `HandleCardTags` into generated Pets. The result should provide one
+The goal is not merely to move `PriceCard` into generated Pets. The result should provide one
 source of printed tag facts that supports both pre-existence queries and live materialization.
 
 ## Design constraints for future extensions

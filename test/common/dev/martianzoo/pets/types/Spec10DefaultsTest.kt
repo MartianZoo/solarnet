@@ -1,6 +1,7 @@
 package dev.martianzoo.pets.types
 
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Quantifier.AMAP
 import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
@@ -29,7 +30,7 @@ internal class Spec10DefaultsTest {
               ABSTRACT CLASS WaterArea { CLASS Tharsis_1_1 }
             }
           }
-          ABSTRACT CLASS Tile<Area> : Owned<Owner> {
+          ABSTRACT CLASS Tile<Area> : Owned {
             DEFAULT +Tile<LandArea>
           }
           CLASS GreeneryTile : Tile<MarsArea>
@@ -49,26 +50,36 @@ internal class Spec10DefaultsTest {
   internal fun `T10-1 defaults are gathered separately for all uses, gains and removals`() {
     val tile = defaults("Tile")
 
-    tile.allUsages.dependencies.keys shouldContainExactly listOf(Key(cn("Owned"), 0))
+    tile.allUsages.dependencies.keys.shouldBeEmpty()
     tile.gainOnly.dependencies.keys shouldContainExactly listOf(Key(cn("Tile"), 0))
     tile.removeOnly.dependencies.keys.shouldBeEmpty()
   }
 
   @Test
-  internal fun `T10-1 an all-uses default supplies a bound wherever the type is written`() {
-    // The system class `Owned` declares `DEFAULT Owned<Owner>`.
-    defaults("Plant").allUsages.dependencies.get(Key(cn("Owned"), 0)).expressionFull shouldBe
-        te("Owner")
+  internal fun `T10-1 Owned supplies a bound without a dependency default`() {
+    defaults("Plant").allUsages.dependencies.keys.shouldBeEmpty()
     mars.getClass(cn("Plant")).defaultType.expressionFull shouldBe te("Plant<Owner>")
   }
 
   @Test
   internal fun `T10-1 defaultType is the base type with the all-uses defaults applied`() {
-    // Inherited dependencies come first, so `Owned_0` precedes `Tile_0`.
-    mars.getClass(cn("GreeneryTile")).baseType.expressionFull shouldBe
-        te("GreeneryTile<Owner, MarsArea>")
-    mars.getClass(cn("GreeneryTile")).defaultType.expressionFull shouldBe
-        te("GreeneryTile<Owner, MarsArea>")
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS CardLocation {
+              CLASS Hand
+              CLASS Discard
+            }
+            """,
+            "ABSTRACT CLASS CardBack<CardLocation> { DEFAULT CardBack<Hand> }",
+            "CLASS ProjectCard : CardBack",
+        )
+    val projectCard = table.getClass(cn("ProjectCard"))
+
+    projectCard.baseType.expressionFull shouldBe te("ProjectCard<CardLocation>")
+    projectCard.defaultExpression shouldBe te("ProjectCard<Hand>")
+    projectCard.defaultType.expressionFull shouldBe te("ProjectCard<Hand>")
+    table.resolve(te("ProjectCard")) shouldBe projectCard.baseType
   }
 
   @Test
@@ -104,27 +115,26 @@ internal class Spec10DefaultsTest {
 
   @Test
   internal fun `T10-2 supertypes that disagree about a quantifier are an error`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Eager { DEFAULT +Eager. }",
-            "ABSTRACT CLASS Choosy { DEFAULT +Choosy? }",
-            "CLASS Both : Eager, Choosy",
-        )
-
-    shouldThrow<PetException> { table.getClass(cn("Both")).defaults }
+    shouldThrow<InvalidPetDefinitionException> {
+      loadTypes(
+          "ABSTRACT CLASS Eager { DEFAULT +Eager. }",
+          "ABSTRACT CLASS Choosy { DEFAULT +Choosy? }",
+          "CLASS Both : Eager, Choosy",
+      )
+    }
   }
 
   // T10-3 A default names its own class
 
   @Test
   internal fun `T10-3 a DEFAULT clause must name the class that declares it`() {
-    shouldThrow<PetException> {
+    shouldThrow<PetSyntaxException> {
       loadTypes(
           "ABSTRACT CLASS Area { CLASS Tharsis_2_2 }",
           "CLASS Tile<Area> { DEFAULT Area<Tharsis_2_2> }",
       )
     }
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<PetSyntaxException> {
       ClassDeclaration(
           cn("Tile"),
           CONCRETE,
@@ -173,6 +183,33 @@ internal class Spec10DefaultsTest {
   }
 
   @Test
+  internal fun `T10-4 compatible defaults from separate inheritance paths intersect`() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Area {
+              ABSTRACT CLASS MarsArea {
+                ABSTRACT CLASS LandArea { CLASS Tharsis_2_2 }
+              }
+            }
+            ABSTRACT CLASS Tile<Area>
+            ABSTRACT CLASS MarsTile : Tile { DEFAULT +MarsTile<MarsArea> }
+            ABSTRACT CLASS LandTile : Tile { DEFAULT +LandTile<LandArea> }
+            CLASS GreeneryTile : LandTile, MarsTile
+            """
+                .trimIndent()
+        )
+
+    table
+        .getClass(cn("GreeneryTile"))
+        .defaults
+        .gainOnly
+        .dependencies
+        .get(Key(cn("Tile"), 0))
+        .expressionFull shouldBe te("LandArea")
+  }
+
+  @Test
   internal fun `T10-4 a default that merely restates the declared bound records nothing`() {
     val table =
         loadTypes(
@@ -185,57 +222,36 @@ internal class Spec10DefaultsTest {
 
   @Test
   internal fun `T10-4 supertypes with no common narrowing for one default are an error`() {
-    val table =
-        loadTypes(
-            """
-            ABSTRACT CLASS Area {
-              ABSTRACT CLASS LandArea
-              ABSTRACT CLASS WaterArea
-            }
-            ABSTRACT CLASS Tile<Area>
-            ABSTRACT CLASS LandTile : Tile { DEFAULT +LandTile<LandArea> }
-            ABSTRACT CLASS WaterTile : Tile { DEFAULT +WaterTile<WaterArea> }
-            CLASS Impossible : LandTile, WaterTile
-            """
-                .trimIndent()
-        )
-
-    shouldThrow<PetException> { table.getClass(cn("Impossible")).defaults }
+    shouldThrow<InvalidPetDefinitionException> {
+      loadTypes(
+          """
+          ABSTRACT CLASS Area {
+            ABSTRACT CLASS LandArea
+            ABSTRACT CLASS WaterArea
+          }
+          ABSTRACT CLASS Tile<Area>
+          ABSTRACT CLASS LandTile : Tile { DEFAULT +LandTile<LandArea> }
+          ABSTRACT CLASS WaterTile : Tile { DEFAULT +WaterTile<WaterArea> }
+          CLASS Impossible : LandTile, WaterTile
+          """
+              .trimIndent()
+      )
+    }
   }
 
-  // T10-5 `Owner` stays contextual
+  // T10-5 Anyone is an ordinary default argument
 
   @Test
-  internal fun `T10-5 Owner written in a default is kept as written, not resolved to the bound`() {
+  internal fun `T10-5 Anyone written in a default is intersected with the declared bound`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Player : Owner { CLASS Player1 }",
-            "ABSTRACT CLASS Card : Owned<Player> { DEFAULT Card<Owner> \n CLASS ProjectCard }",
+            "ABSTRACT CLASS Card : Owned<Player> { DEFAULT Card<Anyone> \n CLASS ProjectCard }",
         )
 
     table.getClass(cn("Card")).baseType.expressionFull shouldBe te("Card<Player>")
-    // The default deliberately keeps the wider `Owner`, so that a context can supply the value.
-    table
-        .getClass(cn("Card"))
-        .defaults
-        .allUsages
-        .dependencies
-        .get(Key(cn("Owned"), 0))
-        .expressionFull shouldBe te("Owner")
-    table.getClass(cn("ProjectCard")).defaultExpression shouldBe te("ProjectCard<Owner>")
+    table.getClass(cn("Card")).defaults.allUsages.dependencies.keys.shouldBeEmpty()
+    table.getClass(cn("ProjectCard")).defaultExpression shouldBe te("ProjectCard<Player>")
     table.getClass(cn("ProjectCard")).defaultType.expressionFull shouldBe te("ProjectCard<Player>")
-  }
-
-  @Test
-  internal fun `T10-5 the default template is not a constructed type outside its class bounds`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Player : Owner { CLASS Player1 }",
-            "ABSTRACT CLASS Card : Owned<Player> { DEFAULT Card<Owner> \n CLASS ProjectCard }",
-        )
-    val projectCard = table.getClass(cn("ProjectCard"))
-
-    projectCard.defaultExpression shouldBe te("ProjectCard<Owner>")
-    projectCard.defaultType.isSubtypeOf(projectCard.baseType) shouldBe true
   }
 }

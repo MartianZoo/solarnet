@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class PharmacyUnionTest : CardTest() {
+  // Resolved FAQ: the starting money must precede the loss; its deeper rationale remains open.
   @Test
   internal fun `Starting money precedes both mandatory microbe-tag losses`() {
     newGame(PromoCardPack)
@@ -17,6 +18,20 @@ internal class PharmacyUnionTest : CardTest() {
     p1.runOperation("$PharmacyUnion").expect("46 MC, ProjectCard, 2 Disease<$PharmacyUnion>")
 
     p1.assertCounts(0 to "RequiredAction")
+  }
+
+  @Test
+  internal fun `Even a manual client receives starting money before either tag loss`() {
+    newGame(PromoCardPack)
+    p1.autoExecPolicy = NONE
+
+    p1.runOperation("$PharmacyUnion") {
+          p1.count("MC") shouldBe 54
+          repeat(2) { doTask("-4 MC.") }
+          repeat(2) { doTask("Disease<$PharmacyUnion>!") }
+          doTask("SearchForCard<TagFilter<Class<ScienceTag>>>")
+        }
+        .expect("46 MC, 2 Disease<$PharmacyUnion>")
   }
 
   @Test
@@ -40,7 +55,7 @@ internal class PharmacyUnionTest : CardTest() {
       shouldThrow<TaskException> { p1.doTask("Disease<$PharmacyUnion>") }
       doTask("Disease<$PharmacyUnion<Player1>>!")
       doTask("-4 MC<Player1>")
-      doTask("Microbe<$Decomposers>")
+      doTask("Microbe")
     }
 
     p1.count("Disease<$PharmacyUnion>") shouldBe diseaseBefore + 1
@@ -53,13 +68,15 @@ internal class PharmacyUnionTest : CardTest() {
     p1.runOperation("$PharmacyUnion")
     p1.runOperation("-Disease<$PharmacyUnion>")
     val trBefore = p1.count("TerraformRating")
+    val previousPolicy = p1.autoExecPolicy
     val manual = p1.also { it.autoExecPolicy = NONE }
 
     manual.runOperation("$Research") {
-      doTask("TerraformRating FROM Disease<$PharmacyUnion>")
-      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
-      doTask("3 TerraformRating")
+      doTask("TerraformRating FROM Disease")
+      doTask("PlayedEvent FROM $PharmacyUnion")
+      repeat(3) { doTask("TerraformRating") }
       doTask("2 ProjectCard")
+      manual.autoExecPolicy = previousPolicy
     }
 
     p1.count("TerraformRating") shouldBe trBefore + 4
@@ -76,14 +93,16 @@ internal class PharmacyUnionTest : CardTest() {
     p1.runOperation("$PharmacyUnion")
     p1.runOperation("-2 Disease<$PharmacyUnion>")
     val trBefore = p1.count("TerraformRating")
+    val previousPolicy = p1.autoExecPolicy
     val manual = p1.also { it.autoExecPolicy = NONE }
 
     manual.runOperation("$Research") {
-      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
-      doTask("3 TerraformRating")
+      doTask("PlayedEvent FROM $PharmacyUnion")
+      repeat(3) { doTask("TerraformRating") }
       // Decline the second science tag's attempt to flip Pharmacy Union again.
       declineTask()
       doTask("2 ProjectCard")
+      manual.autoExecPolicy = previousPolicy
     }
 
     p1.count("TerraformRating") shouldBe trBefore + 3
@@ -96,11 +115,13 @@ internal class PharmacyUnionTest : CardTest() {
     p1.runOperation("$PharmacyUnion, $MediaGroup")
     p1.runOperation("-2 Disease<$PharmacyUnion>")
     val moneyBefore = p1.count("MC")
+    val previousPolicy = p1.autoExecPolicy
     val manual = p1.also { it.autoExecPolicy = NONE }
 
     manual.runOperation("$PhysicsComplex") {
-      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
-      doTask("3 TerraformRating")
+      doTask("PlayedEvent FROM $PharmacyUnion")
+      repeat(3) { doTask("TerraformRating") }
+      manual.autoExecPolicy = previousPolicy
     }
 
     p1.count("MC") shouldBe moneyBefore
@@ -116,14 +137,16 @@ internal class PharmacyUnionTest : CardTest() {
     p1.runOperation("-2 Disease<$PharmacyUnion>")
     val moneyBefore = p1.count("MC")
     val trBefore = p1.count("TerraformRating")
+    val previousPolicy = p1.autoExecPolicy
     val manual = p1.also { it.autoExecPolicy = NONE }
 
     manual.runOperation("$RegolithEaters") {
-      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
-      doTask("3 TerraformRating")
+      doTask("PlayedEvent FROM $PharmacyUnion")
+      repeat(3) { doTask("TerraformRating") }
       doTask("-4 MC")
       // Decline placing disease after Pharmacy Union has left play.
       declineTask()
+      manual.autoExecPolicy = previousPolicy
     }
 
     p1.count("MC") shouldBe moneyBefore - 4

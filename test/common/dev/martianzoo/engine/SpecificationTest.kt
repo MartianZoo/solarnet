@@ -46,9 +46,9 @@ internal class SpecificationTest {
     test("5 OxygenStep? / Plant<Anyone>", "5 OxygenStep. / Plant<Anyone>")
 
     test("WaterArea(HAS MAX 0 Tile)!", "Tharsis_5_5!")
-    test("StandardResource<Owner(NOT Player1)>?", "Plant<Player2>!")
+    test("StandardResource<Anyone(NOT Player1)>?", "Plant<Player2>!")
     testInvalid("WaterArea(HAS Tile)!", "Tharsis_5_5!")
-    testInvalid("StandardResource<Owner(NOT Player1)>?", "Plant<Player1>!")
+    testInvalid("StandardResource<Anyone(NOT Player1)>?", "Plant<Player1>!")
     testInvalid("Plant: 2 StandardResource?", "Heat: 2 Heat!")
   }
 
@@ -82,7 +82,7 @@ internal class SpecificationTest {
   }
 
   @Test
-  internal fun compactTransmutationLinksItsUnchangedArguments() {
+  internal fun compactTransmutationRetainsItsUnchangedArguments() {
     val wide = "Production<Player, Class<Steel FROM Heat>>?"
 
     test(
@@ -97,10 +97,10 @@ internal class SpecificationTest {
 
   @Test
   internal fun transmutationBindsItsSourceBeforeTestingADestinationExclusion() {
-    val wide = "StandardResource(NOT StandardResource) FROM StandardResource!"
+    val wide = "StandardResource(NOT Source@StandardResource) FROM Source@StandardResource!"
 
-    test(wide, "Steel FROM Plant!")
-    testInvalid(wide, "Steel FROM Steel!")
+    test(wide, "Steel<Player1> FROM Plant<Player1>!")
+    testInvalid(wide, "Steel<Player1> FROM Steel<Player1>!")
   }
 
   private fun test(widerText: String, narrowerText: String) {

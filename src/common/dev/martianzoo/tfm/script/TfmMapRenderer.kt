@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.script
 
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.Grid
+import dev.martianzoo.state.GameReader
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.ApiUtils
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
@@ -125,8 +125,8 @@ public class TfmMapRenderer(
         }
 
     val owner =
-        tile.expressionFull.arguments.firstNotNullOfOrNull { expression ->
-          val className = game.resolve(expression).className
+        tile.typeDependencies.firstNotNullOfOrNull { dependency ->
+          val className = dependency.boundType.className
           players.singleOrNull { it.className == className }
         }
     val player = owner?.let { players.indexOf(it) + 1 }?.toString().orEmpty()

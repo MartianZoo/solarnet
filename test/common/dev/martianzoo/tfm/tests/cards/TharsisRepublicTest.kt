@@ -7,8 +7,8 @@ import kotlin.test.Test
 
 internal class TharsisRepublicTest : CardTest() {
   @Test
-  internal fun `Gains two mc production in solo mode`() {
-    newGame(players = 1, retainedStartingProjects = 1)
+  internal fun `Original solo corporation gains production for the two opponent cities`() {
+    newGame(players = 1)
 
     p1.playCorp(TharsisRepublic, 1).expect("PROD[2 MC]")
   }
@@ -21,15 +21,12 @@ internal class TharsisRepublicTest : CardTest() {
   }
 
   @Test
-  internal fun `Gains the solo mc production bonus when Merger plays it later`() {
+  internal fun `Does not gain the solo starting bonus when acquired through Merger`() {
     newGame(PreludeExpansion, PromoCardPack, players = 1)
     playCorporationWithoutStartingProjects(p1, CrediCor)
     admin.phase("Prelude")
     p1.runOperation("PreludeCard")
 
-    p1.playPrelude(Merger) {
-          p1.playCorp(TharsisRepublic)
-        }
-        .expect("PROD[2 MC]")
+    p1.playPrelude(Merger) { p1.playCorp(TharsisRepublic) }.expect("PROD[0 MC]")
   }
 }

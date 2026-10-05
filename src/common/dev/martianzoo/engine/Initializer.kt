@@ -3,18 +3,17 @@ package dev.martianzoo.engine
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.DependencyException
-import dev.martianzoo.pets.api.Exceptions.KindException
-import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
-import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.GamePremise
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameWorld
 import dev.martianzoo.state.TaskResult
 
@@ -63,7 +62,9 @@ internal class Initializer(
   private fun parseMandatoryInstruction(instruction: String): Instruction {
     val parsed = elaborator.elaborateInput(Parsing.parse<Instruction>("$instruction!"))
     return parsed as? Instruction
-        ?: throw KindException("Preprocessing produced `$parsed`, which is not an Instruction")
+        ?: throw IllegalStateException(
+            "Preprocessing produced `$parsed`, which is not an Instruction"
+        )
   }
 
   /** Executes a generated premise recipe, or directly creates an uncompiled custom premise. */
@@ -108,7 +109,7 @@ internal class Initializer(
             premise.initialComponentTypes.map(classTable::resolve)
     val invalidCounts = expected.associateWith(reader::count).filterValues { it != 1 }
     if (invalidCounts.isNotEmpty()) {
-      throw invalidPetDefinition(
+      throw InvalidGameConfigException(
           "Bootstrap did not create each required component exactly once: " +
               invalidCounts.entries.joinToString { (type, count) ->
                 "${type.expressionFull} (found $count)"
@@ -124,13 +125,13 @@ internal class Initializer(
             .filter { (limit, count) -> count !in limit.range }
             .sortedBy { (limit, _) -> limit.type.expressionFull.toString() }
     if (invalidLimits.isNotEmpty()) {
-      throw invalidPetDefinition(
-          "Completed bootstrap violates required component counts: " +
+      throw InvalidGameConfigException(
+          "game setup violates required component counts: " +
               invalidLimits.joinToString { (limit, count) ->
                 val expected =
                     if (limit.range.first == limit.range.last) "${limit.range.first}"
                     else "${limit.range}"
-                "${limit.type.expressionFull} (found $count, expected $expected)"
+                "`${limit.type.expressionFull}` (found $count, expected $expected)"
               }
       )
     }
@@ -167,12 +168,12 @@ internal class Initializer(
             remaining.joinToString(separator = "\n") { type ->
               val reason =
                   missingByType[type]?.let { dependencies ->
-                    "requires " + dependencies.joinToString { "${it.expressionFull}" }
+                    "requires " + dependencies.joinToString { "`${it.expressionFull}`" }
                   } ?: "could not be created"
-              "  ${type.expressionFull} $reason"
+              "  `${type.expressionFull}` $reason"
             }
-        throw invalidPetDefinition(
-            "Could not create $description components; dependencies remain missing:\n$diagnostic"
+        throw InvalidGameConfigException(
+            "cannot create $description components; dependencies remain missing:\n$diagnostic"
         )
       }
     }

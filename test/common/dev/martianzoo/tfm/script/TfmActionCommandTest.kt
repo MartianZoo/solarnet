@@ -20,8 +20,6 @@ internal class TfmActionCommandTest {
     val repl = ScriptSession()
     repl.command("newgame BRP 2")
     repl.command("become Player1")
-    repl.command("task -10 ProjectCard<Selecting>")
-    repl.command("as Player2 task -10 ProjectCard<Selecting>")
     repl.agent.runOperation("PROD[Energy], AiCentral")
     repl.command("auto none")
     repl.agent.beginOperation("UseAction<UseActionOnCardAction, Action1>")
@@ -116,7 +114,7 @@ internal class TfmActionCommandTest {
     val output = repl.command("tfm_action ElectroCatapult 1, 1 Energy")
 
     assertTrue(
-        output.single().contains("there wasn't exactly one matching task"),
+        output.single().contains("no matching task"),
         output.joinToString("\n"),
     )
     assertEquals(0, repl.agent.count("ActionUsedMarker<ElectroCatapult>"))
@@ -135,8 +133,6 @@ internal class TfmActionCommandTest {
     val repl = ScriptSession()
     repl.command("newgame $options 2")
     repl.command("become Player1")
-    repl.command("task -10 ProjectCard<Selecting>")
-    repl.command("as Player2 task -10 ProjectCard<Selecting>")
     repl.agent.runOperation(contents)
     repl.command("phase Action")
     repl.agent.beginOperation("NewTurn")

@@ -1,7 +1,7 @@
 {
   "decks": [
     {
-      "deck": "CorporationCard",
+      "deck": "StandardCorporationCard",
       "cards": [
         {
           "name": "Aphrodite",
@@ -12,7 +12,7 @@
         {
           "name": "Celestic",
           "tags": [ "VenusTag" ],
-          "immediate": "42 MC, RequiredAction { -> CARDS[2 SearchForCard(HAS ReferenceTo<Class<Floater>>)] }",
+          "immediate": "42 MC, RequiredAction { -> 2 SearchForCard<ReferenceFilter<Class<Floater>>> }",
           "actions": [ "-> Floater" ],
           "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
         },
@@ -20,12 +20,12 @@
           "name": "Manutech",
           "tags": [ "BuildingTag" ],
           "immediate": "35 MC, PROD[Steel]",
-          "effects": [ "PROD[StandardResource]: StandardResource" ],
+          "effects": [ "PROD[@StandardResource]: @StandardResource" ],
         },
         {
           "name": "MorningStarInc",
           "tags": [ "VenusTag" ],
-          "immediate": "50 MC, RequiredAction { -> CARDS[3 SearchForCard(HAS PrintedTag<Class<VenusTag>>)] }",
+          "immediate": "50 MC, RequiredAction { -> 3 SearchForCard<TagFilter<Class<VenusTag>>> }",
           "effects": [ "CheckRequirement:: -2 Required<Class<VenusStep>>" ],
         },
         {
@@ -83,7 +83,7 @@
           "name": "CometForVenus",
           "cost": 11,
           "tags": [ "SpaceTag", "EventTag" ],
-          "immediate": "VenusStep, -4 MC<Anyone(HAS VenusTag)>?",
+          "immediate": "VenusStep, -4 MC<Anyone(HAS VenusTag<Anyone>)>?",
         },
         {
           "name": "CorroderSuits",
@@ -114,8 +114,8 @@
           "tags": [ "VenusTag" ],
           "actions": [ "-> Floater" ],
           "effects": [
-            "PlayTag<Class<VenusTag>>:: AcceptingFromCard<This>",
-            "PayFromCard<This>:: -3 Owed"
+            "PayingFor<Class<VenusTag>>:: AcceptingFromCard<This>",
+            "-Floater<This> BY Me@ IF AcceptingFromCard<This>:: -3 Owed"
           ],
         },
         {
@@ -302,7 +302,7 @@
           "name": "SponsoredAcademies",
           "cost": 9,
           "tags": [ "ScienceTag", "EarthTag" ],
-          "immediate": "-ProjectCard THEN 3 ProjectCard, EACH Player(NOT Owner) { ProjectCard }",
+          "immediate": "-ProjectCard THEN 3 ProjectCard, EACH Other@Player(NOT Me@) { ProjectCard<Other@> }",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -407,7 +407,7 @@
           "cost": 9,
           "tags": [ "VenusTag", "SpaceTag" ],
           "effects": [
-            "PlayTag<Class<VenusTag>>:: -2 Owed",
+            "PayingFor<Class<VenusTag>>:: -2 Owed",
             "End: VictoryPoint"
           ],
         },

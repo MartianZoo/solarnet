@@ -1,11 +1,10 @@
 package dev.martianzoo.pets.types
 
-import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
-import dev.martianzoo.pets.api.SystemClasses.OWNER
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Quantifier
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.DefaultKind
-import dev.martianzoo.pets.types.Dependency.TypeDependency
 
 /**
  * The three independently inherited default sets defined by
@@ -62,13 +61,15 @@ public data class Defaults(
     }
 
     /** Reports the class rather than failing anonymously when supertypes disagree. */
-    private fun <T> onlyOne(klass: Class, kind: String): (List<T>) -> T = { candidates ->
-      candidates.singleOrNull()
-          ?: throw invalidPetDefinition(
-              "${klass.className} inherits conflicting $kind quantifier defaults: " +
-                  candidates.joinToString()
-          )
-    }
+    private fun onlyOne(klass: Class, kind: String): (List<Quantifier>) -> Quantifier =
+        { candidates ->
+          candidates.singleOrNull()
+              ?: throw InvalidPetDefinitionException(
+                  "`${klass.className}` inherits conflicting $kind quantifier defaults: " +
+                      candidates.joinToString { "`${it.symbol}`" },
+                  sourceLocation = klass.className.sourceLocation,
+              )
+        }
 
     private fun <T> inheritDefault(
         klass: Class,
@@ -86,43 +87,39 @@ public data class Defaults(
     }
 
     private fun gatherDefaultDeps(klass: Class, kind: DefaultKind): DependencySet {
-      // TODO: this is complex and this human doesn't understand it
       fun toDependencyMap(origin: Class, specs: List<Expression>): DependencySet {
-        val resolved = origin.classTable.resolve(origin.className.of(specs)).narrowedDependencies
-        if (OWNER.expression !in specs) return resolved
-
-        // Owner also acts as a contextual variable. Don't normalize that variable to its bound
-        // before it can be replaced with Player1, etc.
-        val ownerKey =
-            origin.dependencies
-                .matchPartial(listOf(OWNER.expression))
-                .typeDependencies()
-                .single()
-                .key
-        val owner = TypeDependency(ownerKey, klass.classTable.resolve(OWNER.expression))
-        return resolved.merge(DependencySet.of(setOf(owner))) { _, contextual -> contextual }
+        return origin.classTable.resolve(origin.className.of(specs)).narrowedDependencies
       }
 
+      // Validate even declarations on classes with no dependency keys. Computing this once also
+      // avoids resolving the same authored default separately for every inherited key.
+      val declared =
+          klass.allSuperclasses().associateWith { origin ->
+            try {
+              toDependencyMap(origin, origin.defaultsDecl.default(kind).specs)
+            } catch (e: ExpressionException) {
+              throw InvalidPetDefinitionException(
+                  "invalid defaults for `${origin.className}`: ${e.detail}",
+                  e,
+                  e.sourceLocation ?: origin.className.sourceLocation,
+              )
+            }
+          }
       val deps: List<Dependency> =
           klass.dependencies.keys.mapNotNull { key ->
             inheritDefault(
                 klass,
                 { origin ->
-                  val inherited =
-                      toDependencyMap(origin, origin.defaultsDecl.default(kind).specs)
-                          .getIfPresent(key)
-                  if (inherited?.expression == OWNER.expression) {
-                    inherited
-                  } else {
-                    inherited?.let { klass.classTable.glb(it, klass.dependencies.get(key)) }
-                  }
+                  val inherited = declared.getValue(origin).getIfPresent(key)
+                  inherited?.let { klass.classTable.glb(it, klass.dependencies.get(key)) }
                 },
                 { deps: List<Dependency> ->
                   deps.reduce { left, right ->
                     klass.classTable.glb(left, right)
-                        ?: throw invalidPetDefinition(
-                            "${klass.className} inherits incompatible defaults for $key: " +
-                                "$left and $right"
+                        ?: throw InvalidPetDefinitionException(
+                            "`${klass.className}` inherits incompatible defaults for `$key`: " +
+                                "`$left` and `$right`",
+                            sourceLocation = klass.className.sourceLocation,
                         )
                   }
                 },

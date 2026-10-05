@@ -3,19 +3,23 @@ package dev.martianzoo.pets.util
 import kotlin.random.Random
 
 public fun <T> Iterable<T>.toSetStrict(): Set<T> =
-    toSet().also { require(it.size == count()) { "dupes: $this" } }
+    toSet().also { require(it.size == count()) { "duplicate values: `$this`" } }
 
 public inline fun <T, K> Iterable<T>.toSetStrict(fn: (T) -> K): Set<K> = map(fn).toSetStrict()
 
 public fun <T, K> Collection<T>.associateByStrict(x: (T) -> K): Map<K, T> {
   val map: Map<K, T> = associateBy(x)
-  require(map.size == size) { groupBy(x).filterValues { it.size > 1 }.keys }
+  require(map.size == size) {
+    "duplicate keys: `${groupBy(x).filterValues { it.size > 1 }.keys}`"
+  }
   return map
 }
 
 internal fun <T, K, V> Collection<T>.associateStrict(x: (T) -> Pair<K, V>): Map<K, V> {
   val map: Map<K, V> = associate(x)
-  require(map.size == size) { groupBy(x).filterValues { it.size > 1 }.keys }
+  require(map.size == size) {
+    "duplicate keys: `${groupBy(x).filterValues { it.size > 1 }.keys}`"
+  }
   return map
 }
 
@@ -25,7 +29,8 @@ private fun <C : Sequence<Any?>> C.toStrings(): Sequence<String> = map { it?.toS
 
 public fun <T> Sequence<T>.random(): T {
   var i = 0
-  return findLast { Random.nextInt(++i) == 0 } ?: error("empty")
+  return findLast { Random.nextInt(++i) == 0 }
+      ?: error("cannot choose a random element from an empty iterable")
 }
 
 internal infix fun <T> T.plus(more: Collection<T>): List<T> = listOf(this) + more

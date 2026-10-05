@@ -4,7 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.assertions.throwables.shouldThrow
@@ -47,7 +47,7 @@ internal class WorldTransactionTest {
         Engine.newGame(
             testGamePremise(
                 """
-                CLASS CleanupProbe : Owned<Player>, Temporary { -This: Followup<Owner> }
+                CLASS CleanupProbe : Owned<Player>, Temporary { -This: Followup }
                 CLASS Followup : Owned<Player>
                 CLASS Blocker
                 """
@@ -165,7 +165,7 @@ internal class WorldTransactionTest {
     game.onTransactionComplete = {
       if (startFollowUp) {
         startFollowUp = false
-        player.sneak("CleanupProbe")
+        player.runOperation("CleanupProbe")
         followUpCompletedBeforeReturning =
             player.count("CleanupProbe") == 0 && player.count("Done") == 1
       }
@@ -184,7 +184,7 @@ internal class WorldTransactionTest {
         Engine.newGame(
             testGamePremise(
                 """
-                CLASS CleanupProbe : Owned<Player>, Temporary { -This: Followup<Owner> }
+                CLASS CleanupProbe : Owned<Player>, Temporary { -This: Followup }
                 CLASS Followup : Owned<Player>
                 """
             )
@@ -218,38 +218,20 @@ internal class WorldTransactionTest {
   }
 
   @Test
-  internal fun directMutationPerformsIdleCleanupBeforeCompletion() {
-    val game =
-        Engine.newGame(
-            testGamePremise(
-                """
-                CLASS CleanupProbe : Temporary
-                """
-            )
-        )
-    val player = game.testAgent(PLAYER1)
-
-    player.sneak("CleanupProbe")
-
-    player.count("CleanupProbe") shouldBe 0
-    game.tasks.isEmpty() shouldBe true
-    game.isIdle() shouldBe true
-  }
-
-  @Test
   internal fun directAgentMutationsReportAtomicCompletion() {
     val game = Engine.newGame(testGamePremise())
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    agent.sneak("Token")
     var completions = 0
     game.onTransactionComplete = { completions++ }
 
-    agent.sneak("Token")
     val taskId = agent.addTasks("-Token?").single()
-    agent.narrowTask(taskId, "-Token")
-    agent.dropTask(taskId)
+    agent.selectTask(taskId)
+    agent.narrowTask("-Token")
+    agent.dropTask(agent.addTasks("Token?").single())
 
-    completions shouldBe 4
-    agent.count("Token") shouldBe 1
+    completions shouldBe 5
+    agent.count("Token") shouldBe 0
     agent.tasks.isEmpty() shouldBe true
   }
 }

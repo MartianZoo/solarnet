@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -32,5 +33,16 @@ internal class UnmiTest : CardTest() {
     newGame()
     playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
     admin.phase("Action")
+  }
+
+  @Test
+  internal fun `UNMI Contractor TR during setup qualifies UNMI in generation one`() {
+    newGame(PreludeExpansion)
+    p1.playCorp(UnitedNationsMarsInitiative, 0)
+    admin.phase("Prelude")
+    p1.playPrelude(UnmiContractor)
+    admin.phase("Action")
+
+    p1.cardAction1(UnitedNationsMarsInitiative).expect("TerraformRating")
   }
 }

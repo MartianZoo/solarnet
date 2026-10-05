@@ -11,7 +11,10 @@ kotlin {
     commonMain {
       kotlin.srcDir(generatePetsTypes)
       kotlin.srcDir(generatedSupportDirectory)
-      dependencies { api(project(":pets")) }
+      dependencies {
+        api(project(":pets"))
+        api(project(":state"))
+      }
     }
     commonTest { kotlin.setSrcDirs(listOf(generatedTestDirectory)) }
   }

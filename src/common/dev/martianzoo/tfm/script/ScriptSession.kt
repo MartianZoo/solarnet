@@ -7,11 +7,11 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskResult
@@ -222,7 +222,8 @@ public class ScriptSession(
             else -> "special"
           }
       val owner =
-          tile.expressionFull.arguments
+          tile.typeDependencies
+              .map { it.boundType }
               .firstOrNull { it.className in playerClassNames }
               ?.className
               ?.toString()

@@ -2,11 +2,12 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasClassName.Companion.classNames
+import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.api.Exceptions.PetException
-import dev.martianzoo.pets.api.SystemClasses.ANYONE
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.DIE
@@ -16,7 +17,10 @@ import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction.Each
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.UnqualifiedReference
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue
@@ -24,6 +28,7 @@ import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
 import dev.martianzoo.pets.ast.PropertyValue.OptionalRequirementType
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Companion.split
+import dev.martianzoo.pets.ast.constructLocalTypeVariableDeclarations
 import dev.martianzoo.pets.ast.withTypeVariables
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.types.Dependency.Companion.depsForClassType
@@ -43,24 +48,126 @@ import dev.martianzoo.pets.util.toSetStrict
  */
 public class Class
 internal constructor(
-    /**
-     * The source declaration retained under
-     * [rule T2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
-     */
-    public val declaration: ClassDeclaration,
+    sourceDeclaration: ClassDeclaration,
 
     /** The class loader used while constructing this class. */
     private val loader: ClassLoader,
 
-    /** Whether resolving this declaration's immediate hierarchy activates those Classes. */
-    activateRelated: Boolean = true,
+    /** Whether resolving this declaration's immediate hierarchy includes those Classes. */
+    includeRelated: Boolean = true,
 
     /**
      * The declared direct supertypes; empty only for the root class, under
      * [rules T1-4 and T2-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
      */
-    public val directSuperclasses: List<Class> = superclasses(declaration, loader, activateRelated),
+    public val directSuperclasses: List<Class> =
+        superclasses(sourceDeclaration, loader, includeRelated),
 ) : HasClassName, Specification<Class> {
+
+  /** The declaration with inherited header names resolved in this class's own body. */
+  public val declaration: ClassDeclaration = inheritHeaderNames(sourceDeclaration)
+
+  /** Marker identities can be inherited without resolving dependency paths before table freeze. */
+  private val inheritableHeaderMarkers: List<Declaration> by lazy {
+    ((declaration.dependencies + declaration.supertypes)
+            .flatMap { it.descendantsOfType<Expression>() }
+            .mapNotNull { it.typeVariableName as? Declaration } +
+            directSuperclasses.flatMap { it.inheritableHeaderMarkers })
+        .distinctBy(Declaration::identity)
+  }
+
+  private fun refersToInherited(
+      marker: Expression.TypeVariableName,
+      declaration: Declaration,
+  ): Boolean =
+      (marker is UnqualifiedReference && marker.name == declaration.name) ||
+          marker.key == declaration.key ||
+          (marker.name != null &&
+              marker.name == declaration.name &&
+              loader
+                  .getClass(marker.boundClassName)
+                  .isSubtypeOf(loader.getClass(declaration.boundClassName)))
+
+  private fun inheritHeaderNames(source: ClassDeclaration): ClassDeclaration {
+    fun bodyNodes(declaration: ClassDeclaration): List<PetNode> =
+        declaration.authoredEffects +
+            declaration.authoredActions +
+            declaration.executableEffects.orEmpty()
+    val ownHeaderKeys =
+        (source.dependencies + source.supertypes)
+            .flatMap { it.descendantsOfType<Expression>() }
+            .mapNotNull { (it.typeVariableName as? Declaration)?.key }
+            .toSet()
+    val localIdentities =
+        bodyNodes(source)
+            .flatMap { it.constructLocalTypeVariableDeclarations() }
+            .mapNotNull { it.typeVariableName?.identity }
+            .toSet()
+    fun rejectUnresolved(declaration: ClassDeclaration) {
+      val unresolved =
+          bodyNodes(declaration)
+              .flatMap { it.descendantsOfType<Expression>() }
+              .firstOrNull { expression ->
+                when (val marker = expression.typeVariableName) {
+                  is UnqualifiedReference -> true
+                  is Declaration -> !marker.resolved
+                  is Reference -> !marker.resolved
+                  else -> false
+                }
+              }
+      if (unresolved != null) {
+        val marker = requireNotNull(unresolved.typeVariableName)
+        throw InvalidPetDefinitionException(
+            "`${source.className}` has no inherited type variable `${marker.authoredSpelling}`",
+            sourceLocation = unresolved.sourceLocation,
+        )
+      }
+    }
+    val bodyMarkers =
+        bodyNodes(source)
+            .flatMap { it.descendantsOfType<Expression>() }
+            .mapNotNull { it.typeVariableName }
+            .filter { it.key !in ownHeaderKeys && it.identity !in localIdentities }
+    val inherited = directSuperclasses.flatMap { it.inheritableHeaderMarkers }
+    if (bodyMarkers.none { marker -> inherited.any { refersToInherited(marker, it) } }) {
+      rejectUnresolved(source)
+      return source
+    }
+    val resolver =
+        object : PetTransformer() {
+          override fun transformNode(node: PetNode): PetNode {
+            if (node !is Expression) return transformChildren(node)
+            val marker = node.typeVariableName ?: return transformChildren(node)
+            if (marker.key in ownHeaderKeys || marker.identity in localIdentities) {
+              return transformChildren(node)
+            }
+            val matches =
+                inherited.filter { refersToInherited(marker, it) }.distinctBy(Declaration::identity)
+            if (matches.isEmpty()) return transformChildren(node)
+            val boundClassName =
+                if (marker is UnqualifiedReference) matches.first().boundClassName
+                else marker.boundClassName
+            // All matching declarations must denote one binding; headerVariableBindings checks it.
+            return transformChildren(
+                node.copy(
+                    className =
+                        if (marker is UnqualifiedReference) boundClassName else node.className,
+                    typeVariableName =
+                        Reference(marker.name, boundClassName, node.argumentsSpecified)
+                            .resolved(requireNotNull(matches.first().resolution)),
+                )
+            )
+          }
+        }
+    val interpreted =
+        source.copy(
+            authoredEffects = source.authoredEffects.map(resolver::transformEffect),
+            authoredActions = source.authoredActions.map(resolver::transformAction),
+            executableEffects = source.executableEffects?.map(resolver::transformEffect),
+        )
+    rejectUnresolved(interpreted)
+    return interpreted
+  }
 
   /**
    * The master universe containing this class, as required by
@@ -71,22 +178,28 @@ internal constructor(
 
   /**
    * The canonical class name that determines identity within [classTable] ([rule
-   * T2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes)).
+   * T1-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity)).
    */
   override val className: ClassName = declaration.className.also { require(it != THIS) }
 
   init {
     if (directSuperclasses.any { !it.abstract }) {
-      throw PetException(
-          "$className cannot extend concrete class(es): " +
-              directSuperclasses.filterNot { it.abstract }.joinToString { "${it.className}" }
+      val concrete = directSuperclasses.filterNot { it.abstract }
+      throw InvalidPetDefinitionException(
+          "`$className` cannot extend concrete classes: " +
+              concrete.joinToString { "`${it.className}`" } +
+              "; declare the superclass `ABSTRACT` if it is intended to be extended",
+          sourceLocation =
+              declaration.supertypes
+                  .firstOrNull { it.className == concrete.first().className }
+                  ?.sourceLocation ?: className.sourceLocation,
       )
     }
   }
 
   /**
    * The declaration's documentation text, retained under
-   * [rule T2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+   * [rule L11-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations).
    */
   public val docstring: String?
     get() = declaration.docstring
@@ -105,9 +218,13 @@ internal constructor(
     if (!declaration.abstract) {
       val abstractProperties = properties.filterValues { it.abstract }.keys
       if (abstractProperties.isNotEmpty()) {
-        throw PetException(
-            "$className is concrete but has abstract properties: " +
-                abstractProperties.joinToString()
+        throw InvalidPetDefinitionException(
+            "`$className` is concrete but has abstract properties: " +
+                abstractProperties.joinToString { "`$it`" } +
+                "; supply values or declare `$className` `ABSTRACT`",
+            sourceLocation =
+                declaration.properties.keys.firstOrNull { it in abstractProperties }?.sourceLocation
+                    ?: className.sourceLocation,
         )
       }
     }
@@ -122,16 +239,18 @@ internal constructor(
             when {
               existing == null || incoming == existing -> incoming
               existing.origin != incoming.origin ->
-                  throw PetException(
-                      "$className inherits distinct properties named $name from " +
-                          "${existing.origin} and ${incoming.origin}"
+                  throw InvalidPetDefinitionException(
+                      "`$className` inherits distinct properties named `$name` from " +
+                          "`${existing.origin}` and `${incoming.origin}`",
+                      sourceLocation = className.sourceLocation,
                   )
               existing.lineage.isPrefixOf(incoming.lineage) -> incoming
               incoming.lineage.isPrefixOf(existing.lineage) -> existing
               else ->
-                  throw PetException(
-                      "$className inherits divergent narrowings for $name from " +
-                          "${existing.source} and ${incoming.source}"
+                  throw InvalidPetDefinitionException(
+                      "`$className` inherits divergent narrowings for `$name` from " +
+                          "`${existing.source}` (${existing.value}) and `${incoming.source}` (${incoming.value})",
+                      sourceLocation = className.sourceLocation,
                   )
             }
       }
@@ -143,13 +262,16 @@ internal constructor(
         else -> {
           val inheritedValue = inheritedFact.value
           if (!inheritedValue.abstract) {
-            throw PetException(
-                "$className cannot override inherited property $name = $inheritedValue"
+            throw InvalidPetDefinitionException(
+                "`$className` cannot override inherited property `$name = $inheritedValue` from `${inheritedFact.source}` with `$declared`",
+                sourceLocation = name.sourceLocation,
             )
           }
           if (!declared.narrows(inheritedValue, TypeInfo.NoGameState)) {
-            throw PetException(
-                "$className cannot narrow property $name = $inheritedValue with $declared"
+            throw InvalidPetDefinitionException(
+                "`$className` cannot narrow inherited property `$name = $inheritedValue` " +
+                    "from `${inheritedFact.source}` with `$declared`",
+                sourceLocation = name.sourceLocation,
             )
           }
           inherited[name] =
@@ -241,7 +363,7 @@ internal constructor(
    */
   override fun ensureNarrows(that: Class, info: TypeInfo) {
     if (!isSubtypeOf(that))
-        throw NarrowingException("${this.className} is not a subclass of ${that.className}")
+        throw NarrowingException("`${this.className}` is not a subclass of `${that.className}`")
   }
 
   /**
@@ -252,11 +374,11 @@ internal constructor(
 
   private fun requireSameClassTable(that: Class) {
     require(classTable.commonTable(that.classTable) != null) {
-      "$className and ${that.className} belong to different class tables"
+      "`$className` and `${that.className}` belong to different class tables"
     }
   }
 
-  private val sups: Set<Expression>
+  private val sups: List<Expression>
     get() = declaration.supertypes
 
   private fun replaceThis(expression: Expression): Expression =
@@ -282,9 +404,8 @@ internal constructor(
       else allSuperclasses.flatMap { split(it.declaration.invariants) }.toSet()
 
   /**
-   * Every superclass in the walk specified by
-   * [rule T2-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes),
-   * including this class.
+   * Every superclass of this class, including itself, as determined by
+   * [rule T2-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
    */
   public fun allSuperclasses(): Set<Class> = allSuperclasses
 
@@ -304,7 +425,7 @@ internal constructor(
       val superclass = loader.getClass(sourceSupertype.className)
       val arguments = sourceSupertype.arguments
       val matched =
-          superclass.dependencies.matchPartialInOrder(arguments.map(::replaceThis), loader)
+          superclass.argumentDependencies.matchPartialInOrder(arguments.map(::replaceThis), loader)
       arguments.zip(matched).flatMap { (argument, dependency) ->
         selfBindingsIn(argument, dependency, listOf(dependency.key))
       }
@@ -320,29 +441,35 @@ internal constructor(
     if (expression == THIS.expression) return listOf(DependencyPath(path))
     if (expression.arguments.isEmpty()) return listOf()
 
-    val dependencies =
+    val boundType =
         when (dependency) {
-          is TypeDependency -> dependency.boundType.dependencies
+          is TypeDependency -> dependency.boundType
           else -> return listOf()
         }
-    val matched = dependencies.matchPartialInOrder(expression.arguments.map(::replaceThis), loader)
+    val matched =
+        boundType.argumentDependencies.matchPartialInOrder(
+            expression.arguments.map(::replaceThis),
+            loader,
+        )
     return expression.arguments.zip(matched).flatMap { (argument, nestedDependency) ->
       selfBindingsIn(argument, nestedDependency, path + nestedDependency.key)
     }
   }
 
-  private fun GroundType.bindSelfAt(paths: List<List<Key>>): Expression {
-    val pathsByKey = paths.groupBy { it.first() }
-    val arguments = dependencies.expressionsFull { dependency ->
-      val remainingPaths = pathsByKey[dependency.key]?.map { it.drop(1) }.orEmpty()
-      when {
-        remainingPaths.isEmpty() -> dependency.expressionFull
-        remainingPaths.any { it.isEmpty() } -> this@Class.className.expression
-        dependency is TypeDependency -> dependency.boundType.bindSelfAt(remainingPaths)
-        else -> error("can't bind self within $dependency")
-      }
+  private fun GroundType.bindSelfAt(paths: List<List<Key>>): GroundType {
+    if (paths.any { it.isEmpty() }) {
+      check(paths.all { it.isEmpty() })
+      return this@Class.baseType
     }
-    return expressionFull.replaceArguments(arguments)
+    if (representedClass != null && paths.all { it == listOf(Key(CLASS, 0)) }) {
+      return this@Class.classType
+    }
+    val pathsByKey = paths.groupBy { it.first() }
+    val rebound = dependencies.mapWithKey { key, boundType ->
+      val remainingPaths = pathsByKey[key]?.map { it.drop(1) }.orEmpty()
+      if (remainingPaths.isEmpty()) boundType else boundType.bindSelfAt(remainingPaths)
+    }
+    return GroundType(rootClass, rebound, refinement)
   }
 
   private val inheritedDeps: Lazy<DependencySet> = lazy {
@@ -355,7 +482,7 @@ internal constructor(
             if (paths.isEmpty()) {
               boundType
             } else {
-              loader.resolve(boundType.bindSelfAt(paths))
+              boundType.bindSelfAt(paths)
             }
           }
         }
@@ -364,7 +491,10 @@ internal constructor(
     inherited.reduceOrNull { left, right ->
       left.merge(right) { a, b ->
         loader.glb(a, b)
-            ?: throw PetException("$className inherits incompatible bounds for ${a.key}: $a and $b")
+            ?: throw InvalidPetDefinitionException(
+                "`$className` inherits incompatible bounds for `${a.key}`: `$a` and `$b`",
+                sourceLocation = className.sourceLocation,
+            )
       }
     } ?: DependencySet.of()
   }
@@ -381,9 +511,11 @@ internal constructor(
   // rejected.
   private val dependenciesLazy = lazy {
     if (resolvingDependencies) {
-      throw PetException(
-          "$className has a circular dependency: resolving its dependency bounds requires " +
-              "those same bounds"
+      throw InvalidPetDefinitionException(
+          "`$className` has a circular dependency: resolving its dependency bounds requires " +
+              "those same bounds",
+          sourceLocation =
+              declaration.dependencies.firstOrNull()?.sourceLocation ?: className.sourceLocation,
       )
     }
     resolvingDependencies = true
@@ -392,7 +524,9 @@ internal constructor(
           if (className == CLASS) {
             depsForClassType(loader.componentClass)
           } else {
-            inheritedDeps().merge(declaredDeps()) { _, _ -> error("unexpected") }
+            inheritedDeps().merge(declaredDeps()) { inherited, declared ->
+              error("dependency key occurs in both inherited `$inherited` and declared `$declared`")
+            }
           }
       resolved
           .typeDependencies()
@@ -401,10 +535,14 @@ internal constructor(
             target.className == DIE || target.allSuperclasses().any { it.className == SIGNAL }
           }
           ?.let { dependency ->
-            throw PetException(
-                "$className dependency ${dependency.key} cannot target " +
-                    "${dependency.boundType.expressionFull}; Signal types and Die cannot be " +
-                    "dependency targets"
+            throw InvalidPetDefinitionException(
+                "`$className` dependency `${dependency.key}` cannot target " +
+                    "`${dependency.boundType.expressionFull}`; `Signal` types and `Die` cannot " +
+                    "be dependency targets",
+                sourceLocation =
+                    declaration.dependencies
+                        .firstOrNull { it.className == dependency.boundType.rootClass.className }
+                        ?.sourceLocation ?: className.sourceLocation,
             )
           }
       resolved
@@ -416,11 +554,16 @@ internal constructor(
    * The complete keyed dependency set inherited and narrowed according to
    * [section 3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
    *
-   * @throws PetException if two supertypes constrain one key to bounds with no common narrowing
-   *   (rule T3-3), or if the dependency bounds contain the cycle forbidden by rule T3-11.
+   * @throws InvalidPetDefinitionException if two supertypes constrain one key to bounds with no
+   *   common narrowing (rule T3-3), or if the dependency bounds contain the cycle forbidden by rule
+   *   T3-11.
    */
   public val dependencies: DependencySet
-    get() = dependenciesLazy.value
+    get() = loader.inDefinition(declaration) { dependenciesLazy.value }
+
+  /** Dependency positions whose class-declared bounds still admit specialization by an argument. */
+  internal val argumentDependencies: DependencySet
+    get() = dependencies.subMapInOrder(dependencies.keys.filter { dependencies.get(it).abstract })
 
   private data class DependencyEquality(
       val expressions: Set<Expression>,
@@ -436,21 +579,27 @@ internal constructor(
         DependencyPath(key) in it.paths
       }
 
-  /** Dependency paths which one authored type-variable equality requires to share a target. */
-  public val dependencyLinkages: List<Set<DependencyPath>> by lazy {
-    dependencyEqualities().map(DependencyEquality::paths)
-  }
+  /** Whether a supplied dependency already determines [key] through a header variable. */
+  internal fun dependencyDeterminedBy(key: Key, supplied: Collection<Key>): Boolean =
+      dependencyEqualities().any { equality ->
+        DependencyPath(key) in equality.paths &&
+            equality.paths.any { path ->
+              path.keyList.first() != key && path.keyList.first() in supplied
+            }
+      }
 
   private fun equalityError(equality: DependencyEquality, dependencies: DependencySet): Nothing =
-      error(
-          "Type-variable ${equality.expressions.joinToString()} dependencies disagree in " +
-              className.of(dependencies.expressionsFull())
+      throw ExpressionException(
+          "type-variable `${equality.expressions.joinToString()}` dependencies disagree in " +
+              "`${className.of(dependencies.expressionsFull())}`"
       )
 
   private fun normalizeVariableEqualities(original: DependencySet): DependencySet {
     val classTable =
         original.classTable?.let {
-          requireNotNull(loader.commonTable(it)) { "$original belongs to a different class table" }
+          requireNotNull(loader.commonTable(it)) {
+            "`$original` belongs to a different class table"
+          }
         } ?: loader
     var dependencies = original
     var changed: Boolean
@@ -458,10 +607,25 @@ internal constructor(
       changed = false
       dependencyEqualities().forEach { equality ->
         val occurrences = equality.paths.map(dependencies::at)
-        val intersection = occurrences.reduce { left, right ->
-          classTable.glb(left, right) ?: equalityError(equality, dependencies)
-        }
+        val intersectionByPath =
+            if (occurrences.map(Dependency::key).distinct().size == 1) {
+              val intersection = occurrences.reduce { left, right ->
+                classTable.glb(left, right) ?: equalityError(equality, dependencies)
+              }
+              equality.paths.associateWith { intersection }
+            } else {
+              val typed = occurrences.filterIsInstance<TypeDependency>()
+              if (typed.size != occurrences.size) equalityError(equality, dependencies)
+              val bound =
+                  typed.map(TypeDependency::boundType).reduce { left, right ->
+                    classTable.glb(left, right) ?: equalityError(equality, dependencies)
+                  }
+              equality.paths.associateWith { path ->
+                (dependencies.at(path) as TypeDependency).map { bound }
+              }
+            }
         equality.paths.forEach { path ->
+          val intersection = intersectionByPath.getValue(path)
           if (dependencies.at(path) != intersection) {
             dependencies = dependencies.replaceAt(path, intersection)
             changed = true
@@ -474,7 +638,16 @@ internal constructor(
 
   internal fun requireVariableEqualitiesSatisfied(dependencies: DependencySet) {
     dependencyEqualities().forEach { equality ->
-      if (equality.paths.map(dependencies::at).distinct().size > 1) {
+      val occurrences = equality.paths.map(dependencies::at)
+      val agree =
+          if (occurrences.map(Dependency::key).distinct().size == 1) {
+            occurrences.distinct().size == 1
+          } else {
+            val typed = occurrences.filterIsInstance<TypeDependency>()
+            typed.size == occurrences.size &&
+                typed.map(TypeDependency::boundType).distinct().size == 1
+          }
+      if (!agree) {
         equalityError(equality, dependencies)
       }
     }
@@ -504,7 +677,10 @@ internal constructor(
 
       fun collectArguments(expression: Expression, prefix: List<Key>, region: Int) {
         if (expression.arguments.isEmpty()) return
-        val dependencySet = loader.load(expression.className).dependencies
+        if (expression.className == CLASS && expression.typeVariableName is Declaration) {
+          return
+        }
+        val dependencySet = loader.load(expression.className).argumentDependencies
         val arguments = expression.arguments.map(replacer(THIS, className)::transformExpression)
         val matched = dependencySet.matchPartialInOrder(arguments, loader)
         expression.arguments.zip(matched).forEach { (argument, dependency) ->
@@ -516,7 +692,12 @@ internal constructor(
 
       declaration.dependencies.forEachIndexed { index, expression ->
         val path = DependencyPath(Key(className, index))
-        if (eligible(expression)) add(HeaderOccurrence(expression, path, index, ordinal++))
+        if (
+            eligible(expression) &&
+                (expression.className != CLASS || expression.typeVariableName is Declaration)
+        ) {
+          add(HeaderOccurrence(expression, path, index, ordinal++))
+        }
         collectArguments(expression, path.keyList, index)
       }
       declaration.supertypes.forEachIndexed { index, expression ->
@@ -544,6 +725,7 @@ internal constructor(
                 binding.variable.declaration.region,
                 binding.variable.declaration.ordinal,
                 interpretedGroundType = binding.variable.declaration.groundType,
+                representedClass = binding.variable.selectsClass,
             ),
             mutableListOf(),
             (binding.aliases + binding.variable).toMutableSet(),
@@ -587,34 +769,38 @@ internal constructor(
 
     val occurrenceGroups = mutableListOf<MutableList<HeaderOccurrence>>()
     headerOccurrences().forEach { occurrence ->
-      val matching = occurrenceGroups.filter { group ->
+      val matching = occurrenceGroups.firstOrNull { group ->
         group.any { prior ->
-          prior.expression.sameAuthoredTypeExpressionAs(occurrence.expression) &&
-              sameHeaderVariable(prior, occurrence)
+          val priorIdentity = prior.expression.typeVariableName?.identity
+          val occurrenceIdentity = occurrence.expression.typeVariableName?.identity
+          priorIdentity != null && priorIdentity == occurrenceIdentity
         }
       }
-      if (matching.isEmpty()) {
+      if (matching == null) {
         occurrenceGroups += mutableListOf(occurrence)
       } else {
-        val merged = matching.first()
-        matching.drop(1).forEach {
-          merged += it
-          occurrenceGroups.remove(it)
-        }
-        merged += occurrence
+        matching += occurrence
       }
     }
 
     occurrenceGroups
         .sortedBy { occurrences -> occurrences.minOf(HeaderOccurrence::ordinal) }
         .forEach { occurrences ->
-          val first = occurrences.minBy(HeaderOccurrence::ordinal)
+          val named = occurrences.filter { it.expression.typeVariableName is Declaration }
+          if (named.size > 1) {
+            throw InvalidPetDefinitionException(
+                "`$className` declares the same header Type variable more than once",
+                sourceLocation = named[1].expression.sourceLocation,
+            )
+          }
+          val first = named.singleOrNull() ?: occurrences.minBy(HeaderOccurrence::ordinal)
           fun localSite() =
               TypeVariable.Site(
                   first.expression,
                   first.region,
                   first.ordinal,
                   interpretedGroundType = loader.resolve(first.expression),
+                  representedClass = first.path.keyList.last().declaringClass == CLASS,
               )
 
           val paths = occurrences.mapTo(mutableSetOf(), HeaderOccurrence::path)
@@ -662,47 +848,96 @@ internal constructor(
           seeds += target
         }
 
-    val effectVariables = seeds.filter(Seed::lexicallyDeclared)
+    val markedVariables =
+        seeds.filter(Seed::lexicallyDeclared).mapNotNull { seed ->
+          (seed.declaration.expression.typeVariableName as? Declaration)?.identity?.let {
+            it to seed
+          }
+        }
+    val ineligibleDeclaration =
+        (declaration.dependencies + declaration.supertypes)
+            .flatMap { it.descendantsOfType<Expression>() }
+            .firstOrNull { expression ->
+              expression.typeVariableName is Declaration &&
+                  markedVariables.none { (_, seed) ->
+                    seed.declaration.expression === expression
+                  }
+            }
+    if (ineligibleDeclaration != null) {
+      throw InvalidPetDefinitionException(
+          "`$ineligibleDeclaration` cannot declare a class-header type variable; its bound must be abstract",
+          sourceLocation =
+              ineligibleDeclaration.sourceLocation
+                  ?: ineligibleDeclaration.className.sourceLocation,
+      )
+    }
+    if (markedVariables.map { it.first }.distinct().size != markedVariables.size) {
+      throw InvalidPetDefinitionException(
+          "`$className` declares the same header type variable marker twice",
+          sourceLocation = className.sourceLocation,
+      )
+    }
+    val variablesByIdentity = buildMap {
+      seeds.forEach { seed ->
+        seed.aliases.forEach { alias ->
+          alias.declaration.expression.typeVariableName?.identity?.let { put(it, seed) }
+        }
+      }
+      putAll(markedVariables)
+    }
+    val inheritedMarkers = directSuperclasses.flatMap { it.inheritableHeaderMarkers }
+    inheritedMarkers
+        .filter { it.name != null }
+        .groupBy { it.name }
+        .values
+        .forEach { markers ->
+          if (markers.map { variablesByIdentity.getValue(it.identity) }.distinct().size > 1) {
+            throw InvalidPetDefinitionException(
+                "`$className` inherits ambiguous type variable `${markers.first().authoredSpelling}`",
+                sourceLocation = className.sourceLocation,
+            )
+          }
+        }
+    markedVariables.forEach { (_, seed) ->
+      val marker = requireNotNull(seed.declaration.expression.typeVariableName)
+      // Marking an inherited binding again is legal; giving its name to another one is not.
+      val namesAnotherBinding = inheritedMarkers.any {
+        refersToInherited(marker, it) && variablesByIdentity.getValue(it.identity) !== seed
+      }
+      if (namesAnotherBinding) {
+        throw InvalidPetDefinitionException(
+            "`$className` reuses inherited type variable `${marker.authoredSpelling}` for another dependency",
+            sourceLocation = seed.declaration.expression.sourceLocation,
+        )
+      }
+    }
     var bodyOrdinal = headerOccurrences().size
     declaration.effects.forEachIndexed { effectIndex, effect ->
-      // A fanout selector declares its own variable for its body; it is never a use of one of
-      // this Class's header variables, even when it is spelled the same way.
-      val fanoutSelectors: List<Expression> =
-          effect.descendantsOfType<Each>().flatMap { each ->
-            listOf(each.selector) +
-                each.selector.descendantsOfType<Expression>() +
-                each.body.descendantsOfType<Expression>().filter {
-                  it == each.selectorName || it == each.representedSelectorName
-                }
-          }
       effect.descendantsOfType<Expression>().forEach { expression ->
-        if (expression.className == ANYONE) return@forEach
-        if (fanoutSelectors.any { it === expression }) return@forEach
-        val exact = effectVariables.filter { seed ->
-          seed.headerExpressions.any(expression::sameAuthoredTypeExpressionAs)
-        }
-        val matching = exact.ifEmpty {
-          effectVariables.filter { seed ->
-            seed.headerExpressions.any { header ->
-              header.className == expression.className &&
-                  ((header.simple && expression.arguments.isNotEmpty()) ||
-                      (expression.simple && header.arguments.isNotEmpty()))
+        val marker = expression.typeVariableName as? Reference
+        val identity = marker?.identity
+        if (marker != null) {
+          val candidates = inheritedMarkers.filter { refersToInherited(marker, it) }
+          if (candidates.any { it.identity == identity }) {
+            // Distinct declarations may still name one dependency reached through two parents.
+            val bindings = candidates.map { variablesByIdentity.getValue(it.identity) }.distinct()
+            if (bindings.size > 1) {
+              throw InvalidPetDefinitionException(
+                  "`$className` inherits ambiguous type variable `${marker.authoredSpelling}`",
+                  sourceLocation = expression.sourceLocation,
+              )
             }
           }
         }
-        if (matching.size > 1) {
-          throw PetException("$className uses ambiguous Class Type variable $expression in $effect")
+        identity?.let(variablesByIdentity::get)?.let { seed ->
+          seed.usages +=
+              TypeVariable.Site(
+                  expression,
+                  declaration.dependencies.size + declaration.supertypes.size + effectIndex,
+                  bodyOrdinal++,
+              )
+          seed.lexicallyDeclared = true
         }
-        matching
-            .singleOrNull()
-            ?.usages
-            ?.add(
-                TypeVariable.Site(
-                    expression,
-                    declaration.dependencies.size + declaration.supertypes.size + effectIndex,
-                    bodyOrdinal++,
-                )
-            )
       }
     }
 
@@ -728,30 +963,17 @@ internal constructor(
     }
   }
 
-  private fun sameHeaderVariable(
-      first: HeaderOccurrence,
-      second: HeaderOccurrence,
-  ): Boolean {
-    fun hasSuffix(longer: List<Key>, suffix: List<Key>): Boolean =
-        longer.size >= suffix.size && longer.takeLast(suffix.size) == suffix
-
-    val firstPath = first.path.keyList
-    val secondPath = second.path.keyList
-    if (hasSuffix(firstPath, secondPath) || hasSuffix(secondPath, firstPath)) return true
-
-    val firstInSupertype = first.region >= declaration.dependencies.size
-    val secondInSupertype = second.region >= declaration.dependencies.size
-    return firstInSupertype != secondInSupertype && firstPath.last() == secondPath.last()
-  }
-
   private val typeVariablesLazy = lazy {
-    headerVariableBindings().filter(HeaderVariableBinding::lexicallyDeclared).map {
-      it.variable
-    }
+    headerVariableBindings()
+        .flatMap { binding ->
+          listOfNotNull(binding.variable.takeIf { binding.lexicallyDeclared }) +
+              binding.aliases.filter { it.name != null }
+        }
+        .distinctBy { it.declaration.expression.typeVariableName?.identity ?: it }
   }
 
   /**
-   * The eligible type variables declared by this class header under
+   * The eligible type variables declared by this class header or used here by inherited name, under
    * [rules T13-2 through T13-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
   public val typeVariables: List<TypeVariable>
@@ -792,14 +1014,21 @@ internal constructor(
 
     return buildMap {
       headerVariableBindings().forEach { binding ->
-        val aliases = binding.aliases.intersect(requested)
+        val markerIdentities =
+            (binding.aliases + binding.variable)
+                .mapNotNull { it.declaration.expression.typeVariableName?.identity }
+                .toSet()
+        val aliases = requested.filter { variable ->
+          variable in binding.aliases ||
+              variable.declaration.expression.typeVariableName?.identity in markerIdentities
+        }
         if (aliases.isEmpty()) return@forEach
         val previous =
             binding.paths.map { path -> capturedAt(general, path) }.distinct().singleOrNull()
-                ?: error("Type variable ${binding.variable} has conflicting prior values")
+                ?: error("type variable `${binding.variable}` has conflicting prior values")
         val next =
             binding.paths.map { path -> capturedAt(specific, path) }.distinct().singleOrNull()
-                ?: error("Type variable ${binding.variable} has conflicting values")
+                ?: error("type variable `${binding.variable}` has conflicting values")
         // A fixed inherited dependency still has to replace its superclass's open variable.
         if (next == previous && next.abstract) return@forEach
         aliases.forEach { variable -> put(variable, next) }
@@ -817,15 +1046,15 @@ internal constructor(
   public fun withAllDependencies(deps: DependencySet): GroundType {
     val projected = deps.subMapInOrder(dependencies.keys)
     require(projected.keys == dependencies.keys) {
-      "expected keys ${dependencies.keys}, got $deps"
+      "expected keys `${dependencies.keys}`, found `$deps`"
     }
     val classTable =
         projected.classTable?.let {
-          requireNotNull(loader.commonTable(it)) { "$deps belongs to a different class table" }
+          requireNotNull(loader.commonTable(it)) { "`$deps` belongs to a different class table" }
         } ?: loader
     val bounded =
         requireNotNull(classTable.glb(dependencies, projected)) {
-          "$deps does not satisfy the declared dependency bounds of $className"
+          "`$deps` does not satisfy the declared dependency bounds of `$className`"
         }
     return GroundType(this, normalizeVariableEqualities(bounded))
   }
@@ -842,22 +1071,19 @@ internal constructor(
   private val defaultExpressionLazy = lazy {
     val templateDependencies =
         dependencies.merge(defaults.allUsages.dependencies) { _, default -> default }
-    className.of(templateDependencies.expressionsFull())
+    className.of(templateDependencies.subMapInOrder(argumentDependencies.keys).expressionsFull())
   }
 
-  /**
-   * The authored dependency-default template for this class. Unlike a [GroundType], this expression
-   * may retain contextual `Owner` outside the class's declared bound until elaboration supplies its
-   * component context.
-   */
+  /** The authored dependency-default template for this class. */
   internal val defaultExpression: Expression
     get() = defaultExpressionLazy.value
 
   private val defaultTypeLazy = lazy { loader.resolve(defaultExpression) }
 
   /**
-   * The valid resolved interpretation of [defaultExpression], as specified by
-   * [rule T10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
+   * The default type of
+   * [rule T10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults):
+   * the type that [defaultExpression], the default template, denotes.
    */
   public val defaultType: GroundType
     get() = defaultTypeLazy.value
@@ -880,7 +1106,7 @@ internal constructor(
       matchDependencyKeys(specs, loader)
 
   internal fun matchDependencyKeys(specs: List<Expression>, classTable: ClassTable): List<Key> =
-      dependencies.matchPartialInOrder(specs, classTable).map(Dependency::key)
+      argumentDependencies.matchPartialInOrder(specs, classTable).map(Dependency::key)
 
   /**
    * Returns the special *class type* for this class; for example, for the class `Resource` returns
@@ -891,12 +1117,6 @@ internal constructor(
   }
   internal val classType: GroundType
     get() = classTypeLazy.value
-
-  /**
-   * Enumerates concrete types whose root is exactly this class, following same-class enumeration in
-   * [rule T11-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
-   */
-  public fun concreteTypes(): Sequence<GroundType> = baseType.concreteSubtypesSameClass()
 
   internal val defaultsDecl
     get() = declaration.defaultsDeclaration
@@ -909,30 +1129,31 @@ internal constructor(
   public val defaults: Defaults
     get() = defaultsLazy.value
 
-  /**
-   * Returns the canonical name required by
-   * [rule T2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
-   */
+  /** Returns [className]. */
   override fun toString(): String = "$className"
 
   private companion object {
     fun superclasses(
         declaration: ClassDeclaration,
         loader: ClassLoader,
-        activateRelated: Boolean,
+        includeRelated: Boolean,
     ): List<Class> {
       return declaration.supertypes
           .classNames()
           .also {
             if (COMPONENT in it) {
-              throw PetException(
-                  "${declaration.className} must not name $COMPONENT as a supertype; " +
-                      "every class extends it already"
+              throw InvalidPetDefinitionException(
+                  "`${declaration.className}` must not name `$COMPONENT` as a supertype; " +
+                      "every class extends it already",
+                  sourceLocation =
+                      declaration.supertypes
+                          .firstOrNull { it.className == COMPONENT }
+                          ?.sourceLocation,
               )
             }
           }
           .ifEmpty { listOf(COMPONENT) }
-          .map { loader.loadRelated(it, include = activateRelated) }
+          .map { loader.loadRelated(it, include = includeRelated) }
     }
   }
 }

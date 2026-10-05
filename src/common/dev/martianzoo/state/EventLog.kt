@@ -15,9 +15,6 @@ public class EventLog internal constructor() {
   internal val nextOrdinal: Int
     get() = size
 
-  internal var revision: WorldRevision = WorldRevision.INITIAL
-    private set
-
   private var setupStart: Checkpoint? = null
 
   internal fun requireNext(entry: GameEvent) {
@@ -29,14 +26,12 @@ public class EventLog internal constructor() {
   internal fun append(entry: GameEvent) {
     requireNext(entry)
     events += entry
-    revision = revision.next()
   }
 
   internal fun last(): GameEvent = events.last()
 
   internal fun removeLast() {
     events.removeLast()
-    revision = revision.next()
   }
 
   /** Returns all change events since engine initialization concluded, including game setup. */

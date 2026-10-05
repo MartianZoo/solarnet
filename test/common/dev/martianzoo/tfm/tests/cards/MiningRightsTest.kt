@@ -1,8 +1,9 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestOption.Cimmeria
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -28,6 +29,7 @@ internal class MiningRightsTest : CardTest() {
 
   @Test
   internal fun `Robotic Workforce re-evaluates its production box instead of remembering steel`() {
+    // Resolved FAQ: copying allows any originally available metal, regardless of the first choice.
     // https://boardgamegeek.com/thread/2663453/rule-opinions-mining-rights-robotic-workforce
     newGame(Cimmeria)
 
@@ -47,6 +49,29 @@ internal class MiningRightsTest : CardTest() {
   @Test
   internal fun `Cannot select a card-bonus area`() {
     newGame()
-    shouldThrow<NotNowException> { p1.runOperation("$MiningRights") { placeTile(2, 1) } }
+    shouldThrow<GameplayException> { p1.runOperation("$MiningRights") { placeTile(2, 1) } }
+  }
+
+  @Test
+  internal fun `A mixed metal placement grants both resources and steel production`() {
+    mixedMetalPlacement("Steel")
+  }
+
+  @Test
+  internal fun `A mixed metal placement grants both resources and titanium production`() {
+    mixedMetalPlacement("Titanium")
+  }
+
+  private fun mixedMetalPlacement(metal: String) {
+    newGame(Cimmeria)
+    p1.runOperation("9 MC, ProjectCard")
+    admin.phase("Action")
+    p1.playProject(MiningRights, 9) {
+          placeTile(6, 4)
+          doTask("PROD[$metal]")
+        }
+        .expect("2 Steel, Titanium")
+    p1.production(cn(metal)) shouldBe 1
+    p1.production(cn(if (metal == "Steel") "Titanium" else "Steel")) shouldBe 0
   }
 }

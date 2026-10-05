@@ -13,13 +13,16 @@ internal class Spec07BoundsTest {
           CLASS Player2 : Owner
           ABSTRACT CLASS Area {
             ABSTRACT CLASS MarsArea {
-              ABSTRACT CLASS LandArea { CLASS Tharsis_2_2, Tharsis_2_3 }
+              ABSTRACT CLASS LandArea {
+                CLASS Tharsis_2_2
+                CLASS Tharsis_2_3
+              }
               ABSTRACT CLASS WaterArea { CLASS Tharsis_1_1 }
             }
           }
           ABSTRACT CLASS Occupant<Area>
           ABSTRACT CLASS Tile : Occupant
-          ABSTRACT CLASS OwnedTile : Tile, Owned<Owner>
+          ABSTRACT CLASS OwnedTile : Tile, Owned
           CLASS GreeneryTile : OwnedTile, Tile<MarsArea>
           CLASS OceanTile : Tile<WaterArea>
           """

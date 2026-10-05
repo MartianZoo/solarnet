@@ -5,7 +5,7 @@ import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
 import io.kotest.matchers.collections.shouldContainExactly
@@ -38,7 +38,7 @@ internal class EffectActorCharacterizationTest {
   }
 
   @Test
-  internal fun adminPerformedPlacementDoesNotGiveTheChangedComponentOwnerTheAreaBonus() {
+  internal fun adminPerformedPlacementDoesNotGiveTheChangedComponentHolderTheAreaBonus() {
     val game = Engine.newGame(canonicalPremise(cn("ElysiumMap"), players = 2))
     val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
     game.testAgent(PLAYER1).autoExecPolicy = NONE
@@ -58,7 +58,7 @@ internal class EffectActorCharacterizationTest {
   }
 
   @Test
-  internal fun triggeringPlayerIsFallbackActorForDeferredByOwnerEffect() {
+  internal fun triggeringPlayerIsFallbackActorForDeferredEffect() {
     val game = Engine.newGame(canonicalPremise())
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val terraformRatingBefore = p1.count("TerraformRating")
@@ -75,7 +75,7 @@ internal class EffectActorCharacterizationTest {
   }
 
   @Test
-  internal fun byOwnerEffectDoesNotTreatAdminAsAnOwner() {
+  internal fun ownedEffectDoesNotTreatAdminAsAnOwner() {
     val game = Engine.newGame(canonicalPremise())
     val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
     val terraformRatingBefore = admin.count("TerraformRating")

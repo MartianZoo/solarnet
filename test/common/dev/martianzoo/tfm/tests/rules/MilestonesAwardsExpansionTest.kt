@@ -10,13 +10,11 @@ import dev.martianzoo.generated.Legend
 import dev.martianzoo.generated.Merchant
 import dev.martianzoo.generated.Philantropist
 import dev.martianzoo.generated.PreludeExpansion
-import dev.martianzoo.generated.Producer
-import dev.martianzoo.generated.Producer22
 import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.cards.CardTest
@@ -69,7 +67,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   }
 
   @Test
-  internal fun `Philantropist counts victory point gains but not Vitor's reference`() {
+  internal fun `Philantropist counts own scoring cards but not Vitor's reference`() {
     newGame(
         gameConfig(
             modules = listOf(Class.of(PreludeExpansion)),
@@ -83,7 +81,11 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
         )
     )
     p1.runOperation("$Vitor, $SearchForLife, $Tardigrades, $ColonizerTrainingCamp, $DustSeals")
+    requireP2().runOperation("$Trees")
 
+    // Counting played card classes is equivalent to counting cards: CardFront permits at most
+    // one played instance of each concrete class, across all owners. Vitor's class reference is
+    // not a played card, and Player2's Trees is outside Player1's requirement.
     shouldThrow<RequirementException> { p1.runOperation("Philantropist") }
 
     p1.runOperation("$SpaceElevator")
@@ -139,28 +141,18 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   }
 
   @Test
-  internal fun `Removing an ocean removes its placement credit`() {
-    newGame(
-        gameConfig(
-            milestones =
-                listOf(
-                    Class.of(Hydrologist),
-                    Class.of(Builder),
-                    Class.of(Engineer),
-                ),
-            playerNames = listOf("Player1", "Player2"),
-        )
-    )
-    val oceans = p1.list("WaterArea").take(4)
+  internal fun `Dry Deserts does not erase Hydrologist credit for a removed ocean`() {
+    newGame(GameConfig("TurmoilExpansion, Hydrologist, Builder, Engineer", "Player1", "Player2"))
+    val oceans = p1.list("WaterArea").take(3)
+    p1.runOperation("OceanTile<${oceans.first()}>")
+
+    admin.runOperation("ResolveGlobalEvent<Class<DryDeserts>>")
+
+    admin.count("OceanTile") shouldBe 0
     oceans.forEach { p1.runOperation("OceanTile<$it>") }
-    p1.count("OceanCredit") shouldBe 4
-    oceans.forEach { p1.count("OceanCredit<OceanTile<$it>>") shouldBe 1 }
-
-    requireP2().runOperation("-OceanTile<${oceans.first()}>")
-
-    p1.count("OceanCredit") shouldBe 3
-    p1.count("OceanCredit<OceanTile<${oceans.first()}>>") shouldBe 0
-    shouldThrow<RequirementException> { p1.runOperation("Hydrologist") }
+    admin.count("OceanTile") shouldBe 3
+    p1.runOperation("Hydrologist")
+    p1.count("Hydrologist") shouldBe 1
   }
 
   @Test
@@ -214,33 +206,32 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
       claimProducerOneProductionShortOfThreshold("Producer22", ", -CorporateEraExpansion")
 
   @Test
-  internal fun `Producer versions belong to opposite Quick Start modes`() {
-    shouldThrow<LimitsException> {
-      newGame(
-          gameConfig(
-              milestones =
-                  listOf(
-                      Class.of(Producer),
-                      Class.of(Builder),
-                      Class.of(Engineer),
-                  ),
-              extra = "-CorporateEraExpansion",
-              playerNames = listOf("Player1", "Player2"),
-          )
-      )
-    }
-    shouldThrow<PetException> {
-      newGame(
-          gameConfig(
-              milestones =
-                  listOf(
-                      Class.of(Producer22),
-                      Class.of(Builder),
-                      Class.of(Engineer),
-                  ),
-              playerNames = listOf("Player1", "Player2"),
-          )
-      )
-    }
+  internal fun `Producer counts Quick Start production toward sixteen`() {
+    newGame(GameConfig("Producer, Builder, Engineer, -CorporateEraExpansion", "Player1", "Player2"))
+    p1.runOperation("8 MC")
+    p1.runOperation("PROD[3 Steel, 3 Titanium, 3 Plant]")
+    admin.phase("Action")
+
+    shouldThrow<RequirementException> { p1.runOperation("Producer") }
+
+    p1.runOperation("PROD[Energy]")
+    p1.stdAction("ClaimMilestoneAction") { doTask("Producer") }
+
+    p1.count("Producer") shouldBe 1
+  }
+
+  @Test
+  internal fun `Producer22 can be selected without Quick Start`() {
+    newGame(GameConfig("Producer22, Builder, Engineer", "Player1", "Player2"))
+    p1.runOperation("8 MC")
+    p1.runOperation("PROD[7 Steel, 7 Titanium, 7 Plant]")
+    admin.phase("Action")
+
+    shouldThrow<RequirementException> { p1.runOperation("Producer22") }
+
+    p1.runOperation("PROD[Energy]")
+    p1.stdAction("ClaimMilestoneAction") { doTask("Producer22") }
+
+    p1.count("Producer22") shouldBe 1
   }
 }

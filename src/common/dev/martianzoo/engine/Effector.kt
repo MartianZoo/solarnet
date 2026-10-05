@@ -1,19 +1,22 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.PetElaborator
-import dev.martianzoo.pets.api.GameReader
-import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.HashMultiset
 import dev.martianzoo.pets.util.invoke
+import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.ComponentChange
 import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.toComponent
 
 /** Maintains the live-effect index and fires matching effects for component changes. */
 internal class Effector(
     private val elaborator: PetElaborator,
+    private val customInstructions: CustomInstructionRuntime,
     readerProvider: () -> GameReader,
 ) {
   private val reader: Lazy<GameReader> = lazy(readerProvider)
@@ -57,6 +60,14 @@ internal class Effector(
   private fun liveEffects(component: Component): List<LiveEffect> =
       effects.getOrPut(component) { LiveEffect.compile(component, elaborator) }
 
+  /**
+   * Returns every matching effect of the requested kind for [triggerEvent].
+   *
+   * The complete result is materialized before the caller executes any returned effect. Trigger
+   * matching, refinements, and trigger-side conditions in one batch therefore all see the same
+   * post-event World. A changed component's own effects retain declaration order. The stable or
+   * randomized order of independent listeners is diagnostic only and must carry no game meaning.
+   */
   internal fun fire(
       triggerEvent: ChangeEvent,
       controller: Actor,
@@ -69,14 +80,34 @@ internal class Effector(
         )
     val selfEffects = fireSelfEffects(triggerEvent, controller, automatic, resolvedChange)
     val otherEffects = fireOtherEffects(triggerEvent, controller, automatic, resolvedChange)
-    val pending = selfEffects + otherEffects
-    return when {
-      automatic != true -> pending
-      // A component's own effects retain their authored order. Only independent listeners are
-      // siblings for diagnostic randomization and stable display ordering.
-      randomAutomaticEffectOrderEnabled -> selfEffects + otherEffects.shuffled()
-      else -> selfEffects + otherEffects.sortedWith(stableAutomaticOrder)
+    val pending =
+        when {
+          automatic != true -> selfEffects + otherEffects
+          // A component's own effects retain their authored order. Only independent listeners are
+          // siblings for diagnostic randomization and stable display ordering.
+          randomAutomaticEffectOrderEnabled -> selfEffects + otherEffects.shuffled()
+          else -> selfEffects + otherEffects.sortedWith(stableAutomaticOrder)
+        }
+    return pending.map { task ->
+      task.copy(instruction = InstructionGroup.of(elaborator.atomizeGains(task.instruction)))
     }
+  }
+
+  /** The Kotlin output is one queued self-effect of the gained CustomInstruction. */
+  private fun customInstructionEffect(triggerEvent: ChangeEvent, controller: Actor): PendingTask? {
+    val component = triggerEvent.change.gaining ?: return null
+    if (!component.type.rootClass.isSubtypeOf(elaborator.classTable.getClass(CUSTOM_INSTRUCTION))) {
+      return null
+    }
+    val instruction = customInstructions.translateInstruction(component, reader())
+    return PendingTask.fromEffect(
+        context = component,
+        triggerEvent = triggerEvent,
+        controller = controller,
+        changedComponentPlayer = component.owningPlayer,
+        automatic = false,
+        instruction = InstructionGroup.of(instruction) * triggerEvent.change.count,
+    )
   }
 
   private fun fireSelfEffects(
@@ -84,13 +115,19 @@ internal class Effector(
       controller: Actor,
       automatic: Boolean? = null,
       resolvedChange: LiveEffect.ResolvedChange,
-  ): List<PendingTask> =
-      listOfNotNull(resolvedChange.gaining, resolvedChange.removing)
-          .distinct()
-          .map(Type::toComponent)
-          .flatMap { liveEffects(it) }
-          .filter { automatic == null || it.automatic == automatic }
-          .mapNotNull { it.onChangeToSelf(triggerEvent, controller, reader(), resolvedChange) }
+  ): List<PendingTask> {
+    val authored =
+        listOfNotNull(resolvedChange.gaining, resolvedChange.removing)
+            .distinct()
+            .map(Type::toComponent)
+            .flatMap { liveEffects(it) }
+            .filter { automatic == null || it.automatic == automatic }
+            .mapNotNull { it.onChangeToSelf(triggerEvent, controller, reader(), resolvedChange) }
+    val computed =
+        if (automatic != true) listOfNotNull(customInstructionEffect(triggerEvent, controller))
+        else emptyList()
+    return authored + computed
+  }
 
   private fun fireOtherEffects(
       triggerEvent: ChangeEvent,

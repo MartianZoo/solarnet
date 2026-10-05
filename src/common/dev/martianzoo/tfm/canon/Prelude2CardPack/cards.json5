@@ -1,7 +1,7 @@
 {
   "decks": [
     {
-      "deck": "CorporationCard",
+      "deck": "StandardCorporationCard",
       "cards": [
         {
           "name": "Ecotec",
@@ -27,7 +27,8 @@
         },
         {
           "name": "SagittaFrontierServices",
-          "immediate": "31 MC, PROD[Energy, 2 MC], CARDS[SearchForCard(HAS MAX 0 PrintedTag)]",
+          "autoSelectWhen": "Unsafe OR (MAX 0 PromoCardPack, MAX 0 Merger)",
+          "immediate": "31 MC, PROD[Energy, 2 MC], SearchForCard<NoTagsFilter>",
           "effects": [
             "CardFront(HAS =0 Tag): 4 MC",
             "CardFront(HAS =1 Tag): 1 MC",
@@ -40,7 +41,7 @@
           "effects": [
             "CardFront(HAS 2 Tag): Science<This>",
             "UseAction<StandardProject(HAS cost)>:: AcceptingFromCard<This>",
-            "PayFromCard<This>:: -2 Owed",
+            "-Science<This> BY Me@ IF AcceptingFromCard<This>:: -2 Owed",
           ],
         },
       ],
@@ -51,14 +52,14 @@
         {
           "name": "AtmosphericEnhancers",
           "tags": [ "VenusTag" ],
-          "immediate": "2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep, CARDS[2 SearchForCard(HAS ReferenceTo<Class<Floater>>)]",
+          "immediate": "2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep, 2 SearchForCard<ReferenceFilter<Class<Floater>>>",
         },
         {
           "name": "BoardOfDirectors",
           "tags": [ "EarthTag" ],
           "immediate": "4 Director<This>",
           "actions": [
-            "-> PreludeCard, -PreludeCard OR (-12 MC THEN -Director<This> THEN PlayCard<Class<PreludeCard>, Hand>)",
+            "-> PreludeCard, -PreludeCard OR (-12 MC THEN -Director<This> THEN PlayOrFizzle)",
           ],
           "components": [ "CLASS Director : CardResource" ],
         },
@@ -71,7 +72,7 @@
         {
           "name": "EarlyColonization",
           "tags": [ "SpaceTag" ],
-          "immediate": "Colony<>, 3 Energy, 2 AdvanceColonyTracks",
+          "immediate": "Colony<>, 3 Energy, EACH @ColonyTile { 2 ColonyProduction<@ColonyTile> }",
         },
         {
           "name": "FloatingTradeHub",
@@ -85,14 +86,14 @@
           "name": "FocusedOrganization",
           "immediate": "ProjectCard, StandardResource",
           "actions": [
-            "-> -ProjectCard THEN -StandardResource THEN Signal { This: ProjectCard, StandardResource }",
+            "-> -ProjectCard THEN -StandardResource THEN ProjectCard THEN StandardResource",
           ],
         },
         {
           "name": "IndustrialComplex",
           "tags": [ "BuildingTag" ],
           "effects": [
-            "This: -18 MC, EACH Class<StandardResource> { PROD[StandardResource / (Class<StandardResource> OR QuickStartVariant OR ProdOffset<Class<StandardResource>>) - Production<Class<StandardResource>>] }",
+            "This: -18 MC, PROD[EACH Class<@StandardResource> { @StandardResource / (Class<@StandardResource> OR QuickStartVariant OR ProdOffset<Class<@StandardResource>>) - Production<Class<@StandardResource>> }]",
           ],
         },
         {
@@ -113,7 +114,21 @@
         {
           "name": "PlanetaryAlliance",
           "tags": [ "EarthTag", "JovianTag", "VenusTag" ],
-          "immediate": "2 TerraformRating, CARDS[SearchForCard(HAS PrintedTag<Class<JovianTag>>)], CARDS[SearchForCard(HAS PrintedTag<Class<VenusTag>>)]",
+          "immediate": "2 TerraformRating, SearchForCard<TagFilter<Class<JovianTag>>>, SearchForCard<TagFilter<Class<VenusTag>>>",
+        },
+        {
+          "name": "PreservationProgram",
+          // Terraforming Deal defaults with this pack; keep PP individually selectable.
+          "autoSelectWhen": "Unsafe OR MAX 0 Prelude2CardPack",
+          "immediate": "5 TerraformRating",
+          "invariants": [ "Class<PreservationTrWatcher>" ],
+          "effects": [
+            "X TerraformRating IF ActionPhase, MAX 0 ActionPhaseTrGain:: -TerraformRating",
+          ],
+          "components": [
+            "CLASS PreservationTrWatcher : CardWatcher { TerraformRating IF ActionPhase:: ActionPhaseTrGain }",
+            "CLASS ActionPhaseTrGain<GenerationScope> : Owned",
+          ],
         },
         {
           "name": "ProjectEden",
@@ -122,12 +137,12 @@
         },
         {
           "name": "Recession",
-          "immediate": "10 MC, EACH Player(NOT Owner) { -5 MC., PROD[-1 MC] }",
+          "immediate": "10 MC, EACH Other@Player(NOT Me@) { -5 MC<Other@>., PROD[-1 MC<Other@>] }",
         },
         {
           "name": "SoilBacteria",
           "tags": [ "MicrobeTag" ],
-          "immediate": "CARDS[2 SearchForCard(HAS PrintedTag<Class<MicrobeTag>>)], 3 Plant",
+          "immediate": "2 SearchForCard<TagFilter<Class<MicrobeTag>>>, 3 Plant",
           "effects": [ "PlantTag OR MicrobeTag: Plant" ],
         },
         {
@@ -135,7 +150,7 @@
           "tags": [ "SpaceTag" ],
           "immediate": "3 Titanium",
           "effects": [
-            "PlayTag<Class<PlanetaryTag>>:: -2 Owed",
+            "PayingFor<Class<PlanetaryTag>>:: -2 Owed",
           ],
         },
         {
@@ -147,7 +162,7 @@
             "NewTurn IF PreludePhase:: SuitableInfrastructureBonus<This>.",
           ],
           "components": [
-            "CLASS SuitableInfrastructureBonus : Cardbound<SuitableInfrastructure<Player>>, Hidden, Atomized { HAS MAX 1 This; X Production<Class<StandardResource>>:: 2 MC, -This! }",
+            "CLASS SuitableInfrastructureBonus : Cardbound<SuitableInfrastructure<Player>>, Hidden, Atomized { HAS MAX 1 This; X Production<Class<StandardResource>>: (This: -This! THEN 2 MC) OR (MAX 0 This: Ok) }",
           ],
         },
         {
@@ -158,7 +173,7 @@
         {
           "name": "VenusContract",
           "tags": [ "VenusTag" ],
-          "immediate": "CARDS[SearchForCard(HAS PrintedTag<Class<VenusTag>>)], TerraformRating",
+          "immediate": "SearchForCard<TagFilter<Class<VenusTag>>>, TerraformRating",
           "effects": [ "VenusStep: 3 MC" ],
         },
         {
@@ -170,7 +185,7 @@
           "name": "WorldGovernmentAdvisor",
           "tags": [ "EarthTag" ],
           "immediate": "2 TerraformRating, ProjectCard",
-          "actions": [ "-> WorldGovernmentTerraforming" ],
+          "actions": [ "-> GlobalParameter BY Admin" ],
         },
       ],
     },
@@ -208,7 +223,22 @@
           "requirement": "5 VenusStep",
           "cost": 6,
           "tags": [ "VenusTag", "EventTag" ],
-          "immediate": "3 Titanium, CARDS[2 SearchForCard(HAS PrintedTag<Class<VenusTag>>)]",
+          "immediate": "3 Titanium, 2 SearchForCard<TagFilter<Class<VenusTag>>>",
+        },
+        {
+          "name": "L1TradeTerminal",
+          "cost": 25,
+          "tags": [ "SpaceTag" ],
+          "immediate": "L1GiftWatcher THEN EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }",
+          "effects": [
+            "Trade<@ColonyTile>:: TradeBarrier<@ColonyTile>",
+            "Trade<@ColonyTile>: (2 ColonyProduction<@ColonyTile> OR Ok) THEN -TradeBarrier<@ColonyTile>",
+            "End: 2 VictoryPoint",
+          ],
+          "components": [
+            "CLASS L1GiftWatcher : Owned<Player>, Temporary, Hidden { This:: L1Gift / (ResourceCard(HAS CardResource) MAX 3); CardResource:: -L1Gift }",
+            "CLASS L1Gift : Owned<Player>, MustCleanUp, Hidden",
+          ],
         },
         {
           "name": "MicrogravityNutrition",
@@ -228,7 +258,7 @@
           "name": "StratosphericExpedition",
           "cost": 12,
           "tags": [ "VenusTag", "SpaceTag", "EventTag" ],
-          "immediate": "2 Floater, CARDS[2 SearchForCard(HAS PrintedTag<Class<VenusTag>>)]",
+          "immediate": "2 Floater, 2 SearchForCard<TagFilter<Class<VenusTag>>>",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -249,7 +279,7 @@
           "cost": 18,
           "tags": [ "VenusTag", "SpaceTag" ],
           "actions": [
-            "-> CARDS[2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]",
+            "-> 2 ProjectCard<Selecting> THEN 2 TakeSelectedCard<TagFilter<Class<VenusTag>>>? THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards",
           ],
         },
         {
@@ -270,6 +300,118 @@
             "Trade: 3 MC",
             "End: VictoryPoint",
           ],
+        },
+      ],
+    },
+    {
+      "deck": "PreludeCard",
+      "cards": [
+        {
+          "name": "CorridorsOfPower",
+          "tags": [ "EarthTag" ],
+          "immediate": "TerraformRating, 4 MC",
+          "effects": [ "PartyLeader<Party>: ProjectCard" ],
+        },
+        {
+          "name": "HighCircles",
+          "tags": [ "EarthTag" ],
+          "immediate": "TerraformRating, SearchForCard<ReferenceFilter<Class<PartyRequirement>>>, 2 PartyDelegate",
+          "effects": [ "MeasureInfluence:: HighCirclesInfluence" ],
+          "components": [
+            "CLASS HighCirclesInfluence : Influence { HAS MAX 1 This }",
+          ],
+        },
+        {
+          "name": "RiseToPower",
+          "immediate": "PROD[3 MC], PartyDelegate, PartyDelegate, PartyDelegate",
+        },
+      ],
+    },
+    {
+      "deck": "ProjectCard",
+      "cards": [
+        {
+          "name": "ColonialEnvoys",
+          "requirement": "PartyRequirement<Unity>",
+          "cost": 4,
+          "tags": [ "EventTag" ],
+          "immediate": "EACH Colony { PartyDelegate }",
+        },
+        {
+          "name": "ColonialRepresentation",
+          "cost": 10,
+          "immediate": "3 MC / Colony",
+          "effects": [ "MeasureInfluence:: ColonialRepresentationInfluence" ],
+          "components": [
+            "CLASS ColonialRepresentationInfluence : Influence { HAS MAX 1 This }",
+          ],
+        },
+        {
+          "name": "EnvoysFromVenus",
+          "requirement": "3 VenusTag",
+          "cost": 1,
+          "tags": [ "VenusTag", "EventTag" ],
+          "immediate": "2 PartyDelegate",
+        },
+        {
+          "name": "FrontierTown",
+          "requirement": "PartyRequirement<MarsFirst>",
+          "cost": 11,
+          "tags": [ "CityTag", "BuildingTag" ],
+          "immediate": "FrontierTownBonus, PROD[-Energy], CityTile<>",
+          "components": [
+            "CLASS FrontierTownBonus : Owned<Player>, Hidden { HAS MAX 1 This; CityTile<Area@MarsArea>: -This! THEN RepeatPlacementBonus<Area@> }",
+            "CLASS RepeatPlacementBonus<MarsArea> : Owned<Player>, CustomInstruction",
+          ],
+        },
+        {
+          "name": "GhgShipment",
+          "requirement": "PartyRequirement<Kelvinists>",
+          "cost": 3,
+          "tags": [ "SpaceTag", "EventTag" ],
+          "immediate": "PROD[Heat], Heat / Floater",
+        },
+        {
+          "name": "JovianEnvoys",
+          "requirement": "2 JovianTag",
+          "cost": 2,
+          "tags": [ "EventTag" ],
+          "immediate": "2 PartyDelegate",
+        },
+        {
+          "name": "RedAppeasement",
+          "requirement": "PartyRequirement<Reds>, MAX 0 Pass<Anyone>",
+          "cost": 0,
+          "tags": [ "EventTag" ],
+          "immediate": "PROD[2 MC], Pass",
+        },
+        {
+          "name": "SpecialPermit",
+          "requirement": "PartyRequirement<Greens>",
+          "cost": 5,
+          "tags": [ "PlantTag", "EventTag" ],
+          "immediate": "4 Plant<Me@ FROM Anyone>",
+        },
+        {
+          "name": "SponsoringNation",
+          "requirement": "4 EarthTag",
+          "cost": 21,
+          "tags": [ "EarthTag" ],
+          "immediate": "3 TerraformRating, 2 PartyDelegate",
+        },
+        {
+          "name": "SummitLogistics",
+          "requirement": "PartyRequirement<Scientists>",
+          "cost": 10,
+          "tags": [ "BuildingTag", "SpaceTag" ],
+          "immediate": "1 MC / (PlanetaryTag OR Colony), 2 ProjectCard",
+        },
+        {
+          "name": "WgProject",
+          "requirement": "Chairman",
+          "cost": 9,
+          "tags": [ "EarthTag" ],
+          "immediate": "3 PreludeCard<Selecting> THEN PlayOrFizzle<Selecting> THEN -2 PreludeCard<Selecting>",
         },
       ],
     },

@@ -1,11 +1,13 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testTfm
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
+import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
@@ -130,6 +132,7 @@ internal class MonsInsuranceTest : CardTest() {
     val manual = p1.also { it.autoExecPolicy = NONE }
     manual.addTasks("-Plant<Player2>, 2 MC")
     manual.doTask("-Plant<Player2>")
+    manual.doTask("MyResourceWasRemoved<Player2, Class<Plant>, Player1>.")
     manual.doTask("Ok")
     manual.doTask("2 MC<Player1>")
 
@@ -147,7 +150,7 @@ internal class MonsInsuranceTest : CardTest() {
     val pharmacyMoneyBefore = p2.count("MC")
     val checkpoint = game.timeline.checkpoint()
 
-    p1.runOperation("MicrobeTag<$Decomposers>")
+    p1.runOperation("$NitriteReducingBacteria")
 
     p1.count("MC") shouldBe monsMoneyBefore
     p2.count("MC") shouldBe pharmacyMoneyBefore - 4
@@ -163,14 +166,16 @@ internal class MonsInsuranceTest : CardTest() {
   internal fun `Declining an optional removal avoids compensation`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.runOperation("$MonsInsurance, 10 MC")
+    playCorporationWithoutStartingProjects(p1, MonsInsurance)
+    p1.runOperation("ProjectCard")
     p2.runOperation("Plant")
+    admin.phase("Action")
 
-    p1.runOperation("-Plant<Player2>?") {
-          // Decline removing Player 2's plant.
+    p1.playProject(AsteroidCard, 14) {
+          // Choose zero plants even though Player 2 has a plant to remove.
           declineTask()
         }
-        .expect("0 Plant<Player2>, 0 MC<Player1>, 0 MC<Player2>")
+        .expect("0 Plant<Player2>, -14 MC<Player1>, 0 MC<Player2>")
   }
 
   @Test
@@ -187,11 +192,61 @@ internal class MonsInsuranceTest : CardTest() {
   }
 
   @Test
-  internal fun `An attack on the Mons owner requires no transfer`() {
+  internal fun `Recessions active player can compensate Player 3 before exhausting Mons funds`() {
+    recessionLossOrder(true)
+  }
+
+  @Test
+  internal fun `Recessions active player can exhaust Mons funds before compensating Player 3`() {
+    recessionLossOrder(false)
+  }
+
+  private fun recessionLossOrder(compensateFirst: Boolean) {
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack, players = 3)
+    val p2 = requireP2()
+    val p3 = game.testTfm(PLAYER3)
+    p1.playCorp(MonsInsurance, 0)
+    p1.runOperation("-${p1.count("MC") - 5} MC")
+    p3.runOperation("5 MC")
+    admin.phase("Prelude")
+    p1.count("StartToken") shouldBe 1
+    p1.autoExecPolicy = CONCRETE
+    p2.autoExecPolicy = CONCRETE
+    p3.autoExecPolicy = CONCRETE
+
+    p2.playPrelude(Recession) {
+      doTask("EACH Other@Player(NOT Player2) { -5 MC<Other@Player>., PROD[-1 MC<Other@Player>] }")
+      if (compensateFirst) {
+        doTask("-5 MC<Player3>")
+        doTask("MyResourceWasRemoved<Player3, Class<MC>, Player2>.")
+        doTask("3 MC<Player3> FROM MC<Player1>")
+        doTask("-2 MC<Player1>")
+      } else {
+        doTask("-5 MC<Player1>")
+      }
+      doTask("MyResourceWasRemoved<Player1, Class<MC>, Player2>.")
+      if (!compensateFirst) {
+        doTask("-5 MC<Player3>")
+        doTask("MyResourceWasRemoved<Player3, Class<MC>, Player2>.")
+        doTask("3 MC<Player3> FROM MC<Player1>.")
+      }
+      doTask("PROD[-MC<Player1>]")
+      doTask("MyProductionWasDecreased<Player1, Class<MC>, Player2>.")
+      doTask("PROD[-MC<Player3>]")
+      doTask("MyProductionWasDecreased<Player3, Class<MC>, Player2>.")
+      doTask("3 MC<Player3> FROM MC<Player1>.")
+    }
+
+    p3.count("MC") shouldBe if (compensateFirst) 3 else 0
+    p1.count("MC") shouldBe 0
+  }
+
+  @Test
+  internal fun `Attack on Mons Insurance owner makes no transfer`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.runOperation("$MonsInsurance, Plant, 10 MC")
 
-    p2.runOperation("-Plant<Player1>").expect("-Plant<Player1>")
+    p2.runOperation("-Plant<Player1>").expect("-Plant<Player1>, 0 MC<Player1>")
   }
 }

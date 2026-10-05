@@ -8,7 +8,6 @@ import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 
 /**
@@ -19,7 +18,7 @@ import dev.martianzoo.pets.ast.Requirement
  * Consumers interested only in resolved meaning can use [groundType]. Consumers interpreting
  * authored syntax can inspect [typeVariable] without maintaining a parallel representation. This is
  * the two-form model specified by
- * [rules T5-8 and T13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+ * [rule T13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
  */
 public interface Type : HasExpression, HasClassName, Specification<Type> {
   /**
@@ -43,15 +42,15 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
     get() = groundType.rootClass
 
   /**
-   * The canonical name of [rootClass], following
-   * [rule T2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+   * The canonical name of [rootClass], which identifies it under
+   * [rule T1-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   override val className: ClassName
     get() = rootClass.className
 
   /**
-   * The master universe to which this type belongs. Type-system operations reject values from
-   * different universes as specified by
+   * The universe interpreting this type. It may be a catalog table or a game table; operations
+   * reject values that have no common interpreting universe, as specified by
    * [rule T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   public val classTable: ClassTable
@@ -101,17 +100,6 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
     get() = groundType.narrowedDependencies
 
   /**
-   * Projects this type onto [superclass], retaining the resolved dependency bounds carried by this
-   * type. This is the type-level counterpart of walking [Class.directSuperclasses].
-   */
-  public fun asSupertype(superclass: Class): GroundType {
-    require(rootClass.isSubtypeOf(superclass)) {
-      "${rootClass.className} is not a subclass of ${superclass.className}"
-    }
-    return superclass.withAllDependencies(dependencies)
-  }
-
-  /**
    * This type's natural expression. A ground type uses the compact form of
    * [rule T5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types);
    * a type variable retains its authored expression under T13-1.
@@ -120,7 +108,8 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
     get() = groundType.expression
 
   /**
-   * The expression containing every dependency bound in key order ([rule
+   * The expression containing every open dependency bound in key order; class-fixed bounds remain
+   * semantic but are not argument positions ([rule
    * T5-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types)).
    */
   override val expressionFull: Expression
@@ -135,7 +124,7 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
 
   /**
    * Asserts the contextual narrowing relation of
-   * [rules T6-1 and T6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping),
+   * [rules T6-1 and T6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing),
    * using [info] only for a state-dependent refinement.
    *
    * @throws NarrowingException if this type does not narrow [that] in [info].
@@ -146,7 +135,7 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
 
   /**
    * Tests the contextual narrowing relation of
-   * [rules T6-1 and T6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping),
+   * [rules T6-1 and T6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing),
    * using [info] only for a state-dependent refinement.
    *
    * @throws IllegalArgumentException if [that] belongs to another universe (rule T1-2).
@@ -156,7 +145,7 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
 
   /**
    * Tests context-free subtyping. A comparison that needs a world fails rather than guessing, per
-   * [rules T6-1 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rules T6-1 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing).
    *
    * @throws IllegalStateException if a state-dependent refinement requires a world.
    * @throws IllegalArgumentException if [that] belongs to another universe (rule T1-2).
@@ -165,23 +154,9 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
 
   /**
    * The converse of [isSubtypeOf], as defined by
-   * [rule T6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rule T6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing).
    */
   public fun isSupertypeOf(that: Type): Boolean = that.isSubtypeOf(this)
-
-  /**
-   * Enumerates every concrete narrowing in the master universe, following
-   * [rules T11-1 and T11-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
-   */
-  public fun allConcreteSubtypes(): Sequence<GroundType> = groundType.allConcreteSubtypes()
-
-  /**
-   * Returns the sole concrete narrowing in the master universe when every structural choice is
-   * unique and its refinement accepts [info], as specified by
-   * [rule T11-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
-   */
-  public fun singleConcreteSubtype(info: TypeInfo): GroundType? =
-      groundType.singleConcreteSubtype(info)
 
   /**
    * Returns the concrete numeric value of [propertyName], under the property-reading contract of
@@ -189,13 +164,6 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
    */
   public fun getNumberPropertyValue(propertyName: String): Int =
       groundType.getNumberPropertyValue(propertyName)
-
-  /**
-   * Returns the concrete metric value of [propertyName], under the property-reading contract of
-   * [rule T9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
-   */
-  public fun getMetricPropertyValue(propertyName: String): Metric =
-      groundType.getMetricPropertyValue(propertyName)
 
   /**
    * Returns the concrete requirement value of [propertyName], or null for an absent optional, under
@@ -208,6 +176,8 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
    * Captures the values this type supplies for selected class-header [variables] when specializing
    * [general], following
    * [rule T13-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   *
+   * @throws IllegalArgumentException if [general] and this type have different root classes.
    */
   public fun variableBindingsFrom(
       general: Type,

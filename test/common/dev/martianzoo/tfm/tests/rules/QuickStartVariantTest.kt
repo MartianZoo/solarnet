@@ -9,7 +9,7 @@ import dev.martianzoo.generated.QuickStartVariant
 import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds

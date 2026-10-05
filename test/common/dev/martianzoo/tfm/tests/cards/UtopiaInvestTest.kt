@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.tfm.tests.TestOption.TurmoilCardPack
+import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -8,7 +8,7 @@ import kotlin.test.Test
 internal class UtopiaInvestTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame(TurmoilCardPack)
+    newGame(TurmoilExpansion)
     playCorporationWithoutStartingProjects(p1, UtopiaInvest)
     admin.phase("Action")
   }
@@ -17,6 +17,7 @@ internal class UtopiaInvestTest : CardTest() {
   internal fun `Decreases and gains the same standard resource`() {
     p1.runOperation("PROD[2 Plant]")
 
-    p1.cardAction1(UtopiaInvest) { doTask("PROD[-Plant]") }.expect("PROD[-Plant], 4 Plant")
+    p1.cardAction1(UtopiaInvest) { doTask("PROD[-Plant] THEN 4 Plant") }
+        .expect("PROD[-Plant], 4 Plant")
   }
 }

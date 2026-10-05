@@ -1,11 +1,9 @@
 package dev.martianzoo.pets.types
 
-import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Requirement
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -20,13 +18,16 @@ internal class Spec08RefinementsTest {
           CLASS Player1 : Owner
           CLASS Player2 : Owner
           ABSTRACT CLASS Area {
-            ABSTRACT CLASS LandArea { CLASS Tharsis_2_2, Tharsis_2_3 }
+            ABSTRACT CLASS LandArea {
+              CLASS Tharsis_2_2
+              CLASS Tharsis_2_3
+            }
             ABSTRACT CLASS WaterArea { CLASS Tharsis_1_1 }
           }
           ABSTRACT CLASS Occupant<Area>
           ABSTRACT CLASS Tile : Occupant
-          CLASS GreeneryTile : Tile, Owned<Owner>
-          CLASS CityTile : Tile, Owned<Owner>
+          CLASS GreeneryTile : Tile, Owned
+          CLASS CityTile : Tile, Owned
           CLASS Neighbor<Occupant, Area>
           """
               .trimIndent()
@@ -128,7 +129,7 @@ internal class Spec08RefinementsTest {
   internal fun `T8-3 an exact argument leaves the candidate for another compatible slot`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Area { CLASS Tharsis_2_2, Tharsis_2_3 }",
+            "ABSTRACT CLASS Area {\nCLASS Tharsis_2_2\nCLASS Tharsis_2_3\n}",
             "ABSTRACT CLASS Adjacency<Area, Area>",
         )
     val world = RecordingWorld(answer = true)
@@ -143,7 +144,7 @@ internal class Spec08RefinementsTest {
   internal fun `T8-3 a broad argument remains eligible for candidate narrowing`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Area { CLASS Tharsis_2_2, Tharsis_2_3 }",
+            "ABSTRACT CLASS Area {\nCLASS Tharsis_2_2\nCLASS Tharsis_2_3\n}",
             "ABSTRACT CLASS Adjacency<Area, Area>",
         )
     val world = RecordingWorld(answer = true)
@@ -172,12 +173,94 @@ internal class Spec08RefinementsTest {
     world.questions shouldContainExactly listOf("MAX 9 Ants.cost")
   }
 
+  private val cardMetrics =
+      loadTypes(
+          """
+          CLASS Player1 : Owner
+          ABSTRACT CLASS CardFront : Owned {
+            CLASS Ants
+            CLASS Birds
+          }
+          CLASS PrintedCost<Class<CardFront>>
+          CLASS CardValue<Class<CardFront>, CardFront>
+          CLASS SystemMetric<System>
+          CLASS ClassMetric<Class<System>>
+          CLASS VictoryPoint
+          CLASS Gains<Class<CardFront>, Class<Component>>
+          """
+              .trimIndent()
+      )
+
+  @Test
+  internal fun `T8-3 class-bound metrics require an explicit class-literal candidate`() {
+    val world = RecordingWorld(answer = true)
+    val componentRequirement = cardMetrics.resolve(te("CardFront(HAS PrintedCost)"))
+    cardMetrics.resolve(te("Ants<Player1>")).narrows(componentRequirement, world) shouldBe false
+    cardMetrics.resolve(te("CardFront<Player1>")).narrows(componentRequirement, world) shouldBe
+        false
+    world.questions shouldContainExactly listOf()
+    cardMetrics
+        .resolve(te("Class<Ants>"))
+        .narrows(cardMetrics.resolve(te("Class<CardFront>(HAS PrintedCost)")), world) shouldBe true
+    world.questions shouldContainExactly listOf("PrintedCost<Class<Ants>>")
+    shouldThrow<ExpressionException> { cardMetrics.resolve(te("PrintedCost<Ants<Player1>>")) }
+  }
+
+  @Test
+  internal fun `T8-3 a match of the original candidate takes precedence even when unchanged`() {
+    val world = RecordingWorld(answer = true)
+
+    listOf("CardValue", "CardValue<Ants<Player1>>").forEach { metric ->
+      cardMetrics
+          .resolve(te("Ants<Player1>"))
+          .narrows(cardMetrics.resolve(te("CardFront(HAS $metric)")), world) shouldBe true
+    }
+    world.questions shouldContainExactly List(2) { "CardValue<Class<CardFront>, Ants<Player1>>" }
+  }
+
+  @Test
+  internal fun `T8-3 a component candidate cannot fill a class slot`() {
+    val world = RecordingWorld(answer = true)
+
+    listOf("PrintedCost<Class<Birds>>", "SystemMetric").forEach { metric ->
+      cardMetrics
+          .resolve(te("Ants<Player1>"))
+          .narrows(cardMetrics.resolve(te("CardFront(HAS $metric)")), world) shouldBe false
+    }
+    world.questions shouldContainExactly listOf()
+    // This conversion belongs to refinement binding, not ordinary type arguments.
+    shouldThrow<ExpressionException> { cardMetrics.resolve(te("PrintedCost<Ants<Player1>>")) }
+  }
+
+  @Test
+  internal fun `T8-3 a class literal candidate is never wrapped again`() {
+    val world = RecordingWorld(answer = true)
+
+    cardMetrics
+        .resolve(te("Class<Ants>"))
+        .narrows(cardMetrics.resolve(te("Component(HAS ClassMetric)")), world) shouldBe false
+    world.questions shouldContainExactly listOf()
+  }
+
+  @Test
+  internal fun `T8-2 an abstract HAS MAX query is an aggregate rather than an existential choice`() {
+    val table =
+        loadTypes("ABSTRACT CLASS Place {\nCLASS First\nCLASS Second\n}", "CLASS Marker<Place>")
+    val info = world("MAX 0 Marker<Second>")
+    val refined = table.resolve(te("Place(HAS MAX 0 Marker)"))
+    table.resolve(te("Second")).narrows(refined, info) shouldBe true
+    table.resolve(te("Place")).narrows(refined, info) shouldBe false
+  }
+
   // T8-4, T8-5, T8-6, T8-7 Difference
 
   private val actors =
       loadTypes(
           """
-          ABSTRACT CLASS Player : Owner, Actor { CLASS Player1, Player2 }
+          ABSTRACT CLASS Player : Owner, Actor {
+            CLASS Player1
+            CLASS Player2
+          }
           CLASS Marker<Player>
           """
               .trimIndent()
@@ -185,7 +268,7 @@ internal class Spec08RefinementsTest {
 
   @Test
   internal fun `T8-4 a candidate satisfies NOT only when its whole domain avoids the exclusion`() {
-    val notPlayer1 = actors.resolve(te("Owner(NOT Player1)"))
+    val notPlayer1 = actors.resolve(te("Anyone(NOT Player1)"))
 
     actors.resolve(te("Player2")).isSubtypeOf(notPlayer1) shouldBe true
     actors.resolve(te("Player1")).isSubtypeOf(notPlayer1) shouldBe false
@@ -199,17 +282,17 @@ internal class Spec08RefinementsTest {
   @Test
   internal fun `T8-4 the exclusion is subtracted through the structural intersection`() {
     // Players inherit both Actor and Owner, so excluding Owner excludes them; Admin survives.
-    val nonOwnerActor = actors.resolve(te("Actor(NOT Owner)"))
+    val unowningActor = actors.resolve(te("Actor(NOT Owner)"))
 
-    actors.resolve(te("Admin")).isSubtypeOf(nonOwnerActor) shouldBe true
-    actors.resolve(te("Player1")).isSubtypeOf(nonOwnerActor) shouldBe false
+    actors.resolve(te("Admin")).isSubtypeOf(unowningActor) shouldBe true
+    actors.resolve(te("Player1")).isSubtypeOf(unowningActor) shouldBe false
   }
 
   @Test
   internal fun `T8-4 the difference test never consults a world`() {
     actors
         .resolve(te("Player2"))
-        .narrows(actors.resolve(te("Owner(NOT Player1)")), NoGameState) shouldBe true
+        .narrows(actors.resolve(te("Anyone(NOT Player1)")), NoGameState) shouldBe true
   }
 
   @Test
@@ -240,7 +323,8 @@ internal class Spec08RefinementsTest {
     table.resolve(te("GreeneryTile")).isSubtypeOf(unowned) shouldBe false
     table.resolve(te("CityTile")).isSubtypeOf(unowned) shouldBe false
     table.resolve(te("OceanTile")).isSubtypeOf(unowned) shouldBe true
-    unowned.allConcreteSubtypes().map { "$it" }.toList() shouldContainExactly listOf("OceanTile")
+    table.allConcreteSubtypes(unowned).map { "$it" }.toList() shouldContainExactly
+        listOf("OceanTile")
   }
 
   @Test
@@ -262,8 +346,12 @@ internal class Spec08RefinementsTest {
 
   @Test
   internal fun `T8-5 the excluded operand must be free of refinements, recursively`() {
-    shouldThrow<ExpressionException> { actors.resolve(te("Owner(NOT Player(HAS Marker))")) }
-    shouldThrow<ExpressionException> { actors.resolve(te("Owner(NOT Player(NOT Player1))")) }
+    shouldThrow<ExpressionException> {
+      actors.resolve(te("Anyone(NOT Player(HAS Marker))"))
+    }
+    shouldThrow<ExpressionException> {
+      actors.resolve(te("Anyone(NOT Player(NOT Player1))"))
+    }
     shouldThrow<ExpressionException> {
       actors.resolve(te("Marker<Player(NOT Player(HAS Marker))>"))
     }
@@ -281,7 +369,7 @@ internal class Spec08RefinementsTest {
 
     empty.refinement shouldBe te("Player1(NOT Player1)").refinement
     empty.abstract shouldBe true
-    empty.allConcreteSubtypes().toList() shouldContainExactly listOf()
+    actors.allConcreteSubtypes(empty).toList() shouldContainExactly listOf()
   }
 
   // T8-8 Refinements and narrowing
@@ -298,15 +386,6 @@ internal class Spec08RefinementsTest {
       type("Tharsis_2_2").isSubtypeOf(type("LandArea(HAS Neighbor)"))
     }
     type("Tharsis_2_2").narrows(type("LandArea(HAS Neighbor)"), fullWorld) shouldBe true
-  }
-
-  @Test
-  internal fun `T8-8 the context-free sentinel rejects every state query`() {
-    shouldThrow<IllegalStateException> { NoGameState.isAbstract(te("LandArea")) }
-    shouldThrow<IllegalStateException> {
-      NoGameState.ensureNarrows(te("LandArea"), te("Tharsis_2_2"))
-    }
-    shouldThrow<IllegalStateException> { NoGameState.has(parse<Requirement>("LandArea")) }
   }
 
   @Test
@@ -395,10 +474,22 @@ internal class Spec08RefinementsTest {
 
   @Test
   internal fun `T8-9 multiple NOT clauses jointly filter structural enumeration`() {
-    type("Area(NOT Tharsis_2_2, NOT WaterArea)")
-        .allConcreteSubtypes()
+    mars
+        .allConcreteSubtypes(type("Area(NOT Tharsis_2_2, NOT WaterArea)"))
         .map { "$it" }
         .toList() shouldContainExactly listOf("Tharsis_2_3")
+  }
+
+  @Test
+  internal fun `T8-9 a class-literal meet retains its represented-class predicate`() {
+    val tags = loadTypes("ABSTRACT CLASS Tag { CLASS BuildingTag }")
+    val refined = tags.resolve(te("Class<@Tag>(HAS @Tag)"))
+    val building = tags.resolve(te("Class<BuildingTag>"))
+    val intersection = tags.glb(refined, building)!!
+
+    // T7-1: specializing the represented class must keep a meet below both operands.
+    intersection.isSubtypeOf(refined) shouldBe true
+    intersection.isSubtypeOf(building) shouldBe true
   }
 
   // T8-10 Refined class literals
@@ -408,7 +499,7 @@ internal class Spec08RefinementsTest {
     val tags =
         loadTypes(
             "CLASS Player1 : Owner",
-            "ABSTRACT CLASS Tag : Owned<Owner> { CLASS BuildingTag, SpaceTag }",
+            "ABSTRACT CLASS Tag : Owned {\nCLASS BuildingTag\nCLASS SpaceTag\n}",
             "CLASS TagCount<Class<Tag>>",
         )
     val world = RecordingWorld(answer = true)
@@ -416,30 +507,36 @@ internal class Spec08RefinementsTest {
     tags
         .resolve(te("Class<BuildingTag>"))
         .narrows(
-            tags.resolve(te("Class<Tag>(HAS Tag<Player1>)")),
+            tags.resolve(te("Class<@Tag>(HAS @Tag<Player1>)")),
             world,
         ) shouldBe true
     world.questions shouldContainExactly listOf("BuildingTag<Player1>")
   }
 
   @Test
-  internal fun `T8-10 two class literals do not compare their predicates as written`() {
+  internal fun `T8-10 only a marked class literal predicate refers to its represented class`() {
     val tags =
         loadTypes(
             "CLASS Player1 : Owner",
-            "ABSTRACT CLASS Tag : Owned<Owner> { CLASS BuildingTag, SpaceTag }",
+            "ABSTRACT CLASS Tag : Owned {\nCLASS BuildingTag\nCLASS SpaceTag\n}",
         )
 
-    // Same words, different meanings: for the target the predicate asks about the candidate's own
-    // class, so "some tag exists" does not establish "some building tag exists".
     tags
-        .resolve(te("Class<BuildingTag>(HAS Tag)"))
-        .isSubtypeOf(tags.resolve(te("Class<Tag>(HAS Tag)"))) shouldBe false
+        .resolve(te("Class<@BuildingTag>(HAS @BuildingTag)"))
+        .isSubtypeOf(tags.resolve(te("Class<@Tag>(HAS @Tag)"))) shouldBe false
 
-    // For one and the same represented class the shortcut is still sound.
     tags
-        .resolve(te("Class<BuildingTag>(HAS Tag)"))
-        .isSubtypeOf(tags.resolve(te("Class<BuildingTag>(HAS Tag)"))) shouldBe true
+        .resolve(te("Class<BuildingTag>(HAS BuildingTag)"))
+        .isSubtypeOf(tags.resolve(te("Class<BuildingTag>(HAS BuildingTag)"))) shouldBe true
+
+    tags.resolve(te("Class<ThatTag@Tag>(HAS ThatTag@Tag)")) shouldBe
+        tags.resolve(te("Class<@Tag>(HAS @Tag)"))
+
+    val world = RecordingWorld(answer = true)
+    tags
+        .resolve(te("Class<BuildingTag>"))
+        .narrows(tags.resolve(te("Class<Tag>(HAS Tag<Player1>)")), world) shouldBe true
+    world.questions shouldContainExactly listOf("Tag<Player1>")
   }
 
   // T8-11 Refinements inside dependencies

@@ -1,11 +1,14 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.systemClassDeclarations
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -38,7 +41,7 @@ internal class Spec01UniversesTest {
     left.resolve(te("GreeneryTile")) shouldNotBe right.resolve(te("GreeneryTile"))
   }
 
-  // T1-2 Values are universe-scoped
+  // T1-2 Values belong to universes
 
   @Test
   internal fun `T1-2 comparing values from two universes is an error, not a false answer`() {
@@ -62,17 +65,9 @@ internal class Spec01UniversesTest {
     val leftPlant = loadTypes("CLASS Plant")
     val rightPlant = loadTypes("CLASS Plant").resolve(te("Plant"))
     shouldThrowIae { leftPlant.componentLimits.requiredLimits(listOf(rightPlant)) }
-  }
-
-  @Test
-  internal fun `T1-2 knows reports whether a type belongs to this universe`() {
-    fun universe() = loadTypes("ABSTRACT CLASS Area", "CLASS GreeneryTile<Area>")
-
-    val left = universe()
-    val right = universe()
-
-    left.knows(left.resolve(te("GreeneryTile"))) shouldBe true
-    left.knows(right.resolve(te("GreeneryTile"))) shouldBe false
+    shouldThrowIae {
+      leftPlant.componentLimits.requiredLimits(emptyList(), changedTypes = listOf(rightPlant))
+    }
   }
 
   // T1-3 Resolution is a function of the expression
@@ -124,12 +119,13 @@ internal class Spec01UniversesTest {
     table.classClass.baseType.expressionFull shouldBe te("Class<Component>")
   }
 
-  // T1-6 Freezing
+  // T1-6 A universe is closed
 
   @Test
   internal fun `T1-6 enumeration requires a frozen table but lookup does not`() {
-    val catalog = testCatalog("CLASS GreeneryTile")
-    val loader = ClassLoader(catalog)
+    val declarations =
+        ClassDeclaration.indexByName(systemClassDeclarations + parseClasses("CLASS GreeneryTile"))
+    val loader = ClassLoader(declarations)
 
     loader.findClass(cn("GreeneryTile")) shouldBe null
     shouldThrowIae { loader.allClasses() }
@@ -137,16 +133,16 @@ internal class Spec01UniversesTest {
     val tile = loader.load(cn("GreeneryTile"))
     loader.findClass(cn("GreeneryTile")) shouldBe tile
 
-    val table = loader.freeze()
+    val table = loader.loadEverything()
     table.getClass(cn("GreeneryTile")) shouldBe tile
-    table.allClassNames shouldBe catalog.allClassNames
+    table.allClassNames shouldBe declarations.keys
   }
 
   @Test
   internal fun `T1-6 invalid authored effect shapes fail when the effect is elaborated`() {
     val table = loadTypes("CLASS Foo", "CLASS Bar", "CLASS BrokenArgument { This: Foo<Bar> }")
     val error =
-        shouldThrow<PetException> {
+        shouldThrow<InvalidPetDefinitionException> {
           PetElaborator(table).classEffects(table.getClass(cn("BrokenArgument")))
         }
     error.message!!.contains("BrokenArgument") shouldBe true
@@ -158,12 +154,14 @@ internal class Spec01UniversesTest {
   @Test
   internal fun `T1-7 catalog compilation rejects every undeclared type name`() {
     val effectError =
-        shouldThrow<ExpressionException> { loadTypes("CLASS BrokenEffect { This: Missing }") }
+        shouldThrow<InvalidPetDefinitionException> {
+          loadTypes("CLASS BrokenEffect { This: Missing }")
+        }
     effectError.message!!.contains("BrokenEffect") shouldBe true
     effectError.message!!.contains("Missing") shouldBe true
 
     val propertyError =
-        shouldThrow<ExpressionException> {
+        shouldThrow<InvalidPetDefinitionException> {
           loadTypes("CLASS BrokenProperty { score = COUNT \"Missing\" }")
         }
     propertyError.message!!.contains("BrokenProperty") shouldBe true
@@ -198,8 +196,8 @@ internal class Spec01UniversesTest {
         )
     positions.forEach { declaration ->
       withClue(declaration) {
-        shouldThrow<ExpressionException> { loadTypes(declaration) }.message shouldContain
-            "Foo names `Missing`"
+        shouldThrow<InvalidPetDefinitionException> { loadTypes(declaration) }.message shouldContain
+            "`Foo` names undeclared class `Missing`"
       }
     }
   }

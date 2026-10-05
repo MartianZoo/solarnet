@@ -86,17 +86,21 @@ public object MarsMapReader {
         row,
         column,
         cn(kind),
-        bonus(code.drop(1)),
+        bonus(prefix, code.drop(1)),
         code,
     )
   }
 
-  private fun bonus(code: String): String? {
+  private fun bonus(prefix: String, code: String): String? {
     return decodeBonusCodes(code)
-        .filterNot { (_, symbol) -> BONUSES.getValue(symbol) == "Ok" }
         .map { (count, symbol) ->
-          val bonus = BONUSES.getValue(symbol)
-          if (count == 1) bonus else "$count $bonus"
+          when {
+            symbol == 'D' && count == 1 -> "${prefix}DelegatePlacementBonus"
+            symbol == 'D' && count == 2 -> "${prefix}DoubleDelegatePlacementBonus"
+            symbol == 'D' -> error("A delegate placement bonus must contain one or two delegates")
+            count == 1 -> BONUSES.getValue(symbol)
+            else -> "$count ${BONUSES.getValue(symbol)}"
+          }
         }
         .joinToString()
         .ifEmpty { null }
@@ -132,7 +136,6 @@ public object MarsMapReader {
           'E' to "Energy",
           'H' to "Heat",
           'R' to "StandardResource",
-          'D' to "Ok",
           'F' to "TemperatureStep",
           '4' to "-4 MC",
           '6' to "-6 MC",

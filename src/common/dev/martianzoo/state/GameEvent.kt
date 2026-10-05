@@ -1,7 +1,6 @@
 package dev.martianzoo.state
 
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.Actor
 
 public sealed class GameEvent {
   public abstract val ordinal: Int
@@ -72,7 +71,11 @@ public sealed class GameEvent {
         /** The type of the existing component the activated effect belonged to. */
         val context: Expression,
 
-        /** The ordinal of the previous event which this event was triggered in response to. */
+        /**
+         * The ordinal of the change event that activated the effect. Following this field through
+         * earlier [ChangeEvent.cause] values reconstructs causal event ancestry until a manual
+         * change with no cause is reached.
+         */
         val triggerEvent: Int,
     ) {
       init {

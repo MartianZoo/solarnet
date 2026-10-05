@@ -1,12 +1,18 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.DependencyException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
+import dev.martianzoo.tfm.tests.TestOption.Cimmeria
+import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
-import dev.martianzoo.tfm.tests.TestOption.TurmoilCardPack
+import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
+import dev.martianzoo.tfm.tests.cards.cardnames.CrediCor
 import dev.martianzoo.tfm.tests.cards.cardnames.LakefrontResorts
 import dev.martianzoo.tfm.tests.cards.cardnames.LandClaim
 import dev.martianzoo.tfm.tests.cards.cardnames.MarsNomads
@@ -14,6 +20,7 @@ import dev.martianzoo.tfm.tests.cards.cardnames.MiningGuild
 import dev.martianzoo.tfm.tests.cards.cardnames.Philares
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowAny
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class MarsNomadsTest : CardTest() {
@@ -61,7 +68,7 @@ internal class MarsNomadsTest : CardTest() {
     admin.phase("Action")
 
     p1.cardAction1(MarsNomads) {
-      shouldThrow<NarrowingException> {
+      shouldThrow<ExpressionException> {
         doTask("NomadsMarker<Tharsis_1_1 FROM Tharsis_1_1>")
       }
       shouldThrow<NarrowingException> {
@@ -132,7 +139,7 @@ internal class MarsNomadsTest : CardTest() {
 
   @Test
   internal fun `Lakefront Resorts increases Nomads ocean bonuses`() {
-    newGame(PromoCardPack, TurmoilCardPack)
+    newGame(PromoCardPack, TurmoilExpansion)
     p1.runOperation("$LakefrontResorts")
     p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_4_6>") }
     p1.runOperation("OceanTile<Tharsis_4_8>")
@@ -159,6 +166,21 @@ internal class MarsNomadsTest : CardTest() {
     }
 
     p1.assertCounts(2 to "Steel", 1 to "PROD[Steel]")
+  }
+
+  @Test
+  internal fun `Nomads movement collects its placement bonus without triggering Mars First`() {
+    newGame(PromoCardPack, TurmoilExpansion)
+    p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_2_1>") }
+    admin.runOperation("Ruling<MarsFirst> FROM Ruling")
+    admin.phase("Action")
+
+    p1.runOperation("CityTile<Tharsis_3_3>").expect("Steel")
+
+    p1.cardAction1(MarsNomads) {
+          doTask("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>")
+        }
+        .expect("2 Steel")
   }
 
   @Test
@@ -204,5 +226,46 @@ internal class MarsNomadsTest : CardTest() {
     admin.phase("Action")
 
     shouldThrowAny { p1.cardAction1(MarsNomads) }
+  }
+
+  @Test
+  internal fun `Moving onto MSL Curiosity requires paying for and placing a colony`() {
+    newGame(Cimmeria, ColoniesExpansion, PromoCardPack, colonyTiles = testColonyTiles(2))
+    p1.playCorp(CrediCor, 1)
+    admin.phase("Action")
+    p1.playProject(MarsNomads, 13) { doTask("NomadsMarker<Cimmeria_3_2>") }
+
+    p1.cardAction1(MarsNomads) {
+          doTask("NomadsMarker<Cimmeria_3_3 FROM Cimmeria_3_2>")
+          doTask("Colony<Luna>")
+        }
+        .expect("-5 MC, Colony<Luna>, PROD[2 MC], 0 OwnedTile")
+  }
+
+  @Test
+  internal fun `Moving onto MSL Curiosity fails when every colony tile already has an own colony`() {
+    val tiles = testColonyTiles(2)
+    newGame(Cimmeria, ColoniesExpansion, PromoCardPack, colonyTiles = tiles)
+    p1.playCorp(CrediCor, 1)
+    admin.phase("Action")
+    p1.runOperation("100 MC")
+    p1.playProject(MarsNomads, 13) { doTask("NomadsMarker<Cimmeria_3_2>") }
+    tiles.forEach { tile ->
+      p1.stdProject("BuildColonyProject") { doTask("Colony<$tile>") }
+    }
+    val moneyBefore = p1.count("MC")
+
+    shouldThrow<DependencyException> {
+      p1.cardAction1(MarsNomads) {
+        doTask("NomadsMarker<Cimmeria_3_3 FROM Cimmeria_3_2>")
+      }
+    }
+    p1.assertCounts(1 to "NomadsMarker<Cimmeria_3_2>", 0 to "NomadsMarker<Cimmeria_3_3>")
+    p1.count("MC") shouldBe moneyBefore
+    p1.count("Colony") shouldBe 5
+    p1.cardAction1(MarsNomads) {
+          doTask("NomadsMarker<Cimmeria_3_1 FROM Cimmeria_3_2>")
+        }
+        .expect("NomadsMarker<Cimmeria_3_1>, 0 Colony, 0 MC")
   }
 }

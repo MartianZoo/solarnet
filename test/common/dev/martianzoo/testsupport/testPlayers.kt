@@ -1,6 +1,6 @@
 package dev.martianzoo.testsupport
 
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.Player
 
 private val players = Player.players(3)
 

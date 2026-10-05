@@ -1,12 +1,10 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
-import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.ast.Requirement.Counting
 import kotlin.Int.Companion.MAX_VALUE
 
 /**
@@ -39,26 +37,49 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
   )
 
   private val restrictionsByClass: Map<Class, List<Restriction>> = compileRestrictions()
+  private val scopedRequiredRestrictionsByClass: Map<Class, List<Restriction>>
+  private val unscopedRequiredLimits: Set<Limit>
 
   init {
     val inhabitedConcreteClasses = classTable.allInhabitedConcreteClasses()
     val invalidDependencies = inhabitedConcreteClasses.mapNotNull { dependent ->
       dependent.dependencies
-          .concreteDependencyTargets()
-          .filter(classTable::isInhabited)
-          .firstOrNull { target -> limitsFor(target).all { it.range.last > 1 } }
+          .concreteDependencyTargets(classTable)
+          .firstOrNull { target -> !hasSingleTargetLimit(target) }
           ?.let { dependent to it }
     }
 
     if (invalidDependencies.isNotEmpty()) {
-      throw invalidPetDefinition(
-          "Dependencies must target types with maximum multiplicity 1; first violation per class:\n" +
+      throw InvalidPetDefinitionException(
+          "dependencies must target types with maximum multiplicity 1; first violation per class:\n" +
               invalidDependencies.joinToString("\n") { (dependent, target) ->
-                "  ${dependent.className} -> ${target.expressionFull}"
-              }
+                "  `${dependent.className}` -> `${target.expressionFull}`"
+              },
+          sourceLocation = invalidDependencies.first().first.className.sourceLocation,
       )
     }
+
+    val (scoped, unscoped) =
+        restrictionsByClass.values
+            .flatten()
+            .distinct()
+            .filter { it.range.first > 0 }
+            .partition { it.requiredLimits(emptySet()).none() }
+    scopedRequiredRestrictionsByClass = scoped.groupBy {
+      when (it) {
+        is ScopedBoundRestriction -> it.declaringClass
+        is UnboundRestriction -> it.declaringClass
+        is BoundRestriction -> error("A bound restriction cannot require a live scope")
+      }
+    }
+    unscopedRequiredLimits = unscoped.flatMap { it.requiredLimits(emptySet()) }.toSet()
   }
+
+  private fun hasSingleTargetLimit(target: Type): Boolean =
+      restrictionsByClass[target.rootClass].orEmpty().any { restriction ->
+        restriction.range.last <= 1 &&
+            restriction.bindThisTo(target)?.let { target.isSubtypeOf(it.type) } == true
+      }
 
   /**
    * Returns every strongest component-count invariant applicable to [type], plus an unconstrained
@@ -67,7 +88,7 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
    * [rule T3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
    */
   public fun limitsFor(type: Type): Set<Limit> {
-    require(classTable.knows(type)) { "$type belongs to a different Catalog" }
+    require(classTable.knows(type)) { "`$type` belongs to a different Catalog" }
     val bound = restrictionsByClass[type.rootClass].orEmpty().mapNotNull { it.bindThisTo(type) }
     val applicable = bound.filter { type.isSubtypeOf(it.type) }.toSet() + Limit(type, 0..MAX_VALUE)
     return applicable.filterTo(linkedSetOf()) { candidate ->
@@ -84,17 +105,62 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
    * Returns every positive-lower-bound limit that must hold for a completed component set.
    * Self-counts apply to every inhabited concrete specialization; a dependent count containing
    * `This` applies only to the declaring types present in [liveTypes].
+   *
+   * When [changedTypes] is supplied, global requirements are restricted to those applicable to a
+   * changed component. Requirements of [liveTypes] still include dependents that are absent.
    */
-  public fun requiredLimits(liveTypes: Collection<Type>): Set<Limit> {
-    liveTypes.forEach { require(classTable.knows(it)) { "$it belongs to a different Catalog" } }
+  public fun requiredLimits(
+      liveTypes: Collection<Type>,
+      changedTypes: Collection<Type>? = null,
+  ): Set<Limit> {
+    liveTypes.forEach { require(classTable.knows(it)) { "`$it` belongs to a different Catalog" } }
+    val unscoped =
+        if (changedTypes == null) unscopedRequiredLimits
+        else {
+          changedTypes.flatMapTo(linkedSetOf()) { type ->
+            require(classTable.knows(type)) { "`$type` belongs to a different Catalog" }
+            restrictionsByClass[type.rootClass]
+                .orEmpty()
+                .asSequence()
+                .filter { it.range.first > 0 }
+                .mapNotNull { it.bindThisTo(type) }
+                .filter { it in unscopedRequiredLimits }
+                .toList()
+          }
+        }
     val liveTypeSet = liveTypes.toSet()
-    return restrictionsByClass.values
+    return unscoped +
+        liveTypeSet
+            .asSequence()
+            .map { it.rootClass }
+            .distinct()
+            .flatMap { scopedRequiredRestrictionsByClass[it].orEmpty() }
+            .flatMap { it.requiredLimits(liveTypeSet) }
+            .toSet()
+  }
+
+  /**
+   * Exact, positive counts of concrete parts directly dependent on [owner]. Creating the owner
+   * establishes these parts; validation alone never creates them. Abstract requirements and
+   * requirements for the owner itself remain constraints without choosing any components.
+   */
+  public fun requiredParts(owner: Type): List<Limit> {
+    require(classTable.knows(owner)) { "`$owner` belongs to a different Catalog" }
+    return classTable.classLimitTemplates
+        .templatesFor(owner.rootClass)
         .asSequence()
-        .flatten()
+        .filter { it.range.first > 0 && it.range.first == it.range.last }
+        .map { template ->
+          val bound =
+              replaceThisExpressionsWith(owner.expressionFull)
+                  .transformExpression(template.expression)
+          Limit(classTable.resolve(bound), template.range)
+        }
+        .filter { limit ->
+          !limit.type.abstract && limit.type.typeDependencies.any { it.boundType == owner }
+        }
         .distinct()
-        .filter { it.range.first > 0 }
-        .flatMap { it.requiredLimits(liveTypeSet) }
-        .toSet()
+        .toList()
   }
 
   private fun compileRestrictions(): Map<Class, List<Restriction>> {
@@ -103,13 +169,8 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
         .allClasses()
         .filter(classTable::isInhabited)
         .flatMap { klass ->
-          klass.invariants.map { invariant ->
-            val counting =
-                invariant as? Counting
-                    ?: throw invalidPetDefinition(
-                        "Class invariant on ${klass.className} is not a counting requirement: $invariant"
-                    )
-            toRestriction(counting, klass)
+          classTable.classLimitTemplates.templatesFor(klass).map { template ->
+            toRestriction(template, klass)
           }
         }
         .forEach { restriction ->
@@ -120,14 +181,10 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
     return restrictions
   }
 
-  private fun toRestriction(invariant: Counting, klass: Class): Restriction {
-    val expression =
-        (invariant.metric as? Metric.Count)?.expression
-            ?: throw invalidPetDefinition(
-                "Class invariant on ${klass.className} must count one component expression: $invariant"
-            )
+  private fun toRestriction(template: ClassLimitTemplateTable.Template, klass: Class): Restriction {
+    val expression = template.expression
     if (THIS !in expression.descendantsOfType<ClassName>()) {
-      return BoundRestriction(classTable.resolve(expression), invariant.range)
+      return BoundRestriction(template.fixedType ?: classTable.resolve(expression), template.range)
     }
     if (classTable.allConcreteSubtypes(klass.baseType).drop(1).none()) {
       val bound =
@@ -136,10 +193,10 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
           classTable.resolve(bound),
           klass,
           expression.className == THIS,
-          invariant.range,
+          template.range,
       )
     }
-    return UnboundRestriction(expression, klass, classTable, invariant.range)
+    return UnboundRestriction(expression, klass, classTable, template.range)
   }
 
   private sealed interface Restriction {

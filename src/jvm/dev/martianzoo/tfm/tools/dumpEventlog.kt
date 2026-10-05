@@ -3,17 +3,17 @@ package dev.martianzoo.tfm.tools
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.HIDDEN
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.EventLog
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameRecordingJson
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -31,7 +31,7 @@ private val gameOptions: Set<ClassName> =
         cn("PreludeExpansion"),
         cn("Prelude2CardPack"),
         cn("ColoniesExpansion"),
-        cn("TurmoilCardPack"),
+        cn("TurmoilExpansion"),
         cn("PromoCardPack"),
         cn("FakeCardsCardPack"),
     )
@@ -50,9 +50,8 @@ private fun createGame(playerCount: Int): World {
     val agents = Agents(game)
     TfmWorkflow.Stepwise(agents).setupPhase()
     val players = game.actors.filterIsInstance<Player>()
-    players.forEach { player -> agents[player].doTask("-6 ProjectCard<Selecting>") }
     if (playerCount == 1) {
-      agents.tfm(players.first()).doTask("-ColonyTileSelection<Class<${colonies.first()}>>")
+      agents.tfm(players.first()).doTask("-SelectedColonyTile<Class<${colonies.first()}>>")
     }
     TfmWorkflow.Stepwise(agents).corporationPhase()
     agents.tfm(players.first()).playCorp(cn("InterplanetaryCinematics"), buyCards = 4)
@@ -105,15 +104,16 @@ public fun main(args: Array<String>) {
   when {
     args.size == 2 && args[0].endsWith(".json") -> {
       val text = Files.readString(Path.of(args[0]))
-      val config = GameRecordingJson.config(text)
+      val document = GameRecordingJson.parse(text)
+      val config = document.config
       val catalog =
           if (cn("FakeStuffBundle") in config.includedClassNames) {
-            TfmCatalog.compose(Canon, FakeCanon)
+            TfmCatalog(Canon, FakeCanon)
           } else {
             Canon
           }
       val premise = catalog.gamePremise(config)
-      val world = GameRecordingJson.decode(text, premise).open().world
+      val world = document.decode(premise).open().world
       dump(world.reader, world.events, Path.of(args[1]))
     }
     args.size == 2 -> {

@@ -6,9 +6,8 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import kotlin.test.BeforeTest
 
 /** Follow-along solo tests driven by the engine-owned game workflow. */
-internal abstract class AbstractSoloTest(requireEveryProjectCardChangeNamed: Boolean = false) :
-    CardTrackingFullGameTest(requireEveryProjectCardChangeNamed) {
-  protected lateinit var me: TfmGameplay<*>
+internal abstract class AbstractSoloTest : AbstractFullGameTest() {
+  protected lateinit var me: TfmGameplay<dev.martianzoo.generated.Player>
   private lateinit var workflow: TfmWorkflow.Automatic
 
   protected abstract fun cityAreas(): Pair<String, String>
@@ -21,12 +20,15 @@ internal abstract class AbstractSoloTest(requireEveryProjectCardChangeNamed: Boo
 
     me = p1
     workflow = TfmWorkflow.Automatic(agents).launch()
+    resolveExpansionSetupTasks()
 
     admin.doTask("CityTile<${cityAreas().first}, SoloOpponent>")
     admin.doTask("GreeneryTile<${greeneryAreas().first}, SoloOpponent>")
     admin.doTask("CityTile<${cityAreas().second}, SoloOpponent>")
     admin.doTask("GreeneryTile<${greeneryAreas().second}, SoloOpponent>")
   }
+
+  protected open fun resolveExpansionSetupTasks() {}
 
   protected fun nextRound(worldGovernmentChoice: String, cardsBought: Int) {
     p1.pass()

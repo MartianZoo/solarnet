@@ -22,13 +22,13 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 // Complete database replay: Erratic Carbon Current (gbf986ef543f0)
 // https://terraforming-mars.herokuapp.com/the-end?id=p6674c4a1893d
-internal class ErraticCarbonCurrentTest :
-    CardTrackingFullGameTest(requireEveryProjectCardChangeNamed = true) {
+internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
   override val config =
       gameConfig(
           modules =
@@ -69,7 +69,6 @@ internal class ErraticCarbonCurrentTest :
   @Test
   internal fun erraticCarbonCurrent() {
     TfmWorkflow.Automatic(agents).launch()
-    retainStartingProjects(6, 4)
     generation1()
     generation2()
     generation3()
@@ -83,16 +82,6 @@ internal class ErraticCarbonCurrentTest :
   }
 
   private fun generation1() {
-    blue.discardUnselectedProjectCards(OrbitalCleanup, Trees, Supermarkets, CityParks)
-    pink.discardUnselectedProjectCards(
-        DustSeals,
-        RadSuits,
-        Shuttles,
-        Penguins,
-        BactoviralResearch,
-        UrbanizedArea,
-    )
-
     blue.playCorp(CrediCor) { buyCards(6) }
     pink.playCorp(Ecoline) { buyCards(4) }
 
@@ -117,10 +106,7 @@ internal class ErraticCarbonCurrentTest :
 
   private fun generation2() {
     pink.buyCards(3)
-    pink.discardUnselectedProjectCards(Bushes)
     blue.buyCards(2)
-    blue.discardUnselectedProjectCards(CallistoPenalMines, EnergyMarket)
-
     // Database save 23 evidence: after both research purchases.
     blue.assertResources(m = 32, s = 0, t = 0, p = 3, e = 0, h = 6)
     blue.assertProduction(m = 1, s = 0, t = 0, p = 2, e = 0, h = 3)
@@ -148,10 +134,7 @@ internal class ErraticCarbonCurrentTest :
 
   private fun generation3() {
     blue.buyCards(3)
-    blue.discardUnselectedProjectCards(CaretakerContract)
     pink.buyCards(1)
-    pink.discardUnselectedProjectCards(Casinos, QuantumExtractor, ArtificialLake)
-
     // Database save 48 evidence: after both research purchases.
     blue.assertResources(m = 21, s = 0, t = 0, p = 4, e = 0, h = 8)
     blue.assertProduction(m = 3, s = 0, t = 0, p = 3, e = 0, h = 4)
@@ -178,10 +161,7 @@ internal class ErraticCarbonCurrentTest :
 
   private fun generation4() {
     pink.buyCards(2)
-    pink.discardUnselectedProjectCards(EquatorialMagnetizer, SulphurExports)
     blue.buyCards(2)
-    blue.discardUnselectedProjectCards(EnergyTapping, OutdoorSports)
-
     // Database save 69 evidence: after both research purchases.
     blue.assertResources(m = 29, s = 0, t = 0, p = 3, e = 0, h = 4)
     blue.assertProduction(m = 7, s = 0, t = 0, p = 3, e = 0, h = 4)
@@ -213,14 +193,7 @@ internal class ErraticCarbonCurrentTest :
 
   private fun generation5() {
     blue.buyCards(1)
-    blue.discardUnselectedProjectCards(
-        DeuteriumExport,
-        ElectroCatapult,
-        BeamFromAThoriumAsteroid,
-    )
     pink.buyCards(3)
-    pink.discardUnselectedProjectCards(BioPrintingFacility)
-
     // Database save 98 evidence: after both research purchases.
     blue.assertResources(m = 29, s = 0, t = 0, p = 8, e = 0, h = 11)
     blue.assertProduction(m = 9, s = 0, t = 0, p = 4, e = 0, h = 4)
@@ -258,10 +231,7 @@ internal class ErraticCarbonCurrentTest :
 
   private fun generation6() {
     pink.buyCards(3)
-    pink.discardUnselectedProjectCards(Ironworks)
     blue.buyCards(2)
-    blue.discardUnselectedProjectCards(JovianEmbassy, SoilFactory)
-
     // Database save 133 evidence: after both research purchases.
     blue.assertResources(m = 32, s = 0, t = 0, p = 8, e = 1, h = 7)
     blue.assertProduction(m = 9, s = 0, t = 0, p = 8, e = 1, h = 4)
@@ -299,10 +269,7 @@ internal class ErraticCarbonCurrentTest :
 
   private fun generation7() {
     pink.buyCards(2)
-    pink.discardUnselectedProjectCards(CeosFavoriteProject, VenusWaystation)
     blue.buyCards(2)
-    blue.discardUnselectedProjectCards(SpaceElevator, IndustrialCenter)
-
     // Database save 173 evidence: after both research purchases.
     blue.assertProduction(m = 9, s = 0, t = 0, p = 16, e = 1, h = 4)
     blue.assertResources(m = 34, s = 1, t = 0, p = 17, e = 1, h = 12)
@@ -351,7 +318,6 @@ internal class ErraticCarbonCurrentTest :
 
   private fun generation8() {
     pink.buyCards(2)
-    pink.discardUnselectedProjectCards(FreyjaBiodomes, WaterImportFromEuropa)
     blue.buyCards(4)
 
     // Database save 214 evidence: after both research purchases.
@@ -370,42 +336,16 @@ internal class ErraticCarbonCurrentTest :
       // Research Outpost and Olympus Conference supply the other two science tags.
       blue.exMachina(fakeWildTags("ScienceTag", 2))
       playProject(AiCentral, 20) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
       }
     }
     pink.turn {
       cardAction1(BusinessNetwork) {
-        discardUnselectedProjectCards(LawSuit)
+        buyCards(0)
       }
     }
     blue.turn {
-      playProject(AqueductSystems, 8) {
-        discardProjectCardsFromDeck(
-            ProjectInspection,
-            VenusianAnimals,
-            Stratopolis,
-            Sponsors,
-            CyberiaSystems,
-            Fish,
-            NeptunianPowerConsultants,
-            WaterToVenus,
-            InterplanetaryTrade,
-            Birds,
-            SpecialDesign,
-            Sabotage,
-            SnowAlgae,
-            ViralEnhancers,
-            TollStation,
-            TransNeptuneProbe,
-            Cartel,
-            PowerSupplyConsortium,
-            SolarLogistics,
-            WavePower,
-            ProtectedGrowth,
-            Farming,
-            Satellites,
-        )
-      }
+      playProject(AqueductSystems, 8) {}
       cardAction1(AiCentral)
     }
     pink.turn {
@@ -435,10 +375,7 @@ internal class ErraticCarbonCurrentTest :
 
   private fun generation9() {
     blue.buyCards(2)
-    blue.discardUnselectedProjectCards(MiningExpedition, Livestock)
     pink.buyCards(2)
-    pink.discardUnselectedProjectCards(PeroxidePower, DesignedMicroorganisms)
-
     // Database save 257 evidence: after both research purchases.
     blue.assertResources(m = 38, s = 2, t = 0, p = 21, e = 2, h = 8)
     blue.assertProduction(m = 9, s = 2, t = 0, p = 16, e = 2, h = 4)
@@ -459,9 +396,7 @@ internal class ErraticCarbonCurrentTest :
     }
     blue.turn {
       cardAction1(AiCentral)
-      playProject(InventionContest, 1) {
-        discardUnselectedProjectCards(Mine, StratosphericBirds)
-      }
+      playProject(InventionContest, 1) {}
     }
     pink.turn {
       playProject(Virus, 1) { doTask("-5 Plant<Blue>") }
@@ -486,7 +421,7 @@ internal class ErraticCarbonCurrentTest :
     pink.turn { sellPatents(FieldCappedCity) }
     blue.turn { convertPlants { placeTile(8, 8) } }
     pink.turn {
-      cardAction1(BusinessNetwork) { discardUnselectedProjectCards(MiningQuota) }
+      cardAction1(BusinessNetwork) { buyCards(0) }
       playProject(CarbonNanosystems, steel = 7) {
         doTask("-ProjectCard")
         discard(Plantation)
@@ -504,10 +439,7 @@ internal class ErraticCarbonCurrentTest :
 
   private fun generation10() {
     blue.buyCards(2)
-    blue.discardUnselectedProjectCards(ProtectedValley, AcquiredCompany)
     pink.buyCards(2)
-    pink.discardUnselectedProjectCards(OreProcessor, LightningHarvest)
-
     // Database save 307 evidence: after both research purchases.
     blue.assertResources(m = 42, s = 4, t = 1, p = 20, e = 2, h = 6)
     blue.assertProduction(m = 9, s = 2, t = 0, p = 16, e = 2, h = 4)
@@ -517,7 +449,7 @@ internal class ErraticCarbonCurrentTest :
 
     pink.turn {
       stdProject("AirScrappingProject")
-      cardAction1(BusinessNetwork) { discardUnselectedProjectCards(AerialMappers) }
+      cardAction1(BusinessNetwork) { buyCards(0) }
     }
     blue.turn {
       cardAction1(AiCentral)
@@ -641,10 +573,6 @@ internal class ErraticCarbonCurrentTest :
       mapOf(
           cn("Blue") to
               listOf(
-                  OrbitalCleanup,
-                  Trees,
-                  Supermarkets,
-                  CityParks,
                   Potatoes,
                   Hackers,
                   Lichen,
@@ -656,28 +584,16 @@ internal class ErraticCarbonCurrentTest :
                   AerobrakedAmmoniaAsteroid,
                   SmallAsteroid,
                   HermeticOrderOfMars,
-                  CallistoPenalMines,
-                  EnergyMarket,
                   FakeResearchCoordination,
                   GreatEscarpmentConsortium,
                   Worms,
-                  CaretakerContract,
                   AdaptedLichen,
                   ResearchOutpost,
-                  EnergyTapping,
-                  OutdoorSports,
                   NitrogenRichAsteroid,
-                  DeuteriumExport,
-                  ElectroCatapult,
-                  BeamFromAThoriumAsteroid,
                   Insects,
                   PowerGrid,
-                  JovianEmbassy,
-                  SoilFactory,
                   IoSulphurResearch,
                   AiCentral,
-                  SpaceElevator,
-                  IndustrialCenter,
                   AqueductSystems,
                   OlympusConference,
                   NoctisFarming,
@@ -690,29 +606,17 @@ internal class ErraticCarbonCurrentTest :
                   ArcticAlgae,
                   HiredRaiders,
                   Algae,
-                  MiningExpedition,
-                  Livestock,
                   InventionContest,
                   Zeppelins,
                   MediaArchives,
-                  Mine,
-                  StratosphericBirds,
                   AirScrappingExpedition,
                   TropicalResort,
-                  ProtectedValley,
-                  AcquiredCompany,
                   ConvoyFromEuropa,
                   Grass,
                   Atmoscoop,
               ),
           cn("Pink") to
               listOf(
-                  DustSeals,
-                  RadSuits,
-                  Shuttles,
-                  Penguins,
-                  BactoviralResearch,
-                  UrbanizedArea,
                   VestaShipyard,
                   MiningRights,
                   BuildingIndustries,
@@ -723,15 +627,9 @@ internal class ErraticCarbonCurrentTest :
                   BigAsteroid,
                   MarsUniversity,
                   ExtremeColdFungus,
-                  Bushes,
                   NitrophilicMoss,
-                  Casinos,
-                  QuantumExtractor,
-                  ArtificialLake,
                   EarthOffice,
                   LargeConvoy,
-                  EquatorialMagnetizer,
-                  SulphurExports,
                   NoctisCity,
                   MartianSurvey,
                   Harvest,
@@ -739,34 +637,21 @@ internal class ErraticCarbonCurrentTest :
                   ReleaseOfInertGases,
                   BusinessNetwork,
                   MarsNomads,
-                  BioPrintingFacility,
                   ImportedGhg,
                   KelpFarming,
                   LavaTubeSettlement,
-                  Ironworks,
                   CarbonNanosystems,
                   EcologicalZone,
-                  CeosFavoriteProject,
-                  VenusWaystation,
                   FieldCappedCity,
                   ImportOfAdvancedGhg,
                   Pets,
                   AsteroidCard,
-                  FreyjaBiodomes,
-                  WaterImportFromEuropa,
-                  LawSuit,
                   Comet,
                   Virus,
-                  PeroxidePower,
-                  DesignedMicroorganisms,
-                  MiningQuota,
                   EosChasmaNationalPark,
                   InvestmentLoan,
                   PublicBaths,
-                  OreProcessor,
-                  LightningHarvest,
                   Decomposers,
-                  AerialMappers,
                   GreatDamPromo,
                   ColonizerTrainingCamp,
               ),

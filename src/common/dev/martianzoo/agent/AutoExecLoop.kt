@@ -4,10 +4,10 @@ import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.ActorEngine
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
-import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
 
@@ -29,7 +29,13 @@ internal class AutoExecLoop(private val world: World) {
   private fun actOnce(): Boolean {
     if (allTasks.isEmpty()) return false
     val selected = allTasks.selectedTask()
-    val candidates = selected?.let(::listOf) ?: allTasks.ids().filter(::canSelectTask)
+    val candidates =
+        selected?.let(::listOf)
+            ?: allTasks.ids().let { pending ->
+              // A sole task has no competing choice. Selection still validates its execution,
+              // and the enclosing Agent transaction rolls back any failure.
+              if (pending.size == 1) pending.toList() else pending.filter(::canSelectTask)
+            }
     val candidateCounts = candidates.groupingBy { allTasks.getTaskData(it).assignee }.eachCount()
     val options = candidates.filter { taskId ->
       val actor = allTasks.getTaskData(taskId).assignee
@@ -69,7 +75,7 @@ internal class AutoExecLoop(private val world: World) {
       try {
         world.timeline.atomic { engineFor(taskId).doTask(taskId) }
         return true
-      } catch (_: AbstractException) {
+      } catch (_: NotFullySpecifiedException) {
         recoverable = true
       } catch (_: NotNowException) {
         if (allTasks.getTaskData(taskId).instruction.isAbstract(world.reader)) {

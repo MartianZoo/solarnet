@@ -2,7 +2,10 @@ package dev.martianzoo.pets.data
 
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.Transforming.actionListToEffects
-import dev.martianzoo.pets.api.SystemClasses.CUSTOM
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.SystemClasses.CUSTOM_METRIC
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
@@ -21,10 +24,10 @@ import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.OneDefault
 /**
  * A direct representation of the *declaration* of a component class, such as GreeneryTile, whose
  * source form is
- * [section 1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations).
+ * [section 11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations).
  * A declaration is a signature — a name, an optional dependency list, and an optional supertype
- * list — plus an optional body ([rules L1-2 and
- * L1-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
+ * list — plus an optional body ([rules L11-3 and
+ * L11-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations)).
  * Runtime Catalogs normally load these from `*.pets` source; tools and tests may construct them
  * directly.
  *
@@ -35,15 +38,15 @@ public data class ClassDeclaration(
     /**
      * The stable engine-facing name for the class. No other name is part of the declaration: there
      * is one namespace and no scoping ([rule
-     * L2-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-names)),
+     * L10-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-names)),
      * and how a name is displayed to a person is `NAMING.md`'s subject.
      */
     override val className: ClassName,
 
     /**
-     * Is this class declared to be `ABSTRACT`, `CUSTOM`, or regular? `CLASS Foo` declares a
-     * concrete class and `ABSTRACT CLASS Foo` an abstract one ([rule
-     * L1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations),
+     * Is this class declared to be `ABSTRACT` or regular? `CLASS Foo` declares a concrete class and
+     * `ABSTRACT CLASS Foo` an abstract one ([rule
+     * L11-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations),
      * [rule T2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes)).
      */
     public val kind: ClassKind,
@@ -51,12 +54,16 @@ public data class ClassDeclaration(
     /** Any "new" dependencies being declared by this class (not inherited from a supertype). */
     public val dependencies: List<Expression> = emptyList(),
 
-    /** This class's listed direct supertypes, as they were expressed in the source. */
-    public val supertypes: Set<Expression> = emptySet(),
+    /**
+     * This class's direct supertypes in authored order, which determines inherited dependency-key
+     * order under
+     * [rule T3-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+     */
+    public val supertypes: List<Expression> = emptyList(),
 
     /**
      * Any class invariants declared with `HAS` in the class body ([rule
-     * L1-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
+     * L11-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations)).
      */
     public val invariants: Set<Requirement> = emptySet(),
 
@@ -73,7 +80,7 @@ public data class ClassDeclaration(
      * The merged contents of any `DEFAULT` clauses in the class body. A clause names the class that
      * declares it — one naming another class is rejected — and clauses are merged into one set per
      * use kind ([rule
-     * L1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations),
+     * L11-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations),
      * [rules T10-1 and T10-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults)).
      */
     public val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
@@ -81,7 +88,7 @@ public data class ClassDeclaration(
     /**
      * Property bounds or values declared directly by this class. A name is assigned at most once
      * per body ([rule
-     * L1-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations));
+     * L11-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations));
      * what the bounds and values mean is
      * [section 9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties)
      * of the type system specification.
@@ -91,7 +98,7 @@ public data class ClassDeclaration(
     /**
      * The quoted string written on the line before `CLASS`, retained here and re-emitted when this
      * declaration is rendered ([rule
-     * L1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
+     * L11-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations)).
      */
     public val docstring: String? = null,
     /**
@@ -102,7 +109,7 @@ public data class ClassDeclaration(
 ) : HasClassName {
   /**
    * This class's authored effects followed by its lowered actions, in that order ([rule
-   * L9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-actions)).
+   * L7-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-actions)).
    * No rule may rely on the ordering to resolve simultaneous gameplay — sequencing owns that — but
    * it makes introspection deterministic once actions have become ordinary effects.
    */
@@ -112,37 +119,88 @@ public data class ClassDeclaration(
 
   /**
    * The effects this class actually carries: [authoredEffectsWithActions], in the order
-   * [rule L9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-actions)
+   * [rule L7-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-actions)
    * gives, unless a Catalog supplied its own executable form for this class — in which case that
    * replaces the whole list.
    */
   public val effects: List<Effect>
     get() = executableEffects ?: authoredEffectsWithActions
 
-  public val custom: Boolean = CUSTOM.expression in supertypes
+  public val customMetric: Boolean = CUSTOM_METRIC.expression in supertypes
 
   init {
-    require(defaultsDeclaration.forClass in setOf(null, className)) {
-      "$className cannot declare defaults for ${defaultsDeclaration.forClass}"
+    if (className == THIS)
+        throw PetSyntaxException(
+            "`This` refers to the enclosing class and cannot be declared as a class name",
+            sourceLocation = className.sourceLocation,
+        )
+    if (defaultsDeclaration.forClass !in setOf(null, className)) {
+      throw PetSyntaxException(
+          "`$className` cannot declare defaults for `${defaultsDeclaration.forClass}`; name `$className` instead",
+          sourceLocation = defaultsDeclaration.forClass?.sourceLocation,
+      )
     }
     fun hasRefinement(expression: Expression): Boolean =
         expression.refinement != null || expression.arguments.any(::hasRefinement)
-    // Rule L1-9: a refined type cannot be a bound, so signature expressions carry no refinements at
+    // Rule L11-4: a refined type cannot be a bound, so signature expressions carry no refinements
+    // at
     // any depth.
-    require((dependencies + supertypes).none(::hasRefinement)) {
-      "Class signatures cannot contain refined Types"
+    (dependencies + supertypes).firstOrNull(::hasRefinement)?.let {
+      throw PetSyntaxException(
+          "class signatures cannot contain refined types: `$it`",
+          sourceLocation = it.sourceLocation,
+      )
     }
 
-    if (custom) {
-      require(invariants.none())
-      require(effects.none())
-      require(defaultsDeclaration == DefaultsDeclaration())
+    if (customMetric) {
+      val behavior =
+          when {
+            invariants.isNotEmpty() -> "invariants"
+            effects.isNotEmpty() -> "effects or actions"
+            defaultsDeclaration != DefaultsDeclaration() -> "defaults"
+            else -> null
+          }
+      if (behavior != null)
+          throw PetSyntaxException(
+              "custom metric `$className` cannot declare Pets $behavior; its behavior comes from its Kotlin implementation",
+              sourceLocation =
+                  invariants.firstOrNull()?.sourceLocation
+                      ?: effects.firstOrNull()?.sourceLocation
+                      ?: defaultsDeclaration.forClass?.sourceLocation
+                      ?: className.sourceLocation,
+          )
     }
   }
 
   public enum class ClassKind {
     CONCRETE,
     ABSTRACT,
+  }
+
+  public companion object {
+    /**
+     * Indexes a Catalog's declarations, allowing identical contributions but rejecting conflicts.
+     */
+    public fun indexByName(
+        declarations: Iterable<ClassDeclaration>
+    ): Map<ClassName, ClassDeclaration> = buildMap {
+      declarations.forEach { declaration ->
+        val previous = get(declaration.className)
+        if (previous != null && previous != declaration) {
+          val firstLocation = previous.className.sourceLocation
+          val first =
+              firstLocation
+                  ?.takeIf { it.source == declaration.className.sourceLocation?.source }
+                  ?.let { " at ${it.line}:${it.column}" }
+                  .orEmpty()
+          throw InvalidPetDefinitionException(
+              "conflicting declarations of `${declaration.className}`; first declared$first as `${previous.copy(docstring = null).toString(oneLine = true)}`",
+              sourceLocation = declaration.className.sourceLocation,
+          )
+        }
+        if (previous == null) put(declaration.className, declaration)
+      }
+    }
   }
 
   public val abstract: Boolean = kind == ABSTRACT
@@ -179,16 +237,34 @@ public data class ClassDeclaration(
           REMOVE_ONLY -> removeOnly
         }
 
-    internal companion object {
-      internal fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
+    public companion object {
+      public fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
         val owners = defs.mapNotNull { it.forClass }.distinct()
-        require(owners.size <= 1) {
-          "DEFAULT clauses name different classes: ${owners.joinToString()}"
+        if (owners.size > 1) {
+          throw PetSyntaxException(
+              "`DEFAULT` clauses name different classes: ${owners.joinToString { "`$it`" }}",
+              sourceLocation = owners[1].sourceLocation,
+          )
+        }
+        fun mergeKind(kind: DefaultKind): OneDefault {
+          var merged = OneDefault()
+          defs.forEach { definition ->
+            try {
+              merged = merge(listOf(merged, definition.default(kind)))
+            } catch (e: IllegalArgumentException) {
+              throw PetSyntaxException(
+                  "invalid defaults for `${owners.singleOrNull()}`: ${e.message}",
+                  e,
+                  definition.forClass?.sourceLocation,
+              )
+            }
+          }
+          return merged
         }
         return DefaultsDeclaration(
-            universal = merge(defs.map { it.universal }),
-            gainOnly = merge(defs.map { it.gainOnly }),
-            removeOnly = merge(defs.map { it.removeOnly }),
+            universal = mergeKind(ALL_USAGES),
+            gainOnly = mergeKind(GAIN_ONLY),
+            removeOnly = mergeKind(REMOVE_ONLY),
             forClass = owners.singleOrNull(),
         )
       }
@@ -196,11 +272,11 @@ public data class ClassDeclaration(
       private fun merge(ones: Collection<OneDefault>): OneDefault {
         val dependencyCandidates = ones.map(OneDefault::specs).filter { it.isNotEmpty() }.distinct()
         require(dependencyCandidates.size <= 1) {
-          "conflicting dependency defaults: ${dependencyCandidates.joinToString()}"
+          "conflicting dependency defaults: ${dependencyCandidates.joinToString { "`${it.joinToString(", ", "<", ">")}`" }}"
         }
         val quantifierCandidates = ones.mapNotNull(OneDefault::quantifier).distinct()
         require(quantifierCandidates.size <= 1) {
-          "conflicting quantifier defaults: ${quantifierCandidates.joinToString()}"
+          "conflicting quantifier defaults: ${quantifierCandidates.joinToString { "`${it.symbol}`" }}"
         }
         return OneDefault(
             dependencyCandidates.singleOrNull().orEmpty(),
@@ -227,14 +303,14 @@ public data class ClassDeclaration(
 
   /**
    * Returns this declaration as standalone, parseable Pets source ([rule
-   * L1-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
+   * L11-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations)).
    */
   override fun toString(): String = toString(oneLine = false)
 
   /**
    * Returns this declaration as parseable Pets source, multi-line or (with [oneLine]) semicolon
    * separated. Parsing either form yields an equal declaration ([rule
-   * L1-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
+   * L11-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations)).
    */
   public fun toString(oneLine: Boolean): String = buildString {
     docstring?.let { append('"').append(it).append("\"\n") }
@@ -242,7 +318,7 @@ public data class ClassDeclaration(
     append("CLASS ").append(className)
     if (dependencies.isNotEmpty()) dependencies.joinTo(this, ", ", "<", ">")
     if (supertypes.isNotEmpty()) {
-      supertypes.sortedBy(Expression::toString).joinTo(this, ", ", " : ")
+      supertypes.joinTo(this, ", ", " : ")
     }
 
     val body = buildList {

@@ -1,284 +1,106 @@
-# Self-running phase scopes
+# Phase progression and completion
 
-> **NOTE:** This document is used by agents to capture information for themselves to read later; a
-> human didn't write it and we don't expect humans to read it. The project owner can't personally
-> vouch for the information here.
-
-> **Read when:** changing high-level phase progression, compiling expansion phase order, changing
-> queue-drain cleanup, or introducing `GameScope`, `GenerationScope`, `PhaseScope`, `TurnScope`, or
-> `ActionScope`.
+> **Read when:** changing phase progression, expansion phase order, turn control, or cleanup that
+> permits the next phase to begin.
 >
-> **Skip when:** changing work performed inside one phase without changing how that phase begins or
-> ends.
->
-> **Status:** `Scope`, `GenerationScope`, `TemporaryScope<Parent>`, and dependency-ordered idle
-> cleanup are implemented. Committed `TfmWorkflow.Automatic` is still a Kotlin coroutine that
-> chooses phases and waits for whole-World idleness.
+> **Status:** current implementation and open design questions. Pets-owned progression remains the
+> goal; a particular scope hierarchy, priority representation, or topology compiler is not an
+> implementation plan.
 
-## Purpose and scope
+## Purpose
 
-The high-level workflow should run because ordinary Pets components make it run. After one explicit
-start, no orchestrator should inspect the current phase and decide what to do next. A phase owns a
-lifetime scope; draining the work inside that scope removes it; removing it queues the next phase.
+After an explicit start, ordinary game rules should determine phase progression. The current Kotlin
+runner supplies phase order, player rotation, extra action offers, and completion decisions. Moving
+those responsibilities into Pets requires an account of when the relevant work has finished, not
+just a different place to store the next phase.
 
-Here, **drained** means that every task queue is empty and no unfinished inner cleanup remains. It
-does not mean only that `TaskQueue.isEmpty()` happens to be true.
-
-This document selects the phase-level model. It deliberately does not decide how actions within an
-Action phase, second actions within a turn, or player rotation work. Those later designs must
-compose through nested scopes rather than add phase-specific control to the workflow.
+[SEQUENCING.md](SEQUENCING.md#delegated-operations-and-scheduling-options) owns the shared scheduling
+options. Phase progression must compose with delegated choices and payments: P1 may remain on turn
+while P2 completes an operation, followed by P1's remaining work, event cleanup, and eventual Admin
+activity. A single current-player field cannot represent those different roles.
 
 ## Current foundation
 
-The required primitives already exist:
+- [`Engine.newGame`](../../src/common/dev/martianzoo/engine/Engine.kt) completes bootstrap before
+  returning. The game starts with `BootstrapPhase`; creating the World does not launch the workflow.
+- [`game.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/game.pets), at `CLASS Phase`,
+  requires a unique current Phase, including the terminal `End`.
+- [`TfmWorkflow.Automatic`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt), at `runGame`,
+  chooses phase order in a coroutine. `grantFirstActionTo` and `grantSecondActionTo` issue the
+  player-owned action requests. The runner resumes after `game.isIdle()`.
+- `GenerationScope` is a live lifetime anchor. Generation-local components depend on it, and
+  replacing it removes those dependents through ordinary component dependency semantics.
+- [`SystemDeclarations.kt`](../../src/common/dev/martianzoo/pets/SystemDeclarations.kt), at
+  `TemporaryScope`, defines a child Scope with both `Temporary` removal policy and `MustCleanUp`
+  status. This does not provide completion local to that scope.
+- [`Engine.kt`](../../src/common/dev/martianzoo/engine/Engine.kt), at
+  `removeTemporaryComponent`, removes eligible Temporary Types only while the entire task pool is
+  empty. It waits for direct or indirect dependent Temporary or MustCleanUp components. Settlement
+  after each removal can create work that stops further cleanup.
 
-- [`Engine.newGame`](../../src/common/dev/martianzoo/engine/Engine.kt) completes and commits
-  bootstrap before returning.
-- Admin creates `BootstrapPhase` before the generated `Premise`; bootstrap begins and ends with
-  that same Phase.
-- [`Phase`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/game.pets) is legitimate
-  Game World state, with exactly one Phase present.
-- Pets Type arguments are component dependencies. Removing a dependency cascades through its
-  dependents before removing the dependency itself.
-- [`WorldTransaction`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) performs
-  idle cleanup only after an outer operation and its automatic effects have completed.
-- [`Engine.removeTemporaryComponent`](../../src/common/dev/martianzoo/engine/Engine.kt) removes
-  one eligible `Temporary` Type at an empty task queue, deferring Types with direct or indirect
-  dependent `MustCleanUp` or `Temporary`. The transaction loop settles removal effects before checking the live
-  queue and dependencies for another removal.
-- `GenerationScope` is a singleton lifetime anchor created naturally by the first `Generation` and
-  replaced by each later one; generation-local state depends on it instead of listening
-  independently for the next Generation.
-- `TemporaryScope<Parent>` is both a child `Scope` and a `Temporary`; it therefore depends on its
-  parent and is mandatory cleanup removed only after its own dependent cleanup finishes.
+Setup and Research expose simultaneous Player work. Corporation and Prelude play use ordered
+Player turns. Action rotates players, offering a second action where the current runner permits it;
+Final Greenery also visits players in order. Having tasks therefore does not itself identify who is
+on turn, and several phases cannot be modeled as an exclusive Player turn.
 
-Committed [`TfmWorkflow.Automatic`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt) supplies
-the missing phase decisions from Kotlin. It listens for idle completions, resumes a coroutine, and
-calls the next phase operation. The selected design replaces that continuing control role, not the
-engine primitives above.
+Normal-corporation play explicitly excludes `BeginnerCorporation` in addition to standard-back
+typing. That is a deliberate statement of the normal path, not redundant routing machinery to
+remove during workflow work.
 
-Setup and Research are simultaneous player-work windows. Setup deals each Player's starting cards
-and creates one `NewTurn` whose Player-owned tasks discard one corporation, exactly two Preludes,
-and any rejected starting projects. Every Player queue may remain active together. Research likewise
-offers cards to every Player and waits for whole-World idleness rather than imposing seat order.
-Corporation and Prelude phases retain ordered turns for playing the cards kept during Setup.
+## The completion problem
 
-## Runtime model
+Global idleness currently combines several events that need not be equivalent: an operation has no
+more work, an event card can leave play, a turn is over, and Admin may advance the phase. Event cards
+are Temporary, so unrelated pending work can keep them face up. Conversely, waiting for a particular
+Player's queue to drain can miss work delegated to another Player.
 
-A Phase is the visible statement of where the game is. A `PhaseScope` is the lifetime anchor
-for work belonging to that occurrence of the Phase. A simple continuation scope can be expressed
-approximately as follows; the final declaration syntax may differ:
+Simply adding delayed cleanup or Admin tasks changes the premise of current cleanup: those tasks
+keep the global pool nonempty. A priority design must explain how cleanup becomes eligible; keeping
+the existing empty-pool condition would stall it.
 
-```pets
-"The lifetime anchor for the current Phase"
-ABSTRACT CLASS PhaseScope<Phase, GenerationScope> : TemporaryScope<GenerationScope>, System {
-  HAS MAX 1 PhaseScope
-}
+Nested priority groups are a promising shared option, not a settled representation. The innermost
+group could let its tasks remain independently selectable while suspending its caller. Cleanup
+included in that group must finish before the caller resumes. Assigning both inner cleanup and
+suspended caller work the same numeric rank would release them together. Likewise, event cleanup and phase
+advancement cannot merely share a deferred rank if their order matters.
 
-"A Phase scope whose removal queues one fixed successor"
-CLASS NextPhaseScope<Class<NextPhase>, Phase, GenerationScope> : PhaseScope<Phase, GenerationScope> {
-  -This: NextPhase FROM Phase
-}
-```
+An exclusive operation scope is another option; causal ancestry could supply membership, but alone
+supplies neither control nor scheduling. The scope must include relevant work across Actors and
+distinguish its cleanup from the continuation that follows it. Component dependencies already express lifetime;
+they do not automatically establish that the tasks associated with a component have finished.
 
-The scope depends on the current Phase; the current Phase does not depend on the scope. Components
-whose lifetime is limited to that phase depend on its `PhaseScope`.
+## Phase topology
 
-For a compiled game in which Prelude is followed by Action, entering Prelude would create something
-equivalent to:
-
-```pets
-CLASS PreludePhase : Phase {
-  This:: NextPhaseScope<Class<ActionPhase>, This>
-  // Prelude-owned work
-}
-```
-
-The resulting lifecycle is entirely ordinary engine behavior:
-
-1. Entering `PreludePhase` creates its scope and queues Prelude-owned work.
-2. While any task or inner mandatory cleanup remains, idle cleanup cannot remove the scope.
-3. When that work and all inner cleanup finish, idle cleanup removes the scope.
-4. Scope-dependent components are removed first by the existing dependency rule.
-5. `-This:` queues `ActionPhase FROM PreludePhase` while `PreludePhase` still exists.
-6. Admin autoexecution performs that task.
-7. Entering `ActionPhase` creates its own scope and work.
-
-The queued transmutation preserves the exactly-one-Phase rule. `End` is terminal and creates no
-successor scope.
-
-Scope-dependent removal must not release unordered deferred work that can race the phase
-transition. Teardown is either automatic, or represented by a deeper scope whose completion keeps
-the Phase scope from becoming eligible.
-
-## Bootstrap and the one explicit start
-
-Bootstrap must remain quiescent after initialization. It therefore does not create a temporary
-phase scope just by existing. Starting a configured workflow is one explicit Pets operation that
-creates the Bootstrap continuation, conceptually:
-
-```pets
-CLASS StartWorkflow : Signal, System {
-  This:: NextPhaseScope<Class<SetupPhase>, BootstrapPhase>
-}
-```
-
-Without `StartWorkflow`, `Engine.newGame` ends at the committed `BootstrapPhase`. With it,
-cleanup removes the new scope and queues `SetupPhase FROM BootstrapPhase`. From that point onward,
-the generated scopes sustain phase progression themselves. An application API may provide a typed
-convenience for issuing `StartWorkflow`, but it owns no continuing runner.
-
-## Authored topology and compiled Pets
-
-Expansion authors should state only their own relative-order requirements. They should not replace
-a base transition or describe a complete ordering that includes other optional expansions.
-
-The workflow topology is cyclic, so precedence is local to a named segment rather than one global
-order. Conceptually, base Terraforming Mars declares a Solar segment from `SolarPhase` to
-`ResearchPhase`. Expansions contribute facts such as:
-
-```text
-VenusSolarPhase belongs to Solar and is after SolarPhase
-
-ColoniesSolarPhase belongs to Solar and is after SolarPhase
-ColoniesSolarPhase is after VenusSolarPhase
-```
-
-Only included, inhabited Phase Classes participate. A constraint mentioning an excluded or
-uninhabited optional Phase is weak: it contributes no edge and does not include that Phase. Thus the
-applicable orders are naturally:
-
-```text
-Solar -> Research
-Solar -> Venus Solar -> Research
-Solar -> Colonies Solar -> Research
-Solar -> Venus Solar -> Colonies Solar -> Research
-```
-
-Prelude similarly contributes that `PreludePhase` belongs to the Corporation-to-Action segment and
-comes after `CorporationPhase`. Membership in that segment already places it before the segment's
-`ActionPhase` endpoint.
-
-A topology compiler gathers the active members and constraints of each segment, proves that they
-produce one unique linear order, and emits the immediate `NextPhaseScope` wiring into Pets Classes.
-Runtime execution neither sorts phases nor interprets precedence. The expansion constraints are
-authoring input and do not also become live Components; the compiled scopes and continuations are
-the one runtime representation. Reconsider live constraint Components only if a real rule needs to
-observe or alter phase topology during a game.
-
-The compiler must reject:
-
-- a cycle within a segment;
-- two incomparable phases that could both be next;
-- an absent required segment endpoint;
-- a phase placed in incompatible segments; and
-- any compiled nonterminal path lacking exactly one continuation.
-
-Whether compilation specializes one Game Premise or emits requirement-gated Pets for every Module
-combination is an implementation choice. The resulting World behavior and Pets model must be the
-same, and Kotlin must not retain a second topology registry.
-
-## Dynamic paths remain Pets behavior
-
-Static ordering and a game-state-dependent branch are different problems. The topology compiler
-orders phases that exist; Pets requirements select a path whose answer depends on current
-World state.
-
-For example, the scope completing Production may have generated removal effects shaped like:
-
-```pets
--This IF GameEndBarrier: SolarPhase FROM ProductionPhase
--This IF MAX 0 GameEndBarrier: FinalGreeneryPhase FROM ProductionPhase
-```
-
-The actual endgame conditions still need to preserve multiplayer and solo rules, but their home is
-requirement-gated Pets attached to scope completion, not a Terraforming-Mars switch statement in a
-runner. Applicable branches must be exclusive and complete. Terminal outcomes must be explicit;
-silently finding no continuation is not how an active workflow ends.
-
-## Scope hierarchy
-
-The implemented `GenerationScope` and nested-cleanup rule establish the first level of one
-compositional family of lifetime anchors:
-
-```text
-GameScope
-└── GenerationScope
-    └── PhaseScope
-        └── TurnScope
-            └── ActionScope
-```
-
-Each child depends on its parent, and the Phase scope also depends on the current Phase.
-State depends on the narrowest scope matching its true lifetime: action-local billing belongs to
-the Action scope; a passed marker belongs to the Generation scope; phase-local control belongs to
-the Phase scope.
-
-`Signal` is the zero-duration edge of this model. It carries no lifetime-scope dependency and leaves
-no persistent state. Do not introduce a live `NoScope` sentinel: absence of a `Scope` dependency
-already states that no enclosing interval is needed.
-
-The engine applies dependency-ordered cleanup needed by this hierarchy:
-
-- at an empty queue, remove one Temporary Type with no direct or indirect dependent `MustCleanUp` or `Temporary`;
-- settle any work its removal creates and recheck the live dependencies;
-- repeat only if the queue remains empty; and
-- never remove an outer scope while a live inner scope or other mandatory cleanup depends on it.
-
-This is a generic cleanup rule, not workflow scheduling. It allows an Action scope to finish while
-its Turn, Phase, Generation, and Game scopes remain. The exact creation and continuation rules for
-Action and Turn scopes are intentionally deferred. It also aligns with the cleanup simplification
-in [`SEQUENCING.md`](SEQUENCING.md#cleanup-vocabulary): `Temporary` is a removal policy for one kind
-of `MustCleanUp`, not a competing statement of completion.
-
-## Phase ownership
-
-The workflow mechanism knows nothing about setup choices, player order, actions, production,
-expansion rules, or scoring. Entering a Phase must create either all of that Phase's work or its
-first inner scope. A Phase is complete only when its Phase scope becomes the innermost removable
-Temporary.
-
-The intended coarse Terraforming Mars shape is:
+The current runner follows this coarse shape:
 
 ```text
 Bootstrap -> Setup -> Corporation -> [Prelude] -> Action
-Action -> Production -> Solar -> [Solar expansion phases] -> Research -> Action ...
+Action -> Production -> Solar -> [Solar expansions] -> Research -> Action ...
 Production -> final path -> Final Greenery -> End
 ```
 
-Setup creates generation 1. Later Research phases create the next Generation. Those are Phase
-effects, not extra workflow steps.
+The optional Solar order is Venus, Colonies, then Turmoil. Game-end checks, solo victory handling,
+and final-greenery choices also affect the actual path; the sketch is not an executable substitute
+for those rules.
 
-## Acceptance criteria
+Expansion-owned relative-order declarations could replace the runner's expansion list. Compiling
+them into ordinary Pets successors is an option; the runtime should not also retain a parallel
+Kotlin topology. Such declarations would need to distinguish absent optional expansions from
+missing required phases and reject ambiguous or cyclic ordering. Dynamic game-state branches would
+still belong to the owning game rules.
 
-The phase workflow is successful only when all of these hold:
+## Questions a replacement must answer
 
-- `Engine.newGame` still returns a committed, task-free `BootstrapPhase`.
-- Without an explicit start, the World remains there indefinitely.
-- Starting once produces Setup and then every later phase through Pets scopes and effects.
-- Exactly one Phase and at most one live Phase scope exist throughout committed play.
-- Optional phases appear only when their Classes are included and inhabited.
-- Expansion-owned precedence composes without base code naming expansion phases.
-- Queue drain cannot remove an outer scope before its dependent mandatory cleanup.
-- Rollback restores scopes, their dependents, and the resulting continuation naturally from the
-  event log.
-- No coroutine, callback-owned phase switch, runtime topology interpreter, or mirrored Kotlin
-  sequence remains.
-- Phase-internal turn design can be added through nested scopes without changing these phase-level
-  rules.
+- What identifies an operation, turn, or phase occurrence, and which existing component already
+  carries that fact? A complete Game/Generation/Phase/Turn/Action hierarchy is not assumed necessary.
+- What makes a group complete when choices move between Players or temporarily visit Admin?
+- How do deferred work and nested cleanup preserve the intended order without serializing
+  independent choices?
+- Which phases have an on-turn Player, and how does that fact differ from the controller of a
+  delegated operation?
+- How does bootstrap remain quiescent until explicitly started, and how does `End` remain terminal?
+- Which Kotlin decisions and existing cleanup rules disappear under the proposed model?
 
-## First demonstration
-
-The first demonstration is complete: an engine test characterizes dependency-ordered
-`TemporaryScope` cleanup with generation, phase, and action test scopes. Continue narrowly before
-migrating the whole game:
-
-1. Add a tiny Pets-only chain covering committed Bootstrap, explicit start, Setup, and Corporation.
-2. Show that queued work pauses scope removal and that its final completion resumes the chain.
-3. Compile Prelude's weak ordering contribution and verify both active and inactive cases.
-4. Compile the Solar constraints and verify every combination of base, Venus, and Colonies phases.
-5. Add one requirement-gated branch at scope removal.
-
-Do not design Action-turn rotation as part of this demonstration. If the narrow model needs
-phase-specific Kotlin or a second representation of the next phase, stop and reconsider it rather
-than expanding the machinery.
+Extracting the coroutine into a generic runner would preserve the continuing orchestration that
+this work seeks to remove. A replacement is valuable only when the resulting rules become smaller
+and the game continues correctly through pending choices, cleanup, and rollback.

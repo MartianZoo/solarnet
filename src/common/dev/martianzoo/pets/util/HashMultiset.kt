@@ -22,7 +22,8 @@ public class HashMultiset<E>(private val map: MutableMap<E, Int> = mutableMapOf(
   override fun iterator(): MutableIterator<E> {
     val iter = map.asSequence().flatMap { (e, ct) -> List(ct) { e } }.iterator()
     return object : MutableIterator<E>, Iterator<E> by iter {
-      override fun remove() = throw UnsupportedOperationException("sorry")
+      override fun remove() =
+          throw UnsupportedOperationException("multiset iterator does not support removal")
     }
   }
 
@@ -40,7 +41,7 @@ public class HashMultiset<E>(private val map: MutableMap<E, Int> = mutableMapOf(
   override fun count(element: E): Int = map[element] ?: 0
 
   override fun setCount(element: E, newCount: Int): Int /*old count*/ {
-    require(newCount >= 0) { "tried to set count of $element to $newCount" }
+    require(newCount >= 0) { "count cannot be negative for `$element`: `$newCount`" }
     val old = count(element)
     if (newCount == 0) {
       map.remove(element)

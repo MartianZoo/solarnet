@@ -1,7 +1,7 @@
 {
   "decks": [
     {
-      "deck": "CorporationCard",
+      "deck": "StandardCorporationCard",
       "cards": [
         {
           "name": "CrediCor",
@@ -28,15 +28,20 @@
         },
         {
           "name": "MiningGuild",
+          "autoSelectWhen": "Unsafe OR MAX 0 AmazonisMap",
           "tags": [ "BuildingTag", "BuildingTag" ],
           "immediate": "30 MC, 5 Steel, PROD[Steel]",
-          "effects": [ "Tile<MarsArea(HAS PlacementBonus<Class<Metal>>)>: PROD[Steel]" ],
+          "effects": [
+            "Tile<MarsArea(HAS PlacementBonus<Class<Metal>>)>: PROD[Steel]",
+            // Subtract printed resource bonuses to leave only the wild StandardResource icon.
+            "Tile<MarsArea(HAS 1 (PlacementBonus<Class<StandardResource>> - PlacementBonus<Class<MC>> - PlacementBonus<Class<Metal>> - PlacementBonus<Class<Plant>> - PlacementBonus<Class<Energy>> - PlacementBonus<Class<Heat>>), HAS MAX 0 PlacementBonus<Class<Metal>>)>: PROD[Steel], Audit",
+          ],
         },
         {
           "name": "PhoboLog",
           "tags": [ "SpaceTag" ],
+          "invariants": [ "=1 GrantedResourceValue<Class<Titanium>, This>" ],
           "effects": [
-            "This:: 1 GrantedResourceValue<Class<Titanium>, This>",
             "This: 23 MC, 10 Titanium"
           ],
         },
@@ -47,14 +52,14 @@
           "effects": [
             "CityTile<Anyone, MarsArea>: PROD[1 MC]",
             "CityTile: 3 MC",
-            "This IF SoloMode: PROD[2 MC]",
+            "This IF SoloMode, CorporationPhase: PROD[2 MC]",
           ],
         },
         {
           "name": "ThorGate",
           "tags": [ "PowerTag" ],
           "immediate": "48 MC, PROD[Energy]",
-          "effects": [ "PlayTag<Class<PowerTag>> OR ActionBilling<PowerPlantProject>:: -3 Owed" ],
+          "effects": [ "PayingFor<Class<PowerTag>> OR ActionBilling<PowerPlantProject>:: -3 Owed" ],
         },
         {
           "name": "UnitedNationsMarsInitiative",
@@ -63,8 +68,10 @@
           "actions": [ "3 MC -> HasRaisedTr: TerraformRating" ],
           "invariants": [ "Class<TrWatcher>" ],
           "components": [
-            "CLASS HasRaisedTr<GenerationScope> : Owned { HAS MAX 1 This }",
-            "CLASS TrWatcher : CardWatcher { TerraformRating:: HasRaisedTr. }"
+            // Must be identical to Pristar's declarations in TurmoilExpansion.
+            "CLASS HasRaisedTr<GenerationScope> : Owned, Hidden { HAS MAX 1 This }",
+            // PP counts attempts automatically; only its second and later Action-phase gains qualify.
+            "CLASS TrWatcher : CardWatcher { TerraformRating IF MAX 0 HasRaisedTr, (MAX 0 ActionPhase OR MAX 0 PreservationProgram OR 2 ActionPhaseTrGain): HasRaisedTr. }"
           ],
         },
       ],
@@ -144,7 +151,7 @@
           "requirement": "12 TemperatureStep",
           "cost": 15,
           "tags": [ "BuildingTag" ],
-          "immediate": "OceanTile<LandArea>! OR (9 OceanTile: Ok)",
+          "immediate": "(GpIncomplete<Class<OceanTile>>: OceanTile<LandArea>!) OR (GpComplete<Class<OceanTile>>: Ok)",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -222,9 +229,10 @@
           "requirement": "4 OceanTile",
           "cost": 26,
           "tags": [ "CityTag", "BuildingTag" ],
-          "immediate": "CityTile<> THEN CapitalMarker<CityTile<>>, PROD[-2 Energy, 5 MC]",
-          "effects": [ "End: VictoryPoint / Adjacency<CityTile(HAS CapitalMarker), OceanTile>" ],
-          "components": [ "CLASS CapitalMarker<CityTile>" ],
+          "immediate": "CapitalTile<This>, PROD[-2 Energy, 5 MC]",
+          "effects": [ "End: VictoryPoint / Adjacency<CapitalTile<This>, OceanTile>" ],
+          "invariants": [ "MAX 1 CapitalTile<This>" ],
+          "components": [ "CLASS CapitalTile : CityTile, SpecialTile, Cardbound<Capital>" ],
         },
         {
           "name": "CarbonateProcessing",
@@ -371,7 +379,7 @@
           "name": "Flooding",
           "cost": 7,
           "tags": [ "EventTag" ],
-          "immediate": "OceanTile<> OR (OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<Anyone>>)>! THEN -4 MC<Anyone>?)",
+          "immediate": "OceanTile<> OR (GpIncomplete<Class<OceanTile>>: (OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>! THEN -4 MC<@Anyone>?))",
           "effects": [ "End: -VictoryPoint" ],
         },
         {
@@ -662,6 +670,7 @@
         },
         {
           "name": "MiningRights",
+          "autoSelectWhen": "Unsafe OR MAX 0 AmazonisMap",
           "cost": 9,
           "tags": [ "BuildingTag" ],
           "immediate": "MiningRights_SpecialTile<> THEN PROD[(LandArea(HAS MiningRights_SpecialTile, HAS PlacementBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningRights_SpecialTile, HAS PlacementBonus<Class<Titanium>>): Titanium)]",
@@ -779,7 +788,7 @@
           "immediate": "Animal<This>",
           "effects": [
             "CityTile<Anyone>: Animal<This>",
-            "-Animal<This>:: Die",
+            "-Animal<This>: Die",
             "End: VictoryPoint / 2 Animal<This>"
           ],
         },
@@ -849,7 +858,7 @@
           "cost": 18,
           "tags": [ "ScienceTag", "CityTag", "BuildingTag" ],
           "immediate": "CityTile<LandArea(HAS MAX 0 Neighbor)>",
-          "effects": [ "Billing<CardPlay>:: -1 Owed" ],
+          "effects": [ "PayingFor<Class<CardFront>>:: -1 Owed" ],
         },
         {
           "name": "RoverConstruction",
@@ -865,7 +874,7 @@
           "requirement": "MAX 6 OxygenStep",
           "cost": 3,
           "tags": [ "ScienceTag" ],
-          "actions": [ "1 MC -> CARDS[ProjectCard<Revealed> THEN (ProjectCard<Revealed>(HAS PrintedTag<Class<MicrobeTag>>): Science<This>) OR Ok]" ],
+          "actions": [ "1 MC -> ProjectCard<Revealed> THEN ClaimCardReward<TagFilter<Class<MicrobeTag>>, This> OR Ok THEN -ProjectCard<Revealed>" ],
           "effects": [ "End IF Science<This>: 3 VictoryPoint" ],
         },
         {
@@ -875,7 +884,7 @@
           "tags": [ "SpaceTag" ],
           "immediate": "PROD[-Energy, 2 MC]",
           "effects": [
-            "PlayTag<Class<SpaceTag>>:: -2 Owed",
+            "PayingFor<Class<SpaceTag>>:: -2 Owed",
             "End: VictoryPoint"
           ],
         },

@@ -13,7 +13,7 @@ private val decoyAnimalDeclarations =
         CLASS DecoyBirds : ActionCard, ActiveCard {
           cost = 10
           requirement = HAS "13 OxygenStep"
-          This:: AnimalTag<This>
+          HAS =1 AnimalTag<This>
           This: PROD[-2 Plant<Anyone>]
           End: VictoryPoint / DecoyAnimal<This>
           -> DecoyAnimal<This>

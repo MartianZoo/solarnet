@@ -36,7 +36,7 @@ internal class ComponentGraphIndexTest {
   }
 }
 
-private object IndexProbeCatalog : TfmCatalog.Composite(Canon, IndexProbeDeclarations)
+private object IndexProbeCatalog : TfmCatalog(Canon, IndexProbeDeclarations)
 
 private object IndexProbeDeclarations : TfmCatalog() {
   override val explicitClassDeclarations =

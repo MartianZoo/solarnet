@@ -1,10 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.generated.Class
-import dev.martianzoo.generated.PreludeExpansion
-import dev.martianzoo.generated.PromoCardPack
-import dev.martianzoo.generated.VenusNextExpansion
-import dev.martianzoo.generated.gameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
@@ -12,22 +8,19 @@ import kotlin.test.Test
 internal class Game20260619Test : AbstractFullGameTest() {
 
   override val config =
-      gameConfig(
-          modules =
-              listOf(
-                  Class.of(VenusNextExpansion),
-                  Class.of(PreludeExpansion),
-                  Class.of(PromoCardPack),
-              ),
-          extra = "-WorldGovernmentRule",
-          playerNames = listOf("Player1", "Player2"),
+      GameConfig(
+          """
+          VenusNextExpansion, PreludeExpansion, PromoCardPack
+          -WorldGovernmentRule
+          Specialist, Planner
+          """,
+          "Player1",
+          "Player2",
       )
 
   @Test
   internal fun gameThroughGeneration5() {
-    val workflow = TfmWorkflow.Automatic(agents).launch()
-    retainStartingProjects(6, 3)
-
+    TfmWorkflow.Automatic(agents).launch()
     // Game id: peae6273d6b33
     // First player this generation is ER
     // Good luck ER!
@@ -339,10 +332,9 @@ internal class Game20260619Test : AbstractFullGameTest() {
 
     // KB claimed Specialist milestone
     // KB ended turn
-    // TODO: Specialist is an Elysium milestone, but this setup only loads Tharsis milestones.
-    // Stop automatic turn enforcement at this intentionally raw substitute for the logged action.
-    workflow.shutdown()
-    KB.runOperation("-8 MC, 5 VictoryPoint")
+    KB.turn {
+      stdAction("ClaimMilestoneAction") { doTask("Specialist") }
+    }
 
     // ER played Mohole Area
     // ER gained 4 heat production
@@ -372,7 +364,8 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // You bought Investment Loan,Tectonic Stress Power
     // ER bought 2 card(s)
     // You bought Micro-Mills,Lava Tube Settlement
-    admin.nextGeneration(2, 2)
+    ER.buyCards(2)
+    KB.buyCards(2)
 
     with(ER) {
       assertProduction(m = 5, s = 0, t = 1, p = 2, e = 0, h = 9)

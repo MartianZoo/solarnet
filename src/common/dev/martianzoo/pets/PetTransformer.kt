@@ -1,7 +1,7 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.PetTransformer.Companion.chain
-import dev.martianzoo.pets.api.Exceptions.KindException
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.ClassName
@@ -157,14 +157,21 @@ public abstract class PetTransformer protected constructor() {
 
   /** Transforms heterogeneous infrastructure data without promising or checking a result kind. */
   // TODO: Contract this temporary tfm-canon seam.
-  public fun transformWithoutKindCheck(node: PetNode): PetNode = transformNode(node)
+  public fun transformWithoutKindCheck(node: PetNode): PetNode =
+      try {
+        transformNode(node)
+      } catch (e: PetException) {
+        if (e.sourceLocation == null) e.sourceLocation = node.sourceLocation
+        throw e
+      }
 
   private fun <P : PetNode> transformAsKind(node: PetNode, requiredKind: KClass<P>): P {
     val transformed = transformWithoutKindCheck(node)
     if (!requiredKind.isInstance(transformed)) {
-      throw KindException(
-          "${this::class.simpleName ?: "PetTransformer"} transformed ${node::class.simpleName} " +
-              "outside the ${requiredKind.simpleName} kind: $transformed"
+      throw IllegalStateException(
+          "`${this::class.simpleName ?: "PetTransformer"}` transformed " +
+              "`${node::class.simpleName}` outside the `${requiredKind.simpleName}` kind: " +
+              "`$transformed`"
       )
     }
     @Suppress("UNCHECKED_CAST")
@@ -199,6 +206,7 @@ public abstract class PetTransformer protected constructor() {
               expressions(node.arguments),
               node.refinement?.let(::transformRefinement),
               node.argumentsSpecified,
+              node.typeVariableName,
           )
       is ScaledExpression ->
           scaledEx(transformExpression(node.expression), transformScalar(node.scalar))
@@ -222,7 +230,7 @@ public abstract class PetTransformer protected constructor() {
             is Metric.Constant -> node
             is Metric.Rank ->
                 Metric.Rank(
-                    transformExpression(node.selector),
+                    node.selector?.let(::transformExpression),
                     metrics(node.metrics),
                     node.candidate?.let(::transformExpression),
                 )
@@ -238,8 +246,9 @@ public abstract class PetTransformer protected constructor() {
                     transformMetric(node.minuend),
                     transformMetric(node.subtrahend),
                 )
-            is Metric.Or -> Metric.Or.create(metrics(node.metrics))!!
-            is Metric.Eval -> Metric.Eval(transformProperty(node.property))
+            is Metric.Or -> Metric.Or.create(metrics(node.metrics))
+            is Metric.Eval ->
+                Metric.Eval(transformProperty(node.property), node.me?.let(::transformExpression))
             is Metric.Transform -> Metric.Transform(transformMetric(node.inner), node.transformKind)
           }
       is Requirement ->
@@ -249,7 +258,11 @@ public abstract class PetTransformer protected constructor() {
             is Requirement.Exact -> Requirement.Exact(node.target, transformMetric(node.metric))
             is Requirement.Or -> Requirement.Or(requirements(node.requirements))
             is Requirement.And -> Requirement.And(requirements(node.requirements))
-            is Requirement.Eval -> Requirement.Eval(transformProperty(node.property))
+            is Requirement.Eval ->
+                Requirement.Eval(
+                    transformProperty(node.property),
+                    node.me?.let(::transformExpression),
+                )
             is Requirement.Transform ->
                 Requirement.Transform(transformRequirement(node.requirement), node.transformKind)
           }
@@ -280,13 +293,17 @@ public abstract class PetTransformer protected constructor() {
                     transformRequirement(node.gate),
                     transformInstructionTree(node.inner),
                 )
-            is Instruction.Then ->
-                node
-                    .withParts(
-                        node.stages.map(::transformInstruction),
-                        transformInstructionTree(node.continuation),
-                    )
-                    .withTypeVariables(node.typeVariables.transformedBy(this))
+            is Instruction.Then -> {
+              val continuation = transformInstructionTree(node.continuation)
+              val nestedScope = (continuation as? Instruction.Then)?.typeVariables
+              node
+                  .withInstructions(node.stages.map(::transformInstruction) + continuation)
+                  .withTypeVariables(
+                      node.typeVariables.transformedBy(this).let { outerScope ->
+                        if (nestedScope == null) outerScope else outerScope + nestedScope
+                      }
+                  )
+            }
             is Instruction.Each ->
                 Instruction.Each(
                     transformExpression(node.selector),
@@ -352,6 +369,10 @@ public abstract class PetTransformer protected constructor() {
             is Cost.Per -> Cost.Per(transformCost(node.cost), transformMetric(node.metric))
             is Cost.Transform -> Cost.Transform(transformCost(node.cost), node.transformKind)
           }
+    }.also { transformed ->
+      if (transformed !== node && transformed.sourceLocation == null) {
+        transformed.sourceLocation = node.sourceLocation
+      }
     }
   }
 }

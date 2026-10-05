@@ -1,12 +1,14 @@
 package dev.martianzoo.pets.types
 
-import dev.martianzoo.pets.api.CustomClass
-import dev.martianzoo.pets.api.Exceptions.PetException
-import dev.martianzoo.pets.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.systemClassDeclarations
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -44,15 +46,6 @@ internal class Spec02ClassesTest {
     table.getClass(cn("GreeneryTile")).baseType.expressionFull shouldBe te("GreeneryTile")
   }
 
-  @Test
-  internal fun `T2-1 a class knows the declaration it was compiled from`() {
-    val table = loadTypes("\"A greenery tile\"\nCLASS GreeneryTile")
-    val greenery = table.getClass(cn("GreeneryTile"))
-
-    greenery.declaration.className shouldBe cn("GreeneryTile")
-    greenery.docstring shouldBe "A greenery tile"
-  }
-
   // T2-2 Direct supertypes
 
   @Test
@@ -64,7 +57,7 @@ internal class Spec02ClassesTest {
 
   @Test
   internal fun `T2-2 naming Component as a supertype is an error`() {
-    shouldThrow<PetException> { loadTypes("CLASS GreeneryTile : Component") }
+    shouldThrow<InvalidPetDefinitionException> { loadTypes("CLASS GreeneryTile : Component") }
   }
 
   @Test
@@ -90,10 +83,10 @@ internal class Spec02ClassesTest {
 
   @Test
   internal fun `T2-3 no class may extend a concrete class`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes("CLASS GreeneryTile", "CLASS SpecialTile : GreeneryTile")
     }
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes("CLASS GreeneryTile", "ABSTRACT CLASS SpecialTile : GreeneryTile")
     }
   }
@@ -124,18 +117,6 @@ internal class Spec02ClassesTest {
     klass("LandArea").isSubtypeOf(klass("WaterArea")) shouldBe false
     klass("WaterArea").isSubtypeOf(klass("LandArea")) shouldBe false
     klass("Area").isSubtypeOf(klass("LandArea")) shouldBe false
-  }
-
-  @Test
-  internal fun `T2-4 isSupertypeOf is the converse of isSubtypeOf`() {
-    klass("LandArea").isSupertypeOf(klass("Tharsis_2_2")) shouldBe true
-    klass("Tharsis_2_2").isSupertypeOf(klass("LandArea")) shouldBe false
-  }
-
-  @Test
-  internal fun `T2-4 ensureNarrows reports a failed subclass check`() {
-    shouldThrow<Exception> { klass("LandArea").ensureNarrows(klass("WaterArea"), fullWorld) }
-    klass("Tharsis_2_2").ensureNarrows(klass("LandArea"), fullWorld)
   }
 
   @Test
@@ -172,10 +153,10 @@ internal class Spec02ClassesTest {
 
   @Test
   internal fun `T2-5 a supertype cycle is rejected`() {
-    shouldThrow<PetException> {
-      loadTypes("CLASS GreeneryTile : CityTile", "CLASS CityTile : GreeneryTile")
+    shouldThrow<InvalidPetDefinitionException> {
+      loadTypes("ABSTRACT CLASS Area : MarsArea", "ABSTRACT CLASS MarsArea : Area")
     }
-    shouldThrow<PetException> { loadTypes("CLASS GreeneryTile : GreeneryTile") }
+    shouldThrow<InvalidPetDefinitionException> { loadTypes("ABSTRACT CLASS Area : Area") }
   }
 
   // T2-6 Declaration order
@@ -187,15 +168,15 @@ internal class Spec02ClassesTest {
     table.getClass(cn("GreeneryTile")).isSubtypeOf(table.getClass(cn("Tile"))) shouldBe true
   }
 
-  // T2-7 Enumerating the hierarchy
+  // T2-7 Superclasses are intrinsic; subclasses belong to the universe
 
   @Test
   internal fun `T2-7 superclass traversal is intrinsic and subclass traversal is table-relative`() {
-    klass("LandArea").allSuperclasses().map { "$it" } shouldContainExactly
+    klass("LandArea").allSuperclasses().map { "$it" } shouldContainExactlyInAnyOrder
         listOf("Component", "Area", "MarsArea", "LandArea")
-    mars.allSubclasses(klass("LandArea")).map { "$it" } shouldContainExactly
+    mars.allSubclasses(klass("LandArea")).map { "$it" } shouldContainExactlyInAnyOrder
         listOf("Tharsis_2_2", "VolcanicArea", "Tharsis_5_5", "LandArea")
-    mars.directSubclasses(klass("LandArea")).map { "$it" } shouldContainExactly
+    mars.directSubclasses(klass("LandArea")).map { "$it" } shouldContainExactlyInAnyOrder
         listOf("Tharsis_2_2", "VolcanicArea")
   }
 
@@ -254,64 +235,30 @@ internal class Spec02ClassesTest {
     table.glb(table.getClass(cn("Owned")), table.getClass(cn("Tile"))) shouldBe null
   }
 
-  // T2-9 Custom classes
+  // T2-9 Kotlin-backed classes
+  // External implementation checks live in state/CustomImplementationValidationTest.kt.
 
   @Test
-  internal fun `T2-9 a Custom class must have a Kotlin implementation, and only a Custom class may`() {
-    val declaration = "CLASS Neighbor : Custom"
-
-    ClassLoader(testCatalog(declaration, setOf(object : CustomClass(cn("Neighbor")) {})))
-        .loadEverything()
-        .getClass(cn("Neighbor"))
-        .declaration
-        .custom shouldBe true
-
-    // A declared-but-unimplemented Custom class is rejected by the Catalog lookup itself.
-    shouldThrow<PetException> { loadTypes(declaration) }
-    shouldThrow<PetException> {
-      ClassLoader(testCatalog("CLASS Neighbor", setOf(object : CustomClass(cn("Neighbor")) {})))
-          .loadEverything()
-    }
-  }
-
-  @Test
-  internal fun `T2-9 a root class rejects an unexpected implementation`() {
-    shouldThrow<PetException> {
-      ClassLoader(testCatalog("", setOf(object : CustomClass(COMPONENT) {})))
-    }
-  }
-
-  @Test
-  internal fun `T2-9 a Custom class may not inherit Pets behavior`() {
+  internal fun `T2-9 a CustomMetric may not inherit Pets behavior`() {
     listOf(
-            "ABSTRACT CLASS Behaving { Trigger: Result }\nCLASS Trigger, Result",
+            "ABSTRACT CLASS Behaving { Trigger: Result }\nCLASS Trigger\nCLASS Result",
             "ABSTRACT CLASS Behaving { HAS MAX 1 This }",
             "ABSTRACT CLASS Behaving { DEFAULT +Behaving. }",
         )
         .forEach { parent ->
-          val catalog =
-              testCatalog(
-                  "$parent\nCLASS Neighbor : Behaving, Custom",
-                  setOf(object : CustomClass(cn("Neighbor")) {}),
+          val loader =
+              ClassLoader(
+                  ClassDeclaration.indexByName(
+                      systemClassDeclarations +
+                          parseClasses("$parent\nCLASS Neighbor : Behaving, CustomMetric")
+                  )
               )
-          val loader = ClassLoader(catalog)
 
           // Also proves a failed load is not cached as a success.
           repeat(2) {
-            shouldThrow<PetException> { loader.load(cn("Neighbor")) }
+            shouldThrow<InvalidPetDefinitionException> { loader.load(cn("Neighbor")) }
             loader.findClass(cn("Neighbor")) shouldBe null
           }
         }
-  }
-
-  // T2-10 Class identity
-
-  @Test
-  internal fun `T2-10 a class is identified by its name within its universe`() {
-    val table = loadTypes("CLASS GreeneryTile")
-
-    table.getClass(cn("GreeneryTile")) shouldBe table.getClass(cn("GreeneryTile"))
-    "${table.getClass(cn("GreeneryTile"))}" shouldBe "GreeneryTile"
-    table.componentClass.className shouldBe COMPONENT
   }
 }

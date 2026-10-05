@@ -1,6 +1,6 @@
 package dev.martianzoo.generated
 
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 
 /**
  * Creates a [GameConfig] from generated rich Class literals. [extra] accepts the same

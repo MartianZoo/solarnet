@@ -7,6 +7,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
@@ -142,8 +143,8 @@ internal class RandomCardGenerator(seed: Int) :
           listOfNotNull(tags.effect(event = false), immediateEffect, scoring.value?.value) +
               persistentEffects.values.map(PersistentEffect::value)
       val ruleNodeCount =
-          actions.values.sumOf { it.value.descendantCount() } +
-              effects.filterNot { it.automatic }.sumOf { it.descendantCount() }
+          actions.values.sumOf { it.value.descendantsOfType<PetNode>().size } +
+              effects.filterNot { it.automatic }.sumOf { it.descendantsOfType<PetNode>().size }
       if (ruleNodeCount < MIN_RULE_NODE_COUNT) return null
 
       val resourceTypes =
@@ -159,7 +160,7 @@ internal class RandomCardGenerator(seed: Int) :
       val authoredEffects =
           listOfNotNull(tags.effect(event), immediateEffect, scoring.value?.value) +
               persistentEffects.values.map(PersistentEffect::value)
-      val supertypes = buildSet {
+      val supertypes = buildList {
         add(
             parse<Expression>(
                 when {
@@ -737,7 +738,7 @@ internal class RandomCardGenerator(seed: Int) :
           object : TfmCatalog() {
             override val explicitClassDeclarations: Set<ClassDeclaration> = declarations.toSet()
           }
-      return TfmCatalog.compose(Canon, additions)
+      return TfmCatalog(Canon, additions)
     }
 
     @JvmStatic

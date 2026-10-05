@@ -1,0 +1,282 @@
+package dev.martianzoo.pets.types
+
+import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Instruction.Each
+import dev.martianzoo.pets.ast.Instruction.Transmute
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
+import kotlin.test.Test
+
+/** Class-header and selector scopes when L12 owner-local declarations are extracted. */
+internal class Spec13InlineClassTypeVariablesTest {
+  @Test
+  internal fun headerVariableDoesNotDiscardLocalBody() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Widget { CLASS Item }",
+            "ABSTRACT CLASS Base<Widget>",
+            "CLASS Host1<A@Widget> { This: Base<A@Widget> {} }",
+        )
+    table.getClass(cn("Host1_Base")).declaration.supertypes.map { "$it" } shouldBe
+        listOf("Base<Widget>")
+    table.getClass(cn("Host1")).typeVariables.single().usages.single().expression.className shouldBe
+        cn("Widget")
+  }
+
+  @Test
+  internal fun selectorVariableDoesNotDiscardLocalBody() {
+    val declarations = parseClasses("CLASS Host1 { This: EACH A@Widget { Base<A@Widget> {} } }")
+    declarations.map { it.className } shouldContainExactly listOf(cn("Host1"), cn("Host1_Base"))
+    val each = declarations.first().authoredEffects.single().instruction as Each
+    val gaining = each.body as dev.martianzoo.pets.ast.Instruction.Gain
+    gaining.gaining.expression.className shouldBe cn("Host1_Base")
+    declarations.last().supertypes.map { "$it" } shouldBe listOf("Base<Widget>")
+  }
+
+  @Test
+  internal fun settlementArgumentVariableDoesNotDeclareAGeneratedHeaderMarker() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Widget { CLASS Item }",
+            "ABSTRACT CLASS Base<Widget>",
+            "CLASS Host1 { This: Base<A@Widget> {} FROM A@Widget }",
+        )
+    val effect =
+        table
+            .recordTypeVariableScopes()
+            .transformEffect(table.getClass(cn("Host1")).declaration.authoredEffects.single())
+    val transmute = effect.instruction as Transmute
+    transmute.typeVariables.variables.single().occurrences.size shouldBe 2
+    transmute.gaining.expression.className shouldBe cn("Host1_Base")
+    table.getClass(cn("Host1_Base")).declaration.supertypes.map { "$it" } shouldBe
+        listOf("Base<Widget>")
+  }
+
+  @Test
+  internal fun generatedSupertypeRetainsSharedArgumentConstraint() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Person {
+            CLASS Alice
+            CLASS Bob
+            }
+            """
+                .trimIndent(),
+            "ABSTRACT CLASS Pair<Person, Person>",
+            "CLASS Host1 { This: EACH P@Person { Pair<P@Person, P@Person> {} } }",
+        )
+    val derived = table.getClass(cn("Host1_Pair"))
+    derived.isEqualityConstrainedDependency(Dependency.Key(cn("Pair"), 0)) shouldBe true
+    derived.isEqualityConstrainedDependency(Dependency.Key(cn("Pair"), 1)) shouldBe true
+    derived.typeVariables.size shouldBe 1
+  }
+
+  @Test
+  internal fun referenceExpansionCopiesArgumentsWithoutDeclaringTheirBodiesAgain() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Base",
+            "ABSTRACT CLASS Wrapper<Base>",
+            "CLASS Host1 { This: A@Wrapper<Base {}> FROM A@Wrapper }",
+        )
+    val transmute =
+        table.getClass(cn("Host1")).declaration.authoredEffects.single().instruction as Transmute
+    transmute.gaining.expression.arguments.single().className shouldBe cn("Host1_Base")
+    transmute.removing.expression.arguments.single().className shouldBe cn("Host1_Base")
+  }
+
+  @Test
+  internal fun referenceExpansionCopiesRefinementsWithoutDeclaringTheirBodiesAgain() {
+    val declarations = parseClasses("CLASS Host1 { This: A@Wrapper(HAS Base {}) FROM A@Wrapper }")
+    declarations.map { it.className } shouldContainExactly listOf(cn("Host1"), cn("Host1_Base"))
+    val transmute = declarations.first().authoredEffects.single().instruction as Transmute
+    transmute.gaining.expression.refinement shouldBe transmute.removing.expression.refinement
+  }
+
+  @Test
+  internal fun generatedSharedArgumentConstraintDoesNotDependOnWhichOccurrenceIsLoweredFirst() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Person {
+            CLASS Alice
+            CLASS Bob
+            }
+            """
+                .trimIndent(),
+            "ABSTRACT CLASS Pair<Person, Person>",
+            "ABSTRACT CLASS Wrapper<Pair>",
+            "CLASS Observer",
+            """
+            CLASS Host1<P@Person> {
+              This: Observer(HAS A@Wrapper) FROM A@Wrapper<Pair<P@Person, P@Person> {}>
+            }
+            """
+                .trimIndent(),
+        )
+    val derived = table.getClass(cn("Host1_Pair"))
+    derived.isEqualityConstrainedDependency(Dependency.Key(cn("Pair"), 0)) shouldBe true
+    derived.typeVariables.size shouldBe 1
+  }
+
+  @Test
+  internal fun selectorBindingReachesBothCopiesOfLocalClassArguments() {
+    val declarations =
+        parseClasses(
+            """
+            CLASS Host1 {
+              This: EACH P@Person { A@Wrapper<Base<P@Person> {}> FROM A@Wrapper }
+            }
+            """
+                .trimIndent()
+        )
+    val each = declarations.first().authoredEffects.single().instruction as Each
+    val bound = each.bodyFor(cn("Alice").expression) as Transmute
+    bound.gaining.expression.arguments.single().arguments.single().className shouldBe cn("Alice")
+    bound.removing.expression.arguments.single().arguments.single().className shouldBe cn("Alice")
+  }
+
+  @Test
+  internal fun repeatedBodiesAreNotCollapsedByRequirementNormalization() {
+    shouldThrow<PetSyntaxException> {
+          parseClasses("CLASS Host1 { This: Widget(HAS Base {}, HAS Base {}) }")
+        }
+        .detail shouldBe "owner `Host1` declares more than one unnamed derived `Base` class"
+  }
+
+  @Test
+  internal fun generatedSharedArgumentConstraintSurvivesSourceRendering() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Person {
+            CLASS Alice
+            CLASS Bob
+            }
+            """
+                .trimIndent(),
+            "ABSTRACT CLASS Pair<Person, Person>",
+            "CLASS Host1 { This: EACH P@Person { Pair<P@Person, P@Person> {} } }",
+        )
+    val source = table.getClass(cn("Host1_Pair")).declaration.toString()
+    val reparsed =
+        loadTypes(
+                """
+                ABSTRACT CLASS Person {
+                CLASS Alice
+                CLASS Bob
+                }
+                """
+                    .trimIndent(),
+                "ABSTRACT CLASS Pair<Person, Person>",
+                source,
+            )
+            .getClass(cn("Host1_Pair"))
+    reparsed.isEqualityConstrainedDependency(Dependency.Key(cn("Pair"), 0)) shouldBe true
+    reparsed.typeVariables.size shouldBe 1
+  }
+
+  @Test
+  internal fun extractedClassResolvesItsOwnSignatureAndBodyTogether() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person { CLASS Alice }",
+            "ABSTRACT CLASS Base<Person>",
+            """
+            CLASS Host1 {
+              This: EACH P@Person { Base<P@Person> { This: P@Person } }
+            }
+            """
+                .trimIndent(),
+        )
+    val derived = table.getClass(cn("Host1_Base"))
+    derived.typeVariables.size shouldBe 1
+    derived.typeVariables.single().usages.size shouldBe 1
+    val effect = derived.interpretTypeVariablesIn(derived.declaration.authoredEffects.single())
+    effect.typeVariables
+        .bind(mapOf(derived.typeVariables.single() to table.resolve(cn("Alice").expression)))
+        .transformEffect(effect)
+        .toString() shouldBe "This: Alice"
+    parseClasses(derived.declaration.toString()).single() shouldBe derived.declaration
+  }
+
+  @Test
+  internal fun extractedClassCannotCaptureAnEnclosingSelectorWithoutAnArgument() {
+    shouldThrow<InvalidPetDefinitionException> {
+          loadTypes(
+              "ABSTRACT CLASS Person",
+              "ABSTRACT CLASS Base",
+              """
+              CLASS Host1 {
+                This: EACH P@Person { P@Person, Base { This: P@Person } }
+              }
+              """
+                  .trimIndent(),
+          )
+        }
+        .detail shouldBe "`Host1_Base` has no inherited type variable `P@Person`"
+  }
+
+  @Test
+  internal fun `L12-3 an extracted class selector shadows its own header variable`() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS StandardResource {
+              CLASS Plant
+              CLASS Steel
+            }
+            """,
+            "ABSTRACT CLASS ResourceReserve<StandardResource>",
+            """
+            CLASS SoloSetup {
+              This: EACH R@StandardResource { ResourceReserve<R@StandardResource> { This: EACH R@StandardResource { R@StandardResource }, R@StandardResource } }
+            }
+            """
+                .trimIndent(),
+        )
+    val reserve = table.getClass(cn("SoloSetup_ResourceReserve"))
+    val effect = reserve.interpretTypeVariablesIn(reserve.declaration.authoredEffects.single())
+    val bound =
+        effect.typeVariables
+            .bind(mapOf(reserve.typeVariables.single() to table.resolve(te("Steel"))))
+            .transformEffect(effect)
+
+    bound.toString() shouldBe "This: EACH R@StandardResource { R@StandardResource }, Steel"
+    val each = bound.instruction.descendantsOfType<Each>().single()
+    each.bodyFor(cn("Plant").expression).toString() shouldBe "Plant"
+    parseClasses(reserve.declaration.toString()).single() shouldBe reserve.declaration
+  }
+
+  @Test
+  internal fun aGeneratedHeaderParameterTakesPrecedenceOverSettlementScope() {
+    listOf(
+            "This: P@Person FROM P@Person",
+            "This: Coin<P@Person> THEN Receipt<P@Person>",
+            "P@Person: P@Person",
+            "P@Person -> P@Person",
+        )
+        .forEach { body ->
+          val inline =
+              parseClasses("CLASS Host1 { This: EACH P@Person { Base<P@Person> { $body } } }")
+          val explicit =
+              parseClasses(
+                  """
+        CLASS Host1 {
+          This: EACH P@Person { Host1_Base<P@Person> }
+        }
+        CLASS Host1_Base : Base<P@Person> {
+          $body
+        }
+        """
+                      .trimIndent()
+              )
+          inline shouldBe explicit
+        }
+  }
+}

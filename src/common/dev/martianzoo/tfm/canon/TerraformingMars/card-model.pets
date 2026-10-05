@@ -2,11 +2,14 @@ ABSTRACT CLASS Card : Owned<Player> {
   "A generic unplayed card with unknown face"
   ABSTRACT CLASS CardBack<CardLocation> {
     DEFAULT CardBack<Hand>
-    DEFAULT +CardBack
-    DEFAULT -CardBack
     autoSelectWhen = Requirement?
 
-    CLASS CorporationCard, ProjectCard
+    ABSTRACT CLASS CorporationCard
+    CLASS BeginnerCorporationCard : CorporationCard {
+      autoSelectWhen = HAS "BeginnerVariant"
+    }
+    CLASS StandardCorporationCard : CorporationCard
+    CLASS ProjectCard
   }
 
   "A card in play, face-up on the table (consider rename to CardFace)"
@@ -37,87 +40,122 @@ ABSTRACT CLASS Card : Owned<Player> {
   }
 
   "A card in your played-events pile"
-  CLASS PlayedEvent<Class<CardFront>> {
-    End: ScoreEventVps<Class<CardFront>>
+  CLASS PlayedEvent<@Class<CardFront>> {
+    End: ScoreEventVps<@Class>
   }
 }
 
+"The payment operation that owns project-card purchases"
 CLASS CardPurchase : HasActions {
   HAS =1 This
-  -ActionBilling<This>:: ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>
+  -ActionBilling<This, Action1>:: ProjectCard / BuyCard, -BuyCard / BuyCard
 }
 
-"Triggers the purchase of every project card remaining in the player's selection"
+"A selected project card awaiting payment"
+CLASS BuyCard : Owned<Player>, MustCleanUp, Hidden {
+  This:: 3 Owed<> THEN PayingFor<Class<ProjectCard>> THEN ActionBilling<CardPurchase, Action1>.
+}
+
+"Buys every project card left in this Player's selection"
 CLASS BuySelectedCards : Owned<Player>, Signal {
-  This:: (3 Owed<> / ProjectCard<Selecting>) THEN (BuyCard / ProjectCard<Selecting>) THEN ActionBilling<CardPurchase, Action1>
+  This:: BuyCard FROM ProjectCard<Selecting> / ProjectCard<Selecting>
 }
 
-CLASS BuyCard : Owned<Player>, Signal
+"An externally specified search criterion; the selected card is not tracked before it reaches a hand"
+ABSTRACT CLASS CardFilter : System
 
-CLASS PlayCard<Class<CardBack>, Class<CardFront>, CardLocation> : Owned<Player>, Signal {
-  This:: (EVAL CardFront<Class<CardBack>>.requirement: Ok) OR AdjustGpRequirement<Class<CardFront>>
-  This: Owed<> / CardFront.cost THEN HandleCardTags<Class<CardFront>> THEN CardBilling<Class<CardFront>> THEN MAX 0 Barrier: CardFront FROM CardBack<CardLocation>
+"Carries the externally asserted printed-tag criterion"
+CLASS TagFilter<Class<Tag>> : CardFilter, Hidden { HAS MAX 1 This }
+
+"Carries the externally asserted absence of printed tags"
+CLASS NoTagsFilter : CardFilter, Hidden { HAS MAX 1 This }
+
+"Carries the externally asserted reference to a game concept"
+CLASS ReferenceFilter<Class<Component>> : CardFilter, Hidden { HAS MAX 1 This }
+
+"Records the search criterion while adding only the externally selected card to the hand"
+CLASS SearchForCard<CardFilter> : Owned<Player>, Signal {
+  This:: ProjectCard, Audit
+}
+
+"Keeps an offered project card that externally satisfies the filter"
+CLASS TakeSelectedCard<CardFilter> : Owned<Player>, Signal {
+  This:: ProjectCard<Hand FROM Selecting>, Audit
+}
+
+"Claims a card resource when the revealed card externally satisfies the filter"
+CLASS ClaimCardReward<CardFilter, @ResourceCard<Class<@CardResource>, @Player>> : Owned<@Player>, Signal {
+  This:: @CardResource<@ResourceCard> / ProjectCard<Revealed>, Audit / ProjectCard<Revealed>
+}
+
+CLASS PlayCard<Class<@CardBack>, Class<@CardFront>, @CardLocation> : Owned<Player>, Signal {
+  This:: (EVAL @CardFront<Class<@CardBack>>.requirement: Ok) OR \
+    (GpRequirementShortfall<Class<@CardFront>, Class<GlobalParameter>>: \
+      EACH @Class<GlobalParameter> { \
+        Required<@Class> / GpRequirementShortfall<Class<@CardFront>, @Class> \
+          THEN CheckRequirement<Class<@CardFront>> / \
+            (GpRequirementShortfall<Class<@CardFront>, @Class> MAX 1) \
+      })
+  This: Owed<> / @CardFront.cost THEN PriceCard<Class<@CardFront>> THEN CardBilling THEN MAX 0 Barrier: @CardFront FROM @CardBack<@CardLocation>
 }
 
 "Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"
 CLASS CheckRequirement<Class<CardFront>> : Owned<Player>, Signal
 
-CLASS PlayTag<Class<Tag>> : Owned<Player>, Signal
+"How far one printed global-parameter requirement is from the current track value"
+CLASS GpRequirementShortfall<Class<CardFront>, Class<GlobalParameter>> : CustomMetric
 
-CLASS AdjustGpRequirement<Class<CardFront>> : Owned<Player>, Custom
+"Emits payment-adjustment events for a project card and each of its printed tags"
+CLASS PriceCard<Class<@CardFront>> : Owned<Player>, Signal {
+  This:: EACH @Class<Tag> { PayingFor<@Class> / PriceAspectCount<Class<@CardFront>, @Class> }
+  This:: PayingFor<Class<@CardFront>> / PriceAspectCount<Class<@CardFront>, Class<@CardFront>>
+}
 
-CLASS HandleCardTags<Class<CardFront>> : Owned<Player>, Custom
+"Number of payment-adjustment events for one aspect of a project card"
+CLASS PriceAspectCount<Class<CardFront>, Class<Component>> : CustomMetric
 
 "A temporary shortfall between a printed global requirement and the current parameter"
-CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
+CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier, Hidden {
   DEFAULT -Required.
 }
 
-"A location that an owned unplayed card can occupy"
+"The current place of an anonymous unplayed card associated with a Player"
 ABSTRACT CLASS CardLocation : System {
-  CLASS Hand {
-    HAS =1 This
-  }
-  CLASS Selecting {
-    HAS MAX 1 This
-    CardBack<This>:: CardLocationCleanup<This>.
-    -This:: This!
-  }
-  CLASS Revealed {
-    HAS MAX 1 This
-    CardBack<This>:: CardLocationCleanup<This>.
-    -This:: This!
-  }
-}
-
-"Resets a transient card location after all current work finishes"
-CLASS CardLocationCleanup<CardLocation> : Temporary, Hidden {
-  HAS MAX 1 This
-  -This:: -CardLocation!
+  CLASS Hand { HAS =1 This }
+  CLASS Selecting { HAS =1 This }
+  CLASS Revealed { HAS =1 This }
 }
 
 // TODO: can this be simplified??
 ABSTRACT CLASS TagHolder : Owned<Player>
 
-ABSTRACT CLASS Tag<TagHolder<Player>> : Owned<Player>, Atomized {
-  CLASS BuildingTag, SpaceTag, ScienceTag, PowerTag, CityTag
-  ABSTRACT CLASS BioTag { CLASS PlantTag, MicrobeTag, AnimalTag }
-  ABSTRACT CLASS PlanetaryTag { CLASS EarthTag, JovianTag }
-  "The printed event icon derived for every EventCard"
-  CLASS EventTag : Tag<EventCard>
+ABSTRACT CLASS Tag<TagHolder<@Player>> : Owned<@Player>, Atomized {
+  CLASS BuildingTag
+  CLASS SpaceTag
+  CLASS ScienceTag
+  CLASS PowerTag
+  CLASS CityTag
+  ABSTRACT CLASS BioTag {
+    CLASS PlantTag
+    CLASS MicrobeTag
+    CLASS AnimalTag
+  }
+  ABSTRACT CLASS PlanetaryTag {
+    CLASS EarthTag
+    CLASS JovianTag
+  }
+  "The printed event icon, also available when choosing a wild tag type"
+  CLASS EventTag
 }
 
 // TODO: can this be simplified?
 "Anything that can hold a particular kind of card resource"
-ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Owner>
+ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned
 
-ABSTRACT CLASS Cardbound<CardFront<Player>> : Owned<Player>
+ABSTRACT CLASS Cardbound<CardFront<@Player>> : Owned<@Player>
 
 "Marks an action card that has been used this generation"
 CLASS ActionUsedMarker<GenerationScope> : Cardbound<ActionCard> { HAS MAX 1 This }
 
 "A singleton listener needed by selected content"
-ABSTRACT CLASS CardWatcher : System { HAS MAX 1 This }
-
-"Copies the single immediate production box on a chosen card"
-CLASS CopyProductionBox<CardFront<Player>> : Owned<Player>, Custom
+ABSTRACT CLASS CardWatcher : System, Hidden { HAS MAX 1 This }

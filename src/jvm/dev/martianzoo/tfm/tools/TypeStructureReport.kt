@@ -7,12 +7,12 @@ import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.types.Class as PetsClass
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.DependencySet.DependencyPath
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.canon.Canon
 import java.math.BigInteger
 import java.util.Locale
@@ -30,7 +30,7 @@ private object TypeStructureReport {
           cn("VenusNextExpansion"),
           cn("PreludeExpansion"),
           cn("ColoniesExpansion"),
-          cn("TurmoilCardPack"),
+          cn("TurmoilExpansion"),
           cn("PromoCardPack"),
       )
 
@@ -143,7 +143,7 @@ private object TypeStructureReport {
         add(klass.defaultType)
       }
       addAll(expressionStats.resolvedTypeOccurrences.keys)
-      addAll(game.reader.getComponents("Component").elements)
+      addAll(game.reader.getComponents(cn("Component").expression).elements)
     }
         .filter(::isPlain)
         .distinct()
@@ -197,7 +197,7 @@ private object TypeStructureReport {
     val witnessMaskCardinalities = witnessMasks.map { it.cardinality() }
     val totalWitnessBits = candidateTypes.size.toLong() * groundWitnesses.size
     val setWitnessBits = witnessMaskCardinalities.sumOf(Int::toLong)
-    val currentComponents = game.reader.getComponents("Component")
+    val currentComponents = game.reader.getComponents(cn("Component").expression)
     val currentComponentTypes = currentComponents.elements.toSet()
 
     return buildString {
@@ -218,9 +218,13 @@ private object TypeStructureReport {
       )
       line(
           "selected colonies",
-          game.reader.getComponents("ColonyTile").map { it.className }.sorted().joinToString(),
+          game.reader
+              .getComponents(cn("ColonyTile").expression)
+              .map { it.className }
+              .sorted()
+              .joinToString(),
       )
-      line("actors", game.reader.getComponents("Actor").elements.size)
+      line("actors", game.reader.getComponents(cn("Actor").expression).elements.size)
       line("current component instances", currentComponents.size)
       line("current distinct component types", currentComponentTypes.size)
 
@@ -507,7 +511,7 @@ private object TypeStructureReport {
           when {
             type.rootClass.abstract -> BigInteger.ZERO
             type.rootClass == table.classClass -> {
-              val represented = table.getClass(type.expressionFull.arguments.single().className)
+              val represented = requireNotNull(type.representedClass)
               BigInteger.valueOf(table.allSubclasses(represented).count { !it.abstract }.toLong())
             }
             !isPlain(type) || dependencyVariablePaths.getValue(type.rootClass).isNotEmpty() -> {

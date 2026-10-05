@@ -1,14 +1,12 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.ClassSelection
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.GamePremise
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -38,7 +36,4 @@ internal fun canonicalPremise(
 internal fun setUpGame(premise: GamePremise = canonicalPremise()): World =
     Engine.newGame(premise).apply {
       TfmWorkflow.Stepwise(testAgents()).setupPhase()
-      actors.filterIsInstance<Player>().forEach {
-        testAgent(it).doTask("-10 ProjectCard<Selecting>")
-      }
     }

@@ -30,7 +30,6 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
   @Test
   internal fun hellasPromoGame() {
     val workflow = TfmWorkflow.Automatic(agents).launch()
-    retainStartingProjects(7, 5)
     workflow.isRunning shouldBe true
 
     p1.playCorp(InterplanetaryCinematics, 7)
@@ -87,7 +86,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
 
     p1.turn {
       playProject(DevelopmentCenter, 1, steel = 4) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
       }
       playProject(GeothermalPower, 1, steel = 4)
       playProject(MirandaResort, 10) // 1 VP<Player1>
@@ -157,8 +156,6 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
     val p2 = game.testTfm(PLAYER2)
 
     TfmWorkflow.Automatic(game.testAgents()).launch()
-    dev.martianzoo.tfm.tests.retainStartingProjects(game, 7, 5)
-
     p1.playCorp(InterplanetaryCinematics, 7)
     p2.playCorp(PharmacyUnion, 5)
 

@@ -44,9 +44,9 @@ internal class GeneratedPetsTypesUsageTest {
     assertExpression("Cimmeria_1_1", Cimmeria_1_1())
     assertExpression("OceanTile<Tharsis_4_4>", OceanTile<Tharsis_4_4>())
 
-    val city = CityTile<Player, Tharsis_4_4>()
-    assertExpression("CityTile<Player, Tharsis_4_4>", city)
-    assertExpression("CityTile<Player, Tharsis_4_4>", acceptOwnedLandTile(city))
+    val city = NormalCityTile<Player, Tharsis_4_4>()
+    assertExpression("NormalCityTile<Player, Tharsis_4_4>", city)
+    assertExpression("NormalCityTile<Player, Tharsis_4_4>", acceptOwnedLandTile(city))
 
     val greenery = GreeneryTile<Player, Tharsis_4_4>()
     assertExpression("GreeneryTile<Player, Tharsis_4_4>", greenery)
@@ -81,8 +81,8 @@ internal class GeneratedPetsTypesUsageTest {
     assertEquals("AerialMappers", AerialMappers.name.toString())
     assertEquals(AerialMappers.name, aerialMappersClass.className)
     assertExpression(
-        "Cathedral<Player, CityTile<Player, Tharsis_4_4>>",
-        Cathedral<Player, CityTile<Player, Tharsis_4_4>>(),
+        "Cathedral<Player, NormalCityTile<Player, Tharsis_4_4>>",
+        Cathedral<Player, NormalCityTile<Player, Tharsis_4_4>>(),
     )
     assertExpression("Callisto", Callisto())
     acceptCallistoSelection(Callisto())
@@ -103,13 +103,13 @@ internal class GeneratedPetsTypesUsageTest {
     assertEquals(null, QuickStartVariant().premiseRequirement)
 
     // OwnedTile has separate covariant area and owner parameters:
-    // acceptOwnedLandTile(CityTile<Player, Cimmeria_1_1>()) // WaterArea is not LandArea.
-    // acceptOwnedLandTile(CityTile<SoloOpponent, Tharsis_4_4>()) // Not owned by a Player.
+    // acceptOwnedLandTile(NormalCityTile<Player, Cimmeria_1_1>()) // WaterArea is not LandArea.
+    // acceptOwnedLandTile(NormalCityTile<SoloOpponent, Tharsis_4_4>()) // Not owned by a Player.
     // acceptOwnedLandTile(OceanTile<Tharsis_4_4>()) // A Tile, but not an OwnedTile.
     // val wrongArity: OwnedTile<LandArea> // OwnedTile requires both area and owner arguments.
 
-    // Linkage makes the Cathedral owner agree with the nested CityTile owner:
-    // Cathedral<Player, CityTile<SoloOpponent, Tharsis_4_4>>()
+    // Linkage makes the Cathedral owner agree with the nested NormalCityTile owner:
+    // Cathedral<Player, NormalCityTile<SoloOpponent, Tharsis_4_4>>()
 
     // Bounds reject unrelated shapes before an Expression can be constructed:
     // Terraformer35<SoloOpponent>() // SoloOpponent is not a Player.

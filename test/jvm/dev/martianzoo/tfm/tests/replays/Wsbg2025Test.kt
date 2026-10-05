@@ -1,16 +1,14 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agenttestsupport.testTfm
-import dev.martianzoo.generated.Class
-import dev.martianzoo.generated.ElysiumMap
-import dev.martianzoo.generated.PreludeExpansion
-import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.fakeWildTags
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -24,17 +22,22 @@ import kotlin.test.assertEquals
  */
 internal class Wsbg2025Test : AbstractFullGameTest() {
   override val config =
-      gameConfig(
-          modules = listOf(Class.of(ElysiumMap), Class.of(PreludeExpansion)),
-          extra = "FakeStuffBundle",
-          playerNames = listOf("Stanley", "Jacopo", "Jon", "Charlie"),
+      GameConfig(
+          """
+          ElysiumMap
+          PreludeExpansion
+          FakeStuffBundle
+          EcologyExperts, Unsafe
+          """,
+          "Stanley",
+          "Jacopo",
+          "Jon",
+          "Charlie",
       )
 
   @Test
   internal fun wsbg2025() {
     TfmWorkflow.Automatic(agents).launch()
-    retainStartingProjects(6, 7, 8, 7)
-
     val stanley = player(1)
     val jacopo = player(2)
     val jon = player(3)

@@ -1,23 +1,17 @@
 package dev.martianzoo.pets.ast
 
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.pets.PetTokenizer
-
 /**
  * A lowerCamelCase name identifying one class property: a lowercase letter followed by letters and
  * digits ([rule
- * L2-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-names)).
+ * L10-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-names)).
  */
 public data class PropertyName(public val value: String) : PetNode() {
   internal companion object {
     private val propertyNameRegex = Regex("[a-z][A-Za-z0-9]*")
-
-    internal fun parser(): Parser<PropertyName> = Parsing.parser
   }
 
   init {
-    require(value.matches(propertyNameRegex)) { "Bad property name: $value" }
+    require(value.matches(propertyNameRegex)) { "invalid property name: `$value`" }
   }
 
   override fun toString(): String = value
@@ -25,8 +19,4 @@ public data class PropertyName(public val value: String) : PetNode() {
   override val kind: kotlin.reflect.KClass<out PetNode> = PropertyName::class
 
   override fun visitChildren(visitor: Visitor): Unit = Unit
-
-  private object Parsing : PetTokenizer() {
-    val parser: Parser<PropertyName> = _lowerCamelRE map { PropertyName(it.text) }
-  }
 }

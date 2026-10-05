@@ -5,9 +5,9 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.state.toComponent
 import kotlinx.coroutines.CoroutineScope
@@ -51,6 +51,17 @@ public object TfmWorkflow {
     public fun solarPhase(): TaskResult? =
         if (adminOps.has("GameEndBarrier")) adminOps.beginOperation("SolarPhase FROM Phase")
         else null
+
+    /** Enters World Government Terraforming, the first expansion-specific Solar phase. */
+    public fun venusSolarPhase(): TaskResult = adminOps.beginOperation("VenusSolarPhase FROM Phase")
+
+    /** Enters colony-track production, after World Government Terraforming when both are active. */
+    public fun coloniesSolarPhase(): TaskResult =
+        adminOps.beginOperation("ColoniesSolarPhase FROM Phase")
+
+    /** Enters the Turmoil operation after every other active expansion-specific Solar phase. */
+    public fun turmoilSolarPhase(): TaskResult =
+        adminOps.beginOperation("TurmoilSolarPhase FROM Phase")
 
     public fun finalGreeneryPhase(): TaskResult =
         adminOps.runOperation("FinalGreeneryPhase FROM Phase")
@@ -187,7 +198,19 @@ public object TfmWorkflow {
         return false
       }
       letPlayerFinish()
+      runOptionalSolarPhase("WorldGovernmentRule", m::venusSolarPhase)
+      runOptionalSolarPhase("ColoniesExpansion", m::coloniesSolarPhase)
+      runOptionalSolarPhase("TurmoilExpansion", m::turmoilSolarPhase)
       return true
+    }
+
+    private suspend fun runOptionalSolarPhase(
+        phaseName: String,
+        beginPhase: () -> TaskResult,
+    ) {
+      if (!game.classTable.isInhabited(cn(phaseName))) return
+      beginPhase()
+      letPlayerFinish()
     }
 
     private suspend fun finalGreeneryPhase() {
@@ -223,7 +246,7 @@ public object TfmWorkflow {
     }
 
     private fun rotatedByFirstPlayer(): List<Player> {
-      val token = game.reader.getComponents("StartToken").single()
+      val token = game.reader.getComponents(cn("StartToken").expression).single()
       val ownerName = token.toComponent().owner?.className
       val firstPlayer = players.single { it.className == ownerName }
       val firstPlayerIndex = players.indexOf(firstPlayer)
@@ -236,7 +259,7 @@ public object TfmWorkflow {
 
     private fun hasComponent(className: String): Boolean =
         game.classTable.isInhabited(cn(className)) &&
-            game.reader.getComponents(className).isNotEmpty()
+            game.reader.getComponents(cn(className).expression).isNotEmpty()
 
     private suspend fun grantFirstActionTo(player: Player) {
       shutdownCheckpoint = game.timeline.checkpoint()

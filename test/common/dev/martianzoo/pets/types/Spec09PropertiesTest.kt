@@ -1,7 +1,7 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PropertyName
@@ -110,7 +110,7 @@ internal class Spec09PropertiesTest {
 
   @Test
   internal fun `T9-2 a subclass may not override a value that is already fixed`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
           "ABSTRACT CLASS Area { row = Number }",
           "ABSTRACT CLASS FixedArea : Area { row = 8 }",
@@ -121,21 +121,20 @@ internal class Spec09PropertiesTest {
 
   @Test
   internal fun `T9-2 a subclass may not widen or sidestep an inherited bound`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
-          "ABSTRACT CLASS TemperatureStep",
-          "ABSTRACT CLASS Area { row = Number }",
-          "CLASS Tharsis_2_2 : Area { row = TemperatureStep }",
+          "ABSTRACT CLASS CardFront { cost = Number }",
+          "ABSTRACT CLASS DiscountedCard : CardFront { cost = Metric }",
       )
     }
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
-          "ABSTRACT CLASS TemperatureStep",
+          "CLASS Plant",
           "ABSTRACT CLASS Milestone { requirement = Requirement }",
-          "CLASS Gardener : Milestone { requirement = TemperatureStep }",
+          "CLASS Gardener : Milestone { requirement = COUNT \"Plant\" }",
       )
     }
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
           "ABSTRACT CLASS Scored { score = Metric }",
           "CLASS Invalid : Scored { score = HAS \"Plant\" }",
@@ -148,13 +147,13 @@ internal class Spec09PropertiesTest {
 
   @Test
   internal fun `T9-3 a concrete class must fix every property it inherits`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes("ABSTRACT CLASS Area { row = Number }", "CLASS Tharsis_2_2 : Area")
     }
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes("ABSTRACT CLASS Award { metric = Metric }", "CLASS Thermalist : Award")
     }
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
           "ABSTRACT CLASS Milestone { requirement = Requirement }",
           "CLASS Gardener : Milestone",
@@ -211,7 +210,7 @@ internal class Spec09PropertiesTest {
 
   @Test
   internal fun `T9-4 two properties with one name but unrelated origins are an error`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
           "ABSTRACT CLASS FirstArea { row = 8 }",
           "ABSTRACT CLASS SecondArea { row = 8 }",
@@ -222,7 +221,7 @@ internal class Spec09PropertiesTest {
 
   @Test
   internal fun `T9-4 divergent narrowings of one property are an error`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
           "ABSTRACT CLASS Area { row = Number }",
           "ABSTRACT CLASS FirstArea : Area { row = 8 }",
@@ -230,7 +229,7 @@ internal class Spec09PropertiesTest {
           "CLASS Tharsis_2_2 : FirstArea, SecondArea",
       )
     }
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
           "ABSTRACT CLASS TemperatureStep",
           "ABSTRACT CLASS Area { score = Metric }",
@@ -241,7 +240,7 @@ internal class Spec09PropertiesTest {
     }
   }
 
-  // T9-5 Reading a property from a type
+  // T9-5 A type's property values are its root class's
 
   @Test
   internal fun `T9-5 a type reads the concrete property values of its root class`() {
@@ -265,7 +264,8 @@ internal class Spec09PropertiesTest {
     val area = table.resolve(te("Tharsis_2_2"))
 
     area.getNumberPropertyValue("row") shouldBe 8
-    area.getMetricPropertyValue("score") shouldBe parse<Metric>("TemperatureStep")
+    area.rootClass.properties[PropertyName("score")] shouldBe
+        MetricValue(parse<Metric>("TemperatureStep"))
     area.getRequirementPropertyValue("requirement") shouldBe parse<Requirement>("TemperatureStep")
   }
 

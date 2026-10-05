@@ -11,6 +11,7 @@ internal enum class TestOption(private val configuredName: String? = null) : Tes
   StandardSoloObjective,
   Tr63SoloObjective,
   CorporateEraExpansion,
+  BeginnerVariant,
   Tharsis("TharsisMap"),
   Hellas("HellasMap"),
   Elysium("ElysiumMap"),
@@ -23,11 +24,12 @@ internal enum class TestOption(private val configuredName: String? = null) : Tes
   Prelude1CardPack,
   Prelude2CardPack,
   ColoniesExpansion,
-  TurmoilCardPack,
+  TurmoilExpansion,
   PromoCardPack,
   FakeStuffBundle,
   WorldGovernmentRule,
-  MandatoryVenusVariant;
+  MandatoryVenusVariant,
+  Unsafe;
 
   internal val className: ClassName = cn(configuredName ?: name)
 }

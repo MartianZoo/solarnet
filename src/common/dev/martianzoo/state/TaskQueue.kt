@@ -1,7 +1,6 @@
 package dev.martianzoo.state
 
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.state.Task.TaskId
 
@@ -16,9 +15,7 @@ internal constructor(
 
   private fun validateAssignee(task: Task) {
     if (assignee != null && task.assignee != assignee) {
-      throw TaskException(
-          "$assignee's queue can't contain a task assigned to ${task.assignee}: $task"
-      )
+      throw TaskException("`$assignee` cannot queue a task assigned to `${task.assignee}`: $task")
     }
   }
 

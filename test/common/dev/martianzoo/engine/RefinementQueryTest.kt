@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.testsupport.PLAYER3
@@ -10,18 +10,16 @@ import kotlin.test.Test
 
 internal class RefinementQueryTest {
   @Test
-  internal fun bareDependencyRefinesEveryCompatibleDomain() {
+  internal fun anExplicitAnyoneInARefinementIsLiteral() {
     val game = setUpGame()
     val p1 = game.testAgent(PLAYER1)
     val p2 = game.testAgent(PLAYER2)
     p1.count("StartToken") shouldBe 1
     p2.count("StartToken") shouldBe 0
 
-    listOf("Player", "Owner", "Actor", "Anyone", "Component").forEach { domain ->
-      p2.count("$domain(HAS StartToken)") shouldBe 1
-    }
-
-    p2.count("Player(HAS StartToken<Owner>)") shouldBe 0
+    p2.count("Player(HAS StartToken<Player1>)") shouldBe 1
+    p2.count("Player(HAS StartToken<Player2>)") shouldBe 0
+    p2.count("Player(HAS StartToken<Anyone>)") shouldBe 1
   }
 
   @Test
@@ -59,7 +57,9 @@ internal class RefinementQueryTest {
     val admin = game.testAgent(ADMIN)
     admin.runOperation("Token<Player1>")
 
-    admin.runOperation("EACH Player(HAS =1 (RANK Player { Player(HAS Token) })) { Prize<Player> }")
+    admin.runOperation(
+        "EACH @Player(HAS =1 (RANK Player { Player(HAS Token<Anyone>) })) { Prize<@Player> }"
+    )
 
     game.testAgent(PLAYER1).count("Prize") shouldBe 1
     game.testAgent(PLAYER2).count("Prize") shouldBe 1

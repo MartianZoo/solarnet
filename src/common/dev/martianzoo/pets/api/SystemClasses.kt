@@ -20,8 +20,10 @@ public object SystemClasses {
   public val ATOMIZED: ClassName = cn("Atomized")
   public val ACTOR: ClassName = cn("Actor")
   public val ADMIN: ClassName = cn("Admin")
+  public val AUDIT: ClassName = cn("Audit")
   public val CLASS: ClassName = cn("Class")
-  internal val CUSTOM: ClassName = cn("Custom")
+  internal val CUSTOM_METRIC: ClassName = cn("CustomMetric")
+  public val CUSTOM_INSTRUCTION: ClassName = cn("CustomInstruction")
   public val COMPONENT: ClassName = cn("Component")
   public val DIE: ClassName = cn("Die")
   public val HIDDEN: ClassName = cn("Hidden")
@@ -30,9 +32,9 @@ public object SystemClasses {
   public val SYSTEM: ClassName = cn("System")
   public val MUST_CLEAN_UP: ClassName = cn("MustCleanUp")
   public val TEMPORARY: ClassName = cn("Temporary")
-  public val ANYONE: ClassName = cn("Anyone")
-  public val OWNED: ClassName = cn("Owned")
   public val OWNER: ClassName = cn("Owner")
+  public val OWNED: ClassName = cn("Owned")
+  public val ANYONE: ClassName = cn("Anyone")
 
   // Classes not defined in SystemDeclarations.kt but which need to be defined by the game somewhere
 

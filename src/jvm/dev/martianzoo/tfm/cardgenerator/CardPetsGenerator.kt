@@ -12,7 +12,6 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
-import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric.Count
@@ -44,7 +43,7 @@ internal object CardPetsGenerator {
         .trimEnd() + '\n'
   }
 
-  private class GeneratedCard(private val data: CardDefinition) {
+  internal class GeneratedCard(private val data: CardDefinition) {
     private val className = cn(data.name)
     private val derivedClasses = DerivedClassLowerer(className)
 
@@ -65,17 +64,12 @@ internal object CardPetsGenerator {
       !it.node.automatic && it.node.trigger == Effect.Trigger.WhenGain
     }
     private val otherEffects = effects.filter { it.node.trigger != Effect.Trigger.WhenGain }
-    private val generatedTagEffect =
-        immediateToEffect(
-            InstructionGroup.createTree(
-                data.tags.groupingBy(::cn).eachCount().map { (tag, count) ->
-                  gain(tag.of(THIS), count, quantifier = null)
-                }
-            ),
-            true,
-        )
+    private val tagCounts = data.tags.groupingBy(::cn).eachCount()
+    private val invariants =
+        (data.invariants + tagCounts.map { (tag, count) -> "=$count $tag<This>" })
+            .map { parseOwned<Requirement>(it) }
+            .distinctBy { it.node }
     private val componentClasses = data.components.map(::parseOneLinerClass)
-    private val invariants = data.invariants.map { parseOwned<Requirement>(it) }
     private val requirement: Requirement? =
         data.requirement?.let { parseOwned<Requirement>(it).node }
     private val autoSelectWhen: Requirement? =
@@ -96,11 +90,11 @@ internal object CardPetsGenerator {
           )
       val supertypes =
           if (projectKind != null) {
-            roles.toSet()
+            roles
           } else if (roles.isEmpty()) {
-            setOf(CARD_FRONT.of(cardBack))
+            listOf(CARD_FRONT.of(cardBack))
           } else {
-            buildSet {
+            buildList {
               add(roles.first().appendArguments(listOf(cardBack)))
               addAll(roles.drop(1))
             }
@@ -109,10 +103,15 @@ internal object CardPetsGenerator {
           className = className,
           kind = CONCRETE,
           supertypes = supertypes,
-          invariants = invariants.mapTo(linkedSetOf(), Parsed<Requirement>::node),
+          invariants =
+              setOfNotNull(
+                  invariants
+                      .map(Parsed<Requirement>::node)
+                      .takeIf { it.isNotEmpty() }
+                      ?.let(Requirement.And::create)
+              ),
           authoredEffects =
               authoredAutomaticThisEffects.map(Parsed<Effect>::node) +
-                  listOfNotNull(generatedTagEffect) +
                   onPlayEffects +
                   authoredThisEffects.map(Parsed<Effect>::node) +
                   otherEffects.map(Parsed<Effect>::node),
@@ -128,13 +127,14 @@ internal object CardPetsGenerator {
 
     internal fun render(): String = buildString {
       append("CLASS ${declaration.className}")
-      declaration.supertypes.sortedBy(Expression::toString).joinTo(this, ", ", " : ")
+      declaration.supertypes.joinTo(this, ", ", " : ")
       appendLine(" {")
       declaration.properties.forEach { (name, value) -> appendLine("  $name = $value") }
-      invariants.forEach { appendLine("  HAS ${it.render()}") }
+      if (invariants.isNotEmpty()) {
+        appendLine(invariants.joinToString(", ", "  HAS ") { it.render() })
+      }
       val renderedEffects = buildList {
         authoredAutomaticThisEffects.mapTo(this) { it.render() }
-        generatedTagEffect?.let { add(it.toString()) }
         immediate?.let { add("This: ${it.render()}") }
         authoredThisEffects.mapTo(this) { it.render() }
         otherEffects.mapTo(this) { it.render() }
@@ -178,7 +178,7 @@ internal object CardPetsGenerator {
             .flatMap { it.descendantsOfType<Count>() }
             .mapTo(this) { it.expression.className }
       }
-      val candidates = (heldByThis intersect used).toMutableSet()
+      val candidates = ((heldByThis intersect used) - ACCEPTING_FROM_CARD).toMutableSet()
       componentClasses
           .filter { declaration ->
             declaration.supertypes.none { it.className == CARD_RESOURCE }

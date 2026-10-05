@@ -1,0 +1,535 @@
+package dev.martianzoo.pets
+
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.FromExpression.Compact
+import dev.martianzoo.pets.ast.FromExpression.Full
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Each
+import dev.martianzoo.pets.ast.Instruction.Gain
+import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
+import dev.martianzoo.pets.ast.Instruction.Gated
+import dev.martianzoo.pets.ast.Instruction.NoOp
+import dev.martianzoo.pets.ast.Instruction.Or
+import dev.martianzoo.pets.ast.Instruction.Quantifier.AMAP
+import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
+import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
+import dev.martianzoo.pets.ast.Instruction.Remove
+import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
+import dev.martianzoo.pets.ast.Instruction.Then
+import dev.martianzoo.pets.ast.Instruction.Transmute
+import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
+import dev.martianzoo.pets.ast.localTypeVariableDeclarations
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import kotlin.test.Test
+
+/** Section 2 of `docs/pets-language-spec.md`: instructions as relations between two states. */
+internal class Lang02InstructionsTest {
+
+  // L2-1 The three elementary instructions
+
+  @Test
+  internal fun `L2-1 gain, removal and transmutation`() {
+    val gained = parse<Instruction>("4 Plant<Player2>") as Gain
+    gained.count shouldBe ActualScalar(4)
+    gained.gaining shouldBe parse<Expression>("Plant<Player2>")
+    gained.removing shouldBe null
+
+    val removed = parse<Instruction>("-8 Heat<Player1>") as Remove
+    removed.count shouldBe ActualScalar(8)
+    removed.removing shouldBe parse<Expression>("Heat<Player1>")
+    removed.gaining shouldBe null
+
+    val moved = parse<Instruction>("3 Plant<Player4> FROM Plant<Player2>") as Transmute
+    moved.count shouldBe ActualScalar(3)
+    moved.gaining shouldBe parse<Expression>("Plant<Player4>")
+    moved.removing shouldBe parse<Expression>("Plant<Player2>")
+
+    gain(cn("Plant")) shouldBe parse<Instruction>("Plant!")
+    remove(cn("Plant"), count = 3, quantifier = AMAP) shouldBe parse<Instruction>("-3 Plant.")
+  }
+
+  @Test
+  internal fun `L2-1 programmatic changes need a type and a nonnegative count`() {
+    shouldThrow<IllegalArgumentException> {
+      Instruction.Change.change(gaining = cn("Plant").expression, count = -1)
+    }
+    shouldThrow<NullPointerException> { Instruction.Change.change() }
+  }
+
+  // L2-2 Counts
+
+  @Test
+  internal fun `L2-2 a count that no integer can hold is a syntax error`() {
+    shouldThrow<PetSyntaxException> { parse<Instruction>("999999999999999999999999999999 Plant") }
+  }
+
+  @Test
+  internal fun `L2-2 a count is a positive integer or X, with an optional coefficient`() {
+    (parse<Instruction>("Plant") as Gain).count shouldBe ActualScalar(1)
+    (parse<Instruction>("11 Plant") as Gain).count shouldBe ActualScalar(11)
+    (parse<Instruction>("X Plant") as Gain).count shouldBe XScalar(1)
+    (parse<Instruction>("2X Plant") as Gain).count shouldBe XScalar(2)
+    shouldThrow<PetSyntaxException> { parse<Instruction>("0 Plant") }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("-0 Plant") }
+    shouldThrow<IllegalArgumentException> { parse<Instruction>("Plant") * -1 }
+  }
+
+  // L2-3 Quantifiers
+
+  @Test
+  internal fun `L2-3 a quantifier says how much of the count must happen`() {
+    (parse<Instruction>("2 Plant!") as Gain).quantifier shouldBe MANDATORY
+    (parse<Instruction>("2 Plant.") as Gain).quantifier shouldBe AMAP
+    (parse<Instruction>("2 Plant?") as Gain).quantifier shouldBe OPTIONAL
+    (parse<Instruction>("2 Plant") as Gain).quantifier shouldBe null
+    shouldThrow<PetSyntaxException> { parse<Instruction>("2 Plant!?") }
+  }
+
+  // L2-4 Compact transmutation
+
+  @Test
+  internal fun `L2-4 a compact transmutation changes exactly one argument`() {
+    val compact = parse<Instruction>("Marker<Mars1, Player1 FROM Player2>") as Transmute
+
+    compact.gaining shouldBe parse<Expression>("Marker<Mars1, Player1>")
+    compact.removing shouldBe parse<Expression>("Marker<Mars1, Player2>")
+    (compact.fromEx is Compact) shouldBe true
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Marker<Mars1 FROM Mars2, P1 FROM P2>") }
+
+    parse<Instruction>("Marker<Player1> FROM Marker<Player2>").let {
+      ((it as Transmute).fromEx is Full) shouldBe true
+    }
+    roundTrip<InstructionTree>("Marker<Mars1 FROM Mars2>(HAS Plant)")
+    shouldThrow<PetSyntaxException> { Compact(cn("Marker"), emptyList()) }
+  }
+
+  // L2-5 Ok
+
+  @Test
+  internal fun `L2-5 Ok is the instruction that relates a state to itself`() {
+    parse<InstructionTree>("Ok") shouldBe NoOp
+    NoOp.toString() shouldBe "Ok"
+    parse<InstructionTree>("Ok, Plant") shouldBe parse<InstructionTree>("Plant")
+    InstructionGroup.of(listOf<InstructionTree>(NoOp)).isEmpty() shouldBe true
+    InstructionGroup.createTree(listOf<InstructionTree>(NoOp)) shouldBe NoOp
+    shouldThrow<PetSyntaxException> { InstructionGroup(listOf(NoOp)) }
+  }
+
+  // L2-6 PER
+
+  @Test
+  internal fun `L2-6 a slash scales an elementary change by a metric`() {
+    val per = parse<Instruction>("Titanium / 3 EarthTag") as Instruction.Per
+
+    per.inner shouldBe parse<Instruction>("Titanium")
+    per.metric shouldBe parse("3 EarthTag")
+    parse<Instruction>("1 Titanium / EarthTag") shouldBe parse<Instruction>("Titanium / EarthTag")
+    parse<Instruction>("-1 Titanium / EarthTag") shouldBe parse<Instruction>("-Titanium / EarthTag")
+    shouldThrow<PetSyntaxException> { parse<Instruction>("(Plant, Heat) / Steel") }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("(Plant OR Heat) / Steel") }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("(Plant FROM Heat) / Steel") }
+  }
+
+  // L2-7 Gates
+
+  @Test
+  internal fun `L2-7 a gate binds less tightly than OR and does not nest directly`() {
+    val gated = parse<Instruction>("3 PlantTag: Plant OR 4 Plant") as Gated
+
+    (gated.inner is Or) shouldBe true
+    gated.toString() shouldBe "3 PlantTag: Plant OR 4 Plant"
+    parse<Instruction>("3 PlantTag: (Plant OR 4 Plant)").toString() shouldBe
+        "3 PlantTag: Plant OR 4 Plant"
+
+    val alternatives = parse<Instruction>("(3 PlantTag: 4 Plant) OR Plant") as Or
+    (alternatives.instructions.first() is Gated) shouldBe true
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant OR 3 PlantTag: 4 Plant") }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant: Heat: Steel") }
+  }
+
+  // L2-8 OR
+
+  @Test
+  internal fun `L2-8 authored duplicate alternatives are rejected and constructed ones collapse`() {
+    parse<Instruction>("Plant OR Heat").toString() shouldBe "Plant OR Heat"
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant OR Plant") }
+    Or.create(listOf(parse("Plant"), parse("Plant"))) shouldBe parse("Plant")
+    PetNode.replacer(parse<Expression>("Heat"), parse<Expression>("Plant"))
+        .transformInstruction(parse("Plant OR Heat")) shouldBe parse("Plant")
+  }
+
+  // L2-9 Groups
+
+  @Test
+  internal fun `L2-9 a comma makes a group, which is not one instruction`() {
+    parse<InstructionTree>("Plant, Heat") shouldBe
+        InstructionGroup(listOf(parse("Plant"), parse("Heat")))
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant, Heat") }
+  }
+
+  @Test
+  internal fun `L2-9 groups flatten and a group of one is that one`() {
+    parse<InstructionTree>("(Plant)") shouldBe parse<InstructionTree>("Plant")
+    InstructionGroup.of(listOf(parse<InstructionTree>("Plant, Heat"), parse("Steel")))
+        .instructions shouldBe listOf(parse("Plant"), parse("Heat"), parse("Steel"))
+    InstructionGroup.createTree(listOf(parse<InstructionTree>("Plant"))) shouldBe
+        parse<InstructionTree>("Plant")
+  }
+
+  // L2-10 THEN
+
+  @Test
+  internal fun `L2-10 THEN is one right-associative sequence of stages`() {
+    val then = parse<Instruction>("Plant THEN Heat THEN Steel") as Then
+
+    then.stages shouldBe listOf(parse<Instruction>("Plant"), parse<Instruction>("Heat"))
+    then.continuation shouldBe parse<Instruction>("Steel")
+    then.instructions.size shouldBe 3
+    parse<Instruction>("Plant THEN (Heat THEN Steel)") shouldBe then
+    shouldThrow<IllegalStateException> {
+      then.withInstructions(listOf(parse<InstructionTree>("Plant")))
+    }
+  }
+
+  @Test
+  internal fun `L2-10 a stage before the last is one instruction`() {
+    shouldThrow<PetSyntaxException> { parse<Instruction>("(Plant THEN Heat) THEN Steel") }
+    shouldThrow<PetSyntaxException> { parse<InstructionTree>("(Plant, Heat) THEN Steel") }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("((Plant THEN Heat) OR Steel) THEN Ore") }
+    parse<InstructionTree>("Plant THEN (Heat, Steel)").toString() shouldBe
+        "Plant THEN (Heat, Steel)"
+  }
+
+  // L2-11 X across one instruction
+
+  @Test
+  internal fun `L2-11 X may span a sequence`() {
+    parse<InstructionTree>("X Plant THEN 2X Heat").toString() shouldBe "X Plant THEN 2X Heat"
+  }
+
+  @Test
+  internal fun `L2-11 a group links nothing, so each member has its own X`() {
+    val group = parse<InstructionTree>("X Plant, X Heat") as InstructionGroup
+    group.size shouldBe 2
+    group.toString() shouldBe "X Plant, X Heat"
+  }
+
+  @Test
+  internal fun `L2-11 a member's X can be a use of one introduced around the group`() {
+    roundTrip<Action>("X Heat -> X Steel, X Plant")
+    roundTrip<Effect>("X Plant: X Heat, X Steel")
+    roundTrip<InstructionTree>("X Plant THEN (X Heat, X Steel)")
+  }
+
+  // L2-12 named Type variables across a sequence
+
+  @Test
+  internal fun `L2-12 a THEN stage can name a Type used by a later stage`() {
+    roundTrip<Instruction>("@Plant THEN @Plant")
+    roundTrip<Instruction>("Foo<@Plant> THEN Bar<@Plant>")
+    roundTrip<Instruction>("Foo<Class<@Plant>> THEN @Plant<Anyone>")
+    roundTrip<Instruction>("@Plant THEN Foo<Bar(HAS Baz<@Plant>)>")
+    roundTrip<Instruction>("@CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<@CityTile>)>")
+  }
+
+  @Test
+  internal fun `L2-12 a THEN Type-variable marker must be shared`() {
+    shouldThrow<PetSyntaxException> { parse<Instruction>("@Plant THEN Heat") }
+    roundTrip<Instruction>("@Plant THEN @Plant THEN @Plant")
+    shouldThrow<PetSyntaxException> { parse<Instruction>("@Plant THEN @Plant<Steel>") }
+
+    roundTrip<Instruction>("Foo<@Bar> THEN (Qux<@Bar>, EACH @Bar { @Bar })")
+  }
+
+  @Test
+  internal fun `L2-12 an observing expression may precede the occurrence that supplies a variable`() {
+    roundTrip<Instruction>("Plant / @Steel THEN @Steel")
+    roundTrip<Instruction>("Plant(NOT @Steel) THEN @Steel")
+  }
+
+  // L2-13 named Type variables across a transmutation
+
+  @Test
+  internal fun `L2-13 a transmutation destination can name a Type used by its source`() {
+    roundTrip<Instruction>("Foo<@Plant> FROM Bar<@Plant>")
+    roundTrip<Instruction>("Foo<Class<@Plant>> FROM @Plant<Anyone>")
+    roundTrip<Effect>("Foo: Bar<@Plant> FROM Baz<@Plant>")
+    roundTrip<Action>("Foo -> Bar<@Plant> FROM Baz<@Plant>")
+    roundTrip<Instruction>("Foo<@Plant> FROM Bar<@Plant> THEN Baz<@Heat> FROM Qux<@Heat>")
+  }
+
+  @Test
+  internal fun `L2-13 an enclosing sequence can own a name declared inside a transmutation`() {
+    roundTrip<Instruction>("Foo FROM Bar<@Plant> THEN @Plant")
+  }
+
+  @Test
+  internal fun `L2-13 a transmutation marker must be shared by its sides`() {
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Foo<@Plant> FROM Bar") }
+    roundTrip<Instruction>("Foo<@Plant, @Plant> FROM Bar<@Plant>")
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("Foo<@Plant> FROM Bar<@Plant> THEN @Plant")
+    }
+  }
+
+  @Test
+  internal fun `L2-13 an observing expression uses a source variable but cannot declare one`() {
+    roundTrip<Instruction>("Foo(HAS Baz<@Plant>) FROM Bar<@Plant>")
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("Foo(HAS Baz<@Plant>) FROM Bar(HAS Qux<@Plant>)")
+    }
+  }
+
+  // L2-14 EACH
+
+  /**
+   * This module can pin the fanout's syntax and scope. Enumerating a live world and rejecting a
+   * concrete selector happen where the fanout is resolved:
+   * `test/common/dev/martianzoo/engine/EachSelectorBindingTest.kt` and
+   * `InstructionResolutionTest.kt`.
+   */
+  @Test
+  internal fun `L2-14 EACH names a selector and a body`() {
+    val each = parse<Instruction>("EACH Player { 2 Plant, Heat }") as Each
+
+    each.selector shouldBe parse<Expression>("Player")
+    each.body shouldBe parse<InstructionTree>("2 Plant, Heat")
+    "$each" shouldBe "EACH Player { 2 Plant, Heat }"
+  }
+
+  @Test
+  internal fun `L2-14 explicit selector names bind only their body references`() {
+    val player = parse<Instruction>("EACH @Player(NOT Player1) { Plant<@Player> }") as Each
+    player.body
+        .descendantsOfType<Expression>()
+        .single { it.className == cn("Player") }
+        .refinement shouldBe null
+    player.bodyFor(parse("Player2")) shouldBe parse<InstructionTree>("Plant<Player2>")
+
+    val unnamed = parse<Instruction>("EACH Player { Plant<Player> }") as Each
+    unnamed.bodyFor(parse("Player2")) shouldBe parse<InstructionTree>("Plant<Player>")
+
+    val constrained = parse<Instruction>("EACH @Token<Anyone> { -@Token }") as Each
+    constrained.body
+        .descendantsOfType<Expression>()
+        .single { it.className == cn("Token") }
+        .arguments shouldBe listOf(parse("Anyone"))
+    constrained.bodyFor(parse("RedToken<Player2>")) shouldBe
+        parse<InstructionTree>("-RedToken<Player2>")
+
+    val represented = parse<Instruction>("EACH Class<@Area> { @Area }") as Each
+    represented.bodyFor(parse("Class<MarsArea>")) shouldBe parse<InstructionTree>("MarsArea")
+
+    val applied = parse<Instruction>("EACH Class<@Area> { Tile<@Area<Anyone>> }") as Each
+    applied.bodyFor(parse("Class<MarsArea>")) shouldBe
+        parse<InstructionTree>("Tile<MarsArea<Anyone>>")
+
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("EACH @Area { Tile<@Area<Anyone>> }")
+    }
+  }
+
+  @Test
+  internal fun `L2-14 a selector supplies matching markers inside a full transmutation`() {
+    val each =
+        parse<Instruction>(
+            "EACH Selected@Player { Winner<Selected@Player> FROM Candidate<Selected@Player> }"
+        )
+            as Each
+
+    each.bodyFor(parse("Player2")) shouldBe
+        parse<InstructionTree>("Winner<Player2> FROM Candidate<Player2>")
+    (each.body as Transmute).localTypeVariableDeclarations() shouldBe emptyList()
+  }
+
+  @Test
+  internal fun `L2-14 a full transmutation may still declare a differently named local variable`() {
+    val each =
+        parse<Instruction>(
+            "EACH Selected@Player { " +
+                "Winner<Local@Player> FROM Candidate<Local@Player>, Prize<Selected@Player> }"
+        )
+            as Each
+    val transmute = each.body.descendantsOfType<Transmute>().single()
+
+    transmute.localTypeVariableDeclarations().map { it.typeVariableName!!.name } shouldBe
+        listOf("Local")
+    each.bodyFor(parse("Player2")).toString() shouldBe
+        "Winner<Local@Player> FROM Candidate<Local@Player>, Prize<Player2>"
+  }
+
+  @Test
+  internal fun `L2-14 nested scopes choose anonymous and named markers independently`() {
+    val anonymousOuter =
+        parse<Instruction>(
+            "EACH @Player { " +
+                "Winner<Local@Player> FROM Candidate<Local@Player>, Prize<@Player> }"
+        )
+            as Each
+    val namedInner = anonymousOuter.body.descendantsOfType<Transmute>().single()
+    namedInner.localTypeVariableDeclarations().map { it.typeVariableName!!.name } shouldBe
+        listOf("Local")
+
+    val namedOuter =
+        parse<Instruction>(
+            "EACH Selected@Player { " +
+                "Winner<@Player> FROM Candidate<@Player>, Prize<Selected@Player> }"
+        )
+            as Each
+    val anonymousInner = namedOuter.body.descendantsOfType<Transmute>().single()
+    anonymousInner.localTypeVariableDeclarations().map { it.typeVariableName!!.name } shouldBe
+        listOf(null)
+  }
+
+  @Test
+  internal fun `L2-14 a fanout body may evaluate a class property per branch`() {
+    roundTrip<Instruction>("EACH Player { Score<Player> / EVAL Goal.metric }")
+  }
+
+  @Test
+  internal fun `L2-14 a fanout needs a body and does not nest`() {
+    shouldThrow<PetSyntaxException> { parse<Instruction>("EACH Player { Ok }") }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("EACH Player { EACH Area { Plant } }") }
+  }
+
+  // L2-15 BY
+
+  @Test
+  internal fun `L2-15 BY names the performer and distributes over a group`() {
+    (parse<Instruction>("Plant BY Player1") as Instruction.By).actor shouldBe
+        parse<Expression>("Player1")
+    parse<InstructionTree>("(Plant, Heat) BY Player1").toString() shouldBe
+        "Plant BY Player1, Heat BY Player1"
+  }
+
+  // L2-16 Precedence and rendering
+
+  @Test
+  internal fun `L2-16 instructions round-trip`() {
+    roundTripAll<InstructionTree>(
+        """
+        2 MC
+        Qux?
+        -5 MC
+        X Foo
+        -X MC?
+        Plant?
+        X Foo?
+        2 Plant
+        2X Abc.
+        X Plant
+        -11X Bar
+        -5 Plant
+        -X Plant?
+        2X Plant.
+        -11X Plant
+        -Foo<Qux>?
+        -MC, X Foo
+        X Wau<Qux>?
+        5 Foo BY Wau
+        Foo<Eep<Qux>>
+        -Plant, X Heat
+        -Plant<Steel>?
+        5 Plant BY Steel
+        5 MC, 2 Qux / Bar
+        2 Bar THEN MC: Xyz
+        Bar / PROD[Foo], MC
+        Foo FROM This / This
+        Foo / Bar MAX 5 - Qux
+        -MC / 2 Foo MAX 5, Bar
+        Plant FROM This / This
+        5 Foo(NOT Bar) FROM Ahh
+        5 Plant, 2 Heat / Steel
+        Ahh<Bar, Abc<Bar<Eep>>>
+        (Foo: Xyz) OR -Bar / Foo
+        2 Heat THEN Plant: Steel
+        Abc(HAS 5 Foo(NOT Bar))?
+        -11X MC?, PROD[Bar] OR Ok
+        Heat / PROD[Plant], Steel
+        (MAX 0 Foo, MAX 1 Foo): Ok
+        Qux THEN X Qux, MC, 5 Foo.
+        Foo(NOT Abc<Foo<Bar<Foo>>>)
+        (5 Xyz FROM Bar) BY Ooh<Wau>
+        -Steel / 2 Plant MAX 5, Heat
+        5 Plant(NOT Steel) FROM Heat
+        Ok BY Eep<Foo(NOT Qux<Qux>)>
+        Ahh<Abc> THEN Qux, PROD[-Qux]
+        EACH Player { 2 Plant, Heat }
+        Steel(HAS 5 Plant(NOT Heat))?
+        X Bar(NOT Qux<Foo, Ooh<Bar>>)
+        Foo, Foo(HAS 2 Bar) / Bar<Foo>
+        (MC: MC, -MC!, Xyz, -MC) OR Foo
+        (Plant: Steel) OR -Heat / Plant
+        X Wau FROM Bar, Foo / PROD[3 Qux]
+        Ok BY Steel<Plant(NOT Heat<Heat>)>
+        2 Abc(HAS MC) FROM Foo, 5 MC, 5 Bar
+        Foo(HAS Abc)!, Xyz OR 2 Abc<Ooh>, MC
+        11X Wau<Ahh>(HAS MC OR Abc) FROM Abc.
+        2X Qux / 2 Abc OR (-2 Ahh<Foo>., Qux)
+        -2 Abc<Xyz<Qux>, Bar<Foo>>., Ok OR Abc
+        PROD[Ok OR (MC: Foo)], PROD[2 Ahh / Qux]
+        Bar(HAS Abc) / Eep<Abc>, 5 Bar., MC / Bar
+        2 Ahh, MAX 0 MC: Qux?, Abc?, Qux<Bar, Qux>
+        EACH Player(NOT Player1) { Plant<Player> }
+        X Ooh<Qux<Abc<Qux>>>?, -Qux<Xyz<Qux<Abc>>>
+        MC, X Foo, Foo? / Ooh, Ok THEN Ok THEN 2 Bar
+        (-Foo, Foo, MC) OR Foo BY Qux, PROD[Xyz<Abc>]
+        2 Heat(HAS Plant) FROM Steel, 5 Plant, 5 Heat
+        Foo(NOT Bar), 5 MC BY Abc<Xyz<Bar<Bar<Qux>>>>
+        (MC OR Abc): 2 MC, 11 Qux: MC / Foo<Bar>, -Abc
+        -2 Ooh OR Foo / Foo, Xyz, -X Abc, Ooh FROM Bar
+        X Ahh FROM Bar<Qux<Xyz(HAS MC OR (MC OR Qux))>>
+        Bar<Ooh<Bar>> FROM Qux, Abc FROM Abc / 2 (3 Foo)
+        MC, Abc<Foo<Ahh>, Foo<Abc<Bar>, Foo, Foo>, Xyz>.
+        MC, 5X Ahh., Bar / PROD[Foo], PROD[Ok BY Foo<Bar>]
+        ((Foo OR =1 MC) OR MAX 2 Ooh): (MC, Bar.) OR X Bar.
+        MC?, -Bar<Qux> / PROD[Bar], Foo<Ooh<Foo, Bar, Bar>>!
+        -5 Foo OR (Eep OR Foo), Bar BY Foo, MC, -Qux<Qux> / Bar
+        2 Qux!, Foo FROM Foo, X Bar<Qux<Foo>>. BY Wau<Xyz, Ahh>
+        X MC? OR Foo<Qux>. / Xyz<Bar> OR -X Foo<Abc<Foo, Foo>>.
+        MC / PROD[PROD[Bar]], 5X Ahh FROM Bar<Foo, Foo<Bar, Foo>>!
+        (Foo OR Ahh<Qux>): (Ok BY Foo(NOT Bar)) BY Eep<Foo<Abc<Qux>>>
+        Qux / 2 Abc<Bar>, MC OR (Foo, Qux, MC), -Foo, 2 Bar FROM Wau?
+        Wau<Foo> FROM Foo!, (MC: 2 MC) OR (MC, 2 MC / Foo) OR -Qux / Foo
+        (Plant OR Heat): (Ok BY Plant(NOT Steel)) BY Heat<Plant<Steel<Heat>>>
+        -X Wau<Ahh<Ahh>, Bar(NOT Foo<Abc>)>, PROD[-MC OR Foo FROM Qux<Abc>]
+        Steel<Heat> FROM Plant!, (Heat: 2 Heat) OR (Heat, 2 Heat / Plant) OR -Steel / Plant
+        """
+    )
+  }
+
+  @Test
+  internal fun `L2-16 a backslash before a line ending continues an instruction`() {
+    roundTrip<InstructionTree>("Plant\\\r\n OR Heat", "Plant OR Heat")
+  }
+
+  @Test
+  internal fun `L2-16 grouping is re-inserted wherever re-parsing needs it`() {
+    roundTrip<InstructionTree>("Plant FROM This / This")
+    roundTrip<InstructionTree>("Plant: (Heat, -5 Steel)")
+    roundTrip<InstructionTree>("(Plant, Heat) OR Steel")
+    roundTrip<InstructionTree>("(Plant FROM Heat) OR Steel", "Plant FROM Heat OR Steel")
+    roundTrip<InstructionTree>("Plant FROM Heat OR Steel")
+    roundTrip<InstructionTree>("Plant OR Heat FROM Steel")
+    roundTrip<Effect>("ScienceTag: ProjectCard FROM ProjectCard OR Ok")
+    roundTrip<InstructionTree>("Plant OR Heat THEN Steel", "(Plant OR Heat) THEN Steel")
+    roundTrip<InstructionTree>(
+        "PROD[MC, -MC., PROD[MC: -MC], (MC, (Bar, 5 Foo))]",
+        "PROD[MC, -MC., PROD[MC: -MC], MC, Bar, 5 Foo]",
+    )
+    roundTrip<InstructionTree>(
+        "PROD[(Ooh / MC, Foo, MC), Bar / Bar THEN MC, MC]",
+        "PROD[Ooh / MC, Foo, MC, Bar / Bar THEN MC, MC]",
+    )
+  }
+}

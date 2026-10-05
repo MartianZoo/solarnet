@@ -1,12 +1,15 @@
-plugins { id("solarnet.kmp-jvm-js") }
+import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
+import org.gradle.testing.jacoco.tasks.JacocoReport
+
+plugins {
+  id("solarnet.kmp-jvm-js")
+  jacoco
+}
 
 val commonSourceDirectory =
     rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/pets")
-val commonTestSupportDirectory =
-    rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/testsupport")
 val commonTestDirectories =
     listOf(
-        commonTestSupportDirectory,
         rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/pets"),
         rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/pets"),
         rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/testlib"),
@@ -45,5 +48,28 @@ kotlin {
           listOf(rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/pets"))
       )
     }
+  }
+}
+
+val jvmMainCompilation = kotlin.targets.getByName("jvm").compilations.getByName("main")
+val jvmTest by tasks.existing(Test::class)
+
+tasks.register<JacocoReport>("jvmTestCoverage") {
+  group = LifecycleBasePlugin.VERIFICATION_GROUP
+  description = "Runs the Pets JVM test suite and reports Pets production-code coverage."
+  dependsOn(jvmTest)
+  executionData(
+      jvmTest.map { task ->
+        requireNotNull(task.extensions.getByType<JacocoTaskExtension>().destinationFile)
+      }
+  )
+  classDirectories.from(jvmMainCompilation.output.classesDirs)
+  sourceDirectories.from(
+      commonSourceDirectory,
+      rootProject.layout.projectDirectory.dir("src/jvm/dev/martianzoo/pets"),
+  )
+  reports {
+    html.required.set(true)
+    xml.required.set(true)
   }
 }

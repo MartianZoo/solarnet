@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.ExistingDependentsException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.api.SystemClasses.SIGNAL
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
@@ -164,14 +165,21 @@ public class ComponentGraph internal constructor(private val classTable: ClassTa
 
   /** Removes and/or gains [count] copies while keeping structural indexes synchronized. */
   internal fun applyChange(count: Int, gaining: Component?, removing: Component?) {
+    if (
+        gaining != null &&
+            gaining == removing &&
+            !gaining.type.rootClass.isSubtypeOf(classTable.getClass(SIGNAL))
+    ) {
+      throw ExpressionException("a transmutation must change its type: $gaining")
+    }
     listOfNotNull(gaining, removing).forEach {
       requireOwnClassTable(it.type)
       if (!classTable.isInhabited(it.type)) {
         throw ExpressionException("uninhabited type has no components: ${it.type}")
       }
-      if (it.isCustom) {
+      if (it.type.rootClass.declaration.customMetric) {
         throw ExpressionException(
-            "Custom component `${it.expressionFull}` cannot enter ComponentGraph"
+            "Custom metric `${it.expressionFull}` cannot enter ComponentGraph"
         )
       }
     }

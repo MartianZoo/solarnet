@@ -10,16 +10,16 @@ import dev.martianzoo.pets.ast.Instruction.NoOp
  * comma has the lowest precedence of all instruction operators, and its result is a group rather
  * than one instruction: nothing in this language relates the members to each other, which is
  * exactly what makes them independent ([rule
- * L6-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+ * L2-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
  *
  * Groups flatten, `Ok` vanishes from one rather than appearing as an empty member, and empty and
  * singleton batches render as their canonical Pets trees ([NoOp] and the sole instruction); their
  * wrapper identity is not part of the source representation. Groups narrow elementwise: members are
  * matched by position and the sizes must agree ([rule
- * L7-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+ * L3-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
  * A group creates no linkage at all between its members, so an `X` in one member is never the same
  * amount as an `X` in another; each is linked only to an `X` introduced around the group ([rule
- * L6-14](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+ * L2-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
  */
 public data class InstructionGroup(val instructions: List<Instruction>) : InstructionTree() {
   /** How many independent instructions this group holds. */
@@ -37,9 +37,9 @@ public data class InstructionGroup(val instructions: List<Instruction>) : Instru
 
   override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
     proposed as? InstructionGroup
-        ?: throw NarrowingException("$proposed does not narrow grouped instruction $this")
+        ?: throw NarrowingException("`$proposed` does not narrow instruction group `$this`")
     if (proposed.instructions.size != instructions.size) {
-      throw NarrowingException("$proposed does not narrow grouped instruction $this")
+      throw NarrowingException("`$proposed` does not narrow instruction group `$this`")
     }
     for ((wide, narrow) in instructions.zip(proposed.instructions)) {
       narrow.ensureNarrows(wide, info)
@@ -57,7 +57,7 @@ public data class InstructionGroup(val instructions: List<Instruction>) : Instru
 
   init {
     if (instructions.any { it == NoOp }) {
-      throw PetSyntaxException("Instruction groups cannot contain Ok")
+      throw PetSyntaxException("instruction groups cannot contain `Ok`")
     }
   }
 

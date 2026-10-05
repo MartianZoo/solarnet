@@ -27,8 +27,9 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskResult
@@ -61,6 +62,9 @@ internal abstract class TfmTest {
     get() = agents.tfm(ADMIN)
 
   protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
+
+  protected fun TfmGameplay<*>.auditGainsSince(checkpoint: Checkpoint): Int =
+      game.events.changesSince(checkpoint).count { it.change.gaining?.type == resolve("Audit") }
 
   protected fun <T> OperationScope.doWithoutAutoExec(
       agent: TfmGameplay<*>,
@@ -271,7 +275,7 @@ internal abstract class TfmTest {
   }
 
   private fun tilePlacement(
-      reader: dev.martianzoo.pets.api.GameReader,
+      reader: dev.martianzoo.state.GameReader,
       tasks: List<Task>,
       row: Int,
       column: Int,
@@ -292,7 +296,7 @@ internal abstract class TfmTest {
   }
 
   private fun cardResources(
-      reader: dev.martianzoo.pets.api.GameReader,
+      reader: dev.martianzoo.state.GameReader,
       tasks: List<Task>,
       card: ClassName,
       count: Int?,
@@ -302,15 +306,16 @@ internal abstract class TfmTest {
         requireNotNull(cardResourceType(reader.tfmCatalog.card(card))) {
           "$card does not hold card resources"
         }
+    val resourceClass = reader.resolve(resourceType.expression).rootClass
+    val cardClass = reader.resolve(card.expression).rootClass
     val gain =
         tasks
             .flatMap { it.instruction.descendantsOfType<Gain>() }
             .single {
+              val gaining = reader.resolve(it.gaining)
               (count == null || it.count == ActualScalar(count)) &&
-                  reader
-                      .resolve(resourceType.expression)
-                      .rootClass
-                      .isSubtypeOf(reader.resolve(it.gaining).rootClass)
+                  resourceClass.isSubtypeOf(gaining.rootClass) &&
+                  cardClass.isSubtypeOf(gaining.typeDependencies.last().boundType.rootClass)
             }
     val arguments = gain.gaining.arguments.toMutableList()
     if (arguments.isEmpty()) arguments += card.expression
@@ -321,7 +326,7 @@ internal abstract class TfmTest {
 
   private fun singleDeclinableTaskId(
       tasks: List<Task>,
-      reader: dev.martianzoo.pets.api.GameReader,
+      reader: dev.martianzoo.state.GameReader,
       instruction: String,
   ): TaskId {
     val matches = tasks.filter { task ->

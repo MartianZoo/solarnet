@@ -1,27 +1,9 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.generated.CimmeriaMap
-import dev.martianzoo.generated.Class
-import dev.martianzoo.generated.Energizer
-import dev.martianzoo.generated.Farmer
-import dev.martianzoo.generated.Hoverlord
-import dev.martianzoo.generated.Magnate
-import dev.martianzoo.generated.Manufacturer
-import dev.martianzoo.generated.Metropolist
-import dev.martianzoo.generated.Philantropist
-import dev.martianzoo.generated.Prelude2CardPack
-import dev.martianzoo.generated.PreludeExpansion
-import dev.martianzoo.generated.Producer
-import dev.martianzoo.generated.PromoCardPack
-import dev.martianzoo.generated.RimSettler
-import dev.martianzoo.generated.SpaceBaron
-import dev.martianzoo.generated.Suburbian
-import dev.martianzoo.generated.TerralabsResearch
-import dev.martianzoo.generated.Venuphile
-import dev.martianzoo.generated.VenusNextExpansion
-import dev.martianzoo.generated.gameConfig
+import dev.martianzoo.generated.TerraLabsResearch
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -32,42 +14,22 @@ import kotlin.test.assertEquals
 /** Physical game played Tuesday and Wednesday, 2026-08-25–26. */
 internal class OtbGame20260825Test : AbstractFullGameTest() {
   override val config =
-      gameConfig(
-          modules =
-              listOf(
-                  Class.of(CimmeriaMap),
-                  Class.of(VenusNextExpansion),
-                  Class.of(PreludeExpansion),
-                  Class.of(Prelude2CardPack),
-                  Class.of(PromoCardPack),
-              ),
-          milestones =
-              listOf(
-                  Class.of(Energizer),
-                  Class.of(Farmer),
-                  Class.of(Philantropist),
-                  Class.of(Producer),
-                  Class.of(RimSettler),
-                  Class.of(Hoverlord),
-              ),
-          awards =
-              listOf(
-                  Class.of(Magnate),
-                  Class.of(Manufacturer),
-                  Class.of(Metropolist),
-                  Class.of(SpaceBaron),
-                  Class.of(Suburbian),
-                  Class.of(Venuphile),
-              ),
-          cardFronts = listOf(Class.of(TerralabsResearch)),
-          extra = "FakeStuffBundle",
-          playerNames = listOf("Green", "Yellow"),
+      GameConfig(
+          """
+          CimmeriaMap
+          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack, TerraLabsResearch
+          FakeStuffBundle
+
+          Energizer, Farmer, Philantropist, Producer, RimSettler, Hoverlord
+          Magnate, Manufacturer, Metropolist, SpaceBaron, Suburbian, Venuphile
+          """,
+          "Green",
+          "Yellow",
       )
 
   @Test
   internal fun otbGame20260825() {
     TfmWorkflow.Automatic(agents).launch()
-    retainStartingProjects(10, 5)
     val green = player(1)
     val yellow = player(2)
 
@@ -76,7 +38,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     // Farmer, Philanthropist, Producer, Rim Settler, Hoverlord; Magnate, Manufacturer,
     // Metropolist, Space Baron, Suburbian, Venuphile."
     // "Terralabs research. I get 14 money and spend all 10 of it. Then I lose a TR."
-    green.playCorp(TerralabsResearch.name, 10).expect("4 MC, 10 ProjectCard, -TerraformRating")
+    green.playCorp(TerraLabsResearch.name, 10).expect("4 MC, 10 ProjectCard, -TerraformRating")
     // 9:31:05 pm: "I can play Viron for 48 and I spend 15 on five cards."
     yellow.playCorp(Viron, 5).expect("33 MC")
 
@@ -174,7 +136,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 2, temp = -30, oxygen = 1, oceans = 3, venus = 0)
 
-    // 9:47:18 pm: Green's direct Terralabs buttons record four one-M€ purchases; Yellow's app
+    // 9:47:18 pm: Green's direct TerraLabs buttons record four one-M€ purchases; Yellow's app
     // records two ordinary purchases for six M€.
     yellow.buyCards(2)
     green.buyCards(4)
@@ -285,7 +247,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "I'll just get my optimal arrow breaking down. For two titanium and one real."
       playProject(OptimalAerobraking, 1, titanium = 2)
       // Viral Enhancers costs 9 M€ and gives Green a plant.
-      playProject(ViralEnhancers, 9)
+      playProject(ViralEnhancers, 9) { doTask("Plant") }
     }
     green.turn {
       // "Let us sell one card." The sold card is Hermetic Order of Mars.
@@ -412,7 +374,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       cardAction1(GhgProducingBacteria)
     }
     green.turn {
-      playProject(ExtremeColdFungus, 13)
+      playProject(ExtremeColdFungus, 13) { doTask("Plant") }
       cardAction2(ExtremeColdFungus) { doTask("2 Microbe<$SulphurEatingBacteria>") }
     }
     yellow.turn {
@@ -464,7 +426,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
 
     green.assertCounts(
         14 to "ProjectCard",
-        1 to "${TerralabsResearch.name}",
+        1 to "${TerraLabsResearch.name}",
         1 to "$FakeHeadStart",
         1 to "$FocusedOrganization",
         1 to "$Advertising",
@@ -531,7 +493,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       assertResources(m = 32, s = 0, t = 4, p = 4, e = 1, h = 4)
     }
 
-    // 12:21:20 pm on Aug 26: Yellow buys two cards. Terralabs lets Green buy all four for 1 M€
+    // 12:21:20 pm on Aug 26: Yellow buys two cards. TerraLabs lets Green buy all four for 1 M€
     // apiece.
     yellow.buyCards(2)
     green.buyCards(4)
@@ -596,14 +558,13 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       cardAction1(GhgProducingBacteria)
     }
     green.turn {
-      // Venus Orbital Survey reveals Magnetic Field Dome and Energy Saving. Neither has a Venus
-      // tag, so Green buys both for 1 M€ apiece through Terralabs.
+      // Neither surveyed card had a Venus tag, so Green bought both for 1 M€ apiece through
+      // TerraLabs.
       cardAction1(VenusOrbitalSurvey) {
-            doTask("Ok")
-            doTask("Ok")
-            green.pay(mc = 2)
+            doTask("Ok") // Neither offered card has a Venus tag.
+            buyCards(2)
           }
-          .expect("2 ProjectCard")
+          .expect("2 ProjectCard, -2 MC")
     }
     yellow.turn {
       // "Pay seven for Venus Magnetizer."
@@ -613,7 +574,9 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     // third M€ required by the card, then remove it from Green after reproducing the physical play.
     yellow.exMachina("MC")
     green.turn {
-      playProject(LawSuit, 2) { doTask("3 MC<Green> FROM MC<Yellow>") }
+      playProject(LawSuit, 2) {
+        doTask("3 MC<Green> FROM MC<Yellow>")
+      }
     }
     green.exMachina("-MC")
     yellow.turn {
@@ -673,7 +636,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 7, temp = -18, oxygen = 8, oceans = 9, venus = 12)
 
-    // 12:45:28 pm: Green's Terralabs research costs 1 M€ per card; Yellow buys all four at the
+    // 12:45:28 pm: Green's TerraLabs research costs 1 M€ per card; Yellow buys all four at the
     // ordinary 3-M€ rate.
     green.buyCards(4)
     yellow.buyCards(4)
@@ -816,7 +779,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     yellow.exMachina("-MC")
 
     // "It's gen eight, which would make it my start ... let me get my absolute barrage of cards."
-    // Green's Terralabs research costs one M€ per card; Yellow's app records two cards bought for 6
+    // Green's TerraLabs research costs one M€ per card; Yellow's app records two cards bought for 6
     // M€.
     green.buyCards(4)
     yellow.buyCards(2)
@@ -881,11 +844,10 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "I will use Venus Orbital Survey to reveal Research Outpost and OmniCorp [sic] and pay two
       // money for them."
       cardAction1(VenusOrbitalSurvey) {
-            doTask("Ok")
-            doTask("Ok")
-            pay(2)
+            doTask("Ok") // Neither offered card has a Venus tag.
+            buyCards(2)
           }
-          .expect("2 ProjectCard")
+          .expect("2 ProjectCard, -2 MC")
     }
     yellow.turn {
       // "Ecological Zone! Pay 12." It goes at 7,8 and gains two animals from its own two tags.
@@ -895,7 +857,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "I'm going to play Symbiotic Fungus, which costs two money. It has a microbial tag, so
       // that means it would give me a microbe, but it doesn't actually take microbes. So I get a
       // plant. And then I'll use its action to add a microbe to Sulphur-Eating Bacteria."
-      playProject(SymbioticFungus, 2).expect("Plant")
+      playProject(SymbioticFungus, 2) { doTask("Plant") }.expect("Plant")
       cardAction1(SymbioticFungus) { doTask("Microbe<$SulphurEatingBacteria>") }
     }
     yellow.turn {
@@ -935,7 +897,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
 
       // "I have four money, so let's build Heather. That costs all four of my money ... Viral
       // Enhancers gives me a plant, and then it gives me a plant production and a plant."
-      playProject(Heather, 4).expect("PROD[Plant], 2 Plant")
+      playProject(Heather, 4) { doTask("Plant") }.expect("PROD[Plant], 2 Plant")
       pass()
     }
     // "Production. Your World Government choice." The following exchange and app checkpoint
@@ -1003,11 +965,10 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "I will Venus Orbital Survey. I will look at these two cards, which are Comet and Rad
       // Suits. And then I might as well buy them."
       cardAction1(VenusOrbitalSurvey) {
-            doTask("Ok")
-            doTask("Ok")
-            pay(2)
+            doTask("Ok") // Neither offered card has a Venus tag.
+            buyCards(2)
           }
-          .expect("2 ProjectCard")
+          .expect("2 ProjectCard, -2 MC")
     }
     yellow.turn {
       // "I might as well spend 14 to fund the Manufacturer."
@@ -1048,7 +1009,10 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // gain two energy production and then I lose one of them again ... for Freyja Biodomes."
       playProject(BiomassCombustors, 2) { doTask("PROD[-Plant<Yellow>]") }
           .expect("PROD[2 Energy, -Plant<Yellow>]")
-      playProject(FreyjaBiodomes, 12) { addCardResources(StratosphericBirds) }
+      playProject(FreyjaBiodomes, 12) {
+            doTask("Plant")
+            addCardResources(StratosphericBirds)
+          }
           .expect("PROD[-Energy, 2 MC], Plant, 2 Animal<$StratosphericBirds>")
     }
     yellow.turn {
@@ -1158,11 +1122,10 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "Let's use the stupid Venus Orbital Survey to reveal Comet for Venus, which is not a Venus
       // card, and Jovian Embassy. I'll buy them both."
       cardAction1(VenusOrbitalSurvey) {
-            doTask("Ok")
-            doTask("Ok")
-            pay(2)
+            doTask("Ok") // Neither offered card has a Venus tag.
+            buyCards(2)
           }
-          .expect("2 ProjectCard")
+          .expect("2 ProjectCard, -2 MC")
     }
     yellow.turn {
       // "I will remove two GHGs, which will be a temp raise up to zero ... the TR and five monies."
@@ -1326,7 +1289,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     green.turn {
       // "All right, let's have some fun. Let's do Bushes of Love. It'll also help me with the
       // bigger lead on Magnate. Bushes of Love cost me eight, and it gives me a planta."
-      playProject(Bushes, 8)
+      playProject(Bushes, 8) { doTask("Plant") }
       // "Robot Pollinators cost me seven ... it gives me a plant production, and since I have
       // three plant tags now, it also gives me three plants."
       playProject(RobotPollinators, 7)

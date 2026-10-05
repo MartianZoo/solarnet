@@ -4,16 +4,16 @@ import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.util.toSetStrict
-import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
+import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.ClassSelection
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.GamePremise
+import dev.martianzoo.state.Player
+import dev.martianzoo.state.toComponent
 import dev.martianzoo.tfm.canon.Bundle
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -35,7 +35,7 @@ internal class GamePremiseTest {
     val catalog = Canon.withPlayers(1)
 
     listOf(cn("MC"), PLAYER).forEach { invalidPlayerName ->
-      shouldThrow<PetException> {
+      shouldThrow<InvalidGameConfigException> {
         GamePremise(
             catalog,
             modules = emptySet(),
@@ -65,7 +65,6 @@ internal class GamePremiseTest {
     val table = premise.classTable
 
     assertSame(Canon, premise.catalog)
-    assertSame(Canon.classTable, premise.premiseClassTable.master)
     assertSame(Canon.classTable.getClass(cn("Card")), table.getClass(cn("Card")))
     Canon.classTable.findClass(cn("Player1")) shouldBe null
     table.getClass(cn("Player1")).classTable shouldBe table
@@ -125,7 +124,7 @@ internal class GamePremiseTest {
                   )
                   .toSetStrict()
         }
-    val catalog = TfmCatalog.compose(Canon, observers)
+    val catalog = TfmCatalog(Canon, observers)
     val premise = catalog.gamePremise(GameConfig("ObserverA, ObserverB", "Player1", "Player2"))
 
     val game = Engine.newGame(premise)
@@ -149,12 +148,16 @@ internal class GamePremiseTest {
     Canon.classTable.findClass(blue) shouldBe null
     game.classTable.isInhabited(blue) shouldBe true
     game.actors.shouldContainExactly(Player(blue), Player(yellow), ADMIN)
-    game.reader.getComponents("Player").map { it.className }.toSet() shouldBe setOf(blue, yellow)
+    game.reader.getComponents(cn("Player").expression).map { it.className }.toSet() shouldBe
+        setOf(blue, yellow)
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
     game.testAgent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
     game.testAgent(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
-    getPlayerOwner(game.reader, game.reader.getComponents("StartToken").single()) shouldBe
-        Player(blue)
+    game.reader
+        .getComponents(cn("StartToken").expression)
+        .single()
+        .toComponent()
+        .owningPlayer shouldBe Player(blue)
   }
 
   @Test
@@ -179,14 +182,48 @@ internal class GamePremiseTest {
 
   @Test
   internal fun malformedConfigurationFailsBeforeBootstrappingAWorld() {
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<InvalidGameConfigException> {
       Canon.gamePremise(GameConfig("TypoOption, VenusNextExpansion", "Player1"))
     }
-    shouldThrow<IllegalArgumentException> { Canon.gamePremise(GameConfig("VenusNextExpansion")) }
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<InvalidGameConfigException> { Canon.gamePremise(GameConfig("VenusNextExpansion")) }
+    shouldThrow<InvalidGameConfigException> {
       Canon.gamePremise(GameConfig("Blue, Yellow, VenusNextExpansion", "Player1"))
     }
-    shouldThrow<PetException> { Canon.gamePremise(GameConfig("", "MC")) }
+    shouldThrow<InvalidGameConfigException> { Canon.gamePremise(GameConfig("", "MC")) }
+    shouldThrow<InvalidGameConfigException> {
+      Canon.gamePremise(GameConfig("2 Player", "Player1", "Player2"))
+    }
+  }
+
+  @Test
+  internal fun selectedColonyRequiresItsProvidingModule() {
+    shouldThrow<InvalidGameConfigException> {
+      Canon.gamePremise(GameConfig("Callisto", "Player1", "Player2"))
+    }
+  }
+
+  @Test
+  internal fun configuredColoniesReachPlayWithoutSeparateInitialTypes() {
+    val game =
+        Engine.newGame(
+            Canon.gamePremise(
+                GameConfig("ColoniesExpansion, Callisto, Luna, Enceladus", "Player1", "Player2")
+            )
+        )
+    val admin = game.testAgent(ADMIN)
+    val workflow = TfmWorkflow.Stepwise(game.testAgents())
+
+    admin.count("SelectedColonyTile") shouldBe 3
+    admin.count("SelectedColonyTile<Class<Ceres>>") shouldBe 0
+
+    workflow.setupPhase()
+    workflow.corporationPhase()
+
+    admin.count("SelectedColonyTile") shouldBe 0
+    admin.count("Callisto") shouldBe 1
+    admin.count("Luna") shouldBe 1
+    admin.count("DelayedEnceladus") shouldBe 1
+    admin.count("Ceres") shouldBe 0
   }
 
   @Test
@@ -203,7 +240,7 @@ internal class GamePremiseTest {
   internal fun unconfiguredPlayerCannotBeActivatedAsAnOrdinaryClass() {
     val premise = Canon.withPlayers(3).gamePremise(GameConfig("", "Player1", "Player2"))
 
-    shouldThrow<PetException> {
+    shouldThrow<InvalidGameConfigException> {
       Engine.newGame(
           premise.copy(classSelections = setOf(ClassSelection(cn("Player3"), included = true)))
       )
@@ -316,12 +353,13 @@ internal class GamePremiseTest {
     (cn("ClaimMilestoneAction") in table.allClassNames) shouldBe false
     (cn("FundAwardAction") in table.allClassNames) shouldBe false
 
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<InvalidGameConfigException> {
       Engine.newGame(Canon.gamePremise(GameConfig("Landlord", "Player1")))
     }
-    shouldThrow<IllegalArgumentException> {
-      Engine.newGame(Canon.gamePremise(GameConfig("Terraformer35", "Player1")))
-    }
+    val explicitMilestone =
+        Engine.newGame(Canon.gamePremise(GameConfig("Terraformer35", "Player1"))).classTable
+    explicitMilestone.isInhabited(cn("Terraformer35")) shouldBe true
+    explicitMilestone.isInhabited(cn("ClaimMilestoneAction")) shouldBe false
   }
 
   @Test
@@ -332,6 +370,6 @@ internal class GamePremiseTest {
             additionalInitialComponentTypes = setOf(cn("Card").expression),
         )
 
-    shouldThrow<IllegalArgumentException> { Engine.newGame(premise) }
+    shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
   }
 }

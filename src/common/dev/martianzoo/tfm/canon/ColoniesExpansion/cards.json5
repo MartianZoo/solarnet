@@ -1,16 +1,16 @@
 {
   "decks": [
     {
-      "deck": "CorporationCard",
+      "deck": "StandardCorporationCard",
       "cards": [
         {
           "name": "Aridor",
           "effects": [
-            "This:: EACH Class<Tag> { AridorTagWatcher<Class<Tag>, This> }",
+            "This:: EACH @Class<Tag> { AridorTagWatcher<@Class, This> }",
             "This: 40 MC, RequiredAction { -> ColonyTileSelection }"
           ],
           "components": [
-            "CLASS AridorTagWatcher<Class<Tag>> : Cardbound<Aridor>, Hidden { HAS MAX 1 This; CardFront(HAS Tag, NOT EventCard) IF =1 CardFront(HAS Tag, NOT EventCard): PROD[1 MC] }"
+            "CLASS AridorTagWatcher<Class<@Tag>> : Cardbound<Aridor>, Hidden { HAS MAX 1 This; CardFront(HAS @Tag, NOT EventCard) IF =1 CardFront(HAS @Tag, NOT EventCard): PROD[1 MC] }"
           ],
         },
         {
@@ -25,7 +25,7 @@
         {
           "name": "Polyphemos",
           "immediate": "50 MC, 5 Titanium, PROD[5 MC]",
-          "effects": [ "BuyCard:: 2 Owed<>" ],
+          "effects": [ "PayingFor<Class<ProjectCard>>:: 2 Owed<>" ],
         },
         {
           "name": "Poseidon",
@@ -38,8 +38,8 @@
           "immediate": "48 MC",
           "actions": [ "-> Floater" ],
           "effects": [
-            "Billing<HasActions, ActionSlot, Class<Heat>>:: AcceptingFromCard<This>",
-            "PayFromCard<This>:: -2 Owed<Class<Heat>>",
+            "Billing<Class<Heat>>:: AcceptingFromCard<This>",
+            "-Floater<This> BY Me@ IF AcceptingFromCard<This>:: -2 Owed<Class<Heat>>",
             // Local Heat Trapping is the sole heat payment that does not use Billing. Converting the
             // selected floaters during its resolution has the same net resource result.
             "LocalHeatTrapping: (-Floater<This> THEN 2 Heat) OR (-2 Floater<This> THEN 4 Heat) OR (-3 Floater<This> THEN 5 Heat) OR Ok"
@@ -61,7 +61,7 @@
           "name": "AirRaid",
           "cost": 0,
           "tags": [ "EventTag" ],
-          "immediate": "-Floater, 5 MC<Owner FROM Anyone>",
+          "immediate": "-Floater, 5 MC<Me@ FROM Anyone>",
         },
         {
           "name": "AtmoCollectors",
@@ -83,7 +83,7 @@
           "requirement": "2 EarthTag",
           "cost": 5,
           "tags": [ "EarthTag", "EventTag" ],
-          "immediate": "NextCardEffect { Billing<CardPlay>:: -16 Owed }",
+          "immediate": "NextCardEffect { PayingFor<Class<CardFront>>:: -16 Owed }",
           "effects": [ "End: -VictoryPoint" ],
         },
         {
@@ -97,7 +97,7 @@
           "name": "CryoSleep",
           "cost": 10,
           "tags": [ "ScienceTag" ],
-          "effects": [ "ActionBilling<TradeAction>:: -1 Owed", "End: VictoryPoint" ],
+          "effects": [ "ActionBilling<TradeAction>:: -1 Owed<Class<StandardResource>>", "End: VictoryPoint" ],
         },
         {
           "name": "EarthElevator",
@@ -207,7 +207,7 @@
           "name": "MarketManipulation",
           "cost": 1,
           "tags": [ "EarthTag", "EventTag" ],
-          "immediate": "ColonyProduction(NOT ColonyProduction) FROM ColonyProduction",
+          "immediate": "ColonyProduction(NOT Source@) FROM Source@ColonyProduction",
         },
         {
           "name": "MartianZoo",
@@ -296,7 +296,7 @@
           "name": "RimFreighters",
           "cost": 4,
           "tags": [ "SpaceTag" ],
-          "effects": [ "ActionBilling<TradeAction>:: -1 Owed" ],
+          "effects": [ "ActionBilling<TradeAction>:: -1 Owed<Class<StandardResource>>" ],
         },
         {
           "name": "SkyDocks",
@@ -305,7 +305,7 @@
           "tags": [ "EarthTag", "SpaceTag" ],
           "immediate": "TradeFleet",
           "effects": [
-            "Billing<CardPlay>:: -1 Owed",
+            "PayingFor<Class<CardFront>>:: -1 Owed",
             "End: 2 VictoryPoint"
           ],
         },
@@ -388,8 +388,8 @@
           "name": "TradeEnvoys",
           "cost": 6,
           "effects": [
-            "Trade<ColonyTile>:: TradeBarrier<ColonyTile>",
-            "Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier<ColonyTile>",
+            "Trade<@ColonyTile>:: TradeBarrier<@ColonyTile>",
+            "Trade<@ColonyTile>: ColonyProduction<@ColonyTile>? THEN -TradeBarrier<@ColonyTile>",
           ],
         },
         {
@@ -398,8 +398,8 @@
           "tags": [ "SpaceTag" ],
           "immediate": "Colony<>",
           "effects": [
-            "Trade<ColonyTile>:: TradeBarrier<ColonyTile>",
-            "Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier<ColonyTile>",
+            "Trade<@ColonyTile>:: TradeBarrier<@ColonyTile>",
+            "Trade<@ColonyTile>: ColonyProduction<@ColonyTile>? THEN -TradeBarrier<@ColonyTile>",
           ],
         },
         {
@@ -415,7 +415,7 @@
           "cost": 14,
           "tags": [ "ScienceTag" ],
           "effects": [
-            "PlayTag<Class<SpaceTag>>:: -4 Owed",
+            "PayingFor<Class<SpaceTag>>:: -4 Owed",
             "End: 2 VictoryPoint"
           ],
         },

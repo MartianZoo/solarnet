@@ -1,0 +1,72 @@
+package dev.martianzoo.state
+
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.Multiset
+import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
+internal class CustomClassTest {
+  @Test
+  internal fun classNameDefaultsToKotlinSimpleName() {
+    assertEquals(cn("AutomaticallyNamed"), AutomaticallyNamed.className)
+    shouldThrow<IllegalArgumentException> { object : CustomInstruction() {} }
+  }
+
+  @Test
+  internal fun unimplementedTranslationArityFailsExplicitly() {
+    val customClass = object : CustomInstruction("Unimplemented") {}
+    val type = testCatalog("CLASS Argument").classTable.resolve(parse("Argument"))
+
+    shouldThrow<ExpressionException> { customClass.translate(UnusedGameReader) }
+    shouldThrow<ExpressionException> { customClass.translate(UnusedGameReader, type) }
+    shouldThrow<ExpressionException> { customClass.translate(UnusedGameReader, type, type) }
+    shouldThrow<ExpressionException> {
+      customClass.translate(UnusedGameReader, type, type, type)
+    }
+    shouldThrow<ExpressionException> {
+      customClass.translate(UnusedGameReader, type, type, type, type)
+    }
+  }
+
+  private object AutomaticallyNamed : CustomInstruction()
+
+  private object UnusedGameReader : GameReader {
+    override val actors: List<Actor>
+      get() = error("unused")
+
+    override val catalog: Catalog
+      get() = error("unused")
+
+    override val classTable: ClassTable
+      get() = error("unused")
+
+    override fun resolve(expression: Expression): Type = error("unused")
+
+    override fun isAbstract(e: Expression): Boolean = error("unused")
+
+    override fun ensureNarrows(wide: Expression, narrow: Expression): Unit = error("unused")
+
+    override fun ensureSelectionNarrows(wide: Expression, narrow: Expression): Unit =
+        error("unused")
+
+    override fun has(requirement: Requirement): Boolean = error("unused")
+
+    override fun count(metric: Metric): Int = error("unused")
+
+    override fun count(type: Type): Int = error("unused")
+
+    override fun countComponent(concreteType: Type): Int = error("unused")
+
+    override fun getComponents(type: Type): Multiset<Type> = error("unused")
+
+    override fun getDependents(component: Type): Set<Type> = error("unused")
+  }
+}

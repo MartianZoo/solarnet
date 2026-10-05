@@ -18,11 +18,12 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.ClassDeclaration
-import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.ClassSelection
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.GamePremise
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -30,38 +31,23 @@ import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.fake.FakeCanon
 import io.kotest.matchers.shouldBe
 
-internal fun setUpGame(
-    premise: GamePremise,
-    retainedStartingProjects: Int = 0,
-): World =
+internal fun setUpGame(premise: GamePremise): World =
     Engine.newGame(premise).apply {
       TfmWorkflow.Stepwise(testAgents()).setupPhase()
-      retainStartingProjects(
-          this,
-          *IntArray(actors.filterIsInstance<Player>().size) { retainedStartingProjects },
-      )
+      revealTurmoilSetupEvents(this)
     }
 
-internal fun retainStartingProjects(game: World, vararg retainedCounts: Int) {
-  val players = game.actors.filterIsInstance<Player>()
-  require(retainedCounts.size == players.size) {
-    "expected one starting-project count for each of ${players.size} players"
-  }
-  players.zip(retainedCounts.asIterable()).forEach { (player, retained) ->
-    require(retained in 0..10) { "cannot retain $retained of 10 starting projects" }
-    val discarded = 10 - retained
-    game
-        .testAgent(player)
-        .doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
-  }
+private fun revealTurmoilSetupEvents(game: World) {
+  val admin = game.testAgent(ADMIN)
+  if (admin.count("RevealComingEvent") == 0) return
+  admin.doTask("AquiferReleasedByPublicCouncil")
+  admin.doTask("DryDeserts")
 }
 
 internal fun playCorporationWithoutStartingProjects(
     player: TfmGameplay<*>,
     corporation: ClassName,
-): TaskResult = player.inTurn {
-  doTask("PlayCard<Class<CorporationCard>, Class<$corporation>, Hand>")
-}
+): TaskResult = player.playCorp(corporation, 0)
 
 internal fun setUpGame(
     vararg selectedOptions: TestSelection,
@@ -130,7 +116,7 @@ internal fun canonicalCatalog(config: GameConfig): TfmCatalog =
 internal fun canonicalCatalog(includeFakeCards: Boolean): TfmCatalog =
     if (includeFakeCards) CANON_WITH_FAKE_CARDS else Canon
 
-private val CANON_WITH_FAKE_CARDS: TfmCatalog by lazy { TfmCatalog.compose(Canon, FakeCanon) }
+private val CANON_WITH_FAKE_CARDS: TfmCatalog by lazy { TfmCatalog(Canon, FakeCanon) }
 
 private fun canonicalOptions(vararg selectedOptions: TestOption): Set<TestOption> {
   val selectedMaps = selectedOptions.filterTo(linkedSetOf()) { it in MAP_OPTIONS }
@@ -169,7 +155,7 @@ object TestHelpers {
       game: World,
       expectedAsInstructions: String,
   ) {
-    val inferredOwner = result.inferredExpectationOwner(game)
+    val inferredHolder = result.inferredExpectationHolder(game)
     val elaborator = PetElaborator(game.classTable)
     // Gain/Remove are only signed-count notation in this assertion DSL. Elaborating the whole
     // instruction would wrongly apply mutation defaults and atomization, so elaborate each queried
@@ -181,7 +167,7 @@ object TestHelpers {
             object : PetTransformer() {
               override fun transformNode(node: PetNode): PetNode =
                   if (node is Expression) {
-                    elaborator.elaborateInput(node, inferredOwner)
+                    elaborator.elaborateInput(node, inferredHolder)
                   } else {
                     transformChildren(node)
                   }
@@ -234,7 +220,7 @@ object TestHelpers {
 
   private fun Int.expectedCount(): Int = if (this == ZERO_SCALAR_SENTINEL) 0 else this
 
-  private fun TaskResult.inferredExpectationOwner(game: World): Player? {
+  private fun TaskResult.inferredExpectationHolder(game: World): Player? {
     // The first change normally retains the agent caller. An explicit `BY Admin` loses that
     // signal, so fall back only when every owned change points to the same Player.
     (changes.firstOrNull()?.actor as? Player)?.let {

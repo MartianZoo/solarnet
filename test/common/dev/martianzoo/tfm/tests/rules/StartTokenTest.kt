@@ -6,7 +6,7 @@ import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
@@ -48,7 +48,12 @@ internal class StartTokenTest {
   @Test
   internal fun passesAccordingToTheExplicitAfterMeRelation() {
     val admin = setUpGame(players = 3).testTfm(ADMIN)
-    admin.sneak("AfterMe<Player1, Player3> FROM AfterMe<Player1, Player2>")
+    // Reverse the whole ring in one correction, preserving one predecessor and successor each.
+    admin.sneak(
+        "AfterMe<Player1, Player3> FROM AfterMe<Player1, Player2>, " +
+            "AfterMe<Player3, Player2> FROM AfterMe<Player3, Player1>, " +
+            "AfterMe<Player2, Player1> FROM AfterMe<Player2, Player3>"
+    )
 
     admin.nextGeneration(0, 0, 0)
 
@@ -60,10 +65,10 @@ internal class StartTokenTest {
     val game = setUpGame(players = 1)
     val admin = game.testTfm(ADMIN)
 
-    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_4_1>")
+    admin.doTask("GreeneryTile<Tharsis_5_1>")
+    admin.doTask("CityTile<Tharsis_2_2>")
+    admin.doTask("GreeneryTile<Tharsis_2_3>")
     admin.nextGeneration(0)
 
     admin.assertCounts(
@@ -77,16 +82,16 @@ internal class StartTokenTest {
   internal fun `solo setup links each greenery to its own city`() {
     val admin = setUpGame(players = 1).testTfm(ADMIN)
 
-    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    admin.doTask("CityTile<Tharsis_5_8, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_4_1>")
+    admin.doTask("GreeneryTile<Tharsis_5_1>")
+    admin.doTask("CityTile<Tharsis_5_8>")
 
     // This area neighbors the first city, but not the selected second city.
-    shouldThrow<NarrowingException> { admin.doTask("GreeneryTile<Tharsis_3_1, SoloOpponent>") }
+    shouldThrow<NarrowingException> { admin.doTask("GreeneryTile<Tharsis_3_1>") }
   }
 
   @Test
-  internal fun autoWorkflowReadsTheTokenOwner() {
+  internal fun autoWorkflowReadsTheTokenHolder() {
     val setup = canonicalPremise(Hellas, PromoCardPack, players = 2)
     val game = Engine.newGame(setup)
     val admin = game.testTfm(ADMIN)
@@ -94,8 +99,6 @@ internal class StartTokenTest {
     val p2 = game.testTfm(PLAYER2)
 
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
-    retainStartingProjects(game, 7, 5)
-
     p1.playCorp(InterplanetaryCinematics, 7)
     admin.sneak("StartToken<Player2> FROM StartToken<Player1>")
     p2.playCorp(PharmacyUnion, 5)

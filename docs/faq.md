@@ -7,16 +7,18 @@ The goals fall into tiers rather than a strict ranking within each tier.
 The defining tier is exceptional software and language design: a small, precise semantic model;
 ordinary game meaning expressed through Pets rather than card-specific orchestration; and one source
 capable of driving execution, natural language, iconography, and analysis. Exact source-backed
-replays are indispensable evidence that this model actually works across a whole game. The most
-pressing current design problem is making actions and payments one intelligible lifecycle.
+replays are indispensable evidence that this model actually works across a whole game. Making
+actions and payments one intelligible lifecycle remains important; the overall work sequence is
+not settled.
 
 I also value an independent executable conformance suite, excellent diagnostics for incorrect Pets,
 generative testing, material performance improvements, and a polished explanation of the project.
 These are not where I intend to spend substantial time now.
 
-Broad official-card completeness, general reuse, autonomous physical-deck play, fan material, AI
-players, and a comprehensive analytics product would all be nice. I do not care enough about them
-to distort the core design or make them current projects.
+Broad official-card completeness, general reuse, fan material, and a comprehensive analytics
+product would all be nice. I do not care enough about them to distort the core design or make them
+current projects. End-to-end solo play, by a human or a computer using the same game-playing
+capabilities, is a desirable goal; its place in the work schedule is unsettled.
 
 The REgo PLastics command-line interface is intentionally just a direct way to interact with the
 low-level engine; turning it into a polished player interface is not a goal.
@@ -33,15 +35,16 @@ You're speaking directly to the engine API, and the engine is extremely low-leve
 
 ### Where are the rest of the cards?
 
-There are currently over 450 cards supported. The full inventory and remaining card and non-card components are listed at [what is supported](what-is-supported.md).
+There are currently over 570 cards supported. The full inventory and remaining card and non-card components are listed at [what is supported](what-is-supported.md).
 
 ### Does Solarnet use any house rules?
 
-Only for a few exceptionally minor edge cases. They are listed under the [supported game variant](what-is-supported.md#supported-game-variant).
+Only for a few exceptionally minor edge cases. They are listed in the [incompatibilities table](what-is-supported.md#incompatibilities).
 
-### Why no Turmoil?
+### What about Turmoil?
 
-Turmoil is completely doable but will be completely gross. I'm not in any hurry for it.
+Turmoil is largely implemented, including all its Global Events and all six parties. The
+[support inventory](what-is-supported.md) lists the remaining card exceptions.
 
 ### Could I add my own fan cards?
 

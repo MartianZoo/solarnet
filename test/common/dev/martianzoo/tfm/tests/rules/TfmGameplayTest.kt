@@ -21,7 +21,7 @@ private val oneToOnePaymentDeclarations =
         """
         CLASS OneToOnePaymentSource : Owned {
           This:: BaseResourceValue<Class<Heat>>
-          Billing<HasActions, ActionSlot, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
+          Billing<Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
         }
         """
             .trimIndent()
@@ -49,7 +49,7 @@ internal class TfmGameplayTest :
   @Test
   internal fun `Standard action helper rejects a non-standard action provider`() {
     newGame(TestOption.PromoCardPack)
-    p1.runOperation("CathedralOption")
+    p1.runOperation("StJosephOfCupertinoMission")
     admin.phase("Action")
 
     shouldThrow<IllegalArgumentException> { p1.stdAction("CathedralOption") }.message shouldBe

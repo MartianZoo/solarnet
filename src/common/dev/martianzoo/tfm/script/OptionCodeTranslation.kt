@@ -68,7 +68,7 @@ internal object OptionCodeTranslation {
           "V" to cn("VenusNextExpansion"),
           "P" to cn("PreludeExpansion"),
           "C" to cn("ColoniesExpansion"),
-          "T" to cn("TurmoilCardPack"),
+          "T" to cn("TurmoilExpansion"),
           "X" to cn("PromoCardPack"),
       )
 

@@ -1,10 +1,9 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.pets.api.Exceptions.PetException
-import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
@@ -78,7 +77,7 @@ internal class InitializerTest {
                 premiseClassName = cn("BrokenPremise"),
             )
 
-    val failure = shouldThrow<PetException> { Engine.newGame(premise) }
+    val failure = shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
 
     failure.message.orEmpty().shouldInclude("Player1 (found 0)")
     failure.message.orEmpty().shouldInclude("BootstrapProbe (found 0)")
@@ -103,9 +102,9 @@ internal class InitializerTest {
   internal fun completedBootstrapRejectsAMissingPositiveLowerBound() {
     val premise = testGamePremise("CLASS RequiredAtBootstrap { HAS =1 This }", players = 0)
 
-    val failure = shouldThrow<PetException> { Engine.newGame(premise) }
+    val failure = shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
 
-    failure.message.orEmpty().shouldInclude("RequiredAtBootstrap (found 0, expected 1)")
+    failure.message.orEmpty().shouldInclude("`RequiredAtBootstrap` (found 0, expected 1)")
   }
 
   @Test
@@ -133,9 +132,13 @@ internal class InitializerTest {
                 ABSTRACT CLASS Anchor {
                   HAS MAX 1 This
                   HAS =1 Marker<This>
-                  CLASS Left, Right, Absent
+                  CLASS Left
+                  CLASS Right
+                  CLASS Absent
                 }
-                CLASS Marker<Anchor>
+                ABSTRACT CLASS Marker<Anchor>
+                CLASS FirstMarker : Marker
+                CLASS SecondMarker : Marker
                 """,
                 players = 0,
             )
@@ -144,13 +147,13 @@ internal class InitializerTest {
                     setOf(
                         cn("Left").expression,
                         cn("Right").expression,
-                        cn("Marker").of(cn("Left").expression),
+                        cn("FirstMarker").of(cn("Left").expression),
                     )
             )
 
-    val failure = shouldThrow<PetException> { Engine.newGame(premise) }
+    val failure = shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
 
-    failure.message.orEmpty().shouldInclude("Marker<Right> (found 0, expected 1)")
+    failure.message.orEmpty().shouldInclude("`Marker<Right>` (found 0, expected 1)")
     failure.message.orEmpty().shouldNotInclude("Marker<Left>")
     failure.message.orEmpty().shouldNotInclude("Marker<Absent>")
   }
@@ -160,13 +163,19 @@ internal class InitializerTest {
     val premise =
         testGamePremise(
                 """
-                ABSTRACT CLASS Choice { CLASS Left, Right }
+                ABSTRACT CLASS Choice {
+                  CLASS Left
+                  CLASS Right
+                }
                 CLASS BootstrapProbe { This: Choice }
                 """,
                 players = 0,
             )
             .copy(initialComponentTypes = setOf(cn("BootstrapProbe").expression))
 
-    shouldThrow<TaskException> { Engine.newGame(premise) }.message.orEmpty().shouldInclude("Choice")
+    shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
+        .message
+        .orEmpty()
+        .shouldInclude("Choice")
   }
 }

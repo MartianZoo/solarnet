@@ -6,8 +6,8 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.util.toStrings
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.ComponentChange
 import dev.martianzoo.state.toComponent
 import dev.martianzoo.testsupport.PLAYER1
@@ -24,7 +24,17 @@ internal class SimpleAddsRemovesTest {
   internal fun listReturnsExactComponentTypesAndMultiplicities() {
     val game =
         Engine.newGame(
-            testGamePremise("ABSTRACT CLASS Token { ABSTRACT CLASS Color { CLASS Red, Blue } }")
+            testGamePremise(
+                """
+                ABSTRACT CLASS Token {
+                  ABSTRACT CLASS Color {
+                    CLASS Red
+                    CLASS Blue
+                  }
+                }
+                """
+                    .trimIndent()
+            )
         )
     val p1 = game.testAgent(PLAYER1)
 
@@ -41,7 +51,7 @@ internal class SimpleAddsRemovesTest {
                 """
                 CLASS Token
                 CLASS Card : Owned { HAS MAX 1 This }
-                ABSTRACT CLASS Linked<Card<Owner>> : Owned<Owner>
+                ABSTRACT CLASS Linked<Card<SharedHolder@Owner>> : Owned<SharedHolder@Owner>
                 CLASS Holder : Linked {
                   HAS MAX 1 This
                   This:: Token
@@ -85,10 +95,10 @@ internal class SimpleAddsRemovesTest {
     val admin = game.testAgent(ADMIN)
     admin.sneak("Token!")
 
-    shouldThrow<LimitsException> { admin.runOperation("Holder<Token> FROM Token!") }
+    shouldThrow<LimitsException> { admin.runOperation("Holder FROM Token!") }
 
     admin.count("Token") shouldBe 1
-    admin.count("Holder<Token>") shouldBe 0
+    admin.count("Holder") shouldBe 0
   }
 
   @Test

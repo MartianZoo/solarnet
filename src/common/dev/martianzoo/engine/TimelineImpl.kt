@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.engine.Exceptions.AbortTransactionException
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameWorld
 import dev.martianzoo.state.TaskResult

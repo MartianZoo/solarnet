@@ -16,7 +16,10 @@ import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
+import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration as VariableDeclaration
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue
 import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
@@ -85,7 +88,7 @@ internal class PetsTypeGenerator(
                         .build()
                 )
         if (fileName == "${filePrefix}Types") {
-          file.addFunction(generatedExpressionFunction())
+          file.addFunction(generatedExpressionFunction(orderedClasses))
           file.addFunction(
               generatedComponentFactory(
                   orderedClasses.filterNot(Class::abstract).map { kotlinClass(it) }
@@ -188,7 +191,7 @@ internal class PetsTypeGenerator(
     builder.addType(companion(klass, variables.declarations, companionProperties))
     variables.declarations.forEach(builder::addTypeVariable)
     klass.directSuperclasses.forEach { superclass ->
-      val resolvedSupertype = klass.baseType.asSupertype(superclass)
+      val resolvedSupertype = superclass.withAllDependencies(klass.baseType.dependencies)
       builder.addSuperinterface(typeName(resolvedSupertype, variables.byPath))
     }
     return builder.build()
@@ -424,52 +427,73 @@ internal class PetsTypeGenerator(
     return builder.addFunction(factory.build()).build()
   }
 
-  private fun generatedExpressionFunction(): FunSpec =
-      FunSpec.builder(GENERATED_EXPRESSION)
-          .addAnnotation(PublishedApi::class)
-          .addModifiers(KModifier.INTERNAL)
-          .addParameter("type", KTYPE)
-          .returns(PETS_EXPRESSION)
-          .addCode(
-              """
-              val classifier = type.classifier as? %T<*>
-                  ?: error("Generated Pets type has no class classifier: ${'$'}type")
-              val classifierName =
-                  classifier.simpleName
-                      ?: error("Generated Pets class has no simple name: ${'$'}classifier")
-              val arguments =
-                  if (classifier == %T::class) {
-                    val representedType =
-                        type.arguments.single().type
-                            ?: error("A Pets class literal cannot be star-projected")
-                    val representedClass = representedType.classifier as? %T<*>
-                        ?: error("Represented Pets type has no class classifier: ${'$'}representedType")
-                    val representedName =
-                        representedClass.simpleName
-                            ?: error("Represented Pets class has no simple name: ${'$'}representedClass")
-                    require(representedType.arguments.all { it.type == null }) {
-                      "A Pets class literal cannot specialize ${'$'}representedType"
-                    }
-                    listOf(%T.cn(representedName).of())
-                  } else {
-                    type.arguments.map { projection ->
-                      val argumentType =
-                          projection.type
-                              ?: error("A component dependency cannot be star-projected in ${'$'}type")
-                      %N(argumentType)
-                    }
+  private fun generatedExpressionFunction(classes: List<Class>): FunSpec {
+    val argumentIndexes = CodeBlock.builder().beginControlFlow("when (classifier)")
+    classes
+        .filterNot { it == table.classClass }
+        .map { it to variableLayout(it) }
+        .filter { (_, layout) -> layout.identities != layout.argumentIdentities }
+        .forEach { (klass, layout) ->
+          val indexes = layout.argumentIdentities.map(layout.identities::indexOf)
+          argumentIndexes.add("%T::class -> listOf(", kotlinClass(klass))
+          indexes.forEachIndexed { index, value ->
+            if (index > 0) argumentIndexes.add(", ")
+            argumentIndexes.add("%L", value)
+          }
+          argumentIndexes.addStatement(")")
+        }
+    argumentIndexes.addStatement("else -> type.arguments.indices.toList()")
+    argumentIndexes.endControlFlow()
+
+    return FunSpec.builder(GENERATED_EXPRESSION)
+        .addAnnotation(PublishedApi::class)
+        .addModifiers(KModifier.INTERNAL)
+        .addParameter("type", KTYPE)
+        .returns(PETS_EXPRESSION)
+        .addCode(
+            """
+            val classifier = type.classifier as? %T<*>
+                ?: error("Generated Pets type has no class classifier: ${'$'}type")
+            val classifierName =
+                classifier.simpleName
+                    ?: error("Generated Pets class has no simple name: ${'$'}classifier")
+            val arguments =
+                if (classifier == %T::class) {
+                  val representedType =
+                      type.arguments.single().type
+                          ?: error("A Pets class literal cannot be star-projected")
+                  val representedClass = representedType.classifier as? %T<*>
+                      ?: error("Represented Pets type has no class classifier: ${'$'}representedType")
+                  val representedName =
+                      representedClass.simpleName
+                          ?: error("Represented Pets class has no simple name: ${'$'}representedClass")
+                  require(representedType.arguments.all { it.type == null }) {
+                    "A Pets class literal cannot specialize ${'$'}representedType"
                   }
-              return %T.cn(classifierName).of(arguments)
-              """
-                  .trimIndent(),
-              KCLASS,
-              kotlinClass(table.classClass),
-              KCLASS,
-              PETS_CLASS_NAME,
-              GENERATED_EXPRESSION,
-              PETS_CLASS_NAME,
-          )
-          .build()
+                  listOf(%T.cn(representedName).of())
+                } else {
+                  val argumentIndexes = %L
+                  argumentIndexes.map { index ->
+                    val projection = type.arguments[index]
+                    val argumentType =
+                        projection.type
+                            ?: error("A component dependency cannot be star-projected in ${'$'}type")
+                    %N(argumentType)
+                  }
+                }
+            return %T.cn(classifierName).of(arguments)
+            """
+                .trimIndent(),
+            KCLASS,
+            kotlinClass(table.classClass),
+            KCLASS,
+            PETS_CLASS_NAME,
+            argumentIndexes.build(),
+            GENERATED_EXPRESSION,
+            PETS_CLASS_NAME,
+        )
+        .build()
+  }
 
   private data class GeneratedTypeVariables(
       val declarations: List<TypeVariableName>,
@@ -478,6 +502,7 @@ internal class PetsTypeGenerator(
 
   private data class VariableLayout(
       val identities: List<DependencyPath>,
+      val argumentIdentities: List<DependencyPath>,
       val identityByPath: Map<DependencyPath, DependencyPath>,
   )
 
@@ -540,7 +565,7 @@ internal class PetsTypeGenerator(
     val allRootPathSet = allRootPaths.toSet()
     val fixedRootPaths =
         allRootPaths.filterTo(linkedSetOf()) { it.keyList.single() in fixedRootKeys }
-    val linkageGroups = klass.dependencyLinkages
+    val linkageGroups = dependencyLinkages(klass)
     val promotedClassLiteralGroups = promoteClassLiteralLinkages(klass, linkageGroups)
 
     val parent = allRootPaths.associateWithTo(mutableMapOf()) { it }
@@ -580,18 +605,70 @@ internal class PetsTypeGenerator(
               ?.let(::representative)
         }
         if (enclosingIdentities.isEmpty()) return@forEach
-        if (enclosingIdentities.distinct().size > 1) {
-          val identity = group.minBy { it.toString() }
-          extraIdentities += identity
-          group.forEach { identityByPath[it] = identity }
-        }
+        val identity = group.minBy { it.toString() }
+        extraIdentities += identity
+        group.forEach { identityByPath[it] = identity }
       }
     }
 
+    val argumentIdentities = variableRoots.map(::representative).distinct()
     return VariableLayout(
-        (extraIdentities + variableRoots.map(::representative)).distinct(),
+        (extraIdentities + argumentIdentities).distinct(),
+        argumentIdentities,
         identityByPath,
     )
+  }
+
+  private data class HeaderPath(
+      val expression: Expression,
+      val path: DependencyPath,
+  )
+
+  /**
+   * Reconstructs only the dependency positions of Pets' actual class-header variables. Expression
+   * identity is intentional: equal unmarked expressions declare distinct variables under T13-2.
+   */
+  private fun dependencyLinkages(klass: Class): List<Set<DependencyPath>> =
+      klass.allSuperclasses().flatMap { declaringClass ->
+        val headerPaths = headerPaths(declaringClass)
+        declaringClass.typeVariables.mapNotNull { variable ->
+          variable.occurrences
+              .mapNotNull { occurrence ->
+                headerPaths.singleOrNull { it.expression === occurrence.expression }?.path
+              }
+              .toSet()
+              .takeIf { it.size > 1 }
+        }
+      }
+
+  private fun headerPaths(klass: Class): List<HeaderPath> = buildList {
+    fun collectArguments(expression: Expression, prefix: List<Key>) {
+      if (expression.arguments.isEmpty()) return
+      if (
+          expression.className == table.classClass.className &&
+              expression.typeVariableName is VariableDeclaration
+      ) {
+        return
+      }
+      val expressionClass = table.getClass(expression.className)
+      val transformedArguments =
+          expression.arguments.map {
+            replaceThisExpressionsWith(klass.className.expression).transformExpression(it)
+          }
+      val keys = expressionClass.matchDependencyKeys(transformedArguments)
+      expression.arguments.zip(keys).forEach { (argument, key) ->
+        val path = DependencyPath(prefix + key)
+        add(HeaderPath(argument, path))
+        collectArguments(argument, path.keyList)
+      }
+    }
+
+    klass.declaration.dependencies.forEachIndexed { index, expression ->
+      val path = DependencyPath(listOf(Key(klass.className, index)))
+      add(HeaderPath(expression, path))
+      collectArguments(expression, path.keyList)
+    }
+    klass.declaration.supertypes.forEach { collectArguments(it, emptyList()) }
   }
 
   private fun promoteClassLiteralLinkages(
@@ -778,15 +855,14 @@ private fun generatedAuthoredEffects(klass: Class): Pair<PropertySpec, PropertyS
   val effect = ClassName("dev.martianzoo.pets.ast", "Effect")
   val effectList = ClassName("kotlin.collections", "List").parameterizedBy(effect)
   val parsing = ClassName("dev.martianzoo.pets", "Parsing")
-  val initializer = CodeBlock.builder().add("listOf(\n").indent()
-  klass.declaration.authoredEffects.forEach { authored ->
-    initializer.add("%T.parse<%T>(%S),\n", parsing, effect, authored.toString())
-  }
-  initializer.unindent().add(")")
   val backing =
       PropertySpec.builder("parsedAuthoredEffects", effectList)
           .addModifiers(KModifier.PRIVATE)
-          .initializer(initializer.build())
+          .initializer(
+              "%T.parseClasses(%S).single().authoredEffects",
+              parsing,
+              klass.declaration.toString(),
+          )
           .build()
   val member =
       PropertySpec.builder("_authoredEffects", effectList)
@@ -800,7 +876,7 @@ private fun typeVariableNames(
     identities: List<DependencyPath>,
     boundClasses: Map<DependencyPath, Class>,
 ): Map<DependencyPath, String> {
-  val abbreviations = identities.associateWith { boundClasses.getValue(it).abbreviation() }
+  val abbreviations = identities.associateWith { classAbbreviation(boundClasses.getValue(it)) }
   val totals = abbreviations.values.groupingBy { it }.eachCount()
   val nextIndex = mutableMapOf<String, Int>()
   return abbreviations.mapValues { (_, abbreviation) ->
@@ -812,8 +888,10 @@ private fun typeVariableNames(
   }
 }
 
-private fun Class.abbreviation(): String =
-    className.toString().filter(Char::isUpperCase).ifEmpty { className.toString().take(1) }
+private fun classAbbreviation(klass: Class): String =
+    klass.className.toString().filter(Char::isUpperCase).ifEmpty {
+      klass.className.toString().take(1)
+    }
 
 private fun generatedExpressionAdapter(
     petsClassName: String,

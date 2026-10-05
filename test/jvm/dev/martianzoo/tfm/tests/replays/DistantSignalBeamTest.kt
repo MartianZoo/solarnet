@@ -10,8 +10,7 @@ import kotlin.test.Test
 // Distant Signal Beam (g1ddd59fe5633), save 79, generation 3.
 // Source: _local/replays/Game20260905/game-g1ddd59fe5633.sqlite
 // https://terraforming-mars.herokuapp.com/the-end?id=p35d2aed733c5
-internal class DistantSignalBeamTest :
-    CardTrackingFullGameTest(requireEveryProjectCardChangeNamed = true) {
+internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
   override val config =
       gameConfig(
           modules =
@@ -62,49 +61,17 @@ internal class DistantSignalBeamTest :
   @Test
   internal fun distantSignalBeam() {
     TfmWorkflow.Automatic(agents).launch()
-    retainStartingProjects(7, 10)
     generation1()
     generation2()
     generation3BeforeResignation()
   }
 
   private fun generation1() {
-    // Save 0 exposes every setup choice. Pink's corporation offers were Vitor, Morning Star Inc.,
-    // and one unsupported corporation; Purple's were Aridor, Ecoline, and Point Luna. Prelude
-    // offers were Polar Industries, Atmospheric Enhancers, Loan, and Power Generation for Pink;
-    // Biosphere Support, Focused Organization, Project Eden, and Allied Bank for Purple.
     pink.playCorp(MorningStarInc()) { buyCards(7) }
-    pink.discardUnselectedProjectCards(
-        Insects,
-        EcologyResearch,
-        SecurityFleet,
-    )
-
     purple.playCorp(Aridor()) { buyCards(10) }
 
     pink.turn {
       playPrelude(AtmosphericEnhancers()) {
-        // The filtered draw revealed and rejected these sixteen cards before finding two cards with
-        // floater icons. Save 2 preserves the exact deck exits.
-        discardProjectCardsFromDeck(
-            InterplanetaryColonyShip,
-            AsteroidDeflectionSystem,
-            GreatEscarpmentConsortium,
-            VenusianAnimals,
-            Vermin,
-            CometAiming,
-            SfMemorial,
-            MinorityRefuge,
-            MicrogravityNutrition,
-            CeosFavoriteProject,
-            IceAsteroid,
-            BioPrintingFacility,
-            Heather,
-            EquatorialMagnetizer,
-            TollStation,
-        )
-        // This unsupported card has no generated canonical type.
-        discardProjectCardsFromDeck(cn("SelfReplicatingRobots"))
         doTask("2 VenusStep")
       }
       playPrelude(PolarIndustries()) {
@@ -130,20 +97,7 @@ internal class DistantSignalBeamTest :
     // Database save 5: Allied Bank introduced Purple's first Earth tag.
 
     pink.turn {
-      stdAction("DoRequiredActionsAction") {
-        // Morning Star revealed these nine non-Venus cards before drawing the following three.
-        discardProjectCardsFromDeck(
-            AsteroidHollowing,
-            GiantSpaceMirror,
-            TectonicStressPower,
-            MiningArea,
-            MarketManipulation,
-            SaturnSurfing,
-            GreatDamPromo,
-            CeresTechMarket,
-            CrashSiteCleanup,
-        )
-      }
+      stdAction("DoRequiredActionsAction")
       playProject(TitanShuttles(), 23)
     }
     purple.turn { stdAction("DoRequiredActionsAction") { doTask("Luna") } }
@@ -167,17 +121,8 @@ internal class DistantSignalBeamTest :
   }
 
   private fun generation2() {
-    // The retained draft saves prove that both players saw all eight cards. Solarnet models each
-    // recovered post-draft four-card set as its eventual owner's ordinary Research offer.
     pink.buyCards(1)
-    pink.discardUnselectedProjectCards(
-        GeothermalPower,
-        PhobosSpaceHaven,
-        DirectedHeatUsage,
-    )
     purple.buyCards(3)
-    purple.discardUnselectedProjectCards(SoilFactory)
-
     // Database save 42: immediately after both Research purchases.
     pink.assertResources(m = 20, s = 0, t = 0, p = 0, e = 0, h = 2)
     pink.assertProduction(m = 0, s = 0, t = 0, p = 0, e = 0, h = 2)
@@ -218,22 +163,8 @@ internal class DistantSignalBeamTest :
   }
 
   private fun generation3BeforeResignation() {
-    // Again, both players saw all eight draft cards. Pink's final set was Terraforming Contract,
-    // Electro Catapult, Underground City, and Shuttles; Purple's was Red Spot Observatory, Mining
-    // Colony, Outdoor Sports, and Soil Enrichment.
     pink.buyCards(1)
-    pink.discardUnselectedProjectCards(
-        ElectroCatapult,
-        UndergroundCity,
-        Shuttles,
-    )
     purple.buyCards(1)
-    purple.discardUnselectedProjectCards(
-        RedSpotObservatory,
-        OutdoorSports,
-        SoilEnrichment,
-    )
-
     // Database save 74: immediately after both Research purchases.
     pink.assertResources(m = 21, s = 1, t = 0, p = 0, e = 1, h = 5)
     pink.assertProduction(m = 0, s = 1, t = 0, p = 0, e = 1, h = 3)
@@ -295,14 +226,11 @@ internal class DistantSignalBeamTest :
               cn("Pink") to
                   listOf(
                       HousePrinting,
-                      Insects,
                       CloudSeeding,
                       MicroMills,
                       Pets,
                       LagrangeObservatory,
                       GhgImportFromVenus,
-                      EcologyResearch,
-                      SecurityFleet,
                       IoSulphurResearch,
                       TitanShuttles,
                       AtmoCollectors,
@@ -311,14 +239,8 @@ internal class DistantSignalBeamTest :
                       SulphurEatingBacteria,
                       StratosphericExpedition,
                       HeatTrappers,
-                      GeothermalPower,
-                      PhobosSpaceHaven,
-                      DirectedHeatUsage,
                       StaticHarvesting,
                       TerraformingContract,
-                      ElectroCatapult,
-                      UndergroundCity,
-                      Shuttles,
                   ),
               cn("Purple") to
                   listOf(
@@ -335,12 +257,8 @@ internal class DistantSignalBeamTest :
                       Omnicourt,
                       BactoviralResearch,
                       SolarReflectors,
-                      SoilFactory,
                       LocalShading,
                       MiningColony,
-                      RedSpotObservatory,
-                      OutdoorSports,
-                      SoilEnrichment,
                   ),
           )
       )

@@ -1,0 +1,2 @@
+"Allows each player to choose the beginner or standard starting path"
+CLASS BeginnerVariant : Module

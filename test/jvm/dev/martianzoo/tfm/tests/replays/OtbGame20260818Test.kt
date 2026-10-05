@@ -25,8 +25,8 @@ import dev.martianzoo.state.GameWorld
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
-import java.nio.file.Files
 import kotlin.test.Test
 
 /** Live game begun Tue 2026-08-18. Quoted evidence is verbatim from the supplied transcripts. */
@@ -72,7 +72,6 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
   @Test
   internal fun otbGame20260818() {
     TfmWorkflow.Automatic(agents).launch()
-    retainStartingProjects(7, 5)
     val green = player(1)
     val yellow = player(2)
 
@@ -110,7 +109,9 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     yellow.turn {
       // "I use Valley Trust and I get Double Down, which I play... copy Martian Industries."
       stdAction("DoRequiredActionsAction") {
-            playPrelude(DoubleDown) { doTask("CopyPrelude<$MartianIndustries>") }
+            playPrelude(DoubleDown) {
+              doTask("CopyPrelude<$MartianIndustries>")
+            }
           }
           .expect("PROD[Steel, Energy], 6 MC")
       // "I spend two money to play Psychrophiles."
@@ -334,7 +335,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // "I use one Psychrophiles microbe to play Potatoes... lose two plants and get two money
       // production."
       playProject(Potatoes, 0) {
-            doTask("PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
+            doTask("-Microbe<$Psychrophiles>")
           }
           .expect("-Microbe, -2 Plant, PROD[2 MC]")
     }
@@ -1356,7 +1357,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // "I'll pay three psychrophiles for green houses." "Gain one plant for each city tile in
       // play. That's one, two, three, four, five."
       playProject(Greenhouses, 0) {
-            doTask("3 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
+            doTask("-3 Microbe<$Psychrophiles>")
           }
           .expect("5 Plant, 0 Animal<Green, $EcologicalZone<Green>>, -ProjectCard")
       // "And I will greenery boop." "It's six, six, sorry." "It's the last possible spot next to my
@@ -1589,7 +1590,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // "My seven psychrophiles and three real." "Increase money production two steps. Increase
       // plant production three steps. Increase... No, gain two plants."
       playProject(KelpFarming, 3) {
-            doTask("7 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
+            doTask("-7 Microbe<$Psychrophiles>")
           }
           .expect("PROD[2 MC, 3 Plant]")
     }
@@ -1693,22 +1694,16 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     }
 
     val originalEvents = game.events.entriesSince(Checkpoint(0))
-    val eventLogFile = Files.createTempFile("solarnet-events-", ".json")
-    try {
-      Files.writeString(eventLogFile, EventLogJson.encode(originalEvents))
-      val decodedEvents = EventLogJson.decode(Files.readString(eventLogFile), game.classTable)
-      val reconstructed = GameWorld(gamePremise, decodedEvents)
-      val allComponents = game.classTable.componentClass.baseType
+    val decodedEvents = EventLogJson.decode(EventLogJson.encode(originalEvents), game.classTable)
+    val reconstructed = GameWorld(gamePremise, decodedEvents)
+    val allComponents = game.classTable.componentClass.baseType
 
-      decodedEvents shouldBe originalEvents
-      decodedEvents.map { it.notes } shouldBe originalEvents.map { it.notes }
-      reconstructed.events.entriesSince(Checkpoint(0)) shouldBe originalEvents
-      reconstructed.tasks.extract { it } shouldBe game.tasks.extract { it }
-      reconstructed.components.getAll(allComponents, NoGameState).entries shouldBe
-          game.components.getAll(allComponents, NoGameState).entries
-    } finally {
-      Files.deleteIfExists(eventLogFile)
-    }
+    decodedEvents shouldBe originalEvents
+    decodedEvents.map { it.notes } shouldBe originalEvents.map { it.notes }
+    reconstructed.events.entriesSince(Checkpoint(0)) shouldBe originalEvents
+    reconstructed.tasks.extract { it } shouldBe game.tasks.extract { it }
+    reconstructed.components.getAll(allComponents, NoGameState).entries shouldBe
+        game.components.getAll(allComponents, NoGameState).entries
 
     // "So I'm going to 1-2 and 1-3."
     green.convertPlants { placeTile(1, 2) }.expect("-8 Plant")

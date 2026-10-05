@@ -6,8 +6,8 @@ import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.PetElaborator
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Component
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
@@ -21,6 +21,16 @@ import kotlin.test.Test
 
 internal class ByTriggerCharacterizationTest {
   @Test
+  internal fun byActorAcceptsPlayer() {
+    assertByActor(PLAYER1)
+  }
+
+  @Test
+  internal fun byActorAcceptsAdmin() {
+    assertByActor(ADMIN)
+  }
+
+  @Test
   internal fun byAnyoneAcceptsPlayer() {
     assertByAnyone(PLAYER1)
   }
@@ -31,6 +41,17 @@ internal class ByTriggerCharacterizationTest {
   }
 
   private fun assertByAnyone(actor: Actor) {
+    val game = newGame()
+    val agent = game.testAgent(actor).also { it.autoExecPolicy = EAGER }
+    agent.runOperation("AnyoneTriggerProbe!")
+
+    agent.runOperation("ActorTriggerSignal!")
+
+    agent.count("Plant<Player1>") shouldBe 1
+    agent.count("Steel<Player1>") shouldBe 1
+  }
+
+  private fun assertByActor(actor: Actor) {
     val game = newGame()
     val agent = game.testAgent(actor).also { it.autoExecPolicy = NONE }
     agent.sneak("ActorTriggerProbe!")
@@ -83,7 +104,7 @@ internal class ByTriggerCharacterizationTest {
   }
 
   @Test
-  internal fun byOwnerTestsThePerformerNotTheActorReceivingTheEffect() {
+  internal fun byMeTestsThePerformerNotTheActorReceivingTheEffect() {
     val game = newGame()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
@@ -100,15 +121,15 @@ internal class ByTriggerCharacterizationTest {
   }
 
   /**
-   * Rule L8-8: an unqualified subscription to a type with no owner of its own watches only the
+   * Rule L6-9: an unqualified subscription to a type with no owner of its own watches only the
    * events its effect's owner performed.
    */
   @Test
-  internal fun anUnownedTriggerDefaultsToTheEffectOwner() {
+  internal fun anUnownedTriggerDefaultsToTheEffectPlayer() {
     val game = newGame()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    p1.sneak("RepeatedOwnerProbe<Player2>!")
+    p1.sneak("RepeatedHolderProbe<Player2>!")
     val checkpoint = game.timeline.checkpoint()
 
     p1.runOperation("ActorTriggerSignal!")
@@ -131,9 +152,9 @@ internal class ByTriggerCharacterizationTest {
     game.events.changesSince(checkpoint).takeLast(2).all { it.actor == PLAYER2 } shouldBe true
   }
 
-  /** Rule L8-8: where the watched type is itself owned, ownership says whose events these are. */
+  /** Rule L6-9: where the watched type is itself owned, ownership says whose events these are. */
   @Test
-  internal fun anOwnedTriggerUsesItsAuthoredOwnershipInsteadOfAnImplicitActorFilter() {
+  internal fun anOwnedTriggerUsesItsAuthoredDependencyInsteadOfAnImplicitActorFilter() {
     val game = newGame()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
@@ -145,7 +166,7 @@ internal class ByTriggerCharacterizationTest {
   }
 
   @Test
-  internal fun anOwnedTriggerRetainsItsSelectorWhenItsEffectOwnerIsBound() {
+  internal fun anOwnedTriggerRetainsItsSelectorWhenItsEffectPlayerIsBound() {
     val table = ProbeCatalog.classTable
     val component = Component(table.resolve(parse("OwnedTriggerProbe<Player1>")))
     val elaborator = PetElaborator(table)
@@ -154,7 +175,7 @@ internal class ByTriggerCharacterizationTest {
     sourceEffect.typeVariables.variables.associate { variable ->
       variable.declaration.expression.toString() to
           sourceEffect.typeVariables.expressionsOf(variable).map(Any::toString).toSet()
-    } shouldBe emptyMap()
+    } shouldBe mapOf("Me@Owner" to setOf("Me@Owner"))
 
     LiveEffect.compile(component, elaborator)
         .map { it.effect.toString() }
@@ -162,7 +183,7 @@ internal class ByTriggerCharacterizationTest {
   }
 
   @Test
-  internal fun byNotOwnerAcceptsOtherPlayersButRejectsTheOwnerAndAdmin() {
+  internal fun byOtherPlayerAcceptsOnlyOpponents() {
     val game = newGame()
     val owner = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val other = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
@@ -195,7 +216,7 @@ internal class ByTriggerCharacterizationTest {
   }
 }
 
-private object ProbeCatalog : TfmCatalog.Composite(Canon.withPlayers(2), ProbeDeclarations)
+private object ProbeCatalog : TfmCatalog(Canon.withPlayers(2), ProbeDeclarations)
 
 private object ProbeDeclarations : TfmCatalog() {
   override val explicitClassDeclarations =
@@ -204,30 +225,35 @@ private object ProbeDeclarations : TfmCatalog() {
               CLASS ActorTriggerSignal
               CLASS OwnedActorTrigger : Owned
 
-              CLASS ActorTriggerProbe {
+              CLASS AnyoneTriggerProbe {
                 ActorTriggerSignal BY Anyone: Plant<Player1>
+                ActorTriggerSignal BY Performer@Anyone: Steel<Player1> BY Performer@
+              }
+
+              CLASS ActorTriggerProbe {
+                ActorTriggerSignal BY Actor: Plant<Player1>
                 -ActorTriggerSignal BY Player: Steel<Player1>
               }
 
               CLASS ActorBindingProbe {
-                -OwnedActorTrigger<Owner(NOT Player)> BY Player: Steel<Player>, Heat<Owner(NOT Player)>
+                -OwnedActorTrigger<Other@Owner(NOT ActingPlayer@Player)> BY ActingPlayer@Player: Steel<ActingPlayer@Player>, Heat<Other@Owner>
               }
 
-              CLASS RepeatedOwnerProbe : Owned {
-                ActorTriggerSignal: Plant<Owner>, Steel<Owner>
+              CLASS RepeatedHolderProbe : Owned {
+                ActorTriggerSignal: Plant, Steel
               }
 
               CLASS OwnedByProbe : Owned {
-                ActorTriggerSignal BY Owner: Heat<Owner>
-                -ActorTriggerSignal BY Owner: Heat<Owner>
+                ActorTriggerSignal BY Me@Player: Heat
+                -ActorTriggerSignal BY Me@Player: Heat
               }
 
               CLASS OwnedTriggerProbe : Owned {
-                OwnedActorTrigger<Anyone>: Plant<Owner>
+                OwnedActorTrigger<Anyone>: Plant
               }
 
               CLASS OpponentByProbe : Owned {
-                ActorTriggerSignal OR -ActorTriggerSignal BY Player(NOT Owner): Heat<Owner>
+                ActorTriggerSignal OR -ActorTriggerSignal BY Player(NOT Me@Owner): Heat
               }
 
               """

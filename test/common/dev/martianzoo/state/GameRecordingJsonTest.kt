@@ -4,9 +4,7 @@ import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -33,10 +31,10 @@ internal class GameRecordingJsonTest {
         GameRecording(premise, events, listOf(Checkpoint(0), Checkpoint(1), Checkpoint(2)))
     events.first().notes = "changed after capture"
     val text = GameRecordingJson.encode(recording)
-    val decodedConfig = GameRecordingJson.config(text)
-    val decoded = GameRecordingJson.decode(text, premise)
+    val document = GameRecordingJson.parse(text)
+    val decoded = document.decode(premise)
 
-    decodedConfig shouldBe GameConfig("Token, -Marker", "Player1")
+    document.config shouldBe GameConfig("Token, -Marker", "Player1")
     decoded.positions shouldBe recording.positions
     decoded.events shouldBe events
     GameRecordingJson.encode(decoded) shouldBe text

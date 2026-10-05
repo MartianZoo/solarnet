@@ -2,8 +2,10 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.testsupport.PLAYER3
+import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.AirRaid
@@ -35,21 +37,38 @@ internal class AirRaidTest : CardTest() {
     p3.turn { playProject(SearchForLife, 3) }
 
     p1.playProject(AirRaid, 0) {
-          doTask("5 MC<Player1> FROM MC<Player3>")
+          doTask("5 MC FROM MC<Player3>")
           doTask("-Floater<$AtmoCollectors>")
         }
         .expect("-Floater<$AtmoCollectors>, 5 MC<Player1>, -5 MC<Player3>")
   }
 
   @Test
-  internal fun `Cannot be played when no player has five mc`() {
+  internal fun `Cannot steal from yourself`() {
+    val p2 = requireP2()
+    val p3 = game.testTfm(PLAYER3)
+    p2.pass()
+    p3.turn { playProject(SearchForLife, 3) }
+
+    p1.playProject(AirRaid, 0) {
+          shouldThrow<ExpressionException> { doTask("5 MC FROM MC<Player1>") }
+          doTask("5 MC FROM MC<Player3>")
+          doTask("-Floater<$AtmoCollectors>")
+        }
+        .expect("-Floater<$AtmoCollectors>, 5 MC<Player1>, -5 MC<Player3>")
+  }
+
+  @Test
+  internal fun `Cannot be played when only you have five mc`() {
     val p2 = requireP2()
     val p3 = game.testTfm(PLAYER3)
     p2.turn { stdProject("PowerPlantProject") }
     p3.turn { playProject(Tardigrades, 4) }
+    p1.runOperation("-${p1.count("MC") - 5} MC")
+    p1.assertCounts(5 to "MC")
 
     shouldThrow<LimitsException> {
-      p1.playProject(AirRaid, 0) { doTask("5 MC<Player1> FROM MC<Player2>") }
+      p1.playProject(AirRaid, 0) { doTask("5 MC FROM MC<Player2>") }
     }
   }
 }

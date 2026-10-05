@@ -22,8 +22,6 @@
   search for `transformAction` only for the Action/turn division.
 - [`TfmCatalog.kt`](../../src/common/dev/martianzoo/tfm/canon/TfmCatalog.kt) —
   inspect when splitting generic Catalog assembly from Terraforming Mars registries.
-- [`MapDefinition.kt`](../../src/common/dev/martianzoo/tfm/mapdata/MapDefinition.kt) —
-  the pets-free authored data library used by generators and presentation tools.
 - [`ScriptSession.kt`](../../src/common/dev/martianzoo/tfm/script/ScriptSession.kt) —
   inspect only for the script application layer.
 - [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) and
@@ -51,8 +49,10 @@ The target runtime has three library responsibilities with one-way dependencies:
    correction, cheats, and tests; it does not try to prevent clients from using them.
 3. **Agent:** depends on engine and is the normal client API. It creates exactly one Agent per Actor,
    gives each Agent an Actor-scoped reader with deliberate access to the unscoped reader, and keeps
-   task selection and narrowing small. Each Agent owns its optional autoexecution policies. Shared
-   wiring repeatedly gives all Agents a chance to act after an engine mutation until none does.
+   task selection and narrowing small. It creates caller-held drafts of an Actor's unsubmitted
+   task choices and uses read-only engine validation to continue them; the engine still validates
+   every submitted narrowing. Each Agent owns its optional autoexecution policies. Shared wiring
+   repeatedly gives all Agents a chance to act after an engine mutation until none does.
 
 Applications compose those libraries and add game-specific workflow and presentation. Agent
 construction returns one `Agents`, pairing a World with its immutable set of Agents; its shared loop
@@ -85,8 +85,9 @@ live transactions, and the decision that an operation has reached a viewer-safe 
 
 Generic Pets and engine code know `Action`, `UseAction`, `ActionSlot`, `NewTurn`, and turn-start
 translation, while the foundational declarations live in Terraforming Mars canon. The generic
-action syntax and identity protocol are deliberate; the generic Agent's turn conveniences remain
-layering debt and are tracked in `TODO.md`.
+action syntax and identity protocol are deliberate. The generic Agent's `startTurn` and `inTurn`
+conveniences remain layering debt: move them to `TfmGameplay` so the Agent no longer knows
+`NewTurn`.
 
 The [Pets Action model](ACTIONS.md) makes this division more explicit: fixed and X-scaled Terraforming
 Mars `StandardResource` costs use provider- and action-qualified billing components, while direct and
@@ -103,53 +104,116 @@ another caller needs it.
 
 ## Reusable behavior inside `tfm`
 
-### `TfmCatalog` contains a generic Catalog implementation
+### Catalog assembly and configuration live in `state`
 
-System-declaration aggregation, duplicate checking, core declaration validation, Class loading,
-display-name merging, and custom implementation composition are generic Catalog assembly tasks.
-Card, milestone, award, map, standard-action, and colony registries are Terraforming Mars
-responsibilities.
+[`Catalog`](../../src/common/dev/martianzoo/state/Catalog.kt) is the concrete, extensible Catalog
+implementation. It aggregates system and contributed declarations, checks duplicate names, loads
+and validates the master table, composes custom implementations and display names, and adds concrete
+Player Classes. Construct `Catalog(first, second)` to combine generic contributions; construct
+`TfmCatalog(first, second)` to apply Terraforming Mars policies to the combined declarations.
 
-The module-organization audit found no useful implementation split today. The generic contract
-already lives in `pets`, while Terraforming Mars content selection is absent from it. There is only
-one production assembler. Card and map lowering now happens outside runtime in the JVM generator;
-`TfmCatalog` receives only explicit declarations. Do not introduce a generic base implementation
-until a real second implementation reveals a coherent reusable unit. Do not redesign premise
-resolution as part of that extraction.
+[`GamePremiseBuilder`](../../src/common/dev/martianzoo/state/GamePremiseBuilder.kt) resolves explicit
+configuration names, counted setup Components, premise-local Player declarations, and convergent
+Module defaults. A game-specific Catalog can adjust its content selections and initial Components
+before `build()` creates the exact `GamePremise` and its ordinary Pets initialization declaration.
+This working configuration never replaces or recompiles the Catalog's master table.
 
-### Workflow runner mechanics are general
+`TfmCatalog` owns card validation and action lowering, bundle provenance, card/map/colony registries,
+expansion compatibility, milestone and award pools, seat-order Components, and the Terraforming Mars
+bootstrap signals. Its Module registry is derived from the assembled declarations and bundle content;
+bundles need not compile independently. Generic Catalog composition combines explicit Module maps.
 
-The phase sequence and victory conditions are Terraforming Mars. Coroutine lifecycle, single launch,
-queue-drained wakeup, checkpoint/rollback shutdown, and cancellation are engine mechanics. A native
-workflow project should extract those mechanics while moving phase topology to the domain; see
-[WORKFLOW.md](WORKFLOW.md).
+Generic assembly and configuration tests live in `:state`; generic setup execution is covered in
+`:engine`. Terraforming Mars content selection and full-game scenarios remain in their domain suites.
+
+### Workflow progression and task scheduling
+
+Phase order, player rotation, and victory conditions belong to Terraforming Mars. The engine owns
+the general rules that decide which pending work may execute and what must finish before suspended
+work resumes. An Agent policy may choose among eligible tasks; it cannot supply missing game
+exclusion merely by always running some tasks first.
+
+Current workflow uses a Kotlin coroutine and global idleness. Extracting its launch, wakeup, and
+cancellation machinery into a generic runner would preserve that orchestration rather than make
+the game run through Pets. [WORKFLOW.md](WORKFLOW.md) records the current behavior and unresolved
+completion questions.
+
+The delegated-payment requirement makes the distinction concrete: P1 must remain on turn while P2
+controls a payment, and internal Admin work may occur within that payment. Turn state, task
+assignment, and event Actor cannot stand in for each other. If priorities or operation groups are
+introduced, their passive recorded data belongs in Game World and their eligibility rules belong
+in the engine; domain rules
+still determine when the relevant work is requested. The alternatives remain open in
+[SEQUENCING.md](SEQUENCING.md#delegated-operations-and-scheduling-options).
 
 ### Minor presentation helpers
 
 Hex-to-ANSI color rendering and half-space centering are generic helpers inside Terraforming Mars UI
 classes. They are too small to drive an architecture change. Move them only with nearby work.
 
-### Presentation and assembly data sit inside `:pets`
+### Game assembly and runtime APIs belong to `:state`
 
-`docs/pets-language-spec.md` deliberately stops at the language: source, declarations, expressions,
-requirements, metrics, instructions, narrowing, effects, actions, transform blocks, owner-local
-Classes, and elaboration. Four surfaces in `dev.martianzoo.pets` are outside that line and would
-plausibly belong elsewhere:
+Pets owns source, declarations, types, requirements, metrics, instructions, narrowing, effects,
+actions, transform blocks, owner-local Classes, and elaboration. `:state` owns `Catalog`,
+`GameConfig`, `GamePremise`, `ClassSelection`, runtime Actor/Player identities, `GameReader`, and the
+Kotlin custom metric/instruction APIs. Its `displayNames.kt` supplies Catalog-based presentation
+names; [NAMING.md](NAMING.md) owns naming policy.
 
-- [`displayNames.kt`](../../src/common/dev/martianzoo/pets/displayNames.kt) provides stateless
-  presentation names. It is not part of what a source may mean. [`NAMING.md`](NAMING.md) owns naming.
-- [`Catalog.kt`](../../src/common/dev/martianzoo/pets/data/Catalog.kt),
-  [`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt) and
-  `ClassSelection` are game assembly, owned by [`OPTIONS.md`](OPTIONS.md).
+The loading interface accepts data and callbacks supplied by Catalog and GamePremise; it has no
+dependency on either. `TypeInfo` supplies the active class table without a `GameReader` downcast.
+[CLASS_TABLES.md](CLASS_TABLES.md#game-view-shape) owns those construction contracts.
+`PremiseViability` stays with game assembly and uses Pets' public `InhabitanceInterpreter` for
+empty-domain facts. Providers of Catalogs and custom runtime behavior depend on `:state`, which
+in turn depends on `:pets`. Pets production code and tests have no dependency on `:state`.
+
+Pure language and type tests construct tables directly. Catalog, configuration, runtime identity,
+and Kotlin implementation tests live with `:state`; their game-assembly fixtures are not compiled
+into the Pets test module.
+
 Runtime `Task`, `GameEvent`, and `TaskResult` data have moved to `:state`; their instruction-bearing
 values remain inert there, while task construction and normalization stay in `:engine`.
+
+### Pets source input and model construction
+
+`Parsing`, `DerivedClassLowerer`, and the parsed `systemClassDeclarations` provider own source
+input and owner-local lowering. The selected extraction puts these in an optional parser module
+that depends on the Pets model; the model must not depend on that source reader or better-parse.
+The Gradle modules have not yet been split.
+
+`ClassBody` and `SourceExpression` are internal source-reader implementation details. A source
+expression carries its authored local body until extraction emits an ordinary `ClassDeclaration`
+and replaces the occurrence with an ordinary `Expression`. The model has no class-body attachment
+or copying policy. `Expression` permits source-only subtypes; its structural operations remain
+final, and equality distinguishes their runtime classes.
+
+The grammar builds raw nodes. Completion extracts local declarations before selector binding and
+implicit `RANK` domain binding can copy expressions. Generated headers retain markers shared by
+several header positions or used by the generated body's own scope. This decision follows selector
+binding, which can shadow a header name, and precedes settlement binding, which a class-header
+variable supersedes. Class-header resolution and syntax validation finish the ordinary AST.
+One internal declaration traversal serves extraction and both normalization passes.
+
+Local roots cannot carry a type-variable marker or use the `This` placeholder. A `DEFAULT` root
+names its declaring class and cannot declare another one, though its argument occurrences may.
+WithoutEnclosingClass entry points reject local bodies directly instead of inventing a `Submitted` owner.
+Separate model/parser compilation succeeds with no better-parse dependency in the model and no
+friend paths. The real Gradle extraction remains follow-up work.
+
+Public AST constructors, source-location setters, and scope-resolution functions support
+independently compiled parsers. `GameReader` accepts `Expression` or resolved `Type` queries;
+callers own any conversion from text.
+
+Canonical content still parses Pets at runtime, including the system-declaration provider and some
+generated Kotlin initializers. Parser-free analysis of supplied objects does not require changing
+that content pipeline; a parser-free canonical-content executable would require prebuilt typed
+content as a separate change.
 
 ## Already-correct dependencies
 
 Do not reopen these without new evidence:
 
-- `SystemDeclarations.kt` owns the generic runtime vocabulary. In the target model that includes a
-  concrete `Admin : Actor` Class and Component, while Kotlin `Engine` names only the passive
+- `SystemDeclarations.kt` owns the generic runtime vocabulary, including the concrete
+  `Admin : Actor` Class and Component, while Kotlin `Engine` names only the passive
   mutation-processing mechanism.
 - Direct bootstrap creates only Admin. BootstrapPhase, the generated Premise, and fallback premise
   components use ordinary Admin tasks; workflow later replaces BootstrapPhase with `SetupPhase`.
@@ -160,21 +224,3 @@ Do not reopen these without new evidence:
 
 If a dependency change is selected, prefer deleting a backward dependency or moving one whole policy
 over adding adapters on both sides.
-
-## Conditional extraction order
-
-**Aspirational and not currently scheduled.** If the project deliberately selects a dependency
-cleanup, the dependencies suggest this order:
-
-1. Decide whether bare-number currency is preserved in the AST or supplied by one small
-   game-specific language profile.
-2. Decide whether turn/action signaling is a generic protocol or Terraforming Mars behavior, and
-   move the narrow standard-resource lowering with it.
-3. Split generic Catalog assembly/validation from Terraforming Mars registries.
-4. Separate the reusable script command shell from Terraforming Mars application wiring.
-5. Separate the reusable JLine adapter from REgo branding and launcher behavior.
-6. Extract generic workflow lifecycle mechanics only as part of the native-workflow project.
-7. Clean up dependency directions made visible by those moves.
-
-Do not perform this sequence solely to make an unrelated board game theoretically possible. Each
-step must be independently valuable to Solarnet.

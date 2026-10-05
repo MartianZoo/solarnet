@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -34,6 +35,24 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
 
     p1.count("MC") shouldBe 5
     p1.count("Colony<Luna>") shouldBe 1
+  }
+
+  // https://boardgamegeek.com/thread/3242862/msl-curiosity-question
+  @Test
+  internal fun `MSL Curiosity cannot be covered when its owner has no legal colony`() {
+    newGame(
+        ColoniesExpansion,
+        Cimmeria,
+        colonyTiles = testColonyTiles(2),
+    )
+    p1.runOperation(
+        "10 MC, Colony<Luna>, Colony<Ceres>, Colony<Triton>, Colony<Ganymede>, Colony<Callisto>"
+    )
+
+    shouldThrowAny { p1.runOperation("CityTile<Cimmeria_3_3>") }
+
+    p1.count("CityTile<Cimmeria_3_3>") shouldBe 0
+    p1.count("MC") shouldBe 10
   }
 
   @Test

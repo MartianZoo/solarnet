@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
@@ -19,7 +19,7 @@ import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.TestOption.Tharsis
-import dev.martianzoo.tfm.tests.TestOption.TurmoilCardPack
+import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.TestOption.Utopia
 import dev.martianzoo.tfm.tests.TestOption.Vastitas
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
@@ -52,7 +52,7 @@ internal class CanonAdmissibilityTest {
   }
 
   @Test
-  internal fun representativeCompleteConfigurationBuildsOneCoherentProjection() {
+  internal fun representativeCompleteConfigurationBuildsOneCoherentGameView() {
     val colonies = testColonyTiles(players = 2)
     val selected =
         arrayOf(
@@ -62,7 +62,7 @@ internal class CanonAdmissibilityTest {
             PreludeExpansion,
             Prelude2CardPack,
             ColoniesExpansion,
-            TurmoilCardPack,
+            TurmoilExpansion,
             PromoCardPack,
             WorldGovernmentRule,
         )

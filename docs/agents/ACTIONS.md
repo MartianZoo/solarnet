@@ -1,463 +1,163 @@
-# Pets Actions
+# Pets actions
 
-> **NOTE:** This document is used by agents to capture information for themselves to read later; a
-> human didn't write it and we don't expect humans to read it. The project owner can't personally
-> vouch for the information here.
-
-> **Read when:** changing what an action is, Pets `Action` parsing or lowering, action selection,
-> action availability, billing, or cards with fixed, property-scaled, or X-scaled
-> standard-resource left sides.
+> **NOTE:** This document is agent-maintained; source and tests take precedence.
 >
-> **Skip when:** changing payment allocation after billing state has already been created; use
-> [PAYMENTS.md](PAYMENTS.md) for that.
+> **Read when:** discussing action identity, arrow lowering, action availability, permission, or
+> the relationship between an action's left side and Terraforming Mars payment.
 >
-> **Status:** current implementation plus a working direction. The semantic lifecycle under
-> “Working model” is the direction to design toward. Concrete action signals, placement and
-> rewriting of the left-side instruction, and the single payment-choice loop are still proposals.
+> **Skip when:** discussing payment allocation or legality after debt exists; use
+> [PAYMENTS.md](PAYMENTS.md).
+>
+> **Status:** current lowering plus the previously selected concrete-action Signal direction.
+> That replacement remains unimplemented. Its representation, payment integration, and scheduling
+> questions remain open; this document is not an implementation plan.
 
-## Read only the relevant sections
+## Current divergence
 
-| If changing | Read |
-| --- | --- |
-| What an action is | Working model; Actions and their syntax |
-| `ActionSlot`, action identity, or `UseAction` | Concrete action identity |
-| Card-action, Trade, or required-action availability | Routes and permission |
-| Action lowering | The left side; Current implementation gap |
-| A standard-resource left side | Terraforming Mars payment rewrite; Composition |
-| Payment task shape or client payment helpers | Single payment-choice loop; Player-input staging |
+An authored arrow currently lowers to an effect on `UseAction<Provider, ActionSlot>`. For an ordinary
+left side, gaining that Signal begins `left side THEN right side`; the Signal precedes the work.
+See [`Transforming.kt`](../../src/common/dev/martianzoo/pets/Transforming.kt), search
+`actionListToEffects`, and action rules L7 in the
+[Pets language specification](../pets-language-spec.md).
 
-## Source map
+[`TfmActionLowerer.kt`](../../src/common/dev/martianzoo/tfm/canon/TfmActionLowerer.kt), search
+`actionToEffects`, separately recognizes six standard-resource classes. A fixed amount creates
+`Owed` followed by `ActionBilling`; billing removal triggers the right side. An X-scaled amount
+keeps its continuation in a generated sequence gated on billing removal. This splits the action
+lifecycle between generic lowering and Terraforming Mars payment.
 
-- [`Action.kt`](../../src/common/dev/martianzoo/pets/ast/Action.kt) — search for
-  `public sealed class Cost` to inspect the parsed left-side forms.
-- [`Transforming.kt`](../../src/common/dev/martianzoo/pets/Transforming.kt) — search for
-  `actionToEffects` for current lowering.
-- [`PetTransformer.kt`](../../src/common/dev/martianzoo/pets/PetTransformer.kt) — search for
-  `transformAction` before changing the lowering stage.
-- [Terraforming Mars `actions.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/actions.pets)
-  — search for `ABSTRACT CLASS StandardAction` and `CLASS UseAction`.
-- [Terraforming Mars `payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets)
-  — search for `ABSTRACT CLASS Billing`.
-- [`DerivedClassLowerer.kt`](../../src/common/dev/martianzoo/pets/DerivedClassLowerer.kt) — read
-  before generating a Class for each authored action.
-- [`VariableAmountActionsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/VariableAmountActionsTest.kt)
-  — read when changing X or several actions on one component.
-- [`UtopiaInvestTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/UtopiaInvestTest.kt) —
-  preserves a Type variable shared across both sides of an arrow.
-- [`VironTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/VironTest.kt) — preserves a direct
-  action grant that bypasses the normal card-action route.
+The `THEN` tree preserves shared X and Type-variable bindings. `ActionBilling<TradeAction>`
+listeners require a meaningful action family. At the same time, the provider-and-slot type admits
+meaningless pairs such as `UseAction<ConvertPlantsAction, Action2>`.
 
-## Working model
+## Selected direction: concrete action Signals
 
-Actions are choices supplied by the active components of the World. A pending abstract action task
-grants its assignee the right to attempt one of those choices. It does not promise that the chosen
-action can be completed.
-
-The intended lifecycle is:
-
-1. A rule creates a task to gain some abstract action type, such as a standard action or an action
-   belonging to a particular card.
-2. The live components and their dependencies determine the concrete choices to which that task can
-   be narrowed.
-3. Narrowing records which action was chosen.
-4. General action machinery resolves the chosen action's left side. It may execute it directly or
-   let a domain-specific transform replace it with a workflow such as Terraforming Mars billing.
-5. Only after the left side has been satisfied does the machinery gain the chosen action Signal.
-6. The action's right side is an effect responding to that Signal. The action machinery
-   has completed its responsibility and does not inspect or manage the right side.
-
-The Signal is therefore the successful product of action handling, not necessarily the beginning
-of it. Before the Signal, an action is being selected and prepared. Once the Signal is issued, its
-right side behaves exactly like every other triggered Pets effect. If a later consequence dead-ends,
-the encompassing transaction rolls back, including the Signal.
-
-This explains both the unity and the apparent split between actions and triggered effects. There is
-no special kind of right-side execution. Actions need additional machinery only because a player
-chooses one and because its left side is available for mediation before a trigger is
-issued.
-
-Keep the vocabulary small:
-
-- An **action** is the concrete choice and the Signal ultimately issued for it.
-- Its **provider** is the live component, if any, that makes that action a choice.
-- A pending engine task represents the right to attempt an action.
-- A permission component records a limited use where the game needs one.
-
-Do not introduce separate public concepts for an offer, invocation, and execution unless the model
-eventually shows that they have independent behavior.
-
-## Actions and their syntax
-
-An action is not defined by use of the arrow syntax. A handwritten concrete action Signal can be an
-action too. It may not receive transformations that depend on metadata produced by the usual
-authoring form, but it still participates in the same task and Signal protocol.
-
-The Pets declaration `[left side] -> right side` is the main authoring form. It should remain close
-to the physical component and compile into the same semantic model as an explicitly declared action
-Signal. The syntax is valuable, but it is not the ontology.
-
-### Why the Action cost form is a product requirement
-
-**Disposition: at peace with it.** Do not report the printed arrow form as removable sugar.
-
-The current `Cost` AST parallels `Instruction`: `Spend`, `Per`, and `Transform` have their own
-precedence and parser combinators. The form exists so authors can write `8 Plant ->` instead of
-`-8 Plant THEN`. That visual correspondence with the physical game is a product requirement; see
-[VALUES.md](VALUES.md#keep-pets-central).
-
-The left side becomes an `Instruction`. Calling it a cost is still too narrow: that instruction may
-take a component, transform production, or bind a choice. What remains open is where the instruction
-lives after parsing, when a domain may rewrite it, and what event establishes that it has completed.
-Being at peace with the authoring form does not commit the implementation to today's
-`Cost.toInstruction()` lowering stage.
-
-## Concrete action identity
-
-### Current model
-
-One provider may declare up to three arrows. `Action1`, `Action2`, and `Action3` select among them.
-`UseAction<HasActions, ActionSlot>` and `ActionBilling<HasActions, ActionSlot, Resource>` carry both the
-live provider and the positional selector. This admits meaningless combinations such as
-`UseAction<ConvertPlantsAction, Action2>`.
-
-`UseAction<Provider, Slot>` is currently a self-removing `Signal`. Provider dependency ensures the
-provider is live when it is gained. The right side, and currently also most left-side handling,
-responds to that gain.
-
-### Proposed concrete Signals
-
-A promising replacement is for `UseAction` to be an abstract Signal supertype and for each actual
-action to be a concrete subtype:
+The recorded direction uses a concrete Signal class for each actual action, beneath an abstract
+`UseAction` family. A pending abstract task grants permission to attempt an available action. The
+Signal is issued after its left side succeeds; an ordinary effect supplies the right side.
 
 ```text
 pending task: UseAction
-chosen Class: DirectImpactors_Action1<DirectImpactors>
-action machinery: satisfy its left side
+chosen class: DirectImpactors_Action1<DirectImpactors>
+left side succeeds
 issued Signal: DirectImpactors_Action1<DirectImpactors>
-ordinary effect: DirectImpactors_Action1<DirectImpactors>:: right side
+ordinary effect: DirectImpactors_Action1<DirectImpactors>: right side
 ```
 
-The dependency on `DirectImpactors` makes that concrete choice inhabitable only while the card is
-live. The action Class supplies identity; its gained instance is the event. No persistent second
-component needs to duplicate the provider's presence.
+The action class supplies both identity and the resulting event. A provider dependency makes the
+choice available only while that provider is live. Abstract families such as `StandardAction` and
+`TradeAction` remain meaningful; positional generated names can distinguish several arrows on the
+same provider without retaining `ActionSlot` as a runtime dependency.
 
-This loses nothing essential from the generic verb if every concrete action is a subtype of
-`UseAction`. A task can still request any `UseAction`; shared rules can still listen to that
-supertype; more specific supertypes such as `StandardAction` can still group actions. What changes is
-that identity is expressed by the concrete Class instead of by generic arguments.
+Enumeration need not prove the entire action feasible. Pets can attempt an operation and roll back
+the enclosing transaction on a dead end. That does not provide rollback across previously committed
+interactive choices or prove that unrelated tasks may safely intervene during the left side.
 
-Authored arrows need not receive semantic names. Card authors normally provide only their order.
-Generated names such as `RegolithEaters_Action1` accurately preserve the identity the author did
-provide. Removing `ActionSlot` from the runtime relation still eliminates invalid provider/slot
-pairs even if a positional suffix remains in a generated Class name.
+## Authoring contract
 
-Single-action declarations need a consistent rule. A named class such as `ConvertPlantsAction`
-might itself be the concrete Signal, while a card with arrows might produce dependent derived
-Signals. Alternatively every arrow could produce a derived Signal. The first avoids a duplicate
-Class for standard actions; the second is more uniform. Do not implement either until this is
-settled.
-
-Every authored arrow is one action. Its position is therefore sufficient generated identity when
-the containing component has several arrows.
-
-This rule describes the Pets model, which may intentionally differ from the printing. Electro
-Catapult prints one arrow with a Plant-or-Steel choice, but Pets gives it two arrows and therefore
-two actions. Trade likewise has three actions for its three payment methods, and Fund Award has
-three actions for its three prices. Splitting `TradeAction` itself into three public standard-action
-classes would expose that implementation choice in the rulebook-shaped menu, so keeping one
-declaring family with three generated action Classes is preferable.
-
-## Routes and permission
-
-The pending abstract task is the immediate right to attempt an action. Limited-use components are
-additional game facts, not replacements for that task.
-
-The Terraforming Mars Kotlin facade's `stdAction()` helper accepts only providers whose Class is a
-subtype of `StandardAction`. Directly granted actions from other `HasActions` providers use the
-ordinary task-selection and payment APIs instead.
-
-The normal card-action route illustrates the distinction. `UseActionOnCardAction` is a printed
-standard action. Its left side can spend the card's once-per-generation permission; after its own
-Signal, its right-side effect creates the narrower task for the selected card action.
-Viron and Project Inspection instead create that inner task directly, so they bypass the normal
-route without weakening the card action itself.
-
-Conditions that regulate ordinary access belong to the route. They must not be attached to the
-inner action Signal when direct grants are allowed to bypass them.
-
-### Current availability audit
-
-The current model says “you may do this now” in several unrelated ways:
-
-| Case | Current encoding |
-| --- | --- |
-| Standard actions | domain of `UseAction<StandardAction>` |
-| Neptunian Power Consultants, Cathedral | optional `UseAction<X>?` task |
-| Card action, once per generation | failed attempt to gain capped `ActionUsedMarker` |
-| Trade, once per fleet | `TradeBarrier` created through a count comparison, then mandatory removal |
-| Required actions | a negative gate on every `UseAction` |
-
-Card actions, Trade, and future Turmoil policy uses all express renewable permission differently.
-The negative card encoding also leaks into gameplay, tests, and the viewer as subtraction from the
-set of action cards.
-
-### Selected permission direction
-
-Permission is a component and satisfying it belongs on the left side of the route action. For a
-card, use a card-scoped status with exactly one live face: available or used. Removing the available
-face creates the physical used marker; removing its `GenerationScope` restores the available
-face. This preserves the cube that the physical game places on the card while making availability a
-positive fact.
-
-Conceptually, the doorway remains:
+The rulebook-shaped form remains:
 
 ```pets
-CLASS UseActionOnCardAction {
-  CardActionAvailable<ActionCard> -> UseAction<ActionCard>
-}
+[left side] -> right side
 ```
 
-The exact spelling will change if concrete action Signals replace generic `UseAction` refinements.
-The card-scoped status preserves one action per card per generation even when a card prints several
-actions.
+The left side can remove resources, transform production, or bind a choice. General machinery needs
+an executable instruction form that a game can replace with its payment process. It must preserve
+X, Type variables, and selected values shared with the right side. A handwritten concrete action
+Signal should be able to participate without requiring an authored arrow.
 
-Do not assume card status and Trade require one permission abstraction. A card needs an
-available/used status because the card remains live after its use. A `TradeFleet` is already the
-positive, player-owned capacity to trade and several fleets are fungible. Trade needs a cleaner way
-to consume or commit one fleet, not necessarily a second face shaped like the card marker.
+### Why the Action cost form is a product requirement
 
-`DoRequiredActionsAction` may remain a `StandardAction`. It is the deliberate model action that lets
-a mandatory effect consume its action-phase slot. The unresolved issue is not its classification
-but how a live `RequiredAction` replaces the components supplying ordinary standard actions with
-the component supplying only this action, and restores the set when it disappears.
+**Disposition: at peace with it.** The printed arrow form and parallel `Cost` AST preserve compact
+notation such as `8 Plant ->`. `Spend`, `Per`, and `Transform` need not disappear merely because
+execution uses an `Instruction`; see [VALUES.md](VALUES.md#keep-pets-central).
 
-The smallest current candidate is one player-owned component on which every ordinary standard
-action depends. Gaining `RequiredAction` removes that component; `DoRequiredActionsAction` depends
-directly on the live requirement; removing the requirement restores availability. The
-pending abstract standard-action task would then have exactly the intended concrete domain in both
-states. Verify the gain/removal transitions and setup invariant before preferring this to a fuller
-action-mode sum type.
+The current language specification defines arrow-to-`THEN` lowering and positional `Action1`–`Action3`
+identity. The selected direction would require a specification change, not a reinterpretation of
+those current rules.
 
-## The left side
+## Left side and completion
 
-Use **left side** as the neutral term. Its semantic value is an `Instruction`. “Cost” is accurate for
-many printed actions but not broad enough for the role. “Precondition” suggests a passive boolean
-check, while the instruction may actively remove, take, transform, select, or bill.
+The left side must finish before the proposed action Signal is issued. General action machinery
+must be able to inspect and transform it without understanding or managing the right side. Direct
+removals, production transformations, holder-sensitive resources, and ordinary choices remain valid
+left-side instructions.
 
-Whatever representation is chosen must preserve these rules:
+An instruction-valued property on the concrete action class is a possible carrier. It is not a
+selected property design. A parallel instruction system or a persistent component mirroring the
+provider would add costs that this direction is meant to remove.
 
-1. The general action machinery may inspect and transform the left side without understanding the
-   right side.
-2. The left side completes before the concrete action Signal is issued.
-3. Ordinary instructions should remain usable for direct removals, production transformations,
-   holder-sensitive resources, and selections.
-4. Terraforming Mars may recognize standard-resource forms and replace them with `Owed` and
-   `ActionBilling` workflow.
-5. Type variables, selected values, and X shared across the arrow must survive until the right-side
-   effect responds to the Signal.
-6. Dynamic feasibility is attempt-and-rollback. Enumeration need not prove that every left
-   side and every later consequence will succeed.
+Completion and exclusion are distinct. Existing `THEN` waits for its preceding task, not all work
+that task causes. Existing billing supplies a payment-specific completion event. Neither generally
+keeps another Player in control through a multi-task action.
 
-An instruction-valued Class property is one plausible place to store it. It would let a concrete
-action Class carry its left side as data and let a domain transformer mediate it before the Signal
-is gained. The value type is not in question; property semantics, variable binding, and
-transformation ownership still are.
+Neptunian Power Consultants exposes this distinction: selecting the option delegates its decision;
+accepting it creates payment choices whose current controller is still the active Player.
+[PAYMENTS.md](PAYMENTS.md#delegated-payment-exposes-a-control-gap) records that source behavior and
+the payment helper's cross-assignee selections. A successful helper call does not prove uninterrupted
+control through interactive payment.
 
-Today the direct case already preserves bindings without a separate workflow object.
-`Action.toInstruction()` builds one `THEN` tree from the left side and right side and carries their
-Type-variable scope onto that tree. `Then.ensureIsNarrowedBy` binds those variables across its
-stages and checks a shared X value. X-scaled standard-resource lowering likewise keeps debt,
-billing, and continuation in one generated sequence. A redesign should reuse this mechanism if it
-can; inserting a delayed action Signal must not accidentally discard the binding environment.
+**Nested priority groups** and an **exclusive operation scope** are unresolved alternatives for
+keeping delegated work under its decision owner's control and delaying unrelated work. Their
+completion rule, treatment of nested delegation, and relationship to cleanup belong in
+[SEQUENCING.md](SEQUENCING.md#delegated-operations-and-scheduling-options). The concrete-action
+Signal direction does not choose between them, and a delayed Signal alone does not solve scheduling.
 
-### Current implementation gap
+## Permission
 
-Current lowering has the opposite signal order.
+The pending action task is the immediate right to attempt an action. Limited use belongs to the
+route granting that task. The ordinary card-action route consumes the card's once-per-generation
+permission; Viron and Project Inspection grant its inner action directly. Putting the restriction
+on the inner Signal would break those bypasses.
 
-- For a nonstandard left side, `actionToEffect` makes `UseAction<Provider, Slot>` trigger
-  `left-side instruction THEN right side`.
-- For a fixed standard-resource left side, the Terraforming Mars declaration lowerer makes
-  `UseAction` create `Owed` and `ActionBilling`, and
-  `-ActionBilling` directly triggers the right side.
-- X-scaled standard-resource actions keep the right side in a local continuation following billing
-  creation. Generic Pets lowering does not know the standard-resource Classes or billing protocol.
+The recorded permission direction uses a card-scoped available/used status, shared by all its arrows,
+with generation cleanup restoring availability. Trade fleets are already positive player-owned
+capacity, so their permission need not use that same representation.
 
-Thus the current `UseAction` Signal means “choice accepted; begin all action work.” In the working
-model, it should mean “the general action machinery has successfully satisfied this action's left
-side.” The desired standard-resource chain is:
+Required-action availability has a related question: can the live requirement replace ordinary
+standard-action providers with `DoRequiredActionsAction`, then restore them when resolved? A shared
+player-owned provider dependency is a candidate, not an established runtime contract.
 
-```text
-choose concrete action
-→ create adjusted debt and billing
-→ settle billing
-→ issue concrete action Signal
-→ ordinary right-side effect
-```
+Current permission uses action task types, optional action tasks, capped markers, `TradeBarrier`,
+and a gate on `UseAction`. Their differing roles must survive any simplification; their existing
+representations need not. See
+[`actions.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/actions.pets), search
+`UseActionOnCardAction`, `DoRequiredActionsAction`, and `RequiredAction`.
 
-This is a semantic change, not merely a rename. It should be demonstrated first for a direct left
-side, a fixed billable left side, an X-scaled action, and a Type variable shared across the arrow.
+## Terraforming Mars payment
 
-The remaining completion question is about sequencing, not the value of the left side. `THEN` knows
-that one instruction task completed, but does not wait for all work descended from that task.
-ActionBilling removal is already a precise completion event for payment, and a strictly sequential
-payment loop may need no `Temporary`. If some other left-side instruction must wait for
-all work it caused, whole-World-idle `Temporary` is too broad; the scoped-completion direction in
-[SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over) is the relevant candidate.
+Terraforming Mars can replace a standard-resource left side because discounts, surcharges, metal
+substitution, and card-held resources change how the nominal amount is paid. Generic Pets should
+not know those resources or billing classes.
 
-## Terraforming Mars payment rewrite
+The selected action direction requires the chosen action identity and shared bindings to survive
+payment, cost adjustments to finish before payment commits, and successful settlement to issue the
+same Signal as a direct left side. It does not require retaining `Owed`, `Billing`, or optional
+payment-offer components. Card play can share a payment model without becoming an action.
 
-Standard-resource left sides require domain machinery because discounts, surcharges, metal
-substitution, and resources held by cards can change how a nominal amount is satisfied. A static
-requirement cannot express that process.
+Payment representation remains open in [PAYMENTS.md](PAYMENTS.md#design-options). Arbitrary resource
+removals, rendered tasks, and causal strings are not an adequate domain payment interface. A floater
+removal or production transformation remains ordinary left-side work unless the game deliberately
+rewrites it as payment.
 
-The current billing facts remain useful:
+## Open design questions
 
-1. `Owed<Resource>` records the adjusted fungible debt.
-2. Debt enables `Accepting<Resource>` and card-held substitutes.
-3. A qualified `ActionBilling` implements `Billing` and exposes payment choices.
-4. Payments remove `Owed`.
-5. When matching debt reaches zero, the billing removes itself.
+- Does every arrow generate a dependent class, or can a named single-action provider itself be
+  the Signal? Both must preserve provider availability and meaningful action families.
+- What is the smallest executable representation of the left side that supports ordinary Pets
+  and game-specific payment substitution while preserving shared bindings?
+- What finishes a delegated left side, and when may the enclosing Player resume? Settlement,
+  action results, and all their reactions need not denote the same point.
+- Which permission representations remove current special cases without making ordinary action
+  availability harder to express?
 
-Under the working model, billing removal completes the left side and causes the chosen action
-Signal. The right side then responds to that Signal instead of directly to `-ActionBilling`. No separate
-`Paid` component is needed.
+## Evidence to inspect
 
-Only billing creation needs to name its denomination, and M€ is the default. Discounts and
-surcharges modify `Owed` before the billing exists. Accepted substitutes reduce that same debt;
-they are not parallel kinds of debt.
-
-The billing must retain enough identity to correlate with the selected action before that action's
-Signal exists. If action identity becomes a concrete Class, the likely key is the action Class plus
-whatever live provider dependency modifiers need. It cannot depend on the ephemeral Signal
-instance because that instance is deliberately issued only after settlement.
-
-### Single payment-choice loop
-
-**Status: unselected candidate.** Do not implement this before the investigations and decision
-gates in [PAYMENTS.md](PAYMENTS.md). Today each tender kind creates its own optional task. Paying
-with one kind can leave stale alternatives that callers must decline or clean up.
-
-Replace them with one required task meaning “pay one accepted unit.” Its refinements are the legal
-`Accepting<Resource>` and `AcceptingFromCard<Holder>` choices. Spending one unit creates a common
-payment Signal. After its automatic value effects finish, Billing creates one replacement payment
-task if matching debt remains.
-
-If debt remains with no accepted tender, the payment task has no concrete choice and the operation
-dead-ends. When no debt remains, Billing removes itself; under the working model that removal lets
-the action machinery issue the selected action Signal.
-
-Card play uses the same debt-zero rule but is not necessarily an action. `-CardBilling` can put the
-card into play as soon as its debt is settled. EventCard lifetime remains owned by whole-World idle
-cleanup; see [SEQUENCING.md](SEQUENCING.md#current-behavior-whole-world-idle-cleanup).
-
-### Player-input staging
-
-An action with billing is one operation with ordered stages. The player chooses the action, settles
-its left side through zero or more payment choices, and only then receives consequences created by
-the action Signal's effects.
-
-Client helpers must recognize payment from live Billing state, not from arbitrary resource-removal
-instructions. A direct floater removal, production transformation, or holder-sensitive removal is
-ordinary left-side work unless Terraforming Mars deliberately rewrites it as billing.
-
-## Composition
-
-Several additions to `Owed` may precede one billing component. Card buying adds 3 M€ per selected
-card, so Polyphemos and Terralabs Research can alter the same debt before the billing opens.
-
-Trade has three actions for 9 M€, 3 energy, or 3 titanium. Cryo-Sleep and Rim Freighters both write
-`ActionBilling<TradeAction>:: -Owed`; the bare removal follows the billing component's selected
-denomination, so the cards already need not name MC, energy, titanium, or an action slot. Concrete Trade action
-Classes must remain members of a common `TradeAction` family so this one listener continues to
-cover all three.
-
-Fund Award has three actions—8, 14, and 20 M€—whose right sides are gated by existing Award count.
-They should likewise remain one declaring family even though each arrow receives its own concrete
-action identity.
-
-Standard projects retain authored arrows such as `1 MC / cost -> OceanTile<>`; the project Class
-supplies the variable price and Terraforming Mars supplies billing. `UseStandardProjectAction` is
-only the standard-action doorway that delegates to this separate set.
-
-Neptunian Power Consultants and Cathedral use auxiliary live providers so their actions exist only
-when the option exists and are owned by the correct player. Concrete action Signals should preserve
-that dependency-driven behavior without requiring persistent duplicate action components.
-
-## Ownership
-
-`Action` syntax, the abstract action protocol, concrete action identity, and the transition from a
-satisfied left side to a Signal belong to generic Pets.
-
-`StandardResource`, `Owed`, `ActionBilling`, card-action permission, Trade fleets, standard-action routes,
-and the recognition of billable Terraforming Mars left sides belong to Terraforming Mars. The
-generic transformer currently recognizes six Terraforming Mars resource names; treat that as one
-existing layering flaw rather than justification for pushing billing into generic Pets.
-
-## Next phase: constrained prototype
-
-**Status: selected next step.** Answer the leading design questions with a small implementation
-experiment before migrating production Terraforming Mars declarations. The prototype should be
-cheap to discard if concrete action Signals require compensating machinery.
-
-### Stage 1: direct action
-
-Use a focused Pets test catalog containing one live provider with one non-billing arrow.
-
-1. Lower the arrow to a concrete action Signal Class that is a subtype of abstract `UseAction` and
-   depends on the live provider.
-2. Make the arrow's left side available to general action machinery as an `Instruction`.
-3. Let a pending abstract action task narrow to that concrete Class.
-4. Execute the left-side instruction and gain the concrete Signal only after it succeeds.
-5. Express the right side solely as an effect on that Signal, preferably `This::` in the
-   lowered declaration.
-6. Verify that an absent provider removes the choice, an impossible left side leaves no trace, the
-   Signal precedes its right-side effect, and the Signal cleans itself up normally.
-
-Do not migrate a production card, alter permission, solve required-action availability, or generalize
-multi-arrow providers in this stage.
-
-### Stage 2: Terraforming Mars billing
-
-After Stage 1 is coherent, carry the same shape through one fixed standard-resource left side.
-
-1. Let Terraforming Mars rewrite the selected action's left-side instruction into `Owed` and
-   `ActionBilling` work.
-2. Complete payment sequentially.
-3. Make billing removal cause the concrete action Signal rather than the right side directly.
-4. Keep the right-side effect identical to the direct prototype.
-5. Verify successful payment ordering, failed-payment rollback, and one billing modifier card.
-6. Use the result to decide whether billing removal is sufficient completion or action-local scoped
-   state still earns a role. Do not introduce `Temporary` just to bridge parallel payment tasks
-   that the sequential payment loop will remove.
-
-Stop if either stage needs a persistent duplicate of the provider, a second instruction system,
-parallel action identity data, or special handling of the right side. Report which requirement
-caused that pressure before enlarging the prototype.
-
-Only after both stages succeed should work proceed to shared X and Type variables, multi-arrow
-providers and declaring-family listeners, then production migration. Card permission and the
-positive required-action provider transition remain separate work.
-
-## Ranked questions
-
-Unresolved, in decision order:
-
-1. **Is every actual action a concrete Signal subtype of abstract `UseAction`?** This would make the
-   action Class its identity and the gained component its event, with provider dependency supplying
-   availability. Decide this before choosing any new `UseAction` arity or creating persistent offer
-   components.
-2. **Where does an action's left-side `Instruction` live, and at what stage may a domain rewrite
-   it?** An instruction-valued property on the concrete action Class is plausible, but it must compose
-   with normal Pets transformation rather than create a second instruction system.
-3. **What exact completion causes the action Signal?** Plain `THEN` may suffice for a direct
-   instruction; billing removal may suffice for sequential payment; descendant work may require a
-   scoped completion component. Determine where, if anywhere, `Temporary` still earns a role.
-4. **Can the delayed Signal preserve today's binding behavior and declaring-family matching?** The
-   existing `THEN` tree carries Type variables and shared X; Trade modifiers target all three arrows
-   through `ActionBilling<TradeAction>`. A concrete-Signal design must preserve both without parallel
-   identity data.
-5. **How does `RequiredAction` positively replace and restore the ordinary action providers?** The
-   leading shape is one removable player-owned provider for standard actions, while the
-   live required component supplies `DoRequiredActionsAction`. Work out its setup and transition
-   invariants before deciding whether a fuller action-mode sum type is necessary or deleting the
-   current gate.
+- [`Action.kt`](../../src/common/dev/martianzoo/pets/ast/Action.kt), search `Cost`, owns the current
+  authoring representation; `Transforming.actionListToEffects` owns generic lowering.
+- `TfmActionLowerer.actionToEffects` and Terraforming Mars `actions.pets` and `payment.pets` own
+  the current game-specific split.
+- [`VariableAmountActionsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/VariableAmountActionsTest.kt),
+  [`UtopiaInvestTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/UtopiaInvestTest.kt), and
+  [`VironTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/VironTest.kt) exercise shared
+  quantities, linked resource choices, and direct-grant behavior that a replacement must preserve.

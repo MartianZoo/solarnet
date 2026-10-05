@@ -14,12 +14,14 @@ internal class InspectAndKeepCardsTest : CardTest() {
     p1.autoExecPolicy = NONE
 
     p1.runOperation("$BusinessContacts") {
-      doTask("4 ProjectCard<Selecting>")
-      p1.assertCounts(4 to "ProjectCard<Selecting>", 0 to "ProjectCard<Hand>")
-      doTask("2 ProjectCard<Hand FROM Selecting>")
-    }
-
-    p1.assertCounts(0 to "ProjectCard<Selecting>", 2 to "ProjectCard<Hand>")
+          doTask("4 ProjectCard<Selecting>")
+          p1.assertCounts(4 to "ProjectCard<Selecting>", 0 to "ProjectCard")
+          doTask("2 ProjectCard<Hand FROM Selecting>")
+          p1.assertCounts(2 to "ProjectCard<Selecting>", 2 to "ProjectCard")
+          doTask("-2 ProjectCard<Selecting>")
+        }
+        .expect("2 ProjectCard")
+    p1.assertCounts(0 to "ProjectCard<Selecting>", 2 to "ProjectCard")
   }
 
   @Test
@@ -28,11 +30,13 @@ internal class InspectAndKeepCardsTest : CardTest() {
     p1.autoExecPolicy = NONE
 
     p1.runOperation("$InventionContest") {
-      doTask("3 ProjectCard<Selecting>")
-      p1.assertCounts(3 to "ProjectCard<Selecting>", 0 to "ProjectCard<Hand>")
-      doTask("ProjectCard<Hand FROM Selecting>")
-    }
-
-    p1.assertCounts(0 to "ProjectCard<Selecting>", 1 to "ProjectCard<Hand>")
+          doTask("3 ProjectCard<Selecting>")
+          p1.assertCounts(3 to "ProjectCard<Selecting>", 0 to "ProjectCard")
+          doTask("-2 ProjectCard<Selecting>")
+          p1.assertCounts(1 to "ProjectCard<Selecting>", 0 to "ProjectCard")
+          doTask("ProjectCard<Hand FROM Selecting>")
+        }
+        .expect("ProjectCard")
+    p1.assertCounts(0 to "ProjectCard<Selecting>", 1 to "ProjectCard")
   }
 }

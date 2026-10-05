@@ -1,31 +1,30 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.engine.Exceptions.RunawayEffectChainException
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
-import dev.martianzoo.pets.Transforming
-import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.GameplayException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.pets.api.Exceptions.abstractInstruction
-import dev.martianzoo.pets.api.Exceptions.orWithoutChoice
-import dev.martianzoo.pets.api.Exceptions.requirementNotMet
-import dev.martianzoo.pets.api.Exceptions.requirementsNotMetInChoices
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
-import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.DIE
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
+import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Each
+import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
@@ -38,20 +37,32 @@ import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.ast.PetNode.Companion.replacer
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.types.ClassLimitTable.Limit
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.pets.types.inferTypeVariables
+import dev.martianzoo.pets.types.recordTypeVariableScopes
+import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Component.Companion.toComponent
+import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.GameReader
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.toComponent
 import kotlin.math.min
 
-/** Just a cute name for "instruction handler". It resolves and executes instructions. */
+/**
+ * Resolves instructions and executes their concrete changes.
+ *
+ * A gained component's exact concrete required parts are constructed in dependency order before
+ * reactions to any of their gains. Parts' automatic reactions run before their owners'. Each
+ * recorded change executes matching automatic effects recursively before evaluating and admitting
+ * its queued effects. Automatic execution may itself produce queued work, but it never enters the
+ * task pool. [Effector.fire] owns selection of each effect batch; this class owns construction and
+ * the automatic-before-queued execution boundary.
+ */
 internal class Instructor
 internal constructor(
     private val reader: GameReader,
@@ -60,9 +71,33 @@ internal constructor(
     private val effector: Effector,
     private val classTable: ClassTable,
     private val elaborator: PetElaborator,
-    private val customClasses: CustomInstructionRuntime,
+    private val timeline: Timeline,
 ) {
-  private val automaticEffectStack = mutableListOf<PendingTask>()
+  private var automaticEffectStack: List<PendingTask> = emptyList()
+  private var constructionEvents: MutableList<ConstructionEvent>? = null
+
+  private data class ConstructionEvent(
+      val event: ChangeEvent,
+      val controller: Actor,
+      val ancestors: List<PendingTask>,
+  )
+
+  /** Applies a complete correction with required parts but without queued effects. */
+  internal fun sneak(changes: InstructionGroup, cause: Cause?, actor: Actor) {
+    changes.instructions.forEach {
+      if (it.isAbstract(reader)) {
+        throw NotFullySpecifiedException("instruction is abstract: `$it`", it.sourceLocation)
+      }
+      val change =
+          it as? Change
+              ?: throw ExpressionException(
+                  "sneak accepts only direct changes; found `$it`",
+                  sourceLocation = it.sourceLocation,
+              )
+      executeChange(change, cause, mutableListOf(), actor, actor, queuedEffects = false)
+    }
+    limiter.checkAllInvariants()
+  }
 
   internal fun execute(
       instruction: Instruction,
@@ -89,20 +124,16 @@ internal constructor(
       deferred: MutableList<PendingTask>,
       actor: Actor,
       controller: Actor,
+      queuedEffects: Boolean = true,
   ) {
     when (val resolved = resolve(instruction)) {
-      is Instruction -> doExecuteResolved(resolved, cause, deferred, actor, controller)
+      is Instruction ->
+          doExecuteResolved(resolved, cause, deferred, actor, controller, queuedEffects)
       // Independent siblings, such as the branches of a fanout, execute in place here; only an
       // enqueued task turns them into separately selectable work.
       is InstructionGroup ->
           resolved.instructions.forEach {
-            doExecute(
-                it as? Instruction ?: throw abstractInstruction(it),
-                cause,
-                deferred,
-                actor,
-                controller,
-            )
+            doExecute(it, cause, deferred, actor, controller, queuedEffects)
           }
     }
   }
@@ -113,20 +144,34 @@ internal constructor(
       deferred: MutableList<PendingTask>,
       actor: Actor,
       controller: Actor,
+      queuedEffects: Boolean = true,
   ) {
+    if (resolved !is Then && resolved.isAbstract(reader)) {
+      throw NotFullySpecifiedException(
+          "instruction is abstract: `$resolved`",
+          resolved.sourceLocation,
+      )
+    }
     when (resolved) {
-      is Change -> executeChange(resolved, cause, deferred, actor, controller)
-      is By -> doExecuteResolved(resolved.inner, cause, deferred, actorFor(resolved), controller)
-      is Then ->
-          resolved.instructions.forEachIndexed { index, tree ->
-            val instruction = tree as? Instruction ?: throw abstractInstruction(tree)
-            if (index == 0) {
-              doExecuteResolved(instruction, cause, deferred, actor, controller)
-            } else {
-              doExecute(instruction, cause, deferred, actor, controller)
-            }
+      is Change -> executeChange(resolved, cause, deferred, actor, controller, queuedEffects)
+      is By ->
+          doExecuteResolved(
+              resolved.inner,
+              cause,
+              deferred,
+              actorFor(resolved),
+              controller,
+              queuedEffects,
+          )
+      is Then -> {
+        doExecuteResolved(resolved.first, cause, deferred, actor, controller, queuedEffects)
+        resolved.instructions.drop(1).forEach { tree ->
+          InstructionGroup.of(tree).instructions.forEach {
+            doExecute(it, cause, deferred, actor, controller, queuedEffects)
           }
-      is Or -> throw orWithoutChoice(resolved)
+        }
+      }
+      is Or -> error("abstract OR passed the execution boundary: $resolved")
       is NoOp -> {}
       else -> error("somehow a ${resolved::class.simpleName} was enqueued: $resolved")
     }
@@ -138,13 +183,15 @@ internal constructor(
       deferred: MutableList<PendingTask>,
       actor: Actor,
       controller: Actor,
+      queuedEffects: Boolean,
   ) {
-    val ct = instruction.count as? ActualScalar ?: throw abstractInstruction(instruction)
-    if (instruction.quantifier != MANDATORY) throw abstractInstruction(instruction)
+    val ct = instruction.count as ActualScalar
+    check(!queuedEffects || instruction.quantifier == MANDATORY)
 
     val gaining = instruction.gaining?.toComponent(reader)
     val removing = instruction.removing?.toComponent(reader)
 
+    val checkpoint = timeline.checkpoint()
     while (true) {
       val (result, done) =
           changer.change(
@@ -152,36 +199,114 @@ internal constructor(
               gaining = gaining,
               removing = removing,
               cause = cause,
-              orRemoveOneDependent = true,
               actor = actor,
           )
 
-      val now = effector.fire(result, controller, automatic = true)
-      for (task in now) {
-        executeAutomaticEffect(task, deferred)
-      }
-      deferred += effector.fire(result, controller, automatic = false)
+      constructPartsAndFire(result, controller, deferred, queuedEffects)
       if (done) break
+    }
+    if (queuedEffects && automaticEffectStack.isEmpty()) {
+      try {
+        limiter.checkInvariantsSince(checkpoint)
+      } catch (e: LimitsException) {
+        e.sourceLocation =
+            instruction.sourceLocation
+                ?: instruction.gaining?.sourceLocation
+                ?: instruction.removing?.sourceLocation
+        throw e
+      }
+    }
+  }
+
+  /** Required parts all exist before any event in their construction dispatches effects. */
+  private fun constructPartsAndFire(
+      event: ChangeEvent,
+      controller: Actor,
+      deferred: MutableList<PendingTask>,
+      queuedEffects: Boolean,
+  ) {
+    val recorded = ConstructionEvent(event, controller, automaticEffectStack)
+    constructionEvents?.let {
+      it += recorded
+      return
+    }
+    val events = mutableListOf(recorded)
+    val pending = mutableListOf<Pair<Limit, ConstructionEvent>>()
+    constructionEvents = events
+    try {
+      var discovered = 0
+      while (true) {
+        while (discovered < events.size) {
+          val origin = events[discovered++]
+          origin.event.change.gaining
+              ?.takeIf {
+                it != origin.event.change.removing && reader.countComponent(it.type) > 0
+              }
+              ?.let { owner ->
+                classTable.componentLimits.requiredParts(owner.type).forEach {
+                  pending += it to origin
+                }
+              }
+        }
+        pending.removeAll { (part, _) -> reader.countComponent(part.type) >= part.range.first }
+        if (pending.isEmpty()) break
+        val ready = pending.indexOfFirst { (part, _) ->
+          part.type.typeDependencies.all { reader.countComponent(it.boundType) > 0 }
+        }
+        // If none can proceed, ordinary gain resolution reports the missing dependencies.
+        val (part, origin) = pending.removeAt(ready.takeIf { it >= 0 } ?: 0)
+        val owner = checkNotNull(origin.event.change.gaining)
+        val missing = part.range.first - reader.countComponent(part.type)
+        val instruction = elaborator.atomizeGains(gain(part.type.expression, missing))
+        executeAutomaticEffect(
+            PendingTask.fromEffect(
+                context = owner,
+                triggerEvent = origin.event,
+                controller = origin.controller,
+                changedComponentPlayer = owner.owningPlayer,
+                automatic = true,
+                instruction = InstructionGroup.of(instruction),
+            ),
+            deferred,
+            queuedEffects,
+            origin.ancestors,
+        )
+      }
+    } finally {
+      constructionEvents = null
+    }
+    for ((change, changeController) in events.asReversed()) {
+      for (task in effector.fire(change, changeController, automatic = true)) {
+        executeAutomaticEffect(task, deferred, queuedEffects)
+      }
+    }
+    if (queuedEffects) {
+      for ((change, changeController) in events) {
+        deferred += effector.fire(change, changeController, automatic = false)
+      }
     }
   }
 
   private fun executeAutomaticEffect(
       task: PendingTask,
       deferred: MutableList<PendingTask>,
+      queuedEffects: Boolean,
+      ancestors: List<PendingTask> = automaticEffectStack,
   ) {
-    if (automaticEffectStack.size >= MAX_AUTOMATIC_EFFECT_DEPTH) {
+    if (ancestors.size >= MAX_AUTOMATIC_EFFECT_DEPTH) {
       throw RunawayEffectChainException(
           MAX_AUTOMATIC_EFFECT_DEPTH,
-          (automaticEffectStack + task).map(PendingTask::instruction),
+          (ancestors + task).map(PendingTask::instruction),
       )
     }
-    automaticEffectStack += task
+    val enclosingStack = automaticEffectStack
+    automaticEffectStack = ancestors + task
     try {
       task.instruction.instructions.forEach {
-        doExecute(it, task.cause, deferred, task.actor, task.controller)
+        doExecute(it, task.cause, deferred, task.actor, task.controller, queuedEffects)
       }
     } finally {
-      automaticEffectStack.removeLast()
+      automaticEffectStack = enclosingStack
     }
   }
 
@@ -197,52 +322,137 @@ internal constructor(
    * * Validates and removes "gates"
    * * Evaluates a metric in a [Per] instruction, multiplying the inner instruction appropriately
    * * Resolves each option of an [Or]
-   * * If gaining a *concrete* custom type, rewrites to the result of [CustomClass.translate]
+   *
+   * [worldGainNarrowing] permits current-World gain narrowing after a Task is selected.
    */
-  internal fun resolve(unresolved: Instruction): InstructionTree {
+  internal fun resolve(
+      unresolved: Instruction,
+      worldGainNarrowing: Boolean = false,
+  ): InstructionTree {
     return when (unresolved) {
       is NoOp -> NoOp
-      is Change -> resolveChange(unresolved)
-      is By -> By.createTree(resolve(unresolved.inner), canonicalActorExpression(unresolved))
-      is Per -> resolve(unresolved.inner * reader.count(unresolved.metric))
+      is Change -> resolveChange(unresolved, worldGainNarrowing)
+      is By ->
+          By.createTree(
+              resolve(unresolved.inner, worldGainNarrowing),
+              canonicalActorExpression(unresolved),
+          )
+      is Per ->
+          resolveTree(
+              elaborator.atomizeGains(unresolved.inner * reader.count(unresolved.metric)),
+              worldGainNarrowing,
+          )
       is Gated -> {
-        if (!reader.has(unresolved.gate)) throw requirementNotMet(unresolved.gate)
-        resolveTree(unresolved.inner)
+        if (!reader.has(unresolved.gate)) {
+          throw RequirementException(
+              "requirement `${unresolved.gate}` is not met for `${unresolved.inner}`",
+              unresolved.gate.sourceLocation
+                  ?: unresolved.gate.descendantsOfType<Expression>().firstOrNull()?.sourceLocation,
+          )
+        }
+        resolveTree(unresolved.inner, worldGainNarrowing)
       }
-      is Each -> resolveEach(unresolved)
-      is Or -> resolveOr(unresolved)
+      is Each -> resolveEach(unresolved, worldGainNarrowing)
+      is Or -> resolveOr(unresolved, worldGainNarrowing)
       is Then -> {
         val first = unresolved.first
-        val gated = first as? Gated
-        val gateVariables =
-            gated
-                ?.gate
-                ?.descendantsOfType<Expression>()
-                ?.mapNotNull(unresolved.typeVariables::variableAt)
-                ?.toSet()
-                .orEmpty()
-        val openGate =
-            gated?.inner?.descendantsOfType<Expression>()?.any {
-              unresolved.typeVariables.variableAt(it) in gateVariables
-            } == true
+        val openChoice =
+            first.descendantsOfType<Expression>().any { expression ->
+              unresolved.typeVariables.variableAt(expression)?.let { variable ->
+                reader.isAbstract(unresolved.typeVariables.expressionOf(variable.declaration))
+              } == true
+            }
+        if (
+            openChoice &&
+                first is Change &&
+                first.count is ActualScalar &&
+                first.quantifier != OPTIONAL
+        ) {
+          // Removing predicates gives an upper bound on possible targets. A shared observer may
+          // await selection, but it cannot make an otherwise impossible physical change possible.
+          val broad =
+              object : PetTransformer() {
+                override fun transformNode(node: PetNode): PetNode =
+                    if (node is Expression) transformChildren(node.copy(refinement = null))
+                    else transformChildren(node)
+              }
+          val required =
+              if (first.quantifier == MANDATORY) (first.count as ActualScalar).value else 1
+          val gain = first.gaining?.let { reader.resolve(broad.transformExpression(it)) }
+          val removal = first.removing?.let { reader.resolve(broad.transformExpression(it)) }
+          val possible =
+              when {
+                gain != null && removal == null && !gain.rootClass.declaration.customMetric ->
+                    limiter.hasAvailableConcreteGain(
+                        gain,
+                        required,
+                        reader,
+                        invariants = first.quantifier != MANDATORY,
+                    )
+                gain == null && removal != null ->
+                    limiter.hasAvailableConcreteRemoval(
+                        removal,
+                        required,
+                        reader,
+                        invariants = first.quantifier != MANDATORY,
+                    )
+                else -> true
+              }
+          if (!possible) {
+            if (first.quantifier == MANDATORY)
+                throw LimitsException("no concrete narrowing of `$first` can execute")
+            return unresolved.withInstructions(listOf(NoOp) + unresolved.instructions.drop(1))
+          }
+        }
         unresolved.withInstructions(
-            listOf(if (openGate) first else resolveTree(first)) + unresolved.instructions.drop(1)
+            listOf(if (openChoice) first else resolveTree(first, worldGainNarrowing)) +
+                unresolved.instructions.drop(1)
         )
       }
-      is Transform -> throw ExpressionException("unhandled instruction transform: $unresolved")
+      is Transform ->
+          throw ExpressionException(
+              "unhandled instruction transform: `$unresolved`",
+              sourceLocation = unresolved.sourceLocation,
+          )
     }
   }
 
-  private fun resolveTree(unresolved: InstructionTree): InstructionTree =
-      if (unresolved is InstructionGroup) unresolved else resolve(unresolved as Instruction)
+  /** The current capacity of a concrete change, or null when its destination is absent. */
+  internal fun changeLimit(change: Change): Int? {
+    val gain = change.gaining?.let(reader::resolve)
+    val removal = change.removing?.let(reader::resolve)
+    require(listOfNotNull(gain, removal).none(Type::abstract))
+    return try {
+      limiter.findLimit(
+          gain?.toComponent(),
+          removal?.toComponent(),
+          invariants = change.quantifier != MANDATORY,
+      )
+    } catch (_: DependencyException) {
+      null
+    }
+  }
+
+  private fun resolveTree(
+      unresolved: InstructionTree,
+      worldGainNarrowing: Boolean,
+  ): InstructionTree =
+      if (unresolved is InstructionGroup) unresolved
+      else resolve(unresolved as Instruction, worldGainNarrowing)
 
   private fun canonicalActorExpression(instruction: By): Expression {
     val type = reader.resolve(instruction.actor)
     if (!type.rootClass.isSubtypeOf(classTable.getClass(ACTOR))) {
-      throw ExpressionException("BY requires an Actor, not ${instruction.actor}")
+      throw ExpressionException(
+          "`BY` requires an `Actor`; `${instruction.actor}` is not an `Actor`",
+          sourceLocation = instruction.actor.sourceLocation,
+      )
     }
     if (type.abstract) {
-      throw ExpressionException("BY requires one concrete Actor, not ${instruction.actor}")
+      throw ExpressionException(
+          "`BY` requires one concrete `Actor`; `${instruction.actor}` is abstract",
+          sourceLocation = instruction.actor.sourceLocation,
+      )
     }
     return type.expression
   }
@@ -250,7 +460,10 @@ internal constructor(
   private fun actorFor(instruction: By): Actor {
     val type = reader.resolve(instruction.actor)
     if (reader.countComponent(type) != 1) {
-      throw ExpressionException("BY requires a participating Actor, not ${type.expression}")
+      throw ExpressionException(
+          "`BY` requires a participating `Actor`; `${type.expression}` has no component in this world",
+          sourceLocation = instruction.actor.sourceLocation,
+      )
     }
     if (type.className == ADMIN.className) return ADMIN
     if (type.rootClass.isSubtypeOf(classTable.getClass(PLAYER))) {
@@ -259,10 +472,10 @@ internal constructor(
     throw ExpressionException("unsupported Actor: ${type.expression}")
   }
 
-  private fun resolveChange(change: Change): InstructionTree {
+  private fun resolveChange(change: Change, worldGainNarrowing: Boolean): InstructionTree {
     val quantifier = change.quantifier ?: error("missing quantifier: $change")
     return try {
-      resolveChangeWithoutDependencyFallback(change, quantifier)
+      resolveChangeWithoutDependencyFallback(change, quantifier, worldGainNarrowing)
     } catch (e: DependencyException) {
       val gaining = change.gaining
       val canFallBackToZero =
@@ -270,7 +483,7 @@ internal constructor(
               gaining != null &&
               change.removing == null &&
               (quantifier == OPTIONAL || reader.resolve(gaining).abstract) &&
-              !classTable.getClass(gaining.className).declaration.custom
+              !classTable.getClass(gaining.className).declaration.customMetric
       if (canFallBackToZero) NoOp else throw e
     }
   }
@@ -278,15 +491,16 @@ internal constructor(
   private fun resolveChangeWithoutDependencyFallback(
       change: Change,
       intens: Instruction.Quantifier,
+      worldGainNarrowing: Boolean,
   ): InstructionTree {
     // can't resolve at all if we still have an X?
     val count = (change.count as? ActualScalar)?.value ?: return change
     if (change is Transmute) {
       // An exclusion containing an open co-reference becomes meaningful only when an atomic
-      // proposal binds that variable. Generated syntax may need the ordinary inference fallback.
+      // proposal binds that explicitly named variable.
       val variables =
           change.typeVariables.takeUnless { it.isEmpty }
-              ?: classTable.inferTypeVariables().transformInstruction(change).typeVariables
+              ?: classTable.recordTypeVariableScopes().transformInstruction(change).typeVariables
       val openExclusion =
           change.descendantsOfType<Not>().any { not ->
             not.excluded.descendantsOfType<Expression>().any {
@@ -296,23 +510,45 @@ internal constructor(
       if (openExclusion) return change
     }
 
-    val (g, r) = narrowChangeTypes(change, count, intens) ?: return change
+    val (g, r) = narrowChangeTypes(change, count, intens, worldGainNarrowing) ?: return change
+    if (r?.rootClass?.declaration?.customMetric == true) {
+      throw ExpressionException(
+          "custom metric `${r.className}` cannot be removed",
+          sourceLocation = change.removing?.sourceLocation,
+      )
+    }
+    if (g?.rootClass?.declaration?.customMetric == true) {
+      throw ExpressionException(
+          "custom metric `${g.className}` cannot be gained",
+          sourceLocation = change.gaining?.sourceLocation,
+      )
+    }
+    fun retainedExpression(resolved: Type?, authored: Expression?): Expression? =
+        resolved?.expression?.let { expression ->
+          authored?.let { elaborator.retainTypeVariableNames(expression, it) } ?: expression
+        }
     if (listOfNotNull(g, r).any { !classTable.isInhabited(it) }) {
       if (intens != MANDATORY) return NoOp
       throw DeadEndException(
           "mandatory change uses uninhabited type: " +
-              listOfNotNull(g, r).filterNot(classTable::isInhabited).joinToString()
+              listOfNotNull(g, r).filterNot(classTable::isInhabited).joinToString {
+                "`${it.expression}`"
+              },
+          sourceLocation = change.sourceLocation,
       )
     }
     val atomized = classTable.findClass(ATOMIZED)
     if (r != null && count > 1 && atomized != null && g?.rootClass?.isSubtypeOf(atomized) == true) {
       throw ExpressionException(
-          "Can't transmute $count components into atomized type ${g.expression}; " +
+          "cannot transmute $count components into atomized type `${g.expression}`; " +
               "split it into one-component transmutations"
       )
     }
     if (g?.className == DIE && intens == MANDATORY) {
-      throw DeadEndException("a Die instruction was reached")
+      throw DeadEndException(
+          "a `Die` instruction was reached",
+          sourceLocation = change.sourceLocation,
+      )
     }
 
     if (listOfNotNull(g, r).any { it.abstract }) {
@@ -320,7 +556,7 @@ internal constructor(
       val required = if (intens == MANDATORY) count else 1
 
       fun unavailable(reason: String): InstructionTree {
-        if (intens == MANDATORY) throw LimitsException("Can't ${describe(g, r, count)}: $reason")
+        if (intens == MANDATORY) throw LimitsException("cannot ${describe(g, r, count)}: $reason")
         return NoOp
       }
 
@@ -328,45 +564,69 @@ internal constructor(
           g?.abstract == true &&
               r == null &&
               intens != OPTIONAL &&
-              !g.rootClass.declaration.custom &&
-              !limiter.hasExecutableConcreteGain(g, required, reader)
+              !g.rootClass.declaration.customMetric &&
+              !limiter.hasAvailableConcreteGain(
+                  g,
+                  required,
+                  reader,
+                  invariants = intens != MANDATORY,
+              )
       ) {
         return unavailable("no concrete narrowing can execute")
       }
       if (g == null && r?.abstract == true) {
         val canRemove =
             if (intens == OPTIONAL) {
-              reader.hasAnyComponents(r)
+              limiter.hasComponents(r, reader)
             } else {
-              limiter.hasExecutableConcreteRemoval(r, required, reader)
+              limiter.hasAvailableConcreteRemoval(
+                  r,
+                  required,
+                  reader,
+                  invariants = intens != MANDATORY,
+              )
             }
-        if (!canRemove) return unavailable("max possible is 0")
+        if (!canRemove) return unavailable("maximum available is 0")
       }
+      if (change is Transmute && change.fromEx is Compact) return change
       // Still abstract, don't check limits yet
-      return Change.change(g?.expression, r?.expression, count, intens)
+      return Change.change(
+          retainedExpression(g, change.gaining),
+          retainedExpression(r, change.removing),
+          count,
+          intens,
+      )
     }
 
-    if (g == r && intens != MANDATORY) return NoOp
-    if (g == r) throw ExpressionException("Can't both gain and remove ${g?.expression}")
-
-    translateCustomChange(change, g, r)?.let {
-      return it
-    }
-    return limitChange(g, r, count, intens)
+    return limitChange(
+        g,
+        r,
+        retainedExpression(g, change.gaining),
+        retainedExpression(r, change.removing),
+        count,
+        intens,
+    )
   }
 
   private fun narrowChangeTypes(
       change: Change,
       count: Int,
       quantifier: Instruction.Quantifier,
+      worldGainNarrowing: Boolean,
   ): Pair<Type?, Type?>? {
     val narrowed =
         autoNarrowTypes(
             change.gaining,
             change.removing,
             preserveAbstractActor = quantifier == AMAP,
+            worldGainNarrowing = worldGainNarrowing,
         )
     val (gaining, removing) = narrowed
+    // Limits give an automatically selected self-transmutation zero capacity, including optional
+    // arms.
+    if (gaining != null && !gaining.abstract && gaining == removing) {
+      return narrowed
+    }
     if (
         change is Transmute &&
             !Change.change(gaining?.expression, removing?.expression, count, quantifier)
@@ -378,48 +638,37 @@ internal constructor(
     return narrowed
   }
 
-  private fun translateCustomChange(
-      original: Change,
-      gainingType: Type?,
-      removingType: Type?,
-  ): InstructionTree? {
-    if (gainingType?.rootClass?.declaration?.custom != true) return null
-    if (removingType != null) {
-      throw ExpressionException("custom class instructions can only be pure gains: $original")
-    }
-    val gaining = gainingType.toComponent()
-    val translated = customClasses.translateInstruction(gaining, reader)
-    return resolveTree(translated)
-  }
-
   /** Names one change the way its error messages do: `gain 3 Plant<Player1>`. */
   private fun describe(gaining: Type?, removing: Type?, count: Int): String =
       when {
-        gaining == null -> "remove $count ${removing!!.expression}"
-        removing == null -> "gain $count ${gaining.expression}"
-        else -> "transmute $count ${removing.expression} into ${gaining.expression}"
+        gaining == null -> "remove $count `${removing!!.expression}`"
+        removing == null -> "gain $count `${gaining.expression}`"
+        else -> "transmute $count `${removing.expression}` into `${gaining.expression}`"
       }
 
   private fun limitChange(
       gainingType: Type?,
       removingType: Type?,
+      gainingExpression: Expression?,
+      removingExpression: Expression?,
       count: Int,
       quantifier: Instruction.Quantifier,
   ): Instruction {
     val gaining = gainingType?.toComponent()
     val removing = removingType?.toComponent()
-    val limit = limiter.findLimit(gaining, removing)
+    val limit = limiter.findLimit(gaining, removing, invariants = quantifier != MANDATORY)
     val adjusted: Int = min(count, limit)
 
     if (quantifier == MANDATORY && adjusted != count) {
       throw LimitsException(
-          "Can't ${describe(gainingType, removingType, count)}: max possible is $adjusted"
+          "cannot ${describe(gainingType, removingType, count)}: maximum available is $adjusted",
+          gainingExpression?.sourceLocation ?: removingExpression?.sourceLocation,
       )
     }
 
     return Change.change(
-        gainingType?.expression,
-        removingType?.expression,
+        gainingExpression,
+        removingExpression,
         adjusted,
         if (quantifier == AMAP) MANDATORY else quantifier,
     )
@@ -431,45 +680,44 @@ internal constructor(
    * candidate like any other refinement — is how "each player who..." is expressed. The resulting
    * siblings carry no game order.
    */
-  private fun resolveEach(each: Each): InstructionTree {
+  private fun resolveEach(each: Each, worldGainNarrowing: Boolean): InstructionTree {
     val selectorType = reader.resolve(each.selector)
     if (!selectorType.abstract) {
       throw ExpressionException(
           "`EACH ${each.selector}` resolves to a concrete Type; `EACH` requires an abstract selector"
       )
     }
-    val selected = reader.getComponents(selectorType).map { it.expression }
-    val branches = selected.map { branchFor(each, it) }
+    val targets = reader.getComponents(selectorType).map { it.expression }
+    val branches = targets.map { branchFor(each, it, worldGainNarrowing) }
     return InstructionGroup.createTree(branches)
   }
 
-  private fun branchFor(each: Each, selected: Expression): InstructionTree {
-    val owner = selected.takeIf { elaborator.selectionSuppliesOwner(each.selector) }
-    val representedSelection =
-        each.representedSelectorName?.let {
-          check(selected.className == CLASS)
-          selected.arguments.single()
+  private fun branchFor(
+      each: Each,
+      selected: Expression,
+      worldGainNarrowing: Boolean,
+  ): InstructionTree {
+    val bound = each.bodyFor(selected)
+    val evaluated =
+        try {
+          elaborator.evaluateProperties(bound, context = selected)
+        } catch (e: PetException) {
+          throw InvalidPetDefinitionException(
+              "invalid `EACH` body for `$selected`: ${e.detail}",
+              e,
+              e.sourceLocation ?: each.body.sourceLocation,
+          )
         }
-    val bind =
-        PetTransformer.chain(
-            replacer(each.selectorName, selected),
-            each.representedSelectorName?.let { replacer(it, checkNotNull(representedSelection)) },
-            // This selection, rather than the enclosing context, supplies Owner. The unshielded
-            // replacement is intentional.
-            owner?.let(Transforming::replaceOwnerWith),
-        )
-    val bound = bind.transformInstructionTree(each.body)
-    val evaluated = elaborator.evaluateProperties(bound, context = selected, owner = owner)
-    return resolveTree(evaluated)
+    return resolveTree(evaluated, worldGainNarrowing)
   }
 
   /** Resolves each arm against the same world, discarding the unavailable ones. */
-  private fun resolveOr(unresolved: Or): InstructionTree {
+  private fun resolveOr(unresolved: Or, worldGainNarrowing: Boolean): InstructionTree {
     val surviving = mutableListOf<InstructionTree>()
-    val failures = mutableListOf<Exception>()
+    val failures = mutableListOf<GameplayException>()
     unresolved.instructions.forEach {
       try {
-        surviving += resolveTree(it)
+        surviving += resolveTree(it, worldGainNarrowing)
       } catch (e: NotNowException) {
         failures += e
       } catch (e: DeadEndException) {
@@ -479,11 +727,19 @@ internal constructor(
     if (surviving.any()) return Or.createTree(surviving)
 
     // No arm survived, so report the strongest applicable failure rather than becoming `Ok`.
-    val why = failures.joinToString { it.message.orEmpty() }
-    if (failures.any { it is DeadEndException }) throw DeadEndException("no choice remains: $why")
+    val why = failures.joinToString { it.detail }
+    val location = unresolved.sourceLocation ?: failures.firstOrNull()?.sourceLocation
+    if (failures.any { it is DeadEndException })
+        throw DeadEndException("no choice remains: $why", sourceLocation = location)
     val unmet = failures.filterIsInstance<RequirementException>()
-    if (unmet.size == failures.size) throw requirementsNotMetInChoices(unmet)
-    throw NotNowException("all options impossible: $why")
+    if (unmet.size == failures.size) {
+      require(unmet.isNotEmpty())
+      throw RequirementException(
+          "requirements not met in every choice: " + unmet.joinToString { it.detail },
+          location,
+      )
+    }
+    throw NotNowException("no alternative is possible: $why", sourceLocation = location)
   }
 
   // Still spending 25% of solo game time in this method
@@ -491,6 +747,7 @@ internal constructor(
       gaining: Expression?,
       removing: Expression?,
       preserveAbstractActor: Boolean,
+      worldGainNarrowing: Boolean,
   ): Pair<Type?, Type?> {
     var g = gaining?.let(reader::resolve)
     var r = removing?.let(reader::resolve)
@@ -499,10 +756,15 @@ internal constructor(
 
     if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
       val dependencyComponents = g.dependencies.typeDependencies().map { it.boundType }
-      val missing = dependencyComponents.filterNot(reader::hasAnyComponents)
+      val missing = dependencyComponents.filterNot { limiter.hasComponents(it, reader) }
       if (missing.any()) throw DependencyException(missing)
 
-      g = classTable.singleConcreteSubtype(g, reader) ?: g
+      g =
+          classTable.singleConcreteSubtype(g, reader)
+              ?: (if (worldGainNarrowing) {
+                limiter.singleConcreteGainWithPresentDependencies(g, reader)
+              } else null)
+              ?: g
     }
 
     val hasAbstractActorDependency =
@@ -520,5 +782,3 @@ internal constructor(
 }
 
 private const val MAX_AUTOMATIC_EFFECT_DEPTH = 8
-
-private fun GameReader.hasAnyComponents(type: Type): Boolean = getComponents(type).isNotEmpty()

@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.web.gameviewer
 
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameWorld
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.cardResourceType
 import dev.martianzoo.tfm.canon.tfmCatalog
 
@@ -14,10 +14,10 @@ import dev.martianzoo.tfm.canon.tfmCatalog
 internal fun playedCards(game: GameWorld, player: Player): List<Type> {
   val current =
       game.reader
-          .getComponents("CardFront")
+          .getComponents(cn("CardFront").expression)
           .elements
           .filter { type ->
-            type.expressionFull.arguments.any { it.className == player.className }
+            type.typeDependencies.any { it.boundType.className == player.className }
           }
           .toSet()
   return game.events
@@ -32,7 +32,10 @@ internal fun playedCards(game: GameWorld, player: Player): List<Type> {
 
 internal fun cardImageDirectory(card: Type): String? {
   val representedClasses =
-      card.typeDependencies.mapNotNull { it.boundType.representedClass?.className?.toString() }
+      card.typeDependencies
+          .mapNotNull { it.boundType.representedClass }
+          .flatMap { it.allSuperclasses() }
+          .map { it.className.toString() }
   return when {
     "CorporationCard" in representedClasses -> "corporations"
     "PreludeCard" in representedClasses -> "preludes"
@@ -59,7 +62,7 @@ internal fun hasActionUsedMarker(reader: GameReader, player: Player, card: Type)
 
 /** Event cards in this player's played-event pile, retaining their play order. */
 internal fun playedEventCards(game: GameWorld, player: Player): List<ClassName> {
-  val current = game.reader.getComponents("PlayedEvent").elements.toSet()
+  val current = game.reader.getComponents(cn("PlayedEvent").expression).elements.toSet()
   return game.events
       .changesSince(Checkpoint(0))
       .asSequence()

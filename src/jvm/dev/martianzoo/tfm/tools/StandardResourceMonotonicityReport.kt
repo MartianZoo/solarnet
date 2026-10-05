@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tools
 
 import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.SystemClasses.USE_ACTION
 import dev.martianzoo.pets.ast.ClassName
@@ -18,11 +19,11 @@ import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.MetricValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.ClassDeclaration
-import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.defaultEnglishDisplayName
 import dev.martianzoo.pets.types.Class as PetsClass
 import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.GamePremise
+import dev.martianzoo.state.defaultEnglishDisplayName
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
@@ -83,7 +84,7 @@ internal object StandardResourceMonotonicityReport {
   )
 
   fun analyze(premise: GamePremise = maximalSoloPremise()): Analysis {
-    val table = ClassTable.forPremise(premise)
+    val table = premise.classTable
     val productionLowerer = table.transformDispatcher()
     val quantities = quantities(table)
     val findings = linkedSetOf<Finding>()
@@ -385,13 +386,13 @@ internal object StandardResourceMonotonicityReport {
     when (node) {
       is Metric.Count -> {
         val countedClass = table.findClass(node.expression.className) ?: return null
-        if (!countedClass.declaration.custom) return null
+        if (!countedClass.declaration.customMetric) return null
         kind = "custom metric"
         evidence = node.toString()
       }
       is Instruction.Gain -> {
         val gainedClass = table.findClass(node.gaining.className) ?: return null
-        if (!gainedClass.declaration.custom) return null
+        if (!gainedClass.isSubtypeOf(table.getClass(CUSTOM_INSTRUCTION))) return null
         kind = "custom instruction"
         evidence = node.toString()
       }
@@ -573,7 +574,7 @@ internal object StandardResourceMonotonicityReport {
                           "VenusNextExpansion",
                           "PreludeExpansion",
                           "ColoniesExpansion",
-                          "TurmoilCardPack",
+                          "TurmoilExpansion",
                           "PromoCardPack",
                           "Callisto",
                           "Ceres",

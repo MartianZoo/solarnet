@@ -6,11 +6,8 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.data.Catalog
-import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.types.ClassLoader
 import dev.martianzoo.pets.types.ClassTable
-import dev.martianzoo.pets.types.testCatalog
+import dev.martianzoo.pets.types.loadTypes
 import io.kotest.matchers.shouldBe
 import kotlin.reflect.KClass
 
@@ -45,34 +42,44 @@ internal fun <P : PetNode> roundTripAll(type: KClass<P>, sources: String) {
  */
 internal const val LANG_DECLARATIONS: String =
     """
-    ABSTRACT CLASS Player : Owner, Actor { CLASS Player1, Player2 }
+    ABSTRACT CLASS Player : Owner, Actor {
+      CLASS Player1
+      CLASS Player2
+    }
     ABSTRACT CLASS Area {
-      CLASS Mars1, Mars2
-      ABSTRACT CLASS LandArea { CLASS Land1, Land2 }
+      CLASS Mars1
+      CLASS Mars2
+      ABSTRACT CLASS LandArea {
+        CLASS Land1
+        CLASS Land2
+      }
     }
 
-    CLASS Plant : Owned<Anyone>
-    CLASS Heat : Owned<Anyone>
-    CLASS Steel : Owned<Anyone>
-    CLASS StartToken : Owned<Anyone>
-    CLASS ProjectCard : Owned<Anyone>, Atomized
+    CLASS Plant : Owned
+    CLASS Heat : Owned
+    CLASS Steel : Owned
+    CLASS StartToken : Owned
+    CLASS ProjectCard : Owned, Atomized
 
-    ABSTRACT CLASS Tile<Area> : Owned<Anyone> { DEFAULT +Tile<LandArea> }
+    ABSTRACT CLASS Tile<Area> : Owned { DEFAULT +Tile<LandArea> }
     CLASS GreeneryTile : Tile
     CLASS OceanTile : Tile
 
-    ABSTRACT CLASS Token : Owned<Anyone> { CLASS RedToken, BlueToken }
+    ABSTRACT CLASS Token : Owned {
+      CLASS RedToken
+      CLASS BlueToken
+    }
 
     "Classes whose gain and removal quantifier defaults differ"
-    CLASS Chit : Owned<Anyone> { DEFAULT +Chit? }
-    CLASS Slug : Owned<Anyone> { DEFAULT -Slug. }
+    CLASS Chit : Owned { DEFAULT +Chit? }
+    CLASS Slug : Owned { DEFAULT -Slug. }
 
     "A card, and a resource whose owner is forced to be its card's owner (T3-8)"
-    ABSTRACT CLASS CardFront : Owned<Owner> { CLASS Ants }
-    ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner> { CLASS Animal }
+    ABSTRACT CLASS CardFront : Owned { CLASS Ants }
+    ABSTRACT CLASS Cardbound<CardFront<@Owner>> : Owned<@Owner> { CLASS Animal }
 
     "A class whose removal-only default differs from its all-use default"
-    CLASS Marker<Area> : Owned<Anyone> { DEFAULT -Marker<LandArea> }
+    CLASS Marker<Area> : Owned { DEFAULT -Marker<LandArea> }
 
     ABSTRACT CLASS Scored { score = Metric }
     CLASS Gardener : Scored {
@@ -81,38 +88,36 @@ internal const val LANG_DECLARATIONS: String =
     }
     ABSTRACT CLASS Rule { This: 2 ProjectCard, Plant }
     CLASS SimpleRule : Rule
-    CLASS OwnedRule : Owned<Anyone> { This: Plant }
+    CLASS OwnedRule : Owned { This: Plant }
     """
 
 /**
  * The declarations above, plus one registered transform handler so that dispatching marked syntax
- * (L10-1) is observable. `UNWRAP[x]` rewrites to `x`.
+ * (L8-1) is observable. `UNWRAP[x]` rewrites to `x`.
  */
-internal val langCatalog: Catalog by lazy {
-  val base = testCatalog(LANG_DECLARATIONS.trimIndent())
-  object : Catalog by base {
-    override val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> =
-        mapOf("UNWRAP" to { _ -> TransformHandler { inner -> inner } })
-
-    override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
-  }
+internal val langTable: ClassTable by lazy {
+  loadTypes(
+      LANG_DECLARATIONS.trimIndent(),
+      transformHandlerFactories = mapOf("UNWRAP" to { _ -> TransformHandler { inner -> inner } }),
+  )
 }
-
-internal val langTable: ClassTable by lazy { langCatalog.classTable }
 
 internal val langElaborator: PetElaborator by lazy { PetElaborator(langTable) }
 
-internal val player1: Player = Player(parse("Player1"))
+internal val player1: Expression = parse("Player1")
 
-/** A world that resolves types in [table] and answers [answer] to every requirement. */
+/** A world that resolves types in [classTable] and answers [answer] to every requirement. */
 internal class TableWorld(
-    private val table: ClassTable,
+    override val classTable: ClassTable,
     private val answer: Boolean = true,
 ) : TypeInfo {
-  override fun isAbstract(e: Expression): Boolean = table.resolve(e).abstract
+  override fun isAbstract(e: Expression): Boolean = classTable.resolve(e).abstract
 
   override fun ensureNarrows(wide: Expression, narrow: Expression): Unit =
-      table.resolve(narrow).ensureNarrows(table.resolve(wide), this)
+      classTable.resolve(narrow).ensureNarrows(classTable.resolve(wide), this)
+
+  override fun ensureSelectionNarrows(wide: Expression, narrow: Expression): Unit =
+      classTable.resolve(narrow).ensureSelectionNarrows(classTable.resolve(wide), this)
 
   override fun has(requirement: Requirement): Boolean = answer
 }

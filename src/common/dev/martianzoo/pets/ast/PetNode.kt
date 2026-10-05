@@ -2,6 +2,7 @@ package dev.martianzoo.pets.ast
 
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.noOp
+import dev.martianzoo.pets.api.SourceLocation
 import dev.martianzoo.pets.ast.Instruction.Gain
 import kotlin.reflect.KClass
 
@@ -14,16 +15,33 @@ import kotlin.reflect.KClass
  * node. "Enough" is not "the fewest" — see [precedence] and [safeToNestIn]. Every rule of
  * [the language specification](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md)
  * saying an element *round-trips* means exactly that: rendering then re-parsing is the identity —
- * [rule L1-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)
+ * [rule L11-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations)
  * for a declaration,
- * [L4-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-requirements),
- * [L5-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics),
- * [L6-13](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)
+ * [L5-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-requirements),
+ * [L4-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-metrics),
+ * [L2-16](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)
  * and
- * [L8-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)
+ * [L6-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)
  * for the elements.
  */
 public sealed class PetNode {
+  /** Diagnostic provenance, excluded from structural equality and rendered Pets. */
+  public var sourceLocation: SourceLocation? = null
+    set(value) {
+      // Shared syntax objects have no individual authored occurrence.
+      when (this) {
+        Instruction.NoOp,
+        Effect.Trigger.WhenGain,
+        Effect.Trigger.WhenRemove,
+        PropertyValue.MetricType,
+        PropertyValue.NumberType,
+        PropertyValue.RequirementType,
+        PropertyValue.OptionalRequirementType,
+        PropertyValue.AbsentRequirementValue -> Unit
+        else -> field = value
+      }
+    }
+
   /**
    * This node's primary API kind: the stable abstraction clients should rely on, rather than its
    * concrete implementation type. For example, a [Gain] has kind [Instruction], not [Gain]. A node
@@ -72,16 +90,6 @@ public sealed class PetNode {
    * it wants child subtrees to be traversed.
    */
   public fun visitDescendants(visitor: (PetNode) -> Boolean): Unit = Visitor(visitor).visit(this)
-
-  /** Returns the total number of [PetNode]s in this subtree, including this. */
-  public fun descendantCount(): Int {
-    var count = 0
-    visitDescendants {
-      count++
-      true
-    }
-    return count
-  }
 
   /** Returns every child node (including this) that is of type [P]. */
   public inline fun <reified P : PetNode> descendantsOfType(): List<P> = descendantsOfType(P::class)
@@ -144,3 +152,7 @@ public sealed class PetNode {
     }
   }
 }
+
+/** Whether this node's children observe Type-variable values rather than declaring them. */
+internal val PetNode.startsTypeVariableObservation: Boolean
+  get() = this is Requirement || this is Metric || this is Expression.Refinement

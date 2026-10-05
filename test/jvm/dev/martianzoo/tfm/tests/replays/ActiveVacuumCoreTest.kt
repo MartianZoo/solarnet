@@ -1,12 +1,14 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 // Complete public-state replay: Active Vacuum Core (g62d89e349c97), save 626.
@@ -28,10 +30,10 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
 
   override val playerClassPets =
       """
-      CLASS Blue : Player { SetupPhase: 4 TerraformRating }
+      CLASS Blue : Player { SetupPhase: 4 TerraformRating<This> }
       CLASS Pink : Player
       CLASS Green : Player
-      CLASS Purple : Player { SetupPhase: 2 TerraformRating }
+      CLASS Purple : Player { SetupPhase: 2 TerraformRating<This> }
       """
           .trimIndent()
 
@@ -46,6 +48,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
 
   private lateinit var purple: TfmGameplay<*>
 
+  @BeforeTest
   override fun commonSetup() {
     super.commonSetup()
     purple = player(4).requireExplicitPaymentChoices()
@@ -54,7 +57,6 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
   @Test
   internal fun completeGame() {
     TfmWorkflow.Automatic(agents).launch()
-    retainStartingProjects(5, 6, 7, 3)
     generation1()
     generation2()
     generation3()
@@ -526,7 +528,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
           OrbitalCleanup,
           payment = {
             pay(titanium = 2)
-            doTask("2 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>")
+            doTask("-2 Graphene<$CarbonNanosystems>")
           },
       )
     }
@@ -615,7 +617,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
       playProject(
           KaguyaTech,
           payment = {
-            doTask("5 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
+            doTask("-5 Microbe<$Psychrophiles>")
           },
       ) {
         doTask("CityTile<Tharsis_6_4> FROM GreeneryTile<Tharsis_6_4>")
@@ -700,7 +702,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
           Mangrove,
           payment = {
             pay(10)
-            doTask("PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
+            doTask("-Microbe<$Psychrophiles>")
           },
       ) {
         placeTile(4, 8)
@@ -787,7 +789,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
           UndergroundCity,
           payment = {
             pay(2, steel = 4)
-            doTask("PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>")
+            doTask("-Graphene<$CarbonNanosystems>")
           },
       ) {
         placeTile(4, 1)
@@ -881,7 +883,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
           Grass,
           payment = {
             pay(9)
-            doTask("PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
+            doTask("-Microbe<$Psychrophiles>")
           },
       )
       playProject(CityParks, 7)

@@ -16,11 +16,10 @@ These are the durable criteria for design and review. Repository-level instructi
 
 ## What Solarnet is for
 
-Solarnet is an open-ended playground for exceptional software and language design. It does not need
-a finite finish line. Its purpose is not primarily to complete a Terraforming Mars implementation,
-produce a generally reusable game engine, or ship a conventional application. Terraforming Mars is
-the demanding subject through which the project can discover and demonstrate a small executable
-algebra of rules.
+Solarnet is a playground for exceptional software and language design. Terraforming Mars is the
+demanding subject through which the project can discover and demonstrate a small executable algebra
+of rules. The owner has not settled how to trade further core-design work against enabling
+outsiders, or which audience to serve first.
 
 The project should attest that a complicated real system can arise from concepts that are few,
 precise, composable, and honestly owned. The result should feel discovered rather than patched
@@ -28,20 +27,30 @@ together. Correct behavior is necessary, but an implementation that relies on in
 exceptions, mirrored models, privileged integration paths, or a disproportionate framework is
 still a design failure.
 
+An especially valued outcome is an independent builder arriving with an unexpected idea they are
+passionate about, building it themselves, and being proud of the result, with Solarnet helping them
+succeed. Skilled UI developers building real user interfaces would also be welcome. These are
+reasons to make the libraries useful to others, not a selected audience or a commitment for the owner
+to build a particular application.
+
 ## Priority tiers
 
-These tiers rank how much outcomes matter, not the order of every implementation step. The numbered
-items within Tiers 1 and 2 are approximately ordered; nearby items should not be read as a precise
-comparison. Some are different faces of the same design, and evidence is a proof obligation rather
+These tiers describe enduring design values, not a settled ranking of audiences or an implementation
+schedule. Some are different faces of the same design, and evidence is a proof obligation rather
 than a competing feature.
+
+[PLANS.md](PLANS.md) indexes the concrete programs that pursue these outcomes.
+[Current major-plan priority](#current-major-plan-priority) records the owner's present emphasis and
+the comparisons that remain unsettled.
 
 ### Tier 1: defining and worth active investment
 
 1. An exceptionally small, clear, regular, and formally precise semantic model. Profound software
    design matters more than uncovering a grammar peculiar to Terraforming Mars.
 2. One semantic source driving execution, natural-language explanation, iconography, and analysis.
-   Reaching this point would be the project's fullest realization, even when more immediate repairs
-   sensibly come first.
+   The concrete **trifecta** milestone is around 300 cards that work perfectly, have good English
+   instructions, and have good iconographic depictions, all derived from that same source.
+   Single-sourced FAQ entries would be a major bonus, not a condition for reaching the trifecta.
 3. Ordinary game meaning in authored Pets and general semantics, not Kotlin orchestration.
    Production code such as `TfmGameplay`, initializers, and workflow glue should not know particular
    cards, components, expansions, or science-fiction concepts.
@@ -49,7 +58,7 @@ than a competing feature.
    scenarios and language tests matter, but nothing provides comparable evidence that the pieces
    work together.
 5. Runtime consequences that can be understood without reconstructing incidental machinery. The
-   fragmented action and payment lifecycle is the most pressing current example: task-pool searches,
+   fragmented action and payment lifecycle is an important example: task-pool searches,
    cause-based choreography, and enormous traces should not be needed to understand an action.
 6. Compact authored Pets that evokes the physical icon grammar without compromising precise
    semantics. Judge genuine notation-versus-semantics conflicts case by case.
@@ -67,7 +76,9 @@ one to three minor cards deserves special scrutiny, including consideration of d
 3. Excellent parser and typechecker diagnostics, especially for mistakes authors hit commonly.
 4. Generative and property-based exploration of interactions not represented by curated examples.
 5. A polished explanation for outsiders and, later, an educational reconstruction of how the design
-   developed. The clean resulting model matters more than preserving its history during development.
+   developed. This is distinct from the internal agent handbook, whose accuracy currently protects
+   Tier 1 design work. The clean resulting model matters more than preserving its history during
+   development.
 6. Richer causal presentation when it can be derived or post-processed cheaply. Existing event logs
    already provide substantial traceability, so perfect attribution does not merit design cost.
 
@@ -79,13 +90,39 @@ major initiative of their own.
 - Broad coverage of official material and exact support for every awkward card or expansion.
 - General reuse, unrelated games, and module purity pursued for their own sake rather than as
   evidence of a coherent design.
-- Autonomous physical-deck play, hidden information, fan material, and a polished player product.
-- Large-scale strategic analysis, AI players, and a separate optimized engine.
+- Fan material and an owner-built polished player product.
+- Large-scale strategic analysis and a separate optimized engine.
 - A comprehensive causal-analytics product built over exported histories.
 - Making raw Pets immediately understandable to a typical Terraforming Mars player.
 
 Things the project does not regard as desirable are omitted rather than assigned a tier. These
 tiers do not excuse defects or authorize claims the implementation cannot support.
+
+## Current major-plan priority
+
+There is **no definitive implementation sequence** among card tracking, export/import, autoexec,
+payment simplification, and the trifecta. Export/import, then autoexec improvement, then payment
+simplification was an expressed inclination; it is not a binding schedule or a ranking of all
+programs. Restoring a coherent middle-ground card-tracking game-playing API may be especially
+important, but its precedence over the other work has not been settled.
+
+[CARD_HANDLING.md](CARD_HANDLING.md) owns that selected external-tracking direction;
+[EXPORT.md](EXPORT.md) owns the requirement for a faithful, clean record of player decisions.
+Saving and resuming unfinished games is not a priority. Do not promote it into an export acceptance
+requirement.
+
+End-to-end solo play, including autonomous play, is a desirable goal. The owner's working view is
+that human and computer play are the same goal: both need the same game-playing capabilities. Do not
+split those capabilities into separate gameplay architectures. This does not select an AI research
+program or a work sequence.
+Hidden information, player-specific universes, and drafting are outside the selected card-handling
+goals.
+
+The existing action/payment, workflow, Agent-policy, handbook, public-contract, and semantic programs
+remain indexed in [PLANS.md](PLANS.md). Their position in that index must not be interpreted as an
+authoritative execution order. Preserve source-backed replay evidence while improving the design;
+evidence is a proof obligation, not a competing feature. The bounded Class-universe finish is
+complete; [CLASS_TABLES.md](CLASS_TABLES.md) records its stable ownership and authority rules.
 
 ## Let libraries attest to the design
 
@@ -177,7 +214,7 @@ Use one of these dispositions:
 | --- | --- |
 | **At peace with it** | Deliberate and expected to last. Do not propose removing it; the reasoning says why the apparent cost is worth it, or why the measurement that flagged it was misleading. |
 | **Accepted for now** | The cost is real and a better option would be taken, but none is known or an external constraint holds. The entry names what would change the answer. |
-| **Already being fixed** | Work is in flight. The entry names the owning document; report new evidence there rather than as a new finding. |
+| **Under design** | The problem is recorded, but its replacement remains open. Keep alternatives and evidence in the owning document. |
 | **Will be obsolete** | It disappears as a consequence of other selected work. Do not spend design effort on it directly. |
 
 An entry records a decision that was made, not a rule that cannot change. Overturn one by showing
@@ -199,12 +236,29 @@ Keep the substantive reasoning in the owning document and keep this table to one
 - **Pets `Action` cost sugar and the parallel `Cost` AST** —
   [ACTIONS.md](ACTIONS.md#why-the-action-cost-form-is-a-product-requirement). `cost ->` is a product
   requirement used by many cards.
-- **The metric operator set** — [ENGINE.md](ENGINE.md#metrics-refinements-and-limits). `Max`,
+- **The metric operator set** — [ENGINE.md](ENGINE.md#the-metric-operators-are-intentional). `Max`,
   `Subtract`, and `Or` have few authored uses, but the algebra is under-built rather than
   over-built.
+- **Handwritten `*.cards.pets` fragments** —
+  [`StandardFormBundle`](../../src/common/dev/martianzoo/tfm/canon/StandardFormBundle.kt). The
+  suffix is the smallest way to keep handwritten cards in the existing card-resource selection
+  model without another Bundle.
+- **Explicit exclusion in normal-corporation offers** — [WORKFLOW.md](WORKFLOW.md#current-foundation).
+  Standard back typing already rejects beginner faces, while `NOT BeginnerCorporation` deliberately
+  states the normal-path rule at every normal-corporation offer.
+- **Turmoil's `TurmoilPlayer` and `ApplyRulingBonus`** —
+  A player's delegate cap needs the bearer's owner available inside an effect, unlike Neutral's
+  direct invariant. The ruling bonus cannot trigger on `Ruling`, because setup places Greens without
+  applying its bonus. Event positions depend on live events; `EACH` binds the event across position
+  transmutation, and removing that event removes its position.
+- **Turmoil's two party-arrow supertypes and two reveal requests** —
+  Pets needs distinct spellings for the two otherwise indistinguishable party dependencies. The
+  Coming request bootstraps setup by becoming the Distant request after its choice; later Distant
+  requests simply finish, and a shared position parameter would also admit unsupported Current.
 
 ### Accepted for now
 
+- **Claims through shared occupancy** — [PLANS.md](PLANS.md#retain-claims-through-shared-occupancy).
 - **Refinements as Types** — [type-system-spec.md](../type-system-spec.md#refinements-are-types).
   One recursive Type model preserves refinements in dependency positions and Type variables without
   a parallel resolved-expression representation. A separate structural Type model would be more
@@ -213,22 +267,18 @@ Keep the substantive reasoning in the owning document and keep this table to one
 - **`BigInt`** — a bespoke immutable bit mask serving one field, `Class.abstractSupertypeBits`.
   Common code has no `java.util.BitSet`, so the alternative is a slower supertype test on a hot
   path. Revisit if a multiplatform bitset becomes available or if the test stops being hot.
-- **Remaining address-only `System` classes** — [EACH.md](EACH.md). `EACH` removed the
-  one-shot cases it can express; the remaining listeners and task holders have distinct lifetime or
-  routing roles. Revisit when Turmoil forces the per-branch delegation question.
+- **Remaining address-only `System` classes** — [EACH.md](EACH.md). Remaining listeners and task
+  holders have lifetime or routing roles. Revisit where fanout can preserve recipient decision
+  authority without the extra component.
 
-### Already being fixed
+### Under design
 
-- **Scopes and idle cleanup** — [SEQUENCING.md](SEQUENCING.md#cleanup-vocabulary).
-  `TemporaryScope<Parent>` is the explicit overlap between nested lifetime, idle removal, and
-  mandatory cleanup. Plain whole-World `Temporary` remains distinct while it can legitimately
-  cross a narrower operation boundary.
-- **`CARDS[...]` and the `CardOperation` recognizer** —
-  [REAL_CARDS_MODE.md](REAL_CARDS_MODE.md#canonical-card-operation-source). Authored intent is
-  discarded and then reconstructed by pattern matching. Known, and owned by that document.
-- **`ActionUsedMarker`, `TradeBarrier`, and the `ActionSlot` pair** —
-  [ACTIONS.md](ACTIONS.md#permission). One missing concept, permission, improvised five ways; that
-  document owns the collapse and the step order.
+- **Delegated control and idle cleanup** —
+  [SEQUENCING.md](SEQUENCING.md#delegated-operations-and-scheduling-options) compares nested
+  priorities with exclusive operation scopes. Neither replacement has been selected.
+- **Action identity and permission** — [ACTIONS.md](ACTIONS.md) records the distinct roles of
+  action identity, turn permission, usage markers, and completion latches; their simplification
+  remains open.
 
 ## Keep Pets central
 

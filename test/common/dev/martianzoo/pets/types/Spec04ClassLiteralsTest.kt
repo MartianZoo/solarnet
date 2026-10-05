@@ -1,12 +1,13 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.Dependency.Key
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -18,13 +19,19 @@ internal class Spec04ClassLiteralsTest {
       loadTypes(
           """
           CLASS Player1 : Owner
-          ABSTRACT CLASS StandardResource : Owned<Owner> {
+          ABSTRACT CLASS StandardResource : Owned {
             CLASS MC
-            ABSTRACT CLASS Metal { CLASS Steel, Titanium }
+            ABSTRACT CLASS Metal {
+              CLASS Steel
+              CLASS Titanium
+            }
             CLASS Plant
           }
-          CLASS Production<Class<StandardResource>> : Owned<Owner>
-          ABSTRACT CLASS Tag { CLASS BuildingTag, SpaceTag }
+          CLASS Production<Class<StandardResource>> : Owned
+          ABSTRACT CLASS Tag {
+            CLASS BuildingTag
+            CLASS SpaceTag
+          }
           ABSTRACT CLASS Area { CLASS Tharsis_2_2 }
           CLASS CityTile<Area>
           """
@@ -82,7 +89,7 @@ internal class Spec04ClassLiteralsTest {
     type("Production<Class<Metal>>").isSubtypeOf(type("Production<Class<Steel>>")) shouldBe false
   }
 
-  // T4-4 Reading the represented class
+  // T4-4 A class literal represents one class
 
   @Test
   internal fun `T4-4 representedClass exposes the named class, and is absent otherwise`() {
@@ -126,7 +133,9 @@ internal class Spec04ClassLiteralsTest {
   internal fun `T4-6 the named class must exist`() {
     shouldThrow<ExpressionException> { type("Class<Jackalope>") }
     // Including where a declaration merely counts one.
-    shouldThrow<PetException> { loadTypes("CLASS Querying { HAS MAX 0 Class<Jackalope> }") }
+    shouldThrow<InvalidPetDefinitionException> {
+      loadTypes("CLASS Querying { HAS MAX 0 Class<Jackalope> }")
+    }
     loadTypes("CLASS Querying { HAS MAX 0 Class<Jackalope> }", "CLASS Jackalope")
         .resolve(te("Class<Jackalope>"))
         .abstract shouldBe false
@@ -135,7 +144,7 @@ internal class Spec04ClassLiteralsTest {
   @Test
   internal fun `T4-6 an effect may not gain a class representative`() {
     // The one component per concrete class is fixed before any effect can run.
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes("CLASS Source { This:: Class<Target> }", "CLASS Target")
     }
   }
@@ -166,19 +175,23 @@ internal class Spec04ClassLiteralsTest {
 
   @Test
   internal fun `T4-8 enumeration has one literal per concrete Class with an inhabited base Type`() {
-    type("Class<Metal>").allConcreteSubtypes().map { "$it" }.toList() shouldContainExactly
-        listOf("Class<Steel>", "Class<Titanium>")
-    type("Class<Steel>").allConcreteSubtypes().map { "$it" }.toList() shouldContainExactly
+    table
+        .allConcreteSubtypes(type("Class<Metal>"))
+        .map { "$it" }
+        .toList() shouldContainExactlyInAnyOrder listOf("Class<Steel>", "Class<Titanium>")
+    table.allConcreteSubtypes(type("Class<Steel>")).map { "$it" }.toList() shouldContainExactly
         listOf("Class<Steel>")
-    type("Class<Tag>").allConcreteSubtypes().map { "$it" }.toList() shouldContainExactly
-        listOf("Class<BuildingTag>", "Class<SpaceTag>")
+    table
+        .allConcreteSubtypes(type("Class<Tag>"))
+        .map { "$it" }
+        .toList() shouldContainExactlyInAnyOrder listOf("Class<BuildingTag>", "Class<SpaceTag>")
   }
 
   @Test
   internal fun `T4-8 a literal with no inhabited concrete subclass enumerates nothing`() {
     val empty = loadTypes("ABSTRACT CLASS Award")
 
-    empty.resolve(te("Class<Award>")).allConcreteSubtypes().toList().shouldBeEmpty()
+    empty.allConcreteSubtypes(empty.resolve(te("Class<Award>"))).toList().shouldBeEmpty()
   }
 
   // T4-9 `Class<This>`
@@ -219,11 +232,11 @@ internal class Spec04ClassLiteralsTest {
     val cards =
         loadTypes(
             "CLASS Player1 : Owner",
-            "ABSTRACT CLASS CardFront : Owned<Owner>",
-            "ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>",
+            "ABSTRACT CLASS CardFront : Owned",
+            "ABSTRACT CLASS Cardbound<CardFront<CardHolder@Owner>> : Owned<CardHolder@Owner>",
             "ABSTRACT CLASS ResourceCard<Class<CardResource>> : CardFront",
             "ABSTRACT CLASS CardResource : Cardbound<ResourceCard<Class<This>>> " +
-                "{ CLASS Animal, Microbe }",
+                "{\nCLASS Animal\nCLASS Microbe\n}",
             "CLASS Fish : ResourceCard<Class<Animal>>",
             "CLASS Ants : ResourceCard<Class<Microbe>>",
         )
@@ -231,7 +244,7 @@ internal class Spec04ClassLiteralsTest {
     cards.getClass(cn("Animal")).baseType.expressionFull shouldBe
         te("Animal<Owner, ResourceCard<Owner, Class<Animal>>>")
     cards.resolve(te("Animal<Player1, Fish>")).expressionFull shouldBe
-        te("Animal<Player1, Fish<Player1, Class<Animal>>>")
+        te("Animal<Player1, Fish<Player1>>")
     shouldThrow<ExpressionException> { cards.resolve(te("Animal<Ants>")) }
   }
 }

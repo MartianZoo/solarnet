@@ -10,11 +10,6 @@ internal class ScriptCompletionEngineTest {
   private val repl = ScriptSession()
   private val completer = ScriptCompletionEngine(repl)
 
-  init {
-    repl.command("as Player1 task -10 ProjectCard<Selecting>")
-    repl.command("as Player2 task -10 ProjectCard<Selecting>")
-  }
-
   @Test
   internal fun completesCommandNames() {
     assertTrue("count" in values("co"))
@@ -97,7 +92,7 @@ internal class ScriptCompletionEngineTest {
 
     val remaining = repl.command("tasks").single()
     assertTrue(remaining.startsWith("[Admin] "), remaining)
-    assertTrue("3 Heat<Owner>?" in remaining, remaining)
+    assertTrue("3 Heat?" in remaining, remaining)
   }
 
   @Test
@@ -142,7 +137,7 @@ internal class ScriptCompletionEngineTest {
 
     val output = repl.command("task Ok")
 
-    assertTrue(output.single().contains("there wasn't exactly one matching task"))
+    assertTrue(output.single().contains("2 matching tasks are ambiguous"))
     assertEquals(2, repl.game.tasks.ids().size)
   }
 

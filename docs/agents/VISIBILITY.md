@@ -36,6 +36,10 @@ lacks a cross-module caller.
 - Pets AST node types, their structural members and construction surface, the corresponding
   `PetTransformer` entry points, and string-to-AST entry points remain public even without current
   cross-module callers.
+- Parsers are supported clients of the public Pets AST. Construction, source-location assignment,
+  and lexical-scope resolution must be usable across a module boundary; their implementation
+  helpers can remain internal. Do not require a parser to share the AST module merely to access
+  those operations.
 - Application `main` functions and JMH-discovered classes and methods remain public.
 
 Strict explicit-API mode prevents accidental production API growth, but it does not prove that an
