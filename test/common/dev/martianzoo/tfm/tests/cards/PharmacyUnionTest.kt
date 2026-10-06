@@ -66,24 +66,34 @@ internal class PharmacyUnionTest : CardTest() {
   internal fun `Two science tags with one disease remove it and then flip Pharmacy Union`() {
     newGame(PromoCardPack)
     p1.runOperation("$PharmacyUnion")
-    p1.runOperation("-Disease<$PharmacyUnion>")
+    p1.runOperation("PROD[Energy]")
+    p1.runOperation("$Hospitals")
+    p1.runOperation("CityTile<Tharsis_2_3>")
+    admin.phase("Action")
+
+    p1.cardAction1(Hospitals) { doTask("-Disease<$PharmacyUnion>") }
+        .expect("-Disease<$PharmacyUnion>, MC, 0 Disease<$Hospitals>")
+    p1.assertCounts(1 to "Disease<$PharmacyUnion>", 1 to "Disease<$Hospitals>")
     val trBefore = p1.count("TerraformRating")
     val previousPolicy = p1.autoExecPolicy
     val manual = p1.also { it.autoExecPolicy = NONE }
 
-    manual.runOperation("$Research") {
-      doTask("TerraformRating FROM Disease")
-      doTask("PlayedEvent FROM $PharmacyUnion")
-      repeat(3) { doTask("TerraformRating") }
-      doTask("2 ProjectCard")
-      manual.autoExecPolicy = previousPolicy
-    }
+    manual
+        .runOperation("$Research") {
+          doTask("TerraformRating FROM Disease")
+          doTask("PlayedEvent FROM $PharmacyUnion")
+          repeat(3) { doTask("TerraformRating") }
+          doTask("2 ProjectCard")
+          manual.autoExecPolicy = previousPolicy
+        }
+        .expect("-Disease<$PharmacyUnion>, 4 TerraformRating, 0 Disease<$Hospitals>")
 
     p1.count("TerraformRating") shouldBe trBefore + 4
     p1.assertCounts(
         0 to "Disease<$PharmacyUnion>",
         0 to "$PharmacyUnion",
         1 to "PlayedEvent<Class<$PharmacyUnion>>",
+        1 to "Disease<$Hospitals>",
     )
   }
 
