@@ -603,11 +603,16 @@ private fun renderAcceptedCardResourcePayment(
   val spent =
       describers.resourcePaymentEvent(payment.trigger) as? ResourcePaymentEvent.FromCard
           ?: return null
-  if (spent.card != describers.thisExpression) return null
+  if (spent.card != describers.thisExpression || spent.resource != cardResourceType) return null
   val reduction = owedReduction(payment.instruction, describers) ?: return null
   val resource = describers.cardResourceNoun(cardResourceType, 2) ?: return null
   val billing = describers.billingEvent(acceptance.trigger)
-  if (billing?.provider?.className == HAS_ACTIONS) {
+  if (
+      billing != null &&
+          billing.provider == null &&
+          billing.phase == BillingEvent.Phase.STARTED &&
+          billing.resource?.className == reduction.resource
+  ) {
     val result =
         Clause.Simple(
             subject = NounPhrase.you(),
@@ -817,26 +822,22 @@ private fun Describers.renderAbstractTagTrigger(trigger: Trigger): Clause.Simple
   )
 }
 
-private val HAS_ACTIONS = ClassName.cn("HasActions")
-
 private fun Describers.renderTriggerClause(trigger: Trigger): Clause.Simple? =
     billingEvent(trigger)?.let { renderBillingEvent(it) }
         ?: renderOperationTrigger(trigger)
         ?: renderEvent(trigger)?.renderTrigger()
 
 private fun Describers.renderBillingEvent(billing: BillingEvent): Clause.Simple? {
-  billing.card?.let { card ->
-    return playedCardEvent(card)?.renderTrigger()
-  }
+  val provider = billing.provider ?: return null
   if (billing.phase == BillingEvent.Phase.COMPLETED) {
     return eventTrigger(
         subject = NounPhrase.you(),
         verb = Verb("pay for"),
-        objectPhrase = renderActionUse(billing.provider) ?: return null,
+        objectPhrase = renderActionUse(provider) ?: return null,
     )
   }
   val predicate =
-      fact(billing.provider.className, ComponentDescriber::actionUse)?.paymentDiscount?.predicate
+      fact(provider.className, ComponentDescriber::actionUse)?.paymentDiscount?.predicate
           ?: return null
   return eventTrigger(subject = NounPhrase.you(), verb = Verb(predicate))
 }
@@ -866,7 +867,8 @@ private fun Describers.renderBillingPaymentDiscountTrigger(
 ): PaymentDiscount.Trigger? {
   val billing = billingEvent(trigger) ?: return null
   if (billing.phase != BillingEvent.Phase.STARTED) return null
-  val use = fact(billing.provider.className, ComponentDescriber::actionUse) ?: return null
+  val provider = billing.provider ?: return null
+  val use = fact(provider.className, ComponentDescriber::actionUse) ?: return null
   val discount = use.paymentDiscount ?: return null
   return PaymentDiscount.Trigger(
       renderBillingEvent(billing) ?: return null,

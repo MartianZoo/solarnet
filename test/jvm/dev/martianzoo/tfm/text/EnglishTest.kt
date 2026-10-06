@@ -18,7 +18,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class EnglishTest {
-  private val catalog = TfmCatalog.compose(Canon, FakeCanon)
+  private val catalog = TfmCatalog(Canon, FakeCanon)
   private val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
   private val publishedEnglish =
       English(catalog.classTable, TerraformingMarsDescribers.descriptions)
@@ -118,10 +118,10 @@ internal class EnglishTest {
     english.describe(
         parse<Effect>("ActionBilling<ConvertPlantsAction, Action1>:: -Owed<Class<Plant>>")
     ) shouldBe "When you convert plants to greenery, you pay 1 plant less."
-    english.describe(parse<Effect>("Billing<CardPlay>:: -2 Owed<>")) shouldBe
+    english.describe(parse<Effect>("PayingFor<Class<CardFront>>:: -2 Owed<>")) shouldBe
         "When you play a card, you pay 2 M€ less for it."
     english.describe(
-        parse<Effect>("CardBilling<Class<CardFront>(HAS requirement)>:: -2 Owed<>")
+        parse<Effect>("PayingFor<Class<CardFront>(HAS requirement)>:: -2 Owed<>")
     ) shouldBe "When you play a card with a requirement, you pay 2 M€ less for it."
     english.describe(parse<Effect>("PayingFor<Class<ProjectCard>>:: 2 Owed<>")) shouldBe
         "When you buy a card, pay 2 M€ extra."
@@ -198,6 +198,65 @@ internal class EnglishTest {
         "If there is 1 ocean tile, gain 1 steel."
     english.describe(parse<InstructionTree>("2 OceanTile: Steel")) shouldBe
         "If there are 2 ocean tiles, gain 1 steel."
+  }
+
+  @Test
+  internal fun paymentValuesRequireMatchingAcceptedLossByOwner() {
+    english.describe(
+        parseClasses(
+                """
+                CLASS PaymentValue : Owned<Player> {
+                  -Steel BY Me@ IF Accepting<Class<Steel>>:: -Owed
+                }
+                """
+            )
+            .single()
+            .effects
+            .single()
+    ) shouldBe "Each steel you pay is worth 1 M€ extra."
+
+    val describers = Describers(Canon.classTable, TerraformingMarsDescribers.descriptions)
+    val unsupported =
+        listOf(
+            "-Steel",
+            "-Steel BY Me@",
+            "-Steel IF Accepting<Class<Steel>>",
+            "-Steel BY Anyone IF Accepting<Class<Steel>>",
+            "-Steel BY Me@ IF Accepting<Class<Titanium>>",
+            "-Steel<Anyone> BY Me@ IF Accepting<Class<Steel>>",
+            "-Steel BY Me@ IF Accepting<Class<Steel>, Anyone>",
+            "-Steel BY Me@ IF 2 Accepting<Class<Steel>>",
+            "-Steel BY Me@ IF Accepting<Class<Steel>>, ScienceTag",
+            "-Microbe<This> BY Me@ IF AcceptingFromCard<Psychrophiles>",
+        )
+    for (trigger in unsupported) {
+      withClue(trigger) {
+        val effect =
+            parseClasses("CLASS PaymentValue : Owned<Player> { $trigger:: -Owed }")
+                .single()
+                .effects
+                .single()
+        describers.resourcePaymentEvent(effect.trigger) shouldBe null
+      }
+    }
+  }
+
+  @Test
+  internal fun acceptedCardResourcesRetainTheirPaymentCurrency() {
+    val card =
+        syntheticCard(
+            """
+            CLASS HeatPayingScience : ActiveCard, ResourceCard<Class<Science>> {
+              cost = 0
+              Billing<Class<Heat>>:: AcceptingFromCard<This>
+              -Science<This> BY Me@ IF AcceptingFromCard<This>:: -3 Owed<Class<Heat>>
+            }
+            """
+        )
+    val rendering =
+        English(card.classTable, TerraformingMarsDescribers.descriptions).renderCard(card)
+    rendering.top shouldBe "Effect: You may use science resources on this card as 3 heat each."
+    rendering.unresolved shouldBe emptyList()
   }
 
   @Test
@@ -288,7 +347,7 @@ internal class EnglishTest {
             """
             CLASS DiscountNextCard : AutomatedCard {
               cost = 0
-              This: NextCardEffect { Billing<CardPlay>:: -8 Owed<> }
+              This: NextCardEffect { PayingFor<Class<CardFront>>:: -8 Owed<> }
             }
             """
         )
@@ -567,7 +626,7 @@ internal class EnglishTest {
         object : TfmCatalog() {
           override val explicitClassDeclarations: Set<ClassDeclaration> = declarations
         }
-    val expandedCatalog = TfmCatalog.compose(Canon, additions)
+    val expandedCatalog = TfmCatalog(Canon, additions)
     val expandedEnglish =
         English(expandedCatalog.classTable, TerraformingMarsDescribers.descriptions)
 
@@ -593,7 +652,7 @@ internal class EnglishTest {
         object : TfmCatalog() {
           override val explicitClassDeclarations: Set<ClassDeclaration> = declarations
         }
-    val expandedCatalog = TfmCatalog.compose(Canon, additions)
+    val expandedCatalog = TfmCatalog(Canon, additions)
     val expandedEnglish =
         English(
             expandedCatalog.classTable,
@@ -612,7 +671,7 @@ internal class EnglishTest {
         object : TfmCatalog() {
           override val explicitClassDeclarations: Set<ClassDeclaration> = declarations
         }
-    val catalog = TfmCatalog.compose(Canon, additions)
+    val catalog = TfmCatalog(Canon, additions)
     val cardFront = catalog.classTable.getClass(cn("CardFront"))
     return declarations
         .map { catalog.classTable.getClass(it.className) }

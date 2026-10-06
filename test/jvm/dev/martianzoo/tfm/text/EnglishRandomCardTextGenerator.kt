@@ -48,7 +48,7 @@ private object EnglishRandomCardTextGenerator {
         object : TfmCatalog() {
           override val explicitClassDeclarations: Set<ClassDeclaration> = declarations.toSet()
         }
-    return TfmCatalog.compose(Canon, additions)
+    return TfmCatalog(Canon, additions)
   }
 
   private fun render(

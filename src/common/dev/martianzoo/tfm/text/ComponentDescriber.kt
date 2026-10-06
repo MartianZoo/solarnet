@@ -214,8 +214,6 @@ internal data class ComponentDescriber(
 
     public data class Place(internal val noun: Noun.Counted) : TriggerFrame
 
-    public data object SpendResource : TriggerFrame
-
     public data class Named(
         internal val verb: String,
         internal val objectPhrase: String? = null,

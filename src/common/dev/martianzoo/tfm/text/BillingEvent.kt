@@ -9,9 +9,8 @@ import dev.martianzoo.pets.types.Dependency.Key
 
 /** The payment operation identified by a Billing-family event. */
 internal data class BillingEvent(
-    val provider: Expression,
+    val provider: Expression?,
     val resource: Expression?,
-    val card: Expression?,
     val phase: Phase,
 ) {
   enum class Phase {
@@ -30,30 +29,20 @@ internal fun Describers.billingEvent(trigger: Trigger): BillingEvent? {
   if (expression.refinement != null) return null
   if (!expressions.isBilling(expression.className)) return null
   val resolved = resolveExpression(expression) ?: return null
-  val providerType = resolved.dependency(PROVIDER) ?: return null
+  if (expression.className != BILLING && resolved.dependency(PROVIDER) == null) return null
   val provider =
-      providerType.rootClass.className.expression.copy(refinement = providerType.refinement)
+      resolved.dependency(PROVIDER)?.let {
+        it.rootClass.className.expression.copy(refinement = it.refinement)
+      }
   val resource =
       resolved.sourceDependency(RESOURCE)?.let {
         resolved.dependency(RESOURCE)?.representedClass?.className?.expression
       }
-  val card =
-      expression
-          .takeIf { it.className == CARD_BILLING }
-          ?.let {
-            val cardClass = resolved.dependency(CARD) ?: return null
-            cardClass.representedClass
-                ?.baseType
-                ?.expression
-                ?.copy(refinement = cardClass.refinement) ?: return null
-          }
   val phase =
       if (trigger is OnRemoveOf) BillingEvent.Phase.COMPLETED else BillingEvent.Phase.STARTED
-  return BillingEvent(provider, resource, card, phase)
+  return BillingEvent(provider, resource, phase)
 }
 
 private val BILLING = cn("Billing")
-private val CARD_BILLING = cn("CardBilling")
-private val CARD = Key(CARD_BILLING, 0)
-private val PROVIDER = Key(BILLING, 0)
-private val RESOURCE = Key(BILLING, 2)
+private val PROVIDER = Key(cn("ActionBilling"), 0)
+private val RESOURCE = Key(BILLING, 0)

@@ -11,7 +11,7 @@ private object EnglishCardTextCurrentGenerator {
     require(args.size == 2)
     val output = File(args[0])
     val refusalOutput = File(args[1])
-    val catalog = TfmCatalog.compose(Canon, FakeCanon)
+    val catalog = TfmCatalog(Canon, FakeCanon)
     val english = English(catalog.classTable, TerraformingMarsDescribers.descriptions)
     val published =
         EnglishCardTextData.parse(readEnglishCardText("english-published-wording-evidence.tsv"))

@@ -196,6 +196,10 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
 - Never bend a lexical fact to hit a target string. If a component's noun changes, check every other
   place that noun appears before accepting it.
 - Change the active path and delete superseded machinery. Do not maintain parallel converters.
+- Payment values interpret resource losses by the owner while the matching `Accepting` or
+  `AcceptingFromCard` is present. Keep actor, resource, holder, and currency restrictions intact;
+  an arbitrary loss is not a payment. `ActionBilling` supplies action identity, while `Billing`
+  supplies currency and `PayingFor` supplies the card or tag being paid for.
 - Two general paths that render equivalent Pets differently are a defect, even when both are
   general. Ordering is not a design.
 - The realization layer is game-neutral. The interpretation layer may name common game concepts
