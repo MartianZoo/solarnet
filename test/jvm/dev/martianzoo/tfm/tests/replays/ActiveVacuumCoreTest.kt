@@ -528,7 +528,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
           OrbitalCleanup,
           payment = {
             pay(titanium = 2)
-            doTask("2 PayFromCard FROM Graphene<$CarbonNanosystems>")
+            doTask("-2 Graphene<$CarbonNanosystems>")
           },
       )
     }
@@ -617,7 +617,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
       playProject(
           KaguyaTech,
           payment = {
-            doTask("5 PayFromCard FROM Microbe<$Psychrophiles>")
+            doTask("-5 Microbe<$Psychrophiles>")
           },
       ) {
         doTask("CityTile<Tharsis_6_4> FROM GreeneryTile<Tharsis_6_4>")
@@ -702,7 +702,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
           Mangrove,
           payment = {
             pay(10)
-            doTask("PayFromCard FROM Microbe<$Psychrophiles>")
+            doTask("-Microbe<$Psychrophiles>")
           },
       ) {
         placeTile(4, 8)
@@ -789,7 +789,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
           UndergroundCity,
           payment = {
             pay(2, steel = 4)
-            doTask("PayFromCard FROM Graphene<$CarbonNanosystems>")
+            doTask("-Graphene<$CarbonNanosystems>")
           },
       ) {
         placeTile(4, 1)
@@ -883,7 +883,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
           Grass,
           payment = {
             pay(9)
-            doTask("PayFromCard FROM Microbe<$Psychrophiles>")
+            doTask("-Microbe<$Psychrophiles>")
           },
       )
       playProject(CityParks, 7)

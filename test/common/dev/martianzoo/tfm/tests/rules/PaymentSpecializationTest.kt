@@ -31,8 +31,8 @@ internal class PaymentSpecializationTest {
     p1.beginOperation(
         "Owed<Class<Steel>> THEN ActionBilling<SellPatentsProject, Action1, Class<Steel>>"
     ) {
-      shouldThrow<NarrowingException> { doTask("Pay<Class<Titanium>> FROM Titanium") }
-      doTask("Pay<Class<Steel>> FROM Steel")
+      shouldThrow<NarrowingException> { doTask("-Titanium") }
+      doTask("-Steel")
     }
   }
 }

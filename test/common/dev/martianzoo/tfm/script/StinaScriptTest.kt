@@ -28,7 +28,7 @@ internal class StinaScriptTest {
 
         tfm_play SaturnSystems
         task Ok
-        task 30 Pay<Class<MC>> FROM MC
+        task -30 MC
 
         tfm_play Biolab
         tfm_play AcquiredSpaceAgency

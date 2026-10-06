@@ -13,7 +13,7 @@ CLASS TerraformingMars : Module {
   This: SellPatentsProject, PowerPlantProject, AsteroidProject, AquiferProject, GreeneryProject, CityProject
   This: PlayCardFromHandAction, UseStandardProjectAction, UseActionOnCardAction, ConvertPlantsAction, ConvertHeatAction
   This: DoRequiredActionsAction
-  This: Hand, Selecting, Revealed, CardPurchase, CardPlay
+  This: Hand, Selecting, Revealed, CardPurchase
   This: NoTagsFilter
   This: EACH Class<@Tag> { TagFilter<Class<@Tag>> }
   This: EACH @Class<GlobalParameter> { GpIncomplete<@Class> }

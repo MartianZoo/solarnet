@@ -50,7 +50,7 @@ internal class SoloGenerationCountdownTest {
 
     player.runOperation("16 MC")
     player.runOperation("UseAction<BufferGasProject, Action1>") {
-      doTask("16 Pay<> FROM MC")
+      doTask("-16 MC")
     }
     player.count("MC<Player1>") shouldBe 0
     player.count("TerraformRating<Player1>") shouldBe 15

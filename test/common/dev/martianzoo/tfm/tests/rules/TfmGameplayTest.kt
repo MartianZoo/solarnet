@@ -21,7 +21,7 @@ private val oneToOnePaymentDeclarations =
         """
         CLASS OneToOnePaymentSource : Owned {
           This:: BaseResourceValue<Class<Heat>>
-          Billing<HasActions, ActionSlot, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
+          Billing<Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
         }
         """
             .trimIndent()

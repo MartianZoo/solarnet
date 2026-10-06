@@ -78,7 +78,7 @@ internal class StandardTechnologyTest : CardTest() {
     p1.stdProject(
             "AsteroidProject",
             payment = {
-              doTask("7 PayFromCard FROM Science<$Spire>")
+              doTask("-7 Science<$Spire>")
               declineTask()
             },
         )

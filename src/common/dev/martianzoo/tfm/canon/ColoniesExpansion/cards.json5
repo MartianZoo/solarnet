@@ -39,7 +39,7 @@
           "actions": [ "-> Floater" ],
           "effects": [
             "Billing<Class<Heat>>:: AcceptingFromCard<This>",
-            "PayFromCard<This>:: -2 Owed<Class<Heat>>",
+            "-Floater<This> BY Me@ IF AcceptingFromCard<This>:: -2 Owed<Class<Heat>>",
             // Local Heat Trapping is the sole heat payment that does not use Billing. Converting the
             // selected floaters during its resolution has the same net resource result.
             "LocalHeatTrapping: (-Floater<This> THEN 2 Heat) OR (-2 Floater<This> THEN 4 Heat) OR (-3 Floater<This> THEN 5 Heat) OR Ok"

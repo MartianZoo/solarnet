@@ -357,7 +357,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     purple.stdAction("ClaimMilestoneAction") { doTask("Trader") }
     purple
         .playProject(ProtectedValley, 9, steel = 5) {
-          doTask("2 PayFromCard FROM Microbe<$Psychrophiles>")
+          doTask("-2 Microbe<$Psychrophiles>")
           placeTile(1, 1)
         }
         .expect("2 Plant, -5 Steel")
@@ -613,7 +613,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
 
     purple
         .playProject(AdaptedLichen, 3) {
-          doTask("3 PayFromCard FROM Microbe<$Psychrophiles>")
+          doTask("-3 Microbe<$Psychrophiles>")
         }
         .expect("Animal")
     purple.cardAction1(BioPrintingFacility) { addCardResources(EcologicalZone) }

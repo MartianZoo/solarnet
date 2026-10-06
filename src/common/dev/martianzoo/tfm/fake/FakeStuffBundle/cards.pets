@@ -51,7 +51,7 @@ CLASS FakeHelion : CardFront<Class<StandardCorporationCard>> {
   This:: BaseResourceValue<Class<Heat>>
   This: 42 MC, PROD[3 Heat]
 
-  Billing<HasActions, ActionSlot, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
+  Billing<Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
 }
 
 "A replay-only stand-in for an unsupported upstream corporation"

@@ -178,7 +178,7 @@ internal object CardPetsGenerator {
             .flatMap { it.descendantsOfType<Count>() }
             .mapTo(this) { it.expression.className }
       }
-      val candidates = (heldByThis intersect used).toMutableSet()
+      val candidates = ((heldByThis intersect used) - ACCEPTING_FROM_CARD).toMutableSet()
       componentClasses
           .filter { declaration ->
             declaration.supertypes.none { it.className == CARD_RESOURCE }
