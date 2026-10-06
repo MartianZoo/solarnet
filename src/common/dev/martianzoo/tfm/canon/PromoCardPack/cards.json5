@@ -60,7 +60,7 @@
             "MicrobeTag<Anyone>: (Disease<This>! OR (MAX 0 This: Ok)), -4 MC.",
             // Check the disease count when each tag consequence executes, so two simultaneous science
             // tags can remove the last disease and then offer the flip.
-            "ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)"
+            "ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease<This>: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)"
           ],
         },
         {
