@@ -908,12 +908,18 @@ private fun renderTriggeredInstructions(
     describers: Describers,
 ): EnglishText? {
   val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
+  fun eventReferencesAnyone(trigger: Trigger): Boolean =
+      when (trigger) {
+        is OnGainOf -> describers.anyoneExpression in trigger.expression
+        is OnRemoveOf -> describers.anyoneExpression in trigger.expression
+        is Trigger.Or -> trigger.triggers.all(::eventReferencesAnyone)
+        is Trigger.WrappingTrigger -> eventReferencesAnyone(trigger.inner)
+        Trigger.WhenGain,
+        Trigger.WhenRemove -> false
+      }
   val instruction =
       if (
-          effect.trigger.descendantsOfType<Expression>().contains(describers.anyoneExpression) &&
-              effect.instruction
-                  .descendantsOfType<Expression>()
-                  .contains(describers.anyoneExpression)
+          eventReferencesAnyone(effect.trigger) && describers.anyoneExpression in effect.instruction
       ) {
         PetNode.replacer(describers.anyoneExpression, describers.playerExpression)
             .transformInstructionTree(effect.instruction)

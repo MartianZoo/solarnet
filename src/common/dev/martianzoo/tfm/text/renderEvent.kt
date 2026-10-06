@@ -16,7 +16,7 @@ import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as TriggerFrame
 
 internal fun Describers.renderEvent(trigger: Trigger): Event? {
   if (trigger is ByTrigger) {
-    if (trigger.by != ACTOR.expression) return null
+    if (trigger.by != ACTOR.expression && trigger.by != anyoneExpression) return null
     val expression = (trigger.inner as? OnGainOf)?.expression ?: return null
     relationshipEvent(expression, Event.ActorConstraint.UNRESTRICTED)?.let {
       return it

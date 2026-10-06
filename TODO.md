@@ -233,6 +233,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Make resource costs inside actions use `spend` consistently whether Pets expresses them before
   `->` or in a `THEN` sequence; Focused Organization and Board of Directors still expose the split.
   Preserve `pay` for non-action payments.
+- Extend card-play English to combine modeled card-face restrictions with the selected deck and
+  source location. Preserve those restrictions in cost-reduced and requirement-waived plays;
+  the current shared card-play interpreter refuses them rather than dropping the filter.
 - Reconcile Astra Mechanica's printed instruction to return 2 event cards that do not place special
   tiles with its two optional, unrestricted `ProjectCard FROM PlayedEvent?` instructions. The local
   Fryxelius archive has no Astra Mechanica ruling; current tests permit returning zero cards.

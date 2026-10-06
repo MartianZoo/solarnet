@@ -418,9 +418,34 @@ private fun renderCardPlay(instruction: Instruction, describers: Describers): Cl
   ) {
     return null
   }
-  val card = describers.representedClass(gain.gaining) ?: return null
-  val noun = describers.componentNoun(card.className, 1)
-  return clause("play", NounPhrase(noun, determiner = Determiner.INDEFINITE))
+  val resolved = describers.resolveExpression(gain.gaining) ?: return null
+  val play = cn("PlayCard")
+  val backKey = Key(play, 0)
+  val faceKey = Key(play, 1)
+  val locationKey = Key(play, 2)
+  if (resolved.sourceDependencies.keys.any { it !in setOf(backKey, faceKey, locationKey) }) {
+    return null
+  }
+  val back = resolved.dependency(backKey) ?: return null
+  val face = resolved.dependency(faceKey) ?: return null
+  if (back.refinement != null || face.refinement != null) return null
+  if (face.representedClass?.className != cn("CardFront")) return null
+  val card = back.representedClass ?: return null
+  var noun =
+      describers
+          .componentNounPhrase(card.className, 1)
+          .copy(count = null, determiner = Determiner.INDEFINITE)
+  if (locationKey in resolved.selectedKeys) {
+    val source =
+        when (describers.location(gain.gaining)) {
+          ComponentDescriber.CardLocation.HAND -> "hand"
+          ComponentDescriber.CardLocation.SELECTING -> "the selection"
+          ComponentDescriber.CardLocation.REVEALED -> "the revealed cards"
+          null -> return null
+        }
+    noun = noun.withModifier(Modifier.Relation("from", NounPhrase.text(source)))
+  }
+  return clause("play", noun)
 }
 
 private fun renderRequiredAction(

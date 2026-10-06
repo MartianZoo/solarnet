@@ -277,6 +277,79 @@ internal class EnglishTest {
   }
 
   @Test
+  internal fun cardPlayPreservesLocationAcrossArgumentOrder() {
+    english.describe(
+        parse<InstructionTree>("PlayCard<Class<ProjectCard>, Class<CardFront>, Hand>")
+    ) shouldBe "Play a card from hand."
+    english.describe(
+        parse<InstructionTree>("PlayCard<Hand, Class<CardFront>, Class<ProjectCard>>")
+    ) shouldBe "Play a card from hand."
+  }
+
+  @Test
+  internal fun cardPlayModifiersPreserveDeckAndSourceLocation() {
+    english.describe(
+        parse<InstructionTree>("PlayCard<Class<PreludeCard>, Selecting> THEN -7 Owed")
+    ) shouldBe "Play a Prelude card from the selection, reducing its cost by 7 M€."
+    english.describe(
+        parse<InstructionTree>("PlayCard<Class<PreludeCard>> THEN -Required / Required")
+    ) shouldBe "Play a Prelude card, ignoring global requirements."
+  }
+
+  @Test
+  internal fun cardPlayModifiersDoNotEraseAnUnsupportedFaceRestriction() {
+    english.describe(
+        parse<InstructionTree>(
+            "PlayCard<Class<ProjectCard>, Class<CardFront>(HAS ScienceTag), Hand> THEN -7 Owed"
+        )
+    ) shouldBe
+        "[PlayCard<Class<ProjectCard>, Class<CardFront>(HAS ScienceTag), Hand>], then [-7 Owed]."
+  }
+
+  @Test
+  internal fun cardPlayModifiersDoNotEraseAnotherPlayer() {
+    english.describe(
+        parse<InstructionTree>("PlayCard<Class<ProjectCard>, Hand, Player> THEN -7 Owed")
+    ) shouldBe "[PlayCard<Class<ProjectCard>, Hand, Player>], then [-7 Owed]."
+  }
+
+  @Test
+  internal fun unrestrictedActorsComposeWithPlacementSitesAndResourceResults() {
+    english.describe(parse<Effect>("OceanTile<MarsArea> BY Anyone: 2 Steel")) shouldBe
+        "When any ocean tile is placed on Mars, gain 2 steel."
+    english.describe(parse<Effect>("OceanTile<MarsArea> BY Actor: 2 Steel")) shouldBe
+        "When any ocean tile is placed on Mars, gain 2 steel."
+  }
+
+  @Test
+  internal fun unrestrictedActorsComposeWithScalesAndProductionResults() {
+    english.describe(parse<Effect>("TemperatureStep BY Anyone: PROD[2 Plant]")) shouldBe
+        "When temperature is raised 1 step, increase your plant production 2 steps."
+  }
+
+  @Test
+  internal fun restrictedActorsAreNotDescribedAsUnrestricted() {
+    english.describe(parse<Effect>("OceanTile BY Player: 2 Steel")) shouldBe
+        "[OceanTile BY Player: 2 Steel]."
+    english.describe(parse<Effect>("OceanTile BY Anyone(NOT Admin): 2 Steel")) shouldBe
+        "[OceanTile BY Anyone(NOT Admin): 2 Steel]."
+  }
+
+  @Test
+  internal fun anUnrestrictedActorDoesNotBindAnIndependentResourceOwner() {
+    english.describe(parse<Effect>("OceanTile BY Anyone: -2 Heat<Anyone>?")) shouldBe
+        "When any ocean tile is placed, you may remove up to 2 heat from any player."
+  }
+
+  @Test
+  internal fun alternativeUnrestrictedActorsDoNotBindAnIndependentResourceOwner() {
+    english.describe(
+        parse<Effect>("(OxygenStep BY Anyone) OR (TemperatureStep BY Anyone): -2 Heat<Anyone>?")
+    ) shouldBe
+        "When oxygen is raised 1 step or temperature is raised 1 step, you may remove up to 2 heat from any player."
+  }
+
+  @Test
   internal fun describesSelectedCardProcedures() {
     english.describe(
         parse<InstructionTree>("CopyProductionBox<CardFront(HAS BuildingTag)>")

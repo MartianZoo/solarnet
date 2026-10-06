@@ -222,6 +222,10 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   criteria must stay explicit (`Draw 2 cards with floater icons`, never `floater cards`).
 - Describe a direct exchange of anonymous card backs as `Discard N cards to draw N cards`.
   An unconditional choice to decline the exchange makes the complete action optional.
+- Card-play instructions resolve card back, card face, and source location by dependency role.
+  Cost reductions and requirement waivers modify that same rendered instruction, preserving its
+  deck and source rather than assuming a card from hand. Unsupported face restrictions remain
+  visible as Pets.
 - Describe a fixed offer, hand transfer, and cleanup together as `Look at N cards, then keep K of
   them, then discard the rest.` The renderer checks that the counts balance. A variable offer that
   keeps one card uses `that many` when it follows a matching action cost.
@@ -269,6 +273,8 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
 - Render every ratio with `per`, whatever the denominator and whether or not the result is victory
   points.
 - Preserve shared implicit player identity across a trigger and its result as `that player`.
+  An unrestricted `BY Anyone` or `BY Actor` constrains the performer of the event; it does not
+  establish the owner of resources mentioned independently in the result.
 - Make optional maxima explicit as `you may ... up to`, including above one.
 - Express an operation with an unconditional option to do nothing as `you may ...`. Keep the
   operation's costs and results within that permission; preserve all-or-nothing quantities and

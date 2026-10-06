@@ -12,7 +12,6 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.types.Dependency.Key
-import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as TriggerFrame
 
 internal fun renderInstructionTree(
     instructionTree: InstructionTree,
@@ -465,14 +464,10 @@ private fun renderCardPlaySequence(
     describers: Describers,
 ): Clause.Simple? {
   val play = instruction.stages.singleOrNull() as? Gain ?: return null
-  if (
-      play.quantifier.modality() != Modality.REQUIRED ||
-          play.count.fixedQuantity() != 1 ||
-          describers.triggerFrame(play.gaining.className) !is TriggerFrame.PlayCard ||
-          (!play.gaining.simple && describers.representedExpression(play.gaining)?.simple != true)
-  ) {
+  if (describers.changeFrame(play.gaining.className) != ComponentDescriber.ChangeFrame.Play) {
     return null
   }
+  val clause = renderChange(play, describers) as? Clause.Simple ?: return null
   val modifier =
       when (val continuation = instruction.continuation) {
         is Instruction.Per -> {
@@ -497,13 +492,7 @@ private fun renderCardPlaySequence(
           "reducing its cost by ${reduction.phrase.linearize()}"
         }
       }
-  return Clause.Simple(
-      Predicate(
-          Verb("play"),
-          Coordination.one(NounPhrase("card from hand", determiner = Determiner.INDEFINITE)),
-          listOf(Modifier.Supplement(modifier)),
-      )
-  )
+  return clause.withModifier(Modifier.Supplement(modifier))
 }
 
 private fun renderGated(
