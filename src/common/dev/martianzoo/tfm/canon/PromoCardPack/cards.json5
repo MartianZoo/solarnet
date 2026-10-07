@@ -142,11 +142,11 @@
         {
           "name": "Merger",
           "autoSelectWhen": "Unsafe OR MAX 0 SagittaFrontierServices",
-          "immediate": "4 StandardCorporationCard<Selecting> THEN PlayCard<Class<StandardCorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting> THEN -3 StandardCorporationCard<Selecting>, -42 MC",
+          "immediate": "4 StandardCorporationCard<Selecting> THEN -3 StandardCorporationCard<Selecting> THEN PlayCard<Class<StandardCorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting>, -42 MC",
         },
         {
           "name": "NewPartner",
-          "immediate": "PROD[1 MC], 2 PreludeCard<Selecting> THEN PlayOrFizzle<Selecting> THEN -PreludeCard<Selecting>",
+          "immediate": "PROD[1 MC], 2 PreludeCard<Selecting> THEN -PreludeCard<Selecting> THEN PlayOrFizzle<Selecting>",
         },
         {
           "name": "StrategicBasePlanning",
