@@ -30,9 +30,13 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
   internal fun hellasPromoGame() {
     val workflow = TfmWorkflow.Automatic(agents).launch()
     workflow.isRunning shouldBe true
+    keepStartingProjects(7, 5)
 
-    p1.playCorp(InterplanetaryCinematics, 7)
-    p2.playCorp(PharmacyUnion, 5)
+    p1.playCorp(InterplanetaryCinematics)
+    p2.playCorp(PharmacyUnion) {
+      doTask("Disease<$PharmacyUnion>")
+      doTask("Disease<$PharmacyUnion>")
+    }
 
     p1.turn {
       playPrelude(UnmiContractor) // 3 TR<Player1>
@@ -155,8 +159,13 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
     val p2 = game.testTfm(PLAYER2)
 
     TfmWorkflow.Automatic(game.testAgents()).launch()
-    p1.playCorp(InterplanetaryCinematics, 7)
-    p2.playCorp(PharmacyUnion, 5)
+    p1.keepStartingProjects(7)
+    p2.keepStartingProjects(5)
+    p1.playCorp(InterplanetaryCinematics)
+    p2.playCorp(PharmacyUnion) {
+      doTask("Disease<$PharmacyUnion>")
+      doTask("Disease<$PharmacyUnion>")
+    }
 
     p1.turn {
       playProject(MediaGroup, 6)

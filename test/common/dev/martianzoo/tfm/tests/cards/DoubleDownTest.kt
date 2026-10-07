@@ -16,7 +16,10 @@ internal class DoubleDownTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(PreludeExpansion, PromoCardPack)
-    p1.playCorp(PharmacyUnion, 5)
+    p1.playCorp(PharmacyUnion, 5) {
+      doTask("Disease<$PharmacyUnion>")
+      doTask("Disease<$PharmacyUnion>")
+    }
     admin.phase("Prelude")
     p1.playPrelude(BiosphereSupport)
   }
@@ -96,7 +99,7 @@ internal class DoubleDownTest : CardTest() {
     admin.phase("Prelude")
     // Seven MC plus Nirgal's thirty cannot pay Merger's forty-two MC cost.
     shouldThrow<LimitsException> {
-      p1.playPrelude(Merger) { p1.playCorp(NirgalEnterprises) }
+      p1.playPrelude(Merger) { p1.playCorp(NirgalEnterprises) { doTask("-42 MC") } }
     }
     // The declared fizzle leaves no Prelude face for Double Down.
     p1.startTurn()

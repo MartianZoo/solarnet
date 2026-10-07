@@ -42,6 +42,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
   @Test
   internal fun distantPressureMass() {
     TfmWorkflow.Automatic(agents).launch()
+    keepStartingProjects(4, 4)
     generation1()
     generation2()
     generation3()
@@ -56,12 +57,8 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
   }
 
   private fun generation1() {
-    keen.playCorp(SagittaFrontierServices) {
-      buyCards(4)
-    }
-    been.playCorp(Polyphemos) {
-      buyCards(4).expect("-20 MC")
-    }
+    keen.playCorp(SagittaFrontierServices)
+    been.playCorp(Polyphemos)
 
     keen.turn {
       playPrelude(IndustrialComplex)

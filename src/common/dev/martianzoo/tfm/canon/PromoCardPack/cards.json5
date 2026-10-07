@@ -1,7 +1,7 @@
 {
   "decks": [
     {
-      "deck": "StandardCorporationCard",
+      "deck": "CorporationCard",
       "cards": [
         {
           "name": "ArcadianCommunities",
@@ -142,7 +142,7 @@
         {
           "name": "Merger",
           "autoSelectWhen": "Unsafe OR MAX 0 SagittaFrontierServices",
-          "immediate": "4 StandardCorporationCard<Selecting> THEN -3 StandardCorporationCard<Selecting> THEN PlayCard<Class<StandardCorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting>, -42 MC",
+          "immediate": "4 CorporationCard<Selecting> THEN -3 CorporationCard<Selecting> THEN PlayCard<Class<CorporationCard>, Class<CardFront>, Selecting>, -42 MC",
         },
         {
           "name": "NewPartner",

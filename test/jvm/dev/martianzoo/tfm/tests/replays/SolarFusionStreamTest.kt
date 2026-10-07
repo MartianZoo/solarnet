@@ -38,27 +38,27 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     val ER = p3
 
     admin.assertCounts(1 to "Generation")
+    keepStartingProjects(4, 5, 5)
 
     // Player-record evidence: JR rejected Teractor and one unsupported corporation; UNMI
     // Contractor and Acquired Space Agency; Crash Site Cleanup, Outdoor Sports, Interstellar Colony
     // Ship, Tropical Resort, Physics Complex, and Weather Balloons.
-    JR.playCorp(TharsisRepublic) {
-      JR.buyCards(4)
-    }
+    JR.playCorp(TharsisRepublic)
 
     // Player-record evidence: KB rejected Utopia Invest and Recyclon; Great Aquifer and Polar
     // Industries; Asteroid Deflection System, Decomposers, Black Polar Dust, Comet Aiming, and
     // Astra Mechanica.
     KB.playCorp(MonsInsurance) {
-          KB.buyCards(5)
+          doTask(
+              "EACH Other@Player(NOT KB) { " +
+                  "-2 Production<Other@Player, Class<MC>>! BY Other@Player }"
+          )
         }
         .expect("PROD[-2 MC<JR>, -2 MC<ER>]")
 
     // Player-record evidence: ER rejected Factorum and Viron; Mohole and Huge Asteroid; and Meat
     // Industry, Supercapacitors, Orbital Cleanup, Ice Cap Melting, and Towing A Comet.
-    ER.playCorp(TychoMagnetics) {
-      ER.buyCards(5)
-    }
+    ER.playCorp(TychoMagnetics)
 
     JR.turn {
       playPrelude(SmeltingPlant)

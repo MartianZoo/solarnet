@@ -34,9 +34,8 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
     with(me) {
       doTask("-SelectedColonyTile<Class<Miranda>>")
 
-      playCorp(TerraLabsResearch) {
-        buyCards(8)
-      }
+      keepStartingProjects(8)
+      playCorp(TerraLabsResearch)
       playPrelude(BusinessEmpire).expect("PROD[6 MC], -6 MC")
       playPrelude(MetalsCompany).expect("PROD[MC]")
 

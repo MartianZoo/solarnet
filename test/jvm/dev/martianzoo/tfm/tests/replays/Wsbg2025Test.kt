@@ -43,11 +43,12 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     val jon = player(3)
     val charlie =
         game.testTfm(game.actors.filterIsInstance<Player>()[3]).requireExplicitPaymentChoices()
+    keepStartingProjects(6, 7, 8, 7)
 
-    stanley.playCorp(CrediCor, 6)
-    jacopo.playCorp(ValleyTrust, 7)
-    jon.playCorp(RobinsonIndustries, 8)
-    charlie.playCorp(CheungShingMars, 7)
+    stanley.playCorp(CrediCor)
+    jacopo.playCorp(ValleyTrust)
+    jon.playCorp(RobinsonIndustries)
+    charlie.playCorp(CheungShingMars)
 
     stanley.turn {
       playPrelude(UnmiContractor)

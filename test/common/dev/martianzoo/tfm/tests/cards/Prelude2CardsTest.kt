@@ -799,7 +799,12 @@ internal class Prelude2CardsTest : CardTest() {
   @Test
   internal fun `Recession fizzles when an opponent has minimum money production`() {
     newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
-    p1.playCorp(MonsInsurance, 0)
+    p1.playCorp(MonsInsurance, 0) {
+      doTask(
+          "EACH Other@Player(NOT Player1) { " +
+              "-2 Production<Other@Player, Class<MC>>! BY Other@Player }"
+      )
+    }
     val p2 = requireP2()
     p2.playCorp(CrediCor, 0)
     admin.phase("Prelude")

@@ -21,7 +21,8 @@ import kotlin.test.Test
 internal class StartTokenTest {
   @Test
   internal fun startsWithPlayer1AndPassesAfterEachResearchPhase() {
-    val admin = setUpGame(players = 3).testTfm(ADMIN)
+    val game = setUpGame(players = 3)
+    val admin = game.testTfm(ADMIN)
 
     admin.assertCounts(
         3 to "AfterMe",
@@ -47,7 +48,8 @@ internal class StartTokenTest {
 
   @Test
   internal fun passesAccordingToTheExplicitAfterMeRelation() {
-    val admin = setUpGame(players = 3).testTfm(ADMIN)
+    val game = setUpGame(players = 3)
+    val admin = game.testTfm(ADMIN)
     // Reverse the whole ring in one correction, preserving one predecessor and successor each.
     admin.sneak(
         "AfterMe<Player1, Player3> FROM AfterMe<Player1, Player2>, " +
@@ -99,9 +101,11 @@ internal class StartTokenTest {
     val p2 = game.testTfm(PLAYER2)
 
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
-    p1.playCorp(InterplanetaryCinematics, 7)
+    p1.keepStartingProjects(7)
+    p2.keepStartingProjects(5)
+    p1.playCorp(InterplanetaryCinematics)
     admin.sneak("StartToken<Player2> FROM StartToken<Player1>")
-    p2.playCorp(PharmacyUnion, 5)
+    p2.playCorp(CrediCor)
 
     game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
     workflow.shutdown()

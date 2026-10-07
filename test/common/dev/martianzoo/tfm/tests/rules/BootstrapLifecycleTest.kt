@@ -6,11 +6,13 @@ import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
@@ -143,7 +145,7 @@ internal class BootstrapLifecycleTest {
 
     admin.doTask("CityTile<Tharsis_4_1>")
     admin.doTask("GreeneryTile<Tharsis_5_1>")
-    shouldThrow<NarrowingException> { admin.doTask("CityTile<Tharsis_4_2>") }
+    shouldThrow<TaskException> { admin.doTask("CityTile<Tharsis_4_2>") }
     admin.count("CityTile") shouldBe 1
     admin.count("Occupant<Tharsis_4_2>") shouldBe 0
 
@@ -220,17 +222,21 @@ internal class BootstrapLifecycleTest {
   }
 
   @Test
-  internal fun automaticSetupKeepsOnlyCardCountsUntilCorporationTurns() {
+  internal fun automaticSetupWaitsForStartingProjectSelection() {
     val game = Engine.newGame(canonicalPremise(PreludeExpansion))
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     val admin = game.testAgent(ADMIN)
     val p1 = game.testTfm(PLAYER1)
 
     p1.count("CorporationCard") shouldBe 1
-    p1.count("ProjectCard") shouldBe 0
+    p1.count("ProjectCard<Selecting>") shouldBe 10
     p1.count("PreludeCard") shouldBe 2
+    admin.count("SetupPhase") shouldBe 1
+    admin.count("CorporationPhase") shouldBe 0
+    p1.keepStartingProjects(7)
+    game.testTfm(PLAYER2).keepStartingProjects(0)
     admin.count("CorporationPhase") shouldBe 1
-    p1.playCorp(cn("InterplanetaryCinematics"), 7)
+    p1.playCorp(cn("InterplanetaryCinematics"))
 
     p1.count("ProjectCard") shouldBe 7
     workflow.shutdown()

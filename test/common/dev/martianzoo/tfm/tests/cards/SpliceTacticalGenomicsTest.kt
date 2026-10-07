@@ -32,9 +32,8 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
     newGame(PromoCardPack)
 
     p1.inTurn {
-          doTask("PlayCard<Class<StandardCorporationCard>, Class<$SpliceTacticalGenomics>, Hand>")
+          doTask("PlayCard<Class<CorporationCard>, Class<$SpliceTacticalGenomics>, Hand>")
           doTask("2 MC")
-          p1.buyCards(0)
         }
         .expect("48 MC")
 

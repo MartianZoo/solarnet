@@ -21,7 +21,7 @@ internal class MonsInsuranceTest : CardTest() {
     newGame(PromoCardPack, players = 3)
     val p3 = game.testTfm(PLAYER3)
 
-    playCorporationWithoutStartingProjects(p1, MonsInsurance)
+    p1.playCorp(MonsInsurance, 0) { doTask(monsStartingLoss("Player1")) }
         .expect("48 MC, PROD[4 MC<Player1>], PROD[-2 MC<Player2>], PROD[-2 MC<Player3>]")
 
     p3.assertProds(-2 to "MC")
@@ -31,7 +31,7 @@ internal class MonsInsuranceTest : CardTest() {
   internal fun `Starting production loss does not target the solo opponent`() {
     newGame(PromoCardPack, players = 1)
 
-    playCorporationWithoutStartingProjects(p1, MonsInsurance)
+    p1.playCorp(MonsInsurance, 0) { doTask(monsStartingLoss("Player1")) }
         .expect("48 MC, PROD[4 MC<Player1>], PROD[0 MC<SoloOpponent>]")
   }
 
@@ -166,7 +166,7 @@ internal class MonsInsuranceTest : CardTest() {
   internal fun `Declining an optional removal avoids compensation`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    playCorporationWithoutStartingProjects(p1, MonsInsurance)
+    p1.playCorp(MonsInsurance, 0) { doTask(monsStartingLoss("Player1")) }
     p1.runOperation("ProjectCard")
     p2.runOperation("Plant")
     admin.phase("Action")
@@ -205,7 +205,7 @@ internal class MonsInsuranceTest : CardTest() {
     newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack, players = 3)
     val p2 = requireP2()
     val p3 = game.testTfm(PLAYER3)
-    p1.playCorp(MonsInsurance, 0)
+    p1.playCorp(MonsInsurance, 0) { doTask(monsStartingLoss("Player1")) }
     p1.runOperation("-${p1.count("MC") - 5} MC")
     p3.runOperation("5 MC")
     admin.phase("Prelude")
@@ -249,4 +249,8 @@ internal class MonsInsuranceTest : CardTest() {
 
     p2.runOperation("-Plant<Player1>").expect("-Plant<Player1>, 0 MC<Player1>")
   }
+
+  private fun monsStartingLoss(owner: String): String =
+      "EACH Other@Player(NOT $owner) { " +
+          "-2 Production<Other@Player, Class<MC>>! BY Other@Player }"
 }
