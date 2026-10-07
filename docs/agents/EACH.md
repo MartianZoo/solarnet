@@ -1,9 +1,8 @@
 # `EACH` fanout
 
-> **NOTE:** This document is used by agents to capture information for themselves to read later; a
-> human didn't write it and we don't expect humans to read it. The project owner can't personally
-> vouch for the information here.
-
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** authoring or changing an `EACH Type { ... }` instruction, or deciding whether a
 > rule applying to several components should use fanout.
 >

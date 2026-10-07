@@ -1,5 +1,8 @@
 # Sequencing, delegated control, and completion
 
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** deciding task order, delegated control, `THEN`, automatic effects, or when queued
 > work and its cleanup have finished.
 >

@@ -1,8 +1,7 @@
 # Major plans
 
-> **NOTE:** This is an agent-maintained index of substantial changes already selected, proposed, or
-> approved elsewhere. It is not a promise to implement every item and does not replace the owning
-> documents.
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
 >
 > **Read when:** choosing a substantial next project, comparing programs of work, or deciding where
 > a newly discovered large change belongs.

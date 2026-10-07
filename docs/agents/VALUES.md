@@ -1,8 +1,8 @@
 # Project values
 
-> **NOTE:** This is an agent-maintained synthesis of priorities explicitly selected with the
-> project owner. It guides future agents; it is not a verbatim statement by the owner.
-
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** designing, implementing, or reviewing a behavior or architecture change, especially
 > when fidelity, generality, completeness, and conceptual cost compete.
 >

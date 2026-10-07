@@ -1,7 +1,7 @@
 # The live engine
 
-> **NOTE:** This document is maintained for agents. Source and meaningful tests remain
-> authoritative.
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
 >
 > **Read when:** changing construction of a live `World`, component mutation, events, transactions,
 > tasks, effect execution, rollback, or the engine-facing part of `Agent`.

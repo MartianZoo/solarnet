@@ -1,7 +1,8 @@
 # Card handling and external tracking
 
-> **NOTE:** This document is maintained for coding agents. A human did not write it.
-
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** changing card backs, card play, draws, searches, purchases, card-tracked replays,
 > or the card-tracking game-playing API.
 >
