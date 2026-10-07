@@ -1,5 +1,8 @@
 # Final review criteria
 
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** reviewing a code change, reporting an implementation complete, or preparing to
 > stage a commit.
 >

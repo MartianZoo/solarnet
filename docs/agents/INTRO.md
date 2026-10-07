@@ -1,5 +1,14 @@
 # Notes for future introductions
 
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
+> **Read when:** planning introductory material for programmers who know *Terraforming Mars*, or
+> choosing topics and ordering for that material. Read only the numbered topic group being planned.
+>
+> **Skip when:** looking for a current introduction to Pets or Solarnet; this is an editorial
+> backlog, not published human documentation.
+
 This is not an introduction to Pets or Solarnet. It holds notes for creating better introductory
 material later. The intended reader of that material knows programming and *Terraforming Mars* well,
 but knows nothing about these projects.

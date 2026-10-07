@@ -1,5 +1,8 @@
 # Direct corrections and inseparable consequences
 
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** changing `exMachina`, `sneak`, effect suppression, or deciding which consequences
 > belong to the existence of a component rather than to a gameplay event.
 >

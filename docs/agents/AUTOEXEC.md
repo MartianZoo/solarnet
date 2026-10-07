@@ -1,6 +1,7 @@
 # Agent autoexecution
 
-> **NOTE:** Agent-maintained map; source and meaningful tests remain authoritative.
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
 >
 > **Read when:** changing Agent policies, `autoExecNow`, synchronous settlement, or proof-oriented
 > task analysis.

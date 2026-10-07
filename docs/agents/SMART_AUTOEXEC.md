@@ -1,5 +1,8 @@
 # Proof-preserving autoexecution
 
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** evaluating whether an automatic task command preserves outcomes and decision
 > authority, or investigating task independence.
 >

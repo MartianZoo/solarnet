@@ -1,6 +1,7 @@
 # Game hacks
 
-> **NOTE:** This document is maintained for coding agents. A human did not write it.
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
 >
 > **Read when:** checking whether current representations compose truthfully with new cards.
 >
