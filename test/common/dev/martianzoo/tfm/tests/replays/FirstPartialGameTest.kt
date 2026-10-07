@@ -19,8 +19,9 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
   @Test
   internal fun fourWholeGenerations() {
     val workflow = TfmWorkflow.Automatic(agents).launch()
-    p1.playCorp(LakefrontResorts, 3)
-    p2.playCorp(InterplanetaryCinematics, 8)
+    keepStartingProjects(3, 8)
+    p1.playCorp(LakefrontResorts)
+    p2.playCorp(InterplanetaryCinematics)
 
     p1.turn {
       playPrelude(MartianIndustries)

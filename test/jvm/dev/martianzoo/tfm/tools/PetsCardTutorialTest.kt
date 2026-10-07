@@ -44,7 +44,7 @@ internal class PetsCardTutorialTest {
                 // Permanent scope exclusions for the concept slides audited here.
                 excludeCardsMatching { card, _, _, _, _ ->
                   cardBack(card)?.className !in
-                      setOf(cn("PreludeCard"), cn("ProjectCard"), cn("StandardCorporationCard"))
+                      setOf(cn("PreludeCard"), cn("ProjectCard"), cn("CorporationCard"))
                 },
                 excludeCardsMatching { _, _, requirement, _, _ ->
                   requirement != null &&
@@ -583,8 +583,7 @@ internal class PetsCardTutorialTest {
     assertEquals(
         setOf("Aphrodite", "ArcticAlgae", "HomeostasisBureau"),
         candidateMatches(
-            deckClassNames =
-                setOf(cn("PreludeCard"), cn("ProjectCard"), cn("StandardCorporationCard")),
+            deckClassNames = setOf(cn("PreludeCard"), cn("ProjectCard"), cn("CorporationCard")),
             extraClassNames = setOf(cn("Actor"), cn("Anyone")),
             allowByTrigger = true,
             allowRequirement = { requirement ->
@@ -739,7 +738,7 @@ internal class PetsCardTutorialTest {
   private fun candidateMatches(
       extraClassNames: Set<ClassName> = emptySet(),
       deckClassNames: Set<ClassName> =
-          setOf(cn("PreludeCard"), cn("ProjectCard"), cn("StandardCorporationCard")),
+          setOf(cn("PreludeCard"), cn("ProjectCard"), cn("CorporationCard")),
       allowInstructionChoice: Boolean = false,
       allowByTrigger: Boolean = false,
       allowMetricMaximum: Boolean = false,

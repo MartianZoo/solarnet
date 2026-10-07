@@ -53,8 +53,11 @@ private fun createGame(playerCount: Int): World {
     if (playerCount == 1) {
       agents.tfm(players.first()).doTask("-SelectedColonyTile<Class<${colonies.first()}>>")
     }
+    players.forEachIndexed { index, player ->
+      agents.tfm(player).keepStartingProjects(if (index == 0) 4 else 0)
+    }
     TfmWorkflow.Stepwise(agents).corporationPhase()
-    agents.tfm(players.first()).playCorp(cn("InterplanetaryCinematics"), buyCards = 4)
+    agents.tfm(players.first()).playCorp(cn("InterplanetaryCinematics"))
   }
 }
 

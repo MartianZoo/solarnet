@@ -17,6 +17,7 @@ generic card backs by Player and location, never by printed identity:
 - `ProjectCard<Hand>` is the count in that Player's hand; `Hand` is the default card location in
   instructions and queries;
 - `CorporationCard<Hand>` and `PreludeCard<Hand>` are analogous setup/phase counts;
+- `BeginnerCard<Hand>` is the separate back used only by the beginner variant;
 - `Selecting` temporarily holds anonymous backs for project-card look-and-keep effects and the
   modeled corporation and Prelude offers. Retained project cards move to `Hand`; selected Prelude
   and Merger corporation cards are played directly from `Selecting`. The effect removes the rest;
@@ -26,13 +27,15 @@ generic card backs by Player and location, never by printed identity:
 - `PlayedEvent<Class<CardFront>>` preserves the exact face of a completed Event because published
   scoring and recovery rules query it.
 
-The modeled selection and reveal effects explicitly empty their temporary locations. A card left in
-`Selecting` after its selection is resolved is always a bug. The selected invariant is zero
-`Selecting` backs for a Player whenever that Player has no active selection, including between
-turns. Setup and Prelude selections also count as active selections even though they occur outside
+The modeled selection and reveal effects explicitly empty their temporary locations. Retained
+starting project cards are the deliberate exception: they rest in `Selecting` after setup until
+`BuySelectedCards` moves them during that Player's Corporation-phase turn. Otherwise, a card left
+in `Selecting` after its selection is resolved is always a bug. The selected invariant is zero
+`Selecting` backs for a Player whenever that Player has no active selection or pending setup
+purchase. Setup and Prelude selections count as active selections even though they occur outside
 action-phase turns. No general check enforces this invariant yet; implementing one requires a
-reliable selection-completion boundary. The existing `MustCleanUp` check runs only for operations
-that declare themselves complete. Do not treat leftover backs as a valid resting state or silently
+reliable selection-completion point. The existing `MustCleanUp` check runs only for operations that
+declare themselves complete. Do not treat other leftover backs as a valid resting state or silently
 discard them to conceal a missing decision.
 
 Fixed-size project-card purchase offers enter `Selecting` first. Searches intentionally have no
@@ -48,10 +51,13 @@ Prelude plays use `PlayOrFizzle`: play the chosen face, or discard its anonymous
 `Audit`, and gain 15 M€. The caller verifies that the selected Prelude is unplayable. This same
 signal serves the Prelude phase and additional Prelude plays granted by cards. Offered and rejected
 cards in the fixed Valley Trust, New Partner, WG Project, and Merger offers are counted in
-`Selecting`; their chosen back is played directly from there and the rejected backs are removed
-without names.
-Setup likewise counts both offered standard corporations in `Selecting`; the chosen one enters
-`Hand`, or both are discarded if the Player chooses the beginner corporation.
+`Selecting`; the rejected backs are removed without names before the chosen back is played directly
+from there.
+Choosing the standard setup path counts both offered corporations and ten project cards in
+`Selecting`; the chosen corporation enters `Hand`, the other is discarded, and unwanted project
+cards are discarded concurrently. Choosing the beginner path creates only `BeginnerCard`.
+Corporation phase plays the retained corporation or beginner card from `Hand`, then buys every
+project card still in `Selecting`.
 Gameplay callers choose the card face without repeating its location. `PlayCard` has no location
 default: `doTask` intersects the caller's choice with the pending task, which supplies the authorized
 source (`Hand` for ordinary plays, `Selecting` for direct offered plays). An explicit conflicting

@@ -28,12 +28,17 @@ import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.fake.FakeCanon
 import io.kotest.matchers.shouldBe
 
 internal fun setUpGame(premise: GamePremise): World =
     Engine.newGame(premise).apply {
-      TfmWorkflow.Stepwise(testAgents()).setupPhase()
+      val agents = testAgents()
+      TfmWorkflow.Stepwise(agents).setupPhase()
+      actors.filterIsInstance<Player>().forEach { player ->
+        agents.tfm(player).keepStartingProjects(0)
+      }
       revealTurmoilSetupEvents(this)
     }
 
@@ -47,7 +52,7 @@ private fun revealTurmoilSetupEvents(game: World) {
 internal fun playCorporationWithoutStartingProjects(
     player: TfmGameplay,
     corporation: ClassName,
-): TaskResult = player.playCorp(corporation, 0)
+): TaskResult = player.playCorp(corporation)
 
 internal fun setUpGame(
     vararg selectedOptions: TestSelection,

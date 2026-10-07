@@ -36,6 +36,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     TfmWorkflow.Automatic(agents).launch()
     val yellow = player(1)
     val green = player(2)
+    keepStartingProjects(6, 4)
     // "Miranda and Enceladus are currently out of play."
     admin.assertCounts(3 to "ColonyTile", 5 to "ColonyTileSelection")
 
@@ -48,12 +49,19 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "I call Mons Insurance again."
     // "Your money production goes up four." "And [Green]'s money production goes down two."
     // "You're buying six cards, which leaves you with 30 money."
-    yellow.playCorp(MonsInsurance, 6).expect("PROD[4 MC<Yellow>, -2 MC<Green>], 30 MC")
+    yellow
+        .playCorp(MonsInsurance) {
+          doTask(
+              "EACH Other@Player(NOT Yellow) { " +
+                  "-2 Production<Other@Player, Class<MC>>! BY Other@Player }"
+          )
+        }
+        .expect("PROD[4 MC<Yellow>, -2 MC<Green>], 30 MC")
 
     // "On my turn, I play Morning Star Inc."
     // "I am purchasing four cards. So I receive 50 money."
     // "And then I'm spending 12 money. So I have 38 money left."
-    green.playCorp(MorningStarInc, 4).expect("38 MC")
+    green.playCorp(MorningStarInc).expect("38 MC")
 
     // "It is now the Prelude phase."
     admin.assertCounts(1 to "PreludePhase")

@@ -46,6 +46,14 @@ internal abstract class TfmTest {
   protected val admin: TfmGameplay
     get() = agents.tfm(ADMIN)
 
+  protected fun keepStartingProjects(vararg counts: Int) {
+    val players = game.actors.filterIsInstance<dev.martianzoo.state.Player>()
+    require(counts.size == players.size) { "Provide a project count per player" }
+    players.zip(counts.toList()).forEach { (player, count) ->
+      game.testTfm(player).keepStartingProjects(count)
+    }
+  }
+
   protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
 
   protected fun TfmGameplay.auditGainsSince(checkpoint: Checkpoint): Int =

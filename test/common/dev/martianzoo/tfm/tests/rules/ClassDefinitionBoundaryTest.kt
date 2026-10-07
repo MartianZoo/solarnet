@@ -99,9 +99,9 @@ internal class ClassDefinitionBoundaryTest {
     val beginnerGame = classesInGame("BeginnerVariant")
 
     standardGame.shouldNotContain(cn("BeginnerCorporation1"))
-    standardGame.shouldNotContain(cn("BeginnerCorporationCard"))
+    standardGame.shouldNotContain(cn("BeginnerCard"))
     beginnerGame.shouldContain(cn("BeginnerCorporation1"))
-    beginnerGame.shouldContain(cn("BeginnerCorporationCard"))
+    beginnerGame.shouldContain(cn("BeginnerCard"))
   }
 
   @Test

@@ -17,9 +17,11 @@ internal object SampleGames {
     val (p1, p2) = agents.world.actors.filterIsInstance<Player>().map { agents.tfm(it) }
 
     TfmWorkflow.Stepwise(agents).setupPhase()
+    p1.keepStartingProjects(5)
+    p2.keepStartingProjects(4)
     admin.phase("Corporation")
-    p1.playCorp(cn("Manutech"), 5)
-    p2.playCorp(cn("Factorum"), 4)
+    p1.playCorp(cn("Manutech"))
+    p2.playCorp(cn("Factorum"))
 
     admin.phase("Prelude")
     p1.playPrelude(cn("NewPartner")) { p1.playPrelude(cn("UnmiContractor")) }

@@ -37,14 +37,15 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
   @Test
   internal fun distantSignalBeam() {
     TfmWorkflow.Automatic(agents).launch()
+    keepStartingProjects(7, 10)
     generation1()
     generation2()
     generation3BeforeResignation()
   }
 
   private fun generation1() {
-    pink.playCorp(MorningStarInc) { buyCards(7) }
-    purple.playCorp(Aridor) { buyCards(10) }
+    pink.playCorp(MorningStarInc)
+    purple.playCorp(Aridor)
 
     pink.turn {
       playPrelude(AtmosphericEnhancers) {

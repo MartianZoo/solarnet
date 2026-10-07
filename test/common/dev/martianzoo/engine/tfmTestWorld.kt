@@ -7,8 +7,10 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.state.ClassSelection
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.GamePremise
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 
 internal fun canonicalPremise(
@@ -35,5 +37,9 @@ internal fun canonicalPremise(
 
 internal fun setUpGame(premise: GamePremise = canonicalPremise()): World =
     Engine.newGame(premise).apply {
-      TfmWorkflow.Stepwise(testAgents()).setupPhase()
+      val agents = testAgents()
+      TfmWorkflow.Stepwise(agents).setupPhase()
+      actors.filterIsInstance<Player>().forEach { player ->
+        agents.tfm(player).keepStartingProjects(0)
+      }
     }

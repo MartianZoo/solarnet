@@ -42,6 +42,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     TfmWorkflow.Automatic(agents).launch()
     val green = player(1)
     val yellow = player(2)
+    keepStartingProjects(7, 5)
 
     // board-11-00-18.jpg: initial global state, before either corporation is played.
     assertSidebar(gen = 1, temp = -30, oxygen = 0, oceans = 0, venus = 0)
@@ -50,10 +51,10 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     // "I'm Point Luna... I get a titanium production." "I'm keeping seven cards."
     // "So I pay 21. I have 17 money remaining."
-    green.playCorp(PointLuna, 7).expect("PROD[Titanium], 17 MC, 8 ProjectCard")
+    green.playCorp(PointLuna).expect("PROD[Titanium], 17 MC, 8 ProjectCard")
 
     // "I have Valley Trust. I'm keeping five cards... I have 22 money."
-    yellow.playCorp(ValleyTrust, 5).expect("22 MC")
+    yellow.playCorp(ValleyTrust).expect("22 MC")
 
     green.turn {
       // "I play Biofuels... two plants, a plant production, and an energy production."
