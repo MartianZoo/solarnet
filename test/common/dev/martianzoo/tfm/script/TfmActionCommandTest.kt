@@ -19,6 +19,7 @@ internal class TfmActionCommandTest {
   internal fun `tfm action continues a use card action already underway`() {
     val repl = ScriptSession()
     repl.command("newgame BRP 2")
+    repl.keepStartingProjects(0, 0)
     repl.command("become Player1")
     repl.agent.runOperation("PROD[Energy], AiCentral")
     repl.command("auto none")
@@ -132,6 +133,7 @@ internal class TfmActionCommandTest {
   private fun actionGame(contents: String, options: String = "BRP"): ScriptSession {
     val repl = ScriptSession()
     repl.command("newgame $options 2")
+    repl.keepStartingProjects(0, 0)
     repl.command("become Player1")
     repl.agent.runOperation(contents)
     repl.command("phase Action")

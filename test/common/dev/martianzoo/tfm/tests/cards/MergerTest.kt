@@ -140,7 +140,10 @@ internal class MergerTest : CardTest() {
   @Test
   internal fun `Pharmacy Union loss makes Board Merger Recyclon unaffordable and rolls back`() {
     newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
-    p1.playCorp(PharmacyUnion, 0)
+    p1.playCorp(PharmacyUnion, 0) {
+      doTask("Disease<$PharmacyUnion>")
+      doTask("Disease<$PharmacyUnion>")
+    }
     admin.phase("Prelude")
     p1.playPrelude(BoardOfDirectors)
     p1.runOperation("-${p1.count("MC") - 17} MC")

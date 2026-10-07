@@ -31,7 +31,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
 
   @Test
   internal fun `one greenery standard project can gain fifty one mc`() {
-    me.playCorp(Spire, 10)
+    keepStartingProjects(10)
+    me.playCorp(Spire)
 
     me.turn {
       playPrelude(Merger) { me.playCorp(LakefrontResorts) }

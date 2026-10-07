@@ -39,11 +39,11 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     green.autoExecPolicy = NONE
     pink.autoExecPolicy = NONE
     pink.doTask("2 CorporationCard<Selecting>")
+    pink.doTask("10 ProjectCard<Selecting>")
     pink.doTask("CorporationCard<Hand FROM Selecting>")
     pink.doTask("-CorporationCard<Selecting>")
-    pink.doTask("NewTurn")
+    pink.doTask("-5 ProjectCard<Selecting>")
     green.doTask("BeginnerCard")
-    green.doTask("NewTurn")
     green.autoExecPolicy = CONCRETE
     pink.autoExecPolicy = CONCRETE
 
@@ -88,6 +88,7 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
       doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation1>, Hand>")
       green.pay()
       doTask("42 MC")
+      doTask("10 ProjectCard")
     }
     green.draw(
         GreatDam,
@@ -103,9 +104,8 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     )
     green.autoExecPolicy = EAGER
     pink.autoExecPolicy = EAGER
-    pink.playCorp(MiningGuild) {
-      buyCards(PowerPlant, Flooding, ArcticAlgae, LavaFlows, CupolaCity)
-    }
+    pink.playCorp(MiningGuild)
+    pink.draw(PowerPlant, Flooding, ArcticAlgae, LavaFlows, CupolaCity)
 
     green.turn { playProject(SpaceMirrors, 3) }
     pink.turn { playProject(ArcticAlgae, 12) }

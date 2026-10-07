@@ -45,6 +45,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     val green = p1.requireExplicitUnusedActionCards()
     val yellow = p2.requireExplicitUnusedActionCards()
     val blue = p3.requireExplicitUnusedActionCards()
+    keepStartingProjects(10, 7, 8)
 
     // "Our coming global event is Mud Slides, and our distant global event is Venus
     // Infrastructure."
@@ -53,12 +54,12 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
 
     // "Septim Triboos [Septem Tribus]. I get 36 money, and then I buy 10 cards. Don't tell me I
     // bought 10."
-    green.playCorp(FakeSeptemTribus, 10)
+    green.playCorp(FakeSeptemTribus)
     // "Pristar. I get 53 money. I lose two TR. Not super happy. And I buy seven cards."
-    yellow.playCorp(Pristar, 7)
+    yellow.playCorp(Pristar)
     // "My corporation is Tycho Magnetics. I start with 42. Not 42 money production. But one energy
     // production."
-    blue.playCorp(TychoMagnetics, 8)
+    blue.playCorp(TychoMagnetics)
 
     green.turn {
       // "Nobel Prize. My second wild tag. I have no tags, but I have two wild tags."

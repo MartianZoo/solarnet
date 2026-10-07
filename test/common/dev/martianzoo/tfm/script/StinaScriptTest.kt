@@ -12,24 +12,20 @@ internal class StinaScriptTest {
   @Test
   internal fun `Stina Saturn Systems game`() {
     val repl = ScriptSession()
+    repl.command(
+        "newgame \"TerraformingMars, CorporateEraExpansion, ElysiumMap, PreludeExpansion\" Me purple"
+    )
+    repl.command("task CityTile<Elysium_5_6, SoloOpponent>")
+    repl.command("task GreeneryTile<Elysium_5_5, SoloOpponent>")
+    repl.command("task CityTile<Elysium_7_7, SoloOpponent>")
+    repl.command("task GreeneryTile<Elysium_7_6, SoloOpponent>")
+    repl.command("become Me")
+    repl.keepStartingProjects(10)
+    repl.playCorporation("SaturnSystems")
+
     val script =
         """
         // Stina's Saturn Systems solo game
-        newgame "TerraformingMars, CorporateEraExpansion, ElysiumMap, PreludeExpansion" Me purple
-
-        // Neutral tiles for solo setup
-        task CityTile<Elysium_5_6, SoloOpponent>
-        task GreeneryTile<Elysium_5_5, SoloOpponent>
-        task CityTile<Elysium_7_7, SoloOpponent>
-        task GreeneryTile<Elysium_7_6, SoloOpponent>
-
-        become Me
-        task Ok
-
-        tfm_play SaturnSystems
-        task Ok
-        task -30 MC
-
         tfm_play Biolab
         tfm_play AcquiredSpaceAgency
 

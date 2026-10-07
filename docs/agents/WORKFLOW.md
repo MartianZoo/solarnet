@@ -41,10 +41,12 @@ activity. A single current-player field cannot represent those different roles.
   empty. It waits for direct or indirect dependent Temporary or MustCleanUp components. Settlement
   after each removal can create work that stops further cleanup.
 
-Setup and Research expose simultaneous Player work. Corporation and Prelude play use ordered
-Player turns. Action rotates players, offering a second action where the current runner permits it;
-Final Greenery also visits players in order. Having tasks therefore does not itself identify who is
-on turn, and several phases cannot be modeled as an exclusive Player turn.
+Setup exposes simultaneous Player choices and discards without turns. Research also exposes
+simultaneous Player work. Corporation gives each Player an ordered turn to play the retained
+corporation or beginner card and buy the projects retained during setup; Prelude play also uses
+ordered Player turns. Action rotates players, offering a second action where the current runner
+permits it; Final Greenery also visits players in order. Having tasks therefore does not itself
+identify who is on turn, and several phases cannot be modeled as an exclusive Player turn.
 
 ## The completion problem
 

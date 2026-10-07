@@ -77,14 +77,19 @@ ABSTRACT CLASS Player : Owner, Actor {
   This: 2 BaseResourceValue<This, Class<Steel>>, 3 BaseResourceValue<This, Class<Titanium>>
 
   SetupPhase IF MAX 0 BeginnerVariant: \
-    2 CorporationCard<This, Selecting> THEN \
-      (CorporationCard<This, Hand> FROM CorporationCard<This, Selecting>) \
-      THEN -CorporationCard<This, Selecting> THEN NewTurn<This>
+    2 CorporationCard<This, Selecting> THEN ( \
+      ((CorporationCard<This, Hand> FROM CorporationCard<This, Selecting>) \
+        THEN -CorporationCard<This, Selecting>), \
+      (10 ProjectCard<This, Selecting> THEN -10 ProjectCard<This, Selecting>?) \
+    )
   SetupPhase IF BeginnerVariant: \
-    (BeginnerCard<This> THEN NewTurn<This>) OR \
-      (2 CorporationCard<This, Selecting> THEN \
-        (CorporationCard<This, Hand> FROM CorporationCard<This, Selecting>) \
-        THEN -CorporationCard<This, Selecting> THEN NewTurn<This>)
+    BeginnerCard<This> OR \
+      (2 CorporationCard<This, Selecting> THEN ( \
+        ((CorporationCard<This, Hand> FROM CorporationCard<This, Selecting>) \
+          THEN -CorporationCard<This, Selecting>), \
+        (10 ProjectCard<This, Selecting> THEN -10 ProjectCard<This, Selecting>?) \
+      ))
+  SetupPhase IF PreludeExpansion: -2 PreludeCard<This>
   ResearchPhase: 4 ProjectCard<This, Selecting> THEN -4 ProjectCard<This, Selecting>? THEN BuySelectedCards<This>
 }
 
@@ -113,13 +118,10 @@ ABSTRACT CLASS Phase : System {
     This: Photosynthesis
     This:: EACH Class<@CardWatcher> { @CardWatcher }
 
-    // Standard setup also offers 10 project cards; their purchase choice is modeled here when the
-    // corporation is played.
-    NewTurn IF CorporationCard: \
-      PlayCard<Class<CorporationCard>, Class<CardFront>, Hand> \
-        THEN 10 ProjectCard<Selecting> THEN -10 ProjectCard<Selecting>? THEN BuySelectedCards
-    NewTurn IF BeginnerCard: \
-      PlayCard<Class<BeginnerCard>, Class<CardFront>, Hand>
+    NewTurn IF CorporationCard<Hand>: \
+      PlayCard<Class<CorporationCard>, Class<CardFront>, Hand> THEN BuySelectedCards
+    NewTurn IF BeginnerCard<Hand>: \
+      PlayCard<Class<BeginnerCard>, Class<CardFront>, Hand> THEN BuySelectedCards
   }
   CLASS ResearchPhase { This:: Generation }
   CLASS ActionPhase {

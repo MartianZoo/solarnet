@@ -27,21 +27,20 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
   internal fun stinaSaturnSystemsGame() {
     with(me) {
       // Test inference: unnamed draws are assigned in the order the cards are later played.
-      playCorp(SaturnSystems) {
-            buyCards(
-                EarthOffice,
-                MediaGroup,
-                InvestmentLoan,
-                IndenturedWorkers,
-                EarthCatapult,
-                HiredRaiders,
-                OlympusConference,
-                AdvancedAlloys,
-                MineralDeposit,
-                ResearchOutpost,
-            )
-          }
-          .expect("PROD[1 MC, Titanium], 12 MC, 10 ProjectCard")
+      keepStartingProjects(10)
+      playCorp(SaturnSystems).expect("PROD[1 MC, Titanium], 12 MC, 10 ProjectCard")
+      draw(
+          EarthOffice,
+          MediaGroup,
+          InvestmentLoan,
+          IndenturedWorkers,
+          EarthCatapult,
+          HiredRaiders,
+          OlympusConference,
+          AdvancedAlloys,
+          MineralDeposit,
+          ResearchOutpost,
+      )
 
       playPrelude(Biolab) {
             draw(InventionContest, BusinessContacts, QuantumExtractor)
