@@ -1,25 +1,21 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowAny
 import kotlin.test.Test
 
 internal class AstraMechanicaTest : CardTest() {
   @Test
-  internal fun `Can choose zero played events`() {
+  internal fun `Cannot play without two eligible events`() {
     newGameWithAutoWorkflow(PromoCardPack)
     playUntilFirstActionPhase()
 
-    p1.playProject(AstraMechanica, 7) {
-          doWithoutAutoExec(p1) {
-            // Decline both opportunities to retrieve a played event.
-            doTask("Ok")
-            doTask("Ok")
-          }
-        }
-        .expect("$AstraMechanica, -7 MC, -ProjectCard, 0 PlayedEvent")
+    shouldThrow<NotFullySpecifiedException> { p1.playProject(AstraMechanica, 7) }
   }
 
   @Test
@@ -51,18 +47,19 @@ internal class AstraMechanicaTest : CardTest() {
     admin.phase("Action")
     p1.runOperation("$LavaFlows") { placeTile(2, 2) }
     p1.runOperation("$DeimosDownPromo") { placeTile(4, 5) }
+    p1.runOperation("$MineralDeposit")
+    p1.runOperation("$InvestmentLoan")
     p1.runOperation("7 MC, ProjectCard")
 
     p1.playProject(AstraMechanica, 7) {
           doWithoutAutoExec(p1) {
             shouldThrowAny { doTask("ProjectCard FROM PlayedEvent<Class<$LavaFlows>>") }
             shouldThrowAny { doTask("ProjectCard FROM PlayedEvent<Class<$DeimosDownPromo>>") }
-            // Neither retrieval has an eligible event.
-            doTask("Ok")
-            doTask("Ok")
+            doTask("ProjectCard FROM PlayedEvent<Class<$MineralDeposit>>")
+            doTask("ProjectCard FROM PlayedEvent<Class<$InvestmentLoan>>")
           }
         }
-        .expect("0 PlayedEvent, 0 SpecialTile")
+        .expect("ProjectCard, -2 PlayedEvent, 0 SpecialTile")
   }
 
   @Test
@@ -74,13 +71,14 @@ internal class AstraMechanicaTest : CardTest() {
     p1.runOperation("$PhysicsComplex") {
       doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating")
     }
+    p1.runOperation("$MineralDeposit")
+    p1.runOperation("$InvestmentLoan")
 
     p1.playProject(AstraMechanica, 7) {
           doWithoutAutoExec(p1) {
             shouldThrowAny { doTask("ProjectCard FROM PlayedEvent<Class<$PharmacyUnion>>") }
-            // The flipped corporation is ineligible for either retrieval.
-            doTask("Ok")
-            doTask("Ok")
+            doTask("ProjectCard FROM PlayedEvent<Class<$MineralDeposit>>")
+            doTask("ProjectCard FROM PlayedEvent<Class<$InvestmentLoan>>")
           }
         }
         .expect("0 PlayedEvent<Class<$PharmacyUnion>>")
@@ -91,6 +89,8 @@ internal class AstraMechanicaTest : CardTest() {
     newGame(PromoCardPack)
     admin.phase("Action")
     requireP2().runOperation("$MineralDeposit")
+    p1.runOperation("$InvestmentLoan")
+    p1.runOperation("$BribedCommittee")
     p1.runOperation("7 MC, ProjectCard")
 
     p1.playProject(AstraMechanica, 7) {
@@ -98,28 +98,24 @@ internal class AstraMechanicaTest : CardTest() {
             shouldThrowAny {
               doTask("ProjectCard FROM PlayedEvent<Player2, Class<$MineralDeposit>>")
             }
-            // Neither retrieval has an event belonging to this player.
-            doTask("Ok")
-            doTask("Ok")
+            doTask("ProjectCard FROM PlayedEvent<Class<$InvestmentLoan>>")
+            doTask("ProjectCard FROM PlayedEvent<Class<$BribedCommittee>>")
           }
         }
         .expect("0 PlayedEvent<Player2, Class<$MineralDeposit>>")
   }
 
   @Test
-  internal fun `Can recover an ocean event`() {
+  internal fun `Cannot play with only one eligible event`() {
     newGame(PromoCardPack)
     admin.phase("Action")
     p1.runOperation("$Flooding") { placeTile(5, 5) }
     p1.runOperation("7 MC, ProjectCard")
 
-    p1.playProject(AstraMechanica, 7) {
-          doWithoutAutoExec(p1) {
-            doTask("ProjectCard FROM PlayedEvent<Class<$Flooding>>")
-            // There is only one event to recover.
-            doTask("Ok")
-          }
-        }
-        .expect("0 OceanTile")
+    shouldThrow<LimitsException> {
+      p1.playProject(AstraMechanica, 7) {
+        doTask("ProjectCard FROM PlayedEvent<Class<$Flooding>>")
+      }
+    }
   }
 }
