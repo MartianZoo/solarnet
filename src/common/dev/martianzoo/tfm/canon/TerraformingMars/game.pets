@@ -81,10 +81,10 @@ ABSTRACT CLASS Player : Owner, Actor {
       (CorporationCard<This, Hand> FROM CorporationCard<This, Selecting>) \
       THEN -CorporationCard<This, Selecting> THEN NewTurn<This>
   SetupPhase IF BeginnerVariant: \
-    2 CorporationCard<This, Selecting> THEN \
-      ((BeginnerCard<This> THEN -2 CorporationCard<This, Selecting> THEN NewTurn<This>) OR \
-        ((CorporationCard<This, Hand> FROM CorporationCard<This, Selecting>) \
-          THEN -CorporationCard<This, Selecting> THEN NewTurn<This>))
+    (BeginnerCard<This> THEN NewTurn<This>) OR \
+      (2 CorporationCard<This, Selecting> THEN \
+        (CorporationCard<This, Hand> FROM CorporationCard<This, Selecting>) \
+        THEN -CorporationCard<This, Selecting> THEN NewTurn<This>)
   ResearchPhase: 4 ProjectCard<This, Selecting> THEN -4 ProjectCard<This, Selecting>? THEN BuySelectedCards<This>
 }
 
@@ -113,9 +113,8 @@ ABSTRACT CLASS Phase : System {
     This: Photosynthesis
     This:: EACH Class<@CardWatcher> { @CardWatcher }
 
-    // NewTurn IF SetupPhase, CorporationCard<Selecting>: CorporationCard<Hand FROM Selecting>,
-    //   ((ProjectCard<Selecting FROM Hand> / ProjectCard) THEN -10 ProjectCard<Selecting>?
-    //     THEN (ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>))
+    // Standard setup also offers 10 project cards; their purchase choice is modeled here when the
+    // corporation is played.
     NewTurn IF CorporationCard: \
       PlayCard<Class<CorporationCard>, Class<CardFront>, Hand> \
         THEN 10 ProjectCard<Selecting> THEN -10 ProjectCard<Selecting>? THEN BuySelectedCards

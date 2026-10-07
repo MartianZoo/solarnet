@@ -63,6 +63,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   processing stage just for this. Named-header specialization of Requirement properties and
   inspecting authored references are the current obstacles (see
   [card handling](docs/agents/CARD_HANDLING.md#external-offer-procedures)).
+- Revisit setup after the now-direct beginner/standard choice: choosing the two corporation offers
+  should leave the intended two discard decisions pending together, and setup should not use
+  `NewTurn` as choreography. Removing that signal also needs a player-scoped, exactly-once home for
+  the Prelude discard, including games that deal extra setup Preludes.
 - Make L1 Trade Terminal's resource allowance count only its own gifts, not resource gains from
   other cards reacting to them. First reproduce the interaction with a literal `Microbe: Animal`
   fan-card effect, then find the smallest correction that preserves the Terminal's required

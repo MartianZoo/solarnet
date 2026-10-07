@@ -48,9 +48,7 @@ internal class TfmWorkflowTest {
     val p2 = game.testTfm(PLAYER2).also { it.autoExecPolicy = NONE }
 
     workflow.setupPhase()
-    p1.doTask("2 CorporationCard<Selecting>")
     p1.doTask("BeginnerCard")
-    p1.doTask("-2 CorporationCard<Selecting>")
     p1.doTask("NewTurn")
     p2.doTask("2 CorporationCard<Selecting>")
     p2.doTask("CorporationCard<Hand FROM Selecting>")
@@ -116,9 +114,7 @@ internal class TfmWorkflowTest {
 
     workflow.setupPhase()
     listOf(p1, p2).forEach { player ->
-      player.doTask("2 CorporationCard<Selecting>")
       player.doTask("BeginnerCard")
-      player.doTask("-2 CorporationCard<Selecting>")
       player.doTask("NewTurn")
     }
 

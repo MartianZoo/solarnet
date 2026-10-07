@@ -50,8 +50,8 @@ signal serves the Prelude phase and additional Prelude plays granted by cards. O
 cards in the fixed Valley Trust, New Partner, WG Project, and Merger offers are counted in
 `Selecting`; their chosen back is played directly from there and the rejected backs are removed
 without names.
-Setup likewise counts both offered standard corporations in `Selecting`; the chosen one enters
-`Hand`, or both are discarded if the Player chooses the beginner corporation.
+Choosing the standard setup path counts both offered corporations in `Selecting`; the chosen card
+enters `Hand` and the other is discarded. Choosing the beginner path creates only `BeginnerCard`.
 Gameplay callers choose the card face without repeating its location. `PlayCard` has no location
 default: `doTask` intersects the caller's choice with the pending task, which supplies the authorized
 source (`Hand` for ordinary plays, `Selecting` for direct offered plays). An explicit conflicting
