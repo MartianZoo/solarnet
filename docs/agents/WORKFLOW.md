@@ -46,10 +46,6 @@ Player turns. Action rotates players, offering a second action where the current
 Final Greenery also visits players in order. Having tasks therefore does not itself identify who is
 on turn, and several phases cannot be modeled as an exclusive Player turn.
 
-Normal-corporation play explicitly excludes `BeginnerCorporation` in addition to standard-back
-typing. That is a deliberate statement of the normal path, not redundant routing machinery to
-remove during workflow work.
-
 ## The completion problem
 
 Global idleness currently combines several events that need not be equivalent: an operation has no

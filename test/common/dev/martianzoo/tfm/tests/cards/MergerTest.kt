@@ -74,9 +74,9 @@ internal class MergerTest : CardTest() {
 
     p1.assertCounts(1 to "$Celestic")
     result.changes
-        .filter { it.change.gaining?.type == p1.resolve("StandardCorporationCard<Selecting>") }
+        .filter { it.change.gaining?.type == p1.resolve("CorporationCard<Selecting>") }
         .sumOf { it.change.count } shouldBe 4
-    p1.assertCounts(0 to "StandardCorporationCard<Selecting>")
+    p1.assertCounts(0 to "CorporationCard<Selecting>")
   }
 
   @Test
@@ -158,7 +158,7 @@ internal class MergerTest : CardTest() {
               doTask("Owed<> / $Recyclon.cost")
               doTask("PriceCard<Class<$Recyclon>>")
               doTask("CardBilling")
-              doTask("$Recyclon FROM StandardCorporationCard<Selecting>")
+              doTask("$Recyclon FROM CorporationCard<Selecting>")
               doTask("38 MC")
               // Choose the disease loss before Merger's payment; both are queued.
               doTask("-4 MC.")

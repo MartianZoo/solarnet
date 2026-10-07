@@ -62,7 +62,7 @@ public class TfmGameplay(
 
   public fun playCorp(cardName: ClassName, buyCards: Int, body: OperationBlock = {}): TaskResult {
     return inTurn {
-      doTask("PlayCard<Class<StandardCorporationCard>, Class<$cardName>>")
+      doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
       buyOfferedCards(buyCards)
       body()
     }
@@ -253,7 +253,7 @@ public class TfmGameplay(
       cardName: ClassName,
       body: OperationBlock = {},
   ) {
-    playCardWithinOperation(cn("StandardCorporationCard"), cardName, body)
+    playCardWithinOperation(cn("CorporationCard"), cardName, body)
   }
 
   private fun OperationScope.playCardWithinOperation(

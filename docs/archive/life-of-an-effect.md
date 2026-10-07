@@ -8,7 +8,7 @@ produce recorded State Changes. The example is Recyclon because it passes throug
 interesting stages without making any one of them unusually difficult:
 
 ```pets
-CLASS Recyclon : ResourceCard<Class<Microbe>, Class<StandardCorporationCard>> {
+CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
   cost = 0
   HAS =1 MicrobeTag<This>, =1 BuildingTag<This>
   This:: MicrobeTag<This>!, BuildingTag<This>!
@@ -108,7 +108,7 @@ The card generator assembles Recyclon's Class Declaration, renders it into gener
 and the Catalog source pipeline parses that declaration. Its behavior-bearing part is:
 
 ```pets
-CLASS Recyclon : ResourceCard<Class<Microbe>, Class<StandardCorporationCard>> {
+CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
   cost = 0
   HAS =1 MicrobeTag<This>, =1 BuildingTag<This>
   This:: MicrobeTag<This>!, BuildingTag<This>!

@@ -38,11 +38,11 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
 
     green.autoExecPolicy = NONE
     pink.autoExecPolicy = NONE
-    pink.doTask("StandardCorporationCard<Hand FROM Selecting>")
-    pink.doTask("-StandardCorporationCard<Selecting>")
+    pink.doTask("CorporationCard<Hand FROM Selecting>")
+    pink.doTask("-CorporationCard<Selecting>")
     pink.doTask("NewTurn")
-    green.doTask("BeginnerCorporationCard")
-    green.doTask("-2 StandardCorporationCard<Selecting>")
+    green.doTask("BeginnerCard")
+    green.doTask("-2 CorporationCard<Selecting>")
     green.doTask("NewTurn")
     green.autoExecPolicy = CONCRETE
     pink.autoExecPolicy = CONCRETE
@@ -85,7 +85,7 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
 
   private fun generation1() {
     green.inTurn {
-      doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation1>, Hand>")
+      doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation1>, Hand>")
       green.pay()
       doTask("42 MC")
     }

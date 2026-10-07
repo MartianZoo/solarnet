@@ -1463,7 +1463,7 @@ CLASS GreeneryTile : Tile { HAS MAX 1 This; This: OxygenStep }
 **L11-6. A nested declaration becomes a sibling that names its container as a supertype** (T2-2).
 The container is returned first, then its nested declarations in source order, recursively.
 
-> **Non-normative example — cards and locations.** The `CorporationCard` hierarchy and `ProjectCard`
+> **Non-normative example — cards and locations.** `CorporationCard` and `ProjectCard`
 > are written inside `CardBack`, itself inside `Card`, but the type table needs ordinary globally
 > named classes. Lowering nesting to sibling inheritance preserves the readable taxonomy without
 > creating a namespace the rest of PETS does not have.

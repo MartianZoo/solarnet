@@ -243,9 +243,6 @@ Keep the substantive reasoning in the owning document and keep this table to one
   [`StandardFormBundle`](../../src/common/dev/martianzoo/tfm/canon/StandardFormBundle.kt). The
   suffix is the smallest way to keep handwritten cards in the existing card-resource selection
   model without another Bundle.
-- **Explicit exclusion in normal-corporation offers** — [WORKFLOW.md](WORKFLOW.md#current-foundation).
-  Standard back typing already rejects beginner faces, while `NOT BeginnerCorporation` deliberately
-  states the normal-path rule at every normal-corporation offer.
 - **Turmoil's `TurmoilPlayer` and `ApplyRulingBonus`** —
   A player's delegate cap needs the bearer's owner available inside an effect, unlike Neutral's
   direct invariant. The ruling bonus cannot trigger on `Ruling`, because setup places Greens without

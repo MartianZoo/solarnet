@@ -16,6 +16,7 @@ generic card backs by Player and location, never by printed identity:
 - `ProjectCard<Hand>` is the count in that Player's hand; `Hand` is the default card location in
   instructions and queries;
 - `CorporationCard<Hand>` and `PreludeCard<Hand>` are analogous setup/phase counts;
+- `BeginnerCard<Hand>` is the separate back used only by the beginner variant;
 - `Selecting` temporarily holds anonymous backs for project-card look-and-keep effects and the
   modeled corporation and Prelude offers. Retained project cards move to `Hand`; selected Prelude
   and Merger corporation cards are played directly from `Selecting`. The effect removes the rest;
