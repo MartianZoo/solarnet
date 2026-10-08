@@ -2,9 +2,12 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.cards.cardnames.VenusianAnimals
 import dev.martianzoo.tfm.tests.cards.cardnames.VenusianPlants
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class VenusianPlantsTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
+
   @Test
   internal fun `Can choose unavailable microbes instead of available animals`() {
     kim.setToExMachina(8, "VenusStep")

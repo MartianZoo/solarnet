@@ -1,9 +1,12 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class MartianRailsTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
+
   // FAQ: "even if there are NO cities on Mars (earning you 0 M€)."
   @Test
   internal fun `Can be used when every city is off Mars`() {

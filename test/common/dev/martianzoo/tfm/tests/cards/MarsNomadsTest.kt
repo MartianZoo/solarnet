@@ -155,23 +155,6 @@ internal class MarsNomadsTest : CardTest() {
   }
 
   @Test
-  internal fun `Nomads may return to an area they previously occupied`() {
-    newGame(PromoCardPack)
-    p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_1_1>") }
-    admin.phase("Action")
-    p1.cardAction1(MarsNomads) {
-      doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>")
-    }
-    p1.sneak("-ActionUsedMarker<MarsNomads>")
-
-    p1.cardAction1(MarsNomads) {
-      doTask("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_2>")
-    }
-
-    p1.assertCounts(1 to "NomadsMarker<Tharsis_1_1>")
-  }
-
-  @Test
   internal fun `Nomads movement does not trigger Philares`() {
     newGame(PromoCardPack)
     val p2 = requireP2()

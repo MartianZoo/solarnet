@@ -4,9 +4,12 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.cards.cardnames.CorroderSuits
 import dev.martianzoo.tfm.tests.cards.cardnames.VenusianAnimals
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class CorroderSuitsTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
+
   @Test
   internal fun `Can be played without an eligible Venus card`() {
     kim.playProject(CorroderSuits, 8).expect("PROD[2 MC], 0 CardResource")

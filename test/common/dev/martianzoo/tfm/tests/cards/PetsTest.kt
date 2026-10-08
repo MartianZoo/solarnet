@@ -3,9 +3,12 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class PetsTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
+
   @Test
   internal fun `Cannot remove a protected animal when another target exists`() {
     stan.exMachina("$Pets, Animal<$Pets>")

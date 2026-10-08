@@ -3,9 +3,12 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.tests.cards.cardnames.PublicPlans
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class PublicPlansTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
+
   @Test
   internal fun `Rewards two revealed cards and returns them to hand`() {
     kim.setToExMachina(3, "ProjectCard")

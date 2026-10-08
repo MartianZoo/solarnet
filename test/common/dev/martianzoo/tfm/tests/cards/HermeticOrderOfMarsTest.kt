@@ -1,9 +1,12 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class HermeticOrderOfMarsTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
+
   @Test
   internal fun `Treats an area with a community but no tile as empty`() {
     kim.exMachina("NormalCityTile<Kim, Tharsis_1_1>")

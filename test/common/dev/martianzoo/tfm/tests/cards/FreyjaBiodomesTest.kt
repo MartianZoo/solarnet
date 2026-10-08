@@ -1,9 +1,12 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class FreyjaBiodomesTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
+
   // FAQ: "you can still choose to take microbes"
   @Test
   internal fun `Can choose unavailable microbes instead of available animals`() {

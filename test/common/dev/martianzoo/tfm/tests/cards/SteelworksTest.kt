@@ -2,9 +2,12 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class SteelworksTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
+
   // FAQ: "used even after the oxygen has been maxed out"
   @Test
   internal fun `Can be used after oxygen is maxed`() {

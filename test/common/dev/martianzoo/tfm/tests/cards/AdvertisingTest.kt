@@ -1,9 +1,12 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class AdvertisingTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
+
   @Test
   internal fun `Does not trigger for a 19-cost card`() {
     kim.exMachina("$Advertising")

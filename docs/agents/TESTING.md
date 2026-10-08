@@ -306,8 +306,8 @@ overload in `CardTest` uses the same resolution path.
 
 ### Standard project-card fixture migration
 
-`ProjectCardTest` is the default base for project-card functional tests when its fixed game can
-express every scenario in the class. It starts each test at generation 1 Action phase with:
+`ProjectCardTest` is the default base for project-card functional tests when its standard game can
+express the scenarios in the class. It starts each test at generation 1 Action phase with:
 
 - Tharsis, Venus Next, Colonies, and Promos;
 - Corporate Era and the Beginner and Quick Start variants;
@@ -316,11 +316,14 @@ express every scenario in the class. It starts each test at generation 1 Action 
   20 TR, and production of 1 for each standard resource.
 
 Kim is the player exercising the subject card unless the card's behavior requires another actor.
-The fixture caches its immutable `GamePremise`, not a mutable game. Every test constructs a fresh
-`World` and performs the real setup and corporation workflows before entering Action phase. Do not
-share or roll back a live World between tests. It leaves the default autoexecution policy untouched:
-the fixture selects Beginner mode and distinct beginner corporations, while forced setup effects
-autoexecute normally.
+The fixture caches its immutable `GamePremise` for each option set, not a mutable game. Every test
+constructs a fresh `World` and performs the real setup and corporation workflows before entering
+Action phase. The base class does not create that game automatically. A uniform class declares its
+own `@BeforeTest` method that calls `newTestGame()`. A class whose methods need different compatible
+selections calls `newTestGame()` explicitly in each method, passing a configuration fragment such as
+`addOptions = "CimmeriaMap"` where needed. Do not share or roll back a live World between tests. The
+fixture leaves the default autoexecution policy untouched: it selects Beginner mode and distinct
+beginner corporations, while forced setup effects autoexecute normally.
 
 Treat every pre-migration test as a fallible historical artifact, not as a specification of its
 setup. Existing options, cards, resource grants, card plays, phase changes, autoexecution policies,
@@ -381,9 +384,10 @@ setup actions. It is also appropriate when a broader integration scenario is val
 right. Direct correction is the default for irrelevant preconditions because it keeps focused card
 tests short and makes their real subject obvious; it is not a ban on authentic gameplay.
 
-Migrate a test class only when all its scenarios fit this fixed fixture and setup model. Leave the
-whole class on `CardTest` when it needs a different map, player count, solo mode, Prelude, Turmoil,
-synthetic declarations, or another incompatible configuration. Do not add fixture variants or
+Migrate a test class only when all its scenarios fit this fixture and setup model. A scenario may
+start with an additional compatible game selection, including a different map. Leave the whole
+class on `CardTest` when it needs another player count, solo mode, a different variant, synthetic
+declarations, or another incompatible configuration. Do not add specialized fixture variants or
 replace a meaningful scenario merely to increase the migrated count. This is an active,
 class-by-class migration: an existing `CardTest` subclass may simply be awaiting evaluation, and its
 current base class does not by itself express a preferred testing style.

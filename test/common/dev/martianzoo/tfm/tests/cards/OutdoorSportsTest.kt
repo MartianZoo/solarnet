@@ -3,9 +3,12 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class OutdoorSportsTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
+
   @Test
   internal fun `Can be played with an opponent's city beside an ocean`() {
     stan.exMachina("NormalCityTile<Stan, Tharsis_1_3>, OceanTile<Tharsis_1_2>")

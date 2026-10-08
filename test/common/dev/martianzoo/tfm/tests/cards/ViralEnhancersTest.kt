@@ -90,7 +90,7 @@ internal class ViralEnhancersTest : CardTest() {
   @Test
   internal fun `Viral Enhancers responds to both Pharmacy Union tags`() {
     newGame(PreludeExpansion, PromoCardPack)
-    playCorporationWithoutStartingProjects(p1, CrediCor)
+    p1.playCorp(CrediCor, 0)
     p1.runOperation("$ViralEnhancers") { doTask("Plant") }
     admin.phase("Prelude")
     p1.runOperation("PreludeCard")
@@ -108,7 +108,7 @@ internal class ViralEnhancersTest : CardTest() {
   @Test
   internal fun `Viral Enhancers cannot add a disease to Pharmacy Union`() {
     newGame(PreludeExpansion, PromoCardPack)
-    playCorporationWithoutStartingProjects(p1, CrediCor)
+    p1.playCorp(CrediCor, 0)
     p1.runOperation("$ViralEnhancers") { doTask("Plant") }
     admin.phase("Prelude")
     p1.runOperation("PreludeCard")

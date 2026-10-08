@@ -1,9 +1,12 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class SymbioticFungusTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
+
   // FAQ: "the microbe obtained would be discarded"
   @Test
   internal fun `Can use its action without an eligible target`() {

@@ -3,12 +3,12 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.agent.exMachina
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TfmTest
-import kotlin.test.BeforeTest
 
 internal abstract class ProjectCardTest : TfmTest() {
   protected lateinit var kim: TfmGameplay
@@ -20,9 +20,8 @@ internal abstract class ProjectCardTest : TfmTest() {
   protected lateinit var rob: TfmGameplay
     private set
 
-  @BeforeTest
-  fun initializeProjectCardGame() {
-    game = Engine.newGame(PREMISE)
+  protected fun newTestGame(addOptions: String = "") {
+    game = Engine.newGame(premise(addOptions))
     val workflow = TfmWorkflow.Stepwise(agents)
     val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
     kim = players[0]
@@ -53,18 +52,18 @@ internal abstract class ProjectCardTest : TfmTest() {
   }
 
   private companion object {
-    private val PREMISE by lazy {
-      Canon.gamePremise(
-          GameConfig(
-              """
-              TharsisMap, CorporateEraExpansion, VenusNextExpansion, ColoniesExpansion,
-              PromoCardPack, BeginnerVariant, QuickStartVariant
-              """,
-              "Kim",
-              "Stan",
-              "Rob",
-          )
-      )
+    private const val BASE_GAME_OPTIONS =
+        "CorporateEraExpansion, VenusNextExpansion, ColoniesExpansion, " +
+            "PromoCardPack, BeginnerVariant, QuickStartVariant"
+
+    private val premises = mutableMapOf<String, GamePremise>()
+
+    private fun premise(addOptions: String): GamePremise {
+      return premises.getOrPut(addOptions) {
+        val options =
+            listOf(BASE_GAME_OPTIONS, addOptions).filter(String::isNotBlank).joinToString()
+        Canon.gamePremise(GameConfig(options, "Kim", "Stan", "Rob"))
+      }
     }
 
     private val BEGINNER_CORPORATIONS =

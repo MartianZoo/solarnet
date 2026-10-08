@@ -1,30 +1,22 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.assertions.throwables.shouldThrowAny
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class AstraMechanicaTest : CardTest() {
+internal class AstraMechanicaTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
+
   @Test
   internal fun `Can return two differently typed played events`() {
-    newGameWithAutoWorkflow(PromoCardPack)
-    playUntilFirstActionPhase()
+    kim.exMachina("PlayedEvent<Class<$MineralDeposit>>, PlayedEvent<Class<$InvestmentLoan>>")
 
-    p1.turn {
-      playProject(MineralDeposit, 5)
-      playProject(InvestmentLoan, 3)
-    }
-    requireP2().pass()
-
-    p1.playProject(AstraMechanica, 7) {
-          doWithoutAutoExec(p1) {
-            doTask("ProjectCard FROM PlayedEvent<Class<$MineralDeposit>>")
-            doTask("ProjectCard FROM PlayedEvent<Class<$InvestmentLoan>>")
-          }
+    kim.playProject(AstraMechanica, 7) {
+          doTask("ProjectCard FROM PlayedEvent<Class<$MineralDeposit>>")
         }
         .expect(
             "$AstraMechanica, ProjectCard, " +
@@ -34,68 +26,50 @@ internal class AstraMechanicaTest : CardTest() {
 
   @Test
   internal fun `Cannot recover an event that placed a special tile`() {
-    newGame(PromoCardPack)
-    admin.phase("Action")
-    p1.runOperation("$LavaFlows") { placeTile(2, 2) }
-    p1.runOperation("$MineralDeposit")
-    p1.runOperation("$InvestmentLoan")
-    p1.runOperation("7 MC, ProjectCard")
+    kim.exMachina(
+        "PlayedEvent<Class<$LavaFlows>>, PlayedEvent<Class<$MineralDeposit>>, " +
+            "PlayedEvent<Class<$InvestmentLoan>>"
+    )
 
-    shouldThrowAny {
-      p1.playProject(AstraMechanica, 7) {
-        doWithoutAutoExec(p1) { doTask("ProjectCard FROM PlayedEvent<Class<$LavaFlows>>") }
+    shouldThrow<NarrowingException> {
+      kim.playProject(AstraMechanica, 7) {
+        doTask("ProjectCard FROM PlayedEvent<Class<$LavaFlows>>")
       }
     }
   }
 
   @Test
   internal fun `Cannot recover flipped Pharmacy Union`() {
-    newGame(PromoCardPack, CorporateEraExpansion)
-    admin.phase("Action")
-    p1.runOperation("$PharmacyUnion")
-    p1.runOperation("$Research")
-    p1.runOperation("$PhysicsComplex") {
-      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating")
-    }
-    p1.runOperation("$MineralDeposit")
-    p1.runOperation("$InvestmentLoan")
+    kim.exMachina(
+        "PlayedEvent<Class<$PharmacyUnion>>, PlayedEvent<Class<$MineralDeposit>>, " +
+            "PlayedEvent<Class<$InvestmentLoan>>"
+    )
 
-    shouldThrowAny {
-      p1.playProject(AstraMechanica, 7) {
-        doWithoutAutoExec(p1) {
-          doTask("ProjectCard FROM PlayedEvent<Class<$PharmacyUnion>>")
-        }
+    shouldThrow<TaskException> {
+      kim.playProject(AstraMechanica, 7) {
+        doTask("ProjectCard FROM PlayedEvent<Class<$PharmacyUnion>>")
       }
     }
   }
 
   @Test
   internal fun `Cannot recover another player's event`() {
-    newGame(PromoCardPack)
-    admin.phase("Action")
-    requireP2().runOperation("$MineralDeposit")
-    p1.runOperation("$InvestmentLoan")
-    p1.runOperation("$BribedCommittee")
-    p1.runOperation("7 MC, ProjectCard")
+    stan.exMachina("PlayedEvent<Class<$MineralDeposit>>")
+    kim.exMachina("PlayedEvent<Class<$InvestmentLoan>>, PlayedEvent<Class<$BribedCommittee>>")
 
-    shouldThrowAny {
-      p1.playProject(AstraMechanica, 7) {
-        doWithoutAutoExec(p1) {
-          doTask("ProjectCard FROM PlayedEvent<Player2, Class<$MineralDeposit>>")
-        }
+    shouldThrow<TaskException> {
+      kim.playProject(AstraMechanica, 7) {
+        doTask("ProjectCard FROM PlayedEvent<Stan, Class<$MineralDeposit>>")
       }
     }
   }
 
   @Test
   internal fun `Cannot play with only one eligible event`() {
-    newGame(PromoCardPack)
-    admin.phase("Action")
-    p1.runOperation("$Flooding") { placeTile(5, 5) }
-    p1.runOperation("7 MC, ProjectCard")
+    kim.exMachina("PlayedEvent<Class<$Flooding>>")
 
     shouldThrow<LimitsException> {
-      p1.playProject(AstraMechanica, 7) {
+      kim.playProject(AstraMechanica, 7) {
         doTask("ProjectCard FROM PlayedEvent<Class<$Flooding>>")
       }
     }
