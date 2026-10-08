@@ -1,29 +1,29 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.cards.ProjectCardTest
+import dev.martianzoo.tfm.tests.cards.cardnames.TitanShuttles
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class TitanShuttlesTest : ColoniesCardTest() {
+internal class TitanShuttlesTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
+
   @Test
   internal fun `Can convert five floaters into five titanium`() {
-    initializeCard()
-    p1.cardAction2(TitanShuttles) { doTask("-5 Floater THEN 5 Titanium") }
+    kim.exMachina("$TitanShuttles, 7 Floater<$TitanShuttles>")
+
+    kim.cardAction2(TitanShuttles) { doTask("-5 Floater THEN 5 Titanium") }
         .expect("-5 Floater<$TitanShuttles>, 5 Titanium")
   }
 
   @Test
   internal fun `Cannot underpay its floater cost`() {
-    initializeCard()
+    kim.exMachina("$TitanShuttles, 7 Floater<$TitanShuttles>")
 
-    p1.cardAction2(TitanShuttles) {
-      shouldThrow<NarrowingException> { doTask("-4 Floater THEN 5 Titanium") }
-      abort()
+    shouldThrow<NarrowingException> {
+      kim.cardAction2(TitanShuttles) { doTask("-4 Floater THEN 5 Titanium") }
     }
-  }
-
-  private fun initializeCard() {
-    p1.runOperation("$TitanShuttles, 7 Floater<$TitanShuttles>")
   }
 }

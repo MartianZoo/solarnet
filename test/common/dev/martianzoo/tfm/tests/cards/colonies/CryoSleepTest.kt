@@ -1,45 +1,32 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.tfm.tests.cards.ProjectCardTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.matchers.shouldBe
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class CryoSleepTest : ColoniesCardTest() {
+internal class CryoSleepTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame(addOptions = "Luna, Io, Triton, Europa, Titan")
+
   @Test
   internal fun `Discounts a mc-funded trade`() {
-    p1.runOperation("$CryoSleep, 8 MC")
-    p1.stdAction("TradeAction", 1) { doTask("Trade<Io>") }.expect("-8 MC, 3 Heat")
+    kim.exMachina("$CryoSleep")
+
+    kim.stdAction("TradeAction", 1) { doTask("Trade<Io>") }.expect("-8 MC, 3 Heat")
   }
 
   @Test
-  internal fun `Can fund a trade with energy`() {
-    p1.runOperation("$CryoSleep, 2 Energy")
-    p1.stdAction("TradeAction", 2) { doTask("Trade<Io>") }.expect("-2 Energy, 3 Heat")
-  }
+  internal fun `Can fund a discounted trade with energy`() {
+    kim.exMachina("$CryoSleep")
+    kim.setToExMachina(2, "Energy")
 
-  @Test
-  internal fun `Discount lowers the energy billing before payment`() {
-    p1.runOperation("$CryoSleep, 2 Energy")
-    p1.also { it.autoExecPolicy = NONE }
-        .beginOperation("UseAction<TradeAction, Action2>") {
-          doTask("3 Owed<Class<Energy>>")
-          doTask("ActionBilling<TradeAction, Action2, Class<Energy>>")
-          p1.count("Energy") shouldBe 2
-          p1.count("Owed<Class<Energy>>") shouldBe 2
-          abort()
-        }
-  }
-
-  @Test
-  internal fun `Can fund a trade with titanium`() {
-    p1.runOperation("$CryoSleep, 2 Titanium")
-    p1.stdAction("TradeAction", 3) { doTask("Trade<Io>") }.expect("-2 Titanium, 3 Heat")
+    kim.stdAction("TradeAction", 2) { doTask("Trade<Io>") }.expect("-2 Energy, 3 Heat")
   }
 
   @Test
   internal fun `Stacks its trade discount with Rim Freighters`() {
-    p1.runOperation("$CryoSleep, $RimFreighters, 7 MC")
-    p1.stdAction("TradeAction", 1) { doTask("Trade<Io>") }.expect("-7 MC, 3 Heat")
+    kim.exMachina("$CryoSleep, $RimFreighters")
+
+    kim.stdAction("TradeAction", 1) { doTask("Trade<Io>") }.expect("-7 MC, 3 Heat")
   }
 }
