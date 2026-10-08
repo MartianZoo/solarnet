@@ -31,6 +31,17 @@ internal class Lang09ElaborationTest {
   private fun classEffects(className: String): List<Effect> =
       langElaborator.classEffects(langTable.getClass(parse(className)))
 
+  private fun refinementMetric(source: String): Metric {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Area { CLASS Land1 }",
+            "ABSTRACT CLASS Adjacency<Area, Area>",
+            "CLASS Marker<Area> { DEFAULT Marker<Land1> }",
+            "CLASS Neighbor<Marker, Area>",
+        )
+    return PetElaborator(table).elaborateMetricInput(parse(source), parse("Area"))
+  }
+
   // L9-1 The stages
 
   @Test
@@ -235,6 +246,54 @@ internal class Lang09ElaborationTest {
     shouldThrow<ExpressionException> { metric("Player(HAS StartToken<>)") }
     metric("StartToken") shouldBe parse<Metric>("StartToken<Player1>")
     metric("LandArea(HAS StartToken)") shouldBe parse<Metric>("LandArea(HAS StartToken<Player1>)")
+  }
+
+  @Test
+  internal fun `L9-9 an exact candidate-compatible written argument is legal`() {
+    refinementMetric("Area(HAS Adjacency<Land1>)") shouldBe
+        parse<Metric>("Area(HAS Adjacency<Land1>)")
+  }
+
+  @Test
+  internal fun `L9-9 a broad candidate-compatible written argument is legal`() {
+    refinementMetric("Area(HAS Adjacency<Area>)") shouldBe
+        parse<Metric>("Area(HAS Adjacency<Area>)")
+  }
+
+  @Test
+  internal fun `L9-9 a refinement candidate does not enter nested arguments`() {
+    refinementMetric("Area(HAS Marker)") shouldBe parse<Metric>("Area(HAS Marker)")
+    refinementMetric("Area(HAS Neighbor<Marker>)") shouldBe
+        parse<Metric>("Area(HAS Neighbor<Marker<Land1>>)")
+  }
+
+  @Test
+  internal fun `L9-9 nested owned arguments still receive lexical ownership`() {
+    val table =
+        loadTypes(
+            "CLASS Player1 : Owner",
+            "CLASS Leaf : Owned",
+            "CLASS Holder<Leaf, Owner>",
+        )
+
+    PetElaborator(table)
+        .elaborateMetricInput(
+            parse("Owner(HAS Holder<Leaf>)"),
+            parse("Owner"),
+            parse<Expression>("Player1"),
+        ) shouldBe parse<Metric>("Owner(HAS Holder<Leaf<Player1>>)")
+  }
+
+  @Test
+  internal fun `L9-9 reserving a candidate slot does not discard another slot's default`() {
+    val table =
+        loadTypes(
+            "CLASS Land1",
+            "CLASS Pointer<Component> : Owned { DEFAULT Pointer<Land1> }",
+        )
+
+    PetElaborator(table).elaborateMetricInput(parse("Owner(HAS Pointer)"), parse("Owner")) shouldBe
+        parse<Metric>("Owner(HAS Pointer<Land1>)")
   }
 
   // L9-10 Deferring a class-header variable's default
