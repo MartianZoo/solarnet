@@ -3,7 +3,10 @@ CLASS PreludeExpansion : Module {
   HAS Class<PreludePhase>
   X SoloGenerationsLeft:: -2 SoloGenerationsLeft!
 
-  SetupPhase:: EACH Me@Player { 4 PreludeCard }
+  BeginnerCard<Starter@Player> IF SetupPhase: \
+    4 PreludeCard<Starter@Player> THEN -2 PreludeCard<Starter@Player>
+  X CorporationCard<Starter@Player, Selecting> IF SetupPhase: \
+    4 PreludeCard<Starter@Player> THEN -2 PreludeCard<Starter@Player>
 }
 
 CLASS PreludePhase : Phase {

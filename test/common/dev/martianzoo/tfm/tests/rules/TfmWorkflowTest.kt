@@ -48,8 +48,22 @@ internal class TfmWorkflowTest {
     val p2 = game.testTfm(PLAYER2).also { it.autoExecPolicy = NONE }
 
     workflow.setupPhase()
+    p1.assertCounts(
+        0 to "BeginnerCard",
+        0 to "CorporationCard",
+        0 to "PreludeCard",
+        0 to "ProjectCard",
+    )
+    p2.assertCounts(
+        0 to "BeginnerCard",
+        0 to "CorporationCard",
+        0 to "PreludeCard",
+        0 to "ProjectCard",
+    )
     p1.doTask("BeginnerCard")
+    p1.doTask("4 PreludeCard")
     p2.doTask("2 CorporationCard<Selecting>")
+    p2.doTask("4 PreludeCard")
     p2.doTask("10 ProjectCard<Selecting>")
     p2.doTask("CorporationCard<Hand FROM Selecting>")
     p2.doTask("-CorporationCard<Selecting>")
@@ -148,8 +162,11 @@ internal class TfmWorkflowTest {
     p1.autoExecPolicy = NONE
     p2.autoExecPolicy = NONE
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    p1.assertCounts(0 to "CorporationCard", 0 to "PreludeCard", 0 to "ProjectCard")
+    p2.assertCounts(0 to "CorporationCard", 0 to "PreludeCard", 0 to "ProjectCard")
     listOf(p1, p2).forEach { player ->
       player.doTask("2 CorporationCard<Selecting>")
+      player.doTask("4 PreludeCard")
       player.doTask("10 ProjectCard<Selecting>")
       player.assertCounts(2 to "CorporationCard<Selecting>")
       player.doTask("CorporationCard<Hand FROM Selecting>")

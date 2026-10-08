@@ -89,7 +89,6 @@ ABSTRACT CLASS Player : Owner, Actor {
           THEN -CorporationCard<This, Selecting>), \
         (10 ProjectCard<This, Selecting> THEN -10 ProjectCard<This, Selecting>?) \
       ))
-  SetupPhase IF PreludeExpansion: -2 PreludeCard<This>
   ResearchPhase: 4 ProjectCard<This, Selecting> THEN -4 ProjectCard<This, Selecting>? THEN BuySelectedCards<This>
 }
 
