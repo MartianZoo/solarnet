@@ -3,7 +3,7 @@ CLASS PreludeExpansion : Module {
   HAS Class<PreludePhase>
   X SoloGenerationsLeft:: -2 SoloGenerationsLeft!
 
-  SetupPhase:: EACH Me@Player { 4 PreludeCard }
+  PlayerMode: 4 PreludeCard, -2 PreludeCard
 }
 
 CLASS PreludePhase : Phase {

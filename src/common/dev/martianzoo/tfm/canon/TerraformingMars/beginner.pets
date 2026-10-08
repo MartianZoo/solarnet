@@ -1,2 +1,7 @@
 "Allows each player to choose the beginner or standard starting path"
 CLASS BeginnerVariant : Module
+
+"The beginner starting-card procedure"
+CLASS BeginnerMode : PlayerMode {
+  This: BeginnerCard
+}

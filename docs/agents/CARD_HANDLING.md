@@ -53,9 +53,11 @@ signal serves the Prelude phase and additional Prelude plays granted by cards. O
 cards in the fixed Valley Trust, New Partner, WG Project, and Merger offers are counted in
 `Selecting`; the rejected backs are removed without names before the chosen back is played directly
 from there.
-Choosing the standard setup path counts both offered corporations and ten project cards in
-`Selecting`; the chosen corporation enters `Hand`, the other is discarded, and unwanted project
-cards are discarded concurrently. Choosing the beginner path creates only `BeginnerCard`.
+Each Player first gains the persistent `PlayerMode` recording their chosen setup path. The
+`NonBeginnerMode` path then puts both offered corporations in `Hand` and ten project cards in
+`Selecting`; one corporation and any unwanted project cards are discarded. The `BeginnerMode` path
+creates only `BeginnerCard`. Prelude's setup rule reacts to `PlayerMode` and owns its deal and
+discard.
 Corporation phase plays the retained corporation or beginner card from `Hand`, then buys every
 project card still in `Selecting`.
 Gameplay callers choose the card face without repeating its location. `PlayCard` has no location
