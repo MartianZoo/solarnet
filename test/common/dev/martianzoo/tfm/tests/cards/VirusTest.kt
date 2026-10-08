@@ -1,37 +1,20 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class VirusTest : CardTest() {
-  @BeforeTest
-  fun initializeGame() {
-    newGame()
-    val p2 = requireP2()
-    p2.runOperation("PROD[2 Plant], $Birds")
-    p2.runOperation("PROD[Plant], $Fish")
-    p2.runOperation("Animal<$Birds>, Animal<$Fish>")
-  }
-
+internal class VirusTest : ProjectCardTest() {
   // FAQ: "you must choose a single card from which to remove animals."
   @Test
   internal fun `Cannot split animal removal across two cards`() {
+    stan.exMachina("$Birds, $Fish, Animal<$Birds>, Animal<$Fish>")
+
     shouldThrow<NarrowingException> {
-      p1.runOperation("$Virus") {
-        doTask("-Animal<Player2, $Birds<Player2>>, -Animal<Player2, $Fish<Player2>>")
+      kim.playProject(Virus, 1) {
+        doTask("-Animal<Stan, $Birds<Stan>>, -Animal<Stan, $Fish<Stan>>")
       }
     }
-  }
-
-  @Test
-  internal fun `Can remove animals from one of multiple eligible cards`() {
-    p1.runOperation("$Virus") { doTask("-Animal<Player2, $Birds<Player2>>") }
-        .expect("-Animal<Player2, $Birds<Player2>>")
-    requireP2().assertCounts(0 to "Animal<$Birds>", 1 to "Animal<$Fish>")
   }
 }

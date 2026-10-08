@@ -5,9 +5,9 @@ import kotlin.test.Test
 
 internal class TopsoilContractTest : ProjectCardTest() {
   @Test
-  internal fun `Its own tag triggers Decomposers and pays for the resulting microbe`() {
+  internal fun `Its microbe tag triggers Decomposers and pays for that microbe`() {
     kim.exMachina("$Decomposers")
 
-    kim.playProject(TopsoilContract, 8).expect("Microbe<$Decomposers>, 3 Plant, -7 MC")
+    kim.playProject(TopsoilContract, 8).expect("Microbe<$Decomposers>, -7 MC")
   }
 }

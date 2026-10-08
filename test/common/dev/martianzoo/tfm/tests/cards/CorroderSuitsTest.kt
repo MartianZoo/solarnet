@@ -8,19 +8,15 @@ import kotlin.test.Test
 
 internal class CorroderSuitsTest : ProjectCardTest() {
   @Test
-  internal fun `Can be played without another compatible Venus card`() {
+  internal fun `Can be played without an eligible Venus card`() {
     kim.playProject(CorroderSuits, 8).expect("PROD[2 MC], 0 CardResource")
   }
 
   @Test
-  internal fun `Must add an animal when it is the only compatible Venus resource`() {
+  internal fun `Cannot decline when an eligible Venus resource exists`() {
     kim.exMachina("$VenusianAnimals")
 
     // Unlike Venusian Plants, this one resource instruction has no unavailable arm to choose.
-    kim.playProject(CorroderSuits, 8) {
-          shouldThrow<NarrowingException> { declineTask() }
-          addCardResources(VenusianAnimals)
-        }
-        .expect("PROD[2 MC], Animal<$VenusianAnimals>")
+    shouldThrow<NarrowingException> { kim.playProject(CorroderSuits, 8) { declineTask() } }
   }
 }

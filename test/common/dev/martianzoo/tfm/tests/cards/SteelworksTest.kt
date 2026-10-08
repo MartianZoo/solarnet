@@ -7,7 +7,7 @@ import kotlin.test.Test
 internal class SteelworksTest : ProjectCardTest() {
   // FAQ: "used even after the oxygen has been maxed out"
   @Test
-  internal fun `Can be used when oxygen is already maxed`() {
+  internal fun `Can be used after oxygen is maxed`() {
     kim.exMachina("$Steelworks")
     kim.setToExMachina(13, "OxygenStep")
     kim.setToExMachina(4, "Energy")

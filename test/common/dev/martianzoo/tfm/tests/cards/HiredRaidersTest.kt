@@ -1,60 +1,42 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.HiredRaiders
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class HiredRaidersTest : CardTest() {
+internal class HiredRaidersTest : ProjectCardTest() {
   @Test
-  internal fun `An impossible self steal does not block stealing money from an opponent`() {
-    newGame(CorporateEraExpansion)
-    p1.runOperation("2 Steel, MC, ProjectCard")
-    requireP2().runOperation("3 MC")
-    admin.phase("Action")
+  internal fun `An unavailable self-steal does not block stealing from an opponent`() {
+    kim.setToExMachina(2, "Steel")
+    kim.setToExMachina(1, "MC")
+    stan.setToExMachina(3, "MC")
 
-    p1.playProject(HiredRaiders, 1) { doTask("3 MC FROM MC<Player2>") }
-        .expect("2 MC<Player1>, -3 MC<Player2>, 0 Steel<Player1>")
+    kim.playProject(HiredRaiders, 1) { doTask("3 MC FROM MC<Stan>") }
+        .expect("2 MC<Kim>, -3 MC<Stan>, 0 Steel<Kim>")
   }
 
   // Resolved FAQ: Hired Raiders may steal less than its maximum, but must steal at least one.
   @Test
-  internal fun `Cannot decline stealing when resources are available`() {
-    newGame(CorporateEraExpansion)
-    p1.runOperation("MC, ProjectCard")
-    val p2 = requireP2()
-    p2.runOperation("2 Steel, 3 MC")
-    admin.phase("Action")
+  internal fun `Cannot decline when an opponent has resources`() {
+    kim.setToExMachina(1, "MC")
+    stan.setToExMachina(3, "MC")
 
-    p1.playProject(HiredRaiders, 1) {
-          shouldThrow<NarrowingException> { declineTask() }
-          p2.assertCounts(2 to "Steel", 3 to "MC")
-          doTask("3 MC FROM MC<Player2>")
-        }
-        .expect("0 Steel<Player1>, 0 Steel<Player2>, -3 MC<Player2>")
+    shouldThrow<NarrowingException> { kim.playProject(HiredRaiders, 1) { declineTask() } }
   }
 
   @Test
-  internal fun `May steal less than the offered maximum`() {
-    newGame(CorporateEraExpansion, players = 3)
-    admin.phase("Action")
-    p1.autoExecPolicy = NONE
-    p1.runOperation("2 MC, ProjectCard")
-    val p2 = requireP2()
-    val p3 = game.testTfm(PLAYER3)
-    p2.runOperation("2 Steel")
-    p3.runOperation("2 Steel")
+  internal fun `Can steal less than the offered maximum`() {
+    kim.setToExMachina(2, "MC")
+    stan.setToExMachina(2, "Steel")
+    rob.setToExMachina(2, "Steel")
 
-    p1.playProject(HiredRaiders, 1) {
-          doTask("Steel FROM Steel<Player3>")
+    kim.playProject(HiredRaiders, 1) {
+          doTask("Steel FROM Steel<Rob>")
         }
-        .expect("Steel<Player1>, -Steel<Player3>")
+        .expect("Steel<Kim>, -Steel<Rob>")
 
-    p2.assertCounts(2 to "Steel")
+    stan.assertCounts(2 to "Steel")
   }
 }

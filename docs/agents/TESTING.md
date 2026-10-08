@@ -310,7 +310,7 @@ overload in `CardTest` uses the same resolution path.
 express every scenario in the class. It starts each test at generation 1 Action phase with:
 
 - Tharsis, Venus Next, Colonies, and Promos;
-- the Beginner and Quick Start variants, with Corporate Era excluded;
+- Corporate Era and the Beginner and Quick Start variants;
 - Kim, Stan, and Rob, in that order, each using a distinct beginner corporation; and
 - the ordinary beginner-corporation starting state, including 42 MC, 10 anonymous project cards,
   20 TR, and production of 1 for each standard resource.
@@ -318,7 +318,34 @@ express every scenario in the class. It starts each test at generation 1 Action 
 Kim is the player exercising the subject card unless the card's behavior requires another actor.
 The fixture caches its immutable `GamePremise`, not a mutable game. Every test constructs a fresh
 `World` and performs the real setup and corporation workflows before entering Action phase. Do not
-share or roll back a live World between tests.
+share or roll back a live World between tests. It leaves the default autoexecution policy untouched:
+the fixture selects Beginner mode and distinct beginner corporations, while forced setup effects
+autoexecute normally.
+
+Treat every pre-migration test as a fallible historical artifact, not as a specification of its
+setup. Existing options, cards, resource grants, card plays, phase changes, autoexecution policies,
+and operation order may be incidental, copied from another scenario, obsolete, or compensating for
+old behavior. Begin with the behavior named by the scenario and its meaningful observable coverage.
+Challenge every setup step: if removing it does not change the behavior under test, remove it. In
+particular, do not preserve gameplay merely because the old test used it to reach a state that a
+direct correction can express, and do not infer a configuration requirement solely from the old
+test's configuration.
+
+Each migrated test method should prove a single behavior. Do not carry a scenario through a series
+of actions that successively test additional behavior. Split those actions into separately named
+tests, and give each resulting test only the setup required for its own behavior. Several
+assertions about the result of the same behavior remain appropriate.
+
+Migration is also a test-value review, not a promise to preserve every method. Remove a scenario
+whose only credible value is catching a literal mistake in an otherwise ordinary card declaration.
+Retain tests that demonstrate non-obvious game meaning, exercise important shared semantics,
+preserve sourced FAQ or defect evidence, distinguish tempting targets or choices, or show a useful
+interaction among independently authored rules. Prefer representative coverage over repeating the
+same semantic pattern for another card with different literals.
+
+Every state change in a migrated test must come from real player-facing gameplay or from the two
+fixture correction methods below. Do not use `runOperation`, `beginOperation`, `sneak`, manual phase
+changes, or other lower-level shortcuts in a `ProjectCardTest` subclass.
 
 Starting conditions beyond that tabula-rasa state should normally be direct, visible corrections:
 
@@ -350,10 +377,10 @@ tests short and makes their real subject obvious; it is not a ban on authentic g
 
 Migrate a test class only when all its scenarios fit this fixed fixture and setup model. Leave the
 whole class on `CardTest` when it needs a different map, player count, solo mode, Prelude, Turmoil,
-Corporate Era, synthetic declarations, or another incompatible configuration. Do not add fixture
-variants or replace a meaningful scenario merely to increase the migrated count. This is an active,
-class-by-class migration: an existing `CardTest` subclass may simply be awaiting evaluation, and
-its current base class does not by itself express a preferred testing style.
+synthetic declarations, or another incompatible configuration. Do not add fixture variants or
+replace a meaningful scenario merely to increase the migrated count. This is an active,
+class-by-class migration: an existing `CardTest` subclass may simply be awaiting evaluation, and its
+current base class does not by itself express a preferred testing style.
 
 ### Expectations
 

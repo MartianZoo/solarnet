@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.exMachina
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.state.GameConfig
@@ -30,22 +29,16 @@ internal abstract class ProjectCardTest : TfmTest() {
     stan = players[1]
     rob = players[2]
 
-    val previousPolicies = players.map(TfmGameplay::autoExecPolicy)
-    players.forEach { it.autoExecPolicy = NONE }
     workflow.setupPhase()
     players.forEach { it.doTask("BeginnerMode") }
-    players.forEach { it.doTask("BeginnerCard") }
 
     workflow.corporationPhase()
     players.zip(BEGINNER_CORPORATIONS).forEach { (player, corporation) ->
       player.startTurn()
       player.doTask("PlayCard<Class<BeginnerCard>, Class<$corporation>, Hand>")
       player.pay()
-      player.doTask("42 MC")
-      player.doTask("10 ProjectCard")
     }
 
-    players.zip(previousPolicies).forEach { (player, policy) -> player.autoExecPolicy = policy }
     workflow.actionPhase()
   }
 
@@ -64,8 +57,8 @@ internal abstract class ProjectCardTest : TfmTest() {
       Canon.gamePremise(
           GameConfig(
               """
-              TharsisMap, VenusNextExpansion, ColoniesExpansion, PromoCardPack,
-              BeginnerVariant, QuickStartVariant, -CorporateEraExpansion
+              TharsisMap, CorporateEraExpansion, VenusNextExpansion, ColoniesExpansion,
+              PromoCardPack, BeginnerVariant, QuickStartVariant
               """,
               "Kim",
               "Stan",
