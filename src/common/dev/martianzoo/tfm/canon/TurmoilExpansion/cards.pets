@@ -162,7 +162,7 @@ CLASS ScientificCommunity : GePartyDistant<Reds>, GePartyCurrent<Scientists> {
 }
 
 CLASS SnowCover : GePartyDistant<Kelvinists>, GePartyCurrent<Kelvinists> {
-  ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<TemperatureStep>>:: -2 TemperatureStep. BY Admin
+  ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<TemperatureStep>>:: -2 TemperatureStep BY Admin
   ResolveGlobalEvent<Class<This>>:: EACH Me@Player { ProjectCard / Influence }
 }
 
@@ -193,7 +193,7 @@ CLASS SuccessfulOrganisms : GePartyDistant<MarsFirst>, GePartyCurrent<Scientists
 }
 
 CLASS VolcanicEruptions : GePartyDistant<Scientists>, GePartyCurrent<Kelvinists> {
-  ResolveGlobalEvent<Class<This>>:: 2 TemperatureStep. BY Admin
+  ResolveGlobalEvent<Class<This>>:: 2 TemperatureStep BY Admin
   ResolveGlobalEvent<Class<This>>:: EACH Me@Player { PROD[Heat / Influence] }
 }
 

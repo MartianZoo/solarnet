@@ -30,6 +30,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   Inferring types at supplying occurrences (especially `EACH` and `RANK` domains) and retaining
   short spelling after resolution also remain deferred; supported shorthand references one
   uniquely named typed binding.
+- Let compact same-class transmutations retain an explicit lexical `This` dependency before
+  matching defaults. `CorporationCard<This, Hand FROM Selecting>` currently tries to resolve
+  `This` as a class, while omitting it changes the pending task identity.
 - Make `ComponentGraph.listenToCount` update only subscriptions affected by a component change,
   instead of recounting every watched Type after every change. Preserve immediate initial delivery,
   notifications only when the count changes, cancellation, and correct subtype/refinement handling

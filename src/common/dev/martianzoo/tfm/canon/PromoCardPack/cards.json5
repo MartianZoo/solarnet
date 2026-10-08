@@ -177,7 +177,7 @@
           "cost": 13,
           "tags": [ "EarthTag", "SpaceTag", "BuildingTag" ],
           "immediate": "PROD[-Energy]",
-          "actions": [ "-> ProjectCard<Revealed> THEN ClaimCardReward<TagFilter<Class<SpaceTag>>, This> OR Ok THEN -ProjectCard<Revealed>" ],
+          "actions": [ "-> ProjectCard<Revealed> THEN ClaimCardReward<TagFilter<Class<SpaceTag>>, This>? THEN -ProjectCard<Revealed>" ],
           "effects": [
             // TODO: in what cases do we want to trigger this way vs by the AttackHappened thingies?
             // are we being consistent?
@@ -444,7 +444,7 @@
           "cost": 13,
           "immediate": "NomadsMarker<LandArea(HAS MAX 0 Occupant)>",
           "actions": [
-            "-> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker>, NOT Source@)> FROM NomadsMarker<Source@LandArea> THEN EACH Destination@MarsArea(HAS NomadsMarker) { Placement<Destination@> }"
+            "-> NomadsMarker<NewHome@LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker>) FROM LandArea> THEN Placement<NewHome@>"
           ],
         },
         {
