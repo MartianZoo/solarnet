@@ -893,8 +893,9 @@ queries do not commit a choice; instruction narrowing follows the additional rul
 **T8-3. How the candidate is substituted.** Each outermost expression inside `R` receives the
 candidate. Expressions nested in its arguments do not, because they say what that expression is
 about rather than which candidate is being tested. Matching intersects the candidate with each
-dependency bound (T3-4). The first compatible dependency whose intersection strictly narrows its
-bound receives that intersection; if none strictly narrows, the first compatible dependency does.
+resolved dependency bound (T3-4). The first compatible dependency whose intersection strictly
+narrows its bound receives that intersection; if none strictly narrows, the first compatible
+dependency does.
 A bare class property receives the candidate as its receiver:
 `CardFront(HAS 20 cost)` tested against `Ants<Player1>` asks `20 Ants<Player1>.cost`.
 
@@ -916,9 +917,8 @@ narrows the written `Player` to `Player1` and asks `PartyLeader<Player1, MarsFir
 > **Non-normative examples — CrediCor and Turmoil.** CrediCor pays 4 MC after a card costing 20 or
 > more, tested as `CardFront(HAS 20 cost)`. Substituting the played card into bare `cost` reads
 > that card's printed cost. When a party takes power, Turmoil's rules find its leader as
-> `EACH Leader@Player(HAS PartyLeader<This, Player>)`. Each candidate player must merge into the
-> written `Player` argument. If written arguments reserved their positions, no candidate would have
-> anywhere to go and no player could ever become chairman.
+> `EACH Leader@Player(HAS PartyLeader<This>)`. `This` supplies the party, while each candidate player
+> supplies the omitted player dependency.
 
 **T8-4. `NOT` is a structural difference.** `D(NOT X)` is the part of `D` that cannot overlap `X`. A
 candidate satisfies it only when its **entire** structural extension avoids `X`:
@@ -1656,7 +1656,7 @@ Predicates retained on an unfinished choice are checked when that choice is even
 > **Non-normative example — Turmoil's new chairman.** When a party takes power, its rules run:
 >
 > ```text
-> EACH Leader@Player(HAS PartyLeader<This, Player>) {
+> EACH Leader@Player(HAS PartyLeader<This>) {
 >   Chairman<Leader@Player> FROM PartyDelegate<This, Leader@Player>
 >   THEN TerraformRating<Leader@Player>
 > }

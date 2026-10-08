@@ -7,7 +7,7 @@ CLASS BannedDelegateRemoval<@Party, @Owner> : Owned<Player>, Barrier, Hidden {
   This: -PartyDelegate<@Party, @Owner> THEN -This!
   // A transfer also removes a delegate; leadership changes only after this selected removal.
   -This:: EACH Next@Owner( \
-    HAS MAX 0 PartyLeader<@Party, Anyone>, \
+    HAS MAX 0 PartyLeader<@Party>, \
     HAS =1 (RANK Ranked@Owner { \
       PartyDelegate<@Party, Ranked@>, \
       PartyLeader<@Party, Ranked@>, \
@@ -180,7 +180,7 @@ CLASS SpinOffProducts : GePartyDistant<Greens>, GePartyCurrent<Scientists> {
 
 CLASS SponsoredProjects : GePartyDistant<Scientists>, GePartyCurrent<Greens> {
   ResolveGlobalEvent<Class<This>>:: \
-    EACH Card@ResourceCard<Anyone>(HAS CardResource<Anyone>) { CardResource<Card@> }
+    EACH Card@ResourceCard<Anyone>(HAS CardResource) { CardResource<Card@> }
   ResolveGlobalEvent<Class<This>>:: EACH Me@Player { ProjectCard / Influence }
 }
 
