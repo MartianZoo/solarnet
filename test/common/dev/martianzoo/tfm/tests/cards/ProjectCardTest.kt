@@ -33,6 +33,7 @@ internal abstract class ProjectCardTest : TfmTest() {
     val previousPolicies = players.map(TfmGameplay::autoExecPolicy)
     players.forEach { it.autoExecPolicy = NONE }
     workflow.setupPhase()
+    players.forEach { it.doTask("BeginnerMode") }
     players.forEach { it.doTask("BeginnerCard") }
 
     workflow.corporationPhase()
