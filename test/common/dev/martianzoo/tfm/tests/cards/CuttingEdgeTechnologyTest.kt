@@ -6,13 +6,9 @@ import kotlin.test.Test
 internal class CuttingEdgeTechnologyTest : ProjectCardTest() {
   @Test
   internal fun `Discounts a card with a requirement`() {
-    kim.exMachina(
-        "Steel, Titanium, Plant, Energy, Heat, $CuttingEdgeTechnology, $Pets, $Decomposers, " +
-            "$ForcedPrecipitation, Animal<$Pets>, Microbe<$Decomposers>, " +
-            "Floater<$ForcedPrecipitation>"
-    )
+    kim.exMachina("$CuttingEdgeTechnology")
 
-    kim.playProject(DiversitySupport, 0).expect("TerraformRating")
+    kim.playProject(DustSeals, 0)
   }
 
   @Test
