@@ -345,6 +345,15 @@ of actions that successively test additional behavior. Split those actions into 
 tests, and give each resulting test only the setup required for its own behavior. Several
 assertions about the result of the same behavior remain appropriate.
 
+Inline single-use and card-specific test helpers before evaluating a class. An unusual helper often
+conceals inherited setup, several behaviors, lower-level intervention, or steps that no retained
+scenario needs. Simplify the visible scenario first. Keep a private helper only when it makes
+genuinely shared preparation clearer without hiding choices or the behavior under test.
+
+Finish every reviewed class with a naming-consistency pass, whether or not the class migrates. Test
+names should use the same voice and domain terms, state the observable behavior being proved, and
+distinguish scenario variants without describing incidental setup or implementation mechanics.
+
 Migration is also a test-value review, not a promise to preserve every method. Remove a scenario
 whose only credible value is catching a literal mistake in an otherwise ordinary card declaration.
 Retain tests that demonstrate non-obvious game meaning, exercise important shared semantics,
