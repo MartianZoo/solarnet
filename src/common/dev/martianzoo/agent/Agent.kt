@@ -137,6 +137,12 @@ public interface Agent {
 
   public fun autoExecNow(): TaskResult
 
+  /**
+   * Runs autoexecution to a policy-relative stable point while this Agent temporarily uses
+   * [policy]. The configured [autoExecPolicy] is unchanged.
+   */
+  public fun autoExecNow(policy: AutoExecPolicy): TaskResult
+
   public var autoExecPolicy: AutoExecPolicy
 
   public fun startTurn(): TaskResult
@@ -185,6 +191,9 @@ public interface Agent {
     public fun tryTask(narrowing: String, taskId: TaskId)
 
     public fun autoExecNow()
+
+    /** Runs autoexecution while this Agent temporarily uses [policy]. */
+    public fun autoExecNow(policy: AutoExecPolicy)
 
     public fun abort(): Nothing = throw AbortTransactionException()
   }

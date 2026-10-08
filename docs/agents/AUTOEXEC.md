@@ -42,7 +42,9 @@ An eager drain may hide the later gap by immediately handling descendants; it ca
 `Agents(world)` creates a stable Agent per Actor, all registered with the same private loop.
 Every Agent currently defaults to `EAGER`. Its setting belongs to Agent; the core engine has no
 policy dependency. Changing the setting invokes the loop, as does `autoExecNow()` and ordinary
-Agent transaction settlement. Direct correction operations have their own contracts.
+Agent transaction settlement. `autoExecNow(policy)` instead uses that policy for the invoking Agent
+only during the synchronous run and leaves its configured setting unchanged. Other Agents continue
+using their configured policies. Direct correction operations have their own contracts.
 
 The loop gives an existing selected task exclusive attention. Otherwise it considers pending tasks
 in stable queue order, probing availability when several exist. A sole pending task skips that
