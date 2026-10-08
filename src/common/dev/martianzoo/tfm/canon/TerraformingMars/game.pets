@@ -70,26 +70,25 @@ ABSTRACT CLASS GameMode : Module {
 ABSTRACT CLASS Player : Owner, Actor {
   HAS =1 This
   HAS MAX 1 AfterMe<This, Anyone>, MAX 1 AfterMe<Anyone, This>
+  HAS MAX 1 PlayerMode<This>
 
   // Queued `This` work gives every Player its production floor and payment values only after the
   // complete seat layer exists.
   This: 5 ProdOffset<This, Class<MC>> BY Admin
   This: 2 BaseResourceValue<This, Class<Steel>>, 3 BaseResourceValue<This, Class<Titanium>>
 
-  SetupPhase IF MAX 0 BeginnerVariant: \
-    2 CorporationCard<This, Selecting> THEN ( \
-      ((CorporationCard<This, Hand> FROM CorporationCard<This, Selecting>) \
-        THEN -CorporationCard<This, Selecting>), \
-      (10 ProjectCard<This, Selecting> THEN -10 ProjectCard<This, Selecting>?) \
-    )
-  SetupPhase IF BeginnerVariant: \
-    BeginnerCard<This> OR \
-      (2 CorporationCard<This, Selecting> THEN ( \
-        ((CorporationCard<This, Hand> FROM CorporationCard<This, Selecting>) \
-          THEN -CorporationCard<This, Selecting>), \
-        (10 ProjectCard<This, Selecting> THEN -10 ProjectCard<This, Selecting>?) \
-      ))
+  SetupPhase IF MAX 0 BeginnerVariant: NonBeginnerMode<This>
+  SetupPhase IF BeginnerVariant: BeginnerMode<This> OR NonBeginnerMode<This>
   ResearchPhase: 4 ProjectCard<This, Selecting> THEN -4 ProjectCard<This, Selecting>? THEN BuySelectedCards<This>
+}
+
+"A player's persistent choice of starting-card procedure"
+ABSTRACT CLASS PlayerMode : Owned<Player>
+
+"The normal starting-card procedure"
+CLASS NonBeginnerMode : PlayerMode {
+  This: 2 CorporationCard, -CorporationCard, \
+    10 ProjectCard<Selecting>, -10 ProjectCard<Selecting>?
 }
 
 "One step on the terraform rating track; you generally start with 20 of them"

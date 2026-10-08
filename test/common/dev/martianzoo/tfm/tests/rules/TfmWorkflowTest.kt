@@ -53,20 +53,25 @@ internal class TfmWorkflowTest {
         0 to "CorporationCard",
         0 to "PreludeCard",
         0 to "ProjectCard",
+        0 to "PlayerMode",
     )
     p2.assertCounts(
         0 to "BeginnerCard",
         0 to "CorporationCard",
         0 to "PreludeCard",
         0 to "ProjectCard",
+        0 to "PlayerMode",
     )
+    p1.doTask("BeginnerMode")
+    p1.assertCounts(1 to "BeginnerMode", 0 to "BeginnerCard", 0 to "PreludeCard")
     p1.doTask("BeginnerCard")
     p1.doTask("4 PreludeCard")
-    p2.doTask("2 CorporationCard<Selecting>")
+    p2.doTask("NonBeginnerMode")
+    p2.assertCounts(1 to "NonBeginnerMode", 0 to "CorporationCard", 0 to "PreludeCard")
+    p2.doTask("2 CorporationCard")
     p2.doTask("4 PreludeCard")
     p2.doTask("10 ProjectCard<Selecting>")
-    p2.doTask("CorporationCard<Hand FROM Selecting>")
-    p2.doTask("-CorporationCard<Selecting>")
+    p2.doTask("-CorporationCard")
     p2.doTask("-5 ProjectCard<Selecting>")
     p1.doTask("-2 PreludeCard")
     p2.doTask("-2 PreludeCard")
@@ -125,6 +130,7 @@ internal class TfmWorkflowTest {
 
     workflow.setupPhase()
     listOf(p1, p2).forEach { player ->
+      player.doTask("BeginnerMode")
       player.doTask("BeginnerCard")
     }
 
@@ -148,8 +154,18 @@ internal class TfmWorkflowTest {
     p2.doTask("42 MC")
     p2.doTask("10 ProjectCard")
 
-    p1.assertCounts(1 to "BeginnerCorporation1", 42 to "MC", 10 to "ProjectCard")
-    p2.assertCounts(1 to "BeginnerCorporation2", 42 to "MC", 10 to "ProjectCard")
+    p1.assertCounts(
+        1 to "BeginnerMode",
+        1 to "BeginnerCorporation1",
+        42 to "MC",
+        10 to "ProjectCard",
+    )
+    p2.assertCounts(
+        1 to "BeginnerMode",
+        1 to "BeginnerCorporation2",
+        42 to "MC",
+        10 to "ProjectCard",
+    )
   }
 
   @Test
@@ -162,15 +178,25 @@ internal class TfmWorkflowTest {
     p1.autoExecPolicy = NONE
     p2.autoExecPolicy = NONE
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
-    p1.assertCounts(0 to "CorporationCard", 0 to "PreludeCard", 0 to "ProjectCard")
-    p2.assertCounts(0 to "CorporationCard", 0 to "PreludeCard", 0 to "ProjectCard")
+    p1.assertCounts(
+        0 to "PlayerMode",
+        0 to "CorporationCard",
+        0 to "PreludeCard",
+        0 to "ProjectCard",
+    )
+    p2.assertCounts(
+        0 to "PlayerMode",
+        0 to "CorporationCard",
+        0 to "PreludeCard",
+        0 to "ProjectCard",
+    )
     listOf(p1, p2).forEach { player ->
-      player.doTask("2 CorporationCard<Selecting>")
+      player.doTask("NonBeginnerMode")
+      player.doTask("2 CorporationCard")
       player.doTask("4 PreludeCard")
       player.doTask("10 ProjectCard<Selecting>")
-      player.assertCounts(2 to "CorporationCard<Selecting>")
-      player.doTask("CorporationCard<Hand FROM Selecting>")
-      player.doTask("-CorporationCard<Selecting>")
+      player.assertCounts(2 to "CorporationCard<Hand>")
+      player.doTask("-CorporationCard")
       player.doTask("-10 ProjectCard<Selecting>")
     }
 
@@ -179,9 +205,11 @@ internal class TfmWorkflowTest {
     p2.doTask("-2 PreludeCard")
 
     p1.count("CorporationCard") shouldBe 1
+    p1.count("NonBeginnerMode") shouldBe 1
     p1.count("PreludeCard") shouldBe 2
     p1.count("ProjectCard") shouldBe 0
     p2.count("CorporationCard") shouldBe 1
+    p2.count("NonBeginnerMode") shouldBe 1
     p2.count("PreludeCard") shouldBe 2
     p2.count("ProjectCard") shouldBe 0
   }

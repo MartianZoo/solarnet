@@ -16,7 +16,7 @@ internal class CanonBundlesTest {
     val beginner = table(cn("BeginnerVariant"))
     val beginnerCorporations = (1..5).map { cn("BeginnerCorporation$it") }
 
-    listOf(cn("BeginnerVariant"), cn("BeginnerCard")).forEach { className ->
+    listOf(cn("BeginnerVariant"), cn("BeginnerMode"), cn("BeginnerCard")).forEach { className ->
       standard.isInhabited(className) shouldBe false
       beginner.isInhabited(className) shouldBe true
     }
