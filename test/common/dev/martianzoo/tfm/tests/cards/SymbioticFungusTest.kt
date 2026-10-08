@@ -3,13 +3,12 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
-internal class SymbioticFungusTest : CardTest() {
+internal class SymbioticFungusTest : ProjectCardTest() {
   // FAQ: "the microbe obtained would be discarded"
   @Test
   internal fun `Can use its action without an eligible target`() {
-    newGame()
-    p1.runOperation("$SymbioticFungus")
-    admin.phase("Action")
-    p1.cardAction1(SymbioticFungus).expect("0 Microbe")
+    kim.exMachina("$SymbioticFungus")
+
+    kim.cardAction1(SymbioticFungus).expect("0 Microbe")
   }
 }
