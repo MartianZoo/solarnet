@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.CustomMetric
@@ -12,8 +11,6 @@ internal object PartyRequirement : CustomMetric() {
   private val PARTY = cn("Party")
   private val PARTY_DELEGATE = cn("PartyDelegate")
   private val RULING = cn("Ruling")
-
-  override val requiredClassNames: Set<ClassName> = setOf(PARTY_DELEGATE, RULING)
 
   override fun count(game: GameReader, type: Type): Int {
     val partyType = game.resolve(PARTY.expression)

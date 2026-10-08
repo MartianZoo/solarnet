@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.CustomMetric
@@ -12,8 +11,6 @@ internal val turmoilExpansionCustomClasses: Set<CustomMetric> =
 /** Computes forward distance through the declared Party ring. */
 internal object PartyDistance : CustomMetric() {
   private val AFTER_PARTY = cn("AfterParty")
-
-  override val requiredClassNames: Set<ClassName> = setOf(AFTER_PARTY)
 
   override fun count(game: GameReader, type: Type): Int {
     val (source, target) = type.typeDependencies.map { it.boundType }

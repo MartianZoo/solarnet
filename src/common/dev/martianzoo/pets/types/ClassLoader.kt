@@ -46,9 +46,9 @@ private constructor(
 ) : ClassTable() {
   /**
    * Begins compiling a master universe from [declarations]. Call [loadEverything] before
-   * enumeration. By default this compiles Pets declarations alone. [validateDeclaration] checks
-   * externally supplied implementations; [additionalRequiredClasses] names their dependencies not
-   * expressed in Pets declarations. Catalog assembly supplies both callbacks.
+   * enumeration. By default this compiles Pets declarations alone. [validateDeclaration] applies
+   * additional declaration checks; [additionalRequiredClasses] names dependencies not expressed in
+   * Pets declarations. Catalog assembly supplies both callbacks.
    */
   public constructor(
       declarations: Map<ClassName, ClassDeclaration>,

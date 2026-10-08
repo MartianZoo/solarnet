@@ -28,14 +28,11 @@ internal class PremiseSelectionTest {
         CLASS RuntimeDependency
         """
             .trimIndent()
-    val implementation =
-        object : CustomInstruction(cn("DependencySource")) {
-          override val requiredClassNames = setOf(cn("RuntimeDependency"))
-        }
     val catalog =
         testCatalog(
             declarations,
-            setOf(implementation),
+            customClassDependencies =
+                mapOf(cn("DependencySource") to setOf(cn("RuntimeDependency"))),
         )
 
     val unselected = gameView(catalog)

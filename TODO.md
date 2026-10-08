@@ -11,6 +11,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Continue the Canon/runtime split later by moving the custom Kotlin implementations into
+  `:tfm-engine` and completing the static-model separation needed for `:tfm-canon` to drop its
+  `:state` dependency. The implementation layout need not mirror bundles; consider nesting the
+  implementations under a single outer class.
 - Once `Engine.fork` is available here, have `ProjectCardTest` prepare its Action-phase `World`
   once and fork it for each test instead of rebuilding it. Rebind Kim, Stan, and Rob to the fork,
   add fixture-level isolation coverage, and update `TESTING.md` to describe the forked fixture.

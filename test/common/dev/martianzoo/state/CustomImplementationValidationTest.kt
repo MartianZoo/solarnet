@@ -12,68 +12,98 @@ import kotlin.test.assertFailsWith
 
 internal class CustomImplementationValidationTest {
   @Test
-  internal fun `T2-9 a CustomInstruction must have a Kotlin implementation, and only a CustomInstruction may`() {
-    val declaration = "CLASS Neighbor : CustomInstruction"
+  internal fun `T2-9 a class cannot have both custom kinds`() {
+    shouldThrow<InvalidPetDefinitionException> {
+      testCatalog("CLASS Neighbor : CustomMetric, CustomInstruction").classTable
+    }
+  }
 
-    createClassLoader(
-            testCatalog(declaration, setOf(object : CustomInstruction(cn("Neighbor")) {}))
+  @Test
+  internal fun `T2-9 runtime binding accepts a matching instruction implementation`() {
+    val catalog =
+        testCatalog(
+            "CLASS Neighbor : CustomInstruction",
+            setOf(object : CustomInstruction("Neighbor") {}),
         )
-        .loadEverything()
-        .getClass(cn("Neighbor"))
-        .declaration
-        .customMetric shouldBe false
 
-    // A declared-but-unimplemented CustomInstruction is rejected by the Catalog lookup itself.
-    shouldThrow<InvalidPetDefinitionException> { testCatalog(declaration).classTable }
+    catalog.classTable.getClass(cn("Neighbor")).declaration.customMetric shouldBe false
+    GameWorld(emptyPremise(catalog))
+  }
+
+  @Test
+  internal fun `T2-9 runtime binding rejects missing and wrong-kind implementations`() {
     shouldThrow<InvalidPetDefinitionException> {
-      createClassLoader(
-              testCatalog("CLASS Neighbor", setOf(object : CustomInstruction(cn("Neighbor")) {}))
+      GameWorld(emptyPremise(testCatalog("CLASS Neighbor : CustomInstruction")))
+    }
+    shouldThrow<InvalidPetDefinitionException> {
+      GameWorld(
+          emptyPremise(
+              testCatalog(
+                  "CLASS Neighbor : CustomInstruction",
+                  setOf(metric("Neighbor")),
+              )
           )
-          .loadEverything()
-    }
-    val wrongKind =
-        object : CustomMetric("Neighbor") {
-          override fun count(game: GameReader, type: Type): Int = 0
-        }
-    shouldThrow<InvalidPetDefinitionException> {
-      createClassLoader(testCatalog(declaration, setOf(wrongKind))).loadEverything()
+      )
     }
     shouldThrow<InvalidPetDefinitionException> {
-      createClassLoader(
+      GameWorld(
+          emptyPremise(
               testCatalog(
                   "CLASS Neighbor : CustomMetric",
                   setOf(object : CustomInstruction("Neighbor") {}),
               )
           )
-          .loadEverything()
+      )
     }
   }
 
   @Test
-  internal fun `T2-9 a root class rejects an unexpected implementation`() {
+  internal fun `T2-9 ordinary and root classes reject unexpected implementations`() {
     shouldThrow<InvalidPetDefinitionException> {
-      createClassLoader(testCatalog("", setOf(object : CustomInstruction(COMPONENT) {})))
+      GameWorld(
+          emptyPremise(
+              testCatalog(
+                  "CLASS Neighbor",
+                  setOf(object : CustomInstruction("Neighbor") {}),
+              )
+          )
+      )
+    }
+    shouldThrow<InvalidPetDefinitionException> {
+      GameWorld(emptyPremise(testCatalog("", setOf(object : CustomInstruction(COMPONENT) {}))))
     }
   }
 
   @Test
-  internal fun `T2-9 a computed Signal has one implementation`() {
+  internal fun `T2-9 a computed Signal has a unique implementation`() {
     val first = object : CustomInstruction("Neighbor") {}
     val second = object : CustomInstruction("Neighbor") {}
+
     shouldThrow<InvalidPetDefinitionException> {
-      createClassLoader(testCatalog("CLASS Neighbor : CustomInstruction", setOf(first, second)))
-          .loadEverything()
+      GameWorld(
+          emptyPremise(
+              testCatalog(
+                  "CLASS Neighbor : CustomInstruction",
+                  setOf(first, second),
+              )
+          )
+      )
     }
   }
 
   @Test
-  internal fun missingCustomImplementation() {
-    val source = "CLASS Garden : CustomMetric"
-    val error = assertFailsWith<InvalidPetDefinitionException> { testCatalog(source).classTable }
+  internal fun catalogLoadingAndConfigurationDoNotRequireCustomImplementations() {
+    val source = "CLASS Garden : CustomMetric\nCLASS Replant : CustomInstruction"
+    val catalog = testCatalog(source)
 
+    catalog.classTable.getClass(cn("Garden")).declaration.customMetric shouldBe true
+    catalog.classTable.getClass(cn("Replant")).declaration.customMetric shouldBe false
+    val premise = catalog.gamePremise(GameConfig("Garden, Replant"))
+    premise.classTable.getClass(cn("Garden")).declaration.customMetric shouldBe true
+    premise.classTable.getClass(cn("Replant")).declaration.customMetric shouldBe false
+
+    val error = assertFailsWith<InvalidPetDefinitionException> { GameWorld(premise) }
     assertEquals("custom class implementation not found for `Garden`", error.detail)
-    // Prefer also highlighting `CustomMetric`, which makes this declaration require a Kotlin
-    // implementation.
     assertEquals(
         """
         |custom class implementation not found for `Garden` at 1:7
@@ -84,4 +114,12 @@ internal class CustomImplementationValidationTest {
         error.message,
     )
   }
+
+  private fun emptyPremise(catalog: Catalog): GamePremise =
+      GamePremise(catalog, emptySet(), emptySet(), emptySet())
+
+  private fun metric(name: String): CustomMetric =
+      object : CustomMetric(name) {
+        override fun count(game: GameReader, type: Type): Int = 0
+      }
 }

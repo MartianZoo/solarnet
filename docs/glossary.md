@@ -116,7 +116,7 @@
 - **Scope:** A live Component that anchors the lifetime of dependent Components. A Component belongs to a Scope by carrying a type dependency on that exact Scope Component.
 - **select-lock:** The rule that no competing game world mutation may invalidate the facts used to resolve a selected task before that task finishes.
 - **selected task:** The task the assignee has chosen to finish next. Selection sets `Task.selected` and takes the select-lock because resolution has read the current game world; the task may remain abstract and accept partial narrowing.
-- **selection edge:** A premise-construction reference from an included Class to another Class that must also be included. Structural dependencies and a custom implementation's required class names create selection edges; merely mentioning a represented Class in a `Class<...>` metric does not. Selection is construction policy, not Type meaning.
+- **selection edge:** A premise-construction reference from an included Class to another Class that must also be included. Structural dependencies and a custom Class's declared Catalog dependencies create selection edges; merely mentioning a represented Class in a `Class<...>` metric does not. Selection is construction policy, not Type meaning.
 - **selection:** The client activity that chooses one pending task to finish next and causes the engine to resolve it. Selection is a promise about ordering, not a timeline commit; commit retains its transactional meaning after execution.
 - **self trigger:**
 - **sequential instruction:**

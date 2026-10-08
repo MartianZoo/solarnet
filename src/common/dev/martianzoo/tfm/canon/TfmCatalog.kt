@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
+import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
@@ -26,13 +27,22 @@ import dev.martianzoo.pets.types.PremiseClassTable
 import dev.martianzoo.pets.util.associateByStrict
 import dev.martianzoo.state.Catalog
 import dev.martianzoo.state.ClassSelection
-import dev.martianzoo.state.CustomClass
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.GamePremiseBuilder
 
 /** A Terraforming Mars Catalog with declarations, structured card/map data, and selection rules. */
 public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
+  final override val customClassDependencies: Map<ClassName, Set<ClassName>> = buildMap {
+    putAll(super.customClassDependencies)
+    TFM_CUSTOM_CLASS_DEPENDENCIES.forEach { (name, dependencies) ->
+      val previous = put(name, dependencies)
+      require(previous == null || previous == dependencies) {
+        "Conflicting custom class dependencies for $name"
+      }
+    }
+  }
+
   final override val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> =
       mapOf(
           TfmClasses.PROD to Prod::handler,
@@ -163,7 +173,15 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
                   listOf(TfmClasses.MILESTONE, TfmClasses.AWARD).flatMap { goalClass ->
                     bundleClassesBelow(bundle, goalClass, includeAbstract = true)
                   }
-              val customClassNames = customClasses.mapTo(hashSetOf(), CustomClass::className)
+              val customClassNames =
+                  allClassDeclarations.values
+                      .filter {
+                        it.customMetric ||
+                            it.supertypes.any { parent ->
+                              parent.className == CUSTOM_INSTRUCTION
+                            }
+                      }
+                      .mapTo(hashSetOf(), ClassDeclaration::className)
               val goalSupportClassNames =
                   goalDeclarations
                       .flatMap(ClassDeclaration::allNodes)
@@ -591,6 +609,14 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
       catalogs.filterIsInstance<TfmCatalog>().flatMapTo(linkedSetOf()) { it.marsMapDefinitions }
 
   private companion object {
+    private val TFM_CUSTOM_CLASS_DEPENDENCIES: Map<ClassName, Set<ClassName>> =
+        mapOf(
+            cn("PartyDistance") to setOf(cn("AfterParty")),
+            cn("PlayerDistance") to setOf(cn("AfterMe")),
+            cn("PartyRequirement") to setOf(cn("PartyDelegate"), cn("Ruling")),
+            cn("PriceAspectCount") to setOf(cn("ProjectCard")),
+        )
+
     private val BOOTSTRAP_PHASE = cn("BootstrapPhase")
     private val MODULE_CLASS = cn("Module")
     private val MODULES_READY = cn("ModulesReady")
