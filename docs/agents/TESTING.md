@@ -177,6 +177,13 @@ semantics.
 > or mirrored Canon data. A test-support helper must express a recurring component-independent
 > operation, never one card's rule or missing engine semantics.
 
+> **Default assertion style:** Almost every successful gameplay action that returns a `TaskResult`
+> should chain `.expect(...)` directly to that action. Prefer this over later absolute resource or
+> component counts: the chained expectation proves the net change came from the action under test,
+> while an absolute count can pass because of setup or an earlier action. Use an absolute assertion
+> only when the absolute state is itself the contract, no successful result exists to inspect, or a
+> source explicitly states an absolute value.
+
 Terraforming Mars integration tests live under `dev.martianzoo.tfm.tests`: `cards` contains
 component-focused behavior, `rules` contains game-wide and cross-component behavior, and `replays`
 contains whole-game chronologies. Shared integrated-test support lives directly in the parent
@@ -357,15 +364,19 @@ its current base class does not by itself express a preferred testing style.
 
 ### Expectations
 
-Terraforming Mars gameplay tests provide `TaskResult.expect()`. Expectations are partial net deltas:
-name only changes that matter to the behavior under test. Unqualified owned Types are scoped
-to the Player inferred from the result's ordered change events; qualify the owner explicitly when
-checking another Player or an intentionally cross-player total. Do not restate costs, test setup,
-literal `doTask()` choices, or every incidental resource movement. In source-backed whole-game
-tests, include explicitly narrated gains/removals and interesting automatic effects, even when the
+Terraforming Mars gameplay tests provide `TaskResult.expect()`. Chain it directly to successful
+gameplay calls as the normal assertion style; do not replace an available result expectation with
+later `count(...) shouldBe ...` or `assertCounts(...)` checks. Expectations are partial net deltas:
+name only changes that matter to the behavior under test. Unqualified owned Types are scoped to the
+Player inferred from the result's ordered change events; qualify the owner explicitly when checking
+another Player or an intentionally cross-player total. Do not restate costs, test setup, literal
+`doTask()` choices, or every incidental resource movement. In source-backed whole-game tests,
+include explicitly narrated gains/removals and interesting automatic effects, even when the
 expected net differs from the narrated gross amount. Prefer a nearby absolute assertion when the
-source states an absolute value. Use a zero scalar, such as `0 Plant` or `PROD[0 Energy]`, to assert
-that a particular type did not change.
+source states an absolute value or the absolute state itself is the subject. Failed and deliberately
+aborted actions have no successful `TaskResult`, so assert their relevant unchanged state directly.
+Use a zero scalar, such as `0 Plant` or `PROD[0 Energy]`, to assert that a particular type did not
+change.
 
 Cover meaningful interfaces, negative cases, non-targets, and option combinations rather than only
 the happy path. A filtering or Type-variable test should include several tempting Components that must not

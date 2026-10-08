@@ -104,8 +104,9 @@ lower-level engine API.
 for a Player, bare owned input such as `Plant` receives that Player through lexical ownership
 insertion. This does not establish hidden-information views or a separate player universe.
 
-Each Agent currently has an `AutoExecPolicy` enum setting and `autoExecNow()`. Changing the setting
-runs the shared loop. Editing a provisional form does not. Defaults and policy limitations belong
+Each Agent has an `AutoExecPolicy` enum setting. Changing it runs the shared loop, while
+`autoExecNow(policy)` temporarily applies a policy to that Agent for a synchronous run without
+changing the setting. Editing a provisional form does not. Defaults and policy limitations belong
 in [AUTOEXEC.md](AUTOEXEC.md).
 
 ## Layer responsibility

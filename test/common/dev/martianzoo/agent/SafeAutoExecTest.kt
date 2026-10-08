@@ -35,12 +35,32 @@ internal class SafeAutoExecTest {
     player.autoExecNow()
     game.timeline.checkpoint() shouldBe before
 
-    shouldThrow<LimitsException> { player.autoExecPolicy = CONCRETE }
+    shouldThrow<LimitsException> { player.autoExecNow(CONCRETE) }
 
     game.timeline.checkpoint() shouldBe before
     game.tasks.getTaskData(taskId) shouldBe task
     player.count("Token") shouldBe 0
     player.count("Notice") shouldBe 0
+    player.autoExecPolicy shouldBe NONE
+  }
+
+  @Test
+  internal fun transientPolicyRunsNowWithoutChangingTheConfiguredPolicy() {
+    val game = Engine.newGame(testGamePremise("CLASS Token"))
+    val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
+    player.addTasks("Token!")
+
+    player.autoExecNow(CONCRETE)
+
+    player.count("Token") shouldBe 1
+    game.tasks.isEmpty() shouldBe true
+    player.autoExecPolicy shouldBe NONE
+
+    player.addTasks("Token!")
+    player.autoExecNow()
+
+    player.count("Token") shouldBe 1
+    game.tasks.ids().size shouldBe 1
   }
 
   @Test
