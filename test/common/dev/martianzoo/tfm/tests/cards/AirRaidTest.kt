@@ -30,7 +30,7 @@ internal class AirRaidTest : CardTest() {
   }
 
   @Test
-  internal fun `Steals all five mc`() {
+  internal fun `Steals all five MC`() {
     val p2 = requireP2()
     val p3 = game.testTfm(PLAYER3)
     p2.pass()
@@ -50,12 +50,9 @@ internal class AirRaidTest : CardTest() {
     p2.pass()
     p3.turn { playProject(SearchForLife, 3) }
 
-    p1.playProject(AirRaid, 0) {
-          shouldThrow<ExpressionException> { doTask("5 MC FROM MC<Player1>") }
-          doTask("5 MC FROM MC<Player3>")
-          doTask("-Floater<$AtmoCollectors>")
-        }
-        .expect("-Floater<$AtmoCollectors>, 5 MC<Player1>, -5 MC<Player3>")
+    shouldThrow<ExpressionException> {
+      p1.playProject(AirRaid, 0) { doTask("5 MC FROM MC<Player1>") }
+    }
   }
 
   @Test

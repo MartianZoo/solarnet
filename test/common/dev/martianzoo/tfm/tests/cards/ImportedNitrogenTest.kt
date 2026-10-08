@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -44,15 +43,22 @@ internal class ImportedNitrogenTest : CardTest() {
     p1.playProject(Vermin, 8)
 
     p1.playProject(ImportedNitrogen, 23) {
-          // Each resource type must stay together on its chosen card.
-          shouldThrow<TaskException> { doTask("Microbe<$Tardigrades>") }
           addCardResources(Tardigrades)
-          shouldThrow<NarrowingException> { doTask("Animal<$Pets>") }
           addCardResources(Pets)
         }
         .expect(
             "TerraformRating, 4 Plant, 3 Microbe<$Tardigrades>, 2 Animal<$Pets>, " +
                 "0 Microbe<$NitriteReducingBacteria>, 0 Animal<$Vermin>, -16 MC"
         )
+  }
+
+  @Test
+  internal fun `Cannot split imported microbes between holders`() {
+    newGame(CorporateEraExpansion)
+    p1.runOperation("$Tardigrades, $NitriteReducingBacteria")
+
+    shouldThrow<NarrowingException> {
+      p1.runOperation("$ImportedNitrogen") { doTask("Microbe<$Tardigrades>") }
+    }
   }
 }

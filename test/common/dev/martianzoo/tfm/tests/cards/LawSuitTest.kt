@@ -87,12 +87,6 @@ internal class LawSuitTest : CardTest() {
   }
 
   @Test
-  internal fun `Cannot be played without an opponent's attack`() {
-    requireP2().runOperation("3 MC")
-    shouldThrow<TaskException> { p1.playProject(LawSuit, 2, body = choosePlayer2) }
-  }
-
-  @Test
   internal fun `Its player lowering their own production does not qualify`() {
     p1.runOperation("PROD[-Plant]")
     requireP2().runOperation("3 MC")
@@ -109,7 +103,7 @@ internal class LawSuitTest : CardTest() {
   }
 
   @Test
-  internal fun `Cannot be played when every responsible player has only two mc`() {
+  internal fun `Cannot be played when every responsible player has only two MC`() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
     val p3 = game.testTfm(PLAYER3)

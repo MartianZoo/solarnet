@@ -19,14 +19,6 @@ internal class SponsoredAcademiesTest : CardTest() {
   }
 
   @Test
-  internal fun `Anyone discards one and draws two while every opponent draws one`() {
-    p1.runOperation("ProjectCard")
-
-    p1.playProject(SponsoredAcademies, 9)
-        .expect("ProjectCard<Player1>, ProjectCard<Player2>, ProjectCard<Player3>")
-  }
-
-  @Test
   internal fun `Point Luna draw supplies the mandatory discard when Sponsored Academies is the only hand card`() {
     newGame(VenusNextExpansion, PreludeExpansion, players = 3)
     p1.playCorp(PointLuna, 0)

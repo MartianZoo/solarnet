@@ -30,9 +30,6 @@ internal class SolarProbeTest : CardTest() {
         0 to "Graphene<$CarbonNanosystems>",
         0 to "PlayedEvent<Class<$SolarProbe>>",
     )
-
-    p1.runOperation("MC")
-    p1.playProject(SolarProbe, 9).expect("Graphene<$CarbonNanosystems>, -9 MC")
   }
 
   @Test

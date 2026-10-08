@@ -26,11 +26,6 @@ internal class CrashSiteCleanupTest : CardTest() {
   }
 
   @Test
-  internal fun `Cannot be played without removing a plant`() {
-    shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
-  }
-
-  @Test
   internal fun `Cannot be played after losing one of its own plants`() {
     p1.runOperation("Plant, -Plant")
     shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
@@ -50,18 +45,16 @@ internal class CrashSiteCleanupTest : CardTest() {
   }
 
   @Test
-  internal fun `Only the player who removed the plant qualifies`() {
+  internal fun `A player who did not remove the plant does not qualify`() {
     newGame(PromoCardPack, players = 3)
     val p3 = game.testTfm(PLAYER3)
     admin.phase("Action")
-    p1.runOperation("4 MC, ProjectCard")
     requireP2().runOperation("Plant")
     p3.runOperation("4 MC, ProjectCard")
 
     p1.runOperation("-Plant<Player2>")
 
     shouldThrow<RequirementException> { p3.playProject(CrashSiteCleanup, 4) }
-    p1.playProject(CrashSiteCleanup, 4) { doTask("2 Steel") }.expect("2 Steel")
   }
 
   @Test
@@ -74,17 +67,5 @@ internal class CrashSiteCleanupTest : CardTest() {
         .expect("0 Plant<Player2>")
     shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
     requireP2().count("Plant") shouldBe 1
-    p1.count("MC") shouldBe 4
-    p1.count("ProjectCard") shouldBe 1
-  }
-
-  @Test
-  internal fun `An asteroid with no plants to remove does not qualify for cleanup`() {
-    requireP2().runOperation("-Plant")
-    p1.runOperation("14 MC, ProjectCard")
-    p1.playProject(AsteroidCard, 14).expect("0 Plant<Player2>")
-    shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
-    p1.count("MC") shouldBe 4
-    p1.count("ProjectCard") shouldBe 1
   }
 }

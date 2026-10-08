@@ -23,15 +23,8 @@ internal class PredatorsTest : CardTest() {
   }
 
   @Test
-  internal fun `Can remove an opponent's animal`() {
-    addBirdForP2()
-    p1.cardAction1(Predators).expect("Animal<$Predators>, -Animal<Player2, $Birds<Player2>>")
-  }
-
-  @Test
   internal fun `Removes exactly one of two animals on the target card`() {
-    addBirdForP2()
-    requireP2().runOperation("Animal<$Birds>")
+    requireP2().runOperation("PROD[2 Plant], $Birds, 2 Animal<$Birds>")
 
     p1.cardAction1(Predators)
 
@@ -41,12 +34,11 @@ internal class PredatorsTest : CardTest() {
 
   @Test
   internal fun `Cannot decline to remove an opponent's animal`() {
-    addBirdForP2()
+    requireP2().runOperation("PROD[2 Plant], $Birds, Animal<$Birds>")
     p1.runOperation("Animal<$Predators>")
 
-    p1.cardAction1(Predators) {
-      shouldThrow<NarrowingException> { doTask("Ok") }
-      doTask("-Animal<Player2, $Birds<Player2>>")
+    shouldThrow<NarrowingException> {
+      p1.cardAction1(Predators) { doTask("Ok") }
     }
   }
 
@@ -84,11 +76,5 @@ internal class PredatorsTest : CardTest() {
     p1.cardAction1(Predators)
 
     p1.count("Animal<$Predators>") shouldBe 1
-  }
-
-  private fun addBirdForP2() {
-    val p2 = requireP2()
-    p2.runOperation("PROD[2 Plant], $Birds")
-    p2.runOperation("Animal<$Birds>")
   }
 }

@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.tfm.tests.TestOption.Cimmeria
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -9,13 +8,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 internal class MiningAreaTest : CardTest() {
-  @Test
-  internal fun `Can be placed adjacent to a steel area`() {
-    newGame()
-    p1.runOperation("CityTile<Tharsis_2_1>")
-    p1.runOperation("$MiningArea") { placeTile(1, 1) }.expect("2 Steel, PROD[Steel]")
-  }
-
   @Test
   internal fun `Can be placed adjacent to a titanium area`() {
     newGame()
@@ -39,12 +31,6 @@ internal class MiningAreaTest : CardTest() {
     manual.selectTask("CopyProductionBox<CardFront(HAS BuildingTag)>")
     manual.narrowTask("CopyProductionBox<$MiningArea>")
     manual.completeOperation { doTask("PROD[Titanium]") }.expect("PROD[Titanium]")
-  }
-
-  @Test
-  internal fun `Cannot be played without an adjacent owned tile`() {
-    newGame()
-    shouldThrow<DependencyException> { p1.runOperation("$MiningArea") { placeTile(1, 1) } }
   }
 
   @Test

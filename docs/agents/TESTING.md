@@ -331,6 +331,12 @@ particular, do not preserve gameplay merely because the old test used it to reac
 direct correction can express, and do not infer a configuration requirement solely from the old
 test's configuration.
 
+Review an unmigrated class for test value and structure before deciding whether it fits the fixture.
+First remove declaration-only and duplicate scenarios, separate independent behaviors, and trim
+each retained scenario to the setup its claim needs. Only then assess the resulting class for
+migration; conversion should not preserve clutter merely because it was present when evaluation
+began.
+
 Each migrated test method should prove a single behavior. Do not carry a scenario through a series
 of actions that successively test additional behavior. Split those actions into separately named
 tests, and give each resulting test only the setup required for its own behavior. Several

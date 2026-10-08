@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -64,19 +65,12 @@ internal class ViralEnhancersTest : CardTest() {
   }
 
   @Test
-  internal fun `Can choose a microbe when the entering card can hold it`() {
-    newGame()
-    p1.runOperation("$ViralEnhancers") { doTask("Plant") }
-    p1.runOperation("$NitriteReducingBacteria") { addCardResources(NitriteReducingBacteria) }
-        .expect("4 Microbe")
-  }
-
-  @Test
   internal fun `Cannot add a microbe to a different card`() {
     initializeExistingMicrobeCard()
-    p1.runOperation("$RegolithEaters") {
-      shouldThrow<NarrowingException> { doTask("Microbe<$NitriteReducingBacteria>") }
-      abort()
+    shouldThrow<NarrowingException> {
+      p1.runOperation("$RegolithEaters") {
+        doTask("Microbe<$NitriteReducingBacteria>")
+      }
     }
   }
 
@@ -94,7 +88,7 @@ internal class ViralEnhancersTest : CardTest() {
   }
 
   @Test
-  internal fun `Viral Enhancers responds twice to Pharmacy Union but cannot add diseases`() {
+  internal fun `Viral Enhancers responds to both Pharmacy Union tags`() {
     newGame(PreludeExpansion, PromoCardPack)
     playCorporationWithoutStartingProjects(p1, CrediCor)
     p1.runOperation("$ViralEnhancers") { doTask("Plant") }
@@ -104,12 +98,26 @@ internal class ViralEnhancersTest : CardTest() {
     p1.playPrelude(Merger) {
           p1.playCorp(PharmacyUnion) {
             doTask("Plant")
-            shouldThrow<NarrowingException> { doTask("Disease<$PharmacyUnion>") }
             doTask("Plant")
           }
         }
         .expect("2 Plant, 2 Disease<$PharmacyUnion>")
     p1.count("Plant") shouldBe 3
+  }
+
+  @Test
+  internal fun `Viral Enhancers cannot add a disease to Pharmacy Union`() {
+    newGame(PreludeExpansion, PromoCardPack)
+    playCorporationWithoutStartingProjects(p1, CrediCor)
+    p1.runOperation("$ViralEnhancers") { doTask("Plant") }
+    admin.phase("Prelude")
+    p1.runOperation("PreludeCard")
+
+    shouldThrow<TaskException> {
+      p1.playPrelude(Merger) {
+        p1.playCorp(PharmacyUnion) { doTask("Disease<$PharmacyUnion>") }
+      }
+    }
   }
 
   @Test

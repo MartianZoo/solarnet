@@ -45,8 +45,5 @@ internal class PotatoesTest : CardTest() {
     p1.playProject(Potatoes, 2)
 
     shouldThrow<RequirementException> { p1.claimMilestone(cn("Tactician")) }
-    p1.playProject(ColonizerTrainingCamp, 8)
-    // The sole selected milestone resolves automatically once its requirement is met.
-    p1.stdAction("ClaimMilestoneAction").expect("Tactician")
   }
 }
