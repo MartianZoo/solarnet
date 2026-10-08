@@ -20,6 +20,7 @@ import dev.martianzoo.pets.data.ModuleProperties.PREMISE_REQUIREMENT
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameWorld
@@ -30,15 +31,36 @@ public object Engine {
   /** Creates a game at its committed initialization state, ready to be given to a workflow. */
   public fun newGame(premise: GamePremise): World = Wiring(premise).createWorld()
 
+  /**
+   * Creates an independently mutable live World at the same completed gameplay position as
+   * [source]. Immutable premise data is shared, while state and every engine service are rebuilt.
+   * Application callbacks, component listeners, Agents, provisional forms, and workflow control
+   * state are not copied.
+   *
+   * @throws IllegalArgumentException if [source] was not created by this Engine
+   * @throws IllegalStateException if [source] is between completed gameplay positions
+   */
+  public fun fork(source: World): World {
+    val wholeWorld =
+        source as? WholeWorld
+            ?: throw IllegalArgumentException("Unknown World implementation: ${source::class}")
+    val current = source.timeline.checkpoint()
+    val positions = wholeWorld.recordingPositions.snapshot()
+    check(positions.lastOrNull() == current) {
+      "cannot fork a World between completed gameplay positions"
+    }
+    val gameWorld = wholeWorld.gameWorld.fork()
+    return Wiring(gameWorld.premise, gameWorld).createFork(positions, wholeWorld.effector)
+  }
+
   /** Constructs one engine world and owns the lifetimes of all its collaborators. */
   private class Wiring(
       private val premise: GamePremise,
+      private val gameWorld: GameWorld = GameWorld(premise),
   ) {
     private val classTable = premise.classTable.also(::validatePremise)
     private val elaborator: PetElaborator = PetElaborator(classTable)
     private val customClasses = CustomInstructionRuntime(premise.catalog, elaborator)
-
-    private val gameWorld = GameWorld(premise)
 
     // Effect compilation needs the reader, but no effect is read until state begins changing.
     private val effector: Effector = Effector(elaborator, customClasses) { reader }
@@ -79,6 +101,7 @@ public object Engine {
             classTable,
             actorEngines,
             recordingPositions,
+            effector,
         )
 
     internal fun createWorld(): WholeWorld {
@@ -99,6 +122,14 @@ public object Engine {
         )
       }
       recordingPositions.record(timeline.checkpoint().ordinal)
+      return world
+    }
+
+    internal fun createFork(positions: List<Checkpoint>, sourceEffector: Effector): WholeWorld {
+      effector.copyIndexFrom(sourceEffector)
+      positions.forEach { recordingPositions.record(it.ordinal) }
+      timeline.commit()
+      limiter.checkRequiredCounts = true
       return world
     }
 

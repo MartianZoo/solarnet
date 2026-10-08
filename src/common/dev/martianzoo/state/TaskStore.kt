@@ -6,6 +6,8 @@ import dev.martianzoo.state.Task.TaskId
 internal class TaskStore {
   private val tasks = mutableListOf<Task>()
 
+  internal fun fork(): TaskStore = TaskStore().also { copy -> copy.tasks += tasks }
+
   internal fun all(): TaskQueue = TaskQueue(this, assignee = null)
 
   internal fun forAssignee(assignee: Actor): TaskQueue = TaskQueue(this, assignee)

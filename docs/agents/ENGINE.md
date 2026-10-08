@@ -75,6 +75,14 @@ effects into automatic `::` effects or discard a change's `?`, `.`, or `!` quant
 state that requires a Player choice remains exact premise state which opens that choice during
 ordinary setup; bootstrap does not make it on the Player's behalf.
 
+`Engine.fork` constructs an independently mutable live World only at a completed gameplay
+position. It shares the immutable premise and Class Table, directly copies the passive component,
+dependency, task, event, completed-position, and live-effect-index collections, and builds fresh
+engine services around them. Immutable compiled live effects are shared, while index storage is
+independent and retains source registration order. The fork point is the new timeline commit floor,
+so the fork cannot roll back into source history. Application callbacks, component listeners,
+transactions, Agents, and workflow control remain fresh.
+
 The generated premise is executable output of configuration resolution. Live initialization does
 not reconsider Module defaults or assemble a second representation of the premise. Required state
 should arise from its earliest honest owner: premise construction supplies exact configuration,

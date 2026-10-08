@@ -55,6 +55,7 @@ public open class BusyPreludePhaseBenchmark {
     workflow = TfmWorkflow.Stepwise(agents)
 
     workflow.setupPhase()
+    me.keepStartingProjects(10)
     me.doTask("-SelectedColonyTile<Class<Ceres>>")
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
@@ -68,7 +69,7 @@ public open class BusyPreludePhaseBenchmark {
   @Benchmark
   public fun corporationThroughFirstActionPhase(): Int {
     workflow.corporationPhase()
-    me.playCorp(cn("Teractor"), 10)
+    me.playCorp(cn("Teractor"))
 
     workflow.preludePhase()
     me.playPrelude(fakeHeadStart) {
@@ -102,8 +103,12 @@ public open class BusyPreludePhaseBenchmark {
     return me.count("CardFront")
   }
 
+  /** A realistic live World with many distinct Terraforming Mars component and effect types. */
+  @Benchmark public fun forkBusySetupWorld(): World = Engine.fork(game)
+
   @TearDown(Level.Invocation)
   public fun rollBack() {
+    if (game.timeline.checkpoint() == beforeCorporationPhase) return
     // Teractor + Valley Trust, four Preludes, and four projects.
     check(me.count("CardFront") == 10)
     val mc = me.count("MC")

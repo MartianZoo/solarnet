@@ -3,13 +3,13 @@
 > **Agent information:** This is an agent-maintained information-tracking document, written by
 > agents for agents. It can record human decisions, but it is not human-authored documentation.
 >
-> **Read when:** measuring JVM test throughput, changing fork count or class-model compilation, or
-> choosing the next test-performance investigation.
+> **Read when:** measuring JVM test or engine-benchmark throughput, changing fork count or
+> class-model compilation, or choosing the next performance investigation.
 >
 > **Skip when:** running routine verification; use [TESTING.md](TESTING.md). Do not treat these
 > measurements as current configuration requirements.
 >
-> **Status:** dated research through 2026-09-12 on the development host. Treat absolute times as
+> **Status:** dated research through 2026-10-07 on the development host. Treat absolute times as
 > noisy: other JVM processes were consuming substantial CPU during some baselines. Relative
 > structure and the large speedup signals are still clear.
 
@@ -367,6 +367,37 @@ The class-table API finish retained the same construction and cache path. Two is
 repeats of its renamed focused suite passed all 10 then-current cases in 2.354s and 2.519s. That
 count differs from the earlier 11-case measurement, so these are regression checks rather than a
 new throughput claim; they give no performance reason to introduce another table representation.
+
+## 2026-10-07 live-World fork result
+
+The first `Engine.fork` implementation tried to make speculative branching cheap to implement by
+capturing a `GameRecording` and replaying its complete event history into fresh engine wiring. It
+was correct and reused existing invariant-maintaining paths, but it did not deliver cheap branches.
+
+`WorldForkBenchmark` prepares a completed generic World with 1,000 operations and at least 3,000
+events. Under the repository's standard JMH configuration (OpenJDK 26.0.1, interpreted execution,
+two forks, five warmups, and ten measured iterations), the replay implementation measured
+20.487 ± 0.518 ms for a fork followed by a full-history size read. The first direct-copy version
+copied the authoritative component, dependency, task, event, and position collections, then rebuilt
+the live-effect index from the copied present. It measured 3.786 ± 0.056 ms for the same operation:
+81.5% less time and 5.41x throughput. The shared history read makes this a conservative comparison
+of fork construction itself; the bare direct-copy fork measured 3.718 ± 0.013 ms.
+
+Those ratios describe the long-history synthetic fixture, not all game states.
+`BusyPreludePhaseBenchmark.forkBusySetupWorld` separately measures a configured Terraforming Mars
+World after a busy expansion setup, with many distinct component and effect types. It also exposed
+that rebuilding the effect index could not retain queued-listener registration order. Copying that
+index's mutable storage while sharing its immutable compiled effects preserves exact future history
+and reduced this fixture from 856.871 ± 8.110 to 7.656 ± 0.379 ms under the repository's
+intentionally interpreted JMH configuration: 99.1% less time and about 112x throughput. A companion
+run with normal JIT execution measured 0.173 ± 0.004 ms per fork.
+
+Keep direct collection copying as the live-fork construction path. The immutable premise, Class
+Table, and compiled live effects remain shared; mutable effect-index storage is copied in source
+registration order. The fork point becomes the new timeline commit floor, and listeners, callbacks,
+transaction state, and Agents remain fresh. Event history copying still scales with history length
+because `EventLog` owns a mutable append list and event notes are mutable. Consider persistent
+shared history only if a new profile shows that remaining copy to be material.
 
 ## Priorities suggested by the data
 
