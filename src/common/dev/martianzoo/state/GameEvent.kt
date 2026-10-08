@@ -86,3 +86,11 @@ public sealed class GameEvent {
     }
   }
 }
+
+internal fun GameEvent.snapshot(): GameEvent =
+    when (this) {
+      is GameEvent.ChangeEvent -> copy()
+      is GameEvent.TaskAddedEvent -> copy()
+      is GameEvent.TaskEditedEvent -> copy()
+      is GameEvent.TaskRemovedEvent -> copy()
+    }.also { copy -> copy.notes = notes }

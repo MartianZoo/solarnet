@@ -189,6 +189,30 @@ internal class GameWorldTest {
     second.tasks.getTaskData(task.id).selection shouldBe Selection.SELECTED
   }
 
+  @Test
+  internal fun forkCopiesDependencyStateWithoutCopyingListeners() {
+    val source = GameWorld(premise)
+    source.apply(changeEvent(source, ComponentChange.Gain(component = token)))
+    source.apply(changeEvent(source, ComponentChange.Gain(component = holder)))
+    val sourceTokenCounts = mutableListOf<Int>()
+    val subscription =
+        source.components.listenToCount(token.type, source.reader, sourceTokenCounts::add)
+
+    val fork = source.fork()
+
+    shouldThrow<ExistingDependentsException> {
+      fork.apply(changeEvent(fork, ComponentChange.Remove(component = token)))
+    }
+    fork.apply(changeEvent(fork, ComponentChange.Remove(component = holder)))
+    fork.apply(changeEvent(fork, ComponentChange.Remove(component = token)))
+
+    fork.components.countComponent(token) shouldBe 0
+    source.components.countComponent(token) shouldBe 1
+    source.components.countComponent(holder) shouldBe 1
+    sourceTokenCounts shouldBe listOf(1)
+    subscription.cancel()
+  }
+
   private fun changeEvent(world: GameWorld, change: ComponentChange): ChangeEvent =
       ChangeEvent(world.nextOrdinal, ADMIN, change, cause = null)
 }

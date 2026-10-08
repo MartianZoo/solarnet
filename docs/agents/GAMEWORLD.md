@@ -133,6 +133,13 @@ The engine's `Timeline` retains live transaction atomicity and the commit floor.
 `RecordingPositions` records coherent completed-operation ordinals; capture copies those values
 into a state-owned recording, where they become the only public seek targets.
 
+`GameWorld.fork` directly copies the passive component, dependency, task, and event collections
+without copying component listeners. `Engine.fork` adds fresh live services and makes the fork
+point its timeline commit floor; [ENGINE.md](ENGINE.md#from-a-premise-to-a-ready-world) owns that
+construction path.
+[`JVM_TEST_PERFORMANCE.md`](JVM_TEST_PERFORMANCE.md#2026-10-07-live-world-fork-result)
+records why fork construction does not rebuild state by replaying its complete history.
+
 ## Serialized events and exported recordings
 
 `EventLogJson` is the state-level opaque JSON encoding for an exact event list. Changes use full

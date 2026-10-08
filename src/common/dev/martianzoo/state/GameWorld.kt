@@ -13,20 +13,27 @@ import dev.martianzoo.state.GameEvent.TaskEvent
  * consequences. Supplying [initialEvents] reconstructs the exact projections produced by applying
  * that complete event sequence to a fresh world with the same [classTable].
  */
-public class GameWorld(
+public class GameWorld
+private constructor(
     public val premise: GamePremise,
-    initialEvents: List<GameEvent> = emptyList(),
+    initialEvents: List<GameEvent>,
+    copyFrom: GameWorld?,
 ) {
+  public constructor(
+      premise: GamePremise,
+      initialEvents: List<GameEvent> = emptyList(),
+  ) : this(premise, initialEvents, copyFrom = null)
+
   /** The immutable classes available to this world. */
   public val classTable: ClassTable = premise.classTable
 
   /** The current component multiset and its observable count indexes. */
-  public val components: ComponentGraph = ComponentGraph(classTable)
+  public val components: ComponentGraph = copyFrom?.components?.fork() ?: ComponentGraph(classTable)
 
   /** Everything that has happened in this world. */
-  public val events: EventLog = EventLog()
+  public val events: EventLog = copyFrom?.events?.fork() ?: EventLog()
 
-  private val taskStore = TaskStore()
+  private val taskStore: TaskStore = copyFrom?.taskStore?.fork() ?: TaskStore()
 
   /** Every task currently pending in this world. */
   public val tasks: TaskQueue = taskStore.all()
@@ -38,8 +45,17 @@ public class GameWorld(
   public val actors: List<Actor> = premise.actors
 
   init {
+    require(copyFrom == null || copyFrom.premise === premise)
+    require(copyFrom == null || initialEvents.isEmpty())
     initialEvents.forEach(::apply)
   }
+
+  /**
+   * Copies this exact passive state into an independently mutable Game World. Immutable premise
+   * data and values are shared; mutable collections and event commentary are copied, while
+   * component listeners are not.
+   */
+  public fun fork(): GameWorld = GameWorld(premise, initialEvents = emptyList(), copyFrom = this)
 
   /** The ordinal required for the next exact event. */
   public val nextOrdinal: Int
