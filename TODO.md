@@ -78,10 +78,9 @@ These concerns remain open; the ranking does not select replacement designs.
   implementation. Work through draw/discard, Icy Impactors handoff, accepted work that cannot
   finish, and agreed undo examples. Preserve the meaning of accepted prefixes; keep Git
   coordination and hidden-information enforcement outside the engine.
-- Revisit the `RepeatPlacementBonus` change made for conditionally available map bonuses. Look for
-  a way to duplicate the map's bonus instruction directly again, without inspecting its generated
-  Class effect or `IfTrigger`; preserve Frontier Town's tripled delegate bonus and conditional
-  omission when `PartyDelegate` is unavailable.
+- Revisit `RepeatPlacementBonus` now that premise-specialized effects remove its runtime condition
+  check. Determine whether it can duplicate `AreaDefinition.bonus` directly again without reading
+  the area's generated Class effect, while still omitting unavailable delegate bonuses.
 - Resolve the nested self-transmutation case characterized in `pets/BugsTest`: an abstract Box
   currently permits identical concrete shared arguments. Preserve shared abstract arguments and
   rejection of dropping their markers; clarify when an open nested shared transmutation itself

@@ -4,6 +4,7 @@ import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -14,6 +15,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlin.test.assertSame
 
 /** Verifies which Catalog Classes are selected and inhabited by each game premise. */
 internal class ClassTableSelectionTest {
@@ -236,9 +238,11 @@ internal class ClassTableSelectionTest {
     val emptyAwardDomain = gameView("Award", "Me")
 
     // Known concrete Class omitted by this premise.
-    base.findClass(cn("VenusStep")) shouldBe Canon.classTable.getClass(cn("VenusStep"))
+    val venusStep = requireNotNull(base.findClass(cn("VenusStep")))
+    venusStep shouldBe Canon.classTable.getClass(cn("VenusStep"))
     base.allClassNames.shouldNotContain(cn("VenusStep"))
     base.isInhabited(cn("VenusStep")) shouldBe false
+    shouldThrow<IllegalArgumentException> { base.effects(venusStep) }
 
     // Included abstract Class with no included concrete narrowing.
     emptyAwardDomain.classNames.contains(cn("Award")) shouldBe true
@@ -257,11 +261,90 @@ internal class ClassTableSelectionTest {
   @Test
   internal fun `guarded mode references do not force unavailable classes into selection`() {
     val solo = gameView("Prelude1CardPack", "Me")
+    val vitor = solo.classTable.getClass(cn("Vitor"))
 
     solo.classTable.isInhabited(cn("Vitor")) shouldBe true
     matchingClasses("award", solo).shouldBeEmpty()
     solo.classNames.shouldNotContain(cn("FirstPlace"))
     solo.classNames.shouldNotContain(cn("SecondPlace"))
+    vitor.declaration.effects.count { it.trigger is IfTrigger } shouldBe 1
+    solo.classTable.effects(vitor).count { it.trigger is IfTrigger } shouldBe 0
+    solo.classTable.effects(vitor).size shouldBe vitor.declaration.effects.size - 1
+  }
+
+  @Test
+  internal fun `premise effects omit or unwrap a class-literal guard without changing its backing declaration`() {
+    val withoutTurmoil = gameView("AmazonisMap", "Player1", "Player2").classTable
+    val withTurmoil = gameView("AmazonisMap, TurmoilExpansion", "Player1", "Player2").classTable
+    val area = Canon.classTable.getClass(cn("Amazonis_02_02"))
+
+    area.declaration.effects.single().toString() shouldBe
+        "Placement<This> IF Class<PartyDelegate>: PartyDelegate"
+    withoutTurmoil.effects(area).shouldBeEmpty()
+    withTurmoil.effects(area).single().toString() shouldBe "Placement<This>: PartyDelegate"
+  }
+
+  @Test
+  internal fun `premise effects retain a dynamic milestone gate`() {
+    val table = gameView("AmazonisMap", "Player1", "Player2").classTable
+    val milestone = table.getClass(cn("Milestone"))
+
+    milestone.declaration.effects.size shouldBe 2
+    table.effects(milestone).size shouldBe 2
+    milestone.declaration.effects.zip(table.effects(milestone)).forEach { (backing, executable) ->
+      assertSame(backing, executable)
+    }
+  }
+
+  @Test
+  internal fun `premise effects specialize the selected game mode`() {
+    val solo = gameView("", "Player1").classTable
+    val multiplayer = gameView("", "Player1", "Player2").classTable
+    val modulesReady = Canon.classTable.getClass(cn("ModulesReady"))
+
+    (modulesReady.declaration.effects.single().trigger is IfTrigger) shouldBe true
+    solo.effects(modulesReady).shouldBeEmpty()
+    (multiplayer.effects(modulesReady).single().trigger is IfTrigger) shouldBe false
+  }
+
+  @Test
+  internal fun `premise effects retain a live player threshold`() {
+    val twoPlayers = gameView("", "Player1", "Player2").classTable
+    val threePlayers = gameView("", "Player1", "Player2", "Player3").classTable
+    val measureAward = Canon.classTable.getClass(cn("MeasureAward"))
+    val conditional = measureAward.declaration.effects.single { it.trigger is IfTrigger }
+
+    measureAward.declaration.effects.count { it.trigger is IfTrigger } shouldBe 1
+    twoPlayers.effects(measureAward).count { it.trigger is IfTrigger } shouldBe 1
+    twoPlayers.effects(measureAward).size shouldBe measureAward.declaration.effects.size
+    threePlayers.effects(measureAward).count { it.trigger is IfTrigger } shouldBe 1
+    threePlayers.effects(measureAward).size shouldBe measureAward.declaration.effects.size
+    assertSame(conditional, twoPlayers.effects(measureAward).single { it.trigger is IfTrigger })
+    assertSame(conditional, threePlayers.effects(measureAward).single { it.trigger is IfTrigger })
+  }
+
+  @Test
+  internal fun `premise effects specialize selected module presence`() {
+    val withoutColonies = gameView("CimmeriaMap", "Player1", "Player2").classTable
+    val withColonies = gameView("CimmeriaMap, ColoniesExpansion", "Player1", "Player2").classTable
+    val bonus = Canon.classTable.getClass(cn("CimmeriaPlacementBonus"))
+
+    (bonus.declaration.effects.single().trigger is IfTrigger) shouldBe true
+    withoutColonies.effects(bonus).shouldBeEmpty()
+    (withColonies.effects(bonus).single().trigger is IfTrigger) shouldBe false
+    withColonies.effects(bonus).single().instruction.toString() shouldBe "Colony<>, -5 MC"
+  }
+
+  @Test
+  internal fun `premise effects remove a selected module from a mixed condition`() {
+    val table = gameView("ColoniesExpansion, Callisto", "Me").classTable
+    val colonies = table.getClass(cn("ColoniesExpansion"))
+
+    colonies.declaration.effects.mapNotNull { (it.trigger as? IfTrigger)?.condition }.size shouldBe
+        2
+    table.effects(colonies).mapNotNull {
+      (it.trigger as? IfTrigger)?.condition?.toString()
+    } shouldBe listOf("SelectedColonyTile")
   }
 
   // Other deliberate configuration omissions

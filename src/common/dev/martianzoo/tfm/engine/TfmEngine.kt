@@ -308,14 +308,10 @@ public object TfmEngine {
       val map = mapDefinition(game)
       val areaNames = map.areas.mapTo(hashSetOf()) { it.className }
       val area = listOf(type0, type1).single { it.className in areaNames }
-      val effect =
-          map.areas
-              .single { it.className == area.className }
-              .asClassDeclaration
-              .authoredEffects
-              .singleOrNull() ?: return NoOp
-      val requirement = (effect.trigger as? IfTrigger)?.condition
-      if (requirement != null && !game.has(requirement)) return NoOp
+      val effect = game.classTable.effects(area.rootClass).singleOrNull() ?: return NoOp
+      check(effect.trigger.descendantsOfType<IfTrigger>().isEmpty()) {
+        "placement bonus for `${area.rootClass}` retains a premise-time condition: ${effect.trigger}"
+      }
       return InstructionGroup.createTree(listOf(effect.instruction, effect.instruction))
     }
   }
