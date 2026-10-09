@@ -11,7 +11,7 @@ internal class MinorityRefugeTest : ProjectCardTest() {
   @BeforeTest fun setUp() = newTestGame(addOptions = "Luna, Io, Triton, Europa, Titan")
 
   @Test
-  internal fun `Cannot place its colony on Io at minimum mc production`() {
+  internal fun `Cannot place its colony on Io at minimum MC production`() {
     kim.exMachina("PROD[-6 MC]")
 
     shouldThrow<LimitsException> {
@@ -20,7 +20,7 @@ internal class MinorityRefugeTest : ProjectCardTest() {
   }
 
   @Test
-  internal fun `Luna placement can enable Minority Refuge's production decrease`() {
+  internal fun `A Luna placement can enable its production decrease`() {
     kim.exMachina("PROD[-6 MC]")
 
     kim.playProject(MinorityRefuge, 5) { doTask("Colony<Luna>") }.expect("Colony<Luna>, PROD[0 MC]")

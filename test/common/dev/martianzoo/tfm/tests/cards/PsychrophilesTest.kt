@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -16,8 +15,7 @@ internal class PsychrophilesTest : ProjectCardTest() {
     kim.playProject(AdaptedLichen, 9) { /* Decline spending a Psychrophiles microbe. */
           declineTask()
         }
-        .expect("PROD[Plant]")
-    kim.count("Microbe<$Psychrophiles>") shouldBe 1
+        .expect("PROD[Plant], 0 Microbe<$Psychrophiles>")
   }
 
   @Test

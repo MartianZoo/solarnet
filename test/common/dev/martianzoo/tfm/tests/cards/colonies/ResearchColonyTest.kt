@@ -11,7 +11,7 @@ internal class ResearchColonyTest : ProjectCardTest() {
   @BeforeTest fun setUp() = newTestGame(addOptions = "Luna, Io, Triton, Europa, Titan")
 
   @Test
-  internal fun `Can be played when its player already has a colony on Luna`() {
+  internal fun `Can be played when its owner already has a colony on Luna`() {
     kim.exMachina("Colony<Luna>")
 
     kim.playProject(ResearchColony, 20) { doTask("Colony<Luna>") }.expect("-20 MC, Colony<Luna>")

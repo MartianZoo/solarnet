@@ -11,13 +11,10 @@ internal class ImportedNitrogenTest : ProjectCardTest() {
 
   @Test
   internal fun `Unstorable microbes and animals give no Topsoil Contract or Meat Industry payout`() {
-    kim.setToExMachina(50, "MC")
-    kim.playProject(TopsoilContract, 8)
-    kim.playProject(MeatIndustry, 5)
+    kim.exMachina("$TopsoilContract, $MeatIndustry")
+    kim.setToExMachina(23, "MC")
     // Opponent-owned holders cannot receive the imported resources.
-    stan.setToExMachina(14, "MC")
-    stan.playProject(Tardigrades, 4)
-    stan.playProject(Pets, 10)
+    stan.exMachina("$Tardigrades, $Pets")
 
     kim.playProject(ImportedNitrogen, 23)
         .expect(

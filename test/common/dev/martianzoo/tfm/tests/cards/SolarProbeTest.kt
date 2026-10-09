@@ -14,7 +14,7 @@ internal class SolarProbeTest : ProjectCardTest() {
   @BeforeTest fun setUp() = newTestGame()
 
   @Test
-  internal fun `Solar Probe must be paid before its science tag supplies Carbon Nanosystems graphene`() {
+  internal fun `Must be paid before its science tag supplies Carbon Nanosystems graphene`() {
     kim.exMachina("$CarbonNanosystems")
     kim.setToExMachina(8, "MC")
     val cardsBefore = kim.count("ProjectCard")
@@ -29,7 +29,7 @@ internal class SolarProbeTest : ProjectCardTest() {
   }
 
   @Test
-  internal fun `Solar Probe counts its own science tag before entering the played-event pile`() {
+  internal fun `Counts its own science tag before entering the played-event pile`() {
     kim.exMachina("$TransNeptuneProbe, $PhysicsComplex")
     kim.setToExMachina(9, "MC")
 

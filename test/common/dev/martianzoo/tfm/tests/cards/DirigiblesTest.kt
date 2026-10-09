@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -9,7 +8,7 @@ internal class DirigiblesTest : ProjectCardTest() {
   @BeforeTest fun setUp() = newTestGame()
 
   @Test
-  internal fun `Can spend floaters before paying the remaining money`() {
+  internal fun `Can spend floaters before paying the remaining MC`() {
     kim.exMachina("$Dirigibles, 2 Floater<$Dirigibles>")
     kim.setToExMachina(5, "MC")
 
@@ -20,7 +19,7 @@ internal class DirigiblesTest : ProjectCardTest() {
               doTask("-5 MC")
             },
         )
-        .expect("$AerialMappers")
+        .expect("-2 Floater<$Dirigibles>, -5 MC")
   }
 
   @Test
@@ -36,7 +35,6 @@ internal class DirigiblesTest : ProjectCardTest() {
               doTask("-3 MC")
             },
         )
-        .expect("$StratosphericBirds")
-    kim.count("Floater<$Dirigibles>") shouldBe 0
+        .expect("-4 Floater<$Dirigibles>, -3 MC")
   }
 }
