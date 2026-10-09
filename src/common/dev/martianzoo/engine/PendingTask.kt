@@ -19,9 +19,10 @@ internal data class PendingTask(
   internal companion object {
     /**
      * Routes effect work to the component's Player owner, then the changed component's Player
-     * owner, then the triggering Actor. For automatic work, an unowned effect uses the triggering
-     * Actor in place of the changed component's owner. The operation's Player controller retains
-     * the task until selection. Passive owners never gain task authority.
+     * owner, then an explicitly supplied queued-effect fallback, then the triggering Actor. For
+     * automatic work, an unowned effect uses the triggering Actor in place of both later choices.
+     * The operation's Player controller retains the task until selection. Passive owners never gain
+     * task authority.
      */
     fun fromEffect(
         context: Component,
@@ -30,6 +31,7 @@ internal data class PendingTask(
         changedComponentPlayer: Player?,
         automatic: Boolean,
         instruction: InstructionGroup,
+        queuedEffectFallback: Actor? = null,
     ): PendingTask {
       val effectPlayer = context.owningPlayer
       return PendingTask(
@@ -39,7 +41,10 @@ internal data class PendingTask(
                   ?: changedComponentPlayer
                   ?: triggerEvent.actor,
           selectionAssignee =
-              effectPlayer ?: changedComponentPlayer.takeUnless { automatic } ?: triggerEvent.actor,
+              effectPlayer
+                  ?: changedComponentPlayer.takeUnless { automatic }
+                  ?: queuedEffectFallback.takeUnless { automatic }
+                  ?: triggerEvent.actor,
           instruction = instruction,
           cause = Cause(context.expression, triggerEvent.ordinal),
       )

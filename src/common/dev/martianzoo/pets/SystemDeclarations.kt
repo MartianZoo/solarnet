@@ -41,7 +41,7 @@ private val systemDeclarationsSource =
     "Implementation detail normally omitted from user-facing output"
     ABSTRACT CLASS Hidden
 
-    "No one but Admin can create these"
+    "Admin-only machinery; direct queued gains begin assigned to Admin"
     ABSTRACT CLASS System {
       This BY Actor(NOT Admin): Die
     }

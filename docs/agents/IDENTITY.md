@@ -85,9 +85,12 @@ remains broad. This Type specialization is independent of task routing and Actor
 ## Actor
 
 A queued effect's selection assignee defaults to the effect component's Player owner, then the
-changed component's Player owner, then the triggering Actor. An automatic effect instead executes
-inline as the effect owner when present and otherwise as its surrounding Actor. An ad hoc task
-starts assigned to its submitting Actor.
+changed component's Player owner, then the triggering Actor. A queued effect of a `System` gain
+inserts the gain task's retained selection assignee before that final Actor fallback. An automatic
+effect instead executes inline as the effect owner when present and otherwise as its surrounding
+Actor. A queued task normally starts assigned to its controller. If its normalized instruction
+directly gains a `System` Component, alone or under a top-level instruction-side `BY`, it starts
+assigned to Admin instead, before its add event is recorded.
 
 Instruction-side `BY` is not a request to record an invented performer. It remains in an abstract
 task until the instruction becomes concrete, then changes the current assignee and is removed from
@@ -113,7 +116,13 @@ controller, regardless of which component owns the effect. Its selection assigne
 owner of the effect-bearing component, then the Player owner of the changed component, then the
 triggering Actor. When the surrounding controller is Admin, the effect owner, changed component
 owner, and triggering Actor instead supply the controller in that order. An unselected task's
-current assignee is its controller.
+current assignee is normally its controller. A normalized task that directly gains `System`, with
+or without a top-level instruction-side `BY`, is assigned to Admin immediately while retaining its
+controller and selection assignee. Contextual selection reapplies that rule so it does not pass the
+System gain back to the selection assignee. A concrete instruction-side `BY` then remains
+authoritative; naming a non-Admin performer reaches the `System` creation guard and fails. A queued
+effect of the System gain uses the retained selection assignee only after neither the effect nor
+the changed component supplies a Player owner. Automatic effects retain their ordinary Actor rule.
 
 Start-player requests locate the token's Player with an explicitly named `EACH` selector and gain a
 request signal owned by that Player. `EACH` binds lexical `Me`; the signal's own effect supplies the

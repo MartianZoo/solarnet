@@ -1,10 +1,14 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction.By
+import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.state.GameEvent.TaskEditedEvent
@@ -29,14 +33,15 @@ import dev.martianzoo.state.Task.TaskId
  *   [DeadEndException]
  * * A concrete selected task is guaranteed to execute successfully
  * * Normalization retains task identity, controller, selection assignee, current assignee,
- *   selection, and cause. Selected tasks cannot be replaced by independent siblings
+ *   selection, and cause. Admission and contextual selection assign a System gain to Admin;
+ *   explicit instruction-side `BY` remains authoritative. Selected tasks cannot be replaced by
+ *   independent siblings
  */
-internal class TaskQueues(
-    private val gameWorld: GameWorld,
-    private val classTable: ClassTable? = null,
-) {
-  private val isAbstract: ((Expression) -> Boolean)? = classTable?.let { table ->
-    { expression -> table.resolve(expression).abstract }
+internal class TaskQueues(private val gameWorld: GameWorld) {
+  private val classTable: ClassTable = gameWorld.classTable
+  private val systemClass = classTable.getClass(SYSTEM)
+  private val isAbstract: (Expression) -> Boolean = { expression ->
+    classTable.resolve(expression).abstract
   }
 
   internal fun addTasks(task: PendingTask) =
@@ -55,13 +60,14 @@ internal class TaskQueues(
   ): List<TaskAddedEvent> {
     val newTasks =
         newTasks(
-            firstId = TaskId(gameWorld.nextOrdinal),
-            controller = controller,
-            instruction = instruction,
-            cause = cause,
-            selectionAssignee = selectionAssignee,
-            isAbstract = isAbstract,
-        )
+                firstId = TaskId(gameWorld.nextOrdinal),
+                controller = controller,
+                instruction = instruction,
+                cause = cause,
+                selectionAssignee = selectionAssignee,
+                isAbstract = isAbstract,
+            )
+            .map(::assignSystemGainToAdmin)
     return newTasks.map {
       require(it.id.ordinal == gameWorld.nextOrdinal)
       gameWorld.apply(TaskAddedEvent(gameWorld.nextOrdinal, it))
@@ -73,7 +79,7 @@ internal class TaskQueues(
   }
 
   internal fun editTask(newTask: Task): TaskEditedEvent? {
-    val normalized = normalize(newTask)
+    val normalized = normalizeTask(newTask, isAbstract)
     val oldTask = gameWorld.tasks.getTaskData(normalized.id)
     if (normalized == oldTask) return null
     return gameWorld.apply(
@@ -81,7 +87,25 @@ internal class TaskQueues(
     )
   }
 
-  internal fun normalize(task: Task): Task = normalizeTask(task, isAbstract)
+  internal fun normalizeForSelection(task: Task): Task =
+      assignSystemGainToAdmin(normalizeTask(task, isAbstract))
+
+  internal fun assigneeAfterContextualSelection(task: Task): Actor {
+    val selected = task.copy(assignee = task.selectionAssignee, selected = true)
+    return normalizeForSelection(selected).assignee
+  }
+
+  private fun assignSystemGainToAdmin(task: Task): Task {
+    val change =
+        when (val instruction = task.instruction) {
+          is Change -> instruction
+          is By -> instruction.inner as? Change
+          else -> null
+        } ?: return task
+    val gaining = change.gaining ?: return task
+    val gainedClass = classTable.resolve(gaining).rootClass
+    return if (gainedClass.isSubtypeOf(systemClass)) task.copy(assignee = ADMIN) else task
+  }
 
   override fun toString(): String = gameWorld.tasks.toString()
 }

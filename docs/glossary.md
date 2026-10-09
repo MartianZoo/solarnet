@@ -129,7 +129,7 @@
 - **source effect:** An effect as authored in `.pets` or generated from structured content data, before class-level inheritance and transformation.
 - **state change:** An exact Component gain, removal, or transmutation that occurred in a game world.
 - **structured content data:** Transitional category-specific card or map data used to generate class declarations and retain metadata not yet authored in Pets. It is not a common engine representation.
-- **System:** Admin-only machinery. It cannot be created by any Actor but Admin, and an unowned System occurrence does not implicitly restrict effect matching by its Actor. Presentation visibility is classified separately.
+- **System:** Admin-only machinery. A normalized queued task that directly gains a System Component, alone or under a top-level instruction-side `BY`, begins assigned to Admin before any Player could select it. A later explicit `BY` remains authoritative, but the gain still cannot be performed by any Actor except Admin. An unowned System occurrence does not implicitly restrict effect matching by its Actor. Presentation visibility is classified separately.
 - **system type:** A Pets type supplied by the declarations in `SystemDeclarations.kt` because the generic engine requires it.
 - **task:** A unit of pending work containing an instruction; controller, selection-assignee, and current-assignee Actors; optional cause; and lifecycle metadata. It represents both what must eventually happen and the choices still permitted.
 - **task event:**
