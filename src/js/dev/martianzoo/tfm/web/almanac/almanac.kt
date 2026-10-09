@@ -1,6 +1,6 @@
 @file:Suppress("UnsafeCastFromDynamic")
 
-package dev.martianzoo.tfm.web.classviewer
+package dev.martianzoo.tfm.web.almanac
 
 import dev.martianzoo.catalog.displayName
 import dev.martianzoo.pets.ast.ClassName

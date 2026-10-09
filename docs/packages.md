@@ -101,7 +101,7 @@ An early rough browser version of REgo PLastics.
 
 ## module ALMANAC
 
-### <a href="almanac/dev.martianzoo.tfm.web.classviewer/index.html">dev.martianzoo.tfm.web.classviewer</a>
+### <a href="almanac/dev.martianzoo.tfm.web.almanac/index.html">dev.martianzoo.tfm.web.almanac</a>
 
 Pets Almanac, a searchable viewer for Canon's normalized Pets declarations and type information.
 

@@ -230,7 +230,7 @@ private inline fun <T> measurePhase(name: String, block: () -> T): T {
   }
 }
 
-private fun almanacHref(className: ClassName): String = "/classviewer/#$className"
+private fun almanacHref(className: ClassName): String = "/almanac/#$className"
 
 private fun configureClassLink(element: Element, className: ClassName) {
   element.setAttribute("href", almanacHref(className))
