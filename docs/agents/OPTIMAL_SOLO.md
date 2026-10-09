@@ -39,6 +39,11 @@ Open-deck and hidden-deck play are different problems:
   eventually choose whether “best” means best expected score, best guaranteed score, or something
   else. Structural conclusions that hold for every possible deck do not depend on that later choice.
 
+Deck order and knowledge here belong to the optimizer's external search problem, not to hidden
+state that Solarnet must maintain or protect. Hypothetical draws and rewinds are freely calculable;
+access to actual undisclosed draws and recognition of a played score are external responsibilities
+described in [ADVERSARIAL.md](ADVERSARIAL.md).
+
 At the client interface, every method call both begins and ends with a nonempty player task
 queue. Starting and finishing the game are the exceptions. The engine may pass through an idle world
 internally, but that state is not observable through this interface. Each client-visible decision is

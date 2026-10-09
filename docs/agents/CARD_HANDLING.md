@@ -45,6 +45,12 @@ There is no deck or discard Component, hidden face, physical-copy identity, shuf
 dealer policy. Playing a card consumes one generic back from its stated location and creates the
 concrete face supplied by the caller. Solarnet trusts that declaration.
 
+That trust is deliberate calculator behavior, not an unfinished authentication feature. A named
+play through FooPlayer's Agent is FooPlayer's declaration for the calculation. Whether the player
+actually held that face, who may learn a draw, and whether reported discards are valid are checked
+outside the engine as described in [ADVERSARIAL.md](ADVERSARIAL.md). Counts, locations, and the
+consequences of the declared face remain game rules for Solarnet to calculate.
+
 ## External offer procedures
 
 Prelude plays use `PlayOrFizzle`: play the chosen face, or discard its anonymous back, record an
@@ -88,7 +94,9 @@ its filter and resource-card destination to `ClaimCardReward<CardFilter, Resourc
 derives the resource type from the destination card and scales both the reward and `Audit` by the
 revealed-card count, currently one. The caller verifies the printed tag externally. The `OR Ok`
 branch lets the caller decline when the card lacks the tag;
-once the metric can test the revealed card's printed tag, that branch can be removed. Each `BuyCard`
+checking that the claim or decline matches the actual revealed card belongs to the external tracker
+or custodian. The recorded filter supplies the criterion; securing the declaration does not
+require adding hidden faces or an engine reveal-verification stage. Each `BuyCard`
 creates 3 M€ of debt, card-specific modifiers adjust that debt through
 `PayingFor<Class<ProjectCard>>`, and settling the `CardPurchase` billing moves its selected back to
 `Hand` without assigning a printed identity.
@@ -143,8 +151,10 @@ solo replays use ordinary follow-mode test bases without a card ledger.
 
 ## Deliberate boundaries
 
-Hidden-information handling, player-specific universes, and drafting are not selected goals. Exact
-hand tracking outside the engine is selected; hiding those names from other readers is not required.
+Hidden-information handling, player-specific universes, and drafting are not selected engine goals.
+The [adversarial-play proposal](ADVERSARIAL.md) discusses secret custody and acceptance outside
+the engine; it does not select their implementation. Exact hand tracking outside the engine is
+selected; the narrower tracking API does not require hiding those names from other readers.
 Shuffle/deal policy, deck order, and identities of cards never entering a hand or play do not belong
 in the engine. Do not build scaffolding for a full dealer or real-card mode as a prerequisite for
 this narrower tracking API.

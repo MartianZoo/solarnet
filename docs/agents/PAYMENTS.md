@@ -21,6 +21,12 @@ Every payment-loss trigger uses `BY Me@`: the event Actor must be the payer who 
 resource. This is independent of who controls the surrounding task. An opponent's removal cannot
 pay the victim's bill; a delegated payer's own removal can.
 
+Here “performed by the payer” means submitted through the payer's Agent. The engine does not
+authenticate the caller or ask whether the real player consented to the spending. A local program
+may call both players' Agents. [ADVERSARIAL.md](ADVERSARIAL.md) assigns verification of submitted
+decisions to the surrounding game arrangement; payment arithmetic and Actor attribution remain
+engine responsibilities.
+
 Acceptance begins during pricing. `Owed` installs its denomination, and `PayingFor` or `UseAction`
 can install alternatives before `Billing`. Removing the bill removes acceptance before the
 purchased card or action results run.
@@ -38,17 +44,20 @@ while that player's Neptunian bill is open, the 4 M€ loss incorrectly reduces 
 case. Do not add transaction identity for hypothetical concurrent invoices without a selected
 systemic rule.
 
-Delegated payment also exposes a control gap. P1 can hand a Neptunian decision to P2, but current
-selection delegates only that selected task. Accepting the option queues billing work under P1's
-controller again. The `pay` helper bridges the gap by selecting through each task's current
-assignee, so a helper-driven scenario can succeed without proving that P2 retains exclusive
-interactive control or that P1 cannot intervene.
+Delegated payment also exposes a routing and completion question. P1 can hand a Neptunian decision
+to P2, but current selection delegates only that selected task. Accepting the option queues billing
+work under P1's controller again. The `pay` helper bridges the gap by selecting through each task's current
+assignee. Calling those Agents is legitimate calculator use. A helper-driven scenario can succeed
+without establishing which selections each Agent requires or whether intervening work changes the
+payment result; inspect those game semantics separately from authorization of the external caller.
 
 `BugsTest` characterizes intervention immediately after acceptance and after a separate Steel
 payment. Earlier committed spending remains consumed if a later payment command fails. `Owed` and
 `Billing` are `Barrier`s, but that checks completion; it does not exclude unrelated task selection.
-The missing general completion/control rule is recorded in
+The remaining completion and task-order questions are recorded in
 [`SEQUENCING.md`](SEQUENCING.md#the-missing-rule-when-an-operation-is-over).
+External acceptance can reject an unauthorized submitted decision, but cannot repair a calculation
+that reduces the wrong bill or loses the distinction between spending and another resource loss.
 
 ## Current pieces
 

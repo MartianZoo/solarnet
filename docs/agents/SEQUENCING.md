@@ -42,9 +42,14 @@ component's own automatic effects retain authored declaration order.
 
 ## Before adding order
 
-Identify the forbidden result or intervention. A choice that fails within the same transaction can
-often be rejected through ordinary Pets and rollback. That does not cover an interaction spread
-across committed commands: rejecting a later payment step does not undo earlier partial payment.
+Identify the game rule that makes a result or task order invalid. A caller using another Player's
+Agent is not itself an invalid engine operation: attribution through the assigned Agent is enough.
+Authentication and acceptance of that caller's submission belong to
+[ADVERSARIAL.md](ADVERSARIAL.md), not to task locks or a new delegated-session mechanism.
+
+A choice that fails within the same transaction can often be rejected through ordinary Pets and
+rollback. That does not cover an interaction spread across committed commands: rejecting a later
+payment step does not undo earlier partial payment.
 
 Distinguish precedence, immediate consequences, exclusive control, completion, and atomicity.
 
@@ -109,17 +114,24 @@ The engine has no general completion rule for an interaction that spans queued w
 These are not the same completion point. `Barrier` and `MustCleanUp` are checks, not locks against
 intervening selection.
 
-Neptunian Power Consultants demonstrates the gap. P1 may hand an optional decision to P2, but the
-selected-task lock ends when that task finishes. Payment descendants return to P1's controller,
-and P1 can resume unrelated work while P2's payment remains unfinished. Extending assignment alone
-would still not exclude unrelated work. `BugsTest` contains current observable characterizations;
+Neptunian Power Consultants demonstrates the interaction. P1 may hand an optional decision to P2,
+but the selected-task lock ends when that task finishes. Payment descendants return to P1's controller,
+and P1 can resume unrelated work while P2's payment remains unfinished. `BugsTest` contains current
+observable characterizations, including resource changes that can make the payment fail;
 [`PAYMENTS.md`](PAYMENTS.md#verified-gaps) describes the payment-specific evidence.
 
-Any replacement must explain what starts exclusive control, what work inherits it, what successful
-completion means, what happens after earlier choices commit but later work cannot finish, and how
-nested delegation behaves. It should remove client searches and overlapping lifecycle machinery
-rather than add a second task representation. The roadmap records the active design concern;
-alternative models are intentionally not archived here.
+Separate the questions before selecting a replacement. The engine must attribute each selection,
+narrowing, and execution to its current assignee and calculate the consequences of the supplied
+order. Any additional restriction on intervening work needs a game-rule reason, not a requirement
+to stop the caller from using P1's or P2's Agent. Helpers that call both Agents are legitimate;
+their success alone does not establish that the task routing or calculated outcome is correct.
+
+Completion and cleanup still need coherent game semantics. A smaller model should remove client
+searches and overlapping lifecycle machinery rather than assume exclusive control across an entire
+operation is required. Local failure restores the enclosing transaction; agreement to retract
+already shared decisions or proceed after a disclosure belongs to [ADVERSARIAL.md](ADVERSARIAL.md).
+The external arrangement handles that agreement without making incorrect payment or cleanup
+calculations acceptable. The roadmap records the remaining design concern.
 
 ## Cleanup
 

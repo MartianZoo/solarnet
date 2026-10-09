@@ -52,6 +52,11 @@ These concerns remain open; the ranking does not select replacement designs.
   Add `CorporationCardTest` later. Investigate automatic attack-history effects separately; reassess
   and delete injected scenarios without credible gameplay routes, including Flooding's concurrent
   ocean case if its only justification is Fake Head Start.
+- [ ] Continue the [adversarial-play design discussion](docs/agents/ADVERSARIAL.md): settle acceptance,
+  trusted card custody, information release, and simultaneous choices before selecting an
+  implementation. Work through draw/discard, Icy Impactors handoff, accepted work that cannot
+  finish, and agreed undo examples. Preserve the meaning of accepted prefixes; keep Git
+  coordination and hidden-information enforcement outside the engine.
 - Revisit the `RepeatPlacementBonus` change made for conditionally available map bonuses. Look for
   a way to duplicate the map's bonus instruction directly again, without inspecting its generated
   Class effect or `IfTrigger`; preserve Frontier Town's tripled delegate bonus and conditional

@@ -30,7 +30,8 @@ Keep these roles independent:
   instruction entered the engine.
 - **Controller:** the Actor that orders work and receives independent siblings and continuations.
 - **Selection assignee:** the Actor to whom selecting a task transfers it.
-- **Current assignee:** the Actor with authority to select, narrow, or execute the task now.
+- **Current assignee:** the Actor through whose Agent the task may now be selected, narrowed, or
+  executed.
 - **Executing Actor:** the Actor whose `ActorEngine` performs the concrete change and is recorded
   on its `ChangeEvent`.
 
@@ -48,8 +49,16 @@ Kotlin `Engine` is different: it validates an Actor mutation and calculates the 
 transition. It is not an Actor, Component, assignee, narrower, or event performer.
 
 An Actor's Agent binds normal client calls to that Actor and presents a filtered view of the global
-task pool. Lower-level engine mutation remains available for deliberate workflow, replay,
-correction, and tests.
+task pool. If a request arrives through FooPlayer's Agent for work currently assigned to FooPlayer,
+that establishes the Actor for the calculation. Solarnet does not authenticate the caller or demand
+proof that FooPlayer's human or bot approved it. The same program may use every Actor's Agent.
+Lower-level engine mutation also remains available for exploration, workflow, replay, and correction.
+
+The assignment and handoff checks below preserve the meaning of game decisions and resulting
+events. They do not restrict who can obtain or call an Agent. Whether a submitted decision really
+came from the accepted decision-maker is handled outside Solarnet under
+[ADVERSARIAL.md](ADVERSARIAL.md). Admin likewise requires no separate operator or committer;
+a player's program may call the Admin Agent as part of calculating its proposed continuation.
 
 ## Context and event Actor
 
