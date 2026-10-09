@@ -86,9 +86,10 @@ internal class Initializer(
   private fun drainBootstrapTasks() {
     val allTasks = gameWorld.tasks
     while (!allTasks.isEmpty()) {
-      if (allTasks.selectedTask() != null) break
-      val taskId = allTasks.ids().first()
-      val assignee = allTasks.getTaskData(taskId).assignee
+      val taskId = allTasks.selectedTask() ?: allTasks.ids().first()
+      val task = allTasks.getTaskData(taskId)
+      if (task.selected && task.instruction.isAbstract(reader)) break
+      val assignee = task.assignee
       actorEngines(assignee).selectTask(taskId)
     }
     gameWorld.requireNoPendingTasks()

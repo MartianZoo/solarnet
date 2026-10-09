@@ -10,7 +10,7 @@ import dev.martianzoo.state.Player
 /** Triggered work that has not yet been admitted to a task queue. */
 internal data class PendingTask(
     val controller: Actor,
-    val actor: Actor = controller,
+    val selectionAssignee: Actor = controller,
     val instruction: InstructionGroup,
     val cause: Cause,
 ) {
@@ -38,7 +38,7 @@ internal data class PendingTask(
                   ?: effectPlayer
                   ?: changedComponentPlayer
                   ?: triggerEvent.actor,
-          actor =
+          selectionAssignee =
               effectPlayer ?: changedComponentPlayer.takeUnless { automatic } ?: triggerEvent.actor,
           instruction = instruction,
           cause = Cause(context.expression, triggerEvent.ordinal),

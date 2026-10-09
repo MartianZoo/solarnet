@@ -13,13 +13,16 @@ public data class Task(
     val controller: Actor,
 
     /**
-     * Who supplies choices after selection and performs resulting changes unless the instruction
-     * contains an explicit BY.
+     * Who receives this task when its controller selects it. That Actor supplies any remaining
+     * choices and, absent a later `BY` handoff, executes the concrete instruction.
      */
-    val actor: Actor = controller,
+    val selectionAssignee: Actor = controller,
 
-    /** Where this task is in its selection lifecycle. */
-    val selection: Selection = Selection.UNSELECTED,
+    /** Who currently has exclusive authority to advance this task. */
+    val assignee: Actor = controller,
+
+    /** Whether this task has been selected and therefore holds the global select-lock. */
+    val selected: Boolean = false,
 
     /** What to do. Can be abstract and is stored exactly as supplied by the engine. */
     val instruction: Instruction,
@@ -34,15 +37,6 @@ public data class Task(
     /** Why was this task born? */
     val cause: Cause?,
 ) {
-
-  /** Whose pending-work queue contains this task and whose scoped Agent may act on it. */
-  public val assignee: Actor
-    get() = if (selection == Selection.DELEGATED) actor else controller
-
-  /** If true, the world may not be modified until this task is completed. */
-  public val selected: Boolean
-    get() = selection != Selection.UNSELECTED
-
   override fun toString(): String = buildString {
     append(id)
     append(if (selected) "* " else "  ")
@@ -66,12 +60,5 @@ public data class Task(
     }
 
     override fun toString(): String = ordinal.toString()
-  }
-
-  /** The selection states that determine a task's assignee and whether it locks the World. */
-  public enum class Selection {
-    UNSELECTED,
-    SELECTED,
-    DELEGATED,
   }
 }

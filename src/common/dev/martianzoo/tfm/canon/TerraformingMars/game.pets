@@ -3,6 +3,7 @@ CLASS TerraformingMars : Module {
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
   This:: 2 SelectableCorporationCount
+  New@Player IF MultiplayerMode:: AfterMe<Player, New@>.
   premiseRequirement = HAS "(Unsafe OR MAX 0 Class<EcologyExperts> OR (MAX 0 Class<ViralEnhancers>, MAX 0 Class<EcologicalZone>, MAX 0 Class<Decomposers>, MAX 0 Class<GmoContract>)), (Unsafe OR MAX 0 Class<AmazonisMap> OR (MAX 0 Class<MiningGuild>, MAX 0 Class<MiningRights>, MAX 0 Class<MiningArea>)), (Unsafe OR MAX 0 Class<PreservationProgram> OR (MAX 0 Class<TerraformingDeal>, MAX 0 Class<TurmoilExpansion>)), (Unsafe OR MAX 0 Class<Merger> OR MAX 0 Class<SagittaFrontierServices>)"
 
   HAS =1 GameMode, =1 MarsMap
@@ -49,7 +50,7 @@ ABSTRACT CLASS Module : System {
 "Signals that the complete selected Module layer is live"
 // TODO.md: replace with BootstrapPhase entry after premise construction
 CLASS ModulesReady : Signal {
-  This IF 2 Player:: AfterMe<Player, Player> BY Admin
+  This IF 2 Player:: AfterMe<Player, Player>
 }
 
 "Exactly one player-count Module active in a playable game"
@@ -78,7 +79,6 @@ ABSTRACT CLASS Player : Owner, Actor {
   HAS MAX 1 PlayerMode<This>
 
   This:: StartToken<This>.
-  This IF MultiplayerMode:: AfterMe<Player, This>. BY Admin
 
   // Queued `This` work gives every Player its production floor and payment values only after the
   // complete seat layer exists.

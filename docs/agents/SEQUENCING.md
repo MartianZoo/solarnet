@@ -72,7 +72,7 @@ a Player chore merely because it currently occupies a task. Admin routing is a s
 in [TASK_ROUTING_EXPERIMENT.md](TASK_ROUTING_EXPERIMENT.md).
 
 Do not repair ordering through `TfmGameplay`, policy settings, rendered-task matching, or incidental
-queue order. Evaluate both the forbidden intervention and the sibling choices that must remain
+pool order. Evaluate both the forbidden intervention and the sibling choices that must remain
 legal.
 
 ## What `THEN` does
@@ -103,8 +103,9 @@ work when intervening changes should decide availability. `A: (R: B) OR Ok` also
 
 The [Pets tricks guide](../pets-tricks-hacks-cheats.md) explains how an automatic `Die` can reject a
 forbidden component change and roll it back. It cannot generally police task selection: selecting
-or narrowing an abstract task can change task state without producing a component event. A blanket
-`BY` guard also confuses the attributed performer with the Actor issuing a task command.
+or narrowing an abstract task can change task state without producing a component event.
+Trigger-side `BY` matches the Actor on such events; it does not identify the Agent issuing a task
+command. Instruction-side `BY` instead reassigns concrete queued work.
 
 ## Committed precursors
 
@@ -123,7 +124,7 @@ for a particular interaction that spans queued work.
 | `THEN` | Completion of its current task. |
 | `Temporary` | Emptiness of the entire task pool. |
 | `Owed`, `Billing`, `TradeBarrier` | The prerequisites represented by that lifecycle. |
-| An Actor's empty queue | All currently assigned work, possibly including unrelated work. |
+| An Actor's empty filtered view | All currently assigned work, possibly including unrelated work. |
 | A client task search | A recognized implementation pattern. |
 
 These facts do not identify the same completion point. In particular, `Barrier` and `MustCleanUp`
@@ -201,9 +202,9 @@ including machinery that remains outside the scope mechanism.
 
 ### Questions shared by both options
 
-- **What starts exclusive control?** A delegated decision, an authored operation, or another
-  explicit fact? A concrete consequence credited to P2 can still correctly be ordered by P1.
-  Do not turn every different `actor` into a handoff or use instruction-side `BY` as assignment.
+- **What starts exclusive control?** An assignment handoff, an authored operation, or another
+  explicit fact? Instruction-side `BY` now hands its concrete task to another Actor, but that
+  task-level handoff does not by itself define or assign a multi-task operation.
 - **What finishes it?** Zero debt is insufficient in the current payment model: unused offers and
   queued rewards can remain. Covering the accepted option through its consequences is a plausible
   rule, but the extent of rewards and further reactions remains to be settled.
@@ -214,7 +215,7 @@ including machinery that remains outside the scope mechanism.
   cancellation must have an explicit account rather than assuming every accepted group drains.
 - **What inherits it?** Splits, continuations, automatically produced queued work, and later
   reactions all matter. Admit the complete consequence batch before testing for completion; a
-  transient empty queue must not release the caller.
+  transient absence of assigned work must not release the caller.
 - **What nesting is legal?** Another Player's decision must not accidentally release an outer
   interaction. Attribution, lexical ownership, the on-turn Player, and temporary control remain
   distinct facts.
@@ -259,7 +260,8 @@ replace temporary-state retirement. [WORKFLOW.md](WORKFLOW.md) owns phase progre
 
 - [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt): `replace1WithN`,
   `handleTask`, and `executeSelectedTask` preserve the original controller today.
-- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt): selection, derived assignee, and cause.
+- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt): controller, selection assignee, current
+  assignee, selection, and cause.
 - [`GameEvent.kt`](../../src/common/dev/martianzoo/state/GameEvent.kt): `Cause` links change events.
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) and
   [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt): automatic and queued effects.

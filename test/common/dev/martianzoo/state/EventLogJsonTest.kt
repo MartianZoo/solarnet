@@ -13,7 +13,6 @@ import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.state.GameEvent.TaskEditedEvent
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
-import dev.martianzoo.state.Task.Selection
 import dev.martianzoo.state.Task.TaskId
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -37,7 +36,7 @@ internal class EventLogJsonTest {
             then = InstructionGroup(listOf(parse<Instruction>("Marker!"))),
             cause = Cause(parse("Token"), 0),
         )
-    val selected = task.copy(selection = Selection.DELEGATED)
+    val selected = task.copy(assignee = player, selected = true)
     val events =
         listOf(
             ChangeEvent(0, ADMIN, ComponentChange.Gain(2, token), null),

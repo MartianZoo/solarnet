@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.engine.Exceptions.AbortTransactionException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
@@ -13,6 +14,7 @@ import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
@@ -30,7 +32,6 @@ import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameWorld
 import dev.martianzoo.state.Task
-import dev.martianzoo.state.Task.Selection
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
 import dev.martianzoo.state.TaskResult
@@ -56,6 +57,10 @@ internal constructor(
   private object SelectionProbeSucceeded : RuntimeException()
 
   private object ExecutionProbeSucceeded : RuntimeException()
+
+  private object ConcreteHandoffValidated : RuntimeException()
+
+  private object SelectionHandoffDetected : RuntimeException()
 
   private val possibleWorldFacts = narrowingFacts(requirementsHold = true)
 
@@ -103,12 +108,9 @@ internal constructor(
 
   /** Restores prior task data while applying an evidenced replay correction. */
   public fun restoreTask(task: Task) {
-    val current = tasks.getTaskData(task.id)
-    if (task.assignee != current.assignee) {
-      throw TaskException(
-          "cannot restore task ${task.id} assigned to `${task.assignee}` over its current " +
-              "`${current.assignee}` assignment"
-      )
+    val current = allTasks.getTaskData(task.id)
+    if (actor != current.assignee) {
+      throw TaskException("`$actor` cannot restore a task assigned to `${current.assignee}`")
     }
     taskQueues.editTask(task)
   }
@@ -140,7 +142,7 @@ internal constructor(
           it,
           task.controller,
           task.cause,
-          task.actor,
+          task.selectionAssignee,
       )
     }
     val stored = queue.getTaskData(task.id)
@@ -211,7 +213,38 @@ internal constructor(
       quantifierOmitted: Boolean = false,
   ) {
     enforceSelectLock(taskId)
-    narrowSelectedTask(taskId, narrowing, quantifierOmitted)
+    val task = tasks.getTaskData(taskId)
+    var effectiveNarrowing = narrowing
+    if (!task.selected) {
+      val prepared = prepareNarrowing(taskId, narrowing, quantifierOmitted)
+      val narrowsBeforeHandoff =
+          prepared.selectedThen != null || prepared.effective != task.instruction
+      if (task.selectionAssignee != actor && narrowsBeforeHandoff) {
+        throw TaskException(
+            "`$actor` cannot narrow task $taskId because selection assigns it to " +
+                "`${task.selectionAssignee}`"
+        )
+      }
+      val selected = selectTask(tasks, task) ?: return
+      val selectedTask = allTasks.getTaskData(selected)
+      if (selectedTask.assignee != actor) {
+        if (narrowsBeforeHandoff) {
+          throw TaskException(
+              "`$actor` cannot narrow task $taskId because selection assigns it to " +
+                  "`${selectedTask.assignee}`"
+          )
+        }
+        return
+      }
+      if (
+          !narrowing.isAbstract(reader) &&
+              narrowing is By &&
+              instructor.actorFor(narrowing) == actor
+      ) {
+        effectiveNarrowing = narrowing.inner
+      }
+    }
+    narrowSelectedTask(taskId, effectiveNarrowing, quantifierOmitted)
   }
 
   private fun narrowSelectedTask(
@@ -235,14 +268,21 @@ internal constructor(
             instructor.resolve(effectiveNarrowing, worldGainNarrowing = true)
         else effectiveNarrowing
     replace1WithN(tasks, task, replacement, then = continuation)
-    if (taskId in allTasks) executeSelectedIfConcrete(queueForAnyTask(taskId), taskId)
+    if (taskId in allTasks) executeSelectedIfConcrete(taskId)
   }
 
   @Suppress("TooGenericExceptionCaught") // TODO narrow? log?
   public fun canSelectTask(taskId: TaskId): Boolean {
     return try {
       timeline.atomic {
-        selectAndExecuteIfConcrete(tasks, taskId)
+        val selected = selectTask(tasks, tasks.getTaskData(taskId))
+        if (selected != null) {
+          val selectedQueue = queueForAnyTask(selected)
+          val selectedTask = selectedQueue.getTaskData(selected)
+          if (!selectedTask.instruction.isAbstract(reader)) {
+            executeSelectedTask(selectedQueue, selected, selectedTask.assignee)
+          }
+        }
         throw SelectionProbeSucceeded
       }
       false
@@ -258,7 +298,8 @@ internal constructor(
     return try {
       timeline.atomic {
         doTask(taskId)
-        throw ExecutionProbeSucceeded
+        if (taskId !in allTasks) throw ExecutionProbeSucceeded
+        throw AbortTransactionException()
       }
       false
     } catch (_: ExecutionProbeSucceeded) {
@@ -281,13 +322,13 @@ internal constructor(
 
   private fun selectAndExecuteIfConcrete(queue: TaskQueue, taskId: TaskId) {
     val selected = selectTask(queue, queue.getTaskData(taskId)) ?: return
-    executeSelectedIfConcrete(queueForAnyTask(selected), selected)
+    executeSelectedIfConcrete(selected)
   }
 
-  private fun executeSelectedIfConcrete(queue: TaskQueue, taskId: TaskId) {
-    val task = queue.getTaskData(taskId)
-    if (!task.instruction.isAbstract(reader)) {
-      executeSelectedTask(queue, taskId)
+  private fun executeSelectedIfConcrete(taskId: TaskId) {
+    val task = allTasks.getTaskData(taskId)
+    if (task.assignee == actor && !task.instruction.isAbstract(reader)) {
+      executeSelectedTask(tasks, taskId)
     }
   }
 
@@ -299,6 +340,19 @@ internal constructor(
     return task.id.takeIf { it in allTasks }
   }
 
+  private fun selectionHandsOff(queue: TaskQueue, task: Task): Boolean {
+    return try {
+      timeline.atomic {
+        val selected = selectTask(queue, task) ?: throw AbortTransactionException()
+        if (allTasks.getTaskData(selected).assignee != actor) throw SelectionHandoffDetected
+        throw AbortTransactionException()
+      }
+      false
+    } catch (_: SelectionHandoffDetected) {
+      true
+    }
+  }
+
   private fun replace1WithN(
       queue: TaskQueue,
       original: Task,
@@ -307,16 +361,28 @@ internal constructor(
   ) {
     val group = InstructionGroup.of(replacement)
     if (group.size == 1) {
-      val instruction = group.instructions.single()
-      val selection =
-          if (original.selection == Selection.DELEGATED || instruction.isAbstract(reader)) {
-            Selection.DELEGATED
-          } else {
-            Selection.SELECTED
-          }
-      taskQueues.editTask(
-          original.copy(instruction = instruction, then = then, selection = selection)
-      )
+      var updated =
+          taskQueues.normalize(
+              original.copy(
+                  assignee =
+                      if (original.selected) original.assignee else original.selectionAssignee,
+                  selected = true,
+                  instruction = group.instructions.single(),
+                  then = then,
+              )
+          )
+      val instruction = updated.instruction
+      if (!instruction.isAbstract(reader) && instruction is By) {
+        updated =
+            updated.copy(
+                assignee = instructor.actorFor(instruction),
+                instruction = instruction.inner,
+            )
+      }
+      taskQueues.editTask(updated)
+      if (updated.assignee != actor && !updated.instruction.isAbstract(reader)) {
+        validateConcreteHandoff(updated.id)
+      }
     } else {
       // Structural completion replaces the selected task with ordinary pending siblings. No child
       // inherits selection; a later player input must select whichever sibling comes next.
@@ -324,7 +390,7 @@ internal constructor(
           group,
           original.controller,
           original.cause,
-          original.actor,
+          original.selectionAssignee,
       )
       handleTask(queue, original.copy(then = then))
     }
@@ -339,22 +405,40 @@ internal constructor(
     val selected = selectTask(queue, original) ?: return original
     val selectedQueue = queueForAnyTask(selected)
     val selectedTask = selectedQueue.getTaskData(selected)
+    if (selectedTask.assignee != actor) return selectedTask
     executeSelectedTask(selectedQueue, selected)
     return selectedTask
   }
 
-  private fun executeSelectedTask(queue: TaskQueue, taskId: TaskId) {
+  private fun executeSelectedTask(
+      queue: TaskQueue,
+      taskId: TaskId,
+      executingActor: Actor = actor,
+  ) {
     val selectedTask = queue.getTaskData(taskId)
     check(selectedTask.selected)
+    check(selectedTask.assignee == executingActor)
     val newTasks =
         instructor.executeResolved(
             selectedTask.instruction,
             selectedTask.cause,
-            selectedTask.actor,
+            executingActor,
             selectedTask.controller,
         )
     newTasks.forEach(taskQueues::addTasks)
     handleTask(queue, selectedTask)
+  }
+
+  private fun validateConcreteHandoff(taskId: TaskId) {
+    try {
+      timeline.atomic {
+        val task = allTasks.getTaskData(taskId)
+        executeSelectedTask(queueForAnyTask(taskId), taskId, task.assignee)
+        throw ConcreteHandoffValidated
+      }
+    } catch (_: ConcreteHandoffValidated) {
+      // The target Actor can execute it; the nested transaction restored the handed-off task.
+    }
   }
 
   public fun doTask(
@@ -368,13 +452,20 @@ internal constructor(
     val id = matchingTask(evaluated, taskId, quantifierOmitted, contextClass)
     val tasksBefore = tasks.ids()
     val task = tasks.getTaskData(id)
+    if (!task.selected && selectionHandsOff(tasks, task)) {
+      throw TaskException(
+          "`$actor` cannot do task $id because selection hands it to another Actor; use selectTask"
+      )
+    }
     val intersection = intersectTask(evaluated, task.instruction, quantifierOmitted)
     if (intersection != null) {
       enforceSelectLock(id)
       narrowSelectedTask(id, intersection, quantifierOmitted)
     } else {
       val selected = selectTask(tasks, task) ?: return
-      val instruction = queueForAnyTask(selected).getTaskData(selected).instruction
+      val selectedTask = queueForAnyTask(selected).getTaskData(selected)
+      if (selectedTask.assignee != actor) return
+      val instruction = selectedTask.instruction
       narrowTask(
           intersectTask(evaluated, instruction, quantifierOmitted) ?: evaluated,
           quantifierOmitted,
@@ -382,11 +473,15 @@ internal constructor(
     }
     if (id !in tasks) {
       if (executeSubmittedGroup) {
-        tasks.ids().filter { it !in tasksBefore }.forEach(::doTask)
+        for (newTask in tasks.ids().filter { it !in tasksBefore }) {
+          if (allTasks.selectedTask() != null) break
+          doTask(newTask)
+        }
       }
       return
     }
-    executeSelectedTask(queueForAnyTask(id), id)
+    val selectedTask = allTasks.getTaskData(id)
+    if (selectedTask.assignee == actor) executeSelectedTask(tasks, id)
   }
 
   private fun evaluatePer(instruction: InstructionTree): InstructionTree =
@@ -604,7 +699,10 @@ internal constructor(
   /** Tries [id], leaving it pending when it needs a choice or is unavailable. */
   public fun tryTask(id: TaskId) {
     try {
-      timeline.atomic { doTask(id) }
+      timeline.atomic {
+        doTask(id)
+        if (id in allTasks) throw AbortTransactionException()
+      }
     } catch (_: NotFullySpecifiedException) {
       // A probe that needs narrowing leaves the task and event history unchanged.
     } catch (_: NotNowException) {
@@ -620,7 +718,10 @@ internal constructor(
   ) {
     val evaluated = evaluatePer(narrowing)
     try {
-      timeline.atomic { doTask(evaluated, quantifierOmitted, executeSubmittedGroup, taskId) }
+      timeline.atomic {
+        doTask(evaluated, quantifierOmitted, executeSubmittedGroup, taskId)
+        if (allTasks.selectedTask() != null) throw AbortTransactionException()
+      }
     } catch (_: NotFullySpecifiedException) {
       // A probe that needs narrowing leaves the task and event history unchanged.
     } catch (_: NotNowException) {
@@ -633,7 +734,7 @@ internal constructor(
     val taskId = allTasks.selectedTask()!!
     return try {
       doTask(queueForAnyTask(taskId), taskId)
-      true
+      taskId !in allTasks
     } catch (e: NotNowException) {
       throw DeadEndException(e)
     } catch (_: NotFullySpecifiedException) {

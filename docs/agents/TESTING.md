@@ -251,11 +251,12 @@ test-facing layer: test the card, rule, or workflow result rather than a private
 exact intermediate task text, or other implementation detail.
 
 Keep task-routing mechanism tests in the generic engine suite. Those tests may inspect task
-controller, derived assignee, selection, and event Actor because those are the contract under test. A
-player-level card or rule scenario should instead demonstrate routing through public gameplay:
-which Player can select or narrow, whether competing gameplay is blocked, the resulting state, and,
-when necessary, an authored `BY` reaction that makes attribution observable. Do not locate card
-reactions by exact rendered instruction, `Task.cause`, `Task.actor`, or raw Event Log inspection.
+controller, selection assignee, current assignee, selection, and event Actor because those are the
+contract under test. A player-level card or rule scenario should instead demonstrate routing
+through public gameplay: which Player can select or narrow, whether competing gameplay is blocked,
+the resulting state, and, when necessary, an authored `BY` reaction that makes attribution
+observable. Do not locate card reactions by exact rendered instruction, `Task.cause`, internal
+assignment fields, or raw Event Log inspection.
 
 For delegated payment, final resource totals do not prove continuous authority. A helper that
 selects through another Actor can conceal missing engine control. Exercise separate Player

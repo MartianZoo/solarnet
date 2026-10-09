@@ -21,7 +21,10 @@ internal class MonsInsuranceTest : CardTest() {
     newGame(PromoCardPack, players = 3)
     val p3 = game.testTfm(PLAYER3)
 
-    p1.playCorp(MonsInsurance, 0) { doTask(monsStartingLoss("Player1")) }
+    p1.playCorp(MonsInsurance, 0) {
+          p1.selectTask(monsStartingLoss("Player1"))
+          autoExecNow()
+        }
         .expect("48 MC, PROD[4 MC<Player1>], PROD[-2 MC<Player2>], PROD[-2 MC<Player3>]")
 
     p3.assertProds(-2 to "MC")
@@ -31,7 +34,10 @@ internal class MonsInsuranceTest : CardTest() {
   internal fun `Starting production loss does not target the solo opponent`() {
     newGame(PromoCardPack, players = 1)
 
-    p1.playCorp(MonsInsurance, 0) { doTask(monsStartingLoss("Player1")) }
+    p1.playCorp(MonsInsurance, 0) {
+          p1.selectTask(monsStartingLoss("Player1"))
+          autoExecNow()
+        }
         .expect("48 MC, PROD[4 MC<Player1>], PROD[0 MC<SoloOpponent>]")
   }
 
@@ -132,7 +138,7 @@ internal class MonsInsuranceTest : CardTest() {
     val manual = p1.also { it.autoExecPolicy = NONE }
     manual.addTasks("-Plant<Player2>, 2 MC")
     manual.doTask("-Plant<Player2>")
-    manual.doTask("MyResourceWasRemoved<Player2, Class<Plant>, Player1>.")
+    manual.selectTask("MyResourceWasRemoved<Player2, Class<Plant>, Player1>.")
     manual.doTask("Ok")
     manual.doTask("2 MC<Player1>")
 
@@ -166,7 +172,10 @@ internal class MonsInsuranceTest : CardTest() {
   internal fun `Declining an optional removal avoids compensation`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.playCorp(MonsInsurance, 0) { doTask(monsStartingLoss("Player1")) }
+    p1.playCorp(MonsInsurance, 0) {
+      p1.selectTask(monsStartingLoss("Player1"))
+      autoExecNow()
+    }
     p1.runOperation("ProjectCard")
     p2.runOperation("Plant")
     admin.phase("Action")
@@ -205,7 +214,10 @@ internal class MonsInsuranceTest : CardTest() {
     newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack, players = 3)
     val p2 = requireP2()
     val p3 = game.testTfm(PLAYER3)
-    p1.playCorp(MonsInsurance, 0) { doTask(monsStartingLoss("Player1")) }
+    p1.playCorp(MonsInsurance, 0) {
+      p1.selectTask(monsStartingLoss("Player1"))
+      autoExecNow()
+    }
     p1.runOperation("-${p1.count("MC") - 5} MC")
     p3.runOperation("5 MC")
     admin.phase("Prelude")
@@ -218,23 +230,31 @@ internal class MonsInsuranceTest : CardTest() {
       doTask("EACH Other@Player(NOT Player2) { -5 MC<Other@Player>., PROD[-1 MC<Other@Player>] }")
       if (compensateFirst) {
         doTask("-5 MC<Player3>")
-        doTask("MyResourceWasRemoved<Player3, Class<MC>, Player2>.")
-        doTask("3 MC<Player3> FROM MC<Player1>")
+        p2.selectTask("MyResourceWasRemoved<Player3, Class<MC>, Player2>.")
+        autoExecNow()
+        p2.selectTask("3 MC<Player3 FROM Player1>.")
+        autoExecNow()
         doTask("-2 MC<Player1>")
       } else {
         doTask("-5 MC<Player1>")
       }
-      doTask("MyResourceWasRemoved<Player1, Class<MC>, Player2>.")
+      p2.selectTask("MyResourceWasRemoved<Player1, Class<MC>, Player2>.")
+      autoExecNow()
       if (!compensateFirst) {
         doTask("-5 MC<Player3>")
-        doTask("MyResourceWasRemoved<Player3, Class<MC>, Player2>.")
-        doTask("3 MC<Player3> FROM MC<Player1>.")
+        p2.selectTask("MyResourceWasRemoved<Player3, Class<MC>, Player2>.")
+        autoExecNow()
+        p2.selectTask("3 MC<Player3 FROM Player1>.")
+        autoExecNow()
       }
       doTask("PROD[-MC<Player1>]")
-      doTask("MyProductionWasDecreased<Player1, Class<MC>, Player2>.")
+      p2.selectTask("MyProductionWasDecreased<Player1, Class<MC>, Player2>.")
+      autoExecNow()
       doTask("PROD[-MC<Player3>]")
-      doTask("MyProductionWasDecreased<Player3, Class<MC>, Player2>.")
-      doTask("3 MC<Player3> FROM MC<Player1>.")
+      p2.selectTask("MyProductionWasDecreased<Player3, Class<MC>, Player2>.")
+      autoExecNow()
+      p2.selectTask("3 MC<Player3 FROM Player1>.")
+      autoExecNow()
     }
 
     p3.count("MC") shouldBe if (compensateFirst) 3 else 0
