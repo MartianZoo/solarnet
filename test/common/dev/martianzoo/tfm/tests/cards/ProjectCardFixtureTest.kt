@@ -1,12 +1,59 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.tests.cards.cardnames.GiantIceAsteroid
 import dev.martianzoo.tfm.tests.cards.cardnames.Manutech
+import dev.martianzoo.tfm.tests.cards.cardnames.MineralDeposit
+import dev.martianzoo.tfm.tests.cards.cardnames.Pets
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class ProjectCardFixtureTest : ProjectCardTest() {
+  @Test
+  internal fun `Scoring queries preserve state and history for later gameplay`() {
+    newTestGame()
+    kim.exMachina("$Pets, 4 Animal<$Pets>")
+    val checkpoint = game.timeline.checkpoint()
+
+    victoryPoints() shouldBe listOf(22, 20, 20)
+    victoryPoints() shouldBe listOf(22, 20, 20)
+    game.timeline.checkpoint() shouldBe checkpoint
+
+    kim.playProject(MineralDeposit, 5).expect("5 Steel")
+  }
+
+  @Test
+  internal fun `A rejected scoring query preserves the pending player choice`() {
+    newTestGame()
+
+    kim.playProject(GiantIceAsteroid, 36) {
+          val checkpoint = game.timeline.checkpoint()
+          shouldThrow<IllegalStateException> { victoryPoints() }
+          game.timeline.checkpoint() shouldBe checkpoint
+          placeTile(1, 2)
+          placeTile(1, 4)
+        }
+        .expect("2 OceanTile")
+  }
+
+  @Test
+  internal fun `A scoring failure restores state and history`() {
+    newTestGame()
+    val checkpoint = game.timeline.checkpoint()
+    val policy = admin.autoExecPolicy
+    admin.autoExecPolicy = NONE
+    try {
+      shouldThrow<NotFullySpecifiedException> { victoryPoints() }
+      game.timeline.checkpoint() shouldBe checkpoint
+    } finally {
+      admin.autoExecPolicy = policy
+    }
+    victoryPoints() shouldBe listOf(20, 20, 20)
+  }
+
   @Test
   internal fun `Forked games remain isolated`() {
     newTestGame()

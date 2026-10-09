@@ -1,168 +1,131 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.OperationBlock
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class LawSuitTest : CardTest() {
-  @BeforeTest
-  fun initializeGame() {
-    newGame(PromoCardPack)
-    admin.phase("Action")
-    p1.runOperation("3 MC, ProjectCard, PROD[Plant]")
+internal class LawSuitTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
+
+  @Test
+  internal fun `Can charge an opponent who lowered the owner's production`() {
+    stan.playProject(EnergyTapping, 3) { doTask("PROD[-Energy<Kim>]") }
+
+    kim.playProject(LawSuit, 2) { doTask("3 MC FROM MC<Stan>") }.expect("MC<Kim>, -3 MC<Stan>")
   }
 
   @Test
-  internal fun `Can be played after an opponent lowers the owner's production`() {
-    val p2 = requireP2()
-    p2.runOperation("5 MC, PROD[-Plant<Player1>]")
-    p2.assertCounts(5 to "MC")
-    p1.assertCounts(1 to "MyProductionWasDecreased<Player1, Class<Plant>, Player2>")
+  internal fun `Transfers the event to the attacker selected for payment`() {
+    stan.playProject(EnergyTapping, 3) { doTask("PROD[-Energy<Kim>]") }
 
-    p1.playProject(LawSuit, 2, body = choosePlayer2).expect("1 MC<Player1>, -3 MC<Player2>")
+    kim.playProject(LawSuit, 2) { doTask("3 MC FROM MC<Stan>") }
+        .expect("0 PlayedEvent<Kim, Class<$LawSuit>>, PlayedEvent<Stan, Class<$LawSuit>>")
   }
 
   @Test
-  internal fun `Choosing the attacker in the first stage supplies the automatic continuation`() {
-    val p2 = requireP2()
-    p2.runOperation("5 MC, PROD[-Plant<Player1>]")
+  internal fun `Can charge an opponent who removed the owner's resources`() {
+    kim.exMachina("Plant")
+    stan.playProject(AsteroidCard, 14) { doTask("-Plant<Kim>") }
 
-    p1.playProject(LawSuit, 2) { doTask("3 MC FROM MC<Player2>") }
-
-    p1.assertCounts(0 to "PlayedEvent<Class<$LawSuit>>")
-    p2.assertCounts(1 to "PlayedEvent<Class<$LawSuit>>")
+    kim.playProject(LawSuit, 2) { doTask("3 MC FROM MC<Stan>") }.expect("MC<Kim>, -3 MC<Stan>")
   }
 
   @Test
-  internal fun `Can be played after an opponent removes the owner's resources`() {
-    val p2 = requireP2()
-    p1.runOperation("Plant")
-    p2.runOperation("5 MC, -Plant<Player1>")
+  internal fun `Can be played with only enough money for the card cost`() {
+    stan.playProject(EnergyTapping, 3) { doTask("PROD[-Energy<Kim>]") }
+    kim.setToExMachina(2, "MC")
 
-    p1.playProject(LawSuit, 2, body = choosePlayer2).expect("1 MC<Player1>, -3 MC<Player2>")
+    kim.playProject(LawSuit, 2) { doTask("3 MC FROM MC<Stan>") }.expect("MC<Kim>, -3 MC<Stan>")
   }
 
   @Test
-  internal fun `Can be played when its owner has only the card cost`() {
-    newGame(PromoCardPack)
-    admin.phase("Action")
-    p1.runOperation("2 MC, ProjectCard, PROD[Plant]")
-    requireP2().runOperation("5 MC, PROD[-Plant<Player1>]")
+  internal fun `Triggers its player's Media Group`() {
+    kim.exMachina("$MediaGroup")
+    stan.playProject(EnergyTapping, 3) { doTask("PROD[-Energy<Kim>]") }
 
-    p1.playProject(LawSuit, 2, body = choosePlayer2).expect("1 MC<Player1>, -3 MC<Player2>")
+    kim.playProject(LawSuit, 2) { doTask("3 MC FROM MC<Stan>") }.expect("4 MC<Kim>, -3 MC<Stan>")
   }
 
   @Test
-  internal fun `Law Suit triggers its player's Media Group`() {
-    val p2 = requireP2()
-    p1.runOperation("$MediaGroup")
-    p2.runOperation("3 MC, PROD[-Plant<Player1>]")
+  internal fun `Does not trigger the charged player's Media Group`() {
+    stan.exMachina("$MediaGroup")
+    stan.playProject(EnergyTapping, 3) { doTask("PROD[-Energy<Kim>]") }
 
-    p1.playProject(LawSuit, 2) { choosePlayer2() }.expect("4 MC<Player1>, -3 MC<Player2>")
+    kim.playProject(LawSuit, 2) { doTask("3 MC FROM MC<Stan>") }.expect("MC<Kim>, -3 MC<Stan>")
   }
 
   @Test
-  internal fun `Law Suit does not trigger the attacked player's Media Group`() {
-    val p2 = requireP2()
-    p2.runOperation("$MediaGroup, 3 MC, PROD[-Plant<Player1>]")
+  internal fun `Cannot qualify by lowering the owner's own production`() {
+    kim.setToExMachina(2, "PROD[Heat]")
+    kim.playProject(HeatTrappers, 6) { doTask("PROD[-2 Heat<Kim>]") }
 
-    p1.playProject(LawSuit, 2, body = choosePlayer2).expect("1 MC<Player1>, -3 MC<Player2>")
+    shouldThrow<NarrowingException> {
+      kim.playProject(LawSuit, 2) { doTask("3 MC FROM MC<Stan>") }
+    }
+    kim.assertCounts(36 to "MC", 9 to "ProjectCard")
   }
 
   @Test
-  internal fun `Its player lowering their own production does not qualify`() {
-    p1.runOperation("PROD[-Plant]")
-    requireP2().runOperation("3 MC")
+  internal fun `Cannot charge for an attack in the previous generation`() {
+    stan.playProject(EnergyTapping, 3) { doTask("PROD[-Energy<Kim>]") }
+    nextGeneration()
+    val money = kim.count("MC")
 
-    shouldThrow<NarrowingException> { p1.playProject(LawSuit, 2, body = choosePlayer2) }
+    shouldThrow<NarrowingException> {
+      kim.playProject(LawSuit, 2) { doTask("3 MC FROM MC<Stan>") }
+    }
+    kim.assertCounts(money to "MC", 10 to "ProjectCard")
   }
 
   @Test
-  internal fun `Qualification expires at the next generation`() {
-    requireP2().runOperation("3 MC, PROD[-Plant<Player1>]")
-    admin.runOperation("Generation")
+  internal fun `Cannot charge when every attacker has less than three MC`() {
+    kim.exMachina("2 Plant")
+    stan.playProject(AsteroidCard, 14) { doTask("-Plant<Kim>") }
+    rob.playProject(SmallAsteroid, 10) { doTask("-Plant<Kim>") }
+    stan.setToExMachina(2, "MC")
+    rob.setToExMachina(2, "MC")
 
-    shouldThrow<NarrowingException> { p1.playProject(LawSuit, 2, body = choosePlayer2) }
+    shouldThrow<LimitsException> {
+      kim.playProject(LawSuit, 2) { doTask("3 MC FROM MC<Stan>") }
+    }
+    kim.assertCounts(42 to "MC", 10 to "ProjectCard")
+    stan.assertCounts(2 to "MC")
+    rob.assertCounts(2 to "MC")
   }
 
   @Test
-  internal fun `Cannot be played when every responsible player has only two MC`() {
-    newGame(PromoCardPack, players = 3)
-    val p2 = requireP2()
-    val p3 = game.testTfm(PLAYER3)
-    admin.phase("Action")
-    p1.runOperation("3 MC, ProjectCard, PROD[2 Plant]")
-    p2.runOperation("2 MC, PROD[-Plant<Player1>]")
-    p3.runOperation("2 MC, PROD[-Plant<Player1>]")
+  internal fun `Can choose among multiple attackers`() {
+    kim.exMachina("2 Plant")
+    stan.playProject(AsteroidCard, 14) { doTask("-Plant<Kim>") }
+    rob.playProject(SmallAsteroid, 10) { doTask("-Plant<Kim>") }
 
-    shouldThrow<LimitsException> { p1.playProject(LawSuit, 2, body = choosePlayer2) }
-
-    p1.assertCounts(3 to "MC", 1 to "ProjectCard")
-    p2.assertCounts(2 to "MC")
-    p3.assertCounts(2 to "MC")
-  }
-
-  @Test
-  internal fun `Can choose among multiple responsible players`() {
-    newGame(PromoCardPack, players = 3)
-    val p2 = requireP2()
-    val p3 = game.testTfm(PLAYER3)
-    admin.phase("Action")
-    p1.runOperation("3 MC, ProjectCard, PROD[2 Plant]")
-    p2.runOperation("5 MC, PROD[-Plant<Player1>]")
-    p3.runOperation("5 MC, PROD[-Plant<Player1>]")
-
-    p1.playProject(LawSuit, 2, body = choosePlayer2)
-
-    p1.assertCounts(4 to "MC")
-    p2.assertCounts(2 to "MC")
-    p3.assertCounts(5 to "MC")
+    kim.playProject(LawSuit, 2) { doTask("3 MC FROM MC<Stan>") }
+        .expect("MC<Kim>, -3 MC<Stan>, 0 MC<Rob>")
   }
 
   @Test
   internal fun `Cannot charge a funded player who did not attack`() {
-    newGame(PromoCardPack, players = 3)
-    val p2 = requireP2()
-    val p3 = game.testTfm(PLAYER3)
-    admin.phase("Action")
-    p1.runOperation("2 MC, ProjectCard, PROD[Plant]")
-    p2.runOperation("5 MC, PROD[-Plant<Player1>]")
-    p3.runOperation("5 MC")
+    stan.playProject(EnergyTapping, 3) { doTask("PROD[-Energy<Kim>]") }
 
     shouldThrow<NarrowingException> {
-      p1.playProject(LawSuit, 2) {
-        doTask("3 MC FROM MC<Player3>")
-      }
+      kim.playProject(LawSuit, 2) { doTask("3 MC FROM MC<Rob>") }
     }
-
-    p1.assertCounts(2 to "MC", 1 to "ProjectCard")
-    p2.assertCounts(5 to "MC")
-    p3.assertCounts(5 to "MC")
+    kim.assertCounts(42 to "MC", 10 to "ProjectCard")
+    stan.assertCounts(39 to "MC")
+    rob.assertCounts(42 to "MC")
   }
 
   @Test
-  internal fun `Law Suit costs the responsible player one victory point`() {
-    val p2 = requireP2()
-    p2.runOperation("3 MC, PROD[-Plant<Player1>]")
-    p1.playProject(LawSuit, 2, body = choosePlayer2)
-    p1.assertCounts(0 to "PlayedEvent<Class<$LawSuit>>")
-    p2.assertCounts(1 to "PlayedEvent<Class<$LawSuit>>")
+  internal fun `Costs the charged player a victory point`() {
+    stan.playProject(EnergyTapping, 3) { doTask("PROD[-Energy<Kim>]") }
+    kim.playProject(LawSuit, 2) { doTask("3 MC FROM MC<Stan>") }
 
-    admin.runOperation("End FROM Phase")
-
-    p1.assertCounts(20 to "VictoryPoint")
-    p2.assertCounts(19 to "VictoryPoint")
-  }
-
-  private val choosePlayer2: OperationBlock = {
-    doTask("3 MC FROM MC<Player2>")
+    // Energy Tapping and Law Suit each cost Stan a point.
+    victoryPoints() shouldBe listOf(20, 18, 20)
   }
 }

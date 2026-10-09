@@ -54,12 +54,19 @@ internal abstract class ProjectCardTest : TfmTest() {
       playerCount: Int,
       kimCorporation: ClassName?,
   ): World {
-    val options =
-        listOf(BASE_GAME_OPTIONS, addOptions, kimCorporation?.toString().orEmpty())
-            .filter(String::isNotBlank)
-            .joinToString()
     val playerNames = PLAYER_NAMES.take(playerCount).toTypedArray()
-    game = TfmEngine.newGame(Canon.gamePremise(GameConfig(options, *playerNames)))
+    val options =
+        GameConfig(
+            listOf(addOptions, kimCorporation?.toString().orEmpty()).joinToString(),
+            *playerNames,
+        )
+    val config =
+        options.copy(
+            includedClassNames =
+                (GameConfig(BASE_GAME_OPTIONS).includedClassNames + options.includedClassNames) -
+                    options.excludedClassNames
+        )
+    game = TfmEngine.newGame(Canon.gamePremise(config))
     val workflow = TfmWorkflow.Stepwise(agents)
     val players = bindPlayers()
 
@@ -122,6 +129,19 @@ internal abstract class ProjectCardTest : TfmTest() {
 
   protected fun nextGeneration() {
     admin.nextGeneration(*IntArray(players.size))
+  }
+
+  /** Scores the current position in seat order without retaining scoring effects or history. */
+  protected fun victoryPoints(): List<Int> {
+    check(game.tasks.isEmpty()) { "Finish pending choices before querying victory points" }
+    val checkpoint = game.timeline.checkpoint()
+    try {
+      TfmWorkflow.Stepwise(agents).endPhase()
+      check(game.tasks.isEmpty()) { "Final scoring has unresolved choices" }
+      return players.map { it.count("VictoryPoint") }
+    } finally {
+      game.timeline.rollBack(checkpoint)
+    }
   }
 
   protected fun TfmGameplay.exMachina(adjustment: String) {
