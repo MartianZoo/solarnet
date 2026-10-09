@@ -5,6 +5,7 @@ import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.GameplayException
@@ -15,7 +16,6 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.Player
 import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -558,6 +558,29 @@ internal class Prelude2CardsTest : CardTest() {
   }
 
   @Test
+  internal fun `Suitable Infrastructure installs its bonus while player autoexec is off`() {
+    newGame(PreludeExpansion, Prelude2CardPack)
+    p1.runOperation("$SuitableInfrastructure, 11 MC")
+    admin.phase("Action")
+    p1.autoExecPolicy = NONE
+
+    p1.runOperation("NewTurn") {
+      doTask("UseAction<UseStandardProjectAction, Action1>")
+      doTask("UseAction<PowerPlantProject, Action1>")
+      doTask("11 Owed<Class<MC>>")
+      doTask("ActionBilling<>")
+      doTask("-11 MC")
+      doTask("PROD[Energy]")
+      doTask("-SuitableInfrastructureBonus")
+      doTask("2 MC")
+    }
+
+    p1.assertProds(1 to "Energy")
+    p1.count("MC") shouldBe 2
+    p1.count("SuitableInfrastructureBonus") shouldBe 0
+  }
+
+  @Test
   internal fun `Suitable Infrastructure covers production inside required actions`() {
     newGame(PreludeExpansion, Prelude2CardPack)
     p1.runOperation("$SuitableInfrastructure, $ValleyTrust")
@@ -805,10 +828,11 @@ internal class Prelude2CardsTest : CardTest() {
   internal fun `Recession fizzles when an opponent has minimum money production`() {
     newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
     p1.playCorp(MonsInsurance, 0) {
-      doTask(
+      p1.selectTask(
           "EACH Other@Player(NOT Player1) { " +
               "-2 Production<Other@Player, Class<MC>>! BY Other@Player }"
       )
+      autoExecNow()
     }
     val p2 = requireP2()
     p2.playCorp(CrediCor, 0)
@@ -843,11 +867,11 @@ internal class Prelude2CardsTest : CardTest() {
         secondPayout: Int = 3,
     ) {
       doTask("-5 MC<$victim>")
-      doTask("MyResourceWasRemoved<$victim, Class<MC>, Player1>.")
-      doTask("3 MC<$victim> FROM MC<Player2>")
+      p1.selectTask("3 MC<$victim FROM Player2>.")
+      mons.doTask("3 MC<$victim> FROM MC<Player2>")
       doTask("PROD[-1 MC<$victim>]")
-      doTask("MyProductionWasDecreased<$victim, Class<MC>, Player1>.")
-      doTask("$secondPayout MC<$victim> FROM MC<Player2>")
+      p1.selectTask("3 MC<$victim FROM Player2>.")
+      mons.doTask("$secondPayout MC<$victim> FROM MC<Player2>")
     }
 
     p1.playPrelude(Recession) {
@@ -855,8 +879,6 @@ internal class Prelude2CardsTest : CardTest() {
       doTask("EACH Other@Player(NOT Player1) { -5 MC<Other@Player>., PROD[-1 MC<Other@Player>] }")
       doTask("-5 MC<Player2>")
       doTask("PROD[-1 MC<Player2>]")
-      doTask("MyResourceWasRemoved<Player2, Class<MC>, Player1>.")
-      doTask("MyProductionWasDecreased<Player2, Class<MC>, Player1>.")
       settle(victimActors[0])
       settle(victimActors[2])
       settle(victimActors[1], secondPayout = 1)

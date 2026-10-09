@@ -1,47 +1,83 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.exMachina
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.tests.TfmTest
+import dev.martianzoo.tfm.tests.revealTurmoilSetupEvents
 
 internal abstract class ProjectCardTest : TfmTest() {
-  protected lateinit var kim: TfmGameplay
+  protected lateinit var players: List<TfmGameplay>
     private set
 
-  protected lateinit var stan: TfmGameplay
-    private set
+  protected val kim: TfmGameplay
+    get() = players[0]
 
-  protected lateinit var rob: TfmGameplay
-    private set
+  protected val stan: TfmGameplay
+    get() = players[1]
 
-  protected fun newTestGame(addOptions: String = "") {
-    game = Engine.fork(preparedWorld(addOptions))
+  protected val rob: TfmGameplay
+    get() = checkNotNull(players.getOrNull(2)) { "Rob is sitting this game out" }
+
+  protected fun newTestGame(
+      addOptions: String = "",
+      playerCount: Int = 3,
+      kimCorporation: ClassName? = null,
+  ) {
+    require(playerCount in 2..PLAYER_NAMES.size) {
+      "ProjectCardTest supports two to ${PLAYER_NAMES.size} players: $playerCount"
+    }
+    game = Engine.fork(preparedWorld(addOptions, playerCount, kimCorporation))
     bindPlayers()
   }
 
-  private fun preparedWorld(addOptions: String): World =
-      preparedWorlds.getOrPut(addOptions) { prepareWorld(addOptions) }
+  private fun preparedWorld(
+      addOptions: String,
+      playerCount: Int,
+      kimCorporation: ClassName?,
+  ): World =
+      preparedWorlds.getOrPut(Triple(addOptions, playerCount, kimCorporation)) {
+        prepareWorld(addOptions, playerCount, kimCorporation)
+      }
 
-  private fun prepareWorld(addOptions: String): World {
-    val options = listOf(BASE_GAME_OPTIONS, addOptions).filter(String::isNotBlank).joinToString()
-    game = TfmEngine.newGame(Canon.gamePremise(GameConfig(options, "Kim", "Stan", "Rob")))
+  private fun prepareWorld(
+      addOptions: String,
+      playerCount: Int,
+      kimCorporation: ClassName?,
+  ): World {
+    val options =
+        listOf(BASE_GAME_OPTIONS, addOptions, kimCorporation?.toString().orEmpty())
+            .filter(String::isNotBlank)
+            .joinToString()
+    val playerNames = PLAYER_NAMES.take(playerCount).toTypedArray()
+    game = TfmEngine.newGame(Canon.gamePremise(GameConfig(options, *playerNames)))
     val players = bindPlayers()
 
     agents[ADMIN].beginOperation("SetupPhase FROM Phase")
-    players.forEach { it.doTask("BeginnerMode") }
+    players.forEachIndexed { index, player ->
+      player.doTask(if (index == 0 && kimCorporation != null) "NonBeginnerMode" else "BeginnerMode")
+    }
+    if (kimCorporation != null) kim.keepStartingProjects(10)
+    revealTurmoilSetupEvents(game)
 
     agents[ADMIN].runOperation("CorporationPhase FROM Phase")
-    players.zip(BEGINNER_CORPORATIONS).forEach { (player, corporation) ->
-      player.startTurn()
-      player.doTask("PlayCard<Class<BeginnerCard>, Class<$corporation>, Hand>")
-      player.pay()
+    players.zip(BEGINNER_CORPORATIONS).forEachIndexed { index, (player, corporation) ->
+      if (index == 0 && kimCorporation != null) {
+        player.playCorp(kimCorporation)
+      } else {
+        player.startTurn()
+        player.doTask("PlayCard<Class<BeginnerCard>, Class<$corporation>, Hand>")
+        player.pay()
+      }
     }
 
     agents[ADMIN].runOperation("ActionPhase FROM Phase")
@@ -49,17 +85,42 @@ internal abstract class ProjectCardTest : TfmTest() {
   }
 
   private fun bindPlayers(): List<TfmGameplay> {
-    val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
-    kim = players[0]
-    stan = players[1]
-    rob = players[2]
+    players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
     return players
   }
 
   protected fun TfmGameplay.setToExMachina(targetCount: Int, type: String) {
-    val difference = targetCount - count(type)
-    if (difference == 0) return
-    exMachina("$difference $type")
+    val countedExpression =
+        (parseAs(Metric::class, type) as? Metric.Count)?.expression
+            ?: error("Absolute correction requires a countable type: `$type`")
+    val resolvedType = reader.resolve(countedExpression)
+    if (resolvedType.className == PRODUCTION) {
+      val resource =
+          checkNotNull(
+                  resolvedType.typeDependencies
+                      .single { it.key.declaringClass == PRODUCTION }
+                      .boundType
+                      .representedClass
+              )
+              .className
+      val difference = targetCount - production(resource)
+      if (difference == 0) return
+      val adjustment =
+          when (difference) {
+            -1 -> "-$resource"
+            1 -> resource
+            else -> "$difference $resource"
+          }
+      exMachina("PROD[$adjustment]")
+    } else {
+      val difference = targetCount - count(type)
+      if (difference == 0) return
+      exMachina("$difference $type")
+    }
+  }
+
+  protected fun nextGeneration() {
+    admin.nextGeneration(*IntArray(players.size))
   }
 
   protected fun TfmGameplay.exMachina(adjustment: String) {
@@ -71,9 +132,10 @@ internal abstract class ProjectCardTest : TfmTest() {
         "CorporateEraExpansion, VenusNextExpansion, ColoniesExpansion, " +
             "PromoCardPack, BeginnerVariant, QuickStartVariant"
 
-    private val preparedWorlds = mutableMapOf<String, World>()
+    private val PLAYER_NAMES = listOf("Kim", "Stan", "Rob", "Maya", "Nadia")
 
-    private val BEGINNER_CORPORATIONS =
-        listOf("BeginnerCorporation1", "BeginnerCorporation2", "BeginnerCorporation3")
+    private val preparedWorlds = mutableMapOf<Triple<String, Int, ClassName?>, World>()
+
+    private val BEGINNER_CORPORATIONS = (1..PLAYER_NAMES.size).map { "BeginnerCorporation$it" }
   }
 }

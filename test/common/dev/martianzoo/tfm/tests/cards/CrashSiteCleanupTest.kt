@@ -1,71 +1,60 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.testsupport.PLAYER3
-import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class CrashSiteCleanupTest : CardTest() {
-  @BeforeTest
-  fun initializeGame() {
-    newGame(PromoCardPack)
-    admin.phase("Action")
-    p1.runOperation("4 MC, ProjectCard")
-    requireP2().runOperation("Plant")
-  }
+internal class CrashSiteCleanupTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
 
   @Test
   internal fun `Can be played after removing an opponent's plant`() {
-    p1.runOperation("-Plant<Player2>")
-    p1.playProject(CrashSiteCleanup, 4) { doTask("Titanium") }.expect("Titanium")
+    stan.exMachina("Plant")
+    kim.playProject(AsteroidCard, 14) { doTask("-Plant<Stan>") }
+
+    kim.playProject(CrashSiteCleanup, 4) { doTask("Titanium") }.expect("Titanium")
   }
 
   @Test
-  internal fun `Cannot be played after losing one of its own plants`() {
-    p1.runOperation("Plant, -Plant")
-    shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
+  internal fun `Cannot be played after removing the owner's plant`() {
+    kim.exMachina("Plant")
+    kim.playProject(AsteroidCard, 14) { doTask("-Plant<Kim>") }
+
+    shouldThrow<RequirementException> { kim.playProject(CrashSiteCleanup, 4) }
   }
 
   @Test
-  internal fun `Cannot be played after an opponent removes its own plant`() {
-    requireP2().runOperation("-Plant")
-    shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
+  internal fun `Cannot be played after an opponent removes their own plant`() {
+    stan.exMachina("Plant")
+    stan.playProject(AsteroidCard, 14) { doTask("-Plant<Stan>") }
+
+    shouldThrow<RequirementException> { kim.playProject(CrashSiteCleanup, 4) }
   }
 
   @Test
-  internal fun `Cannot be played if the plant removal was in a previous generation`() {
-    p1.runOperation("-Plant<Player2>")
-    admin.runOperation("Generation")
-    shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
+  internal fun `Cannot be played after a plant removal in the previous generation`() {
+    stan.exMachina("Plant")
+    kim.playProject(AsteroidCard, 14) { doTask("-Plant<Stan>") }
+    nextGeneration()
+
+    shouldThrow<RequirementException> { kim.playProject(CrashSiteCleanup, 4) }
   }
 
   @Test
-  internal fun `A player who did not remove the plant does not qualify`() {
-    newGame(PromoCardPack, players = 3)
-    val p3 = game.testTfm(PLAYER3)
-    admin.phase("Action")
-    requireP2().runOperation("Plant")
-    p3.runOperation("4 MC, ProjectCard")
+  internal fun `Cannot be played by a player who did not remove the plant`() {
+    stan.exMachina("Plant")
+    rob.playProject(AsteroidCard, 14) { doTask("-Plant<Stan>") }
 
-    p1.runOperation("-Plant<Player2>")
-
-    shouldThrow<RequirementException> { p3.playProject(CrashSiteCleanup, 4) }
+    shouldThrow<RequirementException> { kim.playProject(CrashSiteCleanup, 4) }
   }
 
   @Test
-  internal fun `Declining an asteroid plant attack does not qualify for cleanup`() {
-    p1.runOperation("14 MC, ProjectCard")
-    p1.playProject(AsteroidCard, 14) {
-          // Choose zero plants even though the opponent has one.
-          declineTask()
-        }
-        .expect("0 Plant<Player2>")
-    shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
-    requireP2().count("Plant") shouldBe 1
+  internal fun `Cannot be played after declining an asteroid's plant attack`() {
+    stan.exMachina("Plant")
+    kim.playProject(AsteroidCard, 14) { declineTask() }.expect("0 Plant<Stan>")
+
+    shouldThrow<RequirementException> { kim.playProject(CrashSiteCleanup, 4) }
   }
 }

@@ -1,14 +1,14 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.catalog.ClassSelection
+import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.engine.Exceptions.RunawayEffectChainException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.ClassSelection
-import dev.martianzoo.state.GamePremise
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmEngine

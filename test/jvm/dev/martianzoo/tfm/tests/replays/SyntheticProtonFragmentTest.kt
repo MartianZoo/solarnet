@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow

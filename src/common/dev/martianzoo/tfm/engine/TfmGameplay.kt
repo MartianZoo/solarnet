@@ -70,12 +70,11 @@ public class TfmGameplay(
    * chooses fixed corporation effects before the purchase; the underlying tasks remain
    * independently selectable by other clients.
    */
-  public fun playCorp(cardName: ClassName, body: TfmGameplay.() -> Unit = {}): TaskResult {
-    val player = this
+  public fun playCorp(cardName: ClassName, body: OperationBlock = {}): TaskResult {
     if (count("CorporationPhase") == 0) {
       return inTurn {
         doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
-        player.body()
+        body()
       }
     }
     val previousPolicy = autoExecPolicy
@@ -85,7 +84,7 @@ public class TfmGameplay(
         doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
         payAllMc()
         chooseConcreteCorporationEffectsBeforePurchase()
-        player.body()
+        body()
         chooseConcreteCorporationEffectsBeforePurchase()
         buySelectedCards()
       }
@@ -101,7 +100,7 @@ public class TfmGameplay(
   public fun playCorp(
       cardName: ClassName,
       buyCards: Int,
-      body: TfmGameplay.() -> Unit = {},
+      body: OperationBlock = {},
   ): TaskResult {
     if (count("SetupPhase") == 1) {
       throw NotNowException("Resolve every player's starting projects before playing a corporation")
@@ -153,7 +152,7 @@ public class TfmGameplay(
           tasks
               .extract { it }
               .filter { task ->
-                task.actor == actor && asActor(task.assignee).canSelectTask(task.id)
+                task.selectionAssignee == actor && asActor(task.assignee).canSelectTask(task.id)
               }
               .filterNot { task ->
                 task.instruction.descendantsOfType<Gain>().any { gain ->
@@ -489,7 +488,7 @@ public class TfmGameplay(
         game.tasks
             .extract { it }
             .filter { task ->
-              task.actor == actor &&
+              task.selectionAssignee == actor &&
                   task.instruction.descendantsOfType<Change>().any { change ->
                     change.gaining?.className == cn("Owed")
                   }
@@ -529,7 +528,7 @@ public class TfmGameplay(
           game.tasks
               .extract { it }
               .filter { task ->
-                task.actor == actor &&
+                task.selectionAssignee == actor &&
                     task.cause == cause &&
                     !task.instruction.isAbstract(reader) &&
                     asActor(task.assignee).canSelectTask(task.id)
@@ -540,6 +539,11 @@ public class TfmGameplay(
   }
 
   private fun preparePayment(currency: String) {
+    val matching = pendingPaymentOffers(currency)
+    val selectedOffer = pendingPaymentOffers().singleOrNull { it.selected }
+    if (selectedOffer != null && matching.none { it.id == selectedOffer.id }) {
+      asActor(selectedOffer.assignee).narrowTask("Ok")
+    }
     val offer = pendingPaymentOffers(currency).singleOrNull() ?: return
     if (offer.assignee != actor) asActor(offer.assignee).selectTask(offer.id)
   }
@@ -552,7 +556,7 @@ public class TfmGameplay(
           .extract { it }
           .filter { task ->
             val context = task.cause?.context
-            task.actor == actor &&
+            task.selectionAssignee == actor &&
                 when (context?.className) {
                   cn("Accepting") ->
                       currency == null ||
@@ -565,7 +569,12 @@ public class TfmGameplay(
           }
 
   private fun OperationScope.selectTaskForActor(task: Task) {
-    if (task.assignee == actor) selectTask(task.id) else asActor(task.assignee).selectTask(task.id)
+    while (task.id in game.tasks) {
+      val current = game.tasks.getTaskData(task.id)
+      if (current.selected && current.instruction.isAbstract(reader)) return
+      if (current.assignee == actor) selectTask(task.id)
+      else asActor(current.assignee).selectTask(task.id)
+    }
   }
 
   /** Exempts the next [pay] call from the default-allocation audit for a sourced legal payment. */
@@ -633,7 +642,6 @@ public class TfmGameplay(
       body: OperationBlock = {},
   ): TaskResult {
     return stdAction("UseActionOnCardAction") {
-      doTask("ActionUsedMarker<$cardName>")
       useCardAction(which, cardName, x, body)
     }
   }
@@ -681,9 +689,7 @@ public class TfmGameplay(
 
   public fun phase(phase: String, body: OperationBlock = {}) {
     if (count("Phase") != 1) {
-      throw NotNowException(
-          "No current Phase; start SetupPhase through TfmWorkflow before changing phases"
-      )
+      throw NotNowException("No current Phase; start SetupPhase before changing phases")
     }
     asActor(ADMIN).runOperation("${phase}Phase FROM Phase", body)
   }

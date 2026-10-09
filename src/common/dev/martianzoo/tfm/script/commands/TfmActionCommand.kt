@@ -16,12 +16,12 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.tfm.canon.cardActions
-import dev.martianzoo.tfm.canon.tfmCatalog
 import dev.martianzoo.tfm.script.ScriptCommand
 import dev.martianzoo.tfm.script.ScriptCompletion
 import dev.martianzoo.tfm.script.ScriptCompletionContext
 import dev.martianzoo.tfm.script.ScriptSession
 import dev.martianzoo.tfm.script.ScriptSession.UsageException
+import dev.martianzoo.tfm.state.tfmCatalog
 
 internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand("tfm_action") {
   override val usage: String = "tfm_action <CardName> <1|2|3>[, <payment>...]"
@@ -61,7 +61,6 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
             if (choosingStandardAction) {
               TaskCommand(repl).withArgs("UseAction<UseActionOnCardAction, Action1>")
             }
-            TaskCommand(repl).withArgs("ActionUsedMarker<$cardName>")
             if (pauseForWrittenCost) {
               repl.agent.autoExecPolicy = NONE
               writtenCostPaused = true

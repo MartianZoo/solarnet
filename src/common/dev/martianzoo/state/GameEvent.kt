@@ -2,7 +2,7 @@ package dev.martianzoo.state
 
 import dev.martianzoo.pets.ast.Expression
 
-public sealed class GameEvent {
+public sealed class GameEvent private constructor() {
   public abstract val ordinal: Int
 
   /** Mutable commentary excluded from this event's value equality and all gameplay semantics. */

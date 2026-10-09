@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
+import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.HashMultiset
@@ -24,6 +25,8 @@ internal class Effector(
   private val registry = mutableMapOf<LiveEffect.RegistryKey, HashMultiset<LiveEffect>>()
 
   private val effects = mutableMapOf<Component, List<LiveEffect>>()
+
+  private val systemClass = elaborator.classTable.getClass(SYSTEM)
 
   /** Copies the derived subscription index while preserving independent-listener order. */
   internal fun copyIndexFrom(source: Effector) {
@@ -51,7 +54,7 @@ internal class Effector(
     change.gaining?.let { add(it, change.count) }
   }
 
-  internal fun add(component: Component, delta: Int) =
+  private fun add(component: Component, delta: Int) =
       liveEffects(component).forEach { effect ->
         if (delta == 0) return@forEach
         if (!effect.listensToOtherComponents) return@forEach
@@ -59,7 +62,7 @@ internal class Effector(
         bucket.add(effect, delta)
       }
 
-  internal fun mustRemove(component: Component, delta: Int) =
+  private fun mustRemove(component: Component, delta: Int) =
       liveEffects(component).forEach { effect ->
         if (delta == 0) return@forEach
         if (!effect.listensToOtherComponents) return@forEach
@@ -83,12 +86,20 @@ internal class Effector(
   internal fun fire(
       triggerEvent: ChangeEvent,
       controller: Actor,
+      selectionAssignee: Actor,
       automatic: Boolean? = null,
   ): List<PendingTask> {
+    val gaining = triggerEvent.change.gaining?.type
     val resolvedChange =
         LiveEffect.ResolvedChange(
-            gaining = triggerEvent.change.gaining?.type,
+            gaining = gaining,
             removing = triggerEvent.change.removing?.type,
+            // Admin performs the System gain; its retained recipient handles an unowned queued
+            // consequence. Owner-based effect routing still takes precedence in PendingTask.
+            queuedEffectFallback =
+                selectionAssignee.takeIf {
+                  automatic == false && gaining?.rootClass?.isSubtypeOf(systemClass) == true
+                },
         )
     val selfEffects = fireSelfEffects(triggerEvent, controller, automatic, resolvedChange)
     val otherEffects = fireOtherEffects(triggerEvent, controller, automatic, resolvedChange)
@@ -106,7 +117,11 @@ internal class Effector(
   }
 
   /** The Kotlin output is one queued self-effect of the gained CustomInstruction. */
-  private fun customInstructionEffect(triggerEvent: ChangeEvent, controller: Actor): PendingTask? {
+  private fun customInstructionEffect(
+      triggerEvent: ChangeEvent,
+      controller: Actor,
+      resolvedChange: LiveEffect.ResolvedChange,
+  ): PendingTask? {
     val component = triggerEvent.change.gaining ?: return null
     if (!component.type.rootClass.isSubtypeOf(elaborator.classTable.getClass(CUSTOM_INSTRUCTION))) {
       return null
@@ -119,6 +134,7 @@ internal class Effector(
         changedComponentPlayer = component.owningPlayer,
         automatic = false,
         instruction = InstructionGroup.of(instruction) * triggerEvent.change.count,
+        queuedEffectFallback = resolvedChange.queuedEffectFallback,
     )
   }
 
@@ -136,7 +152,8 @@ internal class Effector(
             .filter { automatic == null || it.automatic == automatic }
             .mapNotNull { it.onChangeToSelf(triggerEvent, controller, reader(), resolvedChange) }
     val computed =
-        if (automatic != true) listOfNotNull(customInstructionEffect(triggerEvent, controller))
+        if (automatic != true)
+            listOfNotNull(customInstructionEffect(triggerEvent, controller, resolvedChange))
         else emptyList()
     return authored + computed
   }
@@ -178,7 +195,7 @@ internal class Effector(
     val stableAutomaticOrder: Comparator<PendingTask> =
         compareBy(
             { it.cause.context.toString() },
-            { it.actor.toString() },
+            { it.selectionAssignee.toString() },
             { it.controller.toString() },
             { it.instruction.toString() },
         )

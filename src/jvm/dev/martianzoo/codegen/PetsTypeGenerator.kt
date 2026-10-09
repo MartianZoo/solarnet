@@ -17,7 +17,6 @@ import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration as VariableDeclaration
 import dev.martianzoo.pets.ast.PropertyName
@@ -36,11 +35,7 @@ import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Dependency.TypeDependency
 import dev.martianzoo.pets.types.DependencySet.DependencyPath
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.tfm.canon.Canon
-import java.nio.file.Files
-import java.nio.file.Path
 import java.time.Instant
-import kotlin.system.exitProcess
 
 /** Generates a Kotlin type vocabulary from the fully resolved types in a Pets class table. */
 internal class PetsTypeGenerator(
@@ -50,21 +45,11 @@ internal class PetsTypeGenerator(
     classes: Set<Class> = table.allClasses(),
     private val generatedAt: Instant = Instant.now(),
 ) {
-  internal data class Options(
-      val packageName: String = "dev.martianzoo.generated",
-      val filePrefix: String = "CanonicalPets",
-      val outputDirectory: Path? = null,
-  )
-
   private val classes = classes.toSet()
   private val orderedClasses: List<Class> by lazy(::hierarchyOrder)
   private val kotlinClasses: Map<Class, ClassName> = classes.associateWith {
     ClassName(packageName, it.className.toString())
   }
-  private val cardClass: Class = table.getClass(cn("Card"))
-  private val areaClass: Class = table.getClass(cn("Area"))
-  private val milestoneClass: Class = table.getClass(cn("Milestone"))
-  private val awardClass: Class = table.getClass(cn("Award"))
 
   init {
     val missingSuperclasses = classes.flatMap(Class::directSuperclasses).toSet() - classes
@@ -73,40 +58,28 @@ internal class PetsTypeGenerator(
     }
   }
 
-  fun generate(): List<FileSpec> =
-      orderedClasses.groupBy(::fileName).map { (fileName, fileClasses) ->
-        val file =
-            FileSpec.builder(packageName, fileName)
-                .addFileComment(
-                    "Generated at %L from a resolved Pets ClassTable. Do not edit.",
-                    generatedAt,
+  fun generate(): List<FileSpec> {
+    val file =
+        FileSpec.builder(packageName, "${filePrefix}Types")
+            .addFileComment(
+                "Generated at %L from a resolved Pets ClassTable. Do not edit.",
+                generatedAt,
+            )
+            .addAnnotation(
+                AnnotationSpec.builder(Suppress::class)
+                    .useSiteTarget(AnnotationSpec.UseSiteTarget.FILE)
+                    .addMember("%S", "FINAL_UPPER_BOUND")
+                    .build()
+            )
+            .addFunction(generatedExpressionFunction(orderedClasses))
+            .addFunction(
+                generatedComponentFactory(
+                    orderedClasses.filterNot(Class::abstract).map { kotlinClass(it) }
                 )
-                .addAnnotation(
-                    AnnotationSpec.builder(Suppress::class)
-                        .useSiteTarget(AnnotationSpec.UseSiteTarget.FILE)
-                        .addMember("%S", "FINAL_UPPER_BOUND")
-                        .build()
-                )
-        if (fileName == "${filePrefix}Types") {
-          file.addFunction(generatedExpressionFunction(orderedClasses))
-          file.addFunction(
-              generatedComponentFactory(
-                  orderedClasses.filterNot(Class::abstract).map { kotlinClass(it) }
-              )
-          )
-        }
-        fileClasses.forEach { file.addType(typeSpec(it)) }
-        file.build()
-      }
-
-  private fun fileName(klass: Class): String =
-      when {
-        !klass.abstract && klass.isSubtypeOf(cardClass) -> "${filePrefix}Cards"
-        !klass.abstract && (klass.isSubtypeOf(milestoneClass) || klass.isSubtypeOf(awardClass)) ->
-            "${filePrefix}Goals"
-        !klass.abstract && klass.isSubtypeOf(areaClass) -> "${filePrefix}MapAreas"
-        else -> "${filePrefix}Types"
-      }
+            )
+    orderedClasses.forEach { file.addType(typeSpec(it)) }
+    return listOf(file.build())
+  }
 
   private fun hierarchyOrder(): List<Class> {
     val remaining = classes.toMutableSet()
@@ -929,57 +902,4 @@ private fun generatedComponentFactory(classes: List<ClassName>): FunSpec {
       .returns(ClassName("dev.martianzoo.pets", "HasExpression"))
       .addCode(body.build())
       .build()
-}
-
-internal fun generateCanonicalPetsTypes(options: PetsTypeGenerator.Options): List<FileSpec> =
-    PetsTypeGenerator(Canon.classTable, options.packageName, options.filePrefix).generate()
-
-internal fun parsePetsTypeGeneratorOptions(arguments: List<String>): PetsTypeGenerator.Options {
-  var packageName = "dev.martianzoo.generated"
-  var filePrefix = "CanonicalPets"
-  var outputDirectory: Path? = null
-  var index = 0
-  while (index < arguments.size) {
-    fun valueFor(option: String): String {
-      require(index + 1 < arguments.size) { "$option requires a value" }
-      return arguments[++index]
-    }
-
-    when (val argument = arguments[index]) {
-      "--package" -> packageName = valueFor(argument)
-      "--file-prefix" -> filePrefix = valueFor(argument)
-      "--output-dir" -> outputDirectory = Path.of(valueFor(argument))
-      else -> throw IllegalArgumentException("unknown argument: $argument\n$PETS_TYPES_USAGE")
-    }
-    index++
-  }
-  require(packageName.isNotBlank()) { "--package must not be blank" }
-  require(filePrefix.isNotBlank()) { "--file-prefix must not be blank" }
-  return PetsTypeGenerator.Options(packageName, filePrefix, outputDirectory)
-}
-
-private const val PETS_TYPES_USAGE =
-    "usage: pets-type-generator [--package PACKAGE] [--file-prefix PREFIX] " +
-        "[--output-dir DIRECTORY]"
-
-public fun main(args: Array<String>) {
-  try {
-    val options = parsePetsTypeGeneratorOptions(args.toList())
-    val generatedFiles = generateCanonicalPetsTypes(options)
-    if (options.outputDirectory == null) {
-      generatedFiles.forEach { file ->
-        println("// ${file.name}.kt")
-        print(file)
-      }
-    } else {
-      Files.createDirectories(options.outputDirectory)
-      generatedFiles.forEach { file ->
-        val output = options.outputDirectory.resolve("${file.name}.kt")
-        Files.newBufferedWriter(output).use(file::writeTo)
-      }
-    }
-  } catch (e: IllegalArgumentException) {
-    System.err.println(e.message)
-    exitProcess(2)
-  }
 }

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 

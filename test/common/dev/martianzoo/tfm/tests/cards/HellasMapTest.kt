@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.tests.TestOption.Hellas
 import dev.martianzoo.tfm.tests.cards.cardnames.LakefrontResorts
 import io.kotest.assertions.throwables.shouldThrow

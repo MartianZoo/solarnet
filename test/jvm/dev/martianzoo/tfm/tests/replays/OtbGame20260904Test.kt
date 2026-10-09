@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -756,7 +756,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
             // two plants."
             placeTile(7, 4)
             autoExecNow()
-            selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
             blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
             // 3:59:00 PM — Green: "All right this would be nine four."
@@ -765,7 +764,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
             // one? Only two money or two plants. Do I need another card? Do I need another card?"
             placeTile(9, 4)
             autoExecNow()
-            selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
             blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
             // Crossing 0°C supplies Amazonis's temperature-track ocean bonus.
@@ -773,7 +771,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
             // events."
             placeTile(6, 11)
             autoExecNow()
-            selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
             blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
             doTask("-5 Plant<Yellow>!")
@@ -1041,7 +1038,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       cardAction1(Thermophiles) { addCardResources(SulphurEatingBacteria) }
       rainbow.exMachina(fakeWildTags("VenusTag"))
       stdAction("UseActionOnCardAction") {
-            doTask("ActionUsedMarker<$FloatingRefinery>")
             doTask("UseAction<$FloatingRefinery, Action2>")
           }
           .expect("2 MC")
@@ -1142,6 +1138,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // Oceans are at nine [Blue] you have your option"
       cardAction2(IcyImpactors) {
         rainbow.doTask("OceanTile<Amazonis_02_01> BY Green")
+        green.doTask("OceanTile<Amazonis_02_01>")
         green.doTask("TerraformRating")
         selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
         blue.narrowTask("Ok")
@@ -1221,9 +1218,9 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       convertHeat()
       playProject(Comet, 21) {
             placeTile(6, 5)
-            doTask("-3 Plant<Blue>")
             blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
+            doTask("-3 Plant<Blue>")
           }
           .expect("-19 MC")
       // Yellow did not physically pay Comet's 21 M€ at this play. Restore the engine-enforced

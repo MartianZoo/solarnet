@@ -43,7 +43,7 @@ internal constructor(
       public val kind: Kind,
       /** The first unresolved type part for [Kind.TARGET], or null for other decisions. */
       public val focus: Expression?,
-      internal val instruction: InstructionTree,
+      private val instruction: InstructionTree,
   ) {
     public enum class Kind {
       ALTERNATIVE,
@@ -392,6 +392,9 @@ internal constructor(
       if (requested == null) (1..maximum).asSequence()
       else if (requested in 1..maximum) sequenceOf(requested) else emptySequence()
 
-  /** Submits the accumulated narrowing to the engine, selecting this task if necessary. */
+  /**
+   * Submits the accumulated narrowing, selecting this task if necessary. A form containing a choice
+   * fails if selection assigns the task to another Actor; that Actor must choose instead.
+   */
   public fun commit(): TaskResult = agent.commitForm(taskId, instruction)
 }

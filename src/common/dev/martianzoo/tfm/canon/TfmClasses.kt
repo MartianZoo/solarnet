@@ -6,15 +6,15 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 public object TfmClasses {
   internal val END = cn("End")
 
-  internal val MARS_MAP = cn("MarsMap")
+  public val MARS_MAP: ClassName = cn("MarsMap")
   internal val PLACEMENT = cn("Placement")
   public val TILE: ClassName = cn("Tile")
 
   internal val MILESTONE = cn("Milestone")
   internal val AWARD = cn("Award")
 
-  internal val CORPORATION_CARD = cn("CorporationCard")
-  internal val PRELUDE_CARD = cn("PreludeCard")
+  private val CORPORATION_CARD = cn("CorporationCard")
+  private val PRELUDE_CARD = cn("PreludeCard")
   internal val PROJECT_CARD = cn("ProjectCard")
   internal val CARD_RESOURCE = cn("CardResource")
   internal val CARD_FRONT = cn("CardFront")
@@ -28,7 +28,7 @@ public object TfmClasses {
   public val STANDARD_RESOURCE: ClassName = cn("StandardResource")
   public val PRODUCTION: ClassName = cn("Production")
   public val MC: ClassName = cn("MC")
-  internal val PROD_OFFSET: ClassName = cn("ProdOffset")
+  public val PROD_OFFSET: ClassName = cn("ProdOffset")
 
   // Okay so it's not really a class name
   public const val PROD: String = "PROD"

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tools
 
 import dev.martianzoo.agent.Agents
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.SystemClasses.HIDDEN
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
@@ -9,7 +10,6 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.EventLog
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameRecordingJson

@@ -53,8 +53,10 @@ internal class PharmacyUnionTest : CardTest() {
 
     manual.runOperation("$Decomposers") {
       shouldThrow<TaskException> { p1.doTask("Disease<$PharmacyUnion>") }
-      doTask("Disease<$PharmacyUnion<Player1>>!")
-      doTask("-4 MC<Player1>")
+      p2.selectTask("Disease<$PharmacyUnion<Player1>>! OR " + "(MAX 0 $PharmacyUnion<Player1>: Ok)")
+      autoExecNow()
+      p2.selectTask("-4 MC<Player1>.")
+      autoExecNow()
       doTask("Microbe")
     }
 

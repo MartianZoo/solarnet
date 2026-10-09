@@ -18,7 +18,8 @@ import dev.martianzoo.pets.ast.Expression
  * @constructor Creates one implementation of the dependency concept in
  *   [section 3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
  */
-public sealed class Dependency : Specification<Dependency>, HasExpression, HasClassName {
+public sealed class Dependency private constructor() :
+    Specification<Dependency>, HasExpression, HasClassName {
   /**
    * The declaring-class-and-slot identity specified by
    * [rule T3-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).

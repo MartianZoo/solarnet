@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.canon
 
+import dev.martianzoo.catalog.Catalog
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.state.Catalog
 
 /**
  * An internal organizational provider of declarations, data, metadata, and custom code.

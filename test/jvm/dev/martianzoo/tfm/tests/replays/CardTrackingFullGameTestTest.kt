@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Checkpoint
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.tests.cards.cardnames.AcquiredCompany
 import dev.martianzoo.tfm.tests.cards.cardnames.AdaptedLichen

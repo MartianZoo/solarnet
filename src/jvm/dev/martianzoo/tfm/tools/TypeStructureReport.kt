@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tools
 
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.SystemClasses.THIS
@@ -11,7 +12,6 @@ import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.DependencySet.DependencyPath
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmEngine
 import java.math.BigInteger

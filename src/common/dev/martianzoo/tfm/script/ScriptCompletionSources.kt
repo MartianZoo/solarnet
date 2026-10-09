@@ -4,7 +4,7 @@ import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.cardActions
 import dev.martianzoo.tfm.canon.cardBack
-import dev.martianzoo.tfm.canon.tfmCatalog
+import dev.martianzoo.tfm.state.tfmCatalog
 
 internal class ScriptCompletionSources(private val repl: ScriptSession) {
   fun commandNames(): List<ScriptCompletion> =

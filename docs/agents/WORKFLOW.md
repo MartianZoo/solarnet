@@ -33,6 +33,14 @@ those phases.
 Phase transitions and within-phase turn sequencing remain separate responsibilities, both authored
 in Pets. No Kotlin runner is retained.
 
+Continuation requests arising from Player actions are queued direct `System` gains, so ordinary
+engine routing assigns them to Admin. This includes corporation-card removal, Prelude-card
+removal, the last Pass, and the final greenery finish. Their enclosing Player operation waits for
+those requests to be created; continuation cleanup still waits for global idleness and operation
+validation. Inline rules retain normal context attribution rather than using instruction-side
+`BY`, which requires a queued task handoff. Turn signals identify their recipient through their
+Player dependency, and their queued choices follow the usual owner-based routing.
+
 ## Current foundation
 
 The required primitives already exist:
@@ -262,7 +270,7 @@ Prelude, Action, and Final Greenery wait for domain completion because their que
 players.
 
 Corporation begins with the Start Token owner. Removing a normal or beginner corporation-card back
-creates a continuation through the existing `AfterMe` seat relation. Once the choice and
+queues a continuation request through the existing `AfterMe` seat relation in multiplayer. Once the choice and
 consequences settle, it grants the next Player's turn or requests phase advancement if no
 corporation-card backs remain. Solo has no self-referential `AfterMe`; removing either back therefore
 requests phase advancement directly. The same direct solo case ends Final Greenery when that Player
@@ -348,7 +356,7 @@ remove during workflow work.
 
 ## Remaining completion questions
 
-[SEQUENCING.md](SEQUENCING.md#delegated-operations-and-scheduling-options) owns the shared
+[SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over) owns the shared
 scheduling options. These remain open alongside the implemented phase continuations.
 
 

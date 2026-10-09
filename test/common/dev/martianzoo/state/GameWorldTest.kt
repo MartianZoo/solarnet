@@ -12,7 +12,6 @@ import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.state.GameEvent.TaskEditedEvent
-import dev.martianzoo.state.Task.Selection
 import dev.martianzoo.state.Task.TaskId
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -138,7 +137,7 @@ internal class GameWorldTest {
         )
 
     world.apply(TaskAddedEvent(0, task))
-    val selected = task.copy(selection = Selection.SELECTED)
+    val selected = task.copy(selected = true)
 
     shouldThrow<IllegalArgumentException> {
       world.apply(TaskEditedEvent(1, oldTask = selected, task = task))
@@ -183,10 +182,10 @@ internal class GameWorldTest {
 
     first.apply(added)
     second.apply(added)
-    second.apply(TaskEditedEvent(1, task, task.copy(selection = Selection.SELECTED)))
+    second.apply(TaskEditedEvent(1, task, task.copy(selected = true)))
 
-    first.tasks.getTaskData(task.id).selection shouldBe Selection.UNSELECTED
-    second.tasks.getTaskData(task.id).selection shouldBe Selection.SELECTED
+    first.tasks.getTaskData(task.id).selected shouldBe false
+    second.tasks.getTaskData(task.id).selected shouldBe true
   }
 
   @Test

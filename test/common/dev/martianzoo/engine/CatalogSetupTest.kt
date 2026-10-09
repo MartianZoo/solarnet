@@ -1,12 +1,12 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.catalog.Catalog
+import dev.martianzoo.catalog.ClassSelection
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.state.Catalog
-import dev.martianzoo.state.ClassSelection
-import dev.martianzoo.state.GameConfig
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 

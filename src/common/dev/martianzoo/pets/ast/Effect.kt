@@ -62,7 +62,7 @@ public data class Effect(
    * anywhere ([rule
    * L6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)).
    */
-  public sealed class Trigger : PetNode() {
+  public sealed class Trigger private constructor() : PetNode() {
     override val kind: kotlin.reflect.KClass<out PetNode> = Trigger::class
 
     /**

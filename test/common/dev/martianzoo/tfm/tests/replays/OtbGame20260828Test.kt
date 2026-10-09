@@ -4,6 +4,7 @@ import dev.martianzoo.agent.TaskForm
 import dev.martianzoo.agent.TaskForm.Decision.Kind.ALTERNATIVE
 import dev.martianzoo.agent.TaskForm.Decision.Kind.AMOUNT
 import dev.martianzoo.agent.TaskForm.Decision.Kind.TARGET
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -11,7 +12,6 @@ import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskResult
@@ -31,7 +31,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       vararg keyClasses: String,
       count: Int? = null,
   ): ExpectedTaskForm {
-    val id =
+    val matches =
         tasks
             .matching { task ->
               (count == null ||
@@ -44,8 +44,9 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
             .map(tasks::getTaskData)
             // Identical offers (such as Great Aquifer's oceans) are interchangeable.
             .distinctBy { it.copy(id = TaskId(0), cause = null) }
-            .single()
-            .id
+    val id =
+        tasks.selectedTask()?.takeIf { selected -> matches.any { it.id == selected } }
+            ?: matches.single().id
     return ExpectedTaskForm(this, fillInTask(id))
   }
 
@@ -237,8 +238,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "TitanShuttles", outOf = 2).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "TitanShuttles", outOf = 2)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceCard" to "TitanShuttles", outOf = 1).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -253,8 +256,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("ActionSlot" to "Action1", outOf = 4)
           .chooseAmount(1, outOf = 2)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "FloaterTechnology", outOf = 3).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "FloaterTechnology", outOf = 3)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "LocalShading", outOf = 2).done()
     }
     yellow.turn {
@@ -283,8 +288,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("ActionSlot" to "Action1", outOf = 4)
           .chooseAmount(1, outOf = 2)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "LocalShading", outOf = 4).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "LocalShading", outOf = 4)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
     }
     yellow.turn {
       // "I use Business Network action. I look at a card... not feeling it."
@@ -293,8 +300,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "BusinessNetwork", outOf = 1).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "BusinessNetwork", outOf = 1)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("ProjectCard").chooseAmount(1, outOf = 2).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -306,10 +315,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker")
+      fillInTask("UseAction")
           .choose("ActionCard" to "NitriteReducingBacteria", outOf = 4)
+          .choose("ActionSlot" to "Action2", outOf = 3)
           .done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
       // "Oh, my Celestic action. I forgot. I will use my Celestic action to add a floater to Local
       // Shading."
       fillInTask("UseAction")
@@ -317,8 +326,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("ActionSlot" to "Action1", outOf = 4)
           .chooseAmount(1, outOf = 2)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Celestic", outOf = 4).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Celestic", outOf = 4)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "LocalShading", outOf = 2).done()
     }
     yellow.turn {
@@ -374,8 +385,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "LocalShading", outOf = 4).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "LocalShading", outOf = 4)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -449,10 +462,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker")
+      fillInTask("UseAction")
           .choose("ActionCard" to "NitriteReducingBacteria", outOf = 6)
+          .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -499,8 +512,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "FloaterTechnology", outOf = 6).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "FloaterTechnology", outOf = 6)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "LocalShading", outOf = 4).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -521,16 +536,20 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Dirigibles", outOf = 6).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Dirigibles", outOf = 6)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "JetStreamMicroscrappers", outOf = 4).done()
       fillInTask("UseAction")
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 10)
           .choose("ActionSlot" to "Action1", outOf = 4)
           .chooseAmount(1, outOf = 2)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Celestic", outOf = 6).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Celestic", outOf = 6)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "JetStreamMicroscrappers", outOf = 4).done()
     }
     green
@@ -545,10 +564,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker")
+      fillInTask("UseAction")
           .choose("ActionCard" to "JetStreamMicroscrappers", outOf = 6)
+          .choose("ActionSlot" to "Action2", outOf = 3)
           .done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
     }
     blue.fillInTask("UseAction").chooseAlternative("Pass", outOf = 2).done(unused = emptySet())
 
@@ -594,8 +613,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("ActionSlot" to "Action1", outOf = 4)
           .chooseAmount(1, outOf = 2)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "BusinessNetwork", outOf = 1).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "BusinessNetwork", outOf = 1)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("ProjectCard").chooseAmount(1, outOf = 2).done()
     }
     green.turn {
@@ -674,10 +695,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker")
+      fillInTask("UseAction")
           .choose("ActionCard" to "NitriteReducingBacteria", outOf = 6)
+          .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -695,8 +716,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "TitanShuttles", outOf = 3).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "TitanShuttles", outOf = 3)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceCard" to "TitanShuttles", outOf = 1).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -709,8 +732,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "LocalShading", outOf = 6).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "LocalShading", outOf = 6)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -732,8 +757,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "FloaterTechnology", outOf = 6).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "FloaterTechnology", outOf = 6)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "LocalShading", outOf = 4).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -752,16 +779,20 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Dirigibles", outOf = 6).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Dirigibles", outOf = 6)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "JetStreamMicroscrappers", outOf = 4).done()
       fillInTask("UseAction")
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 10)
           .choose("ActionSlot" to "Action1", outOf = 4)
           .chooseAmount(1, outOf = 2)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Celestic", outOf = 6).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Celestic", outOf = 6)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "JetStreamMicroscrappers", outOf = 4).done()
     }
     yellow
@@ -774,10 +805,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker")
+      fillInTask("UseAction")
           .choose("ActionCard" to "JetStreamMicroscrappers", outOf = 6)
+          .choose("ActionSlot" to "Action2", outOf = 3)
           .done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
     }
     blue.fillInTask("UseAction").chooseAlternative("Pass", outOf = 2).done(unused = emptySet())
 
@@ -893,8 +924,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "BusinessNetwork", outOf = 2).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "BusinessNetwork", outOf = 2)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
 
       fillInTask("ProjectCard").chooseAmount(1, outOf = 2).done()
 
@@ -915,10 +948,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker")
+      fillInTask("UseAction")
           .choose("ActionCard" to "NitriteReducingBacteria", outOf = 6)
+          .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -964,8 +997,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "LocalShading", outOf = 6).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "LocalShading", outOf = 6)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -995,8 +1030,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "TitanShuttles", outOf = 3).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "TitanShuttles", outOf = 3)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
 
       fillInTask("Floater").choose("ResourceCard" to "TitanShuttles", outOf = 1).done()
 
@@ -1014,8 +1051,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "FloaterTechnology", outOf = 6).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "FloaterTechnology", outOf = 6)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
 
       fillInTask("Floater").choose("ResourceHolder" to "LocalShading", outOf = 4).done()
 
@@ -1038,10 +1077,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker")
+      fillInTask("UseAction")
           .choose("ActionCard" to "JetStreamMicroscrappers", outOf = 6)
+          .choose("ActionSlot" to "Action2", outOf = 3)
           .done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -1062,8 +1101,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Dirigibles", outOf = 6).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Dirigibles", outOf = 6)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
 
       fillInTask("Floater").choose("ResourceHolder" to "JetStreamMicroscrappers", outOf = 4).done()
 
@@ -1072,8 +1113,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("ActionSlot" to "Action1", outOf = 4)
           .chooseAmount(1, outOf = 2)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Celestic", outOf = 6).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Celestic", outOf = 6)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
 
       fillInTask("Floater").choose("ResourceHolder" to "Dirigibles", outOf = 4).done()
     }
@@ -1176,6 +1219,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I'm going to put my floater on Dirigibles."
       stdAction("TradeAction", 2) {
         fillInTask("Trade").choose("ColonyTile" to "Titan", outOf = 4).done()
+        blue.fillInTask("Floater").choose("ResourceHolder" to "Dirigibles", outOf = 4).done()
         doWithoutAutoExec(green) {
           fillInTask("Floater", count = 3)
               .choose("ResourceHolder" to "TitanShuttles", outOf = 1)
@@ -1183,8 +1227,6 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           fillInTask("Floater", "Green", count = 1)
               .choose("ResourceHolder" to "TitanShuttles", outOf = 1)
               .done()
-          green.fillInTask("Floater", "Blue").commit()
-          blue.fillInTask("Floater").choose("ResourceHolder" to "Dirigibles", outOf = 4).done()
         }
       }
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
@@ -1217,8 +1259,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("ActionSlot" to "Action1", outOf = 4)
           .chooseAmount(1, outOf = 2)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "BusinessNetwork", outOf = 2).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "BusinessNetwork", outOf = 2)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("ProjectCard").chooseAmount(1, outOf = 2).done()
     }
     green.turn {
@@ -1235,10 +1279,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker")
+      fillInTask("UseAction")
           .choose("ActionCard" to "NitriteReducingBacteria", outOf = 7)
+          .choose("ActionSlot" to "Action2", outOf = 3)
           .done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -1263,8 +1307,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "LocalShading", outOf = 7).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "LocalShading", outOf = 7)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -1297,10 +1343,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker")
+      fillInTask("UseAction")
           .choose("ActionCard" to "JetStreamMicroscrappers", outOf = 7)
+          .choose("ActionSlot" to "Action2", outOf = 3)
           .done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -1322,8 +1368,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "FloaterTechnology", outOf = 7).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "FloaterTechnology", outOf = 7)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "Dirigibles", outOf = 5).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -1359,8 +1407,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Stratopolis", outOf = 7).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Stratopolis", outOf = 7)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceCard" to "Dirigibles", outOf = 5).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -1404,8 +1454,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("ActionSlot" to "Action1", outOf = 4)
           .chooseAmount(1, outOf = 2)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Extremophiles", outOf = 8).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Extremophiles", outOf = 8)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Microbe").choose("ResourceHolder" to "NitriteReducingBacteria", outOf = 2).done()
     }
     yellow
@@ -1419,8 +1471,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Celestic", outOf = 8).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Celestic", outOf = 8)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "Dirigibles", outOf = 5).done()
       // "And I'm probably going to use my Dirigibles action to add another dirigible. Right? Do I
       // even have enough Venus tags for that to be worth it? No. So I'm going to use my Dirigibles
@@ -1432,8 +1486,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Dirigibles", outOf = 8).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Dirigibles", outOf = 8)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "Dirigibles", outOf = 5).done()
       // "Now that's $12 worth. And then I'm going to use them to pay for Venus Trade Hub."
       // "Damn."
@@ -1529,8 +1585,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("ActionSlot" to "Action1", outOf = 4)
           .chooseAmount(1, outOf = 2)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "BusinessNetwork", outOf = 4).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "BusinessNetwork", outOf = 4)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("ProjectCard").chooseAmount(1, outOf = 2).done()
     }
     green.turn {
@@ -1601,6 +1659,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I guess I'll go ahead and put my floater onto Local Shading."
       stdAction("TradeAction", 2) {
         fillInTask("Trade").choose("ColonyTile" to "Titan", outOf = 4).done()
+        blue.fillInTask("Floater").choose("ResourceHolder" to "LocalShading", outOf = 6).done()
         doWithoutAutoExec(green) {
           fillInTask("Floater", count = 2)
               .choose("ResourceHolder" to "TitanShuttles", outOf = 1)
@@ -1608,8 +1667,6 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           fillInTask("Floater", "Green", count = 1)
               .choose("ResourceHolder" to "TitanShuttles", outOf = 1)
               .done()
-          green.fillInTask("Floater", "Blue").commit()
-          blue.fillInTask("Floater").choose("ResourceHolder" to "LocalShading", outOf = 6).done()
         }
       }
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
@@ -1625,10 +1682,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker")
+      fillInTask("UseAction")
           .choose("ActionCard" to "NitriteReducingBacteria", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -1665,8 +1722,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "LocalShading", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "LocalShading", outOf = 10)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -1709,8 +1768,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "FloaterTechnology", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "FloaterTechnology", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "RedSpotObservatory", outOf = 6).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -1746,8 +1807,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Extremophiles", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Extremophiles", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Microbe").choose("ResourceHolder" to "NitriteReducingBacteria", outOf = 2).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -1785,8 +1848,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "RedSpotObservatory", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "RedSpotObservatory", outOf = 10)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -1807,8 +1872,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Stratopolis", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Stratopolis", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceCard" to "JetStreamMicroscrappers", outOf = 6).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -1828,10 +1895,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker")
+      fillInTask("UseAction")
           .choose("ActionCard" to "JetStreamMicroscrappers", outOf = 10)
+          .choose("ActionSlot" to "Action2", outOf = 3)
           .done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -1852,8 +1919,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Dirigibles", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Dirigibles", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "Dirigibles", outOf = 6).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -1874,8 +1943,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Celestic", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Celestic", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "Celestic", outOf = 6).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -1886,8 +1957,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "AerialMappers", outOf = 6).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "AerialMappers", outOf = 6)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "AerialMappers", outOf = 3).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -1914,8 +1987,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "FloatingRefinery", outOf = 6).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "FloatingRefinery", outOf = 6)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "FloatingRefinery", outOf = 3).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -1927,8 +2002,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "RedShips", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "RedShips", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -2056,10 +2133,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker")
+      fillInTask("UseAction")
           .choose("ActionCard" to "NitriteReducingBacteria", outOf = 10)
+          .choose("ActionSlot" to "Action2", outOf = 3)
           .done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -2088,8 +2165,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "FloaterTechnology", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "FloaterTechnology", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "LocalShading", outOf = 6).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -2100,8 +2179,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "FloatingRefinery", outOf = 6).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "FloatingRefinery", outOf = 6)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "FloatingRefinery", outOf = 3).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -2118,8 +2199,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "LocalShading", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "LocalShading", outOf = 10)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -2144,8 +2227,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Stratopolis", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Stratopolis", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceCard" to "JetStreamMicroscrappers", outOf = 6).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -2167,8 +2252,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "InventorsGuild", outOf = 5).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "InventorsGuild", outOf = 5)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("ProjectCard").chooseAmount(1, outOf = 2).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -2179,10 +2266,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker")
+      fillInTask("UseAction")
           .choose("ActionCard" to "JetStreamMicroscrappers", outOf = 10)
+          .choose("ActionSlot" to "Action2", outOf = 3)
           .done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -2202,8 +2289,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Extremophiles", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Extremophiles", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Microbe").choose("ResourceHolder" to "NitriteReducingBacteria", outOf = 2).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -2214,8 +2303,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "AerialMappers", outOf = 6).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "AerialMappers", outOf = 6)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     green.turn {
@@ -2253,8 +2344,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "TitanShuttles", outOf = 5).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "TitanShuttles", outOf = 5)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceCard" to "TitanShuttles", outOf = 1).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -2265,8 +2358,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "RedSpotObservatory", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "RedSpotObservatory", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -2287,8 +2382,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Dirigibles", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Dirigibles", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "Celestic", outOf = 6).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -2324,8 +2421,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Celestic", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Celestic", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "Celestic", outOf = 6).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -2345,8 +2444,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "RedShips", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "RedShips", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -2365,8 +2466,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "EnergyMarket", outOf = 7).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "EnergyMarket", outOf = 7)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       // "Floating Habs, spend two and add ... to itself."
       cardAction1(FloatingHabs) {
         fillInTask("Floater").choose("ResourceHolder" to "FloatingHabs", outOf = 3).done()
@@ -2379,8 +2482,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "CloudTourism", outOf = 8).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "CloudTourism", outOf = 8)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
     }
 
     // board-16-51-02.jpg: all players have passed in generation 7, before production.
@@ -2438,18 +2543,20 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Stratopolis", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Stratopolis", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceCard" to "JetStreamMicroscrappers", outOf = 6).done()
       fillInTask("UseAction")
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 10)
           .choose("ActionSlot" to "Action1", outOf = 4)
           .chooseAmount(1, outOf = 2)
           .done()
-      fillInTask("ActionUsedMarker")
+      fillInTask("UseAction")
           .choose("ActionCard" to "JetStreamMicroscrappers", outOf = 10)
+          .choose("ActionSlot" to "Action2", outOf = 3)
           .done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
     }
     yellow.turn {
       // "Suppose I can start with a Business Network."
@@ -2458,8 +2565,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "BusinessNetwork", outOf = 8).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "BusinessNetwork", outOf = 8)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("ProjectCard").chooseAmount(1, outOf = 2).done()
       // "Atalanta Planitia Lab. For a ten. I draw two cards. ... Only eight because my cutting
       // edge."
@@ -2507,8 +2616,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "AerialMappers", outOf = 8).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "AerialMappers", outOf = 8)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     green.turn {
@@ -2553,8 +2664,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "FloatingRefinery", outOf = 8).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "FloatingRefinery", outOf = 8)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "FloatingRefinery", outOf = 4).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -2571,10 +2684,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker")
+      fillInTask("UseAction")
           .choose("ActionCard" to "NitriteReducingBacteria", outOf = 12)
+          .choose("ActionSlot" to "Action2", outOf = 3)
           .done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -2589,8 +2702,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "InventorsGuild", outOf = 5).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "InventorsGuild", outOf = 5)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("ProjectCard").chooseAmount(1, outOf = 2).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -2601,8 +2716,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "FloaterTechnology", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "FloaterTechnology", outOf = 12)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "LocalShading", outOf = 7).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -2613,8 +2730,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "CloudTourism", outOf = 8).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "CloudTourism", outOf = 8)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     green.turn {
@@ -2629,8 +2748,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "LocalShading", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "LocalShading", outOf = 12)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -2652,8 +2773,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Dirigibles", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Dirigibles", outOf = 12)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "TitanAirScrapping", outOf = 7).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -2678,8 +2801,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Extremophiles", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Extremophiles", outOf = 12)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Microbe").choose("ResourceHolder" to "NitriteReducingBacteria", outOf = 2).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -2725,8 +2850,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "OrbitalCleanup", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "OrbitalCleanup", outOf = 12)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -2746,8 +2873,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "TitanShuttles", outOf = 6).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "TitanShuttles", outOf = 6)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceCard" to "TitanShuttles", outOf = 1).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -2758,8 +2887,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Celestic", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Celestic", outOf = 12)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "TitanAirScrapping", outOf = 7).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -2772,8 +2903,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("ActionSlot" to "Action1", outOf = 4)
           .chooseAmount(1, outOf = 2)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Ants", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Ants", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
     }
     green
         .fillInTask("UseAction")
@@ -2786,8 +2919,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "TitanAirScrapping", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "TitanAirScrapping", outOf = 12)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -2797,8 +2932,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Livestock", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Livestock", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     blue.turn {
@@ -2808,8 +2945,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "RedSpotObservatory", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "RedSpotObservatory", outOf = 12)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     // Blue did not remove the floater spent by the Observatory draw: the generation-end photo
@@ -2835,8 +2974,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "EnergyMarket", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "EnergyMarket", outOf = 10)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       // "Spend my thirteen on Asteroid Mining Consortium. ... decrease [Blue]'s titanium
       // production by one, increase my own."
       playProject(AsteroidMiningConsortium, 11) {
@@ -2858,8 +2999,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "RedShips", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "RedShips", outOf = 12)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       // "I can sell these three ... patents."
       fillInTask("UseAction")
           .chooseAlternative("UseAction", outOf = 2)
@@ -2974,8 +3117,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("ActionSlot" to "Action1", outOf = 4)
           .chooseAmount(1, outOf = 2)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "EnergyMarket", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "EnergyMarket", outOf = 10)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
     }
     // Green forgot to take his Immigrant City effect.
     green.exMachina("PROD[-MC]")
@@ -3006,8 +3151,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "BusinessNetwork", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "BusinessNetwork", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("ProjectCard").chooseAmount(1, outOf = 2).done()
       // "Topsoil Contract for eight. ... no, no, no. Six. Solar Logistics."
       playProject(TopsoilContract, 6)
@@ -3024,10 +3171,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker")
+      fillInTask("UseAction")
           .choose("ActionCard" to "NitriteReducingBacteria", outOf = 12)
+          .choose("ActionSlot" to "Action2", outOf = 3)
           .done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -3060,8 +3207,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "RedSpotObservatory", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "RedSpotObservatory", outOf = 12)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       // "Sell this patent for one money."
       fillInTask("UseAction")
           .choose("StandardAction" to "UseStandardProjectAction", outOf = 10)
@@ -3081,8 +3230,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Ants", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Ants", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
 
       fillInTask("Microbe")
           .choose("Owner" to "Blue", outOf = 3)
@@ -3107,8 +3258,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Stratopolis", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Stratopolis", outOf = 12)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceCard" to "Stratopolis", outOf = 7).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -3125,8 +3278,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "InventorsGuild", outOf = 6).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "InventorsGuild", outOf = 6)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("ProjectCard").chooseAmount(1, outOf = 2).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -3137,8 +3292,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "TitanAirScrapping", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action2", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "TitanAirScrapping", outOf = 12)
+          .choose("ActionSlot" to "Action2", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -3148,8 +3305,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Livestock", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Livestock", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     green.turn {
@@ -3167,8 +3326,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "OrbitalCleanup", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "OrbitalCleanup", outOf = 12)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -3179,8 +3340,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "CloudTourism", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "CloudTourism", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     green.turn {
@@ -3200,8 +3363,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "FloatingRefinery", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "FloatingRefinery", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     green.turn {
@@ -3212,8 +3377,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("ActionSlot" to "Action1", outOf = 4)
           .chooseAmount(1, outOf = 2)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "AiCentral", outOf = 7).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "AiCentral", outOf = 7)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
     }
     blue.turn {
       // "Use my Dirigibles action to add a floater to Celestic."
@@ -3222,8 +3389,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Dirigibles", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Dirigibles", outOf = 12)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "Celestic", outOf = 7).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -3234,8 +3403,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "AerialMappers", outOf = 10).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "AerialMappers", outOf = 10)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "FloatingHabs", outOf = 4).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -3253,8 +3424,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "FloaterTechnology", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "FloaterTechnology", outOf = 12)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "Celestic", outOf = 7).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -3293,8 +3466,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Celestic", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Celestic", outOf = 12)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Floater").choose("ResourceHolder" to "Celestic", outOf = 7).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -3316,8 +3491,11 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "RedShips", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done().expect("4 MC")
+      fillInTask("UseAction")
+          .choose("ActionCard" to "RedShips", outOf = 12)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
+          .expect("4 MC")
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -3332,8 +3510,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "LocalShading", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "LocalShading", outOf = 12)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -3348,8 +3528,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("StandardAction" to "UseActionOnCardAction", outOf = 9)
           .choose("ActionSlot" to "Action1", outOf = 3)
           .done()
-      fillInTask("ActionUsedMarker").choose("ActionCard" to "Extremophiles", outOf = 12).done()
-      fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
+      fillInTask("UseAction")
+          .choose("ActionCard" to "Extremophiles", outOf = 12)
+          .choose("ActionSlot" to "Action1", outOf = 3)
+          .done()
       fillInTask("Microbe").choose("ResourceHolder" to "Extremophiles", outOf = 2).done()
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }

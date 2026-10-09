@@ -4,6 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
+import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
@@ -118,7 +119,6 @@ internal class DeadEndsTest : CardTest() {
     var hazardousChoiceAttempted = false
     try {
       p1.runOperation("$ProjectEden") {
-        doTask("DefaultGreeneryTile")
         hazardousChoiceAttempted = true
         doTask("GreeneryTile<$onlyCitySpace>")
         doTask("OceanTile<Tharsis_1_5>")
@@ -136,7 +136,6 @@ internal class DeadEndsTest : CardTest() {
     p1.runOperation("$ProjectEden") {
           doTasks(
               "CityTile<$onlyCitySpace>",
-              "DefaultGreeneryTile",
               "GreeneryTile<$otherOpenSpace>",
               "OceanTile<Tharsis_1_5>",
           )
@@ -162,10 +161,7 @@ internal class DeadEndsTest : CardTest() {
     var hazardousChoiceAttempted = false
     try {
       p1.runOperation("$SmallAsteroid") {
-        doTasks(
-            "-Plant<Player2>",
-            "MyResourceWasRemoved<Player2, Class<Plant>, Player1>.",
-        )
+        doTask("-Plant<Player2>")
         hazardousChoiceAttempted = true
         doTasks(
             "3 MC<Player2> FROM MC<Player1>.",
@@ -185,14 +181,8 @@ internal class DeadEndsTest : CardTest() {
     p2.count("Plant") shouldBe 1
 
     p1.runOperation("$SmallAsteroid") {
-          doTasks(
-              "-Plant<Player2>",
-              "MyResourceWasRemoved<Player2, Class<Plant>, Player1>.",
-              "TemperatureStep",
-              "TerraformRating",
-              "-3 MC<Player1>",
-              "Ok",
-          )
+          doTask("-Plant<Player2>")
+          doTasks("TemperatureStep", "TerraformRating", "-3 MC<Player1>", "Ok")
           autoExecNow(EAGER)
         }
         .expect("-3 MC, -Plant<Player2>, 0 MC<Player2>")
@@ -242,6 +232,32 @@ internal class DeadEndsTest : CardTest() {
   }
 
   @Test
+  internal fun `Cimmeria placement with no legal colony rolls back with either player policy`() {
+    listOf(NONE, EAGER).forEach { policy ->
+      newGame(
+          Cimmeria,
+          ColoniesExpansion,
+          colonyTiles = testColonyTiles(2),
+      )
+      p1.runOperation(
+          "5 MC, Colony<Luna>, Colony<Ceres>, Colony<Triton>, Colony<Ganymede>, Colony<Callisto>"
+      )
+      p1.autoExecPolicy = policy
+
+      shouldThrow<GameplayException> {
+        p1.runOperation("CityTile<Cimmeria_3_3>") {
+          if (policy == NONE) doTask("CimmeriaPlacementBonus")
+          doTask("Colony<Luna>")
+        }
+      }
+
+      p1.count("CityTile<Cimmeria_3_3>") shouldBe 0
+      p1.count("Colony") shouldBe 5
+      p1.count("MC") shouldBe 5
+    }
+  }
+
+  @Test
   internal fun `L1 Trade Terminal must give to every eligible card`() {
     newGame(Prelude2CardPack, ColoniesExpansion, VenusNextExpansion)
     p1.runOperation(
@@ -254,10 +270,7 @@ internal class DeadEndsTest : CardTest() {
     var hazardousChoiceAttempted = false
     shouldThrow<DeadEndException> {
       p1.runOperation("$L1TradeTerminal") {
-        doTasks(
-            "L1GiftWatcher",
-            "EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }",
-        )
+        doTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         addCardResources(FloatingHabs)
         addCardResources(VenusianInsects)
         hazardousChoiceAttempted = true
@@ -274,10 +287,7 @@ internal class DeadEndsTest : CardTest() {
     p1.count("Floater<$AerialMappers>") shouldBe 1
 
     p1.runOperation("$L1TradeTerminal") {
-          doTasks(
-              "L1GiftWatcher",
-              "EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }",
-          )
+          doTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
           addCardResources(FloatingHabs)
           addCardResources(VenusianInsects)
           addCardResources(AerialMappers)

@@ -11,7 +11,7 @@ internal class CuttingEdgeTechnologyTest : ProjectCardTest() {
   internal fun `Discounts a card with a requirement`() {
     kim.exMachina("$CuttingEdgeTechnology")
 
-    kim.playProject(DustSeals, 0)
+    kim.playProject(DustSeals, 0).expect("0 MC")
   }
 
   @Test

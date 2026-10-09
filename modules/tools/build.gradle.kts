@@ -3,7 +3,6 @@ import org.gradle.api.tasks.PathSensitivity
 
 plugins {
   id("solarnet.jvm")
-  application
 }
 
 val kotlinFileComplexityAnalyzer by configurations.creating {
@@ -13,8 +12,6 @@ val kotlinFileComplexityAnalyzer by configurations.creating {
 
 val toolsSourceDirectory =
     rootProject.layout.projectDirectory.dir("src/jvm/dev/martianzoo/tfm/tools")
-val canonSourceDirectory =
-    rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/canon")
 
 kotlin {
   sourceSets {
@@ -29,6 +26,7 @@ kotlin {
 
 dependencies {
   implementation(project(":agent"))
+  implementation(project(":catalog"))
   implementation(project(":tfm-canon"))
   implementation(project(":tfm-fake"))
   implementation(project(":engine"))
@@ -37,11 +35,6 @@ dependencies {
   implementation(project(":tfm-engine"))
   kotlinFileComplexityAnalyzer(libs.detekt.metrics)
   testRuntimeOnly(libs.detekt.metrics)
-}
-
-application {
-  mainClass.set("dev.martianzoo.tfm.tools.SoloPlacementKt")
-  applicationName = "solo-placement"
 }
 
 tasks.withType<Test>().configureEach {
@@ -53,13 +46,6 @@ tasks.register<JavaExec>("typeStructureReport") {
   description = "Reports encoding-relevant type statistics for an all-expansions five-player game."
   classpath = sourceSets.main.get().runtimeClasspath
   mainClass.set("dev.martianzoo.tfm.tools.TypeStructureReportKt")
-}
-
-tasks.register<JavaExec>("standardResourceMonotonicityReport") {
-  group = "application"
-  description = "Reports declarative threats to solo resource and production monotonicity."
-  classpath = sourceSets.main.get().runtimeClasspath
-  mainClass.set("dev.martianzoo.tfm.tools.StandardResourceMonotonicityReportKt")
 }
 
 val eventLogDumpOutput =
@@ -111,20 +97,13 @@ tasks.register<JavaExec>("dumpOtbGame20260912EventLog") {
   )
 }
 
-tasks.register<JavaExec>("regenerateMapAreas") {
-  group = "build"
-  description = "Regenerates canonical map-area declarations from diagrams in Pets comments."
-  classpath = sourceSets.main.get().runtimeClasspath
-  mainClass.set("dev.martianzoo.tfm.tools.RegenerateMapAreasKt")
-  inputs.files(canonSourceDirectory.asFileTree.matching { include("**/*.pets") })
-  args(canonSourceDirectory.asFile.absolutePath)
-}
-
 val kotlinFileComplexitySources =
     rootProject.layout.projectDirectory.asFileTree.matching {
       include("src/**/*.kt")
       include("test/**/*.kt")
+      exclude("src/**/dev/martianzoo/tfm/petstools/**")
       exclude("src/**/dev/martianzoo/tfm/tools/**")
+      exclude("test/**/dev/martianzoo/tfm/petstools/**")
       exclude("test/**/dev/martianzoo/tfm/tools/**")
       exclude("test/**/dev/martianzoo/tfm/benchmarks/**")
       exclude("src/**/dev/martianzoo/tfm/text/**")

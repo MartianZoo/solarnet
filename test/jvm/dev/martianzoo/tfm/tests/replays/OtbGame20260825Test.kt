@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -52,7 +52,6 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
         // The first immediate action reuses Focused Organization: discard Red Ships and 1 M€,
         // then draw a card and take titanium.
         doTask("UseAction<UseActionOnCardAction, Action1>")
-        doTask("ActionUsedMarker<$FocusedOrganization>")
         cardAction1(FocusedOrganization) {
           doTask("-MC")
           doTask("Titanium")

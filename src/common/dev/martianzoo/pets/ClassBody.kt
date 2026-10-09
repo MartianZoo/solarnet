@@ -92,7 +92,7 @@ internal class ClassBody(elements: List<Element> = emptyList()) {
   }
 
   /** One declaration-body member. */
-  public sealed class Element {
+  public sealed class Element private constructor() {
     public class InvariantElement(public val invariant: Requirement) : Element()
 
     public class DefaultsElement(public val defaults: DefaultsDeclaration) : Element()

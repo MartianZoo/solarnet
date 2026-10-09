@@ -8,6 +8,7 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
 
@@ -37,7 +38,7 @@ internal class AutoExecLoop(private val world: World) {
               if (pending.size == 1) pending.toList() else pending.filter(::canSelectTask)
             }
     val candidateCounts = candidates.groupingBy { allTasks.getTaskData(it).assignee }.eachCount()
-    val options = candidates.filter { taskId ->
+    val policyOptions = candidates.filter { taskId ->
       val actor = allTasks.getTaskData(taskId).assignee
       when (policy(taskId)) {
         NONE -> false
@@ -45,6 +46,9 @@ internal class AutoExecLoop(private val world: World) {
         else -> true
       }
     }
+    val (adminOptions, otherOptions) =
+        policyOptions.partition { taskId -> allTasks.getTaskData(taskId).assignee == ADMIN }
+    val options = adminOptions + otherOptions
     val activeCandidates = candidates.filter { taskId -> policy(taskId) != NONE }
 
     when (options.size) {
@@ -62,6 +66,7 @@ internal class AutoExecLoop(private val world: World) {
         val engine = engineFor(taskId)
         engine.selectTask(taskId)
         if (taskId !in allTasks) return true
+        if (allTasks.getTaskData(taskId).assignee != engine.actor) return true
         try {
           if (engine.trySelectedTask()) return true
         } catch (e: DeadEndException) {

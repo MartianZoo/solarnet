@@ -1,5 +1,6 @@
 package dev.martianzoo.state
 
+import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -11,7 +12,6 @@ import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.state.GameEvent.TaskEditedEvent
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
-import dev.martianzoo.state.Task.Selection
 import dev.martianzoo.state.Task.TaskId
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -19,6 +19,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.int
@@ -204,8 +205,9 @@ public object EventLogJson {
   private fun encodeTask(task: Task): JsonObject = buildJsonObject {
     put("id", task.id.ordinal)
     put("controller", task.controller.className.toString())
-    put("actor", task.actor.className.toString())
-    put("selection", task.selection.name)
+    put("selectionAssignee", task.selectionAssignee.className.toString())
+    put("assignee", task.assignee.className.toString())
+    put("selected", task.selected)
     put("instruction", task.instruction.toString())
     put(
         "then",
@@ -228,11 +230,12 @@ public object EventLogJson {
     return Task(
         TaskId(requiredInt(source, "id")),
         decodeActor(requiredString(source, "controller")),
-        decodeActor(requiredString(source, "actor")),
-        Selection.valueOf(requiredString(source, "selection")),
-        parse(requiredString(source, "instruction")),
-        then,
-        decodeCause(requiredElement(source, "cause")),
+        selectionAssignee = decodeActor(requiredString(source, "selectionAssignee")),
+        assignee = decodeActor(requiredString(source, "assignee")),
+        selected = requiredBoolean(source, "selected"),
+        instruction = parse(requiredString(source, "instruction")),
+        then = then,
+        cause = decodeCause(requiredElement(source, "cause")),
     )
   }
 
@@ -282,4 +285,7 @@ public object EventLogJson {
 
   private fun requiredInt(source: JsonObject, name: String): Int =
       requiredElement(source, name).jsonPrimitive.int
+
+  private fun requiredBoolean(source: JsonObject, name: String): Boolean =
+      requiredElement(source, name).jsonPrimitive.boolean
 }

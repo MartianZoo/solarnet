@@ -7,10 +7,10 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.util.toStrings
 import dev.martianzoo.testsupport.PLAYER1
-import dev.martianzoo.tfm.canon.ApiUtils.lookUpProductionLevels
-import dev.martianzoo.tfm.canon.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmEngine
+import dev.martianzoo.tfm.state.ApiUtils.lookUpProductionLevels
+import dev.martianzoo.tfm.state.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.tests.*
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.Test

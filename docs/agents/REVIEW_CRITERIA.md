@@ -37,13 +37,16 @@ Reject the change if:
 - behavior originates from an inert identity or duplicated state rather than the live component
   that offers and rescinds it;
 - a layer gained knowledge or policy outside its responsibility, including game-specific
-  enumeration below the game view; or
+  enumeration below the game view;
+- engine task attribution was expanded into caller authentication, secret custody, or deciding
+  which history players accept, responsibilities assigned outside the calculator by
+  [ADVERSARIAL.md](ADVERSARIAL.md); or
 - autoexecution, incidental iteration order, `THEN`, `::`, priority, or pre-pruning was used to hide
   missing choice, task identity, completion, or engine semantics.
 
 Use [`VALUES.md`](VALUES.md#keep-pets-central), [`TESTING.md`](TESTING.md#test-design),
-[`SEQUENCING.md`](SEQUENCING.md#before-adding-order), and
-[`AUTOEXEC.md`](AUTOEXEC.md#choice-safety-check) for the detailed tests.
+and [`SEQUENCING.md`](SEQUENCING.md#before-adding-order) for the detailed tests. Inspect the current
+Agent policy source before relying on automatic execution.
 
 ## Tests and evidence
 
@@ -55,13 +58,33 @@ Reject the change if:
   literal task execution, or the correction itself rather than the action's interesting net result;
 - a replay fact comes from generated output, an existing replay, or agent inference when original
   evidence is available;
-- a replay correction is hidden inside an unrelated action, or a gameviewer recording contains
+- a replay correction is hidden inside an unrelated action, or a viewer recording contains
   evidence, commentary, or assertions owned by its replay test; or
 - known incorrect behavior is presented as an ordinary rule or accepted hack instead of a passing
   observable `BugsTest` characterization.
 
 Use [`TESTING.md`](TESTING.md#test-design) and the replay guide selected by
-[`README.md`](README.md#reconstruct-a-game).
+[`README.md`](README.md#verification-and-reconstruction).
+
+## API specifications and KDoc
+
+Apply the [API specifications and KDoc guidance](SPEC_FIDELITY.md), including
+its nine-module priority scope. Reject documentation work if:
+
+- it omits a public API contract merely because the declaration serves another repository module
+  or is not a principal entry point;
+- class KDoc neither explains applicable shared rules nor links directly to their common
+  explanation;
+- an API description leaves relevant caller obligations, observable outcomes, or failure effects
+  ambiguous, or merely paraphrases the signature;
+- duplicated explanations create competing sources of truth;
+- documentation turns genuinely unresolved intent into a promise, or weakens a clearly intended
+  contract merely to match an implementation defect; or
+- documentation work silently changes behavior or visibility to fit the contract.
+
+A clearly intended contract may be specified before the implementation satisfies it. Track known
+mismatches separately; a defect notice in the specification or KDoc is not required. Assume readers
+already understand Pets and Solarnet.
 
 ## Final coherence
 

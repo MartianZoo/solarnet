@@ -1,279 +1,157 @@
-# Context, assignment, and actor identity
+# Context, assignment, and Actor identity
 
-> **Agent information:** This is an agent-maintained information-tracking document, written by
-> agents for agents. It can record human decisions, but it is not human-authored documentation.
+> **Agent information:** This is an agent-maintained note for agents.
 >
 > **Read when:** changing context specialization, event Actor attribution, task assignment, `BY`,
-> Admin, selection-time delegated narrowing, Philares, or lexical ownership.
+> Admin, delegated narrowing, Philares, or lexical ownership.
 >
-> **Skip when:** changing ownership as a Type dependency without task routing, attribution, or the
-> lexical `Me` binding; read sections 3, 10, and 13 of
-> [type-system-spec.md](../type-system-spec.md).
->
-> **Status:** current identity and lexical-ownership semantics, with unresolved operation control
-> and explicit-ownership proposals distinguished below. Delegation currently lasts for the selected
-> task, not its payment or other queued consequences.
+> **Status:** current semantics. A handoff lasts for the selected task, not its later payment or
+> other queued consequences.
 
 ## Source map
 
-- [`Actor.kt`](../../src/common/dev/martianzoo/state/Actor.kt) — search
-  for `public sealed interface Actor` for the operation identity mechanism.
-- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt) — inspect `controller`, the derived
-  `assignee`, `actor`, and selection state before changing queued work.
-- [`PendingTask.kt`](../../src/common/dev/martianzoo/engine/PendingTask.kt) — search
-  for `fromEffect` to see trigger-time routing.
-- [`PetElaborator.kt`](../../src/common/dev/martianzoo/pets/PetElaborator.kt) — search for
-  `insertOwnedContext` to see lexical owner insertion.
-- [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt) — search for
-  `private fun create` to see the actor filter on unowned triggers.
-- [`EffectActorCharacterizationTest.kt`](../../test/common/dev/martianzoo/engine/EffectActorCharacterizationTest.kt)
-  and [`TaskAssignmentCharacterizationTest.kt`](../../test/common/dev/martianzoo/engine/TaskAssignmentCharacterizationTest.kt)
-  — read before changing current Actor or assignment semantics.
-- [`ByTriggerCharacterizationTest.kt`](../../test/common/dev/martianzoo/engine/ByTriggerCharacterizationTest.kt)
-  — preserve trigger-side `BY` matching and binding without treating its queue assertions as the
-  delegation contract.
-- [`TaskDelegationTest.kt`](../../test/common/dev/martianzoo/engine/TaskDelegationTest.kt) and
-  [`PhilaresTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/PhilaresTest.kt) — inspect
-  the generic handoff and its primary game scenario.
+- [`Actor.kt`](../../src/common/dev/martianzoo/state/Actor.kt): operation identities.
+- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt): `controller`,
+  `selectionAssignee`, current `assignee`, and `selected`.
+- [`PendingTask.kt`](../../src/common/dev/martianzoo/engine/PendingTask.kt): trigger-time routing;
+  search for `fromEffect`.
+- [`PetElaborator.kt`](../../src/common/dev/martianzoo/pets/PetElaborator.kt): lexical owner
+  insertion; search for `insertOwnedContext`.
+- [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt): the Actor filter on
+  unowned triggers.
 
 ## Six identities
 
-Pets behavior is interpreted in context. Keep these roles separate:
+Keep these roles independent:
 
-- **Context component:** the concrete component whose declaration supplied an Effect, Instruction,
-  Requirement, or Metric.
-- **Context owner:** the owner of that component, or the Player scope through which an ad hoc
+- **Context component:** the concrete component whose declaration supplied an Effect,
+  Instruction, Requirement, or Metric.
+- **Context owner:** that component's owner, or the Player scope through which an ad hoc
   instruction entered the engine.
-- **Controller:** the Actor that controls the surrounding operation and receives work caused by it.
-- **Assignee:** the Actor permitted by game state to select or narrow the deferred work in its
-  current state.
-- **Narrower:** the Actor entitled to supply choices remaining inside a selected abstract task.
-- **Actor:** the default performer credited with the resulting change. Instruction-side `BY` may
-  override it.
+- **Controller:** the Actor that orders work and receives independent siblings and continuations.
+- **Selection assignee:** the Actor to whom selecting a task transfers it.
+- **Current assignee:** the Actor through whose Agent the task may now be selected, narrowed, or
+  executed.
+- **Executing Actor:** the Actor whose `ActorEngine` performs the concrete change and is recorded
+  on its `ChangeEvent`.
 
-These roles often coincide. Current queued work stores its controller and contextual Actor once.
-Its three-state selection lifecycle determines which of them is the assignee. The contextual Actor
-supplies any remaining choice and is the default performer. Icy Impactors uses instruction-side
-`BY` to separate its credited Actor.
+A Task stores `controller`, `selectionAssignee`, and `assignee`. It has no separate narrower or
+performer field. The current assignee supplies remaining choices and performs the concrete
+instruction.
 
 ## Admin and engine
 
-`Admin` is the concrete non-Player Actor and Component that performs neutral table activity. An
-N-Player game has those N seated Player Actors plus Admin. Admin may control, receive, select, and
-narrow tasks, including abstract choices such as a die result. No identity rule
-requires Admin's decisions to be deterministic or outcome-preserving.
+`Admin` is the non-Player Actor and Component that performs neutral table activity. Admin may
+control, receive, select, and narrow tasks. No identity rule requires Admin's decisions to be
+deterministic.
 
-Kotlin `Engine` is different: it is the passive mechanism that validates an Actor mutation and
-calculates the resulting state transition. It is not an Actor, Component, task assignee, narrower,
-or event performer.
+Kotlin `Engine` is different: it validates an Actor mutation and calculates the resulting state
+transition. It is not an Actor, Component, assignee, narrower, or event performer.
 
-Core engine state derives a Task's current assignee from its selection state and enforces that
-task mutations name that Actor. The Actor's unique Agent binds normal client calls to that
-Actor, presents a convenient filtered view of the global task queue, and issues both explicit and
-policy-chosen mutations. Lower-level engine mutation remains available for deliberate workflow,
-replay, cheat, and test use.
+An Actor's Agent binds normal client calls to that Actor and presents a filtered view of the global
+task pool. If a request arrives through FooPlayer's Agent for work currently assigned to FooPlayer,
+that establishes the Actor for the calculation. Solarnet does not authenticate the caller or demand
+proof that FooPlayer's human or bot approved it. The same program may use every Actor's Agent.
+Lower-level engine mutation also remains available for exploration, workflow, replay, and correction.
 
-## Context specialization
+The assignment and handoff checks below preserve the meaning of game decisions and resulting
+events. They do not restrict who can obtain or call an Agent. Whether a submitted decision really
+came from the accepted decision-maker is handled outside Solarnet under
+[ADVERSARIAL.md](ADVERSARIAL.md). Admin likewise requires no separate operator or committer;
+a player's program may call the Admin Agent as part of calculating its proposed continuation.
+
+## Context and event Actor
 
 Lexical owner insertion happens during elaboration. A bare `Plant` in an owned card effect becomes
-`Plant<Me@Owner>`, then specialization of the exact card component binds `Me` to its owner. An
-ownerless effect may declare `Me@Player` in an owned trigger or a `BY` selector. Literal `Anyone`
-remains broad. This Type specialization is independent of task routing and Actor attribution.
+`Plant<Me@Owner>`, then specialization of the exact card binds `Me` to its owner. Literal `Anyone`
+remains broad. This Type specialization does not assign task control or event attribution.
 
-## Actor
+A queued effect's selection assignee defaults to the effect component's Player owner, then the
+changed component's Player owner, then the triggering Actor. A queued effect of a `System` gain
+uses the gain task's retained selection assignee before that last fallback. An automatic effect
+executes inline as the effect owner when present and otherwise as its surrounding Actor.
 
-A queued effect instruction's Actor defaults to the effect component's Player owner, then the
-changed component's Player owner, then the surrounding execution Actor. An automatic effect keeps
-the effect owner when present and otherwise the surrounding Actor. An ad hoc instruction defaults
-to its gameplay Actor. Instruction-side `BY` explicitly overrides the performer without changing
-who narrows an abstract task.
+Instruction-side `BY` remains in an abstract task until its Actor becomes concrete. It then changes
+the current assignee and is removed from the executable instruction. That Actor's engine must
+perform the change. Automatic effects have no task to hand off, so they cannot use instruction-side
+`BY`.
 
-The default binds when work is produced. A pending or queued task remembers its contextual Actor in
-`Task.actor`; later execution through another gameplay scope does not steal attribution. Splitting,
-narrowing, resolution, and `THEN` continuation preserve it.
+A `ChangeEvent` records the Actor whose engine executed the change. Trigger-side `BY` inspects only
+that Actor. It filters event attribution; it does not transfer task control.
 
-A `ChangeEvent` records that Actor. Trigger-side `BY` inspects only the event's Actor. This is why
-stealing a victim's heat is still an action by the attacker.
+An owned component watching an ownerless, non-System type gets an Actor filter for its Player owner
+when the effect is compiled. Explicit `BY Anyone` accepts every Actor. Watching an owned type uses
+its owner dependency to select whose components match.
 
-## Trigger actor filter
+## Task assignment and delegation
 
-An owned component watching an ownerless, non-System type gets an actor filter for its Player
-owner when the effect is compiled. An explicit `BY Anyone` accepts every Actor instead. Watching an
-owned type uses its owner dependency to say whose components match. This is trigger matching,
-not task attribution; language rule L6-9 owns its syntax.
+A direct task starts with its gameplay Actor as controller, selection assignee, and current
+assignee. Queued work produced during Player-controlled work keeps that Player as controller. Its
+selection assignee comes from the effect owner, changed component owner, then triggering Actor.
+Admin-controlled reactions instead use those sources to choose the controller in the same order.
 
-## Triggered task assignment and delegation
+A normalized task that directly gains `System`, with or without a top-level instruction-side
+`BY`, begins assigned to Admin while retaining its controller and selection assignee. Contextual
+selection reapplies that rule. A concrete `BY` remains authoritative: naming a non-Admin performer
+then reaches the existing `System` creation guard and fails. The Admin assignment changes neither
+presentation nor scheduling.
 
-A direct task starts with its gameplay Actor as controller and contextual Actor. Queued work
-triggered during a Player-controlled operation keeps that Player as controller, regardless of which
-component owns the effect. Its contextual Actor is the Player owner of the effect-bearing component,
-then the Player owner of the changed component, then the triggering Actor. When the surrounding
-controller is Admin, the effect owner, changed component owner, and triggering Actor instead supply
-the controller in that order. An unselected task's assignee is its controller.
+Use `System` for a gain whose performance is neutral table bookkeeping rather than a Player's game
+action. The gain must itself be safe for eager Admin execution. If it opens a real choice, that
+choice remains downstream work for the retained Player recipient. This classification is
+independent of `Hidden`, which controls presentation, and `::`, which preserves an invariant within
+the initiating operation.
 
-Start-player requests locate the token's Player with an explicitly named `EACH` selector and gain a request
-signal owned by that Player. `EACH` binds lexical `Me`; the signal's own
-effect supplies the owned-component task routing. Icy Impactors separately captures the
-signal event's Actor and uses instruction-side `BY` so the card owner still performs the ocean
-placement chosen by the start player. World Government Advisor instead gains its owned request
-directly, so the card owner chooses regardless of who holds the Start Token.
+Selecting a task resolves it, marks it selected, and moves its current assignee to its selection
+assignee. If that Actor differs from the controller, selection stops at the handoff even when the
+task is concrete. The new assignee narrows or executes it. The global select lock blocks competing
+work until this selected task completes; `Task.controller` does not change.
 
-Selecting a concrete task executes it in place. The change records the task's Actor unless an
-instruction-side `BY` overrides it. Reactions caused by that execution return to the retained
-controller's queue.
+If selection or narrowing makes a top-level `BY` concrete, the engine removes the wrapper, assigns
+the named Actor, and stops again at the handoff. The final assignee performs the stripped
+instruction.
 
-Selecting an abstract task resolves it first, then moves that same selected task to its contextual
-Actor's queue when that Actor differs from the controller. The derived assignee narrows it without
-another selection. The global select-lock prevents the controller or any other Actor from selecting
-or executing competing work until the selected task completes. `Task.controller` does not change
-during this handoff.
+If resolution replaces the selected task with independent siblings, they return to the controller
+as unselected work and retain the selection assignee. `THEN` continuations behave the same way.
+Reactions retain a Player controller; Admin-controlled reactions use the fallback described above.
+The lock ends with the selected task. This is why current delegation does not cover a recipient's
+later payment; see [`SEQUENCING.md`](SEQUENCING.md#the-missing-rule-when-an-operation-is-over).
 
-If resolution or narrowing replaces the selected task with independent siblings, those siblings
-return to the controller as unselected work, as do `THEN` continuations. Reactions retain a Player
-controller; Admin-controlled reactions use the fallback above. The lock ends with the selected task.
-This is current behavior, not a rule that the original controller should reclaim every descendant.
+Philares is the primary current scenario. The active Player controls when to select the reward;
+selection then gives the Philares owner its resource choice and blocks the active Player until that
+task finishes. Icy Impactors first assigns the area choice to the Start Token owner and later uses
+instruction-side `BY` to return the concrete ocean task to the card owner. World Government
+Terraforming assigns its concrete change to Admin.
 
-Neptunian Power Consultants exposes the gap: P1 may choose when to offer P2 the optional ocean
-response, but accepting it creates payment work that must remain under P2's control while P1 waits.
-Current delegation covers the initial choice only. Descendant routing, exclusion of unrelated work,
-and the end of this control interval remain unresolved; see
-[delegated operations and scheduling options](SEQUENCING.md#delegated-operations-and-scheduling-options).
-Instruction-side `BY` cannot provide that authority because it changes attribution only.
+## Lexical ownership
 
-The constraining cases are:
+`Anyone` is the common supertype of `Owner` and `Actor`. `Player` is both; Admin is only an Actor;
+SoloOpponent and Neutral are only Owners. Use bare `Owned` in subclass declarations unless
+narrowing its bound or linking a variable. Use literal `<Anyone>` for unrestricted ownership and
+trigger-side `BY Anyone` for every performer.
 
-| Case | Controller | Narrower | Future Actor |
-| --- | --- | --- | --- |
-| Philares | Player placing the adjacent tile | Philares owner | Philares owner |
-| Enceladus bonuses | Active trader orders bonuses | Each colony owner chooses their card | Each colony owner |
-| Icy Impactors | Card owner | StartToken owner chooses an ocean | Card owner via explicit `BY` |
-| Steal | Attacker | Attacker | Attacker |
-| Homeostasis Bureau | Surrounding operation controller | No choice | Card owner |
-| Pharmacy Union | Operation that produced the Microbe tag | No choice | Pharmacy Union owner |
+`Owned<Me@Owner>` gives the owner dependency an inherited lexical name. Subclasses can narrow that
+same binding, such as `Me@Player`. Independently inherited bindings with the same name are
+ambiguous unless they reach the same dependency. A marked `EACH Me@Player` or
+`RANK Me@Player` rebinds `Me` inside its body; an unmarked selector preserves the outer binding.
 
-`Player(NOT Me@Owner)` filters an event Actor Type; it neither assigns task control nor makes an
-instruction mandatory.
+`Me@` and other named references may omit their type when the visible name selects a unique
+binding, as specified by language rule L1-7. The supplying occurrence still writes its type. An
+`EVAL` captures the lexical `Me` from its evaluation site; ordinary Type-variable specialization
+carries that capture through deferred fanout and ranking. The engine does not reconstruct an owner
+from a selected component or event Actor.
 
-Philares is the primary sequencing scenario. The active Player controls a pending resource task
-caused by that Player's placement and may select other eligible siblings before it. Once the active
-Player selects that task, resolution delegates its resource choice to the Philares owner. The active
-Player cannot select competing work until the Philares owner narrows the choice and receives the
-resource. Assigning the reward directly to the Philares owner at trigger time would transfer control
-too early.
-
-### Enceladus
-
-Enceladus is primarily a narrowing-authority requirement, not an attribution test. The active
-trader controls the order of colony bonuses. Once the trader selects one Enceladus bonus, the owner
-of that particular colony must choose which compatible card receives the microbes. With several
-colonies on Enceladus, each selected bonus may therefore move to a different Player.
-
-That privilege follows from general ownership semantics. The signal
-`GainColonyBonus<ColonyTile>` is owned by the colony owner even though Enceladus itself is neutral,
-so its owner becomes the narrower. Crediting the colony owner is also correct, but does not by
-itself prove that the owner received narrowing authority.
+A `HAS` candidate fills a compatible omitted dependency before lexical `Me` is inserted. Thus
+`EACH Starter@Player(HAS StartToken) { ... }` tests each candidate's token. An incompatible
+candidate leaves the owner open for lexical insertion.
 
 ## Test responsibilities
 
-Generic engine tests may inspect `Task.controller`, derived assignee changes, selection state, and
-recorded Actor to cover the mechanism once. Player-level card and rule tests must stay functional:
-they show who can select or narrow through gameplay calls, that the controller is blocked through
-rejected gameplay, and attribution through a visible trigger-side `BY` consequence when
-attribution is material. They should not filter tasks by cause or Actor, match exact internal task
-strings, or read the Event Log to restate engine metadata.
+Generic engine tests may inspect Task Actor fields, assignee changes, selection state, and recorded
+event Actor. Player-level tests should instead show who can act, that another Actor is blocked, and
+an observable attribution consequence when material. Do not match rendered task text or inspect
+event metadata merely to restate the mechanism.
 
-`ByTriggerCharacterizationTest` owns trigger matching and Actor-variable binding; it does not prove
-delegated operation control. Autoexecution must be disabled in scenarios intended to prove that the
-engine itself excludes the waiting player throughout payment.
-
-## Open policy questions
-
-- **Unique Philares reward under CONCRETE:** P1 creates an adjacency and, after immediate consequences,
-  the Philares resource choice is the only selectable P1-controlled task. CONCRETE can currently select
-  that task on P1's behalf, so it is already selected in P2's queue before an explicit P1 command.
-  Decide whether that is a legitimate controller auto-selection policy or whether every
-  cross-Player handoff requires an explicit controller selection. When multiple sibling tasks are
-  available, CONCRETE already leaves the ordering to P1.
-
-## Lexical ownership model
-
-`Anyone` is the ordinary common supertype of `Owner` and `Actor`. `Owner` names who can own a
-component; `Actor` names who can perform an operation. `Player` is both; Admin is only an Actor;
-SoloOpponent and Neutral are only Owners. All are Anyone identities. This hierarchy belongs to
-Pets; Kotlin represents operation participants with `Actor` and derives ownership from
-`Component.owner` and `Component.owningPlayer`.
-
-Use bare `Owned` in subclass declarations unless narrowing its bound or linking a variable. Keep
-actor-specific dependency bounds precise. Prefer literal `<Anyone>` for unrestricted ownership
-references and trigger-side `BY Anyone` for every performer. These use ordinary intersections with the declared Owner or Actor domain;
-`Anyone` never undergoes contextual substitution and does not make Admin an owner or passive owners
-actors. Instruction-side `BY` still requires one concrete participating Actor. Standalone owner
-fanout and ranking use `Owner`, since `EACH Anyone` and `RANK Anyone` also include Admin. Where
-multiple identity dependencies make the role unclear, retain the precise role or a named variable.
-
-`Owned<Me@Owner>` gives its owner dependency an inherited lexical name. That name is visible to
-subclasses without redeclaration and specializes with the exact component Type. A use such as
-`Me@Player` may narrow inherited `Me@Owner` while naming the same binding. Independent parents
-that give `Me` to distinct dependencies remain ambiguous; repeated paths to one dependency agree.
-An explicitly marked `EACH Me@Player` or `RANK Me@Player` selector rebinds `Me` within its body or
-metrics. An unmarked `EACH` or `RANK` preserves the outer binding. A named rank selector evaluates
-each peer's comparison keys in that peer's ownership context.
-Names such as `Starter@Player` and
-`Other@Player` express a different selected role without rebinding `Me`.
-
-`Me@` and other `Name@` references may omit the bound type when the visible name selects one
-binding, as specified by [L1-7](../pets-language-spec.md#1-expressions). The supplying occurrence
-still writes its type; short references resolve to that binding, including inherited header names
-and locally rebound selectors. In a `THEN` sequence, only observing references may precede their
-supplier. Remaining shorthand extensions are tracked in [TODO.md](../../TODO.md).
-
-The current elaborator inserts the nearest lexical `Me` in bare `Owned` expressions, including
-represented-Class references such as `@StandardResource` when they produce an owned component.
-An omitted owner on a marked declaration receives lexical `Me`; a reference
-to that declaration retains its selected Type. For an effect with no inherited `Me`, elaboration introduces
-one shared `Me@Player` declaration in an owned
-trigger when possible, or in `BY` for an ownerless trigger. An owned component's unowned watched
-type also receives an explicit actor filter during effect compilation. Submitted instructions use
-the submitting Player as the insertion context. This Owned-specific insertion is provisional syntax;
-the selected direction is to request it explicitly through `OWN[...]`, including whole effects.
-General `DEFAULT` is not part of the ownership rule.
-
-Task controller, assignee, and Actor remain separate roles. An `EVAL` captures the lexical `Me`
-from its evaluation site, rendering it as `EVAL<Me>`. Ordinary Type-variable specialization carries
-that capture through deferred fanout and rank evaluation. The engine does not reconstruct an owner
-from the selected component or event Actor. A property in an ownerless effect without a lexical
-binding cannot acquire it from an unrelated event.
-
-A `HAS` candidate fills a compatible omitted dependency, including the owner or a dependency that
-determines it, before lexical `Me` is inserted. Thus `EACH Starter@Player(HAS StartToken) { ... }`
-tests each candidate's token. An incompatible candidate leaves the owner open for lexical `Me`.
-
-## Future direction
-
-**Selected authoring direction, unimplemented:** explicit `OWN[...]` requests ownership shorthand,
-including whole effects, while card and map authoring retain their compact inputs. This concerns elaboration;
-it does not itself solve task control across payment or other queued consequences.
-
-The type system already handles ownership dependencies and inherited variables through ordinary
-rules. The remaining special treatment lives mainly in `PetElaborator.insertOwnedContext`,
-`LiveEffect.create`, `LiveEffect.specialize`, `PendingTask.fromEffect`, and
-`Component.owner` / `owningPlayer`. Moving those operations behind a transform would not establish
-simplification unless inference, repeated traversal, or special cases actually disappear.
-
-### Runtime actor proposal
-
-An explicit Effect selector could supply the contextual Actor currently inferred by
-`PendingTask.fromEffect`. Syntax and fallback behavior remain open. Ordinary instruction `BY`
-cannot replace this inference: Philares separates initial ordering from the recipient's choice,
-while Icy Impactors separates the chooser from the credited performer.
-
-Ownerless effects also differ: Enceladus derives its chooser from an owned bonus signal, while
-map bonuses use placement attribution. Automatic effects omit the changed component owner from
-their Actor fallback, and Admin-controlled queued work has a separate controller fallback. A shared
-selector must preserve or explicitly reconsider these differences.
-
-The remaining ownership questions are whether explicit marks can preserve deferred property
-bindings, selector shadowing, represented resource variables, and copied custom-instruction syntax
-without a parallel environment; and whether ordinary Pets can express passive-owner applicability
-without suppressing valid effects. Neither an ownership rewrite nor declaration relocation is a
-prerequisite for deciding delegated operation control.
+Read `EffectActorCharacterizationTest`, `TaskAssignmentCharacterizationTest`,
+`ByTriggerCharacterizationTest`, `TaskDelegationTest`, and `PhilaresTest` before changing these
+contracts.

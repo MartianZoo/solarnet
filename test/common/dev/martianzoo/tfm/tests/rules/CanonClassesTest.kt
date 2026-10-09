@@ -9,6 +9,7 @@ import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.actors
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
@@ -27,7 +28,7 @@ import kotlin.test.assertFailsWith
 
 /** Tests for the Canon data set. */
 internal class CanonClassesTest {
-  companion object {
+  private companion object {
     private fun te(source: String): Expression = parse(source)
   }
 

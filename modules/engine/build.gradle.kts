@@ -8,6 +8,7 @@ kotlin {
       )
       dependencies {
         implementation(libs.kotlinx.coroutines.core)
+        implementation(project(":catalog"))
         implementation(project(":pets"))
         implementation(project(":state"))
       }

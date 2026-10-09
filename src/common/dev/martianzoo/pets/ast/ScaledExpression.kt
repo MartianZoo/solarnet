@@ -52,7 +52,7 @@ private constructor(
    * L2-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * Zero is rejected wherever a count is required.
    */
-  public sealed class Scalar : PetNode(), Specification<Scalar> {
+  public sealed class Scalar private constructor() : PetNode(), Specification<Scalar> {
     override val kind: kotlin.reflect.KClass<out PetNode> = Scalar::class
 
     override fun visitChildren(visitor: Visitor): Unit = Unit

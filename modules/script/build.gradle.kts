@@ -8,11 +8,13 @@ kotlin {
       )
       dependencies {
         implementation(project(":agent"))
+        implementation(project(":catalog"))
         implementation(project(":pets"))
         implementation(project(":engine"))
         implementation(project(":state"))
         implementation(project(":tfm-canon"))
         implementation(project(":tfm-engine"))
+        implementation(project(":tfm-state"))
       }
     }
     commonTest {

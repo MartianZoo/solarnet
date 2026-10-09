@@ -460,17 +460,25 @@ Each ::= "EACH" PlainExpression "{" InstructionGroup "}"
 > three different resource kinds, so neither deduplicating the selector's occurrences nor choosing
 > the body once and multiplying its count is correct. The body needs no reference to the influence.
 
-**L2-15. `I BY Actor` names who performs the change.** It distributes over a group, so
-`(A, B) BY Player1` is `A BY Player1, B BY Player1`.
+**L2-15. `I BY Actor` assigns concrete queued work to that Actor.** It distributes over a group, so
+`(A, B) BY Player1` is `A BY Player1, B BY Player1`. While the instruction is abstract, its current
+assignee still supplies the choices inside `I`. Once `I` is concrete, the task is assigned to the
+single participating Actor, the `BY` wrapper is removed, and that Actor's agent executes it. The
+resulting event therefore records the Actor that actually performed the change; `BY` does not
+merely substitute an attribution label. An automatic `::` effect creates no task and cannot use
+instruction-side `BY`. `BY` may distribute across `THEN` stages that normalize into separate tasks.
+It is rejected inside a `THEN` that must remain a single task, since such a task cannot change
+assignee between partially executed stages.
 
 ```ebnf
 AttributedInstruction ::= PrimaryInstruction ( "BY" Expression )?
 ```
 
-> **Non-normative example — solo reserve mirroring.** When a player gains or loses a resource, the
-> neutral solo reserve performs its matching change `BY Admin`. The actor mark prevents that mirror
-> from being mistaken for another player action and recursively mirrored; canonical source does not
-> currently need the group-distribution shorthand.
+> **Non-normative example — solo reserve mirroring.** When a player gains or loses a resource, a
+> queued effect creates its matching reserve change `BY Admin`. Selection hands that concrete task
+> to Admin, whose agent performs it. The resulting Admin event is not mistaken for another player
+> action and recursively mirrored; canonical source does not currently need the group-distribution
+> shorthand.
 
 **L2-16. Precedence, tightest first:** a scaled expression and its quantifier, `/`, `BY`, `OR`, the
 gate `:`, `THEN`, `,`. Parentheses group, and rendering re-inserts grouping wherever re-parsing
@@ -620,8 +628,10 @@ discharged by selecting a value describe the selection world (T13-10).
 > card and the second card's exclusion. The card requires the relationship; accepting partial
 > proposals is a language interface choice, not an extra printed game mechanic.
 
-**L3-9. A gate, a `/` metric, a `BY` actor and an `EACH` selector are not choices.** A proposal
-must reproduce each of them exactly; only what they contain may narrow.
+**L3-9. A gate, a `/` metric, a `BY` assignee and an `EACH` selector are not choices.** A proposal
+must reproduce each of them exactly; only what they contain may narrow. In particular, narrowing
+cannot choose or replace the Actor named by `BY`; assignment waits until its inner instruction is
+concrete.
 
 > **Non-normative example — Saturn Surfing.** Its payout is scaled by the floaters on that card and
 > capped at four, with one bonus MC alongside it. A proposal may choose an open target or count, but
@@ -950,8 +960,10 @@ watched type has an owner dependency.
 - When it does, the bare watched type gains `<Me@Owner>` (L9-3), and no actor restriction is added.
 - When it does not, there is no ownership to say it with, so the rule watches only events that
   player performed: `OceanTile` on a card reacts to the oceans its owner places, not an opponent's.
-- A `System` type is exempt: `ProductionPhase` and other Admin-only machinery are the table's own
-  events, belonging to no player, and every owner's rule sees them.
+- A `System` type is exempt. An unowned System event is necessarily performed by Admin, so a
+  Player-actor restriction could never match; it is the table's event and every owner's rule sees
+  it. A System event associated with a particular Player instead carries that Player through an
+  `Owned` dependency.
 
 Writing any `BY` selector replaces this implicit restriction. `BY Anyone` (equivalently `BY Actor`)
 accepts every event actor, including Admin. A rule on a component with no owner has no such restriction to begin with. When

@@ -4,7 +4,7 @@ plugins {
 }
 
 val sourceDirectory =
-    rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/classviewer")
+    rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/almanac")
 
 kotlin {
   js {
@@ -16,8 +16,8 @@ kotlin {
     jsMain {
       kotlin.setSrcDirs(listOf(sourceDirectory))
       dependencies {
+        implementation(project(":catalog"))
         implementation(project(":pets"))
-        implementation(project(":state"))
         implementation(project(":tfm-canon"))
         implementation(devNpm("tslib", "2.8.1"))
       }

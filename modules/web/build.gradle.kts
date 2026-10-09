@@ -18,6 +18,7 @@ kotlin {
     jsMain {
       kotlin.setSrcDirs(listOf(webReplSourceDirectory))
       dependencies {
+        implementation(project(":catalog"))
         implementation(project(":engine"))
         implementation(project(":pets"))
         implementation(project(":state"))
@@ -36,7 +37,6 @@ kotlin {
               ),
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/testsupport"),
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/tests"),
-              rootProject.layout.projectDirectory.dir("test/js/dev/martianzoo/tfm/pets"),
               rootProject.layout.projectDirectory.dir("test/js/dev/martianzoo/tfm/web/webrepl"),
           )
       )
@@ -47,6 +47,7 @@ kotlin {
         implementation(project(":state"))
         implementation(project(":tfm-engine"))
         implementation(project(":tfm-fake"))
+        implementation(project(":tfm-state"))
       }
     }
   }
@@ -58,7 +59,6 @@ tasks.named<org.gradle.api.tasks.testing.AbstractTestTask>("jsBrowserTest") {
   if (allBrowserTestsRequested) {
     filter.includeTestsMatching("dev.martianzoo.tfm.web.webrepl.BrowserHistoryTest")
   } else {
-    filter.includeTestsMatching("dev.martianzoo.tfm.pets.BrowserPetsTest")
     filter.includeTestsMatching("dev.martianzoo.tfm.web.webrepl.BrowserHistoryTest")
     filter.includeTestsMatching(
         "dev.martianzoo.tfm.tests.replays.OtbGame20260828Test.otbGame20260828"
@@ -68,7 +68,7 @@ tasks.named<org.gradle.api.tasks.testing.AbstractTestTask>("jsBrowserTest") {
 
 tasks.register("test") {
   group = LifecycleBasePlugin.VERIFICATION_GROUP
-  description = "Runs the repository's browser-specific tests and selected browser replay."
+  description = "Runs Web browser tests and the selected browser replay."
   dependsOn("jsBrowserTest")
 }
 

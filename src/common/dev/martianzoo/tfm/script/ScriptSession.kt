@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.script
 
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agents
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName
@@ -9,17 +10,16 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskResult
-import dev.martianzoo.tfm.canon.ApiUtils
+import dev.martianzoo.state.actors
+import dev.martianzoo.state.visibleLogEvents
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.isVisibleInLog
 import dev.martianzoo.tfm.script.Access.BlueMode
 import dev.martianzoo.tfm.script.Access.GreenMode
 import dev.martianzoo.tfm.script.Access.PurpleMode
@@ -59,6 +59,7 @@ import dev.martianzoo.tfm.script.commands.TfmPayCommand
 import dev.martianzoo.tfm.script.commands.TfmPlayCommand
 import dev.martianzoo.tfm.script.commands.TfmSampleCommand
 import dev.martianzoo.tfm.script.commands.TurnCommand
+import dev.martianzoo.tfm.state.ApiUtils
 
 /** @param useAnsiColors whether prompts and command output may contain ANSI escape sequences. */
 public class ScriptSession(
@@ -313,7 +314,7 @@ public class ScriptSession(
       }
 
   internal fun describeExecutionResults(result: TaskResult): List<String> {
-    val changes = result.changes.filter { it.isVisibleInLog(game.reader) }.map { it.toString() }
+    val changes = result.changes.visibleLogEvents(game.reader).map { it.toString() }
 
     val newTaskLines = taskLines(result.tasksSpawned)
     val taskLines =

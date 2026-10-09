@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
@@ -8,7 +9,6 @@ import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog

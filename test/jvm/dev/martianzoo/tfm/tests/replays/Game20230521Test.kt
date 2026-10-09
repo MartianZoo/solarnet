@@ -3,9 +3,9 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.World
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -290,7 +290,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
         declineTask()
         doTask("TemperatureStep")
         doTask("TerraformRating")
-        doTask("2 Titanium")
       }
     }
 
@@ -411,7 +410,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
         placeTile(2, 6)
         doTask("TerraformRating")
         doTask("2 ProjectCard")
-        doTask("2 Plant")
       }
       // Player2 played Search For Life
       playProject(SearchForLife, 3) {
@@ -517,7 +515,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       playProject(SmallAsteroid, 10) {
             // Player2's plants amount decreased by 2 by Player1
             doTask("-2 Plant<Player2>")
-            doTask("MyResourceWasRemoved<Player2, Class<Plant>, Player1>.")
             doTask("TemperatureStep")
             doTask("3 MC")
             doTask("3 Heat")
@@ -658,7 +655,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
         placeTile(8, 7) // r-5 + c
         doTask("OxygenStep")
         doTask("TerraformRating")
-        doTask("ProjectCard")
       }
       // Player2 used Factorum action
       // 3 card(s) were discarded
@@ -898,7 +894,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       playProject(PowerSupplyConsortium, 3) {
         // Player1's energy production decreased by 1 stolen by Player2
         doTask("PROD[-Energy<Player1>]")
-        doTask("PROD[Energy]")
       }
     }
 
@@ -1019,8 +1014,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       playProject(SulphurExports, 13, titanium = 2) {
             doTask("VenusStep")
             doTask("TerraformRating")
-            doTask("PROD[8 MC]")
-            doTask("8 MC")
           }
           .expect("PROD[8 MC], -5 MC, VenusStep")
       // Player1 used Extractor Balloons action
@@ -1052,7 +1045,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
             doTask("TemperatureStep")
             doTask("2 Plant<Player1>")
             doTask("TerraformRating")
-            doTask("2 Plant<Player2>")
+            p1.selectTask("2 Plant<Player2>!")
+            p2.doTask("2 Plant<Player2>!")
           }
           .expect("5 Plant, 2 Plant<Player2>, TemperatureStep, 2 TerraformRating, -7 MC")
       // Player1 claimed Terraformer milestone
@@ -1165,13 +1159,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
         p2.placeTile(2, 5)
         // Player1's plants amount decreased by 4 by Player2
         p2.doTask("-4 Plant<Player1>")
-        doTask("MyResourceWasRemoved<Player1, Class<Plant>, Player2>.")
         // Player2 gained 2 plants from Arctic Algae
         doTask("4 Steel")
         doTask("Plant<Player2>")
         doTask("2 Plant<Player2>")
         doTask("TerraformRating")
-        doTask("HasRaisedTr")
         repeat(3) { doTask("TerraformRating") }
         repeat(2) { doTask("2 MC") }
       }
@@ -1589,7 +1581,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player1's energy production decreased by 1 stolen by Player2
       playProject(EnergyTapping, 1) {
         doTask("PROD[-Energy<Player1>]")
-        doTask("PROD[Energy]")
       }
     }
     // Player1 used Floating Habs action
@@ -1610,7 +1601,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player1's plants production decreased by 1 by Player2
       playProject(BiomassCombustors, steel = 1) {
         doTask("PROD[-Plant<Player1>]")
-        doTask("PROD[2 Energy]")
       }
     }
     // Player1 passed
@@ -1645,7 +1635,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
         doTask("TerraformRating")
         doTask("4 Plant")
         doTask("3 MC")
-        doTask("3 Heat")
       }
       // Player1 used Development Center action
       // Player1 drew 1 card(s)
@@ -1682,12 +1671,10 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player1's plants amount decreased by 2 by Player2
       playProject(MiningExpedition, 10) {
         doTask("-2 Plant<Player1>")
-        doTask("MyResourceWasRemoved<Player1, Class<Plant>, Player2>.")
         doTask("OxygenStep")
         doTask("TerraformRating")
         doTask("2 Steel")
         doTask("3 MC")
-        doTask("TemperatureStep")
       }
     }
     // Player1 used Power Infrastructure action
@@ -1864,7 +1851,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player1's mc amount increased by 3
       stdProject("GreeneryProject") {
         // Player1 placed greenery tile on row 5 position 7
-        doTask("DefaultGreeneryTile")
         placeTile(5, 7)
         // Player1's plants amount increased by 2
         doTask("3 MC")
@@ -1939,10 +1925,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     listOf(p1, p2).forEach { it.autoExecPolicy = NONE }
     admin.autoExecPolicy = EAGER
     admin.runOperation("FinalGreeneryPhase FROM Phase")
-    admin.autoExecPolicy = NONE
     // Final greenery placement
     p1.convertPlants {
-      doTask("DefaultGreeneryTile")
       // Player1 placed greenery tile on row 6 position 4
       placeTile(6, 5)
       doTask("Plant")
@@ -1954,7 +1938,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.startTurn()
     p1.declineTask()
     p2.convertPlants {
-      doTask("DefaultGreeneryTile")
       // Player2 placed greenery tile on row 8 position 5
       placeTile(8, 8)
       doTask("2 MC")

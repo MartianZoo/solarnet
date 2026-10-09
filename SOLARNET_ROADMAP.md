@@ -33,9 +33,9 @@ after review. **Selected** means the direction is chosen while some design remai
    **Active.** Phase order, player rotation, setup, expansion phases, final greenery, scoring, and
    victory should arise from live game components and ordinary engine scheduling. The `workflow`
    branch is substantial work intended to land: it moves phase transitions into Pets, compiles
-   expansion-owned topology, removes the coroutine-owned phase sequence, and migrates functional
-   tests to the automatic game. Finish it by integrating the coherent rule across affected phases,
-   deleting superseded orchestration, and preserving full-game replay evidence.
+   expansion-owned topology, and removes the coroutine-owned phase sequence. Preserve full-game
+   replay evidence while integrating it; ordinary card and rule tests retain focused setup rather
+   than migrating to full automatic workflow.
 
 3. **Keep Game World, engine, and Agent responsibilities exact.** **Selected.** Game World owns the
    passive record of a game: premise, components, pending tasks, history, queries, and navigable
@@ -67,11 +67,11 @@ after review. **Selected** means the direction is chosen while some design remai
 ## Code clarity and confidence
 
 1. **Collapse the engine-to-functional-test stack.** **Active.** Ordinary scenarios should express
-   player-visible setup and actions through the full workflow, not rebuild phases, relocate rule
-   components, chase task causes, or rely on rendered instruction text. The `workflow` branch's
-   large test migration is valuable chiefly because it exposes and removes those alternate paths.
-   Keep focused lower-level tests where they prove an engine contract; delete gameplay conveniences
-   that exist only to compensate for missing semantics.
+   the behavior under test through player-visible actions, with direct setup for irrelevant
+   preconditions. Do not convert ordinary card and rule tests to full automatic game progression.
+   Keep workflow and full-game tests for that integration evidence, and focused lower-level tests
+   for engine contracts. Remove helpers that relocate rule components, chase task causes, or supply
+   missing semantics.
 
 2. **Preserve and deepen source-backed whole-game evidence.** Full replays are the strongest proof
    that independent rules compose. Keep original logs, screenshots, and corrections visible in the
@@ -173,10 +173,11 @@ after review. **Selected** means the direction is chosen while some design remai
   meaning correctly through realistic interactions and whole games. Neither side completes the
   milestone alone. See
   [Pets roadmap: Derived applications](PETS_ROADMAP.md#derived-applications-of-the-static-model).
-- **Complete the static/runtime separation.** Pets should build and explain declarations without
-  runtime state. Solarnet should consume the resulting model through narrow capabilities and keep
-  Catalog assembly, Game Premise, Game World, engine, and Agent ownership clear. Cross-repository
-  work should remove reverse dependencies rather than create matching adapters.
+- **Separate the Gradle builds before splitting Git repositories.** Solarnet will consume Pets
+  libraries by artifact coordinates, with local composite substitution for combined development.
+  The [repo-split next step](PETS_ROADMAP.md#next-step-separate-gradle-builds) owns the implementation
+  scope and acceptance checks, including building an isolated Solarnet copy against freshly built
+  Pets artifacts without Pets source. Preserve the combined checks and development server.
 - **Let independent builders succeed.** Pets supplies an understandable semantic library;
   Solarnet supplies a trustworthy executable World and game-playing surface. Mars Playground,
   parity work, and future outside clients should pressure those contracts constructively without
@@ -199,7 +200,7 @@ after review. **Selected** means the direction is chosen while some design remai
   work.
 
 This roadmap synthesizes current priorities in
-[`VALUES.md`](docs/agents/VALUES.md), [`PLANS.md`](docs/agents/PLANS.md),
-[`TODO.md`](TODO.md), [`PLAYGROUND.md`](PLAYGROUND.md), the runtime design records under
+[`VALUES.md`](docs/agents/VALUES.md), [`TODO.md`](TODO.md), [`PLAYGROUND.md`](PLAYGROUND.md), the
+focused runtime contracts under
 `docs/agents/`, open issues, recent mainline work, the active `workflow` branch, the exploratory
 `heroku-experiment` branch, and preserved decision-import and TFMBot experiments.

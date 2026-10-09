@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -16,7 +15,6 @@ internal class SteelworksTest : ProjectCardTest() {
     kim.setToExMachina(4, "Energy")
     kim.stdProject("GreeneryProject") { placeTile(5, 2) }
 
-    kim.cardAction1(Steelworks).expect("-4 Energy, 2 Steel")
-    kim.assertCounts(14 to "OxygenStep", 21 to "TerraformRating")
+    kim.cardAction1(Steelworks).expect("-4 Energy, 2 Steel, 0 OxygenStep, 0 TerraformRating")
   }
 }

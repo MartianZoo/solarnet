@@ -2,6 +2,7 @@
 
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.HasClassName
@@ -14,6 +15,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
+import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -35,16 +37,15 @@ import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.CustomClass
 import dev.martianzoo.state.CustomInstruction
 import dev.martianzoo.state.CustomMetric
-import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.toComponent
-import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.cardBack
 import dev.martianzoo.tfm.canon.cardEffects
 import dev.martianzoo.tfm.canon.cardImmediate
 import dev.martianzoo.tfm.canon.cardTags
-import dev.martianzoo.tfm.canon.tfmCatalog
+import dev.martianzoo.tfm.state.ApiUtils.mapDefinition
+import dev.martianzoo.tfm.state.tfmCatalog
 import kotlin.math.abs
 
 /** Terraforming Mars runtime entry point and its complete Kotlin implementation set. */
@@ -247,7 +248,7 @@ public object TfmEngine {
       val resource = requireNotNull(arguments.single { it.className == CLASS }.representedClass)
       val bonus = mapDefinition(game).areas.single { it.className == area.className }.bonus
       return bonus?.descendantsOfType<Gain>()?.sumOf {
-        if (game.classTable.getClass(it.gaining.className).isSubtypeOf(resource))
+        if (game.classTable.findClass(it.gaining.className)?.isSubtypeOf(resource) == true)
             (it.count as ActualScalar).value
         else 0
       } ?: 0
@@ -305,8 +306,15 @@ public object TfmEngine {
       val map = mapDefinition(game)
       val areaNames = map.areas.mapTo(hashSetOf()) { it.className }
       val area = listOf(type0, type1).single { it.className in areaNames }
-      val bonus = map.areas.single { it.className == area.className }.bonus ?: return NoOp
-      return InstructionGroup.createTree(bonus.instructions + bonus.instructions)
+      val effect =
+          map.areas
+              .single { it.className == area.className }
+              .asClassDeclaration
+              .authoredEffects
+              .singleOrNull() ?: return NoOp
+      val requirement = (effect.trigger as? IfTrigger)?.condition
+      if (requirement != null && !game.has(requirement)) return NoOp
+      return InstructionGroup.createTree(listOf(effect.instruction, effect.instruction))
     }
   }
 

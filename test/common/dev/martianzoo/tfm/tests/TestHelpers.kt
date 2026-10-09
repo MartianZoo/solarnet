@@ -2,6 +2,9 @@ package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
+import dev.martianzoo.catalog.ClassSelection
+import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.engine.World
 import dev.martianzoo.engine.withTestSetup
 import dev.martianzoo.pets.Parsing
@@ -20,9 +23,6 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.ClassSelection
-import dev.martianzoo.state.GameConfig
-import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.Canon
@@ -46,7 +46,7 @@ internal fun setUpGame(
       revealTurmoilSetupEvents(this)
     }
 
-private fun revealTurmoilSetupEvents(game: World) {
+internal fun revealTurmoilSetupEvents(game: World) {
   val admin = game.testAgent(ADMIN)
   if (admin.count("RevealComingEvent") == 0) return
   admin.doTask("AquiferReleasedByPublicCouncil")
@@ -151,7 +151,7 @@ private val MAP_OPTIONS =
         TestOption.Cimmeria,
     )
 
-object TestHelpers {
+internal object TestHelpers {
   fun testColonyTiles(players: Int, vararg included: String): Set<ClassName> {
     require(players > 0)
     val count = if (players == 1) 4 else if (players == 2) 5 else players + 2

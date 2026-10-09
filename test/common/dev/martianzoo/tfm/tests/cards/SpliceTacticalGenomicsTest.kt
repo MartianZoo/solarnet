@@ -52,7 +52,8 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
 
     manual.runOperation("$Decomposers") {
       shouldThrow<TaskException> { p1.doTask("2 MC") }
-      doTask("2 MC<Player1>")
+      p2.selectTask("2 MC<Player1>!")
+      p1.doTask("2 MC<Player1>!")
       doTask("2 MC")
       doTask("Microbe")
     }

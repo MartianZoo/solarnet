@@ -10,7 +10,7 @@ import dev.martianzoo.state.Player
 /** Triggered work that has not yet been admitted to a task queue. */
 internal data class PendingTask(
     val controller: Actor,
-    val actor: Actor = controller,
+    val selectionAssignee: Actor = controller,
     val instruction: InstructionGroup,
     val cause: Cause,
 ) {
@@ -19,9 +19,10 @@ internal data class PendingTask(
   internal companion object {
     /**
      * Routes effect work to the component's Player owner, then the changed component's Player
-     * owner, then the triggering Actor. For automatic work, an unowned effect uses the triggering
-     * Actor in place of the changed component's owner. The operation's Player controller retains
-     * the task until selection. Passive owners never gain task authority.
+     * owner, then an explicitly supplied queued-effect fallback, then the triggering Actor. For
+     * automatic work, an unowned effect uses the triggering Actor in place of both later choices.
+     * The operation's Player controller retains the task until selection. Passive owners never gain
+     * task authority.
      */
     fun fromEffect(
         context: Component,
@@ -30,6 +31,7 @@ internal data class PendingTask(
         changedComponentPlayer: Player?,
         automatic: Boolean,
         instruction: InstructionGroup,
+        queuedEffectFallback: Actor? = null,
     ): PendingTask {
       val effectPlayer = context.owningPlayer
       return PendingTask(
@@ -38,8 +40,11 @@ internal data class PendingTask(
                   ?: effectPlayer
                   ?: changedComponentPlayer
                   ?: triggerEvent.actor,
-          actor =
-              effectPlayer ?: changedComponentPlayer.takeUnless { automatic } ?: triggerEvent.actor,
+          selectionAssignee =
+              effectPlayer
+                  ?: changedComponentPlayer.takeUnless { automatic }
+                  ?: queuedEffectFallback.takeUnless { automatic }
+                  ?: triggerEvent.actor,
           instruction = instruction,
           cause = Cause(context.expression, triggerEvent.ordinal),
       )

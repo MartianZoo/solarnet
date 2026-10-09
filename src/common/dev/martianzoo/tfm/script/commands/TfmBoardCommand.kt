@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.script.commands
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.canon.ApiUtils
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.script.ScriptCompletion
 import dev.martianzoo.tfm.script.ScriptCompletionContext
@@ -15,6 +14,7 @@ import dev.martianzoo.tfm.script.TfmColor.MC
 import dev.martianzoo.tfm.script.TfmColor.PLANT
 import dev.martianzoo.tfm.script.TfmColor.STEEL
 import dev.martianzoo.tfm.script.TfmColor.TITANIUM
+import dev.martianzoo.tfm.state.ApiUtils
 
 internal class TfmBoardCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "tfm_board") {
   override val usage = "tfm_board [PlayerN]"
@@ -32,7 +32,7 @@ internal class TfmBoardCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "
   override fun withArgs(args: String) =
       PlayerBoardToText(tfm().asPlayer(repl.player(args)), repl.useAnsiColors).board()
 
-  internal class PlayerBoardToText(
+  private class PlayerBoardToText(
       private val tfm: TfmGameplay,
       private val useColors: Boolean = true,
   ) {

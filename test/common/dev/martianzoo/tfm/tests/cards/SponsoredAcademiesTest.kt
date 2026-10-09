@@ -1,36 +1,30 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.tfm.tests.TestOption.*
+import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class SponsoredAcademiesTest : CardTest() {
-  @BeforeTest
-  fun initializeGame() {
-    newGame(VenusNextExpansion, players = 3)
-    admin.phase("Action")
-    admin.runOperation(
-        "9 MC<Player1>, ProjectCard<Player1>, ProjectCard<Player2>, ProjectCard<Player3>"
-    )
-  }
-
+internal class SponsoredAcademiesTest : ProjectCardTest() {
   @Test
-  internal fun `Point Luna draw supplies the mandatory discard when Sponsored Academies is the only hand card`() {
-    newGame(VenusNextExpansion, PreludeExpansion, players = 3)
-    p1.playCorp(PointLuna, 0)
-    admin.phase("Action")
-    p1.count("ProjectCard") shouldBe 1
+  internal fun `Point Luna draw supplies the mandatory discard when it is the only hand card`() {
+    newTestGame(kimCorporation = PointLuna)
+    kim.setToExMachina(1, "ProjectCard")
+    kim.setToExMachina(9, "MC")
 
-    p1.playProject(SponsoredAcademies, 9)
-        .expect("2 ProjectCard<Player1>, ProjectCard<Player2>, ProjectCard<Player3>")
+    kim.playProject(SponsoredAcademies, 9)
+        .expect("2 ProjectCard<Kim>, ProjectCard<Stan>, ProjectCard<Rob>")
   }
 
   @Test
   internal fun `Cannot be played with only one card in hand`() {
-    shouldThrow<LimitsException> { p1.playProject(SponsoredAcademies, 9) }
+    newTestGame()
+    kim.setToExMachina(1, "ProjectCard")
+    kim.setToExMachina(9, "MC")
+
+    shouldThrow<LimitsException> { kim.playProject(SponsoredAcademies, 9) }
+
+    kim.assertCounts(9 to "MC", 1 to "ProjectCard", 0 to "$SponsoredAcademies")
   }
 }

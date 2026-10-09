@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests.curiosities
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.replays.AbstractSoloTest
 import io.kotest.matchers.shouldBe
@@ -206,7 +206,6 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
             },
         ) {
           doTask("3 MC", StandardTechnology)
-          doTask("DefaultGreeneryTile")
           doTask("GreeneryTile<Hellas_3_6>")
           doTask("4 MC", cn("GreensPolicy"))
           doTask("2 Plant", cn("Hellas_3_6"))

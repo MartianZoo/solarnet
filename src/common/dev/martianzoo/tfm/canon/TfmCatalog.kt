@@ -1,5 +1,8 @@
 package dev.martianzoo.tfm.canon
 
+import dev.martianzoo.catalog.Catalog
+import dev.martianzoo.catalog.ClassSelection
+import dev.martianzoo.catalog.GamePremiseBuilder
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
@@ -23,11 +26,6 @@ import dev.martianzoo.pets.types.Class as PetClass
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.PremiseClassTable
 import dev.martianzoo.pets.util.associateByStrict
-import dev.martianzoo.state.Catalog
-import dev.martianzoo.state.ClassSelection
-import dev.martianzoo.state.GameConfig
-import dev.martianzoo.state.GamePremise
-import dev.martianzoo.state.GamePremiseBuilder
 
 /** A Terraforming Mars Catalog with declarations, structured card/map data, and selection rules. */
 public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
@@ -208,21 +206,12 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
    * declaration table; their immediate effects create the resolved Modules, Players, and exact
    * starting Components without recompiling this Catalog's master table.
    */
-  override fun gamePremise(
-      config: GameConfig,
-      additionalClassDeclarations: Set<ClassDeclaration>,
-  ): GamePremise {
-    if (PLAYER in allClassNames && config.playerNames.isEmpty()) {
+  final override fun configurePremise(builder: GamePremiseBuilder) {
+    if (PLAYER in allClassNames && builder.playerNames.isEmpty()) {
       throw InvalidGameConfigException(
           "a Terraforming Mars configuration must have at least one player name"
       )
     }
-    val builder =
-        GamePremiseBuilder(
-            this,
-            config,
-            additionalClassDeclarations,
-        )
     val explicitlyIncluded = builder.explicitlyIncluded
     val explicitlyExcluded = builder.explicitlyExcluded
     val included = builder.included
@@ -317,7 +306,6 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
     if (MODULES_READY in allClassNames) {
       builder.initializationEffects.add(parse("This: ModulesReady"))
     }
-    return builder.build()
   }
 
   private fun selectGoalPool(

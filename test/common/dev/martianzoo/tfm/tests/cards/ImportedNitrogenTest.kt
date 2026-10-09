@@ -1,48 +1,36 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class ImportedNitrogenTest : CardTest() {
+internal class ImportedNitrogenTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
+
   @Test
   internal fun `Unstorable microbes and animals give no Topsoil Contract or Meat Industry payout`() {
-    newGame(PromoCardPack, CorporateEraExpansion, startingProjects = listOf(5))
-    p1.playCorp(UnitedNationsMarsInitiative)
-    admin.phase("Action")
-    val p2 = requireP2()
-    p1.runOperation("50 MC")
-    p1.playProject(TopsoilContract, 8)
-    p1.playProject(MeatIndustry, 5)
+    kim.exMachina("$TopsoilContract, $MeatIndustry")
+    kim.setToExMachina(23, "MC")
     // Opponent-owned holders cannot receive the imported resources.
-    p2.runOperation("14 MC, 2 ProjectCard")
-    p2.playProject(Tardigrades, 4)
-    p2.playProject(Pets, 10)
+    stan.exMachina("$Tardigrades, $Pets")
 
-    p1.playProject(ImportedNitrogen, 23)
+    kim.playProject(ImportedNitrogen, 23)
         .expect(
             "TerraformRating, 4 Plant, 0 Microbe, 0 Animal, -23 MC, " +
-                "0 Microbe<Player2>, 0 Animal<Player2>"
+                "0 Microbe<Stan>, 0 Animal<Stan>"
         )
   }
 
   @Test
   internal fun `Microbes and animals choose separate own holders and pay their gain effects`() {
-    newGame(PromoCardPack, CorporateEraExpansion, startingProjects = listOf(5))
-    p1.playCorp(UnitedNationsMarsInitiative)
-    admin.phase("Action")
-    p1.runOperation("100 MC, 2 ProjectCard")
-    p1.playProject(TopsoilContract, 8)
-    p1.playProject(MeatIndustry, 5)
-    p1.playProject(Tardigrades, 4)
-    p1.playProject(NitriteReducingBacteria, 11)
-    p1.playProject(Pets, 10)
-    p1.playProject(Vermin, 8)
+    kim.exMachina(
+        "$TopsoilContract, $MeatIndustry, $Tardigrades, $NitriteReducingBacteria, $Pets, $Vermin"
+    )
+    kim.setToExMachina(23, "MC")
 
-    p1.playProject(ImportedNitrogen, 23) {
+    kim.playProject(ImportedNitrogen, 23) {
           addCardResources(Tardigrades)
           addCardResources(Pets)
         }
@@ -54,11 +42,11 @@ internal class ImportedNitrogenTest : CardTest() {
 
   @Test
   internal fun `Cannot split imported microbes between holders`() {
-    newGame(CorporateEraExpansion)
-    p1.runOperation("$Tardigrades, $NitriteReducingBacteria")
+    kim.exMachina("$Tardigrades, $NitriteReducingBacteria")
+    kim.setToExMachina(23, "MC")
 
     shouldThrow<NarrowingException> {
-      p1.runOperation("$ImportedNitrogen") { doTask("Microbe<$Tardigrades>") }
+      kim.playProject(ImportedNitrogen, 23) { doTask("Microbe<$Tardigrades>") }
     }
   }
 }

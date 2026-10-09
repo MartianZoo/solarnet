@@ -1,13 +1,13 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agenttestsupport.testAgents
+import dev.martianzoo.catalog.ClassSelection
+import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.ClassSelection
-import dev.martianzoo.state.GameConfig
-import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog

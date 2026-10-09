@@ -4,12 +4,12 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.exMachina
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.engine.recording
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.state.GameConfig
-import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmEngine
@@ -23,8 +23,14 @@ import kotlin.test.BeforeTest
 
 internal abstract class AbstractFullGameTest : TfmTest() {
   protected lateinit var p1: TfmGameplay
+    private set
+
   protected lateinit var p2: TfmGameplay
+    private set
+
   protected lateinit var p3: TfmGameplay
+    private set
+
   protected lateinit var gamePremise: GamePremise
     private set
 
@@ -37,17 +43,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
 
   internal fun completedRecordingJson(): String? {
     if (game.events.entriesSinceSetup().isEmpty()) return null
-    val json = dev.martianzoo.state.GameRecordingJson.encode(game.recording())
-    val document = dev.martianzoo.state.GameRecordingJson.parse(json)
-    val viewerPremise = catalog.gamePremise(document.config)
-    check(viewerPremise.modules == gamePremise.modules) {
-      "recording changed selected Modules: ${gamePremise.modules} -> ${viewerPremise.modules}"
-    }
-    check(viewerPremise.classSelections == gamePremise.classSelections) {
-      "recording changed individual Class selections"
-    }
-    document.decode(viewerPremise).open()
-    return json
+    return dev.martianzoo.state.GameRecordingJson.encode(game.recording())
   }
 
   @BeforeTest

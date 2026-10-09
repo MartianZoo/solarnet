@@ -110,15 +110,11 @@ The following is a source map, not the mode specification:
 [EX_MACHINA.md](EX_MACHINA.md) owns current correction mechanics and structural restrictions.
 The red-mode target here must not be mistaken for an already implemented correction guarantee.
 
-## Test migration and acceptance
+## Test coverage and acceptance
 
-Ordinary card and game-rule scenarios should use the full automatic phase and turn workflow.
-Manual progression in their existing fixtures is migration work, not justification for retaining
-another Kotlin phase sequence. Dedicated mode tests should exercise deliberate manual behavior;
-bootstrap and engine tests may still test their own lower-level contracts.
-
-Migration of manual gameplay tests remains outstanding. Stop and discuss a
-scenario that cannot migrate cleanly rather than adding helpers that recreate phase or turn rules.
+Dedicated mode tests exercise the interaction guarantees below. Workflow tests and whole-game
+replays exercise automatic phase and turn progression. Ordinary card and rule tests retain focused
+setup; converting them to full automatic workflow is not a selected direction.
 
 Acceptance checks for future implementation:
 
@@ -132,5 +128,5 @@ Acceptance checks for future implementation:
 - Entering red preserves pending tasks. Corrections do not advance gameplay, and selected-task
   handling follows the eventual explicit queue contract.
 - Mode transitions satisfy the decisions above; no pending-work policy is hidden in autoexecution.
-- Ordinary gameplay tests stop relying on manually injected phases and turns, while dedicated
-  mode and engine coverage remains meaningful.
+- Focused card and rule fixtures remain independent of full-game progression, while dedicated
+  workflow, mode, and engine coverage verifies their respective contracts.

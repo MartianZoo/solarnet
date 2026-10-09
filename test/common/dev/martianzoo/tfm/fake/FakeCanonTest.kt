@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.fake
 
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import kotlin.test.Test
