@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.randomcards
+package dev.martianzoo.tfm.tools.randomcards
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.PetException

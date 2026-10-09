@@ -61,13 +61,8 @@ kotlin {
                   "test/common/dev/martianzoo/tfm/tests/curiosities"
               ),
               rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/tests"),
-              rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/randomcards"),
-              rootProject.layout.projectDirectory.dir(
-                  "test/common/dev/martianzoo/pets/testsupport"
-              ),
           )
       )
-      kotlin.exclude("PetGenerator.kt", "testHelpers.kt")
     }
   }
 }
@@ -83,9 +78,6 @@ tasks.named<Test>("jvmTest") {
   outputs.dir(replayEventLogsDirectory)
 }
 
-val randomCardCount = providers.gradleProperty("randomCardCount").orElse("12")
-val randomCardSeed = providers.gradleProperty("randomCardSeed")
-val randomCardOutput = providers.gradleProperty("randomCardOutput")
 val jvmTestCompilation = kotlin.targets.getByName("jvm").compilations.getByName("test")
 val jvmTestRuntimeClasspath =
     configurations.named(requireNotNull(jvmTestCompilation.runtimeDependencyConfigurationName))
@@ -129,19 +121,5 @@ tasks.register<JacocoReport>("replayTestCoverage") {
   reports {
     html.required.set(true)
     xml.required.set(true)
-  }
-}
-
-tasks.register<JavaExec>("sampleRandomCards") {
-  group = "verification"
-  description = "Prints or writes randomly generated project cards as raw Pets."
-  dependsOn(jvmTestCompilation.compileTaskProvider)
-  classpath = files(jvmTestCompilation.output.allOutputs, jvmTestCompilation.runtimeDependencyFiles)
-  mainClass = "dev.martianzoo.tfm.randomcards.RandomCardGenerator"
-  args(randomCardCount.get())
-  randomCardSeed.orNull?.let { args(it) }
-  randomCardOutput.orNull?.let {
-    require(randomCardSeed.isPresent) { "randomCardOutput requires randomCardSeed" }
-    args(it)
   }
 }

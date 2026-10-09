@@ -21,8 +21,14 @@ kotlin {
     main { kotlin.setSrcDirs(listOf(toolsSourceDirectory)) }
     test {
       kotlin.setSrcDirs(
-          listOf(rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/tools"))
+          listOf(
+              rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/tools"),
+              rootProject.layout.projectDirectory.dir(
+                  "test/common/dev/martianzoo/pets/testsupport"
+              ),
+          )
       )
+      kotlin.exclude("PetGenerator.kt", "testHelpers.kt")
     }
   }
 }
@@ -37,6 +43,7 @@ dependencies {
   implementation(project(":state"))
   implementation(project(":tfm-engine"))
   kotlinFileComplexityAnalyzer(libs.detekt.metrics)
+  testImplementation(libs.kotest.assertions.core)
   testRuntimeOnly(libs.detekt.metrics)
 }
 
@@ -61,6 +68,24 @@ tasks.register<JavaExec>("standardResourceMonotonicityReport") {
   description = "Reports declarative threats to solo resource and production monotonicity."
   classpath = sourceSets.main.get().runtimeClasspath
   mainClass.set("dev.martianzoo.tfm.tools.StandardResourceMonotonicityReportKt")
+}
+
+val randomCardCount = providers.gradleProperty("randomCardCount").orElse("12")
+val randomCardSeed = providers.gradleProperty("randomCardSeed")
+val randomCardOutput = providers.gradleProperty("randomCardOutput")
+
+tasks.register<JavaExec>("sampleRandomCards") {
+  group = "verification"
+  description = "Prints or writes randomly generated project cards as raw Pets."
+  dependsOn(tasks.named("testClasses"))
+  classpath = sourceSets.test.get().runtimeClasspath
+  mainClass = "dev.martianzoo.tfm.tools.randomcards.RandomCardGenerator"
+  args(randomCardCount.get())
+  randomCardSeed.orNull?.let { args(it) }
+  randomCardOutput.orNull?.let {
+    require(randomCardSeed.isPresent) { "randomCardOutput requires randomCardSeed" }
+    args(it)
+  }
 }
 
 val eventLogDumpOutput =
