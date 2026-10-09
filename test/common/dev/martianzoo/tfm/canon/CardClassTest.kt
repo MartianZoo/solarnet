@@ -1,7 +1,9 @@
 package dev.martianzoo.tfm.canon
 
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.data.ClassDeclaration
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
@@ -10,6 +12,26 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class CardClassTest {
+  @Test
+  internal fun productionMetricsAreNotCopyableProductionBoxes() {
+    val source =
+        catalogWith(
+            """
+        CLASS MetricOnly : AutomatedCard {
+          cost = 0
+          This: Plant / PROD[Energy]
+        }
+        CLASS MixedProduction : AutomatedCard {
+          cost = 0
+          This: PROD[Energy], Plant / PROD[Heat]
+        }
+        """
+        )
+    cardProductionBoxes(source.card(cn("MetricOnly"))) shouldBe emptyList()
+    cardProductionBoxes(source.card(cn("MixedProduction"))) shouldBe
+        listOf(parse<Instruction>("PROD[Energy]"))
+  }
+
   private val catalog: TfmCatalog by lazy {
     catalogWith(
         """
@@ -80,7 +102,7 @@ internal class CardClassTest {
             """
         )
 
-    shouldThrow<IllegalArgumentException> { invalid.classTable }
+    shouldThrow<IllegalArgumentException> { validateCardClassification(invalid) }
   }
 
   @Test
@@ -95,7 +117,7 @@ internal class CardClassTest {
             """
         )
 
-    shouldThrow<IllegalArgumentException> { invalid.classTable }
+    shouldThrow<IllegalArgumentException> { validateCardClassification(invalid) }
   }
 
   @Test
@@ -126,7 +148,7 @@ internal class CardClassTest {
             """
         )
 
-    valid.classTable
+    validateCardClassification(valid)
   }
 
   private fun catalogWith(source: String): TfmCatalog {

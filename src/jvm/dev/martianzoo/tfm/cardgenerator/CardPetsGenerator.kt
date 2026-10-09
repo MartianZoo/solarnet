@@ -74,7 +74,15 @@ internal object CardPetsGenerator {
         data.requirement?.let { parseOwned<Requirement>(it).node }
     private val autoSelectWhen: Requirement? =
         data.autoSelectWhen?.let { parseOwned<Requirement>(it).node }
-    private val resourceType = deriveResourceTypeCandidates().singleOrNull()
+    private val resourceType =
+        deriveResourceTypeCandidates()
+            .also { candidates ->
+              require(candidates.size <= 1) {
+                "$className has ambiguous resource storage: ${candidates.joinToString()}; " +
+                    "ResourceCard inference requires a single resource kind"
+              }
+            }
+            .singleOrNull()
 
     internal val declaration: ClassDeclaration by lazy {
       val onPlayEffects =
