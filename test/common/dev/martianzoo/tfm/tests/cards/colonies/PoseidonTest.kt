@@ -1,21 +1,17 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
-import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
-import dev.martianzoo.tfm.tests.cards.CardTest
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.Poseidon
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class PoseidonTest : CardTest() {
+internal class PoseidonTest : TfmSandboxTest() {
   @Test
-  internal fun `Places its colony as the first action`() {
-    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    playCorporationWithoutStartingProjects(p1, Poseidon).expect("45 MC")
-    p1.assertCounts(1 to "RequiredAction", 0 to "Colony")
+  internal fun `Its free starting colony earns both Luna and Poseidon production bonuses`() {
+    newTestGame(addOptions = "Luna", kimCorporation = Poseidon)
 
-    admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") { doTask("Colony<Luna>") }.expect("Colony<Luna>")
-    p1.assertCounts(0 to "RequiredAction")
+    kim.stdAction("DoRequiredActionsAction") { doTask("Colony<Luna>") }
+        .expect("Colony<Luna>, PROD[3 MC], 0 MC")
+    kim.count("RequiredAction") shouldBe 0
   }
 }

@@ -1,41 +1,32 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.tfm.tests.TestOption.*
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
-internal class LakefrontResortsTest : CardTest() {
+internal class LakefrontResortsTest : TfmSandboxTest() {
   @Test
-  internal fun `Pays when its owner places a tile adjacent to an ocean`() {
-    newGame(TurmoilExpansion)
-    val p2 = requireP2()
+  internal fun `An opponent's ocean placement raises MC production`() {
+    newTestGame(kimCorporation = LakefrontResorts)
 
-    admin.phase("Action")
-    p1.runOperation("$LakefrontResorts, 54 MC")
-    p2.runOperation("OceanTile<Tharsis_1_2>").expect("PROD[MC<Player1>]")
-
-    // Two is the normal ocean-adjacency bonus; the third is Lakefront Resorts' bonus.
-    p1.runOperation("CityTile<Tharsis_2_2>").expect("3 MC")
+    stan.stdProject("AquiferProject") { placeTile(1, 2) }.expect("PROD[MC<Kim>]")
   }
 
   @Test
   internal fun `Does not pay when an opponent places a tile adjacent to an ocean`() {
-    newGame(TurmoilExpansion)
-    val p2 = requireP2()
-    admin.phase("Action")
-    p2.runOperation("$LakefrontResorts, 54 MC")
-    p1.runOperation("OceanTile<Tharsis_1_2>").expect("PROD[MC<Player2>]")
-    p1.runOperation("CityTile<Tharsis_2_2>").expect("2 MC")
+    newTestGame(kimCorporation = LakefrontResorts)
+    kim.exMachina("OceanTile<Tharsis_1_2>")
+
+    stan.stdProject("CityProject") { placeTile(2, 2) }.expect("-23 MC<Stan>, 0 MC<Kim>")
   }
 
   @Test
-  internal fun `Pays once for each ocean adjacency`() {
-    newGame(TurmoilExpansion)
-    admin.phase("Action")
-    p1.runOperation("$LakefrontResorts, 54 MC")
-    p1.runOperation("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_2_1>")
+  internal fun `Pays for each ocean adjacency`() {
+    newTestGame(kimCorporation = LakefrontResorts)
+    kim.exMachina("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_2_1>")
+    kim.setToExMachina(25, "MC")
 
-    // Four is the ordinary bonus for two oceans; Lakefront adds one per adjacency.
-    p1.runOperation("CityTile<Tharsis_2_2>").expect("6 MC")
+    // Two ordinary adjacency bonuses plus two Lakefront bonuses total 6 MC.
+    kim.stdProject("CityProject") { placeTile(2, 2) }.expect("-19 MC")
   }
 }
