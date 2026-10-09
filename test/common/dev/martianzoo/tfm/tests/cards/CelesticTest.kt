@@ -46,6 +46,6 @@ internal class CelesticTest : CardTest() {
 
   private fun advanceToStartingCardDraw() {
     p1.pass()
-    admin.nextGeneration(2, 2)
+    admin.nextGeneration(2, 0)
   }
 }

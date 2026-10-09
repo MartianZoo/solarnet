@@ -1,9 +1,8 @@
 # Runtime and Terraforming Mars responsibility audit
 
-> **NOTE:** This document is used by agents to capture information for themselves to read later; a
-> human didn't write it and we don't expect humans to read it. The project owner can't personally
-> vouch for the information here.
-
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** moving code across state, engine, permissions, autoexecution, generic, or
 > Terraforming Mars packages; changing bare-number rejection or Action lowering; splitting Catalog
 > responsibilities; or separating script/workflow mechanics.
@@ -108,20 +107,23 @@ another caller needs it.
 
 [`Catalog`](../../src/common/dev/martianzoo/state/Catalog.kt) is the concrete, extensible Catalog
 implementation. It aggregates system and contributed declarations, checks duplicate names, loads
-and validates the master table, composes custom implementations and display names, and adds concrete
-Player Classes. Construct `Catalog(first, second)` to combine generic contributions; construct
-`TfmCatalog(first, second)` to apply Terraforming Mars policies to the combined declarations.
+and validates the master table, derives its custom-Class requirements, composes custom-Class
+dependencies and display names, and adds concrete Player Classes. Construct `Catalog(first, second)`
+to combine generic contributions; construct `TfmCatalog(first, second)` to apply Terraforming Mars
+policies to the combined declarations.
 
 [`GamePremiseBuilder`](../../src/common/dev/martianzoo/state/GamePremiseBuilder.kt) resolves explicit
-configuration names, counted setup Components, premise-local Player declarations, and convergent
-Module defaults. A game-specific Catalog can adjust its content selections and initial Components
-before `build()` creates the exact `GamePremise` and its ordinary Pets initialization declaration.
-This working configuration never replaces or recompiles the Catalog's master table.
+signed Class names, additive setup-component adjustments, premise-local Player declarations, and
+convergent Module defaults. The finished `GamePremise` stores Modules and individual Content in the
+same Class-selection set. A game-specific Catalog can adjust content selections and setup effects
+before `build()` creates its ordinary Pets initialization declaration. This working configuration
+never replaces or recompiles the Catalog's master table.
 
 `TfmCatalog` owns card validation and action lowering, bundle provenance, card/map/colony registries,
-expansion compatibility, milestone and award pools, seat-order Components, and the Terraforming Mars
-bootstrap signals. Its Module registry is derived from the assembled declarations and bundle content;
-bundles need not compile independently. Generic Catalog composition combines explicit Module maps.
+expansion compatibility, milestone and award pools, and the Terraforming Mars bootstrap signals.
+Player effects create seat-order Components. Its Module registry is derived from the assembled
+declarations and bundle content; bundles need not compile independently. Generic Catalog composition
+combines explicit Module maps.
 
 Generic assembly and configuration tests live in `:state`; generic setup execution is covered in
 `:engine`. Terraforming Mars content selection and full-game scenarios remain in their domain suites.
@@ -156,8 +158,10 @@ classes. They are too small to drive an architecture change. Move them only with
 Pets owns source, declarations, types, requirements, metrics, instructions, narrowing, effects,
 actions, transform blocks, owner-local Classes, and elaboration. `:state` owns `Catalog`,
 `GameConfig`, `GamePremise`, `ClassSelection`, runtime Actor/Player identities, `GameReader`, and the
-Kotlin custom metric/instruction APIs. Its `displayNames.kt` supplies Catalog-based presentation
-names; [NAMING.md](NAMING.md) owns naming policy.
+Kotlin custom metric/instruction APIs. A `GameWorld` passively carries any supplied bindings and uses
+them for custom metric queries. `Engine.newGame` validates the complete set needed for live play;
+game-specific engines such as `TfmEngine` own and supply that set. Its `displayNames.kt` supplies
+Catalog-based presentation names; [NAMING.md](NAMING.md) owns naming policy.
 
 The loading interface accepts data and callbacks supplied by Catalog and GamePremise; it has no
 dependency on either. `TypeInfo` supplies the active class table without a `GameReader` downcast.

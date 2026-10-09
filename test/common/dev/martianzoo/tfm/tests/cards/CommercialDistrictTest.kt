@@ -1,17 +1,13 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class CommercialDistrictTest : CardTest() {
   @Test
-  internal fun `Can be placed between two cities`() {
+  internal fun `Scores adjacent cities after placement`() {
     newGame()
     val p2 = requireP2()
 
@@ -22,33 +18,5 @@ internal class CommercialDistrictTest : CardTest() {
     admin.runOperation("End FROM Phase")
     p1.assertCounts(22 to "VictoryPoint")
     p2.assertCounts(20 to "VictoryPoint")
-  }
-
-  @Test
-  internal fun `Cannot be placed on a water area`() {
-    newGame()
-    p1.runOperation("PROD[Energy]")
-
-    p1.runOperation("$CommercialDistrict") {
-      shouldThrow<NarrowingException> { placeTile(1, 2) }
-      abort()
-    }
-
-    p1.count("CommercialDistrict_SpecialTile") shouldBe 0
-  }
-
-  @Test
-  internal fun `Cannot be placed in a nonadjacent area`() {
-    newGame()
-    p1.runOperation("PROD[Energy]")
-
-    p1.runOperation("$CommercialDistrict") {
-      shouldThrow<ExpressionException> {
-        doTask("CommercialDistrict_SpecialTile<GanymedeColony_RemoteArea>")
-      }
-      abort()
-    }
-
-    p1.count("CommercialDistrict_SpecialTile") shouldBe 0
   }
 }

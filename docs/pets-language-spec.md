@@ -1227,11 +1227,14 @@ allows it and nothing otherwise, which is `!`; `.` with `?` permits only the mos
 > side keeps its explicit location. The all-use `Hand` default has nothing left to fill on either
 > side. Neither example establishes a need for every pair in the quantifier-combination table.
 
-**L9-9. A `HAS` candidate binds a compatible omitted dependency before lexical ownership fills
-it.** `EACH Starter@Player(HAS StartToken)` tests each candidate's own token. A candidate CardFront
-also fills the card dependency of `CardFront(HAS BioTag)`. If the candidate cannot fill the owner
-or a dependency that determines it, L9-3 supplies lexical `Me`. Explicit arguments retain their
-meaning: `<Anyone>` stays broad, and `StartToken<>` is invalid without a declared default (L9-7).
+**L9-9. A `HAS` candidate binds a compatible omitted dependency of each outermost requirement
+expression before lexical ownership fills it.** Expressions nested in its arguments do not receive
+that candidate (T8-3). `EACH Starter@Player(HAS StartToken)` tests each candidate's own token. A
+candidate CardFront also fills the card dependency of `CardFront(HAS BioTag)`. If the candidate
+cannot fill the owner or a dependency that determines it, L9-3 supplies lexical `Me`. Explicit
+arguments are neither replaced nor rejected during elaboration; they remain resolved constraints
+that candidate substitution may narrow under T8-3. `StartToken<>` is invalid without a declared
+default (L9-7).
 
 > **Non-normative example — World Government Terraforming and CEO's Favorite Project.** The
 > unowned `WorldGovernmentRule` has no lexical owner; the candidate in
@@ -1463,7 +1466,7 @@ CLASS GreeneryTile : Tile { HAS MAX 1 This; This: OxygenStep }
 **L11-6. A nested declaration becomes a sibling that names its container as a supertype** (T2-2).
 The container is returned first, then its nested declarations in source order, recursively.
 
-> **Non-normative example — cards and locations.** The `CorporationCard` hierarchy and `ProjectCard`
+> **Non-normative example — cards and locations.** `CorporationCard` and `ProjectCard`
 > are written inside `CardBack`, itself inside `Card`, but the type table needs ordinary globally
 > named classes. Lowering nesting to sibling inheritance preserves the readable taxonomy without
 > creating a namespace the rest of PETS does not have.

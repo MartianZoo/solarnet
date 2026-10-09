@@ -394,13 +394,13 @@ Class: `SnowCover`
 | | Text |
 | --- | --- |
 | Printed text | Decrease temperature 2 steps. Draw 1 card per influence. |
-| Generated text | If temperature has not reached its maximum, lower temperature 2 steps without gaining terraform rating or other bonuses, or as much as possible. Draw 1 card per influence. |
+| Generated text | If temperature has not reached its maximum, lower temperature 2 steps without gaining terraform rating or other bonuses. Draw 1 card per influence. |
 
 Pets declaration:
 
 ```pets
 CLASS SnowCover : GePartyDistant<Kelvinists>, GePartyCurrent<Kelvinists> {
-  ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<TemperatureStep>>:: -2 TemperatureStep. BY Admin
+  ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<TemperatureStep>>:: -2 TemperatureStep BY Admin
   ResolveGlobalEvent<Class<This>>:: EACH Me@Player { ProjectCard / Influence }
 }
 ```
@@ -463,13 +463,13 @@ Class: `SponsoredProjects`
 | | Text |
 | --- | --- |
 | Printed text | All cards with resources on them gain 1 resource. Draw 1 card for each influence. |
-| Generated text | \[EACH Card@ResourceCard&lt;Anyone&gt;(HAS CardResource&lt;Anyone&gt;) { CardResource&lt;Card@ResourceCard&gt; }\]. Draw 1 card per influence. |
+| Generated text | \[EACH Card@ResourceCard&lt;Anyone&gt;(HAS CardResource) { CardResource&lt;Card@ResourceCard&gt; }\]. Draw 1 card per influence. |
 
 Pets declaration:
 
 ```pets
 CLASS SponsoredProjects : GePartyDistant<Scientists>, GePartyCurrent<Greens> {
-  ResolveGlobalEvent<Class<This>>:: EACH Card@ResourceCard<Anyone>(HAS CardResource<Anyone>) { CardResource<Card@ResourceCard> }
+  ResolveGlobalEvent<Class<This>>:: EACH Card@ResourceCard<Anyone>(HAS CardResource) { CardResource<Card@ResourceCard> }
   ResolveGlobalEvent<Class<This>>:: EACH Me@Player { ProjectCard / Influence }
 }
 ```
@@ -515,13 +515,13 @@ Class: `VolcanicEruptions`
 | | Text |
 | --- | --- |
 | Printed text | Increase temperature 2 steps. Increase heat production 1 step per influence. |
-| Generated text | Raise temperature 2 steps without gaining terraform rating or other bonuses, or as much as possible. Increase your heat production 1 step per influence. |
+| Generated text | Raise temperature 2 steps without gaining terraform rating or other bonuses. Increase your heat production 1 step per influence. |
 
 Pets declaration:
 
 ```pets
 CLASS VolcanicEruptions : GePartyDistant<Scientists>, GePartyCurrent<Kelvinists> {
-  ResolveGlobalEvent<Class<This>>:: 2 TemperatureStep. BY Admin
+  ResolveGlobalEvent<Class<This>>:: 2 TemperatureStep BY Admin
   ResolveGlobalEvent<Class<This>>:: EACH Me@Player { PROD[Heat / Influence] }
 }
 ```

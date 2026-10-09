@@ -2,10 +2,14 @@
 CLASS PreludeExpansion : Module {
   HAS Class<PreludePhase>
   X SoloGenerationsLeft:: -2 SoloGenerationsLeft!
+  This:: 4 SelectablePreludeCount
 
-  SetupPhase:: EACH Me@Player { 4 PreludeCard }
-  NewTurn IF SetupPhase: -2 PreludeCard
+  PlayerMode: PreludeCard / SelectablePreludeCount, \
+    -PreludeCard / (SelectablePreludeCount - 2)
 }
+
+"A unit in the configured number of Prelude cards offered to each player"
+CLASS SelectablePreludeCount : System
 
 CLASS PreludePhase : Phase {
   NewTurn: PlayOrFizzle

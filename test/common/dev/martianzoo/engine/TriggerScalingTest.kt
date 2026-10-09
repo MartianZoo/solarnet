@@ -8,6 +8,7 @@ import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.Test
 
@@ -17,9 +18,9 @@ internal class TriggerScalingTest {
     val premise =
         canonicalPremise(
             catalog = catalog,
-            initialComponentTypes = setOf(cn("TriggerScalingProbe").expression),
+            setupComponents = setOf(cn("TriggerScalingProbe").expression),
         )
-    val game = Engine.newGame(premise)
+    val game = TfmEngine.newGame(premise)
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
 
     agent.beginOperation("5 ScalingSignal!") {
@@ -40,9 +41,9 @@ internal class TriggerScalingTest {
     val premise =
         canonicalPremise(
             catalog = catalog,
-            initialComponentTypes = setOf(cn("TriggerScalingProbe").expression),
+            setupComponents = setOf(cn("TriggerScalingProbe").expression),
         )
-    val game = Engine.newGame(premise)
+    val game = TfmEngine.newGame(premise)
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
 
     agent.beginOperation("3 SelfScaler!") {

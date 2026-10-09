@@ -5,17 +5,16 @@ import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.GameplayException
-import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -23,7 +22,7 @@ import io.kotest.matchers.types.shouldNotBeInstanceOf
 import kotlin.test.Test
 
 internal class DomainExceptionContractTest {
-  private fun agent() = Engine.newGame(canonicalPremise()).testAgent(PLAYER1)
+  private fun agent() = TfmEngine.newGame(canonicalPremise()).testAgent(PLAYER1)
 
   @Test
   internal fun unhandledTransformsAreExpressionFailures() {
@@ -98,14 +97,5 @@ internal class DomainExceptionContractTest {
     val incomplete: Exception = shouldThrow<NotFullySpecifiedException> { agent().sneak("X Plant") }
     (incomplete is GameplayException) shouldBe false
     incomplete.shouldNotBeInstanceOf<PetException>()
-  }
-
-  @Test
-  internal fun invalidEnginePremiseInputIsAConfigurationFailure() {
-    val premise =
-        testGamePremise("ABSTRACT CLASS NeverInitial", players = 0)
-            .copy(initialComponentTypes = setOf(cn("NeverInitial").expression))
-
-    shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
   }
 }

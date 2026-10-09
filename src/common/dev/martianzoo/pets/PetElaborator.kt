@@ -496,8 +496,16 @@ public class PetElaborator(public val classTable: ClassTable) {
     val owned = classTable.findClass(OWNED) ?: return noOp()
     val ownerKey = owned.dependencies.keys.single()
     var activeRepresentedClassMarkers = representedClassMarkers
-    val refinementCandidates = mutableListOf<Pair<Expression, Int>>()
-    var rankDepth = 0
+    val refinementCandidates = mutableListOf<Expression?>()
+
+    fun <T> withinRefinementCandidate(candidate: Expression?, block: () -> T): T {
+      refinementCandidates.add(candidate)
+      return try {
+        block()
+      } finally {
+        refinementCandidates.removeLast()
+      }
+    }
 
     fun matchedKeys(expression: Expression): List<Key> {
       val klass = classTable.getClass(expression.className)
@@ -521,9 +529,7 @@ public class PetElaborator(public val classTable: ClassTable) {
       if (ownerKey !in klass.argumentDependencies.keys) return false
       val supplied = matchedKeys(expression)
       if (ownerKey in supplied || klass.dependencyDeterminedBy(ownerKey, supplied)) return false
-      val candidate =
-          refinementCandidates.lastOrNull()?.takeIf { (_, depth) -> depth == rankDepth }?.first
-              ?: return true
+      val candidate = refinementCandidates.lastOrNull() ?: return true
       val candidateKey =
           try {
             klass.matchDependencyKeys(listOf(candidate), classTable).single()
@@ -591,11 +597,8 @@ public class PetElaborator(public val classTable: ClassTable) {
                   }
               )
           is Has -> {
-            refinementCandidates += candidate to rankDepth
-            try {
+            withinRefinementCandidate(candidate) {
               transformer.transformRefinement(refinement)
-            } finally {
-              refinementCandidates.removeLast()
             }
           }
           is Expression.Refinement.Not -> transformer.transformRefinement(refinement)
@@ -608,12 +611,9 @@ public class PetElaborator(public val classTable: ClassTable) {
       }
       if (node is Metric.Rank) {
         val selected = available || node.selector?.let(::selectedMe) != null
-        rankDepth++
-        return try {
+        return withinRefinementCandidate(null) {
           (node.selector?.let { needsMe(it, selected) } ?: false) ||
               node.metrics.any { needsMe(it, selected) }
-        } finally {
-          rankDepth--
         }
       }
       if (node is Expression) {
@@ -623,17 +623,15 @@ public class PetElaborator(public val classTable: ClassTable) {
           return node.refinement?.let { needsMe(it, available) } ?: false
         }
         if (missingOwningArgument(node) && !available) return true
-        if (node.arguments.any { needsMe(it, available) }) return true
+        if (withinRefinementCandidate(null) { node.arguments.any { needsMe(it, available) } })
+            return true
         val candidate = node.copy(refinement = null)
         fun needsMeInRefinement(refinement: Expression.Refinement): Boolean =
             when (refinement) {
               is Expression.Refinement.And -> refinement.refinements.any(::needsMeInRefinement)
               is Has -> {
-                refinementCandidates += candidate to rankDepth
-                try {
+                withinRefinementCandidate(candidate) {
                   needsMe(refinement.requirement, available)
-                } finally {
-                  refinementCandidates.removeLast()
                 }
               }
               is Expression.Refinement.Not -> needsMe(refinement.excluded, available)
@@ -739,26 +737,26 @@ public class PetElaborator(public val classTable: ClassTable) {
         }
         if (node is Metric.Rank) {
           val previous = me
-          rankDepth++
-          return try {
-            val selector = node.selector?.let(::transformExpression)
-            me = selector?.let(::selectedMe) ?: previous
-            node
-                .copy(
-                    selector = selector,
-                    metrics = node.metrics.map(::transformMetric),
-                )
-                .withTypeVariables(node.typeVariables)
-                .also {
-                  it.sourceLocation = node.sourceLocation
-                }
-          } finally {
-            me = previous
-            rankDepth--
+          return withinRefinementCandidate(null) {
+            try {
+              val selector = node.selector?.let(::transformExpression)
+              me = selector?.let(::selectedMe) ?: previous
+              node
+                  .copy(
+                      selector = selector,
+                      metrics = node.metrics.map(::transformMetric),
+                  )
+                  .withTypeVariables(node.typeVariables)
+                  .also {
+                    it.sourceLocation = node.sourceLocation
+                  }
+            } finally {
+              me = previous
+            }
           }
         }
         if (node is Compact) {
-          val transformed = transformChildren(node) as Compact
+          val transformed = withinRefinementCandidate(null) { transformChildren(node) as Compact }
           val currentMe = me ?: return transformed
           if (!missingOwningArgument(transformed.toExpression)) return transformed
           val klass = classTable.getClass(transformed.className)
@@ -777,7 +775,10 @@ public class PetElaborator(public val classTable: ClassTable) {
           }
           val shell =
               if (node.className == CLASS) node.copy(refinement = null)
-              else transformChildren(node.copy(refinement = null)) as Expression
+              else
+                  withinRefinementCandidate(null) {
+                    transformChildren(node.copy(refinement = null)) as Expression
+                  }
           val ownedShell = me?.let { insert(shell, it) } ?: shell
           val refinement =
               node.refinement?.let {
@@ -1062,16 +1063,23 @@ public class PetElaborator(public val classTable: ClassTable) {
   /**
    * Rule L9-4: every expression receives its class's all-use dependency defaults, recursively.
    *
-   * Inside a refinement two of those insertions are held back so that candidate substitution can
-   * bind them instead: a bare dependent expression reserves the first slot that could accept the
-   * refined domain (L9-9), and a default whose dependency is a direct use of a class-header type
-   * variable is deferred (L9-10). Writing `<>` still accepts the default explicitly in both cases.
+   * During this pass, an outermost dependent expression written without arguments reserves its
+   * first candidate-compatible slot instead of accepting that slot's default (L9-9). Writing any
+   * argument list, including `<>`, keeps ordinary default handling. Independently, L9-10 defers a
+   * direct class-header-variable default throughout a refinement.
    */
   private fun insertExpressionDefaults(context: Expression): PetTransformer {
     var refinementDepth = 0
-    val refinementCandidates = mutableListOf<Pair<Expression, Int>>()
-    // A nested RANK establishes a separate candidate scope and therefore keeps ordinary defaults.
-    var rankDepth = 0
+    val refinementCandidates = mutableListOf<Expression?>()
+
+    fun <T> withinRefinementCandidate(candidate: Expression?, block: () -> T): T {
+      refinementCandidates.add(candidate)
+      return try {
+        block()
+      } finally {
+        refinementCandidates.removeLast()
+      }
+    }
     return object : PetTransformer() {
       fun transformRefinementForCandidate(
           refinement: Expression.Refinement,
@@ -1083,11 +1091,8 @@ public class PetElaborator(public val classTable: ClassTable) {
                     refinement.refinements.map { transformRefinementForCandidate(it, candidate) }
                 )
             is Has -> {
-              refinementCandidates += candidate to rankDepth
-              try {
+              withinRefinementCandidate(candidate) {
                 transformRefinement(refinement)
-              } finally {
-                refinementCandidates.removeLast()
               }
             }
             is Expression.Refinement.Not -> transformRefinement(refinement)
@@ -1097,8 +1102,7 @@ public class PetElaborator(public val classTable: ClassTable) {
         val klass = classTable.getClass(shell.className)
         val defaultDeps = klass.defaults.allUsages.dependencies
         rejectEmptyArgumentsWithoutDefaults(shell, klass.defaults.allUsages, "all-use")
-        val refinementCandidate =
-            refinementCandidates.lastOrNull()?.takeIf { (_, depth) -> depth == rankDepth }?.first
+        val refinementCandidate = refinementCandidates.lastOrNull()
         return insertDefaultsIntoExpr(
             shell,
             defaultDeps,
@@ -1119,18 +1123,15 @@ public class PetElaborator(public val classTable: ClassTable) {
           }
         }
         if (node is Metric.Rank) {
-          rankDepth++
-          try {
-            return transformChildren(node)
-          } finally {
-            rankDepth--
-          }
+          return withinRefinementCandidate(null) { transformChildren(node) }
         }
         if (node is Compact) {
           val shell =
               Compact(
                   transformClassName(node.className),
-                  node.arguments.map(::transformFromExpression),
+                  withinRefinementCandidate(null) {
+                    node.arguments.map(::transformFromExpression)
+                  },
               )
           val gaining = defaultShell(shell.toExpression)
           val removing = defaultShell(shell.fromExpression)
@@ -1148,10 +1149,12 @@ public class PetElaborator(public val classTable: ClassTable) {
         if (leaveItAlone(node)) return node
 
         val shell =
-            transformChildren(
-                node.copy(refinement = null).also { it.sourceLocation = node.sourceLocation }
-            )
-                as Expression
+            withinRefinementCandidate(null) {
+              transformChildren(
+                  node.copy(refinement = null).also { it.sourceLocation = node.sourceLocation }
+              )
+                  as Expression
+            }
         val defaulted = defaultShell(shell)
         val refinement =
             node.refinement?.let {

@@ -84,9 +84,9 @@ Test: [ClassDefinitionBoundaryTest, “a Prelude card brings its card back witho
 Test: [ClassDefinitionBoundaryTest, “the beginner variant includes beginner corporations and their card back”](../test/common/dev/martianzoo/tfm/tests/rules/ClassDefinitionBoundaryTest.kt).
 
 - In the default game, `BeginnerCorporation1` does not exist.
-- In the default game, `BeginnerCorporationCard` does not exist.
+- In the default game, `BeginnerCard` does not exist.
 - With `BeginnerVariant`, `BeginnerCorporation1` exists.
-- With `BeginnerVariant`, `BeginnerCorporationCard` exists.
+- With `BeginnerVariant`, `BeginnerCard` exists.
 
 ### A promo replacement
 

@@ -4,12 +4,13 @@ Printed wording, current generated English, and authored Pets, grouped by catego
 
 | Category | Entries | Missing printed transcription |
 | --- | ---: | ---: |
-| [Corporations](corporations.md) | 53 | 5 |
+| [Corporations](corporations.md) | 47 | 0 |
 | [Projects](projects.md) | 427 | 0 |
 | [Preludes](preludes.md) | 71 | 0 |
 | [Milestones](milestones.md) | 51 | 16 |
 | [Awards](awards.md) | 40 | 5 |
 | [Global events](global-events.md) | 36 | 0 |
+| [Other cards](other-cards.md) | 6 | 5 |
 
 ## Reading the comparisons
 

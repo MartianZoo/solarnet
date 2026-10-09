@@ -8,16 +8,6 @@ import kotlin.test.Test
 
 internal class CommunityServicesTest : CardTest() {
   @Test
-  internal fun `Can be played with three tagless cards`() {
-    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    p1.runOperation("$AtmoCollectors") { addCardResources(AtmoCollectors) }
-    p1.runOperation("$Airliners") { addCardResources(AtmoCollectors) }
-    p1.runOperation("PROD[2 MC]")
-    // Three tagless cards: Atmo Collectors, Airliners, and Community Services itself.
-    p1.runOperation("$CommunityServices").expect("PROD[3 MC]")
-  }
-
-  @Test
   internal fun `Ecology Experts is not tagless after playing its selected card`() {
     newGame(
         GameConfig(

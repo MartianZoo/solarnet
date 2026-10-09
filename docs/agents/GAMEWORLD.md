@@ -1,9 +1,8 @@
 # Game World model
 
-> **NOTE:** This document is used by agents to capture information for themselves to read later; a
-> human didn't write it and we don't expect humans to read it. The project owner can't personally
-> vouch for the information here.
-
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** creating or changing the `:state` module, deciding ownership of components,
 > pending-task data, events, recordings, exported games, or recording navigation.
 >
@@ -22,7 +21,7 @@
   fully concrete component-state boundary.
 - [`GameReaderImpl.kt`](../../src/common/dev/martianzoo/state/GameReaderImpl.kt) and
   [`CustomMetricRuntime.kt`](../../src/common/dev/martianzoo/state/CustomMetricRuntime.kt) — the
-  state-owned rich Pets query adapter and Catalog-provided metric evaluation.
+  state-owned rich Pets query adapter and evaluation of metrics bound to a Game World.
 - [`World.kt`](../../src/common/dev/martianzoo/engine/World.kt) and
   [`WholeWorld.kt`](../../src/common/dev/martianzoo/engine/WholeWorld.kt) — the live engine facade
   over one `GameWorld`.
@@ -54,7 +53,13 @@ The `:state` module owns the replayable core of that data model. A current `Game
 - the `ComponentGraph`, which materializes the components present at the current position;
 - one unordered queue of exact pending `Task` values;
 - the complete `GameEvent` log; and
-- a `GameReader` whose ordinary and custom metrics are passive queries over those components.
+- a `GameReader` whose ordinary metrics, and any bound custom metrics, are passive queries over
+  those components.
+
+A Game World may carry Kotlin custom-Class bindings, but it does not own or validate their
+completeness. Live startup supplies a validated set through the engine. Recording playback supplies
+none; ordinary state remains fully readable, while explicitly querying an unavailable custom metric
+fails at that query. Custom instructions remain inert task data and are never invoked by playback.
 
 The component graph is the present, the task queue is the unresolved future, and the event
 log is the past. They are three views of one game lifetime and must advance or reverse together.
@@ -75,7 +80,8 @@ Using “depends on” explicitly:
 - `:state` depends on `:pets` for the language and static type model;
 - `:engine` depends on `:state` and interprets the pending instructions it contains;
 - `:agent` depends on `:engine` and owns Actor-scoped interaction and policies;
-- `:tfm-engine` depends on `:engine` for Terraforming Mars behavior; and
+- `:tfm-engine` depends on `:engine` for Terraforming Mars behavior and on `:tfm-canon` for the
+  declarative model interpreted by its custom implementations; and
 - the game viewer depends on `:state` and `:tfm-canon`, plus `:tfm-fake` for noncanonical
   recordings, but not on `:engine` or `:tfm-engine`.
 
@@ -133,6 +139,13 @@ outer operation are replay mechanics, never worlds exposed to the viewer.
 The engine's `Timeline` retains live transaction atomicity and the commit floor. Its
 `RecordingPositions` records coherent completed-operation ordinals; capture copies those values
 into a state-owned recording, where they become the only public seek targets.
+
+`GameWorld.fork` directly copies the passive component, dependency, task, and event collections and
+retains its custom-Class bindings without copying component listeners. `Engine.fork` adds fresh live
+services and makes the fork point its timeline commit floor;
+[ENGINE.md](ENGINE.md#from-a-premise-to-a-ready-world) owns that construction path.
+[`JVM_TEST_PERFORMANCE.md`](JVM_TEST_PERFORMANCE.md#2026-10-07-live-world-fork-result)
+records why fork construction does not rebuild state by replaying its complete history.
 
 ## Serialized events and exported recordings
 

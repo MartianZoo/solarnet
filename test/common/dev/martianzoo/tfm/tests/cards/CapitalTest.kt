@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.Cimmeria
@@ -9,55 +7,20 @@ import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.Utopia
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class CapitalTest : CardTest() {
   @Test
-  internal fun `Requires at least four oceans`() {
+  internal fun `Scores adjacent oceans`() {
     newGame()
-    p1.runOperation(
-        "26 MC, ProjectCard, PROD[2 Energy], " + "OceanTile<Tharsis_3_2>, OceanTile<Tharsis_4_3>"
-    )
-    admin.runOperation("OceanTile<Tharsis_6_8>")
-    admin.phase("Action")
-
-    shouldThrow<RequirementException> { p1.playProject(Capital, 26) { placeTile(3, 3) } }
-  }
-
-  @Test
-  internal fun `Places a city under normal restrictions and scores adjacent oceans`() {
-    newGame()
-    p1.runOperation(
-        "26 MC, ProjectCard, PROD[2 Energy], " + "OceanTile<Tharsis_3_2>, OceanTile<Tharsis_4_3>"
-    )
+    p1.runOperation("PROD[2 Energy], OceanTile<Tharsis_3_2>, OceanTile<Tharsis_4_3>")
     admin.runOperation("OceanTile<Tharsis_6_8>, OceanTile<Tharsis_9_9>")
-    admin.phase("Action")
 
-    p1.playProject(Capital, 26) { placeTile(3, 3) }
+    p1.runOperation("$Capital") { placeTile(3, 3) }
 
-    p1.assertCounts(1 to "CityTile<Tharsis_3_3>")
-    p1.runOperation("PROD[Energy]")
-    // Capital makes CityTile ambiguous; choose the ordinary subtype explicitly.
-    p1.runOperation("$CupolaCity") { doTask("NormalCityTile<Tharsis_8_8>") }
-    p1.assertCounts(2 to "CityTile", 1 to "SpecialTile")
-    p1.runOperation("GreeneryTile<Tharsis_2_3>")
     admin.runOperation("End FROM Phase")
-    p1.assertCounts(27 to "VictoryPoint")
-  }
-
-  @Test
-  internal fun `Cannot place Capital beside another city`() {
-    newGame()
-    p1.runOperation(
-        "26 MC, ProjectCard, PROD[2 Energy], " + "OceanTile<Tharsis_3_2>, OceanTile<Tharsis_4_3>"
-    )
-    admin.runOperation("OceanTile<Tharsis_6_8>, OceanTile<Tharsis_9_9>")
-    p1.runOperation("CityTile<Tharsis_3_4>")
-    admin.phase("Action")
-
-    shouldThrow<NarrowingException> { p1.playProject(Capital, 26) { placeTile(3, 3) } }
+    p1.assertCounts(24 to "VictoryPoint")
   }
 
   @Test

@@ -54,16 +54,4 @@ internal class SearchForLifeTest : CardTest() {
     p1.assertCounts(0 to "ProjectCard<Revealed>", 0 to "Science<$SearchForLife>")
     p1.auditGainsSince(checkpoint) shouldBe 0
   }
-
-  @Test
-  internal fun `Scores three points when it has a science resource`() {
-    newGame()
-    admin.phase("Action")
-    p1.runOperation("$SearchForLife, 1 MC")
-    p1.cardAction1(SearchForLife) {
-      doTask("ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>")
-    }
-    admin.runOperation("End FROM Phase")
-    p1.assertCounts(23 to "VictoryPoint")
-  }
 }

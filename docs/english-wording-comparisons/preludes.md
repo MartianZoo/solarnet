@@ -202,7 +202,7 @@ Class: `EcologyExperts`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Increase your plant production 1 step. PLAY A CARD FROM HAND, IGNORING GLOBAL REQUIREMENTS | — |
-| Generated text | Increase your plant production 1 step. \[PlayCard&lt;Class&lt;ProjectCard&gt;, Class&lt;CardFront&gt;, Hand&gt;\], then \[-Required / Required\]. | — |
+| Generated text | Increase your plant production 1 step. Play a card from hand, ignoring global requirements. | — |
 
 Pets declaration:
 
@@ -222,7 +222,7 @@ Class: `ExcentricSponsor`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | PLAY A CARD FROM HAND, REDUCING ITS COST BY 25 M€ | — |
-| Generated text | \[PlayCard&lt;Class&lt;ProjectCard&gt;, Class&lt;CardFront&gt;, Hand&gt;\], then \[-25 Owed\]. | — |
+| Generated text | Play a card from hand, reducing its cost by 25 M€. | — |
 
 Pets declaration:
 
@@ -794,7 +794,7 @@ Pets declaration:
 CLASS Merger : CardFront<Class<PreludeCard>> {
   cost = 0
   autoSelectWhen = HAS "Unsafe OR MAX 0 SagittaFrontierServices"
-  This: 4 StandardCorporationCard<Selecting> THEN -3 StandardCorporationCard<Selecting> THEN PlayCard<Class<StandardCorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting>, -42 MC
+  This: 4 CorporationCard<Selecting> THEN -3 CorporationCard<Selecting> THEN PlayCard<Class<CorporationCard>, Class<CardFront>, Selecting>, -42 MC
 }
 ```
 

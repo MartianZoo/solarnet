@@ -1,5 +1,8 @@
 # Payment model and simplification investigation
 
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** changing payment choices, accepted resources, debt, billing, resource values, or
 > payment APIs. For direct action costs, also see [ACTIONS.md](ACTIONS.md).
 >

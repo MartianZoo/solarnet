@@ -1,45 +1,28 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.cards.ProjectCardTest
+import dev.martianzoo.tfm.tests.cards.cardnames.MinorityRefuge
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class MinorityRefugeTest : ColoniesCardTest() {
-  @Test
-  internal fun `Cannot place its colony on Io at minimum mc production`() {
-    initializeCard()
-    p1.playProject(MinorityRefuge, 5) {
-      shouldThrow<LimitsException> { doTask("Colony<Io>") }
-      abort()
-    }
-  }
+internal class MinorityRefugeTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame(addOptions = "Luna, Io, Triton, Europa, Titan")
 
   @Test
-  internal fun `Cannot place its colony on Triton at minimum mc production`() {
-    initializeCard()
-    p1.playProject(MinorityRefuge, 5) {
-      shouldThrow<LimitsException> { doTask("Colony<Triton>") }
-      abort()
+  internal fun `Cannot place its colony on Io at minimum mc production`() {
+    kim.exMachina("PROD[-6 MC]")
+
+    shouldThrow<LimitsException> {
+      kim.playProject(MinorityRefuge, 5) { doTask("Colony<Io>") }
     }
   }
 
   @Test
   internal fun `Luna placement can enable Minority Refuge's production decrease`() {
-    initializeCard()
-    p1.playProject(MinorityRefuge, 5) {
-          p1.autoExecPolicy = NONE
-          doTask("Colony<Luna>")
-          doTask("PROD[2 MC]")
-          doTask("PROD[-2 MC]")
-          p1.autoExecPolicy = EAGER
-        }
-        .expect("Colony<Luna>, PROD[0 MC]")
-  }
+    kim.exMachina("PROD[-6 MC]")
 
-  private fun initializeCard() {
-    p1.runOperation("ProjectCard, 5 MC, PROD[-5 MC]")
+    kim.playProject(MinorityRefuge, 5) { doTask("Colony<Luna>") }.expect("Colony<Luna>, PROD[0 MC]")
   }
 }

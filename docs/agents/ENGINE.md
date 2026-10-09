@@ -1,7 +1,7 @@
 # The live engine
 
-> **NOTE:** This document is maintained for agents. Source and meaningful tests remain
-> authoritative.
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
 >
 > **Read when:** changing construction of a live `World`, component mutation, events, transactions,
 > tasks, effect execution, rollback, or the engine-facing part of `Agent`.
@@ -46,17 +46,20 @@ Narrower documents own adjacent subjects:
 
 ## From a premise to a ready World
 
-`GameConfig` is unresolved intent. Catalog resolution produces an immutable `GamePremise`: the
-selected Catalog and Modules, seated Player Classes, class selections, counted setup Components,
-and exact initial component Types. Counted setup Components become ordinary effects of the generated
-premise Class rather than a parallel runtime initialization path. The premise retains one immutable
-game `ClassTable` view sharing its Catalog's compiled master structure; separate Worlds from that
-premise share compiled class facts but no mutable game state. See
+`GameConfig` is unresolved intent. Catalog resolution produces an immutable `GamePremise`: a
+single set of signed Class selections, seated Player Classes, additive setup-component adjustments,
+and premise-local declarations. Modules are derived from the selected Classes; they are not stored
+as a parallel premise choice. Setup adjustments and game-specific setup become ordinary effects of
+the generated premise Class. The premise retains one immutable game `ClassTable` view sharing its
+Catalog's compiled master structure; separate Worlds from that premise share compiled class facts
+but no mutable game state. See
 [`GamePremise.kt`](../../src/common/dev/martianzoo/state/GamePremise.kt).
 
-`Engine.newGame` wires one `GameWorld` to its reader, timeline, task services, effect index,
-limiter, instructor, changer, and Actor Engines. Initialization then crosses three conceptual
-boundaries:
+`Engine.newGame` first validates its supplied Kotlin custom-Class implementations against the
+Catalog's derived custom declarations. Games without custom declarations may use the empty default;
+game-specific entry points such as `TfmEngine.newGame` supply their complete set. The engine then
+wires one `GameWorld` carrying those bindings to its reader, timeline, task services, effect index,
+limiter, instructor, changer, and Actor Engines. Initialization crosses three conceptual stages:
 
 1. Structural construction installs the included concrete `Class<T>` representatives and runtime
    indexes. This is not an Actor mutation and creates no Change Events.
@@ -69,11 +72,26 @@ Bootstrap drains choice-free Tasks through their assigned Actor Engines. An abst
 acceptable only when normal resolution leaves exactly one legal concrete result; initialization
 must not silently choose among alternatives. Successful initialization requires no pending Tasks,
 all exact premise components, and all applicable positive lower bounds, then commits the timeline.
+Before a ready World or fork is returned, the engine also verifies every positive signed premise
+selection representing an inhabited concrete Class has a live `Class<T>` component, and every
+negative selection lacks one.
 
 Bootstrap does not change ordinary Pets meaning to force progress: it must not turn queued `:`
 effects into automatic `::` effects or discard a change's `?`, `.`, or `!` quantifier. Starting
 state that requires a Player choice remains exact premise state which opens that choice during
 ordinary setup; bootstrap does not make it on the Player's behalf.
+
+An automatic effect narrows an abstract gain when live component limits eliminate every candidate
+except one. If several legal concrete targets remain, the gain stays abstract. User-selected tasks
+do not use capacity as an implicit choice.
+
+`Engine.fork` constructs an independently mutable live World only at a completed gameplay
+position. It shares the immutable premise and Class Table, directly copies the passive component,
+dependency, task, event, completed-position, and live-effect-index collections, and builds fresh
+engine services around them. Immutable compiled live effects are shared, while index storage is
+independent and retains source registration order. The fork point is the new timeline commit floor,
+so the fork cannot roll back into source history. Application callbacks, component listeners,
+transactions, Agents, and workflow control remain fresh.
 
 The generated premise is executable output of configuration resolution. Live initialization does
 not reconsider Module defaults or assemble a second representation of the premise. Required state

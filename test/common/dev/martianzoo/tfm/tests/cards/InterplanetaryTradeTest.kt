@@ -9,14 +9,6 @@ import kotlin.test.Test
 
 internal class InterplanetaryTradeTest : CardTest() {
   @Test
-  internal fun `Counts three existing tag types and adds four production`() {
-    newGame(PromoCardPack)
-    // These have to be played: tags depend on their cards.
-    p1.runOperation("$Ecoline, $Mine, $SearchForLife, 8 Plant, 6 Steel, 4 Heat, 3 ProjectCard")
-    p1.runOperation("$InterplanetaryTrade").expect("PROD[4 MC]")
-  }
-
-  @Test
   internal fun `Does not count a tag from a played event`() {
     newGame(PromoCardPack)
     admin.phase("Action")

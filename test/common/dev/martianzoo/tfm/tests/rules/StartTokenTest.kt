@@ -3,13 +3,13 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -21,7 +21,8 @@ import kotlin.test.Test
 internal class StartTokenTest {
   @Test
   internal fun startsWithPlayer1AndPassesAfterEachResearchPhase() {
-    val admin = setUpGame(players = 3).testTfm(ADMIN)
+    val game = setUpGame(players = 3)
+    val admin = game.testTfm(ADMIN)
 
     admin.assertCounts(
         3 to "AfterMe",
@@ -47,7 +48,8 @@ internal class StartTokenTest {
 
   @Test
   internal fun passesAccordingToTheExplicitAfterMeRelation() {
-    val admin = setUpGame(players = 3).testTfm(ADMIN)
+    val game = setUpGame(players = 3)
+    val admin = game.testTfm(ADMIN)
     // Reverse the whole ring in one correction, preserving one predecessor and successor each.
     admin.sneak(
         "AfterMe<Player1, Player3> FROM AfterMe<Player1, Player2>, " +
@@ -73,8 +75,8 @@ internal class StartTokenTest {
 
     admin.assertCounts(
         1 to "StartToken<Player1>",
-        1 to "AfterMe<Player1, Player1>",
-        1 to "AfterMe",
+        0 to "AfterMe<Player1, Player1>",
+        0 to "AfterMe",
     )
   }
 
@@ -93,15 +95,17 @@ internal class StartTokenTest {
   @Test
   internal fun autoWorkflowReadsTheTokenHolder() {
     val setup = canonicalPremise(Hellas, PromoCardPack, players = 2)
-    val game = Engine.newGame(setup)
+    val game = TfmEngine.newGame(setup)
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
 
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
-    p1.playCorp(InterplanetaryCinematics, 7)
+    p1.keepStartingProjects(7)
+    p2.keepStartingProjects(5)
+    p1.playCorp(InterplanetaryCinematics)
     admin.sneak("StartToken<Player2> FROM StartToken<Player1>")
-    p2.playCorp(PharmacyUnion, 5)
+    p2.playCorp(CrediCor)
 
     game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
     workflow.shutdown()

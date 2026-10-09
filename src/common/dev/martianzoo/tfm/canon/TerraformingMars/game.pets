@@ -1,6 +1,8 @@
 "The base Terraforming Mars rules"
 CLASS TerraformingMars : Module {
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
+
+  This:: 2 SelectableCorporationCount
   premiseRequirement = HAS "(Unsafe OR MAX 0 Class<EcologyExperts> OR (MAX 0 Class<ViralEnhancers>, MAX 0 Class<EcologicalZone>, MAX 0 Class<Decomposers>, MAX 0 Class<GmoContract>)), (Unsafe OR MAX 0 Class<AmazonisMap> OR (MAX 0 Class<MiningGuild>, MAX 0 Class<MiningRights>, MAX 0 Class<MiningArea>)), (Unsafe OR MAX 0 Class<PreservationProgram> OR (MAX 0 Class<TerraformingDeal>, MAX 0 Class<TurmoilExpansion>)), (Unsafe OR MAX 0 Class<Merger> OR MAX 0 Class<SagittaFrontierServices>)"
 
   HAS =1 GameMode, =1 MarsMap
@@ -44,9 +46,11 @@ ABSTRACT CLASS Module : System {
   HAS =1 This
 }
 
-// TODO.md: replace with BootstrapPhase entry after premise construction
 "Signals that the complete selected Module layer is live"
-CLASS ModulesReady : Signal
+// TODO.md: replace with BootstrapPhase entry after premise construction
+CLASS ModulesReady : Signal {
+  This IF 2 Player:: AfterMe<Player, Player> BY Admin
+}
 
 "Exactly one player-count Module active in a playable game"
 ABSTRACT CLASS GameMode : Module {
@@ -70,22 +74,33 @@ ABSTRACT CLASS GameMode : Module {
 ABSTRACT CLASS Player : Owner, Actor {
   HAS =1 This
   HAS MAX 1 AfterMe<This, Anyone>, MAX 1 AfterMe<Anyone, This>
+  HAS MAX 0 AfterMe<This, This>
+  HAS MAX 1 PlayerMode<This>
+
+  This:: StartToken<This>.
+  This IF MultiplayerMode:: AfterMe<Player, This>. BY Admin
 
   // Queued `This` work gives every Player its production floor and payment values only after the
   // complete seat layer exists.
   This: 5 ProdOffset<This, Class<MC>> BY Admin
   This: 2 BaseResourceValue<This, Class<Steel>>, 3 BaseResourceValue<This, Class<Titanium>>
 
-  SetupPhase IF MAX 0 BeginnerVariant: \
-    2 StandardCorporationCard<This, Selecting> THEN \
-      (StandardCorporationCard<This, Hand> FROM StandardCorporationCard<This, Selecting>) \
-      THEN -StandardCorporationCard<This, Selecting> THEN NewTurn<This>
-  SetupPhase IF BeginnerVariant: \
-    2 StandardCorporationCard<This, Selecting> THEN \
-      ((BeginnerCorporationCard<This> THEN -2 StandardCorporationCard<This, Selecting> THEN NewTurn<This>) OR \
-        ((StandardCorporationCard<This, Hand> FROM StandardCorporationCard<This, Selecting>) \
-          THEN -StandardCorporationCard<This, Selecting> THEN NewTurn<This>))
+  SetupPhase IF MAX 0 BeginnerVariant: NonBeginnerMode<This>
+  SetupPhase IF BeginnerVariant: BeginnerMode<This> OR NonBeginnerMode<This>
   ResearchPhase: 4 ProjectCard<This, Selecting> THEN -4 ProjectCard<This, Selecting>? THEN BuySelectedCards<This>
+}
+
+"A player's persistent choice of starting-card procedure"
+ABSTRACT CLASS PlayerMode : Owned<Player>
+
+"A unit in the configured number of corporation cards offered to each player"
+CLASS SelectableCorporationCount : System
+
+"The normal starting-card procedure"
+CLASS NonBeginnerMode : PlayerMode {
+  This: CorporationCard / SelectableCorporationCount, \
+    -CorporationCard / (SelectableCorporationCount - 1), \
+    10 ProjectCard<Selecting>, -10 ProjectCard<Selecting>?
 }
 
 "One step on the terraform rating track; you generally start with 20 of them"
@@ -113,14 +128,10 @@ ABSTRACT CLASS Phase : System {
     This: Photosynthesis
     This:: EACH Class<@CardWatcher> { @CardWatcher }
 
-    // NewTurn IF SetupPhase, StandardCorporationCard<Selecting>: StandardCorporationCard<Hand FROM Selecting>,
-    //   ((ProjectCard<Selecting FROM Hand> / ProjectCard) THEN -10 ProjectCard<Selecting>?
-    //     THEN (ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>))
-    NewTurn IF StandardCorporationCard: \
-      PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Hand> \
-        THEN 10 ProjectCard<Selecting> THEN -10 ProjectCard<Selecting>? THEN BuySelectedCards
-    NewTurn IF BeginnerCorporationCard: \
-      PlayCard<Class<CorporationCard>, Class<BeginnerCorporation>, Hand>
+    NewTurn IF CorporationCard<Hand>: \
+      PlayCard<Class<CorporationCard>, Class<CardFront>, Hand> THEN BuySelectedCards
+    NewTurn IF BeginnerCard<Hand>: \
+      PlayCard<Class<BeginnerCard>, Class<CardFront>, Hand> THEN BuySelectedCards
   }
   CLASS ResearchPhase { This:: Generation }
   CLASS ActionPhase {

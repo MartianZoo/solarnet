@@ -80,11 +80,6 @@ internal class Initializer(
         fallbackCause,
         "premise",
     )
-    createComponents(
-        premise.initialComponentTypes.map(classTable::resolve),
-        fallbackCause,
-        "initial",
-    )
   }
 
   /** Runs choice-free queued initialization work in stable insertion order. */
@@ -105,8 +100,7 @@ internal class Initializer(
             .map(classTable::getClass)
             .map(Class::baseType) +
             premise.modules.map(classTable::getClass).map(Class::baseType) +
-            premise.playerNames.map(classTable::getClass).map(Class::baseType) +
-            premise.initialComponentTypes.map(classTable::resolve)
+            premise.playerNames.map(classTable::getClass).map(Class::baseType)
     val invalidCounts = expected.associateWith(reader::count).filterValues { it != 1 }
     if (invalidCounts.isNotEmpty()) {
       throw InvalidGameConfigException(

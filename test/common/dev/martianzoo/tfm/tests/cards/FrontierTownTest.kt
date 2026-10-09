@@ -17,10 +17,8 @@ internal class FrontierTownTest : CardTest() {
     p1.runOperation("18 MC, PROD[Energy]")
 
     p1.runOperation("FrontierTown") {
-      doWithoutAutoExec(p1) {
-        placeTile(9, 7)
-        placeTile(5, 7)
-      }
+      placeTile(9, 7)
+      placeTile(5, 7)
       placeTile(5, 8)
       placeTile(6, 7)
     }
@@ -62,8 +60,6 @@ internal class FrontierTownTest : CardTest() {
         1 to "PROD[Energy]",
     )
     p1.count("MC") shouldBe moneyBefore
-    // The failed placement leaves the card playable on another space.
-    p1.playProject(FrontierTown, 11) { placeTile(3, 4) }.expect("CityTile<Cimmeria_3_4>, 0 Colony")
   }
 
   private fun initialize(vararg colonyTiles: String) {

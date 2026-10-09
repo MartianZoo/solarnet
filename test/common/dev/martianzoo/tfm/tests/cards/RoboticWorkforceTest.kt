@@ -21,9 +21,8 @@ internal class RoboticWorkforceTest : CardTest() {
   internal fun `Cannot copy a non-building card`() {
     newGame()
     p1.runOperation("PROD[Energy], $Mine, $MassConverter")
-    p1.runOperation("$RoboticWorkforce") {
-      shouldThrow<NarrowingException> { doTask("CopyProductionBox<$MassConverter>") }
-      abort()
+    shouldThrow<NarrowingException> {
+      p1.runOperation("$RoboticWorkforce") { doTask("CopyProductionBox<$MassConverter>") }
     }
   }
 
@@ -34,9 +33,8 @@ internal class RoboticWorkforceTest : CardTest() {
     p1.runOperation("$IndustrialMicrobes")
     p2.runOperation("$Mine")
 
-    p1.runOperation("$RoboticWorkforce") {
-      shouldThrow<NarrowingException> { doTask("CopyProductionBox<$Mine<Player2>>") }
-      abort()
+    shouldThrow<NarrowingException> {
+      p1.runOperation("$RoboticWorkforce") { doTask("CopyProductionBox<$Mine<Player2>>") }
     }
   }
 
@@ -44,9 +42,8 @@ internal class RoboticWorkforceTest : CardTest() {
   internal fun `Cannot copy a building card its player does not own`() {
     newGame()
     p1.runOperation("$IndustrialMicrobes")
-    p1.runOperation("$RoboticWorkforce") {
-      shouldThrow<NarrowingException> { doTask("CopyProductionBox<$Mine>") }
-      abort()
+    shouldThrow<NarrowingException> {
+      p1.runOperation("$RoboticWorkforce") { doTask("CopyProductionBox<$Mine>") }
     }
   }
 

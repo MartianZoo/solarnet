@@ -18,6 +18,7 @@ import dev.martianzoo.state.TaskQueue
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
@@ -28,7 +29,7 @@ import kotlin.reflect.KClass
 import kotlin.test.Test
 
 internal class TaskNarrowingTest {
-  private val game = Engine.newGame(canonicalPremise())
+  private val game = TfmEngine.newGame(canonicalPremise())
 
   // Kinda gross
   private val tasks: TaskQueue = game.tasks
@@ -157,7 +158,7 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `a form chooses one type reason at a time without combining branches and dependencies`() {
     val fixture =
-        Engine.newGame(
+        TfmEngine.newGame(
             testGamePremise(
                 """
                 ABSTRACT CLASS Site {
@@ -211,7 +212,7 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `dependency options use existing holders belonging to the chosen player`() {
     val fixture =
-        Engine.newGame(
+        TfmEngine.newGame(
             testGamePremise(
                 """
                 ABSTRACT CLASS Holder<Player> {
@@ -287,7 +288,7 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `a refinement alone is not a target choice`() {
     val fixture =
-        Engine.newGame(
+        TfmEngine.newGame(
             testGamePremise(
                 """
                 CLASS Spot { HAS MAX 1 This }
@@ -375,7 +376,7 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `an AMAP form keeps a zero-capacity target beside a useful one`() {
     val fixture =
-        Engine.newGame(
+        TfmEngine.newGame(
             testGamePremise(
                 """
                 ABSTRACT CLASS Choice {
@@ -703,7 +704,7 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `selecting a task resolves a city already identified by area`() {
-    val game = Engine.newGame(canonicalPremise(cn("PromoCardPack")))
+    val game = TfmEngine.newGame(canonicalPremise(cn("PromoCardPack")))
     val p1 = game.testAgent(PLAYER1)
     val p2 = game.testAgent(PLAYER2)
     p1.autoExecPolicy = NONE
@@ -1179,7 +1180,7 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `An unmarked abstract placement cannot erase its current HAS condition`() {
     val fixture =
-        Engine.newGame(
+        TfmEngine.newGame(
             testGamePremise(
                 """
                 ABSTRACT CLASS Place {
@@ -1207,7 +1208,7 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `Conflicting repeated trigger captures are a non-match`() {
     val fixture =
-        Engine.newGame(
+        TfmEngine.newGame(
             testGamePremise(
                 """
                 ABSTRACT CLASS Place {
@@ -1273,7 +1274,7 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `A first-stage alias captures a uniquely determined concrete subtype`() {
     val fixture =
-        Engine.newGame(
+        TfmEngine.newGame(
             testGamePremise(
                 """
                 ABSTRACT CLASS Kind {

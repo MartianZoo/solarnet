@@ -4,6 +4,7 @@ import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.Transforming.actionListToEffects
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
 import dev.martianzoo.pets.api.SystemClasses.CUSTOM_METRIC
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action
@@ -127,6 +128,8 @@ public data class ClassDeclaration(
     get() = executableEffects ?: authoredEffectsWithActions
 
   public val customMetric: Boolean = CUSTOM_METRIC.expression in supertypes
+
+  public val customInstruction: Boolean = CUSTOM_INSTRUCTION.expression in supertypes
 
   init {
     if (className == THIS)

@@ -38,7 +38,6 @@ jmh {
   fork = 2
   failOnError = true
   humanOutputFile = jmhOutput.get().asFile
-  jvmArgs = listOf("-Xint")
   resultsFile = jmhResults.get().asFile
   threads = 1
 }

@@ -130,16 +130,17 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     val green = p1.requireExplicitUnusedActionCards()
     val blue = p2.requireExplicitUnusedActionCards()
     val yellow = p3.requireExplicitUnusedActionCards()
+    keepStartingProjects(4, 5, 5)
 
     // "Okay, I am the start player, and I play Paladin Shipping. That gives me 36 money and five
     // titanium. Then I use this little buy-cards slider to buy four cards."
-    green.playCorp(PalladinShipping, 4)
+    green.playCorp(PalladinShipping)
     // "I play Celestic, so I start with 42 megacredits." "You do get 42 money and then buy how many
     // cards? Five cards?" "Oh, yes."
-    blue.playCorp(Celestic, 5)
+    blue.playCorp(Celestic)
     // "And I am Point Luna." "Oh, man. That corp is strong." "Start with 38 money, titanium
     // production. It immediately gives me a card. And I slide five cards. Boop."
-    yellow.playCorp(PointLuna, 5)
+    yellow.playCorp(PointLuna)
 
     green.turn {
       // "I've played Biofuels and Supplier. I get two energy production and four steel, and then I

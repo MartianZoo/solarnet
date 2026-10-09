@@ -27,9 +27,8 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
     with(me) {
       doTask("-SelectedColonyTile<Class<Miranda>>")
 
-      playCorp(CrediCor) {
-        buyCards(7)
-      }
+      keepStartingProjects(7)
+      playCorp(CrediCor)
 
       playPrelude(SocietySupport).expect("PROD[-1 MC, Plant, Energy, Heat]")
       // CrediCor still pays its rebate when Excentric Sponsor pays the project cost.
@@ -343,9 +342,8 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       val sum = Summarizer(game)
 
       // Best current match for the app's reported action count: turns offered plus passes,
-      // including the setup turn and excluding the final-greenery offer.
-      (sum.signalCount("NewTurn<Player1>") + sum.net("ActionPhase", "Pass<Player1>") - 1) shouldBe
-          169
+      // excluding the final-greenery offer. Setup has no turn.
+      (sum.signalCount("NewTurn<Player1>") + sum.net("ActionPhase", "Pass<Player1>")) shouldBe 169
 
       // Discounts earned
       // Random automatic order may attribute fewer saturated removals here; see TESTING.md.

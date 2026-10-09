@@ -13,6 +13,7 @@ import dev.martianzoo.state.toComponent
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -23,7 +24,7 @@ internal class SimpleAddsRemovesTest {
   @Test
   internal fun listReturnsExactComponentTypesAndMultiplicities() {
     val game =
-        Engine.newGame(
+        TfmEngine.newGame(
             testGamePremise(
                 """
                 ABSTRACT CLASS Token {
@@ -46,7 +47,7 @@ internal class SimpleAddsRemovesTest {
   @Test
   internal fun loggedTypesUseCompactFormWithoutBreakingSelfEffects() {
     val game =
-        Engine.newGame(
+        TfmEngine.newGame(
             testGamePremise(
                 """
                 CLASS Token
@@ -73,7 +74,7 @@ internal class SimpleAddsRemovesTest {
 
   @Test
   internal fun manualDefersAnAbstractInitialInstructionForTheBodyToNarrow() {
-    val game = Engine.newGame(canonicalPremise())
+    val game = TfmEngine.newGame(canonicalPremise())
     val p2 = game.testTfm(PLAYER2)
 
     p2.runOperation("StandardResource") { doTask("Plant") }
@@ -83,7 +84,7 @@ internal class SimpleAddsRemovesTest {
 
   @Test
   internal fun manualStillRejectsAnImpossibleConcreteInitialInstruction() {
-    val p2 = Engine.newGame(canonicalPremise()).testTfm(PLAYER2)
+    val p2 = TfmEngine.newGame(canonicalPremise()).testTfm(PLAYER2)
 
     shouldThrow<LimitsException> { p2.runOperation("-Plant") }
   }
@@ -91,7 +92,7 @@ internal class SimpleAddsRemovesTest {
   @Test
   internal fun transmutationCannotConsumeTheGainedComponentsLastDependency() {
     val game =
-        Engine.newGame(testGamePremise("CLASS Token { HAS MAX 1 This }\nCLASS Holder<Token>"))
+        TfmEngine.newGame(testGamePremise("CLASS Token { HAS MAX 1 This }\nCLASS Holder<Token>"))
     val admin = game.testAgent(ADMIN)
     admin.sneak("Token!")
 
@@ -103,7 +104,7 @@ internal class SimpleAddsRemovesTest {
 
   @Test
   internal fun manualPreservesTasksThatWereAlreadyPending() {
-    val game = Engine.newGame(canonicalPremise())
+    val game = TfmEngine.newGame(canonicalPremise())
     val p2 = game.testTfm(PLAYER2)
     val pendingTask = p2.addTasks("StandardResource?").single()
 
@@ -115,7 +116,7 @@ internal class SimpleAddsRemovesTest {
 
   @Test
   internal fun manualRejectsASelectedTask() {
-    val game = Engine.newGame(canonicalPremise())
+    val game = TfmEngine.newGame(canonicalPremise())
     val p2 = game.testTfm(PLAYER2)
     val pendingTask = p2.addTasks("StandardResource?").single()
     p2.selectTask(pendingTask)
@@ -125,7 +126,7 @@ internal class SimpleAddsRemovesTest {
 
   @Test
   internal fun basicByApi() {
-    val game = Engine.newGame(canonicalPremise())
+    val game = TfmEngine.newGame(canonicalPremise())
 
     val checkpoint = game.timeline.checkpoint()
 

@@ -57,6 +57,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
   @Test
   internal fun completeGame() {
     TfmWorkflow.Automatic(agents).launch()
+    keepStartingProjects(5, 6, 7, 3)
     generation1()
     generation2()
     generation3()
@@ -69,10 +70,13 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
   }
 
   private fun generation1() {
-    blue.playCorp(AstroDrill) { buyCards(5) }
-    pink.playCorp(Vitor) { buyCards(6) }
-    green.playCorp(PharmacyUnion) { buyCards(7) }
-    purple.playCorp(Inventrix) { buyCards(3) }
+    blue.playCorp(AstroDrill)
+    pink.playCorp(Vitor)
+    green.playCorp(PharmacyUnion) {
+      doTask("Disease<$PharmacyUnion>")
+      doTask("Disease<$PharmacyUnion>")
+    }
+    purple.playCorp(Inventrix)
 
     blue.turn {
       playPrelude(VenusL1Shade)

@@ -90,7 +90,7 @@ I wrote it in [Kotlin](https://kotlinlang.org), which makes the whole thing equa
 
 ### Join the discord
 
-There is a discord that I'd be happy to start regenerating invites for but there's nothing happening there currently.
+Discord's been idle, come on in and necromance it https://discord.gg/zahQmdX6p
 
 ## Who are you
 

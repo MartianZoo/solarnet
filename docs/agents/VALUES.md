@@ -1,8 +1,8 @@
 # Project values
 
-> **NOTE:** This is an agent-maintained synthesis of priorities explicitly selected with the
-> project owner. It guides future agents; it is not a verbatim statement by the owner.
-
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** designing, implementing, or reviewing a behavior or architecture change, especially
 > when fidelity, generality, completeness, and conceptual cost compete.
 >
@@ -243,9 +243,6 @@ Keep the substantive reasoning in the owning document and keep this table to one
   [`StandardFormBundle`](../../src/common/dev/martianzoo/tfm/canon/StandardFormBundle.kt). The
   suffix is the smallest way to keep handwritten cards in the existing card-resource selection
   model without another Bundle.
-- **Explicit exclusion in normal-corporation offers** — [WORKFLOW.md](WORKFLOW.md#current-foundation).
-  Standard back typing already rejects beginner faces, while `NOT BeginnerCorporation` deliberately
-  states the normal-path rule at every normal-corporation offer.
 - **Turmoil's `TurmoilPlayer` and `ApplyRulingBonus`** —
   A player's delegate cap needs the bearer's owner available inside an effect, unlike Neutral's
   direct invariant. The ruling bonus cannot trigger on `Ruling`, because setup places Greens without

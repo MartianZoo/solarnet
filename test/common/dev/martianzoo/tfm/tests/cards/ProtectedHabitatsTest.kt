@@ -18,29 +18,17 @@ internal class ProtectedHabitatsTest : CardTest() {
   }
 
   @Test
-  internal fun `Prevents an opponent from removing protected plants`() {
+  internal fun `Prevents an opponent from removing protected resources`() {
     newGame()
     val p2 = requireP2()
     seedProtectedP2Resources()
+
     shouldThrow<DeadEndException> { p1.runOperation("-Plant<Player2>") }
-    p2.count("Plant") shouldBe 1
-  }
-
-  @Test
-  internal fun `Prevents an opponent from removing protected animals`() {
-    newGame()
-    val p2 = requireP2()
-    seedProtectedP2Resources()
     shouldThrow<DeadEndException> { p1.runOperation("-Animal<Player2, $Fish<Player2>>") }
-    p2.count("Animal<$Fish>") shouldBe 1
-  }
-
-  @Test
-  internal fun `Prevents an opponent from removing protected microbes`() {
-    newGame()
-    val p2 = requireP2()
-    seedProtectedP2Resources()
     shouldThrow<DeadEndException> { p1.runOperation("-Microbe<Player2, $Tardigrades<Player2>>") }
+
+    p2.count("Plant") shouldBe 1
+    p2.count("Animal<$Fish>") shouldBe 1
     p2.count("Microbe<$Tardigrades>") shouldBe 1
   }
 

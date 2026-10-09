@@ -239,18 +239,11 @@ private fun renderRevealedReward(sequence: Instruction.Then, describers: Describ
           reveal.count.fixedQuantity() != 1
   )
       return null
-  val alternatives = sequence.stages[1] as? Instruction.Or ?: return null
-  if (
-      alternatives.instructions.size != 2 ||
-          alternatives.instructions.count { it is Instruction.NoOp } != 1
-  )
-      return null
-  val claim = alternatives.instructions.filterIsInstance<Gain>().singleOrNull() ?: return null
+  val claim = optionalClaim(sequence.stages[1]) ?: return null
   if (
       describers.fact(claim.gaining.className, ComponentDescriber::cardProcedure) !=
           Procedure.CLAIM_REWARD ||
           claim.count.fixedQuantity() != 1 ||
-          claim.quantifier.modality() != Modality.REQUIRED ||
           claim.gaining.arguments.lastOrNull() != describers.thisExpression
   )
       return null
@@ -272,6 +265,20 @@ private fun renderRevealedReward(sequence: Instruction.Then, describers: Describ
       offerClause("discard", NounPhrase.text("the revealed card")),
   )
 }
+
+private fun optionalClaim(instruction: Instruction): Gain? =
+    when (instruction) {
+      is Gain -> instruction.takeIf { it.quantifier.modality() == Modality.OPTIONAL }
+      is Instruction.Or ->
+          instruction.instructions
+              .takeIf { alternatives ->
+                alternatives.size == 2 && alternatives.count { it is Instruction.NoOp } == 1
+              }
+              ?.filterIsInstance<Gain>()
+              ?.singleOrNull()
+              ?.takeIf { it.quantifier.modality() == Modality.REQUIRED }
+      else -> null
+    }
 
 private fun renderHandReveal(sequence: Instruction.Then, describers: Describers): Clause? {
   val out = sequence.stages.getOrNull(0) as? Transmute ?: return null

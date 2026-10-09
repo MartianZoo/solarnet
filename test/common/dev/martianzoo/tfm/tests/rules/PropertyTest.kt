@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
@@ -13,6 +12,7 @@ import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestOption.Hellas
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
@@ -24,7 +24,7 @@ import kotlin.test.Test
 internal class PropertyTest {
   @Test
   internal fun numberPropertiesAreReadableWithoutBecomingComponents() {
-    val game = Engine.newGame(canonicalPremise(Hellas, VenusNextExpansion, players = 2))
+    val game = TfmEngine.newGame(canonicalPremise(Hellas, VenusNextExpansion, players = 2))
     val p1 = game.testTfm(PLAYER1)
     val componentCount = p1.count("Component")
 
@@ -43,7 +43,7 @@ internal class PropertyTest {
 
   @Test
   internal fun numberPropertiesWorkInsideARefinement() {
-    val game = Engine.newGame(canonicalPremise(Hellas, players = 2))
+    val game = TfmEngine.newGame(canonicalPremise(Hellas, players = 2))
     val p1 = game.testTfm(PLAYER1)
 
     p1.sneak(
@@ -61,7 +61,7 @@ internal class PropertyTest {
   @Test
   internal fun metricPropertiesAreEvaluatedExplicitlyInsideEffectsAndReadQueries() {
     val catalog = TfmCatalog(Canon, MetricPropertyProbeCatalog)
-    val game = Engine.newGame(canonicalPremise(catalog = catalog, players = 2))
+    val game = TfmEngine.newGame(canonicalPremise(catalog = catalog, players = 2))
     val p1 = game.testTfm(PLAYER1)
 
     p1.runOperation("3 TemperatureStep!, MetricPropertyProbe")
@@ -76,7 +76,7 @@ internal class PropertyTest {
   @Test
   internal fun requirementPropertiesAreEvaluatedAfterTheirEffectReceiverBecomesConcrete() {
     val catalog = TfmCatalog(Canon, RequirementPropertyProbeCatalog)
-    val game = Engine.newGame(canonicalPremise(catalog = catalog, players = 2))
+    val game = TfmEngine.newGame(canonicalPremise(catalog = catalog, players = 2))
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
 

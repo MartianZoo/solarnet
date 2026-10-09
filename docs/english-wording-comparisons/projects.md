@@ -183,7 +183,7 @@ CLASS ArcticAlgae : ActiveCard {
   cost = 12
   requirement = HAS "MAX 9 TemperatureStep"
   This: Plant
-  OceanTile BY Actor: 2 Plant
+  OceanTile BY Anyone: 2 Plant
 }
 ```
 
@@ -2228,7 +2228,7 @@ CLASS SearchForLife : ActiveCard, ResourceCard<Class<Science>>, ActionCard {
   cost = 3
   requirement = HAS "MAX 6 OxygenStep"
   End IF Science<This>: 3 VictoryPoint
-  MC -> ProjectCard<Revealed> THEN (ClaimCardReward<TagFilter<Class<MicrobeTag>>, This> OR Ok) THEN -ProjectCard<Revealed>
+  MC -> ProjectCard<Revealed> THEN ClaimCardReward<TagFilter<Class<MicrobeTag>>, This>? THEN -ProjectCard<Revealed>
 }
 ```
 
@@ -3391,7 +3391,7 @@ Class: `LandClaim`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | PLACE YOUR MARKER ON A NON-RESERVED AREA. ONLY YOU MAY PLACE A TILE HERE | — |
-| Generated text | Place a community marker on a land area with no occupant. | — |
+| Generated text | Place a community marker. | — |
 
 Pets declaration:
 
@@ -3399,7 +3399,7 @@ Pets declaration:
 CLASS LandClaim : EventCard {
   HAS =1 EventTag<This>
   cost = 1
-  This: Community<LandArea(HAS MAX 0 Occupant)>
+  This: Community
 }
 ```
 
@@ -3431,7 +3431,7 @@ Class: `MarsUniversity`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | — | Effect: When you play a science tag, including this, you may discard a card from hand to draw a card. |
-| Generated text | — | Effect: When you play a science tag (including this), \[ProjectCard FROM ProjectCard?\]. |
+| Generated text | — | Effect: When you play a science tag (including this), you may discard 1 card to draw 1 card. |
 
 Pets declaration:
 
@@ -3439,7 +3439,7 @@ Pets declaration:
 CLASS MarsUniversity : ActiveCard {
   HAS =1 ScienceTag<This>, =1 BuildingTag<This>
   cost = 8
-  ScienceTag: ProjectCard FROM ProjectCard?
+  ScienceTag: (-ProjectCard THEN ProjectCard) OR Ok
   End: VictoryPoint
 }
 ```
@@ -4249,7 +4249,7 @@ Pets declaration:
 CLASS CometForVenus : EventCard {
   HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 11
-  This: VenusStep, -4 MC<Anyone(HAS VenusTag<Anyone>)>?
+  This: VenusStep, -4 MC<Anyone(HAS VenusTag)>?
 }
 ```
 
@@ -4329,7 +4329,7 @@ CLASS Dirigibles : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
   HAS =1 VenusTag<This>
   cost = 11
   PayingFor<Class<VenusTag>>:: AcceptingFromCard<This>
-  PayFromCard<This>:: -3 Owed
+  -Floater<This> BY Me@ IF AcceptingFromCard<This>:: -3 Owed
   -> Floater
 }
 ```
@@ -5201,7 +5201,7 @@ CLASS Psychrophiles : ActiveCard, ResourceCard<Class<Microbe>>, ActionCard {
   cost = 2
   requirement = HAS "MAX 5 TemperatureStep"
   PayingFor<Class<PlantTag>>:: AcceptingFromCard<This>
-  PayFromCard<This>:: -2 Owed
+  -Microbe<This> BY Me@ IF AcceptingFromCard<This>:: -2 Owed
   -> Microbe<This>
 }
 ```
@@ -6444,7 +6444,7 @@ Class: `Recruitment`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Exchange one NEUTRAL NON-LEADER delegate with one of your own from the reserve. | — |
-| Generated text | \[PartyDelegate&lt;Party(HAS 1 (PartyDelegate&lt;Neutral&gt; - PartyLeader&lt;Neutral&gt;)), Me@Anyone FROM Neutral&gt;\]. | — |
+| Generated text | \[PartyDelegate&lt;Party(HAS 1 (PartyDelegate&lt;Neutral&gt; - PartyLeader&lt;Neutral&gt;)), Me@Owner FROM Neutral&gt;\]. | — |
 
 Pets declaration:
 
@@ -6616,7 +6616,7 @@ CLASS AsteroidDeflectionSystem : ActiveCard, ResourceCard<Class<Asteroid>>, Acti
   This: PROD[-Energy]
   -Plant BY Player(NOT Me@): Die
   End: VictoryPoint / Asteroid<This>
-  -> ProjectCard<Revealed> THEN (ClaimCardReward<TagFilter<Class<SpaceTag>>, This> OR Ok) THEN -ProjectCard<Revealed>
+  -> ProjectCard<Revealed> THEN ClaimCardReward<TagFilter<Class<SpaceTag>>, This>? THEN -ProjectCard<Revealed>
 }
 ```
 
@@ -6668,7 +6668,7 @@ Class: `AstraMechanica`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | CHOOSE 2 PROJECT CARDS FROM YOUR EVENT PILE AND TAKE THEM TO HAND. IT MAY NOT BE CARDS THAT PLACE SPECIAL TILES. | — |
-| Generated text | \[ProjectCard FROM PlayedEvent&lt;Class&lt;EventCard&gt;(HAS MAX 0 GainsOf&lt;Class&lt;SpecialTile&gt;&gt;)&gt;?\]. \[ProjectCard FROM PlayedEvent&lt;Class&lt;EventCard&gt;(HAS MAX 0 GainsOf&lt;Class&lt;SpecialTile&gt;&gt;)&gt;?\]. | — |
+| Generated text | \[2 TakeEventCard\]. | — |
 
 Pets declaration:
 
@@ -6676,7 +6676,7 @@ Pets declaration:
 CLASS AstraMechanica : AutomatedCard {
   HAS =1 ScienceTag<This>
   cost = 7
-  This: ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)>?, ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)>?
+  This: 2 TakeEventCard
 }
 ```
 
@@ -6735,7 +6735,7 @@ CLASS CarbonNanosystems : ActiveCard, ResourceCard<Class<Graphene>> {
   cost = 14
   ScienceTag: Graphene<This>
   PayingFor<Class<SpaceTag>> OR PayingFor<Class<CityTag>>:: AcceptingFromCard<This>
-  PayFromCard<This>:: -4 Owed
+  -Graphene<This> BY Me@ IF AcceptingFromCard<This>:: -4 Owed
   End: VictoryPoint
 }
 ```
@@ -7225,7 +7225,7 @@ Class: `LawSuit`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Steal 3 M€ from a player that REMOVED YOUR RESOURCES OR DECREASED YOUR PRODUCTION this generation. Place this card face down in THAT PLAYER'S EVENT PILE. | — |
-| Generated text | \[(MyResourceWasRemoved&lt;Me@Anyone, Attacker@Player&gt; OR MyProductionWasDecreased&lt;Me@Anyone, Attacker@Player&gt;): 3 MC FROM MC&lt;Attacker@Player&gt;\], then \[PlayedEvent&lt;Attacker@Player, Class&lt;This&gt;&gt; FROM This\]. | — |
+| Generated text | \[(MyResourceWasRemoved&lt;Me@Owner, Attacker@Player&gt; OR MyProductionWasDecreased&lt;Me@Owner, Attacker@Player&gt;): 3 MC FROM MC&lt;Attacker@Player&gt;\], then \[PlayedEvent&lt;Attacker@Player, Class&lt;This&gt;&gt; FROM This\]. | — |
 
 Pets declaration:
 
@@ -7284,7 +7284,7 @@ Class: `MarsNomads`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | PLACE THE NOMADS (a gold cube) on a non-reserved, empty area on the game board. | Action: Move the Nomads to an adjacent, non-reserved, empty area, and GAIN PLACEMENT BONUSES as if placing a special tile there. No tiles may be placed on the Nomad area. |
-| Generated text | Place a nomads marker on a land area with no occupant. | Action: \[NomadsMarker&lt;LandArea(HAS MAX 0 Occupant, HAS Neighbor&lt;NomadsMarker&gt;, NOT Source@LandArea)&gt; FROM NomadsMarker&lt;Source@LandArea&gt;\], then \[EACH Destination@MarsArea(HAS NomadsMarker) { Placement&lt;Destination@MarsArea&gt; }\]. |
+| Generated text | Place a nomads marker on a land area with no occupant. | Action: \[NomadsMarker&lt;NewHome@LandArea(HAS MAX 0 Occupant, HAS Neighbor&lt;NomadsMarker&gt;) FROM LandArea&gt;\], then \[Placement&lt;NewHome@LandArea&gt;\]. |
 
 Pets declaration:
 
@@ -7292,7 +7292,7 @@ Pets declaration:
 CLASS MarsNomads : ActiveCard, ActionCard {
   cost = 13
   This: NomadsMarker<LandArea(HAS MAX 0 Occupant)>
-  -> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker>, NOT Source@LandArea)> FROM NomadsMarker<Source@LandArea> THEN EACH Destination@MarsArea(HAS NomadsMarker) { Placement<Destination@MarsArea> }
+  -> NomadsMarker<NewHome@LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker>) FROM LandArea> THEN Placement<NewHome@LandArea>
 }
 ```
 
@@ -7409,7 +7409,7 @@ Pets declaration:
 CLASS NeptunianPowerConsultants : ActiveCard, ResourceCard<Class<Hydroelectric>> {
   HAS =1 NeptunianOption<This>, =1 PowerTag<This>
   cost = 14
-  OceanTile BY Actor: UseAction<NeptunianOption<This>>?
+  OceanTile BY Anyone: UseAction<NeptunianOption<This>>?
   End: VictoryPoint / Hydroelectric<This>
 }
 ```

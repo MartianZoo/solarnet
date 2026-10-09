@@ -16,19 +16,18 @@ import dev.martianzoo.state.Actor.Companion.ADMIN
 /**
  * The complete immutable, resolved input from which equivalent playable worlds are constructed.
  *
- * [modules] names the exact ambient rules, [classSelections] records the remaining signed Class
- * choices, [playerNames] fixes seat order, and [initialComponentTypes] names state to instantiate
- * once. [classTable] forms their inclusion closure over the Catalog's reusable master table. Known
- * Classes outside that closure remain uninhabited; closure that reaches an excluded Class or an
- * unrequested Module is invalid.
+ * [classSelections] records every signed Class choice, [componentAdjustments] changes Module-owned
+ * setup quantities, and [playerNames] fixes seat order. [classTable] forms their inclusion closure
+ * over the Catalog's reusable master table. Known Classes outside that closure remain uninhabited;
+ * closure that reaches an excluded Class or an unrequested Module is invalid.
  *
  * @throws InvalidGameConfigException if its fields cannot describe a playable game configuration
  */
 public data class GamePremise(
     public val catalog: Catalog,
-    public val modules: Set<ClassName>,
     public val classSelections: Set<ClassSelection>,
-    public val initialComponentTypes: Set<Expression>,
+    /** Signed setup-component changes applied after selected Modules are created. */
+    public val componentAdjustments: Map<ClassName, Int> = emptyMap(),
     /** Concrete Player Class Names in seat order. */
     public val playerNames: List<ClassName> = emptyList(),
     /** Concrete Component created by Admin immediately before the generated premise Class. */
@@ -38,6 +37,15 @@ public data class GamePremise(
     /** Generated and ad-hoc declarations owned only by this premise. */
     public val premiseClassDeclarations: Set<ClassDeclaration> = emptySet(),
 ) {
+  /** Selected ambient-rule Classes, derived from the unified signed Class selections. */
+  public val modules: Set<ClassName>
+    get() =
+        classSelections
+            .asSequence()
+            .filter(ClassSelection::included)
+            .map(ClassSelection::className)
+            .filterTo(linkedSetOf(), catalog.modules::containsKey)
+
   /** The premise-local declaration delta over the Catalog's reusable master table. */
   private val premiseClassTableLazy = lazy {
     PremiseClassTable(catalog.classTable, premiseClassDeclarations)
@@ -60,13 +68,12 @@ public data class GamePremise(
   private fun createClassTable(): ClassTable {
     val premiseTable = premiseClassTable
     val masterTable = premiseTable.master
-    val initialClassNames =
-        initialComponentTypes.flatMap { it.descendantsOfType<ClassName>() }.toSet()
     val configurationNames: Set<ClassName> =
-        modules +
-            classSelections.filter(ClassSelection::included).map(ClassSelection::className) +
+        classSelections
+            .filter(ClassSelection::included)
+            .mapTo(linkedSetOf(), ClassSelection::className) +
             playerNames +
-            initialClassNames
+            componentAdjustments.keys
     val moduleSelections = modules.flatMap { catalog.modules.getValue(it) }
     val (applicableModuleSelections, inapplicableModuleSelections) =
         moduleSelections.partition { selection ->
@@ -98,7 +105,7 @@ public data class GamePremise(
         setOf(AUDIT) +
             modules +
             ((selectedByModules - explicitlyExcluded) + explicitlyIncluded) +
-            initialClassNames +
+            componentAdjustments.keys +
             actors.map(Actor::className) +
             listOfNotNull(bootstrapClassName, premiseClassName)
 
@@ -106,7 +113,9 @@ public data class GamePremise(
         ClassLoader.forPremise(
             premiseTable = premiseTable,
             roots = roots,
-            additionalRequiredClasses = { requiredClassNames(catalog, it) },
+            additionalRequiredClasses = {
+              catalog.customClassDependencies[it.className].orEmpty()
+            },
             checkAvailability = ::checkAvailability,
             exactCount = ::configuredCount,
         )
@@ -206,11 +215,6 @@ public data class GamePremise(
           "duplicate player names: ${playerNames.joinToString { "`$it`" }}"
       )
     }
-    if (modules.any { it !in catalog.modules }) {
-      throw InvalidGameConfigException(
-          "unknown modules: ${(modules - catalog.modules.keys).joinToString { "`$it`" }}"
-      )
-    }
     if (selectedNames.distinct().size != selectedNames.size) {
       throw InvalidGameConfigException(
           "duplicate individual class selections: ${selectedNames.joinToString { "`$it`" }}"
@@ -232,18 +236,10 @@ public data class GamePremise(
               (selectedNames - allKnownNames).joinToString { "`$it`" }
       )
     }
-    if (selectedNames.any { it in catalog.modules }) {
+    if (componentAdjustments.keys.any { it !in allKnownNames }) {
       throw InvalidGameConfigException(
-          "modules cannot be selected as individual classes: " +
-              selectedNames.filter { it in catalog.modules }.joinToString { "`$it`" }
-      )
-    }
-    val initialClassNames =
-        initialComponentTypes.flatMap { it.descendantsOfType<ClassName>() }.toSet()
-    if (initialClassNames.any { it !in allKnownNames }) {
-      throw InvalidGameConfigException(
-          "initial component types name classes absent from the premise catalog: " +
-              (initialClassNames - allKnownNames).joinToString { "`$it`" }
+          "component adjustments name classes absent from the premise catalog: " +
+              (componentAdjustments.keys - allKnownNames).joinToString { "`$it`" }
       )
     }
     premiseClassName?.let { className ->

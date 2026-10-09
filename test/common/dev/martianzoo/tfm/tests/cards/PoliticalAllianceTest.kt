@@ -10,7 +10,7 @@ import kotlin.test.Test
 
 internal class PoliticalAllianceTest : CardTest() {
   @Test
-  internal fun `requires the Turmoil expansion`() {
+  internal fun `Requires the Turmoil expansion`() {
     newGame(PromoCardPack)
     admin.phase("Action")
     p1.runOperation("4 MC, ProjectCard")
@@ -19,7 +19,7 @@ internal class PoliticalAllianceTest : CardTest() {
   }
 
   @Test
-  internal fun `requires two party leaders rather than a chairman and one leader`() {
+  internal fun `Requires two party leaders rather than a chairman and one leader`() {
     newGame(TurmoilExpansion, PromoCardPack)
     admin.phase("Action")
     p1.runOperation("4 MC, ProjectCard")

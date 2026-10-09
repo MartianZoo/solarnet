@@ -1,87 +1,43 @@
 package dev.martianzoo.state
 
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
-import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.ast.Metric
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 
 internal class CustomImplementationValidationTest {
   @Test
-  internal fun `T2-9 a CustomInstruction must have a Kotlin implementation, and only a CustomInstruction may`() {
-    val declaration = "CLASS Neighbor : CustomInstruction"
-
-    createClassLoader(
-            testCatalog(declaration, setOf(object : CustomInstruction(cn("Neighbor")) {}))
-        )
-        .loadEverything()
-        .getClass(cn("Neighbor"))
-        .declaration
-        .customMetric shouldBe false
-
-    // A declared-but-unimplemented CustomInstruction is rejected by the Catalog lookup itself.
-    shouldThrow<InvalidPetDefinitionException> { testCatalog(declaration).classTable }
+  internal fun `T2-9 a class cannot have both custom kinds`() {
     shouldThrow<InvalidPetDefinitionException> {
-      createClassLoader(
-              testCatalog("CLASS Neighbor", setOf(object : CustomInstruction(cn("Neighbor")) {}))
-          )
-          .loadEverything()
+      testCatalog("CLASS Neighbor : CustomMetric, CustomInstruction").classTable
     }
-    val wrongKind =
-        object : CustomMetric("Neighbor") {
-          override fun count(game: GameReader, type: Type): Int = 0
+  }
+
+  @Test
+  internal fun catalogAndPassiveWorldDoNotRequireCustomImplementations() {
+    val source =
+        "CLASS Garden : CustomMetric\n" +
+            "CLASS Landscape<Component> : CustomMetric\n" +
+            "CLASS Replant : CustomInstruction\n" +
+            "CLASS Token"
+    val catalog = testCatalog(source)
+
+    catalog.classTable.getClass(cn("Garden")).declaration.customMetric shouldBe true
+    catalog.classTable.getClass(cn("Replant")).declaration.customInstruction shouldBe true
+    catalog.customClassDeclarations.map { it.className } shouldBe
+        listOf(cn("Garden"), cn("Landscape"), cn("Replant"))
+    val premise = catalog.gamePremise(GameConfig("Garden, Landscape, Replant, Token"))
+    val world = GameWorld(premise)
+
+    shouldThrow<ExpressionException> { world.reader.count(parse<Metric>("Garden")) }.detail shouldBe
+        "custom metric `Garden` has no implementation"
+    shouldThrow<ExpressionException> {
+          world.reader.count(parse<Metric>("Landscape<Component>"))
         }
-    shouldThrow<InvalidPetDefinitionException> {
-      createClassLoader(testCatalog(declaration, setOf(wrongKind))).loadEverything()
-    }
-    shouldThrow<InvalidPetDefinitionException> {
-      createClassLoader(
-              testCatalog(
-                  "CLASS Neighbor : CustomMetric",
-                  setOf(object : CustomInstruction("Neighbor") {}),
-              )
-          )
-          .loadEverything()
-    }
-  }
-
-  @Test
-  internal fun `T2-9 a root class rejects an unexpected implementation`() {
-    shouldThrow<InvalidPetDefinitionException> {
-      createClassLoader(testCatalog("", setOf(object : CustomInstruction(COMPONENT) {})))
-    }
-  }
-
-  @Test
-  internal fun `T2-9 a computed Signal has one implementation`() {
-    val first = object : CustomInstruction("Neighbor") {}
-    val second = object : CustomInstruction("Neighbor") {}
-    shouldThrow<InvalidPetDefinitionException> {
-      createClassLoader(testCatalog("CLASS Neighbor : CustomInstruction", setOf(first, second)))
-          .loadEverything()
-    }
-  }
-
-  @Test
-  internal fun missingCustomImplementation() {
-    val source = "CLASS Garden : CustomMetric"
-    val error = assertFailsWith<InvalidPetDefinitionException> { testCatalog(source).classTable }
-
-    assertEquals("custom class implementation not found for `Garden`", error.detail)
-    // Prefer also highlighting `CustomMetric`, which makes this declaration require a Kotlin
-    // implementation.
-    assertEquals(
-        """
-        |custom class implementation not found for `Garden` at 1:7
-        |CLASS Garden : CustomMetric
-        |      ^
-        """
-            .trimMargin(),
-        error.message,
-    )
+        .detail shouldBe "custom metric `Landscape` has no implementation"
   }
 }

@@ -21,7 +21,7 @@ internal class InstructionResolutionTest {
   private val gameWorld = (game as WholeWorld).gameWorld
   private val elaborator = PetElaborator(game.classTable)
   private val effector =
-      Effector(elaborator, CustomInstructionRuntime(game.reader.catalog, elaborator)) {
+      Effector(elaborator, CustomInstructionRuntime(gameWorld, elaborator)) {
         game.reader
       }
   private val instructor: Instructor =

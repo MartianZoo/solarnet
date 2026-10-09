@@ -44,7 +44,7 @@ Factorum	Factorum	Gain 37 M€. Increase your steel production 1 step.	Action: I
 MonsInsurance	Mons Insurance	Gain 48 M€. Increase your M€ production 4 steps. Each other player decreases their own M€ production 2 steps.	Effect: When any player has their resources removed by another player, pay 3 M€ to that player, or as much as possible. When any player has their production decreased by another player, pay 3 M€ to that player, or as much as possible.
 Philares	Philares	Gain 47 M€. As your first action, place a greenery tile.	Effect: When an adjacency between one of your tiles and an opponent's tile is created, gain 1 standard resource.
 AstroDrill	AstroDrill	Gain 35 M€. Add 3 asteroids to this card.	Action: Add 1 asteroid to any card or gain 1 standard resource, or spend 1 asteroid from this card to gain 3 titanium.
-PharmacyUnion	Pharmacy Union	Gain 54 M€. Draw 1 science card.	Effect: [MicrobeTag<Anyone>: Disease<This>! OR (MAX 0 This: Ok), -4 MC.]. [ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)].
+PharmacyUnion	Pharmacy Union	Gain 54 M€. Draw 1 science card.	Effect: [MicrobeTag<Anyone>: Disease<This>! OR (MAX 0 This: Ok), -4 MC.]. [ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease<This>: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)].
 KuiperCooperative	Kuiper Cooperative	Gain 33 M€. Increase your titanium production 1 step.	Action: Add 1 asteroid to this card per space tag you have. / Effect: When you use a standard project or a standard project, asteroids on this card may be used as 1 M€ each.
 TychoMagnetics	Tycho Magnetics	Gain 42 M€. Increase your energy production 1 step.	Action: Spend 1 or more energy to look at that many cards, then keep 1 of them, then discard the rest.
 AlliedBank	Allied Bank	Increase your M€ production 4 steps. Gain 3 M€.
@@ -519,13 +519,13 @@ Supercapacitors	Supercapacitors	Increase your M€ production 1 step.	Effect: [-
 IcyImpactors	Icy Impactors		Action: Spend 10 M€ (titanium may be used) to add 2 asteroids to this card, or spend 1 asteroid from this card to [EACH Starter@Player(HAS StartToken) { ChooseOceanArea<Starter@Player> }].
 DirectedHeatUsage	Directed Heat Usage		Action: Spend 3 heat to gain 4 M€ or 2 plants.
 AqueductSystems	Aqueduct Systems	Requires that you have a city tile next to an ocean tile. Draw 3 building cards.
-AstraMechanica	Astra Mechanica	[ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)>?]. [ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)>?].
+AstraMechanica	Astra Mechanica	[2 TakeEventCard].
 CarbonNanosystems	Carbon Nanosystems		Effect: When you play a science tag (including this), add 1 graphene resource to this card. When you play a space tag or a city tag, graphene resources on this card may be used as 4 M€ each.
 CyberiaSystems	Cyberia Systems	Increase your steel production 1 step. [BuildingTag<First@CardFront>: CopyProductionBox<First@CardFront>], then [CopyProductionBox<CardFront(HAS BuildingTag, NOT First@CardFront)>].
 HermeticOrderOfMars	Hermetic Order Of Mars	Requires 4% oxygen or less. Increase your M€ production 2 steps. Gain 1 M€ per area on Mars with no tiles next to at least 1 tile you own.
 HomeostasisBureau	Homeostasis Bureau	Increase your heat production 2 steps.	Effect: When you raise temperature 1 step, gain 3 M€.
 KaguyaTech	Kaguya Tech	Increase your M€ production 2 steps. Draw 1 card. Change a greenery tile on any area into a city tile on that area.
-MarsNomads	Mars Nomads	Place a nomads marker on a land area with no occupant.	Action: [NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker>, NOT Source@LandArea)> FROM NomadsMarker<Source@LandArea>], then [EACH Destination@MarsArea(HAS NomadsMarker) { Placement<Destination@MarsArea> }].
+MarsNomads	Mars Nomads	Place a nomads marker on a land area with no occupant.	Action: [NomadsMarker<NewHome@LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker>) FROM LandArea>], then [Placement<NewHome@LandArea>].
 MartianLumberCorp	Martian Lumber Corp	Requires that you have 2 greenery tiles. Increase your plant production 1 step.	Effect: When you play a building tag, plants may be used as 3 M€ each.
 NeptunianPowerConsultants	Neptunian Power Consultants	1 VP per hydroelectric resource on this card.	Effect: When any ocean tile is placed, [UseAction<NeptunianOption<This>>?]. [=1 NeptunianOption<This>].
 RedShips	Red Ships	Requires 4% oxygen.	Action: Gain 1 M€ per city tile in play on areas next to at least 1 ocean tile or special tile in play on areas next to at least 1 ocean tile.

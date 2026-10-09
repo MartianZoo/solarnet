@@ -32,18 +32,18 @@ internal class CyberiaSystemsTest : CardTest() {
 
   @Test
   internal fun `Cannot copy the same card twice`() {
-    p1.runOperation("$CyberiaSystems") {
-      doTask("CopyProductionBox<$Mine>")
-      shouldThrow<NarrowingException> { doTask("CopyProductionBox<$Mine>") }
-      abort()
+    shouldThrow<NarrowingException> {
+      p1.runOperation("$CyberiaSystems") {
+        doTask("CopyProductionBox<$Mine>")
+        doTask("CopyProductionBox<$Mine>")
+      }
     }
   }
 
   @Test
   internal fun `Cannot copy itself`() {
-    p1.runOperation("$CyberiaSystems") {
-      shouldThrow<NarrowingException> { doTask("CopyProductionBox<$CyberiaSystems>") }
-      abort()
+    shouldThrow<NarrowingException> {
+      p1.runOperation("$CyberiaSystems") { doTask("CopyProductionBox<$CyberiaSystems>") }
     }
   }
 

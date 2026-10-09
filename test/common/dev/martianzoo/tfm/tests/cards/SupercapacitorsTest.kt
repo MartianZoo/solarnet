@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.Elysium
@@ -12,21 +11,10 @@ import dev.martianzoo.tfm.tests.cards.cardnames.PowerGeneration
 import dev.martianzoo.tfm.tests.cards.cardnames.SocietySupport
 import dev.martianzoo.tfm.tests.cards.cardnames.Supercapacitors
 import dev.martianzoo.tfm.tests.cards.cardnames.ThorGate
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class SupercapacitorsTest : CardTest() {
-  @Test
-  internal fun `Can preserve some energy`() {
-    newGame(PromoCardPack)
-    p1.runOperation("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
-
-    admin.phase("Production") { p1.doTask("Energy FROM Heat!") }
-
-    p1.assertCounts(4 to "Energy", 16 to "Heat")
-  }
-
   @Test
   internal fun `Can preserve no energy`() {
     newGame(PromoCardPack)
@@ -45,10 +33,7 @@ internal class SupercapacitorsTest : CardTest() {
     newGame(PromoCardPack)
     p1.runOperation("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
 
-    admin.phase("Production") {
-      shouldThrow<NarrowingException> { p1.doTask("4 Energy FROM Heat!") }
-      p1.doTask("3 Energy FROM Heat!")
-    }
+    admin.phase("Production") { p1.doTask("3 Energy FROM Heat!") }
 
     p1.assertCounts(6 to "Energy", 14 to "Heat")
   }

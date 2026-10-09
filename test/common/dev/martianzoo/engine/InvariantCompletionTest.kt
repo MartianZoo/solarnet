@@ -8,7 +8,6 @@ import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
@@ -1001,8 +1000,7 @@ internal class InvariantCompletionTest {
         CLASS Passed : Status { This BY Player1:: -Ready! }
         CLASS Other
         """
-    val premise =
-        testGamePremise(source).copy(initialComponentTypes = setOf(parse<Expression>("Ready")))
+    val premise = testGamePremise(source).withTestSetup("Ready")
     return Engine.newGame(premise)
   }
 
@@ -1036,8 +1034,5 @@ internal class InvariantCompletionTest {
       )
 
   private fun world(source: String, vararg initial: String): World =
-      Engine.newGame(
-          testGamePremise(source, players = 0)
-              .copy(initialComponentTypes = initial.map { parse<Expression>(it) }.toSet())
-      )
+      Engine.newGame(testGamePremise(source, players = 0).withTestSetup(initial.joinToString()))
 }

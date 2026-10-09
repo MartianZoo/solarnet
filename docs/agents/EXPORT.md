@@ -1,8 +1,8 @@
 # Game exports and imports
 
-> **NOTE:** This document is an agent-maintained record of the export design discussed with the
-> project owner. Source and tests are stronger evidence for implemented behavior.
-
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** designing a game file, recording decisions, importing a played game, comparing an
 > engine replay with passive playback, or changing round-trip tests.
 

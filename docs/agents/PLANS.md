@@ -1,8 +1,7 @@
 # Major plans
 
-> **NOTE:** This is an agent-maintained index of substantial changes already selected, proposed, or
-> approved elsewhere. It is not a promise to implement every item and does not replace the owning
-> documents.
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
 >
 > **Read when:** choosing a substantial next project, comparing programs of work, or deciding where
 > a newly discovered large change belongs.
@@ -103,6 +102,17 @@ See [`API.md`](API.md#current-implementation-divergence),
 These directions are substantial enough not to masquerade as small TODOs. Their detailed status and
 prerequisites differ; listing them here does not resolve their priority relative to the current
 emphasis above.
+
+### Make bundle content selection generic and inspectable
+
+Replace Terraforming-Mars-specific discovery of cards, colony tiles, map areas, milestones, and
+awards with the proposed `.pets`/`.content.pets` source convention. Same-named Modules supply their
+bundle's content roots by a documented generic rule; authored structural dependencies and
+`premiseRequirement`, checked by generic premise validation, replace bundle-derived availability.
+Exact pools and live setup choices remain separate configuration concerns.
+
+See
+[`CONTENT_SELECTION.md`](CONTENT_SELECTION.md#proposed-generic-bundlecontent-convention).
 
 ### Consolidate public contracts and failure boundaries
 

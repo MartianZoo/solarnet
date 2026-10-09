@@ -8,6 +8,7 @@ import dev.martianzoo.state.ClassSelection
 import dev.martianzoo.state.GamePremise
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -16,7 +17,7 @@ import kotlin.test.Test
 internal class GameWorldAtomicityTest {
   @Test
   internal fun failedOperationRestoresTheWholeWorldTogether() {
-    val world = Engine.newGame(premise) as WholeWorld
+    val world = TfmEngine.newGame(premise) as WholeWorld
     val admin = world.testAgent(ADMIN)
     val checkpoint = world.timeline.checkpoint()
     var successfulCompletions = 0
@@ -54,14 +55,12 @@ internal class GameWorldAtomicityTest {
     val premise =
         GamePremise(
             catalog = catalog,
-            modules = emptySet(),
             classSelections =
                 setOf(
                     ClassSelection(cn("Marker")),
                     ClassSelection(cn("Decision")),
                     ClassSelection(cn("Player")),
                 ),
-            initialComponentTypes = emptySet(),
         )
   }
 }

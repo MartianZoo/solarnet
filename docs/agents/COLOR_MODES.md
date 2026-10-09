@@ -1,5 +1,8 @@
 # REPL color modes
 
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** changing REPL modes, arbitrary task initiation, manual turns, task dropping,
 > corrections, or the transition between automatic gameplay and manual experimentation.
 >

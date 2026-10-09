@@ -60,11 +60,36 @@ public class TfmGameplay(
     phase("Action")
   }
 
-  public fun playCorp(cardName: ClassName, buyCards: Int, body: OperationBlock = {}): TaskResult {
-    return inTurn {
-      doTask("PlayCard<Class<StandardCorporationCard>, Class<$cardName>>")
-      buyOfferedCards(buyCards)
-      body()
+  /** Keeps [count] of the ten project cards offered during setup. */
+  public fun keepStartingProjects(count: Int): TaskResult = agent.continueOperation {
+    discardUnwantedCards(count)
+  }
+
+  /**
+   * Plays a standard corporation and buys the project cards retained during setup. This convenience
+   * chooses fixed corporation effects before the purchase; the underlying tasks remain
+   * independently selectable by other clients.
+   */
+  public fun playCorp(cardName: ClassName, body: OperationBlock = {}): TaskResult {
+    if (count("CorporationPhase") == 0) {
+      return inTurn {
+        doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
+        body()
+      }
+    }
+    val previousPolicy = autoExecPolicy
+    autoExecPolicy = NONE
+    return try {
+      inTurn {
+        doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
+        payAllMc()
+        chooseConcreteCorporationEffectsBeforePurchase()
+        body()
+        chooseConcreteCorporationEffectsBeforePurchase()
+        buySelectedCards()
+      }
+    } finally {
+      autoExecPolicy = previousPolicy
     }
   }
 
@@ -75,10 +100,20 @@ public class TfmGameplay(
 
   /** Shares the operation-scoped discard, confirmation, and payment sequence across all buys. */
   private fun OperationScope.buyOfferedCards(count: Int) {
+    discardUnwantedCards(count)
+    buySelectedCards(count)
+  }
+
+  private fun OperationScope.discardUnwantedCards(count: Int) {
     val offered = this@TfmGameplay.count("ProjectCard<Selecting>")
     require(count in 0..offered) { "Cannot buy $count of $offered offered project cards" }
     val discarded = offered - count
     doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
+  }
+
+  private fun OperationScope.buySelectedCards(
+      selected: Int = this@TfmGameplay.count("ProjectCard<Selecting>")
+  ) {
     if (
         tasks
             .extract { it }
@@ -89,7 +124,25 @@ public class TfmGameplay(
     ) {
       doTask("BuySelectedCards")
     }
-    if (count > 0) payAllMc()
+    if (selected > 0) payAllMc()
+  }
+
+  private fun OperationScope.chooseConcreteCorporationEffectsBeforePurchase() {
+    while (true) {
+      val next =
+          tasks
+              .extract { it }
+              .filter { task ->
+                task.actor == actor && asActor(task.assignee).canSelectTask(task.id)
+              }
+              .filterNot { task ->
+                task.instruction.descendantsOfType<Gain>().any { gain ->
+                  gain.gaining.className == BUY_SELECTED_CARDS
+                }
+              }
+              .firstOrNull { task -> !task.instruction.isAbstract(reader) } ?: return
+      selectTaskForActor(next)
+    }
   }
 
   public fun pass(): TaskResult {
@@ -253,7 +306,7 @@ public class TfmGameplay(
       cardName: ClassName,
       body: OperationBlock = {},
   ) {
-    playCardWithinOperation(cn("StandardCorporationCard"), cardName, body)
+    playCardWithinOperation(cn("CorporationCard"), cardName, body)
   }
 
   private fun OperationScope.playCardWithinOperation(

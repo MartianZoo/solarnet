@@ -1,105 +1,11 @@
 # Corporations: printed and generated wording
 
-[All categories](README.md) · 53 entries
+[All categories](README.md) · 47 entries
 
 Printed text: [wording evidence](../../src/jvm/dev/martianzoo/tfm/text/english-published-wording-evidence.tsv).
 Generated text comes directly from the current English renderer. See the [reading notes](README.md#reading-the-comparisons).
 
 ## Terraforming Mars
-
-### Beginner Corporation
-
-Class: `BeginnerCorporation`
-
-| | Bottom | Top |
-| --- | --- | --- |
-| Printed text | You start with 42 M€. INSTEAD OF CHOOSING FROM 10 CARDS DURING SETUP, YOU GET 10 CARDS FOR FREE. | — |
-| Generated text | Gain 42 M€. Draw 10 cards. | — |
-
-Pets declaration:
-
-```pets
-"A beginner corporation supplies 42 M€ and all ten starting project cards for free"
-ABSTRACT CLASS BeginnerCorporation : CardFront<Class<BeginnerCorporationCard>> {
-  cost = 0
-  This: 42 MC, 10 ProjectCard
-}
-```
-
-### Beginner Corporation
-
-Class: `BeginnerCorporation1`
-
-| | Bottom | Top |
-| --- | --- | --- |
-| Printed text | Not transcribed | Not transcribed |
-| Generated text | — | — |
-
-Pets declaration:
-
-```pets
-CLASS BeginnerCorporation1 : BeginnerCorporation
-```
-
-### Beginner Corporation
-
-Class: `BeginnerCorporation2`
-
-| | Bottom | Top |
-| --- | --- | --- |
-| Printed text | Not transcribed | Not transcribed |
-| Generated text | — | — |
-
-Pets declaration:
-
-```pets
-CLASS BeginnerCorporation2 : BeginnerCorporation
-```
-
-### Beginner Corporation
-
-Class: `BeginnerCorporation3`
-
-| | Bottom | Top |
-| --- | --- | --- |
-| Printed text | Not transcribed | Not transcribed |
-| Generated text | — | — |
-
-Pets declaration:
-
-```pets
-CLASS BeginnerCorporation3 : BeginnerCorporation
-```
-
-### Beginner Corporation
-
-Class: `BeginnerCorporation4`
-
-| | Bottom | Top |
-| --- | --- | --- |
-| Printed text | Not transcribed | Not transcribed |
-| Generated text | — | — |
-
-Pets declaration:
-
-```pets
-CLASS BeginnerCorporation4 : BeginnerCorporation
-```
-
-### Beginner Corporation
-
-Class: `BeginnerCorporation5`
-
-| | Bottom | Top |
-| --- | --- | --- |
-| Printed text | Not transcribed | Not transcribed |
-| Generated text | — | — |
-
-Pets declaration:
-
-```pets
-CLASS BeginnerCorporation5 : BeginnerCorporation
-```
 
 ### CrediCor
 
@@ -113,7 +19,7 @@ Class: `CrediCor`
 Pets declaration:
 
 ```pets
-CLASS CrediCor : CardFront<Class<StandardCorporationCard>> {
+CLASS CrediCor : CardFront<Class<CorporationCard>> {
   cost = 0
   This: 57 MC
   CardFront(HAS 20 cost) OR UseAction<StandardProject(HAS 20 cost)>: 4 MC
@@ -132,7 +38,7 @@ Class: `Ecoline`
 Pets declaration:
 
 ```pets
-CLASS Ecoline : CardFront<Class<StandardCorporationCard>> {
+CLASS Ecoline : CardFront<Class<CorporationCard>> {
   HAS =1 PlantTag<This>
   cost = 0
   This: 36 MC, 3 Plant, PROD[2 Plant]
@@ -152,7 +58,7 @@ Class: `InterplanetaryCinematics`
 Pets declaration:
 
 ```pets
-CLASS InterplanetaryCinematics : CardFront<Class<StandardCorporationCard>> {
+CLASS InterplanetaryCinematics : CardFront<Class<CorporationCard>> {
   HAS =1 BuildingTag<This>
   cost = 0
   This: 30 MC, 20 Steel
@@ -172,7 +78,7 @@ Class: `Inventrix`
 Pets declaration:
 
 ```pets
-CLASS Inventrix : CardFront<Class<StandardCorporationCard>> {
+CLASS Inventrix : CardFront<Class<CorporationCard>> {
   HAS =1 ScienceTag<This>
   cost = 0
   This: 45 MC, Inventrix_RequiredAction
@@ -192,7 +98,7 @@ Class: `MiningGuild`
 Pets declaration:
 
 ```pets
-CLASS MiningGuild : CardFront<Class<StandardCorporationCard>> {
+CLASS MiningGuild : CardFront<Class<CorporationCard>> {
   HAS =2 BuildingTag<This>
   cost = 0
   autoSelectWhen = HAS "Unsafe OR MAX 0 AmazonisMap"
@@ -214,7 +120,7 @@ Class: `PhoboLog`
 Pets declaration:
 
 ```pets
-CLASS PhoboLog : CardFront<Class<StandardCorporationCard>> {
+CLASS PhoboLog : CardFront<Class<CorporationCard>> {
   HAS =1 GrantedResourceValue<Class<Titanium>, This>, =1 SpaceTag<This>
   cost = 0
   This: 23 MC, 10 Titanium
@@ -233,7 +139,7 @@ Class: `TharsisRepublic`
 Pets declaration:
 
 ```pets
-CLASS TharsisRepublic : CardFront<Class<StandardCorporationCard>> {
+CLASS TharsisRepublic : CardFront<Class<CorporationCard>> {
   HAS =1 BuildingTag<This>
   cost = 0
   This: 40 MC, TharsisRepublic_RequiredAction
@@ -255,7 +161,7 @@ Class: `ThorGate`
 Pets declaration:
 
 ```pets
-CLASS ThorGate : CardFront<Class<StandardCorporationCard>> {
+CLASS ThorGate : CardFront<Class<CorporationCard>> {
   HAS =1 PowerTag<This>
   cost = 0
   This: 48 MC, PROD[Energy]
@@ -275,7 +181,7 @@ Class: `UnitedNationsMarsInitiative`
 Pets declaration:
 
 ```pets
-CLASS UnitedNationsMarsInitiative : ActionCard<Class<StandardCorporationCard>> {
+CLASS UnitedNationsMarsInitiative : ActionCard<Class<CorporationCard>> {
   HAS Class<TrWatcher>, =1 EarthTag<This>
   cost = 0
   This: 40 MC
@@ -297,7 +203,7 @@ Class: `SaturnSystems`
 Pets declaration:
 
 ```pets
-CLASS SaturnSystems : CardFront<Class<StandardCorporationCard>> {
+CLASS SaturnSystems : CardFront<Class<CorporationCard>> {
   HAS =1 JovianTag<This>
   cost = 0
   This: 42 MC, PROD[Titanium]
@@ -317,7 +223,7 @@ Class: `Teractor`
 Pets declaration:
 
 ```pets
-CLASS Teractor : CardFront<Class<StandardCorporationCard>> {
+CLASS Teractor : CardFront<Class<CorporationCard>> {
   HAS =1 EarthTag<This>
   cost = 0
   This: 60 MC
@@ -339,11 +245,11 @@ Class: `Aphrodite`
 Pets declaration:
 
 ```pets
-CLASS Aphrodite : CardFront<Class<StandardCorporationCard>> {
+CLASS Aphrodite : CardFront<Class<CorporationCard>> {
   HAS =1 VenusTag<This>, =1 PlantTag<This>
   cost = 0
   This: 47 MC, PROD[Plant]
-  VenusStep BY Actor: 2 MC
+  VenusStep BY Anyone: 2 MC
 }
 ```
 
@@ -359,7 +265,7 @@ Class: `Celestic`
 Pets declaration:
 
 ```pets
-CLASS Celestic : ResourceCard<Class<Floater>, Class<StandardCorporationCard>>, ActionCard {
+CLASS Celestic : ResourceCard<Class<Floater>, Class<CorporationCard>>, ActionCard {
   HAS =1 VenusTag<This>
   cost = 0
   This: 42 MC, Celestic_RequiredAction
@@ -380,7 +286,7 @@ Class: `Manutech`
 Pets declaration:
 
 ```pets
-CLASS Manutech : CardFront<Class<StandardCorporationCard>> {
+CLASS Manutech : CardFront<Class<CorporationCard>> {
   HAS =1 BuildingTag<This>
   cost = 0
   This: 35 MC, PROD[Steel]
@@ -400,7 +306,7 @@ Class: `MorningStarInc`
 Pets declaration:
 
 ```pets
-CLASS MorningStarInc : CardFront<Class<StandardCorporationCard>> {
+CLASS MorningStarInc : CardFront<Class<CorporationCard>> {
   HAS =1 VenusTag<This>
   cost = 0
   This: 50 MC, MorningStarInc_RequiredAction
@@ -420,7 +326,7 @@ Class: `Viron`
 Pets declaration:
 
 ```pets
-CLASS Viron : ActionCard<Class<StandardCorporationCard>> {
+CLASS Viron : ActionCard<Class<CorporationCard>> {
   HAS =1 MicrobeTag<This>
   cost = 0
   This: 48 MC
@@ -442,7 +348,7 @@ Class: `CheungShingMars`
 Pets declaration:
 
 ```pets
-CLASS CheungShingMars : CardFront<Class<StandardCorporationCard>> {
+CLASS CheungShingMars : CardFront<Class<CorporationCard>> {
   HAS =1 BuildingTag<This>
   cost = 0
   This: 44 MC, PROD[3 MC]
@@ -462,7 +368,7 @@ Class: `PointLuna`
 Pets declaration:
 
 ```pets
-CLASS PointLuna : CardFront<Class<StandardCorporationCard>> {
+CLASS PointLuna : CardFront<Class<CorporationCard>> {
   HAS =1 EarthTag<This>, =1 SpaceTag<This>
   cost = 0
   This: 38 MC, PROD[Titanium]
@@ -482,7 +388,7 @@ Class: `RobinsonIndustries`
 Pets declaration:
 
 ```pets
-CLASS RobinsonIndustries : ActionCard<Class<StandardCorporationCard>> {
+CLASS RobinsonIndustries : ActionCard<Class<CorporationCard>> {
   cost = 0
   This: 47 MC
   4 MC -> PROD[StandardResource(HAS =1 (RANK @Class<StandardResource> { Production<Class<StandardResource>(NOT @Class)> OR ProdOffset<@Class> }))]
@@ -501,7 +407,7 @@ Class: `ValleyTrust`
 Pets declaration:
 
 ```pets
-CLASS ValleyTrust : CardFront<Class<StandardCorporationCard>> {
+CLASS ValleyTrust : CardFront<Class<CorporationCard>> {
   HAS =1 EarthTag<This>
   cost = 0
   This: 37 MC, ValleyTrust_RequiredAction
@@ -521,7 +427,7 @@ Class: `Vitor`
 Pets declaration:
 
 ```pets
-CLASS Vitor : CardFront<Class<StandardCorporationCard>> {
+CLASS Vitor : CardFront<Class<CorporationCard>> {
   HAS =1 EarthTag<This>
   cost = 0
   This: 45 MC
@@ -544,7 +450,7 @@ Class: `Aridor`
 Pets declaration:
 
 ```pets
-CLASS Aridor : CardFront<Class<StandardCorporationCard>> {
+CLASS Aridor : CardFront<Class<CorporationCard>> {
   cost = 0
   This:: EACH @Class<Tag> { AridorTagWatcher<@Class, This> }
   This: 40 MC, Aridor_RequiredAction
@@ -563,7 +469,7 @@ Class: `Arklight`
 Pets declaration:
 
 ```pets
-CLASS Arklight : ResourceCard<Class<Animal>, Class<StandardCorporationCard>> {
+CLASS Arklight : ResourceCard<Class<Animal>, Class<CorporationCard>> {
   HAS =1 AnimalTag<This>
   cost = 0
   This: 45 MC, PROD[2 MC]
@@ -584,7 +490,7 @@ Class: `Polyphemos`
 Pets declaration:
 
 ```pets
-CLASS Polyphemos : CardFront<Class<StandardCorporationCard>> {
+CLASS Polyphemos : CardFront<Class<CorporationCard>> {
   cost = 0
   This: 50 MC, 5 Titanium, PROD[5 MC]
   PayingFor<Class<ProjectCard>>:: 2 Owed<>
@@ -603,7 +509,7 @@ Class: `Poseidon`
 Pets declaration:
 
 ```pets
-CLASS Poseidon : CardFront<Class<StandardCorporationCard>> {
+CLASS Poseidon : CardFront<Class<CorporationCard>> {
   cost = 0
   This: 45 MC, Poseidon_RequiredAction
   Colony<Anyone>: PROD[MC]
@@ -622,12 +528,12 @@ Class: `StormcraftIncorporated`
 Pets declaration:
 
 ```pets
-CLASS StormcraftIncorporated : ResourceCard<Class<Floater>, Class<StandardCorporationCard>>, ActionCard {
+CLASS StormcraftIncorporated : ResourceCard<Class<Floater>, Class<CorporationCard>>, ActionCard {
   HAS =1 JovianTag<This>
   cost = 0
   This: 48 MC
   Billing<Class<Heat>>:: AcceptingFromCard<This>
-  PayFromCard<This>:: -2 Owed<Class<Heat>>
+  -Floater<This> BY Me@ IF AcceptingFromCard<This>:: -2 Owed<Class<Heat>>
   LocalHeatTrapping: (-Floater<This> THEN 2 Heat) OR (-2 Floater<This> THEN 4 Heat) OR (-3 Floater<This> THEN 5 Heat) OR Ok
   -> Floater
 }
@@ -647,11 +553,11 @@ Class: `LakefrontResorts`
 Pets declaration:
 
 ```pets
-CLASS LakefrontResorts : CardFront<Class<StandardCorporationCard>> {
+CLASS LakefrontResorts : CardFront<Class<CorporationCard>> {
   HAS =1 BuildingTag<This>
   cost = 0
   This: 54 MC
-  OceanTile BY Actor: PROD[MC]
+  OceanTile BY Anyone: PROD[MC]
   Placement<@MarsArea>: MC / Neighbor<OceanTile, @MarsArea>
 }
 ```
@@ -668,7 +574,7 @@ Class: `Pristar`
 Pets declaration:
 
 ```pets
-CLASS Pristar : ResourceCard<Class<Preservation>, Class<StandardCorporationCard>> {
+CLASS Pristar : ResourceCard<Class<Preservation>, Class<CorporationCard>> {
   HAS Class<TrWatcher>
   cost = 0
   This: 53 MC, -2 TerraformRating
@@ -689,7 +595,7 @@ Class: `TerraLabsResearch`
 Pets declaration:
 
 ```pets
-CLASS TerraLabsResearch : CardFront<Class<StandardCorporationCard>> {
+CLASS TerraLabsResearch : CardFront<Class<CorporationCard>> {
   HAS =1 ScienceTag<This>, =1 EarthTag<This>
   cost = 0
   This: 14 MC, -TerraformRating
@@ -709,7 +615,7 @@ Class: `UtopiaInvest`
 Pets declaration:
 
 ```pets
-CLASS UtopiaInvest : ActionCard<Class<StandardCorporationCard>> {
+CLASS UtopiaInvest : ActionCard<Class<CorporationCard>> {
   HAS =1 BuildingTag<This>
   cost = 0
   This: 40 MC, PROD[Steel, Titanium]
@@ -726,16 +632,16 @@ Class: `ArcadianCommunities`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | You start with 40 M€ and 10 steel. AS YOUR FIRST ACTION, PLACE A COMMUNITY (PLAYER MARKER) ON A NON-RESERVED AREA. | Action: PLACE A COMMUNITY (PLAYER MARKER) ON A NON-RESERVED AREA ADJACENT TO ONE OF YOUR TILES OR MARKED AREAS. Effect: MARKED AREAS ARE RESERVED FOR YOU. WHEN YOU PLACE A TILE THERE, GAIN 3 M€ |
-| Generated text | Gain 40 M€ and 10 steel. As your first action, place a community marker on a land area with no occupant. | Action: Place a community marker on a land area with no occupant next to a tile or community you own. / Effect: When you remove a community marker, gain 3 M€. |
+| Generated text | Gain 40 M€ and 10 steel. As your first action, place a community marker. | Action: Place a community marker on a land area next to a tile or community you own. / Effect: \[-Community&lt;LandArea(HAS Tile)&gt;: 3 MC\]. |
 
 Pets declaration:
 
 ```pets
-CLASS ArcadianCommunities : ActionCard<Class<StandardCorporationCard>> {
+CLASS ArcadianCommunities : ActionCard<Class<CorporationCard>> {
   cost = 0
   This: 40 MC, 10 Steel, ArcadianCommunities_RequiredAction
-  -Community: 3 MC
-  -> Community<LandArea(HAS MAX 0 Occupant, HAS Neighbor<OwnedOccupant>)>
+  -Community<LandArea(HAS Tile)>: 3 MC
+  -> Community<LandArea(HAS Neighbor<OwnedOccupant>)>
 }
 ```
 
@@ -751,7 +657,7 @@ Class: `AstroDrill`
 Pets declaration:
 
 ```pets
-CLASS AstroDrill : ResourceCard<Class<Asteroid>, Class<StandardCorporationCard>>, ActionCard {
+CLASS AstroDrill : ResourceCard<Class<Asteroid>, Class<CorporationCard>>, ActionCard {
   HAS =1 SpaceTag<This>
   cost = 0
   This: 35 MC, 3 Asteroid<This>
@@ -772,7 +678,7 @@ Class: `Factorum`
 Pets declaration:
 
 ```pets
-CLASS Factorum : ActionCard<Class<StandardCorporationCard>> {
+CLASS Factorum : ActionCard<Class<CorporationCard>> {
   HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 0
   This: 37 MC, PROD[Steel]
@@ -793,12 +699,12 @@ Class: `KuiperCooperative`
 Pets declaration:
 
 ```pets
-CLASS KuiperCooperative : ResourceCard<Class<Asteroid>, Class<StandardCorporationCard>>, ActionCard {
+CLASS KuiperCooperative : ResourceCard<Class<Asteroid>, Class<CorporationCard>>, ActionCard {
   HAS =2 SpaceTag<This>
   cost = 0
   This: 33 MC, PROD[Titanium]
   UseAction<AsteroidProject> OR UseAction<AquiferProject>:: AcceptingFromCard<This>
-  PayFromCard<This>:: -Owed
+  -Asteroid<This> BY Me@ IF AcceptingFromCard<This>:: -Owed
   -> Asteroid<This> / SpaceTag
 }
 ```
@@ -810,15 +716,16 @@ Class: `MonsInsurance`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | You start with 48 M€. Increase your M€ production 4 steps. ALL OPPONENTS DECREASE THEIR M€ PRODUCTION 2 STEPS. THIS DOES NOT TRIGGER THE EFFECT BELOW. | Effect: When a player causes another player to decrease production or lose resources, pay 3 M€ to the victim, or as much as possible. |
-| Generated text | Gain 48 M€. Increase your M€ production 4 steps. Each other player decreases their own M€ production 2 steps. | Effect: When any player has their resources removed by another player, or has their production decreased by another player, pay 3 M€ to that player, or as much as possible. |
+| Generated text | Gain 48 M€. Increase your M€ production 4 steps. Each other player decreases their own M€ production 2 steps. | Effect: When any player has their resources removed by another player, pay 3 M€ to that player, or as much as possible. When any player has their production decreased by another player, pay 3 M€ to that player, or as much as possible. |
 
 Pets declaration:
 
 ```pets
-CLASS MonsInsurance : CardFront<Class<StandardCorporationCard>> {
+CLASS MonsInsurance : CardFront<Class<CorporationCard>> {
   cost = 0
   This: 48 MC, PROD[4 MC], EACH Other@Player(NOT Me@) { PROD[-2 MC<Other@Player>] BY Other@Player }
-  MyResourceWasRemoved<Victim@Anyone> OR MyProductionWasDecreased<Victim@Anyone>: 3 MC<Victim@Anyone FROM Me@>.
+  MyResourceWasRemoved<Victim@Anyone(NOT Me@)>: 3 MC<Victim@Anyone FROM Me@>.
+  MyProductionWasDecreased<Victim@Anyone(NOT Me@)>: 3 MC<Victim@Anyone FROM Me@>.
 }
 ```
 
@@ -829,18 +736,18 @@ Class: `PharmacyUnion`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | You start with 54 M€. Draw a science card. | Effect: When ANY microbe tag is played, including these 2, add a disease here and lose 4 M€ or as much as possible. When you play a science tag, remove 1 disease from here and raise your TR 1 step, OR, if there are no diseases here, you may raise your TR 3 steps and place this card in your event pile. It now counts as a played event. |
-| Generated text | Gain 54 M€. Draw 1 science card. | Effect: \[MicrobeTag&lt;Anyone&gt;: Disease&lt;This&gt;! OR (MAX 0 This: Ok), -4 MC.\]. \[ScienceTag: TerraformRating FROM Disease&lt;This&gt;! OR (MAX 0 Disease: (PlayedEvent&lt;Class&lt;This&gt;&gt; FROM This THEN 3 TerraformRating) OR Ok)\]. |
+| Generated text | Gain 54 M€. Draw 1 science card. | Effect: \[MicrobeTag&lt;Anyone&gt;: Disease&lt;This&gt;! OR (MAX 0 This: Ok), -4 MC.\]. \[ScienceTag: TerraformRating FROM Disease&lt;This&gt;! OR (MAX 0 Disease&lt;This&gt;: (PlayedEvent&lt;Class&lt;This&gt;&gt; FROM This THEN 3 TerraformRating) OR Ok)\]. |
 
 Pets declaration:
 
 ```pets
-CLASS PharmacyUnion : ResourceCard<Class<Disease>, Class<StandardCorporationCard>> {
+CLASS PharmacyUnion : ResourceCard<Class<Disease>, Class<CorporationCard>> {
   HAS =2 MicrobeTag<This>
   cost = 0
   This:: 54 MC
   This: SearchForCard<TagFilter<Class<ScienceTag>>>
   MicrobeTag<Anyone>: Disease<This>! OR (MAX 0 This: Ok), -4 MC.
-  ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)
+  ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease<This>: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)
 }
 ```
 
@@ -856,11 +763,11 @@ Class: `Philares`
 Pets declaration:
 
 ```pets
-CLASS Philares : CardFront<Class<StandardCorporationCard>> {
+CLASS Philares : CardFront<Class<CorporationCard>> {
   HAS =1 BuildingTag<This>
   cost = 0
   This: 47 MC, Philares_RequiredAction
-  Adjacency<OwnedTile, OwnedTile<Anyone(NOT Me@)>> BY Actor: StandardResource
+  Adjacency<OwnedTile, OwnedTile<Anyone(NOT Me@)>> BY Anyone: StandardResource
 }
 ```
 
@@ -876,7 +783,7 @@ Class: `Recyclon`
 Pets declaration:
 
 ```pets
-CLASS Recyclon : ResourceCard<Class<Microbe>, Class<StandardCorporationCard>> {
+CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
   HAS =1 MicrobeTag<This>, =1 BuildingTag<This>
   cost = 0
   This: 38 MC, PROD[Steel]
@@ -896,7 +803,7 @@ Class: `SpliceTacticalGenomics`
 Pets declaration:
 
 ```pets
-CLASS SpliceTacticalGenomics : CardFront<Class<StandardCorporationCard>> {
+CLASS SpliceTacticalGenomics : CardFront<Class<CorporationCard>> {
   HAS =1 Splicer<This>, =1 MicrobeTag<This>
   cost = 0
   This: 44 MC, SpliceTacticalGenomics_RequiredAction
@@ -916,7 +823,7 @@ Class: `TychoMagnetics`
 Pets declaration:
 
 ```pets
-CLASS TychoMagnetics : ActionCard<Class<StandardCorporationCard>> {
+CLASS TychoMagnetics : ActionCard<Class<CorporationCard>> {
   HAS =1 PowerTag<This>, =1 ScienceTag<This>
   cost = 0
   This: 42 MC, PROD[Energy]
@@ -938,7 +845,7 @@ Class: `Ecotec`
 Pets declaration:
 
 ```pets
-CLASS Ecotec : CardFront<Class<StandardCorporationCard>> {
+CLASS Ecotec : CardFront<Class<CorporationCard>> {
   HAS =1 MicrobeTag<This>, =1 PlantTag<This>
   cost = 0
   This: 42 MC, PROD[Plant]
@@ -958,7 +865,7 @@ Class: `NirgalEnterprises`
 Pets declaration:
 
 ```pets
-CLASS NirgalEnterprises : CardFront<Class<StandardCorporationCard>> {
+CLASS NirgalEnterprises : CardFront<Class<CorporationCard>> {
   HAS =1 PowerTag<This>, =1 PlantTag<This>, =1 BuildingTag<This>
   cost = 0
   This: 30 MC, PROD[Energy, Plant, Steel]
@@ -979,7 +886,7 @@ Class: `PalladinShipping`
 Pets declaration:
 
 ```pets
-CLASS PalladinShipping : ActionCard<Class<StandardCorporationCard>> {
+CLASS PalladinShipping : ActionCard<Class<CorporationCard>> {
   HAS =1 SpaceTag<This>
   cost = 0
   This: 36 MC, 5 Titanium
@@ -1000,7 +907,7 @@ Class: `SagittaFrontierServices`
 Pets declaration:
 
 ```pets
-CLASS SagittaFrontierServices : CardFront<Class<StandardCorporationCard>> {
+CLASS SagittaFrontierServices : CardFront<Class<CorporationCard>> {
   cost = 0
   autoSelectWhen = HAS "Unsafe OR (MAX 0 PromoCardPack, MAX 0 Merger)"
   This: 31 MC, PROD[Energy, 2 MC], SearchForCard<NoTagsFilter>
@@ -1021,13 +928,13 @@ Class: `Spire`
 Pets declaration:
 
 ```pets
-CLASS Spire : ResourceCard<Class<Science>, Class<StandardCorporationCard>> {
+CLASS Spire : ResourceCard<Class<Science>, Class<CorporationCard>> {
   HAS =1 CityTag<This>, =1 EarthTag<This>
   cost = 0
   This: 50 MC, Spire_RequiredAction
   CardFront(HAS 2 Tag): Science<This>
   UseAction<StandardProject(HAS cost)>:: AcceptingFromCard<This>
-  PayFromCard<This>:: -2 Owed
+  -Science<This> BY Me@ IF AcceptingFromCard<This>:: -2 Owed
 }
 ```
 
@@ -1040,18 +947,18 @@ Class: `FakeHelion`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | You start with 3 heat production and 42 M€. | Effect: You may use heat as M€. You may not use M€ as heat. |
-| Generated text | \[BaseResourceValue&lt;Class&lt;Heat&gt;&gt;\]. Gain 42 M€. Increase your heat production 3 steps. | Effect: \[Billing&lt;HasActions, ActionSlot, Class&lt;MC&gt;&gt; IF Owed&lt;Class&lt;MC&gt;&gt;:: Accepting&lt;Class&lt;Heat&gt;&gt;\]. |
+| Generated text | \[BaseResourceValue&lt;Class&lt;Heat&gt;&gt;\]. Gain 42 M€. Increase your heat production 3 steps. | Effect: \[Billing&lt;Class&lt;MC&gt;&gt; IF Owed&lt;Class&lt;MC&gt;&gt;:: Accepting&lt;Class&lt;Heat&gt;&gt;\]. |
 
 Pets declaration:
 
 ```pets
 "Helion without correct Heat payment allocation"
-CLASS FakeHelion : CardFront<Class<StandardCorporationCard>> {
+CLASS FakeHelion : CardFront<Class<CorporationCard>> {
   HAS =1 SpaceTag<This>
   cost = 0
   This:: BaseResourceValue<Class<Heat>>
   This: 42 MC, PROD[3 Heat]
-  Billing<HasActions, ActionSlot, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
+  Billing<Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
 }
 ```
 
@@ -1068,7 +975,7 @@ Pets declaration:
 
 ```pets
 "Septem Tribus with an inert wild tag"
-CLASS FakeSeptemTribus : ActionCard<Class<StandardCorporationCard>> {
+CLASS FakeSeptemTribus : ActionCard<Class<CorporationCard>> {
   HAS =1 FakeWildTag<This>
   cost = 0
   This: 36 MC

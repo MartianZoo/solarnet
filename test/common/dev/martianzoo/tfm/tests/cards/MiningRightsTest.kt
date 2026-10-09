@@ -1,77 +1,55 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.GameplayException
-import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.tests.TestOption.Cimmeria
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class MiningRightsTest : CardTest() {
-  @Test
-  internal fun `Links production to its prior area choice without prioritizing it`() {
-    newGame()
-    val manual = p1.also { it.autoExecPolicy = NONE }
-
-    manual
-        .runOperation("$MiningRights") {
-          shouldThrow<TaskException> { doTask("PROD[Steel]") }
-          placeTile(1, 1)
-          doTask("2 Steel")
-          doTask("PROD[Steel]")
-        }
-        .expect("2 Steel, PROD[Steel]")
-    p1.count("PROD[Titanium]") shouldBe 0
-  }
-
+internal class MiningRightsTest : ProjectCardTest() {
   @Test
   internal fun `Robotic Workforce re-evaluates its production box instead of remembering steel`() {
     // Resolved FAQ: copying allows any originally available metal, regardless of the first choice.
     // https://boardgamegeek.com/thread/2663453/rule-opinions-mining-rights-robotic-workforce
-    newGame(Cimmeria)
+    newTestGame(addOptions = "CimmeriaMap")
 
-    p1.runOperation("$MiningRights") {
+    kim.playProject(MiningRights, 9) {
           placeTile(6, 4)
           doTask("PROD[Steel]")
         }
-        .expect("Titanium, 2 Steel, PROD[Steel]")
+        .expect("-9 MC, Titanium, 2 Steel, PROD[Steel]")
 
-    val manual = p1.also { it.autoExecPolicy = NONE }
-    manual.beginOperation("$RoboticWorkforce")
-    manual.selectTask("CopyProductionBox<CardFront(HAS BuildingTag)>")
-    manual.narrowTask("CopyProductionBox<$MiningRights>")
-    manual.completeOperation { doTask("PROD[Titanium]") }.expect("PROD[Titanium]")
+    kim.playProject(RoboticWorkforce, 9) {
+          doTask("CopyProductionBox<$MiningRights>")
+          doTask("PROD[Titanium]")
+        }
+        .expect("-9 MC, PROD[Titanium]")
   }
 
   @Test
-  internal fun `Cannot select a card-bonus area`() {
-    newGame()
-    shouldThrow<GameplayException> { p1.runOperation("$MiningRights") { placeTile(2, 1) } }
+  internal fun `Cannot select an area without a metal placement bonus`() {
+    newTestGame()
+    shouldThrow<GameplayException> { kim.playProject(MiningRights, 9) { placeTile(2, 1) } }
   }
 
   @Test
   internal fun `A mixed metal placement grants both resources and steel production`() {
-    mixedMetalPlacement("Steel")
+    newTestGame(addOptions = "CimmeriaMap")
+
+    kim.playProject(MiningRights, 9) {
+          placeTile(6, 4)
+          doTask("PROD[Steel]")
+        }
+        .expect("-9 MC, 2 Steel, Titanium, PROD[Steel]")
   }
 
   @Test
   internal fun `A mixed metal placement grants both resources and titanium production`() {
-    mixedMetalPlacement("Titanium")
-  }
+    newTestGame(addOptions = "CimmeriaMap")
 
-  private fun mixedMetalPlacement(metal: String) {
-    newGame(Cimmeria)
-    p1.runOperation("9 MC, ProjectCard")
-    admin.phase("Action")
-    p1.playProject(MiningRights, 9) {
+    kim.playProject(MiningRights, 9) {
           placeTile(6, 4)
-          doTask("PROD[$metal]")
+          doTask("PROD[Titanium]")
         }
-        .expect("2 Steel, Titanium")
-    p1.production(cn(metal)) shouldBe 1
-    p1.production(cn(if (metal == "Steel") "Titanium" else "Steel")) shouldBe 0
+        .expect("-9 MC, 2 Steel, Titanium, PROD[Titanium]")
   }
 }

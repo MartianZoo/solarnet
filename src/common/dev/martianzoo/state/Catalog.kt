@@ -2,10 +2,8 @@ package dev.martianzoo.state
 
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.TransformHandler
-import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.pets.types.ClassTable
@@ -18,7 +16,7 @@ import dev.martianzoo.pets.types.ClassTable
  * implementations may use internal packaging such as bundles, but callers compose and play exactly
  * one Catalog, in which every class name has one meaning. Assemblers can use
  * [ClassDeclaration.indexByName] to merge identical contributions and diagnose conflicting names.
- * Construction from other Catalogs combines their source declarations, custom implementations,
+ * Construction from other Catalogs combines their source declarations, custom-class dependencies,
  * transforms, Module selections, availability, and display names. Game-specific subclasses apply
  * their own lowering and selection policies to the assembled namespace.
  */
@@ -109,9 +107,22 @@ public open class Catalog(private vararg val catalogs: Catalog) {
   public open val explicitClassDeclarations: Set<ClassDeclaration> =
       catalogs.flatMapTo(linkedSetOf(), Catalog::explicitClassDeclarations)
 
-  /** Kotlin implementations for this Catalog's virtual metrics and computed Signals. */
-  public open val customClasses: Set<CustomClass> =
-      catalogs.flatMapTo(linkedSetOf(), Catalog::customClasses)
+  /** Declarations whose executable behavior must be supplied when starting a live game. */
+  public val customClassDeclarations: List<ClassDeclaration> by lazy {
+    allClassDeclarations.values.filter { it.customMetric || it.customInstruction }
+  }
+
+  /** Static vocabulary required by custom behavior, independently of its Kotlin implementation. */
+  public open val customClassDependencies: Map<ClassName, Set<ClassName>> by lazy {
+    catalogs
+        .flatMap { it.customClassDependencies.entries }
+        .groupBy({ it.key }, { it.value })
+        .mapValues { (name, contributions) ->
+          val dependencies = contributions.distinct()
+          require(dependencies.size == 1) { "Conflicting custom class dependencies for $name" }
+          dependencies.single()
+        }
+  }
 
   /** Returns the unique declaration having [name]. */
   public fun classDeclaration(name: ClassName): ClassDeclaration =
@@ -119,36 +130,13 @@ public open class Catalog(private vararg val catalogs: Catalog) {
           ?: throw IllegalArgumentException("no class declaration named `$name`")
 
   /**
-   * Returns the sole Kotlin implementation having [className].
-   *
-   * @throws InvalidPetDefinitionException unless the Catalog declares exactly one implementation
-   *   for [className]
+   * Resolves signed Class selections and additive setup adjustments over this Catalog's master
+   * table.
    */
-  public fun customClass(className: ClassName): CustomClass {
-    val matches = customClasses.filter { it.className == className }
-    return when (matches.size) {
-      1 -> matches.single()
-      0 ->
-          throw InvalidPetDefinitionException(
-              "custom class implementation not found for `$className`"
-          )
-      else ->
-          throw InvalidPetDefinitionException("multiple custom implementations for `$className`")
-    }
-  }
-
-  /** Returns the custom metric implementation having [className], if any. */
-  public fun customMetric(className: ClassName): CustomMetric? =
-      customClasses.filterIsInstance<CustomMetric>().firstOrNull { it.className == className }
-
-  /** Resolves configuration defaults and creates a premise over this Catalog's master table. */
   public open fun gamePremise(
       config: GameConfig,
-      additionalInitialComponentTypes: Set<Expression> = emptySet(),
       additionalClassDeclarations: Set<ClassDeclaration> = emptySet(),
-  ): GamePremise =
-      GamePremiseBuilder(this, config, additionalInitialComponentTypes, additionalClassDeclarations)
-          .build()
+  ): GamePremise = GamePremiseBuilder(this, config, additionalClassDeclarations).build()
 
   /** Cooks a premise whose player names and seat order come from [playerDeclarations]. */
   public fun gamePremise(

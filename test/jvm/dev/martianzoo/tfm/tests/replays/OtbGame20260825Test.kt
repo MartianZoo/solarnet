@@ -31,15 +31,16 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     TfmWorkflow.Automatic(agents).launch()
     val green = player(1)
     val yellow = player(2)
+    keepStartingProjects(10, 5)
 
     // 9:17:17 pm: "This is a two-player game on the Terra Cimmeria board. We're using
     // Venus, Prelude, Prelude 2, Promos, the following milestones and awards: Energizer,
     // Farmer, Philanthropist, Producer, Rim Settler, Hoverlord; Magnate, Manufacturer,
     // Metropolist, Space Baron, Suburbian, Venuphile."
     // "Terralabs research. I get 14 money and spend all 10 of it. Then I lose a TR."
-    green.playCorp(TerraLabsResearch, 10).expect("4 MC, 10 ProjectCard, -TerraformRating")
+    green.playCorp(TerraLabsResearch).expect("4 MC, 10 ProjectCard, -TerraformRating")
     // 9:31:05 pm: "I can play Viron for 48 and I spend 15 on five cards."
-    yellow.playCorp(Viron, 5).expect("33 MC")
+    yellow.playCorp(Viron).expect("33 MC")
 
     green.turn {
       // "Focused organization. Draw one card. And gain one standard resource." Green takes

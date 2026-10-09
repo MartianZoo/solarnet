@@ -37,7 +37,7 @@ internal fun cardImageDirectory(card: Type): String? {
           .flatMap { it.allSuperclasses() }
           .map { it.className.toString() }
   return when {
-    "CorporationCard" in representedClasses -> "corporations"
+    representedClasses.any { it == "CorporationCard" || it == "BeginnerCard" } -> "corporations"
     "PreludeCard" in representedClasses -> "preludes"
     "ProjectCard" in representedClasses -> "projects"
     else -> null

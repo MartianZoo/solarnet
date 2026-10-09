@@ -5,7 +5,6 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.data.ClassDeclaration
@@ -15,6 +14,7 @@ import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestOption as Option
@@ -95,8 +95,40 @@ internal abstract class CardTest(
   protected fun playCorporationWithoutStartingProjects(
       player: TfmGameplay,
       corporation: ClassName,
-  ): TaskResult =
-      dev.martianzoo.tfm.tests.playCorporationWithoutStartingProjects(player, corporation)
+  ): TaskResult = player.playCorp(corporation, 0)
+
+  protected fun TfmGameplay.playCorp(
+      corporation: ClassName,
+      startingProjects: Int,
+      body: OperationBlock = {},
+  ): TaskResult {
+    if (admin.count("SetupPhase") == 1) {
+      val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
+      prepareCorporationPhase(
+          *players.map { if (it.actor == actor) startingProjects else 0 }.toIntArray()
+      )
+    } else if (startingProjects > 0) {
+      require(count("ProjectCard<Selecting>") == 0)
+      runOperation("$startingProjects ProjectCard<Selecting>")
+    }
+    return playCorp(corporation, body)
+  }
+
+  protected fun prepareCorporationPhase(vararg startingProjects: Int) {
+    val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
+    require(startingProjects.size == players.size) { "Provide a project count per player" }
+    if (admin.count("SetupPhase") == 1) {
+      players.zip(startingProjects.toList()).forEach { (player, count) ->
+        player.keepStartingProjects(count)
+      }
+      if (workflow == null) admin.phase("Corporation")
+    } else {
+      players.zip(startingProjects.toList()).forEach { (player, count) ->
+        require(player.count("ProjectCard<Selecting>") == 0)
+        if (count > 0) player.runOperation("$count ProjectCard<Selecting>")
+      }
+    }
+  }
 
   private fun startGame(premise: GamePremise): World {
     workflow?.shutdown()
@@ -105,7 +137,7 @@ internal abstract class CardTest(
 
   private fun startAutoGame(premise: GamePremise): World {
     workflow?.shutdown()
-    return Engine.newGame(premise).apply {
+    return TfmEngine.newGame(premise).apply {
       bindPlayers()
       workflow = TfmWorkflow.Automatic(testAgents()).launch()
       finishSoloSetup()
@@ -180,12 +212,13 @@ internal abstract class CardTest(
   }
 
   private fun playCorporations(requested: List<ClassName>, beforeNextPhase: () -> Unit) {
-    check(admin.count("CorporationPhase") == 1) { "The Corporation phase has already ended" }
     val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
     val corporations = if (requested.isEmpty()) BORING_CORPORATIONS else requested
     require(corporations.size >= players.size) { "Provide one corporation per player" }
+    prepareCorporationPhase(*IntArray(players.size) { 5 })
+    check(admin.count("CorporationPhase") == 1) { "The Corporation phase has already ended" }
     players.zip(corporations).forEachIndexed { index, (player, corporation) ->
-      player.playCorp(corporation, 5) {
+      player.playCorp(corporation) {
         // Defer even the unambiguous NewTurn so incidental setup can run with triggers enabled
         // before a workflow choice is selected. The caller restores the previous policy afterward.
         if (index == players.lastIndex) beforeNextPhase()

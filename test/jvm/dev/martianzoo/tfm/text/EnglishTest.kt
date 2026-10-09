@@ -307,6 +307,23 @@ internal class EnglishTest {
   }
 
   @Test
+  internal fun optionalCardRewardRetainsTheRevealProcedure() {
+    val card =
+        syntheticCard(
+            """
+            CLASS OptionalReveal : ActiveCard, ResourceCard<Class<Science>>, ActionCard {
+              cost = 0
+              MC -> ProjectCard<Revealed> THEN ClaimCardReward<TagFilter<Class<MicrobeTag>>, This>? THEN -ProjectCard<Revealed>
+            }
+            """
+        )
+
+    English(card.classTable, TerraformingMarsDescribers.descriptions).topText(card) shouldBe
+        "Action: Spend 1 M€ to reveal a card, then add 1 science resource to this card if it has " +
+            "a microbe tag, then discard the revealed card."
+  }
+
+  @Test
   internal fun cardPlayModifiersDoNotEraseAnotherPlayer() {
     english.describe(
         parse<InstructionTree>("PlayCard<Class<ProjectCard>, Hand, Player> THEN -7 Owed")

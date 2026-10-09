@@ -57,26 +57,27 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
             .testTfm(game.actors.filterIsInstance<Player>()[3])
             .requireExplicitPaymentChoices()
             .requireExplicitUnusedActionCards()
+    keepStartingProjects(4, 6, 5, 4)
 
     // 2:12:23 PM — Yellow: "Okay, um well all I can do for now is put down My corporation is
     // Ecoline"
     // 2:12:55 PM — Blue: "Alright um well I can show you for now um I will s use this slider to
     // buy four cards, um and I will give myself the um two yes, the three plants. Um"
-    yellow.playCorp(Ecoline, 4)
+    yellow.playCorp(Ecoline)
     // 2:14:50 PM — Rainbow: "I am Morningstar!"
     // 2:15:04 PM — Green: "You've already given yourself fifty money, and then how many cards are
     // you gonna buy?"
     // 2:15:05 PM — Blue: "Mm-hmm. Oh, um a lot. One two three four five six."
-    rainbow.playCorp(MorningStarInc, 6)
+    rainbow.playCorp(MorningStarInc)
     // 2:15:31 PM — Blue: "I am Helion."
     // 2:15:34 PM — Blue: "So I start with three heat production and I have 42 mega credits. And
     // then you can turn heat into money and I can use heat as money."
     // 2:15:48 PM — Blue: "Okay, damn, that's even better. And I am buying five cards."
-    blue.playCorp(FakeHelion, 5)
+    blue.playCorp(FakeHelion)
     // 2:15:56 PM — Green: "All right, and I am playing Factotum, which is an awesome corporation.
     // So I take 37 plus money. I'm buying four cards."
     // 2:16:15 PM — Green: "I get a steel production."
-    green.playCorp(Factorum, 4)
+    green.playCorp(Factorum)
 
     yellow.turn {
       // 2:16:32 PM — Blue: "Right, um. I got a Doe farming, so, um, yes, um, one plant

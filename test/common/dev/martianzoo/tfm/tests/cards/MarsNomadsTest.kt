@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
-import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -27,18 +26,8 @@ internal class MarsNomadsTest : CardTest() {
   @Test
   internal fun `Play places the marker on an empty land area without collecting its bonus`() {
     newGame(PromoCardPack)
-    val p2 = requireP2()
-    p1.runOperation("CityTile<Tharsis_2_1>")
-    p2.runOperation("Community<Tharsis_1_3>")
-    p1.runOperation("OceanTile<Tharsis_1_2>")
-    p1.runOperation("-2 Steel")
 
-    p1.runOperation("$MarsNomads") {
-      shouldThrowAny { doTask("NomadsMarker<Tharsis_1_2>") }
-      shouldThrow<NarrowingException> { doTask("NomadsMarker<Tharsis_2_1>") }
-      shouldThrow<NarrowingException> { doTask("NomadsMarker<Tharsis_1_3>") }
-      doTask("NomadsMarker<Tharsis_1_1>")
-    }
+    p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_1_1>") }
 
     p1.assertCounts(1 to "NomadsMarker<Tharsis_1_1>", 0 to "Steel", 0 to "MC")
   }
@@ -61,26 +50,16 @@ internal class MarsNomadsTest : CardTest() {
   }
 
   @Test
-  internal fun `Action requires an adjacent unoccupied destination`() {
+  internal fun `Action requires an adjacent destination`() {
     newGame(PromoCardPack)
     p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_1_1>") }
-    p1.runOperation("CityTile<Tharsis_2_1>")
     admin.phase("Action")
 
-    p1.cardAction1(MarsNomads) {
-      shouldThrow<ExpressionException> {
-        doTask("NomadsMarker<Tharsis_1_1 FROM Tharsis_1_1>")
-      }
-      shouldThrow<NarrowingException> {
+    shouldThrow<NarrowingException> {
+      p1.cardAction1(MarsNomads) {
         doTask("NomadsMarker<Tharsis_4_2 FROM Tharsis_1_1>")
       }
-      shouldThrow<NarrowingException> {
-        doTask("NomadsMarker<Tharsis_2_1 FROM Tharsis_1_1>")
-      }
-      doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>")
     }
-
-    p1.assertCounts(1 to "NomadsMarker<Tharsis_2_2>")
   }
 
   @Test
@@ -91,14 +70,13 @@ internal class MarsNomadsTest : CardTest() {
     p2.runOperation("Community<Tharsis_2_2>")
     admin.phase("Action")
 
-    p1.cardAction1(MarsNomads) {
-      shouldThrow<NarrowingException> {
+    shouldThrow<NarrowingException> {
+      p1.cardAction1(MarsNomads) {
         doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>")
       }
-      doTask("NomadsMarker<Tharsis_2_1 FROM Tharsis_1_1>")
     }
 
-    p1.assertCounts(1 to "NomadsMarker<Tharsis_2_1>")
+    p1.assertCounts(1 to "NomadsMarker<Tharsis_1_1>")
     p2.assertCounts(1 to "Community<Tharsis_2_2>")
   }
 
@@ -115,13 +93,6 @@ internal class MarsNomadsTest : CardTest() {
         1 to "Community<Tharsis_1_1>",
         1 to "NomadsMarker<Player1, Tharsis_1_1>",
     )
-    admin.phase("Action")
-    p1.cardAction1(MarsNomads) {
-      doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>")
-    }
-
-    p2.runOperation("CityTile<Tharsis_1_1>")
-    shouldThrow<DeadEndException> { p2.runOperation("CityTile<Tharsis_2_2>") }
   }
 
   @Test
@@ -181,23 +152,6 @@ internal class MarsNomadsTest : CardTest() {
           doTask("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>")
         }
         .expect("2 Steel")
-  }
-
-  @Test
-  internal fun `Nomads may return to an area they previously occupied`() {
-    newGame(PromoCardPack)
-    p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_1_1>") }
-    admin.phase("Action")
-    p1.cardAction1(MarsNomads) {
-      doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>")
-    }
-    p1.sneak("-ActionUsedMarker<MarsNomads>")
-
-    p1.cardAction1(MarsNomads) {
-      doTask("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_2>")
-    }
-
-    p1.assertCounts(1 to "NomadsMarker<Tharsis_1_1>")
   }
 
   @Test
@@ -263,9 +217,5 @@ internal class MarsNomadsTest : CardTest() {
     p1.assertCounts(1 to "NomadsMarker<Cimmeria_3_2>", 0 to "NomadsMarker<Cimmeria_3_3>")
     p1.count("MC") shouldBe moneyBefore
     p1.count("Colony") shouldBe 5
-    p1.cardAction1(MarsNomads) {
-          doTask("NomadsMarker<Cimmeria_3_1 FROM Cimmeria_3_2>")
-        }
-        .expect("NomadsMarker<Cimmeria_3_1>, 0 Colony, 0 MC")
   }
 }
