@@ -151,7 +151,7 @@ ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned
 ABSTRACT CLASS Cardbound<CardFront<@Player>> : Owned<@Player>
 
 "Marks an action card that has been used this generation"
-CLASS ActionUsedMarker<GenerationScope> : Cardbound<ActionCard> { HAS MAX 1 This }
+CLASS ActionUsedMarker<GenerationScope> : Cardbound<ActionCard>, System { HAS MAX 1 This }
 
 "A singleton listener needed by selected content"
 ABSTRACT CLASS CardWatcher : System, Hidden { HAS MAX 1 This }

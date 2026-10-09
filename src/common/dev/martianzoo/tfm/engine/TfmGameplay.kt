@@ -623,7 +623,6 @@ public class TfmGameplay(
       body: OperationBlock = {},
   ): TaskResult {
     return stdAction("UseActionOnCardAction") {
-      doTask("ActionUsedMarker<$cardName>")
       useCardAction(which, cardName, x, body)
     }
   }
