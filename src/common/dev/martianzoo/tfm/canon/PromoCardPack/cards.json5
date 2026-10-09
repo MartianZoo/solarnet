@@ -208,7 +208,7 @@
           "tags": [ "ScienceTag" ],
           "immediate": "2 TakeEventCard",
           "components": [
-            "CLASS TakeEventCard : Owned, Signal, Atomized { This: ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)> }",
+            "CLASS TakeEventCard : Owned, Signal, System, Atomized { This: ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)> }",
             "CLASS GainsOf<Class<CardFront>, Class<Component>> : CustomMetric",
           ],
         },

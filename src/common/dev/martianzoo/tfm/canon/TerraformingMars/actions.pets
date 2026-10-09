@@ -76,4 +76,4 @@ ABSTRACT CLASS RequiredAction : Owned<Player>, HasActions {
   RequiredActionsSignal: -This!
 }
 
-CLASS RequiredActionsSignal : Owned<Player>, Signal
+CLASS RequiredActionsSignal : Owned<Player>, Signal, System

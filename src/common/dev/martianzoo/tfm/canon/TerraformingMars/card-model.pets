@@ -102,7 +102,7 @@ CLASS CheckRequirement<Class<CardFront>> : Owned<Player>, Signal
 CLASS GpRequirementShortfall<Class<CardFront>, Class<GlobalParameter>> : CustomMetric
 
 "Emits payment-adjustment events for a project card and each of its printed tags"
-CLASS PriceCard<Class<@CardFront>> : Owned<Player>, Signal {
+CLASS PriceCard<Class<@CardFront>> : Owned<Player>, Signal, System {
   This:: EACH @Class<Tag> { PayingFor<@Class> / PriceAspectCount<Class<@CardFront>, @Class> }
   This:: PayingFor<Class<@CardFront>> / PriceAspectCount<Class<@CardFront>, Class<@CardFront>>
 }
