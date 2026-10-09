@@ -47,6 +47,7 @@ private constructor(
   init {
     require(copyFrom == null || copyFrom.premise === premise)
     require(copyFrom == null || initialEvents.isEmpty())
+    if (copyFrom == null) validateCustomClasses(premise.catalog)
     initialEvents.forEach(::apply)
   }
 

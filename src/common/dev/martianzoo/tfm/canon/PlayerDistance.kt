@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.CustomMetric
@@ -9,8 +8,6 @@ import dev.martianzoo.state.GameReader
 /** Clockwise seat distance, with owners outside the player ring after every seated player. */
 internal object PlayerDistance : CustomMetric() {
   private val AFTER_ME = cn("AfterMe")
-
-  override val requiredClassNames: Set<ClassName> = setOf(AFTER_ME)
 
   override fun count(game: GameReader, type: Type): Int {
     val (source, target) = type.typeDependencies.map { it.boundType }

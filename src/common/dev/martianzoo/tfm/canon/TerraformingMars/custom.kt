@@ -181,8 +181,6 @@ private val gpRequirementShortfall =
 
 private val priceAspectCount =
     object : CustomMetric("PriceAspectCount") {
-      override val requiredClassNames: Set<ClassName> = setOf(PROJECT_CARD)
-
       override fun count(game: GameReader, type: Type): Int {
         val (cardClassType, aspectClassType) = type.typeDependencies.map { it.boundType }
         val card = cardFromClassType(cardClassType, game)

@@ -146,10 +146,11 @@ owns the inclusion closure. Inclusion guards use the configured seats for exact 
 unrefined `Player` Types, including subclasses. Thus the existing `IF 3 Player` scoring guard leaves
 `SecondPlace` unselected in a two-player game.
 
-Master loading accepts declarations, transform factories, an external declaration validator, and
-an additional-dependency callback directly. `createClassLoader(catalog)` supplies these inputs and
-owns Kotlin implementation validation. Neither `ClassLoader` nor `ClassTable` depends on `Catalog`
-or the custom runtime implementation classes. Transform factories bind to each receiving table.
+Master loading accepts declarations, transform factories, a declaration validator, and an
+additional-dependency callback directly. `createClassLoader(catalog)` supplies these static inputs
+from declarations and Catalog metadata. `GameWorld` validates the Catalog's Kotlin implementations
+when binding that static model to a runtime. Neither `ClassLoader` nor `ClassTable` depends on custom
+runtime implementation classes. Transform factories bind to each receiving table.
 
 See [RESPONSIBILITIES.md](RESPONSIBILITIES.md#game-assembly-and-runtime-apis-belong-to-state)
 for assembly and viability ownership and the corresponding test boundaries.
