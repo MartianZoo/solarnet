@@ -9,8 +9,7 @@
 >
 > **Skip when:** changing only grammatical wording; use [LANGUAGE.md](LANGUAGE.md).
 >
-> **Status:** current model. [Pending naming work](#pending-naming-work) records unresolved names or
-> mechanisms; settle each one before implementation.
+> **Status:** current naming model and intentional exceptions.
 
 ## Source map
 
@@ -58,7 +57,7 @@ printed title *begins* with one, since a `ClassName` cannot: `16 Psyche` becomes
 which is currently the only such case.
 
 A placeholder implementation still uses the real name unless it is one of the deliberate fake
-wild-tag cards recorded under [Known and accepted](#known-and-accepted). Otherwise, never ship a
+wild-tag cards recorded under [Intentional exceptions](#intentional-exceptions). Otherwise, never ship a
 class whose name announces its own incompleteness — an unimplemented card belongs in the
 `docs/what-is-supported.md` table plus, if it is worth exercising, a test-only fixture.
 
@@ -199,12 +198,12 @@ looking it up.
 - **Do not use implementation or game-design vocabulary** as a component name. "Mechanic", "hack",
   "fake", and Pets grammar terms such as "effect" describe how we built something, not what it is in
   the game. Settled exceptions are not to be re-flagged; see
-  [Known and accepted](#known-and-accepted).
+  [Intentional exceptions](#intentional-exceptions).
 
 ## Module names
 
-[Content selection and expansion eligibility](CONTENT_SELECTION.md) defines the Bundle, Module, and
-Content roles and their selection rules. The conventions here concern their Class Names.
+The Catalog and Bundle APIs define Bundle, Module, and Content selection. The conventions here
+concern their Class Names.
 
 Most genuine `Module` subtypes extend `Module` directly, and that is fine — they need no
 intermediate supertype just to justify a suffix. Four loose families exist today:
@@ -212,9 +211,8 @@ intermediate supertype just to justify a suffix. Four loose families exist today
 1. **Ambient rules** — published products contributing ambient rules use their own noun:
    `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, `PreludeExpansion`, and
    `TurmoilExpansion`.
-2. **Content-group controls** — `Prelude1CardPack`, `Prelude2CardPack`, and `PromoCardPack` use
-   the transitional Module representation described in
-   [Content selection and expansion eligibility](CONTENT_SELECTION.md).
+2. **Content-group controls** — `Prelude1CardPack`, `Prelude2CardPack`, and `PromoCardPack` use the
+   current transitional Module representation.
 3. **Exclusive choices** — a closed set behind an abstract supertype, exactly one selected. These
    already borrow the supertype's word, which reads well: `MultiplayerMode` and `SoloMode` under
    `GameMode`; `TharsisMap` and `HellasMap` under `MarsMap`; `StandardSoloObjective` and
@@ -222,9 +220,8 @@ intermediate supertype just to justify a suffix. Four loose families exist today
 4. **Independent toggles** — optional rules switched on or off on their own:
    `QuickStartVariant`, `WorldGovernmentRule`, `MandatoryVenusVariant`.
 
-The third family currently uses two words for one kind. **A convention for choosing that suffix is
-deferred**; nothing here is a violation until we settle one, and no new abstract supertype is wanted
-just to supply the word.
+The third family currently uses two words for the same role. Do not add an abstract supertype merely
+to supply a shared suffix.
 
 A Module whose Class Name equals its bundle name currently selects that bundle's cards and colony
 tiles by default. Check [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) before
@@ -292,51 +289,7 @@ names `TerraLabs`. Jacob's forum posts and the official
 [Dice Game rulebook](https://fryxgames.se/wp-content/uploads/2023/10/TMDG_RULES_ENGi.pdf) use
 `Terralabs`, but the printed Turmoil card is the closest evidence for this corporation.
 
-## Pending naming work
-
-### Second action signal
-
-`SecondAction`, the Signal for the second action slot of an action-phase turn, collides in the
-reader's head with `Action2`, but is expected to go away entirely; do not rename it in the meantime.
-
-### Independent-toggle Modules
-
-The convention that chooses `Option` or `Variant` for an independent-toggle Module is
-undecided.
-
-### Global-parameter track rules
-
-`ExtendedGlobalParametersRule` is both the selectable Module and the body of the extended-track
-rules, while its Venus counterparts `StandardVenusTrackRules` and `ExtendedVenusTrackRules` are
-plain `System` components that the same Module switches between, as `StandardGpTrackRules` is. The
-switch and the rule body want separating, and the Module's spelled-out `GlobalParameters` violates
-the abbreviation rule that produced `StandardGpTrackRules`. Settle both together; it is the only one
-of the four that appears in a `GameConfig`.
-
-### `RequiredActionsSignal`
-
-The only `<Noun>Signal` in the vocabulary, and the suffix is its own supertype. It wants a verb
-phrase, but the obvious one is taken by the `DoRequiredActionsAction` standard action.
-
-### `HasRaisedTr` and the reserved `Has` prefix
-
-`Has` is reserved for capabilities (`HasActions`), and `HasRaisedTr` is a record that something
-happened, which the [grammar](#grammar-by-kind-of-thing) says should read as a passive or `My` form.
-The conflict is acknowledged; the name is not yet settled. It is declared identically in
-`TerraformingMars` and `TurmoilExpansion`, so any rename must change both.
-
-### Scope of `en.json5`
-
-Only published content — cards, maps, milestones, awards, colony tiles, global events, parties,
-and the like — belongs in a language file. Today these files also carry entries for standard
-resources (`Energy`, `Plant`, `Steel`, `Titanium`, `Heat`), `TerraformRating`, `VictoryPoint`,
-standard projects (`AquiferProject` and the rest), standard-action doorways, `TradeAction`, and
-generated `_SpecialTile` classes. Decide
-where display text for non-content classes should come from, then remove those entries. The resource
-entries also lowercase the standard resources while leaving every card resource (`Microbe`,
-`Animal`, `Floater`, ...) in Title Case, which is a second reason not to keep them here.
-
-### Known and accepted
+## Intentional exceptions
 
 The `Fake`-prefixed cards in FakeCanon's explicitly selected `FakeStuffBundle` are deliberate
 incomplete stand-ins. The wild-tag cards preserve every other modeled behavior while creating only
@@ -344,8 +297,7 @@ an inert `FakeWildTag`; replays add the chosen ordinary tag explicitly when sour
 it. The other stand-ins preserve only their documented subset of the printed card. Their names must
 remain visibly fake so Canon does not claim to model the published cards faithfully.
 
-`ProdOffset` names the component representing the five synthetic M€-production steps. The
-representation itself is documented in [GAME_HACKS.md](GAME_HACKS.md).
+`ProdOffset` names the component representing the five synthetic M€-production steps.
 
 `NextCardEffect` keeps its name. It was chosen for how you would explain the thing to a
 player, and "effect" there is the ordinary English word, not the Pets grammar term the prohibition

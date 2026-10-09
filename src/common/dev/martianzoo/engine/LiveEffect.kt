@@ -110,6 +110,7 @@ private constructor(
         changedComponentPlayer = changedComponentPlayer,
         automatic = automatic,
         instruction = InstructionGroup.of(instruction),
+        queuedEffectFallback = resolvedChange.queuedEffectFallback,
     )
   }
 
@@ -140,6 +141,7 @@ private constructor(
   internal class ResolvedChange(
       val gaining: Type?,
       val removing: Type?,
+      val queuedEffectFallback: Actor?,
   ) {
     val changedComponentPlayer: Player? = (gaining ?: removing)?.toComponent()?.owningPlayer
 

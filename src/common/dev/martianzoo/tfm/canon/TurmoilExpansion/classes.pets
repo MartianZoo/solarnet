@@ -50,22 +50,22 @@ ABSTRACT CLASS GlobalEventPosition<GlobalEvent> {
 }
 
 "Requests the first revealed event and then the second setup event"
-CLASS RevealComingEvent : Barrier, Hidden {
+CLASS RevealComingEvent : Barrier, System, Hidden {
   HAS MAX 1 This
   This: GlobalEvent THEN RevealDistantEvent FROM This
 }
 
 "Requests the next event for the Distant position"
-CLASS RevealDistantEvent : Barrier, Hidden {
+CLASS RevealDistantEvent : Barrier, System, Hidden {
   HAS MAX 1 This
   This: GlobalEvent THEN -This!
 }
 
 "Requests the printed effect of one Global Event"
-CLASS ResolveGlobalEvent<Class<GlobalEvent>> : Signal
+CLASS ResolveGlobalEvent<Class<GlobalEvent>> : Signal, System
 
 "Moves every revealed Global Event one position and requests the next event"
-CLASS ChangingTimes : Signal {
+CLASS ChangingTimes : Signal, System {
   This:: \
     EACH Event@GlobalEvent(HAS Current) { -Event@ }, \
     EACH Event@GlobalEvent(HAS Coming) { \
@@ -135,9 +135,9 @@ CLASS Scientists : Party {
   ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: ScientistsPolicy.
 }
 CLASS ScientistsPolicy : Policy<Ruling<Scientists>>, HasActions {
-  10 MC -> 3 ProjectCard, ScientistsUsedMarker
+  10 MC -> 3 ProjectCard THEN ScientistsUsedMarker
 }
-CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player> {
+CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player>, System {
   HAS MAX 1 This
 }
 
@@ -185,10 +185,10 @@ CLASS KelvinistsPolicy : Policy<Ruling<Kelvinists>>, HasActions {
 }
 
 "Requests the one-time bonus for the party forming the new government"
-CLASS ApplyRulingBonus<Party> : Signal
+CLASS ApplyRulingBonus<Party> : Signal, System
 
 "Performs the complete new-government sequence for the current Dominant party"
-CLASS FormGovernment : Signal
+CLASS FormGovernment : Signal, System
 
 "Identifies the Party immediately after another Party around the committee"
 CLASS AfterParty<Party, Party> : System, Hidden { HAS MAX 1 This }
@@ -287,12 +287,12 @@ CLASS LobbyAction : StandardAction {
 }
 
 "Restores free lobbying for each player who has an available delegate"
-CLASS RefillLobby : Signal {
+CLASS RefillLobby : Signal, System {
   This:: EACH Me@Player(HAS MAX 6 Delegate) { LobbyActionAvailable. }
 }
 
 "Requests the current political influence snapshot for one player"
-CLASS MeasureInfluence : Owned<Player>, Signal
+CLASS MeasureInfluence : Owned<Player>, Signal, System
 
 "One generation's political influence; each source below supplies at most one"
 ABSTRACT CLASS Influence<GenerationScope> : Owned<Player> {

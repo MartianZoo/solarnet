@@ -2,7 +2,6 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -16,14 +15,15 @@ import kotlin.test.assertFailsWith
 
 internal class EffectActorCharacterizationTest {
   @Test
-  internal fun playersCannotCreateSystemComponents() {
+  internal fun playerSubmittedSystemGainIsPerformedByAdmin() {
     val game = TfmEngine.newGame(canonicalPremise())
     val player = game.testAgent(PLAYER1)
+    val checkpoint = game.timeline.checkpoint()
 
-    assertFailsWith<DeadEndException> { player.runOperation("Generation") }
-    game.testAgent(ADMIN).runOperation("Generation")
+    player.runOperation("Generation")
 
     player.count("Generation") shouldBe 1
+    game.events.changesSince(checkpoint).all { it.actor == ADMIN } shouldBe true
   }
 
   @Test

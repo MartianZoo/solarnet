@@ -7,27 +7,14 @@
 >
 > **Status:** current tool behavior. No production or test source set consumes its output.
 
-The JVM-only `codegen` module contains a KotlinPoet generator over `Canon.classTable`. It uses the
-resolved canonical master vocabulary and deliberately excludes premise-local declarations such as
-concrete Player seats and `Premise`.
+The JVM-only `codegen` module contains a KotlinPoet generator over any resolved Pets `ClassTable`.
+It has no Canon or Terraforming Mars dependency. The current experiment is a library rather than a
+command-line application; no production or test source set consumes its output.
 
-Run the generator with:
-
-```shell
-./gradlew :codegen:runPetsTypeGenerator --args='--output-dir build/generated-pets-types-manual'
-```
-
-The supported options are `--package`, `--file-prefix`, and `--output-dir`. Without an output
-directory, files are written consecutively to standard output with filename comments. The
-`generatePetsTypes` task writes the default package and prefix under the module's build directory,
-and `check` compiles that output in an isolated source set. No production or test source set
-consumes it.
-
-The default output splits the vocabulary among `CanonicalPetsTypes.kt`,
-`CanonicalPetsCards.kt`, `CanonicalPetsGoals.kt`, and `CanonicalPetsMapAreas.kt`. Abstract Pets
-classes become interfaces and concrete classes become final classes. Generated components retain
-their Pets `Expression`, expose direct authored effects and resolved class properties, and use
-typed root descriptors for Pets class literals.
+The generator writes the supplied vocabulary to one Kotlin file. Abstract Pets classes become
+interfaces and concrete classes become final classes. Generated components retain their Pets
+`Expression`, expose direct authored effects and resolved class properties, and use typed root
+descriptors for Pets class literals.
 
 Open dependency roots become covariant Kotlin parameters. Shared Kotlin parameters come only from
 the identity of Pets class-header Type variables; equal unmarked expressions remain independent.

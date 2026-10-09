@@ -1,6 +1,9 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -79,6 +82,7 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
   @Test
   internal fun `Amazonis delegate bonuses are ignored without Turmoil`() {
     newGameWithAutoWorkflow(Amazonis)
+    p1.count("PlacementBonus<Class<Metal>, Amazonis_02_02>") shouldBe 0
     playUntilFirstActionPhase(UnitedNationsMarsInitiative, PhoboLog)
 
     p1.turn {
@@ -226,5 +230,27 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
     playUntilFirstActionPhase()
 
     p1.stdProject("CityProject") { placeTile(5, 5) }.expect("-29 MC, TemperatureStep")
+  }
+
+  @Test
+  internal fun `Unaffordable Vastitas north pole placement rolls back with either player policy`() {
+    listOf(NONE, EAGER).forEach { policy ->
+      newGame(Vastitas)
+      p1.runOperation("3 MC")
+      p1.autoExecPolicy = policy
+
+      shouldThrow<GameplayException> {
+        p1.runOperation("CityTile<Vastitas_5_5>") {
+          if (policy == NONE) {
+            doTask("TemperatureStep")
+            doTask("-4 MC")
+          }
+        }
+      }
+
+      p1.count("CityTile<Vastitas_5_5>") shouldBe 0
+      p1.count("MC") shouldBe 3
+      admin.count("TemperatureStep") shouldBe 0
+    }
   }
 }

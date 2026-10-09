@@ -323,6 +323,10 @@ Tags remain card metadata. Lexical `Me` references mean the current owner; a nam
 must explicitly target its selected player, while `EACH Me@Player` rebinds ownership in its body.
 Event attribution uses `Actor`, independently of ownership.
 
+The once-per-action production reward recognizer accepts a fixed marker gain either as an
+automatic effect or as queued `System` work performed by Admin. Its unit limit, production trigger,
+and consume-on-reward structure still determine the rendered rule.
+
 The card goals cover the same corpus as the card current and corrected files. That corpus follows
 the published wording evidence, including replay-only cards and the abstract Beginner Corporation.
 Retain supported printed constraints in reviewed goals even when Pets does not yet enforce them;

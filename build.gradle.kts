@@ -16,17 +16,16 @@ val allBrowserTestsRequested =
 
 extra["allBrowserTestsRequested"] = allBrowserTestsRequested
 
-// Kotlin creates a browser-test task for every JS target. Only :web:jsBrowserTest and
-// :almanac:jsBrowserTest are part of the normal test suite; the rest are inert unless the
-// deliberately unavailable full-browser target below is temporarily restored.
+// Kotlin creates a browser-test task for every JS target. Pets, Web, and Almanac run routinely.
+// Other modules are inert unless the full-browser target below is temporarily restored.
 subprojects {
-  if (name != "web" && name != "almanac") {
+  if (name !in setOf("pets", "web", "almanac")) {
     tasks
         .matching { it.name == "jsBrowserTest" }
         .configureEach {
           description = "Disabled except through the temporary full-browser test target."
           inputs.property("allBrowserTestsRequested", allBrowserTestsRequested)
-          onlyIf("only the repository browser suite runs routinely") { task ->
+          onlyIf("only the Pets, Web, and Almanac browser suites run routinely") { task ->
             task.inputs.properties["allBrowserTestsRequested"] == true
           }
         }
@@ -110,7 +109,7 @@ dependencies {
   dokka(project(":tfm-fake"))
   dokka(project(":web"))
   dokka(project(":almanac"))
-  dokka(project(":game-viewer"))
+  dokka(project(":viewer"))
 }
 
 tasks.register<Exec>("installGitHooks") {
@@ -122,5 +121,5 @@ tasks.register<Exec>("installGitHooks") {
 tasks.register("webAppsDevelopmentRun") {
   group = "run"
   description = "Starts one development server for every browser app."
-  dependsOn(":game-viewer:jsBrowserDevelopmentRun")
+  dependsOn(":viewer:jsBrowserDevelopmentRun")
 }

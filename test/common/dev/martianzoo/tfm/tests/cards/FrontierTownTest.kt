@@ -12,6 +12,19 @@ import kotlin.test.Test
 
 internal class FrontierTownTest : CardTest() {
   @Test
+  internal fun `A delegate placement bonus is tripled when Turmoil is present`() {
+    newGame(Amazonis, PreludeExpansion, Prelude2CardPack, TurmoilExpansion)
+    p1.runOperation("18 MC, PROD[Energy]")
+
+    p1.runOperation("$FrontierTown") {
+      placeTile(2, 2)
+      repeat(3) { doTask("PartyDelegate<Scientists>") }
+    }
+
+    p1.count("PartyDelegate<Scientists>") shouldBe 3
+  }
+
+  @Test
   internal fun `An ocean placement reward does not consume the city's pending repeat bonus`() {
     newGame(Hellas, PreludeExpansion, Prelude2CardPack, TurmoilExpansion)
     p1.runOperation("18 MC, PROD[Energy]")

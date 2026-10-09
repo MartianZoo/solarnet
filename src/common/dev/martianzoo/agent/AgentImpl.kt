@@ -161,6 +161,8 @@ internal class AgentImpl(
 
   private fun addInitialTasks(initialInstructions: InstructionGroup) {
     engine.addTasks(initialInstructions).forEach { taskId ->
+      // Initial routing may assign the task to another Actor before settlement begins.
+      if (taskId !in tasks) return@forEach
       try {
         engine.doTask(taskId)
       } catch (_: NotFullySpecifiedException) {

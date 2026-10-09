@@ -102,7 +102,7 @@ CLASS CheckRequirement<Class<CardFront>> : Owned<Player>, Signal
 CLASS GpRequirementShortfall<Class<CardFront>, Class<GlobalParameter>> : CustomMetric
 
 "Emits payment-adjustment events for a project card and each of its printed tags"
-CLASS PriceCard<Class<@CardFront>> : Owned<Player>, Signal {
+CLASS PriceCard<Class<@CardFront>> : Owned<Player>, Signal, System {
   This:: EACH @Class<Tag> { PayingFor<@Class> / PriceAspectCount<Class<@CardFront>, @Class> }
   This:: PayingFor<Class<@CardFront>> / PriceAspectCount<Class<@CardFront>, Class<@CardFront>>
 }
@@ -151,7 +151,7 @@ ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned
 ABSTRACT CLASS Cardbound<CardFront<@Player>> : Owned<@Player>
 
 "Marks an action card that has been used this generation"
-CLASS ActionUsedMarker<GenerationScope> : Cardbound<ActionCard> { HAS MAX 1 This }
+CLASS ActionUsedMarker<GenerationScope> : Cardbound<ActionCard>, System { HAS MAX 1 This }
 
 "A singleton listener needed by selected content"
 ABSTRACT CLASS CardWatcher : System, Hidden { HAS MAX 1 This }

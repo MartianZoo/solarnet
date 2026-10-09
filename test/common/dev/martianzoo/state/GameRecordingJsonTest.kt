@@ -2,7 +2,7 @@ package dev.martianzoo.state
 
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.catalogtestsupport.testCatalog
+import dev.martianzoo.engine.testCatalog
 import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn

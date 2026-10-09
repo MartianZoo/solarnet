@@ -5,10 +5,10 @@ CLASS PromoCardPack : Module {
 }
 
 "A durable generational resource-removal record owned by the victim and naming the attacker"
-CLASS MyResourceWasRemoved<Class<Resource>, Player, GenerationScope> : Owned, Hidden
+CLASS MyResourceWasRemoved<Class<Resource>, Player, GenerationScope> : Owned, System, Hidden
 
 "A durable generational production-decrease record owned by the victim and naming the attacker"
-CLASS MyProductionWasDecreased<Class<StandardResource>, Player, GenerationScope> : Owned, Hidden
+CLASS MyProductionWasDecreased<Class<StandardResource>, Player, GenerationScope> : Owned, System, Hidden
 
 CLASS ResourceRemovalWatcher<Class<@Resource>> : System, Hidden {
   HAS =1 This

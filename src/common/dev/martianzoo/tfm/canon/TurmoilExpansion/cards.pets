@@ -44,10 +44,10 @@ CLASS DryDeserts : GePartyDistant<Reds>, GePartyCurrent<Unity> {
 }
 
 "Lets the first player return one placed Ocean without reducing rating"
-CLASS RemoveOceanForGlobalEvent : Owned<Player>, Signal { This: -OceanTile }
+CLASS RemoveOceanForGlobalEvent : Owned<Player>, Signal, System { This: -OceanTile }
 
 "Lets each of one player's influence choose its own Dry Deserts resource"
-CLASS ResolveDryDeserts : Owned<Player>, Signal {
+CLASS ResolveDryDeserts : Owned<Player>, Signal, System {
   This: EACH Influence { StandardResource }
 }
 

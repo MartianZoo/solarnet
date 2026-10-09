@@ -4,6 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Expression
@@ -28,12 +29,264 @@ internal class TaskAssignmentCharacterizationTest {
               """
               CLASS Token<Owner>
               CLASS Marker<Owner>
+              CLASS PlayerStep<Owner> { This: SystemToken }
               CLASS AdminToken
+              CLASS HiddenToken : Hidden
+              CLASS SystemToken : System
+              ABSTRACT CLASS Reward : Owned<Player> {
+                CLASS RewardA
+                CLASS RewardB
+              }
+              CLASS SystemRequest : Owned<Player>, System {
+                This: Reward
+              }
+              CLASS UnownedSystemRequest<@Player> : System {
+                This: Reward<@Player>
+              }
+              CLASS Player2SystemSource : Owned<Player2> {
+                This: UnownedSystemRequest<Player2>
+              }
+              ABSTRACT CLASS SystemChoice : System {
+                CLASS SystemChoiceA
+                CLASS SystemChoiceB
+              }
               CLASS AutomaticBy { This:: Token<Player1> BY Admin }
               """,
               players = 2,
           )
       )
+
+  @Test
+  internal fun systemGainBeginsAssignedToAdmin() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val checkpoint = game.timeline.checkpoint()
+
+    val taskId = p1.addTasks("SystemToken BY Admin").single()
+
+    p1.tasks.isEmpty() shouldBe true
+    admin.tasks.ids().shouldContainExactly(taskId)
+    game.tasks.getTaskData(taskId).let {
+      it.controller shouldBe PLAYER1
+      it.selectionAssignee shouldBe PLAYER1
+      it.assignee shouldBe ADMIN
+      it.selected shouldBe false
+    }
+
+    admin.selectTask(taskId)
+
+    p1.count("SystemToken") shouldBe 1
+    game.events.changesSince(checkpoint).single().actor shouldBe ADMIN
+  }
+
+  @Test
+  internal fun systemGainPreservesAnExplicitPlayerPerformerAndRejectsIt() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+
+    val taskId = p1.addTasks("SystemToken BY Player2").single()
+    admin.tasks.ids().shouldContainExactly(taskId)
+
+    shouldThrow<DeadEndException> { admin.selectTask(taskId) }
+
+    game.tasks.getTaskData(taskId).let {
+      it.assignee shouldBe ADMIN
+      it.selected shouldBe false
+    }
+    p2.tasks.isEmpty() shouldBe true
+    p1.count("SystemToken") shouldBe 0
+  }
+
+  @Test
+  internal fun hiddenGainRemainsAssignedToPlayer() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+
+    val taskId = p1.addTasks("HiddenToken").single()
+
+    p1.tasks.ids().shouldContainExactly(taskId)
+    admin.tasks.isEmpty() shouldBe true
+    game.tasks.getTaskData(taskId).assignee shouldBe PLAYER1
+  }
+
+  @Test
+  internal fun enclosingInstructionsDelaySystemRoutingUntilTheyResolveToADirectGain() {
+    listOf(
+            "SystemToken / Marker<Player1>",
+            "Marker<Player1>: SystemToken",
+        )
+        .forEach { instruction ->
+          val game = game()
+          val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+          val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+          p1.runOperation("Marker<Player1>")
+
+          val taskId = p1.addTasks(instruction).single()
+          p1.tasks.ids().shouldContainExactly(taskId)
+          admin.tasks.isEmpty() shouldBe true
+
+          p1.selectTask(taskId)
+          p1.tasks.isEmpty() shouldBe true
+          admin.tasks.ids().shouldContainExactly(taskId)
+
+          admin.selectTask(taskId)
+          p1.count("SystemToken") shouldBe 1
+          game.tasks.isEmpty() shouldBe true
+        }
+  }
+
+  @Test
+  internal fun ownedSystemGainRoutesItsQueuedChoiceToItsOwner() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+
+    val request = p1.addTasks("SystemRequest").single()
+    admin.selectTask(request)
+
+    val reward = game.tasks.extract { it }.single()
+    reward.controller shouldBe PLAYER1
+    reward.selectionAssignee shouldBe PLAYER1
+    reward.assignee shouldBe PLAYER1
+    reward.instruction shouldBe parse<Instruction>("Reward<Player1>!")
+  }
+
+  @Test
+  internal fun systemGainReturnsItsContinuationToTheOriginalPlayer() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+
+    val request = p1.addTasks("SystemToken THEN Reward<Player1>").single()
+    admin.selectTask(request)
+
+    val reward = game.tasks.extract { it }.single()
+    reward.controller shouldBe PLAYER1
+    reward.selectionAssignee shouldBe PLAYER1
+    reward.assignee shouldBe PLAYER1
+    reward.instruction shouldBe parse<Instruction>("Reward<Player1>!")
+  }
+
+  @Test
+  internal fun unownedSystemGainReturnsItsQueuedChoiceToTheOriginalRecipient() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+
+    val request = p1.addTasks("UnownedSystemRequest<Player1>").single()
+    admin.selectTask(request)
+
+    val reward = game.tasks.extract { it }.single()
+    reward.controller shouldBe PLAYER1
+    reward.selectionAssignee shouldBe PLAYER1
+    reward.assignee shouldBe PLAYER1
+    reward.instruction shouldBe parse<Instruction>("Reward<Player1>!")
+  }
+
+  @Test
+  internal fun unownedSystemGainKeepsASelectionRecipientDifferentFromItsController() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+
+    val source = p1.addTasks("Player2SystemSource").single()
+    p1.selectTask(source)
+
+    val request = game.tasks.extract { it }.single()
+    request.controller shouldBe PLAYER1
+    request.selectionAssignee shouldBe PLAYER2
+    request.assignee shouldBe ADMIN
+    admin.selectTask(request.id)
+
+    val reward = game.tasks.extract { it }.single()
+    reward.controller shouldBe PLAYER1
+    reward.selectionAssignee shouldBe PLAYER2
+    reward.assignee shouldBe PLAYER1
+    p1.selectTask(reward.id)
+    p2.tasks.ids().shouldContainExactly(reward.id)
+  }
+
+  @Test
+  internal fun adminCanNarrowAnUnselectedAbstractSystemGainByTaskId() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val checkpoint = game.timeline.checkpoint()
+
+    val taskId = p1.addTasks("SystemChoice").single()
+    admin.fillInTask(taskId).apply { narrow("SystemChoiceA") }.commit()
+
+    p1.count("SystemChoiceA") shouldBe 1
+    game.events.changesSince(checkpoint).single().actor shouldBe ADMIN
+    game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun eagerAdminExecutesSystemGainWhilePlayerAutoexecIsOff() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    game.testAgent(ADMIN)
+
+    p1.runOperation("SystemToken")
+
+    p1.count("SystemToken") shouldBe 1
+    game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun eagerAdminWorkPrecedesEarlierEagerPlayerWork() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1)
+    val admin = game.testAgent(ADMIN)
+    p1.addTasks("Token<Player1>")
+    admin.addTasks("AdminToken")
+    val checkpoint = game.timeline.checkpoint()
+
+    p1.autoExecNow()
+
+    game.events.changesSince(checkpoint).map { it.actor }.shouldContainExactly(ADMIN, PLAYER1)
+    game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun eagerAdminSettlesTriggeredWorkBetweenExplicitPlayerSteps() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    game.testAgent(ADMIN)
+    p1.addTasks("PlayerStep<Player1>")
+    p1.addTasks("Marker<Player1>")
+    val checkpoint = game.timeline.checkpoint()
+
+    p1.continueOperation {
+      doTask("PlayerStep<Player1>")
+      p1.count("SystemToken") shouldBe 1
+      doTask("Marker<Player1>")
+    }
+
+    game.events
+        .changesSince(checkpoint)
+        .map { it.actor }
+        .shouldContainExactly(PLAYER1, ADMIN, PLAYER1)
+  }
+
+  @Test
+  internal fun abstractAdminWorkDoesNotPreventExecutablePlayerWork() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1)
+    game.testAgent(ADMIN)
+    val systemChoice = p1.addTasks("SystemChoice").single()
+    p1.addTasks("Token<Player1>")
+
+    p1.autoExecNow()
+
+    p1.count("Token<Player1>") shouldBe 1
+    game.tasks.ids().shouldContainExactly(systemChoice)
+  }
 
   @Test
   internal fun ordinaryActorCanOnlySeeAndExecuteTasksAssignedToIt() {

@@ -13,7 +13,7 @@ ABSTRACT CLASS Area {
     row = Number
     column = Number
 
-    Tile<This>:: Placement<This>
+    Tile<This>: Placement<This>
 
     "An unreserved area"
     ABSTRACT CLASS LandArea {
@@ -40,7 +40,7 @@ ABSTRACT CLASS Occupant : AreaPiece
 ABSTRACT CLASS OwnedOccupant : Owned, Occupant
 
 "A signal that triggers placement bonuses"
-CLASS Placement<MarsArea> : Signal
+CLASS Placement<MarsArea> : Owned<Player>, Signal, System
 
 "A player cube placed on an area by LandClaim or ArcadianCommunities"
 CLASS Community : OwnedOccupant<@LandArea> {
@@ -86,7 +86,7 @@ ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>> : Hidden {
 }
 
 "A signal to place a greenery tile according to the default rules"
-CLASS DefaultGreeneryTile : Owned, Signal {
+CLASS DefaultGreeneryTile : Owned, Signal, System {
   This: GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> OR \
     (MAX 0 Neighbor<OwnedTile, LandArea(HAS MAX 0 (Tile OR OwnedOccupant<Anyone(NOT Me@)>))>: \
       GreeneryTile<LandArea>)
@@ -162,11 +162,11 @@ CLASS GpGameEndBarrier<@Class<GlobalParameter>> : GameEndBarrier, System, Hidden
 }
 
 "Asks its owning Player to choose one mandatory global-parameter increase performed by Admin"
-CLASS WorldGovernmentTerraforming : Owned<Player>, Signal {
+CLASS WorldGovernmentTerraforming : Owned<Player>, Signal, System {
   This IF GpIncomplete: GlobalParameter! BY Admin
 }
 
 "Asks its owning Player to place an Ocean attributed to Admin"
-CLASS AdminOceanPlacement : Owned<Player>, Signal {
+CLASS AdminOceanPlacement : Owned<Player>, Signal, System {
   This: OceanTile<> BY Admin
 }

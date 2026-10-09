@@ -43,7 +43,7 @@ internal constructor(
       public val kind: Kind,
       /** The first unresolved type part for [Kind.TARGET], or null for other decisions. */
       public val focus: Expression?,
-      internal val instruction: InstructionTree,
+      private val instruction: InstructionTree,
   ) {
     public enum class Kind {
       ALTERNATIVE,

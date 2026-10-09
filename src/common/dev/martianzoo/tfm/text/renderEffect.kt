@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.text
 
+import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -430,9 +431,9 @@ private fun renderOncePerActionProductionReward(
   val actionEnable = effects.getOrNull(0)?.let(describers::prepareForRendering) ?: return null
   val phaseEnable = effects.getOrNull(1)?.let(describers::prepareForRendering) ?: return null
 
-  val rewardMarker = enabledLatchMarker(actionEnable) ?: return null
+  val rewardMarker = enabledLatchMarker(actionEnable, describers) ?: return null
   if (!resetsAfterAction(actionEnable.trigger, describers)) return null
-  if (enabledLatchMarker(phaseEnable) != rewardMarker) return null
+  if (enabledLatchMarker(phaseEnable, describers) != rewardMarker) return null
   if (!resetsForPreludeAction(phaseEnable.trigger)) return null
 
   val declaration = describers.declaration(rewardMarker.className)
@@ -478,10 +479,10 @@ private fun renderOncePerActionProductionReward(
       .asText() to 2
 }
 
-private fun enabledLatchMarker(effect: Effect): Expression? {
+private fun enabledLatchMarker(effect: Effect, describers: Describers): Expression? {
   val gain = effect.instruction as? Gain ?: return null
   if (
-      !effect.automatic ||
+      (!effect.automatic && !describers.isSubtypeOf(gain.gaining.className, SYSTEM)) ||
           gain.quantifier.modality() != Modality.BEST_EFFORT ||
           gain.count.fixedQuantity() != 1 ||
           gain.gaining.refinement != null

@@ -1,7 +1,7 @@
 package dev.martianzoo.state
 
 import dev.martianzoo.catalog.Catalog
-import dev.martianzoo.catalogtestsupport.testCatalog
+import dev.martianzoo.engine.testCatalog
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn

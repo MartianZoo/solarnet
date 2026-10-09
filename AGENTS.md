@@ -22,7 +22,7 @@ the router.
 > dozens of lines of custom machinery and present that as a completed solution.
 
 Keep embedded Pets declarations multiline when they do not fit comfortably on one line; do not
-replace them with `parseOneLinerClass` merely to shorten Kotlin. Keep gameviewer recordings compact:
+replace them with `parseOneLinerClass` merely to shorten Kotlin. Keep viewer recordings compact:
 source evidence, commentary, and assertions belong in the corresponding replay test, not in the
 recording used by the viewer.
 
@@ -106,6 +106,6 @@ Before staging a commit or reporting an implementation complete, apply
 | Circumstance | Required route |
 | --- | --- |
 | Editing or running tests, Gradle, formatting, or benchmarks | [`docs/agents/TESTING.md`](docs/agents/TESTING.md) |
-| Reconstructing a digital or physical game | The appropriate replay guide selected by [`docs/agents/README.md`](docs/agents/README.md#reconstruct-a-game) |
+| Reconstructing a digital or physical game | The appropriate replay guide selected by [`docs/agents/README.md`](docs/agents/README.md#verification-and-reconstruction) |
 | The user explicitly asks for Terraforming Mars rule research | Only a post by Jacob Fryxelius is authoritative for a disputed ruling. The FAQ PDF is useful only as an index to those posts. Do not initiate rule research merely because a task touches game behavior. |
 | Changing a public API | Preserve no obsolete API for compatibility; there are no known clients. Also read the API/model route in the handbook. |

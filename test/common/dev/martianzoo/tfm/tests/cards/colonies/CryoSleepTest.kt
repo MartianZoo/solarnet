@@ -9,7 +9,7 @@ internal class CryoSleepTest : ProjectCardTest() {
   @BeforeTest fun setUp() = newTestGame(addOptions = "Luna, Io, Triton, Europa, Titan")
 
   @Test
-  internal fun `Discounts a mc-funded trade`() {
+  internal fun `Discounts an MC-funded trade`() {
     kim.exMachina("$CryoSleep")
 
     kim.stdAction("TradeAction", 1) { doTask("Trade<Io>") }.expect("-8 MC, 3 Heat")

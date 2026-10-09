@@ -1,144 +1,81 @@
 # Agent documentation router
 
-> **Agent information:** This is an agent-maintained information-tracking document, written by
-> agents for agents. It can record human decisions, but it is not human-authored documentation.
->
-> **Read when:** selecting which agent document or source to consult for a task. Read the matching
-> route and any applicable repeated-failure alert; do not read the collection wholesale.
+> **Agent information:** These are focused notes for agents. They can record human decisions, but
+> they are not human-authored documentation. Source, specifications, and tests win when a note
+> differs.
 
-Read this page after `AGENTS.md`, but do not read every linked document. Pick the route matching the
-current task, read its “Read when” note and named sections, then inspect the linked source and tests.
-For a portfolio-level index of substantial proposed and selected work, see
-[`PLANS.md`](PLANS.md); do not read every owning document merely because it is indexed there.
+Read only the route needed for the task. Current project direction lives in the human-facing
+[`SOLARNET_ROADMAP.md`](../../SOLARNET_ROADMAP.md) and
+[`PETS_ROADMAP.md`](../../PETS_ROADMAP.md); bounded loose work lives in
+[`TODO.md`](../../TODO.md). Do not recreate a separate agent portfolio of future plans.
 
-When discussing features or design questions with the owner, explain the concrete user actions and
-consequences before relying on internal labels or shorthand.
+## Behavior and architecture
 
-## Authority labels
+Read [`VALUES.md`](VALUES.md) before designing, implementing, or reviewing a behavior or
+architecture change. Then choose the narrowest relevant note:
 
-- **Current model:** a map of committed behavior. Source and tests win when details differ.
-- **Working rule:** a design constraint for new work, even if current code diverges.
-- **Proposal:** unimplemented or partial direction; never permission to implement the whole idea.
-- **Audit:** known gaps or suspicious ownership within the document's focused subject.
-- **Research:** preserved evidence and conclusions, not product behavior.
-- **Procedure:** steps to follow for a particular kind of work.
+| Subject | Read |
+| --- | --- |
+| Live World construction, components, tasks, effects, transactions, rollback, or Agent responsibilities | [`ENGINE.md`](ENGINE.md) |
+| Actor attribution, Admin, assignment, delegated narrowing, context ownership, or lexical `Me` | [`IDENTITY.md`](IDENTITY.md) |
+| Task order, `THEN`, automatic effects, delegated control, or cleanup | [`SEQUENCING.md`](SEQUENCING.md) |
+| Payment choices, accepted resources, billing, or settlement | [`PAYMENTS.md`](PAYMENTS.md) |
+| Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) |
+| Direct correction, `exMachina`, `sneak`, effect suppression, or correction invariants | [`EX_MACHINA.md`](EX_MACHINA.md) |
+| Card backs, draws, purchases, reveals, or replay card tracking | [`CARD_HANDLING.md`](CARD_HANDLING.md) |
+| Who may submit a player's decisions, hidden information, accepted game history, or agreed undo | [`ADVERSARIAL.md`](ADVERSARIAL.md) |
 
-## Repeated-failure alerts
+Solarnet calculates game consequences for the Actor whose Agent receives the request. It does not
+authenticate the person or program using that Agent. Before treating caller authorization, secret
+custody, or agreement on a live game as an engine gap, use the adversarial-play route above: those
+responsibilities belong to the surrounding application, whose implementation remains open.
 
-These are routing alarms, not substitutes for the owning documents. If the tempting next step
-matches a row, read the linked section before editing.
+For actions, workflow, public client APIs, automatic policy, export, runtime layering, diagnostics,
+or content selection, inspect the current source and tests first. Use the matching roadmap only for
+selected future direction. The retired agent notes for those subjects had become duplicate design
+records.
 
-| Tempting next step | Required response | Read |
-| --- | --- | --- |
-| Broaden a narrow request, add a second representation, or introduce vocabulary across modules | Stop and report the design pressure and smallest promising direction. | [`AGENTS.md`](../../AGENTS.md#try-the-simpler-approach-first), [`VALUES.md`](VALUES.md#keep-concepts-few-and-ownership-precise) |
-| Add custom Kotlin, a custom instruction, or component-specific machinery to implement one card or rule | First try removal and composition of ordinary Pets. If a bounded custom semantic extension is still smaller, keep it explicit; never hide the rule in orchestration. | [`VALUES.md`](VALUES.md#keep-pets-central) |
-| Add a `TfmGameplay` operation or make one repair state, ordering, or task identity | Keep helpers as recurring player-facing syntax; repair the owning Pets or engine rule instead. | [`TESTING.md`](TESTING.md#test-design), [`SEQUENCING.md`](SEQUENCING.md#the-missing-rule-when-an-operation-is-over) |
-| Make a card or rule test inspect task text, causes, queue order, or mirrored Canon data | Exercise player-facing actions and assert observable results. | [`TESTING.md`](TESTING.md#test-design) |
-| Replace a result expectation with broad absolute-state assertions around an action | Use `.expect()` for the action's interesting partial net delta; reserve absolute assertions for sourced checkpoints. | [`TESTING.md`](TESTING.md#expectations) |
-| Use `EAGER` or another autoexecution policy to make a test or replay proceed | Treat `EAGER` as a strategic choice, not settlement or test infrastructure. | [`AUTOEXEC.md`](AUTOEXEC.md#choice-safety-check) |
-| Add `THEN`, `::`, a latch, priority, or pre-pruning | Identify the forbidden result or intervention, including interactions spanning committed commands. | [`SEQUENCING.md`](SEQUENCING.md#before-adding-order) |
-| Infer control, assignment, narrowing, attribution, or ownership from another identity role | Name all six roles independently. | [`IDENTITY.md`](IDENTITY.md#six-identities) |
-| Give `Class` or `Type` a path to game-specific downward enumeration, or rebuild stable master facts for each premise | Pass the game universe explicitly and preserve its reusable master table. | [`CLASS_TABLES.md`](CLASS_TABLES.md#model-of-ownership) |
-| Add an explicit quantifier because a repeated effect changed the wrong count | Inspect the changed Class's defaults and the number of matching effect activations first. | [`QUANTIFIERS.md`](QUANTIFIERS.md#before-writing-an-explicit-quantifier) |
-| Characterize behavior known to be wrong as an ordinary rule or accepted hack | Put a passing observable characterization in `BugsTest`; move it when fixed. | [`TESTING.md`](TESTING.md#known-defect-tests) |
-| Add replay assertions, corrections, transcript prose, or gameviewer source | Return to original evidence; keep corrections visible and viewer recordings compact. | [`TESTING.md`](TESTING.md#game-replay-tests), the routed replay guide |
-| Record migration history or agent reasoning in evergreen documentation | State the stable current model in the smallest owning document. | [Maintain this collection](#maintain-this-collection) |
+## API specifications and KDoc
 
-## Choose a route
+For API documentation or specification-fidelity work, read
+[`SPEC_FIDELITY.md`](SPEC_FIDELITY.md). It owns the nine-module priority scope, intended audience,
+public API coverage, shared-rule links, and the relationship between intended contracts and
+implementation defects. Inspect the relevant source, specifications, and tests as evidence.
 
-### Change game behavior or engine semantics
+## Pets, content, and tools
 
-Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
+| Subject | Read |
+| --- | --- |
+| Classes, Types, refinements, dependencies, properties, defaults, or Type variables | The cited rule in [`type-system-spec.md`](../type-system-spec.md) and its matching `Spec*Test.kt` |
+| Pets declarations, expressions, instructions, effects, actions, ownership, fanout, or elaboration | The cited rule in [`pets-language-spec.md`](../pets-language-spec.md) and its matching `Lang*Test.kt` |
+| English rendering, renderer architecture, or card layout | [`LANGUAGE.md`](LANGUAGE.md) |
+| Class and display names | [`NAMING.md`](NAMING.md) |
+| Generated Kotlin types for the canonical Pets vocabulary | [`PETS_TYPE_GENERATOR.md`](PETS_TYPE_GENERATOR.md) |
+| Generated map-area declarations | [`MAP_PETS_GENERATION.md`](MAP_PETS_GENERATION.md) |
+| Kotlin declaration visibility | [`VISIBILITY.md`](VISIBILITY.md) |
 
-| Concept being changed | Read | Authority |
-| --- | --- | --- |
-| Game World ownership, passive component/task data, recording internals, or playback | [`GAMEWORLD.md`](GAMEWORLD.md) | Selected direction |
-| Exact event exports, decision exports, combined files, or game import | [`EXPORT.md`](EXPORT.md) | Current event export and decision-design record |
-| Current World construction, components, tasks, effects, or Agent | [`ENGINE.md`](ENGINE.md) | Current model |
-| Direct corrections, `exMachina`/`sneak`, or consequences that effect suppression must preserve | [`EX_MACHINA.md`](EX_MACHINA.md) | Current contract and remaining audit |
-| Current live event, transaction, checkpoint, or rollback implementation | [`ENGINE.md`](ENGINE.md#concrete-state-and-its-history) | Current model |
-| Task ordering, delegated operations, priorities, `THEN`, or completion | [`SEQUENCING.md`](SEQUENCING.md) | Current contracts and open design options |
-| Admin, Actor attribution, task assignee, context owner, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md) | Current model and selected direction |
-| Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) | Current engine contract |
-| Action costs, billing, or action identity | [`ACTIONS.md`](ACTIONS.md) | Current divergence and selected direction |
-| Payment choices, resource value, excess, or delegated payment control | [`PAYMENTS.md`](PAYMENTS.md) | Current behavior and open design options |
-| Truthful representations, observable game cheats, or extension hazards | The matching entry in [`GAME_HACKS.md`](GAME_HACKS.md) | Current source audit |
-| Phase topology or replacing the Kotlin workflow | [`WORKFLOW.md`](WORKFLOW.md) | Domain rules and proposal |
-| REPL color modes, manual turns, arbitrary operations, or switching out of automatic play | [`COLOR_MODES.md`](COLOR_MODES.md) | Selected direction, open decisions, and implementation gaps |
-| Agent policies, shared autoexecution, or policy-relative stable points | [`AUTOEXEC.md`](AUTOEXEC.md) | Working direction and audit |
-| Admin routing, on-turn identity, or fixed housekeeping work | [`TASK_ROUTING_EXPERIMENT.md`](TASK_ROUTING_EXPERIMENT.md) | Open questions and research constraints |
-| Proof that an automatic task command is safe | [`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md) | Research and proposal |
-| Runtime diagnostics, event metadata, or traces | [`DIAGNOSTICS.md`](DIAGNOSTICS.md) | Proposal and procedure |
+For Catalog, Bundle, Module, Content, configuration, or game-view class tables, begin with KDoc on
+`Catalog`, `Bundle`, and `GamePremise`, followed by the matching tests. Completed migration ledgers
+and proposed replacement models are intentionally not preserved here.
 
-### Change Pets, types, or static game construction
+## Verification and reconstruction
 
-| Concept being changed | Read | Authority |
-| --- | --- | --- |
-| Auditing agreement among Pets specs, conformance tests, KDoc/API, and implementation | [`SPEC_FIDELITY.md`](SPEC_FIDELITY.md) | Audit procedure and unfinished-work handoff |
-| Classes, Types, dependencies, refinements, Type variables, or uninhabited types | The cited rule of [`type-system-spec.md`](../type-system-spec.md) | Specification, checked rule-by-rule by `pets/types/Spec*Test.kt`; T2-9 external implementation checks live in `state/CustomImplementationValidationTest.kt` |
-| Pets syntax, declarations, instructions, effects, actions, narrowing, owner-local Classes, or elaboration | The cited rule of [`pets-language-spec.md`](../pets-language-spec.md) | Specification, checked rule-by-rule by `pets/Lang*Test.kt` |
-| Type-variable lifetime in the engine | The matching section of [`TYPES.md`](TYPES.md) | Current model and working direction |
-| Class-property syntax, defaults, cardinality, or property groups | The matching section of [`PROPERTIES.md`](PROPERTIES.md) | Current model and working rules |
-| Catalogs, Modules, Bundles, configuration, premise resolution, or projection policy | KDoc on [`Catalog`](../../src/common/dev/martianzoo/catalog/Catalog.kt), [`GamePremise`](../../src/common/dev/martianzoo/catalog/GamePremise.kt), and [`Bundle`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt); then the matching tests | Current model |
-| Master Class identity versus game-filtered enumeration | [`CLASS_TABLES.md`](CLASS_TABLES.md) | Current model |
-| Generated Kotlin types for the canonical Pets vocabulary | [`PETS_TYPE_GENERATOR.md`](PETS_TYPE_GENERATOR.md) | Current tool behavior |
-| Generic component fanout (`EACH`) | [`EACH.md`](EACH.md) | Current model |
-
-### Change content, names, or human rendering
-
-| Task | Read | Authority |
-| --- | --- | --- |
-| Plan introductory material for programmers who know Terraforming Mars | [`INTRO.md`](INTRO.md) | Ranked editorial notes, not published introduction |
-| Add or change a card, corporation, rule component, or Pets declaration | [`NAMING.md`](NAMING.md) for names and [`CONTENT_SELECTION.md`](CONTENT_SELECTION.md#declaration-placement) for placement, then topic-specific engine/type docs as needed | Current vocabulary and placement |
-| Select Content, separate it from Modules, or decide whether it can be included without an expansion | [`CONTENT_SELECTION.md`](CONTENT_SELECTION.md), then the Catalog/Bundle KDoc route above for current mechanics | Current model, working boundaries, and proposal |
-| Change English rendering, renderer architecture, or card layout | [`LANGUAGE.md`](LANGUAGE.md) | Durable goal, current understanding, and ordered direction |
-| Change card backs, draws, searches, purchases, or replay/game-playing card tracking | [`CARD_HANDLING.md`](CARD_HANDLING.md) | Current engine model and selected external-tracking direction |
-| Change map diagrams or generated area declarations | [`MAP_PETS_GENERATION.md`](MAP_PETS_GENERATION.md) | Procedure |
-
-### Change project structure or APIs
-
-| Task | Read | Authority |
-| --- | --- | --- |
-| Extract the Game World or remove engine code from recording playback | [`GAMEWORLD.md`](GAMEWORLD.md) | Selected direction |
-| Move runtime layers or generic versus Terraforming Mars responsibilities | The matching division in [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md) | Selected direction and audit |
-| Extract the client Agent API, Agent-owned autoexecution policies, or the shared autoexecution loop | [`API.md`](API.md), [`AUTOEXEC.md`](AUTOEXEC.md), after the Agent section of [`ENGINE.md`](ENGINE.md#actor-engines-and-agents) | Current divergence and selected direction |
-| Reduce Kotlin visibility | [`VISIBILITY.md`](VISIBILITY.md) | Working rules and procedure |
-
-### Verify a change
-
-Read [`TESTING.md`](TESTING.md). Read [`JVM_TEST_PERFORMANCE.md`](JVM_TEST_PERFORMANCE.md) only when
-measuring or changing JVM test throughput; its measurements are a dated baseline, not routine setup.
-
-### Review or finish a change
-
-Before reporting an implementation complete or staging it for commit, apply
-[`REVIEW_CRITERIA.md`](REVIEW_CRITERIA.md) to the entire final diff. This review is mandatory even
-when the relevant design and testing routes were followed earlier.
-
-### Reconstruct a game
-
-- For a herokuapp archive, read [`HEROKUAPP_GAME_LOGS.md`](HEROKUAPP_GAME_LOGS.md).
-- For a physical game record, read [`OTB_GAME_RECORDS.md`](../../_local/OTB_GAME_RECORDS.md).
-- For either, also read only “Game replay tests” and “Direct state reconciliation” in
-  [`TESTING.md`](TESTING.md).
-- The replay test owns source evidence, commentary, and assertions. Keep any derived gameviewer
-  recording compact.
-
-### Research optimal solo play
-
-- Read [`OPTIMAL_SOLO.md`](OPTIMAL_SOLO.md) only for the TR63 monotonicity analysis or the associated
+- Read [`TESTING.md`](TESTING.md) before editing or running tests, Gradle, formatting, or benchmarks.
+- Before staging or reporting an implementation complete, apply
+  [`REVIEW_CRITERIA.md`](REVIEW_CRITERIA.md) to the entire diff.
+- For a herokuapp archive, read [`HEROKUAPP_GAME_LOGS.md`](HEROKUAPP_GAME_LOGS.md), plus the replay
+  sections of `TESTING.md`.
+- For a physical game record, read [`_local/OTB_GAME_RECORDS.md`](../../_local/OTB_GAME_RECORDS.md),
+  plus the replay sections of `TESTING.md`.
+- Read [`OPTIMAL_SOLO.md`](OPTIMAL_SOLO.md) only for the retained TR63 monotonicity research or its
   report tool.
 
 ## Maintain this collection
 
-- Keep focused programs of work in the smallest owning document. Index substantial work in
-  [`PLANS.md`](PLANS.md), and use [`TODO.md`](../../TODO.md) only for bounded miscellaneous work not
-  already covered by one of these focused plans.
-- Keep current behavior, proposed behavior, and desired rules visibly separate.
-- Link to production source and meaningful tests instead of copying inventories that can drift.
-- For a source location, give the file and a stable search string, never a line number.
-- Update the smallest owning document and avoid repeating a rule in several places.
-- Delete resolved audit and migration history unless it still explains a live constraint. A decision
-  to keep a cost is such a constraint: record it, with its reasoning, in the owning document and
-  index it under “Dispositioned complexity findings” in [`VALUES.md`](VALUES.md) so later reviews do
-  not rediscover it.
+- Keep a note only when it owns a current contract or a repeatable procedure that is not clearer in
+  source, specification, KDoc, tests, a roadmap, or `TODO.md`.
+- Link to source and meaningful tests instead of copying inventories that drift.
+- Give source files and stable search strings rather than line numbers.
+- Delete completed audits, migration ledgers, experiments, and design alternatives after their
+  current conclusion has moved to the proper source of truth.
+- Do not add an agent document merely to collect possible future work.

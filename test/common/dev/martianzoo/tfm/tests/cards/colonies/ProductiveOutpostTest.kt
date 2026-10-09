@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.tfm.tests.cards.ProjectCardTest
 import dev.martianzoo.tfm.tests.cards.cardnames.ProductiveOutpost
 import kotlin.test.BeforeTest
@@ -16,8 +17,10 @@ internal class ProductiveOutpostTest : ProjectCardTest() {
   @Test
   internal fun `Pays each bonus for colonies the player owns`() {
     kim.exMachina("Colony<Luna>, Colony<Io>, Colony<Triton>")
+    kim.autoExecPolicy = NONE
 
-    kim.playProject(ProductiveOutpost, 0).expect("2 MC, 2 Heat, Titanium")
+    kim.playProject(ProductiveOutpost, 0) { doTasks("2 Heat", "2 MC", "Titanium") }
+        .expect("2 MC, 2 Heat, Titanium")
   }
 
   @Test

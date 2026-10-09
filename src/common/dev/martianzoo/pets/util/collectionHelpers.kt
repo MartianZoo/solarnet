@@ -15,7 +15,7 @@ public fun <T, K> Collection<T>.associateByStrict(x: (T) -> K): Map<K, T> {
   return map
 }
 
-internal fun <T, K, V> Collection<T>.associateStrict(x: (T) -> Pair<K, V>): Map<K, V> {
+private fun <T, K, V> Collection<T>.associateStrict(x: (T) -> Pair<K, V>): Map<K, V> {
   val map: Map<K, V> = associate(x)
   require(map.size == size) {
     "duplicate keys: `${groupBy(x).filterValues { it.size > 1 }.keys}`"
@@ -33,9 +33,9 @@ public fun <T> Sequence<T>.random(): T {
       ?: error("cannot choose a random element from an empty iterable")
 }
 
-internal infix fun <T> T.plus(more: Collection<T>): List<T> = listOf(this) + more
+private infix fun <T> T.plus(more: Collection<T>): List<T> = listOf(this) + more
 
-internal infix fun <T> T.plus(another: T): List<T> = listOf(this, another)
+private infix fun <T> T.plus(another: T): List<T> = listOf(this, another)
 
 internal fun <T> List<Sequence<T>>.cartesianProduct(): Sequence<List<T>> {
   if (isEmpty()) return sequenceOf(listOf())

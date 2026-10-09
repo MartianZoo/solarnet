@@ -79,6 +79,7 @@ internal constructor(
   private data class ConstructionEvent(
       val event: ChangeEvent,
       val controller: Actor,
+      val selectionAssignee: Actor,
       val ancestors: List<PendingTask>,
   )
 
@@ -94,7 +95,7 @@ internal constructor(
                   "sneak accepts only direct changes; found `$it`",
                   sourceLocation = it.sourceLocation,
               )
-      executeChange(change, cause, mutableListOf(), actor, actor, queuedEffects = false)
+      executeChange(change, cause, mutableListOf(), actor, actor, actor, queuedEffects = false)
     }
     limiter.checkAllInvariants()
   }
@@ -104,7 +105,10 @@ internal constructor(
       cause: Cause?,
       actor: Actor,
       controller: Actor = actor,
-  ): List<PendingTask> = buildList { doExecute(instruction, cause, this, actor, controller) }
+      selectionAssignee: Actor = controller,
+  ): List<PendingTask> = buildList {
+    doExecute(instruction, cause, this, actor, controller, selectionAssignee)
+  }
 
   /**
    * Executes a resolved first stage; later shared stages resolve against the state they inherit.
@@ -114,8 +118,9 @@ internal constructor(
       cause: Cause?,
       actor: Actor,
       controller: Actor = actor,
+      selectionAssignee: Actor = controller,
   ): List<PendingTask> = buildList {
-    doExecuteResolved(instruction, cause, this, actor, controller)
+    doExecuteResolved(instruction, cause, this, actor, controller, selectionAssignee)
   }
 
   private fun doExecute(
@@ -124,16 +129,25 @@ internal constructor(
       deferred: MutableList<PendingTask>,
       actor: Actor,
       controller: Actor,
+      selectionAssignee: Actor,
       queuedEffects: Boolean = true,
   ) {
     when (val resolved = resolve(instruction)) {
       is Instruction ->
-          doExecuteResolved(resolved, cause, deferred, actor, controller, queuedEffects)
+          doExecuteResolved(
+              resolved,
+              cause,
+              deferred,
+              actor,
+              controller,
+              selectionAssignee,
+              queuedEffects,
+          )
       // Independent siblings, such as the branches of a fanout, execute in place here; only an
       // enqueued task turns them into separately selectable work.
       is InstructionGroup ->
           resolved.instructions.forEach {
-            doExecute(it, cause, deferred, actor, controller, queuedEffects)
+            doExecute(it, cause, deferred, actor, controller, selectionAssignee, queuedEffects)
           }
     }
   }
@@ -144,6 +158,7 @@ internal constructor(
       deferred: MutableList<PendingTask>,
       actor: Actor,
       controller: Actor,
+      selectionAssignee: Actor,
       queuedEffects: Boolean = true,
   ) {
     if (resolved !is Then && resolved.isAbstract(reader)) {
@@ -153,7 +168,16 @@ internal constructor(
       )
     }
     when (resolved) {
-      is Change -> executeChange(resolved, cause, deferred, actor, controller, queuedEffects)
+      is Change ->
+          executeChange(
+              resolved,
+              cause,
+              deferred,
+              actor,
+              controller,
+              selectionAssignee,
+              queuedEffects,
+          )
       is By ->
           throw ExpressionException(
               "instruction-side `BY` reached execution without a task-assignment handoff: " +
@@ -161,10 +185,18 @@ internal constructor(
               sourceLocation = resolved.sourceLocation,
           )
       is Then -> {
-        doExecuteResolved(resolved.first, cause, deferred, actor, controller, queuedEffects)
+        doExecuteResolved(
+            resolved.first,
+            cause,
+            deferred,
+            actor,
+            controller,
+            selectionAssignee,
+            queuedEffects,
+        )
         resolved.instructions.drop(1).forEach { tree ->
           InstructionGroup.of(tree).instructions.forEach {
-            doExecute(it, cause, deferred, actor, controller, queuedEffects)
+            doExecute(it, cause, deferred, actor, controller, selectionAssignee, queuedEffects)
           }
         }
       }
@@ -180,6 +212,7 @@ internal constructor(
       deferred: MutableList<PendingTask>,
       actor: Actor,
       controller: Actor,
+      selectionAssignee: Actor,
       queuedEffects: Boolean,
   ) {
     val ct = instruction.count as ActualScalar
@@ -199,7 +232,7 @@ internal constructor(
               actor = actor,
           )
 
-      constructPartsAndFire(result, controller, deferred, queuedEffects)
+      constructPartsAndFire(result, controller, selectionAssignee, deferred, queuedEffects)
       if (done) break
     }
     if (queuedEffects && automaticEffectStack.isEmpty()) {
@@ -219,10 +252,11 @@ internal constructor(
   private fun constructPartsAndFire(
       event: ChangeEvent,
       controller: Actor,
+      selectionAssignee: Actor,
       deferred: MutableList<PendingTask>,
       queuedEffects: Boolean,
   ) {
-    val recorded = ConstructionEvent(event, controller, automaticEffectStack)
+    val recorded = ConstructionEvent(event, controller, selectionAssignee, automaticEffectStack)
     constructionEvents?.let {
       it += recorded
       return
@@ -272,14 +306,26 @@ internal constructor(
     } finally {
       constructionEvents = null
     }
-    for ((change, changeController) in events.asReversed()) {
-      for (task in effector.fire(change, changeController, automatic = true)) {
+    for ((change, changeController, changeSelectionAssignee) in events.asReversed()) {
+      for (task in
+          effector.fire(
+              change,
+              changeController,
+              changeSelectionAssignee,
+              automatic = true,
+          )) {
         executeAutomaticEffect(task, deferred, queuedEffects)
       }
     }
     if (queuedEffects) {
-      for ((change, changeController) in events) {
-        deferred += effector.fire(change, changeController, automatic = false)
+      for ((change, changeController, changeSelectionAssignee) in events) {
+        deferred +=
+            effector.fire(
+                change,
+                changeController,
+                changeSelectionAssignee,
+                automatic = false,
+            )
       }
     }
   }
@@ -306,6 +352,7 @@ internal constructor(
             deferred,
             task.selectionAssignee,
             task.controller,
+            task.selectionAssignee,
             queuedEffects,
         )
       }

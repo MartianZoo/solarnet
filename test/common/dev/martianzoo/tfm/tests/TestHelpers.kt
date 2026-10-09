@@ -43,7 +43,7 @@ internal fun setUpGame(premise: GamePremise): World =
       revealTurmoilSetupEvents(this)
     }
 
-private fun revealTurmoilSetupEvents(game: World) {
+internal fun revealTurmoilSetupEvents(game: World) {
   val admin = game.testAgent(ADMIN)
   if (admin.count("RevealComingEvent") == 0) return
   admin.doTask("AquiferReleasedByPublicCouncil")
@@ -141,7 +141,7 @@ private val MAP_OPTIONS =
         TestOption.Cimmeria,
     )
 
-object TestHelpers {
+internal object TestHelpers {
   fun testColonyTiles(players: Int, vararg included: String): Set<ClassName> {
     require(players > 0)
     val count = if (players == 1) 4 else if (players == 2) 5 else players + 2

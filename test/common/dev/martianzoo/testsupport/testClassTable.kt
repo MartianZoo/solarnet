@@ -58,7 +58,7 @@ internal fun GamePremise.withTestSetup(instruction: String): GamePremise {
   )
 }
 
-private fun testCatalog(source: String): Catalog {
+internal fun testCatalog(source: String): Catalog {
   val explicitDeclarations = parseClasses(source.trimIndent()).toSet()
   return object : Catalog() {
     override val explicitClassDeclarations: Set<ClassDeclaration> = explicitDeclarations

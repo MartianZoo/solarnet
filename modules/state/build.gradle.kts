@@ -15,9 +15,6 @@ kotlin {
     commonTest {
       kotlin.setSrcDirs(
           listOf(
-              rootProject.layout.projectDirectory.dir(
-                  "test/common/dev/martianzoo/catalogtestsupport"
-              ),
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/testsupport"),
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/state"),
           )

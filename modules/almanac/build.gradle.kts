@@ -4,7 +4,7 @@ plugins {
 }
 
 val sourceDirectory =
-    rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/classviewer")
+    rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/almanac")
 
 kotlin {
   js {
@@ -25,9 +25,7 @@ kotlin {
     }
     jsTest {
       kotlin.setSrcDirs(
-          listOf(
-              rootProject.layout.projectDirectory.dir("test/js/dev/martianzoo/tfm/web/classviewer")
-          )
+          listOf(rootProject.layout.projectDirectory.dir("test/js/dev/martianzoo/tfm/web/almanac"))
       )
       dependencies { implementation(kotlin("test")) }
     }

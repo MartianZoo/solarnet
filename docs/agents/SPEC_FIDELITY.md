@@ -1,120 +1,118 @@
-# Pets specification fidelity audit
+# API specifications, KDoc, and fidelity
 
-> **Agent information:** This is an agent-maintained information-tracking document, written by
-> agents for agents. It can record human decisions, but it is not human-authored documentation.
+> **Agent information:** This is an agent-maintained note recording documentation standards and
+> user decisions.
 >
-> **Read when:** examining agreement among the Pets specifications, tests, KDoc/API, and implementation.
+> **Read when:** writing or reviewing API specifications or KDoc, or examining agreement among
+> specifications, tests, and implementation.
 >
-> **Status:** unfinished audit. The leads below may have been resolved or overtaken by later changes.
+> **Status:** current standards for nine priority modules. Restored from the specification-fidelity
+> guidance deleted in `e3fa40d08`, with the user's 2026-10-09 decisions incorporated. Historical audit
+> leads and task-specific operating instructions are not current standards.
 
-## Aim and boundaries
+## Priority scope
 
-The [language specification](../pets-language-spec.md) and
-[type-system specification](../type-system-spec.md) define concepts independently of Kotlin. KDoc
-explains the API in those terms and cites the relevant rules. Every behavioral claim needs an
-appropriate test, and every test's expectations need a specified basis. Existing tests can protect
-accidents; neither a passing suite nor the current implementation establishes the intended contract.
+The public APIs of these nine modules are the priority for clear specifications. This scope does
+not imply that their documentation or conformance audits are complete.
 
-Pets expressions are themselves specifications. Pets captures information for state and engine to
-consume. Describe what a construct specifies they are supposed to do, without promising their
-execution machinery. Pets tests should demonstrate information preservation using minimal stubs;
-actual execution witnesses can remain in state and engine. Avoid reproducing those consumers just
-to test Pets, and keep this audit's attention on Pets.
+| Module | Contracts to explain |
+| --- | --- |
+| `pets` | A far higher specification standard: maintained semi-formal language and type-system specifications, plus API KDoc for AST construction, parsing, elaboration, and type queries. See below. |
+| `catalog` | Catalog composition, configuration, content selection and exclusion, dependency closure, validation, and resolved game premises. |
+| `state` | World observations, components, actors, tasks, events, recordings, and the lifetime and mutability of returned views. |
+| `engine` | World construction, execution, transactions, effects, rollback, checkpoints, and forks. |
+| `agent` | Actor-scoped queries and mutations, task selection and narrowing, completion, delegated control, forms, and automatic execution policy. |
+| `tfm-card-data` | Authored card fields, absent values and defaults, validation, derived card categories, and bundle lookup. |
+| `tfm-canon` | Canonical vocabulary and content, bundle composition, Terraforming Mars configuration policies, and map definitions. |
+| `tfm-state` | Read-only Terraforming Mars queries, including resource names, printed production, and map lookup. |
+| `tfm-engine` | Terraforming Mars game construction, gameplay calls, payments, and caller responsibilities for phase progression. |
 
-API-only contracts may live solely in KDoc. Test organization need not enforce an elaborate
-separation: a test belongs with a spec section when it honestly witnesses that section, and elsewhere
-when it is specific to the Kotlin API. Prefer simplified `tfm-canon` examples with irrelevant details
-removed. Other documentation is downstream and outside this audit unless separately requested.
+## Audience and authority
 
-## How to work
+Assume readers already understand Pets and Solarnet. Explain the particular API precisely without
+adding introductory tutorials. Link to prerequisite concepts and relevant specification rules where
+that helps explain the contract.
 
-Use current source and meaningful assertions to establish each discrepancy. The purpose is fidelity,
-with a strong bias against growing complexity. Simplification is useful when it is a reasonably
-expedient repair, rather than a separate cleanup objective. Be reluctant to offer extra behaviors or
-invariants merely because the implementation happens to support them.
+Specifications state what the system should promise. When the intended contract is clear, promise
+that behavior even if the implementation does not yet comply; treat the discrepancy as a bug. The
+specification and KDoc do not have to mention the defect. Track it separately in `TODO.md`, an
+existing issue, or a meaningful bug characterization, without weakening the contract to describe
+an accident. Do not claim that writing the promise proves the implementation satisfies it.
 
-Implementation complexity should have a reason demonstrated by tests. For suspect machinery, try a
-bounded removal experiment and run the full suite. If something breaks, consider whether there is a
-small sensible adjustment. If the behavior earns its place, specify and test it. Coverage can suggest
-where to look, but executing code is weaker evidence than testing why it is needed.
+When intent is genuinely unclear, investigate existing specifications, source, tests, and caller
+needs, then ask the user if they do not settle it. Do not turn ambiguity into a confident promise.
+Record general answers in this document and API-specific answers in the owning contract. Prefer the
+coherent interpretation that adds the least conceptual complexity; do not promise extra behavior
+merely because an implementation happens to support it.
 
-Do not chase a discrepancy into disproportionate repairs or expanding ripple effects. A passing
-characterization in [Pets BugsTest](../../test/common/dev/martianzoo/pets/BugsTest.kt), with the
-remaining question recorded, is a useful outcome. Existing bugs need not all be fixed; discovering
-more can be progress. Where the evidence leaves a choice, favor the coherent interpretation that
-adds the least complexity.
+## Pets has a far higher specification standard
 
-For caches and optimized paths, check that bypassing them preserves answers, then retain the
-optimizations with `// TODO: benchmark evidence needed.` where measurements are missing.
+We hold `pets` specifically to a far higher standard than the other eight modules. Maintain
+semi-formal [`pets-language-spec.md`](../pets-language-spec.md) and
+[`type-system-spec.md`](../type-system-spec.md) as the authoritative definitions of its language
+and type-system semantics, independent of Kotlin. These are actively maintained specifications,
+not background reading or optional supplements to KDoc.
 
-Deliver improvements incrementally. Each solid repair should bring the affected spec, tests, KDoc,
-and implementation closer together. Ask Claude Opus/high for one review round, consider its feedback
-without expanding scope, then commit and continue. Follow the current session's instructions for any
-reviewer substitution. Avoid accumulating an unreviewed batch when review is unavailable. Choose
-commit granularity to make each improvement coherent and reviewable.
+State semantic rules precisely using the specifications' established terminology, numbered rules,
+and cross-references. When language or type-system semantics are added, changed, or clarified,
+update the owning `-spec.md` document and keep API KDoc and conformance tests aligned with it.
+KDoc explains the Kotlin API in those terms and cites the relevant rules; it must not become the
+sole home of a language or type-system rule. Kotlin API-only contracts may still live solely in
+KDoc. Clearly intended rules remain normative when implementation defects are tracked separately,
+as described above.
 
-Use the repository's current [testing guidance](TESTING.md) and
-[review criteria](REVIEW_CRITERIA.md). Periodically check whether the working branch is behind `main`
-and merge it when needed. Reassess assumptions as the code evolves.
+The other eight modules require excellent public API contracts and discoverable explanations of
+shared rules, but do not automatically require comparable semi-formal `-spec.md` documents. Use
+KDoc and add separate module documentation when the subject warrants it.
 
-## Leads worth revisiting
+Pets expressions are themselves specifications: describe the information they preserve and what
+state and engine are supposed to do with it, without prescribing those consumers' execution
+machinery. Each module's contract should explain the responsibility it actually owns.
 
-These are places the audit found friction, not a prescribed sequence or a claim that the problem
-still exists. Establish the present behavior and decide what, if anything, deserves a change.
+## Public API coverage and KDoc
 
-### If time is limited
+Every effectively public declaration in these modules deserves a clear API contract, including
+constructors, properties, overloads, and declarations used only by other repository modules. Do not
+dismiss a declaration as an implementation detail merely because it is not a principal entry point.
+If its visibility appears inappropriate, raise that as a separate design question; it does not
+excuse missing documentation or authorize a visibility change during documentation work. Protected
+members intended for subclass authors also need their applicable contract explained.
 
-Prioritize consequences and reach. The strongest leads from this pass were:
+Class KDoc is the starting point for understanding the class's contract. Explain shared rules there,
+or link directly from it to their common explanation in another class's KDoc or an owning
+specification section. A reader must be able to find applicable rules without inspecting
+implementation code or guessing which agent note to read. Keep a shared rule's full explanation in
+a single authoritative location; member KDoc explains its application and any differences.
 
-- **Highest expected value: preserving authored meaning.** Declaration order, round trips, and
-  preservation of bindings and predicates deserve early attention. A silent change here can corrupt
-  the specification handed to every consumer while leaving apparently valid Pets nodes behind.
-- **Also high value: core semantic decisions and their contracts.** Type meets, inherited-default
-  precedence, property evaluation, and partial binding determine which specifications are admitted
-  and what information they retain. Distinguishing an implementation defect from an inaccurate spec
-  claim is worthwhile even when the eventual repair is small.
-- **Usually lower priority: isolated API promises and machinery cleanup.** Incidental ordering,
-  redundant guards, and unused paths can wait when they do not affect meaning or obscure a core
-  contract. Reconsider that ranking if current callers or tests reveal wider consequences.
+Write enough that a caller can predict the observable result. Where applicable, explain valid
+inputs and context, returned values and their lifetime, state changes, pending work, completion,
+failure conditions, and what remains changed after failure. State meaningful ordering, ownership,
+and callback guarantees where the API depends on them. For data APIs, explain field meaning,
+defaults, absence, and invariants. Use concrete examples for distinctions that signatures alone
+cannot convey; avoid boilerplate that merely repeats names and types.
 
-These priorities concern what to investigate, not how much complexity to spend fixing it. A useful
-characterization of a consequential discrepancy can be more valuable than several minor cleanups;
-the bounded-repair rule still applies. Re-rank these leads using current evidence.
+## Evidence and conformance
 
-### Questions to explore
+Every behavioral claim needs an appropriate test, and every test's expectations need a specified
+basis. A passing suite or current implementation does not establish the intended contract: existing
+tests can preserve accidents. During documentation work, identify missing evidence and known
+mismatches without expanding the task into an implementation repair.
 
-- **Declaration order and round trips.** Can rendering, equality, or normalization change the
-  meaning of inherited dependency positions? Which ordering distinctions are semantic, and which
-  are incidental? Direct supertypes now retain authored order in declaration equality and rendering;
-  `Spec03DependenciesTest` checks argument binding after both source-rendering forms, and
-  `ClassDeclarationTest` rejects conflicting declarations with reversed supertypes.
-- **Property evaluation with free lexical `Me`.** `PetElaborator.propertyEvaluator` retains
-  evaluations whose raw property syntax contains free `Me`, even before applying an evaluation's
-  captured owner. The direct class-effect path needs a focused witness or bounded removal
-  experiment; the `EACH` and `RANK` cases retain their bodies before reaching this guard and do not
-  establish its necessity.
-- **Type meets and inherited defaults.** Dependency constraints may resolve an apparently ambiguous
-  nominal intersection. An incompatible nearer default raises questions about precedence and whether
-  an overridden ancestor can reappear. Earlier repair attempts here encountered wider design pressure.
-- **Information hidden by syntax.** Compare marker roles, represented-class predicates, and binding
-  identity through copying, rendering, and re-resolution. Equal-looking expressions and equivalent
-  types are not automatically the same contract.
-- **Unnecessary promises.** Look for incidental enumeration order, allocation identity, parser
-  restrictions, normalization guarantees, or API behavior presented as a language rule. Check that
-  tests distinguish the intended behavior rather than merely round-trip a fixture or reject it for
-  an unrelated reason.
-- **Spec provisions without a canonical TfM witness.** The specs separate game examples from
-  authoring conventions. Revisit removal-default opt-out (L9-6), header-variable default deferral
-  (L9-10), competing nearest defaults and incompatible overrides (T10-4), the explicit `Anyone`
-  owner-default case (T10-5), and inline local-header binding/body generality (L12-3, L12-4).
-  Other unproven subcases include Signal transmutations (L2-1), all transmutation quantifier pairs
-  (L9-8), and merging two separately refined operands (T8-9). Nearby examples demonstrate simpler
-  capabilities, not these extra cases. Establish a real need or try bounded removal before
-  strengthening promises.
-- **Complexity without a witness.** Earlier questions included scope bookkeeping, transform passes,
-  fallback paths, and constructor checks. Reinspect their current callers and interactions before
-  deciding whether removal, a better witness, or a documented discrepancy is appropriate.
+Tests should demonstrate meaning and observable results. A test belongs with a specification section
+when it witnesses that section, and elsewhere when it is specific to the Kotlin API; do not impose
+an elaborate parallel test hierarchy. Prefer simplified canonical Terraforming Mars examples with
+irrelevant details removed. Pets tests can demonstrate information preservation using minimal
+stubs, while state and engine tests witness execution. Do not reproduce consumers merely to test
+Pets. Coverage can suggest where to look, but exercising code is weaker evidence than showing why
+its behavior is required.
 
-Historical notes and experiments may be useful in
-[`_local/pets-audit-2026-10-04-work4/`](../../_local/pets-audit-2026-10-04-work4/).
-They contain provisional and superseded ideas; the audit does not depend on their availability.
+For an authorized fidelity audit or repair, establish discrepancies against current source and
+meaningful assertions. Keep repairs bounded: do not chase a discrepancy into disproportionate
+machinery or unrelated cleanup. A useful bug characterization and a tracked follow-up can be the
+right result. Tests that characterize a defect must be clearly identified as such, so they do not
+become a competing statement of intended behavior. Preserve good existing documentation, especially
+the Pets specifications, and improve the smallest owning explanation.
+
+Follow the current [testing guidance](TESTING.md) when editing or running tests and the
+[review criteria](REVIEW_CRITERIA.md) for the complete final diff. Documentation work alone does not
+authorize changes to behavior, API visibility, or commits.

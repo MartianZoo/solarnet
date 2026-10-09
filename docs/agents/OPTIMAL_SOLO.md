@@ -12,7 +12,7 @@
 
 ## Source map
 
-- [`StandardResourceMonotonicityReport.kt`](../../src/jvm/dev/martianzoo/tfm/tools/StandardResourceMonotonicityReport.kt)
+- [`StandardResourceMonotonicityReport.kt`](../../src/jvm/dev/martianzoo/tfm/petstools/StandardResourceMonotonicityReport.kt)
   — search for `fun main` to inspect the implemented catalog report.
 - [`SoloGenerationCountdownTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/SoloGenerationCountdownTest.kt)
   — read only when a proposed optimization depends on committed TR63 timing.
@@ -38,6 +38,11 @@ Open-deck and hidden-deck play are different problems:
 - In hidden-deck play, the player knows only a set or distribution of possible deck orders. We must
   eventually choose whether “best” means best expected score, best guaranteed score, or something
   else. Structural conclusions that hold for every possible deck do not depend on that later choice.
+
+Deck order and knowledge here belong to the optimizer's external search problem, not to hidden
+state that Solarnet must maintain or protect. Hypothetical draws and rewinds are freely calculable;
+access to actual undisclosed draws and recognition of a played score are external responsibilities
+described in [ADVERSARIAL.md](ADVERSARIAL.md).
 
 At the client interface, every method call both begins and ends with a nonempty player task
 queue. Starting and finishing the game are the exceptions. The engine may pass through an idle world
@@ -92,7 +97,7 @@ that is always useless or harmful, the attainable optimum does not fall: the opt
 need that move. Likewise, a hazardous class that can never exist cannot affect the current game.
 
 The initial conservative catalog scan is implemented by
-`./gradlew :tools:standardResourceMonotonicityReport`. Its default scope is one valid TR63 solo
+`./gradlew :pets-tools:standardResourceMonotonicityReport`. Its default scope is one valid TR63 solo
 premise containing every compatible supported expansion. It treats each standard-resource stock
 and its production rate as separate quantities. The scan reports upper-bound and exact
 requirements with their rule locations, count-scaled instructions, AMAP transmutations into a

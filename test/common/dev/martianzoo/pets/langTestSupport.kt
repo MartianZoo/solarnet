@@ -40,7 +40,7 @@ internal fun <P : PetNode> roundTripAll(type: KClass<P>, sources: String) {
  * The declarations the language tests elaborate against. They are deliberately small and generic;
  * the Terraforming Mars names in the specification's examples are illustrations, not fixtures.
  */
-internal const val LANG_DECLARATIONS: String =
+private const val LANG_DECLARATIONS: String =
     """
     ABSTRACT CLASS Player : Owner, Actor {
       CLASS Player1

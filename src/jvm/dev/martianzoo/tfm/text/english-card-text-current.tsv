@@ -457,7 +457,7 @@ FrontierTown	Frontier Town	Requires that you meet the party requirement for Mars
 GhgShipment	GHG Shipment	Requires that you meet the party requirement for the Kelvinists party. Increase your heat production 1 step. Gain 1 heat per floater you have.
 IshtarExpedition	Ishtar Expedition	Requires Venus 10%. Gain 3 titanium. Draw 2 Venus cards.
 JovianEnvoys	Jovian Envoys	Requires 2 Jovian tags. Place 2 delegates.
-L1TradeTerminal	L1 Trade Terminal	[L1GiftWatcher], then [EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }].	Effect: When you trade, [TradeBarrier<@ColonyTile>]. [Trade<@ColonyTile>: (2 ColonyProduction<@ColonyTile> OR Ok) THEN -TradeBarrier<@ColonyTile>].
+L1TradeTerminal	L1 Trade Terminal	[L1GiftWatcher].	Effect: When you trade, [TradeBarrier<@ColonyTile>]. [Trade<@ColonyTile>: (2 ColonyProduction<@ColonyTile> OR Ok) THEN -TradeBarrier<@ColonyTile>].
 MicrogravityNutrition	Microgravity Nutrition	Increase your M€ production 1 step per colony you own.
 RedAppeasement	Red Appeasement	Requires that you meet the party requirement for the Reds party and no player has passed. Increase your M€ production 2 steps. Pass.
 SoilStudies	Soil Studies	Requires -4°C or colder. Gain 1 plant per Venus tag you have, plant tag you have (including this), or colony you own.
@@ -516,7 +516,7 @@ OutdoorSports	Outdoor Sports	Requires a city tile in play next to an ocean tile.
 SixteenPsyche	16 Psyche	Increase your titanium production 2 steps. Gain 3 titanium.
 RobotPollinators	Robot Pollinators	Requires 4% oxygen. Increase your plant production 1 step. Gain 1 plant per plant tag you have.
 Supercapacitors	Supercapacitors	Increase your M€ production 1 step.	Effect: [-Energy IF ProductionPhase: Energy FROM Heat?].
-IcyImpactors	Icy Impactors		Action: Spend 10 M€ (titanium may be used) to add 2 asteroids to this card, or spend 1 asteroid from this card to [EACH Starter@Player(HAS StartToken) { ChooseOceanArea<Starter@Player> }].
+IcyImpactors	Icy Impactors		Action: Spend 10 M€ (titanium may be used) to add 2 asteroids to this card, or spend 1 asteroid from this card to [EACH Starter@Player(HAS StartToken) { ChooseOceanArea<Starter@Player, Me@Owner> }].
 DirectedHeatUsage	Directed Heat Usage		Action: Spend 3 heat to gain 4 M€ or 2 plants.
 AqueductSystems	Aqueduct Systems	Requires that you have a city tile next to an ocean tile. Draw 3 building cards.
 AstraMechanica	Astra Mechanica	[2 TakeEventCard].

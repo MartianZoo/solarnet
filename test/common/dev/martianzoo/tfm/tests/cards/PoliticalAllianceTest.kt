@@ -2,35 +2,38 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
-import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.PoliticalAlliance
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class PoliticalAllianceTest : CardTest() {
+internal class PoliticalAllianceTest : ProjectCardTest() {
   @Test
-  internal fun `Requires the Turmoil expansion`() {
-    newGame(PromoCardPack)
-    admin.phase("Action")
-    p1.runOperation("4 MC, ProjectCard")
+  internal fun `Cannot be played without Turmoil`() {
+    newTestGame()
 
-    shouldThrow<NarrowingException> { p1.playProject(PoliticalAlliance, 4) }
+    shouldThrow<NarrowingException> { kim.playProject(PoliticalAlliance, 4) }
   }
 
   @Test
-  internal fun `Requires two party leaders rather than a chairman and one leader`() {
-    newGame(TurmoilExpansion, PromoCardPack)
-    admin.phase("Action")
-    p1.runOperation("4 MC, ProjectCard")
+  internal fun `Cannot be played without party leadership`() {
+    newTestGame(addOptions = "TurmoilExpansion")
 
-    shouldThrow<RequirementException> { p1.playProject(PoliticalAlliance, 4) }
+    shouldThrow<RequirementException> { kim.playProject(PoliticalAlliance, 4) }
+  }
 
-    admin.runOperation("-Chairman<Neutral>")
-    p1.runOperation("Chairman, PartyDelegate<Scientists>")
-    shouldThrow<RequirementException> { p1.playProject(PoliticalAlliance, 4) }
+  @Test
+  internal fun `Cannot substitute the chairmanship for a second party leader`() {
+    newTestGame(addOptions = "TurmoilExpansion")
+    kim.exMachina("-Chairman<Neutral>, Chairman, PartyDelegate<Scientists>")
 
-    p1.runOperation("PartyDelegate<Unity>")
-    p1.playProject(PoliticalAlliance, 4).expect("-4 MC, TerraformRating")
+    shouldThrow<RequirementException> { kim.playProject(PoliticalAlliance, 4) }
+  }
+
+  @Test
+  internal fun `Can be played with two party leaders and no chairmanship`() {
+    newTestGame(addOptions = "TurmoilExpansion")
+    kim.exMachina("PartyDelegate<Scientists>, PartyDelegate<Unity>")
+
+    kim.playProject(PoliticalAlliance, 4).expect("TerraformRating")
   }
 }

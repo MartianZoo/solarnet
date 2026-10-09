@@ -73,7 +73,7 @@ public object Engine {
 
     // Effect compilation needs the reader, but no effect is read until state begins changing.
     private val effector: Effector = Effector(elaborator, customClasses) { reader }
-    private val taskQueues = TaskQueues(gameWorld, classTable)
+    private val taskQueues = TaskQueues(gameWorld)
     private val recordingPositions = RecordingPositions()
     private val reader: GameReader = gameWorld.reader
     private val changer = Changer(reader, gameWorld, effector)

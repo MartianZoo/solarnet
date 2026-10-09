@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.AirRaid
 import dev.martianzoo.tfm.tests.cards.cardnames.AtmoCollectors
 import io.kotest.assertions.throwables.shouldThrow
@@ -35,12 +34,11 @@ internal class AirRaidTest : ProjectCardTest() {
   }
 
   @Test
-  internal fun `Cannot be played when only its player has five MC`() {
+  internal fun `Cannot be played when only its owner has five MC`() {
     kim.exMachina("$AtmoCollectors, 2 Floater<$AtmoCollectors>")
     kim.setToExMachina(5, "MC")
     stan.setToExMachina(4, "MC")
     rob.setToExMachina(4, "MC")
-    kim.assertCounts(5 to "MC")
 
     shouldThrow<LimitsException> {
       kim.playProject(AirRaid, 0) { doTask("5 MC FROM MC<Stan>") }

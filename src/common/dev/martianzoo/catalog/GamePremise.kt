@@ -50,7 +50,7 @@ public data class GamePremise(
   private val premiseClassTableLazy = lazy {
     PremiseClassTable(catalog.classTable, premiseClassDeclarations)
   }
-  internal val premiseClassTable: PremiseClassTable
+  private val premiseClassTable: PremiseClassTable
     get() = premiseClassTableLazy.value
 
   /**

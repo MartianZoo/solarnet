@@ -107,21 +107,27 @@ An early rough browser version of REgo PLastics.
 
 ## module ALMANAC
 
-### <a href="almanac/dev.martianzoo.tfm.web.classviewer/index.html">dev.martianzoo.tfm.web.classviewer</a>
+### <a href="almanac/dev.martianzoo.tfm.web.almanac/index.html">dev.martianzoo.tfm.web.almanac</a>
 
 Pets Almanac, a searchable viewer for Canon's normalized Pets declarations, type information, and
 derived card text.
 
-## module GAME-VIEWER
+## module VIEWER
 
-### <a href="game-viewer/dev.martianzoo.tfm.web.gameviewer/index.html">dev.martianzoo.tfm.web.gameviewer</a>
+### <a href="viewer/dev.martianzoo.tfm.web.viewer/index.html">dev.martianzoo.tfm.web.viewer</a>
 
 An engine-free browser viewer that discovers generated replay-test recordings and navigates their
-event-log timelines through passive state playback. The REPL and game viewer use assets owned by
+event-log timelines through passive state playback. The REPL and viewer use assets owned by
 `dev/martianzoo/tfm/web/shared`.
+
+## module PETS-TOOLS
+
+### dev.martianzoo.tfm.petstools
+
+Standalone tools for generating and analyzing Pets and Canon data.
 
 ## module TOOLS
 
 ### dev.martianzoo.tfm.tools
 
-Standalone command-line tools built from Solarnet's data.
+Standalone tools that inspect live games, recordings, or repository code.

@@ -50,8 +50,12 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   by the scope of the change or explicitly requested.
 - `./gradlew test` runs every repository JVM test suite, every browser-specific test, and the
   `OtbGame20260828Test` replay once in a browser. The multiplatform modules' JVM test tasks are named
-  `jvmTest`; browser tasks other than Web and Almanac are inert outside the one intentionally
-  commented-out full-browser target in the root build.
+  `jvmTest`. Pets runs `BrowserPetsTest` through `:pets:jsBrowserTest`; Web runs its browser history
+  tests and the selected replay through `:web:jsBrowserTest`; Almanac runs its English card-text
+  browser test through `:almanac:jsBrowserTest`. Other generated browser tasks are
+  inert outside the intentionally commented-out full-browser target in the root build.
+- `./gradlew :pets:test` runs Pets JVM tests and its browser-specific test. The routine browser
+  run excludes the shared JVM/JS suites; use the temporary full-browser target below to run those.
 - Temporarily uncomment `allBrowserTests` in the root build and run
   `./gradlew allBrowserTests --rerun-tasks` to exercise every shared and browser-specific suite,
   including all portable replay scenarios. The browser replay source set also reads the legacy
@@ -69,7 +73,7 @@ only when the change crosses a wider scope or the narrower result leaves a mater
 - `./gradlew :pets:jvmTestCoverage` runs only the Pets module's JVM test suite and writes HTML and
   XML coverage reports for Pets production code under that module's
   `reports/jacoco/jvmTestCoverage` build directory.
-- `./gradlew :tfm-tests:sampleRandomCards` prints randomly generated project cards as raw Pets.
+- `./gradlew :pets-tools:sampleRandomCards` prints randomly generated project cards as raw Pets.
   Use `-PrandomCardCount=N` and `-PrandomCardSeed=N` to control and reproduce a sample, and add
   `-PrandomCardOutput=PATH` to write it to a text file. The task has no dependency on the language
   module. Its weights favor nested selectors, refinements, sequences, gates, and per-unit metrics so
@@ -157,6 +161,8 @@ the policy shared by every Kotlin target: compilation, explicit API mode, depend
 Detekt, Dokka, and test logging. `solarnet.jvm` adds the JVM plugin and the repository's standard
 Kotlin/JUnit 5 test dependencies. `solarnet.kmp-jvm-js` configures the JVM and browser targets, adds
 shared `kotlin.test`, and exposes each module's `jvmTest` as `test`.
+The Pets module also attaches its filtered browser test to `test`; its complete shared browser
+suite remains available through the temporary full-browser target.
 Module build scripts under `modules/` keep only module-specific configuration and select their
 non-overlapping package roots from the repository-wide `src/` and `test/` trees; JavaScript-only
 applications configure their targets directly. Repository-wide formatting, the Node.js version, and
@@ -204,9 +210,8 @@ for correct ownership.
 Two migrations are in progress. Ordinary card and game-rule scenarios are moving toward full
 automatic phase and turn progression, and eligible project-card classes are moving to the
 standardized `ProjectCardTest` fixture described below. Existing tests have not all migrated.
-Dedicated REPL mode tests and lower-level engine or bootstrap tests retain their distinct subjects;
-[COLOR_MODES.md](COLOR_MODES.md#test-migration-and-acceptance) owns this distinction and the open
-mode contracts. Do not replace manual phase calls with helpers that recreate the workflow in Kotlin.
+Dedicated REPL mode tests and lower-level engine or bootstrap tests retain their distinct subjects.
+Do not replace manual phase calls with helpers that recreate the workflow in Kotlin.
 
 These are the repository's protected test categories. Test placement may evolve, but preserving
 clear coverage of these contracts matters more than preserving every current test class:
@@ -219,14 +224,13 @@ clear coverage of these contracts matters more than preserving every current tes
    component/task events, materialized projections, history, completed recording positions, and
    independent playback views remain coherent without firing effects. Cross-module engine
    scenarios cover consequence calculation and failure atomicity: a failed operation must restore
-   present components, pending work, and recorded history together. [GAMEWORLD.md](GAMEWORLD.md)
-   owns the detailed split.
+   present components, pending work, and recorded history together.
 4. **Player-level card and game-rule tests.** `CardTest` scenarios count when they use actions and
    observations available to a player rather than internal state or implementation details.
    `CoreRulesTest` documents game-wide rules in this same style.
 5. **Whole-game tests.** Long scenarios that show the workflow and many rules operate together,
    especially when reconstructed from independent game records. Every successful replay test also
-   emits the recording consumed by the game viewer.
+   emits the recording consumed by the viewer.
 6. **Canon admissibility tests.** A compact gate confirming that the complete authority loads and
    that representative supported configurations compose into usable projected class tables and
    worlds. This is not a demand to restate the contents of every card or bundle in assertions.
@@ -263,12 +267,15 @@ the resulting state, and, when necessary, an authored `BY` reaction that makes a
 observable. Do not locate card reactions by exact rendered instruction, `Task.cause`, internal
 assignment fields, or raw Event Log inspection.
 
-For delegated payment, final resource totals do not prove continuous authority. A helper that
-selects through another Actor can conceal missing engine control. Exercise separate Player
-commands, including attempted intervention between payment choices, and verify legality with
-autoexecution disabled where necessary. [SEQUENCING.md](SEQUENCING.md#delegated-operations-and-scheduling-options)
-records the unresolved operation-level rule; current task-level return-to-controller tests
-characterize existing behavior, not acceptance of that proposed rule.
+For delegated payment, final resource totals alone do not establish correct task routing or order.
+A helper may legitimately call several Actors' Agents; this is not an authorization bypass.
+Exercise separate Agent commands when needed to expose the selections and choices each requires,
+and test intervening work against the intended game outcome with autoexecution disabled where
+necessary. Do not require the engine to identify who operates an Agent or reject a program merely
+because it calls another Player's Agent. [ADVERSARIAL.md](ADVERSARIAL.md) assigns that submission
+check to the external game arrangement. [SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over)
+records the remaining operation-level questions; current return-to-controller tests characterize
+existing routing and do not select a broader exclusive-control model.
 
 Keep trigger matching separate from queue routing. A `BY` characterization should show which
 triggers fire and how Actor variables bind through observable changes. Do not make its continued
@@ -334,15 +341,18 @@ five; Maya and Nadia occupy the fourth and fifth seats. The protected `players` 
 seat in order. `kim` and `stan` remain convenient non-null properties, while accessing `rob` in a
 two-player game fails immediately with a fixture error.
 
-The fixture prepares and caches an Action-phase `World` for each option-set and player-count pair,
-then gives every test an independent `Engine.fork` of that prepared position. The cached World is
-never exposed or mutated after preparation. The base class does not create a fork automatically. A
-uniform class declares its own `@BeforeTest` method that calls `newTestGame()`. A class whose methods
-need different compatible selections or player counts calls `newTestGame()` explicitly in each
-method, passing arguments such as `addOptions = "CimmeriaMap"` or `playerCount = 4` where needed. Do
-not share or roll back a live World between tests. The fixture leaves the default autoexecution
-policy untouched: it selects Beginner mode and distinct beginner corporations, while forced setup
-effects autoexecute normally.
+The fixture prepares and caches an Action-phase `World` for each option-set, player-count, and Kim
+corporation combination, then gives every test an independent `Engine.fork` of that prepared
+position. The cached World is never exposed or mutated after preparation. The base class does not
+create a fork automatically. A uniform class declares its own `@BeforeTest` method that calls
+`newTestGame()`. A class whose methods need different compatible selections or player counts calls
+`newTestGame()` explicitly in each method, passing arguments such as `addOptions = "CimmeriaMap"` or
+`playerCount = 4` where needed. Pass `kimCorporation` only when its live effect is part of the
+scenario; Kim then plays that corporation normally and resolves its setup effects, while every
+other player keeps a beginner corporation. Do not share or roll back a live World between tests.
+The fixture otherwise leaves the default autoexecution policy untouched.
+When Turmoil is selected, it uses the existing test setup's initial global-event reveals
+(`AquiferReleasedByPublicCouncil` and `DryDeserts`) before entering Corporation phase.
 
 Treat every pre-migration test as a fallible historical artifact, not as a specification of its
 setup. Existing options, cards, resource grants, card plays, phase changes, autoexecution policies,
@@ -388,7 +398,9 @@ Starting conditions beyond that tabula-rasa state should normally be direct, vis
 
 - Use `setToExMachina(targetCount, type)` for a desired absolute count. It calculates the gain or
   loss from the current count, so the scenario states its intended condition rather than assuming
-  the fixture's prior value.
+  the fixture's prior value. Production types such as `PROD[Heat]` work the same way. To establish
+  negative production, first set its production to zero, then use `exMachina` for the remaining
+  negative adjustment.
 - Use `exMachina(adjustment)` for a naturally relative change or a known absent-to-present fact.
   Prefer a concrete Type such as `NormalCityTile` when an abstract Type cannot be created directly.
 - If initial play of the subject card is not being tested, install that card directly. Do not first
@@ -399,6 +411,8 @@ Starting conditions beyond that tabula-rasa state should normally be direct, vis
 - To test behavior at a completed global parameter, correct the track to its penultimate step and
   use an ordinary standard project for the final step when available. This preserves the real
   completion lifecycle, including `GpComplete`, instead of asking a correction to stand in for it.
+- Use the fixture's `nextGeneration()` when a scenario needs the normal production, research, and
+  action-phase workflow with every player buying zero project cards.
 
 Corrections intentionally suppress ordinary queued effects while retaining the structural work
 documented in [EX_MACHINA.md](EX_MACHINA.md). Therefore, never treat the correction itself as proof
@@ -412,13 +426,44 @@ setup actions. It is also appropriate when a broader integration scenario is val
 right. Direct correction is the default for irrelevant preconditions because it keeps focused card
 tests short and makes their real subject obvious; it is not a ban on authentic gameplay.
 
-Migrate a test class only when all its scenarios fit this fixture and setup model. A scenario may
-start with an additional compatible game selection, including a different map or multiplayer count.
-Leave the whole class on `CardTest` when it needs solo mode, a different variant, synthetic
-declarations, or another incompatible configuration. Do not add specialized fixture variants or
-replace a meaningful scenario merely to increase the migrated count. This is an active,
-class-by-class migration: an existing `CardTest` subclass may simply be awaiting evaluation, and its
-current base class does not by itself express a preferred testing style.
+Migrate a test class only when all its retained scenarios fit the currently implemented fixture and
+setup model. Additional maps and expansion configurations belong in this fixture; do not classify
+them as permanent exclusions merely because an existing test uses different options. Solo and
+phase-sensitive cases may temporarily remain on `CardTest` while the capabilities below are absent.
+Synthetic declarations still require separate evaluation. Do not replace meaningful coverage just
+to increase the migrated count. An existing base class does not itself express a preferred style.
+
+#### Intended fixture development — not implemented yet
+
+- Support `playerCount = 1`, including authentic solo setup and clear failure when an absent seat is
+  accessed. Solo is intended scope, not a permanent reason to retain `CardTest`.
+- Add `advanceTo(Phase)` with responsibility for safe progression through the existing workflow.
+  It should respect pending choices and mandatory work rather than merely replacing `Phase`.
+  Determine the smallest way to accommodate player choices during production and other phases;
+  do not duplicate game rules in test support.
+- Add a base-class query for players' VP totals that simulates scoring and rolls back even on
+  failure, leaving the live scenario intact. This is temporary scoring within a test, not sharing
+  mutable Worlds or rolling a World back between tests.
+- Explore starting in Prelude phase when Prelude expansion is included; callers needing Action
+  phase would explicitly advance. Review existing Prelude-enabled callers before changing the
+  current Action-phase start, and avoid silently choosing meaningful Prelude plays for them.
+- Accommodate expansion configurations through this fixture. Keep the ordinary default game simple
+  and identify actual incompatibilities from retained scenarios rather than inherited setup.
+- Add `CorporationCardTest` later for corporation-focused scenarios.
+
+Investigate whether attack-history markers used by Law Suit and Crash Site Cleanup should be
+created by automatic (`::`) effects. They currently use queued (`:`) effects, suppressed by
+corrections. Decide from their intended meaning during corrections and ordinary play; migration
+convenience alone is not justification for changing effect semantics.
+
+For unusual injected sequences, seek a credible gameplay route. Delete a scenario if no such route
+exists rather than adding fixture machinery to recreate it. In particular, reassess Flooding's
+concurrent ocean-placement scenario; a route possible only through Fake Head Start does not by
+itself establish useful supported-game coverage.
+
+Continue with easier classes first, in substantial batches. Review each retained scenario's value,
+setup, assertions, and name within the batch; larger batches do not relax those checks. Track open
+fixture work in `TODO.md` rather than treating these intentions as already available APIs.
 
 ### Expectations
 
