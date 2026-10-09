@@ -7,17 +7,11 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
-import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Effect.Trigger
-import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
-import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
-import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.ast.Requirement.Exact
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.Requirement.Or
 import dev.martianzoo.pets.data.ClassDeclaration
@@ -27,7 +21,11 @@ import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.PremiseClassTable
 import dev.martianzoo.pets.util.associateByStrict
 
-/** A Terraforming Mars Catalog with declarations, structured card/map data, and selection rules. */
+/**
+ * A Terraforming Mars Catalog with declarations, structured card/map data, and selection rules.
+ * Canon's card-authoring conventions are audited during the build by its tests, not when a Catalog
+ * is loaded. Pets structural validation and game-configuration checks still apply to every Catalog.
+ */
 public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
   final override val customClassDependencies: Map<ClassName, Set<ClassName>> = buildMap {
     putAll(super.customClassDependencies)
@@ -46,94 +44,6 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
 
   private val universe: ClassTable
     get() = classTable
-
-  final override fun validateClasses(table: ClassTable) {
-    val tagClass = table.findClass(TAG_CLASS) ?: return
-    val eventCard = table.findClass(TfmClasses.EVENT_CARD)
-    val eventTagRequirement: Requirement = parse("=1 EventTag<This>")
-    eventCard?.let {
-      require(eventTagRequirement in it.declaration.invariants) {
-        "EventCard must declare HAS $eventTagRequirement"
-      }
-    }
-    val projectCard = table.findClass(TfmClasses.PROJECT_CARD)
-    val activeCard = table.findClass(TfmClasses.ACTIVE_CARD)
-    val automatedCard = table.findClass(TfmClasses.AUTOMATED_CARD)
-    cardClassNames.map(table::getClass).forEach { card ->
-      cardTags(card).elements.forEach { tagName ->
-        require(table.getClass(tagName).isSubtypeOf(tagClass)) {
-          "${card.className} names non-Tag class $tagName as a tag"
-        }
-      }
-      if (TfmClasses.EVENT_TAG in cardTags(card).elements) {
-        require(eventCard != null && card.isSubtypeOf(eventCard)) {
-          "non-EventCard ${card.className} has an EventTag"
-        }
-      }
-      if (
-          projectCard != null &&
-              eventCard != null &&
-              activeCard != null &&
-              automatedCard != null &&
-              cardBack(card)?.isSubtypeOf(projectCard) == true &&
-              !card.isSubtypeOf(eventCard)
-      ) {
-        val hasNontrivialBehavior =
-            cardActions(card).isNotEmpty() ||
-                card.invariants.filterIsInstance<Exact>().any {
-                  val expression = (it.countedMetric as? Count)?.expression
-                  it.expected > 0 &&
-                      expression != null &&
-                      THIS.expression in expression.arguments &&
-                      table.getClass(expression.className).carriesPersistentBehavior()
-                } ||
-                cardEffects(card).any { effect ->
-                  when {
-                    effect.trigger.isEndTrigger() -> false
-                    !effect.trigger.isSelfGainTrigger() -> true
-                    else ->
-                        effect.instruction.descendantsOfType<Gain>().any { gain ->
-                          table.getClass(gain.gaining.className).carriesPersistentBehavior()
-                        }
-                  }
-                }
-        val active = card.isSubtypeOf(activeCard)
-        val automated = card.isSubtypeOf(automatedCard)
-        require(active == hasNontrivialBehavior && automated == !hasNontrivialBehavior) {
-          "${card.className} must be ActiveCard exactly when it has actions or persistent effects; " +
-              "otherwise it must be AutomatedCard"
-        }
-      }
-    }
-  }
-
-  private fun Trigger.isEndTrigger(): Boolean =
-      when (this) {
-        is OnGainOf -> expression.className == TfmClasses.END
-        is Trigger.Or -> triggers.all { it.isEndTrigger() }
-        is Trigger.WrappingTrigger -> inner.isEndTrigger()
-        is Trigger.OnRemoveOf,
-        WhenGain,
-        Trigger.WhenRemove -> false
-      }
-
-  private fun Trigger.isSelfGainTrigger(): Boolean =
-      when (this) {
-        WhenGain -> true
-        is Trigger.Or -> triggers.all { it.isSelfGainTrigger() }
-        is Trigger.WrappingTrigger -> inner.isSelfGainTrigger()
-        is OnGainOf,
-        is Trigger.OnRemoveOf,
-        Trigger.WhenRemove -> false
-      }
-
-  private fun PetClass.carriesPersistentBehavior(): Boolean =
-      allSuperclasses().any { superclass ->
-        superclass.declaration.authoredActions.isNotEmpty() ||
-            superclass.declaration.authoredEffects.any { effect ->
-              !effect.trigger.isSelfGainTrigger() && !effect.trigger.isEndTrigger()
-            }
-      }
 
   /** Organizational bundles from which this Catalog is assembled. */
   public open val bundles: List<Bundle> =
@@ -590,7 +500,6 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
     private val MODULE_CLASS = cn("Module")
     private val MODULES_READY = cn("ModulesReady")
     private val MULTIPLAYER_MODE = cn("MultiplayerMode")
-    private val TAG_CLASS = cn("Tag")
     private val COLONY_TILE = cn("ColonyTile")
     private val COLONY_TILE_SELECTION = cn("ColonyTileSelection")
     private val MULTIPLAYER_ONLY: Requirement = parse("MultiplayerMode")

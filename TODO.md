@@ -45,6 +45,12 @@ These concerns remain open; the ranking does not select replacement designs.
 
 ## User Ideas and Agreed Directions
 
+- [ ] Extend the build-time Canon invariant checks to indirect special-tile gains behind
+  signals or supporting components (`GainsOf`; entry 15 of
+  [GAME_HACKS](docs/agents/GAME_HACKS.md)). Current checks cover direct authored shapes and do not
+  establish that the introspection helpers see every printed tile-placement effect. Keep dynamic
+  payment and watcher interactions in gameplay tests rather than treating syntax scans as proof.
+
 - [ ] Write and review clear public API specifications and KDoc for the
   [nine priority modules](docs/agents/SPEC_FIDELITY.md#priority-scope), following the documented
   audience and intended-contract standards. Preserve useful Pets documentation and fill gaps;

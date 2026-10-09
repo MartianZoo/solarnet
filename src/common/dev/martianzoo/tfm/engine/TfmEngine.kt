@@ -43,6 +43,7 @@ import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.cardBack
 import dev.martianzoo.tfm.canon.cardEffects
 import dev.martianzoo.tfm.canon.cardImmediate
+import dev.martianzoo.tfm.canon.cardProductionBoxes
 import dev.martianzoo.tfm.canon.cardTags
 import dev.martianzoo.tfm.state.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.state.tfmCatalog
@@ -102,8 +103,7 @@ public object TfmEngine {
       val immediate =
           cardImmediate(card)
               ?: throw NarrowingException("card ${card.className} has no immediate instruction")
-      val matches =
-          immediate.descendantsOfType<InstructionTransform>().filter { it.transformKind == PROD }
+      val matches = cardProductionBoxes(card)
 
       if (
           immediate.descendantsOfType<Instruction.Each>().any { each ->
@@ -123,6 +123,7 @@ public object TfmEngine {
     }
   }
 
+  /** Potentially positive authored gains, as required by Philanthropist; not an icon scan. */
   private object GainsOf : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
       val (subject, target) = type.typeDependencies.map { it.boundType }
@@ -188,6 +189,7 @@ public object TfmEngine {
     }
   }
 
+  /** Vitor's icon proxy counts type citations, including triggers, but excludes removal sides. */
   private object NonNegativeIconsOf : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
       val (cardType, targetClassType) = type.typeDependencies.map { it.boundType }

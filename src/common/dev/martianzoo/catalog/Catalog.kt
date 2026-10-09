@@ -23,11 +23,8 @@ import dev.martianzoo.pets.types.ClassTable
 public open class Catalog(private vararg val catalogs: Catalog) {
   /** The fully compiled Catalog structure shared by its playable games. */
   public val classTable: ClassTable by lazy {
-    createClassLoader(this).loadEverything().also(::validateClasses)
+    createClassLoader(this).loadEverything()
   }
-
-  /** Additional validation owned by this game. */
-  protected open fun validateClasses(table: ClassTable) {}
 
   /** Handlers for this game's explicitly marked Pets syntax, bound to one game class table. */
   public open val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> by lazy {
