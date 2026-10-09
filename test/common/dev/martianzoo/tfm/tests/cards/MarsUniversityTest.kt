@@ -1,38 +1,39 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class MarsUniversityTest : CardTest() {
-  @Test
-  internal fun `Research can alternate discard and draw starting with a single card in hand`() {
-    newGame(CorporateEraExpansion)
-    p1.runOperation("ProjectCard, $MarsUniversity") { declineTask() }
+internal class MarsUniversityTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
 
-    p1.runOperation("$Research") {
-          p1.doTask("-ProjectCard")
-          p1.doTask("-ProjectCard")
+  @Test
+  internal fun `Research can alternate discard and draw starting with one other card in hand`() {
+    kim.exMachina("$MarsUniversity")
+    kim.setToExMachina(2, "ProjectCard")
+    kim.setToExMachina(11, "MC")
+
+    kim.playProject(Research, 11) {
+          kim.doTask("-ProjectCard")
+          kim.doTask("-ProjectCard")
         }
-        .expect("2 ProjectCard")
+        .expect("ProjectCard")
   }
 
   @Test
-  internal fun `Mars University cannot exchange a card with an empty hand`() {
-    newGame(CorporateEraExpansion)
-    p1.playCorp(CrediCor, 1)
-    admin.phase("Action")
+  internal fun `Cannot exchange a card with an empty hand`() {
+    kim.setToExMachina(1, "ProjectCard")
+    kim.setToExMachina(8, "MC")
 
-    p1.playProject(MarsUniversity, 8).expect("-ProjectCard")
+    kim.playProject(MarsUniversity, 8).expect("-ProjectCard")
   }
 
   @Test
-  internal fun `Mars University may decline its discard even with another project in hand`() {
-    newGame(CorporateEraExpansion)
-    p1.playCorp(CrediCor, 3)
-    admin.phase("Action")
-    p1.playProject(MarsUniversity, 8) { declineTask() }
+  internal fun `May decline its discard with another project in hand`() {
+    kim.exMachina("$MarsUniversity")
+    kim.setToExMachina(2, "ProjectCard")
+    kim.setToExMachina(3, "MC")
 
-    p1.playProject(SearchForLife, 3) { declineTask() }.expect("-ProjectCard")
+    kim.playProject(SearchForLife, 3) { declineTask() }.expect("-ProjectCard")
   }
 }

@@ -327,15 +327,16 @@ five; Maya and Nadia occupy the fourth and fifth seats. The protected `players` 
 seat in order. `kim` and `stan` remain convenient non-null properties, while accessing `rob` in a
 two-player game fails immediately with a fixture error.
 
-The fixture prepares and caches an Action-phase `World` for each option-set and player-count pair,
-then gives every test an independent `Engine.fork` of that prepared position. The cached World is
-never exposed or mutated after preparation. The base class does not create a fork automatically. A
-uniform class declares its own `@BeforeTest` method that calls `newTestGame()`. A class whose methods
-need different compatible selections or player counts calls `newTestGame()` explicitly in each
-method, passing arguments such as `addOptions = "CimmeriaMap"` or `playerCount = 4` where needed. Do
-not share or roll back a live World between tests. The fixture leaves the default autoexecution
-policy untouched: it selects Beginner mode and distinct beginner corporations, while forced setup
-effects autoexecute normally.
+The fixture prepares and caches an Action-phase `World` for each option-set, player-count, and Kim
+corporation combination, then gives every test an independent `Engine.fork` of that prepared
+position. The cached World is never exposed or mutated after preparation. The base class does not
+create a fork automatically. A uniform class declares its own `@BeforeTest` method that calls
+`newTestGame()`. A class whose methods need different compatible selections or player counts calls
+`newTestGame()` explicitly in each method, passing arguments such as `addOptions = "CimmeriaMap"` or
+`playerCount = 4` where needed. Pass `kimCorporation` only when its live effect is part of the
+scenario; Kim then plays that corporation normally and resolves its setup effects, while every
+other player keeps a beginner corporation. Do not share or roll back a live World between tests.
+The fixture otherwise leaves the default autoexecution policy untouched.
 
 Treat every pre-migration test as a fallible historical artifact, not as a specification of its
 setup. Existing options, cards, resource grants, card plays, phase changes, autoexecution policies,
@@ -381,7 +382,9 @@ Starting conditions beyond that tabula-rasa state should normally be direct, vis
 
 - Use `setToExMachina(targetCount, type)` for a desired absolute count. It calculates the gain or
   loss from the current count, so the scenario states its intended condition rather than assuming
-  the fixture's prior value.
+  the fixture's prior value. Production types such as `PROD[Heat]` work the same way. To establish
+  negative production, first set its production to zero, then use `exMachina` for the remaining
+  negative adjustment.
 - Use `exMachina(adjustment)` for a naturally relative change or a known absent-to-present fact.
   Prefer a concrete Type such as `NormalCityTile` when an abstract Type cannot be created directly.
 - If initial play of the subject card is not being tested, install that card directly. Do not first
@@ -392,6 +395,8 @@ Starting conditions beyond that tabula-rasa state should normally be direct, vis
 - To test behavior at a completed global parameter, correct the track to its penultimate step and
   use an ordinary standard project for the final step when available. This preserves the real
   completion lifecycle, including `GpComplete`, instead of asking a correction to stand in for it.
+- Use the fixture's `nextGeneration()` when a scenario needs the normal production, research, and
+  action-phase workflow with every player buying zero project cards.
 
 Corrections intentionally suppress ordinary queued effects while retaining the structural work
 documented in [EX_MACHINA.md](EX_MACHINA.md). Therefore, never treat the correction itself as proof

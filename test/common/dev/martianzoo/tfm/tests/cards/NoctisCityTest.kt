@@ -8,7 +8,6 @@ internal class NoctisCityTest : ProjectCardTest() {
   internal fun `Can be placed anywhere on Hellas`() {
     newTestGame(addOptions = "HellasMap")
     kim.setToExMachina(18, "MC")
-    kim.exMachina("PROD[Energy]")
 
     kim.playProject(NoctisCity, 18) {
           placeTile(1, 3)

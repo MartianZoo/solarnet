@@ -12,7 +12,8 @@ internal class InsulationTest : ProjectCardTest() {
   @Test
   internal fun `Can convert two of three heat production`() {
     kim.setToExMachina(2, "MC")
-    kim.exMachina("PROD[-MC, 2 Heat]")
+    kim.setToExMachina(0, "PROD[MC]")
+    kim.setToExMachina(3, "PROD[Heat]")
 
     kim.playProject(Insulation, 2) { doTask("PROD[2 MC FROM Heat]") }.expect("PROD[2 MC, -2 Heat]")
   }
@@ -20,7 +21,8 @@ internal class InsulationTest : ProjectCardTest() {
   @Test
   internal fun `Cannot skip its production conversion`() {
     kim.setToExMachina(2, "MC")
-    kim.exMachina("PROD[-MC, 2 Heat]")
+    kim.setToExMachina(0, "PROD[MC]")
+    kim.setToExMachina(3, "PROD[Heat]")
 
     shouldThrow<NarrowingException> {
       kim.playProject(Insulation, 2) { doTask("Ok") }
