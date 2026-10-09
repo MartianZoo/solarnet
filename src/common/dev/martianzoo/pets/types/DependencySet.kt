@@ -395,10 +395,12 @@ private constructor(
    * Implements key-wise, order-insensitive equality required by
    * [rule T3-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
    */
-  override fun equals(other: Any?): Boolean =
-      other is DependencySet &&
-          deps.size == other.deps.size &&
-          deps.all { dependency -> other.getIfPresent(dependency.key) == dependency }
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is DependencySet || deps.size != other.deps.size) return false
+    return deps == other.deps ||
+        deps.all { dependency -> other.getIfPresent(dependency.key) == dependency }
+  }
 
   /**
    * Hashes the key-wise contents consistently with the order-insensitive equality of
