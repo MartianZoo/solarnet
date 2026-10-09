@@ -42,10 +42,13 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
 
   init {
     val inhabitedConcreteClasses = classTable.allInhabitedConcreteClasses()
+    val hasSingleTargetLimitByType = mutableMapOf<GroundType, Boolean>()
     val invalidDependencies = inhabitedConcreteClasses.mapNotNull { dependent ->
       dependent.dependencies
           .concreteDependencyTargets(classTable)
-          .firstOrNull { target -> !hasSingleTargetLimit(target) }
+          .firstOrNull { target ->
+            !hasSingleTargetLimitByType.getOrPut(target) { hasSingleTargetLimit(target) }
+          }
           ?.let { dependent to it }
     }
 
