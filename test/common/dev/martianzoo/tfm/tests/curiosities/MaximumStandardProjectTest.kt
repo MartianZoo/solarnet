@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests.curiosities
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.replays.AbstractSoloTest
 import io.kotest.matchers.shouldBe

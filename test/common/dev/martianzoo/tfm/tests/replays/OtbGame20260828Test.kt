@@ -4,13 +4,13 @@ import dev.martianzoo.agent.TaskForm
 import dev.martianzoo.agent.TaskForm.Decision.Kind.ALTERNATIVE
 import dev.martianzoo.agent.TaskForm.Decision.Kind.AMOUNT
 import dev.martianzoo.agent.TaskForm.Decision.Kind.TARGET
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskResult

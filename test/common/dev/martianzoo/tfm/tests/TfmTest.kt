@@ -18,12 +18,12 @@ import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskResult
-import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.canon.cardResourceType
-import dev.martianzoo.tfm.canon.tfmCatalog
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
+import dev.martianzoo.tfm.state.ApiUtils.mapDefinition
+import dev.martianzoo.tfm.state.tfmCatalog
 
 internal abstract class TfmTest {
   protected var game: World

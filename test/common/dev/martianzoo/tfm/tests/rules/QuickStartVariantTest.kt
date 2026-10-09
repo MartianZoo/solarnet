@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*

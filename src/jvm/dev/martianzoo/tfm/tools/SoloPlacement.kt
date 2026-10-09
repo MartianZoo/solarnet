@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tools
 
+import dev.martianzoo.catalog.displayName
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.Class
-import dev.martianzoo.state.displayName
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.MarsMapDefinition
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition

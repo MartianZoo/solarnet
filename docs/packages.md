@@ -6,7 +6,7 @@ Basic interfaces that everything else needs to share.
 
 ### <a href="pets/dev.martianzoo.pets.data/index.html">dev.martianzoo.pets.data</a>
 
-Catalog, premise, configuration, and Actor data shared by state and game-specific code.
+Static declaration data shared by the Pets compiler, Catalogs, and consumers.
 
 ### <a href="pets/dev.martianzoo.pets/index.html">dev.martianzoo.pets</a>
 
@@ -34,12 +34,19 @@ The Kotlin API for the concepts and rules in the
 
 Various non-Terraforming-specific helpers.
 
+## module CATALOG
+
+### <a href="catalog/dev.martianzoo.catalog/index.html">dev.martianzoo.catalog</a>
+
+Static Catalog composition, configuration, premise resolution, filtered Class Tables, and display
+names. It depends only on Pets and can be used without runtime game state or execution.
+
 ## module TFM-CANON
 
 ### <a href="tfm-canon/dev.martianzoo.tfm.canon/index.html">dev.martianzoo.tfm.canon</a>
 
-Contains the Terraforming Mars catalog model, data, custom instructions, and officially published
-cards, maps, etc.
+Contains the Terraforming Mars static catalog model, data, and officially published cards, maps,
+etc. Executable custom implementations and live-game helpers belong to `tfm-engine`.
 
 ## module TFM-FAKE
 
@@ -59,6 +66,14 @@ passive event application, immutable recordings, and opaque recording serializat
 ### <a href="engine/dev.martianzoo.engine/index.html">dev.martianzoo.engine</a>
 
 The engine knows how to modify a Game World by executing card Instructions.
+
+## module TFM-STATE
+
+### <a href="tfm-state/dev.martianzoo.tfm.state/index.html">dev.martianzoo.tfm.state</a>
+
+Terraforming Mars-specific read-only projections over live and recorded Game World state. It lets
+the engine and passive viewer share Catalog-backed queries without making the viewer depend on
+execution.
 
 ## module TFM-ENGINE
 

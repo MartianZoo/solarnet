@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.web.gameviewer
 
 import dev.martianzoo.agent.Agents
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.ComponentChange
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.toComponent

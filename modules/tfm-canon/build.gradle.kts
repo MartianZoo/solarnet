@@ -41,8 +41,8 @@ kotlin {
       kotlin.srcDir(generateCanonSources)
       dependencies {
         implementation(libs.kotlinx.serialization.json)
+        implementation(project(":catalog"))
         implementation(project(":pets"))
-        implementation(project(":state"))
       }
     }
     commonTest {

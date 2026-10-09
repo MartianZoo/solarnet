@@ -1,4 +1,4 @@
-package dev.martianzoo.state
+package dev.martianzoo.catalog
 
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.TransformHandler
@@ -9,7 +9,7 @@ import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.pets.types.ClassTable
 
 /**
- * One coherent namespace containing everything the engine may know about a game.
+ * One coherent static namespace containing everything a game premise may select.
  *
  * A Catalog owns one validated master [ClassTable]. That table is the reusable schema for all of
  * its games, not a playable world: each [GamePremise] selects an inhabited view of it. Catalog
@@ -133,10 +133,17 @@ public open class Catalog(private vararg val catalogs: Catalog) {
    * Resolves signed Class selections and additive setup adjustments over this Catalog's master
    * table.
    */
-  public open fun gamePremise(
+  public fun gamePremise(
       config: GameConfig,
       additionalClassDeclarations: Set<ClassDeclaration> = emptySet(),
-  ): GamePremise = GamePremiseBuilder(this, config, additionalClassDeclarations).build()
+  ): GamePremise {
+    val builder = GamePremiseBuilder(this, config, additionalClassDeclarations)
+    configurePremise(builder)
+    return builder.build()
+  }
+
+  /** Applies game-specific selection and setup policy before this Catalog freezes a premise. */
+  protected open fun configurePremise(builder: GamePremiseBuilder) {}
 
   /** Cooks a premise whose player names and seat order come from [playerDeclarations]. */
   public fun gamePremise(
@@ -157,7 +164,7 @@ public open class Catalog(private vararg val catalogs: Catalog) {
   /** Returns this Catalog composed with concrete `Player1` through `PlayerN` seat Classes. */
   public fun withPlayers(playerCount: Int): Catalog {
     require(playerCount > 0) { "player count must be positive: $playerCount" }
-    val names = Player.players(playerCount).map(Player::className)
+    val names = conventionalPlayerClassNames(playerCount)
     if (hasPlayerClasses(names)) return this
     return conventionalPlayerCatalogs.getOrPut(playerCount) { withPlayerClassesUncached(names) }
   }
@@ -168,7 +175,7 @@ public open class Catalog(private vararg val catalogs: Catalog) {
     require(playerNames.distinct().size == playerNames.size) {
       "a game cannot seat the same player name more than once"
     }
-    val conventionalNames = Player.players(playerNames.size).map(Player::className)
+    val conventionalNames = conventionalPlayerClassNames(playerNames.size)
     return if (playerNames == conventionalNames) {
       withPlayers(playerNames.size)
     } else {

@@ -1,6 +1,10 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.catalog.Catalog
+import dev.martianzoo.catalog.ClassSelection
+import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.PetElaborator
@@ -27,12 +31,8 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.Catalog
-import dev.martianzoo.state.ClassSelection
 import dev.martianzoo.state.CustomInstruction
 import dev.martianzoo.state.CustomMetric
-import dev.martianzoo.state.GameConfig
-import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.Task

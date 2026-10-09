@@ -1,5 +1,6 @@
 package dev.martianzoo.state
 
+import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression

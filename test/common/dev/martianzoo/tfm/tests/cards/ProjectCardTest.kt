@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.exMachina
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmEngine

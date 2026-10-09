@@ -1,5 +1,6 @@
 package dev.martianzoo.state
 
+import dev.martianzoo.catalog.Catalog
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric

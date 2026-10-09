@@ -1,5 +1,6 @@
 package dev.martianzoo.state
 
+import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.types.ClassTable

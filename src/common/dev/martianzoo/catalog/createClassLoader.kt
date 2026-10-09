@@ -1,4 +1,4 @@
-package dev.martianzoo.state
+package dev.martianzoo.catalog
 
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.data.ClassDeclaration
@@ -7,7 +7,7 @@ import dev.martianzoo.pets.types.ClassLoader
 /**
  * Supplies [catalog]'s static declarations, transforms, and custom-class dependencies to a loader.
  */
-public fun createClassLoader(catalog: Catalog): ClassLoader =
+internal fun createClassLoader(catalog: Catalog): ClassLoader =
     ClassLoader(
         declarations = catalog.allClassDeclarations,
         transformHandlerFactories = catalog.transformHandlerFactories,

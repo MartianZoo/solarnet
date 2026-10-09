@@ -11,8 +11,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
-- Complete the remaining static-model separation needed for `:tfm-canon` to drop its `:state`
-  dependency by moving Catalog and premise model ownership upstream.
 - Resolve the nested self-transmutation case characterized in `pets/BugsTest`: an abstract Box
   currently permits identical concrete shared arguments. Preserve shared abstract arguments and
   rejection of dropping their markers; clarify when an open nested shared transmutation itself

@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.DependencyException
@@ -12,7 +13,6 @@ import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameWorld
 import dev.martianzoo.state.TaskResult

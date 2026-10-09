@@ -1,5 +1,8 @@
 package dev.martianzoo.state
 
+import dev.martianzoo.catalog.ClassSelection
+import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.catalog.GamePremise
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject

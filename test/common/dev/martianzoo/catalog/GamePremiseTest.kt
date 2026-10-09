@@ -1,5 +1,6 @@
-package dev.martianzoo.state
+package dev.martianzoo.catalog
 
+import dev.martianzoo.catalogtestsupport.testCatalog
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException

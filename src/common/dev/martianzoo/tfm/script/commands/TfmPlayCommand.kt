@@ -2,11 +2,11 @@ package dev.martianzoo.tfm.script.commands
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.cardBack
-import dev.martianzoo.tfm.canon.tfmCatalog
 import dev.martianzoo.tfm.script.ScriptCommand
 import dev.martianzoo.tfm.script.ScriptCompletion
 import dev.martianzoo.tfm.script.ScriptCompletionContext
 import dev.martianzoo.tfm.script.ScriptSession
+import dev.martianzoo.tfm.state.tfmCatalog
 
 internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("tfm_play") {
   override val usage: String = "tfm_play <CardName>[, <payment>...]"

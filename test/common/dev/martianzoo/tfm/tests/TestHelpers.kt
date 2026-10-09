@@ -2,6 +2,9 @@ package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
+import dev.martianzoo.catalog.ClassSelection
+import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.engine.World
 import dev.martianzoo.engine.withTestSetup
 import dev.martianzoo.pets.Parsing
@@ -20,9 +23,6 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.ClassSelection
-import dev.martianzoo.state.GameConfig
-import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.Canon

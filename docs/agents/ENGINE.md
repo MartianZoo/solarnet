@@ -53,7 +53,7 @@ as a parallel premise choice. Setup adjustments and game-specific setup become o
 the generated premise Class. The premise retains one immutable game `ClassTable` view sharing its
 Catalog's compiled master structure; separate Worlds from that premise share compiled class facts
 but no mutable game state. See
-[`GamePremise.kt`](../../src/common/dev/martianzoo/state/GamePremise.kt).
+[`GamePremise.kt`](../../src/common/dev/martianzoo/catalog/GamePremise.kt).
 
 `Engine.newGame` first validates its supplied Kotlin custom-Class implementations against the
 Catalog's derived custom declarations. Games without custom declarations may use the empty default;

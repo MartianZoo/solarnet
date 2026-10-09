@@ -1,5 +1,6 @@
-package dev.martianzoo.state
+package dev.martianzoo.catalog
 
+import dev.martianzoo.catalogtestsupport.testCatalog
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test

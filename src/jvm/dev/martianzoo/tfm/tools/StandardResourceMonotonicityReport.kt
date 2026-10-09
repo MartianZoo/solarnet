@@ -1,5 +1,8 @@
 package dev.martianzoo.tfm.tools
 
+import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.catalog.GamePremise
+import dev.martianzoo.catalog.defaultEnglishDisplayName
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
 import dev.martianzoo.pets.api.SystemClasses.THIS
@@ -21,9 +24,6 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.types.Class as PetsClass
 import dev.martianzoo.pets.types.ClassTable
-import dev.martianzoo.state.GameConfig
-import dev.martianzoo.state.GamePremise
-import dev.martianzoo.state.defaultEnglishDisplayName
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION

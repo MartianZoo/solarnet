@@ -16,8 +16,8 @@ kotlin {
 }
 
 dependencies {
+  implementation(project(":catalog"))
   implementation(project(":pets"))
-  implementation(project(":state"))
   implementation(project(":tfm-canon"))
   implementation(libs.kotlinpoet)
 
