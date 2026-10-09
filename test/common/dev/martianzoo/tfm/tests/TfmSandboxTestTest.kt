@@ -1,8 +1,9 @@
-package dev.martianzoo.tfm.tests.cards
+package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.tests.cards.cardnames.Donation
 import dev.martianzoo.tfm.tests.cards.cardnames.GiantIceAsteroid
 import dev.martianzoo.tfm.tests.cards.cardnames.Manutech
 import dev.martianzoo.tfm.tests.cards.cardnames.MineralDeposit
@@ -11,7 +12,29 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class ProjectCardFixtureTest : ProjectCardTest() {
+internal class TfmSandboxTestTest : TfmSandboxTest() {
+  @Test
+  internal fun `Prelude games allow a Prelude before explicitly starting Action phase`() {
+    newTestGame(addOptions = "PreludeExpansion")
+
+    kim.playPrelude(Donation).expect("21 MC")
+    startActionPhase()
+    kim.playProject(MineralDeposit, 5).expect("5 Steel")
+  }
+
+  @Test
+  internal fun `Corporation entry is independent of the cached game with corporations played`() {
+    newTestGame(kimCorporation = Manutech)
+    newTestGame(kimCorporation = Manutech, startAtCorporation = true)
+
+    kim.count("$Manutech") shouldBe 0
+    kim.playCorp(Manutech).expect("Steel")
+    stan.count("BeginnerCorporation2") shouldBe 0
+
+    newTestGame(kimCorporation = Manutech)
+    kim.playProject(MineralDeposit, 5).expect("5 Steel")
+  }
+
   @Test
   internal fun `Scoring queries preserve state and history for later gameplay`() {
     newTestGame()
@@ -117,5 +140,42 @@ internal class ProjectCardFixtureTest : ProjectCardTest() {
     players.size shouldBe 5
     players[4].actor.toString() shouldBe "Nadia"
     players[4].count("BeginnerCorporation5") shouldBe 1
+  }
+
+  @Test
+  internal fun `Solo games support play and report absent seats clearly`() {
+    newTestGame(playerCount = 1)
+
+    shouldThrow<IllegalStateException> { stan }.message shouldBe "Stan is sitting this game out"
+    shouldThrow<IllegalStateException> { rob }.message shouldBe "Rob is sitting this game out"
+    kim.stdProject("AsteroidProject").expect("TerraformRating")
+  }
+
+  internal class TfmGameplayTestTest : TfmGameplayTest() {
+    @Test
+    internal fun `Corporation entry lets the players finish setup through the workflow`() {
+      newTestGame(playerCount = 2, kimCorporation = Manutech, startAtCorporation = true)
+
+      kim.count("$Manutech") shouldBe 0
+      kim.playCorp(Manutech).expect("Steel")
+      stan.count("BeginnerCorporation2") shouldBe 0
+      stan.inTurn {
+        doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation2>, Hand>")
+        stan.pay()
+      }
+      kim.playProject(MineralDeposit, 5).expect("5 Steel")
+    }
+
+    @Test
+    internal fun `Starting another game clears the previous workflows unfinished turn`() {
+      newTestGame()
+      val previousGame = game
+      previousGame.tasks.isEmpty() shouldBe false
+
+      newTestGame()
+
+      previousGame.tasks.isEmpty() shouldBe true
+      kim.playProject(MineralDeposit, 5).expect("5 Steel")
+    }
   }
 }

@@ -7,6 +7,7 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.Flooding
 import dev.martianzoo.tfm.tests.cards.cardnames.NeptunianPowerConsultants
 import io.kotest.assertions.throwables.shouldThrow
@@ -15,7 +16,7 @@ import io.kotest.matchers.string.shouldContain
 import kotlin.test.Ignore
 import kotlin.test.Test
 
-internal class FloodingTest : ProjectCardTest() {
+internal class FloodingTest : TfmSandboxTest() {
   @Test
   internal fun `Can choose between neighboring owners`() {
     arrangeFlooding()
@@ -263,7 +264,6 @@ internal class FloodingTest : ProjectCardTest() {
 
   private fun loseMoneyWithNeptunianBill(remainingDebt: Int): TaskResult {
     newTestGame()
-    admin.phase("Action")
     kim.runOperation("$NeptunianPowerConsultants, 16 MC, ProjectCard, CityTile<Tharsis_4_3>")
     return kim.playProject(Flooding, 7) {
       val previousPolicy = kim.autoExecPolicy
@@ -301,8 +301,9 @@ internal class FloodingTest : ProjectCardTest() {
   private fun acceptOpponentsNeptunianBonus() {
     newTestGame()
     val p2 = stan
+    p2.setToExMachina(0, "MC")
+    p2.setToExMachina(0, "PROD[Energy]")
     p2.runOperation("$NeptunianPowerConsultants, CityTile<Tharsis_4_3>, 5 MC")
-    admin.phase("Action")
     kim.autoExecPolicy = NONE
     p2.autoExecPolicy = NONE
 
@@ -340,8 +341,9 @@ internal class FloodingTest : ProjectCardTest() {
   private fun partlyPayOpponentsNeptunianBonus() {
     newTestGame()
     val p2 = stan
+    p2.setToExMachina(0, "MC")
+    p2.setToExMachina(0, "PROD[Energy]")
     p2.runOperation("$NeptunianPowerConsultants, CityTile<Tharsis_4_3>, 2 Steel, 1 MC")
-    admin.phase("Action")
     kim.autoExecPolicy = NONE
     p2.autoExecPolicy = NONE
 
@@ -353,12 +355,8 @@ internal class FloodingTest : ProjectCardTest() {
     // P1 orders each billing stage, while P2 performs the work assigned to P2.
     kim.selectTask("5 Owed<Stan>!")
     p2.doTask("5 Owed<Stan>")
-    kim.selectTask(
-        "ActionBilling<Stan, NeptunianOption<NeptunianPowerConsultants<Stan>>, Action1>"
-    )
-    p2.doTask(
-        "ActionBilling<Stan, NeptunianOption<NeptunianPowerConsultants<Stan>>, Action1>"
-    )
+    kim.selectTask("ActionBilling<Stan, NeptunianOption<NeptunianPowerConsultants<Stan>>, Action1>")
+    p2.doTask("ActionBilling<Stan, NeptunianOption<NeptunianPowerConsultants<Stan>>, Action1>")
     kim.selectTask("-X Steel<Stan>?")
     p2.doTask("-2 Steel")
     p2.assertCounts(0 to "Steel", 1 to "MC", 1 to "Owed")

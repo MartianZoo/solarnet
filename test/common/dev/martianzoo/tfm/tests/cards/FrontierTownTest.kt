@@ -2,11 +2,12 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.FrontierTown
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class FrontierTownTest : ProjectCardTest() {
+internal class FrontierTownTest : TfmSandboxTest() {
   @Test
   internal fun `Triples a delegate placement bonus when Turmoil is present`() {
     newTestGame(addOptions = "AmazonisMap, FrontierTown, TurmoilExpansion")

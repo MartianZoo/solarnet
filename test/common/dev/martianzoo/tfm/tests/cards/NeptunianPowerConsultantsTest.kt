@@ -1,10 +1,11 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.NeptunianPowerConsultants
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class NeptunianPowerConsultantsTest : ProjectCardTest() {
+internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
   @BeforeTest fun setUp() = newTestGame()
 
   @Test

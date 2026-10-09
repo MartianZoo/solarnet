@@ -3,13 +3,14 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class LawSuitTest : ProjectCardTest() {
+internal class LawSuitTest : TfmSandboxTest() {
   @BeforeTest fun setUp() = newTestGame()
 
   @Test

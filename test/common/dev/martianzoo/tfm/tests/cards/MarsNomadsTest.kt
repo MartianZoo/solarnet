@@ -6,13 +6,14 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Ignore
 import kotlin.test.Test
 
-internal class MarsNomadsTest : ProjectCardTest() {
+internal class MarsNomadsTest : TfmSandboxTest() {
   @Test
   internal fun `Places its initial marker without collecting a placement bonus`() {
     newTestGame()
@@ -203,7 +204,6 @@ internal class MarsNomadsTest : ProjectCardTest() {
     val p2 = stan
     p2.runOperation("CityTile<Tharsis_2_1>")
     p2.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_2_2>") }
-    admin.phase("Action")
     shouldThrow<DeadEndException> { kim.convertPlants { placeTile(2, 2) } }
     return kim.convertPlants { placeTile(9, 7) }
   }

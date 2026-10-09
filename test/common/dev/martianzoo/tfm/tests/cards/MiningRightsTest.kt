@@ -4,12 +4,13 @@ import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Ignore
 import kotlin.test.Test
 
-internal class MiningRightsTest : ProjectCardTest() {
+internal class MiningRightsTest : TfmSandboxTest() {
   // Resolved FAQ: a wild-resource area is eligible even when its chosen resource is not metal.
   // https://boardgamegeek.com/thread/3403085/article/45161764#45161764
   @Ignore // Known defect: the production requirement rejects wild-resource areas.

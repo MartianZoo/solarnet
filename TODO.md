@@ -50,13 +50,19 @@ These concerns remain open; the ranking does not select replacement designs.
   audience and intended-contract standards. Preserve useful Pets documentation and fill gaps;
   track implementation defects separately. This standards update does not complete the module
   documentation or conformance audits.
-- [ ] Finish the ProjectCardTest migration in larger batches, starting with easier classes. The
-  [testing plan](docs/agents/TESTING.md#intended-fixture-development--not-implemented-yet) records
-  the intended fixture work: solo support, safe `advanceTo(Phase)`, expansion coverage, and a
-  possible Prelude-phase start when Prelude is selected. Simulated VP totals with rollback are
-  available through `victoryPoints()`.
-  Add `CorporationCardTest` later. Investigate automatic attack-history effects separately; reassess
-  and delete injected scenarios without credible gameplay routes.
+- [ ] Continue migrating legacy card/rule tests to `TfmSandboxTest` or `TfmGameplayTest` in larger
+  batches. Review scenario value first; select gameplay when real turn/phase progression is part
+  of the claim, and use representative base-game content for shared rules. The
+  [fixture plan](docs/agents/TESTING.md#remaining-fixture-development) tracks remaining solo-map setup
+  and reassessment of sandbox phase shortcuts. Both styles support Prelude and corporation entry;
+  sandbox scoring with rollback is available through `victoryPoints()`. Gameplay setup conveniences
+  may play ordered default cards normally; explicit Prelude play is sufficient for current callers.
+  Investigate automatic attack-history effects separately; reassess and delete injected scenarios
+  without credible gameplay routes.
+- [ ] Investigate enforcing the workflow's offered turn order in `TfmGameplayTest`. `Agent.inTurn`
+  currently creates a turn whenever the acting player has no pending task, even while another
+  player's turn is pending. Preserve authentic gameplay without adding a second test-side game
+  driver; discuss the effect on sandbox and legacy callers before changing the shared helpers.
 - Distinguish counting Venus tags from carrying a Venus tag in card availability. Io Sulphur
   Research should work without Venus Next because it merely counts Venus tags, but the catalog
   currently rejects it. Cards that carry Venus tags, such as Corroder Suits and Dirigibles, must

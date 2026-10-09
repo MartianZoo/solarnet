@@ -1,10 +1,11 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.HomeostasisBureau
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class HomeostasisBureauTest : ProjectCardTest() {
+internal class HomeostasisBureauTest : TfmSandboxTest() {
   @BeforeTest fun setUp() = newTestGame()
 
   @Test

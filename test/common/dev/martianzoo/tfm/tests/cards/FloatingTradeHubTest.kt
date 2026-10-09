@@ -1,12 +1,14 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.FloatingTradeHub
 import kotlin.test.Test
 
-internal class FloatingTradeHubTest : ProjectCardTest() {
+internal class FloatingTradeHubTest : TfmSandboxTest() {
   @Test
   internal fun `Converts only the chosen floaters into titanium with Prelude and Prelude 2`() {
     newTestGame(addOptions = "PreludeExpansion, Prelude2CardPack")
+    startActionPhase()
     kim.exMachina("$FloatingTradeHub, 5 Floater<$FloatingTradeHub>")
 
     kim.cardAction2(FloatingTradeHub, x = 3) { doTask("3 Titanium") }
