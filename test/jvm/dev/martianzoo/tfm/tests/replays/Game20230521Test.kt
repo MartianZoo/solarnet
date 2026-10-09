@@ -1865,7 +1865,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player1's mc amount increased by 3
       stdProject("GreeneryProject") {
         // Player1 placed greenery tile on row 5 position 7
-        doTask("DefaultGreeneryTile")
         placeTile(5, 7)
         // Player1's plants amount increased by 2
         doTask("3 MC")
@@ -1939,10 +1938,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     listOf(p1, p2).forEach { it.autoExecPolicy = NONE }
     admin.autoExecPolicy = EAGER
     stepwise.finalGreeneryPhase()
-    admin.autoExecPolicy = NONE
     // Final greenery placement
     p1.convertPlants {
-      doTask("DefaultGreeneryTile")
       // Player1 placed greenery tile on row 6 position 4
       placeTile(6, 5)
       doTask("Plant")
@@ -1954,7 +1951,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.startTurn()
     p1.declineTask()
     p2.convertPlants {
-      doTask("DefaultGreeneryTile")
       // Player2 placed greenery tile on row 8 position 5
       placeTile(8, 8)
       doTask("2 MC")

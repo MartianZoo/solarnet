@@ -387,11 +387,11 @@
           "tags": [ "SpaceTag" ],
           "actions": [
             "10 MC -> 2 Asteroid<This>",
-            "Asteroid<This> -> EACH Starter@Player(HAS StartToken) { ChooseOceanArea<Starter@> }"
+            "Asteroid<This> -> EACH Starter@Player(HAS StartToken) { ChooseOceanArea<Starter@, Me@> }"
           ],
           "effects": [ "UseAction<This, Action1>:: Accepting<Class<Titanium>>" ],
           // Chooses an ocean area while preserving the Player who places it.
-          "components": [ "CLASS ChooseOceanArea : Owned, Signal { This BY @Actor: OceanTile<> BY @Actor }" ],
+          "components": [ "CLASS ChooseOceanArea<Placer@Player> : Owned<Player>, Signal, System { This: OceanTile<> BY Placer@ }" ],
         },
         {
           "name": "ImportedNutrients",
