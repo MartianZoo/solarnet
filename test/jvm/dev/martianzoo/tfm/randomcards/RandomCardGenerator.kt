@@ -14,9 +14,9 @@ import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.CONCRETE
+import dev.martianzoo.pets.testsupport.RandomGenerator
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
-import dev.martianzoo.tfm.testlib.RandomGenerator
 import java.io.File
 import kotlin.random.Random
 

@@ -8,12 +8,7 @@ plugins {
 
 val commonSourceDirectory =
     rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/pets")
-val commonTestDirectories =
-    listOf(
-        rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/pets"),
-        rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/pets"),
-        rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/testlib"),
-    )
+val commonTestDirectory = rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/pets")
 
 kotlin {
   sourceSets {
@@ -25,7 +20,7 @@ kotlin {
       }
     }
     commonTest {
-      kotlin.setSrcDirs(commonTestDirectories)
+      kotlin.setSrcDirs(listOf(commonTestDirectory))
       dependencies { implementation(libs.kotest.assertions.core) }
     }
     jsMain {
@@ -35,7 +30,7 @@ kotlin {
     }
     jsTest {
       kotlin.setSrcDirs(
-          listOf(rootProject.layout.projectDirectory.dir("test/js/dev/martianzoo/tfm/pets"))
+          listOf(rootProject.layout.projectDirectory.dir("test/js/dev/martianzoo/pets"))
       )
     }
     jvmMain {

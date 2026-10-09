@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.testlib
+package dev.martianzoo.pets.testsupport
 
 import dev.martianzoo.pets.util.Multiset
 import kotlin.enums.enumEntries

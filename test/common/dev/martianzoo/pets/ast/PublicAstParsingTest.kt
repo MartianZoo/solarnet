@@ -1,12 +1,10 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.pets.ast
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.Expression.Refinement.And
 import dev.martianzoo.pets.ast.Expression.Refinement.Has
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
-import dev.martianzoo.pets.ast.FromExpression
-import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import io.kotest.matchers.shouldBe

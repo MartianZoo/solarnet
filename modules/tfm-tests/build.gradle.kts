@@ -62,7 +62,9 @@ kotlin {
               ),
               rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/tests"),
               rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/randomcards"),
-              rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/testlib"),
+              rootProject.layout.projectDirectory.dir(
+                  "test/common/dev/martianzoo/pets/testsupport"
+              ),
           )
       )
       kotlin.exclude("PetGenerator.kt", "testHelpers.kt")

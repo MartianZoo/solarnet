@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.PetNode

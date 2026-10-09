@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.testlib
+package dev.martianzoo.pets.testsupport
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.PetException

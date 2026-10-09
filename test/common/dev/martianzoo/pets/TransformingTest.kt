@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.pets
+package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -13,7 +13,7 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.PropertyValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.tfm.testlib.te
+import dev.martianzoo.pets.testsupport.te
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test

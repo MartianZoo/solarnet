@@ -1,14 +1,7 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.pets.ast
 
-import dev.martianzoo.pets.ast.Action
-import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
-import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.ast.ScaledExpression
-import dev.martianzoo.tfm.testlib.PetGenerator
+import dev.martianzoo.pets.testsupport.PetGenerator
 import kotlin.test.Test
 
 internal class AutomatedTest {

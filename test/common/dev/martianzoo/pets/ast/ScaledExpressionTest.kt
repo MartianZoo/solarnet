@@ -1,14 +1,9 @@
-package dev.martianzoo.tfm.pets.ast
+package dev.martianzoo.pets.ast
 
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
-import dev.martianzoo.pets.ast.Action
-import dev.martianzoo.pets.ast.Effect
-import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.ast.ScaledExpression
-import dev.martianzoo.tfm.pets.testRoundTrip
+import dev.martianzoo.pets.testRoundTrip
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertFailsWith
