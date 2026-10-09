@@ -425,6 +425,20 @@ internal class Spec03DependenciesTest {
   }
 
   @Test
+  internal fun `T3-9 reports every dependent sharing an invalid target`() {
+    val table =
+        loadTypes(
+            "CLASS Plant",
+            "CLASS FirstHolder<Plant>",
+            "CLASS SecondHolder<Plant>",
+        )
+
+    val message = shouldThrow<InvalidPetDefinitionException> { table.componentLimits }.message
+    message shouldContain "`FirstHolder` -> `Plant`"
+    message shouldContain "`SecondHolder` -> `Plant`"
+  }
+
+  @Test
   internal fun `T3-9 a zero upper bound also makes a dependency target unambiguous`() {
     val table =
         loadTypes(
