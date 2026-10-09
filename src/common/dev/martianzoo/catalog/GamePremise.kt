@@ -18,7 +18,8 @@ import dev.martianzoo.pets.types.PremiseClassTable
  *
  * [classSelections] records every signed Class choice, [componentAdjustments] changes Module-owned
  * setup quantities, and [playerNames] fixes seat order. [classTable] forms their inclusion closure
- * over the Catalog's reusable master table. Known Classes outside that closure remain uninhabited;
+ * over the Catalog's reusable master table and derives executable effects using fixed structural
+ * Class presence and selected Module counts. Known Classes outside that closure remain uninhabited;
  * closure that reaches an excluded Class or an unrequested Module is invalid.
  *
  * @throws InvalidGameConfigException if its fields cannot describe a playable game configuration
@@ -55,6 +56,8 @@ public data class GamePremise(
 
   /**
    * The immutable premise-selected class-table view shared by every World built from this premise.
+   * Its normal effect lookup is premise-specialized; each Class declaration remains the reusable
+   * backing form.
    */
   private val classTableLazy = lazy(::createClassTable)
   public val classTable: ClassTable
@@ -119,6 +122,7 @@ public data class GamePremise(
             },
             checkAvailability = ::checkAvailability,
             exactCount = ::configuredCount,
+            selectedModuleCount = ::selectedModuleCount,
         )
     val unexpectedModules =
         catalog.modules.keys.filterTo(linkedSetOf()) { it in table.allClassNames } - modules
@@ -162,13 +166,40 @@ public data class GamePremise(
   }
 
   private fun configuredCount(expression: Expression, table: ClassTable): Int? {
+    selectedModuleCount(expression, table)?.let {
+      return it
+    }
     if (!expression.simple || expression.className == THIS) return null
     val countedClass = table.getClass(expression.className)
     if (table.findClass(PLAYER)?.let(countedClass::isSubtypeOf) == true) {
-      return playerNames.count { name ->
-        table.getClass(name).isSubtypeOf(countedClass)
+      return playerNames.count { name -> table.getClass(name).isSubtypeOf(countedClass) }
+    }
+    val concreteSubclassNames = concreteSubclassNames(countedClass, table)
+    if (concreteSubclassNames.isEmpty()) return null
+    val selections = classSelections.associateBy(ClassSelection::className)
+    if (!selections.keys.containsAll(concreteSubclassNames)) return null
+    return selections.values.count { selection ->
+      selection.included && table.getClass(selection.className).isSubtypeOf(countedClass)
+    }
+  }
+
+  /** Counts selected Modules whose presence is a fact of this complete premise. */
+  private fun selectedModuleCount(expression: Expression, table: ClassTable): Int? {
+    if (!expression.simple || expression.className == THIS) return null
+    val countedClass = table.getClass(expression.className)
+    val concreteSubclassNames = concreteSubclassNames(countedClass, table)
+    if (
+        concreteSubclassNames.isNotEmpty() &&
+            catalog.modules.keys.containsAll(concreteSubclassNames)
+    ) {
+      return modules.count { moduleName ->
+        table.getClass(moduleName).isSubtypeOf(countedClass)
       }
     }
+    return null
+  }
+
+  private fun concreteSubclassNames(countedClass: Class, table: ClassTable): Set<ClassName> {
     val masterSubclasses =
         if (countedClass.classTable === catalog.classTable)
             catalog.classTable.allSubclasses(countedClass)
@@ -176,24 +207,12 @@ public data class GamePremise(
     val premiseSubclasses =
         premiseClassTable.declarations.keys
             .asSequence()
-            .map { name -> table.getClass(name) }
+            .map(table::getClass)
             .filter { candidate -> candidate.isSubtypeOf(countedClass) }
             .toSet()
-    val concreteSubclassNames =
-        (masterSubclasses + premiseSubclasses)
-            .filterNot(Class::abstract)
-            .mapTo(linkedSetOf(), Class::className)
-    if (concreteSubclassNames.isEmpty()) return null
-    if (catalog.modules.keys.containsAll(concreteSubclassNames)) {
-      return modules.count { moduleName ->
-        table.getClass(moduleName).isSubtypeOf(countedClass)
-      }
-    }
-    val selections = classSelections.associateBy(ClassSelection::className)
-    if (!selections.keys.containsAll(concreteSubclassNames)) return null
-    return selections.values.count { selection ->
-      selection.included && table.getClass(selection.className).isSubtypeOf(countedClass)
-    }
+    return (masterSubclasses + premiseSubclasses)
+        .filterNot(Class::abstract)
+        .mapTo(linkedSetOf(), Class::className)
   }
 
   init {

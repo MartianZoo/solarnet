@@ -2,7 +2,6 @@ package dev.martianzoo.pets
 
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.PetTransformer.Companion.noOp
-import dev.martianzoo.pets.Transforming.actionToEffect
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
@@ -174,33 +173,25 @@ public class PetElaborator(public val classTable: ClassTable) {
     return effectsByClass.getOrPut(klass) {
       val evaluator = propertyEvaluator(context = klass.defaultExpression, deferAbstract = true)
       fun directClassEffects(source: Class) =
-          source.declaration
-              .let { declaration ->
-                declaration.executableEffects
-                    ?: declaration.authoredEffects +
-                        declaration.authoredActions.mapIndexed { index, action ->
-                          actionToEffect(action, index + 1)
-                        }
-              }
-              .map { effect ->
-                try {
-                  val lowered =
-                      attachToClassTransformer(source)
-                          .transformEffect(source.interpretTypeVariablesIn(effect))
-                  val expanded = refreshClassScope(source, lowered).let(evaluator::transformEffect)
-                  val me = lexicalMe(source) ?: triggerMe(expanded.trigger)
-                  refreshClassScope(
-                      source,
-                      insertOwnedContext(me, source.className.expression).transformEffect(expanded),
-                  )
-                } catch (e: PetException) {
-                  throw InvalidPetDefinitionException(
-                      "invalid effect declared by `${source.className}`: `$effect`: ${e.detail}",
-                      e,
-                      e.sourceLocation ?: effect.sourceLocation ?: source.className.sourceLocation,
-                  )
-                }
-              }
+          classTable.effects(source).map { effect ->
+            try {
+              val lowered =
+                  attachToClassTransformer(source)
+                      .transformEffect(source.interpretTypeVariablesIn(effect))
+              val expanded = refreshClassScope(source, lowered).let(evaluator::transformEffect)
+              val me = lexicalMe(source) ?: triggerMe(expanded.trigger)
+              refreshClassScope(
+                  source,
+                  insertOwnedContext(me, source.className.expression).transformEffect(expanded),
+              )
+            } catch (e: PetException) {
+              throw InvalidPetDefinitionException(
+                  "invalid effect declared by `${source.className}`: `$effect`: ${e.detail}",
+                  e,
+                  e.sourceLocation ?: effect.sourceLocation ?: source.className.sourceLocation,
+              )
+            }
+          }
 
       klass.allSuperclasses().flatMap(::directClassEffects)
     }

@@ -32,7 +32,8 @@ internal object PremiseViability {
           unviable(className, "impossible requirement ${property.value}")
         }
       }
-      declaration.effects
+      table
+          .effects(table.getClass(className))
           .filter { interpreter.triggerIsReachable(it.trigger) }
           .forEach { effect ->
             impossibleRemoval(effect.instruction, table, interpreter)?.let { removal ->
