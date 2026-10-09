@@ -1,36 +1,37 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class CeosFavoriteTest : CardTest() {
+internal class CeosFavoriteTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
+
   // FAQ: "This card can be played to add an additional resource to 'Search for Life'."
   @Test
-  internal fun `Can add a resource to Search for Life`() {
-    newGame(VenusNextExpansion)
-    p1.runOperation("$SearchForLife, Science<$SearchForLife>")
-    p1.runOperation("$CeosFavoriteProject") { doTask("Science<$SearchForLife>") }
+  internal fun `Adds a resource to Search for Life`() {
+    kim.exMachina("$SearchForLife, Science<$SearchForLife>")
+
+    kim.playProject(CeosFavoriteProject, 1) { doTask("Science<$SearchForLife>") }
         .expect("Science<$SearchForLife>")
-    p1.assertCounts(2 to "Science<$SearchForLife>")
   }
 
   // FAQ: "this card can still be played without effect."
   @Test
-  internal fun `Can be played without a resource-bearing card`() {
-    newGame(VenusNextExpansion)
-    p1.runOperation("$Tardigrades")
-    p1.runOperation("$CeosFavoriteProject")
-    p1.assertCounts(0 to "Microbe<$Tardigrades>")
+  internal fun `Can be played without an eligible resource-bearing card`() {
+    kim.exMachina("$Tardigrades")
+
+    kim.playProject(CeosFavoriteProject, 1).expect("0 Microbe<$Tardigrades>")
   }
 
   @Test
-  internal fun `Cannot skip its resource choice when an eligible card exists`() {
-    newGame(VenusNextExpansion)
-    p1.runOperation("$SearchForLife, Science<$SearchForLife>")
-    shouldThrow<NarrowingException> { p1.runOperation("$CeosFavoriteProject") { doTask("Ok") } }
+  internal fun `Cannot decline when an eligible resource exists`() {
+    kim.exMachina("$SearchForLife, Science<$SearchForLife>")
+
+    shouldThrow<NarrowingException> {
+      kim.playProject(CeosFavoriteProject, 1) { doTask("Ok") }
+    }
   }
 }

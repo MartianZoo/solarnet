@@ -2,6 +2,7 @@ package dev.martianzoo.state
 
 import dev.martianzoo.pets.Parsing.parse as te
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import io.kotest.assertions.throwables.shouldThrow
@@ -28,14 +29,11 @@ internal class PremiseSelectionTest {
         CLASS RuntimeDependency
         """
             .trimIndent()
-    val implementation =
-        object : CustomInstruction(cn("DependencySource")) {
-          override val requiredClassNames = setOf(cn("RuntimeDependency"))
-        }
     val catalog =
         testCatalog(
             declarations,
-            setOf(implementation),
+            customClassDependencies =
+                mapOf(cn("DependencySource") to setOf(cn("RuntimeDependency"))),
         )
 
     val unselected = gameView(catalog)
@@ -43,6 +41,26 @@ internal class PremiseSelectionTest {
 
     val selected = gameView(catalog, "DependencySource")
     selected.allClassNames.contains(cn("RuntimeDependency")) shouldBe true
+  }
+
+  @Test
+  internal fun `custom classes cannot be declared only for a premise`() {
+    val catalog = testCatalog("")
+
+    setOf(
+            "CLASS LocalMetric : CustomMetric",
+            "CLASS LocalInstruction : CustomInstruction",
+        )
+        .forEach { source ->
+          val error =
+              shouldThrow<InvalidGameConfigException> {
+                catalog.gamePremise(
+                    GameConfig(""),
+                    additionalClassDeclarations = parseClasses(source).toSet(),
+                )
+              }
+          error.detail shouldBe "custom Classes must be declared in the Catalog"
+        }
   }
 
   @Test
@@ -116,7 +134,11 @@ internal class PremiseSelectionTest {
                     cn("Other") to emptySet(),
                 ),
         )
-    val premise = GamePremise(catalog, setOf(cn("Requested")), emptySet(), emptySet())
+    val premise =
+        GamePremise(
+            catalog = catalog,
+            classSelections = setOf(ClassSelection(cn("Requested"))),
+        )
 
     shouldThrow<InvalidGameConfigException> { premise.classTable }
   }
@@ -126,13 +148,12 @@ internal class PremiseSelectionTest {
     val catalog = testCatalog("CLASS Selected<Excluded>\nCLASS Excluded")
     val premise =
         GamePremise(
-            catalog,
-            emptySet(),
-            setOf(
-                ClassSelection(cn("Selected")),
-                ClassSelection(cn("Excluded"), included = false),
-            ),
-            emptySet(),
+            catalog = catalog,
+            classSelections =
+                setOf(
+                    ClassSelection(cn("Selected")),
+                    ClassSelection(cn("Excluded"), included = false),
+                ),
         )
 
     shouldThrow<InvalidGameConfigException> { premise.classTable }
@@ -156,7 +177,11 @@ internal class PremiseSelectionTest {
                         setOf(ClassSelection(cn("Conditional"), requirement = parse("Flag")))
                 ),
         )
-    val premise = GamePremise(catalog, setOf(cn("Requested")), emptySet(), emptySet())
+    val premise =
+        GamePremise(
+            catalog = catalog,
+            classSelections = setOf(ClassSelection(cn("Requested"))),
+        )
 
     shouldThrow<InvalidGameConfigException> { premise.classTable }
   }
@@ -282,10 +307,13 @@ internal class PremiseSelectionTest {
         )
     val premise =
         GamePremise(
-            catalog,
-            setOf(cn("SelectedModule")),
-            setOf(ClassSelection(cn("Ordinary")), ClassSelection(cn("Source"))),
-            emptySet(),
+            catalog = catalog,
+            classSelections =
+                setOf(
+                    ClassSelection(cn("SelectedModule")),
+                    ClassSelection(cn("Ordinary")),
+                    ClassSelection(cn("Source")),
+                ),
         )
 
     val table = premise.classTable

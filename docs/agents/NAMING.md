@@ -1,9 +1,8 @@
 # Class names and display names
 
-> **NOTE:** This document is used by agents to capture information for themselves to read later; a
-> human didn't write it and we don't expect humans to read it. The project owner can't personally
-> vouch for the information here.
-
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** naming or renaming a Class, resolving a printed-name collision, adding a Module,
 > changing Player Class Names, editing a `language/*.json5` file, or deciding whether a concept needs a
 > separate identifier.
@@ -170,7 +169,7 @@ looking it up.
 - **Persistent components** are noun phrases: `GreeneryTile`, `TradeFleet`, `ColonyProduction`,
   `TerraformRating`. Name the *unit* you actually instantiate, not the track it sits on.
 - **Signals** are the event phrase that completes the trigger clause a card would print. Most read
-  as "when you ___": `PlayCard`, `Pay`, `AdvanceColonyTracks`; `PayingFor` reads as "while paying
+  as "when you ___": `PlayCard`, `AdvanceColonyTracks`; `PayingFor` reads as "while paying
   for ___". Write the name so that phrase reads back.
 - **Other `MustCleanUp` state** — the transient thing sitting on the table during an action, not the
   event — is a noun or a past participle: `Owed`, `Required`, `ActionBilling`, `TradeBarrier`. Do not give it

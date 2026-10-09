@@ -36,6 +36,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     agents[ADMIN].beginOperation("WorkflowStarted")
     val pink = p1
     val green = p2
+    keepStartingProjects(7, 4)
 
     // First player this generation is Pink
     // Good luck Pink!
@@ -46,10 +47,8 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     // Pink rejected CrediCor and Ecotec; Venus Contract and Focused Organization; and Windmills,
     // Open City, and Energy Saving.
     // Pink played Tharsis Republic
-    pink.playCorp(TharsisRepublic) {
-      // Pink kept 7 project cards
-      buyCards(7)
-    }
+    // Pink kept 7 project cards
+    pink.playCorp(TharsisRepublic)
 
     // Green rejected Ecoline and Morning Star Inc.; Project Eden and Floating Trade Hub; and
     // Magnetic Field Dome, Heather, Insulation, Cartel, Caretaker Contract, and Protected Habitats.
@@ -58,9 +57,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     // Green gained 1 plant production
     // Green gained 1 energy production
     // Green kept 4 project cards
-    green.playCorp(NirgalEnterprises) {
-      buyCards(4)
-    }
+    green.playCorp(NirgalEnterprises)
 
     pink.turn {
       // Pink played Recession

@@ -764,6 +764,9 @@ internal constructor(
               ?: (if (worldGainNarrowing) {
                 limiter.singleConcreteGainWithPresentDependencies(g, reader)
               } else null)
+              ?: (if (automaticEffectStack.isNotEmpty()) {
+                limiter.singleAvailableConcreteGain(g, reader)
+              } else null)
               ?: g
     }
 

@@ -4,11 +4,7 @@ ABSTRACT CLASS Card : Owned<Player> {
     DEFAULT CardBack<Hand>
     autoSelectWhen = Requirement?
 
-    ABSTRACT CLASS CorporationCard
-    CLASS BeginnerCorporationCard : CorporationCard {
-      autoSelectWhen = HAS "BeginnerVariant"
-    }
-    CLASS StandardCorporationCard : CorporationCard
+    CLASS CorporationCard
     CLASS ProjectCard
   }
 
@@ -96,7 +92,7 @@ CLASS PlayCard<Class<@CardBack>, Class<@CardFront>, @CardLocation> : Owned<Playe
           THEN CheckRequirement<Class<@CardFront>> / \
             (GpRequirementShortfall<Class<@CardFront>, @Class> MAX 1) \
       })
-  This: Owed<> / @CardFront.cost THEN PriceCard<Class<@CardFront>> THEN CardBilling<Class<@CardFront>> THEN MAX 0 Barrier: @CardFront FROM @CardBack<@CardLocation>
+  This: Owed<> / @CardFront.cost THEN PriceCard<Class<@CardFront>> THEN CardBilling THEN MAX 0 Barrier: @CardFront FROM @CardBack<@CardLocation>
 }
 
 "Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"

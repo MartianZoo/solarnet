@@ -21,6 +21,35 @@ import kotlin.test.Test
 /** Passing characterizations of known incorrect behavior. */
 internal class BugsTest : CardTest() {
   @Test
+  internal fun `Flooding's self-inflicted loss incorrectly pays an open Neptunian bill`() {
+    newGame(PromoCardPack)
+    admin.phase("Action")
+    p1.runOperation("$NeptunianPowerConsultants, 16 MC, ProjectCard, CityTile<Tharsis_4_3>")
+
+    p1.playProject(Flooding, 7) {
+          val previousPolicy = p1.autoExecPolicy
+          p1.autoExecPolicy = NONE
+          try {
+            doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Player1>?")
+            doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
+            p1.pay()
+            p1.selectTask("-4 MC?")
+            doTask("-4 MC")
+
+            // Correct debt is still 5: Flooding's chosen loss is separate from payment.
+            p1.count("Owed") shouldBe 1
+            p1.pay(1)
+          } finally {
+            p1.autoExecPolicy = previousPolicy
+          }
+        }
+        .expect("Hydroelectric, PROD[Energy]")
+
+    // Correct balance is 0 after paying 7 for Flooding, losing 4, and paying 5 for the bonus.
+    p1.count("MC") shouldBe 4
+  }
+
+  @Test
   internal fun `Flooding incorrectly resumes after the Neptunian owner accepts`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
@@ -62,14 +91,14 @@ internal class BugsTest : CardTest() {
     p1.doTask(
         "ActionBilling<Player2, NeptunianOption<NeptunianPowerConsultants<Player2>>, Action1>"
     )
-    p1.selectTask("X Pay<Player2, Class<Steel>> FROM Steel<Player2>?")
-    p2.doTask("2 Pay<Class<Steel>> FROM Steel")
+    p1.selectTask("-X Steel<Player2>?")
+    p2.doTask("-2 Steel")
     p2.assertCounts(0 to "Steel", 1 to "MC", 1 to "Owed")
 
+    p1.selectTask("-4 MC<Player2>?")
     p1.doTask("-1 MC<Player2>!")
-    p1.selectTask("X Pay<Player2, Class<MC>> FROM MC<Player2>?")
-    shouldThrow<LimitsException> { p2.doTask("1 Pay<Class<MC>> FROM MC!") }.detail shouldContain
-        "MC<Player2>"
+    p1.selectTask("-X MC<Player2>?")
+    shouldThrow<LimitsException> { p2.doTask("-MC!") }.detail shouldContain "MC<Player2>"
 
     // The failed cash payment cannot restore Steel spent in an earlier command.
     p2.assertCounts(0 to "Steel", 0 to "MC", 1 to "Owed", 0 to "Hydroelectric")
@@ -248,10 +277,10 @@ internal class BugsTest : CardTest() {
     p1.playPrelude(FakeHeadStart) {
       p1.assertCounts(2 to "Steel", 24 to "MC")
       doTask("UseAction<ConvertHeatAction, Action1>")
-      doTask("8 Pay<Class<Heat>> FROM Heat")
+      doTask("-8 Heat")
       doTask("UseAction<UseStandardProjectAction, Action1>")
       doTask("UseAction<AquiferProject, Action1>")
-      doTask("18 Pay<Class<MC>> FROM MC")
+      doTask("-18 MC")
       placeTile(5, 5)
     }
     p1.auditGainsSince(checkpoint) shouldBe 1
@@ -466,7 +495,7 @@ internal class BugsTest : CardTest() {
           doTask("-12 MC")
           playPrelude(Merger) { playCorp(SagittaFrontierServices) }
         }
-        useStdAction("ConvertHeatAction", payment = { doTask("8 Pay<Class<Heat>> FROM Heat") })
+        useStdAction("ConvertHeatAction", payment = { doTask("-8 Heat") })
       }
     }
 

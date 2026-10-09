@@ -1,27 +1,23 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
-import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class AdvertisingTest : CardTest() {
+internal class AdvertisingTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
+
   @Test
-  internal fun `Triggers on a 20-cost card but not a 19-cost card`() {
-    newGameWithAutoWorkflow(
-        ColoniesExpansion,
-        PromoCardPack,
-        colonyTiles = testColonyTiles(2),
-    )
-    playUntilFirstActionPhase()
+  internal fun `Does not trigger for a 19-cost card`() {
+    kim.exMachina("$Advertising")
 
-    p1.turn {
-      playProject(Advertising, 4)
-      playProject(LunarExports, 19) { doTask("PROD[5 MC]") }.expect("PROD[5 MC]")
-    }
-    requireP2().pass()
+    kim.playProject(LunarExports, 19) { doTask("PROD[5 MC]") }.expect("PROD[5 MC]")
+  }
 
-    p1.playProject(GanymedeColony, 20).expect("PROD[1 MC]")
+  @Test
+  internal fun `Triggers for a 20-cost card`() {
+    kim.exMachina("$Advertising")
+
+    kim.playProject(GanymedeColony, 20).expect("PROD[1 MC]")
   }
 }

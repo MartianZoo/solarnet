@@ -32,7 +32,8 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
   @Test
   internal fun letsPlay() {
     with(me) {
-      playCorp(ValleyTrust, 5).expect("5 ProjectCard")
+      keepStartingProjects(5)
+      playCorp(ValleyTrust).expect("5 ProjectCard")
 
       assertProduction(m = 0, s = 0, t = 0, p = 0, e = 0, h = 0)
       assertResources(m = 22, s = 0, t = 0, p = 0, e = 0, h = 0)

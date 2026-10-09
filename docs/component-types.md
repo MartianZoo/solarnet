@@ -122,7 +122,7 @@ We discussed the `Phase` types above. As much as possible, these types do nothin
 
 ### Cards
 
-It took a while to realize that `CardBack` and `CardFront` should actually be completely different, unrelated types -- just like `CityTile` and `GreeneryTile` are, despite the fact that they also are two sides of the same physical component. `CardBack` is very uninteresting; the base game has `ProjectCard` and the `CorporationCard` hierarchy, whose concrete backs distinguish the standard and beginner corporation supplies, and Prelude adds `PreludeCard`. That's about it. (Remember these things have no attributes either.)
+It took a while to realize that `CardBack` and `CardFront` should actually be completely different, unrelated types -- just like `CityTile` and `GreeneryTile` are, despite the fact that they also are two sides of the same physical component. `CardBack` is very uninteresting; the base game has `ProjectCard` and `CorporationCard`, the beginner variant adds its distinct `BeginnerCard`, and Prelude adds `PreludeCard`. That's about it. (Remember these things have no attributes either.)
 
 The most important thing to understand about cards is that the engine supports only "follow mode". A client supplies the concrete history to process, including draws, reveals, discards, and plays, and the engine calculates the resulting state. It neither owns hidden information nor tries to authenticate that history against a separate physical or online game. Thus, if the client says that `EarthCatapult` was played, the engine applies that play and subtracts one generic `ProjectCard` from the hand. Ordinary card-location procedures execute directly. Source-level `CARDS` transforms remain only where printed-face knowledge must be neutralized to a follow-mode outcome supplied by the client.
 
@@ -134,10 +134,11 @@ Cards can have several types of things "on" them. `Tag`s depend on a `TagHolder`
 
 ### Payments
 
-The top-level `Owed`, `Accepting`, and `Pay` classes model ordinary resource payments;
-`AcceptingFromCard` and `PayFromCard` are their card-resource counterparts. The best way to understand
-the protocol is to see how these classes are used in the action and effect strings in each bundle's
-`cards.json5` file.
+The top-level `Owed`, `Billing`, and `Accepting` classes model ordinary resource payments;
+`AcceptingFromCard` enables payment from a particular card. Players remove their own accepted
+resources, and those losses automatically reduce their debt; an opponent's removal does not. The
+best way to understand the protocol is to see how these classes are used in the action and effect
+strings in each bundle's `cards.json5` file.
 
 ## TODO
 

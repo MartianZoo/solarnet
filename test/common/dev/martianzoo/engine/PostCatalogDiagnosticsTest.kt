@@ -476,17 +476,6 @@ internal class PostCatalogDiagnosticsTest {
   }
 
   @Test
-  internal fun unknownModule() {
-    val error =
-        assertFailsWith<InvalidGameConfigException> {
-          premise.copy(modules = setOf(cn("Missing")))
-        }
-
-    assertEquals("unknown modules: `Missing`", error.detail)
-    assertEquals("unknown modules: `Missing`", error.message)
-  }
-
-  @Test
   internal fun unknownSelectedClass() {
     val error =
         assertFailsWith<InvalidGameConfigException> {
@@ -533,24 +522,6 @@ internal class PostCatalogDiagnosticsTest {
     // Prefer pointing at the submitted condition `Rose`, whose source is available here.
     assertEquals(
         "individual class selections cannot be conditional: `Water` (condition `Rose`)",
-        error.message,
-    )
-  }
-
-  @Test
-  internal fun unknownInitialType() {
-    val error =
-        assertFailsWith<InvalidGameConfigException> {
-          premise.copy(initialComponentTypes = setOf(parse("Missing")))
-        }
-
-    assertEquals(
-        "initial component types name classes absent from the premise catalog: `Missing`",
-        error.detail,
-    )
-    // Prefer pointing at `Missing` in the submitted initial type.
-    assertEquals(
-        "initial component types name classes absent from the premise catalog: `Missing`",
         error.message,
     )
   }
@@ -786,35 +757,24 @@ internal class PostCatalogDiagnosticsTest {
   }
 
   @Test
-  internal fun negativeCountedSelection() {
-    val error =
-        assertFailsWith<InvalidGameConfigException> {
-          GameConfig("-2 Water")
-        }
-
-    assertEquals("a counted component cannot be excluded: `-2 Water`", error.detail)
+  internal fun signedSetupAdjustment() {
     assertEquals(
-        """
-        |a counted component cannot be excluded: `-2 Water` at 1:1
-        |-2 Water
-        |^
-        """
-            .trimMargin(),
-        error.message,
+        mapOf(cn("Water") to -2),
+        GameConfig("-2 Water").componentAdjustments,
     )
   }
 
   @Test
-  internal fun zeroCountedSelection() {
+  internal fun zeroSetupAdjustment() {
     val error =
         assertFailsWith<InvalidGameConfigException> {
           GameConfig("0 Water")
         }
 
-    assertEquals("invalid counted component entry: `0 Water`", error.detail)
+    assertEquals("invalid setup adjustment entry: `0 Water`", error.detail)
     assertEquals(
         """
-        |invalid counted component entry: `0 Water` at 1:1
+        |invalid setup adjustment entry: `0 Water` at 1:1
         |0 Water
         |^
         """
@@ -824,17 +784,17 @@ internal class PostCatalogDiagnosticsTest {
   }
 
   @Test
-  internal fun overflowingCountedSelection() {
+  internal fun overflowingSetupAdjustment() {
     val error =
         assertFailsWith<InvalidGameConfigException> {
           GameConfig("2147483648 Water")
         }
 
-    assertEquals("component count is too large: `2147483648 Water`", error.detail)
+    assertEquals("setup adjustment is too large: `2147483648 Water`", error.detail)
     // Prefer highlighting only the overflowing digits `2147483648`; the class name is valid.
     assertEquals(
         """
-        |component count is too large: `2147483648 Water` at 1:1
+        |setup adjustment is too large: `2147483648 Water` at 1:1
         |2147483648 Water
         |^
         """
@@ -997,99 +957,6 @@ internal class PostCatalogDiagnosticsTest {
   }
 
   @Test
-  internal fun initialAbstractType() {
-    val source =
-        """
-        ABSTRACT CLASS Choice {
-         CLASS Red
-         CLASS Blue
-        }
-        """
-            .trimIndent()
-    val premise = testGamePremise(source, players = 0)
-    premise.catalog.classTable
-    val error =
-        assertFailsWith<InvalidGameConfigException> {
-          Engine.newGame(premise.copy(initialComponentTypes = setOf(parse("Choice"))))
-        }
-
-    assertEquals(
-        "initial component type `Choice` is abstract; specify one concrete type",
-        error.detail,
-    )
-    assertEquals(
-        """
-        |initial component type `Choice` is abstract; specify one concrete type at 1:1
-        |Choice
-        |^
-        """
-            .trimMargin(),
-        error.message,
-    )
-  }
-
-  @Test
-  internal fun initialMissingDependency() {
-    val source =
-        """
-        CLASS Token { HAS MAX 1 This }
-        CLASS Holder<Token>
-        """
-            .trimIndent()
-    val premise = testGamePremise(source, players = 0)
-    premise.catalog.classTable
-    val error =
-        assertFailsWith<InvalidGameConfigException> {
-          Engine.newGame(premise.copy(initialComponentTypes = setOf(parse("Holder"))))
-        }
-
-    assertEquals(
-        "cannot create initial components; dependencies remain missing:\n  `Holder` requires `Token`",
-        error.detail,
-    )
-    // Prefer pointing at the submitted initial type `Holder`, whose required `Token` is absent.
-    assertEquals(
-        """
-        |cannot create initial components; dependencies remain missing:
-        |  `Holder` requires `Token`
-        """
-            .trimMargin(),
-        error.message,
-    )
-  }
-
-  @Test
-  internal fun initialInvalidArguments() {
-    val source =
-        """
-        CLASS Token
-        CLASS Marker
-        """
-            .trimIndent()
-    val premise = testGamePremise(source, players = 0)
-    premise.catalog.classTable
-    val error =
-        assertFailsWith<InvalidGameConfigException> {
-          Engine.newGame(premise.copy(initialComponentTypes = setOf(parse("Token<Marker>"))))
-        }
-
-    assertEquals(
-        "invalid initial component type `Token<Marker>`: argument `Marker` does not match an available dependency; declared bounds: none; already supplied: none",
-        error.detail,
-    )
-    assertIs<ExpressionException>(error.cause)
-    assertEquals(
-        """
-        |invalid initial component type `Token<Marker>`: argument `Marker` does not match an available dependency; declared bounds: none; already supplied: none at 1:7
-        |Token<Marker>
-        |      ^
-        """
-            .trimMargin(),
-        error.message,
-    )
-  }
-
-  @Test
   internal fun missingRequiredInitialComponent() {
     val source = "CLASS Token { HAS =1 This }"
     val premise = testGamePremise(source, players = 0)
@@ -1125,18 +992,18 @@ internal class PostCatalogDiagnosticsTest {
     premise.catalog.classTable
     val error =
         assertFailsWith<InvalidGameConfigException> {
-          Engine.newGame(premise.copy(initialComponentTypes = setOf(parse("Start"))))
+          Engine.newGame(premise.withTestSetup("Start"))
         }
 
     assertEquals(
-        "game setup cannot complete: pending tasks:\n4* [Admin] Choice! VIA Start BECAUSE 3",
+        "game setup cannot complete: pending tasks:\n5* [Admin] Choice! VIA Start BECAUSE 4",
         error.detail,
     )
     // Prefer pointing at `Choice` in the authored bootstrap effect `This: Choice`.
     assertEquals(
         """
         |game setup cannot complete: pending tasks:
-        |4* [Admin] Choice! VIA Start BECAUSE 3
+        |5* [Admin] Choice! VIA Start BECAUSE 4
         """
             .trimMargin(),
         error.message,
@@ -1150,7 +1017,7 @@ internal class PostCatalogDiagnosticsTest {
     premise.catalog.classTable
     val error =
         assertFailsWith<InvalidGameConfigException> {
-          Engine.newGame(premise.copy(initialComponentTypes = setOf(parse("Start"))))
+          Engine.newGame(premise.withTestSetup("Start"))
         }
 
     assertEquals("game setup cannot complete: a `Die` instruction was reached", error.detail)
@@ -1180,7 +1047,7 @@ internal class PostCatalogDiagnosticsTest {
     premise.catalog.classTable
     val error =
         assertFailsWith<InvalidPetDefinitionException> {
-          Engine.newGame(premise.copy(initialComponentTypes = setOf(parse("Start"))))
+          Engine.newGame(premise.withTestSetup("Start"))
         }
 
     assertEquals(
@@ -1210,7 +1077,7 @@ internal class PostCatalogDiagnosticsTest {
     premise.catalog.classTable
     val error =
         assertFailsWith<InvalidPetDefinitionException> {
-          Engine.newGame(premise.copy(initialComponentTypes = setOf(parse("Start"))))
+          Engine.newGame(premise.withTestSetup("Start"))
         }
 
     assertEquals(
@@ -1240,7 +1107,7 @@ internal class PostCatalogDiagnosticsTest {
     premise.catalog.classTable
     val error =
         assertFailsWith<InvalidPetDefinitionException> {
-          Engine.newGame(premise.copy(initialComponentTypes = setOf(parse("Start"))))
+          Engine.newGame(premise.withTestSetup("Start"))
         }
 
     assertEquals(
@@ -1272,7 +1139,7 @@ internal class PostCatalogDiagnosticsTest {
     premise.catalog.classTable
     val error =
         assertFailsWith<InvalidPetDefinitionException> {
-          Engine.newGame(premise.copy(initialComponentTypes = setOf(parse("Start"))))
+          Engine.newGame(premise.withTestSetup("Start"))
         }
 
     assertEquals(
@@ -1307,7 +1174,7 @@ internal class PostCatalogDiagnosticsTest {
     premise.catalog.classTable
     val error =
         assertFailsWith<InvalidPetDefinitionException> {
-          Engine.newGame(premise.copy(initialComponentTypes = setOf(parse("Start"))))
+          Engine.newGame(premise.withTestSetup("Start"))
         }
 
     assertEquals(
@@ -1341,9 +1208,7 @@ internal class PostCatalogDiagnosticsTest {
     premise.catalog.classTable
     val error =
         assertFailsWith<ExpressionException> {
-          Engine.newGame(
-              premise.copy(initialComponentTypes = setOf(parse("Bad"), parse("Holder<Bad>")))
-          )
+          Engine.newGame(premise.withTestSetup("Bad, Holder<Bad>"))
         }
 
     assertEquals(
@@ -1380,9 +1245,7 @@ internal class PostCatalogDiagnosticsTest {
     premise.catalog.classTable
     val error =
         assertFailsWith<InvalidPetDefinitionException> {
-          Engine.newGame(
-              premise.copy(initialComponentTypes = setOf(parse("Rose"), parse("Recursive<Rose>")))
-          )
+          Engine.newGame(premise.withTestSetup("Rose, Recursive<Rose>"))
         }
 
     assertEquals(
@@ -1417,7 +1280,7 @@ internal class PostCatalogDiagnosticsTest {
     premise.catalog.classTable
     val error =
         assertFailsWith<InvalidPetDefinitionException> {
-          Engine.newGame(premise.copy(initialComponentTypes = setOf(parse("Rose"), parse("Start"))))
+          Engine.newGame(premise.withTestSetup("Rose, Start"))
         }
 
     assertEquals(
@@ -1455,9 +1318,7 @@ internal class PostCatalogDiagnosticsTest {
     val premise =
         GamePremise(
             catalog,
-            modules = setOf(cn("Rules")),
-            classSelections = emptySet(),
-            initialComponentTypes = emptySet(),
+            classSelections = setOf(ClassSelection(cn("Rules"))),
             premiseClassName = cn("Setup"),
         )
     val error =
@@ -1487,9 +1348,7 @@ internal class PostCatalogDiagnosticsTest {
     val premise =
         GamePremise(
             catalog,
-            modules = setOf(cn("Rules")),
-            classSelections = emptySet(),
-            initialComponentTypes = emptySet(),
+            classSelections = setOf(ClassSelection(cn("Rules"))),
             premiseClassName = cn("Setup"),
         )
     val error =
@@ -1527,9 +1386,7 @@ internal class PostCatalogDiagnosticsTest {
     val premise =
         GamePremise(
             catalog,
-            modules = setOf(cn("Rules")),
-            classSelections = emptySet(),
-            initialComponentTypes = emptySet(),
+            classSelections = setOf(ClassSelection(cn("Rules"))),
             premiseClassName = cn("Setup"),
         )
     val error =
@@ -1561,18 +1418,16 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses = setOf(object : CustomInstruction("Unimplemented") {})
+          val implementations = setOf(object : CustomInstruction("Unimplemented") {})
         }
     catalog.classTable
     val premise =
         GamePremise(
             catalog,
-            modules = emptySet(),
-            initialComponentTypes = emptySet(),
             classSelections =
                 setOf(ClassSelection(cn("Unimplemented")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     val error =
         assertFailsWith<ExpressionException> {
           agent.runOperation("Unimplemented")
@@ -1596,7 +1451,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomMetric("Negative") {
                     override fun count(game: GameReader, type: Type): Int = -1
@@ -1607,11 +1462,9 @@ internal class PostCatalogDiagnosticsTest {
     val premise =
         GamePremise(
             catalog,
-            modules = emptySet(),
-            initialComponentTypes = emptySet(),
             classSelections = setOf(ClassSelection(cn("Negative")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     val error =
         assertFailsWith<ExpressionException> {
           agent.runOperation("Negative")
@@ -1643,7 +1496,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomInstruction("Unfinished") {
                     override fun translate(game: GameReader): InstructionTree =
@@ -1655,11 +1508,9 @@ internal class PostCatalogDiagnosticsTest {
     val premise =
         GamePremise(
             catalog,
-            modules = emptySet(),
-            initialComponentTypes = emptySet(),
             classSelections = setOf(ClassSelection(cn("Unfinished")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     val error =
         assertFailsWith<CustomCodeException> {
           agent.runOperation("Unfinished")
@@ -1688,7 +1539,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomMetric("UnfinishedMetric") {
                     override fun count(game: GameReader, type: Type): Int = TODO("finish count")
@@ -1699,12 +1550,10 @@ internal class PostCatalogDiagnosticsTest {
     val premise =
         GamePremise(
             catalog,
-            modules = emptySet(),
-            initialComponentTypes = emptySet(),
             classSelections =
                 setOf(ClassSelection(cn("UnfinishedMetric")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     val error =
         assertFailsWith<CustomCodeException> {
           agent.count("UnfinishedMetric")
@@ -1733,7 +1582,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomInstruction("Broken") {
                     override fun translate(game: GameReader): InstructionTree =
@@ -1745,11 +1594,9 @@ internal class PostCatalogDiagnosticsTest {
     val premise =
         GamePremise(
             catalog,
-            modules = emptySet(),
-            initialComponentTypes = emptySet(),
             classSelections = setOf(ClassSelection(cn("Broken")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     val error =
         assertFailsWith<CustomCodeException> {
           agent.runOperation("Broken")
@@ -1774,7 +1621,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomInstruction("InstructionOnly") {
                     override fun translate(game: GameReader): InstructionTree = parse("Water")
@@ -1785,12 +1632,10 @@ internal class PostCatalogDiagnosticsTest {
     val premise =
         GamePremise(
             catalog,
-            modules = emptySet(),
-            initialComponentTypes = emptySet(),
             classSelections =
                 setOf(ClassSelection(cn("InstructionOnly")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     assertEquals(0, agent.count("InstructionOnly"))
     agent.runOperation("InstructionOnly")
     assertEquals(0, agent.count("InstructionOnly"))
@@ -1808,7 +1653,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomInstruction("InvalidOutput") {
                     override fun translate(game: GameReader): InstructionTree = parse("Water<>")
@@ -1819,12 +1664,10 @@ internal class PostCatalogDiagnosticsTest {
     val premise =
         GamePremise(
             catalog,
-            modules = emptySet(),
-            initialComponentTypes = emptySet(),
             classSelections =
                 setOf(ClassSelection(cn("InvalidOutput")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     val error =
         assertFailsWith<CustomCodeException> {
           agent.runOperation("InvalidOutput")
@@ -1858,7 +1701,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomMetric("Negative") {
                     override fun count(game: GameReader, type: Type): Int = -1
@@ -1869,11 +1712,9 @@ internal class PostCatalogDiagnosticsTest {
     val premise =
         GamePremise(
             catalog,
-            modules = emptySet(),
-            initialComponentTypes = emptySet(),
             classSelections = setOf(ClassSelection(cn("Negative")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     val error =
         assertFailsWith<ExpressionException> {
           agent.count("Negative OR Water")
@@ -1905,7 +1746,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomMetric("Negative") {
                     override fun count(game: GameReader, type: Type): Int = -1
@@ -1916,11 +1757,9 @@ internal class PostCatalogDiagnosticsTest {
     val premise =
         GamePremise(
             catalog,
-            modules = emptySet(),
-            initialComponentTypes = emptySet(),
             classSelections = setOf(ClassSelection(cn("Negative")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     val error =
         assertFailsWith<CustomCodeException> {
           agent.count("Negative")
@@ -1942,7 +1781,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomMetric("Unimplemented") {
                     override fun count(game: GameReader, type: Type): Int = 0
@@ -1953,12 +1792,10 @@ internal class PostCatalogDiagnosticsTest {
     val premise =
         GamePremise(
             catalog,
-            modules = emptySet(),
-            initialComponentTypes = emptySet(),
             classSelections =
                 setOf(ClassSelection(cn("Unimplemented")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     val error =
         assertFailsWith<ExpressionException> {
           agent.runOperation("-Unimplemented")
@@ -2624,7 +2461,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomInstruction("InstructionOnly") {
                     override fun translate(game: GameReader): InstructionTree = parse("Water")
@@ -2635,8 +2472,6 @@ internal class PostCatalogDiagnosticsTest {
     val premise =
         GamePremise(
             catalog,
-            modules = emptySet(),
-            initialComponentTypes = emptySet(),
             classSelections =
                 setOf(
                     ClassSelection(cn("InstructionOnly")),
@@ -2645,7 +2480,7 @@ internal class PostCatalogDiagnosticsTest {
                     ClassSelection(cn("Blue")),
                 ),
         )
-    val game = Engine.newGame(premise)
+    val game = Engine.newGame(premise, catalog.implementations)
     val agent = game.testAgent(ADMIN)
     agent.runOperation("InstructionOnly")
     assertEquals(1, agent.count("Water"))

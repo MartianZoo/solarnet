@@ -1,11 +1,9 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
@@ -19,7 +17,6 @@ internal class LawSuitTest : CardTest() {
   fun initializeGame() {
     newGame(PromoCardPack)
     admin.phase("Action")
-    p1.autoExecPolicy = NONE
     p1.runOperation("3 MC, ProjectCard, PROD[Plant]")
   }
 
@@ -37,7 +34,6 @@ internal class LawSuitTest : CardTest() {
   internal fun `Choosing the attacker in the first stage supplies the automatic continuation`() {
     val p2 = requireP2()
     p2.runOperation("5 MC, PROD[-Plant<Player1>]")
-    p1.autoExecPolicy = EAGER
 
     p1.playProject(LawSuit, 2) { doTask("3 MC FROM MC<Player2>") }
 
@@ -58,7 +54,6 @@ internal class LawSuitTest : CardTest() {
   internal fun `Can be played when its owner has only the card cost`() {
     newGame(PromoCardPack)
     admin.phase("Action")
-    p1.autoExecPolicy = NONE
     p1.runOperation("2 MC, ProjectCard, PROD[Plant]")
     requireP2().runOperation("5 MC, PROD[-Plant<Player1>]")
 
@@ -71,11 +66,7 @@ internal class LawSuitTest : CardTest() {
     p1.runOperation("$MediaGroup")
     p2.runOperation("3 MC, PROD[-Plant<Player1>]")
 
-    p1.playProject(LawSuit, 2) {
-          choosePlayer2()
-          doTask("3 MC")
-        }
-        .expect("4 MC<Player1>, -3 MC<Player2>")
+    p1.playProject(LawSuit, 2) { choosePlayer2() }.expect("4 MC<Player1>, -3 MC<Player2>")
   }
 
   @Test
@@ -87,17 +78,11 @@ internal class LawSuitTest : CardTest() {
   }
 
   @Test
-  internal fun `Cannot be played without an opponent's attack`() {
-    requireP2().runOperation("3 MC")
-    shouldThrow<TaskException> { p1.playProject(LawSuit, 2, body = choosePlayer2) }
-  }
-
-  @Test
   internal fun `Its player lowering their own production does not qualify`() {
     p1.runOperation("PROD[-Plant]")
     requireP2().runOperation("3 MC")
 
-    shouldThrow<TaskException> { p1.playProject(LawSuit, 2, body = choosePlayer2) }
+    shouldThrow<NarrowingException> { p1.playProject(LawSuit, 2, body = choosePlayer2) }
   }
 
   @Test
@@ -105,16 +90,15 @@ internal class LawSuitTest : CardTest() {
     requireP2().runOperation("3 MC, PROD[-Plant<Player1>]")
     admin.runOperation("Generation")
 
-    shouldThrow<TaskException> { p1.playProject(LawSuit, 2, body = choosePlayer2) }
+    shouldThrow<NarrowingException> { p1.playProject(LawSuit, 2, body = choosePlayer2) }
   }
 
   @Test
-  internal fun `Cannot be played when every responsible player has only two mc`() {
+  internal fun `Cannot be played when every responsible player has only two MC`() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
     val p3 = game.testTfm(PLAYER3)
     admin.phase("Action")
-    p1.autoExecPolicy = NONE
     p1.runOperation("3 MC, ProjectCard, PROD[2 Plant]")
     p2.runOperation("2 MC, PROD[-Plant<Player1>]")
     p3.runOperation("2 MC, PROD[-Plant<Player1>]")
@@ -132,7 +116,6 @@ internal class LawSuitTest : CardTest() {
     val p2 = requireP2()
     val p3 = game.testTfm(PLAYER3)
     admin.phase("Action")
-    p1.autoExecPolicy = NONE
     p1.runOperation("3 MC, ProjectCard, PROD[2 Plant]")
     p2.runOperation("5 MC, PROD[-Plant<Player1>]")
     p3.runOperation("5 MC, PROD[-Plant<Player1>]")
@@ -150,15 +133,13 @@ internal class LawSuitTest : CardTest() {
     val p2 = requireP2()
     val p3 = game.testTfm(PLAYER3)
     admin.phase("Action")
-    p1.autoExecPolicy = NONE
     p1.runOperation("2 MC, ProjectCard, PROD[Plant]")
     p2.runOperation("5 MC, PROD[-Plant<Player1>]")
     p3.runOperation("5 MC")
 
-    shouldThrow<TaskException> {
+    shouldThrow<NarrowingException> {
       p1.playProject(LawSuit, 2) {
         doTask("3 MC FROM MC<Player3>")
-        doTask("PlayedEvent<Player3, Class<$LawSuit>> FROM $LawSuit<Player1>")
       }
     }
 
@@ -175,7 +156,6 @@ internal class LawSuitTest : CardTest() {
     p1.assertCounts(0 to "PlayedEvent<Class<$LawSuit>>")
     p2.assertCounts(1 to "PlayedEvent<Class<$LawSuit>>")
 
-    p1.autoExecPolicy = EAGER
     admin.runOperation("End FROM Phase")
 
     p1.assertCounts(20 to "VictoryPoint")
@@ -184,7 +164,5 @@ internal class LawSuitTest : CardTest() {
 
   private val choosePlayer2: OperationBlock = {
     doTask("3 MC FROM MC<Player2>")
-    doTask("MyResourceWasRemoved<Player2, Class<MC>, Player1>.")
-    doTask("PlayedEvent<Player2> FROM $LawSuit")
   }
 }

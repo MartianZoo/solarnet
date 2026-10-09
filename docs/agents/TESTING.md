@@ -1,15 +1,15 @@
 # Testing and verification
 
-> **NOTE:** This document is used by agents to capture information for themselves to read later; a
-> human didn't write it and we don't expect humans to read it. The project owner can't personally
-> vouch for the information here.
-
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** choosing or running verification, writing/moving a test, changing build
 > configuration, reconstructing a game, formatting, or benchmarking.
 >
 > **Skip when:** doing a read-only task that requires no build or behavioral claim.
 >
-> **Status:** current repository procedure.
+> **Status:** current repository procedure; the project-card suite is actively migrating to the
+> standardized fixture described below.
 
 ## Read only the needed section
 
@@ -17,7 +17,7 @@
 | --- | --- |
 | Choose commands or suite scope | Standard verification |
 | Change Gradle/dependencies/source sets | Build configuration |
-| Write or move a card/rule test or gameplay helper | Test design through the relevant test category |
+| Write or move a card/rule test or gameplay helper | Test design through the relevant test category; project cards also require [Standard project-card fixture migration](#standard-project-card-fixture-migration) |
 | Use `TaskResult.expect()` | Expectations |
 | Preserve known incorrect behavior | Known-defect tests |
 | Reconstruct a whole game | Game replay tests and Direct state reconciliation, then the routed replay guide |
@@ -31,6 +31,8 @@
   search for the named helper before spelling raw task text.
 - [`CardTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/CardTest.kt) —
   read for component-focused scenario construction.
+- [`ProjectCardTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/ProjectCardTest.kt) —
+  use as the default base for eligible project-card functional tests.
 - [`AbstractFullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
   — read only for whole-game chronology.
 
@@ -165,13 +167,22 @@ spell out `public` and their public types; declarations used only within one mod
 ## Test design
 
 Do not add tests whose sole purpose is to specify what happens after `exMachina` or `sneak`.
-Keep coverage focused on ordinary gameplay and shared engine behavior. Evidence-backed corrections
-inside whole-game replays remain appropriate; the replay tests the game, not correction semantics.
+Direct corrections are test setup, not the subject or evidence of a card test. Keep assertions
+focused on the subsequent player action, card behavior, or shared engine behavior. Evidence-backed
+corrections inside whole-game replays remain appropriate; the replay tests the game, not correction
+semantics.
 
 > **Recurring failure warning:** Card and rule tests operate through player-facing gameplay and
 > assert observable results. They do not inspect rendered task text, causes, incidental queue order,
 > or mirrored Canon data. A test-support helper must express a recurring component-independent
 > operation, never one card's rule or missing engine semantics.
+
+> **Default assertion style:** Almost every successful gameplay action that returns a `TaskResult`
+> should chain `.expect(...)` directly to that action. Prefer this over later absolute resource or
+> component counts: the chained expectation proves the net change came from the action under test,
+> while an absolute count can pass because of setup or an earlier action. Use an absolute assertion
+> only when the absolute state is itself the contract, no successful result exists to inspect, or a
+> source explicitly states an absolute value.
 
 Terraforming Mars integration tests live under `dev.martianzoo.tfm.tests`: `cards` contains
 component-focused behavior, `rules` contains game-wide and cross-component behavior, and `replays`
@@ -185,9 +196,10 @@ for correct ownership.
 
 ### Test categories we care about
 
-The selected migration direction is to use full automatic phase and turn progression in ordinary
-card and game-rule scenarios. Existing manual fixtures have not all migrated. Dedicated REPL mode
-tests and lower-level engine or bootstrap tests retain their distinct subjects;
+Two migrations are in progress. Ordinary card and game-rule scenarios are moving toward full
+automatic phase and turn progression, and eligible project-card classes are moving to the
+standardized `ProjectCardTest` fixture described below. Existing tests have not all migrated.
+Dedicated REPL mode tests and lower-level engine or bootstrap tests retain their distinct subjects;
 [COLOR_MODES.md](COLOR_MODES.md#test-migration-and-acceptance) owns this distinction and the open
 mode contracts. Do not replace manual phase calls with helpers that recreate the workflow in Kotlin.
 
@@ -225,10 +237,11 @@ This list does not itself decide which current tests should be retained. Test-de
 are a separate review.
 
 Give each scenario variant its own named test, using a private helper for shared steps. Do not put
-variants in a `for` loop inside one test: the failing test name should identify the case.
-Build the cards, production, and tiles the behavior under test depends on through gameplay.
-Use normal operations for incidental setup, including initial money, anonymous card budgets, and
-explicitly acknowledged stand-ins such as `fakeWildTags`; their triggers must still run.
+variants in a `for` loop inside one test: the failing test name should identify the case. Exercise
+the behavior under test through gameplay. For eligible project-card tests, establish incidental
+preconditions through the standardized fixture and direct corrections by default. Use authentic
+gameplay instead when the way a precondition is reached can affect, or provide useful evidence for,
+the behavior under test.
 Use `CONCRETE` when ordering choices matter; reserve `NONE` for tests that must control otherwise
 unambiguous automatic steps.
 
@@ -269,11 +282,11 @@ strings. Do not assert card totals by bundle, deck, expansion, or other content 
 admissibility is intentionally a compact loading and composition gate; card and rule behavior
 belongs in player-level scenarios.
 
-Keep scenarios minimal and legible. Card tests use the base game and two players by default unless
-the behavior requires something else, add only relevant options and components, and consistently
-name the gameplay objects `p1` and `p2`. Use `runOperation()` when only the resulting setup matters instead
-of replaying an irrelevant play-card sequence. Do not use `sneak` in card or rule scenarios: it
-bypasses triggers and can make a broken rule appear to pass.
+Keep scenarios minimal and legible. Project-card tests that fit the standardized fixture follow the
+migration rules below. Other card tests use the smallest suitable configuration and consistently
+name their gameplay objects. Use `runOperation()` when an operation's resulting setup matters and a
+direct correction is not suitable. Card and rule scenarios do not call `sneak` directly; eligible
+project-card scenarios use the fixture's explicit `exMachina` setup methods.
 Synthetic card scenarios pass their card and supporting `ClassDeclaration`s to the `CardTest`
 constructor; they are composed with Canon and selected in that test's premise.
 Use `player.playCorp(corporation, retainedCount)` when the starting project-card purchase is part
@@ -301,17 +314,118 @@ entry, so these literals do not need `trimIndent()`. Solo tests conventionally u
 canonical Player Class Name and use `Player.PLAYER1` in Kotlin. The raw-configuration
 overload in `CardTest` uses the same resolution path.
 
+### Standard project-card fixture migration
+
+`ProjectCardTest` is the default base for project-card functional tests when its standard game can
+express the scenarios in the class. It starts each test at generation 1 Action phase with:
+
+- Tharsis, Venus Next, Colonies, and Promos;
+- Corporate Era and the Beginner and Quick Start variants;
+- Kim, Stan, and Rob, in that order, each using a distinct beginner corporation; and
+- the ordinary beginner-corporation starting state, including 42 MC, 10 anonymous project cards,
+  20 TR, and production of 1 for each standard resource.
+
+Kim is the player exercising the subject card unless the card's behavior requires another actor.
+The fixture caches its immutable `GamePremise` for each option set, not a mutable game. Every test
+constructs a fresh `World` and performs the real setup and corporation workflows before entering
+Action phase. The base class does not create that game automatically. A uniform class declares its
+own `@BeforeTest` method that calls `newTestGame()`. A class whose methods need different compatible
+selections calls `newTestGame()` explicitly in each method, passing a configuration fragment such as
+`addOptions = "CimmeriaMap"` where needed. Do not share or roll back a live World between tests. The
+fixture leaves the default autoexecution policy untouched: it selects Beginner mode and distinct
+beginner corporations, while forced setup effects autoexecute normally.
+
+Treat every pre-migration test as a fallible historical artifact, not as a specification of its
+setup. Existing options, cards, resource grants, card plays, phase changes, autoexecution policies,
+and operation order may be incidental, copied from another scenario, obsolete, or compensating for
+old behavior. Begin with the behavior named by the scenario and its meaningful observable coverage.
+Challenge every setup step: if removing it does not change the behavior under test, remove it. In
+particular, do not preserve gameplay merely because the old test used it to reach a state that a
+direct correction can express, and do not infer a configuration requirement solely from the old
+test's configuration.
+
+Review an unmigrated class for test value and structure before deciding whether it fits the fixture.
+First remove declaration-only and duplicate scenarios, separate independent behaviors, and trim
+each retained scenario to the setup its claim needs. Only then assess the resulting class for
+migration; conversion should not preserve clutter merely because it was present when evaluation
+began.
+
+Each migrated test method should prove a single behavior. Do not carry a scenario through a series
+of actions that successively test additional behavior. Split those actions into separately named
+tests, and give each resulting test only the setup required for its own behavior. Several
+assertions about the result of the same behavior remain appropriate.
+
+Inline single-use and card-specific test helpers before evaluating a class. An unusual helper often
+conceals inherited setup, several behaviors, lower-level intervention, or steps that no retained
+scenario needs. Simplify the visible scenario first. Keep a private helper only when it makes
+genuinely shared preparation clearer without hiding choices or the behavior under test.
+
+Finish every reviewed class with a naming-consistency pass, whether or not the class migrates. Test
+names should use the same voice and domain terms, state the observable behavior being proved, and
+distinguish scenario variants without describing incidental setup or implementation mechanics.
+
+Migration is also a test-value review, not a promise to preserve every method. Remove a scenario
+whose only credible value is catching a literal mistake in an otherwise ordinary card declaration.
+Retain tests that demonstrate non-obvious game meaning, exercise important shared semantics,
+preserve sourced FAQ or defect evidence, distinguish tempting targets or choices, or show a useful
+interaction among independently authored rules. Prefer representative coverage over repeating the
+same semantic pattern for another card with different literals.
+
+Every state change in a migrated test must come from real player-facing gameplay or from the two
+fixture correction methods below. Do not use `runOperation`, `beginOperation`, `sneak`, manual phase
+changes, or other lower-level shortcuts in a `ProjectCardTest` subclass.
+
+Starting conditions beyond that tabula-rasa state should normally be direct, visible corrections:
+
+- Use `setToExMachina(targetCount, type)` for a desired absolute count. It calculates the gain or
+  loss from the current count, so the scenario states its intended condition rather than assuming
+  the fixture's prior value.
+- Use `exMachina(adjustment)` for a naturally relative change or a known absent-to-present fact.
+  Prefer a concrete Type such as `NormalCityTile` when an abstract Type cannot be created directly.
+- If initial play of the subject card is not being tested, install that card directly. Do not first
+  satisfy its play requirement, pay its price, or reproduce its immediate instructions. Correct any
+  independent state that the behavior under test actually needs.
+- If initial play, payment, requirements, immediate instructions, or entry-trigger interactions are
+  the subject, play the card normally and establish whatever legal setup that action requires.
+- To test behavior at a completed global parameter, correct the track to its penultimate step and
+  use an ordinary standard project for the final step when available. This preserves the real
+  completion lifecycle, including `GpComplete`, instead of asking a correction to stand in for it.
+
+Corrections intentionally suppress ordinary queued effects while retaining the structural work
+documented in [EX_MACHINA.md](EX_MACHINA.md). Therefore, never treat the correction itself as proof
+that gameplay works. Assertions should begin with the action or interaction that is the scenario's
+subject, and should omit setup deltas.
+
+Authentic setup through gameplay remains valid and is sometimes preferable. Use it deliberately
+when the path into the state matters: trigger history, attribution, task ordering, payment,
+requirements, card-entry effects, global-parameter completion, workflow, or interactions among
+setup actions. It is also appropriate when a broader integration scenario is valuable in its own
+right. Direct correction is the default for irrelevant preconditions because it keeps focused card
+tests short and makes their real subject obvious; it is not a ban on authentic gameplay.
+
+Migrate a test class only when all its scenarios fit this fixture and setup model. A scenario may
+start with an additional compatible game selection, including a different map. Leave the whole
+class on `CardTest` when it needs another player count, solo mode, a different variant, synthetic
+declarations, or another incompatible configuration. Do not add specialized fixture variants or
+replace a meaningful scenario merely to increase the migrated count. This is an active,
+class-by-class migration: an existing `CardTest` subclass may simply be awaiting evaluation, and its
+current base class does not by itself express a preferred testing style.
+
 ### Expectations
 
-`CardTest` and the full-game tests provide `TaskResult.expect()`. Expectations are partial net
-deltas: name only changes that matter to the behavior under test. Unqualified owned Types are scoped
-to the Player inferred from the result's ordered change events; qualify the owner explicitly when
-checking another Player or an intentionally cross-player total. Do not restate costs, test setup,
-literal `doTask()` choices, or every incidental resource movement. In source-backed whole-game
-tests, include explicitly narrated gains/removals and interesting automatic effects, even when the
+Terraforming Mars gameplay tests provide `TaskResult.expect()`. Chain it directly to successful
+gameplay calls as the normal assertion style; do not replace an available result expectation with
+later `count(...) shouldBe ...` or `assertCounts(...)` checks. Expectations are partial net deltas:
+name only changes that matter to the behavior under test. Unqualified owned Types are scoped to the
+Player inferred from the result's ordered change events; qualify the owner explicitly when checking
+another Player or an intentionally cross-player total. Do not restate costs, test setup, literal
+`doTask()` choices, or every incidental resource movement. In source-backed whole-game tests,
+include explicitly narrated gains/removals and interesting automatic effects, even when the
 expected net differs from the narrated gross amount. Prefer a nearby absolute assertion when the
-source states an absolute value. Use a zero scalar, such as `0 Plant` or `PROD[0 Energy]`, to assert
-that a particular type did not change.
+source states an absolute value or the absolute state itself is the subject. Failed and deliberately
+aborted actions have no successful `TaskResult`, so assert their relevant unchanged state directly.
+Use a zero scalar, such as `0 Plant` or `PROD[0 Energy]`, to assert that a particular type did not
+change.
 
 Cover meaningful interfaces, negative cases, non-targets, and option combinations rather than only
 the happy path. A filtering or Type-variable test should include several tempting Components that must not

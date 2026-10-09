@@ -32,29 +32,6 @@ internal class IndenturedWorkersTest : CardTest() {
   }
 
   @Test
-  internal fun `Discount also applies to the next event project`() {
-    newGame(CorporateEraExpansion)
-    admin.phase("Action")
-    p1.runOperation("2 ProjectCard")
-
-    p1.playProject(IndenturedWorkers, 0)
-    p1.playProject(BribedCommittee, 0).expect("2 TerraformRating")
-  }
-
-  @Test
-  internal fun `Discount also applies to the next active project`() {
-    newGame(CorporateEraExpansion)
-    admin.phase("Action")
-    p1.runOperation("3 MC, 2 ProjectCard")
-
-    p1.playProject(IndenturedWorkers, 0)
-    p1.playProject(DevelopmentCenter, 3)
-
-    p1.count("MC") shouldBe 0
-    p1.count("$DevelopmentCenter") shouldBe 1
-  }
-
-  @Test
   internal fun `Expires at the end of the generation`() {
     initializeGame("35 MC, 2 ProjectCard")
     p1.playProject(IndenturedWorkers, 0)

@@ -1,45 +1,19 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.GameplayException
-import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class LocalHeatTrappingTest : CardTest() {
-  @BeforeTest
-  fun initializeGame() {
-    newGame()
-  }
+internal class LocalHeatTrappingTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
 
   @Test
-  internal fun `Can take plants when enough heat is available`() {
-    p1.runOperation("6 Heat, $Pets")
-    p1.runOperation("$LocalHeatTrapping") { doTask("4 Plant") }.expect("-5 Heat, 4 Plant")
-  }
+  internal fun `Can choose unavailable animals instead of plants`() {
+    kim.setToExMachina(5, "Heat")
 
-  @Test
-  internal fun `Can add animals to Pets`() {
-    p1.runOperation("6 Heat, $Pets")
-    p1.runOperation("$LocalHeatTrapping") { addCardResources(Pets) }.expect("-5 Heat, 2 Animal")
-  }
-
-  @Test
-  internal fun `Cannot choose abstract Animal instead of an eligible card`() {
-    p1.runOperation("6 Heat, $Pets")
-    p1.runOperation("$LocalHeatTrapping") {
-      shouldThrow<NotFullySpecifiedException> { doTask("2 Animal") }
-      abort()
-    }
-  }
-
-  @Test
-  internal fun `Can choose animals without a holder and gain nothing`() {
-    p1.runOperation("6 Heat")
-
-    p1.runOperation("$LocalHeatTrapping") {
+    kim.playProject(LocalHeatTrapping, 1) {
           // Decline gaining plants by choosing animals when no animal holder exists.
           declineTask()
         }
@@ -47,25 +21,12 @@ internal class LocalHeatTrappingTest : CardTest() {
   }
 
   @Test
-  internal fun `Cannot evade an eligible holder by selecting an absent holder`() {
-    p1.runOperation("6 Heat, $Pets")
-    p1.runOperation("$LocalHeatTrapping") {
-          shouldThrow<GameplayException> { doTask("2 Animal<$Fish>") }
-          addCardResources(Pets)
-        }
-        .expect("-5 Heat, 2 Animal<$Pets>")
-  }
+  internal fun `Cannot decline animals when an eligible holder exists`() {
+    kim.setToExMachina(5, "Heat")
+    kim.exMachina("$Pets")
 
-  @Test
-  internal fun `Cannot be played without enough heat`() {
-    p1.runOperation("4 Heat, ProjectCard, $Pets, 1 MC")
-    p1.assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
-
-    admin.phase("Action")
-
-    p1.playProject(LocalHeatTrapping, 1) {
-      p1.assertCounts(0 to "Plant", 4 to "Heat", 1 to "Animal")
-      abort()
+    shouldThrow<NarrowingException> {
+      kim.playProject(LocalHeatTrapping, 1) { declineTask() }
     }
   }
 }

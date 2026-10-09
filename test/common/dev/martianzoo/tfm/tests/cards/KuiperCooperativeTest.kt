@@ -67,14 +67,14 @@ internal class KuiperCooperativeTest : CardTest() {
       p1.stdProject(
           "AsteroidProject",
           payment = {
-            doTask("PayFromCard<$KuiperCooperative> FROM Asteroid<$AstroDrill>")
+            doTask("-Asteroid<$AstroDrill>")
           },
       )
     }
   }
 
   private fun payWithKuiperAsteroids(body: OperationScope) {
-    body.doTask("2 PayFromCard<$KuiperCooperative> FROM Asteroid<$KuiperCooperative>")
-    body.doTask("Pay<Class<MC>> FROM MC / Owed")
+    body.doTask("-2 Asteroid<$KuiperCooperative>")
+    body.doTask("-MC / Owed")
   }
 }

@@ -1,5 +1,8 @@
 # Admin routing and turn-state questions
 
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** considering Admin-assigned internal work, the meaning of an on-turn Player, or
 > Player → Admin → Player task chains.
 >

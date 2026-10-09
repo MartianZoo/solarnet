@@ -42,6 +42,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     agents[ADMIN].beginOperation("WorkflowStarted")
     val green = player(1)
     val yellow = player(2)
+    keepStartingProjects(7, 5)
 
     // board-11-00-18.jpg: initial global state, before either corporation is played.
     assertSidebar(gen = 1, temp = -30, oxygen = 0, oceans = 0, venus = 0)
@@ -50,10 +51,10 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     // "I'm Point Luna... I get a titanium production." "I'm keeping seven cards."
     // "So I pay 21. I have 17 money remaining."
-    green.playCorp(PointLuna, 7).expect("PROD[Titanium], 17 MC, 8 ProjectCard")
+    green.playCorp(PointLuna).expect("PROD[Titanium], 17 MC, 8 ProjectCard")
 
     // "I have Valley Trust. I'm keeping five cards... I have 22 money."
-    yellow.playCorp(ValleyTrust, 5).expect("22 MC")
+    yellow.playCorp(ValleyTrust).expect("22 MC")
 
     green.turn {
       // "I play Biofuels... two plants, a plant production, and an energy production."
@@ -303,7 +304,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // "I use one Psychrophiles microbe to play Potatoes... lose two plants and get two money
       // production."
       playProject(Potatoes, 0) {
-            doTask("PayFromCard FROM Microbe<$Psychrophiles>")
+            doTask("-Microbe<$Psychrophiles>")
           }
           .expect("-Microbe, -2 Plant, PROD[2 MC]")
     }
@@ -1325,7 +1326,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // "I'll pay three psychrophiles for green houses." "Gain one plant for each city tile in
       // play. That's one, two, three, four, five."
       playProject(Greenhouses, 0) {
-            doTask("3 PayFromCard FROM Microbe<$Psychrophiles>")
+            doTask("-3 Microbe<$Psychrophiles>")
           }
           .expect("5 Plant, 0 Animal<Green, $EcologicalZone<Green>>, -ProjectCard")
       // "And I will greenery boop." "It's six, six, sorry." "It's the last possible spot next to my
@@ -1558,7 +1559,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // "My seven psychrophiles and three real." "Increase money production two steps. Increase
       // plant production three steps. Increase... No, gain two plants."
       playProject(KelpFarming, 3) {
-            doTask("7 PayFromCard FROM Microbe<$Psychrophiles>")
+            doTask("-7 Microbe<$Psychrophiles>")
           }
           .expect("PROD[2 MC, 3 Plant]")
     }

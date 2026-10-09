@@ -44,18 +44,18 @@ CLASS FakeNobelPrize : CardFront<Class<PreludeCard>> {
 }
 
 "Helion without correct Heat payment allocation"
-CLASS FakeHelion : CardFront<Class<StandardCorporationCard>> {
+CLASS FakeHelion : CardFront<Class<CorporationCard>> {
   cost = 0
 
   HAS =1 SpaceTag<This>
   This:: BaseResourceValue<Class<Heat>>
   This: 42 MC, PROD[3 Heat]
 
-  Billing<HasActions, ActionSlot, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
+  Billing<Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
 }
 
 "A replay-only stand-in for an unsupported upstream corporation"
-CLASS FakePolderTechDutch : CardFront<Class<StandardCorporationCard>> {
+CLASS FakePolderTechDutch : CardFront<Class<CorporationCard>> {
   cost = 0
 
   HAS =1 EarthTag<This>
@@ -65,7 +65,7 @@ CLASS FakePolderTechDutch : CardFront<Class<StandardCorporationCard>> {
 }
 
 "Septem Tribus with an inert wild tag"
-CLASS FakeSeptemTribus : ActionCard<Class<StandardCorporationCard>> {
+CLASS FakeSeptemTribus : ActionCard<Class<CorporationCard>> {
   cost = 0
 
   HAS =1 FakeWildTag<This>

@@ -1,7 +1,7 @@
 {
   "decks": [
     {
-      "deck": "StandardCorporationCard",
+      "deck": "CorporationCard",
       "cards": [
         {
           "name": "ArcadianCommunities",
@@ -34,7 +34,7 @@
           "actions": [ "-> Asteroid<This> / SpaceTag" ],
           "effects": [
             "UseAction<AsteroidProject> OR UseAction<AquiferProject>:: AcceptingFromCard<This>",
-            "PayFromCard<This>:: -1 Owed"
+            "-Asteroid<This> BY Me@ IF AcceptingFromCard<This>:: -1 Owed"
           ],
         },
         {
@@ -60,7 +60,7 @@
             "MicrobeTag<Anyone>: (Disease<This>! OR (MAX 0 This: Ok)), -4 MC.",
             // Check the disease count when each tag consequence executes, so two simultaneous science
             // tags can remove the last disease and then offer the flip.
-            "ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)"
+            "ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease<This>: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)"
           ],
         },
         {
@@ -142,11 +142,11 @@
         {
           "name": "Merger",
           "autoSelectWhen": "Unsafe OR MAX 0 SagittaFrontierServices",
-          "immediate": "4 StandardCorporationCard<Selecting> THEN PlayCard<Class<StandardCorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting> THEN -3 StandardCorporationCard<Selecting>, -42 MC",
+          "immediate": "4 CorporationCard<Selecting> THEN -3 CorporationCard<Selecting> THEN PlayCard<Class<CorporationCard>, Class<CardFront>, Selecting>, -42 MC",
         },
         {
           "name": "NewPartner",
-          "immediate": "PROD[1 MC], 2 PreludeCard<Selecting> THEN PlayOrFizzle<Selecting> THEN -PreludeCard<Selecting>",
+          "immediate": "PROD[1 MC], 2 PreludeCard<Selecting> THEN -PreludeCard<Selecting> THEN PlayOrFizzle<Selecting>",
         },
         {
           "name": "StrategicBasePlanning",
@@ -177,7 +177,7 @@
           "cost": 13,
           "tags": [ "EarthTag", "SpaceTag", "BuildingTag" ],
           "immediate": "PROD[-Energy]",
-          "actions": [ "-> ProjectCard<Revealed> THEN ClaimCardReward<TagFilter<Class<SpaceTag>>, This> OR Ok THEN -ProjectCard<Revealed>" ],
+          "actions": [ "-> ProjectCard<Revealed> THEN ClaimCardReward<TagFilter<Class<SpaceTag>>, This>? THEN -ProjectCard<Revealed>" ],
           "effects": [
             // TODO: in what cases do we want to trigger this way vs by the AttackHappened thingies?
             // are we being consistent?
@@ -206,9 +206,11 @@
           "name": "AstraMechanica",
           "cost": 7,
           "tags": [ "ScienceTag" ],
-          // Separate transfers allow choosing two differently named events.
-          "immediate": "ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)>?, ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)>?",
-          "components": [ "CLASS GainsOf<Class<CardFront>, Class<Component>> : CustomMetric" ],
+          "immediate": "2 TakeEventCard",
+          "components": [
+            "CLASS TakeEventCard : Owned, Signal, Atomized { This: ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)> }",
+            "CLASS GainsOf<Class<CardFront>, Class<Component>> : CustomMetric",
+          ],
         },
         {
           "name": "BactoviralResearch",
@@ -229,7 +231,7 @@
           "effects": [
             "ScienceTag: Graphene<This>",
             "PayingFor<Class<SpaceTag>> OR PayingFor<Class<CityTag>>:: AcceptingFromCard<This>",
-            "PayFromCard<This>:: -4 Owed",
+            "-Graphene<This> BY Me@ IF AcceptingFromCard<This>:: -4 Owed",
             "End: VictoryPoint"
           ],
           "components": [ "CLASS Graphene : CardResource" ],
@@ -442,7 +444,7 @@
           "cost": 13,
           "immediate": "NomadsMarker<LandArea(HAS MAX 0 Occupant)>",
           "actions": [
-            "-> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker>, NOT Source@)> FROM NomadsMarker<Source@LandArea> THEN EACH Destination@MarsArea(HAS NomadsMarker) { Placement<Destination@> }"
+            "-> NomadsMarker<NewHome@LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker>) FROM LandArea> THEN Placement<NewHome@>"
           ],
         },
         {

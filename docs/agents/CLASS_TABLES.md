@@ -1,9 +1,8 @@
 # Catalog classes and game class views
 
-> **NOTE:** This document is used by agents to capture information for themselves to read later; a
-> human didn't write it and we don't expect humans to read it. The project owner can't personally
-> vouch for the information here.
-
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** changing `ClassTable`, Catalog-wide Class identity, a game view, inhabitation,
 > or any API that lets a `Class`/`Type` enumerate game-specific candidates.
 >
@@ -147,10 +146,13 @@ owns the inclusion closure. Inclusion guards use the configured seats for exact 
 unrefined `Player` Types, including subclasses. Thus the existing `IF 3 Player` scoring guard leaves
 `SecondPlace` unselected in a two-player game.
 
-Master loading accepts declarations, transform factories, an external declaration validator, and
-an additional-dependency callback directly. `createClassLoader(catalog)` supplies these inputs and
-owns Kotlin implementation validation. Neither `ClassLoader` nor `ClassTable` depends on `Catalog`
-or the custom runtime implementation classes. Transform factories bind to each receiving table.
+Master loading accepts declarations, transform factories, a declaration validator, and an
+additional-dependency callback directly. `createClassLoader(catalog)` supplies these static inputs
+from declarations and Catalog metadata. `Catalog.customClassDeclarations` derives the executable
+holes from those declarations without holding their Kotlin implementations. `Engine.newGame`
+validates implementations when starting live play; a passive `GameWorld` may have none. Neither
+`ClassLoader` nor `ClassTable` depends on custom runtime implementation classes. Transform factories
+bind to each receiving table.
 
 See [RESPONSIBILITIES.md](RESPONSIBILITIES.md#game-assembly-and-runtime-apis-belong-to-state)
 for assembly and viability ownership and the corresponding test boundaries.

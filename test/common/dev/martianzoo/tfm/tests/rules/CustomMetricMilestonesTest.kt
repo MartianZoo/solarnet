@@ -2,11 +2,11 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -18,7 +18,7 @@ import kotlin.test.Test
 internal class CustomMetricMilestonesTest {
   @Test
   internal fun tycoonCanBeClaimedWithFifteenActiveAndAutomatedCards() {
-    val p1 = Engine.newGame(canonicalPremise(Elysium, players = 2)).testTfm(PLAYER1)
+    val p1 = TfmEngine.newGame(canonicalPremise(Elysium, players = 2)).testTfm(PLAYER1)
     p1.sneak(
         "$ColonizerTrainingCamp, $DeepWellHeating, $CloudSeeding, $MartianRails, " +
             "$WaterImportFromEuropa, $EquatorialMagnetizer, $DomedCrater, $NoctisCity, " +
@@ -38,7 +38,7 @@ internal class CustomMetricMilestonesTest {
   @Test
   internal fun diversifierCanBeClaimedWithEightDistinctTagTypes() {
     val game =
-        Engine.newGame(
+        TfmEngine.newGame(
             canonicalPremise(
                 ColoniesExpansion,
                 Hellas,
@@ -70,7 +70,7 @@ internal class CustomMetricMilestonesTest {
   @Test
   internal fun tacticianCanBeClaimedWithFiveCardsHavingRequirements() {
     val p1 =
-        Engine.newGame(
+        TfmEngine.newGame(
                 canonicalPremise(
                     ColoniesExpansion,
                     Hellas,

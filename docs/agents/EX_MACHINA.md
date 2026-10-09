@@ -1,5 +1,8 @@
 # Direct corrections and inseparable consequences
 
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** changing `exMachina`, `sneak`, effect suppression, or deciding which consequences
 > belong to the existence of a component rather than to a gameplay event.
 >
@@ -113,7 +116,7 @@ itself must obey the same relationship as corrections to its owner.
 | `Generation`, `GenerationScope`; all scope-dependent markers | Generation advancement needs the corresponding scope and retirement of the old scope's dependents. | Do not leave markers attached to a vanished scope. Erasing/reducing a generation is not automatically the inverse of advancing it. | Both are System and cannot be directly corrected; their existing `::` rules remain for gameplay. |
 | `Player`, `ProdOffset`, `BaseResourceValue` | Preserve the production offset and starting resource-value representation of each live player. Editing an offset must preserve the intended displayed production. | Remove associated owned state or reject deletion. Offset removal must not silently change production meaning. | Player setup uses `This:`; offset gain adds raw `Production` with `::`, with no symmetric removal effect. Player identity belongs to the premise. |
 | `SoloOpponent`, `SoloStandardResourceReserve`, `SoloCardResourceReserve` | Install neutral resource-holder/reserve capabilities. | Remove dependencies together or reject. | Holder installation is `::`; initial 42-unit stock is setup work. Its replenishment reactions are gameplay conventions, not dependency integrity. |
-| `Module`, map and area Classes, `Class<T>`, `CardLocation`, `ActionSlot`, persistent standard actions/projects, `CardPurchase`, `CardPlay`, singleton rule/watchers | Preserve the selected world's required singletons and installed capabilities. | Reject removal of required infrastructure; do not dynamically rebuild the premise. | Mixture of initialization, `This:` setup, and count invariants. Blanket `::` cannot replace initialization. |
+| `Module`, map and area Classes, `Class<T>`, `CardLocation`, `ActionSlot`, persistent standard actions/projects, `CardPurchase`, singleton rule/watchers | Preserve the selected world's required singletons and installed capabilities. | Reject removal of required infrastructure; do not dynamically rebuild the premise. | Mixture of initialization, `This:` setup, and count invariants. Blanket `::` cannot replace initialization. |
 
 Sources: the owning Pets files under [TerraformingMars](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars),
 [ColoniesExpansion](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/colonies.pets),
@@ -191,7 +194,7 @@ row; Briber, Hydrologist, Thawer, and Politician supply the explicit exceptions 
 Some Types represent doing something rather than a lasting fact to correct:
 
 - **Payment/card play:** `BuyCard`, `Owed`, `Billing` and its subclasses, `Accepting`,
-  `AcceptingFromCard`, `Pay`, `PayFromCard`, `PayingFor`, `PriceCard`, `PlayCard`, `Required`,
+  `AcceptingFromCard`, `PayingFor`, `PriceCard`, `PlayCard`, `Required`,
   `CheckRequirement`, and the buy/search/take/claim signals. Removing a debt may require retiring
   billing and offers, but billing removal also performs the purchased action or grants cards.
   Running all those `::` effects would execute gameplay; skipping them all can strand barriers.

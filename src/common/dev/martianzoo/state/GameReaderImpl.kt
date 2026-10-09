@@ -29,7 +29,7 @@ internal class GameReaderImpl(
   override val catalog = premise.catalog
 
   private val elaborator = PetElaborator(classTable)
-  private val customMetrics = CustomMetricRuntime(catalog, elaborator)
+  private val customMetrics = CustomMetricRuntime(gameWorld, elaborator)
 
   override fun resolve(expression: Expression) = classTable.resolve(expression)
 

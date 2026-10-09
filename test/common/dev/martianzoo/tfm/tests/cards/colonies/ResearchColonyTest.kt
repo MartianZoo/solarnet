@@ -1,31 +1,28 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.cards.ProjectCardTest
+import dev.martianzoo.tfm.tests.cards.cardnames.ResearchColony
 import io.kotest.assertions.throwables.shouldThrow
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class ResearchColonyTest : ColoniesCardTest() {
-  @Test
-  internal fun `Can be played when its player already has a colony on Luna`() {
-    p1.runOperation("ProjectCard, 20 MC, Colony<Luna>")
-    p1.playProject(ResearchColony, 20) { doTask("Colony<Luna>") }.expect("-20 MC, Colony<Luna>")
-  }
+internal class ResearchColonyTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame(addOptions = "Luna, Io, Triton, Europa, Titan")
 
   @Test
-  internal fun `Cannot build a second colony on the same colony tile`() {
-    p1.runOperation("17 MC, Colony<Luna>")
-    shouldThrow<NarrowingException> {
-      p1.stdProject("BuildColonyProject") { doTask("Colony<Luna>") }
-    }
+  internal fun `Can be played when its player already has a colony on Luna`() {
+    kim.exMachina("Colony<Luna>")
+
+    kim.playProject(ResearchColony, 20) { doTask("Colony<Luna>") }.expect("-20 MC, Colony<Luna>")
   }
 
   @Test
   internal fun `Cannot be played on a colony tile that already has three colonies`() {
-    p1.runOperation("ProjectCard, 20 MC, Colony<Luna>, 2 Colony<Player2, Luna>")
+    kim.exMachina("Colony<Kim, Luna>, Colony<Stan, Luna>, Colony<Rob, Luna>")
+
     shouldThrow<LimitsException> {
-      p1.playProject(ResearchColony, 20) { doTask("Colony<Luna>") }
+      kim.playProject(ResearchColony, 20) { doTask("Colony<Luna>") }
     }
   }
 }

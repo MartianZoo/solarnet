@@ -60,22 +60,54 @@ public class TfmGameplay(
     phase("Action")
   }
 
-  /** Plays the chosen corporation without resolving any starting project-card purchase. */
+  /** Keeps [count] of the ten project cards offered during setup. */
+  public fun keepStartingProjects(count: Int): TaskResult = agent.continueOperation {
+    discardUnwantedCards(count)
+  }
+
+  /**
+   * Plays a standard corporation and buys the project cards retained during setup. This convenience
+   * chooses fixed corporation effects before the purchase; the underlying tasks remain
+   * independently selectable by other clients.
+   */
   public fun playCorp(cardName: ClassName, body: TfmGameplay.() -> Unit = {}): TaskResult {
     val player = this
-    return inTurn {
-      playCorp(cardName)
-      player.body()
+    if (count("CorporationPhase") == 0) {
+      return inTurn {
+        doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
+        player.body()
+      }
+    }
+    val previousPolicy = autoExecPolicy
+    autoExecPolicy = NONE
+    return try {
+      inTurn {
+        doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
+        payAllMc()
+        chooseConcreteCorporationEffectsBeforePurchase()
+        player.body()
+        chooseConcreteCorporationEffectsBeforePurchase()
+        buySelectedCards()
+      }
+    } finally {
+      autoExecPolicy = previousPolicy
     }
   }
 
-  /** Plays the chosen corporation, then retains and buys [buyCards] starting project cards. */
-  public fun playCorp(cardName: ClassName, buyCards: Int, body: OperationBlock = {}): TaskResult {
-    return inTurn {
-      doTask("PlayCard<Class<StandardCorporationCard>, Class<$cardName>>")
-      buyOfferedCards(buyCards)
-      body()
+  /** Plays the chosen corporation, retaining and buying [buyCards] starting project cards. */
+  public fun playCorp(
+      cardName: ClassName,
+      buyCards: Int,
+      body: TfmGameplay.() -> Unit = {},
+  ): TaskResult {
+    if (count("SetupPhase") == 1) {
+      game.actors.filterIsInstance<Player>().forEach { player ->
+        asPlayer(player).keepStartingProjects(if (player == actor) buyCards else 0)
+      }
+    } else if (count("ProjectCard<Selecting>") == 0 && buyCards > 0) {
+      runOperation("$buyCards ProjectCard<Selecting>")
     }
+    return playCorp(cardName, body)
   }
 
   /** Buys the selected number of project cards and pays their adjusted M€ cost. */
@@ -85,10 +117,20 @@ public class TfmGameplay(
 
   /** Shares the operation-scoped discard, confirmation, and payment sequence across all buys. */
   private fun OperationScope.buyOfferedCards(count: Int) {
+    discardUnwantedCards(count)
+    buySelectedCards(count)
+  }
+
+  private fun OperationScope.discardUnwantedCards(count: Int) {
     val offered = this@TfmGameplay.count("ProjectCard<Selecting>")
     require(count in 0..offered) { "Cannot buy $count of $offered offered project cards" }
     val discarded = offered - count
     doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
+  }
+
+  private fun OperationScope.buySelectedCards(
+      selected: Int = this@TfmGameplay.count("ProjectCard<Selecting>")
+  ) {
     if (
         tasks
             .extract { it }
@@ -99,7 +141,25 @@ public class TfmGameplay(
     ) {
       doTask("BuySelectedCards")
     }
-    if (count > 0) payAllMc()
+    if (selected > 0) payAllMc()
+  }
+
+  private fun OperationScope.chooseConcreteCorporationEffectsBeforePurchase() {
+    while (true) {
+      val next =
+          tasks
+              .extract { it }
+              .filter { task ->
+                task.actor == actor && asActor(task.assignee).canSelectTask(task.id)
+              }
+              .filterNot { task ->
+                task.instruction.descendantsOfType<Gain>().any { gain ->
+                  gain.gaining.className == BUY_SELECTED_CARDS
+                }
+              }
+              .firstOrNull { task -> !task.instruction.isAbstract(reader) } ?: return
+      selectTaskForActor(next)
+    }
   }
 
   public fun pass(): TaskResult {
@@ -122,9 +182,7 @@ public class TfmGameplay(
     return passWithoutUnusedActionCardCheck()
   }
 
-  private fun passWithoutUnusedActionCardCheck(): TaskResult = inTurn {
-    doTask("Pass")
-  }
+  private fun passWithoutUnusedActionCardCheck(): TaskResult = inTurn { doTask("Pass") }
 
   /**
    * Performs the actions in one test-level turn, declining an unused second action when needed. If
@@ -201,7 +259,7 @@ public class TfmGameplay(
     val billingCause = openPendingBilling()
     val resource = acceptedResources().singleOrNull()
     if (resource != null) {
-      doTask("Pay<Class<$resource>> FROM $resource / Owed<Class<$resource>>")
+      doTask("-$resource / Owed<Class<$resource>>")
     }
     if (this@TfmGameplay.count("Owed") == 0) finishBilling(billingCause)
   }
@@ -265,7 +323,7 @@ public class TfmGameplay(
       cardName: ClassName,
       body: OperationBlock = {},
   ) {
-    playCardWithinOperation(cn("StandardCorporationCard"), cardName, body)
+    playCardWithinOperation(cn("CorporationCard"), cardName, body)
   }
 
   private fun OperationScope.playCardWithinOperation(
@@ -360,7 +418,7 @@ public class TfmGameplay(
         for ((currency, units) in tender) {
           if (units > 0) {
             preparePayment(currency)
-            doTask("$units Pay<Class<$currency>> FROM $currency")
+            doTask("-$units $currency")
           }
         }
         if (count("Owed") == 0) finishBilling(billingCause)
@@ -442,7 +500,7 @@ public class TfmGameplay(
   private fun OperationScope.payAllMc() {
     val billingCause = openPendingBilling()
     val owed = this@TfmGameplay.count("Owed")
-    if (owed > 0) doTask("$owed Pay<Class<MC>> FROM MC")
+    if (owed > 0) doTask("-$owed MC")
     if (this@TfmGameplay.count("Owed") == 0) finishBilling(billingCause)
   }
 
@@ -620,7 +678,9 @@ public class TfmGameplay(
 
   public fun phase(phase: String, body: OperationBlock = {}) {
     if (count("Phase") != 1) {
-      throw NotNowException("No current Phase; start SetupPhase before changing phases")
+      throw NotNowException(
+          "No current Phase; start SetupPhase through TfmWorkflow before changing phases"
+      )
     }
     asActor(ADMIN).runOperation("${phase}Phase FROM Phase", body)
   }

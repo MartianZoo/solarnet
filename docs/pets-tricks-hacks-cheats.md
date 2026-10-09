@@ -141,8 +141,9 @@ not the same as asking about the enclosing card's owner.
 - **First-player selection:** [`Player(HAS StartToken)`](../src/common/dev/martianzoo/tfm/canon/VenusNextExpansion/venus.pets) selects the player who owns the Start Token, with no explicit `StartToken<Player>` argument.
 - **Community Services:** [`CardFront(HAS MAX 0 Tag)`](../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/cards.json5) counts cards with no tags; the omitted `Tag` holder is each candidate card.
 
-Writing `StartToken<Anyone>` instead would accept a token owned by any player. The bare dependent
-expression is what leaves the candidate slot open.
+Writing `StartToken<Anyone>` suppresses lexical ownership insertion, but T8-3 still narrows that
+resolved owner bound to the candidate. The bare dependent expression states the intended join
+directly.
 
 ## 12. Use `EACH` to turn a type query into a family of effects
 

@@ -38,12 +38,13 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
 
     green.autoExecPolicy = NONE
     pink.autoExecPolicy = NONE
-    pink.doTask("StandardCorporationCard<Hand FROM Selecting>")
-    pink.doTask("-StandardCorporationCard<Selecting>")
-    pink.doTask("NewTurn")
-    green.doTask("BeginnerCorporationCard")
-    green.doTask("-2 StandardCorporationCard<Selecting>")
-    green.doTask("NewTurn")
+    pink.doTask("NonBeginnerMode")
+    pink.doTask("2 CorporationCard")
+    pink.doTask("10 ProjectCard<Selecting>")
+    pink.doTask("-CorporationCard")
+    pink.doTask("-5 ProjectCard<Selecting>")
+    green.doTask("BeginnerMode")
+    green.doTask("BeginnerCard")
     green.autoExecPolicy = CONCRETE
     pink.autoExecPolicy = CONCRETE
 
@@ -85,9 +86,10 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
 
   private fun generation1() {
     green.inTurn {
-      doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation1>, Hand>")
+      doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation1>, Hand>")
       green.pay()
       doTask("42 MC")
+      doTask("10 ProjectCard")
     }
     green.draw(
         GreatDam,
@@ -103,9 +105,8 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     )
     green.autoExecPolicy = EAGER
     pink.autoExecPolicy = EAGER
-    pink.playCorp(MiningGuild) {
-      buyCards(PowerPlant, Flooding, ArcticAlgae, LavaFlows, CupolaCity)
-    }
+    pink.playCorp(MiningGuild)
+    pink.draw(PowerPlant, Flooding, ArcticAlgae, LavaFlows, CupolaCity)
 
     green.turn { playProject(SpaceMirrors, 3) }
     pink.turn { playProject(ArcticAlgae, 12) }

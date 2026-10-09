@@ -42,7 +42,8 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me's titanium amount increased by 10
       // me played PhoboLog
       // me kept 4 project cards
-      playCorp(PhoboLog, 4).expect("11 MC, 10 Titanium")
+      keepStartingProjects(4)
+      playCorp(PhoboLog).expect("11 MC, 10 Titanium")
 
       // me played Merger
       playPrelude(Merger) {

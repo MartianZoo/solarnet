@@ -10,12 +10,20 @@ import kotlin.test.Test
 
 internal class RefinementQueryTest {
   @Test
-  internal fun anExplicitAnyoneInARefinementIsLiteral() {
+  internal fun aRefinementCandidateFillsAnOmittedDependency() {
     val game = setUpGame()
     val p1 = game.testAgent(PLAYER1)
     val p2 = game.testAgent(PLAYER2)
     p1.count("StartToken") shouldBe 1
     p2.count("StartToken") shouldBe 0
+
+    p2.count("Player(HAS StartToken)") shouldBe 1
+  }
+
+  @Test
+  internal fun writtenArgumentsConstrainTheRefinementCandidate() {
+    val game = setUpGame()
+    val p2 = game.testAgent(PLAYER2)
 
     p2.count("Player(HAS StartToken<Player1>)") shouldBe 1
     p2.count("Player(HAS StartToken<Player2>)") shouldBe 0
@@ -58,7 +66,7 @@ internal class RefinementQueryTest {
     admin.runOperation("Token<Player1>")
 
     admin.runOperation(
-        "EACH @Player(HAS =1 (RANK Player { Player(HAS Token<Anyone>) })) { Prize<@Player> }"
+        "EACH @Player(HAS =1 (RANK Player { Player(HAS Token) })) { Prize<@Player> }"
     )
 
     game.testAgent(PLAYER1).count("Prize") shouldBe 1

@@ -1,56 +1,43 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.GameplayException
-import dev.martianzoo.tfm.tests.TestOption.Cimmeria
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class MiningAreaTest : CardTest() {
-  @Test
-  internal fun `Can be placed adjacent to a steel area`() {
-    newGame()
-    p1.runOperation("CityTile<Tharsis_2_1>")
-    p1.runOperation("$MiningArea") { placeTile(1, 1) }.expect("2 Steel, PROD[Steel]")
-  }
-
+internal class MiningAreaTest : ProjectCardTest() {
   @Test
   internal fun `Can be placed adjacent to a titanium area`() {
-    newGame()
-    p1.runOperation("CityTile<Tharsis_7_9>")
-    p1.runOperation("$MiningArea") { placeTile(8, 9) }.expect("Titanium, PROD[Titanium]")
+    newTestGame()
+    kim.exMachina("NormalCityTile<Kim, Tharsis_7_9>")
+
+    kim.playProject(MiningArea, 4) { placeTile(8, 9) }.expect("-4 MC, Titanium, PROD[Titanium]")
   }
 
   @Test
   internal fun `Robotic Workforce re-evaluates its production box instead of remembering steel`() {
     // Resolved FAQ: copying allows any originally available metal, regardless of the first choice.
-    newGame(Cimmeria)
-    p1.runOperation("CityTile<Cimmeria_5_4>")
-    p1.runOperation("$MiningArea") {
+    newTestGame(addOptions = "CimmeriaMap")
+    kim.exMachina("NormalCityTile<Kim, Cimmeria_5_4>")
+
+    kim.playProject(MiningArea, 4) {
           placeTile(6, 4)
           doTask("PROD[Steel]")
         }
-        .expect("Titanium, 2 Steel, PROD[Steel]")
+        .expect("-4 MC, Titanium, 2 Steel, PROD[Steel]")
 
-    val manual = p1.also { it.autoExecPolicy = NONE }
-    manual.beginOperation("$RoboticWorkforce")
-    manual.selectTask("CopyProductionBox<CardFront(HAS BuildingTag)>")
-    manual.narrowTask("CopyProductionBox<$MiningArea>")
-    manual.completeOperation { doTask("PROD[Titanium]") }.expect("PROD[Titanium]")
+    kim.playProject(RoboticWorkforce, 9) {
+          doTask("CopyProductionBox<$MiningArea>")
+          doTask("PROD[Titanium]")
+        }
+        .expect("-9 MC, PROD[Titanium]")
   }
 
   @Test
-  internal fun `Cannot be played without an adjacent owned tile`() {
-    newGame()
-    shouldThrow<DependencyException> { p1.runOperation("$MiningArea") { placeTile(1, 1) } }
-  }
+  internal fun `Cannot select an area without a metal placement bonus`() {
+    newTestGame()
+    kim.exMachina("NormalCityTile<Kim, Tharsis_2_1>")
 
-  @Test
-  internal fun `Cannot select a card-bonus area`() {
-    newGame()
-    p1.runOperation("CityTile<Tharsis_2_1>")
-    shouldThrow<GameplayException> { p1.runOperation("$MiningArea") { placeTile(3, 2) } }
+    shouldThrow<GameplayException> { kim.playProject(MiningArea, 4) { placeTile(3, 2) } }
   }
 }

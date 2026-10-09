@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.data.ClassDeclaration
@@ -13,6 +12,7 @@ import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.tests.TestOption as Option
 import dev.martianzoo.tfm.tests.TfmTest
@@ -97,7 +97,7 @@ internal abstract class CardTest(
   }
 
   private fun startAutoGame(premise: GamePremise): World {
-    return Engine.newGame(premise).apply {
+    return TfmEngine.newGame(premise).apply {
       bindPlayers()
       testAgents()[ADMIN].beginOperation("WorkflowStarted")
       finishSoloSetup()
@@ -172,8 +172,11 @@ internal abstract class CardTest(
   }
 
   private fun playCorporations(requested: List<ClassName>, beforeNextPhase: () -> Unit) {
-    check(admin.count("CorporationPhase") == 1) { "The Corporation phase has already ended" }
     val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
+    if (admin.count("SetupPhase") == 1) {
+      players.forEach { it.keepStartingProjects(5) }
+    }
+    check(admin.count("CorporationPhase") == 1) { "The Corporation phase has already ended" }
     val corporations = if (requested.isEmpty()) BORING_CORPORATIONS else requested
     require(corporations.size >= players.size) { "Provide one corporation per player" }
     players.zip(corporations).forEachIndexed { index, (player, corporation) ->

@@ -27,7 +27,12 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
     with(me) {
       doTask("-SelectedColonyTile<Class<Miranda>>")
 
-      playCorp(PharmacyUnion, 10).expect("16 MC, 11 ProjectCard")
+      keepStartingProjects(10)
+      playCorp(PharmacyUnion) {
+            doTask("Disease<$PharmacyUnion>")
+            doTask("Disease<$PharmacyUnion>")
+          }
+          .expect("16 MC, 11 ProjectCard")
 
       playPrelude(Merger) {
         playCorp(Manutech)

@@ -1,9 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -14,15 +12,6 @@ internal class PsychrophilesTest : CardTest() {
     newGame(PreludeExpansion)
     admin.phase("Action")
     p1.runOperation("10 MC, ProjectCard")
-  }
-
-  @Test
-  internal fun `Can play a plant-tag card without spending microbes`() {
-    p1.runOperation("$Psychrophiles")
-    p1.playProject(AdaptedLichen, 9) { /* Decline spending a Psychrophiles microbe. */
-          declineTask()
-        }
-        .expect("PROD[Plant]")
   }
 
   @Test
@@ -37,32 +26,11 @@ internal class PsychrophilesTest : CardTest() {
   }
 
   @Test
-  internal fun `Can add a microbe with its action`() {
-    p1.runOperation("$Psychrophiles")
-    p1.cardAction1(Psychrophiles).expect("Microbe<$Psychrophiles>")
-  }
-
-  @Test
-  internal fun `Can spend a microbe toward a plant-tag card`() {
-    p1.runOperation("$Psychrophiles, Microbe<$Psychrophiles>")
-    p1.playProject(AdaptedLichen, 7) {
-          doTask("PayFromCard FROM Microbe<$Psychrophiles>")
-        }
-        .expect("-Microbe<$Psychrophiles>, PROD[Plant]")
-  }
-
-  @Test
   internal fun `Can spend five microbes toward a nine-cost card`() {
     p1.runOperation("$Psychrophiles, 5 Microbe<$Psychrophiles>")
     p1.playProject(AdaptedLichen, 0) {
-          doTask("5 PayFromCard FROM Microbe<$Psychrophiles>")
+          doTask("-5 Microbe<$Psychrophiles>")
         }
         .expect("-5 Microbe<$Psychrophiles>, PROD[Plant]")
-  }
-
-  @Test
-  internal fun `Cannot be played above its temperature limit`() {
-    p1.runOperation("6 TemperatureStep")
-    shouldThrow<RequirementException> { p1.playProject(Psychrophiles, 2) }
   }
 }

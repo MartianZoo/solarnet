@@ -1,7 +1,7 @@
 {
   "decks": [
     {
-      "deck": "StandardCorporationCard",
+      "deck": "CorporationCard",
       "cards": [
         {
           "name": "CheungShingMars",
@@ -23,7 +23,7 @@
         {
           "name": "ValleyTrust",
           "tags": [ "EarthTag" ],
-          "immediate": "37 MC, RequiredAction { -> 3 PreludeCard<Selecting> THEN PlayOrFizzle<Selecting> THEN -2 PreludeCard<Selecting> }",
+          "immediate": "37 MC, RequiredAction { -> 3 PreludeCard<Selecting> THEN -2 PreludeCard<Selecting> THEN PlayOrFizzle<Selecting> }",
           "effects": [ "PayingFor<Class<ScienceTag>>:: -2 Owed" ],
         },
         {
@@ -237,7 +237,7 @@
           "actions": [ "-> Microbe<This>" ],
           "effects": [
             "PayingFor<Class<PlantTag>>:: AcceptingFromCard<This>",
-            "PayFromCard<This>:: -2 Owed"
+            "-Microbe<This> BY Me@ IF AcceptingFromCard<This>:: -2 Owed"
           ],
         },
         {

@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
@@ -14,6 +13,7 @@ import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
@@ -118,7 +118,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
             players = 1,
             colonyTiles = setOf("Callisto", "Luna", "Miranda", "Titan").mapTo(linkedSetOf(), ::cn),
         )
-    val game = Engine.newGame(premise)
+    val game = TfmEngine.newGame(premise)
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
 

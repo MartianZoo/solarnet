@@ -42,18 +42,15 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     val purple = p1
     val pink = p2
     val green = p3
+    keepStartingProjects(4, 5, 7)
 
     admin.assertCounts(1 to "Generation")
 
-    purple.playCorp(Recyclon) {
-      purple.buyCards(4)
-    }
+    purple.playCorp(Recyclon) { doTask("Microbe<$Recyclon>") }
 
-    pink.playCorp(RobinsonIndustries) {
-      pink.buyCards(5)
-    }
+    pink.playCorp(RobinsonIndustries)
 
-    green.playCorp(SpliceTacticalGenomics, 7) { doTask("2 MC") }
+    green.playCorp(SpliceTacticalGenomics) { doTask("2 MC") }
 
     purple.turn {
       playPrelude(AlbedoPlants).expect("PROD[Plant], Plant, 3 Heat")
@@ -357,7 +354,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     purple.stdAction("ClaimMilestoneAction") { doTask("Trader") }
     purple
         .playProject(ProtectedValley, 9, steel = 5) {
-          doTask("2 PayFromCard FROM Microbe<$Psychrophiles>")
+          doTask("-2 Microbe<$Psychrophiles>")
           placeTile(1, 1)
         }
         .expect("2 Plant, -5 Steel")
@@ -613,7 +610,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
 
     purple
         .playProject(AdaptedLichen, 3) {
-          doTask("3 PayFromCard FROM Microbe<$Psychrophiles>")
+          doTask("-3 Microbe<$Psychrophiles>")
         }
         .expect("Animal")
     purple.cardAction1(BioPrintingFacility) { addCardResources(EcologicalZone) }

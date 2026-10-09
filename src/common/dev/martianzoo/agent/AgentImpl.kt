@@ -35,8 +35,10 @@ internal class AgentImpl(
     private val autoExecLoop: AutoExecLoop,
 ) : Agent {
 
+  private val autoExecPolicyOverrides = mutableListOf<AutoExecPolicy>()
+
   init {
-    autoExecLoop.register(engine.actor) { autoExecPolicy }
+    autoExecLoop.register(engine.actor) { autoExecPolicyOverrides.lastOrNull() ?: autoExecPolicy }
   }
 
   override val actor: Actor
@@ -206,9 +208,25 @@ internal class AgentImpl(
     override fun autoExecNow() {
       autoExecLoop.run()
     }
+
+    override fun autoExecNow(policy: AutoExecPolicy) {
+      withAutoExecPolicy(policy) { autoExecLoop.run() }
+    }
   }
 
   override fun autoExecNow() = atomic {}
+
+  override fun autoExecNow(policy: AutoExecPolicy): TaskResult =
+      withAutoExecPolicy(policy) { atomic {} }
+
+  private inline fun <T> withAutoExecPolicy(policy: AutoExecPolicy, block: () -> T): T {
+    autoExecPolicyOverrides.add(policy)
+    return try {
+      block()
+    } finally {
+      autoExecPolicyOverrides.removeAt(autoExecPolicyOverrides.lastIndex)
+    }
+  }
 
   private fun autoExecAtomically(): TaskResult =
       engine.transact(settle = {}, block = { autoExecLoop.run() })

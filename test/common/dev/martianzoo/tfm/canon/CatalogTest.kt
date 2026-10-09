@@ -3,7 +3,9 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Catalog
 import dev.martianzoo.state.GameConfig
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -29,6 +31,17 @@ internal class CatalogTest {
         }
 
     shouldThrow<IllegalArgumentException> { TfmCatalog(first, second).modules }
+  }
+
+  @Test
+  internal fun compositionRejectsConflictingCustomClassDependencies() {
+    val conflicting =
+        object : Catalog() {
+          override val customClassDependencies: Map<ClassName, Set<ClassName>> =
+              mapOf(cn("PartyDistance") to emptySet())
+        }
+
+    shouldThrow<IllegalArgumentException> { TfmCatalog(conflicting) }
   }
 
   @Test
@@ -104,12 +117,46 @@ internal class CatalogTest {
 
     premise.classSelections.filter { it.included }.mapTo(linkedSetOf()) { it.className } shouldBe
         setOf(
+            cn("MultiplayerMode"),
+            cn("SparseMap"),
             cn("FirstMilestone"),
             cn("SecondMilestone"),
             cn("FirstAward"),
             cn("SecondAward"),
             cn("ThirdAward"),
         )
+  }
+
+  @Test
+  internal fun customGoalSupportComesFromDeclarationsWithoutImplementations() {
+    val source =
+        TfmCatalog(
+            bundle(
+                "Rules",
+                """
+                ABSTRACT CLASS Module
+                CLASS MultiplayerMode : Module
+                ABSTRACT CLASS Award { metric = Metric }
+                """
+                    .trimIndent(),
+            ),
+            bundle(
+                "SparseMap",
+                """
+                CLASS SparseMap : Module
+                CLASS GoalMetric : CustomMetric
+                CLASS FirstAward : Award { metric = COUNT "GoalMetric" }
+                """
+                    .trimIndent(),
+            ),
+        )
+
+    val premise = source.gamePremise(GameConfig("MultiplayerMode, FirstAward"))
+
+    source.classAvailabilityModules[cn("GoalMetric")] shouldBe null
+    premise.classSelections.filter { it.included }.mapTo(linkedSetOf()) { it.className } shouldBe
+        setOf(cn("MultiplayerMode"), cn("FirstAward"))
+    premise.classTable.getClass(cn("GoalMetric")).declaration.customMetric shouldBe true
   }
 
   @Test

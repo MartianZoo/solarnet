@@ -1,5 +1,8 @@
 # Pets Kotlin type generator
 
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** changing the isolated Pets-to-Kotlin generator or its output model.
 >
 > **Status:** current tool behavior. No production or test source set consumes its output.

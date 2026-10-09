@@ -17,6 +17,12 @@ public class EventLog internal constructor() {
 
   private var setupStart: Checkpoint? = null
 
+  internal fun fork(): EventLog =
+      EventLog().also { copy ->
+        events.mapTo(copy.events, GameEvent::snapshot)
+        copy.setupStart = setupStart
+      }
+
   internal fun requireNext(entry: GameEvent) {
     require(entry.ordinal == nextOrdinal) {
       "expected event ordinal $nextOrdinal, got ${entry.ordinal}"

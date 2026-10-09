@@ -1,6 +1,7 @@
 package dev.martianzoo.state
 
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.TaskEvent
@@ -11,22 +12,36 @@ import dev.martianzoo.state.GameEvent.TaskEvent
  * A GameWorld accepts only already-decided, fully concrete events. It keeps event history,
  * components, and pending tasks synchronized, but does not interpret instructions or calculate
  * consequences. Supplying [initialEvents] reconstructs the exact projections produced by applying
- * that complete event sequence to a fresh world with the same [classTable].
+ * that complete event sequence to a fresh world with the same [classTable]. [customClasses] may be
+ * empty for passive playback; querying an unavailable custom metric then fails at the query.
  */
-public class GameWorld(
+public class GameWorld
+private constructor(
     public val premise: GamePremise,
-    initialEvents: List<GameEvent> = emptyList(),
+    initialEvents: List<GameEvent>,
+    customClasses: Set<CustomClass>,
+    copyFrom: GameWorld?,
 ) {
+  public constructor(
+      premise: GamePremise,
+      initialEvents: List<GameEvent> = emptyList(),
+      customClasses: Set<CustomClass> = emptySet(),
+  ) : this(premise, initialEvents, customClasses, copyFrom = null)
+
   /** The immutable classes available to this world. */
   public val classTable: ClassTable = premise.classTable
 
+  private val customClasses: Set<CustomClass> = customClasses.toSet()
+  private val customClassesByName: Map<ClassName, List<CustomClass>> =
+      this.customClasses.groupBy(CustomClass::className)
+
   /** The current component multiset and its observable count indexes. */
-  public val components: ComponentGraph = ComponentGraph(classTable)
+  public val components: ComponentGraph = copyFrom?.components?.fork() ?: ComponentGraph(classTable)
 
   /** Everything that has happened in this world. */
-  public val events: EventLog = EventLog()
+  public val events: EventLog = copyFrom?.events?.fork() ?: EventLog()
 
-  private val taskStore = TaskStore()
+  private val taskStore: TaskStore = copyFrom?.taskStore?.fork() ?: TaskStore()
 
   /** Every task currently pending in this world. */
   public val tasks: TaskQueue = taskStore.all()
@@ -38,7 +53,27 @@ public class GameWorld(
   public val actors: List<Actor> = premise.actors
 
   init {
+    require(copyFrom == null || copyFrom.premise === premise)
+    require(copyFrom == null || initialEvents.isEmpty())
     initialEvents.forEach(::apply)
+  }
+
+  /**
+   * Copies this exact passive state into an independently mutable Game World. Immutable premise
+   * data and values are shared; mutable collections and event commentary are copied, while
+   * component listeners are not.
+   */
+  public fun fork(): GameWorld =
+      GameWorld(premise, initialEvents = emptyList(), customClasses, copyFrom = this)
+
+  /** Returns the executable implementation bound to [className] in this World, if supplied. */
+  public fun customClassOrNull(className: ClassName): CustomClass? {
+    val matches = customClassesByName[className].orEmpty()
+    return when (matches.size) {
+      1 -> matches.single()
+      0 -> null
+      else -> error("multiple custom implementations for `$className` in this Game World")
+    }
   }
 
   /** The ordinal required for the next exact event. */

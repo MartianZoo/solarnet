@@ -50,9 +50,8 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
 
   private fun generation1() {
     with(me) {
-      playCorp(PhoboLog) {
-        buyCards(5)
-      }
+      keepStartingProjects(5)
+      playCorp(PhoboLog)
 
       playPrelude(AcquiredSpaceAgency)
       playPrelude(CorridorsOfPower)

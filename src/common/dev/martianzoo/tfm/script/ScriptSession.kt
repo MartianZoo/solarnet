@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.script
 
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agents
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName
@@ -18,6 +17,7 @@ import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.ApiUtils
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.isVisibleInLog
 import dev.martianzoo.tfm.script.Access.BlueMode
@@ -124,7 +124,7 @@ public class ScriptSession(
   ) {
     val premise = Canon.gamePremise(GameConfig(configText, *playerNames.toTypedArray()))
     val options = OptionCodeTranslation.recognizedOptions(premise.modules)
-    val candidateGame = Engine.newGame(premise)
+    val candidateGame = TfmEngine.newGame(premise)
     installGame(
         candidateGame,
         OptionCodeTranslation.optionCodes(options),
@@ -411,7 +411,7 @@ internal fun createGame(setup: OptionCodeTranslation.Setup): World {
               if (setup.players == 1) listOf(cn("Me"))
               else (1..setup.players).map { cn("Player$it") },
       )
-  return Engine.newGame(Canon.gamePremise(config))
+  return TfmEngine.newGame(Canon.gamePremise(config))
 }
 
 public val welcome: String =

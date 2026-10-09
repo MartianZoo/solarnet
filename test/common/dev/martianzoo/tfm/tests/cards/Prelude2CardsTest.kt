@@ -491,8 +491,8 @@ internal class Prelude2CardsTest : CardTest() {
     p1.stdProject(
             "PowerPlantProject",
             payment = {
-              doTask("PayFromCard<$Spire> FROM Science<$Spire>")
-              doTask("Pay<Class<MC>> FROM MC / Owed")
+              doTask("-Science<$Spire>")
+              doTask("-MC / Owed")
             },
         )
         .expect("-Science<$Spire>, -9 MC, PROD[Energy]")
@@ -504,7 +504,7 @@ internal class Prelude2CardsTest : CardTest() {
     p1.runOperation("$Spire, Science<$Spire>")
 
     shouldThrow<TaskException> {
-      p1.runOperation("10 Owed<>") { doTask("PayFromCard FROM Science<$Spire>") }
+      p1.runOperation("10 Owed<>") { doTask("-Science<$Spire>") }
     }
   }
 
@@ -517,7 +517,7 @@ internal class Prelude2CardsTest : CardTest() {
     p1.sellPatents(1)
 
     shouldThrow<TaskException> {
-      p1.runOperation("10 Owed<>") { doTask("PayFromCard FROM Science<$Spire>") }
+      p1.runOperation("10 Owed<>") { doTask("-Science<$Spire>") }
     }
   }
 
@@ -539,14 +539,14 @@ internal class Prelude2CardsTest : CardTest() {
     p1.runOperation("NewTurn") {
       doTask("UseAction<UseStandardProjectAction, Action1>")
       doTask("UseAction<PowerPlantProject, Action1>")
-      doTask("Pay<Class<MC>> FROM MC / Owed")
+      doTask("-MC / Owed")
     }
     p1.count("MC") shouldBe startingMoney - 9
 
     p1.runOperation("SecondAction") {
       doTask("UseAction<UseStandardProjectAction, Action1>")
       doTask("UseAction<PowerPlantProject, Action1>")
-      doTask("Pay<Class<MC>> FROM MC / Owed")
+      doTask("-MC / Owed")
     }
 
     p1.count("MC") shouldBe startingMoney - 18
@@ -799,7 +799,12 @@ internal class Prelude2CardsTest : CardTest() {
   @Test
   internal fun `Recession fizzles when an opponent has minimum money production`() {
     newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
-    p1.playCorp(MonsInsurance, 0)
+    p1.playCorp(MonsInsurance, 0) {
+      doTask(
+          "EACH Other@Player(NOT Player1) { " +
+              "-2 Production<Other@Player, Class<MC>>! BY Other@Player }"
+      )
+    }
     val p2 = requireP2()
     p2.playCorp(CrediCor, 0)
     admin.phase("Prelude")

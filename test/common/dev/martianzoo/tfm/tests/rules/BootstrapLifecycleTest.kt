@@ -4,14 +4,16 @@ import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -25,7 +27,7 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun newGameReturnsCommittedBootstrapState() {
     val resolvedPremise = canonicalPremise()
-    val game = Engine.newGame(resolvedPremise)
+    val game = TfmEngine.newGame(resolvedPremise)
     val admin = game.testAgent(ADMIN)
 
     admin.count("Premise") shouldBe 1
@@ -85,7 +87,7 @@ internal class BootstrapLifecycleTest {
               players = scenario.players,
               colonyTiles = scenario.colonyTiles,
           )
-      val game = Engine.newGame(premise)
+      val game = TfmEngine.newGame(premise)
       val admin = game.testAgent(ADMIN)
 
       admin.count("Player") shouldBe scenario.players
@@ -93,9 +95,7 @@ internal class BootstrapLifecycleTest {
       game.tasks.isEmpty() shouldBe true
 
       val configuredExpressions =
-          premise.modules.map { it.expression } +
-              premise.playerNames.map { it.expression } +
-              premise.initialComponentTypes
+          premise.modules.map { it.expression } + premise.playerNames.map { it.expression }
       configuredExpressions.forEach { expression ->
         admin.count("$expression") shouldBe 1
       }
@@ -104,7 +104,7 @@ internal class BootstrapLifecycleTest {
 
   @Test
   internal fun modulesChooseTheirTrackRulesAfterTheCompleteModuleSetExists() {
-    val game = Engine.newGame(canonicalPremise(Amazonis, VenusNextExpansion))
+    val game = TfmEngine.newGame(canonicalPremise(Amazonis, VenusNextExpansion))
     val admin = game.testAgent(ADMIN)
 
     admin.count("ExtendedGlobalParametersRule") shouldBe 1
@@ -115,7 +115,7 @@ internal class BootstrapLifecycleTest {
 
   @Test
   internal fun manualWorkflowStartsFullyEffectfulGenerationOneSetup() {
-    val game = Engine.newGame(canonicalPremise())
+    val game = TfmEngine.newGame(canonicalPremise())
     game.testAgents()[ADMIN].beginOperation("SetupPhase FROM Phase")
 
     val admin = game.testAgent(ADMIN)
@@ -129,7 +129,7 @@ internal class BootstrapLifecycleTest {
 
   @Test
   internal fun soloModeProvidesItsStartingTerraformRatingDirectly() {
-    val game = Engine.newGame(canonicalPremise(players = 1))
+    val game = TfmEngine.newGame(canonicalPremise(players = 1))
     game.testAgents()[ADMIN].beginOperation("SetupPhase FROM Phase")
 
     game.testAgent(ADMIN).count("TerraformRating<Player1>") shouldBe 14
@@ -137,13 +137,13 @@ internal class BootstrapLifecycleTest {
 
   @Test
   internal fun soloNeutralCitiesCannotBePlacedNextToEachOther() {
-    val game = Engine.newGame(canonicalPremise(players = 1))
+    val game = TfmEngine.newGame(canonicalPremise(players = 1))
     val admin = game.testAgent(ADMIN)
     game.testAgents()[ADMIN].beginOperation("SetupPhase FROM Phase")
 
     admin.doTask("CityTile<Tharsis_4_1>")
     admin.doTask("GreeneryTile<Tharsis_5_1>")
-    shouldThrow<NarrowingException> { admin.doTask("CityTile<Tharsis_4_2>") }
+    shouldThrow<TaskException> { admin.doTask("CityTile<Tharsis_4_2>") }
     admin.count("CityTile") shouldBe 1
     admin.count("Occupant<Tharsis_4_2>") shouldBe 0
 
@@ -156,7 +156,7 @@ internal class BootstrapLifecycleTest {
 
   @Test
   internal fun soloColoniesSetupIsAbsentWithoutSelectedColonies() {
-    val game = Engine.newGame(canonicalPremise(ColoniesExpansion, players = 1))
+    val game = TfmEngine.newGame(canonicalPremise(ColoniesExpansion, players = 1))
 
     game.testAgents()[ADMIN].beginOperation("SetupPhase FROM Phase")
 
@@ -167,7 +167,7 @@ internal class BootstrapLifecycleTest {
   internal fun soloColoniesSetupRemovesOneSelectedColony() {
     val colonies = testColonyTiles(players = 1)
     val game =
-        Engine.newGame(
+        TfmEngine.newGame(
             canonicalPremise(
                 ColoniesExpansion,
                 players = 1,
@@ -200,7 +200,7 @@ internal class BootstrapLifecycleTest {
             ColoniesExpansion,
             colonyTiles = setOf(cn("Callisto"), cn("Enceladus")),
         )
-    val game = Engine.newGame(premise)
+    val game = TfmEngine.newGame(premise)
     val admin = game.testAgent(ADMIN)
 
     admin.count("SelectedColonyTile") shouldBe 2
@@ -220,16 +220,20 @@ internal class BootstrapLifecycleTest {
 
   @Test
   internal fun automaticSetupKeepsOnlyCardCountsUntilCorporationTurns() {
-    val game = Engine.newGame(canonicalPremise(PreludeExpansion))
+    val game = TfmEngine.newGame(canonicalPremise(PreludeExpansion))
     game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
     val admin = game.testAgent(ADMIN)
     val p1 = game.testTfm(PLAYER1)
 
     p1.count("CorporationCard") shouldBe 1
-    p1.count("ProjectCard") shouldBe 0
+    p1.count("ProjectCard<Selecting>") shouldBe 10
     p1.count("PreludeCard") shouldBe 2
+    admin.count("SetupPhase") shouldBe 1
+    admin.count("CorporationPhase") shouldBe 0
+    p1.keepStartingProjects(7)
+    game.testTfm(PLAYER2).keepStartingProjects(0)
     admin.count("CorporationPhase") shouldBe 1
-    p1.playCorp(cn("InterplanetaryCinematics"), 7)
+    p1.playCorp(cn("InterplanetaryCinematics"))
 
     p1.count("ProjectCard") shouldBe 7
   }
@@ -237,7 +241,7 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun automaticWorkflowWaitsForSoloSetupChoices() {
     val setup = canonicalPremise(players = 1)
-    val game = Engine.newGame(setup)
+    val game = TfmEngine.newGame(setup)
     game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
 
     val admin = game.testAgent(ADMIN)

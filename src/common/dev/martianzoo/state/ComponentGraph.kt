@@ -18,7 +18,11 @@ import dev.martianzoo.pets.util.Multiset
  * multiset, but called a "graph" because these component instances have references to their
  * dependencies which are also stored in the multiset.
  */
-public class ComponentGraph internal constructor(private val classTable: ClassTable) {
+public class ComponentGraph
+internal constructor(
+    private val classTable: ClassTable,
+    copyFrom: ComponentGraph? = null,
+) {
   /** A removable listener registered with [listenToCount]. */
   public fun interface CountSubscription {
     public fun cancel()
@@ -26,18 +30,26 @@ public class ComponentGraph internal constructor(private val classTable: ClassTa
 
   private val shardClassByClass = mutableMapOf<Class, Class>()
   private val queryShardClassesByClass = mutableMapOf<Class, Set<Class>>()
-  private val components =
+  private val components: ShardedMultiset<Component, Type, Class> =
       ShardedMultiset<Component, Type, Class>(
               shardFor = { shardClass(it.type.rootClass) },
               queryShardsFor = { queryShardClasses(it.rootClass) },
           )
           .apply {
-            classTable.allInhabitedConcreteClasses().forEach { represented ->
-              add(classTable.resolve(CLASS.of(represented.className)).toComponent(), 1)
+            if (copyFrom == null) {
+              classTable.allInhabitedConcreteClasses().forEach { represented ->
+                add(classTable.resolve(CLASS.of(represented.className)).toComponent(), 1)
+              }
+            } else {
+              require(copyFrom.classTable === classTable)
+              copyFrom.components.entries.forEach { (component, count) -> add(component, count) }
             }
           }
 
-  private val dependentsByDependency = mutableMapOf<Component, MutableSet<Component>>()
+  private val dependentsByDependency: MutableMap<Component, MutableSet<Component>> =
+      copyFrom?.dependentsByDependency?.mapValuesTo(mutableMapOf()) { (_, dependents) ->
+        dependents.toMutableSet()
+      } ?: mutableMapOf()
 
   private data class CountListener(
       val type: Type,
@@ -47,6 +59,8 @@ public class ComponentGraph internal constructor(private val classTable: ClassTa
   )
 
   private val countListeners = mutableListOf<CountListener>()
+
+  internal fun fork(): ComponentGraph = ComponentGraph(classTable, copyFrom = this)
 
   /**
    * Immediately reports, then observes, the count of [type]. [info] supplies live state for

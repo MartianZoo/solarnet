@@ -28,19 +28,20 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // Generation 1
     val ER = p1
     val KB = p2
+    keepStartingProjects(6, 3)
 
     // ER played Point Luna
     // ER gained 1 titanium production
     // ER kept 6 project cards
     // ER drew 1 card(s)
     // You drew Domed Crater
-    ER.playCorp(PointLuna, 6).expect("7 ProjectCard")
+    ER.playCorp(PointLuna).expect("7 ProjectCard")
 
     // KB played Saturn Systems
     // KB gained 1 titanium production
     // KB kept 3 project cards
     // KB gained 1 M€ production because of Saturn Systems
-    KB.playCorp(SaturnSystems, 3).expect("PROD[1 MC]")
+    KB.playCorp(SaturnSystems).expect("PROD[1 MC]")
 
     ER.turn {
       // ER played New Partner

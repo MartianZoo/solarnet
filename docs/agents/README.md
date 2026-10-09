@@ -1,8 +1,10 @@
 # Agent documentation router
 
-> **NOTE:** This document is used by agents to capture information for themselves to read later; a
-> human didn't write it and we don't expect humans to read it. The project owner can't personally
-> vouch for the information here.
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
+> **Read when:** selecting which agent document or source to consult for a task. Read the matching
+> route and any applicable repeated-failure alert; do not read the collection wholesale.
 
 Read this page after `AGENTS.md`, but do not read every linked document. Pick the route matching the
 current task, read its “Read when” note and named sections, then inspect the linked source and tests.

@@ -17,9 +17,7 @@ internal class PaymentSpecializationTest {
     val player = setUpGame().testTfm(PLAYER1)
 
     shouldThrow<ExpressionException> {
-      player.beginOperation(
-          "PlayCard<Class<StandardCorporationCard>, Class<$AcquiredCompany>, Hand>"
-      )
+      player.beginOperation("PlayCard<Class<CorporationCard>, Class<$AcquiredCompany>, Hand>")
     }
   }
 
@@ -31,8 +29,8 @@ internal class PaymentSpecializationTest {
     p1.beginOperation(
         "Owed<Class<Steel>> THEN ActionBilling<SellPatentsProject, Action1, Class<Steel>>"
     ) {
-      shouldThrow<NarrowingException> { doTask("Pay<Class<Titanium>> FROM Titanium") }
-      doTask("Pay<Class<Steel>> FROM Steel")
+      shouldThrow<NarrowingException> { doTask("-Titanium") }
+      doTask("-Steel")
     }
   }
 }

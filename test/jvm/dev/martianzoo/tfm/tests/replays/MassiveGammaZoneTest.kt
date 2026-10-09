@@ -58,9 +58,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
   private fun generation1() {
     with(me) {
       // The source selected PolderTECH Dutch, which Canon does not treat as a published promo.
-      playCorp(FakePolderTechDutch) {
-        buyCards(5)
-      }
+      keepStartingProjects(5)
+      playCorp(FakePolderTechDutch)
 
       playPrelude(BoardOfDirectors)
       playPrelude(ProjectEden) {

@@ -1,6 +1,7 @@
 # Pets actions
 
-> **NOTE:** This document is agent-maintained; source and tests take precedence.
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
 >
 > **Read when:** discussing action identity, arrow lowering, action availability, permission, or
 > the relationship between an action's left side and Terraforming Mars payment.

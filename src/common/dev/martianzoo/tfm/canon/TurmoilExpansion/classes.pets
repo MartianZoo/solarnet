@@ -97,25 +97,25 @@ ABSTRACT CLASS Party {
   HAS MAX 1 AfterParty<This, Party>, MAX 1 AfterParty<Party, This>
   HAS MAX 1 PartyLeader<This, Anyone>
   This:: EACH Previous@Party( \
-    NOT This, HAS MAX 0 AfterParty<Party> \
+    NOT This, HAS MAX 0 AfterParty \
   ) { AfterParty<Previous@, This> }
   FormGovernment IF Dominant<This>:: \
     -Ruling! THEN Ruling<This>, \
     ApplyRulingBonus<This>, \
-    EACH FormerChairman@Owner(HAS Chairman<Anyone>) { \
+    EACH FormerChairman@Owner(HAS Chairman) { \
       -Chairman<FormerChairman@> \
     }, \
-    EACH DelegateHolder@Owner(HAS PartyDelegate<This, Anyone>) { \
+    EACH DelegateHolder@Owner(HAS PartyDelegate<This>) { \
       -PartyDelegate<This, DelegateHolder@> / ( \
         PartyDelegate<This, DelegateHolder@> - \
         PartyLeader<This, DelegateHolder@> \
       ) \
     }, \
-    EACH Leader@Player(HAS PartyLeader<This, Player>) { \
+    EACH Leader@Player(HAS PartyLeader<This>) { \
       Chairman<Leader@> FROM PartyDelegate<This, Leader@> THEN \
       TerraformRating<Leader@> \
     }, \
-    EACH Leader@Neutral(HAS PartyLeader<This, Neutral>) { \
+    EACH Leader@Neutral(HAS PartyLeader<This>) { \
       Chairman<Leader@> FROM PartyDelegate<This, Leader@> \
     }, \
     EACH Next@Party(HAS MAX 0 Dominant, HAS =1 (RANK Ranked@Party { \
@@ -231,7 +231,7 @@ ABSTRACT CLASS Delegate : Owned {
     // Preserve the incumbent on a count tie. For a player gain, choose the nearest tied
     // challenger clockwise from that player; Neutral and other unseated owners rank last.
     X This:: EACH Leader@Owner( \
-      HAS MAX 0 PartyLeader<Delegation@, Anyone>, \
+      HAS MAX 0 PartyLeader<Delegation@>, \
       HAS =1 (RANK Ranked@Owner { \
         PartyDelegate<Delegation@, Ranked@>, \
         PartyLeader<Delegation@, Ranked@>, \
@@ -255,8 +255,8 @@ CLASS PartyLeader<Delegation@Party> : Owned {
     IF MAX 0 PartyDelegate<Delegation@>:: \
     -This! THEN \
       EACH Leader@Owner( \
-        HAS PartyDelegate<Delegation@, Anyone>, \
-        HAS MAX 0 PartyLeader<Delegation@, Anyone>, \
+        HAS PartyDelegate<Delegation@>, \
+        HAS MAX 0 PartyLeader<Delegation@>, \
         HAS =1 (RANK Ranked@Owner { \
           PartyDelegate<Delegation@, Ranked@>, \
           PartyLeader<Delegation@, Ranked@> \

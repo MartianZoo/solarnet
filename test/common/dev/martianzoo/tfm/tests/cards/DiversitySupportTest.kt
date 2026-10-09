@@ -1,40 +1,32 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
-import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class DiversitySupportTest : CardTest() {
+internal class DiversitySupportTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
+
   @Test
-  internal fun `Can be played with nine resource types`() {
-    seedResources()
-    p1.runOperation("$ForcedPrecipitation, Floater<$ForcedPrecipitation>")
-    p1.playProject(DiversitySupport, 1).expect("TerraformRating")
+  internal fun `Checks its ninth resource type before spending the last MC`() {
+    kim.setToExMachina(1, "MC")
+    kim.exMachina(
+        "Steel, Titanium, Plant, Energy, Heat, $Pets, $Decomposers, $ForcedPrecipitation, " +
+            "Animal<$Pets>, Microbe<$Decomposers>, Floater<$ForcedPrecipitation>"
+    )
+
+    kim.playProject(DiversitySupport, 1).expect("-MC, TerraformRating")
   }
 
   @Test
-  internal fun `Cannot be played with only eight resource types`() {
-    seedResources()
-    p1.count("TerraformRating") shouldBe 20
-    shouldThrow<RequirementException> { p1.playProject(DiversitySupport, 1) }
-    p1.count("TerraformRating") shouldBe 20
-  }
-
-  private fun seedResources() {
-    newGame(VenusNextExpansion, PromoCardPack)
-    admin.phase("Action")
-    requireP2()
-        .runOperation(
-            "10 MC, 9 ProjectCard, 8 Steel, 7 Titanium, 6 Plant, 5 Energy, 4 Heat, " +
-                "$EarthCatapult, $Mine, $InventorsGuild"
-        )
-    p1.runOperation(
-        "6 MC, 5 ProjectCard, 4 Steel, 3 Titanium, 2 Plant, 2 Energy, 2 Heat, " +
+  internal fun `Cannot be played with eight resource types`() {
+    kim.exMachina(
+        "Steel, Titanium, Plant, Energy, Heat, " +
             "$Pets, $Decomposers, Animal<$Pets>, Microbe<$Decomposers>"
     )
+
+    shouldThrow<RequirementException> { kim.playProject(DiversitySupport, 1) }
   }
 }

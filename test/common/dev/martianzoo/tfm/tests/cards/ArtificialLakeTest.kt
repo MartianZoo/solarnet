@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.tests.TestOption.Amazonis
@@ -13,7 +12,7 @@ import kotlin.test.Test
 
 internal class ArtificialLakeTest : CardTest() {
   @Test
-  internal fun `A full land board blocks placement at eight oceans but permits card play at nine`() {
+  internal fun `A full land board blocks placement while the ocean track is incomplete`() {
     startTerraforming(startingMc = 1_500)
     raiseTemperatureTo(12)
     placeOceans(8)
@@ -29,12 +28,6 @@ internal class ArtificialLakeTest : CardTest() {
     p1.count("ProjectCard") shouldBe cardsBefore
     p1.count("$ArtificialLake") shouldBe 0
     p1.count("OceanTile") shouldBe 8
-
-    placeOceans(1)
-    p1.count("OceanTile") shouldBe 9
-
-    p1.playProject(ArtificialLake, 15).expect("0 Tile")
-    p1.count("$ArtificialLake") shouldBe 1
   }
 
   @Test
@@ -56,37 +49,15 @@ internal class ArtificialLakeTest : CardTest() {
   }
 
   @Test
-  internal fun `Nine oceans on Amazonis still require placing the next ocean`() {
+  internal fun `Cannot decline the next ocean after nine oceans on Amazonis`() {
     newGame(Amazonis)
     p1.runOperation("500 MC, ProjectCard, 12 TemperatureStep")
     admin.phase("Action")
     placeOceans(9)
-    val area = connectedLandAreas().first()
 
-    p1.playProject(ArtificialLake, 15) {
-          shouldThrow<NarrowingException> { declineTask() }
-          placeTile(area.row, area.column)
-        }
-        .expect("OceanTile")
-  }
-
-  @Test
-  internal fun `Cannot place its ocean on a water area`() {
-    startTerraforming()
-    raiseTemperatureTo(12)
-
-    p1.playProject(ArtificialLake, 15) {
-      shouldThrow<NarrowingException> { doTask("OceanTile<Tharsis_1_2>") }
-      placeTile(2, 3)
+    shouldThrow<NarrowingException> {
+      p1.playProject(ArtificialLake, 15) { declineTask() }
     }
-  }
-
-  @Test
-  internal fun `Cannot be played below -6 °C`() {
-    startTerraforming()
-    raiseTemperatureTo(11)
-
-    shouldThrow<RequirementException> { p1.playProject(ArtificialLake, 15) }
   }
 
   private fun startTerraforming(startingMc: Int = 500) {

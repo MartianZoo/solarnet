@@ -4,7 +4,6 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.exMachina
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testTfm
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.recording
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
@@ -13,6 +12,7 @@ import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.TfmCatalog
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -53,7 +53,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   @BeforeTest
   open fun commonSetup() {
     gamePremise = catalog.gamePremise(config, parseClasses(playerClassPets))
-    game = Engine.newGame(gamePremise)
+    game = TfmEngine.newGame(gamePremise)
     val players = game.actors.filterIsInstance<Player>()
     fun gameplay(player: Player): TfmGameplay =
         game.testTfm(player).let {

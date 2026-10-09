@@ -1,7 +1,7 @@
 {
   "decks": [
     {
-      "deck": "StandardCorporationCard",
+      "deck": "CorporationCard",
       "cards": [
         {
           "name": "CrediCor",
@@ -874,7 +874,7 @@
           "requirement": "MAX 6 OxygenStep",
           "cost": 3,
           "tags": [ "ScienceTag" ],
-          "actions": [ "1 MC -> ProjectCard<Revealed> THEN ClaimCardReward<TagFilter<Class<MicrobeTag>>, This> OR Ok THEN -ProjectCard<Revealed>" ],
+          "actions": [ "1 MC -> ProjectCard<Revealed> THEN ClaimCardReward<TagFilter<Class<MicrobeTag>>, This>? THEN -ProjectCard<Revealed>" ],
           "effects": [ "End IF Science<This>: 3 VictoryPoint" ],
         },
         {

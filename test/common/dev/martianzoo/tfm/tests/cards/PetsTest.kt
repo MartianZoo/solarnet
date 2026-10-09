@@ -6,30 +6,24 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class PetsTest : CardTest() {
-  @BeforeTest
-  fun initializeGame() {
-    newGame()
-    admin.phase("Action")
-  }
+internal class PetsTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame()
 
   @Test
-  internal fun `Prevents Predators from removing its animal when another target exists`() {
-    val p2 = requireP2()
-    p2.runOperation("$Pets")
-    p1.runOperation("$Predators, Animal<$Predators>")
+  internal fun `Cannot remove a protected animal when another target exists`() {
+    stan.exMachina("$Pets, Animal<$Pets>")
+    kim.exMachina("$Predators, Animal<$Predators>")
 
-    p1.cardAction1(Predators) {
-      shouldThrow<DeadEndException> { doTask("-Animal<Player2, $Pets<Player2>>") }
-      doTask("-Animal<$Predators>")
+    shouldThrow<DeadEndException> {
+      kim.cardAction1(Predators) { doTask("-Animal<Stan, $Pets<Stan>>") }
     }
   }
 
   @Test
   internal fun `Prevents Predators from acting when its animal is the only target`() {
-    val p2 = requireP2()
-    p2.runOperation("$Pets")
-    p1.runOperation("$Predators")
-    shouldThrow<DeadEndException> { p1.cardAction1(Predators) }
+    stan.exMachina("$Pets, Animal<$Pets>")
+    kim.exMachina("$Predators")
+
+    shouldThrow<DeadEndException> { kim.cardAction1(Predators) }
   }
 }

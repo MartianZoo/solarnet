@@ -25,6 +25,18 @@ internal class Effector(
 
   private val effects = mutableMapOf<Component, List<LiveEffect>>()
 
+  /** Copies the derived subscription index while preserving independent-listener order. */
+  internal fun copyIndexFrom(source: Effector) {
+    check(registry.isEmpty() && effects.isEmpty())
+    effects.putAll(source.effects)
+    source.registry.forEach { (key, bucket) ->
+      registry[key] =
+          HashMultiset<LiveEffect>().also { copy ->
+            bucket.entries.forEach { (effect, count) -> copy.add(effect, count) }
+          }
+    }
+  }
+
   /**
    * Compiles every effect needed to synchronize [change], before authoritative state is changed.
    */

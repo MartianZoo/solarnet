@@ -1,7 +1,6 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.PetElaborator
-import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
@@ -11,6 +10,7 @@ import dev.martianzoo.pets.api.SystemClasses.CONTINUATION
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
 import dev.martianzoo.pets.api.SystemClasses.THIS
+import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.Metric
@@ -21,25 +21,55 @@ import dev.martianzoo.pets.data.ModuleProperties.PREMISE_REQUIREMENT
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.CustomClass
 import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameWorld
+import dev.martianzoo.state.validateCustomClasses
 
 /** Entry point to the solarnet engine -- create new games here. */
 public object Engine {
 
   /** Creates a game at its committed initialization state, ready to be given to a workflow. */
-  public fun newGame(premise: GamePremise): World = Wiring(premise).createWorld()
+  public fun newGame(
+      premise: GamePremise,
+      customClasses: Set<CustomClass> = emptySet(),
+  ): World {
+    validateCustomClasses(premise.catalog, customClasses)
+    return Wiring(premise, GameWorld(premise, customClasses = customClasses)).createWorld()
+  }
+
+  /**
+   * Creates an independently mutable live World at the same completed gameplay position as
+   * [source]. Immutable premise data is shared, while state and every engine service are rebuilt.
+   * Application callbacks, component listeners, Agents, provisional forms, and workflow control
+   * state are not copied.
+   *
+   * @throws IllegalArgumentException if [source] was not created by this Engine
+   * @throws IllegalStateException if [source] is between completed gameplay positions
+   */
+  public fun fork(source: World): World {
+    val wholeWorld =
+        source as? WholeWorld
+            ?: throw IllegalArgumentException("Unknown World implementation: ${source::class}")
+    val current = source.timeline.checkpoint()
+    val positions = wholeWorld.recordingPositions.snapshot()
+    check(positions.lastOrNull() == current) {
+      "cannot fork a World between completed gameplay positions"
+    }
+    val gameWorld = wholeWorld.gameWorld.fork()
+    return Wiring(gameWorld.premise, gameWorld).createFork(positions, wholeWorld.effector)
+  }
 
   /** Constructs one engine world and owns the lifetimes of all its collaborators. */
   private class Wiring(
       private val premise: GamePremise,
+      private val gameWorld: GameWorld,
   ) {
     private val classTable = premise.classTable.also(::validatePremise)
     private val elaborator: PetElaborator = PetElaborator(classTable)
-    private val customClasses = CustomInstructionRuntime(premise.catalog, elaborator)
-
-    private val gameWorld = GameWorld(premise)
+    private val customClasses = CustomInstructionRuntime(gameWorld, elaborator)
 
     // Effect compilation needs the reader, but no effect is read until state begins changing.
     private val effector: Effector = Effector(elaborator, customClasses) { reader }
@@ -80,6 +110,7 @@ public object Engine {
             classTable,
             actorEngines,
             recordingPositions,
+            effector,
         )
 
     internal fun createWorld(): WholeWorld {
@@ -100,7 +131,47 @@ public object Engine {
         )
       }
       recordingPositions.record(timeline.checkpoint().ordinal)
+      requireSignedSelectionsMatchClassComponents()
       return world
+    }
+
+    internal fun createFork(positions: List<Checkpoint>, sourceEffector: Effector): WholeWorld {
+      effector.copyIndexFrom(sourceEffector)
+      positions.forEach { recordingPositions.record(it.ordinal) }
+      timeline.commit()
+      limiter.checkRequiredCounts = true
+      requireSignedSelectionsMatchClassComponents()
+      return world
+    }
+
+    /** Every signed premise selection must agree with the live Class representatives. */
+    private fun requireSignedSelectionsMatchClassComponents() {
+      val present =
+          gameWorld.components.getAll(classTable.classClass.baseType, NoGameState).elements.mapTo(
+              linkedSetOf()
+          ) {
+            it.expression.arguments.single().className
+          }
+      val included =
+          premise.classSelections
+              .filter { it.included }
+              .filter { selection ->
+                classTable.getClass(selection.className).let { selectedClass ->
+                  !selectedClass.abstract && classTable.isInhabited(selectedClass)
+                }
+              }
+              .mapTo(linkedSetOf()) { it.className }
+      val excluded =
+          premise.classSelections.filterNot { it.included }.mapTo(linkedSetOf()) { it.className }
+      val missing = included - present
+      val unexpected = excluded.intersect(present)
+      check(missing.isEmpty() && unexpected.isEmpty()) {
+        buildString {
+          append("World Class components do not match its signed GamePremise selections")
+          if (missing.isNotEmpty()) append("; missing: ${missing.joinToString()}")
+          if (unexpected.isNotEmpty()) append("; unexpected: ${unexpected.joinToString()}")
+        }
+      }
     }
 
     /**
@@ -131,43 +202,11 @@ public object Engine {
       if (premise.modules.isNotEmpty() && premise.premiseClassName == null) {
         throw InvalidGameConfigException("a premise with modules must provide a premise class")
       }
-      premise.initialComponentTypes.forEach { expression ->
-        val type =
-            try {
-              classTable.resolve(expression)
-            } catch (e: ExpressionException) {
-              throw InvalidGameConfigException(
-                  "invalid initial component type `$expression`: ${e.detail}",
-                  e,
-                  e.sourceLocation ?: expression.sourceLocation,
-              )
-            }
-        if (
-            type.abstract ||
-                !classTable.isInhabited(type) ||
-                type.rootClass.declaration.customMetric
-        ) {
-          val reason =
-              when {
-                type.rootClass.declaration.customMetric ->
-                    "is a virtual custom metric; it cannot be stored as a component"
-                !classTable.isInhabited(type) ->
-                    "has no realizable concrete type in this game's selected classes"
-                else -> "is abstract; specify one concrete type"
-              }
-          throw InvalidGameConfigException(
-              "initial component type `$expression` $reason",
-              sourceLocation = expression.sourceLocation,
-          )
-        }
-      }
-
       val initiallyPresentClassNames =
           premise.modules +
               premise.playerNames +
               listOfNotNull(premise.bootstrapClassName, premise.premiseClassName) +
-              premise.classSelections.filter { it.included }.map { it.className } +
-              premise.initialComponentTypes.map { classTable.resolve(it).className }
+              premise.classSelections.filter { it.included }.map { it.className }
       val inhabitedConcreteClasses = classTable.allInhabitedConcreteClasses()
 
       fun countInhabitedClasses(count: Count): Int {

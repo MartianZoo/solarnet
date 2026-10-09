@@ -204,10 +204,22 @@ CLASS BuildColonyProject : StandardProject {
 ABSTRACT CLASS ColonyTileSelection<Class<ColonyTile>> { HAS MAX 1 This }
 
 "A colony selected by the premise but not realized until setup is complete"
-CLASS SelectedColonyTile<Class<@ColonyTile>> : Hidden {
+ABSTRACT CLASS SelectedColonyTile<Class<@ColonyTile>> : Hidden {
   HAS MAX 1 This
   CorporationPhase:: ColonyTileSelection<Class<@ColonyTile>> FROM This
 }
+
+CLASS CallistoSelected : SelectedColonyTile<Class<Callisto>>
+CLASS CeresSelected : SelectedColonyTile<Class<Ceres>>
+CLASS EnceladusSelected : SelectedColonyTile<Class<Enceladus>>
+CLASS EuropaSelected : SelectedColonyTile<Class<Europa>>
+CLASS GanymedeSelected : SelectedColonyTile<Class<Ganymede>>
+CLASS IoSelected : SelectedColonyTile<Class<Io>>
+CLASS LunaSelected : SelectedColonyTile<Class<Luna>>
+CLASS MirandaSelected : SelectedColonyTile<Class<Miranda>>
+CLASS PlutoSelected : SelectedColonyTile<Class<Pluto>>
+CLASS TitanSelected : SelectedColonyTile<Class<Titan>>
+CLASS TritonSelected : SelectedColonyTile<Class<Triton>>
 
 "Lets the solo player discard one selected colony tile; owned so that player makes the choice"
 CLASS SoloColoniesSetup : Owned<Player>, System, Hidden {

@@ -1,25 +1,29 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
-import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.cards.ProjectCardTest
+import dev.martianzoo.tfm.tests.cards.cardnames.ProductiveOutpost
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class ProductiveOutpostTest : ColoniesCardTest() {
+internal class ProductiveOutpostTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame(addOptions = "Luna, Io, Triton, Europa, Titan")
+
   @Test
   internal fun `Pays no bonuses without colonies`() {
-    p1.runOperation("$ProductiveOutpost").expect("0 MC")
+    kim.playProject(ProductiveOutpost, 0).expect("0 MC")
   }
 
   @Test
   internal fun `Pays each bonus for colonies the player owns`() {
-    p1.runOperation("Colony<Luna>, Colony<Io>, Colony<Triton>")
+    kim.exMachina("Colony<Luna>, Colony<Io>, Colony<Triton>")
 
-    p1.runOperation("$ProductiveOutpost").expect("2 MC, 2 Heat, Titanium")
+    kim.playProject(ProductiveOutpost, 0).expect("2 MC, 2 Heat, Titanium")
   }
 
   @Test
   internal fun `Pays once per colony, not once per colony tile`() {
-    p1.runOperation("2 Colony<Luna>")
+    kim.exMachina("2 Colony<Luna>")
 
-    p1.runOperation("$ProductiveOutpost").expect("4 MC")
+    kim.playProject(ProductiveOutpost, 0).expect("4 MC")
   }
 }

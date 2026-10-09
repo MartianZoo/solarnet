@@ -10,6 +10,10 @@ internal class ScriptCompletionEngineTest {
   private val repl = ScriptSession()
   private val completer = ScriptCompletionEngine(repl)
 
+  init {
+    repl.keepStartingProjects(0, 0)
+  }
+
   @Test
   internal fun completesCommandNames() {
     assertTrue("count" in values("co"))

@@ -11,6 +11,11 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Complete the remaining static-model separation needed for `:tfm-canon` to drop its `:state`
+  dependency by moving Catalog and premise model ownership upstream.
+- Once `Engine.fork` is available here, have `ProjectCardTest` prepare its Action-phase `World`
+  once and fork it for each test instead of rebuilding it. Rebind Kim, Stan, and Rob to the fork,
+  add fixture-level isolation coverage, and update `TESTING.md` to describe the forked fixture.
 - Resolve the nested self-transmutation case characterized in `pets/BugsTest`: an abstract Box
   currently permits identical concrete shared arguments. Preserve shared abstract arguments and
   rejection of dropping their markers; clarify when an open nested shared transmutation itself
@@ -19,6 +24,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   trigger must bind a variable.
 - Revisit Mons Insurance self-compensation only if an authoritative ruling supports it. The
   selected provisional behavior excludes its owner from compensation triggers.
+- [ ] Revisit [explicit payment exchanges and automatic-execution policy](docs/agents/PAYMENTS.md#explicit-exchanges-and-continuation-cost).
+  Compare the exchanges plus a small, general policy adjustment against the current payment
+  machinery; automatic execution is tunable outside the pure engine model.
 - Find a simple, natural way for the presence of `Class<Aridor>` to bring all unused
   `Class<ColonyTile>` definitions into the game. Without Aridor present, only the explicitly
   selected colony tiles should be defined. This should depend on Aridor's Class being present,
@@ -27,6 +35,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   Inferring types at supplying occurrences (especially `EACH` and `RANK` domains) and retaining
   short spelling after resolution also remain deferred; supported shorthand references one
   uniquely named typed binding.
+- Let compact same-class transmutations retain an explicit lexical `This` dependency before
+  matching defaults. `CorporationCard<This, Hand FROM Selecting>` currently tries to resolve
+  `This` as a class, while omitting it changes the pending task identity.
 - Make `ComponentGraph.listenToCount` update only subscriptions affected by a component change,
   instead of recounting every watched Type after every change. Preserve immediate initial delivery,
   notifications only when the count changes, cancellation, and correct subtype/refinement handling
@@ -37,9 +48,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Add scenario saving and reloading to [Mars Playground](PLAYGROUND.md) after the initial version.
 - Add shareable URLs for [Mars Playground](PLAYGROUND.md#technology-and-experience) later. First
   decide what restoring the same view includes: scenario, history position, camera, and windows.
-- Review derived lookups on delegated Catalogs: `customClass`, `customMetric`, `classDeclaration`,
-  and `allClassNames` use the delegate's properties even when the wrapper overrides them. Keep this
-  existing issue separate from the class-loading boundary cleanup.
+- Review derived lookups on delegated Catalogs: `classDeclaration` and `allClassNames` use the
+  delegate's properties even when the wrapper overrides them. Keep this existing issue separate
+  from the class-loading cleanup.
 - Try to simplify Flooding and Artificial Lake's ocean instructions without engine prediction.
   Preserve full-track no-placement behavior (including Amazonis), Artificial Lake's required
   placement below the cap, and Flooding's linked placement and victim choice.
@@ -124,7 +135,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   the selected modules and configured components. Moving its effects to `SetupPhase` was tested and
   fails because bootstrap validation already requires the exact-one global-parameter rule systems.
   The smallest promising direction is to reverse premise/`BootstrapPhase` creation in `Initializer`,
-  then update its lifecycle tests and the bootstrap account in `ENGINE.md` and `WORKFLOW.md`.
+  then move its effects, including closing the `AfterMe` cycle, and update its lifecycle tests and
+  the bootstrap account in `ENGINE.md` and `WORKFLOW.md`.
 - Replace `FinalScoringPending` with a real `FinalScoringPhase`. Today `End` creates the temporary
   marker, `MeasureAward` depends on it, and marker removal assigns `Victory`; instead final-scoring
   effects should belong to the new phase, whose completion advances to terminal `End`, where victory
@@ -152,8 +164,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Separate the expression API's three intents: an object's natural available expression, a resolved
   Type's compact expression, and its full expression. Keep syntax expressions universe-independent;
   converting an arbitrary expression to either resolved form must take a `ClassTable` explicitly.
-- Decouple cleanup lifetime from log visibility so player-meaningful signals such as `Pay` and
-  `PayFromCard` need not inherit `Hidden` through `MustCleanUp`.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - **Low priority:** [#54: ownership-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)

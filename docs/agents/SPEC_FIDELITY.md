@@ -1,5 +1,8 @@
 # Pets specification fidelity audit
 
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
 > **Read when:** examining agreement among the Pets specifications, tests, KDoc/API, and implementation.
 >
 > **Status:** unfinished audit. The leads below may have been resolved or overtaken by later changes.

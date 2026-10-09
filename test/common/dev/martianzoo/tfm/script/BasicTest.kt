@@ -3,9 +3,12 @@ package dev.martianzoo.tfm.script
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.Player
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -16,8 +19,22 @@ internal fun setUpGame(
 ): World {
   val setup = OptionCodeTranslation.setup(optionCodes, players)
   return createGame(setup).apply {
-    testAgents()[ADMIN].beginOperation("SetupPhase FROM Phase")
+    val agents = testAgents()
+    agents[ADMIN].beginOperation("SetupPhase FROM Phase")
+    actors.filterIsInstance<Player>().forEach { player ->
+      agents.tfm(player).keepStartingProjects(0)
+    }
   }
+}
+
+internal fun ScriptSession.keepStartingProjects(vararg counts: Int) {
+  for ((player, count) in game.actors.filterIsInstance<Player>().zip(counts.asIterable())) {
+    agents.tfm(player).keepStartingProjects(count)
+  }
+}
+
+internal fun ScriptSession.playCorporation(cardName: String) {
+  agents.tfm(agent.actor).playCorp(cn(cardName))
 }
 
 internal class BasicTest {
