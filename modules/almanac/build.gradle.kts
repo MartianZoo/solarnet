@@ -4,7 +4,7 @@ plugins {
 }
 
 val sourceDirectory =
-    rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/classviewer")
+    rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/almanac")
 
 kotlin {
   js {

@@ -15,7 +15,7 @@
   kind, and bonus-sigil decoding.
 - [`MarsMapDefinition.kt`](../../src/common/dev/martianzoo/tfm/canon/MarsMapDefinition.kt) — parsed
   map and area representation.
-- [`regenerateMapAreas.kt`](../../src/jvm/dev/martianzoo/tfm/tools/regenerateMapAreas.kt) —
+- [`regenerateMapAreas.kt`](../../src/jvm/dev/martianzoo/tfm/petstools/regenerateMapAreas.kt) —
   declaration construction, round-trip validation, and file rewriting.
 
 Map topology and bonuses are authored in the diagram comment immediately after the generated-area
@@ -31,7 +31,7 @@ Each map's `.pets` file keeps its Module, milestones, awards, diagram, and gener
 Run:
 
 ```shell
-./gradlew :tools:regenerateMapAreas
+./gradlew :pets-tools:regenerateMapAreas
 ```
 
 The task rewrites the diagram and area block in every recognized map file and verifies that the

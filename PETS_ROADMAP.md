@@ -19,10 +19,10 @@ conceptual cost.
 
 1. **Complete the static/runtime separation.** **Selected.** The future Pets repository should
    build and explain its static model without depending on game state or execution. Finish the
-   separation now expressed by the dedicated `catalog` module and by Canon, Fake Canon, and Almanac
-   having no state dependency: isolate source parsing from the model and continue making consumers
-   depend only on capabilities they actually use. Prefer moving a complete responsibility or
-   deleting a reverse dependency over adding paired adapters.
+   separation now expressed by the dedicated `catalog` and `pets-tools` modules and by Canon, Fake
+   Canon, and Almanac having no state dependency: isolate source parsing from the model and continue
+   making consumers depend only on capabilities they actually use. Prefer moving a complete
+   responsibility or deleting a reverse dependency over adding paired adapters.
 
 2. **Make Pets pleasant to consume directly.** **Selected.** The model should expose a small,
    typed, unsurprising path from declarations to class tables, types, properties, and instructions.
@@ -30,11 +30,11 @@ conceptual cost.
    temporary Canon-facing seams and APIs that expose incidental implementation structure. The test
    for success is simpler real consumers, not a more elaborate facade.
 
-3. **Decide the generated Kotlin API by net simplification.** **Exploratory.** The `codegen` branch
-   demonstrates a rich typed hierarchy for canonical Pets vocabulary, but it also introduces a
-   second large surface and substantial adapters in functional tests. Retain and integrate it only
-   if it replaces stringly helpers, constants, and duplicated interpretation across production
-   callers. If it mostly sits above the same machinery, keep the generator isolated or remove it.
+3. **Decide the generated Kotlin API by net simplification.** **Exploratory.** The isolated,
+   game-independent `codegen` module demonstrates a rich typed hierarchy for Pets vocabulary, but
+   adopting that output would introduce a second large surface. Integrate it only if it replaces
+   stringly helpers, constants, and duplicated interpretation across production callers. If it
+   mostly sits above the same machinery, keep the generator isolated or remove it.
 
 4. **Keep a single semantic model.** **Selected.** Execution, English, icons, analysis, and Kotlin
    access must all consume the same declarations and type rules. Precompiled canonical content may
@@ -166,4 +166,4 @@ conceptual cost.
 This roadmap synthesizes the current priorities in
 [`VALUES.md`](docs/agents/VALUES.md), [`TODO.md`](TODO.md), the
 [repository introduction draft](docs/pets-repo-draft.md), recent mainline
-work, and the active `english` and exploratory `codegen` branches.
+work, the active `english` branch, and the exploratory `codegen` module.

@@ -63,13 +63,19 @@ javascript in a browser, or in yet other ways I haven't verified yet.
 
 *pets* has the parser, the AST library it parses into, the class loader and type system.
 
+*catalog* assembles declarations into selectable static game catalogs.
+
+*tfm-card-data* reads the external card database, and *tfm-card-generator* turns it into Pets.
+
 *tfm-canon* is the catalog of all officially published Terraforming Mars content.
 
 *tfm-fake* is fake versions of cards/etc. that aren't in canon because they don't really work right.
 
-*pets-almanac* is a web app.
+*almanac* is a web app for exploring the resulting catalog.
 
-*tools* has random one-off crap.
+*codegen* can generate typed Kotlin access to a Pets class table.
+
+*tools* has random one-off generation and analysis crap.
 
 <table>
   <tr>

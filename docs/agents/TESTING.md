@@ -69,7 +69,7 @@ only when the change crosses a wider scope or the narrower result leaves a mater
 - `./gradlew :pets:jvmTestCoverage` runs only the Pets module's JVM test suite and writes HTML and
   XML coverage reports for Pets production code under that module's
   `reports/jacoco/jvmTestCoverage` build directory.
-- `./gradlew :tfm-tests:sampleRandomCards` prints randomly generated project cards as raw Pets.
+- `./gradlew :pets-tools:sampleRandomCards` prints randomly generated project cards as raw Pets.
   Use `-PrandomCardCount=N` and `-PrandomCardSeed=N` to control and reproduce a sample, and add
   `-PrandomCardOutput=PATH` to write it to a text file. Its weights favor nested selectors,
   refinements, sequences, gates, and per-unit metrics so the raw Pets can exercise downstream
@@ -219,7 +219,7 @@ clear coverage of these contracts matters more than preserving every current tes
    `CoreRulesTest` documents game-wide rules in this same style.
 5. **Whole-game tests.** Long scenarios that show the workflow and many rules operate together,
    especially when reconstructed from independent game records. Every successful replay test also
-   emits the recording consumed by the game viewer.
+   emits the recording consumed by the viewer.
 6. **Canon admissibility tests.** A compact gate confirming that the complete authority loads and
    that representative supported configurations compose into usable projected class tables and
    worlds. This is not a demand to restate the contents of every card or bundle in assertions.

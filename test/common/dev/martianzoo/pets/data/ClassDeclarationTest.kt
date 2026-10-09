@@ -11,7 +11,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Instruction.Quantifier
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
-import dev.martianzoo.tfm.testlib.te
+import dev.martianzoo.pets.testsupport.te
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
