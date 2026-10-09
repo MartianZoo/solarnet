@@ -143,8 +143,10 @@ solo replays use ordinary follow-mode test bases without a card ledger.
 
 ## Deliberate boundaries
 
-Hidden-information handling, player-specific universes, and drafting are not selected goals. Exact
-hand tracking outside the engine is selected; hiding those names from other readers is not required.
+Hidden-information handling, player-specific universes, and drafting are not selected engine goals.
+The [adversarial-play proposal](ADVERSARIAL.md) discusses secret custody and acceptance outside
+the engine; it does not select their implementation. Exact hand tracking outside the engine is
+selected; the narrower tracking API does not require hiding those names from other readers.
 Shuffle/deal policy, deck order, and identities of cards never entering a hand or play do not belong
 in the engine. Do not build scaffolding for a full dealer or real-card mode as a prerequisite for
 this narrower tracking API.
