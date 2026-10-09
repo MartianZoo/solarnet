@@ -419,6 +419,12 @@ median: 32.1% less time. An earlier clean confirmation scored 1.800s. A separate
 other Gradle workers was discarded because its samples ranged from 2.418s to 5.008s. No memoized
 result or retained mutable state was added.
 
+A post-change recording reduced recording duration from 23s to 16s and showed keyed dependency-set
+equality lookups as remaining work. Dependency-set equality now returns immediately for the same
+set and compares the normally retained declaration order before falling back to its required
+order-independent lookup. Two candidate scores of 1.748s and 1.809s bracketed an immediate 1.897s
+committed-code control, reducing the replay by another 4.6–7.9% without changing equality semantics.
+
 ## Priorities suggested by the data
 
 1. Preserve the compiled class-model reuse. It removed over half of measured JVM test time without
