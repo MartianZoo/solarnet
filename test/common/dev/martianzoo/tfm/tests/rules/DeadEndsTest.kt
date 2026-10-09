@@ -162,8 +162,6 @@ internal class DeadEndsTest : CardTest() {
     try {
       p1.runOperation("$SmallAsteroid") {
         doTask("-Plant<Player2>")
-        p1.selectTask("MyResourceWasRemoved<Player2, Class<Plant>, Player1>.")
-        p2.doTask("MyResourceWasRemoved<Player2, Class<Plant>, Player1>!")
         hazardousChoiceAttempted = true
         doTasks(
             "3 MC<Player2> FROM MC<Player1>.",
@@ -184,8 +182,6 @@ internal class DeadEndsTest : CardTest() {
 
     p1.runOperation("$SmallAsteroid") {
           doTask("-Plant<Player2>")
-          p1.selectTask("MyResourceWasRemoved<Player2, Class<Plant>, Player1>.")
-          p2.doTask("MyResourceWasRemoved<Player2, Class<Plant>, Player1>!")
           doTasks("TemperatureStep", "TerraformRating", "-3 MC<Player1>", "Ok")
           autoExecNow(EAGER)
         }
