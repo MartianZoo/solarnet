@@ -63,6 +63,26 @@ Reject the change if:
 Use [`TESTING.md`](TESTING.md#test-design) and the replay guide selected by
 [`README.md`](README.md#verification-and-reconstruction).
 
+## API specifications and KDoc
+
+Apply the [API specifications and KDoc guidance](SPEC_FIDELITY.md), including
+its nine-module priority scope. Reject documentation work if:
+
+- it omits a public API contract merely because the declaration serves another repository module
+  or is not a principal entry point;
+- class KDoc neither explains applicable shared rules nor links directly to their common
+  explanation;
+- an API description leaves relevant caller obligations, observable outcomes, or failure effects
+  ambiguous, or merely paraphrases the signature;
+- duplicated explanations create competing sources of truth;
+- documentation turns genuinely unresolved intent into a promise, or weakens a clearly intended
+  contract merely to match an implementation defect; or
+- documentation work silently changes behavior or visibility to fit the contract.
+
+A clearly intended contract may be specified before the implementation satisfies it. Track known
+mismatches separately; a defect notice in the specification or KDoc is not required. Assume readers
+already understand Pets and Solarnet.
+
 ## Final coherence
 
 Reject the change if:

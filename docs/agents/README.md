@@ -29,6 +29,13 @@ or content selection, inspect the current source and tests first. Use the matchi
 selected future direction. The retired agent notes for those subjects had become duplicate design
 records.
 
+## API specifications and KDoc
+
+For API documentation or specification-fidelity work, read
+[`SPEC_FIDELITY.md`](SPEC_FIDELITY.md). It owns the nine-module priority scope, intended audience,
+public API coverage, shared-rule links, and the relationship between intended contracts and
+implementation defects. Inspect the relevant source, specifications, and tests as evidence.
+
 ## Pets, content, and tools
 
 | Subject | Read |
