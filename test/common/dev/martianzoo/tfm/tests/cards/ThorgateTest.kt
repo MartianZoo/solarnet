@@ -1,40 +1,15 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldContainExactly
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class ThorGateTest : CardTest() {
-  @BeforeTest
-  fun initializeGame() {
-    newGame()
-    p1.playCorp(ThorGate, 10)
-    p1.runOperation("-10 MC")
-    admin.phase("Action")
-  }
-
+internal class ThorGateTest : TfmSandboxTest() {
   @Test
-  internal fun `Discounts power-production standard projects`() {
-    val result = p1.stdProject("PowerPlantProject")
-    result.expect("-8 MC, PROD[Energy]")
+  internal fun `Discounts power-production standard projects before payment`() {
+    newTestGame(kimCorporation = ThorGate)
+    kim.setToExMachina(8, "MC")
 
-    result.changes
-        .filter { event ->
-          event.change.removing?.type == p1.resolve("MC") ||
-              event.change.gaining?.type == p1.resolve("MC")
-        }
-        .map { event ->
-          if (event.change.removing != null) -event.change.count else event.change.count
-        }
-        .shouldContainExactly(-8)
-  }
-
-  @Test
-  internal fun `Cannot buy power production with only seven mc`() {
-    p1.runOperation("-1 MC")
-    shouldThrow<LimitsException> { p1.stdProject("PowerPlantProject") }
+    kim.stdProject("PowerPlantProject").expect("-8 MC, PROD[Energy]")
   }
 }

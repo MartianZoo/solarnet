@@ -1,15 +1,25 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
-internal class CrediCorTest : CardTest() {
+internal class CrediCorTest : TfmSandboxTest() {
   @Test
-  internal fun `Discounts both an expensive card and an expensive standard project`() {
-    newGame()
-    admin.phase("Action")
-    p1.runOperation("40 MC, 2 ProjectCard, $CrediCor")
-    p1.playProject(EarthCatapult, 23).expect("-19 MC")
-    p1.stdProject("CityProject") { placeTile(2, 1) }.expect("-21 MC")
+  internal fun `Uses printed cost for its rebate even when discounts bring payment below twenty MC`() {
+    newTestGame(kimCorporation = CrediCor)
+
+    kim.exMachina("$EarthOffice, $ResearchOutpost")
+
+    kim.playProject(EarthCatapult, 19).expect("-15 MC")
+  }
+
+  @Test
+  internal fun `Stacks its standard-project rebate with Standard Technology`() {
+    newTestGame(kimCorporation = CrediCor)
+
+    kim.exMachina("$StandardTechnology")
+
+    kim.stdProject("CityProject") { placeTile(2, 1) }.expect("-18 MC")
   }
 }

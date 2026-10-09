@@ -357,6 +357,12 @@ The default game has:
 - the ordinary beginner-corporation starting state, including 42 MC, 10 anonymous project cards,
   20 TR in multiplayer (14 in solo), and production of 1 for each standard resource.
 
+For corporation-named suites, prefer sandbox unless the scenario needs real phase progression.
+Use `kimCorporation` for the subject corporation. When testing its initial play, also pass
+`startAtCorporation = true` and assert the result of playing it explicitly. Tests of an ongoing
+effect or action can use the default setup with that corporation already played. Acquiring another
+corporation through Merger instead belongs in the phase where Merger is played.
+
 Kim is the player exercising the subject card unless the card's behavior requires another actor.
 The standard game has three players. A scenario may instead pass `playerCount` from one through
 five; Maya and Nadia occupy the fourth and fifth seats. The protected `players` list exposes every

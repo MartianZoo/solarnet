@@ -1,23 +1,28 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import kotlin.test.BeforeTest
+import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class UtopiaInvestTest : CardTest() {
-  @BeforeTest
-  fun initializeGame() {
-    newGame(TurmoilExpansion)
-    playCorporationWithoutStartingProjects(p1, UtopiaInvest)
-    admin.phase("Action")
+internal class UtopiaInvestTest : TfmSandboxTest() {
+  @Test
+  internal fun `Decreases and gains the same standard resource`() {
+    newTestGame(kimCorporation = UtopiaInvest)
+    kim.setToExMachina(2, "PROD[Plant]")
+
+    kim.cardAction1(UtopiaInvest) { doTask("PROD[-Plant] THEN 4 Plant") }
+        .expect("PROD[-Plant], 4 Plant")
   }
 
   @Test
-  internal fun `Decreases and gains the same standard resource`() {
-    p1.runOperation("PROD[2 Plant]")
+  internal fun `Cannot sacrifice plant production to gain a different resource`() {
+    newTestGame(kimCorporation = UtopiaInvest)
+    kim.setToExMachina(2, "PROD[Plant]")
 
-    p1.cardAction1(UtopiaInvest) { doTask("PROD[-Plant] THEN 4 Plant") }
-        .expect("PROD[-Plant], 4 Plant")
+    shouldThrow<NarrowingException> {
+      kim.cardAction1(UtopiaInvest) { doTask("PROD[-Plant] THEN 4 Steel") }
+    }
   }
 }

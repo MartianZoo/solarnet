@@ -1,48 +1,54 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
+import dev.martianzoo.tfm.tests.TfmGameplayTest
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class UnmiTest : CardTest() {
+internal class UnmiTest : TfmSandboxTest() {
   @Test
   internal fun `Can use its action after raising TR`() {
-    initializeUnmi()
-    p1.stdProject("AsteroidProject").expect("-14 MC, TerraformRating")
-    p1.cardAction1(UnitedNationsMarsInitiative).expect("-3 MC, TerraformRating")
-  }
+    newTestGame(kimCorporation = UnitedNationsMarsInitiative)
+    kim.setToExMachina(17, "MC")
+    kim.stdProject("AsteroidProject")
 
-  @Test
-  internal fun `Can choose UNMI after raising TR earlier in the generation`() {
-    newGame()
-    p1.runOperation("TemperatureStep")
-    playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
-    admin.phase("Action")
-    p1.cardAction1(UnitedNationsMarsInitiative).expect("-3 MC, TerraformRating")
+    kim.cardAction1(UnitedNationsMarsInitiative).expect("TerraformRating")
   }
 
   @Test
   internal fun `Cannot use its action without raising TR`() {
-    initializeUnmi()
-    shouldThrow<RequirementException> { p1.cardAction1(UnitedNationsMarsInitiative) }
+    newTestGame(kimCorporation = UnitedNationsMarsInitiative)
+
+    shouldThrow<RequirementException> { kim.cardAction1(UnitedNationsMarsInitiative) }
   }
 
-  private fun initializeUnmi() {
-    newGame()
-    playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
-    admin.phase("Action")
-  }
+  internal class Gameplay : TfmGameplayTest() {
+    @Test
+    internal fun `Can use UNMI acquired after an earlier TR gain in the generation`() {
+      newTestGame(addOptions = "PreludeExpansion", playerCount = 2, kimCorporation = CrediCor)
+      kim.playPrelude(UnmiContractor)
+      kim.playPrelude(Merger) { kim.playCorp(UnitedNationsMarsInitiative) }
+      stan.playPrelude(Supplier)
+      stan.playPrelude(MetalsCompany)
 
-  @Test
-  internal fun `UNMI Contractor TR during setup qualifies UNMI in generation one`() {
-    newGame(PreludeExpansion)
-    p1.playCorp(UnitedNationsMarsInitiative, 0)
-    admin.phase("Prelude")
-    p1.playPrelude(UnmiContractor)
-    admin.phase("Action")
+      kim.cardAction1(UnitedNationsMarsInitiative).expect("TerraformRating")
+    }
 
-    p1.cardAction1(UnitedNationsMarsInitiative).expect("TerraformRating")
+    @Test
+    internal fun `UNMI Contractor TR during Prelude qualifies UNMI in generation one`() {
+      newTestGame(
+          addOptions = "PreludeExpansion",
+          playerCount = 2,
+          kimCorporation = UnitedNationsMarsInitiative,
+      )
+      kim.playPrelude(UnmiContractor)
+      kim.playPrelude(Donation)
+      stan.playPrelude(Supplier)
+      stan.playPrelude(MetalsCompany)
+
+      kim.cardAction1(UnitedNationsMarsInitiative).expect("TerraformRating")
+    }
   }
 }

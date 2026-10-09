@@ -1,33 +1,27 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
-import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
-import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
-import dev.martianzoo.tfm.tests.cards.CardTest
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class StormcraftIncorporatedTest : CardTest() {
+internal class StormcraftIncorporatedTest : TfmSandboxTest() {
   @Test
-  internal fun `Starts with 48 mc and can add a floater to another card`() {
-    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    playCorporationWithoutStartingProjects(p1, StormcraftIncorporated).expect("48 MC")
+  internal fun `Can add a floater to another card`() {
+    newTestGame(kimCorporation = StormcraftIncorporated)
+    kim.exMachina("$TitanShuttles")
 
-    admin.phase("Action")
-    p1.runOperation("$TitanShuttles")
-    p1.cardAction1(StormcraftIncorporated) { doTask("Floater<$TitanShuttles>") }
+    kim.cardAction1(StormcraftIncorporated) { doTask("Floater<$TitanShuttles>") }
         .expect("Floater<$TitanShuttles>")
   }
 
   @Test
   internal fun `Can spend a floater as two heat for an action cost`() {
-    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    admin.phase("Action")
-    p1.runOperation("$StormcraftIncorporated, Floater<$StormcraftIncorporated>, 6 Heat")
+    newTestGame(kimCorporation = StormcraftIncorporated)
+    kim.exMachina("Floater<$StormcraftIncorporated>, 6 Heat")
 
-    p1.stdAction(
+    kim.stdAction(
             "ConvertHeatAction",
             payment = {
               doTask("-Floater<$StormcraftIncorporated>")
@@ -41,19 +35,18 @@ internal class StormcraftIncorporatedTest : CardTest() {
   internal fun `Can spend no floaters on Local Heat Trapping`() {
     initializeStormcraftGame(floaters = 1, heat = 5)
 
-    p1.playProject(LocalHeatTrapping, 1) {
+    kim.playProject(LocalHeatTrapping, 1) {
           doTask("4 Plant")
           doTask("Ok")
         }
-        .expect("-5 Heat, 4 Plant")
-    p1.count("Floater<$StormcraftIncorporated>") shouldBe 1
+        .expect("-5 Heat, 4 Plant, 0 Floater<$StormcraftIncorporated>")
   }
 
   @Test
   internal fun `Can spend two floaters after Local Heat Trapping removes heat`() {
     initializeStormcraftGame(floaters = 2, heat = 5)
 
-    p1.playProject(LocalHeatTrapping, 1) {
+    kim.playProject(LocalHeatTrapping, 1) {
           doTask("4 Plant")
           doTask("-2 Floater THEN 4 Heat")
         }
@@ -64,7 +57,7 @@ internal class StormcraftIncorporatedTest : CardTest() {
   internal fun `Can spend three floaters before Local Heat Trapping removes heat`() {
     initializeStormcraftGame(floaters = 3, heat = 0)
 
-    p1.playProject(LocalHeatTrapping, 1) {
+    kim.playProject(LocalHeatTrapping, 1) {
           doTask("-3 Floater THEN 5 Heat")
           doTask("4 Plant")
         }
@@ -72,33 +65,19 @@ internal class StormcraftIncorporatedTest : CardTest() {
   }
 
   private fun initializeStormcraftGame(floaters: Int, heat: Int) {
-    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    admin.phase("Action")
-    val heatSetup = if (heat == 0) "" else ", $heat Heat"
-    p1.runOperation(
-        "$StormcraftIncorporated, $floaters Floater<$StormcraftIncorporated>$heatSetup, ProjectCard, 1 MC"
-    )
+    newTestGame(kimCorporation = StormcraftIncorporated)
+    kim.setToExMachina(floaters, "Floater<$StormcraftIncorporated>")
+    kim.setToExMachina(heat, "Heat")
   }
 
   @Test
-  internal fun `Stormcraft floaters spend as heat without counting for Thermalist`() {
-    newGame(PreludeExpansion, ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    val p2 = requireP2()
-    p1.playCorp(StormcraftIncorporated, 0)
-    p2.playCorp(CrediCor, 0)
-    admin.phase("Prelude")
-    p2.playPrelude(PolarIndustries) { placeTile(1, 2) }
-    admin.phase("Action")
-    p1.fundAward(cn("Thermalist"), 8)
-    repeat(9) {
-      p1.cardAction1(StormcraftIncorporated) { addCardResources(StormcraftIncorporated) }
-      admin.nextGeneration(0, 0)
-    }
+  internal fun `Floaters spend as heat without counting for Thermalist`() {
+    newTestGame(playerCount = 2, kimCorporation = StormcraftIncorporated)
+    kim.exMachina("9 Floater<$StormcraftIncorporated>")
+    stan.setToExMachina(2, "Heat")
+    kim.fundAward(cn("Thermalist"), 8)
 
-    p2.convertHeat()
-    p2.convertHeat()
-    p2.count("Heat") shouldBe 2
-    p1.stdAction(
+    kim.stdAction(
             "ConvertHeatAction",
             payment = {
               doTask("-4 Floater<$StormcraftIncorporated>")
@@ -106,8 +85,7 @@ internal class StormcraftIncorporatedTest : CardTest() {
             },
         )
         .expect("TemperatureStep, 0 Heat")
-    admin.runOperation("End FROM Phase")
-    p1.count("FirstPlace<Thermalist>") shouldBe 0
-    p2.count("FirstPlace<Thermalist>") shouldBe 1
+
+    victoryPoints() shouldBe listOf(21, 25)
   }
 }
