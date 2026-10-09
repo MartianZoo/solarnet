@@ -9,7 +9,7 @@ import dev.martianzoo.state.Task.TaskId
 public class EventLog internal constructor() {
   private val events: MutableList<GameEvent> = mutableListOf()
 
-  internal val size: Int
+  private val size: Int
     get() = events.size
 
   internal val nextOrdinal: Int

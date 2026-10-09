@@ -374,7 +374,7 @@ internal fun resolveTypeVariableNames(
 }
 
 /** Names declared by a selector itself or by the class represented by a `Class<T>` selector. */
-internal fun Expression.selectorTypeVariableDeclarations(): List<Expression> =
+private fun Expression.selectorTypeVariableDeclarations(): List<Expression> =
     listOfNotNull(
         takeIf { it.typeVariableName is Declaration },
         arguments.singleOrNull()?.takeIf {

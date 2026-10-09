@@ -10,7 +10,7 @@ import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.types.ClassTable
 
 /** Builds a catalog from Pets source, plus the system classes. */
-public fun testCatalog(
+internal fun testCatalog(
     petsText: String,
     customClassDependencies: Map<ClassName, Set<ClassName>> = emptyMap(),
     moduleSelections: Map<ClassName, Set<ClassSelection>> = emptyMap(),
@@ -26,7 +26,7 @@ public fun testCatalog(
 }
 
 /** Builds the game view of [catalog] whose premise selects exactly [selectedClassNames]. */
-public fun gameView(catalog: Catalog, vararg selectedClassNames: String): ClassTable =
+internal fun gameView(catalog: Catalog, vararg selectedClassNames: String): ClassTable =
     GamePremise(
             catalog = catalog,
             classSelections = selectedClassNames.mapTo(linkedSetOf()) { ClassSelection(cn(it)) },

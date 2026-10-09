@@ -64,7 +64,7 @@ public data class Action(
    * block — a comma-separated or gated cost is rejected, because alternative costs are written as
    * separate actions, each one thing a player can choose to do.
    */
-  public sealed class Cost : PetNode() {
+  public sealed class Cost private constructor() : PetNode() {
     override val kind: kotlin.reflect.KClass<out PetNode> = Cost::class
 
     internal abstract fun toInstruction(): InstructionTree

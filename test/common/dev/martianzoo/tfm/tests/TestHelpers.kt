@@ -141,7 +141,7 @@ private val MAP_OPTIONS =
         TestOption.Cimmeria,
     )
 
-object TestHelpers {
+internal object TestHelpers {
   fun testColonyTiles(players: Int, vararg included: String): Set<ClassName> {
     require(players > 0)
     val count = if (players == 1) 4 else if (players == 2) 5 else players + 2

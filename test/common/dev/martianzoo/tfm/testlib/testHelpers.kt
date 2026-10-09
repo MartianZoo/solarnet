@@ -9,10 +9,10 @@ import io.kotest.assertions.withClue
 
 internal fun te(s: String): Expression = parse(s)
 
-internal fun assertFails(message: String, shouldFail: () -> Unit) =
+private fun assertFails(message: String, shouldFail: () -> Unit) =
     withClue(message) { assertFails(shouldFail) }
 
-internal fun assertFails(shouldFail: () -> Unit) = shouldThrow<RuntimeException>(shouldFail)
+private fun assertFails(shouldFail: () -> Unit) = shouldThrow<RuntimeException>(shouldFail)
 
 internal fun <T> multiset(vararg pairs: Pair<Int, T>): Multiset<T> {
   val result = HashMultiset<T>()

@@ -43,7 +43,7 @@ internal class Changer(
   }
 
   /** Reapplies one recorded component event without calculating its consequences. */
-  internal fun replay(event: ChangeEvent) {
+  private fun replay(event: ChangeEvent) {
     applyEvent(event)
   }
 

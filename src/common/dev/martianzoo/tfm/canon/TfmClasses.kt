@@ -15,8 +15,8 @@ public object TfmClasses {
   internal val MILESTONE = cn("Milestone")
   internal val AWARD = cn("Award")
 
-  internal val CORPORATION_CARD = cn("CorporationCard")
-  internal val PRELUDE_CARD = cn("PreludeCard")
+  private val CORPORATION_CARD = cn("CorporationCard")
+  private val PRELUDE_CARD = cn("PreludeCard")
   internal val PROJECT_CARD = cn("ProjectCard")
   internal val CARD_RESOURCE = cn("CardResource")
   internal val CARD_FRONT = cn("CardFront")

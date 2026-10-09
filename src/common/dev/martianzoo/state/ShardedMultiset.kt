@@ -66,5 +66,5 @@ internal class ShardedMultiset<E, Q, S>(
   internal fun copy(): HashMultiset<E> =
       HashMultiset<E>().also { result -> shards.values.forEach(result::addAll) }
 
-  internal fun distinctElements(): Sequence<E> = shards.values.asSequence().flatMap { it.elements }
+  private fun distinctElements(): Sequence<E> = shards.values.asSequence().flatMap { it.elements }
 }

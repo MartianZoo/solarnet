@@ -28,7 +28,7 @@ import kotlin.test.assertFailsWith
 
 /** Tests for the Canon data set. */
 internal class CanonClassesTest {
-  companion object {
+  private companion object {
     private fun te(source: String): Expression = parse(source)
   }
 

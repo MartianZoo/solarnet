@@ -25,8 +25,7 @@ internal abstract class RandomGenerator<B : Any>(
       map[type] = creator
     }
 
-    @Suppress("UNCHECKED_CAST")
-    operator fun <N : B> get(type: KClass<N>) =
+    private @Suppress("UNCHECKED_CAST") operator fun <N : B> get(type: KClass<N>) =
         (map[type] ?: error(type)) as RandomGenerator<B>.() -> N
 
     open fun <T : B> invoke(type: KClass<T>, gen: RandomGenerator<B>): T? = get(type).invoke(gen)

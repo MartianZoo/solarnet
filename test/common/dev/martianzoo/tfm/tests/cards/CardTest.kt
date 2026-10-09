@@ -114,7 +114,7 @@ internal abstract class CardTest(
     return playCorp(corporation, body)
   }
 
-  protected fun prepareCorporationPhase(vararg startingProjects: Int) {
+  private fun prepareCorporationPhase(vararg startingProjects: Int) {
     val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
     require(startingProjects.size == players.size) { "Provide a project count per player" }
     if (admin.count("SetupPhase") == 1) {
@@ -238,12 +238,12 @@ internal abstract class CardTest(
   }
 
   /** Runs an instruction through the engine while hiding the uninteresting Agent plumbing. */
-  protected fun TfmGameplay.runOperation(
+  private fun TfmGameplay.runOperation(
       instruction: String,
       body: OperationBlock = {},
   ): TaskResult = runOperation(instruction, body)
 
-  protected fun Agent.runOperation(
+  private fun Agent.runOperation(
       instruction: String,
       body: OperationBlock = {},
   ): TaskResult = runOperation(instruction, body)
