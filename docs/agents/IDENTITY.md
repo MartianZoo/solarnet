@@ -87,6 +87,12 @@ selection reapplies that rule. A concrete `BY` remains authoritative: naming a n
 then reaches the existing `System` creation guard and fails. The Admin assignment changes neither
 presentation nor scheduling.
 
+Use `System` for a gain whose performance is neutral table bookkeeping rather than a Player's game
+action. The gain must itself be safe for eager Admin execution. If it opens a real choice, that
+choice remains downstream work for the retained Player recipient. This classification is
+independent of `Hidden`, which controls presentation, and `::`, which preserves an invariant within
+the initiating operation.
+
 Selecting a task resolves it, marks it selected, and moves its current assignee to its selection
 assignee. If that Actor differs from the controller, selection stops at the handoff even when the
 task is concrete. The new assignee narrows or executes it. The global select lock blocks competing

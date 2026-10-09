@@ -184,6 +184,19 @@ internal class ByTriggerCharacterizationTest {
   }
 
   @Test
+  internal fun systemMakesAnOwnedComponentsSubscriptionTableWide() {
+    val game = newGame()
+    val owner = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    owner.sneak("SystemTriggerProbe<Player1>!")
+
+    admin.beginOperation("SystemTriggerSignal!")
+    owner.autoExecPolicy = EAGER
+
+    owner.count("Plant<Player1>") shouldBe 1
+  }
+
+  @Test
   internal fun byOtherPlayerAcceptsOnlyOpponents() {
     val game = newGame()
     val owner = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
@@ -225,6 +238,7 @@ private object ProbeDeclarations : TfmCatalog() {
               """
               CLASS ActorTriggerSignal
               CLASS OwnedActorTrigger : Owned
+              CLASS SystemTriggerSignal : System
 
               CLASS AnyoneTriggerProbe {
                 ActorTriggerSignal BY Anyone: Plant<Player1>
@@ -251,6 +265,10 @@ private object ProbeDeclarations : TfmCatalog() {
 
               CLASS OwnedTriggerProbe : Owned {
                 OwnedActorTrigger<Anyone>: Plant
+              }
+
+              CLASS SystemTriggerProbe : Owned {
+                SystemTriggerSignal: Plant
               }
 
               CLASS OpponentByProbe : Owned {

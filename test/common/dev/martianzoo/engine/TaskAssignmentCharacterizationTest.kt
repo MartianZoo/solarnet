@@ -29,6 +29,7 @@ internal class TaskAssignmentCharacterizationTest {
               """
               CLASS Token<Owner>
               CLASS Marker<Owner>
+              CLASS PlayerStep<Owner> { This: SystemToken }
               CLASS AdminToken
               CLASS HiddenToken : Hidden
               CLASS SystemToken : System
@@ -235,6 +236,56 @@ internal class TaskAssignmentCharacterizationTest {
 
     p1.count("SystemToken") shouldBe 1
     game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun eagerAdminWorkPrecedesEarlierEagerPlayerWork() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1)
+    val admin = game.testAgent(ADMIN)
+    p1.addTasks("Token<Player1>")
+    admin.addTasks("AdminToken")
+    val checkpoint = game.timeline.checkpoint()
+
+    p1.autoExecNow()
+
+    game.events.changesSince(checkpoint).map { it.actor }.shouldContainExactly(ADMIN, PLAYER1)
+    game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun eagerAdminSettlesTriggeredWorkBetweenExplicitPlayerSteps() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    game.testAgent(ADMIN)
+    p1.addTasks("PlayerStep<Player1>")
+    p1.addTasks("Marker<Player1>")
+    val checkpoint = game.timeline.checkpoint()
+
+    p1.continueOperation {
+      doTask("PlayerStep<Player1>")
+      p1.count("SystemToken") shouldBe 1
+      doTask("Marker<Player1>")
+    }
+
+    game.events
+        .changesSince(checkpoint)
+        .map { it.actor }
+        .shouldContainExactly(PLAYER1, ADMIN, PLAYER1)
+  }
+
+  @Test
+  internal fun abstractAdminWorkDoesNotPreventExecutablePlayerWork() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1)
+    game.testAgent(ADMIN)
+    val systemChoice = p1.addTasks("SystemChoice").single()
+    p1.addTasks("Token<Player1>")
+
+    p1.autoExecNow()
+
+    p1.count("Token<Player1>") shouldBe 1
+    game.tasks.ids().shouldContainExactly(systemChoice)
   }
 
   @Test

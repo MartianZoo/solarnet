@@ -194,6 +194,17 @@ These concerns remain open; the ranking does not select replacement designs.
 - Replace the duplicated `TemperatureStep BY Player`/`BY Admin` threshold-ocean triggers and the
   synthetic `AdminOceanPlacement` signal with one rule that separates who chooses the tile from
   whose action the placement is attributed to, shared by the standard and extended tracks.
+- Extend early `System` assignment to scaled direct gains before classifying `CheckRequirement` as
+  `System`; its current `/ shortfall` task shape reaches the Admin-only guard while still assigned
+  to the Player.
+- Audit direct removals of `System` components, then decide whether early Admin assignment should
+  cover removals as well as gains. Preserve any removal that represents a real Player timing or
+  target choice instead of assuming that the gain classification settles both directions.
+- Investigate whether Player identity can survive Player → Admin → Player task chains without
+  making bookkeeping classes `Owned` solely to carry that Player through. Preserve real ownership,
+  cross-player effects, explicitly named recipients, and phases with no unique on-turn Player; do
+  not replace those distinct cases with a guessed current player. Current identity roles and
+  routing are recorded in [IDENTITY.md](docs/agents/IDENTITY.md).
 - Revisit causal ownership inside `BootstrapPhase`, moving initialization work under ordinary
   phase-caused tasks as soon as the required runtime state can express them.
 - Let refinements reference their candidate explicitly, so a selector can relate a nested
