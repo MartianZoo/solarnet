@@ -1,17 +1,84 @@
-# Runtime and Terraforming Mars responsibility audit
+# Repository split and responsibility ownership
 
 > **Agent information:** This is an agent-maintained information-tracking document, written by
 > agents for agents. It can record human decisions, but it is not human-authored documentation.
 >
 > **Read when:** moving code across state, engine, permissions, autoexecution, generic, or
 > Terraforming Mars packages; changing bare-number rejection or Action lowering; splitting Catalog
-> responsibilities; or separating script/workflow mechanics.
+> responsibilities; preparing the Pets/Solarnet repository split; separating linguistic Pets from
+> resolved types; or separating script/workflow mechanics.
 >
 > **Skip when:** a move follows the dependency direction already explicit in the source and Gradle
 > build files, or when the only motivation is support for a hypothetical unrelated game.
 >
-> **Status:** selected runtime dependency direction plus an audit of remaining generic/domain
-> placement. It is not a mandate to generalize Solarnet.
+> **Status:** agreed repository-split requirements, remaining proposals, and current runtime
+> ownership. It is not a mandate to generalize Solarnet.
+
+## Prepare the Pets/Solarnet repository split
+
+### Agreed scope and acceptance checklist
+
+- Reorganize the existing repository so a later repository split is straightforward. Creating the
+  separate repositories is outside this effort.
+- The future Pets repository owns language, types, static Terraforming Mars content and analysis,
+  content compilation, human rendering, and Almanac. Solarnet owns live game state, execution,
+  Agents, and runtime applications. Terraforming Mars specificity does not determine repository
+  ownership: Canon belongs with Pets. See the original intent in
+  [`INTRO.md`](INTRO.md) and [`pets-repo-draft.md`](../pets-repo-draft.md).
+- A client using only linguistic Pets must be able to parse, inspect, and manipulate type
+  expressions syntactically/literally without a loaded class table or a dependency on resolved-type
+  implementation. Resolved types consume that shared syntax; do not create a second AST.
+- Choose module separations and consolidations case by case, favoring consolidation over
+  proliferation. No target module count or size threshold is selected.
+- Do the redesign needed for the split, taking reasonably accessible opportunities for a cleaner
+  design. This does not select unrelated language or gameplay changes. Existing module names,
+  packages, and entry points need no compatibility preservation.
+- Keep Almanac a simple web application and card compilation a build tool. Put map generation near
+  card compilation; neither needs subdivision for its own sake.
+
+Record agreements in the owning repository documents. Discuss unresolved disagreements in chat;
+the module spreadsheet is not the place for answers or the authoritative design plan.
+
+### Current implementation
+
+Static Catalog assembly is independent of runtime state in `:catalog`, which depends only on
+`:pets`. Canon supplies static custom-Class dependency metadata; `TfmEngine` supplies executable
+Terraforming Mars implementations. `:tfm-state` contains read-only game projections, not custom
+execution. Canon, fake content, Almanac, and codegen have no runtime module dependency. See
+[static assembly and runtime ownership](#static-game-assembly-lives-in-catalog-runtime-apis-live-in-state)
+for the current contracts.
+
+### Remaining work
+
+**Deferred by the owner: linguistic Pets versus resolved types.** The client capability above is
+agreed; its implementation is deferred. The proposed starting point is to keep parsing,
+declarations, literal expressions, and lexical binding together, moving class-table-dependent
+operations into the resolved-type layer. Inspect `Expression`, `PetElement`, `InstructionTree`,
+and `InstructionIntersection` under `src/common/dev/martianzoo/pets/ast`, plus `TypeInfo`:
+moving `pets/types` alone would leave circular dependencies. Verify a client can use only the
+linguistic dependency with unresolved names. The [optional parser extraction](#pets-source-input-and-model-construction)
+is a separate concern: allowing model clients to omit a parser does not let linguistic clients omit
+the resolved-type implementation.
+
+**Proposed: consolidate content tooling.** These moves remain unimplemented:
+
+- Move map generation beside card compilation. The current
+  [`regenerateMapAreas.kt`](../../src/jvm/dev/martianzoo/tfm/tools/regenerateMapAreas.kt) imports
+  `MarsMapReader` and `MarsMapDefinition` from Canon, while Canon's build already depends on
+  `:tfm-card-generator`. Move shared map inputs upstream first to avoid a build cycle. Consider
+  broadening/renaming `:tfm-card-data` rather than adding a tiny map module.
+- Move Canon loading and Terraforming Mars output grouping out of
+  [`PetsTypeGenerator.kt`](../../src/jvm/dev/martianzoo/codegen/PetsTypeGenerator.kt) into static
+  content tooling. Its `generateCanonicalPetsTypes` entry point loads Canon; the generator itself
+  assumes `Card`, `Area`, `Milestone`, and `Award` Classes.
+- Move the [random-card generator](../../test/jvm/dev/martianzoo/tfm/randomcards/RandomCardGenerator.kt)
+  and its tests from `:tfm-tests` into static tools, accounting for its existing test-library helper.
+- Separate static commands from live-game commands in the mixed `:tools` module, without creating
+  a module for every command. Choose further mergers from actual dependencies, not module size.
+
+Move meaningful tests with their responsibilities. Verify the resulting dependency graph and the
+affected language, content generation, and runtime scenarios; compilation alone is insufficient.
+Preserve observable language and game behavior while changing ownership.
 
 ## Source map
 
@@ -167,6 +234,13 @@ metric/instruction APIs. A `GameWorld` passively carries any supplied bindings a
 custom metric queries. `Engine.newGame` validates the complete set needed for live play;
 game-specific engines such as `TfmEngine` own and supply that set. [NAMING.md](NAMING.md) owns
 presentation naming policy.
+
+`GameRecording.open()` creates a passive world without custom implementations. Recorded component
+queries and seeking work without them; querying a custom metric fails when no implementation is
+available. The contract is exercised by `passivePlaybackNeedsNoCustomImplementationsUntilTheirMetricsAreQueried`
+in [`GameRecordingTest.kt`](../../test/common/dev/martianzoo/engine/GameRecordingTest.kt).
+Accepting custom bindings through recording playback is not part of the current API or a selected
+follow-up.
 
 `:tfm-state` owns Terraforming Mars-specific read-only projections over `GameReader`, including
 the checked `TfmCatalog` view and map or production lookups. Both `:tfm-engine` and passive playback

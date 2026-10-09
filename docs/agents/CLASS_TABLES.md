@@ -154,7 +154,7 @@ validates implementations when starting live play; a passive `GameWorld` may hav
 `ClassLoader` nor `ClassTable` depends on custom runtime implementation classes. Transform factories
 bind to each receiving table.
 
-See [RESPONSIBILITIES.md](RESPONSIBILITIES.md#game-assembly-and-runtime-apis-belong-to-state)
+See [RESPONSIBILITIES.md](RESPONSIBILITIES.md#static-game-assembly-lives-in-catalog-runtime-apis-live-in-state)
 for assembly and viability ownership and the corresponding test boundaries.
 
 ## Access interface

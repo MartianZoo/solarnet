@@ -15,10 +15,11 @@ but knows nothing about these projects.
 
 The headings follow the planned repository split: Pets, Canon, and Almanac in a static-model
 repository; state, engine, agent, script, and REPL in a runtime repository. The split has not yet
-happened. Each numbered item identifies a focused subject that could support a short article. The
-order ranks what seems most useful for this reader to remember, not the order in which articles must
-appear. Before publication, check claims against the current code and distinguish implemented
-behavior from goals.
+happened. [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md#prepare-the-petssolarnet-repository-split)
+owns the agreed preparation requirements and current implementation status. Each numbered item
+identifies a focused subject that could support a short article. The order ranks what seems most
+useful for this reader to remember, not the order in which articles must appear. Before publication,
+check claims against the current code and distinguish implemented behavior from goals.
 
 ## Pets, Canon, and Almanac
 

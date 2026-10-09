@@ -24,6 +24,16 @@ changes, not a competing program.
 
 ## Selected programs
 
+### Prepare the Pets/Solarnet repository split
+
+Prepare the existing repository for a later split between static language/content tooling and live
+game execution. Static Catalog assembly and Canon are already independent of runtime state.
+Linguistic/type separation is explicitly deferred; content-tooling consolidation remains proposed.
+Creating the separate repositories is outside this effort.
+
+See [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md#prepare-the-petssolarnet-repository-split)
+for agreed scope, current ownership, remaining work, and acceptance criteria.
+
 ### Reach the single-source card trifecta
 
 Bring roughly 300 cards to correct behavior, good English instructions, and good iconographic
@@ -197,9 +207,9 @@ No total order has been selected for the following conditional work.
 - **Instruction-valued properties:** investigate one source for printed facts and live
   materialization only after group, binding, and query semantics are coherent. See
   [`PROPERTIES.md`](PROPERTIES.md#instruction-and-printed-tags).
-- **Broader responsibility extraction:** further Catalog, script-shell, JLine, and generic workflow
-  extraction is aspirational and must be independently valuable to Solarnet, not justified by a
-  hypothetical second game. See
+- **Broader responsibility extraction:** beyond the selected repository-split preparation,
+  script-shell, JLine, and generic workflow extraction remains aspirational and must be independently
+  valuable to Solarnet, not justified by a hypothetical second game. See
   [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md).
 - **Optimal-solo analysis:** the TR63 monotonicity work is retained research, not an implemented or
   currently scheduled optimizer. See [`OPTIMAL_SOLO.md`](OPTIMAL_SOLO.md).

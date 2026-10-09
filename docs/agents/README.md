@@ -98,6 +98,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 
 | Task | Read | Authority |
 | --- | --- | --- |
+| Prepare the Pets/Solarnet repository split, consolidate content tools, or separate linguistic Pets from resolved types | [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md#prepare-the-petssolarnet-repository-split) | Agreed requirements, current implementation, and remaining proposals |
 | Extract the Game World or remove engine code from recording playback | [`GAMEWORLD.md`](GAMEWORLD.md) | Selected direction |
 | Move runtime layers or generic versus Terraforming Mars responsibilities | The matching division in [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md) | Selected direction and audit |
 | Extract the client Agent API, Agent-owned autoexecution policies, or the shared autoexecution loop | [`API.md`](API.md), [`AUTOEXEC.md`](AUTOEXEC.md), after the Agent section of [`ENGINE.md`](ENGINE.md#actor-engines-and-agents) | Current divergence and selected direction |
