@@ -199,9 +199,8 @@ for correct ownership.
 Two migrations are in progress. Ordinary card and game-rule scenarios are moving toward full
 automatic phase and turn progression, and eligible project-card classes are moving to the
 standardized `ProjectCardTest` fixture described below. Existing tests have not all migrated.
-Dedicated REPL mode tests and lower-level engine or bootstrap tests retain their distinct subjects;
-[COLOR_MODES.md](COLOR_MODES.md#test-migration-and-acceptance) owns this distinction and the open
-mode contracts. Do not replace manual phase calls with helpers that recreate the workflow in Kotlin.
+Dedicated REPL mode tests and lower-level engine or bootstrap tests retain their distinct subjects.
+Do not replace manual phase calls with helpers that recreate the workflow in Kotlin.
 
 These are the repository's protected test categories. Test placement may evolve, but preserving
 clear coverage of these contracts matters more than preserving every current test class:
@@ -214,8 +213,7 @@ clear coverage of these contracts matters more than preserving every current tes
    component/task events, materialized projections, history, completed recording positions, and
    independent playback views remain coherent without firing effects. Cross-module engine
    scenarios cover consequence calculation and failure atomicity: a failed operation must restore
-   present components, pending work, and recorded history together. [GAMEWORLD.md](GAMEWORLD.md)
-   owns the detailed split.
+   present components, pending work, and recorded history together.
 4. **Player-level card and game-rule tests.** `CardTest` scenarios count when they use actions and
    observations available to a player rather than internal state or implementation details.
    `CoreRulesTest` documents game-wide rules in this same style.
@@ -261,7 +259,7 @@ assignment fields, or raw Event Log inspection.
 For delegated payment, final resource totals do not prove continuous authority. A helper that
 selects through another Actor can conceal missing engine control. Exercise separate Player
 commands, including attempted intervention between payment choices, and verify legality with
-autoexecution disabled where necessary. [SEQUENCING.md](SEQUENCING.md#delegated-operations-and-scheduling-options)
+autoexecution disabled where necessary. [SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over)
 records the unresolved operation-level rule; current task-level return-to-controller tests
 characterize existing behavior, not acceptance of that proposed rule.
 

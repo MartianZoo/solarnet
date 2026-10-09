@@ -1,46 +1,39 @@
 # Canon map Pets generation
 
-> **Agent information:** This is an agent-maintained information-tracking document, written by
-> agents for agents. It can record human decisions, but it is not human-authored documentation.
+> **Agent information:** This is an agent-maintained procedure for agents.
 >
-> **Read when:** editing map data, generated area declarations, map prefix naming, or the
-> `generateTfmPets` tool.
+> **Read when:** editing map diagrams, generated area declarations, map prefix naming, or the
+> `regenerateMapAreas` tool.
 >
 > **Skip when:** changing tile-placement gameplay without changing map topology or metadata.
->
-> **Status:** current authoring and regeneration procedure.
 
 ## Source map
 
-- [Tharsis `maps.json5`](../../src/common/dev/martianzoo/tfm/mapdata/TharsisMap/maps.json5) — authored
-  rows and its per-map legend.
-- [`MapDefinition.kt`](../../src/common/dev/martianzoo/tfm/mapdata/MapDefinition.kt) — diagram and
-  sigil decoding without a Pets dependency.
-- [`regenerateMapAreas.kt`](../../src/jvm/dev/martianzoo/tfm/tools/regenerateMapAreas.kt) — map declaration
-  construction and rendering.
-- [Tharsis `tharsis.pets`](../../src/common/dev/martianzoo/tfm/canon/TharsisMap/tharsis.pets) — generated
-  diagram comment and area declarations.
+- [Tharsis `tharsis.pets`](../../src/common/dev/martianzoo/tfm/canon/TharsisMap/tharsis.pets) — an
+  example authored diagram followed by generated area declarations.
+- [`MarsMapReader.kt`](../../src/common/dev/martianzoo/tfm/canon/MarsMapReader.kt) — diagram, area
+  kind, and bonus-sigil decoding.
+- [`MarsMapDefinition.kt`](../../src/common/dev/martianzoo/tfm/canon/MarsMapDefinition.kt) — parsed
+  map and area representation.
+- [`regenerateMapAreas.kt`](../../src/jvm/dev/martianzoo/tfm/tools/regenerateMapAreas.kt) —
+  declaration construction, round-trip validation, and file rewriting.
 
-Map topology and bonus metadata are authored as whole row strings plus a per-map legend in
-`tfm-map-data`. The first character of a cell selects the area kind; the remaining characters encode
-its bonuses.
-Digits before another bonus sigil multiply it; a final digit is itself a sigil, such as the `6` in
-`O6` for the Hellas north-pole cost or the `4` in `LF4` for the Vastitas -4 M€ bonus.
-Diagram indentation locates areas on slant-columns. The leftmost occupied slant-column is column 1;
-the reader does not infer an overall map shape.
-Maps whose largest row or column is at least 10 use two digits for both coordinates in every area
-class name; smaller maps retain their unpadded names.
+Map topology and bonuses are authored in the diagram comment immediately after the generated-area
+marker in each map's `.pets` file. The first character of a cell selects the area kind; remaining
+characters encode bonuses according to `MarsMapReader.BONUSES`. A digit before another sigil is a
+multiplier; a final digit is itself a sigil, such as `O6` for an ocean and a -6 M€ placement cost.
 
-Canon loads only Class declarations. Each map's bundle-specific `.pets` file keeps its map Module,
-milestones, awards, diagram comment, and generated areas together; premise resolution derives its
-default pools from that bundle ownership.
+Diagram indentation locates areas on slant-columns. The leftmost occupied slant-column is column 1.
+Maps whose largest row or column is at least 10 use two digits for every generated coordinate;
+smaller maps retain unpadded names.
 
-A legend entry whose instruction is `Ok` is emitted as its own harmless `Placement<This>: Ok` effect.
-Repeated sigils produce repeated effects. This preserves presentation codes such as `D` and `DD`
-on the runtime Class without introducing separate display metadata; semantic bonus consumers
-combine the effects while discarding the no-ops.
+Each map's `.pets` file keeps its Module, milestones, awards, diagram, and generated areas together.
+Run:
 
-`./gradlew :tools:regenerateMapAreas` rewrites the generated area section in each map's `.pets` file. Map output retains each
-row exactly in a diagram comment, keeps each area declaration on one line, and separates declaration
-rows with a blank line. Card Pets use a separate build-time pipeline: `tfm-card-data` owns
-`cards.json5`, and `tfm-card-generator` produces the declarations loaded by Canon.
+```shell
+./gradlew :tools:regenerateMapAreas
+```
+
+The task rewrites the diagram and area block in every recognized map file and verifies that the
+generated declarations round-trip through the Pets parser. Review the resulting source diff; do
+not edit generated area declarations by hand.

@@ -1,21 +1,17 @@
 # Sequencing, delegated control, and completion
 
-> **Agent information:** This is an agent-maintained information-tracking document, written by
-> agents for agents. It can record human decisions, but it is not human-authored documentation.
+> **Agent information:** This is an agent-maintained note for agents.
 >
-> **Read when:** deciding task order, delegated control, `THEN`, automatic effects, or when queued
-> work and its cleanup have finished.
+> **Read when:** changing task order, delegated control, `THEN`, automatic effects, or cleanup.
 >
-> **Status:** current contracts followed by open design options. Nested priorities and exclusive
-> operation scopes are alternatives under evaluation; neither is implemented or selected.
-> [ENGINE.md](ENGINE.md) describes execution and the
-> [Pets language specification](../pets-language-spec.md) owns authored semantics.
+> **Status:** current contracts and a verified missing completion rule. Replacement designs belong
+> in [`SOLARNET_ROADMAP.md`](../../SOLARNET_ROADMAP.md) or a focused investigation.
 
-## The model
+## Current model
 
 There is a global task pool; Actor queues are filtered views. A comma-separated group becomes
-independent tasks. Stable iteration order is for reproducibility and display, not game meaning.
-Current order comes from these facts:
+independent tasks. Stable iteration order supports reproducibility and display but carries no game
+meaning.
 
 - Effects arise after their triggering component change.
 - A selected task excludes competing ordinary gameplay until that task finishes.
@@ -23,216 +19,109 @@ Current order comes from these facts:
 - `A:: B` executes B inline before queued effects of A are evaluated.
 - A component gate can make an instruction unavailable until its prerequisites hold.
 
-There is currently no general task priority or exclusive operation spanning several tasks. An Agent
-can choose among its available tasks; its policy cannot establish a missing game rule.
+There is no general task priority or exclusive interaction spanning several tasks. An Agent may
+choose among its available tasks; policy cannot supply a missing game rule.
 
-## The promises
+## Required promises
 
 - **Causality:** queued effects retain their triggering change and effect context as `Cause`.
 - **Automatic coherence:** required parts exist before gain reactions; recursive automatic
   consequences run before queued effects of the originating change are evaluated.
 - **Count invariants:** declared bounds hold after an initiating change and its recursive automatic
-  consequences. This is the operation meant by
-  [count validation](QUANTIFIERS.md#invariants-at-operation-completion).
+  consequences.
 - **Trigger snapshot:** `Effector.fire` materializes an automatic listener batch against the same
   post-change World before executing it.
 - **Failure atomicity:** failure restores components, tasks, history, and derived indexes to the
-  enclosing transaction's checkpoint.
+  enclosing transaction checkpoint.
 - **Selection integrity:** at most a single task is selected across the World. Authored Pets cannot
   edit, cancel, or reprioritize another task.
 
-Legal sibling orders should remain available even when they produce different outcomes. Independent
+Legal sibling orders remain available even when they produce different outcomes. Independent
 automatic listeners must not acquire meaning from registration or diagnostic sort order. A
-component's own automatic effects retain their authored declaration order. These are review
-obligations; the current scenario tests do not prove them for every composition.
+component's own automatic effects retain authored declaration order.
 
 ## Before adding order
 
 Identify the forbidden result or intervention. A choice that fails within the same transaction can
-often be rejected by ordinary Pets and rollback, without prechecking every path. That argument does
-not cover an interaction spread across committed commands: rejecting a later payment step does not
-undo an earlier committed partial payment.
+often be rejected through ordinary Pets and rollback. That does not cover an interaction spread
+across committed commands: rejecting a later payment step does not undo earlier partial payment.
 
-Distinguish precedence, immediate consequences, exclusive control, completion, and failure
-atomicity. `THEN` supplies precedence, `::` supplies inline execution, and a transaction supplies
-rollback. None alone supplies exclusive control over a family of queued tasks.
+Distinguish precedence, immediate consequences, exclusive control, completion, and atomicity.
 
-| Mechanism | Appropriate meaning |
+| Mechanism | Meaning |
 | --- | --- |
-| No extra ordering | Ordinary availability and rollback already express the rule. |
+| No extra ordering | Availability and rollback already express the rule. |
 | `A: B` | A creates ordinary selectable B work. |
 | `A:: B` | B restores coherence before queued player work can proceed. |
-| `A THEN B` | This instruction owns both stages; only A's task must finish first. |
+| `A THEN B` | A's task must finish before B is admitted. |
 | Committed precursor | A modifier needs an event before the final result exists. |
 | Specific latch | Known prerequisites must finish before later work becomes legal. |
 
-A Player may legitimately choose when to take a fixed consequence. Fixed outcome does not imply
-automatic execution or Admin ownership. Conversely, implementation housekeeping should not become
-a Player chore merely because it currently occupies a task. Tasks that directly gain `System`
-Components begin assigned to Admin; broader Admin routing remains under design in
-[TASK_ROUTING_EXPERIMENT.md](TASK_ROUTING_EXPERIMENT.md).
-
-Do not repair ordering through `TfmGameplay`, policy settings, rendered-task matching, or incidental
-pool order. Evaluate both the forbidden intervention and the sibling choices that must remain
-legal.
+A fixed outcome does not imply automatic execution or Admin ownership. Conversely, implementation
+housekeeping should not become a Player choice merely because it currently occupies a task. Do not
+repair ordering through `TfmGameplay`, policy settings, rendered-task matching, or pool order.
 
 ## What `THEN` does
 
-Task normalization normally stores A as current work and B as its continuation. Shared unresolved
-Type variables can keep stages together until narrowing supplies their value. When A finishes, B
+Task normalization stores A as current work and B as its continuation. Shared unresolved Type
+variables can keep the stages together until narrowing supplies their value. When A finishes, B
 becomes ordinary pending work with no priority over siblings or A's reactions. The selected-task
-lock ends with A, even if B or other consequences remain.
+lock ends with A.
 
-Pluto combines `THEN` with a `PlutoLock` limited to a single copy per owner. Each bonus acquires the
-lock before drawing and releases it after discarding. `ColoniesRulesTest` covers the blocked overlapping
-draw and successful completion. This is a specific prerequisite, not general task-family control.
-
-`EACH Player { A THEN B }` gives each branch a continuation. `EACH Player { A } THEN B` does not join
-the branches or wait for their descendants; see [EACH.md](EACH.md#sequencing).
+`EACH Player { A THEN B }` gives each branch a continuation. `EACH Player { A } THEN B` does not
+join the branches or wait for their descendants; language rule L9-1 owns fanout semantics.
 
 ## Automatic effects
 
-Required component parts are constructed before gain reactions. Parts' automatic reactions precede
-their owners' reactions, and construction events' automatic work precedes queued matching.
+Required component parts are constructed before gain reactions. Parts' automatic reactions
+precede their owners' reactions, and construction events' automatic work precedes queued matching.
 For each change, the engine materializes the matching `::` batch, executes it recursively, then
 evaluates queued `:` effects. An automatic reaction never asks an Actor to select it.
 
 Use `::` for determined consequences whose delay would expose incoherent state. If automatic
-listeners depend on each other, express that through resulting events rather than batch order or
-retries. Use trigger-side `IF` for conditions decided by the triggering event; put a gate in queued
-work when intervening changes should decide availability. `A: (R: B) OR Ok` also makes B declinable.
+listeners depend on each other, express the dependency through resulting events instead of batch
+order or retries. Use trigger-side `IF` for a condition decided by the triggering event; put a gate
+in queued work when intervening changes should decide availability.
 
-The [Pets tricks guide](../pets-tricks-hacks-cheats.md) explains how an automatic `Die` can reject a
-forbidden component change and roll it back. It cannot generally police task selection: selecting
-or narrowing an abstract task can change task state without producing a component event.
-Trigger-side `BY` matches the Actor on such events; it does not identify the Agent issuing a task
-command. Instruction-side `BY` instead reassigns concrete queued work.
+An automatic `Die` can reject a forbidden component change and roll it back. It cannot generally
+police task selection because selecting or narrowing an abstract task can change task state without
+producing a component event. Trigger-side `BY` matches the event Actor; instruction-side `BY`
+reassigns concrete queued work.
 
 ## Committed precursors
 
-`PayingFor<Class<Component>>` lets modifiers react before a purchase or card play produces its final
-component. Such a precursor should represent commitment to that result, carry the needed context,
-and precede settlement. Ordinary reactions still belong on the final event. An unrelated signal
-sent early merely to wake listeners would give the model another fact to keep consistent.
+`PayingFor<Class<Component>>` lets modifiers react before a purchase or card play produces its
+final component. A precursor represents commitment to that result, carries required context, and
+precedes settlement. Ordinary reactions still belong on the final event.
 
 ## The missing rule: when an operation is over
 
-The engine can represent components, tasks, and causal events, but has no general completion rule
-for a particular interaction that spans queued work.
+The engine has no general completion rule for an interaction that spans queued work.
 
-| Existing mechanism | What it measures |
+| Existing fact | What it measures |
 | --- | --- |
 | `THEN` | Completion of its current task. |
 | `Temporary` | Emptiness of the entire task pool. |
-| `Owed`, `Billing`, `TradeBarrier` | The prerequisites represented by that lifecycle. |
-| An Actor's empty filtered view | All currently assigned work, possibly including unrelated work. |
+| `Owed`, `Billing`, `TradeBarrier` | Prerequisites represented by a particular lifecycle. |
+| An Actor's empty filtered view | All currently assigned work, including possibly unrelated work. |
 | A client task search | A recognized implementation pattern. |
 
-These facts do not identify the same completion point. In particular, `Barrier` and `MustCleanUp`
-are completion checks, not locks against intervening task selection.
+These are not the same completion point. `Barrier` and `MustCleanUp` are checks, not locks against
+intervening selection.
 
-## Delegated operations and scheduling options
+Neptunian Power Consultants demonstrates the gap. P1 may hand an optional decision to P2, but the
+selected-task lock ends when that task finishes. Payment descendants return to P1's controller,
+and P1 can resume unrelated work while P2's payment remains unfinished. Extending assignment alone
+would still not exclude unrelated work. `BugsTest` contains current observable characterizations;
+[`PAYMENTS.md`](PAYMENTS.md#verified-gaps) describes the payment-specific evidence.
 
-### The concrete problem
+Any replacement must explain what starts exclusive control, what work inherits it, what successful
+completion means, what happens after earlier choices commit but later work cannot finish, and how
+nested delegation behaves. It should remove client searches and overlapping lifecycle machinery
+rather than add a second task representation. The roadmap records the active design concern;
+alternative models are intentionally not archived here.
 
-P2 has Neptunian Power Consultants; P1 plays Flooding and places an ocean. P1 should receive the
-option as orderable work whose decision belongs to P2, as with Philares. P1 chooses when to hand it
-over. P2 may decline, or accept and retain control throughout the resulting payment. P1 must remain
-unable to resume unrelated work between P2's decisions.
-
-The current offer is `UseAction<NeptunianOption<...>>?`; `NeptunianOption` currently names the
-card-bound action provider. A future owned request could use a different representation. No rename
-or new request Class is required by this discussion.
-
-Today the selected optional task delegates to P2, but completing it releases the lock. Splits,
-`THEN` continuations, and queued reactions retain P1 as controller. Paying 2 Steel toward the 5 M€
-cost leaves a cash decision while P1 again controls the outstanding work. Existing payment helpers
-select through other Actors and conceal this gap; see [PAYMENTS.md](PAYMENTS.md). The generic
-`TaskDelegationTest` explicitly expects follow-up work to return to the original controller, so
-extending delegation changes current semantics.
-
-Two distinct requirements follow: descendants must receive the appropriate controller, and
-unrelated work must remain ineligible. Changing only assignment leaves P1 free to intervene.
-Keeping an arbitrary payment child selected instead would take payment-order choices away from P2.
-
-### Option A: nested priority groups
-
-Use selection for the current task and an active group for the work P2 may order. Handoff suspends
-the caller's remaining work; newly produced work inherits the active group and its controller.
-P2 may choose among eligible siblings while no task is selected. Returning control exposes the
-nearest suspended group. A further handoff can nest inside this interaction.
-
-The proposed visible categories are p0 selected, p1 selectable, and p2 blocked. Three flat global
-ranks do not preserve enough information: if Flooding's flip is already p2, moving P1's unfinished
-effects to p2 during payment makes both promote together afterward. Distinct suspended layers must
-survive. Tasks can become eligible together within the next layer, without releasing every blocked
-task in the World.
-
-Relative ranks may be enough for strictly nested handoffs whose descendants all stay in the active
-layer. Deferred cleanup adds a harder question: if cleanup belongs to the delegated operation, it
-must finish before P1 resumes and cannot share a rank with suspended P1 tasks. The model needs a
-rule for creating and reusing an inner deferred group. Numeric ranks, structured priorities, or
-scheduling frames are possible representations; their cost and equivalence remain to be evaluated.
-
-This option could unify delegated choices, delayed event removal, and eventual Admin progression.
-It also imposes nested scheduling and changes how eligibility is represented. Ordinary same-owner
-siblings and `THEN` chains should retain their existing freedom unless a game rule requires a new
-constraint; selecting every task need not start an exclusive group.
-
-### Option B: exclusive operation scope
-
-Retain the ordinary scheduler and restrict eligibility to work belonging to the active delegated
-operation. Descendants inherit its control, and its completion releases the caller. Nested
-delegation must preserve the enclosing operation. This directly expresses the payment requirement
-without selecting a global deferred-work scheme, but it needs membership and completion semantics.
-
-Causal ancestry is a candidate source for membership, not an already selected implementation.
-Accepting an owned request or `UseAction` creates a fresh change event that can identify its
-consequences. Existing `Cause` links follow triggering change events; they do not identify every
-executed task. Siblings can share a cause, and task-only splitting or continuation needs separate
-consideration. Matching equal `Cause` values is not an operation-completion test.
-
-Pets components are multisets of Types, without fields or instance identity. A live component used
-as a scope needs an unambiguous lifetime; equal copies or removal and reacquisition cannot silently
-be treated as distinct object instances. An event root may avoid some identity costs, but the
-engine still needs to know which operation currently excludes unrelated work.
-
-This option may be narrower for delegation. It does not automatically provide the deferred event
-cleanup and Admin progression that motivated global priorities. Evaluate aggregate conceptual cost,
-including machinery that remains outside the scope mechanism.
-
-### Questions shared by both options
-
-- **What starts exclusive control?** An assignment handoff, an authored operation, or another
-  explicit fact? Instruction-side `BY` now hands its concrete task to another Actor, but that
-  task-level handoff does not by itself define or assign a multi-task operation.
-- **What finishes it?** Zero debt is insufficient in the current payment model: unused offers and
-  queued rewards can remain. Covering the accepted option through its consequences is a plausible
-  rule, but the extent of rewards and further reactions remains to be settled.
-- **What if it cannot finish?** Empty task work does not prove successful settlement either:
-  declining optional payment tasks can leave unpaid `Owed` or `Billing`. Which obligations must
-  clear before control returns, and what happens when no remaining choice can clear them? A failed
-  later command cannot undo earlier committed choices. Affordability, dead ends, and any proposed
-  cancellation must have an explicit account rather than assuming every accepted group drains.
-- **What inherits it?** Splits, continuations, automatically produced queued work, and later
-  reactions all matter. Admit the complete consequence batch before testing for completion; a
-  transient absence of assigned work must not release the caller.
-- **What nesting is legal?** Another Player's decision must not accidentally release an outer
-  interaction. Attribution, lexical ownership, the on-turn Player, and temporary control remain
-  distinct facts.
-- **What does deferred completion mean?** Event cleanup, returning to a caller, and giving Admin
-  the next phase may require different points. A single blocked category does not decide their
-  order. Scope-based completion also needs an explicit account of these points.
-- **What can be removed?** Prefer a design that eliminates client task searches and overlapping
-  lifecycle machinery. Do not add a second task representation solely to keep a parent selected.
-
-Engine legality must hold with autoexecution disabled and through ordinary task commands, not only
-through a payment convenience method. Useful distinguishing scenarios include affordable decline,
-mixed payment across separate commands, attempted P1 intervention between payments, nested
-delegation, preserved sibling choices, and event cleanup before Admin advances. These are design
-probes, not a prescribed implementation sequence.
-
-## Cleanup vocabulary
+## Cleanup
 
 | Class | Current meaning |
 | --- | --- |
@@ -242,39 +131,23 @@ probes, not a prescribed implementation sequence.
 | `Temporary` | State removed when the entire task pool is empty. |
 | `TemporaryScope<Parent>` | A parent-dependent `Scope`, both `Temporary` and `MustCleanUp`. |
 
-Plain `Temporary` is not `MustCleanUp`: unrelated tasks can keep it alive across a narrower manual
-operation. `TemporaryScope` combines a dependency, a cleanup policy, and an invariant; its name
-does not give it local task completion.
-
-### Current behavior: whole-World idle cleanup
-
 After policy settlement, an empty global task pool lets the engine remove a concrete `Temporary`
 Type with no direct or indirect `Temporary` or `MustCleanUp` dependent. It settles resulting work
 and rechecks before further cleanup. The workflow completion callback follows this process.
 
-Event cards currently become `PlayedEvent` through that idle cleanup, not an explicit end-of-turn
-task. Parking deferred cleanup or Admin tasks in the pool would prevent the existing emptiness test
-from succeeding. A priority design must account for that interaction; priorities alone do not
-replace temporary-state retirement. [WORKFLOW.md](WORKFLOW.md) owns phase progression.
+Plain `Temporary` is not `MustCleanUp`: unrelated tasks can keep it alive across a narrower manual
+interaction. Event cards become `PlayedEvent` through idle cleanup, not an explicit end-of-turn
+task.
 
 ## Source evidence
 
-- [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt): `replace1WithN`,
-  `handleTask`, and `executeSelectedTask` preserve the original controller today.
-- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt): controller, selection assignee, current
-  assignee, selection, and cause.
-- [`GameEvent.kt`](../../src/common/dev/martianzoo/state/GameEvent.kt): `Cause` links change events.
+- [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt): task replacement,
+  selection, and execution.
+- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt): controller, assignees, selection, and
+  cause.
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) and
   [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt): automatic and queued effects.
-- [`WorldTransaction.kt`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt),
-  [`Engine.kt`](../../src/common/dev/martianzoo/engine/Engine.kt), and
-  [`SystemDeclarations.kt`](../../src/common/dev/martianzoo/pets/SystemDeclarations.kt): settlement,
-  temporary cleanup, and built-in Classes.
-- [`TaskDelegationTest.kt`](../../test/common/dev/martianzoo/engine/TaskDelegationTest.kt),
-  [`PhilaresTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/PhilaresTest.kt), and
-  [`TemporaryCleanupTest.kt`](../../test/common/dev/martianzoo/engine/TemporaryCleanupTest.kt):
-  current delegation and cleanup behavior.
-- [`BugsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt): search
-  `Flooding incorrectly` for passing characterizations of P1 resuming after P2 accepts and
-  interrupting a partial payment. Both disable autoexecution and use separate Player commands;
-  the latter leaves P2 with spent Steel, no cash, and unpaid debt after a failed payment attempt.
+- [`WorldTransaction.kt`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) and
+  [`Engine.kt`](../../src/common/dev/martianzoo/engine/Engine.kt): settlement and cleanup.
+- `TaskDelegationTest`, `PhilaresTest`, `TemporaryCleanupTest`, and the Neptunian cases in
+  `BugsTest`: current observable contracts and gaps.

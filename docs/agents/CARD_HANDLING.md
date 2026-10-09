@@ -6,8 +6,8 @@
 > **Read when:** changing card backs, card play, draws, searches, purchases, card-tracked replays,
 > or the card-tracking game-playing API.
 >
-> **Status:** current anonymous count-and-location model and selected external-tracking direction.
-> The production card-tracking API remains to be designed.
+> **Status:** current anonymous count-and-location model and replay tracking support. Future
+> game-playing API direction lives in the Solarnet roadmap.
 
 ## World model
 
@@ -104,8 +104,7 @@ only for a fact absent from the executable form; the `SearchForCard` filter reco
 criterion. The comment records an unmodeled rule fact, not dormant implementation.
 
 The World has no general check for an abandoned `Selecting` pool. Each currently modeled effect
-drains its own pool explicitly; a future operation-completion check should detect a missed decision
-without silently discarding its leftovers.
+drains its own pool explicitly.
 
 ## Replay tracking
 
@@ -141,18 +140,6 @@ corporation or Prelude card identities. Its success is not proof that all physic
 were modeled; skipped search cards are intentionally outside the modeled movements.
 The four database-backed conversions and `StinaGameTest` use this strict base. Other full-game and
 solo replays use ordinary follow-mode test bases without a card ledger.
-
-## Selected game-playing direction
-
-Build a coherent middle-ground card-tracking game-playing API, with exact hand membership tracked
-**outside the engine**, along the lines demonstrated by the test harness. Known identities of cards
-that enter a hand or play matter; identities of cards that never enter either do not. The anonymous
-engine counts and the external tracking must agree.
-
-This direction does not select a public API shape, require copying the test harness literally, or
-authorize restoring the old offer-location machinery wholesale. Find the smallest coherent
-contract for normal named-card play; do not reintroduce the broader real-card branch.
-Human-directed and autonomous solo play should use the same game-playing capabilities.
 
 ## Deliberate boundaries
 

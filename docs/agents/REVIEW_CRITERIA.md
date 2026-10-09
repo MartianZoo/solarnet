@@ -42,8 +42,8 @@ Reject the change if:
   missing choice, task identity, completion, or engine semantics.
 
 Use [`VALUES.md`](VALUES.md#keep-pets-central), [`TESTING.md`](TESTING.md#test-design),
-[`SEQUENCING.md`](SEQUENCING.md#before-adding-order), and
-[`AUTOEXEC.md`](AUTOEXEC.md#choice-safety-check) for the detailed tests.
+and [`SEQUENCING.md`](SEQUENCING.md#before-adding-order) for the detailed tests. Inspect the current
+Agent policy source before relying on automatic execution.
 
 ## Tests and evidence
 
@@ -61,7 +61,7 @@ Reject the change if:
   observable `BugsTest` characterization.
 
 Use [`TESTING.md`](TESTING.md#test-design) and the replay guide selected by
-[`README.md`](README.md#reconstruct-a-game).
+[`README.md`](README.md#verification-and-reconstruction).
 
 ## Final coherence
 

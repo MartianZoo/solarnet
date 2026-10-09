@@ -199,7 +199,7 @@ after review. **Selected** means the direction is chosen while some design remai
   work.
 
 This roadmap synthesizes current priorities in
-[`VALUES.md`](docs/agents/VALUES.md), [`PLANS.md`](docs/agents/PLANS.md),
-[`TODO.md`](TODO.md), [`PLAYGROUND.md`](PLAYGROUND.md), the runtime design records under
+[`VALUES.md`](docs/agents/VALUES.md), [`TODO.md`](TODO.md), [`PLAYGROUND.md`](PLAYGROUND.md), the
+focused runtime contracts under
 `docs/agents/`, open issues, recent mainline work, the active `workflow` branch, the exploratory
 `heroku-experiment` branch, and preserved decision-import and TFMBot experiments.

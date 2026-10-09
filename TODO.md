@@ -1,4 +1,4 @@
-<!-- Only bounded miscellaneous work not already covered anywhere in docs/agents/ belongs here. -->
+<!-- Only bounded miscellaneous work not already covered by a roadmap or focused note belongs here. -->
 
 # TODO
 
@@ -22,23 +22,26 @@ These concerns remain open; the ranking does not select replacement designs.
 3. **Kotlin orchestration owns game-flow rules that belong in Pets.** Phase order, expansion
    participation, and turn progression remain in Kotlin. Callback failure guarantees also need
    attention: a completion callback can throw after a successful mutation. Actual coroutine/Admin
-   exception propagation was not verified. See [workflow](docs/agents/WORKFLOW.md).
+   exception propagation was not verified. See the
+   [Solarnet roadmap](SOLARNET_ROADMAP.md#internal-design-and-game-execution).
 4. **The player-choice API cannot navigate all valid task shapes, and availability checks hide
    code faults.** Some valid forms throw `UnsupportedOperationException`; an injected custom-code
    fault makes availability queries return `false` while direct execution reports the fault.
    Improve choice assistance and preserve meaningful errors without requiring exhaustive legal-move
    enumeration. Named-card tracking remains a separate capability with ownership outside the engine.
-   See the `TaskForm` follow-up below and [the Agent API](docs/agents/API.md).
+   See the `TaskForm` follow-up below and
+   [the live-engine note](docs/agents/ENGINE.md#actor-engines-and-agents).
 5. **Specified Pets features fail when combined.** Defaulted variable references and local-class
    specialization have concrete defect characterizations. Repair these composition failures;
    implementation complexity alone does not justify a rewrite. See
-   [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt) and
-   [the fidelity audit](docs/agents/SPEC_FIDELITY.md).
+   [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt) and the
+   [Pets roadmap](PETS_ROADMAP.md#code-clarity-and-confidence).
 
 ## Pets specification fidelity audit
 
-- [ ] Continue the Pets fidelity audit using the principles and investigation leads in
-  [SPEC_FIDELITY.md](docs/agents/SPEC_FIDELITY.md), reassessing them against the current code.
+- [ ] Continue the specification-fidelity audit from the
+  [Pets roadmap](PETS_ROADMAP.md#code-clarity-and-confidence), reassessing every lead against the
+  current specifications, tests, KDoc, and implementation.
 
 ## User Ideas and Agreed Directions
 
@@ -50,7 +53,8 @@ These concerns remain open; the ranking does not select replacement designs.
   trigger must bind a variable.
 - Revisit Mons Insurance self-compensation only if an authoritative ruling supports it. The
   selected provisional behavior excludes its owner from compensation triggers.
-- [ ] Revisit [explicit payment exchanges and automatic-execution policy](docs/agents/PAYMENTS.md#explicit-exchanges-and-continuation-cost).
+- [ ] Revisit
+  [payment simplification and automatic-execution policy](SOLARNET_ROADMAP.md#internal-design-and-game-execution).
   Compare the exchanges plus a small, general policy adjustment against the current payment
   machinery; automatic execution is tunable outside the pure engine model.
 - Find a simple, natural way for the presence of `Class<Aridor>` to bring all unused
@@ -100,7 +104,7 @@ These concerns remain open; the ranking does not select replacement designs.
 - Make L1 Trade Terminal's resource allowance count only its own gifts, not resource gains from
   other cards reacting to them. First reproduce the interaction with a literal `Microbe: Animal`
   fan-card effect, then find the smallest correction that preserves the Terminal's required
-  distribution across eligible cards. See [game hack #7](docs/agents/GAME_HACKS.md#7-l1-trade-terminals-quota-counts-unrelated-resource-gains).
+  distribution across eligible cards.
 - Find a small, exact way for Ecology Experts' plant and microbe tags to trigger a newly played
   bio listener without replaying those tags or rewarding an older copy of that listener. Double
   Down copies the Prelude's immediate instruction but not its effects, so the solution must also
@@ -141,8 +145,8 @@ These concerns remain open; the ranking does not select replacement designs.
   actually played rather than on the expansion switch alone. Keep this case out of the
   [value-dependency inventory](https://docs.google.com/spreadsheets/d/13WRf7ljJLuy3iwTr5caQgKhTPhNugPKJuGx1ikALshY/edit?gid=0#gid=0)
   for now.
-- Implement individual Turmoil party and whole-map selection as specified in
-  [Content selection and expansion eligibility](docs/agents/CONTENT_SELECTION.md#roles-and-current-selection).
+- Implement individual Turmoil party and whole-map selection described in the
+  [Pets roadmap](PETS_ROADMAP.md#canon-and-game-rule-modeling).
 - Consider allowing owner-local Class declarations only in gain instructions. They currently also
   parse in other expression positions, including a selector's `HAS` refinement; decide the intended
   boundary and account for existing uses before restricting the syntax.
@@ -162,11 +166,11 @@ These concerns remain open; the ranking does not select replacement designs.
   fails because bootstrap validation already requires the exact-one global-parameter rule systems.
   The smallest promising direction is to reverse premise/`BootstrapPhase` creation in `Initializer`,
   then move its effects, including closing the `AfterMe` cycle, and update its lifecycle tests and
-  the bootstrap account in `ENGINE.md` and `WORKFLOW.md`.
+  the bootstrap account in `ENGINE.md` and the Solarnet roadmap.
 - Replace `FinalScoringPending` with a real `FinalScoringPhase`. Today `End` creates the temporary
   marker, `MeasureAward` depends on it, and marker removal assigns `Victory`; instead final-scoring
   effects should belong to the new phase, whose phase scope drains into terminal `End`, where victory
-  is assigned. Coordinate this with `TfmWorkflow` and the phase-scope design in `WORKFLOW.md`; do not
+  is assigned. Coordinate this with `TfmWorkflow` and the runtime design in the Solarnet roadmap; do not
   merely rename the completion marker into a phase.
 - Decide whether `Milestone`'s per-player uniqueness constraint should use
   `HAS MAX 1 This<Player>` or a clearer way to express one instance of the concrete milestone per
@@ -329,7 +333,8 @@ attribution, features, and unresolved rule questions. Related symptoms are group
    forces an inaccurate Colonies setting into `OtbGame20260912Test`: Summit Logistics lacks a
    printed Colonies dependency icon and should allow its smaller payout without enabling unused
    Colonies gameplay. See
-   [the dependency analysis](docs/agents/CONTENT_SELECTION.md#inclusion-when-an-expansion-is-absent).
+   the eligibility direction in the
+   [Pets roadmap](PETS_ROADMAP.md#canon-and-game-rule-modeling).
    Keep Suitable Infrastructure out of the
    [value-dependency inventory](https://docs.google.com/spreadsheets/d/13WRf7ljJLuy3iwTr5caQgKhTPhNugPKJuGx1ikALshY/edit?gid=0#gid=0)
    for now.

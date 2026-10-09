@@ -164,6 +164,6 @@ conceptual cost.
   player product remain conditional rather than active programs.
 
 This roadmap synthesizes the current priorities in
-[`VALUES.md`](docs/agents/VALUES.md), [`PLANS.md`](docs/agents/PLANS.md),
-[`TODO.md`](TODO.md), the [repository introduction draft](docs/pets-repo-draft.md), recent mainline
+[`VALUES.md`](docs/agents/VALUES.md), [`TODO.md`](TODO.md), the
+[repository introduction draft](docs/pets-repo-draft.md), recent mainline
 work, and the active `english` and exploratory `codegen` branches.
