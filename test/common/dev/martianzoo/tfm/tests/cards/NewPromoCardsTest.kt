@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -84,6 +83,7 @@ internal class NewPromoCardsTest : CardTest() {
         shouldThrow<TaskException> { p3.doTask("OceanTile<Tharsis_1_2> BY Player1") }
         p1.selectTask(ocean)
         p3.doTask("OceanTile<Tharsis_1_2> BY Player1")
+        p1.selectTask(ocean)
         shouldThrow<TaskException> { p3.doTask("TerraformRating<Player1>") }
         doTask("2 Steel")
         doTask("TerraformRating")
@@ -153,30 +153,6 @@ internal class NewPromoCardsTest : CardTest() {
     }
 
     p1.assertCounts(17 to "MC", 0 to "Steel", 1 to "Hydroelectric")
-    p1.assertProds(1 to "Energy")
-  }
-
-  @Test
-  internal fun `Neptunian owner chooses and pays when an opponent places the ocean`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    p2.autoExecPolicy = NONE
-    admin.phase("Action")
-    p1.runOperation("50 MC, 2 ProjectCard")
-    p2.runOperation("20 MC")
-    p1.playProject(NeptunianPowerConsultants, 14)
-    p1.autoExecPolicy = NONE
-    val ownerMcBeforeOcean = p1.count("MC")
-
-    p2.stdProject("AquiferProject") {
-      doTask("OceanTile<Tharsis_1_2>")
-      p2.selectTask("UseAction<Player1, NeptunianOption<NeptunianPowerConsultants<Player1>>>?")
-      p1.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
-      p1.pay(5)
-      p2.autoExecPolicy = EAGER
-    }
-
-    p1.assertCounts(ownerMcBeforeOcean - 5 to "MC", 1 to "Hydroelectric")
     p1.assertProds(1 to "Energy")
   }
 

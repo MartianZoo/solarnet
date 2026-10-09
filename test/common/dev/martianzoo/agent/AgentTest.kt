@@ -51,6 +51,30 @@ internal class AgentTest {
   }
 
   @Test
+  internal fun aFormCannotExecuteADifferentAlternativeAfterSelectionResolvesTheTask() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS Token
+                CLASS Marker
+                """
+                    .trimIndent()
+            )
+        )
+    val agent = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
+    val taskId = agent.addTasks("Token OR -Marker").single()
+    val taskBefore = agent.tasks.getTaskData(taskId)
+    val form = agent.fillInTask(taskId)
+    form.narrow("-Marker")
+
+    shouldThrow<NarrowingException> { form.commit() }
+
+    agent.tasks.getTaskData(taskId) shouldBe taskBefore
+    agent.count("Token") shouldBe 0
+  }
+
+  @Test
   internal fun doTaskCanDisambiguateByContextClass() {
     val game =
         Engine.newGame(

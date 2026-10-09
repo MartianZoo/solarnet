@@ -24,9 +24,10 @@ A later Player choice should return to that controller, who may be P2 during a d
 on P1's turn. Replacing controller propagation with the on-turn Player would lose that distinction.
 Explicit requests for a named Player must also work during phases without an exclusive turn.
 
-Assignment, contextual choice ownership, and credited Actor remain different facts. `BY` affects
-attribution or trigger matching; it does not select the task's queue. An unowned attack watcher,
-for example, must not credit the victim merely because the changed resource belongs to them.
+Controller, selection recipient, and current assignment remain different facts. Trigger-side `BY`
+matches event Actors. Instruction-side `BY` instead transfers a concrete queued task to the named
+Actor, whose engine performs it. An unowned attack watcher, for example, must not assign work to the
+victim merely because the changed resource belongs to them.
 
 ## Timing and automatic execution
 
@@ -47,8 +48,8 @@ card representation.
 ## Open choices
 
 - Which fixed effects belong to the Player's ordering choices, and which are internal settlement?
-- Does a task need an explicit initial assignee distinct from its controller, or can a smaller
-  general scheduling rule express the actual cases?
+- Which Actor should each queued rule record as its selection assignee, distinct from its
+  controller and any later instruction-side `BY` assignee?
 - How does Player → Admin → Player work preserve the active delegated controller through splitting,
   continuations, and new reactions?
 - Which phases have an on-turn Player? Setup and Research currently permit simultaneous Player

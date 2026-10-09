@@ -29,7 +29,7 @@ internal fun newTasks(
     controller: Actor,
     instruction: InstructionGroup,
     cause: Cause?,
-    actor: Actor = controller,
+    selectionAssignee: Actor = controller,
     isAbstract: ((Expression) -> Boolean)? = null,
 ): List<Task> {
   var nextOrdinal = firstId.ordinal
@@ -40,7 +40,7 @@ internal fun newTasks(
         Task(
             id = TaskId(nextOrdinal++),
             controller = controller,
-            actor = actor,
+            selectionAssignee = selectionAssignee,
             instruction = it,
             cause = cause,
         ),
@@ -137,7 +137,14 @@ internal fun normalizeTask(
   val runtimeSequence =
       sequence.typeVariables.expandNames().transformInstruction(sequence) as Instruction.Then
   val runtime = normalized.copy(instruction = runtimeSequence)
-  if (runtime.then != null || runtimeSequence.mustRemainOneTask(isAbstract)) return runtime
+  if (runtime.then != null || runtimeSequence.mustRemainOneTask(isAbstract)) {
+    if (runtimeSequence.descendantsOfType<By>().isNotEmpty()) {
+      throw TaskException(
+          "`BY` cannot occur inside a `THEN` that must remain a single task: `$runtimeSequence`"
+      )
+    }
+    return runtime
+  }
   return runtime.copy(
       instruction = runtimeSequence.first,
       then = runtimeSequence.continuationAfterFirst(),

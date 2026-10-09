@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.*
-import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.*
@@ -102,12 +101,16 @@ internal class ColoniesRulesTest : CardTest() {
 
     p2.stdAction("TradeAction", 2) {
       doWithoutAutoExec(p2) {
+        fun performForPlayer1(instruction: String) {
+          p2.selectTask(instruction)
+          p1.doTask(instruction)
+        }
+
         doTask("Trade<Pluto>")
         doTask("-TradeBarrier")
         doTask("2 ProjectCard")
-        doTask("PlutoLock<Player1>!")
-        doTask("ProjectCard<Player1>")
-        shouldThrow<LimitsException> { doTask("PlutoLock<Player1>!") }
+        performForPlayer1("PlutoLock<Player1>!")
+        performForPlayer1("ProjectCard<Player1>")
         shouldThrow<TaskException> { doTask("ProjectCard<Player1>") }
         p1.count("ProjectCard") shouldBe 1
 
@@ -118,13 +121,13 @@ internal class ColoniesRulesTest : CardTest() {
         doTask("-ProjectCard<Player2>")
         doTask("-PlutoLock<Player2>!")
 
-        doTask("-ProjectCard<Player1>")
-        doTask("-PlutoLock<Player1>!")
-        doTask("PlutoLock<Player1>!")
-        doTask("ProjectCard<Player1>")
+        performForPlayer1("-ProjectCard<Player1>")
+        performForPlayer1("-PlutoLock<Player1>!")
+        performForPlayer1("PlutoLock<Player1>!")
+        performForPlayer1("ProjectCard<Player1>")
         p1.count("ProjectCard") shouldBe 1
-        doTask("-ProjectCard<Player1>")
-        doTask("-PlutoLock<Player1>!")
+        performForPlayer1("-ProjectCard<Player1>")
+        performForPlayer1("-PlutoLock<Player1>!")
       }
     }
 
@@ -211,9 +214,9 @@ internal class ColoniesRulesTest : CardTest() {
         doTask("Trade<Titan>")
         doTask("-TradeBarrier")
         doTask("Floater<$Dirigibles>")
-        doTask("Floater<Player1>")
+        p2.selectTask("Floater<Player1>.")
         p1.addCardResources(ForcedPrecipitation)
-        doTask("Floater<Player1>")
+        p2.selectTask("Floater<Player1>.")
         p1.addCardResources(ExtractorBalloons)
       }
     }

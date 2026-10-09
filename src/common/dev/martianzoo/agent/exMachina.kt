@@ -37,9 +37,12 @@ public fun Agents.exMachina(adjustingActor: Actor, adjustment: String) {
   world.timeline.atomic {
     val unfinished = agent.list("MustCleanUp").entries.associate { it.key to it.value }
     val selected =
-        world.tasks.selectedTask()?.let { it to this[world.tasks.getTaskData(it).assignee] }
-    selected?.let { (id, owner) ->
-      world.actorEngine(owner.actor).restoreTask(world.taskBeforeSelection(id))
+        world.tasks.selectedTask()?.let { id ->
+          val currentAssignee = world.tasks.getTaskData(id).assignee
+          world.taskBeforeSelection(id) to this[currentAssignee]
+        }
+    selected?.let { (beforeSelection, currentAssignee) ->
+      world.actorEngine(currentAssignee.actor).restoreTask(beforeSelection)
     }
     agent.sneak(auditedAdjustment)
     if (
@@ -47,9 +50,9 @@ public fun Agents.exMachina(adjustingActor: Actor, adjustment: String) {
     ) {
       throw NotNowException("exMachina cannot leave new unfinished work")
     }
-    selected?.let { (id, owner) ->
-      world.actorEngine(owner.actor).selectTask(id)
-      owner.autoExecNow()
+    selected?.let { (beforeSelection, currentAssignee) ->
+      world.actorEngine(beforeSelection.assignee).selectTask(beforeSelection.id)
+      currentAssignee.autoExecNow()
     }
   }
 }

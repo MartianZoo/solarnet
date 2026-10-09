@@ -800,10 +800,11 @@ internal class Prelude2CardsTest : CardTest() {
   internal fun `Recession fizzles when an opponent has minimum money production`() {
     newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
     p1.playCorp(MonsInsurance, 0) {
-      doTask(
+      p1.selectTask(
           "EACH Other@Player(NOT Player1) { " +
               "-2 Production<Other@Player, Class<MC>>! BY Other@Player }"
       )
+      autoExecNow()
     }
     val p2 = requireP2()
     p2.playCorp(CrediCor, 0)
@@ -837,12 +838,17 @@ internal class Prelude2CardsTest : CardTest() {
         victim: Player,
         secondPayout: Int = 3,
     ) {
+      val victimAgent = game.testTfm(victim)
       doTask("-5 MC<$victim>")
-      doTask("MyResourceWasRemoved<$victim, Class<MC>, Player1>.")
-      doTask("3 MC<$victim> FROM MC<Player2>")
+      p1.selectTask("MyResourceWasRemoved<$victim, Class<MC>, Player1>.")
+      victimAgent.doTask("MyResourceWasRemoved<$victim, Class<MC>, Player1>!")
+      p1.selectTask("3 MC<$victim FROM Player2>.")
+      mons.doTask("3 MC<$victim> FROM MC<Player2>")
       doTask("PROD[-1 MC<$victim>]")
-      doTask("MyProductionWasDecreased<$victim, Class<MC>, Player1>.")
-      doTask("$secondPayout MC<$victim> FROM MC<Player2>")
+      p1.selectTask("MyProductionWasDecreased<$victim, Class<MC>, Player1>.")
+      victimAgent.doTask("MyProductionWasDecreased<$victim, Class<MC>, Player1>!")
+      p1.selectTask("3 MC<$victim FROM Player2>.")
+      mons.doTask("$secondPayout MC<$victim> FROM MC<Player2>")
     }
 
     p1.playPrelude(Recession) {
@@ -850,8 +856,10 @@ internal class Prelude2CardsTest : CardTest() {
       doTask("EACH Other@Player(NOT Player1) { -5 MC<Other@Player>., PROD[-1 MC<Other@Player>] }")
       doTask("-5 MC<Player2>")
       doTask("PROD[-1 MC<Player2>]")
-      doTask("MyResourceWasRemoved<Player2, Class<MC>, Player1>.")
-      doTask("MyProductionWasDecreased<Player2, Class<MC>, Player1>.")
+      p1.selectTask("MyResourceWasRemoved<Player2, Class<MC>, Player1>.")
+      mons.doTask("MyResourceWasRemoved<Player2, Class<MC>, Player1>!")
+      p1.selectTask("MyProductionWasDecreased<Player2, Class<MC>, Player1>.")
+      mons.doTask("MyProductionWasDecreased<Player2, Class<MC>, Player1>!")
       settle(victimActors[0])
       settle(victimActors[2])
       settle(victimActors[1], secondPayout = 1)

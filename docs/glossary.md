@@ -3,19 +3,19 @@
 - **abstract instruction:** An instruction that is not yet executable because it still requires an externally supplied choice. Examples include a live `OR`, a change instruction involving an abstract type, and an optional quantity. An unresolved metric or gate is not by itself abstract, because resolution rather than narrowing determines it.
 - **abstract task:** A task whose instruction still requires an externally supplied choice. Selecting it resolves game-world-dependent parts such as metrics, but the task remains abstract until narrowing has supplied every required choice. Antonym: concrete task.
 - **abstract type:** A type that is not fully specified. It can be counted or queried but cannot be the exact type of a Component gained or removed. Antonym: concrete type.
-- **action:** (1) A Pets element, written with `->`, that combines an optional cost with an instruction and usually belongs to a card or `StandardAction`. (2) One of the actions granted to a Player on a turn: starting it seeds that Player's task queue, and it lasts until that queue drains.
-- **Actor:** The entity credited with performing a pending or completed change. A game with N Players also has the administrative Admin Actor.
+- **action:** (1) A Pets element, written with `->`, that combines an optional cost with an instruction and usually belongs to a card or `StandardAction`. (2) An action granted to a Player on a turn: starting it adds work assigned to that Player, and it lasts until the relevant work finishes.
+- **Actor:** An entity whose agent can perform a state change. A change event records the Actor whose engine executed it. A game with N Players also has the administrative Admin Actor.
 - **ActorAccess:** The passive, permissions-aware conduit through which an agent invokes engine mutations for its Actor. Callers do not bypass the Actor's unique agent to use it.
 - **Admin:** The non-Player Actor and Component that performs neutral table activity. Admin may receive, select, and narrow ordinary tasks, including real choices made by an installed policy.
 - **agent:** The unique mutation issuer for one Actor in one configured game world. Explicit client requests and autonomous decisions both pass through it; its private agent driver chooses the latter. It is not a task queue or core-engine concept.
 - **agent driver:** The private part of an agent that autonomously chooses further legal actions according to installed policies.
 - **AMAP:** The `.` quantifier, meaning “as much as possible.” Resolution caps the requested amount by current invariant bounds and source availability, clamps negative capacity to zero, and makes that amount mandatory.
 - **Anyone:** The ordinary common supertype of `Owner` and `Actor`. `<Anyone>` accepts every eligible owner through the dependency’s bound; trigger-side `BY Anyone` accepts every Actor, including Admin.
-- **assignee:** The Actor permitted by game state to select and narrow a task. The assignee chooses among its filtered view of the global task queue and normally makes any optional narrowing; an instruction-level `BY` may assign the resulting state changes to a different performer without changing the assignee. This is why Philares and Enceladus can give a choice to an effect's owner, while World Government Terraforming gives its assignee a choice that Admin performs.
+- **assignee:** The Actor with exclusive authority to advance a task now. Initially the controller selects it; selection may reassign it to the task's selection assignee, who narrows any remaining choices. When instruction-side `BY` becomes concrete, it may reassign the task again. The final assignee's agent executes it.
 - **atomicity:** Indivisibility with respect to a stated scope. One `FROM` is a single transmutation state change, so its removal and gain cannot be observed separately. A timeline operation is failure-atomic: all of its events commit or all are rolled back. An instruction, task, or chain of automatic effects is not thereby one indivisible gameplay event; intermediate state changes may fire effects and be observed by them. Unrelated to atomize, which splits an instruction apart.
 - **atomize:** To split one counted instruction into one instruction per unit so that each unit is handled and triggers effects separately. For example, `3 TemperatureStep` is atomized, while `3 Plant` is not. Unrelated to atomicity, which is about indivisibility.
 - **autoexec:** An agent driver policy that autonomously selects or narrows tasks. It may be proof-preserving, aggressive, or deliberately peculiar; resolution and execution remain ordinary engine consequences.
-- **automatic effect:** An effect written with `::`. Its triggered instruction executes inline instead of becoming a queued task. Antonym: queued effect.
+- **automatic effect:** An effect written with `::`. Its triggered instruction executes inline instead of becoming a queued task, so its instruction cannot request a task handoff with instruction-side `BY`. Antonym: queued effect.
 - **automatic narrowing:** Narrowing performed without an explicit client choice because only one valid option is proved to remain. An unselected task may be narrowed only from immutable facts; resolution against the mutable game world waits for selection.
 - **bootstrap:** The shortest special prefix needed to construct a game world and establish Admin as an ordinary Actor. Once Admin can carry out assigned tasks through the normal lifecycle, bootstrap is over; later game setup remains ordinary Admin work.
 - **BootstrapPhase:** The first Terraforming Mars `Phase`, created by Admin before the generated `Premise`. Its presence names the initialization interval in which Modules, Players, and their minimum runtime machinery are established. `SetupPhase FROM Phase` transmutes it away to begin effectful game setup.
@@ -44,10 +44,11 @@
 - **content-local class:** A supporting Class whose meaning belongs to particular content, such as a map area, special tile, remote area, watcher, marker, placement bonus, ruling policy, or a custom metric or instruction. Its declaration belongs beside the content that needs it. The same declaration may appear in multiple bundles under one Class Name; the catalog requires those declarations to agree. Source locality does not create a private namespace or make the helper a user-facing content choice.
 - **core class:** Shared vocabulary or rule machinery at the scope that owns it, rather than an individual content item. `Asteroid` and `Floater` are game-wide core resources. Promo's `Disease` is shared card support; `MyResourceWasRemoved` and `MyProductionWasDecreased` support its Module rules. A bundle may have core classes whether or not it has a Module. Use count alone does not decide ownership.
 - **context:** The object that contains or gives meaning to a Pets object; the Pets object itself does not retain that relationship. For example, a class is the context of one of its class effects, a concrete type is the context of a component effect, and a live effect adds knowledge of the existing context Component.
+- **controller:** The Actor that ordered a task and receives its independent siblings and continuations. A task keeps this identity while selection and concrete `BY` handoffs change its assignee.
 - **custom class:** A Kotlin-backed `CustomMetric` or `CustomInstruction`. A `CustomMetric` has no Components; a `CustomInstruction` is a normal event Component with an additional computed effect.
 - **custom instruction:** A gain of `CustomInstruction` whose Kotlin implementation supplies a queued instruction tree.
 - **custom metric:** A Pets metric whose Kotlin implementation calculates a nonnegative integer from a game world without adding virtual Components to its component graph.
-- **dead end:** A task queue state from which the queue cannot drain normally. A `Die!` task is one example. An enclosing operation must roll back any route that eventually dead-ends.
+- **dead end:** A task-pool state from which pending work cannot finish normally. A `Die!` task is an example. An enclosing operation must roll back any route that eventually dead-ends.
 - **default:** A class-supplied dependency bound or quantifier inserted when an expression or change instruction omits it.
 - **dependency:** A directed existence relationship from one Component to another, encoded in the dependent Component's type. A game world cannot contain the dependent occurrence unless the exact target Component also exists.
 - **dependency bound:** The type that constrains the valid targets of one dependency at a particular point in a class hierarchy. A subtype may narrow an inherited bound, and the same dependency key identifies that relationship throughout the hierarchy.
@@ -59,7 +60,7 @@
 - **difference type:** A refinement written `B(NOT C)` that denotes the Types in explicit domain `B` which do not overlap excluded Type `C`.
 - **display name:** The locale-specific natural-language name used for UI text, such as a printed card title. It need not be a valid or stable Pets identifier.
 - **double-colon effect:** Synonym for automatic effect.
-- **drain:** To become empty. A task queue draining can advance workflow.
+- **drain:** To become empty. The global task pool or an Actor-filtered view becoming empty can advance workflow.
 - **effect:** A trigger, an instruction, and the choice between automatic and queued dispatch, attached to a class or specialized for a Component.
 - **engine:** The passive mechanism that validates direct Actor-attributed mutations and calculates their state consequences. It is not an Actor or Component.
 - **event log:** The ordered history of state changes and task lifecycle events in a game world.
@@ -91,9 +92,9 @@
 - **origin indicator:**
 - **Owner:** An identity that can own Components, including `Player`, `SoloOpponent`, and `Neutral`. The inherited `Me@Owner` variable on `Owned` names a particular owner.
 - **Owned:** The root class for Components whose type carries an ownership dependency.
-- **pending task:** A task offered in an assignee's task queue but not currently selected.
+- **pending task:** An unselected task in the global task pool, visible through its current assignee's filtered view.
 - **per:**
-- **performer:** The Actor credited on an instruction's state changes. Normally this is the task's stored Actor, but an instruction-level `BY` can override the performer without changing the task's assignee.
+- **performer:** The Actor whose agent actually executes a state change and is therefore recorded on its event. A task stores no separate performer: its final assignee performs it.
 - **Pets:** Solarnet's specification language for types, rules, and game world changes.
 - **Player:** A seated participant that is both an Owner and an Actor.
 - **premise class table:** The small declaration delta owned by one game premise, including generated Players, the generated `Premise`, and ad-hoc test declarations. It imports one master class table; the master cannot refer back to it, and its names cannot collide with master names.
@@ -115,9 +116,10 @@
 - **scalar:**
 - **Scope:** A live Component that anchors the lifetime of dependent Components. A Component belongs to a Scope by carrying a type dependency on that exact Scope Component.
 - **select-lock:** The rule that no competing game world mutation may invalidate the facts used to resolve a selected task before that task finishes.
-- **selected task:** The task the assignee has chosen to finish next. Selection sets `Task.selected` and takes the select-lock because resolution has read the current game world; the task may remain abstract and accept partial narrowing.
+- **selected task:** The task chosen to finish next. Selection sets `Task.selected`, may change its assignee, and takes the select-lock because resolution has read the current game world. The task may remain abstract and accept partial narrowing from its new assignee.
+- **selection assignee:** The Actor recorded on a task as its recipient upon selection. It may equal the controller. After the transfer it is simply the current assignee, unless concrete instruction-side `BY` transfers the task again.
 - **selection edge:** A premise-construction reference from an included Class to another Class that must also be included. Structural dependencies and a custom implementation's required class names create selection edges; merely mentioning a represented Class in a `Class<...>` metric does not. Selection is construction policy, not Type meaning.
-- **selection:** The client activity that chooses one pending task to finish next and causes the engine to resolve it. Selection is a promise about ordering, not a timeline commit; commit retains its transactional meaning after execution.
+- **selection:** The client activity that chooses a pending task to finish next, resolves it, and assigns it to its recorded selection assignee. Selection is a promise about ordering, not a timeline commit; commit retains its transactional meaning after execution.
 - **self trigger:**
 - **sequential instruction:**
 - **SetupPhase:** The Terraforming Mars phase gained by transmuting BootstrapPhase away with `SetupPhase FROM Phase`. It creates generation 1, grants starting state such as 20 `TerraformRating`, and gives each Player the generic card counts and setup choices selected by the active modules.
@@ -129,7 +131,7 @@
 - **structured content data:** Transitional category-specific card or map data used to generate class declarations and retain metadata not yet authored in Pets. It is not a common engine representation.
 - **System:** Admin-only machinery. It cannot be created by any Actor but Admin, and an unowned System occurrence does not implicitly restrict effect matching by its Actor. Presentation visibility is classified separately.
 - **system type:** A Pets type supplied by the declarations in `SystemDeclarations.kt` because the generic engine requires it.
-- **task:** A unit of pending work containing an instruction, assignee, optional cause, and lifecycle metadata. It represents both what must eventually happen and the choices still permitted.
+- **task:** A unit of pending work containing an instruction; controller, selection-assignee, and current-assignee Actors; optional cause; and lifecycle metadata. It represents both what must eventually happen and the choices still permitted.
 - **task event:**
 - **task id:**
 - **task queue:** The one stored, unordered set of pending tasks in a game world. Every task records its assignee; Actor-specific queues are filtered views of that set. Enumeration order has no gameplay meaning.

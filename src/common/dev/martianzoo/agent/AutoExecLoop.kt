@@ -62,6 +62,7 @@ internal class AutoExecLoop(private val world: World) {
         val engine = engineFor(taskId)
         engine.selectTask(taskId)
         if (taskId !in allTasks) return true
+        if (allTasks.getTaskData(taskId).assignee != engine.actor) return true
         try {
           if (engine.trySelectedTask()) return true
         } catch (e: DeadEndException) {
