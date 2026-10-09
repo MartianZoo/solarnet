@@ -3,45 +3,86 @@
 Pets is the static-model side of the planned repository split: the Pets language and type model,
 canonical and fake Terraforming Mars content, card-data generation, derived English, the Almanac,
 and supporting generation or analysis tools. Runtime state, the engine, Agents, gameplay workflow,
-replays, and Mars Playground belong to the later Solarnet roadmap.
+replays, and Mars Playground belong to the [Solarnet roadmap](SOLARNET_ROADMAP.md).
 
 The largest project-wide concern is the complexity accumulated between the engine and functional
 tests. That machinery is outside this document, but it changes how work here is judged. A new Pets
 API, generated hierarchy, adapter, or derived representation is valuable only if it lets consumers
 delete more permanent machinery than it adds. A cleaner-looking extra layer is not progress.
 
-Sections and items are ordered by current importance, but this is not a release schedule.
+The next step below is the selected repo-split work. The remaining sections describe longer-term
+directions, not prerequisites for that step or a release schedule.
 “Active” means substantial unfinished work exists. “Selected” means the direction has been
 chosen but the design may remain open. “Exploratory” means the idea still has to justify its
 conceptual cost.
 
+## Next step: separate Gradle builds
+
+**Selected 2026-10-09; not yet implemented.** Keep the current Git repository, but make Pets and
+Solarnet independently buildable inside it. Creating separate Git repositories comes later.
+
+The code preparation is already in place: Catalog and the static tools have their own modules;
+Canon, Fake Canon, Almanac, and codegen do not depend on runtime modules. State tests no longer
+compile Catalog-owned test support, and the Pets browser test runs under Pets rather than Web.
+The earlier experiment compiled the two module groups using a Gradle composite, but retained all
+source files in both checkouts. It did not prove independent source trees or artifact consumption.
+
+### Implementation scope
+
+1. **Give Pets a self-contained `pets/` build.** Move `pets`, `catalog`, `tfm-card-data`,
+   `tfm-card-generator`, `tfm-canon`, `tfm-fake`, `almanac`, `pets-tools`, and `codegen` there,
+   together with their source, resources, tests, and required documentation. Include the Gradle
+   wrapper, settings, conventions, version catalog, lockfiles, and configuration needed to build
+   without reaching into the Solarnet tree. Leave runtime modules in the root build. Give the
+   included convention builds distinct identities.
+2. **Make Solarnet consume Pets libraries by artifact coordinates.** For normal development in
+   this checkout, use Gradle composite substitution to build those libraries from local Pets
+   source. Also provide a way to disable substitution and use built artifacts. Keep Kotlin package
+   names and behavior unchanged; this is build separation, not an API redesign.
+3. **Preserve the combined development workflow.** Root build, test, and formatting commands and
+   CI must still cover both halves. Keep the existing JVM and browser coverage, including the
+   Pets browser test and Web's history test and selected replay. Adapt `webAppsDevelopmentRun` so
+   Viewer, Web REPL, and Almanac still run together: Viewer currently starts Almanac tasks in the
+   same build and reads JavaScript from the shared output layout. Update affected build and setup
+   documentation with the actual commands.
+
+### Acceptance checks
+
+- Copy only the Pets half outside this checkout. Build and test it there, including its JavaScript
+  targets and Almanac packaging. Publish the required JVM/JS libraries and dependency metadata to
+  a temporary local Maven repository.
+- Copy only the Solarnet half to a different location, with no Pets source tree. Disable composite
+  substitution, resolve Pets dependencies exclusively from those freshly built artifacts, and
+  build, test, and package the runtime applications there. Neither isolated build may read source
+  or build support from the original checkout or the other half.
+- Verify normal composite development in the combined checkout: root checks cover both builds,
+  and the shared development server serves all three applications. Record the commands and
+  results; compilation through a composite alone does not satisfy the isolated-build checks.
+
+**Not part of this step:** creating the Git repositories, choosing a publishing host or long-term
+version policy, extracting the parser, or redesigning Pets APIs. Parser extraction remains a
+separate library-design direction below, not a prerequisite for the split.
+
 ## Internal design and consumer API
 
-1. **Complete the static/runtime separation.** **Selected.** The future Pets repository should
-   build and explain its static model without depending on game state or execution. Finish the
-   separation now expressed by the dedicated `catalog` and `pets-tools` modules and by Canon, Fake
-   Canon, and Almanac having no state dependency: isolate source parsing from the model and continue
-   making consumers depend only on capabilities they actually use. Prefer moving a complete
-   responsibility or deleting a reverse dependency over adding paired adapters.
-
-2. **Make Pets pleasant to consume directly.** **Selected.** The model should expose a small,
+1. **Make Pets pleasant to consume directly.** **Selected.** The model should expose a small,
    typed, unsurprising path from declarations to class tables, types, properties, and instructions.
    Separate the expression API's natural, compact-resolved, and full-resolved purposes. Remove
    temporary Canon-facing seams and APIs that expose incidental implementation structure. The test
    for success is simpler real consumers, not a more elaborate facade.
 
-3. **Decide the generated Kotlin API by net simplification.** **Exploratory.** The isolated,
+2. **Decide the generated Kotlin API by net simplification.** **Exploratory.** The isolated,
    game-independent `codegen` module demonstrates a rich typed hierarchy for Pets vocabulary, but
    adopting that output would introduce a second large surface. Integrate it only if it replaces
    stringly helpers, constants, and duplicated interpretation across production callers. If it
    mostly sits above the same machinery, keep the generator isolated or remove it.
 
-4. **Keep a single semantic model.** **Selected.** Execution, English, icons, analysis, and Kotlin
+3. **Keep a single semantic model.** **Selected.** Execution, English, icons, analysis, and Kotlin
    access must all consume the same declarations and type rules. Precompiled canonical content may
    replace runtime parsing eventually, but it must be output from the real Pets compiler rather
    than a parallel model. Generated metadata should preserve authored meaning and provenance.
 
-5. **Stabilize public contracts only after responsibilities are clear.** Add binary-API checks and
+4. **Stabilize public contracts only after responsibilities are clear.** Add binary-API checks and
    reduce visibility where they expose accidental details. There are no compatibility clients to
    protect, so improving the design takes precedence over retaining obsolete entry points.
 
@@ -53,11 +94,12 @@ conceptual cost.
    properties, and type intersections. When machinery lacks a real witness, try a bounded removal
    before documenting or extending it.
 
-2. **Extract source parsing as an optional module.** **Selected.** Parsing, inline-class lowering,
-   and source diagnostics should depend on the Pets model; the model should not depend on the parser
-   or Better Parse. Keep canonical source compilation as a separate pipeline concern. This makes the
-   library easier to understand and allows independently implemented parsers without widening the
-   core model.
+2. **Extract source parsing as an optional module.** **Selected; independent of the repo split.**
+   Move `Parsing`, `DerivedClassLowerer`, the parsed system-declaration provider, and source
+   diagnostics into a parser module that depends on the Pets model. Keep Better Parse with source
+   input, not the model. The model construction API already supports independent parsers. Canonical
+   content still needs separate build-time conversion to typed declarations before its consumers
+   can omit runtime parsing entirely.
 
 3. **Prefer deletion over cleanup around obsolete representations.** Remove stale helpers,
    transitional `CardPack` concepts, redundant transforms, and compatibility surfaces when their

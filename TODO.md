@@ -87,9 +87,6 @@ These concerns remain open; the ranking does not select replacement designs.
 - When preparing the [PETS repository draft](docs/pets-repo-draft.md) for publication, decide
   whether to include Sponsored Academies, currently retained as a draft note after the gallery.
 - After the repository split, rename `:pets-tools` to `:tools` in the Pets repository.
-- When splitting the Gradle builds, preserve `webAppsDevelopmentRun` serving Viewer, Web REPL,
-  and Almanac together. The viewer currently starts Almanac tasks in the same build and reads its
-  JavaScript from the shared output layout; adapt that wiring to the separate Pets build.
 - Add scenario saving and reloading to [Mars Playground](PLAYGROUND.md) after the initial version.
 - Add shareable URLs for [Mars Playground](PLAYGROUND.md#technology-and-experience) later. First
   decide what restoring the same view includes: scenario, history position, camera, and windows.
@@ -249,10 +246,6 @@ These concerns remain open; the ranking does not select replacement designs.
   `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
   requiring authored references to generated names. Preserve Cimmeria map generation,
   `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit card-Class selection.
-- Extract `Parsing`, `DerivedClassLowerer`, and the parsed system-declaration provider into an
-  optional parser module. The model construction API supports independent parsers; keep the
-  better-parse dependency with source input. Canonical content still needs a separate build-time
-  conversion to typed declarations before its consumers can omit runtime parsing entirely.
 - Consider rejecting `@` markers on concrete types, such as `Class<@BuildingTag>`, where the
   represented class is already fixed. Decide whether this should be an authoring error.
 - Carry resource/file names through Pets parsing and generated catalog inputs so diagnostic spans

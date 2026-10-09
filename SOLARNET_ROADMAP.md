@@ -173,10 +173,11 @@ after review. **Selected** means the direction is chosen while some design remai
   meaning correctly through realistic interactions and whole games. Neither side completes the
   milestone alone. See
   [Pets roadmap: Derived applications](PETS_ROADMAP.md#derived-applications-of-the-static-model).
-- **Complete the static/runtime separation.** Pets should build and explain declarations without
-  runtime state. Solarnet should consume the resulting model through narrow capabilities and keep
-  Catalog assembly, Game Premise, Game World, engine, and Agent ownership clear. Cross-repository
-  work should remove reverse dependencies rather than create matching adapters.
+- **Separate the Gradle builds before splitting Git repositories.** Solarnet will consume Pets
+  libraries by artifact coordinates, with local composite substitution for combined development.
+  The [repo-split next step](PETS_ROADMAP.md#next-step-separate-gradle-builds) owns the implementation
+  scope and acceptance checks, including building an isolated Solarnet copy against freshly built
+  Pets artifacts without Pets source. Preserve the combined checks and development server.
 - **Let independent builders succeed.** Pets supplies an understandable semantic library;
   Solarnet supplies a trustworthy executable World and game-playing surface. Mars Playground,
   parity work, and future outside clients should pressure those contracts constructively without
