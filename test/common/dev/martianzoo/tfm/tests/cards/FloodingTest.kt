@@ -1,12 +1,21 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.Player
+import dev.martianzoo.state.TaskResult
+import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.TestHelpers.assertProds
+import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.cards.cardnames.Flooding
+import dev.martianzoo.tfm.tests.cards.cardnames.NeptunianPowerConsultants
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 internal class FloodingTest : CardTest() {
@@ -260,5 +269,119 @@ internal class FloodingTest : CardTest() {
     p2.runOperation("10 MC, CityTile<Tharsis_4_3>")
     p3.runOperation("10 MC, CityTile<Tharsis_5_3>")
     p4.runOperation("10 MC, CityTile<Tharsis_1_1>")
+  }
+
+  @Ignore // An unrelated loss by the payer is counted as payment.
+  @Test
+  internal fun `Self-inflicted loss does not pay an open Neptunian bill`() {
+    loseMoneyWithNeptunianBill(remainingDebt = 5).expect("Hydroelectric, PROD[Energy], -16 MC")
+  }
+
+  @Test
+  internal fun `BUG - Self-inflicted loss pays an open Neptunian bill`() {
+    loseMoneyWithNeptunianBill(remainingDebt = 1).expect("Hydroelectric, PROD[Energy], -12 MC")
+  }
+
+  private fun loseMoneyWithNeptunianBill(remainingDebt: Int): TaskResult {
+    newGame(PromoCardPack)
+    admin.phase("Action")
+    p1.runOperation("$NeptunianPowerConsultants, 16 MC, ProjectCard, CityTile<Tharsis_4_3>")
+    return p1.playProject(Flooding, 7) {
+      val previousPolicy = p1.autoExecPolicy
+      p1.autoExecPolicy = NONE
+      try {
+        doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Player1>?")
+        doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
+        p1.pay()
+        p1.selectTask("-4 MC?")
+        doTask("-4 MC")
+        p1.count("Owed") shouldBe remainingDebt
+        p1.pay(remainingDebt)
+      } finally {
+        p1.autoExecPolicy = previousPolicy
+      }
+    }
+  }
+
+  @Ignore // Acceptance releases Flooding before the bonus payment finishes.
+  @Test
+  internal fun `Cannot resume the loss before the accepted Neptunian bonus is paid`() {
+    acceptOpponentsNeptunianBonus()
+    shouldThrow<TaskException> { p1.doTask("-4 MC<Player2>!") }
+    requireP2().assertCounts(5 to "MC", 0 to "Hydroelectric")
+  }
+
+  @Test
+  internal fun `BUG - Can resume the loss before the accepted Neptunian bonus is paid`() {
+    acceptOpponentsNeptunianBonus()
+    p1.doTask("-4 MC<Player2>!")
+    requireP2().assertCounts(1 to "MC", 0 to "Hydroelectric")
+    requireP2().assertProds(0 to "Energy")
+  }
+
+  private fun acceptOpponentsNeptunianBonus() {
+    newGame(PromoCardPack)
+    val p2 = requireP2()
+    p2.runOperation("$NeptunianPowerConsultants, CityTile<Tharsis_4_3>, 5 MC")
+    admin.phase("Action")
+    p1.autoExecPolicy = NONE
+    p2.autoExecPolicy = NONE
+
+    p1.beginOperation("$Flooding")
+    p1.doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Player2>?")
+    p1.selectTask("UseAction<Player2, NeptunianOption<NeptunianPowerConsultants<Player2>>>?")
+
+    shouldThrow<TaskException> { p1.doTask("-4 MC<Player2>!") }.detail shouldContain "select-lock"
+    p2.count("MC") shouldBe 5
+    p2.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
+  }
+
+  @Ignore // Flooding can consume the last cash after Steel was already spent.
+  @Test
+  internal fun `Cannot interrupt a partially paid Neptunian bonus`() {
+    partlyPayOpponentsNeptunianBonus()
+    shouldThrow<TaskException> {
+      p1.selectTask("-4 MC<Player2>?")
+      p1.doTask("-1 MC<Player2>!")
+    }
+    requireP2().assertCounts(0 to "Steel", 1 to "MC", 1 to "Owed")
+  }
+
+  @Test
+  internal fun `BUG - Can interrupt a partially paid Neptunian bonus and strand spent steel`() {
+    partlyPayOpponentsNeptunianBonus()
+    p1.selectTask("-4 MC<Player2>?")
+    p1.doTask("-1 MC<Player2>!")
+    p1.selectTask("-X MC<Player2>?")
+    shouldThrow<LimitsException> { requireP2().doTask("-MC!") }.detail shouldContain "MC<Player2>"
+    requireP2().assertCounts(0 to "Steel", 0 to "MC", 1 to "Owed", 0 to "Hydroelectric")
+    requireP2().assertProds(0 to "Energy")
+  }
+
+  private fun partlyPayOpponentsNeptunianBonus() {
+    newGame(PromoCardPack)
+    val p2 = requireP2()
+    p2.runOperation("$NeptunianPowerConsultants, CityTile<Tharsis_4_3>, 2 Steel, 1 MC")
+    admin.phase("Action")
+    p1.autoExecPolicy = NONE
+    p2.autoExecPolicy = NONE
+
+    p1.beginOperation("$Flooding")
+    p1.doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Player2>?")
+    p1.selectTask("UseAction<Player2, NeptunianOption<NeptunianPowerConsultants<Player2>>>?")
+    p2.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
+
+    // P1 orders each billing stage, while P2 performs the work assigned to P2.
+    p1.selectTask("5 Owed<Player2>!")
+    p2.doTask("5 Owed<Player2>")
+    p1.selectTask(
+        "ActionBilling<Player2, NeptunianOption<NeptunianPowerConsultants<Player2>>, Action1>"
+    )
+    p2.doTask(
+        "ActionBilling<Player2, NeptunianOption<NeptunianPowerConsultants<Player2>>, Action1>"
+    )
+    p1.selectTask("-X Steel<Player2>?")
+    p2.doTask("-2 Steel")
+    p2.assertCounts(0 to "Steel", 1 to "MC", 1 to "Owed")
   }
 }

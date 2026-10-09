@@ -114,7 +114,7 @@ These concerns remain open; the ranking does not select replacement designs.
   own and opposing claims' different effects on fallback, and do not treat unaffordable placement
   consequences as permitting fallback. This is a local expression simplification, not an `ELSE`
   language or execution-search project.
-- Fix greenery fallback when Mars Nomads blocks the last adjacent land area. `BugsTest` records
+- Fix greenery fallback when Mars Nomads blocks the last adjacent land area. `MarsNomadsTest` records
   that both the blocked placement and a distant placement currently fail. Keep promo-specific
   names out of the core greenery rule.
 - Prefer the positive Arcadian Communities reward trigger `Tile<LandArea(HAS Community)>: 3 MC`
@@ -134,8 +134,8 @@ These concerns remain open; the ranking does not select replacement designs.
 - Find a small, exact way for Ecology Experts' plant and microbe tags to trigger a newly played
   bio listener without replaying those tags or rewarding an older copy of that listener. Double
   Down copies the Prelude's immediate instruction but not its effects, so the solution must also
-  cover that path. Until then, keep the four affected combinations Unsafe-only; `BugsTest`
-  characterizes the Viral Enhancers and Ecological Zone outcomes.
+  cover that path. Until then, keep the four affected combinations Unsafe-only; `EcologyExpertsTest`
+  pairs the intended and current Viral Enhancers and Ecological Zone outcomes.
 - Consider a shared party-leader recalculation helper for the ranking repeated on delegate gains
   and Banned Delegate. Replacement cleanup belongs to `PartyLeader`; share the remaining winner
   selection only if it simplifies the model overall and preserves Recruitment's transfer semantics.
@@ -152,11 +152,12 @@ These concerns remain open; the ranking does not select replacement designs.
   but does not cause a card draw. First try the existing card-holder distinction; do not bypass
   trigger execution. Full wild-tag assignment remains deferred until a clean rule representation is
   available; historical replays still use explicit adjustments for unsupported choices.
-- Keep Fake Self-Replicating Robots permanently in `:tfm-fake`. Move its bug characterizations,
-  including the SRR cases mixed into `cards/BugsTest.kt`, into that module and consolidate duplicate
-  Sponsored Projects coverage. Reuse existing test-support sources before considering a fixture API.
+- Keep Fake Self-Replicating Robots permanently in `:tfm-fake`. Move its paired defect scenarios
+  from `SelfReplicatingRobotsTest` into that module. Reuse existing test-support sources before
+  considering a fixture API.
 - Follow through on the FAQ-audit defects characterized in
-  [`cards/BugsTest.kt`](test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt):
+  `MiningGuildTest`, `SelfReplicatingRobotsTest`, and
+  [`MiningRightsTest.kt`](test/common/dev/martianzoo/tfm/tests/cards/MiningRightsTest.kt):
   Mining Rights/Area and Mining Guild on wild placement bonuses; Sponsored Projects adding
   resources to SRR's hosted cards. Preserve the external-card-selection boundary when addressing
   copied Merger commitment after new information is revealed.
@@ -376,14 +377,14 @@ attribution, features, and unresolved rule questions. Related symptoms are group
    → Merger → Tharsis leaves the city placement for another action instead of resolving it
    immediately. This changes action timing and available intervening choices. Implement the resolved
    FAQ behavior: an impossible first action must invalidate the Prelude play. See the Board/Merger/
-   Tharsis characterization in [cards BugsTest](test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt).
+   Tharsis pair in [MergerTest](test/common/dev/martianzoo/tfm/tests/cards/MergerTest.kt).
 
 6. **Prelude-drawing content can be selected without a usable Prelude pool.** WG Project, Valley
    Trust, Board of Directors, and New Partner don't bring in the required pool. Configuration probes
    confirmed the missing default pool. Selecting WG Project must make the Prelude 1 pool available
    for its draw even when that pool otherwise mostly sits unused; selecting the pool must not start
    the Prelude phase. Check explicit pool exclusions separately. The WG Project draw is
-   characterized in [cards BugsTest](test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt).
+   covered by the pair in [WgProjectTest](test/common/dev/martianzoo/tfm/tests/cards/WgProjectTest.kt).
 
 7. **`DEFAULT` silently discards a root type-variable marker.** For example,
    `DEFAULT +@Piece<First>` becomes an ordinary default without reporting the invalid marker.

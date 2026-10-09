@@ -3,11 +3,13 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 internal class HeadStartTest : CardTest() {
@@ -65,5 +67,32 @@ internal class HeadStartTest : CardTest() {
           doTask("2 MC / ProjectCard")
         }
         .expect("2 MC, 2 Steel, -2 ProjectCard")
+  }
+
+  // https://boardgamegeek.com/thread/3335155/article/44575973#44575973
+  @Ignore // Fake Head Start offers both actions independently.
+  @Test
+  internal fun `Cannot begin its second action before completing the first`() {
+    shouldThrow<TaskException> { interleaveHeatAndAquifer() }
+    p1.assertCounts(4 to "MC", 10 to "Heat", 1 to "PreludeCard", 0 to "$FakeHeadStart")
+  }
+
+  @Test
+  internal fun `BUG - Can interleave its two actions`() {
+    interleaveHeatAndAquifer().expect("TemperatureStep, OceanTile, 2 TerraformRating")
+  }
+
+  private fun interleaveHeatAndAquifer(): TaskResult {
+    newGame(PreludeExpansion, FakeStuffBundle)
+    p1.phase("Prelude")
+    p1.runOperation("4 MC, 10 ProjectCard, PreludeCard, 10 Heat")
+    return p1.playPrelude(FakeHeadStart) {
+      doTask("UseAction<ConvertHeatAction, Action1>")
+      doTask("-8 Heat")
+      doTask("UseAction<UseStandardProjectAction, Action1>")
+      doTask("UseAction<AquiferProject, Action1>")
+      doTask("-18 MC")
+      placeTile(5, 5)
+    }
   }
 }

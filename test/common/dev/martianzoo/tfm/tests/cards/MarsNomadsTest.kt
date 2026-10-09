@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.Cimmeria
@@ -20,6 +21,7 @@ import dev.martianzoo.tfm.tests.cards.cardnames.Philares
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.matchers.shouldBe
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 internal class MarsNomadsTest : CardTest() {
@@ -217,5 +219,29 @@ internal class MarsNomadsTest : CardTest() {
     p1.assertCounts(1 to "NomadsMarker<Cimmeria_3_2>", 0 to "NomadsMarker<Cimmeria_3_3>")
     p1.count("MC") shouldBe moneyBefore
     p1.count("Colony") shouldBe 5
+  }
+
+  @Ignore // The greenery fallback still treats the marker area as available.
+  @Test
+  internal fun `Allows greenery elsewhere when its marker blocks the last adjacent area`() {
+    plantBeyondNomads().expect("GreeneryTile<Tharsis_9_7>, OxygenStep, TerraformRating")
+  }
+
+  @Test
+  internal fun `BUG - Blocks greenery elsewhere when its marker blocks the last adjacent area`() {
+    shouldThrow<NarrowingException> { plantBeyondNomads() }
+    p1.assertCounts(8 to "Plant", 1 to "GreeneryTile", 0 to "GreeneryTile<Tharsis_9_7>")
+    requireP2().count("NomadsMarker<Tharsis_2_2>") shouldBe 1
+  }
+
+  private fun plantBeyondNomads(): TaskResult {
+    newGame(PromoCardPack)
+    p1.runOperation("GreeneryTile<Tharsis_1_1>, 8 Plant")
+    val p2 = requireP2()
+    p2.runOperation("CityTile<Tharsis_2_1>")
+    p2.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_2_2>") }
+    admin.phase("Action")
+    shouldThrow<DeadEndException> { p1.convertPlants { placeTile(2, 2) } }
+    return p1.convertPlants { placeTile(9, 7) }
   }
 }

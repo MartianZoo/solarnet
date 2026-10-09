@@ -229,7 +229,8 @@ clear coverage of these contracts matters more than preserving every current tes
    that representative supported configurations compose into usable projected class tables and
    worlds. This is not a demand to restate the contents of every card or bundle in assertions.
 7. **Known-defect scenarios.** Focused passing characterizations of important behavior known to be
-   wrong, visibly quarantined in `BugsTest` until the behavior is corrected.
+   wrong, explicitly identified as defects. Card tests use the paired pattern described
+   under [Known-defect tests](#known-defect-tests); other suites retain `BugsTest`.
 8. **Script-command contract tests.** Terraforming-independent checks of each command's public
    contract. These are useful interface coverage even though they are not a development priority.
 9. **Cross-runtime browser coverage.** Browser-specific tests cover browser APIs, one representative
@@ -485,9 +486,23 @@ relevant unchanged state and, when useful, the diagnostic identifying the proble
 
 ### Known-defect tests
 
-`BugsTest` is different: its passing tests characterize known incorrect behavior, and their names
-say what currently happens incorrectly. Prefer such a characterization over a disproportionate
-workaround. Once the bug is fixed, move the useful scenario to its proper behavioral suite.
+Card tests use adjacent test pairs in the class for the main card involved:
+
+- An `@Test` with `@Ignore` states the intended behavior. Add a short comment explaining the defect
+  that keeps it disabled, and preserve any existing rule-source reference beside the pair.
+- An active `@Test` with a name beginning `BUG - ` states the current incorrect behavior.
+- Share scenario steps through a private helper, keeping the differing expectations visible in the
+  test methods. For a currently rejected action, the characterization catches the specific exception
+  and checks unchanged state; the intended test calls the same helper and expects success.
+
+Follow the standard card-test fixture conventions above. Do not add shared infrastructure for
+pairing. Verify that the intended test fails for the described defect before disabling it. When
+the defect is fixed, enable that test and remove the obsolete characterization; inline the helper
+if it no longer serves multiple tests. `MiningRightsTest` and `EcologyExpertsTest` are compact examples.
+
+Other packages retain `BugsTest`: its passing tests characterize known
+incorrect behavior, and their names say what currently happens incorrectly. Prefer a clearly marked
+characterization over a disproportionate workaround.
 
 ## Game replay tests
 

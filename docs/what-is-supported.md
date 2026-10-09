@@ -54,4 +54,4 @@ Deal nor Turmoil is present.
 | Amazonis Planitia | Mining Area | Cannot place its tile on a wild-resource area. |
 
 The Decomposers, GMO Contract, and Mining Area outcomes follow their authored effects and placement
-requirements; the matching interactions have not been separately reproduced in BugsTest.
+requirements; the matching interactions have not been separately reproduced in card tests.

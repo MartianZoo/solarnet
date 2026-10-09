@@ -60,8 +60,8 @@ Reject the change if:
   evidence is available;
 - a replay correction is hidden inside an unrelated action, or a viewer recording contains
   evidence, commentary, or assertions owned by its replay test; or
-- known incorrect behavior is presented as an ordinary rule or accepted hack instead of a passing
-  observable `BugsTest` characterization.
+- known incorrect behavior is presented as an ordinary rule or accepted hack instead of an explicit
+  passing characterization (`BugsTest`, or a card-test pair following `TESTING.md`).
 
 Use [`TESTING.md`](TESTING.md#test-design) and the replay guide selected by
 [`README.md`](README.md#verification-and-reconstruction).
