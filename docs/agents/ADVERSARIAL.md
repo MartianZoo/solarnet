@@ -32,6 +32,11 @@ whether the other participants have accepted the action. Existing corrections an
 local experimentation do not become misconduct merely because a competitive game is happening
 elsewhere. A proposed history can simply fail to qualify as a continuation of that game.
 
+For Actor attribution, a request to select, narrow, or perform FooPlayer's task through FooPlayer's
+Agent is sufficient. Solarnet checks task assignment and the modeled rules, without asking who
+operates that Agent or demanding evidence of FooPlayer's consent. Any program may call every
+Actor's Agent; acceptance of its submitted decisions belongs to the surrounding arrangement.
+
 **The shared record identifies the game being played.** A readable textual record of the game
 in progress is committed to Git. “Type 3 export” refers to the combined recording in the project's
 export design: a premise recipe, an Actor decision stream, and an exact event stream. The decisions
@@ -117,8 +122,9 @@ player permission to decide it unilaterally. Whoever keeps the deck secret has a
 the engine's Admin Actor.
 
 A determined result is not necessarily work that may be performed immediately: choosing when to
-execute it can affect other available choices. Batching another Actor's work needs that Actor's
-authorization or an agreed rule that preserves those choices, not merely a concrete task. Likewise,
+execute it can affect other available choices. For acceptance as shared play, batching another
+Actor's work needs that Actor's authorization or an agreed rule that preserves those choices;
+this adds no permission check to local Agent calls. Likewise,
 an Admin input representing chance needs an externally established outcome. Public random results
 need this provenance just as private draws do. The evidence can accompany a player's submission;
 this does not require a separate dealer-authored commit for every outcome.

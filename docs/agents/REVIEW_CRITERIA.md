@@ -37,7 +37,10 @@ Reject the change if:
 - behavior originates from an inert identity or duplicated state rather than the live component
   that offers and rescinds it;
 - a layer gained knowledge or policy outside its responsibility, including game-specific
-  enumeration below the game view; or
+  enumeration below the game view;
+- engine task attribution was expanded into caller authentication, secret custody, or deciding
+  which history players accept, responsibilities assigned outside the calculator by
+  [ADVERSARIAL.md](ADVERSARIAL.md); or
 - autoexecution, incidental iteration order, `THEN`, `::`, priority, or pre-pruning was used to hide
   missing choice, task identity, completion, or engine semantics.
 

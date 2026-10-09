@@ -13,6 +13,12 @@ A correction changes concrete state without pretending that normal gameplay caus
 It preserves structural validity, but it does not reproduce costs, rewards, placement bonuses,
 history, or other queued consequences of ordinary play.
 
+Correction facilities are available for local calculation; they are not privileges reserved for
+an authenticated operator. The structural checks below specify what a correction computes, not
+whether other players agree to it. [ADVERSARIAL.md](ADVERSARIAL.md) assigns acceptance of a shared
+correction or takeback to the surrounding game arrangement. An internal `Audit` records a supplied
+adjustment or assertion; it is not proof of player consent or an external custodian's approval.
+
 - A correction group is failure-atomic. Rejection restores components, pending tasks, history,
   and derived indexes.
 - Concrete required parts of a newly gained component are constructed before gain reactions.

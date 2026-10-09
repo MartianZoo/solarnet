@@ -256,12 +256,15 @@ the resulting state, and, when necessary, an authored `BY` reaction that makes a
 observable. Do not locate card reactions by exact rendered instruction, `Task.cause`, internal
 assignment fields, or raw Event Log inspection.
 
-For delegated payment, final resource totals do not prove continuous authority. A helper that
-selects through another Actor can conceal missing engine control. Exercise separate Player
-commands, including attempted intervention between payment choices, and verify legality with
-autoexecution disabled where necessary. [SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over)
-records the unresolved operation-level rule; current task-level return-to-controller tests
-characterize existing behavior, not acceptance of that proposed rule.
+For delegated payment, final resource totals alone do not establish correct task routing or order.
+A helper may legitimately call several Actors' Agents; this is not an authorization bypass.
+Exercise separate Agent commands when needed to expose the selections and choices each requires,
+and test intervening work against the intended game outcome with autoexecution disabled where
+necessary. Do not require the engine to identify who operates an Agent or reject a program merely
+because it calls another Player's Agent. [ADVERSARIAL.md](ADVERSARIAL.md) assigns that submission
+check to the external game arrangement. [SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over)
+records the remaining operation-level questions; current return-to-controller tests characterize
+existing routing and do not select a broader exclusive-control model.
 
 Keep trigger matching separate from queue routing. A `BY` characterization should show which
 triggers fire and how Actor variables bind through observable changes. Do not make its continued

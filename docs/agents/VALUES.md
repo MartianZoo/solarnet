@@ -21,6 +21,14 @@ algebra of rules. Correct behavior is necessary, but an implementation that reli
 exceptions, mirrored models, privileged integration paths, or disproportionate machinery is still
 a design failure.
 
+Solarnet is a calculator, including during adversarial play. For Actor attribution, a request to
+select, narrow, or perform FooPlayer's task through FooPlayer's Agent is sufficient; the engine
+still validates task assignment and the modeled game rules. It does not establish who operates
+that Agent, whether FooPlayer approved the decision, or whether anybody accepts the resulting
+history. Local exploration may use every Actor's Agent and correction facilities freely.
+[ADVERSARIAL.md](ADVERSARIAL.md) assigns authentication, hidden-information custody, and acceptance
+of shared play to the surrounding arrangement. Those concerns do not justify engine restrictions.
+
 The project should make its libraries useful to independent builders without designing for
 hypothetical clients. A real second use can reveal a better responsibility split; an imagined use
 does not justify flexibility, compatibility, or a framework.
