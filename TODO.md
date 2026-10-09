@@ -45,6 +45,11 @@ These concerns remain open; the ranking does not select replacement designs.
 
 ## User Ideas and Agreed Directions
 
+- [ ] Write and review clear public API specifications and KDoc for the
+  [nine priority modules](docs/agents/SPEC_FIDELITY.md#priority-scope), following the documented
+  audience and intended-contract standards. Preserve useful Pets documentation and fill gaps;
+  track implementation defects separately. This standards update does not complete the module
+  documentation or conformance audits.
 - [ ] Finish the ProjectCardTest migration in larger batches, starting with easier classes. The
   [testing plan](docs/agents/TESTING.md#intended-fixture-development--not-implemented-yet) records
   the intended fixture work: solo support, safe `advanceTo(Phase)`, simulated VP totals with
