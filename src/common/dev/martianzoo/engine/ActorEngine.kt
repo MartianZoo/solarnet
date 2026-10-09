@@ -219,10 +219,11 @@ internal constructor(
       val prepared = prepareNarrowing(taskId, narrowing, quantifierOmitted)
       val narrowsBeforeHandoff =
           prepared.selectedThen != null || prepared.effective != task.instruction
-      if (task.selectionAssignee != actor && narrowsBeforeHandoff) {
+      val contextualAssignee = taskQueues.assigneeAfterContextualSelection(task)
+      if (contextualAssignee != actor && narrowsBeforeHandoff) {
         throw TaskException(
             "`$actor` cannot narrow task $taskId because selection assigns it to " +
-                "`${task.selectionAssignee}`"
+                "`$contextualAssignee`"
         )
       }
       val selected = selectTask(tasks, task) ?: return
@@ -362,7 +363,7 @@ internal constructor(
     val group = InstructionGroup.of(replacement)
     if (group.size == 1) {
       var updated =
-          taskQueues.normalize(
+          taskQueues.normalizeForSelection(
               original.copy(
                   assignee =
                       if (original.selected) original.assignee else original.selectionAssignee,
@@ -424,6 +425,7 @@ internal constructor(
             selectedTask.cause,
             executingActor,
             selectedTask.controller,
+            selectedTask.selectionAssignee,
         )
     newTasks.forEach(taskQueues::addTasks)
     handleTask(queue, selectedTask)

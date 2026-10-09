@@ -152,9 +152,11 @@ A Task retains:
 - an optional `THEN` continuation; and
 - its cause.
 
-The three Actor fields are independent. An unselected task starts assigned to its controller.
-Selection changes the assignee to the selection assignee; concrete instruction-side `BY` can change
-it again. Use [IDENTITY.md](IDENTITY.md) before changing them.
+The three Actor fields are independent. An unselected task normally starts assigned to its
+controller. A normalized task that directly gains a `System` Component, alone or under a top-level
+instruction-side `BY`, instead starts assigned to Admin before its add event is recorded. Contextual
+selection reapplies that assignment before a concrete instruction-side `BY` performs its later,
+authoritative handoff. Use [IDENTITY.md](IDENTITY.md) before changing them.
 
 Queue admission normalizes an `InstructionGroup` into one Task per independent member. `A THEN B`
 stores A as current work and B as a continuation; completing A admits B as ordinary work with no

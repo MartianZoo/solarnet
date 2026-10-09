@@ -68,8 +68,9 @@ rollback. None alone supplies exclusive control over a family of queued tasks.
 
 A Player may legitimately choose when to take a fixed consequence. Fixed outcome does not imply
 automatic execution or Admin ownership. Conversely, implementation housekeeping should not become
-a Player chore merely because it currently occupies a task. Admin routing is a separate open topic
-in [TASK_ROUTING_EXPERIMENT.md](TASK_ROUTING_EXPERIMENT.md).
+a Player chore merely because it currently occupies a task. Tasks that directly gain `System`
+Components begin assigned to Admin; broader Admin routing remains under design in
+[TASK_ROUTING_EXPERIMENT.md](TASK_ROUTING_EXPERIMENT.md).
 
 Do not repair ordering through `TfmGameplay`, policy settings, rendered-task matching, or incidental
 pool order. Evaluate both the forbidden intervention and the sibling choices that must remain

@@ -24,7 +24,7 @@ internal class TaskNormalizationTest {
           players = 2,
       )
   private val world = GameWorld(premise)
-  private val queues = TaskQueues(world, premise.classTable)
+  private val queues = TaskQueues(world)
 
   @Test
   internal fun `editing a task applies admission normalization without changing its lifecycle`() {

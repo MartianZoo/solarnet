@@ -6,10 +6,31 @@
 > **Read when:** considering Admin-assigned internal work, the meaning of an on-turn Player, or
 > Player → Admin → Player task chains.
 >
-> **Status:** research questions and useful constraints. Current task semantics are in
+> **Status:** direct `System` gain tasks are assigned to Admin at admission. Removal routing,
+> broader housekeeping classification, and scheduling remain open. Current task semantics are in
 > [IDENTITY.md](IDENTITY.md); scheduling alternatives are in
-> [SEQUENCING.md](SEQUENCING.md#delegated-operations-and-scheduling-options). No routing syntax or
-> implementation sequence is selected here.
+> [SEQUENCING.md](SEQUENCING.md#delegated-operations-and-scheduling-options).
+
+## Current System gain routing
+
+When a normalized task directly gains a subtype of `System`, alone or under a top-level
+instruction-side `BY`, the task begins assigned to Admin before its add event is recorded.
+Contextual selection reapplies the assignment before a concrete `BY` performs its authoritative
+handoff. A non-Admin performer then fails the existing `System` creation guard instead of being
+silently replaced by Admin.
+
+The task retains its original controller and selection assignee. Its continuation therefore
+returns with both identities intact. For queued effects of the System gain, the effect component's
+Player owner and changed component's Player owner still take precedence; an unowned effect of an
+unowned System gain falls back to the retained selection assignee rather than Admin, who merely
+performed the internal gain. Automatic effects retain their ordinary Actor rule.
+
+This rule changes neither presentation nor scheduling. `Hidden` remains the independent
+presentation classification. Admin's Agent policy determines whether an Admin-assigned task runs
+without an explicit command; assignment alone supplies no priority or completion guarantee.
+
+The rule currently covers gains, matching `System`'s existing Admin-only creation contract. Apply
+it to removals only after auditing current System removals for Player decisions or timing choices.
 
 ## What assignment must preserve
 
@@ -19,10 +40,12 @@ The useful distinction is whether choosing when to perform it belongs to the sur
 tags installing themselves are an example of internal work; that does not establish that every
 other fixed consequence has the same status.
 
-Routing an internal step through Admin must preserve the controller of its surrounding operation.
-A later Player choice should return to that controller, who may be P2 during a delegated response
-on P1's turn. Replacing controller propagation with the on-turn Player would lose that distinction.
-Explicit requests for a named Player must also work during phases without an exclusive turn.
+Routing an internal step through Admin must preserve both the controller of its surrounding
+operation and its selection recipient. They can differ when P1's operation triggers P2's effect:
+the surrounding operation remains P1's, while an unowned System wrapper produced by that effect
+must return its downstream choice to P2. Replacing either identity with the on-turn Player would
+lose that distinction. Explicit requests for a named Player must also work during phases without
+an exclusive turn.
 
 Controller, selection recipient, and current assignment remain different facts. Trigger-side `BY`
 matches event Actors. Instruction-side `BY` instead transfers a concrete queued task to the named
@@ -48,10 +71,11 @@ card representation.
 ## Open choices
 
 - Which fixed effects belong to the Player's ordering choices, and which are internal settlement?
+- Should removing a `System` Component receive the same immediate Admin assignment as gaining it?
 - Which Actor should each queued rule record as its selection assignee, distinct from its
   controller and any later instruction-side `BY` assignee?
-- How does Player → Admin → Player work preserve the active delegated controller through splitting,
-  continuations, and new reactions?
+- How should Player → Admin → Player identity continue through automatic effects that themselves
+  create further queued reactions?
 - Which phases have an on-turn Player? Setup and Research currently permit simultaneous Player
   work; sequential turn state cannot replace explicit assignment there.
 - What contract, if any, should ordinary Agent calls guarantee about outstanding Admin work?
