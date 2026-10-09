@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.web.gameviewer
+package dev.martianzoo.tfm.web.viewer
 
 import dev.martianzoo.state.Checkpoint
 

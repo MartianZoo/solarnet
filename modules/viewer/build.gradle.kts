@@ -1,11 +1,11 @@
 plugins { id("solarnet.kmp-jvm-js") }
 
 val commonSourceDirectory =
-    rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/web/gameviewer")
+    rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/web/viewer")
 val commonTestDirectory =
-    rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/web/gameviewer")
+    rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/web/viewer")
 val jsSourceDirectory =
-    rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/gameviewer")
+    rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/viewer")
 val sharedSourceDirectory =
     rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/shared")
 
@@ -74,7 +74,7 @@ tasks.named<ProcessResources>("jsProcessResources") {
   }
 }
 
-// The game viewer's development server is the shared browser-app host. Its webpack configuration
+// The viewer's development server is the shared browser-app host. Its webpack configuration
 // also bundles and serves the browser REPL and Almanac, so make those applications available before
 // webpack runs.
 tasks.named("jsBrowserDevelopmentRun") {

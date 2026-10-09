@@ -105,12 +105,12 @@ An early rough browser version of REgo PLastics.
 
 Pets Almanac, a searchable viewer for Canon's normalized Pets declarations and type information.
 
-## module GAME-VIEWER
+## module VIEWER
 
-### <a href="game-viewer/dev.martianzoo.tfm.web.gameviewer/index.html">dev.martianzoo.tfm.web.gameviewer</a>
+### <a href="viewer/dev.martianzoo.tfm.web.viewer/index.html">dev.martianzoo.tfm.web.viewer</a>
 
 An engine-free browser viewer that discovers generated replay-test recordings and navigates their
-event-log timelines through passive state playback. The REPL and game viewer use assets owned by
+event-log timelines through passive state playback. The REPL and viewer use assets owned by
 `dev/martianzoo/tfm/web/shared`.
 
 ## module TOOLS

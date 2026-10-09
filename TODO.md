@@ -82,7 +82,7 @@ These concerns remain open; the ranking does not select replacement designs.
 - Add scenario saving and reloading to [Mars Playground](PLAYGROUND.md) after the initial version.
 - Add shareable URLs for [Mars Playground](PLAYGROUND.md#technology-and-experience) later. First
   decide what restoring the same view includes: scenario, history position, camera, and windows.
-- [ ] Remove the game viewer's current saved-games feature completely: delete `SavedGame`,
+- [ ] Remove the viewer's current saved-games feature completely: delete `SavedGame`,
   `SavedGames`, generated `games/index.txt`, packaged-replay dropdown discovery/loading, and their
   tests. Do not preserve a placeholder API or design the replacement during removal. Reintroduce
   recording selection only when there is a concrete, useful workflow to replace it.

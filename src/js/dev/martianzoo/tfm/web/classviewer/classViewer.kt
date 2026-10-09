@@ -413,12 +413,12 @@ private fun renderImage(
       add(it.full)
       add(it.thumbnail)
     }
-    add("/gameviewer/images/${klass.className}.png")
+    add("/viewer/images/${klass.className}.png")
     klass.className
         .toString()
         .takeIf { it.endsWith("Map") }
         ?.removeSuffix("Map")
-        ?.let { add("/gameviewer/images/$it.png") }
+        ?.let { add("/viewer/images/$it.png") }
   }
   var sourceIndex = 0
 

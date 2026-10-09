@@ -32,7 +32,7 @@ val modules =
         "tfm-fake",
         "web",
         "almanac",
-        "game-viewer",
+        "viewer",
         "tools",
         "codegen",
         "benchmarks",

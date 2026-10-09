@@ -3,10 +3,10 @@ const path = require("path");
 if (process.env.WEBPACK_SERVE) {
   const apps = [
     {
-      route: "gameviewer",
-      title: "Solarnet Game Viewer",
-      entry: path.resolve(__dirname, "kotlin/solarnet-game-viewer.js"),
-      bundle: "game-viewer.js",
+      route: "viewer",
+      title: "Solarnet Viewer",
+      entry: path.resolve(__dirname, "kotlin/solarnet-viewer.js"),
+      bundle: "viewer.js",
       resources: path.resolve(__dirname, "kotlin"),
     },
     {

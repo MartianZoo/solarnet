@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.web.gameviewer
+package dev.martianzoo.tfm.web.viewer
 
 import dev.martianzoo.catalog.displayName
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -26,7 +26,7 @@ import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLSelectElement
 import org.w3c.dom.events.KeyboardEvent
 
-private const val BENCHMARK_PREFIX = "game-viewer"
+private const val BENCHMARK_PREFIX = "viewer"
 private val classWord = Regex("[A-Za-z][A-Za-z0-9_]*")
 
 public fun main() {

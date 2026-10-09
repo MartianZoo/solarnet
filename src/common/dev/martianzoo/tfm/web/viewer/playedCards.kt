@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.web.gameviewer
+package dev.martianzoo.tfm.web.viewer
 
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn

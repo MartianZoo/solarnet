@@ -219,7 +219,7 @@ clear coverage of these contracts matters more than preserving every current tes
    `CoreRulesTest` documents game-wide rules in this same style.
 5. **Whole-game tests.** Long scenarios that show the workflow and many rules operate together,
    especially when reconstructed from independent game records. Every successful replay test also
-   emits the recording consumed by the game viewer.
+   emits the recording consumed by the viewer.
 6. **Canon admissibility tests.** A compact gate confirming that the complete authority loads and
    that representative supported configurations compose into usable projected class tables and
    worlds. This is not a demand to restate the contents of every card or bundle in assertions.

@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.web.gameviewer
+package dev.martianzoo.tfm.web.viewer
 
 internal data class SavedGame(
     public val name: String,

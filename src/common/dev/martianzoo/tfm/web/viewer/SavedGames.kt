@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.web.gameviewer
+package dev.martianzoo.tfm.web.viewer
 
 /** Discovers the recording filenames packaged by the most recent resource build. */
 internal object SavedGames {

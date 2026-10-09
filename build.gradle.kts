@@ -109,7 +109,7 @@ dependencies {
   dokka(project(":tfm-fake"))
   dokka(project(":web"))
   dokka(project(":almanac"))
-  dokka(project(":game-viewer"))
+  dokka(project(":viewer"))
 }
 
 tasks.register<Exec>("installGitHooks") {
@@ -121,5 +121,5 @@ tasks.register<Exec>("installGitHooks") {
 tasks.register("webAppsDevelopmentRun") {
   group = "run"
   description = "Starts one development server for every browser app."
-  dependsOn(":game-viewer:jsBrowserDevelopmentRun")
+  dependsOn(":viewer:jsBrowserDevelopmentRun")
 }
