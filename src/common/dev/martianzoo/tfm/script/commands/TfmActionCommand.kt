@@ -61,7 +61,6 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
             if (choosingStandardAction) {
               TaskCommand(repl).withArgs("UseAction<UseActionOnCardAction, Action1>")
             }
-            TaskCommand(repl).withArgs("ActionUsedMarker<$cardName>")
             if (pauseForWrittenCost) {
               repl.agent.autoExecPolicy = NONE
               writtenCostPaused = true

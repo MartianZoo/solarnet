@@ -30,13 +30,14 @@ internal class ActionSequencingTest {
   }
 
   @Test
-  internal fun `use-card action rejects a different card after placing the marker`() {
+  internal fun `use-card action rejects a different card after Admin places the marker`() {
     val game = setUpGame()
     val manual = game.testTfm(PLAYER1).also { it.autoExecPolicy = NONE }
     manual.runOperation("$SymbioticFungus, $Ants")
 
     manual.beginOperation("UseAction<UseActionOnCardAction, Action1>") {
-      doTask("ActionUsedMarker<$SymbioticFungus>")
+      doTask("UseAction<$SymbioticFungus, Action1>")
+      manual.count("ActionUsedMarker<$SymbioticFungus>") shouldBe 1
       shouldThrow<TaskException> { doTask("UseAction<$Ants>") }
       abort()
     }

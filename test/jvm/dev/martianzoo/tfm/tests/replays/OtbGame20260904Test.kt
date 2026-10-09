@@ -1038,7 +1038,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       cardAction1(Thermophiles) { addCardResources(SulphurEatingBacteria) }
       rainbow.exMachina(fakeWildTags("VenusTag"))
       stdAction("UseActionOnCardAction") {
-            doTask("ActionUsedMarker<$FloatingRefinery>")
             doTask("UseAction<$FloatingRefinery, Action2>")
           }
           .expect("2 MC")

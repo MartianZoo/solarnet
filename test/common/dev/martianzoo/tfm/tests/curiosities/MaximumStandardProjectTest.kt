@@ -206,7 +206,6 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
             },
         ) {
           doTask("3 MC", StandardTechnology)
-          doTask("DefaultGreeneryTile")
           doTask("GreeneryTile<Hellas_3_6>")
           doTask("4 MC", cn("GreensPolicy"))
           doTask("2 Plant", cn("Hellas_3_6"))

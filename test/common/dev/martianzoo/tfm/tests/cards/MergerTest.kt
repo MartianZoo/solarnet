@@ -159,7 +159,6 @@ internal class MergerTest : CardTest() {
             p1.autoExecPolicy = NONE
             p1.playCorp(Recyclon) {
               doTask("Owed<> / $Recyclon.cost")
-              doTask("PriceCard<Class<$Recyclon>>")
               doTask("CardBilling")
               doTask("$Recyclon FROM CorporationCard<Selecting>")
               doTask("38 MC")

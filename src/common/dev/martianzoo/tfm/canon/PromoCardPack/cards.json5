@@ -208,7 +208,7 @@
           "tags": [ "ScienceTag" ],
           "immediate": "2 TakeEventCard",
           "components": [
-            "CLASS TakeEventCard : Owned, Signal, Atomized { This: ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)> }",
+            "CLASS TakeEventCard : Owned, Signal, System, Atomized { This: ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)> }",
             "CLASS GainsOf<Class<CardFront>, Class<Component>> : CustomMetric",
           ],
         },
@@ -387,11 +387,11 @@
           "tags": [ "SpaceTag" ],
           "actions": [
             "10 MC -> 2 Asteroid<This>",
-            "Asteroid<This> -> EACH Starter@Player(HAS StartToken) { ChooseOceanArea<Starter@> }"
+            "Asteroid<This> -> EACH Starter@Player(HAS StartToken) { ChooseOceanArea<Starter@, Me@> }"
           ],
           "effects": [ "UseAction<This, Action1>:: Accepting<Class<Titanium>>" ],
           // Chooses an ocean area while preserving the Player who places it.
-          "components": [ "CLASS ChooseOceanArea : Owned, Signal { This BY @Actor: OceanTile<> BY @Actor }" ],
+          "components": [ "CLASS ChooseOceanArea<Placer@Player> : Owned<Player>, Signal, System { This: OceanTile<> BY Placer@ }" ],
         },
         {
           "name": "ImportedNutrients",

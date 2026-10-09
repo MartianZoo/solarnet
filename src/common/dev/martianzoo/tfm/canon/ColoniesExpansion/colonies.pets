@@ -180,11 +180,11 @@ CLASS Trade<@ColonyTile, GenerationScope> : Owned<Player> {
 
 "One unresolved barrier to completing a Trade"
 CLASS TradeBarrier<@ColonyTile> : Owned<Player>, Barrier, Hidden {
-  -This IF MAX 0 This:: FinishTrade<@ColonyTile>
+  -This IF MAX 0 This: FinishTrade<@ColonyTile>
 }
 
 "The owner-attributed event that begins a Trade's completion consequences"
-CLASS FinishTrade<ColonyTile> : Owned<Player>, Signal
+CLASS FinishTrade<ColonyTile> : Owned<Player>, Signal, System
 
 "Trade with a colony tile"
 CLASS TradeAction : StandardAction {
@@ -234,13 +234,13 @@ CLASS ColonyProduction<ColonyTile> {
 CLASS GainColonyBonus<ColonyTile> : Owned<Player>, Signal, Atomized
 
 "Advances every colony tile track one step during colony production"
-CLASS AdvanceColonyTracks : Signal
+CLASS AdvanceColonyTracks : Signal, System
 
 "Requests one colony bonus payment for each colony the player owns"
-CLASS GainColonyBonuses : Owned<Player>, Signal
+CLASS GainColonyBonuses : Owned<Player>, Signal, System
 
 "An implementation detail used to trigger a colony tile's 'white cube' to move left"
-CLASS ResetColonyProduction<ColonyTile> : Signal
+CLASS ResetColonyProduction<ColonyTile> : Signal, System
 
 ABSTRACT CLASS DelayedColonyTile<Class<@ColonyTile>, Class<CardResource>> : ColonyTileSelection<Class<@ColonyTile>>
 

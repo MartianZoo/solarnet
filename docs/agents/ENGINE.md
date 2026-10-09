@@ -273,8 +273,10 @@ one response to any positive count.
 After effect scaling, `Effector` reapplies gain atomization so `Atomized` gains remain separate
 even when their counts come from trigger matching or repeated live components.
 
-An owned effect listening to an unowned event defaults to its Player owner unless it explicitly says
-`BY Anyone`. Trigger-side `BY` filters the triggering Actor. On queued work, instruction-side `BY`
+An owned effect listening to an unowned event defaults to its Player owner unless the event is
+`System` or the effect explicitly says `BY Anyone`. Unowned System events are necessarily performed
+by Admin and are observed table-wide; Player-specific System events carry an owner. Trigger-side
+`BY` filters the triggering Actor. On queued work, instruction-side `BY`
 changes the task's assignee once its instruction is concrete. It does not directly rewrite event
 attribution.
 
@@ -391,7 +393,10 @@ It additionally restores and resumes an existing selection within one atomic lif
 [EX_MACHINA.md](EX_MACHINA.md) for the contract and the remaining canon consistency gaps.
 
 Current autoexecution lives in `:agent`, not in the core engine. Policy selects legal Task commands;
-it does not alter their semantics. Direct engine primitives remain available to trusted workflow,
+it does not alter their semantics. The shared policy loop tries eligible Admin work before Player
+work, including between explicit Player steps, but continues to an executable Player option when
+Admin work is abstract or temporarily unavailable. It cannot interrupt an authored `::` chain or
+supply a missing scheduling rule. Direct engine primitives remain available to trusted workflow,
 replay-correction, test, and cheat code. Preventing those callers from reaching the primitives is
 not a current requirement.
 

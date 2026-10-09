@@ -158,11 +158,11 @@
           "tags": [ "BuildingTag" ],
           "immediate": "5 Steel",
           "effects": [
-            "UseAction<StandardAction>:: SuitableInfrastructureBonus<This>.",
-            "NewTurn IF PreludePhase:: SuitableInfrastructureBonus<This>.",
+            "UseAction<StandardAction>: SuitableInfrastructureBonus<This>.",
+            "NewTurn IF PreludePhase: SuitableInfrastructureBonus<This>.",
           ],
           "components": [
-            "CLASS SuitableInfrastructureBonus : Cardbound<SuitableInfrastructure<Player>>, Hidden, Atomized { HAS MAX 1 This; X Production<Class<StandardResource>>: (This: -This! THEN 2 MC) OR (MAX 0 This: Ok) }",
+            "CLASS SuitableInfrastructureBonus : Cardbound<SuitableInfrastructure<Player>>, System, Hidden, Atomized { HAS MAX 1 This; X Production<Class<StandardResource>>: (This: -This! THEN 2 MC) OR (MAX 0 This: Ok) }",
           ],
         },
         {
@@ -229,14 +229,14 @@
           "name": "L1TradeTerminal",
           "cost": 25,
           "tags": [ "SpaceTag" ],
-          "immediate": "L1GiftWatcher THEN EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }",
+          "immediate": "L1GiftWatcher",
           "effects": [
             "Trade<@ColonyTile>:: TradeBarrier<@ColonyTile>",
             "Trade<@ColonyTile>: (2 ColonyProduction<@ColonyTile> OR Ok) THEN -TradeBarrier<@ColonyTile>",
             "End: 2 VictoryPoint",
           ],
           "components": [
-            "CLASS L1GiftWatcher : Owned<Player>, Temporary, Hidden { This:: L1Gift / (ResourceCard(HAS CardResource) MAX 3); CardResource:: -L1Gift }",
+            "CLASS L1GiftWatcher : Owned<Player>, Temporary, System, Hidden { This:: L1Gift / (ResourceCard(HAS CardResource) MAX 3); This: EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }; CardResource:: -L1Gift }",
             "CLASS L1Gift : Owned<Player>, MustCleanUp, Hidden",
           ],
         },

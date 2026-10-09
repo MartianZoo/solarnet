@@ -494,7 +494,6 @@ internal class BugsTest : CardTest() {
     p1.turn {
       playPrelude(FakeHeadStart) {
         useStdAction("UseActionOnCardAction", payment = {}) {
-          doTask("ActionUsedMarker<$BoardOfDirectors>")
           doTask("UseAction<$BoardOfDirectors, Action1>")
           doTask("-12 MC")
           playPrelude(Merger) { playCorp(SagittaFrontierServices) }

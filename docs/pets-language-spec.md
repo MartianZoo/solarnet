@@ -960,8 +960,10 @@ watched type has an owner dependency.
 - When it does, the bare watched type gains `<Me@Owner>` (L9-3), and no actor restriction is added.
 - When it does not, there is no ownership to say it with, so the rule watches only events that
   player performed: `OceanTile` on a card reacts to the oceans its owner places, not an opponent's.
-- A `System` type is exempt: `ProductionPhase` and other Admin-only machinery are the table's own
-  events, belonging to no player, and every owner's rule sees them.
+- A `System` type is exempt. An unowned System event is necessarily performed by Admin, so a
+  Player-actor restriction could never match; it is the table's event and every owner's rule sees
+  it. A System event associated with a particular Player instead carries that Player through an
+  `Owned` dependency.
 
 Writing any `BY` selector replaces this implicit restriction. `BY Anyone` (equivalently `BY Actor`)
 accepts every event actor, including Admin. A rule on a component with no owner has no such restriction to begin with. When

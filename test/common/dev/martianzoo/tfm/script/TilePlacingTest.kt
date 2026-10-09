@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.script
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
@@ -10,6 +11,16 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 internal class TilePlacingTest {
+  @Test
+  internal fun defaultGreeneryWrapperRunsWhilePlayerAutoexecIsOff() {
+    val game = setUpGame()
+    val p1 = game.testTfm(PLAYER1).also { it.autoExecPolicy = NONE }
+
+    p1.runOperation("DefaultGreeneryTile") { doTask("GreeneryTile<Tharsis_3_3>") }
+
+    assertEquals(1, p1.count("GreeneryTile<Tharsis_3_3>"))
+  }
+
   @Test
   internal fun citiesRepel() {
     val game = setUpGame()
