@@ -4,6 +4,37 @@
 
 Issue links provide background. Inline TODOs should be brief context pointers.
 
+## Consensus top five project concerns — 2026-10-08
+
+Ranked after independent Codex and Opus/xhigh reviews and three debate rounds, reviewing
+`work3` at `8efcc32abb94493bd6e7ae35f1ecccf6a1f00d68`. This is the holistic priority ranking;
+the older bug-only report below has a narrower scope.
+These concerns remain open; the ranking does not select replacement designs.
+
+1. **Operation completion and delegated control lack a coherent rule.** Per-task locking and
+   cleanup at global queue exhaustion do not reliably describe an action and all its delegated
+   work. Neptunian and Head Start cases expose the consequences. Resolve the underlying lifecycle
+   rule; see [sequencing](docs/agents/SEQUENCING.md).
+2. **Payment validation differs between execution paths.** The gameplay helper rejects paying
+   11 M€ for the 10 M€ Olympus Conference, while the REPL accepts and spends all 11. Separately,
+   the payer's own resource loss for another purpose can settle an open bill. Make validation
+   consistent and tie settlement to the intended payment; see [payments](docs/agents/PAYMENTS.md).
+3. **Kotlin orchestration owns game-flow rules that belong in Pets.** Phase order, expansion
+   participation, and turn progression remain in Kotlin. Callback failure guarantees also need
+   attention: a completion callback can throw after a successful mutation. Actual coroutine/Admin
+   exception propagation was not verified. See [workflow](docs/agents/WORKFLOW.md).
+4. **The player-choice API cannot navigate all valid task shapes, and availability checks hide
+   code faults.** Some valid forms throw `UnsupportedOperationException`; an injected custom-code
+   fault makes availability queries return `false` while direct execution reports the fault.
+   Improve choice assistance and preserve meaningful errors without requiring exhaustive legal-move
+   enumeration. Named-card tracking remains a separate capability with ownership outside the engine.
+   See the `TaskForm` follow-up below and [the Agent API](docs/agents/API.md).
+5. **Specified Pets features fail when combined.** Defaulted variable references and local-class
+   specialization have concrete defect characterizations. Repair these composition failures;
+   implementation complexity alone does not justify a rewrite. See
+   [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt) and
+   [the fidelity audit](docs/agents/SPEC_FIDELITY.md).
+
 ## Pets specification fidelity audit
 
 - [ ] Continue the Pets fidelity audit using the principles and investigation leads in
