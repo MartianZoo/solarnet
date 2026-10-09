@@ -79,6 +79,7 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
   @Test
   internal fun `Amazonis delegate bonuses are ignored without Turmoil`() {
     newGameWithAutoWorkflow(Amazonis)
+    p1.count("PlacementBonus<Class<Metal>, Amazonis_02_02>") shouldBe 0
     playUntilFirstActionPhase(UnitedNationsMarsInitiative, PhoboLog)
 
     p1.turn {

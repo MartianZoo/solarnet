@@ -5,12 +5,14 @@ import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
+import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.pets.util.Grid
@@ -69,19 +71,28 @@ public data class MarsMapDefinition(
                       PropertyName("row") to NumberValue(row),
                       PropertyName("column") to NumberValue(column),
                   ),
-              authoredEffects = toEffects(bonus),
+              authoredEffects = toEffects(bonus, expandedBonusCodes),
           )
   }
 
   private companion object {
-    fun toEffects(bonus: InstructionGroup?) =
+    fun toEffects(bonus: InstructionGroup?, bonusCodes: List<Char>) =
         listOfNotNull(
             bonus
                 ?.let { InstructionGroup.createTree(it.instructions) }
                 ?.takeUnless { it == NoOp }
-                ?.let { Effect(TRIGGER, it, false) }
+                ?.let { instruction ->
+                  val delegateBonus = 'D' in bonusCodes
+                  require(!delegateBonus || bonusCodes.all { it == 'D' }) {
+                    "Delegate placement bonuses cannot be combined with other bonuses"
+                  }
+                  val trigger =
+                      if (delegateBonus) IfTrigger(TRIGGER, DELEGATE_REQUIREMENT) else TRIGGER
+                  Effect(trigger, instruction, false)
+                }
         )
 
     val TRIGGER: Trigger = OnGainOf.create(PLACEMENT.of(THIS))
+    val DELEGATE_REQUIREMENT: Requirement = parse("Class<PartyDelegate>")
   }
 }

@@ -84,7 +84,7 @@ private fun renderAreas(map: MarsMapDefinition): String = buildString {
             .forEach { area ->
               append("CLASS ${area.className} : ${area.kind.toString().padStart(12)}")
               append(" { row = ${area.row}; column = ${area.column}")
-              area.bonusText?.let { append("; Placement<This>: $it") }
+              area.asClassDeclaration.authoredEffects.forEach { append("; $it") }
               append(" }\n")
             }
       }

@@ -86,17 +86,17 @@ public object MarsMapReader {
         row,
         column,
         cn(kind),
-        bonus(prefix, code.drop(1)),
+        bonus(code.drop(1)),
         code,
     )
   }
 
-  private fun bonus(prefix: String, code: String): String? {
+  private fun bonus(code: String): String? {
     return decodeBonusCodes(code)
         .map { (count, symbol) ->
           when {
-            symbol == 'D' && count == 1 -> "${prefix}DelegatePlacementBonus"
-            symbol == 'D' && count == 2 -> "${prefix}DoubleDelegatePlacementBonus"
+            symbol == 'D' && count == 1 -> "PartyDelegate"
+            symbol == 'D' && count == 2 -> "2 PartyDelegate"
             symbol == 'D' -> error("A delegate placement bonus must contain one or two delegates")
             count == 1 -> BONUSES.getValue(symbol)
             else -> "$count ${BONUSES.getValue(symbol)}"

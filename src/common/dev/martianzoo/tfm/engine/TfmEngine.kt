@@ -15,6 +15,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
+import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -247,7 +248,7 @@ public object TfmEngine {
       val resource = requireNotNull(arguments.single { it.className == CLASS }.representedClass)
       val bonus = mapDefinition(game).areas.single { it.className == area.className }.bonus
       return bonus?.descendantsOfType<Gain>()?.sumOf {
-        if (game.classTable.getClass(it.gaining.className).isSubtypeOf(resource))
+        if (game.classTable.findClass(it.gaining.className)?.isSubtypeOf(resource) == true)
             (it.count as ActualScalar).value
         else 0
       } ?: 0
@@ -305,8 +306,15 @@ public object TfmEngine {
       val map = mapDefinition(game)
       val areaNames = map.areas.mapTo(hashSetOf()) { it.className }
       val area = listOf(type0, type1).single { it.className in areaNames }
-      val bonus = map.areas.single { it.className == area.className }.bonus ?: return NoOp
-      return InstructionGroup.createTree(bonus.instructions + bonus.instructions)
+      val effect =
+          map.areas
+              .single { it.className == area.className }
+              .asClassDeclaration
+              .authoredEffects
+              .singleOrNull() ?: return NoOp
+      val requirement = (effect.trigger as? IfTrigger)?.condition
+      if (requirement != null && !game.has(requirement)) return NoOp
+      return InstructionGroup.createTree(listOf(effect.instruction, effect.instruction))
     }
   }
 
