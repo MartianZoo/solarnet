@@ -43,7 +43,7 @@ internal fun setUpGame(premise: GamePremise): World =
       revealTurmoilSetupEvents(this)
     }
 
-private fun revealTurmoilSetupEvents(game: World) {
+internal fun revealTurmoilSetupEvents(game: World) {
   val admin = game.testAgent(ADMIN)
   if (admin.count("RevealComingEvent") == 0) return
   admin.doTask("AquiferReleasedByPublicCouncil")

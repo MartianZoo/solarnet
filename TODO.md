@@ -45,6 +45,13 @@ These concerns remain open; the ranking does not select replacement designs.
 
 ## User Ideas and Agreed Directions
 
+- [ ] Finish the ProjectCardTest migration in larger batches, starting with easier classes. The
+  [testing plan](docs/agents/TESTING.md#intended-fixture-development--not-implemented-yet) records
+  the intended fixture work: solo support, safe `advanceTo(Phase)`, simulated VP totals with
+  rollback, expansion coverage, and a possible Prelude-phase start when Prelude is selected.
+  Add `CorporationCardTest` later. Investigate automatic attack-history effects separately; reassess
+  and delete injected scenarios without credible gameplay routes, including Flooding's concurrent
+  ocean case if its only justification is Fake Head Start.
 - Revisit the `RepeatPlacementBonus` change made for conditionally available map bonuses. Look for
   a way to duplicate the map's bonus instruction directly again, without inspecting its generated
   Class effect or `IfTrigger`; preserve Frontier Town's tripled delegate bonus and conditional

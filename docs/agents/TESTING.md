@@ -337,6 +337,8 @@ create a fork automatically. A uniform class declares its own `@BeforeTest` meth
 scenario; Kim then plays that corporation normally and resolves its setup effects, while every
 other player keeps a beginner corporation. Do not share or roll back a live World between tests.
 The fixture otherwise leaves the default autoexecution policy untouched.
+When Turmoil is selected, it uses the existing test setup's initial global-event reveals
+(`AquiferReleasedByPublicCouncil` and `DryDeserts`) before entering Corporation phase.
 
 Treat every pre-migration test as a fallible historical artifact, not as a specification of its
 setup. Existing options, cards, resource grants, card plays, phase changes, autoexecution policies,
@@ -410,13 +412,44 @@ setup actions. It is also appropriate when a broader integration scenario is val
 right. Direct correction is the default for irrelevant preconditions because it keeps focused card
 tests short and makes their real subject obvious; it is not a ban on authentic gameplay.
 
-Migrate a test class only when all its scenarios fit this fixture and setup model. A scenario may
-start with an additional compatible game selection, including a different map or multiplayer count.
-Leave the whole class on `CardTest` when it needs solo mode, a different variant, synthetic
-declarations, or another incompatible configuration. Do not add specialized fixture variants or
-replace a meaningful scenario merely to increase the migrated count. This is an active,
-class-by-class migration: an existing `CardTest` subclass may simply be awaiting evaluation, and its
-current base class does not by itself express a preferred testing style.
+Migrate a test class only when all its retained scenarios fit the currently implemented fixture and
+setup model. Additional maps and expansion configurations belong in this fixture; do not classify
+them as permanent exclusions merely because an existing test uses different options. Solo and
+phase-sensitive cases may temporarily remain on `CardTest` while the capabilities below are absent.
+Synthetic declarations still require separate evaluation. Do not replace meaningful coverage just
+to increase the migrated count. An existing base class does not itself express a preferred style.
+
+#### Intended fixture development — not implemented yet
+
+- Support `playerCount = 1`, including authentic solo setup and clear failure when an absent seat is
+  accessed. Solo is intended scope, not a permanent reason to retain `CardTest`.
+- Add `advanceTo(Phase)` with responsibility for safe progression through the existing workflow.
+  It should respect pending choices and mandatory work rather than merely replacing `Phase`.
+  Determine the smallest way to accommodate player choices during production and other phases;
+  do not duplicate game rules in test support.
+- Add a base-class query for players' VP totals that simulates scoring and rolls back even on
+  failure, leaving the live scenario intact. This is temporary scoring within a test, not sharing
+  mutable Worlds or rolling a World back between tests.
+- Explore starting in Prelude phase when Prelude expansion is included; callers needing Action
+  phase would explicitly advance. Review existing Prelude-enabled callers before changing the
+  current Action-phase start, and avoid silently choosing meaningful Prelude plays for them.
+- Accommodate expansion configurations through this fixture. Keep the ordinary default game simple
+  and identify actual incompatibilities from retained scenarios rather than inherited setup.
+- Add `CorporationCardTest` later for corporation-focused scenarios.
+
+Investigate whether attack-history markers used by Law Suit and Crash Site Cleanup should be
+created by automatic (`::`) effects. They currently use queued (`:`) effects, suppressed by
+corrections. Decide from their intended meaning during corrections and ordinary play; migration
+convenience alone is not justification for changing effect semantics.
+
+For unusual injected sequences, seek a credible gameplay route. Delete a scenario if no such route
+exists rather than adding fixture machinery to recreate it. In particular, reassess Flooding's
+concurrent ocean-placement scenario; a route possible only through Fake Head Start does not by
+itself establish useful supported-game coverage.
+
+Continue with easier classes first, in substantial batches. Review each retained scenario's value,
+setup, assertions, and name within the batch; larger batches do not relax those checks. Track open
+fixture work in `TODO.md` rather than treating these intentions as already available APIs.
 
 ### Expectations
 

@@ -1,114 +1,116 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
-import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
-import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class RequirementAdjustmentCardsTest : CardTest() {
+internal class RequirementAdjustmentCardsTest : ProjectCardTest() {
   @Test
-  internal fun `A satisfied printed requirement bypasses adjustment debt`() {
-    newGame()
-    playCorporationWithoutStartingProjects(p1, Inventrix)
-    admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction")
-    p1.runOperation(
-        "10 MC, ProjectCard, OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, " +
-            "OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_6>, OceanTile<Tharsis_4_8>"
+  internal fun `Uses the printed requirement when no adjustment is needed`() {
+    newTestGame(kimCorporation = Inventrix)
+    kim.stdAction("DoRequiredActionsAction")
+    kim.exMachina(
+        "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_6>, OceanTile<Tharsis_4_8>"
     )
 
-    p1.playProject(Algae, 10)
-
-    p1.assertCounts(1 to "$Algae")
+    kim.playProject(Algae, 10).expect("$Algae")
   }
 
   @Test
-  internal fun `Inventrix adjusts minimum and maximum global requirements by two`() {
-    newGame()
-    playCorporationWithoutStartingProjects(p1, Inventrix)
-    admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction")
-    p1.runOperation(
-        "30 MC, 4 ProjectCard, OceanTile<Tharsis_1_2>, " +
-            "OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>"
+  internal fun `Inventrix relaxes minimum global requirements by two`() {
+    newTestGame(kimCorporation = Inventrix)
+    kim.stdAction("DoRequiredActionsAction")
+    kim.exMachina("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>")
+
+    kim.playProject(Algae, 10).expect("$Algae")
+  }
+
+  @Test
+  internal fun `Inventrix relaxes maximum global requirements by two`() {
+    newTestGame(kimCorporation = Inventrix)
+    kim.stdAction("DoRequiredActionsAction")
+    kim.exMachina(
+        "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_6>, OceanTile<Tharsis_4_8>"
     )
 
-    p1.playProject(Algae, 10)
-    p1.runOperation("OceanTile<Tharsis_2_6>, OceanTile<Tharsis_4_8>")
-    p1.playProject(DustSeals, 2)
-
-    p1.assertCounts(1 to "$Algae", 1 to "$DustSeals")
+    kim.playProject(DustSeals, 2).expect("$DustSeals")
   }
 
   @Test
-  internal fun `Requirement adjustments stack and Special Design expires on the next project card`() {
-    newGame()
-    playCorporationWithoutStartingProjects(p1, Inventrix)
-    admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction")
-    p1.runOperation("50 MC, 5 ProjectCard, 11 TemperatureStep, $AdaptationTechnology")
+  internal fun `Stacks Inventrix Adaptation Technology and Special Design`() {
+    newTestGame(kimCorporation = Inventrix)
+    kim.stdAction("DoRequiredActionsAction")
+    kim.exMachina("$AdaptationTechnology")
+    kim.setToExMachina(11, "TemperatureStep")
+    kim.setToExMachina(30, "MC")
+    kim.playProject(SpecialDesign, 4)
 
-    p1.playProject(SpecialDesign, 4)
-    p1.playProject(Farming, 16)
-
-    p1.assertCounts(1 to "$Farming")
-    shouldThrow<RequirementException> { p1.playProject(Birds, 10) }
+    kim.playProject(Farming, 16).expect("$Farming")
   }
 
   @Test
-  internal fun `Morning Star adjusts Venus requirements regardless of the card's tags`() {
-    newGame(VenusNextExpansion)
-    playCorporationWithoutStartingProjects(p1, MorningStarInc)
-    admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction")
-    p1.runOperation("30 MC, 3 ProjectCard, 9 VenusStep")
+  internal fun `Consumes Special Design when stacked adjustments are used`() {
+    newTestGame(kimCorporation = Inventrix)
+    kim.stdAction("DoRequiredActionsAction")
+    kim.exMachina("$AdaptationTechnology")
+    kim.setToExMachina(11, "TemperatureStep")
+    kim.setToExMachina(30, "MC")
+    kim.playProject(SpecialDesign, 4)
+    kim.playProject(Farming, 16)
 
-    p1.playProject(RotatorImpacts, 6)
-    shouldThrow<RequirementException> { p1.playProject(Algae, 10) }
+    shouldThrow<RequirementException> { kim.playProject(Birds, 10) }
   }
 
   @Test
-  internal fun `Special Design expires when the next project card has no requirement`() {
-    expireSpecialDesignWith(Mine, 4)
+  internal fun `Morning Star adjusts Venus requirements on cards without Venus tags`() {
+    newTestGame(kimCorporation = MorningStarInc)
+    kim.stdAction("DoRequiredActionsAction")
+    kim.setToExMachina(9, "VenusStep")
+
+    kim.playProject(RotatorImpacts, 6).expect("$RotatorImpacts")
   }
 
   @Test
-  internal fun `Special Design expires when the next requirement is already satisfied`() {
-    expireSpecialDesignWith(DustSeals, 2)
+  internal fun `Morning Star does not adjust ocean requirements`() {
+    newTestGame(kimCorporation = MorningStarInc)
+    kim.stdAction("DoRequiredActionsAction")
+    kim.setToExMachina(9, "VenusStep")
+
+    shouldThrow<RequirementException> { kim.playProject(Algae, 10) }
   }
 
   @Test
-  internal fun `Intervening Prelude leaves Special Design for the next project card`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
-    admin.phase("Prelude")
-    p1.playPrelude(BoardOfDirectors)
-    admin.phase("Action")
-    p1.runOperation("50 MC, 2 ProjectCard, 13 TemperatureStep, $AdaptationTechnology")
+  internal fun `Consumes Special Design when the next project has no requirement`() {
+    newTestGame()
+    kim.setToExMachina(11, "TemperatureStep")
+    kim.playProject(SpecialDesign, 4)
+    kim.playProject(Mine, 4)
 
-    p1.playProject(SpecialDesign, 4)
-    p1.cardAction1(BoardOfDirectors) {
+    shouldThrow<RequirementException> { kim.playProject(ArcticAlgae, 12) }
+  }
+
+  @Test
+  internal fun `Consumes Special Design when the next requirement is already satisfied`() {
+    newTestGame()
+    kim.setToExMachina(11, "TemperatureStep")
+    kim.playProject(SpecialDesign, 4)
+    kim.playProject(DustSeals, 2)
+
+    shouldThrow<RequirementException> { kim.playProject(ArcticAlgae, 12) }
+  }
+
+  @Test
+  internal fun `Keeps Special Design when a Prelude intervenes before the next project`() {
+    newTestGame(addOptions = "PreludeExpansion, Prelude2CardPack")
+    kim.exMachina("$BoardOfDirectors, Director<$BoardOfDirectors>, $AdaptationTechnology")
+    kim.setToExMachina(13, "TemperatureStep")
+    kim.playProject(SpecialDesign, 4)
+    kim.cardAction1(BoardOfDirectors) {
       doTask("-12 MC")
-      p1.playPrelude(Donation)
+      kim.playPrelude(Donation)
     }
-    p1.playProject(Farming, 16).expect("2 Plant, PROD[2 Plant]")
-  }
 
-  private fun expireSpecialDesignWith(card: ClassName, cost: Int) {
-    newGame()
-    p1.playCorp(CrediCor, 5)
-    admin.phase("Action")
-    p1.runOperation("11 TemperatureStep")
-    p1.playProject(SpecialDesign, 4)
-    p1.playProject(card, cost)
-
-    shouldThrow<RequirementException> { p1.playProject(ArcticAlgae, 12) }
-    p1.count("$ArcticAlgae") shouldBe 0
-    p1.count("ProjectCard") shouldBe 3
+    kim.playProject(Farming, 16).expect("2 Plant, PROD[2 Plant]")
   }
 }

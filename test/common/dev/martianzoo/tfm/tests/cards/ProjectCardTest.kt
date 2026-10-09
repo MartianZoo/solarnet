@@ -13,6 +13,7 @@ import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TfmTest
+import dev.martianzoo.tfm.tests.revealTurmoilSetupEvents
 
 internal abstract class ProjectCardTest : TfmTest() {
   protected lateinit var players: List<TfmGameplay>
@@ -67,6 +68,7 @@ internal abstract class ProjectCardTest : TfmTest() {
       player.doTask(if (index == 0 && kimCorporation != null) "NonBeginnerMode" else "BeginnerMode")
     }
     if (kimCorporation != null) kim.keepStartingProjects(10)
+    revealTurmoilSetupEvents(game)
 
     workflow.corporationPhase()
     players.zip(BEGINNER_CORPORATIONS).forEachIndexed { index, (player, corporation) ->
