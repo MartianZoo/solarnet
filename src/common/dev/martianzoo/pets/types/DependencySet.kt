@@ -174,6 +174,7 @@ private constructor(
 
   // OTHER OPERATORS
 
+  /** Combines these valid keyed sets; [merger] retains each shared key. */
   internal inline fun merge(
       that: DependencySet,
       merger: (Dependency, Dependency) -> Dependency,
@@ -187,7 +188,7 @@ private constructor(
         if (this@DependencySet.getIfPresent(dependency.key) == null) add(dependency)
       }
     }
-    return of(merged)
+    return DependencySet(merged, Dependency.classTableFor(merged))
   }
 
   internal fun minus(that: DependencySet): DependencySet {
