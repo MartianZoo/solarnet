@@ -246,6 +246,10 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
           require(deps[index].key != deps[previous].key) { "duplicate dependency keys: `$deps`" }
         }
       }
+      return classTableFor(deps)
+    }
+
+    internal fun classTableFor(deps: List<Dependency>): ClassTable? {
       require(deps.none { it is FakeDependency } || deps.single() is FakeDependency)
       return deps.fold<Dependency, ClassTable?>(null) { table, dependency ->
         val incoming =
