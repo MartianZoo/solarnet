@@ -23,8 +23,14 @@ import kotlin.test.BeforeTest
 
 internal abstract class AbstractFullGameTest : TfmTest() {
   protected lateinit var p1: TfmGameplay
+    private set
+
   protected lateinit var p2: TfmGameplay
+    private set
+
   protected lateinit var p3: TfmGameplay
+    private set
+
   protected lateinit var gamePremise: GamePremise
     private set
 

@@ -125,7 +125,7 @@ public open class Expression(
   public val simple: Boolean = arguments.isEmpty() && refinement == null && !argumentsSpecified
 
   /** The internal roles assigned to occurrences of one explicit Type-variable marker. */
-  public sealed class TypeVariableName {
+  public sealed class TypeVariableName private constructor() {
     /** One resolved lexical variable, distinct from an equal marker in a nested scope. */
     internal class Resolution
 
@@ -245,7 +245,7 @@ public open class Expression(
   public fun appendArguments(moreArgs: List<Expression>): Expression =
       replaceArguments(arguments + moreArgs)
 
-  internal fun replaceArguments(newArgs: List<Expression>): Expression =
+  private fun replaceArguments(newArgs: List<Expression>): Expression =
       copy(
           arguments = newArgs,
           argumentsSpecified = argumentsSpecified || newArgs.isNotEmpty(),
@@ -275,7 +275,7 @@ public open class Expression(
    * [section 8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#8-refinements)
    * of the type system specification.
    */
-  public sealed class Refinement : PetNode() {
+  public sealed class Refinement private constructor() : PetNode() {
     /** A predicate's bound meaning does not depend on a local choice's syntax marker. */
     internal fun withoutChoiceNames(): Refinement =
         object : dev.martianzoo.pets.PetTransformer() {

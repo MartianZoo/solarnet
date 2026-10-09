@@ -4,7 +4,7 @@ import dev.martianzoo.agent.Agent
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskResult
 
-internal sealed class Access {
+internal sealed class Access private constructor() {
   internal abstract fun exec(instruction: String): TaskResult
 
   internal abstract fun newTurn(): TaskResult

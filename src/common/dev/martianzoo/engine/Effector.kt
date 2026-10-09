@@ -51,7 +51,7 @@ internal class Effector(
     change.gaining?.let { add(it, change.count) }
   }
 
-  internal fun add(component: Component, delta: Int) =
+  private fun add(component: Component, delta: Int) =
       liveEffects(component).forEach { effect ->
         if (delta == 0) return@forEach
         if (!effect.listensToOtherComponents) return@forEach
@@ -59,7 +59,7 @@ internal class Effector(
         bucket.add(effect, delta)
       }
 
-  internal fun mustRemove(component: Component, delta: Int) =
+  private fun mustRemove(component: Component, delta: Int) =
       liveEffects(component).forEach { effect ->
         if (delta == 0) return@forEach
         if (!effect.listensToOtherComponents) return@forEach

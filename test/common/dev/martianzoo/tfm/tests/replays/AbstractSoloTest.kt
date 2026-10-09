@@ -8,6 +8,8 @@ import kotlin.test.BeforeTest
 /** Follow-along solo tests driven by the engine-owned game workflow. */
 internal abstract class AbstractSoloTest : AbstractFullGameTest() {
   protected lateinit var me: TfmGameplay
+    private set
+
   private lateinit var workflow: TfmWorkflow.Automatic
 
   protected abstract fun cityAreas(): Pair<String, String>

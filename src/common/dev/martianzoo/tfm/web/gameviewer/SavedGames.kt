@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.web.gameviewer
 
 /** Discovers the recording filenames packaged by the most recent resource build. */
-public object SavedGames {
+internal object SavedGames {
   public fun fromIndex(text: String): List<SavedGame> =
       text
           .lineSequence()

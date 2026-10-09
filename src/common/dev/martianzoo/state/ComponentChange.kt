@@ -1,7 +1,7 @@
 package dev.martianzoo.state
 
 /** One fully resolved change to the component state of a game. */
-public sealed class ComponentChange {
+public sealed class ComponentChange private constructor() {
   public abstract val count: Int
   public abstract val gaining: Component?
   public abstract val removing: Component?

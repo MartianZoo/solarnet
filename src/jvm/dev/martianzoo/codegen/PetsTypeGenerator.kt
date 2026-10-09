@@ -934,7 +934,7 @@ private fun generatedComponentFactory(classes: List<ClassName>): FunSpec {
 internal fun generateCanonicalPetsTypes(options: PetsTypeGenerator.Options): List<FileSpec> =
     PetsTypeGenerator(Canon.classTable, options.packageName, options.filePrefix).generate()
 
-internal fun parsePetsTypeGeneratorOptions(arguments: List<String>): PetsTypeGenerator.Options {
+private fun parsePetsTypeGeneratorOptions(arguments: List<String>): PetsTypeGenerator.Options {
   var packageName = "dev.martianzoo.generated"
   var filePrefix = "CanonicalPets"
   var outputDirectory: Path? = null

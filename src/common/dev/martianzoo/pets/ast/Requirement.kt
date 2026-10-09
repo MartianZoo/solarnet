@@ -202,7 +202,7 @@ public sealed class Requirement : PetElement() {
    */
   @ConsistentCopyVisibility
   public data class Or internal constructor(val requirements: Set<Requirement>) : Requirement() {
-    internal constructor(
+    private constructor(
         req1: Requirement,
         req2: Requirement,
         vararg rest: Requirement,

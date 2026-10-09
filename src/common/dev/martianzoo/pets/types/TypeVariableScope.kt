@@ -26,7 +26,7 @@ import dev.martianzoo.pets.types.TypeVariable.Site
  * [rules T13-10 and T13-11](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
  */
 public class TypeVariableScope private constructor(private val entries: List<Entry>) {
-  internal data class Entry(
+  private data class Entry(
       val variable: TypeVariable,
       val currentExpressions: Map<Occurrence, Expression>,
   )
