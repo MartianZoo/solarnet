@@ -3,7 +3,6 @@ package dev.martianzoo.state
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
-import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.ClassName
@@ -52,15 +51,8 @@ public class GamePremiseBuilder(
           "a Catalog without Player cannot configure player names: $playerNames"
       )
     }
-    if (
-        additionalClassDeclarations.any { declaration ->
-          declaration.customMetric ||
-              declaration.supertypes.any { it.className == CUSTOM_INSTRUCTION }
-        }
-    ) {
-      throw InvalidGameConfigException(
-          "premise-local custom Classes require a Catalog-owned implementation"
-      )
+    if (additionalClassDeclarations.any { it.customMetric || it.customInstruction }) {
+      throw InvalidGameConfigException("custom Classes must be declared in the Catalog")
     }
     val additionalNames =
         additionalClassDeclarations.mapTo(linkedSetOf(), ClassDeclaration::className)

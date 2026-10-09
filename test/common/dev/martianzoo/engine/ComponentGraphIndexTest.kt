@@ -8,13 +8,14 @@ import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class ComponentGraphIndexTest {
   @Test
   internal fun componentInMultipleTopLevelBranchesIsCountedOnce() {
-    val game = Engine.newGame(canonicalPremise(catalog = IndexProbeCatalog))
+    val game = TfmEngine.newGame(canonicalPremise(catalog = IndexProbeCatalog))
     val agent = game.testAgent(PLAYER1)
     val componentCount = agent.count("Component")
     val checkpoint = game.timeline.checkpoint()

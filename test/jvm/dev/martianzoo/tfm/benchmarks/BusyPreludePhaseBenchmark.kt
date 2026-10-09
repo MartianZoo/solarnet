@@ -10,6 +10,7 @@ import dev.martianzoo.state.GameConfig
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -38,7 +39,7 @@ public open class BusyPreludePhaseBenchmark {
   @Setup(Level.Trial)
   public fun setUp() {
     game =
-        Engine.newGame(
+        TfmEngine.newGame(
             TfmCatalog(Canon, FakeCanon)
                 .gamePremise(
                     GameConfig(

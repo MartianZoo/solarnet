@@ -107,9 +107,10 @@ another caller needs it.
 
 [`Catalog`](../../src/common/dev/martianzoo/state/Catalog.kt) is the concrete, extensible Catalog
 implementation. It aggregates system and contributed declarations, checks duplicate names, loads
-and validates the master table, composes custom implementations and display names, and adds concrete
-Player Classes. Construct `Catalog(first, second)` to combine generic contributions; construct
-`TfmCatalog(first, second)` to apply Terraforming Mars policies to the combined declarations.
+and validates the master table, derives its custom-Class requirements, composes custom-Class
+dependencies and display names, and adds concrete Player Classes. Construct `Catalog(first, second)`
+to combine generic contributions; construct `TfmCatalog(first, second)` to apply Terraforming Mars
+policies to the combined declarations.
 
 [`GamePremiseBuilder`](../../src/common/dev/martianzoo/state/GamePremiseBuilder.kt) resolves explicit
 configuration names, counted setup Components, premise-local Player declarations, and convergent
@@ -155,8 +156,10 @@ classes. They are too small to drive an architecture change. Move them only with
 Pets owns source, declarations, types, requirements, metrics, instructions, narrowing, effects,
 actions, transform blocks, owner-local Classes, and elaboration. `:state` owns `Catalog`,
 `GameConfig`, `GamePremise`, `ClassSelection`, runtime Actor/Player identities, `GameReader`, and the
-Kotlin custom metric/instruction APIs. Its `displayNames.kt` supplies Catalog-based presentation
-names; [NAMING.md](NAMING.md) owns naming policy.
+Kotlin custom metric/instruction APIs. A `GameWorld` passively carries any supplied bindings and uses
+them for custom metric queries. `Engine.newGame` validates the complete set needed for live play;
+game-specific engines such as `TfmEngine` own and supply that set. Its `displayNames.kt` supplies
+Catalog-based presentation names; [NAMING.md](NAMING.md) owns naming policy.
 
 The loading interface accepts data and callbacks supplied by Catalog and GamePremise; it has no
 dependency on either. `TypeInfo` supplies the active class table without a `GameReader` downcast.

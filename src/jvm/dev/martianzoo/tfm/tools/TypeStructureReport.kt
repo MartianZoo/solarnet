@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tools
 
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.SystemClasses.THIS
@@ -14,6 +13,7 @@ import dev.martianzoo.pets.types.DependencySet.DependencyPath
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.engine.TfmEngine
 import java.math.BigInteger
 import java.util.Locale
 import kotlin.math.ceil
@@ -37,7 +37,7 @@ private object TypeStructureReport {
   fun createGame(): World {
     val colonyCount = if (PLAYERS == 1) 4 else if (PLAYERS == 2) 5 else PLAYERS + 2
     val colonies = Canon.colonyTileClassNames.sorted().take(colonyCount).toSet()
-    return Engine.newGame(
+    return TfmEngine.newGame(
         Canon.gamePremise(
             GameConfig.create(
                 included = selectedOptions + colonies,

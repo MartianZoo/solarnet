@@ -11,10 +11,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
-- Continue the Canon/runtime split later by moving the custom Kotlin implementations into
-  `:tfm-engine` and completing the static-model separation needed for `:tfm-canon` to drop its
-  `:state` dependency. The implementation layout need not mirror bundles; consider nesting the
-  implementations under a single outer class.
+- Complete the remaining static-model separation needed for `:tfm-canon` to drop its `:state`
+  dependency by moving Catalog and premise model ownership upstream.
 - Once `Engine.fork` is available here, have `ProjectCardTest` prepare its Action-phase `World`
   once and fork it for each test instead of rebuilding it. Rebind Kim, Stan, and Rob to the fork,
   add fixture-level isolation coverage, and update `TESTING.md` to describe the forked fixture.
@@ -50,9 +48,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Add scenario saving and reloading to [Mars Playground](PLAYGROUND.md) after the initial version.
 - Add shareable URLs for [Mars Playground](PLAYGROUND.md#technology-and-experience) later. First
   decide what restoring the same view includes: scenario, history position, camera, and windows.
-- Review derived lookups on delegated Catalogs: `customClass`, `customMetric`, `classDeclaration`,
-  and `allClassNames` use the delegate's properties even when the wrapper overrides them. Keep this
-  existing issue separate from the class-loading boundary cleanup.
+- Review derived lookups on delegated Catalogs: `classDeclaration` and `allClassNames` use the
+  delegate's properties even when the wrapper overrides them. Keep this existing issue separate
+  from the class-loading cleanup.
 - Try to simplify Flooding and Artificial Lake's ocean instructions without engine prediction.
   Preserve full-track no-placement behavior (including Amazonis), Artificial Lake's required
   placement below the cap, and Flooding's linked placement and victim choice.

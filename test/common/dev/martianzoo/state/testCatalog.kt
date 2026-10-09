@@ -9,7 +9,6 @@ import dev.martianzoo.pets.types.ClassTable
 /** Builds a catalog from Pets source, plus the system classes. */
 internal fun testCatalog(
     petsText: String,
-    customImplementations: Set<CustomClass> = emptySet(),
     customClassDependencies: Map<ClassName, Set<ClassName>> = emptyMap(),
     moduleSelections: Map<ClassName, Set<ClassSelection>> = emptyMap(),
     classAvailabilityModules: Map<ClassName, Set<ClassName>> = emptyMap(),
@@ -17,7 +16,6 @@ internal fun testCatalog(
   val explicitDeclarations = parseClasses(petsText).toSet()
   return object : Catalog() {
     override val explicitClassDeclarations: Set<ClassDeclaration> = explicitDeclarations
-    override val customClasses: Set<CustomClass> = customImplementations
     override val customClassDependencies: Map<ClassName, Set<ClassName>> = customClassDependencies
     override val modules: Map<ClassName, Set<ClassSelection>> = moduleSelections
     override val classAvailabilityModules: Map<ClassName, Set<ClassName>> = classAvailabilityModules

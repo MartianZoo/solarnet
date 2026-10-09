@@ -7,12 +7,13 @@ import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class SpecificationTest {
-  private val game = Engine.newGame(canonicalPremise())
+  private val game = TfmEngine.newGame(canonicalPremise())
 
   @Test
   internal fun instructionsNarrowCompositionally() {

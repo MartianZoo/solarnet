@@ -372,7 +372,7 @@ internal class ModuleSelectionTest {
             classSelections = ordinary.classSelections + ClassSelection(cn("PreservationProgram"))
         )
 
-    shouldThrow<InvalidGameConfigException> { Engine.newGame(altered) }
+    shouldThrow<InvalidGameConfigException> { TfmEngine.newGame(altered) }
   }
 
   @Test
@@ -449,10 +449,10 @@ internal class ModuleSelectionTest {
       }
 
   private fun resolvedPremise(config: String, players: Int): GamePremise =
-      premise(config, players).also(Engine::newGame)
+      premise(config, players).also(TfmEngine::newGame)
 
   private fun classTable(config: String, players: Int = 2) =
-      Engine.newGame(premise(config, players)).classTable
+      TfmEngine.newGame(premise(config, players)).classTable
 
   private fun cannotSelectTogether(
       first: String,
@@ -464,13 +464,13 @@ internal class ModuleSelectionTest {
 
   private fun rejects(config: String, players: Int = 2) {
     withClue("[$config] with $players player(s) is rejected") {
-      shouldThrow<InvalidGameConfigException> { Engine.newGame(premise(config, players)) }
+      shouldThrow<InvalidGameConfigException> { TfmEngine.newGame(premise(config, players)) }
     }
   }
 
   private fun configurationRejects(config: String, players: Int = 2) {
     withClue("[$config] with $players player(s) is rejected as a game configuration") {
-      shouldThrow<InvalidGameConfigException> { Engine.newGame(premise(config, players)) }
+      shouldThrow<InvalidGameConfigException> { TfmEngine.newGame(premise(config, players)) }
     }
   }
 

@@ -8,6 +8,7 @@ import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.Test
@@ -64,7 +65,7 @@ internal class OrTriggerTest {
             "LeftFirstOrProbe",
             "RightFirstOrProbe",
         )
-    return Engine.newGame(
+    return TfmEngine.newGame(
         canonicalPremise(
             catalog = OrProbeCatalog,
             initialComponentTypes = initialComponents.map { cn(it).expression }.toSet(),

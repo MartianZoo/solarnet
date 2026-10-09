@@ -8,6 +8,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -16,7 +17,7 @@ import kotlin.test.assertFailsWith
 internal class EffectActorCharacterizationTest {
   @Test
   internal fun playersCannotCreateSystemComponents() {
-    val game = Engine.newGame(canonicalPremise())
+    val game = TfmEngine.newGame(canonicalPremise())
     val player = game.testAgent(PLAYER1)
 
     assertFailsWith<DeadEndException> { player.runOperation("Generation") }
@@ -27,7 +28,7 @@ internal class EffectActorCharacterizationTest {
 
   @Test
   internal fun noActorCanRemoveModules() {
-    val game = Engine.newGame(canonicalPremise())
+    val game = TfmEngine.newGame(canonicalPremise())
     val player = game.testAgent(PLAYER1)
 
     assertFailsWith<LimitsException> { player.runOperation("-TharsisMap") }
@@ -39,7 +40,7 @@ internal class EffectActorCharacterizationTest {
 
   @Test
   internal fun adminPerformedPlacementDoesNotGiveTheChangedComponentHolderTheAreaBonus() {
-    val game = Engine.newGame(canonicalPremise(cn("ElysiumMap"), players = 2))
+    val game = TfmEngine.newGame(canonicalPremise(cn("ElysiumMap"), players = 2))
     val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
     game.testAgent(PLAYER1).autoExecPolicy = NONE
     admin.runOperation("Photosynthesis")
@@ -59,7 +60,7 @@ internal class EffectActorCharacterizationTest {
 
   @Test
   internal fun triggeringPlayerIsFallbackActorForDeferredEffect() {
-    val game = Engine.newGame(canonicalPremise())
+    val game = TfmEngine.newGame(canonicalPremise())
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val terraformRatingBefore = p1.count("TerraformRating")
 
@@ -76,7 +77,7 @@ internal class EffectActorCharacterizationTest {
 
   @Test
   internal fun ownedEffectDoesNotTreatAdminAsAnOwner() {
-    val game = Engine.newGame(canonicalPremise())
+    val game = TfmEngine.newGame(canonicalPremise())
     val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
     val terraformRatingBefore = admin.count("TerraformRating")
 

@@ -201,7 +201,7 @@ three Building tags, increase steel production 1; otherwise increase energy prod
 card can follow the printed box exactly, but copying finds two `PROD` nodes and fails. Rewriting the
 condition inside one `PROD[...]` is an accommodation to the copier.
 
-**Source:** `copyProductionBox` in [custom.kt](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/custom.kt).
+**Source:** `CopyProductionBox` in [TfmEngine.kt](../../src/common/dev/martianzoo/tfm/engine/TfmEngine.kt).
 [CopyProductionBoxTest](../../test/common/dev/martianzoo/tfm/tests/rules/CopyProductionBoxTest.kt) makes
 one of the required spelling restrictions explicit.
 
@@ -216,7 +216,7 @@ instruction to copy. The same gain written with `This:` would work. The fan rule
 which colon the author used is not a printed distinction.
 
 **Source:** `cardImmediate` in [cardClass.kt](../../src/common/dev/martianzoo/tfm/canon/cardClass.kt)
-and `CopyPrelude` in [promo custom.kt](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/custom.kt).
+and `CopyPrelude` in [TfmEngine.kt](../../src/common/dev/martianzoo/tfm/engine/TfmEngine.kt).
 
 ### 14. Vitor treats references to VP as positive scoring icons
 
@@ -228,7 +228,7 @@ reward, not a VP scoring icon. **Literal:** `VictoryPoint: MC`; all those VP gai
 Vitor nevertheless finds the `VictoryPoint` reference and pays its 3 M€ rebate when this card is
 played. No assumption of VP existing during play is involved.
 
-**Source:** `nonNegativeIconsOf` in [custom.kt](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/custom.kt),
+**Source:** `NonNegativeIconsOf` in [TfmEngine.kt](../../src/common/dev/martianzoo/tfm/engine/TfmEngine.kt),
 `cardEffects` in [cardClass.kt](../../src/common/dev/martianzoo/tfm/canon/cardClass.kt), and `Vitor` in
 [Prelude 1 cards](../../src/common/dev/martianzoo/tfm/canon/Prelude1CardPack/cards.json5).
 
@@ -242,7 +242,7 @@ composed implementation** invokes a placement signal whose effect gains the actu
 and gains two actual plants. Astra Mechanica sees the signal gain but no `SpecialTile` gain on the
 event declaration, so it can recover an event its special-tile restriction should exclude.
 
-**Source:** [GainsOf.kt](../../src/common/dev/martianzoo/tfm/canon/GainsOf.kt) and `AstraMechanica` in
+**Source:** `GainsOf` in [TfmEngine.kt](../../src/common/dev/martianzoo/tfm/engine/TfmEngine.kt) and `AstraMechanica` in
 [promo cards](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.json5).
 
 ### 16. Philantropist only detects directly authored positive scoring
@@ -256,7 +256,7 @@ effect supplies the points. The card declaration gains a monument rather than `V
 Philantropist does not count it. The mismatch is icon recognition, not when the points are awarded.
 
 **Source:** `Philantropist` in [goals.pets](../../src/common/dev/martianzoo/tfm/canon/MilestonesAwardsExpansion/goals.pets)
-and [GainsOf.kt](../../src/common/dev/martianzoo/tfm/canon/GainsOf.kt).
+and `GainsOf` in [TfmEngine.kt](../../src/common/dev/martianzoo/tfm/engine/TfmEngine.kt).
 
 ### 17. Requirement adjustments only understand one simple parameter requirement
 
@@ -268,7 +268,7 @@ production 2.” **Literal:** a conjunction of the two requirements followed by 
 With Inventrix, oxygen 6% and two Science tags should suffice. Ordinary evaluation rejects the
 printed conjunction, and the shortfall helper cannot expose its adjustable oxygen part.
 
-**Source:** `gpRequirementShortfall` in [custom.kt](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/custom.kt),
+**Source:** `GpRequirementShortfall` in [TfmEngine.kt](../../src/common/dev/martianzoo/tfm/engine/TfmEngine.kt),
 `PlayCard` in [card-model.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets),
 and `Inventrix` in [base cards](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/cards.json5).
 
@@ -282,7 +282,7 @@ greeneries.” **Literal scoring declaration:** `End IF 3 GreeneryTile: 2 Victor
 condition is satisfied at game end, this effect is absent from the scoring helper's selected list.
 Writing `End: (3 GreeneryTile: 2 VictoryPoint)` would accommodate the helper instead.
 
-**Source:** `scoreEventVps` in [custom.kt](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/custom.kt),
+**Source:** `ScoreEventVps` in [TfmEngine.kt](../../src/common/dev/martianzoo/tfm/engine/TfmEngine.kt),
 `EventCard` and `PlayedEvent` in [card-model.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets),
 and conditional-trigger structure in [Effect.kt](../../src/common/dev/martianzoo/pets/ast/Effect.kt).
 This is a limitation of restoring an event's scoring rule, not a criticism of scoring at End.
@@ -326,7 +326,7 @@ space (8,9): the shortcut produces **6 steel and 1 titanium**, rather than **2 s
 
 **Source:** `FrontierTown` and `FrontierTownBonus` in
 [Prelude 2 cards](../../src/common/dev/martianzoo/tfm/canon/Prelude2CardPack/cards.json5),
-[RepeatPlacementBonus.kt](../../src/common/dev/martianzoo/tfm/canon/RepeatPlacementBonus.kt), and
+`RepeatPlacementBonus` in [TfmEngine.kt](../../src/common/dev/martianzoo/tfm/engine/TfmEngine.kt), and
 [Tharsis map](../../src/common/dev/martianzoo/tfm/canon/TharsisMap/tharsis.pets).
 
 ### 21. Delegate removal relies on Banned Delegate to repair leadership

@@ -11,6 +11,7 @@ import dev.martianzoo.state.ClassSelection
 import dev.martianzoo.state.GamePremise
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
@@ -19,7 +20,7 @@ import kotlin.test.Test
 internal class AutomaticEffectDepthTest {
   @Test
   internal fun `automatic effect cycle fails atomically at the depth limit`() {
-    val world = Engine.newGame(premise) as WholeWorld
+    val world = TfmEngine.newGame(premise) as WholeWorld
     val admin = world.testAgent(ADMIN)
     val checkpoint = world.timeline.checkpoint()
 

@@ -2,13 +2,13 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -22,7 +22,7 @@ import kotlin.test.Test
 internal class AwardsTest : TfmTest() {
   @Test
   internal fun multiplayerOnlyStandardActionsAreAbsentInSoloGames() {
-    game = Engine.newGame(canonicalPremise(players = 1))
+    game = TfmEngine.newGame(canonicalPremise(players = 1))
 
     val award = game.classTable.getClass(cn("Award"))
     game.classTable.allSubclasses(award).filterNot { it.abstract }.shouldBeEmpty()
@@ -39,7 +39,7 @@ internal class AwardsTest : TfmTest() {
   @Test
   internal fun incorporatorCountsOnlyCheapActiveAndAutomatedProjects() {
     game =
-        Engine.newGame(
+        TfmEngine.newGame(
             canonicalPremise(
                 Utopia,
                 players = 2,
@@ -65,7 +65,7 @@ internal class AwardsTest : TfmTest() {
 
   @Test
   internal fun customAwardMetricsAreCountedForEachPlayer() {
-    game = Engine.newGame(canonicalPremise(Cimmeria, players = 3))
+    game = TfmEngine.newGame(canonicalPremise(Cimmeria, players = 3))
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     val p3 = game.testTfm(PLAYER3)
@@ -91,7 +91,7 @@ internal class AwardsTest : TfmTest() {
 
   @Test
   internal fun fundingPriceProgressesAndOnlyThreeAwardsCanBeFunded() {
-    game = Engine.newGame(canonicalPremise(players = 2))
+    game = TfmEngine.newGame(canonicalPremise(players = 2))
     val p1 = game.testTfm(PLAYER1)
     p1.sneak("100 MC")
 
@@ -138,7 +138,7 @@ internal class AwardsTest : TfmTest() {
 
   @Test
   internal fun zeroScoresCanEarnFirstAndSecondWhileUnfundedAwardsAreIgnored() {
-    game = Engine.newGame(canonicalPremise(players = 3))
+    game = TfmEngine.newGame(canonicalPremise(players = 3))
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     val p3 = game.testTfm(PLAYER3)
@@ -169,7 +169,7 @@ internal class AwardsTest : TfmTest() {
 
   @Test
   internal fun negativeBankerProductionCanEarnFirstAndSecond() {
-    game = Engine.newGame(canonicalPremise(players = 3))
+    game = TfmEngine.newGame(canonicalPremise(players = 3))
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     val p3 = game.testTfm(PLAYER3)
@@ -190,7 +190,7 @@ internal class AwardsTest : TfmTest() {
 
   @Test
   internal fun adminDrivenEndReturnsOnlyAfterAllVictoryPointsSettle() {
-    game = Engine.newGame(canonicalPremise())
+    game = TfmEngine.newGame(canonicalPremise())
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     p1.runOperation("3 VictoryPoint, TerraformRating")

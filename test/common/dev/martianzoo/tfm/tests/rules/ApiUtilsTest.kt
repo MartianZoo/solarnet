@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.util.toStrings
@@ -11,6 +10,7 @@ import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.ApiUtils.standardResourceNames
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.tests.*
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotlin.test.Test
@@ -18,7 +18,7 @@ import kotlin.test.Test
 internal class ApiUtilsTest {
   @Test
   internal fun testLookUpProdLevelsUsingCanon() {
-    val game = Engine.newGame(canonicalPremise())
+    val game = TfmEngine.newGame(canonicalPremise())
     val prods: Map<ClassName, Int> = lookUpProductionLevels(game.reader, PLAYER1.expression)
     prods
         .map { it.key to it.value }
@@ -47,7 +47,7 @@ internal class ApiUtilsTest {
 
   @Test
   internal fun stdResNamesInCanon() {
-    val game = Engine.newGame(canonicalPremise())
+    val game = TfmEngine.newGame(canonicalPremise())
     standardResourceNames(game.reader)
         .toStrings()
         .shouldContainExactlyInAnyOrder(

@@ -14,6 +14,7 @@ import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
@@ -212,7 +213,7 @@ internal class ByTriggerCharacterizationTest {
   }
 
   private fun newGame(): World {
-    return Engine.newGame(canonicalPremise(catalog = ProbeCatalog))
+    return TfmEngine.newGame(canonicalPremise(catalog = ProbeCatalog))
   }
 }
 

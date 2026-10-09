@@ -2,13 +2,46 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.CustomInstruction
+import dev.martianzoo.state.CustomMetric
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class WorldForkTest {
+  @Test
+  internal fun forkKeepsCustomMetricAndInstructionImplementations() {
+    val score =
+        object : CustomMetric("Score") {
+          override fun count(game: GameReader, type: Type): Int = 7
+        }
+    val signal =
+        object : CustomInstruction("CustomSignal") {
+          override fun translate(game: GameReader): InstructionTree = parse("Token")
+        }
+    val source =
+        Engine.newGame(
+            testGamePremise(
+                "CLASS Score : CustomMetric\nCLASS CustomSignal : CustomInstruction\nCLASS Token"
+            ),
+            setOf(score, signal),
+        )
+
+    val fork = Engine.fork(source)
+    val forkAgent = fork.testAgent(PLAYER1)
+
+    fork.reader.count(parse<Metric>("Score")) shouldBe 7
+    forkAgent.runOperation("CustomSignal")
+    forkAgent.count("Token") shouldBe 1
+  }
+
   @Test
   internal fun forkCopiesLiveBehaviorAndThenDivergesIndependently() {
     val source =

@@ -5,9 +5,9 @@ import dev.martianzoo.pets.api.Exceptions.CustomCodeException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.types.Type
 
-/** Invokes Catalog-provided metrics as passive queries over game state. */
+/** Invokes metrics bound to this Game World as passive queries over its state. */
 internal class CustomMetricRuntime(
-    private val catalog: Catalog,
+    private val gameWorld: GameWorld,
     private val elaborator: PetElaborator,
 ) {
   internal fun count(type: Type, reader: GameReaderImpl): Int {
@@ -50,9 +50,10 @@ internal class CustomMetricRuntime(
   }
 
   private fun countConcrete(type: Type, reader: GameReader): Int {
+    val implementation = implementationFor(type)
     val count =
         try {
-          implementationFor(type).count(reader, type)
+          implementation.count(reader, type)
         } catch (e: NotImplementedError) {
           throw CustomCodeException(
               "custom metric failed for `${type.expressionFull}`: ${e.message}",
@@ -68,8 +69,8 @@ internal class CustomMetricRuntime(
     return count
   }
 
-  private fun implementationFor(type: Type) =
-      catalog.customMetric(type.className)
+  private fun implementationFor(type: Type): CustomMetric =
+      gameWorld.customClassOrNull(type.className) as? CustomMetric
           ?: throw ExpressionException("custom metric `${type.className}` has no implementation")
 
   private fun requireValidCount(type: Type, count: Int) {
