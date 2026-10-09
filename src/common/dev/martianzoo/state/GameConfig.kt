@@ -6,10 +6,10 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
 /**
- * Unresolved user intent expressed as unordered positive and negative class-name selections,
- * positive counts of concrete setup Components, and concrete user-facing player names in seat
- * order. A counted entry is written as a positive integer followed by a Class Name, such as `4
- * StartingOption`.
+ * Unresolved user intent expressed as unordered positive and negative class-name selections, signed
+ * adjustments to concrete setup Components, and concrete user-facing player names in seat order. An
+ * adjustment is written as an integer followed by a Class Name, such as `2 Supply` or `-1
+ * SelectablePreludeCount`.
  *
  * A Catalog-specific premise factory applies defaults, selection policies, and validation to cook
  * this into a complete [GamePremise]. The configuration itself never records inferred selections.
@@ -21,7 +21,7 @@ public data class GameConfig(
     public val includedClassNames: Set<ClassName>,
     public val excludedClassNames: Set<ClassName> = emptySet(),
     public val playerNames: List<ClassName> = emptyList(),
-    public val componentCounts: Map<ClassName, Int> = emptyMap(),
+    public val componentAdjustments: Map<ClassName, Int> = emptyMap(),
 ) {
   init {
     if (playerNames.distinct().size != playerNames.size) {
@@ -31,21 +31,21 @@ public data class GameConfig(
     }
     val multiplyConfiguredNames =
         (includedClassNames intersect excludedClassNames) +
-            (includedClassNames intersect componentCounts.keys) +
-            (excludedClassNames intersect componentCounts.keys)
+            (includedClassNames intersect componentAdjustments.keys) +
+            (excludedClassNames intersect componentAdjustments.keys)
     if (multiplyConfiguredNames.isNotEmpty()) {
       throw InvalidGameConfigException(
           "class names cannot have multiple configuration entries: ${multiplyConfiguredNames.joinToString { "`$it`" }}"
       )
     }
-    val invalidCounts = componentCounts.filterValues { it <= 0 }
-    if (invalidCounts.isNotEmpty()) {
+    val zeroAdjustments = componentAdjustments.filterValues { it == 0 }
+    if (zeroAdjustments.isNotEmpty()) {
       throw InvalidGameConfigException(
-          "component counts must be positive: ${invalidCounts.entries.joinToString { "`${it.value} ${it.key}`" }}"
+          "component adjustments must be nonzero: ${zeroAdjustments.entries.joinToString { "`${it.value} ${it.key}`" }}"
       )
     }
     val playerClassSelections = playerNames.filter {
-      it in includedClassNames || it in excludedClassNames || it in componentCounts
+      it in includedClassNames || it in excludedClassNames || it in componentAdjustments
     }
     if (playerClassSelections.isNotEmpty()) {
       throw InvalidGameConfigException(
@@ -57,7 +57,7 @@ public data class GameConfig(
   private constructor(
       parsed: Parsed,
       playerNames: List<ClassName>,
-  ) : this(parsed.included, parsed.excluded, playerNames, parsed.componentCounts)
+  ) : this(parsed.included, parsed.excluded, playerNames, parsed.componentAdjustments)
 
   public constructor(
       source: String,
@@ -66,7 +66,7 @@ public data class GameConfig(
 
   override fun toString(): String =
       (includedClassNames.map { "$it" } +
-              componentCounts.map { (name, count) -> "$count $name" } +
+              componentAdjustments.map { (name, adjustment) -> "$adjustment $name" } +
               excludedClassNames.map { "-$it" })
           .joinToString()
 
@@ -76,22 +76,22 @@ public data class GameConfig(
     private data class Parsed(
         val included: Set<ClassName>,
         val excluded: Set<ClassName>,
-        val componentCounts: Map<ClassName, Int>,
+        val componentAdjustments: Map<ClassName, Int>,
     )
 
-    /** Creates a configuration from already-canonicalized selections and component counts. */
+    /** Creates a configuration from canonicalized selections and setup-component adjustments. */
     public fun create(
         included: Iterable<ClassName>,
         excluded: Iterable<ClassName> = emptyList(),
         playerNames: Iterable<ClassName> = emptyList(),
-        componentCounts: Map<ClassName, Int> = emptyMap(),
+        componentAdjustments: Map<ClassName, Int> = emptyMap(),
     ): GameConfig {
       val (includedNames, excludedNames) = toSets(included.toList(), excluded.toList())
       return GameConfig(
           includedNames,
           excludedNames,
           playerNames.toList(),
-          componentCounts.toMap(LinkedHashMap()),
+          componentAdjustments.toMap(LinkedHashMap()),
       )
     }
 
@@ -99,7 +99,7 @@ public data class GameConfig(
       try {
         val included = mutableListOf<ClassName>()
         val excluded = mutableListOf<ClassName>()
-        val componentCounts = linkedMapOf<ClassName, Int>()
+        val componentAdjustments = linkedMapOf<ClassName, Int>()
         Regex("[^,\\n]+").findAll(source).forEach { match ->
           val token = match.value.trim()
           if (token.isEmpty()) return@forEach
@@ -110,18 +110,16 @@ public data class GameConfig(
             val entry = if (selected) token else token.drop(1)
             val counted = COUNTED_ENTRY.matchEntire(entry)
             if (counted != null) {
-              if (!selected) {
-                throw InvalidGameConfigException("a counted component cannot be excluded: `$token`")
-              }
               val count =
                   counted.groupValues[1].toIntOrNull()
-                      ?: throw InvalidGameConfigException("component count is too large: `$token`")
+                      ?: throw InvalidGameConfigException("setup adjustment is too large: `$token`")
               val name = counted.groupValues[2]
               if (count <= 0 || name.any(Char::isWhitespace)) {
-                throw InvalidGameConfigException("invalid counted component entry: `$token`")
+                throw InvalidGameConfigException("invalid setup adjustment entry: `$token`")
               }
               val className = cn(name)
-              if (componentCounts.put(className, count) != null) {
+              val adjustment = if (selected) count else -count
+              if (componentAdjustments.put(className, adjustment) != null) {
                 throw InvalidGameConfigException("duplicate configuration entry: `$className`")
               }
             } else {
@@ -144,7 +142,7 @@ public data class GameConfig(
           }
         }
         val (includedNames, excludedNames) = toSets(included, excluded)
-        return Parsed(includedNames, excludedNames, componentCounts)
+        return Parsed(includedNames, excludedNames, componentAdjustments)
       } catch (e: IllegalArgumentException) {
         throw InvalidGameConfigException("invalid game configuration: `$source`", e)
       }

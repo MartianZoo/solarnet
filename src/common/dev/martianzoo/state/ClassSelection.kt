@@ -8,12 +8,12 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.PremiseClassTable
 
 /**
- * One signed Class selection contributed by a Module or recorded directly in a [GamePremise].
+ * A signed Class selection recorded in a [GamePremise], including selected Modules and Content.
  *
- * Module selections may be conditional on the completed configuration. Direct premise selections
- * are unconditional and express exact resolved choices. Catalogs may use this generic mechanism for
- * individually overridable Content; Content itself is a premise-policy role rather than a Pets
- * supertype.
+ * Selections contributed by a Module may be conditional on the completed configuration. Resolved
+ * premise selections are unconditional and express exact choices. Catalogs may use this generic
+ * mechanism for individually overridable Content; Content itself is a premise-policy role rather
+ * than a Pets supertype.
  */
 public data class ClassSelection(
     public val className: ClassName,

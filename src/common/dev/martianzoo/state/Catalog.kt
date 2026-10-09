@@ -4,7 +4,6 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.pets.types.ClassTable
@@ -130,14 +129,14 @@ public open class Catalog(private vararg val catalogs: Catalog) {
       allClassDeclarations[name]
           ?: throw IllegalArgumentException("no class declaration named `$name`")
 
-  /** Resolves configuration defaults and creates a premise over this Catalog's master table. */
+  /**
+   * Resolves signed Class selections and additive setup adjustments over this Catalog's master
+   * table.
+   */
   public open fun gamePremise(
       config: GameConfig,
-      additionalInitialComponentTypes: Set<Expression> = emptySet(),
       additionalClassDeclarations: Set<ClassDeclaration> = emptySet(),
-  ): GamePremise =
-      GamePremiseBuilder(this, config, additionalInitialComponentTypes, additionalClassDeclarations)
-          .build()
+  ): GamePremise = GamePremiseBuilder(this, config, additionalClassDeclarations).build()
 
   /** Cooks a premise whose player names and seat order come from [playerDeclarations]. */
   public fun gamePremise(

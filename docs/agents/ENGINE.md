@@ -46,12 +46,13 @@ Narrower documents own adjacent subjects:
 
 ## From a premise to a ready World
 
-`GameConfig` is unresolved intent. Catalog resolution produces an immutable `GamePremise`: the
-selected Catalog and Modules, seated Player Classes, class selections, counted setup Components,
-and exact initial component Types. Counted setup Components become ordinary effects of the generated
-premise Class rather than a parallel runtime initialization path. The premise retains one immutable
-game `ClassTable` view sharing its Catalog's compiled master structure; separate Worlds from that
-premise share compiled class facts but no mutable game state. See
+`GameConfig` is unresolved intent. Catalog resolution produces an immutable `GamePremise`: a
+single set of signed Class selections, seated Player Classes, additive setup-component adjustments,
+and premise-local declarations. Modules are derived from the selected Classes; they are not stored
+as a parallel premise choice. Setup adjustments and game-specific setup become ordinary effects of
+the generated premise Class. The premise retains one immutable game `ClassTable` view sharing its
+Catalog's compiled master structure; separate Worlds from that premise share compiled class facts
+but no mutable game state. See
 [`GamePremise.kt`](../../src/common/dev/martianzoo/state/GamePremise.kt).
 
 `Engine.newGame` first validates its supplied Kotlin custom-Class implementations against the
@@ -71,11 +72,18 @@ Bootstrap drains choice-free Tasks through their assigned Actor Engines. An abst
 acceptable only when normal resolution leaves exactly one legal concrete result; initialization
 must not silently choose among alternatives. Successful initialization requires no pending Tasks,
 all exact premise components, and all applicable positive lower bounds, then commits the timeline.
+Before a ready World or fork is returned, the engine also verifies every positive signed premise
+selection representing an inhabited concrete Class has a live `Class<T>` component, and every
+negative selection lacks one.
 
 Bootstrap does not change ordinary Pets meaning to force progress: it must not turn queued `:`
 effects into automatic `::` effects or discard a change's `?`, `.`, or `!` quantifier. Starting
 state that requires a Player choice remains exact premise state which opens that choice during
 ordinary setup; bootstrap does not make it on the Player's behalf.
+
+An automatic effect narrows an abstract gain when live component limits eliminate every candidate
+except one. If several legal concrete targets remain, the gain stays abstract. User-selected tasks
+do not use capacity as an implicit choice.
 
 `Engine.fork` constructs an independently mutable live World only at a completed gameplay
 position. It shares the immutable premise and Class Table, directly copies the passive component,

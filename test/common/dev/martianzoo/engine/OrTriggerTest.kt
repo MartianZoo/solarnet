@@ -68,7 +68,7 @@ internal class OrTriggerTest {
     return TfmEngine.newGame(
         canonicalPremise(
             catalog = OrProbeCatalog,
-            initialComponentTypes = initialComponents.map { cn(it).expression }.toSet(),
+            setupComponents = initialComponents.map { cn(it).expression }.toSet(),
         )
     )
   }
