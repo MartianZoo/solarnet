@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.script.commands
 
 import dev.martianzoo.state.Checkpoint
-import dev.martianzoo.tfm.engine.visibleLogEvents
+import dev.martianzoo.state.visibleLogEvents
 import dev.martianzoo.tfm.script.ScriptCommand
 import dev.martianzoo.tfm.script.ScriptCompletion
 import dev.martianzoo.tfm.script.ScriptCompletionContext
@@ -22,7 +22,8 @@ internal class LogCommand(private val repl: ScriptSession) : ScriptCommand("log"
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
       context.completions("full", group = "log options")
 
-  override fun noArgs() = repl.game.visibleLogEvents().map { it.toString() }
+  override fun noArgs() =
+      repl.game.events.changesSinceSetup().visibleLogEvents(repl.game.reader).map { it.toString() }
 
   override fun withArgs(args: String): List<String> {
     if (args == "full") {

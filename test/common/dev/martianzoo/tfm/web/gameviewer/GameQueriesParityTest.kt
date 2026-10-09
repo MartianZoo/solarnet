@@ -10,10 +10,10 @@ import dev.martianzoo.state.ComponentChange
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.toComponent
+import dev.martianzoo.state.visibleLogEvents
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.isVisibleInLog as isVisibleInEngineLog
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -50,7 +50,7 @@ internal class GameQueriesParityTest {
   }
 
   @Test
-  internal fun visibleLogSelectionMatchesTheEngineRule() {
+  internal fun visibleLogSelectionHidesHiddenComponents() {
     val game =
         TfmEngine.newGame(
             Canon.gamePremise(GameConfig("Prelude2CardPack, ColoniesExpansion", "Player1"))
@@ -73,9 +73,8 @@ internal class GameQueriesParityTest {
             event(2, "GpIncomplete<Class<TemperatureStep>>"),
             event(3, "L1Gift<Player1>"),
         )
-    val engineSelection = events.filter { it.isVisibleInEngineLog(game.reader) }
+    val visible = events.visibleLogEvents(game.reader)
 
-    assertEquals(listOf(true, true, false, false), events.map { it in engineSelection })
-    assertEquals(engineSelection, visibleLogEvents(events, game.reader))
+    assertEquals(listOf(true, true, false, false), events.map { it in visible })
   }
 }

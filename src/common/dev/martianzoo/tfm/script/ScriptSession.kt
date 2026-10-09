@@ -15,12 +15,12 @@ import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.state.actors
+import dev.martianzoo.state.visibleLogEvents
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
-import dev.martianzoo.tfm.engine.isVisibleInLog
 import dev.martianzoo.tfm.script.Access.BlueMode
 import dev.martianzoo.tfm.script.Access.GreenMode
 import dev.martianzoo.tfm.script.Access.PurpleMode
@@ -315,7 +315,7 @@ public class ScriptSession(
       }
 
   internal fun describeExecutionResults(result: TaskResult): List<String> {
-    val changes = result.changes.filter { it.isVisibleInLog(game.reader) }.map { it.toString() }
+    val changes = result.changes.visibleLogEvents(game.reader).map { it.toString() }
 
     val newTaskLines = taskLines(result.tasksSpawned)
     val taskLines =
