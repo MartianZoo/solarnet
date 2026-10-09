@@ -67,7 +67,7 @@ internal class OrTriggerTest {
     return Engine.newGame(
         canonicalPremise(
             catalog = OrProbeCatalog,
-            initialComponentTypes = initialComponents.map { cn(it).expression }.toSet(),
+            setupComponents = initialComponents.map { cn(it).expression }.toSet(),
         )
     )
   }

@@ -117,6 +117,8 @@ internal class CatalogTest {
 
     premise.classSelections.filter { it.included }.mapTo(linkedSetOf()) { it.className } shouldBe
         setOf(
+            cn("MultiplayerMode"),
+            cn("SparseMap"),
             cn("FirstMilestone"),
             cn("SecondMilestone"),
             cn("FirstAward"),
@@ -152,7 +154,8 @@ internal class CatalogTest {
     val premise = source.gamePremise(GameConfig("MultiplayerMode, FirstAward"))
 
     source.classAvailabilityModules[cn("GoalMetric")] shouldBe null
-    premise.classSelections.single { it.included }.className shouldBe cn("FirstAward")
+    premise.classSelections.filter { it.included }.mapTo(linkedSetOf()) { it.className } shouldBe
+        setOf(cn("MultiplayerMode"), cn("FirstAward"))
     premise.classTable.getClass(cn("GoalMetric")).declaration.customMetric shouldBe true
   }
 

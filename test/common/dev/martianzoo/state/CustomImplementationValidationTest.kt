@@ -116,7 +116,7 @@ internal class CustomImplementationValidationTest {
   }
 
   private fun emptyPremise(catalog: Catalog): GamePremise =
-      GamePremise(catalog, emptySet(), emptySet(), emptySet())
+      GamePremise(catalog = catalog, classSelections = emptySet())
 
   private fun metric(name: String): CustomMetric =
       object : CustomMetric(name) {

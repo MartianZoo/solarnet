@@ -38,9 +38,7 @@ internal class GamePremiseTest {
       shouldThrow<InvalidGameConfigException> {
         GamePremise(
             catalog,
-            modules = emptySet(),
             classSelections = emptySet(),
-            initialComponentTypes = emptySet(),
             playerNames = listOf(invalidPlayerName),
         )
       }
@@ -92,7 +90,7 @@ internal class GamePremiseTest {
     val defaultGoals =
         premise.classSelections.filter(ClassSelection::included).mapTo(linkedSetOf()) {
           it.className
-        }
+        } - premise.modules
     val milestone = Canon.classTable.getClass(cn("Milestone"))
     val award = Canon.classTable.getClass(cn("Award"))
     defaultGoals.size shouldBe 10
@@ -214,6 +212,9 @@ internal class GamePremiseTest {
     val workflow = TfmWorkflow.Stepwise(game.testAgents())
 
     admin.count("SelectedColonyTile") shouldBe 3
+    admin.count("CallistoSelected") shouldBe 1
+    admin.count("LunaSelected") shouldBe 1
+    admin.count("EnceladusSelected") shouldBe 1
     admin.count("SelectedColonyTile<Class<Ceres>>") shouldBe 0
 
     workflow.setupPhase()
@@ -360,16 +361,5 @@ internal class GamePremiseTest {
         Engine.newGame(Canon.gamePremise(GameConfig("Terraformer35", "Player1"))).classTable
     explicitMilestone.isInhabited(cn("Terraformer35")) shouldBe true
     explicitMilestone.isInhabited(cn("ClaimMilestoneAction")) shouldBe false
-  }
-
-  @Test
-  internal fun initialComponentTypesMustBeConcreteAndInstantiable() {
-    val premise =
-        Canon.gamePremise(
-            GameConfig("", "Player1", "Player2"),
-            additionalInitialComponentTypes = setOf(cn("Card").expression),
-        )
-
-    shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
   }
 }

@@ -95,9 +95,7 @@ internal class BootstrapLifecycleTest {
       game.tasks.isEmpty() shouldBe true
 
       val configuredExpressions =
-          premise.modules.map { it.expression } +
-              premise.playerNames.map { it.expression } +
-              premise.initialComponentTypes
+          premise.modules.map { it.expression } + premise.playerNames.map { it.expression }
       configuredExpressions.forEach { expression ->
         admin.count("$expression") shouldBe 1
       }

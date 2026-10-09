@@ -62,14 +62,12 @@ internal class AutomaticEffectDepthTest {
     val premise =
         GamePremise(
             catalog = catalog,
-            modules = emptySet(),
             classSelections =
                 setOf(
                     ClassSelection(cn("ChainA")),
                     ClassSelection(cn("ChainB")),
                     ClassSelection(cn("Player")),
                 ),
-            initialComponentTypes = emptySet(),
         )
   }
 }

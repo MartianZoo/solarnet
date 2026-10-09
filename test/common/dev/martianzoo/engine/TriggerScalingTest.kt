@@ -17,7 +17,7 @@ internal class TriggerScalingTest {
     val premise =
         canonicalPremise(
             catalog = catalog,
-            initialComponentTypes = setOf(cn("TriggerScalingProbe").expression),
+            setupComponents = setOf(cn("TriggerScalingProbe").expression),
         )
     val game = Engine.newGame(premise)
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
@@ -40,7 +40,7 @@ internal class TriggerScalingTest {
     val premise =
         canonicalPremise(
             catalog = catalog,
-            initialComponentTypes = setOf(cn("TriggerScalingProbe").expression),
+            setupComponents = setOf(cn("TriggerScalingProbe").expression),
         )
     val game = Engine.newGame(premise)
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }

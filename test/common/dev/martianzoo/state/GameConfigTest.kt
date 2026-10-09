@@ -16,7 +16,8 @@ internal class GameConfigTest {
             """
             TerraformingMars, TharsisMap
 
-            VenusNextExpansion, 4 StartingOption, -WorldGovernmentRule
+            VenusNextExpansion, 2 SelectableCorporationCount, -1 SelectablePreludeCount,
+            -WorldGovernmentRule
             """
                 .trimIndent(),
             "Player1",
@@ -29,11 +30,12 @@ internal class GameConfigTest {
         cn("VenusNextExpansion"),
     )
     config.excludedClassNames.shouldContainExactly(cn("WorldGovernmentRule"))
-    config.componentCounts shouldBe mapOf(cn("StartingOption") to 4)
+    config.componentAdjustments shouldBe
+        mapOf(cn("SelectableCorporationCount") to 2, cn("SelectablePreludeCount") to -1)
     config.playerNames.shouldContainExactly(cn("Player1"), cn("Player2"))
     config.toString() shouldBe
-        "TerraformingMars, TharsisMap, VenusNextExpansion, 4 StartingOption, " +
-            "-WorldGovernmentRule"
+        "TerraformingMars, TharsisMap, VenusNextExpansion, 2 SelectableCorporationCount, " +
+            "-1 SelectablePreludeCount, -WorldGovernmentRule"
     GameConfig(config.toString(), "Player1", "Player2") shouldBe config
   }
 
@@ -59,12 +61,13 @@ internal class GameConfigTest {
     shouldThrow<InvalidGameConfigException> { GameConfig("TerraformingMars", "Blue", "Blue") }
     shouldThrow<InvalidGameConfigException> { GameConfig("TerraformingMars", "TerraformingMars") }
     shouldThrow<InvalidGameConfigException> { GameConfig("-TerraformingMars", "TerraformingMars") }
-    shouldThrow<InvalidGameConfigException> { GameConfig("StartingOption, 2 StartingOption") }
     shouldThrow<InvalidGameConfigException> {
-      GameConfig("2 StartingOption, 3 StartingOption")
+      GameConfig("SelectablePreludeCount, 2 SelectablePreludeCount")
     }
-    shouldThrow<InvalidGameConfigException> { GameConfig("0 StartingOption") }
-    shouldThrow<InvalidGameConfigException> { GameConfig("-2 StartingOption") }
+    shouldThrow<InvalidGameConfigException> {
+      GameConfig("2 SelectablePreludeCount, 3 SelectablePreludeCount")
+    }
+    shouldThrow<InvalidGameConfigException> { GameConfig("0 SelectablePreludeCount") }
     shouldThrow<InvalidGameConfigException> { GameConfig("-") }
     shouldThrow<InvalidGameConfigException> { GameConfig("Select<Class<ColonizerTrainingCamp>>") }
     shouldThrow<InvalidGameConfigException> { GameConfig("", "not a player") }

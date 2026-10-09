@@ -189,7 +189,7 @@ internal class PhantomTypeTest {
     val premise =
         canonicalPremise(
             catalog = TfmCatalog(Canon.withPlayers(2), probeCatalog),
-            initialComponentTypes = setOf(cn("PhantomEffectProbe").expression),
+            setupComponents = setOf(cn("PhantomEffectProbe").expression),
         )
 
     shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }

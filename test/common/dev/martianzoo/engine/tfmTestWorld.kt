@@ -17,7 +17,7 @@ internal fun canonicalPremise(
     vararg included: ClassName,
     players: Int = 2,
     catalog: TfmCatalog? = null,
-    initialComponentTypes: Set<Expression> = emptySet(),
+    setupComponents: Set<Expression> = emptySet(),
 ): GamePremise {
   val config =
       GameConfig.create(
@@ -25,14 +25,19 @@ internal fun canonicalPremise(
           playerNames = (1..players).map { cn("Player$it") },
       )
   val resolvedCatalog = (catalog ?: Canon).withPlayers(players)
-  val base = resolvedCatalog.gamePremise(config, initialComponentTypes)
-  if (catalog == null) return base
-  val extensionClassNames =
-      catalog.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className } -
-          Canon.explicitClassDeclarations.mapTo(hashSetOf()) { it.className }
-  return base.copy(
-      classSelections = base.classSelections + extensionClassNames.map(::ClassSelection),
-  )
+  val base = resolvedCatalog.gamePremise(config)
+  val selected =
+      if (catalog == null) base
+      else {
+        val extensionClassNames =
+            catalog.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className } -
+                Canon.explicitClassDeclarations.mapTo(hashSetOf()) { it.className }
+        base.copy(
+            classSelections = base.classSelections + extensionClassNames.map(::ClassSelection)
+        )
+      }
+  return if (setupComponents.isEmpty()) selected
+  else selected.withTestSetup(setupComponents.joinToString())
 }
 
 internal fun setUpGame(premise: GamePremise = canonicalPremise()): World =

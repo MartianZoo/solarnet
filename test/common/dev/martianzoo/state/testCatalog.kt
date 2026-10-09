@@ -27,9 +27,7 @@ internal fun testCatalog(
 /** Builds the game view of [catalog] whose premise selects exactly [selectedClassNames]. */
 internal fun gameView(catalog: Catalog, vararg selectedClassNames: String): ClassTable =
     GamePremise(
-            catalog,
-            emptySet(),
-            selectedClassNames.mapTo(linkedSetOf()) { ClassSelection(cn(it)) },
-            emptySet(),
+            catalog = catalog,
+            classSelections = selectedClassNames.mapTo(linkedSetOf()) { ClassSelection(cn(it)) },
         )
         .classTable

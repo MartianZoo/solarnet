@@ -9,7 +9,6 @@ import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
-import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
@@ -25,7 +24,6 @@ import dev.martianzoo.pets.types.PremiseClassTable
 public class GamePremiseBuilder(
     private val catalog: Catalog,
     config: GameConfig,
-    additionalInitialComponentTypes: Set<Expression> = emptySet(),
     additionalClassDeclarations: Set<ClassDeclaration> = emptySet(),
 ) {
   public val playerNames: List<ClassName> = config.playerNames
@@ -34,15 +32,13 @@ public class GamePremiseBuilder(
   public val explicitlyExcluded: Set<ClassName>
   public val included: MutableSet<ClassName>
   public val excluded: MutableSet<ClassName>
-  public val initialComponentTypes: MutableSet<Expression> =
-      additionalInitialComponentTypes.toMutableSet()
   public var bootstrapClassName: ClassName? = null
   /** Additional effects on the generated Premise, after its ordinary initialization effects. */
   public val initializationEffects: MutableList<Effect> = mutableListOf()
   public val moduleNames: Set<ClassName>
     get() = included.filterTo(linkedSetOf()) { it in catalog.modules }
 
-  private val componentCounts: Map<ClassName, Int>
+  private val componentAdjustments: Map<ClassName, Int>
   private val premiseClassDeclarations: Set<ClassDeclaration>
 
   init {
@@ -75,7 +71,7 @@ public class GamePremiseBuilder(
     configurationTable =
         PremiseClassTable(catalog.classTable, additionalClassDeclarations + playerDeclarations)
     premiseClassDeclarations = additionalClassDeclarations + playerDeclarations
-    componentCounts = resolveComponentCounts(config.componentCounts)
+    componentAdjustments = resolveComponentAdjustments(config.componentAdjustments)
     explicitlyIncluded =
         resolveConfigurationNames(config.includedClassNames) + configuredPlayerNames
     explicitlyExcluded = resolveConfigurationNames(config.excludedClassNames)
@@ -118,26 +114,26 @@ public class GamePremiseBuilder(
   /** Completes the exact selections and the ordinary Pets declaration that initializes them. */
   public fun build(): GamePremise {
     val modules = moduleNames
-    val individualSelections = linkedMapOf<ClassName, Boolean>()
-    (included - modules).forEach { individualSelections[it] = true }
-    (excluded - catalog.modules.keys).forEach { individualSelections[it] = false }
+    val resolvedSelections = linkedMapOf<ClassName, Boolean>()
+    catalog.modules.keys.forEach { resolvedSelections[it] = false }
+    included.forEach { resolvedSelections[it] = true }
+    excluded.forEach { resolvedSelections[it] = false }
     val premiseDeclaration =
-        if (modules.isEmpty() && componentCounts.isEmpty()) null
+        if (modules.isEmpty() && componentAdjustments.isEmpty() && initializationEffects.isEmpty())
+            null
         else
             generatedPremiseDeclaration(
                 modules.toList(),
                 playerNames,
-                initialComponentTypes,
-                componentCounts,
+                componentAdjustments,
             )
     return GamePremise(
         catalog = catalog,
-        modules = modules,
         classSelections =
-            individualSelections
+            resolvedSelections
                 .filterKeys { it !in playerNames }
                 .mapTo(linkedSetOf()) { (name, included) -> ClassSelection(name, included) },
-        initialComponentTypes = initialComponentTypes.toSet(),
+        componentAdjustments = componentAdjustments,
         playerNames = playerNames,
         bootstrapClassName = bootstrapClassName,
         premiseClassName = PREMISE_CLASS.takeIf { premiseDeclaration != null },
@@ -171,12 +167,14 @@ public class GamePremiseBuilder(
     return configuredName.takeIf { it in catalog.allClassNames }
   }
 
-  private fun resolveComponentCounts(requestedCounts: Map<ClassName, Int>): Map<ClassName, Int> =
-      requestedCounts.entries.associateTo(linkedMapOf()) { (requestedName, count) ->
+  private fun resolveComponentAdjustments(
+      requestedAdjustments: Map<ClassName, Int>
+  ): Map<ClassName, Int> =
+      requestedAdjustments.entries.associateTo(linkedMapOf()) { (requestedName, adjustment) ->
         val name =
             resolveConfigurationName(requestedName)
                 ?: throw InvalidGameConfigException(
-                    "unknown counted component class: $requestedName"
+                    "unknown setup adjustment class: $requestedName"
                 )
         val configuredClass = catalog.classTable.getClass(name)
         if (
@@ -186,17 +184,16 @@ public class GamePremiseBuilder(
                 requestedName in catalog.modules
         ) {
           throw InvalidGameConfigException(
-              "counted component class must be a concrete dependency-free non-Module System: $name"
+              "setup adjustment class must be a concrete dependency-free non-Module System: $name"
           )
         }
-        name to count
+        name to adjustment
       }
 
   private fun generatedPremiseDeclaration(
       moduleNames: List<ClassName>,
       playerNames: List<ClassName>,
-      initialComponentTypes: Set<Expression>,
-      componentCounts: Map<ClassName, Int>,
+      componentAdjustments: Map<ClassName, Int>,
   ): ClassDeclaration {
     require(PREMISE_CLASS !in catalog.allClassNames) {
       "$PREMISE_CLASS is reserved for the resolved game configuration"
@@ -206,11 +203,13 @@ public class GamePremiseBuilder(
       if (PLAYER in catalog.allClassNames && playerNames.isNotEmpty()) {
         add("This:: ${playerNames.joinToString(" THEN ")}")
       }
-      if (initialComponentTypes.isNotEmpty()) {
-        add("This:: ${initialComponentTypes.joinToString()}")
-      }
-      if (componentCounts.isNotEmpty()) {
-        add("This:: " + componentCounts.entries.joinToString { (name, count) -> "$count $name" })
+      if (componentAdjustments.isNotEmpty()) {
+        add(
+            "This:: " +
+                componentAdjustments.entries.joinToString { (name, adjustment) ->
+                  "$adjustment $name"
+                }
+        )
       }
     }
     return parseClasses(

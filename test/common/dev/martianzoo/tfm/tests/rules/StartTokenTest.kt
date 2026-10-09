@@ -75,8 +75,8 @@ internal class StartTokenTest {
 
     admin.assertCounts(
         1 to "StartToken<Player1>",
-        1 to "AfterMe<Player1, Player1>",
-        1 to "AfterMe",
+        0 to "AfterMe<Player1, Player1>",
+        0 to "AfterMe",
     )
   }
 

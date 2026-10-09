@@ -5,9 +5,9 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.ClassDeclaration
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class GamePremiseTest {
@@ -28,7 +28,7 @@ internal class GamePremiseTest {
       premise(catalog, playerNames = listOf(cn("Missing")))
     }
     shouldReject(catalog, playerNames = listOf(cn("Blue"), cn("Blue")))
-    shouldReject(catalog, modules = setOf(cn("Missing")))
+    shouldReject(catalog, selections = setOf(ClassSelection(cn("Missing"))))
     shouldReject(
         catalog,
         selections =
@@ -41,12 +41,12 @@ internal class GamePremiseTest {
         catalog,
         selections = setOf(ClassSelection(cn("Ordinary"), requirement = parse("Ordinary"))),
     )
-    shouldReject(catalog, selections = setOf(ClassSelection(cn("Missing"))))
-    shouldReject(catalog, selections = setOf(ClassSelection(cn("OptionalModule"))))
+    premise(catalog, selections = setOf(ClassSelection(cn("OptionalModule")))).modules shouldBe
+        setOf(cn("OptionalModule"))
   }
 
   @Test
-  internal fun rejectsInvalidInitialBootstrapAndPremiseClasses() {
+  internal fun rejectsInvalidBootstrapAndPremiseClasses() {
     val catalog =
         testCatalog(
             """
@@ -57,7 +57,6 @@ internal class GamePremiseTest {
                 .trimIndent()
         )
 
-    shouldReject(catalog, initialTypes = setOf(parse("Missing")))
     listOf(cn("Missing"), cn("Abstract"), cn("Dependent")).forEach { invalid ->
       shouldReject(catalog, premiseClassName = invalid)
       shouldReject(catalog, bootstrapClassName = invalid)
@@ -80,9 +79,7 @@ internal class GamePremiseTest {
 
   private fun shouldReject(
       catalog: Catalog,
-      modules: Set<ClassName> = emptySet(),
       selections: Set<ClassSelection> = emptySet(),
-      initialTypes: Set<Expression> = emptySet(),
       playerNames: List<ClassName> = emptyList(),
       bootstrapClassName: ClassName? = null,
       premiseClassName: ClassName? = null,
@@ -90,9 +87,7 @@ internal class GamePremiseTest {
     shouldThrow<InvalidGameConfigException> {
       premise(
           catalog,
-          modules,
           selections,
-          initialTypes,
           playerNames,
           bootstrapClassName,
           premiseClassName,
@@ -102,22 +97,18 @@ internal class GamePremiseTest {
 
   private fun premise(
       catalog: Catalog,
-      modules: Set<ClassName> = emptySet(),
       selections: Set<ClassSelection> = emptySet(),
-      initialTypes: Set<Expression> = emptySet(),
       playerNames: List<ClassName> = emptyList(),
       bootstrapClassName: ClassName? = null,
       premiseClassName: ClassName? = null,
       premiseDeclarations: Set<ClassDeclaration> = emptySet(),
   ): GamePremise =
       GamePremise(
-          catalog,
-          modules,
-          selections,
-          initialTypes,
-          playerNames,
-          bootstrapClassName,
-          premiseClassName,
-          premiseDeclarations,
+          catalog = catalog,
+          classSelections = selections,
+          playerNames = playerNames,
+          bootstrapClassName = bootstrapClassName,
+          premiseClassName = premiseClassName,
+          premiseClassDeclarations = premiseDeclarations,
       )
 }

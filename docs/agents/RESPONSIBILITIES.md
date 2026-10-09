@@ -112,15 +112,17 @@ Player Classes. Construct `Catalog(first, second)` to combine generic contributi
 `TfmCatalog(first, second)` to apply Terraforming Mars policies to the combined declarations.
 
 [`GamePremiseBuilder`](../../src/common/dev/martianzoo/state/GamePremiseBuilder.kt) resolves explicit
-configuration names, counted setup Components, premise-local Player declarations, and convergent
-Module defaults. A game-specific Catalog can adjust its content selections and initial Components
-before `build()` creates the exact `GamePremise` and its ordinary Pets initialization declaration.
-This working configuration never replaces or recompiles the Catalog's master table.
+signed Class names, additive setup-component adjustments, premise-local Player declarations, and
+convergent Module defaults. The finished `GamePremise` stores Modules and individual Content in the
+same Class-selection set. A game-specific Catalog can adjust content selections and setup effects
+before `build()` creates its ordinary Pets initialization declaration. This working configuration
+never replaces or recompiles the Catalog's master table.
 
 `TfmCatalog` owns card validation and action lowering, bundle provenance, card/map/colony registries,
-expansion compatibility, milestone and award pools, seat-order Components, and the Terraforming Mars
-bootstrap signals. Its Module registry is derived from the assembled declarations and bundle content;
-bundles need not compile independently. Generic Catalog composition combines explicit Module maps.
+expansion compatibility, milestone and award pools, and the Terraforming Mars bootstrap signals.
+Player effects create seat-order Components. Its Module registry is derived from the assembled
+declarations and bundle content; bundles need not compile independently. Generic Catalog composition
+combines explicit Module maps.
 
 Generic assembly and configuration tests live in `:state`; generic setup execution is covered in
 `:engine`. Terraforming Mars content selection and full-game scenarios remain in their domain suites.
