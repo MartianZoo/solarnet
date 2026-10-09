@@ -1,7 +1,6 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.PetElaborator
-import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
@@ -10,6 +9,7 @@ import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
 import dev.martianzoo.pets.api.SystemClasses.THIS
+import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.Metric
@@ -130,6 +130,7 @@ public object Engine {
         )
       }
       recordingPositions.record(timeline.checkpoint().ordinal)
+      requireSignedSelectionsMatchClassComponents()
       return world
     }
 
@@ -138,7 +139,38 @@ public object Engine {
       positions.forEach { recordingPositions.record(it.ordinal) }
       timeline.commit()
       limiter.checkRequiredCounts = true
+      requireSignedSelectionsMatchClassComponents()
       return world
+    }
+
+    /** Every signed premise selection must agree with the live Class representatives. */
+    private fun requireSignedSelectionsMatchClassComponents() {
+      val present =
+          gameWorld.components.getAll(classTable.classClass.baseType, NoGameState).elements.mapTo(
+              linkedSetOf()
+          ) {
+            it.expression.arguments.single().className
+          }
+      val included =
+          premise.classSelections
+              .filter { it.included }
+              .filter { selection ->
+                classTable.getClass(selection.className).let { selectedClass ->
+                  !selectedClass.abstract && classTable.isInhabited(selectedClass)
+                }
+              }
+              .mapTo(linkedSetOf()) { it.className }
+      val excluded =
+          premise.classSelections.filterNot { it.included }.mapTo(linkedSetOf()) { it.className }
+      val missing = included - present
+      val unexpected = excluded.intersect(present)
+      check(missing.isEmpty() && unexpected.isEmpty()) {
+        buildString {
+          append("World Class components do not match its signed GamePremise selections")
+          if (missing.isNotEmpty()) append("; missing: ${missing.joinToString()}")
+          if (unexpected.isNotEmpty()) append("; unexpected: ${unexpected.joinToString()}")
+        }
+      }
     }
 
     /**
@@ -172,43 +204,11 @@ public object Engine {
       if (premise.modules.isNotEmpty() && premise.premiseClassName == null) {
         throw InvalidGameConfigException("a premise with modules must provide a premise class")
       }
-      premise.initialComponentTypes.forEach { expression ->
-        val type =
-            try {
-              classTable.resolve(expression)
-            } catch (e: ExpressionException) {
-              throw InvalidGameConfigException(
-                  "invalid initial component type `$expression`: ${e.detail}",
-                  e,
-                  e.sourceLocation ?: expression.sourceLocation,
-              )
-            }
-        if (
-            type.abstract ||
-                !classTable.isInhabited(type) ||
-                type.rootClass.declaration.customMetric
-        ) {
-          val reason =
-              when {
-                type.rootClass.declaration.customMetric ->
-                    "is a virtual custom metric; it cannot be stored as a component"
-                !classTable.isInhabited(type) ->
-                    "has no realizable concrete type in this game's selected classes"
-                else -> "is abstract; specify one concrete type"
-              }
-          throw InvalidGameConfigException(
-              "initial component type `$expression` $reason",
-              sourceLocation = expression.sourceLocation,
-          )
-        }
-      }
-
       val initiallyPresentClassNames =
           premise.modules +
               premise.playerNames +
               listOfNotNull(premise.bootstrapClassName, premise.premiseClassName) +
-              premise.classSelections.filter { it.included }.map { it.className } +
-              premise.initialComponentTypes.map { classTable.resolve(it).className }
+              premise.classSelections.filter { it.included }.map { it.className }
       val inhabitedConcreteClasses = classTable.allInhabitedConcreteClasses()
 
       fun countInhabitedClasses(count: Count): Int {

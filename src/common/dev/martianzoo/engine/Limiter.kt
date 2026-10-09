@@ -162,6 +162,23 @@ internal class Limiter(
         .singleOrNull()
   }
 
+  /** Narrows forced automatic work when current limits leave exactly one executable gain. */
+  internal fun singleAvailableConcreteGain(type: Type, info: TypeInfo): Type? =
+      classTable
+          .allConcreteSubtypes(type) { dependency ->
+            gameWorld.components.matchingTypes(dependency, info)
+          }
+          .filter { candidate ->
+            candidate.narrows(type, info) &&
+                findLimitWithDependenciesPresent(
+                    candidate.toComponent(),
+                    null,
+                    invariants = true,
+                ) >= 1
+          }
+          .take(2)
+          .singleOrNull()
+
   internal fun hasAvailableConcreteGain(
       type: Type,
       minimum: Int,

@@ -55,14 +55,12 @@ internal class GameWorldAtomicityTest {
     val premise =
         GamePremise(
             catalog = catalog,
-            modules = emptySet(),
             classSelections =
                 setOf(
                     ClassSelection(cn("Marker")),
                     ClassSelection(cn("Decision")),
                     ClassSelection(cn("Player")),
                 ),
-            initialComponentTypes = emptySet(),
         )
   }
 }

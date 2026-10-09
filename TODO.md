@@ -135,7 +135,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   the selected modules and configured components. Moving its effects to `SetupPhase` was tested and
   fails because bootstrap validation already requires the exact-one global-parameter rule systems.
   The smallest promising direction is to reverse premise/`BootstrapPhase` creation in `Initializer`,
-  then update its lifecycle tests and the bootstrap account in `ENGINE.md` and `WORKFLOW.md`.
+  then move its effects, including closing the `AfterMe` cycle, and update its lifecycle tests and
+  the bootstrap account in `ENGINE.md` and `WORKFLOW.md`.
 - Replace `FinalScoringPending` with a real `FinalScoringPhase`. Today `End` creates the temporary
   marker, `MeasureAward` depends on it, and marker removal assigns `Victory`; instead final-scoring
   effects should belong to the new phase, whose phase scope drains into terminal `End`, where victory

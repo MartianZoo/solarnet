@@ -210,7 +210,7 @@ private object CustomClassDeclarations : TfmCatalog() {
 private fun customClassSetup(): GamePremise =
     canonicalPremise(
         catalog = TfmCatalog(Canon.withPlayers(2), CustomClassDeclarations),
-        initialComponentTypes = setOf(cn("MetricTriggerObserver").expression),
+        setupComponents = setOf(cn("MetricTriggerObserver").expression),
     )
 
 private fun customClassGame(): World =

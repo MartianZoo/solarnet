@@ -10,7 +10,6 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
-import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
@@ -204,8 +203,9 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
   }
 
   /**
-   * Cooks user-facing Module and setup selections into an exact game premise by applying Catalog
-   * defaults and selection policies.
+   * Cooks user-facing signed Class selections and setup adjustments into an exact game premise by
+   * applying Catalog defaults and selection policies. Modules are Classes in the same selection
+   * set; their ambient-rule role determines how their closure is resolved.
    *
    * Structured inputs use canonical Class Names. Naming any milestones or awards selects the exact
    * configured pool for that category; an explicitly named milestone bypasses automatic pool
@@ -216,7 +216,6 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
    */
   override fun gamePremise(
       config: GameConfig,
-      additionalInitialComponentTypes: Set<Expression>,
       additionalClassDeclarations: Set<ClassDeclaration>,
   ): GamePremise {
     if (PLAYER in allClassNames && config.playerNames.isEmpty()) {
@@ -228,7 +227,6 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
         GamePremiseBuilder(
             this,
             config,
-            additionalInitialComponentTypes,
             additionalClassDeclarations,
         )
     val explicitlyIncluded = builder.explicitlyIncluded
@@ -315,19 +313,10 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
     if (individualNames.intersect(colonyTileClassNames).any { it !in selectedByModules }) {
       throw InvalidGameConfigException("selected ColonyTiles must be provided by a selected Module")
     }
-    val initialTypes =
-        individualNames
-            .filter { it in colonyTileClassNames }
-            .mapTo(builder.initialComponentTypes) {
-              SELECTED_COLONY_TILE.of(it.classExpression())
-            }
-    config.playerNames.firstOrNull()?.let { firstPlayer ->
-      initialTypes.add(TfmClasses.START_TOKEN.of(firstPlayer.expression))
-      config.playerNames.zip(config.playerNames.drop(1) + firstPlayer).mapTo(initialTypes) {
-          (player, nextPlayer) ->
-        TfmClasses.AFTER_ME.of(player.expression, nextPlayer.expression)
-      }
-    }
+    individualNames
+        .filter { it in colonyTileClassNames }
+        .map { cn("${it}Selected") }
+        .forEach { selected -> builder.initializationEffects.add(parse("This:: $selected")) }
     builder.bootstrapClassName = BOOTSTRAP_PHASE.takeIf {
       moduleNames.isNotEmpty() && it in allClassNames
     }
@@ -616,7 +605,6 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
     private val TAG_CLASS = cn("Tag")
     private val COLONY_TILE = cn("ColonyTile")
     private val COLONY_TILE_SELECTION = cn("ColonyTileSelection")
-    private val SELECTED_COLONY_TILE = cn("SelectedColonyTile")
     private val MULTIPLAYER_ONLY: Requirement = parse("MultiplayerMode")
   }
 }

@@ -38,7 +38,7 @@ internal class CatalogCompositionTest {
   }
 
   @Test
-  internal fun initialComponentCreationWaitsForDependencies() {
+  internal fun premiseSetupWaitsForDependencies() {
     val extension =
         object : TfmCatalog() {
           override val explicitClassDeclarations =
@@ -56,7 +56,7 @@ internal class CatalogCompositionTest {
     val premise =
         canonicalPremise(
             catalog = catalog,
-            initialComponentTypes =
+            setupComponents =
                 setOf(
                     cn("BootstrapDependency").expression,
                     parse<Expression>("DependentBootstrap"),
@@ -69,7 +69,7 @@ internal class CatalogCompositionTest {
   }
 
   @Test
-  internal fun generatedInitialComponentReportsMissingDependency() {
+  internal fun premiseSetupReportsMissingDependency() {
     val extension =
         object : TfmCatalog() {
           override val explicitClassDeclarations =
@@ -89,7 +89,7 @@ internal class CatalogCompositionTest {
     val premise =
         canonicalPremise(
             catalog = catalog,
-            initialComponentTypes = setOf(parse<Expression>("BlockedBootstrap")),
+            setupComponents = setOf(parse<Expression>("BlockedBootstrap")),
         )
     val failure = shouldThrow<InvalidGameConfigException> { TfmEngine.newGame(premise) }
 

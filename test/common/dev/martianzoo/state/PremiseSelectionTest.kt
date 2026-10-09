@@ -134,7 +134,11 @@ internal class PremiseSelectionTest {
                     cn("Other") to emptySet(),
                 ),
         )
-    val premise = GamePremise(catalog, setOf(cn("Requested")), emptySet(), emptySet())
+    val premise =
+        GamePremise(
+            catalog = catalog,
+            classSelections = setOf(ClassSelection(cn("Requested"))),
+        )
 
     shouldThrow<InvalidGameConfigException> { premise.classTable }
   }
@@ -144,13 +148,12 @@ internal class PremiseSelectionTest {
     val catalog = testCatalog("CLASS Selected<Excluded>\nCLASS Excluded")
     val premise =
         GamePremise(
-            catalog,
-            emptySet(),
-            setOf(
-                ClassSelection(cn("Selected")),
-                ClassSelection(cn("Excluded"), included = false),
-            ),
-            emptySet(),
+            catalog = catalog,
+            classSelections =
+                setOf(
+                    ClassSelection(cn("Selected")),
+                    ClassSelection(cn("Excluded"), included = false),
+                ),
         )
 
     shouldThrow<InvalidGameConfigException> { premise.classTable }
@@ -174,7 +177,11 @@ internal class PremiseSelectionTest {
                         setOf(ClassSelection(cn("Conditional"), requirement = parse("Flag")))
                 ),
         )
-    val premise = GamePremise(catalog, setOf(cn("Requested")), emptySet(), emptySet())
+    val premise =
+        GamePremise(
+            catalog = catalog,
+            classSelections = setOf(ClassSelection(cn("Requested"))),
+        )
 
     shouldThrow<InvalidGameConfigException> { premise.classTable }
   }
@@ -300,10 +307,13 @@ internal class PremiseSelectionTest {
         )
     val premise =
         GamePremise(
-            catalog,
-            setOf(cn("SelectedModule")),
-            setOf(ClassSelection(cn("Ordinary")), ClassSelection(cn("Source"))),
-            emptySet(),
+            catalog = catalog,
+            classSelections =
+                setOf(
+                    ClassSelection(cn("SelectedModule")),
+                    ClassSelection(cn("Ordinary")),
+                    ClassSelection(cn("Source")),
+                ),
         )
 
     val table = premise.classTable

@@ -12,6 +12,22 @@ import kotlin.test.Test
 
 internal class CatalogSetupTest {
   @Test
+  internal fun signedSelectionsMatchReturnedClassComponents() {
+    val catalog =
+        object : Catalog() {
+          override val explicitClassDeclarations =
+              parseClasses("CLASS A\nCLASS B\nCLASS C\nCLASS D").toSet()
+        }
+
+    val game = Engine.newGame(catalog.gamePremise(GameConfig("A, B, -C, D")))
+
+    game.reader.count(parse<Metric>("Class<A>")) shouldBe 1
+    game.reader.count(parse<Metric>("Class<B>")) shouldBe 1
+    game.reader.count(parse<Metric>("Class<C>")) shouldBe 0
+    game.reader.count(parse<Metric>("Class<D>")) shouldBe 1
+  }
+
+  @Test
   internal fun genericCatalogInitializesRulesNamedPlayersAndCountedComponents() {
     val catalog =
         object : Catalog() {
@@ -30,10 +46,9 @@ internal class CatalogSetupTest {
           override val modules = mapOf(cn("Rules") to emptySet<ClassSelection>())
         }
     val premise =
-        catalog.gamePremise(
-            GameConfig("Rules, 3 Supply", "Blue", "Red"),
-            additionalInitialComponentTypes = setOf(parse("Token<Blue>")),
-        )
+        catalog
+            .gamePremise(GameConfig("Rules, 3 Supply", "Blue", "Red"))
+            .withTestSetup("Token<Blue>")
 
     val game = Engine.newGame(premise)
     game.reader.count(parse<Metric>("Rules")) shouldBe 1

@@ -215,6 +215,34 @@ internal class TfmWorkflowTest {
   }
 
   @Test
+  internal fun startingCardCountsAreAdditiveAdjustments() {
+    val game =
+        TfmEngine.newGame(
+            Canon.gamePremise(
+                GameConfig(
+                    "PreludeExpansion, 1 SelectableCorporationCount, -1 SelectablePreludeCount",
+                    "Player1",
+                    "Player2",
+                )
+            )
+        )
+    val players = listOf(game.testTfm(PLAYER1), game.testTfm(PLAYER2))
+    players.forEach { it.autoExecPolicy = NONE }
+
+    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    players.forEach { player ->
+      player.doTask("NonBeginnerMode")
+      player.doTask("3 CorporationCard")
+      player.doTask("3 PreludeCard")
+      player.doTask("10 ProjectCard<Selecting>")
+      player.doTask("-2 CorporationCard")
+      player.doTask("-10 ProjectCard<Selecting>")
+      player.doTask("-PreludeCard")
+      player.assertCounts(1 to "CorporationCard", 2 to "PreludeCard")
+    }
+  }
+
+  @Test
   internal fun researchMakesEveryPlayerQueueAvailableTogether() {
     val game = TfmEngine.newGame(canonicalPremise(players = 2))
     val agents = game.testAgents()

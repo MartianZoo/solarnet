@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.engine.World
+import dev.martianzoo.engine.withTestSetup
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
@@ -66,7 +67,7 @@ internal fun canonicalPremise(
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
     catalog: TfmCatalog? = null,
-    initialComponentTypes: Set<Expression> = emptySet(),
+    setupComponents: Set<Expression> = emptySet(),
     additionalClassDeclarations: Set<ClassDeclaration> = emptySet(),
 ): GamePremise {
   val included = selectedOptions.filterIsInstance<TestOption>()
@@ -77,7 +78,7 @@ internal fun canonicalPremise(
       colonyTiles,
       catalog,
       excluded,
-      initialComponentTypes,
+      setupComponents,
       additionalClassDeclarations,
   )
 }
@@ -88,7 +89,7 @@ internal fun canonicalPremise(
     colonyTiles: Set<ClassName> = emptySet(),
     catalog: TfmCatalog? = null,
     excludedOptions: Set<TestOption> = emptySet(),
-    initialComponentTypes: Set<Expression> = emptySet(),
+    setupComponents: Set<Expression> = emptySet(),
     additionalClassDeclarations: Set<ClassDeclaration> = emptySet(),
 ): GamePremise {
   val config =
@@ -99,20 +100,20 @@ internal fun canonicalPremise(
       )
   val defaultCatalog = canonicalCatalog(config)
   val resolvedCatalog = catalog ?: defaultCatalog
-  val base =
-      resolvedCatalog.gamePremise(
-          config,
-          initialComponentTypes,
-          additionalClassDeclarations,
-      )
-  if (catalog == null) return base
-  val extensionClassNames =
-      (catalog.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className } -
-          defaultCatalog.explicitClassDeclarations.mapTo(hashSetOf()) { it.className }) +
-          additionalClassDeclarations.map(ClassDeclaration::className)
-  return base.copy(
-      classSelections = base.classSelections + extensionClassNames.map { ClassSelection(it) },
-  )
+  val base = resolvedCatalog.gamePremise(config, additionalClassDeclarations)
+  val selected =
+      if (catalog == null) base
+      else {
+        val extensionClassNames =
+            (catalog.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className } -
+                defaultCatalog.explicitClassDeclarations.mapTo(hashSetOf()) { it.className }) +
+                additionalClassDeclarations.map(ClassDeclaration::className)
+        base.copy(
+            classSelections = base.classSelections + extensionClassNames.map { ClassSelection(it) }
+        )
+      }
+  return if (setupComponents.isEmpty()) selected
+  else selected.withTestSetup(setupComponents.joinToString())
 }
 
 internal fun canonicalCatalog(config: GameConfig): TfmCatalog =

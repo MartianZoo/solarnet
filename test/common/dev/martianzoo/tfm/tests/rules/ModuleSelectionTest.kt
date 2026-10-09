@@ -433,7 +433,6 @@ internal class ModuleSelectionTest {
   private fun GamePremise.shouldHaveSameSelectionAs(expected: GamePremise) {
     modules shouldBe expected.modules
     classSelections shouldBe expected.classSelections
-    initialComponentTypes shouldBe expected.initialComponentTypes
     playerNames shouldBe expected.playerNames
   }
 

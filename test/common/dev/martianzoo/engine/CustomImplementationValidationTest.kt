@@ -95,7 +95,7 @@ internal class CustomImplementationValidationTest {
         object : Catalog() {
           override val explicitClassDeclarations: Set<ClassDeclaration> = declarations
         }
-    return GamePremise(catalog, emptySet(), emptySet(), emptySet())
+    return GamePremise(catalog, emptySet())
   }
 
   private fun metric(name: String): CustomMetric =

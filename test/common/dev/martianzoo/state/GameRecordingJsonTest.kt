@@ -11,6 +11,16 @@ import kotlin.test.Test
 
 internal class GameRecordingJsonTest {
   @Test
+  internal fun recordingPreservesSetupAdjustments() {
+    val catalog = testCatalog("CLASS Supply : System")
+    val premise = catalog.gamePremise(GameConfig("2 Supply"))
+    val recording = GameRecording(premise, emptyList(), listOf(Checkpoint(0)))
+
+    GameRecordingJson.parse(GameRecordingJson.encode(recording)).config shouldBe
+        GameConfig("2 Supply")
+  }
+
+  @Test
   internal fun recordingRoundTripsAndOpensIndependentViews() {
     val premise =
         testGamePremise("CLASS Token\nCLASS Marker")

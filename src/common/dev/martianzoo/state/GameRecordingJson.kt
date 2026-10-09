@@ -20,11 +20,12 @@ public object GameRecordingJson {
   public fun encode(recording: GameRecording): String {
     val premise = recording.premise
     val selectedClasses = buildList {
-      premise.modules.mapTo(this) { it.toString() }
-      (premise.catalog.modules.keys - premise.modules).mapTo(this) { "-$it" }
       premise.classSelections.mapTo(this) { selection ->
         if (selection.included) selection.className.toString() else "-${selection.className}"
       }
+      val recordedNames = premise.classSelections.mapTo(hashSetOf(), ClassSelection::className)
+      (premise.catalog.modules.keys - recordedNames).mapTo(this) { "-$it" }
+      premise.componentAdjustments.mapTo(this) { (name, adjustment) -> "$adjustment $name" }
     }
         .sorted()
     return encodeJson(
