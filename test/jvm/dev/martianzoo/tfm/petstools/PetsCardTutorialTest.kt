@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.tools
+package dev.martianzoo.tfm.petstools
 
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName

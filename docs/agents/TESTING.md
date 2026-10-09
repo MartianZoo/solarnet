@@ -69,7 +69,7 @@ only when the change crosses a wider scope or the narrower result leaves a mater
 - `./gradlew :pets:jvmTestCoverage` runs only the Pets module's JVM test suite and writes HTML and
   XML coverage reports for Pets production code under that module's
   `reports/jacoco/jvmTestCoverage` build directory.
-- `./gradlew :tfm-tests:sampleRandomCards` prints randomly generated project cards as raw Pets.
+- `./gradlew :pets-tools:sampleRandomCards` prints randomly generated project cards as raw Pets.
   Use `-PrandomCardCount=N` and `-PrandomCardSeed=N` to control and reproduce a sample, and add
   `-PrandomCardOutput=PATH` to write it to a text file. Its weights favor nested selectors,
   refinements, sequences, gates, and per-unit metrics so the raw Pets can exercise downstream

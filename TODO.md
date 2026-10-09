@@ -79,6 +79,7 @@ These concerns remain open; the ranking does not select replacement designs.
   callers should continue receiving changes without polling.
 - When preparing the [PETS repository draft](docs/pets-repo-draft.md) for publication, decide
   whether to include Sponsored Academies, currently retained as a draft note after the gallery.
+- After the repository split, rename `:pets-tools` to `:tools` in the Pets repository.
 - Add scenario saving and reloading to [Mars Playground](PLAYGROUND.md) after the initial version.
 - Add shareable URLs for [Mars Playground](PLAYGROUND.md#technology-and-experience) later. First
   decide what restoring the same view includes: scenario, history position, camera, and windows.

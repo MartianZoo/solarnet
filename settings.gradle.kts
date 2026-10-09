@@ -32,6 +32,7 @@ val modules =
         "tfm-fake",
         "web",
         "almanac",
+        "pets-tools",
         "viewer",
         "tools",
         "codegen",

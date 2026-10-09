@@ -12,7 +12,7 @@
 
 ## Source map
 
-- [`StandardResourceMonotonicityReport.kt`](../../src/jvm/dev/martianzoo/tfm/tools/StandardResourceMonotonicityReport.kt)
+- [`StandardResourceMonotonicityReport.kt`](../../src/jvm/dev/martianzoo/tfm/petstools/StandardResourceMonotonicityReport.kt)
   — search for `fun main` to inspect the implemented catalog report.
 - [`SoloGenerationCountdownTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/SoloGenerationCountdownTest.kt)
   — read only when a proposed optimization depends on committed TR63 timing.
@@ -92,7 +92,7 @@ that is always useless or harmful, the attainable optimum does not fall: the opt
 need that move. Likewise, a hazardous class that can never exist cannot affect the current game.
 
 The initial conservative catalog scan is implemented by
-`./gradlew :tools:standardResourceMonotonicityReport`. Its default scope is one valid TR63 solo
+`./gradlew :pets-tools:standardResourceMonotonicityReport`. Its default scope is one valid TR63 solo
 premise containing every compatible supported expansion. It treats each standard-resource stock
 and its production rate as separate quantities. The scan reports upper-bound and exact
 requirements with their rule locations, count-scaled instructions, AMAP transmutations into a

@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.tools
+package dev.martianzoo.tfm.petstools
 
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.pets.Parsing.parseClasses

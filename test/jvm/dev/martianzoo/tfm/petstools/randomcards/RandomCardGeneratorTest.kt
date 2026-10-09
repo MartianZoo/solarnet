@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.tools.randomcards
+package dev.martianzoo.tfm.petstools.randomcards
 
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction

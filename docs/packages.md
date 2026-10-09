@@ -113,8 +113,14 @@ An engine-free browser viewer that discovers generated replay-test recordings an
 event-log timelines through passive state playback. The REPL and viewer use assets owned by
 `dev/martianzoo/tfm/web/shared`.
 
+## module PETS-TOOLS
+
+### dev.martianzoo.tfm.petstools
+
+Standalone tools for generating and analyzing Pets and Canon data.
+
 ## module TOOLS
 
 ### dev.martianzoo.tfm.tools
 
-Standalone command-line tools built from Solarnet's data.
+Standalone tools that inspect live games, recordings, or repository code.
