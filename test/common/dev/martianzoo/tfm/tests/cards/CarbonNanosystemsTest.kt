@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
-internal class CarbonNanosystemsTest : ProjectCardTest() {
+internal class CarbonNanosystemsTest : TfmSandboxTest() {
   @Test
   internal fun `Its graphene payment resource works without the Promo card pack`() {
     newTestGame(addOptions = "-PromoCardPack, CarbonNanosystems")

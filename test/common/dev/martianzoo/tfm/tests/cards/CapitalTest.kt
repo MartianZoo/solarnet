@@ -1,11 +1,12 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class CapitalTest : ProjectCardTest() {
+internal class CapitalTest : TfmSandboxTest() {
   @Test
   internal fun `Scores adjacent oceans but not distant oceans`() {
     newTestGame()

@@ -3,11 +3,12 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.Flooding
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class FloodingTest : ProjectCardTest() {
+internal class FloodingTest : TfmSandboxTest() {
   @Test
   internal fun `Can choose between neighboring owners`() {
     arrangeFlooding()

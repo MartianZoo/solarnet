@@ -1,11 +1,12 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class RequirementAdjustmentCardsTest : ProjectCardTest() {
+internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   @Test
   internal fun `Uses the printed requirement when no adjustment is needed`() {
     newTestGame(kimCorporation = Inventrix)
@@ -103,6 +104,7 @@ internal class RequirementAdjustmentCardsTest : ProjectCardTest() {
   @Test
   internal fun `Keeps Special Design when a Prelude intervenes before the next project`() {
     newTestGame(addOptions = "PreludeExpansion, Prelude2CardPack")
+    startActionPhase()
     kim.exMachina("$BoardOfDirectors, Director<$BoardOfDirectors>, $AdaptationTechnology")
     kim.setToExMachina(13, "TemperatureStep")
     kim.playProject(SpecialDesign, 4)

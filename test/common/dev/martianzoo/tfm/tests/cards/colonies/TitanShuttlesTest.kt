@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.tests.cards.ProjectCardTest
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.TitanShuttles
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class TitanShuttlesTest : ProjectCardTest() {
+internal class TitanShuttlesTest : TfmSandboxTest() {
   @Test
   internal fun `Can convert floaters without Colonies or Venus Next`() {
     newTestGame(addOptions = "-ColoniesExpansion, -VenusNextExpansion, TitanShuttles")

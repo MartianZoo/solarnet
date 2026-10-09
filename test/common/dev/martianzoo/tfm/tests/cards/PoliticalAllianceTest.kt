@@ -2,11 +2,12 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.PoliticalAlliance
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class PoliticalAllianceTest : ProjectCardTest() {
+internal class PoliticalAllianceTest : TfmSandboxTest() {
   @Test
   internal fun `Cannot be played without Turmoil`() {
     newTestGame()

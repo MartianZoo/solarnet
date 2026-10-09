@@ -1,11 +1,12 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.GameplayException
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class MiningRightsTest : ProjectCardTest() {
+internal class MiningRightsTest : TfmSandboxTest() {
   @Test
   internal fun `Robotic Workforce re-evaluates its production box instead of remembering steel`() {
     // Resolved FAQ: copying allows any originally available metal, regardless of the first choice.

@@ -3,11 +3,12 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.ArtificialLake
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class ArtificialLakeTest : ProjectCardTest() {
+internal class ArtificialLakeTest : TfmSandboxTest() {
   @Test
   internal fun `Cannot be played on a full land board while the ocean track is incomplete`() {
     newTestGame()

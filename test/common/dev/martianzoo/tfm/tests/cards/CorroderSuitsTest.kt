@@ -1,13 +1,14 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.CorroderSuits
 import dev.martianzoo.tfm.tests.cards.cardnames.VenusianAnimals
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class CorroderSuitsTest : ProjectCardTest() {
+internal class CorroderSuitsTest : TfmSandboxTest() {
   @BeforeTest fun setUp() = newTestGame()
 
   @Test

@@ -1,10 +1,11 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class CommercialDistrictTest : ProjectCardTest() {
+internal class CommercialDistrictTest : TfmSandboxTest() {
   @Test
   internal fun `Scores neighboring cities including those added after placement`() {
     newTestGame()

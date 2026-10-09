@@ -7,10 +7,30 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 private val rulingBonusProbeDeclarations =
-    parseClasses("CLASS RulingBonusProbe : TagHolder { HAS MAX 1 This }").toSet()
+    parseClasses(
+            """
+        CLASS RulingBonusProbe : TagHolder { HAS MAX 1 This }
+        CLASS TrAttributionProbe : Owned<Player> {
+          TerraformRating BY Admin:: Plant
+          TerraformRating BY Me@Player:: Heat
+        }
+        """
+        )
+        .toSet()
 
 internal class TurmoilGovernmentTest :
     CardTest(additionalClassDeclarations = rulingBonusProbeDeclarations) {
+  @Test
+  internal fun `Chairman TR retains Admin attribution`() {
+    newGame(TurmoilExpansion)
+    p1.runOperation("TrAttributionProbe, 2 PartyDelegate<Scientists>")
+    admin.phase("Solar")
+
+    admin
+        .runOperation("FormGovernment")
+        .expect("TerraformRating<Player1>, Plant<Player1>, 0 Heat<Player1>")
+  }
+
   @Test
   internal fun `party requirement counts either ruling or two of the player's delegates`() {
     newGame(TurmoilExpansion)

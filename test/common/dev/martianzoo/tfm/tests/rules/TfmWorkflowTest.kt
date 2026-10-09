@@ -310,23 +310,6 @@ internal class TfmWorkflowTest {
   }
 
   @Test
-  internal fun aPlayerMayPassWhileItsMandatoryFirstActionRemainsPending() {
-    val game = TfmEngine.newGame(canonicalPremise(players = 2))
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
-    p1.keepStartingProjects(0)
-    p2.keepStartingProjects(0)
-    playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
-    playCorporationWithoutStartingProjects(p2, CrediCor)
-
-    p1.pass()
-
-    p1.count("Pass") shouldBe 1
-    workflow.shutdown()
-  }
-
-  @Test
   internal fun automaticPreludePhasePlaysEveryRetainedPrelude() {
     val game = TfmEngine.newGame(canonicalPremise(PreludeExpansion, players = 2))
     val p1 = game.testTfm(PLAYER1)

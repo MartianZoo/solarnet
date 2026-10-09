@@ -5,11 +5,12 @@ import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class MarsNomadsTest : ProjectCardTest() {
+internal class MarsNomadsTest : TfmSandboxTest() {
   @Test
   internal fun `Places its initial marker without collecting a placement bonus`() {
     newTestGame()

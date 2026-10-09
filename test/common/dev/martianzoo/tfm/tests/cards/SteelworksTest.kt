@@ -1,10 +1,11 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class SteelworksTest : ProjectCardTest() {
+internal class SteelworksTest : TfmSandboxTest() {
   @BeforeTest fun setUp() = newTestGame()
 
   // FAQ: "used even after the oxygen has been maxed out"
