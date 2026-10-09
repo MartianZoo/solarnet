@@ -323,14 +323,14 @@ express the scenarios in the class. It starts each test at generation 1 Action p
   20 TR, and production of 1 for each standard resource.
 
 Kim is the player exercising the subject card unless the card's behavior requires another actor.
-The fixture caches its immutable `GamePremise` for each option set, not a mutable game. Every test
-constructs a fresh `World` and performs the real setup and corporation workflows before entering
-Action phase. The base class does not create that game automatically. A uniform class declares its
-own `@BeforeTest` method that calls `newTestGame()`. A class whose methods need different compatible
-selections calls `newTestGame()` explicitly in each method, passing a configuration fragment such as
-`addOptions = "CimmeriaMap"` where needed. Do not share or roll back a live World between tests. The
-fixture leaves the default autoexecution policy untouched: it selects Beginner mode and distinct
-beginner corporations, while forced setup effects autoexecute normally.
+The fixture prepares and caches an Action-phase `World` for each option set, then gives every test
+an independent `Engine.fork` of that prepared position. The cached World is never exposed or
+mutated after preparation. The base class does not create a fork automatically. A uniform class
+declares its own `@BeforeTest` method that calls `newTestGame()`. A class whose methods need different
+compatible selections calls `newTestGame()` explicitly in each method, passing a configuration
+fragment such as `addOptions = "CimmeriaMap"` where needed. Do not share or roll back a live World
+between tests. The fixture leaves the default autoexecution policy untouched: it selects Beginner
+mode and distinct beginner corporations, while forced setup effects autoexecute normally.
 
 Treat every pre-migration test as a fallible historical artifact, not as a specification of its
 setup. Existing options, cards, resource grants, card plays, phase changes, autoexecution policies,

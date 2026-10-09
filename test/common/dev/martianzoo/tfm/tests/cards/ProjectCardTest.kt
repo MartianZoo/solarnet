@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.exMachina
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.engine.World
 import dev.martianzoo.state.GameConfig
-import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay
@@ -21,12 +21,18 @@ internal abstract class ProjectCardTest : TfmTest() {
     private set
 
   protected fun newTestGame(addOptions: String = "") {
-    game = Engine.newGame(premise(addOptions))
+    game = Engine.fork(preparedWorld(addOptions))
+    bindPlayers()
+  }
+
+  private fun preparedWorld(addOptions: String): World =
+      preparedWorlds.getOrPut(addOptions) { prepareWorld(addOptions) }
+
+  private fun prepareWorld(addOptions: String): World {
+    val options = listOf(BASE_GAME_OPTIONS, addOptions).filter(String::isNotBlank).joinToString()
+    game = Engine.newGame(Canon.gamePremise(GameConfig(options, "Kim", "Stan", "Rob")))
     val workflow = TfmWorkflow.Stepwise(agents)
-    val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
-    kim = players[0]
-    stan = players[1]
-    rob = players[2]
+    val players = bindPlayers()
 
     workflow.setupPhase()
     players.forEach { it.doTask("BeginnerMode") }
@@ -39,6 +45,15 @@ internal abstract class ProjectCardTest : TfmTest() {
     }
 
     workflow.actionPhase()
+    return game
+  }
+
+  private fun bindPlayers(): List<TfmGameplay> {
+    val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
+    kim = players[0]
+    stan = players[1]
+    rob = players[2]
+    return players
   }
 
   protected fun TfmGameplay.setToExMachina(targetCount: Int, type: String) {
@@ -56,15 +71,7 @@ internal abstract class ProjectCardTest : TfmTest() {
         "CorporateEraExpansion, VenusNextExpansion, ColoniesExpansion, " +
             "PromoCardPack, BeginnerVariant, QuickStartVariant"
 
-    private val premises = mutableMapOf<String, GamePremise>()
-
-    private fun premise(addOptions: String): GamePremise {
-      return premises.getOrPut(addOptions) {
-        val options =
-            listOf(BASE_GAME_OPTIONS, addOptions).filter(String::isNotBlank).joinToString()
-        Canon.gamePremise(GameConfig(options, "Kim", "Stan", "Rob"))
-      }
-    }
+    private val preparedWorlds = mutableMapOf<String, World>()
 
     private val BEGINNER_CORPORATIONS =
         listOf("BeginnerCorporation1", "BeginnerCorporation2", "BeginnerCorporation3")
