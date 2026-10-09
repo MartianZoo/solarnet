@@ -274,10 +274,7 @@ internal class DeadEndsTest : CardTest() {
     var hazardousChoiceAttempted = false
     shouldThrow<DeadEndException> {
       p1.runOperation("$L1TradeTerminal") {
-        doTasks(
-            "L1GiftWatcher",
-            "EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }",
-        )
+        doTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         addCardResources(FloatingHabs)
         addCardResources(VenusianInsects)
         hazardousChoiceAttempted = true
@@ -294,10 +291,7 @@ internal class DeadEndsTest : CardTest() {
     p1.count("Floater<$AerialMappers>") shouldBe 1
 
     p1.runOperation("$L1TradeTerminal") {
-          doTasks(
-              "L1GiftWatcher",
-              "EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }",
-          )
+          doTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
           addCardResources(FloatingHabs)
           addCardResources(VenusianInsects)
           addCardResources(AerialMappers)

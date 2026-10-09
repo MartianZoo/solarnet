@@ -553,6 +553,29 @@ internal class Prelude2CardsTest : CardTest() {
   }
 
   @Test
+  internal fun `Suitable Infrastructure installs its bonus while player autoexec is off`() {
+    newGame(PreludeExpansion, Prelude2CardPack)
+    p1.runOperation("$SuitableInfrastructure, 11 MC")
+    admin.phase("Action")
+    p1.autoExecPolicy = NONE
+
+    p1.runOperation("NewTurn") {
+      doTask("UseAction<UseStandardProjectAction, Action1>")
+      doTask("UseAction<PowerPlantProject, Action1>")
+      doTask("11 Owed<Class<MC>>")
+      doTask("ActionBilling<>")
+      doTask("-11 MC")
+      doTask("PROD[Energy]")
+      doTask("-SuitableInfrastructureBonus")
+      doTask("2 MC")
+    }
+
+    p1.assertProds(1 to "Energy")
+    p1.count("MC") shouldBe 2
+    p1.count("SuitableInfrastructureBonus") shouldBe 0
+  }
+
+  @Test
   internal fun `Suitable Infrastructure covers production inside required actions`() {
     newGame(PreludeExpansion, Prelude2CardPack)
     p1.runOperation("$SuitableInfrastructure, $ValleyTrust")
