@@ -36,8 +36,8 @@ internal class UnknownRulesTest : CardTest() {
   // https://boardgamegeek.com/thread/2874012/article/40859020#40859020
   @Test
   internal fun `Valley Trust Merger Tharsis currently places the city in the first required action`() {
-    newGame(PreludeExpansion, PromoCardPack)
-    p1.playCorp(ValleyTrust, 5)
+    newGame(PreludeExpansion, PromoCardPack, startingProjects = listOf(5))
+    p1.playCorp(ValleyTrust)
     admin.phase("Prelude")
     p1.playPrelude(Merger) { p1.playCorp(TharsisRepublic) }
     admin.phase("Action")

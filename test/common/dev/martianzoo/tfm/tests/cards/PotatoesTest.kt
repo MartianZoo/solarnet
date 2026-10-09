@@ -12,8 +12,8 @@ import kotlin.test.Test
 internal class PotatoesTest : CardTest() {
   @Test
   internal fun `Plant loss does not qualify for Cutting Edge Technology's discount`() {
-    newGame(PromoCardPack)
-    p1.playCorp(CrediCor, 5)
+    newGame(PromoCardPack, startingProjects = listOf(5))
+    p1.playCorp(CrediCor)
     admin.phase("Action")
     p1.playProject(CuttingEdgeTechnology, 12)
     p1.runOperation("2 Plant")
@@ -25,8 +25,8 @@ internal class PotatoesTest : CardTest() {
 
   @Test
   internal fun `Viral Enhancers can supply the second plant before Potatoes loses two`() {
-    newGame(PromoCardPack, CorporateEraExpansion)
-    p1.playCorp(CrediCor, 5)
+    newGame(PromoCardPack, CorporateEraExpansion, startingProjects = listOf(5))
+    p1.playCorp(CrediCor)
     admin.phase("Action")
     p1.playProject(ViralEnhancers, 9) { doTask("Plant") }.expect("Plant")
 
@@ -35,8 +35,11 @@ internal class PotatoesTest : CardTest() {
 
   @Test
   internal fun `Plant loss does not count as a requirement for Tactician`() {
-    newGame(GameConfig("PromoCardPack, Tactician, Landlord, Banker", "Player1", "Player2"))
-    p1.playCorp(CrediCor, 5)
+    newGame(
+        GameConfig("PromoCardPack, Tactician, Landlord, Banker", "Player1", "Player2"),
+        startingProjects = listOf(5),
+    )
+    p1.playCorp(CrediCor)
     admin.phase("Action")
     p1.runOperation("2 Plant")
     p1.playProject(Archaebacteria, 6)

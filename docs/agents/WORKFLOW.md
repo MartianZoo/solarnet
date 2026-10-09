@@ -261,9 +261,12 @@ continuations alive, including optional Production work such as Supercapacitors.
 Prelude, Action, and Final Greenery wait for domain completion because their queues drain between
 players.
 
-Corporation begins with the Start Token owner. Removing a corporation-card back creates a
-continuation through the existing `AfterMe` seat relation. Once the choice and consequences settle,
-it grants the next Player's turn or requests phase advancement if no corporation backs remain.
+Corporation begins with the Start Token owner. Removing a normal or beginner corporation-card back
+creates a continuation through the existing `AfterMe` seat relation. Once the choice and
+consequences settle, it grants the next Player's turn or requests phase advancement if no
+corporation-card backs remain. Solo has no self-referential `AfterMe`; removing either back therefore
+requests phase advancement directly. The same direct solo case ends Final Greenery when that Player
+finishes.
 Prelude also starts with the Start Token owner. Its continuation grants another turn while that
 Player retains a Prelude, advances through `AfterMe` otherwise, and requests advancement when no
 Prelude cards remain. Waiting for settlement covers zero-card setups and cards that grant another

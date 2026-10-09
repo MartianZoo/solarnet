@@ -10,8 +10,11 @@ internal class TerraLabsTest : CardTest() {
 
   @Test
   internal fun `Buys project cards for one mc each`() {
-    newGame(GameConfig("TerraLabsResearch", "Player1", "Player2"))
-    p1.playCorp(TerraLabsResearch, 10)
+    newGame(
+        GameConfig("TerraLabsResearch", "Player1", "Player2"),
+        startingProjects = listOf(10),
+    )
+    p1.playCorp(TerraLabsResearch)
     p1.runOperation("4 ProjectCard<Selecting> THEN BuySelectedCards") { p1.pay(4) }
         .expect("4 ProjectCard, -4 MC")
   }

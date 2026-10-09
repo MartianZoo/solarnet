@@ -318,8 +318,9 @@ internal class TurmoilProjectCardsTest : CardTest() {
         TurmoilExpansion,
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
+        startingProjects = listOf(3),
     )
-    p1.playCorp(CrediCor, 3)
+    p1.playCorp(CrediCor)
     admin.phase("Prelude")
     p1.playPrelude(HighCircles) { doTask("2 PartyDelegate<Scientists>") }
     p1.playPrelude(Donation)
@@ -339,8 +340,8 @@ internal class TurmoilProjectCardsTest : CardTest() {
 
   @Test
   internal fun `Diaspora Movement counts its own Jovian tag without an including this reminder`() {
-    newGame(TurmoilExpansion)
-    p1.playCorp(CrediCor, 5)
+    newGame(TurmoilExpansion, startingProjects = listOf(5))
+    p1.playCorp(CrediCor)
     admin.phase("Action")
     p1.runOperation("2 PartyDelegate<Reds>")
     requireP2().runOperation("8 MC, ProjectCard")

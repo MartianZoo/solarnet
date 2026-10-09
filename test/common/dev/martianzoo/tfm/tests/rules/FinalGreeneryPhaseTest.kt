@@ -40,6 +40,8 @@ internal class FinalGreeneryPhaseTest {
     val p1 = game.testTfm(PLAYER1)
 
     admin.beginOperation("SetupPhase FROM Phase")
+    p1.keepStartingProjects(0)
+    game.testTfm(PLAYER2).keepStartingProjects(0)
     admin.runOperation("CorporationPhase FROM Phase")
     p1.runOperation("8 Plant")
     admin.runOperation("FinalGreeneryPhase FROM Phase")

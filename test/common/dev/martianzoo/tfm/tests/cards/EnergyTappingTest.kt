@@ -9,8 +9,8 @@ internal class EnergyTappingTest : CardTest() {
   // With no other energy-production target, the increase makes the decrease executable.
   @Test
   internal fun `Can gain the energy production it must then lose and still pay Manutech`() {
-    newGame(VenusNextExpansion)
-    p1.playCorp(Manutech, 1)
+    newGame(VenusNextExpansion, startingProjects = listOf(1))
+    p1.playCorp(Manutech)
     admin.phase("Action")
 
     p1.playProject(EnergyTapping, 3).expect("Energy, PROD[0 Energy]")

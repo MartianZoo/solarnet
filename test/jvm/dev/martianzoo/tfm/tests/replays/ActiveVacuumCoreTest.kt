@@ -57,6 +57,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
   @Test
   internal fun completeGame() {
     agents[ADMIN].beginOperation("WorkflowStarted")
+    keepStartingProjects(5, 6, 7, 3)
     generation1()
     generation2()
     generation3()
@@ -69,10 +70,13 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
   }
 
   private fun generation1() {
-    blue.playCorp(AstroDrill) { buyCards(5) }
-    pink.playCorp(Vitor) { buyCards(6) }
-    green.playCorp(PharmacyUnion) { buyCards(7) }
-    purple.playCorp(Inventrix) { buyCards(3) }
+    blue.playCorp(AstroDrill)
+    pink.playCorp(Vitor)
+    green.playCorp(PharmacyUnion) {
+      doTask("Disease<$PharmacyUnion>")
+      doTask("Disease<$PharmacyUnion>")
+    }
+    purple.playCorp(Inventrix)
 
     blue.turn {
       playPrelude(VenusL1Shade)
@@ -528,7 +532,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
           OrbitalCleanup,
           payment = {
             pay(titanium = 2)
-            doTask("2 PayFromCard FROM Graphene<$CarbonNanosystems>")
+            doTask("-2 Graphene<$CarbonNanosystems>")
           },
       )
     }
@@ -617,7 +621,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
       playProject(
           KaguyaTech,
           payment = {
-            doTask("5 PayFromCard FROM Microbe<$Psychrophiles>")
+            doTask("-5 Microbe<$Psychrophiles>")
           },
       ) {
         doTask("CityTile<Tharsis_6_4> FROM GreeneryTile<Tharsis_6_4>")
@@ -702,7 +706,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
           Mangrove,
           payment = {
             pay(10)
-            doTask("PayFromCard FROM Microbe<$Psychrophiles>")
+            doTask("-Microbe<$Psychrophiles>")
           },
       ) {
         placeTile(4, 8)
@@ -789,7 +793,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
           UndergroundCity,
           payment = {
             pay(2, steel = 4)
-            doTask("PayFromCard FROM Graphene<$CarbonNanosystems>")
+            doTask("-Graphene<$CarbonNanosystems>")
           },
       ) {
         placeTile(4, 1)
@@ -883,7 +887,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
           Grass,
           payment = {
             pay(9)
-            doTask("PayFromCard FROM Microbe<$Psychrophiles>")
+            doTask("-Microbe<$Psychrophiles>")
           },
       )
       playProject(CityParks, 7)

@@ -40,8 +40,13 @@ internal class NewPartnerTest : CardTest() {
 
   @Test
   internal fun `New Partner can fizzle an unaffordable Industrial Complex`() {
-    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
-    p1.playCorp(ValleyTrust, 8)
+    newGame(
+        PreludeExpansion,
+        Prelude2CardPack,
+        PromoCardPack,
+        startingProjects = listOf(8),
+    )
+    p1.playCorp(ValleyTrust)
     admin.phase("Prelude")
     shouldThrow<LimitsException> {
       p1.playPrelude(NewPartner) {

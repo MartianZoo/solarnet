@@ -94,18 +94,21 @@ public class TfmGameplay(
     }
   }
 
-  /** Plays the chosen corporation, retaining and buying [buyCards] starting project cards. */
+  /**
+   * Plays the chosen corporation after setup retained [buyCards] project cards. Every player must
+   * resolve that setup choice explicitly with [keepStartingProjects] before corporation play.
+   */
   public fun playCorp(
       cardName: ClassName,
       buyCards: Int,
       body: TfmGameplay.() -> Unit = {},
   ): TaskResult {
     if (count("SetupPhase") == 1) {
-      game.actors.filterIsInstance<Player>().forEach { player ->
-        asPlayer(player).keepStartingProjects(if (player == actor) buyCards else 0)
-      }
-    } else if (count("ProjectCard<Selecting>") == 0 && buyCards > 0) {
-      runOperation("$buyCards ProjectCard<Selecting>")
+      throw NotNowException("Resolve every player's starting projects before playing a corporation")
+    }
+    val retained = count("ProjectCard<Selecting>")
+    require(retained == buyCards) {
+      "$actor retained $retained starting project cards, not $buyCards"
     }
     return playCorp(cardName, body)
   }

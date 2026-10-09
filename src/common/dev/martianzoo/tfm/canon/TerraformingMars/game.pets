@@ -139,6 +139,12 @@ ABSTRACT CLASS Phase : System {
     This IF WorkflowStarted:: EACH @Player(HAS StartToken) { NewTurn<@Player> BY @Player }
     -CorporationCard<Previous@Anyone> IF WorkflowStarted:: \
       EACH Seat@AfterMe<Previous@, Anyone> { CorporationPhaseCompletionCheck<Seat@> BY Admin }
+    -BeginnerCard<Previous@Anyone> IF WorkflowStarted:: \
+      EACH Seat@AfterMe<Previous@, Anyone> { CorporationPhaseCompletionCheck<Seat@> BY Admin }
+    -CorporationCard<Anyone> IF WorkflowStarted, SoloMode:: \
+      AdvancePhase<CorporationPhase> BY Admin
+    -BeginnerCard<Anyone> IF WorkflowStarted, SoloMode:: \
+      AdvancePhase<CorporationPhase> BY Admin
     This: Photosynthesis
     This:: EACH Class<@CardWatcher> { @CardWatcher }
 
@@ -198,7 +204,9 @@ CLASS AdvancePhase<Phase> : Continuation, System { HAS MAX 1 This }
 CLASS CorporationPhaseCompletionCheck<AfterMe<Anyone, Next@Player>> : Continuation, System {
   -This IF WorkflowStarted, CorporationPhase, CorporationCard<Next@>:: \
     NewTurn<Next@> BY Next@
-  -This IF WorkflowStarted, CorporationPhase, MAX 0 CorporationCard<Anyone>:: \
+  -This IF WorkflowStarted, CorporationPhase, BeginnerCard<Next@>:: \
+    NewTurn<Next@> BY Next@
+  -This IF WorkflowStarted, CorporationPhase, MAX 0 CorporationCard<Anyone>, MAX 0 BeginnerCard<Anyone>:: \
     AdvancePhase<CorporationPhase> BY Admin
 }
 
@@ -209,6 +217,8 @@ CLASS FinalGreeneryTurn<Current@Player> : Continuation, Owned<Current@Player> {
 
 "Continues final greenery in seat order, ending after the last player finishes"
 CLASS FinishFinalGreenery<Current@Player> : Continuation, Owned<Current@Player> {
+  -This IF WorkflowStarted, FinalGreeneryPhase, SoloMode:: \
+    AdvancePhase<FinalGreeneryPhase> BY Admin
   -This IF WorkflowStarted, FinalGreeneryPhase:: \
     EACH Next@Player(HAS AfterMe<Current@, Player>, HAS MAX 0 StartToken) { \
       FinalGreeneryTurn<Next@> BY Admin \

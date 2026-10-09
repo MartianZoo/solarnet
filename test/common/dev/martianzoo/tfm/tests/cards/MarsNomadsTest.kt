@@ -184,8 +184,14 @@ internal class MarsNomadsTest : CardTest() {
 
   @Test
   internal fun `Moving onto MSL Curiosity requires paying for and placing a colony`() {
-    newGame(Cimmeria, ColoniesExpansion, PromoCardPack, colonyTiles = testColonyTiles(2))
-    p1.playCorp(CrediCor, 1)
+    newGame(
+        Cimmeria,
+        ColoniesExpansion,
+        PromoCardPack,
+        colonyTiles = testColonyTiles(2),
+        startingProjects = listOf(1),
+    )
+    p1.playCorp(CrediCor)
     admin.phase("Action")
     p1.playProject(MarsNomads, 13) { doTask("NomadsMarker<Cimmeria_3_2>") }
 
@@ -199,8 +205,14 @@ internal class MarsNomadsTest : CardTest() {
   @Test
   internal fun `Moving onto MSL Curiosity fails when every colony tile already has an own colony`() {
     val tiles = testColonyTiles(2)
-    newGame(Cimmeria, ColoniesExpansion, PromoCardPack, colonyTiles = tiles)
-    p1.playCorp(CrediCor, 1)
+    newGame(
+        Cimmeria,
+        ColoniesExpansion,
+        PromoCardPack,
+        colonyTiles = tiles,
+        startingProjects = listOf(1),
+    )
+    p1.playCorp(CrediCor)
     admin.phase("Action")
     p1.runOperation("100 MC")
     p1.playProject(MarsNomads, 13) { doTask("NomadsMarker<Cimmeria_3_2>") }

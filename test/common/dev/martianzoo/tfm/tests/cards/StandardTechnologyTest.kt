@@ -53,8 +53,13 @@ internal class StandardTechnologyTest : CardTest() {
 
   @Test
   internal fun `Spire can cash in science through Standard Technology after temperature is maxed`() {
-    newGame(PreludeExpansion, Prelude2CardPack, CorporateEraExpansion)
-    p1.playCorp(Spire, 4)
+    newGame(
+        PreludeExpansion,
+        Prelude2CardPack,
+        CorporateEraExpansion,
+        startingProjects = listOf(4),
+    )
+    p1.playCorp(Spire)
     val p2 = requireP2()
     p2.runOperation("300 MC")
     admin.phase("Prelude")

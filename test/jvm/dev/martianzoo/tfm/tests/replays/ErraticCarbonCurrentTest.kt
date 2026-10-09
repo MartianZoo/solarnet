@@ -35,6 +35,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
   @Test
   internal fun erraticCarbonCurrent() {
     agents[ADMIN].beginOperation("WorkflowStarted")
+    keepStartingProjects(6, 4)
     generation1()
     generation2()
     generation3()
@@ -48,8 +49,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
   }
 
   private fun generation1() {
-    blue.playCorp(CrediCor) { buyCards(6) }
-    pink.playCorp(Ecoline) { buyCards(4) }
+    blue.playCorp(CrediCor)
+    pink.playCorp(Ecoline)
 
     blue.turn {
       playPrelude(AlbedoPlants)

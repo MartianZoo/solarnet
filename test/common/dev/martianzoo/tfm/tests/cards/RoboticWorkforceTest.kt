@@ -50,8 +50,8 @@ internal class RoboticWorkforceTest : CardTest() {
   // https://boardgamegeek.com/thread/3430226/article/45396575#45396575
   @Test
   internal fun `Robotic Workforce does Industrial Complex production adjustment again without its cost`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
-    p1.playCorp(ThorGate, 3)
+    newGame(PreludeExpansion, Prelude2CardPack, startingProjects = listOf(3))
+    p1.playCorp(ThorGate)
     admin.phase("Prelude")
     p1.playPrelude(IndustrialComplex)
     p1.playPrelude(Donation)

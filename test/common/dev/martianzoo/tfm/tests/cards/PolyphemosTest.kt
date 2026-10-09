@@ -11,8 +11,9 @@ internal class PolyphemosTest : CardTest() {
     newGame(
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
+        startingProjects = listOf(7),
     )
-    p1.playCorp(Polyphemos, 7)
+    p1.playCorp(Polyphemos)
     admin.phase("Action")
     p1.playProject(InventorsGuild, 9)
     p1.cardAction1(InventorsGuild) { p1.buyCards(1) }.expect("ProjectCard, -5 MC")

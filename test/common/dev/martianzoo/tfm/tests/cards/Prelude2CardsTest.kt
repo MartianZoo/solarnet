@@ -247,8 +247,8 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Board of Directors pays to fizzle an unaffordable Industrial Complex`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
-    p1.playCorp(ThorGate, 8)
+    newGame(PreludeExpansion, Prelude2CardPack, startingProjects = listOf(8))
+    p1.playCorp(ThorGate)
     admin.phase("Prelude")
     p1.playPrelude(BoardOfDirectors)
     p1.playPrelude(Biolab)
@@ -428,8 +428,13 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `World Government Advisor does not make Homeostasis Bureau pay`() {
-    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
-    p1.playCorp(CrediCor, 1)
+    newGame(
+        PreludeExpansion,
+        Prelude2CardPack,
+        PromoCardPack,
+        startingProjects = listOf(1),
+    )
+    p1.playCorp(CrediCor)
     admin.phase("Prelude")
     p1.playPrelude(WorldGovernmentAdvisor)
     p1.playPrelude(Donation)
@@ -962,8 +967,13 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Sagitta rewards a wild-only card as tagless`() {
-    newGame(PreludeExpansion, Prelude2CardPack, FakeStuffBundle)
-    p1.playCorp(SagittaFrontierServices, 1)
+    newGame(
+        PreludeExpansion,
+        Prelude2CardPack,
+        FakeStuffBundle,
+        startingProjects = listOf(1),
+    )
+    p1.playCorp(SagittaFrontierServices)
     admin.phase("Action")
 
     p1.playProject(FakeResearchCoordination, 4).expect("0 MC")
@@ -1280,8 +1290,13 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `WG Project fizzles its selected unaffordable Prelude`() {
-    newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion)
-    p1.playCorp(ThorGate, 5)
+    newGame(
+        PreludeExpansion,
+        Prelude2CardPack,
+        TurmoilExpansion,
+        startingProjects = listOf(5),
+    )
+    p1.playCorp(ThorGate)
     admin.phase("Prelude")
     p1.playPrelude(HighCircles) { doTask("2 PartyDelegate<Scientists>") }
     p1.playPrelude(PowerGeneration)

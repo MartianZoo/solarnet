@@ -26,18 +26,20 @@ internal class PreservationProgramTest :
       baseOnly: Boolean = false,
       players: Int = 2,
       extraOptions: Array<TestOption> = emptyArray(),
+      startingProjects: Int = 0,
   ) {
     newGame(
         *if (baseOnly) emptyArray()
         else arrayOf(PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack, Unsafe),
         *extraOptions,
         players = players,
+        startingProjects = listOf(startingProjects),
     )
   }
 
   private fun startPrelude() {
-    setUpProgramGame()
-    p1.playCorp(CrediCor, 2)
+    setUpProgramGame(startingProjects = 2)
+    p1.playCorp(CrediCor)
     admin.phase("Prelude")
   }
 
@@ -206,8 +208,8 @@ internal class PreservationProgramTest :
 
   @Test
   fun `Terraforming Ganymede skips only one of its computed TR steps`() {
-    setUpProgramGame()
-    p1.playCorp(SaturnSystems, 1)
+    setUpProgramGame(startingProjects = 1)
+    p1.playCorp(SaturnSystems)
     admin.phase("Prelude")
     p1.playPrelude(PreservationProgram)
     p1.playPrelude(GalileanMining)
@@ -220,8 +222,8 @@ internal class PreservationProgramTest :
 
   @Test
   fun `Terraforming Ganymede awards all its computed TR after the skip is used`() {
-    setUpProgramGame()
-    p1.playCorp(SaturnSystems, 1)
+    setUpProgramGame(startingProjects = 1)
+    p1.playCorp(SaturnSystems)
     admin.phase("Prelude")
     p1.playPrelude(PreservationProgram)
     p1.playPrelude(GalileanMining)

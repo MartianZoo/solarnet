@@ -65,7 +65,7 @@ internal class WorldGovernmentTerraformingTest {
 
   @Test
   internal fun `Solar phase is skipped when production ends the game`() {
-    val game = Engine.newGame(canonicalPremise(VenusNextExpansion))
+    val game = TfmEngine.newGame(canonicalPremise(VenusNextExpansion))
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)

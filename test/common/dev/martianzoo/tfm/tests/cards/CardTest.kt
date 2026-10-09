@@ -38,13 +38,17 @@ internal abstract class CardTest(
   private var p2: TfmGameplay? = null
     private set
 
-  protected fun newGame(config: GameConfig): World = startGame(premise(config))
+  protected fun newGame(
+      config: GameConfig,
+      startingProjects: List<Int> = emptyList(),
+  ): World = startGame(premise(config), startingProjects)
 
   protected fun newGame(
       vararg selectedOptions: Option,
       players: Int = 2,
       colonyTiles: Set<ClassName> = emptySet(),
-  ): World = startGame(premise(selectedOptions, players, colonyTiles))
+      startingProjects: List<Int> = emptyList(),
+  ): World = startGame(premise(selectedOptions, players, colonyTiles), startingProjects)
 
   protected fun newGameWithAutoWorkflow(
       vararg selectedOptions: Option,
@@ -92,8 +96,8 @@ internal abstract class CardTest(
   ): TaskResult =
       dev.martianzoo.tfm.tests.playCorporationWithoutStartingProjects(player, corporation)
 
-  private fun startGame(premise: GamePremise): World {
-    return setUpTfmGame(premise).initializeCardTestGame()
+  private fun startGame(premise: GamePremise, startingProjects: List<Int>): World {
+    return setUpTfmGame(premise, startingProjects).initializeCardTestGame()
   }
 
   private fun startAutoGame(premise: GamePremise): World {
@@ -180,7 +184,7 @@ internal abstract class CardTest(
     val corporations = if (requested.isEmpty()) BORING_CORPORATIONS else requested
     require(corporations.size >= players.size) { "Provide one corporation per player" }
     players.zip(corporations).forEachIndexed { index, (player, corporation) ->
-      player.playCorp(corporation, 5) {
+      player.playCorp(corporation) {
         // Defer even the unambiguous NewTurn so incidental setup can run with triggers enabled
         // before a workflow choice is selected. The caller restores the previous policy afterward.
         if (index == players.lastIndex) beforeNextPhase()

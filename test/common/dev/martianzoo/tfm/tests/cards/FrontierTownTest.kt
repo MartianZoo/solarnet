@@ -70,8 +70,9 @@ internal class FrontierTownTest : CardTest() {
         Prelude2CardPack,
         TurmoilExpansion,
         colonyTiles = testColonyTiles(2, *colonyTiles),
+        startingProjects = listOf(1),
     )
-    p1.playCorp(CrediCor, 1)
+    p1.playCorp(CrediCor)
     admin.phase("Action")
     p1.stdProject("PowerPlantProject")
     p1.runOperation("2 PartyDelegate<MarsFirst>")

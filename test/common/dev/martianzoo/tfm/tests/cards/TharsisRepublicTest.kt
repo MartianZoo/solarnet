@@ -8,9 +8,9 @@ import kotlin.test.Test
 internal class TharsisRepublicTest : CardTest() {
   @Test
   internal fun `Original solo corporation gains production for the two opponent cities`() {
-    newGame(players = 1)
+    newGame(players = 1, startingProjects = listOf(1))
 
-    p1.playCorp(TharsisRepublic, 1).expect("PROD[2 MC]")
+    p1.playCorp(TharsisRepublic).expect("PROD[2 MC]")
   }
 
   @Test

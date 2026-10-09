@@ -15,8 +15,8 @@ import kotlin.test.Test
 internal class ValleyTrustTest : CardTest() {
   @Test
   internal fun `Resolves Valley Trust's starting Prelude 1 card`() {
-    newGame(PreludeExpansion)
-    p1.playCorp(ValleyTrust, 5).expect("22 MC")
+    newGame(PreludeExpansion, startingProjects = listOf(5))
+    p1.playCorp(ValleyTrust).expect("22 MC")
 
     admin.phase("Action")
     val result =
@@ -54,8 +54,8 @@ internal class ValleyTrustTest : CardTest() {
 
   @Test
   internal fun `Must perform required action before another standard action`() {
-    newGame(PreludeExpansion)
-    p1.playCorp(ValleyTrust, 5)
+    newGame(PreludeExpansion, startingProjects = listOf(5))
+    p1.playCorp(ValleyTrust)
     admin.phase("Action")
 
     shouldThrow<RequirementException> { p1.stdProject("PowerPlantProject") }
@@ -74,12 +74,13 @@ internal class ValleyTrustTest : CardTest() {
                 "Player1",
                 "Player2",
             ),
+            startingProjects = listOf(5),
         )
     game.classTable.isInhabited(cn("PreludePhase")) shouldBe true
     game.classTable.isInhabited(selectedPrelude) shouldBe true
     game.classTable.isInhabited(otherPrelude) shouldBe otherPreludeIsAvailable
 
-    p1.playCorp(ValleyTrust, 5)
+    p1.playCorp(ValleyTrust)
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction") {
       p1.playPrelude(selectedPrelude)
@@ -88,8 +89,8 @@ internal class ValleyTrustTest : CardTest() {
 
   @Test
   internal fun `Valley Trust fizzles an unaffordable Industrial Complex`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
-    p1.playCorp(ValleyTrust, 8)
+    newGame(PreludeExpansion, Prelude2CardPack, startingProjects = listOf(8))
+    p1.playCorp(ValleyTrust)
     admin.phase("Prelude")
     p1.playPrelude(PowerGeneration)
     p1.playPrelude(Biolab)

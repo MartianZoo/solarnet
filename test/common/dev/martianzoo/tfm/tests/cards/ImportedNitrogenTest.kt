@@ -10,8 +10,8 @@ import kotlin.test.Test
 internal class ImportedNitrogenTest : CardTest() {
   @Test
   internal fun `Unstorable microbes and animals give no Topsoil Contract or Meat Industry payout`() {
-    newGame(PromoCardPack, CorporateEraExpansion)
-    p1.playCorp(UnitedNationsMarsInitiative, 5)
+    newGame(PromoCardPack, CorporateEraExpansion, startingProjects = listOf(5))
+    p1.playCorp(UnitedNationsMarsInitiative)
     admin.phase("Action")
     val p2 = requireP2()
     p1.runOperation("50 MC")
@@ -31,8 +31,8 @@ internal class ImportedNitrogenTest : CardTest() {
 
   @Test
   internal fun `Microbes and animals choose separate own holders and pay their gain effects`() {
-    newGame(PromoCardPack, CorporateEraExpansion)
-    p1.playCorp(UnitedNationsMarsInitiative, 5)
+    newGame(PromoCardPack, CorporateEraExpansion, startingProjects = listOf(5))
+    p1.playCorp(UnitedNationsMarsInitiative)
     admin.phase("Action")
     p1.runOperation("100 MC, 2 ProjectCard")
     p1.playProject(TopsoilContract, 8)

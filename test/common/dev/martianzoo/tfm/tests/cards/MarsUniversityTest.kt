@@ -19,8 +19,8 @@ internal class MarsUniversityTest : CardTest() {
 
   @Test
   internal fun `Mars University cannot exchange a card with an empty hand`() {
-    newGame(CorporateEraExpansion)
-    p1.playCorp(CrediCor, 1)
+    newGame(CorporateEraExpansion, startingProjects = listOf(1))
+    p1.playCorp(CrediCor)
     admin.phase("Action")
 
     p1.playProject(MarsUniversity, 8).expect("-ProjectCard")
@@ -28,8 +28,8 @@ internal class MarsUniversityTest : CardTest() {
 
   @Test
   internal fun `Mars University may decline its discard even with another project in hand`() {
-    newGame(CorporateEraExpansion)
-    p1.playCorp(CrediCor, 3)
+    newGame(CorporateEraExpansion, startingProjects = listOf(3))
+    p1.playCorp(CrediCor)
     admin.phase("Action")
     p1.playProject(MarsUniversity, 8) { declineTask() }
 

@@ -40,6 +40,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
   @Test
   internal fun staticPressureStream() {
     agents[ADMIN].beginOperation("WorkflowStarted")
+    keepStartingProjects(6, 4)
     generation1()
     generation2()
     generation3()
@@ -55,19 +56,17 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
   }
 
   private fun generation1() {
-    nor.playCorp(Ecoline) {
-      buyCards(
-          DesignedMicroorganisms,
-          ResearchOutpost,
-          AquiferPumping,
-          UndergroundCity,
-          ExtractorBalloons,
-          Supermarkets,
-      )
-    }
-    vin.playCorp(CheungShingMars) {
-      buyCards(FuelFactory, CarbonateProcessing, OptimalAerobraking, CloudTourism)
-    }
+    nor.playCorp(Ecoline)
+    nor.draw(
+        DesignedMicroorganisms,
+        ResearchOutpost,
+        AquiferPumping,
+        UndergroundCity,
+        ExtractorBalloons,
+        Supermarkets,
+    )
+    vin.playCorp(CheungShingMars)
+    vin.draw(FuelFactory, CarbonateProcessing, OptimalAerobraking, CloudTourism)
     nor.turn {
       playPrelude(AlbedoPlants)
       playPrelude(ProjectEden) {

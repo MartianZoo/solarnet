@@ -100,8 +100,8 @@ internal class RequirementAdjustmentCardsTest : CardTest() {
   }
 
   private fun expireSpecialDesignWith(card: ClassName, cost: Int) {
-    newGame()
-    p1.playCorp(CrediCor, 5)
+    newGame(startingProjects = listOf(5))
+    p1.playCorp(CrediCor)
     admin.phase("Action")
     p1.runOperation("11 TemperatureStep")
     p1.playProject(SpecialDesign, 4)

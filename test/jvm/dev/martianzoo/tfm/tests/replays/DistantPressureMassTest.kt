@@ -36,12 +36,10 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
   private val been
     get() = p2
 
-  private val optionalSearchForLifeClaim =
-      "ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife<Keen>> OR Ok"
-
   @Test
   internal fun distantPressureMass() {
     agents[ADMIN].beginOperation("WorkflowStarted")
+    keepStartingProjects(4, 4)
     generation1()
     generation2()
     generation3()
@@ -56,12 +54,8 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
   }
 
   private fun generation1() {
-    keen.playCorp(SagittaFrontierServices) {
-      buyCards(4)
-    }
-    been.playCorp(Polyphemos) {
-      buyCards(4).expect("-20 MC")
-    }
+    keen.playCorp(SagittaFrontierServices)
+    been.playCorp(Polyphemos)
 
     keen.turn {
       playPrelude(IndustrialComplex)
@@ -106,7 +100,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       }
       playProject(SearchForLife, 1)
       cardAction1(SearchForLife) {
-            declineTask(optionalSearchForLifeClaim)
+            declineTask()
           }
           .expect("0 Science")
       cardAction1(FakeAppliedScience) { doTask("Titanium") }
@@ -236,7 +230,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
         buyCards(0)
       }
       cardAction1(SearchForLife) {
-        declineTask(optionalSearchForLifeClaim)
+        declineTask()
       }
     }
     been.pass()
@@ -282,7 +276,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
     been.pass()
     keen.turn {
       cardAction1(SearchForLife) {
-        declineTask(optionalSearchForLifeClaim)
+        declineTask()
       }
       playProject(MethaneFromTitan, 9, titanium = 5)
       pass()
@@ -379,7 +373,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
     been.turn { cardAction1(ExtractorBalloons) }
     keen.turn {
       cardAction1(SearchForLife) {
-        declineTask(optionalSearchForLifeClaim)
+        declineTask()
       }
     }
     been.pass()
@@ -472,7 +466,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
           }
           .expect("-2 MC")
       cardAction1(SearchForLife) {
-        declineTask(optionalSearchForLifeClaim)
+        declineTask()
       }
       playProject(Hackers, 1) { doTask("PROD[-2 MC<Been>]") }.expect("PROD[2 MC, -Energy], 3 MC")
       playProject(BreathingFilters, 7) {
@@ -565,7 +559,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
     been.turn { cardAction1(ExtractorBalloons) }
     keen.turn {
       cardAction1(SearchForLife) {
-        declineTask(optionalSearchForLifeClaim)
+        declineTask()
       }
     }
     been.turn { convertHeat() }
@@ -632,7 +626,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       convertPlants { placeTile(4, 2) }
       playProject(PeroxidePower, 2, steel = 1)
       cardAction1(SearchForLife) {
-        declineTask(optionalSearchForLifeClaim)
+        declineTask()
       }
       playProject(LuxuryFoods, 4)
       stdProject("AsteroidProject")
@@ -702,7 +696,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
         buyCards(0)
       }
       cardAction1(SearchForLife) {
-        declineTask(optionalSearchForLifeClaim)
+        declineTask()
       }
       cardAction1(VenusMagnetizer)
       pass()

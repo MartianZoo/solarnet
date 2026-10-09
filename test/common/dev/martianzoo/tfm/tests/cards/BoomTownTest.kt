@@ -64,8 +64,14 @@ internal class BoomTownTest : CardTest() {
 
   @Test
   internal fun `Its titanium penalty stacks with both alloys PhoboLog and Unity on card actions`() {
-    newGame(CorporateEraExpansion, PreludeExpansion, PromoCardPack, TurmoilExpansion)
-    p1.playCorp(PhoboLog, 5)
+    newGame(
+        CorporateEraExpansion,
+        PreludeExpansion,
+        PromoCardPack,
+        TurmoilExpansion,
+        startingProjects = listOf(5),
+    )
+    p1.playCorp(PhoboLog)
     admin.phase("Prelude")
     p1.playPrelude(BoomTown) { placeTile(1, 1) }
     admin.runOperation("Ruling<Unity> FROM Ruling<Greens>")

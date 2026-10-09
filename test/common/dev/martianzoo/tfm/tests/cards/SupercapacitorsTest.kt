@@ -40,10 +40,15 @@ internal class SupercapacitorsTest : CardTest() {
 
   @Test
   internal fun `Industrialist scores energy retained through final production`() {
-    newGame(Elysium, PreludeExpansion, PromoCardPack)
+    newGame(
+        Elysium,
+        PreludeExpansion,
+        PromoCardPack,
+        startingProjects = listOf(1, 1),
+    )
     val p2 = requireP2()
-    p1.playCorp(CrediCor, 1)
-    p2.playCorp(ThorGate, 1)
+    p1.playCorp(CrediCor)
+    p2.playCorp(ThorGate)
     admin.phase("Prelude")
     p1.playPrelude(PowerGeneration)
     p2.playPrelude(SocietySupport)

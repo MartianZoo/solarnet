@@ -73,8 +73,8 @@ internal class StartTokenTest {
 
     admin.assertCounts(
         1 to "StartToken<Player1>",
-        1 to "AfterMe<Player1, Player1>",
-        1 to "AfterMe",
+        0 to "AfterMe<Player1, Player1>",
+        0 to "AfterMe",
     )
   }
 
@@ -99,9 +99,14 @@ internal class StartTokenTest {
     val p2 = game.testTfm(PLAYER2)
 
     game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
-    p1.playCorp(InterplanetaryCinematics, 7)
+    p1.keepStartingProjects(7)
+    p2.keepStartingProjects(5)
+    p1.playCorp(InterplanetaryCinematics)
     admin.sneak("StartToken<Player2> FROM StartToken<Player1>")
-    p2.playCorp(PharmacyUnion, 5)
+    p2.playCorp(PharmacyUnion) {
+      doTask("Disease<$PharmacyUnion>")
+      doTask("Disease<$PharmacyUnion>")
+    }
 
     game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
   }

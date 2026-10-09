@@ -4,7 +4,9 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameConfig
@@ -31,7 +33,7 @@ import kotlin.test.Test
 
 internal class TfmWorkflowTest {
   @Test
-  internal fun explicitStartCarriesBootstrapThroughSetupToCorporation() {
+  internal fun explicitStartWaitsForSetupBeforeCorporation() {
     val game = Engine.newGame(canonicalPremise(players = 2))
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
@@ -42,11 +44,35 @@ internal class TfmWorkflowTest {
 
     admin.assertCounts(
         0 to "BootstrapPhase",
+        1 to "SetupPhase",
+        0 to "CorporationPhase",
+    )
+    p1.keepStartingProjects(0)
+    admin.assertCounts(1 to "SetupPhase", 0 to "CorporationPhase")
+    p2.keepStartingProjects(0)
+
+    admin.assertCounts(
+        0 to "BootstrapPhase",
         0 to "SetupPhase",
         1 to "CorporationPhase",
     )
     p1.tasks.isEmpty() shouldBe true
     p2.tasks.isEmpty() shouldBe false
+  }
+
+  @Test
+  internal fun corporationHelperDoesNotChooseStartingProjectsForOtherPlayers() {
+    val game = Engine.newGame(canonicalPremise(players = 2))
+    val admin = game.testTfm(ADMIN)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
+    admin.beginOperation("WorkflowStarted")
+
+    shouldThrow<NotNowException> { p1.playCorp(CrediCor, 5) }
+
+    admin.assertCounts(1 to "SetupPhase", 0 to "CorporationPhase")
+    p1.count("ProjectCard<Selecting>") shouldBe 10
+    p2.count("ProjectCard<Selecting>") shouldBe 10
   }
 
   @Test
@@ -140,6 +166,8 @@ internal class TfmWorkflowTest {
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
+    p1.keepStartingProjects(0)
+    p2.keepStartingProjects(0)
     p1.tasks.isEmpty() shouldBe false
     p2.tasks.isEmpty() shouldBe true
 
@@ -190,37 +218,37 @@ internal class TfmWorkflowTest {
     val p2 = game.testTfm(PLAYER2).also { it.autoExecPolicy = NONE }
 
     admin.beginOperation("SetupPhase FROM Phase")
-    p1.doTask("2 StandardCorporationCard<Selecting>")
-    p1.doTask("BeginnerCorporationCard")
-    p1.doTask("-2 StandardCorporationCard<Selecting>")
-    p1.doTask("NewTurn")
-    p2.doTask("2 StandardCorporationCard<Selecting>")
-    p2.doTask("StandardCorporationCard<Hand FROM Selecting>")
-    p2.doTask("-StandardCorporationCard<Selecting>")
-    p2.doTask("NewTurn")
-
+    p1.doTask("BeginnerMode")
+    p1.doTask("BeginnerCard")
+    p1.doTask("4 PreludeCard")
+    p2.doTask("NonBeginnerMode")
+    p2.doTask("2 CorporationCard")
+    p2.doTask("4 PreludeCard")
+    p2.doTask("10 ProjectCard<Selecting>")
+    p2.doTask("-CorporationCard")
+    p2.doTask("-5 ProjectCard<Selecting>")
     p1.doTask("-2 PreludeCard")
     p2.doTask("-2 PreludeCard")
 
     p1.assertCounts(
-        1 to "BeginnerCorporationCard",
-        1 to "CorporationCard",
-        0 to "ProjectCard",
+        1 to "BeginnerCard<Hand>",
+        0 to "CorporationCard",
+        0 to "ProjectCard<Selecting>",
         2 to "PreludeCard",
     )
     p2.assertCounts(
-        0 to "BeginnerCorporationCard",
-        1 to "CorporationCard",
-        0 to "ProjectCard",
+        0 to "BeginnerCard",
+        1 to "CorporationCard<Hand>",
+        5 to "ProjectCard<Selecting>",
         2 to "PreludeCard",
     )
 
     admin.runOperation("CorporationPhase FROM Phase")
     p1.startTurn()
     shouldThrow<TaskException> {
-      p1.doTask("PlayCard<Class<StandardCorporationCard>, Class<CrediCor>, Hand>")
+      p1.doTask("PlayCard<Class<CorporationCard>, Class<CrediCor>, Hand>")
     }
-    p1.doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation1>, Hand>")
+    p1.doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation1>, Hand>")
     p1.pay()
     p1.doTask("42 MC")
     p1.doTask("10 ProjectCard")
@@ -232,14 +260,12 @@ internal class TfmWorkflowTest {
     )
 
     p2.startTurn()
-    shouldThrow<TaskException> {
-      p2.doTask("PlayCard<Class<StandardCorporationCard>, Class<BeginnerCorporation2>, Hand>")
+    shouldThrow<ExpressionException> {
+      p2.doTask("PlayCard<Class<CorporationCard>, Class<BeginnerCorporation2>, Hand>")
     }
-    p2.doTask("PlayCard<Class<StandardCorporationCard>, Class<CrediCor>, Hand>")
+    p2.doTask("PlayCard<Class<CorporationCard>, Class<CrediCor>, Hand>")
     p2.pay()
     p2.doTask("57 MC")
-    p2.doTask("10 ProjectCard<Selecting>")
-    p2.doTask("-5 ProjectCard<Selecting>")
     p2.doTask("BuySelectedCards")
     p2.pay(15)
     p2.assertCounts(
@@ -256,36 +282,48 @@ internal class TfmWorkflowTest {
     val p1 = game.testTfm(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testTfm(PLAYER2).also { it.autoExecPolicy = NONE }
 
-    admin.beginOperation("SetupPhase FROM Phase")
+    admin.beginOperation("WorkflowStarted")
     listOf(p1, p2).forEach { player ->
-      player.doTask("2 StandardCorporationCard<Selecting>")
-      player.doTask("BeginnerCorporationCard")
-      player.doTask("-2 StandardCorporationCard<Selecting>")
-      player.doTask("NewTurn")
+      player.doTask("BeginnerMode")
+      player.doTask("BeginnerCard")
     }
 
-    admin.runOperation("CorporationPhase FROM Phase")
-    p1.startTurn()
-    p1.doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation1>, Hand>")
+    p1.tasks.isEmpty() shouldBe false
+    p2.tasks.isEmpty() shouldBe true
+    p1.doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation1>, Hand>")
     p1.pay()
     p1.doTask("42 MC")
     p1.doTask("10 ProjectCard")
+    p1.doTask("BuySelectedCards")
 
     shouldThrow<LimitsException> { p2.runOperation("BeginnerCorporation1") }
     p2.assertCounts(
         0 to "BeginnerCorporation1",
-        1 to "BeginnerCorporationCard",
+        1 to "BeginnerCard",
         0 to "ProjectCard",
     )
+    p1.tasks.isEmpty() shouldBe true
+    p2.tasks.isEmpty() shouldBe false
 
-    p2.startTurn()
-    p2.doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation2>, Hand>")
+    p2.doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation2>, Hand>")
     p2.pay()
     p2.doTask("42 MC")
     p2.doTask("10 ProjectCard")
+    p2.doTask("BuySelectedCards")
 
-    p1.assertCounts(1 to "BeginnerCorporation1", 42 to "MC", 10 to "ProjectCard")
-    p2.assertCounts(1 to "BeginnerCorporation2", 42 to "MC", 10 to "ProjectCard")
+    p1.assertCounts(
+        1 to "BeginnerMode",
+        1 to "BeginnerCorporation1",
+        42 to "MC",
+        10 to "ProjectCard",
+    )
+    p2.assertCounts(
+        1 to "BeginnerMode",
+        1 to "BeginnerCorporation2",
+        42 to "MC",
+        10 to "ProjectCard",
+    )
+    admin.assertCounts(0 to "CorporationPhase", 1 to "ActionPhase")
   }
 
   @Test
@@ -299,11 +337,13 @@ internal class TfmWorkflowTest {
     p2.autoExecPolicy = NONE
     game.testAgents()[ADMIN].beginOperation("SetupPhase FROM Phase")
     listOf(p1, p2).forEach { player ->
-      player.doTask("2 StandardCorporationCard<Selecting>")
-      player.assertCounts(2 to "StandardCorporationCard<Selecting>")
-      player.doTask("StandardCorporationCard<Hand FROM Selecting>")
-      player.doTask("-StandardCorporationCard<Selecting>")
-      player.doTask("NewTurn")
+      player.doTask("NonBeginnerMode")
+      player.doTask("2 CorporationCard")
+      player.doTask("4 PreludeCard")
+      player.doTask("10 ProjectCard<Selecting>")
+      player.assertCounts(2 to "CorporationCard<Hand>")
+      player.doTask("-CorporationCard")
+      player.doTask("-10 ProjectCard<Selecting>")
     }
 
     shouldThrow<TaskException> { admin.doTask("-2 PreludeCard<Player1>") }
@@ -311,9 +351,11 @@ internal class TfmWorkflowTest {
     p2.doTask("-2 PreludeCard")
 
     p1.count("CorporationCard") shouldBe 1
+    p1.count("NonBeginnerMode") shouldBe 1
     p1.count("PreludeCard") shouldBe 2
     p1.count("ProjectCard") shouldBe 0
     p2.count("CorporationCard") shouldBe 1
+    p2.count("NonBeginnerMode") shouldBe 1
     p2.count("PreludeCard") shouldBe 2
     p2.count("ProjectCard") shouldBe 0
   }
@@ -349,8 +391,13 @@ internal class TfmWorkflowTest {
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
-    p1.playCorp(InterplanetaryCinematics, 7)
-    p2.playCorp(PharmacyUnion, 5)
+    p1.keepStartingProjects(7)
+    p2.keepStartingProjects(5)
+    p1.playCorp(InterplanetaryCinematics)
+    p2.playCorp(PharmacyUnion) {
+      doTask("Disease<$PharmacyUnion>")
+      doTask("Disease<$PharmacyUnion>")
+    }
 
     admin.assertCounts(
         0 to "PreludePhase",
@@ -437,8 +484,13 @@ internal class TfmWorkflowTest {
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
-    p1.playCorp(InterplanetaryCinematics, 7)
-    p2.playCorp(PharmacyUnion, 5)
+    p1.keepStartingProjects(7)
+    p2.keepStartingProjects(5)
+    p1.playCorp(InterplanetaryCinematics)
+    p2.playCorp(PharmacyUnion) {
+      doTask("Disease<$PharmacyUnion>")
+      doTask("Disease<$PharmacyUnion>")
+    }
 
     p1.pass()
     p2.turn {

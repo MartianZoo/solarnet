@@ -48,8 +48,13 @@ internal class LandshaperTest : CardTest() {
   }
 
   private fun setupLandshaperCapital() {
-    newGame(Amazonis, PreludeExpansion, CorporateEraExpansion)
-    p1.playCorp(CrediCor, 1)
+    newGame(
+        Amazonis,
+        PreludeExpansion,
+        CorporateEraExpansion,
+        startingProjects = listOf(1),
+    )
+    p1.playCorp(CrediCor)
     requireP2().runOperation("72 MC")
     admin.phase("Prelude")
     p1.playPrelude(PowerGeneration)

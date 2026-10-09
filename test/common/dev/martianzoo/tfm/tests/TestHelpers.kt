@@ -33,12 +33,15 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.fake.FakeCanon
 import io.kotest.matchers.shouldBe
 
-internal fun setUpGame(premise: GamePremise): World =
+internal fun setUpGame(
+    premise: GamePremise,
+    startingProjects: List<Int> = emptyList(),
+): World =
     TfmEngine.newGame(premise).apply {
       val agents = testAgents()
       agents[ADMIN].beginOperation("SetupPhase FROM Phase")
-      actors.filterIsInstance<Player>().forEach { player ->
-        agents.tfm(player).keepStartingProjects(0)
+      actors.filterIsInstance<Player>().forEachIndexed { index, player ->
+        agents.tfm(player).keepStartingProjects(startingProjects.getOrElse(index) { 0 })
       }
       revealTurmoilSetupEvents(this)
     }

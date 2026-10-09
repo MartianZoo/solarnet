@@ -19,8 +19,9 @@ internal class MergerTest : CardTest() {
         VenusNextExpansion,
         PreludeExpansion,
         PromoCardPack,
+        startingProjects = listOf(5),
     )
-    p1.playCorp(ValleyTrust, 5)
+    p1.playCorp(ValleyTrust)
     admin.phase("Prelude")
     p1.playPrelude(UnmiContractor)
     p1.playPrelude(Merger) {

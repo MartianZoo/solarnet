@@ -349,8 +349,13 @@ internal class SelfReplicatingRobotsTest : CardTest() {
 
   @Test
   internal fun `Mars University cannot discard a hosted card when a staged science card is played`() {
-    newGame(CorporateEraExpansion, PromoCardPack, FakeStuffBundle)
-    p1.playCorp(CrediCor, 5)
+    newGame(
+        CorporateEraExpansion,
+        PromoCardPack,
+        FakeStuffBundle,
+        startingProjects = listOf(5),
+    )
+    p1.playCorp(CrediCor)
     admin.phase("Action")
     p1.runOperation("20 MC")
     p1.playProject(MarsUniversity, 8) { declineTask() }

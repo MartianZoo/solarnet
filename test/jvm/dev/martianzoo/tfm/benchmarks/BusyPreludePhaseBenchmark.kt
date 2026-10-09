@@ -53,6 +53,7 @@ public open class BusyPreludePhaseBenchmark {
     admin = agents.tfm(ADMIN)
 
     admin.beginOperation("SetupPhase FROM Phase")
+    me.keepStartingProjects(10)
     me.doTask("-SelectedColonyTile<Class<Ceres>>")
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
@@ -66,7 +67,7 @@ public open class BusyPreludePhaseBenchmark {
   @Benchmark
   public fun corporationThroughFirstActionPhase(): Int {
     admin.runOperation("CorporationPhase FROM Phase")
-    me.playCorp(cn("Teractor"), 10)
+    me.playCorp(cn("Teractor"))
 
     admin.runOperation("PreludePhase FROM Phase")
     me.playPrelude(fakeHeadStart) {

@@ -26,6 +26,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
   @Test
   internal fun game20230521() {
     agents[ADMIN].beginOperation("WorkflowStarted")
+    keepStartingProjects(5, 4)
     // Good luck Player1!
     // Good luck Player2!
     // Generation 1
@@ -33,12 +34,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // Player1's steel production increased by 1
     // Player1 played Manutech
     // Player1 kept 5 project cards
-    p1.playCorp(Manutech, 5).expect("PROD[Steel], 20 MC, Steel, 5 ProjectCard")
+    p1.playCorp(Manutech).expect("PROD[Steel], 20 MC, Steel, 5 ProjectCard")
 
     // Player2's steel production increased by 1
     // Player2 played Factorum
     // Player2 kept 4 project cards
-    p2.playCorp(Factorum, 4).expect("PROD[Steel], 25 MC, 4 ProjectCard")
+    p2.playCorp(Factorum).expect("PROD[Steel], 25 MC, 4 ProjectCard")
 
     p1.turn {
       // Player1 played New Partner

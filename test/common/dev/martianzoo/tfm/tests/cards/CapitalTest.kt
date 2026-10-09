@@ -38,10 +38,15 @@ internal class CapitalTest : CardTest() {
 
   @Test
   internal fun `Capital counts for Founder as well as city effects`() {
-    newGame(Cimmeria, PreludeExpansion, CorporateEraExpansion)
+    newGame(
+        Cimmeria,
+        PreludeExpansion,
+        CorporateEraExpansion,
+        startingProjects = listOf(0, 1),
+    )
     val p2 = requireP2()
     p1.playCorp(TharsisRepublic, 0)
-    p2.playCorp(CrediCor, 1)
+    p2.playCorp(CrediCor)
     p2.runOperation("72 MC")
     admin.phase("Prelude")
     p2.playPrelude(PowerGeneration)

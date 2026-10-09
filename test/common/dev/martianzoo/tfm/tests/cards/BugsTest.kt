@@ -140,8 +140,13 @@ internal class BugsTest : CardTest() {
   // BGG wild-tag ruling: https://boardgamegeek.com/thread/2030851/article/29611733#29611733
   @Test
   internal fun `A fake wild Earth tag incorrectly gives Point Luna an extra draw`() {
-    newGame(PreludeExpansion, CorporateEraExpansion, FakeStuffBundle)
-    p1.playCorp(PointLuna, 1)
+    newGame(
+        PreludeExpansion,
+        CorporateEraExpansion,
+        FakeStuffBundle,
+        startingProjects = listOf(1),
+    )
+    p1.playCorp(PointLuna)
     admin.phase("Action")
     p1.playProject(FakeResearchCoordination, 4)
 
@@ -210,8 +215,14 @@ internal class BugsTest : CardTest() {
   // https://boardgamegeek.com/thread/2334454/article/33634574#33634574
   @Test
   internal fun `Sponsored Projects incorrectly misses resources on a card hosted by Fake SRR`() {
-    newGame(TurmoilExpansion, CorporateEraExpansion, PromoCardPack, FakeStuffBundle)
-    p1.playCorp(CrediCor, 3)
+    newGame(
+        TurmoilExpansion,
+        CorporateEraExpansion,
+        PromoCardPack,
+        FakeStuffBundle,
+        startingProjects = listOf(3),
+    )
+    p1.playCorp(CrediCor)
     admin.phase("Action")
     p1.playProject(Research, 11)
     p1.playProject(FakeSelfReplicatingRobots, 7)

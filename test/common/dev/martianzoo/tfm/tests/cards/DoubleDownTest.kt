@@ -15,8 +15,8 @@ import kotlin.test.Test
 internal class DoubleDownTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame(PreludeExpansion, PromoCardPack)
-    p1.playCorp(PharmacyUnion, 5) {
+    newGame(PreludeExpansion, PromoCardPack, startingProjects = listOf(5))
+    p1.playCorp(PharmacyUnion) {
       doTask("Disease<$PharmacyUnion>")
       doTask("Disease<$PharmacyUnion>")
     }
@@ -94,8 +94,13 @@ internal class DoubleDownTest : CardTest() {
 
   @Test
   internal fun `Double Down itself fizzles when a fizzled Merger leaves no Prelude to copy`() {
-    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
-    p1.playCorp(ValleyTrust, 10)
+    newGame(
+        PreludeExpansion,
+        Prelude2CardPack,
+        PromoCardPack,
+        startingProjects = listOf(10),
+    )
+    p1.playCorp(ValleyTrust)
     admin.phase("Prelude")
     // Seven MC plus Nirgal's thirty cannot pay Merger's forty-two MC cost.
     shouldThrow<LimitsException> {
@@ -130,8 +135,14 @@ internal class DoubleDownTest : CardTest() {
 
   @Test
   internal fun `Double Down repeats Preservation Program TR without adding another skip`() {
-    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack, Unsafe)
-    p1.playCorp(CrediCor, 1)
+    newGame(
+        PreludeExpansion,
+        Prelude2CardPack,
+        PromoCardPack,
+        Unsafe,
+        startingProjects = listOf(1),
+    )
+    p1.playCorp(CrediCor)
     admin.phase("Prelude")
     p1.playPrelude(PreservationProgram)
     p1.playPrelude(DoubleDown) { doTask("CopyPrelude<$PreservationProgram>") }

@@ -27,9 +27,8 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
     with(me) {
       doTask("-SelectedColonyTile<Class<Miranda>>")
 
-      playCorp(CrediCor) {
-        buyCards(7)
-      }
+      keepStartingProjects(7)
+      playCorp(CrediCor)
 
       playPrelude(SocietySupport).expect("PROD[-1 MC, Plant, Energy, Heat]")
       // CrediCor still pays its rebate when Excentric Sponsor pays the project cost.

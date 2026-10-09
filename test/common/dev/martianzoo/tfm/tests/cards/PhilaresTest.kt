@@ -108,9 +108,9 @@ internal class PhilaresTest : CardTest() {
 
   @Test
   internal fun `Kaguya creates a new adjacency without renewing an Arcadian reservation`() {
-    newGame(PromoCardPack)
+    newGame(PromoCardPack, startingProjects = listOf(1))
     val p2 = requireP2()
-    p1.playCorp(ArcadianCommunities, 1)
+    p1.playCorp(ArcadianCommunities)
     p2.playCorp(Philares, 0)
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_4_2>") }
