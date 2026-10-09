@@ -40,6 +40,12 @@ Repeated sigils produce repeated effects. This preserves presentation codes such
 on the runtime Class without introducing separate display metadata; semantic bonus consumers
 combine the effects while discarding the no-ops.
 
+Delegate sigils are emitted directly as
+`Placement<This> IF Class<PartyDelegate>: PartyDelegate` (or `2 PartyDelegate` for `DD`). The
+trigger-side condition makes the bonus absent from games without party delegates while keeping it
+mandatory when that class is present. Cimmeria's colony-and-cost bonus remains a named Signal
+because its two consequences form one conditional package.
+
 `./gradlew :tools:regenerateMapAreas` rewrites the generated area section in each map's `.pets` file. Map output retains each
 row exactly in a diagram comment, keeps each area declaration on one line, and separates declaration
 rows with a blank line. Card Pets use a separate build-time pipeline: `tfm-card-data` owns

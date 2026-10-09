@@ -42,6 +42,10 @@ These concerns remain open; the ranking does not select replacement designs.
 
 ## User Ideas and Agreed Directions
 
+- Revisit the `RepeatPlacementBonus` change made for conditionally available map bonuses. Look for
+  a way to duplicate the map's bonus instruction directly again, without inspecting its generated
+  Class effect or `IfTrigger`; preserve Frontier Town's tripled delegate bonus and conditional
+  omission when `PartyDelegate` is unavailable.
 - Resolve the nested self-transmutation case characterized in `pets/BugsTest`: an abstract Box
   currently permits identical concrete shared arguments. Preserve shared abstract arguments and
   rejection of dropping their markers; clarify when an open nested shared transmutation itself

@@ -15,7 +15,7 @@ internal class RegenerateMapAreasTest {
 
         // The map areas below are code-generated based on the following comment
         //
-        //            VS    L
+        //            VS    LD
         //  WPP    LC    L
         //
 
@@ -34,9 +34,13 @@ internal class RegenerateMapAreasTest {
         listOf(1 to 2, 1 to 3, 2 to 1, 2 to 2, 2 to 3),
         map.areas.map { it.row to it.column },
     )
+    assertTrue(
+        "CLASS Demo_1_3 :     LandArea { row = 1; column = 3; " +
+            "Placement<This> IF Class<PartyDelegate>: PartyDelegate }" in regenerated
+    )
     assertEquals(
         """
-        //            VS    L
+        //            VS    LD
         //
         //  WPP    LC    L
         """
