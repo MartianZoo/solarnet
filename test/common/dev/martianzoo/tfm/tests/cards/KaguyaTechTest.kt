@@ -14,12 +14,20 @@ internal class KaguyaTechTest : ProjectCardTest() {
     kim.exMachina("GreeneryTile<Kim, Tharsis_4_2>")
 
     kim.playProject(KaguyaTech, 10) {
-          shouldThrow<NarrowingException> {
-            doTask("CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_2>")
-          }
           doTask("CityTile<Tharsis_4_2> FROM GreeneryTile<Tharsis_4_2>")
         }
         .expect("-GreeneryTile<Tharsis_4_2>, CityTile<Tharsis_4_2>")
+  }
+
+  @Test
+  internal fun `Cannot replace a greenery with a city in another area`() {
+    kim.exMachina("GreeneryTile<Kim, Tharsis_4_2>")
+
+    shouldThrow<NarrowingException> {
+      kim.playProject(KaguyaTech, 10) {
+        doTask("CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_2>")
+      }
+    }
   }
 
   @Test

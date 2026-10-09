@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.HiredRaiders
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
@@ -38,8 +37,6 @@ internal class HiredRaidersTest : ProjectCardTest() {
     kim.playProject(HiredRaiders, 1) {
           doTask("Steel FROM Steel<Rob>")
         }
-        .expect("Steel<Kim>, -Steel<Rob>")
-
-    stan.assertCounts(2 to "Steel")
+        .expect("Steel<Kim>, -Steel<Rob>, 0 Steel<Stan>")
   }
 }

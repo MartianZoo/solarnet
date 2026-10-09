@@ -1,17 +1,18 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
-internal class NoctisCityTest : CardTest() {
+internal class NoctisCityTest : ProjectCardTest() {
   @Test
   internal fun `Can be placed anywhere on Hellas`() {
-    newGame(Hellas)
-    p1.runOperation("PROD[Energy]")
-    p1.runOperation("$NoctisCity") {
+    newTestGame(addOptions = "HellasMap")
+    kim.setToExMachina(18, "MC")
+    kim.exMachina("PROD[Energy]")
+
+    kim.playProject(NoctisCity, 18) {
           placeTile(1, 3)
         }
-        .expect("PROD[3 MC, -Energy]")
+        .expect("PROD[3 MC, -Energy], CityTile")
   }
 }

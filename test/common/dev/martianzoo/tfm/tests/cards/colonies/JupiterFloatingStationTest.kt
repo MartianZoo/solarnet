@@ -30,7 +30,7 @@ internal class JupiterFloatingStationTest : ProjectCardTest() {
   }
 
   @Test
-  internal fun `Second action pays at most four mc`() {
+  internal fun `Second action pays at most four MC`() {
     kim.exMachina("$JupiterFloatingStation, 6 Floater<$JupiterFloatingStation>")
 
     kim.cardAction2(JupiterFloatingStation).expect("4 MC")

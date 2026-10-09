@@ -1,34 +1,29 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class PsychrophilesTest : CardTest() {
-  @BeforeTest
-  fun initializeGame() {
-    newGame(PreludeExpansion)
-    admin.phase("Action")
-    p1.runOperation("10 MC, ProjectCard")
-  }
+internal class PsychrophilesTest : ProjectCardTest() {
+  @BeforeTest fun setUp() = newTestGame(addOptions = "Psychrophiles")
 
   @Test
   internal fun `Can decline to spend a microbe on a plant-tag card`() {
-    p1.runOperation("$Psychrophiles, Microbe<$Psychrophiles>")
+    kim.exMachina("$Psychrophiles, Microbe<$Psychrophiles>")
+    kim.setToExMachina(9, "MC")
 
-    p1.playProject(AdaptedLichen, 9) { /* Decline spending a Psychrophiles microbe. */
+    kim.playProject(AdaptedLichen, 9) { /* Decline spending a Psychrophiles microbe. */
           declineTask()
         }
-        .expect("PROD[Plant]")
-    p1.count("Microbe<$Psychrophiles>") shouldBe 1
+        .expect("PROD[Plant], 0 Microbe<$Psychrophiles>")
   }
 
   @Test
   internal fun `Can spend five microbes toward a nine-cost card`() {
-    p1.runOperation("$Psychrophiles, 5 Microbe<$Psychrophiles>")
-    p1.playProject(AdaptedLichen, 0) {
+    kim.exMachina("$Psychrophiles, 5 Microbe<$Psychrophiles>")
+    kim.setToExMachina(0, "MC")
+
+    kim.playProject(AdaptedLichen, 0) {
           doTask("-5 Microbe<$Psychrophiles>")
         }
         .expect("-5 Microbe<$Psychrophiles>, PROD[Plant]")
