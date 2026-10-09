@@ -1,6 +1,6 @@
 package dev.martianzoo.state
 
-import dev.martianzoo.catalogtestsupport.testCatalog
+import dev.martianzoo.engine.testCatalog
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN

@@ -50,8 +50,11 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   by the scope of the change or explicitly requested.
 - `./gradlew test` runs every repository JVM test suite, every browser-specific test, and the
   `OtbGame20260828Test` replay once in a browser. The multiplatform modules' JVM test tasks are named
-  `jvmTest`; their generated browser tasks are inert outside the one intentionally commented-out
-  full-browser target in the root build.
+  `jvmTest`. Pets runs `BrowserPetsTest` through `:pets:jsBrowserTest`; Web runs its browser history
+  tests and the selected replay through `:web:jsBrowserTest`. Other generated browser tasks are
+  inert outside the intentionally commented-out full-browser target in the root build.
+- `./gradlew :pets:test` runs Pets JVM tests and its browser-specific test. The routine browser
+  run excludes the shared JVM/JS suites; use the temporary full-browser target below to run those.
 - Temporarily uncomment `allBrowserTests` in the root build and run
   `./gradlew allBrowserTests --rerun-tasks` to exercise every shared and browser-specific suite,
   including all portable replay scenarios. The browser replay source set also reads the legacy
@@ -152,6 +155,8 @@ the policy shared by every Kotlin target: compilation, explicit API mode, depend
 Detekt, Dokka, and test logging. `solarnet.jvm` adds the JVM plugin and the repository's standard
 Kotlin/JUnit 5 test dependencies. `solarnet.kmp-jvm-js` configures the JVM and browser targets, adds
 shared `kotlin.test`, and exposes each module's `jvmTest` as `test`.
+The Pets module also attaches its filtered browser test to `test`; its complete shared browser
+suite remains available through the temporary full-browser target.
 Module build scripts under `modules/` keep only module-specific configuration and select their
 non-overlapping package roots from the repository-wide `src/` and `test/` trees; JavaScript-only
 applications configure their targets directly. Repository-wide formatting, the Node.js version, and

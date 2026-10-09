@@ -46,6 +46,19 @@ kotlin {
   }
 }
 
+val allBrowserTestsRequested = rootProject.extra["allBrowserTestsRequested"] as Boolean
+
+tasks.named<org.gradle.api.tasks.testing.AbstractTestTask>("jsBrowserTest") {
+  if (!allBrowserTestsRequested) {
+    filter.includeTestsMatching("dev.martianzoo.pets.BrowserPetsTest")
+  }
+}
+
+tasks.named("test") {
+  description = "Runs Pets JVM tests and browser-specific tests."
+  dependsOn("jsBrowserTest")
+}
+
 val jvmMainCompilation = kotlin.targets.getByName("jvm").compilations.getByName("main")
 val jvmTest by tasks.existing(Test::class)
 

@@ -16,17 +16,17 @@ val allBrowserTestsRequested =
 
 extra["allBrowserTestsRequested"] = allBrowserTestsRequested
 
-// Kotlin creates a browser-test task for every JS target. Only :web:jsBrowserTest is part of the
-// normal test suite; the rest are inert unless the deliberately unavailable full-browser target
-// below is temporarily restored.
+// Kotlin creates a browser-test task for every JS target. Pets and Web select their routine
+// browser tests; the other modules are inert unless the deliberately unavailable full-browser
+// target below is temporarily restored.
 subprojects {
-  if (name != "web") {
+  if (name !in setOf("pets", "web")) {
     tasks
         .matching { it.name == "jsBrowserTest" }
         .configureEach {
           description = "Disabled except through the temporary full-browser test target."
           inputs.property("allBrowserTestsRequested", allBrowserTestsRequested)
-          onlyIf("only the repository browser suite runs routinely") { task ->
+          onlyIf("only the Pets and Web browser suites run routinely") { task ->
             task.inputs.properties["allBrowserTestsRequested"] == true
           }
         }

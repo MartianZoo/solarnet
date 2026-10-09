@@ -87,6 +87,9 @@ These concerns remain open; the ranking does not select replacement designs.
 - When preparing the [PETS repository draft](docs/pets-repo-draft.md) for publication, decide
   whether to include Sponsored Academies, currently retained as a draft note after the gallery.
 - After the repository split, rename `:pets-tools` to `:tools` in the Pets repository.
+- When splitting the Gradle builds, preserve `webAppsDevelopmentRun` serving Viewer, Web REPL,
+  and Almanac together. The viewer currently starts Almanac tasks in the same build and reads its
+  JavaScript from the shared output layout; adapt that wiring to the separate Pets build.
 - Add scenario saving and reloading to [Mars Playground](PLAYGROUND.md) after the initial version.
 - Add shareable URLs for [Mars Playground](PLAYGROUND.md#technology-and-experience) later. First
   decide what restoring the same view includes: scenario, history position, camera, and windows.
