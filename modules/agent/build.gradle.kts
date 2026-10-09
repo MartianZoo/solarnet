@@ -19,7 +19,10 @@ kotlin {
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/agent"),
           )
       )
-      dependencies { implementation(libs.kotest.assertions.core) }
+      dependencies {
+        implementation(libs.kotest.assertions.core)
+        implementation(project(":catalog"))
+      }
     }
   }
 }

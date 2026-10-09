@@ -22,7 +22,7 @@
 | --- | --- |
 | Classes, Types, dependencies, refinements, Type variables, uninhabited Types | [`type-system-spec.md`](../type-system-spec.md) |
 | Inline derived Classes, and default insertion into instructions | [`pets-language-spec.md`](../pets-language-spec.md) sections 11 and 12 |
-| Which Classes a premise selects | [`GamePremise.kt`](../../src/common/dev/martianzoo/state/GamePremise.kt) and tests in `PremiseSelectionTest.kt` |
+| Which Classes a premise selects | [`GamePremise.kt`](../../src/common/dev/martianzoo/catalog/GamePremise.kt) and tests in `PremiseSelectionTest.kt` |
 | Master Class identity versus game-filtered enumeration | [`CLASS_TABLES.md`](CLASS_TABLES.md) |
 | Class-property cardinality, groups, and direction | [`PROPERTIES.md`](PROPERTIES.md) |
 | Lexical ownership, Actor attribution, delegated narrowing | [`IDENTITY.md`](IDENTITY.md) |

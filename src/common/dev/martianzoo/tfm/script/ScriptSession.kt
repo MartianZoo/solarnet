@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.script
 
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agents
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName
@@ -9,12 +10,11 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskResult
-import dev.martianzoo.tfm.canon.ApiUtils
+import dev.martianzoo.state.actors
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.engine.TfmEngine
@@ -60,6 +60,7 @@ import dev.martianzoo.tfm.script.commands.TfmPayCommand
 import dev.martianzoo.tfm.script.commands.TfmPlayCommand
 import dev.martianzoo.tfm.script.commands.TfmSampleCommand
 import dev.martianzoo.tfm.script.commands.TurnCommand
+import dev.martianzoo.tfm.state.ApiUtils
 
 /** @param useAnsiColors whether prompts and command output may contain ANSI escape sequences. */
 public class ScriptSession(

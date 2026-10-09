@@ -29,6 +29,7 @@ kotlin {
 
 dependencies {
   implementation(project(":agent"))
+  implementation(project(":catalog"))
   implementation(project(":tfm-canon"))
   implementation(project(":tfm-fake"))
   implementation(project(":engine"))

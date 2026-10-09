@@ -1,4 +1,4 @@
-package dev.martianzoo.state
+package dev.martianzoo.catalog
 
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
@@ -16,11 +16,14 @@ import dev.martianzoo.pets.data.ModuleProperties.AUTO_SELECT_WHEN
 import dev.martianzoo.pets.types.PremiseClassTable
 
 /**
- * Resolves the generic part of a [GameConfig], then accepts game-specific selections and setup.
- * [build] freezes those choices into a [GamePremise] without changing the Catalog's master table.
- * Automatic Module defaults are resolved before game-specific content policies are applied.
+ * Mutable resolution context exposed only to [Catalog] subclasses implementing selection policy.
+ *
+ * It resolves the generic part of a [GameConfig], then accepts game-specific selections and setup.
+ * Automatic Module defaults are resolved before game-specific content policies are applied. The
+ * owning Catalog freezes the result as a [GamePremise] without changing its master table.
  */
-public class GamePremiseBuilder(
+public class GamePremiseBuilder
+internal constructor(
     private val catalog: Catalog,
     config: GameConfig,
     additionalClassDeclarations: Set<ClassDeclaration> = emptySet(),
@@ -104,7 +107,7 @@ public class GamePremiseBuilder(
   }
 
   /** Completes the exact selections and the ordinary Pets declaration that initializes them. */
-  public fun build(): GamePremise {
+  internal fun build(): GamePremise {
     val modules = moduleNames
     val resolvedSelections = linkedMapOf<ClassName, Boolean>()
     catalog.modules.keys.forEach { resolvedSelections[it] = false }

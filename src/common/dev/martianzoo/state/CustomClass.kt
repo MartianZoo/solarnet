@@ -1,5 +1,6 @@
 package dev.martianzoo.state
 
+import dev.martianzoo.catalog.Catalog
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.ast.ClassName

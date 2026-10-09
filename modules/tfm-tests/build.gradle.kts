@@ -24,6 +24,7 @@ kotlin {
       dependencies {
         implementation(libs.kotest.assertions.core)
         implementation(project(":agent"))
+        implementation(project(":catalog"))
         implementation(project(":engine"))
         implementation(project(":pets"))
         implementation(project(":script"))
@@ -31,6 +32,7 @@ kotlin {
         implementation(project(":tfm-canon"))
         implementation(project(":tfm-fake"))
         implementation(project(":tfm-engine"))
+        implementation(project(":tfm-state"))
       }
     }
     jsTest {

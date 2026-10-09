@@ -155,13 +155,10 @@ internal constructor(
     when (resolved) {
       is Change -> executeChange(resolved, cause, deferred, actor, controller, queuedEffects)
       is By ->
-          doExecuteResolved(
-              resolved.inner,
-              cause,
-              deferred,
-              actorFor(resolved),
-              controller,
-              queuedEffects,
+          throw ExpressionException(
+              "instruction-side `BY` reached execution without a task-assignment handoff: " +
+                  resolved,
+              sourceLocation = resolved.sourceLocation,
           )
       is Then -> {
         doExecuteResolved(resolved.first, cause, deferred, actor, controller, queuedEffects)
@@ -303,7 +300,14 @@ internal constructor(
     automaticEffectStack = ancestors + task
     try {
       task.instruction.instructions.forEach {
-        doExecute(it, task.cause, deferred, task.actor, task.controller, queuedEffects)
+        doExecute(
+            it,
+            task.cause,
+            deferred,
+            task.selectionAssignee,
+            task.controller,
+            queuedEffects,
+        )
       }
     } finally {
       automaticEffectStack = enclosingStack
@@ -457,7 +461,7 @@ internal constructor(
     return type.expression
   }
 
-  private fun actorFor(instruction: By): Actor {
+  internal fun actorFor(instruction: By): Actor {
     val type = reader.resolve(instruction.actor)
     if (reader.countComponent(type) != 1) {
       throw ExpressionException(

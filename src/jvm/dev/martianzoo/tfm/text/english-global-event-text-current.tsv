@@ -21,14 +21,14 @@ Revolution	Revolution	If this is a multiplayer game, [EACH Me@Player(HAS 1 (Eart
 Riots	Riots	Remove 4 M€ per city tile you own (max 5) in excess of influence, or as much as possible.
 SabotageGlobalEvent	Sabotage	Decrease your steel production 1 step, or as much as possible. Decrease your energy production 1 step, or as much as possible. Gain 1 steel per influence.
 ScientificCommunity	Scientific Community	Gain 1 M€ per card in hand. Gain 1 M€ per influence.
-SnowCover	Snow Cover	If temperature has not reached its maximum, lower temperature 2 steps without gaining terraform rating or other bonuses. Draw 1 card per influence.
+SnowCover	Snow Cover	If temperature has not reached its maximum, lower temperature 2 steps. Draw 1 card per influence.
 SolarFlare	Solar Flare	Remove 3 M€ per space tag you have (max 5) in excess of influence, or as much as possible.
 SolarnetShutdown	Solarnet Shutdown	Remove 3 M€ per active card in play (max 5) in excess of influence, or as much as possible.
 SpinOffProducts	Spin-Off Products	Gain 2 M€ per science tag you have (max 5). Gain 2 M€ per influence.
 SponsoredProjects	Sponsored Projects	[EACH Card@ResourceCard<Anyone>(HAS CardResource) { CardResource<Card@ResourceCard> }]. Draw 1 card per influence.
 StrongSociety	Strong Society	Gain 2 M€ per city tile you own (max 5). Gain 2 M€ per influence.
 SuccessfulOrganisms	Successful Organisms	Gain 1 plant per plant production (max 5). Gain 1 plant per influence.
-VolcanicEruptions	Volcanic Eruptions	Raise temperature 2 steps without gaining terraform rating or other bonuses. Increase your heat production 1 step per influence.
+VolcanicEruptions	Volcanic Eruptions	Raise temperature 2 steps. Increase your heat production 1 step per influence.
 WarOnEarth	War On Earth	Lower your terraform rating 1 step per unit by which influence falls short of 4, or as much as possible.
 VenusInfrastructure	Venus Infrastructure	Gain 2 M€ per Venus tag you have (max 5). Gain 2 M€ per influence.
 CloudSocieties	Cloud Societies	[EACH @ResourceCard<Class<Floater>, Anyone> { Floater<@ResourceCard> }]. [ChooseInfluenceFloaterCard].

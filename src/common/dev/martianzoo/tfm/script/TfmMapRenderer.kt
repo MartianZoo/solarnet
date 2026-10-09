@@ -5,13 +5,13 @@ import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.Grid
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.canon.ApiUtils
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.script.TfmColor.CITY_TILE
 import dev.martianzoo.tfm.script.TfmColor.GREENERY_TILE
 import dev.martianzoo.tfm.script.TfmColor.OCEAN_TILE
 import dev.martianzoo.tfm.script.TfmColor.SPECIAL_TILE
+import dev.martianzoo.tfm.state.ApiUtils
 
 /** Renders the configured Mars map and its placed tiles as terminal text. */
 public class TfmMapRenderer(

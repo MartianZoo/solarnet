@@ -178,7 +178,7 @@ internal class Effector(
     val stableAutomaticOrder: Comparator<PendingTask> =
         compareBy(
             { it.cause.context.toString() },
-            { it.actor.toString() },
+            { it.selectionAssignee.toString() },
             { it.controller.toString() },
             { it.instruction.toString() },
         )

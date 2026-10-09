@@ -18,9 +18,9 @@
   canonical identity constraints.
 - [`SystemDeclarations.kt`](../../src/common/dev/martianzoo/pets/SystemDeclarations.kt) — the root
   classes every Catalog inherits.
-- [`displayNames.kt`](../../src/common/dev/martianzoo/state/displayNames.kt) — stateless localized
+- [`displayNames.kt`](../../src/common/dev/martianzoo/catalog/displayNames.kt) — stateless localized
   display lookup; `defaultEnglishDisplayName` defines the display default.
-- [`GamePremise.kt`](../../src/common/dev/martianzoo/state/GamePremise.kt) — search for
+- [`GamePremise.kt`](../../src/common/dev/martianzoo/catalog/GamePremise.kt) — search for
   `playerNames` when changing configured Player identities.
 - [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) — read before adding a Module,
   for the bundle-name coincidence rule.

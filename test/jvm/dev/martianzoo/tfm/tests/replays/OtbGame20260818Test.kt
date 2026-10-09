@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.EventLogJson
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.GameWorld
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts

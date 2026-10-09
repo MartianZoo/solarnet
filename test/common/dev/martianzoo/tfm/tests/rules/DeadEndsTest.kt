@@ -162,10 +162,9 @@ internal class DeadEndsTest : CardTest() {
     var hazardousChoiceAttempted = false
     try {
       p1.runOperation("$SmallAsteroid") {
-        doTasks(
-            "-Plant<Player2>",
-            "MyResourceWasRemoved<Player2, Class<Plant>, Player1>.",
-        )
+        doTask("-Plant<Player2>")
+        p1.selectTask("MyResourceWasRemoved<Player2, Class<Plant>, Player1>.")
+        p2.doTask("MyResourceWasRemoved<Player2, Class<Plant>, Player1>!")
         hazardousChoiceAttempted = true
         doTasks(
             "3 MC<Player2> FROM MC<Player1>.",
@@ -185,14 +184,10 @@ internal class DeadEndsTest : CardTest() {
     p2.count("Plant") shouldBe 1
 
     p1.runOperation("$SmallAsteroid") {
-          doTasks(
-              "-Plant<Player2>",
-              "MyResourceWasRemoved<Player2, Class<Plant>, Player1>.",
-              "TemperatureStep",
-              "TerraformRating",
-              "-3 MC<Player1>",
-              "Ok",
-          )
+          doTask("-Plant<Player2>")
+          p1.selectTask("MyResourceWasRemoved<Player2, Class<Plant>, Player1>.")
+          p2.doTask("MyResourceWasRemoved<Player2, Class<Plant>, Player1>!")
+          doTasks("TemperatureStep", "TerraformRating", "-3 MC<Player1>", "Ok")
           autoExecNow(EAGER)
         }
         .expect("-3 MC, -Plant<Player2>, 0 MC<Player2>")

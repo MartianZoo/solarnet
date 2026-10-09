@@ -103,21 +103,23 @@ another caller needs it.
 
 ## Reusable behavior inside `tfm`
 
-### Catalog assembly and configuration live in `state`
+### Catalog assembly and configuration live in `catalog`
 
-[`Catalog`](../../src/common/dev/martianzoo/state/Catalog.kt) is the concrete, extensible Catalog
+[`Catalog`](../../src/common/dev/martianzoo/catalog/Catalog.kt) is the concrete, extensible static
+Catalog
 implementation. It aggregates system and contributed declarations, checks duplicate names, loads
 and validates the master table, derives its custom-Class requirements, composes custom-Class
 dependencies and display names, and adds concrete Player Classes. Construct `Catalog(first, second)`
 to combine generic contributions; construct `TfmCatalog(first, second)` to apply Terraforming Mars
 policies to the combined declarations.
 
-[`GamePremiseBuilder`](../../src/common/dev/martianzoo/state/GamePremiseBuilder.kt) resolves explicit
-signed Class names, additive setup-component adjustments, premise-local Player declarations, and
-convergent Module defaults. The finished `GamePremise` stores Modules and individual Content in the
-same Class-selection set. A game-specific Catalog can adjust content selections and setup effects
-before `build()` creates its ordinary Pets initialization declaration. This working configuration
-never replaces or recompiles the Catalog's master table.
+[`GamePremiseBuilder`](../../src/common/dev/martianzoo/catalog/GamePremiseBuilder.kt) is the protected
+Catalog-subclass resolution context. It resolves explicit signed Class names, additive
+setup-component adjustments, premise-local Player declarations, and convergent Module defaults.
+The finished `GamePremise` stores Modules and individual Content in the same Class-selection set.
+A game-specific Catalog adjusts content selections and setup effects through
+`Catalog.configurePremise`; callers receive the completed premise rather than building it manually.
+This working configuration never replaces or recompiles the Catalog's master table.
 
 `TfmCatalog` owns card validation and action lowering, bundle provenance, card/map/colony registries,
 expansion compatibility, milestone and award pools, and the Terraforming Mars bootstrap signals.
@@ -125,7 +127,7 @@ Player effects create seat-order Components. Its Module registry is derived from
 declarations and bundle content; bundles need not compile independently. Generic Catalog composition
 combines explicit Module maps.
 
-Generic assembly and configuration tests live in `:state`; generic setup execution is covered in
+Generic assembly and configuration tests live in `:catalog`; generic setup execution is covered in
 `:engine`. Terraforming Mars content selection and full-game scenarios remain in their domain suites.
 
 ### Workflow progression and task scheduling
@@ -153,26 +155,32 @@ still determine when the relevant work is requested. The alternatives remain ope
 Hex-to-ANSI color rendering and half-space centering are generic helpers inside Terraforming Mars UI
 classes. They are too small to drive an architecture change. Move them only with nearby work.
 
-### Game assembly and runtime APIs belong to `:state`
+### Static game assembly lives in `:catalog`; runtime APIs live in `:state`
 
 Pets owns source, declarations, types, requirements, metrics, instructions, narrowing, effects,
-actions, transform blocks, owner-local Classes, and elaboration. `:state` owns `Catalog`,
-`GameConfig`, `GamePremise`, `ClassSelection`, runtime Actor/Player identities, `GameReader`, and the
-Kotlin custom metric/instruction APIs. A `GameWorld` passively carries any supplied bindings and uses
-them for custom metric queries. `Engine.newGame` validates the complete set needed for live play;
-game-specific engines such as `TfmEngine` own and supply that set. Its `displayNames.kt` supplies
-Catalog-based presentation names; [NAMING.md](NAMING.md) owns naming policy.
+actions, transform blocks, owner-local Classes, and elaboration. `:catalog` owns `Catalog`,
+`GameConfig`, `GamePremise`, `ClassSelection`, premise resolution, and Catalog-based presentation
+names. These are static: player seats are Class Names, and a premise contains no Actor, Component,
+task, event, reader, or executable custom implementation. `:state` turns the configured player
+names into runtime Actor/Player identities and owns `GameReader` and the Kotlin custom
+metric/instruction APIs. A `GameWorld` passively carries any supplied bindings and uses them for
+custom metric queries. `Engine.newGame` validates the complete set needed for live play;
+game-specific engines such as `TfmEngine` own and supply that set. [NAMING.md](NAMING.md) owns
+presentation naming policy.
+
+`:tfm-state` owns Terraforming Mars-specific read-only projections over `GameReader`, including
+the checked `TfmCatalog` view and map or production lookups. Both `:tfm-engine` and passive playback
+clients may use it; it contains no execution behavior.
 
 The loading interface accepts data and callbacks supplied by Catalog and GamePremise; it has no
 dependency on either. `TypeInfo` supplies the active class table without a `GameReader` downcast.
 [CLASS_TABLES.md](CLASS_TABLES.md#game-view-shape) owns those construction contracts.
-`PremiseViability` stays with game assembly and uses Pets' public `InhabitanceInterpreter` for
-empty-domain facts. Providers of Catalogs and custom runtime behavior depend on `:state`, which
-in turn depends on `:pets`. Pets production code and tests have no dependency on `:state`.
+`PremiseViability` stays with static game assembly and uses Pets' public `InhabitanceInterpreter`
+for empty-domain facts. `:catalog` depends only on `:pets`; `:state` depends on both. Static
+providers such as `:tfm-canon`, `:tfm-fake`, and `:almanac` have no dependency on `:state`.
 
-Pure language and type tests construct tables directly. Catalog, configuration, runtime identity,
-and Kotlin implementation tests live with `:state`; their game-assembly fixtures are not compiled
-into the Pets test module.
+Pure language and type tests construct tables directly. Catalog and configuration tests live with
+`:catalog`; runtime identity and Kotlin implementation tests live with `:state`.
 
 Runtime `Task`, `GameEvent`, and `TaskResult` data have moved to `:state`; their instruction-bearing
 values remain inert there, while task construction and normalization stay in `:engine`.

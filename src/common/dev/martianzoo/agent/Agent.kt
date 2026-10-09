@@ -55,12 +55,12 @@ public interface Agent {
 
   /**
    * Narrows this Actor's selected task and resolves it again. A partial narrowing remains selected;
-   * a concrete result executes before this call returns.
+   * a concrete result executes before this call returns unless `BY` assigns it to another Actor.
    *
    * @param [narrowing] the new instruction tree; may be abstract or a grouped arm selected from an
    *   `OR`; a group replaces this one task with one task per member; if identical to the current
-   *   instruction this method does nothing; an omitted quantifier retains a stronger pending
-   *   quantifier when the Class default would weaken it
+   *   abstract instruction the task remains unchanged; an omitted quantifier retains a stronger
+   *   pending quantifier when the Class default would weaken it
    * @throws [TaskException] if this Actor has no selected task
    * @throws [NarrowingException] if [narrowing] does not narrow the selected task's instruction
    */
@@ -69,13 +69,14 @@ public interface Agent {
   /** Tells whether [selectTask] will complete normally. */
   public fun canSelectTask(taskId: TaskId): Boolean
 
-  /** Tells whether selecting [taskId] would also execute it without further narrowing. */
+  /** Tells whether this Actor can select and finish [taskId] without a choice or handoff. */
   public fun canExecuteTask(taskId: TaskId): Boolean
 
   /**
    * Selects one pending task and resolves its instruction against the current World. An abstract
-   * result remains selected for later [narrowTask] calls and may move to its narrower's queue while
-   * retaining its controller. A concrete result executes before this call returns.
+   * result remains selected for later [narrowTask] calls. Selection may assign the task to its
+   * selection assignee, and concrete instruction-side `BY` may assign it again. This call stops at
+   * either handoff; otherwise a concrete result executes before it returns.
    *
    * If resolution produces independent instructions, selecting the structural task completes it and
    * admits those instructions as ordinary pending siblings.
@@ -108,6 +109,10 @@ public interface Agent {
    * interchangeable. When the narrowing omits a quantifier and its Class default would weaken the
    * pending task's quantifier, the pending quantifier is retained; an explicitly written quantifier
    * must be compatible with the task's quantifier.
+   *
+   * If selecting the task without the submitted narrowing would hand it to another Actor, this
+   * command fails. Use [selectTask] for that selection-only handoff; the receiving Actor can then
+   * narrow or execute the selected task.
    *
    * @throws [NotFullySpecifiedException] if the task is abstract
    * @throws [NotNowException] if the task can't currently be resolved

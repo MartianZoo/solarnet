@@ -2,6 +2,7 @@
 
 package dev.martianzoo.tfm.web.classviewer
 
+import dev.martianzoo.catalog.displayName
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -13,7 +14,6 @@ import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
-import dev.martianzoo.state.displayName
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.text.EnglishCardTextRenderer
 import kotlin.js.JSON

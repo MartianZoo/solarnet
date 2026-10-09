@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
@@ -14,7 +15,6 @@ import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.CustomClass
 import dev.martianzoo.state.CustomInstruction
 import dev.martianzoo.state.CustomMetric
-import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.Canon

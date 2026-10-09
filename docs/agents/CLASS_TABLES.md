@@ -20,7 +20,7 @@
   for `public abstract class ClassTable` to inspect Catalog-wide and game-view operations.
 - [`Class.kt`](../../src/common/dev/martianzoo/pets/types/Class.kt) — read before
   adding any back-reference or universe identity to a structural value.
-- [`GamePremise.kt`](../../src/common/dev/martianzoo/state/GamePremise.kt) —
+- [`GamePremise.kt`](../../src/common/dev/martianzoo/catalog/GamePremise.kt) —
   search for `classTable` to see where the game view is retained.
 - [`ClassTableSelectionTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/ClassTableSelectionTest.kt)
   — read when changing inhabitation or Catalog/Class identity invariants.

@@ -79,7 +79,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Pets syntax, declarations, instructions, effects, actions, narrowing, owner-local Classes, or elaboration | The cited rule of [`pets-language-spec.md`](../pets-language-spec.md) | Specification, checked rule-by-rule by `pets/Lang*Test.kt` |
 | Type-variable lifetime in the engine | The matching section of [`TYPES.md`](TYPES.md) | Current model and working direction |
 | Class-property syntax, defaults, cardinality, or property groups | The matching section of [`PROPERTIES.md`](PROPERTIES.md) | Current model and working rules |
-| Catalogs, Modules, Bundles, configuration, premise resolution, or projection policy | KDoc on [`Catalog`](../../src/common/dev/martianzoo/state/Catalog.kt), [`GamePremise`](../../src/common/dev/martianzoo/state/GamePremise.kt), and [`Bundle`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt); then the matching tests | Current model |
+| Catalogs, Modules, Bundles, configuration, premise resolution, or projection policy | KDoc on [`Catalog`](../../src/common/dev/martianzoo/catalog/Catalog.kt), [`GamePremise`](../../src/common/dev/martianzoo/catalog/GamePremise.kt), and [`Bundle`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt); then the matching tests | Current model |
 | Master Class identity versus game-filtered enumeration | [`CLASS_TABLES.md`](CLASS_TABLES.md) | Current model |
 | Generated Kotlin types for the canonical Pets vocabulary | [`PETS_TYPE_GENERATOR.md`](PETS_TYPE_GENERATOR.md) | Current tool behavior |
 | Generic component fanout (`EACH`) | [`EACH.md`](EACH.md) | Current model |

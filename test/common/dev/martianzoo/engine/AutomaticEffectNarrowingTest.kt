@@ -28,7 +28,7 @@ internal class AutomaticEffectNarrowingTest {
               HAS MAX 1 This
               HAS MAX 1 Link<This, Person>, MAX 1 Link<Person, This>
               HAS MAX 0 Link<This, This>
-              This IF 2 Person:: Link<Person, This> BY Admin
+              This IF 2 Person:: Link<Person, This>
             }
             CLASS First : Person
             CLASS Second : Person

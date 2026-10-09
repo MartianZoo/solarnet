@@ -18,6 +18,7 @@ kotlin {
     jsMain {
       kotlin.setSrcDirs(listOf(webReplSourceDirectory))
       dependencies {
+        implementation(project(":catalog"))
         implementation(project(":engine"))
         implementation(project(":pets"))
         implementation(project(":state"))
@@ -47,6 +48,7 @@ kotlin {
         implementation(project(":state"))
         implementation(project(":tfm-engine"))
         implementation(project(":tfm-fake"))
+        implementation(project(":tfm-state"))
       }
     }
   }

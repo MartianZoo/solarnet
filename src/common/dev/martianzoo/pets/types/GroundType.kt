@@ -175,6 +175,7 @@ internal constructor(
     require(classTable.knows(this) && classTable.knows(that)) {
       "`$this` and `$that` cannot both be interpreted by this class table"
     }
+    if (this == that) return inTable(classTable)
     val glbClass = classTable.glb(rootClass, that.rootClass) ?: return null
     val glbDeps = classTable.glb(dependencies, that.dependencies) ?: return null
     val glbRefin =

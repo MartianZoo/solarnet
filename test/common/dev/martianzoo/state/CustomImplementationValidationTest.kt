@@ -1,5 +1,7 @@
 package dev.martianzoo.state
 
+import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.catalogtestsupport.testCatalog
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException

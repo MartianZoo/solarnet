@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
-import dev.martianzoo.state.GameConfig
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.TfmEngine

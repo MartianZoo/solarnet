@@ -19,10 +19,10 @@ conceptual cost.
 
 1. **Complete the static/runtime separation.** **Selected.** The future Pets repository should
    build and explain its static model without depending on game state or execution. Finish the
-   separation now partly expressed by moving game assembly into `state`: isolate source parsing
-   from the model, separate canonical declarations from Solarnet runtime implementations, and make
-   Canon and Almanac depend only on capabilities they actually use. Prefer moving a complete
-   responsibility or deleting a reverse dependency over adding paired adapters.
+   separation now expressed by the dedicated `catalog` module and by Canon, Fake Canon, and Almanac
+   having no state dependency: isolate source parsing from the model and continue making consumers
+   depend only on capabilities they actually use. Prefer moving a complete responsibility or
+   deleting a reverse dependency over adding paired adapters.
 
 2. **Make Pets pleasant to consume directly.** **Selected.** The model should expose a small,
    typed, unsurprising path from declarations to class tables, types, properties, and instructions.

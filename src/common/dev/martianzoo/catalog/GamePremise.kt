@@ -1,6 +1,7 @@
-package dev.martianzoo.state
+package dev.martianzoo.catalog
 
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
+import dev.martianzoo.pets.api.SystemClasses.ADMIN
 import dev.martianzoo.pets.api.SystemClasses.AUDIT
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.SystemClasses.THIS
@@ -11,7 +12,6 @@ import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassLoader
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.PremiseClassTable
-import dev.martianzoo.state.Actor.Companion.ADMIN
 
 /**
  * The complete immutable, resolved input from which equivalent playable worlds are constructed.
@@ -106,7 +106,8 @@ public data class GamePremise(
             modules +
             ((selectedByModules - explicitlyExcluded) + explicitlyIncluded) +
             componentAdjustments.keys +
-            actors.map(Actor::className) +
+            playerNames +
+            ADMIN +
             listOfNotNull(bootstrapClassName, premiseClassName)
 
     val table =
@@ -261,8 +262,4 @@ public data class GamePremise(
       }
     }
   }
-
-  /** The administrative Actor plus the seated Players. */
-  public val actors: List<Actor>
-    get() = playerNames.map(::Player) + ADMIN
 }

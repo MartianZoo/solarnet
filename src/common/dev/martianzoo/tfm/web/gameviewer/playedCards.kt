@@ -8,7 +8,7 @@ import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameWorld
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.cardResourceType
-import dev.martianzoo.tfm.canon.tfmCatalog
+import dev.martianzoo.tfm.state.tfmCatalog
 
 /** Current face-up cards, retaining the order in which they first entered play. */
 internal fun playedCards(game: GameWorld, player: Player): List<Type> {

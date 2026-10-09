@@ -1,5 +1,8 @@
-package dev.martianzoo.state
+package dev.martianzoo.catalogtestsupport
 
+import dev.martianzoo.catalog.Catalog
+import dev.martianzoo.catalog.ClassSelection
+import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -7,7 +10,7 @@ import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.types.ClassTable
 
 /** Builds a catalog from Pets source, plus the system classes. */
-internal fun testCatalog(
+public fun testCatalog(
     petsText: String,
     customClassDependencies: Map<ClassName, Set<ClassName>> = emptyMap(),
     moduleSelections: Map<ClassName, Set<ClassSelection>> = emptyMap(),
@@ -23,7 +26,7 @@ internal fun testCatalog(
 }
 
 /** Builds the game view of [catalog] whose premise selects exactly [selectedClassNames]. */
-internal fun gameView(catalog: Catalog, vararg selectedClassNames: String): ClassTable =
+public fun gameView(catalog: Catalog, vararg selectedClassNames: String): ClassTable =
     GamePremise(
             catalog = catalog,
             classSelections = selectedClassNames.mapTo(linkedSetOf()) { ClassSelection(cn(it)) },

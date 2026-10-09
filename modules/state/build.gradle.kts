@@ -8,12 +8,16 @@ kotlin {
       )
       dependencies {
         implementation(libs.kotlinx.serialization.json)
+        implementation(project(":catalog"))
         implementation(project(":pets"))
       }
     }
     commonTest {
       kotlin.setSrcDirs(
           listOf(
+              rootProject.layout.projectDirectory.dir(
+                  "test/common/dev/martianzoo/catalogtestsupport"
+              ),
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/testsupport"),
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/state"),
           )

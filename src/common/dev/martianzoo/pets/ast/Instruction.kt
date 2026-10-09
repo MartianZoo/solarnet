@@ -385,19 +385,19 @@ public sealed class Instruction : InstructionTree() {
   }
 
   /**
-   * Carries out [inner] as the concrete [actor], independently of who narrows the task ([rule
+   * Assigns concrete [inner] work to [actor], independently of who narrows the task ([rule
    * L2-15](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * Like a gate or a metric, the actor is not a choice: a proposal must reproduce it exactly ([rule
    * L3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
-   * Attribution itself is `IDENTITY.md`'s subject.
+   * Task assignment and event Actor identity are `IDENTITY.md`'s subject.
    */
   public data class By(val inner: Instruction, val actor: Expression) : Instruction() {
     public companion object {
-      /** Creates a performer override. */
+      /** Creates a concrete-work assignment. */
       public fun create(inner: Instruction, actor: Expression): Instruction = By(inner, actor)
 
       /**
-       * Creates a performer override, distributing it over independent instructions as
+       * Creates a concrete-work assignment, distributing it over independent instructions as
        * [rule L2-15](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)
        * requires: `(A, B) BY Player1` is `A BY Player1, B BY Player1`.
        */

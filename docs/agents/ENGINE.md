@@ -53,7 +53,7 @@ as a parallel premise choice. Setup adjustments and game-specific setup become o
 the generated premise Class. The premise retains one immutable game `ClassTable` view sharing its
 Catalog's compiled master structure; separate Worlds from that premise share compiled class facts
 but no mutable game state. See
-[`GamePremise.kt`](../../src/common/dev/martianzoo/state/GamePremise.kt).
+[`GamePremise.kt`](../../src/common/dev/martianzoo/catalog/GamePremise.kt).
 
 `Engine.newGame` first validates its supplied Kotlin custom-Class implementations against the
 Catalog's derived custom declarations. Games without custom declarations may use the empty default;
@@ -145,14 +145,16 @@ A Task retains:
 
 - a `TaskId` derived from its original add-event ordinal and preserved across edits;
 - one task-shaped `Instruction`;
-- the controlling Actor for the surrounding operation;
-- the contextual Actor that normally performs its eventual change;
-- `UNSELECTED`, `SELECTED`, or `DELEGATED` state;
+- the controlling Actor that ordered the work;
+- the Actor who receives it upon selection;
+- its current assignee;
+- whether it is selected;
 - an optional `THEN` continuation; and
 - its cause.
 
-The assignee is derived from selection state: controller before delegation, contextual Actor after
-delegation. These identities are independent; use [IDENTITY.md](IDENTITY.md) before changing them.
+The three Actor fields are independent. An unselected task starts assigned to its controller.
+Selection changes the assignee to the selection assignee; concrete instruction-side `BY` can change
+it again. Use [IDENTITY.md](IDENTITY.md) before changing them.
 
 Queue admission normalizes an `InstructionGroup` into one Task per independent member. `A THEN B`
 stores A as current work and B as a continuation; completing A admits B as ordinary work with no
@@ -160,10 +162,10 @@ priority over unrelated Tasks. If the first stage uses an open shared variable, 
 defers its split until narrowing selects that value. Unrelated earlier stages can split, retaining
 the shared scope in their continuation.
 
-An Actor advances work by selecting a Task or narrowing its remaining choices. Selection
-blocks competing ordinary task commands until that Task finishes. It is an ordering promise,
-not a timeline commit or a lock over the task's entire consequence set. Correction APIs remain
-deliberately available through their own contracts.
+The current assignee advances work by selecting a Task, narrowing its remaining choices, or
+executing it once concrete. Selection blocks competing ordinary task commands until that Task
+finishes. It is an ordering promise, not a timeline commit or a lock over the task's entire
+consequence set. Correction APIs remain deliberately available through their own contracts.
 
 The current engine admits committed narrowing of a selected Task. It resolves that proposal against
 the live World, and each accepted partial choice becomes a `TaskEditedEvent`. It also validates a
@@ -173,7 +175,9 @@ TaskId, selecting that Task if necessary. `Agent.narrowTask` still requires an a
 An Agent-created `TaskForm` keeps a disposable narrowing draft before or after task selection.
 Its choice analysis makes no game mutation and claims no selection or assignment. The form
 rechecks the current task and World before submission; the engine's stored instruction remains
-authoritative. [API.md](API.md#committed-narrowing-and-agent-forms) owns the client lifecycle.
+authoritative. If committing an unchanged form selects a task that changes assignee, the command
+performs only that handoff. A form containing a choice instead fails, because the former assignee's
+draft cannot cross it. [API.md](API.md#committed-narrowing-and-agent-forms) owns the client lifecycle.
 
 After selection, resolution repeatedly evaluates state-dependent structure until it reaches a
 remaining choice or the first stage is executable. It handles metrics and gates, eliminates `OR`
@@ -185,9 +189,24 @@ whose declared maximum is one. The same World-based gain narrowing applies when 
 receives an explicit narrowing. `ActorEngine` separately executes a selected Task once its
 instruction is concrete.
 
-Resolution may leave a genuine Player choice abstract. If it exposes independent instructions, the
-selected structural Task is replaced by ordinary unselected siblings rather than transferring its
-selection to one arbitrarily.
+Resolution may leave a genuine Player choice abstract. Selection transfers the same task to its
+recorded selection assignee, who alone may narrow it. If resolution exposes independent
+instructions, the selected structural Task is replaced by ordinary unselected siblings rather than
+transferring its selection to one arbitrarily.
+
+The combined `doTask` and `tryTask` commands reject an unselected task when selection alone changes
+assignee, including through a concrete `BY`. Such a call would only select and hand off while
+silently discarding its submitted instruction. The caller must use `selectTask`; the receiving
+assignee can then narrow or execute the selected task.
+
+When a top-level instruction-side `BY` becomes concrete, task processing resolves the named
+participating Actor, removes the wrapper, and transfers the task to that Actor. The prior assignee's
+command ends at that handoff. The final assignee's `ActorEngine` executes the stripped instruction,
+so the Actor recorded on each resulting change is the Actor that actually performed it.
+
+Task normalization distributes `BY` across `THEN` stages when they become separate tasks. A `BY`
+inside a sequence that must remain a single Task is rejected; the engine has no partial-execution
+state for changing assignee midway through such a Task, and Canon has no use requiring it.
 
 The original controller receives those siblings and continuations even when the selected choice
 was delegated to another Actor. Triggered work retains a Player controller; Admin-controlled work
@@ -202,12 +221,13 @@ uses that Player for omitted ownership. `Cathedral<CityTile<Anyone, Tharsis_4_2>
 submitted narrowing can then resolve the existing city at that area without naming its concrete
 subclass, and fails when there is no city there.
 
-The executable first-stage forms are deliberately small: no-op, fully concrete change, an Actor
-override around executable work, or `THEN` whose first stage is executable. Later `THEN` stages stay
-as Pets until earlier state changes have happened. Execution removes the completed Task, admits its
-continuation, and routes changes through the ordinary mutation/effect path. `Gated`, `Per`, `Or`,
-gains of virtual `CustomMetric` types, marked transforms, and instruction groups cannot reach execution
-as a first stage; resolution must consume, reject, choose, or split them first.
+The executable first-stage forms are deliberately small: no-op, fully concrete change, or `THEN`
+whose first stage is executable. Task processing consumes instruction-side `BY` before this point.
+Later `THEN` stages stay as Pets until earlier state changes have happened. Execution removes the
+completed Task, admits its continuation, and routes changes through the ordinary mutation/effect
+path. `Gated`, `Per`, `Or`, gains of virtual `CustomMetric` types, marked transforms, and instruction
+groups cannot reach execution as a first stage; resolution must consume, reject, choose, or split
+them first.
 
 ## One instruction becomes events in stages
 
@@ -254,12 +274,14 @@ After effect scaling, `Effector` reapplies gain atomization so `Atomized` gains 
 even when their counts come from trigger matching or repeated live components.
 
 An owned effect listening to an unowned event defaults to its Player owner unless it explicitly says
-`BY Anyone`. Trigger-side `BY` filters the triggering Actor. Instruction-side `BY` changes the Actor
-recorded on resulting work.
+`BY Anyone`. Trigger-side `BY` filters the triggering Actor. On queued work, instruction-side `BY`
+changes the task's assignee once its instruction is concrete. It does not directly rewrite event
+attribution.
 
 Queued `:` effects produce pending Tasks. Automatic `::` effects execute recursively before queued
 effects from the same change are admitted. The recursion limit is eight nested automatic effects;
-exceeding it fails the enclosing operation atomically. Read [SEQUENCING.md](SEQUENCING.md) before
+exceeding it fails the enclosing operation atomically. Because automatic effects create no Task,
+their instructions cannot use instruction-side `BY`. Read [SEQUENCING.md](SEQUENCING.md) before
 using `:` versus `::` to force an order.
 
 ## Queries, invariants, and dead ends

@@ -4,13 +4,13 @@ import dev.martianzoo.agent.TaskForm
 import dev.martianzoo.agent.TaskForm.Decision.Kind.ALTERNATIVE
 import dev.martianzoo.agent.TaskForm.Decision.Kind.AMOUNT
 import dev.martianzoo.agent.TaskForm.Decision.Kind.TARGET
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskResult
@@ -31,7 +31,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       vararg keyClasses: String,
       count: Int? = null,
   ): ExpectedTaskForm {
-    val id =
+    val matches =
         tasks
             .matching { task ->
               (count == null ||
@@ -44,8 +44,9 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
             .map(tasks::getTaskData)
             // Identical offers (such as Great Aquifer's oceans) are interchangeable.
             .distinctBy { it.copy(id = TaskId(0), cause = null) }
-            .single()
-            .id
+    val id =
+        tasks.selectedTask()?.takeIf { selected -> matches.any { it.id == selected } }
+            ?: matches.single().id
     return ExpectedTaskForm(this, fillInTask(id))
   }
 
@@ -1176,6 +1177,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I'm going to put my floater on Dirigibles."
       stdAction("TradeAction", 2) {
         fillInTask("Trade").choose("ColonyTile" to "Titan", outOf = 4).done()
+        blue.fillInTask("Floater").choose("ResourceHolder" to "Dirigibles", outOf = 4).done()
         doWithoutAutoExec(green) {
           fillInTask("Floater", count = 3)
               .choose("ResourceHolder" to "TitanShuttles", outOf = 1)
@@ -1183,8 +1185,6 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           fillInTask("Floater", "Green", count = 1)
               .choose("ResourceHolder" to "TitanShuttles", outOf = 1)
               .done()
-          green.fillInTask("Floater", "Blue").commit()
-          blue.fillInTask("Floater").choose("ResourceHolder" to "Dirigibles", outOf = 4).done()
         }
       }
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
@@ -1601,6 +1601,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I guess I'll go ahead and put my floater onto Local Shading."
       stdAction("TradeAction", 2) {
         fillInTask("Trade").choose("ColonyTile" to "Titan", outOf = 4).done()
+        blue.fillInTask("Floater").choose("ResourceHolder" to "LocalShading", outOf = 6).done()
         doWithoutAutoExec(green) {
           fillInTask("Floater", count = 2)
               .choose("ResourceHolder" to "TitanShuttles", outOf = 1)
@@ -1608,8 +1609,6 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           fillInTask("Floater", "Green", count = 1)
               .choose("ResourceHolder" to "TitanShuttles", outOf = 1)
               .done()
-          green.fillInTask("Floater", "Blue").commit()
-          blue.fillInTask("Floater").choose("ResourceHolder" to "LocalShading", outOf = 6).done()
         }
       }
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()

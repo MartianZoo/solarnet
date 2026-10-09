@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.web.gameviewer
 
+import dev.martianzoo.catalog.displayName
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -10,14 +11,13 @@ import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameRecording
 import dev.martianzoo.state.GameRecordingJson
 import dev.martianzoo.state.Player
-import dev.martianzoo.state.displayName
-import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.canon.TfmClasses.MC
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.fake.FakeCanon
+import dev.martianzoo.tfm.state.ApiUtils.mapDefinition
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.Element

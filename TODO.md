@@ -19,11 +19,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Extend derived `including this` wording to setup operations and otherwise unsupported effects
   without adding card-specific rendering rules.
 - Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
-- Complete the remaining static-model separation needed for `:tfm-canon` to drop its `:state`
-  dependency by moving Catalog and premise model ownership upstream.
-- Once `Engine.fork` is available here, have `ProjectCardTest` prepare its Action-phase `World`
-  once and fork it for each test instead of rebuilding it. Rebind Kim, Stan, and Rob to the fork,
-  add fixture-level isolation coverage, and update `TESTING.md` to describe the forked fixture.
 - Resolve the nested self-transmutation case characterized in `pets/BugsTest`: an abstract Box
   currently permits identical concrete shared arguments. Preserve shared abstract arguments and
   rejection of dropping their markers; clarify when an open nested shared transmutation itself

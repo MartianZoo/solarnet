@@ -19,10 +19,12 @@ kotlin {
     commonMain {
       kotlin.setSrcDirs(listOf(commonSourceDirectory))
       dependencies {
+        implementation(project(":catalog"))
         implementation(project(":pets"))
         implementation(project(":state"))
         implementation(project(":tfm-canon"))
         implementation(project(":tfm-fake"))
+        implementation(project(":tfm-state"))
       }
     }
     commonTest {

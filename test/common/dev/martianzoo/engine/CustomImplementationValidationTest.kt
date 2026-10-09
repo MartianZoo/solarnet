@@ -1,14 +1,14 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.catalog.Catalog
+import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.state.Catalog
 import dev.martianzoo.state.CustomInstruction
 import dev.martianzoo.state.CustomMetric
-import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.GameReader
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test

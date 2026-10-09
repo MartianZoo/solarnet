@@ -1,13 +1,14 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.GameWorld
-import dev.martianzoo.state.Task.Selection.DELEGATED
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -31,8 +32,9 @@ internal class TaskNormalizationTest {
 
     queues.editTask(
         original.copy(
-            actor = PLAYER2,
-            selection = DELEGATED,
+            selectionAssignee = PLAYER2,
+            assignee = PLAYER2,
+            selected = true,
             instruction = parse<Instruction>("3 Plant THEN 3 Heat"),
         )
     )
@@ -40,8 +42,9 @@ internal class TaskNormalizationTest {
     val edited = world.tasks.getTaskData(original.id)
     edited.id shouldBe original.id
     edited.controller shouldBe PLAYER1
-    edited.actor shouldBe PLAYER2
-    edited.selection shouldBe DELEGATED
+    edited.selectionAssignee shouldBe PLAYER2
+    edited.assignee shouldBe PLAYER2
+    edited.selected shouldBe true
     edited.instruction shouldBe parse<Instruction>("3 Plant")
     edited.then shouldBe instructionGroup("3 Heat")
   }
@@ -55,6 +58,15 @@ internal class TaskNormalizationTest {
     val edited = world.tasks.getTaskData(original.id)
     edited.instruction shouldBe parse<Instruction>("X Steel THEN Energy")
     edited.then shouldBe instructionGroup("X Heat")
+  }
+
+  @Test
+  internal fun `BY is rejected when a THEN must remain a single task`() {
+    shouldThrow<TaskException> {
+      addTask("(X Plant THEN X Heat) BY Player2")
+    }
+
+    world.tasks.isEmpty() shouldBe true
   }
 
   @Test

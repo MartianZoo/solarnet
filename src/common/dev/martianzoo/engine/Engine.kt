@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
@@ -22,9 +23,9 @@ import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.CustomClass
-import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameWorld
+import dev.martianzoo.state.actors
 import dev.martianzoo.state.validateCustomClasses
 
 /** Entry point to the solarnet engine -- create new games here. */

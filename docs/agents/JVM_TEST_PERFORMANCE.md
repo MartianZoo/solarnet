@@ -400,6 +400,32 @@ transaction state, and Agents remain fresh. Event history copying still scales w
 because `EventLog` owns a mutable append list and event notes are mutable. Consider persistent
 shared history only if a new profile shows that remaining copy to be material.
 
+## 2026-10-08 full-game replay type-intersection result
+
+`OtbGame20260828Test` is a complete three-player physical-game replay and the extensive replay that
+also runs in the browser suite. A focused JVM benchmark temporarily repeated its test method seven
+times in one worker. Repetitions 1 and 2 warmed the JVM; the score was the median of repetitions
+3–7. The baseline samples were 2.819s, 2.720s, 2.821s, 2.763s, and 2.809s, for a 2.809s score.
+
+A flight recording showed repeated type intersections and dependency-set reconstruction among the
+largest warmed costs. Two existing facts now avoid unnecessary work. Intersecting an equal type
+returns that type in the requested class table, directly applying T7-2 idempotence after the normal
+universe check. Merging two valid keyed dependency sets no longer rescans the constructed result for
+duplicate keys: the merge emits every left key once and only right keys absent from the left. It
+still validates the class-literal dependency rule and derives the result's actual class table from
+its members.
+
+The conservative final samples were 1.959s, 1.916s, 1.907s, 1.885s, and 1.886s, for a 1.907s
+median: 32.1% less time. An earlier clean confirmation scored 1.800s. A separate run overlapping
+other Gradle workers was discarded because its samples ranged from 2.418s to 5.008s. No memoized
+result or retained mutable state was added.
+
+A post-change recording reduced recording duration from 23s to 16s and showed keyed dependency-set
+equality lookups as remaining work. Dependency-set equality now returns immediately for the same
+set and compares the normally retained declaration order before falling back to its required
+order-independent lookup. Two candidate scores of 1.748s and 1.809s bracketed an immediate 1.897s
+committed-code control, reducing the replay by another 4.6–7.9% without changing equality semantics.
+
 ## Priorities suggested by the data
 
 1. Preserve the compiled class-model reuse. It removed over half of measured JVM test time without
@@ -416,3 +442,5 @@ shared history only if a new profile shows that remaining copy to be material.
 7. Preserve the parsed recording document across config extraction and typed decode.
 8. Take a new profile before investigating any remaining repeated work; the old profile's largest
    known structural waste has now been removed.
+9. Preserve equal-type intersection idempotence and the construction-guaranteed key uniqueness of
+   dependency-set merge; keep its dependency-kind and class-table checks.

@@ -76,6 +76,7 @@ kotlin {
           listOf(rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/text"))
       )
       dependencies {
+        implementation(project(":catalog"))
         implementation(project(":state"))
         implementation(project(":tfm-fake"))
         implementation(libs.kotest.assertions.core)

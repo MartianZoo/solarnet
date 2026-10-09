@@ -16,8 +16,8 @@ kotlin {
     jsMain {
       kotlin.setSrcDirs(listOf(sourceDirectory))
       dependencies {
+        implementation(project(":catalog"))
         implementation(project(":pets"))
-        implementation(project(":state"))
         implementation(project(":tfm-canon"))
         implementation(project(":tfm-text"))
         implementation(devNpm("tslib", "2.8.1"))

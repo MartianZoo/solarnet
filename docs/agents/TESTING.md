@@ -256,11 +256,12 @@ test-facing layer: test the card, rule, or workflow result rather than a private
 exact intermediate task text, or other implementation detail.
 
 Keep task-routing mechanism tests in the generic engine suite. Those tests may inspect task
-controller, derived assignee, selection, and event Actor because those are the contract under test. A
-player-level card or rule scenario should instead demonstrate routing through public gameplay:
-which Player can select or narrow, whether competing gameplay is blocked, the resulting state, and,
-when necessary, an authored `BY` reaction that makes attribution observable. Do not locate card
-reactions by exact rendered instruction, `Task.cause`, `Task.actor`, or raw Event Log inspection.
+controller, selection assignee, current assignee, selection, and event Actor because those are the
+contract under test. A player-level card or rule scenario should instead demonstrate routing
+through public gameplay: which Player can select or narrow, whether competing gameplay is blocked,
+the resulting state, and, when necessary, an authored `BY` reaction that makes attribution
+observable. Do not locate card reactions by exact rendered instruction, `Task.cause`, internal
+assignment fields, or raw Event Log inspection.
 
 For delegated payment, final resource totals do not prove continuous authority. A helper that
 selects through another Actor can conceal missing engine control. Exercise separate Player
@@ -328,14 +329,20 @@ express the scenarios in the class. It starts each test at generation 1 Action p
   20 TR, and production of 1 for each standard resource.
 
 Kim is the player exercising the subject card unless the card's behavior requires another actor.
-The fixture caches its immutable `GamePremise` for each option set, not a mutable game. Every test
-constructs a fresh `World` and performs the real setup and corporation workflows before entering
-Action phase. The base class does not create that game automatically. A uniform class declares its
-own `@BeforeTest` method that calls `newTestGame()`. A class whose methods need different compatible
-selections calls `newTestGame()` explicitly in each method, passing a configuration fragment such as
-`addOptions = "CimmeriaMap"` where needed. Do not share or roll back a live World between tests. The
-fixture leaves the default autoexecution policy untouched: it selects Beginner mode and distinct
-beginner corporations, while forced setup effects autoexecute normally.
+The standard game has three players. A scenario may instead pass `playerCount` from two through
+five; Maya and Nadia occupy the fourth and fifth seats. The protected `players` list exposes every
+seat in order. `kim` and `stan` remain convenient non-null properties, while accessing `rob` in a
+two-player game fails immediately with a fixture error.
+
+The fixture prepares and caches an Action-phase `World` for each option-set and player-count pair,
+then gives every test an independent `Engine.fork` of that prepared position. The cached World is
+never exposed or mutated after preparation. The base class does not create a fork automatically. A
+uniform class declares its own `@BeforeTest` method that calls `newTestGame()`. A class whose methods
+need different compatible selections or player counts calls `newTestGame()` explicitly in each
+method, passing arguments such as `addOptions = "CimmeriaMap"` or `playerCount = 4` where needed. Do
+not share or roll back a live World between tests. The fixture leaves the default autoexecution
+policy untouched: it selects Beginner mode and distinct beginner corporations, while forced setup
+effects autoexecute normally.
 
 Treat every pre-migration test as a fallible historical artifact, not as a specification of its
 setup. Existing options, cards, resource grants, card plays, phase changes, autoexecution policies,
@@ -406,8 +413,8 @@ right. Direct correction is the default for irrelevant preconditions because it 
 tests short and makes their real subject obvious; it is not a ban on authentic gameplay.
 
 Migrate a test class only when all its scenarios fit this fixture and setup model. A scenario may
-start with an additional compatible game selection, including a different map. Leave the whole
-class on `CardTest` when it needs another player count, solo mode, a different variant, synthetic
+start with an additional compatible game selection, including a different map or multiplayer count.
+Leave the whole class on `CardTest` when it needs solo mode, a different variant, synthetic
 declarations, or another incompatible configuration. Do not add specialized fixture variants or
 replace a meaningful scenario merely to increase the migrated count. This is an active,
 class-by-class migration: an existing `CardTest` subclass may simply be awaiting evaluation, and its

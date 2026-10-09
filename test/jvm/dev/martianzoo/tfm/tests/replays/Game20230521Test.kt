@@ -3,8 +3,8 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.World
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -514,7 +514,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
       playProject(SmallAsteroid, 10) {
             // Player2's plants amount decreased by 2 by Player1
             doTask("-2 Plant<Player2>")
-            doTask("MyResourceWasRemoved<Player2, Class<Plant>, Player1>.")
+            p1.selectTask("MyResourceWasRemoved<Player2, Class<Plant>, Player1>.")
+            p2.doTask("MyResourceWasRemoved<Player2, Class<Plant>, Player1>!")
             doTask("TemperatureStep")
             doTask("3 MC")
             doTask("3 Heat")
@@ -1049,7 +1050,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
             doTask("TemperatureStep")
             doTask("2 Plant<Player1>")
             doTask("TerraformRating")
-            doTask("2 Plant<Player2>")
+            p1.selectTask("2 Plant<Player2>!")
+            p2.doTask("2 Plant<Player2>!")
           }
           .expect("5 Plant, 2 Plant<Player2>, TemperatureStep, 2 TerraformRating, -7 MC")
       // Player1 claimed Terraformer milestone
@@ -1162,7 +1164,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
         p2.placeTile(2, 5)
         // Player1's plants amount decreased by 4 by Player2
         p2.doTask("-4 Plant<Player1>")
-        doTask("MyResourceWasRemoved<Player1, Class<Plant>, Player2>.")
+        p2.selectTask("MyResourceWasRemoved<Player1, Class<Plant>, Player2>.")
+        p1.doTask("MyResourceWasRemoved<Player1, Class<Plant>, Player2>!")
         // Player2 gained 2 plants from Arctic Algae
         doTask("4 Steel")
         doTask("Plant<Player2>")
@@ -1679,7 +1682,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player1's plants amount decreased by 2 by Player2
       playProject(MiningExpedition, 10) {
         doTask("-2 Plant<Player1>")
-        doTask("MyResourceWasRemoved<Player1, Class<Plant>, Player2>.")
+        p2.selectTask("MyResourceWasRemoved<Player1, Class<Plant>, Player2>.")
+        p1.doTask("MyResourceWasRemoved<Player1, Class<Plant>, Player2>!")
         doTask("OxygenStep")
         doTask("TerraformRating")
         doTask("2 Steel")

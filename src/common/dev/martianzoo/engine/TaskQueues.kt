@@ -28,8 +28,8 @@ import dev.martianzoo.state.Task.TaskId
  * * `a OR Die!` becomes `a`; if every option is mandatory `Die`, the task produces
  *   [DeadEndException]
  * * A concrete selected task is guaranteed to execute successfully
- * * Normalization retains task identity, controller, Actor, selection, and cause. Selected tasks
- *   cannot be replaced by independent siblings
+ * * Normalization retains task identity, controller, selection assignee, current assignee,
+ *   selection, and cause. Selected tasks cannot be replaced by independent siblings
  */
 internal class TaskQueues(
     private val gameWorld: GameWorld,
@@ -44,14 +44,14 @@ internal class TaskQueues(
           task.instruction,
           task.controller,
           task.cause,
-          task.actor,
+          task.selectionAssignee,
       )
 
   internal fun addTasks(
       instruction: InstructionGroup,
       controller: Actor,
       cause: Cause?,
-      actor: Actor = controller,
+      selectionAssignee: Actor = controller,
   ): List<TaskAddedEvent> {
     val newTasks =
         newTasks(
@@ -59,7 +59,7 @@ internal class TaskQueues(
             controller = controller,
             instruction = instruction,
             cause = cause,
-            actor = actor,
+            selectionAssignee = selectionAssignee,
             isAbstract = isAbstract,
         )
     return newTasks.map {
@@ -73,13 +73,15 @@ internal class TaskQueues(
   }
 
   internal fun editTask(newTask: Task): TaskEditedEvent? {
-    val normalized = normalizeTask(newTask, isAbstract)
+    val normalized = normalize(newTask)
     val oldTask = gameWorld.tasks.getTaskData(normalized.id)
     if (normalized == oldTask) return null
     return gameWorld.apply(
         TaskEditedEvent(gameWorld.nextOrdinal, oldTask = oldTask, task = normalized)
     )
   }
+
+  internal fun normalize(task: Task): Task = normalizeTask(task, isAbstract)
 
   override fun toString(): String = gameWorld.tasks.toString()
 }

@@ -1,13 +1,13 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -86,9 +86,13 @@ internal class BugsTest : CardTest() {
     p1.selectTask("UseAction<Player2, NeptunianOption<NeptunianPowerConsultants<Player2>>>?")
     p2.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
 
-    // Current routing requires P1 to open P2's bill and select each payment choice.
-    p1.doTask("5 Owed<Player2>")
-    p1.doTask(
+    // P1 orders each billing stage, while P2 performs the work assigned to P2.
+    p1.selectTask("5 Owed<Player2>!")
+    p2.doTask("5 Owed<Player2>")
+    p1.selectTask(
+        "ActionBilling<Player2, NeptunianOption<NeptunianPowerConsultants<Player2>>, Action1>"
+    )
+    p2.doTask(
         "ActionBilling<Player2, NeptunianOption<NeptunianPowerConsultants<Player2>>, Action1>"
     )
     p1.selectTask("-X Steel<Player2>?")

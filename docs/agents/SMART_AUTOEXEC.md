@@ -27,8 +27,8 @@ execution remain open.
   `canSelectTask`, `prepareTaskNarrowing`, and `requireComplete` define current command constraints.
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt): `resolve` and
   `executeResolved` distinguish current-state simplification from execution and consequences.
-- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt): controller, contextual Actor,
-  selection, instruction, continuation, and cause all affect unfinished work.
+- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt): controller, selection assignee,
+  current assignee, selection, instruction, continuation, and cause all affect unfinished work.
 - [`SafeAutoExecTest.kt`](../../test/common/dev/martianzoo/agent/SafeAutoExecTest.kt): current
   singleton selection, per-Actor policy, enabled-task, and rollback scenarios. The test name does
   not establish safety for arbitrary compositions.
@@ -74,7 +74,7 @@ Equal visible resource counts are too weak. A candidate state comparison must ac
 
 - exact component Types, multiplicities, dependencies, and ownership;
 - pending instructions and continuations, including unresolved linked choices;
-- controller, contextual Actor, and selection state, from which current assignment follows;
+- controller, selection assignee, current assignee, and selection state;
 - any cause relationships that the compared operations or client helpers consult; and
 - scheduling eligibility and operation membership, if a future model adds them.
 

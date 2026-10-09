@@ -1,8 +1,9 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.exMachina
-import dev.martianzoo.state.GameConfig
-import dev.martianzoo.state.GamePremise
+import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.engine.Engine
+import dev.martianzoo.engine.World
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmEngine
@@ -11,22 +12,35 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TfmTest
 
 internal abstract class ProjectCardTest : TfmTest() {
-  protected lateinit var kim: TfmGameplay
+  protected lateinit var players: List<TfmGameplay>
     private set
 
-  protected lateinit var stan: TfmGameplay
-    private set
+  protected val kim: TfmGameplay
+    get() = players[0]
 
-  protected lateinit var rob: TfmGameplay
-    private set
+  protected val stan: TfmGameplay
+    get() = players[1]
 
-  protected fun newTestGame(addOptions: String = "") {
-    game = TfmEngine.newGame(premise(addOptions))
+  protected val rob: TfmGameplay
+    get() = checkNotNull(players.getOrNull(2)) { "Rob is sitting this game out" }
+
+  protected fun newTestGame(addOptions: String = "", playerCount: Int = 3) {
+    require(playerCount in 2..PLAYER_NAMES.size) {
+      "ProjectCardTest supports two to ${PLAYER_NAMES.size} players: $playerCount"
+    }
+    game = Engine.fork(preparedWorld(addOptions, playerCount))
+    bindPlayers()
+  }
+
+  private fun preparedWorld(addOptions: String, playerCount: Int): World =
+      preparedWorlds.getOrPut(addOptions to playerCount) { prepareWorld(addOptions, playerCount) }
+
+  private fun prepareWorld(addOptions: String, playerCount: Int): World {
+    val options = listOf(BASE_GAME_OPTIONS, addOptions).filter(String::isNotBlank).joinToString()
+    val playerNames = PLAYER_NAMES.take(playerCount).toTypedArray()
+    game = TfmEngine.newGame(Canon.gamePremise(GameConfig(options, *playerNames)))
     val workflow = TfmWorkflow.Stepwise(agents)
-    val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
-    kim = players[0]
-    stan = players[1]
-    rob = players[2]
+    val players = bindPlayers()
 
     workflow.setupPhase()
     players.forEach { it.doTask("BeginnerMode") }
@@ -39,6 +53,12 @@ internal abstract class ProjectCardTest : TfmTest() {
     }
 
     workflow.actionPhase()
+    return game
+  }
+
+  private fun bindPlayers(): List<TfmGameplay> {
+    players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
+    return players
   }
 
   protected fun TfmGameplay.setToExMachina(targetCount: Int, type: String) {
@@ -56,17 +76,10 @@ internal abstract class ProjectCardTest : TfmTest() {
         "CorporateEraExpansion, VenusNextExpansion, ColoniesExpansion, " +
             "PromoCardPack, BeginnerVariant, QuickStartVariant"
 
-    private val premises = mutableMapOf<String, GamePremise>()
+    private val PLAYER_NAMES = listOf("Kim", "Stan", "Rob", "Maya", "Nadia")
 
-    private fun premise(addOptions: String): GamePremise {
-      return premises.getOrPut(addOptions) {
-        val options =
-            listOf(BASE_GAME_OPTIONS, addOptions).filter(String::isNotBlank).joinToString()
-        Canon.gamePremise(GameConfig(options, "Kim", "Stan", "Rob"))
-      }
-    }
+    private val preparedWorlds = mutableMapOf<Pair<String, Int>, World>()
 
-    private val BEGINNER_CORPORATIONS =
-        listOf("BeginnerCorporation1", "BeginnerCorporation2", "BeginnerCorporation3")
+    private val BEGINNER_CORPORATIONS = (1..PLAYER_NAMES.size).map { "BeginnerCorporation$it" }
   }
 }

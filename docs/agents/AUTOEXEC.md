@@ -47,7 +47,7 @@ only during the synchronous run and leaves its configured setting unchanged. Oth
 using their configured policies. Direct correction operations have their own contracts.
 
 The loop gives an existing selected task exclusive attention. Otherwise it considers pending tasks
-in stable queue order, probing availability when several exist. A sole pending task skips that
+in stable global-pool order, probing availability when several exist. A sole pending task skips that
 probe; actual selection still validates it inside the transaction. Candidate counts are computed
 per assignee. `CONCRETE` accepts a candidate only when its assignee has no competing selectable
 task; `EAGER` can choose among candidates. The candidate's current assignee determines which
@@ -59,9 +59,9 @@ task may instead leave a choice for its assignee, including a cross-Player hando
 do not constitute a general strategy for filling arbitrary abstract choices. The loop ends when
 its policies cannot advance available work, or throws when it classifies the state as a dead end.
 
-Queue order can affect an `EAGER` strategy; it cannot establish a game rule. New eligibility rules
-must constrain explicit commands and policy commands alike. Neither Agent visitation order nor
-an Admin-first preference substitutes for engine scheduling.
+Pool iteration order can affect an `EAGER` strategy; it cannot establish a game rule. New
+eligibility rules must constrain explicit commands and policy commands alike. Neither Agent
+visitation order nor an Admin-first preference substitutes for engine scheduling.
 
 ## Policy-relative stable point
 
@@ -77,8 +77,8 @@ an exhaustive legality or completion proof.
 Assignment to Admin supplies neither priority nor proof that its choices are harmless. An
 application may configure Admin autonomy, but deferred Admin work can legitimately wait for a
 Player choice. Whether a future scheduler admits that work later or retains it as ineligible is
-part of scheduling design, not a reason to require every returned state to have an empty Admin
-queue.
+part of scheduling design, not a reason to require every returned state to have no Admin-assigned
+work.
 
 ## Proposed policy directions
 

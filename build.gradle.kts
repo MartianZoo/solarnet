@@ -98,9 +98,11 @@ dokka {
 
 dependencies {
   dokka(project(":pets"))
+  dokka(project(":catalog"))
   dokka(project(":tfm-text"))
   dokka(project(":state"))
   dokka(project(":engine"))
+  dokka(project(":tfm-state"))
   dokka(project(":tfm-engine"))
   dokka(project(":script"))
   dokka(project(":repl"))

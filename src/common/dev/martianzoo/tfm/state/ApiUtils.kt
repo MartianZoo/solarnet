@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.canon
+package dev.martianzoo.tfm.state
 
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -7,11 +7,12 @@ import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.canon.MarsMapDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.MARS_MAP
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.canon.TfmClasses.PROD_OFFSET
 
-/** Simple TfM-specific client helper functions, mostly for use by custom instructions. */
+/** Read-only Terraforming Mars projections shared by runtime and playback clients. */
 public object ApiUtils {
   /** Returns the name of every inhabited concrete `StandardResource` Class in [game]. */
   public fun standardResourceNames(game: GameReader): Set<ClassName> {

@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.state.GameConfig
+import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -51,10 +51,11 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "You're buying six cards, which leaves you with 30 money."
     yellow
         .playCorp(MonsInsurance) {
-          doTask(
+          yellow.selectTask(
               "EACH Other@Player(NOT Yellow) { " +
                   "-2 Production<Other@Player, Class<MC>>! BY Other@Player }"
           )
+          autoExecNow()
         }
         .expect("PROD[4 MC<Yellow>, -2 MC<Green>], 30 MC")
 

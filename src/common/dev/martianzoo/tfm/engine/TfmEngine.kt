@@ -2,6 +2,7 @@
 
 package dev.martianzoo.tfm.engine
 
+import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.HasClassName
@@ -35,16 +36,15 @@ import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.CustomClass
 import dev.martianzoo.state.CustomInstruction
 import dev.martianzoo.state.CustomMetric
-import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.toComponent
-import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.cardBack
 import dev.martianzoo.tfm.canon.cardEffects
 import dev.martianzoo.tfm.canon.cardImmediate
 import dev.martianzoo.tfm.canon.cardTags
-import dev.martianzoo.tfm.canon.tfmCatalog
+import dev.martianzoo.tfm.state.ApiUtils.mapDefinition
+import dev.martianzoo.tfm.state.tfmCatalog
 import kotlin.math.abs
 
 /** Terraforming Mars runtime entry point and its complete Kotlin implementation set. */
