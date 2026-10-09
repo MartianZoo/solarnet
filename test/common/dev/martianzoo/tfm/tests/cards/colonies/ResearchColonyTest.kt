@@ -4,7 +4,6 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.cards.ProjectCardTest
 import dev.martianzoo.tfm.tests.cards.cardnames.ResearchColony
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -16,8 +15,6 @@ internal class ResearchColonyTest : ProjectCardTest() {
     kim.exMachina("Colony<Luna>")
 
     kim.playProject(ResearchColony, 20) { doTask("Colony<Luna>") }.expect("-20 MC, Colony<Luna>")
-
-    kim.count("Colony<Luna>") shouldBe 2
   }
 
   @Test

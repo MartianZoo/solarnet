@@ -6,21 +6,25 @@ import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.state.Catalog
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.CustomInstruction
 import dev.martianzoo.state.GameReader
+import dev.martianzoo.state.GameWorld
 
 /** Engine runtime for Kotlin-provided instructions of computed Signals. */
 internal class CustomInstructionRuntime(
-    private val catalog: Catalog,
+    private val gameWorld: GameWorld,
     private val elaborator: PetElaborator,
 ) {
   internal fun translateInstruction(component: Component, reader: GameReader): InstructionTree {
     require(elaborator.classTable.isInhabited(component.type))
 
     val type = component.type
-    val implementation = catalog.customClass(type.className) as CustomInstruction
+    val implementation =
+        gameWorld.customClassOrNull(type.className) as? CustomInstruction
+            ?: throw ExpressionException(
+                "custom instruction `${type.className}` has no implementation"
+            )
     val args = type.typeDependencies.map { it.boundType }
     val missing = args.filter { reader.countComponent(it) == 0 }
     if (missing.any()) throw DependencyException(missing)

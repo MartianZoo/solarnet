@@ -2,6 +2,7 @@ package dev.martianzoo.state
 
 import dev.martianzoo.pets.Parsing.parse as te
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import io.kotest.assertions.throwables.shouldThrow
@@ -40,6 +41,26 @@ internal class PremiseSelectionTest {
 
     val selected = gameView(catalog, "DependencySource")
     selected.allClassNames.contains(cn("RuntimeDependency")) shouldBe true
+  }
+
+  @Test
+  internal fun `custom classes cannot be declared only for a premise`() {
+    val catalog = testCatalog("")
+
+    setOf(
+            "CLASS LocalMetric : CustomMetric",
+            "CLASS LocalInstruction : CustomInstruction",
+        )
+        .forEach { source ->
+          val error =
+              shouldThrow<InvalidGameConfigException> {
+                catalog.gamePremise(
+                    GameConfig(""),
+                    additionalClassDeclarations = parseClasses(source).toSet(),
+                )
+              }
+          error.detail shouldBe "custom Classes must be declared in the Catalog"
+        }
   }
 
   @Test

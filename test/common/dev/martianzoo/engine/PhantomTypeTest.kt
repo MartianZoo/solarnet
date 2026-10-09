@@ -17,17 +17,18 @@ import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class PhantomTypeTest {
-  private fun agent() = Engine.newGame(canonicalPremise()).testAgent(ADMIN)
+  private fun agent() = TfmEngine.newGame(canonicalPremise()).testAgent(ADMIN)
 
   @Test
   internal fun `uninhabited types and their class literals count zero`() {
-    val game = Engine.newGame(canonicalPremise())
+    val game = TfmEngine.newGame(canonicalPremise())
     val agent = game.testAgent(ADMIN)
     val venusTag = agent.resolve("VenusTag")
 
@@ -51,7 +52,7 @@ internal class PhantomTypeTest {
   @Test
   internal fun `an included abstract Class without a concrete narrowing is uninhabited`() {
     val game =
-        Engine.newGame(
+        TfmEngine.newGame(
             testGamePremise("ABSTRACT CLASS Empty\nCLASS Holder<Empty>\nCLASS Live", players = 1)
         )
     val agent = game.testAgent(PLAYER1)
@@ -92,7 +93,7 @@ internal class PhantomTypeTest {
   @Test
   internal fun `choices discard empty types but leave mandatory count failures to execution`() {
     val game =
-        Engine.newGame(
+        TfmEngine.newGame(
             testGamePremise(
                 """
                 ABSTRACT CLASS Empty
@@ -121,7 +122,7 @@ internal class PhantomTypeTest {
   @Test
   internal fun `an optional uninhabited effect adds no task lifecycle`() {
     val game =
-        Engine.newGame(
+        TfmEngine.newGame(
             testGamePremise(
                 """
                 ABSTRACT CLASS Empty
@@ -150,7 +151,7 @@ internal class PhantomTypeTest {
   @Test
   internal fun `an uninhabited effect choice is pruned before its task is added`() {
     val game =
-        Engine.newGame(
+        TfmEngine.newGame(
             testGamePremise(
                 """
                 ABSTRACT CLASS Empty
@@ -192,6 +193,6 @@ internal class PhantomTypeTest {
             setupComponents = setOf(cn("PhantomEffectProbe").expression),
         )
 
-    shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
+    shouldThrow<InvalidGameConfigException> { TfmEngine.newGame(premise) }
   }
 }

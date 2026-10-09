@@ -10,6 +10,7 @@ import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 
@@ -41,7 +42,7 @@ internal fun canonicalPremise(
 }
 
 internal fun setUpGame(premise: GamePremise = canonicalPremise()): World =
-    Engine.newGame(premise).apply {
+    TfmEngine.newGame(premise).apply {
       val agents = testAgents()
       TfmWorkflow.Stepwise(agents).setupPhase()
       actors.filterIsInstance<Player>().forEach { player ->

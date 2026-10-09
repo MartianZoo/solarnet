@@ -6,6 +6,7 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TfmTest
@@ -30,7 +31,7 @@ internal abstract class ProjectCardTest : TfmTest() {
 
   private fun prepareWorld(addOptions: String): World {
     val options = listOf(BASE_GAME_OPTIONS, addOptions).filter(String::isNotBlank).joinToString()
-    game = Engine.newGame(Canon.gamePremise(GameConfig(options, "Kim", "Stan", "Rob")))
+    game = TfmEngine.newGame(Canon.gamePremise(GameConfig(options, "Kim", "Stan", "Rob")))
     val workflow = TfmWorkflow.Stepwise(agents)
     val players = bindPlayers()
 

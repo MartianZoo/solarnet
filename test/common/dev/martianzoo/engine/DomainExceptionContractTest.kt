@@ -14,6 +14,7 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -21,7 +22,7 @@ import io.kotest.matchers.types.shouldNotBeInstanceOf
 import kotlin.test.Test
 
 internal class DomainExceptionContractTest {
-  private fun agent() = Engine.newGame(canonicalPremise()).testAgent(PLAYER1)
+  private fun agent() = TfmEngine.newGame(canonicalPremise()).testAgent(PLAYER1)
 
   @Test
   internal fun unhandledTransformsAreExpressionFailures() {

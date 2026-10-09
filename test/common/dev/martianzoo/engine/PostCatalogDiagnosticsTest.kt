@@ -1418,7 +1418,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses = setOf(object : CustomInstruction("Unimplemented") {})
+          val implementations = setOf(object : CustomInstruction("Unimplemented") {})
         }
     catalog.classTable
     val premise =
@@ -1427,7 +1427,7 @@ internal class PostCatalogDiagnosticsTest {
             classSelections =
                 setOf(ClassSelection(cn("Unimplemented")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     val error =
         assertFailsWith<ExpressionException> {
           agent.runOperation("Unimplemented")
@@ -1451,7 +1451,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomMetric("Negative") {
                     override fun count(game: GameReader, type: Type): Int = -1
@@ -1464,7 +1464,7 @@ internal class PostCatalogDiagnosticsTest {
             catalog,
             classSelections = setOf(ClassSelection(cn("Negative")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     val error =
         assertFailsWith<ExpressionException> {
           agent.runOperation("Negative")
@@ -1496,7 +1496,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomInstruction("Unfinished") {
                     override fun translate(game: GameReader): InstructionTree =
@@ -1510,7 +1510,7 @@ internal class PostCatalogDiagnosticsTest {
             catalog,
             classSelections = setOf(ClassSelection(cn("Unfinished")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     val error =
         assertFailsWith<CustomCodeException> {
           agent.runOperation("Unfinished")
@@ -1539,7 +1539,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomMetric("UnfinishedMetric") {
                     override fun count(game: GameReader, type: Type): Int = TODO("finish count")
@@ -1553,7 +1553,7 @@ internal class PostCatalogDiagnosticsTest {
             classSelections =
                 setOf(ClassSelection(cn("UnfinishedMetric")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     val error =
         assertFailsWith<CustomCodeException> {
           agent.count("UnfinishedMetric")
@@ -1582,7 +1582,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomInstruction("Broken") {
                     override fun translate(game: GameReader): InstructionTree =
@@ -1596,7 +1596,7 @@ internal class PostCatalogDiagnosticsTest {
             catalog,
             classSelections = setOf(ClassSelection(cn("Broken")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     val error =
         assertFailsWith<CustomCodeException> {
           agent.runOperation("Broken")
@@ -1621,7 +1621,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomInstruction("InstructionOnly") {
                     override fun translate(game: GameReader): InstructionTree = parse("Water")
@@ -1635,7 +1635,7 @@ internal class PostCatalogDiagnosticsTest {
             classSelections =
                 setOf(ClassSelection(cn("InstructionOnly")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     assertEquals(0, agent.count("InstructionOnly"))
     agent.runOperation("InstructionOnly")
     assertEquals(0, agent.count("InstructionOnly"))
@@ -1653,7 +1653,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomInstruction("InvalidOutput") {
                     override fun translate(game: GameReader): InstructionTree = parse("Water<>")
@@ -1667,7 +1667,7 @@ internal class PostCatalogDiagnosticsTest {
             classSelections =
                 setOf(ClassSelection(cn("InvalidOutput")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     val error =
         assertFailsWith<CustomCodeException> {
           agent.runOperation("InvalidOutput")
@@ -1701,7 +1701,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomMetric("Negative") {
                     override fun count(game: GameReader, type: Type): Int = -1
@@ -1714,7 +1714,7 @@ internal class PostCatalogDiagnosticsTest {
             catalog,
             classSelections = setOf(ClassSelection(cn("Negative")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     val error =
         assertFailsWith<ExpressionException> {
           agent.count("Negative OR Water")
@@ -1746,7 +1746,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomMetric("Negative") {
                     override fun count(game: GameReader, type: Type): Int = -1
@@ -1759,7 +1759,7 @@ internal class PostCatalogDiagnosticsTest {
             catalog,
             classSelections = setOf(ClassSelection(cn("Negative")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     val error =
         assertFailsWith<CustomCodeException> {
           agent.count("Negative")
@@ -1781,7 +1781,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomMetric("Unimplemented") {
                     override fun count(game: GameReader, type: Type): Int = 0
@@ -1795,7 +1795,7 @@ internal class PostCatalogDiagnosticsTest {
             classSelections =
                 setOf(ClassSelection(cn("Unimplemented")), ClassSelection(cn("Water"))),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val agent = Engine.newGame(premise, catalog.implementations).testAgent(ADMIN)
     val error =
         assertFailsWith<ExpressionException> {
           agent.runOperation("-Unimplemented")
@@ -2461,7 +2461,7 @@ internal class PostCatalogDiagnosticsTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations = parseClasses(source).toSet()
-          override val customClasses =
+          val implementations =
               setOf(
                   object : CustomInstruction("InstructionOnly") {
                     override fun translate(game: GameReader): InstructionTree = parse("Water")
@@ -2480,7 +2480,7 @@ internal class PostCatalogDiagnosticsTest {
                     ClassSelection(cn("Blue")),
                 ),
         )
-    val game = Engine.newGame(premise)
+    val game = Engine.newGame(premise, catalog.implementations)
     val agent = game.testAgent(ADMIN)
     agent.runOperation("InstructionOnly")
     assertEquals(1, agent.count("Water"))

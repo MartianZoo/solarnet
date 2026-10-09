@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
-import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
@@ -173,14 +172,7 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
                     bundleClassesBelow(bundle, goalClass, includeAbstract = true)
                   }
               val customClassNames =
-                  allClassDeclarations.values
-                      .filter {
-                        it.customMetric ||
-                            it.supertypes.any { parent ->
-                              parent.className == CUSTOM_INSTRUCTION
-                            }
-                      }
-                      .mapTo(hashSetOf(), ClassDeclaration::className)
+                  customClassDeclarations.mapTo(hashSetOf(), ClassDeclaration::className)
               val goalSupportClassNames =
                   goalDeclarations
                       .flatMap(ClassDeclaration::allNodes)

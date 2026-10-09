@@ -55,9 +55,11 @@ Catalog's compiled master structure; separate Worlds from that premise share com
 but no mutable game state. See
 [`GamePremise.kt`](../../src/common/dev/martianzoo/state/GamePremise.kt).
 
-`Engine.newGame` wires one `GameWorld` to its reader, timeline, task services, effect index,
-limiter, instructor, changer, and Actor Engines. Initialization then crosses three conceptual
-boundaries:
+`Engine.newGame` first validates its supplied Kotlin custom-Class implementations against the
+Catalog's derived custom declarations. Games without custom declarations may use the empty default;
+game-specific entry points such as `TfmEngine.newGame` supply their complete set. The engine then
+wires one `GameWorld` carrying those bindings to its reader, timeline, task services, effect index,
+limiter, instructor, changer, and Actor Engines. Initialization crosses three conceptual stages:
 
 1. Structural construction installs the included concrete `Class<T>` representatives and runtime
    indexes. This is not an Actor mutation and creates no Change Events.

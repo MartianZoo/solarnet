@@ -4,7 +4,6 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
@@ -14,6 +13,7 @@ import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
@@ -33,7 +33,7 @@ internal class TfmWorkflowTest {
   @Test
   internal fun beginnerVariantLetsEachPlayerChooseTheirStartingPath() {
     val game =
-        Engine.newGame(
+        TfmEngine.newGame(
             Canon.gamePremise(
                 GameConfig(
                     "BeginnerVariant, CorporateEraExpansion, PreludeExpansion",
@@ -123,7 +123,7 @@ internal class TfmWorkflowTest {
 
   @Test
   internal fun beginnerCorporationCopiesLetTwoPlayersChooseTheBeginnerPath() {
-    val game = Engine.newGame(canonicalPremise(BeginnerVariant, players = 2))
+    val game = TfmEngine.newGame(canonicalPremise(BeginnerVariant, players = 2))
     val workflow = TfmWorkflow.Stepwise(game.testAgents())
     val p1 = game.testTfm(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testTfm(PLAYER2).also { it.autoExecPolicy = NONE }
@@ -171,7 +171,7 @@ internal class TfmWorkflowTest {
   @Test
   internal fun startingCardsBelongToEachPlayerAgent() {
     val game =
-        Engine.newGame(Canon.gamePremise(GameConfig("PreludeExpansion", "Player1", "Player2")))
+        TfmEngine.newGame(Canon.gamePremise(GameConfig("PreludeExpansion", "Player1", "Player2")))
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
@@ -217,7 +217,7 @@ internal class TfmWorkflowTest {
   @Test
   internal fun startingCardCountsAreAdditiveAdjustments() {
     val game =
-        Engine.newGame(
+        TfmEngine.newGame(
             Canon.gamePremise(
                 GameConfig(
                     "PreludeExpansion, 1 SelectableCorporationCount, -1 SelectablePreludeCount",
@@ -244,7 +244,7 @@ internal class TfmWorkflowTest {
 
   @Test
   internal fun researchMakesEveryPlayerQueueAvailableTogether() {
-    val game = Engine.newGame(canonicalPremise(players = 2))
+    val game = TfmEngine.newGame(canonicalPremise(players = 2))
     val agents = game.testAgents()
     agents[PLAYER1].autoExecPolicy = NONE
     agents[PLAYER2].autoExecPolicy = NONE
@@ -268,7 +268,7 @@ internal class TfmWorkflowTest {
 
   @Test
   internal fun turnDeclinesAnUnusedSecondAction() {
-    val game = Engine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
+    val game = TfmEngine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
@@ -288,7 +288,7 @@ internal class TfmWorkflowTest {
 
   @Test
   internal fun soleRemainingPlayerDoesNotReceiveSecondActions() {
-    val game = Engine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
+    val game = TfmEngine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
@@ -311,7 +311,7 @@ internal class TfmWorkflowTest {
 
   @Test
   internal fun aPlayerMayPassWhileItsMandatoryFirstActionRemainsPending() {
-    val game = Engine.newGame(canonicalPremise(players = 2))
+    val game = TfmEngine.newGame(canonicalPremise(players = 2))
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
@@ -328,7 +328,7 @@ internal class TfmWorkflowTest {
 
   @Test
   internal fun automaticPreludePhasePlaysEveryRetainedPrelude() {
-    val game = Engine.newGame(canonicalPremise(PreludeExpansion, players = 2))
+    val game = TfmEngine.newGame(canonicalPremise(PreludeExpansion, players = 2))
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
@@ -356,7 +356,8 @@ internal class TfmWorkflowTest {
 
   @Test
   internal fun automaticSolarWaitsForWorldGovernmentBeforeTurmoil() {
-    val game = Engine.newGame(canonicalPremise(VenusNextExpansion, TurmoilExpansion, players = 2))
+    val game =
+        TfmEngine.newGame(canonicalPremise(VenusNextExpansion, TurmoilExpansion, players = 2))
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
@@ -387,7 +388,7 @@ internal class TfmWorkflowTest {
   @Test
   internal fun automaticSolarWaitsForWorldGovernmentBeforeColonies() {
     val game =
-        Engine.newGame(
+        TfmEngine.newGame(
             canonicalPremise(
                 VenusNextExpansion,
                 ColoniesExpansion,

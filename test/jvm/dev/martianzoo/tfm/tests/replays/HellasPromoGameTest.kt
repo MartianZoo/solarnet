@@ -2,10 +2,10 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.Hellas
@@ -154,7 +154,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
   @Test
   internal fun earlyGameWithNoPrelude() {
     val setup = canonicalPremise(Hellas, PromoCardPack, players = 2)
-    val game = Engine.newGame(setup)
+    val game = TfmEngine.newGame(setup)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
 
