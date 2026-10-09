@@ -53,6 +53,16 @@ Catalog's compiled master structure; separate Worlds from that premise share com
 but no mutable game state. See
 [`GamePremise.kt`](../../src/common/dev/martianzoo/catalog/GamePremise.kt).
 
+After its inclusion closure is complete, that game Class Table also derives immutable executable
+effects for its included Classes from the shared declarations. Using only settled premise facts
+before any World exists, it removes impossible `IF` effects and fixed-true trigger or instruction
+gates. Its facts are structural `Class<T>` representatives plus selected Module counts supplied by
+`GamePremise`; arbitrary `HAS =N` invariants and configured Player counts do not qualify. Module
+conditions ask about the completed configuration, deliberately not whether those components have
+already been gained during bootstrap. Other components remain dynamic. Effect-execution consumers
+read `ClassTable.effects`; a client deliberately inspecting the reusable unspecialized form reads
+`Class.declaration.effects`.
+
 `Engine.newGame` first validates its supplied Kotlin custom-Class implementations against the
 Catalog's derived custom declarations. Games without custom declarations may use the empty default;
 game-specific entry points such as `TfmEngine.newGame` supply their complete set. The engine then

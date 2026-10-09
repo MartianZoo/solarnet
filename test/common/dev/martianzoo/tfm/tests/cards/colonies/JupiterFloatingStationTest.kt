@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.tests.cards.ProjectCardTest
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.AtmoCollectors
 import dev.martianzoo.tfm.tests.cards.cardnames.JupiterFloatingStation
 import dev.martianzoo.tfm.tests.cards.cardnames.TitanShuttles
@@ -9,7 +9,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class JupiterFloatingStationTest : ProjectCardTest() {
+internal class JupiterFloatingStationTest : TfmSandboxTest() {
   @BeforeTest fun setUp() = newTestGame()
 
   @Test

@@ -1,9 +1,11 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestOption.Amazonis
 import dev.martianzoo.tfm.tests.TestOption.Unsafe
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 internal class MiningGuildTest : CardTest() {
@@ -42,5 +44,27 @@ internal class MiningGuildTest : CardTest() {
         }
         .expect("Titanium, PROD[Steel]")
     p1.auditGainsSince(checkpoint) shouldBe 1
+  }
+
+  // https://boardgamegeek.com/thread/3403085/article/45161178#45161178
+  @Ignore // Mining Guild responds to the area instead of the chosen resource.
+  @Test
+  internal fun `Nonmetal wild bonus grants no steel production`() {
+    takeNonmetalWildBonus().expect("Plant, PROD[0 Steel]")
+  }
+
+  @Test
+  internal fun `BUG - Nonmetal wild bonus grants steel production`() {
+    takeNonmetalWildBonus().expect("Plant, PROD[Steel]")
+  }
+
+  private fun takeNonmetalWildBonus(): TaskResult {
+    newGame(Amazonis, Unsafe)
+    p1.playCorp(MiningGuild, 0)
+    admin.phase("Action")
+    return p1.stdProject("GreeneryProject") {
+      placeTile(5, 3)
+      doTask("Plant")
+    }
   }
 }

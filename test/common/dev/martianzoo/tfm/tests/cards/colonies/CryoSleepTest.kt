@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
-import dev.martianzoo.tfm.tests.cards.ProjectCardTest
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class CryoSleepTest : ProjectCardTest() {
+internal class CryoSleepTest : TfmSandboxTest() {
   @BeforeTest fun setUp() = newTestGame(addOptions = "Luna, Io, Triton, Europa, Titan")
 
   @Test

@@ -21,7 +21,7 @@ public data class CardDefinition(
   public val projectKind: String? =
       when {
         deck != PROJECT_DECK -> null
-        tags.lastOrNull() == EVENT_TAG -> EVENT_CARD
+        EVENT_TAG in tags -> EVENT_CARD
         actions.isNotEmpty() ||
             invariants.any { it.startsWith("=") } ||
             effects.any { !it.isScoringEffect() } -> ACTIVE_CARD
@@ -31,8 +31,8 @@ public data class CardDefinition(
   init {
     require(CARD_NAME.matches(name)) { "Invalid card name: $name" }
     require(deck == null || deck in CARD_DECKS) { "Invalid card deck: $deck" }
-    require(EVENT_TAG !in tags.dropLast(1)) {
-      "$EVENT_TAG must appear once, at the end of $name's tags"
+    require(tags.count { it == EVENT_TAG } <= 1) {
+      "$EVENT_TAG must appear at most once in $name's tags"
     }
     require(invariants.none(String::isEmpty))
     require(requirement?.isNotEmpty() != false)

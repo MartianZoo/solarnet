@@ -1,22 +1,18 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestOption.*
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class CommercialDistrictTest : CardTest() {
+internal class CommercialDistrictTest : TfmSandboxTest() {
   @Test
-  internal fun `Scores adjacent cities after placement`() {
-    newGame()
-    val p2 = requireP2()
+  internal fun `Scores neighboring cities including those added after placement`() {
+    newTestGame()
+    kim.exMachina("NormalCityTile<Kim, Tharsis_3_2>")
+    kim.playProject(CommercialDistrict, 16) { placeTile(3, 3) }
+    stan.exMachina("NormalCityTile<Stan, Tharsis_3_4>, NormalCityTile<Stan, Tharsis_8_6>")
 
-    p1.runOperation("PROD[Energy], CityTile<Tharsis_3_2>")
-    p1.runOperation("$CommercialDistrict") { placeTile(3, 3) }
-    p2.runOperation("CityTile<Tharsis_3_4>")
-
-    admin.runOperation("End FROM Phase")
-    p1.assertCounts(22 to "VictoryPoint")
-    p2.assertCounts(20 to "VictoryPoint")
+    victoryPoints() shouldBe listOf(22, 20, 20)
   }
 }

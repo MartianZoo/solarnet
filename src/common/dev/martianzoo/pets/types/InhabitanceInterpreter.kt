@@ -26,6 +26,14 @@ public class InhabitanceInterpreter(
     private val classIsUninhabited: (ClassName) -> Boolean,
     private val exactCount: (Expression) -> Int? = { null },
 ) {
+  internal sealed interface SimplifiedRequirement {
+    data object Always : SimplifiedRequirement
+
+    data object Never : SimplifiedRequirement
+
+    data class Conditional(val requirement: Requirement) : SimplifiedRequirement
+  }
+
   /** Whether the expression is provably empty from its root, arguments, or requirements. */
   public fun expressionIsUninhabited(expression: Expression): Boolean {
     if (expression.className == THIS) return false
@@ -38,7 +46,63 @@ public class InhabitanceInterpreter(
 
   /** Whether known counts and empty domains prove the requirement false. */
   public fun requirementIsFalse(requirement: Requirement): Boolean =
-      truthOf(requirement) == Truth.FALSE
+      simplifyRequirement(requirement) == SimplifiedRequirement.Never
+
+  /** Removes every fixed part of [requirement], retaining only its state-dependent question. */
+  internal fun simplifyRequirement(requirement: Requirement): SimplifiedRequirement =
+      when (requirement) {
+        is Requirement.Counting -> {
+          val metric = requirement.metric
+          val count =
+              (metric as? Count)?.let { exactCount(it.expression) }
+                  ?: 0.takeIf { metricIsExactlyZero(metric) }
+          when {
+            count == null -> SimplifiedRequirement.Conditional(requirement)
+            count in requirement.range -> SimplifiedRequirement.Always
+            else -> SimplifiedRequirement.Never
+          }
+        }
+        is Requirement.And -> {
+          val simplified = requirement.requirements.map(::simplifyRequirement)
+          when {
+            SimplifiedRequirement.Never in simplified -> SimplifiedRequirement.Never
+            else -> {
+              val remaining = simplified.filterIsInstance<SimplifiedRequirement.Conditional>()
+              if (remaining.isEmpty()) {
+                SimplifiedRequirement.Always
+              } else {
+                val parts = remaining.map { it.requirement }
+                val combined = Requirement.And.create(parts)
+                if (parts.none { it === combined }) {
+                  combined.sourceLocation = requirement.sourceLocation
+                }
+                SimplifiedRequirement.Conditional(combined)
+              }
+            }
+          }
+        }
+        is Requirement.Or -> {
+          val simplified = requirement.requirements.map(::simplifyRequirement)
+          when {
+            SimplifiedRequirement.Always in simplified -> SimplifiedRequirement.Always
+            else -> {
+              val remaining = simplified.filterIsInstance<SimplifiedRequirement.Conditional>()
+              if (remaining.isEmpty()) {
+                SimplifiedRequirement.Never
+              } else {
+                val parts = remaining.map { it.requirement }
+                val combined = Requirement.Or.create(parts)
+                if (parts.none { it === combined }) {
+                  combined.sourceLocation = requirement.sourceLocation
+                }
+                SimplifiedRequirement.Conditional(combined)
+              }
+            }
+          }
+        }
+        is Requirement.Eval,
+        is Requirement.Transform -> SimplifiedRequirement.Conditional(requirement)
+      }
 
   /** Whether the metric is provably zero; false includes unknown values. */
   public fun metricIsExactlyZero(metric: Metric): Boolean =
@@ -60,43 +124,4 @@ public class InhabitanceInterpreter(
         is XTrigger -> triggerIsReachable(trigger.inner)
         is Transform -> triggerIsReachable(trigger.inner)
       }
-
-  private fun truthOf(requirement: Requirement): Truth =
-      when (requirement) {
-        is Requirement.Counting -> {
-          val metric = requirement.metric
-          val count =
-              (metric as? Count)?.let { exactCount(it.expression) }
-                  ?: 0.takeIf { metricIsExactlyZero(metric) }
-          when {
-            count == null -> Truth.UNKNOWN
-            count in requirement.range -> Truth.TRUE
-            else -> Truth.FALSE
-          }
-        }
-        is Requirement.And -> truthOfAll(requirement.requirements.map(::truthOf))
-        is Requirement.Or -> truthOfAny(requirement.requirements.map(::truthOf))
-        is Requirement.Eval,
-        is Requirement.Transform -> Truth.UNKNOWN
-      }
-
-  private fun truthOfAll(values: Collection<Truth>): Truth =
-      when {
-        Truth.FALSE in values -> Truth.FALSE
-        values.all { it == Truth.TRUE } -> Truth.TRUE
-        else -> Truth.UNKNOWN
-      }
-
-  private fun truthOfAny(values: Collection<Truth>): Truth =
-      when {
-        Truth.TRUE in values -> Truth.TRUE
-        values.all { it == Truth.FALSE } -> Truth.FALSE
-        else -> Truth.UNKNOWN
-      }
-
-  private enum class Truth {
-    TRUE,
-    FALSE,
-    UNKNOWN,
-  }
 }

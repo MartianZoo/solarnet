@@ -40,7 +40,7 @@ retains the card.
 
 `BY Me@` identifies the performer, not the purpose of a loss. If Flooding targets its own player
 while that player's Neptunian bill is open, the 4 M€ loss incorrectly reduces that bill. Search
-[`BugsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt) for the characterized
+[`FloodingTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/FloodingTest.kt) for the characterized
 case. Do not add transaction identity for hypothetical concurrent invoices without a selected
 systemic rule.
 
@@ -51,7 +51,7 @@ assignee. Calling those Agents is legitimate calculator use. A helper-driven sce
 without establishing which selections each Agent requires or whether intervening work changes the
 payment result; inspect those game semantics separately from authorization of the external caller.
 
-`BugsTest` characterizes intervention immediately after acceptance and after a separate Steel
+`FloodingTest` characterizes intervention immediately after acceptance and after a separate Steel
 payment. Earlier committed spending remains consumed if a later payment command fails. `Owed` and
 `Billing` are `Barrier`s, but that checks completion; it does not exclude unrelated task selection.
 The remaining completion and task-order questions are recorded in

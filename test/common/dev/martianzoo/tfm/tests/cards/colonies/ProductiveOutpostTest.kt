@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.tfm.tests.cards.ProjectCardTest
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.ProductiveOutpost
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class ProductiveOutpostTest : ProjectCardTest() {
+internal class ProductiveOutpostTest : TfmSandboxTest() {
   @BeforeTest fun setUp() = newTestGame(addOptions = "Luna, Io, Triton, Europa, Titan")
 
   @Test

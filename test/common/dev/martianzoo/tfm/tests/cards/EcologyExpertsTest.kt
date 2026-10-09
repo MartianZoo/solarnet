@@ -3,13 +3,40 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 internal class EcologyExpertsTest : CardTest() {
+  // BGG Ecology Experts tag timing:
+  // https://boardgamegeek.com/thread/2096075/article/30501757#30501757
+  @Ignore // Known defect: the newly played listener misses Ecology Experts' plant tag.
+  @Test
+  internal fun `Its plant tag triggers the Ecological Zone it plays`() {
+    playEcologicalZone().expect("3 Animal<$EcologicalZone>")
+  }
+
+  @Test
+  internal fun `BUG - Its plant tag does not trigger the Ecological Zone it plays`() {
+    playEcologicalZone().expect("2 Animal<$EcologicalZone>")
+  }
+
+  private fun playEcologicalZone(): TaskResult {
+    newGame(GameConfig("PreludeExpansion, EcologyExperts, Unsafe", "Player1", "Player2"))
+    admin.phase("Prelude")
+    p1.runOperation("12 MC, ProjectCard, PreludeCard, GreeneryTile<Tharsis_4_4>")
+
+    return with(p1) {
+      playPrelude(EcologyExperts) {
+        playProject(EcologicalZone, 12) { placeTile(4, 5) }
+      }
+    }
+  }
+
   @Test
   internal fun `Cannot choose another Prelude card`() {
     newGame(GameConfig("PreludeExpansion, EcologyExperts, Unsafe", "Player1", "Player2"))
@@ -111,5 +138,32 @@ internal class EcologyExpertsTest : CardTest() {
       with(p1) { playPrelude(EcologyExperts) { playProject(SupportedResearch, 3) } }
     }
     p1.assertCounts(0 to "$EcologyExperts", 0 to "$SupportedResearch", 1 to "ProjectCard")
+  }
+
+  // https://boardgamegeek.com/thread/2096075/article/30501757#30501757
+  @Ignore // The newly played listener misses Ecology Experts bio tags.
+  @Test
+  internal fun `Its bio tags trigger the Viral Enhancers it plays`() {
+    playViralEnhancers().expect("3 Plant")
+  }
+
+  @Test
+  internal fun `BUG - Its bio tags do not trigger the Viral Enhancers it plays`() {
+    playViralEnhancers().expect("Plant")
+  }
+
+  private fun playViralEnhancers(): TaskResult {
+    newGame(
+        GameConfig(
+            "PreludeExpansion, CorporateEraExpansion, EcologyExperts, Unsafe",
+            "Player1",
+            "Player2",
+        )
+    )
+    admin.phase("Prelude")
+    p1.runOperation("9 MC, ProjectCard, PreludeCard")
+    return with(p1) {
+      playPrelude(EcologyExperts) { playProject(ViralEnhancers, 9) { doTask("Plant") } }
+    }
   }
 }

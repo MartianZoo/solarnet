@@ -7,6 +7,7 @@ import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.PetNode
@@ -19,6 +20,9 @@ import dev.martianzoo.pets.types.Dependency.TypeDependency
  * identity; structural judgments use the interpreting universe, while concrete enumeration follows
  * the selected closure, as specified by
  * [sections 1 and 12](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
+ * A game table also owns the immutable executable effect view derived for that premise; [effects]
+ * is the normal effect lookup, while `Class.declaration.effects` deliberately accesses the shared
+ * backing declaration.
  *
  * @constructor Creates a table implementation for a catalog universe or a game universe, under the
  *   identity rules in
@@ -151,6 +155,19 @@ public abstract class ClassTable {
               "no class named `$name` in the current game",
               sourceLocation = name.sourceLocation,
           )
+
+  /**
+   * Returns [klass]'s executable effects for every World built from this table. A Catalog table
+   * returns the reusable declaration effects. A game table returns an included Class's immutable
+   * premise-specialized form: conditions settled by its structural `Class<T>` representatives or
+   * selected Modules are removed, while state-dependent conditions remain. This derivation never
+   * changes [klass] or its declaration. Read `klass.declaration.effects` explicitly when the
+   * unspecialized backing form is required.
+   *
+   * @throws IllegalArgumentException when [klass] belongs to another universe or is not included in
+   *   this game premise.
+   */
+  public abstract fun effects(klass: Class): List<Effect>
 
   /**
    * Returns the class with canonical [name] when its base Type is inhabited in this universe, or

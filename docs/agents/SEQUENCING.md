@@ -116,7 +116,7 @@ intervening selection.
 
 Neptunian Power Consultants demonstrates the interaction. P1 may hand an optional decision to P2,
 but the selected-task lock ends when that task finishes. Payment descendants return to P1's controller,
-and P1 can resume unrelated work while P2's payment remains unfinished. `BugsTest` contains current
+and P1 can resume unrelated work while P2's payment remains unfinished. `FloodingTest` contains current
 observable characterizations, including resource changes that can make the payment fail;
 [`PAYMENTS.md`](PAYMENTS.md#verified-gaps) describes the payment-specific evidence.
 
@@ -172,4 +172,4 @@ Event cards become `PlayedEvent` through idle cleanup, not an explicit end-of-tu
 - [`WorldTransaction.kt`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) and
   [`Engine.kt`](../../src/common/dev/martianzoo/engine/Engine.kt): settlement and cleanup.
 - `TaskDelegationTest`, `PhilaresTest`, `TemporaryCleanupTest`, and the Neptunian cases in
-  `BugsTest`: current observable contracts and gaps.
+  `FloodingTest`: current observable contracts and gaps.

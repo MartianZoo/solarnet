@@ -1,12 +1,13 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class OutdoorSportsTest : ProjectCardTest() {
+internal class OutdoorSportsTest : TfmSandboxTest() {
   @BeforeTest fun setUp() = newTestGame()
 
   @Test

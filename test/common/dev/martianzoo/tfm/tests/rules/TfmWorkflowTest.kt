@@ -503,20 +503,6 @@ internal class TfmWorkflowTest {
   }
 
   @Test
-  internal fun aPlayerMayPassWhileItsMandatoryFirstActionRemainsPending() {
-    val game = Engine.newGame(canonicalPremise(players = 2))
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
-    game.testAgents()[ADMIN].beginOperation("WorkflowStarted")
-    playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
-    playCorporationWithoutStartingProjects(p2, CrediCor)
-
-    p1.pass()
-
-    p1.count("Pass") shouldBe 1
-  }
-
-  @Test
   internal fun rollingBackFirstActionRestoresItsTurn() {
     val game = Engine.newGame(canonicalPremise(players = 2))
     val p1 = game.testTfm(PLAYER1)

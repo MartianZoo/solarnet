@@ -9,7 +9,7 @@
 > **Skip when:** doing a read-only task that requires no build or behavioral claim.
 >
 > **Status:** current repository procedure; the project-card suite is actively migrating to the
-> standardized fixture described below.
+> sandbox and gameplay fixtures described below.
 
 ## Read only the needed section
 
@@ -17,7 +17,7 @@
 | --- | --- |
 | Choose commands or suite scope | Standard verification |
 | Change Gradle/dependencies/source sets | Build configuration |
-| Write or move a card/rule test or gameplay helper | Test design through the relevant test category; project cards also require [Standard project-card fixture migration](#standard-project-card-fixture-migration) |
+| Write or move a card/rule test or gameplay helper | Test design through the relevant test category; also read [Sandbox and gameplay fixture migration](#sandbox-and-gameplay-fixture-migration) |
 | Use `TaskResult.expect()` | Expectations |
 | Preserve known incorrect behavior | Known-defect tests |
 | Reconstruct a whole game | Game replay tests and Direct state reconciliation, then the routed replay guide |
@@ -31,8 +31,10 @@
   search for the named helper before spelling raw task text.
 - [`CardTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/CardTest.kt) —
   read for component-focused scenario construction.
-- [`ProjectCardTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/ProjectCardTest.kt) —
-  use as the default base for eligible project-card functional tests.
+- [`TfmSandboxTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmSandboxTest.kt) —
+  focused scenarios with corrections and selected phase shortcuts.
+- [`TfmGameplayTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmGameplayTest.kt) —
+  scenarios reached through play under the real automatic workflow.
 - [`AbstractFullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
   — read only for whole-game chronology.
 
@@ -201,12 +203,12 @@ for correct ownership.
 
 ### Test categories we care about
 
-Eligible project-card classes are moving to the standardized `ProjectCardTest` fixture described
-below. This is separate from automatic workflow: ordinary card and rule tests should retain focused
-setup and need not traverse real game phases or turns. Do not resume the abandoned conversion of
-those tests to full automatic progression. Workflow tests and whole-game replays exercise phase and
-turn progression; dedicated REPL mode and lower-level engine tests retain their own subjects.
-Do not recreate game rules in Kotlin helpers to make a fixture work.
+Legacy card and game-rule scenarios are moving to the `TfmSandboxTest` and `TfmGameplayTest`
+fixtures described below. Choose authentic workflow where the claim depends on it; focused sandbox
+scenarios remain an intended style. Do not resume the abandoned blanket conversion of ordinary
+card and rule tests to full automatic progression. Existing tests have not all migrated.
+Dedicated REPL mode tests and lower-level engine or bootstrap tests retain their distinct subjects.
+Do not replace manual phase calls with helpers that recreate the workflow in Kotlin.
 
 These are the repository's protected test categories. Test placement may evolve, but preserving
 clear coverage of these contracts matters more than preserving every current test class:
@@ -230,7 +232,8 @@ clear coverage of these contracts matters more than preserving every current tes
    that representative supported configurations compose into usable projected class tables and
    worlds. This is not a demand to restate the contents of every card or bundle in assertions.
 7. **Known-defect scenarios.** Focused passing characterizations of important behavior known to be
-   wrong, visibly quarantined in `BugsTest` until the behavior is corrected.
+   wrong, explicitly identified as defects. Card tests use the paired pattern described
+   under [Known-defect tests](#known-defect-tests); other suites retain `BugsTest`.
 8. **Script-command contract tests.** Terraforming-independent checks of each command's public
    contract. These are useful interface coverage even though they are not a development priority.
 9. **Cross-runtime browser coverage.** Browser-specific tests cover browser APIs, one representative
@@ -242,7 +245,7 @@ are a separate review.
 
 Give each scenario variant its own named test, using a private helper for shared steps. Do not put
 variants in a `for` loop inside one test: the failing test name should identify the case. Exercise
-the behavior under test through gameplay. For eligible project-card tests, establish incidental
+the behavior under test through gameplay. For sandbox tests, establish incidental
 preconditions through the standardized fixture and direct corrections by default. Use authentic
 gameplay instead when the way a precondition is reached can affect, or provide useful evidence for,
 the behavior under test.
@@ -323,32 +326,69 @@ entry, so these literals do not need `trimIndent()`. Solo tests conventionally u
 canonical Player Class Name and use `Player.PLAYER1` in Kotlin. The raw-configuration
 overload in `CardTest` uses the same resolution path.
 
-### Standard project-card fixture migration
+### Sandbox and gameplay fixture migration
 
-`ProjectCardTest` is the default base for project-card functional tests when its standard game can
-express the scenarios in the class. It starts each test at generation 1 Action phase with:
+Choose the fixture by what the scenario proves, not the kind of card:
+
+- `TfmSandboxTest` supplies a prepared position, explicit corrections, and selected phase shortcuts.
+  Use it for focused card interactions and rules that do not depend on authentic turn/phase history.
+- `TfmGameplayTest` starts the Pets workflow with `WorkflowStarted`. Reach the scenario through
+  real play, including passing through production to obtain resources. Do not inject resources, replace phases, or
+  invoke internal rule instructions. A setup convenience may play a documented ordered selection
+  of corporations or Preludes through the workflow; convenience must not bypass their gameplay.
+  The implemented default already plays the starting corporations; Prelude choices remain explicit.
+
+Gameplay tests must follow the turns offered by the workflow. The current helpers do not enforce
+this: `Agent.inTurn` creates a turn when the acting player has no pending task, even if the workflow
+is waiting for another player. For example, Stan's action can succeed while Kim's turn is pending.
+Running the automatic workflow therefore does not by itself prove that a test follows turn order.
+
+Both extend the existing `TfmTest` directly and expose the same `newTestGame` arguments.
+Each owns its setup; there is no intermediate shared base. Neither is restricted to project cards.
+Their differences should follow from sandbox versus gameplay, not separate setup policies.
+Shared rules get representative coverage using base-game content where possible: for example,
+`rules/RequiredFirstActionTest` uses Inventrix rather than repeating the same rule for each
+corporation with a required first action.
+
+Both normally return at generation 1 Prelude phase when `PreludeExpansion` is selected, otherwise
+Action phase. `startAtCorporation = true` instead returns before any corporation is played;
+the test then makes the corporation plays explicitly. Select `kimCorporation` to give Kim the normal
+corporation path (retaining ten starting projects for purchase); other seats use the beginner path.
+Unless `startAtCorporation` is true, the fixture plays all starting corporations before returning.
+The default game has:
 
 - Tharsis, Venus Next, Colonies, and Promos;
 - Corporate Era and the Beginner and Quick Start variants;
 - Kim, Stan, and Rob, in that order, each using a distinct beginner corporation; and
 - the ordinary beginner-corporation starting state, including 42 MC, 10 anonymous project cards,
-  20 TR, and production of 1 for each standard resource.
+  20 TR in multiplayer (14 in solo), and production of 1 for each standard resource.
 
 Kim is the player exercising the subject card unless the card's behavior requires another actor.
-The standard game has three players. A scenario may instead pass `playerCount` from two through
+The standard game has three players. A scenario may instead pass `playerCount` from one through
 five; Maya and Nadia occupy the fourth and fifth seats. The protected `players` list exposes every
-seat in order. `kim` and `stan` remain convenient non-null properties, while accessing `rob` in a
-two-player game fails immediately with a fixture error.
+seat in order. Accessing `stan` in solo or `rob` with fewer than three players fails immediately
+with a fixture error. Both styles resolve neutral solo placements through the setup tasks, using
+the same fixed positions on Tharsis, Hellas, and Elysium; other solo maps still need positions.
 
-The fixture prepares and caches an Action-phase `World` for each option-set, player-count, and Kim
-corporation combination, then gives every test an independent `Engine.fork` of that prepared
+The sandbox prepares and caches a `World` for each option-set, player-count, Kim corporation, and
+entry-point combination, then gives every test an independent `Engine.fork` of that prepared
 position. The cached World is never exposed or mutated after preparation. The base class does not
-create a fork automatically. A uniform class declares its own `@BeforeTest` method that calls
-`newTestGame()`. A class whose methods need different compatible selections or player counts calls
-`newTestGame()` explicitly in each method, passing arguments such as `addOptions = "CimmeriaMap"` or
-`playerCount = 4` where needed. Pass `kimCorporation` only when its live effect is part of the
-scenario; Kim then plays that corporation normally and resolves its setup effects, while every
+create a game automatically. Gameplay creates a fresh World and starts its own workflow for every
+call; its workflow state belongs to that World and needs no external driver or shutdown. A uniform
+class declares its own `@BeforeTest` method that calls `newTestGame()`. A class whose methods need different compatible
+selections or player counts calls `newTestGame()` explicitly in each method, passing arguments such
+as `addOptions = "CimmeriaMap"` or `playerCount = 4` where needed. Pass `kimCorporation` only when its
+live effect is part of the scenario; Kim then plays that corporation normally and resolves its setup
+effects, while every
 other player keeps a beginner corporation. Do not share or roll back a live World between tests.
+
+Prefer selecting an individual card in `addOptions` when the scenario does not need its expansion's
+other rules. Negative selections such as `addOptions = "-ColoniesExpansion, TitanShuttles"`
+remove an expansion from the fixture defaults. For cards with a non-obvious expansion dependency,
+include focused scenarios with and without that expansion. Keep assertions centered on card
+behavior; configuration checks normally belong to the existing configuration tests. Do not
+duplicate this coverage for every expansion card.
+
 The fixture otherwise leaves the default autoexecution policy untouched.
 When Turmoil is selected, it uses the existing test setup's initial global-event reveals
 (`AquiferReleasedByPublicCouncil` and `DryDeserts`) before entering Corporation phase.
@@ -357,10 +397,10 @@ Treat every pre-migration test as a fallible historical artifact, not as a speci
 setup. Existing options, cards, resource grants, card plays, phase changes, autoexecution policies,
 and operation order may be incidental, copied from another scenario, obsolete, or compensating for
 old behavior. Begin with the behavior named by the scenario and its meaningful observable coverage.
-Challenge every setup step: if removing it does not change the behavior under test, remove it. In
-particular, do not preserve gameplay merely because the old test used it to reach a state that a
-direct correction can express, and do not infer a configuration requirement solely from the old
-test's configuration.
+Challenge every setup step: if removing it does not change the behavior under test, remove it. For
+sandbox scenarios, do not preserve gameplay merely because the old test used it to reach a state
+that a direct correction can express. Gameplay scenarios must still reach their conditions through
+play. Do not infer a configuration requirement solely from the old test's configuration.
 
 Review an unmigrated class for test value and structure before deciding whether it fits the fixture.
 First remove declaration-only and duplicate scenarios, separate independent behaviors, and trim
@@ -389,11 +429,13 @@ preserve sourced FAQ or defect evidence, distinguish tempting targets or choices
 interaction among independently authored rules. Prefer representative coverage over repeating the
 same semantic pattern for another card with different literals.
 
-Every state change in a migrated test must come from real player-facing gameplay or from the two
-fixture correction methods below. Do not use `runOperation`, `beginOperation`, `sneak`, manual phase
-changes, or other lower-level shortcuts in a `ProjectCardTest` subclass.
+Every state change in a migrated sandbox test must come from real player-facing gameplay or from
+its explicit fixture methods. Do not use `runOperation`, `beginOperation`, `sneak`, arbitrary manual
+phase changes, or other lower-level shortcuts in either fixture's subclasses. The sandbox provides
+`startActionPhase()` to skip unplayed Preludes when their play is irrelevant; finish pending choices
+first. Gameplay leaves those choices to the test and advances through the normal workflow.
 
-Starting conditions beyond that tabula-rasa state should normally be direct, visible corrections:
+In sandbox tests, conditions beyond that initial state should normally be direct, visible corrections:
 
 - Use `setToExMachina(targetCount, type)` for a desired absolute count. It calculates the gain or
   loss from the current count, so the scenario states its intended condition rather than assuming
@@ -410,8 +452,15 @@ Starting conditions beyond that tabula-rasa state should normally be direct, vis
 - To test behavior at a completed global parameter, correct the track to its penultimate step and
   use an ordinary standard project for the final step when available. This preserves the real
   completion lifecycle, including `GpComplete`, instead of asking a correction to stand in for it.
-- Use the fixture's `nextGeneration()` when a scenario needs the normal production, research, and
-  action-phase workflow with every player buying zero project cards.
+- The sandbox's retained `nextGeneration()` shortcut runs Production, Research, and Action with
+  every player buying zero cards. It does not run the full expansion Solar sequence or accommodate
+  production choices. A scenario that needs those phases or their ordering belongs in gameplay;
+  do not silently broaden this helper into another game driver.
+- Use `victoryPoints()` to query final VP totals in player-seat order for the current position.
+  Finish pending choices before querying. It executes the existing final-scoring phase and rolls
+  back in `finally`, including on failure. It does not advance through production or final greenery;
+  arrange the position to be scored explicitly. The query preserves the live game's state and
+  history for subsequent gameplay.
 
 Corrections intentionally suppress ordinary queued effects while retaining the structural work
 documented in [EX_MACHINA.md](EX_MACHINA.md). Therefore, never treat the correction itself as proof
@@ -425,30 +474,26 @@ setup actions. It is also appropriate when a broader integration scenario is val
 right. Direct correction is the default for irrelevant preconditions because it keeps focused card
 tests short and makes their real subject obvious; it is not a ban on authentic gameplay.
 
-Migrate a test class only when all its retained scenarios fit the currently implemented fixture and
-setup model. Additional maps and expansion configurations belong in this fixture; do not classify
-them as permanent exclusions merely because an existing test uses different options. Solo and
-phase-sensitive cases may temporarily remain on `CardTest` while the capabilities below are absent.
-Synthetic declarations still require separate evaluation. Do not replace meaningful coverage just
-to increase the migrated count. An existing base class does not itself express a preferred style.
+Review each retained scenario before selecting its fixture. A coherent card suite can use gameplay
+throughout even when some methods could use sandbox; `PreservationProgramTest` follows this style.
+When most methods suit sandbox and only a few need workflow, a normal nested class may extend
+`TfmGameplayTest` inside the sandbox class. It owns its own fixture and does not share the outer
+instance; do not use Kotlin `inner` or JVM-only `@Nested`. See
+`TfmSandboxTestTest.TfmGameplayTestTest` for executable discovery coverage. When filtering by the
+outer class name, include a trailing wildcard to include nested classes as well. Synthetic
+declarations still require separate evaluation.
+Do not replace meaningful coverage just to increase the migrated count. An existing base class does
+not itself express a preferred style.
 
-#### Intended fixture development — not implemented yet
+#### Remaining fixture development
 
-- Support `playerCount = 1`, including authentic solo setup and clear failure when an absent seat is
-  accessed. Solo is intended scope, not a permanent reason to retain `CardTest`.
-- Add `advanceTo(Phase)` with responsibility for safe progression through the existing workflow.
-  It should respect pending choices and mandatory work rather than merely replacing `Phase`.
-  Determine the smallest way to accommodate player choices during production and other phases;
-  do not duplicate game rules in test support.
-- Add a base-class query for players' VP totals that simulates scoring and rolls back even on
-  failure, leaving the live scenario intact. This is temporary scoring within a test, not sharing
-  mutable Worlds or rolling a World back between tests.
-- Explore starting in Prelude phase when Prelude expansion is included; callers needing Action
-  phase would explicitly advance. Review existing Prelude-enabled callers before changing the
-  current Action-phase start, and avoid silently choosing meaningful Prelude plays for them.
-- Accommodate expansion configurations through this fixture. Keep the ordinary default game simple
-  and identify actual incompatibilities from retained scenarios rather than inherited setup.
-- Add `CorporationCardTest` later for corporation-focused scenarios.
+- Extend the neutral-placement defaults in both bases when a solo scenario needs a map other than
+  Tharsis, Hellas, or Elysium. Solo alone does not select gameplay over sandbox.
+- Continue migration in substantial batches after reviewing each scenario's value. Use the existing
+  expansion/map selections and real workflow before considering another fixture capability.
+- Reassess the sandbox's allowed phase shortcuts from concrete needs. A general `advanceTo(Phase)`
+  is no longer presumed necessary. Do not introduce a corporation-specific base without a need
+  beyond what these two styles already provide.
 
 Investigate whether attack-history markers used by Law Suit and Crash Site Cleanup should be
 created by automatic (`::`) effects. They currently use queued (`:`) effects, suppressed by
@@ -456,9 +501,8 @@ corrections. Decide from their intended meaning during corrections and ordinary 
 convenience alone is not justification for changing effect semantics.
 
 For unusual injected sequences, seek a credible gameplay route. Delete a scenario if no such route
-exists rather than adding fixture machinery to recreate it. In particular, reassess Flooding's
-concurrent ocean-placement scenario; a route possible only through Fake Head Start does not by
-itself establish useful supported-game coverage.
+exists rather than adding fixture machinery to recreate it. A route possible only through Fake Head
+Start does not by itself establish useful supported-game coverage.
 
 Continue with easier classes first, in substantial batches. Review each retained scenario's value,
 setup, assertions, and name within the batch; larger batches do not relax those checks. Track open
@@ -490,9 +534,23 @@ relevant unchanged state and, when useful, the diagnostic identifying the proble
 
 ### Known-defect tests
 
-`BugsTest` is different: its passing tests characterize known incorrect behavior, and their names
-say what currently happens incorrectly. Prefer such a characterization over a disproportionate
-workaround. Once the bug is fixed, move the useful scenario to its proper behavioral suite.
+Card tests use adjacent test pairs in the class for the main card involved:
+
+- An `@Test` with `@Ignore` states the intended behavior. Add a short comment explaining the defect
+  that keeps it disabled, and preserve any existing rule-source reference beside the pair.
+- An active `@Test` with a name beginning `BUG - ` states the current incorrect behavior.
+- Share scenario steps through a private helper, keeping the differing expectations visible in the
+  test methods. For a currently rejected action, the characterization catches the specific exception
+  and checks unchanged state; the intended test calls the same helper and expects success.
+
+Follow the standard card-test fixture conventions above. Do not add shared infrastructure for
+pairing. Verify that the intended test fails for the described defect before disabling it. When
+the defect is fixed, enable that test and remove the obsolete characterization; inline the helper
+if it no longer serves multiple tests. `MiningRightsTest` and `EcologyExpertsTest` are compact examples.
+
+Other packages retain `BugsTest`: its passing tests characterize known
+incorrect behavior, and their names say what currently happens incorrectly. Prefer a clearly marked
+characterization over a disproportionate workaround.
 
 ## Game replay tests
 

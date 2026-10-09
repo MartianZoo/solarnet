@@ -1,12 +1,13 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class LavaFlowsTest : ProjectCardTest() {
+internal class LavaFlowsTest : TfmSandboxTest() {
   @Test
   internal fun `Can place its tile on Tharsis`() {
     newTestGame()

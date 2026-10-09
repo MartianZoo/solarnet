@@ -1,5 +1,6 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
@@ -9,9 +10,16 @@ import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.OK
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Effect.Trigger
+import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
+import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
+import dev.martianzoo.pets.ast.Effect.Trigger.Or
 import dev.martianzoo.pets.ast.Effect.Trigger.SubscribedTrigger
+import dev.martianzoo.pets.ast.Effect.Trigger.Transform
+import dev.martianzoo.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -20,11 +28,13 @@ import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.TransformNode
 import dev.martianzoo.pets.ast.expandClassLiteralTypeVariableName
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration
+import dev.martianzoo.pets.types.InhabitanceInterpreter.SimplifiedRequirement
 
 /**
  * Incrementally compiles supplied declarations into the single master universe specified by
@@ -43,6 +53,7 @@ private constructor(
     private val masterSource: ClassTable?,
     private val checkAvailability: (ClassName, ClassName?) -> Unit = { _, _ -> },
     private val exactCount: (Expression, ClassTable) -> Int? = { _, _ -> null },
+    private val selectedModuleCount: (Expression, ClassTable) -> Int? = { _, _ -> null },
 ) : ClassTable() {
   /**
    * Begins compiling a master universe from [declarations]. Call [loadEverything] before
@@ -97,6 +108,7 @@ private constructor(
   private val loadedClasses =
       mutableMapOf<ClassName, Class?>(COMPONENT to componentClass, CLASS to classClass)
   private val includedClassNames = linkedSetOf(COMPONENT, CLASS)
+  private var premiseEffects: Map<Class, List<Effect>>? = null
 
   /**
    * Returns the already loaded class named [name], or null; exact-name lookup during loading
@@ -109,6 +121,13 @@ private constructor(
     } else {
       masterSource?.findClass(name)
     }
+  }
+
+  public override fun effects(klass: Class): List<Effect> {
+    require(accepts(klass.classTable)) { "`$klass` belongs to a different Catalog" }
+    if (masterSource == null) return klass.declaration.effects
+    val effects = checkNotNull(premiseEffects) { "premise effects are not complete" }
+    return requireNotNull(effects[klass]) { "`$klass` is not included in this premise" }
   }
 
   /**
@@ -329,7 +348,112 @@ private constructor(
       "a game table must be structurally frozen before its inclusion closure is computed"
     }
     loadAll(names)
+    specializeEffects()
   }
+
+  private fun specializeEffects() {
+    val countCache = mutableMapOf<Expression, Int?>()
+    fun knownCount(expression: Expression): Int? {
+      if (expression in countCache) return countCache[expression]
+      return computePremiseCount(expression).also {
+        countCache[expression] = it
+      }
+    }
+    val interpreter =
+        InhabitanceInterpreter(
+            classIsUninhabited = { !isInhabited(it) },
+            exactCount = ::knownCount,
+        )
+    premiseEffects =
+        includedClassNames.map(::getClass).associateWith { klass ->
+          klass.declaration.effects.mapNotNull { specializeEffect(it, interpreter) }
+        }
+  }
+
+  private fun computePremiseCount(expression: Expression): Int? {
+    val representedClass = expression.arguments.singleOrNull()
+    if (
+        expression.className == CLASS &&
+            expression.refinement == null &&
+            representedClass?.simple == true &&
+            representedClass.className != THIS &&
+            representedClass.typeVariableName == null
+    ) {
+      return allConcreteSubtypes(resolve(expression)).count()
+    }
+    return selectedModuleCount(expression, this)
+  }
+
+  private fun specializeEffect(
+      effect: Effect,
+      interpreter: InhabitanceInterpreter,
+  ): Effect? {
+    val trigger = specializeTrigger(effect.trigger, interpreter) ?: return null
+    val instruction = specializeInstruction(effect.instruction, interpreter)
+    if (trigger == effect.trigger && instruction == effect.instruction) return effect
+    return effect.copy(trigger = trigger, instruction = instruction).also {
+      it.sourceLocation = effect.sourceLocation
+    }
+  }
+
+  private fun specializeTrigger(
+      trigger: Trigger,
+      interpreter: InhabitanceInterpreter,
+  ): Trigger? =
+      when (trigger) {
+        is Trigger.BasicTrigger -> trigger
+        is Or -> {
+          val remaining = trigger.triggers.mapNotNull { specializeTrigger(it, interpreter) }
+          when (remaining.size) {
+            0 -> null
+            1 -> remaining.single()
+            else -> Or(remaining).also { it.sourceLocation = trigger.sourceLocation }
+          }
+        }
+        is ByTrigger ->
+            specializeTrigger(trigger.inner, interpreter)?.let {
+              ByTrigger(it, trigger.by).also { result ->
+                result.sourceLocation = trigger.sourceLocation
+              }
+            }
+        is IfTrigger -> {
+          val inner = specializeTrigger(trigger.inner, interpreter) ?: return null
+          when (val condition = interpreter.simplifyRequirement(trigger.condition)) {
+            SimplifiedRequirement.Always -> inner
+            SimplifiedRequirement.Never -> null
+            is SimplifiedRequirement.Conditional ->
+                IfTrigger(inner, condition.requirement).also {
+                  it.sourceLocation = trigger.sourceLocation
+                }
+          }
+        }
+        is XTrigger,
+        is Transform -> trigger
+      }
+
+  private fun specializeInstruction(
+      instruction: InstructionTree,
+      interpreter: InhabitanceInterpreter,
+  ): InstructionTree =
+      object : PetTransformer() {
+            override fun transformNode(node: PetNode): PetNode =
+                when (node) {
+                  is Gated -> {
+                    when (val gate = interpreter.simplifyRequirement(node.gate)) {
+                      SimplifiedRequirement.Always -> transformInstructionTree(node.inner)
+                      // A false gate rejects its operation when reached. Keeping it also preserves
+                      // lazy bodies such as an empty EACH or zero-valued PER.
+                      SimplifiedRequirement.Never -> node
+                      is SimplifiedRequirement.Conditional ->
+                          Gated(gate.requirement, transformInstructionTree(node.inner)).also {
+                            it.sourceLocation = node.sourceLocation
+                          }
+                    }
+                  }
+                  else -> transformChildren(node)
+                }
+          }
+          .transformInstructionTree(instruction)
 
   private fun enqueue(names: Collection<ClassName>, requestedByClass: ClassName?) {
     (names - includedClassNames - queue).forEach { name ->
@@ -684,9 +808,14 @@ private constructor(
      *
      * [additionalRequiredClasses] supplies dependencies absent from Pets source.
      * [checkAvailability] may reject a required Class and receives the Class that required it, or
-     * null for a root. [exactCount] supplies known configuration counts, returning null for unknown
-     * counts; its table has a complete structural namespace but an inclusion set still being
-     * computed.
+     * null for a root. [exactCount] supplies configuration counts used only while deciding which
+     * declarations can become reachable; its table's inclusion set is still being computed.
+     * [exactCount] returns null for unknown counts. After the closure is complete, structurally
+     * installed `Class<T>` counts and caller-supplied [selectedModuleCount] facts specialize
+     * executable effects before any World is built. [selectedModuleCount] must return the exact
+     * selected count for a supported simple Module expression and null for every non-Module or
+     * unsupported expression; it describes the completed configuration rather than transient
+     * bootstrap state.
      */
     public fun forPremise(
         premiseTable: PremiseClassTable,
@@ -694,6 +823,7 @@ private constructor(
         additionalRequiredClasses: (ClassDeclaration) -> Set<ClassName> = { emptySet() },
         checkAvailability: (ClassName, ClassName?) -> Unit = { _, _ -> },
         exactCount: (Expression, ClassTable) -> Int? = { _, _ -> null },
+        selectedModuleCount: (Expression, ClassTable) -> Int? = { _, _ -> null },
     ): ClassTable {
       val masterTable = premiseTable.master
       require(masterTable.masterTable === masterTable) {
@@ -707,6 +837,7 @@ private constructor(
               masterTable,
               checkAvailability,
               exactCount,
+              selectedModuleCount,
           )
           .apply {
             freeze()

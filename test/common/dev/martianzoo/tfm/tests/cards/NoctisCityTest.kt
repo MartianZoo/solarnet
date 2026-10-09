@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
-internal class NoctisCityTest : ProjectCardTest() {
+internal class NoctisCityTest : TfmSandboxTest() {
   @Test
   internal fun `Can be placed anywhere on Hellas`() {
     newTestGame(addOptions = "HellasMap")

@@ -3,13 +3,14 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.HiTechLab
 import dev.martianzoo.tfm.tests.cards.cardnames.PowerInfrastructure
 import dev.martianzoo.tfm.tests.cards.cardnames.TychoMagnetics
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class VariableAmountActionsTest : ProjectCardTest() {
+internal class VariableAmountActionsTest : TfmSandboxTest() {
   @Test
   internal fun `Power Infrastructure cannot finish with no energy and no amount chosen`() {
     newTestGame()

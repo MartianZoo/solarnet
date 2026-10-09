@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
-internal class IndenturedWorkersTest : ProjectCardTest() {
+internal class IndenturedWorkersTest : TfmSandboxTest() {
   @Test
   internal fun `Discounts the next project card played`() {
     newTestGame()
@@ -50,6 +51,7 @@ internal class IndenturedWorkersTest : ProjectCardTest() {
   @Test
   internal fun `Intervening Prelude leaves the discount for the next project card`() {
     newTestGame(addOptions = "PreludeExpansion, Prelude2CardPack")
+    startActionPhase()
     kim.exMachina("$BoardOfDirectors, Director<$BoardOfDirectors>")
 
     kim.playProject(IndenturedWorkers, 0)

@@ -8,9 +8,57 @@ import dev.martianzoo.tfm.carddata.CardData
 import dev.martianzoo.tfm.carddata.CardDefinition
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 internal class GenerateCardPetsTest {
+  @Test
+  internal fun eventClassificationDoesNotDependOnTagOrder() {
+    val data =
+        CardDefinition(
+            name = "EventFirst",
+            deck = "ProjectCard",
+            tags = listOf("EventTag", "SpaceTag"),
+            immediate = "Plant",
+        )
+    val card = CardPetsGenerator.GeneratedCard(data).declaration
+    assertEquals("EventCard", data.projectKind)
+    assertEquals(listOf("EventCard"), card.supertypes.map { it.className.toString() })
+    assertEquals(
+        setOf(parse<Requirement>("=1 EventTag<This>"), parse<Requirement>("=1 SpaceTag<This>")),
+        Requirement.split(card.invariants).toSet(),
+    )
+  }
+
+  @Test
+  internal fun duplicateEventTagsAreStillRejected() {
+    assertFailsWith<IllegalArgumentException> {
+      CardDefinition(
+          name = "RepeatedEvent",
+          deck = "ProjectCard",
+          tags = listOf("EventTag", "EventTag"),
+      )
+    }
+  }
+
+  @Test
+  internal fun ambiguousResourceStorageFailsInsteadOfSilentlyDroppingTheHolderRole() {
+    val invalid =
+        CardDefinition(
+            name = "AmbiguousHolder",
+            deck = "ProjectCard",
+            actions = listOf("-> Animal<This>, Microbe<This>"),
+            effects = listOf("End: VictoryPoint / Animal<This>, VictoryPoint / Microbe<This>"),
+        )
+    val failure =
+        assertFailsWith<IllegalArgumentException> {
+          CardPetsGenerator.GeneratedCard(invalid).render()
+        }
+    assertTrue(failure.message.orEmpty().contains("AmbiguousHolder has ambiguous resource storage"))
+    assertTrue(failure.message.orEmpty().contains("Animal"))
+    assertTrue(failure.message.orEmpty().contains("Microbe"))
+  }
+
   @Test
   internal fun exactAttachmentsAndRepeatedTagsProduceOnlyInvariants() {
     val data =
@@ -110,7 +158,7 @@ internal class GenerateCardPetsTest {
     assertEquals("AutomatedCard", cards.getValue("DeepWellHeating").projectKind)
     assertEquals("ActiveCard", cards.getValue("ArcticAlgae").projectKind)
     assertEquals("EventCard", cards.getValue("ImportedHydrogen").projectKind)
-    assertEquals("EventTag", cards.getValue("ImportedHydrogen").tags.last())
+    assertTrue("EventTag" in cards.getValue("ImportedHydrogen").tags)
   }
 
   @Test

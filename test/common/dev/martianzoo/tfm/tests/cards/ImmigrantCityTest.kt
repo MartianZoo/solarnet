@@ -1,10 +1,11 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class ImmigrantCityTest : ProjectCardTest() {
+internal class ImmigrantCityTest : TfmSandboxTest() {
   @BeforeTest fun setUp() = newTestGame(kimCorporation = Manutech)
 
   // At -4 M€ production, the reduction is unavailable until the city trigger raises production.

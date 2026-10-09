@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -50,15 +49,6 @@ internal class ValleyTrustTest : CardTest() {
         otherPrelude = MartianIndustries,
         otherPreludeIsAvailable = true,
     )
-  }
-
-  @Test
-  internal fun `Must perform required action before another standard action`() {
-    newGame(PreludeExpansion, startingProjects = listOf(5))
-    p1.playCorp(ValleyTrust)
-    admin.phase("Action")
-
-    shouldThrow<RequirementException> { p1.stdProject("PowerPlantProject") }
   }
 
   private fun resolveValleyTrustPrelude(

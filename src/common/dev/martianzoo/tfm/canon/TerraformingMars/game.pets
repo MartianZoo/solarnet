@@ -51,7 +51,7 @@ ABSTRACT CLASS Module : System {
 "Signals that the complete selected Module layer is live"
 // TODO.md: replace with BootstrapPhase entry after premise construction
 CLASS ModulesReady : Signal, System {
-  This IF 2 Player:: AfterMe<Player, Player>
+  This IF MultiplayerMode:: AfterMe<Player, Player>
 }
 
 "Exactly one player-count Module active in a playable game"

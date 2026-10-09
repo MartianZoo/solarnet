@@ -7,6 +7,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
+import dev.martianzoo.pets.ast.Instruction.Transform as InstructionTransform
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyName
@@ -56,6 +57,17 @@ public fun cardImmediate(card: Class): InstructionGroup? {
       .takeIf { it.isNotEmpty() }
       ?.let { InstructionGroup.of(InstructionGroup.createTree(it)) }
 }
+
+/**
+ * Authored instruction-position `PROD` blocks in this card's [cardImmediate] instructions. `Plant /
+ * PROD[Energy]` contains a production metric and contributes no production box. Returns every
+ * instruction block, including nested blocks; callers must check cardinality and enclosing choices
+ * or bindings before extracting a block for copying. No elaboration is applied.
+ */
+public fun cardProductionBoxes(card: Class): List<InstructionTransform> =
+    cardImmediate(card)?.descendantsOfType<InstructionTransform>().orEmpty().filter {
+      it.transformKind == TfmClasses.PROD
+    }
 
 /** Actions authored by this card declaration. */
 public fun cardActions(card: Class): List<Action> = card.declaration.authoredActions

@@ -3,13 +3,14 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.SystemClasses.AUDIT
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class AsteroidDeflectionSystemTest : ProjectCardTest() {
+internal class AsteroidDeflectionSystemTest : TfmSandboxTest() {
   @BeforeTest fun setUp() = newTestGame()
 
   @Test

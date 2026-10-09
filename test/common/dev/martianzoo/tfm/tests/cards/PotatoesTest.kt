@@ -2,11 +2,12 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class PotatoesTest : ProjectCardTest() {
+internal class PotatoesTest : TfmSandboxTest() {
   @Test
   internal fun `Viral Enhancers can supply the second plant before Potatoes loses two`() {
     newTestGame()
