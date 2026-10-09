@@ -52,11 +52,15 @@ These concerns remain open; the ranking does not select replacement designs.
   documentation or conformance audits.
 - [ ] Finish the ProjectCardTest migration in larger batches, starting with easier classes. The
   [testing plan](docs/agents/TESTING.md#intended-fixture-development--not-implemented-yet) records
-  the intended fixture work: solo support, safe `advanceTo(Phase)`, simulated VP totals with
-  rollback, expansion coverage, and a possible Prelude-phase start when Prelude is selected.
+  the intended fixture work: solo support, safe `advanceTo(Phase)`, expansion coverage, and a
+  possible Prelude-phase start when Prelude is selected. Simulated VP totals with rollback are
+  available through `victoryPoints()`.
   Add `CorporationCardTest` later. Investigate automatic attack-history effects separately; reassess
-  and delete injected scenarios without credible gameplay routes, including Flooding's concurrent
-  ocean case if its only justification is Fake Head Start.
+  and delete injected scenarios without credible gameplay routes.
+- Distinguish counting Venus tags from carrying a Venus tag in card availability. Io Sulphur
+  Research should work without Venus Next because it merely counts Venus tags, but the catalog
+  currently rejects it. Cards that carry Venus tags, such as Corroder Suits and Dirigibles, must
+  continue to require the expansion. Keep this catalog change separate from the test-only batch.
 - [ ] Continue the [adversarial-play design discussion](docs/agents/ADVERSARIAL.md): settle acceptance,
   trusted card custody, information release, and simultaneous choices before selecting an
   implementation. Work through draw/discard, Icy Impactors handoff, accepted work that cannot

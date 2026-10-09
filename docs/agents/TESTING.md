@@ -344,6 +344,14 @@ create a fork automatically. A uniform class declares its own `@BeforeTest` meth
 `playerCount = 4` where needed. Pass `kimCorporation` only when its live effect is part of the
 scenario; Kim then plays that corporation normally and resolves its setup effects, while every
 other player keeps a beginner corporation. Do not share or roll back a live World between tests.
+
+Prefer selecting an individual card in `addOptions` when the scenario does not need its expansion's
+other rules. Negative selections such as `addOptions = "-ColoniesExpansion, TitanShuttles"`
+remove an expansion from the fixture defaults. For cards with a non-obvious expansion dependency,
+include focused scenarios with and without that expansion. Keep assertions centered on card
+behavior; configuration checks normally belong to the existing configuration tests. Do not
+duplicate this coverage for every expansion card.
+
 The fixture otherwise leaves the default autoexecution policy untouched.
 When Turmoil is selected, it uses the existing test setup's initial global-event reveals
 (`AquiferReleasedByPublicCouncil` and `DryDeserts`) before entering Corporation phase.
@@ -407,6 +415,11 @@ Starting conditions beyond that tabula-rasa state should normally be direct, vis
   completion lifecycle, including `GpComplete`, instead of asking a correction to stand in for it.
 - Use the fixture's `nextGeneration()` when a scenario needs the normal production, research, and
   action-phase workflow with every player buying zero project cards.
+- Use `victoryPoints()` to query final VP totals in player-seat order for the current position.
+  Finish pending choices before querying. It executes the existing final-scoring phase and rolls
+  back in `finally`, including on failure. It does not advance through production or final greenery;
+  arrange the position to be scored explicitly. The query preserves the live game's state and
+  history for subsequent gameplay.
 
 Corrections intentionally suppress ordinary queued effects while retaining the structural work
 documented in [EX_MACHINA.md](EX_MACHINA.md). Therefore, never treat the correction itself as proof
@@ -435,9 +448,6 @@ to increase the migrated count. An existing base class does not itself express a
   It should respect pending choices and mandatory work rather than merely replacing `Phase`.
   Determine the smallest way to accommodate player choices during production and other phases;
   do not duplicate game rules in test support.
-- Add a base-class query for players' VP totals that simulates scoring and rolls back even on
-  failure, leaving the live scenario intact. This is temporary scoring within a test, not sharing
-  mutable Worlds or rolling a World back between tests.
 - Explore starting in Prelude phase when Prelude expansion is included; callers needing Action
   phase would explicitly advance. Review existing Prelude-enabled callers before changing the
   current Action-phase start, and avoid silently choosing meaningful Prelude plays for them.
@@ -451,9 +461,8 @@ corrections. Decide from their intended meaning during corrections and ordinary 
 convenience alone is not justification for changing effect semantics.
 
 For unusual injected sequences, seek a credible gameplay route. Delete a scenario if no such route
-exists rather than adding fixture machinery to recreate it. In particular, reassess Flooding's
-concurrent ocean-placement scenario; a route possible only through Fake Head Start does not by
-itself establish useful supported-game coverage.
+exists rather than adding fixture machinery to recreate it. A route possible only through Fake Head
+Start does not by itself establish useful supported-game coverage.
 
 Continue with easier classes first, in substantial batches. Review each retained scenario's value,
 setup, assertions, and name within the batch; larger batches do not relax those checks. Track open
