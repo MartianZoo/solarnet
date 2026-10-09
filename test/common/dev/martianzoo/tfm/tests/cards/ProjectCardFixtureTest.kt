@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.tests.cards.cardnames.Manutech
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -17,6 +19,29 @@ internal class ProjectCardFixtureTest : ProjectCardTest() {
 
     firstKim.count("Plant") shouldBe 1
     kim.count("Plant") shouldBe 2
+  }
+
+  @Test
+  internal fun `Kim can use a live corporation while the other players remain beginners`() {
+    newTestGame(kimCorporation = Manutech)
+
+    kim.count("$Manutech") shouldBe 1
+    kim.count("BeginnerCorporation") shouldBe 0
+    kim.production(cn("Steel")) shouldBe 2
+    kim.count("Steel") shouldBe 1
+    stan.count("BeginnerCorporation2") shouldBe 1
+    rob.count("BeginnerCorporation3") shouldBe 1
+  }
+
+  @Test
+  internal fun `Absolute correction accepts production types`() {
+    newTestGame()
+
+    kim.setToExMachina(0, "PROD[Energy]")
+    kim.setToExMachina(3, "PROD[Heat]")
+
+    kim.production(cn("Energy")) shouldBe 0
+    kim.production(cn("Heat")) shouldBe 3
   }
 
   @Test

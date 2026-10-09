@@ -4,8 +4,11 @@ import dev.martianzoo.agent.exMachina
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -24,32 +27,56 @@ internal abstract class ProjectCardTest : TfmTest() {
   protected val rob: TfmGameplay
     get() = checkNotNull(players.getOrNull(2)) { "Rob is sitting this game out" }
 
-  protected fun newTestGame(addOptions: String = "", playerCount: Int = 3) {
+  protected fun newTestGame(
+      addOptions: String = "",
+      playerCount: Int = 3,
+      kimCorporation: ClassName? = null,
+  ) {
     require(playerCount in 2..PLAYER_NAMES.size) {
       "ProjectCardTest supports two to ${PLAYER_NAMES.size} players: $playerCount"
     }
-    game = Engine.fork(preparedWorld(addOptions, playerCount))
+    game = Engine.fork(preparedWorld(addOptions, playerCount, kimCorporation))
     bindPlayers()
   }
 
-  private fun preparedWorld(addOptions: String, playerCount: Int): World =
-      preparedWorlds.getOrPut(addOptions to playerCount) { prepareWorld(addOptions, playerCount) }
+  private fun preparedWorld(
+      addOptions: String,
+      playerCount: Int,
+      kimCorporation: ClassName?,
+  ): World =
+      preparedWorlds.getOrPut(Triple(addOptions, playerCount, kimCorporation)) {
+        prepareWorld(addOptions, playerCount, kimCorporation)
+      }
 
-  private fun prepareWorld(addOptions: String, playerCount: Int): World {
-    val options = listOf(BASE_GAME_OPTIONS, addOptions).filter(String::isNotBlank).joinToString()
+  private fun prepareWorld(
+      addOptions: String,
+      playerCount: Int,
+      kimCorporation: ClassName?,
+  ): World {
+    val options =
+        listOf(BASE_GAME_OPTIONS, addOptions, kimCorporation?.toString().orEmpty())
+            .filter(String::isNotBlank)
+            .joinToString()
     val playerNames = PLAYER_NAMES.take(playerCount).toTypedArray()
     game = TfmEngine.newGame(Canon.gamePremise(GameConfig(options, *playerNames)))
     val workflow = TfmWorkflow.Stepwise(agents)
     val players = bindPlayers()
 
     workflow.setupPhase()
-    players.forEach { it.doTask("BeginnerMode") }
+    players.forEachIndexed { index, player ->
+      player.doTask(if (index == 0 && kimCorporation != null) "NonBeginnerMode" else "BeginnerMode")
+    }
+    if (kimCorporation != null) kim.keepStartingProjects(10)
 
     workflow.corporationPhase()
-    players.zip(BEGINNER_CORPORATIONS).forEach { (player, corporation) ->
-      player.startTurn()
-      player.doTask("PlayCard<Class<BeginnerCard>, Class<$corporation>, Hand>")
-      player.pay()
+    players.zip(BEGINNER_CORPORATIONS).forEachIndexed { index, (player, corporation) ->
+      if (index == 0 && kimCorporation != null) {
+        player.playCorp(kimCorporation)
+      } else {
+        player.startTurn()
+        player.doTask("PlayCard<Class<BeginnerCard>, Class<$corporation>, Hand>")
+        player.pay()
+      }
     }
 
     workflow.actionPhase()
@@ -62,9 +89,37 @@ internal abstract class ProjectCardTest : TfmTest() {
   }
 
   protected fun TfmGameplay.setToExMachina(targetCount: Int, type: String) {
-    val difference = targetCount - count(type)
-    if (difference == 0) return
-    exMachina("$difference $type")
+    val countedExpression =
+        (parseAs(Metric::class, type) as? Metric.Count)?.expression
+            ?: error("Absolute correction requires a countable type: `$type`")
+    val resolvedType = reader.resolve(countedExpression)
+    if (resolvedType.className == PRODUCTION) {
+      val resource =
+          checkNotNull(
+                  resolvedType.typeDependencies
+                      .single { it.key.declaringClass == PRODUCTION }
+                      .boundType
+                      .representedClass
+              )
+              .className
+      val difference = targetCount - production(resource)
+      if (difference == 0) return
+      val adjustment =
+          when (difference) {
+            -1 -> "-$resource"
+            1 -> resource
+            else -> "$difference $resource"
+          }
+      exMachina("PROD[$adjustment]")
+    } else {
+      val difference = targetCount - count(type)
+      if (difference == 0) return
+      exMachina("$difference $type")
+    }
+  }
+
+  protected fun nextGeneration() {
+    admin.nextGeneration(*IntArray(players.size))
   }
 
   protected fun TfmGameplay.exMachina(adjustment: String) {
@@ -78,7 +133,7 @@ internal abstract class ProjectCardTest : TfmTest() {
 
     private val PLAYER_NAMES = listOf("Kim", "Stan", "Rob", "Maya", "Nadia")
 
-    private val preparedWorlds = mutableMapOf<Pair<String, Int>, World>()
+    private val preparedWorlds = mutableMapOf<Triple<String, Int, ClassName?>, World>()
 
     private val BEGINNER_CORPORATIONS = (1..PLAYER_NAMES.size).map { "BeginnerCorporation$it" }
   }

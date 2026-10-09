@@ -12,7 +12,7 @@ internal class AiCentralTest : ProjectCardTest() {
   @Test
   internal fun `Cannot be played without energy production`() {
     kim.exMachina("$SearchForLife, $InventorsGuild, $DesignedMicroorganisms")
-    kim.exMachina("PROD[-Energy]")
+    kim.setToExMachina(0, "PROD[Energy]")
     kim.setToExMachina(21, "MC")
 
     shouldThrow<LimitsException> { kim.playProject(AiCentral, 21) }
