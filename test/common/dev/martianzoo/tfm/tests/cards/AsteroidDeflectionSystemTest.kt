@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.SystemClasses.AUDIT
+import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -14,11 +16,9 @@ internal class AsteroidDeflectionSystemTest : ProjectCardTest() {
   internal fun `Asteroids added by another card do not claim a revealed card`() {
     kim.exMachina("$AsteroidDeflectionSystem, $AsteroidRights")
 
-    val checkpoint = game.timeline.checkpoint()
-    kim.cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidDeflectionSystem>") }
-
-    kim.count("Asteroid<$AsteroidDeflectionSystem>") shouldBe 1
-    kim.auditGainsSince(checkpoint) shouldBe 0
+    val result = kim.cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidDeflectionSystem>") }
+    result.expect("Asteroid<$AsteroidDeflectionSystem>")
+    result.changes.count { it.change.gaining?.className == AUDIT } shouldBe 0
   }
 
   @Test
@@ -29,23 +29,18 @@ internal class AsteroidDeflectionSystemTest : ProjectCardTest() {
     shouldThrow<DeadEndException> {
       stan.playProject(Virus, 1) { doTask("-Plant<Kim>") }
     }
-    kim.count("Plant") shouldBe 1
+    kim.assertCounts(1 to "Plant")
   }
 
   @Test
   internal fun `Its action claims a revealed space card`() {
     kim.exMachina("$AsteroidDeflectionSystem")
 
-    val checkpoint = game.timeline.checkpoint()
-    val reveal =
+    val result =
         kim.cardAction1(AsteroidDeflectionSystem) {
           doTask("ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>")
         }
-    reveal.expect("Asteroid<$AsteroidDeflectionSystem>")
-    reveal.changes
-        .filter { it.change.gaining?.type == kim.resolve("ProjectCard<Revealed>") }
-        .sumOf { it.change.count } shouldBe 1
-    kim.count("ProjectCard<Revealed>") shouldBe 0
-    kim.auditGainsSince(checkpoint) shouldBe 1
+    result.expect("Asteroid<$AsteroidDeflectionSystem>, 0 ProjectCard<Revealed>")
+    result.changes.count { it.change.gaining?.className == AUDIT } shouldBe 1
   }
 }

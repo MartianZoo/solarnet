@@ -11,12 +11,15 @@ internal class IceAsteroidTest : ProjectCardTest() {
 
   @Test
   internal fun `Cannot select an occupied area when eight oceans are in play`() {
-    val waterAreas = kim.list("WaterArea")
-    kim.exMachina(waterAreas.take(8).joinToString { "OceanTile<$it>" })
+    kim.exMachina(
+        "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, " +
+            "OceanTile<Tharsis_2_6>, OceanTile<Tharsis_4_8>, OceanTile<Tharsis_5_5>, " +
+            "OceanTile<Tharsis_5_6>, OceanTile<Tharsis_6_7>"
+    )
 
     shouldThrow<NarrowingException> {
       kim.playProject(IceAsteroid, 23) {
-        doTask("OceanTile<${waterAreas.first()}>")
+        doTask("OceanTile<Tharsis_1_2>")
       }
     }
   }
