@@ -5,7 +5,6 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.util.toSetStrict
-import dev.martianzoo.state.CustomClass
 
 /**
  * A Catalog-provider bundle built from conventionally named Pets and JSON sources.
@@ -20,7 +19,6 @@ import dev.martianzoo.state.CustomClass
 public class StandardFormBundle
 public constructor(
     name: String,
-    override val customClasses: Set<CustomClass> = emptySet(),
     private val resourceDirectory: String = "$DEFAULT_DIRECTORY/$name",
     private val resourceFilenames: Set<String> = CanonResources.filenames(resourceDirectory),
     private val resourceReader: (String) -> String = CanonResources::read,

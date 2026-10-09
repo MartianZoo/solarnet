@@ -12,6 +12,7 @@ kotlin {
         implementation(project(":engine"))
         implementation(project(":pets"))
         implementation(project(":state"))
+        implementation(project(":tfm-canon"))
       }
     }
     jsMain {

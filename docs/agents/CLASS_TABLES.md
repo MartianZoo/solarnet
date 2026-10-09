@@ -148,9 +148,11 @@ unrefined `Player` Types, including subclasses. Thus the existing `IF 3 Player` 
 
 Master loading accepts declarations, transform factories, a declaration validator, and an
 additional-dependency callback directly. `createClassLoader(catalog)` supplies these static inputs
-from declarations and Catalog metadata. `GameWorld` validates the Catalog's Kotlin implementations
-when binding that static model to a runtime. Neither `ClassLoader` nor `ClassTable` depends on custom
-runtime implementation classes. Transform factories bind to each receiving table.
+from declarations and Catalog metadata. `Catalog.customClassDeclarations` derives the executable
+holes from those declarations without holding their Kotlin implementations. `Engine.newGame`
+validates implementations when starting live play; a passive `GameWorld` may have none. Neither
+`ClassLoader` nor `ClassTable` depends on custom runtime implementation classes. Transform factories
+bind to each receiving table.
 
 See [RESPONSIBILITIES.md](RESPONSIBILITIES.md#game-assembly-and-runtime-apis-belong-to-state)
 for assembly and viability ownership and the corresponding test boundaries.

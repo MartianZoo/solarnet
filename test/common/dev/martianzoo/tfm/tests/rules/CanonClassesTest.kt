@@ -4,7 +4,6 @@ import dev.martianzoo.agent.Agent
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -14,6 +13,7 @@ import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -38,7 +38,7 @@ internal class CanonClassesTest {
         .filterIsInstance<dev.martianzoo.state.Player>()
         .shouldContainExactly(PLAYER1, PLAYER2)
     premise.actors.shouldContainExactly(PLAYER1, PLAYER2, ADMIN)
-    val game = Engine.newGame(premise)
+    val game = TfmEngine.newGame(premise)
     game.classTable.allClassNames.shouldNotContain(cn("SoloMode"))
     game.classTable.allClassNames.shouldNotContain(cn("SoloOpponent"))
     game.classTable.allClassNames.shouldNotContain(cn("SoloStandardResourceReserve"))
@@ -77,7 +77,7 @@ internal class CanonClassesTest {
 
     maps.forEach { map ->
       val game =
-          Engine.newGame(
+          TfmEngine.newGame(
               canonicalPremise(
                   map,
                   VenusNextExpansion,
@@ -159,10 +159,10 @@ internal class CanonClassesTest {
 
   @Test
   internal fun inactiveClassLiteralCountsZeroWhileUnknownClassLiteralIsInvalid() {
-    val game = Engine.newGame(canonicalPremise())
+    val game = TfmEngine.newGame(canonicalPremise())
     val agent = game.testAgent(PLAYER1) as Agent
     val withVenus =
-        Engine.newGame(canonicalPremise(VenusNextExpansion, players = 2)).testAgent(PLAYER1)
+        TfmEngine.newGame(canonicalPremise(VenusNextExpansion, players = 2)).testAgent(PLAYER1)
             as Agent
 
     assertFailsWith<ExpressionException> { agent.count("Class<AnyWordHere>") }

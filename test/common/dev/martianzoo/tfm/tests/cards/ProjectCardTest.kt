@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.exMachina
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TfmTest
@@ -21,7 +21,7 @@ internal abstract class ProjectCardTest : TfmTest() {
     private set
 
   protected fun newTestGame(addOptions: String = "") {
-    game = Engine.newGame(premise(addOptions))
+    game = TfmEngine.newGame(premise(addOptions))
     val workflow = TfmWorkflow.Stepwise(agents)
     val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
     kim = players[0]

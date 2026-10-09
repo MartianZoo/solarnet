@@ -5,7 +5,6 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.data.ClassDeclaration
@@ -15,6 +14,7 @@ import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestOption as Option
@@ -137,7 +137,7 @@ internal abstract class CardTest(
 
   private fun startAutoGame(premise: GamePremise): World {
     workflow?.shutdown()
-    return Engine.newGame(premise).apply {
+    return TfmEngine.newGame(premise).apply {
       bindPlayers()
       workflow = TfmWorkflow.Automatic(testAgents()).launch()
       finishSoloSetup()

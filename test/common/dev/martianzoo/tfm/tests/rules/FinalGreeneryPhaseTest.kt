@@ -3,12 +3,12 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -19,7 +19,7 @@ import kotlin.test.Test
 internal class FinalGreeneryPhaseTest {
   @Test
   internal fun normalGreeneryRaisesOxygen() {
-    val game = Engine.newGame(canonicalPremise())
+    val game = TfmEngine.newGame(canonicalPremise())
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     p1.runOperation("8 Plant")
@@ -37,7 +37,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   internal fun finalGreeneryDoesNotRaiseOxygen() {
-    val game = Engine.newGame(canonicalPremise())
+    val game = TfmEngine.newGame(canonicalPremise())
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val workflow = TfmWorkflow.Stepwise(game.testAgents())
@@ -57,7 +57,7 @@ internal class FinalGreeneryPhaseTest {
   @Test
   internal fun automaticSoloLossSkipsFinalGreeneryAndScoring() {
     val setup = canonicalPremise(players = 1)
-    val game = Engine.newGame(setup)
+    val game = TfmEngine.newGame(setup)
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     admin.runOperation("-13 SoloGenerationsLeft")
@@ -84,7 +84,7 @@ internal class FinalGreeneryPhaseTest {
   @Test
   internal fun automaticMultiplayerDoesNotTreatAbsentCountdownAsGameEnd() {
     val setup = canonicalPremise()
-    val game = Engine.newGame(setup)
+    val game = TfmEngine.newGame(setup)
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
@@ -104,7 +104,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   internal fun elevenPlantsCanBecomeTwoGreeneriesWithEcolineAndTheElysiumBonus() {
-    val game = Engine.newGame(canonicalPremise(Elysium))
+    val game = TfmEngine.newGame(canonicalPremise(Elysium))
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
@@ -137,7 +137,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   internal fun tenPlantsCanBecomeTwoGreeneriesWithPhilaresNeighborsAndTheElysiumBonus() {
-    val game = Engine.newGame(canonicalPremise(Elysium, PromoCardPack))
+    val game = TfmEngine.newGame(canonicalPremise(Elysium, PromoCardPack))
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)

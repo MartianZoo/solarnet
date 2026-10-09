@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.web.gameviewer
 
 import dev.martianzoo.agent.Agents
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -12,6 +11,7 @@ import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.toComponent
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.isVisibleInLog as isVisibleInEngineLog
 import kotlin.test.Test
@@ -20,7 +20,7 @@ import kotlin.test.assertEquals
 internal class GameQueriesParityTest {
   @Test
   internal fun corporationImageClassificationIncludesBothCorporationBacks() {
-    val game = Engine.newGame(Canon.gamePremise(GameConfig("BeginnerVariant", "Player1")))
+    val game = TfmEngine.newGame(Canon.gamePremise(GameConfig("BeginnerVariant", "Player1")))
 
     mapOf(
             "CrediCor" to "corporations",
@@ -35,7 +35,7 @@ internal class GameQueriesParityTest {
 
   @Test
   internal fun passiveActorQueriesMatchTheAgentAndTfmGameplay() {
-    val game = Engine.newGame(Canon.gamePremise(GameConfig("", "Player1")))
+    val game = TfmEngine.newGame(Canon.gamePremise(GameConfig("", "Player1")))
     val agents = Agents(game)
     val player = game.actors.filterIsInstance<Player>().single()
     val agent = agents[player]
@@ -52,7 +52,7 @@ internal class GameQueriesParityTest {
   @Test
   internal fun visibleLogSelectionMatchesTheEngineRule() {
     val game =
-        Engine.newGame(
+        TfmEngine.newGame(
             Canon.gamePremise(GameConfig("Prelude2CardPack, ColoniesExpansion", "Player1"))
         )
 

@@ -21,15 +21,23 @@ import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.CustomClass
 import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameWorld
+import dev.martianzoo.state.validateCustomClasses
 
 /** Entry point to the solarnet engine -- create new games here. */
 public object Engine {
 
   /** Creates a game at its committed initialization state, ready to be given to a workflow. */
-  public fun newGame(premise: GamePremise): World = Wiring(premise).createWorld()
+  public fun newGame(
+      premise: GamePremise,
+      customClasses: Set<CustomClass> = emptySet(),
+  ): World {
+    validateCustomClasses(premise.catalog, customClasses)
+    return Wiring(premise, GameWorld(premise, customClasses = customClasses)).createWorld()
+  }
 
   /**
    * Creates an independently mutable live World at the same completed gameplay position as
@@ -56,11 +64,11 @@ public object Engine {
   /** Constructs one engine world and owns the lifetimes of all its collaborators. */
   private class Wiring(
       private val premise: GamePremise,
-      private val gameWorld: GameWorld = GameWorld(premise),
+      private val gameWorld: GameWorld,
   ) {
     private val classTable = premise.classTable.also(::validatePremise)
     private val elaborator: PetElaborator = PetElaborator(classTable)
-    private val customClasses = CustomInstructionRuntime(premise.catalog, elaborator)
+    private val customClasses = CustomInstructionRuntime(gameWorld, elaborator)
 
     // Effect compilation needs the reader, but no effect is read until state begins changing.
     private val effector: Effector = Effector(elaborator, customClasses) { reader }

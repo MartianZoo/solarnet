@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
@@ -28,12 +27,13 @@ import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.fake.FakeCanon
 import io.kotest.matchers.shouldBe
 
 internal fun setUpGame(premise: GamePremise): World =
-    Engine.newGame(premise).apply {
+    TfmEngine.newGame(premise).apply {
       val agents = testAgents()
       TfmWorkflow.Stepwise(agents).setupPhase()
       actors.filterIsInstance<Player>().forEach { player ->

@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
@@ -14,6 +13,7 @@ import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.tests.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContain
@@ -62,7 +62,7 @@ internal class CatalogCompositionTest {
                     parse<Expression>("DependentBootstrap"),
                 ),
         )
-    val game = Engine.newGame(premise)
+    val game = TfmEngine.newGame(premise)
 
     game.testAgent(PLAYER1).count("BootstrapDependency") shouldBe 1
     game.testAgent(PLAYER1).count("DependentBootstrap") shouldBe 1
@@ -91,7 +91,7 @@ internal class CatalogCompositionTest {
             catalog = catalog,
             initialComponentTypes = setOf(parse<Expression>("BlockedBootstrap")),
         )
-    val failure = shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
+    val failure = shouldThrow<InvalidGameConfigException> { TfmEngine.newGame(premise) }
 
     failure.message.orEmpty().shouldInclude("missing dependencies: `MissingBootstrapDependency`")
   }
@@ -115,7 +115,7 @@ internal class CatalogCompositionTest {
     val catalog = TfmCatalog(Canon, extension)
     val premise = catalog.gamePremise(GameConfig("BootstrapSource", "Player1", "Player2"))
 
-    val game = Engine.newGame(premise)
+    val game = TfmEngine.newGame(premise)
 
     game.testAgent(PLAYER1).count("BootstrapTarget") shouldBe 0
   }
