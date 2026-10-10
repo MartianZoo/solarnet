@@ -104,7 +104,7 @@ CLASS NonBeginnerMode : PlayerMode {
 }
 
 "One step on the terraform rating track; you generally start with 20 of them"
-CLASS TerraformRating : Owned<Player>, Atomized {
+CLASS TerraformRating : Owned<Player> {
   ProductionPhase: 1 MC
   End: VictoryPoint
 }
