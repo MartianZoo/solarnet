@@ -1,111 +1,77 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy
-import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmWorkflow
-import dev.martianzoo.tfm.tests.*
-import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
-import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
-import dev.martianzoo.tfm.tests.TestOption.Hellas
-import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
-import dev.martianzoo.tfm.tests.cards.CardTest
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class CoreRulesTest : CardTest() {
-  @Test
-  internal fun `Research cards cost three mc each`() {
-    newGame()
-    p1.runOperation("12 MC")
-    p1.autoExecPolicy = AutoExecPolicy.CONCRETE
-    requireP2().autoExecPolicy = AutoExecPolicy.CONCRETE
-    admin.count("Generation") shouldBe 1
-
-    admin.phase("Research") {
-      p1.buyCards(3)
-      requireP2().buyCards(0)
-    }
-
-    p1.count("MC") shouldBe 3
-    p1.count("ProjectCard") shouldBe 3
-    admin.count("Generation") shouldBe 2
-  }
-
+internal class CoreRulesTest : TfmSandboxTest() {
   @Test
   internal fun `Selling patents returns one mc per card`() {
-    newGame()
-    p1.runOperation("3 ProjectCard")
-    admin.phase("Action")
+    newTestGame()
+    kim.setToExMachina(3, "ProjectCard")
 
-    p1.sellPatents(2).expect("-2 ProjectCard, 2 MC")
+    kim.sellPatents(2).expect("-2 ProjectCard, 2 MC")
   }
 
   @Test
   internal fun `Eight heat raises temperature and terraform rating`() {
-    newGame()
-    p1.runOperation("8 Heat")
-    admin.phase("Action")
+    newTestGame()
+    kim.exMachina("8 Heat")
 
-    p1.convertHeat().expect("-8 Heat, TemperatureStep, TerraformRating")
+    kim.convertHeat().expect("-8 Heat, TemperatureStep, TerraformRating")
   }
 
   @Test
   internal fun `Temperature track bonuses are resolved during heat conversion`() {
-    newGame()
-    p1.runOperation("8 Heat, 2 TemperatureStep")
-    admin.phase("Action")
+    newTestGame()
+    kim.exMachina("8 Heat, 2 TemperatureStep")
 
-    p1.convertHeat().expect("-8 Heat, TemperatureStep, TerraformRating, PROD[Heat]")
+    kim.convertHeat().expect("-8 Heat, TemperatureStep, TerraformRating, PROD[Heat]")
   }
 
   @Test
   internal fun `Reaching zero degrees also places an ocean`() {
-    newGame()
-    p1.runOperation("8 Heat, 14 TemperatureStep")
-    admin.phase("Action")
+    newTestGame()
+    kim.exMachina("8 Heat, 14 TemperatureStep")
 
-    p1.convertHeat { doTask("OceanTile<Tharsis_1_2>") }
+    kim.convertHeat { doTask("OceanTile<Tharsis_1_2>") }
         .expect("-8 Heat, TemperatureStep, OceanTile, 2 TerraformRating")
   }
 
   @Test
   internal fun `Eight plants place greenery and raise oxygen and terraform rating`() {
-    newGame()
-    p1.runOperation("8 Plant")
-    admin.phase("Action")
+    newTestGame()
+    kim.exMachina("8 Plant")
 
-    p1.convertPlants { doTask("GreeneryTile<Tharsis_3_3>") }
+    kim.convertPlants { doTask("GreeneryTile<Tharsis_3_3>") }
         .expect("-8 Plant, GreeneryTile, OxygenStep, TerraformRating")
   }
 
   @Test
   internal fun `An unaffordable adjacent area does not permit greenery fallback`() {
-    newGame(Hellas)
-    p1.runOperation("CityTile<Hellas_9_6>")
-    requireP2()
-        .runOperation(
-            "GreeneryTile<Hellas_9_5>, GreeneryTile<Hellas_8_5>, GreeneryTile<Hellas_8_6>"
-        )
+    newTestGame(addOptions = "HellasMap")
+    kim.exMachina("NormalCityTile<Hellas_9_6>, 8 Plant")
+    kim.setToExMachina(0, "MC")
+    stan.exMachina("GreeneryTile<Hellas_9_5>, GreeneryTile<Hellas_8_5>, GreeneryTile<Hellas_8_6>")
 
     shouldThrow<NarrowingException> {
-      p1.runOperation("DefaultGreeneryTile") { doTask("GreeneryTile<Hellas_1_1>") }
+      kim.convertPlants { doTask("GreeneryTile<Hellas_1_1>") }
     }
     shouldThrow<LimitsException> {
-      p1.runOperation("DefaultGreeneryTile") {
+      kim.convertPlants {
         doTask("GreeneryTile<Hellas_9_7>")
         doTask("OceanTile<Hellas_6_7>")
         doTask("-6 MC")
       }
     }
-    p1.count("GreeneryTile") shouldBe 0
+    kim.count("GreeneryTile") shouldBe 0
 
-    p1.runOperation("6 MC")
-    p1.runOperation("DefaultGreeneryTile") {
+    kim.exMachina("6 MC")
+    kim.convertPlants {
           doTask("GreeneryTile<Hellas_9_7>")
           doTask("OceanTile<Hellas_6_7>")
         }
@@ -114,112 +80,120 @@ internal class CoreRulesTest : CardTest() {
 
   @Test
   internal fun `Greenery can still be placed after oxygen is maximized`() {
-    newGame()
-    p1.runOperation("8 Plant, 14 OxygenStep")
-    admin.phase("Action")
+    newTestGame()
+    kim.exMachina("8 Plant, 13 OxygenStep")
+    stan.stdProject("GreeneryProject") { placeTile(1, 1) }
 
-    p1.convertPlants { doTask("GreeneryTile<Tharsis_3_3>") }
+    kim.convertPlants { doTask("GreeneryTile<Tharsis_3_3>") }
         .expect("-8 Plant, GreeneryTile, 0 OxygenStep, 0 TerraformRating")
   }
 
   @Test
   internal fun `Reaching eight percent oxygen also raises temperature`() {
-    newGame()
-    p1.runOperation("8 Plant, 7 OxygenStep")
-    admin.phase("Action")
+    newTestGame()
+    kim.exMachina("8 Plant, 7 OxygenStep")
 
-    p1.convertPlants { doTask("GreeneryTile<Tharsis_3_3>") }
+    kim.convertPlants { doTask("GreeneryTile<Tharsis_3_3>") }
         .expect("-8 Plant, GreeneryTile, OxygenStep, TemperatureStep, 2 TerraformRating")
   }
 
   @Test
   internal fun `Tile placement grants both area and ocean adjacency bonuses`() {
-    newGame()
-    p1.runOperation("8 Plant, OceanTile<Tharsis_4_8>")
-    admin.phase("Action")
+    newTestGame()
+    kim.exMachina("8 Plant, OceanTile<Tharsis_4_8>")
 
-    p1.convertPlants { doTask("GreeneryTile<Tharsis_4_7>") }
+    kim.convertPlants { doTask("GreeneryTile<Tharsis_4_7>") }
         .expect("-7 Plant, 2 MC, GreeneryTile, OxygenStep, TerraformRating")
   }
 
   @Test
   internal fun `Standard projects perform their advertised effects`() {
-    newGame()
-    p1.runOperation("100 MC")
-    admin.phase("Action")
+    newTestGame()
+    kim.setToExMachina(100, "MC")
 
-    p1.stdProject("PowerPlantProject").expect("PROD[Energy]")
-    p1.stdProject("AsteroidProject").expect("TemperatureStep, TerraformRating")
-    p1.stdProject("AquiferProject") { doTask("OceanTile<Tharsis_1_2>") }
+    kim.stdProject("PowerPlantProject").expect("PROD[Energy]")
+    kim.stdProject("AsteroidProject").expect("TemperatureStep, TerraformRating")
+    kim.stdProject("AquiferProject") { doTask("OceanTile<Tharsis_1_2>") }
         .expect("OceanTile, TerraformRating")
-    p1.stdProject("CityProject") { doTask("CityTile<Tharsis_4_4>") }.expect("CityTile, PROD[1 MC]")
-    p1.stdProject("GreeneryProject") { doTask("GreeneryTile<Tharsis_4_5>") }
+    kim.stdProject("CityProject") { doTask("CityTile<Tharsis_4_4>") }.expect("CityTile, PROD[1 MC]")
+    kim.stdProject("GreeneryProject") { doTask("GreeneryTile<Tharsis_4_5>") }
         .expect("GreeneryTile, OxygenStep, TerraformRating")
   }
 
   @Test
   internal fun `A qualified player can claim a milestone`() {
-    newGame()
-    p1.runOperation("8 MC, 15 TerraformRating")
-    admin.phase("Action")
+    newTestGame()
+    kim.setToExMachina(35, "TerraformRating")
 
-    p1.claimMilestone(cn("Terraformer35")).expect("-8 MC, Milestone")
+    kim.claimMilestone(cn("Terraformer35")).expect("-8 MC, Milestone")
   }
 
   @Test
   internal fun `A milestone cannot be claimed twice`() {
-    newGame()
-    p1.runOperation("35 TerraformRating")
-    requireP2().runOperation("35 TerraformRating")
-    p1.runOperation("Terraformer35")
+    newTestGame()
+    kim.setToExMachina(35, "TerraformRating")
+    stan.setToExMachina(35, "TerraformRating")
+    kim.claimMilestone(cn("Terraformer35"))
 
-    shouldThrow<LimitsException> { requireP2().runOperation("Terraformer35") }
+    shouldThrow<LimitsException> { stan.claimMilestone(cn("Terraformer35")) }
   }
 
   @Test
   internal fun `Funding successive awards costs eight fourteen and twenty`() {
-    newGame()
-    p1.runOperation("42 MC")
-    admin.phase("Action")
+    newTestGame()
 
-    p1.fundAward(cn("Landlord"), 8).expect("-8 MC, Award")
-    p1.fundAward(cn("Scientist"), 14).expect("-14 MC, Award")
-    p1.fundAward(cn("Thermalist"), 20).expect("-20 MC, Award")
-  }
-
-  @Test
-  internal fun `Production converts existing energy before producing new resources`() {
-    newGame()
-    p1.runOperation("2 Energy, PROD[Energy], PROD[2 Steel]")
-
-    admin.phase("Production")
-
-    p1.count("Energy") shouldBe 1
-    p1.count("Heat") shouldBe 2
-    p1.count("Steel") shouldBe 2
+    kim.fundAward(cn("Landlord"), 8).expect("-8 MC, Award")
+    kim.fundAward(cn("Scientist"), 14).expect("-14 MC, Award")
+    kim.fundAward(cn("Thermalist"), 20).expect("-20 MC, Award")
   }
 
   @Test
   internal fun `A colony trade can be paid for with three energy`() {
-    newGame(
-        ColoniesExpansion,
-        colonyTiles = testColonyTiles(players = 2, "Ceres"),
-    )
-    p1.runOperation("3 Energy")
-    admin.phase("Action")
+    newTestGame(addOptions = "Luna, Ceres, Triton, Ganymede, Callisto", playerCount = 2)
+    kim.exMachina("3 Energy")
 
-    p1.stdAction("TradeAction", 2) { doTask("Trade<Ceres>") }.expect("-3 Energy, 2 Steel")
+    kim.stdAction("TradeAction", 2) { doTask("Trade<Ceres>") }.expect("-3 Energy, 2 Steel")
   }
 
-  @Test
-  internal fun `World Government terraforming gives no terraform rating`() {
-    newGame(VenusNextExpansion)
+  internal class Gameplay : dev.martianzoo.tfm.tests.TfmGameplayTest() {
+    @Test
+    internal fun `Research cards cost three MC each`() {
+      newTestGame(playerCount = 2, addOptions = "-VenusNextExpansion")
+      kim.pass()
+      stan.pass()
 
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      venusSolarPhase()
+      kim.buyCards(3).expect("-9 MC, 3 ProjectCard")
+      stan.buyCards(0)
+      admin.count("Generation") shouldBe 2
     }
 
-    p1.doTask("TemperatureStep! BY Admin").expect("TemperatureStep, 0 TerraformRating")
+    @Test
+    internal fun `Production converts existing energy before producing new resources`() {
+      newTestGame(playerCount = 2, addOptions = "-VenusNextExpansion")
+      kim.pass()
+      stan.pass()
+      kim.buyCards(0)
+      stan.buyCards(0)
+      kim.count("Energy") shouldBe 1
+      kim.count("Heat") shouldBe 1
+
+      stan.pass()
+      kim.pass()
+      kim.buyCards(0)
+      stan.buyCards(0)
+
+      kim.count("Energy") shouldBe 1
+      kim.count("Heat") shouldBe 3
+      kim.count("Steel") shouldBe 2
+    }
+
+    @Test
+    internal fun `World Government terraforming gives no terraform rating`() {
+      newTestGame(playerCount = 2)
+      kim.pass()
+      stan.pass()
+
+      kim.wgt("TemperatureStep").expect("TemperatureStep, 0 TerraformRating")
+    }
   }
 }

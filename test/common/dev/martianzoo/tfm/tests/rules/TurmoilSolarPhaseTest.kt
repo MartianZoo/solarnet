@@ -1,54 +1,78 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.tfm.engine.TfmWorkflow
-import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
-import dev.martianzoo.tfm.tests.cards.CardTest
+import dev.martianzoo.tfm.tests.TfmGameplayTest
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class TurmoilSolarPhaseTest : CardTest() {
+internal class TurmoilSolarPhaseTest : TfmGameplayTest() {
   @Test
-  internal fun `solar turmoil waits for the current event before government and changing times`() {
-    newGame(TurmoilExpansion)
-    admin.runOperation("Current<DemocraticReform> " + "FROM Coming<DemocraticReform>")
-    admin.runOperation("Coming<MinimalImpactPolicy> FROM Distant<MinimalImpactPolicy>")
-    admin.runOperation("RevealDistantEvent") { doTask("SolarnetGlobalEvent") }
+  internal fun `Solar waits for the current event before forming government and advancing events`() {
+    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    // Generation 1: advance Democratic Reform from Coming to Current.
+    kim.pass()
+    stan.pass()
+    kim.wgt("VenusStep")
+    admin.doTask("SolarnetGlobalEvent")
+    players.forEach { it.buyCards(0) }
 
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      turmoilSolarPhase()
-    }
+    // Generation 2: Democratic Reform must finish its ocean before the government changes.
+    stan.pass()
+    kim.pass()
+    stan.wgt("VenusStep")
 
-    p1.count("TerraformRating") shouldBe 19
-    requireP2().count("TerraformRating") shouldBe 19
-    admin.count("Ruling<Greens>") shouldBe 1
+    kim.count("TerraformRating") shouldBe 18
+    stan.count("TerraformRating") shouldBe 18
+    admin.count("Ruling<MarsFirst>") shouldBe 1
     admin.count("Current<DemocraticReform>") shouldBe 1
 
-    p1.doTask("OceanTile<Tharsis_1_2> BY Admin")
+    stan.doTask("OceanTile<Tharsis_1_2> BY Admin")
 
-    admin.count("Ruling<MarsFirst>") shouldBe 1
+    admin.count("Ruling<Reds>") shouldBe 1
     admin.count("DemocraticReform") shouldBe 0
     admin.count("Current<MinimalImpactPolicy>") shouldBe 1
     admin.count("Coming<SolarnetGlobalEvent>") shouldBe 1
     admin.count("Distant") shouldBe 0
-
     admin.doTask("FreeAcademiaTreaty")
-
     admin.count("Distant<FreeAcademiaTreaty>") shouldBe 1
   }
 
   @Test
-  internal fun `terraform rating revision precedes the current global event`() {
-    newGame(TurmoilExpansion)
-    p1.runOperation("10 MC")
-    admin.runOperation("AntarcticaMelts, Current<AntarcticaMelts>")
+  internal fun `TR revision happens before Red Influence calculates its charge`() {
+    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    // Generation 1: Antarctica Melts brings Red Influence, due in generation 4.
+    // Later reveals fix delegate placements but their effects occur after this scenario.
+    kim.pass()
+    stan.pass()
+    kim.wgt("VenusStep")
+    admin.doTask("AntarcticaMelts")
+    players.forEach { it.buyCards(0) }
 
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      turmoilSolarPhase()
-    }
+    // Generation 2: finish Democratic Reform's Admin ocean to advance the event queue.
+    stan.pass()
+    kim.pass()
+    stan.wgt("VenusStep")
+    stan.doTask("OceanTile<Tharsis_1_2> BY Admin")
+    admin.doTask("ExploreFirstDirective")
+    players.forEach { it.buyCards(0) }
 
-    p1.count("TerraformRating") shouldBe 20
-    p1.count("MC") shouldBe 7
+    // Generation 3: Minimal Impact Policy resolves; Red Influence becomes Current.
+    kim.pass()
+    stan.pass()
+    kim.wgt("VenusStep")
+    admin.doTask("MoralMovement")
+    players.forEach { it.buyCards(0) }
+
+    // Generation 4: raise Kim from 18 to 20 TR before Red Influence resolves.
+    stan.pass()
+    repeat(2) { kim.stdProject("AsteroidProject") }
+    kim.count("TerraformRating") shouldBe 20
+    kim.pass()
+    val afterProduction = kim.count("MC")
+
+    stan.wgt("VenusStep")
+
+    // Revision drops Kim below the 20-TR charge bracket. The new Reds bonus belongs to Stan.
+    kim.count("TerraformRating") shouldBe 19
+    kim.count("MC") shouldBe afterProduction - 3
   }
 }

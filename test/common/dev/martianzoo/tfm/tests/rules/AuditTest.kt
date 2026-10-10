@@ -1,14 +1,18 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.tests.TestOption.Prelude1CardPack
-import dev.martianzoo.tfm.tests.cards.CardTest
+import dev.martianzoo.tfm.tests.TfmTest
+import dev.martianzoo.tfm.tests.canonicalPremise
+import dev.martianzoo.tfm.tests.setUpGame
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class AuditTest : CardTest() {
+internal class AuditTest : TfmTest() {
   @Test
   internal fun `one generic search records different tag criteria only in audited history`() {
-    newGame(Prelude1CardPack)
+    game = setUpGame(canonicalPremise(Prelude1CardPack))
+    val p1 = game.testTfm(PLAYER1)
     val checkpoint = game.timeline.checkpoint()
 
     p1.runOperation("SearchForCard<TagFilter<Class<SpaceTag>>>").expect("ProjectCard")

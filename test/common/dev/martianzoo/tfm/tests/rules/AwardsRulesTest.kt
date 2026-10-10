@@ -1,54 +1,32 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agenttestsupport.testTfm
-import dev.martianzoo.engine.*
-import dev.martianzoo.testsupport.PLAYER3
-import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmWorkflow
-import dev.martianzoo.tfm.tests.*
-import dev.martianzoo.tfm.tests.cards.CardTest
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class AwardsRulesTest : CardTest() {
+internal class AwardsRulesTest : TfmSandboxTest() {
   @Test
   internal fun `Tied players receive the appropriate first and second place award points`() {
-    newGame(players = 3)
-    val p2 = requireP2()
-    val p3 = game.testTfm(PLAYER3)
-    p1.runOperation("Thermalist, Miner, 3 Heat, 3 Steel")
-    p2.runOperation("2 Heat, 3 Steel")
-    p3.runOperation("2 Heat, 2 Steel")
+    newTestGame()
+    kim.setToExMachina(3, "Heat")
+    kim.setToExMachina(3, "Steel")
+    stan.setToExMachina(2, "Heat")
+    stan.setToExMachina(3, "Steel")
+    rob.setToExMachina(2, "Heat")
+    rob.setToExMachina(2, "Steel")
+    kim.fundAward(cn("Thermalist"), 8)
+    stan.fundAward(cn("Miner"), 14)
 
-    TfmWorkflow.Stepwise(agents).endPhase()
-
-    p1.count("VictoryPoint") shouldBe 30
-    p2.count("VictoryPoint") shouldBe 27
-    p3.count("VictoryPoint") shouldBe 22
+    victoryPoints() shouldBe listOf(30, 27, 22)
   }
 
   @Test
   internal fun `A two-player game awards no second-place points`() {
-    newGame()
-    val p2 = requireP2()
-    p1.runOperation("Thermalist, Heat")
+    newTestGame(playerCount = 2)
+    kim.setToExMachina(1, "Heat")
+    kim.fundAward(cn("Thermalist"), 8)
 
-    TfmWorkflow.Stepwise(agents).endPhase()
-
-    p1.count("VictoryPoint") shouldBe 25
-    p2.count("VictoryPoint") shouldBe 20
-  }
-
-  @Test
-  internal fun `MC break a multiplayer victory-point tie`() {
-    newGame()
-    val p2 = requireP2()
-    p1.runOperation("2 VictoryPoint, 5 MC")
-    p2.runOperation("2 VictoryPoint, 4 MC")
-
-    TfmWorkflow.Stepwise(agents).endPhase()
-
-    p1.count("Victory") shouldBe 1
-    p2.count("Victory") shouldBe 0
+    victoryPoints() shouldBe listOf(25, 20)
   }
 }

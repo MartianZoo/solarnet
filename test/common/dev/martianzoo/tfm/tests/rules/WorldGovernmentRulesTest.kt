@@ -1,226 +1,63 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmWorkflow
-import dev.martianzoo.tfm.tests.*
-import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
-import dev.martianzoo.tfm.tests.TestOption.Amazonis
-import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
-import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
-import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
-import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
-import dev.martianzoo.tfm.tests.cards.CardTest
-import dev.martianzoo.tfm.tests.cards.cardnames.Aphrodite
-import dev.martianzoo.tfm.tests.cards.cardnames.HomeostasisBureau
-import dev.martianzoo.tfm.tests.cards.cardnames.WorldGovernmentAdvisor
+import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class WorldGovernmentRulesTest : CardTest() {
+internal class WorldGovernmentRulesTest : TfmSandboxTest() {
   // Resolved FAQ: Advisor may choose a completed parameter to do nothing.
   @Test
   internal fun `Advisor may choose a completed parameter while another is available`() {
-    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
-    p1.runOperation("$WorldGovernmentAdvisor")
-    admin.runOperation("15 VenusStep")
-    admin.phase("Action")
+    newTestGame(addOptions = "WorldGovernmentAdvisor")
+    kim.exMachina("$WorldGovernmentAdvisor, 14 VenusStep")
+    kim.stdProject("AirScrappingProject")
 
-    p1.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep BY Admin") }
+    kim.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep BY Admin") }
         .expect("0 VenusStep, 0 TemperatureStep, 0 TerraformRating")
-    p1.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1
-  }
-
-  @Test
-  internal fun `Solar phase World Government cannot choose a completed parameter`() {
-    newGame(VenusNextExpansion)
-    p1.runOperation("15 VenusStep")
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      venusSolarPhase()
-    }
-
-    shouldThrow<LimitsException> { p1.doTask("VenusStep! BY Admin") }
-    p1.doTask("TemperatureStep! BY Admin")
-  }
-
-  @Test
-  internal fun `Admin terraforming triggers Aphrodite without granting terraform rating`() {
-    newGame(VenusNextExpansion, PromoCardPack)
-    p1.runOperation("$Aphrodite")
-    val moneyBefore = p1.count("MC")
-    val ratingBefore = p1.count("TerraformRating")
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      venusSolarPhase()
-    }
-
-    p1.doTask("VenusStep! BY Admin")
-
-    p1.count("MC") shouldBe moneyBefore + 2
-    p1.count("TerraformRating") shouldBe ratingBefore
-  }
-
-  @Test
-  internal fun `Admin terraforming does not trigger an owner-only effect`() {
-    newGame(VenusNextExpansion, PromoCardPack)
-    p1.runOperation("$HomeostasisBureau")
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      venusSolarPhase()
-    }
-
-    p1.doTask("TemperatureStep! BY Admin")
-
-    p1.count("MC") shouldBe 0
-  }
-
-  @Test
-  internal fun `World Government is absent when unselected or disabled in Venus`() {
-    newGame()
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      venusSolarPhase()
-    }
-    game.isIdle() shouldBe true
-
-    newGame(
-        GameConfig(
-            "VenusNextExpansion, -WorldGovernmentRule",
-            "Player1",
-            "Player2",
-        )
-    )
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      venusSolarPhase()
-    }
-
-    game.isIdle() shouldBe true
-  }
-
-  @Test
-  internal fun `World Government can be selected without Venus`() {
-    newGame(GameConfig("WorldGovernmentRule", "Player1", "Player2"))
-
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      venusSolarPhase()
-    }
-    p1.doTask("TemperatureStep! BY Admin")
-
-    p1.count("TemperatureStep") shouldBe 1
-    p1.count("TerraformRating") shouldBe 20
-  }
-
-  @Test
-  internal fun `first player places a standard-track threshold ocean for World Government`() {
-    newGame(GameConfig("WorldGovernmentRule", "Player1", "Player2"))
-    admin.runOperation("14 TemperatureStep")
-
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      venusSolarPhase()
-    }
-    p1.doTask("TemperatureStep! BY Admin")
-    p1.doTask("OceanTile<Tharsis_1_2> BY Admin")
-
-    admin.count("TemperatureStep") shouldBe 15
-    admin.count("OceanTile<Tharsis_1_2>") shouldBe 1
-    p1.count("TerraformRating") shouldBe 20
-  }
-
-  @Test
-  internal fun `first player places an extended-track threshold ocean for World Government`() {
-    newGame(GameConfig("AmazonisMap, WorldGovernmentRule", "Player1", "Player2"))
-    admin.runOperation("14 TemperatureStep")
-
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      venusSolarPhase()
-    }
-    p1.doTask("TemperatureStep! BY Admin")
-    p1.doTask("OceanTile<Amazonis_02_01> BY Admin")
-
-    admin.count("TemperatureStep") shouldBe 15
-    admin.count("OceanTile<Amazonis_02_01>") shouldBe 1
-    p1.count("TerraformRating") shouldBe 20
-  }
-
-  @Test
-  internal fun `Solo Venus advances a generation with World Government disabled`() {
-    newGame(GameConfig("VenusNextExpansion, -WorldGovernmentRule", "Me"))
-    val generationsBefore = admin.count("SoloGenerationsLeft")
-    admin.phase("Action")
-
-    admin.nextGeneration(0)
-
-    admin.count("SoloGenerationsLeft") shouldBe generationsBefore - 1
-    admin.count("VenusStep") shouldBe 0
-    admin.count("TemperatureStep") shouldBe 0
+    kim.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1
   }
 
   @Test
   internal fun `Player Venus increase rolls back when its mandatory colony has no slot`() {
-    newGame(Amazonis, VenusNextExpansion, ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    admin.runOperation("7 VenusStep")
+    newTestGame(addOptions = "AmazonisMap, Luna, Ceres, Triton, Ganymede, Callisto")
+    kim.exMachina("7 VenusStep")
     fillSelectedColonySlots()
 
-    shouldThrow<LimitsException> { p1.runOperation("VenusStep") { doTask("Colony<Luna>") } }
+    shouldThrow<LimitsException> {
+      kim.stdProject("AirScrappingProject") { doTask("Colony<Luna>") }
+    }
     admin.count("VenusStep") shouldBe 7
-    p1.count("Colony") shouldBe 0
+    kim.count("Colony") shouldBe 0
+    kim.count("MC") shouldBe 42
   }
 
   @Test
-  internal fun `World Government Venus increase proceeds with full colony slots`() {
-    newGame(
-        Amazonis,
-        VenusNextExpansion,
-        ColoniesExpansion,
-        PreludeExpansion,
-        Prelude2CardPack,
-        colonyTiles = testColonyTiles(2),
+  internal fun `Advisor Venus increase proceeds with full colony slots`() {
+    newTestGame(
+        addOptions = "AmazonisMap, WorldGovernmentAdvisor, Luna, Ceres, Triton, Ganymede, Callisto"
     )
-    p1.runOperation("$WorldGovernmentAdvisor")
-    admin.runOperation("7 VenusStep")
+    kim.exMachina("$WorldGovernmentAdvisor, 7 VenusStep")
     fillSelectedColonySlots()
-    admin.phase("Action")
 
-    p1.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep BY Admin") }
-    admin.count("VenusStep") shouldBe 8
-    p1.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1
-    p1.count("Colony") shouldBe 0
+    kim.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep BY Admin") }
+        .expect("VenusStep, 0 Colony<Anyone>, 0 TerraformRating")
   }
 
   @Test
-  internal fun `World Government Venus increase does not award a player colony`() {
-    newGame(
-        Amazonis,
-        VenusNextExpansion,
-        ColoniesExpansion,
-        PreludeExpansion,
-        Prelude2CardPack,
-        colonyTiles = testColonyTiles(2),
-    )
-    p1.runOperation("$WorldGovernmentAdvisor")
-    admin.runOperation("7 VenusStep")
-    admin.phase("Action")
+  internal fun `Advisor Venus increase does not award a player colony`() {
+    newTestGame(addOptions = "AmazonisMap, WorldGovernmentAdvisor")
+    kim.exMachina("$WorldGovernmentAdvisor, 7 VenusStep")
 
-    p1.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep BY Admin") }
-
-    admin.count("VenusStep") shouldBe 8
-    p1.count("Colony") shouldBe 0
-    requireP2().count("Colony") shouldBe 0
+    kim.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep BY Admin") }
+        .expect("VenusStep, 0 Colony<Anyone>, 0 TerraformRating")
   }
 
   private fun fillSelectedColonySlots() {
-    val p2 = requireP2()
     listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto").forEach { track ->
-      repeat(3) { p2.runOperation("Colony<$track>") }
+      repeat(3) { stan.exMachina("Colony<$track>") }
     }
   }
 
@@ -228,24 +65,126 @@ internal class WorldGovernmentRulesTest : CardTest() {
   // Earlier discussion: https://boardgamegeek.com/thread/3348438/article/44693194#44693194
   @Test
   internal fun `Advisor action can be spent when every global parameter is complete`() {
-    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
-    p1.runOperation("$WorldGovernmentAdvisor")
-    admin.runOperation("19 TemperatureStep") {
-      p1.doTask("OceanTile<Tharsis_1_2> BY Admin")
-    }
-    admin.runOperation("15 VenusStep, 14 OxygenStep")
-    listOf("1_3", "1_4", "1_5", "2_1", "2_6", "3_2", "4_3", "4_8").forEach {
-      admin.runOperation("OceanTile<Tharsis_$it>")
-    }
-    admin.phase("Action")
-    val trBefore = p1.count("TerraformRating")
+    newTestGame(addOptions = "WorldGovernmentAdvisor")
+    kim.exMachina("$WorldGovernmentAdvisor, 18 TemperatureStep, 14 VenusStep, 13 OxygenStep")
+    kim.exMachina(
+        "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_3>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_1>, OceanTile<Tharsis_2_6>, OceanTile<Tharsis_3_2>, OceanTile<Tharsis_4_3>"
+    )
+    kim.setToExMachina(100, "MC")
+    kim.stdProject("AsteroidProject")
+    kim.stdProject("AirScrappingProject")
+    kim.stdProject("GreeneryProject") { placeTile(3, 3) }
+    kim.stdProject("AquiferProject") { placeTile(4, 8) }
 
-    p1.cardAction1(WorldGovernmentAdvisor)
-    p1.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1
-    p1.count("TerraformRating") shouldBe trBefore
-    admin.count("VenusStep") shouldBe 15
-    admin.count("TemperatureStep") shouldBe 19
-    admin.count("OxygenStep") shouldBe 14
-    admin.count("OceanTile") shouldBe 9
+    kim.cardAction1(WorldGovernmentAdvisor)
+        .expect("0 TerraformRating, 0 VenusStep, 0 TemperatureStep, 0 OxygenStep, 0 OceanTile")
+    kim.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1
+  }
+
+  internal class Gameplay : dev.martianzoo.tfm.tests.TfmGameplayTest() {
+    @Test
+    internal fun `Solar World Government cannot choose a completed parameter`() {
+      newTestGame(playerCount = 2)
+      repeat(15) { finishGeneration("VenusStep") }
+      stan.pass()
+      kim.pass()
+
+      shouldThrow<LimitsException> { stan.wgt("VenusStep") }
+      stan.wgt("TemperatureStep").expect("TemperatureStep, 0 TerraformRating")
+    }
+
+    @Test
+    internal fun `Admin terraforming triggers Aphrodite without granting terraform rating`() {
+      newTestGame(playerCount = 2, kimCorporation = Aphrodite)
+      kim.pass()
+      stan.pass()
+
+      kim.wgt("VenusStep").expect("VenusStep, 2 MC, 0 TerraformRating")
+    }
+
+    @Test
+    internal fun `Admin terraforming does not trigger Homeostasis Bureau's owner effect`() {
+      newTestGame(playerCount = 2)
+      kim.turn { playProject(HomeostasisBureau, 16) }
+      stan.pass()
+      kim.pass()
+
+      kim.wgt("TemperatureStep").expect("TemperatureStep, 0 MC, 0 TerraformRating")
+    }
+
+    @Test
+    internal fun `Without Venus or World Government passes lead straight to Research`() {
+      newTestGame(addOptions = "-VenusNextExpansion", playerCount = 2)
+      kim.pass()
+      stan.pass()
+
+      kim.buyCards(0)
+      stan.buyCards(0)
+      admin.count("Generation") shouldBe 2
+      admin.count("TemperatureStep") shouldBe 0
+    }
+
+    @Test
+    internal fun `World Government can be disabled while Venus remains in play`() {
+      newTestGame(addOptions = "-WorldGovernmentRule", playerCount = 2)
+      kim.pass()
+      stan.pass()
+
+      kim.buyCards(0)
+      stan.buyCards(0)
+      admin.count("Generation") shouldBe 2
+      admin.count("VenusStep") shouldBe 0
+    }
+
+    @Test
+    internal fun `World Government can be selected without Venus`() {
+      newTestGame(addOptions = "-VenusNextExpansion, WorldGovernmentRule", playerCount = 2)
+      kim.pass()
+      stan.pass()
+
+      kim.wgt("TemperatureStep").expect("TemperatureStep, 0 TerraformRating")
+    }
+
+    @Test
+    internal fun `First player places the standard temperature track's threshold ocean`() {
+      newTestGame(playerCount = 2)
+      repeat(14) { finishGeneration("TemperatureStep") }
+      kim.pass()
+      stan.pass()
+
+      kim.wgt("TemperatureStep").expect("TemperatureStep, 0 TerraformRating")
+      kim.doTask("OceanTile<Tharsis_1_2> BY Admin").expect("OceanTile, 0 TerraformRating")
+    }
+
+    @Test
+    internal fun `First player places the extended temperature track's threshold ocean`() {
+      newTestGame(addOptions = "AmazonisMap", playerCount = 2)
+      repeat(14) { finishGeneration("TemperatureStep") }
+      kim.pass()
+      stan.pass()
+
+      kim.wgt("TemperatureStep").expect("TemperatureStep, 0 TerraformRating")
+      kim.doTask("OceanTile<Amazonis_02_01> BY Admin").expect("OceanTile, 0 TerraformRating")
+    }
+
+    @Test
+    internal fun `Solo Venus advances a generation with World Government disabled`() {
+      newTestGame(addOptions = "-WorldGovernmentRule", playerCount = 1)
+      val remaining = admin.count("SoloGenerationsLeft")
+      kim.pass()
+      kim.buyCards(0)
+
+      admin.count("SoloGenerationsLeft") shouldBe remaining - 1
+      admin.count("VenusStep") shouldBe 0
+      admin.count("TemperatureStep") shouldBe 0
+    }
+
+    private fun finishGeneration(choice: String) {
+      val first = players.single { it.count("StartToken") == 1 }
+      first.pass()
+      players.single { it != first }.pass()
+      first.wgt(choice)
+      players.forEach { it.buyCards(0) }
+    }
   }
 }

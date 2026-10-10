@@ -2,14 +2,14 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.engine.*
-import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
-import dev.martianzoo.tfm.tests.cards.CardTest
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.AquiferPumping
 import dev.martianzoo.tfm.tests.cards.cardnames.DevelopmentCenter
+import dev.martianzoo.tfm.tests.cards.cardnames.FakeHelion
 import dev.martianzoo.tfm.tests.cards.cardnames.Mine
 import dev.martianzoo.tfm.tests.cards.cardnames.PowerPlant
 import dev.martianzoo.tfm.tests.cards.cardnames.TitaniumMine
@@ -17,200 +17,204 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-private val oneToOnePaymentDeclarations =
-    parseClasses(
-        """
-        CLASS OneToOnePaymentSource : Owned {
-          This:: BaseResourceValue<Class<Heat>>
-          Billing<Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
-        }
-        """
-            .trimIndent()
-    )
-
-internal class TfmGameplayTest :
-    CardTest(additionalClassDeclarations = oneToOnePaymentDeclarations.toSet()) {
-  @Test
-  internal fun `Research purchases finish with every autoexecution policy including zero buys`() {
-    for (policy in AutoExecPolicy.entries) {
-      for (bought in listOf(0, 2, 4)) {
-        newGame()
-        p1.runOperation("12 MC")
-        p1.autoExecPolicy = AutoExecPolicy.NONE
-        val p2 = requireP2().also { it.autoExecPolicy = AutoExecPolicy.NONE }
-
-        admin.phase("Research") {
-          p2.doTask("4 ProjectCard<Selecting>")
-          p2.buyCards(0)
-          p1.doTask("4 ProjectCard<Selecting>")
-          p1.autoExecPolicy = policy
-          p1.buyCards(bought)
-        }
-
-        p1.count("ProjectCard<Hand>") shouldBe bought
-        p1.count("ProjectCard<Selecting>") shouldBe 0
-        p1.count("MC") shouldBe 12 - 3 * bought
-        p1.count("Owed") shouldBe 0
-        p1.autoExecPolicy shouldBe policy
-      }
-    }
-  }
-
+internal class TfmGameplayTest : TfmSandboxTest() {
   @Test
   internal fun `No-argument pass asserts there are no unused action cards`() {
-    newGame()
-    p1.requireExplicitUnusedActionCards()
-    admin.phase("Action")
+    newTestGame()
+    kim.requireExplicitUnusedActionCards()
 
-    p1.pass()
+    kim.pass()
 
-    newGame()
-    p1.requireExplicitUnusedActionCards()
-    admin.phase("Action")
-    p1.runOperation("AquiferPumping")
+    newTestGame()
+    kim.requireExplicitUnusedActionCards()
+    kim.exMachina("AquiferPumping")
 
-    shouldThrow<IllegalArgumentException> { p1.pass() }
-    p1.pass(unused = AquiferPumping)
+    shouldThrow<IllegalArgumentException> { kim.pass() }
+    kim.pass(unused = AquiferPumping)
   }
 
   @Test
   internal fun `Standard action helper rejects a non-standard action provider`() {
-    newGame(TestOption.PromoCardPack)
-    p1.runOperation("StJosephOfCupertinoMission")
-    admin.phase("Action")
+    newTestGame()
+    kim.exMachina("StJosephOfCupertinoMission")
 
-    shouldThrow<IllegalArgumentException> { p1.stdAction("CathedralOption") }.message shouldBe
+    shouldThrow<IllegalArgumentException> { kim.stdAction("CathedralOption") }.message shouldBe
         "CathedralOption is not a StandardAction"
   }
 
   @Test
-  internal fun `Declining a second action rejects an unrelated optional task`() {
-    newGame()
-
-    p1.runOperation("UseAction<StandardAction>?") {
-      shouldThrow<TaskException> { p1.declineSecondAction() }
-      abort()
-    }
-  }
-
-  @Test
   internal fun `Payment rejects leaving steel unspent at full value`() {
-    newGame()
-    p1.requireExplicitPaymentChoices()
-    admin.phase("Action")
-    p1.runOperation("10 MC, 2 Steel, ProjectCard")
+    newTestGame()
+    kim.requireExplicitPaymentChoices()
+    kim.setToExMachina(10, "MC")
+    kim.exMachina("2 Steel")
+    kim.setToExMachina(1, "ProjectCard")
 
-    shouldThrow<IllegalArgumentException> { p1.playProject(Mine, 4) }
-    p1.count("MC") shouldBe 10
-    p1.count("Steel") shouldBe 2
-    p1.count("ProjectCard") shouldBe 1
-    p1.count("$Mine") shouldBe 0
+    shouldThrow<IllegalArgumentException> { kim.playProject(Mine, 4) }
+    kim.count("MC") shouldBe 10
+    kim.count("Steel") shouldBe 2
+    kim.count("ProjectCard") shouldBe 1
+    kim.count("$Mine") shouldBe 0
 
-    newGame()
-    p1.requireExplicitPaymentChoices()
-    admin.phase("Action")
-    p1.runOperation("10 MC, 2 Steel, ProjectCard")
+    newTestGame()
+    kim.requireExplicitPaymentChoices()
+    kim.setToExMachina(10, "MC")
+    kim.exMachina("2 Steel")
+    kim.setToExMachina(1, "ProjectCard")
     // Synthetic API test: no strategic reason; deliberate underpayment exercises the opt-in.
-    p1.intentionalUnderpay()
-    p1.playProject(Mine, 4)
+    kim.intentionalUnderpay()
+    kim.playProject(Mine, 4).expect("-4 MC, PROD[Steel]")
   }
 
   @Test
   internal fun `Payment may preserve an accepted one-to-one resource without an opt-in`() {
-    newGame()
-    p1.requireExplicitPaymentChoices()
-    admin.phase("Action")
-    p1.runOperation("10 MC, 2 Heat, OneToOnePaymentSource, ProjectCard")
+    newTestGame(addOptions = "FakeStuffBundle", kimCorporation = FakeHelion)
+    kim.requireExplicitPaymentChoices()
+    kim.setToExMachina(10, "MC")
+    kim.exMachina("2 Heat")
+    kim.setToExMachina(1, "ProjectCard")
 
-    p1.playProject(Mine, 4)
-
-    p1.count("MC") shouldBe 6
-    p1.count("Heat") shouldBe 2
+    kim.playProject(Mine, 4).expect("-4 MC, 0 Heat, PROD[Steel]")
   }
 
   @Test
   internal fun `Payment requires an opt-in to spend a one-to-one resource before money`() {
-    newGame()
-    p1.requireExplicitPaymentChoices()
-    admin.phase("Action")
-    p1.runOperation("10 MC, 2 Heat, OneToOnePaymentSource, ProjectCard")
+    newTestGame(addOptions = "FakeStuffBundle", kimCorporation = FakeHelion)
+    kim.requireExplicitPaymentChoices()
+    kim.setToExMachina(10, "MC")
+    kim.exMachina("2 Heat")
+    kim.setToExMachina(1, "ProjectCard")
 
     shouldThrow<IllegalArgumentException> {
-      p1.turn { playProject(Mine, 2, heat = 2) }
+      kim.playProject(Mine, 2, heat = 2)
     }
-    p1.intentionalUnderpay()
-    p1.turn { playProject(Mine, 2, heat = 2) }
-
-    p1.count("MC") shouldBe 8
-    p1.count("Heat") shouldBe 0
+    kim.intentionalUnderpay()
+    kim.playProject(Mine, 2, heat = 2).expect("-2 MC, -2 Heat, PROD[Steel]")
   }
 
   @Test
   internal fun `Required one-to-one resource is not audited as an alternative to money`() {
-    newGame()
-    p1.requireExplicitPaymentChoices()
-    admin.phase("Action")
-    p1.runOperation("10 MC, Energy, DevelopmentCenter")
+    newTestGame()
+    kim.requireExplicitPaymentChoices()
+    kim.setToExMachina(10, "MC")
+    kim.setToExMachina(0, "ProjectCard")
+    kim.exMachina("Energy, DevelopmentCenter")
 
-    p1.cardAction1(DevelopmentCenter)
-
-    p1.count("MC") shouldBe 10
-    p1.count("Energy") shouldBe 0
-    p1.count("ProjectCard") shouldBe 1
+    kim.cardAction1(DevelopmentCenter).expect("-Energy, ProjectCard, 0 MC")
   }
 
   @Test
   internal fun `Underpayment permission applies to only one payment`() {
-    newGame()
-    p1.requireExplicitPaymentChoices()
-    admin.phase("Action")
-    p1.runOperation("14 MC, 2 Steel, 2 ProjectCard")
+    newTestGame()
+    kim.requireExplicitPaymentChoices()
+    kim.exMachina("14 MC, 2 Steel, 2 ProjectCard")
 
     // Synthetic API test: no strategic reason; deliberate underpayment exercises one-shot scope.
-    p1.intentionalUnderpay()
-    p1.playProject(Mine, 4)
-    shouldThrow<IllegalArgumentException> { p1.playProject(PowerPlant, 4) }
+    kim.intentionalUnderpay()
+    kim.playProject(Mine, 4).expect("-4 MC, PROD[Steel]")
+    shouldThrow<IllegalArgumentException> { kim.playProject(PowerPlant, 4) }
   }
 
   @Test
-  internal fun `Payment rejects a tender containing a unit that could be kept`() {
-    newGame()
-    admin.phase("Action")
-    p1.runOperation("3 Steel, ProjectCard")
+  internal fun `Payment rejects a payment containing a unit that could be kept`() {
+    newTestGame()
+    kim.exMachina("3 Steel, ProjectCard")
 
     // Mine costs 4; two steel already settle it, so the third is returnable.
-    shouldThrow<LimitsException> { p1.playProject(Mine, steel = 3) }
+    shouldThrow<LimitsException> { kim.playProject(Mine, steel = 3) }
 
-    p1.count("Steel") shouldBe 3
-    p1.count("$Mine") shouldBe 0
+    kim.count("Steel") shouldBe 3
+    kim.count("$Mine") shouldBe 0
   }
 
   @Test
   internal fun `Payment allows excess no single unit could have avoided`() {
-    newGame()
-    admin.phase("Action")
-    p1.runOperation("4 Steel, ProjectCard")
+    newTestGame()
+    kim.exMachina("4 Steel, ProjectCard")
 
     // Titanium Mine costs 7; three steel are not enough, so the fourth may waste one M€.
-    p1.playProject(TitaniumMine, steel = 4)
-
-    p1.count("Steel") shouldBe 0
-    p1.count("$TitaniumMine") shouldBe 1
+    kim.playProject(TitaniumMine, steel = 4).expect("-4 Steel, 0 MC, $TitaniumMine, PROD[Titanium]")
   }
 
   @Test
   internal fun `Payment rejects mc beyond the remainder after steel`() {
-    newGame()
-    admin.phase("Action")
-    p1.runOperation("30 MC, 5 Steel, ProjectCard")
+    newTestGame()
+    kim.setToExMachina(30, "MC")
+    kim.exMachina("5 Steel")
+    kim.setToExMachina(1, "ProjectCard")
 
     shouldThrow<LimitsException> {
-      p1.playProject(AquiferPumping, mc = 18, steel = 5)
+      kim.playProject(AquiferPumping, mc = 18, steel = 5)
     }
 
-    p1.count("MC") shouldBe 30
-    p1.count("Steel") shouldBe 5
-    p1.count("ProjectCard") shouldBe 1
-    p1.count("$AquiferPumping") shouldBe 0
+    kim.count("MC") shouldBe 30
+    kim.count("Steel") shouldBe 5
+    kim.count("ProjectCard") shouldBe 1
+    kim.count("$AquiferPumping") shouldBe 0
+  }
+
+  // This tests rejection of an arbitrary optional task, not a game rule.
+  internal class TaskSelection : TfmTest() {
+    @Test
+    internal fun `Declining a second action rejects an unrelated optional task`() {
+      game = setUpGame(canonicalPremise())
+      val player = game.testTfm(dev.martianzoo.testsupport.PLAYER1)
+      player.runOperation("UseAction<StandardAction>?") {
+        shouldThrow<TaskException> { player.declineSecondAction() }
+        abort()
+      }
+    }
+  }
+
+  internal class Research : dev.martianzoo.tfm.tests.TfmGameplayTest() {
+    @Test
+    internal fun `Buying 0 research cards with NONE completes payment and transfer`() =
+        checkPurchase(AutoExecPolicy.NONE, 0)
+
+    @Test
+    internal fun `Buying 2 research cards with NONE completes payment and transfer`() =
+        checkPurchase(AutoExecPolicy.NONE, 2)
+
+    @Test
+    internal fun `Buying 4 research cards with NONE completes payment and transfer`() =
+        checkPurchase(AutoExecPolicy.NONE, 4)
+
+    @Test
+    internal fun `Buying 0 research cards with CONCRETE completes payment and transfer`() =
+        checkPurchase(AutoExecPolicy.CONCRETE, 0)
+
+    @Test
+    internal fun `Buying 2 research cards with CONCRETE completes payment and transfer`() =
+        checkPurchase(AutoExecPolicy.CONCRETE, 2)
+
+    @Test
+    internal fun `Buying 4 research cards with CONCRETE completes payment and transfer`() =
+        checkPurchase(AutoExecPolicy.CONCRETE, 4)
+
+    @Test
+    internal fun `Buying 0 research cards with EAGER completes payment and transfer`() =
+        checkPurchase(AutoExecPolicy.EAGER, 0)
+
+    @Test
+    internal fun `Buying 2 research cards with EAGER completes payment and transfer`() =
+        checkPurchase(AutoExecPolicy.EAGER, 2)
+
+    @Test
+    internal fun `Buying 4 research cards with EAGER completes payment and transfer`() =
+        checkPurchase(AutoExecPolicy.EAGER, 4)
+
+    private fun checkPurchase(policy: AutoExecPolicy, bought: Int) {
+      newTestGame(addOptions = "-VenusNextExpansion", playerCount = 2)
+      kim.pass()
+      stan.pass()
+      stan.buyCards(0)
+      kim.autoExecPolicy = policy
+
+      kim.buyCards(bought).expect("${-3 * bought} MC, $bought ProjectCard<Hand>")
+
+      kim.count("ProjectCard<Selecting>") shouldBe 0
+      kim.count("Owed") shouldBe 0
+      kim.autoExecPolicy shouldBe policy
+    }
   }
 }

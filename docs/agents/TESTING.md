@@ -9,7 +9,7 @@
 > **Skip when:** doing a read-only task that requires no build or behavioral claim.
 >
 > **Status:** current repository procedure; card scenarios use the sandbox and gameplay fixtures
-> described below. Legacy rule suites still use `CardTest`.
+> described below. Five legacy rule suites still use `CardTest`.
 
 ## Read only the needed section
 
@@ -206,6 +206,7 @@ for correct ownership.
 Legacy card and game-rule scenarios are moving to the `TfmSandboxTest` and `TfmGameplayTest`
 fixtures described below. Choose authentic workflow where the claim depends on it; focused sandbox
 scenarios remain an intended style. Existing tests have not all migrated.
+The remaining legacy suites cover endgame, dead ends, Turmoil delegates, government, and events.
 Dedicated REPL mode tests and lower-level engine or bootstrap tests retain their distinct subjects.
 Do not replace manual phase calls with helpers that recreate the workflow in Kotlin.
 
@@ -221,7 +222,7 @@ clear coverage of these contracts matters more than preserving every current tes
    independent playback views remain coherent without firing effects. Cross-module engine
    scenarios cover consequence calculation and failure atomicity: a failed operation must restore
    present components, pending work, and recorded history together.
-4. **Player-level card and game-rule tests.** `CardTest` scenarios count when they use actions and
+4. **Player-level card and game-rule tests.** Scenarios count when they use actions and
    observations available to a player rather than internal state or implementation details.
    `CoreRulesTest` documents game-wide rules in this same style.
 5. **Whole-game tests.** Long scenarios that show the workflow and many rules operate together,
@@ -300,7 +301,8 @@ project-card scenarios use the fixture's explicit `exMachina` setup methods.
 Synthetic engine checks can construct a premise directly from `TfmTest`, using the existing
 `canonicalPremise` and `setUpGame` functions. `FakeWildTagTest` exercises explicit temporary-tag
 injection, and `VerminTest.Attribution` supplies a synthetic listener; neither represents a
-player-facing scenario through sandbox or gameplay.
+player-facing scenario through sandbox or gameplay. Audit-history and arbitrary task-selection
+checks also use `TfmTest` directly rather than claiming authentic gameplay.
 When a custom instruction reads authored card metadata from the catalog, compose the synthetic
 card into a fixture `TfmCatalog`; premise-only declarations do not populate that metadata.
 Use `placeTile(row, column)`, `addCardResources(card)`, and `wgt(choice)` instead of spelling their

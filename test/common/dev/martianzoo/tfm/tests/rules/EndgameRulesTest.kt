@@ -157,4 +157,17 @@ internal class EndgameRulesTest : CardTest() {
       admin.runOperation("-SoloGenerationsLeft")
     }
   }
+
+  @Test
+  internal fun `MC break a multiplayer victory-point tie`() {
+    newGame()
+    val p2 = requireP2()
+    p1.runOperation("2 VictoryPoint, 5 MC")
+    p2.runOperation("2 VictoryPoint, 4 MC")
+
+    TfmWorkflow.Stepwise(agents).endPhase()
+
+    p1.count("Victory") shouldBe 1
+    p2.count("Victory") shouldBe 0
+  }
 }

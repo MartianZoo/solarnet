@@ -1,110 +1,105 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.pets.api.Exceptions.NotNowException
-import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
-import dev.martianzoo.tfm.tests.cards.CardTest
+import dev.martianzoo.tfm.tests.TfmGameplayTest
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class TurmoilPoliciesTest : CardTest() {
+internal class TurmoilPoliciesTest : TfmGameplayTest() {
   @Test
-  internal fun `greens policy exists only in the action phase and rewards greenery`() {
-    newGame(TurmoilExpansion)
-
-    admin.phase("Action")
-    admin.count("Policy") shouldBe 1
-    admin.count("GreensPolicy") shouldBe 1
-    p1.runOperation("GreeneryTile<Tharsis_3_3>")
-    p1.count("MC") shouldBe 4
-
-    admin.phase("Production")
-    admin.count("Policy") shouldBe 0
-  }
-
-  @Test
-  internal fun `mars first policy rewards a tile placed on Mars`() {
-    newGame(TurmoilExpansion)
-    admin.runOperation("Ruling<MarsFirst> FROM Ruling")
-    admin.phase("Action")
-
-    p1.runOperation("CityTile<Tharsis_3_3>")
-
-    admin.count("MarsFirstPolicy") shouldBe 1
-    p1.count("Steel") shouldBe 1
-  }
-
-  @Test
-  internal fun `scientists action draws three cards only once per generation`() {
-    newGame(TurmoilExpansion)
-    admin.runOperation("Ruling<Scientists> FROM Ruling")
-    p1.runOperation("20 MC")
-    admin.phase("Action")
-
-    p1.turn {
-      stdAction("UseTurmoilPolicyAction")
-      shouldThrow<NotNowException> { stdAction("UseTurmoilPolicyAction") }
+  internal fun `Greens rewards greenery during action play and leaves before solar`() {
+    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    kim.turn {
+      stdProject("GreeneryProject") { placeTile(3, 3) }
+          .expect("-19 MC, GreeneryTile, TerraformRating")
     }
+    stan.pass()
+    kim.pass()
 
-    p1.count("ProjectCard") shouldBe 3
-    p1.count("ScientistsUsedMarker") shouldBe 1
-    p1.count("MC") shouldBe 10
+    admin.count("GreensPolicy") shouldBe 0
+  }
 
-    admin.phase("Production")
+  @Test
+  internal fun `Mars First rewards a city placed on Mars`() {
+    electGovernment("MarsFirst")
+    stan.pass()
+
+    kim.stdProject("CityProject") { placeTile(3, 3) }.expect("CityTile, Steel, PROD[MC]")
+  }
+
+  @Test
+  internal fun `Scientists draws three cards only once per generation`() {
+    electGovernment("Scientists")
+    stan.pass()
+    kim.stdAction("UseTurmoilPolicyAction").expect("-10 MC, 3 ProjectCard")
+    shouldThrow<NotNowException> { kim.stdAction("UseTurmoilPolicyAction") }
+    kim.pass()
+
     admin.count("ScientistsPolicy") shouldBe 0
   }
 
   @Test
-  internal fun `unity policy adds one titanium payment value for every player`() {
-    newGame(TurmoilExpansion)
-    admin.runOperation("Ruling<Unity> FROM Ruling")
+  internal fun `Unity increases both players titanium payment value`() {
+    electGovernment("Unity")
+    stan.turn { playProject(SolarWindPower, mc = 7, titanium = 1).expect("Titanium, -7 MC") }
+    kim.turn { playProject(VestaShipyard, mc = 11, titanium = 1).expect("-Titanium, -11 MC") }
+    stan.pass()
+    kim.pass()
 
-    admin.phase("Action")
-
-    admin.count("UnityPolicy") shouldBe 1
-    p1.count("UnityTitaniumValue") shouldBe 1
-    requireP2().count("UnityTitaniumValue") shouldBe 1
-    p1.count("ResourceValue<Class<Titanium>>") shouldBe 4
-
-    admin.phase("Production")
-    admin.count("UnityPolicy") shouldBe 0
-    p1.count("UnityTitaniumValue") shouldBe 0
-    requireP2().count("UnityTitaniumValue") shouldBe 0
+    kim.count("ResourceValue<Class<Titanium>>") shouldBe 3
+    stan.count("ResourceValue<Class<Titanium>>") shouldBe 3
   }
 
   @Test
-  internal fun `reds policy charges three mc for each tr step`() {
-    newGame(TurmoilExpansion)
-    admin.runOperation("Ruling<Reds> FROM Ruling")
-    p1.runOperation("9 MC")
-    admin.phase("Action")
+  internal fun `Reds charges for both TR steps gained by Bribed Committee`() {
+    electGovernment("Reds")
+    stan.pass()
 
-    p1.runOperation("2 TerraformRating")
-    p1.count("MC") shouldBe 3
-    p1.count("TerraformRating") shouldBe 22
-    p1.runOperation("TerraformRating")
-    p1.count("MC") shouldBe 0
-    p1.count("TerraformRating") shouldBe 23
-    p1.runOperation("2 MC")
-    shouldThrow<NotNowException> { p1.runOperation("TerraformRating") }
-    p1.count("MC") shouldBe 2
-    p1.count("TerraformRating") shouldBe 23
+    kim.playProject(BribedCommittee, 7).expect("-13 MC, 2 TerraformRating")
   }
 
   @Test
-  internal fun `kelvinists action raises heat and energy production for ten mc`() {
-    newGame(TurmoilExpansion)
-    admin.runOperation("Ruling<Kelvinists> FROM Ruling")
-    p1.runOperation("10 MC")
-    admin.phase("Action")
+  internal fun `Reds rejects an unaffordable TR gain without charging or terraforming`() {
+    electGovernment("Reds")
+    stan.pass()
+    kim.stdProject("AsteroidProject").expect("-17 MC, TemperatureStep, TerraformRating")
+    kim.stdProject("AsteroidProject").expect("-17 MC, TemperatureStep, TerraformRating")
+    // The remaining 14 MC covers the project but not Reds' additional 3 MC.
+    kim.count("MC") shouldBe 14
+    val ratingBefore = kim.count("TerraformRating")
+    val temperatureBefore = admin.count("TemperatureStep")
+    shouldThrow<NotNowException> { kim.stdProject("AsteroidProject") }
 
-    p1.stdAction("UseTurmoilPolicyAction", 2)
+    kim.count("MC") shouldBe 14
+    kim.count("TerraformRating") shouldBe ratingBefore
+    admin.count("TemperatureStep") shouldBe temperatureBefore
+  }
 
-    p1.count("MC") shouldBe 0
-    p1.count("PROD[Heat]") shouldBe 1
-    p1.count("PROD[Energy]") shouldBe 1
+  @Test
+  internal fun `Kelvinists raises heat and energy production for ten MC`() {
+    electGovernment("Kelvinists")
+    stan.pass()
 
-    admin.phase("Production")
+    kim.stdAction("UseTurmoilPolicyAction", 2).expect("-10 MC, PROD[Heat, Energy]")
+    kim.pass()
     admin.count("KelvinistsPolicy") shouldBe 0
+  }
+
+  private fun electGovernment(party: String) {
+    newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+    kim.turn {
+      stdAction("LobbyAction") { doTask("PartyDelegate<$party>") }
+      stdAction("LobbyAction", 2) { doTask("PartyDelegate<$party>") }
+    }
+    stan.pass()
+    kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<$party>") }
+    kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<$party>") }
+    kim.pass()
+    kim.wgt("VenusStep")
+    admin.doTask("ExploreFirstDirective")
+    players.forEach { it.buyCards(0) }
+    admin.count("Ruling<$party>") shouldBe 1
   }
 }

@@ -19,6 +19,29 @@ import kotlin.test.assertSame
 
 /** Verifies which Catalog Classes are selected and inhabited by each game premise. */
 internal class ClassTableSelectionTest {
+  @Test
+  internal fun `Quick Start replaces Elysium's Generalist with Generalist2`() {
+    assertValidView("ElysiumMap, QuickStartVariant") { view ->
+      assertSelected(view, setOf(cn("Generalist2")))
+      assertOmitted(view, setOf(cn("Generalist")))
+    }
+  }
+
+  @Test
+  internal fun `Disabling Quick Start selects Generalist without Generalist2`() {
+    assertValidView("ElysiumMap, -QuickStartVariant") { view ->
+      assertSelected(view, setOf(cn("Generalist")))
+      assertOmitted(view, setOf(cn("Generalist2")))
+    }
+  }
+
+  @Test
+  internal fun `Unselected Hydrologist omits its credit tracking support`() {
+    assertValidView("Builder, Legend, Merchant") { view ->
+      assertOmitted(view, setOf(cn("Hydrologist"), cn("OceanCredit"), cn("HydrologistWatcher")))
+    }
+  }
+
   // Module and associated-Content selection matrix
 
   @Test
