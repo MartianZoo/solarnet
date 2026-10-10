@@ -26,16 +26,20 @@ after review. **Selected** means the direction is chosen while some design remai
    the relevant work and cleanup finish. Today action identity, billing, payment offers, task
    assignment, helper searches, and whole-World idleness divide that story across several systems.
    Replace this with the smallest general rule that preserves choice, rollback, and Actor authority.
-   Nested priority groups and exclusive operation scopes remain alternatives rather than settled
-   architecture.
+   [Task priority bands](docs/agents/SEQUENCING.md#task-priority-working-direction) are the working
+   direction for settlement and workflow, and give operation completion a whole-World answer. They
+   do not address delegated control within one operation; nested priority groups and exclusive
+   operation scopes remain alternatives there.
 
 2. **Make the game advance through authored rules instead of a mirrored Kotlin workflow.**
-   **Active.** Phase order, player rotation, setup, expansion phases, final greenery, scoring, and
-   victory should arise from live game components and ordinary engine scheduling. The `workflow`
-   branch is substantial work intended to land: it moves phase transitions into Pets, compiles
-   expansion-owned topology, removes the coroutine-owned phase sequence, and migrates functional
-   tests to the automatic game. Finish it by integrating the coherent rule across affected phases,
-   deleting superseded orchestration, and preserving full-game replay evidence.
+   **Selected.** Phase order, player rotation, setup, expansion phases, final greenery, scoring, and
+   victory should arise from live game components and ordinary engine scheduling. The working
+   direction makes the next turn or phase P3 work in the
+   [task priority](docs/agents/SEQUENCING.md#task-priority-working-direction) bands, selectable
+   only after all other work and its settlement finish. The `workflow` branch removed the
+   coroutine-owned phase sequence but is not intended to land. It measured the cost of representing
+   deferred work as components: per-rule mode guards, continuation components, and a compiler for
+   expansion phase order. Preserve full-game replay evidence through the change.
 
 3. **Keep Game World, engine, and Agent responsibilities exact.** **Selected.** Game World owns the
    passive record of a game: premise, components, pending tasks, history, queries, and navigable
@@ -68,10 +72,9 @@ after review. **Selected** means the direction is chosen while some design remai
 
 1. **Collapse the engine-to-functional-test stack.** **Active.** Ordinary scenarios should express
    player-visible setup and actions through the full workflow, not rebuild phases, relocate rule
-   components, chase task causes, or rely on rendered instruction text. The `workflow` branch's
-   large test migration is valuable chiefly because it exposes and removes those alternate paths.
-   Keep focused lower-level tests where they prove an engine contract; delete gameplay conveniences
-   that exist only to compensate for missing semantics.
+   components, chase task causes, or rely on rendered instruction text. Keep focused lower-level
+   tests where they prove an engine contract; delete gameplay conveniences that exist only to
+   compensate for missing semantics.
 
 2. **Preserve and deepen source-backed whole-game evidence.** Full replays are the strongest proof
    that independent rules compose. Keep original logs, screenshots, and corrections visible in the
@@ -202,5 +205,5 @@ after review. **Selected** means the direction is chosen while some design remai
 This roadmap synthesizes current priorities in
 [`VALUES.md`](docs/agents/VALUES.md), [`TODO.md`](TODO.md), [`PLAYGROUND.md`](PLAYGROUND.md), the
 focused runtime contracts under
-`docs/agents/`, open issues, recent mainline work, the active `workflow` branch, the exploratory
+`docs/agents/`, open issues, recent mainline work, the `workflow` branch, the exploratory
 `heroku-experiment` branch, and preserved decision-import and TFMBot experiments.

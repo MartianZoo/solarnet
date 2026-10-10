@@ -2,10 +2,12 @@
 
 > **Agent information:** This is an agent-maintained note for agents.
 >
-> **Read when:** changing task order, delegated control, `THEN`, automatic effects, or cleanup.
+> **Read when:** changing task order, delegated control, `THEN`, automatic effects, cleanup, task
+> priority, or how later work waits for earlier work.
 >
-> **Status:** current contracts and a verified missing completion rule. Replacement designs belong
-> in [`SOLARNET_ROADMAP.md`](../../SOLARNET_ROADMAP.md) or a focused investigation.
+> **Status:** current contracts, a verified missing completion rule, and the task-priority working
+> direction. Other replacement designs belong in [`SOLARNET_ROADMAP.md`](../../SOLARNET_ROADMAP.md)
+> or a focused investigation.
 
 ## Current model
 
@@ -21,6 +23,7 @@ meaning.
 
 There is no general task priority or exclusive interaction spanning several tasks. An Agent may
 choose among its available tasks; policy cannot supply a missing game rule.
+[Task priority](#task-priority-working-direction) is the working direction for deferred work.
 
 ## Required promises
 
@@ -131,7 +134,8 @@ searches and overlapping lifecycle machinery rather than assume exclusive contro
 operation is required. Local failure restores the enclosing transaction; agreement to retract
 already shared decisions or proceed after a disclosure belongs to [ADVERSARIAL.md](ADVERSARIAL.md).
 The external arrangement handles that agreement without making incorrect payment or cleanup
-calculations acceptable. The roadmap records the remaining design concern.
+calculations acceptable. The roadmap records the remaining design concern;
+[task priority](#operation-completion) proposes a whole-World answer.
 
 ## Cleanup
 
@@ -150,6 +154,120 @@ and rechecks before further cleanup. The workflow completion callback follows th
 Plain `Temporary` is not `MustCleanUp`: unrelated tasks can keep it alive across a narrower manual
 interaction. Event cards become `PlayedEvent` through idle cleanup, not an explicit end-of-turn
 task.
+
+## Task priority (working direction)
+
+**Working direction, not implemented.** The owner expects that one small priority concept may
+replace the deferred-work devices listed below; the proving cases decide whether it is adopted. An
+August 2026 version of this direction (commit `b074f54dd`) was replaced within days by
+`Idle<Player>` and `Yield<Player>` signal designs, then by whole-World `Temporary` cleanup. Each
+replacement moved deferred work back into components. Do not reintroduce a signal, marker, or
+continuation component for deferred work without the owner's direction.
+
+### Facts in components, future work in tasks
+
+The component graph records what is, or what is happening. Work that should happen later belongs in
+a task. A component that exists so that its removal can start later work is a scheduling device, not
+a game fact; do not add new ones. The `workflow` branch's `Continuation` class makes that device
+generic.
+
+Current devices:
+
+| Device | Work it defers |
+| --- | --- |
+| `EventCard` as `Temporary` | The move to `PlayedEvent`, at an empty task pool |
+| `TradeBarrier` | `FinishTrade`, until every barrier the Trade received is removed |
+| `TurmoilSolarOperation` | `FormGovernment THEN ChangingTimes`, after TR revision and the current global event |
+| `FinalScoringPending`, `MeasureAward` | Award placement and `Victory`, after final-scoring work |
+| `TfmWorkflow.Automatic` with `World.onTransactionComplete` | The next phase or turn, from Kotlin, at World idle |
+
+Where the component also records a real fact, keep it and change only the timing. A played
+`EventCard` is in play, and its tags count, until it is flipped; only the flip becomes deferred
+work.
+
+### Bands
+
+| Band | Meaning |
+| --- | --- |
+| P0 | The selected task: the only task that may advance. |
+| P1 | Ordinary pending work: any P1 task may become the next P0. |
+| P2 | Settlement: work that completes the current operation after its ordinary consequences. |
+| P3 | Workflow: the next turn or phase. |
+
+P0 and P1 are the current model. P2 and P3 are new.
+
+- **TP1.** No P2 task may be selected while any P0 or P1 task exists. No P3 task may be selected
+  while any P0, P1, or P2 task exists.
+- **TP2.** When no P0 or P1 task exists, every P2 task becomes P1 at once. When no P0, P1, or P2
+  task exists, every P3 task becomes P1 at once.
+- **TP3.** Work created by executing any task enters P1 unless its instruction is authored as P2 or
+  P3. With TP1 and TP2, deferred work created while a promoted batch runs waits for that whole
+  batch and its consequences.
+- **TP4.** A task's band is set when the task is created. Only promotion changes it; authored Pets
+  cannot change another task's band.
+- **TP5.** Bands restrict selection only. They apply equally to explicit commands and
+  autoexecution, and they do not order tasks within a band: legal sibling orders stay available.
+- **TP6.** Bands apply to the whole World task pool, not to one Actor's queue.
+- **TP7.** Promotion changes task state. It rolls back with its transaction and must be
+  reproducible from the event history.
+
+P3 is below P2 because settlement belongs to the operation that caused it. Playing Solar Probe
+creates its effects as P1 work and its flip as P2 work. Its own science tag therefore counts for
+every consequence of its effects, and it reaches the played-event pile before any P3 turn handoff.
+Entering Research creates each Player's research choices as P1 work and
+`ActionPhase FROM ResearchPhase` as P3 work. Action begins only after every Player has finished and
+their settlement has run.
+
+TP2's alternative leaves bands fixed and makes the highest occupied band selectable. The two differ
+only when a promoted task creates P1 work while others from its batch still wait. Under TP2 those
+others stay selectable beside the new work; under the alternative they wait for it. No Terraforming
+Mars case is known to distinguish them. TP2 is preferred because "a settlement batch becomes
+ordinary work" is the simpler statement.
+
+Priority is neither `THEN` nor a gate. `A THEN B` admits B when A's own task finishes, without
+waiting for A's reactions; a P2 task waits for all P0 and P1 work in the World. `Owed` and
+`Required` remain components because they record quantities, and their survival still makes an
+operation incomplete.
+
+### Operation completion
+
+Under these bands, an operation is over when no P0, P1, or P2 task remains, and P3 work begins the
+next operation. That gives [the missing rule](#the-missing-rule-when-an-operation-is-over) a
+whole-World answer. It does not settle delegated control within one operation: in the Neptunian
+case, P1 can still select unrelated P1 work while P2's payment remains.
+
+### Open questions
+
+1. **Who runs promoted P3 work, and in which transaction.** If the operation whose completion
+   released it runs it during settlement, the next turn or phase becomes part of that operation, for
+   example a Player's final Pass. P3 work probably runs as its own Admin operation with its own
+   recorded position. P2 work stays inside the operation it settles.
+2. **Pets spelling.** How an instruction is authored as P2 or P3. The August version preferred a
+   few named bands over author-chosen numbers.
+3. **`Temporary`.** Each Canon `Temporary` could become its component plus a P2 task that removes
+   it; `L1GiftWatcher`, which has no removal effect, would need only the removal task. Determine
+   whether the `Temporary` policy, `TemporaryScope`, and the engine's idle-cleanup loop can then be
+   deleted. While idle cleanup remains, it must disregard P3 tasks, or a pending P3 task stalls it.
+4. **Late evaluation.** Queued work already resolves metrics and gates against the live World after
+   selection ([ENGINE.md](ENGINE.md)). Confirm the same for fanout, so a turn handoff finds the next
+   eligible Player as of when it runs.
+5. **Manual phase control.** Phase-entry rules would create P3 tasks in sandbox tests too. Stepping
+   becomes executing the pending P3 task, and jumping to another phase must discard it. Decide
+   whether manual phase changes remain.
+6. **Scope.** TP6 starts global. The August `Idle<Player>` design was per Player, so that one
+   Player's empty queue could not flip another Player's event card. Narrow the scope only for a
+   Terraforming Mars case that needs it.
+
+### Proving order
+
+1. The `EventCard` flip as P2 work; `SolarProbeTest` already checks that Solar Probe counts its own
+   science tag.
+2. `FinishTrade` as P2 work, deleting `TradeBarrier`, including L1 Trade Terminal's second barrier.
+3. `TurmoilSolarOperation`, `MeasureAward`, and `FinalScoringPending`.
+4. P3 phase transitions and turn handoffs, deleting `TfmWorkflow.Automatic` and
+   `World.onTransactionComplete`.
+
+Judge each step by what it deletes.
 
 ## Source evidence
 
