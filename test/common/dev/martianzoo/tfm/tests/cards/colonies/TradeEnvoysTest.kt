@@ -13,7 +13,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
   internal fun `Raises the track before trade income`() {
     kim.exMachina("$TradeEnvoys")
     kim.setToExMachina(9, "MC")
-    kim.setToExMachina(4, "ColonyProduction<Luna>")
+    admin.sneak("3 ColonyProduction<Luna>")
 
     kim.stdAction("TradeAction") {
           doTask("Trade<Luna>")
@@ -28,7 +28,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
   internal fun `Raises the track when Titan Floating Launch-Pad trades`() {
     kim.exMachina("$TradeEnvoys, $TitanFloatingLaunchPad, 2 Floater<$TitanFloatingLaunchPad>")
     kim.setToExMachina(0, "MC")
-    kim.setToExMachina(4, "ColonyProduction<Luna>")
+    admin.sneak("3 ColonyProduction<Luna>")
 
     kim.cardAction2(TitanFloatingLaunchPad) {
           doTask("Trade<Luna>")
@@ -43,7 +43,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
   internal fun `Does not increase a maxed track`() {
     kim.exMachina("$TradeEnvoys")
     kim.setToExMachina(9, "MC")
-    kim.setToExMachina(6, "ColonyProduction<Luna>")
+    admin.sneak("5 ColonyProduction<Luna>")
 
     kim.stdAction("TradeAction") { doTask("Trade<Luna>") }.expect("8 MC")
 
@@ -54,7 +54,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
   internal fun `Both track decisions precede trade income`() {
     kim.exMachina("$TradeEnvoys, $TradingColony")
     kim.setToExMachina(9, "MC")
-    kim.setToExMachina(4, "ColonyProduction<Luna>")
+    admin.sneak("3 ColonyProduction<Luna>")
 
     kim.stdAction("TradeAction") {
           doTask("Trade<Luna>")

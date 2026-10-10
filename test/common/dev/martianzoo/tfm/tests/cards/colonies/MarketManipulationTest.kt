@@ -22,7 +22,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
 
   @Test
   internal fun `Cannot lower a colony track already at its minimum`() {
-    kim.setToExMachina(0, "ColonyProduction<Triton>")
+    admin.sneak("-ColonyProduction<Triton>")
 
     shouldThrow<LimitsException> {
       kim.playProject(MarketManipulation, 1) {
@@ -33,7 +33,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
 
   @Test
   internal fun `Cannot raise a maxed colony track`() {
-    kim.setToExMachina(6, "ColonyProduction<Luna>")
+    admin.sneak("5 ColonyProduction<Luna>")
 
     shouldThrow<LimitsException> {
       kim.playProject(MarketManipulation, 1) {

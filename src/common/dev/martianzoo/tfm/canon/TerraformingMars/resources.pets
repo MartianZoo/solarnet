@@ -8,7 +8,7 @@ ABSTRACT CLASS Resource : Owned {
       CLASS Titanium
     }
     CLASS Plant
-    CLASS Energy { ProductionPhase:: Heat FROM This }
+    CLASS Energy { ProductionPhase: Heat FROM This }
     CLASS Heat
   }
 

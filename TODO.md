@@ -17,7 +17,7 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 ## Physical game conversion — 2026-10-09
 
 - [ ] Continue `OtbGame20261009Test` when the next recording is supplied. The current replay
-  covers generations 1–5 and stops before generation 6 Research. Preserve its direct
+  covers generations 1–8 and stops before generation 9 Research. Preserve its direct
   `doTasks(...)` style, disabled player autoexecution, and automatic Admin.
   Original evidence and remaining source limits are in `_local/replays/Game20261009/sources.md`.
 
@@ -73,8 +73,8 @@ These concerns remain open; the ranking does not select replacement designs.
 - Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
 - Review the remaining `::` sequencing, payment, and mixed-purpose effects without treating
   current task order as a permanent justification. Preserve intrinsic card-tag construction,
-  old Energy conversion before production, and Pharmacy Union's starting money before its tag
-  penalties until a coherent replacement establishes the same behavior.
+  conversion of the Energy present when production begins, and Pharmacy Union's starting money
+  before its tag penalties until a coherent replacement establishes the same behavior.
 - [ ] Redesign card-payment adjustment timing before queueing the remaining `PayingFor` discounts.
   A trial of twenty queued discounts left reductions pending during billing or lost a discount
   when its temporary source disappeared; `Owed` already being `System` did not resolve this.

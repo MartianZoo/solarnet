@@ -575,9 +575,11 @@ scoring; do not shut it down and manually supply turns or phase transitions. Omi
 comments that only restate the submitted tasks.
 Use resolved, concrete instructions and `PROD[...]` in its `doTasks` calls, without AMAP dots or
 unevaluated metrics. Combine amounts when the matching tasks are already pending. A scalar total
-may consume all changes whose resolved forms match when no individual task matches; it does not
-include effects created while those changes run. Direct `p1.doTasks(...)` and `p2.doTasks(...)`
-calls are atomic, resumable batches.
+consumes all pending gains and removals of the same type and quantifier when their signed total
+matches, even if an individual task has that amount. Gains execute first; effects created while
+those changes run do not join the total. Direct `p1.doTasks(...)` and `p2.doTasks(...)` calls are
+atomic, resumable batches. In explicit setup, have each player take their starting TR before either
+player handles starting cards.
 Use the shared card-name constants, give every `Ok` a short inline comment to its right naming
 the task it dismisses (for example, `// no steel paid`). Keep the replay free of `.expect()`
 calls; retain its state checkpoints and final score/winner assertions. Purchase transfers into
