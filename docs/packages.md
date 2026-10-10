@@ -41,6 +41,12 @@ Various non-Terraforming-specific helpers.
 Static Catalog composition, configuration, premise resolution, filtered Class Tables, and display
 names. It depends only on Pets and can be used without runtime game state or execution.
 
+## module TFM-TEXT
+
+### <a href="tfm-text/dev.martianzoo.tfm.text/index.html">dev.martianzoo.tfm.text</a>
+
+English text for Terraforming Mars cards.
+
 ## module TFM-CANON
 
 ### <a href="tfm-canon/dev.martianzoo.tfm.canon/index.html">dev.martianzoo.tfm.canon</a>
@@ -103,7 +109,8 @@ An early rough browser version of REgo PLastics.
 
 ### <a href="almanac/dev.martianzoo.tfm.web.almanac/index.html">dev.martianzoo.tfm.web.almanac</a>
 
-Pets Almanac, a searchable viewer for Canon's normalized Pets declarations and type information.
+Pets Almanac, a searchable viewer for Canon's normalized Pets declarations, type information, and
+derived card text.
 
 ## module VIEWER
 

@@ -51,7 +51,8 @@ only when the change crosses a wider scope or the narrower result leaves a mater
 - `./gradlew test` runs every repository JVM test suite, every browser-specific test, and the
   `OtbGame20260828Test` replay once in a browser. The multiplatform modules' JVM test tasks are named
   `jvmTest`. Pets runs `BrowserPetsTest` through `:pets:jsBrowserTest`; Web runs its browser history
-  tests and the selected replay through `:web:jsBrowserTest`. Other generated browser tasks are
+  tests and the selected replay through `:web:jsBrowserTest`; Almanac runs its English card-text
+  browser test through `:almanac:jsBrowserTest`. Other generated browser tasks are
   inert outside the intentionally commented-out full-browser target in the root build.
 - `./gradlew :pets:test` runs Pets JVM tests and its browser-specific test. The routine browser
   run excludes the shared JVM/JS suites; use the temporary full-browser target below to run those.
@@ -75,9 +76,14 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   `reports/jacoco/jvmTestCoverage` build directory.
 - `./gradlew :pets-tools:sampleRandomCards` prints randomly generated project cards as raw Pets.
   Use `-PrandomCardCount=N` and `-PrandomCardSeed=N` to control and reproduce a sample, and add
-  `-PrandomCardOutput=PATH` to write it to a text file. Its weights favor nested selectors,
-  refinements, sequences, gates, and per-unit metrics so the raw Pets can exercise downstream
-  consumers structurally.
+  `-PrandomCardOutput=PATH` to write it to a text file. The task has no dependency on the language
+  module. Its weights favor nested selectors, refinements, sequences, gates, and per-unit metrics so
+  the raw Pets can exercise downstream consumers structurally.
+- `./gradlew :tfm-text:writeRandomCardEnglishText -PrandomCardInput=PATH
+  -PrandomCardEnglishOutput=PATH` renders top and bottom English for one saved random-card report.
+  Add `-PrandomCardEnglishComparisonOutput=PATH` for a compact report pairing one bracket-free card
+  region with only its contributing Pets. This separate consumer keeps the random-card generator
+  independent of the language module.
 - `./gradlew :benchmarks:jmh` runs the separate JVM-only JMH benchmarks. Benchmark execution is not
   part of the routine test or build lifecycle, though the normal build compiles the benchmark
   sources. A benchmark error fails the task instead of producing an empty successful report.
@@ -87,7 +93,7 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   production Kotlin file and each test-support file without test-case methods to
   `reports/kotlin-file-complexity.tsv` under the root build directory. The report is manual rather
   than part of `check`, and Gradle reanalyzes only added or changed files after its first run. The
-  current scope excludes benchmarks and standalone tools.
+  current scope excludes benchmarks, standalone tools, and `dev.martianzoo.tfm.text`.
 - `./gradlew :tools:dumpAllExpansionsEventLogs` creates three-player and solo games with every
   supported expansion plus `FakeCardsCardPack`, completes Player 1's corporation-phase turn with
   Interplanetary Cinematics and four bought cards in each, and writes every change event (including

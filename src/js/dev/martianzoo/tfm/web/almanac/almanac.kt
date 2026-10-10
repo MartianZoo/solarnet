@@ -15,6 +15,7 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.text.EnglishCardTextRenderer
 import kotlin.js.JSON
 import kotlin.js.json
 import kotlinx.browser.document
@@ -54,6 +55,7 @@ public fun main() {
   val classesByLowerName = classes.associateBy { it.className.toString().lowercase() }
   val usageIndex = buildUsageIndex(classes)
   val cardClassNames = Canon.cards.mapTo(hashSetOf(), Class::className)
+  val cardTextRenderer = EnglishCardTextRenderer(fullClassTable)
   val input = element("class-search") as HTMLInputElement
   val suggestions = element("class-suggestions")
   val columns = element("class-columns") as HTMLElement
@@ -89,6 +91,7 @@ public fun main() {
           usageIndex,
           cardClassNames,
           cardImages,
+          cardTextRenderer,
           openClass = { target ->
             val replacesLaterColumns = index < selectedClasses.lastIndex
             if (replacesLaterColumns) {
@@ -258,6 +261,7 @@ private fun renderColumn(
     usageIndex: UsageIndex,
     cardClassNames: Set<ClassName>,
     cardImages: Map<String, CardImage>,
+    cardTextRenderer: EnglishCardTextRenderer,
     openClass: (Class) -> Unit,
     dismiss: () -> Unit,
 ) {
@@ -270,6 +274,14 @@ private fun renderColumn(
       <header class="class-heading">
         <h2 data-field="name"></h2>
       </header>
+      <section class="panel english-text-panel" data-field="top-text-panel" hidden>
+        <h3>Top text</h3>
+        <div data-field="top-text"></div>
+      </section>
+      <section class="panel english-text-panel" data-field="bottom-text-panel" hidden>
+        <h3>Bottom text</h3>
+        <div data-field="bottom-text"></div>
+      </section>
       <section class="panel" data-field="docstring-panel" hidden>
         <h3>Docstring</h3>
         <div data-field="docstring"></div>
@@ -300,6 +312,9 @@ private fun renderColumn(
   }
 
   linked("name", klass.className.toString())
+  if (klass.className in cardClassNames) {
+    renderCardText(column, klass, cardTextRenderer)
+  }
   klass.docstring?.takeIf(String::isNotBlank)?.let { docstring ->
     linked("docstring", docstring)
     column.field("docstring-panel").removeAttribute("hidden")
@@ -346,6 +361,18 @@ private fun renderColumn(
       openClass,
   )
   renderImage(column, klass, cardClassNames, cardImages)
+}
+
+internal fun renderCardText(
+    column: Element,
+    card: Class,
+    renderer: EnglishCardTextRenderer,
+) {
+  val cardText = renderer.render(card)
+  column.field("top-text").textContent = cardText.top
+  column.field("bottom-text").textContent = cardText.bottom
+  column.field("top-text-panel").removeAttribute("hidden")
+  column.field("bottom-text-panel").removeAttribute("hidden")
 }
 
 private fun renderUsages(

@@ -38,8 +38,13 @@ public abstract class ClassTable {
    * [rule T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity);
    * transformation semantics are outside the type-system specification.
    */
-  public fun transformDispatcher(): PetTransformer {
-    val handlers = transformHandlerFactories.mapValues { (_, factory) -> factory(this) }
+  public fun transformDispatcher(
+      kinds: Set<String> = transformHandlerFactories.keys,
+  ): PetTransformer {
+    val handlers =
+        transformHandlerFactories.filterKeys(kinds::contains).mapValues { (_, factory) ->
+          factory(this)
+        }
     return TransformHandler.dispatcher(handlers)
   }
 

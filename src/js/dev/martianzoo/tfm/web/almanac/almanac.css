@@ -61,6 +61,7 @@ a:hover { text-decoration: underline; }
 .panel h3 small { color: #666; }
 .panel h4 { margin: 14px 0 5px; color: #555; }
 .panel h4:first-of-type { margin-top: 0; }
+.english-text-panel { white-space: normal; }
 
 .facts { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 0; }
 .facts div { min-width: 0; }

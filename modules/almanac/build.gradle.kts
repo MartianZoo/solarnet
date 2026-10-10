@@ -19,10 +19,23 @@ kotlin {
         implementation(project(":catalog"))
         implementation(project(":pets"))
         implementation(project(":tfm-canon"))
+        implementation(project(":tfm-text"))
         implementation(devNpm("tslib", "2.8.1"))
       }
     }
+    jsTest {
+      kotlin.setSrcDirs(
+          listOf(rootProject.layout.projectDirectory.dir("test/js/dev/martianzoo/tfm/web/almanac"))
+      )
+      dependencies { implementation(kotlin("test")) }
+    }
   }
+}
+
+tasks.register("test") {
+  group = LifecycleBasePlugin.VERIFICATION_GROUP
+  description = "Runs the Almanac browser test."
+  dependsOn("jsBrowserTest")
 }
 
 tasks.named<ProcessResources>("jsProcessResources") {

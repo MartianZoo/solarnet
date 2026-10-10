@@ -1,0 +1,228 @@
+package dev.martianzoo.tfm.text
+
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.SystemClasses.OWNED
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.Dependency.Key
+import dev.martianzoo.pets.types.Dependency.TypeDependency
+import dev.martianzoo.pets.types.DependencySet.DependencyPath
+import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
+import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
+
+/**
+ * Resolves authored expressions and answers structural Class questions for the English renderer.
+ */
+internal class ExpressionResolver(private val classTable: ClassTable) {
+  internal val classesByName = classTable.allClasses().associateBy(Class::className)
+
+  internal fun resolve(expression: Expression): ResolvedExpression? =
+      resolve(expression, contextualThisKey = null)
+
+  internal fun resolve(
+      expression: Expression,
+      contextualThisKey: Key?,
+  ): ResolvedExpression? {
+    if (expression.refinement is Expression.Refinement.Not) return null
+    val declaredClass = classesByName[expression.className] ?: return null
+    val playerOwned = declaredClass.isSubtypeOf(classesByName.getValue(OWNED))
+    val directSourceType =
+        try {
+          classTable.resolve(expression)
+        } catch (_: ExpressionException) {
+          null
+        }
+    val semanticSourceArguments =
+        if (directSourceType != null) {
+          expression.arguments
+        } else {
+          val contextualThisType = contextualThisKey?.let { key ->
+            if (key !in declaredClass.baseType.dependencies.keys) return@let null
+            (declaredClass.baseType.dependencies.at(DependencyPath(listOf(key))) as? TypeDependency)
+                ?.boundType
+          }
+          expression.arguments.map { argument ->
+            when {
+              argument == thisExpression && contextualThisType != null ->
+                  contextualThisType.expression
+              playerOwned &&
+                  (isOwner(argument) || argument == anyoneExpression || isNotOwner(argument)) ->
+                  playerExpression
+              else -> argument
+            }
+          }
+        }
+    val sourceType =
+        directSourceType
+            ?: try {
+              classTable.resolve(expression.copy(arguments = semanticSourceArguments))
+            } catch (_: ExpressionException) {
+              return null
+            }
+    val rootClass = sourceType.rootClass
+    val sourceKeys = rootClass.matchDependencyKeys(semanticSourceArguments)
+    val sourceDependencies =
+        sourceKeys
+            .zip(expression.arguments.map { if (isOwner(it)) ownerExpression else it })
+            .toMap()
+    val semanticSourceDependencies = sourceKeys.zip(semanticSourceArguments).toMap()
+    val defaultArguments = rootClass.defaultType.expressionFull.arguments
+    val argumentKeys = rootClass.matchDependencyKeys(defaultArguments)
+    val defaults = argumentKeys.zip(defaultArguments).toMap()
+    val defaultedKeys =
+        argumentKeys.filterTo(linkedSetOf()) { key ->
+          val path = DependencyPath(listOf(key))
+          rootClass.defaultType.dependencies.at(path) != rootClass.baseType.dependencies.at(path)
+        }
+    val semanticArguments = argumentKeys.map {
+      semanticSourceDependencies[it] ?: defaults.getValue(it)
+    }
+    val semanticExpression = expression.copy(arguments = semanticArguments)
+    val semanticType =
+        try {
+          classTable.resolve(semanticExpression)
+        } catch (_: ExpressionException) {
+          return null
+        }
+    return ResolvedExpression(
+        semanticType,
+        sourceDependencies.keys + defaultedKeys,
+        sourceDependencies,
+    )
+  }
+
+  internal fun representedClass(expression: Expression): Expression? {
+    val classType = representedClassType(expression) ?: return null
+    val represented = classType.representedClass ?: return null
+    if (classType.refinement != null) return null
+    return represented.className.expression
+  }
+
+  internal fun representedExpression(expression: Expression): Expression? {
+    val classType = representedClassType(expression) ?: return null
+    val represented = classType.representedClass?.baseType ?: return null
+    return represented.expression.copy(refinement = classType.refinement)
+  }
+
+  internal fun representedClassArgument(expression: Expression): Expression? {
+    val type = resolve(expression)?.type ?: return null
+    val represented = type.representedClass?.baseType ?: return null
+    return represented.expression.copy(refinement = type.refinement)
+  }
+
+  internal fun resolveCardResource(expression: Expression): ResolvedExpression? {
+    if (!isCardResource(expression.className)) return null
+    return resolveHeldResource(expression)
+  }
+
+  internal fun cardResourceHolder(resolved: ResolvedExpression): Expression? =
+      heldResourceHolder(resolved)
+
+  internal fun cardResourceHasHolder(
+      resolved: ResolvedExpression,
+      holder: Expression,
+  ): Boolean = heldResourceHasHolder(resolved, holder)
+
+  internal fun resolveHeldResource(expression: Expression): ResolvedExpression? {
+    if (!isSubtypeOf(expression.className, CARD_RESOURCE)) return null
+    val holderKey =
+        heldResourceHolderKey(classesByName.getValue(expression.className)) ?: return null
+    return resolve(expression, holderKey)
+  }
+
+  internal fun heldResourceHolder(resolved: ResolvedExpression): Expression? =
+      heldResourceHolderKey(resolved.type.rootClass)?.let(resolved::sourceDependency)
+
+  internal fun heldResourceHasHolder(
+      resolved: ResolvedExpression,
+      holder: Expression,
+  ): Boolean {
+    val holderKey = heldResourceHolderKey(resolved.type.rootClass) ?: return false
+    val ownerKey = Key(OWNED, 0)
+    val sourceHolder = resolved.sourceDependency(holderKey) ?: return false
+    if (sourceHolder != holder && !sameNamedTypeVariable(sourceHolder, holder)) return false
+    return resolved.sourceDependencies.all { (key, source) ->
+      key == holderKey || (key == ownerKey && source == ownerExpression)
+    }
+  }
+
+  private fun heldResourceHolderKey(componentClass: Class): Key? =
+      componentClass.baseType.dependencies.keys.singleOrNull { key ->
+        val dependency =
+            componentClass.baseType.dependencies.at(DependencyPath(listOf(key))) as? TypeDependency
+                ?: return@singleOrNull false
+        dependency.boundType.rootClass.isSubtypeOf(classesByName.getValue(RESOURCE_HOLDER))
+      }
+
+  private fun representedClassType(expression: Expression) =
+      resolve(expression)?.let { resolved ->
+        val key =
+            resolved.type.rootClass.dependencies.keys.singleOrNull {
+              resolved.selectedDependency(it)?.rootClass?.className == CLASS
+            } ?: return@let null
+        resolved.dependency(key)
+      }
+
+  internal fun concrete(className: ClassName): Boolean = classesByName[className]?.abstract == false
+
+  internal fun isStandardResource(className: ClassName): Boolean =
+      isSubtypeOf(className, STANDARD_RESOURCE)
+
+  internal fun isCardResource(className: ClassName): Boolean = isSubtypeOf(className, CARD_RESOURCE)
+
+  internal fun isTag(className: ClassName): Boolean = isSubtypeOf(className, TAG)
+
+  internal fun isProduction(className: ClassName): Boolean = isSubtypeOf(className, PRODUCTION)
+
+  internal fun isPlayerOwned(className: ClassName): Boolean = isSubtypeOf(className, OWNED)
+
+  internal fun isGameParticipant(className: ClassName): Boolean = isSubtypeOf(className, PLAYER)
+
+  internal fun isNotOwner(expression: Expression): Boolean {
+    val excluded = (expression.refinement as? Expression.Refinement.Not)?.excluded ?: return false
+    return isOwner(excluded) && isSubtypeOf(expression.className, ANYONE)
+  }
+
+  internal fun isGenerationScoped(className: ClassName): Boolean =
+      classesByName.getValue(className).baseType.dependencies.typeDependencies().any {
+        it.boundType.rootClass.className == GENERATION_SCOPE
+      }
+
+  internal fun isEndTrigger(className: ClassName): Boolean = isSubtypeOf(className, END)
+
+  internal fun isBilling(className: ClassName): Boolean = isSubtypeOf(className, BILLING)
+
+  internal fun concreteSubclassesOf(className: ClassName): List<ClassName> =
+      classesByName.values
+          .filter { !it.abstract && isSubtypeOf(it.className, className) }
+          .map(Class::className)
+
+  internal fun isSubtypeOf(className: ClassName, superclassName: ClassName): Boolean =
+      classesByName.getValue(className).isSubtypeOf(classesByName.getValue(superclassName))
+
+  internal val anyoneExpression = cn("Anyone").expression
+  internal val ownerExpression =
+      cn("Anyone")
+          .expression
+          .copy(typeVariableName = Expression.TypeVariableName.Declaration("Me", cn("Anyone")))
+
+  internal fun isOwner(expression: Expression): Boolean = expression.typeVariableName?.name == "Me"
+
+  internal val playerExpression = cn("Player").expression
+  internal val thisExpression = cn("This").expression
+
+  private companion object {
+    val BILLING = cn("Billing")
+    val ANYONE = cn("Anyone")
+    val CARD_RESOURCE = cn("CardResource")
+    val CLASS = cn("Class")
+    val END = cn("End")
+    val GENERATION_SCOPE = cn("GenerationScope")
+    val PLAYER = cn("Player")
+    val RESOURCE_HOLDER = cn("ResourceHolder")
+    val TAG = cn("Tag")
+  }
+}

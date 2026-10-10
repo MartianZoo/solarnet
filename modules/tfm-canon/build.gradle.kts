@@ -38,6 +38,7 @@ kotlin {
   sourceSets {
     commonMain {
       kotlin.setSrcDirs(listOf(canonSourceDirectory))
+      kotlin.exclude("**/english/**")
       kotlin.srcDir(generateCanonSources)
       dependencies {
         implementation(libs.kotlinx.serialization.json)

@@ -7,6 +7,8 @@
 > changing Player Class Names, editing a `language/*.json5` file, or deciding whether a concept needs a
 > separate identifier.
 >
+> **Skip when:** changing only grammatical wording; use [LANGUAGE.md](LANGUAGE.md).
+>
 > **Status:** current naming model and intentional exceptions.
 
 ## Source map

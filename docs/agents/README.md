@@ -50,6 +50,7 @@ implementation defects. Inspect the relevant source, specifications, and tests a
 | --- | --- |
 | Classes, Types, refinements, dependencies, properties, defaults, or Type variables | The cited rule in [`type-system-spec.md`](../type-system-spec.md) and its matching `Spec*Test.kt` |
 | Pets declarations, expressions, instructions, effects, actions, ownership, fanout, or elaboration | The cited rule in [`pets-language-spec.md`](../pets-language-spec.md) and its matching `Lang*Test.kt` |
+| English rendering, renderer architecture, or card layout | [`LANGUAGE.md`](LANGUAGE.md) |
 | Class and display names | [`NAMING.md`](NAMING.md) |
 | Canon invariants and latent composition hazards | [`GAME_HACKS.md`](GAME_HACKS.md), then its linked current source and checks |
 | Generated Kotlin types for the canonical Pets vocabulary | [`PETS_TYPE_GENERATOR.md`](PETS_TYPE_GENERATOR.md) |

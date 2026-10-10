@@ -63,6 +63,14 @@ These concerns remain open; the ranking does not select replacement designs.
 
 ## User Ideas and Agreed Directions
 
+- Replace the custom `PartyRequirement` metric with its expanded Pets condition (the party is
+  ruling or you have at least 2 delegates there), so execution and English can use that condition
+  directly. Preserve ownership and the grouping of combined requirements.
+- Let English component roles default to one canonical component noun so placement, requirements,
+  and metrics do not repeat singular and plural wording.
+- Extend derived `including this` wording to setup operations and otherwise unsupported effects
+  without adding card-specific rendering rules.
+- Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
 - Continue the remaining `::` audit without treating current sequencing dependencies as permanent
   justifications. Preserve intrinsic card-tag construction, old Energy conversion before
   production, and Pharmacy Union's starting money before its tag penalties.
@@ -325,6 +333,45 @@ These concerns remain open; the ranking does not select replacement designs.
 
 ## Autonomous Follow-ups
 
+- Fix combined-production requirement wording. Metallurgist's `6 PROD[Metal]` currently renders
+  "6 titanium or steel production," which can imply either production alone must reach 6; the
+  printed requirement counts steel and titanium production together. Assert the intended meaning
+  in a focused test rather than only updating the current-output snapshot.
+- Render conditional choices between standard and required actions using shared condition/action
+  semantics. `FakeHeadStart` now exposes these choices as bracketed Pets after the direct-action
+  migration; do not hide their conditions or add a card-specific rendering rule.
+- Model when a Prelude may fizzle instead of relying on the caller's honor. `PlayOrFizzle` Pets
+  declares the play or discard choice and 15 M€ compensation, but does not gate the discard branch
+  on unplayability; English currently states that caller-verified rule.
+- Make resource costs inside actions use `spend` consistently whether Pets expresses them before
+  `->` or in a `THEN` sequence; Focused Organization and Board of Directors still expose the split.
+  Preserve `pay` for non-action payments.
+- Extend card-play English to combine modeled card-face restrictions with the selected deck and
+  source location. Preserve those restrictions in cost-reduced and requirement-waived plays;
+  the current shared card-play interpreter refuses them rather than dropping the filter.
+- Reconcile Astra Mechanica's printed instruction to return 2 event cards that do not place special
+  tiles with its `2 TakeEventCard` signal. Derive English from the signal's modeled procedure only
+  if that can be done generally, without a card-specific renderer fact. The local Fryxelius archive
+  has no Astra Mechanica ruling; current tests permit returning zero cards.
+- Define an authored, game-neutral way for bundle compatibility inference to distinguish hard
+  dependencies from references that may safely disappear when a companion bundle is absent. Start
+  with characterization tests for Suitable Infrastructure, Constructor, Soil Studies, and Summit
+  Logistics; decide ambiguous no-op cards explicitly, and let English consume the same modeled fact
+  rather than adding a renderer-only flag.
+- Move `PreludePhase` out of `tfm-text`'s `resetsForPreludeAction` recognizer once there is a
+  principled bundle-supplied description of the phase/latch relationship; do not add a Prelude-only
+  boolean merely to relocate the class name.
+- Render the five beginner corporation copies from their inherited modeled setup semantics.
+- Complete the three visible goal-text refusals only from modeled semantics: Briber's immediate
+  claim instruction, Philantropist's `GainsOf` metric, and Suburbian's map-edge concept.
+- Finish Global Event text from modeled semantics: ranked player selections in Election and
+  Revolution, resource-card fanout in Sponsored Projects and Cloud Societies, and the procedure
+  bodies used by Dry Deserts, Cloud Societies, and Corrosive Rain. Keep unsupported nodes visible;
+  do not replace these with copied card wording or new gameplay APIs.
+- Fill the missing printed transcriptions identified in
+  [the wording comparisons](docs/english-wording-comparisons/README.md) from verified printed evidence.
+- Correct defaulted Type-variable references: `pets/BugsTest` shows bare references incorrectly
+  inheriting their supplier's `<>`.
 - Investigate atomized gains in the first stage of `THEN`: elaborating
   `2 Rating THEN Coin` with `Rating : Atomized` fails when the first stage expands to a group.
   This occurs before task recording; keep the Pets fix separate from decision-log work.

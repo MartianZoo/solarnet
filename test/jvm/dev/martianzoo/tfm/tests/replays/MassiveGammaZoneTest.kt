@@ -215,10 +215,11 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         val resourceChoices = game.tasks.extract { it }
         doTask("Titanium", resourceChoices[0].id)
         doTask("Heat", resourceChoices[1].id)
-        admin.doTask("TerraformingLobbying")
       } finally {
         admin.autoExecPolicy = previousAdminPolicy
       }
+      admin.autoExecNow()
+      admin.doTask("TerraformingLobbying")
     }
   }
 
@@ -270,10 +271,11 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       admin.autoExecPolicy = CONCRETE
       try {
         doTask("OceanTile<Tharsis_1_5> BY Admin")
-        admin.doTask("ThawMining")
       } finally {
         admin.autoExecPolicy = previousAdminPolicy
       }
+      admin.autoExecNow()
+      admin.doTask("ThawMining")
     }
   }
 
@@ -324,6 +326,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       } finally {
         admin.autoExecPolicy = previousAdminPolicy
       }
+      admin.autoExecNow()
     }
   }
 
