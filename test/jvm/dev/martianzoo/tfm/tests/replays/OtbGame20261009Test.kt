@@ -607,8 +607,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     // Generation 6 Research: Aqua buys two cards; Pink buys four.
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
-    p2.doTasks("Ok", "-12 MC", "4 ProjectCard FROM BuyCard") // keep all four
+    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("Ok", "-12 MC", "4 ProjectCard<Hand FROM Selecting>") // keep all four
 
     p2.doTasks(
         "PlayProject<Class<$Research>>",
@@ -706,8 +706,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     // Generation 7 Research. Aqua keeps four cards; Pink keeps one.
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("Ok", "-12 MC", "4 ProjectCard FROM BuyCard") // keep all four
-    p2.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard FROM BuyCard")
+    p1.doTasks("Ok", "-12 MC", "4 ProjectCard<Hand FROM Selecting>") // keep all four
+    p2.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard<Hand FROM Selecting>")
 
     // The transcript's "Rune Chatter in Tax" is Rotator Impacts: its three-M€
     // discounted price and the asteroid action used later identify it.
@@ -907,8 +907,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     // Generation 8 Research. Aqua buys four cards; Pink buys three.
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("Ok", "-12 MC", "4 ProjectCard FROM BuyCard")
-    p2.doTasks("-ProjectCard<Selecting>", "-9 MC", "3 ProjectCard FROM BuyCard")
+    p1.doTasks("Ok", "-12 MC", "4 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
     p2.doTasks(
         "PlayProject<Class<$RedSpotObservatory>>",
         "-17 MC",
