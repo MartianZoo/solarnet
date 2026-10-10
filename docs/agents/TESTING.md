@@ -555,6 +555,25 @@ characterization over a disproportionate workaround.
 
 ## Game replay tests
 
+`Game20230521Test` deliberately exercises the raw Agent task API. Its players use `NONE` during
+the replay and score previews, while Admin retains normal autoexecution and handles fixed payment
+bookkeeping and final scoring. `VictoryPoint` and `ScoreEventVps` are `System`; players do not submit
+scoring tasks. A pending negative score can wait for a positive score to supply the points.
+Keep the automatic workflow running through the last passes, production, final greenery, and
+scoring; do not shut it down and manually supply turns or phase transitions. Omit copied game-log
+comments that only restate the submitted tasks.
+Use resolved, concrete instructions and `PROD[...]` in its `doTasks` calls, without AMAP dots or
+unevaluated metrics. Combine amounts when the matching tasks are already pending. A scalar total
+may consume all changes whose resolved forms match when no individual task matches; it does not
+include effects created while those changes run. Direct `p1.doTasks(...)` and `p2.doTasks(...)`
+calls are atomic, resumable batches.
+Use the shared card-name constants, give every `Ok` a short inline comment to its right naming
+the task it dismisses (for example, `// no steel paid`). Keep the replay free of `.expect()`
+calls; retain its state checkpoints and final score/winner assertions. Purchase transfers into
+`Hand` are explicit tasks. Keep the replay's task calls instead of reintroducing
+`TfmGameplay` action, payment, or turn helpers. Shared score-preview assertions roll back their
+scoring simulation without changing any Actor's autoexecution policy.
+
 Whole-game tests are high-value integration coverage. When translating a supplied game log:
 
 - `CardTrackingFullGameTest` is an opt-in full-game base for source archives that identify project

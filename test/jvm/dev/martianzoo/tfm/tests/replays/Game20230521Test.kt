@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.World
@@ -11,6 +9,8 @@ import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
+// Explicit player-task replay; Admin keeps its normal autoexecution.
+// Source: _local/replays/Game20230521/game-replay.rego (game gf386a4cd5de1).
 internal class Game20230521Test : AbstractFullGameTest() {
 
   override val config =
@@ -25,1926 +25,2220 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
   @Test
   internal fun game20230521() {
-    val workflow = TfmWorkflow.Automatic(agents).launch()
-    keepStartingProjects(5, 4)
-    // Good luck Player1!
-    // Good luck Player2!
+    listOf(p1, p2).forEach { it.autoExecPolicy = NONE }
+    TfmWorkflow.Automatic(agents).launch()
+    p1.doTasks(
+        "2 CorporationCard",
+        "-CorporationCard",
+        "10 ProjectCard<Selecting>",
+        "4 PreludeCard",
+        "-2 PreludeCard",
+    )
+    p2.doTasks(
+        "2 CorporationCard",
+        "-CorporationCard",
+        "10 ProjectCard<Selecting>",
+        "4 PreludeCard",
+        "-2 PreludeCard",
+    )
+    p1.doTasks("-5 ProjectCard<Selecting>")
+    p2.doTasks("-6 ProjectCard<Selecting>")
     // Generation 1
 
-    // Player1's steel production increased by 1
-    // Player1 played Manutech
-    // Player1 kept 5 project cards
-    p1.playCorp(Manutech).expect("PROD[Steel], 20 MC, Steel, 5 ProjectCard")
+    p1.doTasks(
+        "PlayCard<Class<CorporationCard>, Class<$Manutech>>",
+        "$Manutech FROM CorporationCard",
+        "35 MC",
+        "PROD[Steel]",
+        "Steel",
+        "-15 MC",
+        "5 ProjectCard FROM BuyCard",
+    )
 
-    // Player2's steel production increased by 1
-    // Player2 played Factorum
-    // Player2 kept 4 project cards
-    p2.playCorp(Factorum).expect("PROD[Steel], 25 MC, 4 ProjectCard")
+    p2.doTasks(
+        "PlayCard<Class<CorporationCard>, Class<$Factorum>>",
+        "$Factorum FROM CorporationCard",
+        "37 MC",
+        "PROD[Steel]",
+        "-12 MC",
+        "4 ProjectCard FROM BuyCard",
+    )
 
-    p1.turn {
-      // Player1 played New Partner
-      // Player1's mc production increased by 1
-      // You drew UNMI Contractor and Corporate Archives
-      playPrelude(NewPartner) {
-            // Player1 played UNMI Contractor
-            // Player1 drew 1 card(s)
-            // You drew Ganymede Colony
-            playPrelude(UnmiContractor)
-          }
-          .expect("PROD[1 MC], 1 MC, ProjectCard, 3 TerraformRating")
+    p1.doTasks(
+        "PlayCard<Class<PreludeCard>, Class<$NewPartner>>",
+        "$NewPartner FROM PreludeCard",
+        "PROD[MC]",
+        "2 PreludeCard<Selecting>",
+        "MC",
+        "-PreludeCard<Selecting>",
+        "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
+        "$UnmiContractor FROM PreludeCard<Selecting>",
+        "3 TerraformRating",
+        "ProjectCard",
+    )
 
-      // Player1 played Allied Bank
-      // Player1's mc production increased by 4
-      // Player1's mc amount increased by 3
-      playPrelude(AlliedBank).expect("PROD[4 MC], 7 MC, EarthTag")
-    }
+    p1.doTasks(
+        "PlayCard<Class<PreludeCard>, Class<$AlliedBank>>",
+        "$AlliedBank FROM PreludeCard",
+        "PROD[4 MC]",
+        "7 MC",
+    )
 
-    p2.turn {
-      // Player2 played Acquired Space Agency
-      // Player2's titanium amount increased by 6
-      // Player2 drew Rotator Impacts and Atmoscoop
-      playPrelude(AcquiredSpaceAgency)
-      // Player2 played Io Research Outpost
-      // Player2's titanium production increased by 1
-      // Player2 drew 1 card(s)
-      // You drew Physics Complex
-      playPrelude(IoResearchOutpost)
-    }
+    p2.doTasks(
+        "PlayCard<Class<PreludeCard>, Class<$AcquiredSpaceAgency>>",
+        "$AcquiredSpaceAgency FROM PreludeCard",
+        "6 Titanium",
+        "2 SearchForCard<TagFilter<Class<SpaceTag>>>",
+    )
+    p2.doTasks(
+        "PlayCard<Class<PreludeCard>, Class<$IoResearchOutpost>>",
+        "$IoResearchOutpost FROM PreludeCard",
+        "PROD[Titanium]",
+        "ProjectCard",
+    )
 
-    listOf(p1, p2).forEach { it.autoExecPolicy = CONCRETE }
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$InventorsGuild>>",
+        "-9 MC",
+        "$InventorsGuild FROM ProjectCard",
+    )
 
-    // TODO: Replace this accepted seam when a policy can prove sibling production tasks mandatory.
-    fun finishProductionPhase() {
-      admin.autoExecPolicy = NONE
-      listOf(p1, p2).forEach { it.autoExecPolicy = EAGER }
-      listOf(p1, p2).forEach { it.autoExecPolicy = CONCRETE }
-      admin.autoExecPolicy = EAGER
-    }
+    p1.doTasks("Ok") // end turn
 
-    // Player1 played Inventors' Guild
-    // Player1 ended turn
-    p1.turn {
-      playProject(InventorsGuild, 9)
-    }
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$ArcticAlgae>>",
+        "-12 MC",
+        "$ArcticAlgae FROM ProjectCard",
+        "Plant",
+    )
 
-    // Player2 played Arctic Algae
-    // Player2's plants amount increased by 1
-    // Player2 ended turn
-    p2.turn {
-      playProject(ArcticAlgae, 12).expect("-12 MC, Plant, PlantTag")
-    }
+    p2.doTasks("Ok") // end turn
 
-    // Player1 used Inventors' Guild action
-    p1.turn {
-      cardAction1(InventorsGuild) {
-        // Player1 bought 1 card(s)
-        // You drew Corporate Stronghold
-        buyCards(1)
-      }
-    }
-    // Player1 ended turn
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$InventorsGuild, Action1>",
+        "ProjectCard<Selecting>",
+        "Ok", // keep card
+        "-3 MC",
+        "ProjectCard FROM BuyCard",
+    )
 
-    // Player2 used Factorum action
-    // Player2's energy production increased by 1
-    p2.turn { cardAction1(Factorum).expect("PROD[Energy]") }
-    // Player2 ended turn
+    p1.doTasks("Ok") // end turn
 
-    // Player1 used Power Plant:SP standard project
-    p1.turn {
-      stdProject("PowerPlantProject")
-      // Player1 played Building Industries
-      // Player1's steel production increased by 2
-      // Player1's energy production decreased by 1
-      playProject(BuildingIndustries, 4, steel = 1) {
-        doTask("PROD[-Energy]")
-      }
-    }
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$Factorum, Action1>",
+        "PROD[Energy]",
+    )
 
-    // Player2 played Rotator Impacts
-    p2.turn {
-      playProject(RotatorImpacts, titanium = 2)
-      // Player2 used Rotator Impacts action
-      // Player2 added 1 asteroid(s) to Rotator Impacts
-      cardAction1(RotatorImpacts) {
-        pay(titanium = 2)
-      }
-    }
+    p2.doTasks("Ok") // end turn
 
-    // Player1 passed
-    p1.pass()
+    p1.doTasks(
+        "UseAction<UseStandardProjectAction, Action1>",
+        "UseAction<PowerPlantProject, Action1>",
+        "-11 MC",
+        "PROD[Energy]",
+        "Energy",
+    )
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$BuildingIndustries>>",
+        "-1 Steel",
+        "-4 MC",
+        "$BuildingIndustries FROM ProjectCard",
+        "PROD[-Energy]",
+        "PROD[2 Steel]",
+        "2 Steel",
+    )
 
-    // Player2 played Carbonate Processing
-    // Player2's energy production decreased by 1
-    // Player2's heat production increased by 3
-    p2.turn {
-      playProject(CarbonateProcessing, 6) {
-        doTask("PROD[-Energy]")
-      }
-      // Player2 played ArchaeBacteria
-      // Player2's plants production increased by 1
-      playProject(Archaebacteria, 6)
-      // Player2 passed
-      pass()
-    }
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$RotatorImpacts>>",
+        "-2 Titanium",
+        "Ok", // no mc paid
+        "$RotatorImpacts FROM ProjectCard",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$RotatorImpacts, Action1>",
+        "-2 Titanium",
+        "Ok", // no mc paid
+        "Asteroid<$RotatorImpacts>",
+    )
+
+    p1.doTasks("Pass")
+
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$CarbonateProcessing>>",
+        "-6 MC",
+        "Ok", // no steel paid
+        "$CarbonateProcessing FROM ProjectCard",
+        "PROD[-Energy]",
+        "PROD[3 Heat]",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$Archaebacteria>>",
+        "-6 MC",
+        "$Archaebacteria FROM ProjectCard",
+        "PROD[Plant]",
+    )
+    p2.doTasks("Pass")
 
     // Generation 2
-    finishProductionPhase()
-    // Player1 bought 2 card(s)
-    // You drew Investment Loan and Deuterium Export
-    p1.buyCards(2)
-    // Player2 bought 2 card(s)
-    // You drew Mars University and Steelworks
-    p2.buyCards(2)
+    p1.doTasks("33 MC", "-5 MC", "3 Steel")
+    p2.doTasks("25 MC", "-5 MC", "Steel", "Titanium", "3 Heat", "Plant")
+    p1.doTasks("4 ProjectCard<Selecting>")
+    p2.doTasks("4 ProjectCard<Selecting>")
+    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
+    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
 
-    with(p1) {
-      assertProduction(m = 5, s = 3, t = 0, p = 0, e = 0, h = 0)
-      assertResources(m = 23, s = 5, t = 0, p = 0, e = 0, h = 1)
-      assertDashMiddle(played = 6, actions = 1, vp = 23, tr = 23, hand = 7)
-      assertTags(but = 2, sct = 1, eat = 2)
-      assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
-    }
+    p1.assertProduction(m = 5, s = 3, t = 0, p = 0, e = 0, h = 0)
+    p1.assertResources(m = 23, s = 5, t = 0, p = 0, e = 0, h = 1)
+    p1.assertDashMiddle(played = 6, actions = 1, vp = 23, tr = 23, hand = 7)
+    p1.assertTags(but = 2, sct = 1, eat = 2)
+    p1.assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
-    with(p2) {
-      assertProduction(m = 0, s = 1, t = 1, p = 1, e = 0, h = 3)
-      assertResources(m = 15, s = 1, t = 3, p = 2, e = 0, h = 3)
-      assertDashMiddle(played = 7, actions = 2, vp = 20, tr = 20, hand = 5)
-      assertTags(but = 2, spt = 1, sct = 1, pot = 1, jot = 1, plt = 1, mit = 1)
-      assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
-    }
+    p2.assertProduction(m = 0, s = 1, t = 1, p = 1, e = 0, h = 3)
+    p2.assertResources(m = 15, s = 1, t = 3, p = 2, e = 0, h = 3)
+    p2.assertDashMiddle(played = 7, actions = 2, vp = 20, tr = 20, hand = 5)
+    p2.assertTags(but = 2, spt = 1, sct = 1, pot = 1, jot = 1, plt = 1, mit = 1)
+    p2.assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
     assertSidebar(gen = 2, temp = -30, oxygen = 0, oceans = 0, venus = 0)
 
-    // Player2 used Factorum action
-    // Player2 drew Gyropolis
-    p2.turn {
-      cardAction2(Factorum) { doTask("ProjectCard") }
-      // Player2 played Mars University
-      playProject(MarsUniversity, 6, steel = 1) {
-        // Player2 is using their Mars University effect to draw a card by discarding a card.
-        // You discarded Physics Complex
-        // Player2 drew 1 card(s)
-        // You drew Virus
-        doTask("-ProjectCard")
-      }
-    }
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$Factorum, Action2>",
+        "-3 MC",
+        "SearchForCard<TagFilter<Class<BuildingTag>>>",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$MarsUniversity>>",
+        "-1 Steel",
+        "-6 MC",
+        "$MarsUniversity FROM ProjectCard",
+        "-ProjectCard",
+        "ProjectCard",
+    )
 
-    // Player1 used Inventors' Guild action
-    p1.turn {
-      cardAction1(InventorsGuild) {
-        // Player1 bought 1 card(s)
-        // You drew Development Center
-        buyCards(1)
-      }
-      // Player1 played Earth Office
-      playProject(EarthOffice, 1)
-    }
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$InventorsGuild, Action1>",
+        "ProjectCard<Selecting>",
+        "Ok", // keep card
+        "-3 MC",
+        "ProjectCard FROM BuyCard",
+    )
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$EarthOffice>>",
+        "-1 MC",
+        "$EarthOffice FROM ProjectCard",
+    )
 
-    // Player2 used Rotator Impacts action
-    // Player2 removed 1 resource(s) from Player2's Rotator Impacts
-    // Player2 removed an asteroid resource to increase Venus scale 1 step
-    p2.turn { cardAction2(RotatorImpacts).expect("VenusStep, TerraformRating<Player2>") }
-    // Player2 ended turn
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$RotatorImpacts, Action2>",
+        "-Asteroid<$RotatorImpacts>",
+        "VenusStep",
+        "TerraformRating",
+    )
 
-    // Player1 played Development Center
-    p1.turn {
-      playProject(DevelopmentCenter, 1, steel = 5)
-      // Player1 used Power Plant:SP standard project
-      stdProject("PowerPlantProject")
-    }
+    p2.doTasks("Ok") // end turn
 
-    // Player2 passed
-    p2.pass()
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$DevelopmentCenter>>",
+        "-5 Steel",
+        "-1 MC",
+        "$DevelopmentCenter FROM ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<UseStandardProjectAction, Action1>",
+        "UseAction<PowerPlantProject, Action1>",
+        "-11 MC",
+        "PROD[Energy]",
+        "Energy",
+    )
 
-    // Player1 used Development Center action
-    // Player1 drew 1 card(s)
-    // You drew Optimal Aerobraking
-    p1.turn {
-      cardAction1(DevelopmentCenter).expect("-Energy, ProjectCard")
-      // Player1 played Investment Loan
-      // Player1's megacredits production decreased by 1
-      // Player1's megacredits amount increased by 10
-      playProject(InvestmentLoan, 0) { doTask("PROD[-MC]") }.expect("PROD[-1 MC], 10 MC")
-      // Player1 played Deuterium Export
-      playProject(DeuteriumExport, 11)
-      // Player1 used Deuterium Export action
-      cardAction1(DeuteriumExport)
-      // Player1 passed
-      pass()
-    }
+    p2.doTasks("Pass")
+
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DevelopmentCenter, Action1>",
+        "-Energy",
+        "ProjectCard",
+    )
+
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$InvestmentLoan>>",
+        "$InvestmentLoan FROM ProjectCard",
+        "PROD[-MC]",
+        "10 MC",
+    )
+
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$DeuteriumExport>>",
+        "-11 MC",
+        "Ok", // no titanium paid
+        "$DeuteriumExport FROM ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DeuteriumExport, Action1>",
+        "Floater<$DeuteriumExport>",
+    )
+    p1.doTasks("Pass")
 
     // Generation 3
-    finishProductionPhase()
-    // Player1 bought 2 card(s)
-    // You drew Spin-Inducing Asteroid and Imported GHG
-    p1.buyCards(2)
-    // Player2 bought 2 card(s)
-    // You drew Asteroid and Trans-Neptune Probe
-    p2.buyCards(2)
+    p1.doTasks("-5 MC", "32 MC", "3 Steel", "Energy")
+    p2.doTasks("-5 MC", "26 MC", "Steel", "Titanium", "3 Heat", "Plant")
+    p1.doTasks("4 ProjectCard<Selecting>")
+    p2.doTasks("4 ProjectCard<Selecting>")
+    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
+    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
 
-    with(p1) {
-      assertProduction(m = 4, s = 3, t = 0, p = 0, e = 1, h = 0)
-      assertResources(m = 27, s = 3, t = 0, p = 0, e = 1, h = 1)
-      assertDashMiddle(played = 10, actions = 3, vp = 23, tr = 23, hand = 7)
-      assertTags(but = 3, spt = 1, sct = 2, pot = 1, eat = 3, vet = 1)
-      assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
-    }
+    p1.assertProduction(m = 4, s = 3, t = 0, p = 0, e = 1, h = 0)
+    p1.assertResources(m = 27, s = 3, t = 0, p = 0, e = 1, h = 1)
+    p1.assertDashMiddle(played = 10, actions = 3, vp = 23, tr = 23, hand = 7)
+    p1.assertTags(but = 3, spt = 1, sct = 2, pot = 1, eat = 3, vet = 1)
+    p1.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
-    with(p2) {
-      assertProduction(m = 0, s = 1, t = 1, p = 1, e = 0, h = 3)
-      assertResources(m = 21, s = 1, t = 4, p = 3, e = 0, h = 6)
-      assertDashMiddle(played = 8, actions = 2, vp = 22, tr = 21, hand = 7)
-      assertTags(but = 3, spt = 1, sct = 2, pot = 1, jot = 1, plt = 1, mit = 1)
-      assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
-    }
+    p2.assertProduction(m = 0, s = 1, t = 1, p = 1, e = 0, h = 3)
+    p2.assertResources(m = 21, s = 1, t = 4, p = 3, e = 0, h = 6)
+    p2.assertDashMiddle(played = 8, actions = 2, vp = 22, tr = 21, hand = 7)
+    p2.assertTags(but = 3, spt = 1, sct = 2, pot = 1, jot = 1, plt = 1, mit = 1)
+    p2.assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 0, venus = 2)
 
-    // Player1 used Development Center action
-    // Player1 drew 1 card(s)
-    // You drew Venus Waystation
-    p1.turn {
-      cardAction1(DevelopmentCenter)
-      // Player1 used Inventors' Guild action
-      cardAction1(InventorsGuild) {
-        // Player1 bought 0 card(s)
-        // You drew no cards
-        buyCards(0)
-      }
-    }
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DevelopmentCenter, Action1>",
+        "-Energy",
+        "ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$InventorsGuild, Action1>",
+        "ProjectCard<Selecting>",
+        "-1 ProjectCard<Selecting>",
+    )
 
-    // Player2 used Factorum action
-    // Player2's energy production increased by 1
-    p2.turn {
-      cardAction1(Factorum).expect("PROD[Energy<Player2>]")
-      // Player2 played Asteroid
-      // Player2's titanium amount increased by 2
-      playProject(
-          AsteroidCard,
-          2,
-          steel = 0,
-          titanium = 4,
-      ) { /* Decline removing an opponent's plants. */
-        declineTask()
-        doTask("TemperatureStep")
-        doTask("TerraformRating")
-      }
-    }
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$Factorum, Action1>",
+        "PROD[Energy]",
+    )
 
-    // Player1 played Corporate Stronghold
-    // Player1's mc production increased by 3
-    // Player1's energy production decreased by 1
-    // Player1 placed city tile on row 4 position 6
-    // Player1's plants amount increased by 1
-    p1.turn {
-      playProject(CorporateStronghold, 5, steel = 3) {
-            doTask("PROD[3 MC]")
-            doTask("3 MC")
-            doTask("PROD[-Energy]")
-            placeTile(4, 6)
-          }
-          .expect("PROD[3 MC, -Energy], -2 MC, Plant<Player1>")
-      // Player1 played Optimal Aerobraking
-      playProject(OptimalAerobraking, 7)
-    }
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$AsteroidCard>>",
+        "-4 Titanium",
+        "-2 MC",
+        "$AsteroidCard FROM ProjectCard",
+        "Ok", // no plants removed
+        "TemperatureStep",
+        "TerraformRating",
+        "2 Titanium",
+    )
 
-    // Player2 played Trans-Neptune Probe
-    p2.turn {
-      playProject(TransNeptuneProbe, 0, titanium = 2) {
-        // Player2 is using their Mars University effect to draw a card by discarding a card.
-        // You discarded Virus
-        // Player2 drew 1 card(s)
-        // You drew Local Heat Trapping
-        doTask("-ProjectCard")
-      }
-      // Player2 used Rotator Impacts action
-      cardAction1(RotatorImpacts) {
-        pay(6)
-        // Player2 added 1 asteroid(s) to Rotator Impacts
-      }
-    }
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$CorporateStronghold>>",
+        "-3 Steel",
+        "-5 MC",
+        "$CorporateStronghold FROM ProjectCard",
+        "PROD[3 MC]",
+        "3 MC",
+        "PROD[-Energy]",
+        "CityTile<Tharsis_4_6>",
+        "Plant",
+    )
 
-    // Player1 used Deuterium Export action
-    // Player1 removed 1 resource(s) from Player1's Deuterium Export
-    // Player1's energy production increased by 1
-    p1.turn {
-      cardAction2(DeuteriumExport).expect("PROD[Energy]")
-      // Player1 played Imported GHG
-      // Player1's heat production increased by 1
-      // Player1's heat amount increased by 3
-      // Player1's mc amount increased by 3 by Optimal Aerobraking
-      // Player1's heat amount increased by 3 by Optimal Aerobraking
-      playProject(ImportedGhg, 4) {
-            doTask("PROD[Heat]")
-            doTask("Heat")
-            doTask("3 Heat")
-            doTask("3 MC")
-          }
-          .expect("7 Heat<Player1>, PlayedEvent<Player1>")
-    }
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$OptimalAerobraking>>",
+        "-7 MC",
+        "Ok", // no titanium paid
+        "$OptimalAerobraking FROM ProjectCard",
+    )
 
-    // Player2 passed
-    p2.pass()
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$TransNeptuneProbe>>",
+        "-2 Titanium",
+        "Ok", // no mc paid
+        "$TransNeptuneProbe FROM ProjectCard",
+        "-ProjectCard",
+        "ProjectCard",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$RotatorImpacts, Action1>",
+        "-6 MC",
+        "Ok", // no titanium paid
+        "Asteroid<$RotatorImpacts>",
+    )
 
-    // Player1 passed
-    p1.pass()
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DeuteriumExport, Action2>",
+        "-Floater<$DeuteriumExport>",
+        "PROD[Energy]",
+        "Energy",
+    )
+
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$ImportedGhg>>",
+        "-4 MC",
+        "Ok", // no titanium paid
+        "$ImportedGhg FROM ProjectCard",
+        "PROD[Heat]",
+        "7 Heat",
+        "3 MC",
+    )
+
+    p2.doTasks("Pass")
+
+    p1.doTasks("Pass")
 
     // Generation 4
-    finishProductionPhase()
-    // Player1 bought 1 card(s)
-    // You drew Tectonic Stress Power
-    p1.buyCards(1)
-    // Player2 bought 2 card(s)
-    // You drew Search For Life and Greenhouses
-    p2.buyCards(2)
+    p1.doTasks("-5 MC", "35 MC", "3 Steel", "Energy", "Heat")
+    p2.doTasks("-5 MC", "27 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
+    p1.doTasks("4 ProjectCard<Selecting>")
+    p2.doTasks("4 ProjectCard<Selecting>")
+    p1.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard FROM BuyCard")
+    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
 
-    with(p1) {
-      assertProduction(m = 7, s = 3, t = 0, p = 0, e = 1, h = 1)
-      assertResources(m = 44, s = 3, t = 0, p = 1, e = 1, h = 10)
-      assertDashMiddle(played = 13, actions = 3, vp = 21, tr = 23, hand = 6)
-      assertTags(but = 4, spt = 2, sct = 2, pot = 1, eat = 3, vet = 1, cit = 1)
-      assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 1 to "CityTile")
-    }
+    p1.assertProduction(m = 7, s = 3, t = 0, p = 0, e = 1, h = 1)
+    p1.assertResources(m = 44, s = 3, t = 0, p = 1, e = 1, h = 10)
+    p1.assertDashMiddle(played = 13, actions = 3, vp = 21, tr = 23, hand = 6)
+    p1.assertTags(but = 4, spt = 2, sct = 2, pot = 1, eat = 3, vet = 1, cit = 1)
+    p1.assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 1 to "CityTile")
 
-    with(p2) {
-      assertProduction(m = 0, s = 1, t = 1, p = 1, e = 1, h = 3)
-      assertResources(m = 29, s = 2, t = 1, p = 4, e = 1, h = 9)
-      assertDashMiddle(played = 10, actions = 2, vp = 24, tr = 22, hand = 7)
-      assertTags(but = 3, spt = 2, sct = 3, pot = 1, jot = 1, plt = 1, mit = 1)
-      assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
-    }
+    p2.assertProduction(m = 0, s = 1, t = 1, p = 1, e = 1, h = 3)
+    p2.assertResources(m = 29, s = 2, t = 1, p = 4, e = 1, h = 9)
+    p2.assertDashMiddle(played = 10, actions = 2, vp = 24, tr = 22, hand = 7)
+    p2.assertTags(but = 3, spt = 2, sct = 3, pot = 1, jot = 1, plt = 1, mit = 1)
+    p2.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
     assertSidebar(gen = 4, temp = -28, oxygen = 0, oceans = 0, venus = 2)
 
-    // Player2 used Factorum action
-    // Player2 drew Jovian Embassy
-    p2.turn {
-      cardAction2(Factorum) { doTask("ProjectCard") }
-      // Player2 played Aquifer Pumping
-      playProject(AquiferPumping, 14, steel = 2)
-    }
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$Factorum, Action2>",
+        "-3 MC",
+        "SearchForCard<TagFilter<Class<BuildingTag>>>",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$AquiferPumping>>",
+        "-2 Steel",
+        "-14 MC",
+        "$AquiferPumping FROM ProjectCard",
+    )
 
-    // Player1 used Development Center action
-    // Player1 drew 1 card(s)
-    // You drew Phobos Space Haven
-    p1.turn {
-      cardAction1(DevelopmentCenter)
-      // Player1 used Inventors' Guild action
-      cardAction1(InventorsGuild) {
-        // Player1 bought 1 card(s)
-        // You drew Olympus Conference
-        buyCards(1)
-      }
-    }
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DevelopmentCenter, Action1>",
+        "-Energy",
+        "ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$InventorsGuild, Action1>",
+        "ProjectCard<Selecting>",
+        "Ok", // keep card
+        "-3 MC",
+        "ProjectCard FROM BuyCard",
+    )
 
-    // Player2 used Aquifer Pumping action
-    p2.turn {
-      cardAction1(AquiferPumping) {
-        pay(8)
-        // Player2 placed ocean tile on row 2 position 6
-        // Player2 drew 2 card(s)
-        // You drew Deimos Down:promo and Kelp Farming
-        // Player2 gained 2 plants from Arctic Algae
-        placeTile(2, 6)
-        doTask("TerraformRating")
-        doTask("2 ProjectCard")
-      }
-      // Player2 played Search For Life
-      playProject(SearchForLife, 3) {
-        // Player2 is using their Mars University effect to draw a card by discarding a card.
-        // You discarded Jovian Embassy
-        // Player2 drew 1 card(s)
-        // You drew Local Shading
-        doTask("-ProjectCard")
-      }
-    }
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$AquiferPumping, Action1>",
+        "-8 MC",
+        "Ok", // no steel paid
+        "OceanTile<Tharsis_2_6>",
+        "TerraformRating",
+        "2 ProjectCard",
+        "2 Plant",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$SearchForLife>>",
+        "-3 MC",
+        "$SearchForLife FROM ProjectCard",
+        "-ProjectCard",
+        "ProjectCard",
+    )
 
-    // Player1 used Deuterium Export action
-    p1.turn {
-      cardAction1(DeuteriumExport)
-      // Player1 played Tectonic Stress Power
-      // Player1's energy production increased by 3
-      playProject(TectonicStressPower, 12, steel = 3)
-    }
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DeuteriumExport, Action1>",
+        "Floater<$DeuteriumExport>",
+    )
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$TectonicStressPower>>",
+        "-3 Steel",
+        "-12 MC",
+        "$TectonicStressPower FROM ProjectCard",
+        "PROD[3 Energy]",
+        "3 Energy",
+    )
 
-    // Player2 used Rotator Impacts action
-    // Player2 removed 1 resource(s) from Player2's Rotator Impacts
-    // Player2 removed an asteroid resource to increase Venus scale 1 step
-    p2.turn {
-      cardAction2(RotatorImpacts)
-      // Player2 used Search For Life action
-      cardAction1(SearchForLife) {
-            // Player2 revealed and discarded Cartel
-            // Decline the science resource.
-            declineTask()
-          }
-          .expect("-1 MC")
-    }
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$RotatorImpacts, Action2>",
+        "-Asteroid<$RotatorImpacts>",
+        "VenusStep",
+        "TerraformRating",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$SearchForLife, Action1>",
+        "-MC",
+        "ProjectCard<Revealed>",
+        "Ok", // no reward
+        "-ProjectCard<Revealed>",
+    )
 
-    // Player1 used Convert Heat standard action
-    p1.turn {
-      convertHeat()
-      // Player1 used Asteroid:SP standard project
-      // Player1's heat production increased by 1
-      stdProject("AsteroidProject") { doTask("TerraformRating") }
-    }
+    p1.doTasks(
+        "UseAction<ConvertHeatAction, Action1>",
+        "-8 Heat",
+        "TemperatureStep",
+        "TerraformRating",
+    )
+    p1.doTasks(
+        "UseAction<UseStandardProjectAction, Action1>",
+        "UseAction<AsteroidProject, Action1>",
+        "-14 MC",
+        "TemperatureStep",
+        "TerraformRating",
+        "PROD[Heat]",
+        "Heat",
+    )
 
-    // Player2 passed
-    p2.pass()
+    p2.doTasks("Pass")
 
-    // Player1 used Sell Patents standard project
-    // Player1 sold 1 patents
-    p1.turn {
-      sellPatents(1).expect("-ProjectCard, 1 MC")
-      // Player1 played Spin-Inducing Asteroid
-      // Player1 drew 1 card(s)
-      // You drew Lagrange Observatory
-      // Player1's mc amount increased by 3 by Optimal Aerobraking
-      // Player1's heat amount increased by 3 by Optimal Aerobraking
-      playProject(SpinInducingAsteroid, 16) {
-            doTask("VenusStep")
-            doTask("TerraformRating")
-            doTask("VenusStep")
-            doTask("TerraformRating")
-            doTask("ProjectCard")
-            doTask("3 MC")
-          }
-          .expect("3 Heat, -13 MC")
+    p1.doTasks(
+        "UseAction<UseStandardProjectAction, Action1>",
+        "UseAction<SellPatentsProject, Action1>",
+        "1 MC FROM ProjectCard",
+    )
 
-      // Player1 passed
-      pass()
-    }
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$SpinInducingAsteroid>>",
+        "-16 MC",
+        "Ok", // no titanium paid
+        "$SpinInducingAsteroid FROM ProjectCard",
+        "2 VenusStep",
+        "2 TerraformRating",
+        "ProjectCard",
+        "3 MC",
+        "3 Heat",
+    )
+
+    p1.doTasks("Pass")
 
     // Generation 5
-    finishProductionPhase()
-    // Player1 bought 3 card(s)
-    // You drew Small Asteroid, Fueled Generators and Domed Crater
-    p1.buyCards(3)
-    // Player2 bought 3 card(s)
-    // You drew Power Supply Consortium, Directed Impactors and Power Plant
-    p2.buyCards(3)
-    with(p1) {
-      assertProduction(m = 7, s = 3, t = 0, p = 0, e = 4, h = 2)
-      assertResources(m = 28, s = 3, t = 0, p = 1, e = 4, h = 11)
-      assertDashMiddle(played = 15, actions = 3, vp = 26, tr = 27, hand = 9)
-      assertTags(but = 5, spt = 2, sct = 2, pot = 2, eat = 3, vet = 1, cit = 1)
-      assertCounts(3 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 1 to "CityTile")
-    }
+    p1.doTasks("39 MC", "-5 MC", "3 Steel", "4 Energy", "2 Heat")
+    p2.doTasks("29 MC", "-5 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
+    p1.doTasks("4 ProjectCard<Selecting>")
+    p2.doTasks("4 ProjectCard<Selecting>")
+    p1.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard FROM BuyCard")
+    p2.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard FROM BuyCard")
+    p1.assertProduction(m = 7, s = 3, t = 0, p = 0, e = 4, h = 2)
+    p1.assertResources(m = 28, s = 3, t = 0, p = 1, e = 4, h = 11)
+    p1.assertDashMiddle(played = 15, actions = 3, vp = 26, tr = 27, hand = 9)
+    p1.assertTags(but = 5, spt = 2, sct = 2, pot = 2, eat = 3, vet = 1, cit = 1)
+    p1.assertCounts(3 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 1 to "CityTile")
 
-    with(p2) {
-      assertProduction(m = 0, s = 1, t = 1, p = 1, e = 1, h = 3)
-      assertResources(m = 15, s = 1, t = 2, p = 7, e = 1, h = 13)
-      assertDashMiddle(played = 12, actions = 4, vp = 26, tr = 24, hand = 11)
-      assertTags(but = 4, spt = 2, sct = 4, pot = 1, jot = 1, plt = 1, mit = 1)
-      assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
-    }
+    p2.assertProduction(m = 0, s = 1, t = 1, p = 1, e = 1, h = 3)
+    p2.assertResources(m = 15, s = 1, t = 2, p = 7, e = 1, h = 13)
+    p2.assertDashMiddle(played = 12, actions = 4, vp = 26, tr = 24, hand = 11)
+    p2.assertTags(but = 4, spt = 2, sct = 4, pot = 1, jot = 1, plt = 1, mit = 1)
+    p2.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
     assertSidebar(gen = 5, temp = -24, oxygen = 0, oceans = 1, venus = 8)
 
     checkSummaryAfterGen4(game)
 
-    // Player1 used Convert Heat standard action
-    p1.turn {
-      convertHeat()
-      // Player1 played Small Asteroid
-      // Player1's heat production increased by 1
-      // Player1's mc amount increased by 3 by Optimal Aerobraking
-      // Player1's heat amount increased by 3 by Optimal Aerobraking
-      playProject(SmallAsteroid, 10) {
-            // Player2's plants amount decreased by 2 by Player1
-            doTask("-2 Plant<Player2>")
-            doTask("TemperatureStep")
-            doTask("3 MC")
-            doTask("3 Heat")
-            doTask("TerraformRating")
-          }
-          .expect("TemperatureStep, -2 Plant<Player2>")
-    }
+    p1.doTasks(
+        "UseAction<ConvertHeatAction, Action1>",
+        "-8 Heat",
+        "TemperatureStep",
+        "TerraformRating",
+    )
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$SmallAsteroid>>",
+        "-10 MC",
+        "Ok", // no titanium paid
+        "$SmallAsteroid FROM ProjectCard",
+        "-2 Plant<Player2>",
+        "TemperatureStep",
+        "3 MC",
+        "TerraformRating",
+        "PROD[Heat]",
+        "4 Heat",
+    )
 
-    // Player2 used Factorum action
-    // 1 card(s) were discarded
-    // Player2 drew AI Central
-    p2.turn {
-      cardAction2(Factorum) { doTask("ProjectCard") }
-      // Player2 played Directed Impactors
-      playProject(DirectedImpactors, 2, titanium = 2)
-    }
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$Factorum, Action2>",
+        "-3 MC",
+        "SearchForCard<TagFilter<Class<BuildingTag>>>",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$DirectedImpactors>>",
+        "-2 Titanium",
+        "-2 MC",
+        "$DirectedImpactors FROM ProjectCard",
+    )
 
-    // Player1 used Development Center action
-    // Player1 drew 1 card(s)
-    // You drew Project Inspection
-    p1.turn {
-      cardAction1(DevelopmentCenter)
-      // Player1 used Inventors' Guild action
-      cardAction1(InventorsGuild) {
-        // Player1 bought 0 card(s)
-        // You drew no cards
-        buyCards(0)
-      }
-    }
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DevelopmentCenter, Action1>",
+        "-Energy",
+        "ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$InventorsGuild, Action1>",
+        "ProjectCard<Selecting>",
+        "-1 ProjectCard<Selecting>",
+    )
 
-    // Player2 used Sell Patents standard project
-    // Player2 sold 1 patents
-    p2.turn {
-      sellPatents(1)
-      // Player2 used Sell Patents standard project
-      // Player2 sold 1 patents
-      sellPatents(1)
-    }
+    p2.doTasks(
+        "UseAction<UseStandardProjectAction, Action1>",
+        "UseAction<SellPatentsProject, Action1>",
+        "1 MC FROM ProjectCard",
+    )
+    p2.doTasks(
+        "UseAction<UseStandardProjectAction, Action1>",
+        "UseAction<SellPatentsProject, Action1>",
+        "1 MC FROM ProjectCard",
+    )
 
-    // Player1 used Deuterium Export action
-    // Player1 removed 1 resource(s) from Player1's Deuterium Export
-    // Player1's energy production increased by 1
-    p1.turn {
-      cardAction2(DeuteriumExport)
-      // Player1 played Domed Crater
-      // Player1's mc production increased by 3
-      // Player1's energy production decreased by 1
-      // Player1's plants amount increased by 3
-      playProject(DomedCrater, 18, steel = 3) {
-        doTask("3 Plant")
-        doTask("PROD[-Energy]")
-        doTask("PROD[3 MC]")
-        // Player1 placed city tile on row 3 position 4
-        placeTile(3, 4)
-      }
-    }
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DeuteriumExport, Action2>",
+        "-Floater<$DeuteriumExport>",
+        "PROD[Energy]",
+        "Energy",
+    )
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$DomedCrater>>",
+        "-3 Steel",
+        "-18 MC",
+        "$DomedCrater FROM ProjectCard",
+        "3 Plant",
+        "PROD[-Energy]",
+        "PROD[3 MC]",
+        "CityTile<Tharsis_3_4>",
+        "3 MC",
+    )
 
-    // Player2 used Directed Impactors action
-    p2.turn {
-      cardAction1(DirectedImpactors) {
-        p2.pay(6)
-        // Player2 added 1 asteroid(s) to Rotator Impacts
-        addCardResources(RotatorImpacts)
-      }
-      // Player2 used Rotator Impacts action
-      // Player2 removed 1 resource(s) from Player2's Rotator Impacts
-      // Player2 removed an asteroid resource to increase Venus scale 1 step
-      cardAction2(RotatorImpacts)
-    }
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DirectedImpactors, Action1>",
+        "-6 MC",
+        "Ok", // no titanium paid
+        "Asteroid<$RotatorImpacts>",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$RotatorImpacts, Action2>",
+        "-Asteroid<$RotatorImpacts>",
+        "VenusStep",
+        "TerraformRating",
+    )
 
-    // Player1 played Fueled Generators
-    // Player1's mc production decreased by 1
-    // Player1's energy production increased by 1
-    p1.turn {
-      playProject(FueledGenerators, 1) {
-            doTask("PROD[-MC]")
-          }
-          .expect("PROD[-1 MC, Energy], Energy")
-    }
-    // Player1 ended turn
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$FueledGenerators>>",
+        "-1 MC",
+        "Ok", // no steel paid
+        "$FueledGenerators FROM ProjectCard",
+        "PROD[-MC]",
+        "PROD[Energy]",
+        "Energy",
+    )
 
-    // Player2 used Convert Heat standard action
-    p2.turn {
-      convertHeat()
+    p1.doTasks("Ok") // end turn
 
-      // Player2 used Aquifer Pumping action
-      // Player2 placed ocean tile on row 1 position 4
-      // Player2 drew 1 card(s)
-      // You drew Bushes
-      // Player2 gained 2 plants from Arctic Algae
-      cardAction1(AquiferPumping) {
-        p2.pay(6, steel = 1)
-        placeTile(1, 4)
-        doTask("TerraformRating")
-        doTask("ProjectCard")
-      }
-    }
+    p2.doTasks(
+        "UseAction<ConvertHeatAction, Action1>",
+        "-8 Heat",
+        "TemperatureStep",
+        "TerraformRating",
+    )
 
-    // Player1 passed
-    p1.pass()
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$AquiferPumping, Action1>",
+        "-1 Steel",
+        "-6 MC",
+        "OceanTile<Tharsis_1_4>",
+        "TerraformRating",
+        "ProjectCard",
+        "2 Plant",
+    )
 
-    // Player2 passed
-    p2.pass()
+    p1.doTasks("Pass")
+
+    p2.doTasks("Pass")
 
     // Generation 6
-    finishProductionPhase()
-    // Player1 bought 4 card(s)
-    // You drew Sister Planet Support, Miranda Resort, Solarnet and Dusk Laser Mining
-    p1.buyCards(4)
-    // Player2 bought 2 card(s)
-    // You drew Bio Printing Facility and Earth Catapult
-    p2.buyCards(2)
+    p1.doTasks("-5 MC", "43 MC", "3 Steel", "5 Energy", "3 Heat")
+    p2.doTasks("32 MC", "-5 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
+    p1.doTasks("4 ProjectCard<Selecting>")
+    p2.doTasks("4 ProjectCard<Selecting>")
+    p1.doTasks(
+        "Ok", // keep all four
+        "-12 MC",
+        "4 ProjectCard FROM BuyCard",
+    )
+    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
 
-    with(p1) {
-      assertProduction(m = 9, s = 3, t = 0, p = 0, e = 5, h = 3)
-      assertResources(m = 31, s = 3, t = 0, p = 4, e = 5, h = 15)
-      assertDashMiddle(played = 18, actions = 3, vp = 29, tr = 29, hand = 11)
-      assertTags(but = 7, spt = 2, sct = 2, pot = 3, eat = 3, vet = 1, cit = 2)
-      assertCounts(4 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
-    }
+    p1.assertProduction(m = 9, s = 3, t = 0, p = 0, e = 5, h = 3)
+    p1.assertResources(m = 31, s = 3, t = 0, p = 4, e = 5, h = 15)
+    p1.assertDashMiddle(played = 18, actions = 3, vp = 29, tr = 29, hand = 11)
+    p1.assertTags(but = 7, spt = 2, sct = 2, pot = 3, eat = 3, vet = 1, cit = 2)
+    p1.assertCounts(4 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
 
-    with(p2) {
-      assertProduction(m = 0, s = 1, t = 1, p = 1, e = 1, h = 3)
-      assertResources(m = 21, s = 1, t = 1, p = 8, e = 1, h = 9)
-      assertDashMiddle(played = 13, actions = 5, vp = 29, tr = 27, hand = 12)
-      assertTags(but = 4, spt = 3, sct = 4, pot = 1, jot = 1, plt = 1, mit = 1)
-      assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
-    }
+    p2.assertProduction(m = 0, s = 1, t = 1, p = 1, e = 1, h = 3)
+    p2.assertResources(m = 21, s = 1, t = 1, p = 8, e = 1, h = 9)
+    p2.assertDashMiddle(played = 13, actions = 5, vp = 29, tr = 27, hand = 12)
+    p2.assertTags(but = 4, spt = 3, sct = 4, pot = 1, jot = 1, plt = 1, mit = 1)
+    p2.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
     assertSidebar(gen = 6, temp = -18, oxygen = 0, oceans = 2, venus = 10)
 
-    // Player2 used Convert Plants standard action
-    p2.turn {
-      convertPlants {
-        // Player2 placed greenery tile on row 8 position 4
-        // Player2 drew 1 card(s)
-        // You drew Medical Lab
-        placeTile(8, 7) // r-5 + c
-        doTask("OxygenStep")
-        doTask("TerraformRating")
-      }
-      // Player2 used Factorum action
-      // 3 card(s) were discarded
-      // Player2 drew Mine
-      cardAction2(Factorum) { doTask("ProjectCard") }.expect("ProjectCard")
-    }
+    p2.doTasks(
+        "UseAction<ConvertPlantsAction, Action1>",
+        "-8 Plant",
+        "GreeneryTile<Tharsis_8_7>",
+        "OxygenStep",
+        "TerraformRating",
+        "ProjectCard",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$Factorum, Action2>",
+        "-3 MC",
+        "SearchForCard<TagFilter<Class<BuildingTag>>>",
+    )
 
-    // Player1 used Development Center action
-    // Player1 drew 1 card(s)
-    // You drew Large Convoy
-    p1.turn {
-      cardAction1(DevelopmentCenter)
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DevelopmentCenter, Action1>",
+        "-Energy",
+        "ProjectCard",
+    )
 
-      // Player1 used Inventors' Guild action
-      cardAction1(InventorsGuild) {
-        // Player1 bought 1 card(s)
-        // You drew Mining Quota
-        buyCards(1)
-      }
-    }
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$InventorsGuild, Action1>",
+        "ProjectCard<Selecting>",
+        "Ok", // keep card
+        "-3 MC",
+        "ProjectCard FROM BuyCard",
+    )
 
-    // Player2 played Power Plant
-    // Player2's energy production increased by 1
-    p2.turn {
-      playProject(PowerPlant, 2, steel = 1)
-      // Player2 used Aquifer Pumping action
-      cardAction1(AquiferPumping) {
-        p2.pay(8)
-        // Player2 placed ocean tile on row 1 position 5
-        // Player2 gained 2 plants from Arctic Algae
-        placeTile(1, 5)
-        doTask("2 MC")
-        doTask("2 MC")
-        doTask("TerraformRating")
-      }
-    }
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$PowerPlant>>",
+        "-1 Steel",
+        "-2 MC",
+        "$PowerPlant FROM ProjectCard",
+        "PROD[Energy]",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$AquiferPumping, Action1>",
+        "-8 MC",
+        "Ok", // no steel paid
+        "OceanTile<Tharsis_1_5>",
+        "4 MC",
+        "TerraformRating",
+        "2 Plant",
+    )
 
-    // Player1 played Olympus Conference
-    p1.turn {
-      playProject(OlympusConference, 1, steel = 3).expect("Science<$OlympusConference>")
-      // Player1 played Sister Planet Support
-      // Player1's mc production increased by 3
-      playProject(SisterPlanetSupport, 4).expect("PROD[3 MC], -1 MC")
-    }
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$OlympusConference>>",
+        "-3 Steel",
+        "-1 MC",
+        "$OlympusConference FROM ProjectCard",
+        "Science<$OlympusConference>. OR ProjectCard FROM Science<$OlympusConference>",
+    )
 
-    // Player2 used Directed Impactors action
-    p2.turn {
-      cardAction1(DirectedImpactors) {
-        p2.pay(3, titanium = 1)
-        // Player2 added 1 asteroid(s) to Rotator Impacts
-        addCardResources(RotatorImpacts)
-      }
-      // Player2 used Rotator Impacts action
-      // Player2 removed 1 resource(s) from Player2's Rotator Impacts
-      // Player2 removed an asteroid resource to increase Venus scale 1 step
-      cardAction2(RotatorImpacts).expect("VenusStep, TerraformRating<Player2>")
-    }
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$SisterPlanetSupport>>",
+        "-4 MC",
+        "$SisterPlanetSupport FROM ProjectCard",
+        "PROD[3 MC]",
+        "3 MC",
+    )
 
-    // Player1 played Dusk Laser Mining
-    // Player1's titanium production increased by 1
-    // Player1's energy production decreased by 1
-    // Player1's titanium amount increased by 4
-    p1.turn {
-      playProject(DuskLaserMining, 8) {
-            doTask("4 Titanium")
-            doTask("PROD[Titanium]")
-            doTask("PROD[-Energy]")
-          }
-          .expect("PROD[Titanium, -Energy], 5 Titanium")
-      // Player1 played Miranda Resort
-      // Player1's mc production increased by 5
-      playProject(MirandaResort, titanium = 4).expect("PROD[5 MC], 5 MC")
-    }
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DirectedImpactors, Action1>",
+        "-1 Titanium",
+        "-3 MC",
+        "Asteroid<$RotatorImpacts>",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$RotatorImpacts, Action2>",
+        "-Asteroid<$RotatorImpacts>",
+        "VenusStep",
+        "TerraformRating",
+    )
 
-    // Player2 played Mine
-    // Player2's steel production increased by 1
-    p2.turn {
-      playProject(Mine, 4)
-      // Player2 used Search For Life action
-      cardAction1(SearchForLife) {
-        // Player2 revealed and discarded Comet
-        // Decline the science resource.
-        declineTask()
-      }
-    }
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$DuskLaserMining>>",
+        "-8 MC",
+        "Ok", // no titanium paid
+        "$DuskLaserMining FROM ProjectCard",
+        "PROD[Titanium]",
+        "PROD[-Energy]",
+        "5 Titanium",
+    )
 
-    // Player1 played Solarnet
-    // Player1 drew 2 card(s)
-    // You drew Security Fleet and Outdoor Sports
-    p1.turn {
-      playProject(Solarnet, 7).expect("ProjectCard") // gained 2 but removed 1!
-      // Player1 played Mining Quota
-      // Player1's steel production increased by 2
-      playProject(MiningQuota, 5)
-    }
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$MirandaResort>>",
+        "-4 Titanium",
+        "Ok", // no mc paid
+        "$MirandaResort FROM ProjectCard",
+        "PROD[5 MC]",
+        "5 MC",
+    )
 
-    // Player2 used Convert Heat standard action
-    p2.turn {
-      convertHeat()
-    }
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$Mine>>",
+        "-4 MC",
+        "Ok", // no steel paid
+        "$Mine FROM ProjectCard",
+        "PROD[Steel]",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$SearchForLife, Action1>",
+        "-MC",
+        "ProjectCard<Revealed>",
+        "Ok", // no reward
+        "-ProjectCard<Revealed>",
+    )
 
-    // Player1 used Convert Heat standard action
-    p1.turn {
-      convertHeat()
-      // Player1 used Deuterium Export action
-      cardAction1(DeuteriumExport)
-    }
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$Solarnet>>",
+        "-7 MC",
+        "$Solarnet FROM ProjectCard",
+        "2 ProjectCard",
+    )
 
-    // Player2 passed
-    p2.pass()
-    // Player1 played Lagrange Observatory
-    // Player1 drew 1 card(s)
-    // You drew Venus Governor
-    // Player1 removed 1 resource(s) from Player1's Olympus Conference
-    // Player1 drew 1 card(s)
-    // You drew Power Infrastructure
-    p1.turn {
-      playProject(LagrangeObservatory, 6, titanium = 1) {
-            doTask(
-                "ProjectCard FROM Science<$OlympusConference>"
-            ) // I don't have to choose the card
-          }
-          .expect("ProjectCard<Player1>") // -1 played, +1 from card itself, +1 from olympus
-      // Player1 played Venus Governor
-      // Player1's mc production increased by 2
-      playProject(VenusGovernor, 4).expect("2 VenusTag<Player1>")
-      // Player1 used Sell Patents standard project
-      // Player1 sold 1 patents
-      sellPatents(1)
-      // Player1 played Moss
-      // Player1's plants production increased by 1
-      playProject(Moss, 4) { doTask("-Plant") }.expect("-4 Resource")
-      // Player1 passed
-      pass()
-    }
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$MiningQuota>>",
+        "-5 MC",
+        "Ok", // no steel paid
+        "$MiningQuota FROM ProjectCard",
+        "PROD[2 Steel]",
+        "2 Steel",
+    )
+
+    p2.doTasks(
+        "UseAction<ConvertHeatAction, Action1>",
+        "-8 Heat",
+        "TemperatureStep",
+        "TerraformRating",
+    )
+
+    p2.doTasks("Ok") // end turn
+
+    p1.doTasks(
+        "UseAction<ConvertHeatAction, Action1>",
+        "-8 Heat",
+        "TemperatureStep",
+        "TerraformRating",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DeuteriumExport, Action1>",
+        "Floater<$DeuteriumExport>",
+    )
+
+    p2.doTasks("Pass")
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$LagrangeObservatory>>",
+        "-1 Titanium",
+        "-6 MC",
+        "$LagrangeObservatory FROM ProjectCard",
+        "ProjectCard FROM Science<$OlympusConference>",
+        "ProjectCard",
+    )
+
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$VenusGovernor>>",
+        "-4 MC",
+        "$VenusGovernor FROM ProjectCard",
+        "PROD[2 MC]",
+        "2 MC",
+    )
+
+    p1.doTasks(
+        "UseAction<UseStandardProjectAction, Action1>",
+        "UseAction<SellPatentsProject, Action1>",
+        "1 MC FROM ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$Moss>>",
+        "-4 MC",
+        "$Moss FROM ProjectCard",
+        "-Plant",
+        "PROD[Plant]",
+        "Plant",
+    )
+
+    p1.doTasks("Pass")
 
     // Generation 7
-    finishProductionPhase()
-    // Player1 bought 3 card(s)
-    // You drew Stratospheric Birds, Media Archives and Trees
-    p1.buyCards(3)
-    // Player2 bought 1 card(s)
-    // You drew Invention Contest
-    p2.buyCards(1)
+    p1.doTasks("54 MC", "-5 MC", "5 Steel", "4 Energy", "3 Heat", "Titanium", "Plant")
+    p2.doTasks("36 MC", "-5 MC", "2 Steel", "Titanium", "3 Heat", "Plant", "2 Energy")
+    p1.doTasks("4 ProjectCard<Selecting>")
+    p2.doTasks("4 ProjectCard<Selecting>")
+    p1.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard FROM BuyCard")
+    p2.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard FROM BuyCard")
 
-    with(p1) {
-      assertProduction(m = 19, s = 5, t = 1, p = 1, e = 4, h = 3)
-      assertResources(m = 40, s = 7, t = 1, p = 5, e = 4, h = 14)
-      assertDashMiddle(played = 27, actions = 3, vp = 34, tr = 30, hand = 10)
-      assertTags(but = 9, spt = 5, sct = 4, pot = 3, eat = 5, jot = 1, vet = 4, plt = 1, cit = 2)
-      assertCounts(4 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
-    }
+    p1.assertProduction(m = 19, s = 5, t = 1, p = 1, e = 4, h = 3)
+    p1.assertResources(m = 40, s = 7, t = 1, p = 5, e = 4, h = 14)
+    p1.assertDashMiddle(played = 27, actions = 3, vp = 34, tr = 30, hand = 10)
+    p1.assertTags(but = 9, spt = 5, sct = 4, pot = 3, eat = 5, jot = 1, vet = 4, plt = 1, cit = 2)
+    p1.assertCounts(4 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
 
-    with(p2) {
-      assertProduction(m = 0, s = 2, t = 1, p = 1, e = 2, h = 3)
-      assertResources(m = 32, s = 2, t = 1, p = 3, e = 2, h = 5)
-      assertDashMiddle(played = 15, actions = 5, vp = 34, tr = 31, hand = 13)
-      assertTags(but = 6, spt = 3, sct = 4, pot = 2, jot = 1, plt = 1, mit = 1)
-      assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
-    }
+    p2.assertProduction(m = 0, s = 2, t = 1, p = 1, e = 2, h = 3)
+    p2.assertResources(m = 32, s = 2, t = 1, p = 3, e = 2, h = 5)
+    p2.assertDashMiddle(played = 15, actions = 5, vp = 34, tr = 31, hand = 13)
+    p2.assertTags(but = 6, spt = 3, sct = 4, pot = 2, jot = 1, plt = 1, mit = 1)
+    p2.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
     assertSidebar(gen = 7, temp = -14, oxygen = 1, oceans = 3, venus = 12)
 
-    // Player1 claimed Builder milestone
-    p1.turn {
-      stdAction("ClaimMilestoneAction") { doTask("Builder8") }.expect("Milestone")
-      // Player1 used Development Center action
-      // Player1 drew 1 card(s)
-      // You drew Quantum Extractor
-      cardAction1(DevelopmentCenter)
-    }
+    p1.doTasks(
+        "UseAction<ClaimMilestoneAction, Action1>",
+        "-8 MC",
+        "Builder8",
+        "Ok", // builder check
+    )
 
-    // Player2 played Earth Catapult
-    p2.turn {
-      playProject(EarthCatapult, 23)
-      // Player2 played Invention Contest
-      // Player2 drew 1 card(s)
-      // You drew Aerial Mappers
-      playProject(InventionContest, 0) {
-            doTask("3 ProjectCard<Selecting>")
-            doTask("ProjectCard<Hand FROM Selecting>")
-            doTask("-2 ProjectCard<Selecting>")
-            // Player2 is using their Mars University effect to draw a card by discarding a card.
-            // You discarded Gyropolis
-            // Player2 drew 1 card(s)
-            // You drew Titanium Mine
-            doTask("-ProjectCard")
-          }
-          .expect("1 Card, 1 PlayedEvent") // no hand or table cards
-    }
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DevelopmentCenter, Action1>",
+        "-Energy",
+        "ProjectCard",
+    )
 
-    // Player1 used Inventors' Guild action
-    p1.turn {
-      cardAction1(InventorsGuild) {
-        // Player1 bought 0 card(s)
-        // You drew no cards
-        buyCards(0)
-      }
-      // Player1 played Quantum Extractor
-      // Player1's energy production increased by 4
-      playProject(QuantumExtractor, 13) {
-            // Decline spending an Olympus Conference science resource to draw a card.
-            doTask("Science")
-          }
-          .expect("-13 MC, PROD[4 Energy], 4 Energy")
-    }
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$EarthCatapult>>",
+        "-23 MC",
+        "$EarthCatapult FROM ProjectCard",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$InventionContest>>",
+        "$InventionContest FROM ProjectCard",
+        "3 ProjectCard<Selecting>",
+        "ProjectCard<Hand FROM Selecting>",
+        "-2 ProjectCard<Selecting>",
+        "-ProjectCard",
+        "ProjectCard",
+    )
 
-    // Player2 played Bio Printing Facility
-    p2.turn {
-      playProject(BioPrintingFacility, 1, steel = 2)
-      // Player2 used Bio Printing Facility action
-      // Player2's plants amount increased by 2
-      cardAction1(BioPrintingFacility) { doTask("2 Plant") }.expect("-2 Energy, 2 Plant")
-    }
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$InventorsGuild, Action1>",
+        "ProjectCard<Selecting>",
+        "-1 ProjectCard<Selecting>",
+    )
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$QuantumExtractor>>",
+        "-13 MC",
+        "$QuantumExtractor FROM ProjectCard",
+        "Science",
+        "PROD[4 Energy]",
+        "4 Energy",
+    )
 
-    // Player1 used Deuterium Export action
-    // Player1 removed 1 resource(s) from Player1's Deuterium Export
-    // Player1's energy production increased by 1
-    p1.turn {
-      cardAction2(DeuteriumExport)
-      // Player1 played Project Inspection
-      // Player1 used Development Center action with Project Inspection
-      // Player1 drew 1 card(s)
-      // You drew Floating Habs
-      playProject(ProjectInspection, 0) {
-            doTask("UseAction<$DevelopmentCenter, Action1>")
-            p1.pay(energy = 1)
-          }
-          .expect("PlayedEvent, Card, -Energy")
-    }
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$BioPrintingFacility>>",
+        "-2 Steel",
+        "-1 MC",
+        "$BioPrintingFacility FROM ProjectCard",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$BioPrintingFacility, Action1>",
+        "-2 Energy",
+        "2 Plant",
+    )
 
-    // Player2 used Factorum action
-    // Player2's energy production increased by 1
-    p2.turn {
-      cardAction1(Factorum).expect("PROD[Energy]")
-      // Player2 played Power Supply Consortium
-      playProject(PowerSupplyConsortium, 3) {
-        // Player1's energy production decreased by 1 stolen by Player2
-        doTask("PROD[-Energy<Player1>]")
-      }
-    }
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DeuteriumExport, Action2>",
+        "-Floater<$DeuteriumExport>",
+        "PROD[Energy]",
+        "Energy",
+    )
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$ProjectInspection>>",
+        "$ProjectInspection FROM ProjectCard",
+        "UseAction<$DevelopmentCenter, Action1>",
+        "-1 Energy",
+        "ProjectCard",
+    )
 
-    // Player1 played Floating Habs
-    p1.turn {
-      playProject(FloatingHabs, 5)
-      // Player1 used Floating Habs action
-      cardAction1(FloatingHabs) {
-            // Player1 added 1 floater(s) to Deuterium Export
-            addCardResources(DeuteriumExport)
-          }
-          .expect("-2 MC, Floater")
-    }
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$Factorum, Action1>",
+        "PROD[Energy]",
+    )
 
-    // Player2 played Titanium Mine
-    // Player2's titanium production increased by 1
-    p2.turn { playProject(TitaniumMine, 5).expect("PROD[Titanium], BuildingTag") }
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$PowerSupplyConsortium>>",
+        "-3 MC",
+        "$PowerSupplyConsortium FROM ProjectCard",
+        "PROD[-Energy<Player1>]",
+        "PROD[Energy]",
+    )
 
-    // Player1 used Convert Heat standard action
-    p1.turn {
-      convertHeat().expect("-8 Heat, TemperatureStep, TerraformRating")
-      // Player1 played Stratospheric Birds
-      // Player1 removed 1 resource(s) from Player1's Deuterium Export
-      playProject(StratosphericBirds, 12).expect("-Floater<$DeuteriumExport>")
-    }
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$FloatingHabs>>",
+        "-5 MC",
+        "$FloatingHabs FROM ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$FloatingHabs, Action1>",
+        "-2 MC",
+        "Floater<$DeuteriumExport>",
+    )
 
-    // Player2 passed
-    p2.turn {
-      pass().expect("Pass")
-    }
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$TitaniumMine>>",
+        "-5 MC",
+        "Ok", // no steel paid
+        "$TitaniumMine FROM ProjectCard",
+        "PROD[Titanium]",
+    )
 
-    // Player1 used Stratospheric Birds action
-    p1.turn {
-      cardAction1(StratosphericBirds).expect("Animal<$StratosphericBirds>")
-      // Player1 passed
-      pass()
-    }
+    p2.doTasks("Ok") // end turn
+
+    p1.doTasks(
+        "UseAction<ConvertHeatAction, Action1>",
+        "-8 Heat",
+        "TemperatureStep",
+        "TerraformRating",
+    )
+
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$StratosphericBirds>>",
+        "-12 MC",
+        "$StratosphericBirds FROM ProjectCard",
+        "-Floater",
+    )
+
+    p2.doTasks("Pass")
+
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$StratosphericBirds, Action1>",
+        "Animal<$StratosphericBirds>",
+    )
+
+    p1.doTasks("Pass")
 
     // Generation 8
-    finishProductionPhase()
-    // Player1 bought 2 card(s)
-    // You drew Sulphur Exports and Mohole Lake
-    p1.buyCards(2)
-    // Player2 bought 2 card(s)
-    // You drew Advanced Alloys and Natural Preserve
-    p2.buyCards(2)
+    p1.doTasks("55 MC", "-5 MC", "5 Steel", "8 Energy", "3 Heat", "Titanium", "Plant")
+    p2.doTasks("36 MC", "-5 MC", "2 Steel", "2 Titanium", "3 Heat", "Plant", "4 Energy")
+    p1.doTasks("4 ProjectCard<Selecting>")
+    p2.doTasks("4 ProjectCard<Selecting>")
+    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
+    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
 
-    with(p1) {
-      assertProduction(m = 19, s = 5, t = 1, p = 1, e = 8, h = 3)
-      assertResources(m = 44, s = 12, t = 2, p = 6, e = 8, h = 16)
-      assertDashMiddle(played = 31, actions = 5, vp = 41, tr = 31, hand = 10)
-      // (but = 9, ...)
-      assertTags(9, spt = 5, sct = 5, pot = 4, eat = 5, jot = 1, vet = 6, plt = 1, ant = 1, cit = 2)
-      assertCounts(5 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
-    }
+    p1.assertProduction(m = 19, s = 5, t = 1, p = 1, e = 8, h = 3)
+    p1.assertResources(m = 44, s = 12, t = 2, p = 6, e = 8, h = 16)
+    p1.assertDashMiddle(played = 31, actions = 5, vp = 41, tr = 31, hand = 10)
+    p1.assertTags(
+        9,
+        spt = 5,
+        sct = 5,
+        pot = 4,
+        eat = 5,
+        jot = 1,
+        vet = 6,
+        plt = 1,
+        ant = 1,
+        cit = 2,
+    )
+    p1.assertCounts(5 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
 
-    with(p2) {
-      assertProduction(m = 0, s = 2, t = 2, p = 1, e = 4, h = 3)
-      assertResources(m = 25, s = 2, t = 3, p = 6, e = 4, h = 8)
-      assertDashMiddle(played = 20, actions = 6, vp = 36, tr = 31, hand = 11)
-      assertTags(but = 8, spt = 3, sct = 4, pot = 3, eat = 1, jot = 1, plt = 1, mit = 1)
-      assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
-    }
+    p2.assertProduction(m = 0, s = 2, t = 2, p = 1, e = 4, h = 3)
+    p2.assertResources(m = 25, s = 2, t = 3, p = 6, e = 4, h = 8)
+    p2.assertDashMiddle(played = 20, actions = 6, vp = 36, tr = 31, hand = 11)
+    p2.assertTags(but = 8, spt = 3, sct = 4, pot = 3, eat = 1, jot = 1, plt = 1, mit = 1)
+    p2.assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
     assertSidebar(gen = 8, temp = -12, oxygen = 1, oceans = 3, venus = 12)
 
-    // Player2 played Advanced Alloys
-    p2.turn {
-      playProject(AdvancedAlloys, 7) {
-            // Player2 is using their Mars University effect to draw a card by discarding a card.
-            // You discarded Medical Lab
-            // Player2 drew 1 card(s)
-            // You drew Aerosport Tournament
-            doTask("-ProjectCard")
-          }
-          .expect("-1 ProjectCard")
-      // Player2 played AI Central
-      // Player2's energy production decreased by 1
-      playProject(AiCentral, 13, steel = 2) {
-        doTask("PROD[-Energy]")
-        // Player2 is using their Mars University effect to draw a card by discarding a card.
-        // You discarded Aerosport Tournament
-        // Player2 drew 1 card(s)
-        // You drew Ishtar Mining
-        doTask("-ProjectCard")
-      }
-    }
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$AdvancedAlloys>>",
+        "-7 MC",
+        "$AdvancedAlloys FROM ProjectCard",
+        "-ProjectCard",
+        "ProjectCard",
+    )
 
-    // Player1 played Extractor Balloons
-    p1.turn {
-      playProject(ExtractorBalloons, 21).expect("-21 MC")
-      // Player1 used Development Center action
-      // Player1 drew 1 card(s)
-      // You drew Noctis Farming
-      cardAction1(DevelopmentCenter)
-    }
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$AiCentral>>",
+        "-2 Steel",
+        "-13 MC",
+        "$AiCentral FROM ProjectCard",
+        "PROD[-Energy]",
+        "-ProjectCard",
+        "ProjectCard",
+    )
+
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$ExtractorBalloons>>",
+        "-21 MC",
+        "$ExtractorBalloons FROM ProjectCard",
+        "3 Floater<$ExtractorBalloons>",
+    )
+
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DevelopmentCenter, Action1>",
+        "-Energy",
+        "ProjectCard",
+    )
 
     p1.assertCounts(23 to "MC")
 
-    // Player2 used AI Central action
-    // Player2 drew 2 card(s)
-    // You drew Beam From A Thorium Asteroid and Harvest
-    p2.turn {
-      cardAction1(AiCentral).expect("2 Card<Player2>")
-      // Player2 used Directed Impactors action
-      cardAction1(DirectedImpactors) {
-        p2.pay(2, titanium = 1)
-        // Player2 added 1 asteroid(s) to Rotator Impacts
-        addCardResources(RotatorImpacts)
-      }
-    }
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$AiCentral, Action1>",
+        "2 ProjectCard",
+    )
+
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DirectedImpactors, Action1>",
+        "-1 Titanium",
+        "-2 MC",
+        "Asteroid<$RotatorImpacts>",
+    )
 
     admin.assertCounts(6 to "VenusStep")
 
-    // Player1 played Sulphur Exports
-    // Player1's mc production increased by 8
-    p1.turn {
-      playProject(SulphurExports, 13, titanium = 2) {
-            doTask("VenusStep")
-            doTask("TerraformRating")
-          }
-          .expect("PROD[8 MC], -5 MC, VenusStep")
-      // Player1 used Extractor Balloons action
-      // Player1 removed 2 resource(s) from Player1's Extractor Balloons
-      // Player1 raised the Venus scale 1 step(s)
-      cardAction2(ExtractorBalloons) { doTask("TerraformRating") }
-          .expect("2 TerraformRating<Player1>")
-    }
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$SulphurExports>>",
+        "-2 Titanium",
+        "-13 MC",
+        "$SulphurExports FROM ProjectCard",
+        "VenusStep",
+        "TerraformRating",
+        "PROD[8 MC]",
+        "8 MC",
+    )
 
-    // Player2 used Rotator Impacts action
-    // Player2 removed 1 resource(s) from Player2's Rotator Impacts
-    // Player2 removed an asteroid resource to increase Venus scale 1 step
-    p2.turn {
-      cardAction2(RotatorImpacts).expect("-Asteroid, VenusStep, TerraformRating<Player2>")
-      // Player2 played Ishtar Mining
-      // Player2's titanium production increased by 1
-      playProject(IshtarMining, 3)
-    }
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$ExtractorBalloons, Action2>",
+        "-2 Floater<$ExtractorBalloons>",
+        "VenusStep",
+        "2 TerraformRating",
+    )
 
-    // Player1 played Mohole Lake
-    // Player1's plants amount increased by 3
-    // Player1 placed ocean tile on row 5 position 5
-    // Player1's plants amount increased by 2
-    // Player2 gained 2 plants from Arctic Algae
-    p1.turn {
-      playProject(MoholeLake, 7, steel = 12) {
-            placeTile(5, 5)
-            doTask("3 Plant")
-            doTask("TemperatureStep")
-            doTask("2 Plant<Player1>")
-            doTask("TerraformRating")
-            p1.selectTask("2 Plant<Player2>!")
-            p2.doTask("2 Plant<Player2>!")
-          }
-          .expect("5 Plant, 2 Plant<Player2>, TemperatureStep, 2 TerraformRating, -7 MC")
-      // Player1 claimed Terraformer milestone
-      stdAction("ClaimMilestoneAction") { doTask("Terraformer35") }.expect("-8 MC")
-    }
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$RotatorImpacts, Action2>",
+        "-Asteroid<$RotatorImpacts>",
+        "VenusStep",
+        "TerraformRating",
+    )
 
-    // Player2 used Convert Heat standard action
-    p2.turn {
-      convertHeat()
-      // Player2 used Convert Plants standard action
-      // Player2 placed greenery tile on row 8 position 3
-      // Player2 drew 1 card(s)
-      // You drew Herbivores
-      convertPlants {
-            placeTile(8, 6) // r+c-5
-            doTask("OxygenStep")
-            doTask("TerraformRating")
-          }
-          .expect("-8 Plant, Card")
-    }
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$IshtarMining>>",
+        "-3 MC",
+        "$IshtarMining FROM ProjectCard",
+        "PROD[Titanium]",
+    )
 
-    // Player1 used Inventors' Guild action
-    p1.turn {
-      cardAction1(InventorsGuild) {
-        // Player1 bought 1 card(s)
-        // You drew Imported Nitrogen
-        buyCards(1)
-      }
-      // Player1 used Deuterium Export action
-      cardAction1(DeuteriumExport).expect("Floater")
-    }
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$MoholeLake>>",
+        "-12 Steel",
+        "-7 MC",
+        "$MoholeLake FROM ProjectCard",
+        "OceanTile<Tharsis_5_5>",
+        "5 Plant",
+        "TemperatureStep",
+        "2 TerraformRating",
+    )
+    p1.selectTask("2 Plant<Player2>!")
+    p2.doTasks("2 Plant")
 
-    // Player2 used Bio Printing Facility action
-    // Player2's plants amount increased by 2
-    p2.turn { cardAction1(BioPrintingFacility) { doTask("2 Plant") }.expect("2 Plant, -2 Energy") }
+    p1.doTasks(
+        "UseAction<ClaimMilestoneAction, Action1>",
+        "-8 MC",
+        "Terraformer35",
+        "Ok", // terraformer check
+    )
 
-    // Player1 used Convert Heat standard action
-    p1.turn {
-      convertHeat()
-      // Player1 used Convert Plants standard action
-      convertPlants {
-        // Player1 placed greenery tile on row 3 position 5
-        placeTile(3, 5)
-      }
-    }
+    p2.doTasks(
+        "UseAction<ConvertHeatAction, Action1>",
+        "-8 Heat",
+        "TemperatureStep",
+        "TerraformRating",
+    )
+    p2.doTasks(
+        "UseAction<ConvertPlantsAction, Action1>",
+        "-8 Plant",
+        "GreeneryTile<Tharsis_8_6>",
+        "OxygenStep",
+        "TerraformRating",
+        "ProjectCard",
+    )
 
-    // Player2 passed
-    p2.pass()
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$InventorsGuild, Action1>",
+        "ProjectCard<Selecting>",
+        "Ok", // keep card
+        "-3 MC",
+        "ProjectCard FROM BuyCard",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DeuteriumExport, Action1>",
+        "Floater<$DeuteriumExport>",
+    )
 
-    // Player1 used Stratospheric Birds action
-    p1.turn {
-      cardAction1(StratosphericBirds).expect("Animal")
-      // Player1 used Mohole Lake action
-      // Player1 added 1 animal(s) to Stratospheric Birds
-      cardAction1(MoholeLake) { addCardResources(StratosphericBirds) }
-      // Player1 passed
-      pass()
-    }
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$BioPrintingFacility, Action1>",
+        "-2 Energy",
+        "2 Plant",
+    )
+
+    p2.doTasks("Ok") // end turn
+
+    p1.doTasks(
+        "UseAction<ConvertHeatAction, Action1>",
+        "-8 Heat",
+        "TemperatureStep",
+        "TerraformRating",
+    )
+    p1.doTasks(
+        "UseAction<ConvertPlantsAction, Action1>",
+        "-8 Plant",
+        "GreeneryTile<Tharsis_3_5>",
+        "OxygenStep",
+        "TerraformRating",
+    )
+
+    p2.doTasks("Pass")
+
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$StratosphericBirds, Action1>",
+        "Animal<$StratosphericBirds>",
+    )
+
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$MoholeLake, Action1>",
+        "Animal<$StratosphericBirds>",
+    )
+    p1.doTasks("Pass")
 
     // Generation 9
-    finishProductionPhase()
-    // Player1 bought 3 card(s)
-    // You drew Rego Plastics, SF Memorial and Water to Venus
-    p1.buyCards(3)
-    // Player2 bought 2 card(s)
-    // You drew Atalanta Planitia Lab and Mining Expedition
-    p2.buyCards(2)
+    p1.doTasks("70 MC", "-5 MC", "5 Steel", "8 Energy", "3 Heat", "Titanium", "Plant")
+    p2.doTasks("39 MC", "-5 MC", "2 Steel", "3 Titanium", "3 Heat", "Plant", "3 Energy")
+    p1.doTasks("4 ProjectCard<Selecting>")
+    p2.doTasks("4 ProjectCard<Selecting>")
+    p1.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard FROM BuyCard")
+    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
 
-    with(p1) {
-      assertProduction(m = 27, s = 5, t = 1, p = 1, e = 8, h = 3)
-      assertResources(m = 56, s = 5, t = 1, p = 4, e = 8, h = 18)
-      assertDashMiddle(played = 34, actions = 7, vp = 58, tr = 38, hand = 12)
-      // (but = 10, spt = 6, ...)
-      assertTags(10, 6, sct = 5, pot = 4, eat = 5, jot = 1, vet = 8, plt = 1, ant = 1, cit = 2)
-      assertCounts(5 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
-    }
+    p1.assertProduction(m = 27, s = 5, t = 1, p = 1, e = 8, h = 3)
+    p1.assertResources(m = 56, s = 5, t = 1, p = 4, e = 8, h = 18)
+    p1.assertDashMiddle(played = 34, actions = 7, vp = 58, tr = 38, hand = 12)
+    p1.assertTags(10, 6, sct = 5, pot = 4, eat = 5, jot = 1, vet = 8, plt = 1, ant = 1, cit = 2)
+    p1.assertCounts(5 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
 
-    with(p2) {
-      assertProduction(m = 0, s = 2, t = 3, p = 1, e = 3, h = 3)
-      assertResources(m = 28, s = 2, t = 5, p = 3, e = 3, h = 5)
-      assertDashMiddle(played = 23, actions = 7, vp = 41, tr = 34, hand = 13)
-      assertTags(but = 9, spt = 3, sct = 6, pot = 3, eat = 1, jot = 1, vet = 1, plt = 1, mit = 1)
-      assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
-    }
+    p2.assertProduction(m = 0, s = 2, t = 3, p = 1, e = 3, h = 3)
+    p2.assertResources(m = 28, s = 2, t = 5, p = 3, e = 3, h = 5)
+    p2.assertDashMiddle(played = 23, actions = 7, vp = 41, tr = 34, hand = 13)
+    p2.assertTags(but = 9, spt = 3, sct = 6, pot = 3, eat = 1, jot = 1, vet = 1, plt = 1, mit = 1)
+    p2.assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
     assertSidebar(gen = 9, temp = -6, oxygen = 3, oceans = 4, venus = 18)
 
-    // Player1 used Development Center action
-    // Player1 drew 1 card(s)
-    // You drew Venusian Insects
-    p1.turn {
-      cardAction1(DevelopmentCenter)
-      // Player1 used Inventors' Guild action
-      cardAction1(InventorsGuild) {
-        // Player1 bought 1 card(s)
-        // You drew Urbanized Area
-        buyCards(1)
-      }
-    }
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DevelopmentCenter, Action1>",
+        "-Energy",
+        "ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$InventorsGuild, Action1>",
+        "ProjectCard<Selecting>",
+        "Ok", // keep card
+        "-3 MC",
+        "ProjectCard FROM BuyCard",
+    )
 
-    // Player2 played Deimos Down:promo
-    // Player2's steel amount increased by 4
-    p2.turn {
-      playProject(DeimosDownPromo, 9, titanium = 5) {
-        repeat(3) { doTask("TemperatureStep") }
-        // Player2 placed ocean tile on row 6 position 6
-        // Player2's plants amount increased by 1
-        p2.doTask("OceanTile<Tharsis_6_7>")
-        // Player2 placed Deimos Down tile on row 2 position 5
-        p2.placeTile(2, 5)
-        // Player1's plants amount decreased by 4 by Player2
-        p2.doTask("-4 Plant<Player1>")
-        // Player2 gained 2 plants from Arctic Algae
-        doTask("4 Steel")
-        doTask("Plant<Player2>")
-        doTask("2 Plant<Player2>")
-        doTask("TerraformRating")
-        repeat(3) { doTask("TerraformRating") }
-        repeat(2) { doTask("2 MC") }
-      }
-      // Player2 used AI Central action
-      // Player2 drew 2 card(s)
-      // You drew Ecological Zone and Biomass Combustors
-      cardAction1(AiCentral)
-    }
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$DeimosDownPromo>>",
+        "-5 Titanium",
+        "-9 MC",
+        "$DeimosDownPromo FROM ProjectCard",
+        "3 TemperatureStep",
+        "OceanTile<Tharsis_6_7>",
+        "DeimosDownPromo_SpecialTile<Tharsis_2_5>",
+        "-4 Plant<Player1>",
+        "4 Steel",
+        "3 Plant",
+        "4 TerraformRating",
+        "6 MC",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$AiCentral, Action1>",
+        "2 ProjectCard",
+    )
 
-    // Player1 used Convert Heat standard action
-    p1.turn {
-      convertHeat()
-      // Player1 used Convert Heat standard action
-      convertHeat()
-    }
+    p1.doTasks(
+        "UseAction<ConvertHeatAction, Action1>",
+        "-8 Heat",
+        "TemperatureStep",
+        "TerraformRating",
+    )
+    p1.doTasks(
+        "UseAction<ConvertHeatAction, Action1>",
+        "-8 Heat",
+        "TemperatureStep",
+        "TerraformRating",
+    )
 
-    // Player2 used Aquifer Pumping action
-    p2.turn {
-      cardAction1(AquiferPumping) {
-        p2.pay(steel = 3)
-        // Player2 placed ocean tile on row 5 position 6
-        // Player2's plants amount increased by 2
-        // Player2 gained 2 plants from Arctic Algae
-        placeTile(5, 6)
-        doTask("2 MC")
-        doTask("2 MC")
-        doTask("TerraformRating")
-        doTask("2 Plant")
-      }
-      // Player2 used Convert Plants standard action
-      convertPlants {
-        // Player2 placed greenery tile on row 9 position 3
-        placeTile(9, 7)
-      }
-    }
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$AquiferPumping, Action1>",
+        "-3 Steel",
+        "Ok", // no mc paid
+        "OceanTile<Tharsis_5_6>",
+        "4 MC",
+        "TerraformRating",
+        "4 Plant",
+    )
+    p2.doTasks(
+        "UseAction<ConvertPlantsAction, Action1>",
+        "-8 Plant",
+        "GreeneryTile<Tharsis_9_7>",
+        "OxygenStep",
+        "TerraformRating",
+    )
 
-    // Player1 played Rego Plastics
-    p1.turn {
-      // Reason 3: Rego Plastics makes the retained steel worth more for SF Memorial below.
-      intentionalUnderpay()
-      playProject(RegoPlastics, 10)
-      // Player1 played SF Memorial
-      // Player1 drew 1 card(s)
-      // You drew Advanced Ecosystems
-      playProject(SfMemorial, 1, steel = 2)
-    }
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$RegoPlastics>>",
+        "-10 MC",
+        "Ok", // no steel paid
+        "$RegoPlastics FROM ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$SfMemorial>>",
+        "-2 Steel",
+        "-1 MC",
+        "$SfMemorial FROM ProjectCard",
+        "ProjectCard",
+    )
 
-    // Player2 claimed Gardener milestone
-    p2.turn {
-      stdAction("ClaimMilestoneAction") { doTask("Gardener") }
-      // Player2 used Directed Impactors action
-      cardAction1(DirectedImpactors) {
-        p2.pay(6)
-        // Player2 added 1 asteroid(s) to Rotator Impacts
-        addCardResources(RotatorImpacts)
-      }
-    }
+    p2.doTasks(
+        "UseAction<ClaimMilestoneAction, Action1>",
+        "-8 MC",
+        "Gardener",
+        "Ok", // gardener check
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DirectedImpactors, Action1>",
+        "-6 MC",
+        "Ok", // no titanium paid
+        "Asteroid<$RotatorImpacts>",
+    )
 
-    // Player1 used Floating Habs action
-    p1.turn {
-      cardAction1(FloatingHabs) {
-        // Player1 added 1 floater(s) to Extractor Balloons
-        addCardResources(ExtractorBalloons)
-      }
-      // Player1 used Extractor Balloons action
-      // Player1 removed 2 resource(s) from Player1's Extractor Balloons
-      // Player1 raised the Venus scale 1 step(s)
-      cardAction2(ExtractorBalloons).expect("-2 Floater")
-    }
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$FloatingHabs, Action1>",
+        "-2 MC",
+        "Floater<$ExtractorBalloons>",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$ExtractorBalloons, Action2>",
+        "-2 Floater<$ExtractorBalloons>",
+        "VenusStep",
+        "TerraformRating",
+    )
 
-    // Player2 played Ecological Zone
-    // Player2 added 2 animal(s) to Ecological Zone
-    p2.turn {
-      playProject(EcologicalZone, 10) {
-            // Player2 placed Ecological Zone tile on row 4 position 5
-            // Player2's plants amount increased by 2
-            placeTile(4, 5)
-            repeat(2) { doTask("Animal<$EcologicalZone>") }
-            doTask("2 MC")
-            doTask("2 MC")
-          }
-          .expect("2 Animal, 2 Plant")
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$EcologicalZone>>",
+        "-10 MC",
+        "$EcologicalZone FROM ProjectCard",
+        "EcologicalZone_SpecialTile<Tharsis_4_5>",
+        "2 Animal<$EcologicalZone>",
+        "4 MC",
+        "2 Plant",
+    )
 
-      // Player2 played Harvest
-      // Player2's mc amount increased by 12
-      // Player2 added 1 animal(s) to Ecological Zone
-      playProject(Harvest, 2) { doTask("Animal<$EcologicalZone>") }
-          .expect("10 MC, Animal, PlayedEvent")
-    }
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$Harvest>>",
+        "-2 MC",
+        "$Harvest FROM ProjectCard",
+        "Animal<$EcologicalZone>",
+        "12 MC",
+    )
 
-    // Player1 played Noctis Farming
-    // Player1's mc production increased by 1
-    // Player1's plants amount increased by 2
-    p1.turn {
-      playProject(NoctisFarming, 1, steel = 3) { doTask("2 Plant") }.expect("PROD[1 MC], 2 Plant")
-      // Player1 used Deuterium Export action
-      // Player1 removed 1 resource(s) from Player1's Deuterium Export
-      // Player1's energy production increased by 1
-      cardAction2(DeuteriumExport).expect("-Floater, PROD[Energy]")
-    }
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$NoctisFarming>>",
+        "-3 Steel",
+        "-1 MC",
+        "$NoctisFarming FROM ProjectCard",
+        "2 Plant",
+        "PROD[MC]",
+        "MC",
+    )
 
-    // Player2 used Bio Printing Facility action
-    p2.turn {
-      cardAction1(BioPrintingFacility) {
-        // Player2 added 1 animal(s) to Ecological Zone
-        addCardResources(EcologicalZone)
-      }
-      // Player2 used Rotator Impacts action
-      // Player2 removed 1 resource(s) from Player2's Rotator Impacts
-      // Player2 removed an asteroid resource to increase Venus scale 1 step
-      cardAction2(RotatorImpacts)
-    }
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DeuteriumExport, Action2>",
+        "-Floater<$DeuteriumExport>",
+        "PROD[Energy]",
+        "Energy",
+    )
 
-    // Player1 used Mohole Lake action
-    p1.turn {
-      cardAction1(MoholeLake) {
-            // Player1 added 1 animal(s) to Stratospheric Birds
-            addCardResources(StratosphericBirds)
-          }
-          .expect("Animal")
-      // Player1 used Stratospheric Birds action
-      cardAction1(StratosphericBirds).expect("Animal")
-    }
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$BioPrintingFacility, Action1>",
+        "-2 Energy",
+        "Animal<$EcologicalZone>",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$RotatorImpacts, Action2>",
+        "-Asteroid<$RotatorImpacts>",
+        "VenusStep",
+        "TerraformRating",
+    )
 
-    // Player2 used Factorum action
-    // 1 card(s) were discarded
-    // Player2 drew Protected Valley
-    p2.turn {
-      cardAction2(Factorum) { doTask("ProjectCard") }.expect("Card")
-      // Player2 played Natural Preserve
-      // Player2's mc production increased by 1
-      playProject(NaturalPreserve, 1, steel = 2) {
-        // Player2 is using their Mars University effect to draw a card by discarding a card.
-        // You discarded Herbivores
-        // Player2 drew 1 card(s)
-        // You drew Thermophiles
-        doTask("-ProjectCard")
-        doTask("ProjectCard")
-        // Player2 placed Natural Preserve tile on row 3 position 1
-        // Player2 drew 1 card(s)
-        // You drew Black Polar Dust
-        placeTile(3, 1)
-        doTask("ProjectCard")
-      }
-    }
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$MoholeLake, Action1>",
+        "Animal<$StratosphericBirds>",
+    )
 
-    // Player1 used Sell Patents standard project
-    // Player1 sold 3 patents
-    p1.turn {
-      sellPatents(3)
-      // Player1 played Water to Venus
-      // Player1's mc amount increased by 3 by Optimal Aerobraking
-      // Player1's heat amount increased by 3 by Optimal Aerobraking
-      playProject(WaterToVenus, 4, titanium = 1) {
-        doTask("VenusStep")
-        doTask("TerraformRating")
-        doTask("3 MC")
-      }
-    }
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$StratosphericBirds, Action1>",
+        "Animal<$StratosphericBirds>",
+    )
 
-    // Player2 used Sell Patents standard project
-    // Player2 sold 2 patents
-    p2.turn {
-      sellPatents(2)
-      // Player2 played Kelp Farming
-      // Player2's mc production increased by 2
-      // Player2's plants production increased by 3
-      // Player2's plants amount increased by 2
-      // Player2 added 1 animal(s) to Ecological Zone
-      playProject(KelpFarming, 15) {
-            doTask("Animal<$EcologicalZone>")
-            doTask("2 Plant")
-            doTask("PROD[2 MC]")
-          }
-          .expect("5 Production, 2 Plant, Animal")
-    }
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$Factorum, Action2>",
+        "-3 MC",
+        "SearchForCard<TagFilter<Class<BuildingTag>>>",
+    )
 
-    // Player1 played Trees
-    // Player1's plants production increased by 3
-    // Player1's plants amount increased by 1
-    p1.turn {
-      playProject(Trees, 13) { doTask("Plant") }
-      // Player1 funded Banker award
-      stdAction("FundAwardAction") { doTask("Banker") }
-    }
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$NaturalPreserve>>",
+        "-2 Steel",
+        "-1 MC",
+        "$NaturalPreserve FROM ProjectCard",
+        "-ProjectCard",
+        "NaturalPreserve_SpecialTile<Tharsis_3_1>",
+        "2 ProjectCard",
+        "PROD[MC]",
+    )
 
-    // Player2 used Search For Life action
-    p2.turn {
-      cardAction1(SearchForLife) {
-        // Player2 revealed and discarded Fusion Power
-        // Decline the science resource.
-        declineTask()
-      }
-    }
+    p1.doTasks(
+        "UseAction<UseStandardProjectAction, Action1>",
+        "UseAction<SellPatentsProject, Action1>",
+        "3 MC FROM ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$WaterToVenus>>",
+        "-1 Titanium",
+        "-4 MC",
+        "$WaterToVenus FROM ProjectCard",
+        "VenusStep",
+        "TerraformRating",
+        "3 MC",
+        "3 Heat",
+    )
 
-    // Player1 played Venusian Insects
-    p1.turn {
-      playProject(VenusianInsects, 5)
-      // Player1 used Venusian Insects action
-      cardAction1(VenusianInsects)
-    }
+    p2.doTasks(
+        "UseAction<UseStandardProjectAction, Action1>",
+        "UseAction<SellPatentsProject, Action1>",
+        "2 MC FROM ProjectCard",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$KelpFarming>>",
+        "-15 MC",
+        "$KelpFarming FROM ProjectCard",
+        "Animal<$EcologicalZone>",
+        "2 Plant",
+        "PROD[2 MC]",
+        "PROD[3 Plant]",
+    )
 
-    // Player2 passed
-    p2.pass()
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$Trees>>",
+        "-13 MC",
+        "$Trees FROM ProjectCard",
+        "PROD[3 Plant]",
+        "4 Plant",
+    )
+    p1.doTasks("UseAction<FundAwardAction, Action1>", "-8 MC", "Banker")
 
-    // Player1 funded Venuphile award
-    p1.turn {
-      stdAction("FundAwardAction", which = 2) { doTask("Venuphile") }
-      // Player1 passed
-      pass()
-    }
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$SearchForLife, Action1>",
+        "-MC",
+        "ProjectCard<Revealed>",
+        "Ok", // no reward
+        "-ProjectCard<Revealed>",
+    )
+
+    p2.doTasks("Ok") // end turn
+
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$VenusianInsects>>",
+        "-5 MC",
+        "$VenusianInsects FROM ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$VenusianInsects, Action1>",
+        "Microbe<$VenusianInsects>",
+    )
+
+    p2.doTasks("Pass")
+
+    p1.doTasks("UseAction<FundAwardAction, Action2>", "-14 MC", "Venuphile")
+    p1.doTasks("Pass")
 
     // Generation 10
-    finishProductionPhase()
-    // Player1 bought 2 card(s)
-    // You drew Nitrogen-Rich Asteroid and Lava Tube Settlement
-    p1.buyCards(2)
-    // Player2 bought 3 card(s)
-    // You drew Mercurian Alloys, Hired Raiders and Nuclear Power
-    p2.buyCards(3)
+    p1.doTasks("75 MC", "-5 MC", "5 Steel", "9 Energy", "3 Heat", "Titanium", "4 Plant")
+    p2.doTasks("49 MC", "-5 MC", "2 Steel", "3 Titanium", "3 Heat", "4 Plant", "3 Energy")
+    p1.doTasks("4 ProjectCard<Selecting>")
+    p2.doTasks("4 ProjectCard<Selecting>")
+    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
+    p2.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard FROM BuyCard")
 
-    with(p1) {
-      assertProduction(m = 28, s = 5, t = 1, p = 4, e = 9, h = 3)
-      assertResources(m = 66, s = 5, t = 1, p = 10, e = 9, h = 16)
-      assertDashMiddle(played = 40, actions = 8, vp = 78, tr = 42, hand = 8)
-      // (but = 13, spt = 6, sct = 5, ...)
-      assertTags(13, 6, 5, pot = 4, eat = 5, jot = 1, vet = 9, plt = 3, mit = 1, ant = 1, cit = 2)
-      assertCounts(6 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
-    }
+    p1.assertProduction(m = 28, s = 5, t = 1, p = 4, e = 9, h = 3)
+    p1.assertResources(m = 66, s = 5, t = 1, p = 10, e = 9, h = 16)
+    p1.assertDashMiddle(played = 40, actions = 8, vp = 78, tr = 42, hand = 8)
+    p1.assertTags(13, 6, 5, pot = 4, eat = 5, jot = 1, vet = 9, plt = 3, mit = 1, ant = 1, cit = 2)
+    p1.assertCounts(6 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
 
-    with(p2) {
-      assertProduction(m = 3, s = 2, t = 3, p = 4, e = 3, h = 3)
-      assertResources(m = 36, s = 3, t = 3, p = 10, e = 3, h = 9)
-      assertDashMiddle(played = 28, actions = 7, vp = 58, tr = 41, hand = 13)
-      // (but = 10, spt = 3, ...)
-      assertTags(10, 3, sct = 7, pot = 3, eat = 1, jot = 1, vet = 1, plt = 3, mit = 1, ant = 1)
-      assertCounts(4 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
-    }
+    p2.assertProduction(m = 3, s = 2, t = 3, p = 4, e = 3, h = 3)
+    p2.assertResources(m = 36, s = 3, t = 3, p = 10, e = 3, h = 9)
+    p2.assertDashMiddle(played = 28, actions = 7, vp = 58, tr = 41, hand = 13)
+    p2.assertTags(10, 3, sct = 7, pot = 3, eat = 1, jot = 1, vet = 1, plt = 3, mit = 1, ant = 1)
+    p2.assertCounts(4 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
     assertSidebar(gen = 10, temp = 4, oxygen = 4, oceans = 6, venus = 24)
 
-    // Player2 played Hired Raiders
-    p2.turn {
-      playProject(HiredRaiders, 0) {
-        // Player1's steel amount decreased by 2 stolen by Player2
-        doTask("2 Steel<Player2> FROM Steel<Player1>")
-      }
-      // Player2 used Convert Heat standard action
-      convertHeat()
-    }
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$HiredRaiders>>",
+        "$HiredRaiders FROM ProjectCard",
+        "2 Steel FROM Steel<Player1>",
+    )
+    p2.doTasks(
+        "UseAction<ConvertHeatAction, Action1>",
+        "-8 Heat",
+        "TemperatureStep",
+        "TerraformRating",
+    )
 
-    // Player1 used Convert Heat standard action
-    p1.turn {
-      convertHeat()
-      // Player1 used City standard project
-      stdProject("CityProject") {
-        // Player1 placed city tile on row 7 position 4
-        placeTile(7, 6)
-      }
-    }
+    p1.doTasks(
+        "UseAction<ConvertHeatAction, Action1>",
+        "-8 Heat",
+        "TemperatureStep",
+        "TerraformRating",
+    )
+    p1.doTasks(
+        "UseAction<UseStandardProjectAction, Action1>",
+        "UseAction<CityProject, Action1>",
+        "-25 MC",
+        "CityTile<Tharsis_7_6>",
+        "PROD[MC]",
+        "MC",
+    )
 
-    // Player2 used Convert Plants standard action
-    p2.turn {
-      convertPlants {
-            // Player2 placed greenery tile on row 9 position 2
-            placeTile(9, 6)
-            // Player2's steel amount increased by 2
-            doTask("2 Steel")
-          }
-          .expect("2 Steel")
+    p2.doTasks(
+        "UseAction<ConvertPlantsAction, Action1>",
+        "-8 Plant",
+        "GreeneryTile<Tharsis_9_6>",
+        "2 Steel",
+        "OxygenStep",
+        "TerraformRating",
+    )
 
-      // Player2 used AI Central action
-      // Player2 drew 2 card(s)
-      // You drew Energy Tapping and Wave Power
-      cardAction1(AiCentral)
-    }
-    // Player1 used Development Center action
-    // Player1 drew 1 card(s)
-    // You drew Energy Saving
-    p1.turn {
-      cardAction1(DevelopmentCenter)
-      // Player1 used Inventors' Guild action
-      // Player1 bought 0 card(s)
-      // You drew no cards
-      cardAction1(InventorsGuild) { p1.buyCards(0) }
-    }
-    // Player2 played Mercurian Alloys
-    p2.turn {
-      playProject(MercurianAlloys, 1)
-      // Player2 played Aerial Mappers
-      playProject(AerialMappers, 9)
-    }
-    // Player1 played Lava Tube Settlement
-    // Player1's mc production increased by 2
-    // Player1's energy production decreased by 1
-    // Player1 placed city tile on row 2 position 2
-    // Player1's steel amount increased by 1
-    p1.turn {
-      playProject(LavaTubeSettlement, 6, steel = 3) {
-            placeTile(2, 2)
-            doTask("Steel")
-            doTask("PROD[-Energy]")
-          }
-          .expect("-2 Steel")
-      // Player1 played Urbanized Area
-      // Player1's mc production increased by 2
-      // Player1's energy production decreased by 1
-      // Player1 placed city tile on row 2 position 3
-      playProject(UrbanizedArea, 7, steel = 1) {
-        placeTile(2, 3)
-        doTask("PROD[-Energy]")
-      }
-    }
-    // Player2 played Atmoscoop
-    // Player2 added 2 floater(s) to Aerial Mappers
-    p2.turn {
-      playProject(Atmoscoop, 5, titanium = 3) {
-        doTask("2 VenusStep")
-        doTask("VenusStep")
-        addCardResources(AerialMappers)
-        doTask("TerraformRating")
-      }
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$AiCentral, Action1>",
+        "2 ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DevelopmentCenter, Action1>",
+        "-Energy",
+        "ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$InventorsGuild, Action1>",
+        "ProjectCard<Selecting>",
+        "-1 ProjectCard<Selecting>",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$MercurianAlloys>>",
+        "-1 MC",
+        "Ok", // no titanium paid
+        "$MercurianAlloys FROM ProjectCard",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$AerialMappers>>",
+        "-9 MC",
+        "$AerialMappers FROM ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$LavaTubeSettlement>>",
+        "-3 Steel",
+        "-6 MC",
+        "$LavaTubeSettlement FROM ProjectCard",
+        "CityTile<Tharsis_2_2>",
+        "Steel",
+        "PROD[-Energy]",
+        "PROD[2 MC]",
+        "2 MC",
+    )
 
-      // Player2 used Aerial Mappers action
-      // Player2 removed 1 resource(s) from Player2's Aerial Mappers
-      // Player2 drew 1 card(s)
-      // You drew Magnetic Field Generators:promo
-      cardAction2(AerialMappers)
-    }
-    // Player1 played Nitrogen-Rich Asteroid
-    // Player1's plants production increased by 4
-    // Player1's mc amount increased by 3 by Optimal Aerobraking
-    // Player1's heat amount increased by 3 by Optimal Aerobraking
-    p1.turn {
-      playProject(NitrogenRichAsteroid, 26, titanium = 1) {
-            doTask("PROD[4 Plant]")
-            repeat(2) { doTask("TerraformRating") }
-            doTask("TemperatureStep")
-            doTask("3 MC")
-            doTask("3 Heat")
-          }
-          .expect("3 Heat")
-      // Player1 used Convert Plants standard action
-      // Player1 placed greenery tile on row 3 position 3
-      convertPlants {
-        placeTile(3, 3)
-      }
-    }
-    // Player2 used Bio Printing Facility action
-    // Player2 added 1 animal(s) to Ecological Zone
-    p2.turn {
-      cardAction1(BioPrintingFacility) { addCardResources(EcologicalZone) }
-      // Player2 used Directed Impactors action
-      // Player2 added 1 asteroid(s) to Rotator Impacts
-      cardAction1(DirectedImpactors) {
-        p2.pay(6)
-        addCardResources(RotatorImpacts)
-      }
-    }
-    // Player1 used Venusian Insects action
-    p1.turn {
-      cardAction1(VenusianInsects)
-      // Player1 used Stratospheric Birds action
-      cardAction1(StratosphericBirds)
-    }
-    // Player2 used Rotator Impacts action
-    // Player2 removed 1 resource(s) from Player2's Rotator Impacts
-    // Player2 removed an asteroid resource to increase Venus scale 1 step
-    p2.turn {
-      cardAction2(RotatorImpacts).expect("VenusStep")
-      // Player2 used Aquifer Pumping action
-      // Player2 placed ocean tile on row 9 position 5
-      // Player2's titanium amount increased by 2
-      // Player2 gained 2 plants from Arctic Algae
-      cardAction1(AquiferPumping) {
-            p2.pay(2, steel = 2)
-            placeTile(9, 9)
-            doTask("2 Titanium")
-            doTask("TerraformRating")
-          }
-          .expect("2 Titanium, 2 Plant")
-    }
-    // Player1 played Power Infrastructure
-    p1.turn {
-      playProject(PowerInfrastructure, 4)
-      // Player1 used Power Infrastructure action
-      // Player1's mc amount increased by 8
-      cardAction1(PowerInfrastructure, x = 8)
-    }
-    // Player2 used Factorum action
-    // Player2 drew Electro Catapult
-    p2.turn {
-      cardAction2(Factorum) { doTask("ProjectCard") }
-      // Player2 used Sell Patents standard project
-      // Player2 sold 2 patents
-      sellPatents(2)
-    }
-    // Player1 used Deuterium Export action
-    p1.turn {
-      cardAction1(DeuteriumExport)
-      // Player1 used Extractor Balloons action
-      // Player1 added 1 floater(s) to Extractor Balloons
-      cardAction1(ExtractorBalloons)
-    }
-    // Player2 played Bushes
-    // Player2's plants production increased by 2
-    // Player2's plants amount increased by 2
-    // Player2 added 1 animal(s) to Ecological Zone
-    p2.turn {
-      playProject(Bushes, 8) {
-        doTask("Animal<$EcologicalZone>")
-        doTask("2 Plant")
-      }
-      // Player2 played Energy Tapping
-      // Player1's energy production decreased by 1 stolen by Player2
-      playProject(EnergyTapping, 1) {
-        doTask("PROD[-Energy<Player1>]")
-      }
-    }
-    // Player1 used Floating Habs action
-    // Player1 added 1 floater(s) to Floating Habs
-    p1.turn {
-      cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
-      // Player1 used Mohole Lake action
-      // Player1 added 1 animal(s) to Stratospheric Birds
-      cardAction1(MoholeLake) { addCardResources(StratosphericBirds) }
-    }
-    // Player2 played Nuclear Power
-    // Player2's mc production decreased by 2
-    // Player2's energy production increased by 3
-    p2.turn {
-      playProject(NuclearPower, steel = 3) { doTask("PROD[-2 MC]") }
-      // Player2 played Biomass Combustors
-      // Player2's energy production increased by 2
-      // Player1's plants production decreased by 1 by Player2
-      playProject(BiomassCombustors, steel = 1) {
-        doTask("PROD[-Plant<Player1>]")
-      }
-    }
-    // Player1 passed
-    p1.pass()
-    // Player2 used Search For Life action
-    // Player2 revealed and discarded Geothermal Power
-    p2.turn {
-      cardAction1(SearchForLife) { /* Decline the science resource. */
-        declineTask()
-      }
-      // Player2 passed
-      pass()
-    }
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$UrbanizedArea>>",
+        "-1 Steel",
+        "-7 MC",
+        "$UrbanizedArea FROM ProjectCard",
+        "CityTile<Tharsis_2_3>",
+        "PROD[-Energy]",
+        "PROD[2 MC]",
+        "2 MC",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$Atmoscoop>>",
+        "-3 Titanium",
+        "-5 MC",
+        "$Atmoscoop FROM ProjectCard",
+        "2 VenusStep",
+        "2 Floater<$AerialMappers>",
+        "2 TerraformRating",
+    )
+
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$AerialMappers, Action2>",
+        "-Floater<$AerialMappers>",
+        "ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$NitrogenRichAsteroid>>",
+        "-1 Titanium",
+        "-26 MC",
+        "$NitrogenRichAsteroid FROM ProjectCard",
+        "PROD[4 Plant]",
+        "2 TerraformRating",
+        "Ok", // temperature maxed
+        "3 MC",
+        "3 Heat",
+        "4 Plant",
+    )
+
+    p1.doTasks(
+        "UseAction<ConvertPlantsAction, Action1>",
+        "-8 Plant",
+        "GreeneryTile<Tharsis_3_3>",
+        "OxygenStep",
+        "TerraformRating",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$BioPrintingFacility, Action1>",
+        "-2 Energy",
+        "Animal<$EcologicalZone>",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DirectedImpactors, Action1>",
+        "-6 MC",
+        "Ok", // no titanium paid
+        "Asteroid<$RotatorImpacts>",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$VenusianInsects, Action1>",
+        "Microbe<$VenusianInsects>",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$StratosphericBirds, Action1>",
+        "Animal<$StratosphericBirds>",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$RotatorImpacts, Action2>",
+        "-Asteroid<$RotatorImpacts>",
+        "VenusStep",
+        "TerraformRating",
+    )
+
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$AquiferPumping, Action1>",
+        "-2 Steel",
+        "-2 MC",
+        "OceanTile<Tharsis_9_9>",
+        "2 Titanium",
+        "TerraformRating",
+        "2 Plant",
+    )
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$PowerInfrastructure>>",
+        "-4 MC",
+        "Ok", // no steel paid
+        "$PowerInfrastructure FROM ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$PowerInfrastructure, Action1>",
+        "8 Owed<Class<Energy>>",
+        "-8 Energy",
+        "8 MC",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$Factorum, Action2>",
+        "-3 MC",
+        "SearchForCard<TagFilter<Class<BuildingTag>>>",
+    )
+    p2.doTasks(
+        "UseAction<UseStandardProjectAction, Action1>",
+        "UseAction<SellPatentsProject, Action1>",
+        "2 MC FROM ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DeuteriumExport, Action1>",
+        "Floater<$DeuteriumExport>",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$ExtractorBalloons, Action1>",
+        "Floater<$ExtractorBalloons>",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$Bushes>>",
+        "-8 MC",
+        "$Bushes FROM ProjectCard",
+        "Animal<$EcologicalZone>",
+        "2 Plant",
+        "PROD[2 Plant]",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$EnergyTapping>>",
+        "-1 MC",
+        "$EnergyTapping FROM ProjectCard",
+        "PROD[-Energy<Player1>]",
+        "PROD[Energy]",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$FloatingHabs, Action1>",
+        "-2 MC",
+        "Floater<$FloatingHabs>",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$MoholeLake, Action1>",
+        "Animal<$StratosphericBirds>",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$NuclearPower>>",
+        "-3 Steel",
+        "Ok", // no mc paid
+        "$NuclearPower FROM ProjectCard",
+        "PROD[-2 MC]",
+        "PROD[3 Energy]",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$BiomassCombustors>>",
+        "-1 Steel",
+        "Ok", // no mc paid
+        "$BiomassCombustors FROM ProjectCard",
+        "PROD[-Plant<Player1>]",
+        "PROD[2 Energy]",
+    )
+    p1.doTasks("Pass")
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$SearchForLife, Action1>",
+        "-MC",
+        "ProjectCard<Revealed>",
+        "Ok", // no reward
+        "-ProjectCard<Revealed>",
+    )
+    p2.doTasks("Pass")
     // Generation 11
-    finishProductionPhase()
-    // Player1 bought 2 card(s)
-    // You drew Business Network and Gene Repair
-    // Player2 bought 1 card(s)
-    // You drew Towing A Comet
-    p1.buyCards(2)
-    p2.buyCards(1)
-    // Player1 played Imported Nitrogen
-    // Player1's plants amount increased by 4
-    // Player1's mc amount increased by 3 by Optimal Aerobraking
-    // Player1's heat amount increased by 3 by Optimal Aerobraking
-    // Player1 added 3 microbe(s) to Venusian Insects
-    // Player1 added 2 animal(s) to Stratospheric Birds
-    p1.turn {
-      playProject(ImportedNitrogen, 15, titanium = 1) {
-        addCardResources(VenusianInsects)
-        addCardResources(StratosphericBirds)
-        doTask("TerraformRating")
-        doTask("4 Plant")
-        doTask("3 MC")
-      }
-      // Player1 used Development Center action
-      // Player1 drew 1 card(s)
-      // You drew Peroxide Power
-      cardAction1(DevelopmentCenter)
-    }
-    // Player2 used AI Central action
-    // Player2 drew 2 card(s)
-    // You drew Media Group and Cloud Seeding
-    p2.turn {
-      cardAction1(AiCentral)
-      // Player2 used Factorum action
-      // 9 card(s) were discarded
-      // Player2 drew Deep Well Heating
-      cardAction2(Factorum) { doTask("ProjectCard") }
-    }
-    // Player1 used Convert Plants standard action
-    // Player1 placed greenery tile on row 2 position 4
-    p1.turn {
-      convertPlants {
-        placeTile(2, 4)
-        doTask("2 MC")
-      }
-      // Player1 used Inventors' Guild action
-      // Player1 bought 0 card(s)
-      // You drew no cards
-      cardAction1(InventorsGuild) { p1.buyCards(0) }
-    }
-    // Player2 played Media Group
-    p2.turn {
-      playProject(MediaGroup, 4)
-      // Player2 played Mining Expedition
-      // Player2's steel amount increased by 2
-      // Player1's plants amount decreased by 2 by Player2
-      playProject(MiningExpedition, 10) {
-        doTask("-2 Plant<Player1>")
-        doTask("OxygenStep")
-        doTask("TerraformRating")
-        doTask("2 Steel")
-        doTask("3 MC")
-      }
-    }
-    // Player1 used Power Infrastructure action
-    // Player1's mc amount increased by 5
-    p1.turn {
-      cardAction1(PowerInfrastructure, x = 5)
-      // Player1 used Extractor Balloons action
-      // Player1 added 1 floater(s) to Extractor Balloons
-      cardAction1(ExtractorBalloons)
-    }
-    // Player2 used Bio Printing Facility action
-    // Player2 added 1 animal(s) to Ecological Zone
-    p2.turn {
-      cardAction1(BioPrintingFacility) { addCardResources(EcologicalZone) }
-      // Player2 used Aquifer Pumping action
-      // Player2 placed ocean tile on row 5 position 4
-      // Player2's plants amount increased by 2
-      // Player2 gained 2 plants from Arctic Algae
-      cardAction1(AquiferPumping) {
-        pay(2, steel = 2)
-        placeTile(5, 4)
-        doTask("2 MC")
-        doTask("TerraformRating")
-        doTask("2 Plant")
-      }
-    }
-    // Player1 played Business Network
-    // Player1's mc production decreased by 1
-    p1.turn {
-      playProject(BusinessNetwork, 1).expect("PROD[-1 MC]")
-      // Player1 used Business Network action
-      // Player1 bought 1 card(s)
-      // You drew Standard Technology
-      cardAction1(BusinessNetwork) { p1.buyCards(1) }
-    }
-    // Player2 used City standard project
-    // Player2 placed city tile on row 8 position 2
-    p2.turn {
-      stdProject("CityProject") {
-        placeTile(8, 5)
-      }
-      // Player2 used Convert Plants standard action
-      convertPlants {
-            // Player2 placed greenery tile on row 8 position 1
-            placeTile(8, 4)
-            // Player2's steel amount increased by 2
-            doTask("2 Steel")
-          }
-          .expect("2 Steel")
-    }
-    // Player1 used Deuterium Export action
-    // Player1 removed 1 resource(s) from Player1's Deuterium Export
-    // Player1's energy production increased by 1
-    p1.turn {
-      cardAction2(DeuteriumExport).expect("PROD[Energy]")
-      // Player1 used Floating Habs action
-      // Player1 added 1 floater(s) to Floating Habs
-      cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
-    }
-    // Player2 used Convert Plants standard action
-    p2.turn {
-      convertPlants {
-            // Player2 placed greenery tile on row 9 position 1
-            placeTile(9, 5)
-            // Player2's steel amount increased by 1
-            doTask("Steel")
-          }
-          .expect("Steel")
-      // Player2 used Aerial Mappers action
-      // Player2 removed 1 resource(s) from Player2's Aerial Mappers
-      // Player2 drew 1 card(s)
-      // You drew Penguins
-      cardAction2(AerialMappers)
-    }
-    // Player1 used Stratospheric Birds action
-    p1.turn {
-      cardAction1(StratosphericBirds)
-      // Player1 used Mohole Lake action
-      // Player1 added 1 animal(s) to Stratospheric Birds
-      cardAction1(MoholeLake) { addCardResources(StratosphericBirds) }
-    }
-    // Player2 played Magnetic Field Generators:promo
-    // Player2's plants production increased by 2
-    // Player2's energy production decreased by 4
-    p2.turn {
-      playProject(MagneticFieldGeneratorsPromo, 2, steel = 6) {
-            // Player2 placed Magnetic Field Generators tile on row 6 position 5
-            placeTile(6, 6)
-            // Player2's plants amount increased by 1
-            doTask("PROD[-4 Energy]")
-            doTask("PROD[2 Plant]")
-            repeat(3) { doTask("TerraformRating") }
-            repeat(3) { doTask("2 MC") }
-          }
-          .expect("PROD[-4 Energy, 2 Plant], 3 TerraformRating, Plant")
-      // Player2 played Towing A Comet
-      // Player2's plants amount increased by 2
-      playProject(TowingAComet, 1, titanium = 4) {
-            // Player2 placed ocean tile on row 6 position 7
-            placeTile(6, 8)
-            // Player2's plants amount increased by 1
-            // Player2 gained 2 plants from Arctic Algae
-            doTask("2 Plant")
-            doTask("OxygenStep")
-            repeat(2) { doTask("TerraformRating") }
-            doTask("3 MC")
-            doTask("2 MC")
-            doTask("Plant")
-          }
-          .expect("5 Plant")
-    }
-    // Player1 used Venusian Insects action
-    p1.turn {
-      cardAction1(VenusianInsects)
-      // Player1 played Standard Technology
-      // Player1 removed 1 resource(s) from Player1's Olympus Conference
-      // Player1 drew 1 card(s)
-      // You drew Zeppelins
-      playProject(StandardTechnology, 6) {
-        doTask("ProjectCard FROM Science")
-      }
-    }
-    // Player2 played Atalanta Planitia Lab
-    // Player2 drew 2 card(s)
-    // You drew House Printing and Robot Pollinators
-    p2.turn {
-      playProject(AtalantaPlanitiaLab, 8) {
-        doTask("2 ProjectCard")
-        // Player2 is using their Mars University effect to draw a card by discarding a card.
-        // You discarded Cloud Seeding
-        // Player2 drew 1 card(s)
-        // You drew Corroder Suits
-        doTask("-ProjectCard")
-      }
-      // Player2 used Sell Patents standard project
-      // Player2 sold 3 patents
-      sellPatents(3)
-    }
+    p1.doTasks("-5 MC", "84 MC", "5 Steel", "6 Energy", "3 Heat", "Titanium", "7 Plant")
+    p2.doTasks("53 MC", "-5 MC", "2 Steel", "3 Titanium", "3 Heat", "6 Plant", "9 Energy")
+    p1.doTasks("4 ProjectCard<Selecting>")
+    p2.doTasks("4 ProjectCard<Selecting>")
+    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
+    p2.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard FROM BuyCard")
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$ImportedNitrogen>>",
+        "-1 Titanium",
+        "-15 MC",
+        "$ImportedNitrogen FROM ProjectCard",
+        "3 Microbe<$VenusianInsects>",
+        "2 Animal<$StratosphericBirds>",
+        "TerraformRating",
+        "4 Plant",
+        "3 MC",
+        "3 Heat",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DevelopmentCenter, Action1>",
+        "-Energy",
+        "ProjectCard",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$AiCentral, Action1>",
+        "2 ProjectCard",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$Factorum, Action2>",
+        "-3 MC",
+        "SearchForCard<TagFilter<Class<BuildingTag>>>",
+    )
+    p1.doTasks(
+        "UseAction<ConvertPlantsAction, Action1>",
+        "-8 Plant",
+        "GreeneryTile<Tharsis_2_4>",
+        "2 MC",
+        "OxygenStep",
+        "TerraformRating",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$InventorsGuild, Action1>",
+        "ProjectCard<Selecting>",
+        "-1 ProjectCard<Selecting>",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$MediaGroup>>",
+        "-4 MC",
+        "$MediaGroup FROM ProjectCard",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$MiningExpedition>>",
+        "-10 MC",
+        "$MiningExpedition FROM ProjectCard",
+        "-2 Plant<Player1>",
+        "OxygenStep",
+        "TerraformRating",
+        "2 Steel",
+        "3 MC",
+        "Ok", // temperature maxed
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$PowerInfrastructure, Action1>",
+        "5 Owed<Class<Energy>>",
+        "-5 Energy",
+        "5 MC",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$ExtractorBalloons, Action1>",
+        "Floater<$ExtractorBalloons>",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$BioPrintingFacility, Action1>",
+        "-2 Energy",
+        "Animal<$EcologicalZone>",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$AquiferPumping, Action1>",
+        "-2 Steel",
+        "-2 MC",
+        "OceanTile<Tharsis_5_4>",
+        "2 MC",
+        "TerraformRating",
+        "4 Plant",
+    )
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$BusinessNetwork>>",
+        "-1 MC",
+        "$BusinessNetwork FROM ProjectCard",
+        "PROD[-MC]",
+    )
+
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$BusinessNetwork, Action1>",
+        "ProjectCard<Selecting>",
+        "Ok", // keep card
+        "-3 MC",
+        "ProjectCard FROM BuyCard",
+    )
+    p2.doTasks(
+        "UseAction<UseStandardProjectAction, Action1>",
+        "UseAction<CityProject, Action1>",
+        "-25 MC",
+        "CityTile<Tharsis_8_5>",
+        "PROD[MC]",
+    )
+    p2.doTasks(
+        "UseAction<ConvertPlantsAction, Action1>",
+        "-8 Plant",
+        "GreeneryTile<Tharsis_8_4>",
+        "2 Steel",
+        "OxygenStep",
+        "TerraformRating",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$DeuteriumExport, Action2>",
+        "-Floater<$DeuteriumExport>",
+        "PROD[Energy]",
+        "Energy",
+    )
+
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$FloatingHabs, Action1>",
+        "-2 MC",
+        "Floater<$FloatingHabs>",
+    )
+    p2.doTasks(
+        "UseAction<ConvertPlantsAction, Action1>",
+        "-8 Plant",
+        "GreeneryTile<Tharsis_9_5>",
+        "Steel",
+        "OxygenStep",
+        "TerraformRating",
+    )
+
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$AerialMappers, Action2>",
+        "-Floater<$AerialMappers>",
+        "ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$StratosphericBirds, Action1>",
+        "Animal<$StratosphericBirds>",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$MoholeLake, Action1>",
+        "Animal<$StratosphericBirds>",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$MagneticFieldGeneratorsPromo>>",
+        "-6 Steel",
+        "-2 MC",
+        "$MagneticFieldGeneratorsPromo FROM ProjectCard",
+        "MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_6_6>",
+        "PROD[-4 Energy]",
+        "PROD[2 Plant]",
+        "3 TerraformRating",
+        "6 MC",
+        "Plant",
+    )
+
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$TowingAComet>>",
+        "-4 Titanium",
+        "-1 MC",
+        "$TowingAComet FROM ProjectCard",
+        "OceanTile<Tharsis_6_8>",
+        "5 Plant",
+        "OxygenStep",
+        "2 TerraformRating",
+        "5 MC",
+    )
+    p1.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$VenusianInsects, Action1>",
+        "Microbe<$VenusianInsects>",
+    )
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$StandardTechnology>>",
+        "-6 MC",
+        "$StandardTechnology FROM ProjectCard",
+        "ProjectCard FROM Science",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$AtalantaPlanitiaLab>>",
+        "-8 MC",
+        "$AtalantaPlanitiaLab FROM ProjectCard",
+        "2 ProjectCard",
+        "-ProjectCard",
+        "ProjectCard",
+    )
+    p2.doTasks(
+        "UseAction<UseStandardProjectAction, Action1>",
+        "UseAction<SellPatentsProject, Action1>",
+        "3 MC FROM ProjectCard",
+    )
     admin.assertCounts(9 to "OceanTile")
-    // Player1 played Large Convoy
-    // Player1 drew 2 card(s)
-    // You drew Water Splitting Plant and Martian Survey
-    // Player1's mc amount increased by 3 by Optimal Aerobraking
-    // Player1's heat amount increased by 3 by Optimal Aerobraking
-    // Player1 added 4 animal(s) to Stratospheric Birds
-    p1.turn {
-      playProject(LargeConvoy, 31) {
-            addCardResources(StratosphericBirds)
-            // No ocean tile remains to place.
-            doTask("Ok")
-            doTask("2 ProjectCard")
-            doTask("3 MC")
-          }
-          .expect("ProjectCard, 3 Heat, 4 Animal")
-      // Player1 played Water Splitting Plant
-      playProject(WaterSplittingPlant, steel = 4)
-    }
-    // Player2 played Robot Pollinators
-    // Player2's plants production increased by 1
-    // Player2's plants amount increased by 4
-    p2.turn {
-      playProject(RobotPollinators, 7) { doTask("PROD[Plant]") }.expect("PROD[Plant], 4 Plant")
-      // Player2 used Convert Plants standard action
-      // Player2 placed greenery tile on row 7 position 2
-      convertPlants {
-        placeTile(7, 4)
-      }
-    }
-    // Player1 played Media Archives
-    // Player1's mc amount increased by 16
-    p1.turn {
-      playProject(MediaArchives, 5)
-      // Player1 used Greenery standard project
-      // Player1's mc amount increased by 3
-      stdProject("GreeneryProject") {
-        // Player1 placed greenery tile on row 5 position 7
-        placeTile(5, 7)
-        // Player1's plants amount increased by 2
-        doTask("3 MC")
-        repeat(3) { doTask("2 MC") }
-        doTask("2 Plant")
-      }
-    }
-    // Player2 played Greenhouses
-    // Player2's plants amount increased by 6
-    // Player2 added 1 animal(s) to Ecological Zone
-    p2.turn {
-      playProject(Greenhouses, 4) { doTask("Animal<$EcologicalZone>!") }.expect("6 Plant, Animal")
-      // Player2 used Convert Plants standard action
-      // Player2 placed greenery tile on row 9 position 4
-      convertPlants {
-        placeTile(9, 8)
-        doTask("2 MC")
-      }
-    }
-    // Player1 funded Thermalist award
-    p1.turn {
-      stdAction("FundAwardAction", which = 3) { doTask("Thermalist") }
-      // Player1 used Convert Plants standard action
-      convertPlants {
-            // Player1 placed greenery tile on row 4 position 4
-            placeTile(4, 4)
-            // Player1's plants amount increased by 1
-            doTask("Plant")
-            doTask("2 MC")
-            doTask("2 MC")
-          }
-          .expect("-7 Plant")
-    }
-    // Player2 used Sell Patents standard project
-    // Player2 sold 3 patents
-    p2.turn {
-      sellPatents(3)
-      // Player2 played Penguins
-      // Player2 added 1 animal(s) to Ecological Zone
-      playProject(Penguins, 5).expect("Animal<$EcologicalZone>")
-    }
-    // Player1 played Advanced Ecosystems
-    p1.turn {
-      playProject(AdvancedEcosystems, 11)
-      // Player1 used Sell Patents standard project
-      // Player1 sold 4 patents
-      sellPatents(4)
-    }
-    // Player2 used Penguins action
-    p2.turn {
-      cardAction1(Penguins)
-    }
-    // Player1 played Gene Repair
-    // Player1's megacredits production increased by 2
-    p1.turn {
-      playProject(GeneRepair, 12) {
-            doTask("PROD[2 MC]")
-            doTask("Science")
-          }
-          .expect("PROD[2 MC]")
-    }
-    workflow.shutdown()
-    // Player2 passed
-    p2.pass()
-    // Player1 passed
-    p1.pass()
-    admin.autoExecPolicy = NONE
-    listOf(p1, p2).forEach { it.autoExecPolicy = EAGER }
-    val stepwise = TfmWorkflow.Stepwise(agents)
-    stepwise.productionPhase()
-    listOf(p1, p2).forEach { it.autoExecPolicy = NONE }
-    admin.autoExecPolicy = EAGER
-    stepwise.finalGreeneryPhase()
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$LargeConvoy>>",
+        "-31 MC",
+        "Ok", // no titanium paid
+        "$LargeConvoy FROM ProjectCard",
+        "4 Animal<$StratosphericBirds>",
+        "Ok", // oceans full
+        "2 ProjectCard",
+        "3 MC",
+        "3 Heat",
+    )
+
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$WaterSplittingPlant>>",
+        "-4 Steel",
+        "Ok", // no mc paid
+        "$WaterSplittingPlant FROM ProjectCard",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$RobotPollinators>>",
+        "-7 MC",
+        "$RobotPollinators FROM ProjectCard",
+        "PROD[Plant]",
+        "4 Plant",
+    )
+
+    p2.doTasks(
+        "UseAction<ConvertPlantsAction, Action1>",
+        "-8 Plant",
+        "GreeneryTile<Tharsis_7_4>",
+        "OxygenStep",
+        "TerraformRating",
+    )
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$MediaArchives>>",
+        "-5 MC",
+        "$MediaArchives FROM ProjectCard",
+        "16 MC",
+    )
+    p1.doTasks(
+        "UseAction<UseStandardProjectAction, Action1>",
+        "UseAction<GreeneryProject, Action1>",
+        "-23 MC",
+        "GreeneryTile<Tharsis_5_7>",
+        "9 MC",
+        "2 Plant",
+        "OxygenStep",
+        "TerraformRating",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$Greenhouses>>",
+        "-4 MC",
+        "Ok", // no steel paid
+        "$Greenhouses FROM ProjectCard",
+        "Animal<$EcologicalZone>",
+        "6 Plant",
+    )
+
+    p2.doTasks(
+        "UseAction<ConvertPlantsAction, Action1>",
+        "-8 Plant",
+        "GreeneryTile<Tharsis_9_8>",
+        "2 MC",
+        "OxygenStep",
+        "TerraformRating",
+    )
+    p1.doTasks("UseAction<FundAwardAction, Action3>", "-20 MC", "Thermalist")
+    p1.doTasks(
+        "UseAction<ConvertPlantsAction, Action1>",
+        "-8 Plant",
+        "GreeneryTile<Tharsis_4_4>",
+        "Plant",
+        "4 MC",
+        "Ok", // oxygen maxed
+    )
+    p2.doTasks(
+        "UseAction<UseStandardProjectAction, Action1>",
+        "UseAction<SellPatentsProject, Action1>",
+        "3 MC FROM ProjectCard",
+    )
+    p2.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$Penguins>>",
+        "-5 MC",
+        "$Penguins FROM ProjectCard",
+        "Animal<$EcologicalZone>",
+    )
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$AdvancedEcosystems>>",
+        "-11 MC",
+        "$AdvancedEcosystems FROM ProjectCard",
+    )
+    p1.doTasks(
+        "UseAction<UseStandardProjectAction, Action1>",
+        "UseAction<SellPatentsProject, Action1>",
+        "4 MC FROM ProjectCard",
+    )
+    p2.doTasks(
+        "UseAction<UseActionOnCardAction, Action1>",
+        "UseAction<$Penguins, Action1>",
+        "Animal<$Penguins>",
+    )
+
+    p2.doTasks("Ok") // end turn
+    p1.doTasks(
+        "UseAction<PlayCardFromHandAction, Action1>",
+        "PlayCard<Class<ProjectCard>, Class<$GeneRepair>>",
+        "-12 MC",
+        "$GeneRepair FROM ProjectCard",
+        "PROD[2 MC]",
+        "Science",
+        "2 MC",
+    )
+
+    p1.doTasks("Ok") // end turn
+    p2.doTasks("Pass")
+    p1.doTasks("Pass")
+
+    p1.doTasks("88 MC", "-5 MC")
+    p2.doTasks("65 MC", "-5 MC")
+    p1.doTasks("5 Steel")
+    p2.doTasks("2 Steel", "3 Titanium", "3 Heat", "9 Plant", "5 Energy")
+    p1.doTasks("7 Energy", "3 Heat", "Titanium", "7 Plant")
+
     // Final greenery placement
-    p1.convertPlants {
-      // Player1 placed greenery tile on row 6 position 4
-      placeTile(6, 5)
-      doTask("Plant")
-      doTask("2 MC")
-      doTask("2 MC")
-    }
-    // Player1's plants amount increased by 1
-    // Decline another final greenery placement.
-    p1.startTurn()
-    p1.declineTask()
-    p2.convertPlants {
-      // Player2 placed greenery tile on row 8 position 5
-      placeTile(8, 8)
-      doTask("2 MC")
-    }
-    // Decline another final greenery placement.
-    p2.startTurn()
-    p2.declineTask()
-    listOf(p1, p2).forEach { it.autoExecPolicy = EAGER }
-    admin.autoExecPolicy = EAGER
-    stepwise.endPhase()
-    // This game id was gf386a4cd5de1
+    p1.doTasks(
+        "UseAction<ConvertPlantsAction, Action1>",
+        "-8 Plant",
+        "GreeneryTile<Tharsis_6_5>",
+        "Plant",
+        "4 MC",
+    )
+    p1.doTasks("Ok") // no more greenery
+    p2.doTasks(
+        "UseAction<ConvertPlantsAction, Action1>",
+        "-8 Plant",
+        "GreeneryTile<Tharsis_8_8>",
+        "2 MC",
+    )
+    p2.doTasks("Ok") // no more greenery
+
+    p1.assertCounts(126 to "VictoryPoint", 1 to "Victory")
+    p2.assertCounts(92 to "VictoryPoint", 0 to "Victory")
+    game.isIdle() shouldBe true
 
     val summ = Summarizer(game)
     summ.net("$Manutech", "Resource") shouldBe 104
@@ -1962,10 +2256,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     summ.net("$AquiferPumping", "OceanTile") shouldBe 6
     summ.net("$ArcticAlgae", "Plant") shouldBe 19
     summ.net("$OptimalAerobraking", "Resource") shouldBe 42
-    // summ.net("$SearchForLife", "MC") shouldBe -4
     summ.net("$SearchForLife", "Science") shouldBe 0
 
-    // This is just silly
     summ.net("TerraformRating<Player1>", "MC<Player1>") shouldBe 361
     summ.net("TerraformRating<Player1>", "MC") shouldBe 361
     summ.net("TerraformRating", "MC<Player1>") shouldBe 361
@@ -1982,31 +2274,22 @@ internal class Game20230521Test : AbstractFullGameTest() {
   private fun checkSummaryAfterGen4(game: World) {
     val summer = Summarizer(game)
 
-    // AA's effect has triggered once, plus the immediate plant
     summer.net("$ArcticAlgae", "Plant") shouldBe 3
 
-    // Blue has done 16 card buys: 5 initial, 8 in research, and 3 from inventors guild
     summer.net("CardPurchase", "ProjectCard<Player1>") shouldBe 16
 
-    // DeuteriumExport produced a net of 1 floaters (made, consumed, made)
     summer.net("$DeuteriumExport", "Floater") shouldBe 1
     summer.net("$DeuteriumExport", "Production<Class<Energy>>") shouldBe 1
 
-    // EarthOffice has saved blue 6 money (InvestmentLoan, ImportedGhg)
     summer.net("$EarthOffice", "Owed<Player1>") shouldBe -6
 
-    // Manutech has delivered! 1 MC with NewPartner, 4 with AlliedBank, 3 with CorporateStronghold
-    // ... plus of course 35 at game start
     summer.net("$Manutech", "MC<Player1>") shouldBe 43
 
-    // Purple got 63 MC from Terraform Rating (at production phases they had 20, 21, 22, and 24
-    // Terraform Rating)
     summer.net("TerraformRating", "MC<Player2>") shouldBe 87
     summer.net("TerraformRating<Player2>", "MC") shouldBe 87
     summer.net("TerraformRating<Player2>", "MC<Player2>") shouldBe 87
     summer.net("TerraformRating", "MC") shouldBe 183
 
-    // Blue has raised temp 2 & venus 2, purple did temp & venus2 & ocean
     summer.net("GlobalParameter", "TerraformRating<Player1>") shouldBe 4
     summer.net("GlobalParameter", "TerraformRating<Player2>") shouldBe 4
   }

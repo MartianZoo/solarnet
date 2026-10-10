@@ -14,7 +14,6 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Change
-import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -25,7 +24,6 @@ import dev.martianzoo.state.TaskResult
 
 private val MC: ClassName = cn("MC")
 private val STANDARD_ACTION: ClassName = cn("StandardAction")
-private val BUY_SELECTED_CARDS: ClassName = cn("BuySelectedCards")
 
 /**
  * Wraps and extends an [Agent] to provide much more convenient functions specific to *Terraforming
@@ -67,8 +65,8 @@ public class TfmGameplay(
 
   /**
    * Plays a standard corporation and buys the project cards retained during setup. This convenience
-   * chooses fixed corporation effects before the purchase; the underlying tasks remain
-   * independently selectable by other clients.
+   * chooses fixed corporation effects before paying for the starting cards; the underlying tasks
+   * remain independently selectable by other clients.
    */
   public fun playCorp(cardName: ClassName, body: OperationBlock = {}): TaskResult {
     if (count("CorporationPhase") == 0) {
@@ -98,10 +96,10 @@ public class TfmGameplay(
     buyOfferedCards(count)
   }
 
-  /** Shares the operation-scoped discard, confirmation, and payment sequence across all buys. */
+  /** Shares the operation-scoped discard, payment, and hand transfer sequence across all buys. */
   private fun OperationScope.buyOfferedCards(count: Int) {
     discardUnwantedCards(count)
-    buySelectedCards(count)
+    buySelectedCards()
   }
 
   private fun OperationScope.discardUnwantedCards(count: Int) {
@@ -111,29 +109,11 @@ public class TfmGameplay(
     doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
   }
 
-  private fun OperationScope.buySelectedCards(
-      selected: Int = this@TfmGameplay.count("ProjectCard<Selecting>")
-  ) {
-    if (
-        tasks
-            .extract { it }
-            .any { task ->
-              val instruction = task.instruction
-              instruction is Gain && instruction.gaining.className == BUY_SELECTED_CARDS
-            }
-    ) {
-      doTask("BuySelectedCards")
-    }
-    // Confirmation queues this step even when no cards were retained.
-    tasks
-        .extract { it }
-        .singleOrNull { task ->
-          task.instruction.descendantsOfType<Change>().any { change ->
-            change.gaining?.className == cn("BuyCard")
-          }
-        }
-        ?.let { selectTaskForActor(it) }
-    if (selected > 0) payAllMc()
+  private fun OperationScope.buySelectedCards() {
+    autoExecNow()
+    payAllMc()
+    val purchased = this@TfmGameplay.count("BuyCard")
+    if (purchased > 0) doTask("$purchased ProjectCard FROM BuyCard")
   }
 
   private fun OperationScope.chooseConcreteCorporationEffectsBeforePurchase() {
@@ -143,11 +123,6 @@ public class TfmGameplay(
               .extract { it }
               .filter { task ->
                 task.selectionAssignee == actor && asActor(task.assignee).canSelectTask(task.id)
-              }
-              .filterNot { task ->
-                task.instruction.descendantsOfType<Gain>().any { gain ->
-                  gain.gaining.className == BUY_SELECTED_CARDS
-                }
               }
               .firstOrNull { task -> !task.instruction.isAbstract(reader) } ?: return
       selectTaskForActor(next)

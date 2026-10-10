@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.tests.cards.cardnames.CorporateStronghold
 import dev.martianzoo.tfm.tests.cards.cardnames.Donation
 import dev.martianzoo.tfm.tests.cards.cardnames.GiantIceAsteroid
 import dev.martianzoo.tfm.tests.cards.cardnames.Manutech
@@ -65,16 +65,14 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
   @Test
   internal fun `A scoring failure restores state and history`() {
     newTestGame()
+    kim.exMachina("$CorporateStronghold, -20 TerraformRating")
     val checkpoint = game.timeline.checkpoint()
-    val policy = admin.autoExecPolicy
-    admin.autoExecPolicy = NONE
-    try {
-      shouldThrow<NotFullySpecifiedException> { victoryPoints() }
-      game.timeline.checkpoint() shouldBe checkpoint
-    } finally {
-      admin.autoExecPolicy = policy
-    }
-    victoryPoints() shouldBe listOf(20, 20, 20)
+
+    shouldThrow<LimitsException> { victoryPoints() }
+    game.timeline.checkpoint() shouldBe checkpoint
+
+    kim.exMachina("20 TerraformRating")
+    victoryPoints() shouldBe listOf(18, 20, 20)
   }
 
   @Test

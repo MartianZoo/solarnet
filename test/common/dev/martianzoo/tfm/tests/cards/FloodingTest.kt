@@ -286,13 +286,17 @@ internal class FloodingTest : TfmSandboxTest() {
   @Test
   internal fun `Cannot resume the loss before the accepted Neptunian bonus is paid`() {
     acceptOpponentsNeptunianBonus()
-    shouldThrow<TaskException> { kim.doTask("-4 MC<Stan>!") }
+    shouldThrow<TaskException> {
+      kim.selectTask("-4 MC<Stan>?")
+      kim.doTask("-4 MC<Stan>!")
+    }
     stan.assertCounts(5 to "MC", 0 to "Hydroelectric")
   }
 
   @Test
   internal fun `BUG - Can resume the loss before the accepted Neptunian bonus is paid`() {
     acceptOpponentsNeptunianBonus()
+    kim.selectTask("-4 MC<Stan>?")
     kim.doTask("-4 MC<Stan>!")
     stan.assertCounts(1 to "MC", 0 to "Hydroelectric")
     stan.assertProds(0 to "Energy")
@@ -352,11 +356,7 @@ internal class FloodingTest : TfmSandboxTest() {
     kim.selectTask("UseAction<Stan, NeptunianOption<NeptunianPowerConsultants<Stan>>>?")
     p2.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
 
-    // P1 orders each billing stage, while P2 performs the work assigned to P2.
-    kim.selectTask("5 Owed<Stan>!")
-    p2.doTask("5 Owed<Stan>")
-    kim.selectTask("ActionBilling<Stan, NeptunianOption<NeptunianPowerConsultants<Stan>>, Action1>")
-    p2.doTask("ActionBilling<Stan, NeptunianOption<NeptunianPowerConsultants<Stan>>, Action1>")
+    // Admin opens the bill; P1 still selects the payment choice that hands off to P2.
     kim.selectTask("-X Steel<Stan>?")
     p2.doTask("-2 Steel")
     p2.assertCounts(0 to "Steel", 1 to "MC", 1 to "Owed")

@@ -8,17 +8,17 @@ internal val attributionProbe = cn("AttributionProbe")
 internal val attribution = cn("Attribution")
 
 /**
- * A card recording which player was credited for each victory point removed. It watches one seat
- * per seat the game occupies, since a trigger may only name a player that game actually seats.
+ * A card recording which actor was credited for each victory point removed. It watches Admin and
+ * the occupied seats, since a trigger may only name a player that game actually seats.
  */
 internal fun attributionProbeDeclarations(seats: Int): Set<ClassDeclaration> {
   val watchers =
-      (1..seats).joinToString("\n  ") { seat ->
-        "-X VictoryPoint<Anyone> BY Player$seat: Attribution<Player$seat>"
+      (listOf("Admin") + (1..seats).map { "Player$it" }).joinToString("\n  ") { actor ->
+        "-X VictoryPoint<Anyone> BY $actor: Attribution<$actor>"
       }
   return parseClasses(
           """
-          CLASS Attribution<Player> : Hidden
+          CLASS Attribution<Actor> : Hidden
 
           CLASS AttributionProbe : ActiveCard {
             cost = 0

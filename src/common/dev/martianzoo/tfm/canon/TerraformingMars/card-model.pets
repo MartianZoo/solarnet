@@ -44,17 +44,17 @@ ABSTRACT CLASS Card : Owned<Player> {
 "The payment operation that owns project-card purchases"
 CLASS CardPurchase : HasActions {
   HAS =1 This
-  -ActionBilling<This, Action1>:: ProjectCard / BuyCard, -BuyCard / BuyCard
+  -ActionBilling<This, Action1>: ProjectCard FROM BuyCard / BuyCard
 }
 
-"A selected project card awaiting payment"
+"A selected project card awaiting payment and transfer to Hand"
 CLASS BuyCard : Owned<Player>, MustCleanUp, Hidden {
   This:: 3 Owed<> THEN PayingFor<Class<ProjectCard>> THEN ActionBilling<CardPurchase, Action1>.
 }
 
 "Buys every project card left in this Player's selection"
-CLASS BuySelectedCards : Owned<Player>, Signal {
-  This: BuyCard FROM ProjectCard<Selecting> / ProjectCard<Selecting>
+CLASS BuySelectedCards : Owned<Player>, Signal, System {
+  This:: BuyCard FROM ProjectCard<Selecting> / ProjectCard<Selecting>
 }
 
 "An externally specified search criterion; the selected card is not tracked before it reaches a hand"
@@ -71,7 +71,7 @@ CLASS ReferenceFilter<Class<Component>> : CardFilter, Hidden { HAS MAX 1 This }
 
 "Records the search criterion while adding only the externally selected card to the hand"
 CLASS SearchForCard<CardFilter> : Owned<Player>, Signal {
-  This: ProjectCard, Audit
+  This:: ProjectCard, Audit
 }
 
 "Keeps an offered project card that externally satisfies the filter"

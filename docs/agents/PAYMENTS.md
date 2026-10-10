@@ -36,10 +36,11 @@ contains the denomination. `ActionBilling` also carries the provider and action 
 action-specific rules. `CardBilling` has no card identity: the pending play instruction already
 retains the card.
 
-`BuySelectedCards` queues its `BuyCard` transmutation as an ordinary effect. Manual callers must
-select that work before paying. `TfmGameplay.buySelectedCards` selects the pending purchase task
-before payment, including the zero-card case, without changing the caller's autoexecution policy.
-Pets determines the quantity and adjusted debt; the helper only selects the offered work.
+`Owed`, `PayingFor`, and `Billing` are `System` bookkeeping. Fixed gains run as Admin,
+including scaled debt and gains inside automatic effects. A variable amount such as `X Owed`
+stays with the Player until they choose the amount; Admin then performs the concrete gain.
+The resulting payment choices remain assigned to the Player, whose resource removals retain
+that Player as their event Actor.
 
 ## Verified gaps
 
@@ -50,10 +51,11 @@ case. Do not add transaction identity for hypothetical concurrent invoices witho
 systemic rule.
 
 Delegated payment also exposes a routing and completion question. P1 can hand a Neptunian decision
-to P2, but current selection delegates only that selected task. Accepting the option queues billing
-work under P1's controller again. The `pay` helper bridges the gap by selecting through each task's current
-assignee. Calling those Agents is legitimate calculator use. A helper-driven scenario can succeed
-without establishing which selections each Agent requires or whether intervening work changes the
+to P2, but current selection delegates only that selected task. Admin opens the fixed bill;
+its payment offers still have P1 as controller and hand off to P2 on selection. The `pay` helper
+bridges the gap by selecting through each task's current assignee. Calling those Agents is legitimate
+calculator use. A helper-driven scenario can succeed without establishing which selections each
+Agent requires or whether intervening work changes the
 payment result; inspect those game semantics separately from authorization of the external caller.
 
 `FloodingTest` characterizes intervention immediately after acceptance and after a separate Steel

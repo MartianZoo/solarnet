@@ -5,6 +5,7 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.assertions.throwables.shouldThrow
@@ -12,6 +13,21 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class SafeAutoExecTest {
+  @Test
+  internal fun adminRetriesANegativeSystemAmountAfterTheLaterGain() {
+    val game = Engine.newGame(testGamePremise("CLASS Point : System"))
+    val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
+    player.addTasks("-2 Point!, 5 Point!")
+    val before = game.timeline.checkpoint()
+
+    player.doTasks()
+
+    player.count("Point") shouldBe 3
+    game.events.changesSince(before).map { it.actor } shouldBe listOf(ADMIN, ADMIN)
+    game.isIdle() shouldBe true
+    player.autoExecPolicy shouldBe NONE
+  }
+
   @Test
   internal fun failingSingletonRestoresItsTaskAndAutomaticEffects() {
     val game =

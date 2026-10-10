@@ -145,6 +145,10 @@ internal class AgentImpl(
     }
   }
 
+  override fun doTasks(vararg narrowings: String): TaskResult = continueOperation {
+    doTasks(*narrowings)
+  }
+
   override fun continueOperation(body: OperationBlock): TaskResult {
     return atomic { continueOperationBody { Adapter().body() } }
   }
@@ -185,6 +189,21 @@ internal class AgentImpl(
     override fun doTask(narrowing: String) {
       this@AgentImpl.doTask(narrowing)
       autoExecLoop.run()
+    }
+
+    override fun doTasks(vararg narrowings: String) {
+      narrowings.forEach { narrowing ->
+        val parsed = parseTaskNarrowing(narrowing)
+        atomic {
+          engine.doTask(
+              parsed.instruction,
+              parsed.quantifierOmitted,
+              parsed.submittedAsGroup || parsed.instruction is InstructionGroup,
+              combineScalars = true,
+          )
+        }
+        autoExecLoop.run()
+      }
     }
 
     override fun doTask(narrowing: String, contextClass: ClassName) {

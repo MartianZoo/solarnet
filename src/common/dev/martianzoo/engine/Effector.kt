@@ -100,9 +100,7 @@ internal class Effector(
             queuedEffectFallback =
                 selectionAssignee.takeIf {
                   automatic == false &&
-                      listOfNotNull(gaining, removing).any {
-                        it.rootClass.isSubtypeOf(systemClass)
-                      }
+                      (gaining ?: removing)?.rootClass?.isSubtypeOf(systemClass) == true
                 },
         )
     val selfEffects = fireSelfEffects(triggerEvent, controller, automatic, resolvedChange)

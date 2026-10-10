@@ -48,13 +48,6 @@ These concerns remain open; the ranking does not select replacement designs.
 - Continue the remaining `::` audit without treating current sequencing dependencies as permanent
   justifications. Preserve intrinsic card-tag construction, old Energy conversion before
   production, and Pharmacy Union's starting money before its tag penalties.
-- Resolve the existing pricing sequence before making `Owed` System. Automatic `BuyCard` and
-  Polyphemos debt gains bypass queued Admin assignment, while Excentric Sponsor's
-  `PlayCard THEN -25 Owed` can apply its discount before the card's debt is created.
-  A follow-up trial also made `PayingFor` System and queued the BuyCard/Polyphemos debt gains:
-  Polyphemos still waited for `ActionBilling`, while Excentric Sponsor hit the System-creation
-  guard through `PriceCard`'s automatic effects (five of seven focused scenarios failed).
-  Those `Owed`-to-System trials were reverted; the general System-removal routing remains.
 
 - [ ] Extend the build-time Canon invariant checks to indirect special-tile gains behind
   signals or supporting components (`GainsOf`; entry 15 of
@@ -240,12 +233,8 @@ These concerns remain open; the ranking does not select replacement designs.
 - Replace the duplicated `TemperatureStep BY Player`/`BY Admin` threshold-ocean triggers and the
   synthetic `AdminOceanPlacement` signal with one rule that separates who chooses the tile from
   whose action the placement is attributed to, shared by the standard and extended tracks.
-- Extend early `System` assignment to scaled direct gains before classifying `CheckRequirement` as
-  `System`; its current `/ shortfall` task shape reaches the Admin-only guard while still assigned
-  to the Player.
-- Audit direct removals of `System` components, then decide whether early Admin assignment should
-  cover removals as well as gains. Preserve any removal that represents a real Player timing or
-  target choice instead of assuming that the gain classification settles both directions.
+- Reassess classifying `CheckRequirement` as `System` now that scaled direct gains route to Admin.
+  Verify requirement failures and downstream choices before changing its classification.
 - Investigate whether Player identity can survive Player → Admin → Player task chains without
   making bookkeeping classes `Owned` solely to carry that Player through. Preserve real ownership,
   cross-player effects, explicitly named recipients, and phases with no unique on-turn Player; do

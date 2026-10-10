@@ -194,11 +194,6 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
             "GreeneryProject",
             payment = {
               doTask("4 MC", CrediCor)
-              doTask("23 Owed<Class<MC>>", cn("GreeneryProject"))
-              doTask(
-                  "ActionBilling<GreeneryProject, Action1, Class<MC>>",
-                  cn("GreeneryProject"),
-              )
               doTask("-12 Science<Spire>")
               // Twelve science are worth 24 MC; decline the unused MC tender after overpaying by
               // one.
