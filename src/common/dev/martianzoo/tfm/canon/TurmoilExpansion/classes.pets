@@ -89,7 +89,7 @@ CLASS ChangingTimes : Signal, System {
 CLASS TurmoilPlayer : Owned<Player>, System, Hidden {
   HAS MAX 1 This
   // This is the TurmoilPlayer component, whose effect inherits its lexical Me.
-  Delegate IF 8 Delegate:: Die
+  Delegate IF 8 Delegate: Die
 }
 
 "The owner of gray delegates, who holds a reserve of fourteen"
@@ -138,7 +138,7 @@ CLASS MarsFirstPolicy : Policy<Ruling<MarsFirst>> {
 }
 
 CLASS Scientists : Party {
-  This:: AfterParty<This, MarsFirst>
+  HAS =1 AfterParty<This, MarsFirst>
   ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / ScienceTag }
   ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: ScientistsPolicy.
 }

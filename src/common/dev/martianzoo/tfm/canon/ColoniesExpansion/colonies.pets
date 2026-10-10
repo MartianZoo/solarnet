@@ -13,7 +13,7 @@ CLASS ColoniesExpansion : Module {
 }
 
 "A colony tile, such as Pluto"
-ABSTRACT CLASS ColonyTile {
+ABSTRACT CLASS ColonyTile : System {
   HAS MAX 1 This, MAX 3 Colony<This>, MAX 1 Trade<This>
 
   This:: ColonyProduction<This>
@@ -248,16 +248,16 @@ CLASS ResetColonyProduction<ColonyTile> : Signal, System
 ABSTRACT CLASS DelayedColonyTile<Class<@ColonyTile>, Class<CardResource>> : ColonyTileSelection<Class<@ColonyTile>>
 
 CLASS DelayedEnceladus : DelayedColonyTile<Class<Enceladus>, Class<Microbe>> {
-  This IF ResourceCard<Class<Microbe>>:: Enceladus FROM This
-  ResourceCard<Class<Microbe>>:: Enceladus FROM This
+  This IF ResourceCard<Class<Microbe>>: Enceladus FROM This
+  ResourceCard<Class<Microbe>>: Enceladus FROM This
 }
 
 CLASS DelayedMiranda : DelayedColonyTile<Class<Miranda>, Class<Animal>> {
-  This IF ResourceCard<Class<Animal>>:: Miranda FROM This
-  ResourceCard<Class<Animal>>:: Miranda FROM This
+  This IF ResourceCard<Class<Animal>>: Miranda FROM This
+  ResourceCard<Class<Animal>>: Miranda FROM This
 }
 
 CLASS DelayedTitan : DelayedColonyTile<Class<Titan>, Class<Floater>> {
-  This IF ResourceCard<Class<Floater>>:: Titan FROM This
-  ResourceCard<Class<Floater>>:: Titan FROM This
+  This IF ResourceCard<Class<Floater>>: Titan FROM This
+  ResourceCard<Class<Floater>>: Titan FROM This
 }
