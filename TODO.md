@@ -115,6 +115,9 @@ These concerns remain open; the ranking does not select replacement designs.
 - When preparing the [PETS repository draft](docs/pets-repo-draft.md) for publication, decide
   whether to include Sponsored Academies, currently retained as a draft note after the gallery.
 - After the repository split, rename `:pets-tools` to `:tools` in the Pets repository.
+- Before separating Git repositories, choose the Pets publishing host and version convention,
+  automate tagged releases, and verify Solarnet against a hosted release. This follows build
+  separation; see the [release workflow](PETS_ROADMAP.md#release-workflow-before-the-git-split).
 - Add scenario saving and reloading to [Mars Playground](PLAYGROUND.md) after the initial version.
 - Add shareable URLs for [Mars Playground](PLAYGROUND.md#technology-and-experience) later. First
   decide what restoring the same view includes: scenario, history position, camera, and windows.

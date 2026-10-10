@@ -180,7 +180,10 @@ after review. **Selected** means the direction is chosen while some design remai
   libraries by artifact coordinates, with local composite substitution for combined development.
   The [repo-split next step](PETS_ROADMAP.md#next-step-separate-gradle-builds) owns the implementation
   scope and acceptance checks, including building an isolated Solarnet copy against freshly built
-  Pets artifacts without Pets source. Preserve the combined checks and development server.
+  Pets artifacts without Pets source. Developer comfort is a completion condition: prove explicit
+  release/source selection, independent worktree pairings, IDE editing across both builds, and
+  familiar combined checks and application startup before separating Git repositories. The same
+  plan owns the lightweight release workflow and coordination of changes spanning both projects.
 - **Let independent builders succeed.** Pets supplies an understandable semantic library;
   Solarnet supplies a trustworthy executable World and game-playing surface. Mars Playground,
   parity work, and future outside clients should pressure those contracts constructively without
