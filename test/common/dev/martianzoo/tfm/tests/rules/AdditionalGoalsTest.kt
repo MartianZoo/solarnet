@@ -26,7 +26,7 @@ internal class AdditionalGoalsTest : TfmSandboxTest() {
     kim.exMachina("5 PartyDelegate<Scientists>, Chairman FROM Chairman<Neutral>")
     shouldThrow<RequirementException> { kim.claimMilestone(cn("Lobbyist")) }
 
-    kim.stdAction("LobbyAction", 1) { doTask("PartyDelegate<Scientists>") }
+    kim.stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Scientists>") }
     kim.claimMilestone(cn("Lobbyist")).expect("-8 MC, Lobbyist")
   }
 }

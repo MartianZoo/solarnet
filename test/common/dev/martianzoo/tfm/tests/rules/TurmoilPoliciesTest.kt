@@ -82,7 +82,7 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     electGovernment("Kelvinists")
     stan.pass()
 
-    kim.stdAction("UseTurmoilPolicyAction", 2).expect("-10 MC, PROD[Heat, Energy]")
+    kim.stdAction("UseTurmoilPolicyAction<Action2>").expect("-10 MC, PROD[Heat, Energy]")
     kim.pass()
     admin.count("KelvinistsPolicy") shouldBe 0
   }
@@ -91,11 +91,11 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
     kim.turn {
       stdAction("LobbyAction") { doTask("PartyDelegate<$party>") }
-      stdAction("LobbyAction", 2) { doTask("PartyDelegate<$party>") }
+      stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<$party>") }
     }
     stan.pass()
-    kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<$party>") }
-    kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<$party>") }
+    kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<$party>") }
+    kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<$party>") }
     kim.pass()
     kim.wgt("VenusStep")
     admin.doTask("ExploreFirstDirective")

@@ -495,7 +495,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
     kim.turn {
       stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
-      stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") }
+      stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
     }
     stan.pass()
     kim.pass()
@@ -506,7 +506,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     // Kim is chairman and takes Unity's leadership and an ordinary delegate's influence.
     stan.pass()
     kim.stdAction("LobbyAction") { doTask("PartyDelegate<Unity>") }
-    repeat(2) { kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<Unity>") } }
+    repeat(2) { kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Unity>") } }
     kim.pass()
     val plants = kim.count("Plant")
     val steel = kim.count("Steel")
@@ -519,10 +519,10 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
     kim.turn {
       stdAction("LobbyAction") { doTask("PartyDelegate<MarsFirst>") }
-      stdAction("LobbyAction", 2) { doTask("PartyDelegate<MarsFirst>") }
+      stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<MarsFirst>") }
     }
     stan.pass()
-    kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<MarsFirst>") }
+    kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<MarsFirst>") }
     kim.pass()
     val rating = kim.count("TerraformRating")
     val heat = kim.count("Heat")
@@ -557,15 +557,16 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
       repeat(2) { round ->
         listOf(first, other).forEach { player ->
           player.turn {
-            stdAction("LobbyAction", if (round == 0) 1 else 2) {
+            val lobbyAction = if (round == 0) "LobbyAction<Action1>" else "LobbyAction<Action2>"
+            stdAction(lobbyAction) {
               doTask("PartyDelegate<Scientists>")
             }
-            stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") }
+            stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
           }
         }
       }
       listOf(first, other).forEach { player ->
-        player.turn { stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") } }
+        player.turn { stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") } }
       }
       first.pass()
       other.pass()
@@ -654,7 +655,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   private fun lobbyForInfluence() {
     kim.stdAction("LobbyAction") { doTask("PartyDelegate<MarsFirst>") }
-    repeat(4) { kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<MarsFirst>") } }
+    repeat(4) { kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<MarsFirst>") } }
   }
 
   private fun prepareEvent(event: String, setup: () -> Unit = {}) {

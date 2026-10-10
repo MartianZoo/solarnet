@@ -15,7 +15,7 @@ internal class HellasMapTest : TfmSandboxTest() {
     kim.exMachina("8 Plant")
     kim.setToExMachina(0, "MC")
 
-    kim.stdAction("ConvertPlantsAction") {
+    kim.stdAction("ConvertPlants") {
       shouldThrow<NarrowingException> { doTask("GreeneryTile<Hellas_1_5>") }
       abort()
     }
@@ -28,7 +28,7 @@ internal class HellasMapTest : TfmSandboxTest() {
     kim.setToExMachina(0, "MC")
     kim.setToExMachina(8, "Plant")
 
-    kim.stdAction("ConvertPlantsAction") {
+    kim.stdAction("ConvertPlants") {
           doTask("GreeneryTile<Hellas_9_7>")
           placeTile(5, 7)
         }

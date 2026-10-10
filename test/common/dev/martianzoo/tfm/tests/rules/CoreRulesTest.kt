@@ -152,7 +152,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "Luna, Ceres, Triton, Ganymede, Callisto", playerCount = 2)
     kim.exMachina("3 Energy")
 
-    kim.stdAction("TradeAction", 2) { doTask("Trade<Ceres>") }.expect("-3 Energy, 2 Steel")
+    kim.stdAction("TradeAction<Action2>") { doTask("Trade<Ceres>") }.expect("-3 Energy, 2 Steel")
   }
 
   internal class Gameplay : dev.martianzoo.tfm.tests.TfmGameplayTest() {

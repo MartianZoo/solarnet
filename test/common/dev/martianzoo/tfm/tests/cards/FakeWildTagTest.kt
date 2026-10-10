@@ -52,7 +52,7 @@ internal class FakeWildTagTest : TfmTest() {
     with(kim) {
       runOperation("${fakeWildTags("EventTag")}, NewTurn") {
             kim.count("EventTag") shouldBe 1
-            useStdAction("PlayCardFromHandAction", payment = {}) { playProject(MediaArchives, 8) }
+            playProject(MediaArchives, 8)
           }
           .expect("-8 MC")
     }
@@ -121,9 +121,7 @@ internal class FakeWildTagTest : TfmTest() {
     // Six supporting card faces cover the nine ordinary types; Trade supplies Space itself.
     with(kim) {
       runOperation("${fakeWildTags("EventTag")}, NewTurn") {
-            useStdAction("PlayCardFromHandAction", payment = {}) {
-              playProject(InterplanetaryTrade, 27)
-            }
+            playProject(InterplanetaryTrade, 27)
           }
           .expect("PROD[${if (venus) 12 else 11} MC]")
     }
@@ -150,7 +148,7 @@ internal class FakeWildTagTest : TfmTest() {
     val result =
         with(kim) {
           runOperation("${fakeWildTags("EarthTag")}, NewTurn") {
-            useStdAction("PlayCardFromHandAction", payment = {}) { playProject(Cartel, 8) }
+            playProject(Cartel, 8)
           }
         }
     kim.count("FakeWildTagUse") shouldBe 0

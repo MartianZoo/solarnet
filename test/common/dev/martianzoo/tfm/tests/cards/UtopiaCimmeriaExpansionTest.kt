@@ -48,7 +48,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     stan.exMachina("$Mine")
     kim.playProject(SmallAsteroid, 8)
 
-    kim.stdAction("FundAwardAction") { doTask("Incorporator") }
+    kim.stdAction("FundAward<Class<Incorporator>>")
     victoryPoints() shouldBe listOf(23, 25)
   }
 
@@ -58,7 +58,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     kim.exMachina("NormalCityTile<Utopia_1_1>")
     stan.exMachina("NormalCityTile<Utopia_5_5>")
 
-    kim.stdAction("FundAwardAction") { doTask("Suburbian") }
+    kim.stdAction("FundAward<Class<Suburbian>>")
     victoryPoints() shouldBe listOf(25, 20)
   }
 
@@ -70,7 +70,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
         "MiningRights_SpecialTile<Cimmeria_3_2>, NaturalPreserve_SpecialTile<Cimmeria_3_4>"
     )
 
-    kim.stdAction("FundAwardAction") { doTask("Founder") }
+    kim.stdAction("FundAward<Class<Founder>>")
     victoryPoints() shouldBe listOf(25, 20)
   }
 
@@ -80,7 +80,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     kim.setToExMachina(2, "PROD[Steel]")
     kim.setToExMachina(4, "PROD[Titanium]")
 
-    kim.stdAction("ClaimMilestoneAction") { doTask("Metallurgist") }.expect("-8 MC, Metallurgist")
+    kim.stdAction("ClaimMilestone<Class<Metallurgist>>").expect("-8 MC, Metallurgist")
   }
 
   @Test
@@ -90,7 +90,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
         "$SearchForLife, Science<$SearchForLife>, $Predators, Animal<$Predators>, $RegolithEaters, Microbe<$RegolithEaters>"
     )
 
-    kim.stdAction("ClaimMilestoneAction") { doTask("Trader") }.expect("-8 MC, Trader")
+    kim.stdAction("ClaimMilestone<Class<Trader>>").expect("-8 MC, Trader")
   }
 
   @Test
@@ -99,10 +99,10 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     kim.setToExMachina(11, "PROD[MC]")
 
     shouldThrow<RequirementException> {
-      kim.stdAction("ClaimMilestoneAction") { doTask("Fundraiser") }
+      kim.stdAction("ClaimMilestone<Class<Fundraiser>>")
     }
 
     kim.setToExMachina(12, "PROD[MC]")
-    kim.stdAction("ClaimMilestoneAction") { doTask("Fundraiser") }.expect("Fundraiser")
+    kim.stdAction("ClaimMilestone<Class<Fundraiser>>").expect("Fundraiser")
   }
 }

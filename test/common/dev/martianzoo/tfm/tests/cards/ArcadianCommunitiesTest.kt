@@ -14,7 +14,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
     kim.exMachina("NormalCityTile<Tharsis_1_1>")
     kim.exMachina("Community<Tharsis_1_3>")
 
-    kim.stdAction("DoRequiredActionsAction") {
+    kim.stdAction("RequiredActionsSignal") {
           shouldThrow<LimitsException> { doTask("Community<Tharsis_1_1>") }
           shouldThrow<LimitsException> { doTask("Community<Tharsis_1_3>") }
           doTask("Community<Tharsis_9_7>")
@@ -27,7 +27,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
     newTestGame(kimCorporation = ArcadianCommunities)
     kim.exMachina("NormalCityTile<Tharsis_1_1>")
     kim.exMachina("GreeneryTile<Tharsis_2_2>")
-    kim.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_9_7>") }
+    kim.stdAction("RequiredActionsSignal") { doTask("Community<Tharsis_9_7>") }
 
     kim.cardAction1(ArcadianCommunities) {
           shouldThrow<NarrowingException> { doTask("Community<Tharsis_4_2>") }
@@ -40,7 +40,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
   @Test
   internal fun `Action places a community adjacent to an owned community`() {
     newTestGame(kimCorporation = ArcadianCommunities)
-    kim.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_4_2>") }
+    kim.stdAction("RequiredActionsSignal") { doTask("Community<Tharsis_4_2>") }
 
     kim.cardAction1(ArcadianCommunities) { doTask("Community<Tharsis_4_3>") }
         .expect("Community<Tharsis_4_3>")
@@ -51,7 +51,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
     newTestGame(kimCorporation = ArcadianCommunities)
     stan.exMachina("NormalCityTile<Tharsis_1_1>")
     stan.exMachina("Community<Tharsis_4_2>")
-    kim.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_9_7>") }
+    kim.stdAction("RequiredActionsSignal") { doTask("Community<Tharsis_9_7>") }
 
     kim.cardAction1(ArcadianCommunities) {
       shouldThrow<NarrowingException> { doTask("Community<Tharsis_2_1>") }
@@ -63,7 +63,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
   @Test
   internal fun `Developing a community removes it and pays its Arcadian owner`() {
     newTestGame(kimCorporation = ArcadianCommunities)
-    kim.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_1_1>") }
+    kim.stdAction("RequiredActionsSignal") { doTask("Community<Tharsis_1_1>") }
     kim.setToExMachina(23, "MC")
 
     kim.stdProject("GreeneryProject") { placeTile(1, 1) }.expect("-Community, -20 MC, 0 MC<Stan>")
@@ -72,7 +72,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
   @Test
   internal fun `Developing a Land Claim community pays its Arcadian owner`() {
     newTestGame(kimCorporation = ArcadianCommunities)
-    kim.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_9_7>") }
+    kim.stdAction("RequiredActionsSignal") { doTask("Community<Tharsis_9_7>") }
     kim.playProject(LandClaim, 1) { doTask("Community<Tharsis_1_1>") }
     kim.setToExMachina(23, "MC")
 
@@ -82,7 +82,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
   @Test
   internal fun `Artificial Lake pays the claim owner even though oceans are unowned`() {
     newTestGame(kimCorporation = ArcadianCommunities)
-    kim.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_1_3>") }
+    kim.stdAction("RequiredActionsSignal") { doTask("Community<Tharsis_1_3>") }
     kim.setToExMachina(14, "MC")
     kim.setToExMachina(12, "TemperatureStep")
 

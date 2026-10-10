@@ -10,7 +10,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   @Test
   internal fun `Uses the printed requirement when no adjustment is needed`() {
     newTestGame(kimCorporation = Inventrix)
-    kim.stdAction("DoRequiredActionsAction")
+    kim.stdAction("RequiredActionsSignal")
     kim.exMachina(
         "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_6>, OceanTile<Tharsis_4_8>"
     )
@@ -21,7 +21,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   @Test
   internal fun `Inventrix relaxes minimum global requirements by two`() {
     newTestGame(kimCorporation = Inventrix)
-    kim.stdAction("DoRequiredActionsAction")
+    kim.stdAction("RequiredActionsSignal")
     kim.exMachina("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>")
 
     kim.playProject(Algae, 10).expect("$Algae")
@@ -30,7 +30,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   @Test
   internal fun `Inventrix relaxes maximum global requirements by two`() {
     newTestGame(kimCorporation = Inventrix)
-    kim.stdAction("DoRequiredActionsAction")
+    kim.stdAction("RequiredActionsSignal")
     kim.exMachina(
         "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_6>, OceanTile<Tharsis_4_8>"
     )
@@ -41,7 +41,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   @Test
   internal fun `Stacks Inventrix Adaptation Technology and Special Design`() {
     newTestGame(kimCorporation = Inventrix)
-    kim.stdAction("DoRequiredActionsAction")
+    kim.stdAction("RequiredActionsSignal")
     kim.exMachina("$AdaptationTechnology")
     kim.setToExMachina(11, "TemperatureStep")
     kim.setToExMachina(30, "MC")
@@ -53,7 +53,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   @Test
   internal fun `Consumes Special Design when stacked adjustments are used`() {
     newTestGame(kimCorporation = Inventrix)
-    kim.stdAction("DoRequiredActionsAction")
+    kim.stdAction("RequiredActionsSignal")
     kim.exMachina("$AdaptationTechnology")
     kim.setToExMachina(11, "TemperatureStep")
     kim.setToExMachina(30, "MC")
@@ -66,7 +66,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   @Test
   internal fun `Morning Star adjusts Venus requirements on cards without Venus tags`() {
     newTestGame(kimCorporation = MorningStarInc)
-    kim.stdAction("DoRequiredActionsAction")
+    kim.stdAction("RequiredActionsSignal")
     kim.setToExMachina(9, "VenusStep")
 
     kim.playProject(RotatorImpacts, 6).expect("$RotatorImpacts")
@@ -75,7 +75,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   @Test
   internal fun `Morning Star does not adjust ocean requirements`() {
     newTestGame(kimCorporation = MorningStarInc)
-    kim.stdAction("DoRequiredActionsAction")
+    kim.stdAction("RequiredActionsSignal")
     kim.setToExMachina(9, "VenusStep")
 
     shouldThrow<RequirementException> { kim.playProject(Algae, 10) }

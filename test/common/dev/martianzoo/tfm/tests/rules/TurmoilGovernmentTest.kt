@@ -13,14 +13,14 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
     newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
     kim.turn {
       stdAction("LobbyAction") { doTask("PartyDelegate<MarsFirst>") }
-      stdAction("LobbyAction", 2) { doTask("PartyDelegate<MarsFirst>") }
+      stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<MarsFirst>") }
     }
     stan.turn {
       stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
       playProject(VoteOfNoConfidence, 5)
     }
-    kim.turn { stdAction("LobbyAction", 2) { doTask("PartyDelegate<MarsFirst>") } }
-    stan.turn { stdAction("LobbyAction", 2) { doTask("PartyDelegate<MarsFirst>") } }
+    kim.turn { stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<MarsFirst>") } }
+    stan.turn { stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<MarsFirst>") } }
     kim.pass()
     stan.pass()
     kim.wgt("VenusStep")
@@ -67,7 +67,7 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
   @Test
   internal fun `After an election a dominance tie favors the next party clockwise`() {
     prepareElection("MarsFirst")
-    kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<Kelvinists>") }
+    kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Kelvinists>") }
     finishElection()
     admin.count("Dominant<Kelvinists>") shouldBe 1
   }
@@ -75,8 +75,8 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
   @Test
   internal fun `Dominance skips a smaller party before breaking the next tie`() {
     prepareElection("MarsFirst")
-    kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<Reds>") }
-    repeat(2) { kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<Unity>") } }
+    kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Reds>") }
+    repeat(2) { kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Unity>") } }
     finishElection()
     admin.count("Dominant<Reds>") shouldBe 1
   }
@@ -157,7 +157,7 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
       playPrelude(SmeltingPlant)
     }
     kim.stdAction("LobbyAction") { doTask("PartyDelegate<Reds>") }
-    repeat(2) { kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<Reds>") } }
+    repeat(2) { kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Reds>") } }
     kim.playProject(BribedCommittee, 7)
     if (aboveThreshold) kim.stdProject("AsteroidProject")
     kim.count("TerraformRating") shouldBe if (aboveThreshold) 22 else 21
@@ -175,10 +175,10 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
   private fun lobbyForElection(party: String) {
     kim.turn {
       stdAction("LobbyAction") { doTask("PartyDelegate<$party>") }
-      stdAction("LobbyAction", 2) { doTask("PartyDelegate<$party>") }
+      stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<$party>") }
     }
     stan.pass()
-    kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<$party>") }
+    kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<$party>") }
   }
 
   private fun finishElection() {
@@ -204,7 +204,7 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
       shouldThrow<NotNowException> { kim.playProject(SupportedResearch, 3) }
       kim.stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
       shouldThrow<NotNowException> { kim.playProject(SupportedResearch, 3) }
-      kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") }
+      kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
       shouldThrow<NotNowException> { stan.playProject(SupportedResearch, 3) }
       kim.playProject(SupportedResearch, 3).expect("ProjectCard, $SupportedResearch")
     }

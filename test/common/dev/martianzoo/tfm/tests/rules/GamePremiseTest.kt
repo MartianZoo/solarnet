@@ -353,10 +353,10 @@ internal class GamePremiseTest {
 
     table.allSubclasses(Canon.classTable.getClass(cn("Milestone"))).shouldBeEmpty()
     table.allSubclasses(Canon.classTable.getClass(cn("Award"))).shouldBeEmpty()
-    table.isInhabited(cn("ClaimMilestoneAction")) shouldBe false
-    table.isInhabited(cn("FundAwardAction")) shouldBe false
-    (cn("ClaimMilestoneAction") in table.allClassNames) shouldBe false
-    (cn("FundAwardAction") in table.allClassNames) shouldBe false
+    table.isInhabited(cn("ClaimMilestone")) shouldBe false
+    table.isInhabited(cn("FundAward")) shouldBe false
+    (cn("ClaimMilestone") in table.allClassNames) shouldBe false
+    (cn("FundAward") in table.allClassNames) shouldBe false
 
     shouldThrow<InvalidGameConfigException> {
       TfmEngine.newGame(Canon.gamePremise(GameConfig("Landlord", "Player1")))
@@ -364,6 +364,6 @@ internal class GamePremiseTest {
     val explicitMilestone =
         TfmEngine.newGame(Canon.gamePremise(GameConfig("Terraformer35", "Player1"))).classTable
     explicitMilestone.isInhabited(cn("Terraformer35")) shouldBe true
-    explicitMilestone.isInhabited(cn("ClaimMilestoneAction")) shouldBe false
+    explicitMilestone.isInhabited(cn("ClaimMilestone")) shouldBe false
   }
 }

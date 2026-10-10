@@ -26,8 +26,8 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
   override val help: String =
       """
         Uses one of a Terraforming Mars card's actions. The card must already be owned, and the
-        action number must be 1, 2, or 3. The Use Card Action standard action is selected first
-        when needed. Payment text after the first comma either drives the action's `tfm_pay`
+        action number must be 1, 2, or 3. It selects the card directly from the offered
+        turn option or granted card-action task. Payment text after the first comma either drives the action's `tfm_pay`
         workflow or selects its direct resource-removal cost.
       """
 
@@ -52,19 +52,21 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
     val result =
         try {
           repl.game.timeline.atomic {
-            val choosingStandardAction =
+            val grantedOperation =
                 repl.game.tasks
-                    .matching { it.instruction.toString().contains("StandardAction") }
+                    .matching {
+                      cn("UseAction") in it.instruction.descendantsOfType<ClassName>()
+                    }
                     .any()
-            if (choosingStandardAction) {
-              TaskCommand(repl).withArgs("UseAction<UseActionOnCardAction, Action1>")
-            }
             if (pauseForWrittenCost) {
               repl.agent.autoExecPolicy = NONE
               writtenCostPaused = true
             }
             val taskIdsBeforeAction = repl.game.tasks.ids()
-            TaskCommand(repl).withArgs("UseAction<$cardName, $whichAction>")
+            val instruction =
+                if (grantedOperation) "UseAction<$cardName, $whichAction>"
+                else "UseCardAction<$cardName, $whichAction>"
+            TaskCommand(repl).withArgs(instruction)
             if (payment.isNotEmpty()) {
               if (pauseForWrittenCost) payWrittenActionCost(payment, taskIdsBeforeAction)
               else TfmPayCommand(repl).withArgs(payment)

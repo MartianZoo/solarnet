@@ -694,8 +694,7 @@ uninhabited when it contains none (T12-4).
 key order. Fixed dependencies (T3-4) remain part of the type under T5-1, but the full form omits
 them because an expression cannot select them. The base type of `GreeneryTile` has the full form
 `GreeneryTile<Owner, MarsArea>`. `Pets` has three keys but only one argument position, so its full
-form is `Pets<Player>`. `CardBilling`, whose inherited resource denomination is fixed, is
-`CardBilling<Player>`.
+form is `Pets<Player>`.
 
 **T5-5. Compact form.** The **compact form** writes a subsequence of the full form's arguments, in
 the same order. It first keeps every argument for a narrowed key (T3-10), and every argument that,
@@ -1185,7 +1184,7 @@ Class<Metal>               →  Class<Steel>, Class<Titanium>
 A concrete inhabited type enumerates only itself. A type with no inhabited concrete narrowing
 enumerates nothing.
 
-> **Non-normative example — using a standard project.** `UseStandardProjectAction` starts from the
+> **Non-normative example — using a standard project.** `UseStandardProject<StandardProject>` starts from the
 > abstract `StandardProject` and must offer Sell Patents, Power Plant, Asteroid, Aquifer, Greenery
 > and City as concrete choices. Pairing subclass choice with dependency choice extends the same
 > operation to tiles and other dependent components.
@@ -1466,11 +1465,6 @@ that argument to name a previously unmarked dependency, as
 A concrete value needs no variable to be spelled. Pets is a `ResourceCard<Class<Animal>>`, and its
 body can simply write `Animal<This>`.
 
-> **Non-normative example — `CardBilling`.** It inherits `Billing`'s cleanup effects, which use
-> `Billing`'s resource-denomination variable, while fixing that denomination to MC. Redeclaring the
-> variable in the subclass would disconnect the inherited "remove when no debt remains" test from
-> the currency the billing is actually in.
-
 **T13-5. Specialization supplies values.** When a type narrows its class's base type, it supplies a
 value to each header variable whose position it narrowed. That value is the variable's position
 read in the narrower type. Specializing `SoloStandardResourceReserve` to
@@ -1478,9 +1472,9 @@ read in the narrower type. Specializing `SoloStandardResourceReserve` to
 into the class's effects turns `SetupPhase: 42 @StandardResource` into `SetupPhase: 42 Steel`.
 
 A value that did not change and is still abstract supplies nothing. A subclass that *fixes* the
-position does supply a value. `CardBilling : Billing<Class<MC>>` supplies
-`Class<MC>` for `Billing`'s `@Class`, so the inherited `This IF MAX 0 Owed<@Class>:: -This!` tests
-`Owed<Class<MC>>`.
+position does supply a value. A subclass `SteelReserve : SoloStandardResourceReserve<Class<Steel>>`
+supplies `Steel` for the inherited `@StandardResource`, so its inherited setup effect gains
+`42 Steel`.
 
 > **Non-normative example — solo steel reserve.** Every body occurrence of `@StandardResource` in
 > the steel reserve must become steel: its initial stock, its production, and the transfers that

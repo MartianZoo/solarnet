@@ -101,12 +101,12 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
       playProject(CometAiming, 14, titanium = 1)
     }
     pink.turn {
-      stdAction("DoRequiredActionsAction") { doTask("Investor") }
+      stdAction("RequiredActionsSignal") { doTask("Investor") }
       playProject(IndustrialMicrobes, 12)
     }
     green.turn { cardAction1(FakeAppliedScience) { doTask("Titanium") } }
     purple.turn {
-      stdAction("DoRequiredActionsAction")
+      stdAction("RequiredActionsSignal")
       playProject(BribedCommittee, 7)
     }
     blue.turn { cardAction1(CometAiming) { addCardResources(AstroDrill) } }

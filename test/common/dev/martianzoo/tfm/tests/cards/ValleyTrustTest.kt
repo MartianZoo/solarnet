@@ -12,7 +12,7 @@ internal class ValleyTrustTest : TfmSandboxTest() {
     newTestGame(addOptions = "PreludeExpansion", kimCorporation = ValleyTrust)
     startActionPhase()
 
-    kim.stdAction("DoRequiredActionsAction") { kim.playPrelude(MartianIndustries) }
+    kim.stdAction("RequiredActionsSignal") { kim.playPrelude(MartianIndustries) }
         .expect("PROD[Steel, Energy], -RequiredAction, 0 PreludeCard<Selecting>")
   }
 
@@ -24,7 +24,7 @@ internal class ValleyTrustTest : TfmSandboxTest() {
     )
     startActionPhase()
 
-    kim.stdAction("DoRequiredActionsAction") { kim.playPrelude(SpaceLanes) }
+    kim.stdAction("RequiredActionsSignal") { kim.playPrelude(SpaceLanes) }
         .expect("-RequiredAction, 0 PreludeCard<Selecting>, $SpaceLanes")
   }
 
@@ -35,9 +35,9 @@ internal class ValleyTrustTest : TfmSandboxTest() {
     kim.setToExMachina(13, "MC")
 
     shouldThrow<LimitsException> {
-      kim.stdAction("DoRequiredActionsAction") { kim.playPrelude(IndustrialComplex) }
+      kim.stdAction("RequiredActionsSignal") { kim.playPrelude(IndustrialComplex) }
     }
-    kim.stdAction("DoRequiredActionsAction") { doTask("-PreludeCard<Selecting>") }
+    kim.stdAction("RequiredActionsSignal") { doTask("-PreludeCard<Selecting>") }
         .expect("15 MC, -RequiredAction, 0 $IndustrialComplex, 0 PreludeCard<Selecting>")
   }
 }

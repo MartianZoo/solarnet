@@ -34,7 +34,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
       doTask("3 Microbe<$NitriteReducingBacteria>")
     }
 
-    stan.stdAction("TradeAction", 1) {
+    stan.stdAction("TradeAction<Action1>") {
       doWithoutAutoExec(stan) {
         doTask("Trade<Enceladus>")
         doTask("-TradeBarrier")
@@ -59,7 +59,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.exMachina("3 Energy")
     stan.setToExMachina(0, "ProjectCard")
 
-    stan.stdAction("TradeAction", 2) { doTask("Trade<Pluto>") }
+    stan.stdAction("TradeAction<Action2>") { doTask("Trade<Pluto>") }
 
     kim.count("ProjectCard") shouldBe 0
     stan.count("ProjectCard") shouldBe 1
@@ -76,7 +76,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     kim.setToExMachina(0, "ProjectCard")
     kim.autoExecPolicy = NONE
 
-    stan.stdAction("TradeAction", 2) {
+    stan.stdAction("TradeAction<Action2>") {
       doWithoutAutoExec(stan) {
         fun performForKim(instruction: String) {
           stan.selectTask(instruction)
@@ -124,7 +124,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     kim.playProject(ResearchColony, 20) { doTask("Colony<Pluto>") }
 
     stan
-        .stdAction("TradeAction", 2) { doTask("Trade<Pluto>") }
+        .stdAction("TradeAction<Action2>") { doTask("Trade<Pluto>") }
         .expect("0 ProjectCard<Kim>, 2 ProjectCard<Stan>, 0 PlutoLock<Anyone>")
   }
 
@@ -149,7 +149,9 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.exMachina("3 Energy")
     kim.playProject(RegolithEaters, 13)
 
-    stan.stdAction("TradeAction", 2) { doTask("Trade<Enceladus>") }.expect("0 Microbe<Anyone>")
+    stan
+        .stdAction("TradeAction<Action2>") { doTask("Trade<Enceladus>") }
+        .expect("0 Microbe<Anyone>")
 
     stan.count("Trade<Enceladus>") shouldBe 1
   }
@@ -173,7 +175,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     val precipitationBefore = kim.count("Floater<$ForcedPrecipitation>")
     val balloonsBefore = kim.count("Floater<$ExtractorBalloons>")
 
-    stan.stdAction("TradeAction", 2) {
+    stan.stdAction("TradeAction<Action2>") {
       doWithoutAutoExec(stan) {
         doTask("Trade<Titan>")
         doTask("-TradeBarrier")

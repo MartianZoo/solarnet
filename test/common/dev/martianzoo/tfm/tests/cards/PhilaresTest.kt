@@ -9,7 +9,7 @@ internal class PhilaresTest : TfmSandboxTest() {
   @BeforeTest
   fun initializeGame() {
     newTestGame(kimCorporation = Philares)
-    kim.stdAction("DoRequiredActionsAction") { placeTile(4, 2) }
+    kim.stdAction("RequiredActionsSignal") { placeTile(4, 2) }
   }
 
   @Test

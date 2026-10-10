@@ -72,7 +72,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       playProject(ArcticAlgae, 10)
     }
     jacopo.turn {
-      stdAction("DoRequiredActionsAction") { playPrelude(Mohole) }
+      stdAction("RequiredActionsSignal") { playPrelude(Mohole) }
       playProject(LandClaim, 1) { doTask("Community<Elysium_5_6>") }
     }
     jon.turn {

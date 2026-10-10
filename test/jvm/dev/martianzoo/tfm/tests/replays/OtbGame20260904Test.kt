@@ -136,7 +136,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     yellow.turn { playProject(SpaceMirrors, 3) }
     rainbow.turn {
       // 2:23:34 PM — Rainbow: "Okay. I draw cards until I get three Venus."
-      stdAction("DoRequiredActionsAction")
+      stdAction("RequiredActionsSignal")
       rainbow.exMachina(fakeWildTags("VenusTag"))
     }
     // 2:26:16 PM — Green: "you paid sixteen for that full price, you got two heat production."
@@ -590,9 +590,8 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // Blue paid 18 M€ and 5 heat for Protected Valley at 2-7, receiving the space's two titanium
       // and 2 M€ ocean adjacency. She then paid 4 M€ and 4 heat to claim Landshaper.
       playProject(ProtectedValley, 18, heat = 5) { placeTile(2, 7) }
-      doTask("UseAction<ClaimMilestoneAction, Action1>")
+      doTask("ClaimMilestone<Class<Landshaper>>")
       pay(4, heat = 4)
-      doTask("Landshaper")
     }
     green.turn {
       // 3:33:24 PM — Green: "Okay. I'm gonna sell this card for one money."
@@ -1037,10 +1036,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // one titanium and two money. And that's two actions."
       cardAction1(Thermophiles) { addCardResources(SulphurEatingBacteria) }
       rainbow.exMachina(fakeWildTags("VenusTag"))
-      stdAction("UseActionOnCardAction") {
-            doTask("UseAction<$FloatingRefinery, Action2>")
-          }
-          .expect("2 MC")
+      stdAction("UseCardAction<$FloatingRefinery, Action2>").expect("2 MC")
       assertCounts(21 to "MC")
     }
     // 3:22:14 PM — Blue: "Okay, um, I pass."

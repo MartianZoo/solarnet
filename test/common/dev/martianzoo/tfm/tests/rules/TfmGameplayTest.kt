@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
@@ -34,12 +35,11 @@ internal class TfmGameplayTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun `Standard action helper rejects a non-standard action provider`() {
+  internal fun `Turn option helper rejects an unrelated action provider`() {
     newTestGame()
     kim.exMachina("StJosephOfCupertinoMission")
 
-    shouldThrow<IllegalArgumentException> { kim.stdAction("CathedralOption") }.message shouldBe
-        "CathedralOption is not a StandardAction"
+    shouldThrow<NarrowingException> { kim.stdAction("CathedralOption") }
   }
 
   @Test
@@ -159,7 +159,7 @@ internal class TfmGameplayTest : TfmSandboxTest() {
     internal fun `Declining a second action rejects an unrelated optional task`() {
       game = setUpGame(canonicalPremise())
       val player = game.testTfm(dev.martianzoo.testsupport.PLAYER1)
-      player.runOperation("UseAction<StandardAction>?") {
+      player.runOperation("StandardAction?") {
         shouldThrow<TaskException> { player.declineSecondAction() }
         abort()
       }

@@ -12,7 +12,7 @@
           "name": "Ecoline",
           "tags": [ "PlantTag" ],
           "immediate": "36 MC, 3 Plant, PROD[2 Plant]",
-          "effects": [ "ActionBilling<ConvertPlantsAction>:: -1 Owed<Class<Plant>>" ],
+          "effects": [ "Billing<Class<ConvertPlants>>:: -1 Owed<Class<Plant>>" ],
         },
         {
           "name": "InterplanetaryCinematics",
@@ -59,7 +59,7 @@
           "name": "ThorGate",
           "tags": [ "PowerTag" ],
           "immediate": "48 MC, PROD[Energy]",
-          "effects": [ "PayingFor<Class<PowerTag>> OR ActionBilling<PowerPlantProject>:: -3 Owed" ],
+          "effects": [ "PayingFor<Class<PowerTag>> OR Billing<Class<PowerPlantProject>>:: -3 Owed" ],
         },
         {
           "name": "UnitedNationsMarsInitiative",

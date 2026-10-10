@@ -26,18 +26,18 @@ internal class TfmActionLowererTest {
         .effects
         .shouldContainExactly(
             parse<Effect>(
-                "UseAction<This, Action1>: 2 Owed<Class<MC>> THEN ActionBilling<This, Action1>"
+                "UseAction<This, Action1>: 2 Owed<Class<MC>> THEN Billing<Class<This>, Action1>"
             ),
-            parse<Effect>("-ActionBilling<This, Action1>: Foo"),
+            parse<Effect>("-Billing<Class<This>, Action1>: Foo"),
             parse<Effect>(
                 "UseAction<This, Action2>: Owed<Class<Steel>> THEN " +
-                    "ActionBilling<This, Action2, Class<Steel>>"
+                    "Billing<Class<This>, Action2, Class<Steel>>"
             ),
-            parse<Effect>("-ActionBilling<This, Action2>: Bar"),
+            parse<Effect>("-Billing<Class<This>, Action2>: Bar"),
             parse<Effect>(
                 "UseAction<This, Action3>: X Owed<Class<Plant>> THEN " +
-                    "ActionBilling<This, Action3, Class<Plant>> THEN " +
-                    "MAX 0 ActionBilling: (X Heat)"
+                    "Billing<Class<This>, Action3, Class<Plant>> THEN " +
+                    "MAX 0 Billing: (X Heat)"
             ),
         )
   }

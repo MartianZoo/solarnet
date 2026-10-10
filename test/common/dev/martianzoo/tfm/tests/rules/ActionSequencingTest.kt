@@ -35,8 +35,8 @@ internal class ActionSequencingTest {
     val manual = game.testTfm(PLAYER1).also { it.autoExecPolicy = NONE }
     manual.runOperation("$SymbioticFungus, $Ants")
 
-    manual.beginOperation("UseAction<UseActionOnCardAction, Action1>") {
-      doTask("UseAction<$SymbioticFungus, Action1>")
+    manual.beginOperation("StandardAction") {
+      doTask("UseCardAction<$SymbioticFungus, Action1>")
       manual.count("ActionUsedMarker<$SymbioticFungus>") shouldBe 1
       shouldThrow<TaskException> { doTask("UseAction<$Ants>") }
       abort()

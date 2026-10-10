@@ -37,9 +37,9 @@ internal class EventAnalystsTest : TfmGameplayTest() {
     kim.turn {
       // The chairman retains its influence; the dominant party supplies leader and delegate
       // influence.
-      stdAction("LobbyAction", 1) { doTask("PartyDelegate<Scientists>") }
+      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Scientists>") }
       repeat(3) {
-        stdAction("LobbyAction", 2, payment = { kim.pay(5) }) {
+        stdAction("LobbyAction<Action2>", payment = { kim.pay(5) }) {
           doTask("PartyDelegate<Scientists>")
         }
       }

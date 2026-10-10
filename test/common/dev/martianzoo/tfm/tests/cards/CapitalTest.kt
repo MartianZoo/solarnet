@@ -40,7 +40,7 @@ internal class CapitalTest : TfmSandboxTest() {
   @Test
   internal fun `Triggers Tharsis Republic's city production benefit`() {
     newTestGame(kimCorporation = TharsisRepublic)
-    kim.stdAction("DoRequiredActionsAction") { placeTile(1, 1) }
+    kim.stdAction("RequiredActionsSignal") { placeTile(1, 1) }
     stan.exMachina(
         "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_6>"
     )

@@ -20,7 +20,7 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
         .stdAction("LobbyAction") { doTask("PartyDelegate<Unity>") }
         .expect("PartyDelegate<Unity>, -LobbyActionAvailable, 0 MC")
     shouldThrow<NotNowException> { kim.stdAction("LobbyAction") }
-    kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") }
+    kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
         .expect("-5 MC, PartyDelegate<Scientists>")
   }
 
@@ -28,11 +28,11 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
   internal fun `Paid lobbying reserves the last delegate for the free lobby action`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("5 PartyDelegate<Unity>")
-    kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") }
+    kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
         .expect("-5 MC, Delegate, 0 LobbyActionAvailable")
     val money = kim.count("MC")
     shouldThrow<RequirementException> {
-      kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") }
+      kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
     }
     kim.count("MC") shouldBe money
     kim.count("Delegate") shouldBe 6
@@ -46,14 +46,14 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
         .expect("0 Dominant<Scientists>")
-    kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") }
+    kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
         .expect("Dominant<Scientists>, -Dominant<MarsFirst>")
     stan.stdAction("LobbyAction") { doTask("PartyDelegate<Unity>") }
     stan
-        .stdAction("LobbyAction", 2) { doTask("PartyDelegate<Unity>") }
+        .stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Unity>") }
         .expect("0 Dominant<Unity>, 0 Dominant<Scientists>")
     stan
-        .stdAction("LobbyAction", 2) { doTask("PartyDelegate<Unity>") }
+        .stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Unity>") }
         .expect("Dominant<Unity>, -Dominant<Scientists>")
   }
 
@@ -65,7 +65,7 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
         .stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
         .expect("0 PartyLeader<Scientists, Stan>, 0 PartyLeader<Scientists, Kim>")
     stan
-        .stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") }
+        .stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
         .expect("PartyLeader<Scientists, Stan>, -PartyLeader<Scientists, Kim>")
   }
 
@@ -73,10 +73,10 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
   internal fun `Seven placed delegates prevent further lobbying without charging the player`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
-    repeat(6) { kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") } }
+    repeat(6) { kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") } }
     kim.count("Delegate") shouldBe 7
     val money = kim.count("MC")
-    shouldThrow<RequirementException> { kim.stdAction("LobbyAction", 2) }
+    shouldThrow<RequirementException> { kim.stdAction("LobbyAction<Action2>") }
     kim.count("MC") shouldBe money
     kim.count("Delegate") shouldBe 7
 
@@ -105,7 +105,8 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
         }
         .expect("-Delegate<Kim>, 0 LobbyActionAvailable<Kim>")
     shouldThrow<NotNowException> { kim.stdAction("LobbyAction") }
-    kim.stdAction("LobbyAction", 2) { doTask("PartyDelegate<Unity>") }.expect("-5 MC, Delegate")
+    kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Unity>") }
+        .expect("-5 MC, Delegate")
   }
 
   internal class Gameplay : dev.martianzoo.tfm.tests.TfmGameplayTest() {
@@ -114,25 +115,25 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
       newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
       kim.turn {
         stdAction("LobbyAction") { doTask("PartyDelegate<Unity>") }
-        stdAction("LobbyAction", 2) { doTask("PartyDelegate<Unity>") }
+        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Unity>") }
       }
       stan.turn {
         stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
-        stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") }
+        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
       }
       kim.turn {
-        stdAction("LobbyAction", 2) { doTask("PartyDelegate<Unity>") }
-        stdAction("LobbyAction", 2) { doTask("PartyDelegate<Greens>") }
+        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Unity>") }
+        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Greens>") }
       }
       stan.turn {
-        repeat(2) { stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") } }
+        repeat(2) { stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") } }
       }
       kim.turn {
-        stdAction("LobbyAction", 2) { doTask("PartyDelegate<Greens>") }
-        stdAction("LobbyAction", 2) { doTask("PartyDelegate<Kelvinists>") }
+        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Greens>") }
+        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Kelvinists>") }
       }
-      stan.turn { stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") } }
-      kim.turn { stdAction("LobbyAction", 2) { doTask("PartyDelegate<Kelvinists>") } }
+      stan.turn { stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") } }
+      kim.turn { stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Kelvinists>") } }
       stan.pass()
       kim.pass()
       kim.wgt("VenusStep")
@@ -165,7 +166,7 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
       newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
       kim.turn {
         stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
-        stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") }
+        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
       }
       stan.turn { stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") } }
       kim.turn { playProject(VoteOfNoConfidence, 5) }
@@ -187,7 +188,7 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
       kim.turn { stdAction("LobbyAction") { doTask("PartyDelegate<Unity>") } }
       stan.turn {
         stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
-        stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") }
+        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
       }
       kim.pass()
       stan.pass()

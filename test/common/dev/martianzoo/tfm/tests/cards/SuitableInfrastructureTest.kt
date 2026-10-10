@@ -40,7 +40,7 @@ internal class SuitableInfrastructureTest : TfmGameplayTest() {
     stan.playPrelude(Supplier)
     stan.playPrelude(MetalsCompany)
 
-    kim.stdAction("DoRequiredActionsAction") { kim.playPrelude(DomeFarming) }
+    kim.stdAction("RequiredActionsSignal") { kim.playPrelude(DomeFarming) }
         .expect("PROD[Plant, 2 MC], 2 MC")
   }
 

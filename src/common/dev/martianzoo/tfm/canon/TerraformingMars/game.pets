@@ -14,8 +14,8 @@ CLASS TerraformingMars : Module {
   HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
 
   This: SellPatentsProject, PowerPlantProject, AsteroidProject, AquiferProject, GreeneryProject, CityProject
-  This: PlayCardFromHandAction, UseStandardProjectAction, UseActionOnCardAction, ConvertPlantsAction, ConvertHeatAction
-  This: DoRequiredActionsAction
+  HAS Class<PlayProject>, Class<UseStandardProject>, Class<UseCardAction>, Class<ConvertPlants>, Class<ConvertHeat>
+
   This: Hand, Selecting, Revealed, CardPurchase
   This: NoTagsFilter
   This: EACH Class<@Tag> { TagFilter<Class<@Tag>> }
@@ -62,7 +62,7 @@ ABSTRACT CLASS GameMode : Module {
     HAS 2 Player
     autoSelectWhen = HAS "2 Player"
 
-    This: ClaimMilestoneAction, FundAwardAction
+    HAS Class<ClaimMilestone>, Class<FundAward>
     This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
     SetupPhase: EACH Me@Player { 20 TerraformRating }
 
@@ -137,8 +137,10 @@ ABSTRACT CLASS Phase : System {
   }
   CLASS ResearchPhase { This:: Generation }
   CLASS ActionPhase {
-    NewTurn: UseAction<StandardAction> OR Pass
-    SecondAction: UseAction<StandardAction>?
+    NewTurn IF MAX 0 RequiredAction: StandardAction OR Pass
+    NewTurn IF RequiredAction: RequiredActionsSignal OR Pass
+    SecondAction IF MAX 0 RequiredAction: StandardAction?
+    SecondAction IF RequiredAction: RequiredActionsSignal?
   }
   CLASS ProductionPhase
   CLASS SolarPhase
@@ -146,7 +148,7 @@ ABSTRACT CLASS Phase : System {
   CLASS ColoniesSolarPhase
   CLASS TurmoilSolarPhase
   CLASS FinalGreeneryPhase {
-    NewTurn: UseAction<ConvertPlantsAction, Action1>?
+    NewTurn: ConvertPlants?
   }
 
   "The terminal game phase"

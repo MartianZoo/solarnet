@@ -18,8 +18,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.setToExMachina(1, "ProjectCard")
 
     kim.inTurn {
-          doTask("UseAction<PlayCardFromHandAction, Action1>")
-          doTask("PlayCard<Class<ProjectCard>, Class<$SpaceElevator>, Hand>")
+          doTask("PlayProject<Class<$SpaceElevator>>")
           doTask("-7 Steel")
           doTask("-5 Titanium")
           doTask("Ok")
@@ -36,7 +35,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.playPrelude(Merger) { kim.playCorp(TharsisRepublic) }
     startActionPhase()
 
-    kim.stdAction("DoRequiredActionsAction") {
+    kim.stdAction("RequiredActionsSignal") {
       kim.playPrelude(Donation) { placeTile(3, 3) }
     }
     kim.count("CityTile<Tharsis_3_3>") shouldBe 1
@@ -53,14 +52,11 @@ internal class UnknownRulesTest : TfmSandboxTest() {
 
     kim.turn {
       playPrelude(FakeHeadStart) {
-        useStdAction("UseActionOnCardAction", payment = {}) {
-          doTask("UseAction<$BoardOfDirectors, Action1>")
+        useStdAction("UseCardAction<$BoardOfDirectors, Action1>", payment = {}) {
           doTask("-12 MC")
           playPrelude(Merger) { playCorp(TharsisRepublic) }
         }
-        useStdAction("DoRequiredActionsAction", payment = {}) {
-          placeTile(3, 3)
-        }
+        placeTile(3, 3)
       }
     }
 
@@ -76,7 +72,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     fillSelectedColonySlots()
 
     shouldThrow<LimitsException> {
-      kim.stdAction("DoRequiredActionsAction") { doTask("Colony<Luna>") }
+      kim.stdAction("RequiredActionsSignal") { doTask("Colony<Luna>") }
     }
     kim.count("RequiredAction") shouldBe 1
     kim.count("Colony") shouldBe 0
@@ -93,7 +89,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     startActionPhase()
 
     shouldThrow<LimitsException> {
-      kim.stdAction("DoRequiredActionsAction") { doTask("Colony<Luna>") }
+      kim.stdAction("RequiredActionsSignal") { doTask("Colony<Luna>") }
     }
     kim.count("$Poseidon") shouldBe 1
     kim.count("$Merger") shouldBe 1

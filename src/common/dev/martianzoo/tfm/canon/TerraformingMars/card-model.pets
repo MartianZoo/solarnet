@@ -44,12 +44,12 @@ ABSTRACT CLASS Card : Owned<Player> {
 "The payment operation that owns project-card purchases"
 CLASS CardPurchase : HasActions {
   HAS =1 This
-  -ActionBilling<This, Action1>: ProjectCard FROM BuyCard / BuyCard
+  -Billing<Class<This>, Action1>: ProjectCard FROM BuyCard / BuyCard
 }
 
 "A selected project card awaiting payment and transfer to Hand"
 CLASS BuyCard : Owned<Player>, MustCleanUp, Hidden {
-  This:: 3 Owed<> THEN PayingFor<Class<ProjectCard>> THEN ActionBilling<CardPurchase, Action1>.
+  This:: 3 Owed<> THEN PayingFor<Class<ProjectCard>> THEN Billing<Class<CardPurchase>, Action1>.
 }
 
 "Buys every project card left in this Player's selection"
@@ -92,7 +92,7 @@ CLASS PlayCard<Class<@CardBack>, Class<@CardFront>, @CardLocation> : Owned<Playe
           THEN CheckRequirement<Class<@CardFront>> / \
             (GpRequirementShortfall<Class<@CardFront>, @Class> MAX 1) \
       })
-  This: Owed<> / @CardFront.cost THEN PriceCard<Class<@CardFront>> THEN CardBilling THEN MAX 0 Barrier: @CardFront FROM @CardBack<@CardLocation>
+  This: Owed<> / @CardFront.cost THEN PriceCard<Class<@CardFront>> THEN Billing<Class<@CardFront>> THEN MAX 0 Barrier: @CardFront FROM @CardBack<@CardLocation>
 }
 
 "Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"

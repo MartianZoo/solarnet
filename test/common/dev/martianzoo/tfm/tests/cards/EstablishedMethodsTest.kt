@@ -19,7 +19,7 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
     kim.playPrelude(EstablishedMethods) {
           kim.count("MC") shouldBe 30
           shouldThrow<NarrowingException> { doTask("UseAction<SellPatentsProject, Action1>") }
-          shouldThrow<TaskException> { doTask("UseAction<PlayCardFromHandAction, Action1>") }
+          shouldThrow<TaskException> { doTask("PlayProject<Class<Mine>>") }
           doTask("UseAction<PowerPlantProject, Action1>")
           kim.pay(11)
           shouldThrow<NarrowingException> { doTask("Ok") }

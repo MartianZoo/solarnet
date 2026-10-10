@@ -19,7 +19,7 @@ internal class MergerTest : TfmSandboxTest() {
     kim.playPrelude(Merger) { kim.playCorp(Celestic) }
     startActionPhase()
 
-    kim.stdAction("DoRequiredActionsAction") { kim.playPrelude(SocietySupport) }
+    kim.stdAction("RequiredActionsSignal") { kim.playPrelude(SocietySupport) }
         .expect("2 ProjectCard, PROD[-MC, Plant, Energy, Heat], -2 RequiredAction")
   }
 
@@ -83,7 +83,7 @@ internal class MergerTest : TfmSandboxTest() {
     @Test
     internal fun `BUG - Defers Tharsis first action when acquired after Preludes`() {
       acquireTharsisThroughBoard().expect("0 CityTile")
-      kim.stdAction("DoRequiredActionsAction") { placeTile(3, 3) }.expect("CityTile<Tharsis_3_3>")
+      kim.stdAction("RequiredActionsSignal") { placeTile(3, 3) }.expect("CityTile<Tharsis_3_3>")
     }
 
     private fun acquireTharsisThroughBoard(cityPlacement: OperationBlock = {}): TaskResult {

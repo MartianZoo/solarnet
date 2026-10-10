@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -13,7 +13,7 @@ internal class VitorTest : TfmSandboxTest() {
   internal fun `Funds its starting award for free`() {
     newTestGame(kimCorporation = Vitor)
 
-    kim.stdAction("DoRequiredActionsAction") { doTask("Landlord") }.expect("Landlord, 0 MC")
+    kim.stdAction("RequiredActionsSignal") { doTask("Landlord") }.expect("Landlord, 0 MC")
   }
 
   @Test
@@ -26,7 +26,7 @@ internal class VitorTest : TfmSandboxTest() {
   @Test
   internal fun `Rebates Search for Life before it has earned any victory points`() {
     newTestGame(kimCorporation = Vitor)
-    kim.stdAction("DoRequiredActionsAction") { doTask("Landlord") }
+    kim.stdAction("RequiredActionsSignal") { doTask("Landlord") }
 
     kim.playProject(SearchForLife, 3).expect("0 MC")
   }
@@ -34,7 +34,7 @@ internal class VitorTest : TfmSandboxTest() {
   @Test
   internal fun `Does not rebate a card without victory points`() {
     newTestGame(kimCorporation = Vitor)
-    kim.stdAction("DoRequiredActionsAction") { doTask("Landlord") }
+    kim.stdAction("RequiredActionsSignal") { doTask("Landlord") }
 
     kim.playProject(Mine, 4).expect("-4 MC")
   }
@@ -42,7 +42,7 @@ internal class VitorTest : TfmSandboxTest() {
   @Test
   internal fun `Does not rebate a card with negative victory points`() {
     newTestGame(kimCorporation = Vitor)
-    kim.stdAction("DoRequiredActionsAction") { doTask("Landlord") }
+    kim.stdAction("RequiredActionsSignal") { doTask("Landlord") }
 
     kim.playProject(BribedCommittee, 7).expect("-7 MC")
   }
@@ -61,9 +61,9 @@ internal class VitorTest : TfmSandboxTest() {
       kim.playPrelude(Merger) { kim.playCorp(Vitor) }
     }
 
-    kim.stdAction("DoRequiredActionsAction") { doTask("Thermalist") }.expect("Thermalist, 0 MC")
+    kim.stdAction("RequiredActionsSignal") { doTask("Thermalist") }.expect("Thermalist, 0 MC")
     admin.count("Award") shouldBe 4
     stan.setToExMachina(20, "MC")
-    shouldThrow<RequirementException> { stan.stdAction("FundAwardAction", 3) { doTask("Miner") } }
+    shouldThrow<DeadEndException> { stan.stdAction("FundAward<Class<Miner>>") }
   }
 }

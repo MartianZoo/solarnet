@@ -37,10 +37,8 @@ internal class HeadStartTest : TfmSandboxTest() {
 
     kim.turn {
       playPrelude(FakeHeadStart) {
-        useStdAction("DoRequiredActionsAction", payment = {}) {
-          kim.playPrelude(MartianIndustries) {
-            useStdProject("PowerPlantProject")
-          }
+        kim.playPrelude(MartianIndustries) {
+          useStdProject("PowerPlantProject")
         }
       }
     }
@@ -54,11 +52,9 @@ internal class HeadStartTest : TfmSandboxTest() {
 
     kim.playPrelude(FakeHeadStart) {
           shouldThrow<TaskException> { doTask("Steel") }
-          doTask("UseAction<UseStandardProjectAction, Action1>")
-          doTask("UseAction<SellPatentsProject, Action1>")
+          doTask("UseStandardProject<SellPatentsProject>")
           doTask("MC FROM ProjectCard")
-          doTask("UseAction<UseStandardProjectAction, Action1>")
-          doTask("UseAction<SellPatentsProject, Action1>")
+          doTask("UseStandardProject<SellPatentsProject>")
           doTask("MC FROM ProjectCard")
           doTask("2 MC / ProjectCard")
         }
@@ -83,10 +79,9 @@ internal class HeadStartTest : TfmSandboxTest() {
     kim.setToExMachina(4, "MC")
     kim.exMachina("10 Heat")
     return kim.playPrelude(FakeHeadStart) {
-      doTask("UseAction<ConvertHeatAction, Action1>")
+      doTask("ConvertHeat")
       doTask("-8 Heat")
-      doTask("UseAction<UseStandardProjectAction, Action1>")
-      doTask("UseAction<AquiferProject, Action1>")
+      doTask("UseStandardProject<AquiferProject>")
       doTask("-18 MC")
       placeTile(5, 5)
     }
@@ -133,12 +128,11 @@ internal class HeadStartTest : TfmSandboxTest() {
 
     kim.turn {
       playPrelude(FakeHeadStart) {
-        useStdAction("UseActionOnCardAction", payment = {}) {
-          doTask("UseAction<$BoardOfDirectors, Action1>")
+        useStdAction("UseCardAction<$BoardOfDirectors, Action1>", payment = {}) {
           doTask("-12 MC")
           playPrelude(Merger) { playCorp(SagittaFrontierServices) }
         }
-        useStdAction("ConvertHeatAction", payment = { doTask("-8 Heat") })
+        useStdAction("ConvertHeat", payment = { doTask("-8 Heat") })
       }
     }
   }

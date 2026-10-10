@@ -9,7 +9,7 @@ internal class AridorTest : TfmSandboxTest() {
   internal fun `First action adds a selected colony tile`() {
     newTestGame(addOptions = "Luna, Ceres, Triton, Ganymede, Callisto", kimCorporation = Aridor)
 
-    kim.stdAction("DoRequiredActionsAction") { doTask("Europa") }
+    kim.stdAction("RequiredActionsSignal") { doTask("Europa") }
         .expect("Europa, ColonyProduction, -RequiredAction")
   }
 
@@ -18,14 +18,14 @@ internal class AridorTest : TfmSandboxTest() {
     newTestGame(addOptions = "Luna, Ceres, Triton, Ganymede, Callisto", kimCorporation = Aridor)
     kim.exMachina("$TitanShuttles, Floater<$TitanShuttles>")
 
-    kim.stdAction("DoRequiredActionsAction") { doTask("DelayedTitan") }
+    kim.stdAction("RequiredActionsSignal") { doTask("DelayedTitan") }
         .expect("Titan, ColonyProduction, 0 DelayedTitan")
   }
 
   @Test
   internal fun `New tag classes count for its owner even if another player already has them`() {
     newTestGame(kimCorporation = Aridor)
-    kim.stdAction("DoRequiredActionsAction") { doTask("Europa") }
+    kim.stdAction("RequiredActionsSignal") { doTask("Europa") }
     stan.exMachina("$Mine")
     kim.setToExMachina(11, "MC")
 
@@ -43,7 +43,7 @@ internal class AridorTest : TfmSandboxTest() {
   @Test
   internal fun `A microbe tag lost when Pharmacy Union flips can be rewarded again`() {
     newTestGame(kimCorporation = Aridor)
-    kim.stdAction("DoRequiredActionsAction") { doTask("Europa") }
+    kim.stdAction("RequiredActionsSignal") { doTask("Europa") }
     kim.exMachina("$PharmacyUnion, 3 OxygenStep")
     kim.setToExMachina(16, "MC")
     kim.playProject(CryoSleep, 10) { doTask("PlayedEvent FROM $PharmacyUnion") }
@@ -54,7 +54,7 @@ internal class AridorTest : TfmSandboxTest() {
   @Test
   internal fun `A surviving microbe tag prevents a fresh reward after Pharmacy Union flips`() {
     newTestGame(kimCorporation = Aridor)
-    kim.stdAction("DoRequiredActionsAction") { doTask("Europa") }
+    kim.stdAction("RequiredActionsSignal") { doTask("Europa") }
     kim.exMachina("$PharmacyUnion, $Decomposers, $Mine")
     kim.setToExMachina(23, "MC")
     kim.playProject(CryoSleep, 10) { doTask("PlayedEvent FROM $PharmacyUnion") }
@@ -65,7 +65,7 @@ internal class AridorTest : TfmSandboxTest() {
   @Test
   internal fun `An event's printed tags do not reward production`() {
     newTestGame(kimCorporation = Aridor)
-    kim.stdAction("DoRequiredActionsAction") { doTask("Europa") }
+    kim.stdAction("RequiredActionsSignal") { doTask("Europa") }
 
     kim.playProject(BribedCommittee, 7).expect("PROD[0 MC]")
   }
@@ -80,7 +80,7 @@ internal class AridorTest : TfmSandboxTest() {
   @Test
   internal fun `A Venus tag can introduce a new tag class`() {
     newTestGame(kimCorporation = Aridor)
-    kim.stdAction("DoRequiredActionsAction") { doTask("Europa") }
+    kim.stdAction("RequiredActionsSignal") { doTask("Europa") }
 
     kim.setToExMachina(11, "MC")
     kim.playProject(AerialMappers, 11).expect("PROD[MC]")

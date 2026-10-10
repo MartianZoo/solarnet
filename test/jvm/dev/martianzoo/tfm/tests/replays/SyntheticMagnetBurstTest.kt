@@ -94,7 +94,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
 
     pink.turn {
       // Pink took the first action of Tharsis Republic corporation
-      stdAction("DoRequiredActionsAction") {
+      stdAction("RequiredActionsSignal") {
             // Pink placed city tile at 61
             placeTile(9, 7)
             // Pink placed ocean tile at 34
@@ -342,9 +342,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       // Nobel Prize's wild icon counts as Green's eighth distinct tag.
       // Green claimed Diversifier milestone
       green.exMachina(fakeWildTags("MicrobeTag"))
-      stdAction("ClaimMilestoneAction") {
-        doTask("Diversifier")
-      }
+      stdAction("ClaimMilestone<Class<Diversifier>>")
     }
     pink.turn {
       // Pink played Titanium Mine
@@ -470,7 +468,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       // Pink gained 2 titanium
       playProject(SolarWindPower, titanium = 3)
       // Pink claimed Generalist milestone
-      stdAction("ClaimMilestoneAction") { doTask("Generalist") }
+      stdAction("ClaimMilestone<Class<Generalist>>")
     }
     green.turn {
       // Green used Ironworks action
@@ -514,7 +512,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     }
     green.turn {
       // Green funded Contractor award
-      stdAction("FundAwardAction") { doTask("Contractor") }
+      stdAction("FundAward<Class<Contractor>>")
       // Green ended turn
     }
     pink.turn {
@@ -561,7 +559,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       playProject(DeimosDown, 14, titanium = 5) { doTask("-7 Plant<Green>") }
           .expect("4 Steel, -7 Plant<Green>")
       // Pink claimed Terraformer milestone
-      stdAction("ClaimMilestoneAction") { doTask("Terraformer") }
+      stdAction("ClaimMilestone<Class<Terraformer>>")
     }
     green.turn {
       // Green played Terraforming Contract
@@ -1024,7 +1022,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     }
     pink.turn {
       // Pink funded Landscaper award
-      stdAction("FundAwardAction", which = 2) { doTask("Landscaper") }
+      stdAction("FundAward<Class<Landscaper>>")
       // Pink ended turn
     }
     // Green passed
@@ -1089,7 +1087,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       // You drew Toll Station,Fueled Generators
       playProject(TechnologyDemonstration, titanium = 1)
       // Pink funded Founder award
-      stdAction("FundAwardAction", which = 3) { doTask("Founder") }.expect("Award")
+      stdAction("FundAward<Class<Founder>>").expect("Award")
     }
     green.turn {
       // Green used Ironworks action

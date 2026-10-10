@@ -357,7 +357,7 @@ internal class FloodingTest : TfmSandboxTest() {
       stan.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
       // Admin opens the bill; Kim selects the payment choice for Stan.
       admin.doTask("5 Owed<Stan>")
-      admin.doTask("ActionBilling<Stan, NeptunianOption<NeptunianPowerConsultants<Stan>>, Action1>")
+      admin.doTask("Billing<Stan, Class<NeptunianOption>, Action1>")
       kim.selectTask("-X Steel<Stan>?")
       stan.doTask("-2 Steel")
       assertWhileBillOpen()
