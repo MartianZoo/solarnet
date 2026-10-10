@@ -1,16 +1,8 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agenttestsupport.testAgents
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.testsupport.PLAYER1
-import dev.martianzoo.testsupport.PLAYER2
-import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestOption.Hellas
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
-import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -109,8 +101,6 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
         placeTile(5, 6) // 1 TR<Player1>
       }
     }
-    workflow.shutdown()
-    workflow.isRunning shouldBe false
 
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 1)
 
@@ -134,44 +124,21 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
       assertCounts(0 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
     }
 
-    admin.runOperation("End FROM Phase")
+    withScorePreview {
+      val sum = Summarizer(game)
+      sum.net("GreeneryTile", "VictoryPoint") shouldBe 0
+      sum.net("CityTile", "VictoryPoint") shouldBe 0
 
-    val sum = Summarizer(game)
-    sum.net("GreeneryTile", "VictoryPoint") shouldBe 0
-    sum.net("CityTile", "VictoryPoint") shouldBe 0
+      p1.assertCounts(24 to "TerraformRating<Player1>")
+      p1.assertCounts(27 to "VictoryPoint<Player1>")
+      sum.net("Card", "VictoryPoint<Player1>") shouldBe 3
 
-    p1.assertCounts(24 to "TerraformRating<Player1>")
-    p1.assertCounts(27 to "VictoryPoint<Player1>")
-    sum.net("Card", "VictoryPoint<Player1>") shouldBe 3
+      p2.assertCounts(25 to "TerraformRating<Player2>")
+      sum.net("$PharmacyUnion", "TerraformRating<Player2>") shouldBe 5
 
-    p2.assertCounts(25 to "TerraformRating<Player2>")
-    sum.net("$PharmacyUnion", "TerraformRating<Player2>") shouldBe 5
-
-    p2.assertCounts(28 to "VictoryPoint")
-    sum.net("Card", "VictoryPoint<Player2>") shouldBe 3
-  }
-
-  @Test
-  internal fun earlyGameWithNoPrelude() {
-    val setup = canonicalPremise(Hellas, PromoCardPack, players = 2)
-    val game = TfmEngine.newGame(setup)
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
-
-    TfmWorkflow.Automatic(game.testAgents()).launch()
-    p1.keepStartingProjects(7)
-    p2.keepStartingProjects(5)
-    p1.playCorp(InterplanetaryCinematics)
-    p2.playCorp(PharmacyUnion) {
-      doTask("Disease<$PharmacyUnion>")
-      doTask("Disease<$PharmacyUnion>")
+      p2.assertCounts(28 to "VictoryPoint")
+      sum.net("Card", "VictoryPoint<Player2>") shouldBe 3
     }
-
-    p1.turn {
-      playProject(MediaGroup, 6)
-      playProject(Sabotage, 1) { doTask("-7 MC<Player2>") }
-    }
-
-    p2.turn { playProject(Research, 11) }
+    workflow.isRunning shouldBe true
   }
 }

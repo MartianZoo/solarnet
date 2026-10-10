@@ -10,12 +10,15 @@ import dev.martianzoo.state.Actor
  * Agents, so an Agent can never be paired with a World it does not act on.
  */
 public class Agents(public val world: World) {
-  private val autoExecLoop = AutoExecLoop(world)
+  /** Opt-in task recording, including Player autoexecution; see [TaskLog] for supported scope. */
+  public val taskLog: TaskLog = TaskLog(world)
+
+  private val autoExecLoop = AutoExecLoop(world, taskLog)
   private val elaborator = PetElaborator(world.classTable)
 
   private val agents: Map<Actor, Agent> =
       world.actors.associateWith {
-        AgentImpl(world, world.actorEngine(it), elaborator, autoExecLoop)
+        AgentImpl(world, world.actorEngine(it), elaborator, autoExecLoop, taskLog)
       }
 
   /** This world's Agent for [actor]. */

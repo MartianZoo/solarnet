@@ -108,9 +108,12 @@ after review. **Selected** means the direction is chosen while some design remai
    desired small file records what Actors decided or supplied from outside the rules, without task
    ids or incidental engine choreography, and can reconstruct the same game using the same
    declarations and implementation. The earlier round-trip experiment established useful syntax
-   and failure cases but is not finished: card identities, workflow start, backtracking across
-   ambiguous task matches, Admin scheduling, and several replay divergences remain. Resume that
-   work rather than replacing it with consequences disguised as decisions.
+   and failure cases. Premise declarations, workflow start, external card identities, and explicit
+   disambiguation still need to become a complete file format. Keep decisions distinct from
+   their calculated consequences.
+   Replay tests now check task-text round-trips with Player autoexecution disabled and
+   Admin aggressive, comparing all components and pending work. Inconsequential intermediate form
+   choices need not survive export. The caller still supplies the premise and workflow.
 
 2. **Keep exact event recordings independently useful.** **Implemented foundation.** A recording
    must reconstruct components, pending tasks, history, and approved navigation points without an

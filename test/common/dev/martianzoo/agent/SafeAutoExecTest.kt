@@ -1,6 +1,7 @@
 package dev.martianzoo.agent
 
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.testGamePremise
@@ -13,6 +14,57 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class SafeAutoExecTest {
+  @Test
+  internal fun automaticPlayerWaitsForAManualPlayerToEnableItsTask() {
+    val game = Engine.newGame(testGamePremise("CLASS Token\nCLASS Reward", players = 2))
+    val agents = Agents(game)
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }
+    p1.addTasks("Token: Reward")
+    val enablingTask = p2.addTasks("Token").single()
+    p2.canSelectTask(enablingTask) shouldBe true
+
+    p1.autoExecPolicy = EAGER
+    p1.count("Reward") shouldBe 0
+    p2.count("Token") shouldBe 0
+    p2.canSelectTask(enablingTask) shouldBe true
+
+    p2.doTask("Token", enablingTask)
+    p1.count("Reward") shouldBe 1
+    game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun adminDoesNotLockAnAbstractTaskWhileAManualPlayerCanAct() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS Token
+                ABSTRACT CLASS Choice : System {
+                  CLASS Left
+                  CLASS Right
+                }
+                """
+                    .trimIndent()
+            )
+        )
+    val agents = Agents(game)
+    val player = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val admin = agents[ADMIN]
+    player.addTasks("Token!")
+    admin.addTasks("Choice!")
+
+    player.autoExecNow()
+
+    game.tasks.selectedTask() shouldBe null
+    player.doTasks("Token")
+    player.count("Token") shouldBe 1
+    admin.doTasks("Left")
+    admin.count("Left") shouldBe 1
+    game.isIdle() shouldBe true
+  }
+
   @Test
   internal fun adminRetriesANegativeSystemAmountAfterTheLaterGain() {
     val game = Engine.newGame(testGamePremise("CLASS Point : System"))

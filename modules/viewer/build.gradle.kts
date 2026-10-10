@@ -50,7 +50,7 @@ tasks.named<ProcessResources>("jsProcessResources") {
   from(jsSourceDirectory) { include("*.html", "*.css") }
   from(sharedSourceDirectory) { into("assets") }
   from(replayEventLogsDirectory) {
-    include("*.json")
+    include("*.json", "*.txt")
     into("games")
   }
   val localImages =

@@ -13,7 +13,7 @@ import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
 
 /** Shared Agent-policy queue drain above the policy-free engine. */
-internal class AutoExecLoop(private val world: World) {
+internal class AutoExecLoop(private val world: World, private val taskLog: TaskLog) {
   private val allTasks: TaskQueue
     get() = world.tasks
 
@@ -49,7 +49,6 @@ internal class AutoExecLoop(private val world: World) {
     val (adminOptions, otherOptions) =
         policyOptions.partition { taskId -> allTasks.getTaskData(taskId).assignee == ADMIN }
     val options = adminOptions + otherOptions
-    val activeCandidates = candidates.filter { taskId -> policy(taskId) != NONE }
 
     when (options.size) {
       0 -> {
@@ -57,28 +56,31 @@ internal class AutoExecLoop(private val world: World) {
             allTasks.ids().firstOrNull { taskId ->
               policy(taskId) != NONE
             } ?: return false
-        if (selected != null || activeCandidates.isNotEmpty()) return false
-        engineFor(taskId).doTask(taskId)
+        if (selected != null || candidates.isNotEmpty()) return false
+        command(taskId) { engineFor(taskId).doTask(taskId) }
         error("that should've completed")
       }
-      1 -> {
-        val taskId = options.single()
-        val engine = engineFor(taskId)
-        engine.selectTask(taskId)
-        if (taskId !in allTasks) return true
-        if (allTasks.getTaskData(taskId).assignee != engine.actor) return true
-        try {
-          if (engine.trySelectedTask()) return true
-        } catch (e: DeadEndException) {
-          throw e.cause ?: e
-        }
-      }
+      // A manual Actor's available task still competes with this option. Do not acquire an
+      // abstract select-lock merely because the other Actor has autoexecution disabled.
+      1 ->
+          if (candidates.size == 1) {
+            val taskId = options.single()
+            val engine = engineFor(taskId)
+            command(taskId) { engine.selectTask(taskId) }
+            if (taskId !in allTasks) return true
+            if (allTasks.getTaskData(taskId).assignee != engine.actor) return true
+            try {
+              if (command(taskId) { engine.trySelectedTask() }) return true
+            } catch (e: DeadEndException) {
+              throw e.cause ?: e
+            }
+          }
     }
 
     var recoverable = false
     for (taskId in options) {
       try {
-        world.timeline.atomic { engineFor(taskId).doTask(taskId) }
+        world.timeline.atomic { command(taskId) { engineFor(taskId).doTask(taskId) } }
         return true
       } catch (_: NotFullySpecifiedException) {
         recoverable = true
@@ -93,6 +95,13 @@ internal class AutoExecLoop(private val world: World) {
   }
 
   private fun canSelectTask(taskId: TaskId): Boolean = engineFor(taskId).canSelectTask(taskId)
+
+  private fun <T> command(taskId: TaskId, block: () -> T): T {
+    val task = allTasks.getTaskData(taskId)
+    if (task.assignee == ADMIN) return block()
+    val instruction = "CHOOSE ${task.instruction}"
+    return taskLog.capture(task.assignee, instruction, block = block)
+  }
 
   private fun policy(taskId: TaskId): AutoExecPolicy {
     val actor = allTasks.getTaskData(taskId).assignee
