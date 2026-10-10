@@ -35,9 +35,9 @@ internal class MilestonesAwardsExpansionTest : TfmSandboxTest() {
     kim.exMachina("$Vitor, $SearchForLife, $Tardigrades, $ColonizerTrainingCamp, $DustSeals")
     stan.exMachina("$Trees")
 
-    // Counting played card classes is equivalent to counting cards: CardFront permits at most
-    // one played instance of each concrete class, across all owners. Vitor's class reference is
-    // not a played card, and Stan's Trees is outside Kim's requirement.
+    // Each concrete card class permits at most one played copy across owners, so counting played
+    // card classes counts cards. Vitor's class reference is not a played card, and Stan's Trees is
+    // outside Kim's requirement.
     shouldThrow<RequirementException> { kim.claimMilestone(cn("Philantropist")) }
 
     kim.exMachina("$SpaceElevator")

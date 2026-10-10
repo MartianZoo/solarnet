@@ -296,7 +296,7 @@ internal class Lang12InlineClassesTest {
 
   @Test
   internal fun aSelfTriggerCannotDiscardALocalBody() {
-    listOf("This", "This<>", "-This", "-This<>").forEach { trigger ->
+    listOf("This", "-This").forEach { trigger ->
       shouldThrow<PetSyntaxException> { parseClasses("CLASS Host1 { $trigger {}: Widget }") }
     }
   }

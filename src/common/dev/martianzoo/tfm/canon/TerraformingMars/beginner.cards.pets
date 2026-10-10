@@ -9,8 +9,8 @@ ABSTRACT CLASS BeginnerCorporation : CardFront<Class<BeginnerCard>> {
   This: 42 MC, 10 ProjectCard
 }
 
-CLASS BeginnerCorporation1 : BeginnerCorporation
-CLASS BeginnerCorporation2 : BeginnerCorporation
-CLASS BeginnerCorporation3 : BeginnerCorporation
-CLASS BeginnerCorporation4 : BeginnerCorporation
-CLASS BeginnerCorporation5 : BeginnerCorporation
+CLASS BeginnerCorporation1 : BeginnerCorporation { HAS MAX 1 BeginnerCorporation1 }
+CLASS BeginnerCorporation2 : BeginnerCorporation { HAS MAX 1 BeginnerCorporation2 }
+CLASS BeginnerCorporation3 : BeginnerCorporation { HAS MAX 1 BeginnerCorporation3 }
+CLASS BeginnerCorporation4 : BeginnerCorporation { HAS MAX 1 BeginnerCorporation4 }
+CLASS BeginnerCorporation5 : BeginnerCorporation { HAS MAX 1 BeginnerCorporation5 }

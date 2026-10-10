@@ -25,25 +25,13 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 public object Transforming {
   /**
    * Replaces each occurrence of the special `This` expression with [contextType], replacing
-   * `Class<This>` with the class literal for the context's class as well. An explicitly specialized
-   * `This<Foo>` keeps its authored arguments and adopts the context's class, becoming (for example)
-   * `Bar<Foo>`. This is
+   * `Class<This>` with the class literal for the context's class as well. This is
    * [rule L9-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration).
    */
   public fun replaceThisExpressionsWith(contextType: Expression): PetTransformer =
       chain(
           replacer(THIS.classExpression(), contextType.className.classExpression()),
-          object : PetTransformer() {
-            override fun transformNode(node: PetNode): PetNode {
-              if (node is Expression && node.isBare(THIS)) return contextType
-              val transformed = transformChildren(node)
-              return if (transformed is Expression && transformed.className == THIS) {
-                transformed.copy(className = contextType.className)
-              } else {
-                transformed
-              }
-            }
-          },
+          replacer(THIS.expression, contextType),
       )
 
   /**

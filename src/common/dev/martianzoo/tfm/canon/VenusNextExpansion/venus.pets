@@ -50,6 +50,7 @@ CLASS AirScrappingProject : StandardProject {
 CLASS VenusTag : PlanetaryTag
 
 CLASS Hoverlord : Milestone {
+  HAS MAX 1 Hoverlord
   requirement = HAS "7 Floater"
 }
 

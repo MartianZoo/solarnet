@@ -231,14 +231,6 @@ public open class Expression(
   }
 
   /**
-   * Is this just the name [name], with no arguments and no refinement, however the empty argument
-   * list was written? `This` and `This<>` are both the bare `This` placeholder; they are not equal
-   * as expressions, because they render differently, but neither one carries an argument.
-   */
-  internal fun isBare(name: ClassName): Boolean =
-      className == name && arguments.isEmpty() && refinement == null
-
-  /**
    * Returns this expression with [moreArgs] added after its existing [arguments]. Any resulting
    * non-empty list counts as written, so the result has [argumentsSpecified] set.
    */

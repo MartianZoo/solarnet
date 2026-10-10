@@ -22,6 +22,7 @@ internal fun attributionProbeDeclarations(seats: Int): Set<ClassDeclaration> {
 
           CLASS AttributionProbe : ActiveCard {
             cost = 0
+            HAS MAX 1 AttributionProbe
 
             $watchers
           }

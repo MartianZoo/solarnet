@@ -33,6 +33,7 @@ import dev.martianzoo.pets.ClassBody.Element.PropertyElement
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SourceLocation
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.ClassName
@@ -1107,6 +1108,12 @@ public object Parsing {
         args: List<Expression>?,
         ref: Refinement?,
     ): Expression {
+      if (clazz == THIS && (marker != null || args != null || ref != null)) {
+        throw PetSyntaxException(
+            "`This` cannot have a marker, arguments, or refinement",
+            sourceLocation = clazz.sourceLocation,
+        )
+      }
       return Expression(
               clazz,
               args.orEmpty(),

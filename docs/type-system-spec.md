@@ -503,9 +503,12 @@ occurrence. Neither can anchor the existence of another component.
 
 > **Non-normative example — action-used markers.** `ActionUsedMarker` is `Cardbound<ActionCard>`:
 > `ActionUsedMarker<Player1, Predators<Player1>>` marks one exact card. It can do so because
-> `CardFront` declares `HAS MAX 1 This<Player>`, so at most one Predators card is ever in play.
+> Predators declares `HAS MAX 1 Predators`, so at most one Predators card is ever in play.
 > Otherwise the marker would identify no card in particular, and Project Inspection could reuse the
 > action of the wrong one.
+
+The named count covers every concrete owner specialization of Predators. `HAS MAX 1 This` would
+instead constrain each fully specialized type separately (L1-5, L9-2).
 
 **T3-10. Dependency maps and paths.** A type's dependencies form a finite map from keys to bounds.
 Two dependency maps are equal when they map the same keys to equal bounds, whatever order the keys

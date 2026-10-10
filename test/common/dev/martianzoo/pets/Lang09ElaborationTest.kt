@@ -132,7 +132,6 @@ internal class Lang09ElaborationTest {
 
     bound.transformInstructionTree(parse("Plant<This>")).toString() shouldBe "Plant<It<Worked>>"
     bound.transformInstructionTree(parse("Class<This>")).toString() shouldBe "Class<It>"
-    bound.transformInstructionTree(parse("This<Plant>")).toString() shouldBe "It<Plant>"
     bound
         .transformEffect(parse("-Ooh<Plant<Xyz, This, Gizmo>>: 5 This?, =0 This: -Widget"))
         .toString() shouldBe

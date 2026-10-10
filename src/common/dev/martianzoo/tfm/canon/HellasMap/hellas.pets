@@ -1,10 +1,25 @@
 CLASS HellasMap : MarsMap
 
-CLASS Diversifier : Milestone { requirement = HAS "8 Class<@Tag>(HAS @Tag)" }
-CLASS Tactician5 : Milestone { requirement = HAS "5 CardFront(HAS requirement)" }
-CLASS PolarExplorer : Milestone { requirement = HAS "3 OwnedTile<MarsArea(HAS 8 row)>" }
-CLASS Energizer : Milestone { requirement = HAS "PROD[6 Energy]" }
-CLASS RimSettler : Milestone { requirement = HAS "3 JovianTag" }
+CLASS Diversifier : Milestone {
+  HAS MAX 1 Diversifier
+  requirement = HAS "8 Class<@Tag>(HAS @Tag)"
+}
+CLASS Tactician5 : Milestone {
+  HAS MAX 1 Tactician5
+  requirement = HAS "5 CardFront(HAS requirement)"
+}
+CLASS PolarExplorer : Milestone {
+  HAS MAX 1 PolarExplorer
+  requirement = HAS "3 OwnedTile<MarsArea(HAS 8 row)>"
+}
+CLASS Energizer : Milestone {
+  HAS MAX 1 Energizer
+  requirement = HAS "PROD[6 Energy]"
+}
+CLASS RimSettler : Milestone {
+  HAS MAX 1 RimSettler
+  requirement = HAS "3 JovianTag"
+}
 
 CLASS Cultivator : Award { metric = COUNT "GreeneryTile" }
 CLASS Magnate : Award { metric = COUNT "AutomatedCard" }

@@ -27,6 +27,7 @@ internal class CopyProductionBoxTest : TfmTest() {
                       """
         CLASS ConditionalBuilding : AutomatedCard {
           cost = 0
+          HAS MAX 1 ConditionalBuilding
           HAS =1 BuildingTag<This>
           This: EACH Class<@StandardResource> { \
             PROD[@StandardResource / (Class<@StandardResource> OR ProdOffset<Class<@StandardResource>>) - Production<Class<@StandardResource>>] \

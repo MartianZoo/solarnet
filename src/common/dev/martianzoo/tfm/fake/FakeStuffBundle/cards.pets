@@ -7,6 +7,7 @@ CLASS FakeWildTagUse : TagHolder, Temporary { HAS MAX 1 This }
 CLASS FakeResearchNetwork : CardFront<Class<PreludeCard>> {
   cost = 0
 
+  HAS MAX 1 FakeResearchNetwork
   HAS =1 FakeWildTag<This>
   This: PROD[1 MC], 3 ProjectCard
 }
@@ -14,6 +15,7 @@ CLASS FakeResearchNetwork : CardFront<Class<PreludeCard>> {
 CLASS FakeResearchCoordination : AutomatedCard {
   cost = 4
 
+  HAS MAX 1 FakeResearchCoordination
   HAS =1 FakeWildTag<This>
 }
 
@@ -21,6 +23,7 @@ CLASS FakeResearchCoordination : AutomatedCard {
 CLASS FakeFloydContinuum : ActionCard, ActiveCard {
   cost = 4
 
+  HAS MAX 1 FakeFloydContinuum
   HAS =1 ScienceTag<This>
   -> 3 MC / GpComplete
 }
@@ -28,6 +31,7 @@ CLASS FakeFloydContinuum : ActionCard, ActiveCard {
 CLASS FakeAppliedScience : ActionCard, ResourceCard<Class<Science>, Class<PreludeCard>> {
   cost = 0
 
+  HAS MAX 1 FakeAppliedScience
   HAS =1 FakeWildTag<This>
   This: 6 Science<This>
 
@@ -37,6 +41,7 @@ CLASS FakeAppliedScience : ActionCard, ResourceCard<Class<Science>, Class<Prelud
 CLASS FakeNobelPrize : CardFront<Class<PreludeCard>> {
   cost = 0
 
+  HAS MAX 1 FakeNobelPrize
   HAS =1 FakeWildTag<This>
   // SearchForCard(HAS requirement)
   This: 5 MC, 2 ProjectCard
@@ -47,6 +52,7 @@ CLASS FakeNobelPrize : CardFront<Class<PreludeCard>> {
 CLASS FakeHelion : CardFront<Class<CorporationCard>> {
   cost = 0
 
+  HAS MAX 1 FakeHelion
   HAS =1 SpaceTag<This>
   This:: BaseResourceValue<Class<Heat>>
   This: 42 MC, PROD[3 Heat]
@@ -58,6 +64,7 @@ CLASS FakeHelion : CardFront<Class<CorporationCard>> {
 CLASS FakePolderTechDutch : CardFront<Class<CorporationCard>> {
   cost = 0
 
+  HAS MAX 1 FakePolderTechDutch
   HAS =1 EarthTag<This>
   This: 35 MC, RequiredAction { -> OceanTile<> THEN GreeneryTile<LandArea(HAS Neighbor<OceanTile>)> }
   OceanTile: Energy
@@ -68,6 +75,7 @@ CLASS FakePolderTechDutch : CardFront<Class<CorporationCard>> {
 CLASS FakeSeptemTribus : ActionCard<Class<CorporationCard>> {
   cost = 0
 
+  HAS MAX 1 FakeSeptemTribus
   HAS =1 FakeWildTag<This>
   This: 36 MC
 
@@ -78,6 +86,7 @@ CLASS FakeSeptemTribus : ActionCard<Class<CorporationCard>> {
 CLASS FakeHeadStart : CardFront<Class<PreludeCard>> {
   cost = 0
 
+  HAS MAX 1 FakeHeadStart
   This:: Audit
   This: 2 Steel, 2 MC / ProjectCard, \
     (MAX 0 RequiredAction: StandardAction) OR (RequiredAction: RequiredActionsSignal), \
@@ -95,6 +104,7 @@ CLASS FakeSelfReplicatingRobots : ActionCard, ActiveCard {
   cost = 7
   requirement = HAS "2 ScienceTag"
 
+  HAS MAX 1 FakeSelfReplicatingRobots
   PlayCard<Class<CardBack>, Class<@CardFront>(HAS RobotUnit<Class<@CardFront>>)>: ProjectCard
 
   // HAS PrintedTag<Class<BuildingTag>> OR PrintedTag<Class<SpaceTag>>

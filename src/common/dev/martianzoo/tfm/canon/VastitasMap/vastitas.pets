@@ -1,10 +1,25 @@
 CLASS VastitasMap : MarsMap
 
-CLASS Agronomist : Milestone { requirement = HAS "4 PlantTag" }
-CLASS Engineer : Milestone { requirement = HAS "10 PROD[Energy OR Heat]" }
-CLASS Spacefarer : Milestone { requirement = HAS "4 SpaceTag" }
-CLASS Geologist : Milestone { requirement = HAS "3 (OwnedTile<VolcanicArea> OR OwnedTile(HAS Neighbor<VolcanicArea>))" }
-CLASS Farmer : Milestone { requirement = HAS "5 (Animal OR Microbe)" }
+CLASS Agronomist : Milestone {
+  HAS MAX 1 Agronomist
+  requirement = HAS "4 PlantTag"
+}
+CLASS Engineer : Milestone {
+  HAS MAX 1 Engineer
+  requirement = HAS "10 PROD[Energy OR Heat]"
+}
+CLASS Spacefarer : Milestone {
+  HAS MAX 1 Spacefarer
+  requirement = HAS "4 SpaceTag"
+}
+CLASS Geologist : Milestone {
+  HAS MAX 1 Geologist
+  requirement = HAS "3 (OwnedTile<VolcanicArea> OR OwnedTile(HAS Neighbor<VolcanicArea>))"
+}
+CLASS Farmer : Milestone {
+  HAS MAX 1 Farmer
+  requirement = HAS "5 (Animal OR Microbe)"
+}
 
 CLASS Traveller : Award { metric = COUNT "JovianTag OR EarthTag" }
 CLASS Landscaper : Award { metric = COUNT "TileInLargestGroup" }

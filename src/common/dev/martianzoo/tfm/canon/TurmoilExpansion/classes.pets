@@ -17,7 +17,10 @@ CLASS TurmoilExpansion : Module {
   TurmoilSolarPhase: TurmoilSolarOperation
 }
 
-CLASS Terraformer26 : Milestone { requirement = HAS "26 TerraformRating" }
+CLASS Terraformer26 : Milestone {
+  HAS MAX 1 Terraformer26
+  requirement = HAS "26 TerraformRating"
+}
 
 "Runs TR revision and the current event, then changes government and advances the event queue"
 CLASS TurmoilSolarOperation : Temporary, System, Hidden {
