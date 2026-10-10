@@ -16,7 +16,7 @@ CLASS TerraformingMars : Module {
   This: SellPatentsProject, PowerPlantProject, AsteroidProject, AquiferProject, GreeneryProject, CityProject
   HAS Class<PlayProject>, Class<UseStandardProject>, Class<UseCardAction>, Class<ConvertPlants>, Class<ConvertHeat>
 
-  This: Hand, Selecting, Revealed, CardPurchase
+  This: Hand, Selecting, Revealed
   This: NoTagsFilter
   This: EACH Class<@Tag> { TagFilter<Class<@Tag>> }
   This: EACH @Class<GlobalParameter> { GpIncomplete<@Class> }
@@ -88,6 +88,8 @@ ABSTRACT CLASS Player : Owner, Actor {
   SetupPhase IF MAX 0 BeginnerVariant: NonBeginnerMode<This>
   SetupPhase IF BeginnerVariant: BeginnerMode<This> OR NonBeginnerMode<This>
   ResearchPhase: 4 ProjectCard<This, Selecting> THEN -4 ProjectCard<This, Selecting>? THEN BuySelectedCards<This>
+  -Billing<This, Class<BuySelectedCards>, Action1>: \
+    ProjectCard<This, Hand> FROM ProjectCard<This, Selecting> / ProjectCard<This, Selecting>
 }
 
 "A player's persistent choice of starting-card procedure"

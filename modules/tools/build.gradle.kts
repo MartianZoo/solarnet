@@ -88,7 +88,7 @@ tasks.register<JavaExec>("dumpOtbGame20260912EventLog") {
   description = "Dumps the generated 2026-09-12 replay-test event log as TSV."
   dependsOn(":tfm-tests:jvmTest")
   classpath = sourceSets.main.get().runtimeClasspath
-  mainClass.set("dev.martianzoo.tools.DumpEventlogKt")
+  mainClass.set("dev.martianzoo.tfm.tools.DumpEventlogKt")
   args(
       replayEventLogsDirectory
           .map { it.file("OtbGame20260912Test.json").asFile.absolutePath }

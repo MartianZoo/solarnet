@@ -28,15 +28,15 @@ generic card backs by Player and location, never by printed identity:
   scoring and recovery rules query it.
 
 The modeled selection and reveal effects explicitly empty their temporary locations. Retained
-starting project cards are the deliberate exception: they rest in `Selecting` after setup until
-`BuySelectedCards` moves them during that Player's Corporation-phase turn. Otherwise, a card left
-in `Selecting` after its selection is resolved is always a bug. The selected invariant is zero
-`Selecting` backs for a Player whenever that Player has no active selection or pending setup
-purchase. Setup and Prelude selections count as active selections even though they occur outside
-action-phase turns. No general check enforces this invariant yet; implementing one requires a
-reliable selection-completion point. The existing `MustCleanUp` check runs only for operations that
-declare themselves complete. Do not treat other leftover backs as a valid resting state or silently
-discard them to conceal a missing decision.
+starting project cards rest in `Selecting` after setup until their Corporation-phase purchase is
+paid and transferred. Project cards selected for a purchase also stay there while payment or the
+transfer task is outstanding. Otherwise, a card left in `Selecting` after its selection is resolved
+is a bug. The selected invariant is zero `Selecting` backs for a Player whenever that Player has no
+active selection or outstanding purchase. Setup and Prelude selections count as active selections
+even though they occur outside action-phase turns. No general check enforces this invariant yet;
+implementing one requires a reliable selection-completion point. The existing `MustCleanUp` check
+runs only for operations that declare themselves complete. Do not treat other leftover backs as a
+valid resting state or silently discard them to conceal a missing decision.
 
 Fixed-size project-card purchase offers enter `Selecting` first. Searches intentionally have no
 selection pool: the matching card enters the hand directly, and skipped cards have no relevant
@@ -77,11 +77,11 @@ source is rejected even when that location contains another card.
 An ordinary draw adds `ProjectCard<Hand>` directly. Fixed-size project-card offers, including buys,
 gain the full offer as `ProjectCard<Selecting>`. Look-and-keep effects move only retained backs to
 `Hand` and remove the remainder. For a buy, the Player removes unwanted backs, then
-`BuySelectedCards` is `System` and converts every remaining selected back into a `BuyCard` payment
-request. Settling the purchase billing queues `ProjectCard FROM BuyCard / BuyCard` for the Player.
-Executing that transfer moves all paid requests into `Hand`; the payment itself does not silently
-gain hand cards. Zero buys leave no selected backs. Neither the World nor the replay ledger names
-rejected cards. Searches create only the matching hand card;
+`BuySelectedCards` is `System` and bills 3 M€ for each remaining selected back, applying card
+purchase discounts through `PayingFor<Class<ProjectCard>>`. Settling the bill offers the Player
+`N ProjectCard<Hand FROM Selecting>` as an explicit transfer task. The selected backs stay in
+`Selecting` until the Player performs it. Zero buys leave no selected backs. Neither the World nor
+the replay ledger names rejected cards. Searches create only the matching hand card;
 there is no count of cards searched past. `SearchForCard<CardFilter>` records the externally
 verified criterion as a transient audited event. `TagFilter`, `NoTagsFilter`, and
 `ReferenceFilter` cover the supported tag, no-printed-tag, and reference criteria. The selected
@@ -101,10 +101,8 @@ revealed-card count, currently one. The caller verifies the printed tag external
 branch lets the caller decline when the card lacks the tag;
 checking that the claim or decline matches the actual revealed card belongs to the external tracker
 or custodian. The recorded filter supplies the criterion; securing the declaration does not
-require adding hidden faces or an engine reveal-verification stage. Each `BuyCard`
-creates 3 M€ of debt, card-specific modifiers adjust that debt through
-`PayingFor<Class<ProjectCard>>`, and settling the `CardPurchase` billing moves its selected back to
-`Hand` without assigning a printed identity.
+require adding hidden faces or an engine reveal-verification stage. The same purchase billing
+and Player transfer task apply to these selected backs without assigning a printed identity.
 
 Do not add engine identities for cards that were offered, revealed from a deck, searched past, rejected,
 or left in an external deck without entering a hand. Anonymous selection counts belong in Pets
