@@ -21,4 +21,10 @@ internal class TurmoilExpansionEnglishTest {
     english.describe(parse<Requirement>("PartyRequirement<Scientists>")) shouldBe
         "Requires that you meet the party requirement for the Scientists party."
   }
+
+  @Test
+  internal fun describesPreservationResources() {
+    english.describe(parse<InstructionTree>("2 Preservation<This>")) shouldBe
+        "Add 2 preservation resources to this card."
+  }
 }

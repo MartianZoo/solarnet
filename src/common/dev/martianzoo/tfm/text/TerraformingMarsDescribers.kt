@@ -10,9 +10,7 @@ import dev.martianzoo.tfm.text.coloniesexpansion.coloniesEnglishDeclarations
 import dev.martianzoo.tfm.text.corporateeraexpansion.corporateEraEnglishDeclarations
 import dev.martianzoo.tfm.text.prelude1cardpack.prelude1EnglishDeclarations
 import dev.martianzoo.tfm.text.prelude2cardpack.prelude2EnglishDeclarations
-import dev.martianzoo.tfm.text.preludecommon.preludeEnglishDeclarations
 import dev.martianzoo.tfm.text.promocardpack.promoEnglishDeclarations
-import dev.martianzoo.tfm.text.turmoilcardpack.turmoilCardPackEnglishDeclarations
 import dev.martianzoo.tfm.text.turmoilexpansion.turmoilEnglishDeclarations
 import dev.martianzoo.tfm.text.vastitasmap.vastitasEnglishDeclarations
 import dev.martianzoo.tfm.text.venusnextexpansion.venusNextEnglishDeclarations
@@ -177,6 +175,12 @@ internal object TerraformingMarsDescribers {
                                     ComponentDescriber.MinimumProperty.Presence("requirement"),
                             )
                     ),
+            ),
+        klass("PreludeCard") to
+            ComponentDescriber(
+                noun = ComponentDescriber.Noun.Counted("Prelude card", "Prelude cards"),
+                numericSingularChange = true,
+                changeFrame = Frame.Deck,
             ),
         klass("ActiveCard") to
             ComponentDescriber(
@@ -502,6 +506,11 @@ internal object TerraformingMarsDescribers {
                 triggerFrame = Trigger.PlayCard(),
                 cardLocationDependency = Key(klass("PlayCard"), 2),
             ),
+        klass("PlayOrFizzle") to
+            ComponentDescriber(
+                cardProcedure = ComponentDescriber.CardProcedure.PLAY_OR_FIZZLE,
+                cardLocationDependency = Key(klass("PlayOrFizzle"), 0),
+            ),
         klass("CheckRequirement") to ComponentDescriber(triggerFrame = Trigger.PlayCard()),
         klass("UseAction") to ComponentDescriber(triggerFrame = Trigger.UseAction),
         klass("StandardProject") to
@@ -585,14 +594,6 @@ internal object TerraformingMarsDescribers {
                 actionUse =
                     ComponentDescriber.ActionUse(ComponentDescriber.ActionUse.Reference.AnyAction),
             ),
-        klass("CardPurchase") to
-            ComponentDescriber(
-                actionUse =
-                    ComponentDescriber.ActionUse(
-                        reference = ComponentDescriber.ActionUse.Reference.Fixed("a card"),
-                        paymentDiscount = ComponentDescriber.PaymentDiscount("buy a card"),
-                    )
-            ),
         klass("Owed") to
             ComponentDescriber(
                 paymentRole = ComponentDescriber.PaymentRole.OWED,
@@ -615,9 +616,7 @@ internal object TerraformingMarsDescribers {
                   corporateEraEnglishDeclarations +
                   prelude1EnglishDeclarations +
                   prelude2EnglishDeclarations +
-                  preludeEnglishDeclarations +
                   promoEnglishDeclarations +
-                  turmoilCardPackEnglishDeclarations +
                   turmoilEnglishDeclarations +
                   vastitasEnglishDeclarations +
                   venusNextEnglishDeclarations)

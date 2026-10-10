@@ -18,17 +18,9 @@ val prelude2EnglishSourceDirectory =
     rootProject.layout.projectDirectory.dir(
         "src/common/dev/martianzoo/tfm/canon/Prelude2CardPack/english"
     )
-val preludeCommonEnglishSourceDirectory =
-    rootProject.layout.projectDirectory.dir(
-        "src/common/dev/martianzoo/tfm/canon/PreludeCommon/english"
-    )
 val promoEnglishSourceDirectory =
     rootProject.layout.projectDirectory.dir(
         "src/common/dev/martianzoo/tfm/canon/PromoCardPack/english"
-    )
-val turmoilCardPackEnglishSourceDirectory =
-    rootProject.layout.projectDirectory.dir(
-        "src/common/dev/martianzoo/tfm/canon/TurmoilCardPack/english"
     )
 val turmoilEnglishSourceDirectory =
     rootProject.layout.projectDirectory.dir(
@@ -58,9 +50,7 @@ kotlin {
               corporateEraEnglishSourceDirectory,
               prelude1EnglishSourceDirectory,
               prelude2EnglishSourceDirectory,
-              preludeCommonEnglishSourceDirectory,
               promoEnglishSourceDirectory,
-              turmoilCardPackEnglishSourceDirectory,
               turmoilEnglishSourceDirectory,
               vastitasEnglishSourceDirectory,
               venusNextEnglishSourceDirectory,

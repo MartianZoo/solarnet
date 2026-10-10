@@ -52,6 +52,26 @@ internal class ModuleSelectionTest {
         excludingItSelectsExactly = multiplayerWith("PreludeExpansion"),
     )
     defaultMayBeExcluded(
+        default = "Prelude1CardPack",
+        whenSelecting = "ValleyTrust",
+        selectsExactly = multiplayerWith("Prelude1CardPack"),
+        excludingItSelectsExactly = multiplayerWith(),
+    )
+    defaultMayBeExcluded(
+        default = "Prelude1CardPack",
+        whenSelecting = "WgProject, TurmoilExpansion",
+        selectsExactly = multiplayerWith("Prelude1CardPack", "TurmoilExpansion"),
+        excludingItSelectsExactly = multiplayerWith("TurmoilExpansion"),
+    )
+    resolvesToExactly(
+        "ValleyTrust, Prelude2CardPack",
+        multiplayerWith("Prelude2CardPack"),
+    )
+    resolvesToExactly(
+        "WgProject, TurmoilExpansion, Prelude2CardPack",
+        multiplayerWith("TurmoilExpansion", "Prelude2CardPack"),
+    )
+    defaultMayBeExcluded(
         default = "QuickStartVariant",
         whenSelecting = "-CorporateEraExpansion",
         selectsExactly = defaultMultiplayer - cn("CorporateEraExpansion") + cn("QuickStartVariant"),
