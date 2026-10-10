@@ -65,8 +65,9 @@ These concerns remain open; the ranking does not select replacement designs.
   may play ordered default cards normally; explicit Prelude play is sufficient for current callers.
   Investigate automatic attack-history effects separately; reassess and delete injected scenarios
   without credible gameplay routes.
-  Continue extracting card-specific suites from `Prelude2CardsTest`; its remaining phase-sensitive
-  scenarios (including Suitable Infrastructure and Terraforming Deal) need gameplay evaluation.
+  Continue extracting the remaining suites from `Prelude2CardsTest`, including Early Colonization,
+  Recession, and the combined political-card scenarios. The Suitable Infrastructure interaction
+  with Head Start remains in `HeadStartTest` until its fake-card setup can be replaced.
   Recyclon's migration still needs explicit resolution of its starting microbe choice. The default
   corporation setup cannot resolve that choice, and sandbox corporation entry currently has no
   supported transition into Action phase; settle the smallest setup approach before migrating it.

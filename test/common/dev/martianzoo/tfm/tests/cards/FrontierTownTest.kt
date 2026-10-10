@@ -74,4 +74,12 @@ internal class FrontierTownTest : TfmSandboxTest() {
         42 to "MC",
     )
   }
+
+  @Test
+  internal fun `Repeats the printed bonus without repeating the ocean adjacency payout`() {
+    newTestGame("FrontierTown, TurmoilExpansion")
+    kim.exMachina("OceanTile<Tharsis_5_5>, 2 PartyDelegate<MarsFirst>")
+
+    kim.playProject(FrontierTown, 11) { placeTile(4, 5) }.expect("6 Plant, -9 MC, PROD[-Energy]")
+  }
 }
