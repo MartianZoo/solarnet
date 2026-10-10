@@ -111,8 +111,8 @@ public class TfmGameplay(
   private fun OperationScope.buySelectedCards() {
     autoExecNow()
     payAllMc()
-    val purchased = this@TfmGameplay.count("BuyCard")
-    if (purchased > 0) doTask("$purchased ProjectCard FROM BuyCard")
+    val purchased = this@TfmGameplay.count("ProjectCard<Selecting>")
+    if (purchased > 0) doTask("$purchased ProjectCard<Hand FROM Selecting>")
   }
 
   private fun OperationScope.chooseConcreteCorporationEffectsBeforePurchase() {

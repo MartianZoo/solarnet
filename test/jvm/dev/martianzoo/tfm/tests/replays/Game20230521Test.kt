@@ -52,7 +52,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "PROD[Steel]",
         "Steel",
         "-15 MC",
-        "5 ProjectCard FROM BuyCard",
+        "5 ProjectCard<Hand FROM Selecting>",
     )
 
     p2.doTasks(
@@ -61,7 +61,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "37 MC",
         "PROD[Steel]",
         "-12 MC",
-        "4 ProjectCard FROM BuyCard",
+        "4 ProjectCard<Hand FROM Selecting>",
     )
 
     p1.doTasks(
@@ -119,7 +119,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "ProjectCard<Selecting>",
         "Ok", // keep card
         "-3 MC",
-        "ProjectCard FROM BuyCard",
+        "ProjectCard<Hand FROM Selecting>",
     )
 
     p1.doTasks("Ok") // end turn
@@ -183,8 +183,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("25 MC", "-5 MC", "Steel", "Titanium", "3 Heat", "Plant")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
-    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
+    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
 
     p1.assertProduction(m = 5, s = 3, t = 0, p = 0, e = 0, h = 0)
     p1.assertResources(m = 23, s = 5, t = 0, p = 0, e = 0, h = 1)
@@ -219,7 +219,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "ProjectCard<Selecting>",
         "Ok", // keep card
         "-3 MC",
-        "ProjectCard FROM BuyCard",
+        "ProjectCard<Hand FROM Selecting>",
     )
     p1.doTasks(
         "PlayProject<Class<$EarthOffice>>",
@@ -281,8 +281,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("-5 MC", "26 MC", "Steel", "Titanium", "3 Heat", "Plant")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
-    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
+    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
 
     p1.assertProduction(m = 4, s = 3, t = 0, p = 0, e = 1, h = 0)
     p1.assertResources(m = 27, s = 3, t = 0, p = 0, e = 1, h = 1)
@@ -385,8 +385,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("-5 MC", "27 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard FROM BuyCard")
-    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
+    p1.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
 
     p1.assertProduction(m = 7, s = 3, t = 0, p = 0, e = 1, h = 1)
     p1.assertResources(m = 44, s = 3, t = 0, p = 1, e = 1, h = 10)
@@ -424,7 +424,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "ProjectCard<Selecting>",
         "Ok", // keep card
         "-3 MC",
-        "ProjectCard FROM BuyCard",
+        "ProjectCard<Hand FROM Selecting>",
     )
 
     p2.doTasks(
@@ -512,8 +512,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("29 MC", "-5 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard FROM BuyCard")
-    p2.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard FROM BuyCard")
+    p1.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
     p1.assertProduction(m = 7, s = 3, t = 0, p = 0, e = 4, h = 2)
     p1.assertResources(m = 28, s = 3, t = 0, p = 1, e = 4, h = 11)
     p1.assertDashMiddle(played = 15, actions = 3, vp = 26, tr = 27, hand = 9)
@@ -653,9 +653,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.doTasks(
         "Ok", // keep all four
         "-12 MC",
-        "4 ProjectCard FROM BuyCard",
+        "4 ProjectCard<Hand FROM Selecting>",
     )
-    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
+    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
 
     p1.assertProduction(m = 9, s = 3, t = 0, p = 0, e = 5, h = 3)
     p1.assertResources(m = 31, s = 3, t = 0, p = 4, e = 5, h = 15)
@@ -696,7 +696,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "ProjectCard<Selecting>",
         "Ok", // keep card
         "-3 MC",
-        "ProjectCard FROM BuyCard",
+        "ProjectCard<Hand FROM Selecting>",
     )
 
     p2.doTasks(
@@ -852,8 +852,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("36 MC", "-5 MC", "2 Steel", "Titanium", "3 Heat", "Plant", "2 Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard FROM BuyCard")
-    p2.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard FROM BuyCard")
+    p1.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard<Hand FROM Selecting>")
 
     p1.assertProduction(m = 19, s = 5, t = 1, p = 1, e = 4, h = 3)
     p1.assertResources(m = 40, s = 7, t = 1, p = 5, e = 4, h = 14)
@@ -997,8 +997,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("36 MC", "-5 MC", "2 Steel", "2 Titanium", "3 Heat", "Plant", "4 Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
-    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
+    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
 
     p1.assertProduction(m = 19, s = 5, t = 1, p = 1, e = 8, h = 3)
     p1.assertResources(m = 44, s = 12, t = 2, p = 6, e = 8, h = 16)
@@ -1143,7 +1143,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "ProjectCard<Selecting>",
         "Ok", // keep card
         "-3 MC",
-        "ProjectCard FROM BuyCard",
+        "ProjectCard<Hand FROM Selecting>",
     )
     p1.doTasks(
         "UseCardAction<$DeuteriumExport, Action1>",
@@ -1190,8 +1190,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("39 MC", "-5 MC", "2 Steel", "3 Titanium", "3 Heat", "Plant", "3 Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard FROM BuyCard")
-    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
+    p1.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
 
     p1.assertProduction(m = 27, s = 5, t = 1, p = 1, e = 8, h = 3)
     p1.assertResources(m = 56, s = 5, t = 1, p = 4, e = 8, h = 18)
@@ -1217,7 +1217,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "ProjectCard<Selecting>",
         "Ok", // keep card
         "-3 MC",
-        "ProjectCard FROM BuyCard",
+        "ProjectCard<Hand FROM Selecting>",
     )
 
     p2.doTasks(
@@ -1449,8 +1449,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("49 MC", "-5 MC", "2 Steel", "3 Titanium", "3 Heat", "4 Plant", "3 Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
-    p2.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard FROM BuyCard")
+    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
 
     p1.assertProduction(m = 28, s = 5, t = 1, p = 4, e = 9, h = 3)
     p1.assertResources(m = 66, s = 5, t = 1, p = 10, e = 9, h = 16)
@@ -1701,8 +1701,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("53 MC", "-5 MC", "2 Steel", "3 Titanium", "3 Heat", "6 Plant", "9 Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
-    p2.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard FROM BuyCard")
+    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard<Hand FROM Selecting>")
     p1.doTasks(
         "PlayProject<Class<$ImportedNitrogen>>",
         "-1 Titanium",
@@ -1794,7 +1794,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "ProjectCard<Selecting>",
         "Ok", // keep card
         "-3 MC",
-        "ProjectCard FROM BuyCard",
+        "ProjectCard<Hand FROM Selecting>",
     )
     p2.doTasks(
         "UseStandardProject<CityProject>",
@@ -2065,8 +2065,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
     val summer = Summarizer(game)
 
     summer.net("$ArcticAlgae", "Plant") shouldBe 3
-
-    summer.net("CardPurchase", "ProjectCard<Player1>") shouldBe 16
 
     summer.net("$DeuteriumExport", "Floater") shouldBe 1
     summer.net("$DeuteriumExport", "Production<Class<Energy>>") shouldBe 1

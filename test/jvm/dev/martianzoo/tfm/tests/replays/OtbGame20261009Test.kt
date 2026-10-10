@@ -56,14 +56,14 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "10 Steel",
         "ArcadianCommunities_RequiredAction",
         "-15 MC",
-        "5 ProjectCard FROM BuyCard",
+        "5 ProjectCard<Hand FROM Selecting>",
     )
     p2.doTasks(
         "PlayCard<Class<CorporationCard>, Class<$Teractor>>",
         "$Teractor FROM CorporationCard",
         "60 MC",
         "-24 MC",
-        "8 ProjectCard FROM BuyCard",
+        "8 ProjectCard<Hand FROM Selecting>",
     )
 
     // "I chose my preludes because they rhyme. I'm just kidding."
@@ -200,8 +200,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     // Generation 2. Evening 21:55:19–21:55:55; drafting is represented by its kept counts.
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard FROM BuyCard")
-    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
+    p1.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
     // "Just in case you have any ideas, I'm gonna immediately spend plant gain seven."
     p2.doTasks(
         "PlayProject<Class<$ElectroCatapult>>",
@@ -273,8 +273,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     // Generation 3, 22:05:39–22:11:19.
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-ProjectCard<Selecting>", "-9 MC", "3 ProjectCard FROM BuyCard")
-    p2.doTasks("-ProjectCard<Selecting>", "-9 MC", "3 ProjectCard FROM BuyCard")
+    p1.doTasks("-ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
     p1.doTasks(
         "TradeAction<Action2>",
         "-3 Energy",
@@ -336,11 +336,11 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     // Generation 4, 22:13:17–22:22:15.
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
+    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
     p2.doTasks(
         "Ok", // keep all four research cards
         "-12 MC",
-        "4 ProjectCard FROM BuyCard",
+        "4 ProjectCard<Hand FROM Selecting>",
     )
     p2.doTasks(
         "PlayProject<Class<$LocalShading>>",
@@ -447,8 +447,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     // Generation 5, 22:24:37–22:33:16.
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
-    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
+    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
     // At 22:25:50 both players agree to undo the titanium payment for this trade and
     // use the Launch-Pad instead. Replay the accepted choice at the original trade.
     p1.doTasks(

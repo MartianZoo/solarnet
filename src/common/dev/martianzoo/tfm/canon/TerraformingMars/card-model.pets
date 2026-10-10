@@ -41,20 +41,12 @@ ABSTRACT CLASS Card : Owned<Player> {
   }
 }
 
-"The payment operation that owns project-card purchases"
-CLASS CardPurchase : HasActions {
-  HAS =1 This
-  -Billing<Class<This>, Action1>: ProjectCard FROM BuyCard / BuyCard
-}
-
-"A selected project card awaiting payment and transfer to Hand"
-CLASS BuyCard : Owned<Player>, MustCleanUp, Hidden {
-  This:: 3 Owed<> THEN PayingFor<Class<ProjectCard>> THEN Billing<Class<CardPurchase>, Action1>.
-}
-
-"Buys every project card left in this Player's selection"
+"Bills every project card left in this Player's selection"
 CLASS BuySelectedCards : Owned<Player>, Signal, System {
-  This:: BuyCard FROM ProjectCard<Selecting> / ProjectCard<Selecting>
+  This IF ProjectCard<Selecting>:: \
+    3 Owed<> / ProjectCard<Selecting> THEN \
+    PayingFor<Class<ProjectCard>> / ProjectCard<Selecting> THEN \
+    Billing<Class<This>, Action1>
 }
 
 "An externally specified search criterion; the selected card is not tracked before it reaches a hand"

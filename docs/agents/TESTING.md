@@ -575,7 +575,7 @@ calls are atomic, resumable batches.
 Use the shared card-name constants, give every `Ok` a short inline comment to its right naming
 the task it dismisses (for example, `// no steel paid`). Keep the replay free of `.expect()`
 calls; retain its state checkpoints and final score/winner assertions. Purchase transfers into
-`Hand` are explicit tasks. Keep the replay's task calls instead of reintroducing
+`Hand` are explicit tasks from `Selecting`. Keep the replay's task calls instead of reintroducing
 `TfmGameplay` action, payment, or turn helpers. Shared score-preview assertions roll back their
 scoring simulation without changing any Actor's autoexecution policy.
 
