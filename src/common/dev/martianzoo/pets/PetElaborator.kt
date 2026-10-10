@@ -13,6 +13,7 @@ import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.DIE
 import dev.martianzoo.pets.api.SystemClasses.OK
 import dev.martianzoo.pets.api.SystemClasses.OWNED
+import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -126,7 +127,7 @@ public class PetElaborator(public val classTable: ClassTable) {
       owner: HasClassName? = null,
   ): Metric =
       chain(
-              normalizeInput(),
+              useFullNames(),
               finishAuthoredSyntax(context, owner),
               propertyEvaluator(context),
           )
@@ -141,12 +142,9 @@ public class PetElaborator(public val classTable: ClassTable) {
   private fun inputElaborator(owner: HasClassName?): PetTransformer =
       chain(
           rejectPropertyEvaluations(),
-          normalizeInput(),
+          useFullNames(),
           finishAuthoredSyntax(THIS.expression, owner),
       )
-
-  private fun normalizeInput(): PetTransformer =
-      chain(useFullNames(), classTable.recordTypeVariableScopes())
 
   private fun finishAuthoredSyntax(
       context: Expression,
@@ -670,6 +668,28 @@ public class PetElaborator(public val classTable: ClassTable) {
                 }
               }
               .transformTrigger(trigger)
+      if (
+          !supplied &&
+              trigger.descendantsOfType<Effect.Trigger>().any { part ->
+                val watched =
+                    when (part) {
+                      is OnGainOf -> part.expression
+                      is OnRemoveOf -> part.expression
+                      Effect.Trigger.WhenGain,
+                      Effect.Trigger.WhenRemove -> context
+                      else -> null
+                    }
+                watched != null &&
+                    classTable.getClass(watched.className).allSuperclasses().any {
+                      it.className == SYSTEM
+                    }
+              }
+      ) {
+        throw PetSyntaxException(
+            "a System trigger cannot implicitly supply a Player through BY; bind Me explicitly",
+            sourceLocation = trigger.sourceLocation,
+        )
+      }
       return (if (supplied) marked else ByTrigger(marked, declaration)) to me
     }
 

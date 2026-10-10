@@ -1,7 +1,6 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -83,67 +82,5 @@ internal class BugsTest {
     error.sourceLocation?.column shouldBe 4
     error.sourceLocation?.text shouldBe "<"
     error.detail shouldContain "found `<`"
-  }
-
-  @Test
-  internal fun `a bare gain reference is incorrectly rejected after its supplier accepts defaults`() {
-    rejectsGainReference("@Piece<> THEN Notice<@Piece>")
-  }
-
-  @Test
-  internal fun `a forward bare reference is incorrectly rejected when its supplier accepts defaults`() {
-    rejectsGainReference("Notice<Piece<First>>(HAS @Piece) THEN @Piece<>")
-  }
-
-  @Test
-  internal fun `a bare reference to a defaulted removal is incorrectly rejected`() {
-    rejectsRemovalReference("-@Piece<> THEN Notice<@Piece>")
-  }
-
-  @Test
-  internal fun `a bare reference to a defaulted transmutation is incorrectly rejected`() {
-    rejectsRemovalReference("@Piece<> FROM Marker THEN Notice<@Piece>")
-  }
-
-  private fun rejectsGainReference(source: String) {
-    val table =
-        loadTypes(
-            """
-                ABSTRACT CLASS Area { CLASS First }
-                CLASS Piece<Area> { DEFAULT +Piece<First> }
-                CLASS Notice<Piece<Area>>
-                """
-        )
-    val elaborator = PetElaborator(table)
-
-    // The supplier accepts gain defaults; its bare reference does not request all-use defaults.
-    shouldThrow<ExpressionException> {
-          elaborator.elaborateInput(parse<InstructionTree>(source))
-        }
-        .message shouldContain "has no all-use dependency defaults to accept"
-  }
-
-  private fun rejectsRemovalReference(source: String) {
-    val table =
-        loadTypes(
-            """
-                ABSTRACT CLASS Area {
-                  CLASS First
-                  CLASS Second
-                }
-                CLASS Piece<Area> {
-                  DEFAULT +Piece<First>
-                  DEFAULT -Piece<Second>
-                }
-                CLASS Marker
-                CLASS Notice<Piece<Area>>
-                """
-        )
-    val elaborator = PetElaborator(table)
-
-    shouldThrow<ExpressionException> {
-          elaborator.elaborateInput(parse<InstructionTree>(source))
-        }
-        .message shouldContain "has no all-use dependency defaults to accept"
   }
 }

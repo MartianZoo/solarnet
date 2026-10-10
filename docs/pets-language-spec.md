@@ -1126,9 +1126,9 @@ changes how a source reads without changing which types exist (T10).
 **L9-1. Elaboration rewrites an element against a context.** It splits atomized gains (L9-11)
 before inserting declared defaults (L9-4 through L9-10), dispatches transform blocks (L8), records
 the resulting Type-variable scopes (T13-6 through T13-9), inserts omitted `Owned` owner arguments
-(L9-3), and expands property evaluations (L9-12). Scopes may be recorded earlier to resolve
-authored names, but final recording follows structural transforms: a resource variable inside
-`PROD[...]` represents a Class after the block is dispatched.
+(L9-3), and expands property evaluations (L9-12). Submitted syntax records scopes after defaults
+and structural transforms: a supplier's `<>` does not make its bare references request defaults,
+and a resource variable inside `PROD[...]` represents a Class after the block is dispatched.
 
 This order defines the resulting element, not how the rewritings must be computed. The source
 of the Pets supplies the context:
@@ -1296,6 +1296,8 @@ every superclass. If an effect has no inherited `Me` and its instruction contain
 type, elaboration declares effect-local `Me@Player` in an owned trigger when possible, or adds
 `BY Me@Player` to its trigger. The instruction then uses that same variable. The event or changed
 component does not implicitly replace an unmarked `Anyone`.
+An ownerless `System` event cannot supply a Player through an implicit `BY` selector: its actor is
+Admin. An effect needing a recipient must name it explicitly or bind it from an owned event.
 An `OR` trigger cannot supply that binding from just one arm; an effect that needs `Me` must bind
 it around the whole trigger and name it in the instruction.
 

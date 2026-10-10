@@ -180,6 +180,11 @@ A `HAS` candidate fills a compatible omitted dependency before lexical `Me` is i
 `EACH Starter@Player(HAS StartToken) { ... }` tests each candidate's token. An incompatible
 candidate leaves the owner open for lexical insertion.
 
+An ownerless rule may infer `Me` from an owned trigger or, for a non-System event, its Player
+actor. Elaboration rejects an attempt to infer that Player from an ownerless System event;
+`Phase: Plant` needs an explicit recipient when `Phase` is System. A System event with an owned
+dependency can still supply the recipient through that dependency.
+
 ## Test responsibilities
 
 Generic engine tests may inspect Task Actor fields, assignee changes, selection state, and recorded

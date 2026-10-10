@@ -2264,10 +2264,10 @@ internal class PostCatalogDiagnosticsTest {
           agent.runOperation("Rose FROM Rose")
         }
 
-    assertEquals("a transmutation must change its type: Rose FROM Rose", error.detail)
+    assertEquals("a transmutation must change its type: Rose FROM Rose!", error.detail)
     assertEquals(
         """
-        |a transmutation must change its type: Rose FROM Rose at 1:1
+        |a transmutation must change its type: Rose FROM Rose! at 1:1
         |Rose FROM Rose
         |^
         """

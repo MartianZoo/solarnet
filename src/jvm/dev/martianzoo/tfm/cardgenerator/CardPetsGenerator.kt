@@ -47,16 +47,16 @@ internal object CardPetsGenerator {
     private val className = cn(data.name)
     private val derivedClasses = DerivedClassLowerer(className)
 
-    private inline fun <reified P : PetNode> parseOwned(source: String): Parsed<P> {
+    private inline fun <reified P : PetNode> parseAuthored(source: String): Parsed<P> {
       val node = Parsing.parse(P::class, source, derivedClasses)
       return Parsed(source, node)
     }
 
     private val deck = data.deck?.let(::cn)
     private val projectKind = data.projectKind?.let(::cn)
-    private val immediate = data.immediate?.let { parseOwned<InstructionTree>(it) }
-    private val actions = data.actions.map { parseOwned<Action>(it) }
-    private val effects = data.effects.map { parseOwned<Effect>(it) }
+    private val immediate = data.immediate?.let { parseAuthored<InstructionTree>(it) }
+    private val actions = data.actions.map { parseAuthored<Action>(it) }
+    private val effects = data.effects.map { parseAuthored<Effect>(it) }
     private val authoredAutomaticThisEffects = effects.filter {
       it.node.automatic && it.node.trigger == Effect.Trigger.WhenGain
     }
@@ -67,13 +67,13 @@ internal object CardPetsGenerator {
     private val tagCounts = data.tags.groupingBy(::cn).eachCount()
     private val invariants =
         (data.invariants + tagCounts.map { (tag, count) -> "=$count $tag<This>" })
-            .map { parseOwned<Requirement>(it) }
+            .map { parseAuthored<Requirement>(it) }
             .distinctBy { it.node }
     private val componentClasses = data.components.map(::parseOneLinerClass)
     private val requirement: Requirement? =
-        data.requirement?.let { parseOwned<Requirement>(it).node }
+        data.requirement?.let { parseAuthored<Requirement>(it).node }
     private val autoSelectWhen: Requirement? =
-        data.autoSelectWhen?.let { parseOwned<Requirement>(it).node }
+        data.autoSelectWhen?.let { parseAuthored<Requirement>(it).node }
     private val resourceType =
         deriveResourceTypeCandidates()
             .also { candidates ->
