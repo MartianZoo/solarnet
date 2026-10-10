@@ -160,10 +160,18 @@ internal class EnglishTest {
     english.describe(parse<InstructionTree>("WorldGovernmentTerraforming")) shouldBe
         "Raise 1 global parameter without gaining terraform rating or other bonuses."
     english.describe(
-        parse<InstructionTree>(
-            "EACH Other@Player(HAS MAX 0 This<Anyone>) { -5 MC<Other@Player>., PROD[-1 MC<Other@Player>] }"
-        )
-    ) shouldBe "Remove 5 M€ from each opponent and decrease their M€ production 1 step."
+        parseClasses(
+                """
+                CLASS Rule<Me@Anyone> {
+                  This: EACH Other@Player(NOT Me@) { -5 MC<Other@>., PROD[-1 MC<Other@>] }
+                }
+                """
+            )
+            .single()
+            .authoredEffects
+            .single()
+            .instruction
+    ) shouldBe "Each other player removes 5 M€ and decreases their own M€ production 1 step."
     english.describe(parse<Requirement>("ScienceTag")) shouldBe "Requires a science tag."
     english.describe(parse<Requirement>("4 BioTag")) shouldBe "Requires 4 bio tags."
     english.describe(parse<Requirement>("2 EarthTag, 2 VenusTag, 2 JovianTag")) shouldBe

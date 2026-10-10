@@ -585,14 +585,6 @@ internal object TerraformingMarsDescribers {
                 actionUse =
                     ComponentDescriber.ActionUse(ComponentDescriber.ActionUse.Reference.AnyAction),
             ),
-        klass("CardPurchase") to
-            ComponentDescriber(
-                actionUse =
-                    ComponentDescriber.ActionUse(
-                        reference = ComponentDescriber.ActionUse.Reference.Fixed("a card"),
-                        paymentDiscount = ComponentDescriber.PaymentDiscount("buy a card"),
-                    )
-            ),
         klass("Owed") to
             ComponentDescriber(
                 paymentRole = ComponentDescriber.PaymentRole.OWED,

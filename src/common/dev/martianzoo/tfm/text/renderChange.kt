@@ -72,9 +72,6 @@ private fun renderChangeOrNull(
     renderCardSearch(instruction, describers)?.let {
       return it
     }
-    renderCardPurchase(instruction)?.let {
-      return it
-    }
   }
   if (instruction is Transmute) {
     renderCardBackExchange(instruction, describers)?.let {
@@ -132,20 +129,6 @@ private fun renderCardSearch(gain: Gain, describers: Describers): Clause.Simple?
   return clause(
       "draw",
       NounPhrase.text("$count ${matchingCardNoun(criterion, count == 1, describers)}"),
-  )
-}
-
-private fun renderCardPurchase(gain: Gain): Clause.Simple? {
-  if (
-      gain.gaining.className != cn("BuyCard") ||
-          !gain.gaining.simple ||
-          gain.quantifier.modality() != Modality.OPTIONAL ||
-          gain.count.fixedQuantity() != 1
-  )
-      return null
-  return Clause.Simple(
-      Predicate(Verb("may buy"), Coordination.one(NounPhrase.text("a card"))),
-      NounPhrase.you(),
   )
 }
 

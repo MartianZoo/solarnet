@@ -723,9 +723,15 @@ internal class PetsCardTutorialTest {
     )
   }
 
-  // Printed tags now carry generated exact-count invariants; they add no tutorial concept.
+  // Generated card uniqueness and printed-tag counts add no tutorial concept.
   private fun hasNonTagInvariants(card: PetClass): Boolean =
       card.declaration.invariants.flatMap(Requirement::split).any { invariant ->
+        if (
+            invariant is Requirement.Max &&
+                invariant.maximum == 1 &&
+                (invariant.countedMetric as? Metric.Count)?.expression == card.className.expression
+        )
+            return@any false
         val expression =
             ((invariant as? Requirement.Exact)?.countedMetric as? Metric.Count)?.expression
         expression == null ||
