@@ -331,14 +331,12 @@ internal class TurmoilProjectCardsTest : CardTest() {
     admin.runOperation("MeasureInfluence<Player1>")
 
     p1.count("Influence") shouldBe 6
-    admin.runOperation("SponsoredProjects")
-    admin
-        .runOperation("ResolveGlobalEvent<Class<SponsoredProjects>>")
-        .expect("6 ProjectCard<Player1>")
+    admin.runOperation("ScienceSummit THEN Current<ScienceSummit>")
+    admin.runOperation("ResolveGlobalEvent").expect("6 ProjectCard<Player1>")
   }
 
   @Test
-  internal fun `Diaspora Movement counts its own Jovian tag without an including this reminder`() {
+  internal fun `MicrogravityHealthProblems Movement counts its own Jovian tag without an including this reminder`() {
     newGame(TurmoilExpansion)
     p1.playCorp(CrediCor, 5)
     admin.phase("Action")

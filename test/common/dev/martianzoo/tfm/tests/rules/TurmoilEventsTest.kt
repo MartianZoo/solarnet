@@ -47,9 +47,10 @@ internal class TurmoilEventsTest :
     newGame(TurmoilExpansion)
 
     admin.count("GlobalEvent") shouldBe 2
-    admin.count("Coming<AquiferReleasedByPublicCouncil>") shouldBe 1
-    admin.count("Distant<DryDeserts>") shouldBe 1
+    admin.count("Coming<DemocraticReform>") shouldBe 1
+    admin.count("Distant<MinimalImpactPolicy>") shouldBe 1
     admin.count("Current") shouldBe 0
+    admin.count("GlobalEffect") shouldBe 0
     admin.count("PartyDelegate<MarsFirst, Neutral>") shouldBe 1
     admin.count("PartyDelegate<Reds, Neutral>") shouldBe 1
     admin.count("Dominant<MarsFirst>") shouldBe 1
@@ -59,15 +60,15 @@ internal class TurmoilEventsTest :
   @Test
   internal fun `each event and each printed event position have at most one occupant`() {
     newGame(TurmoilExpansion)
-    admin.runOperation("CelebrityLeaders")
+    admin.runOperation("SolarnetGlobalEvent")
 
     shouldThrow<LimitsException> {
-      admin.runOperation("Current<AquiferReleasedByPublicCouncil>")
+      admin.runOperation("Current<DemocraticReform>")
     }
-    shouldThrow<LimitsException> { admin.runOperation("Coming<CelebrityLeaders>") }
+    shouldThrow<LimitsException> { admin.runOperation("Coming<SolarnetGlobalEvent>") }
 
-    admin.count("Coming<AquiferReleasedByPublicCouncil>") shouldBe 1
-    admin.count("Distant<DryDeserts>") shouldBe 1
+    admin.count("Coming<DemocraticReform>") shouldBe 1
+    admin.count("Distant<MinimalImpactPolicy>") shouldBe 1
     admin.count("Current") shouldBe 0
   }
 
@@ -75,26 +76,45 @@ internal class TurmoilEventsTest :
   internal fun `changing times advances events discards current and reveals the next card`() {
     newGame(TurmoilExpansion)
 
-    admin.runOperation("ChangingTimes") { doTask("CelebrityLeaders") }
+    admin.runOperation("ChangingTimes") { doTask("SolarnetGlobalEvent") }
 
     admin.count("GlobalEvent") shouldBe 3
-    admin.count("Current<AquiferReleasedByPublicCouncil>") shouldBe 1
-    admin.count("Coming<DryDeserts>") shouldBe 1
-    admin.count("Distant<CelebrityLeaders>") shouldBe 1
+    admin.count("Current<DemocraticReform>") shouldBe 1
+    admin.count("AquiferReleasedByPublicCouncil<DemocraticReform>") shouldBe 1
+    admin.count("GlobalEffect") shouldBe 1
+    admin.count("Coming<MinimalImpactPolicy>") shouldBe 1
+    admin.count("Distant<SolarnetGlobalEvent>") shouldBe 1
     admin.count("PartyDelegate<Greens, Neutral>") shouldBe 1
     admin.count("PartyDelegate<Unity, Neutral>") shouldBe 1
     admin.count("Delegate<Neutral>") shouldBe 5
 
-    admin.runOperation("ChangingTimes") { doTask("Diversity") }
+    admin.runOperation("ChangingTimes") { doTask("FreeAcademiaTreaty") }
 
     admin.count("GlobalEvent") shouldBe 3
+    admin.count("DemocraticReform") shouldBe 0
     admin.count("AquiferReleasedByPublicCouncil") shouldBe 0
-    admin.count("Current<DryDeserts>") shouldBe 1
-    admin.count("Coming<CelebrityLeaders>") shouldBe 1
-    admin.count("Distant<Diversity>") shouldBe 1
+    admin.count("DryDeserts<MinimalImpactPolicy>") shouldBe 1
+    admin.count("GlobalEffect") shouldBe 1
+    admin.count("Current<MinimalImpactPolicy>") shouldBe 1
+    admin.count("Coming<SolarnetGlobalEvent>") shouldBe 1
+    admin.count("Distant<FreeAcademiaTreaty>") shouldBe 1
     admin.count("PartyDelegate<Unity, Neutral>") shouldBe 2
     admin.count("PartyDelegate<Scientists, Neutral>") shouldBe 1
     admin.count("Delegate<Neutral>") shouldBe 7
+  }
+
+  @Test
+  internal fun `resolution affects only the current card while coming and distant cards stay dormant`() {
+    newGame(TurmoilExpansion)
+    p1.runOperation("10 Plant")
+    makeCurrent("ExperimentalLifeforms")
+
+    admin.runOperation("ResolveGlobalEvent").expect("-7 Plant<Player1>")
+
+    admin.count("EcoSabotage<ExperimentalLifeforms>") shouldBe 1
+    admin.count("Coming<DemocraticReform>") shouldBe 1
+    admin.count("Distant<MinimalImpactPolicy>") shouldBe 1
+    admin.count("OceanTile") shouldBe 0
   }
 
   @Test
@@ -105,22 +125,22 @@ internal class TurmoilEventsTest :
     }
     val placedBefore = admin.count("PartyDelegate<Neutral>")
 
-    admin.runOperation("ChangingTimes") { doTask("CelebrityLeaders") }
+    admin.runOperation("ChangingTimes") { doTask("SolarnetGlobalEvent") }
 
     admin.count("Delegate<Neutral>") shouldBe 14
     admin.count("PartyDelegate<Neutral>") shouldBe placedBefore
-    admin.count("Distant<CelebrityLeaders>") shouldBe 1
+    admin.count("Distant<SolarnetGlobalEvent>") shouldBe 1
   }
 
   @Test
-  internal fun `current event resolution measures influence before dispatching to that card`() {
+  internal fun `current event resolution measures influence before resolving its active effect`() {
     newGame(TurmoilExpansion)
-    makeCurrent("AsteroidMiningGlobalEvent")
+    makeCurrent("MiningRestrictions")
     seatPlayerOneAsChairman()
     p1.runOperation("GlobalEventProbe, 7 JovianTag<GlobalEventProbe>")
 
     admin.beginOperation("TurmoilSolarOperation")
-    admin.completeOperation { doTask("CelebrityLeaders") }
+    admin.completeOperation { doTask("SolarnetGlobalEvent") }
 
     p1.count("Influence") shouldBe 1
     p1.count("Titanium") shouldBe 6
@@ -137,9 +157,9 @@ internal class TurmoilEventsTest :
     )
     admin.runOperation("MeasureInfluence<Player1>")
 
-    resolve("HomeworldSupport")
-    resolve("InterplanetaryTradeGlobalEvent")
-    resolve("SpinOffProducts")
+    resolve("RedResistance")
+    resolve("CharismaticWgPresident")
+    resolve("BioengineeringBoom")
 
     p1.count("MC") shouldBe 34
     requireP2().count("MC") shouldBe 0
@@ -154,11 +174,11 @@ internal class TurmoilEventsTest :
     )
     admin.runOperation("MeasureInfluence<Player1>")
 
-    resolve("AsteroidMiningGlobalEvent")
-    resolve("Productivity")
-    resolve("SuccessfulOrganisms")
-    resolve("GenerousFunding")
-    resolve("ScientificCommunity")
+    resolve("MiningRestrictions")
+    resolve("ScientificProgress")
+    resolve("LocalTerraformingSupport")
+    resolve("TerraformingLobbying")
+    resolve("ExploreFirstDirective")
 
     p1.count("Titanium") shouldBe 6
     p1.count("Steel") shouldBe 6
@@ -176,8 +196,8 @@ internal class TurmoilEventsTest :
     )
     admin.runOperation("MeasureInfluence<Player1>")
 
-    resolve("CelebrityLeaders")
-    resolve("StrongSociety")
+    resolve("SolarnetGlobalEvent")
+    resolve("MoralMovement")
 
     p1.count("MC") shouldBe 18
     requireP2().count("MC") shouldBe 0
@@ -194,11 +214,11 @@ internal class TurmoilEventsTest :
     )
     admin.runOperation("MeasureInfluence<Player1>")
 
-    resolve("GlobalDustStorm")
-    resolve("Pandemic")
-    resolve("Riots")
-    resolve("SolarFlare")
-    resolve("SolarnetShutdown")
+    resolve("HeatFirstPolicy")
+    resolve("ViralModificationsApproved")
+    resolve("IndependenceMovement")
+    resolve("IncreasedInterplanetaryTrade")
+    resolve("AiResearch")
 
     p1.count("Heat") shouldBe 0
     p1.count("MC") shouldBe 69
@@ -215,12 +235,12 @@ internal class TurmoilEventsTest :
     )
     admin.runOperation("MeasureInfluence<Player1>")
 
-    resolve("EcoSabotage")
-    resolve("MinersOnStrike")
-    resolve("SabotageGlobalEvent")
-    resolve("ParadigmBreakdown")
-    resolve("RedInfluence")
-    resolve("WarOnEarth")
+    resolve("ExperimentalLifeforms")
+    resolve("RisingAlloyDemand")
+    resolve("CorporateAlliance")
+    resolve("ScientificConsensus")
+    resolve("AntarcticaMelts")
+    resolve("SeparatistMovement")
 
     p1.count("Plant") shouldBe 4
     p1.count("Titanium") shouldBe 0
@@ -243,7 +263,7 @@ internal class TurmoilEventsTest :
     admin.runOperation("MeasureInfluence<Player1>")
 
     p1.count("OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>") shouldBe 2
-    resolve("MudSlides")
+    resolve("ThawMining")
 
     p1.count("MC") shouldBe 46
   }
@@ -254,7 +274,8 @@ internal class TurmoilEventsTest :
     seatPlayerOneAsChairman()
     admin.runOperation("MeasureInfluence<Player1>")
 
-    admin.runOperation("ResolveGlobalEvent<Class<AquiferReleasedByPublicCouncil>>") {
+    makeCurrent("DemocraticReform")
+    admin.runOperation("ResolveGlobalEvent") {
       p1.doTask("OceanTile<Tharsis_1_2> BY Admin")
     }
 
@@ -264,7 +285,8 @@ internal class TurmoilEventsTest :
     p1.count("Steel") shouldBe 1
 
     p1.runOperation("PartyLeaderInfluence")
-    admin.runOperation("ResolveGlobalEvent<Class<DryDeserts>>") {
+    makeCurrent("MinimalImpactPolicy")
+    admin.runOperation("ResolveGlobalEvent") {
       val resourceChoices = game.tasks.extract { it }
       resourceChoices.size shouldBe 2
       p1.doTask("Heat", resourceChoices[0].id)
@@ -289,8 +311,8 @@ internal class TurmoilEventsTest :
     )
     admin.runOperation("MeasureInfluence<Player1>")
 
-    resolve("Diversity")
-    resolve("ImprovedEnergyTemplates")
+    resolve("FreeAcademiaTreaty")
+    resolve("SecondEnergyCrisis")
 
     p1.count("Class<@Tag>(HAS @Tag<Player1>)") shouldBe 8
     p1.count("MC") shouldBe 10
@@ -305,17 +327,17 @@ internal class TurmoilEventsTest :
     admin.runOperation("MeasureInfluence<Player1>")
     admin.runOperation("5 TemperatureStep")
 
-    resolve("SnowCover")
-    resolve("VolcanicEruptions")
+    resolve("MoholeLakeGlobalEvent")
+    resolve("PateraBoring")
 
     admin.count("TemperatureStep") shouldBe 5
     p1.count("ProjectCard") shouldBe 1
     p1.count("PROD[Heat]") shouldBe 1
 
     admin.runOperation("13 TemperatureStep") { p1.doTask("OceanTile<Tharsis_1_2> BY Admin") }
-    admin.runOperation("ResolveGlobalEvent<Class<VolcanicEruptions>>")
-    admin.runOperation("ResolveGlobalEvent<Class<SnowCover>>")
-    admin.runOperation("ResolveGlobalEvent<Class<VolcanicEruptions>>")
+    resolve("PateraBoring")
+    resolve("MoholeLakeGlobalEvent")
+    resolve("PateraBoring")
 
     admin.count("TemperatureStep") shouldBe 19
   }
@@ -324,9 +346,9 @@ internal class TurmoilEventsTest :
   internal fun `volcanic eruptions lets the first player place its threshold ocean for Admin`() {
     newGame(TurmoilExpansion)
     admin.runOperation("13 TemperatureStep")
-    admin.runOperation("VolcanicEruptions")
+    makeCurrent("PateraBoring")
 
-    admin.runOperation("ResolveGlobalEvent<Class<VolcanicEruptions>>") {
+    admin.runOperation("ResolveGlobalEvent") {
       p1.doTask("OceanTile<Tharsis_1_2> BY Admin")
     }
 
@@ -344,7 +366,7 @@ internal class TurmoilEventsTest :
     p2.runOperation("FloaterEventProbe, 2 Floater<FloaterEventProbe>, OtherFloaterEventProbe")
     admin.runOperation("MeasureInfluence<Player1>")
 
-    resolve("SponsoredProjects")
+    resolve("ScienceSummit")
 
     p1.count("Animal<ActiveEventProbe>") shouldBe 2
     p1.count("Microbe<EmptyResourceProbe>") shouldBe 0
@@ -361,12 +383,12 @@ internal class TurmoilEventsTest :
         "GlobalEventProbe, 2 BuildingTag<GlobalEventProbe>, 2 EarthTag<GlobalEventProbe>"
     )
 
-    resolve("Election")
+    resolve("SelfSufficiencyProgram")
 
     p1.count("TerraformRating") shouldBe 22
     requireP2().count("TerraformRating") shouldBe 21
 
-    resolve("Revolution")
+    resolve("WorldGovernmentDirectives")
 
     p1.count("TerraformRating") shouldBe 20
     requireP2().count("TerraformRating") shouldBe 21
@@ -376,8 +398,8 @@ internal class TurmoilEventsTest :
     requireP2()
         .runOperation("GlobalEventProbe, BuildingTag<GlobalEventProbe>, EarthTag<GlobalEventProbe>")
 
-    resolve("Election")
-    resolve("Revolution")
+    resolve("SelfSufficiencyProgram")
+    resolve("WorldGovernmentDirectives")
 
     p1.count("TerraformRating") shouldBe 20
     requireP2().count("TerraformRating") shouldBe 20
@@ -392,11 +414,11 @@ internal class TurmoilEventsTest :
             "3 EarthTag<GlobalEventProbe>, ChairmanInfluence"
     )
 
-    resolve("Election")
+    resolve("SelfSufficiencyProgram")
 
     p1.count("TerraformRating") shouldBe startingRating + 2
 
-    resolve("Revolution")
+    resolve("WorldGovernmentDirectives")
 
     p1.count("TerraformRating") shouldBe startingRating
   }
@@ -405,20 +427,20 @@ internal class TurmoilEventsTest :
   internal fun `promo events require the promo pack and their companion expansions`() {
     newGame(TurmoilExpansion)
 
-    shouldThrow<DeadEndException> { admin.runOperation("VenusInfrastructure") }
-    shouldThrow<DeadEndException> { admin.runOperation("JovianTaxRights") }
-    shouldThrow<DeadEndException> { admin.runOperation("CloudSocieties") }
+    shouldThrow<DeadEndException> { admin.runOperation("MartianProtectionism") }
+    shouldThrow<DeadEndException> { admin.runOperation("JovianColonyBoom") }
+    shouldThrow<DeadEndException> { admin.runOperation("TitanVenusAlliance") }
 
     newGame(TurmoilExpansion, PromoCardPack)
 
-    shouldThrow<DeadEndException> { admin.runOperation("VenusInfrastructure") }
-    shouldThrow<DeadEndException> { admin.runOperation("JovianTaxRights") }
-    shouldThrow<DeadEndException> { admin.runOperation("CloudSocieties") }
+    shouldThrow<DeadEndException> { admin.runOperation("MartianProtectionism") }
+    shouldThrow<DeadEndException> { admin.runOperation("JovianColonyBoom") }
+    shouldThrow<DeadEndException> { admin.runOperation("TitanVenusAlliance") }
 
     newGame(TurmoilExpansion, PromoCardPack, VenusNextExpansion)
 
-    admin.runOperation("VenusInfrastructure")
-    shouldThrow<DeadEndException> { admin.runOperation("CloudSocieties") }
+    admin.runOperation("MartianProtectionism")
+    shouldThrow<DeadEndException> { admin.runOperation("TitanVenusAlliance") }
 
     newGame(
         TurmoilExpansion,
@@ -427,8 +449,8 @@ internal class TurmoilEventsTest :
         colonyTiles = testColonyTiles(2),
     )
 
-    admin.runOperation("JovianTaxRights")
-    shouldThrow<DeadEndException> { admin.runOperation("CloudSocieties") }
+    admin.runOperation("JovianColonyBoom")
+    shouldThrow<DeadEndException> { admin.runOperation("TitanVenusAlliance") }
 
     newGame(
         TurmoilExpansion,
@@ -438,7 +460,7 @@ internal class TurmoilEventsTest :
         colonyTiles = testColonyTiles(2),
     )
 
-    admin.runOperation("CloudSocieties, CorrosiveRain")
+    admin.runOperation("TitanVenusAlliance, ImmigrationToVenus")
   }
 
   @Test
@@ -457,8 +479,8 @@ internal class TurmoilEventsTest :
     val p2 = requireP2()
     p2.runOperation("TitanShuttles")
 
-    admin.runOperation("CloudSocieties")
-    admin.runOperation("ResolveGlobalEvent<Class<CloudSocieties>>") {
+    makeCurrent("TitanVenusAlliance")
+    admin.runOperation("ResolveGlobalEvent") {
       shouldThrow<DependencyException> { p1.doTask("2 Floater<TitanShuttles>") }
       p1.doTask("2 Floater<FloaterEventProbe>")
     }
@@ -467,8 +489,8 @@ internal class TurmoilEventsTest :
     p1.count("Floater<OtherFloaterEventProbe>") shouldBe 1
     p2.count("Floater<TitanShuttles>") shouldBe 1
 
-    admin.runOperation("CorrosiveRain")
-    admin.runOperation("ResolveGlobalEvent<Class<CorrosiveRain>>") {
+    makeCurrent("ImmigrationToVenus")
+    admin.runOperation("ResolveGlobalEvent") {
       p1.count("ProjectCard") shouldBe 0
       p1.doTask("-2 Floater<FloaterEventProbe>")
     }
@@ -490,7 +512,7 @@ internal class TurmoilEventsTest :
             "OtherFloaterEventProbe, Floater<OtherFloaterEventProbe>"
     )
 
-    resolve("CorrosiveRain")
+    resolve("ImmigrationToVenus")
 
     p1.count("MC") shouldBe 10
     p1.count("Floater<FloaterEventProbe>") shouldBe 1
@@ -516,28 +538,29 @@ internal class TurmoilEventsTest :
     }
     val moneyProduction = p1.count("PROD[MC]")
 
-    resolve("JovianTaxRights")
+    resolve("JovianColonyBoom")
 
     p1.count("PROD[MC]") shouldBe moneyProduction + 5
     p1.count("Titanium") shouldBe 2
 
-    resolve("MicrogravityHealthProblems")
+    resolve("Diaspora")
 
     p1.count("MC") shouldBe 11
 
-    resolve("VenusInfrastructure")
+    resolve("MartianProtectionism")
 
     p1.count("MC") shouldBe 25
   }
 
   private fun resolve(event: String) {
-    admin.runOperation(event)
-    admin.runOperation("ResolveGlobalEvent<Class<$event>>")
+    makeCurrent(event)
+    admin.runOperation("ResolveGlobalEvent")
   }
 
   private fun makeCurrent(event: String) {
-    admin.runOperation("-Coming<AquiferReleasedByPublicCouncil>!, -AquiferReleasedByPublicCouncil!")
-    admin.runOperation(event)
+    admin.runOperation("EACH Event@GlobalEvent(HAS Current) { -Event@ }")
+    admin.runOperation("$event.")
+    admin.runOperation("-GlobalEventPosition<$event>.")
     admin.runOperation("Current<$event>")
   }
 

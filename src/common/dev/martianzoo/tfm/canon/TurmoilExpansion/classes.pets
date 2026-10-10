@@ -18,9 +18,7 @@ CLASS Terraformer26 : Milestone { requirement = HAS "26 TerraformRating" }
 CLASS TurmoilSolarOperation : Temporary, System, Hidden {
   HAS MAX 1 This
   This:: EACH Me@Player { -TerraformRating., MeasureInfluence }
-  This:: EACH Event@GlobalEvent(HAS Current) { \
-    ResolveGlobalEvent<Class<Event@>> \
-  }
+  This:: ResolveGlobalEvent
   -This: FormGovernment THEN ChangingTimes
 }
 
@@ -61,8 +59,13 @@ CLASS RevealDistantEvent : Barrier, System, Hidden {
   This: GlobalEvent THEN -This!
 }
 
-"Requests the printed effect of one Global Event"
-CLASS ResolveGlobalEvent<Class<GlobalEvent>> : Signal, System
+"The lower half of the current Global Event, removed with its card"
+ABSTRACT CLASS GlobalEffect<GlobalEvent> {
+  HAS MAX 1 GlobalEffect
+}
+
+"Resolves the active Global Effect"
+CLASS ResolveGlobalEvent : Signal, System
 
 "Moves every revealed Global Event one position and requests the next event"
 CLASS ChangingTimes : Signal, System {
