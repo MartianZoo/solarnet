@@ -38,6 +38,7 @@ audit now lives in test sources; structural Pets and per-game configuration vali
 | Event scoring uses bare End; event cards have no other external subscriptions | Entry 18. Played-event records only restore End effects. |
 | Card declarations have no untransformed gain subscriptions capable of observing Heat | Entries 1–2. Production triggers are distinct. This does not scan indirect reactions in helper components or claim that the solo replenishment machinery observes no resource gains. |
 | Authored declarations contain no same-class tile or colony transmutations | Entries 8–9. Such transfers would repeat gain-triggered placement/building rewards. This does not prove that a sequence of separate removal/gain instructions cannot do the same thing. |
+| Tile gains specify placement | `GreeneryTile` gains name an area or use `DefaultGreeneryTile`. Empty `GreeneryTile<>` does not name an area. `CityTile<>` explicitly requests its placement default. |
 
 The card generator additionally rejects multiple inferred resource-storage kinds instead of silently
 dropping the ResourceCard role. `GenerateCardPetsTest` supplies a deliberately ambiguous card to

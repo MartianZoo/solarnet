@@ -122,7 +122,7 @@
           "requirement": "PartyRequirement<Greens>",
           "cost": 15,
           "tags": [ "AnimalTag", "PlantTag", "BuildingTag" ],
-          "immediate": "GreeneryTile<>",
+          "immediate": "DefaultGreeneryTile",
         },
       ],
     },

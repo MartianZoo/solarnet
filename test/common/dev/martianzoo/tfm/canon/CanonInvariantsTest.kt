@@ -264,6 +264,29 @@ internal class CanonInvariantsTest {
     )
   }
 
+  @Test
+  internal fun tileGainsSpecifyArguments() {
+    val offenders =
+        Canon.explicitClassDeclarations.flatMap { declaration ->
+          declaration.allNodes
+              .flatMap { it.descendantsOfType<Instruction.Change>() }
+              .filter { change ->
+                change.gaining?.let { gain ->
+                  when (gain.className) {
+                    cn("GreeneryTile") -> gain.arguments.isEmpty()
+                    cn("CityTile") -> !gain.argumentsSpecified
+                    else -> false
+                  }
+                } == true
+              }
+              .map { "${declaration.className}: $it" }
+        }
+    assertTrue(
+        offenders.isEmpty(),
+        "GreeneryTile gains need an area (or use DefaultGreeneryTile); CityTile gains need explicit arguments or <>:\n${offenders.joinToString("\n")}",
+    )
+  }
+
   // GAME_HACKS 8 and 9: same-class transfers would repeat placement/building rewards.
   @Test
   internal fun authoredChangesDoNotTransferExistingTilesOrColonies() {

@@ -17,6 +17,14 @@ private val delegateNoun = counted("delegate", "delegates")
 
 internal val turmoilEnglishDeclarations: List<Pair<ClassName, ComponentDescriber>> =
     listOf(
+        cn("Preservation") to
+            ComponentDescriber(
+                noun =
+                    ComponentDescriber.Noun.Counted(
+                        "preservation resource",
+                        "preservation resources",
+                    )
+            ),
         cn("RemoveOceanForGlobalEvent") to
             ComponentDescriber(changeFrame = Frame.Procedure("remove", "an ocean tile")),
         cn("Ruling") to

@@ -8,6 +8,14 @@ import kotlin.test.Test
 
 internal class ValleyTrustTest : TfmSandboxTest() {
   @Test
+  internal fun `First action draws a Prelude without Prelude rules or an explicitly selected pool`() {
+    newTestGame(kimCorporation = ValleyTrust)
+
+    kim.stdAction("RequiredActionsSignal") { kim.playPrelude(Donation) }
+        .expect("21 MC, -RequiredAction, 0 PreludeCard<Selecting>")
+  }
+
+  @Test
   internal fun `First action plays a Prelude after the Prelude phase has ended`() {
     newTestGame(addOptions = "PreludeExpansion", kimCorporation = ValleyTrust)
     startActionPhase()

@@ -237,10 +237,15 @@ These concerns remain open; the ranking does not select replacement designs.
 - Consider allowing owner-local Class declarations only in gain instructions. They currently also
   parse in other expression positions, including a selector's `HAS` refinement; decide the intended
   boundary and account for existing uses before restricting the syntax.
-- Let a configuration select all applicable Content exposed by one bundle, without inventing a
-  `CardPack` Module. Resolve narrower pool requests into individual Class choices before the game
-  premise is built. Resolve eligibility before offering that choice: promo replacements still test
-  `PromoCardPack`, M&A goal invariants can use
+- Let a configuration select all compatible cards of a requested kind from any bundle, such as all
+  project cards from a bundle or the full Prelude 2 card pool, without a `CardPack` Module. Keep
+  bundle provenance distinct from ambient-rule Modules. Resolve narrower pool requests into
+  individual Class choices before the game premise is built; card dependencies such as
+  `PreludeCard` and `PlayOrFizzle` should follow selected cards without selecting
+  `PreludeExpansion`. Preserve the current Prelude 1 pool default for individually selected
+  Valley Trust or WG Project when no Prelude 2 pool is chosen, including explicit pool exclusions.
+  Resolve eligibility before offering that choice: promo replacements still test
+  `PromoCardPack`, whose current Module also supplies watchers; M&A goal invariants can use
   non-simple Class metrics, and Venus cards/goals can become unviable when their supporting content
   is absent. Keep Turmoil Global Events individually selectable with hard Turmoil dependencies.
 - Consider letting the Milestones & Awards bundle also provide goals identical to those supplied
@@ -490,21 +495,14 @@ attribution, features, and unresolved rule questions. Related symptoms are group
    FAQ behavior: an impossible first action must invalidate the Prelude play. See the Board/Merger/
    Tharsis pair in [MergerTest](test/common/dev/martianzoo/tfm/tests/cards/MergerTest.kt).
 
-4. **Prelude-drawing content can be selected without a usable Prelude pool.** WG Project, Valley
-   Trust, Board of Directors, and New Partner don't bring in the required pool. Configuration probes
-   confirmed the missing default pool. Selecting WG Project must make the Prelude 1 pool available
-   for its draw even when that pool otherwise mostly sits unused; selecting the pool must not start
-   the Prelude phase. Check explicit pool exclusions separately. The WG Project draw is
-   covered by the pair in [WgProjectTest](test/common/dev/martianzoo/tfm/tests/cards/WgProjectTest.kt).
-
-5. **`DEFAULT` silently discards a root type-variable marker.** For example,
+4. **`DEFAULT` silently discards a root type-variable marker.** For example,
    `DEFAULT +@Piece<First>` becomes an ordinary default without reporting the invalid marker.
    Reproduced during review. Reject the marker when recording the declaring class and argument
    specs; keep this diagnostic change separate from owner-local declaration extraction. See
    [Parsing](src/common/dev/martianzoo/pets/Parsing.kt), `rejectInvalidDefaultRoot`, and the marker
    characterization in [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
 
-6. **Parser errors can identify the wrong character.** `Foo<~ Bar>` blames `<` rather than the
+5. **Parser errors can identify the wrong character.** `Foo<~ Bar>` blames `<` rather than the
    invalid `~`, misleading the author about what needs fixing. Reproduced during review. The
    better-parse completion analyzer drops `NoMatchingToken` failures; address that diagnostic
    separately from grammar organization. The misplaced diagnostic is characterized in
