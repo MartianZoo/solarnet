@@ -79,30 +79,26 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
         fun performForKim(instruction: String) {
           stan.selectTask(instruction)
           kim.doTask(instruction)
+          // Kim's nested call does not settle Stan's still-open action.
+          autoExecNow()
         }
 
         doTask("Trade<Pluto>")
         doTask("-TradeBarrier")
         doTask("2 ProjectCard")
-        performForKim("PlutoLock<Kim>!")
         performForKim("ProjectCard<Kim>")
         shouldThrow<TaskException> { doTask("ProjectCard<Kim>") }
         kim.count("ProjectCard") shouldBe 1
 
         // Another owner's bonus remains available while Kim must discard.
-        doTask("PlutoLock<Stan>!")
         doTask("ProjectCard<Stan>")
         stan.count("ProjectCard") shouldBe 3
         doTask("-ProjectCard<Stan>")
-        doTask("-PlutoLock<Stan>!")
 
         performForKim("-ProjectCard<Kim>")
-        performForKim("-PlutoLock<Kim>!")
-        performForKim("PlutoLock<Kim>!")
         performForKim("ProjectCard<Kim>")
         kim.count("ProjectCard") shouldBe 1
         performForKim("-ProjectCard<Kim>")
-        performForKim("-PlutoLock<Kim>!")
       }
     }
 

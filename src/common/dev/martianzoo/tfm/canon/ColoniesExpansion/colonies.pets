@@ -140,7 +140,7 @@ CLASS Pluto : ColonyTile, ColonyTileSelection<Class<Pluto>> {
   FinishTrade<This> IF =6 ColonyProduction<This>: 4 ProjectCard
 }
 
-CLASS PlutoLock : Owned<Player> { HAS MAX 1 This }
+CLASS PlutoLock : Owned<Player>, System { HAS MAX 1 This }
 
 CLASS Titan : ColonyTile {
   Colony<This>: 3 Floater
