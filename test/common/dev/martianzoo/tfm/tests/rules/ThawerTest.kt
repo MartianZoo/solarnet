@@ -27,8 +27,8 @@ internal class ThawerTest : CardTest() {
     newGame(GameConfig("TurmoilExpansion, Thawer, Builder, Engineer", "Player1", "Player2"))
     p1.runOperation("8 MC, 5 TemperatureStep")
 
-    admin.runOperation("SnowCover")
-    admin.runOperation("ResolveGlobalEvent<Class<SnowCover>>")
+    admin.runOperation("MoholeLakeGlobalEvent THEN Current<MoholeLakeGlobalEvent>")
+    admin.runOperation("ResolveGlobalEvent")
     admin.count("TemperatureStep") shouldBe 3
     admin.phase("Action")
 

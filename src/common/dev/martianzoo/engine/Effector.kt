@@ -80,8 +80,10 @@ internal class Effector(
    *
    * The complete result is materialized before the caller executes any returned effect. Trigger
    * matching, refinements, and trigger-side conditions in one batch therefore all see the same
-   * post-event World. A changed component's own effects retain declaration order. The stable or
-   * randomized order of independent listeners is diagnostic only and must carry no game meaning.
+   * post-event World. A changed component's own automatic effects retain declaration order and,
+   * including recursive automatic consequences, finish before other listeners in the batch execute.
+   * The stable or randomized order of independent listeners is diagnostic only and must carry no
+   * game meaning.
    */
   internal fun fire(
       triggerEvent: ChangeEvent,
@@ -90,15 +92,17 @@ internal class Effector(
       automatic: Boolean? = null,
   ): List<PendingTask> {
     val gaining = triggerEvent.change.gaining?.type
+    val removing = triggerEvent.change.removing?.type
     val resolvedChange =
         LiveEffect.ResolvedChange(
             gaining = gaining,
-            removing = triggerEvent.change.removing?.type,
-            // Admin performs the System gain; its retained recipient handles an unowned queued
+            removing = removing,
+            // Admin performs the System change; its retained recipient handles an unowned queued
             // consequence. Owner-based effect routing still takes precedence in PendingTask.
             queuedEffectFallback =
                 selectionAssignee.takeIf {
-                  automatic == false && gaining?.rootClass?.isSubtypeOf(systemClass) == true
+                  automatic == false &&
+                      (gaining ?: removing)?.rootClass?.isSubtypeOf(systemClass) == true
                 },
         )
     val selfEffects = fireSelfEffects(triggerEvent, controller, automatic, resolvedChange)

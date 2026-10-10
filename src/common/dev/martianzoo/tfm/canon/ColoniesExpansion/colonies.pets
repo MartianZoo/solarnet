@@ -166,7 +166,7 @@ CLASS Triton : ColonyTile, ColonyTileSelection<Class<Triton>> {
 "One of the up-to-three colonies players can own on a ColonyTile"
 CLASS Colony<@ColonyTile> : Owned<Player> {
   DEFAULT +Colony<ColonyTile(HAS MAX 0 Colony)>
-  FinishTrade<Anyone, @ColonyTile> OR GainColonyBonuses:: GainColonyBonus<@ColonyTile>
+  FinishTrade<Anyone, @ColonyTile> OR GainColonyBonuses: GainColonyBonus<@ColonyTile>
 }
 
 "A player's persistent capacity to conduct one Trade per generation"
@@ -204,7 +204,7 @@ ABSTRACT CLASS ColonyTileSelection<Class<ColonyTile>> { HAS MAX 1 This }
 "A colony selected by the premise but not realized until setup is complete"
 ABSTRACT CLASS SelectedColonyTile<Class<@ColonyTile>> : Hidden {
   HAS MAX 1 This
-  CorporationPhase:: ColonyTileSelection<Class<@ColonyTile>> FROM This
+  CorporationPhase: ColonyTileSelection<Class<@ColonyTile>> FROM This
 }
 
 CLASS CallistoSelected : SelectedColonyTile<Class<Callisto>>

@@ -30,7 +30,7 @@ private object EnglishTextComparisonGenerator {
             Category("preludes", "Preludes", "PreludeCard"),
             Category("milestones", "Milestones", "Milestone", card = false),
             Category("awards", "Awards", "Award", card = false),
-            Category("global-events", "Global events", "GlobalEvent", card = false),
+            Category("global-events", "Global event effects", "GlobalEffect", card = false),
             Category("other-cards", "Other cards", "CardBack"),
         )
     val components =
@@ -150,7 +150,7 @@ private object EnglishTextComparisonGenerator {
                       )
                     } else {
                       val rendering =
-                          if (category.id == "global-events") english.renderGlobalEvent(component)
+                          if (category.id == "global-events") english.renderGlobalEffect(component)
                           else english.renderGoal(component)
                       appendLine("| | Text |")
                       appendLine("| --- | --- |")

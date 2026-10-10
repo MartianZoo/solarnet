@@ -8,32 +8,50 @@ CLASS NomadsMarker : Owned<Player>, AreaPiece<@LandArea> {
 }
 
 // Published promotional Global Events, appended to the generated cards.
-CLASS JovianTaxRights : GePartyDistant<Scientists>, GePartyCurrent<Unity> {
-  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { \
+CLASS JovianColonyBoom : GePartyDistant<Scientists>, GePartyCurrent<Unity> {
+  HAS Class<Colony>
+  Current<This>:: JovianTaxRights<This>
+}
+
+CLASS JovianTaxRights : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { \
     PROD[MC / Colony MAX 5], Titanium / Influence \
   }
 }
 
-CLASS MicrogravityHealthProblems : GePartyDistant<MarsFirst>, GePartyCurrent<Scientists> {
-  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { \
+CLASS Diaspora : GePartyDistant<MarsFirst>, GePartyCurrent<Scientists> {
+  HAS Class<Colony>
+  Current<This>:: MicrogravityHealthProblems<This>
+}
+
+CLASS MicrogravityHealthProblems : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { \
     -3 MC. / (Colony MAX 5 - Influence) \
   }
 }
 
-CLASS VenusInfrastructure : GePartyDistant<MarsFirst>, GePartyCurrent<Unity> {
-  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { \
+CLASS MartianProtectionism : GePartyDistant<MarsFirst>, GePartyCurrent<Unity> {
+  HAS Class<VenusTag>
+  Current<This>:: VenusInfrastructure<This>
+}
+
+CLASS VenusInfrastructure : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { \
     2 MC / VenusTag MAX 5, 2 MC / Influence \
   }
 }
 
-CLASS CloudSocieties : GePartyDistant<Unity>, GePartyCurrent<Reds> {
+CLASS TitanVenusAlliance : GePartyDistant<Unity>, GePartyCurrent<Reds> {
   HAS Class<VenusTag>, Class<Colony>
+  Current<This>:: CloudSocieties<This>
+}
 
-  ResolveGlobalEvent<Class<This>>:: \
+CLASS CloudSocieties : GlobalEffect {
+  ResolveGlobalEvent: \
     EACH @ResourceCard<Class<Floater>, Anyone> { \
       Floater<@ResourceCard> \
     }
-  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { ChooseInfluenceFloaterCard }
+  ResolveGlobalEvent: EACH Me@Player { ChooseInfluenceFloaterCard }
 }
 
 "Lets one player put all Cloud Societies influence floaters on a single compatible card"
@@ -41,10 +59,13 @@ CLASS ChooseInfluenceFloaterCard : Owned<Player>, Signal, System {
   This: Floater<ResourceCard<Class<Floater>>> / Influence
 }
 
-CLASS CorrosiveRain : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
+CLASS ImmigrationToVenus : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
   HAS Class<VenusTag>, Class<Colony>
+  Current<This>:: CorrosiveRain<This>
+}
 
-  ResolveGlobalEvent<Class<This>>:: EACH Me@Player { ResolveCorrosiveRain }
+CLASS CorrosiveRain : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { ResolveCorrosiveRain }
 }
 
 "Lets one player pay Corrosive Rain before drawing cards for influence"

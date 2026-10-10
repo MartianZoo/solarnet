@@ -1,7 +1,7 @@
 # Mars Playground
 
 Agreed product direction for a new Solarnet-backed web app: an interactive rules laboratory.
-Construct a scenario, enter play mode, and try a move to see how the rules resolve it. The user
+Construct a scenario, enter gameplay mode, and try a move to see how the rules resolve it. The user
 is omniscient and controls every player. Solarnet supplies the game rules.
 
 ## Technology and experience
@@ -51,8 +51,8 @@ object per resource unit. Game World stores component types with counts. A pile 
 count, and a supply piece can represent an available component type or pending choice rather than
 an existing piece in the world. The same card or component may also appear in an inspector.
 
-Interaction meaning depends on mode. In setup, dragging a tile may request a gain, removal, or
-transmutation while preserving structural invariants. In play, dropping a supply greenery onto a
+Interaction meaning depends on mode. In sandbox, dragging a tile may request a gain, removal, or
+transmutation while preserving structural invariants. In gameplay, dropping a supply greenery onto a
 hex can specify a narrowing and execution of an existing task. The UI must use the game rules and
 task machinery rather than duplicate placement legality or card behavior in visual components.
 
@@ -70,7 +70,7 @@ Examples of the desired change boundaries:
 | Correct how Hired Raiders resolves | Its Pets rule, or the owning general engine semantics if those are wrong |
 | Show resources as a pile of cubes | Resource-pile presentation |
 | Make held pieces lift and cast a shadow | Shared piece interaction and appearance |
-| Interpret a greenery drop differently in setup and play | Mode-dependent interaction using existing game operations |
+| Interpret a greenery drop differently in sandbox and gameplay | Mode-dependent interaction using existing game operations |
 | Start the task window beside the board | Workspace arrangement |
 
 A promising first design exercise is one complete tile interaction, one resource pile, and one
@@ -79,27 +79,27 @@ kinds of interaction can require lower-level work, but implement those mechanics
 them through a meaningful vocabulary. Stable visual identity across transmutation, movement, and
 history navigation still needs design; do not assume Compose provides that mapping automatically.
 
-## Configuration and setup
+## Configuration and sandbox
 
 - Start with a dialog for expansions, player count, and other game options. Label a configuration
   **Unofficial** when no rulebook explicitly permits that combination (for example, solo without
   Corporate Era), but allow it. This label concerns configuration, not scenario plausibility.
-- Setup mode allows direct manipulation: move tiles freely, adjust resources and production with
+- Sandbox mode allows direct manipulation: move tiles freely, adjust resources and production with
   up/down controls, assign the starting-player token, and select the phase. Support dragging and
   click-to-pick-up/click-to-place.
 - Find cards by name with autocomplete and place them in a player's hand, event pile, or in play,
   provided the card is not already assigned elsewhere.
-- Setup does not pay costs or fire normal direct effects. Structural invariants must still hold:
+- Sandbox does not pay costs or fire normal direct effects. Structural invariants must still hold:
   for example, putting a card into play must provide its tags. Some engine work is still needed.
 - This is a playground: manipulation is not cheating. Prevent patently bogus states, without
   requiring that the scenario could have arisen through normal play.
 
-## Cards and play
+## Cards and gameplay
 
 - Drawn cards are generic card backs until their identities matter. Require identity declaration
   when an operation needs it, including playing a card or moving it to Revealed. Other cards may
   remain unidentified. Earlier declaration is optional and low priority.
-- Play mode applies normal game rules and exposes the Solarnet task queue. Selecting a task shows
+- Gameplay mode applies normal game rules and exposes the Solarnet task queue. Selecting a task shows
   the available ways to narrow it.
 - Task execution is manual, including concrete tasks; avoid autoexecution so the user can follow
   resolution step by step. Effects accumulate in a log viewer panel.
@@ -108,11 +108,11 @@ history navigation still needs design; do not assume Compose provides that mappi
 
 ## History and restarting
 
-- In play mode, freely browse backward and forward through history at appropriate boundaries,
+- In gameplay mode, freely browse backward and forward through history at appropriate boundaries,
   never stopping inside indivisible work such as double-colon effects.
 - Browsing does not change the live game. Explicitly roll back to the viewed point to discard the
   subsequent history and try another move.
-- Return to setup by rolling all the way back, or reset to start over.
+- Return to sandbox by rolling all the way back, or reset to start over.
 - Saving and reloading scenarios is desirable later, but not required initially.
 
 ## Open questions

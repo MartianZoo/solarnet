@@ -18,7 +18,7 @@ architecture change. Then choose the narrowest relevant note:
 | --- | --- |
 | Live World construction, components, tasks, effects, transactions, rollback, or Agent responsibilities | [`ENGINE.md`](ENGINE.md) |
 | Actor attribution, Admin, assignment, delegated narrowing, context ownership, or lexical `Me` | [`IDENTITY.md`](IDENTITY.md) |
-| Task order, `THEN`, automatic effects, delegated control, or cleanup | [`SEQUENCING.md`](SEQUENCING.md) |
+| Task order, `THEN`, automatic effects, delegated control, cleanup, or task priority | [`SEQUENCING.md`](SEQUENCING.md) |
 | Payment choices, accepted resources, billing, or settlement | [`PAYMENTS.md`](PAYMENTS.md) |
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) |
 | Direct correction, `exMachina`, `sneak`, effect suppression, or correction invariants | [`EX_MACHINA.md`](EX_MACHINA.md) |
@@ -50,6 +50,7 @@ implementation defects. Inspect the relevant source, specifications, and tests a
 | Pets declarations, expressions, instructions, effects, actions, ownership, fanout, or elaboration | The cited rule in [`pets-language-spec.md`](../pets-language-spec.md) and its matching `Lang*Test.kt` |
 | English rendering, renderer architecture, or card layout | [`LANGUAGE.md`](LANGUAGE.md) |
 | Class and display names | [`NAMING.md`](NAMING.md) |
+| Canon invariants and latent composition hazards | [`GAME_HACKS.md`](GAME_HACKS.md), then its linked current source and checks |
 | Generated Kotlin types for the canonical Pets vocabulary | [`PETS_TYPE_GENERATOR.md`](PETS_TYPE_GENERATOR.md) |
 | Generated map-area declarations | [`MAP_PETS_GENERATION.md`](MAP_PETS_GENERATION.md) |
 | Kotlin declaration visibility | [`VISIBILITY.md`](VISIBILITY.md) |

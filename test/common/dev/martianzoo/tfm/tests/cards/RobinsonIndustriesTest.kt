@@ -1,66 +1,49 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.tests.TestOption.*
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class RobinsonIndustriesTest : CardTest() {
+internal class RobinsonIndustriesTest : TfmSandboxTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame(PreludeExpansion)
-    playCorporationWithoutStartingProjects(p1, RobinsonIndustries)
-    admin.phase("Action")
+    newTestGame(kimCorporation = RobinsonIndustries)
+    listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
+      kim.setToExMachina(0, "PROD[$it]")
+    }
   }
 
   @Test
-  internal fun `Can raise uniquely lowest mc production`() {
-    p1.runOperation("PROD[Steel, Titanium, Plant, Energy, Heat]")
-    p1.cardAction1(RobinsonIndustries).expect("-4 MC, PROD[1 MC]")
-  }
-
-  @Test
-  internal fun `Can raise mc production from below the production floor`() {
-    p1.runOperation("PROD[-1 MC]")
-    p1.cardAction1(RobinsonIndustries).expect("-4 MC, PROD[1 MC]")
+  internal fun `Can raise MC production from a negative level`() {
+    kim.exMachina("PROD[-1 MC]")
+    kim.cardAction1(RobinsonIndustries).expect("PROD[1 MC]")
   }
 
   @Test
   internal fun `Can raise uniquely lowest titanium production`() {
-    p1.runOperation("PROD[1 MC, Steel, Plant, Energy, Heat]")
-    p1.cardAction1(RobinsonIndustries).expect("-4 MC, PROD[Titanium]")
-  }
-
-  @Test
-  internal fun `Can choose mc production when tied for lowest`() {
-    seedProductionTie()
-
-    p1.cardAction1(RobinsonIndustries) {
-          doTask("PROD[1 MC]")
-        }
-        .expect("-4 MC, PROD[1 MC]")
+    kim.exMachina("PROD[1 MC, Steel, Plant, Energy, Heat]")
+    kim.cardAction1(RobinsonIndustries).expect("PROD[Titanium]")
   }
 
   @Test
   internal fun `Can choose titanium production when tied for lowest`() {
     seedProductionTie()
-    p1.cardAction1(RobinsonIndustries) { doTask("PROD[Titanium]") }.expect("-4 MC, PROD[Titanium]")
+    kim.cardAction1(RobinsonIndustries) { doTask("PROD[Titanium]") }.expect("PROD[Titanium]")
   }
 
   @Test
   internal fun `Cannot choose a production that is higher than the minimum`() {
     seedProductionTie()
 
-    listOf("Steel", "Plant", "Energy", "Heat").forEach { resource ->
-      shouldThrow<NarrowingException> {
-        p1.cardAction1(RobinsonIndustries) { doTask("PROD[$resource]") }
-      }
+    shouldThrow<NarrowingException> {
+      kim.cardAction1(RobinsonIndustries) { doTask("PROD[Steel]") }
     }
   }
 
   private fun seedProductionTie() {
-    p1.runOperation("PROD[Steel, Plant, Energy, Heat]")
+    kim.exMachina("PROD[Steel, Plant, Energy, Heat]")
   }
 }

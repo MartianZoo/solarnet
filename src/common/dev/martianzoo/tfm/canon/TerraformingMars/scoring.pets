@@ -1,7 +1,7 @@
 "Marks the winner after final scoring"
 CLASS Victory : Owned<Player> { HAS MAX 1 This }
 
-CLASS VictoryPoint : Owned<Player>
+CLASS VictoryPoint : Owned<Player>, System
 
 "A milestone that has been claimed"
 ABSTRACT CLASS Milestone : Owned<Player> {
@@ -36,4 +36,4 @@ CLASS SecondPlace<Award> : Owned<Player> { This: 2 VictoryPoint }
 CLASS FinalScoringPending : Temporary, System, Hidden { HAS MAX 1 This }
 
 "A scoring Signal whose instruction is computed from a played event's printed effects"
-CLASS ScoreEventVps<Class<CardFront>> : Owned<Player>, CustomInstruction
+CLASS ScoreEventVps<Class<CardFront>> : Owned<Player>, CustomInstruction, System

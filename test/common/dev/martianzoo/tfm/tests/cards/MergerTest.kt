@@ -1,7 +1,9 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
@@ -10,6 +12,7 @@ import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 internal class MergerTest : CardTest() {
@@ -158,8 +161,6 @@ internal class MergerTest : CardTest() {
           p1.playPrelude(Merger) {
             p1.autoExecPolicy = NONE
             p1.playCorp(Recyclon) {
-              doTask("Owed<> / $Recyclon.cost")
-              doTask("CardBilling")
               doTask("$Recyclon FROM CorporationCard<Selecting>")
               doTask("38 MC")
               // Choose the disease loss before Merger's payment; both are queued.
@@ -177,5 +178,33 @@ internal class MergerTest : CardTest() {
     p1.count("Director<$BoardOfDirectors>") shouldBe 4
     p1.count("$Recyclon") shouldBe 0
     p1.count("$Merger") shouldBe 0
+  }
+
+  // Resolved FAQ: corporations acquired after Prelude take their first action immediately.
+  // Earlier discussion: https://boardgamegeek.com/thread/2886401/article/44823945#44823945
+  @Ignore // Merger leaves the mandatory city placement for a later action.
+  @Test
+  internal fun `Resolves Tharsis first action immediately when acquired after Prelude`() {
+    // Request the placement directly so a missing city task reports a gameplay failure.
+    acquireTharsisThroughBoard { doTask("CityTile<Tharsis_3_3>") }.expect("CityTile<Tharsis_3_3>")
+  }
+
+  @Test
+  internal fun `BUG - Defers Tharsis first action when acquired after Prelude`() {
+    acquireTharsisThroughBoard().expect("0 CityTile")
+    p1.stdAction("DoRequiredActionsAction") { placeTile(3, 3) }.expect("CityTile<Tharsis_3_3>")
+  }
+
+  private fun acquireTharsisThroughBoard(cityPlacement: OperationBlock = {}): TaskResult {
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
+    p1.playCorp(CrediCor, 0)
+    admin.phase("Prelude")
+    p1.playPrelude(BoardOfDirectors)
+    p1.playPrelude(Donation)
+    admin.phase("Action")
+    return p1.cardAction1(BoardOfDirectors) {
+      doTask("-12 MC")
+      p1.playPrelude(Merger) { p1.playCorp(TharsisRepublic, body = cityPlacement) }
+    }
   }
 }

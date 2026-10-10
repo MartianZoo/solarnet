@@ -1,6 +1,6 @@
 class_name	english_name	published_text
 AquiferReleasedByPublicCouncil	Aquifer Released By Public Council	First player places an ocean tile. Gain 1 plant and 1 steel per influence.
-AsteroidMiningGlobalEvent	Asteroid Mining	Gain 1 titanium for each Jovian tag (max 5) and influence.
+AsteroidMiningGlobalEffect	Asteroid Mining	Gain 1 titanium for each Jovian tag (max 5) and influence.
 CelebrityLeaders	Celebrity Leaders	Gain 2 M€ for each event played (max 5) and influence.
 Diversity	Diversity	Gain 10 M€ if you have 9 or more different tags. Influence counts as unique tags.
 DryDeserts	Dry Deserts	First player removes 1 ocean tile from the gameboard. Gain 1 standard resource per influence.
@@ -10,7 +10,7 @@ GenerousFunding	Generous Funding	Gain 2 M€ for each influence and each complet
 GlobalDustStorm	Global Dust Storm	Lose all heat. Lose 2 M€ for each building tag (max 5, then reduced by influence).
 HomeworldSupport	Homeworld Support	Gain 2 M€ for each Earth tag (max 5) and influence.
 ImprovedEnergyTemplates	Improved Energy Templates	Increase energy production 1 step per 2 power tags (no limit). Influence counts as power tags.
-InterplanetaryTradeGlobalEvent	Interplanetary Trade	Gain 2 M€ for each space tag (max 5) and influence.
+InterplanetaryTradeGlobalEffect	Interplanetary Trade	Gain 2 M€ for each space tag (max 5) and influence.
 MinersOnStrike	Miners On Strike	Lose 1 titanium for each Jovian tag (max 5, then reduced by influence).
 MudSlides	Mud Slides	Lose 4 M€ for each tile adjacent to ocean (max 5, then reduced by influence).
 Pandemic	Pandemic	Lose 3 M€ for each building tag (max 5, then reduced by influence).
@@ -19,7 +19,7 @@ Productivity	Productivity	Gain 1 steel for each steel production (max 5) and inf
 RedInfluence	Red Influence	Lose 3 M€ for each set of 5 TR over 10 (max 5 sets). Increase M€ production 1 step per influence.
 Revolution	Revolution	Count Earth tags and ADD(!) influence. The player(s) with most (at least 1) loses 2 TR, and 2nd most (at least 1) loses 1 TR. SOLO: Lose 2 TR if the sum is 4 or more.
 Riots	Riots	Lose 4 M€ for each city tile (max 5, then reduced by influence).
-SabotageGlobalEvent	Sabotage	Decrease steel and energy production 1 step each. Gain 1 steel per influence.
+SabotageGlobalEffect	Sabotage	Decrease steel and energy production 1 step each. Gain 1 steel per influence.
 ScientificCommunity	Scientific Community	Gain 1 M€ for each card in hand (no limit) and influence.
 SnowCover	Snow Cover	Decrease temperature 2 steps. Draw 1 card per influence.
 SolarFlare	Solar Flare	Lose 3 M€ for each space tag (max 5, then reduced by influence).

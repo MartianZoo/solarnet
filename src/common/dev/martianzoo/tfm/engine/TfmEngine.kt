@@ -43,6 +43,7 @@ import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.cardBack
 import dev.martianzoo.tfm.canon.cardEffects
 import dev.martianzoo.tfm.canon.cardImmediate
+import dev.martianzoo.tfm.canon.cardProductionBoxes
 import dev.martianzoo.tfm.canon.cardTags
 import dev.martianzoo.tfm.state.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.state.tfmCatalog
@@ -102,8 +103,7 @@ public object TfmEngine {
       val immediate =
           cardImmediate(card)
               ?: throw NarrowingException("card ${card.className} has no immediate instruction")
-      val matches =
-          immediate.descendantsOfType<InstructionTransform>().filter { it.transformKind == PROD }
+      val matches = cardProductionBoxes(card)
 
       if (
           immediate.descendantsOfType<Instruction.Each>().any { each ->
@@ -123,6 +123,7 @@ public object TfmEngine {
     }
   }
 
+  /** Potentially positive authored gains, as required by Philanthropist; not an icon scan. */
   private object GainsOf : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
       val (subject, target) = type.typeDependencies.map { it.boundType }
@@ -188,6 +189,7 @@ public object TfmEngine {
     }
   }
 
+  /** Vitor's icon proxy counts type citations, including triggers, but excludes removal sides. */
   private object NonNegativeIconsOf : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
       val (cardType, targetClassType) = type.typeDependencies.map { it.boundType }
@@ -306,14 +308,10 @@ public object TfmEngine {
       val map = mapDefinition(game)
       val areaNames = map.areas.mapTo(hashSetOf()) { it.className }
       val area = listOf(type0, type1).single { it.className in areaNames }
-      val effect =
-          map.areas
-              .single { it.className == area.className }
-              .asClassDeclaration
-              .authoredEffects
-              .singleOrNull() ?: return NoOp
-      val requirement = (effect.trigger as? IfTrigger)?.condition
-      if (requirement != null && !game.has(requirement)) return NoOp
+      val effect = game.classTable.effects(area.rootClass).singleOrNull() ?: return NoOp
+      check(effect.trigger.descendantsOfType<IfTrigger>().isEmpty()) {
+        "placement bonus for `${area.rootClass}` retains a premise-time condition: ${effect.trigger}"
+      }
       return InstructionGroup.createTree(listOf(effect.instruction, effect.instruction))
     }
   }

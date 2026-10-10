@@ -53,27 +53,52 @@ These concerns remain open; the ranking does not select replacement designs.
 - Extend derived `including this` wording to setup operations and otherwise unsupported effects
   without adding card-specific rendering rules.
 - Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
+- Continue the remaining `::` audit without treating current sequencing dependencies as permanent
+  justifications. Preserve intrinsic card-tag construction, old Energy conversion before
+  production, and Pharmacy Union's starting money before its tag penalties.
+
+- [ ] Extend the build-time Canon invariant checks to indirect special-tile gains behind
+  signals or supporting components (`GainsOf`; entry 15 of
+  [GAME_HACKS](docs/agents/GAME_HACKS.md)). Current checks cover direct authored shapes and do not
+  establish that the introspection helpers see every printed tile-placement effect. Keep dynamic
+  payment and watcher interactions in gameplay tests rather than treating syntax scans as proof.
+
 - [ ] Write and review clear public API specifications and KDoc for the
   [nine priority modules](docs/agents/SPEC_FIDELITY.md#priority-scope), following the documented
   audience and intended-contract standards. Preserve useful Pets documentation and fill gaps;
   track implementation defects separately. This standards update does not complete the module
   documentation or conformance audits.
-- [ ] Finish the ProjectCardTest migration in larger batches, starting with easier classes. The
-  [testing plan](docs/agents/TESTING.md#intended-fixture-development--not-implemented-yet) records
-  the intended fixture work: solo support, safe `advanceTo(Phase)`, simulated VP totals with
-  rollback, expansion coverage, and a possible Prelude-phase start when Prelude is selected.
-  Add `CorporationCardTest` later. Investigate automatic attack-history effects separately; reassess
-  and delete injected scenarios without credible gameplay routes, including Flooding's concurrent
-  ocean case if its only justification is Fake Head Start.
+- [ ] Continue migrating legacy card/rule tests to `TfmSandboxTest` or `TfmGameplayTest` in larger
+  batches. Review scenario value first; select gameplay when real turn/phase progression is part
+  of the claim, and use representative base-game content for shared rules. The
+  [fixture plan](docs/agents/TESTING.md#remaining-fixture-development) tracks remaining solo-map setup
+  and reassessment of sandbox phase shortcuts. Both styles support Prelude and corporation entry;
+  sandbox scoring with rollback is available through `victoryPoints()`. Gameplay setup conveniences
+  may play ordered default cards normally; explicit Prelude play is sufficient for current callers.
+  Investigate automatic attack-history effects separately; reassess and delete injected scenarios
+  without credible gameplay routes.
+  Head Start interactions remain in `HeadStartTest`, and Sagitta's wild-tag interaction remains in
+  `FakeWildTagTest`, until their fake-card setups can be replaced. Reassess the legacy Mons Insurance
+  ordering tests separately; they still drive internal tasks directly.
+  Recyclon's migration still needs explicit resolution of its starting microbe choice. The default
+  corporation setup cannot resolve that choice, and sandbox corporation entry currently has no
+  supported transition into Action phase; settle the smallest setup approach before migrating it.
+- [ ] Investigate enforcing the workflow's offered turn order in `TfmGameplayTest`. `Agent.inTurn`
+  currently creates a turn whenever the acting player has no pending task, even while another
+  player's turn is pending. Preserve authentic gameplay without adding a second test-side game
+  driver; discuss the effect on sandbox and legacy callers before changing the shared helpers.
+- Distinguish counting Venus tags from carrying a Venus tag in card availability. Io Sulphur
+  Research should work without Venus Next because it merely counts Venus tags, but the catalog
+  currently rejects it. Cards that carry Venus tags, such as Corroder Suits and Dirigibles, must
+  continue to require the expansion. Keep this catalog change separate from the test-only batch.
 - [ ] Continue the [adversarial-play design discussion](docs/agents/ADVERSARIAL.md): settle acceptance,
   trusted card custody, information release, and simultaneous choices before selecting an
   implementation. Work through draw/discard, Icy Impactors handoff, accepted work that cannot
   finish, and agreed undo examples. Preserve the meaning of accepted prefixes; keep Git
   coordination and hidden-information enforcement outside the engine.
-- Revisit the `RepeatPlacementBonus` change made for conditionally available map bonuses. Look for
-  a way to duplicate the map's bonus instruction directly again, without inspecting its generated
-  Class effect or `IfTrigger`; preserve Frontier Town's tripled delegate bonus and conditional
-  omission when `PartyDelegate` is unavailable.
+- Revisit `RepeatPlacementBonus` now that premise-specialized effects remove its runtime condition
+  check. Determine whether it can duplicate `AreaDefinition.bonus` directly again without reading
+  the area's generated Class effect, while still omitting unavailable delegate bonuses.
 - Resolve the nested self-transmutation case characterized in `pets/BugsTest`: an abstract Box
   currently permits identical concrete shared arguments. Preserve shared abstract arguments and
   rejection of dropping their markers; clarify when an open nested shared transmutation itself
@@ -105,6 +130,9 @@ These concerns remain open; the ranking does not select replacement designs.
 - When preparing the [PETS repository draft](docs/pets-repo-draft.md) for publication, decide
   whether to include Sponsored Academies, currently retained as a draft note after the gallery.
 - After the repository split, rename `:pets-tools` to `:tools` in the Pets repository.
+- Before separating Git repositories, choose the Pets publishing host and version convention,
+  automate tagged releases, and verify Solarnet against a hosted release. This follows build
+  separation; see the [release workflow](PETS_ROADMAP.md#release-workflow-before-the-git-split).
 - Add scenario saving and reloading to [Mars Playground](PLAYGROUND.md) after the initial version.
 - Add shareable URLs for [Mars Playground](PLAYGROUND.md#technology-and-experience) later. First
   decide what restoring the same view includes: scenario, history position, camera, and windows.
@@ -122,7 +150,7 @@ These concerns remain open; the ranking does not select replacement designs.
   own and opposing claims' different effects on fallback, and do not treat unaffordable placement
   consequences as permitting fallback. This is a local expression simplification, not an `ELSE`
   language or execution-search project.
-- Fix greenery fallback when Mars Nomads blocks the last adjacent land area. `BugsTest` records
+- Fix greenery fallback when Mars Nomads blocks the last adjacent land area. `MarsNomadsTest` records
   that both the blocked placement and a distant placement currently fail. Keep promo-specific
   names out of the core greenery rule.
 - Prefer the positive Arcadian Communities reward trigger `Tile<LandArea(HAS Community)>: 3 MC`
@@ -142,8 +170,8 @@ These concerns remain open; the ranking does not select replacement designs.
 - Find a small, exact way for Ecology Experts' plant and microbe tags to trigger a newly played
   bio listener without replaying those tags or rewarding an older copy of that listener. Double
   Down copies the Prelude's immediate instruction but not its effects, so the solution must also
-  cover that path. Until then, keep the four affected combinations Unsafe-only; `BugsTest`
-  characterizes the Viral Enhancers and Ecological Zone outcomes.
+  cover that path. Until then, keep the four affected combinations Unsafe-only; `EcologyExpertsTest`
+  pairs the intended and current Viral Enhancers and Ecological Zone outcomes.
 - Consider a shared party-leader recalculation helper for the ranking repeated on delegate gains
   and Banned Delegate. Replacement cleanup belongs to `PartyLeader`; share the remaining winner
   selection only if it simplifies the model overall and preserves Recruitment's transfer semantics.
@@ -160,11 +188,12 @@ These concerns remain open; the ranking does not select replacement designs.
   but does not cause a card draw. First try the existing card-holder distinction; do not bypass
   trigger execution. Full wild-tag assignment remains deferred until a clean rule representation is
   available; historical replays still use explicit adjustments for unsupported choices.
-- Keep Fake Self-Replicating Robots permanently in `:tfm-fake`. Move its bug characterizations,
-  including the SRR cases mixed into `cards/BugsTest.kt`, into that module and consolidate duplicate
-  Sponsored Projects coverage. Reuse existing test-support sources before considering a fixture API.
+- Keep Fake Self-Replicating Robots permanently in `:tfm-fake`. Move its paired defect scenarios
+  from `SelfReplicatingRobotsTest` into that module. Reuse existing test-support sources before
+  considering a fixture API.
 - Follow through on the FAQ-audit defects characterized in
-  [`cards/BugsTest.kt`](test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt):
+  `MiningGuildTest`, `SelfReplicatingRobotsTest`, and
+  [`MiningRightsTest.kt`](test/common/dev/martianzoo/tfm/tests/cards/MiningRightsTest.kt):
   Mining Rights/Area and Mining Guild on wild placement bonuses; Sponsored Projects adding
   resources to SRR's hosted cards. Preserve the external-card-selection boundary when addressing
   copied Merger commitment after new information is revealed.
@@ -212,12 +241,8 @@ These concerns remain open; the ranking does not select replacement designs.
 - Replace the duplicated `TemperatureStep BY Player`/`BY Admin` threshold-ocean triggers and the
   synthetic `AdminOceanPlacement` signal with one rule that separates who chooses the tile from
   whose action the placement is attributed to, shared by the standard and extended tracks.
-- Extend early `System` assignment to scaled direct gains before classifying `CheckRequirement` as
-  `System`; its current `/ shortfall` task shape reaches the Admin-only guard while still assigned
-  to the Player.
-- Audit direct removals of `System` components, then decide whether early Admin assignment should
-  cover removals as well as gains. Preserve any removal that represents a real Player timing or
-  target choice instead of assuming that the gain classification settles both directions.
+- Reassess classifying `CheckRequirement` as `System` now that scaled direct gains route to Admin.
+  Verify requirement failures and downstream choices before changing its classification.
 - Investigate whether Player identity can survive Player → Admin → Player task chains without
   making bookkeeping classes `Owned` solely to carry that Player through. Preserve real ownership,
   cross-player effects, explicitly named recipients, and phases with no unique on-turn Player; do
@@ -416,14 +441,14 @@ attribution, features, and unresolved rule questions. Related symptoms are group
    → Merger → Tharsis leaves the city placement for another action instead of resolving it
    immediately. This changes action timing and available intervening choices. Implement the resolved
    FAQ behavior: an impossible first action must invalidate the Prelude play. See the Board/Merger/
-   Tharsis characterization in [cards BugsTest](test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt).
+   Tharsis pair in [MergerTest](test/common/dev/martianzoo/tfm/tests/cards/MergerTest.kt).
 
 6. **Prelude-drawing content can be selected without a usable Prelude pool.** WG Project, Valley
    Trust, Board of Directors, and New Partner don't bring in the required pool. Configuration probes
    confirmed the missing default pool. Selecting WG Project must make the Prelude 1 pool available
    for its draw even when that pool otherwise mostly sits unused; selecting the pool must not start
    the Prelude phase. Check explicit pool exclusions separately. The WG Project draw is
-   characterized in [cards BugsTest](test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt).
+   covered by the pair in [WgProjectTest](test/common/dev/martianzoo/tfm/tests/cards/WgProjectTest.kt).
 
 7. **`DEFAULT` silently discards a root type-variable marker.** For example,
    `DEFAULT +@Piece<First>` becomes an ordinary default without reporting the invalid marker.

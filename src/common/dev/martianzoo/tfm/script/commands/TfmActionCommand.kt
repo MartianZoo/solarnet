@@ -10,10 +10,8 @@ import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
-import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.tfm.canon.cardActions
 import dev.martianzoo.tfm.script.ScriptCommand
@@ -84,13 +82,26 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
 
   private fun payWrittenActionCost(payment: String, taskIdsBeforeAction: Set<TaskId>) {
     val costTasks = repl.game.tasks.extract { it }.filter { it.id !in taskIdsBeforeAction }
-    val directCosts = costTasks.filter { it.instruction.descendantsOfType<Remove>().any() }
-    if (directCosts.isEmpty()) {
-      openBilling(costTasks, payment)
+    val billing = costTasks.singleOrNull { task ->
+      task.instruction.descendantsOfType<Change>().any { it.gaining?.className == cn("Owed") }
+    }
+    if (billing != null) {
+      val owed =
+          billing.instruction.descendantsOfType<Change>().single {
+            it.gaining?.className == cn("Owed")
+          }
+      val supplied =
+          paymentGains(payment).single { gain ->
+            gain.scaledEx.expression.className in owed.gaining!!.descendantsOfType<ClassName>()
+          }
+      repl.agent.doTask("${supplied.scaledEx.scalar} ${owed.gaining}")
+    }
+    if (repl.agent.count("Billing") > 0) {
       TfmPayCommand(repl).withArgs(payment)
       return
     }
 
+    val directCosts = costTasks.filter { it.instruction.descendantsOfType<Remove>().any() }
     val removals = paymentRemovals(payment)
     check(removals.size == directCosts.size) {
       "Action requires ${directCosts.size} direct payment(s), but ${removals.size} were supplied"
@@ -101,47 +112,6 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
       repl.agent.narrowTask(narrowing.toString())
     }
   }
-
-  private fun openBilling(costTasks: List<Task>, payment: String) {
-    val billing = costTasks.single { task ->
-      task.instruction.descendantsOfType<Change>().any { change ->
-        change.gaining?.className == cn("Owed")
-      }
-    }
-    val owed =
-        billing.instruction.descendantsOfType<Change>().single { change ->
-          change.gaining?.className == cn("Owed")
-        }
-    val narrowing =
-        if (owed.count.abstract) {
-          val supplied =
-              paymentGains(payment).single { gain ->
-                gain.scaledEx.expression.className in owed.gaining!!.descendantsOfType<ClassName>()
-              }
-          val suppliedAmount = supplied.scaledEx.scalar.toString().toInt()
-          val authored = owed.count.toString()
-          val authoredMultiple = authored.removeSuffix("X").ifEmpty { "1" }.toInt()
-          check(suppliedAmount % authoredMultiple == 0) {
-            "$suppliedAmount isn't a multiple of $authoredMultiple"
-          }
-          bindXTo(suppliedAmount / authoredMultiple).transformInstruction(billing.instruction)
-        } else {
-          billing.instruction
-        }
-    TaskCommand(repl).withArgs(firstStage(narrowing).toString())
-    val billingTask =
-        repl.game.tasks
-            .extract { it }
-            .single { task ->
-              task.instruction.descendantsOfType<Change>().any { change ->
-                change.gaining?.className == cn("ActionBilling")
-              }
-            }
-    TaskCommand(repl).withArgs(firstStage(billingTask.instruction).toString())
-  }
-
-  private fun firstStage(instruction: InstructionTree): InstructionTree =
-      if (instruction is Then) instruction.first else instruction
 
   private fun specializeVariableCost(task: Instruction, removal: Instruction): Instruction {
     val directRemoval = removal as Remove

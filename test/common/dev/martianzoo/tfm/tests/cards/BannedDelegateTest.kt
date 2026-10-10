@@ -3,12 +3,13 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.BannedDelegate
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class BannedDelegateTest : ProjectCardTest() {
+internal class BannedDelegateTest : TfmSandboxTest() {
   @Test
   internal fun `Requires the player to be Chairman`() {
     newTestGame(addOptions = "TurmoilExpansion")

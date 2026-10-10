@@ -50,7 +50,7 @@ ABSTRACT CLASS Module : System {
 "Signals that the complete selected Module layer is live"
 // TODO.md: replace with BootstrapPhase entry after premise construction
 CLASS ModulesReady : Signal, System {
-  This IF 2 Player:: AfterMe<Player, Player>
+  This IF MultiplayerMode:: AfterMe<Player, Player>
 }
 
 "Exactly one player-count Module active in a playable game"
@@ -91,7 +91,7 @@ ABSTRACT CLASS Player : Owner, Actor {
 }
 
 "A player's persistent choice of starting-card procedure"
-ABSTRACT CLASS PlayerMode : Owned<Player>
+ABSTRACT CLASS PlayerMode : Owned<Player>, System
 
 "A unit in the configured number of corporation cards offered to each player"
 CLASS SelectableCorporationCount : System
@@ -129,9 +129,11 @@ ABSTRACT CLASS Phase : System {
     This:: EACH Class<@CardWatcher> { @CardWatcher }
 
     NewTurn IF CorporationCard<Hand>: \
-      PlayCard<Class<CorporationCard>, Class<CardFront>, Hand> THEN BuySelectedCards
+      PlayCard<Class<CorporationCard>, Class<CardFront>, Hand>
     NewTurn IF BeginnerCard<Hand>: \
-      PlayCard<Class<BeginnerCard>, Class<CardFront>, Hand> THEN BuySelectedCards
+      PlayCard<Class<BeginnerCard>, Class<CardFront>, Hand>
+    CardFront<Class<CorporationCard>>: BuySelectedCards
+    CardFront<Class<BeginnerCard>>: BuySelectedCards
   }
   CLASS ResearchPhase { This:: Generation }
   CLASS ActionPhase {

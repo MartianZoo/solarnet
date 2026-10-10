@@ -1,11 +1,12 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.IcyImpactors
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class IcyImpactorsTest : ProjectCardTest() {
+internal class IcyImpactorsTest : TfmSandboxTest() {
   @BeforeTest fun setUp() = newTestGame()
 
   @Test

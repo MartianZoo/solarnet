@@ -1,23 +1,24 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.tfm.tests.TestOption.*
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
-internal class ManutechTest : CardTest() {
-
+internal class ManutechTest : TfmSandboxTest() {
   @Test
-  internal fun `Pays for every production increase`() {
-    newGame(VenusNextExpansion)
-    p1.runOperation("$Manutech")
-    p1.runOperation("PROD[8 MC, Steel, 6 Titanium, 7 Plant, 5 Energy, 3 Heat]")
-        .expect("8 MC, Steel, 6 Titanium, 7 Plant, 5 Energy, 3 Heat")
+  internal fun `Pays for its own starting steel production`() {
+    newTestGame(kimCorporation = Manutech, startAtCorporation = true)
+
+    kim.playCorp(Manutech).expect("PROD[Steel], Steel")
   }
 
   @Test
-  internal fun `Pays when Nitrophilic Moss raises plant production`() {
-    newGame(VenusNextExpansion)
-    p1.runOperation("$Manutech")
-    p1.runOperation("$NitrophilicMoss").expect("PROD[2 Plant], 0 Plant")
+  internal fun `Production gains replace the plants spent on Nitrophilic Moss`() {
+    newTestGame(kimCorporation = Manutech)
+    kim.exMachina("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>")
+    kim.setToExMachina(2, "Plant")
+    kim.setToExMachina(8, "MC")
+
+    kim.playProject(NitrophilicMoss, 8).expect("PROD[2 Plant], 0 Plant")
   }
 }

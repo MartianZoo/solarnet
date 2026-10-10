@@ -361,7 +361,7 @@ internal class ModuleSelectionTest {
   internal fun `Thawer and Snow Cover are compatible in the normal pool`() {
     val normal = classTable("TurmoilExpansion, Thawer, Builder, Engineer")
     normal.isInhabited(cn("Thawer")) shouldBe true
-    normal.isInhabited(cn("SnowCover")) shouldBe true
+    normal.isInhabited(cn("MoholeLakeGlobalEvent")) shouldBe true
   }
 
   @Test

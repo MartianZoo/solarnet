@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.CarbonNanosystems
 import dev.martianzoo.tfm.tests.cards.cardnames.PhysicsComplex
 import dev.martianzoo.tfm.tests.cards.cardnames.SolarProbe
@@ -10,7 +11,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class SolarProbeTest : ProjectCardTest() {
+internal class SolarProbeTest : TfmSandboxTest() {
   @BeforeTest fun setUp() = newTestGame()
 
   @Test

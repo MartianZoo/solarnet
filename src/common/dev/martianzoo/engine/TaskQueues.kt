@@ -3,8 +3,10 @@ package dev.martianzoo.engine
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.state.Actor
@@ -33,9 +35,10 @@ import dev.martianzoo.state.Task.TaskId
  *   [DeadEndException]
  * * A concrete selected task is guaranteed to execute successfully
  * * Normalization retains task identity, controller, selection assignee, current assignee,
- *   selection, and cause. Admission and contextual selection assign a System gain to Admin;
- *   explicit instruction-side `BY` remains authoritative. Selected tasks cannot be replaced by
- *   independent siblings
+ *   selection, and cause. Admission and contextual selection assign fixed System gains and concrete
+ *   System removals to Admin, including changes scaled by `Per`. Abstract scalars and optional or
+ *   abstract-target removals remain for the current assignee to choose; explicit instruction-side
+ *   `BY` remains authoritative. Selected tasks cannot be replaced by independent siblings
  */
 internal class TaskQueues(private val gameWorld: GameWorld) {
   private val classTable: ClassTable = gameWorld.classTable
@@ -67,7 +70,7 @@ internal class TaskQueues(private val gameWorld: GameWorld) {
                 selectionAssignee = selectionAssignee,
                 isAbstract = isAbstract,
             )
-            .map(::assignSystemGainToAdmin)
+            .map(::assignSystemChangeToAdmin)
     return newTasks.map {
       require(it.id.ordinal == gameWorld.nextOrdinal)
       gameWorld.apply(TaskAddedEvent(gameWorld.nextOrdinal, it))
@@ -88,23 +91,27 @@ internal class TaskQueues(private val gameWorld: GameWorld) {
   }
 
   internal fun normalizeForSelection(task: Task): Task =
-      assignSystemGainToAdmin(normalizeTask(task, isAbstract))
+      assignSystemChangeToAdmin(normalizeTask(task, isAbstract))
 
   internal fun assigneeAfterContextualSelection(task: Task): Actor {
     val selected = task.copy(assignee = task.selectionAssignee, selected = true)
     return normalizeForSelection(selected).assignee
   }
 
-  private fun assignSystemGainToAdmin(task: Task): Task {
-    val change =
-        when (val instruction = task.instruction) {
-          is Change -> instruction
-          is By -> instruction.inner as? Change
+  private fun assignSystemChangeToAdmin(task: Task): Task {
+    fun change(instruction: Instruction): Change? =
+        when (instruction) {
+          is Change -> instruction.takeUnless { it.count.abstract }
+          is By -> change(instruction.inner)
+          is Per -> change(instruction.inner)
           else -> null
-        } ?: return task
-    val gaining = change.gaining ?: return task
-    val gainedClass = classTable.resolve(gaining).rootClass
-    return if (gainedClass.isSubtypeOf(systemClass)) task.copy(assignee = ADMIN) else task
+        }
+    val change = change(task.instruction) ?: return task
+    val affected = change.gaining ?: change.removing ?: return task
+    val affectedType = classTable.resolve(affected)
+    if (change.gaining == null && change.isAbstract(gameWorld.reader)) return task
+    return if (affectedType.rootClass.isSubtypeOf(systemClass)) task.copy(assignee = ADMIN)
+    else task
   }
 
   override fun toString(): String = gameWorld.tasks.toString()

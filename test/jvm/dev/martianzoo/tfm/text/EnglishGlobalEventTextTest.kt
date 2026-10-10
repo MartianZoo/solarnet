@@ -19,18 +19,18 @@ internal class EnglishGlobalEventTextTest {
         EnglishTextData.parse(
             readEnglishCardText("english-global-event-published-wording-evidence.tsv")
         )
-    val globalEvent = Canon.classTable.getClass(cn("GlobalEvent"))
+    val globalEffect = Canon.classTable.getClass(cn("GlobalEffect"))
     current.keys shouldBe
         Canon.classTable.allClassNames
             .map(Canon.classTable::getClass)
-            .filter { !it.abstract && it.isSubtypeOf(globalEvent) }
+            .filter { !it.abstract && it.isSubtypeOf(globalEffect) }
             .map { it.className }
             .toSet()
     current.keys.toList() shouldBe published.keys.toList()
     current.forEach { (name, expected) ->
       withClue(name.toString()) {
         expected.englishName shouldBe published.getValue(name).englishName
-        val actual = english.renderGlobalEvent(Canon.classTable.getClass(name))
+        val actual = english.renderGlobalEffect(Canon.classTable.getClass(name))
         actual.text shouldBe expected.text
         countRenderedPetsFallbacks(actual.text) shouldBe actual.unresolved.size
       }

@@ -25,13 +25,13 @@ private object EnglishTextCurrentGenerator {
     val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
     val milestone = Canon.classTable.getClass(cn("Milestone"))
     val award = Canon.classTable.getClass(cn("Award"))
-    val globalEvent = Canon.classTable.getClass(cn("GlobalEvent"))
+    val globalEffect = Canon.classTable.getClass(cn("GlobalEffect"))
     val components =
         Canon.classTable.allClassNames
             .map(Canon.classTable::getClass)
             .filter {
               !it.abstract &&
-                  if (globalEvents) it.isSubtypeOf(globalEvent)
+                  if (globalEvents) it.isSubtypeOf(globalEffect)
                   else it.isSubtypeOf(milestone) || it.isSubtypeOf(award)
             }
             .associateBy { it.className }
@@ -41,7 +41,7 @@ private object EnglishTextCurrentGenerator {
     val renderings = orderedNames.map { className ->
       val component = components.getValue(className)
       val rendering =
-          if (globalEvents) english.renderGlobalEvent(component) else english.renderGoal(component)
+          if (globalEvents) english.renderGlobalEffect(component) else english.renderGoal(component)
       Row(className, published[className]?.englishName ?: displayName(Canon, className), rendering)
     }
     val rows = renderings.map { row ->

@@ -43,7 +43,7 @@ internal class VerminTest : CardTest(::attributionProbeDeclarations) {
   }
 
   @Test
-  internal fun `Vermin's owner is credited for every point removed`() {
+  internal fun `Admin is credited for every point removed by Vermin`() {
     newGame(PromoCardPack, players = 3)
     val p3 = game.testTfm(PLAYER3)
     p1.runOperation("$Vermin, 10 Animal<$Vermin>, CityTile<Tharsis_2_1>, $attributionProbe")
@@ -51,8 +51,9 @@ internal class VerminTest : CardTest(::attributionProbeDeclarations) {
 
     admin.runOperation("End FROM Phase")
 
-    // The probe reacts to each point loss and records the credited player.
-    admin.count("$attribution<Player1>") shouldBe 2
+    // The probe reacts to each point loss and records the executing actor.
+    admin.count("$attribution<Admin>") shouldBe 2
+    admin.count("$attribution<Player1>") shouldBe 0
     admin.count("$attribution<Player3>") shouldBe 0
   }
 }

@@ -335,8 +335,9 @@ The goal-text goals may cover a selected proving corpus; the goal current snapsh
 concrete goal. Current refusals are recorded mechanically in the generated `*-refusals.tsv`; do not
 restate them here.
 
-Global Event resolution text is rendered in each player's context by the Turmoil vocabulary's
-`renderGlobalEvent.kt`, which selects the resolution effects and preserves conditional,
+Global Event resolution text is rendered from the lower-half `GlobalEffect` declarations in each
+player's context by the Turmoil vocabulary's `renderGlobalEffect.kt`, which selects the resolution
+effects and preserves conditional,
 first-player, and Admin attribution. Effect bodies use the shared instruction renderer. The shared
 `EnglishTextCurrentGenerator` writes goal and Global Event snapshots and refusal reports; event
 names and order follow the published evidence, while effect wording derives only from Pets.

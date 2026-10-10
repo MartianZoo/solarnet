@@ -49,8 +49,8 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
 
     // "Our coming global event is Mud Slides, and our distant global event is Venus
     // Infrastructure."
-    admin.doTask("MudSlides")
-    admin.doTask("VenusInfrastructure")
+    admin.doTask("ThawMining")
+    admin.doTask("MartianProtectionism")
 
     // "Septim Triboos [Septem Tribus]. I get 36 money, and then I buy 10 cards. Don't tell me I
     // bought 10."
@@ -229,7 +229,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     // advances both printed events before requesting only the next distant event.
     // "Changing times. Got the coming global event. Move a distant global event to coming. Turn the
     // top part of global event face up. It is sponsored projects."
-    admin.doTask("SponsoredProjects")
+    admin.doTask("ScienceSummit")
 
     // "Really, because you're the chairman. Oh, did you give yourself TR for being chairman?" "No,
     // because you didn't say it." "Oh, yeah, that is what I skipped. Sorry."
@@ -258,9 +258,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     admin.assertCounts(
         1 to "Ruling<Scientists>",
         1 to "Dominant<Greens>",
-        1 to "Current<MudSlides>",
-        1 to "Coming<VenusInfrastructure>",
-        1 to "Distant<SponsoredProjects>",
+        1 to "Current<ThawMining>",
+        1 to "Coming<MartianProtectionism>",
+        1 to "Distant<ScienceSummit>",
     )
 
     // Green consistently uses the inert wild tags on Septem Tribus and Nobel Prize as Science for
@@ -423,7 +423,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.wgt("OceanTile<Vastitas_5_7>").expect("0 TerraformRating<Yellow>")
     // Mud Slides charges nobody because influence covers every adjacent owned tile. Greens forms
     // the government and Green becomes chairman.
-    admin.doTask("SpinOffProducts")
+    admin.doTask("BioengineeringBoom")
     // "So you're saying this moves to Unity now?" During Changing Times, Venus Infrastructure's
     // neutral delegate raises Unity from three delegates to four, ahead of Reds' three. The engine
     // therefore moves the dominance marker to Unity normally, matching board-12-18-40.jpg.
@@ -452,9 +452,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     admin.assertCounts(
         1 to "Ruling<Greens>",
         1 to "Dominant<Unity>",
-        1 to "Current<VenusInfrastructure>",
-        1 to "Coming<SponsoredProjects>",
-        1 to "Distant<SpinOffProducts>",
+        1 to "Current<MartianProtectionism>",
+        1 to "Coming<ScienceSummit>",
+        1 to "Distant<BioengineeringBoom>",
     )
 
     // Generation 3 Research: all three players buy three projects.
@@ -574,7 +574,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     // Venus tags and influence. Unity then pays 1/3/2 M€ for planetary tags and makes Blue
     // chairman. Diversity—the event headed "Free Academia Treaty"—is revealed with its neutral
     // Scientist delegate.
-    admin.doTask("Diversity")
+    admin.doTask("FreeAcademiaTreaty")
 
     // Complete Generation 3 Solar ledgers.
     with(green) {
@@ -596,9 +596,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     admin.assertCounts(
         1 to "Ruling<Unity>",
         1 to "Dominant<Reds>",
-        1 to "Current<SponsoredProjects>",
-        1 to "Coming<SpinOffProducts>",
-        1 to "Distant<Diversity>",
+        1 to "Current<ScienceSummit>",
+        1 to "Coming<BioengineeringBoom>",
+        1 to "Distant<FreeAcademiaTreaty>",
     )
 
     // Generation 4 Research: Green buys zero, Yellow buys one, and Blue buys three. The complete
@@ -725,15 +725,15 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     green.wgt("OxygenStep").expect("OxygenStep")
     // At 6:38:48 pm, the table notes that Search for Life has no science to receive a bonus.
     yellow.assertCardResources(0 to SearchForLife)
-    admin.doTask("ImprovedEnergyTemplates")
+    admin.doTask("SecondEnergyCrisis")
 
     assertSidebar(gen = 5, temp = -24, oxygen = 5, oceans = 2, venus = 2)
     admin.assertCounts(
         1 to "Ruling<Reds>",
         1 to "Dominant<Scientists>",
-        1 to "Current<SpinOffProducts>",
-        1 to "Coming<Diversity>",
-        1 to "Distant<ImprovedEnergyTemplates>",
+        1 to "Current<BioengineeringBoom>",
+        1 to "Coming<FreeAcademiaTreaty>",
+        1 to "Distant<SecondEnergyCrisis>",
     )
     // "Yellow, six. Blue has ten. Green has fourteen."
     yellow.assertCounts(6 to "ProjectCard")
@@ -846,7 +846,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.wgt("OceanTile<Vastitas_4_3>").expect("0 TerraformRating<Yellow>")
     // Spin-Off Products and the Scientists ruling bonus pay for science tags. Diversity becomes
     // current, Improved Energy Templates becomes coming, and Revolution is revealed.
-    admin.doTask("Revolution")
+    admin.doTask("WorldGovernmentDirectives")
     // Blue has two printed Science tags, so Spin-Off Products and the Scientists ruling bonus pay
     // 4 M€ and 2 M€. The transcript instead says, consecutively, "you get four money and you get
     // six money" for Blue's and Yellow's event awards; Blue's lone +10 row is exactly 4 + 6. The
@@ -1039,7 +1039,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
 
     blue.wgt("VenusStep").expect("0 TerraformRating<Blue>")
     // Diversity resolves, Greens takes government, and Snow Cover is revealed.
-    admin.doTask("SnowCover")
+    admin.doTask("MoholeLakeGlobalEvent")
     // The physical Greens delegation makes Yellow chairman; the engine retained the neutral
     // tie-break. The spoken transition awards Yellow the corresponding TR.
     yellow.exMachina("-Chairman<Neutral>, Chairman, TerraformRating")
@@ -1185,7 +1185,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     assertSidebar(gen = 7, temp = -4, oxygen = 12, oceans = 6, venus = 12)
 
     green.wgt("OxygenStep")
-    admin.doTask("EcoSabotage")
+    admin.doTask("ExperimentalLifeforms")
     // The two wrong-color Envoys cubes make Green Unity leader with a Green non-leader still in the
     // party. Those supply two rules-correct influence; Event Analysts supplies the third. Five
     // Power tags plus three influence produce four Improved Energy Templates steps, after which
@@ -1334,7 +1334,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.wgt("TemperatureStep")
     // Revolution resolves, Mars First takes government, and the final photograph identifies
     // Interplanetary Trade as the newly revealed distant event.
-    admin.doTask("InterplanetaryTradeGlobalEvent")
+    admin.doTask("CharismaticWgPresident")
     // The table announces Green/Yellow counts of eleven/seven; their face-up cards contain
     // twelve/eight Building tags. Yellow's missing tag is most likely Martian Industries, a Prelude
     // separated from the project tableau. Green's omitted card cannot be isolated from the spoken
@@ -1432,7 +1432,8 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     green.turn {
       stdAction("LobbyAction", 2) { doTask("PartyDelegate<Reds>") }
-      // Both physical wild tags are chosen as Jovian for Diaspora Movement. Together with the
+      // Both physical wild tags are chosen as Jovian for MicrogravityHealthProblems Movement.
+      // Together with the
       // card's own Jovian tag, they explain the spoken three-M€ payout directly.
       exMachina(fakeWildTags("JovianTag", 2))
       playProject(DiasporaMovement, 5).expect("-2 MC")
@@ -1495,7 +1496,8 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
 
     // Green once more retained Supercapacitors' energy during final production.
     green.declineTask()
-    // Once Diaspora Movement receives the two evidenced wild Jovian tags above, Green reaches the
+    // Once MicrogravityHealthProblems Movement receives the two evidenced wild Jovian tags above,
+    // Green reaches the
     // photographed final cash without any residual adjustment.
     // The final photograph has one more Decomposers microbe than the action record; the surviving
     // records do not locate this difference. It also has twelve animals although the final Mohole

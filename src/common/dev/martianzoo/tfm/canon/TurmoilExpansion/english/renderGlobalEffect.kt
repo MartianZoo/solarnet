@@ -24,9 +24,9 @@ import dev.martianzoo.tfm.text.renderInstructions
 import dev.martianzoo.tfm.text.sameNamedTypeVariable
 
 /** The resolution signal and universal player scope supply the printed event's context. */
-internal fun renderGlobalEvent(event: Class, describers: Describers): EnglishText =
+internal fun renderGlobalEffect(globalEffect: Class, describers: Describers): EnglishText =
     EnglishText.join(
-        event.declaration.authoredEffects.map { effect ->
+        globalEffect.declaration.authoredEffects.map { effect ->
           val conditional = effect.trigger as? Effect.Trigger.IfTrigger
           val trigger = conditional?.inner ?: effect.trigger
           if (trigger != resolutionTrigger) {
@@ -132,7 +132,7 @@ private fun renderResolution(
   return renderInstructions(instruction, describers)
 }
 
-private val resolutionTrigger = parse<Effect.Trigger>("ResolveGlobalEvent<Class<This>>")
+private val resolutionTrigger = parse<Effect.Trigger>("ResolveGlobalEvent")
 private val player = parse<Expression>("Player")
 private val firstPlayer = parse<Expression>("Player(HAS StartToken)")
 private val admin = parse<Expression>("Admin")
