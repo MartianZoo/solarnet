@@ -60,18 +60,11 @@ These concerns remain open; the ranking does not select replacement designs.
   audience and intended-contract standards. Preserve useful Pets documentation and fill gaps;
   track implementation defects separately. This standards update does not complete the module
   documentation or conformance audits.
-- [ ] Finish migrating the five remaining `CardTest` rule suites: `EndgameRulesTest`,
-  `DeadEndsTest`, `TurmoilRulesTest`, `TurmoilGovernmentTest`, and `TurmoilEventsTest`.
-  Preserve their meaningful coverage while replacing direct internal commands with player actions
-  or actual workflow. Endgame checks need complete playable paths; delegate/government/event
-  checks also need their synthetic probes reviewed separately from gameplay. Do not add a second
-  phase driver to the fixtures. Remove `CardTest` after its last caller migrates.
-  The card suites and sixteen former legacy rule/support suites have migrated. Synthetic temporary
-  wild-tag injection, Vermin's attribution listener, audit history, and arbitrary task-selection
-  checks construct minimal worlds directly from `TfmTest`.
-  The [fixture notes](docs/agents/TESTING.md#remaining-fixture-development) retain the outstanding
-  solo-map setup and phase-shortcut considerations. Investigate automatic attack-history effects
-  separately; migration convenience does not justify changing their semantics.
+- [ ] Extend the fixtures' solo-map placements when a scenario needs maps beyond Tharsis, Hellas,
+  and Elysium; reassess sandbox phase shortcuts only from concrete needs. See the
+  [fixture notes](docs/agents/TESTING.md#remaining-fixture-development).
+- [ ] Investigate automatic attack-history effects separately; test migration does not justify
+  changing the effects used by Law Suit and Crash Site Cleanup.
 - [ ] Investigate enforcing the workflow's offered turn order in `TfmGameplayTest`. `Agent.inTurn`
   currently creates a turn whenever the acting player has no pending task, even while another
   player's turn is pending. Preserve authentic gameplay without adding a second test-side game
