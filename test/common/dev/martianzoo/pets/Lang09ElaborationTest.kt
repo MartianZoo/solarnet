@@ -2,6 +2,7 @@ package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -43,6 +44,56 @@ internal class Lang09ElaborationTest {
   }
 
   // L9-1 The stages
+
+  @Test
+  internal fun `L9-1 scopes follow defaults without making references request defaults`() {
+    val table =
+        loadTypes(
+            """
+                ABSTRACT CLASS Area {
+                  CLASS First
+                  CLASS Second
+                }
+                CLASS Piece<Area> { DEFAULT +Piece<First>; DEFAULT -Piece<Second> }
+                CLASS Marker
+                CLASS Notice<Piece<Area>>
+                """
+        )
+    val elaborator = PetElaborator(table)
+    val cases =
+        listOf(
+            Triple(
+                "@Piece<> THEN Notice<@Piece>",
+                "First",
+                "Piece<First>! THEN Notice<Piece<First>>!",
+            ),
+            Triple(
+                "Notice<Piece<First>>(HAS @Piece) THEN @Piece<>",
+                "First",
+                "Notice<Piece<First>>(HAS Piece<First>)! THEN Piece<First>!",
+            ),
+            Triple(
+                "-@Piece<> THEN Notice<@Piece>",
+                "Second",
+                "-Piece<Second>! THEN Notice<Piece<Second>>!",
+            ),
+            Triple(
+                "@Piece<> FROM Marker THEN Notice<@Piece>",
+                "First",
+                "Piece<First> FROM Marker! THEN Notice<Piece<First>>!",
+            ),
+        )
+    cases.forEach { (source, area, expected) ->
+      val lowered = elaborator.elaborateInput(parse<InstructionTree>(source))
+      val variable = lowered.typeVariables.variables.single()
+      val binding =
+          lowered.typeVariables.bind(
+              mapOf(variable to table.resolve(parse<Expression>("Piece<$area>"))),
+              table,
+          )
+      binding.transformInstructionTree(lowered) shouldBe parse<InstructionTree>(expected)
+    }
+  }
 
   @Test
   internal fun `L9-1 a submitted element goes through the submitted pipeline's stages`() {
@@ -441,6 +492,45 @@ internal class Lang09ElaborationTest {
   }
 
   // L9-13 Class effects
+
+  @Test
+  internal fun `L9-13 an ownerless System trigger cannot infer a Player actor`() {
+    listOf("Phase", "-Phase", "This", "-This").forEach { trigger ->
+      val table =
+          loadTypes(
+              "ABSTRACT CLASS Player : Owner, Actor",
+              "CLASS Player1 : Player",
+              "CLASS Player2 : Player",
+              "CLASS Plant : Owned<Player>",
+              "CLASS Phase : System",
+              "CLASS Rule : System { $trigger: Plant }",
+          )
+      shouldThrow<InvalidPetDefinitionException> {
+            PetElaborator(table).classEffects(table.getClass(cn("Rule")))
+          }
+          .message
+          .orEmpty() shouldContain "a System trigger cannot implicitly supply a Player"
+    }
+  }
+
+  @Test
+  internal fun `L9-13 System triggers can use an owned event or an explicit recipient`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Player : Owner, Actor",
+            "CLASS Player1 : Player",
+            "CLASS Player2 : Player",
+            "CLASS Plant : Owned<Player>",
+            "CLASS Phase : System",
+            "CLASS PlayerPhase : System, Owned<Player>",
+            "CLASS Rule { PlayerPhase: Plant; Phase: Plant<Player2> }",
+        )
+    PetElaborator(table).classEffects(table.getClass(cn("Rule"))) shouldBe
+        listOf(
+            parse<Effect>("PlayerPhase<Me@Player>: Plant<Me@Player>!"),
+            parse<Effect>("Phase: Plant<Player2>!"),
+        )
+  }
 
   @Test
   internal fun `L9-13 effects are gathered from every superclass and elaborated in context`() {
