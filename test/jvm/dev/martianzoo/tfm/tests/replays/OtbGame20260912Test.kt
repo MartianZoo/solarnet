@@ -1387,9 +1387,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.turn {
       stdProject("CityProject") { placeTile(2, 1) }
       convertPlants { placeTile(9, 8) }
-      // The final photograph puts this greenery on 9-8. The table and phone treated that printed
-      // steel bonus as titanium, so retain the physical resource adjustment.
-      exMachina("-Steel, Titanium")
     }
     blue.turn {
       stdProject("CityProject") { placeTile(6, 4) }
@@ -1550,7 +1547,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
         |
         | 8 -           LP    L    [G2]  [C2]   LS   [G3]
         |
-        | 9 -              LD    L    [G2]  [G2]   LT
+        | 9 -              LD    L    [G2]  [G2]   LS
         """
             .trimMargin(),
         TfmMapRenderer(game.reader, game.actors.filterIsInstance<Player>(), useAnsiColors = false)

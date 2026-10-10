@@ -33,7 +33,7 @@ CLASS Blacksmith : Award { metric = COUNT "PROD[Metal]" }
 //
 //            LP    L     LP   LPS    LS    LP
 //
-//               LD    L     LC    LS    LT
+//               LD    L     LC    LT    LS
 
 CLASS Vastitas_1_1 :     LandArea { row = 1; column = 1; Placement<This>: Plant }
 CLASS Vastitas_1_2 :     LandArea { row = 1; column = 2 }
@@ -102,5 +102,5 @@ CLASS Vastitas_8_9 :     LandArea { row = 8; column = 9; Placement<This>: Plant 
 CLASS Vastitas_9_5 :     LandArea { row = 9; column = 5; Placement<This> IF Class<PartyDelegate>: PartyDelegate }
 CLASS Vastitas_9_6 :     LandArea { row = 9; column = 6 }
 CLASS Vastitas_9_7 :     LandArea { row = 9; column = 7; Placement<This>: ProjectCard }
-CLASS Vastitas_9_8 :     LandArea { row = 9; column = 8; Placement<This>: Steel }
-CLASS Vastitas_9_9 :     LandArea { row = 9; column = 9; Placement<This>: Titanium }
+CLASS Vastitas_9_8 :     LandArea { row = 9; column = 8; Placement<This>: Titanium }
+CLASS Vastitas_9_9 :     LandArea { row = 9; column = 9; Placement<This>: Steel }

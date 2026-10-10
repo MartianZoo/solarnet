@@ -14,6 +14,13 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   disabled, `MAX 0 Billing: DefaultGreeneryTile` currently needs the player to select it after
   payment before Admin performs the signal; `Game20230521Test` shows the extra selections.
 
+## Physical game conversion — 2026-10-09
+
+- [ ] Continue `OtbGame20261009Test` when the next recording is supplied. The current replay
+  covers generations 1–5 and stops before generation 6 Research. Preserve its direct
+  `doTasks(...)` style, disabled player autoexecution, and automatic Admin.
+  Original evidence and remaining source limits are in `_local/replays/Game20261009/sources.md`.
+
 ## Consensus top five project concerns — 2026-10-08
 
 Ranked after independent Codex and Opus/xhigh reviews and three debate rounds, reviewing
