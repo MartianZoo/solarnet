@@ -1,158 +1,88 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
-import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
-import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
-import dev.martianzoo.tfm.tests.cards.CardTest
-import dev.martianzoo.tfm.tests.cards.cardnames.Aridor
-import dev.martianzoo.tfm.tests.cards.cardnames.BribedCommittee
-import dev.martianzoo.tfm.tests.cards.cardnames.CryoSleep
-import dev.martianzoo.tfm.tests.cards.cardnames.Decomposers
-import dev.martianzoo.tfm.tests.cards.cardnames.DevelopmentCenter
-import dev.martianzoo.tfm.tests.cards.cardnames.EarthCatapult
-import dev.martianzoo.tfm.tests.cards.cardnames.LunaGovernor
-import dev.martianzoo.tfm.tests.cards.cardnames.Mine
-import dev.martianzoo.tfm.tests.cards.cardnames.PharmacyUnion
-import dev.martianzoo.tfm.tests.cards.cardnames.TitanShuttles
-import dev.martianzoo.tfm.tests.cards.cardnames.TitaniumMine
-import dev.martianzoo.tfm.tests.cards.cardnames.UrbanDecomposers
-import io.kotest.matchers.shouldBe
+import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
-internal class AridorTest : CardTest() {
+internal class AridorTest : TfmSandboxTest() {
   @Test
-  internal fun `required action adds one selected colony tile`() {
-    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    playCorporationWithoutStartingProjects(p1, Aridor).expect("40 MC")
-    p1.assertCounts(1 to "RequiredAction")
+  internal fun `First action adds a selected colony tile`() {
+    newTestGame(addOptions = "Luna, Ceres, Triton, Ganymede, Callisto", kimCorporation = Aridor)
 
-    admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") { doTask("Europa") }.expect("Europa, ColonyProduction")
-    p1.assertCounts(0 to "RequiredAction")
+    kim.stdAction("DoRequiredActionsAction") { doTask("Europa") }
+        .expect("Europa, ColonyProduction, -RequiredAction")
   }
 
   @Test
-  internal fun `delayed selection enters play immediately when its resource card already exists`() {
-    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    playCorporationWithoutStartingProjects(p1, Aridor)
-    p1.runOperation("$TitanShuttles")
-    p1.runOperation("Floater<$TitanShuttles>")
+  internal fun `A delayed colony activates immediately if its resource card is already in play`() {
+    newTestGame(addOptions = "Luna, Ceres, Triton, Ganymede, Callisto", kimCorporation = Aridor)
+    kim.exMachina("$TitanShuttles, Floater<$TitanShuttles>")
 
-    admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") { doTask("DelayedTitan") }
-        .expect("Titan, ColonyProduction")
-    admin.assertCounts(1 to "Titan", 0 to "DelayedTitan")
+    kim.stdAction("DoRequiredActionsAction") { doTask("DelayedTitan") }
+        .expect("Titan, ColonyProduction, 0 DelayedTitan")
   }
 
   @Test
-  internal fun `production rises once for each new printed non-event tag class`() {
-    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    playCorporationWithoutStartingProjects(p1, Aridor)
-    val initialProduction = p1.count("PROD[MC]")
+  internal fun `New tag classes count for its owner even if another player already has them`() {
+    newTestGame(kimCorporation = Aridor)
+    kim.stdAction("DoRequiredActionsAction") { doTask("Europa") }
+    stan.exMachina("$Mine")
+    kim.setToExMachina(11, "MC")
 
-    requireP2().runOperation("$Mine")
-    p1.count("PROD[MC]") shouldBe initialProduction
-
-    p1.runOperation("$EarthCatapult")
-    p1.count("PROD[MC]") shouldBe initialProduction + 1
-
-    p1.runOperation("$DevelopmentCenter")
-    p1.count("PROD[MC]") shouldBe initialProduction + 3
-
-    p1.runOperation("$TitaniumMine")
-    p1.count("PROD[MC]") shouldBe initialProduction + 3
+    kim.playProject(DevelopmentCenter, 11).expect("PROD[2 MC]")
   }
 
   @Test
-  internal fun `existing tag classes are not rewarded when Aridor enters`() {
-    newGame(ColoniesExpansion, PromoCardPack, colonyTiles = testColonyTiles(2))
-    p1.runOperation("$PharmacyUnion, $EarthCatapult")
-    val initialProduction = p1.count("PROD[MC]")
+  internal fun `Acquiring Aridor does not reward existing tag classes`() {
+    newTestGame(addOptions = "PreludeExpansion")
+    kim.exMachina("$PharmacyUnion, $EarthCatapult")
 
-    p1.runOperation("$Aridor")
-
-    p1.count("PROD[MC]") shouldBe initialProduction
-
-    p1.runOperation("$DevelopmentCenter")
-
-    p1.count("PROD[MC]") shouldBe initialProduction + 2
+    kim.playPrelude(Merger) { kim.playCorp(Aridor) }.expect("PROD[0 MC]")
   }
 
   @Test
-  internal fun `a tag lost with Pharmacy Union can be rewarded again`() {
-    newGame(ColoniesExpansion, PromoCardPack, colonyTiles = testColonyTiles(2))
-    p1.runOperation("$Aridor")
-    val initialProduction = p1.count("PROD[MC]")
-    p1.runOperation("$PharmacyUnion")
-    p1.count("PROD[MC]") shouldBe initialProduction + 1
+  internal fun `A microbe tag lost when Pharmacy Union flips can be rewarded again`() {
+    newTestGame(kimCorporation = Aridor)
+    kim.stdAction("DoRequiredActionsAction") { doTask("Europa") }
+    kim.exMachina("$PharmacyUnion, 3 OxygenStep")
+    kim.setToExMachina(16, "MC")
+    kim.playProject(CryoSleep, 10) { doTask("PlayedEvent FROM $PharmacyUnion") }
 
-    p1.runOperation("-2 Disease<$PharmacyUnion>")
-    p1.runOperation("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
-    p1.count("PROD[MC]") shouldBe initialProduction + 1
-
-    p1.runOperation("$CryoSleep")
-    p1.count("PROD[MC]") shouldBe initialProduction + 2
-
-    p1.runOperation("$Decomposers")
-
-    p1.count("PROD[MC]") shouldBe initialProduction + 3
+    kim.playProject(Decomposers, 5).expect("PROD[MC]")
   }
 
   @Test
-  internal fun `a remaining microbe tag prevents another reward`() {
-    newGame(ColoniesExpansion, PromoCardPack, colonyTiles = testColonyTiles(2))
-    p1.runOperation("$Aridor")
-    val initialProduction = p1.count("PROD[MC]")
-    p1.runOperation("$PharmacyUnion, $Decomposers")
+  internal fun `A surviving microbe tag prevents a fresh reward after Pharmacy Union flips`() {
+    newTestGame(kimCorporation = Aridor)
+    kim.stdAction("DoRequiredActionsAction") { doTask("Europa") }
+    kim.exMachina("$PharmacyUnion, $Decomposers, $Mine")
+    kim.setToExMachina(23, "MC")
+    kim.playProject(CryoSleep, 10) { doTask("PlayedEvent FROM $PharmacyUnion") }
 
-    p1.runOperation("-3 Disease<$PharmacyUnion>")
-    p1.runOperation("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
-
-    p1.count("PROD[MC]") shouldBe initialProduction + 1
-    p1.runOperation("$UrbanDecomposers") { doTask("2 Microbe<$Decomposers>") }
-    p1.count("PROD[MC]") shouldBe initialProduction + 1
+    kim.playProject(IndustrialMicrobes, 12).expect("PROD[0 MC]")
   }
 
   @Test
-  internal fun `an event with an already unique tag does not reward production`() {
-    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    playCorporationWithoutStartingProjects(p1, Aridor)
-    p1.runOperation("$EarthCatapult, ProjectCard")
-    val initialProduction = p1.count("PROD[MC]")
-    admin.phase("Action")
+  internal fun `An event's printed tags do not reward production`() {
+    newTestGame(kimCorporation = Aridor)
+    kim.stdAction("DoRequiredActionsAction") { doTask("Europa") }
 
-    p1.stdAction("DoRequiredActionsAction") { doTask("Europa") }
-    p1.playProject(BribedCommittee, 5)
-
-    p1.count("PROD[MC]") shouldBe initialProduction
+    kim.playProject(BribedCommittee, 7).expect("PROD[0 MC]")
   }
 
   @Test
-  internal fun `two copies of one new tag on a card reward only once`() {
-    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
-    playCorporationWithoutStartingProjects(p1, Aridor)
-    val initialProduction = p1.count("PROD[MC]")
+  internal fun `Two copies of a new tag on Pharmacy Union reward production only once`() {
+    newTestGame(addOptions = "PreludeExpansion", kimCorporation = Aridor)
 
-    p1.runOperation("$LunaGovernor")
-
-    // Luna Governor produces two steps itself; its two Earth icons are one new tag class.
-    p1.count("PROD[MC]") shouldBe initialProduction + 3
+    kim.playPrelude(Merger) { kim.playCorp(PharmacyUnion) }.expect("PROD[MC]")
   }
 
   @Test
-  internal fun `Venus is watched only when its tag class is active`() {
-    newGame(
-        ColoniesExpansion,
-        VenusNextExpansion,
-        colonyTiles = testColonyTiles(2),
-    )
-    playCorporationWithoutStartingProjects(p1, Aridor)
-    val initialProduction = p1.count("PROD[MC]")
+  internal fun `A Venus tag can introduce a new tag class`() {
+    newTestGame(kimCorporation = Aridor)
+    kim.stdAction("DoRequiredActionsAction") { doTask("Europa") }
 
-    p1.runOperation("AerialMappers")
-
-    p1.count("PROD[MC]") shouldBe initialProduction + 1
+    kim.setToExMachina(11, "MC")
+    kim.playProject(AerialMappers, 11).expect("PROD[MC]")
   }
 }

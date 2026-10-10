@@ -4,10 +4,8 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmGameplayTest
-import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -485,264 +483,113 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     players.forEach { it.buyCards(0) }
   }
 
-  internal class DefectCharacterization : TfmSandboxTest() {
-    private fun setUpProgramGame(extraOptions: String = "") {
-      newTestGame(
-          addOptions =
-              "PreludeExpansion, Prelude2CardPack, TurmoilExpansion, Unsafe, $extraOptions",
-          playerCount = 2,
-          startAtCorporation = true,
-      )
-    }
+  // These pairs explicitly select unsupported combinations with Unsafe.
+  // Preservation Program first-TR timing:
+  // https://boardgamegeek.com/thread/3353355/article/44740462#44740462
+  // Terraforming Deal remains active:
+  // https://boardgamegeek.com/thread/3343166/article/44660687#44660687
+  // Reds payment:
+  // https://boardgamegeek.com/thread/2196388/article/31885882#31885882
+  @Ignore // The removed TR still triggers Terraforming Deal.
+  @Test
+  internal fun `Terraforming Deal pays only for the retained TR in a fixed gain`() {
+    startPaymentDefectGame(deal = true)
+    kim.playProject(MagneticFieldGeneratorsPromo, 22) { placeTile(2, 4) }
+        .expect("2 TerraformRating, -18 MC")
+  }
 
-    private fun startLaterGeneration(corporation: String = "$PhoboLog") {
-      setUpProgramGame()
-      admin.phase("Prelude")
-      kim.runOperation("$corporation, PreservationProgram, 100 MC")
-      admin.phase("Action")
-      admin.nextGeneration(0, 0)
-    }
+  @Test
+  internal fun `BUG - Terraforming Deal pays for the reversed TR in a fixed gain`() {
+    startPaymentDefectGame(deal = true)
+    kim.playProject(MagneticFieldGeneratorsPromo, 22) { placeTile(2, 4) }
+        .expect("2 TerraformRating, -16 MC")
+  }
 
-    // These pairs explicitly select the unsupported combinations with Unsafe.
-    // Preservation Program first-TR timing:
-    // https://boardgamegeek.com/thread/3353355/article/44740462#44740462
-    // Terraforming Deal remains active:
-    // https://boardgamegeek.com/thread/3343166/article/44660687#44660687
-    // Reds payment:
-    // https://boardgamegeek.com/thread/2196388/article/31885882#31885882
-    @Ignore // The removed TR still triggers Terraforming Deal.
-    @Test
-    internal fun `Terraforming Deal pays only for the retained TR in a fixed gain`() {
-      gainThreeRatingWithDeal().expect("2 TerraformRating, -18 MC")
-    }
+  @Ignore // Reds charges before Preservation Program removes the TR.
+  @Test
+  internal fun `Reds charges nothing for the prevented TR`() {
+    startPaymentDefectGame(deal = false, rulingParty = "Reds")
+    kim.stdProject("AsteroidProject").expect("0 TerraformRating, -14 MC")
+  }
 
-    @Test
-    internal fun `BUG - Terraforming Deal pays for the reversed TR in a fixed gain`() {
-      gainThreeRatingWithDeal().expect("2 TerraformRating, -16 MC")
-    }
+  @Test
+  internal fun `BUG - Reds charges for the prevented TR`() {
+    startPaymentDefectGame(deal = false, rulingParty = "Reds")
+    kim.stdProject("AsteroidProject").expect("0 TerraformRating, -17 MC")
+  }
 
-    private fun gainThreeRatingWithDeal(): TaskResult {
-      startLaterGeneration()
-      kim.runOperation("$TerraformingDeal, ProjectCard, PROD[4 Energy]")
-      return kim.playProject(MagneticFieldGeneratorsPromo, 22) { placeTile(2, 4) }
-    }
+  @Ignore // Both payments respond before Preservation Program removes the TR.
+  @Test
+  internal fun `Reds and Terraforming Deal both count only retained TR`() {
+    startPaymentDefectGame(deal = true, rulingParty = "Reds")
+    kim.playProject(MagneticFieldGeneratorsPromo, 22) { placeTile(2, 4) }
+        .expect("2 TerraformRating, -24 MC")
+  }
 
-    @Ignore // Reds charges before Preservation Program removes the TR.
-    @Test
-    internal fun `Reds charges nothing for the prevented TR`() {
-      raiseTemperatureUnderReds().expect("0 TerraformRating, -14 MC")
-    }
+  @Test
+  internal fun `BUG - Reds and Terraforming Deal both count reversed TR`() {
+    startPaymentDefectGame(deal = true, rulingParty = "Reds")
+    kim.playProject(MagneticFieldGeneratorsPromo, 22) { placeTile(2, 4) }
+        .expect("2 TerraformRating, -25 MC")
+  }
 
-    @Test
-    internal fun `BUG - Reds charges for the prevented TR`() {
-      raiseTemperatureUnderReds().expect("0 TerraformRating, -17 MC")
-    }
+  @Ignore // Reds requires payment for both TR before the first is removed.
+  @Test
+  internal fun `Reds permits an affordable two-step gain when the first TR is prevented`() {
+    prepareAffordableTwoStepGain()
+    kim.playProject(ReleaseOfInertGases, 14).expect("TerraformRating, -17 MC")
+  }
 
-    private fun startProgramUnderReds(deal: Boolean = false) {
-      startLaterGeneration()
-      if (deal) kim.runOperation("$TerraformingDeal")
-      admin.runOperation("Ruling<Reds> FROM Ruling")
-      admin.phase("Production")
-      admin.phase("Action")
-    }
+  @Test
+  internal fun `BUG - Reds rejects an affordable two-step gain when the first TR is prevented`() {
+    prepareAffordableTwoStepGain()
+    shouldThrow<LimitsException> { kim.playProject(ReleaseOfInertGases, 14) }
+    kim.assertCounts(
+        17 to "MC",
+        1 to "ProjectCard",
+        0 to "PlayedEvent<Class<$ReleaseOfInertGases>>",
+    )
+  }
 
-    private fun raiseTemperatureUnderReds(): TaskResult {
-      startProgramUnderReds()
-      return kim.stdProject("AsteroidProject")
+  private fun prepareAffordableTwoStepGain() {
+    startPaymentDefectGame(deal = false, rulingParty = "Reds")
+    // Ordinary purchases leave exactly 17 MC and a card, without using the generation's TR skip.
+    kim.turn {
+      repeat(5) { stdProject("PowerPlantProject") }
+      sellPatents(9)
     }
+  }
 
-    @Ignore // Both payments respond before Preservation Program removes the TR.
-    @Test
-    internal fun `Reds and Terraforming Deal both count only retained TR`() {
-      gainThreeRatingUnderRedsWithDeal().expect("2 TerraformRating, -24 MC")
-    }
+  // Terraforming Deal outside Action:
+  // https://boardgamegeek.com/thread/3343166/article/44660753#44660753
+  @Ignore // The earlier Solar-phase gain does not prevent the incorrect payout.
+  @Test
+  internal fun `Terraforming Deal ignores prevented TR after a chairman award`() {
+    startPaymentDefectGame(deal = true, rulingParty = "Scientists")
+    kim.stdProject("AsteroidProject").expect("0 TerraformRating, -14 MC")
+  }
 
-    @Test
-    internal fun `BUG - Reds and Terraforming Deal both count reversed TR`() {
-      gainThreeRatingUnderRedsWithDeal().expect("2 TerraformRating, -25 MC")
-    }
+  @Test
+  internal fun `BUG - Terraforming Deal pays for prevented TR after a chairman award`() {
+    startPaymentDefectGame(deal = true, rulingParty = "Scientists")
+    kim.stdProject("AsteroidProject").expect("0 TerraformRating, -12 MC")
+  }
 
-    private fun gainThreeRatingUnderRedsWithDeal(): TaskResult {
-      startProgramUnderReds(deal = true)
-      kim.runOperation("ProjectCard, PROD[4 Energy]")
-      return kim.playProject(MagneticFieldGeneratorsPromo, 22) { placeTile(2, 4) }
-    }
-
-    @Ignore // The retry still charges for the prevented gain.
-    @Test
-    internal fun `Reds charges nothing for prevented TR after an unaffordable attempt`() {
-      convertHeatAfterFailedRatingGain().expect("0 TerraformRating, 0 MC")
-    }
-
-    @Test
-    internal fun `BUG - Reds charges for prevented TR after an unaffordable attempt`() {
-      convertHeatAfterFailedRatingGain().expect("0 TerraformRating, -3 MC")
-    }
-
-    private fun convertHeatAfterFailedRatingGain(): TaskResult {
-      startProgramUnderReds()
-      kim.runOperation("-MC / MC")
-      kim.runOperation("-Heat / Heat")
-      kim.runOperation("14 MC, ProjectCard, 8 Heat")
-      // Even with a TR prevented, the remaining TR would cost 3 MC after the card's 14 MC price.
-      shouldThrow<LimitsException> { kim.playProject(ReleaseOfInertGases, 14) }
-      kim.assertCounts(14 to "MC", 1 to "ProjectCard", 8 to "Heat")
-      kim.runOperation("-11 MC")
-      return kim.convertHeat()
-    }
-
-    @Ignore // Reds requires payment for both TR before the first is removed.
-    @Test
-    internal fun `Reds permits an affordable two-step gain when the first TR is prevented`() {
-      playAffordableTwoStepGain().expect("TerraformRating, -17 MC")
-    }
-
-    @Test
-    internal fun `BUG - Reds rejects an affordable two-step gain when the first TR is prevented`() {
-      shouldThrow<LimitsException> { playAffordableTwoStepGain() }
-      kim.assertCounts(
-          17 to "MC",
-          1 to "ProjectCard",
-          0 to "PlayedEvent<Class<$ReleaseOfInertGases>>",
-      )
-    }
-
-    private fun playAffordableTwoStepGain(): TaskResult {
-      startProgramUnderReds()
-      kim.runOperation("-MC / MC")
-      kim.runOperation("17 MC, ProjectCard")
-      return kim.playProject(ReleaseOfInertGases, 14)
-    }
-
-    @Ignore // The earlier Solar-phase gain does not prevent the incorrect payout.
-    @Test
-    internal fun `Terraforming Deal ignores prevented TR after a chairman award`() {
-      raiseTemperatureAfterChairmanAward().expect("0 TerraformRating, -14 MC")
-    }
-
-    @Test
-    internal fun `BUG - Terraforming Deal pays for prevented TR after a chairman award`() {
-      raiseTemperatureAfterChairmanAward().expect("0 TerraformRating, -12 MC")
-    }
-
-    // Terraforming Deal outside Action:
-    // https://boardgamegeek.com/thread/3343166/article/44660753#44660753
-    private fun raiseTemperatureAfterChairmanAward(): TaskResult {
-      startLaterGeneration()
-      kim.runOperation("$TerraformingDeal, 2 PartyDelegate<Scientists>")
-      admin.phase("Solar")
-      admin.runOperation("FormGovernment").expect("TerraformRating<Kim>, 2 MC<Kim>")
-      admin.phase("Research") {
-        kim.buyCards(0)
-        stan.buyCards(0)
-      }
-      admin.phase("Action")
-      return kim.stdProject("AsteroidProject")
-    }
-
-    @Ignore // The earlier Solar-phase gain does not prevent the incorrect payout.
-    @Test
-    internal fun `Terraforming Deal ignores prevented TR after the Reds ruling bonus`() {
-      raiseTemperatureAfterRedsBonus().expect("0 TerraformRating, -14 MC")
-    }
-
-    @Test
-    internal fun `BUG - Terraforming Deal pays for prevented TR after the Reds ruling bonus`() {
-      raiseTemperatureAfterRedsBonus().expect("0 TerraformRating, -12 MC")
-    }
-
-    private fun raiseTemperatureAfterRedsBonus(): TaskResult {
-      startLaterGeneration()
-      kim.runOperation("$TerraformingDeal, -10 TerraformRating")
-      admin.phase("Solar")
-      admin.runOperation("ApplyRulingBonus<Reds>").expect("TerraformRating<Kim>, 2 MC<Kim>")
-      admin.phase("Action")
-      return kim.stdProject("AsteroidProject")
-    }
-
-    @Ignore // Both payments include the TR reversed during Preservation Program's own play.
-    @Test
-    internal fun `Reds and Terraforming Deal count only retained TR when Valley Trust plays it`() {
-      playProgramThroughValleyTrustWithBothPayments().expect("4 TerraformRating, -4 MC")
-    }
-
-    @Test
-    internal fun `BUG - Reds and Terraforming Deal count reversed TR when Valley Trust plays it`() {
-      playProgramThroughValleyTrustWithBothPayments().expect("4 TerraformRating, -5 MC")
-    }
-
-    private fun playProgramThroughValleyTrustWithBothPayments(): TaskResult {
-      setUpProgramGame()
-      kim.runOperation("$ValleyTrust")
-      admin.phase("Prelude")
-      kim.playPrelude(TerraformingDeal)
-      kim.playPrelude(Donation)
-      admin.runOperation("Ruling<Reds> FROM Ruling")
-      admin.phase("Action")
-      return kim.stdAction("DoRequiredActionsAction") { kim.playPrelude(PreservationProgram) }
-    }
-
-    @Ignore // The payout includes the reversed TR.
-    @Test
-    internal fun `Terraforming Deal counts only retained TR when Pharmacy Union flips`() {
-      flipPharmacyWithDeal().expect("2 TerraformRating, -8 MC")
-    }
-
-    @Test
-    internal fun `BUG - Terraforming Deal counts reversed TR when Pharmacy Union flips`() {
-      flipPharmacyWithDeal().expect("2 TerraformRating, -6 MC")
-    }
-
-    private fun flipPharmacyWithDeal(): TaskResult {
-      startLaterGeneration("$PharmacyUnion")
-      kim.runOperation("$TerraformingDeal, ProjectCard, -2 Disease<$PharmacyUnion>")
-      return kim.playProject(PhysicsComplex, 12) {
-        doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
+  private fun startPaymentDefectGame(deal: Boolean, rulingParty: String? = null) {
+    val politics = if (rulingParty == null) "" else ", TurmoilExpansion"
+    newProgramGame(extraOptions = "TerraformingDeal, Unsafe$politics")
+    playPreludes(PreservationProgram, if (deal) TerraformingDeal else PowerGeneration)
+    kim.turn {
+      if (rulingParty != null) {
+        stdAction("LobbyAction", 1) { doTask("PartyDelegate<$rulingParty>") }
+        stdAction("LobbyAction", 2, payment = { pay(5) }) { doTask("PartyDelegate<$rulingParty>") }
+      } else {
+        playProject(GiantSpaceMirror, 17)
       }
     }
-
-    @Ignore // The payout includes the reversed TR.
-    @Test
-    internal fun `Terraforming Deal counts only retained TR across greenery threshold gains`() {
-      crossGreeneryThresholdsWithDeal()
-          .expect("OxygenStep, TemperatureStep, OceanTile, 2 TerraformRating, 8 MC")
-    }
-
-    @Test
-    internal fun `BUG - Terraforming Deal counts reversed TR across greenery threshold gains`() {
-      crossGreeneryThresholdsWithDeal()
-          .expect("OxygenStep, TemperatureStep, OceanTile, 2 TerraformRating, 10 MC")
-    }
-
-    private fun crossGreeneryThresholdsWithDeal(): TaskResult {
-      startLaterGeneration()
-      kim.runOperation("$TerraformingDeal, 8 Plant")
-      admin.runOperation("7 OxygenStep, 14 TemperatureStep")
-      return kim.convertPlants {
-        doTask("GreeneryTile<Tharsis_2_4>")
-        placeTile(1, 2)
-      }
-    }
-
-    @Ignore // The payout includes the reversed TR.
-    @Test
-    internal fun `Terraforming Deal counts only retained TR at the Venus threshold`() {
-      crossVenusThresholdWithDeal().expect("VenusStep, TerraformRating, -13 MC")
-    }
-
-    @Test
-    internal fun `BUG - Terraforming Deal counts reversed TR at the Venus threshold`() {
-      crossVenusThresholdWithDeal().expect("VenusStep, TerraformRating, -11 MC")
-    }
-
-    private fun crossVenusThresholdWithDeal(): TaskResult {
-      setUpProgramGame(extraOptions = "VenusNextExpansion")
-      admin.phase("Prelude")
-      kim.runOperation("$PhoboLog, PreservationProgram, $TerraformingDeal, 100 MC")
-      admin.phase("Action")
-      admin.nextGeneration(0, 0)
-      admin.runOperation("7 VenusStep")
-      return kim.stdProject("AirScrappingProject")
-    }
+    stan.pass()
+    if (deal && rulingParty != null) kim.turn { playProject(GiantSpaceMirror, 17) }
+    passGeneration(nextEvent = if (rulingParty == null) null else "ScientificCommunity")
+    stan.pass()
   }
 }

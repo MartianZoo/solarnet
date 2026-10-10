@@ -1,58 +1,70 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER3
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
+import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.TfmTest
+import dev.martianzoo.tfm.tests.canonicalCatalog
+import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.setUpGame
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class VerminTest : CardTest(::attributionProbeDeclarations) {
+internal class VerminTest : TfmSandboxTest() {
   @Test
-  internal fun `City placement adds an animal`() {
-    newGame(PromoCardPack)
-    p1.runOperation("$Vermin")
+  internal fun `Another player's city placement adds an animal`() {
+    newTestGame()
+    kim.exMachina("$Vermin")
 
-    requireP2().runOperation("CityTile<Tharsis_2_1>").expect("Animal<Player1, $Vermin<Player1>>")
+    stan.stdProject("CityProject") { placeTile(2, 1) }.expect("Animal<$Vermin<Kim>>")
   }
 
   @Test
-  internal fun `Action can add a microbe to another card`() {
-    newGame(PromoCardPack)
-    p1.runOperation("$Vermin, $Decomposers")
-    admin.phase("Action")
+  internal fun `Its action can add a microbe to another card`() {
+    newTestGame()
+    kim.exMachina("$Vermin, $Decomposers")
 
-    p1.cardAction1(Vermin) { addCardResources(Decomposers) }.expect("Microbe<$Decomposers>")
+    kim.cardAction1(Vermin) { addCardResources(Decomposers) }.expect("Microbe<$Decomposers>")
   }
 
   @Test
-  internal fun `Ten animals make every player lose one point per owned city`() {
-    newGame(PromoCardPack, players = 3)
-    val p2 = requireP2()
-    val p3 = game.testTfm(PLAYER3)
-    p1.runOperation("$Vermin, 10 Animal<$Vermin>, CityTile<Tharsis_2_1>, CityTile<Tharsis_2_3>")
-    p2.runOperation("CityTile<Tharsis_3_2>")
-    p3.runOperation("CityTile<Tharsis_3_3>")
+  internal fun `Ten animals cost every player a point per owned city`() {
+    newTestGame()
+    kim.exMachina(
+        "$Vermin, 10 Animal<$Vermin>, NormalCityTile<Tharsis_2_1>, NormalCityTile<Tharsis_2_3>"
+    )
+    stan.exMachina("NormalCityTile<Tharsis_3_2>")
+    rob.exMachina("NormalCityTile<Tharsis_3_3>")
 
-    admin.runOperation("End FROM Phase")
-
-    p1.assertCounts(18 to "VictoryPoint")
-    p2.assertCounts(19 to "VictoryPoint")
-    p3.assertCounts(19 to "VictoryPoint")
+    victoryPoints() shouldBe listOf(18, 19, 19)
   }
 
-  @Test
-  internal fun `Vermin's owner is credited for every point removed`() {
-    newGame(PromoCardPack, players = 3)
-    val p3 = game.testTfm(PLAYER3)
-    p1.runOperation("$Vermin, 10 Animal<$Vermin>, CityTile<Tharsis_2_1>, $attributionProbe")
-    p3.runOperation("CityTile<Tharsis_3_3>")
+  // This synthetic listener tests engine attribution, rather than Vermin's player-facing result.
+  internal class Attribution : TfmTest() {
+    @Test
+    internal fun `Vermin's owner is credited for every point removed`() {
+      game =
+          setUpGame(
+              canonicalPremise(
+                  PromoCardPack,
+                  players = 3,
+                  catalog = canonicalCatalog(false),
+                  additionalClassDeclarations = attributionProbeDeclarations(3),
+              )
+          )
+      val kim = game.testTfm(PLAYER1)
+      val p3 = game.testTfm(PLAYER3)
+      kim.runOperation("$Vermin, 10 Animal<$Vermin>, CityTile<Tharsis_2_1>, $attributionProbe")
+      p3.runOperation("CityTile<Tharsis_3_3>")
 
-    admin.runOperation("End FROM Phase")
+      admin.runOperation("End FROM Phase")
 
-    // The probe reacts to each point loss and records the credited player.
-    admin.count("$attribution<Player1>") shouldBe 2
-    admin.count("$attribution<Player3>") shouldBe 0
+      // The probe reacts to each point loss and records the credited player.
+      admin.count("$attribution<Player1>") shouldBe 2
+      admin.count("$attribution<Player3>") shouldBe 0
+    }
   }
 }

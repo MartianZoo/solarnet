@@ -200,10 +200,8 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
   private fun plantBeyondNomads(): TaskResult {
     newTestGame()
-    kim.runOperation("GreeneryTile<Tharsis_1_1>, 8 Plant")
-    val p2 = stan
-    p2.runOperation("CityTile<Tharsis_2_1>")
-    p2.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_2_2>") }
+    kim.exMachina("GreeneryTile<Tharsis_1_1>, 8 Plant")
+    stan.exMachina("NormalCityTile<Tharsis_2_1>, $MarsNomads, NomadsMarker<Tharsis_2_2>")
     shouldThrow<DeadEndException> { kim.convertPlants { placeTile(2, 2) } }
     return kim.convertPlants { placeTile(9, 7) }
   }

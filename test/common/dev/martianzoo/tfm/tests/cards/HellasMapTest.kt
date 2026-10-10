@@ -1,24 +1,21 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.tests.TestOption.Hellas
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.LakefrontResorts
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class HellasMapTest : CardTest() {
+internal class HellasMapTest : TfmSandboxTest() {
   @Test
   internal fun `An unaffordable south pole remains a structurally available adjacent greenery area`() {
-    newGame(Hellas)
-    val p2 = requireP2()
-    admin.phase("Action")
-    p1.runOperation("GreeneryTile<Hellas_9_6>")
-    p2.runOperation("GreeneryTile<Hellas_8_6>, GreeneryTile<Hellas_8_5>, GreeneryTile<Hellas_9_5>")
-    p1.runOperation("8 Plant")
+    newTestGame(addOptions = "HellasMap")
+    kim.exMachina("GreeneryTile<Hellas_9_6>")
+    stan.exMachina("GreeneryTile<Hellas_8_6>, GreeneryTile<Hellas_8_5>, GreeneryTile<Hellas_9_5>")
+    kim.exMachina("8 Plant")
+    kim.setToExMachina(0, "MC")
 
-    p1.stdAction("ConvertPlantsAction") {
+    kim.stdAction("ConvertPlantsAction") {
       shouldThrow<NarrowingException> { doTask("GreeneryTile<Hellas_1_5>") }
       abort()
     }
@@ -26,14 +23,15 @@ internal class HellasMapTest : CardTest() {
 
   @Test
   internal fun `Ocean income from the south pole bonus can fund its payment`() {
-    newGame(GameConfig("HellasMap, LakefrontResorts", "Player1", "Player2"))
-    admin.phase("Action")
-    p1.runOperation("$LakefrontResorts")
-    p1.runOperation("OceanTile<Hellas_4_7>, OceanTile<Hellas_5_6>")
-    p1.runOperation("-54 MC")
+    newTestGame(addOptions = "HellasMap", kimCorporation = LakefrontResorts)
+    kim.exMachina("OceanTile<Hellas_4_7>, OceanTile<Hellas_5_6>")
+    kim.setToExMachina(0, "MC")
+    kim.setToExMachina(8, "Plant")
 
-    p1.runOperation("GreeneryTile<Hellas_9_7>") { placeTile(5, 7) }
-
-    p1.count("MC") shouldBe 0
+    kim.stdAction("ConvertPlantsAction") {
+          doTask("GreeneryTile<Hellas_9_7>")
+          placeTile(5, 7)
+        }
+        .expect("0 MC, OceanTile<Hellas_5_7>")
   }
 }

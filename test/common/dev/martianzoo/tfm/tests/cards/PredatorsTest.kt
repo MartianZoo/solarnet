@@ -2,79 +2,70 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class PredatorsTest : CardTest() {
+internal class PredatorsTest : TfmSandboxTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame()
-    p1.runOperation("$Predators")
-    admin.phase("Action")
+    newTestGame()
+    kim.exMachina("$Predators")
   }
 
   @Test
   internal fun `Cannot act when no animal can be removed`() {
-    shouldThrow<LimitsException> { p1.cardAction1(Predators) }
+    shouldThrow<LimitsException> { kim.cardAction1(Predators) }
   }
 
   @Test
   internal fun `Removes exactly one of two animals on the target card`() {
-    requireP2().runOperation("PROD[2 Plant], $Birds, 2 Animal<$Birds>")
+    stan.exMachina("$Birds, 2 Animal<$Birds>")
 
-    p1.cardAction1(Predators)
-
-    requireP2().count("Animal<$Birds>") shouldBe 1
-    p1.count("Animal<$Predators>") shouldBe 1
+    kim.cardAction1(Predators).expect("-Animal<$Birds<Stan>>, Animal<$Predators>")
   }
 
   @Test
   internal fun `Cannot decline to remove an opponent's animal`() {
-    requireP2().runOperation("PROD[2 Plant], $Birds, Animal<$Birds>")
-    p1.runOperation("Animal<$Predators>")
+    stan.exMachina("$Birds, Animal<$Birds>")
+    kim.exMachina("Animal<$Predators>")
 
     shouldThrow<NarrowingException> {
-      p1.cardAction1(Predators) { doTask("Ok") }
+      kim.cardAction1(Predators) { doTask("Ok") }
     }
   }
 
   @Test
   internal fun `Can remove an animal from another card its player owns`() {
-    p1.runOperation("PROD[2 Plant], $Birds")
-    p1.runOperation("Animal<$Birds>")
-    p1.runOperation("Animal<$Predators>")
+    kim.exMachina("$Birds")
+    kim.exMachina("Animal<$Birds>")
+    kim.exMachina("Animal<$Predators>")
 
-    p1.cardAction1(Predators) { doTask("-Animal<$Birds>") }
+    kim.cardAction1(Predators) { doTask("-Animal<$Birds>") }
         .expect("Animal<$Predators>, -Animal<$Birds>")
   }
 
   @Test
   internal fun `Can remove and replace its own animal`() {
-    p1.runOperation("Animal<$Predators>")
-    p1.cardAction1(Predators).expect("0 Animal<$Predators>")
+    kim.exMachina("Animal<$Predators>")
+    kim.cardAction1(Predators).expect("0 Animal<$Predators>")
   }
 
   @Test
   internal fun `Predators can remove its own animal and trigger Meat Industry when replacing it`() {
-    newGame(PromoCardPack, players = 1)
-    p1.runOperation("$Predators, $MeatIndustry, Animal<$Predators>")
-    admin.phase("Action")
+    newTestGame()
+    kim.exMachina("$Predators, $MeatIndustry, Animal<$Predators>")
 
-    p1.cardAction1(Predators) { doTask("-Animal<$Predators>") }.expect("0 Animal<$Predators>, 2 MC")
+    kim.cardAction1(Predators).expect("0 Animal<$Predators>, 2 MC")
   }
 
   @Test
   internal fun `Takes an animal from the neutral holder in solo play`() {
-    newGame(players = 1)
-    p1.runOperation("$Predators")
-    admin.phase("Action")
+    newTestGame(playerCount = 1)
+    kim.exMachina("$Predators")
 
-    p1.cardAction1(Predators)
-
-    p1.count("Animal<$Predators>") shouldBe 1
+    kim.cardAction1(Predators).expect("Animal<$Predators>")
   }
 }

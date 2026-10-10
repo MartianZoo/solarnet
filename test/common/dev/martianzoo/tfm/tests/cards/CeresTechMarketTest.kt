@@ -1,30 +1,19 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
-import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
-import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
-import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.CeresTechMarket
 import io.kotest.assertions.throwables.shouldThrow
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class CeresTechMarketTest : CardTest() {
-  @BeforeTest
-  fun initializeGame() {
-    newGame(
-        PreludeExpansion,
-        Prelude2CardPack,
-        ColoniesExpansion,
-        colonyTiles = testColonyTiles(2),
-    )
-    admin.phase("Action")
-    p1.runOperation("$CeresTechMarket, 4 ProjectCard")
-  }
-
+internal class CeresTechMarketTest : TfmSandboxTest() {
   @Test
-  internal fun `Cannot discard more cards than are in hand`() {
-    shouldThrow<LimitsException> { p1.cardAction1(CeresTechMarket, x = 5) }
+  internal fun `Can sell the entire hand but cannot sell more cards than it contains`() {
+    newTestGame(addOptions = "CeresTechMarket")
+    kim.exMachina("$CeresTechMarket")
+    kim.setToExMachina(4, "ProjectCard")
+
+    shouldThrow<LimitsException> { kim.cardAction1(CeresTechMarket, x = 5) }
+    kim.cardAction1(CeresTechMarket, x = 4).expect("-4 ProjectCard, 8 MC")
   }
 }

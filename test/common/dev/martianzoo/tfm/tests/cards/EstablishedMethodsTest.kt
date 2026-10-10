@@ -4,91 +4,84 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class EstablishedMethodsTest : CardTest() {
+internal class EstablishedMethodsTest : TfmSandboxTest() {
   @Test
   internal fun `Established Methods grants 30 MC and requires two paid standard projects`() {
-    newGame(PreludeExpansion, PromoCardPack)
-    admin.phase("Prelude")
-    p1.runOperation("2 ProjectCard, PreludeCard")
+    newTestGame(addOptions = "PreludeExpansion")
+    kim.setToExMachina(0, "MC")
 
-    p1.playPrelude(EstablishedMethods) {
-          p1.count("MC") shouldBe 30
+    kim.playPrelude(EstablishedMethods) {
+          kim.count("MC") shouldBe 30
           shouldThrow<NarrowingException> { doTask("UseAction<SellPatentsProject, Action1>") }
           shouldThrow<TaskException> { doTask("UseAction<PlayCardFromHandAction, Action1>") }
           doTask("UseAction<PowerPlantProject, Action1>")
-          p1.pay(11)
+          kim.pay(11)
           shouldThrow<NarrowingException> { doTask("Ok") }
           doTask("UseAction<PowerPlantProject, Action1>")
-          p1.pay(11)
+          kim.pay(11)
         }
         .expect("8 MC, PROD[2 Energy]")
 
-    p1.assertCounts(2 to "ProjectCard", 1 to "$EstablishedMethods")
+    kim.assertCounts(10 to "ProjectCard", 1 to "$EstablishedMethods")
   }
 
   @Test
   internal fun `First project cannot leave the mandatory second project unaffordable`() {
-    newGame(PreludeExpansion, PromoCardPack)
-    admin.phase("Prelude")
-    p1.runOperation("PreludeCard")
-    val preludesBefore = p1.count("PreludeCard")
+    newTestGame(addOptions = "PreludeExpansion")
+    kim.setToExMachina(0, "MC")
+    val preludesBefore = kim.count("PreludeCard")
 
     shouldThrow<LimitsException> {
-      p1.playPrelude(EstablishedMethods) {
+      kim.playPrelude(EstablishedMethods) {
         doTask("UseAction<CityProject, Action1>")
-        p1.pay(25)
+        kim.pay(25)
         placeTile(3, 3)
         doTask("UseAction<PowerPlantProject, Action1>")
-        p1.pay(11)
+        kim.pay(11)
       }
     }
-    p1.assertCounts(0 to "$EstablishedMethods", 0 to "CityTile")
-    p1.count("PreludeCard") shouldBe preludesBefore
-    p1.count("MC") shouldBe 0
+    kim.assertCounts(0 to "$EstablishedMethods", 0 to "CityTile")
+    kim.count("PreludeCard") shouldBe preludesBefore
+    kim.count("MC") shouldBe 0
   }
 
   @Test
   internal fun `First project benefit can fund the mandatory second project`() {
-    newGame(PreludeExpansion, PromoCardPack)
-    p1.playCorp(CrediCor, 0)
-    requireP2().runOperation("OceanTile<Tharsis_3_2>")
-    p1.runOperation("-${p1.count("MC")} MC")
-    admin.phase("Prelude")
-    p1.runOperation("PreludeCard")
+    newTestGame(addOptions = "PreludeExpansion", kimCorporation = CrediCor)
+    stan.exMachina("OceanTile<Tharsis_3_2>")
+    kim.setToExMachina(0, "MC")
 
-    p1.playPrelude(EstablishedMethods) {
+    kim.playPrelude(EstablishedMethods) {
           doTask("UseAction<CityProject, Action1>")
-          p1.pay(25)
+          kim.pay(25)
           placeTile(3, 3)
           doTask("UseAction<PowerPlantProject, Action1>")
-          p1.pay(11)
+          kim.pay(11)
         }
         .expect("PROD[MC, Energy], CityTile<Tharsis_3_3>")
-    p1.count("MC") shouldBe 0
+    kim.count("MC") shouldBe 0
   }
 
   @Test
   internal fun `Established Methods can supplement its grant to buy different projects`() {
-    newGame(PreludeExpansion, PromoCardPack)
-    admin.phase("Prelude")
-    p1.runOperation("6 MC, PreludeCard")
+    newTestGame(addOptions = "PreludeExpansion")
+    kim.setToExMachina(6, "MC")
 
-    p1.playPrelude(EstablishedMethods) {
+    kim.playPrelude(EstablishedMethods) {
           doTask("UseAction<PowerPlantProject, Action1>")
-          p1.pay(11)
+          kim.pay(11)
           doTask("UseAction<CityProject, Action1>")
-          p1.pay(25)
+          kim.pay(25)
           placeTile(3, 5)
         }
         .expect("-6 MC, PROD[Energy, MC], CityTile")
 
-    p1.count("MC") shouldBe 0
+    kim.count("MC") shouldBe 0
   }
 }

@@ -1,212 +1,104 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.state.TaskResult
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestHelpers.assertProds
-import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
-import dev.martianzoo.tfm.tests.TestOption.*
+import dev.martianzoo.tfm.tests.TfmGameplayTest
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import kotlin.test.BeforeTest
 import kotlin.test.Ignore
 import kotlin.test.Test
 
-internal class MergerTest : CardTest() {
-  @BeforeTest
-  fun initializeGame() {
-    newGame(
-        VenusNextExpansion,
-        PreludeExpansion,
-        PromoCardPack,
-    )
-    p1.playCorp(ValleyTrust, 5)
-    admin.phase("Prelude")
-    p1.playPrelude(UnmiContractor)
-    p1.playPrelude(Merger) {
-      p1.playCorp(Celestic)
-    }
+internal class MergerTest : TfmSandboxTest() {
+  @Test
+  internal fun `Both corporations retain their required first actions`() {
+    newTestGame(addOptions = "PreludeExpansion", kimCorporation = ValleyTrust)
+    kim.playPrelude(Merger) { kim.playCorp(Celestic) }
+    startActionPhase()
+
+    kim.stdAction("DoRequiredActionsAction") { kim.playPrelude(SocietySupport) }
+        .expect("2 ProjectCard, PROD[-MC, Plant, Energy, Heat], -2 RequiredAction")
   }
 
   @Test
-  internal fun `Can choose Celestic after Valley Trust`() {
-    p1.assertCounts(0 to "PreludeCard", 6 to "ProjectCard")
-  }
+  internal fun `New Partner can play Merger while selecting both card families`() {
+    newTestGame(addOptions = "PreludeExpansion")
 
-  @Test
-  internal fun `Resolves both corporations' starting benefits`() {
-    admin.phase("Action")
-
-    p1.stdAction("DoRequiredActionsAction") {
-      p1.assertCounts(8 to "ProjectCard", 0 to "PreludeCard")
-      p1.assertProds(
-          0 to "MC",
-          0 to "Steel",
-          0 to "Titanium",
-          0 to "Plant",
-          0 to "Energy",
-          0 to "Heat",
-      )
-
-      p1.playPrelude(SocietySupport)
-      p1.assertProds(
-          -1 to "MC",
-          0 to "Steel",
-          0 to "Titanium",
-          1 to "Plant",
-          1 to "Energy",
-          1 to "Heat",
-      )
-    }
-  }
-
-  @Test
-  internal fun `Can resolve Merger payment and the second corporation`() {
-    newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
-    playCorporationWithoutStartingProjects(p1, CrediCor)
-    admin.phase("Prelude")
-    p1.runOperation("PreludeCard")
-
-    val result =
-        p1.playPrelude(Merger) {
-          p1.playCorp(Celestic)
+    kim.playPrelude(NewPartner) {
+          kim.playPrelude(Merger) { kim.playCorp(Celestic) }
         }
-
-    p1.assertCounts(1 to "$Celestic")
-    result.changes
-        .filter { it.change.gaining?.type == p1.resolve("CorporationCard<Selecting>") }
-        .sumOf { it.change.count } shouldBe 4
-    p1.assertCounts(0 to "CorporationCard<Selecting>")
+        .expect("$Merger, $Celestic, 0 CorporationCard<Selecting>, 0 PreludeCard<Selecting>")
   }
 
   @Test
-  internal fun `New Partner can play Merger while both card families are being selected`() {
-    newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
-    playCorporationWithoutStartingProjects(p1, CrediCor)
-    admin.phase("Prelude")
+  internal fun `The new corporation can pay for Merger and its own disease losses`() {
+    newTestGame(addOptions = "PreludeExpansion")
+    kim.setToExMachina(0, "MC")
 
-    p1.playPrelude(NewPartner) {
-      p1.playPrelude(Merger) {
-        p1.playCorp(Celestic)
-      }
-    }
-
-    p1.assertCounts(
-        1 to "$Merger",
-        1 to "$Celestic",
-    )
+    kim.playPrelude(Merger) { kim.playCorp(PharmacyUnion) }
+        .expect("4 MC, 2 Disease<$PharmacyUnion>")
   }
 
   @Test
-  internal fun `Polyphemos then Merger into TerraLabs still buys cards for three`() {
-    newGame(
-        ColoniesExpansion,
-        TurmoilExpansion,
-        PreludeExpansion,
-        PromoCardPack,
-        colonyTiles = testColonyTiles(2),
-    )
-    playCorporationWithoutStartingProjects(p1, Polyphemos)
-    admin.phase("Prelude")
-    p1.playPrelude(Merger) {
-      p1.playCorp(TerraLabsResearch)
-    }
+  internal fun `Pharmacy Union's loss makes Board Merger Recyclon unaffordable`() {
+    newTestGame(addOptions = "PreludeExpansion, BoardOfDirectors")
+    kim.exMachina("$PharmacyUnion, 2 Disease<$PharmacyUnion>")
+    kim.playPrelude(BoardOfDirectors)
+    startActionPhase()
+    kim.setToExMachina(17, "MC")
 
-    p1.runOperation("ProjectCard<Selecting> THEN BuySelectedCards") { p1.pay(3) }
-        .expect("ProjectCard, -3 MC")
-  }
-
-  @Test
-  internal fun `New corporation cash alone can fund the Merger payment`() {
-    newGame(PreludeExpansion, PromoCardPack)
-    p1.playCorp(PhoboLog, 0)
-    p1.runOperation("-${p1.count("MC")} MC")
-    admin.phase("Prelude")
-    p1.count("MC") shouldBe 0
-
-    p1.playPrelude(Merger) { p1.playCorp(PharmacyUnion) }.expect("4 MC, 2 Disease<$PharmacyUnion>")
-    p1.assertCounts(1 to "$PharmacyUnion", 4 to "MC")
-  }
-
-  @Test
-  internal fun `Merger makes Pharmacy Union starting money available for its diseases`() {
-    newGame(PreludeExpansion, PromoCardPack, CorporateEraExpansion)
-    p1.playCorp(SaturnSystems, 0)
-    admin.phase("Prelude")
-
-    p1.playPrelude(Merger) { p1.playCorp(PharmacyUnion) }.expect("4 MC, 2 Disease<$PharmacyUnion>")
-  }
-
-  @Test
-  internal fun `Pharmacy Union loss makes Board Merger Recyclon unaffordable and rolls back`() {
-    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
-    p1.playCorp(PharmacyUnion, 0) {
-      doTask("Disease<$PharmacyUnion>")
-      doTask("Disease<$PharmacyUnion>")
-    }
-    admin.phase("Prelude")
-    p1.playPrelude(BoardOfDirectors)
-    p1.runOperation("-${p1.count("MC") - 17} MC")
-    admin.phase("Action")
-    p1.count("MC") shouldBe 17
-
-    val previousPolicy = p1.autoExecPolicy
-    try {
-      shouldThrow<LimitsException> {
-        p1.cardAction1(BoardOfDirectors) {
-          doTask("-12 MC")
-          p1.playPrelude(Merger) {
-            p1.autoExecPolicy = NONE
-            p1.playCorp(Recyclon) {
-              doTask("Owed<> / $Recyclon.cost")
-              doTask("CardBilling")
-              doTask("$Recyclon FROM CorporationCard<Selecting>")
-              doTask("38 MC")
-              // Choose the disease loss before Merger's payment; both are queued.
-              doTask("-4 MC.")
-              doTask("-42 MC")
-            }
+    shouldThrow<LimitsException> {
+      kim.cardAction1(BoardOfDirectors) {
+        doTask("-12 MC")
+        kim.playPrelude(Merger) {
+          kim.autoExecPolicy = CONCRETE
+          kim.playCorp(Recyclon) {
+            doTask("38 MC")
+            doTask("-4 MC.")
+            doTask("-42 MC")
           }
         }
       }
-    } finally {
-      p1.autoExecPolicy = previousPolicy
     }
-    p1.count("MC") shouldBe 17
-    p1.count("Disease<$PharmacyUnion>") shouldBe 2
-    p1.count("Director<$BoardOfDirectors>") shouldBe 4
-    p1.count("$Recyclon") shouldBe 0
-    p1.count("$Merger") shouldBe 0
+    kim.count("MC") shouldBe 17
+    kim.count("Disease<$PharmacyUnion>") shouldBe 2
+    kim.count("Director<$BoardOfDirectors>") shouldBe 4
+    kim.count("$Recyclon") shouldBe 0
+    kim.count("$Merger") shouldBe 0
   }
 
-  // Resolved FAQ: corporations acquired after Prelude take their first action immediately.
-  // Earlier discussion: https://boardgamegeek.com/thread/2886401/article/44823945#44823945
-  @Ignore // Merger leaves the mandatory city placement for a later action.
-  @Test
-  internal fun `Resolves Tharsis first action immediately when acquired after Prelude`() {
-    // Request the placement directly so a missing city task reports a gameplay failure.
-    acquireTharsisThroughBoard { doTask("CityTile<Tharsis_3_3>") }.expect("CityTile<Tharsis_3_3>")
-  }
+  internal class Gameplay : TfmGameplayTest() {
+    // Resolved FAQ: a corporation acquired after Preludes takes its first action immediately.
+    // https://boardgamegeek.com/thread/2886401/article/44823945#44823945
+    @Ignore // Merger leaves the mandatory city placement for a later action.
+    @Test
+    internal fun `Resolves Tharsis first action immediately when acquired after Preludes`() {
+      acquireTharsisThroughBoard { doTask("CityTile<Tharsis_3_3>") }.expect("CityTile<Tharsis_3_3>")
+    }
 
-  @Test
-  internal fun `BUG - Defers Tharsis first action when acquired after Prelude`() {
-    acquireTharsisThroughBoard().expect("0 CityTile")
-    p1.stdAction("DoRequiredActionsAction") { placeTile(3, 3) }.expect("CityTile<Tharsis_3_3>")
-  }
+    @Test
+    internal fun `BUG - Defers Tharsis first action when acquired after Preludes`() {
+      acquireTharsisThroughBoard().expect("0 CityTile")
+      kim.stdAction("DoRequiredActionsAction") { placeTile(3, 3) }.expect("CityTile<Tharsis_3_3>")
+    }
 
-  private fun acquireTharsisThroughBoard(cityPlacement: OperationBlock = {}): TaskResult {
-    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
-    p1.playCorp(CrediCor, 0)
-    admin.phase("Prelude")
-    p1.playPrelude(BoardOfDirectors)
-    p1.playPrelude(Donation)
-    admin.phase("Action")
-    return p1.cardAction1(BoardOfDirectors) {
-      doTask("-12 MC")
-      p1.playPrelude(Merger) { p1.playCorp(TharsisRepublic, body = cityPlacement) }
+    private fun acquireTharsisThroughBoard(cityPlacement: OperationBlock = {}): TaskResult {
+      newTestGame(addOptions = "PreludeExpansion, BoardOfDirectors", playerCount = 2)
+      kim.turn {
+        playPrelude(BoardOfDirectors)
+        playPrelude(Donation)
+      }
+      stan.turn {
+        playPrelude(Supplier)
+        playPrelude(MetalsCompany)
+      }
+      return kim.cardAction1(BoardOfDirectors) {
+        doTask("-12 MC")
+        kim.playPrelude(Merger) { kim.playCorp(TharsisRepublic, body = cityPlacement) }
+      }
     }
   }
 }

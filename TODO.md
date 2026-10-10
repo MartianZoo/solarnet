@@ -56,21 +56,13 @@ These concerns remain open; the ranking does not select replacement designs.
   audience and intended-contract standards. Preserve useful Pets documentation and fill gaps;
   track implementation defects separately. This standards update does not complete the module
   documentation or conformance audits.
-- [ ] Continue migrating legacy card/rule tests to `TfmSandboxTest` or `TfmGameplayTest` in larger
-  batches. Review scenario value first; select gameplay when real turn/phase progression is part
-  of the claim, and use representative base-game content for shared rules. The
-  [fixture plan](docs/agents/TESTING.md#remaining-fixture-development) tracks remaining solo-map setup
-  and reassessment of sandbox phase shortcuts. Both styles support Prelude and corporation entry;
-  sandbox scoring with rollback is available through `victoryPoints()`. Gameplay setup conveniences
-  may play ordered default cards normally; explicit Prelude play is sufficient for current callers.
-  Investigate automatic attack-history effects separately; reassess and delete injected scenarios
-  without credible gameplay routes.
-  Head Start interactions remain in `HeadStartTest`, and Sagitta's wild-tag interaction remains in
-  `FakeWildTagTest`, until their fake-card setups can be replaced. Reassess the legacy Mons Insurance
-  ordering tests separately; they still drive internal tasks directly.
-  Recyclon's migration still needs explicit resolution of its starting microbe choice. The default
-  corporation setup cannot resolve that choice, and sandbox corporation entry currently has no
-  supported transition into Action phase; settle the smallest setup approach before migrating it.
+- [ ] Migrate the remaining legacy rule suites from `CardTest` to `TfmSandboxTest` or
+  `TfmGameplayTest`, reviewing scenario value first. The card-suite conversion is complete.
+  Synthetic temporary wild-tag injection and Vermin's attribution listener construct their worlds
+  directly from `TfmTest`; keep those engine checks distinct from player-facing card scenarios.
+  The [fixture notes](docs/agents/TESTING.md#remaining-fixture-development) retain the outstanding
+  solo-map setup and phase-shortcut considerations. Investigate automatic attack-history effects
+  separately; migration convenience does not justify changing their semantics.
 - [ ] Investigate enforcing the workflow's offered turn order in `TfmGameplayTest`. `Agent.inTurn`
   currently creates a turn whenever the acting player has no pending task, even while another
   player's turn is pending. Preserve authentic gameplay without adding a second test-side game

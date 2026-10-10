@@ -1,9 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.Agent
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
-import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
@@ -14,16 +12,12 @@ import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
-import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestOption as Option
 import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalCatalog
 import dev.martianzoo.tfm.tests.canonicalPremise
-import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.setUpGame as setUpTfmGame
-import kotlin.test.AfterTest
 
 internal abstract class CardTest(
     /**
@@ -42,8 +36,6 @@ internal abstract class CardTest(
   private var p2: TfmGameplay? = null
     private set
 
-  private var workflow: TfmWorkflow.Automatic? = null
-
   protected fun newGame(config: GameConfig): World = startGame(premise(config))
 
   protected fun newGame(
@@ -51,12 +43,6 @@ internal abstract class CardTest(
       players: Int = 2,
       colonyTiles: Set<ClassName> = emptySet(),
   ): World = startGame(premise(selectedOptions, players, colonyTiles))
-
-  protected fun newGameWithAutoWorkflow(
-      vararg selectedOptions: Option,
-      players: Int = 2,
-      colonyTiles: Set<ClassName> = emptySet(),
-  ): World = startAutoGame(premise(selectedOptions, players, colonyTiles))
 
   private fun premise(
       selectedOptions: Array<out Option>,
@@ -121,7 +107,7 @@ internal abstract class CardTest(
       players.zip(startingProjects.toList()).forEach { (player, count) ->
         player.keepStartingProjects(count)
       }
-      if (workflow == null) admin.phase("Corporation")
+      admin.phase("Corporation")
     } else {
       players.zip(startingProjects.toList()).forEach { (player, count) ->
         require(player.count("ProjectCard<Selecting>") == 0)
@@ -131,17 +117,7 @@ internal abstract class CardTest(
   }
 
   private fun startGame(premise: GamePremise): World {
-    workflow?.shutdown()
     return setUpTfmGame(premise).initializeCardTestGame()
-  }
-
-  private fun startAutoGame(premise: GamePremise): World {
-    workflow?.shutdown()
-    return TfmEngine.newGame(premise).apply {
-      bindPlayers()
-      workflow = TfmWorkflow.Automatic(testAgents()).launch()
-      finishSoloSetup()
-    }
   }
 
   private fun World.initializeCardTestGame(): World = apply {
@@ -176,67 +152,6 @@ internal abstract class CardTest(
     p2 = players.getOrNull(1)?.let { testTfm(it) }
   }
 
-  protected fun playUntilPreludePhase(
-      vararg corporations: ClassName,
-      startingMc: Int = 500,
-  ) {
-    val previousPolicy = p1.autoExecPolicy
-    playCorporations(corporations.toList()) { p1.autoExecPolicy = NONE }
-    check(admin.count("PreludePhase") == 1) { "This game has no Prelude phase" }
-    p1.topOffMoney(startingMc)
-    p1.autoExecPolicy = previousPolicy
-    p1.autoExecNow()
-  }
-
-  protected fun playUntilFirstActionPhase(
-      vararg corporations: ClassName,
-      startingMc: Int = 500,
-  ) {
-    val previousPolicy = p1.autoExecPolicy
-    playCorporations(corporations.toList()) {
-      if (admin.count("PreludeExpansion") == 0) p1.autoExecPolicy = NONE
-    }
-    if (admin.count("PreludePhase") == 1) {
-      val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
-      players.zip(BORING_PRELUDES).forEachIndexed { index, (player, preludes) ->
-        player.turn {
-          preludes.forEach { playPrelude(it) }
-          if (index == players.lastIndex) p1.autoExecPolicy = NONE
-        }
-      }
-    }
-    check(admin.count("ActionPhase") == 1) { "The game did not reach its first Action phase" }
-    p1.topOffMoney(startingMc)
-    p1.autoExecPolicy = previousPolicy
-    p1.autoExecNow()
-  }
-
-  private fun playCorporations(requested: List<ClassName>, beforeNextPhase: () -> Unit) {
-    val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
-    val corporations = if (requested.isEmpty()) BORING_CORPORATIONS else requested
-    require(corporations.size >= players.size) { "Provide one corporation per player" }
-    prepareCorporationPhase(*IntArray(players.size) { 5 })
-    check(admin.count("CorporationPhase") == 1) { "The Corporation phase has already ended" }
-    players.zip(corporations).forEachIndexed { index, (player, corporation) ->
-      player.playCorp(corporation) {
-        // Defer even the unambiguous NewTurn so incidental setup can run with triggers enabled
-        // before a workflow choice is selected. The caller restores the previous policy afterward.
-        if (index == players.lastIndex) beforeNextPhase()
-      }
-    }
-  }
-
-  private fun TfmGameplay.topOffMoney(target: Int) {
-    val amount = target - count("MC")
-    require(amount >= 0) { "$actor already has more than $target MC" }
-    if (amount > 0) runOperation("$amount MC")
-  }
-
-  @AfterTest
-  fun shutdownWorkflow() {
-    workflow?.shutdown()
-  }
-
   /** Runs an instruction through the engine while hiding the uninteresting Agent plumbing. */
   private fun TfmGameplay.runOperation(
       instruction: String,
@@ -249,24 +164,6 @@ internal abstract class CardTest(
   ): TaskResult = runOperation(instruction, body)
 
   private companion object {
-    private val BORING_CORPORATIONS =
-        listOf(
-            UnitedNationsMarsInitiative,
-            MiningGuild,
-            PhoboLog,
-            SaturnSystems,
-            Ecoline,
-        )
-
-    private val BORING_PRELUDES =
-        listOf(
-            listOf(Donation, Loan),
-            listOf(BusinessEmpire, AlliedBank),
-            listOf(MetalsCompany, SocietySupport),
-            listOf(SupplyDrop, GalileanMining),
-            listOf(PowerGeneration, Mohole),
-        )
-
     private val standardTwoPlayerPremise: GamePremise by lazy { canonicalPremise(players = 2) }
     private val promoTwoPlayerPremise: GamePremise by lazy {
       canonicalPremise(Option.PromoCardPack, players = 2)

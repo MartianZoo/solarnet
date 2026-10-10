@@ -1,267 +1,173 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
-import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testTfm
-import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.testsupport.PLAYER3
-import dev.martianzoo.tfm.tests.TestHelpers.assertProds
-import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
-import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
-import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class MonsInsuranceTest : CardTest() {
+internal class MonsInsuranceTest : TfmSandboxTest() {
   @Test
   internal fun `Starting production loss reaches every opponent but not its owner`() {
-    newGame(PromoCardPack, players = 3)
-    val p3 = game.testTfm(PLAYER3)
+    newTestGame(kimCorporation = MonsInsurance, startAtCorporation = true)
 
-    p1.playCorp(MonsInsurance, 0) {
-          p1.selectTask(monsStartingLoss("Player1"))
-          autoExecNow()
+    kim.playCorp(MonsInsurance) {
+          doTask(
+              "EACH Other@Player(NOT Kim) { -2 Production<Other@Player, Class<MC>>! BY Other@Player }"
+          )
         }
-        .expect("48 MC, PROD[4 MC<Player1>], PROD[-2 MC<Player2>], PROD[-2 MC<Player3>]")
-
-    p3.assertProds(-2 to "MC")
+        .expect("18 MC, PROD[4 MC<Kim>, -2 MC<Stan>, -2 MC<Rob>]")
   }
 
   @Test
   internal fun `Starting production loss does not target the solo opponent`() {
-    newGame(PromoCardPack, players = 1)
+    newTestGame(playerCount = 1, kimCorporation = MonsInsurance, startAtCorporation = true)
 
-    p1.playCorp(MonsInsurance, 0) {
-          p1.selectTask(monsStartingLoss("Player1"))
-          autoExecNow()
+    kim.playCorp(MonsInsurance) {
+          doTask(
+              "EACH Other@Player(NOT Kim) { -2 Production<Other@Player, Class<MC>>! BY Other@Player }"
+          )
         }
-        .expect("48 MC, PROD[4 MC<Player1>], PROD[0 MC<SoloOpponent>]")
+        .expect("PROD[4 MC<Kim>, 0 MC<SoloOpponent>]")
   }
 
   @Test
-  internal fun `Gains only four mc when Merger plays it after Manutech`() {
-    newGame(PromoCardPack, PreludeExpansion, VenusNextExpansion)
-    val p2 = requireP2()
-    playCorporationWithoutStartingProjects(p1, Manutech)
-    admin.phase("Prelude")
-    val moneyBefore = p1.count("MC")
+  internal fun `Merger after Manutech pays for its own production gain only`() {
+    newTestGame(addOptions = "PreludeExpansion", kimCorporation = Manutech)
 
-    p1.playPrelude(Merger) {
-      p1.playCorp(MonsInsurance)
+    kim.playPrelude(Merger) { kim.playCorp(MonsInsurance) }
+        .expect("10 MC<Kim>, PROD[4 MC<Kim>, -2 MC<Stan>, -2 MC<Rob>]")
+  }
+
+  @Test
+  internal fun `Hired Raiders compensates the victim after transferring stolen steel`() {
+    newTestGame()
+    kim.exMachina("$MonsInsurance")
+    rob.exMachina("4 Steel")
+
+    stan
+        .playProject(HiredRaiders, 1) { doTask("2 Steel<Stan> FROM Steel<Rob>") }
+        .expect("2 Steel<Stan>, -2 Steel<Rob>, -3 MC<Kim>, 3 MC<Rob>")
+  }
+
+  @Test
+  internal fun `An attack during Preludes still requires compensation`() {
+    newTestGame(addOptions = "PreludeExpansion")
+    kim.exMachina("$MonsInsurance")
+    stan.exMachina("Plant")
+
+    with(kim) {
+      playPrelude(ExcentricSponsor) {
+            playProject(AsteroidCard, 0) { doTask("-Plant<Stan>") }
+          }
+          .expect("-Plant<Stan>, -3 MC<Kim>, 3 MC<Stan>")
     }
-
-    p1.count("MC") shouldBe moneyBefore + 10 // -42 + 48 starting money + 4 from Manutech
-    p1.assertProds(4 to "MC")
-    p2.assertProds(-2 to "MC")
   }
 
   @Test
-  internal fun `Hired Raiders transfer finishes before Mons compensates the victim after each steal`() {
-    newGame(PromoCardPack, players = 3)
-    val p2 = requireP2()
-    val p3 = game.testTfm(PLAYER3)
-    admin.phase("Action")
-    p1.runOperation("$MonsInsurance, 10 MC")
-    p2.runOperation("10 MC, ProjectCard")
-    p3.runOperation("4 Steel")
-    val monsMoneyBefore = p1.count("MC")
+  internal fun `A multi-step production attack compensates its victim once`() {
+    newTestGame()
+    kim.exMachina("$MonsInsurance")
+    kim.setToExMachina(13, "OxygenStep")
+    stan.setToExMachina(3, "PROD[Plant]")
 
-    p2.playProject(HiredRaiders, 1) { doTask("2 Steel<Player2> FROM Steel<Player3>") }
-    p2.runOperation("2 Steel FROM Steel<Player3>")
-
-    p1.count("MC") shouldBe monsMoneyBefore - 6
-    p2.count("Steel") shouldBe 4
-    p3.count("Steel") shouldBe 0
-    p3.count("MC") shouldBe 6
+    kim.playProject(Birds, 10) { doTask("PROD[-2 Plant<Stan>]") }
+        .expect("PROD[-2 Plant<Stan>], -13 MC<Kim>, 3 MC<Stan>")
   }
 
   @Test
-  internal fun `An attack during the Prelude phase requires compensation`() {
-    newGame(PromoCardPack, PreludeExpansion)
-    val p2 = requireP2()
-    p1.runOperation("$MonsInsurance, 10 MC")
-    p2.runOperation("Plant")
-    admin.phase("Prelude")
+  internal fun `Consuming ones own plants causes no compensation`() {
+    newTestGame()
+    kim.exMachina("$MonsInsurance")
+    stan.exMachina("Plant, OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>")
 
-    p1.runOperation("-Plant<Player2>").expect("-Plant<Player2>, -3 MC<Player1>, 3 MC<Player2>")
+    stan.playProject(Moss, 4).expect("-Plant<Stan>, -4 MC<Stan>, 0 MC<Kim>")
   }
 
   @Test
-  internal fun `Mons owner pays the victim once for a multi-step production attack`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    p1.runOperation("$MonsInsurance, 10 MC")
-    p2.runOperation("PROD[3 Plant]")
+  internal fun `Compensation is limited to the insurer's remaining money`() {
+    newTestGame()
+    kim.exMachina("$MonsInsurance")
+    kim.setToExMachina(2, "MC")
+    rob.exMachina("2 Steel")
 
-    p1.runOperation("PROD[-2 Plant<Player2>]")
-        .expect("PROD[-2 Plant<Player2>], -3 MC<Player1>, 3 MC<Player2>")
+    stan
+        .playProject(HiredRaiders, 1) { doTask("2 Steel<Stan> FROM Steel<Rob>") }
+        .expect("-2 MC<Kim>, 2 MC<Rob>")
   }
 
   @Test
-  internal fun `Self-inflicted losses and Admin-run Global Events cause no payout`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    p1.runOperation("$MonsInsurance")
-    p2.runOperation("Plant, PROD[Plant]")
+  internal fun `Pharmacy Union's disease loss causes no compensation`() {
+    newTestGame()
+    kim.exMachina("$MonsInsurance")
+    stan.exMachina("$PharmacyUnion")
 
-    p2.runOperation("-Plant, PROD[-Plant]").expect("-Plant<Player2>, PROD[-Plant<Player2>]")
-    game
-        .testAgent(ADMIN)
-        .runOperation("Plant<Player2>, -Plant<Player2>")
-        .expect("0 MC<Player1>, 0 MC<Player2>")
+    kim.playProject(IndustrialMicrobes, 12)
+        .expect("-12 MC<Kim>, -4 MC<Stan>, Disease<$PharmacyUnion<Stan>>")
   }
 
   @Test
-  internal fun `Payment is limited to the Mons owner's available mc`() {
-    newGame(PromoCardPack, players = 3)
-    val p2 = requireP2()
-    val p3 = game.testTfm(PLAYER3)
-    p1.runOperation("$MonsInsurance")
-    p1.runOperation("-1 MC / 1 MC")
-    p1.runOperation("2 MC")
-    p3.runOperation("Plant")
+  internal fun `Declining optional plant removal avoids compensation`() {
+    newTestGame()
+    kim.exMachina("$MonsInsurance")
+    stan.exMachina("Plant")
 
-    p2.runOperation("-Plant<Player3>").expect("-Plant<Player3>, -2 MC<Player1>, 2 MC<Player3>")
+    kim.playProject(AsteroidCard, 14) { declineTask() }
+        .expect("0 Plant<Stan>, -14 MC<Kim>, 0 MC<Stan>")
   }
 
   @Test
-  internal fun `Zero payout is settled before the Mons owner gains money later in the action`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    p1.runOperation("$MonsInsurance")
-    p1.runOperation("-${p1.count("MC")} MC")
-    p2.runOperation("Plant")
+  internal fun `Solo steals compensate the general supply`() {
+    newTestGame(playerCount = 1)
+    kim.exMachina("$MonsInsurance")
 
-    val manual = p1.also { it.autoExecPolicy = NONE }
-    manual.addTasks("-Plant<Player2>, 2 MC")
-    manual.doTask("-Plant<Player2>")
-    manual.doTask("Ok")
-    manual.doTask("2 MC<Player1>")
-
-    p1.count("MC") shouldBe 2
-    p2.count("MC") shouldBe 0
+    kim.playProject(HiredRaiders, 1) { doTask("3 MC<Kim> FROM MC<SoloOpponent>") }
+        .expect("-1 MC<Kim>")
   }
 
   @Test
-  internal fun `Pharmacy Union's own loss does not require compensation from Mons`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    p1.runOperation("$MonsInsurance, $Decomposers")
-    p2.runOperation("$PharmacyUnion")
-    val monsMoneyBefore = p1.count("MC")
-    val pharmacyMoneyBefore = p2.count("MC")
-    val checkpoint = game.timeline.checkpoint()
+  internal fun `An attack on the insurer causes no compensation`() {
+    newTestGame()
+    kim.exMachina("$MonsInsurance")
+    kim.exMachina("Plant")
 
-    p1.runOperation("$NitriteReducingBacteria")
-
-    p1.count("MC") shouldBe monsMoneyBefore
-    p2.count("MC") shouldBe pharmacyMoneyBefore - 4
-    game.events
-        .changesSince(checkpoint)
-        .single {
-          it.change.removing?.type == p2.resolve("MC")
-        }
-        .actor shouldBe p2.actor
+    stan.playProject(AsteroidCard, 14) { doTask("-Plant<Kim>") }.expect("-Plant<Kim>, 0 MC<Kim>")
   }
 
   @Test
-  internal fun `Declining an optional removal avoids compensation`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    p1.playCorp(MonsInsurance, 0) {
-      p1.selectTask(monsStartingLoss("Player1"))
-      autoExecNow()
-    }
-    p1.runOperation("ProjectCard")
-    p2.runOperation("Plant")
-    admin.phase("Action")
-
-    p1.playProject(AsteroidCard, 14) {
-          // Choose zero plants even though Player 2 has a plant to remove.
-          declineTask()
-        }
-        .expect("0 Plant<Player2>, -14 MC<Player1>, 0 MC<Player2>")
+  internal fun `Recession can compensate Rob before exhausting the insurers money`() {
+    recessionLossOrder(compensateFirst = true)
   }
 
   @Test
-  internal fun `Solo steals and production attacks make Mons pay the general supply`() {
-    newGame(PromoCardPack, players = 1)
-    admin.phase("Action")
-    p1.runOperation("$MonsInsurance, ProjectCard")
-
-    p1.playProject(HiredRaiders, 1) {
-          doTask("3 MC<Player1> FROM MC<SoloOpponent>")
-        }
-        .expect("-1 MC<Player1>")
-    p1.runOperation("PROD[-2 Plant<SoloOpponent>]").expect("-3 MC<Player1>")
-  }
-
-  @Test
-  internal fun `Recessions active player can compensate Player 3 before exhausting Mons funds`() {
-    recessionLossOrder(true)
-  }
-
-  @Test
-  internal fun `Recessions active player can exhaust Mons funds before compensating Player 3`() {
-    recessionLossOrder(false)
+  internal fun `Recession can exhaust the insurers money before compensating Rob`() {
+    recessionLossOrder(compensateFirst = false)
   }
 
   private fun recessionLossOrder(compensateFirst: Boolean) {
-    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack, players = 3)
-    val p2 = requireP2()
-    val p3 = game.testTfm(PLAYER3)
-    p1.playCorp(MonsInsurance, 0) {
-      p1.selectTask(monsStartingLoss("Player1"))
-      autoExecNow()
-    }
-    p1.runOperation("-${p1.count("MC") - 5} MC")
-    p3.runOperation("5 MC")
-    admin.phase("Prelude")
-    p1.count("StartToken") shouldBe 1
-    p1.autoExecPolicy = CONCRETE
-    p2.autoExecPolicy = CONCRETE
-    p3.autoExecPolicy = CONCRETE
+    newTestGame(addOptions = "PreludeExpansion, Recession")
+    kim.exMachina("$MonsInsurance")
+    kim.setToExMachina(5, "MC")
+    rob.setToExMachina(5, "MC")
+    players.forEach { it.autoExecPolicy = CONCRETE }
 
-    p2.playPrelude(Recession) {
-      p2.autoExecPolicy = NONE
-      doTask("EACH Other@Player(NOT Player2) { -5 MC<Other@Player>., PROD[-1 MC<Other@Player>] }")
+    stan.playPrelude(Recession) {
+      doTask("10 MC")
       if (compensateFirst) {
-        doTask("-5 MC<Player3>")
-        p2.selectTask("3 MC<Player3 FROM Player1>.")
+        doTask("-5 MC<Rob>")
+        stan.selectTask("3 MC<Rob FROM Kim>.")
         autoExecNow()
-        doTask("-2 MC<Player1>")
+        doTask("-2 MC<Kim>")
       } else {
-        doTask("-5 MC<Player1>")
-      }
-      if (!compensateFirst) {
-        doTask("-5 MC<Player3>")
-        p2.selectTask("3 MC<Player3 FROM Player1>.")
+        doTask("-5 MC<Kim>")
+        doTask("-5 MC<Rob>")
+        stan.selectTask("3 MC<Rob FROM Kim>.")
         autoExecNow()
       }
-      doTask("PROD[-MC<Player1>]")
-      doTask("PROD[-MC<Player3>]")
-      p2.selectTask("3 MC<Player3 FROM Player1>.")
-      autoExecNow()
-      doTask("10 MC<Player2>")
+      doTask("PROD[-MC<Kim>]")
     }
 
-    p3.count("MC") shouldBe if (compensateFirst) 3 else 0
-    p1.count("MC") shouldBe 0
+    rob.count("MC") shouldBe if (compensateFirst) 3 else 0
+    kim.count("MC") shouldBe 0
   }
-
-  @Test
-  internal fun `Attack on Mons Insurance owner makes no transfer`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    p1.runOperation("$MonsInsurance, Plant, 10 MC")
-
-    p2.runOperation("-Plant<Player1>").expect("-Plant<Player1>, 0 MC<Player1>")
-  }
-
-  private fun monsStartingLoss(owner: String): String =
-      "EACH Other@Player(NOT $owner) { " +
-          "-2 Production<Other@Player, Class<MC>>! BY Other@Player }"
 }

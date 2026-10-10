@@ -1,256 +1,152 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.engine.TfmWorkflow
-import dev.martianzoo.tfm.tests.TestOption.Amazonis
-import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
-import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
-import dev.martianzoo.tfm.tests.TestOption.Vastitas
-import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class AmazonisVastitasExpansionTest : CardTest() {
+internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
   @Test
-  internal fun `Amazonis defaults prefer its Merchant variant and reuse matching goals`() {
-    val table = newGame(Amazonis).classTable
+  internal fun `Merchant requires three MC remaining after its claim payment`() {
+    newTestGame(addOptions = "AmazonisMap")
+    kim.setToExMachina(10, "MC")
+    kim.exMachina("3 Steel, 3 Titanium, 3 Plant, 3 Energy, 3 Heat")
 
-    table.isInhabited(cn("Merchant3")) shouldBe true
-    table.isInhabited(cn("Merchant")) shouldBe false
-    table.isInhabited(cn("Manufacturer")) shouldBe true
-    table.isInhabited(cn("Manufacturer2")) shouldBe false
-    table.isInhabited(cn("Terran")) shouldBe true
-    table.isInhabited(cn("Collector")) shouldBe true
+    shouldThrow<RequirementException> { kim.claimMilestone(cn("Merchant3")) }
+    kim.sellPatents(1)
+    kim.claimMilestone(cn("Merchant3")).expect("-8 MC, Merchant3")
   }
 
   @Test
-  internal fun `Amazonis Merchant needs three of each resource after paying the claim cost`() {
-    newGameWithAutoWorkflow(Amazonis)
-    playUntilFirstActionPhase(UnitedNationsMarsInitiative, PhoboLog, startingMc = 127)
+  internal fun `Manufacturer adds steel and heat production when ranking players`() {
+    newTestGame(addOptions = "AmazonisMap", playerCount = 2)
+    kim.setToExMachina(3, "PROD[Steel]")
+    kim.setToExMachina(2, "PROD[Heat]")
+    stan.setToExMachina(0, "PROD[Steel]")
+    stan.setToExMachina(4, "PROD[Heat]")
+    kim.fundAward(cn("Manufacturer"), 8)
 
-    p1.turn {
-      playProject(MineralDeposit, 5)
-      playProject(AsteroidCard, 14)
-    }
-    requireP2().pass()
-    p1.playProject(ImportedHydrogen, 16) {
-      doTask("3 Plant")
-      placeTile(2, 1)
-    }
-    p1.stdProject("CityProject") { placeTile(7, 5) }
-    p1.stdProject("CityProject") { placeTile(7, 7) }
-    p1.stdProject("CityProject") { placeTile(11, 7) }
-    p1.playProject(ImportedGhg, 7)
-
-    shouldThrow<RequirementException> { p1.claimMilestone(cn("Merchant3")) }
-    p1.count("MC") shouldBe 10
-
-    p1.sellPatents(1).expect("MC")
-    p1.claimMilestone(cn("Merchant3")).expect("-8 MC, Merchant3")
+    victoryPoints() shouldBe listOf(25, 20)
   }
 
   @Test
-  internal fun `Amazonis Manufacturer uses the corrected production metric`() {
-    newGameWithAutoWorkflow(Amazonis, PreludeExpansion)
-    val p2 = requireP2()
-    playUntilPreludePhase(UnitedNationsMarsInitiative, PhoboLog)
-    p1.turn {
-      playPrelude(MiningOperations)
-      playPrelude(MoholeExcavation)
-    }
-    p2.turn {
-      playPrelude(Mohole)
-      playPrelude(Donation)
-    }
-    p1.fundAward(cn("Manufacturer"), 8).expect("Manufacturer")
+  internal fun `Amazonis delegate bonuses are inert without Turmoil`() {
+    newTestGame(addOptions = "AmazonisMap")
 
-    shutdownWorkflow()
-    TfmWorkflow.Stepwise(agents).endPhase()
-
-    p1.count("PROD[Steel OR Heat]") shouldBe 5
-    p2.count("PROD[Steel OR Heat]") shouldBe 3
-    p1.count("FirstPlace<Player1, Manufacturer>") shouldBe 1
-    p2.count("FirstPlace<Player2, Manufacturer>") shouldBe 0
+    kim.stdProject("CityProject") { placeTile(2, 2) }.expect("0 ProjectCard, 0 Titanium")
   }
 
   @Test
-  internal fun `Amazonis delegate bonuses are ignored without Turmoil`() {
-    newGameWithAutoWorkflow(Amazonis)
-    p1.count("PlacementBonus<Class<Metal>, Amazonis_02_02>") shouldBe 0
-    playUntilFirstActionPhase(UnitedNationsMarsInitiative, PhoboLog)
+  internal fun `An Amazonis delegate bonus leaves the Lobby delegate available`() {
+    newTestGame(addOptions = "AmazonisMap, TurmoilExpansion")
 
-    p1.turn {
-      stdProject("CityProject") { placeTile(1, 4) }.expect("ProjectCard")
-      stdProject("CityProject") {
-            placeTile(5, 3)
-            doTask("Titanium")
-          }
-          .expect("Titanium")
-    }
-    requireP2().pass()
-
-    p1.stdProject("CityProject") { placeTile(2, 2) }.expect("0 ProjectCard, 0 Titanium")
+    kim.stdProject("CityProject") {
+          placeTile(2, 2)
+          doTask("PartyDelegate<Scientists>")
+        }
+        .expect("PartyDelegate<Scientists>, 0 LobbyActionAvailable")
   }
 
   @Test
-  internal fun `both single Amazonis delegate spaces place one delegate with Turmoil`() {
-    listOf("Amazonis_02_02", "Amazonis_07_11").forEach { area ->
-      newGame(Amazonis, TurmoilExpansion)
+  internal fun `Olympus Mons sends both delegates to the chosen party`() {
+    newTestGame(addOptions = "AmazonisMap, TurmoilExpansion")
 
-      p1.runOperation("CityTile<$area>") { doTask("PartyDelegate<Scientists>") }
-
-      p1.count("PartyDelegate<Scientists>") shouldBe 1
-      p1.count("Delegate") shouldBe 1
-      p1.count("LobbyActionAvailable") shouldBe 1
-    }
+    kim.stdProject("CityProject") {
+          placeTile(8, 9)
+          doTask("2 PartyDelegate<Scientists>")
+        }
+        .expect("2 PartyDelegate<Scientists>, PartyLeader<Scientists>, Dominant<Scientists>")
   }
 
   @Test
-  internal fun `Olympus Mons places two delegates in one chosen party`() {
-    newGame(Amazonis, TurmoilExpansion)
-
-    p1.runOperation("CityTile<Amazonis_08_09>") {
-      doTask("2 PartyDelegate<Scientists>")
-    }
-
-    p1.count("PartyDelegate<Scientists>") shouldBe 2
-    p1.count("PartyDelegate") shouldBe 2
-    p1.count("PartyLeader<Scientists>") shouldBe 1
-    admin.count("Dominant<Scientists>") shouldBe 1
-    p1.count("Delegate") shouldBe 2
-  }
-
-  @Test
-  internal fun `Olympus Mons cannot be occupied without two available delegates`() {
-    newGame(Amazonis, TurmoilExpansion)
-    repeat(6) { p1.runOperation("PartyDelegate<Unity>") }
+  internal fun `Olympus Mons requires two available delegates`() {
+    newTestGame(addOptions = "AmazonisMap, TurmoilExpansion")
+    kim.exMachina("6 PartyDelegate<Unity>")
 
     shouldThrow<DeadEndException> {
-      p1.runOperation("CityTile<Amazonis_08_09>") {
+      kim.stdProject("CityProject") {
+        placeTile(8, 9)
         doTask("2 PartyDelegate<MarsFirst>")
       }
     }
-
-    p1.count("CityTile<Amazonis_08_09>") shouldBe 0
-    p1.count("Delegate") shouldBe 6
+    kim.count("CityTile") shouldBe 0
+    kim.count("MC") shouldBe 42
   }
 
   @Test
-  internal fun `both Vastitas delegate spaces place one delegate with Turmoil`() {
-    listOf("Vastitas_4_8", "Vastitas_9_5").forEach { area ->
-      newGame(Vastitas, TurmoilExpansion)
+  internal fun `A Vastitas delegate bonus leaves the Lobby delegate available`() {
+    newTestGame(addOptions = "VastitasMap, TurmoilExpansion")
 
-      p1.runOperation("CityTile<$area>") { doTask("PartyDelegate<Greens>") }
-
-      p1.count("PartyDelegate<Greens>") shouldBe 1
-      p1.count("Delegate") shouldBe 1
-    }
+    kim.stdProject("CityProject") {
+          placeTile(4, 8)
+          doTask("PartyDelegate<Greens>")
+        }
+        .expect("PartyDelegate<Greens>, 0 LobbyActionAvailable")
   }
 
   @Test
-  internal fun `Vastitas delegate bonuses are ignored without Turmoil`() {
-    newGame(Vastitas)
+  internal fun `Vastitas delegate bonuses are inert without Turmoil`() {
+    newTestGame(addOptions = "VastitasMap")
 
-    p1.runOperation("CityTile<Vastitas_4_8>")
-
-    p1.count("CityTile<Vastitas_4_8>") shouldBe 1
-    p1.count("PartyDelegate") shouldBe 0
+    kim.stdProject("CityProject") { placeTile(4, 8) }.expect("CityTile")
   }
 
   @Test
-  internal fun `Vastitas delegate spaces cannot be occupied without an available delegate`() {
-    newGame(Vastitas, TurmoilExpansion)
-    repeat(7) { p1.runOperation("PartyDelegate<Unity>") }
+  internal fun `Vastitas delegate spaces require an available delegate`() {
+    newTestGame(addOptions = "VastitasMap, TurmoilExpansion")
+    kim.exMachina("7 PartyDelegate<Unity>")
 
     shouldThrow<DeadEndException> {
-      p1.runOperation("CityTile<Vastitas_4_8>") {
+      kim.stdProject("CityProject") {
+        placeTile(4, 8)
         doTask("PartyDelegate<Greens>")
       }
     }
-
-    p1.count("CityTile<Vastitas_4_8>") shouldBe 0
+    kim.count("CityTile") shouldBe 0
   }
 
   @Test
-  internal fun `Vastitas Geologist counts owned tiles with owned neighbors`() {
-    newGameWithAutoWorkflow(Vastitas)
-    playUntilFirstActionPhase()
-    p1.turn {
-      stdProject("PowerPlantProject")
-      playProject(LavaFlows, 18) { placeTile(4, 1) }
+  internal fun `Geologist counts owned tiles that have owned neighbors`() {
+    newTestGame(addOptions = "VastitasMap")
+    kim.exMachina("LavaFlows_SpecialTile<Vastitas_4_1>, RestrictedArea_SpecialTile<Vastitas_3_1>")
+
+    shouldThrow<RequirementException> { kim.claimMilestone(cn("Geologist")) }
+    kim.exMachina("CommercialDistrict_SpecialTile<Vastitas_4_2>")
+    kim.claimMilestone(cn("Geologist")).expect("Geologist")
+  }
+
+  @Test
+  internal fun `Landscaper counts the largest connected group instead of all owned tiles`() {
+    newTestGame(addOptions = "VastitasMap")
+    kim.exMachina(
+        "LavaFlows_SpecialTile<Vastitas_4_1>, RestrictedArea_SpecialTile<Vastitas_3_1>, CommercialDistrict_SpecialTile<Vastitas_4_2>, NormalCityTile<Vastitas_8_7>"
+    )
+
+    kim.count("TileInLargestGroup") shouldBe 3
+    kim.fundAward(cn("Landscaper"), 8).expect("Landscaper")
+  }
+
+  @Test
+  internal fun `The Vastitas north pole adds four MC to placement cost and raises temperature`() {
+    newTestGame(addOptions = "VastitasMap")
+
+    kim.stdProject("CityProject") { placeTile(5, 5) }.expect("-29 MC, TemperatureStep")
+  }
+
+  @Test
+  internal fun `An unaffordable north pole payment rolls back the whole city project`() {
+    newTestGame(addOptions = "VastitasMap")
+    kim.setToExMachina(28, "MC")
+
+    shouldThrow<GameplayException> {
+      kim.stdProject("CityProject") { placeTile(5, 5) }
     }
-    requireP2().pass()
-    p1.playProject(RestrictedArea, 11) { placeTile(3, 1) }
-
-    shouldThrow<RequirementException> { p1.claimMilestone(cn("Geologist")) }
-
-    p1.playProject(CommercialDistrict, 16) { placeTile(4, 2) }
-    p1.claimMilestone(cn("Geologist")).expect("Geologist")
-  }
-
-  @Test
-  internal fun `Vastitas Landscaper counts only the largest contiguous map group`() {
-    val game = newGameWithAutoWorkflow(Vastitas)
-    game.classTable.isInhabited(cn("Landscaper")) shouldBe true
-    playUntilFirstActionPhase()
-    p1.turn {
-      stdProject("PowerPlantProject")
-      playProject(LavaFlows, 18) { placeTile(4, 1) }
-    }
-    requireP2().pass()
-    p1.playProject(RestrictedArea, 11) { placeTile(3, 1) }
-    p1.playProject(CommercialDistrict, 16) { placeTile(4, 2) }
-    p1.stdProject("CityProject") { placeTile(8, 7) }
-
-    p1.count("OwnedTile") shouldBe 4
-    p1.count("TileInLargestGroup") shouldBe 3
-
-    p1.fundAward(cn("Landscaper"), 8).expect("Landscaper")
-  }
-
-  @Test
-  internal fun `Vastitas defaults reuse its supported printed goals`() {
-    val table = newGame(Vastitas).classTable
-
-    table.isInhabited(cn("Engineer")) shouldBe true
-    table.isInhabited(cn("Geologist")) shouldBe true
-    table.isInhabited(cn("Traveller")) shouldBe true
-    table.isInhabited(cn("Promoter")) shouldBe true
-  }
-
-  @Test
-  internal fun `Vastitas north pole costs four MC and raises temperature`() {
-    newGameWithAutoWorkflow(Vastitas)
-    playUntilFirstActionPhase()
-
-    p1.stdProject("CityProject") { placeTile(5, 5) }.expect("-29 MC, TemperatureStep")
-  }
-
-  @Test
-  internal fun `Unaffordable Vastitas north pole placement rolls back with either player policy`() {
-    listOf(NONE, EAGER).forEach { policy ->
-      newGame(Vastitas)
-      p1.runOperation("3 MC")
-      p1.autoExecPolicy = policy
-
-      shouldThrow<GameplayException> {
-        p1.runOperation("CityTile<Vastitas_5_5>") {
-          if (policy == NONE) {
-            doTask("TemperatureStep")
-            doTask("-4 MC")
-          }
-        }
-      }
-
-      p1.count("CityTile<Vastitas_5_5>") shouldBe 0
-      p1.count("MC") shouldBe 3
-      admin.count("TemperatureStep") shouldBe 0
-    }
+    kim.count("CityTile") shouldBe 0
+    kim.count("MC") shouldBe 28
+    admin.count("TemperatureStep") shouldBe 0
   }
 }

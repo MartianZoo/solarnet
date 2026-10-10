@@ -1,130 +1,108 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
-import dev.martianzoo.tfm.tests.TestOption.*
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class UtopiaCimmeriaExpansionTest : CardTest() {
+internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
   @Test
   internal fun `MSL Curiosity bonus is inert without Colonies`() {
-    newGame(Cimmeria)
-    p1.runOperation("10 MC")
+    newTestGame(addOptions = "CimmeriaMap, -ColoniesExpansion", playerCount = 2)
+    kim.setToExMachina(35, "MC")
 
-    p1.runOperation("CityTile<Cimmeria_3_3>")
-
-    p1.count("MC") shouldBe 10
-    p1.count("Colony") shouldBe 0
+    kim.stdProject("CityProject") { placeTile(3, 3) }.expect("-25 MC, 0 Colony")
   }
 
   @Test
   internal fun `MSL Curiosity bonus can buy a colony with Colonies`() {
-    newGame(
-        ColoniesExpansion,
-        Cimmeria,
-        colonyTiles = testColonyTiles(2),
-    )
-    p1.runOperation("10 MC")
+    newTestGame(addOptions = "CimmeriaMap, Luna, Ceres, Triton, Ganymede, Callisto")
+    kim.setToExMachina(35, "MC")
 
-    p1.runOperation("CityTile<Cimmeria_3_3>") { doTask("Colony<Luna>") }
-
-    p1.count("MC") shouldBe 5
-    p1.count("Colony<Luna>") shouldBe 1
+    kim.stdProject("CityProject") {
+          placeTile(3, 3)
+          doTask("Colony<Luna>")
+        }
+        .expect("-30 MC, Colony<Luna>")
   }
 
   // https://boardgamegeek.com/thread/3242862/msl-curiosity-question
   @Test
   internal fun `MSL Curiosity cannot be covered when its owner has no legal colony`() {
-    newGame(
-        ColoniesExpansion,
-        Cimmeria,
-        colonyTiles = testColonyTiles(2),
-    )
-    p1.runOperation(
-        "10 MC, Colony<Luna>, Colony<Ceres>, Colony<Triton>, Colony<Ganymede>, Colony<Callisto>"
-    )
+    newTestGame(addOptions = "CimmeriaMap, Luna, Ceres, Triton, Ganymede, Callisto")
+    kim.exMachina("Colony<Luna>, Colony<Ceres>, Colony<Triton>, Colony<Ganymede>, Colony<Callisto>")
 
-    shouldThrowAny { p1.runOperation("CityTile<Cimmeria_3_3>") }
+    shouldThrowAny { kim.stdProject("CityProject") { placeTile(3, 3) } }
 
-    p1.count("CityTile<Cimmeria_3_3>") shouldBe 0
-    p1.count("MC") shouldBe 10
+    kim.count("CityTile<Cimmeria_3_3>") shouldBe 0
+    kim.count("MC") shouldBe 42
   }
 
   @Test
   internal fun `Incorporator rewards inexpensive active and automated projects, not events or corporations`() {
-    newGame(Utopia)
-    val p2 = requireP2()
-    p1.runOperation("8 MC, $Ecoline, $EarthCatapult, Asteroid")
-    p2.runOperation("$Mine")
-    admin.phase("Action")
+    newTestGame(addOptions = "UtopiaMap", playerCount = 2)
+    kim.exMachina("$Ecoline, $EarthCatapult")
+    stan.exMachina("$Mine")
+    kim.playProject(SmallAsteroid, 8)
 
-    p1.stdAction("FundAwardAction") { doTask("Incorporator") }
-    admin.runOperation("End FROM Phase")
-
-    p1.assertCounts(22 to "VictoryPoint")
-    p2.assertCounts(25 to "VictoryPoint")
+    kim.stdAction("FundAwardAction") { doTask("Incorporator") }
+    victoryPoints() shouldBe listOf(23, 25)
   }
 
   @Test
   internal fun `Suburbian rewards a tile on the map edge over an interior tile`() {
-    newGame(Utopia)
-    val p2 = requireP2()
-    p1.runOperation("8 MC, CityTile<Utopia_1_1>")
-    p2.runOperation("CityTile<Utopia_5_5>")
-    admin.phase("Action")
+    newTestGame(addOptions = "UtopiaMap", playerCount = 2)
+    kim.exMachina("NormalCityTile<Utopia_1_1>")
+    stan.exMachina("NormalCityTile<Utopia_5_5>")
 
-    p1.stdAction("FundAwardAction") { doTask("Suburbian") }
-    admin.runOperation("End FROM Phase")
-
-    p1.assertCounts(25 to "VictoryPoint")
-    p2.assertCounts(20 to "VictoryPoint")
+    kim.stdAction("FundAwardAction") { doTask("Suburbian") }
+    victoryPoints() shouldBe listOf(25, 20)
   }
 
   @Test
   internal fun `Founder counts a tile once when it neighbors multiple opponents' special tiles`() {
-    newGame(Cimmeria)
-    val p2 = requireP2()
-    p1.runOperation("8 MC, CityTile<Cimmeria_3_3>")
-    p2.runOperation(
+    newTestGame(addOptions = "CimmeriaMap, -ColoniesExpansion", playerCount = 2)
+    kim.exMachina("NormalCityTile<Cimmeria_3_3>")
+    stan.exMachina(
         "MiningRights_SpecialTile<Cimmeria_3_2>, NaturalPreserve_SpecialTile<Cimmeria_3_4>"
     )
-    admin.phase("Action")
 
-    p1.stdAction("FundAwardAction") { doTask("Founder") }
-    admin.runOperation("End FROM Phase")
-
-    p1.assertCounts(1 to "FirstPlace<Player1, Founder>")
-    p2.assertCounts(0 to "FirstPlace<Player2, Founder>")
+    kim.stdAction("FundAwardAction") { doTask("Founder") }
+    victoryPoints() shouldBe listOf(25, 20)
   }
 
   @Test
-  internal fun `Claims Metallurgist for combined metal production and Trader for three resource types`() {
-    newGame(Utopia)
-    p1.runOperation(
-        "16 MC, PROD[2 Steel, 4 Titanium], $SearchForLife, Science<$SearchForLife>, " +
-            "$Predators, Animal<$Predators>, $RegolithEaters, Microbe<$RegolithEaters>"
+  internal fun `Metallurgist combines steel and titanium production`() {
+    newTestGame(addOptions = "UtopiaMap")
+    kim.setToExMachina(2, "PROD[Steel]")
+    kim.setToExMachina(4, "PROD[Titanium]")
+
+    kim.stdAction("ClaimMilestoneAction") { doTask("Metallurgist") }.expect("-8 MC, Metallurgist")
+  }
+
+  @Test
+  internal fun `Trader counts different card resource types`() {
+    newTestGame(addOptions = "UtopiaMap")
+    kim.exMachina(
+        "$SearchForLife, Science<$SearchForLife>, $Predators, Animal<$Predators>, $RegolithEaters, Microbe<$RegolithEaters>"
     )
-    admin.phase("Action")
 
-    p1.stdAction("ClaimMilestoneAction") { doTask("Metallurgist") }.expect("-8 MC, Milestone")
-    p1.stdAction("ClaimMilestoneAction") { doTask("Trader") }.expect("-8 MC, Milestone")
-
-    p1.assertCounts(2 to "Milestone")
+    kim.stdAction("ClaimMilestoneAction") { doTask("Trader") }.expect("-8 MC, Trader")
   }
 
   @Test
   internal fun `Fundraiser requires printed mc production of twelve`() {
-    newGame(Cimmeria)
-    p1.runOperation("PROD[11 MC]")
+    newTestGame(addOptions = "CimmeriaMap, -ColoniesExpansion", playerCount = 2)
+    kim.setToExMachina(11, "PROD[MC]")
 
-    shouldThrow<RequirementException> { p1.runOperation("Fundraiser") }
+    shouldThrow<RequirementException> {
+      kim.stdAction("ClaimMilestoneAction") { doTask("Fundraiser") }
+    }
 
-    p1.runOperation("PROD[1 MC], Fundraiser")
-    p1.count("Fundraiser") shouldBe 1
+    kim.setToExMachina(12, "PROD[MC]")
+    kim.stdAction("ClaimMilestoneAction") { doTask("Fundraiser") }.expect("Fundraiser")
   }
 }

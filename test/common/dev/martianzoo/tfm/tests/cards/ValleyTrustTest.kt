@@ -1,103 +1,43 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestOption.*
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class ValleyTrustTest : CardTest() {
+internal class ValleyTrustTest : TfmSandboxTest() {
   @Test
-  internal fun `Resolves Valley Trust's starting Prelude 1 card`() {
-    newGame(PreludeExpansion)
-    p1.playCorp(ValleyTrust, 5).expect("22 MC")
+  internal fun `First action plays a Prelude after the Prelude phase has ended`() {
+    newTestGame(addOptions = "PreludeExpansion", kimCorporation = ValleyTrust)
+    startActionPhase()
 
-    admin.phase("Action")
-    val result =
-        p1.stdAction("DoRequiredActionsAction") {
-          p1.playPrelude(MartianIndustries)
-        }
-    result.expect("PROD[Steel, Energy]")
-    result.changes
-        .filter { it.change.gaining?.type == p1.resolve("PreludeCard<Selecting>") }
-        .sumOf { it.change.count } shouldBe 3
-    p1.assertCounts(0 to "PreludeCard<Selecting>")
+    kim.stdAction("DoRequiredActionsAction") { kim.playPrelude(MartianIndustries) }
+        .expect("PROD[Steel, Energy], -RequiredAction, 0 PreludeCard<Selecting>")
   }
 
   @Test
-  internal fun `card packs control Valley Trust's draw`() {
-    resolveValleyTrustPrelude(
-        "PreludeExpansion, Prelude1CardPack",
-        selectedPrelude = MartianIndustries,
-        otherPrelude = SpaceLanes,
-        otherPreludeIsAvailable = false,
+  internal fun `First action can draw from Prelude 2 without Prelude 1`() {
+    newTestGame(
+        addOptions = "PreludeExpansion, Prelude2CardPack, -Prelude1CardPack",
+        kimCorporation = ValleyTrust,
     )
-    resolveValleyTrustPrelude(
-        "PreludeExpansion, Prelude2CardPack, -Prelude1CardPack",
-        selectedPrelude = SpaceLanes,
-        otherPrelude = MartianIndustries,
-        otherPreludeIsAvailable = false,
-    )
-    resolveValleyTrustPrelude(
-        "PreludeExpansion, Prelude1CardPack, Prelude2CardPack",
-        selectedPrelude = SpaceLanes,
-        otherPrelude = MartianIndustries,
-        otherPreludeIsAvailable = true,
-    )
-  }
+    startActionPhase()
 
-  private fun resolveValleyTrustPrelude(
-      preludeConfiguration: String,
-      selectedPrelude: ClassName,
-      otherPrelude: ClassName,
-      otherPreludeIsAvailable: Boolean,
-  ) {
-    val game =
-        newGame(
-            GameConfig(
-                "ValleyTrust, $preludeConfiguration",
-                "Player1",
-                "Player2",
-            ),
-        )
-    game.classTable.isInhabited(cn("PreludePhase")) shouldBe true
-    game.classTable.isInhabited(selectedPrelude) shouldBe true
-    game.classTable.isInhabited(otherPrelude) shouldBe otherPreludeIsAvailable
-
-    p1.playCorp(ValleyTrust, 5)
-    admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") {
-      p1.playPrelude(selectedPrelude)
-    }
+    kim.stdAction("DoRequiredActionsAction") { kim.playPrelude(SpaceLanes) }
+        .expect("-RequiredAction, 0 PreludeCard<Selecting>, $SpaceLanes")
   }
 
   @Test
-  internal fun `Valley Trust fizzles an unaffordable Industrial Complex`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
-    p1.playCorp(ValleyTrust, 8)
-    admin.phase("Prelude")
-    p1.playPrelude(PowerGeneration)
-    p1.playPrelude(Biolab)
-    admin.phase("Action")
+  internal fun `First action can fizzle an unaffordable Industrial Complex`() {
+    newTestGame(addOptions = "PreludeExpansion, Prelude2CardPack", kimCorporation = ValleyTrust)
+    startActionPhase()
+    kim.setToExMachina(13, "MC")
+
     shouldThrow<LimitsException> {
-      p1.stdAction("DoRequiredActionsAction") {
-        p1.playPrelude(IndustrialComplex)
-      }
+      kim.stdAction("DoRequiredActionsAction") { kim.playPrelude(IndustrialComplex) }
     }
-
-    val checkpoint = game.timeline.checkpoint()
-    p1.stdAction("DoRequiredActionsAction") { doTask("-PreludeCard<Selecting>") }.expect("15 MC")
-    p1.assertCounts(
-        28 to "MC",
-        0 to "RequiredAction",
-        0 to "$IndustrialComplex",
-        0 to "PreludeCard",
-    )
-    p1.auditGainsSince(checkpoint) shouldBe 1
+    kim.stdAction("DoRequiredActionsAction") { doTask("-PreludeCard<Selecting>") }
+        .expect("15 MC, -RequiredAction, 0 $IndustrialComplex, 0 PreludeCard<Selecting>")
   }
 }

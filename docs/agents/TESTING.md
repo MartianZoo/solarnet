@@ -8,8 +8,8 @@
 >
 > **Skip when:** doing a read-only task that requires no build or behavioral claim.
 >
-> **Status:** current repository procedure; the project-card suite is actively migrating to the
-> sandbox and gameplay fixtures described below.
+> **Status:** current repository procedure; card scenarios use the sandbox and gameplay fixtures
+> described below. Legacy rule suites still use `CardTest`.
 
 ## Read only the needed section
 
@@ -30,7 +30,7 @@
 - [`TestHelpers.kt`](../../test/common/dev/martianzoo/tfm/tests/TestHelpers.kt) —
   search for the named helper before spelling raw task text.
 - [`CardTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/CardTest.kt) —
-  read for component-focused scenario construction.
+  retained by legacy rule suites.
 - [`TfmSandboxTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmSandboxTest.kt) —
   focused scenarios with corrections and selected phase shortcuts.
 - [`TfmGameplayTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmGameplayTest.kt) —
@@ -297,8 +297,10 @@ migration rules below. Other card tests use the smallest suitable configuration 
 name their gameplay objects. Use `runOperation()` when an operation's resulting setup matters and a
 direct correction is not suitable. Card and rule scenarios do not call `sneak` directly; eligible
 project-card scenarios use the fixture's explicit `exMachina` setup methods.
-Synthetic card scenarios pass their card and supporting `ClassDeclaration`s to the `CardTest`
-constructor; they are composed with Canon and selected in that test's premise.
+Synthetic engine checks can construct a premise directly from `TfmTest`, using the existing
+`canonicalPremise` and `setUpGame` functions. `FakeWildTagTest` exercises explicit temporary-tag
+injection, and `VerminTest.Attribution` supplies a synthetic listener; neither represents a
+player-facing scenario through sandbox or gameplay.
 When a custom instruction reads authored card metadata from the catalog, compose the synthetic
 card into a fixture `TfmCatalog`; premise-only declarations do not populate that metadata.
 Use `placeTile(row, column)`, `addCardResources(card)`, and `wgt(choice)` instead of spelling their
@@ -347,8 +349,8 @@ corporation with a required first action.
 
 Both normally return at generation 1 Prelude phase when `PreludeExpansion` is selected, otherwise
 Action phase. `startAtCorporation = true` instead returns before any corporation is played;
-the test then makes the corporation plays explicitly. Select `kimCorporation` to give Kim the normal
-corporation path (retaining ten starting projects for purchase); other seats use the beginner path.
+the test then makes the corporation plays and their choices explicitly. Do not add corporation-choice
+arguments to the fixture. Select `kimCorporation` to give Kim the normal corporation path (retaining ten starting projects for purchase); other seats use the beginner path.
 Unless `startAtCorporation` is true, the fixture plays all starting corporations before returning.
 The default game has:
 
@@ -433,8 +435,10 @@ same semantic pattern for another card with different literals.
 Every state change in a migrated sandbox test must come from real player-facing gameplay or from
 its explicit fixture methods. Do not use `runOperation`, `beginOperation`, `sneak`, arbitrary manual
 phase changes, or other lower-level shortcuts in either fixture's subclasses. The sandbox provides
-`startActionPhase()` to skip unplayed Preludes when their play is irrelevant; finish pending choices
-first. Gameplay leaves those choices to the test and advances through the normal workflow.
+`startActionPhase()` to leave explicit corporation setup or skip unplayed Preludes when their play
+is irrelevant; finish pending choices first. This is a sandbox shortcut, so other unplayed starting
+cards need not be resolved when they are irrelevant to the scenario. Gameplay leaves those choices
+to the test and advances through the normal workflow.
 
 In sandbox tests, conditions beyond that initial state should normally be direct, visible corrections:
 
@@ -490,8 +494,8 @@ not itself express a preferred style.
 
 - Extend the neutral-placement defaults in both bases when a solo scenario needs a map other than
   Tharsis, Hellas, or Elysium. Solo alone does not select gameplay over sandbox.
-- Continue migration in substantial batches after reviewing each scenario's value. Use the existing
-  expansion/map selections and real workflow before considering another fixture capability.
+- Migrate the remaining legacy rule suites after reviewing each scenario's value. Use existing
+  selections and real workflow before considering another fixture capability.
 - Reassess the sandbox's allowed phase shortcuts from concrete needs. A general `advanceTo(Phase)`
   is no longer presumed necessary. Do not introduce a corporation-specific base without a need
   beyond what these two styles already provide.
@@ -505,8 +509,8 @@ For unusual injected sequences, seek a credible gameplay route. Delete a scenari
 exists rather than adding fixture machinery to recreate it. A route possible only through Fake Head
 Start does not by itself establish useful supported-game coverage.
 
-Continue with easier classes first, in substantial batches. Review each retained scenario's value,
-setup, assertions, and name within the batch; larger batches do not relax those checks. Track open
+For further rule migrations, review each retained scenario's value, setup, assertions, and name
+within the batch; larger batches do not relax those checks. Track open
 fixture work in `TODO.md` rather than treating these intentions as already available APIs.
 
 ### Expectations
