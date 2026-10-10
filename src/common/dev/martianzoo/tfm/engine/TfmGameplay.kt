@@ -124,6 +124,15 @@ public class TfmGameplay(
     ) {
       doTask("BuySelectedCards")
     }
+    // Confirmation queues this step even when no cards were retained.
+    tasks
+        .extract { it }
+        .singleOrNull { task ->
+          task.instruction.descendantsOfType<Change>().any { change ->
+            change.gaining?.className == cn("BuyCard")
+          }
+        }
+        ?.let { selectTaskForActor(it) }
     if (selected > 0) payAllMc()
   }
 

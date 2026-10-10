@@ -43,8 +43,14 @@ internal class TaskAssignmentCharacterizationTest {
               CLASS UnownedSystemRequest<@Player> : System {
                 This: Reward<@Player>
               }
+              CLASS UnownedSystemRemoval<@Player> : System {
+                -This: Reward<@Player>
+              }
               CLASS Player2SystemSource : Owned<Player2> {
                 This: UnownedSystemRequest<Player2>
+              }
+              CLASS Player2SystemRemovalSource : Owned<Player2> {
+                This: -UnownedSystemRemoval<Player2>
               }
               ABSTRACT CLASS SystemChoice : System {
                 CLASS SystemChoiceA
@@ -81,6 +87,80 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
+  internal fun systemRemovalAndTransmutationBeginAssignedToAdmin() {
+    listOf("-SystemToken", "-SystemToken BY Admin", "HiddenToken FROM SystemToken").forEach {
+        instruction ->
+      val game = game()
+      val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+      val admin = game.testAgent(ADMIN)
+      admin.runOperation("SystemToken")
+      admin.autoExecPolicy = NONE
+      val checkpoint = game.timeline.checkpoint()
+
+      val taskId = p1.addTasks(instruction).single()
+
+      p1.tasks.isEmpty() shouldBe true
+      admin.tasks.ids().shouldContainExactly(taskId)
+      game.tasks.getTaskData(taskId).let {
+        it.controller shouldBe PLAYER1
+        it.selectionAssignee shouldBe PLAYER1
+        it.assignee shouldBe ADMIN
+      }
+
+      admin.selectTask(taskId)
+
+      p1.count("SystemToken") shouldBe 0
+      game.events.changesSince(checkpoint).single().actor shouldBe ADMIN
+      game.tasks.isEmpty() shouldBe true
+    }
+  }
+
+  @Test
+  internal fun systemRemovalReturnsItsContinuationToTheOriginalPlayer() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN)
+    admin.runOperation("SystemToken")
+    admin.autoExecPolicy = NONE
+
+    val request = p1.addTasks("-SystemToken THEN Reward<Player1>").single()
+    admin.selectTask(request)
+
+    val reward = game.tasks.extract { it }.single()
+    reward.controller shouldBe PLAYER1
+    reward.selectionAssignee shouldBe PLAYER1
+    reward.assignee shouldBe PLAYER1
+    p1.doTask("RewardA")
+    p1.count("RewardA") shouldBe 1
+  }
+
+  @Test
+  internal fun unownedSystemRemovalKeepsASelectionRecipientDifferentFromItsController() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN)
+    admin.runOperation("UnownedSystemRemoval<Player2>")
+    admin.autoExecPolicy = NONE
+
+    val source = p1.addTasks("Player2SystemRemovalSource").single()
+    p1.selectTask(source)
+    val removal = game.tasks.extract { it }.single()
+    removal.controller shouldBe PLAYER1
+    removal.selectionAssignee shouldBe PLAYER2
+    removal.assignee shouldBe ADMIN
+    admin.selectTask(removal.id)
+
+    val reward = game.tasks.extract { it }.single()
+    reward.controller shouldBe PLAYER1
+    reward.selectionAssignee shouldBe PLAYER2
+    reward.assignee shouldBe PLAYER1
+    p1.selectTask(reward.id)
+    p2.doTask("RewardB")
+    p2.count("RewardB") shouldBe 1
+  }
+
+  @Test
   internal fun systemGainPreservesAnExplicitPlayerPerformerAndRejectsIt() {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
@@ -114,16 +194,22 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  internal fun enclosingInstructionsDelaySystemRoutingUntilTheyResolveToADirectGain() {
+  internal fun enclosingInstructionsDelaySystemRoutingUntilTheyResolveToADirectChange() {
     listOf(
             "SystemToken / Marker<Player1>",
             "Marker<Player1>: SystemToken",
+            "-SystemToken / Marker<Player1>",
+            "Marker<Player1>: -SystemToken",
         )
         .forEach { instruction ->
           val game = game()
           val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
           val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
           p1.runOperation("Marker<Player1>")
+          if (instruction.contains("-SystemToken")) {
+            val setup = admin.addTasks("SystemToken").single()
+            admin.selectTask(setup)
+          }
 
           val taskId = p1.addTasks(instruction).single()
           p1.tasks.ids().shouldContainExactly(taskId)
@@ -134,7 +220,7 @@ internal class TaskAssignmentCharacterizationTest {
           admin.tasks.ids().shouldContainExactly(taskId)
 
           admin.selectTask(taskId)
-          p1.count("SystemToken") shouldBe 1
+          p1.count("SystemToken") shouldBe if (instruction.contains("-SystemToken")) 0 else 1
           game.tasks.isEmpty() shouldBe true
         }
   }
@@ -235,6 +321,19 @@ internal class TaskAssignmentCharacterizationTest {
     p1.runOperation("SystemToken")
 
     p1.count("SystemToken") shouldBe 1
+    game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun eagerAdminExecutesSystemRemovalWhilePlayerAutoexecIsOff() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN)
+    admin.runOperation("SystemToken")
+
+    p1.runOperation("-SystemToken")
+
+    p1.count("SystemToken") shouldBe 0
     game.tasks.isEmpty() shouldBe true
   }
 

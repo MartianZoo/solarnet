@@ -36,6 +36,11 @@ contains the denomination. `ActionBilling` also carries the provider and action 
 action-specific rules. `CardBilling` has no card identity: the pending play instruction already
 retains the card.
 
+`BuySelectedCards` queues its `BuyCard` transmutation as an ordinary effect. Manual callers must
+select that work before paying. `TfmGameplay.buySelectedCards` selects the pending purchase task
+before payment, including the zero-card case, without changing the caller's autoexecution policy.
+Pets determines the quantity and adjusted debt; the helper only selects the offered work.
+
 ## Verified gaps
 
 `BY Me@` identifies the performer, not the purpose of a loss. If Flooding targets its own player

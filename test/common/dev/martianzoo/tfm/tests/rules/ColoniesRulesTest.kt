@@ -57,6 +57,8 @@ internal class ColoniesRulesTest : CardTest() {
         doTask("Trade<Enceladus>")
         doTask("-TradeBarrier")
         doTask("Microbe<$RegolithEaters>")
+        p2.selectTask("GainColonyBonus<Player1, Enceladus>")
+        p1.doTask("GainColonyBonus<Player1, Enceladus>")
         shouldThrow<TaskException> { p1.doTask("Microbe<$NitriteReducingBacteria>") }
         p2.selectTask("Microbe<Player1>.")
         p1.doTask("Microbe<$NitriteReducingBacteria>")
@@ -109,12 +111,14 @@ internal class ColoniesRulesTest : CardTest() {
         doTask("Trade<Pluto>")
         doTask("-TradeBarrier")
         doTask("2 ProjectCard")
+        performForPlayer1("GainColonyBonus<Player1, Pluto>")
         performForPlayer1("PlutoLock<Player1>!")
         performForPlayer1("ProjectCard<Player1>")
         shouldThrow<TaskException> { doTask("ProjectCard<Player1>") }
         p1.count("ProjectCard") shouldBe 1
 
         // Another owner's bonus remains available while Player1 must discard.
+        doTask("GainColonyBonus<Player2, Pluto>")
         doTask("PlutoLock<Player2>!")
         doTask("ProjectCard<Player2>")
         p2.count("ProjectCard") shouldBe 3
@@ -123,6 +127,7 @@ internal class ColoniesRulesTest : CardTest() {
 
         performForPlayer1("-ProjectCard<Player1>")
         performForPlayer1("-PlutoLock<Player1>!")
+        performForPlayer1("GainColonyBonus<Player1, Pluto>")
         performForPlayer1("PlutoLock<Player1>!")
         performForPlayer1("ProjectCard<Player1>")
         p1.count("ProjectCard") shouldBe 1
@@ -214,8 +219,12 @@ internal class ColoniesRulesTest : CardTest() {
         doTask("Trade<Titan>")
         doTask("-TradeBarrier")
         doTask("Floater<$Dirigibles>")
+        p2.selectTask("GainColonyBonus<Player1, Titan>")
+        p1.doTask("GainColonyBonus<Player1, Titan>")
         p2.selectTask("Floater<Player1>.")
         p1.addCardResources(ForcedPrecipitation)
+        p2.selectTask("GainColonyBonus<Player1, Titan>")
+        p1.doTask("GainColonyBonus<Player1, Titan>")
         p2.selectTask("Floater<Player1>.")
         p1.addCardResources(ExtractorBalloons)
       }

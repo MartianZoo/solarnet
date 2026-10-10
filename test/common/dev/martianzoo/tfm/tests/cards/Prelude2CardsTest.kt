@@ -566,7 +566,9 @@ internal class Prelude2CardsTest : CardTest() {
       doTask("ActionBilling<>")
       doTask("-11 MC")
       doTask("PROD[Energy]")
-      doTask("-SuitableInfrastructureBonus")
+      // Selecting the bonus reaction hands its System removal to Admin.
+      p1.selectTask(tasks.ids().single())
+      autoExecNow()
       doTask("2 MC")
     }
 

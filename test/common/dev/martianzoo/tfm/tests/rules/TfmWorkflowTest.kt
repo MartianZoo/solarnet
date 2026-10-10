@@ -113,6 +113,7 @@ internal class TfmWorkflowTest {
     p2.pay()
     p2.doTask("57 MC")
     p2.doTask("BuySelectedCards")
+    p2.doTask("5 BuyCard FROM ProjectCard<Selecting>")
     p2.pay(15)
     p2.assertCounts(
         1 to "CrediCor",
@@ -256,9 +257,11 @@ internal class TfmWorkflowTest {
     agents[PLAYER2].doTask("4 ProjectCard<Selecting>")
     agents[PLAYER2].doTask("-2 ProjectCard<Selecting>")
     agents[PLAYER2].doTask("BuySelectedCards")
+    agents[PLAYER2].doTask("2 BuyCard FROM ProjectCard<Selecting>")
     agents[PLAYER1].doTask("4 ProjectCard<Selecting>")
     agents[PLAYER1].doTask("-3 ProjectCard<Selecting>")
     agents[PLAYER1].doTask("BuySelectedCards")
+    agents[PLAYER1].doTask("BuyCard FROM ProjectCard<Selecting>")
     game.testTfm(PLAYER2).pay(6)
     game.testTfm(PLAYER1).pay(3)
 

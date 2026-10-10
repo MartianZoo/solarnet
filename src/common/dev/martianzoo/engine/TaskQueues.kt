@@ -33,7 +33,7 @@ import dev.martianzoo.state.Task.TaskId
  *   [DeadEndException]
  * * A concrete selected task is guaranteed to execute successfully
  * * Normalization retains task identity, controller, selection assignee, current assignee,
- *   selection, and cause. Admission and contextual selection assign a System gain to Admin;
+ *   selection, and cause. Admission and contextual selection assign a System change to Admin;
  *   explicit instruction-side `BY` remains authoritative. Selected tasks cannot be replaced by
  *   independent siblings
  */
@@ -67,7 +67,7 @@ internal class TaskQueues(private val gameWorld: GameWorld) {
                 selectionAssignee = selectionAssignee,
                 isAbstract = isAbstract,
             )
-            .map(::assignSystemGainToAdmin)
+            .map(::assignSystemChangeToAdmin)
     return newTasks.map {
       require(it.id.ordinal == gameWorld.nextOrdinal)
       gameWorld.apply(TaskAddedEvent(gameWorld.nextOrdinal, it))
@@ -88,23 +88,25 @@ internal class TaskQueues(private val gameWorld: GameWorld) {
   }
 
   internal fun normalizeForSelection(task: Task): Task =
-      assignSystemGainToAdmin(normalizeTask(task, isAbstract))
+      assignSystemChangeToAdmin(normalizeTask(task, isAbstract))
 
   internal fun assigneeAfterContextualSelection(task: Task): Actor {
     val selected = task.copy(assignee = task.selectionAssignee, selected = true)
     return normalizeForSelection(selected).assignee
   }
 
-  private fun assignSystemGainToAdmin(task: Task): Task {
+  private fun assignSystemChangeToAdmin(task: Task): Task {
     val change =
         when (val instruction = task.instruction) {
           is Change -> instruction
           is By -> instruction.inner as? Change
           else -> null
         } ?: return task
-    val gaining = change.gaining ?: return task
-    val gainedClass = classTable.resolve(gaining).rootClass
-    return if (gainedClass.isSubtypeOf(systemClass)) task.copy(assignee = ADMIN) else task
+    val changesSystem =
+        listOfNotNull(change.gaining, change.removing).any {
+          classTable.resolve(it).rootClass.isSubtypeOf(systemClass)
+        }
+    return if (changesSystem) task.copy(assignee = ADMIN) else task
   }
 
   override fun toString(): String = gameWorld.tasks.toString()

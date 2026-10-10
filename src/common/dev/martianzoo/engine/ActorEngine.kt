@@ -36,7 +36,16 @@ import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
 import dev.martianzoo.state.TaskResult
 
-/** Policy-free task and state mutation mechanics attributed to one [actor]. */
+/**
+ * Policy-free task and state mutation mechanics attributed to [actor].
+ *
+ * Tasks that directly gain or remove a `System` component are assigned to Admin, including
+ * transmutations with a System component on either side. Selection reapplies this rule after
+ * resolving enclosing instructions. The original controller and selection recipient are retained
+ * for continuations and queued effects; explicit instruction-side `BY` remains authoritative.
+ * Assignment does not execute a task: the assigned Actor must advance it, directly or through Agent
+ * policy.
+ */
 public class ActorEngine
 internal constructor(
     /** Tasks currently assigned to [actor]. */

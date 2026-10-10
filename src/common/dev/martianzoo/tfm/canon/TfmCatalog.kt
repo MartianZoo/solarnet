@@ -215,7 +215,7 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
     individualNames
         .filter { it in colonyTileClassNames }
         .map { cn("${it}Selected") }
-        .forEach { selected -> builder.initializationEffects.add(parse("This:: $selected")) }
+        .forEach { selected -> builder.initializationEffects.add(parse("This: $selected")) }
     builder.bootstrapClassName = BOOTSTRAP_PHASE.takeIf {
       moduleNames.isNotEmpty() && it in allClassNames
     }

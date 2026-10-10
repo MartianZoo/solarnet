@@ -30,6 +30,8 @@ internal class PharmacyUnionTest : CardTest() {
           repeat(2) { doTask("-4 MC.") }
           repeat(2) { doTask("Disease<$PharmacyUnion>!") }
           doTask("SearchForCard<TagFilter<Class<ScienceTag>>>")
+          doTask("ProjectCard")
+          doTask("Audit")
         }
         .expect("46 MC, 2 Disease<$PharmacyUnion>")
   }
