@@ -267,8 +267,9 @@ These concerns remain open; the ranking does not select replacement designs.
 - Replace the duplicated `TemperatureStep BY Player`/`BY Admin` threshold-ocean triggers and the
   synthetic `AdminOceanPlacement` signal with one rule that separates who chooses the tile from
   whose action the placement is attributed to, shared by the standard and extended tracks.
-- Reassess classifying `CheckRequirement` as `System` now that scaled direct gains route to Admin.
-  Verify requirement failures and downstream choices before changing its classification.
+- Revisit whether `ColonyTileSelection` should be `Hidden`. An earlier conversion experiment did
+  not settle whether a Player choosing a colony tile should see the selection type or just the
+  chosen tile; keep the current visible declaration until that presentation is checked.
 - Investigate whether Player identity can survive Player → Admin → Player task chains without
   making bookkeeping classes `Owned` solely to carry that Player through. Preserve real ownership,
   cross-player effects, explicitly named recipients, and phases with no unique on-turn Player; do
@@ -425,9 +426,8 @@ These concerns remain open; the ranking does not select replacement designs.
 - Complete `TaskForm` decision and option enumeration for `EACH` and nested instruction shapes.
   Decide how a form should offer `Ok` for an optional change
   inside `PER`, whose current narrowing rule requires a change child until state resolution removes
-  the wrapper. In the Generation 4 replay, Power Infrastructure's `X` task exposes an `Anyone`
-  target decision before its amount even though the existing action helper can bind `X`; settle how
-  a form recognizes a forced type resolution before offering the amount.
+  the wrapper. Settle how a form recognizes a forced type resolution before offering a later amount
+  in nested instructions.
 - Express card-face/card-back compatibility in the selectable `PlayCard` specification so generic
   forms can restrict Prelude faces without interpreting later card-playing effects. Its independent
   class-literal parameters currently leave `CardFront` options broader than the selected card back.

@@ -92,11 +92,13 @@ internal class TfmWorkflowTest {
         0 to "ProjectCard",
         0 to "PlayerMode",
     )
-    p1.doTask("BeginnerMode")
+    p1.selectTask("BeginnerMode OR NonBeginnerMode")
+    p1.narrowTask("BeginnerMode")
     p1.assertCounts(1 to "BeginnerMode", 0 to "BeginnerCard", 0 to "PreludeCard")
     p1.doTask("BeginnerCard")
     p1.doTask("4 PreludeCard")
-    p2.doTask("NonBeginnerMode")
+    p2.selectTask("BeginnerMode OR NonBeginnerMode")
+    p2.narrowTask("NonBeginnerMode")
     p2.assertCounts(1 to "NonBeginnerMode", 0 to "CorporationCard", 0 to "PreludeCard")
     p2.doTask("2 CorporationCard")
     p2.doTask("4 PreludeCard")
@@ -160,7 +162,8 @@ internal class TfmWorkflowTest {
 
     workflow.setupPhase()
     listOf(p1, p2).forEach { player ->
-      player.doTask("BeginnerMode")
+      player.selectTask("BeginnerMode OR NonBeginnerMode")
+      player.narrowTask("BeginnerMode")
       player.doTask("BeginnerCard")
     }
 

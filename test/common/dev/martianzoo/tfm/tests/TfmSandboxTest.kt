@@ -136,7 +136,10 @@ internal abstract class TfmSandboxTest : TfmTest() {
 
   private fun chooseStartingCards(kimCorporation: ClassName?) {
     players.forEachIndexed { index, player ->
-      player.doTask(if (index == 0 && kimCorporation != null) "NonBeginnerMode" else "BeginnerMode")
+      player.selectTask("BeginnerMode OR NonBeginnerMode")
+      player.narrowTask(
+          if (index == 0 && kimCorporation != null) "NonBeginnerMode" else "BeginnerMode"
+      )
     }
     if (kimCorporation != null) kim.keepStartingProjects(10)
     revealTurmoilSetupEvents(game)

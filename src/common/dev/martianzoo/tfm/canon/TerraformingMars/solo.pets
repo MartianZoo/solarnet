@@ -36,7 +36,7 @@ CLASS BufferGasProject : StandardProject {
 }
 
 "One generation that must begin before a solo game may end"
-CLASS SoloGenerationsLeft : GameEndBarrier
+CLASS SoloGenerationsLeft : GameEndBarrier, System
 
 "The passive owner of the removable neutral stock in solo mode"
 CLASS SoloOpponent : Owner, System {

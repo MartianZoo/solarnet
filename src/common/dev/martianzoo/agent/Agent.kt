@@ -55,7 +55,8 @@ public interface Agent {
 
   /**
    * Narrows this Actor's selected task and resolves it again. A partial narrowing remains selected;
-   * a concrete result executes before this call returns unless `BY` assigns it to another Actor.
+   * a concrete result executes before this call returns unless `BY` or `System` routing assigns it
+   * to another Actor.
    *
    * @param [narrowing] the new instruction tree; may be abstract or a grouped arm selected from an
    *   `OR`; a group replaces this one task with one task per member; if identical to the current
@@ -113,6 +114,9 @@ public interface Agent {
    * If selecting the task without the submitted narrowing would hand it to another Actor, this
    * command fails. Use [selectTask] for that selection-only handoff; the receiving Actor can then
    * narrow or execute the selected task.
+   *
+   * This command also fails if the submitted narrowing makes a `System` change concrete for Admin.
+   * Commit that choice with [narrowTask] or [fillInTask] instead.
    *
    * @throws [NotFullySpecifiedException] if the task is abstract
    * @throws [NotNowException] if the task can't currently be resolved
@@ -188,6 +192,19 @@ public interface Agent {
   public interface OperationScope {
     public val tasks: TaskQueue
     public val reader: GameReader
+
+    /**
+     * Selects a pending task whose current instruction equals [instruction], then runs automatic
+     * work. An abstract task remains selected for [narrowTask]; a concrete task may execute or
+     * hand off. See [Agent.selectTask].
+     */
+    public fun selectTask(instruction: String)
+
+    /**
+     * Narrows this Actor's selected task and runs automatic work. A concrete `System` result passes
+     * to Admin for execution. See [Agent.narrowTask].
+     */
+    public fun narrowTask(narrowing: String)
 
     public fun doTask(narrowing: String)
 

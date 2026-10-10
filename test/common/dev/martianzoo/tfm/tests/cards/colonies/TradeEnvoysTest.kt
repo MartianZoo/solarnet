@@ -17,7 +17,8 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
 
     kim.stdAction("TradeAction") {
           doTask("Trade<Luna>")
-          doTask("ColonyProduction")
+          selectTask("ColonyProduction<Luna>?")
+          narrowTask("ColonyProduction<Luna>")
         }
         .expect("4 MC")
 
@@ -32,7 +33,8 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
 
     kim.cardAction2(TitanFloatingLaunchPad) {
           doTask("Trade<Luna>")
-          doTask("ColonyProduction")
+          selectTask("ColonyProduction<Luna>?")
+          narrowTask("ColonyProduction<Luna>")
         }
         .expect("-Floater<$TitanFloatingLaunchPad>, 13 MC")
 
@@ -58,7 +60,8 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
 
     kim.stdAction("TradeAction") {
           doTask("Trade<Luna>")
-          doTask("ColonyProduction")
+          selectTask("ColonyProduction<Luna>?")
+          narrowTask("ColonyProduction<Luna>")
           // Decline the other card's additional optional track increase.
           declineTask()
         }

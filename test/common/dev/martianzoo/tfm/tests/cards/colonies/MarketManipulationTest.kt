@@ -15,7 +15,8 @@ internal class MarketManipulationTest : TfmSandboxTest() {
   @Test
   internal fun `Can raise one colony track and lower another`() {
     kim.playProject(MarketManipulation, 1) {
-          doTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
+          selectTask("ColonyProduction(NOT Source@) FROM Source@ColonyProduction")
+          narrowTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
         }
         .expect("ColonyProduction<Luna>, -ColonyProduction<Triton>")
   }
@@ -26,7 +27,8 @@ internal class MarketManipulationTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.playProject(MarketManipulation, 1) {
-        doTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
+        selectTask("ColonyProduction(NOT Source@) FROM Source@ColonyProduction")
+        narrowTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
       }
     }
   }
@@ -37,7 +39,8 @@ internal class MarketManipulationTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.playProject(MarketManipulation, 1) {
-        doTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
+        selectTask("ColonyProduction(NOT Source@) FROM Source@ColonyProduction")
+        narrowTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
       }
     }
   }
@@ -46,7 +49,8 @@ internal class MarketManipulationTest : TfmSandboxTest() {
   internal fun `Cannot select the same colony track twice`() {
     shouldThrow<ExpressionException> {
       kim.playProject(MarketManipulation, 1) {
-        doTask("ColonyProduction<Luna> FROM ColonyProduction<Luna>")
+        selectTask("ColonyProduction(NOT Source@) FROM Source@ColonyProduction")
+        narrowTask("ColonyProduction<Luna> FROM ColonyProduction<Luna>")
       }
     }
   }
@@ -55,7 +59,8 @@ internal class MarketManipulationTest : TfmSandboxTest() {
   internal fun `Cannot raise Titan's delayed colony track`() {
     shouldThrow<GameplayException> {
       kim.playProject(MarketManipulation, 1) {
-        doTask("ColonyProduction<Titan> FROM ColonyProduction<Luna>")
+        selectTask("ColonyProduction(NOT Source@) FROM Source@ColonyProduction")
+        narrowTask("ColonyProduction<Titan> FROM ColonyProduction<Luna>")
       }
     }
   }
@@ -64,7 +69,8 @@ internal class MarketManipulationTest : TfmSandboxTest() {
   internal fun `Cannot lower Titan's delayed colony track`() {
     shouldThrow<GameplayException> {
       kim.playProject(MarketManipulation, 1) {
-        doTask("ColonyProduction<Luna> FROM ColonyProduction<Titan>")
+        selectTask("ColonyProduction(NOT Source@) FROM Source@ColonyProduction")
+        narrowTask("ColonyProduction<Luna> FROM ColonyProduction<Titan>")
       }
     }
   }

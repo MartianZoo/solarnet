@@ -146,10 +146,10 @@ CLASS StandardGpTrackRules : System, Hidden {
 }
 
 "A global parameter type that has not reached its maximum"
-CLASS GpIncomplete<Class<GlobalParameter>> : Hidden { HAS MAX 1 This }
+CLASS GpIncomplete<Class<GlobalParameter>> : Hidden, System { HAS MAX 1 This }
 
 "A global parameter type that has reached its maximum"
-CLASS GpComplete<Class<@GlobalParameter>> : Hidden {
+CLASS GpComplete<Class<@GlobalParameter>> : Hidden, System {
   HAS MAX 1 This
   This:: -GpIncomplete<Class<@GlobalParameter>>!
   -@GlobalParameter:: Die

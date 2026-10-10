@@ -94,7 +94,7 @@ CLASS PlayCard<Class<@CardBack>, Class<@CardFront>, @CardLocation> : Owned<Playe
 }
 
 "Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"
-CLASS CheckRequirement<Class<CardFront>> : Owned<Player>, Signal
+CLASS CheckRequirement<Class<CardFront>> : Owned<Player>, Signal, System
 
 "How far one printed global-parameter requirement is from the current track value"
 CLASS GpRequirementShortfall<Class<CardFront>, Class<GlobalParameter>> : CustomMetric
@@ -109,7 +109,7 @@ CLASS PriceCard<Class<@CardFront>> : Owned<Player>, Signal, System {
 CLASS PriceAspectCount<Class<CardFront>, Class<Component>> : CustomMetric
 
 "A temporary shortfall between a printed global requirement and the current parameter"
-CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier, Hidden {
+CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier, Hidden, System {
   DEFAULT -Required.
 }
 

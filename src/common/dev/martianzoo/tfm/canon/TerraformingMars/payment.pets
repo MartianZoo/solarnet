@@ -16,7 +16,7 @@ CLASS Billing<Class<Component>, ActionSlot, @Class<StandardResource>> : Owned<Pl
   -X Owed<@Class> IF MAX 0 Owed<@Class>:: -This!
 }
 
-CLASS Accepting<Class<@StandardResource>> : Owned<Player>, MustCleanUp, Hidden {
+CLASS Accepting<Class<@StandardResource>> : Owned<Player>, MustCleanUp, Hidden, System {
   HAS MAX 1 This
   DEFAULT +Accepting.
   Billing: -X @StandardResource?
@@ -25,7 +25,7 @@ CLASS Accepting<Class<@StandardResource>> : Owned<Player>, MustCleanUp, Hidden {
 }
 
 "Offers payment using the resource held by a specific card"
-CLASS AcceptingFromCard<@ResourceCard<Class<@CardResource>, @Player>> : Owned<@Player>, MustCleanUp, Hidden {
+CLASS AcceptingFromCard<@ResourceCard<Class<@CardResource>, @Player>> : Owned<@Player>, MustCleanUp, Hidden, System {
   HAS MAX 1 This
   Billing: -X @CardResource<@ResourceCard>?
   -X Billing:: -This!

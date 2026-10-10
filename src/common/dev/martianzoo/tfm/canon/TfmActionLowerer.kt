@@ -11,7 +11,7 @@ import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.pets.data.ClassDeclaration
 
-/** Rewrites Terraforming Mars standard-resource action costs into its billing protocol. */
+/** Rewrites fixed Terraforming Mars standard-resource action costs into its billing protocol. */
 internal object TfmActionLowerer {
   fun lower(source: ClassDeclaration): ClassDeclaration {
     if (source.authoredActions.isEmpty()) return source
@@ -42,6 +42,9 @@ internal object TfmActionLowerer {
     if (spend.scaledEx.expression.className !in standardResourceClasses) {
       return listOf(ordinaryEffect)
     }
+    // For a variable cost, the resource loss is the player's amount choice. Billing would instead
+    // make them choose an amount of internal Owed before they can spend anything.
+    if (spend.scaledEx.scalar is XScalar) return listOf(ordinaryEffect)
 
     val metricText =
         when (metric) {
@@ -54,16 +57,6 @@ internal object TfmActionLowerer {
     val billingResource =
         if (spend.scaledEx.expression.className == MC) ""
         else ", Class<${spend.scaledEx.expression}>"
-    if (spend.scaledEx.scalar is XScalar) {
-      return listOf(
-          parse(
-              "UseAction<This, $selector>: $owed THEN " +
-                  "Billing<Class<This>, $selector$billingResource> THEN " +
-                  "MAX 0 Billing: (${action.instruction})"
-          )
-      )
-    }
-
     return listOf(
         parse(
             "UseAction<This, $selector>: $owed THEN " +

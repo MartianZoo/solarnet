@@ -126,16 +126,40 @@ A normalized concrete task that gains or removes a `System` type, including chan
 wrapped in instruction-side `BY`, begins assigned to Admin while retaining its controller and
 selection assignee. Abstract targets, amounts, and optional gains or removals remain with the Player
 until narrowed; contextual selection reapplies the assignment rule. Transmutations use the gained
-type for this classification. Gates
-must resolve before this rule applies. A concrete `BY` remains authoritative: naming a non-Admin
-performer for a gain reaches the existing `System` creation guard and fails. The Admin assignment
-changes neither presentation nor scheduling.
+type for this classification after any abstract source is selected. Gates must resolve before this
+rule applies. A concrete `BY` remains authoritative: naming a non-Admin performer for a gain reaches
+the existing `System` creation guard and fails. The Admin assignment changes neither presentation
+nor scheduling.
+
+Player `doTask` rejects a narrowing that makes a `System` change concrete for Admin. Commit the
+choice through `fillInTask` or `narrowTask` instead; eager Admin policy then executes the resulting
+concrete task. The broader intended `doTask` contract is that the submitted change must actually
+be performed by this Actor; apply that rule to all handoffs when the general task-command API is
+ready, rather than adding further type-specific checks here.
 
 Use `System` for neutral table bookkeeping rather than a Player's game action. Fixed gains and
 concrete removals must themselves be safe for eager Admin execution. If they open a real choice, that
 choice remains downstream work for the retained Player recipient. This classification is
 independent of `Hidden`, which controls presentation, and `::`, which preserves an invariant within
 the initiating operation.
+
+Card-purchase, requirement, global-parameter-status, solo-countdown, and dominance bookkeeping use
+`System` for their concrete changes.
+
+### Deferred System classifications
+
+`PlayCard` remains open. An isolated `System` trial passed corporation selection and New Partner's
+nested free Prelude when the caller committed a task form and ran automatic work before continuing
+its operation. The full card-play workflow, payment, free plays, shared fixtures, replays, and
+`tfm_play` still need migration and verification.
+
+`UseAction` remains separate. An isolated trial exposed Viron's nested action timing: its
+downstream choice appeared too late for the enclosing operation body. Settle that sequence before
+changing action callers and reactive offers.
+
+`RequiredActionsSignal` remains non-System. Its trial forced standard-action callers to scan for an
+internal task and commit a form just to choose the required action. Revisit it only if that choice
+can remain a natural standard-action call.
 
 Selecting a task resolves it, marks it selected, and moves its current assignee to its selection
 assignee. If that Actor differs from the controller, selection stops at the handoff even when the

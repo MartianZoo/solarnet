@@ -41,7 +41,7 @@ private val systemDeclarationsSource =
     "Implementation detail normally omitted from user-facing output"
     ABSTRACT CLASS Hidden
 
-    "Admin bookkeeping; fixed gains and concrete removals normally execute as Admin"
+    "Admin bookkeeping; fully specified gains and removals normally execute as Admin"
     ABSTRACT CLASS System {
       This BY Actor(NOT Admin): Die
     }

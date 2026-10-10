@@ -282,7 +282,7 @@ CLASS LobbyActionAvailable : Owned<Player>, System, Hidden {
 }
 
 "Gives dominance to the largest delegation, then incumbency and committee order"
-CLASS RecalculateDominance<Source@Party> : Signal {
+CLASS RecalculateDominance<Source@Party> : Signal, System {
   This:: EACH Next@Party(HAS MAX 0 Dominant, HAS =1 (RANK Ranked@Party { \
     PartyDelegate<Ranked@, Anyone>, Dominant<Ranked@>, \
     Party - PartyDistance<Source@, Ranked@> \

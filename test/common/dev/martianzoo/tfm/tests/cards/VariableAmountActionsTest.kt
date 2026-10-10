@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cards.cardnames.EnergyMarket
 import dev.martianzoo.tfm.tests.cards.cardnames.HiTechLab
 import dev.martianzoo.tfm.tests.cards.cardnames.PowerInfrastructure
 import dev.martianzoo.tfm.tests.cards.cardnames.TychoMagnetics
@@ -17,6 +18,14 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
     kim.exMachina("$PowerInfrastructure")
 
     shouldThrow<NotFullySpecifiedException> { kim.cardAction1(PowerInfrastructure) }
+  }
+
+  @Test
+  internal fun `Energy Market spends two MC per chosen Energy`() {
+    newTestGame()
+    kim.exMachina("$EnergyMarket, 6 MC")
+
+    kim.cardAction1(EnergyMarket, x = 3).expect("-6 MC, 3 Energy")
   }
 
   @Test

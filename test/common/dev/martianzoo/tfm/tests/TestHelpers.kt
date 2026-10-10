@@ -227,9 +227,9 @@ internal object TestHelpers {
   private fun Int.expectedCount(): Int = if (this == ZERO_SCALAR_SENTINEL) 0 else this
 
   private fun TaskResult.inferredExpectationHolder(game: World): Player? {
-    // The first change normally retains the agent caller. An explicit `BY Admin` loses that
-    // signal, so fall back only when every owned change points to the same Player.
-    (changes.firstOrNull()?.actor as? Player)?.let {
+    // Admin bookkeeping can precede the Player's action. Infer from the first Player-performed
+    // change, or fall back to ownership when every owned change points to the same Player.
+    (changes.firstOrNull { it.actor is Player }?.actor as? Player)?.let {
       return it
     }
 

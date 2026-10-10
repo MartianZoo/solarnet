@@ -18,6 +18,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.util.Multiset
 import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.state.GameReader
@@ -191,6 +192,16 @@ internal class AgentImpl(
 
     override val reader = this@AgentImpl.reader
 
+    override fun selectTask(instruction: String) {
+      this@AgentImpl.selectTask(instruction)
+      autoExecLoop.run()
+    }
+
+    override fun narrowTask(narrowing: String) {
+      this@AgentImpl.narrowTask(narrowing)
+      autoExecLoop.run()
+    }
+
     override fun doTask(narrowing: String) {
       this@AgentImpl.doTask(narrowing)
       autoExecLoop.run()
@@ -262,7 +273,9 @@ internal class AgentImpl(
   // TURNS
 
   override fun startTurn() = atomic {
-    engine.addTasks(parseInstructionGroup("NewTurn<$actor>!")).forEach(engine::doTask)
+    engine
+        .addTasks(parseInstructionGroup("NewTurn<$actor>!"))
+        .forEach(world.actorEngine(ADMIN)::doTask)
   }
 
   override fun inTurn(body: OperationBlock): TaskResult {

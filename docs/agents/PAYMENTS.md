@@ -39,11 +39,22 @@ Cards, printed actions, conversions, milestones, and awards use this same type. 
 The slot defaults to `Action1` and the currency to M€. Currency-only listeners must leave the
 reason broad, as in `Billing<Class<Component>, Class<Heat>>`.
 
-`Owed`, `PayingFor`, and `Billing` are `System` bookkeeping. Fixed gains run as Admin,
-including scaled debt and gains inside automatic effects. A variable amount such as `X Owed`
-stays with the Player until they choose the amount; Admin then performs the concrete gain.
-The resulting payment choices remain assigned to the Player, whose resource removals retain
-that Player as their event Actor.
+`Owed`, `PayingFor`, `Billing`, `Accepting`, and `AcceptingFromCard` are `System` bookkeeping.
+Fixed, concrete gains run as Admin, including scaled debt and gains inside automatic effects.
+An abstract type or variable amount such as `X Owed` stays with the Player until narrowed; Admin
+then performs the concrete gain. Acceptance opens resource-removal offers, which remain assigned
+to the Player. The Player's chosen removals retain that Player as their event Actor.
+Printed actions with an `X` standard-resource cost use the ordinary Pets action rule:
+`X Energy -> X MC` offers a shared `X` choice through the action task's form. Choosing `X = 4`
+specializes its sequence to `-4 Energy! THEN 4 MC`; committing the form spends the Energy, then
+the M€ gain follows. Fixed standard-resource action costs use billing so acceptance and price
+adjustments can apply.
+
+The linked `X` choice still appears after `UseCardAction` fires, so `ActionUsedMarker` may exist
+while the choice is open. The intended later design would let a client set `X` on the printed
+action before committing its use, then perform an ordinary concrete action. That requires action
+invocation and its consequences to share the same choice. Inferring `X` backwards when a caller
+tries to perform `3 Foo` against `X Foo` is optional and does not justify extra machinery by itself.
 
 ## Verified gaps
 

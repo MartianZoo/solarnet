@@ -73,7 +73,12 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       stdAction("RequiredActionsSignal")
       playProject(TitanShuttles, 23)
     }
-    purple.turn { stdAction("RequiredActionsSignal") { doTask("Luna") } }
+    purple.turn {
+      stdAction("RequiredActionsSignal") {
+        selectTask("ColonyTileSelection")
+        narrowTask("Luna")
+      }
+    }
 
     pink.turn { cardAction1(TitanShuttles) { addCardResources(TitanShuttles, 2) } }
     purple.turn { playProject(PeroxidePower, 1, steel = 3) }

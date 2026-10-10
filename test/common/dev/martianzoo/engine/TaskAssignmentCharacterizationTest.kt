@@ -156,10 +156,11 @@ internal class TaskAssignmentCharacterizationTest {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     game.testAgent(ADMIN)
-    p1.addTasks("X SystemToken")
+    val taskId = p1.addTasks("X SystemToken").single()
     val before = game.timeline.checkpoint()
 
-    p1.doTask("3 SystemToken")
+    shouldThrow<TaskException> { p1.doTask("3 SystemToken") }
+    p1.fillInTask(taskId).apply { narrow("3 SystemToken") }.commit()
 
     p1.count("SystemToken") shouldBe 3
     game.events.changesSince(before).single().actor shouldBe ADMIN
@@ -194,12 +195,13 @@ internal class TaskAssignmentCharacterizationTest {
     p1.doTasks()
     p1.count("SystemChoice") shouldBe 2
     p1.doTasks("Ok")
-    p1.addTasks("-SystemChoice!")
+    val taskId = p1.addTasks("-SystemChoice!").single()
 
     p1.doTasks()
     p1.count("SystemChoice") shouldBe 2
     val before = game.timeline.checkpoint()
-    p1.doTasks("-SystemChoiceA")
+    shouldThrow<TaskException> { p1.doTask("-SystemChoiceA") }
+    p1.fillInTask(taskId).apply { narrow("-SystemChoiceA") }.commit()
 
     p1.count("SystemChoiceA") shouldBe 0
     p1.count("SystemChoiceB") shouldBe 1
@@ -285,12 +287,18 @@ internal class TaskAssignmentCharacterizationTest {
   internal fun playerNarrowsAbstractSystemGainBeforeAdminExecutesIt() {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    game.testAgent(ADMIN)
+    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
     val checkpoint = game.timeline.checkpoint()
 
     val taskId = p1.addTasks("SystemChoice").single()
     p1.tasks.ids().shouldContainExactly(taskId)
-    p1.doTask("SystemChoiceA")
+    admin.tasks.isEmpty() shouldBe true
+    shouldThrow<TaskException> { p1.doTask("SystemChoiceA") }
+    p1.tasks.ids().shouldContainExactly(taskId)
+    p1.count("SystemChoice") shouldBe 0
+    p1.fillInTask(taskId).apply { narrow("SystemChoiceA") }.commit()
+    admin.tasks.ids().shouldContainExactly(taskId)
+    admin.selectTask(taskId)
 
     p1.count("SystemChoiceA") shouldBe 1
     game.events.changesSince(checkpoint).single().actor shouldBe ADMIN
@@ -312,7 +320,8 @@ internal class TaskAssignmentCharacterizationTest {
       val accepted = p1.addTasks(offer).single()
       p1.tasks.ids().shouldContainExactly(accepted)
       val checkpoint = game.timeline.checkpoint()
-      p1.doTask("SystemToken")
+      shouldThrow<TaskException> { p1.doTask("SystemToken") }
+      p1.fillInTask(accepted).apply { narrow("SystemToken") }.commit()
       p1.count("SystemToken") shouldBe index + 1
       game.events.changesSince(checkpoint).single().actor shouldBe ADMIN
     }
@@ -328,7 +337,8 @@ internal class TaskAssignmentCharacterizationTest {
     val taskId = p1.addTasks("SystemChoice(NOT Source@) FROM Source@SystemChoice").single()
     p1.tasks.ids().shouldContainExactly(taskId)
     val checkpoint = game.timeline.checkpoint()
-    p1.doTask("SystemChoiceB FROM SystemChoiceA")
+    shouldThrow<TaskException> { p1.doTask("SystemChoiceB FROM SystemChoiceA") }
+    p1.fillInTask(taskId).apply { narrow("SystemChoiceB FROM SystemChoiceA") }.commit()
 
     p1.count("SystemChoiceA") shouldBe 0
     p1.count("SystemChoiceB") shouldBe 1
@@ -384,7 +394,7 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  internal fun abstractAdminWorkDoesNotPreventExecutablePlayerWork() {
+  internal fun abstractSystemChoiceDoesNotPreventExecutablePlayerWork() {
     val game = game()
     val p1 = game.testAgent(PLAYER1)
     game.testAgent(ADMIN)

@@ -641,7 +641,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // Yellow: "I pay one for Market Manipulation. Increase the colony track one step."
       // Green: "So she's increasing Pluto." Yellow: "Yes. Decrease Io."
       playProject(MarketManipulation, 1) {
-        doTask("ColonyProduction<Pluto> FROM ColonyProduction<Io>")
+        selectTask("ColonyProduction(NOT Source@) FROM Source@ColonyProduction")
+        narrowTask("ColonyProduction<Pluto> FROM ColonyProduction<Io>")
       }
       // Yellow: "Then I will spend three energy to trade with Pluto, which now gives me three
       // cards." Green: "Nice. Three cards free and clear."
@@ -1550,7 +1551,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // go on to the New Zealand insects."
       stdAction("TradeAction<Action2>") {
         doTask("Trade<Enceladus>")
-        doTask("ColonyProduction<Enceladus>")
+        selectTask("ColonyProduction<Enceladus>?")
+        narrowTask("ColonyProduction<Enceladus>")
         doTask("3 Microbe<$VenusianInsects>")
         doTask("Microbe<$VenusianInsects>")
       }
