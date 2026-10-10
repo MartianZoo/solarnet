@@ -295,7 +295,10 @@ CLASS RefillLobby : Signal, System {
 }
 
 "Requests the current political influence snapshot for one player"
-CLASS MeasureInfluence : Owned<Player>, Signal, System
+CLASS MeasureInfluence : Owned<Player>, Signal, System {
+  // Clear this player's previous snapshot before the other components supply current influence.
+  This:: EACH Measured@Influence { -Measured@! }
+}
 
 "One generation's political influence; each source below supplies at most one"
 ABSTRACT CLASS Influence<GenerationScope> : Owned<Player> {
