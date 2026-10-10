@@ -313,6 +313,19 @@ These concerns remain open; the ranking does not select replacement designs.
 
 ## Autonomous Follow-ups
 
+- Investigate atomized gains in the first stage of `THEN`: elaborating
+  `2 Rating THEN Coin` with `Rating : Atomized` fails when the first stage expands to a group.
+  This occurs before task recording; keep the Pets fix separate from decision-log work.
+
+- Extend task-text export with the Pets premise and external card identities. Task-id/context-only
+  disambiguation is not yet preserved: retain a meaningful selector before supporting logs that
+  depend on it, rather than trying alternative executions during import. Current replay checks use
+  the same premise in memory and compare engine state, not the test-owned card-name ledger.
+- Reconcile the old score discrepancy in `SoloGame20230721Test` against its original game record
+  (`gf33a06d07a1c`). Restoring normal Flooding play preserves the asserted 95 VP; the legacy comments
+  claimed 99 and reported 111 on herokuapp. The task round-trip verifies reproduction, not which
+  of those source/implementation totals is correct.
+
 - Extend instruction intersection to preserve unresolved shared aliases and unnamed Type unions.
   These currently require a more specific submitted choice; keep task matching conservative and
   never substitute `Ok` for an unrepresentable nonempty intersection.
@@ -374,12 +387,6 @@ attribution, features, and unresolved rule questions. Related symptoms are group
    elaboration rejects the gain. Reproduced during review. See
    [DerivedClassLowerer](src/common/dev/martianzoo/pets/DerivedClassLowerer.kt) and the owner-local
    specialization characterization in [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
-
-3. **Autoexecution throws instead of waiting for another player.** An automated player's currently
-   blocked task causes an exception even when a nonautomated player has a legal task that enables
-   it. Reproduced generically; no normal Mars scenario was identified. See the zero-options fallback
-   in [AutoExecLoop](src/common/dev/martianzoo/agent/AutoExecLoop.kt) and the waiting characterization
-   in [Agent BugsTest](test/common/dev/martianzoo/agent/BugsTest.kt).
 
 4. **Expansion compatibility rejects usable content.** Constructor, Summit Logistics, and Molecular
    Printing are blocked without Colonies; Suitable Infrastructure is blocked without Prelude rules

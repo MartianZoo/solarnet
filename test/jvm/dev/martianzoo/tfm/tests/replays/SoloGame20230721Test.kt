@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -217,28 +215,15 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       cardAction2(ExtractorBalloons).expect("TerraformRating")
       // me played Mining Expedition
       // me's steel amount increased by 2
-      withAutoExecLoweredAfterOperation(
-              NONE,
-              operation = { lowerAutoExec ->
-                playProject(MiningExpedition, 12) {
-                  doTask("-2 Plant<SoloOpponent>")
-                  lowerAutoExec()
-                }
-              },
-          ) {
-            // NOTE: this is a hack, because I should have banned Flooding
-            // me played Flooding
-            // me placed ocean tile on row 4 position 6
-            // me's plants amount increased by 1
-            runOperation(
-                    "-7 MC THEN OceanTile<Elysium_4_6>, PlayedEvent<Class<$Conscription>> FROM ProjectCard"
-                ) {
-                  placeTile(4, 6)
-                  autoExecPolicy = EAGER
-                }
-                .expect("Plant, -3 MC")
+      playProject(MiningExpedition, 12) {
+            doTask("-2 Plant<SoloOpponent>")
           }
           .expect("2 Steel, TerraformRating")
+
+      // me played Flooding
+      // me placed ocean tile on row 4 position 6
+      // me's plants amount increased by 1
+      playProject(Flooding, 7) { placeTile(4, 6) }.expect("Plant, -3 MC")
 
       // me passed
       // me acted as World Government and increased oxygen level
@@ -593,9 +578,9 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       assertCounts(95 to "VictoryPoint")
       assertCounts(82 to "MC")
 
-      // The score is really 99, but we faked Flooding. Note
-      // herokuapp says 111.
-      sum.signalCount("ActionPhase", "UseAction<Me>") shouldBe 98
+      // Legacy comments claim 99 VP and report 111 on herokuapp; the discrepancy is unresolved.
+      // Flooding now consumes its normal action instead of being injected outside a turn.
+      sum.signalCount("ActionPhase", "UseAction<Me>") shouldBe 99
     }
   }
 }

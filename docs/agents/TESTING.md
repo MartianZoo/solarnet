@@ -66,7 +66,8 @@ only when the change crosses a wider scope or the narrower result leaves a mater
 - `./gradlew :tfm-tests:jvmTest` runs the replay tests and writes one opaque JSON recording per
   successful `AbstractFullGameTest` subclass under that module's
   `generated/replay-event-logs` build directory. The browser viewer applies those recordings through
-  `:state` and never runs the engine.
+  `:state` and never runs the engine. Rebuilding viewer resources packages all generated recordings
+  and their task-text files; the selected game's `Task text` link opens its export.
 - `./gradlew :tfm-tests:replayTestCoverage` runs only tests in the replay package and writes HTML and
   XML production-code coverage reports under that module's `reports/jacoco/replayTestCoverage`
   build directory. Its execution data comes from the separate `replayTest` task, so card, rule,
@@ -579,6 +580,27 @@ calls; retain its state checkpoints and final score/winner assertions. Purchase 
 `Hand` are explicit tasks. Keep the replay's task calls instead of reintroducing
 `TfmGameplay` action, payment, or turn helpers. Shared score-preview assertions roll back their
 scoring simulation without changing any Actor's autoexecution policy.
+
+`AbstractFullGameTest` starts `Agents.taskLog` before gameplay. After each successful JVM
+replay, `ReplayExportExtension` writes Actor/task text beside the viewer JSON and imports it into a
+fresh game using the same premise and normal workflow. All imported Players use `NONE`; Admin
+retains aggressive autoexecution. The check compares every component, idle state, and pending task
+(including its instruction, continuation, ownership, selection, and causal ancestry; incidental
+ids and event ordinals may differ).
+A round-trip failure fails the test. Replays must keep the normal workflow running and use
+ordinary task submissions instead of injecting operations. Partial games may stop with decisions
+pending; hypothetical scoring checks use `withScorePreview`, which restores the live game.
+The hook reports each successful round-trip in test output.
+
+Task text retains submitted syntax and records policy-executed Player work explicitly, so import
+does not reproduce the source's Player policies. Routine Admin work is omitted; explicit Admin
+choices such as global-event identities remain. Plain instructions replay through `doTasks`; `DO`
+uses single-task `doTask` semantics. `CHOOSE` preserves selections and committed form instructions,
+including partial choices that leave work pending. Later full form instructions replace earlier
+form narrowings when they only edited that task. Uncommitted form edits are not recorded;
+round-trips compare resulting state rather than requiring identical intermediate events.
+`DROP` and `EX MACHINA` retain interventions. See `TaskLog` KDoc for supported scope.
+The task text still requires its caller to supply the premise and launch the workflow.
 
 Whole-game tests are high-value integration coverage. When translating a supplied game log:
 

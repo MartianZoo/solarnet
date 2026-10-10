@@ -9,7 +9,7 @@ body { display: flex; flex-direction: column; overflow: auto; background: #08080
   display: grid;
   min-height: 52px;
   flex: 0 0 auto;
-  grid-template-columns: auto minmax(180px, 280px) minmax(140px, 1fr) auto;
+  grid-template-columns: auto minmax(180px, 280px) minmax(140px, 1fr) auto auto;
   gap: 8px 12px;
   align-items: center;
   padding: 8px 14px;
@@ -20,6 +20,7 @@ body { display: flex; flex-direction: column; overflow: auto; background: #08080
 .controls label, .log-heading { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
 .controls select { min-height: 34px; padding: 4px 8px; border: 1px solid #4164a4; border-radius: 4px; color: #eef3ff; background: #152542; }
 #status, #position-label { color: #9fb8e7; font-size: 13px; }
+.controls a { color: #b9cbef; font-size: 13px; }
 
 .viewer {
   display: grid;
