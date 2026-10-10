@@ -252,7 +252,7 @@ entries do not identify an additional concrete breaking API change in these nine
 
 **Explicit removals in a preserved local plan; current commitment uncertain.**
 
-The local [`CARD_DATA_LAYER_PLAN.md`](_local/CARD_DATA_LAYER_PLAN.md) describes replacing structured
+An older uncommitted card-and-map data plan describes replacing structured
 map objects with loaded Classes and deleting public `MarsMapDefinition`, its `AreaDefinition`,
 `MarsMapReader`, and the old catalog map-access surface. Current `TfmCatalog.marsMap` and
 `marsMapDefinitions` still expose those objects. The plan also removes the map-regeneration tool.
@@ -260,7 +260,7 @@ map objects with loaded Classes and deleting public `MarsMapDefinition`, its `Ar
 That plan proposes a `tfm-map-data` module and checked-in generated output, whereas today's split
 list has no such module and current card generation writes build output. Treat this as a concrete
 possible API removal requiring reconciliation, not as a confirmed current implementation schedule.
-The linked file is local-only and may not exist in another checkout.
+That plan is local-only and may not exist in another checkout.
 
 ## Suggested order and exclusions
 
