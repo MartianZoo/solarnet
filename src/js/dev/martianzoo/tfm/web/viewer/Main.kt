@@ -32,6 +32,7 @@ private val classWord = Regex("[A-Za-z][A-Za-z0-9_]*")
 public fun main() {
   val gameSelect = document.getElementById("game-select") as HTMLSelectElement
   val status = checkNotNull(document.getElementById("status"))
+  val taskText = checkNotNull(document.getElementById("task-text"))
   val positionLabel = checkNotNull(document.getElementById("position-label"))
   var recording: GameRecording.Playback? = null
   var savedGames = emptyList<SavedGame>()
@@ -74,6 +75,7 @@ public fun main() {
   fun loadSelectedGame() {
     if (gameSelect.value.isEmpty()) return
     val selected = savedGames[gameSelect.value.toInt()]
+    taskText.setAttribute("hidden", "")
     gameSelect.disabled = true
     status.textContent = "Loading ${selected.name}…"
     window
@@ -106,6 +108,8 @@ public fun main() {
             measurePhase("initial-seek") { active.seek(selectablePositions.first()) }
             recording = active
             recordingName = selected.name
+            taskText.setAttribute("href", "games/${selected.name}.txt")
+            taskText.removeAttribute("hidden")
             selectedPlayerIndex = 0
             mapSubscriptions = measurePhase("render.map") { renderMap(active) }
             measurePhase("render.player-tabs") {

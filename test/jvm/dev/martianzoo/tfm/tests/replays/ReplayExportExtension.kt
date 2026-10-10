@@ -5,7 +5,7 @@ import java.nio.file.Path
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 
-/** Writes each successfully completed full-game test's passive recording for the web viewer. */
+/** Exports passive recordings and verifies games by reimporting their task text. */
 internal class ReplayExportExtension : AfterTestExecutionCallback {
   override fun afterTestExecution(context: ExtensionContext) {
     if (context.executionException.isPresent) return
@@ -19,11 +19,16 @@ internal class ReplayExportExtension : AfterTestExecutionCallback {
         )
     Files.createDirectories(directory)
     val output = directory.resolve("${context.requiredTestClass.simpleName}.json")
+    val taskOutput = directory.resolve("${context.requiredTestClass.simpleName}.txt")
     if (!replay.producesReplayRecording) {
       Files.deleteIfExists(output)
+      Files.deleteIfExists(taskOutput)
       return
     }
     val json = replay.completedRecordingJson() ?: return
     Files.writeString(output, json)
+    Files.writeString(taskOutput, replay.completedTaskLogText())
+    replay.verifyTaskRoundTrip()
+    println("Task round-trip passed: ${context.requiredTestClass.simpleName}")
   }
 }

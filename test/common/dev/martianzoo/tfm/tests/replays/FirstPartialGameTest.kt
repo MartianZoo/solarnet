@@ -18,7 +18,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
 
   @Test
   internal fun fourWholeGenerations() {
-    val workflow = TfmWorkflow.Automatic(agents).launch()
+    TfmWorkflow.Automatic(agents).launch()
     keepStartingProjects(3, 8)
     p1.playCorp(LakefrontResorts)
     p2.playCorp(InterplanetaryCinematics)
@@ -131,10 +131,11 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
       stdProject("CityProject") { placeTile(6, 5) }
     }
 
-    workflow.shutdown()
-    TfmWorkflow.Stepwise(game.testAgents()).productionPhase()
+    p1.pass()
+    p2.pass()
 
-    admin.assertCounts(4 to "Generation")
+    // Four generations are complete; the normal workflow now offers generation 5 research.
+    admin.assertCounts(5 to "Generation")
     admin.assertCounts(0 to "OceanTile", 0 to "OxygenStep", 0 to "TemperatureStep")
 
     with(p1) {
@@ -157,7 +158,12 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
           0 to "Heat",
       )
 
-      assertCounts(15 to "Card", 5 to "ProjectCard", 10 to "CardFront")
+      assertCounts(
+          19 to "Card",
+          5 to "ProjectCard",
+          4 to "ProjectCard<Selecting>",
+          10 to "CardFront",
+      )
       assertCounts(1 to "ActiveCard", 6 to "AutomatedCard", 0 to "PlayedEvent")
 
       assertTags(but = 5, spt = 2, sct = 2, eat = 1, jot = 3, cit = 1)
@@ -185,7 +191,12 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
           0 to "Heat",
       )
 
-      assertCounts(23 to "Card", 3 to "ProjectCard", 17 to "CardFront")
+      assertCounts(
+          27 to "Card",
+          3 to "ProjectCard",
+          4 to "ProjectCard<Selecting>",
+          17 to "CardFront",
+      )
       assertCounts(4 to "ActiveCard", 10 to "AutomatedCard", 3 to "PlayedEvent")
 
       assertTags(but = 9, spt = 3, sct = 4, pot = 2, eat = 3, mit = 1)

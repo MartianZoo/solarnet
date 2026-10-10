@@ -33,6 +33,7 @@ internal class AgentImpl(
     private val engine: ActorEngine,
     private val elaborator: PetElaborator,
     private val autoExecLoop: AutoExecLoop,
+    private val taskLog: TaskLog,
 ) : Agent {
 
   private val autoExecPolicyOverrides = mutableListOf<AutoExecPolicy>()
@@ -111,7 +112,11 @@ internal class AgentImpl(
 
   override fun dropTask(taskId: TaskId): TaskRemovedEvent {
     lateinit var removed: TaskRemovedEvent
-    atomicWithoutAutoExec { removed = engine.dropTask(taskId) }
+    atomicWithoutAutoExec {
+      taskLog.capture(actor, "DROP ${tasks.getTaskData(taskId).instruction}") {
+        removed = engine.dropTask(taskId)
+      }
+    }
     return removed
   }
 
@@ -195,12 +200,14 @@ internal class AgentImpl(
       narrowings.forEach { narrowing ->
         val parsed = parseTaskNarrowing(narrowing)
         atomic {
-          engine.doTask(
-              parsed.instruction,
-              parsed.quantifierOmitted,
-              parsed.submittedAsGroup || parsed.instruction is InstructionGroup,
-              combineScalars = true,
-          )
+          taskLog.capture(actor, narrowing) {
+            engine.doTask(
+                parsed.instruction,
+                parsed.quantifierOmitted,
+                parsed.submittedAsGroup || parsed.instruction is InstructionGroup,
+                combineScalars = true,
+            )
+          }
         }
         autoExecLoop.run()
       }
@@ -284,73 +291,100 @@ internal class AgentImpl(
   internal fun changeLimit(change: Change): Int? = engine.changeLimit(change)
 
   internal fun commitForm(taskId: TaskId, narrowing: InstructionTree): TaskResult = atomic {
-    engine.narrowTask(taskId, narrowing)
+    taskLog.capture(actor, "CHOOSE $narrowing", formTask = taskId) {
+      engine.narrowTask(taskId, narrowing)
+    }
   }
 
   override fun narrowTask(narrowing: String) = atomic {
     val parsed = parseTaskNarrowing(narrowing)
-    engine.narrowTask(parsed.instruction, parsed.quantifierOmitted)
+    val taskId = tasks.selectedTask() ?: throw TaskException("`$actor` has no selected task")
+    val instruction =
+        engine.prepareTaskNarrowing(taskId, parsed.instruction, parsed.quantifierOmitted)
+    taskLog.capture(actor, "CHOOSE $instruction", formTask = taskId) {
+      engine.narrowTask(parsed.instruction, parsed.quantifierOmitted)
+    }
   }
 
   override fun canSelectTask(taskId: TaskId) = engine.canSelectTask(taskId)
 
   override fun canExecuteTask(taskId: TaskId) = engine.canExecuteTask(taskId)
 
-  override fun selectTask(taskId: TaskId) = atomic { engine.selectTask(taskId) }
+  override fun selectTask(taskId: TaskId) = atomic {
+    taskLog.capture(actor, "CHOOSE ${tasks.getTaskData(taskId).instruction}") {
+      engine.selectTask(taskId)
+    }
+  }
 
   override fun selectTask(instruction: String) = atomic {
-    engine.selectTask(parse<Instruction>(instruction))
+    taskLog.capture(actor, "CHOOSE $instruction") {
+      engine.selectTask(parse<Instruction>(instruction))
+    }
   }
 
   override fun doTask(narrowing: String) = atomic {
-    val parsed = parseTaskNarrowing(narrowing)
-    engine.doTask(
-        parsed.instruction,
-        parsed.quantifierOmitted,
-        parsed.submittedAsGroup,
-    )
+    taskLog.capture(actor, "DO $narrowing") {
+      val parsed = parseTaskNarrowing(narrowing)
+      engine.doTask(
+          parsed.instruction,
+          parsed.quantifierOmitted,
+          parsed.submittedAsGroup,
+      )
+    }
   }
 
   override fun doTask(narrowing: String, contextClass: ClassName) = atomic {
-    val parsed = parseTaskNarrowing(narrowing)
-    engine.doTask(
-        parsed.instruction,
-        parsed.quantifierOmitted,
-        parsed.submittedAsGroup,
-        contextClass = contextClass,
-    )
+    taskLog.capture(actor, "DO $narrowing") {
+      val parsed = parseTaskNarrowing(narrowing)
+      engine.doTask(
+          parsed.instruction,
+          parsed.quantifierOmitted,
+          parsed.submittedAsGroup,
+          contextClass = contextClass,
+      )
+    }
   }
 
   override fun doTask(narrowing: String, taskId: TaskId) = atomic {
-    val parsed = parseTaskNarrowing(narrowing)
-    engine.doTask(
-        parsed.instruction,
-        parsed.quantifierOmitted,
-        parsed.submittedAsGroup,
-        taskId,
-    )
+    taskLog.capture(actor, "DO $narrowing") {
+      val parsed = parseTaskNarrowing(narrowing)
+      engine.doTask(
+          parsed.instruction,
+          parsed.quantifierOmitted,
+          parsed.submittedAsGroup,
+          taskId,
+      )
+    }
   }
 
   override fun tryTask(narrowing: String) = atomic {
-    val parsed = parseTaskNarrowing(narrowing)
-    engine.tryTask(
-        parsed.instruction,
-        parsed.quantifierOmitted,
-        parsed.submittedAsGroup,
-    )
+    taskLog.capture(actor, "DO $narrowing") {
+      val parsed = parseTaskNarrowing(narrowing)
+      engine.tryTask(
+          parsed.instruction,
+          parsed.quantifierOmitted,
+          parsed.submittedAsGroup,
+      )
+    }
   }
 
   override fun tryTask(narrowing: String, taskId: TaskId) = atomic {
-    val parsed = parseTaskNarrowing(narrowing)
-    engine.tryTask(
-        parsed.instruction,
-        parsed.quantifierOmitted,
-        parsed.submittedAsGroup,
-        taskId,
-    )
+    taskLog.capture(actor, "DO $narrowing") {
+      val parsed = parseTaskNarrowing(narrowing)
+      engine.tryTask(
+          parsed.instruction,
+          parsed.quantifierOmitted,
+          parsed.submittedAsGroup,
+          taskId,
+      )
+    }
   }
 
-  override fun tryTask(taskId: TaskId) = atomic { engine.tryTask(taskId) }
+  override fun tryTask(taskId: TaskId) = atomic {
+    taskLog.capture(actor, "CHOOSE ${tasks.getTaskData(taskId).instruction}") {
+      engine.tryTask(taskId)
+    }
+  }
 
   // autoExecNow() and cross-Actor Agent calls can re-enter this call site. Its depth is shared
   // by every Actor in the world so only the true outermost operation drains and reports completion.

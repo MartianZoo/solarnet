@@ -34,25 +34,27 @@ public fun Agents.exMachina(adjustingActor: Actor, adjustment: String) {
     }
   }
   val auditedAdjustment = "Audit<$adjustingActor>, $adjustment"
-  world.timeline.atomic {
-    val unfinished = agent.list("MustCleanUp").entries.associate { it.key to it.value }
-    val selected =
-        world.tasks.selectedTask()?.let { id ->
-          val currentAssignee = world.tasks.getTaskData(id).assignee
-          world.taskBeforeSelection(id) to this[currentAssignee]
-        }
-    selected?.let { (beforeSelection, currentAssignee) ->
-      world.actorEngine(currentAssignee.actor).restoreTask(beforeSelection)
-    }
-    agent.sneak(auditedAdjustment)
-    if (
-        agent.list("MustCleanUp").entries.any { (type, count) -> count > (unfinished[type] ?: 0) }
-    ) {
-      throw NotNowException("exMachina cannot leave new unfinished work")
-    }
-    selected?.let { (beforeSelection, currentAssignee) ->
-      world.actorEngine(beforeSelection.assignee).selectTask(beforeSelection.id)
-      currentAssignee.autoExecNow()
+  taskLog.capture(adjustingActor, "EX MACHINA $adjustment") {
+    world.timeline.atomic {
+      val unfinished = agent.list("MustCleanUp").entries.associate { it.key to it.value }
+      val selected =
+          world.tasks.selectedTask()?.let { id ->
+            val currentAssignee = world.tasks.getTaskData(id).assignee
+            world.taskBeforeSelection(id) to this[currentAssignee]
+          }
+      selected?.let { (beforeSelection, currentAssignee) ->
+        world.actorEngine(currentAssignee.actor).restoreTask(beforeSelection)
+      }
+      agent.sneak(auditedAdjustment)
+      if (
+          agent.list("MustCleanUp").entries.any { (type, count) -> count > (unfinished[type] ?: 0) }
+      ) {
+        throw NotNowException("exMachina cannot leave new unfinished work")
+      }
+      selected?.let { (beforeSelection, currentAssignee) ->
+        world.actorEngine(beforeSelection.assignee).selectTask(beforeSelection.id)
+        currentAssignee.autoExecNow()
+      }
     }
   }
 }

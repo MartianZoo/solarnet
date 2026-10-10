@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import kotlin.test.BeforeTest
@@ -36,21 +35,5 @@ internal abstract class AbstractSoloTest : AbstractFullGameTest() {
     p1.pass()
     me.wgt(worldGovernmentChoice)
     p1.buyCards(cardsBought)
-  }
-
-  /** Leaves the following workflow task unselected while [body] makes a log correction. */
-  protected fun <T> withAutoExecLoweredAfterOperation(
-      mode: AutoExecPolicy,
-      operation: (() -> Unit) -> T,
-      body: () -> Unit,
-  ): T {
-    val previousMode = me.autoExecPolicy
-    return try {
-      val result = operation { me.autoExecPolicy = mode }
-      body()
-      result
-    } finally {
-      me.autoExecPolicy = previousMode
-    }
   }
 }
