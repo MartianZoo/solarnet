@@ -64,16 +64,6 @@ internal class Lang06EffectsTest {
     OnRemoveOf.create(parse<Expression>("This")) shouldBe WhenRemove
   }
 
-  @Test
-  internal fun `L6-4 an empty argument list does not make This a subscription`() {
-    // `This<>` is the same placeholder as `This` (L1-5), even though the two are different
-    // expressions, so it is classified structurally rather than by expression equality.
-    parse<Effect>("This<>: Plant").trigger shouldBe WhenGain
-    parse<Effect>("-This<>: Plant").trigger shouldBe WhenRemove
-    parse<Effect>("This<Player1>: Plant").trigger shouldBe
-        OnGainOf.create(parse<Expression>("This<Player1>"))
-  }
-
   // L6-5 X triggers
 
   @Test

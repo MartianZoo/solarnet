@@ -5,7 +5,6 @@ CLASS VictoryPoint : Owned<Player>, System
 
 "A milestone that has been claimed"
 ABSTRACT CLASS Milestone : Owned<Player> {
-  HAS MAX 1 This<Player> // TODO: get rid of this syntax
   HAS MAX 3 Milestone
   autoSelectWhen = Requirement?
   requirement = Requirement

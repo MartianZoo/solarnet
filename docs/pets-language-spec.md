@@ -128,17 +128,13 @@ RefinementClause ::= "HAS" RequirementDisjunction | "NOT" PlainExpression
 > after `PROD[Steel]` is expanded. Production must exist even when the player has no steel cubes;
 > a reference to an actual steel component would impose the wrong dependency (T4-7).
 
-**L1-5. `This` names the component the enclosing declaration is about.** It is an expression like
-any other and may take arguments: `This<Foo>` keeps the arguments and adopts the context's class.
-Elaboration replaces it (L9-2). `This` is a placeholder rather than a class, so it has no defaults
-of its own and an empty argument list on it accepts nothing: `This<>` *is* the bare placeholder.
-Every construct that recognizes the placeholder recognizes both spellings, even though the two are
-different expressions (L1-2).
+**L1-5. `This` names the component the enclosing declaration is about.** It is a bare contextual
+expression. It cannot have a Type-variable marker, argument list, or refinement. Elaboration
+replaces it with the complete context expression (L9-2). `This` is a placeholder rather than a
+class, so it has no defaults of its own.
 
 > **Non-normative example — Inventrix's required action.** `RequiredActionsSignal: -This!` removes
 > that pending `RequiredAction` component, rather than some other pending required action.
-> Recognizing `This<>` too is a uniformity rule for the placeholder; no current canonical card uses
-> that spelling or needs it as an additional capability.
 
 **L1-6. `Anyone` is an ordinary class.** It is the common supertype of `Owner` and `Actor`, the
 identities that can own components or perform operations. `Player` is both; Admin is only an Actor; passive owners are only Owners.
@@ -890,9 +886,8 @@ TriggerChange ::= "-"? "X"? Expression
 > replay setup for each city or pay only when the corporation component itself appeared.
 
 **L6-4. A self trigger is not a subscription to its own type.** There is no way to spell one as the
-other: writing the bare `This` placeholder as a subscription target *is* the self trigger, however
-its empty argument list was written (L1-5). `This` is about changes to this very component, while a
-subscription is about changes anywhere that match an expression.
+other: writing `This` as a subscription target *is* the self trigger (L1-5). `This` is about changes
+to this very component, while a subscription is about changes anywhere that match an expression.
 
 They also scale differently, which is part of what each one means:
 
@@ -1143,8 +1138,8 @@ of the Pets supplies the context:
 > each defaulted to the setting-up player. Atomizing before defaulting means each card is defaulted
 > in its own right, rather than one aggregate pseudo-card being split afterward.
 
-**L9-2. `This` is replaced by the context expression.** `Class<This>` becomes the class literal for
-the context's class, and `This<Foo>` keeps its own arguments while adopting the context's class.
+**L9-2. `This` is replaced by the complete context expression.** `Class<This>` becomes the class
+literal for the context's class.
 
 > **Non-normative example — Asteroid.** The inherited event cleanup creates
 > `PlayedEvent<Class<This>>`. Specializing the rule for Asteroid must produce

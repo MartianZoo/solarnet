@@ -236,9 +236,6 @@ These concerns remain open; the ranking does not select replacement designs.
   effects should belong to the new phase, whose phase scope drains into terminal `End`, where victory
   is assigned. Coordinate this with `TfmWorkflow` and the runtime design in the Solarnet roadmap; do not
   merely rename the completion marker into a phase.
-- Decide whether `Milestone`'s per-player uniqueness constraint should use
-  `HAS MAX 1 This<Player>` or a clearer way to express one instance of the concrete milestone per
-  player.
 - Replace the duplicated `TemperatureStep BY Player`/`BY Admin` threshold-ocean triggers and the
   synthetic `AdminOceanPlacement` signal with one rule that separates who chooses the tile from
   whose action the placement is attributed to, shared by the standard and extended tracks.

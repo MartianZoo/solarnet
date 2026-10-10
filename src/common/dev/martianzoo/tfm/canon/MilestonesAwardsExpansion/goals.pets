@@ -2,11 +2,16 @@
 // supplies the remaining supported goals and revised goals with distinct implementations.
 
 CLASS Briber : Milestone {
+  HAS MAX 1 Briber
   requirement = HAS "This"
   This: -12 MC
 }
-CLASS Builder : Milestone { requirement = HAS "7 BuildingTag" }
+CLASS Builder : Milestone {
+  HAS MAX 1 Builder
+  requirement = HAS "7 BuildingTag"
+}
 CLASS Hydrologist : Milestone {
+  HAS MAX 1 Hydrologist
   HAS Class<HydrologistWatcher>
   requirement = HAS "4 OceanCredit"
 }
@@ -19,23 +24,44 @@ CLASS HydrologistWatcher<Class<Hydrologist>> : CardWatcher {
 "A player's credit for placing an ocean"
 CLASS OceanCredit : Owned<Player>
 
-CLASS Legend : Milestone { requirement = HAS "4 PlayedEvent" }
-CLASS Merchant : Milestone { requirement = HAS "2 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat" }
-CLASS Philantropist : Milestone { requirement = HAS "5 Class<@CardFront>(HAS @CardFront, HAS GainsOf<Class<VictoryPoint>>)" }
+CLASS Legend : Milestone {
+  HAS MAX 1 Legend
+  requirement = HAS "4 PlayedEvent"
+}
+CLASS Merchant : Milestone {
+  HAS MAX 1 Merchant
+  requirement = HAS "2 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat"
+}
+CLASS Philantropist : Milestone {
+  HAS MAX 1 Philantropist
+  requirement = HAS "5 Class<@CardFront>(HAS @CardFront, HAS GainsOf<Class<VictoryPoint>>)"
+}
 CLASS GainsOf<Class<CardFront>, Class<Component>> : CustomMetric
-CLASS Pioneer : Milestone { requirement = HAS "4 Colony" }
+CLASS Pioneer : Milestone {
+  HAS MAX 1 Pioneer
+  requirement = HAS "4 Colony"
+}
 CLASS Producer : Milestone {
+  HAS MAX 1 Producer
   autoSelectWhen = HAS "MAX 0 QuickStartVariant"
   requirement = HAS "16 (PROD[StandardResource] - ProdOffset)"
 }
 CLASS Producer22 : Milestone {
+  HAS MAX 1 Producer22
   autoSelectWhen = HAS "QuickStartVariant"
   requirement = HAS "22 (PROD[StandardResource] - ProdOffset)"
 }
-CLASS Tactician : Milestone { requirement = HAS "4 CardFront(HAS requirement)" }
-CLASS Terraformer : Milestone { requirement = HAS "29 TerraformRating" }
+CLASS Tactician : Milestone {
+  HAS MAX 1 Tactician
+  requirement = HAS "4 CardFront(HAS requirement)"
+}
+CLASS Terraformer : Milestone {
+  HAS MAX 1 Terraformer
+  requirement = HAS "29 TerraformRating"
+}
 "Counts temperature increases made by the claiming player"
 CLASS Thawer : Milestone {
+  HAS MAX 1 Thawer
   HAS Class<ThawerWatcher>
   requirement = HAS "5 ThawerCredit"
 }
@@ -47,7 +73,10 @@ CLASS ThawerWatcher<Class<Thawer>> : CardWatcher {
 
 CLASS ThawerCredit : Owned<Player>
 
-CLASS Tycoon : Milestone { requirement = HAS "10 (ActiveCard OR AutomatedCard)" }
+CLASS Tycoon : Milestone {
+  HAS MAX 1 Tycoon
+  requirement = HAS "10 (ActiveCard OR AutomatedCard)"
+}
 
 CLASS Administrator : Award { metric = COUNT "CardFront(HAS MAX 0 Tag)" }
 CLASS Biologist : Award { metric = COUNT "BioTag" }

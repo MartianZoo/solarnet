@@ -66,7 +66,9 @@ internal object CardPetsGenerator {
     private val otherEffects = effects.filter { it.node.trigger != Effect.Trigger.WhenGain }
     private val tagCounts = data.tags.groupingBy(::cn).eachCount()
     private val invariants =
-        (data.invariants + tagCounts.map { (tag, count) -> "=$count $tag<This>" })
+        (listOf("MAX 1 $className") +
+                data.invariants +
+                tagCounts.map { (tag, count) -> "=$count $tag<This>" })
             .map { parseOwned<Requirement>(it) }
             .distinctBy { it.node }
     private val componentClasses = data.components.map(::parseOneLinerClass)

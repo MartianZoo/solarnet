@@ -129,10 +129,8 @@ public data class Effect(
       public companion object {
         /**
          * Returns the trigger for gains of [expression], which is [WhenGain] when [expression] is
-         * the bare `This` placeholder however its empty argument list was written ([rules
-         * L6-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)
-         * and
-         * [L1-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)).
+         * `This` ([rule
+         * L6-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)).
          *
          * @throws PetSyntaxException if [expression] is a class literal, which nothing ever gains
          *   ([rule
@@ -146,7 +144,7 @@ public data class Effect(
                 sourceLocation = expression.sourceLocation,
             )
           }
-          return if (expression.isBare(THIS)) {
+          return if (expression == THIS.expression) {
             WhenGain
           } else {
             OnGainOf(expression)
@@ -155,7 +153,7 @@ public data class Effect(
       }
 
       init {
-        require(!expression.isBare(THIS))
+        require(expression != THIS.expression)
       }
 
       override fun visitChildren(visitor: Visitor): Unit = visitor.visit(expression)
@@ -170,10 +168,8 @@ public data class Effect(
       public companion object {
         /**
          * Returns the trigger for removals of [expression], which is [WhenRemove] when [expression]
-         * is the bare `This` placeholder however its empty argument list was written ([rules
-         * L6-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)
-         * and
-         * [L1-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)).
+         * is `This` ([rule
+         * L6-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)).
          *
          * @throws PetSyntaxException if [expression] is a class literal, which nothing ever removes
          *   ([rule
@@ -187,7 +183,7 @@ public data class Effect(
                 sourceLocation = expression.sourceLocation,
             )
           }
-          return if (expression.isBare(THIS)) {
+          return if (expression == THIS.expression) {
             WhenRemove
           } else {
             OnRemoveOf(expression)
@@ -196,7 +192,7 @@ public data class Effect(
       }
 
       init {
-        require(!expression.isBare(THIS))
+        require(expression != THIS.expression)
       }
 
       override fun visitChildren(visitor: Visitor): Unit = visitor.visit(expression)

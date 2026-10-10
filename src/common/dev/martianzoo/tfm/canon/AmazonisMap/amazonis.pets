@@ -23,16 +23,27 @@ CLASS ExtendedGlobalParametersRule : Module {
   OceanTile IF =11 OceanTile:: GpComplete<Class<OceanTile>>
 }
 
-CLASS Terran : Milestone { requirement = HAS "5 EarthTag" }
+CLASS Terran : Milestone {
+  HAS MAX 1 Terran
+  requirement = HAS "5 EarthTag"
+}
 // The extra term prevents counting Capital's tile twice as a city and a special tile.
 CLASS Landshaper : Milestone {
+  HAS MAX 1 Landshaper
   requirement = HAS "CityTile, GreeneryTile, SpecialTile, 2 (CityTile OR SpecialTile)"
 }
 CLASS Merchant3 : Milestone {
+  HAS MAX 1 Merchant3
   requirement = HAS "3 MC, 3 Steel, 3 Titanium, 3 Plant, 3 Energy, 3 Heat"
 }
-CLASS Sponsor : Milestone { requirement = HAS "3 CardFront(HAS 20 cost)" }
-CLASS Lobbyist : Milestone { requirement = HAS "7 Delegate" }
+CLASS Sponsor : Milestone {
+  HAS MAX 1 Sponsor
+  requirement = HAS "3 CardFront(HAS 20 cost)"
+}
+CLASS Lobbyist : Milestone {
+  HAS MAX 1 Lobbyist
+  requirement = HAS "7 Delegate"
+}
 
 CLASS Collector : Award { metric = COUNT "Class<@Resource>(HAS @Resource)" }
 CLASS Innovator : Award { metric = COUNT "CardFront OR PlayedEvent" }

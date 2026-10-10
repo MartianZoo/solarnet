@@ -17,7 +17,7 @@ import kotlin.test.assertTrue
 
 /**
  * Canon invariants checked during the build, not universal Terraforming Mars rules. A failure names
- * cards whose addition or rewrite requires revisiting the invariant and its consumers. See
+ * classes whose addition or rewrite requires revisiting the invariant and its consumers. See
  * docs/agents/GAME_HACKS.md for the corresponding composition hazards.
  */
 internal class CanonInvariantsTest {
@@ -49,6 +49,24 @@ internal class CanonInvariantsTest {
   @Test
   internal fun cardCategoriesMatchTheirTagsAndPersistentBehavior() {
     validateCardClassification(Canon)
+  }
+
+  @Test
+  internal fun everyConcreteCardAndMilestoneDeclaresItsClassWideLimit() {
+    listOf("CardFront", "Milestone").forEach { rootName ->
+      val root = table.getClass(cn(rootName))
+      val concrete = table.allClasses().filter { !it.abstract && it.isSubtypeOf(root) }
+      assertTrue(concrete.isNotEmpty(), "No concrete $rootName classes examined")
+      val missing = concrete.filter { klass ->
+        parse<Requirement>("MAX 1 ${klass.className}") !in
+            Requirement.split(klass.declaration.invariants)
+      }
+      assertTrue(
+          missing.isEmpty(),
+          "Concrete $rootName classes need their own class-wide limit:\n" +
+              missing.joinToString("\n") { it.className.toString() },
+      )
+    }
   }
 
   @Test

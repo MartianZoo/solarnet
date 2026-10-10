@@ -10,8 +10,6 @@ ABSTRACT CLASS Card : Owned<Player> {
 
   "A card in play, face-up on the table (consider rename to CardFace)"
   ABSTRACT CLASS CardFront<Class<CardBack>> : TagHolder {
-    HAS MAX 1 This<Player>
-
     cost = Number
     requirement = Requirement?
     autoSelectWhen = Requirement?
