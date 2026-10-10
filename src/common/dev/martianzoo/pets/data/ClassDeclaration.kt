@@ -7,9 +7,9 @@ import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
 import dev.martianzoo.pets.api.SystemClasses.CUSTOM_METRIC
 import dev.martianzoo.pets.api.SystemClasses.THIS
-import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.ActionTree
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Quantifier
 import dev.martianzoo.pets.ast.PetNode
@@ -69,13 +69,13 @@ public data class ClassDeclaration(
     public val invariants: Set<Requirement> = emptySet(),
 
     /** Effects authored directly in this class body, in declaration order. */
-    public val authoredEffects: List<Effect> = emptyList(),
+    public val authoredEffects: List<EffectTree> = emptyList(),
 
     /** Actions authored directly in this class body. */
-    public val authoredActions: List<Action> = emptyList(),
+    public val authoredActions: List<ActionTree> = emptyList(),
 
     /** An catalog-specific executable form, when it differs from the authored form. */
-    internal val executableEffects: List<Effect>? = null,
+    internal val executableEffects: List<EffectTree>? = null,
 
     /**
      * The merged contents of any `DEFAULT` clauses in the class body. A clause names the class that
@@ -115,16 +115,16 @@ public data class ClassDeclaration(
    * it makes introspection deterministic once actions have become ordinary effects.
    */
   // TODO: Contract temporary tfm-canon declaration-lowering seams.
-  public val authoredEffectsWithActions: List<Effect>
+  public val authoredEffectsWithActions: List<EffectTree>
     get() = authoredEffects + actionListToEffects(authoredActions)
 
   /**
    * The effects this class actually carries: [authoredEffectsWithActions], in the order
    * [rule L7-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-actions)
    * gives, unless a Catalog supplied its own executable form for this class — in which case that
-   * replaces the whole list.
+   * replaces the whole list. These trees retain transform marks until elaboration.
    */
-  public val effects: List<Effect>
+  public val effects: List<EffectTree>
     get() = executableEffects ?: authoredEffectsWithActions
 
   public val customMetric: Boolean = CUSTOM_METRIC.expression in supertypes
@@ -328,8 +328,8 @@ public data class ClassDeclaration(
       invariants.sortedBy(Requirement::toString).mapTo(this) { "HAS $it" }
       addAll(defaultsDeclaration.toPets())
       properties.mapTo(this) { (name, value) -> "$name = $value" }
-      authoredEffects.mapTo(this, Effect::toString)
-      authoredActions.mapTo(this, Action::toString)
+      authoredEffects.mapTo(this, EffectTree::toString)
+      authoredActions.mapTo(this, ActionTree::toString)
     }
     if (body.isNotEmpty()) {
       if (oneLine) body.joinTo(this, separator = "; ", prefix = " { ", postfix = " }")

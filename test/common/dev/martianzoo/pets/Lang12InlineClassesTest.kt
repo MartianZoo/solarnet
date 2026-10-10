@@ -5,8 +5,10 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.ActionTree
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
@@ -121,6 +123,23 @@ internal class Lang12InlineClassesTest {
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Host1 { This: Base { CLASS Inner } }") }
   }
 
+  @Test
+  internal fun `L12-4 extraction retains the order of enclosing transforms on local rules`() {
+    val derived =
+        parseClasses(
+                """
+      CLASS Host1 {
+        OUTER[This: INNER[Base { This: Plant; Heat -> Steel }]]
+      }
+    """
+            )
+            .last()
+    derived.authoredEffects shouldContainExactly
+        listOf(parse<EffectTree>("OUTER[INNER[This: Plant]]"))
+    derived.authoredActions shouldContainExactly
+        listOf(parse<ActionTree>("OUTER[INNER[Heat -> Steel]]"))
+  }
+
   // L12-5 No nesting
 
   @Test
@@ -224,7 +243,8 @@ internal class Lang12InlineClassesTest {
     val declarations = parseClasses("CLASS Host1 { This: Wrapper<Base {}, Item FROM Other> }")
     declarations.map { it.className } shouldBe listOf(cn("Host1"), cn("Host1_Base"))
     val transmute =
-        declarations.first().authoredEffects.single().instruction as Instruction.Transmute
+        declarations.first().authoredEffects.single().untransformed.instruction
+            as Instruction.Transmute
     transmute.gaining.expression.arguments.first().className shouldBe cn("Host1_Base")
     transmute.removing.expression.arguments.first().className shouldBe cn("Host1_Base")
     parseClasses(declarations.joinToString("\n")) shouldBe declarations

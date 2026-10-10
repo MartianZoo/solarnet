@@ -953,27 +953,23 @@ variable's bound.
 For example, Manutech writes `PROD[@StandardResource]: @StandardResource`: the production
 increase supplies the resource kind, and the instruction shares that choice.
 
-**L6-9. An unqualified subscription on an owned component watches its owner's events.** Elaboration
-or effect compilation makes this restriction explicit. How it is expressed depends on whether the
-watched type has an owner dependency.
+**L6-9. Only OWN requests an implicit owner or actor restriction.** Within a marked trigger:
 
-- When it does, the bare watched type gains `<Me@Owner>` (L9-3), and no actor restriction is added.
-- When it does not, there is no ownership to say it with, so the rule watches only events that
-  player performed: `OceanTile` on a card reacts to the oceans its owner places, not an opponent's.
-- A `System` type is exempt. An unowned System event is necessarily performed by Admin, so a
-  Player-actor restriction could never match; it is the table's event and every owner's rule sees
-  it. A System event associated with a particular Player instead carries that Player through an
-  `Owned` dependency.
+- A watched `Owned` type receives its omitted owner argument from lexical `Me` (L9-3).
+- A watched type that is neither `Owned` nor `System` receives `BY Me` when `Me` is available.
+- A watched `System` type receives no implicit actor restriction. Its event may be performed by
+  Admin while a dependency identifies the player concerned.
 
-Writing any `BY` selector replaces this implicit restriction. `BY Anyone` (equivalently `BY Actor`)
-accepts every event actor, including Admin. A rule on a component with no owner has no such restriction to begin with. When
-its result needs a player, elaboration introduces `Me@Player` in its owned trigger or a `BY`
-selector (L9-13).
+An explicit `BY` selector replaces OWN's implicit actor restriction, without removing explicit
+owner arguments or those supplied by OWN. `BY Anyone` (equivalently `BY Actor`) accepts every event
+actor, including Admin. Outside OWN, neither restriction is inserted, even on an owned component.
+A whole-effect mark can introduce a missing `Me` from its trigger (L9-13). Execution does not add
+further subscription filters after these transforms.
 
-> **Non-normative example — Arctic Algae and Tharsis Republic.** Arctic Algae writes
-> `OceanTile BY Anyone: 2 Plant` because it must react to everyone's oceans; without the marking it
-> would react only to its owner's. Tharsis Republic needs no such marking on
-> `CityTile<Anyone, MarsArea>`: it says whose cities it watches by naming the owner it accepts.
+> **Non-normative example — Arctic Algae.** `OWN[OceanTile BY Anyone: 2 Plant]` reacts to everyone's
+> oceans and gives the plants to the card's owner. `OWN[OceanTile: 2 Plant]` reacts to that owner's
+> oceans. Unmarked `OceanTile: 2 Plant<Me@Owner>` also reacts to everyone's oceans: its recipient
+> is explicit and its trigger requests no actor filter.
 
 **L6-10. A static non-event may not be a subscribed trigger.** `Class<Foo>: Bar` is rejected: the one
 component per concrete class is fixed before any effect runs (T4-6), so nothing ever gains one.
@@ -1074,13 +1070,16 @@ A transform block marks a piece of PETS for rewriting under a named rule. In `PR
 example, `Plant` means plant *production*.
 
 **L8-1. A block is an all-caps kind name, square brackets, and one node.** The kinds of node that
-accept a block are instruction, action cost, metric, requirement and trigger.
+accept a block are instruction, action cost, metric, requirement, trigger, whole effect, and whole
+action. `OWN[Plant: Heat]` marks both the subscription and its result;
+`OWN[8 Plant -> GreeneryTile<>]` marks both the cost and result.
 
 > **Non-normative example — Mine.** `PROD[Steel]` marks steel as a production-track change rather
 > than a steel-cube gain. The mark applies to that one expression.
 
 **L8-2. Every mark names a defined kind.** A declaration using an unknown kind is invalid. Kinds
 may be rewritten at different stages, but each mark must have a rule that eventually rewrites it.
+`OWN` is built in (L9-3); other kinds are supplied by the Catalog.
 
 **L8-3. A transform rewrites only inside its own block**, and its result must belong to the same
 category of PETS: an instruction for an instruction, a metric for a metric, and so on.
@@ -1107,13 +1106,39 @@ to the event being watched, not to the restrictions on it.
 > for a production increase of a chosen resource. If `PROD` swallowed `BY` or `IF`, the production
 > mark would cover actor attribution or state conditions that are not production changes.
 
-**L8-5. Nesting a block inside a block of the same kind is representable but not processable.** The
-syntax admits `PROD[PROD[Plant]]`, but rewriting rejects it because the second mark could only mean
-what the first already means.
+**L8-5. Same-kind nesting follows the handler's contract.** OWN is idempotent:
+`OWN[Plant, OWN[Heat]]` has the same meaning as `OWN[Plant, Heat]`. Repeating the mark does not
+change lexical names or replace explicit recipients. PROD rejects same-kind nesting, including
+`PROD[PROD[EVAL Rule.score]]`; production of production has no defined meaning.
+Coalescing requires no intervening transform of a different kind. In `A[B[A[value]]]`, both
+applications of A retain their positions relative to B even when A is idempotent.
 
-> **Non-normative design note — no production-of-production mechanic.** Mine needs one production
-> mark (L8-1); no current card requires nested `PROD` marks. Admitting the nested spelling before
-> rejecting its meaning is a syntax/processing boundary, not additional game expressiveness.
+**L8-6. Transforms compose inside-out and survive deferred syntax.** In `A[B[value]]`, B rewrites
+value before A rewrites B's result. A transform traverses available syntax in its lexical context.
+On reaching an unresolved EVAL, it leaves its mark around that evaluation and captures the visible
+`Me` (L9-12). Enclosing transforms retain their order. After the property expands, the same
+transform rules rewrite its value; no transform is silently lost at a property read.
+
+For example, `OWN[PROD[EVAL Goal.score]]` remains marked until `score` is known. If `score` is
+`COUNT "Plant"`, the result counts `Production<Class<Plant>, Me>`. An outer transform also covers
+unmarked property syntax included by EVAL. A transform already authored inside that property
+composes normally with the use-side transforms.
+Property expansion preserves the complete surrounding marked region until dispatch, so a forbidden
+same-kind nesting remains invalid when its inner mark comes from the property's definition.
+
+A binding introduced by whole-effect OWN is available to that application and to nested OWN marks
+coalesced into it. An inner OWN applied earlier across a different transform sees only the enclosing
+lexical scope. Thus an ownerless rule's `OWN[Pulse: PROD[OWN[Plant]]]` must either remove the
+redundant inner OWN or explicitly bind and use Me, as in
+`OWN[Pulse BY Me@Player: PROD[OWN[Plant<Me@Player>]]]`.
+
+A concrete Effect consumer may reject an enclosing unresolved transform. Deferred transforms in
+an effect's metrics or requirements must finish when their property context becomes concrete,
+before those values are evaluated. Partial source inspection may deliberately dispatch only a
+selected set of registered handlers and retain other marks. Extracting an inline class preserves
+the enclosing transform marks, in order, on its effects and actions. Copying an effect's
+instruction likewise retains the enclosing marks; the copy's caller supplies any removed trigger
+bindings.
 
 ---
 
@@ -1124,14 +1149,15 @@ resource belongs to the player doing the thing, and "gain 3 cards" means three s
 changes how a source reads without changing which types exist (T10).
 
 **L9-1. Elaboration rewrites an element against a context.** It splits atomized gains (L9-11)
-before inserting declared defaults (L9-4 through L9-10), dispatches transform blocks (L8), records
-the resulting Type-variable scopes (T13-6 through T13-9), inserts omitted `Owned` owner arguments
-(L9-3), and expands property evaluations (L9-12). Scopes may be recorded earlier to resolve
-authored names, but final recording follows structural transforms: a resource variable inside
-`PROD[...]` represents a Class after the block is dispatched.
+before inserting declared defaults (L9-4 through L9-10), dispatches transform blocks including OWN
+(L8), records the resulting Type-variable scopes (T13-6 through T13-9), and expands property
+evaluations (L9-12). Property expansion resumes any deferred marks by the same rules. Structural
+transforms precede recording the choices they produce: a resource variable inside `PROD[...]`
+represents a Class after the block is dispatched.
 
-This order defines the resulting element, not how the rewritings must be computed. The source
-of the Pets supplies the context:
+The source producer determines whether it adds transform marks before elaboration. The application
+contracts are documented on [Agent](../src/common/dev/martianzoo/agent/Agent.kt) and
+[CardDefinition](../src/common/dev/martianzoo/tfm/carddata/CardDefinition.kt).
 
 | | An element a player submits | A class's own effects |
 | --- | --- | --- |
@@ -1151,17 +1177,20 @@ the context's class, and `This<Foo>` keeps its own arguments while adopting the 
 > `Class<AsteroidCard>`, while ordinary `This` occurrences still close over the exact owned card
 > component.
 
-**L9-3. A bare `Owned` expression receives its omitted owner argument from lexical `Me`.** An
+**L9-3. Inside `OWN[...]`, a bare `Owned` expression receives its omitted owner argument from
+lexical `Me`.** Outside a mark, the owner remains unspecified. An
 `Owned` class inherits `Me@Owner` from its supertype (T13-4). An explicitly named `EACH Me@Player`
-or `RANK Me@Player` selector rebinds `Me` in its body or metrics. An unnamed `EACH` or `RANK` lets
+or `RANK Me@Player` selector rebinds `Me` in its selector's refinement and its body or metrics.
+An unnamed `EACH` or `RANK` lets
 the outer binding propagate. A named rank selector supplies each candidate as `Me` while scoring
 its comparison keys, including property syntax expanded for that candidate. A submitted instruction
 takes `Me` from the submitting player. Explicit
-arguments, including literal `<Anyone>`, remain as written. This insertion is a special case of
-elaboration, not a general `DEFAULT` declaration on `Owned`.
+arguments, including literal `<Anyone>`, remain as written. OWN performs this insertion; it is not a general `DEFAULT` declaration on `Owned`.
+A mark needing an owner but lacking a visible Me is invalid, except that a whole-effect mark may
+supply the binding from its trigger (L9-13).
 
 An `@` or named Type-variable occurrence chooses a whole Type. An omitted owner on its declaration
-receives lexical `Me`, just as an unmarked expression does. A marked reference keeps the choice
+receives lexical `Me` inside OWN, just as an expression without a Type-variable marker does. A marked reference keeps the choice
 captured by its declaration; it does not acquire a different owner from its reference site.
 Represented-Class references that name a resource kind still receive the lexical owner on the
 resulting owned component, including inside class-literal predicates such as
@@ -1169,8 +1198,8 @@ resulting owned component, including inside class-literal predicates such as
 An `Owner` class does not bind `Me` to `This` merely because it is an Owner; its effects must name
 that relationship where they need it.
 
-> **Non-normative example — Sponsored Academies.** `EACH Me@Player { ProjectCard }` gives a card to
-> each selected player. `EACH Player { ProjectCard }` retains the enclosing `Me` instead.
+> **Non-normative example — Sponsored Academies.** `OWN[EACH Me@Player { ProjectCard }]` gives a card
+> to each selected player. `OWN[EACH Player { ProjectCard }]` retains the enclosing `Me` instead.
 
 **L9-4. Every expression receives its class's all-use dependency defaults** (T10-1), recursively.
 
@@ -1277,9 +1306,13 @@ property's class. It needs a receiver context, so it is expanded in a class effe
 submitted *metric*, which is given one, and rejected in an ordinary submitted instruction, which is
 not. An abstract receiver can supply a fixed property value whose syntax does not use `This`.
 A class effect retains an evaluation when the property value is still a bound or its `This` needs a
-concrete receiver. A property that would expand into itself is rejected. When expanded, its bare
-owned types use the lexical `Me` at the evaluation site; an unrelated event or selection does not
-supply one.
+concrete receiver. A property that would expand into itself is rejected.
+EVAL is currently rejected in a HAS-candidate position governed by L9-9: write that requirement
+directly. A nested RANK's comparison keys have their own scope and may use EVAL normally.
+`OWN[EVAL Goal.score]` applies OWN to the expanded syntax using the lexical Me at the evaluation
+site. `PROD[EVAL Goal.score]` likewise applies PROD to the expanded syntax (L8-6). Plain EVAL does not add ownership, though the property itself may contain OWN or explicit
+Me references. The mark survives deferred expansion; unrelated events and selections do not
+replace the captured binding.
 
 Elaboration captures that lexical binding on the evaluation itself. `EVAL<Player1> Goal.score`
 spells an evaluation whose `Me` is Player1; ordinary `EVAL Goal.score` captures the surrounding
@@ -1287,20 +1320,26 @@ binding. The capture is part of the syntax and survives rendering, reparsing, an
 specialization. Unnamed `EACH` and `RANK` selectors preserve it; selectors explicitly named `Me`
 capture their own selection instead.
 
-> **Non-normative example — Landlord scoring.** The generic award rule uses `EVAL Award.metric`.
+> **Non-normative example — Landlord scoring.** The generic award rule uses `EVAL Award.metric`
+> inside OWN.
 > Once Landlord is selected, elaboration inserts its `COUNT "OwnedTile"` syntax with the award's
 > context; evaluating too early would have only the abstract `Metric` property bound.
 
 **L9-13. A class's effects are elaborated against that class's own context.** They are gathered from
-every superclass. If an effect has no inherited `Me` and its instruction contains a bare `Owned`
-type, elaboration declares effect-local `Me@Player` in an owned trigger when possible, or adds
-`BY Me@Player` to its trigger. The instruction then uses that same variable. The event or changed
-component does not implicitly replace an unmarked `Anyone`.
+every superclass. Only a whole-effect OWN mark may infer a missing trigger binding: if the
+effect has no inherited or explicit `Me` and its instruction needs an omitted owner, OWN declares
+effect-local `Me@Player` in an owned trigger when possible, or adds `BY Me@Player` to its trigger.
+An unresolved EVAL without its own Me capture also requires this binding, so later property
+expansion receives the same context. The instruction then uses that same variable. The event or changed
+component does not implicitly replace literal `Anyone`. A marked rule whose results supply all
+needed bindings locally, such as an EACH Me body, may retain an owner-unspecified trigger.
 An `OR` trigger cannot supply that binding from just one arm; an effect that needs `Me` must bind
 it around the whole trigger and name it in the instruction.
+A System event without an owned recipient cannot supply a Player through BY; that inferred
+binding is rejected instead of producing a rule that cannot fire.
 
 > **Non-normative example — placement bonuses.** A map area is neither a player nor owned, yet its
-> `Placement<This>: Plant` rule must give the plant to whoever placed there. An effect-local
+> `OWN[Placement<This>: Plant]` rule must give the plant to whoever placed there. An effect-local
 > `Me@Player` in the trigger captures that player for the reward.
 
 **L9-14. Changes to uninhabited Types become `Die` or `Ok`.** After specialization, a change whose

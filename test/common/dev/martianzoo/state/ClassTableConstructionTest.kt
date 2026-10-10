@@ -132,8 +132,8 @@ internal class ClassTableConstructionTest {
         "This: ModuleProduct"
     active.effects(active.getClass(cn("ModuleGated"))).single().toString() shouldBe
         "This: ModuleGatedProduct"
-    (active.effects(active.getClass(cn("ClassLiteralThis"))).single().trigger is IfTrigger) shouldBe
-        true
+    (active.effects(active.getClass(cn("ClassLiteralThis"))).single().untransformed.trigger
+        is IfTrigger) shouldBe true
   }
 
   @Test

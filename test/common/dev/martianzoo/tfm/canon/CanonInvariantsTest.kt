@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
@@ -27,7 +28,10 @@ internal class CanonInvariantsTest {
   // GAME_HACKS 3: stored MC production includes the production-floor offset.
   @Test
   internal fun perMoneyProductionAccountsForItsOffset() {
-    val dispatcher = table.transformDispatcher()
+    val dispatcher =
+        TransformHandler.dispatcher(
+            Canon.transformHandlerFactories.mapValues { (_, factory) -> factory(table) }
+        )
     val offenders =
         Canon.explicitClassDeclarations.flatMap { declaration ->
           declaration.allNodes.flatMap { authored ->
@@ -159,10 +163,10 @@ internal class CanonInvariantsTest {
         cards.filter { cardBack(it)?.className == cn("PreludeCard") },
     ) { card ->
       card.declaration.authoredEffects.all { effect ->
-        Trigger.WhenGain !in effect.trigger.descendantsOfType<Trigger>() ||
-            (effect.trigger == Trigger.WhenGain &&
-                (!effect.automatic ||
-                    effect.instruction.descendantsOfType<Instruction.Change>().all {
+        Trigger.WhenGain !in effect.untransformed.trigger.descendantsOfType<Trigger>() ||
+            (effect.untransformed.trigger == Trigger.WhenGain &&
+                (!effect.untransformed.automatic ||
+                    effect.untransformed.instruction.descendantsOfType<Instruction.Change>().all {
                       it.gaining == null
                     }))
       }
@@ -197,9 +201,9 @@ internal class CanonInvariantsTest {
         eventCards(),
     ) { card ->
       cardEffects(card).all { effect ->
-        effect.trigger.descendantsOfType<Trigger.OnGainOf>().none {
+        effect.untransformed.trigger.descendantsOfType<Trigger.OnGainOf>().none {
           it.expression.className == cn("End")
-        } || effect.trigger == end
+        } || effect.untransformed.trigger == end
       }
     }
   }
@@ -211,7 +215,7 @@ internal class CanonInvariantsTest {
         eventCards(),
     ) { card ->
       cardEffects(card).all { effect ->
-        effect.trigger.descendantsOfType<Trigger.SubscribedTrigger>().all { trigger ->
+        effect.untransformed.trigger.descendantsOfType<Trigger.SubscribedTrigger>().all { trigger ->
           trigger is Trigger.OnGainOf && trigger.expression.className == cn("End")
         }
       }
@@ -226,7 +230,7 @@ internal class CanonInvariantsTest {
       card.declaration.authoredEffects
           .filter { effect ->
             var observesHeat = false
-            effect.trigger.visitDescendants { node ->
+            effect.untransformed.trigger.visitDescendants { node ->
               if (
                   node is Trigger.OnGainOf &&
                       table.findClass(node.expression.className)?.let(heat::isSubtypeOf) == true

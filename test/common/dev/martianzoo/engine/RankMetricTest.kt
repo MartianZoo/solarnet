@@ -32,7 +32,7 @@ internal class RankMetricTest {
 
     game
         .testAgent(ADMIN)
-        .runOperation("EACH @Player(HAS =2 (RANK Me@Player { Score })) { Prize<@Player> }")
+        .runOperation("EACH @Player(HAS =2 (RANK Me@Player { OWN[Score] })) { Prize<@Player> }")
 
     game.testAgent(PLAYER1).count("Prize<Player1>") shouldBe 0
     game.testAgent(PLAYER2).count("Prize<Player2>") shouldBe 1
@@ -48,7 +48,7 @@ internal class RankMetricTest {
     game
         .testAgent(ADMIN)
         .runOperation(
-            "EACH @Player(HAS =2 (RANK Me@Player { Score, Cash })) { TieBreakPrize<@Player> }"
+            "EACH @Player(HAS =2 (RANK Me@Player { OWN[Score], OWN[Cash] })) { TieBreakPrize<@Player> }"
         )
     game.testAgent(PLAYER1).count("TieBreakPrize<Player1>") shouldBe 0
     game.testAgent(PLAYER2).count("TieBreakPrize<Player2>") shouldBe 0
@@ -57,7 +57,7 @@ internal class RankMetricTest {
     game
         .testAgent(ADMIN)
         .runOperation(
-            "EACH @Player(HAS =3 (RANK Me@Player { 99 - Score })) { InversePrize<@Player> }"
+            "EACH @Player(HAS =3 (RANK Me@Player { 99 - OWN[Score] })) { InversePrize<@Player> }"
         )
     game.testAgent(PLAYER1).count("InversePrize<Player1>") shouldBe 1
     game.testAgent(PLAYER2).count("InversePrize<Player2>") shouldBe 0
@@ -91,7 +91,7 @@ internal class RankMetricTest {
 
     game
         .testAgent(ADMIN)
-        .runOperation("EACH @Player(HAS =2 (RANK Me@Player { Score })) { Prize<@Player> }")
+        .runOperation("EACH @Player(HAS =2 (RANK Me@Player { OWN[Score] })) { Prize<@Player> }")
 
     game.testAgent(PLAYER1).count("Prize<Player1>") shouldBe 0
     game.testAgent(PLAYER2).count("Prize<Player2>") shouldBe 1
@@ -117,7 +117,7 @@ internal class RankMetricTest {
     p2.runOperation("2 Score, Candidate")
 
     admin.runOperation(
-        "EACH Me@Player(HAS =1 (RANK Me@Player { Score })) { -Candidate<Me@Player> }"
+        "EACH Me@Player(HAS =1 (RANK Me@Player { OWN[Score] })) { -Candidate<Me@Player> }"
     )
 
     p1.count("Candidate") shouldBe 1

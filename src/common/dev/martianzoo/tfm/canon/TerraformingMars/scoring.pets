@@ -10,8 +10,8 @@ ABSTRACT CLASS Milestone : Owned<Player> {
   autoSelectWhen = Requirement?
   requirement = Requirement
 
-  This:: (EVAL This.requirement: Ok)
-  End: 5 VictoryPoint
+  OWN[This:: (EVAL This.requirement: Ok)]
+  OWN[End: 5 VictoryPoint]
 }
 
 "An award that has been funded"
@@ -25,12 +25,12 @@ ABSTRACT CLASS Award {
 
 // TODO.md: FinalScoringPhase should own measurement instead of this removal effect
 CLASS MeasureAward<@Award, FinalScoringPending> : Temporary, System, Hidden {
-  -This:: EACH Me@Player(HAS =1 (RANK Me@Player { EVAL @Award.metric })) { FirstPlace<@Award> }
-  -This IF 3 Player:: EACH Me@Player(HAS =2 (RANK Me@Player { EVAL @Award.metric })) { SecondPlace<@Award> }
+  OWN[-This:: EACH Me@Player(HAS =1 (RANK Me@Player { EVAL @Award.metric })) { FirstPlace<@Award> }]
+  OWN[-This IF 3 Player:: EACH Me@Player(HAS =2 (RANK Me@Player { EVAL @Award.metric })) { SecondPlace<@Award> }]
 }
 
-CLASS FirstPlace<Award> : Owned<Player> { This: 5 VictoryPoint }
-CLASS SecondPlace<Award> : Owned<Player> { This: 2 VictoryPoint }
+CLASS FirstPlace<Award> : Owned<Player> { OWN[This: 5 VictoryPoint] }
+CLASS SecondPlace<Award> : Owned<Player> { OWN[This: 2 VictoryPoint] }
 
 "A marker removed after every final-scoring task has completed"
 CLASS FinalScoringPending : Temporary, System, Hidden { HAS MAX 1 This }

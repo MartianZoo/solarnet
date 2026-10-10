@@ -35,9 +35,11 @@ import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SourceLocation
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
+import dev.martianzoo.pets.ast.ActionTree
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.UnqualifiedReference
@@ -377,8 +379,8 @@ public object Parsing {
         supertypes =
             declaration.supertypes.map(transformer::transformExpression).toSetStrict().toList(),
         invariants = declaration.invariants.map(transformer::transformRequirement).toSetStrict(),
-        authoredEffects = declaration.authoredEffects.map(transformer::transformEffect),
-        authoredActions = declaration.authoredActions.map(transformer::transformAction),
+        authoredEffects = declaration.authoredEffects.map(transformer::transformEffectTree),
+        authoredActions = declaration.authoredActions.map(transformer::transformActionTree),
         defaultsDeclaration =
             defaults.copy(
                 universal = transformDefault(defaults.universal),
@@ -443,7 +445,8 @@ public object Parsing {
             // Class loading resolves inherited header names in effects and actions only.
             rejectUnsupportedSyntax(
                 it,
-                inheritedNamesPossible = parsed.supertypes.isNotEmpty() && it is Effect,
+                inheritedNamesPossible =
+                    parsed.supertypes.isNotEmpty() && (it is EffectTree || it is ActionTree),
                 propertyMePossible = it is PropertyValue,
             )
           }
@@ -482,9 +485,11 @@ public object Parsing {
   private fun <P : PetNode> nodeParser(type: KClass<P>): Parser<P> =
       when (type) {
         Action::class -> PetsGrammar.action
+        ActionTree::class -> PetsGrammar.actionTree
         ClassName::class -> PetsGrammar.className
         Cost::class -> PetsGrammar.cost
         Effect::class -> PetsGrammar.effect
+        EffectTree::class -> PetsGrammar.effectTree
         Expression::class -> PetsGrammar.expression
         Refinement::class -> PetsGrammar.refinement
         FromExpression::class -> PetsGrammar.fromExpression
@@ -920,6 +925,12 @@ public object Parsing {
               Action(cost, instruction)
             }
 
+    val actionTree: Parser<ActionTree> by
+        (transform(parser { actionTree }) map
+            { (name, node) ->
+              ActionTree.Transform(node, name.text)
+            }) or action
+
     // Triggers and effects.
     private val onGain by expression map Trigger.OnGainOf.Companion::create
     private val onRemove by skip(minus) and expression map Trigger.OnRemoveOf.Companion::create
@@ -961,6 +972,12 @@ public object Parsing {
             { (trigger, automatic, instruction) ->
               Effect(trigger = trigger, automatic = automatic, instruction = instruction)
             }
+
+    val effectTree: Parser<EffectTree> by
+        (transform(parser { effectTree }) map
+            { (name, node) ->
+              EffectTree.Transform(node, name.text)
+            }) or effect
 
     // Property values and class declarations.
     val propertyValue: Parser<PropertyValue> by
@@ -1037,8 +1054,8 @@ public object Parsing {
             { (name, value) ->
               PropertyElement(name to value)
             }
-    private val effectElement by locatedNode(effect) map ::EffectElement
-    private val actionElement by locatedNode(action) map ::ActionElement
+    private val effectElement by locatedNode(effectTree) map ::EffectElement
+    private val actionElement by locatedNode(actionTree) map ::ActionElement
     private val bodyElementExceptNestedClasses: Parser<Element> by
         invariant or defaults or propertyAssignment or effectElement or actionElement
     private val derivedClassBodyElement: Parser<Element> by

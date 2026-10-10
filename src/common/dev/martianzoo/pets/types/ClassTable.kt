@@ -1,5 +1,6 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.Own
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -7,7 +8,7 @@ import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.PetNode
@@ -32,16 +33,19 @@ public abstract class ClassTable {
   /** Language transformations bound separately to each class universe. */
   internal abstract val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler>
 
-  /**
-   * Creates a dispatcher for the selected catalog-defined syntax transformations. The table gives
-   * those transformations the single universe required by
-   * [rule T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity);
-   * transformation semantics are outside the type-system specification.
-   */
-  public fun transformDispatcher(): PetTransformer {
-    val handlers = transformHandlerFactories.mapValues { (_, factory) -> factory(this) }
-    return TransformHandler.dispatcher(handlers)
+  private val transformHandlers by lazy {
+    transformHandlerFactories.mapValues { (_, factory) -> factory(this) } + ("OWN" to Own(this))
   }
+
+  /**
+   * Creates a dispatcher for OWN and this table's catalog-defined transformations, using [scope]
+   * for lexical bindings. An absent Me is not supplied implicitly; OWN may introduce it only for a
+   * marked whole effect. The dispatcher retains deferred property marks for later expansion. See
+   * [section 8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-transform-blocks).
+   */
+  public fun transformDispatcher(
+      scope: TransformHandler.Scope = TransformHandler.Scope()
+  ): PetTransformer = TransformHandler.dispatcher(transformHandlers, scope)
 
   /** The Catalog-scoped table whose compiled Classes back this game table. */
   internal abstract val masterTable: ClassTable
@@ -162,12 +166,13 @@ public abstract class ClassTable {
    * premise-specialized form: conditions settled by its structural `Class<T>` representatives or
    * selected Modules are removed, while state-dependent conditions remain. This derivation never
    * changes [klass] or its declaration. Read `klass.declaration.effects` explicitly when the
-   * unspecialized backing form is required.
+   * unspecialized backing form is required. Both forms retain authored transform marks; callers
+   * must elaborate them before executing the effects.
    *
    * @throws IllegalArgumentException when [klass] belongs to another universe or is not included in
    *   this game premise.
    */
-  public abstract fun effects(klass: Class): List<Effect>
+  public abstract fun effects(klass: Class): List<EffectTree>
 
   /**
    * Returns the class with canonical [name] when its base Type is inhabited in this universe, or

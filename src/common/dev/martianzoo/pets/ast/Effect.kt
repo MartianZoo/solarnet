@@ -35,7 +35,7 @@ public data class Effect(
      * When that distinction matters is `SEQUENCING.md`'s subject.
      */
     val automatic: Boolean = false,
-) : PetElement() {
+) : EffectTree() {
   init {
     // A bare Component subscription watches everything and states nothing; rule L6-11 requires it
     // to

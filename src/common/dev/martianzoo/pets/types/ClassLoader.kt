@@ -20,6 +20,7 @@ import dev.martianzoo.pets.ast.Effect.Trigger.Or
 import dev.martianzoo.pets.ast.Effect.Trigger.SubscribedTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.Transform
 import dev.martianzoo.pets.ast.Effect.Trigger.XTrigger
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -108,7 +109,7 @@ private constructor(
   private val loadedClasses =
       mutableMapOf<ClassName, Class?>(COMPONENT to componentClass, CLASS to classClass)
   private val includedClassNames = linkedSetOf(COMPONENT, CLASS)
-  private var premiseEffects: Map<Class, List<Effect>>? = null
+  private var premiseEffects: Map<Class, List<EffectTree>>? = null
 
   /**
    * Returns the already loaded class named [name], or null; exact-name lookup during loading
@@ -123,7 +124,7 @@ private constructor(
     }
   }
 
-  public override fun effects(klass: Class): List<Effect> {
+  public override fun effects(klass: Class): List<EffectTree> {
     require(accepts(klass.classTable)) { "`$klass` belongs to a different Catalog" }
     if (masterSource == null) return klass.declaration.effects
     val effects = checkNotNull(premiseEffects) { "premise effects are not complete" }
@@ -264,7 +265,7 @@ private constructor(
    * is a mistake in the source.
    */
   private fun validateTransformKinds() {
-    val known = transformHandlerFactories.keys
+    val known = transformHandlerFactories.keys + "OWN"
     declaringClassesToValidate().map(Class::declaration).forEach { declaration ->
       declaration.allNodes.forEach { root ->
         root.visitDescendants { node ->
@@ -290,30 +291,32 @@ private constructor(
   private fun validateNoOkSubscriptions() {
     val okClass = getClass(OK)
     declaringClassesToValidate().forEach { declaringClass ->
-      declaringClass.declaration.effects.forEach { effect ->
-        val forbidden =
-            effect.trigger
-                .descendantsOfType<SubscribedTrigger>()
-                .map {
-                  when (it) {
-                    is OnGainOf -> it.expression
-                    is OnRemoveOf -> it.expression
-                  }
-                }
-                .firstOrNull { expression ->
-                  val triggerClass =
-                      if (expression.className == THIS) declaringClass
-                      else getClass(expression.className)
-                  okClass.isSubtypeOf(triggerClass)
-                }
-        if (forbidden != null) {
-          throw InvalidPetDefinitionException(
-              "`${declaringClass.className}` effect `$effect` subscribes to `$forbidden`, " +
-                  "whose root is `Ok` or a nominal supertype of `Ok`",
-              sourceLocation = forbidden.sourceLocation ?: forbidden.className.sourceLocation,
-          )
-        }
-      }
+      declaringClass.declaration.effects
+          .flatMap { it.descendantsOfType<Effect>() }
+          .forEach { effect ->
+            val forbidden =
+                effect.trigger
+                    .descendantsOfType<SubscribedTrigger>()
+                    .map {
+                      when (it) {
+                        is OnGainOf -> it.expression
+                        is OnRemoveOf -> it.expression
+                      }
+                    }
+                    .firstOrNull { expression ->
+                      val triggerClass =
+                          if (expression.className == THIS) declaringClass
+                          else getClass(expression.className)
+                      okClass.isSubtypeOf(triggerClass)
+                    }
+            if (forbidden != null) {
+              throw InvalidPetDefinitionException(
+                  "`${declaringClass.className}` effect `$effect` subscribes to `$forbidden`, " +
+                      "whose root is `Ok` or a nominal supertype of `Ok`",
+                  sourceLocation = forbidden.sourceLocation ?: forbidden.className.sourceLocation,
+              )
+            }
+          }
     }
   }
 
@@ -366,9 +369,21 @@ private constructor(
         )
     premiseEffects =
         includedClassNames.map(::getClass).associateWith { klass ->
-          klass.declaration.effects.mapNotNull { specializeEffect(it, interpreter) }
+          klass.declaration.effects.mapNotNull { specializeEffectTree(it, interpreter) }
         }
   }
+
+  private fun specializeEffectTree(
+      effect: EffectTree,
+      interpreter: InhabitanceInterpreter,
+  ): EffectTree? =
+      when (effect) {
+        is Effect -> specializeEffect(effect, interpreter)
+        is EffectTree.Transform ->
+            specializeEffectTree(effect.inner, interpreter)?.let {
+              if (it === effect.inner) effect else effect.copy(inner = it)
+            }
+      }
 
   private fun computePremiseCount(expression: Expression): Int? {
     val representedClass = expression.arguments.singleOrNull()
@@ -491,7 +506,7 @@ private constructor(
   private fun validateNoEffectCreatesClass(declaration: ClassDeclaration) {
     val change =
         declaration.effects
-            .flatMap { effect -> effect.instruction.descendantsOfType<Change>() }
+            .flatMap { effect -> effect.descendantsOfType<Change>() }
             .firstOrNull { it.gaining?.className == CLASS } ?: return
     throw InvalidPetDefinitionException(
         "class representatives cannot be gained by an effect: `$change`",
@@ -588,6 +603,7 @@ private constructor(
     declaration.defaultsDeclaration.forClass?.let(::add)
     declaration.invariants.forEach(::collectRequiredInhabitants)
     declaration.effects
+        .flatMap { it.descendantsOfType<Effect>() }
         .filter { interpreter.triggerIsReachable(it.trigger) }
         .forEach { collectInstruction(it.instruction) }
     declaration.allNodes

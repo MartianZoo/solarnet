@@ -4,9 +4,10 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Transforming.actionListToEffects
 import dev.martianzoo.pets.Transforming.actionSelectors
 import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.ActionTree
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.pets.data.ClassDeclaration
@@ -29,10 +30,17 @@ internal object TfmActionLowerer {
   }
 
   private fun actionToEffects(
-      action: Action,
+      action: ActionTree,
       selector: ClassName,
-      ordinaryEffect: Effect,
-  ): List<Effect> {
+      ordinaryEffect: EffectTree,
+  ): List<EffectTree> {
+    if (action is ActionTree.Transform) {
+      val innerEffect = (ordinaryEffect as EffectTree.Transform).inner
+      return actionToEffects(action.inner, selector, innerEffect).map {
+        EffectTree.Transform(it, action.transformKind)
+      }
+    }
+    action as Action
     val (spend, metric) =
         when (val cost = action.cost) {
           is Action.Cost.Spend -> cost to null

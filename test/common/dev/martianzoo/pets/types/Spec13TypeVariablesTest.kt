@@ -535,6 +535,28 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
+  internal fun `T13-4 inherited scope survives rebuilding a marked effect`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person { CLASS Alice }",
+            "ABSTRACT CLASS Token<Person>",
+            "ABSTRACT CLASS Holder<P@Person>",
+            "CLASS Gift : Holder { OWN[Token<P@Person>: Token<P@Person>] }",
+        )
+    val gift = table.getClass(cn("Gift"))
+    val source = gift.declaration.effects.single()
+    val rebuilt = PetTransformer.noOp().transformEffectTree(gift.interpretTypeVariablesIn(source))
+    val scope = rebuilt.untransformed.typeVariables
+    val specialized = table.resolve(te("Gift<Alice>"))
+    scope.variables.isEmpty() shouldBe false
+    scope
+        .bind(specialized.variableBindingsFrom(gift.defaultType, scope.variables))
+        .transformEffectTree(rebuilt)
+        .toString() shouldBe "OWN[Token<Alice>: Token<Alice>]"
+    source.untransformed.typeVariables.isEmpty shouldBe true
+  }
+
+  @Test
   internal fun `T13-4 an inherited name scopes both sides of an action`() {
     val table =
         loadTypes(
@@ -662,7 +684,7 @@ internal class Spec13TypeVariablesTest {
     val effect = gift.interpretTypeVariablesIn(gift.declaration.effects.single())
 
     effect.typeVariables.isEmpty shouldBe true
-    val each = effect.instruction.descendantsOfType<Instruction.Each>().single()
+    val each = effect.untransformed.instruction.descendantsOfType<Instruction.Each>().single()
     each.bodyFor(cn("Person").expression).toString() shouldBe "Token<Person>"
   }
 
@@ -1249,7 +1271,7 @@ internal class Spec13TypeVariablesTest {
         )
     val converter = table.getClass(cn("Converter"))
     val effect = converter.interpretTypeVariablesIn(converter.declaration.effects.single())
-    val transmute = effect.instruction as Instruction.Transmute
+    val transmute = effect.untransformed.instruction as Instruction.Transmute
     val variable = converter.typeVariables.single()
 
     effect.typeVariables.variables shouldBe converter.typeVariables

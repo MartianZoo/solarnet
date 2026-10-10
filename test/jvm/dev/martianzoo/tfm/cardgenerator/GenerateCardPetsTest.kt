@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.cardgenerator
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.carddata.CardData
 import dev.martianzoo.tfm.carddata.CardDefinition
@@ -90,7 +90,7 @@ internal class GenerateCardPetsTest {
                 "This:: 5 MC",
                 "This: 2 Plant",
             )
-            .map { parse<Effect>(it) },
+            .map { parse<EffectTree>("OWN[$it]") },
         card.authoredEffects,
     )
   }
@@ -146,7 +146,7 @@ internal class GenerateCardPetsTest {
 
     assertEquals("AutomatedCard", data.projectKind)
     assertEquals(setOf(parse<Requirement>("=1 ScienceTag<This>")), card.invariants)
-    assertEquals(listOf(parse<Effect>("This: ProjectCard")), card.authoredEffects)
+    assertEquals(listOf(parse<EffectTree>("OWN[This: ProjectCard]")), card.authoredEffects)
   }
 
   @Test

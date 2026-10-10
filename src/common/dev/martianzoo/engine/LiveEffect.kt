@@ -10,8 +10,6 @@ import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.SystemClasses.ACTOR
-import dev.martianzoo.pets.api.SystemClasses.OWNED
-import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
@@ -29,7 +27,6 @@ import dev.martianzoo.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.types.TypeVariable
@@ -160,37 +157,12 @@ private constructor(
         context: Component,
         elaborator: PetElaborator,
     ): LiveEffect {
-      val explicit =
-          context.owningPlayer?.let { player ->
-            object : PetTransformer() {
-                  override fun transformNode(node: PetNode): PetNode {
-                    if (node is ByTrigger) return node
-                    if (node is OnGainOf || node is OnRemoveOf) {
-                      val watched =
-                          when (node) {
-                            is OnGainOf -> node.expression
-                            is OnRemoveOf -> node.expression
-                          }
-                      val watchedClass = elaborator.classTable.getClass(watched.className)
-                      if (
-                          watchedClass.allSuperclasses().none {
-                            it.className == OWNED || it.className == SYSTEM
-                          }
-                      ) {
-                        return ByTrigger(node as Trigger, player.expression)
-                      }
-                    }
-                    return transformChildren(node)
-                  }
-                }
-                .transformEffect(effect)
-          } ?: effect
       // Lowering can consume the trigger-side occurrence (for example PROD), so prefer the frozen
       // authored origins even when they can no longer be rediscovered from the transformed tree.
-      val typeVariables = explicit.typeVariables
-      val subscription = Subscription.from(explicit.trigger, context, typeVariables)
+      val typeVariables = effect.typeVariables
+      val subscription = Subscription.from(effect.trigger, context, typeVariables)
       val triggerClass = subscription.classToCheck?.let(elaborator.classTable::getClass)?.className
-      return LiveEffect(subscription, explicit, context, triggerClass, elaborator)
+      return LiveEffect(subscription, effect, context, triggerClass, elaborator)
     }
 
     private fun specialize(component: Component, elaborator: PetElaborator): List<Effect> {

@@ -4,6 +4,11 @@
 
 Issue links provide background. Inline TODOs should be brief context pointers.
 
+## Ownership transition
+
+- [ ] Continue the [ownership transition](docs/agents/OWNERSHIP.md#next-steps). Its focused note owns
+  the ordered next steps, tentative ideas, and [choices needing human review](docs/agents/OWNERSHIP.md#things-that-need-human-review).
+
 ## Standard actions
 
 - [ ] Remove the action-slot dependency from general-purpose `Billing`. Investigate generated
@@ -49,9 +54,10 @@ These concerns remain open; the ranking does not select replacement designs.
    enumeration. Named-card tracking remains a separate capability with ownership outside the engine.
    See the `TaskForm` follow-up below and
    [the live-engine note](docs/agents/ENGINE.md#actor-engines-and-agents).
-5. **Specified Pets features fail when combined.** Defaulted variable references and local-class
-   specialization have concrete defect characterizations. Repair these composition failures;
-   implementation complexity alone does not justify a rewrite. See
+5. **Specified Pets features fail when combined.** Local-class specialization still has concrete
+   defect characterizations. The defaulted-variable-reference failures were fixed in the OWN work.
+   Repair the remaining composition failures; implementation complexity alone does not justify a
+   rewrite. See
    [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt) and the
    [Pets roadmap](PETS_ROADMAP.md#code-clarity-and-confidence).
 
@@ -253,8 +259,6 @@ These concerns remain open; the ranking does not select replacement designs.
   phase-caused tasks as soon as the required runtime state can express them.
 - Let refinements reference their candidate explicitly, so a selector can relate a nested
   dependency to that candidate without repeating its complete expression.
-- Make `PROD[@StandardResource]` retain its represented-Class marker through lowering; Utopia
-  Invest currently writes `Production<Class<@StandardResource>>` in its action for this reason.
 - Give Pets a real structural conjunction, spelled something like `Tile(IS Owned)`, and retire the
   nominal `OwnedTile` class once `Landlord` and the other owned-tile rules can name the intersection
   directly. Until then a master-universe Canon test checks the nominal `OwnedOccupant` and
@@ -388,19 +392,14 @@ isolated card coverage, following [VALUES.md](docs/agents/VALUES.md). It exclude
 Unsafe-only incompatible pairings, simple over-permissiveness that records the expected `Audit`,
 attribution, features, and unresolved rule questions. Related symptoms are grouped.
 
-1. **Defaulted type variables reject valid references.** A supplier accepting `<>` incorrectly
-   makes its bare references demand defaults too. This breaks gains, removals, transmutations, and
-   forward references—a basic compositionality defect. See
-   [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
-
-2. **Owner-local classes fail when specialization fixes a dependency.** Mars First's inline
+1. **Owner-local classes fail when specialization fixes a dependency.** Mars First's inline
    `Policy<This> { Tile<MarsArea>: Steel }` produces `MarsFirst_Policy<This>` extending
    `Policy<MarsFirst>`. The argument survives after its dependency position disappears, so
    elaboration rejects the gain. Reproduced during review. See
    [DerivedClassLowerer](src/common/dev/martianzoo/pets/DerivedClassLowerer.kt) and the owner-local
    specialization characterization in [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
 
-4. **Expansion compatibility rejects usable content.** Constructor, Summit Logistics, and Molecular
+2. **Expansion compatibility rejects usable content.** Constructor, Summit Logistics, and Molecular
    Printing are blocked without Colonies; Suitable Infrastructure is blocked without Prelude rules
    despite its surviving standard-action effect. Configuration probes confirmed these rejections.
    Constructor's combined city/colony metric is treated as a hard Colonies dependency. This also
@@ -413,27 +412,27 @@ attribution, features, and unresolved rule questions. Related symptoms are group
    [value-dependency inventory](https://docs.google.com/spreadsheets/d/13WRf7ljJLuy3iwTr5caQgKhTPhNugPKJuGx1ikALshY/edit?gid=0#gid=0)
    for now.
 
-5. **Corporations acquired after Prelude defer their mandatory first action.** Board of Directors
+3. **Corporations acquired after Prelude defer their mandatory first action.** Board of Directors
    → Merger → Tharsis leaves the city placement for another action instead of resolving it
    immediately. This changes action timing and available intervening choices. Implement the resolved
    FAQ behavior: an impossible first action must invalidate the Prelude play. See the Board/Merger/
    Tharsis pair in [MergerTest](test/common/dev/martianzoo/tfm/tests/cards/MergerTest.kt).
 
-6. **Prelude-drawing content can be selected without a usable Prelude pool.** WG Project, Valley
+4. **Prelude-drawing content can be selected without a usable Prelude pool.** WG Project, Valley
    Trust, Board of Directors, and New Partner don't bring in the required pool. Configuration probes
    confirmed the missing default pool. Selecting WG Project must make the Prelude 1 pool available
    for its draw even when that pool otherwise mostly sits unused; selecting the pool must not start
    the Prelude phase. Check explicit pool exclusions separately. The WG Project draw is
    covered by the pair in [WgProjectTest](test/common/dev/martianzoo/tfm/tests/cards/WgProjectTest.kt).
 
-7. **`DEFAULT` silently discards a root type-variable marker.** For example,
+5. **`DEFAULT` silently discards a root type-variable marker.** For example,
    `DEFAULT +@Piece<First>` becomes an ordinary default without reporting the invalid marker.
    Reproduced during review. Reject the marker when recording the declaring class and argument
    specs; keep this diagnostic change separate from owner-local declaration extraction. See
    [Parsing](src/common/dev/martianzoo/pets/Parsing.kt), `rejectInvalidDefaultRoot`, and the marker
    characterization in [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
 
-8. **Parser errors can identify the wrong character.** `Foo<~ Bar>` blames `<` rather than the
+6. **Parser errors can identify the wrong character.** `Foo<~ Bar>` blames `<` rather than the
    invalid `~`, misleading the author about what needs fixing. Reproduced during review. The
    better-parse completion analyzer drops `NoMatchingToken` failures; address that diagnostic
    separately from grammar organization. The misplaced diagnostic is characterized in

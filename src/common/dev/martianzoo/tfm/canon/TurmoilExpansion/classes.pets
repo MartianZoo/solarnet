@@ -1,17 +1,17 @@
 "Expansion adding the Terraforming Committee and Global Events"
 CLASS TurmoilExpansion : Module {
-  UseTurmoilPolicyAction<Action1>:: UseAction<ScientistsPolicy, Action1>
-  UseTurmoilPolicyAction<Action2>:: UseAction<KelvinistsPolicy, Action1>
-  LobbyAction<Action1>: -LobbyActionAvailable! THEN PartyDelegate
-  LobbyAction<Action2>: 5 Owed<> THEN Billing<Class<LobbyAction>, Action2>
+  OWN[UseTurmoilPolicyAction<Action1>:: UseAction<ScientistsPolicy, Action1>]
+  OWN[UseTurmoilPolicyAction<Action2>:: UseAction<KelvinistsPolicy, Action1>]
+  OWN[LobbyAction<Action1>: -LobbyActionAvailable! THEN PartyDelegate]
+  OWN[LobbyAction<Action2>: 5 Owed<> THEN Billing<Class<LobbyAction>, Action2>]
   This: Neutral, ReferenceFilter<Class<PartyRequirement>>
   HAS Class<LobbyAction>, Class<UseTurmoilPolicyAction>
-  -Billing<Class<LobbyAction>>: MAX 6 (Delegate OR LobbyActionAvailable): PartyDelegate
+  OWN[-Billing<Class<LobbyAction>>: MAX 6 (Delegate OR LobbyActionAvailable): PartyDelegate]
 
   // Party derives each successor edge from this committee-order creation sequence.
   This: MarsFirst THEN Kelvinists THEN Reds THEN Greens THEN Unity THEN Scientists
 
-  SetupPhase:: EACH Me@Player { TurmoilPlayer, LobbyActionAvailable }
+  OWN[SetupPhase:: EACH Me@Player { TurmoilPlayer, LobbyActionAvailable }]
   SetupPhase:: Chairman<Neutral>, Ruling<Greens>
   SetupPhase: RevealComingEvent
   TurmoilSolarPhase: TurmoilSolarOperation
@@ -22,7 +22,7 @@ CLASS Terraformer26 : Milestone { requirement = HAS "26 TerraformRating" }
 "Runs TR revision and the current event, then changes government and advances the event queue"
 CLASS TurmoilSolarOperation : Temporary, System, Hidden {
   HAS MAX 1 This
-  This:: EACH Me@Player { -TerraformRating., MeasureInfluence }
+  OWN[This:: EACH Me@Player { -TerraformRating., MeasureInfluence }]
   This: ResolveGlobalEvent
   -This: FormGovernment THEN ChangingTimes
 }
@@ -89,7 +89,7 @@ CLASS ChangingTimes : Signal, System {
 CLASS TurmoilPlayer : Owned<Player>, System, Hidden {
   HAS MAX 1 This
   // This is the TurmoilPlayer component, whose effect inherits its lexical Me.
-  Delegate IF 8 Delegate:: Die
+  OWN[Delegate IF 8 Delegate:: Die]
 }
 
 "The owner of gray delegates, who holds a reserve of fourteen"
@@ -130,42 +130,42 @@ ABSTRACT CLASS Party {
     RefillLobby
 }
 CLASS MarsFirst : Party {
-  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / BuildingTag }
+  OWN[ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / BuildingTag }]
   ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: MarsFirstPolicy.
 }
 CLASS MarsFirstPolicy : Policy<Ruling<MarsFirst>> {
-  Tile<MarsArea>: Steel
+  OWN[Tile<MarsArea>: Steel]
 }
 
 CLASS Scientists : Party {
   This:: AfterParty<This, MarsFirst>
-  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / ScienceTag }
+  OWN[ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / ScienceTag }]
   ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: ScientistsPolicy.
 }
 CLASS ScientistsPolicy : Policy<Ruling<Scientists>>, HasActions {
-  10 MC -> 3 ProjectCard THEN ScientistsUsedMarker
+  OWN[10 MC -> 3 ProjectCard THEN ScientistsUsedMarker]
 }
 CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player>, System {
   HAS MAX 1 This
 }
 
 CLASS Unity : Party {
-  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / PlanetaryTag }
+  OWN[ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / PlanetaryTag }]
   ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: UnityPolicy.
 }
 CLASS UnityPolicy : Policy<Ruling<Unity>> {
-  This:: EACH Me@Player { UnityTitaniumValue }
+  OWN[This:: EACH Me@Player { UnityTitaniumValue }]
 }
 CLASS UnityTitaniumValue<UnityPolicy> : ResourceValue<Class<Titanium>> {
   HAS MAX 1 This
 }
 
 CLASS Greens : Party {
-  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / BioTag }
+  OWN[ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / BioTag }]
   ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: GreensPolicy.
 }
 CLASS GreensPolicy : Policy<Ruling<Greens>> {
-  GreeneryTile: 4 MC
+  OWN[GreeneryTile: 4 MC]
 }
 
 CLASS Reds : Party {
@@ -175,21 +175,21 @@ CLASS Reds : Party {
   ) { \
     TerraformRating<Lowest@> \
   }
-  ApplyRulingBonus<This> IF SoloMode:: EACH Me@Player(HAS MAX 20 TerraformRating) { \
+  OWN[ApplyRulingBonus<This> IF SoloMode:: EACH Me@Player(HAS MAX 20 TerraformRating) { \
     TerraformRating \
-  }
+  }]
   ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: RedsPolicy.
 }
 CLASS RedsPolicy : Policy<Ruling<Reds>> {
-  TerraformRating: -3 MC!
+  OWN[TerraformRating: -3 MC!]
 }
 
 CLASS Kelvinists : Party {
-  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / PROD[Heat] }
+  OWN[ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / PROD[Heat] }]
   ActionPhase OR Ruling<This> IF ActionPhase, Ruling<This>:: KelvinistsPolicy.
 }
 CLASS KelvinistsPolicy : Policy<Ruling<Kelvinists>>, HasActions {
-  10 MC -> PROD[Heat, Energy]
+  OWN[10 MC -> PROD[Heat, Energy]]
 }
 
 "Requests the one-time bonus for the party forming the new government"
@@ -228,8 +228,8 @@ ABSTRACT CLASS Delegate : Owned {
   "The delegate holding the committee chair"
   CLASS Chairman {
     HAS MAX 1 Chairman
-    MeasureInfluence:: ChairmanInfluence
-    End: VictoryPoint
+    OWN[MeasureInfluence:: ChairmanInfluence]
+    OWN[End: VictoryPoint]
   }
 
   "A delegate currently assigned to one political party"
@@ -247,9 +247,9 @@ ABSTRACT CLASS Delegate : Owned {
       PartyLeader<Delegation@, Leader@> \
     }
     X This OR -X This:: RecalculateDominance<Delegation@>
-    MeasureInfluence IF Dominant<Delegation@>, \
+    OWN[MeasureInfluence IF Dominant<Delegation@>, \
       1 (PartyDelegate<Delegation@> - PartyLeader<Delegation@>):: \
-      DelegateInfluence.
+      DelegateInfluence.]
   }
 }
 
@@ -257,7 +257,7 @@ ABSTRACT CLASS Delegate : Owned {
 "The owner whose delegate occupies one party's leader seat"
 CLASS PartyLeader<Delegation@Party> : Owned {
   This:: -PartyLeader<Delegation@, Anyone>(NOT This).
-  -PartyDelegate<Delegation@> \
+  OWN[-PartyDelegate<Delegation@> \
     IF MAX 0 PartyDelegate<Delegation@>:: \
     -This! THEN \
       EACH Leader@Owner( \
@@ -267,15 +267,15 @@ CLASS PartyLeader<Delegation@Party> : Owned {
           PartyDelegate<Delegation@, Ranked@>, \
           PartyLeader<Delegation@, Ranked@> \
         }) \
-      ) { PartyLeader<Delegation@, Leader@> }
-  MeasureInfluence IF Dominant<Delegation@>:: PartyLeaderInfluence
-  End: VictoryPoint
+      ) { PartyLeader<Delegation@, Leader@> }]
+  OWN[MeasureInfluence IF Dominant<Delegation@>:: PartyLeaderInfluence]
+  OWN[End: VictoryPoint]
 }
 
 "The unspent Lobby delegate, used by other placements only after the Delegate Reserve is empty"
 CLASS LobbyActionAvailable : Owned<Player>, System, Hidden {
   HAS MAX 1 This
-  Delegate IF 7 Delegate:: -This.
+  OWN[Delegate IF 7 Delegate:: -This.]
 }
 
 "Gives dominance to the largest delegation, then incumbency and committee order"
@@ -295,13 +295,13 @@ CLASS LobbyAction<ActionSlot> : StandardAction {
 
 "Restores free lobbying for each player who has an available delegate"
 CLASS RefillLobby : Signal, System {
-  This:: EACH Me@Player(HAS MAX 6 Delegate) { LobbyActionAvailable. }
+  OWN[This:: EACH Me@Player(HAS MAX 6 Delegate) { LobbyActionAvailable. }]
 }
 
 "Requests the current political influence snapshot for one player"
 CLASS MeasureInfluence : Owned<Player>, Signal, System {
   // Clear this player's previous snapshot before the other components supply current influence.
-  This:: EACH Measured@Influence { -Measured@! }
+  OWN[This:: EACH Measured@Influence { -Measured@! }]
 }
 
 "One generation's political influence; each source below supplies at most one"

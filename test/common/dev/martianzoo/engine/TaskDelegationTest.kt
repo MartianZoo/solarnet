@@ -155,14 +155,14 @@ internal class TaskDelegationTest {
                 CLASS RewardB
               }
               CLASS ConcreteReactor : Owned<Player> {
-                This: Result
+                OWN[This: Result]
               }
               CLASS AbstractReactor : Owned<Player> {
-                This: Reward
+                OWN[This: Reward]
                 Reward: FollowUp
               }
               CLASS ImpossibleReactor : Owned<Player> {
-                This: -Result
+                OWN[This: -Result]
               }
               CLASS Observer {
                 Result<Player2> BY Player1: Wrong

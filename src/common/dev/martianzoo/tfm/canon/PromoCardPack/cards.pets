@@ -14,9 +14,9 @@ CLASS JovianColonyBoom : GePartyDistant<Scientists>, GePartyCurrent<Unity> {
 }
 
 CLASS JovianTaxRights : GlobalEffect {
-  ResolveGlobalEvent: EACH Me@Player { \
+  OWN[ResolveGlobalEvent: EACH Me@Player { \
     PROD[MC / Colony MAX 5], Titanium / Influence \
-  }
+  }]
 }
 
 CLASS Diaspora : GePartyDistant<MarsFirst>, GePartyCurrent<Scientists> {
@@ -25,9 +25,9 @@ CLASS Diaspora : GePartyDistant<MarsFirst>, GePartyCurrent<Scientists> {
 }
 
 CLASS MicrogravityHealthProblems : GlobalEffect {
-  ResolveGlobalEvent: EACH Me@Player { \
+  OWN[ResolveGlobalEvent: EACH Me@Player { \
     -3 MC. / (Colony MAX 5 - Influence) \
-  }
+  }]
 }
 
 CLASS MartianProtectionism : GePartyDistant<MarsFirst>, GePartyCurrent<Unity> {
@@ -36,9 +36,9 @@ CLASS MartianProtectionism : GePartyDistant<MarsFirst>, GePartyCurrent<Unity> {
 }
 
 CLASS VenusInfrastructure : GlobalEffect {
-  ResolveGlobalEvent: EACH Me@Player { \
+  OWN[ResolveGlobalEvent: EACH Me@Player { \
     2 MC / VenusTag MAX 5, 2 MC / Influence \
-  }
+  }]
 }
 
 CLASS TitanVenusAlliance : GePartyDistant<Unity>, GePartyCurrent<Reds> {
@@ -51,12 +51,12 @@ CLASS CloudSocieties : GlobalEffect {
     EACH @ResourceCard<Class<Floater>, Anyone> { \
       Floater<@ResourceCard> \
     }
-  ResolveGlobalEvent: EACH Me@Player { ChooseInfluenceFloaterCard }
+  OWN[ResolveGlobalEvent: EACH Me@Player { ChooseInfluenceFloaterCard }]
 }
 
 "Lets one player put all Cloud Societies influence floaters on a single compatible card"
 CLASS ChooseInfluenceFloaterCard : Owned<Player>, Signal, System {
-  This: Floater<ResourceCard<Class<Floater>>> / Influence
+  OWN[This: Floater<ResourceCard<Class<Floater>>> / Influence]
 }
 
 CLASS ImmigrationToVenus : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
@@ -65,10 +65,10 @@ CLASS ImmigrationToVenus : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
 }
 
 CLASS CorrosiveRain : GlobalEffect {
-  ResolveGlobalEvent: EACH Me@Player { ResolveCorrosiveRain }
+  OWN[ResolveGlobalEvent: EACH Me@Player { ResolveCorrosiveRain }]
 }
 
 "Lets one player pay Corrosive Rain before drawing cards for influence"
 CLASS ResolveCorrosiveRain : Owned<Player>, Signal, System {
-  This: (-2 Floater! OR -10 MC.) THEN ProjectCard / Influence
+  OWN[This: (-2 Floater! OR -10 MC.) THEN ProjectCard / Influence]
 }

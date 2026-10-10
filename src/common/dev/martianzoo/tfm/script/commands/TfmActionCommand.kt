@@ -46,7 +46,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
     val action =
         cardActions(repl.game.reader.tfmCatalog.card(cardName)).getOrNull(actionNumber.toInt() - 1)
             ?: throw UsageException("$cardName has no action $actionNumber")
-    val pauseForWrittenCost = payment.isNotEmpty() && action.cost != null
+    val pauseForWrittenCost = payment.isNotEmpty() && action.untransformed.cost != null
     val previousAutoExecPolicy = repl.agent.autoExecPolicy
     var writtenCostPaused = false
     val result =

@@ -14,7 +14,7 @@ import kotlin.test.Test
 internal class TransformHandlerTest {
   @Test
   internal fun handlerOnlyRewritesInsideItsMarkedSyntax() {
-    val handler = TransformHandler { inner ->
+    val handler = TransformHandler { inner, _ ->
       PetNode.replacer(cn("Inside"), cn("Rewritten")).transformWithoutKindCheck(inner)
     }
     val dispatcher = TransformHandler.dispatcher(mapOf("MARK" to handler))
@@ -25,7 +25,8 @@ internal class TransformHandlerTest {
 
   @Test
   internal fun transformedGroupIsSplicedIntoItsSurroundingGroup() {
-    val dispatcher = TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { it }))
+    val dispatcher =
+        TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { inner, _ -> inner }))
 
     dispatcher
         .transformInstructionTree(parse("MARK[Inside, AlsoInside], Outside"))
@@ -36,7 +37,10 @@ internal class TransformHandlerTest {
   internal fun transformedSequenceIsSplicedIntoItsSurroundingSequence() {
     val dispatcher =
         TransformHandler.dispatcher(
-            mapOf("MARK" to TransformHandler { parse<InstructionTree>("Inside THEN AlsoInside") })
+            mapOf(
+                "MARK" to
+                    TransformHandler { _, _ -> parse<InstructionTree>("Inside THEN AlsoInside") }
+            )
         )
 
     dispatcher.transformInstructionTree(parse("Outside THEN MARK[Ignored]")).toString() shouldBe
@@ -45,7 +49,8 @@ internal class TransformHandlerTest {
 
   @Test
   internal fun cardinalityChangingTransformRequiresTheInstructionTreeEntryPoint() {
-    val dispatcher = TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { it }))
+    val dispatcher =
+        TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { inner, _ -> inner }))
     val source = parse<Instruction>("MARK[Inside, AlsoInside]")
 
     shouldThrow<IllegalStateException> { dispatcher.transformInstruction(source) }
@@ -62,14 +67,15 @@ internal class TransformHandlerTest {
 
   @Test
   internal fun handlerCanPreserveItsMarkedSyntax() {
-    val dispatcher = TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { null }))
+    val dispatcher = TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { _, _ -> null }))
 
     dispatcher.transformInstructionTree(parse("MARK[Inside]")).toString() shouldBe "MARK[Inside]"
   }
 
   @Test
   internal fun sameTransformKindCannotBeNested() {
-    val dispatcher = TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { it }))
+    val dispatcher =
+        TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { inner, _ -> inner }))
 
     shouldThrow<ExpressionException> {
       dispatcher.transformInstructionTree(parse<InstructionTree>("MARK[MARK[Inside]]"))
@@ -77,10 +83,28 @@ internal class TransformHandlerTest {
   }
 
   @Test
+  internal fun idempotentTransformsStillComposeAcrossDifferentKinds() {
+    val heat =
+        object : TransformHandler {
+          override val idempotent = true
+
+          override fun transform(inner: PetNode, scope: TransformHandler.Scope): PetNode =
+              PetNode.replacer(cn("Plant"), cn("Heat")).transformWithoutKindCheck(inner)
+        }
+    val steel = TransformHandler { inner, _ ->
+      PetNode.replacer(cn("Heat"), cn("Steel")).transformWithoutKindCheck(inner)
+    }
+    val dispatcher = TransformHandler.dispatcher(mapOf("HEAT" to heat, "STEEL" to steel))
+
+    dispatcher.transformInstructionTree(parse("HEAT[STEEL[HEAT[Plant]]]")).toString() shouldBe
+        "Steel"
+  }
+
+  @Test
   internal fun handlerMustReturnTheSamePetsFamily() {
     val dispatcher =
         TransformHandler.dispatcher(
-            mapOf("MARK" to TransformHandler { parse<Metric>("Different") })
+            mapOf("MARK" to TransformHandler { _, _ -> parse<Metric>("Different") })
         )
 
     shouldThrow<IllegalStateException> {

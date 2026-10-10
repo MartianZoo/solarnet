@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.TransformHandler.Scope
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.InstructionTree
@@ -14,7 +15,7 @@ internal class ProdTest {
   internal fun resourceDifferenceBecomesRepresentedClassDifference() {
     val source = parse<Metric>("StandardResource(NOT MC)")
 
-    Prod.handler(Canon.classTable).transform(source) shouldBe
+    Prod.handler(Canon.classTable).transform(source, Scope()) shouldBe
         parse<Metric>("Production<Class<StandardResource>(NOT Class<MC>)>")
   }
 
@@ -22,7 +23,7 @@ internal class ProdTest {
   internal fun resourceDifferenceRetainsSharedDependencies() {
     val source = parse<Metric>("StandardResource<Anyone>(NOT MC<Anyone>)")
 
-    Prod.handler(Canon.classTable).transform(source) shouldBe
+    Prod.handler(Canon.classTable).transform(source, Scope()) shouldBe
         parse<Metric>("Production<Anyone, Class<StandardResource>(NOT Class<MC>)>")
   }
 
@@ -30,7 +31,7 @@ internal class ProdTest {
   internal fun resourceDifferenceCannotChangeDependencies() {
     val source = parse<Metric>("StandardResource<Anyone>(NOT MC<Player2>)")
 
-    shouldThrow<ExpressionException> { Prod.handler(Canon.classTable).transform(source) }
+    shouldThrow<ExpressionException> { Prod.handler(Canon.classTable).transform(source, Scope()) }
   }
 
   @Test
@@ -38,10 +39,10 @@ internal class ProdTest {
     val handler = Prod.handler(Canon.classTable)
 
     listOf("MC, TerraformRating", "MC, -TerraformRating", "MC FROM TerraformRating").forEach {
-      shouldThrow<ExpressionException> { handler.transform(parse<InstructionTree>(it)) }
+      shouldThrow<ExpressionException> { handler.transform(parse<InstructionTree>(it), Scope()) }
     }
     shouldThrow<ExpressionException> {
-      handler.transform(parse<Cost>("TerraformRating / MC"))
+      handler.transform(parse<Cost>("TerraformRating / MC"), Scope())
     }
   }
 
@@ -49,7 +50,7 @@ internal class ProdTest {
   internal fun productionGainCanBeScaledByTerraformRating() {
     val source = parse<InstructionTree>("MC / TerraformRating")
 
-    Prod.handler(Canon.classTable).transform(source) shouldBe
+    Prod.handler(Canon.classTable).transform(source, Scope()) shouldBe
         parse<InstructionTree>("Production<Class<MC>> / TerraformRating")
   }
 }

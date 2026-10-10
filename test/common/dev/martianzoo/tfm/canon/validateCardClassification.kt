@@ -50,10 +50,10 @@ internal fun validateCardClassification(catalog: TfmCatalog) {
               } ||
               cardEffects(card).any { effect ->
                 when {
-                  isEndTrigger(effect.trigger) -> false
-                  !isSelfGainTrigger(effect.trigger) -> true
+                  isEndTrigger(effect.untransformed.trigger) -> false
+                  !isSelfGainTrigger(effect.untransformed.trigger) -> true
                   else ->
-                      effect.instruction.descendantsOfType<Gain>().any { gain ->
+                      effect.untransformed.instruction.descendantsOfType<Gain>().any { gain ->
                         carriesPersistentBehavior(table.getClass(gain.gaining.className))
                       }
                 }
@@ -92,6 +92,7 @@ private fun carriesPersistentBehavior(klass: PetClass): Boolean =
     klass.allSuperclasses().any { superclass ->
       superclass.declaration.authoredActions.isNotEmpty() ||
           superclass.declaration.authoredEffects.any { effect ->
-            !isSelfGainTrigger(effect.trigger) && !isEndTrigger(effect.trigger)
+            !isSelfGainTrigger(effect.untransformed.trigger) &&
+                !isEndTrigger(effect.untransformed.trigger)
           }
     }

@@ -29,27 +29,27 @@ internal class PetElaboratorTest {
             score = COUNT "Pulse"
           }
           ABSTRACT CLASS Rule {
-            This: UNWRAP[2 Pulse, Token]
+            OWN[This: UNWRAP[2 Pulse, Token]]
           }
           CLASS ConcreteRule : Rule
           CLASS ContextRule : Owned {
-            This: This, Token
+            OWN[This: This, Token]
           }
           CLASS NarrowedHolder : Owned<Me@Player> {
-            This: Token
+            OWN[This: Token]
           }
-          CLASS ExplicitTriggerRule { Pulse BY Me@Player: Token, Token<Me@Player> }
-          CLASS OrRule { Pulse OR Token: Token }
+          CLASS ExplicitTriggerRule { OWN[Pulse BY Me@Player: Token, Token<Me@Player>] }
+          CLASS OrRule { OWN[Pulse OR Token: Token] }
           ABSTRACT CLASS Area
           ABSTRACT CLASS LandArea : Area
           CLASS ContextualTile<Area> : Owned {
             DEFAULT +ContextualTile<LandArea>
           }
           ABSTRACT CLASS AreaRule : Area {
-            This: ContextualTile<This>
+            OWN[This: ContextualTile<This>]
           }
           ABSTRACT CLASS HolderRule : Owner {
-            This: ContextualTile<This>
+            OWN[This: ContextualTile<This>]
           }
           ABSTRACT CLASS Choice {
             CLASS RedChoice
@@ -65,10 +65,10 @@ internal class PetElaboratorTest {
               .trimIndent(),
           transformHandlerFactories =
               mapOf(
-                  "UNWRAP" to { _ -> TransformHandler { transformed -> transformed } },
+                  "UNWRAP" to { _ -> TransformHandler { transformed, _ -> transformed } },
                   "ORDER" to
                       { _ ->
-                        TransformHandler { transformed ->
+                        TransformHandler { transformed, _ ->
                           if (transformed is Metric.Eval) parse<Metric>("Pulse")
                           else parse<Metric>("Token")
                         }
@@ -93,7 +93,7 @@ internal class PetElaboratorTest {
 
   @Test
   internal fun inputElaborationAppliesTheCompleteAuthoredSyntaxPackage() {
-    val source = parse<InstructionTree>("2 Pulse, UNWRAP[Token]")
+    val source = parse<InstructionTree>("OWN[2 Pulse, UNWRAP[Token]]")
 
     elaborator.elaborateInput(source, player1) shouldBe
         parse<InstructionTree>("Pulse!, Pulse!, Token<Player1>!")
@@ -131,12 +131,12 @@ internal class PetElaboratorTest {
   }
 
   @Test
-  internal fun metricInputTransformsBeforeExpandingProperties() {
+  internal fun metricInputTransformsTheExpandedPropertyValue() {
     elaborator.elaborateMetricInput(
         parse("ORDER[EVAL Score.score]"),
         player1.expression,
         player1,
-    ) shouldBe parse<Metric>("Pulse")
+    ) shouldBe parse<Metric>("Token")
   }
 
   @Test
@@ -159,7 +159,7 @@ internal class PetElaboratorTest {
 
   @Test
   internal fun customInstructionOutputUsesTheSameExecutableElaborationRules() {
-    val source = parse<InstructionTree>("2 Pulse, UNWRAP[Token]")
+    val source = parse<InstructionTree>("OWN[2 Pulse, UNWRAP[Token]]")
 
     elaborator.elaborateCustomInstruction(source, player1) shouldBe
         parse<InstructionTree>("Pulse!, Pulse!, Token<Player1>!")

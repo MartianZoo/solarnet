@@ -2,7 +2,18 @@ package dev.martianzoo.tfm.carddata
 
 import kotlinx.serialization.Serializable
 
-/** Pure authored data for one Terraforming Mars card. Pets fragments remain source strings. */
+/**
+ * Authored Terraforming Mars card data. Pets fragments remain literal source strings here.
+ *
+ * The card compiler always encloses the effects produced from [immediate], [actions], and [effects]
+ * in OWN, including the rules of [components] and extracted inline classes. Explicit nested OWN is
+ * allowed and never disables that wrapping. Thus a card's `Plant, OWN[Heat]` gives both resources
+ * to its owner.
+ *
+ * [requirement] is stored as literal property syntax and transformed by PlayCard's OWN-marked use
+ * of that property. [autoSelectWhen] and [invariants] are literal predicates; the compiler never
+ * gives them implicit player scope. These policies depend on the field, never its text.
+ */
 @Serializable
 public data class CardDefinition(
     val name: String,

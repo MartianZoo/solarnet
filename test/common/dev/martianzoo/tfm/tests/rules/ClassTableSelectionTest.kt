@@ -332,8 +332,8 @@ internal class ClassTableSelectionTest {
     matchingClasses("award", solo).shouldBeEmpty()
     solo.classNames.shouldNotContain(cn("FirstPlace"))
     solo.classNames.shouldNotContain(cn("SecondPlace"))
-    vitor.declaration.effects.count { it.trigger is IfTrigger } shouldBe 1
-    solo.classTable.effects(vitor).count { it.trigger is IfTrigger } shouldBe 0
+    vitor.declaration.effects.count { it.untransformed.trigger is IfTrigger } shouldBe 1
+    solo.classTable.effects(vitor).count { it.untransformed.trigger is IfTrigger } shouldBe 0
     solo.classTable.effects(vitor).size shouldBe vitor.declaration.effects.size - 1
   }
 
@@ -344,9 +344,9 @@ internal class ClassTableSelectionTest {
     val area = Canon.classTable.getClass(cn("Amazonis_02_02"))
 
     area.declaration.effects.single().toString() shouldBe
-        "Placement<This> IF Class<PartyDelegate>: PartyDelegate"
+        "OWN[Placement<This> IF Class<PartyDelegate>: PartyDelegate]"
     withoutTurmoil.effects(area).shouldBeEmpty()
-    withTurmoil.effects(area).single().toString() shouldBe "Placement<This>: PartyDelegate"
+    withTurmoil.effects(area).single().toString() shouldBe "OWN[Placement<This>: PartyDelegate]"
   }
 
   @Test
@@ -367,9 +367,9 @@ internal class ClassTableSelectionTest {
     val multiplayer = gameView("", "Player1", "Player2").classTable
     val modulesReady = Canon.classTable.getClass(cn("ModulesReady"))
 
-    (modulesReady.declaration.effects.single().trigger is IfTrigger) shouldBe true
+    (modulesReady.declaration.effects.single().untransformed.trigger is IfTrigger) shouldBe true
     solo.effects(modulesReady).shouldBeEmpty()
-    (multiplayer.effects(modulesReady).single().trigger is IfTrigger) shouldBe false
+    (multiplayer.effects(modulesReady).single().untransformed.trigger is IfTrigger) shouldBe false
   }
 
   @Test
@@ -377,15 +377,22 @@ internal class ClassTableSelectionTest {
     val twoPlayers = gameView("", "Player1", "Player2").classTable
     val threePlayers = gameView("", "Player1", "Player2", "Player3").classTable
     val measureAward = Canon.classTable.getClass(cn("MeasureAward"))
-    val conditional = measureAward.declaration.effects.single { it.trigger is IfTrigger }
+    val conditional =
+        measureAward.declaration.effects.single { it.untransformed.trigger is IfTrigger }
 
-    measureAward.declaration.effects.count { it.trigger is IfTrigger } shouldBe 1
-    twoPlayers.effects(measureAward).count { it.trigger is IfTrigger } shouldBe 1
+    measureAward.declaration.effects.count { it.untransformed.trigger is IfTrigger } shouldBe 1
+    twoPlayers.effects(measureAward).count { it.untransformed.trigger is IfTrigger } shouldBe 1
     twoPlayers.effects(measureAward).size shouldBe measureAward.declaration.effects.size
-    threePlayers.effects(measureAward).count { it.trigger is IfTrigger } shouldBe 1
+    threePlayers.effects(measureAward).count { it.untransformed.trigger is IfTrigger } shouldBe 1
     threePlayers.effects(measureAward).size shouldBe measureAward.declaration.effects.size
-    assertSame(conditional, twoPlayers.effects(measureAward).single { it.trigger is IfTrigger })
-    assertSame(conditional, threePlayers.effects(measureAward).single { it.trigger is IfTrigger })
+    assertSame(
+        conditional,
+        twoPlayers.effects(measureAward).single { it.untransformed.trigger is IfTrigger },
+    )
+    assertSame(
+        conditional,
+        threePlayers.effects(measureAward).single { it.untransformed.trigger is IfTrigger },
+    )
   }
 
   @Test
@@ -394,10 +401,11 @@ internal class ClassTableSelectionTest {
     val withColonies = gameView("CimmeriaMap, ColoniesExpansion", "Player1", "Player2").classTable
     val bonus = Canon.classTable.getClass(cn("CimmeriaPlacementBonus"))
 
-    (bonus.declaration.effects.single().trigger is IfTrigger) shouldBe true
+    (bonus.declaration.effects.single().untransformed.trigger is IfTrigger) shouldBe true
     withoutColonies.effects(bonus).shouldBeEmpty()
-    (withColonies.effects(bonus).single().trigger is IfTrigger) shouldBe false
-    withColonies.effects(bonus).single().instruction.toString() shouldBe "Colony<>, -5 MC"
+    (withColonies.effects(bonus).single().untransformed.trigger is IfTrigger) shouldBe false
+    withColonies.effects(bonus).single().untransformed.instruction.toString() shouldBe
+        "Colony<>, -5 MC"
   }
 
   @Test
@@ -405,10 +413,11 @@ internal class ClassTableSelectionTest {
     val table = gameView("ColoniesExpansion, Callisto", "Me").classTable
     val colonies = table.getClass(cn("ColoniesExpansion"))
 
-    colonies.declaration.effects.mapNotNull { (it.trigger as? IfTrigger)?.condition }.size shouldBe
-        2
+    colonies.declaration.effects
+        .mapNotNull { (it.untransformed.trigger as? IfTrigger)?.condition }
+        .size shouldBe 2
     table.effects(colonies).mapNotNull {
-      (it.trigger as? IfTrigger)?.condition?.toString()
+      (it.untransformed.trigger as? IfTrigger)?.condition?.toString()
     } shouldBe listOf("SelectedColonyTile")
   }
 

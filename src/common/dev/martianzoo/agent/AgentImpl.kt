@@ -9,13 +9,17 @@ import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.ast.ActionTree
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.util.Multiset
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
@@ -69,7 +73,7 @@ internal class AgentImpl(
   override fun count(metric: String) =
       reader.count(
           elaborator.elaborateMetricInput(
-              Parsing.parse(metric),
+              inputSyntax(Parsing.parse<Metric>(metric)) as Metric,
               actor.expression,
               actor as? Player,
           )
@@ -81,12 +85,30 @@ internal class AgentImpl(
   override fun resolve(expression: String) = reader.resolve(parse(expression))
 
   override fun parseAs(type: KClass<out PetElement>, text: String): PetElement =
-      elaborator.elaborateInput(Parsing.parse(type, text), actor as? Player)
+      elaboratePlayerInput(Parsing.parse(type, text))
+
+  // Each Player Agent always marks its text inputs; an Admin Agent always leaves them literal.
+  private fun inputSyntax(node: PetElement): PetElement {
+    if (actor !is Player) return node
+    return when (node) {
+      is Expression -> Metric.Transform(Metric.Count(node), "OWN")
+      is InstructionTree -> Instruction.Transform(node, "OWN")
+      is Metric -> Metric.Transform(node, "OWN")
+      is Requirement -> Requirement.Transform(node, "OWN")
+      is EffectTree -> EffectTree.Transform(node, "OWN")
+      is ActionTree -> ActionTree.Transform(node, "OWN")
+    }
+  }
+
+  private fun elaboratePlayerInput(node: PetElement): PetElement {
+    val result = elaborator.elaborateInput(inputSyntax(node), actor as? Player)
+    return if (node is Expression && result is Metric.Count) result.expression else result
+  }
 
   private fun parseTaskNarrowing(text: String): ParsedTaskNarrowing {
     val parsed = Parsing.parse<InstructionTree>(text)
     return ParsedTaskNarrowing(
-        elaborator.elaborateInput(parsed, actor as? Player),
+        elaboratePlayerInput(parsed) as InstructionTree,
         quantifierOmitted = parsed is Change && parsed.quantifier == null,
         submittedAsGroup = parsed is InstructionGroup,
     )

@@ -4,13 +4,13 @@ CLASS PreludeExpansion : Module {
   X SoloGenerationsLeft: -2 SoloGenerationsLeft!
   This:: 4 SelectablePreludeCount
 
-  PlayerMode: PreludeCard / SelectablePreludeCount, \
-    -PreludeCard / (SelectablePreludeCount - 2)
+  OWN[PlayerMode: PreludeCard / SelectablePreludeCount, \
+    -PreludeCard / (SelectablePreludeCount - 2)]
 }
 
 "A unit in the configured number of Prelude cards offered to each player"
 CLASS SelectablePreludeCount : System
 
 CLASS PreludePhase : Phase {
-  NewTurn: PlayOrFizzle
+  OWN[NewTurn: PlayOrFizzle]
 }

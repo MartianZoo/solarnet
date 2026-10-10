@@ -31,7 +31,7 @@ internal class Spec13InlineClassTypeVariablesTest {
   internal fun selectorVariableDoesNotDiscardLocalBody() {
     val declarations = parseClasses("CLASS Host1 { This: EACH A@Widget { Base<A@Widget> {} } }")
     declarations.map { it.className } shouldContainExactly listOf(cn("Host1"), cn("Host1_Base"))
-    val each = declarations.first().authoredEffects.single().instruction as Each
+    val each = declarations.first().authoredEffects.single().untransformed.instruction as Each
     val gaining = each.body as dev.martianzoo.pets.ast.Instruction.Gain
     gaining.gaining.expression.className shouldBe cn("Host1_Base")
     declarations.last().supertypes.map { "$it" } shouldBe listOf("Base<Widget>")
@@ -85,7 +85,8 @@ internal class Spec13InlineClassTypeVariablesTest {
             "CLASS Host1 { This: A@Wrapper<Base {}> FROM A@Wrapper }",
         )
     val transmute =
-        table.getClass(cn("Host1")).declaration.authoredEffects.single().instruction as Transmute
+        table.getClass(cn("Host1")).declaration.authoredEffects.single().untransformed.instruction
+            as Transmute
     transmute.gaining.expression.arguments.single().className shouldBe cn("Host1_Base")
     transmute.removing.expression.arguments.single().className shouldBe cn("Host1_Base")
   }
@@ -94,7 +95,8 @@ internal class Spec13InlineClassTypeVariablesTest {
   internal fun referenceExpansionCopiesRefinementsWithoutDeclaringTheirBodiesAgain() {
     val declarations = parseClasses("CLASS Host1 { This: A@Wrapper(HAS Base {}) FROM A@Wrapper }")
     declarations.map { it.className } shouldContainExactly listOf(cn("Host1"), cn("Host1_Base"))
-    val transmute = declarations.first().authoredEffects.single().instruction as Transmute
+    val transmute =
+        declarations.first().authoredEffects.single().untransformed.instruction as Transmute
     transmute.gaining.expression.refinement shouldBe transmute.removing.expression.refinement
   }
 
@@ -135,7 +137,7 @@ internal class Spec13InlineClassTypeVariablesTest {
             """
                 .trimIndent()
         )
-    val each = declarations.first().authoredEffects.single().instruction as Each
+    val each = declarations.first().authoredEffects.single().untransformed.instruction as Each
     val bound = each.bodyFor(cn("Alice").expression) as Transmute
     bound.gaining.expression.arguments.single().arguments.single().className shouldBe cn("Alice")
     bound.removing.expression.arguments.single().arguments.single().className shouldBe cn("Alice")

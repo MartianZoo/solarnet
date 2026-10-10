@@ -6,9 +6,11 @@ import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.Transforming.immediateToEffect
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.ActionTree
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -47,16 +49,16 @@ internal object CardPetsGenerator {
     private val className = cn(data.name)
     private val derivedClasses = DerivedClassLowerer(className)
 
-    private inline fun <reified P : PetNode> parseOwned(source: String): Parsed<P> {
+    private inline fun <reified P : PetNode> parseAuthored(source: String): Parsed<P> {
       val node = Parsing.parse(P::class, source, derivedClasses)
       return Parsed(source, node)
     }
 
     private val deck = data.deck?.let(::cn)
     private val projectKind = data.projectKind?.let(::cn)
-    private val immediate = data.immediate?.let { parseOwned<InstructionTree>(it) }
-    private val actions = data.actions.map { parseOwned<Action>(it) }
-    private val effects = data.effects.map { parseOwned<Effect>(it) }
+    private val immediate = data.immediate?.let { parseAuthored<InstructionTree>(it) }
+    private val actions = data.actions.map { parseAuthored<Action>(it) }
+    private val effects = data.effects.map { parseAuthored<Effect>(it) }
     private val authoredAutomaticThisEffects = effects.filter {
       it.node.automatic && it.node.trigger == Effect.Trigger.WhenGain
     }
@@ -67,13 +69,19 @@ internal object CardPetsGenerator {
     private val tagCounts = data.tags.groupingBy(::cn).eachCount()
     private val invariants =
         (data.invariants + tagCounts.map { (tag, count) -> "=$count $tag<This>" })
-            .map { parseOwned<Requirement>(it) }
+            .map { parseAuthored<Requirement>(it) }
             .distinctBy { it.node }
-    private val componentClasses = data.components.map(::parseOneLinerClass)
+    private val componentClasses =
+        data.components.map(::parseOneLinerClass).map { declaration ->
+          declaration.copy(
+              authoredEffects = declaration.authoredEffects.map { EffectTree.Transform(it, "OWN") },
+              authoredActions = declaration.authoredActions.map { ActionTree.Transform(it, "OWN") },
+          )
+        }
     private val requirement: Requirement? =
-        data.requirement?.let { parseOwned<Requirement>(it).node }
+        data.requirement?.let { parseAuthored<Requirement>(it).node }
     private val autoSelectWhen: Requirement? =
-        data.autoSelectWhen?.let { parseOwned<Requirement>(it).node }
+        data.autoSelectWhen?.let { parseAuthored<Requirement>(it).node }
     private val resourceType =
         deriveResourceTypeCandidates()
             .also { candidates ->
@@ -119,11 +127,12 @@ internal object CardPetsGenerator {
                       ?.let(Requirement.And::create)
               ),
           authoredEffects =
-              authoredAutomaticThisEffects.map(Parsed<Effect>::node) +
-                  onPlayEffects +
-                  authoredThisEffects.map(Parsed<Effect>::node) +
-                  otherEffects.map(Parsed<Effect>::node),
-          authoredActions = actions.map(Parsed<Action>::node),
+              (authoredAutomaticThisEffects.map(Parsed<Effect>::node) +
+                      onPlayEffects +
+                      authoredThisEffects.map(Parsed<Effect>::node) +
+                      otherEffects.map(Parsed<Effect>::node))
+                  .map { EffectTree.Transform(it, "OWN") },
+          authoredActions = actions.map { ActionTree.Transform(it.node, "OWN") },
           properties =
               buildMap {
                 put(COST_PROPERTY, NumberValue(data.cost))
@@ -148,9 +157,9 @@ internal object CardPetsGenerator {
         otherEffects.mapTo(this) { it.render() }
       }
       if (renderedEffects.isNotEmpty() || actions.isNotEmpty()) appendLine()
-      renderedEffects.forEach { appendLine("  $it") }
+      renderedEffects.forEach { appendLine("  OWN[$it]") }
       if (renderedEffects.isNotEmpty() && actions.isNotEmpty()) appendLine()
-      actions.forEach { appendLine("  ${it.render()}") }
+      actions.forEach { appendLine("  OWN[${it.render()}]") }
       append('}')
     }
 

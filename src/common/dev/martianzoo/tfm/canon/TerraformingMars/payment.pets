@@ -2,7 +2,7 @@
 CLASS Owed<@Class<StandardResource>> : Owned<Player>, Barrier, Hidden, System {
   DEFAULT +Owed<Class<MC>>
   DEFAULT -Owed<Class<MC>>.
-  X This:: Accepting<@Class>
+  OWN[X This:: Accepting<@Class>]
 }
 
 "Identifies one aspect of a card play or purchase whose cost is being adjusted"
@@ -12,34 +12,34 @@ CLASS PayingFor<Class<Component>> : Owned<Player>, Signal, System
 CLASS Billing<Class<Component>, ActionSlot, @Class<StandardResource>> : Owned<Player>, Barrier, Hidden, System {
   DEFAULT +Billing<Class<Component>, Action1, Class<MC>>
   HAS MAX 1 This
-  This IF MAX 0 Owed<@Class>:: -This!
-  -X Owed<@Class> IF MAX 0 Owed<@Class>:: -This!
+  OWN[This IF MAX 0 Owed<@Class>:: -This!]
+  OWN[-X Owed<@Class> IF MAX 0 Owed<@Class>:: -This!]
 }
 
 CLASS Accepting<Class<@StandardResource>> : Owned<Player>, MustCleanUp, Hidden {
   HAS MAX 1 This
   DEFAULT +Accepting.
-  Billing: -X @StandardResource?
-  -@StandardResource BY Me@:: -Owed<Class<@StandardResource>>
-  -X Billing:: -This!
+  OWN[Billing: -X @StandardResource?]
+  OWN[-@StandardResource BY Me@:: -Owed<Class<@StandardResource>>]
+  OWN[-X Billing:: -This!]
 }
 
 "Offers payment using the resource held by a specific card"
 CLASS AcceptingFromCard<@ResourceCard<Class<@CardResource>, @Player>> : Owned<@Player>, MustCleanUp, Hidden {
   HAS MAX 1 This
-  Billing: -X @CardResource<@ResourceCard>?
-  -X Billing:: -This!
+  OWN[Billing: -X @CardResource<@ResourceCard>?]
+  OWN[-X Billing:: -This!]
 }
 
 "A card-owned adjustment that remains in play until the next project card play"
 ABSTRACT CLASS NextCardEffect<GenerationScope> : Owned<Player> {
-  PayingFor<Class<CardFront>>:: -This!
+  OWN[PayingFor<Class<CardFront>>:: -This!]
 }
 
 "A component that makes a standard resource worth one M€ when paid"
 ABSTRACT CLASS ResourceValue<Class<@StandardResource>> : Owned<Player> {
   // The resource being spent can be Steel or Titanium, but it settles the default M€ debt.
-  -@StandardResource BY Me@ IF Accepting<Class<@StandardResource>>:: -Owed<Class<MC>>
+  OWN[-@StandardResource BY Me@ IF Accepting<Class<@StandardResource>>:: -Owed<Class<MC>>]
 
   "One M€ of a standard resource's ordinary payment value"
   CLASS BaseResourceValue : Hidden

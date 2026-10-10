@@ -4,6 +4,7 @@ import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
@@ -32,7 +33,8 @@ public constructor(
   public val subclassNames: Set<ClassName> =
       descendingBySubclassCount(classTable.allSubclasses(rootClass))
 
-  public val rawClassEffects: List<Effect> = rootClass.declaration.effects
+  /** Declaration effects with authored transform marks, before class-context elaboration. */
+  public val rawClassEffects: List<EffectTree> = rootClass.declaration.effects
   public val classEffects: List<Effect> =
       if (inhabited) elaborator.classEffects(rootClass) else emptyList()
 

@@ -6,7 +6,7 @@ CLASS BeginnerCard : CardBack {
 "A beginner corporation supplies 42 M€ and all ten starting project cards for free"
 ABSTRACT CLASS BeginnerCorporation : CardFront<Class<BeginnerCard>> {
   cost = 0
-  This: 42 MC, 10 ProjectCard
+  OWN[This: 42 MC, 10 ProjectCard]
 }
 
 CLASS BeginnerCorporation1 : BeginnerCorporation

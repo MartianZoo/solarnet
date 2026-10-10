@@ -84,11 +84,11 @@ private const val LANG_DECLARATIONS: String =
     ABSTRACT CLASS Scored { score = Metric }
     CLASS Gardener : Scored {
       score = COUNT "2 Plant"
-      This: Plant / EVAL This.score
+      OWN[This: Plant / EVAL This.score]
     }
-    ABSTRACT CLASS Rule { This: 2 ProjectCard, Plant }
+    ABSTRACT CLASS Rule { OWN[This: 2 ProjectCard, Plant] }
     CLASS SimpleRule : Rule
-    CLASS OwnedRule : Owned { This: Plant }
+    CLASS OwnedRule : Owned { OWN[This: Plant] }
     """
 
 /**
@@ -98,7 +98,8 @@ private const val LANG_DECLARATIONS: String =
 internal val langTable: ClassTable by lazy {
   loadTypes(
       LANG_DECLARATIONS.trimIndent(),
-      transformHandlerFactories = mapOf("UNWRAP" to { _ -> TransformHandler { inner -> inner } }),
+      transformHandlerFactories =
+          mapOf("UNWRAP" to { _ -> TransformHandler { inner, _ -> inner } }),
   )
 }
 
@@ -124,6 +125,6 @@ internal class TableWorld(
 
 internal val langWorld: TypeInfo = TableWorld(langTable)
 
-/** Elaborates [source] as one player-submitted instruction tree, in Player1's context. */
+/** Adds the player-input OWN mark, then elaborates [source] in Player1's context. */
 internal fun elaborate(source: String): InstructionTree =
-    langElaborator.elaborateInput(parse<InstructionTree>(source), player1)
+    langElaborator.elaborateInput(parse<InstructionTree>("OWN[$source]"), player1)

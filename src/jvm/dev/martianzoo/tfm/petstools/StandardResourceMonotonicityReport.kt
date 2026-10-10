@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.petstools
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.catalog.defaultEnglishDisplayName
+import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
 import dev.martianzoo.pets.api.SystemClasses.THIS
@@ -85,7 +86,10 @@ internal object StandardResourceMonotonicityReport {
 
   fun analyze(premise: GamePremise = maximalSoloPremise()): Analysis {
     val table = premise.classTable
-    val productionLowerer = table.transformDispatcher()
+    val productionLowerer =
+        TransformHandler.dispatcher(
+            premise.catalog.transformHandlerFactories.mapValues { (_, factory) -> factory(table) }
+        )
     val quantities = quantities(table)
     val findings = linkedSetOf<Finding>()
     val opaqueUsages = linkedSetOf<OpaqueUsage>()
@@ -108,7 +112,7 @@ internal object StandardResourceMonotonicityReport {
                         quantity,
                         subjectName,
                         subjectClass,
-                        effectLocation(effect, index + 1),
+                        effectLocation(effect.untransformed, index + 1),
                         "resource instances carry a live effect",
                         effect.toString(),
                     )
@@ -350,7 +354,7 @@ internal object StandardResourceMonotonicityReport {
     if (root in declaration.invariants) return RuleLocation(RuleLocationKind.INVARIANT)
     val effectIndex = declaration.effects.indexOf(root)
     return if (effectIndex >= 0) {
-      effectLocation(declaration.effects[effectIndex], effectIndex + 1)
+      effectLocation(declaration.effects[effectIndex].untransformed, effectIndex + 1)
     } else {
       RuleLocation(RuleLocationKind.DECLARATION)
     }

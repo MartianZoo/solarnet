@@ -38,7 +38,7 @@ The task rewrites the diagram and area block in every recognized map file and ve
 generated declarations round-trip through the Pets parser. Review the resulting source diff; do
 not edit generated area declarations by hand.
 Delegate sigils are emitted directly as
-`Placement<This> IF Class<PartyDelegate>: PartyDelegate` (or `2 PartyDelegate` for `DD`). The
+`OWN[Placement<This> IF Class<PartyDelegate>: PartyDelegate]` (or `2 PartyDelegate` for `DD`). The
 trigger-side condition makes the bonus absent from games without party delegates while keeping it
 mandatory when that class is present. Cimmeria's colony-and-cost bonus remains a named Signal
 because its two consequences form one conditional package.

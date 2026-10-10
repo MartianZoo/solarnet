@@ -172,10 +172,11 @@ extraction remains a separate library-design direction below, not a prerequisite
    Let refinements name their candidate when nested dependencies must relate to it. These changes
    should retire proxy classes and repeated full expressions rather than coexist with them.
 
-2. **Make ownership explicit and regular.** **Selected direction.** Replace implicit ownership
-   insertion with an explicit `OWN[...]` authoring operation, including whole-effect transforms and
-   automatic card or map marks. Keep ordinary `Owned` and `Owner` declarations as the semantic
-   foundation. Proceed only where inference and repeated special handling actually disappear.
+2. **Make ownership explicit and regular.** **First migration implemented; simplification remains.**
+   OWN marks are explicit in compiled and authored Pets, and OWN/PROD share transform handling.
+   Continue only where inference and repeated special handling actually disappear. The
+   [ownership note](docs/agents/OWNERSHIP.md) owns the current design, next steps, tentative ideas,
+   and choices needing human review.
 
 3. **Support honest nested fanout where the game truly has two domains.** Quick Start's
    players-by-resource production is the proving case. Preserve independent recipient decisions and

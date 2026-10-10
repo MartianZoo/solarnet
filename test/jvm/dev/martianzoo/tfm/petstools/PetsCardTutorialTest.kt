@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.petstools
 
+import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -35,6 +36,18 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 internal class PetsCardTutorialTest {
+  private fun printedImmediate(card: PetClass): InstructionGroup? =
+      cardImmediate(card)?.let {
+        object : PetTransformer() {
+              override fun transformNode(node: PetNode): PetNode =
+                  if (node is Transform && node.transformKind == "OWN")
+                      transformInstructionTree(node.instruction)
+                  else transformChildren(node)
+            }
+            .transformInstructionTree(it)
+            .let(InstructionGroup::of)
+      }
+
   @Test
   internal fun acceptedSlidesRevealCardsOnlyAfterRequiredConcepts() {
     val sieve =
@@ -716,10 +729,10 @@ internal class PetsCardTutorialTest {
   ): (PetClass) -> Boolean = { card ->
     !cardNeedsUnrevealedConcept(
         card,
-        cardImmediate(card),
+        printedImmediate(card),
         cardRequirement(card),
-        cardActions(card),
-        cardEffects(card),
+        cardActions(card).map { it.untransformed },
+        cardEffects(card).map { it.untransformed },
     )
   }
 
@@ -776,7 +789,7 @@ internal class PetsCardTutorialTest {
         .filter { PropertyName("autoSelectWhen") !in it.declaration.properties }
         .filter { card ->
           !containsUnsupportedTutorialSyntax(
-              cardImmediate(card),
+              printedImmediate(card),
               allowedClassNames,
               allowInstructionChoice,
               allowMetricMaximum = allowMetricMaximum,
@@ -799,7 +812,7 @@ internal class PetsCardTutorialTest {
           }
         }
         .filter { card ->
-          listOfNotNull(cardImmediate(card)).none {
+          listOfNotNull(printedImmediate(card)).none {
             it.descendantsOfType<Gated>().isNotEmpty()
           } && cardActions(card).none { it.descendantsOfType<Gated>().isNotEmpty() }
         }
@@ -818,7 +831,7 @@ internal class PetsCardTutorialTest {
           }
         }
         .filter { card ->
-          (listOfNotNull<PetNode>(cardImmediate(card)) + cardActions(card) + cardEffects(card))
+          (listOfNotNull<PetNode>(printedImmediate(card)) + cardActions(card) + cardEffects(card))
               .none {
                 it.descendantsOfType<Then>().isNotEmpty()
               }
@@ -826,10 +839,10 @@ internal class PetsCardTutorialTest {
         .filter { card ->
           candidate(
               card,
-              cardImmediate(card),
+              printedImmediate(card),
               cardRequirement(card),
-              cardActions(card),
-              cardEffects(card),
+              cardActions(card).map { it.untransformed },
+              cardEffects(card).map { it.untransformed },
           )
         }
         .mapTo(linkedSetOf()) { it.className.toString() }

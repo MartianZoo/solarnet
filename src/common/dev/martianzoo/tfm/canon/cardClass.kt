@@ -2,13 +2,14 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.THIS
-import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.ActionTree
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Instruction.Transform as InstructionTransform
 import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
@@ -51,8 +52,8 @@ public fun cardTags(card: Class): Multiset<ClassName> {
 public fun cardImmediate(card: Class): InstructionGroup? {
   val instructions =
       card.declaration.authoredEffects
-          .filter { !it.automatic && it.trigger == WhenGain }
-          .map { it.instruction }
+          .filter { !it.untransformed.automatic && it.untransformed.trigger == WhenGain }
+          .map { it.instructionWithTransforms() }
   return instructions
       .takeIf { it.isNotEmpty() }
       ?.let { InstructionGroup.of(InstructionGroup.createTree(it)) }
@@ -61,21 +62,27 @@ public fun cardImmediate(card: Class): InstructionGroup? {
 /**
  * Authored instruction-position `PROD` blocks in this card's [cardImmediate] instructions. `Plant /
  * PROD[Energy]` contains a production metric and contributes no production box. Returns every
- * instruction block, including nested blocks; callers must check cardinality and enclosing choices
- * or bindings before extracting a block for copying. No elaboration is applied.
+ * instruction block with its enclosing transform marks; callers must check cardinality and
+ * enclosing choices or bindings before extracting a block for copying. No elaboration is applied.
  */
-public fun cardProductionBoxes(card: Class): List<InstructionTransform> =
-    cardImmediate(card)?.descendantsOfType<InstructionTransform>().orEmpty().filter {
-      it.transformKind == TfmClasses.PROD
-    }
+public fun cardProductionBoxes(card: Class): List<InstructionTree> {
+  fun collect(node: dev.martianzoo.pets.ast.PetNode): List<InstructionTree> =
+      when (node) {
+        is InstructionTransform ->
+            if (node.transformKind == TfmClasses.PROD) listOf(node)
+            else collect(node.instruction).map { InstructionTransform(it, node.transformKind) }
+        else -> node.immediateChildren().flatMap(::collect)
+      }
+  return cardImmediate(card)?.let(::collect).orEmpty()
+}
 
 /** Actions authored by this card declaration. */
-public fun cardActions(card: Class): List<Action> = card.declaration.authoredActions
+public fun cardActions(card: Class): List<ActionTree> = card.declaration.authoredActions
 
 /** Non-action effects authored by this card declaration. */
-public fun cardEffects(card: Class): List<Effect> =
+public fun cardEffects(card: Class): List<EffectTree> =
     card.declaration.authoredEffects.filterNot { effect ->
-      effect.trigger == WhenGain && !effect.automatic
+      effect.untransformed.trigger == WhenGain && !effect.untransformed.automatic
     }
 
 /** This card's printed play requirement, if any. */

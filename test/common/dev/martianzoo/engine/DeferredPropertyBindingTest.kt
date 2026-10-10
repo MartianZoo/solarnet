@@ -20,7 +20,7 @@ internal class DeferredPropertyBindingTest {
                 CLASS Prize : Owned<Player>
                 CLASS Rule { score = COUNT "Score<Me@Player>" }
                 CLASS Grant : Owned<Player> {
-                  This: EACH Me@Player { Prize / EVAL Rule.score }
+                  OWN[This: EACH Me@Player { Prize / EVAL Rule.score }]
                 }
                 """,
                 players = 2,
@@ -48,7 +48,7 @@ internal class DeferredPropertyBindingTest {
                 ABSTRACT CLASS Rule { requirement = Requirement }
                 CLASS Qualified : Rule { requirement = HAS "2 Score" }
                 CLASS Grant : Owned<Player> {
-                  This:: EACH @Rule { EVAL @Rule.requirement: Prize }
+                  OWN[This:: EACH @Rule { EVAL @Rule.requirement: Prize }]
                 }
                 """,
                 players = 2,
@@ -81,7 +81,7 @@ internal class DeferredPropertyBindingTest {
                 CLASS Single : Rule { score = COUNT "EVAL Shared.score" }
                 CLASS Double : Rule { score = COUNT "OtherScore" }
                 CLASS Grant : Owned<Player> {
-                  This: EACH @Rule { Prize / EVAL @Rule.score }
+                  OWN[This: EACH @Rule { Prize / EVAL @Rule.score }]
                 }
                 """,
                 players = 2,
@@ -113,7 +113,7 @@ internal class DeferredPropertyBindingTest {
                 CLASS Second : Rule { score = COUNT "OtherScore" }
                 CLASS Prize<Rule> : Owned<Player>
                 CLASS Grant : Owned<Player> {
-                  This: EACH Winner@Rule(HAS =1 (RANK Ranked@Rule { EVAL Ranked@Rule.score })) { Prize<Winner@Rule> }
+                  OWN[This: EACH Winner@Rule(HAS =1 (RANK Ranked@Rule { EVAL Ranked@Rule.score })) { Prize<Winner@Rule> }]
                 }
                 """,
                 players = 2,
@@ -145,7 +145,7 @@ internal class DeferredPropertyBindingTest {
                 CLASS Prize : Owned<Player>
                 ABSTRACT CLASS Rule {
                   score = Metric
-                  Pulse BY Me@Player: Prize<Me@Player> / EVAL This.score
+                  OWN[Pulse BY Me@Player: Prize<Me@Player> / EVAL This.score]
                 }
                 CLASS ConcreteRule : Rule { score = COUNT "Score" }
                 """,

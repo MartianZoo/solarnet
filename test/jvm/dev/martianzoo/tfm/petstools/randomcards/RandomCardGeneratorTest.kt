@@ -16,8 +16,8 @@ internal class RandomCardGeneratorTest {
     val instructionNodes =
         cards
             .flatMap { card ->
-              card.authoredEffects.map { it.instruction } +
-                  card.authoredActions.map { it.instruction }
+              card.authoredEffects.map { it.untransformed.instruction } +
+                  card.authoredActions.map { it.untransformed.instruction }
             }
             .flatMap { it.descendantsOfType<PetNode>() }
 

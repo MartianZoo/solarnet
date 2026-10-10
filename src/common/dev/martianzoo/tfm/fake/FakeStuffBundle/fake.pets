@@ -1,5 +1,5 @@
 "Explicitly selected support for incomplete game content"
 CLASS FakeStuffBundle : Module {
-  FirstPlace<Collector> IF RobotUnit:: Audit
-  SecondPlace<Collector> IF RobotUnit:: Audit
+  OWN[FirstPlace<Collector> IF RobotUnit:: Audit]
+  OWN[SecondPlace<Collector> IF RobotUnit:: Audit]
 }

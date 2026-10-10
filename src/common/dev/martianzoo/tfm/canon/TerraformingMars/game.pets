@@ -25,8 +25,8 @@ CLASS TerraformingMars : Module {
 
   ModulesReady IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
 
-  PayingFor<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
-  PayingFor<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>
+  OWN[PayingFor<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>]
+  OWN[PayingFor<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>]
 }
 
 "Allows known incompatible content to coexist"
@@ -36,7 +36,7 @@ CLASS Unsafe : Module
 CLASS QuickStartVariant : Module {
   autoSelectWhen = HAS "TerraformingMars, MAX 0 CorporateEraExpansion"
 
-  SetupPhase: EACH Me@Player { PROD[MC, Steel, Titanium, Plant, Energy, Heat] }
+  OWN[SetupPhase: EACH Me@Player { PROD[MC, Steel, Titanium, Plant, Energy, Heat] }]
 }
 
 "A singleton immutable provider of rule content based on game options"
@@ -64,10 +64,10 @@ ABSTRACT CLASS GameMode : Module {
 
     HAS Class<ClaimMilestone>, Class<FundAward>
     This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
-    SetupPhase: EACH Me@Player { 20 TerraformRating }
+    OWN[SetupPhase: EACH Me@Player { 20 TerraformRating }]
 
     // TODO.md: move final scoring and victory assignment into their real phase boundaries
-    -FinalScoringPending: EACH Me@Player(HAS =1 (RANK Me@Player { VictoryPoint, MC })) { Victory }
+    OWN[-FinalScoringPending: EACH Me@Player(HAS =1 (RANK Me@Player { VictoryPoint, MC })) { Victory }]
   }
 }
 
@@ -98,15 +98,15 @@ CLASS SelectableCorporationCount : System
 
 "The normal starting-card procedure"
 CLASS NonBeginnerMode : PlayerMode {
-  This: CorporationCard / SelectableCorporationCount, \
+  OWN[This: CorporationCard / SelectableCorporationCount, \
     -CorporationCard / (SelectableCorporationCount - 1), \
-    10 ProjectCard<Selecting>, -10 ProjectCard<Selecting>?
+    10 ProjectCard<Selecting>, -10 ProjectCard<Selecting>?]
 }
 
 "One step on the terraform rating track; you generally start with 20 of them"
 CLASS TerraformRating : Owned<Player> {
-  ProductionPhase: 1 MC
-  End: VictoryPoint
+  OWN[ProductionPhase: 1 MC]
+  OWN[End: VictoryPoint]
 }
 
 "Marks the player who takes the first turn"
@@ -128,19 +128,19 @@ ABSTRACT CLASS Phase : System {
     This: Photosynthesis
     This:: EACH Class<@CardWatcher> { @CardWatcher }
 
-    NewTurn IF CorporationCard<Hand>: \
-      PlayCard<Class<CorporationCard>, Class<CardFront>, Hand>
-    NewTurn IF BeginnerCard<Hand>: \
-      PlayCard<Class<BeginnerCard>, Class<CardFront>, Hand>
-    CardFront<Class<CorporationCard>>: BuySelectedCards
-    CardFront<Class<BeginnerCard>>: BuySelectedCards
+    OWN[NewTurn IF CorporationCard<Hand>: \
+      PlayCard<Class<CorporationCard>, Class<CardFront>, Hand>]
+    OWN[NewTurn IF BeginnerCard<Hand>: \
+      PlayCard<Class<BeginnerCard>, Class<CardFront>, Hand>]
+    OWN[CardFront<Class<CorporationCard>>: BuySelectedCards]
+    OWN[CardFront<Class<BeginnerCard>>: BuySelectedCards]
   }
   CLASS ResearchPhase { This:: Generation }
   CLASS ActionPhase {
-    NewTurn IF MAX 0 RequiredAction: StandardAction OR Pass
-    NewTurn IF RequiredAction: RequiredActionsSignal OR Pass
-    SecondAction IF MAX 0 RequiredAction: StandardAction?
-    SecondAction IF RequiredAction: RequiredActionsSignal?
+    OWN[NewTurn IF MAX 0 RequiredAction: StandardAction OR Pass]
+    OWN[NewTurn IF RequiredAction: RequiredActionsSignal OR Pass]
+    OWN[SecondAction IF MAX 0 RequiredAction: StandardAction?]
+    OWN[SecondAction IF RequiredAction: RequiredActionsSignal?]
   }
   CLASS ProductionPhase
   CLASS SolarPhase
@@ -148,7 +148,7 @@ ABSTRACT CLASS Phase : System {
   CLASS ColoniesSolarPhase
   CLASS TurmoilSolarPhase
   CLASS FinalGreeneryPhase {
-    NewTurn: ConvertPlants?
+    OWN[NewTurn: ConvertPlants?]
   }
 
   "The terminal game phase"

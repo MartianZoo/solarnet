@@ -2,6 +2,7 @@ package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -26,7 +27,7 @@ import kotlin.test.Test
 internal class Lang09ElaborationTest {
 
   private fun metric(source: String, context: String = "This"): Metric =
-      langElaborator.elaborateMetricInput(parse(source), parse(context), player1)
+      langElaborator.elaborateMetricInput(parse("OWN[$source]"), parse(context), player1)
 
   private fun classEffects(className: String): List<Effect> =
       langElaborator.classEffects(langTable.getClass(parse(className)))
@@ -42,13 +43,83 @@ internal class Lang09ElaborationTest {
     return PetElaborator(table).elaborateMetricInput(parse(source), parse("Area"))
   }
 
+  @Test
+  internal fun `L9-13 an ownerless System trigger cannot infer a Player actor`() {
+    listOf("Phase", "This").forEach { trigger ->
+      val table =
+          loadTypes(
+              "ABSTRACT CLASS Player : Owner, Actor",
+              "CLASS Player1 : Player",
+              "CLASS Player2 : Player",
+              "CLASS Plant : Owned<Player>",
+              "CLASS Phase : System",
+              "CLASS Rule : System { OWN[$trigger: Plant] }",
+          )
+      shouldThrow<InvalidPetDefinitionException> {
+            PetElaborator(table).classEffects(table.getClass(cn("Rule")))
+          }
+          .message
+          .orEmpty() shouldContain "a System trigger cannot implicitly supply a Player"
+    }
+  }
+
+  @Test
+  internal fun `L9-1 scopes follow defaults without making references request defaults`() {
+    val table =
+        loadTypes(
+            """
+      ABSTRACT CLASS Area {
+        CLASS First
+        CLASS Second
+      }
+      CLASS Piece<Area> { DEFAULT +Piece<First>; DEFAULT -Piece<Second> }
+      CLASS Marker
+      CLASS Notice<Piece<Area>>
+    """
+        )
+    val elaborator = PetElaborator(table)
+    val cases =
+        listOf(
+            Triple(
+                "@Piece<> THEN Notice<@Piece>",
+                "First",
+                "Piece<First>! THEN Notice<Piece<First>>!",
+            ),
+            Triple(
+                "Notice<Piece<First>>(HAS @Piece) THEN @Piece<>",
+                "First",
+                "Notice<Piece<First>>(HAS Piece<First>)! THEN Piece<First>!",
+            ),
+            Triple(
+                "-@Piece<> THEN Notice<@Piece>",
+                "Second",
+                "-Piece<Second>! THEN Notice<Piece<Second>>!",
+            ),
+            Triple(
+                "@Piece<> FROM Marker THEN Notice<@Piece>",
+                "First",
+                "Piece<First> FROM Marker! THEN Notice<Piece<First>>!",
+            ),
+        )
+    cases.forEach { (source, area, expected) ->
+      val lowered = elaborator.elaborateInput(parse<InstructionTree>(source))
+      val variable = lowered.typeVariables.variables.single()
+      val binding =
+          lowered.typeVariables.bind(
+              mapOf(variable to table.resolve(parse<Expression>("Piece<$area>"))),
+              table,
+          )
+      binding.transformInstructionTree(lowered) shouldBe parse<InstructionTree>(expected)
+    }
+  }
+
   // L9-1 The stages
 
   @Test
   internal fun `L9-1 a submitted element goes through the submitted pipeline's stages`() {
     val submitted =
         langElaborator.elaborateInput(
-            parse<InstructionTree>("2 ProjectCard, UNWRAP[Tile<>]"),
+            parse<InstructionTree>("OWN[2 ProjectCard, UNWRAP[Tile<>]]"),
             player1,
         )
 
@@ -124,7 +195,7 @@ internal class Lang09ElaborationTest {
             "ABSTRACT CLASS Player : Owner",
             "ABSTRACT CLASS Token : Owned",
             "CLASS Counted",
-            "CLASS Rule { This: Counted / Class<@Token>(HAS @Token) }",
+            "CLASS Rule { OWN[This: Counted / Class<@Token>(HAS @Token)] }",
         )
     PetElaborator(table).classEffects(table.getClass(cn("Rule"))).single() shouldBe
         parse<Effect>("This BY Me@Player: Counted! / Class<@Token>(HAS @Token<Me@Player>)")
@@ -146,6 +217,73 @@ internal class Lang09ElaborationTest {
     metric("RANK Player { Plant<Player> }") shouldBe parse<Metric>("RANK Player { Plant<Player> }")
     metric("RANK Me@Player { Plant }") shouldBe parse<Metric>("RANK Me@Player { Plant<Me@Player> }")
     metric("RANK Player { Plant<Anyone> }") shouldBe parse<Metric>("RANK Player { Plant<Anyone> }")
+  }
+
+  @Test
+  internal fun `L9-3 EACH and RANK rebind Me in their selector refinements`() {
+    val table =
+        loadTypes(
+            """
+      ABSTRACT CLASS Player : Owner, Actor {
+        CLASS Player1
+        CLASS Player2
+      }
+      CLASS Plant : Owned<Player>
+      CLASS Box<Plant>
+    """
+        )
+    val elaborator = PetElaborator(table)
+    val selector = "Me@Player(HAS Box<Plant>)"
+    val expected = "Me@Player(HAS Box<Plant<Me@Player>>)"
+    elaborator.elaborateInput(
+        parse<InstructionTree>("OWN[EACH $selector { Plant }]"),
+        player1,
+    ) shouldBe parse<InstructionTree>("EACH $expected { Plant<Me@Player>! }")
+    elaborator.elaborateMetricInput(
+        parse("OWN[RANK $selector { Plant }]"),
+        parse("This"),
+        player1,
+    ) shouldBe parse<Metric>("RANK $expected { Plant<Me@Player> }")
+  }
+
+  @Test
+  internal fun `L9-12 EVAL cannot inherit a HAS candidate by its position`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Player : Owner",
+            "CLASS Token : Owned<Player>",
+            "CLASS Rule { requirement = HAS \"Token\"; metric = COUNT \"Token\" }",
+        )
+    listOf("requirement", "metric").forEach { property ->
+      listOf("Player(HAS EVAL Rule.$property)", "OWN[Player(HAS EVAL Rule.$property)]").forEach {
+          source ->
+        shouldThrow<PetSyntaxException> {
+              PetElaborator(table).elaborateMetricInput(parse(source), parse("Rule"))
+            }
+            .message
+            .orEmpty() shouldContain "EVAL cannot supply a HAS candidate's requirement"
+      }
+    }
+  }
+
+  @Test
+  internal fun `L8-6 an earlier inner OWN cannot use an outer effect's inferred Me`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Player : Owner, Actor",
+            "CLASS Player1 : Player",
+            "CLASS Player2 : Player",
+            "CLASS Plant : Owned<Player>",
+            "CLASS Pulse",
+            "CLASS Rule { OWN[Pulse: UNWRAP[OWN[Plant]]] }",
+            transformHandlerFactories =
+                mapOf("UNWRAP" to { TransformHandler { inner, _ -> inner } }),
+        )
+    shouldThrow<InvalidPetDefinitionException> {
+          PetElaborator(table).classEffects(table.getClass(cn("Rule")))
+        }
+        .message
+        .orEmpty() shouldContain "remove a redundant inner OWN or bind Me explicitly"
   }
 
   // L9-4 All-use defaults
@@ -278,7 +416,7 @@ internal class Lang09ElaborationTest {
 
     PetElaborator(table)
         .elaborateMetricInput(
-            parse("Owner(HAS Holder<Leaf>)"),
+            parse("OWN[Owner(HAS Holder<Leaf>)]"),
             parse("Owner"),
             parse<Expression>("Player1"),
         ) shouldBe parse<Metric>("Owner(HAS Holder<Leaf<Player1>>)")

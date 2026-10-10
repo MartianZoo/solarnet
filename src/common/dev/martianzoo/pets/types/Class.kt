@@ -16,6 +16,7 @@ import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
@@ -161,9 +162,9 @@ internal constructor(
         }
     val interpreted =
         source.copy(
-            authoredEffects = source.authoredEffects.map(resolver::transformEffect),
-            authoredActions = source.authoredActions.map(resolver::transformAction),
-            executableEffects = source.executableEffects?.map(resolver::transformEffect),
+            authoredEffects = source.authoredEffects.map(resolver::transformEffectTree),
+            authoredActions = source.authoredActions.map(resolver::transformActionTree),
+            executableEffects = source.executableEffects?.map(resolver::transformEffectTree),
         )
     rejectUnresolved(interpreted)
     return interpreted
@@ -984,16 +985,19 @@ internal constructor(
    * as required by
    * [rules T13-3 and T13-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
-  public fun typeVariablesIn(effect: Effect): TypeVariableScope =
+  public fun typeVariablesIn(effect: EffectTree): TypeVariableScope =
       TypeVariableScope.containing(typeVariables, effect)
 
   /**
-   * Returns [effect] with its visible class-header variable scope, without annotating the shared
-   * source declaration, according to
+   * Returns [effect] with its visible class-header variable scope on the concrete effect inside any
+   * enclosing marks, without annotating the shared source declaration, according to
    * [rules T13-3 and T13-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
-  public fun interpretTypeVariablesIn(effect: Effect): Effect =
-      effect.copy().withTypeVariables(typeVariablesIn(effect))
+  public fun interpretTypeVariablesIn(effect: EffectTree): EffectTree =
+      when (effect) {
+        is Effect -> effect.copy().withTypeVariables(typeVariablesIn(effect))
+        is EffectTree.Transform -> effect.copy(inner = interpretTypeVariablesIn(effect.inner))
+      }
 
   internal fun variableBindings(
       general: GroundType,

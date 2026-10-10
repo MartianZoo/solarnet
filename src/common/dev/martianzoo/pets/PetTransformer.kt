@@ -4,10 +4,12 @@ import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
+import dev.martianzoo.pets.ast.ActionTree
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.BasicTrigger
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.FromExpression
@@ -77,13 +79,17 @@ public abstract class PetTransformer protected constructor() {
    */
   public fun transformElement(node: PetElement): PetElement =
       when (node) {
-        is Action -> transformAction(node)
-        is Effect -> transformEffect(node)
+        is ActionTree -> transformActionTree(node)
+        is EffectTree -> transformEffectTree(node)
         is Expression -> transformExpression(node)
         is InstructionTree -> transformInstructionTree(node)
         is Metric -> transformMetric(node)
         is Requirement -> transformRequirement(node)
       }
+
+  /** Transforms authored action syntax, preserving its broader tree kind. */
+  public fun transformActionTree(node: ActionTree): ActionTree =
+      transformAsKind(node, ActionTree::class)
 
   /** Transforms an action while preserving the [Action] kind. */
   public fun transformAction(node: Action): Action = transformAsKind(node, Action::class)
@@ -95,8 +101,15 @@ public abstract class PetTransformer protected constructor() {
   public fun transformClassName(node: ClassName): ClassName =
       transformAsKind(node, ClassName::class)
 
-  /** Transforms an effect while preserving the [Effect] kind. */
-  public fun transformEffect(node: Effect): Effect = transformAsKind(node, Effect::class)
+  /** Transforms authored effect syntax, including a whole-effect transform. */
+  public fun transformEffectTree(node: EffectTree): EffectTree =
+      transformAsKind(node, EffectTree::class)
+
+  /**
+   * Transforms source to a concrete [Effect]. Fails if an enclosing transform remains; consumers
+   * that retain authored marks should use [transformEffectTree].
+   */
+  public fun transformEffect(node: EffectTree): Effect = transformAsKind(node, Effect::class)
 
   /** Transforms an effect trigger while preserving the [Trigger] kind. */
   public fun transformTrigger(node: Trigger): Trigger = transformAsKind(node, Trigger::class)
@@ -332,6 +345,7 @@ public abstract class PetTransformer protected constructor() {
                     node.refinement?.let(::transformRefinement),
                 )
           }
+      is EffectTree.Transform -> node.copy(inner = transformEffectTree(node.inner))
       is Effect ->
           node
               .copy(
@@ -357,6 +371,7 @@ public abstract class PetTransformer protected constructor() {
             is Trigger.WhenGain -> node
             is Trigger.WhenRemove -> node
           }
+      is ActionTree.Transform -> node.copy(inner = transformActionTree(node.inner))
       is Action ->
           Action(
                   node.cost?.let(::transformCost),

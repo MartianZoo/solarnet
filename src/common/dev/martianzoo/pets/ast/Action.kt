@@ -31,7 +31,7 @@ public data class Action(
 
     /** What the player gets. */
     val instruction: InstructionTree,
-) : PetElement() {
+) : ActionTree() {
   override val kind: kotlin.reflect.KClass<out PetNode> = Action::class
 
   override fun toString(): String = "${cost.suf(' ')}-> $instruction"

@@ -1637,12 +1637,12 @@ internal class CatalogDiagnosticsTest {
     val error = assertFailsWith<InvalidPetDefinitionException> { loadTypes(source) }
 
     assertEquals(
-        "`Garden` uses undefined transform kind `TYPO` in `TYPO[Plant]`; available kinds: none",
+        "`Garden` uses undefined transform kind `TYPO` in `TYPO[Plant]`; available kinds: OWN",
         error.detail,
     )
     assertEquals(
         """
-        |`Garden` uses undefined transform kind `TYPO` in `TYPO[Plant]`; available kinds: none at 2:22
+        |`Garden` uses undefined transform kind `TYPO` in `TYPO[Plant]`; available kinds: OWN at 2:22
         |CLASS Garden { This: TYPO[Plant] }
         |                     ^
         """
@@ -2007,12 +2007,12 @@ internal class CatalogDiagnosticsTest {
     val error = assertFailsWith<InvalidPetDefinitionException> { loadTypes(source) }
 
     assertEquals(
-        "`Garden` uses undefined transform kind `TYPO` in `TYPO[Plant]`; available kinds: none",
+        "`Garden` uses undefined transform kind `TYPO` in `TYPO[Plant]`; available kinds: OWN",
         error.detail,
     )
     assertEquals(
         """
-        |`Garden` uses undefined transform kind `TYPO` in `TYPO[Plant]`; available kinds: none at 2:31
+        |`Garden` uses undefined transform kind `TYPO` in `TYPO[Plant]`; available kinds: OWN at 2:31
         |CLASS Garden { score = COUNT "TYPO[Plant]" }
         |                              ^
         """

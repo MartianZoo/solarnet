@@ -7,6 +7,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
@@ -88,7 +89,7 @@ public data class MarsMapDefinition(
                   }
                   val trigger =
                       if (delegateBonus) IfTrigger(TRIGGER, DELEGATE_REQUIREMENT) else TRIGGER
-                  Effect(trigger, instruction, false)
+                  EffectTree.Transform(Effect(trigger, instruction, false), "OWN")
                 }
         )
 

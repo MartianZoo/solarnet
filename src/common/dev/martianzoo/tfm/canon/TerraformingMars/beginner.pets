@@ -3,5 +3,5 @@ CLASS BeginnerVariant : Module
 
 "The beginner starting-card procedure"
 CLASS BeginnerMode : PlayerMode {
-  This: BeginnerCard
+  OWN[This: BeginnerCard]
 }

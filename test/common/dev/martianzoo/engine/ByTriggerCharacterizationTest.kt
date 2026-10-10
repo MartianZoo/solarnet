@@ -121,12 +121,9 @@ internal class ByTriggerCharacterizationTest {
     }
   }
 
-  /**
-   * Rule L6-9: an unqualified subscription to a type with no owner of its own watches only the
-   * events its effect's owner performed.
-   */
+  /** Rule L6-9: OWN around an unowned, non-System subscription requests a BY Me filter. */
   @Test
-  internal fun anUnownedTriggerDefaultsToTheEffectPlayer() {
+  internal fun ownScopesAnUnownedTriggerToTheEffectPlayer() {
     val game = newGame()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
@@ -255,24 +252,24 @@ private object ProbeDeclarations : TfmCatalog() {
               }
 
               CLASS RepeatedHolderProbe : Owned {
-                ActorTriggerSignal: Plant, Steel
+                OWN[ActorTriggerSignal: Plant, Steel]
               }
 
               CLASS OwnedByProbe : Owned {
-                ActorTriggerSignal BY Me@Player: Heat
-                -ActorTriggerSignal BY Me@Player: Heat
+                OWN[ActorTriggerSignal BY Me@Player: Heat]
+                OWN[-ActorTriggerSignal BY Me@Player: Heat]
               }
 
               CLASS OwnedTriggerProbe : Owned {
-                OwnedActorTrigger<Anyone>: Plant
+                OWN[OwnedActorTrigger<Anyone>: Plant]
               }
 
               CLASS SystemTriggerProbe : Owned {
-                SystemTriggerSignal: Plant
+                OWN[SystemTriggerSignal: Plant]
               }
 
               CLASS OpponentByProbe : Owned {
-                ActorTriggerSignal OR -ActorTriggerSignal BY Player(NOT Me@Owner): Heat
+                OWN[ActorTriggerSignal OR -ActorTriggerSignal BY Player(NOT Me@Owner): Heat]
               }
 
               """

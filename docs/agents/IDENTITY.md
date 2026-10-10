@@ -3,11 +3,11 @@
 > **Agent information:** This is an agent-maintained note for agents.
 >
 > **Read when:** changing on-turn identity, context specialization, event Actor attribution, task
-> assignment, `BY`, Admin, delegated narrowing, Philares, or lexical ownership.
+> assignment, `BY`, Admin, delegated narrowing, or Philares. For OWN and lexical insertion, read
+> [OWNERSHIP](OWNERSHIP.md).
 >
-> **Status:** current semantics plus the proposed on-turn fact and intended routing in their own
-> section. Currently a handoff lasts for the selected task, not its later payment or other queued
-> consequences.
+> **Status:** current semantics, including explicit OWN, plus proposed on-turn routing. Currently a
+> handoff lasts for the selected task, not its later payment or other queued consequences.
 
 ## Source map
 
@@ -16,10 +16,8 @@
   `selectionAssignee`, current `assignee`, and `selected`.
 - [`PendingTask.kt`](../../src/common/dev/martianzoo/engine/PendingTask.kt): trigger-time routing;
   search for `fromEffect`.
-- [`PetElaborator.kt`](../../src/common/dev/martianzoo/pets/PetElaborator.kt): lexical owner
-  insertion; search for `insertOwnedContext`.
-- [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt): the Actor filter on
-  unowned triggers.
+- [OWNERSHIP](OWNERSHIP.md): lexical owner insertion, marked trigger filtering, and the transition
+  toward ordinary ownership.
 
 ## Six identities
 
@@ -92,7 +90,8 @@ a player's program may call the Admin Agent as part of calculating its proposed 
 
 ## Context and event Actor
 
-Lexical owner insertion happens during elaboration. A bare `Plant` in an owned card effect becomes
+Lexical owner insertion happens during elaboration. Inside `OWN[...]`, a bare `Plant` in an owned
+card effect becomes
 `Plant<Me@Owner>`, then specialization of the exact card binds `Me` to its owner. Literal `Anyone`
 remains broad. This Type specialization does not assign task control or event attribution.
 
@@ -111,9 +110,9 @@ perform the change. Automatic effects have no task to hand off, so they cannot u
 A `ChangeEvent` records the Actor that performed the change. Trigger-side `BY` inspects only
 that Actor. It filters event attribution; it does not transfer task control.
 
-An owned component watching an ownerless, non-System type gets an Actor filter for its Player owner
-when the effect is compiled. Explicit `BY Anyone` accepts every Actor. Watching an owned type uses
-its owner dependency to select whose components match.
+Inside OWN, a subscription to an ownerless, non-System type gets a BY filter for lexical Me.
+Explicit `BY Anyone` accepts every Actor. Watching an owned type uses its owner dependency to
+select whose components match. Unmarked rules acquire neither filter during compilation or execution.
 
 ## Task assignment and delegation
 
@@ -158,27 +157,16 @@ task finishes. Icy Impactors first assigns the area choice to the Start Token ow
 instruction-side `BY` to return the concrete ocean task to the card owner. World Government
 Terraforming assigns its concrete change to Admin.
 
-## Lexical ownership
+## Ownership versus Actor identity
 
 `Anyone` is the common supertype of `Owner` and `Actor`. `Player` is both; Admin is only an Actor;
-SoloOpponent and Neutral are only Owners. Use bare `Owned` in subclass declarations unless
-narrowing its bound or linking a variable. Use literal `<Anyone>` for unrestricted ownership and
-trigger-side `BY Anyone` for every performer.
+SoloOpponent and Neutral are only Owners. An owned component's recipient therefore need not be an
+Actor who can perform its event. Use literal `<Anyone>` for unrestricted ownership and trigger-side
+`BY Anyone` for every performer.
 
-`Owned<Me@Owner>` gives the owner dependency an inherited lexical name. Subclasses can narrow that
-same binding, such as `Me@Player`. Independently inherited bindings with the same name are
-ambiguous unless they reach the same dependency. A marked `EACH Me@Player` or
-`RANK Me@Player` rebinds `Me` inside its body; an unmarked selector preserves the outer binding.
-
-`Me@` and other named references may omit their type when the visible name selects a unique
-binding, as specified by language rule L1-7. The supplying occurrence still writes its type. An
-`EVAL` captures the lexical `Me` from its evaluation site; ordinary Type-variable specialization
-carries that capture through deferred fanout and ranking. The engine does not reconstruct an owner
-from a selected component or event Actor.
-
-A `HAS` candidate fills a compatible omitted dependency before lexical `Me` is inserted. Thus
-`EACH Starter@Player(HAS StartToken) { ... }` tests each candidate's token. An incompatible
-candidate leaves the owner open for lexical insertion.
+[OWNERSHIP](OWNERSHIP.md) owns lexical Me, source-producer contracts, the explicit OWN transition,
+its next steps, and choices requiring human review. The language specification owns the exact
+transformation rules. Changing those rules does not by itself select new task-routing semantics.
 
 ## Test responsibilities
 

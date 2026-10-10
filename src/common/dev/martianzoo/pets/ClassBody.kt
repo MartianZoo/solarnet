@@ -8,9 +8,9 @@ import dev.martianzoo.pets.ClassBody.Element.NestedDeclaration
 import dev.martianzoo.pets.ClassBody.Element.PropertyElement
 import dev.martianzoo.pets.Transforming.actionSelectors
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
-import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.ActionTree
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue
@@ -99,9 +99,9 @@ internal class ClassBody(elements: List<Element> = emptyList()) {
 
     public class PropertyElement(public val property: Pair<PropertyName, PropertyValue>) : Element()
 
-    public class EffectElement(public val effect: Effect) : Element()
+    public class EffectElement(public val effect: EffectTree) : Element()
 
-    public class ActionElement(public val action: Action) : Element()
+    public class ActionElement(public val action: ActionTree) : Element()
 
     public class NestedDeclaration(public val declarations: List<ClassDeclaration>) : Element()
   }

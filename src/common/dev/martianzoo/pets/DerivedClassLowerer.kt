@@ -1,10 +1,13 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.ast.ActionTree
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.TransformNode
 import dev.martianzoo.pets.data.ClassDeclaration
 
 /**
@@ -24,6 +27,7 @@ import dev.martianzoo.pets.data.ClassDeclaration
  */
 // TODO: Contract this temporary tfm-canon seam.
 public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer() {
+  private val transforms = mutableListOf<String>()
   private val declarationsByBase = linkedMapOf<ClassName, ClassDeclaration>()
 
   internal fun lowerDeclaration(declaration: ClassDeclaration): List<ClassDeclaration> {
@@ -35,6 +39,14 @@ public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer(
   }
 
   override fun transformNode(node: PetNode): PetNode {
+    if (node is TransformNode<*>) {
+      transforms.add(node.transformKind)
+      return try {
+        transformChildren(node)
+      } finally {
+        transforms.removeLast()
+      }
+    }
     if (node !is Expression) return transformChildren(node)
     val body = (node as? SourceExpression)?.body ?: return transformChildren(node)
 
@@ -75,7 +87,23 @@ public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer(
                     .map(declarationContext::transformExpression)
                     .map(::withoutRefinements),
         )
-    val declaration = body.asDerivedDeclaration(generated, supertype)
+    val rawDeclaration = body.asDerivedDeclaration(generated, supertype)
+    // The extracted rules remain inside the same authored transform region.
+    val declaration =
+        rawDeclaration.copy(
+            authoredEffects =
+                rawDeclaration.authoredEffects.map { effect ->
+                  transforms.asReversed().fold(effect) { inner, kind ->
+                    EffectTree.Transform(inner, kind)
+                  }
+                },
+            authoredActions =
+                rawDeclaration.authoredActions.map { action ->
+                  transforms.asReversed().fold(action) { inner, kind ->
+                    ActionTree.Transform(inner, kind)
+                  }
+                },
+        )
     declarationsByBase[base] = Parsing.transformDeclaration(declaration, this)
     return Expression(
         generated,

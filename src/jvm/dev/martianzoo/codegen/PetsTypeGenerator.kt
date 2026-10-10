@@ -768,7 +768,7 @@ internal class PetsTypeGenerator(
 }
 
 private fun authoredEffectsContract(): PropertySpec {
-  val effect = ClassName("dev.martianzoo.pets.ast", "Effect")
+  val effect = ClassName("dev.martianzoo.pets.ast", "EffectTree")
   val effectList = ClassName("kotlin.collections", "List").parameterizedBy(effect)
   return PropertySpec.builder("_authoredEffects", effectList)
       .addModifiers(KModifier.PUBLIC)
@@ -825,7 +825,7 @@ private fun classLiteralFactory(component: ClassName, generatedClass: ClassName)
 
 private fun generatedAuthoredEffects(klass: Class): Pair<PropertySpec, PropertySpec>? {
   if (klass.abstract || klass.declaration.authoredEffects.isEmpty()) return null
-  val effect = ClassName("dev.martianzoo.pets.ast", "Effect")
+  val effect = ClassName("dev.martianzoo.pets.ast", "EffectTree")
   val effectList = ClassName("kotlin.collections", "List").parameterizedBy(effect)
   val parsing = ClassName("dev.martianzoo.pets", "Parsing")
   val initializer = CodeBlock.builder().add("listOf(\n").indent()

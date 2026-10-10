@@ -21,7 +21,7 @@ internal class DeterminedZeroCostActionTest : TfmTest() {
                       CLASS DeterminedZeroCostAction : ActionCard, ActiveCard {
                         HAS MAX 1 This
                         cost = 0
-                        UseAction<Me@Player, This, Action1>: -1 MC / CityTile<Anyone> THEN Plant
+                        OWN[UseAction<Me@Player, This, Action1>: -1 MC / CityTile<Anyone> THEN Plant]
                       }
                       """
                           .trimIndent()

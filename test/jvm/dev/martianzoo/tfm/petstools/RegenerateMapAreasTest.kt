@@ -36,7 +36,7 @@ internal class RegenerateMapAreasTest {
     )
     assertTrue(
         "CLASS Demo_1_3 :     LandArea { row = 1; column = 3; " +
-            "Placement<This> IF Class<PartyDelegate>: PartyDelegate }" in regenerated
+            "OWN[Placement<This> IF Class<PartyDelegate>: PartyDelegate] }" in regenerated
     )
     assertEquals(
         """

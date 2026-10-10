@@ -38,10 +38,10 @@ internal class TaskAssignmentCharacterizationTest {
                 CLASS RewardB
               }
               CLASS SystemRequest : Owned<Player>, System {
-                This: Reward
+                OWN[This: Reward]
               }
               CLASS AutomaticSystemSource : Owned<Player> {
-                This:: SystemRequest, Token<Player1>
+                OWN[This:: SystemRequest, Token<Player1>]
               }
               CLASS UnownedSystemRequest<@Player> : System {
                 This: Reward<@Player>

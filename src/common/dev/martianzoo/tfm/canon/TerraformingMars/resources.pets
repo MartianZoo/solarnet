@@ -8,7 +8,7 @@ ABSTRACT CLASS Resource : Owned {
       CLASS Titanium
     }
     CLASS Plant
-    CLASS Energy { ProductionPhase:: Heat FROM This }
+    CLASS Energy { OWN[ProductionPhase:: Heat FROM This] }
     CLASS Heat
   }
 
@@ -27,11 +27,11 @@ ABSTRACT CLASS Resource : Owned {
 
 "Each instance of this creates an instance of a standard resource during ProductionPhase"
 CLASS Production<Class<@StandardResource>> : Owned {
-  ProductionPhase: @StandardResource
+  OWN[ProductionPhase: @StandardResource]
 }
 
 "TODO: consider rename to ProductionBasement"
 CLASS ProdOffset<Class<@StandardResource>> : Owned<Player>, System, Hidden {
-  This:: PROD[@StandardResource]
-  ProductionPhase: -@StandardResource
+  OWN[This:: PROD[@StandardResource]]
+  OWN[ProductionPhase: -@StandardResource]
 }

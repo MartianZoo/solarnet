@@ -1,31 +1,31 @@
 "The action a player selects and performs during their turn"
 ABSTRACT CLASS StandardAction : Owned<Player>, Signal {
-  This:: MAX 0 RequiredAction: Ok
+  OWN[This:: MAX 0 RequiredAction: Ok]
 
   CLASS PlayProject<Class<@CardFront>> {
-    This:: PlayCard<Class<ProjectCard>, Class<@CardFront>, Hand>
+    OWN[This:: PlayCard<Class<ProjectCard>, Class<@CardFront>, Hand>]
   }
   CLASS UseStandardProject<@StandardProject> {
-    This:: UseAction<@StandardProject, Action1>
+    OWN[This:: UseAction<@StandardProject, Action1>]
   }
   CLASS UseCardAction<@ActionCard<@Player>, @ActionSlot> : StandardAction<@Player> {
-    This:: UseAction<@ActionCard, @ActionSlot> THEN ActionUsedMarker<@ActionCard>
+    OWN[This:: UseAction<@ActionCard, @ActionSlot> THEN ActionUsedMarker<@ActionCard>]
   }
   CLASS ConvertPlants {
-    This: 8 Owed<Class<Plant>> THEN Billing<Class<ConvertPlants>, Class<Plant>> \
-      THEN MAX 0 Billing: DefaultGreeneryTile
+    OWN[This: 8 Owed<Class<Plant>> THEN Billing<Class<ConvertPlants>, Class<Plant>> \
+      THEN MAX 0 Billing: DefaultGreeneryTile]
   }
   CLASS ConvertHeat {
-    This: 8 Owed<Class<Heat>> THEN Billing<Class<ConvertHeat>, Class<Heat>> \
-      THEN MAX 0 Billing: TemperatureStep
+    OWN[This: 8 Owed<Class<Heat>> THEN Billing<Class<ConvertHeat>, Class<Heat>> \
+      THEN MAX 0 Billing: TemperatureStep]
   }
   CLASS ClaimMilestone<Class<@Milestone>> {
-    This: 8 Owed<> THEN Billing<Class<@Milestone>> THEN MAX 0 Billing: @Milestone
+    OWN[This: 8 Owed<> THEN Billing<Class<@Milestone>> THEN MAX 0 Billing: @Milestone]
   }
   CLASS FundAward<Class<@Award>> {
     This IF 3 Award: Die
-    This: 8 Owed<> THEN 6 Owed<> / Award THEN Billing<Class<@Award>> \
-      THEN MAX 0 Billing: @Award
+    OWN[This: 8 Owed<> THEN 6 Owed<> / Award THEN Billing<Class<@Award>> \
+      THEN MAX 0 Billing: @Award]
   }
 }
 
@@ -36,32 +36,32 @@ ABSTRACT CLASS StandardProject : HasActions {
   "Discard cards for 1 megacredit each"
   CLASS SellPatentsProject {
     cost = 0
-    -> X MC FROM ProjectCard
+    OWN[-> X MC FROM ProjectCard]
   }
 
   CLASS PowerPlantProject {
     cost = 11
-    1 MC / cost -> PROD[Energy]
+    OWN[1 MC / cost -> PROD[Energy]]
   }
 
   CLASS AsteroidProject {
     cost = 14
-    1 MC / cost -> TemperatureStep
+    OWN[1 MC / cost -> TemperatureStep]
   }
 
   CLASS AquiferProject {
     cost = 18
-    1 MC / cost -> OceanTile<>
+    OWN[1 MC / cost -> OceanTile<>]
   }
 
   CLASS GreeneryProject {
     cost = 23
-    1 MC / cost -> DefaultGreeneryTile
+    OWN[1 MC / cost -> DefaultGreeneryTile]
   }
 
   CLASS CityProject {
     cost = 25
-    1 MC / cost -> CityTile<>, PROD[1 MC]
+    OWN[1 MC / cost -> CityTile<>, PROD[1 MC]]
   }
 }
 
@@ -81,7 +81,7 @@ CLASS UseAction<HasActions, ActionSlot> : Owned<Player>, Signal
 "A mandatory pending action the owner must perform as their next"
 ABSTRACT CLASS RequiredAction : Owned<Player>, HasActions {
   HAS MAX 1 This
-  RequiredActionsSignal:: UseAction<This, Action1> THEN -This!
+  OWN[RequiredActionsSignal:: UseAction<This, Action1> THEN -This!]
 }
 
 CLASS RequiredActionsSignal : Owned<Player>, Signal

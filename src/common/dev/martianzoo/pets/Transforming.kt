@@ -5,11 +5,13 @@ import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.SystemClasses.USE_ACTION
 import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.ActionTree
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.InstructionGroup
@@ -58,7 +60,10 @@ public object Transforming {
             if (node is Scalar) node.bindX(value) else transformChildren(node)
       }
 
-  internal fun actionToEffect(action: Action, index1Ref: Int): Effect {
+  internal fun actionToEffect(action: ActionTree, index1Ref: Int): EffectTree {
+    if (action is ActionTree.Transform)
+        return EffectTree.Transform(actionToEffect(action.inner, index1Ref), action.transformKind)
+    action as Action
     val whichAction = actionSelector(index1Ref)
     val instruction = action.toInstruction()
     val trigger = OnGainOf.create(USE_ACTION.of(THIS, whichAction))
@@ -72,7 +77,7 @@ public object Transforming {
    * triggered by `UseAction<This, ActionN>` ([rule
    * L7-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-actions)).
    */
-  public fun actionListToEffects(actions: Collection<Action>): List<Effect> =
+  public fun actionListToEffects(actions: Collection<ActionTree>): List<EffectTree> =
       actions.mapIndexed { index0Ref, action ->
         actionToEffect(action, index0Ref + 1)
       }
@@ -82,7 +87,7 @@ public object Transforming {
    *
    * @throws PetSyntaxException if [actions] contains more than the three representable positions
    */
-  public fun actionSelectors(actions: Collection<Action>): Set<ClassName> =
+  public fun actionSelectors(actions: Collection<ActionTree>): Set<ClassName> =
       actions.indices.mapTo(linkedSetOf()) { actionSelector(it + 1) }
 
   // Rule L7-5: a class may offer at most three actions.

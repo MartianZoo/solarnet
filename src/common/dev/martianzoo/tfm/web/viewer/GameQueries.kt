@@ -14,7 +14,7 @@ internal class GameQueries(private val reader: GameReader) {
   internal fun count(player: Player, metric: String): Int =
       reader.count(
           elaborator.elaborateMetricInput(
-              Parsing.parse<Metric>(metric),
+              Parsing.parse<Metric>("OWN[$metric]"),
               player.expression,
               player,
           )

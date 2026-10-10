@@ -47,7 +47,7 @@ internal class WorldTransactionTest {
         Engine.newGame(
             testGamePremise(
                 """
-                CLASS CleanupProbe : Owned<Player>, Temporary { -This: Followup }
+                CLASS CleanupProbe : Owned<Player>, Temporary { OWN[-This: Followup] }
                 CLASS Followup : Owned<Player>
                 CLASS Blocker
                 """
@@ -184,7 +184,7 @@ internal class WorldTransactionTest {
         Engine.newGame(
             testGamePremise(
                 """
-                CLASS CleanupProbe : Owned<Player>, Temporary { -This: Followup }
+                CLASS CleanupProbe : Owned<Player>, Temporary { OWN[-This: Followup] }
                 CLASS Followup : Owned<Player>
                 """
             )

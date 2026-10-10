@@ -33,8 +33,11 @@ public interface Agent {
   public val tasks: TaskQueue
 
   /**
-   * Parses and preprocesses [text]. Preprocessing may change its major kind; callers that require a
-   * particular result kind should use [parse].
+   * Parses and preprocesses [text]. A Player Agent always encloses its input in OWN, including
+   * input containing explicit OWN marks. An Admin Agent never adds a mark. Repeated OWN is
+   * idempotent; an explicit mark does not opt sibling syntax out of the Player Agent contract.
+   * Preprocessing may change its major kind; callers that require a particular result kind should
+   * use [parse].
    */
   public fun parseAs(type: KClass<out PetElement>, text: String): PetElement
 

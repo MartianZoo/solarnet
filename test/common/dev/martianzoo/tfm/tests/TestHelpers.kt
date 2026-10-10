@@ -18,6 +18,7 @@ import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.ClassDeclaration
@@ -173,7 +174,13 @@ internal object TestHelpers {
             object : PetTransformer() {
               override fun transformNode(node: PetNode): PetNode =
                   if (node is Expression) {
-                    elaborator.elaborateInput(node, inferredHolder)
+                    if (inferredHolder == null) elaborator.elaborateInput(node)
+                    else
+                        (elaborator.elaborateInput(
+                                Metric.Transform(Metric.Count(node), "OWN"),
+                                inferredHolder,
+                            ) as Metric.Count)
+                            .expression
                   } else {
                     transformChildren(node)
                   }

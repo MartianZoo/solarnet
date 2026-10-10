@@ -14,7 +14,8 @@ command-line application; no production or test source set consumes its output.
 The generator writes the supplied vocabulary to one Kotlin file. Abstract Pets classes become
 interfaces and concrete classes become final classes. Generated components retain their Pets
 `Expression`, expose direct authored effects and resolved class properties, and use typed root
-descriptors for Pets class literals.
+descriptors for Pets class literals. Authored effects use `EffectTree` so whole-effect transform
+marks remain visible in generated metadata.
 
 Open dependency roots become covariant Kotlin parameters. Shared Kotlin parameters come only from
 the identity of Pets class-header Type variables; equal unmarked expressions remain independent.

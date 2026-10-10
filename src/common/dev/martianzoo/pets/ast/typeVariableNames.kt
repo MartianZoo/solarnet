@@ -547,8 +547,8 @@ public fun resolveClassTypeVariableNames(declaration: ClassDeclaration): ClassDe
                 it as Expression
               }
               .distinct(),
-      authoredEffects = resolved.drop(headerCount).take(effectCount).map { it as Effect },
-      authoredActions = resolved.drop(headerCount + effectCount).map { it as Action },
+      authoredEffects = resolved.drop(headerCount).take(effectCount).map { it as EffectTree },
+      authoredActions = resolved.drop(headerCount + effectCount).map { it as ActionTree },
   )
 }
 

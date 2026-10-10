@@ -2,6 +2,7 @@ package dev.martianzoo.catalog
 
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gated
@@ -34,6 +35,7 @@ internal object PremiseViability {
       }
       table
           .effects(table.getClass(className))
+          .flatMap { it.descendantsOfType<Effect>() }
           .filter { interpreter.triggerIsReachable(it.trigger) }
           .forEach { effect ->
             impossibleRemoval(effect.instruction, table, interpreter)?.let { removal ->

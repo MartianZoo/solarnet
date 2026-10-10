@@ -25,7 +25,7 @@ ABSTRACT CLASS Card : Owned<Player> {
       HAS =1 EventTag<This>
       // Some effects move an event directly into another player's pile. Record it only if that
       // move did not already create the one played-event record for this physical card.
-      -This IF MAX 0 PlayedEvent<Anyone, Class<This>>:: PlayedEvent<Class<This>>
+      OWN[-This IF MAX 0 PlayedEvent<Anyone, Class<This>>:: PlayedEvent<Class<This>>]
     }
 
     "Any card with actions, including corporation and prelude cards"
@@ -37,24 +37,24 @@ ABSTRACT CLASS Card : Owned<Player> {
 
   "A card in your played-events pile"
   CLASS PlayedEvent<@Class<CardFront>> {
-    End: ScoreEventVps<@Class>
+    OWN[End: ScoreEventVps<@Class>]
   }
 }
 
 "The payment operation that owns project-card purchases"
 CLASS CardPurchase : HasActions {
   HAS =1 This
-  -Billing<Class<This>, Action1>: ProjectCard FROM BuyCard / BuyCard
+  OWN[-Billing<Class<This>, Action1>: ProjectCard FROM BuyCard / BuyCard]
 }
 
 "A selected project card awaiting payment and transfer to Hand"
 CLASS BuyCard : Owned<Player>, MustCleanUp, Hidden {
-  This:: 3 Owed<> THEN PayingFor<Class<ProjectCard>> THEN Billing<Class<CardPurchase>, Action1>.
+  OWN[This:: 3 Owed<> THEN PayingFor<Class<ProjectCard>> THEN Billing<Class<CardPurchase>, Action1>.]
 }
 
 "Buys every project card left in this Player's selection"
 CLASS BuySelectedCards : Owned<Player>, Signal, System {
-  This:: BuyCard FROM ProjectCard<Selecting> / ProjectCard<Selecting>
+  OWN[This:: BuyCard FROM ProjectCard<Selecting> / ProjectCard<Selecting>]
 }
 
 "An externally specified search criterion; the selected card is not tracked before it reaches a hand"
@@ -71,28 +71,28 @@ CLASS ReferenceFilter<Class<Component>> : CardFilter, Hidden { HAS MAX 1 This }
 
 "Records the search criterion while adding only the externally selected card to the hand"
 CLASS SearchForCard<CardFilter> : Owned<Player>, Signal {
-  This:: ProjectCard, Audit
+  OWN[This:: ProjectCard, Audit]
 }
 
 "Keeps an offered project card that externally satisfies the filter"
 CLASS TakeSelectedCard<CardFilter> : Owned<Player>, Signal {
-  This:: ProjectCard<Hand FROM Selecting>, Audit
+  OWN[This:: ProjectCard<Hand FROM Selecting>, Audit]
 }
 
 "Claims a card resource when the revealed card externally satisfies the filter"
 CLASS ClaimCardReward<CardFilter, @ResourceCard<Class<@CardResource>, @Player>> : Owned<@Player>, Signal {
-  This:: @CardResource<@ResourceCard> / ProjectCard<Revealed>, Audit / ProjectCard<Revealed>
+  OWN[This:: @CardResource<@ResourceCard> / ProjectCard<Revealed>, Audit / ProjectCard<Revealed>]
 }
 
 CLASS PlayCard<Class<@CardBack>, Class<@CardFront>, @CardLocation> : Owned<Player>, Signal {
-  This:: (EVAL @CardFront<Class<@CardBack>>.requirement: Ok) OR \
+  OWN[This:: (EVAL @CardFront<Class<@CardBack>>.requirement: Ok) OR \
     (GpRequirementShortfall<Class<@CardFront>, Class<GlobalParameter>>: \
       EACH @Class<GlobalParameter> { \
         Required<@Class> / GpRequirementShortfall<Class<@CardFront>, @Class> \
           THEN CheckRequirement<Class<@CardFront>> / \
             (GpRequirementShortfall<Class<@CardFront>, @Class> MAX 1) \
-      })
-  This: Owed<> / @CardFront.cost THEN PriceCard<Class<@CardFront>> THEN Billing<Class<@CardFront>> THEN MAX 0 Barrier: @CardFront FROM @CardBack<@CardLocation>
+      })]
+  OWN[This: Owed<> / @CardFront.cost THEN PriceCard<Class<@CardFront>> THEN Billing<Class<@CardFront>> THEN MAX 0 Barrier: @CardFront FROM @CardBack<@CardLocation>]
 }
 
 "Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"
@@ -103,8 +103,8 @@ CLASS GpRequirementShortfall<Class<CardFront>, Class<GlobalParameter>> : CustomM
 
 "Emits payment-adjustment events for a project card and each of its printed tags"
 CLASS PriceCard<Class<@CardFront>> : Owned<Player>, Signal, System {
-  This:: EACH @Class<Tag> { PayingFor<@Class> / PriceAspectCount<Class<@CardFront>, @Class> }
-  This:: PayingFor<Class<@CardFront>> / PriceAspectCount<Class<@CardFront>, Class<@CardFront>>
+  OWN[This:: EACH @Class<Tag> { PayingFor<@Class> / PriceAspectCount<Class<@CardFront>, @Class> }]
+  OWN[This:: PayingFor<Class<@CardFront>> / PriceAspectCount<Class<@CardFront>, Class<@CardFront>>]
 }
 
 "Number of payment-adjustment events for one aspect of a project card"

@@ -40,7 +40,7 @@ internal class InstructionResolutionTest {
   }
 
   private fun preprocess(instr: InstructionTree): InstructionTree {
-    return elaborator.elaborateInput(instr, PLAYER1)
+    return elaborator.elaborateInput(Instruction.Transform(instr, "OWN"), PLAYER1)
   }
 
   private fun preprocessAndResolve(unresolved: String): InstructionTree {

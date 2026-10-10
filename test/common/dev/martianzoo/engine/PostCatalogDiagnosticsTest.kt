@@ -459,7 +459,7 @@ internal class PostCatalogDiagnosticsTest {
   internal fun nestedIdenticalTransform() {
     val error =
         assertFailsWith<ExpressionException> {
-          TransformHandler.dispatcher(mapOf("SAME" to TransformHandler { it }))
+          TransformHandler.dispatcher(mapOf("SAME" to TransformHandler { inner, _ -> inner }))
               .transformInstructionTree(parse("SAME[SAME[Water]]"))
         }
 
@@ -2264,10 +2264,10 @@ internal class PostCatalogDiagnosticsTest {
           agent.runOperation("Rose FROM Rose")
         }
 
-    assertEquals("a transmutation must change its type: Rose FROM Rose", error.detail)
+    assertEquals("a transmutation must change its type: Rose FROM Rose!", error.detail)
     assertEquals(
         """
-        |a transmutation must change its type: Rose FROM Rose at 1:1
+        |a transmutation must change its type: Rose FROM Rose! at 1:1
         |Rose FROM Rose
         |^
         """

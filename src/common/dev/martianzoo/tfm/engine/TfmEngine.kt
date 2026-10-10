@@ -17,6 +17,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -98,7 +99,7 @@ public object TfmEngine {
   }
 
   private object CopyProductionBox : CustomInstruction() {
-    override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
+    override fun translate(reader: GameReader, owner: Type, cardType: Type): InstructionTree {
       val card = reader.tfmCatalog.card(cardType.className)
       val immediate =
           cardImmediate(card)
@@ -129,12 +130,14 @@ public object TfmEngine {
       val (subject, target) = type.typeDependencies.map { it.boundType }
       val definition = requireNotNull(subject.representedClass).declaration
       val targetClass = requireNotNull(target.representedClass)
-      return definition.authoredEffects.sumOf { effect ->
-        effect.instruction.descendantsOfType<Instruction.Change>().count { change ->
-          val gained = change.gaining ?: return@count false
-          game.classTable.getClass(gained.className).isSubtypeOf(targetClass)
-        }
-      }
+      return definition.authoredEffects
+          .map { it.untransformed }
+          .sumOf { effect ->
+            effect.instruction.descendantsOfType<Instruction.Change>().count { change ->
+              val gained = change.gaining ?: return@count false
+              game.classTable.getClass(gained.className).isSubtypeOf(targetClass)
+            }
+          }
     }
   }
 
@@ -309,10 +312,12 @@ public object TfmEngine {
       val areaNames = map.areas.mapTo(hashSetOf()) { it.className }
       val area = listOf(type0, type1).single { it.className in areaNames }
       val effect = game.classTable.effects(area.rootClass).singleOrNull() ?: return NoOp
-      check(effect.trigger.descendantsOfType<IfTrigger>().isEmpty()) {
-        "placement bonus for `${area.rootClass}` retains a premise-time condition: ${effect.trigger}"
+      check(effect.untransformed.trigger.descendantsOfType<IfTrigger>().isEmpty()) {
+        "placement bonus for `${area.rootClass}` retains a premise-time condition: ${effect.untransformed.trigger}"
       }
-      return InstructionGroup.createTree(listOf(effect.instruction, effect.instruction))
+      return InstructionGroup.createTree(
+          listOf(effect.instructionWithTransforms(), effect.instructionWithTransforms())
+      )
     }
   }
 
@@ -325,7 +330,9 @@ public object TfmEngine {
         classType: Type,
     ): InstructionTree {
       val effects = cardEffects(cardFromClassType(classType, reader))
-      return InstructionGroup.of(effects.filter { it.trigger == end }.map { it.instruction })
+      return InstructionGroup.of(
+          effects.filter { it.untransformed.trigger == end }.map { it.instructionWithTransforms() }
+      )
     }
   }
 
@@ -345,7 +352,7 @@ public object TfmEngine {
     }
   }
 
-  private fun citationsOutsideRemoval(effect: Effect, target: ClassName): Int {
+  private fun citationsOutsideRemoval(effect: EffectTree, target: ClassName): Int {
     var count = 0
     effect.visitDescendants { node ->
       when {

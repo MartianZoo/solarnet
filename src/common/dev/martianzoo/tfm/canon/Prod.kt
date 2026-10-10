@@ -32,20 +32,18 @@ internal object Prod {
   }
 
   private fun handler(resourceClassNames: Set<ClassName>): TransformHandler {
-    if (resourceClassNames.isEmpty()) return TransformHandler { null }
-    val lowerer = resourceLowerer(resourceClassNames)
-    return TransformHandler { inner ->
-      lowerer.transformWithoutKindCheck(inner).also { lowered ->
-        if (lowered == inner) {
-          throw ExpressionException("No standard resources found in PROD box: $inner")
-        }
-      }
+    if (resourceClassNames.isEmpty()) return TransformHandler { _, _ -> null }
+    return TransformHandler { inner, scope ->
+      resourceLowerer(resourceClassNames, scope).transformWithoutKindCheck(inner)
     }
   }
 
-  private fun resourceLowerer(resourceClassNames: Set<ClassName>): PetTransformer =
-      object : PetTransformer() {
-        override fun transformNode(node: PetNode): PetNode {
+  private fun resourceLowerer(
+      resourceClassNames: Set<ClassName>,
+      scope: TransformHandler.Scope,
+  ): PetTransformer =
+      object : TransformHandler.Rewriter("PROD", scope) {
+        override fun rewrite(node: PetNode): PetNode {
           when (node) {
             is Change ->
                 listOfNotNull(node.gaining, node.removing).forEach(::requireStandardResource)
