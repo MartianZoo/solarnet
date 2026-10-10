@@ -421,10 +421,6 @@ one side may instead belong to an enclosing `THEN` sequence when that sequence a
 > `CityTile<@MarsArea> FROM GreeneryTile<@MarsArea>` replaces a greenery with a city in
 > that same area. The unmarked form chooses its source and destination areas independently.
 
-> **Non-normative example — Market Manipulation.**
-> `ColonyProduction(NOT Source@ColonyProduction) FROM Source@ColonyProduction` chooses a source
-> colony track and excludes that same track from the destination choice.
-
 > **Non-normative example — Changing Times.** Turmoil advances events with
 > `EACH Event@GlobalEvent(HAS Coming) { Current<Event@GlobalEvent> FROM Coming<Event@GlobalEvent> }`.
 > Both sides must reuse the event selected by `EACH`. Treating the inner transmutation's markers as

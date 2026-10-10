@@ -1538,10 +1538,6 @@ supply that choice, so the destination may use the selected source in a refineme
 source may use the selected destination. Compact `FROM` has its own instruction syntax and declares
 no variable (L2-4).
 
-> **Non-normative example — Market Manipulation.**
-> `ColonyProduction(NOT Source@ColonyProduction) FROM Source@ColonyProduction` moves one step to a
-> different colony track. The source marker supplies the track that the destination excludes.
-
 > **Non-normative example — Kaguya Tech.** `CityTile<@MarsArea> FROM GreeneryTile<@MarsArea>`
 > replaces one of its owner's greeneries with a city in the same area. Neither marker has a
 > different role from the other; together they say that the two areas vary as one. Without the

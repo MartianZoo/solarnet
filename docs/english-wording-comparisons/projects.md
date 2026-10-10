@@ -5699,7 +5699,7 @@ Pets declaration:
 CLASS MarketManipulation : EventCard {
   HAS =1 EarthTag<This>, =1 EventTag<This>
   cost = 1
-  This: ColonyProduction(NOT Source@ColonyProduction) FROM Source@ColonyProduction
+  This: ColonyProduction FROM ColonyProduction
 }
 ```
 
