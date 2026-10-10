@@ -19,7 +19,7 @@ internal class CopyProductionBoxTest : TfmTest() {
   @Test
   internal fun `a production box with an external EACH binding reports the authoring error`() {
     // CopyProductionBox reads authored card metadata from the catalog, so premise-only
-    // declarations supplied to CardTest cannot exercise this diagnostic.
+    // declarations cannot exercise this diagnostic.
     val fixture =
         object : TfmCatalog() {
           override val explicitClassDeclarations =

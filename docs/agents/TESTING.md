@@ -8,8 +8,8 @@
 >
 > **Skip when:** doing a read-only task that requires no build or behavioral claim.
 >
-> **Status:** current repository procedure; card scenarios use the sandbox and gameplay fixtures
-> described below. Five legacy rule suites still use `CardTest`.
+> **Status:** current repository procedure; card and rule scenarios use the sandbox and gameplay
+> fixtures described below.
 
 ## Read only the needed section
 
@@ -29,8 +29,6 @@
   integrated setup and gameplay scopes.
 - [`TestHelpers.kt`](../../test/common/dev/martianzoo/tfm/tests/TestHelpers.kt) —
   search for the named helper before spelling raw task text.
-- [`CardTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/CardTest.kt) —
-  retained by legacy rule suites.
 - [`TfmSandboxTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmSandboxTest.kt) —
   focused scenarios with corrections and selected phase shortcuts.
 - [`TfmGameplayTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmGameplayTest.kt) —
@@ -203,10 +201,9 @@ for correct ownership.
 
 ### Test categories we care about
 
-Legacy card and game-rule scenarios are moving to the `TfmSandboxTest` and `TfmGameplayTest`
-fixtures described below. Choose authentic workflow where the claim depends on it; focused sandbox
-scenarios remain an intended style. Existing tests have not all migrated.
-The remaining legacy suites cover endgame, dead ends, Turmoil delegates, government, and events.
+Card and game-rule scenarios use the `TfmSandboxTest` and `TfmGameplayTest` fixtures described
+below. Choose authentic workflow where the claim depends on it; focused sandbox scenarios remain
+an intended style.
 Dedicated REPL mode tests and lower-level engine or bootstrap tests retain their distinct subjects.
 Do not replace manual phase calls with helpers that recreate the workflow in Kotlin.
 
@@ -322,8 +319,7 @@ Full-game tests override a `config` property with a `GameConfig`, conventionally
 indented multiline string followed by player-name varargs. Catalog-backed premise resolution adds
 `TerraformingMars` and, when no other map is named, `TharsisMap`; the parser already trims each
 entry, so these literals do not need `trimIndent()`. Solo tests conventionally use `Me` as the
-canonical Player Class Name and use `Player.PLAYER1` in Kotlin. The raw-configuration
-overload in `CardTest` uses the same resolution path.
+canonical Player Class Name and use `Player.PLAYER1` in Kotlin.
 
 ### Sandbox and gameplay fixture migration
 
@@ -496,8 +492,6 @@ not itself express a preferred style.
 
 - Extend the neutral-placement defaults in both bases when a solo scenario needs a map other than
   Tharsis, Hellas, or Elysium. Solo alone does not select gameplay over sandbox.
-- Migrate the remaining legacy rule suites after reviewing each scenario's value. Use existing
-  selections and real workflow before considering another fixture capability.
 - Reassess the sandbox's allowed phase shortcuts from concrete needs. A general `advanceTo(Phase)`
   is no longer presumed necessary. Do not introduce a corporation-specific base without a need
   beyond what these two styles already provide.
@@ -511,7 +505,7 @@ For unusual injected sequences, seek a credible gameplay route. Delete a scenari
 exists rather than adding fixture machinery to recreate it. A route possible only through Fake Head
 Start does not by itself establish useful supported-game coverage.
 
-For further rule migrations, review each retained scenario's value, setup, assertions, and name
+When rewriting rule suites, review each retained scenario's value, setup, assertions, and name
 within the batch; larger batches do not relax those checks. Track open
 fixture work in `TODO.md` rather than treating these intentions as already available APIs.
 
@@ -530,6 +524,10 @@ source states an absolute value or the absolute state itself is the subject. Fai
 aborted actions have no successful `TaskResult`, so assert their relevant unchanged state directly.
 Use a zero scalar, such as `0 Plant` or `PROD[0 Energy]`, to assert that a particular type did not
 change.
+
+An action's result does not include automatic workflow operations that run afterward. To check
+those phase effects, compare the relevant state immediately before and after the phase; for example,
+snapshot resources after production and before the world-government choice when testing Turmoil.
 
 Cover meaningful interfaces, negative cases, non-targets, and option combinations rather than only
 the happy path. A filtering or Type-variable test should include several tempting Components that must not
