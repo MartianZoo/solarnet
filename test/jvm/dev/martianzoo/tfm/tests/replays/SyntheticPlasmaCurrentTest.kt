@@ -26,8 +26,8 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
   override fun greeneryAreas(): Pair<String, String> = "Tharsis_3_5" to "Tharsis_7_9"
 
   override fun resolveExpansionSetupTasks() {
-    admin.doTask("Riots")
-    admin.doTask("Revolution")
+    admin.doTask("IndependenceMovement")
+    admin.doTask("WorldGovernmentDirectives")
   }
 
   @Test
@@ -73,10 +73,10 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       assertTurmoilState(
           ruling = "MarsFirst",
           dominant = "Reds",
-          current = "Riots",
-          coming = "Revolution",
+          current = "IndependenceMovement",
+          coming = "WorldGovernmentDirectives",
       )
-      admin.doTask("SponsoredProjects").expect("SponsoredProjects, Distant<SponsoredProjects>")
+      admin.doTask("ScienceSummit").expect("ScienceSummit, Distant<ScienceSummit>")
     }
   }
 
@@ -104,11 +104,11 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           ruling = "Reds",
           chairman = "Bloo",
           dominant = "Scientists",
-          removed = "Riots",
-          current = "Revolution",
-          coming = "SponsoredProjects",
+          removed = "IndependenceMovement",
+          current = "WorldGovernmentDirectives",
+          coming = "ScienceSummit",
       )
-      admin.doTask("StrongSociety").expect("StrongSociety, Distant<StrongSociety>")
+      admin.doTask("MoralMovement").expect("MoralMovement, Distant<MoralMovement>")
     }
   }
 
@@ -142,11 +142,13 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       assertTurmoilState(
           ruling = "Scientists",
           dominant = "Greens",
-          removed = "Revolution",
-          current = "SponsoredProjects",
-          coming = "StrongSociety",
+          removed = "WorldGovernmentDirectives",
+          current = "ScienceSummit",
+          coming = "MoralMovement",
       )
-      admin.doTask("SnowCover").expect("SnowCover, Distant<SnowCover>")
+      admin
+          .doTask("MoholeLakeGlobalEvent")
+          .expect("MoholeLakeGlobalEvent, Distant<MoholeLakeGlobalEvent>")
     }
   }
 
@@ -184,13 +186,13 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       assertTurmoilState(
           ruling = "Greens",
           dominant = "Kelvinists",
-          removed = "SponsoredProjects",
-          current = "StrongSociety",
-          coming = "SnowCover",
+          removed = "ScienceSummit",
+          current = "MoralMovement",
+          coming = "MoholeLakeGlobalEvent",
       )
       admin
-          .doTask("ScientificCommunity")
-          .expect("ScientificCommunity, Distant<ScientificCommunity>")
+          .doTask("ExploreFirstDirective")
+          .expect("ExploreFirstDirective, Distant<ExploreFirstDirective>")
     }
   }
 
@@ -222,11 +224,11 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       assertTurmoilState(
           ruling = "Kelvinists",
           dominant = "Reds",
-          removed = "StrongSociety",
-          current = "SnowCover",
-          coming = "ScientificCommunity",
+          removed = "MoralMovement",
+          current = "MoholeLakeGlobalEvent",
+          coming = "ExploreFirstDirective",
       )
-      admin.doTask("HomeworldSupport").expect("HomeworldSupport, Distant<HomeworldSupport>")
+      admin.doTask("RedResistance").expect("RedResistance, Distant<RedResistance>")
     }
   }
 
@@ -262,11 +264,13 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           ruling = "Reds",
           chairman = "Neutral",
           dominant = "Scientists",
-          removed = "SnowCover",
-          current = "ScientificCommunity",
-          coming = "HomeworldSupport",
+          removed = "MoholeLakeGlobalEvent",
+          current = "ExploreFirstDirective",
+          coming = "RedResistance",
       )
-      admin.doTask("Pandemic").expect("Pandemic, Distant<Pandemic>")
+      admin
+          .doTask("ViralModificationsApproved")
+          .expect("ViralModificationsApproved, Distant<ViralModificationsApproved>")
       // FAQ v1.8 p.100 awards the solo Reds bonus only at 20 TR or below. The archived server
       // nevertheless awarded it at 21 after annual revision; retain that source result explicitly.
       exMachina("TerraformRating")
@@ -305,11 +309,13 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       assertTurmoilState(
           ruling = "Scientists",
           chairman = "Bloo",
-          removed = "ScientificCommunity",
-          current = "HomeworldSupport",
-          coming = "Pandemic",
+          removed = "ExploreFirstDirective",
+          current = "RedResistance",
+          coming = "ViralModificationsApproved",
       )
-      admin.doTask("CelebrityLeaders").expect("CelebrityLeaders, Distant<CelebrityLeaders>")
+      admin
+          .doTask("SolarnetGlobalEvent")
+          .expect("SolarnetGlobalEvent, Distant<SolarnetGlobalEvent>")
     }
   }
 
@@ -358,13 +364,13 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           ruling = "Unity",
           chairman = "Neutral",
           dominant = "Kelvinists",
-          removed = "HomeworldSupport",
-          current = "Pandemic",
-          coming = "CelebrityLeaders",
+          removed = "RedResistance",
+          current = "ViralModificationsApproved",
+          coming = "SolarnetGlobalEvent",
       )
       admin
-          .doTask("InterplanetaryTradeGlobalEvent")
-          .expect("InterplanetaryTradeGlobalEvent, " + "Distant<InterplanetaryTradeGlobalEvent>")
+          .doTask("CharismaticWgPresident")
+          .expect("CharismaticWgPresident, " + "Distant<CharismaticWgPresident>")
     }
   }
 
@@ -420,11 +426,11 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           ruling = "Kelvinists",
           chairman = "Bloo",
           dominant = "Greens",
-          removed = "Pandemic",
-          current = "CelebrityLeaders",
-          coming = "InterplanetaryTradeGlobalEvent",
+          removed = "ViralModificationsApproved",
+          current = "SolarnetGlobalEvent",
+          coming = "CharismaticWgPresident",
       )
-      admin.doTask("SpinOffProducts").expect("SpinOffProducts, Distant<SpinOffProducts>")
+      admin.doTask("BioengineeringBoom").expect("BioengineeringBoom, Distant<BioengineeringBoom>")
     }
   }
 
@@ -481,13 +487,13 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           ruling = "Greens",
           chairman = "Neutral",
           dominant = "MarsFirst",
-          removed = "CelebrityLeaders",
-          current = "InterplanetaryTradeGlobalEvent",
-          coming = "SpinOffProducts",
+          removed = "SolarnetGlobalEvent",
+          current = "CharismaticWgPresident",
+          coming = "BioengineeringBoom",
       )
       admin
-          .doTask("SuccessfulOrganisms")
-          .expect("SuccessfulOrganisms, Distant<SuccessfulOrganisms>")
+          .doTask("LocalTerraformingSupport")
+          .expect("LocalTerraformingSupport, Distant<LocalTerraformingSupport>")
     }
   }
 
@@ -556,11 +562,11 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       assertTurmoilState(
           ruling = "MarsFirst",
           dominant = "Unity",
-          removed = "InterplanetaryTradeGlobalEvent",
-          current = "SpinOffProducts",
-          coming = "SuccessfulOrganisms",
+          removed = "CharismaticWgPresident",
+          current = "BioengineeringBoom",
+          coming = "LocalTerraformingSupport",
       )
-      admin.doTask("VolcanicEruptions").expect("VolcanicEruptions, Distant<VolcanicEruptions>")
+      admin.doTask("PateraBoring").expect("PateraBoring, Distant<PateraBoring>")
     }
   }
 
@@ -660,9 +666,9 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       )
 
       admin.assertCounts(
-          1 to "Current<$SpinOffProducts>",
-          1 to "Coming<$SuccessfulOrganisms>",
-          1 to "Distant<$VolcanicEruptions>",
+          1 to "Current<$BioengineeringBoom>",
+          1 to "Coming<$LocalTerraformingSupport>",
+          1 to "Distant<$PateraBoring>",
           1 to "Ruling<MarsFirst>",
           1 to "Dominant<Unity>",
           1 to "Chairman<Neutral>",
@@ -706,8 +712,8 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
   }
 
   private companion object {
-    val SpinOffProducts = cn("SpinOffProducts")
-    val SuccessfulOrganisms = cn("SuccessfulOrganisms")
-    val VolcanicEruptions = cn("VolcanicEruptions")
+    val BioengineeringBoom = cn("BioengineeringBoom")
+    val LocalTerraformingSupport = cn("LocalTerraformingSupport")
+    val PateraBoring = cn("PateraBoring")
   }
 }

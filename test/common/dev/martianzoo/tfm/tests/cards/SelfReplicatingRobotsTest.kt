@@ -513,8 +513,8 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     admin.phase("Action")
     p1.runOperation("$FakeSelfReplicatingRobots, ProjectCard, $Pets")
     stage(Mine)
-    admin.runOperation("SponsoredProjects")
-    return admin.runOperation("ResolveGlobalEvent<Class<SponsoredProjects>>")
+    admin.runOperation("ScienceSummit THEN Current<ScienceSummit>")
+    return admin.runOperation("ResolveGlobalEvent")
   }
 
   @Ignore // Hosted cards are not resource destinations.

@@ -10,11 +10,9 @@ internal class TurmoilSolarPhaseTest : CardTest() {
   @Test
   internal fun `solar turmoil waits for the current event before government and changing times`() {
     newGame(TurmoilExpansion)
-    admin.runOperation(
-        "Current<AquiferReleasedByPublicCouncil> " + "FROM Coming<AquiferReleasedByPublicCouncil>"
-    )
-    admin.runOperation("Coming<DryDeserts> FROM Distant<DryDeserts>")
-    admin.runOperation("RevealDistantEvent") { doTask("CelebrityLeaders") }
+    admin.runOperation("Current<DemocraticReform> " + "FROM Coming<DemocraticReform>")
+    admin.runOperation("Coming<MinimalImpactPolicy> FROM Distant<MinimalImpactPolicy>")
+    admin.runOperation("RevealDistantEvent") { doTask("SolarnetGlobalEvent") }
 
     with(TfmWorkflow.Stepwise(agents)) {
       solarPhase()
@@ -24,26 +22,26 @@ internal class TurmoilSolarPhaseTest : CardTest() {
     p1.count("TerraformRating") shouldBe 19
     requireP2().count("TerraformRating") shouldBe 19
     admin.count("Ruling<Greens>") shouldBe 1
-    admin.count("Current<AquiferReleasedByPublicCouncil>") shouldBe 1
+    admin.count("Current<DemocraticReform>") shouldBe 1
 
     p1.doTask("OceanTile<Tharsis_1_2> BY Admin")
 
     admin.count("Ruling<MarsFirst>") shouldBe 1
-    admin.count("AquiferReleasedByPublicCouncil") shouldBe 0
-    admin.count("Current<DryDeserts>") shouldBe 1
-    admin.count("Coming<CelebrityLeaders>") shouldBe 1
+    admin.count("DemocraticReform") shouldBe 0
+    admin.count("Current<MinimalImpactPolicy>") shouldBe 1
+    admin.count("Coming<SolarnetGlobalEvent>") shouldBe 1
     admin.count("Distant") shouldBe 0
 
-    admin.doTask("Diversity")
+    admin.doTask("FreeAcademiaTreaty")
 
-    admin.count("Distant<Diversity>") shouldBe 1
+    admin.count("Distant<FreeAcademiaTreaty>") shouldBe 1
   }
 
   @Test
   internal fun `terraform rating revision precedes the current global event`() {
     newGame(TurmoilExpansion)
     p1.runOperation("10 MC")
-    admin.runOperation("RedInfluence, Current<RedInfluence>")
+    admin.runOperation("AntarcticaMelts, Current<AntarcticaMelts>")
 
     with(TfmWorkflow.Stepwise(agents)) {
       solarPhase()

@@ -1,30 +1,50 @@
 // Turmoil declarations that accompany the generated project cards.
 
 // Published Turmoil Global Events.
-CLASS AquiferReleasedByPublicCouncil : GePartyDistant<MarsFirst>, GePartyCurrent<Greens> {
-  ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<OceanTile>>: \
+CLASS DemocraticReform : GePartyDistant<MarsFirst>, GePartyCurrent<Greens> {
+  Current<This>:: AquiferReleasedByPublicCouncil<This>
+}
+
+CLASS AquiferReleasedByPublicCouncil : GlobalEffect {
+  ResolveGlobalEvent IF GpIncomplete<Class<OceanTile>>: \
     EACH Starter@Player(HAS StartToken) { AdminOceanPlacement<Starter@> }
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { Plant / Influence, Steel / Influence }
+  ResolveGlobalEvent: EACH Me@Player { Plant / Influence, Steel / Influence }
 }
 
-CLASS AsteroidMiningGlobalEvent : GePartyDistant<Reds>, GePartyCurrent<Unity> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { Titanium / JovianTag MAX 5, Titanium / Influence }
+CLASS MiningRestrictions : GePartyDistant<Reds>, GePartyCurrent<Unity> {
+  Current<This>:: AsteroidMiningGlobalEffect<This>
 }
 
-CLASS CelebrityLeaders : GePartyDistant<Unity>, GePartyCurrent<Greens> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { 2 MC / PlayedEvent MAX 5, 2 MC / Influence }
+CLASS AsteroidMiningGlobalEffect : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { Titanium / JovianTag MAX 5, Titanium / Influence }
 }
 
-CLASS Diversity : GePartyDistant<Scientists>, GePartyCurrent<Scientists> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { \
+CLASS SolarnetGlobalEvent : GePartyDistant<Unity>, GePartyCurrent<Greens> {
+  Current<This>:: CelebrityLeaders<This>
+}
+
+CLASS CelebrityLeaders : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { 2 MC / PlayedEvent MAX 5, 2 MC / Influence }
+}
+
+CLASS FreeAcademiaTreaty : GePartyDistant<Scientists>, GePartyCurrent<Scientists> {
+  Current<This>:: Diversity<This>
+}
+
+CLASS Diversity : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { \
     10 MC / (9 (Class<@Tag>(HAS @Tag) OR Influence) MAX 1) \
   }
 }
 
-CLASS DryDeserts : GePartyDistant<Reds>, GePartyCurrent<Unity> {
-  ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<OceanTile>>: \
+CLASS MinimalImpactPolicy : GePartyDistant<Reds>, GePartyCurrent<Unity> {
+  Current<This>:: DryDeserts<This>
+}
+
+CLASS DryDeserts : GlobalEffect {
+  ResolveGlobalEvent IF GpIncomplete<Class<OceanTile>>: \
     EACH Starter@Player(HAS StartToken) { RemoveOceanForGlobalEvent<Starter@> }
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { ResolveDryDeserts }
+  ResolveGlobalEvent: EACH Me@Player { ResolveDryDeserts }
 }
 
 "Lets the first player return one placed Ocean without reducing rating"
@@ -35,152 +55,256 @@ CLASS ResolveDryDeserts : Owned<Player>, Signal, System {
   This: EACH Influence { StandardResource }
 }
 
-CLASS EcoSabotage : GePartyDistant<Greens>, GePartyCurrent<Reds> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { -Plant! / (Plant - Influence - 3) }
+CLASS ExperimentalLifeforms : GePartyDistant<Greens>, GePartyCurrent<Reds> {
+  Current<This>:: EcoSabotage<This>
 }
 
-CLASS Election : GePartyDistant<Greens>, GePartyCurrent<MarsFirst> {
-  ResolveGlobalEvent<Class<This>> IF MultiplayerMode: \
+CLASS EcoSabotage : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { -Plant! / (Plant - Influence - 3) }
+}
+
+CLASS SelfSufficiencyProgram : GePartyDistant<Greens>, GePartyCurrent<MarsFirst> {
+  Current<This>:: Election<This>
+}
+
+CLASS Election : GlobalEffect {
+  ResolveGlobalEvent IF MultiplayerMode: \
     EACH Me@Player(HAS =1 (RANK Ranked@Player { \
       Influence<Ranked@> OR \
       BuildingTag<Ranked@> OR \
       CityTile<Ranked@> \
     })) { 2 TerraformRating }
-  ResolveGlobalEvent<Class<This>> IF MultiplayerMode: \
+  ResolveGlobalEvent IF MultiplayerMode: \
     EACH Me@Player(HAS =2 (RANK Ranked@Player { \
       Influence<Ranked@> OR \
       BuildingTag<Ranked@> OR \
       CityTile<Ranked@> \
     })) { TerraformRating }
-  ResolveGlobalEvent<Class<This>> IF SoloMode: \
+  ResolveGlobalEvent IF SoloMode: \
     EACH Me@Player { TerraformRating / 5 (Influence OR BuildingTag OR CityTile) MAX 2 }
 }
 
-CLASS GenerousFunding : GePartyDistant<Kelvinists>, GePartyCurrent<Unity> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { \
+CLASS TerraformingLobbying : GePartyDistant<Kelvinists>, GePartyCurrent<Unity> {
+  Current<This>:: GenerousFunding<This>
+}
+
+CLASS GenerousFunding : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { \
     2 MC / 5 (TerraformRating - 15) MAX 5, 2 MC / Influence \
   }
 }
 
-CLASS GlobalDustStorm : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { \
+CLASS HeatFirstPolicy : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
+  Current<This>:: GlobalDustStorm<This>
+}
+
+CLASS GlobalDustStorm : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { \
     -Heat! / Heat, -2 MC. / (BuildingTag MAX 5 - Influence) \
   }
 }
 
-CLASS HomeworldSupport : GePartyDistant<Reds>, GePartyCurrent<Unity> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { 2 MC / EarthTag MAX 5, 2 MC / Influence }
+CLASS RedResistance : GePartyDistant<Reds>, GePartyCurrent<Unity> {
+  Current<This>:: HomeworldSupport<This>
 }
 
-CLASS ImprovedEnergyTemplates : GePartyDistant<Scientists>, GePartyCurrent<Kelvinists> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { \
+CLASS HomeworldSupport : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { 2 MC / EarthTag MAX 5, 2 MC / Influence }
+}
+
+CLASS SecondEnergyCrisis : GePartyDistant<Scientists>, GePartyCurrent<Kelvinists> {
+  Current<This>:: ImprovedEnergyTemplates<This>
+}
+
+CLASS ImprovedEnergyTemplates : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { \
     PROD[Energy / 2 (PowerTag OR Influence)] \
   }
 }
 
-CLASS InterplanetaryTradeGlobalEvent : GePartyDistant<Unity>, GePartyCurrent<Unity> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { 2 MC / SpaceTag MAX 5, 2 MC / Influence }
+CLASS CharismaticWgPresident : GePartyDistant<Unity>, GePartyCurrent<Unity> {
+  Current<This>:: InterplanetaryTradeGlobalEffect<This>
 }
 
-CLASS MinersOnStrike : GePartyDistant<MarsFirst>, GePartyCurrent<Greens> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { \
+CLASS InterplanetaryTradeGlobalEffect : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { 2 MC / SpaceTag MAX 5, 2 MC / Influence }
+}
+
+CLASS RisingAlloyDemand : GePartyDistant<MarsFirst>, GePartyCurrent<Greens> {
+  Current<This>:: MinersOnStrike<This>
+}
+
+CLASS MinersOnStrike : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { \
     -Titanium. / (JovianTag MAX 5 - Influence) \
   }
 }
 
-CLASS MudSlides : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { \
+CLASS ThawMining : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
+  Current<This>:: MudSlides<This>
+}
+
+CLASS MudSlides : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { \
     -4 MC. / (OwnedTile<MarsArea(HAS Neighbor<OceanTile>)> MAX 5 - Influence) \
   }
 }
 
-CLASS Pandemic : GePartyDistant<Greens>, GePartyCurrent<MarsFirst> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { \
+CLASS ViralModificationsApproved : GePartyDistant<Greens>, GePartyCurrent<MarsFirst> {
+  Current<This>:: Pandemic<This>
+}
+
+CLASS Pandemic : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { \
     -3 MC. / (BuildingTag MAX 5 - Influence) \
   }
 }
 
-CLASS ParadigmBreakdown : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { -2 ProjectCard., 2 MC / Influence }
+CLASS ScientificConsensus : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
+  Current<This>:: ParadigmBreakdown<This>
 }
 
-CLASS Productivity : GePartyDistant<Scientists>, GePartyCurrent<MarsFirst> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { Steel / PROD[Steel] MAX 5, Steel / Influence }
+CLASS ParadigmBreakdown : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { -2 ProjectCard., 2 MC / Influence }
 }
 
-CLASS RedInfluence : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { \
+CLASS ScientificProgress : GePartyDistant<Scientists>, GePartyCurrent<MarsFirst> {
+  Current<This>:: Productivity<This>
+}
+
+CLASS Productivity : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { Steel / PROD[Steel] MAX 5, Steel / Influence }
+}
+
+CLASS AntarcticaMelts : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
+  Current<This>:: RedInfluence<This>
+}
+
+CLASS RedInfluence : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { \
     -3 MC. / (5 (TerraformRating - 10) MAX 5), PROD[1 MC / Influence] \
   }
 }
 
-CLASS Revolution : GePartyDistant<Unity>, GePartyCurrent<MarsFirst> {
-  ResolveGlobalEvent<Class<This>> IF MultiplayerMode: \
+CLASS WorldGovernmentDirectives : GePartyDistant<Unity>, GePartyCurrent<MarsFirst> {
+  Current<This>:: Revolution<This>
+}
+
+CLASS Revolution : GlobalEffect {
+  ResolveGlobalEvent IF MultiplayerMode: \
     EACH Me@Player(HAS 1 (EarthTag OR Influence), HAS =1 (RANK Ranked@Player { \
       EarthTag<Ranked@> OR Influence<Ranked@> \
     })) { \
       -2 TerraformRating. \
     }
-  ResolveGlobalEvent<Class<This>> IF MultiplayerMode: \
+  ResolveGlobalEvent IF MultiplayerMode: \
     EACH Me@Player(HAS 1 (EarthTag OR Influence), HAS =2 (RANK Ranked@Player { \
       EarthTag<Ranked@> OR Influence<Ranked@> \
     })) { \
       -TerraformRating. \
     }
-  ResolveGlobalEvent<Class<This>> IF SoloMode: \
+  ResolveGlobalEvent IF SoloMode: \
     EACH Me@Player(HAS 4 (EarthTag OR Influence)) { -2 TerraformRating. }
 }
 
-CLASS Riots : GePartyDistant<MarsFirst>, GePartyCurrent<Reds> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { -4 MC. / (CityTile MAX 5 - Influence) }
+CLASS IndependenceMovement : GePartyDistant<MarsFirst>, GePartyCurrent<Reds> {
+  Current<This>:: Riots<This>
 }
 
-CLASS SabotageGlobalEvent : GePartyDistant<Unity>, GePartyCurrent<Reds> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { \
+CLASS Riots : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { -4 MC. / (CityTile MAX 5 - Influence) }
+}
+
+CLASS CorporateAlliance : GePartyDistant<Unity>, GePartyCurrent<Reds> {
+  Current<This>:: SabotageGlobalEffect<This>
+}
+
+CLASS SabotageGlobalEffect : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { \
     PROD[-Steel., -Energy.], Steel / Influence \
   }
 }
 
-CLASS ScientificCommunity : GePartyDistant<Reds>, GePartyCurrent<Scientists> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { 1 MC / ProjectCard, 1 MC / Influence }
+CLASS ExploreFirstDirective : GePartyDistant<Reds>, GePartyCurrent<Scientists> {
+  Current<This>:: ScientificCommunity<This>
 }
 
-CLASS SnowCover : GePartyDistant<Kelvinists>, GePartyCurrent<Kelvinists> {
-  ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<TemperatureStep>>: -2 TemperatureStep
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { ProjectCard / Influence }
+CLASS ScientificCommunity : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { 1 MC / ProjectCard, 1 MC / Influence }
 }
 
-CLASS SolarFlare : GePartyDistant<Unity>, GePartyCurrent<Kelvinists> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { -3 MC. / (SpaceTag MAX 5 - Influence) }
+CLASS MoholeLakeGlobalEvent : GePartyDistant<Kelvinists>, GePartyCurrent<Kelvinists> {
+  Current<This>:: SnowCover<This>
 }
 
-CLASS SolarnetShutdown : GePartyDistant<Scientists>, GePartyCurrent<MarsFirst> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { -3 MC. / (ActiveCard MAX 5 - Influence) }
+CLASS SnowCover : GlobalEffect {
+  ResolveGlobalEvent IF GpIncomplete<Class<TemperatureStep>>: -2 TemperatureStep
+  ResolveGlobalEvent: EACH Me@Player { ProjectCard / Influence }
 }
 
-CLASS SpinOffProducts : GePartyDistant<Greens>, GePartyCurrent<Scientists> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { 2 MC / ScienceTag MAX 5, 2 MC / Influence }
+CLASS IncreasedInterplanetaryTrade : GePartyDistant<Unity>, GePartyCurrent<Kelvinists> {
+  Current<This>:: SolarFlare<This>
 }
 
-CLASS SponsoredProjects : GePartyDistant<Scientists>, GePartyCurrent<Greens> {
-  ResolveGlobalEvent<Class<This>>: \
+CLASS SolarFlare : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { -3 MC. / (SpaceTag MAX 5 - Influence) }
+}
+
+CLASS AiResearch : GePartyDistant<Scientists>, GePartyCurrent<MarsFirst> {
+  Current<This>:: SolarnetShutdown<This>
+}
+
+CLASS SolarnetShutdown : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { -3 MC. / (ActiveCard MAX 5 - Influence) }
+}
+
+CLASS BioengineeringBoom : GePartyDistant<Greens>, GePartyCurrent<Scientists> {
+  Current<This>:: SpinOffProducts<This>
+}
+
+CLASS SpinOffProducts : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { 2 MC / ScienceTag MAX 5, 2 MC / Influence }
+}
+
+CLASS ScienceSummit : GePartyDistant<Scientists>, GePartyCurrent<Greens> {
+  Current<This>:: SponsoredProjects<This>
+}
+
+CLASS SponsoredProjects : GlobalEffect {
+  ResolveGlobalEvent: \
     EACH Card@ResourceCard<Anyone>(HAS CardResource) { CardResource<Card@> }
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { ProjectCard / Influence }
+  ResolveGlobalEvent: EACH Me@Player { ProjectCard / Influence }
 }
 
-CLASS StrongSociety : GePartyDistant<Reds>, GePartyCurrent<MarsFirst> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { 2 MC / CityTile MAX 5, 2 MC / Influence }
+CLASS MoralMovement : GePartyDistant<Reds>, GePartyCurrent<MarsFirst> {
+  Current<This>:: StrongSociety<This>
 }
 
-CLASS SuccessfulOrganisms : GePartyDistant<MarsFirst>, GePartyCurrent<Scientists> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { Plant / PROD[Plant] MAX 5, Plant / Influence }
+CLASS StrongSociety : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { 2 MC / CityTile MAX 5, 2 MC / Influence }
 }
 
-CLASS VolcanicEruptions : GePartyDistant<Scientists>, GePartyCurrent<Kelvinists> {
-  ResolveGlobalEvent<Class<This>>: 2 TemperatureStep
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { PROD[Heat / Influence] }
+CLASS LocalTerraformingSupport : GePartyDistant<MarsFirst>, GePartyCurrent<Scientists> {
+  Current<This>:: SuccessfulOrganisms<This>
 }
 
-CLASS WarOnEarth : GePartyDistant<MarsFirst>, GePartyCurrent<Kelvinists> {
-  ResolveGlobalEvent<Class<This>>: EACH Me@Player { -TerraformRating. / (4 - Influence) }
+CLASS SuccessfulOrganisms : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { Plant / PROD[Plant] MAX 5, Plant / Influence }
+}
+
+CLASS PateraBoring : GePartyDistant<Scientists>, GePartyCurrent<Kelvinists> {
+  Current<This>:: VolcanicEruptions<This>
+}
+
+CLASS VolcanicEruptions : GlobalEffect {
+  ResolveGlobalEvent: 2 TemperatureStep
+  ResolveGlobalEvent: EACH Me@Player { PROD[Heat / Influence] }
+}
+
+CLASS SeparatistMovement : GePartyDistant<MarsFirst>, GePartyCurrent<Kelvinists> {
+  Current<This>:: WarOnEarth<This>
+}
+
+CLASS WarOnEarth : GlobalEffect {
+  ResolveGlobalEvent: EACH Me@Player { -TerraformRating. / (4 - Influence) }
 }

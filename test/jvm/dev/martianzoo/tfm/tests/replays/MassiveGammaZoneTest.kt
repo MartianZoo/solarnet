@@ -33,8 +33,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
   override fun greeneryAreas(): Pair<String, String> = "Tharsis_3_3" to "Tharsis_5_9"
 
   override fun resolveExpansionSetupTasks() {
-    admin.doTask("SponsoredProjects")
-    admin.doTask("SolarnetShutdown")
+    admin.doTask("ScienceSummit")
+    admin.doTask("AiResearch")
   }
 
   @Test
@@ -83,7 +83,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("PartyDelegate<Greens>")
       }
       pass()
-      admin.doTask("HomeworldSupport")
+      admin.doTask("RedResistance")
     }
   }
 
@@ -101,7 +101,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("PartyDelegate<Reds>")
       }
       pass()
-      admin.doTask("SuccessfulOrganisms")
+      admin.doTask("LocalTerraformingSupport")
     }
   }
 
@@ -125,7 +125,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("PartyDelegate<Unity>")
       }
       pass()
-      admin.doTask("DryDeserts")
+      admin.doTask("MinimalImpactPolicy")
     }
   }
 
@@ -143,7 +143,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       }
       cardAction1(FakeAppliedScience) { addCardResources(BoardOfDirectors) }
       pass(unused = UndergroundDetonations)
-      admin.doTask("AquiferReleasedByPublicCouncil")
+      admin.doTask("DemocraticReform")
     }
   }
 
@@ -183,7 +183,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(PoliticalAlliance, 4)
       playProject(BribedCommittee, 7)
       pass(unused = UndergroundDetonations)
-      admin.doTask("SnowCover")
+      admin.doTask("MoholeLakeGlobalEvent")
     }
   }
 
@@ -215,8 +215,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         val resourceChoices = game.tasks.extract { it }
         doTask("Titanium", resourceChoices[0].id)
         doTask("Heat", resourceChoices[1].id)
-        admin.doTask("ChangingTimes")
-        admin.doTask("GenerousFunding")
+        admin.doTask("TerraformingLobbying")
       } finally {
         admin.autoExecPolicy = previousAdminPolicy
       }
@@ -271,8 +270,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       admin.autoExecPolicy = CONCRETE
       try {
         doTask("OceanTile<Tharsis_1_5> BY Admin")
-        admin.doTask("ChangingTimes")
-        admin.doTask("MudSlides")
+        admin.doTask("ThawMining")
       } finally {
         admin.autoExecPolicy = previousAdminPolicy
       }
@@ -322,7 +320,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       val previousAdminPolicy = admin.autoExecPolicy
       admin.autoExecPolicy = NONE
       try {
-        admin.doTask("VolcanicEruptions")
+        admin.doTask("PateraBoring")
       } finally {
         admin.autoExecPolicy = previousAdminPolicy
       }
@@ -361,7 +359,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("PartyDelegate<MarsFirst>")
       }
       pass(unused = setOf(BoardOfDirectors, FakeAppliedScience, UndergroundDetonations))
-      admin.doTask("EcoSabotage")
+      admin.doTask("ExperimentalLifeforms")
     }
   }
 
@@ -419,7 +417,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       stdProject("AsteroidProject") { placeTile(9, 9) }
       playProject(ImportedNitrogen, mc = 3, titanium = 3)
       pass(unused = setOf(BoardOfDirectors, FakeAppliedScience, UndergroundDetonations))
-      admin.doTask("SabotageGlobalEvent")
+      admin.doTask("CorporateAlliance")
     }
   }
 
@@ -469,7 +467,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       }
       stdProject("CityProject") { doTask("NormalCityTile<Tharsis_3_4>") }
       pass(unused = setOf(BoardOfDirectors, FakeAppliedScience, UndergroundDetonations))
-      admin.doTask("GlobalDustStorm")
+      admin.doTask("HeatFirstPolicy")
     }
   }
 
@@ -612,9 +610,9 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       )
 
       admin.assertCounts(
-          1 to "Current<EcoSabotage>",
-          1 to "Coming<SabotageGlobalEvent>",
-          1 to "Distant<GlobalDustStorm>",
+          1 to "Current<ExperimentalLifeforms>",
+          1 to "Coming<CorporateAlliance>",
+          1 to "Distant<HeatFirstPolicy>",
           1 to "Ruling<Kelvinists>",
           1 to "Dominant<Reds>",
           1 to "Chairman<EK>",

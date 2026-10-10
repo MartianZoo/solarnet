@@ -392,7 +392,7 @@ duplicate this coverage for every expansion card.
 
 The fixture otherwise leaves the default autoexecution policy untouched.
 When Turmoil is selected, it uses the existing test setup's initial global-event reveals
-(`AquiferReleasedByPublicCouncil` and `DryDeserts`) before entering Corporation phase.
+(`DemocraticReform` and `MinimalImpactPolicy`) before entering Corporation phase.
 
 Treat every pre-migration test as a fallible historical artifact, not as a specification of its
 setup. Existing options, cards, resource grants, card plays, phase changes, autoexecution policies,

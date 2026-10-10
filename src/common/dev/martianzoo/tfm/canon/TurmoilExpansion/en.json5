@@ -1,4 +1,12 @@
 {
+  AiResearch: "AI Research",
+  AsteroidMiningGlobalEffect: "Asteroid Mining",
+  CharismaticWgPresident: "Charismatic WG President",
+  InterplanetaryTradeGlobalEffect: "Interplanetary Trade",
+  MoholeLakeGlobalEvent: "Mohole Lake",
+  SabotageGlobalEffect: "Sabotage",
+  SelfSufficiencyProgram: "Self-Sufficiency Program",
+  SolarnetGlobalEvent: "Solarnet",
   Terraformer26: "Terraformer",
   GmoContract: "GMO Contract",
   PrOffice: "PR Office",

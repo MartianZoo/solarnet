@@ -177,15 +177,20 @@ internal class ClassTableSelectionTest {
 
   @Test
   internal fun `Turmoil global events are individual Content with a hard Module dependency`() {
-    assertInvalidView("AquiferReleasedByPublicCouncil")
-    assertValidView("TurmoilExpansion, -AquiferReleasedByPublicCouncil") { view ->
+    assertInvalidView("DemocraticReform")
+    assertValidView("TurmoilExpansion, -DemocraticReform") { view ->
       assertSelected(view, setOf(cn("TurmoilExpansion"), cn("GlobalEvent")))
-      assertOmitted(view, setOf(cn("AquiferReleasedByPublicCouncil")))
+      assertOmitted(view, setOf(cn("DemocraticReform"), cn("AquiferReleasedByPublicCouncil")))
     }
-    assertValidView("TurmoilExpansion, -DryDeserts") { view ->
+    assertValidView("TurmoilExpansion, -MinimalImpactPolicy") { view ->
       assertOmitted(
           view,
-          setOf(cn("DryDeserts"), cn("RemoveOceanForGlobalEvent"), cn("ResolveDryDeserts")),
+          setOf(
+              cn("MinimalImpactPolicy"),
+              cn("DryDeserts"),
+              cn("RemoveOceanForGlobalEvent"),
+              cn("ResolveDryDeserts"),
+          ),
       )
     }
   }
@@ -206,7 +211,7 @@ internal class ClassTableSelectionTest {
     assertValidView(config) { view ->
       assertSelected(
           view,
-          setOf(bundle, cn("Party"), cn("GlobalEvent"), cn("AquiferReleasedByPublicCouncil")),
+          setOf(bundle, cn("Party"), cn("GlobalEvent"), cn("DemocraticReform")),
       )
       assertOmitted(view, cards)
     }
@@ -224,7 +229,7 @@ internal class ClassTableSelectionTest {
               cn("Party"),
               cn("GlobalEvent"),
               cn("AerialLenses"),
-              cn("AquiferReleasedByPublicCouncil"),
+              cn("DemocraticReform"),
           ),
       )
     }
@@ -503,7 +508,7 @@ internal class ClassTableSelectionTest {
           ModuleContentExample(
               module = cn("TurmoilExpansion"),
               intrinsicRules = setOf(cn("GlobalEvent"), cn("Party")),
-              associatedNonPackContent = setOf(cn("AquiferReleasedByPublicCouncil")),
+              associatedNonPackContent = setOf(cn("DemocraticReform")),
               standaloneContent =
                   setOf(
                       cn("LakefrontResorts"),
