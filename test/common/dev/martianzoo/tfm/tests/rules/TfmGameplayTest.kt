@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.LimitsException
@@ -29,6 +30,32 @@ private val oneToOnePaymentDeclarations =
 
 internal class TfmGameplayTest :
     CardTest(additionalClassDeclarations = oneToOnePaymentDeclarations.toSet()) {
+  @Test
+  internal fun `Research purchases finish with every autoexecution policy including zero buys`() {
+    for (policy in AutoExecPolicy.entries) {
+      for (bought in listOf(0, 2, 4)) {
+        newGame()
+        p1.runOperation("12 MC")
+        p1.autoExecPolicy = AutoExecPolicy.NONE
+        val p2 = requireP2().also { it.autoExecPolicy = AutoExecPolicy.NONE }
+
+        admin.phase("Research") {
+          p2.doTask("4 ProjectCard<Selecting>")
+          p2.buyCards(0)
+          p1.doTask("4 ProjectCard<Selecting>")
+          p1.autoExecPolicy = policy
+          p1.buyCards(bought)
+        }
+
+        p1.count("ProjectCard<Hand>") shouldBe bought
+        p1.count("ProjectCard<Selecting>") shouldBe 0
+        p1.count("MC") shouldBe 12 - 3 * bought
+        p1.count("Owed") shouldBe 0
+        p1.autoExecPolicy shouldBe policy
+      }
+    }
+  }
+
   @Test
   internal fun `No-argument pass asserts there are no unused action cards`() {
     newGame()

@@ -282,7 +282,10 @@ internal class FloodingTest : TfmSandboxTest() {
   @Test
   internal fun `Cannot resume the loss before the accepted Neptunian bonus is paid`() {
     acceptOpponentsNeptunianBonus {
-      shouldThrow<TaskException> { kim.doTask("-4 MC<Stan>!") }
+      shouldThrow<TaskException> {
+        kim.selectTask("-4 MC<Stan>?")
+        kim.doTask("-4 MC<Stan>!")
+      }
       stan.assertCounts(5 to "MC", 0 to "Hydroelectric")
     }
   }
@@ -290,6 +293,7 @@ internal class FloodingTest : TfmSandboxTest() {
   @Test
   internal fun `BUG - Can resume the loss before the accepted Neptunian bonus is paid`() {
     acceptOpponentsNeptunianBonus {
+      kim.selectTask("-4 MC<Stan>?")
       kim.doTask("-4 MC<Stan>!").expect("-4 MC<Stan>")
       stan.assertCounts(1 to "MC", 0 to "Hydroelectric")
       stan.assertProds(0 to "Energy")
@@ -351,13 +355,9 @@ internal class FloodingTest : TfmSandboxTest() {
       doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Stan>?")
       kim.selectTask("UseAction<Stan, NeptunianOption<NeptunianPowerConsultants<Stan>>>?")
       stan.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
-      // Kim orders the bonus billing; Stan makes the payment choices.
-      kim.selectTask("5 Owed<Stan>!")
-      stan.doTask("5 Owed<Stan>")
-      kim.selectTask(
-          "ActionBilling<Stan, NeptunianOption<NeptunianPowerConsultants<Stan>>, Action1>"
-      )
-      stan.doTask("ActionBilling<Stan, NeptunianOption<NeptunianPowerConsultants<Stan>>, Action1>")
+      // Admin opens the bill; Kim selects the payment choice for Stan.
+      admin.doTask("5 Owed<Stan>")
+      admin.doTask("ActionBilling<Stan, NeptunianOption<NeptunianPowerConsultants<Stan>>, Action1>")
       kim.selectTask("-X Steel<Stan>?")
       stan.doTask("-2 Steel")
       assertWhileBillOpen()

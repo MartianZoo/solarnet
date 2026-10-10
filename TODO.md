@@ -45,6 +45,10 @@ These concerns remain open; the ranking does not select replacement designs.
 
 ## User Ideas and Agreed Directions
 
+- Continue the remaining `::` audit without treating current sequencing dependencies as permanent
+  justifications. Preserve intrinsic card-tag construction, old Energy conversion before
+  production, and Pharmacy Union's starting money before its tag penalties.
+
 - [ ] Extend the build-time Canon invariant checks to indirect special-tile gains behind
   signals or supporting components (`GainsOf`; entry 15 of
   [GAME_HACKS](docs/agents/GAME_HACKS.md)). Current checks cover direct authored shapes and do not
@@ -110,6 +114,9 @@ These concerns remain open; the ranking does not select replacement designs.
 - When preparing the [PETS repository draft](docs/pets-repo-draft.md) for publication, decide
   whether to include Sponsored Academies, currently retained as a draft note after the gallery.
 - After the repository split, rename `:pets-tools` to `:tools` in the Pets repository.
+- Before separating Git repositories, choose the Pets publishing host and version convention,
+  automate tagged releases, and verify Solarnet against a hosted release. This follows build
+  separation; see the [release workflow](PETS_ROADMAP.md#release-workflow-before-the-git-split).
 - Add scenario saving and reloading to [Mars Playground](PLAYGROUND.md) after the initial version.
 - Add shareable URLs for [Mars Playground](PLAYGROUND.md#technology-and-experience) later. First
   decide what restoring the same view includes: scenario, history position, camera, and windows.
@@ -218,12 +225,8 @@ These concerns remain open; the ranking does not select replacement designs.
 - Replace the duplicated `TemperatureStep BY Player`/`BY Admin` threshold-ocean triggers and the
   synthetic `AdminOceanPlacement` signal with one rule that separates who chooses the tile from
   whose action the placement is attributed to, shared by the standard and extended tracks.
-- Extend early `System` assignment to scaled direct gains before classifying `CheckRequirement` as
-  `System`; its current `/ shortfall` task shape reaches the Admin-only guard while still assigned
-  to the Player.
-- Audit direct removals of `System` components, then decide whether early Admin assignment should
-  cover removals as well as gains. Preserve any removal that represents a real Player timing or
-  target choice instead of assuming that the gain classification settles both directions.
+- Reassess classifying `CheckRequirement` as `System` now that scaled direct gains route to Admin.
+  Verify requirement failures and downstream choices before changing its classification.
 - Investigate whether Player identity can survive Player → Admin → Player task chains without
   making bookkeeping classes `Owned` solely to carry that Player through. Preserve real ownership,
   cross-player effects, explicitly named recipients, and phases with no unique on-turn Player; do

@@ -17,6 +17,7 @@ import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
 import dev.martianzoo.pets.api.SystemClasses.DIE
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
+import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.FromExpression.Compact
@@ -74,6 +75,7 @@ internal constructor(
     private val timeline: Timeline,
 ) {
   private var automaticEffectStack: List<PendingTask> = emptyList()
+  private val systemClass = classTable.getClass(SYSTEM)
   private var constructionEvents: MutableList<ConstructionEvent>? = null
 
   private data class ConstructionEvent(
@@ -173,7 +175,14 @@ internal constructor(
               resolved,
               cause,
               deferred,
-              actor,
+              if (
+                  automaticEffectStack.isNotEmpty() &&
+                      (resolved.gaining ?: resolved.removing)?.let {
+                        reader.resolve(it).rootClass.isSubtypeOf(systemClass)
+                      } == true
+              )
+                  ADMIN
+              else actor,
               controller,
               selectionAssignee,
               queuedEffects,

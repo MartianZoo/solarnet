@@ -25,8 +25,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
   override fun greeneryAreas(): Pair<String, String> = "Hellas_6_2" to "Hellas_9_5"
 
   override fun resolveExpansionSetupTasks() {
-    admin.doTask("AquiferReleasedByPublicCouncil")
-    admin.doTask("DryDeserts")
+    admin.doTask("DemocraticReform")
+    admin.doTask("MinimalImpactPolicy")
   }
 
   @Test
@@ -62,7 +62,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
     }
 
     me.pass()
-    admin.doTask("Diversity")
+    admin.doTask("FreeAcademiaTreaty")
     me.buyCards(3)
 
     me.turn {
@@ -72,14 +72,14 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
     }
     me.pass()
     me.doTask("OceanTile<Hellas_1_1> BY Admin")
-    admin.doTask("VolcanicEruptions")
+    admin.doTask("PateraBoring")
     me.buyCards(3)
 
     me.turn {
       playProject(AcquiredCompany, 7)
     }
     me.pass()
-    admin.doTask("SponsoredProjects")
+    admin.doTask("ScienceSummit")
     me.buyCards(4)
 
     me.turn {
@@ -87,14 +87,14 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       playProject(MediaArchives, 5)
     }
     me.pass()
-    admin.doTask("GenerousFunding")
+    admin.doTask("TerraformingLobbying")
     me.buyCards(4)
 
     me.turn {
       playProject(HomeostasisBureau, 16)
     }
     me.pass()
-    admin.doTask("InterplanetaryTradeGlobalEvent")
+    admin.doTask("CharismaticWgPresident")
     me.buyCards(4)
 
     me.turn {
@@ -104,7 +104,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       playProject(LavaFlows, 18) { doTask("LavaFlows_SpecialTile<Hellas_2_2>") }
     }
     me.pass()
-    admin.doTask("CelebrityLeaders")
+    admin.doTask("SolarnetGlobalEvent")
     me.buyCards(3)
 
     me.turn {
@@ -121,7 +121,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       }
     }
     me.pass()
-    admin.doTask("SpinOffProducts")
+    admin.doTask("BioengineeringBoom")
     me.buyCards(4)
 
     me.turn {
@@ -144,7 +144,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       }
     }
     me.pass()
-    admin.doTask("Election")
+    admin.doTask("SelfSufficiencyProgram")
     me.buyCards(4)
 
     me.turn {
@@ -168,7 +168,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       convertPlants { placeTile(1, 5) }
     }
     me.pass()
-    admin.doTask("HomeworldSupport")
+    admin.doTask("RedResistance")
     me.buyCards(4)
 
     me.turn {
@@ -194,11 +194,6 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
             "GreeneryProject",
             payment = {
               doTask("4 MC", CrediCor)
-              doTask("23 Owed<Class<MC>>", cn("GreeneryProject"))
-              doTask(
-                  "ActionBilling<GreeneryProject, Action1, Class<MC>>",
-                  cn("GreeneryProject"),
-              )
               doTask("-12 Science<Spire>")
               // Twelve science are worth 24 MC; decline the unused MC tender after overpaying by
               // one.

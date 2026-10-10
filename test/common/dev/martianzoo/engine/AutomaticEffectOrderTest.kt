@@ -8,6 +8,27 @@ import kotlin.test.Test
 
 internal class AutomaticEffectOrderTest {
   @Test
+  internal fun selfEffectsFinishBeforeOtherAutomaticListeners() {
+    val world =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS Trigger : Signal { This:: -Token / Token }
+                CLASS Listener { Trigger:: Token }
+                CLASS Token
+                """,
+                players = 0,
+            )
+        )
+    val admin = world.testAgent(ADMIN)
+    admin.runOperation("Listener, Token")
+
+    admin.runOperation("Trigger")
+
+    admin.count("Token") shouldBe 1
+  }
+
+  @Test
   internal fun selfEffectsRetainDeclarationOrder() {
     val world = Engine.newGame(selfEffectPremise) as WholeWorld
     val admin = world.testAgent(ADMIN)

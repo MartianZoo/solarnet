@@ -391,7 +391,8 @@ leadership benefits and scoring.
 
 **Hack:** `ChairmanInfluence`, `PartyLeaderInfluence`, and the other influence components are
 created on `MeasureInfluence`. They do not continuously follow the political position. The snapshot
-survives until generation cleanup; Politician explicitly discards and rebuilds it for scoring.
+survives until generation cleanup. Each `MeasureInfluence` clears that player's previous snapshot
+before influence providers rebuild it; Politician requests this refresh for every player at scoring.
 
 **Fan card — Policy Consultants:** “Action: Gain 2 M€ for each influence you currently have.”
 **Literal reward:** `-> 2 MC / Influence`. In an action phase before measurement, the chairman can

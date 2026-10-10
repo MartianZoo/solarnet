@@ -150,6 +150,19 @@ one is `CimmeriaPlacementBonus`. **Colony bonus** is the separate published term
 pays its owner when someone trades — Productive Outpost says "gain all your colony bonuses", so
 `GainColonyBonus` and `GainColonyBonuses`. Neither is a "map bonus"; the game never uses that phrase.
 
+### Global event cards and their active effects
+
+Global Event cards use their upper printed title, such as `ExperimentalLifeforms`; their
+`GlobalEffect` uses the lower title, such as `EcoSabotage`. The card creates its effect with
+`Current<This>:: EcoSabotage<This>`. The effect depends on that card and disappears when the card
+is discarded; only the active effect listens to the untargeted `ResolveGlobalEvent` signal.
+The titles come from the [physical card scans](https://tm.hadronikle.com/).
+
+Printed-name collisions retain the smallest category qualifier: `SolarnetGlobalEvent` and
+`MoholeLakeGlobalEvent` distinguish the cards from project cards, while
+`AsteroidMiningGlobalEffect`, `InterplanetaryTradeGlobalEffect`, and `SabotageGlobalEffect`
+distinguish the active effects. Display names omit those qualifiers.
+
 ### Derived and card-local classes
 
 The `{}` sugar generates a derived class named `<EnclosingClassName>_<SupertypeName>`, as in

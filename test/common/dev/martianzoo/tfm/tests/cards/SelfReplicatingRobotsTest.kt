@@ -554,7 +554,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
         pass()
       }
       kim.wgt("VenusStep")
-      admin.doTask("SponsoredProjects")
+      admin.doTask("ScienceSummit")
       kim.buyCards(0)
       stan.buyCards(0)
 
@@ -562,14 +562,14 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       kim.pass()
       stan.wgt("VenusStep")
       stan.doTask("OceanTile<Tharsis_1_5> BY Admin")
-      admin.doTask("ScientificCommunity")
+      admin.doTask("ExploreFirstDirective")
       kim.buyCards(0)
       stan.buyCards(0)
 
       kim.pass()
       stan.pass()
       kim.wgt("VenusStep")
-      admin.doTask("StrongSociety")
+      admin.doTask("MoralMovement")
       kim.buyCards(0)
       stan.buyCards(0)
 

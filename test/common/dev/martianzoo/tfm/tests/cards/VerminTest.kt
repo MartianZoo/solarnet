@@ -45,7 +45,7 @@ internal class VerminTest : TfmSandboxTest() {
   // This synthetic listener tests engine attribution, rather than Vermin's player-facing result.
   internal class Attribution : TfmTest() {
     @Test
-    internal fun `Vermin's owner is credited for every point removed`() {
+    internal fun `Admin is credited for every point removed by Vermin`() {
       game =
           setUpGame(
               canonicalPremise(
@@ -62,8 +62,9 @@ internal class VerminTest : TfmSandboxTest() {
 
       admin.runOperation("End FROM Phase")
 
-      // The probe reacts to each point loss and records the credited player.
-      admin.count("$attribution<Player1>") shouldBe 2
+      // The probe reacts to each point loss and records the executing actor.
+      admin.count("$attribution<Admin>") shouldBe 2
+      admin.count("$attribution<Player1>") shouldBe 0
       admin.count("$attribution<Player3>") shouldBe 0
     }
   }

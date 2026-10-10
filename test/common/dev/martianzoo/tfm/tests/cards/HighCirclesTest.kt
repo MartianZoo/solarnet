@@ -40,7 +40,7 @@ internal class HighCirclesTest : TfmSandboxTest() {
       stan.pass()
       kim.wgt("VenusStep")
       kim.count("Chairman") shouldBe 1
-      admin.doTask("ScientificCommunity")
+      admin.doTask("ExploreFirstDirective")
       kim.buyCards(0)
       stan.buyCards(0)
       stan.pass()

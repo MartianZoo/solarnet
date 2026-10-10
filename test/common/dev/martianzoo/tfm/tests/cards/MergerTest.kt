@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.state.TaskResult
@@ -54,8 +54,9 @@ internal class MergerTest : TfmSandboxTest() {
       kim.cardAction1(BoardOfDirectors) {
         doTask("-12 MC")
         kim.playPrelude(Merger) {
-          kim.autoExecPolicy = CONCRETE
+          kim.autoExecPolicy = NONE
           kim.playCorp(Recyclon) {
+            doTask("$Recyclon FROM CorporationCard<Selecting>")
             doTask("38 MC")
             doTask("-4 MC.")
             doTask("-42 MC")

@@ -119,6 +119,14 @@ public interface Agent {
    */
   public fun doTask(narrowing: String): TaskResult
 
+  /**
+   * Executes an atomic batch against this Actor's pending tasks using [OperationScope.doTasks]
+   * matching and scalar totals. Runs configured autoexecution before, between, and after submitted
+   * instructions. Returns the whole batch's changes; any failure rolls the entire batch back. This
+   * may leave work pending, so callers can split an operation across multiple batches.
+   */
+  public fun doTasks(vararg narrowings: String): TaskResult
+
   /** Carries out [narrowing] against the task caused by a component of [contextClass]. */
   public fun doTask(narrowing: String, contextClass: ClassName): TaskResult
 
@@ -187,9 +195,16 @@ public interface Agent {
 
     public fun doTask(narrowing: String, taskId: TaskId)
 
-    public fun doTasks(vararg narrowings: String) {
-      narrowings.forEach(::doTask)
-    }
+    /**
+     * Submits each instruction in order, including all atomic changes when a chosen amount expands
+     * into a group. Normal single-task matching takes precedence. When no task matches, a concrete
+     * change may instead consume all pending changes whose resolved forms differ only in their
+     * scalar, if at least two match and their scalars sum to the submitted amount. Each original
+     * task executes separately, preserving its effects, cause, and continuation; tasks created by
+     * those executions are not included in the sum. An ambiguous match or a mismatched total fails
+     * without choosing a subset. Failure rolls back the enclosing operation.
+     */
+    public fun doTasks(vararg narrowings: String)
 
     public fun tryTask(narrowing: String)
 

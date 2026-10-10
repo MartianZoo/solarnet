@@ -1,15 +1,15 @@
 "A finalized quantity still owed in one standard-resource denomination"
-CLASS Owed<@Class<StandardResource>> : Owned<Player>, Barrier, Hidden {
+CLASS Owed<@Class<StandardResource>> : Owned<Player>, Barrier, Hidden, System {
   DEFAULT +Owed<Class<MC>>
   DEFAULT -Owed<Class<MC>>.
   X This:: Accepting<@Class>
 }
 
 "Identifies one aspect of a card play or purchase whose cost is being adjusted"
-CLASS PayingFor<Class<Component>> : Owned<Player>, Signal
+CLASS PayingFor<Class<Component>> : Owned<Player>, Signal, System
 
 "A finalized debt; removing it signals that its denomination has been fully paid"
-ABSTRACT CLASS Billing<@Class<StandardResource>> : Owned<Player>, Barrier, Hidden {
+ABSTRACT CLASS Billing<@Class<StandardResource>> : Owned<Player>, Barrier, Hidden, System {
   HAS MAX 1 This
   This IF MAX 0 Owed<@Class>:: -This!
   -X Owed<@Class> IF MAX 0 Owed<@Class>:: -This!

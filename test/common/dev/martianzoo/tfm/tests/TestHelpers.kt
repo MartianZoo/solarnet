@@ -46,8 +46,8 @@ internal fun setUpGame(premise: GamePremise): World =
 internal fun revealTurmoilSetupEvents(game: World) {
   val admin = game.testAgent(ADMIN)
   if (admin.count("RevealComingEvent") == 0) return
-  admin.doTask("AquiferReleasedByPublicCouncil")
-  admin.doTask("DryDeserts")
+  admin.doTask("DemocraticReform")
+  admin.doTask("MinimalImpactPolicy")
 }
 
 internal fun playCorporationWithoutStartingProjects(

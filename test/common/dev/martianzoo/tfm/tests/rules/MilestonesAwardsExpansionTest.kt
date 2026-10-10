@@ -97,7 +97,8 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     val oceans = p1.list("WaterArea").take(3)
     p1.runOperation("OceanTile<${oceans.first()}>")
 
-    admin.runOperation("ResolveGlobalEvent<Class<DryDeserts>>")
+    admin.runOperation("Current<MinimalImpactPolicy> FROM Distant<MinimalImpactPolicy>")
+    admin.runOperation("ResolveGlobalEvent")
 
     admin.count("OceanTile") shouldBe 0
     oceans.forEach { p1.runOperation("OceanTile<$it>") }

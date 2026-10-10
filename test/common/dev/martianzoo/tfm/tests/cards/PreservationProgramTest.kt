@@ -286,7 +286,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     }
     stan.pass()
     val rating = kim.count("TerraformRating")
-    passGeneration(nextEvent = "ScientificCommunity")
+    passGeneration(nextEvent = "ExploreFirstDirective")
     kim.count("Chairman") shouldBe 1
     // Turmoil's TR revision loses a step, then becoming chairman restores it.
     kim.count("TerraformRating") shouldBe rating
@@ -409,7 +409,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     stan.pass()
     kim.wgt("VenusStep")
     kim.count("TerraformRating") shouldBe rating + 1
-    admin.doTask("ScientificCommunity")
+    admin.doTask("ExploreFirstDirective")
     players.forEach { it.buyCards(0) }
     stan.pass()
 
@@ -589,7 +589,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     }
     stan.pass()
     if (deal && rulingParty != null) kim.turn { playProject(GiantSpaceMirror, 17) }
-    passGeneration(nextEvent = if (rulingParty == null) null else "ScientificCommunity")
+    passGeneration(nextEvent = if (rulingParty == null) null else "ExploreFirstDirective")
     stan.pass()
   }
 }

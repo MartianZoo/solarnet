@@ -27,6 +27,34 @@ compile Catalog-owned test support, and the Pets browser test runs under Pets ra
 The earlier experiment compiled the two module groups using a Gradle composite, but retained all
 source files in both checkouts. It did not prove independent source trees or artifact consumption.
 
+### Developer workflow requirements
+
+Developer comfort is a condition of completing the split. Prove the workflows below while the
+builds still share this Git repository; fix cumbersome setup or daily operations before creating
+separate repositories. These are acceptance requirements, not claims about the current build.
+
+- **Work against a fixed release.** A Solarnet checkout without Pets source must build using an
+  exact Pets version recorded in Git. Keep the consumed Pets libraries on the same release, with
+  upgrades made explicitly in Solarnet. The build-separation step proves this with freshly
+  published local artifacts; hosted tagged releases follow before the Git split.
+- **Edit both projects together.** Select a local Pets build and use composite substitution, so
+  editing Pets and rerunning a Solarnet test or application rebuilds the affected dependencies
+  without manual publication or copying files. Support opening both builds together in the IDE
+  for source navigation, editing, and running tests.
+- **Select Pets independently for each working copy.** For example, Solarnet `work1` can use Pets
+  `work1`, while Solarnet `work2` uses a different Pets checkout. Persist the selection locally per
+  working copy, without changing tracked dependency declarations or other worktrees. Do not infer
+  a pairing from branch names or silently select an adjacent directory. The initial combined
+  checkout may explicitly include its in-repository `pets/` build by default.
+- **Make the selected mode visible.** Report the Pets release or local source path being used.
+  Provide an explicit way to verify artifact consumption even when local source is normally
+  selected. An invalid source selection must explain how to correct it rather than silently
+  switching modes.
+- **Keep familiar daily commands.** Combined build, test, and formatting commands must cover both
+  builds, and the development server must still serve Viewer, Web REPL, and Almanac together.
+  Wire verification tasks explicitly: compiling an included library does not run its tests.
+  Document the actual setup, mode-switching, and verification commands when implemented.
+
 ### Implementation scope
 
 1. **Give Pets a self-contained `pets/` build.** Move `pets`, `catalog`, `tfm-card-data`,
@@ -58,10 +86,33 @@ source files in both checkouts. It did not prove independent source trees or art
 - Verify normal composite development in the combined checkout: root checks cover both builds,
   and the shared development server serves all three applications. Record the commands and
   results; compilation through a composite alone does not satisfy the isolated-build checks.
+- Open the combined builds in the developer's IDE and verify source navigation and editing across
+  them. Make a temporary Pets change exercised by a Solarnet test or application, rerun it, and
+  confirm that the local edit is used without publishing. Restore the temporary change afterward.
+- Demonstrate independent Pets selections in two disposable working copies, including an external
+  Pets source path. Changing either selection must leave the other unchanged. Check the reported
+  mode and the failure message for a missing selected checkout.
+- From a working copy normally using local Pets source, explicitly select artifact verification
+  and confirm that it uses the recorded version. CI must exercise both source composition and
+  artifact consumption; a successful composite build cannot establish that publication works.
 
-**Not part of this step:** creating the Git repositories, choosing a publishing host or long-term
-version policy, extracting the parser, or redesigning Pets APIs. Parser extraction remains a
-separate library-design direction below, not a prerequisite for the split.
+### Release workflow before the Git split
+
+Keep releases lightweight: a Pets tag should trigger testing and publication of the matching
+JVM/JS libraries and dependency metadata, with an immutable version Solarnet can record. Routine
+library releases should not require manual release notes or repeated publication steps. Choose
+the publishing host and version convention later; automate and verify this path before creating
+separate Git repositories.
+
+A change to both a Pets API and its Solarnet callers can be developed and tested together, but
+separate repositories require separate commits. Document the landing order: test the pair, land
+and publish the Pets change, then update Solarnet's pinned version and verify artifact consumption
+before landing the dependent Solarnet change. Automation should expose the commits and versions
+being tested or published. The split does not remove this coordination cost.
+
+**Not part of the initial build-separation step:** creating the Git repositories, setting up hosted
+releases or choosing their version policy, extracting the parser, or redesigning Pets APIs. Parser
+extraction remains a separate library-design direction below, not a prerequisite for the split.
 
 ## Internal design and consumer API
 

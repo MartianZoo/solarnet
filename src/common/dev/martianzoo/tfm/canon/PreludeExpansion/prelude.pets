@@ -1,7 +1,7 @@
 "The published Prelude 1 rules"
 CLASS PreludeExpansion : Module {
   HAS Class<PreludePhase>
-  X SoloGenerationsLeft:: -2 SoloGenerationsLeft!
+  X SoloGenerationsLeft: -2 SoloGenerationsLeft!
   This:: 4 SelectablePreludeCount
 
   PlayerMode: PreludeCard / SelectablePreludeCount, \

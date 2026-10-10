@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.RequirementException
@@ -195,6 +196,8 @@ internal class AwardsTest : TfmTest() {
     val p2 = game.testTfm(PLAYER2)
     p1.runOperation("3 VictoryPoint, TerraformRating")
     p2.runOperation("Banker, PROD[1 MC]")
+    p1.autoExecPolicy = NONE
+    p2.autoExecPolicy = NONE
 
     admin.runOperation("End FROM Phase")
 
@@ -204,5 +207,20 @@ internal class AwardsTest : TfmTest() {
     admin.count("FinalScoringPending") shouldBe 0
     admin.count("MeasureAward<Banker>") shouldBe 0
     game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun adminScoresNegativeCardsAndPlayedEventsWithPlayerAutoexecutionOff() {
+    game = TfmEngine.newGame(canonicalPremise())
+    val p1 = game.testTfm(PLAYER1).also { it.autoExecPolicy = NONE }
+    val p2 = game.testTfm(PLAYER2).also { it.autoExecPolicy = NONE }
+    p1.sneak("$CorporateStronghold, $EarthCatapult, 5 TerraformRating")
+    p2.sneak("$EnergyTapping, PlayedEvent<Class<$LargeConvoy>>, 3 TerraformRating")
+
+    admin.runOperation("End FROM Phase")
+
+    p1.count("VictoryPoint") shouldBe 5
+    p2.count("VictoryPoint") shouldBe 4
+    game.isIdle() shouldBe true
   }
 }

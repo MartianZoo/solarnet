@@ -125,8 +125,8 @@ Test: [ClassTableSelectionTest, “explicitly included dependent Content require
 
 - With `ColoniesExpansion, CryoSleep`, `CryoSleep` exists.
 - With `TurmoilExpansion, AerialLenses`, `AerialLenses` exists.
-- With `TurmoilExpansion, -AquiferReleasedByPublicCouncil`, `AquiferReleasedByPublicCouncil` does not exist.
-- With `TurmoilExpansion, -AquiferReleasedByPublicCouncil`, `GlobalEvent` exists.
+- With `TurmoilExpansion, -DemocraticReform`, `DemocraticReform` does not exist.
+- With `TurmoilExpansion, -DemocraticReform`, `GlobalEvent` exists.
 
 ### A card's private resource
 

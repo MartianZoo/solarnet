@@ -30,7 +30,7 @@ internal class EventAnalystsTest : TfmGameplayTest() {
       pass()
     }
     kim.wgt("VenusStep")
-    admin.doTask("ScientificCommunity")
+    admin.doTask("ExploreFirstDirective")
     kim.buyCards(0)
     stan.buyCards(0)
     stan.pass()
