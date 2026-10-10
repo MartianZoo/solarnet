@@ -5,6 +5,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.TransformNode
 import dev.martianzoo.pets.data.ClassDeclaration
 
 /**
@@ -21,6 +22,9 @@ import dev.martianzoo.pets.data.ClassDeclaration
  * system never sees anything but ordinary declarations. Naming a base class with no local body is
  * still just that base class ([rule
  * L12-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-owner-local-classes)).
+ * A local declaration inside a transform block is rejected rather than extracted without its mark
+ * ([rule
+ * L8-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-transform-blocks)).
  */
 // TODO: Contract this temporary tfm-canon seam.
 public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer() {
@@ -35,6 +39,12 @@ public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer(
   }
 
   override fun transformNode(node: PetNode): PetNode {
+    if (node is TransformNode<*> && node.extract().containsDerivedClass()) {
+      throw PetSyntaxException(
+          "transform blocks cannot contain owner-local class declarations; declare the class separately",
+          sourceLocation = node.sourceLocation,
+      )
+    }
     if (node !is Expression) return transformChildren(node)
     val body = (node as? SourceExpression)?.body ?: return transformChildren(node)
 

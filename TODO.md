@@ -273,16 +273,25 @@ These concerns remain open; the ranking does not select replacement designs.
   phase-caused tasks as soon as the required runtime state can express them.
 - Let refinements reference their candidate explicitly, so a selector can relate a nested
   dependency to that candidate without repeating its complete expression.
-  Include `HAS EVAL` in that design: property expansion currently captures lexical `Me`, not the
-  surrounding HAS candidate. The `ownership` branch rejects that spelling; deciding whether to
-  reject it or support candidate-aware expansion remains open.
-- Consider letting transforms apply to property values expanded by `EVAL`. Current transforms see
-  the evaluation syntax before expansion (`PetElaboratorTest.metricInputTransformsBeforeExpandingProperties`).
-  The `ownership` branch changes this using deferred marks; retain that as a language-design
-  decision rather than importing its shared transform machinery as a small fix.
+  Include `HAS EVAL` in that design: property expansion loses the surrounding candidate, even
+  without ownership. `First(HAS Token)` reserves Token's Area dependency for First; moving Token
+  into a requirement property instead inserts its `Second` default. Decide what Canon actually
+  needs before supporting candidate-aware properties; rejecting unsupported cases is acceptable.
+  See [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
+- Transform blocks now reject EVAL and inline class declarations. Reconsider either restriction
+  only when a concrete Canon rule requires it. Deferred transforms and whole-effect/action trees
+  were tried and discarded: their cost was unjustified by current Canon. If a need arises, first
+  try writing the rule directly or declaring its local class separately.
 - Decide whether a named `RANK Me@Player` should also bind `Me` within its selector refinement,
-  as `EACH Me@Player` currently does. The `ownership` branch makes them uniform, but this changes
-  which player nested owned expressions in the rank selector refer to.
+  as `EACH Me@Player` currently does. In Player1's context, `Me@Player(HAS Box<Plant>)` gives the
+  nested Plant the selected Me for EACH but Player1 for RANK. Establish Canon's required behavior
+  before changing this scope or rejecting the unused form. See
+  [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
+- Revisit inferring an ownerless rule's subscription from its result. `Pulse: Prize<Player1>` can
+  hear Admin's Pulse; adding bare Plant makes `needsMe` insert `BY Me@Player`, excluding that event.
+  Consider explicit trigger bindings or rejecting ambiguous ownerless rules; audit Canon's global
+  conditions, OR triggers, System events, and non-Player recipients before changing it. See
+  [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
 - Give Pets a real structural conjunction, spelled something like `Tile(IS Owned)`, and retire the
   nominal `OwnedTile` class once `Landlord` and the other owned-tile rules can name the intersection
   directly. Until then a master-universe Canon test checks the nominal `OwnedOccupant` and

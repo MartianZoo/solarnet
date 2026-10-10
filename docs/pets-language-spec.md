@@ -1110,6 +1110,11 @@ what the first already means.
 > mark (L8-1); no current card requires nested `PROD` marks. Admitting the nested spelling before
 > rejecting its meaning is a syntax/processing boundary, not additional game expressiveness.
 
+**L8-6. Transform blocks cannot contain `EVAL` or owner-local class declarations.** These
+combinations are rejected. Canon does not require transforms over expanded property values or
+transforms inherited by extracted local rules. A local class may contain a transform inside its
+own rule; the class declaration itself must occur outside the block.
+
 ---
 
 ## 9. Elaboration

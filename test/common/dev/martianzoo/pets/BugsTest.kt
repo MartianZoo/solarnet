@@ -4,9 +4,11 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.types.loadTypes
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -15,6 +17,79 @@ import kotlin.test.Test
 
 /** Passing characterizations of known incorrect Pets behavior. */
 internal class BugsTest {
+  @Test
+  internal fun `EACH and RANK inconsistently scope Me in their selector refinements`() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Player : Owner, Actor {
+              CLASS Player1
+              CLASS Player2
+            }
+            CLASS Plant : Owned<Player>
+            CLASS Box<Plant>
+            """
+        )
+    val elaborator = PetElaborator(table)
+    // Which scope both constructs should use is unresolved; record the current disagreement.
+    elaborator.elaborateInput(
+        parse<InstructionTree>("EACH Me@Player(HAS Box<Plant>) { Plant }"),
+        cn("Player1").expression,
+    ) shouldBe
+        parse<InstructionTree>("EACH Me@Player(HAS Box<Plant<Me@Player>>) { Plant<Me@Player>! }")
+    elaborator.elaborateMetricInput(
+        parse("RANK Me@Player(HAS Box<Plant>) { Plant }"),
+        parse("This"),
+        cn("Player1").expression,
+    ) shouldBe parse<Metric>("RANK Me@Player(HAS Box<Plant<Player1>>) { Plant<Me@Player> }")
+  }
+
+  @Test
+  internal fun `adding an owned result unexpectedly restricts an ownerless rule's trigger`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Player : Owner, Actor",
+            "CLASS Player1 : Player",
+            "CLASS Player2 : Player",
+            "CLASS Pulse : Signal",
+            "CLASS Prize : Owned<Player>",
+            "CLASS Plant : Owned<Player>",
+            "CLASS Rule { Pulse: Prize<Player1> }",
+            "CLASS ExtraRule { Pulse: Prize<Player1>, Plant }",
+        )
+    val elaborator = PetElaborator(table)
+    // Adding a consequence stops the entire rule hearing Admin's Pulse. Decide the intended
+    // binding contract before changing this existing inference behavior.
+    elaborator.classEffects(table.getClass(cn("Rule"))).single() shouldBe
+        parse<Effect>("Pulse: Prize<Player1>!")
+    elaborator.classEffects(table.getClass(cn("ExtraRule"))).single() shouldBe
+        parse<Effect>("Pulse BY Me@Player: Prize<Player1>!, Plant<Me@Player>!")
+  }
+
+  @Test
+  internal fun `a requirement property incorrectly loses its HAS candidate`() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Area {
+              CLASS First
+              CLASS Second
+            }
+            CLASS Token<Area> { DEFAULT Token<Second> }
+            CLASS Rule { requirement = HAS "Token" }
+            """
+        )
+    val elaborator = PetElaborator(table)
+    val inline = elaborator.elaborateMetricInput(parse("First(HAS Token)"), parse("Rule"))
+    val property =
+        elaborator.elaborateMetricInput(parse("First(HAS EVAL Rule.requirement)"), parse("Rule"))
+
+    inline shouldBe parse<Metric>("First(HAS Token)")
+    // Inline syntax reserves the dependency for the candidate. Property expansion instead
+    // inserts Second, so the same requirement no longer tests First's Token.
+    property shouldBe parse<Metric>("First(HAS Token<Second>)")
+  }
+
   @Test
   internal fun `an abstract box incorrectly permits identical concrete shared arguments in a transmutation`() {
     val table =

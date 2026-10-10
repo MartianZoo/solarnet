@@ -28,6 +28,8 @@ public fun interface TransformHandler {
      * Kinds absent from [handlers] are left in place for a later pass; that a Catalog defines every
      * kind its source uses is checked once, at load ([rule
      * L8-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-transform-blocks)).
+     * Rejects EVAL inside a transform block; transforming expanded property values is unsupported
+     * (L8-6).
      */
     public fun dispatcher(handlers: Map<String, TransformHandler>): PetTransformer =
         Dispatcher(handlers)
@@ -39,6 +41,16 @@ public fun interface TransformHandler {
     override fun transformNode(node: PetNode): PetNode {
       if (node !is TransformNode<*>) return transformChildren(node)
 
+      val evaluation =
+          node.extract().descendantsOfType<PetNode>().firstOrNull {
+            it is Metric.Eval || it is Requirement.Eval
+          }
+      if (evaluation != null) {
+        throw ExpressionException(
+            "transform blocks cannot contain EVAL",
+            sourceLocation = evaluation.sourceLocation,
+        )
+      }
       val kind = node.transformKind
       // One pass need not claim every kind: a Catalog may dispatch `CARDS` while assembling
       // declarations and `PROD` only once a class table exists. A kind no *Catalog* handler claims

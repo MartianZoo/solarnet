@@ -20,6 +20,21 @@ import kotlin.test.Test
 /** Section 12 of `docs/pets-language-spec.md`: declaring a class where it is used. */
 internal class Lang12InlineClassesTest {
 
+  @Test
+  internal fun transformsCannotSilentlyLoseMarksOnExtractedLocalRules() {
+    listOf("Base {}", "Base { This: Plant }", "Base { Heat -> Steel }").forEach { local ->
+      shouldThrow<PetSyntaxException> {
+            parseClasses("CLASS Host1 { This: PROD[$local] }")
+          }
+          .detail shouldBe
+          "transform blocks cannot contain owner-local class declarations; declare the class separately"
+    }
+    // A local rule may still contain its own transform, as a separately declared rule can.
+    parseClasses("CLASS Host1 { This: Base { This: PROD[Plant] } }")
+        .last()
+        .authoredEffects shouldContainExactly listOf(parse<Effect>("This: PROD[Plant]"))
+  }
+
   // L12-1, L12-2 Declaring and naming
 
   @Test

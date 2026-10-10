@@ -27,6 +27,20 @@ internal class Lang08TransformsTest {
 
   private val identity = TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { it }))
 
+  @Test
+  internal fun `L8-6 transforms reject property evaluations rather than silently skipping their values`() {
+    listOf("MARK[EVAL Rule.score]", "MARK[Plant - EVAL Rule.score]").forEach { source ->
+      shouldThrow<ExpressionException> { identity.transformMetric(parse(source)) }.detail shouldBe
+          "transform blocks cannot contain EVAL"
+    }
+    shouldThrow<ExpressionException> {
+      identity.transformRequirement(parse("MARK[EVAL Rule.requirement]"))
+    }
+    shouldThrow<ExpressionException> {
+      identity.transformInstructionTree(parse("MARK[Plant / EVAL Rule.score]"))
+    }
+  }
+
   // L8-1 The shape, and which nodes accept a block
 
   @Test

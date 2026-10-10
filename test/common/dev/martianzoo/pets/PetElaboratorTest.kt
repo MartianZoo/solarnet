@@ -1,6 +1,7 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Effect
@@ -131,12 +132,15 @@ internal class PetElaboratorTest {
   }
 
   @Test
-  internal fun metricInputTransformsBeforeExpandingProperties() {
-    elaborator.elaborateMetricInput(
-        parse("ORDER[EVAL Score.score]"),
-        player1.expression,
-        player1,
-    ) shouldBe parse<Metric>("Pulse")
+  internal fun metricInputRejectsTransformsAroundPropertyEvaluations() {
+    shouldThrow<ExpressionException> {
+          elaborator.elaborateMetricInput(
+              parse("ORDER[EVAL Score.score]"),
+              player1.expression,
+              player1,
+          )
+        }
+        .detail shouldBe "transform blocks cannot contain EVAL"
   }
 
   @Test

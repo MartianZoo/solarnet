@@ -89,6 +89,10 @@ against a post by Jacob Fryxelius.
 
 ## Keep Pets central
 
+Pets needs only the expressive power required by concrete Canon behavior. Unused combinations may
+be rejected explicitly; do not add representations or processing machinery merely to make the
+language general, robust against arbitrary inputs, or closed under every syntactic composition.
+
 > **Recurring failure warning:** If a card or rule appears to need custom Kotlin, a custom
 > instruction, or a component-specific gameplay helper, stop before implementing it. Name the
 > general capability ordinary Pets lacks, and first try removal or composition of existing
