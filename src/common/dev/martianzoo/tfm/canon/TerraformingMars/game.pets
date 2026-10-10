@@ -128,7 +128,7 @@ ABSTRACT CLASS Phase : System {
   CLASS SetupPhase { This:: Generation }
   CLASS CorporationPhase {
     This: Photosynthesis
-    This:: EACH Class<@CardWatcher> { @CardWatcher }
+    This: EACH Class<@CardWatcher> { @CardWatcher }
 
     NewTurn IF CorporationCard<Hand>: \
       PlayCard<Class<CorporationCard>, Class<CardFront>, Hand>

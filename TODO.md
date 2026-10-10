@@ -71,9 +71,24 @@ These concerns remain open; the ranking does not select replacement designs.
 - Extend derived `including this` wording to setup operations and otherwise unsupported effects
   without adding card-specific rendering rules.
 - Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
-- Continue the remaining `::` audit without treating current sequencing dependencies as permanent
-  justifications. Preserve intrinsic card-tag construction, old Energy conversion before
-  production, and Pharmacy Union's starting money before its tag penalties.
+- Review the remaining `::` sequencing, payment, and mixed-purpose effects without treating
+  current task order as a permanent justification. Preserve intrinsic card-tag construction,
+  old Energy conversion before production, and Pharmacy Union's starting money before its tag
+  penalties until a coherent replacement establishes the same behavior.
+- [ ] Redesign card-payment adjustment timing before queueing the remaining `PayingFor` discounts.
+  A trial of twenty queued discounts left reductions pending during billing or lost a discount
+  when its temporary source disappeared; `Owed` already being `System` did not resolve this.
+- [ ] Revisit queued search and claim effects after defining whether a batch of two search signals
+  should offer two separate card choices or a single two-card task. The direct `::` to `:` trial
+  changed the task shape in a full replay.
+- [ ] Rework a colony tile's starting `ColonyProduction` marker without a permanent `HAS =1`:
+  the track can validly reset to zero. Queueing the initial marker with `BY Admin` left a player
+  task in a replay; making every marker `System` changed later trade handling. Keep the current
+  automatic gain until the marker's task ownership is clear.
+- [ ] Review the `Current<GlobalEvent>` to `GlobalEffect` relationship. Gaining `Current` creates
+  its effect automatically, but the effect depends on the event rather than `Current`; removing
+  `Current` alone appears to leave that effect active. Choose a single owner relationship that
+  covers both directions before changing the 36 event declarations.
 
 - [ ] Extend the build-time Canon invariant checks to indirect special-tile gains behind
   signals or supporting components (`GainsOf`; entry 15 of
