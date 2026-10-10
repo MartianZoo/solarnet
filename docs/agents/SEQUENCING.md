@@ -28,6 +28,9 @@ choose among its available tasks; policy cannot supply a missing game rule.
 ## Required promises
 
 - **Causality:** queued effects retain their triggering change and effect context as `Cause`.
+- **Self effects first:** a changed component's own automatic effects, including recursive automatic
+  consequences, finish before other listeners in the same batch execute. Trigger matching and
+  trigger-side conditions for the entire batch are decided before any of these effects runs.
 - **Automatic coherence:** required parts exist before gain reactions; recursive automatic
   consequences run before queued effects of the originating change are evaluated.
 - **Count invariants:** declared bounds hold after an initiating change and its recursive automatic
