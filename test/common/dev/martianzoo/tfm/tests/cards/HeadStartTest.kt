@@ -115,4 +115,36 @@ internal class HeadStartTest : CardTest() {
     p1.assertProds(2 to "Energy")
     p1.count("MC") shouldBe startingMoney - 18
   }
+
+  // https://boardgamegeek.com/thread/3335155/article/44575973#44575973
+  @Ignore // Sagitta misses its enclosing tagless Merger.
+  @Test
+  internal fun `Pays for Merger when acquired during Head Start's nested action`() {
+    acquireDuringHeadStart()
+    p1.count("MC") shouldBe 39
+  }
+
+  @Test
+  internal fun `BUG - Misses Merger during Head Start's nested action`() {
+    acquireDuringHeadStart()
+    p1.count("MC") shouldBe 35
+  }
+
+  private fun acquireDuringHeadStart() {
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack, FakeStuffBundle, Unsafe)
+    p1.runOperation("$BoardOfDirectors, 54 MC, 8 Heat")
+    admin.phase("Prelude")
+    p1.runOperation("2 PreludeCard")
+
+    p1.turn {
+      playPrelude(FakeHeadStart) {
+        useStdAction("UseActionOnCardAction", payment = {}) {
+          doTask("UseAction<$BoardOfDirectors, Action1>")
+          doTask("-12 MC")
+          playPrelude(Merger) { playCorp(SagittaFrontierServices) }
+        }
+        useStdAction("ConvertHeatAction", payment = { doTask("-8 Heat") })
+      }
+    }
+  }
 }

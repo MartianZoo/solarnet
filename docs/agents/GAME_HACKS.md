@@ -186,7 +186,7 @@ or the player can satisfy the counter with fewer Terminal gifts than the card re
 
 **Source:** `L1TradeTerminal` and its `L1GiftWatcher` component in
 [Prelude 2 cards](../../src/common/dev/martianzoo/tfm/canon/Prelude2CardPack/cards.json5),
-and the L1 scenarios in [Prelude2CardsTest](../../test/common/dev/martianzoo/tfm/tests/cards/Prelude2CardsTest.kt).
+and the L1 scenarios in [L1TradeTerminalTest](../../test/common/dev/martianzoo/tfm/tests/cards/L1TradeTerminalTest.kt).
 
 ## Acquisition events standing in for particular game actions
 

@@ -1,28 +1,38 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
-import dev.martianzoo.tfm.tests.cards.CardTest
-import dev.martianzoo.tfm.tests.cards.cardnames.DomeFarming
+import dev.martianzoo.tfm.tests.TfmGameplayTest
+import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class PreludeRulesTest : CardTest() {
+internal class PreludeRulesTest : TfmGameplayTest() {
   @Test
-  internal fun `A normal Prelude may fizzle on the client's honor`() {
-    newGame(PreludeExpansion)
-    admin.phase("Prelude")
-    val moneyBefore = p1.count("MC")
+  internal fun `A declared fizzle consumes a Prelude and allows the remaining Prelude to be played`() {
+    newTestGame("PreludeExpansion", playerCount = 2)
     val checkpoint = game.timeline.checkpoint()
 
-    // Follow mode cannot prove that the physical Prelude was unplayable.
-    p1.startTurn()
-    p1.doTask("-PreludeCard")
-    p1.startTurn()
-    p1.playPrelude(DomeFarming)
+    // Follow mode accepts the player's declaration that their physical Prelude was unplayable.
+    kim.inTurn { doTask("-PreludeCard") }.expect("15 MC, -PreludeCard")
+    kim.playPrelude(DomeFarming).expect("$DomeFarming, -PreludeCard")
 
-    p1.assertCounts(1 to "$DomeFarming", 0 to "PreludeCard")
-    p1.count("MC") shouldBe moneyBefore + 15
-    p1.auditGainsSince(checkpoint) shouldBe 1
+    kim.count("PreludeCard") shouldBe 0
+    kim.auditGainsSince(checkpoint) shouldBe 1
+  }
+
+  // https://boardgamegeek.com/thread/3412262/i-bit-confused-on-combining-this-and-prelude-1-int
+  @Test
+  internal fun `Both Prelude packs share the same two-card setup and a single Prelude phase`() {
+    newTestGame("PreludeExpansion, Prelude2CardPack", playerCount = 2)
+    kim.count("PreludeCard") shouldBe 2
+    stan.count("PreludeCard") shouldBe 2
+
+    kim.playPrelude(Donation)
+    kim.playPrelude(DomeFarming)
+    stan.playPrelude(Supplier)
+    stan.playPrelude(MetalsCompany)
+
+    admin.count("ActionPhase") shouldBe 1
+    kim.count("PreludeCard") shouldBe 0
+    stan.count("PreludeCard") shouldBe 0
   }
 }
