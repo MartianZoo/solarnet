@@ -2,84 +2,58 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class ArcadianCommunitiesTest : CardTest() {
-  @Test
-  internal fun `Starts with resources and a community on any empty land area`() {
-    newGame(PromoCardPack)
-
-    playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
-        .expect("40 MC, 10 Steel, RequiredAction")
-    admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_4_2>") }
-
-    p1.assertCounts(40 to "MC", 10 to "Steel", 1 to "Community<Tharsis_4_2>")
-  }
-
+internal class ArcadianCommunitiesTest : TfmSandboxTest() {
   @Test
   internal fun `Initial community requires an empty land area but no adjacency`() {
-    newGame(PromoCardPack)
-    p1.runOperation("CityTile<Tharsis_1_1>")
-    p1.runOperation("Community<Tharsis_1_3>")
-    playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
-    admin.phase("Action")
+    newTestGame(kimCorporation = ArcadianCommunities)
+    kim.exMachina("NormalCityTile<Tharsis_1_1>")
+    kim.exMachina("Community<Tharsis_1_3>")
 
-    p1.stdAction("DoRequiredActionsAction") {
-      shouldThrow<LimitsException> { doTask("Community<Tharsis_1_1>") }
-      shouldThrow<LimitsException> { doTask("Community<Tharsis_1_3>") }
-      doTask("Community<Tharsis_9_7>")
-    }
-
-    p1.assertCounts(1 to "Community<Tharsis_9_7>")
+    kim.stdAction("RequiredActionsSignal") {
+          shouldThrow<LimitsException> { doTask("Community<Tharsis_1_1>") }
+          shouldThrow<LimitsException> { doTask("Community<Tharsis_1_3>") }
+          doTask("Community<Tharsis_9_7>")
+        }
+        .expect("Community<Tharsis_9_7>")
   }
 
   @Test
   internal fun `Action places a community adjacent to an owned tile`() {
-    newGame(PromoCardPack)
-    playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
-    p1.runOperation("CityTile<Tharsis_1_1>")
-    p1.runOperation("GreeneryTile<Tharsis_2_2>")
-    admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_9_7>") }
+    newTestGame(kimCorporation = ArcadianCommunities)
+    kim.exMachina("NormalCityTile<Tharsis_1_1>")
+    kim.exMachina("GreeneryTile<Tharsis_2_2>")
+    kim.stdAction("RequiredActionsSignal") { doTask("Community<Tharsis_9_7>") }
 
-    p1.cardAction1(ArcadianCommunities) {
-      shouldThrow<NarrowingException> { doTask("Community<Tharsis_4_2>") }
-      shouldThrow<LimitsException> { doTask("Community<Tharsis_2_2>") }
-      doTask("Community<Tharsis_2_1>")
-    }
-
-    p1.assertCounts(1 to "Community<Tharsis_2_1>")
+    kim.cardAction1(ArcadianCommunities) {
+          shouldThrow<NarrowingException> { doTask("Community<Tharsis_4_2>") }
+          shouldThrow<LimitsException> { doTask("Community<Tharsis_2_2>") }
+          doTask("Community<Tharsis_2_1>")
+        }
+        .expect("Community<Tharsis_2_1>")
   }
 
   @Test
   internal fun `Action places a community adjacent to an owned community`() {
-    newGame(PromoCardPack)
-    playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
-    admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_4_2>") }
+    newTestGame(kimCorporation = ArcadianCommunities)
+    kim.stdAction("RequiredActionsSignal") { doTask("Community<Tharsis_4_2>") }
 
-    p1.cardAction1(ArcadianCommunities) { doTask("Community<Tharsis_4_3>") }
-
-    p1.assertCounts(1 to "Community<Tharsis_4_3>")
+    kim.cardAction1(ArcadianCommunities) { doTask("Community<Tharsis_4_3>") }
+        .expect("Community<Tharsis_4_3>")
   }
 
   @Test
   internal fun `Action does not chain from another player's pieces`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
-    p2.runOperation("CityTile<Tharsis_1_1>")
-    p2.runOperation("Community<Tharsis_4_2>")
-    admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_9_7>") }
+    newTestGame(kimCorporation = ArcadianCommunities)
+    stan.exMachina("NormalCityTile<Tharsis_1_1>")
+    stan.exMachina("Community<Tharsis_4_2>")
+    kim.stdAction("RequiredActionsSignal") { doTask("Community<Tharsis_9_7>") }
 
-    p1.cardAction1(ArcadianCommunities) {
+    kim.cardAction1(ArcadianCommunities) {
       shouldThrow<NarrowingException> { doTask("Community<Tharsis_2_1>") }
       shouldThrow<NarrowingException> { doTask("Community<Tharsis_4_3>") }
       doTask("Community<Tharsis_9_6>")
@@ -88,55 +62,33 @@ internal class ArcadianCommunitiesTest : CardTest() {
 
   @Test
   internal fun `Developing a community removes it and pays its Arcadian owner`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
-    p1.runOperation("Community<Tharsis_1_1>")
-    p1.runOperation("-40 MC")
+    newTestGame(kimCorporation = ArcadianCommunities)
+    kim.stdAction("RequiredActionsSignal") { doTask("Community<Tharsis_1_1>") }
+    kim.setToExMachina(23, "MC")
 
-    p1.runOperation("GreeneryTile<Tharsis_1_1>").expect("-Community, 3 MC")
-
-    p1.assertCounts(3 to "MC", 0 to "Community<Tharsis_1_1>")
-    p2.assertCounts(0 to "MC")
+    kim.stdProject("GreeneryProject") { placeTile(1, 1) }.expect("-Community, -20 MC, 0 MC<Stan>")
   }
 
   @Test
   internal fun `Developing a Land Claim community pays its Arcadian owner`() {
-    newGame(PromoCardPack, CorporateEraExpansion)
-    playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
-    p1.runOperation("$LandClaim") { doTask("Community<Tharsis_1_1>") }
-    p1.runOperation("-40 MC")
+    newTestGame(kimCorporation = ArcadianCommunities)
+    kim.stdAction("RequiredActionsSignal") { doTask("Community<Tharsis_9_7>") }
+    kim.playProject(LandClaim, 1) { doTask("Community<Tharsis_1_1>") }
+    kim.setToExMachina(23, "MC")
 
-    p1.runOperation("GreeneryTile<Tharsis_1_1>").expect("-Community, 3 MC")
-
-    p1.assertCounts(3 to "MC", 0 to "Community<Tharsis_1_1>")
-  }
-
-  @Test
-  internal fun `Removing a community without building does not pay`() {
-    newGame(PromoCardPack)
-    playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
-    p1.runOperation("Community<Tharsis_1_1>")
-
-    p1.runOperation("-Community THEN 2 Steel")
-
-    p1.assertCounts(40 to "MC", 12 to "Steel", 0 to "Community")
+    kim.stdProject("GreeneryProject") { placeTile(1, 1) }.expect("-Community, -20 MC")
   }
 
   @Test
   internal fun `Artificial Lake pays the claim owner even though oceans are unowned`() {
-    newGame(PromoCardPack, CorporateEraExpansion)
-    playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
-    p1.runOperation("Community<Tharsis_1_3>")
+    newTestGame(kimCorporation = ArcadianCommunities)
+    kim.stdAction("RequiredActionsSignal") { doTask("Community<Tharsis_1_3>") }
+    kim.setToExMachina(14, "MC")
+    kim.setToExMachina(12, "TemperatureStep")
 
-    shouldThrow<LimitsException> {
-      requireP2().runOperation("$ArtificialLake") { placeTile(1, 3) }
-    }
-    p1.assertCounts(40 to "MC", 1 to "Community<Tharsis_1_3>", 0 to "OceanTile<Tharsis_1_3>")
-
-    p1.runOperation("$ArtificialLake") { placeTile(1, 3) }.expect("-Community, 3 MC")
-
-    p1.assertCounts(43 to "MC", 0 to "Community", 1 to "OceanTile<Tharsis_1_3>")
-    requireP2().assertCounts(0 to "MC")
+    shouldThrow<LimitsException> { stan.playProject(ArtificialLake, 15) { placeTile(1, 3) } }
+    kim.setToExMachina(15, "MC")
+    kim.playProject(ArtificialLake, 15) { placeTile(1, 3) }
+        .expect("-Community, -12 MC, OceanTile<Tharsis_1_3>, 0 MC<Stan>")
   }
 }

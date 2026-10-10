@@ -1,54 +1,68 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.tests.cards.CardTest
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.WorldGovernmentAdvisor
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class ThawerTest : CardTest() {
+internal class ThawerTest : TfmSandboxTest() {
   @Test
-  internal fun `Thawer credits each player step but not other players or Admin`() {
-    newGame(GameConfig("Thawer, Builder, Engineer", "Player1", "Player2"))
-    p1.runOperation("8 MC, 4 TemperatureStep")
-    requireP2().runOperation("TemperatureStep")
-    admin.runOperation("TemperatureStep")
-    admin.phase("Action")
-    shouldThrow<RequirementException> { p1.claimMilestone(cn("Thawer")) }
-    p1.runOperation("TemperatureStep")
-    p1.claimMilestone(cn("Thawer")).expect("-8 MC, Thawer")
+  internal fun `Thawer credits only the player's own temperature increases`() {
+    newTestGame(addOptions = "Thawer, Builder, Engineer, WorldGovernmentAdvisor")
+    kim.setToExMachina(90, "MC")
+    repeat(4) { kim.stdProject("AsteroidProject") }
+    stan.stdProject("AsteroidProject")
+    kim.exMachina("$WorldGovernmentAdvisor")
+    kim.cardAction1(WorldGovernmentAdvisor) { doTask("TemperatureStep BY Admin") }
+        .expect("TemperatureStep, 0 TerraformRating")
+    shouldThrow<RequirementException> { kim.claimMilestone(cn("Thawer")) }
+
+    kim.stdProject("AsteroidProject")
+    kim.claimMilestone(cn("Thawer")).expect("-8 MC, Thawer")
   }
 
-  @Test
-  internal fun `Snow Cover does not undo a player's previous temperature increases`() {
-    newGame(GameConfig("TurmoilExpansion, Thawer, Builder, Engineer", "Player1", "Player2"))
-    p1.runOperation("8 MC, 5 TemperatureStep")
+  internal class Gameplay : dev.martianzoo.tfm.tests.TfmGameplayTest() {
+    @Test
+    internal fun `Snow Cover does not undo credit for earlier temperature increases`() {
+      newTestGame(addOptions = "TurmoilExpansion, Thawer, Builder, Engineer", playerCount = 2)
+      // Generation 1: reveal Mohole Lake; its Snow Cover effect will resolve in generation 4.
+      // Later reveals fix delegate placements but will not resolve during this scenario.
+      kim.pass()
+      stan.pass()
+      kim.wgt("VenusStep")
+      admin.doTask("MoholeLakeGlobalEvent")
+      players.forEach { it.buyCards(0) }
 
-    admin.runOperation("MoholeLakeGlobalEvent THEN Current<MoholeLakeGlobalEvent>")
-    admin.runOperation("ResolveGlobalEvent")
-    admin.count("TemperatureStep") shouldBe 3
-    admin.phase("Action")
+      // Generation 2: Democratic Reform gives Stan an Admin ocean, leaving temperature alone.
+      stan.pass()
+      kim.pass()
+      stan.wgt("VenusStep")
+      stan.doTask("OceanTile<Tharsis_1_2> BY Admin")
+      admin.doTask("ExploreFirstDirective")
+      players.forEach { it.buyCards(0) }
 
-    p1.claimMilestone(cn("Thawer")).expect("-8 MC, Thawer")
-  }
+      // Generation 3: Minimal Impact Policy removes the sole ocean automatically.
+      kim.pass()
+      stan.pass()
+      kim.wgt("VenusStep")
+      admin.doTask("MoralMovement")
+      players.forEach { it.buyCards(0) }
 
-  @Test
-  internal fun `World Government Advisor does not give its owner Thawer credit`() {
-    newGame(
-        GameConfig(
-            "PreludeExpansion, Prelude2CardPack, Thawer, Builder, Engineer",
-            "Player1",
-            "Player2",
-        )
-    )
-    p1.runOperation("8 MC, 4 TemperatureStep, $WorldGovernmentAdvisor")
-    admin.phase("Action")
+      // Generation 4: Kim earns five temperature credits before Snow Cover removes two steps.
+      stan.pass()
+      repeat(5) { kim.stdProject("AsteroidProject") }
+      admin.count("TemperatureStep") shouldBe 5
+      kim.pass()
+      stan.wgt("VenusStep")
+      admin.doTask("FreeAcademiaTreaty")
+      players.forEach { it.buyCards(0) }
 
-    p1.cardAction1(WorldGovernmentAdvisor) { doTask("TemperatureStep BY Admin") }
-
-    shouldThrow<RequirementException> { p1.claimMilestone(cn("Thawer")) }
+      // Generation 5: the track fell, but Kim's five earned credits still qualify.
+      admin.count("TemperatureStep") shouldBe 3
+      kim.claimMilestone(cn("Thawer")).expect("-8 MC, Thawer")
+    }
   }
 }

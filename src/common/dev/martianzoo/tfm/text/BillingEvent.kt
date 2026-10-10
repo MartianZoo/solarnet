@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.text
 
+import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
@@ -29,10 +31,20 @@ internal fun Describers.billingEvent(trigger: Trigger): BillingEvent? {
   if (expression.refinement != null) return null
   if (!expressions.isBilling(expression.className)) return null
   val resolved = resolveExpression(expression) ?: return null
-  if (expression.className != BILLING && resolved.dependency(PROVIDER) == null) return null
   val provider =
       resolved.dependency(PROVIDER)?.let {
-        it.rootClass.className.expression.copy(refinement = it.refinement)
+        val sourceExpression = resolved.sourceDependency(PROVIDER)
+        val source = sourceExpression?.let(::resolveExpression)
+        it.representedClass
+            ?.className
+            ?.expression
+            ?.copy(
+                typeVariableName = source?.sourceDependency(Key(CLASS, 0))?.typeVariableName,
+                refinement = sourceExpression?.refinement ?: it.refinement,
+            )
+            ?.takeUnless { provider ->
+              provider.className == COMPONENT && provider.refinement == null
+            }
       }
   val resource =
       resolved.sourceDependency(RESOURCE)?.let {
@@ -44,5 +56,5 @@ internal fun Describers.billingEvent(trigger: Trigger): BillingEvent? {
 }
 
 private val BILLING = cn("Billing")
-private val PROVIDER = Key(cn("ActionBilling"), 0)
-private val RESOURCE = Key(BILLING, 0)
+private val PROVIDER = Key(BILLING, 0)
+private val RESOURCE = Key(BILLING, 2)

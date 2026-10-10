@@ -17,7 +17,7 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> { kim.stdProject("PowerPlantProject") }
 
-    kim.assertCounts(8 to "MC", 1 to "PROD[Energy]", 0 to "Owed", 0 to "ActionBilling")
+    kim.assertCounts(8 to "MC", 1 to "PROD[Energy]", 0 to "Owed", 0 to "Billing")
   }
 
   @Test
@@ -40,7 +40,7 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
   @Test
   internal fun `Receives a rebate when Spire pays with science after temperature is complete`() {
     newTestGame(kimCorporation = Spire)
-    kim.stdAction("DoRequiredActionsAction")
+    kim.stdAction("RequiredActionsSignal")
     kim.exMachina("$StandardTechnology")
     kim.setToExMachina(7, "Science<$Spire>")
     stan.setToExMachina(18, "TemperatureStep")

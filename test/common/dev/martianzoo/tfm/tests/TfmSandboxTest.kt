@@ -7,7 +7,6 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
@@ -52,10 +51,12 @@ internal abstract class TfmSandboxTest : TfmTest() {
     bindPlayers()
   }
 
-  /** Skips unplayed Preludes when only later card behavior is under test. */
+  /** Starts focused action tests, skipping any unplayed corporations and Preludes. */
   protected fun startActionPhase() {
-    check(admin.count("PreludePhase") == 1) { "Expected Prelude phase" }
-    check(game.tasks.isEmpty()) { "Finish pending choices before leaving Prelude phase" }
+    check(admin.count("CorporationPhase") + admin.count("PreludePhase") == 1) {
+      "Expected Corporation or Prelude phase"
+    }
+    check(game.tasks.isEmpty()) { "Finish pending choices before starting Action phase" }
     TfmWorkflow.Stepwise(agents).actionPhase()
   }
 
@@ -125,7 +126,7 @@ internal abstract class TfmSandboxTest : TfmTest() {
                 (GameConfig(BASE_GAME_OPTIONS).includedClassNames + options.includedClassNames) -
                     options.excludedClassNames
         )
-    game = TfmEngine.newGame(Canon.gamePremise(config))
+    game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
     bindPlayers()
   }
 

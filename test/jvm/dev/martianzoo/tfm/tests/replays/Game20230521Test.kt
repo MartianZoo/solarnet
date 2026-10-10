@@ -98,8 +98,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$InventorsGuild>>",
+        "PlayProject<Class<$InventorsGuild>>",
         "-9 MC",
         "$InventorsGuild FROM ProjectCard",
     )
@@ -107,8 +106,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.doTasks("Ok") // end turn
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$ArcticAlgae>>",
+        "PlayProject<Class<$ArcticAlgae>>",
         "-12 MC",
         "$ArcticAlgae FROM ProjectCard",
         "Plant",
@@ -117,8 +115,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("Ok") // end turn
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$InventorsGuild, Action1>",
+        "UseCardAction<$InventorsGuild, Action1>",
         "ProjectCard<Selecting>",
         "Ok", // keep card
         "-3 MC",
@@ -128,23 +125,20 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.doTasks("Ok") // end turn
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$Factorum, Action1>",
+        "UseCardAction<$Factorum, Action1>",
         "PROD[Energy]",
     )
 
     p2.doTasks("Ok") // end turn
 
     p1.doTasks(
-        "UseAction<UseStandardProjectAction, Action1>",
-        "UseAction<PowerPlantProject, Action1>",
+        "UseStandardProject<PowerPlantProject>",
         "-11 MC",
         "PROD[Energy]",
         "Energy",
     )
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$BuildingIndustries>>",
+        "PlayProject<Class<$BuildingIndustries>>",
         "-1 Steel",
         "-4 MC",
         "$BuildingIndustries FROM ProjectCard",
@@ -154,15 +148,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$RotatorImpacts>>",
+        "PlayProject<Class<$RotatorImpacts>>",
         "-2 Titanium",
         "Ok", // no mc paid
         "$RotatorImpacts FROM ProjectCard",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$RotatorImpacts, Action1>",
+        "UseCardAction<$RotatorImpacts, Action1>",
         "-2 Titanium",
         "Ok", // no mc paid
         "Asteroid<$RotatorImpacts>",
@@ -171,8 +163,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.doTasks("Pass")
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$CarbonateProcessing>>",
+        "PlayProject<Class<$CarbonateProcessing>>",
         "-6 MC",
         "Ok", // no steel paid
         "$CarbonateProcessing FROM ProjectCard",
@@ -180,8 +171,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "PROD[3 Heat]",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$Archaebacteria>>",
+        "PlayProject<Class<$Archaebacteria>>",
         "-6 MC",
         "$Archaebacteria FROM ProjectCard",
         "PROD[Plant]",
@@ -211,14 +201,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
     assertSidebar(gen = 2, temp = -30, oxygen = 0, oceans = 0, venus = 0)
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$Factorum, Action2>",
+        "UseCardAction<$Factorum, Action2>",
         "-3 MC",
         "SearchForCard<TagFilter<Class<BuildingTag>>>",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$MarsUniversity>>",
+        "PlayProject<Class<$MarsUniversity>>",
         "-1 Steel",
         "-6 MC",
         "$MarsUniversity FROM ProjectCard",
@@ -227,23 +215,20 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$InventorsGuild, Action1>",
+        "UseCardAction<$InventorsGuild, Action1>",
         "ProjectCard<Selecting>",
         "Ok", // keep card
         "-3 MC",
         "ProjectCard FROM BuyCard",
     )
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$EarthOffice>>",
+        "PlayProject<Class<$EarthOffice>>",
         "-1 MC",
         "$EarthOffice FROM ProjectCard",
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$RotatorImpacts, Action2>",
+        "UseCardAction<$RotatorImpacts, Action2>",
         "-Asteroid<$RotatorImpacts>",
         "VenusStep",
         "TerraformRating",
@@ -252,15 +237,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("Ok") // end turn
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$DevelopmentCenter>>",
+        "PlayProject<Class<$DevelopmentCenter>>",
         "-5 Steel",
         "-1 MC",
         "$DevelopmentCenter FROM ProjectCard",
     )
     p1.doTasks(
-        "UseAction<UseStandardProjectAction, Action1>",
-        "UseAction<PowerPlantProject, Action1>",
+        "UseStandardProject<PowerPlantProject>",
         "-11 MC",
         "PROD[Energy]",
         "Energy",
@@ -269,30 +252,26 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("Pass")
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DevelopmentCenter, Action1>",
+        "UseCardAction<$DevelopmentCenter, Action1>",
         "-Energy",
         "ProjectCard",
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$InvestmentLoan>>",
+        "PlayProject<Class<$InvestmentLoan>>",
         "$InvestmentLoan FROM ProjectCard",
         "PROD[-MC]",
         "10 MC",
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$DeuteriumExport>>",
+        "PlayProject<Class<$DeuteriumExport>>",
         "-11 MC",
         "Ok", // no titanium paid
         "$DeuteriumExport FROM ProjectCard",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DeuteriumExport, Action1>",
+        "UseCardAction<$DeuteriumExport, Action1>",
         "Floater<$DeuteriumExport>",
     )
     p1.doTasks("Pass")
@@ -320,27 +299,23 @@ internal class Game20230521Test : AbstractFullGameTest() {
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 0, venus = 2)
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DevelopmentCenter, Action1>",
+        "UseCardAction<$DevelopmentCenter, Action1>",
         "-Energy",
         "ProjectCard",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$InventorsGuild, Action1>",
+        "UseCardAction<$InventorsGuild, Action1>",
         "ProjectCard<Selecting>",
         "-1 ProjectCard<Selecting>",
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$Factorum, Action1>",
+        "UseCardAction<$Factorum, Action1>",
         "PROD[Energy]",
     )
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$AsteroidCard>>",
+        "PlayProject<Class<$AsteroidCard>>",
         "-4 Titanium",
         "-2 MC",
         "$AsteroidCard FROM ProjectCard",
@@ -351,8 +326,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$CorporateStronghold>>",
+        "PlayProject<Class<$CorporateStronghold>>",
         "-3 Steel",
         "-5 MC",
         "$CorporateStronghold FROM ProjectCard",
@@ -364,16 +338,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$OptimalAerobraking>>",
+        "PlayProject<Class<$OptimalAerobraking>>",
         "-7 MC",
         "Ok", // no titanium paid
         "$OptimalAerobraking FROM ProjectCard",
     )
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$TransNeptuneProbe>>",
+        "PlayProject<Class<$TransNeptuneProbe>>",
         "-2 Titanium",
         "Ok", // no mc paid
         "$TransNeptuneProbe FROM ProjectCard",
@@ -381,24 +353,21 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "ProjectCard",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$RotatorImpacts, Action1>",
+        "UseCardAction<$RotatorImpacts, Action1>",
         "-6 MC",
         "Ok", // no titanium paid
         "Asteroid<$RotatorImpacts>",
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DeuteriumExport, Action2>",
+        "UseCardAction<$DeuteriumExport, Action2>",
         "-Floater<$DeuteriumExport>",
         "PROD[Energy]",
         "Energy",
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$ImportedGhg>>",
+        "PlayProject<Class<$ImportedGhg>>",
         "-4 MC",
         "Ok", // no titanium paid
         "$ImportedGhg FROM ProjectCard",
@@ -434,28 +403,24 @@ internal class Game20230521Test : AbstractFullGameTest() {
     assertSidebar(gen = 4, temp = -28, oxygen = 0, oceans = 0, venus = 2)
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$Factorum, Action2>",
+        "UseCardAction<$Factorum, Action2>",
         "-3 MC",
         "SearchForCard<TagFilter<Class<BuildingTag>>>",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$AquiferPumping>>",
+        "PlayProject<Class<$AquiferPumping>>",
         "-2 Steel",
         "-14 MC",
         "$AquiferPumping FROM ProjectCard",
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DevelopmentCenter, Action1>",
+        "UseCardAction<$DevelopmentCenter, Action1>",
         "-Energy",
         "ProjectCard",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$InventorsGuild, Action1>",
+        "UseCardAction<$InventorsGuild, Action1>",
         "ProjectCard<Selecting>",
         "Ok", // keep card
         "-3 MC",
@@ -463,8 +428,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$AquiferPumping, Action1>",
+        "UseCardAction<$AquiferPumping, Action1>",
         "-8 MC",
         "Ok", // no steel paid
         "OceanTile<Tharsis_2_6>",
@@ -473,8 +437,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "2 Plant",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$SearchForLife>>",
+        "PlayProject<Class<$SearchForLife>>",
         "-3 MC",
         "$SearchForLife FROM ProjectCard",
         "-ProjectCard",
@@ -482,13 +445,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DeuteriumExport, Action1>",
+        "UseCardAction<$DeuteriumExport, Action1>",
         "Floater<$DeuteriumExport>",
     )
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$TectonicStressPower>>",
+        "PlayProject<Class<$TectonicStressPower>>",
         "-3 Steel",
         "-12 MC",
         "$TectonicStressPower FROM ProjectCard",
@@ -497,15 +458,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$RotatorImpacts, Action2>",
+        "UseCardAction<$RotatorImpacts, Action2>",
         "-Asteroid<$RotatorImpacts>",
         "VenusStep",
         "TerraformRating",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$SearchForLife, Action1>",
+        "UseCardAction<$SearchForLife, Action1>",
         "-MC",
         "ProjectCard<Revealed>",
         "Ok", // no reward
@@ -513,14 +472,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
+        "ConvertHeat",
         "-8 Heat",
         "TemperatureStep",
         "TerraformRating",
     )
     p1.doTasks(
-        "UseAction<UseStandardProjectAction, Action1>",
-        "UseAction<AsteroidProject, Action1>",
+        "UseStandardProject<AsteroidProject>",
         "-14 MC",
         "TemperatureStep",
         "TerraformRating",
@@ -531,14 +489,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("Pass")
 
     p1.doTasks(
-        "UseAction<UseStandardProjectAction, Action1>",
-        "UseAction<SellPatentsProject, Action1>",
+        "UseStandardProject<SellPatentsProject>",
         "1 MC FROM ProjectCard",
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$SpinInducingAsteroid>>",
+        "PlayProject<Class<$SpinInducingAsteroid>>",
         "-16 MC",
         "Ok", // no titanium paid
         "$SpinInducingAsteroid FROM ProjectCard",
@@ -575,14 +531,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     checkSummaryAfterGen4(game)
 
     p1.doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
+        "ConvertHeat",
         "-8 Heat",
         "TemperatureStep",
         "TerraformRating",
     )
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$SmallAsteroid>>",
+        "PlayProject<Class<$SmallAsteroid>>",
         "-10 MC",
         "Ok", // no titanium paid
         "$SmallAsteroid FROM ProjectCard",
@@ -595,53 +550,45 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$Factorum, Action2>",
+        "UseCardAction<$Factorum, Action2>",
         "-3 MC",
         "SearchForCard<TagFilter<Class<BuildingTag>>>",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$DirectedImpactors>>",
+        "PlayProject<Class<$DirectedImpactors>>",
         "-2 Titanium",
         "-2 MC",
         "$DirectedImpactors FROM ProjectCard",
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DevelopmentCenter, Action1>",
+        "UseCardAction<$DevelopmentCenter, Action1>",
         "-Energy",
         "ProjectCard",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$InventorsGuild, Action1>",
+        "UseCardAction<$InventorsGuild, Action1>",
         "ProjectCard<Selecting>",
         "-1 ProjectCard<Selecting>",
     )
 
     p2.doTasks(
-        "UseAction<UseStandardProjectAction, Action1>",
-        "UseAction<SellPatentsProject, Action1>",
+        "UseStandardProject<SellPatentsProject>",
         "1 MC FROM ProjectCard",
     )
     p2.doTasks(
-        "UseAction<UseStandardProjectAction, Action1>",
-        "UseAction<SellPatentsProject, Action1>",
+        "UseStandardProject<SellPatentsProject>",
         "1 MC FROM ProjectCard",
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DeuteriumExport, Action2>",
+        "UseCardAction<$DeuteriumExport, Action2>",
         "-Floater<$DeuteriumExport>",
         "PROD[Energy]",
         "Energy",
     )
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$DomedCrater>>",
+        "PlayProject<Class<$DomedCrater>>",
         "-3 Steel",
         "-18 MC",
         "$DomedCrater FROM ProjectCard",
@@ -653,23 +600,20 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DirectedImpactors, Action1>",
+        "UseCardAction<$DirectedImpactors, Action1>",
         "-6 MC",
         "Ok", // no titanium paid
         "Asteroid<$RotatorImpacts>",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$RotatorImpacts, Action2>",
+        "UseCardAction<$RotatorImpacts, Action2>",
         "-Asteroid<$RotatorImpacts>",
         "VenusStep",
         "TerraformRating",
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$FueledGenerators>>",
+        "PlayProject<Class<$FueledGenerators>>",
         "-1 MC",
         "Ok", // no steel paid
         "$FueledGenerators FROM ProjectCard",
@@ -681,15 +625,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.doTasks("Ok") // end turn
 
     p2.doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
+        "ConvertHeat",
         "-8 Heat",
         "TemperatureStep",
         "TerraformRating",
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$AquiferPumping, Action1>",
+        "UseCardAction<$AquiferPumping, Action1>",
         "-1 Steel",
         "-6 MC",
         "OceanTile<Tharsis_1_4>",
@@ -728,31 +671,28 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     assertSidebar(gen = 6, temp = -18, oxygen = 0, oceans = 2, venus = 10)
 
+    p2.doTasks("ConvertPlants", "-8 Plant")
+    p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p2.doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "-8 Plant",
         "GreeneryTile<Tharsis_8_7>",
         "OxygenStep",
         "TerraformRating",
         "ProjectCard",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$Factorum, Action2>",
+        "UseCardAction<$Factorum, Action2>",
         "-3 MC",
         "SearchForCard<TagFilter<Class<BuildingTag>>>",
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DevelopmentCenter, Action1>",
+        "UseCardAction<$DevelopmentCenter, Action1>",
         "-Energy",
         "ProjectCard",
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$InventorsGuild, Action1>",
+        "UseCardAction<$InventorsGuild, Action1>",
         "ProjectCard<Selecting>",
         "Ok", // keep card
         "-3 MC",
@@ -760,16 +700,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$PowerPlant>>",
+        "PlayProject<Class<$PowerPlant>>",
         "-1 Steel",
         "-2 MC",
         "$PowerPlant FROM ProjectCard",
         "PROD[Energy]",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$AquiferPumping, Action1>",
+        "UseCardAction<$AquiferPumping, Action1>",
         "-8 MC",
         "Ok", // no steel paid
         "OceanTile<Tharsis_1_5>",
@@ -779,8 +717,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$OlympusConference>>",
+        "PlayProject<Class<$OlympusConference>>",
         "-3 Steel",
         "-1 MC",
         "$OlympusConference FROM ProjectCard",
@@ -788,8 +725,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$SisterPlanetSupport>>",
+        "PlayProject<Class<$SisterPlanetSupport>>",
         "-4 MC",
         "$SisterPlanetSupport FROM ProjectCard",
         "PROD[3 MC]",
@@ -797,23 +733,20 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DirectedImpactors, Action1>",
+        "UseCardAction<$DirectedImpactors, Action1>",
         "-1 Titanium",
         "-3 MC",
         "Asteroid<$RotatorImpacts>",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$RotatorImpacts, Action2>",
+        "UseCardAction<$RotatorImpacts, Action2>",
         "-Asteroid<$RotatorImpacts>",
         "VenusStep",
         "TerraformRating",
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$DuskLaserMining>>",
+        "PlayProject<Class<$DuskLaserMining>>",
         "-8 MC",
         "Ok", // no titanium paid
         "$DuskLaserMining FROM ProjectCard",
@@ -823,8 +756,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$MirandaResort>>",
+        "PlayProject<Class<$MirandaResort>>",
         "-4 Titanium",
         "Ok", // no mc paid
         "$MirandaResort FROM ProjectCard",
@@ -833,16 +765,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$Mine>>",
+        "PlayProject<Class<$Mine>>",
         "-4 MC",
         "Ok", // no steel paid
         "$Mine FROM ProjectCard",
         "PROD[Steel]",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$SearchForLife, Action1>",
+        "UseCardAction<$SearchForLife, Action1>",
         "-MC",
         "ProjectCard<Revealed>",
         "Ok", // no reward
@@ -850,16 +780,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$Solarnet>>",
+        "PlayProject<Class<$Solarnet>>",
         "-7 MC",
         "$Solarnet FROM ProjectCard",
         "2 ProjectCard",
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$MiningQuota>>",
+        "PlayProject<Class<$MiningQuota>>",
         "-5 MC",
         "Ok", // no steel paid
         "$MiningQuota FROM ProjectCard",
@@ -868,7 +796,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
+        "ConvertHeat",
         "-8 Heat",
         "TemperatureStep",
         "TerraformRating",
@@ -877,21 +805,19 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("Ok") // end turn
 
     p1.doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
+        "ConvertHeat",
         "-8 Heat",
         "TemperatureStep",
         "TerraformRating",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DeuteriumExport, Action1>",
+        "UseCardAction<$DeuteriumExport, Action1>",
         "Floater<$DeuteriumExport>",
     )
 
     p2.doTasks("Pass")
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$LagrangeObservatory>>",
+        "PlayProject<Class<$LagrangeObservatory>>",
         "-1 Titanium",
         "-6 MC",
         "$LagrangeObservatory FROM ProjectCard",
@@ -900,22 +826,18 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$VenusGovernor>>",
+        "PlayProject<Class<$VenusGovernor>>",
         "-4 MC",
         "$VenusGovernor FROM ProjectCard",
         "PROD[2 MC]",
         "2 MC",
     )
-
     p1.doTasks(
-        "UseAction<UseStandardProjectAction, Action1>",
-        "UseAction<SellPatentsProject, Action1>",
+        "UseStandardProject<SellPatentsProject>",
         "1 MC FROM ProjectCard",
     )
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$Moss>>",
+        "PlayProject<Class<$Moss>>",
         "-4 MC",
         "$Moss FROM ProjectCard",
         "-Plant",
@@ -948,28 +870,24 @@ internal class Game20230521Test : AbstractFullGameTest() {
     assertSidebar(gen = 7, temp = -14, oxygen = 1, oceans = 3, venus = 12)
 
     p1.doTasks(
-        "UseAction<ClaimMilestoneAction, Action1>",
+        "ClaimMilestone<Class<Builder8>>",
         "-8 MC",
         "Builder8",
-        "Ok", // builder check
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DevelopmentCenter, Action1>",
+        "UseCardAction<$DevelopmentCenter, Action1>",
         "-Energy",
         "ProjectCard",
     )
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$EarthCatapult>>",
+        "PlayProject<Class<$EarthCatapult>>",
         "-23 MC",
         "$EarthCatapult FROM ProjectCard",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$InventionContest>>",
+        "PlayProject<Class<$InventionContest>>",
         "$InventionContest FROM ProjectCard",
         "3 ProjectCard<Selecting>",
         "ProjectCard<Hand FROM Selecting>",
@@ -979,14 +897,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$InventorsGuild, Action1>",
+        "UseCardAction<$InventorsGuild, Action1>",
         "ProjectCard<Selecting>",
         "-1 ProjectCard<Selecting>",
     )
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$QuantumExtractor>>",
+        "PlayProject<Class<$QuantumExtractor>>",
         "-13 MC",
         "$QuantumExtractor FROM ProjectCard",
         "Science",
@@ -995,29 +911,25 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$BioPrintingFacility>>",
+        "PlayProject<Class<$BioPrintingFacility>>",
         "-2 Steel",
         "-1 MC",
         "$BioPrintingFacility FROM ProjectCard",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$BioPrintingFacility, Action1>",
+        "UseCardAction<$BioPrintingFacility, Action1>",
         "-2 Energy",
         "2 Plant",
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DeuteriumExport, Action2>",
+        "UseCardAction<$DeuteriumExport, Action2>",
         "-Floater<$DeuteriumExport>",
         "PROD[Energy]",
         "Energy",
     )
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$ProjectInspection>>",
+        "PlayProject<Class<$ProjectInspection>>",
         "$ProjectInspection FROM ProjectCard",
         "UseAction<$DevelopmentCenter, Action1>",
         "-1 Energy",
@@ -1025,14 +937,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$Factorum, Action1>",
+        "UseCardAction<$Factorum, Action1>",
         "PROD[Energy]",
     )
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$PowerSupplyConsortium>>",
+        "PlayProject<Class<$PowerSupplyConsortium>>",
         "-3 MC",
         "$PowerSupplyConsortium FROM ProjectCard",
         "PROD[-Energy<Player1>]",
@@ -1040,39 +950,34 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$FloatingHabs>>",
+        "PlayProject<Class<$FloatingHabs>>",
         "-5 MC",
         "$FloatingHabs FROM ProjectCard",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$FloatingHabs, Action1>",
+        "UseCardAction<$FloatingHabs, Action1>",
         "-2 MC",
         "Floater<$DeuteriumExport>",
     )
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$TitaniumMine>>",
+        "PlayProject<Class<$TitaniumMine>>",
         "-5 MC",
         "Ok", // no steel paid
         "$TitaniumMine FROM ProjectCard",
         "PROD[Titanium]",
     )
-
     p2.doTasks("Ok") // end turn
 
     p1.doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
+        "ConvertHeat",
         "-8 Heat",
         "TemperatureStep",
         "TerraformRating",
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$StratosphericBirds>>",
+        "PlayProject<Class<$StratosphericBirds>>",
         "-12 MC",
         "$StratosphericBirds FROM ProjectCard",
         "-Floater",
@@ -1081,8 +986,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("Pass")
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$StratosphericBirds, Action1>",
+        "UseCardAction<$StratosphericBirds, Action1>",
         "Animal<$StratosphericBirds>",
     )
 
@@ -1122,8 +1026,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     assertSidebar(gen = 8, temp = -12, oxygen = 1, oceans = 3, venus = 12)
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$AdvancedAlloys>>",
+        "PlayProject<Class<$AdvancedAlloys>>",
         "-7 MC",
         "$AdvancedAlloys FROM ProjectCard",
         "-ProjectCard",
@@ -1131,8 +1034,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$AiCentral>>",
+        "PlayProject<Class<$AiCentral>>",
         "-2 Steel",
         "-13 MC",
         "$AiCentral FROM ProjectCard",
@@ -1142,16 +1044,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$ExtractorBalloons>>",
+        "PlayProject<Class<$ExtractorBalloons>>",
         "-21 MC",
         "$ExtractorBalloons FROM ProjectCard",
         "3 Floater<$ExtractorBalloons>",
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DevelopmentCenter, Action1>",
+        "UseCardAction<$DevelopmentCenter, Action1>",
         "-Energy",
         "ProjectCard",
     )
@@ -1159,14 +1059,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.assertCounts(23 to "MC")
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$AiCentral, Action1>",
+        "UseCardAction<$AiCentral, Action1>",
         "2 ProjectCard",
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DirectedImpactors, Action1>",
+        "UseCardAction<$DirectedImpactors, Action1>",
         "-1 Titanium",
         "-2 MC",
         "Asteroid<$RotatorImpacts>",
@@ -1175,8 +1073,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     admin.assertCounts(6 to "VenusStep")
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$SulphurExports>>",
+        "PlayProject<Class<$SulphurExports>>",
         "-2 Titanium",
         "-13 MC",
         "$SulphurExports FROM ProjectCard",
@@ -1187,32 +1084,28 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$ExtractorBalloons, Action2>",
+        "UseCardAction<$ExtractorBalloons, Action2>",
         "-2 Floater<$ExtractorBalloons>",
         "VenusStep",
         "2 TerraformRating",
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$RotatorImpacts, Action2>",
+        "UseCardAction<$RotatorImpacts, Action2>",
         "-Asteroid<$RotatorImpacts>",
         "VenusStep",
         "TerraformRating",
     )
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$IshtarMining>>",
+        "PlayProject<Class<$IshtarMining>>",
         "-3 MC",
         "$IshtarMining FROM ProjectCard",
         "PROD[Titanium]",
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$MoholeLake>>",
+        "PlayProject<Class<$MoholeLake>>",
         "-12 Steel",
         "-7 MC",
         "$MoholeLake FROM ProjectCard",
@@ -1225,21 +1118,20 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("2 Plant")
 
     p1.doTasks(
-        "UseAction<ClaimMilestoneAction, Action1>",
+        "ClaimMilestone<Class<Terraformer35>>",
         "-8 MC",
         "Terraformer35",
-        "Ok", // terraformer check
     )
 
     p2.doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
+        "ConvertHeat",
         "-8 Heat",
         "TemperatureStep",
         "TerraformRating",
     )
+    p2.doTasks("ConvertPlants", "-8 Plant")
+    p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p2.doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "-8 Plant",
         "GreeneryTile<Tharsis_8_6>",
         "OxygenStep",
         "TerraformRating",
@@ -1247,22 +1139,19 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$InventorsGuild, Action1>",
+        "UseCardAction<$InventorsGuild, Action1>",
         "ProjectCard<Selecting>",
         "Ok", // keep card
         "-3 MC",
         "ProjectCard FROM BuyCard",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DeuteriumExport, Action1>",
+        "UseCardAction<$DeuteriumExport, Action1>",
         "Floater<$DeuteriumExport>",
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$BioPrintingFacility, Action1>",
+        "UseCardAction<$BioPrintingFacility, Action1>",
         "-2 Energy",
         "2 Plant",
     )
@@ -1270,14 +1159,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("Ok") // end turn
 
     p1.doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
+        "ConvertHeat",
         "-8 Heat",
         "TemperatureStep",
         "TerraformRating",
     )
+    p1.doTasks("ConvertPlants", "-8 Plant")
+    p1.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p1.doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "-8 Plant",
         "GreeneryTile<Tharsis_3_5>",
         "OxygenStep",
         "TerraformRating",
@@ -1286,14 +1175,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("Pass")
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$StratosphericBirds, Action1>",
+        "UseCardAction<$StratosphericBirds, Action1>",
         "Animal<$StratosphericBirds>",
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$MoholeLake, Action1>",
+        "UseCardAction<$MoholeLake, Action1>",
         "Animal<$StratosphericBirds>",
     )
     p1.doTasks("Pass")
@@ -1321,14 +1208,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
     assertSidebar(gen = 9, temp = -6, oxygen = 3, oceans = 4, venus = 18)
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DevelopmentCenter, Action1>",
+        "UseCardAction<$DevelopmentCenter, Action1>",
         "-Energy",
         "ProjectCard",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$InventorsGuild, Action1>",
+        "UseCardAction<$InventorsGuild, Action1>",
         "ProjectCard<Selecting>",
         "Ok", // keep card
         "-3 MC",
@@ -1336,8 +1221,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$DeimosDownPromo>>",
+        "PlayProject<Class<$DeimosDownPromo>>",
         "-5 Titanium",
         "-9 MC",
         "$DeimosDownPromo FROM ProjectCard",
@@ -1351,27 +1235,25 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "6 MC",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$AiCentral, Action1>",
+        "UseCardAction<$AiCentral, Action1>",
         "2 ProjectCard",
     )
 
     p1.doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
+        "ConvertHeat",
         "-8 Heat",
         "TemperatureStep",
         "TerraformRating",
     )
     p1.doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
+        "ConvertHeat",
         "-8 Heat",
         "TemperatureStep",
         "TerraformRating",
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$AquiferPumping, Action1>",
+        "UseCardAction<$AquiferPumping, Action1>",
         "-3 Steel",
         "Ok", // no mc paid
         "OceanTile<Tharsis_5_6>",
@@ -1379,24 +1261,22 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "TerraformRating",
         "4 Plant",
     )
+    p2.doTasks("ConvertPlants", "-8 Plant")
+    p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p2.doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "-8 Plant",
         "GreeneryTile<Tharsis_9_7>",
         "OxygenStep",
         "TerraformRating",
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$RegoPlastics>>",
+        "PlayProject<Class<$RegoPlastics>>",
         "-10 MC",
         "Ok", // no steel paid
         "$RegoPlastics FROM ProjectCard",
     )
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$SfMemorial>>",
+        "PlayProject<Class<$SfMemorial>>",
         "-2 Steel",
         "-1 MC",
         "$SfMemorial FROM ProjectCard",
@@ -1404,36 +1284,31 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<ClaimMilestoneAction, Action1>",
+        "ClaimMilestone<Class<Gardener>>",
         "-8 MC",
         "Gardener",
-        "Ok", // gardener check
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DirectedImpactors, Action1>",
+        "UseCardAction<$DirectedImpactors, Action1>",
         "-6 MC",
         "Ok", // no titanium paid
         "Asteroid<$RotatorImpacts>",
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$FloatingHabs, Action1>",
+        "UseCardAction<$FloatingHabs, Action1>",
         "-2 MC",
         "Floater<$ExtractorBalloons>",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$ExtractorBalloons, Action2>",
+        "UseCardAction<$ExtractorBalloons, Action2>",
         "-2 Floater<$ExtractorBalloons>",
         "VenusStep",
         "TerraformRating",
     )
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$EcologicalZone>>",
+        "PlayProject<Class<$EcologicalZone>>",
         "-10 MC",
         "$EcologicalZone FROM ProjectCard",
         "EcologicalZone_SpecialTile<Tharsis_4_5>",
@@ -1443,8 +1318,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$Harvest>>",
+        "PlayProject<Class<$Harvest>>",
         "-2 MC",
         "$Harvest FROM ProjectCard",
         "Animal<$EcologicalZone>",
@@ -1452,8 +1326,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$NoctisFarming>>",
+        "PlayProject<Class<$NoctisFarming>>",
         "-3 Steel",
         "-1 MC",
         "$NoctisFarming FROM ProjectCard",
@@ -1463,49 +1336,42 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DeuteriumExport, Action2>",
+        "UseCardAction<$DeuteriumExport, Action2>",
         "-Floater<$DeuteriumExport>",
         "PROD[Energy]",
         "Energy",
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$BioPrintingFacility, Action1>",
+        "UseCardAction<$BioPrintingFacility, Action1>",
         "-2 Energy",
         "Animal<$EcologicalZone>",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$RotatorImpacts, Action2>",
+        "UseCardAction<$RotatorImpacts, Action2>",
         "-Asteroid<$RotatorImpacts>",
         "VenusStep",
         "TerraformRating",
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$MoholeLake, Action1>",
+        "UseCardAction<$MoholeLake, Action1>",
         "Animal<$StratosphericBirds>",
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$StratosphericBirds, Action1>",
+        "UseCardAction<$StratosphericBirds, Action1>",
         "Animal<$StratosphericBirds>",
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$Factorum, Action2>",
+        "UseCardAction<$Factorum, Action2>",
         "-3 MC",
         "SearchForCard<TagFilter<Class<BuildingTag>>>",
     )
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$NaturalPreserve>>",
+        "PlayProject<Class<$NaturalPreserve>>",
         "-2 Steel",
         "-1 MC",
         "$NaturalPreserve FROM ProjectCard",
@@ -1516,13 +1382,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<UseStandardProjectAction, Action1>",
-        "UseAction<SellPatentsProject, Action1>",
+        "UseStandardProject<SellPatentsProject>",
         "3 MC FROM ProjectCard",
     )
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$WaterToVenus>>",
+        "PlayProject<Class<$WaterToVenus>>",
         "-1 Titanium",
         "-4 MC",
         "$WaterToVenus FROM ProjectCard",
@@ -1533,13 +1397,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<UseStandardProjectAction, Action1>",
-        "UseAction<SellPatentsProject, Action1>",
+        "UseStandardProject<SellPatentsProject>",
         "2 MC FROM ProjectCard",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$KelpFarming>>",
+        "PlayProject<Class<$KelpFarming>>",
         "-15 MC",
         "$KelpFarming FROM ProjectCard",
         "Animal<$EcologicalZone>",
@@ -1549,18 +1411,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$Trees>>",
+        "PlayProject<Class<$Trees>>",
         "-13 MC",
         "$Trees FROM ProjectCard",
         "PROD[3 Plant]",
         "4 Plant",
     )
-    p1.doTasks("UseAction<FundAwardAction, Action1>", "-8 MC", "Banker")
+    p1.doTasks("FundAward<Class<Banker>>", "-8 MC", "Banker")
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$SearchForLife, Action1>",
+        "UseCardAction<$SearchForLife, Action1>",
         "-MC",
         "ProjectCard<Revealed>",
         "Ok", // no reward
@@ -1570,20 +1430,18 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("Ok") // end turn
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$VenusianInsects>>",
+        "PlayProject<Class<$VenusianInsects>>",
         "-5 MC",
         "$VenusianInsects FROM ProjectCard",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$VenusianInsects, Action1>",
+        "UseCardAction<$VenusianInsects, Action1>",
         "Microbe<$VenusianInsects>",
     )
 
     p2.doTasks("Pass")
 
-    p1.doTasks("UseAction<FundAwardAction, Action2>", "-14 MC", "Venuphile")
+    p1.doTasks("FundAward<Class<Venuphile>>", "-14 MC", "Venuphile")
     p1.doTasks("Pass")
 
     // Generation 10
@@ -1609,36 +1467,34 @@ internal class Game20230521Test : AbstractFullGameTest() {
     assertSidebar(gen = 10, temp = 4, oxygen = 4, oceans = 6, venus = 24)
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$HiredRaiders>>",
+        "PlayProject<Class<$HiredRaiders>>",
         "$HiredRaiders FROM ProjectCard",
         "2 Steel FROM Steel<Player1>",
     )
     p2.doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
+        "ConvertHeat",
         "-8 Heat",
         "TemperatureStep",
         "TerraformRating",
     )
 
     p1.doTasks(
-        "UseAction<ConvertHeatAction, Action1>",
+        "ConvertHeat",
         "-8 Heat",
         "TemperatureStep",
         "TerraformRating",
     )
     p1.doTasks(
-        "UseAction<UseStandardProjectAction, Action1>",
-        "UseAction<CityProject, Action1>",
+        "UseStandardProject<CityProject>",
         "-25 MC",
         "CityTile<Tharsis_7_6>",
         "PROD[MC]",
         "MC",
     )
 
+    p2.doTasks("ConvertPlants", "-8 Plant")
+    p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p2.doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "-8 Plant",
         "GreeneryTile<Tharsis_9_6>",
         "2 Steel",
         "OxygenStep",
@@ -1646,38 +1502,32 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$AiCentral, Action1>",
+        "UseCardAction<$AiCentral, Action1>",
         "2 ProjectCard",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DevelopmentCenter, Action1>",
+        "UseCardAction<$DevelopmentCenter, Action1>",
         "-Energy",
         "ProjectCard",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$InventorsGuild, Action1>",
+        "UseCardAction<$InventorsGuild, Action1>",
         "ProjectCard<Selecting>",
         "-1 ProjectCard<Selecting>",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$MercurianAlloys>>",
+        "PlayProject<Class<$MercurianAlloys>>",
         "-1 MC",
         "Ok", // no titanium paid
         "$MercurianAlloys FROM ProjectCard",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$AerialMappers>>",
+        "PlayProject<Class<$AerialMappers>>",
         "-9 MC",
         "$AerialMappers FROM ProjectCard",
     )
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$LavaTubeSettlement>>",
+        "PlayProject<Class<$LavaTubeSettlement>>",
         "-3 Steel",
         "-6 MC",
         "$LavaTubeSettlement FROM ProjectCard",
@@ -1689,8 +1539,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$UrbanizedArea>>",
+        "PlayProject<Class<$UrbanizedArea>>",
         "-1 Steel",
         "-7 MC",
         "$UrbanizedArea FROM ProjectCard",
@@ -1700,8 +1549,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "2 MC",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$Atmoscoop>>",
+        "PlayProject<Class<$Atmoscoop>>",
         "-3 Titanium",
         "-5 MC",
         "$Atmoscoop FROM ProjectCard",
@@ -1711,14 +1559,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$AerialMappers, Action2>",
+        "UseCardAction<$AerialMappers, Action2>",
         "-Floater<$AerialMappers>",
         "ProjectCard",
     )
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$NitrogenRichAsteroid>>",
+        "PlayProject<Class<$NitrogenRichAsteroid>>",
         "-1 Titanium",
         "-26 MC",
         "$NitrogenRichAsteroid FROM ProjectCard",
@@ -1730,47 +1576,41 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "4 Plant",
     )
 
+    p1.doTasks("ConvertPlants", "-8 Plant")
+    p1.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p1.doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "-8 Plant",
         "GreeneryTile<Tharsis_3_3>",
         "OxygenStep",
         "TerraformRating",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$BioPrintingFacility, Action1>",
+        "UseCardAction<$BioPrintingFacility, Action1>",
         "-2 Energy",
         "Animal<$EcologicalZone>",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DirectedImpactors, Action1>",
+        "UseCardAction<$DirectedImpactors, Action1>",
         "-6 MC",
         "Ok", // no titanium paid
         "Asteroid<$RotatorImpacts>",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$VenusianInsects, Action1>",
+        "UseCardAction<$VenusianInsects, Action1>",
         "Microbe<$VenusianInsects>",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$StratosphericBirds, Action1>",
+        "UseCardAction<$StratosphericBirds, Action1>",
         "Animal<$StratosphericBirds>",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$RotatorImpacts, Action2>",
+        "UseCardAction<$RotatorImpacts, Action2>",
         "-Asteroid<$RotatorImpacts>",
         "VenusStep",
         "TerraformRating",
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$AquiferPumping, Action1>",
+        "UseCardAction<$AquiferPumping, Action1>",
         "-2 Steel",
         "-2 MC",
         "OceanTile<Tharsis_9_9>",
@@ -1779,43 +1619,36 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "2 Plant",
     )
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$PowerInfrastructure>>",
+        "PlayProject<Class<$PowerInfrastructure>>",
         "-4 MC",
         "Ok", // no steel paid
         "$PowerInfrastructure FROM ProjectCard",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$PowerInfrastructure, Action1>",
+        "UseCardAction<$PowerInfrastructure, Action1>",
         "8 Owed<Class<Energy>>",
         "-8 Energy",
         "8 MC",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$Factorum, Action2>",
+        "UseCardAction<$Factorum, Action2>",
         "-3 MC",
         "SearchForCard<TagFilter<Class<BuildingTag>>>",
     )
     p2.doTasks(
-        "UseAction<UseStandardProjectAction, Action1>",
-        "UseAction<SellPatentsProject, Action1>",
+        "UseStandardProject<SellPatentsProject>",
         "2 MC FROM ProjectCard",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DeuteriumExport, Action1>",
+        "UseCardAction<$DeuteriumExport, Action1>",
         "Floater<$DeuteriumExport>",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$ExtractorBalloons, Action1>",
+        "UseCardAction<$ExtractorBalloons, Action1>",
         "Floater<$ExtractorBalloons>",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$Bushes>>",
+        "PlayProject<Class<$Bushes>>",
         "-8 MC",
         "$Bushes FROM ProjectCard",
         "Animal<$EcologicalZone>",
@@ -1823,27 +1656,23 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "PROD[2 Plant]",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$EnergyTapping>>",
+        "PlayProject<Class<$EnergyTapping>>",
         "-1 MC",
         "$EnergyTapping FROM ProjectCard",
         "PROD[-Energy<Player1>]",
         "PROD[Energy]",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$FloatingHabs, Action1>",
+        "UseCardAction<$FloatingHabs, Action1>",
         "-2 MC",
         "Floater<$FloatingHabs>",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$MoholeLake, Action1>",
+        "UseCardAction<$MoholeLake, Action1>",
         "Animal<$StratosphericBirds>",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$NuclearPower>>",
+        "PlayProject<Class<$NuclearPower>>",
         "-3 Steel",
         "Ok", // no mc paid
         "$NuclearPower FROM ProjectCard",
@@ -1851,8 +1680,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "PROD[3 Energy]",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$BiomassCombustors>>",
+        "PlayProject<Class<$BiomassCombustors>>",
         "-1 Steel",
         "Ok", // no mc paid
         "$BiomassCombustors FROM ProjectCard",
@@ -1861,8 +1689,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
     p1.doTasks("Pass")
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$SearchForLife, Action1>",
+        "UseCardAction<$SearchForLife, Action1>",
         "-MC",
         "ProjectCard<Revealed>",
         "Ok", // no reward
@@ -1877,8 +1704,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
     p2.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard FROM BuyCard")
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$ImportedNitrogen>>",
+        "PlayProject<Class<$ImportedNitrogen>>",
         "-1 Titanium",
         "-15 MC",
         "$ImportedNitrogen FROM ProjectCard",
@@ -1890,45 +1716,39 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "3 Heat",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DevelopmentCenter, Action1>",
+        "UseCardAction<$DevelopmentCenter, Action1>",
         "-Energy",
         "ProjectCard",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$AiCentral, Action1>",
+        "UseCardAction<$AiCentral, Action1>",
         "2 ProjectCard",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$Factorum, Action2>",
+        "UseCardAction<$Factorum, Action2>",
         "-3 MC",
         "SearchForCard<TagFilter<Class<BuildingTag>>>",
     )
+    p1.doTasks("ConvertPlants", "-8 Plant")
+    p1.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p1.doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "-8 Plant",
         "GreeneryTile<Tharsis_2_4>",
         "2 MC",
         "OxygenStep",
         "TerraformRating",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$InventorsGuild, Action1>",
+        "UseCardAction<$InventorsGuild, Action1>",
         "ProjectCard<Selecting>",
         "-1 ProjectCard<Selecting>",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$MediaGroup>>",
+        "PlayProject<Class<$MediaGroup>>",
         "-4 MC",
         "$MediaGroup FROM ProjectCard",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$MiningExpedition>>",
+        "PlayProject<Class<$MiningExpedition>>",
         "-10 MC",
         "$MiningExpedition FROM ProjectCard",
         "-2 Plant<Player1>",
@@ -1939,26 +1759,22 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "Ok", // temperature maxed
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$PowerInfrastructure, Action1>",
+        "UseCardAction<$PowerInfrastructure, Action1>",
         "5 Owed<Class<Energy>>",
         "-5 Energy",
         "5 MC",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$ExtractorBalloons, Action1>",
+        "UseCardAction<$ExtractorBalloons, Action1>",
         "Floater<$ExtractorBalloons>",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$BioPrintingFacility, Action1>",
+        "UseCardAction<$BioPrintingFacility, Action1>",
         "-2 Energy",
         "Animal<$EcologicalZone>",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$AquiferPumping, Action1>",
+        "UseCardAction<$AquiferPumping, Action1>",
         "-2 Steel",
         "-2 MC",
         "OceanTile<Tharsis_5_4>",
@@ -1967,53 +1783,48 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "4 Plant",
     )
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$BusinessNetwork>>",
+        "PlayProject<Class<$BusinessNetwork>>",
         "-1 MC",
         "$BusinessNetwork FROM ProjectCard",
         "PROD[-MC]",
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$BusinessNetwork, Action1>",
+        "UseCardAction<$BusinessNetwork, Action1>",
         "ProjectCard<Selecting>",
         "Ok", // keep card
         "-3 MC",
         "ProjectCard FROM BuyCard",
     )
     p2.doTasks(
-        "UseAction<UseStandardProjectAction, Action1>",
-        "UseAction<CityProject, Action1>",
+        "UseStandardProject<CityProject>",
         "-25 MC",
         "CityTile<Tharsis_8_5>",
         "PROD[MC]",
     )
+    p2.doTasks("ConvertPlants", "-8 Plant")
+    p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p2.doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "-8 Plant",
         "GreeneryTile<Tharsis_8_4>",
         "2 Steel",
         "OxygenStep",
         "TerraformRating",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$DeuteriumExport, Action2>",
+        "UseCardAction<$DeuteriumExport, Action2>",
         "-Floater<$DeuteriumExport>",
         "PROD[Energy]",
         "Energy",
     )
 
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$FloatingHabs, Action1>",
+        "UseCardAction<$FloatingHabs, Action1>",
         "-2 MC",
         "Floater<$FloatingHabs>",
     )
+    p2.doTasks("ConvertPlants", "-8 Plant")
+    p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p2.doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "-8 Plant",
         "GreeneryTile<Tharsis_9_5>",
         "Steel",
         "OxygenStep",
@@ -2021,24 +1832,20 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$AerialMappers, Action2>",
+        "UseCardAction<$AerialMappers, Action2>",
         "-Floater<$AerialMappers>",
         "ProjectCard",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$StratosphericBirds, Action1>",
+        "UseCardAction<$StratosphericBirds, Action1>",
         "Animal<$StratosphericBirds>",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$MoholeLake, Action1>",
+        "UseCardAction<$MoholeLake, Action1>",
         "Animal<$StratosphericBirds>",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$MagneticFieldGeneratorsPromo>>",
+        "PlayProject<Class<$MagneticFieldGeneratorsPromo>>",
         "-6 Steel",
         "-2 MC",
         "$MagneticFieldGeneratorsPromo FROM ProjectCard",
@@ -2051,8 +1858,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$TowingAComet>>",
+        "PlayProject<Class<$TowingAComet>>",
         "-4 Titanium",
         "-1 MC",
         "$TowingAComet FROM ProjectCard",
@@ -2063,20 +1869,17 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "5 MC",
     )
     p1.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$VenusianInsects, Action1>",
+        "UseCardAction<$VenusianInsects, Action1>",
         "Microbe<$VenusianInsects>",
     )
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$StandardTechnology>>",
+        "PlayProject<Class<$StandardTechnology>>",
         "-6 MC",
         "$StandardTechnology FROM ProjectCard",
         "ProjectCard FROM Science",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$AtalantaPlanitiaLab>>",
+        "PlayProject<Class<$AtalantaPlanitiaLab>>",
         "-8 MC",
         "$AtalantaPlanitiaLab FROM ProjectCard",
         "2 ProjectCard",
@@ -2084,14 +1887,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "ProjectCard",
     )
     p2.doTasks(
-        "UseAction<UseStandardProjectAction, Action1>",
-        "UseAction<SellPatentsProject, Action1>",
+        "UseStandardProject<SellPatentsProject>",
         "3 MC FROM ProjectCard",
     )
     admin.assertCounts(9 to "OceanTile")
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$LargeConvoy>>",
+        "PlayProject<Class<$LargeConvoy>>",
         "-31 MC",
         "Ok", // no titanium paid
         "$LargeConvoy FROM ProjectCard",
@@ -2103,38 +1904,34 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
 
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$WaterSplittingPlant>>",
+        "PlayProject<Class<$WaterSplittingPlant>>",
         "-4 Steel",
         "Ok", // no mc paid
         "$WaterSplittingPlant FROM ProjectCard",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$RobotPollinators>>",
+        "PlayProject<Class<$RobotPollinators>>",
         "-7 MC",
         "$RobotPollinators FROM ProjectCard",
         "PROD[Plant]",
         "4 Plant",
     )
 
+    p2.doTasks("ConvertPlants", "-8 Plant")
+    p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p2.doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "-8 Plant",
         "GreeneryTile<Tharsis_7_4>",
         "OxygenStep",
         "TerraformRating",
     )
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$MediaArchives>>",
+        "PlayProject<Class<$MediaArchives>>",
         "-5 MC",
         "$MediaArchives FROM ProjectCard",
         "16 MC",
     )
     p1.doTasks(
-        "UseAction<UseStandardProjectAction, Action1>",
-        "UseAction<GreeneryProject, Action1>",
+        "UseStandardProject<GreeneryProject>",
         "-23 MC",
         "GreeneryTile<Tharsis_5_7>",
         "9 MC",
@@ -2143,8 +1940,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "TerraformRating",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$Greenhouses>>",
+        "PlayProject<Class<$Greenhouses>>",
         "-4 MC",
         "Ok", // no steel paid
         "$Greenhouses FROM ProjectCard",
@@ -2152,56 +1948,50 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "6 Plant",
     )
 
+    p2.doTasks("ConvertPlants", "-8 Plant")
+    p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p2.doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "-8 Plant",
         "GreeneryTile<Tharsis_9_8>",
         "2 MC",
         "OxygenStep",
         "TerraformRating",
     )
-    p1.doTasks("UseAction<FundAwardAction, Action3>", "-20 MC", "Thermalist")
+    p1.doTasks("FundAward<Class<Thermalist>>", "-20 MC", "Thermalist")
+    p1.doTasks("ConvertPlants", "-8 Plant")
+    p1.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p1.doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "-8 Plant",
         "GreeneryTile<Tharsis_4_4>",
         "Plant",
         "4 MC",
         "Ok", // oxygen maxed
     )
     p2.doTasks(
-        "UseAction<UseStandardProjectAction, Action1>",
-        "UseAction<SellPatentsProject, Action1>",
+        "UseStandardProject<SellPatentsProject>",
         "3 MC FROM ProjectCard",
     )
     p2.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$Penguins>>",
+        "PlayProject<Class<$Penguins>>",
         "-5 MC",
         "$Penguins FROM ProjectCard",
         "Animal<$EcologicalZone>",
     )
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$AdvancedEcosystems>>",
+        "PlayProject<Class<$AdvancedEcosystems>>",
         "-11 MC",
         "$AdvancedEcosystems FROM ProjectCard",
     )
     p1.doTasks(
-        "UseAction<UseStandardProjectAction, Action1>",
-        "UseAction<SellPatentsProject, Action1>",
+        "UseStandardProject<SellPatentsProject>",
         "4 MC FROM ProjectCard",
     )
     p2.doTasks(
-        "UseAction<UseActionOnCardAction, Action1>",
-        "UseAction<$Penguins, Action1>",
+        "UseCardAction<$Penguins, Action1>",
         "Animal<$Penguins>",
     )
 
     p2.doTasks("Ok") // end turn
     p1.doTasks(
-        "UseAction<PlayCardFromHandAction, Action1>",
-        "PlayCard<Class<ProjectCard>, Class<$GeneRepair>>",
+        "PlayProject<Class<$GeneRepair>>",
         "-12 MC",
         "$GeneRepair FROM ProjectCard",
         "PROD[2 MC]",
@@ -2220,17 +2010,17 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.doTasks("7 Energy", "3 Heat", "Titanium", "7 Plant")
 
     // Final greenery placement
+    p1.doTasks("ConvertPlants", "-8 Plant")
+    p1.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p1.doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "-8 Plant",
         "GreeneryTile<Tharsis_6_5>",
         "Plant",
         "4 MC",
     )
     p1.doTasks("Ok") // no more greenery
+    p2.doTasks("ConvertPlants", "-8 Plant")
+    p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p2.doTasks(
-        "UseAction<ConvertPlantsAction, Action1>",
-        "-8 Plant",
         "GreeneryTile<Tharsis_8_8>",
         "2 MC",
     )

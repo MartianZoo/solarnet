@@ -198,8 +198,9 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
 - Change the active path and delete superseded machinery. Do not maintain parallel converters.
 - Payment values interpret resource losses by the owner while the matching `Accepting` or
   `AcceptingFromCard` is present. Keep actor, resource, holder, and currency restrictions intact;
-  an arbitrary loss is not a payment. `ActionBilling` supplies action identity, while `Billing`
-  supplies currency and `PayingFor` supplies the card or tag being paid for.
+  an arbitrary loss is not a payment. `Billing` supplies the represented payment subject, action
+  slot, and currency; `PayingFor` supplies the card or tag being paid for. Preserve the subject's
+  named Type-variable references when reading its property restrictions.
 - Two general paths that render equivalent Pets differently are a defect, even when both are
   general. Ordering is not a design.
 - The realization layer is game-neutral. The interpretation layer may name common game concepts
@@ -325,7 +326,8 @@ Event attribution uses `Actor`, independently of ownership.
 
 The once-per-action production reward recognizer accepts a fixed marker gain either as an
 automatic effect or as queued `System` work performed by Admin. Its unit limit, production trigger,
-and consume-on-reward structure still determine the rendered rule.
+and consume-on-reward structure still determine the rendered rule. Action resets come from the
+direct standard-action and required-action signals described in the vocabulary.
 
 The card goals cover the same corpus as the card current and corrected files. That corpus follows
 the published wording evidence, including replay-only cards and the abstract Beginner Corporation.

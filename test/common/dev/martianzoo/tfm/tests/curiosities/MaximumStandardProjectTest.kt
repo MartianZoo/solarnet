@@ -42,7 +42,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
     me.count("MC") shouldBe 32
 
     me.turn {
-      stdAction("DoRequiredActionsAction")
+      stdAction("RequiredActionsSignal")
       cardAction1(BoardOfDirectors) {
         doTask("-12 MC")
         playPrelude(DoubleDown) {
@@ -148,8 +148,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
     me.buyCards(4)
 
     me.turn {
-      stdAction("LobbyAction", 1) { doTask("PartyDelegate<Greens>") }
-      stdAction("LobbyAction", 2) { doTask("PartyDelegate<Greens>") }
+      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Greens>") }
+      stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Greens>") }
       playProject(ProtectedValley, 11, steel = 6) { placeTile(2, 1) }
       playProject(Plantation, 15) { placeTile(1, 4) }
       playProject(Algae, 10)

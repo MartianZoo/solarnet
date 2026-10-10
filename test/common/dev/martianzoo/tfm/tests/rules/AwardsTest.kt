@@ -3,7 +3,8 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
-import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
@@ -27,12 +28,11 @@ internal class AwardsTest : TfmTest() {
 
     val award = game.classTable.getClass(cn("Award"))
     game.classTable.allSubclasses(award).filterNot { it.abstract }.shouldBeEmpty()
-    game.classTable.isInhabited(cn("ClaimMilestoneAction")) shouldBe false
-    game.classTable.isInhabited(cn("FundAwardAction")) shouldBe false
-    (cn("ClaimMilestoneAction") in game.classTable.allClassNames) shouldBe false
-    (cn("FundAwardAction") in game.classTable.allClassNames) shouldBe false
+    game.classTable.isInhabited(cn("ClaimMilestone")) shouldBe false
+    game.classTable.isInhabited(cn("FundAward")) shouldBe false
+    (cn("ClaimMilestone") in game.classTable.allClassNames) shouldBe false
+    (cn("FundAward") in game.classTable.allClassNames) shouldBe false
     admin.assertCounts(
-        1 to "PlayCardFromHandAction",
         1 to "AquiferProject",
     )
   }
@@ -97,41 +97,36 @@ internal class AwardsTest : TfmTest() {
     p1.sneak("100 MC")
 
     val first =
-        p1.runOperation("UseAction<FundAwardAction, Action1>") {
+        p1.runOperation("FundAward<Class<Landlord>>") {
           doTask("-MC / Owed")
-          doTask("Landlord")
         }
     first.expect("-8 MC")
     p1.assertCounts(92 to "MC", 1 to "Landlord")
 
-    shouldThrow<RequirementException> {
-      p1.runOperation("UseAction<FundAwardAction, Action1>") {
+    shouldThrow<LimitsException> {
+      p1.runOperation("FundAward<Class<Landlord>>") {
         doTask("-MC / Owed")
-        doTask("Landlord")
       }
     }
     p1.assertCounts(92 to "MC", 1 to "Landlord")
 
     val second =
-        p1.runOperation("UseAction<FundAwardAction, Action2>") {
+        p1.runOperation("FundAward<Class<Scientist>>") {
           doTask("-MC / Owed")
-          doTask("Scientist")
         }
     second.expect("-14 MC")
     p1.assertCounts(78 to "MC", 1 to "Scientist")
 
     val third =
-        p1.runOperation("UseAction<FundAwardAction, Action3>") {
+        p1.runOperation("FundAward<Class<Thermalist>>") {
           doTask("-MC / Owed")
-          doTask("Thermalist")
         }
     third.expect("-20 MC")
     p1.assertCounts(58 to "MC", 1 to "Thermalist", 3 to "Award")
 
-    shouldThrow<RequirementException> {
-      p1.runOperation("UseAction<FundAwardAction, Action3>") {
+    shouldThrow<DeadEndException> {
+      p1.runOperation("FundAward<Class<Miner>>") {
         doTask("-MC / Owed")
-        doTask("Miner")
       }
     }
     p1.assertCounts(58 to "MC", 3 to "Award", 0 to "Miner")

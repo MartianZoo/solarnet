@@ -2,11 +2,12 @@
 
 > **Agent information:** This is an agent-maintained note for agents.
 >
-> **Read when:** changing context specialization, event Actor attribution, task assignment, `BY`,
-> Admin, delegated narrowing, Philares, or lexical ownership.
+> **Read when:** changing on-turn identity, context specialization, event Actor attribution, task
+> assignment, `BY`, Admin, delegated narrowing, Philares, or lexical ownership.
 >
-> **Status:** current semantics. A handoff lasts for the selected task, not its later payment or
-> other queued consequences.
+> **Status:** current semantics plus the proposed on-turn fact and intended routing in their own
+> section. Currently a handoff lasts for the selected task, not its later payment or other queued
+> consequences.
 
 ## Source map
 
@@ -38,6 +39,35 @@ Keep these roles independent:
 A Task stores `controller`, `selectionAssignee`, and `assignee`. It has no separate narrower or
 performer field. The current assignee supplies remaining choices and performs the concrete
 instruction.
+
+## Who is on-turn, and who decides
+
+**Proposed representation and intended routing, not implemented.** The
+[turn lifecycle](SEQUENCING.md#turns-and-turn-offers) defines when a player is on-turn.
+The owner is open to recording the current player directly in the component graph with:
+
+```pets
+CLASS OnTurn<Player> : System, Hidden { HAS MAX 1 OnTurn }
+```
+
+This is a proposed game fact, not an implemented declaration. The maximum applies across players.
+It exists during an accepted turn, remains through that turn's resolution, and is absent when no
+turn is in progress, including while an ordinary turn offer is awaiting acceptance. An offer's
+recipient must therefore be identifiable without `OnTurn`. Avoid maintaining a second independent
+source of truth for the current player. Whether this fact also serves as the Pets lifetime anchor
+for turn-scoped components remains to be designed.
+
+During a turn, generated non-System/non-Admin tasks go first to the on-turn player for ordering.
+Selecting work can hand the actual decision to another player. This does not change who is
+on-turn, the effect's lexical owner, or the Actor who executes the resulting change. System/Admin
+work still retains the context needed to route its downstream player choices correctly.
+
+Initial-research discards and Supercapacitors' production choice need no turn of their own. Icy
+Impactors, Philares, Neptunian Power Consultants, St. Joseph of Cupertino Mission, and the colony
+responses likewise do not grant their recipients turns: they resolve within the existing turn,
+or outside all turns when none is active. Pristar's production effect illustrates that doing work
+for a player does not even require a decision, much less an on-turn player. Outside turns, retain
+the appropriate recipients rather than inventing an on-turn player.
 
 ## Admin and engine
 

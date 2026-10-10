@@ -51,7 +51,7 @@ CLASS FakeHelion : CardFront<Class<CorporationCard>> {
   This:: BaseResourceValue<Class<Heat>>
   This: 42 MC, PROD[3 Heat]
 
-  Billing<Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
+  Billing<Class<Component>, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
 }
 
 "A replay-only stand-in for an unsupported upstream corporation"
@@ -79,7 +79,9 @@ CLASS FakeHeadStart : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: Audit
-  This: 2 Steel, 2 MC / ProjectCard, UseAction<StandardAction>!, UseAction<StandardAction>!
+  This: 2 Steel, 2 MC / ProjectCard, \
+    (MAX 0 RequiredAction: StandardAction) OR (RequiredAction: RequiredActionsSignal), \
+    (MAX 0 RequiredAction: StandardAction) OR (RequiredAction: RequiredActionsSignal)
 }
 
 "One robot unit stored with a card that reduces its play cost by 1 MC"

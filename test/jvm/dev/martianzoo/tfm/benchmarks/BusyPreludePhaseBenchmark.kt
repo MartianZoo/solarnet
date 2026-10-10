@@ -74,11 +74,9 @@ public open class BusyPreludePhaseBenchmark {
 
     workflow.preludePhase()
     me.playPrelude(fakeHeadStart) {
-      doTask("UseAction<PlayCardFromHandAction, Action1>")
-      doTask("PlayCard<Class<ProjectCard>, Class<EarthOffice>, Hand>")
+      doTask("PlayProject<Class<EarthOffice>>")
       me.pay(0)
-      doTask("UseAction<PlayCardFromHandAction, Action1>")
-      doTask("PlayCard<Class<ProjectCard>, Class<HeavyTaxation>, Hand>")
+      doTask("PlayProject<Class<HeavyTaxation>>")
       me.pay(0)
     }
     me.playPrelude(cn("NewPartner")) {
@@ -90,14 +88,12 @@ public open class BusyPreludePhaseBenchmark {
     workflow.actionPhase()
     // Jacob Fryxelius's ruling makes Valley Trust's required action the first action-phase action.
     // https://boardgamegeek.com/thread/3055761/article/41996773#41996773
-    me.stdAction("DoRequiredActionsAction") {
+    me.stdAction("RequiredActionsSignal") {
       me.playPrelude(cn("DoubleDown")) {
         doTask("CopyPrelude<$fakeHeadStart>")
-        doTask("UseAction<PlayCardFromHandAction, Action1>")
-        doTask("PlayCard<Class<ProjectCard>, Class<LunaGovernor>, Hand>")
+        doTask("PlayProject<Class<LunaGovernor>>")
         me.pay(0)
-        doTask("UseAction<PlayCardFromHandAction, Action1>")
-        doTask("PlayCard<Class<ProjectCard>, Class<ProductiveOutpost>, Hand>")
+        doTask("PlayProject<Class<ProductiveOutpost>>")
         me.pay(0)
       }
     }

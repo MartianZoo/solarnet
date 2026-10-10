@@ -38,7 +38,7 @@
           "immediate": "48 MC",
           "actions": [ "-> Floater" ],
           "effects": [
-            "Billing<Class<Heat>>:: AcceptingFromCard<This>",
+            "Billing<Class<Component>, Class<Heat>>:: AcceptingFromCard<This>",
             "-Floater<This> BY Me@ IF AcceptingFromCard<This>:: -2 Owed<Class<Heat>>",
             // Local Heat Trapping is the sole heat payment that does not use Billing. Converting the
             // selected floaters during its resolution has the same net resource result.
@@ -97,7 +97,7 @@
           "name": "CryoSleep",
           "cost": 10,
           "tags": [ "ScienceTag" ],
-          "effects": [ "ActionBilling<TradeAction>:: -1 Owed<Class<StandardResource>>", "End: VictoryPoint" ],
+          "effects": [ "Billing<Class<TradeAction>>:: -1 Owed<Class<StandardResource>>", "End: VictoryPoint" ],
         },
         {
           "name": "EarthElevator",
@@ -296,7 +296,7 @@
           "name": "RimFreighters",
           "cost": 4,
           "tags": [ "SpaceTag" ],
-          "effects": [ "ActionBilling<TradeAction>:: -1 Owed<Class<StandardResource>>" ],
+          "effects": [ "Billing<Class<TradeAction>>:: -1 Owed<Class<StandardResource>>" ],
         },
         {
           "name": "SkyDocks",

@@ -151,6 +151,24 @@ internal class CardClassTest {
     validateCardClassification(valid)
   }
 
+  @Test
+  internal fun cardboundCubesDoNotMakeAResourceCard() {
+    val source =
+        catalogWith(
+            """
+        CLASS DecoyAnimal : Cardbound
+        CLASS DecoyBirds : ActionCard, ActiveCard {
+          cost = 10
+          HAS =1 AnimalTag<This>
+          End: VictoryPoint / DecoyAnimal<This>
+          -> DecoyAnimal<This>
+        }
+        """
+        )
+
+    cardResourceType(source.card(cn("DecoyBirds"))) shouldBe null
+  }
+
   private fun catalogWith(source: String): TfmCatalog {
     val additions =
         object : TfmCatalog() {

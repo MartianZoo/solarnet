@@ -14,8 +14,8 @@
           "tags": [ "PowerTag", "PlantTag", "BuildingTag" ],
           "immediate": "30 MC, PROD[Energy, Plant, Steel]",
           "effects": [
-            "ActionBilling<ClaimMilestoneAction>:: -Owed / Owed",
-            "ActionBilling<FundAwardAction>:: -Owed / Owed",
+            "Billing<Class<Milestone>>:: -Owed / Owed",
+            "Billing<Class<Award>>:: -Owed / Owed",
           ],
         },
         {
@@ -158,7 +158,7 @@
           "tags": [ "BuildingTag" ],
           "immediate": "5 Steel",
           "effects": [
-            "UseAction<StandardAction>: SuitableInfrastructureBonus<This>.",
+            "StandardAction OR RequiredActionsSignal: SuitableInfrastructureBonus<This>.",
             "NewTurn IF PreludePhase: SuitableInfrastructureBonus<This>.",
           ],
           "components": [

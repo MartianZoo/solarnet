@@ -11,8 +11,8 @@ import dev.martianzoo.pets.util.suf
 /**
  * A rule a player may invoke, like `Plant -> 7 MC`, as defined by
  * [section 7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-actions).
- * In practice these are used by the Pets classes `StandardAction`, `StandardProject`, `ActionCard`,
- * and `RequiredAction`.
+ * In practice these are used by the Pets classes `StandardProject`, `ActionCard`, and
+ * `RequiredAction`.
  *
  * An action is an optional cost, an arrow, and an instruction ([rule
  * L7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-actions)). It

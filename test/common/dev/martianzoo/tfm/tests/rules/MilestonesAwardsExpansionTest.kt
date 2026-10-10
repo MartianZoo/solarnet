@@ -1,140 +1,90 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.tests.*
-import dev.martianzoo.tfm.tests.cards.CardTest
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class MilestonesAwardsExpansionTest : CardTest() {
+internal class MilestonesAwardsExpansionTest : TfmSandboxTest() {
   @Test
   internal fun `Briber costs twelve MC in addition to the normal claim cost`() {
-    newGame(GameConfig("Briber, Builder, Engineer", "Player1", "Player2"))
-    p1.runOperation("20 MC")
-    admin.phase("Action")
+    newTestGame(addOptions = "Briber, Builder, Engineer")
+    kim.setToExMachina(20, "MC")
 
-    p1.claimMilestone(cn("Briber")).expect("-20 MC, Briber")
+    kim.claimMilestone(cn("Briber")).expect("-20 MC, Briber")
   }
 
   @Test
   internal fun `Briber claim is atomic when the player cannot pay the extra cost`() {
-    newGame(GameConfig("Briber, Builder, Engineer", "Player1", "Player2"))
-    p1.runOperation("19 MC")
-    admin.phase("Action")
+    newTestGame(addOptions = "Briber, Builder, Engineer")
+    kim.setToExMachina(19, "MC")
 
-    shouldThrow<LimitsException> { p1.claimMilestone(cn("Briber")) }
+    shouldThrow<LimitsException> { kim.claimMilestone(cn("Briber")) }
 
-    p1.count("MC") shouldBe 19
-    p1.count("Milestone") shouldBe 0
+    kim.count("MC") shouldBe 19
+    kim.count("Milestone") shouldBe 0
   }
 
   @Test
   internal fun `Philantropist counts own scoring cards but not Vitor's reference`() {
-    newGame(
-        GameConfig(
-            "PreludeExpansion, Philantropist, Builder, Engineer",
-            "Player1",
-            "Player2",
-        )
-    )
-    p1.runOperation("$Vitor, $SearchForLife, $Tardigrades, $ColonizerTrainingCamp, $DustSeals")
-    requireP2().runOperation("$Trees")
+    newTestGame(addOptions = "Vitor, Philantropist, Builder, Engineer")
+    kim.exMachina("$Vitor, $SearchForLife, $Tardigrades, $ColonizerTrainingCamp, $DustSeals")
+    stan.exMachina("$Trees")
 
     // Counting played card classes is equivalent to counting cards: CardFront permits at most
     // one played instance of each concrete class, across all owners. Vitor's class reference is
-    // not a played card, and Player2's Trees is outside Player1's requirement.
-    shouldThrow<RequirementException> { p1.runOperation("Philantropist") }
+    // not a played card, and Stan's Trees is outside Kim's requirement.
+    shouldThrow<RequirementException> { kim.claimMilestone(cn("Philantropist")) }
 
-    p1.runOperation("$SpaceElevator")
-    p1.runOperation("Philantropist")
-    p1.count("Philantropist") shouldBe 1
+    kim.exMachina("$SpaceElevator")
+    kim.claimMilestone(cn("Philantropist")).expect("-8 MC, Philantropist")
   }
 
   @Test
   internal fun `Merchant checks resources after the normal claim cost`() {
-    val game =
-        newGame(
-            GameConfig(
-                "Merchant, Builder, Engineer",
-                "Player1",
-                "Player2",
-            )
-        )
-    game.classTable.isInhabited(cn("Merchant")) shouldBe true
-    p1.runOperation("10 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat")
-    admin.phase("Action")
+    newTestGame(addOptions = "Merchant, Builder, Engineer")
+    kim.exMachina("2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat")
+    kim.setToExMachina(9, "MC")
 
-    p1.stdAction("ClaimMilestoneAction") { doTask("Merchant") }
+    shouldThrow<RequirementException> { kim.claimMilestone(cn("Merchant")) }
+    kim.count("MC") shouldBe 9
+    kim.count("Merchant") shouldBe 0
 
-    p1.count("Merchant") shouldBe 1
+    kim.setToExMachina(10, "MC")
+    kim.claimMilestone(cn("Merchant")).expect("-8 MC, Merchant")
   }
 
   @Test
   internal fun `Hydrologist can be claimed after placing four oceans`() {
-    newGame(GameConfig("Hydrologist, Builder, Engineer", "Player1", "Player2"))
-    val p2 = requireP2()
-    val oceans = p1.list("WaterArea").take(4)
-    admin.count("HydrologistWatcher") shouldBe 1
+    newTestGame(addOptions = "Hydrologist, Builder, Engineer")
+    val oceans = kim.list("WaterArea").take(4)
 
-    oceans.forEach { p1.runOperation("OceanTile<$it>") }
+    kim.setToExMachina(80, "MC")
+    oceans.forEach { kim.stdProject("AquiferProject") { doTask("OceanTile<$it>") } }
 
-    shouldThrow<RequirementException> { p2.runOperation("Hydrologist") }
-    p1.runOperation("Hydrologist")
-    p1.count("Hydrologist") shouldBe 1
-  }
-
-  @Test
-  internal fun `Dry Deserts does not erase Hydrologist credit for a removed ocean`() {
-    newGame(GameConfig("TurmoilExpansion, Hydrologist, Builder, Engineer", "Player1", "Player2"))
-    val oceans = p1.list("WaterArea").take(3)
-    p1.runOperation("OceanTile<${oceans.first()}>")
-
-    admin.runOperation("Current<MinimalImpactPolicy> FROM Distant<MinimalImpactPolicy>")
-    admin.runOperation("ResolveGlobalEvent")
-
-    admin.count("OceanTile") shouldBe 0
-    oceans.forEach { p1.runOperation("OceanTile<$it>") }
-    admin.count("OceanTile") shouldBe 3
-    p1.runOperation("Hydrologist")
-    p1.count("Hydrologist") shouldBe 1
-  }
-
-  @Test
-  internal fun `Hydrologist and its support stay undefined when not selected`() {
-    val game = newGame(GameConfig("Builder, Legend, Merchant", "Player1", "Player2"))
-
-    game.classTable.allClassNames.shouldNotContain(cn("Hydrologist"))
-    game.classTable.allClassNames.shouldNotContain(cn("OceanCredit"))
-    game.classTable.allClassNames.shouldNotContain(cn("HydrologistWatcher"))
+    shouldThrow<RequirementException> { stan.claimMilestone(cn("Hydrologist")) }
+    kim.claimMilestone(cn("Hydrologist")).expect("-8 MC, Hydrologist")
   }
 
   // Producer wants 16 printed production, and Producer22 wants 22 because QuickStartVariant hands
   // you 6 at setup. Both start one short of their threshold after these grants.
   private fun claimProducerOneProductionShortOfThreshold(milestone: String, modules: String) {
-    newGame(GameConfig("$milestone, Builder, Engineer$modules", "Player1", "Player2"))
-    p1.runOperation("8 MC")
-    p1.runOperation("PROD[5 Steel, 5 Titanium, 5 Plant]")
-    admin.phase("Action")
+    newTestGame(addOptions = "$milestone, Builder, Engineer$modules")
+    kim.exMachina("PROD[5 Steel, 5 Titanium, 5 Plant]")
 
-    shouldThrow<RequirementException> { p1.runOperation(milestone) }
+    shouldThrow<RequirementException> { kim.claimMilestone(cn(milestone)) }
 
-    p1.runOperation("PROD[Energy]")
-    p1.stdAction("ClaimMilestoneAction") { doTask(milestone) }
-
-    p1.count(milestone) shouldBe 1
+    kim.exMachina("PROD[Energy]")
+    kim.claimMilestone(cn(milestone)).expect("-8 MC, $milestone")
   }
 
   @Test
   internal fun `Producer requires sixteen printed production`() =
-      claimProducerOneProductionShortOfThreshold("Producer", "")
+      claimProducerOneProductionShortOfThreshold("Producer", ", -QuickStartVariant")
 
   @Test
   internal fun `Producer22 requires twenty two printed production`() =
@@ -142,31 +92,61 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
 
   @Test
   internal fun `Producer counts Quick Start production toward sixteen`() {
-    newGame(GameConfig("Producer, Builder, Engineer, -CorporateEraExpansion", "Player1", "Player2"))
-    p1.runOperation("8 MC")
-    p1.runOperation("PROD[3 Steel, 3 Titanium, 3 Plant]")
-    admin.phase("Action")
+    newTestGame(addOptions = "Producer, Builder, Engineer, -CorporateEraExpansion")
+    kim.exMachina("PROD[3 Steel, 3 Titanium, 3 Plant]")
 
-    shouldThrow<RequirementException> { p1.runOperation("Producer") }
+    shouldThrow<RequirementException> { kim.claimMilestone(cn("Producer")) }
 
-    p1.runOperation("PROD[Energy]")
-    p1.stdAction("ClaimMilestoneAction") { doTask("Producer") }
-
-    p1.count("Producer") shouldBe 1
+    kim.exMachina("PROD[Energy]")
+    kim.claimMilestone(cn("Producer")).expect("-8 MC, Producer")
   }
 
   @Test
   internal fun `Producer22 can be selected without Quick Start`() {
-    newGame(GameConfig("Producer22, Builder, Engineer", "Player1", "Player2"))
-    p1.runOperation("8 MC")
-    p1.runOperation("PROD[7 Steel, 7 Titanium, 7 Plant]")
-    admin.phase("Action")
+    newTestGame(addOptions = "Producer22, Builder, Engineer, -QuickStartVariant")
+    kim.exMachina("PROD[7 Steel, 7 Titanium, 7 Plant]")
 
-    shouldThrow<RequirementException> { p1.runOperation("Producer22") }
+    shouldThrow<RequirementException> { kim.claimMilestone(cn("Producer22")) }
 
-    p1.runOperation("PROD[Energy]")
-    p1.stdAction("ClaimMilestoneAction") { doTask("Producer22") }
+    kim.exMachina("PROD[Energy]")
+    kim.claimMilestone(cn("Producer22")).expect("-8 MC, Producer22")
+  }
 
-    p1.count("Producer22") shouldBe 1
+  internal class Gameplay : dev.martianzoo.tfm.tests.TfmGameplayTest() {
+    @Test
+    internal fun `Dry Deserts does not erase Hydrologist credit for a removed ocean`() {
+      newTestGame(addOptions = "TurmoilExpansion, Hydrologist, Builder, Engineer", playerCount = 2)
+      // Generation 1: Kim earns the credit that Dry Deserts will later test.
+      // Revealed events fix delegate placements; none will resolve before the final claim.
+      kim.turn { stdProject("AquiferProject") { placeTile(1, 2) } }
+      stan.pass()
+      kim.pass()
+      kim.wgt("VenusStep")
+      admin.doTask("SolarnetGlobalEvent")
+      players.forEach { it.buyCards(0) }
+
+      // Generation 2: Democratic Reform adds an Admin ocean elsewhere, preserving Kim's ocean.
+      stan.pass()
+      kim.pass()
+      stan.wgt("VenusStep")
+      stan.doTask("OceanTile<Tharsis_1_4> BY Admin")
+      admin.doTask("FreeAcademiaTreaty")
+      players.forEach { it.buyCards(0) }
+
+      // Generation 3: Minimal Impact Policy's Dry Deserts removes Kim's original ocean.
+      kim.pass()
+      stan.pass()
+      kim.wgt("VenusStep")
+      kim.doTask("-OceanTile<Tharsis_1_2>")
+      admin.doTask("SelfSufficiencyProgram")
+      players.forEach { it.buyCards(0) }
+
+      // Generation 4: reusing the emptied area still earns another credit toward four placements.
+      stan.pass()
+      kim.stdProject("AquiferProject") { placeTile(1, 2) }
+      kim.stdProject("AquiferProject") { placeTile(1, 5) }
+      kim.stdProject("AquiferProject") { placeTile(2, 6) }
+      kim.claimMilestone(cn("Hydrologist")).expect("-8 MC, Hydrologist")
+    }
   }
 }

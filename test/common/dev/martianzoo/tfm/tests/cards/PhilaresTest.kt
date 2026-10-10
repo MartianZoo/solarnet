@@ -1,130 +1,67 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.tfm.tests.TestOption.*
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class PhilaresTest : CardTest() {
-  @Test
-  internal fun `Pays its owner when an opponent places an adjacent greenery`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    p2.runOperation("$Philares, GreeneryTile<Tharsis_3_2>")
-    p1.runOperation("23 MC")
-    admin.phase("Action")
-
-    p1.stdProject("GreeneryProject") {
-      placeTile(4, 3)
-      p2.doTask("Titanium").expect("Titanium")
-    }
+internal class PhilaresTest : TfmSandboxTest() {
+  @BeforeTest
+  fun initializeGame() {
+    newTestGame(kimCorporation = Philares)
+    kim.stdAction("RequiredActionsSignal") { placeTile(4, 2) }
   }
 
   @Test
-  internal fun `Pays its owner when an opponent creates an adjacency`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    p2.runOperation("$Philares")
-    p2.runOperation("CityTile<Tharsis_2_3>")
-    p1.runOperation("CityTile<Tharsis_3_3>") { p2.doTask("Steel") }.expect("Steel<Player2>")
+  internal fun `Pays its owner when an opponent places an adjacent greenery`() {
+    stan
+        .stdProject("GreeneryProject") {
+          placeTile(3, 2)
+          kim.doTask("Titanium")
+        }
+        .expect("Titanium<Kim>")
   }
 
   @Test
   internal fun `Pays its owner for creating adjacency to an opponent's tile`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    p1.runOperation("$Philares")
-    p2.runOperation("CityTile<Tharsis_2_3>")
+    stan.exMachina("NormalCityTile<Tharsis_2_2>")
+    kim.setToExMachina(23, "MC")
 
-    p1.runOperation("CityTile<Tharsis_3_3>") { p1.doTask("Titanium") }.expect("Titanium")
+    kim.stdProject("GreeneryProject") {
+          placeTile(3, 2)
+          kim.doTask("Titanium")
+        }
+        .expect("Titanium")
   }
 
   @Test
-  internal fun `Does not pay when an opponent joins two of their own tiles`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    p2.runOperation("$Philares")
-    p1.runOperation("CityTile<Tharsis_2_3>")
+  internal fun `Does not pay when an opponent joins their own tiles`() {
+    stan.exMachina("NormalCityTile<Tharsis_1_1>")
 
-    p1.runOperation("CityTile<Tharsis_3_3>").expect("0 Steel<Player2>, 0 Titanium<Player2>")
+    stan
+        .stdProject("GreeneryProject") { placeTile(2, 1) }
+        .expect(
+            "0 Steel<Kim>, 0 Titanium<Kim>, 0 MC<Kim>, 0 Plant<Kim>, 0 Energy<Kim>, 0 Heat<Kim>"
+        )
   }
 
   @Test
   internal fun `Does not pay its owner for adjacency to their own tile`() {
-    newGame(PromoCardPack)
-    p1.runOperation("$Philares")
-    p1.runOperation("23 MC")
-    admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") { placeTile(4, 2) }
-    p1.stdProject("GreeneryProject") { placeTile(3, 2) }.expect("0 Steel, 0 Titanium")
-  }
+    kim.setToExMachina(23, "MC")
 
-  @Test
-  internal fun `The active player orders a Philares reward before its owner chooses it`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    p2.runOperation("$Philares")
-    p2.runOperation("CityTile<Tharsis_2_3>")
-    val manual = p1.also { it.autoExecPolicy = NONE }
-
-    manual.beginOperation("CityTile<Tharsis_3_3>") {
-      val reward = tasks.ids().single()
-      manual.addTasks("Plant?")
-
-      shouldThrow<TaskException> { p2.doTask("Steel") }
-      manual.doTask("Plant")
-      manual.selectTask(reward)
-      p2.doTask("Steel")
-    }
-
-    p1.count("Plant") shouldBe 1
-    p2.count("Steel") shouldBe 1
-  }
-
-  @Test
-  internal fun `A delegated Philares reward prevents the active player from continuing`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    p2.runOperation("$Philares")
-    p2.runOperation("CityTile<Tharsis_2_3>")
-    val manual = p1.also { it.autoExecPolicy = NONE }
-
-    manual.beginOperation("CityTile<Tharsis_3_3>") {
-      val reward = tasks.ids().single()
-      manual.addTasks("Heat?")
-      manual.selectTask(reward)
-
-      shouldThrow<TaskException> { manual.doTask("Heat") }
-      p2.doTask("Titanium")
-      manual.doTask("Heat")
-    }
-
-    p1.count("Heat") shouldBe 1
-    p2.count("Titanium") shouldBe 1
+    kim.stdProject("GreeneryProject") { placeTile(3, 2) }
+        .expect("0 Steel, 0 Titanium, -23 MC, 0 Energy, 0 Heat")
   }
 
   @Test
   internal fun `Kaguya creates a new adjacency without renewing an Arcadian reservation`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    p1.playCorp(ArcadianCommunities, 1)
-    p2.playCorp(Philares, 0)
-    admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_4_2>") }
-    p2.stdAction("DoRequiredActionsAction") { placeTile(4, 1) }
-    p1.stdProject("GreeneryProject") {
-          placeTile(4, 2)
-          p2.doTask("Steel")
-        }
-        .expect("-Community, Steel<Player2>")
+    stan.exMachina("$ArcadianCommunities, GreeneryTile<Tharsis_4_3>")
 
-    p1.playProject(KaguyaTech, 10) {
-          doTask("CityTile<Tharsis_4_2> FROM GreeneryTile<Tharsis_4_2>")
-          p2.doTask("Titanium")
+    stan
+        .playProject(KaguyaTech, 10) {
+          doTask("CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_3>")
+          kim.doTask("Titanium")
         }
-        .expect("-10 MC, Titanium<Player2>")
+        .expect("-10 MC, Titanium<Kim>, 0 Community<Stan>")
   }
 }

@@ -19,6 +19,66 @@ import kotlin.test.assertSame
 
 /** Verifies which Catalog Classes are selected and inhabited by each game premise. */
 internal class ClassTableSelectionTest {
+  @Test
+  internal fun `Promo global events are absent without the promo pack`() {
+    assertValidView("TurmoilExpansion, VenusNextExpansion, ColoniesExpansion, -PromoCardPack") {
+        view ->
+      assertOmitted(
+          view,
+          setOf(cn("MartianProtectionism"), cn("JovianColonyBoom"), cn("TitanVenusAlliance")),
+      )
+    }
+  }
+
+  @Test
+  internal fun `Venus global events require Venus even with the promo pack`() {
+    assertValidView("TurmoilExpansion, PromoCardPack, ColoniesExpansion, -VenusNextExpansion") {
+        view ->
+      assertSelected(view, setOf(cn("JovianColonyBoom")))
+      assertOmitted(view, setOf(cn("MartianProtectionism"), cn("TitanVenusAlliance")))
+    }
+  }
+
+  @Test
+  internal fun `Colony global events require Colonies even with Venus and the promo pack`() {
+    assertValidView("TurmoilExpansion, PromoCardPack, VenusNextExpansion, -ColoniesExpansion") {
+        view ->
+      assertSelected(view, setOf(cn("MartianProtectionism")))
+      assertOmitted(view, setOf(cn("JovianColonyBoom"), cn("TitanVenusAlliance")))
+    }
+  }
+
+  @Test
+  internal fun `Both expansions make the combined Venus colony events available`() {
+    assertValidView("TurmoilExpansion, PromoCardPack, VenusNextExpansion, ColoniesExpansion") { view
+      ->
+      assertSelected(view, setOf(cn("TitanVenusAlliance"), cn("ImmigrationToVenus")))
+    }
+  }
+
+  @Test
+  internal fun `Quick Start replaces Elysium's Generalist with Generalist2`() {
+    assertValidView("ElysiumMap, QuickStartVariant") { view ->
+      assertSelected(view, setOf(cn("Generalist2")))
+      assertOmitted(view, setOf(cn("Generalist")))
+    }
+  }
+
+  @Test
+  internal fun `Disabling Quick Start selects Generalist without Generalist2`() {
+    assertValidView("ElysiumMap, -QuickStartVariant") { view ->
+      assertSelected(view, setOf(cn("Generalist")))
+      assertOmitted(view, setOf(cn("Generalist2")))
+    }
+  }
+
+  @Test
+  internal fun `Unselected Hydrologist omits its credit tracking support`() {
+    assertValidView("Builder, Legend, Merchant") { view ->
+      assertOmitted(view, setOf(cn("Hydrologist"), cn("OceanCredit"), cn("HydrologistWatcher")))
+    }
+  }
+
   // Module and associated-Content selection matrix
 
   @Test

@@ -1,22 +1,19 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.tests.*
-import dev.martianzoo.tfm.tests.cards.CardTest
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class HellasElysiumExpansionTest : CardTest() {
+internal class HellasElysiumExpansionTest : TfmSandboxTest() {
   @Test
-  internal fun `Specialist uses printed mc production`() {
-    newGame(TestOption.Elysium)
-    p1.runOperation("PROD[9 MC]")
-    shouldThrow<RequirementException> { p1.runOperation("Specialist") }
+  internal fun `Specialist uses printed MC production`() {
+    newTestGame(addOptions = "ElysiumMap")
+    kim.setToExMachina(9, "PROD[MC]")
+    shouldThrow<RequirementException> { kim.claimMilestone(cn("Specialist")) }
 
-    p1.runOperation("PROD[1 MC], Specialist")
-    p1.count("Specialist") shouldBe 1
+    kim.stdProject("CityProject") { placeTile(1, 5) }
+    kim.claimMilestone(cn("Specialist")).expect("-8 MC, Specialist")
   }
 }

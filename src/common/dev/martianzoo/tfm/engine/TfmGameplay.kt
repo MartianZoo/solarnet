@@ -23,7 +23,6 @@ import dev.martianzoo.state.Task
 import dev.martianzoo.state.TaskResult
 
 private val MC: ClassName = cn("MC")
-private val STANDARD_ACTION: ClassName = cn("StandardAction")
 
 /**
  * Wraps and extends an [Agent] to provide much more convenient functions specific to *Terraforming
@@ -185,42 +184,41 @@ public class TfmGameplay(
     return trigger?.change?.gaining?.className == cn("SecondAction")
   }
 
-  /** Uses an action supplied by [stdAction], which must be a `StandardAction` provider. */
+  /**
+   * Selects [option] from the current turn offer, runs [payment], then completes its [body]. For
+   * example, use `ClaimMilestone<Class<Builder>>` or `TradeAction<Action2>`. When a required action
+   * is pending, select `RequiredActionsSignal` instead.
+   *
+   * The default payment spends the bill's resource when it is the sole accepted resource. Supply
+   * [payment] for mixed payments and [body] for remaining choices. Selection must narrow an offered
+   * task; failures roll back this operation through [inTurn].
+   */
   public fun stdAction(
-      stdAction: String,
-      which: Int = 1,
+      option: String,
       payment: OperationBlock = { payInvoiceFromItsResourceIfOffered() },
       body: OperationBlock = {},
-  ): TaskResult {
-    return inTurn { useStdAction(stdAction, which, payment, body) }
-  }
+  ): TaskResult = inTurn { useStdAction(option, payment, body) }
 
-  /** Uses a granted standard-action slot within an enclosing operation. */
+  /**
+   * Selects [option] from an action granted within the enclosing operation, then runs [payment] and
+   * [body]. Uses the same option syntax and default payment as [stdAction]; the enclosing operation
+   * owns completion and rollback.
+   */
   public fun OperationScope.useStdAction(
-      stdAction: String,
-      which: Int = 1,
+      option: String,
       payment: OperationBlock = { payInvoiceFromItsResourceIfOffered() },
       body: OperationBlock = {},
   ) {
-    require(
-        game.classTable
-            .getClass(cn(stdAction))
-            .isSubtypeOf(game.classTable.getClass(STANDARD_ACTION))
-    ) {
-      "$stdAction is not a StandardAction"
-    }
-    doTask("UseAction<$stdAction, ${whichAction(which)}>")
+    doTask(option)
     payment()
     body()
   }
 
   public fun claimMilestone(milestone: ClassName): TaskResult =
-      stdAction("ClaimMilestoneAction") { doTask("$milestone") }
+      stdAction("ClaimMilestone<Class<$milestone>>")
 
-  public fun fundAward(award: ClassName, amountPaid: Int): TaskResult {
-    val which = count("Award") + 1
-    return stdAction("FundAwardAction", which, payment = { pay(amountPaid) }) { doTask("$award") }
-  }
+  public fun fundAward(award: ClassName, amountPaid: Int): TaskResult =
+      stdAction("FundAward<Class<$award>>", payment = { pay(amountPaid) })
 
   private fun OperationScope.payInvoiceFromItsResourceIfOffered() {
     val billingCause = openPendingBilling()
@@ -240,11 +238,11 @@ public class TfmGameplay(
       }
 
   public fun convertPlants(body: OperationBlock = {}): TaskResult {
-    return stdAction("ConvertPlantsAction", body = body)
+    return stdAction("ConvertPlants", body = body)
   }
 
   public fun convertHeat(body: OperationBlock = {}): TaskResult {
-    return stdAction("ConvertHeatAction", body = body)
+    return stdAction("ConvertHeat", body = body)
   }
 
   public fun stdProject(
@@ -265,11 +263,7 @@ public class TfmGameplay(
       },
       body: OperationBlock = {},
   ) {
-    useStdAction("UseStandardProjectAction", payment = {}) {
-      doTask("UseAction<$stdProject, Action1>")
-      payment()
-      body()
-    }
+    useStdAction("UseStandardProject<$stdProject>", payment, body)
   }
 
   public fun playPrelude(
@@ -318,7 +312,7 @@ public class TfmGameplay(
       payment: OperationBlock = { pay(mc, steel, titanium, plants, energy, heat) },
       body: OperationBlock = {},
   ): TaskResult {
-    return stdAction("PlayCardFromHandAction", payment = {}) {
+    return inTurn {
       playProjectWithinOperation(cardName, payment, body)
     }
   }
@@ -342,7 +336,15 @@ public class TfmGameplay(
       payment: OperationBlock,
       body: OperationBlock,
   ) {
-    doTask("PlayCard<Class<ProjectCard>, Class<$cardName>>")
+    val instruction =
+        if (
+            tasks
+                .matching { cn("PlayCard") in it.instruction.descendantsOfType<ClassName>() }
+                .isNotEmpty()
+        )
+            "PlayCard<Class<ProjectCard>, Class<$cardName>>"
+        else "PlayProject<Class<$cardName>>"
+    doTask(instruction)
 
     payment()
     body()
@@ -606,7 +608,7 @@ public class TfmGameplay(
       x: Int? = null,
       body: OperationBlock = {},
   ): TaskResult {
-    return stdAction("UseActionOnCardAction") {
+    return inTurn {
       useCardAction(which, cardName, x, body)
     }
   }
@@ -617,7 +619,15 @@ public class TfmGameplay(
       x: Int? = null,
       body: OperationBlock = {},
   ) {
-    doTask("UseAction<$cardName, ${whichAction(which)}>")
+    val signal =
+        if (
+            tasks
+                .matching { cn("UseAction") in it.instruction.descendantsOfType<ClassName>() }
+                .isNotEmpty()
+        )
+            "UseAction"
+        else "UseCardAction"
+    doTask("$signal<$cardName, ${whichAction(which)}>")
     x?.let { chooseVariableAmount(this, it) }
     payInvoiceFromItsResourceIfOffered()
     body()

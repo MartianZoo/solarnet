@@ -2,340 +2,204 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
-import dev.martianzoo.tfm.tests.cards.CardTest
+import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cards.cardnames.BannedDelegate
+import dev.martianzoo.tfm.tests.cards.cardnames.MartianMediaCenter
+import dev.martianzoo.tfm.tests.cards.cardnames.VoteOfNoConfidence
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class TurmoilRulesTest : CardTest() {
+internal class TurmoilRulesTest : TfmSandboxTest() {
   @Test
-  internal fun `setup establishes delegate capacity and one free lobbying action per player`() {
-    newGame(TurmoilExpansion)
-    val p2 = requireP2()
-
-    p1.count("TurmoilPlayer") shouldBe 1
-    p2.count("TurmoilPlayer") shouldBe 1
-    p1.count("LobbyActionAvailable") shouldBe 1
-    p2.count("LobbyActionAvailable") shouldBe 1
-    p1.count("Delegate") shouldBe 0
-    p2.count("Delegate") shouldBe 0
-    admin.count("Neutral") shouldBe 1
-    admin.count("Delegate<Neutral>") shouldBe 3
-    admin.count("Party") shouldBe 6
-    admin.count("AfterParty") shouldBe 6
-    admin.count("Chairman<Neutral>") shouldBe 1
-    admin.count("Ruling<Greens>") shouldBe 1
-    admin.count("Ruling") shouldBe 1
-    admin.count("Coming") shouldBe 1
-    admin.count("Distant") shouldBe 1
-    admin.count("Current") shouldBe 0
+  internal fun `Each player has a free lobby action followed by paid lobbying`() {
+    newTestGame(addOptions = "TurmoilExpansion")
+    kim.stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
+        .expect("PartyDelegate<Scientists>, PartyLeader<Scientists>, -LobbyActionAvailable, 0 MC")
+    stan
+        .stdAction("LobbyAction") { doTask("PartyDelegate<Unity>") }
+        .expect("PartyDelegate<Unity>, -LobbyActionAvailable, 0 MC")
+    shouldThrow<NotNowException> { kim.stdAction("LobbyAction") }
+    kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
+        .expect("-5 MC, PartyDelegate<Scientists>")
   }
 
   @Test
-  internal fun `a sole lobbied delegate becomes party leader and supplies no delegate influence`() {
-    newGame(TurmoilExpansion)
-    clearSetupPolitics()
-    admin.phase("Action")
-
-    p1.stdAction("LobbyAction", 1) {
-      doTask("PartyDelegate<MarsFirst>")
-    }
-
-    p1.count("LobbyActionAvailable") shouldBe 0
-    p1.count("Delegate") shouldBe 1
-    p1.count("PartyDelegate<MarsFirst>") shouldBe 1
-    p1.count("PartyLeader<MarsFirst>") shouldBe 1
-    admin.count("Dominant<MarsFirst>") shouldBe 1
-    admin.runOperation("MeasureInfluence<Player1>")
-    p1.count("PartyLeaderInfluence") shouldBe 1
-    p1.count("DelegateInfluence") shouldBe 0
-    p1.count("Influence") shouldBe 1
-  }
-
-  @Test
-  internal fun `paid lobbying cannot spend the last lobby delegate but free lobbying can`() {
-    newGame(TurmoilExpansion)
-    repeat(5) { p1.runOperation("PartyDelegate<Unity>") }
-    p1.runOperation("10 MC")
-    admin.phase("Action")
-
-    p1.count("LobbyActionAvailable") shouldBe 1
-    p1.count("Delegate") shouldBe 5
-
-    p1.stdAction("LobbyAction", 2) {
-      doTask("PartyDelegate<Scientists>")
-    }
-
-    p1.count("MC") shouldBe 5
-    p1.count("LobbyActionAvailable") shouldBe 1
-    p1.count("Delegate") shouldBe 6
-
+  internal fun `Paid lobbying reserves the last delegate for the free lobby action`() {
+    newTestGame(addOptions = "TurmoilExpansion")
+    kim.exMachina("5 PartyDelegate<Unity>")
+    kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
+        .expect("-5 MC, Delegate, 0 LobbyActionAvailable")
+    val money = kim.count("MC")
     shouldThrow<RequirementException> {
-      p1.stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<Scientists>")
-      }
+      kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
     }
-
-    p1.count("MC") shouldBe 5
-    p1.count("LobbyActionAvailable") shouldBe 1
-    p1.count("Delegate") shouldBe 6
-
-    p1.stdAction("LobbyAction", 1) {
-      doTask("PartyDelegate<Scientists>")
-    }
-
-    p1.count("MC") shouldBe 5
-    p1.count("LobbyActionAvailable") shouldBe 0
-    p1.count("Delegate") shouldBe 7
-    p1.count("PartyDelegate") shouldBe 7
+    kim.count("MC") shouldBe money
+    kim.count("Delegate") shouldBe 6
+    kim.stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
+        .expect("Delegate, -LobbyActionAvailable, 0 MC")
+    kim.count("Delegate") shouldBe 7
   }
 
   @Test
-  internal fun `paid lobbying preserves a tied incumbent and transfers a strict lead`() {
-    newGame(TurmoilExpansion)
-    val p2 = requireP2()
-    p1.runOperation("10 MC")
-    p2.runOperation("15 MC")
-    admin.phase("Action")
-
-    p1.turn {
-      stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<MarsFirst>")
-      }
-      stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<MarsFirst>")
-      }
-    }
-    p1.count("PartyDelegate<MarsFirst>") shouldBe 2
-    admin.count("Dominant<MarsFirst>") shouldBe 1
-    p2.turn {
-      stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Scientists>")
-      }
-      p2.count("PartyDelegate<Scientists>") shouldBe 1
-      admin.count("Dominant<Scientists>") shouldBe 0
-      admin.count("Dominant<MarsFirst>") shouldBe 1
-      stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<Scientists>")
-      }
-    }
-    admin.count("Dominant<MarsFirst>") shouldBe 1
-    p1.pass()
-    p2.turn {
-      stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<Scientists>")
-      }
-      stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<Scientists>")
-      }
-    }
-
-    p1.count("MC") shouldBe 5
-    p2.count("MC") shouldBe 0
-    p1.count("Delegate") shouldBe 2
-    p2.count("Delegate") shouldBe 4
-    p1.count("PartyLeader<MarsFirst>") shouldBe 1
-    p2.count("PartyLeader<Scientists>") shouldBe 1
-    admin.count("Dominant<Scientists>") shouldBe 1
+  internal fun `Dominance preserves a tied incumbent until another party has more delegates`() {
+    newTestGame(addOptions = "TurmoilExpansion")
+    kim.stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
+        .expect("0 Dominant<Scientists>")
+    kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
+        .expect("Dominant<Scientists>, -Dominant<MarsFirst>")
+    stan.stdAction("LobbyAction") { doTask("PartyDelegate<Unity>") }
+    stan
+        .stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Unity>") }
+        .expect("0 Dominant<Unity>, 0 Dominant<Scientists>")
+    stan
+        .stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Unity>") }
+        .expect("Dominant<Unity>, -Dominant<Scientists>")
   }
 
   @Test
-  internal fun `party leadership needs a strict delegate lead`() {
-    newGame(TurmoilExpansion)
-    val p2 = requireP2()
-    p2.runOperation("5 MC")
-    admin.phase("Action")
-
-    p1.turn {
-      stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Scientists>")
-      }
-    }
-    p2.turn {
-      stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Scientists>")
-      }
-      p1.count("PartyLeader<Scientists>") shouldBe 1
-      p2.count("PartyLeader<Scientists>") shouldBe 0
-      stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<Scientists>")
-      }
-    }
-
-    p1.count("PartyLeader<Scientists>") shouldBe 0
-    p2.count("PartyLeader<Scientists>") shouldBe 1
+  internal fun `Party leadership preserves a tie and transfers for a strict lead`() {
+    newTestGame(addOptions = "TurmoilExpansion")
+    kim.stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
+    stan
+        .stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
+        .expect("0 PartyLeader<Scientists, Stan>, 0 PartyLeader<Scientists, Kim>")
+    stan
+        .stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
+        .expect("PartyLeader<Scientists, Stan>, -PartyLeader<Scientists, Kim>")
   }
 
   @Test
-  internal fun `removing a sole party leader promotes the remaining delegation`() {
-    newGame(TurmoilExpansion)
-    val p2 = requireP2()
-    p1.runOperation("PartyDelegate<Scientists>")
-    p2.runOperation("PartyDelegate<Scientists>")
+  internal fun `Seven placed delegates prevent further lobbying without charging the player`() {
+    newTestGame(addOptions = "TurmoilExpansion")
+    kim.stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
+    repeat(6) { kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") } }
+    kim.count("Delegate") shouldBe 7
+    val money = kim.count("MC")
+    shouldThrow<RequirementException> { kim.stdAction("LobbyAction<Action2>") }
+    kim.count("MC") shouldBe money
+    kim.count("Delegate") shouldBe 7
 
-    admin.runOperation("-PartyDelegate<Scientists, Player1>")
-
-    p1.count("PartyLeader<Scientists>") shouldBe 0
-    p2.count("PartyDelegate<Scientists>") shouldBe 1
-    p2.count("PartyLeader<Scientists>") shouldBe 1
+    // Kim's full reserve does not consume Stan's delegates.
+    stan.stdAction("LobbyAction") { doTask("PartyDelegate<Unity>") }.expect("Delegate, 0 MC")
   }
 
   @Test
-  internal fun `free then paid lobbying cannot place more than seven delegates`() {
-    newGame(TurmoilExpansion)
-    val p2 = requireP2()
-    p1.runOperation("35 MC")
-    admin.phase("Action")
+  internal fun `A card places a delegate without using the free lobby action`() {
+    newTestGame(addOptions = "TurmoilExpansion")
+    kim.exMachina("$MartianMediaCenter")
+    kim.cardAction1(MartianMediaCenter) { doTask("PartyDelegate<Scientists>") }
+        .expect("-3 MC, Delegate, 0 LobbyActionAvailable")
+    kim.stdAction("LobbyAction") { doTask("PartyDelegate<Unity>") }
+        .expect("Delegate, -LobbyActionAvailable, 0 MC")
+  }
 
-    p1.turn {
-      stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<MarsFirst>")
-      }
-      stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<MarsFirst>")
-      }
-    }
-    p2.pass()
-    p1.turn {
-      repeat(5) {
-        stdAction("LobbyAction", 2) {
-          doTask("PartyDelegate<MarsFirst>")
+  @Test
+  internal fun `Returning a delegate does not refill a lobby emptied by the seventh placement`() {
+    newTestGame(addOptions = "TurmoilExpansion")
+    kim.exMachina("7 PartyDelegate<Scientists>")
+    stan.exMachina("Chairman FROM Chairman<Neutral>")
+    stan
+        .playProject(BannedDelegate, 0) {
+          doTask("BannedDelegateRemoval<Stan, Scientists, Kim>")
         }
-      }
-    }
-
-    p1.count("PartyDelegate") shouldBe 7
-    p1.count("LobbyActionAvailable") shouldBe 0
-    p1.count("MC") shouldBe 5
-    shouldThrow<RequirementException> {
-      p1.stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<MarsFirst>")
-      }
-    }
-    p1.count("MC") shouldBe 5
-    admin.runOperation("RefillLobby")
-    p1.count("LobbyActionAvailable") shouldBe 0
+        .expect("-Delegate<Kim>, 0 LobbyActionAvailable<Kim>")
+    shouldThrow<NotNowException> { kim.stdAction("LobbyAction") }
+    kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Unity>") }
+        .expect("-5 MC, Delegate")
   }
 
-  @Test
-  internal fun `card placement uses delegate capacity without consuming free lobbying`() {
-    newGame(TurmoilExpansion)
-
-    p1.runOperation("PartyDelegate<MarsFirst>")
-
-    p1.count("Delegate") shouldBe 1
-    p1.count("LobbyActionAvailable") shouldBe 1
-    p1.count("PartyDelegate<MarsFirst>") shouldBe 1
-  }
-
-  @Test
-  internal fun `lobbying cannot place an eighth delegate`() {
-    newGame(TurmoilExpansion)
-    repeat(7) { p1.runOperation("PartyDelegate<MarsFirst>") }
-    p1.runOperation("5 MC")
-    admin.phase("Action")
-
-    shouldThrow<RequirementException> {
-      p1.stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<Scientists>")
+  internal class Gameplay : dev.martianzoo.tfm.tests.TfmGameplayTest() {
+    @Test
+    internal fun `A new government cannot refill a lobby while all seven delegates remain placed`() {
+      newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+      kim.turn {
+        stdAction("LobbyAction") { doTask("PartyDelegate<Unity>") }
+        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Unity>") }
       }
-    }
-
-    p1.count("MC") shouldBe 5
-    p1.count("LobbyActionAvailable") shouldBe 0
-    p1.count("PartyDelegate") shouldBe 7
-  }
-
-  @Test
-  internal fun `delegate limit is independent for each player`() {
-    newGame(TurmoilExpansion)
-    val p2 = requireP2()
-
-    repeat(7) { p1.runOperation("PartyDelegate<MarsFirst>") }
-    repeat(7) { p2.runOperation("PartyDelegate<Scientists>") }
-
-    p1.count("Delegate") shouldBe 7
-    p2.count("Delegate") shouldBe 7
-  }
-
-  @Test
-  internal fun `a returned delegate does not restore a Lobby emptied with the seventh delegate`() {
-    newGame(TurmoilExpansion)
-    repeat(7) { p1.runOperation("PartyDelegate<MarsFirst>") }
-    admin.phase("Action")
-
-    p1.count("LobbyActionAvailable") shouldBe 0
-    p1.runOperation("-PartyDelegate<MarsFirst>")
-    shouldThrow<NotNowException> {
-      p1.stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Scientists>")
+      stan.turn {
+        stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
+        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
       }
-    }
-
-    p1.count("LobbyActionAvailable") shouldBe 0
-    p1.count("Delegate") shouldBe 6
-  }
-
-  @Test
-  internal fun `lobby refill restores the free action without changing placed delegate count`() {
-    newGame(TurmoilExpansion)
-    admin.phase("Action")
-    p1.stdAction("LobbyAction", 1) {
-      doTask("PartyDelegate<MarsFirst>")
-    }
-
-    admin.runOperation("RefillLobby")
-
-    p1.count("LobbyActionAvailable") shouldBe 1
-    p1.count("Delegate") shouldBe 1
-    requireP2().count("LobbyActionAvailable") shouldBe 1
-    requireP2().count("Delegate") shouldBe 0
-  }
-
-  @Test
-  internal fun `influence snapshot counts chairman leader and delegate presence once each`() {
-    newGame(TurmoilExpansion)
-    val p2 = requireP2()
-    p1.runOperation("5 MC")
-    admin.phase("Action")
-
-    p1.turn {
-      stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<MarsFirst>")
+      kim.turn {
+        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Unity>") }
+        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Greens>") }
       }
-      stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<MarsFirst>")
+      stan.turn {
+        repeat(2) { stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") } }
       }
-    }
-    p2.turn {
-      stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<MarsFirst>")
+      kim.turn {
+        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Greens>") }
+        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Kelvinists>") }
       }
+      stan.turn { stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") } }
+      kim.turn { stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Kelvinists>") } }
+      stan.pass()
+      kim.pass()
+      kim.wgt("VenusStep")
+      admin.doTask("ExploreFirstDirective")
+      players.forEach { it.buyCards(0) }
+
+      admin.count("Ruling<Scientists>") shouldBe 1
+      kim.count("Delegate") shouldBe 7
+      kim.count("LobbyActionAvailable") shouldBe 0
+      stan.turn {
+        stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }.expect("Delegate, 0 MC")
+      }
+      shouldThrow<NotNowException> { kim.stdAction("LobbyAction") }
     }
-    admin.runOperation("Chairman<Player1> FROM Chairman<Neutral>")
 
-    admin.runOperation("MeasureInfluence<Player1>")
-    admin.runOperation("MeasureInfluence<Player2>")
-
-    p1.count("ChairmanInfluence") shouldBe 1
-    p1.count("PartyLeaderInfluence") shouldBe 1
-    p1.count("DelegateInfluence") shouldBe 1
-    p1.count("Influence") shouldBe 3
-    p2.count("ChairmanInfluence") shouldBe 0
-    p2.count("PartyLeaderInfluence") shouldBe 0
-    p2.count("DelegateInfluence") shouldBe 1
-    p2.count("Influence") shouldBe 1
-
-    admin.runOperation("End FROM Phase")
-    p1.count("VictoryPoint") shouldBe 22
-    p2.count("VictoryPoint") shouldBe 20
-  }
-
-  private fun clearSetupPolitics() {
-    listOf("MarsFirst", "Reds").forEach { party ->
-      admin.runOperation("-PartyDelegate<$party, Neutral>")
+    @Test
+    internal fun `A party leader's sole delegate does not also count as an ordinary delegate`() {
+      newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+      kim.turn { stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") } }
+      stan.turn { stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") } }
+      kim.pass()
+      stan.pass()
+      kim.wgt("VenusStep")
+      kim.count("Influence") shouldBe 1
+      stan.count("Influence") shouldBe 1
     }
-    admin.runOperation("-Dominant!")
+
+    @Test
+    internal fun `Influence counts chairman leader and ordinary delegates then expires at Research`() {
+      newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+      kim.turn {
+        stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
+        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
+      }
+      stan.turn { stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") } }
+      kim.turn { playProject(VoteOfNoConfidence, 5) }
+      stan.pass()
+      kim.pass()
+      kim.wgt("VenusStep")
+
+      kim.count("Influence") shouldBe 3
+      stan.count("Influence") shouldBe 1
+      admin.doTask("ExploreFirstDirective")
+      players.forEach { it.buyCards(0) }
+      kim.count("Influence") shouldBe 0
+      stan.count("Influence") shouldBe 0
+    }
+
+    @Test
+    internal fun `A new government refills the lobby without returning other parties' delegates`() {
+      newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
+      kim.turn { stdAction("LobbyAction") { doTask("PartyDelegate<Unity>") } }
+      stan.turn {
+        stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
+        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
+      }
+      kim.pass()
+      stan.pass()
+      kim.wgt("VenusStep")
+      admin.doTask("ExploreFirstDirective")
+      players.forEach { it.buyCards(0) }
+      stan.pass()
+
+      kim.count("PartyDelegate<Unity>") shouldBe 1
+      kim.stdAction("LobbyAction") { doTask("PartyDelegate<Unity>") }
+          .expect("PartyDelegate<Unity>, 0 MC")
+    }
   }
 }

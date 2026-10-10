@@ -116,7 +116,7 @@ internal class EnglishTest {
     ) shouldBe "Pay 3 M€ to any player, or as much as possible."
     english.describe(parse<Requirement>("MAX 6 OxygenStep")) shouldBe "Requires 6% oxygen or less."
     english.describe(
-        parse<Effect>("ActionBilling<ConvertPlantsAction, Action1>:: -Owed<Class<Plant>>")
+        parse<Effect>("Billing<Class<ConvertPlants>, Action1>:: -Owed<Class<Plant>>")
     ) shouldBe "When you convert plants to greenery, you pay 1 plant less."
     english.describe(parse<Effect>("PayingFor<Class<CardFront>>:: -2 Owed<>")) shouldBe
         "When you play a card, you pay 2 M€ less for it."
@@ -242,13 +242,23 @@ internal class EnglishTest {
   }
 
   @Test
+  internal fun billingCostConditionsReferToTheSelectedProject() {
+    english.describe(
+        parse<Effect>("-Billing<Class<@StandardProject>(HAS @StandardProject.cost)>: 3 MC")
+    ) shouldBe "When you pay for a standard project with a positive printed cost, gain 3 M€."
+    english.describe(
+        parse<Effect>("-Billing<Class<StandardProject>(HAS PowerPlantProject.cost)>: 3 MC")
+    ) shouldBe "[-Billing<Class<StandardProject>(HAS PowerPlantProject.cost)>: 3 MC]."
+  }
+
+  @Test
   internal fun acceptedCardResourcesRetainTheirPaymentCurrency() {
     val card =
         syntheticCard(
             """
             CLASS HeatPayingScience : ActiveCard, ResourceCard<Class<Science>> {
               cost = 0
-              Billing<Class<Heat>>:: AcceptingFromCard<This>
+              Billing<Class<Component>, Class<Heat>>:: AcceptingFromCard<This>
               -Science<This> BY Me@ IF AcceptingFromCard<This>:: -3 Owed<Class<Heat>>
             }
             """

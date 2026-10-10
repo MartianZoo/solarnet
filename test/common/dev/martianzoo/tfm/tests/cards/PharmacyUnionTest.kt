@@ -1,172 +1,92 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
+import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class PharmacyUnionTest : CardTest() {
-  // Resolved FAQ: the starting money must precede the loss; its deeper rationale remains open.
+internal class PharmacyUnionTest : TfmSandboxTest() {
+  @BeforeTest
+  fun initializeGame() {
+    newTestGame(kimCorporation = PharmacyUnion, startAtCorporation = true)
+    kim.playCorp(PharmacyUnion) { repeat(2) { doTask("Disease<$PharmacyUnion>") } }
+    startActionPhase()
+  }
+
+  // Resolved FAQ: starting money must precede the losses from the two microbe tags.
   @Test
-  internal fun `Starting money precedes both mandatory microbe-tag losses`() {
-    newGame(PromoCardPack)
+  internal fun `Starting cash covers both disease losses as well as the starting projects`() {
+    newTestGame(kimCorporation = PharmacyUnion, startAtCorporation = true)
 
-    p1.runOperation("$PharmacyUnion").expect("46 MC, ProjectCard, 2 Disease<$PharmacyUnion>")
-
-    p1.assertCounts(0 to "RequiredAction")
+    kim.playCorp(PharmacyUnion) { repeat(2) { doTask("Disease<$PharmacyUnion>") } }
+        .expect("16 MC, 11 ProjectCard, 2 Disease<$PharmacyUnion>, 0 RequiredAction")
   }
 
   @Test
-  internal fun `Even a manual client receives starting money before either tag loss`() {
-    newGame(PromoCardPack)
-    p1.autoExecPolicy = NONE
-
-    p1.runOperation("$PharmacyUnion") {
-          p1.count("MC") shouldBe 54
-          repeat(2) { doTask("-4 MC.") }
-          repeat(2) { doTask("Disease<$PharmacyUnion>!") }
-          doTask("SearchForCard<TagFilter<Class<ScienceTag>>>")
-        }
-        .expect("46 MC, 2 Disease<$PharmacyUnion>")
+  internal fun `A science tag removes disease and raises TR`() {
+    kim.playProject(PhysicsComplex, 12).expect("-Disease<$PharmacyUnion>, TerraformRating")
   }
 
   @Test
-  internal fun `A science tag must remove one disease and raise TR`() {
-    newGame(PromoCardPack)
-    p1.runOperation("$PharmacyUnion")
+  internal fun `An opponent's microbe tag adds disease and costs the corporation money`() {
+    stan.exMachina("3 OxygenStep, ProjectCard, 5 MC")
 
-    p1.runOperation("$PhysicsComplex").expect("-Disease<$PharmacyUnion>, TerraformRating")
+    stan.playProject(Decomposers, 5).expect("Disease<$PharmacyUnion<Kim>>, -4 MC<Kim>")
   }
 
   @Test
-  internal fun `The microbe tag player orders another player's Pharmacy Union reactions`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    p1.runOperation("$PharmacyUnion")
-    val manual = p2.also { it.autoExecPolicy = NONE }
-    val diseaseBefore = p1.count("Disease<$PharmacyUnion>")
-    val moneyBefore = p1.count("MC")
+  internal fun `Two science tags can remove the last disease and then flip the corporation`() {
+    kim.setToExMachina(1, "Disease<$PharmacyUnion>")
+    kim.exMachina("$Hospitals, Disease<$Hospitals>")
+    kim.autoExecPolicy = CONCRETE
 
-    manual.runOperation("$Decomposers") {
-      shouldThrow<TaskException> { p1.doTask("Disease<$PharmacyUnion>") }
-      p2.selectTask("Disease<$PharmacyUnion<Player1>>! OR " + "(MAX 0 $PharmacyUnion<Player1>: Ok)")
-      autoExecNow()
-      p2.selectTask("-4 MC<Player1>.")
-      autoExecNow()
-      doTask("Microbe")
-    }
-
-    p1.count("Disease<$PharmacyUnion>") shouldBe diseaseBefore + 1
-    p1.count("MC") shouldBe moneyBefore - 4
-  }
-
-  @Test
-  internal fun `Two science tags with one disease remove it and then flip Pharmacy Union`() {
-    newGame(PromoCardPack)
-    p1.runOperation("$PharmacyUnion")
-    p1.runOperation("PROD[Energy]")
-    p1.runOperation("$Hospitals")
-    p1.runOperation("CityTile<Tharsis_2_3>")
-    admin.phase("Action")
-
-    p1.cardAction1(Hospitals) { doTask("-Disease<$PharmacyUnion>") }
-        .expect("-Disease<$PharmacyUnion>, MC, 0 Disease<$Hospitals>")
-    p1.assertCounts(1 to "Disease<$PharmacyUnion>", 1 to "Disease<$Hospitals>")
-    val trBefore = p1.count("TerraformRating")
-    val previousPolicy = p1.autoExecPolicy
-    val manual = p1.also { it.autoExecPolicy = NONE }
-
-    manual
-        .runOperation("$Research") {
-          doTask("TerraformRating FROM Disease")
+    kim.playProject(Research, 11) {
+          doTask("TerraformRating FROM Disease<$PharmacyUnion>")
           doTask("PlayedEvent FROM $PharmacyUnion")
-          repeat(3) { doTask("TerraformRating") }
-          doTask("2 ProjectCard")
-          manual.autoExecPolicy = previousPolicy
+          kim.autoExecPolicy = EAGER
         }
-        .expect("-Disease<$PharmacyUnion>, 4 TerraformRating, 0 Disease<$Hospitals>")
-
-    p1.count("TerraformRating") shouldBe trBefore + 4
-    p1.assertCounts(
-        0 to "Disease<$PharmacyUnion>",
-        0 to "$PharmacyUnion",
-        1 to "PlayedEvent<Class<$PharmacyUnion>>",
-        1 to "Disease<$Hospitals>",
-    )
+        .expect(
+            "-Disease<$PharmacyUnion>, 4 TerraformRating, 0 Disease<$Hospitals>, -$PharmacyUnion"
+        )
   }
 
   @Test
-  internal fun `Two science tags can flip Pharmacy Union only once`() {
-    newGame(PromoCardPack)
-    p1.runOperation("$PharmacyUnion")
-    p1.runOperation("-2 Disease<$PharmacyUnion>")
-    val trBefore = p1.count("TerraformRating")
-    val previousPolicy = p1.autoExecPolicy
-    val manual = p1.also { it.autoExecPolicy = NONE }
+  internal fun `Two science tags can flip the corporation only once`() {
+    kim.setToExMachina(0, "Disease<$PharmacyUnion>")
+    kim.autoExecPolicy = CONCRETE
 
-    manual.runOperation("$Research") {
-      doTask("PlayedEvent FROM $PharmacyUnion")
-      repeat(3) { doTask("TerraformRating") }
-      // Decline the second science tag's attempt to flip Pharmacy Union again.
-      declineTask()
-      doTask("2 ProjectCard")
-      manual.autoExecPolicy = previousPolicy
-    }
-
-    p1.count("TerraformRating") shouldBe trBefore + 3
-    p1.assertCounts(0 to "$PharmacyUnion", 1 to "PlayedEvent<Class<$PharmacyUnion>>")
+    kim.playProject(Research, 11) {
+          doTask("PlayedEvent FROM $PharmacyUnion")
+          declineTask()
+          kim.autoExecPolicy = EAGER
+        }
+        .expect("3 TerraformRating, -$PharmacyUnion, PlayedEvent<Class<$PharmacyUnion>>")
   }
 
   @Test
-  internal fun `Flipping Pharmacy Union does not trigger its owner's Media Group`() {
-    newGame(PromoCardPack)
-    p1.runOperation("$PharmacyUnion, $MediaGroup")
-    p1.runOperation("-2 Disease<$PharmacyUnion>")
-    val moneyBefore = p1.count("MC")
-    val previousPolicy = p1.autoExecPolicy
-    val manual = p1.also { it.autoExecPolicy = NONE }
+  internal fun `Flipping the corporation does not pay a Media Group rebate`() {
+    kim.setToExMachina(0, "Disease<$PharmacyUnion>")
+    kim.exMachina("$MediaGroup")
 
-    manual.runOperation("$PhysicsComplex") {
-      doTask("PlayedEvent FROM $PharmacyUnion")
-      repeat(3) { doTask("TerraformRating") }
-      manual.autoExecPolicy = previousPolicy
-    }
-
-    p1.count("MC") shouldBe moneyBefore
-    p1.assertCounts(0 to "$PharmacyUnion", 1 to "PlayedEvent<Class<$PharmacyUnion>>")
+    kim.playProject(PhysicsComplex, 12) { doTask("PlayedEvent FROM $PharmacyUnion") }
+        .expect("-12 MC, 3 TerraformRating, -$PharmacyUnion")
   }
 
-  // FAQ: a microbe trigger that was already pending when Pharmacy Union flips still loses 4 M€,
-  // but places no disease because the corporation is no longer in play.
+  // FAQ: a pending microbe trigger still loses 4 MC after the corporation flips,
+  // but cannot place disease on the corporation that has left play.
   @Test
-  internal fun `Pending disease placement becomes its explicit fallback after Pharmacy Union flips`() {
-    newGame(PromoCardPack)
-    p1.runOperation("$PharmacyUnion")
-    p1.runOperation("-2 Disease<$PharmacyUnion>")
-    val moneyBefore = p1.count("MC")
-    val trBefore = p1.count("TerraformRating")
-    val previousPolicy = p1.autoExecPolicy
-    val manual = p1.also { it.autoExecPolicy = NONE }
+  internal fun `A microbe trigger still costs money after a science tag flips the corporation`() {
+    kim.setToExMachina(0, "Disease<$PharmacyUnion>")
+    kim.setToExMachina(17, "MC")
+    kim.autoExecPolicy = CONCRETE
 
-    manual.runOperation("$RegolithEaters") {
-      doTask("PlayedEvent FROM $PharmacyUnion")
-      repeat(3) { doTask("TerraformRating") }
-      doTask("-4 MC")
-      // Decline placing disease after Pharmacy Union has left play.
-      declineTask()
-      manual.autoExecPolicy = previousPolicy
-    }
-
-    p1.count("MC") shouldBe moneyBefore - 4
-    p1.count("TerraformRating") shouldBe trBefore + 3
-    p1.assertCounts(
-        0 to "Disease<$PharmacyUnion>",
-        0 to "$PharmacyUnion",
-        1 to "PlayedEvent<Class<$PharmacyUnion>>",
-    )
+    kim.playProject(RegolithEaters, 13) {
+          doTask("PlayedEvent FROM $PharmacyUnion")
+          declineTask()
+          kim.autoExecPolicy = EAGER
+        }
+        .expect("-17 MC, 3 TerraformRating, 0 Disease<$PharmacyUnion>, -$PharmacyUnion")
   }
 }

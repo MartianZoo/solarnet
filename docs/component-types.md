@@ -48,12 +48,12 @@ As for tile subtypes, we mentioned `OceanTile`, but will get to the rest in the 
 
 ### Actions
 
-Any component that makes actions available for possible selection extends the supertype `HasActions`; these include the abstract classes `StandardAction`, `StandardProject`, and `ActionCard`.
+Any component that makes actions available for possible selection extends the supertype `HasActions`; these include the abstract classes `StandardProject` and `ActionCard`.
 
-The Module that contributes a standard project creates it directly. The player first uses the
-`UseStandardProjectAction` doorway and then selects that project. Therefore the base
-`TerraformingMars` Module creates `AquiferProject`; `UseAction<AquiferProject>` bills the player 18
-money and puts an `OceanTile` instruction on the player's task queue.
+The Module that contributes a standard project creates it directly. The player selects
+`UseStandardProject<AquiferProject>`, a `StandardAction` signal carrying the chosen project.
+It forwards to `UseAction<AquiferProject, Action1>`, which bills the player 18 money and puts an
+`OceanTile` instruction on the player's task queue.
 
 ### Phases
 

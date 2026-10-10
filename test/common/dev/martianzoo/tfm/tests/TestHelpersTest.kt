@@ -1,18 +1,17 @@
-package dev.martianzoo.tfm.tests.rules
+package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.engine.*
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
-import dev.martianzoo.tfm.tests.cards.CardTest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class TestHelpersTest : CardTest() {
+internal class TestHelpersTest : TfmSandboxTest() {
   @Test
   internal fun `Net-change expectations reject empty argument lists`() {
-    newGame()
-    val result = p1.runOperation("GreeneryTile<Tharsis_6_6>")
+    newTestGame()
+    val result = kim.stdProject("GreeneryProject") { placeTile(6, 6) }
 
     result.expect("GreeneryTile")
     shouldThrow<IllegalArgumentException> { result.expect("GreeneryTile<>") }.message shouldBe

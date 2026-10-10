@@ -294,7 +294,8 @@ internal fun Describers.renderActionUse(expression: Expression): NounPhrase? {
     return objectPhrase.withModifier(Modifier.Relation("from", source))
   }
   val propertyMetric = minimum.metric as? Property ?: return null
-  if (propertyMetric.receiver != null) return null
+  val receiver = propertyMetric.receiver
+  if (receiver != null && !sameNamedTypeVariable(receiver, expression)) return null
   val property = use.minimumProperties[propertyMetric.propertyName.value] ?: return null
   if (minimum.target == 1) {
     return objectPhrase.withModifier(

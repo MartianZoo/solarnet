@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.PoliticalAlliance
@@ -12,7 +12,7 @@ internal class PoliticalAllianceTest : TfmSandboxTest() {
   internal fun `Cannot be played without Turmoil`() {
     newTestGame()
 
-    shouldThrow<NarrowingException> { kim.playProject(PoliticalAlliance, 4) }
+    shouldThrow<DeadEndException> { kim.playProject(PoliticalAlliance, 4) }
   }
 
   @Test

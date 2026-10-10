@@ -2,7 +2,7 @@ class_name	english_name	bottom_text	top_text
 BeginnerCorporation	Beginner Corporation	Gain 42 M€. Draw 10 cards.
 CrediCor	CrediCor	Gain 57 M€.	Effect: When you play a card with a printed cost of 20 M€ or more, or use a standard project with a printed cost of 20 M€ or more, gain 4 M€.
 Ecoline	Ecoline	Gain 36 M€ and 3 plants. Increase your plant production 2 steps.	Effect: When you convert plants to greenery, you pay 1 plant less.
-FakeHelion	Helion	[BaseResourceValue<Class<Heat>>]. Gain 42 M€. Increase your heat production 3 steps.	Effect: [Billing<Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>].
+FakeHelion	Helion	[BaseResourceValue<Class<Heat>>]. Gain 42 M€. Increase your heat production 3 steps.	Effect: [Billing<Class<Component>, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>].
 InterplanetaryCinematics	Interplanetary Cinematics	Gain 30 M€ and 20 steel.	Effect: When you play an event card, gain 2 M€.
 Inventrix	Inventrix	Gain 45 M€. As your first action, draw 3 cards.	Effect: When you play a card, you may treat a global parameter requirement as if it is 2 steps lower or higher.
 MiningGuild	Mining Guild	Gain 30 M€ and 5 steel. Increase your steel production 1 step.	Effect: When you place a tile on an area with a titanium or steel placement bonus, increase your steel production 1 step. [Tile<MarsArea(HAS 1 (PlacementBonus<Class<StandardResource>> - PlacementBonus<Class<MC>> - PlacementBonus<Class<Metal>> - PlacementBonus<Class<Plant>> - PlacementBonus<Class<Energy>> - PlacementBonus<Class<Heat>>), HAS MAX 0 PlacementBonus<Class<Metal>>)>: PROD[Steel], Audit].
@@ -86,7 +86,7 @@ NewPartner	New Partner	Increase your M€ production 1 step. Look at 2 Prelude c
 Merger	Merger	Look at 4 corporation cards, then discard 3 of them, then play the other. Remove 42 M€.
 CorporateArchives	Corporate Archives	Gain 13 M€. Look at 7 cards, then keep 2 of them, then discard the rest.
 DoubleDown	Double Down	Copy your other Prelude's direct effect.
-FakeHeadStart	Head Start	[Audit]. Gain 2 steel. Gain 2 M€ per card in hand. Use an action. Use an action.
+FakeHeadStart	Head Start	[Audit]. Gain 2 steel. Gain 2 M€ per card in hand. [MAX 0 RequiredAction: StandardAction] or [RequiredAction: RequiredActionsSignal]. [MAX 0 RequiredAction: StandardAction] or [RequiredAction: RequiredActionsSignal].
 FakeAppliedScience	Applied Science	Add 6 science resources to this card.	Action: Spend 1 science resource from this card to add 1 resource to a card with 1 or more resources on it or gain 1 standard resource. / Effect: [=1 FakeWildTag<This>].
 AtmosphericEnhancers	Atmospheric Enhancers	Raise temperature 2 steps, oxygen 2 steps, or Venus 2 steps. Draw 2 cards with floater icons.
 BoardOfDirectors	Board of Directors	Add 4 director resources to this card.	Action: Draw 1 Prelude card. Discard 1 Prelude card or pay 12 M€ and remove 1 director resource from this card to either play the selected Prelude card or discard it for 15 M€ if it cannot be played.

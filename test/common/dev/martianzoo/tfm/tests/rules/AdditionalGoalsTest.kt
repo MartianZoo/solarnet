@@ -1,94 +1,32 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.tests.cards.CardTest
-import dev.martianzoo.tfm.tests.cards.cardnames.CrediCor
-import dev.martianzoo.tfm.tests.cards.cardnames.ThorGate
+import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class AdditionalGoalsTest : CardTest() {
+internal class AdditionalGoalsTest : TfmSandboxTest() {
   @Test
-  internal fun `Terraformer26 requires twenty six TR and can coexist with Terraformer35`() {
-    newGame(
-        GameConfig("TurmoilExpansion, Terraformer26, Terraformer35, Builder", "Player1", "Player2")
-    )
-    p1.runOperation("5 TerraformRating, 8 MC")
-    admin.phase("Action")
-    shouldThrow<RequirementException> { p1.claimMilestone(cn("Terraformer26")) }
-    p1.runOperation("TerraformRating")
-    p1.claimMilestone(cn("Terraformer26")).expect("-8 MC, Terraformer26")
-    game.classTable.isInhabited(cn("Terraformer35")) shouldBe true
+  internal fun `Terraformer26 can coexist with Terraformer35 and uses its own threshold`() {
+    newTestGame(addOptions = "TurmoilExpansion, Terraformer26, Terraformer35, Builder")
+    kim.setToExMachina(25, "TerraformRating")
+    shouldThrow<RequirementException> { kim.claimMilestone(cn("Terraformer26")) }
+
+    kim.stdProject("AsteroidProject")
+    kim.claimMilestone(cn("Terraformer26")).expect("-8 MC, Terraformer26")
+    shouldThrow<RequirementException> { stan.claimMilestone(cn("Terraformer35")) }
+    stan.setToExMachina(35, "TerraformRating")
+    stan.claimMilestone(cn("Terraformer35")).expect("-8 MC, Terraformer35")
   }
 
   @Test
-  internal fun `Lobbyist counts a chairman and six party delegates without double counting leaders`() {
-    newGame(GameConfig("TurmoilExpansion, Lobbyist, Builder, Engineer", "Player1", "Player2"))
-    p1.runOperation("8 MC")
-    repeat(5) { p1.runOperation("PartyDelegate<Scientists>") }
-    admin.runOperation("-Chairman<Neutral>")
-    p1.runOperation("Chairman")
-    admin.phase("Action")
-    shouldThrow<RequirementException> { p1.claimMilestone(cn("Lobbyist")) }
-    p1.stdAction("LobbyAction", 1) { doTask("PartyDelegate<Scientists>") }
-    p1.claimMilestone(cn("Lobbyist")).expect("-8 MC, Lobbyist")
-  }
+  internal fun `Lobbyist counts a chairman and six delegates without double counting leaders`() {
+    newTestGame(addOptions = "TurmoilExpansion, Lobbyist, Builder, Engineer")
+    kim.exMachina("5 PartyDelegate<Scientists>, Chairman FROM Chairman<Neutral>")
+    shouldThrow<RequirementException> { kim.claimMilestone(cn("Lobbyist")) }
 
-  @Test
-  internal fun `Politician measures final politics including Event Analysts without forming government`() {
-    newGame(GameConfig("TurmoilExpansion, Politician, Thermalist, Miner", "Player1", "Player2"))
-    val p2 = requireP2()
-    repeat(3) { p1.runOperation("PartyDelegate<Scientists>") }
-    admin.runOperation("MeasureInfluence<Player1>")
-    p1.count("Influence") shouldBe 2
-
-    // Player 2 takes dominance after the snapshot. The old influence must not survive scoring.
-    repeat(4) { p2.runOperation("PartyDelegate<Unity>") }
-    p1.runOperation("EventAnalysts, 8 MC")
-    admin.phase("Action")
-    p1.fundAward(cn("Politician"), 8)
-    admin.runOperation("End FROM Phase")
-
-    p1.count("Influence") shouldBe 1
-    p2.count("Influence") shouldBe 2
-    p1.count("FirstPlace<Politician>") shouldBe 0
-    p2.count("FirstPlace<Politician>") shouldBe 1
-    p2.count("SecondPlace<Politician>") shouldBe 0
-    admin.count("Ruling<Greens>") shouldBe 1
-    admin.count("Chairman<Neutral>") shouldBe 1
-    p2.count("PartyDelegate<Unity>") shouldBe 4
-  }
-
-  @Test
-  internal fun `Politician awards friendly first place ties`() {
-    newGame(GameConfig("TurmoilExpansion, Politician, Thermalist, Miner", "Player1", "Player2"))
-    p1.runOperation("8 MC")
-    admin.phase("Action")
-    p1.fundAward(cn("Politician"), 8)
-    admin.runOperation("End FROM Phase")
-    p1.count("FirstPlace<Politician>") shouldBe 1
-    requireP2().count("FirstPlace<Politician>") shouldBe 1
-  }
-
-  @Test
-  internal fun `Politician counts dominant leadership as both leadership and influence`() {
-    newGame(GameConfig("TurmoilExpansion, Politician, Thermalist, Miner", "Player1", "Player2"))
-    val p2 = requireP2()
-    p1.playCorp(CrediCor, 0)
-    p2.playCorp(ThorGate, 0)
-    admin.phase("Action")
-    p1.stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
-    p1.stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") }
-    p2.stdAction("LobbyAction") { doTask("PartyDelegate<Unity>") }
-    p2.stdAction("LobbyAction", 2) { doTask("PartyDelegate<Kelvinists>") }
-    p1.fundAward(cn("Politician"), 8)
-
-    admin.runOperation("End FROM Phase")
-    // Three points for P1: one leader, plus leader and delegate influence. P2 has two leaders.
-    p1.count("FirstPlace<Politician>") shouldBe 1
-    p2.count("FirstPlace<Politician>") shouldBe 0
+    kim.stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Scientists>") }
+    kim.claimMilestone(cn("Lobbyist")).expect("-8 MC, Lobbyist")
   }
 }

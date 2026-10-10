@@ -4,6 +4,23 @@
 
 Issue links provide background. Inline TODOs should be brief context pointers.
 
+## Standard actions
+
+- [ ] Remove the action-slot dependency from general-purpose `Billing`. Investigate generated
+  `Foo_Action1` and `Foo_Action2` classes as the actions' identities, preserving authored `This`
+  references to the source card and the card's shared once-per-generation use.
+
+- [ ] Keep gated System work with Admin when the gate becomes available. With player autoexecution
+  disabled, `MAX 0 Billing: DefaultGreeneryTile` currently needs the player to select it after
+  payment before Admin performs the signal; `Game20230521Test` shows the extra selections.
+
+## Physical game conversion — 2026-10-09
+
+- [ ] Continue `OtbGame20261009Test` when the next recording is supplied. The current replay
+  covers generations 1–5 and stops before generation 6 Research. Preserve its direct
+  `doTasks(...)` style, disabled player autoexecution, and automatic Admin.
+  Original evidence and remaining source limits are in `_local/replays/Game20261009/sources.md`.
+
 ## Consensus top five project concerns — 2026-10-08
 
 Ranked after independent Codex and Opus/xhigh reviews and three debate rounds, reviewing
@@ -14,7 +31,8 @@ These concerns remain open; the ranking does not select replacement designs.
 1. **Operation completion and delegated control lack a coherent rule.** Per-task locking and
    cleanup at global queue exhaustion do not reliably describe an action and all its delegated
    work. Neptunian and Head Start cases expose the consequences. Resolve the underlying lifecycle
-   rule; see [sequencing](docs/agents/SEQUENCING.md).
+   rule; see [sequencing](docs/agents/SEQUENCING.md) and the selected
+   [turn terminology, lifecycle, and Head Start direction](docs/agents/SEQUENCING.md#turns-and-turn-offers).
 2. **Payment validation differs between execution paths.** The gameplay helper rejects paying
    11 M€ for the 10 M€ Olympus Conference, while the REPL accepts and spends all 11. Separately,
    the payer's own resource loss for another purpose can settle an open bill. Make validation
@@ -68,21 +86,11 @@ These concerns remain open; the ranking does not select replacement designs.
   audience and intended-contract standards. Preserve useful Pets documentation and fill gaps;
   track implementation defects separately. This standards update does not complete the module
   documentation or conformance audits.
-- [ ] Continue migrating legacy card/rule tests to `TfmSandboxTest` or `TfmGameplayTest` in larger
-  batches. Review scenario value first; select gameplay when real turn/phase progression is part
-  of the claim, and use representative base-game content for shared rules. The
-  [fixture plan](docs/agents/TESTING.md#remaining-fixture-development) tracks remaining solo-map setup
-  and reassessment of sandbox phase shortcuts. Both styles support Prelude and corporation entry;
-  sandbox scoring with rollback is available through `victoryPoints()`. Gameplay setup conveniences
-  may play ordered default cards normally; explicit Prelude play is sufficient for current callers.
-  Investigate automatic attack-history effects separately; reassess and delete injected scenarios
-  without credible gameplay routes.
-  Head Start interactions remain in `HeadStartTest`, and Sagitta's wild-tag interaction remains in
-  `FakeWildTagTest`, until their fake-card setups can be replaced. Reassess the legacy Mons Insurance
-  ordering tests separately; they still drive internal tasks directly.
-  Recyclon's migration still needs explicit resolution of its starting microbe choice. The default
-  corporation setup cannot resolve that choice, and sandbox corporation entry currently has no
-  supported transition into Action phase; settle the smallest setup approach before migrating it.
+- [ ] Extend the fixtures' solo-map placements when a scenario needs maps beyond Tharsis, Hellas,
+  and Elysium; reassess sandbox phase shortcuts only from concrete needs. See the
+  [fixture notes](docs/agents/TESTING.md#remaining-fixture-development).
+- [ ] Investigate automatic attack-history effects separately; test migration does not justify
+  changing the effects used by Law Suit and Crash Site Cleanup.
 - [ ] Investigate enforcing the workflow's offered turn order in `TfmGameplayTest`. `Agent.inTurn`
   currently creates a turn whenever the acting player has no pending task, even while another
   player's turn is pending. Preserve authentic gameplay without adding a second test-side game
@@ -187,7 +195,8 @@ These concerns remain open; the ranking does not select replacement designs.
 - Fix Point Luna's played-Earth-tag response so a temporary assigned tag still counts for Cartel
   but does not cause a card draw. First try the existing card-holder distinction; do not bypass
   trigger execution. Full wild-tag assignment remains deferred until a clean rule representation is
-  available; historical replays still use explicit adjustments for unsupported choices.
+  available; the intended lifetime is the accepted [turn](docs/agents/SEQUENCING.md#uses-of-the-scope).
+  Historical replays still use explicit adjustments for unsupported choices.
 - Keep Fake Self-Replicating Robots permanently in `:tfm-fake`. Move its paired defect scenarios
   from `SelfReplicatingRobotsTest` into that module. Reuse existing test-support sources before
   considering a fixture API.
@@ -324,6 +333,9 @@ These concerns remain open; the ranking does not select replacement designs.
 
 ## Autonomous Follow-ups
 
+- Render conditional choices between standard and required actions using shared condition/action
+  semantics. `FakeHeadStart` now exposes these choices as bracketed Pets after the direct-action
+  migration; do not hide their conditions or add a card-specific rendering rule.
 - Model when a Prelude may fizzle instead of relying on the caller's honor. `PlayOrFizzle` Pets
   declares the play or discard choice and 15 M€ compensation, but does not gate the discard branch
   on unplayability; English currently states that caller-verified rule.
@@ -356,6 +368,19 @@ These concerns remain open; the ranking does not select replacement designs.
   [the wording comparisons](docs/english-wording-comparisons/README.md) from verified printed evidence.
 - Correct defaulted Type-variable references: `pets/BugsTest` shows bare references incorrectly
   inheriting their supplier's `<>`.
+- Investigate atomized gains in the first stage of `THEN`: elaborating
+  `2 Rating THEN Coin` with `Rating : Atomized` fails when the first stage expands to a group.
+  This occurs before task recording; keep the Pets fix separate from decision-log work.
+
+- Extend task-text export with the Pets premise and external card identities. Task-id/context-only
+  disambiguation is not yet preserved: retain a meaningful selector before supporting logs that
+  depend on it, rather than trying alternative executions during import. Current replay checks use
+  the same premise in memory and compare engine state, not the test-owned card-name ledger.
+- Reconcile the old score discrepancy in `SoloGame20230721Test` against its original game record
+  (`gf33a06d07a1c`). Restoring normal Flooding play preserves the asserted 95 VP; the legacy comments
+  claimed 99 and reported 111 on herokuapp. The task round-trip verifies reproduction, not which
+  of those source/implementation totals is correct.
+
 - Extend instruction intersection to preserve unresolved shared aliases and unnamed Type unions.
   These currently require a more specific submitted choice; keep task matching conservative and
   never substitute `Ok` for an unrepresentable nonempty intersection.
@@ -417,12 +442,6 @@ attribution, features, and unresolved rule questions. Related symptoms are group
    elaboration rejects the gain. Reproduced during review. See
    [DerivedClassLowerer](src/common/dev/martianzoo/pets/DerivedClassLowerer.kt) and the owner-local
    specialization characterization in [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
-
-3. **Autoexecution throws instead of waiting for another player.** An automated player's currently
-   blocked task causes an exception even when a nonautomated player has a legal task that enables
-   it. Reproduced generically; no normal Mars scenario was identified. See the zero-options fallback
-   in [AutoExecLoop](src/common/dev/martianzoo/agent/AutoExecLoop.kt) and the waiting characterization
-   in [Agent BugsTest](test/common/dev/martianzoo/agent/BugsTest.kt).
 
 4. **Expansion compatibility rejects usable content.** Constructor, Summit Logistics, and Molecular
    Printing are blocked without Colonies; Suitable Infrastructure is blocked without Prelude rules

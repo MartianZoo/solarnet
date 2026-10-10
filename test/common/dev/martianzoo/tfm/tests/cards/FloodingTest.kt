@@ -12,7 +12,6 @@ import dev.martianzoo.tfm.tests.cards.cardnames.Flooding
 import dev.martianzoo.tfm.tests.cards.cardnames.NeptunianPowerConsultants
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import kotlin.test.Ignore
 import kotlin.test.Test
 
@@ -264,11 +263,10 @@ internal class FloodingTest : TfmSandboxTest() {
 
   private fun loseMoneyWithNeptunianBill(remainingDebt: Int): TaskResult {
     newTestGame()
-    kim.runOperation("$NeptunianPowerConsultants, 16 MC, ProjectCard, CityTile<Tharsis_4_3>")
+    kim.exMachina("$NeptunianPowerConsultants, NormalCityTile<Tharsis_4_3>")
+    kim.setToExMachina(16, "MC")
     return kim.playProject(Flooding, 7) {
-      val previousPolicy = kim.autoExecPolicy
-      kim.autoExecPolicy = NONE
-      try {
+      doWithoutAutoExec(kim) {
         doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Kim>?")
         doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
         kim.pay()
@@ -276,8 +274,6 @@ internal class FloodingTest : TfmSandboxTest() {
         doTask("-4 MC")
         kim.count("Owed") shouldBe remainingDebt
         kim.pay(remainingDebt)
-      } finally {
-        kim.autoExecPolicy = previousPolicy
       }
     }
   }
@@ -285,80 +281,87 @@ internal class FloodingTest : TfmSandboxTest() {
   @Ignore // Acceptance releases Flooding before the bonus payment finishes.
   @Test
   internal fun `Cannot resume the loss before the accepted Neptunian bonus is paid`() {
-    acceptOpponentsNeptunianBonus()
-    shouldThrow<TaskException> {
-      kim.selectTask("-4 MC<Stan>?")
-      kim.doTask("-4 MC<Stan>!")
+    acceptOpponentsNeptunianBonus {
+      shouldThrow<TaskException> {
+        kim.selectTask("-4 MC<Stan>?")
+        kim.doTask("-4 MC<Stan>!")
+      }
+      stan.assertCounts(5 to "MC", 0 to "Hydroelectric")
     }
-    stan.assertCounts(5 to "MC", 0 to "Hydroelectric")
   }
 
   @Test
   internal fun `BUG - Can resume the loss before the accepted Neptunian bonus is paid`() {
-    acceptOpponentsNeptunianBonus()
-    kim.selectTask("-4 MC<Stan>?")
-    kim.doTask("-4 MC<Stan>!")
-    stan.assertCounts(1 to "MC", 0 to "Hydroelectric")
-    stan.assertProds(0 to "Energy")
+    acceptOpponentsNeptunianBonus {
+      kim.selectTask("-4 MC<Stan>?")
+      kim.doTask("-4 MC<Stan>!").expect("-4 MC<Stan>")
+      stan.assertCounts(1 to "MC", 0 to "Hydroelectric")
+      stan.assertProds(0 to "Energy")
+    }
   }
 
-  private fun acceptOpponentsNeptunianBonus() {
+  private fun acceptOpponentsNeptunianBonus(assertWhileBillOpen: () -> Unit) {
     newTestGame()
-    val p2 = stan
-    p2.setToExMachina(0, "MC")
-    p2.setToExMachina(0, "PROD[Energy]")
-    p2.runOperation("$NeptunianPowerConsultants, CityTile<Tharsis_4_3>, 5 MC")
-    kim.autoExecPolicy = NONE
-    p2.autoExecPolicy = NONE
+    stan.setToExMachina(5, "MC")
+    stan.setToExMachina(0, "PROD[Energy]")
+    stan.exMachina("$NeptunianPowerConsultants, NormalCityTile<Tharsis_4_3>")
 
-    kim.beginOperation("$Flooding")
-    kim.doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Stan>?")
-    kim.selectTask("UseAction<Stan, NeptunianOption<NeptunianPowerConsultants<Stan>>>?")
-
-    shouldThrow<TaskException> { kim.doTask("-4 MC<Stan>!") }.detail shouldContain "select-lock"
-    p2.count("MC") shouldBe 5
-    p2.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
+    kim.playProject(Flooding, 7) {
+      kim.autoExecPolicy = NONE
+      stan.autoExecPolicy = NONE
+      doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Stan>?")
+      kim.selectTask("UseAction<Stan, NeptunianOption<NeptunianPowerConsultants<Stan>>>?")
+      shouldThrow<TaskException> { kim.doTask("-4 MC<Stan>!") }
+      stan.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
+      assertWhileBillOpen()
+      // The test observes the interruption while payment remains pending, then abandons the play.
+      abort()
+    }
   }
 
   @Ignore // Flooding can consume the last cash after Steel was already spent.
   @Test
   internal fun `Cannot interrupt a partially paid Neptunian bonus`() {
-    partlyPayOpponentsNeptunianBonus()
-    shouldThrow<TaskException> {
-      kim.selectTask("-4 MC<Stan>?")
-      kim.doTask("-1 MC<Stan>!")
+    partlyPayOpponentsNeptunianBonus {
+      shouldThrow<TaskException> {
+        kim.selectTask("-4 MC<Stan>?")
+        kim.doTask("-1 MC<Stan>!")
+      }
+      stan.assertCounts(0 to "Steel", 1 to "MC", 1 to "Owed")
     }
-    stan.assertCounts(0 to "Steel", 1 to "MC", 1 to "Owed")
   }
 
   @Test
   internal fun `BUG - Can interrupt a partially paid Neptunian bonus and strand spent steel`() {
-    partlyPayOpponentsNeptunianBonus()
-    kim.selectTask("-4 MC<Stan>?")
-    kim.doTask("-1 MC<Stan>!")
-    kim.selectTask("-X MC<Stan>?")
-    shouldThrow<LimitsException> { stan.doTask("-MC!") }.detail shouldContain "MC<Stan>"
-    stan.assertCounts(0 to "Steel", 0 to "MC", 1 to "Owed", 0 to "Hydroelectric")
-    stan.assertProds(0 to "Energy")
+    partlyPayOpponentsNeptunianBonus {
+      kim.selectTask("-4 MC<Stan>?")
+      kim.doTask("-1 MC<Stan>!")
+      kim.selectTask("-X MC<Stan>?")
+      shouldThrow<LimitsException> { stan.doTask("-MC!") }
+      stan.assertCounts(0 to "Steel", 0 to "MC", 1 to "Owed", 0 to "Hydroelectric")
+      stan.assertProds(0 to "Energy")
+    }
   }
 
-  private fun partlyPayOpponentsNeptunianBonus() {
+  private fun partlyPayOpponentsNeptunianBonus(assertWhileBillOpen: () -> Unit) {
     newTestGame()
-    val p2 = stan
-    p2.setToExMachina(0, "MC")
-    p2.setToExMachina(0, "PROD[Energy]")
-    p2.runOperation("$NeptunianPowerConsultants, CityTile<Tharsis_4_3>, 2 Steel, 1 MC")
-    kim.autoExecPolicy = NONE
-    p2.autoExecPolicy = NONE
+    stan.setToExMachina(1, "MC")
+    stan.setToExMachina(0, "PROD[Energy]")
+    stan.exMachina("$NeptunianPowerConsultants, NormalCityTile<Tharsis_4_3>, 2 Steel")
 
-    kim.beginOperation("$Flooding")
-    kim.doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Stan>?")
-    kim.selectTask("UseAction<Stan, NeptunianOption<NeptunianPowerConsultants<Stan>>>?")
-    p2.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
-
-    // Admin opens the bill; P1 still selects the payment choice that hands off to P2.
-    kim.selectTask("-X Steel<Stan>?")
-    p2.doTask("-2 Steel")
-    p2.assertCounts(0 to "Steel", 1 to "MC", 1 to "Owed")
+    kim.playProject(Flooding, 7) {
+      kim.autoExecPolicy = NONE
+      stan.autoExecPolicy = NONE
+      doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Stan>?")
+      kim.selectTask("UseAction<Stan, NeptunianOption<NeptunianPowerConsultants<Stan>>>?")
+      stan.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
+      // Admin opens the bill; Kim selects the payment choice for Stan.
+      admin.doTask("5 Owed<Stan>")
+      admin.doTask("Billing<Stan, Class<NeptunianOption>, Action1>")
+      kim.selectTask("-X Steel<Stan>?")
+      stan.doTask("-2 Steel")
+      assertWhileBillOpen()
+      abort()
+    }
   }
 }

@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -62,7 +61,7 @@ internal abstract class TfmGameplayTest : TfmTest() {
                 (GameConfig(BASE_GAME_OPTIONS).includedClassNames + options.includedClassNames) -
                     options.excludedClassNames
         )
-    game = TfmEngine.newGame(Canon.gamePremise(config))
+    game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
     bindPlayers()
   }
 

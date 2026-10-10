@@ -4,7 +4,6 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
 public object TfmClasses {
-  private val STANDARD_ACTION = cn("StandardAction")
 
   internal val END = cn("End")
 

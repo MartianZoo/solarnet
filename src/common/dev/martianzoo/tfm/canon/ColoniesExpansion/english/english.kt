@@ -60,6 +60,7 @@ internal val coloniesEnglishDeclarations: List<Pair<ClassName, ComponentDescribe
         cn("Trade") to ComponentDescriber(changeFrame = Frame.Procedure("trade")),
         cn("TradeAction") to
             ComponentDescriber(
+                changeFrame = Frame.Procedure("use", "the Trade standard action"),
                 actionUse =
                     ComponentDescriber.ActionUse(
                         reference =
@@ -72,6 +73,6 @@ internal val coloniesEnglishDeclarations: List<Pair<ClassName, ComponentDescribe
                                 categoryNoun =
                                     ComponentDescriber.Noun.Counted("resource", "resources"),
                             ),
-                    )
+                    ),
             ),
     )

@@ -1,7 +1,12 @@
 "Expansion adding the Terraforming Committee and Global Events"
 CLASS TurmoilExpansion : Module {
+  UseTurmoilPolicyAction<Action1>:: UseAction<ScientistsPolicy, Action1>
+  UseTurmoilPolicyAction<Action2>:: UseAction<KelvinistsPolicy, Action1>
+  LobbyAction<Action1>: -LobbyActionAvailable! THEN PartyDelegate
+  LobbyAction<Action2>: 5 Owed<> THEN Billing<Class<LobbyAction>, Action2>
   This: Neutral, ReferenceFilter<Class<PartyRequirement>>
-  This: LobbyAction, UseTurmoilPolicyAction
+  HAS Class<LobbyAction>, Class<UseTurmoilPolicyAction>
+  -Billing<Class<LobbyAction>>: MAX 6 (Delegate OR LobbyActionAvailable): PartyDelegate
 
   // Party derives each successor edge from this committee-order creation sequence.
   This: MarsFirst THEN Kelvinists THEN Reds THEN Greens THEN Unity THEN Scientists
@@ -284,9 +289,8 @@ CLASS RecalculateDominance<Source@Party> : Signal {
 }
 
 "The repeatable lobbying action, free from the Lobby or costing 5 M€"
-CLASS LobbyAction : StandardAction {
-  LobbyActionAvailable -> PartyDelegate
-  5 MC -> MAX 6 (Delegate OR LobbyActionAvailable): PartyDelegate
+CLASS LobbyAction<ActionSlot> : StandardAction {
+  DEFAULT LobbyAction<Action1>
 }
 
 "Restores free lobbying for each player who has an available delegate"
@@ -316,7 +320,6 @@ ABSTRACT CLASS Policy<Ruling<Party>, ActionPhase> {
   HAS MAX 1 Policy
 }
 
-CLASS UseTurmoilPolicyAction : StandardAction {
-  -> UseAction<ScientistsPolicy, Action1>
-  -> UseAction<KelvinistsPolicy, Action1>
+CLASS UseTurmoilPolicyAction<ActionSlot> : StandardAction {
+  DEFAULT UseTurmoilPolicyAction<Action1>
 }

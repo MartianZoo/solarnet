@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -13,14 +13,14 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
     newTestGame(playerCount = 2, kimCorporation = Inventrix)
     passFirstGeneration()
 
-    kim.stdAction("DoRequiredActionsAction").expect("3 ProjectCard")
+    kim.stdAction("RequiredActionsSignal").expect("3 ProjectCard")
   }
 
   @Test
   internal fun `Can play a project after resolving its mandatory card draw`() {
     newTestGame(playerCount = 2, kimCorporation = Inventrix)
     passFirstGeneration()
-    kim.stdAction("DoRequiredActionsAction")
+    kim.stdAction("RequiredActionsSignal")
 
     kim.playProject(Mine, 4).expect("PROD[Steel]")
   }
@@ -29,7 +29,7 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
   internal fun `Cannot play a project before resolving its mandatory card draw`() {
     newTestGame(playerCount = 2, kimCorporation = Inventrix)
 
-    shouldThrow<RequirementException> { kim.playProject(Mine, 4) }
+    shouldThrow<NarrowingException> { kim.playProject(Mine, 4) }
     kim.count("$Mine") shouldBe 0
     kim.count("RequiredAction") shouldBe 1
   }
@@ -39,7 +39,7 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
     newTestGame(playerCount = 2, kimCorporation = Inventrix)
     passFirstGeneration()
 
-    shouldThrow<RequirementException> { kim.stdProject("AsteroidProject") }
+    shouldThrow<NarrowingException> { kim.stdProject("AsteroidProject") }
     admin.count("TemperatureStep") shouldBe 0
     kim.count("RequiredAction") shouldBe 1
   }
@@ -54,7 +54,7 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
     passFirstGeneration()
     kim.count("Heat") shouldBe 8
 
-    shouldThrow<RequirementException> { kim.convertHeat() }
+    shouldThrow<NarrowingException> { kim.convertHeat() }
     kim.count("Heat") shouldBe 8
     kim.count("RequiredAction") shouldBe 1
   }

@@ -8,8 +8,8 @@
 >
 > **Skip when:** doing a read-only task that requires no build or behavioral claim.
 >
-> **Status:** current repository procedure; the project-card suite is actively migrating to the
-> sandbox and gameplay fixtures described below.
+> **Status:** current repository procedure; card and rule scenarios use the sandbox and gameplay
+> fixtures described below.
 
 ## Read only the needed section
 
@@ -29,8 +29,6 @@
   integrated setup and gameplay scopes.
 - [`TestHelpers.kt`](../../test/common/dev/martianzoo/tfm/tests/TestHelpers.kt) —
   search for the named helper before spelling raw task text.
-- [`CardTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/CardTest.kt) —
-  read for component-focused scenario construction.
 - [`TfmSandboxTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmSandboxTest.kt) —
   focused scenarios with corrections and selected phase shortcuts.
 - [`TfmGameplayTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmGameplayTest.kt) —
@@ -67,7 +65,8 @@ only when the change crosses a wider scope or the narrower result leaves a mater
 - `./gradlew :tfm-tests:jvmTest` runs the replay tests and writes one opaque JSON recording per
   successful `AbstractFullGameTest` subclass under that module's
   `generated/replay-event-logs` build directory. The browser viewer applies those recordings through
-  `:state` and never runs the engine.
+  `:state` and never runs the engine. Rebuilding viewer resources packages all generated recordings
+  and their task-text files; the selected game's `Task text` link opens its export.
 - `./gradlew :tfm-tests:replayTestCoverage` runs only tests in the replay package and writes HTML and
   XML production-code coverage reports under that module's `reports/jacoco/replayTestCoverage`
   build directory. Its execution data comes from the separate `replayTest` task, so card, rule,
@@ -209,9 +208,9 @@ for correct ownership.
 
 ### Test categories we care about
 
-Legacy card and game-rule scenarios are moving to the `TfmSandboxTest` and `TfmGameplayTest`
-fixtures described below. Choose authentic workflow where the claim depends on it; focused sandbox
-scenarios remain an intended style. Existing tests have not all migrated.
+Card and game-rule scenarios use the `TfmSandboxTest` and `TfmGameplayTest` fixtures described
+below. Choose authentic workflow where the claim depends on it; focused sandbox scenarios remain
+an intended style.
 Dedicated REPL mode tests and lower-level engine or bootstrap tests retain their distinct subjects.
 Do not replace manual phase calls with helpers that recreate the workflow in Kotlin.
 
@@ -227,7 +226,7 @@ clear coverage of these contracts matters more than preserving every current tes
    independent playback views remain coherent without firing effects. Cross-module engine
    scenarios cover consequence calculation and failure atomicity: a failed operation must restore
    present components, pending work, and recorded history together.
-4. **Player-level card and game-rule tests.** `CardTest` scenarios count when they use actions and
+4. **Player-level card and game-rule tests.** Scenarios count when they use actions and
    observations available to a player rather than internal state or implementation details.
    `CoreRulesTest` documents game-wide rules in this same style.
 5. **Whole-game tests.** Long scenarios that show the workflow and many rules operate together,
@@ -303,8 +302,11 @@ migration rules below. Other card tests use the smallest suitable configuration 
 name their gameplay objects. Use `runOperation()` when an operation's resulting setup matters and a
 direct correction is not suitable. Card and rule scenarios do not call `sneak` directly; eligible
 project-card scenarios use the fixture's explicit `exMachina` setup methods.
-Synthetic card scenarios pass their card and supporting `ClassDeclaration`s to the `CardTest`
-constructor; they are composed with Canon and selected in that test's premise.
+Synthetic engine checks can construct a premise directly from `TfmTest`, using the existing
+`canonicalPremise` and `setUpGame` functions. `FakeWildTagTest` exercises explicit temporary-tag
+injection, and `VerminTest.Attribution` supplies a synthetic listener; neither represents a
+player-facing scenario through sandbox or gameplay. Audit-history and arbitrary task-selection
+checks also use `TfmTest` directly rather than claiming authentic gameplay.
 When a custom instruction reads authored card metadata from the catalog, compose the synthetic
 card into a fixture `TfmCatalog`; premise-only declarations do not populate that metadata.
 Use `placeTile(row, column)`, `addCardResources(card)`, and `wgt(choice)` instead of spelling their
@@ -324,8 +326,7 @@ Full-game tests override a `config` property with a `GameConfig`, conventionally
 indented multiline string followed by player-name varargs. Catalog-backed premise resolution adds
 `TerraformingMars` and, when no other map is named, `TharsisMap`; the parser already trims each
 entry, so these literals do not need `trimIndent()`. Solo tests conventionally use `Me` as the
-canonical Player Class Name and use `Player.PLAYER1` in Kotlin. The raw-configuration
-overload in `CardTest` uses the same resolution path.
+canonical Player Class Name and use `Player.PLAYER1` in Kotlin.
 
 ### Sandbox and gameplay fixture migration
 
@@ -353,8 +354,8 @@ corporation with a required first action.
 
 Both normally return at generation 1 Prelude phase when `PreludeExpansion` is selected, otherwise
 Action phase. `startAtCorporation = true` instead returns before any corporation is played;
-the test then makes the corporation plays explicitly. Select `kimCorporation` to give Kim the normal
-corporation path (retaining ten starting projects for purchase); other seats use the beginner path.
+the test then makes the corporation plays and their choices explicitly. Do not add corporation-choice
+arguments to the fixture. Select `kimCorporation` to give Kim the normal corporation path (retaining ten starting projects for purchase); other seats use the beginner path.
 Unless `startAtCorporation` is true, the fixture plays all starting corporations before returning.
 The default game has:
 
@@ -439,8 +440,10 @@ same semantic pattern for another card with different literals.
 Every state change in a migrated sandbox test must come from real player-facing gameplay or from
 its explicit fixture methods. Do not use `runOperation`, `beginOperation`, `sneak`, arbitrary manual
 phase changes, or other lower-level shortcuts in either fixture's subclasses. The sandbox provides
-`startActionPhase()` to skip unplayed Preludes when their play is irrelevant; finish pending choices
-first. Gameplay leaves those choices to the test and advances through the normal workflow.
+`startActionPhase()` to leave explicit corporation setup or skip unplayed Preludes when their play
+is irrelevant; finish pending choices first. This is a sandbox shortcut, so other unplayed starting
+cards need not be resolved when they are irrelevant to the scenario. Gameplay leaves those choices
+to the test and advances through the normal workflow.
 
 In sandbox tests, conditions beyond that initial state should normally be direct, visible corrections:
 
@@ -496,8 +499,6 @@ not itself express a preferred style.
 
 - Extend the neutral-placement defaults in both bases when a solo scenario needs a map other than
   Tharsis, Hellas, or Elysium. Solo alone does not select gameplay over sandbox.
-- Continue migration in substantial batches after reviewing each scenario's value. Use the existing
-  expansion/map selections and real workflow before considering another fixture capability.
 - Reassess the sandbox's allowed phase shortcuts from concrete needs. A general `advanceTo(Phase)`
   is no longer presumed necessary. Do not introduce a corporation-specific base without a need
   beyond what these two styles already provide.
@@ -511,8 +512,8 @@ For unusual injected sequences, seek a credible gameplay route. Delete a scenari
 exists rather than adding fixture machinery to recreate it. A route possible only through Fake Head
 Start does not by itself establish useful supported-game coverage.
 
-Continue with easier classes first, in substantial batches. Review each retained scenario's value,
-setup, assertions, and name within the batch; larger batches do not relax those checks. Track open
+When rewriting rule suites, review each retained scenario's value, setup, assertions, and name
+within the batch; larger batches do not relax those checks. Track open
 fixture work in `TODO.md` rather than treating these intentions as already available APIs.
 
 ### Expectations
@@ -530,6 +531,10 @@ source states an absolute value or the absolute state itself is the subject. Fai
 aborted actions have no successful `TaskResult`, so assert their relevant unchanged state directly.
 Use a zero scalar, such as `0 Plant` or `PROD[0 Energy]`, to assert that a particular type did not
 change.
+
+An action's result does not include automatic workflow operations that run afterward. To check
+those phase effects, compare the relevant state immediately before and after the phase; for example,
+snapshot resources after production and before the world-government choice when testing Turmoil.
 
 Cover meaningful interfaces, negative cases, non-targets, and option combinations rather than only
 the happy path. A filtering or Type-variable test should include several tempting Components that must not
@@ -579,6 +584,27 @@ calls; retain its state checkpoints and final score/winner assertions. Purchase 
 `Hand` are explicit tasks. Keep the replay's task calls instead of reintroducing
 `TfmGameplay` action, payment, or turn helpers. Shared score-preview assertions roll back their
 scoring simulation without changing any Actor's autoexecution policy.
+
+`AbstractFullGameTest` starts `Agents.taskLog` before gameplay. After each successful JVM
+replay, `ReplayExportExtension` writes Actor/task text beside the viewer JSON and imports it into a
+fresh game using the same premise and normal workflow. All imported Players use `NONE`; Admin
+retains aggressive autoexecution. The check compares every component, idle state, and pending task
+(including its instruction, continuation, ownership, selection, and causal ancestry; incidental
+ids and event ordinals may differ).
+A round-trip failure fails the test. Replays must keep the normal workflow running and use
+ordinary task submissions instead of injecting operations. Partial games may stop with decisions
+pending; hypothetical scoring checks use `withScorePreview`, which restores the live game.
+The hook reports each successful round-trip in test output.
+
+Task text retains submitted syntax and records policy-executed Player work explicitly, so import
+does not reproduce the source's Player policies. Routine Admin work is omitted; explicit Admin
+choices such as global-event identities remain. Plain instructions replay through `doTasks`; `DO`
+uses single-task `doTask` semantics. `CHOOSE` preserves selections and committed form instructions,
+including partial choices that leave work pending. Later full form instructions replace earlier
+form narrowings when they only edited that task. Uncommitted form edits are not recorded;
+round-trips compare resulting state rather than requiring identical intermediate events.
+`DROP` and `EX MACHINA` retain interventions. See `TaskLog` KDoc for supported scope.
+The task text still requires its caller to supply the premise and launch the workflow.
 
 Whole-game tests are high-value integration coverage. When translating a supplied game log:
 

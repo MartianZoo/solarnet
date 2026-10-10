@@ -492,8 +492,6 @@ internal object TerraformingMarsDescribers {
                         "action-used markers",
                     )
             ),
-        klass("Award") to
-            ComponentDescriber(changeFrame = Frame.Procedure("fund", "an award for free")),
         klass("ProdOffset") to ComponentDescriber(productionOffset = true),
         klass("QuickStartVariant") to ComponentDescriber(productionOffset = true),
         klass("VictoryPoint") to ComponentDescriber(score = ComponentDescriber.Score("VP", "VPs")),
@@ -521,7 +519,7 @@ internal object TerraformingMarsDescribers {
                             ),
                     )
             ),
-        klass("ConvertPlantsAction") to
+        klass("ConvertPlants") to
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
@@ -550,27 +548,22 @@ internal object TerraformingMarsDescribers {
                             ),
                     )
             ),
-        klass("ClaimMilestoneAction") to
+        klass("Milestone") to
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
-                        reference =
-                            ComponentDescriber.ActionUse.Reference.Fixed(
-                                "the Claim Milestone standard action"
-                            ),
+                        reference = ComponentDescriber.ActionUse.Reference.Fixed("a milestone"),
                         paymentDiscount = ComponentDescriber.PaymentDiscount("claim a milestone"),
                     )
             ),
-        klass("FundAwardAction") to
+        klass("Award") to
             ComponentDescriber(
+                changeFrame = Frame.Procedure("fund", "an award for free"),
                 actionUse =
                     ComponentDescriber.ActionUse(
-                        reference =
-                            ComponentDescriber.ActionUse.Reference.Fixed(
-                                "the Fund Award standard action"
-                            ),
+                        reference = ComponentDescriber.ActionUse.Reference.Fixed("an award"),
                         paymentDiscount = ComponentDescriber.PaymentDiscount("fund an award"),
-                    )
+                    ),
             ),
         klass("HasActions") to
             ComponentDescriber(
@@ -579,6 +572,18 @@ internal object TerraformingMarsDescribers {
                         reference = ComponentDescriber.ActionUse.Reference.AnyAction,
                         paymentDiscount = ComponentDescriber.PaymentDiscount("use an action"),
                     )
+            ),
+        klass("StandardAction") to
+            ComponentDescriber(
+                triggerFrame = Trigger.Named("take", "an action"),
+                actionUse =
+                    ComponentDescriber.ActionUse(ComponentDescriber.ActionUse.Reference.AnyAction),
+            ),
+        klass("RequiredActionsSignal") to
+            ComponentDescriber(
+                triggerFrame = Trigger.Named("take", "an action"),
+                actionUse =
+                    ComponentDescriber.ActionUse(ComponentDescriber.ActionUse.Reference.AnyAction),
             ),
         klass("CardPurchase") to
             ComponentDescriber(

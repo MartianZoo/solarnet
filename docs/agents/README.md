@@ -1,13 +1,15 @@
 # Agent documentation router
 
 > **Agent information:** These are focused notes for agents. They can record human decisions, but
-> they are not human-authored documentation. Source, specifications, and tests win when a note
-> differs.
+> they are not human-authored documentation. Source, specifications, and tests establish current
+> behavior; explicitly recorded design decisions may describe intended behavior not yet implemented.
 
-Read only the route needed for the task. Current project direction lives in the human-facing
+Read only the route needed for the task. Capture design decisions in the individual owning
+`docs/agents/` notes, distinguishing agreed intent, proposals, open questions, and current behavior.
+The human-facing
 [`SOLARNET_ROADMAP.md`](../../SOLARNET_ROADMAP.md) and
-[`PETS_ROADMAP.md`](../../PETS_ROADMAP.md); bounded loose work lives in
-[`TODO.md`](../../TODO.md). Do not recreate a separate agent portfolio of future plans.
+[`PETS_ROADMAP.md`](../../PETS_ROADMAP.md) index those notes and summarize priorities and status;
+they should not own detailed design decisions. Bounded loose work lives in [`TODO.md`](../../TODO.md).
 
 ## Behavior and architecture
 
@@ -17,8 +19,8 @@ architecture change. Then choose the narrowest relevant note:
 | Subject | Read |
 | --- | --- |
 | Live World construction, components, tasks, effects, transactions, rollback, or Agent responsibilities | [`ENGINE.md`](ENGINE.md) |
-| Actor attribution, Admin, assignment, delegated narrowing, context ownership, or lexical `Me` | [`IDENTITY.md`](IDENTITY.md) |
-| Task order, `THEN`, automatic effects, delegated control, cleanup, or task priority | [`SEQUENCING.md`](SEQUENCING.md) |
+| Actor attribution, on-turn identity, Admin, assignment, delegated narrowing, context ownership, or lexical `Me` | [`IDENTITY.md`](IDENTITY.md) |
+| Turns and offers, Head Start timing, task order, `THEN`, automatic effects, delegated control, cleanup, or task priority | [`SEQUENCING.md`](SEQUENCING.md) |
 | Payment choices, accepted resources, billing, or settlement | [`PAYMENTS.md`](PAYMENTS.md) |
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) |
 | Direct correction, `exMachina`, `sneak`, effect suppression, or correction invariants | [`EX_MACHINA.md`](EX_MACHINA.md) |
@@ -31,9 +33,9 @@ custody, or agreement on a live game as an engine gap, use the adversarial-play 
 responsibilities belong to the surrounding application, whose implementation remains open.
 
 For actions, workflow, public client APIs, automatic policy, export, runtime layering, diagnostics,
-or content selection, inspect the current source and tests first. Use the matching roadmap only for
-selected future direction. The retired agent notes for those subjects had become duplicate design
-records.
+or content selection, inspect the current source and tests for implemented behavior. Use the matching
+roadmap to locate the owning design note and understand its priority and status. Keep detailed
+decisions in that note rather than duplicating them in the roadmap.
 
 ## API specifications and KDoc
 
@@ -56,8 +58,9 @@ implementation defects. Inspect the relevant source, specifications, and tests a
 | Kotlin declaration visibility | [`VISIBILITY.md`](VISIBILITY.md) |
 
 For Catalog, Bundle, Module, Content, configuration, or game-view class tables, begin with KDoc on
-`Catalog`, `Bundle`, and `GamePremise`, followed by the matching tests. Completed migration ledgers
-and proposed replacement models are intentionally not preserved here.
+`Catalog`, `Bundle`, and `GamePremise`, followed by the matching tests. Record selected replacement
+designs and open design questions in the owning note; retire superseded proposals and completed
+migration ledgers after preserving their relevant conclusions.
 
 ## Verification and reconstruction
 
@@ -73,10 +76,14 @@ and proposed replacement models are intentionally not preserved here.
 
 ## Maintain this collection
 
-- Keep a note only when it owns a current contract or a repeatable procedure that is not clearer in
-  source, specification, KDoc, tests, a roadmap, or `TODO.md`.
+- Each subject's note owns its design decisions, including selected future behavior and unresolved
+  design questions. Prefer updating an existing owning note; link between subjects rather than
+  duplicating decisions. Keep roadmap entries to brief summaries, status, and links.
+- Current contracts and repeatable procedures may also live here when not clearer in source,
+  specification, KDoc, or tests. Keep miscellaneous implementation tasks in `TODO.md`.
 - Link to source and meaningful tests instead of copying inventories that drift.
 - Give source files and stable search strings rather than line numbers.
 - Delete completed audits, migration ledgers, experiments, and design alternatives after their
   current conclusion has moved to the proper source of truth.
-- Do not add an agent document merely to collect possible future work.
+- Add a design note for a distinct subject when needed, not merely to collect miscellaneous future
+  work. Register it in this router and link it from the relevant roadmap entry.

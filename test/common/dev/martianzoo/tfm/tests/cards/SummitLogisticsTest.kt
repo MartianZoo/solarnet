@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -12,7 +12,7 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
   internal fun `Is unavailable when Turmoil is absent`() {
     newTestGame("Prelude2CardPack")
 
-    shouldThrow<NarrowingException> { kim.playProject(SummitLogistics, 10) }
+    shouldThrow<DeadEndException> { kim.playProject(SummitLogistics, 10) }
   }
 
   @Test

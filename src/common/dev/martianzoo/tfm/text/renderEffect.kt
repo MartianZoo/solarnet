@@ -493,9 +493,10 @@ private fun enabledLatchMarker(effect: Effect, describers: Describers): Expressi
 }
 
 private fun resetsAfterAction(trigger: Trigger, describers: Describers): Boolean {
-  val action = describers.actionUseEvent(trigger) ?: return false
-  if (action.slot != null) return false
-  return describers.fact(action.provider.className, ComponentDescriber::actionUse)?.reference ==
+  if (trigger is Trigger.Or) return trigger.triggers.all { resetsAfterAction(it, describers) }
+  val action = (trigger as? OnGainOf)?.expression?.takeIf { it.simple } ?: return false
+  if (describers.triggerFrame(action.className) !is TriggerFrame.Named) return false
+  return describers.fact(action.className, ComponentDescriber::actionUse)?.reference ==
       ComponentDescriber.ActionUse.Reference.AnyAction
 }
 

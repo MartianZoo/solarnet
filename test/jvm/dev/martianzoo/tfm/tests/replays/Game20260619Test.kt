@@ -334,7 +334,7 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // KB claimed Specialist milestone
     // KB ended turn
     KB.turn {
-      stdAction("ClaimMilestoneAction") { doTask("Specialist") }
+      stdAction("ClaimMilestone<Class<Specialist>>")
     }
 
     // ER played Mohole Area
@@ -389,7 +389,7 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // ER claimed Planner milestone
     // ER ended turn
     ER.turn {
-      stdAction("ClaimMilestoneAction") { doTask("Planner") }
+      stdAction("ClaimMilestone<Class<Planner>>")
     }
 
     // KB used Convert Heat standard action

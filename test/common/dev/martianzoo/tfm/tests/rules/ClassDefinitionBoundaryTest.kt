@@ -43,10 +43,10 @@ internal class ClassDefinitionBoundaryTest {
     val twoPlayerGame = classesInGame("", players = 2)
 
     soloGame.shouldContain(cn("SoloOpponent"))
-    soloGame.shouldNotContain(cn("ClaimMilestoneAction"))
+    soloGame.shouldNotContain(cn("ClaimMilestone"))
     soloGame.shouldNotContain(cn("Player2"))
     twoPlayerGame.shouldNotContain(cn("SoloOpponent"))
-    twoPlayerGame.shouldContain(cn("ClaimMilestoneAction"))
+    twoPlayerGame.shouldContain(cn("ClaimMilestone"))
     twoPlayerGame.shouldContain(cn("Player2"))
   }
 
