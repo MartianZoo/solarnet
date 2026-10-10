@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
@@ -116,6 +117,8 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun manualWorkflowStartsFullyEffectfulGenerationOneSetup() {
     val game = TfmEngine.newGame(canonicalPremise())
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
 
     val admin = game.testAgent(ADMIN)
@@ -123,15 +126,22 @@ internal class BootstrapLifecycleTest {
     admin.count("SetupPhase") shouldBe 1
     admin.count("Generation") shouldBe 1
     admin.count("StartToken<Player1>") shouldBe 1
+    admin.count("TerraformRating<Player1>") shouldBe 0
+    admin.count("TerraformRating<Player2>") shouldBe 0
+    p1.doTask("20 TerraformRating")
+    p2.doTask("20 TerraformRating")
     admin.count("TerraformRating<Player1>") shouldBe 20
     admin.count("TerraformRating<Player2>") shouldBe 20
   }
 
   @Test
-  internal fun soloModeProvidesItsStartingTerraformRatingDirectly() {
+  internal fun soloPlayerTakesStartingTerraformRatingDuringSetup() {
     val game = TfmEngine.newGame(canonicalPremise(players = 1))
+    val player = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
 
+    game.testAgent(ADMIN).count("TerraformRating<Player1>") shouldBe 0
+    player.doTask("14 TerraformRating")
     game.testAgent(ADMIN).count("TerraformRating<Player1>") shouldBe 14
   }
 

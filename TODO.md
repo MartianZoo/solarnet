@@ -17,7 +17,7 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 ## Physical game conversion — 2026-10-09
 
 - [ ] Continue `OtbGame20261009Test` when the next recording is supplied. The current replay
-  covers generations 1–5 and stops before generation 6 Research. Preserve its direct
+  covers generations 1–8 and stops before generation 9 Research. Preserve its direct
   `doTasks(...)` style, disabled player autoexecution, and automatic Admin.
   Original evidence and remaining source limits are in `_local/replays/Game20261009/sources.md`.
 
@@ -64,8 +64,8 @@ These concerns remain open; the ranking does not select replacement designs.
 ## User Ideas and Agreed Directions
 
 - Continue the remaining `::` audit without treating current sequencing dependencies as permanent
-  justifications. Preserve intrinsic card-tag construction, old Energy conversion before
-  production, and Pharmacy Union's starting money before its tag penalties.
+  justifications. Preserve intrinsic card-tag construction, conversion of the Energy present when
+  production begins, and Pharmacy Union's starting money before its tag penalties.
 
 - [ ] Extend the build-time Canon invariant checks to indirect special-tile gains behind
   signals or supporting components (`GainsOf`; entry 15 of

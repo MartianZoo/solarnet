@@ -21,7 +21,6 @@ internal class ProductiveOutpostTest : TfmSandboxTest() {
 
     kim.playProject(ProductiveOutpost, 0) {
           doTasks("ProductiveOutpost FROM ProjectCard")
-          doTasks("GainColonyBonus<Io>", "GainColonyBonus<Luna>", "GainColonyBonus<Triton>")
           doTasks("2 Heat", "2 MC", "Titanium")
         }
         .expect("2 MC, 2 Heat, Titanium")

@@ -229,12 +229,12 @@ CLASS SoloColoniesSetup : Owned<Player>, System, Hidden {
 }
 
 "A notch on the production track of a ColonyTile; note a tile has 0 to 6 of these (not 1 to 7)"
-CLASS ColonyProduction<ColonyTile> {
+CLASS ColonyProduction<ColonyTile> : System {
   HAS MAX 6 This
 }
 
 "An implementation detail used to trigger colony bonuses to be paid out"
-CLASS GainColonyBonus<ColonyTile> : Owned<Player>, Signal, Atomized
+CLASS GainColonyBonus<ColonyTile> : Owned<Player>, Signal, Atomized, System
 
 "Advances every colony tile track one step during colony production"
 CLASS AdvanceColonyTracks : Signal, System

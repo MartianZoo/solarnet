@@ -64,7 +64,6 @@ ABSTRACT CLASS GameMode : Module {
 
     HAS Class<ClaimMilestone>, Class<FundAward>
     This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
-    SetupPhase: EACH Me@Player { 20 TerraformRating }
 
     // TODO.md: move final scoring and victory assignment into their real phase boundaries
     -FinalScoringPending: EACH Me@Player(HAS =1 (RANK Me@Player { VictoryPoint, MC })) { Victory }
@@ -90,8 +89,11 @@ ABSTRACT CLASS Player : Owner, Actor {
   ResearchPhase: 4 ProjectCard<This, Selecting> THEN -4 ProjectCard<This, Selecting>? THEN BuySelectedCards<This>
 }
 
-"A player's persistent choice of starting-card procedure"
-ABSTRACT CLASS PlayerMode : Owned<Player>, System
+"A player's persistent choice of starting procedure"
+ABSTRACT CLASS PlayerMode : Owned<Player>, System {
+  This IF MultiplayerMode: 20 TerraformRating
+  This IF SoloMode: 14 TerraformRating
+}
 
 "A unit in the configured number of corporation cards offered to each player"
 CLASS SelectableCorporationCount : System

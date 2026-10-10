@@ -27,6 +27,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
   internal fun game20230521() {
     listOf(p1, p2).forEach { it.autoExecPolicy = NONE }
     TfmWorkflow.Automatic(agents).launch()
+    p1.doTasks("20 TerraformRating")
+    p2.doTasks("20 TerraformRating")
     p1.doTasks(
         "2 CorporationCard",
         "-CorporationCard",
@@ -179,8 +181,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("Pass")
 
     // Generation 2
-    p1.doTasks("33 MC", "-5 MC", "3 Steel")
-    p2.doTasks("25 MC", "-5 MC", "Steel", "Titanium", "3 Heat", "Plant")
+    p1.doTasks("Heat FROM Energy", "28 MC", "3 Steel")
+    p2.doTasks("20 MC", "Steel", "Titanium", "3 Heat", "Plant")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
@@ -277,8 +279,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.doTasks("Pass")
 
     // Generation 3
-    p1.doTasks("-5 MC", "32 MC", "3 Steel", "Energy")
-    p2.doTasks("-5 MC", "26 MC", "Steel", "Titanium", "3 Heat", "Plant")
+    p1.doTasks("27 MC", "3 Steel", "Energy")
+    p2.doTasks("21 MC", "Steel", "Titanium", "3 Heat", "Plant")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
@@ -381,8 +383,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.doTasks("Pass")
 
     // Generation 4
-    p1.doTasks("-5 MC", "35 MC", "3 Steel", "Energy", "Heat")
-    p2.doTasks("-5 MC", "27 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
+    p1.doTasks("Heat FROM Energy", "30 MC", "3 Steel", "Energy", "Heat")
+    p2.doTasks("22 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard FROM BuyCard")
@@ -508,8 +510,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.doTasks("Pass")
 
     // Generation 5
-    p1.doTasks("39 MC", "-5 MC", "3 Steel", "4 Energy", "2 Heat")
-    p2.doTasks("29 MC", "-5 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
+    p1.doTasks("3 Heat FROM Energy", "34 MC", "3 Steel", "4 Energy", "2 Heat")
+    p2.doTasks("Heat FROM Energy", "24 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard FROM BuyCard")
@@ -646,8 +648,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("Pass")
 
     // Generation 6
-    p1.doTasks("-5 MC", "43 MC", "3 Steel", "5 Energy", "3 Heat")
-    p2.doTasks("32 MC", "-5 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
+    p1.doTasks("5 Heat FROM Energy", "38 MC", "3 Steel", "5 Energy", "3 Heat")
+    p2.doTasks("Heat FROM Energy", "27 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
@@ -848,8 +850,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.doTasks("Pass")
 
     // Generation 7
-    p1.doTasks("54 MC", "-5 MC", "5 Steel", "4 Energy", "3 Heat", "Titanium", "Plant")
-    p2.doTasks("36 MC", "-5 MC", "2 Steel", "Titanium", "3 Heat", "Plant", "2 Energy")
+    p1.doTasks("4 Heat FROM Energy", "49 MC", "5 Steel", "4 Energy", "3 Heat", "Titanium", "Plant")
+    p2.doTasks("Heat FROM Energy", "31 MC", "2 Steel", "Titanium", "3 Heat", "Plant", "2 Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard FROM BuyCard")
@@ -993,8 +995,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.doTasks("Pass")
 
     // Generation 8
-    p1.doTasks("55 MC", "-5 MC", "5 Steel", "8 Energy", "3 Heat", "Titanium", "Plant")
-    p2.doTasks("36 MC", "-5 MC", "2 Steel", "2 Titanium", "3 Heat", "Plant", "4 Energy")
+    p1.doTasks("7 Heat FROM Energy", "50 MC", "5 Steel", "8 Energy", "3 Heat", "Titanium", "Plant")
+    p2.doTasks("31 MC", "2 Steel", "2 Titanium", "3 Heat", "Plant", "4 Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
@@ -1186,8 +1188,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.doTasks("Pass")
 
     // Generation 9
-    p1.doTasks("70 MC", "-5 MC", "5 Steel", "8 Energy", "3 Heat", "Titanium", "Plant")
-    p2.doTasks("39 MC", "-5 MC", "2 Steel", "3 Titanium", "3 Heat", "Plant", "3 Energy")
+    p1.doTasks("7 Heat FROM Energy", "65 MC", "5 Steel", "8 Energy", "3 Heat", "Titanium", "Plant")
+    p2.doTasks(
+        "2 Heat FROM Energy",
+        "34 MC",
+        "2 Steel",
+        "3 Titanium",
+        "3 Heat",
+        "Plant",
+        "3 Energy",
+    )
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard FROM BuyCard")
@@ -1445,8 +1455,24 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.doTasks("Pass")
 
     // Generation 10
-    p1.doTasks("75 MC", "-5 MC", "5 Steel", "9 Energy", "3 Heat", "Titanium", "4 Plant")
-    p2.doTasks("49 MC", "-5 MC", "2 Steel", "3 Titanium", "3 Heat", "4 Plant", "3 Energy")
+    p1.doTasks(
+        "8 Heat FROM Energy",
+        "70 MC",
+        "5 Steel",
+        "9 Energy",
+        "3 Heat",
+        "Titanium",
+        "4 Plant",
+    )
+    p2.doTasks(
+        "Heat FROM Energy",
+        "44 MC",
+        "2 Steel",
+        "3 Titanium",
+        "3 Heat",
+        "4 Plant",
+        "3 Energy",
+    )
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
@@ -1697,8 +1723,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
     p2.doTasks("Pass")
     // Generation 11
-    p1.doTasks("-5 MC", "84 MC", "5 Steel", "6 Energy", "3 Heat", "Titanium", "7 Plant")
-    p2.doTasks("53 MC", "-5 MC", "2 Steel", "3 Titanium", "3 Heat", "6 Plant", "9 Energy")
+    p1.doTasks("79 MC", "5 Steel", "6 Energy", "3 Heat", "Titanium", "7 Plant")
+    p2.doTasks(
+        "Heat FROM Energy",
+        "48 MC",
+        "2 Steel",
+        "3 Titanium",
+        "3 Heat",
+        "6 Plant",
+        "9 Energy",
+    )
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
@@ -2003,8 +2037,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("Pass")
     p1.doTasks("Pass")
 
-    p1.doTasks("88 MC", "-5 MC")
-    p2.doTasks("65 MC", "-5 MC")
+    p1.doTasks("Heat FROM Energy", "83 MC")
+    p2.doTasks("7 Heat FROM Energy", "60 MC")
     p1.doTasks("5 Steel")
     p2.doTasks("2 Steel", "3 Titanium", "3 Heat", "9 Plant", "5 Energy")
     p1.doTasks("7 Energy", "3 Heat", "Titanium", "7 Plant")

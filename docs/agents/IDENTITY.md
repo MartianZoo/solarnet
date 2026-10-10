@@ -122,11 +122,11 @@ assignee. Queued work produced during Player-controlled work keeps that Player a
 selection assignee comes from the effect owner, changed component owner, then triggering Actor.
 Admin-controlled reactions instead use those sources to choose the controller in the same order.
 
-A normalized task that gains `System` with a fixed scalar or removes a concrete `System` type,
-including changes scaled by `/` or wrapped in instruction-side `BY`, begins assigned to Admin while
-retaining its controller and selection assignee. An abstract scalar or removal target, and the choice
-whether to perform an optional removal, remain with the Player until narrowed; contextual selection
-reapplies the assignment rule. Transmutations use the gained type for this classification. Gates
+A normalized concrete task that gains or removes a `System` type, including changes scaled by `/` or
+wrapped in instruction-side `BY`, begins assigned to Admin while retaining its controller and
+selection assignee. Abstract targets, amounts, and optional gains or removals remain with the Player
+until narrowed; contextual selection reapplies the assignment rule. Transmutations use the gained
+type for this classification. Gates
 must resolve before this rule applies. A concrete `BY` remains authoritative: naming a non-Admin
 performer for a gain reaches the existing `System` creation guard and fails. The Admin assignment
 changes neither presentation nor scheduling.

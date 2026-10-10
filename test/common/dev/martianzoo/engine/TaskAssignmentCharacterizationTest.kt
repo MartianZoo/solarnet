@@ -282,18 +282,57 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  internal fun adminCanNarrowAnUnselectedAbstractSystemGainByTaskId() {
+  internal fun playerNarrowsAbstractSystemGainBeforeAdminExecutesIt() {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    game.testAgent(ADMIN)
     val checkpoint = game.timeline.checkpoint()
 
     val taskId = p1.addTasks("SystemChoice").single()
-    admin.fillInTask(taskId).apply { narrow("SystemChoiceA") }.commit()
+    p1.tasks.ids().shouldContainExactly(taskId)
+    p1.doTask("SystemChoiceA")
 
     p1.count("SystemChoiceA") shouldBe 1
     game.events.changesSince(checkpoint).single().actor shouldBe ADMIN
     game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun optionalAndAlternativeSystemGainsKeepTheSamePlayerChoice() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    game.testAgent(ADMIN)
+
+    listOf("SystemToken?", "SystemToken OR Ok").forEachIndexed { index, offer ->
+      val declined = p1.addTasks(offer).single()
+      p1.tasks.ids().shouldContainExactly(declined)
+      p1.doTask("Ok")
+      p1.count("SystemToken") shouldBe index
+
+      val accepted = p1.addTasks(offer).single()
+      p1.tasks.ids().shouldContainExactly(accepted)
+      val checkpoint = game.timeline.checkpoint()
+      p1.doTask("SystemToken")
+      p1.count("SystemToken") shouldBe index + 1
+      game.events.changesSince(checkpoint).single().actor shouldBe ADMIN
+    }
+  }
+
+  @Test
+  internal fun playerChoosesAnAbstractSystemTransmutation() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    game.testAgent(ADMIN)
+    p1.runOperation("SystemChoiceA")
+
+    val taskId = p1.addTasks("SystemChoice(NOT Source@) FROM Source@SystemChoice").single()
+    p1.tasks.ids().shouldContainExactly(taskId)
+    val checkpoint = game.timeline.checkpoint()
+    p1.doTask("SystemChoiceB FROM SystemChoiceA")
+
+    p1.count("SystemChoiceA") shouldBe 0
+    p1.count("SystemChoiceB") shouldBe 1
+    game.events.changesSince(checkpoint).single().actor shouldBe ADMIN
   }
 
   @Test

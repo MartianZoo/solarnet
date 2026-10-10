@@ -13,7 +13,7 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
   @Test
   internal fun `Advances active tracks from their current positions and leaves inactive tiles alone`() {
     newTestGame("PreludeExpansion, EarlyColonization, Luna, Ceres, Miranda, Titan, Enceladus")
-    kim.setToExMachina(3, "ColonyProduction<Luna>")
+    admin.sneak("2 ColonyProduction<Luna>")
 
     kim.playPrelude(EarlyColonization) { doTask("Colony<Luna>") }
         .expect(
@@ -44,7 +44,7 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
     newTestGame("PreludeExpansion, EarlyColonization, BoardOfDirectors, Luna, Ceres")
     kim.playPrelude(BoardOfDirectors)
     startActionPhase()
-    kim.setToExMachina(position, "ColonyProduction<Luna>")
+    admin.sneak("${position - admin.count("ColonyProduction<Luna>")} ColonyProduction<Luna>")
 
     shouldThrow<LimitsException> {
       kim.cardAction1(BoardOfDirectors) {

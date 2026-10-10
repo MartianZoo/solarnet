@@ -7,7 +7,6 @@ CLASS SoloMode : GameMode {
 
   This: SoloOpponent
   This: 14 SoloGenerationsLeft
-  SetupPhase: 14 TerraformRating<Player>
   Generation: -SoloGenerationsLeft
 }
 

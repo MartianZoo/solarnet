@@ -40,11 +40,11 @@ import dev.martianzoo.state.TaskResult
 /**
  * Policy-free task and state mutation mechanics attributed to [actor].
  *
- * Tasks that gain a `System` component with a fixed scalar or remove a concrete `System` component
- * are assigned to Admin. Player choices remain with the Player until narrowing makes the change
- * concrete. Selection reapplies this rule after resolving enclosing instructions, while explicit
- * instruction-side `BY` remains authoritative. The original controller and selection recipient are
- * retained for continuations and queued effects.
+ * Concrete changes that gain or remove a `System` component are assigned to Admin. Player choices
+ * remain with the Player until narrowing makes the change concrete. Selection reapplies this rule
+ * after resolving enclosing instructions, while explicit instruction-side `BY` remains
+ * authoritative. The original controller and selection recipient are retained for continuations and
+ * queued effects.
  */
 public class ActorEngine
 internal constructor(
@@ -453,9 +453,9 @@ internal constructor(
   }
 
   /**
-   * Executes a matching task. With [combineScalars], a missing match can instead execute every
-   * concrete scalar-only match when their total equals the submitted change. Existing matches,
-   * including ambiguous matches, take precedence; newly caused tasks do not join that total.
+   * With [combineScalars], a submitted scalar total executes all pending concrete gains and
+   * removals of its type when their signed sum matches. Newly caused tasks do not join the total.
+   * Gains precede removals. Otherwise, executes a single matching task.
    */
   public fun doTask(
       narrowing: InstructionTree,
@@ -466,9 +466,15 @@ internal constructor(
       combineScalars: Boolean = false,
   ) {
     val evaluated = evaluatePer(narrowing)
+    if (
+        combineScalars &&
+            taskId == null &&
+            tasks.selectedTask() == null &&
+            executeScalarSum(evaluated, quantifierOmitted, contextClass)
+    )
+        return
     val id = matchingTask(evaluated, taskId, quantifierOmitted, contextClass)
     if (id == null) {
-      if (combineScalars && executeScalarSum(evaluated, quantifierOmitted, contextClass)) return
       throw TaskException(
           "no matching task; available tasks: ${if (tasks.isEmpty()) "none" else "\n$tasks"}"
       )
@@ -524,7 +530,17 @@ internal constructor(
             change.removing == first.removing &&
             (quantifierOmitted || change.quantifier == first.quantifier)
     if (changes.any { !sameChange(it) }) return false
-    val total = changes.sumOf { (it.count as ActualScalar).value.toLong() }
+    val target = first.gaining ?: first.removing
+    fun sameScalarTarget(change: Change): Boolean =
+        if (first.gaining != null && first.removing != null) sameChange(change)
+        else
+            (change.gaining == target && change.removing == null ||
+                change.removing == target && change.gaining == null)
+    fun signedCount(change: Change): Long {
+      val count = (change.count as ActualScalar).value.toLong()
+      return if (change.gaining == null) -count else count
+    }
+    val total = changes.sumOf(::signedCount)
     val matches =
         tasks
             .extract { it }
@@ -534,17 +550,22 @@ internal constructor(
                   try {
                     instructor.resolve(task.instruction)
                   } catch (_: NotNowException) {
-                    return@mapNotNull null
+                    (task.instruction as? Change)?.takeUnless { it.isAbstract(reader) }
+                        ?: return@mapNotNull null
                   }
-              (resolved as? Change)?.takeIf(::sameChange)?.let { task.copy(instruction = it) }
+              (resolved as? Change)?.takeIf(::sameScalarTarget)?.let {
+                task.copy(instruction = it)
+              }
             }
     if (matches.size < 2) return false
-    if (matches.map { (it.instruction as Change).quantifier }.distinct().size != 1) return false
-    val amounts = matches.map {
-      (it.instruction as Change).count as? ActualScalar ?: return false
-    }
-    if (amounts.sumOf { it.value.toLong() } != total) return false
-    matches.forEach { doTask(it.instruction, taskId = it.id) }
+    val amounts = matches.map { it.instruction as Change }
+    if (amounts.map { it.quantifier }.distinct().size != 1) return false
+    if (!quantifierOmitted && amounts.any { it.quantifier != first.quantifier }) return false
+    if (amounts.any { it.count !is ActualScalar }) return false
+    if (amounts.sumOf(::signedCount) != total) return false
+    matches
+        .sortedBy { (it.instruction as Change).gaining == null }
+        .forEach { doTask(it.instruction, taskId = it.id) }
     return true
   }
 

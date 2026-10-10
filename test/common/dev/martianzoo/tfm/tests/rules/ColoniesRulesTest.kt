@@ -39,8 +39,6 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
         doTask("Trade<Enceladus>")
         doTask("-TradeBarrier")
         doTask("Microbe<$RegolithEaters>")
-        stan.selectTask("GainColonyBonus<Kim, Enceladus>")
-        kim.doTask("GainColonyBonus<Kim, Enceladus>")
         shouldThrow<TaskException> { kim.doTask("Microbe<$NitriteReducingBacteria>") }
         stan.selectTask("Microbe<Kim>.")
         kim.doTask("Microbe<$NitriteReducingBacteria>")
@@ -86,14 +84,12 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
         doTask("Trade<Pluto>")
         doTask("-TradeBarrier")
         doTask("2 ProjectCard")
-        performForKim("GainColonyBonus<Kim, Pluto>")
         performForKim("PlutoLock<Kim>!")
         performForKim("ProjectCard<Kim>")
         shouldThrow<TaskException> { doTask("ProjectCard<Kim>") }
         kim.count("ProjectCard") shouldBe 1
 
         // Another owner's bonus remains available while Kim must discard.
-        doTask("GainColonyBonus<Stan, Pluto>")
         doTask("PlutoLock<Stan>!")
         doTask("ProjectCard<Stan>")
         stan.count("ProjectCard") shouldBe 3
@@ -102,7 +98,6 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
 
         performForKim("-ProjectCard<Kim>")
         performForKim("-PlutoLock<Kim>!")
-        performForKim("GainColonyBonus<Kim, Pluto>")
         performForKim("PlutoLock<Kim>!")
         performForKim("ProjectCard<Kim>")
         kim.count("ProjectCard") shouldBe 1
@@ -180,12 +175,8 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
         doTask("Trade<Titan>")
         doTask("-TradeBarrier")
         doTask("Floater<$Dirigibles>")
-        stan.selectTask("GainColonyBonus<Kim, Titan>")
-        kim.doTask("GainColonyBonus<Kim, Titan>")
         stan.selectTask("Floater<Kim>.")
         kim.addCardResources(ForcedPrecipitation)
-        stan.selectTask("GainColonyBonus<Kim, Titan>")
-        kim.doTask("GainColonyBonus<Kim, Titan>")
         stan.selectTask("Floater<Kim>.")
         kim.addCardResources(ExtractorBalloons)
       }

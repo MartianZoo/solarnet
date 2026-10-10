@@ -36,9 +36,9 @@ import dev.martianzoo.state.Task.TaskId
  * * A concrete selected task is guaranteed to execute successfully
  * * Normalization retains task identity, controller, selection assignee, current assignee,
  *   selection, and cause. Admission and contextual selection assign fixed System gains and concrete
- *   System removals to Admin, including changes scaled by `Per`. Abstract scalars and optional or
- *   abstract-target removals remain for the current assignee to choose; explicit instruction-side
- *   `BY` remains authoritative. Selected tasks cannot be replaced by independent siblings
+ *   System removals to Admin, including changes scaled by `Per`. Abstract changes remain for their
+ *   current assignee to choose; explicit instruction-side `BY` remains authoritative. Selected
+ *   tasks cannot be replaced by independent siblings
  */
 internal class TaskQueues(private val gameWorld: GameWorld) {
   private val classTable: ClassTable = gameWorld.classTable
@@ -99,9 +99,10 @@ internal class TaskQueues(private val gameWorld: GameWorld) {
   }
 
   private fun assignSystemChangeToAdmin(task: Task): Task {
+    if (task.instruction.isAbstract(gameWorld.reader)) return task
     fun change(instruction: Instruction): Change? =
         when (instruction) {
-          is Change -> instruction.takeUnless { it.count.abstract }
+          is Change -> instruction
           is By -> change(instruction.inner)
           is Per -> change(instruction.inner)
           else -> null
@@ -109,7 +110,6 @@ internal class TaskQueues(private val gameWorld: GameWorld) {
     val change = change(task.instruction) ?: return task
     val affected = change.gaining ?: change.removing ?: return task
     val affectedType = classTable.resolve(affected)
-    if (change.gaining == null && change.isAbstract(gameWorld.reader)) return task
     return if (affectedType.rootClass.isSubtypeOf(systemClass)) task.copy(assignee = ADMIN)
     else task
   }
