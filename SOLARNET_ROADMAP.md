@@ -6,6 +6,9 @@ explore a game. The [Pets roadmap](PETS_ROADMAP.md) owns the static language and
 derived English and iconography, and the Almanac. Goals that require both static meaning and live
 execution belong in both roadmaps, with each document describing its part and linking to the other.
 
+This roadmap indexes priorities, status, and the owning notes in [`docs/agents/`](docs/agents/README.md).
+Detailed design decisions belong in those individual notes, including decisions not yet implemented.
+
 The central runtime problem is not missing features. It is the accumulated machinery between
 authored rules, the engine, gameplay helpers, and functional tests. Work is successful when a
 player action follows a small, intelligible path through ordinary rules and general runtime
@@ -21,15 +24,12 @@ after review. **Selected** means the direction is chosen while some design remai
 ## Internal design and game execution
 
 1. **Make actions, payments, delegated control, and completion a single intelligible lifecycle.**
-   **Selected; active design.** A player should be able to initiate an action, another player should
-   be able to control a decision and its payment, and the original player should resume only after
-   the relevant work and cleanup finish. Today action identity, billing, payment offers, task
-   assignment, helper searches, and whole-World idleness divide that story across several systems.
-   Replace this with the smallest general rule that preserves choice, rollback, and Actor authority.
-   [Task priority bands](docs/agents/SEQUENCING.md#task-priority-working-direction) are the working
-   direction for settlement and workflow, and give operation completion a whole-World answer. They
-   do not address delegated control within one operation; nested priority groups and exclusive
-   operation scopes remain alternatives there.
+   **Selected; active design.** Unify the lifecycle while preserving choice, rollback, and Actor
+   authority. See [turns and turn offers](docs/agents/SEQUENCING.md#turns-and-turn-offers), including
+   the Head Start variant, [on-turn identity and routing](docs/agents/IDENTITY.md#who-is-on-turn-and-who-decides),
+   and [task priority](docs/agents/SEQUENCING.md#task-priority-working-direction). Ordering delegated
+   responses and their payments remains open; see [completion](docs/agents/SEQUENCING.md#the-missing-rule-when-an-operation-is-over)
+   and [payment gaps](docs/agents/PAYMENTS.md#verified-gaps).
 
 2. **Make the game advance through authored rules instead of a mirrored Kotlin workflow.**
    **Selected.** Phase order, player rotation, setup, expansion phases, final greenery, scoring, and

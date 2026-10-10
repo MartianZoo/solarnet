@@ -14,7 +14,8 @@ These concerns remain open; the ranking does not select replacement designs.
 1. **Operation completion and delegated control lack a coherent rule.** Per-task locking and
    cleanup at global queue exhaustion do not reliably describe an action and all its delegated
    work. Neptunian and Head Start cases expose the consequences. Resolve the underlying lifecycle
-   rule; see [sequencing](docs/agents/SEQUENCING.md).
+   rule; see [sequencing](docs/agents/SEQUENCING.md) and the selected
+   [turn terminology, lifecycle, and Head Start direction](docs/agents/SEQUENCING.md#turns-and-turn-offers).
 2. **Payment validation differs between execution paths.** The gameplay helper rejects paying
    11 M€ for the 10 M€ Olympus Conference, while the REPL accepts and spends all 11. Separately,
    the payer's own resource loss for another purpose can settle an open bill. Make validation
@@ -179,7 +180,8 @@ These concerns remain open; the ranking does not select replacement designs.
 - Fix Point Luna's played-Earth-tag response so a temporary assigned tag still counts for Cartel
   but does not cause a card draw. First try the existing card-holder distinction; do not bypass
   trigger execution. Full wild-tag assignment remains deferred until a clean rule representation is
-  available; historical replays still use explicit adjustments for unsupported choices.
+  available; the intended lifetime is the accepted [turn](docs/agents/SEQUENCING.md#uses-of-the-scope).
+  Historical replays still use explicit adjustments for unsupported choices.
 - Keep Fake Self-Replicating Robots permanently in `:tfm-fake`. Move its paired defect scenarios
   from `SelfReplicatingRobotsTest` into that module. Reuse existing test-support sources before
   considering a fixture API.

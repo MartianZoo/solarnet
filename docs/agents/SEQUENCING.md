@@ -2,12 +2,12 @@
 
 > **Agent information:** This is an agent-maintained note for agents.
 >
-> **Read when:** changing task order, delegated control, `THEN`, automatic effects, cleanup, task
-> priority, or how later work waits for earlier work.
+> **Read when:** designing turns and offers, Head Start timing, task order, delegated control,
+> `THEN`, automatic effects, cleanup, task priority, or how later work waits for earlier work.
 >
-> **Status:** current contracts, a verified missing completion rule, and the task-priority working
-> direction. Other replacement designs belong in [`SOLARNET_ROADMAP.md`](../../SOLARNET_ROADMAP.md)
-> or a focused investigation.
+> **Status:** current contracts, a verified missing completion rule, selected turn semantics, and
+> proposed task-priority machinery. This note owns sequencing design decisions; unimplemented
+> behavior is labeled separately. The [roadmap](../../SOLARNET_ROADMAP.md) indexes the work.
 
 ## Current model
 
@@ -24,6 +24,97 @@ meaning.
 There is no general task priority or exclusive interaction spanning several tasks. An Agent may
 choose among its available tasks; policy cannot supply a missing game rule.
 [Task priority](#task-priority-working-direction) is the working direction for deferred work.
+
+## Turns and turn offers
+
+**Selected terminology and intended semantics, not implemented.** Use **turn** for the complete
+envelope of a player's accepted opportunity and its resolution. Consecutive turns may belong to
+the same player. Do not call this an action scope, move, or turn segment. This deliberately differs
+from the published game's terminology: its action-phase turn of up to two actions becomes up to
+two consecutive turns here. Preserve when play advances to the next player; the terminology change
+does not grant additional opportunities.
+
+### Offering, taking, and finishing a turn
+
+- In the action phase, first offer the player a turn. Declining that first offer is passing for
+  the generation: the player never took a turn and receives no turn scope.
+- Accepting the offer starts the turn. Finish its work and consequences before offering the second
+  turn. Declining the second offer creates no turn and has no penalty or pass status; play simply
+  advances. Keep this distinction even if both offers use shared machinery.
+- A turn lasts through payment, effects, placement bonuses, other players' responses, and resulting
+  work and cleanup. Completion of the initiating task alone does not finish the turn.
+- This first/second offer rule describes ordinary action-phase rotation. It does not make
+  corporation plays, Prelude plays, or Head Start's mandatory grants optional. Preserve the
+  workflow's treatment of the last unpassed player without inventing additional turn groupings.
+
+The intended units are:
+
+| Activity | Turn scope |
+| --- | --- |
+| Initial corporation play and its resolution | A turn |
+| Each Prelude played during the Prelude phase | A separate turn |
+| Each accepted action-phase opportunity | A separate turn, including the optional second |
+| Each final greenery placement and its resolution | A separate turn |
+| Head Start under the variant below | Its Prelude turn, followed by two additional turns |
+
+A card played or an ability invoked while resolving an existing turn does not itself start another
+turn. For example, Merger's corporation play remains inside the turn that played Merger. An
+explicit grant of a further turn is different from a consequence that requires another decision.
+
+The proposed `OnTurn` fact, task routing, and decisions outside turns are described in
+[Identity: who is on-turn, and who decides](IDENTITY.md#who-is-on-turn-and-who-decides).
+
+### Uses of the scope
+
+Wild-tag allocations should belong to the accepted turn and expire when it finishes. A consecutive
+turn gets fresh allocations, even for the same player; another player's response does not get a
+new allocation scope. Full wild-tag assignment is still unimplemented.
+
+Suitable Infrastructure is a likely consumer of the same scope, but its exact eligibility and
+reset rules remain to be confirmed. Existing `SuitableInfrastructureTest` scenarios show separate
+rewards for the two action-phase actions and a single reward for a Prelude raising multiple
+production tracks. `HeadStartTest` also expects separate rewards for Head Start's two granted
+actions. These examples support the direction without establishing every interaction, especially
+out-of-turn production changes.
+
+### Head Start: acceptable variant to pursue
+
+The owner is willing to change Head Start's timing to avoid requiring nested turns:
+
+1. Resolve its basic instructions, including steel, money, and their consequences, in its Prelude
+   turn. Finish that turn with two additional turns owed to its owner.
+2. Grant and completely resolve each owed turn sequentially. Each is mandatory and grants a single
+   action-phase action, not the normal first/optional-second pair or an option to pass.
+3. Resume the normal Prelude sequence from where it stopped.
+
+Two tokens could record the owed turns. Their names and implementation are undecided; express the
+entitlement and its consumption through ordinary rules, without teaching Kotlin workflow about
+Head Start. This is explicit permission to explore those entitlement components, not a general
+return to components used only to schedule arbitrary continuations.
+
+This is a deliberate variant, not a claim of exact published timing. Money and steel, and all
+consequences of the basic instructions, must resolve before either extra turn. In particular, the
+extra turns cannot sell cards before Head Start calculates its money from cards in hand. The
+current fake card allows that ordering and also allows its two actions to interleave; see
+[`HeadStartTest`](../../test/common/dev/martianzoo/tfm/tests/cards/HeadStartTest.kt).
+
+The working direction is sequential turns, with no suspended parent turn or allocations to
+restore. Head Start should not justify nested scopes by itself. This does not settle which work
+may interleave with another player's response or payment within a turn.
+
+### Remaining design work
+
+- Define acceptance and completion through authored rules and settlement. Current `NewTurn` and
+  `SecondAction` are signals, not lasting turn scopes; whole-World idle cleanup is not by itself
+  the new lifecycle. Coordinate with the task-priority direction without treating it as implemented.
+- Keep turn identity separate from generic ability invocation: `UseAction` currently represents
+  both normal actions and reactive offers. It must not automatically create a turn.
+- Reduce overloaded action names when changing the relevant APIs. `ActionSlot` / `Action1` /
+  `Action2` select declared capabilities, not the first and second turns. `Activate`, `Activatable`,
+  and `AbilitySlot` were candidate replacements, not selected names; no blanket rename is agreed.
+- Verify wild-tag allocation timing, Suitable Infrastructure, extra-turn ordering, and completion
+  through cross-player responses before treating the model as implemented. Do not add nesting or
+  a second scope representation without a concrete case that requires it.
 
 ## Required promises
 
@@ -137,8 +228,8 @@ searches and overlapping lifecycle machinery rather than assume exclusive contro
 operation is required. Local failure restores the enclosing transaction; agreement to retract
 already shared decisions or proceed after a disclosure belongs to [ADVERSARIAL.md](ADVERSARIAL.md).
 The external arrangement handles that agreement without making incorrect payment or cleanup
-calculations acceptable. The roadmap records the remaining design concern;
-[task priority](#operation-completion) proposes a whole-World answer.
+calculations acceptable. The [turn design](#turns-and-turn-offers) records the intended enclosing
+lifecycle; [task priority](#operation-completion) proposes a whole-World completion rule.
 
 ## Cleanup
 
@@ -173,6 +264,11 @@ The component graph records what is, or what is happening. Work that should happ
 a task. A component that exists so that its removal can start later work is a scheduling device, not
 a game fact; do not add new ones. The `workflow` branch's `Continuation` class makes that device
 generic.
+
+The owner's proposed Head Start entitlement tokens are a specific design direction recorded in
+the [turn design](#head-start-acceptable-variant-to-pursue). They describe
+turns owed to a player; evaluate them with that game meaning rather than rejecting them solely
+because workflow will consume them. Their implementation remains open.
 
 Current devices:
 
