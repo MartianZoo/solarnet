@@ -175,7 +175,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       playProject(SolarReflectors, titanium = 6) // "overpay" 1
       // me spent 3 energy to trade with Ceres
       // me's steel amount increased by 8
-      stdAction("TradeAction", 2) { doTask("Trade<Ceres>") }.expect("-3 Energy, 8 Steel")
+      stdAction("TradeAction<Action2>") { doTask("Trade<Ceres>") }.expect("-3 Energy, 8 Steel")
       // me played Deep Well Heating
       // me's energy production increased by 1
       // me's heat production increased by 1
@@ -207,7 +207,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       cardAction1(AtmoCollectors)
       // me spent 3 energy to trade with Luna
       // me's mc amount increased by 17
-      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("17 MC")
+      stdAction("TradeAction<Action2>") { doTask("Trade<Luna>") }.expect("17 MC")
       // me played Extractor Balloons
       // me added 3 floater(s) to Extractor Balloons
       playProject(ExtractorBalloons, 21)
@@ -281,7 +281,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       playProject(GeothermalPower, 7, steel = 2)
       // me spent 3 energy to trade with Triton
       // me's titanium amount increased by 5
-      stdAction("TradeAction", 2) { doTask("Trade<Triton>") }.expect("5 Titanium")
+      stdAction("TradeAction<Action2>") { doTask("Trade<Triton>") }.expect("5 Titanium")
 
       // me passed
       // me acted as World Government and increased Venus scale
@@ -364,7 +364,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me spent 3 energy to trade with Luna
       // me's mc amount increased by 7
       // me's mc amount increased by 2
-      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("9 MC")
+      stdAction("TradeAction<Action2>") { doTask("Trade<Luna>") }.expect("9 MC")
       // me used Greenery standard project
       stdProject("GreeneryProject") {
         // me placed greenery tile on row 5 position 7
@@ -430,7 +430,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       playProject(Insects, 9).expect("PROD[Plant]")
       // me spent 3 energy to trade with Ceres
       // me's steel amount increased by 8
-      stdAction("TradeAction", 2) { doTask("Trade<Ceres>") }.expect("8 Steel")
+      stdAction("TradeAction<Action2>") { doTask("Trade<Ceres>") }.expect("8 Steel")
 
       // me passed
       // me placed ocean tile on row 2 position 4
@@ -455,7 +455,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me spent 3 energy to trade with Luna
       // me's mc amount increased by 7
       // me's mc amount increased by 2
-      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("9 MC")
+      stdAction("TradeAction<Action2>") { doTask("Trade<Luna>") }.expect("9 MC")
       // me used Atmo Collectors action
       // me removed 1 resource(s) from me's Atmo Collectors
       cardAction2(AtmoCollectors) {
@@ -526,7 +526,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
         placeTile(6, 7)
       }
       // me spent 3 energy to trade with Luna
-      stdAction("TradeAction", 2) {
+      stdAction("TradeAction<Action2>") {
         // me's mc amount increased by 4
         // me's mc amount increased by 2
         doTask("Trade<Luna>")
@@ -595,7 +595,8 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
 
       // The score is really 99, but we faked Flooding. Note
       // herokuapp says 111.
-      sum.signalCount("ActionPhase", "UseAction<Me>") shouldBe 98
+      (sum.signalCount("ActionPhase", "StandardAction<Me>") +
+          sum.signalCount("ActionPhase", "RequiredActionsSignal<Me>")) shouldBe 98
     }
   }
 }

@@ -70,8 +70,9 @@ Standard projects deliberately use the `Project` suffix consistently, including
 as the name of this family, and the uniform suffix distinguishes its members from cards, resources,
 and other game concepts without deciding each collision differently.
 
-Standard actions likewise use the `Action` suffix. In `UseActionOnCardAction`, the first `Action`
-belongs to the rulebook phrase and the second identifies the standard-action doorway.
+Turn choices are signals under `StandardAction`: `PlayProject`, `UseCardAction`, `ConvertPlants`,
+`ClaimMilestone`, and the other concrete choices. Their dependencies carry the selected card,
+milestone, or award directly; there is no preliminary standard-action provider.
 
 We are not zealots about this. A category word that reads naturally in English earns its place, and
 most of ours do: `GreeneryTile`, `BuildingTag`, `ActionPhase`, `ColonyTile`, and `ProjectCard` all
@@ -92,7 +93,7 @@ Grep the candidate in trigger position before deciding:
   action. So the concept keeps `Trade` and the standard action becomes `TradeAction`, and we are
   improving on the printed game by distinguishing them at all.
 - `PlayCard` names the reusable card-play operation invoked by standard turns, setup, and card
-  effects. The standard action is specifically `PlayCardFromHandAction`.
+  effects. The standard action is specifically `PlayProject`.
 
 Worked cases:
 
@@ -101,7 +102,7 @@ Worked cases:
 | Power Plant: card vs. standard project | card `PowerPlant` | standard project `PowerPlantProject` |
 | Asteroid: card vs. resource vs. standard project | resource `Asteroid` | `AsteroidCard`, `AsteroidProject` |
 | Trade: game concept vs. standard action | concept `Trade` | `TradeAction` |
-| Play card: operation vs. standard action | operation `PlayCard` | `PlayCardFromHandAction` |
+| Play card: operation vs. standard action | operation `PlayCard` | `PlayProject` |
 | Required action: component vs. its signal | component `RequiredAction` | `RequiredActionsSignal` |
 | Reprinted goals | the newer, revised printing | the superseded one (see below) |
 
@@ -184,7 +185,7 @@ looking it up.
   as "when you ___": `PlayCard`, `AdvanceColonyTracks`; `PayingFor` reads as "while paying
   for ___". Write the name so that phrase reads back.
 - **Other `MustCleanUp` state** — the transient thing sitting on the table during an action, not the
-  event — is a noun or a past participle: `Owed`, `Required`, `ActionBilling`, `TradeBarrier`. Do not give it
+  event — is a noun or a past participle: `Owed`, `Required`, `Billing`, `TradeBarrier`. Do not give it
   the bare-verb shape that belongs to Signals.
 - **Custom instructions** are imperative verb phrases: `CopyProductionBox`. Use the
   published verb when the game prints one — Robotic Workforce

@@ -11,8 +11,9 @@ internal class CorridorsOfPowerTest : TfmSandboxTest() {
     kim.playPrelude(CorridorsOfPower)
     startActionPhase()
 
-    kim.stdAction("LobbyAction", 1) { doTask("PartyDelegate<Scientists>") }.expect("ProjectCard")
-    kim.stdAction("LobbyAction", 2, payment = { kim.pay(5) }) {
+    kim.stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Scientists>") }
+        .expect("ProjectCard")
+    kim.stdAction("LobbyAction<Action2>", payment = { kim.pay(5) }) {
           doTask("PartyDelegate<Scientists>")
         }
         .expect("0 ProjectCard")

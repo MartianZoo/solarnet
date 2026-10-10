@@ -51,15 +51,13 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       playPrelude(FakeHeadStart) {
         // The first immediate action reuses Focused Organization: discard Red Ships and 1 M€,
         // then draw a card and take titanium.
-        doTask("UseAction<UseActionOnCardAction, Action1>")
         cardAction1(FocusedOrganization) {
           doTask("-MC")
           doTask("Titanium")
         }
 
         // "For the other one. Advertising for 4."
-        doTask("UseAction<PlayCardFromHandAction, Action1>")
-        doTask("PlayCard<Class<ProjectCard>, Class<$Advertising>, Hand>")
+        doTask("PlayProject<Class<$Advertising>>")
         pay(4)
       }
     }

@@ -55,9 +55,7 @@ internal class InterplanetaryTradeTest : CardTest() {
     // Six supporting card faces cover the nine ordinary types; Trade supplies Space itself.
     with(p1) {
       runOperation("${fakeWildTags("EventTag")}, NewTurn") {
-            useStdAction("PlayCardFromHandAction", payment = {}) {
-              playProject(InterplanetaryTrade, 27)
-            }
+            playProject(InterplanetaryTrade, 27)
           }
           .expect("PROD[${if (venus) 12 else 11} MC]")
     }

@@ -38,7 +38,7 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
         .expect("48 MC")
 
     admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction").expect("ProjectCard")
+    p1.stdAction("RequiredActionsSignal").expect("ProjectCard")
   }
 
   @Test

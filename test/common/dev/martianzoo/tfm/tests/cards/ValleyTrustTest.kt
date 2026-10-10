@@ -19,7 +19,7 @@ internal class ValleyTrustTest : CardTest() {
 
     admin.phase("Action")
     val result =
-        p1.stdAction("DoRequiredActionsAction") {
+        p1.stdAction("RequiredActionsSignal") {
           p1.playPrelude(MartianIndustries)
         }
     result.expect("PROD[Steel, Energy]")
@@ -71,7 +71,7 @@ internal class ValleyTrustTest : CardTest() {
 
     p1.playCorp(ValleyTrust, 5)
     admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") {
+    p1.stdAction("RequiredActionsSignal") {
       p1.playPrelude(selectedPrelude)
     }
   }
@@ -85,13 +85,13 @@ internal class ValleyTrustTest : CardTest() {
     p1.playPrelude(Biolab)
     admin.phase("Action")
     shouldThrow<LimitsException> {
-      p1.stdAction("DoRequiredActionsAction") {
+      p1.stdAction("RequiredActionsSignal") {
         p1.playPrelude(IndustrialComplex)
       }
     }
 
     val checkpoint = game.timeline.checkpoint()
-    p1.stdAction("DoRequiredActionsAction") { doTask("-PreludeCard<Selecting>") }.expect("15 MC")
+    p1.stdAction("RequiredActionsSignal") { doTask("-PreludeCard<Selecting>") }.expect("15 MC")
     p1.assertCounts(
         28 to "MC",
         0 to "RequiredAction",

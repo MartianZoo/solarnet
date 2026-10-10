@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agenttestsupport.testTfm
-import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -21,7 +21,7 @@ internal class VitorTest : CardTest() {
     p1.phase("Action")
     p1.assertCounts(0 to "Award", 33 to "MC")
 
-    p1.stdAction("DoRequiredActionsAction") { doTask("Landlord") }
+    p1.stdAction("RequiredActionsSignal") { doTask("Landlord") }
     p1.assertCounts(1 to "Landlord", 33 to "MC")
   }
 
@@ -78,8 +78,8 @@ internal class VitorTest : CardTest() {
       p1.playPrelude(Merger) { p1.playCorp(Vitor) }
     }
 
-    p1.stdAction("DoRequiredActionsAction") { doTask("Thermalist") }.expect("Thermalist, 0 MC")
+    p1.stdAction("RequiredActionsSignal") { doTask("Thermalist") }.expect("Thermalist, 0 MC")
     admin.count("Award") shouldBe 4
-    shouldThrow<RequirementException> { p2.stdAction("FundAwardAction", 3) { doTask("Miner") } }
+    shouldThrow<DeadEndException> { p2.stdAction("FundAward<Class<Miner>>") }
   }
 }

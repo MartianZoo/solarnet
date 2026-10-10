@@ -21,8 +21,7 @@ internal class UnknownRulesTest : CardTest() {
     p1.runOperation("10 Steel, 10 Titanium, ProjectCard")
 
     p1.inTurn {
-      doTask("UseAction<PlayCardFromHandAction, Action1>")
-      doTask("PlayCard<Class<ProjectCard>, Class<$SpaceElevator>, Hand>")
+      doTask("PlayProject<Class<$SpaceElevator>>")
       doTask("-7 Steel")
       doTask("-5 Titanium")
       doTask("Ok")
@@ -42,7 +41,7 @@ internal class UnknownRulesTest : CardTest() {
     p1.playPrelude(Merger) { p1.playCorp(TharsisRepublic) }
     admin.phase("Action")
 
-    p1.stdAction("DoRequiredActionsAction") {
+    p1.stdAction("RequiredActionsSignal") {
       p1.playPrelude(Donation) { placeTile(3, 3) }
     }
     p1.count("CityTile<Tharsis_3_3>") shouldBe 1
@@ -60,14 +59,11 @@ internal class UnknownRulesTest : CardTest() {
 
     p1.turn {
       playPrelude(FakeHeadStart) {
-        useStdAction("UseActionOnCardAction", payment = {}) {
-          doTask("UseAction<$BoardOfDirectors, Action1>")
+        useStdAction("UseCardAction<$BoardOfDirectors, Action1>", payment = {}) {
           doTask("-12 MC")
           playPrelude(Merger) { playCorp(TharsisRepublic) }
         }
-        useStdAction("DoRequiredActionsAction", payment = {}) {
-          placeTile(3, 3)
-        }
+        placeTile(3, 3)
       }
     }
 
@@ -85,7 +81,7 @@ internal class UnknownRulesTest : CardTest() {
     admin.phase("Action")
 
     shouldThrow<LimitsException> {
-      p1.stdAction("DoRequiredActionsAction") { doTask("Colony<Luna>") }
+      p1.stdAction("RequiredActionsSignal") { doTask("Colony<Luna>") }
     }
     p1.count("RequiredAction") shouldBe 1
     p1.count("Colony") shouldBe 0
@@ -104,7 +100,7 @@ internal class UnknownRulesTest : CardTest() {
     admin.phase("Action")
 
     shouldThrow<LimitsException> {
-      p1.stdAction("DoRequiredActionsAction") { doTask("Colony<Luna>") }
+      p1.stdAction("RequiredActionsSignal") { doTask("Colony<Luna>") }
     }
     p1.count("$Poseidon") shouldBe 1
     p1.count("$Merger") shouldBe 1

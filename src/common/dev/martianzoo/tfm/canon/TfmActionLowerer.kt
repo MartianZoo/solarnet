@@ -58,8 +58,8 @@ internal object TfmActionLowerer {
       return listOf(
           parse(
               "UseAction<This, $selector>: $owed THEN " +
-                  "ActionBilling<This, $selector$billingResource> THEN " +
-                  "MAX 0 ActionBilling: (${action.instruction})"
+                  "Billing<Class<This>, $selector$billingResource> THEN " +
+                  "MAX 0 Billing: (${action.instruction})"
           )
       )
     }
@@ -67,9 +67,9 @@ internal object TfmActionLowerer {
     return listOf(
         parse(
             "UseAction<This, $selector>: $owed THEN " +
-                "ActionBilling<This, $selector$billingResource>"
+                "Billing<Class<This>, $selector$billingResource>"
         ),
-        parse("-ActionBilling<This, $selector>: " + action.instruction),
+        parse("-Billing<Class<This>, $selector>: " + action.instruction),
     )
   }
 

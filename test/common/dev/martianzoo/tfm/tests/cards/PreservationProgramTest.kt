@@ -56,7 +56,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     newProgramGame(ValleyTrust)
     playPreludes(UnmiContractor, Donation)
 
-    kim.stdAction("DoRequiredActionsAction") { kim.playPrelude(PreservationProgram) }
+    kim.stdAction("RequiredActionsSignal") { kim.playPrelude(PreservationProgram) }
         .expect("4 TerraformRating")
   }
 
@@ -65,7 +65,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     newProgramGame(ValleyTrust)
     playPreludes(PowerGeneration, Donation)
 
-    kim.stdAction("DoRequiredActionsAction") { kim.playPrelude(PreservationProgram) }
+    kim.stdAction("RequiredActionsSignal") { kim.playPrelude(PreservationProgram) }
         .expect("4 TerraformRating")
   }
 
@@ -239,7 +239,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     newProgramGame(ValleyTrust)
     playPreludes()
 
-    kim.stdAction("DoRequiredActionsAction") {
+    kim.stdAction("RequiredActionsSignal") {
           kim.playPrelude(DoubleDown) { doTask("CopyPrelude<PreservationProgram>") }
         }
         .expect("4 TerraformRating")
@@ -283,8 +283,10 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     newProgramGame(extraOptions = "TurmoilExpansion, Unsafe")
     playPreludes()
     kim.turn {
-      stdAction("LobbyAction", 1) { doTask("PartyDelegate<Scientists>") }
-      stdAction("LobbyAction", 2, payment = { pay(5) }) { doTask("PartyDelegate<Scientists>") }
+      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Scientists>") }
+      stdAction("LobbyAction<Action2>", payment = { pay(5) }) {
+        doTask("PartyDelegate<Scientists>")
+      }
     }
     stan.pass()
     val rating = kim.count("TerraformRating")
@@ -400,8 +402,8 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     stan.playPrelude(UnmiContractor)
     stan.playPrelude(Donation)
     kim.turn {
-      stdAction("LobbyAction", 1) { doTask("PartyDelegate<Reds>") }
-      stdAction("LobbyAction", 2, payment = { pay(5) }) { doTask("PartyDelegate<Reds>") }
+      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Reds>") }
+      stdAction("LobbyAction<Action2>", payment = { pay(5) }) { doTask("PartyDelegate<Reds>") }
     }
     stan.turn { repeat(2) { stdProject("AsteroidProject") } }
     kim.pass()
@@ -679,7 +681,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       kim.playPrelude(Donation)
       admin.runOperation("Ruling<Reds> FROM Ruling")
       admin.phase("Action")
-      return kim.stdAction("DoRequiredActionsAction") { kim.playPrelude(PreservationProgram) }
+      return kim.stdAction("RequiredActionsSignal") { kim.playPrelude(PreservationProgram) }
     }
 
     @Ignore // The payout includes the reversed TR.

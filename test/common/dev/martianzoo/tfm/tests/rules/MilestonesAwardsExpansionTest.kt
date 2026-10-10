@@ -72,7 +72,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     p1.runOperation("10 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat")
     admin.phase("Action")
 
-    p1.stdAction("ClaimMilestoneAction") { doTask("Merchant") }
+    p1.stdAction("ClaimMilestone<Class<Merchant>>")
 
     p1.count("Merchant") shouldBe 1
   }
@@ -127,7 +127,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     shouldThrow<RequirementException> { p1.runOperation(milestone) }
 
     p1.runOperation("PROD[Energy]")
-    p1.stdAction("ClaimMilestoneAction") { doTask(milestone) }
+    p1.stdAction("ClaimMilestone<Class<$milestone>>")
 
     p1.count(milestone) shouldBe 1
   }
@@ -150,7 +150,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     shouldThrow<RequirementException> { p1.runOperation("Producer") }
 
     p1.runOperation("PROD[Energy]")
-    p1.stdAction("ClaimMilestoneAction") { doTask("Producer") }
+    p1.stdAction("ClaimMilestone<Class<Producer>>")
 
     p1.count("Producer") shouldBe 1
   }
@@ -165,7 +165,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     shouldThrow<RequirementException> { p1.runOperation("Producer22") }
 
     p1.runOperation("PROD[Energy]")
-    p1.stdAction("ClaimMilestoneAction") { doTask("Producer22") }
+    p1.stdAction("ClaimMilestone<Class<Producer22>>")
 
     p1.count("Producer22") shouldBe 1
   }

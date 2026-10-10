@@ -444,7 +444,7 @@
           "name": "StandardTechnology",
           "cost": 6,
           "tags": [ "ScienceTag" ],
-          "effects": [ "-ActionBilling<StandardProject(HAS cost)>: 3 MC" ],
+          "effects": [ "-Billing<Class<@StandardProject>(HAS @StandardProject.cost)>: 3 MC" ],
         },
         {
           "name": "Tardigrades",

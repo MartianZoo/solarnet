@@ -40,7 +40,7 @@ internal class MergerTest : CardTest() {
   internal fun `Resolves both corporations' starting benefits`() {
     admin.phase("Action")
 
-    p1.stdAction("DoRequiredActionsAction") {
+    p1.stdAction("RequiredActionsSignal") {
       p1.assertCounts(8 to "ProjectCard", 0 to "PreludeCard")
       p1.assertProds(
           0 to "MC",
@@ -192,7 +192,7 @@ internal class MergerTest : CardTest() {
   @Test
   internal fun `BUG - Defers Tharsis first action when acquired after Prelude`() {
     acquireTharsisThroughBoard().expect("0 CityTile")
-    p1.stdAction("DoRequiredActionsAction") { placeTile(3, 3) }.expect("CityTile<Tharsis_3_3>")
+    p1.stdAction("RequiredActionsSignal") { placeTile(3, 3) }.expect("CityTile<Tharsis_3_3>")
   }
 
   private fun acquireTharsisThroughBoard(cityPlacement: OperationBlock = {}): TaskResult {

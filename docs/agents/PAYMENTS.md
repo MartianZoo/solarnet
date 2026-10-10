@@ -32,9 +32,12 @@ can install alternatives before `Billing`. Removing the bill removes acceptance 
 purchased card or action results run.
 
 `Owed` is the amount still due, including during price adjustment. `Billing` marks settlement and
-contains the denomination. `ActionBilling` also carries the provider and action slot used by
-action-specific rules. `CardBilling` has no card identity: the pending play instruction already
-retains the card.
+carries a reason as a `Class<Component>` dependency, an action slot, and the denomination.
+Cards, printed actions, conversions, milestones, and awards use this same type. For example,
+`Billing<Class<Builder>>` retains the selected milestone through payment, while
+`Billing<Class<Steelworks>, Action1, Class<Energy>>` identifies the printed action and its currency.
+The slot defaults to `Action1` and the currency to M€. Currency-only listeners must leave the
+reason broad, as in `Billing<Class<Component>, Class<Heat>>`.
 
 `Owed`, `PayingFor`, and `Billing` are `System` bookkeeping. Fixed gains run as Admin,
 including scaled debt and gains inside automatic effects. A variable amount such as `X Owed`
@@ -72,9 +75,7 @@ that reduces the wrong bill or loses the distinction between spending and anothe
 | --- | --- |
 | `Owed<Class<Resource>>` | Remaining amount, discounts, surcharges, and non-M€ costs. |
 | `PayingFor` and `PriceCard` | Concrete purchase context needed by modifiers before play. |
-| `Billing` | Opens spending choices after pricing and marks settlement. |
-| `ActionBilling` | Carries provider/action identity used by current action rules. |
-| `CardBilling` | Specializes the shared billing rules for card payment lifetime. |
+| `Billing` | Carries the reason Class, action slot, and currency; opens spending choices and marks settlement. |
 | `Accepting` | Restricts ordinary resources by payment context. |
 | `AcceptingFromCard` | Restricts spending to the correct card holder. |
 | `ResourceValue` | Supplies dynamic standard-resource values. |

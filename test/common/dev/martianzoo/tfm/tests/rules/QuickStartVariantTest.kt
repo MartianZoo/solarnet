@@ -94,11 +94,11 @@ internal class QuickStartVariantTest : CardTest() {
     admin.phase("Action")
 
     shouldThrow<RequirementException> {
-      p1.stdAction("ClaimMilestoneAction") { doTask("Generalist2") }
+      p1.stdAction("ClaimMilestone<Class<Generalist2>>")
     }
 
     p1.runOperation("PROD[1 MC, Steel, Titanium, Plant, Energy, Heat]")
-    p1.stdAction("ClaimMilestoneAction") { doTask("Generalist2") }
+    p1.stdAction("ClaimMilestone<Class<Generalist2>>")
     p1.count("Milestone") shouldBe 1
 
     val corporateEra = newGame(GameConfig("ElysiumMap", "Player1", "Player2"))

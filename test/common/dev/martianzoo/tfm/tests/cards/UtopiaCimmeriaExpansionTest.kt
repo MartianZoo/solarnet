@@ -63,7 +63,7 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
     p2.runOperation("$Mine")
     admin.phase("Action")
 
-    p1.stdAction("FundAwardAction") { doTask("Incorporator") }
+    p1.stdAction("FundAward<Class<Incorporator>>")
     admin.runOperation("End FROM Phase")
 
     p1.assertCounts(22 to "VictoryPoint")
@@ -78,7 +78,7 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
     p2.runOperation("CityTile<Utopia_5_5>")
     admin.phase("Action")
 
-    p1.stdAction("FundAwardAction") { doTask("Suburbian") }
+    p1.stdAction("FundAward<Class<Suburbian>>")
     admin.runOperation("End FROM Phase")
 
     p1.assertCounts(25 to "VictoryPoint")
@@ -95,7 +95,7 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
     )
     admin.phase("Action")
 
-    p1.stdAction("FundAwardAction") { doTask("Founder") }
+    p1.stdAction("FundAward<Class<Founder>>")
     admin.runOperation("End FROM Phase")
 
     p1.assertCounts(1 to "FirstPlace<Player1, Founder>")
@@ -111,8 +111,8 @@ internal class UtopiaCimmeriaExpansionTest : CardTest() {
     )
     admin.phase("Action")
 
-    p1.stdAction("ClaimMilestoneAction") { doTask("Metallurgist") }.expect("-8 MC, Milestone")
-    p1.stdAction("ClaimMilestoneAction") { doTask("Trader") }.expect("-8 MC, Milestone")
+    p1.stdAction("ClaimMilestone<Class<Metallurgist>>").expect("-8 MC, Milestone")
+    p1.stdAction("ClaimMilestone<Class<Trader>>").expect("-8 MC, Milestone")
 
     p1.assertCounts(2 to "Milestone")
   }

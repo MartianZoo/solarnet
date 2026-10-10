@@ -33,7 +33,7 @@ internal class AdditionalGoalsTest : CardTest() {
     p1.runOperation("Chairman")
     admin.phase("Action")
     shouldThrow<RequirementException> { p1.claimMilestone(cn("Lobbyist")) }
-    p1.stdAction("LobbyAction", 1) { doTask("PartyDelegate<Scientists>") }
+    p1.stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Scientists>") }
     p1.claimMilestone(cn("Lobbyist")).expect("-8 MC, Lobbyist")
   }
 
@@ -81,9 +81,9 @@ internal class AdditionalGoalsTest : CardTest() {
     p2.playCorp(ThorGate, 0)
     admin.phase("Action")
     p1.stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
-    p1.stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") }
+    p1.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
     p2.stdAction("LobbyAction") { doTask("PartyDelegate<Unity>") }
-    p2.stdAction("LobbyAction", 2) { doTask("PartyDelegate<Kelvinists>") }
+    p2.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Kelvinists>") }
     p1.fundAward(cn("Politician"), 8)
 
     admin.runOperation("End FROM Phase")

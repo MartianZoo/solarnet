@@ -85,7 +85,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
       playPrelude(AquiferTurbines) { placeTile(4, 7) }.expect("PROD[2 Energy], Plant")
     }
 
-    JR.stdAction("DoRequiredActionsAction") { placeTile(5, 6) }.expect("3 Plant, 3 MC, PROD[1 MC]")
+    JR.stdAction("RequiredActionsSignal") { placeTile(5, 6) }.expect("3 Plant, 3 MC, PROD[1 MC]")
     JR.playProject(MethaneFromTitan, 28)
     KB.playProject(ResearchOutpost, 18) { placeTile(5, 3) }.expect("PROD[1 MC<JR>]")
     KB.playProject(AcquiredCompany, 9)
@@ -118,7 +118,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     JR.playProject(Pets, 10)
     KB.exMachina(fakeWildTags("BuildingTag"))
     KB.playProject(StaticHarvesting, 4).expect("-1 MC")
-    KB.stdAction("ClaimMilestoneAction") { doTask("Energizer") }
+    KB.stdAction("ClaimMilestone<Class<Energizer>>")
     ER.cardAction1(IndustrialCenter)
     ER.declineSecondAction()
     JR.playProject(SterlingVents, 5)
@@ -137,7 +137,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     ER.cardAction1(TychoMagnetics, x = 2)
     ER.cardAction1(IndustrialCenter)
     JR.playProject(NaturalPreserve, 9) { placeTile(8, 4) }
-    JR.stdAction("ClaimMilestoneAction") { doTask("Builder") }
+    JR.stdAction("ClaimMilestone<Class<Builder>>")
     KB.cardAction1(RestrictedArea)
     KB.playProject(OlympusConference, 9, steel = 0)
     ER.pass()
@@ -202,7 +202,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     ER.cardAction1(InventorsGuild) { /* Decline buying the revealed card. */
       ER.buyCards(0)
     }
-    JR.stdAction("ClaimMilestoneAction") { doTask("Philantropist") }
+    JR.stdAction("ClaimMilestone<Class<Philantropist>>")
     JR.playProject(SpaceElevator, 27)
     KB.playProject(HiredRaiders, 0) { doTask("2 Steel<KB> FROM Steel<ER>") }
         .expect("-3 MC<KB>, 3 MC<ER>")
@@ -287,7 +287,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     KB.buyCards(2)
 
     JR.cardAction1(SpaceMirrors)
-    JR.stdAction("FundAwardAction") { doTask("Banker") }
+    JR.stdAction("FundAward<Class<Banker>>")
     KB.convertPlants { placeTile(5, 2) }
     KB.cardAction1(RestrictedArea)
     ER.cardAction1(TychoMagnetics, x = 1)
@@ -374,7 +374,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
       doTask("CopyProductionBox<$GhgFactories>")
     }
     JR.playProject(PhobosSpaceHaven, 22, titanium = 1)
-    JR.stdAction("FundAwardAction", which = 2) { doTask("Founder") }
+    JR.stdAction("FundAward<Class<Founder>>")
     KB.sellPatents(1)
     KB.playProject(Tardigrades, 1)
     ER.playProject(GeneRepair, 12) {
@@ -435,7 +435,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     ER.cardAction1(RedShips)
     ER.playProject(PublicBaths, mc = 0, steel = 2)
     KB.cardAction1(Ants)
-    KB.stdAction("FundAwardAction", which = 3) { doTask("Benefactor") }
+    KB.stdAction("FundAward<Class<Benefactor>>")
     ER.sellPatents(1)
     ER.sellPatents(1)
     KB.exMachina(fakeWildTags("ScienceTag"))

@@ -418,7 +418,7 @@ components. Counting all `Award` components would pay for other players' funding
 installed when Civic Patronage enters play cannot recover the earlier funding.
 
 **Source:** `Award` in [scoring.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/scoring.pets)
-and `FundAwardAction` in [actions.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/actions.pets).
+and `FundAward` in [actions.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/actions.pets).
 
 ### 24. Nested bills share debt and accepted resources
 

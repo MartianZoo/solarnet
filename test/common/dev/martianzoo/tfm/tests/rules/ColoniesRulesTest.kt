@@ -52,7 +52,7 @@ internal class ColoniesRulesTest : CardTest() {
       doTask("3 Microbe<$NitriteReducingBacteria>")
     }
 
-    p2.stdAction("TradeAction", 1) {
+    p2.stdAction("TradeAction<Action1>") {
       doWithoutAutoExec(p2) {
         doTask("Trade<Enceladus>")
         doTask("-TradeBarrier")
@@ -81,7 +81,7 @@ internal class ColoniesRulesTest : CardTest() {
     p2.runOperation("3 Energy")
     admin.phase("Action")
 
-    p2.stdAction("TradeAction", 2) { doTask("Trade<Pluto>") }
+    p2.stdAction("TradeAction<Action2>") { doTask("Trade<Pluto>") }
 
     p1.count("ProjectCard") shouldBe 0
     p2.count("ProjectCard") shouldBe 1
@@ -101,7 +101,7 @@ internal class ColoniesRulesTest : CardTest() {
     p1.count("ProjectCard") shouldBe 0
     p1.autoExecPolicy = NONE
 
-    p2.stdAction("TradeAction", 2) {
+    p2.stdAction("TradeAction<Action2>") {
       doWithoutAutoExec(p2) {
         fun performForPlayer1(instruction: String) {
           p2.selectTask(instruction)
@@ -151,7 +151,7 @@ internal class ColoniesRulesTest : CardTest() {
     p1.stdProject("BuildColonyProject") { doTask("Colony<Pluto>") }
     p1.playProject(ResearchColony, 20) { doTask("Colony<Pluto>") }
 
-    p2.stdAction("TradeAction", 2) { doTask("Trade<Pluto>") }
+    p2.stdAction("TradeAction<Action2>") { doTask("Trade<Pluto>") }
         .expect("0 ProjectCard<Player1>, 2 ProjectCard<Player2>, 0 PlutoLock<Anyone>")
   }
 
@@ -184,7 +184,7 @@ internal class ColoniesRulesTest : CardTest() {
     admin.phase("Action")
     p1.playProject(RegolithEaters, 13)
 
-    p2.stdAction("TradeAction", 2) { doTask("Trade<Enceladus>") }.expect("0 Microbe<Anyone>")
+    p2.stdAction("TradeAction<Action2>") { doTask("Trade<Enceladus>") }.expect("0 Microbe<Anyone>")
 
     p2.count("Trade<Enceladus>") shouldBe 1
   }
@@ -214,7 +214,7 @@ internal class ColoniesRulesTest : CardTest() {
     val precipitationBefore = p1.count("Floater<$ForcedPrecipitation>")
     val balloonsBefore = p1.count("Floater<$ExtractorBalloons>")
 
-    p2.stdAction("TradeAction", 2) {
+    p2.stdAction("TradeAction<Action2>") {
       doWithoutAutoExec(p2) {
         doTask("Trade<Titan>")
         doTask("-TradeBarrier")

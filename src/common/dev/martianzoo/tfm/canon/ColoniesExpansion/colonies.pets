@@ -1,6 +1,11 @@
 "Expansion adding colony tiles, player colonies, and trade fleets"
 CLASS ColoniesExpansion : Module {
-  This: TradeAction, BuildColonyProject
+  TradeAction<Action1>: 9 Owed<> THEN Billing<Class<TradeAction>, Action1>
+  TradeAction<Action2>: 3 Owed<Class<Energy>> THEN Billing<Class<TradeAction>, Action2, Class<Energy>>
+  TradeAction<Action3>: 3 Owed<Class<Titanium>> THEN Billing<Class<TradeAction>, Action3, Class<Titanium>>
+  This: BuildColonyProject
+  HAS Class<TradeAction>, Class<Action3>
+  -Billing<Class<TradeAction>>: Trade
   SetupPhase: EACH Me@Player { TradeFleet }
   SetupPhase IF SoloMode, SelectedColonyTile: EACH Me@Player { SoloColoniesSetup }
   SetupPhase IF SoloMode: PROD[-2 MC<Player>]
@@ -187,10 +192,8 @@ CLASS TradeBarrier<@ColonyTile> : Owned<Player>, Barrier, Hidden {
 CLASS FinishTrade<ColonyTile> : Owned<Player>, Signal, System
 
 "Trade with a colony tile"
-CLASS TradeAction : StandardAction {
-  9 MC -> Trade
-  3 Energy -> Trade
-  3 Titanium -> Trade
+CLASS TradeAction<ActionSlot> : StandardAction {
+  DEFAULT TradeAction<Action1>
 }
 
 CLASS BuildColonyProject : StandardProject {

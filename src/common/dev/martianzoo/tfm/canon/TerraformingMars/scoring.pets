@@ -10,7 +10,7 @@ ABSTRACT CLASS Milestone : Owned<Player> {
   autoSelectWhen = Requirement?
   requirement = Requirement
 
-  This: (EVAL This.requirement: Ok)
+  This:: (EVAL This.requirement: Ok)
   End: 5 VictoryPoint
 }
 

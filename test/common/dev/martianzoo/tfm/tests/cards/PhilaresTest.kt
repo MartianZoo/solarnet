@@ -58,7 +58,7 @@ internal class PhilaresTest : CardTest() {
     p1.runOperation("$Philares")
     p1.runOperation("23 MC")
     admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") { placeTile(4, 2) }
+    p1.stdAction("RequiredActionsSignal") { placeTile(4, 2) }
     p1.stdProject("GreeneryProject") { placeTile(3, 2) }.expect("0 Steel, 0 Titanium")
   }
 
@@ -113,8 +113,8 @@ internal class PhilaresTest : CardTest() {
     p1.playCorp(ArcadianCommunities, 1)
     p2.playCorp(Philares, 0)
     admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_4_2>") }
-    p2.stdAction("DoRequiredActionsAction") { placeTile(4, 1) }
+    p1.stdAction("RequiredActionsSignal") { doTask("Community<Tharsis_4_2>") }
+    p2.stdAction("RequiredActionsSignal") { placeTile(4, 1) }
     p1.stdProject("GreeneryProject") {
           placeTile(4, 2)
           p2.doTask("Steel")

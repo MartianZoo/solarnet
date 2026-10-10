@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -52,8 +52,8 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
           kim.playPrelude(Merger) { kim.playCorp(Inventrix) }
         }
         .expect("$Inventrix")
-    shouldThrow<RequirementException> { kim.stdProject("PowerPlantProject") }
-    kim.stdAction("DoRequiredActionsAction").expect("3 ProjectCard")
+    shouldThrow<NarrowingException> { kim.stdProject("PowerPlantProject") }
+    kim.stdAction("RequiredActionsSignal").expect("3 ProjectCard")
     kim.stdProject("PowerPlantProject").expect("PROD[Energy]")
   }
 

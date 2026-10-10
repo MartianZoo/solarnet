@@ -4,6 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
@@ -22,7 +23,7 @@ private val oneToOnePaymentDeclarations =
         """
         CLASS OneToOnePaymentSource : Owned {
           This:: BaseResourceValue<Class<Heat>>
-          Billing<Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
+          Billing<Class<Component>, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
         }
         """
             .trimIndent()
@@ -74,20 +75,19 @@ internal class TfmGameplayTest :
   }
 
   @Test
-  internal fun `Standard action helper rejects a non-standard action provider`() {
+  internal fun `Turn option helper rejects an unrelated action provider`() {
     newGame(TestOption.PromoCardPack)
     p1.runOperation("StJosephOfCupertinoMission")
     admin.phase("Action")
 
-    shouldThrow<IllegalArgumentException> { p1.stdAction("CathedralOption") }.message shouldBe
-        "CathedralOption is not a StandardAction"
+    shouldThrow<NarrowingException> { p1.stdAction("CathedralOption") }
   }
 
   @Test
   internal fun `Declining a second action rejects an unrelated optional task`() {
     newGame()
 
-    p1.runOperation("UseAction<StandardAction>?") {
+    p1.runOperation("StandardAction?") {
       shouldThrow<TaskException> { p1.declineSecondAction() }
       abort()
     }

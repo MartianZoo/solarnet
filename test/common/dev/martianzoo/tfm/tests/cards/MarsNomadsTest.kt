@@ -124,7 +124,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
   @Test
   internal fun `Does not trigger Philares when moving beside an opponent's tile`() {
     newTestGame(kimCorporation = Philares)
-    kim.stdAction("DoRequiredActionsAction") { placeTile(2, 2) }
+    kim.stdAction("RequiredActionsSignal") { placeTile(2, 2) }
     stan.exMachina("$MarsNomads, NomadsMarker<Tharsis_2_1>")
 
     stan

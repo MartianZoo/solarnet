@@ -35,7 +35,7 @@ internal class FakeWildTagTest : CardTest() {
     with(p1) {
       runOperation("${fakeWildTags("EventTag")}, NewTurn") {
             p1.count("EventTag") shouldBe 1
-            useStdAction("PlayCardFromHandAction", payment = {}) { playProject(MediaArchives, 8) }
+            playProject(MediaArchives, 8)
           }
           .expect("-8 MC")
     }

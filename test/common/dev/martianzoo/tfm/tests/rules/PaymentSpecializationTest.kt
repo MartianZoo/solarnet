@@ -50,7 +50,7 @@ internal class PaymentSpecializationTest {
     p1.runOperation("Steel, Titanium")
 
     p1.beginOperation(
-        "Owed<Class<Steel>> THEN ActionBilling<SellPatentsProject, Action1, Class<Steel>>"
+        "Owed<Class<Steel>> THEN Billing<Class<SellPatentsProject>, Action1, Class<Steel>>"
     ) {
       shouldThrow<NarrowingException> { doTask("-Titanium") }
       doTask("-Steel")

@@ -38,7 +38,7 @@ internal class TurmoilRulesTest : CardTest() {
     clearSetupPolitics()
     admin.phase("Action")
 
-    p1.stdAction("LobbyAction", 1) {
+    p1.stdAction("LobbyAction<Action1>") {
       doTask("PartyDelegate<MarsFirst>")
     }
 
@@ -63,7 +63,7 @@ internal class TurmoilRulesTest : CardTest() {
     p1.count("LobbyActionAvailable") shouldBe 1
     p1.count("Delegate") shouldBe 5
 
-    p1.stdAction("LobbyAction", 2) {
+    p1.stdAction("LobbyAction<Action2>") {
       doTask("PartyDelegate<Scientists>")
     }
 
@@ -72,7 +72,7 @@ internal class TurmoilRulesTest : CardTest() {
     p1.count("Delegate") shouldBe 6
 
     shouldThrow<RequirementException> {
-      p1.stdAction("LobbyAction", 2) {
+      p1.stdAction("LobbyAction<Action2>") {
         doTask("PartyDelegate<Scientists>")
       }
     }
@@ -81,7 +81,7 @@ internal class TurmoilRulesTest : CardTest() {
     p1.count("LobbyActionAvailable") shouldBe 1
     p1.count("Delegate") shouldBe 6
 
-    p1.stdAction("LobbyAction", 1) {
+    p1.stdAction("LobbyAction<Action1>") {
       doTask("PartyDelegate<Scientists>")
     }
 
@@ -100,33 +100,33 @@ internal class TurmoilRulesTest : CardTest() {
     admin.phase("Action")
 
     p1.turn {
-      stdAction("LobbyAction", 1) {
+      stdAction("LobbyAction<Action1>") {
         doTask("PartyDelegate<MarsFirst>")
       }
-      stdAction("LobbyAction", 2) {
+      stdAction("LobbyAction<Action2>") {
         doTask("PartyDelegate<MarsFirst>")
       }
     }
     p1.count("PartyDelegate<MarsFirst>") shouldBe 2
     admin.count("Dominant<MarsFirst>") shouldBe 1
     p2.turn {
-      stdAction("LobbyAction", 1) {
+      stdAction("LobbyAction<Action1>") {
         doTask("PartyDelegate<Scientists>")
       }
       p2.count("PartyDelegate<Scientists>") shouldBe 1
       admin.count("Dominant<Scientists>") shouldBe 0
       admin.count("Dominant<MarsFirst>") shouldBe 1
-      stdAction("LobbyAction", 2) {
+      stdAction("LobbyAction<Action2>") {
         doTask("PartyDelegate<Scientists>")
       }
     }
     admin.count("Dominant<MarsFirst>") shouldBe 1
     p1.pass()
     p2.turn {
-      stdAction("LobbyAction", 2) {
+      stdAction("LobbyAction<Action2>") {
         doTask("PartyDelegate<Scientists>")
       }
-      stdAction("LobbyAction", 2) {
+      stdAction("LobbyAction<Action2>") {
         doTask("PartyDelegate<Scientists>")
       }
     }
@@ -148,17 +148,17 @@ internal class TurmoilRulesTest : CardTest() {
     admin.phase("Action")
 
     p1.turn {
-      stdAction("LobbyAction", 1) {
+      stdAction("LobbyAction<Action1>") {
         doTask("PartyDelegate<Scientists>")
       }
     }
     p2.turn {
-      stdAction("LobbyAction", 1) {
+      stdAction("LobbyAction<Action1>") {
         doTask("PartyDelegate<Scientists>")
       }
       p1.count("PartyLeader<Scientists>") shouldBe 1
       p2.count("PartyLeader<Scientists>") shouldBe 0
-      stdAction("LobbyAction", 2) {
+      stdAction("LobbyAction<Action2>") {
         doTask("PartyDelegate<Scientists>")
       }
     }
@@ -189,17 +189,17 @@ internal class TurmoilRulesTest : CardTest() {
     admin.phase("Action")
 
     p1.turn {
-      stdAction("LobbyAction", 1) {
+      stdAction("LobbyAction<Action1>") {
         doTask("PartyDelegate<MarsFirst>")
       }
-      stdAction("LobbyAction", 2) {
+      stdAction("LobbyAction<Action2>") {
         doTask("PartyDelegate<MarsFirst>")
       }
     }
     p2.pass()
     p1.turn {
       repeat(5) {
-        stdAction("LobbyAction", 2) {
+        stdAction("LobbyAction<Action2>") {
           doTask("PartyDelegate<MarsFirst>")
         }
       }
@@ -209,7 +209,7 @@ internal class TurmoilRulesTest : CardTest() {
     p1.count("LobbyActionAvailable") shouldBe 0
     p1.count("MC") shouldBe 5
     shouldThrow<RequirementException> {
-      p1.stdAction("LobbyAction", 2) {
+      p1.stdAction("LobbyAction<Action2>") {
         doTask("PartyDelegate<MarsFirst>")
       }
     }
@@ -237,7 +237,7 @@ internal class TurmoilRulesTest : CardTest() {
     admin.phase("Action")
 
     shouldThrow<RequirementException> {
-      p1.stdAction("LobbyAction", 2) {
+      p1.stdAction("LobbyAction<Action2>") {
         doTask("PartyDelegate<Scientists>")
       }
     }
@@ -268,7 +268,7 @@ internal class TurmoilRulesTest : CardTest() {
     p1.count("LobbyActionAvailable") shouldBe 0
     p1.runOperation("-PartyDelegate<MarsFirst>")
     shouldThrow<NotNowException> {
-      p1.stdAction("LobbyAction", 1) {
+      p1.stdAction("LobbyAction<Action1>") {
         doTask("PartyDelegate<Scientists>")
       }
     }
@@ -281,7 +281,7 @@ internal class TurmoilRulesTest : CardTest() {
   internal fun `lobby refill restores the free action without changing placed delegate count`() {
     newGame(TurmoilExpansion)
     admin.phase("Action")
-    p1.stdAction("LobbyAction", 1) {
+    p1.stdAction("LobbyAction<Action1>") {
       doTask("PartyDelegate<MarsFirst>")
     }
 
@@ -301,15 +301,15 @@ internal class TurmoilRulesTest : CardTest() {
     admin.phase("Action")
 
     p1.turn {
-      stdAction("LobbyAction", 1) {
+      stdAction("LobbyAction<Action1>") {
         doTask("PartyDelegate<MarsFirst>")
       }
-      stdAction("LobbyAction", 2) {
+      stdAction("LobbyAction<Action2>") {
         doTask("PartyDelegate<MarsFirst>")
       }
     }
     p2.turn {
-      stdAction("LobbyAction", 1) {
+      stdAction("LobbyAction<Action1>") {
         doTask("PartyDelegate<MarsFirst>")
       }
     }

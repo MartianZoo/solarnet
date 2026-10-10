@@ -98,7 +98,7 @@ internal class TurmoilPoliciesTest : CardTest() {
     p1.runOperation("10 MC")
     admin.phase("Action")
 
-    p1.stdAction("UseTurmoilPolicyAction", 2)
+    p1.stdAction("UseTurmoilPolicyAction<Action2>")
 
     p1.count("MC") shouldBe 0
     p1.count("PROD[Heat]") shouldBe 1

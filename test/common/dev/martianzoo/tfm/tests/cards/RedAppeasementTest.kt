@@ -12,8 +12,8 @@ internal class RedAppeasementTest : TfmGameplayTest() {
   internal fun `Cannot be played after another player has passed`() {
     newTestGame("RedAppeasement, TurmoilExpansion", playerCount = 2)
     kim.turn {
-      stdAction("LobbyAction", 1) { doTask("PartyDelegate<Reds>") }
-      stdAction("LobbyAction", 2, payment = { pay(5) }) { doTask("PartyDelegate<Reds>") }
+      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Reds>") }
+      stdAction("LobbyAction<Action2>", payment = { pay(5) }) { doTask("PartyDelegate<Reds>") }
     }
     stan.pass()
 
@@ -24,8 +24,8 @@ internal class RedAppeasementTest : TfmGameplayTest() {
   internal fun `Passes its owner so the next players pass ends the generation`() {
     newTestGame("RedAppeasement, TurmoilExpansion", playerCount = 2)
     kim.turn {
-      stdAction("LobbyAction", 1) { doTask("PartyDelegate<Reds>") }
-      stdAction("LobbyAction", 2, payment = { pay(5) }) { doTask("PartyDelegate<Reds>") }
+      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Reds>") }
+      stdAction("LobbyAction<Action2>", payment = { pay(5) }) { doTask("PartyDelegate<Reds>") }
     }
     stan.turn { sellPatents(1) }
 

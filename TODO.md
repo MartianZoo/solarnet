@@ -4,6 +4,16 @@
 
 Issue links provide background. Inline TODOs should be brief context pointers.
 
+## Standard actions
+
+- [ ] Remove the action-slot dependency from general-purpose `Billing`. Investigate generated
+  `Foo_Action1` and `Foo_Action2` classes as the actions' identities, preserving authored `This`
+  references to the source card and the card's shared once-per-generation use.
+
+- [ ] Keep gated System work with Admin when the gate becomes available. With player autoexecution
+  disabled, `MAX 0 Billing: DefaultGreeneryTile` currently needs the player to select it after
+  payment before Admin performs the signal; `Game20230521Test` shows the extra selections.
+
 ## Consensus top five project concerns — 2026-10-08
 
 Ranked after independent Codex and Opus/xhigh reviews and three debate rounds, reviewing

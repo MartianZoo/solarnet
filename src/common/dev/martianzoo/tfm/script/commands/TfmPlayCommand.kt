@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.script.commands
 
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.cardBack
 import dev.martianzoo.tfm.script.ScriptCommand
@@ -12,7 +13,7 @@ internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("
   override val usage: String = "tfm_play <CardName>[, <payment>...]"
   override val help: String =
       """
-        Plays a Terraforming Mars card, selecting the Play Card standard action first when needed.
+        Plays a Terraforming Mars card from a turn option or a granted card-play task.
         Payment text after the first comma is passed to `tfm_pay`; for example,
         `tfm_play OlympusConference, 2 Steel, 1`.
       """
@@ -27,14 +28,16 @@ internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("
     val payment = args.substringAfter(',', missingDelimiterValue = "").trim()
     val result =
         repl.game.timeline.atomic {
-          val choosingStandardAction =
+          val grantedOperation =
               repl.game.tasks
-                  .matching { it.instruction.toString().contains("StandardAction") }
+                  .matching {
+                    cn("PlayCard") in it.instruction.descendantsOfType<ClassName>()
+                  }
                   .any()
-          if (choosingStandardAction) {
-            TaskCommand(repl).withArgs("UseAction<PlayCardFromHandAction, Action1>")
-          }
-          TaskCommand(repl).withArgs("PlayCard<Class<$kind>, Class<$cardName>>")
+          val instruction =
+              if (grantedOperation) "PlayCard<Class<$kind>, Class<$cardName>>"
+              else "PlayProject<Class<$cardName>>"
+          TaskCommand(repl).withArgs(instruction)
           if (payment.isNotEmpty()) TfmPayCommand(repl).withArgs(payment)
         }
     return repl.describeExecutionResults(result)

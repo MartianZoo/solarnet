@@ -6,7 +6,7 @@ import kotlin.test.assertTrue
 
 internal class TfmActionCommandTest {
   @Test
-  internal fun `tfm action selects the standard action and uses the requested card action`() {
+  internal fun `tfm action selects the requested card directly from the turn offer`() {
     val repl = actionGame("PROD[Energy], AiCentral")
 
     val output = repl.command("tfm_action AiCentral 1")
@@ -16,19 +16,31 @@ internal class TfmActionCommandTest {
   }
 
   @Test
-  internal fun `tfm action continues a use card action already underway`() {
+  internal fun `tfm action continues a turn choice narrowed to card actions`() {
+    val repl = actionGame("PROD[Energy], AiCentral")
+    repl.agent.narrowTask("UseCardAction")
+
+    val output = repl.command("tfm_action AiCentral 1")
+
+    assertEquals(1, repl.agent.count("ActionUsedMarker<AiCentral>"), output.joinToString("\n"))
+    assertEquals(2, repl.agent.count("ProjectCard"))
+  }
+
+  @Test
+  internal fun `tfm action uses a granted card action without spending its ordinary use`() {
     val repl = ScriptSession()
     repl.command("newgame BRP 2")
     repl.keepStartingProjects(0, 0)
     repl.command("become Player1")
     repl.agent.runOperation("PROD[Energy], AiCentral")
     repl.command("auto none")
-    repl.agent.beginOperation("UseAction<UseActionOnCardAction, Action1>")
-    repl.command("auto safe")
+    repl.agent.beginOperation("UseAction<ActionCard>")
+    repl.command("auto concrete")
 
     val output = repl.command("tfm_action AiCentral 1")
 
-    assertEquals(1, repl.agent.count("ActionUsedMarker<AiCentral>"), output.joinToString("\n"))
+    assertEquals(0, repl.agent.count("ActionUsedMarker<AiCentral>"), output.joinToString("\n"))
+    assertEquals(2, repl.agent.count("ProjectCard"))
   }
 
   @Test

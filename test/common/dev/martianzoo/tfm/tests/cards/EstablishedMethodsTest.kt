@@ -21,7 +21,7 @@ internal class EstablishedMethodsTest : CardTest() {
     p1.playPrelude(EstablishedMethods) {
           p1.count("MC") shouldBe 30
           shouldThrow<NarrowingException> { doTask("UseAction<SellPatentsProject, Action1>") }
-          shouldThrow<TaskException> { doTask("UseAction<PlayCardFromHandAction, Action1>") }
+          shouldThrow<TaskException> { doTask("PlayProject<Class<Mine>>") }
           doTask("UseAction<PowerPlantProject, Action1>")
           p1.pay(11)
           shouldThrow<NarrowingException> { doTask("Ok") }

@@ -208,7 +208,7 @@ internal class CoreRulesTest : CardTest() {
     p1.runOperation("3 Energy")
     admin.phase("Action")
 
-    p1.stdAction("TradeAction", 2) { doTask("Trade<Ceres>") }.expect("-3 Energy, 2 Steel")
+    p1.stdAction("TradeAction<Action2>") { doTask("Trade<Ceres>") }.expect("-3 Energy, 2 Steel")
   }
 
   @Test

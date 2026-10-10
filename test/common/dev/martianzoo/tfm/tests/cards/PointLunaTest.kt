@@ -30,7 +30,7 @@ internal class PointLunaTest : CardTest() {
     val result =
         with(p1) {
           runOperation("${fakeWildTags("EarthTag")}, NewTurn") {
-            useStdAction("PlayCardFromHandAction", payment = {}) { playProject(Cartel, 8) }
+            playProject(Cartel, 8)
           }
         }
     p1.count("FakeWildTagUse") shouldBe 0

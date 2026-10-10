@@ -22,7 +22,7 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
     kim.exMachina("Floater<$StormcraftIncorporated>, 6 Heat")
 
     kim.stdAction(
-            "ConvertHeatAction",
+            "ConvertHeat",
             payment = {
               doTask("-Floater<$StormcraftIncorporated>")
               doTask("-6 Heat")
@@ -78,7 +78,7 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
     kim.fundAward(cn("Thermalist"), 8)
 
     kim.stdAction(
-            "ConvertHeatAction",
+            "ConvertHeat",
             payment = {
               doTask("-4 Floater<$StormcraftIncorporated>")
               declineTask()
