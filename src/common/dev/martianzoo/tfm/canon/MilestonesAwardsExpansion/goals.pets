@@ -42,7 +42,7 @@ CLASS Thawer : Milestone {
 
 CLASS ThawerWatcher<Class<Thawer>> : CardWatcher {
   TemperatureStep BY @Player: ThawerCredit<@Player>
-  Thawer:: -This!
+  Thawer: -This!
 }
 
 CLASS ThawerCredit : Owned<Player>
@@ -54,6 +54,6 @@ CLASS Biologist : Award { metric = COUNT "BioTag" }
 CLASS Politician : Award {
   metric = COUNT "PartyLeader OR Influence"
   MeasureAward<This>:: EACH Measured@Influence<Anyone> { -Measured@! }
-  MeasureAward<This>:: EACH Scored@Player { MeasureInfluence<Scored@> }
+  MeasureAward<This>: EACH Scored@Player { MeasureInfluence<Scored@> }
 }
 CLASS Visionary : Award { metric = COUNT "ProjectCard" }

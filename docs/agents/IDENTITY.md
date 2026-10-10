@@ -67,9 +67,10 @@ Lexical owner insertion happens during elaboration. A bare `Plant` in an owned c
 remains broad. This Type specialization does not assign task control or event attribution.
 
 A queued effect's selection assignee defaults to the effect component's Player owner, then the
-changed component's Player owner, then the triggering Actor. A queued effect of a `System` gain
-uses the gain task's retained selection assignee before that last fallback. An automatic effect
-executes inline as the effect owner when present and otherwise as its surrounding Actor.
+changed component's Player owner, then the triggering Actor. A queued effect of a change that gains
+or removes `System` uses the task's retained selection assignee before that last fallback. An
+automatic effect executes inline as the effect owner when present and otherwise as its surrounding
+Actor.
 
 Instruction-side `BY` remains in an abstract task until its Actor becomes concrete. It then changes
 the current assignee and is removed from the executable instruction. That Actor's engine must
@@ -90,17 +91,18 @@ assignee. Queued work produced during Player-controlled work keeps that Player a
 selection assignee comes from the effect owner, changed component owner, then triggering Actor.
 Admin-controlled reactions instead use those sources to choose the controller in the same order.
 
-A normalized task that directly gains `System`, with or without a top-level instruction-side
-`BY`, begins assigned to Admin while retaining its controller and selection assignee. Contextual
-selection reapplies that rule. A concrete `BY` remains authoritative: naming a non-Admin performer
-then reaches the existing `System` creation guard and fails. The Admin assignment changes neither
-presentation nor scheduling.
+A normalized task that directly gains or removes `System`, with or without a top-level
+instruction-side `BY`, begins assigned to Admin while retaining its controller and selection
+assignee. Contextual selection reapplies that rule. A transmutation uses Admin if either side is
+`System`. A concrete `BY` remains authoritative; a non-Admin gain still reaches the existing
+`System` creation guard and fails. The Admin assignment does not add inline execution: ordinary
+Agent policy determines when Admin performs the task.
 
-Use `System` for a gain whose performance is neutral table bookkeeping rather than a Player's game
-action. The gain must itself be safe for eager Admin execution. If it opens a real choice, that
-choice remains downstream work for the retained Player recipient. This classification is
-independent of `Hidden`, which controls presentation, and `::`, which preserves an invariant within
-the initiating operation.
+Use `System` for components whose gains and removals are neutral table bookkeeping rather than a
+Player's game action. The change must itself be safe for eager Admin execution. If it opens a real
+choice, that choice remains downstream work for the retained Player recipient. This classification
+is independent of `Hidden`, which controls presentation, and `::`, which preserves an invariant
+within the initiating operation.
 
 Selecting a task resolves it, marks it selected, and moves its current assignee to its selection
 assignee. If that Actor differs from the controller, selection stops at the handoff even when the

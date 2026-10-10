@@ -45,6 +45,17 @@ These concerns remain open; the ranking does not select replacement designs.
 
 ## User Ideas and Agreed Directions
 
+- Continue the remaining `::` audit without treating current sequencing dependencies as permanent
+  justifications. Preserve intrinsic card-tag construction, old Energy conversion before
+  production, and Pharmacy Union's starting money before its tag penalties.
+- Resolve the existing pricing sequence before making `Owed` System. Automatic `BuyCard` and
+  Polyphemos debt gains bypass queued Admin assignment, while Excentric Sponsor's
+  `PlayCard THEN -25 Owed` can apply its discount before the card's debt is created.
+  A follow-up trial also made `PayingFor` System and queued the BuyCard/Polyphemos debt gains:
+  Polyphemos still waited for `ActionBilling`, while Excentric Sponsor hit the System-creation
+  guard through `PriceCard`'s automatic effects (five of seven focused scenarios failed).
+  Those `Owed`-to-System trials were reverted; the general System-removal routing remains.
+
 - [ ] Extend the build-time Canon invariant checks to indirect special-tile gains behind
   signals or supporting components (`GainsOf`; entry 15 of
   [GAME_HACKS](docs/agents/GAME_HACKS.md)). Current checks cover direct authored shapes and do not

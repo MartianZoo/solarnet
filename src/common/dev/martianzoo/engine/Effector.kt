@@ -90,15 +90,19 @@ internal class Effector(
       automatic: Boolean? = null,
   ): List<PendingTask> {
     val gaining = triggerEvent.change.gaining?.type
+    val removing = triggerEvent.change.removing?.type
     val resolvedChange =
         LiveEffect.ResolvedChange(
             gaining = gaining,
-            removing = triggerEvent.change.removing?.type,
-            // Admin performs the System gain; its retained recipient handles an unowned queued
+            removing = removing,
+            // Admin performs the System change; its retained recipient handles an unowned queued
             // consequence. Owner-based effect routing still takes precedence in PendingTask.
             queuedEffectFallback =
                 selectionAssignee.takeIf {
-                  automatic == false && gaining?.rootClass?.isSubtypeOf(systemClass) == true
+                  automatic == false &&
+                      listOfNotNull(gaining, removing).any {
+                        it.rootClass.isSubtypeOf(systemClass)
+                      }
                 },
         )
     val selfEffects = fireSelfEffects(triggerEvent, controller, automatic, resolvedChange)

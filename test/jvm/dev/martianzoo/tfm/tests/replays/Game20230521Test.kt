@@ -177,7 +177,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // Player2 used Factorum action
     // Player2 drew Gyropolis
     p2.turn {
-      cardAction2(Factorum)
+      cardAction2(Factorum) { doTask("ProjectCard") }
       // Player2 played Mars University
       playProject(MarsUniversity, 6, steel = 1) {
         // Player2 is using their Mars University effect to draw a card by discarding a card.
@@ -378,7 +378,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // Player2 used Factorum action
     // Player2 drew Jovian Embassy
     p2.turn {
-      cardAction2(Factorum)
+      cardAction2(Factorum) { doTask("ProjectCard") }
       // Player2 played Aquifer Pumping
       playProject(AquiferPumping, 14, steel = 2)
     }
@@ -524,7 +524,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // 1 card(s) were discarded
     // Player2 drew AI Central
     p2.turn {
-      cardAction2(Factorum)
+      cardAction2(Factorum) { doTask("ProjectCard") }
       // Player2 played Directed Impactors
       playProject(DirectedImpactors, 2, titanium = 2)
     }
@@ -656,7 +656,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player2 used Factorum action
       // 3 card(s) were discarded
       // Player2 drew Mine
-      cardAction2(Factorum).expect("ProjectCard")
+      cardAction2(Factorum) { doTask("ProjectCard") }.expect("ProjectCard")
     }
 
     // Player1 used Development Center action
@@ -1289,7 +1289,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // 1 card(s) were discarded
     // Player2 drew Protected Valley
     p2.turn {
-      cardAction2(Factorum).expect("Card")
+      cardAction2(Factorum) { doTask("ProjectCard") }.expect("Card")
       // Player2 played Natural Preserve
       // Player2's mc production increased by 1
       playProject(NaturalPreserve, 1, steel = 2) {
@@ -1553,7 +1553,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // Player2 used Factorum action
     // Player2 drew Electro Catapult
     p2.turn {
-      cardAction2(Factorum)
+      cardAction2(Factorum) { doTask("ProjectCard") }
       // Player2 used Sell Patents standard project
       // Player2 sold 2 patents
       sellPatents(2)
@@ -1646,7 +1646,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player2 used Factorum action
       // 9 card(s) were discarded
       // Player2 drew Deep Well Heating
-      cardAction2(Factorum)
+      cardAction2(Factorum) { doTask("ProjectCard") }
     }
     // Player1 used Convert Plants standard action
     // Player1 placed greenery tile on row 2 position 4
