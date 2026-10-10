@@ -562,11 +562,11 @@ internal class Prelude2CardsTest : CardTest() {
     p1.runOperation("NewTurn") {
       doTask("UseAction<UseStandardProjectAction, Action1>")
       doTask("UseAction<PowerPlantProject, Action1>")
-      doTask("11 Owed<Class<MC>>")
-      doTask("ActionBilling<>")
       doTask("-11 MC")
       doTask("PROD[Energy]")
-      doTask("-SuitableInfrastructureBonus")
+      // Selecting the bonus hands its System cleanup to Admin.
+      p1.selectTask(p1.tasks.ids().single())
+      autoExecNow()
       doTask("2 MC")
     }
 

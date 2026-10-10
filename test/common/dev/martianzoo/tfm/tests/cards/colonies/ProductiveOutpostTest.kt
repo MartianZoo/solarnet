@@ -19,7 +19,9 @@ internal class ProductiveOutpostTest : TfmSandboxTest() {
     kim.exMachina("Colony<Luna>, Colony<Io>, Colony<Triton>")
     kim.autoExecPolicy = NONE
 
-    kim.playProject(ProductiveOutpost, 0) { doTasks("2 Heat", "2 MC", "Titanium") }
+    kim.playProject(ProductiveOutpost, 0) {
+          doTasks("ProductiveOutpost FROM ProjectCard", "2 Heat", "2 MC", "Titanium")
+        }
         .expect("2 MC, 2 Heat, Titanium")
   }
 

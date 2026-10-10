@@ -87,9 +87,7 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
   private fun generation1() {
     green.inTurn {
       doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation1>, Hand>")
-      green.pay()
       doTask("42 MC")
-      doTask("10 ProjectCard")
     }
     green.draw(
         GreatDam,

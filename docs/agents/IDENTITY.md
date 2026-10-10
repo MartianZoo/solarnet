@@ -32,8 +32,8 @@ Keep these roles independent:
 - **Selection assignee:** the Actor to whom selecting a task transfers it.
 - **Current assignee:** the Actor through whose Agent the task may now be selected, narrowed, or
   executed.
-- **Executing Actor:** the Actor whose `ActorEngine` performs the concrete change and is recorded
-  on its `ChangeEvent`.
+- **Executing Actor:** the Actor attributed to the concrete change and recorded on its
+  `ChangeEvent`.
 
 A Task stores `controller`, `selectionAssignee`, and `assignee`. It has no separate narrower or
 performer field. The current assignee supplies remaining choices and performs the concrete
@@ -67,16 +67,18 @@ Lexical owner insertion happens during elaboration. A bare `Plant` in an owned c
 remains broad. This Type specialization does not assign task control or event attribution.
 
 A queued effect's selection assignee defaults to the effect component's Player owner, then the
-changed component's Player owner, then the triggering Actor. A queued effect of a `System` gain
-uses the gain task's retained selection assignee before that last fallback. An automatic effect
-executes inline as the effect owner when present and otherwise as its surrounding Actor.
+changed component's Player owner, then the triggering Actor. A queued effect of a `System` gain or
+pure removal uses the task's retained selection assignee before that last fallback. An automatic effect
+executes inline as the effect owner when present and otherwise as its surrounding Actor, except
+that a `System` gain or pure removal executes as Admin. This does not change the Player recipient of downstream
+choices or the Actor of other changes in the same automatic effect.
 
 Instruction-side `BY` remains in an abstract task until its Actor becomes concrete. It then changes
 the current assignee and is removed from the executable instruction. That Actor's engine must
 perform the change. Automatic effects have no task to hand off, so they cannot use instruction-side
 `BY`.
 
-A `ChangeEvent` records the Actor whose engine executed the change. Trigger-side `BY` inspects only
+A `ChangeEvent` records the Actor that performed the change. Trigger-side `BY` inspects only
 that Actor. It filters event attribution; it does not transfer task control.
 
 An owned component watching an ownerless, non-System type gets an Actor filter for its Player owner
@@ -90,14 +92,17 @@ assignee. Queued work produced during Player-controlled work keeps that Player a
 selection assignee comes from the effect owner, changed component owner, then triggering Actor.
 Admin-controlled reactions instead use those sources to choose the controller in the same order.
 
-A normalized task that directly gains `System`, with or without a top-level instruction-side
-`BY`, begins assigned to Admin while retaining its controller and selection assignee. Contextual
-selection reapplies that rule. A concrete `BY` remains authoritative: naming a non-Admin performer
-then reaches the existing `System` creation guard and fails. The Admin assignment changes neither
-presentation nor scheduling.
+A normalized task that gains `System` with a fixed scalar or removes a concrete `System` type,
+including changes scaled by `/` or wrapped in instruction-side `BY`, begins assigned to Admin while
+retaining its controller and selection assignee. An abstract scalar or removal target, and the choice
+whether to perform an optional removal, remain with the Player until narrowed; contextual selection
+reapplies the assignment rule. Transmutations use the gained type for this classification. Gates
+must resolve before this rule applies. A concrete `BY` remains authoritative: naming a non-Admin
+performer for a gain reaches the existing `System` creation guard and fails. The Admin assignment
+changes neither presentation nor scheduling.
 
-Use `System` for a gain whose performance is neutral table bookkeeping rather than a Player's game
-action. The gain must itself be safe for eager Admin execution. If it opens a real choice, that
+Use `System` for neutral table bookkeeping rather than a Player's game action. Fixed gains and
+concrete removals must themselves be safe for eager Admin execution. If they open a real choice, that
 choice remains downstream work for the retained Player recipient. This classification is
 independent of `Hidden`, which controls presentation, and `::`, which preserves an invariant within
 the initiating operation.

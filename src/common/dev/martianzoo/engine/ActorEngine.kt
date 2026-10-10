@@ -26,6 +26,7 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
@@ -443,15 +444,27 @@ internal constructor(
     }
   }
 
+  /**
+   * Executes a matching task. With [combineScalars], a missing match can instead execute every
+   * concrete scalar-only match when their total equals the submitted change. Existing matches,
+   * including ambiguous matches, take precedence; newly caused tasks do not join that total.
+   */
   public fun doTask(
       narrowing: InstructionTree,
       quantifierOmitted: Boolean = false,
       executeSubmittedGroup: Boolean = false,
       taskId: TaskId? = null,
       contextClass: ClassName? = null,
+      combineScalars: Boolean = false,
   ) {
     val evaluated = evaluatePer(narrowing)
     val id = matchingTask(evaluated, taskId, quantifierOmitted, contextClass)
+    if (id == null) {
+      if (combineScalars && executeScalarSum(evaluated, quantifierOmitted, contextClass)) return
+      throw TaskException(
+          "no matching task; available tasks: ${if (tasks.isEmpty()) "none" else "\n$tasks"}"
+      )
+    }
     val tasksBefore = tasks.ids()
     val task = tasks.getTaskData(id)
     if (!task.selected && selectionHandsOff(tasks, task)) {
@@ -489,12 +502,50 @@ internal constructor(
   private fun evaluatePer(instruction: InstructionTree): InstructionTree =
       if (instruction is Per) instructor.resolve(instruction) else instruction
 
+  private fun executeScalarSum(
+      narrowing: InstructionTree,
+      quantifierOmitted: Boolean,
+      contextClass: ClassName?,
+  ): Boolean {
+    // Atomized gains arrive as a group, but still describe a single submitted total.
+    val changes = InstructionGroup.of(narrowing).instructions.map { it as? Change ?: return false }
+    val first = changes.firstOrNull() ?: return false
+    if (changes.any { it.isAbstract(reader) }) return false
+    fun sameChange(change: Change): Boolean =
+        change.gaining == first.gaining &&
+            change.removing == first.removing &&
+            (quantifierOmitted || change.quantifier == first.quantifier)
+    if (changes.any { !sameChange(it) }) return false
+    val total = changes.sumOf { (it.count as ActualScalar).value.toLong() }
+    val matches =
+        tasks
+            .extract { it }
+            .filter { contextClass == null || it.cause?.context?.className == contextClass }
+            .mapNotNull { task ->
+              val resolved =
+                  try {
+                    instructor.resolve(task.instruction)
+                  } catch (_: NotNowException) {
+                    return@mapNotNull null
+                  }
+              (resolved as? Change)?.takeIf(::sameChange)?.let { task.copy(instruction = it) }
+            }
+    if (matches.size < 2) return false
+    if (matches.map { (it.instruction as Change).quantifier }.distinct().size != 1) return false
+    val amounts = matches.map {
+      (it.instruction as Change).count as? ActualScalar ?: return false
+    }
+    if (amounts.sumOf { it.value.toLong() } != total) return false
+    matches.forEach { doTask(it.instruction, taskId = it.id) }
+    return true
+  }
+
   private fun matchingTask(
       narrowing: InstructionTree,
       taskId: TaskId? = null,
       quantifierOmitted: Boolean = false,
       contextClass: ClassName? = null,
-  ): TaskId {
+  ): TaskId? {
     tasks.selectedTask()?.let { selected ->
       if (taskId != null && taskId != selected) {
         throw TaskException("task $selected is already selected")
@@ -532,7 +583,7 @@ internal constructor(
       val possibleMatches = assigned.filter { task ->
         intersectTask(narrowing, task.instruction, quantifierOmitted, possibleWorldFacts) != null
       }
-      return uniqueMatchingTask(possibleMatches)
+      return if (possibleMatches.isEmpty()) null else uniqueMatchingTask(possibleMatches)
     } catch (e: NarrowingException) {
       throw TaskException("cannot identify a task for `$narrowing`: ${e.message}", e)
     }

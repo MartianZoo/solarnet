@@ -59,13 +59,16 @@ signal serves the Prelude phase and additional Prelude plays granted by cards. O
 cards in the fixed Valley Trust, New Partner, WG Project, and Merger offers are counted in
 `Selecting`; the rejected backs are removed without names before the chosen back is played directly
 from there.
-Each Player first gains the persistent `PlayerMode` recording their chosen setup path. The
-`NonBeginnerMode` path then puts both offered corporations in `Hand` and ten project cards in
+Each Player first gains the persistent `PlayerMode` recording their chosen setup path. Both modes
+are `System`: Admin installs a fixed mode, while the beginner-versus-normal choice remains a
+Player task when `BeginnerVariant` is enabled. The `NonBeginnerMode` path then puts both offered
+corporations in `Hand` and ten project cards in
 `Selecting`; one corporation and any unwanted project cards are discarded. The `BeginnerMode` path
 creates only `BeginnerCard`. Prelude's setup rule reacts to `PlayerMode` and owns its deal and
 discard.
-Corporation phase plays the retained corporation or beginner card from `Hand`, then buys every
-project card still in `Selecting`.
+Corporation phase plays the retained corporation or beginner card from `Hand`. Gaining that
+`CardFront` triggers `BuySelectedCards`, so the corporation's purchase modifiers are already live
+when Admin starts the purchase. Completing the earlier `PlayCard` signal is not sufficient.
 Gameplay callers choose the card face without repeating its location. `PlayCard` has no location
 default: `doTask` intersects the caller's choice with the pending task, which supplies the authorized
 source (`Hand` for ordinary plays, `Selecting` for direct offered plays). An explicit conflicting
@@ -74,9 +77,11 @@ source is rejected even when that location contains another card.
 An ordinary draw adds `ProjectCard<Hand>` directly. Fixed-size project-card offers, including buys,
 gain the full offer as `ProjectCard<Selecting>`. Look-and-keep effects move only retained backs to
 `Hand` and remove the remainder. For a buy, the Player removes unwanted backs, then
-`BuySelectedCards` converts every remaining selected back into a `BuyCard` payment request. Settling
-the purchase billing moves each paid request to `Hand`. Zero buys leave no selected backs. Neither
-the World nor the replay ledger names rejected cards. Searches create only the matching hand card;
+`BuySelectedCards` is `System` and converts every remaining selected back into a `BuyCard` payment
+request. Settling the purchase billing queues `ProjectCard FROM BuyCard / BuyCard` for the Player.
+Executing that transfer moves all paid requests into `Hand`; the payment itself does not silently
+gain hand cards. Zero buys leave no selected backs. Neither the World nor the replay ledger names
+rejected cards. Searches create only the matching hand card;
 there is no count of cards searched past. `SearchForCard<CardFilter>` records the externally
 verified criterion as a transient audited event. `TagFilter`, `NoTagsFilter`, and
 `ReferenceFilter` cover the supported tag, no-printed-tag, and reference criteria. The selected

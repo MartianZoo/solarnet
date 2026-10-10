@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.exMachina
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testTfm
@@ -172,17 +171,14 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   private fun TfmGameplay.assertVps(expected: Int) {
     val onTransactionComplete = game.onTransactionComplete
     val checkpoint = game.timeline.checkpoint()
-    val autoExecPolicys = game.actors.associateWith { game.testAgent(it).autoExecPolicy }
     game.onTransactionComplete = {}
     try {
-      game.actors.forEach { game.testAgent(it).autoExecPolicy = EAGER }
       dropPendingTasksForSnapshot()
       admin.phase("Production") { dropPendingTasksForSnapshot() }
       admin.runOperation("End FROM Phase") { dropPendingTasksForSnapshot() }
       assertCounts(expected to "VictoryPoint")
     } finally {
       game.timeline.rollBack(checkpoint)
-      autoExecPolicys.forEach { (actor, mode) -> game.testAgent(actor).autoExecPolicy = mode }
       game.onTransactionComplete = onTransactionComplete
     }
   }
