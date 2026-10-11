@@ -85,7 +85,7 @@ private fun renderPlayOffer(sequence: Instruction.Then, describers: Describers):
   if (sequence.stages.size != 2 || !offer.isCardAt(Location.SELECTING, describers)) return null
   val plays = describers.changeFrame(play.gaining.className) == ComponentDescriber.ChangeFrame.Play
   val playChoice =
-      renderPlayOrFizzle(play, describers, NounPhrase.text("the other"))
+      renderPlayPrelude(play, describers, NounPhrase.text("the other"))
           ?: if (plays) offerClause("play", NounPhrase.text("the other")) else return null
   if (play.count.fixedQuantity() != 1 || play.quantifier.modality() != Modality.REQUIRED)
       return null
@@ -116,7 +116,7 @@ private fun renderPlayOffer(sequence: Instruction.Then, describers: Describers):
 /**
  * Reads one card-play choice from the signal's own Pets, with an optional selected-card referent.
  */
-internal fun renderPlayOrFizzle(
+internal fun renderPlayPrelude(
     signal: Gain,
     describers: Describers,
     selected: NounPhrase? = null,

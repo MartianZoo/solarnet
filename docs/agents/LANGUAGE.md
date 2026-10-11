@@ -234,9 +234,9 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   means looking at them. Gaining them into hand means drawing them. Interpret the subsequent offer,
   purchase, play, reward, and return procedures together from Pets. In selected Prelude and
   corporation offers, describe the rejected cards before playing the remaining one. The selected
-  Prelude's play-or-discard choice and 15 M€ compensation are read from `PlayOrFizzle` Pets wherever
+  Prelude's play-or-discard choice and 15 M€ compensation are read from `PlayPrelude` Pets wherever
   that signal is used. The `if it cannot be played` qualifier describes a caller-verified rule;
-  `PlayOrFizzle` Pets does not gate its discard branch on unplayability.
+  `PlayPrelude` Pets does not gate its discard branch on unplayability.
 - Normally describe variable amounts as `1 or more`, followed by `that amount`, `the same number`,
   `twice that amount`, or `triple that amount`, as appropriate. Use X notation when a multiplied
   cost must precede the base amount, as in `Spend 2X M€ to gain X energy`. This distinction depends

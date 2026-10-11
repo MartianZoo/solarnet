@@ -244,7 +244,7 @@ These concerns remain open; the ranking does not select replacement designs.
   project cards from a bundle or the full Prelude 2 card pool, without a `CardPack` Module. Keep
   bundle provenance distinct from ambient-rule Modules. Resolve narrower pool requests into
   individual Class choices before the game premise is built; card dependencies such as
-  `PreludeCard` and `PlayOrFizzle` should follow selected cards without selecting
+  `PreludeCard` and `PlayPrelude` should follow selected cards without selecting
   `PreludeExpansion`. Preserve the current Prelude 1 pool default for individually selected
   Valley Trust or WG Project when no Prelude 2 pool is chosen, including explicit pool exclusions.
   Resolve eligibility before offering that choice: promo replacements still test
@@ -395,7 +395,7 @@ These concerns remain open; the ranking does not select replacement designs.
 - Render conditional choices between standard and required actions using shared condition/action
   semantics. `FakeHeadStart` now exposes these choices as bracketed Pets after the action
   migration; do not hide their conditions or add a card-specific rendering rule.
-- Model when a Prelude may fizzle instead of relying on the caller's honor. `PlayOrFizzle` Pets
+- Model when a Prelude may fizzle instead of relying on the caller's honor. `PlayPrelude` Pets
   declares the play or discard choice and 15 M€ compensation, but does not gate the discard branch
   on unplayability; English currently states that caller-verified rule.
 - Make resource costs inside actions use `spend` consistently whether Pets expresses them before

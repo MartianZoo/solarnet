@@ -506,10 +506,10 @@ internal object TerraformingMarsDescribers {
                 triggerFrame = Trigger.PlayCard(),
                 cardLocationDependency = Key(klass("PlayCard"), 2),
             ),
-        klass("PlayOrFizzle") to
+        klass("PlayPrelude") to
             ComponentDescriber(
                 cardProcedure = ComponentDescriber.CardProcedure.PLAY_OR_FIZZLE,
-                cardLocationDependency = Key(klass("PlayOrFizzle"), 0),
+                cardLocationDependency = Key(klass("PlayPrelude"), 0),
             ),
         klass("CheckRequirement") to ComponentDescriber(triggerFrame = Trigger.PlayCard()),
         klass("UseAction") to ComponentDescriber(triggerFrame = Trigger.UseAction),
