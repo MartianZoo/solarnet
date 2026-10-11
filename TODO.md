@@ -13,6 +13,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - [ ] Keep gated System work with Admin when the gate becomes available. With player autoexecution
   disabled, `MAX 0 Billing: DefaultGreeneryTile` currently needs the player to select it after
   payment before Admin performs the signal; `Game20230521Test` shows the extra selections.
+  `HeadStartTest` also needs two full conditional selectors for Suitable Infrastructure bonuses
+  competing with nested actions; simplify those through general task handling, not a card helper.
 
 ## Physical game conversion — 2026-10-09
 

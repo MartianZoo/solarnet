@@ -12,7 +12,11 @@ internal class FactorumTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Factorum)
     kim.setToExMachina(3, "PROD[Energy]")
 
-    kim.cardAction1(Factorum).expect("PROD[Energy]")
+    kim.inTurn {
+          doTask("UseCardAction<Factorum, Action1>")
+          selectOnlyTask()
+        }
+        .expect("PROD[Energy]")
   }
 
   @Test
@@ -20,6 +24,12 @@ internal class FactorumTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Factorum)
     kim.exMachina("Energy")
 
-    shouldThrow<RequirementException> { kim.cardAction1(Factorum) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("UseCardAction<Factorum, Action1>")
+        selectOnlyTask()
+      }
+    }
   }
 }

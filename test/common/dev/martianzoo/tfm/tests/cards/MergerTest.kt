@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.state.TaskResult
@@ -16,19 +15,50 @@ internal class MergerTest : TfmSandboxTest() {
   @Test
   internal fun `Both corporations retain their required first actions`() {
     newTestGame(addOptions = "PreludeExpansion", kimCorporation = ValleyTrust)
-    kim.playPrelude(Merger) { kim.playCorp(Celestic) }
-    startActionPhase()
+    kim.inTurn {
+      doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
+      selectTask("4 CorporationCard<Kim, Selecting>!")
+      selectTask("-3 CorporationCard<Kim, Selecting>!")
+      doTask("PlayCard<Class<CorporationCard>, Class<Celestic>>")
+      selectTask("MAX 0 Barrier: Celestic FROM CorporationCard<Kim, Selecting>!")
+      doTasks("42 MC", "-42 MC")
+      selectOnlyTask()
+    }
+    advanceUntilActionPhase()
 
-    kim.stdAction("RequiredActionsSignal") { kim.playPrelude(SocietySupport) }
-        .expect("2 ProjectCard, PROD[-MC, Plant, Energy, Heat], -2 RequiredAction")
+    kim.inTurn {
+          doTask("RequiredActionsSignal")
+          selectTask("2 SearchForCard<Kim, ReferenceFilter<Class<Floater>>>!")
+          selectTask("3 PreludeCard<Kim, Selecting>!")
+          selectTask("-2 PreludeCard<Kim, Selecting>!")
+          doTask("PlayCard<Class<PreludeCard>, Class<SocietySupport>>")
+          selectOnlyTask()
+          doTasks("PROD[-MC]", "PROD[Plant]", "PROD[Energy]", "PROD[Heat]")
+        }
+        .expect("2 ProjectCard, -2 RequiredAction")
   }
 
   @Test
   internal fun `New Partner can play Merger while selecting both card families`() {
     newTestGame(addOptions = "PreludeExpansion")
 
-    kim.playPrelude(NewPartner) {
-          kim.playPrelude(Merger) { kim.playCorp(Celestic) }
+    kim.inTurn {
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<NewPartner>>",
+              "NewPartner FROM PreludeCard",
+              "PROD[MC]",
+          )
+          selectOnlyTask()
+          selectOnlyTask()
+          doTask("PlayCard<Class<PreludeCard>, Class<Merger>>")
+          selectOnlyTask()
+          selectTask("4 CorporationCard<Kim, Selecting>!")
+          doTask("-42 MC")
+          selectTask("-3 CorporationCard<Kim, Selecting>!")
+          doTask("PlayCard<Class<CorporationCard>, Class<Celestic>>")
+          selectTask("MAX 0 Barrier: Celestic FROM CorporationCard<Kim, Selecting>!")
+          doTask("42 MC")
+          selectOnlyTask()
         }
         .expect("$Merger, $Celestic, 0 CorporationCard<Selecting>, 0 PreludeCard<Selecting>")
   }
@@ -38,7 +68,19 @@ internal class MergerTest : TfmSandboxTest() {
     newTestGame(addOptions = "PreludeExpansion")
     kim.setToExMachina(0, "MC")
 
-    kim.playPrelude(Merger) { kim.playCorp(PharmacyUnion) }
+    kim.inTurn {
+          doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
+          selectTask("4 CorporationCard<Kim, Selecting>!")
+          selectTask("-3 CorporationCard<Kim, Selecting>!")
+          doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
+          selectTask("MAX 0 Barrier: PharmacyUnion FROM CorporationCard<Kim, Selecting>!")
+          doTask("-42 MC")
+          selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
+          selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
+          selectTask("-4 MC.")
+          selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
+          selectTask("-4 MC.")
+        }
         .expect("4 MC, 2 Disease<$PharmacyUnion>")
   }
 
@@ -46,22 +88,36 @@ internal class MergerTest : TfmSandboxTest() {
   internal fun `Pharmacy Union's loss makes Board Merger Recyclon unaffordable`() {
     newTestGame(addOptions = "PreludeExpansion, BoardOfDirectors")
     kim.exMachina("$PharmacyUnion, 2 Disease<$PharmacyUnion>")
-    kim.playPrelude(BoardOfDirectors)
-    startActionPhase()
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
+          "BoardOfDirectors FROM PreludeCard",
+      )
+      selectOnlyTask()
+    }
+    advanceUntilActionPhase()
     kim.setToExMachina(17, "MC")
 
     shouldThrow<LimitsException> {
-      kim.cardAction1(BoardOfDirectors) {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("UseCardAction<BoardOfDirectors, Action1>")
+        selectTask("PreludeCard<Kim, Hand>!")
+        selectOnlyTask()
         doTask("-12 MC")
-        kim.playPrelude(Merger) {
-          kim.autoExecPolicy = NONE
-          kim.playCorp(Recyclon) {
-            doTask("$Recyclon FROM CorporationCard<Selecting>")
-            doTask("38 MC")
-            doTask("-4 MC.")
-            doTask("-42 MC")
-          }
-        }
+        selectTask("-Director<BoardOfDirectors>!")
+        selectOnlyTask()
+        doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
+        selectTask("4 CorporationCard<Kim, Selecting>!")
+        selectTask("-3 CorporationCard<Kim, Selecting>!")
+        selectTask("PlayCard<Kim, Class<CorporationCard>, Class<CardFront>, Selecting>!")
+        doTasks(
+            "PlayCard<Class<CorporationCard>, Class<Recyclon>>",
+            "Recyclon FROM CorporationCard<Selecting>",
+            "38 MC",
+            "-4 MC.",
+            "-42 MC",
+        )
       }
     }
     kim.count("MC") shouldBe 17

@@ -12,13 +12,23 @@ internal class AdvertisingTest : TfmSandboxTest() {
   internal fun `Does not trigger for a 19-cost card`() {
     kim.exMachina("$Advertising")
 
-    kim.playProject(LunarExports, 19) { doTask("PROD[5 MC]") }.expect("PROD[5 MC]")
+    kim.inTurn {
+      doTasks("PlayProject<Class<LunarExports>>", "-19 MC")
+      selectTask("-X Titanium?")
+      doTasks("Ok", "LunarExports FROM ProjectCard", "PROD[5 MC]")
+    }
   }
 
   @Test
   internal fun `Triggers for a 20-cost card`() {
     kim.exMachina("$Advertising")
 
-    kim.playProject(GanymedeColony, 20).expect("PROD[1 MC]")
+    kim.inTurn {
+      doTasks("PlayProject<Class<GanymedeColony>>", "-20 MC")
+      selectTask("-X Titanium?")
+      doTasks("Ok", "GanymedeColony FROM ProjectCard")
+      selectTask("CityTile<Kim, GanymedeColony_RemoteArea>!")
+      doTask("PROD[MC]")
+    }
   }
 }

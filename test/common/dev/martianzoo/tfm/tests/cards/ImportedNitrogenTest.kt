@@ -17,7 +17,13 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
     // Opponent-owned holders cannot receive the imported resources.
     stan.exMachina("$Tardigrades, $Pets")
 
-    kim.playProject(ImportedNitrogen, 23)
+    kim.inTurn {
+          doTasks("PlayProject<Class<ImportedNitrogen>>", "-23 MC")
+          selectTask("-X Titanium?")
+          doTasks("Ok", "ImportedNitrogen FROM ProjectCard", "TerraformRating", "4 Plant")
+          selectTask("3 Microbe.")
+          selectTask("2 Animal.")
+        }
         .expect(
             "TerraformRating, 4 Plant, 0 Microbe, 0 Animal, -23 MC, " +
                 "0 Microbe<Stan>, 0 Animal<Stan>"
@@ -31,9 +37,19 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
     )
     kim.setToExMachina(23, "MC")
 
-    kim.playProject(ImportedNitrogen, 23) {
-          addCardResources(Tardigrades)
-          addCardResources(Pets)
+    kim.inTurn {
+          doTasks("PlayProject<Class<ImportedNitrogen>>", "-23 MC")
+          selectTask("-X Titanium?")
+          doTasks(
+              "Ok",
+              "ImportedNitrogen FROM ProjectCard",
+              "TerraformRating",
+              "4 Plant",
+              "3 Microbe<Tardigrades>.",
+              "3 MC",
+          )
+          selectTask("2 Animal.")
+          doTasks("2 Animal<Pets>.", "4 MC")
         }
         .expect(
             "TerraformRating, 4 Plant, 3 Microbe<$Tardigrades>, 2 Animal<$Pets>, " +
@@ -47,7 +63,18 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
     kim.setToExMachina(23, "MC")
 
     shouldThrow<NarrowingException> {
-      kim.playProject(ImportedNitrogen, 23) { doTask("Microbe<$Tardigrades>") }
+      kim.inTurn {
+        selectOnlyTask()
+        doTasks("PlayProject<Class<ImportedNitrogen>>", "-23 MC")
+        selectTask("-X Titanium?")
+        selectTask("Ok")
+        doTask("ImportedNitrogen FROM ProjectCard")
+        selectTask("TerraformRating!")
+        selectTask("4 Plant!")
+        selectTask("2 Animal.")
+        selectTask("3 Microbe.")
+        doTask("Microbe<Tardigrades>")
+      }
     }
   }
 }

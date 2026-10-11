@@ -15,10 +15,13 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
     kim.setToExMachina(9, "MC")
     admin.sneak("3 ColonyProduction<Luna>")
 
-    kim.stdAction("TradeAction") {
+    kim.inTurn {
+          doTasks("TradeAction", "-MC / Owed<Class<MC>>")
+          selectTask("Trade!")
           doTask("Trade<Luna>")
           selectTask("ColonyProduction<Luna>?")
-          narrowTask("ColonyProduction<Luna>")
+          selectTask("ColonyProduction<Luna>!")
+          doTask("13 MC")
         }
         .expect("4 MC")
 
@@ -31,12 +34,15 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
     kim.setToExMachina(0, "MC")
     admin.sneak("3 ColonyProduction<Luna>")
 
-    kim.cardAction2(TitanFloatingLaunchPad) {
-          doTask("Trade<Luna>")
-          selectTask("ColonyProduction<Luna>?")
-          narrowTask("ColonyProduction<Luna>")
-        }
-        .expect("-Floater<$TitanFloatingLaunchPad>, 13 MC")
+    kim.inTurn {
+      doTask("UseCardAction<TitanFloatingLaunchPad, Action2>")
+      selectTask("-Floater<TitanFloatingLaunchPad>!")
+      selectTask("Trade!")
+      doTask("Trade<Luna>")
+      selectTask("ColonyProduction<Luna>?")
+      selectTask("ColonyProduction<Luna>!")
+      doTask("13 MC")
+    }
 
     kim.assertCounts(0 to "ColonyProduction<Luna>")
   }
@@ -47,7 +53,14 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
     kim.setToExMachina(9, "MC")
     admin.sneak("5 ColonyProduction<Luna>")
 
-    kim.stdAction("TradeAction") { doTask("Trade<Luna>") }.expect("8 MC")
+    kim.inTurn {
+          doTasks("TradeAction", "-MC / Owed<Class<MC>>")
+          selectTask("Trade!")
+          doTask("Trade<Luna>")
+          selectTask("ColonyProduction<Luna>?")
+          doTask("17 MC")
+        }
+        .expect("8 MC")
 
     kim.assertCounts(0 to "ColonyProduction<Luna>")
   }
@@ -58,12 +71,15 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
     kim.setToExMachina(9, "MC")
     admin.sneak("3 ColonyProduction<Luna>")
 
-    kim.stdAction("TradeAction") {
+    kim.inTurn {
+          // Decline the other card's additional optional track increase.
+          doTasks("TradeAction", "-MC / Owed<Class<MC>>")
+          selectTask("Trade!")
           doTask("Trade<Luna>")
           selectTask("ColonyProduction<Luna>?")
-          narrowTask("ColonyProduction<Luna>")
-          // Decline the other card's additional optional track increase.
-          declineTask()
+          selectTask("ColonyProduction<Luna>!")
+          selectTask("ColonyProduction<Luna>?")
+          doTasks("Ok", "13 MC")
         }
         .expect("4 MC")
 

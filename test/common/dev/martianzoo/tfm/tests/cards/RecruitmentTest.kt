@@ -14,8 +14,12 @@ internal class RecruitmentTest : TfmSandboxTest() {
     newTestGame(addOptions = "TurmoilExpansion")
 
     shouldThrow<NotNowException> {
-      kim.playProject(Recruitment, 2) {
-        doTask("PartyDelegate<MarsFirst, Kim FROM Neutral>")
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<Recruitment>>")
+        selectTask("-X MC?")
+        doTasks("-2 MC", "Recruitment FROM ProjectCard")
+        selectOnlyTask()
       }
     }
   }
@@ -29,8 +33,13 @@ internal class RecruitmentTest : TfmSandboxTest() {
             "PartyDelegate<Unity, Neutral>, PartyDelegate<Unity, Neutral>"
     )
     admin.count("Dominant<MarsFirst>") shouldBe 1
-    kim.playProject(Recruitment, 2) {
-          doTask("PartyDelegate<MarsFirst, Kim FROM Neutral>")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<Recruitment>>",
+              "-2 MC",
+              "Recruitment FROM ProjectCard",
+              "PartyDelegate<MarsFirst, Kim FROM Neutral>",
+          )
         }
         .expect(
             "PartyDelegate<MarsFirst>, Delegate, -Delegate<Neutral>, 0 Dominant<MarsFirst>, 0 PartyLeader<MarsFirst, Neutral>"
@@ -44,8 +53,13 @@ internal class RecruitmentTest : TfmSandboxTest() {
     kim.exMachina("PartyDelegate<MarsFirst>")
     stan.exMachina("PartyDelegate<MarsFirst>, PartyDelegate<MarsFirst>")
 
-    kim.playProject(Recruitment, 2) {
-          doTask("PartyDelegate<MarsFirst, Kim FROM Neutral>")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<Recruitment>>",
+              "-2 MC",
+              "Recruitment FROM ProjectCard",
+              "PartyDelegate<MarsFirst, Kim FROM Neutral>",
+          )
         }
         .expect(
             "PartyLeader<MarsFirst>, -PartyLeader<MarsFirst, Neutral>, 0 PartyLeader<MarsFirst, Stan>"
@@ -59,8 +73,13 @@ internal class RecruitmentTest : TfmSandboxTest() {
     kim.exMachina("PartyDelegate<MarsFirst>")
     stan.exMachina("3 PartyDelegate<MarsFirst>")
 
-    kim.playProject(Recruitment, 2) {
-          doTask("PartyDelegate<MarsFirst, Kim FROM Neutral>")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<Recruitment>>",
+              "-2 MC",
+              "Recruitment FROM ProjectCard",
+              "PartyDelegate<MarsFirst, Kim FROM Neutral>",
+          )
         }
         .expect(
             "PartyLeader<MarsFirst, Stan>, -PartyLeader<MarsFirst, Neutral>, 0 PartyLeader<MarsFirst>"
@@ -74,8 +93,13 @@ internal class RecruitmentTest : TfmSandboxTest() {
     stan.exMachina("3 PartyDelegate<MarsFirst>")
     kim.exMachina("2 PartyDelegate<MarsFirst>")
 
-    kim.playProject(Recruitment, 2) {
-          doTask("PartyDelegate<MarsFirst, Kim FROM Neutral>")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<Recruitment>>",
+              "-2 MC",
+              "Recruitment FROM ProjectCard",
+              "PartyDelegate<MarsFirst, Kim FROM Neutral>",
+          )
         }
         .expect("0 PartyLeader<MarsFirst>, 0 PartyLeader<MarsFirst, Stan>")
   }
@@ -83,13 +107,18 @@ internal class RecruitmentTest : TfmSandboxTest() {
   @Test
   internal fun `Recruitment chooses the nearest clockwise challenger when the recruiter trails`() {
     newTestGame(addOptions = "TurmoilExpansion")
-    kim.exMachina("2 PartyDelegate<MarsFirst, Neutral>")
-    kim.exMachina("PartyDelegate<MarsFirst>")
-    stan.exMachina("3 PartyDelegate<MarsFirst>")
-    kim.exMachina("3 PartyDelegate<MarsFirst, Rob>")
+    kim.setToExMachina(3, "PartyDelegate<MarsFirst, Neutral>")
+    kim.setToExMachina(1, "PartyDelegate<MarsFirst>")
+    stan.setToExMachina(3, "PartyDelegate<MarsFirst>")
+    rob.setToExMachina(3, "PartyDelegate<MarsFirst>")
 
-    kim.playProject(Recruitment, 2) {
-          doTask("PartyDelegate<MarsFirst, Kim FROM Neutral>")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<$Recruitment>>",
+              "-2 MC",
+              "$Recruitment FROM ProjectCard",
+              "PartyDelegate<MarsFirst, Kim FROM Neutral>",
+          )
         }
         .expect(
             "PartyLeader<MarsFirst, Stan>, 0 PartyLeader<MarsFirst, Rob>, " +
@@ -106,8 +135,13 @@ internal class RecruitmentTest : TfmSandboxTest() {
     kim.exMachina("3 PartyDelegate<MarsFirst, Rob>")
 
     stan
-        .playProject(Recruitment, 2) {
-          doTask("PartyDelegate<MarsFirst, Stan FROM Neutral>")
+        .inTurn {
+          doTasks(
+              "PlayProject<Class<Recruitment>>",
+              "-2 MC",
+              "Recruitment FROM ProjectCard",
+              "PartyDelegate<MarsFirst, Stan FROM Neutral>",
+          )
         }
         .expect(
             "PartyLeader<MarsFirst, Rob>, 0 PartyLeader<MarsFirst, Kim>, " +
@@ -122,7 +156,12 @@ internal class RecruitmentTest : TfmSandboxTest() {
     kim.exMachina("7 PartyDelegate<Unity>")
 
     shouldThrow<DeadEndException> {
-      kim.playProject(Recruitment, 2) {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<Recruitment>>")
+        selectTask("-X MC?")
+        doTasks("-2 MC", "Recruitment FROM ProjectCard")
+        selectOnlyTask()
         doTask("PartyDelegate<MarsFirst, Kim FROM Neutral>")
       }
     }

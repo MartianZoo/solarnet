@@ -11,7 +11,14 @@ internal class CrediCorTest : TfmSandboxTest() {
 
     kim.exMachina("$EarthOffice, $ResearchOutpost")
 
-    kim.playProject(EarthCatapult, 19).expect("-15 MC")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<EarthCatapult>>",
+          "-19 MC",
+          "EarthCatapult FROM ProjectCard",
+          "4 MC",
+      )
+    }
   }
 
   @Test
@@ -20,6 +27,15 @@ internal class CrediCorTest : TfmSandboxTest() {
 
     kim.exMachina("$StandardTechnology")
 
-    kim.stdProject("CityProject") { placeTile(2, 1) }.expect("-18 MC")
+    kim.inTurn {
+      doTasks(
+          "UseStandardProject<CityProject>",
+          "-25 MC",
+          "CityTile<Tharsis_2_1>",
+          "PROD[MC]",
+          "4 MC",
+          "3 MC",
+      )
+    }
   }
 }

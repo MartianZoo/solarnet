@@ -13,9 +13,17 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
   internal fun `Advisor may choose a completed parameter while another is available`() {
     newTestGame(addOptions = "WorldGovernmentAdvisor")
     kim.exMachina("$WorldGovernmentAdvisor, 14 VenusStep")
-    kim.stdProject("AirScrappingProject")
+    kim.inTurn {
+      doTasks("UseStandardProject<AirScrappingProject>", "-15 MC")
+      selectTask("VenusStep.")
+      doTask("TerraformRating")
+    }
 
-    kim.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep BY Admin") }
+    kim.inTurn {
+          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          selectOnlyTask()
+          doTask("VenusStep BY Admin")
+        }
         .expect("0 VenusStep, 0 TemperatureStep, 0 TerraformRating")
     kim.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1
   }
@@ -27,7 +35,16 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     fillSelectedColonySlots()
 
     shouldThrow<LimitsException> {
-      kim.stdProject("AirScrappingProject") { doTask("Colony<Luna>") }
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("UseStandardProject<AirScrappingProject>")
+        selectTask("-X MC?")
+        doTask("-15 MC")
+        selectTask("VenusStep.")
+        selectTask("TerraformRating!")
+        selectTask("Colony<Kim, ColonyTile(HAS MAX 0 Colony)>!")
+        doTask("Colony<Luna>")
+      }
     }
     admin.count("VenusStep") shouldBe 7
     kim.count("Colony") shouldBe 0
@@ -42,8 +59,12 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     kim.exMachina("$WorldGovernmentAdvisor, 7 VenusStep")
     fillSelectedColonySlots()
 
-    kim.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep BY Admin") }
-        .expect("VenusStep, 0 Colony<Anyone>, 0 TerraformRating")
+    kim.inTurn {
+          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          selectOnlyTask()
+          doTask("VenusStep BY Admin")
+        }
+        .expect("0 Colony<Anyone>, 0 TerraformRating")
   }
 
   @Test
@@ -51,14 +72,27 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "AmazonisMap, WorldGovernmentAdvisor")
     kim.exMachina("$WorldGovernmentAdvisor, 7 VenusStep")
 
-    kim.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep BY Admin") }
-        .expect("VenusStep, 0 Colony<Anyone>, 0 TerraformRating")
+    kim.inTurn {
+          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          selectOnlyTask()
+          doTask("VenusStep BY Admin")
+        }
+        .expect("0 Colony<Anyone>, 0 TerraformRating")
   }
 
   private fun fillSelectedColonySlots() {
-    listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto").forEach { track ->
-      repeat(3) { stan.exMachina("Colony<$track>") }
-    }
+    fillColonySlots("Luna")
+    fillColonySlots("Ceres")
+    fillColonySlots("Triton")
+    fillColonySlots("Ganymede")
+    fillColonySlots("Callisto")
+  }
+
+  private fun fillColonySlots(track: String) {
+    // Keep separate placements: a batched gain of three colonies overshoots the track.
+    stan.setToExMachina(1, "Colony<$track>")
+    stan.setToExMachina(2, "Colony<$track>")
+    stan.setToExMachina(3, "Colony<$track>")
   }
 
   // Resolved FAQ: Advisor remains usable even when every parameter is complete.
@@ -71,12 +105,35 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
         "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_3>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_1>, OceanTile<Tharsis_2_6>, OceanTile<Tharsis_3_2>, OceanTile<Tharsis_4_3>"
     )
     kim.setToExMachina(100, "MC")
-    kim.stdProject("AsteroidProject")
-    kim.stdProject("AirScrappingProject")
-    kim.stdProject("GreeneryProject") { placeTile(3, 3) }
-    kim.stdProject("AquiferProject") { placeTile(4, 8) }
+    kim.inTurn {
+      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      selectTask("TemperatureStep.")
+      doTask("TerraformRating")
+    }
+    kim.inTurn {
+      doTasks("UseStandardProject<AirScrappingProject>", "-15 MC")
+      selectTask("VenusStep.")
+      doTask("TerraformRating")
+    }
+    kim.inTurn {
+      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_3_3>")
+      selectTask("OxygenStep.")
+      doTasks("2 MC", "2 MC", "TerraformRating")
+    }
+    kim.inTurn {
+      doTasks(
+          "UseStandardProject<AquiferProject>",
+          "-18 MC",
+          "OceanTile<Tharsis_4_8>",
+          "TerraformRating",
+          "2 Plant",
+      )
+    }
 
-    kim.cardAction1(WorldGovernmentAdvisor)
+    kim.inTurn {
+          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          selectOnlyTask()
+        }
         .expect("0 TerraformRating, 0 VenusStep, 0 TemperatureStep, 0 OxygenStep, 0 OceanTile")
     kim.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1
   }

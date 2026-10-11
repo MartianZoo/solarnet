@@ -10,109 +10,236 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
   @Test
   internal fun `Uses the printed requirement when no adjustment is needed`() {
     newTestGame(kimCorporation = Inventrix)
-    kim.stdAction("RequiredActionsSignal")
+    kim.inTurn {
+      doTask("RequiredActionsSignal")
+      selectOnlyTask()
+    }
     kim.exMachina(
         "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_6>, OceanTile<Tharsis_4_8>"
     )
 
-    kim.playProject(Algae, 10).expect("$Algae")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<Algae>>",
+          "-10 MC",
+          "Algae FROM ProjectCard",
+          "Plant",
+          "PROD[2 Plant]",
+      )
+    }
   }
 
   @Test
   internal fun `Inventrix relaxes minimum global requirements by two`() {
     newTestGame(kimCorporation = Inventrix)
-    kim.stdAction("RequiredActionsSignal")
+    kim.inTurn {
+      doTask("RequiredActionsSignal")
+      selectOnlyTask()
+    }
     kim.exMachina("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>")
 
-    kim.playProject(Algae, 10).expect("$Algae")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<Algae>>",
+          "-10 MC",
+          "Algae FROM ProjectCard",
+          "Plant",
+          "PROD[2 Plant]",
+      )
+    }
   }
 
   @Test
   internal fun `Inventrix relaxes maximum global requirements by two`() {
     newTestGame(kimCorporation = Inventrix)
-    kim.stdAction("RequiredActionsSignal")
+    kim.inTurn {
+      doTask("RequiredActionsSignal")
+      selectOnlyTask()
+    }
     kim.exMachina(
         "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_6>, OceanTile<Tharsis_4_8>"
     )
 
-    kim.playProject(DustSeals, 2).expect("$DustSeals")
+    kim.inTurn {
+      doTasks("PlayProject<Class<DustSeals>>", "-2 MC", "DustSeals FROM ProjectCard")
+    }
   }
 
   @Test
   internal fun `Stacks Inventrix Adaptation Technology and Special Design`() {
     newTestGame(kimCorporation = Inventrix)
-    kim.stdAction("RequiredActionsSignal")
+    kim.inTurn {
+      doTask("RequiredActionsSignal")
+      selectOnlyTask()
+    }
     kim.exMachina("$AdaptationTechnology")
     kim.setToExMachina(11, "TemperatureStep")
     kim.setToExMachina(30, "MC")
-    kim.playProject(SpecialDesign, 4)
+    kim.inTurn {
+      doTasks("PlayProject<Class<SpecialDesign>>", "-4 MC", "SpecialDesign FROM ProjectCard")
+      selectOnlyTask()
+    }
 
-    kim.playProject(Farming, 16).expect("$Farming")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<Farming>>",
+          "-16 MC",
+          "Farming FROM ProjectCard",
+          "PROD[2 MC]",
+          "PROD[2 Plant]",
+          "2 Plant",
+      )
+    }
   }
 
   @Test
   internal fun `Consumes Special Design when stacked adjustments are used`() {
     newTestGame(kimCorporation = Inventrix)
-    kim.stdAction("RequiredActionsSignal")
+    kim.inTurn {
+      doTask("RequiredActionsSignal")
+      selectOnlyTask()
+    }
     kim.exMachina("$AdaptationTechnology")
     kim.setToExMachina(11, "TemperatureStep")
     kim.setToExMachina(30, "MC")
-    kim.playProject(SpecialDesign, 4)
-    kim.playProject(Farming, 16)
+    kim.inTurn {
+      doTasks("PlayProject<Class<SpecialDesign>>", "-4 MC", "SpecialDesign FROM ProjectCard")
+      selectOnlyTask()
+    }
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<Farming>>",
+          "-16 MC",
+          "Farming FROM ProjectCard",
+          "PROD[2 MC]",
+          "PROD[2 Plant]",
+          "2 Plant",
+      )
+    }
 
-    shouldThrow<RequirementException> { kim.playProject(Birds, 10) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<Birds>>")
+        selectTask("-X MC?")
+        doTask("-10 MC")
+        selectOnlyTask()
+      }
+    }
   }
 
   @Test
   internal fun `Morning Star adjusts Venus requirements on cards without Venus tags`() {
     newTestGame(kimCorporation = MorningStarInc)
-    kim.stdAction("RequiredActionsSignal")
+    kim.inTurn {
+      doTask("RequiredActionsSignal")
+      selectOnlyTask()
+    }
     kim.setToExMachina(9, "VenusStep")
 
-    kim.playProject(RotatorImpacts, 6).expect("$RotatorImpacts")
+    kim.inTurn {
+      doTasks("PlayProject<Class<RotatorImpacts>>", "-6 MC")
+      selectTask("-X Titanium?")
+      doTasks("Ok", "RotatorImpacts FROM ProjectCard")
+    }
   }
 
   @Test
   internal fun `Morning Star does not adjust ocean requirements`() {
     newTestGame(kimCorporation = MorningStarInc)
-    kim.stdAction("RequiredActionsSignal")
+    kim.inTurn {
+      doTask("RequiredActionsSignal")
+      selectOnlyTask()
+    }
     kim.setToExMachina(9, "VenusStep")
 
-    shouldThrow<RequirementException> { kim.playProject(Algae, 10) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<Algae>>")
+        selectTask("-X MC?")
+        doTask("-10 MC")
+        selectOnlyTask()
+      }
+    }
   }
 
   @Test
   internal fun `Consumes Special Design when the next project has no requirement`() {
     newTestGame()
     kim.setToExMachina(11, "TemperatureStep")
-    kim.playProject(SpecialDesign, 4)
-    kim.playProject(Mine, 4)
+    kim.inTurn {
+      doTasks("PlayProject<Class<SpecialDesign>>", "-4 MC", "SpecialDesign FROM ProjectCard")
+      selectOnlyTask()
+    }
+    kim.inTurn {
+      doTasks("PlayProject<Class<Mine>>", "-4 MC")
+      selectTask("-X Steel?")
+      doTasks("Ok", "Mine FROM ProjectCard", "PROD[Steel]")
+    }
 
-    shouldThrow<RequirementException> { kim.playProject(ArcticAlgae, 12) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<ArcticAlgae>>")
+        selectTask("-X MC?")
+        doTask("-12 MC")
+        selectOnlyTask()
+      }
+    }
   }
 
   @Test
   internal fun `Consumes Special Design when the next requirement is already satisfied`() {
     newTestGame()
     kim.setToExMachina(11, "TemperatureStep")
-    kim.playProject(SpecialDesign, 4)
-    kim.playProject(DustSeals, 2)
+    kim.inTurn {
+      doTasks("PlayProject<Class<SpecialDesign>>", "-4 MC", "SpecialDesign FROM ProjectCard")
+      selectOnlyTask()
+    }
+    kim.inTurn {
+      doTasks("PlayProject<Class<DustSeals>>", "-2 MC", "DustSeals FROM ProjectCard")
+    }
 
-    shouldThrow<RequirementException> { kim.playProject(ArcticAlgae, 12) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<ArcticAlgae>>")
+        selectTask("-X MC?")
+        doTask("-12 MC")
+        selectOnlyTask()
+      }
+    }
   }
 
   @Test
   internal fun `Keeps Special Design when a Prelude intervenes before the next project`() {
     newTestGame(addOptions = "PreludeExpansion, Prelude2CardPack")
-    startActionPhase()
+    advanceUntilActionPhase()
     kim.exMachina("$BoardOfDirectors, Director<$BoardOfDirectors>, $AdaptationTechnology")
     kim.setToExMachina(13, "TemperatureStep")
-    kim.playProject(SpecialDesign, 4)
-    kim.cardAction1(BoardOfDirectors) {
+    kim.inTurn {
+      doTasks("PlayProject<Class<SpecialDesign>>", "-4 MC", "SpecialDesign FROM ProjectCard")
+      selectOnlyTask()
+    }
+    kim.inTurn {
+      doTask("UseCardAction<BoardOfDirectors, Action1>")
+      selectTask("PreludeCard<Kim, Hand>!")
+      selectOnlyTask()
       doTask("-12 MC")
-      kim.playPrelude(Donation)
+      selectTask("-Director<BoardOfDirectors>!")
+      doTasks("PlayCard<Class<PreludeCard>, Class<Donation>>", "Donation FROM PreludeCard", "21 MC")
     }
 
-    kim.playProject(Farming, 16).expect("2 Plant, PROD[2 Plant]")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<Farming>>",
+          "-16 MC",
+          "Farming FROM ProjectCard",
+          "PROD[2 MC]",
+          "PROD[2 Plant]",
+          "2 Plant",
+      )
+    }
   }
 }

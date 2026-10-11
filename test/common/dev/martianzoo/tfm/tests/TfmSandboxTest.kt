@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.exMachina
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.Engine
@@ -49,15 +50,24 @@ internal abstract class TfmSandboxTest : TfmTest() {
         }
     game = Engine.fork(prepared)
     bindPlayers()
+    players.forEach { it.autoExecPolicy = NONE }
   }
 
-  /** Starts focused action tests, skipping any unplayed corporations and Preludes. */
-  protected fun startActionPhase() {
-    check(admin.count("CorporationPhase") + admin.count("PreludePhase") == 1) {
-      "Expected Corporation or Prelude phase"
+  /**
+   * Advances to the next Action phase. From Action, expires generation-scoped state without
+   * simulating production or research; from Corporation or Prelude, skips remaining setup plays.
+   * Pending choices must be completed before advancing.
+   */
+  protected fun advanceUntilActionPhase() {
+    check(game.tasks.isEmpty()) { "Finish pending choices before advancing to Action phase" }
+    if (admin.count("ActionPhase") == 1) {
+      admin.runOperation("Generation")
+    } else {
+      check(admin.count("CorporationPhase") + admin.count("PreludePhase") == 1) {
+        "Expected Corporation, Prelude, or Action phase"
+      }
+      TfmWorkflow.Stepwise(agents).actionPhase()
     }
-    check(game.tasks.isEmpty()) { "Finish pending choices before starting Action phase" }
-    TfmWorkflow.Stepwise(agents).actionPhase()
   }
 
   protected fun TfmGameplay.setToExMachina(targetCount: Int, type: String) {
@@ -88,10 +98,6 @@ internal abstract class TfmSandboxTest : TfmTest() {
       if (difference == 0) return
       exMachina("$difference $type")
     }
-  }
-
-  protected fun nextGeneration() {
-    admin.nextGeneration(*IntArray(players.size))
   }
 
   /** Scores the current position in seat order without retaining scoring effects or history. */

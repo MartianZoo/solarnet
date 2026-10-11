@@ -13,10 +13,17 @@ internal class PsychrophilesTest : TfmSandboxTest() {
     kim.exMachina("$Psychrophiles, Microbe<$Psychrophiles>")
     kim.setToExMachina(9, "MC")
 
-    kim.playProject(AdaptedLichen, 9) { /* Decline spending a Psychrophiles microbe. */
-          declineTask()
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<AdaptedLichen>>",
+              "-9 MC",
+              "AdaptedLichen FROM ProjectCard",
+              "PROD[Plant]",
+          )
+          selectOnlyTask()
+          doTask("Ok")
         }
-        .expect("PROD[Plant], 0 Microbe<$Psychrophiles>")
+        .expect("0 Microbe<$Psychrophiles>")
   }
 
   @Test
@@ -24,9 +31,15 @@ internal class PsychrophilesTest : TfmSandboxTest() {
     kim.exMachina("$Psychrophiles, 5 Microbe<$Psychrophiles>")
     kim.setToExMachina(0, "MC")
 
-    kim.playProject(AdaptedLichen, 0) {
-          doTask("-5 Microbe<$Psychrophiles>")
-        }
-        .expect("-5 Microbe<$Psychrophiles>, PROD[Plant]")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<AdaptedLichen>>",
+          "-5 Microbe<Psychrophiles>",
+          "AdaptedLichen FROM ProjectCard",
+          "PROD[Plant]",
+      )
+      selectTask("-X MC?")
+      doTask("Ok")
+    }
   }
 }

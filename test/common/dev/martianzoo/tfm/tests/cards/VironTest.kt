@@ -9,31 +9,49 @@ import kotlin.test.Test
 internal class VironTest : TfmSandboxTest() {
   @Test
   internal fun `Can repeat an action used earlier in the generation`() {
-    initializeGame()
-    kim.cardAction1(AtmoCollectors)
-    kim.cardAction1(Viron) { doTask("UseAction<$AtmoCollectors, Action1>") }.expect("Floater")
+    newTestGame(kimCorporation = Viron)
+    kim.exMachina("$AtmoCollectors")
+    kim.inTurn { doTasks("UseCardAction<$AtmoCollectors, Action1>", "Floater<$AtmoCollectors>") }
+
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<$Viron, Action1>",
+          "UseAction<$AtmoCollectors, Action1>",
+          "Floater<$AtmoCollectors>",
+      )
+    }
   }
 
   @Test
   internal fun `Can choose a different action on the previously used card`() {
     initializeGame()
 
-    kim.cardAction1(AtmoCollectors)
+    kim.inTurn {
+      doTask("UseCardAction<AtmoCollectors, Action1>")
+      selectOnlyTask()
+    }
 
-    kim.cardAction1(Viron) {
-          doTask("UseAction<$AtmoCollectors, Action2>")
+    kim.inTurn {
+          doTasks("UseCardAction<Viron, Action1>", "UseAction<AtmoCollectors, Action2>")
+          selectOnlyTask()
           doTask("2 Titanium")
         }
-        .expect("-Floater, 2 Titanium")
+        .expect("-Floater")
   }
 
   @Test
   internal fun `Cannot use Viron to repeat Viron's own action`() {
     initializeGame()
-    kim.cardAction1(AtmoCollectors)
-    kim.cardAction1(Viron) {
-      shouldThrow<NarrowingException> { doTask("UseAction<$Viron, Action1>") }
-      abort()
+    kim.inTurn {
+      doTask("UseCardAction<AtmoCollectors, Action1>")
+      selectOnlyTask()
+    }
+    shouldThrow<NarrowingException> {
+      kim.inTurn {
+        doTask("UseCardAction<$Viron, Action1>")
+        selectOnlyTask()
+        doTask("UseAction<$Viron, Action1>")
+      }
     }
   }
 
@@ -41,11 +59,17 @@ internal class VironTest : TfmSandboxTest() {
   internal fun `Cannot choose an action card that has not been used`() {
     initializeGame()
     kim.exMachina("$ExtractorBalloons")
-    kim.cardAction1(AtmoCollectors)
+    kim.inTurn {
+      doTask("UseCardAction<AtmoCollectors, Action1>")
+      selectOnlyTask()
+    }
 
-    kim.cardAction1(Viron) {
-      shouldThrow<NarrowingException> { doTask("UseAction<$ExtractorBalloons, Action1>") }
-      abort()
+    shouldThrow<NarrowingException> {
+      kim.inTurn {
+        doTask("UseCardAction<$Viron, Action1>")
+        selectOnlyTask()
+        doTask("UseAction<$ExtractorBalloons, Action1>")
+      }
     }
   }
 
@@ -54,12 +78,21 @@ internal class VironTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Viron)
     kim.exMachina("$ExtractorBalloons")
     stan.exMachina("$AtmoCollectors, Floater<$AtmoCollectors>")
-    kim.cardAction1(ExtractorBalloons)
-    stan.cardAction1(AtmoCollectors)
+    kim.inTurn {
+      doTask("UseCardAction<ExtractorBalloons, Action1>")
+      selectOnlyTask()
+    }
+    stan.inTurn {
+      doTask("UseCardAction<AtmoCollectors, Action1>")
+      selectOnlyTask()
+    }
 
-    kim.cardAction1(Viron) {
-      shouldThrow<NarrowingException> { doTask("UseAction<$AtmoCollectors<Stan>, Action1>") }
-      abort()
+    shouldThrow<NarrowingException> {
+      kim.inTurn {
+        doTask("UseCardAction<$Viron, Action1>")
+        selectOnlyTask()
+        doTask("UseAction<$AtmoCollectors<Stan>, Action1>")
+      }
     }
   }
 
@@ -67,11 +100,16 @@ internal class VironTest : TfmSandboxTest() {
   internal fun `Repeats an action on another corporation`() {
     newTestGame(kimCorporation = Viron)
     kim.exMachina("$Celestic")
-    kim.cardAction1(Celestic) { addCardResources(Celestic) }
+    kim.inTurn {
+      doTask("UseCardAction<Celestic, Action1>")
+      selectOnlyTask()
+      doTask("Floater<Celestic>.")
+    }
 
-    kim.cardAction1(Viron) {
-          doTask("UseAction<$Celestic, Action1>")
-          addCardResources(Celestic)
+    kim.inTurn {
+          doTasks("UseCardAction<Viron, Action1>", "UseAction<Celestic, Action1>")
+          selectOnlyTask()
+          doTask("Floater<Celestic>.")
         }
         .expect("Floater<$Celestic>")
   }

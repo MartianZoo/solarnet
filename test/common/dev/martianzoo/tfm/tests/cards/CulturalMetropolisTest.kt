@@ -12,11 +12,20 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
   internal fun `Cultural Metropolis cannot be played with only one delegate available`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("6 PartyDelegate<MarsFirst>")
-    kim.exMachina("Ruling<Unity> FROM Ruling<Greens>")
+    kim.exMachina("Ruling<Unity FROM Greens>")
 
     shouldThrow<DeadEndException> {
-      kim.playProject(CulturalMetropolis, 20) {
-        placeTile(4, 2)
+      kim.inTurn {
+        selectOnlyTask()
+        doTasks("PlayProject<Class<CulturalMetropolis>>", "-20 MC")
+        selectTask("-X Steel?")
+        selectTask("Ok")
+        doTask("CulturalMetropolis FROM ProjectCard")
+        selectTask("PROD[-Energy]")
+        selectTask("PROD[3 MC]")
+        doTask("CityTile<Tharsis_4_2>")
+        selectTask("Plant!")
+        selectOnlyTask()
         doTask("2 PartyDelegate<Scientists>")
       }
     }
@@ -29,12 +38,22 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
   internal fun `Cultural Metropolis places two of the seven delegates`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("5 PartyDelegate<MarsFirst>")
-    kim.exMachina("Ruling<Unity> FROM Ruling<Greens>")
+    kim.exMachina("Ruling<Unity FROM Greens>")
 
-    kim.playProject(CulturalMetropolis, 20) {
-          placeTile(4, 2)
+    kim.inTurn {
+          doTasks("PlayProject<Class<CulturalMetropolis>>", "-20 MC")
+          selectTask("-X Steel?")
+          doTasks(
+              "Ok",
+              "CulturalMetropolis FROM ProjectCard",
+              "PROD[-Energy]",
+              "PROD[3 MC]",
+              "CityTile<Tharsis_4_2>",
+              "Plant",
+          )
+          selectOnlyTask()
           doTask("2 PartyDelegate<Scientists>")
         }
-        .expect("2 PartyDelegate<Scientists>, -LobbyActionAvailable")
+        .expect("-LobbyActionAvailable")
   }
 }

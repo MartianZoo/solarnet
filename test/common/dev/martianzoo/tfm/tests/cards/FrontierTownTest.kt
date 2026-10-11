@@ -13,11 +13,18 @@ internal class FrontierTownTest : TfmSandboxTest() {
     newTestGame(addOptions = "AmazonisMap, FrontierTown, TurmoilExpansion")
     kim.exMachina("2 PartyDelegate<MarsFirst>")
 
-    kim.playProject(FrontierTown, 11) {
-          placeTile(2, 2)
-          repeat(3) { doTask("PartyDelegate<Scientists>") }
-        }
-        .expect("3 PartyDelegate<Scientists>")
+    kim.inTurn {
+      doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
+      selectTask("-X Steel?")
+      doTasks("Ok", "FrontierTown FROM ProjectCard")
+      selectTask("FrontierTownBonus!")
+      doTasks("PROD[-Energy]", "CityTile<Amazonis_02_02>")
+      selectTask("-FrontierTownBonus!")
+      selectTask("RepeatPlacementBonus<Kim, Amazonis_02_02>!")
+      doTasks("PartyDelegate<Scientists>", "PartyDelegate<Scientists>")
+      selectOnlyTask()
+      doTask("PartyDelegate<Scientists>")
+    }
   }
 
   @Test
@@ -25,13 +32,29 @@ internal class FrontierTownTest : TfmSandboxTest() {
     newTestGame(addOptions = "HellasMap, FrontierTown, TurmoilExpansion")
     kim.exMachina("2 PartyDelegate<MarsFirst>")
 
-    kim.playProject(FrontierTown, 11) {
-          placeTile(9, 7)
-          placeTile(5, 7)
-          placeTile(5, 8)
-          placeTile(6, 7)
-        }
-        .expect("CityTile, 3 OceanTile")
+    kim.inTurn {
+      doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
+      selectTask("-X Steel?")
+      doTasks("Ok", "FrontierTown FROM ProjectCard")
+      selectTask("FrontierTownBonus!")
+      doTasks("PROD[-Energy]", "CityTile<Hellas_9_7>")
+      selectTask("-FrontierTownBonus!")
+      doTask("-6 MC")
+      selectTask("RepeatPlacementBonus<Kim, Hellas_9_7>!")
+      doTasks(
+          "-6 MC",
+          "-6 MC",
+          "OceanTile<Hellas_5_7>",
+          "TerraformRating",
+          "3 Heat",
+          "OceanTile<Hellas_5_8>",
+          "TerraformRating",
+          "2 MC",
+          "OceanTile<Hellas_6_7>",
+          "TerraformRating",
+          "2 MC",
+      )
+    }
   }
 
   @Test
@@ -41,13 +64,29 @@ internal class FrontierTownTest : TfmSandboxTest() {
     )
     kim.exMachina("2 PartyDelegate<MarsFirst>")
 
-    kim.playProject(FrontierTown, 11) {
-          placeTile(3, 3)
-          doTask("Colony<Luna>")
-          doTask("Colony<Ceres>")
-          doTask("Colony<Triton>")
-        }
-        .expect("3 Colony, -26 MC, PROD[2 MC, Steel], 3 Titanium")
+    kim.inTurn {
+      doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
+      selectTask("-X Steel?")
+      doTasks("Ok", "FrontierTown FROM ProjectCard")
+      selectTask("FrontierTownBonus!")
+      doTasks("PROD[-Energy]", "CityTile<Cimmeria_3_3>")
+      selectTask("-FrontierTownBonus!")
+      selectTask("CimmeriaPlacementBonus!")
+      selectTask("RepeatPlacementBonus<Kim, Cimmeria_3_3>!")
+      doTask("-5 MC")
+      selectTask("CimmeriaPlacementBonus!")
+      selectTask("CimmeriaPlacementBonus!")
+      doTasks(
+          "-5 MC",
+          "-5 MC",
+          "Colony<Luna>",
+          "PROD[2 MC]",
+          "Colony<Ceres>",
+          "PROD[Steel]",
+          "Colony<Triton>",
+          "3 Titanium",
+      )
+    }
   }
 
   @Test
@@ -59,10 +98,29 @@ internal class FrontierTownTest : TfmSandboxTest() {
     kim.exMachina("2 PartyDelegate<MarsFirst>")
 
     shouldThrow<DependencyException> {
-      kim.playProject(FrontierTown, 11) {
-        placeTile(3, 3)
+      kim.inTurn {
+        selectOnlyTask()
+        doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
+        selectTask("-X Steel?")
+        selectTask("Ok")
+        doTask("FrontierTown FROM ProjectCard")
+        selectTask("FrontierTownBonus!")
+        selectTask("PROD[-Energy]")
+        selectOnlyTask()
+        doTask("CityTile<Cimmeria_3_3>")
+        selectTask("-FrontierTownBonus!")
+        selectTask("CimmeriaPlacementBonus!")
+        selectTask("RepeatPlacementBonus<Kim, Cimmeria_3_3>!")
+        selectTask("-5 MC!")
+        selectTask("CimmeriaPlacementBonus!")
+        selectTask("CimmeriaPlacementBonus!")
+        selectTask("-5 MC!")
+        selectTask("-5 MC!")
         doTask("Colony<Luna>")
+        selectTask("PROD[2 MC]")
         doTask("Colony<Ceres>")
+        selectTask("PROD[Steel]")
+        selectOnlyTask()
       }
     }
     kim.assertCounts(
@@ -80,6 +138,16 @@ internal class FrontierTownTest : TfmSandboxTest() {
     newTestGame("FrontierTown, TurmoilExpansion")
     kim.exMachina("OceanTile<Tharsis_5_5>, 2 PartyDelegate<MarsFirst>")
 
-    kim.playProject(FrontierTown, 11) { placeTile(4, 5) }.expect("6 Plant, -9 MC, PROD[-Energy]")
+    kim.inTurn {
+      doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
+      selectTask("-X Steel?")
+      doTasks("Ok", "FrontierTown FROM ProjectCard")
+      selectTask("FrontierTownBonus!")
+      doTasks("PROD[-Energy]", "CityTile<Tharsis_4_5>")
+      selectTask("-FrontierTownBonus!")
+      doTasks("2 Plant", "2 MC")
+      selectOnlyTask()
+      doTasks("2 Plant", "2 Plant")
+    }
   }
 }

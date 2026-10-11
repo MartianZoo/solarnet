@@ -128,7 +128,7 @@ Start with:
 - [`payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets)
 - [`card-model.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets)
 - [`TfmActionLowerer.kt`](../../src/common/dev/martianzoo/tfm/canon/TfmActionLowerer.kt)
-- `PaymentSpecializationTest`, `TfmGameplayTest`, `DirigiblesTest`, `PsychrophilesTest`,
+- `PaymentSpecializationTest`, `DirigiblesTest`, `PsychrophilesTest`,
   `KuiperCooperativeTest`, `StormcraftIncorporatedTest`, `BoomTownTest`, and
   `StandardTechnologyTest`
 

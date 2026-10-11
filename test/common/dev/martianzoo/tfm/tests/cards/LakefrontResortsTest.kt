@@ -9,7 +9,19 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
   internal fun `An opponent's ocean placement raises MC production`() {
     newTestGame(kimCorporation = LakefrontResorts)
 
-    stan.stdProject("AquiferProject") { placeTile(1, 2) }.expect("PROD[MC<Kim>]")
+    stan
+        .inTurn {
+          doTasks(
+              "UseStandardProject<AquiferProject>",
+              "-18 MC",
+              "OceanTile<Tharsis_1_2>",
+              "TerraformRating",
+          )
+          selectTask("Production<Kim, Class<MC>>!")
+          kim.selectTask("PROD[MC]")
+          doTask("2 Steel")
+        }
+        .expect("PROD[MC<Kim>]")
   }
 
   @Test
@@ -17,7 +29,18 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
     newTestGame(kimCorporation = LakefrontResorts)
     kim.exMachina("OceanTile<Tharsis_1_2>")
 
-    stan.stdProject("CityProject") { placeTile(2, 2) }.expect("-23 MC<Stan>, 0 MC<Kim>")
+    stan
+        .inTurn {
+          doTasks(
+              "UseStandardProject<CityProject>",
+              "-25 MC",
+              "PROD[MC]",
+              "CityTile<Tharsis_2_2>",
+              "Steel",
+              "2 MC",
+          )
+        }
+        .expect("0 MC<Kim>")
   }
 
   @Test
@@ -27,6 +50,17 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
     kim.setToExMachina(25, "MC")
 
     // Two ordinary adjacency bonuses plus two Lakefront bonuses total 6 MC.
-    kim.stdProject("CityProject") { placeTile(2, 2) }.expect("-19 MC")
+    kim.inTurn {
+          doTasks(
+              "UseStandardProject<CityProject>",
+              "-25 MC",
+              "PROD[MC]",
+              "CityTile<Tharsis_2_2>",
+              "Steel",
+          )
+          selectTask("MC! / Neighbor<OceanTile, Tharsis_2_2>")
+          doTasks("2 MC", "2 MC")
+        }
+        .expect("-19 MC")
   }
 }

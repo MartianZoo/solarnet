@@ -15,7 +15,15 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
     newTestGame("PreludeExpansion, EarlyColonization, Luna, Ceres, Miranda, Titan, Enceladus")
     admin.sneak("2 ColonyProduction<Luna>")
 
-    kim.playPrelude(EarlyColonization) { doTask("Colony<Luna>") }
+    kim.inTurn {
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<EarlyColonization>>",
+              "EarlyColonization FROM PreludeCard",
+              "3 Energy",
+          )
+          selectTask("EACH @ColonyTile { 2 ColonyProduction<@ColonyTile>! }")
+          doTasks("Colony<Luna>", "PROD[2 MC]")
+        }
         .expect(
             "2 ColonyProduction<Luna>, 2 ColonyProduction<Ceres>, 0 ColonyProduction<Miranda>, " +
                 "0 ColonyProduction<Titan>, 0 ColonyProduction<Enceladus>, Colony<Luna>, 3 Energy"
@@ -27,7 +35,18 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
     newTestGame("PreludeExpansion, EarlyColonization, Luna, Ceres, Miranda, Titan, Enceladus")
     kim.exMachina("Colony<Luna>, Colony<Ceres>")
 
-    shouldThrow<DependencyException> { kim.playPrelude(EarlyColonization) }
+    shouldThrow<DependencyException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTasks(
+            "PlayCard<Class<PreludeCard>, Class<EarlyColonization>>",
+            "EarlyColonization FROM PreludeCard",
+        )
+        selectTask("3 Energy!")
+        selectTask("EACH @ColonyTile { 2 ColonyProduction<@ColonyTile>! }")
+        selectOnlyTask()
+      }
+    }
   }
 
   @Test
@@ -42,21 +61,47 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
 
   private fun fizzleAtPosition(position: Int) {
     newTestGame("PreludeExpansion, EarlyColonization, BoardOfDirectors, Luna, Ceres")
-    kim.playPrelude(BoardOfDirectors)
-    startActionPhase()
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
+          "BoardOfDirectors FROM PreludeCard",
+      )
+      selectOnlyTask()
+    }
+    advanceUntilActionPhase()
     admin.sneak("${position - admin.count("ColonyProduction<Luna>")} ColonyProduction<Luna>")
 
     shouldThrow<LimitsException> {
-      kim.cardAction1(BoardOfDirectors) {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("UseCardAction<BoardOfDirectors, Action1>")
+        selectTask("PreludeCard<Kim, Hand>!")
+        selectOnlyTask()
         doTask("-12 MC")
-        kim.playPrelude(EarlyColonization) { doTask("Colony<Ceres>") }
+        selectTask("-Director<BoardOfDirectors>!")
+        selectOnlyTask()
+        doTasks(
+            "PlayCard<Class<PreludeCard>, Class<EarlyColonization>>",
+            "EarlyColonization FROM PreludeCard",
+        )
+        selectTask("3 Energy!")
+        selectTask("EACH @ColonyTile { 2 ColonyProduction<@ColonyTile>! }")
+        selectTask("Colony<Kim, ColonyTile(HAS MAX 0 Colony)>!")
+        doTask("Colony<Ceres>")
+        selectTask("PROD[Steel]")
       }
     }
-    kim.cardAction1(BoardOfDirectors) {
+    kim.inTurn {
+          doTask("UseCardAction<BoardOfDirectors, Action1>")
+          selectTask("PreludeCard<Kim, Hand>!")
+          selectOnlyTask()
           doTask("-12 MC")
+          selectTask("-Director<BoardOfDirectors>!")
           doTask("-PreludeCard")
+          selectTask("Audit!")
+          doTask("15 MC")
         }
-        .expect("3 MC, 0 $EarlyColonization, 0 Colony<Ceres>, 0 Energy, 0 ColonyProduction<Luna>")
+        .expect("0 $EarlyColonization, 0 Colony<Ceres>, 0 Energy, 0 ColonyProduction<Luna>")
   }
 
   internal class Gameplay : TfmGameplayTest() {

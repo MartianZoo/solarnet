@@ -15,8 +15,14 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
   internal fun `Adds a resource to Search for Life`() {
     kim.exMachina("$SearchForLife, Science<$SearchForLife>")
 
-    kim.playProject(CeosFavoriteProject, 1) { doTask("Science<$SearchForLife>") }
-        .expect("Science<$SearchForLife>")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<CeosFavoriteProject>>",
+          "-1 MC",
+          "CeosFavoriteProject FROM ProjectCard",
+          "Science<SearchForLife>",
+      )
+    }
   }
 
   // FAQ: "this card can still be played without effect."
@@ -24,7 +30,15 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
   internal fun `Can be played without an eligible resource-bearing card`() {
     kim.exMachina("$Tardigrades")
 
-    kim.playProject(CeosFavoriteProject, 1).expect("0 Microbe<$Tardigrades>")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<CeosFavoriteProject>>",
+              "-1 MC",
+              "CeosFavoriteProject FROM ProjectCard",
+          )
+          selectTask("CardResource<CardFront(HAS CardResource)>.")
+        }
+        .expect("0 Microbe<$Tardigrades>")
   }
 
   @Test
@@ -32,7 +46,14 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
     kim.exMachina("$SearchForLife, Science<$SearchForLife>")
 
     shouldThrow<NarrowingException> {
-      kim.playProject(CeosFavoriteProject, 1) { doTask("Ok") }
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<CeosFavoriteProject>>")
+        selectTask("-X MC?")
+        doTasks("-1 MC", "CeosFavoriteProject FROM ProjectCard")
+        selectTask("CardResource<CardFront(HAS CardResource)>.")
+        doTask("Ok")
+      }
     }
   }
 }

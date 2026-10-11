@@ -9,7 +9,17 @@ internal class ManutechTest : TfmSandboxTest() {
   internal fun `Pays for its own starting steel production`() {
     newTestGame(kimCorporation = Manutech, startAtCorporation = true)
 
-    kim.playCorp(Manutech).expect("PROD[Steel], Steel")
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<Manutech>>",
+          "Manutech FROM CorporationCard",
+          "35 MC",
+          "PROD[Steel]",
+          "Steel",
+          "-30 MC",
+          "10 ProjectCard<Hand FROM Selecting>",
+      )
+    }
   }
 
   @Test
@@ -19,6 +29,16 @@ internal class ManutechTest : TfmSandboxTest() {
     kim.setToExMachina(2, "Plant")
     kim.setToExMachina(8, "MC")
 
-    kim.playProject(NitrophilicMoss, 8).expect("PROD[2 Plant], 0 Plant")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<NitrophilicMoss>>",
+              "-8 MC",
+              "NitrophilicMoss FROM ProjectCard",
+              "PROD[2 Plant]",
+              "-2 Plant",
+              "2 Plant",
+          )
+        }
+        .expect("0 Plant")
   }
 }

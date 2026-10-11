@@ -9,13 +9,30 @@ internal class TharsisRepublicTest : TfmSandboxTest() {
   internal fun `Original solo corporation gains production for the two opponent cities`() {
     newTestGame(playerCount = 1, kimCorporation = TharsisRepublic, startAtCorporation = true)
 
-    kim.playCorp(TharsisRepublic).expect("PROD[2 MC]")
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>",
+          "TharsisRepublic FROM CorporationCard",
+          "40 MC",
+      )
+      selectTask("TharsisRepublic_RequiredAction!")
+      doTasks("PROD[2 MC]", "-30 MC", "10 ProjectCard<Hand FROM Selecting>")
+    }
   }
 
   @Test
   internal fun `Does not gain the solo starting bonus when acquired through Merger`() {
     newTestGame(addOptions = "PreludeExpansion", playerCount = 1, kimCorporation = CrediCor)
 
-    kim.playPrelude(Merger) { kim.playCorp(TharsisRepublic) }.expect("PROD[0 MC]")
+    kim.inTurn {
+          doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
+          selectTask("4 CorporationCard<Kim, Selecting>!")
+          selectTask("-3 CorporationCard<Kim, Selecting>!")
+          doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
+          selectTask("MAX 0 Barrier: TharsisRepublic FROM CorporationCard<Kim, Selecting>!")
+          doTasks("40 MC", "-42 MC")
+          selectTask("TharsisRepublic_RequiredAction!")
+        }
+        .expect("PROD[0 MC]")
   }
 }

@@ -14,7 +14,11 @@ internal class FakeAppliedScienceTest : TfmSandboxTest() {
         "$FakeAppliedScience, Science<$FakeAppliedScience>, $BoardOfDirectors, Director<$BoardOfDirectors>"
     )
 
-    kim.cardAction1(FakeAppliedScience) { addCardResources(BoardOfDirectors) }
+    kim.inTurn {
+          doTask("UseCardAction<FakeAppliedScience, Action1>")
+          selectOnlyTask()
+          doTask("Director<BoardOfDirectors>.")
+        }
         .expect("Director<$BoardOfDirectors>")
   }
 
@@ -23,11 +27,13 @@ internal class FakeAppliedScienceTest : TfmSandboxTest() {
     newTestGame(addOptions = "FakeStuffBundle, BoardOfDirectors")
     kim.exMachina("$FakeAppliedScience, Science<$FakeAppliedScience>, $BoardOfDirectors")
 
-    kim.cardAction1(FakeAppliedScience) {
+    kim.inTurn {
+          doTasks("UseCardAction<FakeAppliedScience, Action1>", "-Science<FakeAppliedScience>")
+          selectOnlyTask()
           shouldThrow<NarrowingException> { doTask("Director<$BoardOfDirectors>") }
           doTask("Steel")
         }
-        .expect("Steel, 0 Director<$BoardOfDirectors>")
+        .expect("0 Director<$BoardOfDirectors>")
   }
 
   @Test
@@ -35,10 +41,11 @@ internal class FakeAppliedScienceTest : TfmSandboxTest() {
     newTestGame(addOptions = "FakeStuffBundle")
     kim.exMachina("$FakeAppliedScience, Science<$FakeAppliedScience>")
 
-    kim.cardAction1(FakeAppliedScience) {
-          shouldThrow<NarrowingException> { doTask("Science<$FakeAppliedScience>") }
-          doTask("Steel")
-        }
-        .expect("-Science<$FakeAppliedScience>, Steel")
+    kim.inTurn {
+      doTasks("UseCardAction<FakeAppliedScience, Action1>", "-Science<FakeAppliedScience>")
+      selectOnlyTask()
+      shouldThrow<NarrowingException> { doTask("Science<$FakeAppliedScience>") }
+      doTask("Steel")
+    }
   }
 }

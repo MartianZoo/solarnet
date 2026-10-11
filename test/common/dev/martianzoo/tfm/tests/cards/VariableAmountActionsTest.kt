@@ -18,24 +18,48 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("$PowerInfrastructure")
 
-    shouldThrow<NotFullySpecifiedException> { kim.cardAction1(PowerInfrastructure) }
+    shouldThrow<NotFullySpecifiedException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("UseCardAction<PowerInfrastructure, Action1>")
+        selectOnlyTask()
+      }
+    }
   }
 
   @Test
   internal fun `Energy Market spends two MC per chosen Energy`() {
     newTestGame()
-    kim.exMachina("$EnergyMarket, 6 MC")
+    kim.exMachina("$EnergyMarket")
+    kim.setToExMachina(6, "MC")
 
-    kim.cardAction1(EnergyMarket, x = 3).expect("-6 MC, 3 Energy")
+    kim.inTurn {
+          doTask("UseCardAction<EnergyMarket, Action1>")
+          selectOnlyTask()
+          selectOnlyTask(x = 3)
+          doTask("-MC / Owed<Class<MC>>")
+          selectOnlyTask()
+        }
+        .expect("-6 MC, 3 Energy")
   }
 
   @Test
   internal fun `Energy Market accepts Heat instead of MC for FakeHelion`() {
     newTestGame(addOptions = "FakeStuffBundle", kimCorporation = FakeHelion)
-    kim.exMachina("$EnergyMarket, 6 Heat")
+    kim.exMachina("$EnergyMarket")
+    kim.setToExMachina(6, "Heat")
     kim.setToExMachina(0, "MC")
 
-    kim.cardAction1(EnergyMarket, x = 3) { kim.pay(heat = 6) }.expect("-6 Heat, 0 MC, 3 Energy")
+    kim.inTurn {
+          doTask("UseCardAction<EnergyMarket, Action1>")
+          selectOnlyTask()
+          selectOnlyTask(x = 3)
+          doTask("-6 Heat")
+          selectTask("-X MC?")
+          doTask("Ok")
+          selectOnlyTask()
+        }
+        .expect("0 MC, 3 Energy")
   }
 
   @Test
@@ -43,24 +67,52 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("$HiTechLab")
 
-    shouldThrow<NotFullySpecifiedException> { kim.cardAction1(HiTechLab) }
+    shouldThrow<NotFullySpecifiedException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("UseCardAction<HiTechLab, Action1>")
+        selectOnlyTask()
+      }
+    }
   }
 
   @Test
   internal fun `Hi-Tech Lab discards every card it did not keep`() {
     newTestGame()
-    kim.exMachina("$HiTechLab, 3 Energy")
+    kim.exMachina("$HiTechLab")
+    kim.setToExMachina(3, "Energy")
 
-    kim.cardAction1(HiTechLab, x = 3).expect("-3 Energy, ProjectCard")
+    kim.inTurn {
+          doTask("UseCardAction<HiTechLab, Action1>")
+          selectOnlyTask()
+          selectOnlyTask(x = 3)
+          doTask("-Energy / Owed<Class<Energy>>")
+          selectOnlyTask()
+          selectTask("3 ProjectCard<Kim, Selecting>!")
+          selectOnlyTask()
+          selectOnlyTask()
+        }
+        .expect("-3 Energy, ProjectCard")
     kim.assertCounts(0 to "ProjectCard<Selecting>")
   }
 
   @Test
   internal fun `Tycho Magnetics discards every card it did not keep`() {
     newTestGame()
-    kim.exMachina("$TychoMagnetics, 4 Energy")
+    kim.exMachina("$TychoMagnetics")
+    kim.setToExMachina(4, "Energy")
 
-    kim.cardAction1(TychoMagnetics, x = 4).expect("-4 Energy, ProjectCard")
+    kim.inTurn {
+          doTask("UseCardAction<TychoMagnetics, Action1>")
+          selectOnlyTask()
+          selectOnlyTask(x = 4)
+          doTask("-Energy / Owed<Class<Energy>>")
+          selectOnlyTask()
+          selectTask("4 ProjectCard<Kim, Selecting>!")
+          selectOnlyTask()
+          selectOnlyTask()
+        }
+        .expect("-4 Energy, ProjectCard")
     kim.assertCounts(0 to "ProjectCard<Selecting>")
   }
 
@@ -68,6 +120,13 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
   internal fun `Sell Patents cannot choose zero cards`() {
     newTestGame()
 
-    shouldThrow<PetSyntaxException> { kim.sellPatents(0) }
+    shouldThrow<PetSyntaxException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("UseStandardProject<SellPatentsProject>")
+        selectOnlyTask()
+        doTask("0 MC FROM ProjectCard!")
+      }
+    }
   }
 }

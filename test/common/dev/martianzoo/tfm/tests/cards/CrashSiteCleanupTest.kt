@@ -13,49 +13,120 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
   @Test
   internal fun `Can be played after removing an opponent's plant`() {
     stan.exMachina("Plant")
-    kim.playProject(AsteroidCard, 14) { doTask("-Plant<Stan>") }
+    kim.inTurn {
+      doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+      selectTask("-X Titanium?")
+      doTasks("Ok", "AsteroidCard FROM ProjectCard")
+      selectTask("TemperatureStep.")
+      doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
+    }
 
-    kim.playProject(CrashSiteCleanup, 4) { doTask("Titanium") }.expect("Titanium")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<CrashSiteCleanup>>",
+          "-4 MC",
+          "CrashSiteCleanup FROM ProjectCard",
+          "Titanium",
+      )
+    }
   }
 
   @Test
   internal fun `Cannot be played after removing the owner's plant`() {
     kim.exMachina("Plant")
-    kim.playProject(AsteroidCard, 14) { doTask("-Plant<Kim>") }
+    kim.inTurn {
+      doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+      selectTask("-X Titanium?")
+      doTasks("Ok", "AsteroidCard FROM ProjectCard")
+      selectTask("TemperatureStep.")
+      doTasks("2 Titanium", "TerraformRating", "-Plant")
+    }
 
-    shouldThrow<RequirementException> { kim.playProject(CrashSiteCleanup, 4) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<CrashSiteCleanup>>")
+      }
+    }
   }
 
   @Test
   internal fun `Cannot be played after an opponent removes their own plant`() {
     stan.exMachina("Plant")
-    stan.playProject(AsteroidCard, 14) { doTask("-Plant<Stan>") }
+    stan.inTurn {
+      doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+      selectTask("-X Titanium?")
+      doTasks("Ok", "AsteroidCard FROM ProjectCard")
+      selectTask("TemperatureStep.")
+      doTasks("2 Titanium", "TerraformRating", "-Plant")
+    }
 
-    shouldThrow<RequirementException> { kim.playProject(CrashSiteCleanup, 4) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<CrashSiteCleanup>>")
+      }
+    }
   }
 
   @Test
   internal fun `Cannot be played after a plant removal in the previous generation`() {
     stan.exMachina("Plant")
-    kim.playProject(AsteroidCard, 14) { doTask("-Plant<Stan>") }
-    nextGeneration()
+    kim.inTurn {
+      doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+      selectTask("-X Titanium?")
+      doTasks("Ok", "AsteroidCard FROM ProjectCard")
+      selectTask("TemperatureStep.")
+      doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
+    }
+    advanceUntilActionPhase()
 
-    shouldThrow<RequirementException> { kim.playProject(CrashSiteCleanup, 4) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<CrashSiteCleanup>>")
+      }
+    }
   }
 
   @Test
   internal fun `Cannot be played by a player who did not remove the plant`() {
     stan.exMachina("Plant")
-    rob.playProject(AsteroidCard, 14) { doTask("-Plant<Stan>") }
+    rob.inTurn {
+      doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+      selectTask("-X Titanium?")
+      doTasks("Ok", "AsteroidCard FROM ProjectCard")
+      selectTask("TemperatureStep.")
+      doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
+    }
 
-    shouldThrow<RequirementException> { kim.playProject(CrashSiteCleanup, 4) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<CrashSiteCleanup>>")
+      }
+    }
   }
 
   @Test
   internal fun `Cannot be played after declining an asteroid's plant attack`() {
     stan.exMachina("Plant")
-    kim.playProject(AsteroidCard, 14) { declineTask() }.expect("0 Plant<Stan>")
+    kim.inTurn {
+          doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+          selectTask("-X Titanium?")
+          doTasks("Ok", "AsteroidCard FROM ProjectCard")
+          selectTask("TemperatureStep.")
+          doTasks("2 Titanium", "TerraformRating")
+          selectTask("-3 Plant<Anyone>?")
+          doTask("Ok")
+        }
+        .expect("0 Plant<Stan>")
 
-    shouldThrow<RequirementException> { kim.playProject(CrashSiteCleanup, 4) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<CrashSiteCleanup>>")
+      }
+    }
   }
 }

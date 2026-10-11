@@ -11,29 +11,53 @@ internal class WgProjectTest : TfmSandboxTest() {
   @Test
   internal fun `Plays the selected Prelude immediately without adding the others to the hand`() {
     newTestGame("PreludeExpansion, WgProject, HighCircles, TurmoilExpansion")
-    startActionPhase()
+    advanceUntilActionPhase()
     kim.exMachina("-Chairman<Neutral>, Chairman")
 
-    kim.playProject(WgProject, 9) {
-          kim.playPrelude(HighCircles) { doTask("2 PartyDelegate<Unity>") }
+    kim.inTurn {
+          doTasks("PlayProject<Class<WgProject>>", "-9 MC", "WgProject FROM ProjectCard")
+          selectTask("3 PreludeCard<Kim, Selecting>!")
+          selectTask("-2 PreludeCard<Kim, Selecting>!")
+          doTask("PlayCard<Class<PreludeCard>, Class<HighCircles>>")
+          selectOnlyTask()
+          doTask("TerraformRating")
+          selectTask("SearchForCard<Kim, ReferenceFilter<Class<PartyRequirement>>>!")
+          selectOnlyTask()
+          doTask("2 PartyDelegate<Unity>")
         }
-        .expect(
-            "$HighCircles, TerraformRating, 2 PartyDelegate<Unity>, 0 PreludeCard, 0 PreludeCard<Selecting>"
-        )
+        .expect("$HighCircles, 0 PreludeCard, 0 PreludeCard<Selecting>")
   }
 
   @Test
   internal fun `Refunds fifteen MC when its selected Prelude cannot be afforded`() {
     newTestGame("PreludeExpansion, WgProject, IndustrialComplex, TurmoilExpansion")
-    startActionPhase()
+    advanceUntilActionPhase()
     kim.exMachina("-Chairman<Neutral>, Chairman")
     kim.setToExMachina(19, "MC")
 
     shouldThrow<LimitsException> {
-      kim.playProject(WgProject, 9) { kim.playPrelude(IndustrialComplex) }
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<WgProject>>")
+        selectTask("-X MC?")
+        doTasks("-9 MC", "WgProject FROM ProjectCard")
+        selectTask("3 PreludeCard<Kim, Selecting>!")
+        selectTask("-2 PreludeCard<Kim, Selecting>!")
+        selectOnlyTask()
+        doTask("PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>")
+        selectOnlyTask()
+        selectTask("-18 MC!")
+      }
     }
-    kim.playProject(WgProject, 9) { doTask("-PreludeCard<Selecting>") }
-        .expect("6 MC, $WgProject, 0 $IndustrialComplex, 0 PreludeCard, 0 PreludeCard<Selecting>")
+    kim.inTurn {
+          doTasks("PlayProject<Class<WgProject>>", "-9 MC", "WgProject FROM ProjectCard")
+          selectTask("3 PreludeCard<Kim, Selecting>!")
+          selectTask("-2 PreludeCard<Kim, Selecting>!")
+          doTask("-PreludeCard<Selecting>")
+          selectTask("Audit!")
+          doTask("15 MC")
+        }
+        .expect("0 $IndustrialComplex, 0 PreludeCard, 0 PreludeCard<Selecting>")
   }
 
   @Test
@@ -46,6 +70,13 @@ internal class WgProjectTest : TfmSandboxTest() {
     kim.exMachina("-Chairman<Neutral>, Chairman")
     kim.setToExMachina(9, "MC")
     kim.setToExMachina(1, "ProjectCard")
-    return kim.playProject(WgProject, 9) { kim.playPrelude(Donation) }
+    return kim.inTurn {
+      doTasks("PlayProject<Class<WgProject>>", "-9 MC", "WgProject FROM ProjectCard")
+      selectTask("3 PreludeCard<Kim, Selecting>!")
+      selectTask("-2 PreludeCard<Kim, Selecting>!")
+      doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
+      selectTask("MAX 0 Barrier: Donation FROM PreludeCard<Kim, Selecting>!")
+      doTask("21 MC")
+    }
   }
 }

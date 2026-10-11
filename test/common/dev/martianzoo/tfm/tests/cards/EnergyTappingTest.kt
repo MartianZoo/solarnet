@@ -15,6 +15,15 @@ internal class EnergyTappingTest : TfmSandboxTest() {
     stan.setToExMachina(0, "PROD[Energy]")
     rob.setToExMachina(0, "PROD[Energy]")
 
-    kim.playProject(EnergyTapping, 3).expect("Energy, PROD[0 Energy]")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<$EnergyTapping>>",
+          "-3 MC",
+          "$EnergyTapping FROM ProjectCard",
+          "PROD[Energy]",
+          "Energy", // Manutech gains the resource even though production is then lost.
+          "PROD[-Energy]",
+      )
+    }
   }
 }
