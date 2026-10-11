@@ -25,7 +25,10 @@ after review. **Selected** means the direction is chosen while some design remai
 
 1. **Make actions, payments, delegated control, and completion a single intelligible lifecycle.**
    **Selected; active design.** Unify the lifecycle while preserving choice, rollback, and Actor
-   authority. See [turns and turn offers](docs/agents/SEQUENCING.md#turns-and-turn-offers), including
+   authority. Fix action identity as a necessary part of this work: a nonexistent second action on
+   AI Central currently succeeds and consumes its use without drawing cards. See
+   [action identity and invocation](docs/agents/ACTIONS.md),
+   [turns and turn offers](docs/agents/SEQUENCING.md#turns-and-turn-offers), including
    the Head Start variant, [on-turn identity and routing](docs/agents/IDENTITY.md#who-is-on-turn-and-who-decides),
    and [task priority](docs/agents/SEQUENCING.md#task-priority-working-direction). Ordering delegated
    responses and their payments remains open; see [completion](docs/agents/SEQUENCING.md#the-missing-rule-when-an-operation-is-over)
