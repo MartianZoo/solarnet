@@ -14,7 +14,15 @@ internal class AtmoscoopTest : TfmSandboxTest() {
     kim.exMachina("$AstraMechanica, $AtalantaPlanitiaLab, $IoSulphurResearch")
     kim.setToExMachina(15, "VenusStep")
 
-    kim.playProject(Atmoscoop, 22) { doTask("2 VenusStep") }
+    kim.inTurn {
+          doTasks("PlayProject<Class<Atmoscoop>>", "-22 MC")
+          selectTask("-X Titanium?")
+          doTasks("Ok", "Atmoscoop FROM ProjectCard")
+          selectTask("2 Floater.")
+          doTask("2 VenusStep")
+          selectTask("VenusStep.")
+          selectTask("VenusStep.")
+        }
         .expect("0 TemperatureStep, 0 VenusStep")
   }
 }

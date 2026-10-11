@@ -10,6 +10,6 @@ internal class ThorGateTest : TfmSandboxTest() {
     newTestGame(kimCorporation = ThorGate)
     kim.setToExMachina(8, "MC")
 
-    kim.stdProject("PowerPlantProject").expect("-8 MC, PROD[Energy]")
+    kim.inTurn { doTasks("UseStandardProject<PowerPlantProject>", "-8 MC", "PROD[Energy]") }
   }
 }

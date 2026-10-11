@@ -22,37 +22,44 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
     kim.exMachina("$SpaceStation")
     stan.exMachina("$AstroDrill")
 
-    kim.cardAction1(KuiperCooperative).expect("3 Asteroid<$KuiperCooperative>")
+    kim.inTurn {
+          doTask("UseCardAction<KuiperCooperative, Action1>")
+          selectOnlyTask()
+        }
+        .expect("3 Asteroid<$KuiperCooperative>")
   }
 
   @Test
   internal fun `Asteroids can help pay for an asteroid standard project`() {
     kim.exMachina("2 Asteroid<$KuiperCooperative>")
 
-    kim.stdProject(
-            "AsteroidProject",
-            payment = {
-              doTask("-2 Asteroid<$KuiperCooperative>")
-              doTask("-MC / Owed")
-            },
-        )
-        .expect("-2 Asteroid<$KuiperCooperative>, -12 MC, TemperatureStep")
+    kim.inTurn {
+          doTasks(
+              "UseStandardProject<AsteroidProject>",
+              "-2 Asteroid<KuiperCooperative>",
+              "-MC / Owed",
+          )
+          selectTask("TemperatureStep.")
+          doTask("TerraformRating")
+        }
+        .expect("-12 MC, TemperatureStep")
   }
 
   @Test
   internal fun `Asteroids can help pay for an aquifer standard project`() {
     kim.exMachina("2 Asteroid<$KuiperCooperative>")
 
-    kim.stdProject(
-            "AquiferProject",
-            payment = {
-              doTask("-2 Asteroid<$KuiperCooperative>")
-              doTask("-MC / Owed")
-            },
-        ) {
-          placeTile(1, 2)
+    kim.inTurn {
+          doTasks(
+              "UseStandardProject<AquiferProject>",
+              "-2 Asteroid<KuiperCooperative>",
+              "-MC / Owed",
+              "OceanTile<Tharsis_1_2>",
+              "TerraformRating",
+              "2 Steel",
+          )
         }
-        .expect("-2 Asteroid<$KuiperCooperative>, -16 MC, OceanTile, TerraformRating")
+        .expect("-16 MC, OceanTile")
   }
 
   @Test
@@ -60,13 +67,12 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
     kim.exMachina("2 Asteroid<$KuiperCooperative>")
 
     shouldThrow<NarrowingException> {
-      kim.stdProject(
-          "PowerPlantProject",
-          payment = {
-            doTask("-2 Asteroid<$KuiperCooperative>")
-            doTask("-MC / Owed")
-          },
-      )
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("UseStandardProject<PowerPlantProject>")
+        selectTask("-X MC?")
+        doTask("-2 Asteroid<KuiperCooperative>")
+      }
     }
   }
 
@@ -75,12 +81,10 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
     kim.exMachina("$AstroDrill, Asteroid<$AstroDrill>")
 
     shouldThrow<TaskException> {
-      kim.stdProject(
-          "AsteroidProject",
-          payment = {
-            doTask("-Asteroid<$AstroDrill>")
-          },
-      )
+      kim.inTurn {
+        selectOnlyTask()
+        doTasks("UseStandardProject<AsteroidProject>", "-Asteroid<AstroDrill>")
+      }
     }
   }
 }

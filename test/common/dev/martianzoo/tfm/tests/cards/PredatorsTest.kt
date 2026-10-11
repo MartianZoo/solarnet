@@ -17,14 +17,25 @@ internal class PredatorsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Cannot act when no animal can be removed`() {
-    shouldThrow<LimitsException> { kim.cardAction1(Predators) }
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("UseCardAction<Predators, Action1>")
+        selectOnlyTask()
+      }
+    }
   }
 
   @Test
   internal fun `Removes exactly one of two animals on the target card`() {
     stan.exMachina("$Birds, 2 Animal<$Birds>")
 
-    kim.cardAction1(Predators).expect("-Animal<$Birds<Stan>>, Animal<$Predators>")
+    kim.inTurn {
+          doTask("UseCardAction<Predators, Action1>")
+          selectOnlyTask()
+          selectOnlyTask()
+        }
+        .expect("-Animal<$Birds<Stan>>, Animal<$Predators>")
   }
 
   @Test
@@ -33,7 +44,12 @@ internal class PredatorsTest : TfmSandboxTest() {
     kim.exMachina("Animal<$Predators>")
 
     shouldThrow<NarrowingException> {
-      kim.cardAction1(Predators) { doTask("Ok") }
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("UseCardAction<Predators, Action1>")
+        selectOnlyTask()
+        doTask("Ok")
+      }
     }
   }
 
@@ -43,14 +59,22 @@ internal class PredatorsTest : TfmSandboxTest() {
     kim.exMachina("Animal<$Birds>")
     kim.exMachina("Animal<$Predators>")
 
-    kim.cardAction1(Predators) { doTask("-Animal<$Birds>") }
-        .expect("Animal<$Predators>, -Animal<$Birds>")
+    kim.inTurn {
+          doTasks("UseCardAction<Predators, Action1>", "-Animal<Birds>")
+          selectOnlyTask()
+        }
+        .expect("Animal<$Predators>")
   }
 
   @Test
   internal fun `Can remove and replace its own animal`() {
     kim.exMachina("Animal<$Predators>")
-    kim.cardAction1(Predators).expect("0 Animal<$Predators>")
+    kim.inTurn {
+          doTask("UseCardAction<Predators, Action1>")
+          selectOnlyTask()
+          selectOnlyTask()
+        }
+        .expect("0 Animal<$Predators>")
   }
 
   @Test
@@ -58,7 +82,13 @@ internal class PredatorsTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("$Predators, $MeatIndustry, Animal<$Predators>")
 
-    kim.cardAction1(Predators).expect("0 Animal<$Predators>, 2 MC")
+    kim.inTurn {
+          doTask("UseCardAction<Predators, Action1>")
+          selectOnlyTask()
+          selectOnlyTask()
+          doTask("2 MC")
+        }
+        .expect("0 Animal<$Predators>")
   }
 
   @Test
@@ -66,6 +96,12 @@ internal class PredatorsTest : TfmSandboxTest() {
     newTestGame(playerCount = 1)
     kim.exMachina("$Predators")
 
-    kim.cardAction1(Predators).expect("Animal<$Predators>")
+    kim.inTurn {
+          doTask("UseCardAction<Predators, Action1>")
+          selectOnlyTask()
+          selectTask("Animal<SoloCardResourceReserve<Class<Animal>>>. BY Admin")
+          selectOnlyTask()
+        }
+        .expect("Animal<$Predators>")
   }
 }

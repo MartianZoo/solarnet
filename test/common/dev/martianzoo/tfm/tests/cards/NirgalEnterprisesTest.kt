@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
@@ -11,14 +10,22 @@ internal class NirgalEnterprisesTest : TfmSandboxTest() {
     newTestGame(kimCorporation = NirgalEnterprises)
     kim.setToExMachina(16, "ProjectCard")
 
-    kim.claimMilestone(cn("Planner")).expect("Milestone, 0 MC")
+    kim.inTurn {
+          doTask("ClaimMilestone<Class<Planner>>")
+          selectOnlyTask()
+        }
+        .expect("0 MC")
   }
 
   @Test
   internal fun `Funds an award without paying its usual fee`() {
     newTestGame(kimCorporation = NirgalEnterprises)
 
-    kim.fundAward(cn("Landlord"), 0).expect("Award, 0 MC")
+    kim.inTurn {
+          doTask("FundAward<Class<Landlord>>")
+          selectOnlyTask()
+        }
+        .expect("0 MC")
   }
 
   @Test
@@ -26,6 +33,10 @@ internal class NirgalEnterprisesTest : TfmSandboxTest() {
     newTestGame("Briber, Builder, Engineer", kimCorporation = NirgalEnterprises)
     kim.setToExMachina(12, "MC")
 
-    kim.claimMilestone(cn("Briber")).expect("-12 MC, Briber")
+    kim.inTurn {
+      doTask("ClaimMilestone<Class<Briber>>")
+      selectOnlyTask()
+      doTask("-12 MC")
+    }
   }
 }

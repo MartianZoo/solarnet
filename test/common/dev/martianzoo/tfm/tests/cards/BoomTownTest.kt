@@ -11,10 +11,34 @@ internal class BoomTownTest : TfmSandboxTest() {
   internal fun `Requires a metal bonus and retains the normal city restriction`() {
     newTestGame(addOptions = "PreludeExpansion")
 
-    shouldThrow<NarrowingException> { kim.playPrelude(BoomTown) { placeTile(4, 2) } }
+    shouldThrow<NarrowingException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTasks("PlayCard<Class<PreludeCard>, Class<BoomTown>>", "BoomTown FROM PreludeCard")
+        selectTask("PROD[2 Titanium]")
+        selectOnlyTask()
+        doTask("CityTile<Tharsis_4_2>")
+      }
+    }
     kim.exMachina("NormalCityTile<Tharsis_2_1>")
-    shouldThrow<NarrowingException> { kim.playPrelude(BoomTown) { placeTile(1, 1) } }
-    kim.playPrelude(BoomTown) { placeTile(8, 9) }.expect("Titanium, PROD[2 Titanium]")
+    shouldThrow<NarrowingException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTasks("PlayCard<Class<PreludeCard>, Class<BoomTown>>", "BoomTown FROM PreludeCard")
+        selectTask("PROD[2 Titanium]")
+        selectOnlyTask()
+        doTask("CityTile<Tharsis_1_1>")
+      }
+    }
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<BoomTown>>",
+          "BoomTown FROM PreludeCard",
+          "PROD[2 Titanium]",
+          "CityTile<Tharsis_8_9>",
+          "Titanium",
+      )
+    }
   }
 
   @Test
@@ -23,34 +47,73 @@ internal class BoomTownTest : TfmSandboxTest() {
     kim.exMachina("$BoomTown, 3 Titanium")
     stan.exMachina("Titanium")
 
-    kim.playProject(SmallAsteroid, mc = 4, titanium = 3).expect("-4 MC, -3 Titanium")
-    stan.playProject(SpaceStation, mc = 7, titanium = 1).expect("-7 MC<Stan>, -Titanium<Stan>")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<SmallAsteroid>>",
+          "-3 Titanium",
+          "-4 MC",
+          "SmallAsteroid FROM ProjectCard",
+      )
+      selectTask("TemperatureStep.")
+      selectTask("-2 Plant<Anyone>?")
+      doTask("TerraformRating")
+    }
+    stan.inTurn {
+      doTasks(
+          "PlayProject<Class<SpaceStation>>",
+          "-1 Titanium",
+          "-7 MC",
+          "SpaceStation FROM ProjectCard",
+      )
+    }
   }
 
   @Test
   internal fun `Double Down copies placement and production without doubling the titanium penalty`() {
     newTestGame(addOptions = "PreludeExpansion")
-    kim.playPrelude(BoomTown) { placeTile(1, 1) }
-    kim.playPrelude(DoubleDown) {
-          doTask("CopyPrelude<$BoomTown>")
-          placeTile(8, 9)
-        }
-        .expect("CityTile, PROD[2 Titanium]")
-    startActionPhase()
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<BoomTown>>",
+          "BoomTown FROM PreludeCard",
+          "PROD[2 Titanium]",
+          "CityTile<Tharsis_1_1>",
+          "2 Steel",
+      )
+    }
+    kim.inTurn {
+      doTasks("PlayCard<Class<PreludeCard>, Class<DoubleDown>>", "DoubleDown FROM PreludeCard")
+      selectOnlyTask()
+      doTasks("CopyPrelude<BoomTown>", "PROD[2 Titanium]", "CityTile<Tharsis_8_9>", "Titanium")
+    }
+
+    advanceUntilActionPhase()
     kim.setToExMachina(3, "Titanium")
 
-    kim.playProject(SmallAsteroid, mc = 4, titanium = 3).expect("-4 MC, -3 Titanium")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<SmallAsteroid>>",
+          "-3 Titanium",
+          "-4 MC",
+          "SmallAsteroid FROM ProjectCard",
+      )
+      selectTask("TemperatureStep.")
+      selectTask("-2 Plant<Anyone>?")
+      doTask("TerraformRating")
+    }
   }
 
   @Test
   internal fun `Its penalty stacks with both alloys PhoboLog and Unity for card actions`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina(
-        "$BoomTown, $PhoboLog, $AdvancedAlloys, $MercurianAlloys, $IcyImpactors, Titanium, Ruling<Unity> FROM Ruling<Greens>"
+        "$BoomTown, $PhoboLog, $AdvancedAlloys, $MercurianAlloys, $IcyImpactors, Titanium, Ruling<Unity FROM Greens>"
     )
 
     // Titanium is worth 3 - 1 + 1 + 1 + 1 + 1 = 6 MC.
-    kim.cardAction1(IcyImpactors) { kim.pay(mc = 4, titanium = 1) }
-        .expect("-Titanium, -4 MC, 2 Asteroid<$IcyImpactors>")
+    kim.inTurn {
+          doTasks("UseCardAction<IcyImpactors, Action1>", "-1 Titanium", "-4 MC")
+          selectOnlyTask()
+        }
+        .expect("2 Asteroid<$IcyImpactors>")
   }
 }

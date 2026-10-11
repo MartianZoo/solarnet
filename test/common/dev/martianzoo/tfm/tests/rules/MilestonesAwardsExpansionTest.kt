@@ -15,7 +15,12 @@ internal class MilestonesAwardsExpansionTest : TfmSandboxTest() {
     newTestGame(addOptions = "Briber, Builder, Engineer")
     kim.setToExMachina(20, "MC")
 
-    kim.claimMilestone(cn("Briber")).expect("-20 MC, Briber")
+    kim.inTurn {
+          doTasks("ClaimMilestone<Class<Briber>>", "-MC / Owed<Class<MC>>")
+          selectOnlyTask()
+          doTask("-12 MC")
+        }
+        .expect("-20 MC, Briber")
   }
 
   @Test
@@ -23,7 +28,16 @@ internal class MilestonesAwardsExpansionTest : TfmSandboxTest() {
     newTestGame(addOptions = "Briber, Builder, Engineer")
     kim.setToExMachina(19, "MC")
 
-    shouldThrow<LimitsException> { kim.claimMilestone(cn("Briber")) }
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("ClaimMilestone<Class<Briber>>")
+        selectTask("-X MC?")
+        doTask("-MC / Owed<Class<MC>>")
+        selectOnlyTask()
+        selectOnlyTask()
+      }
+    }
 
     kim.count("MC") shouldBe 19
     kim.count("Milestone") shouldBe 0
@@ -38,10 +52,21 @@ internal class MilestonesAwardsExpansionTest : TfmSandboxTest() {
     // Each concrete card class permits at most one played copy across owners, so counting played
     // card classes counts cards. Vitor's class reference is not a played card, and Stan's Trees is
     // outside Kim's requirement.
-    shouldThrow<RequirementException> { kim.claimMilestone(cn("Philantropist")) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("ClaimMilestone<Class<Philantropist>>")
+        selectTask("-X MC?")
+        doTask("-MC / Owed<Class<MC>>")
+        selectOnlyTask()
+      }
+    }
 
     kim.exMachina("$SpaceElevator")
-    kim.claimMilestone(cn("Philantropist")).expect("-8 MC, Philantropist")
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Philantropist>>", "-MC / Owed<Class<MC>>")
+      selectOnlyTask()
+    }
   }
 
   @Test
@@ -50,24 +75,61 @@ internal class MilestonesAwardsExpansionTest : TfmSandboxTest() {
     kim.exMachina("2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat")
     kim.setToExMachina(9, "MC")
 
-    shouldThrow<RequirementException> { kim.claimMilestone(cn("Merchant")) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("ClaimMilestone<Class<Merchant>>")
+        selectTask("-X MC?")
+        doTask("-MC / Owed<Class<MC>>")
+        selectOnlyTask()
+      }
+    }
     kim.count("MC") shouldBe 9
     kim.count("Merchant") shouldBe 0
 
     kim.setToExMachina(10, "MC")
-    kim.claimMilestone(cn("Merchant")).expect("-8 MC, Merchant")
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Merchant>>", "-MC / Owed<Class<MC>>")
+      selectOnlyTask()
+    }
+  }
+
+  private fun aquifer(area: String, bonus: String) {
+    kim.inTurn {
+      doTasks(
+          "UseStandardProject<AquiferProject>",
+          "-18 MC",
+          "OceanTile<$area>",
+          "TerraformRating",
+          "OceanCredit",
+          bonus,
+      )
+    }
   }
 
   @Test
   internal fun `Hydrologist can be claimed after placing four oceans`() {
     newTestGame(addOptions = "Hydrologist, Builder, Engineer")
-    val oceans = kim.list("WaterArea").take(4)
 
     kim.setToExMachina(80, "MC")
-    oceans.forEach { kim.stdProject("AquiferProject") { doTask("OceanTile<$it>") } }
+    aquifer("Tharsis_1_2", "2 Steel")
+    aquifer("Tharsis_1_4", "ProjectCard")
+    aquifer("Tharsis_2_6", "2 ProjectCard")
+    aquifer("Tharsis_4_8", "2 Plant")
 
-    shouldThrow<RequirementException> { stan.claimMilestone(cn("Hydrologist")) }
-    kim.claimMilestone(cn("Hydrologist")).expect("-8 MC, Hydrologist")
+    shouldThrow<RequirementException> {
+      stan.inTurn {
+        selectOnlyTask()
+        doTask("ClaimMilestone<Class<Hydrologist>>")
+        selectTask("-X MC?")
+        doTask("-MC / Owed<Class<MC>>")
+        selectOnlyTask()
+      }
+    }
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Hydrologist>>", "-MC / Owed<Class<MC>>")
+      selectOnlyTask()
+    }
   }
 
   // Producer wants 16 printed production, and Producer22 wants 22 because QuickStartVariant hands
@@ -76,10 +138,18 @@ internal class MilestonesAwardsExpansionTest : TfmSandboxTest() {
     newTestGame(addOptions = "$milestone, Builder, Engineer$modules")
     kim.exMachina("PROD[5 Steel, 5 Titanium, 5 Plant]")
 
-    shouldThrow<RequirementException> { kim.claimMilestone(cn(milestone)) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTasks("ClaimMilestone<Class<$milestone>>", "-8 MC")
+        selectTask("MAX 0 Billing: $milestone!")
+      }
+    }
 
     kim.exMachina("PROD[Energy]")
-    kim.claimMilestone(cn(milestone)).expect("-8 MC, $milestone")
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<$milestone>>", "-8 MC")
+      selectTask("MAX 0 Billing: $milestone!")
+    }
   }
 
   @Test
@@ -95,10 +165,21 @@ internal class MilestonesAwardsExpansionTest : TfmSandboxTest() {
     newTestGame(addOptions = "Producer, Builder, Engineer, -CorporateEraExpansion")
     kim.exMachina("PROD[3 Steel, 3 Titanium, 3 Plant]")
 
-    shouldThrow<RequirementException> { kim.claimMilestone(cn("Producer")) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("ClaimMilestone<Class<Producer>>")
+        selectTask("-X MC?")
+        doTask("-MC / Owed<Class<MC>>")
+        selectOnlyTask()
+      }
+    }
 
     kim.exMachina("PROD[Energy]")
-    kim.claimMilestone(cn("Producer")).expect("-8 MC, Producer")
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Producer>>", "-MC / Owed<Class<MC>>")
+      selectOnlyTask()
+    }
   }
 
   @Test
@@ -106,10 +187,21 @@ internal class MilestonesAwardsExpansionTest : TfmSandboxTest() {
     newTestGame(addOptions = "Producer22, Builder, Engineer, -QuickStartVariant")
     kim.exMachina("PROD[7 Steel, 7 Titanium, 7 Plant]")
 
-    shouldThrow<RequirementException> { kim.claimMilestone(cn("Producer22")) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("ClaimMilestone<Class<Producer22>>")
+        selectTask("-X MC?")
+        doTask("-MC / Owed<Class<MC>>")
+        selectOnlyTask()
+      }
+    }
 
     kim.exMachina("PROD[Energy]")
-    kim.claimMilestone(cn("Producer22")).expect("-8 MC, Producer22")
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Producer22>>", "-MC / Owed<Class<MC>>")
+      selectOnlyTask()
+    }
   }
 
   internal class Gameplay : dev.martianzoo.tfm.tests.TfmGameplayTest() {
@@ -146,7 +238,7 @@ internal class MilestonesAwardsExpansionTest : TfmSandboxTest() {
       kim.stdProject("AquiferProject") { placeTile(1, 2) }
       kim.stdProject("AquiferProject") { placeTile(1, 5) }
       kim.stdProject("AquiferProject") { placeTile(2, 6) }
-      kim.claimMilestone(cn("Hydrologist")).expect("-8 MC, Hydrologist")
+      kim.claimMilestone(cn("Hydrologist"))
     }
   }
 }

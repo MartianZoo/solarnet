@@ -12,8 +12,16 @@ internal class IndustrialComplexTest : TfmSandboxTest() {
     kim.setToExMachina(2, "PROD[Titanium]")
     kim.setToExMachina(1, "PROD[Plant]")
 
-    kim.playPrelude(IndustrialComplex)
-        .expect("-18 MC, PROD[6 MC, Steel, 0 Titanium, 0 Plant, Energy, Heat]")
+    kim.inTurn {
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>",
+              "IndustrialComplex FROM PreludeCard",
+              "-18 MC",
+          )
+          selectOnlyTask()
+          doTasks("PROD[6 MC]", "PROD[Energy]", "PROD[Heat]", "PROD[Steel]")
+        }
+        .expect("PROD[0 Titanium, 0 Plant]")
   }
 
   @Test
@@ -23,7 +31,15 @@ internal class IndustrialComplexTest : TfmSandboxTest() {
     kim.setToExMachina(3, "PROD[Titanium]")
     kim.setToExMachina(0, "PROD[Plant]")
 
-    kim.playPrelude(IndustrialComplex)
-        .expect("-18 MC, PROD[7 MC, Steel, 0 Titanium, 2 Plant, Energy, Heat]")
+    kim.inTurn {
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>",
+              "IndustrialComplex FROM PreludeCard",
+              "-18 MC",
+          )
+          selectOnlyTask()
+          doTasks("PROD[7 MC]", "PROD[Energy]", "PROD[2 Plant]", "PROD[Heat]", "PROD[Steel]")
+        }
+        .expect("PROD[0 Titanium]")
   }
 }

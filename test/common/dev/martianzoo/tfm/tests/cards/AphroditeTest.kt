@@ -9,6 +9,12 @@ internal class AphroditeTest : TfmSandboxTest() {
   internal fun `Pays when an opponent raises Venus`() {
     newTestGame(kimCorporation = Aphrodite)
 
-    stan.stdProject("AirScrappingProject").expect("2 MC<Kim>")
+    stan.inTurn {
+      doTasks("UseStandardProject<AirScrappingProject>", "-15 MC")
+      selectTask("VenusStep.")
+      doTask("TerraformRating")
+      selectTask("2 MC<Kim>!")
+      kim.selectTask("2 MC!")
+    }
   }
 }

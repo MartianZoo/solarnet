@@ -15,9 +15,13 @@ internal class HellasMapTest : TfmSandboxTest() {
     kim.exMachina("8 Plant")
     kim.setToExMachina(0, "MC")
 
-    kim.stdAction("ConvertPlants") {
-      shouldThrow<NarrowingException> { doTask("GreeneryTile<Hellas_1_5>") }
-      abort()
+    shouldThrow<NarrowingException> {
+      kim.inTurn {
+        doTasks("ConvertPlants", "-8 Plant")
+        selectOnlyTask()
+        selectTask("GreeneryTile<Kim, LandArea(HAS Neighbor<OwnedTile>)>!")
+        doTask("GreeneryTile<Hellas_1_5>")
+      }
     }
   }
 
@@ -28,10 +32,22 @@ internal class HellasMapTest : TfmSandboxTest() {
     kim.setToExMachina(0, "MC")
     kim.setToExMachina(8, "Plant")
 
-    kim.stdAction("ConvertPlants") {
+    kim.inTurn {
+          doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
+          selectOnlyTask()
           doTask("GreeneryTile<Hellas_9_7>")
-          placeTile(5, 7)
+          selectTask("OxygenStep.")
+          selectTask("MC! / Neighbor<OceanTile, Hellas_9_7>")
+          doTasks(
+              "TerraformRating",
+              "OceanTile<Hellas_5_7>",
+              "TerraformRating",
+              "PROD[MC]",
+              "3 Heat",
+          )
+          selectTask("MC! / Neighbor<OceanTile, Hellas_5_7>")
+          doTasks("2 MC", "2 MC", "-6 MC")
         }
-        .expect("0 MC, OceanTile<Hellas_5_7>")
+        .expect("0 MC")
   }
 }

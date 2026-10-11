@@ -3,8 +3,6 @@ package dev.martianzoo.tfm.tests
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.cards.cardnames.CorporateStronghold
-import dev.martianzoo.tfm.tests.cards.cardnames.Donation
-import dev.martianzoo.tfm.tests.cards.cardnames.GiantIceAsteroid
 import dev.martianzoo.tfm.tests.cards.cardnames.Manutech
 import dev.martianzoo.tfm.tests.cards.cardnames.MineralDeposit
 import dev.martianzoo.tfm.tests.cards.cardnames.Pets
@@ -17,9 +15,18 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
   internal fun `Prelude games allow a Prelude before explicitly starting Action phase`() {
     newTestGame(addOptions = "PreludeExpansion")
 
-    kim.playPrelude(Donation).expect("21 MC")
-    startActionPhase()
-    kim.playProject(MineralDeposit, 5).expect("5 Steel")
+    kim.inTurn {
+      doTasks("PlayCard<Class<PreludeCard>, Class<Donation>>", "Donation FROM PreludeCard", "21 MC")
+    }
+    advanceUntilActionPhase()
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<MineralDeposit>>",
+          "-5 MC",
+          "MineralDeposit FROM ProjectCard",
+          "5 Steel",
+      )
+    }
   }
 
   @Test
@@ -28,11 +35,28 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Manutech, startAtCorporation = true)
 
     kim.count("$Manutech") shouldBe 0
-    kim.playCorp(Manutech).expect("Steel")
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<Manutech>>",
+          "Manutech FROM CorporationCard",
+          "35 MC",
+          "PROD[Steel]",
+          "Steel",
+          "-30 MC",
+          "10 ProjectCard<Hand FROM Selecting>",
+      )
+    }
     stan.count("BeginnerCorporation2") shouldBe 0
 
     newTestGame(kimCorporation = Manutech)
-    kim.playProject(MineralDeposit, 5).expect("5 Steel")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<MineralDeposit>>",
+          "-5 MC",
+          "MineralDeposit FROM ProjectCard",
+          "5 Steel",
+      )
+    }
   }
 
   @Test
@@ -45,19 +69,37 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     victoryPoints() shouldBe listOf(22, 20, 20)
     game.timeline.checkpoint() shouldBe checkpoint
 
-    kim.playProject(MineralDeposit, 5).expect("5 Steel")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<MineralDeposit>>",
+          "-5 MC",
+          "MineralDeposit FROM ProjectCard",
+          "5 Steel",
+      )
+    }
   }
 
   @Test
   internal fun `A rejected scoring query preserves the pending player choice`() {
     newTestGame()
 
-    kim.playProject(GiantIceAsteroid, 36) {
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<GiantIceAsteroid>>",
+              "-36 MC",
+              "GiantIceAsteroid FROM ProjectCard",
+              "TemperatureStep",
+              "TemperatureStep",
+              "TerraformRating",
+              "TerraformRating",
+          )
+          selectTask("-6 Plant<Anyone>?")
+          doTask("Ok")
           val checkpoint = game.timeline.checkpoint()
           shouldThrow<IllegalStateException> { victoryPoints() }
           game.timeline.checkpoint() shouldBe checkpoint
-          placeTile(1, 2)
-          placeTile(1, 4)
+          doTasks("OceanTile<Tharsis_1_2>", "TerraformRating", "2 Steel")
+          doTasks("OceanTile<Tharsis_1_4>", "TerraformRating", "ProjectCard")
         }
         .expect("2 OceanTile")
   }
@@ -146,7 +188,11 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
 
     shouldThrow<IllegalStateException> { stan }.message shouldBe "Stan is sitting this game out"
     shouldThrow<IllegalStateException> { rob }.message shouldBe "Rob is sitting this game out"
-    kim.stdProject("AsteroidProject").expect("TerraformRating")
+    kim.inTurn {
+      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      selectTask("TemperatureStep.")
+      doTask("TerraformRating")
+    }
   }
 
   internal class TfmGameplayTestTest : TfmGameplayTest() {

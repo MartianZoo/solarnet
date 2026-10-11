@@ -16,8 +16,13 @@ internal class VirusTest : TfmSandboxTest() {
     stan.exMachina("$Birds, $Fish, Animal<$Birds>, Animal<$Fish>")
 
     shouldThrow<NarrowingException> {
-      kim.playProject(Virus, 1) {
-        doTask("-Animal<Stan, $Birds<Stan>>, -Animal<Stan, $Fish<Stan>>")
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<Virus>>")
+        selectTask("-X MC?")
+        doTasks("-1 MC", "Virus FROM ProjectCard")
+        selectOnlyTask()
+        doTask("-Animal<Stan, Birds<Stan>>, -Animal<Stan, Fish<Stan>>")
       }
     }
   }

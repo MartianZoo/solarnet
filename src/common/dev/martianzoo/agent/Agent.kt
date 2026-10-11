@@ -90,6 +90,17 @@ public interface Agent {
   public fun selectTask(taskId: TaskId): TaskResult
 
   /**
+   * Selects this Actor's sole pending task by id, using [selectTask]'s resolution and handoff
+   * rules. When [x] is supplied, binds the task's X scalars to that value before selection, using
+   * [Task.bindXTo] and [selectTask]'s narrowing rules. Otherwise selects without narrowing. Throws
+   * [TaskException] without changing the World if this Actor has no pending task or more than one.
+   */
+  public fun selectOnlyTask(x: Int? = null): TaskResult {
+    val id = tasks.ids().singleOrNull() ?: throw TaskException("Expected exactly one pending task")
+    return if (x == null) selectTask(id) else selectTask(tasks.getTaskData(id).bindXTo(x))
+  }
+
+  /**
    * Finds the unique pending task compatible with [instruction], selects it, and commits the
    * supplied narrowing. An unchanged instruction only selects. A nontrivial narrowing fails if
    * selection alone transfers the task to another Actor or splits it before the narrowing can be
@@ -208,6 +219,11 @@ public interface Agent {
     public fun selectTask(instruction: String)
 
     public fun selectTask(task: Task)
+
+    /**
+     * Selects this Actor's sole pending task and runs automatic work; see [Agent.selectOnlyTask].
+     */
+    public fun selectOnlyTask(x: Int? = null)
 
     /**
      * Narrows this Actor's selected task and runs automatic work. A concrete `System` result passes

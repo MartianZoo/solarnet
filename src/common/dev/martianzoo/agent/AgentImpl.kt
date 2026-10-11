@@ -202,6 +202,11 @@ internal class AgentImpl(
       autoExecLoop.run()
     }
 
+    override fun selectOnlyTask(x: Int?) {
+      this@AgentImpl.selectOnlyTask(x)
+      autoExecLoop.run()
+    }
+
     override fun narrowTask(narrowing: String) {
       this@AgentImpl.narrowTask(narrowing)
       autoExecLoop.run()

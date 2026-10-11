@@ -13,8 +13,17 @@ internal class LavaFlowsTest : TfmSandboxTest() {
     newTestGame()
     kim.setToExMachina(18, "MC")
 
-    kim.playProject(LavaFlows, 18) { placeTile(2, 2) }
-        .expect("2 TemperatureStep, LavaFlows_SpecialTile")
+    kim.inTurn {
+      doTasks("PlayProject<Class<LavaFlows>>", "-18 MC", "LavaFlows FROM ProjectCard")
+      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep.")
+      doTasks(
+          "TerraformRating",
+          "TerraformRating",
+          "LavaFlows_SpecialTile<Tharsis_2_2>",
+          "Steel",
+      )
+    }
   }
 
   @Test
@@ -22,8 +31,17 @@ internal class LavaFlowsTest : TfmSandboxTest() {
     newTestGame(addOptions = "HellasMap")
     kim.setToExMachina(18, "MC")
 
-    kim.playProject(LavaFlows, 18) { placeTile(1, 5) }
-        .expect("2 TemperatureStep, LavaFlows_SpecialTile")
+    kim.inTurn {
+      doTasks("PlayProject<Class<LavaFlows>>", "-18 MC", "LavaFlows FROM ProjectCard")
+      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep.")
+      doTasks(
+          "TerraformRating",
+          "TerraformRating",
+          "LavaFlows_SpecialTile<Hellas_1_5>",
+          "Plant",
+      )
+    }
   }
 
   @Test
@@ -36,7 +54,20 @@ internal class LavaFlowsTest : TfmSandboxTest() {
     )
     val cardsBefore = kim.count("ProjectCard")
 
-    shouldThrow<LimitsException> { kim.playProject(LavaFlows, 18) { placeTile(2, 2) } }
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<LavaFlows>>")
+        selectTask("-X MC?")
+        doTasks("-18 MC", "LavaFlows FROM ProjectCard")
+        selectTask("TemperatureStep.")
+        selectTask("TemperatureStep.")
+        selectTask("TerraformRating!")
+        selectTask("TerraformRating!")
+        selectOnlyTask()
+        doTask("LavaFlows_SpecialTile<Tharsis_2_2>")
+      }
+    }
 
     kim.count("MC") shouldBe 18
     kim.count("ProjectCard") shouldBe cardsBefore

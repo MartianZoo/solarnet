@@ -15,7 +15,18 @@ internal class ImmigrantCityTest : TfmSandboxTest() {
     kim.exMachina("PROD[-4 MC]")
     kim.setToExMachina(13, "MC")
 
-    kim.playProject(ImmigrantCity, 13) { placeTile(7, 4) }
-        .expect("PROD[-MC, -Energy], -12 MC, CityTile<Tharsis_7_4>")
+    kim.inTurn {
+      doTasks("PlayProject<Class<ImmigrantCity>>", "-13 MC")
+      selectTask("-X Steel?")
+      doTasks(
+          "Ok",
+          "ImmigrantCity FROM ProjectCard",
+          "PROD[-Energy]",
+          "CityTile<Tharsis_7_4>",
+          "PROD[MC]",
+          "PROD[-2 MC]",
+          "MC",
+      )
+    }
   }
 }

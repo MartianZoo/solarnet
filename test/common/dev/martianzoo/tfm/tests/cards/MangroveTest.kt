@@ -14,7 +14,16 @@ internal class MangroveTest : TfmSandboxTest() {
     kim.setToExMachina(17, "TemperatureStep")
     kim.exMachina("NormalCityTile<Kim, Tharsis_9_5>")
 
-    kim.playProject(Mangrove, 12) { placeTile(1, 2) }
-        .expect("GreeneryTile<Tharsis_1_2>, OxygenStep, TerraformRating")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<Mangrove>>",
+              "-12 MC",
+              "Mangrove FROM ProjectCard",
+              "GreeneryTile<Tharsis_1_2>",
+          )
+          selectTask("OxygenStep.")
+          doTasks("2 Steel", "TerraformRating")
+        }
+        .expect("OxygenStep")
   }
 }

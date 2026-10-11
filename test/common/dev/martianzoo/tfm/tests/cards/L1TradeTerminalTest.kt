@@ -23,34 +23,52 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
     stan.exMachina("$JetStreamMicroscrappers, Floater<$JetStreamMicroscrappers>")
 
     shouldThrow<DeadEndException> {
-      kim.playProject(L1TradeTerminal, 25) {
-        addCardResources(AerialMappers)
-        addCardResources(FloatingRefinery)
-        declineTask("Floater<$CloudTourism>?")
+      kim.inTurn {
         // Decline the remaining Floating Habs.
+        doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
+        selectTask("-X Titanium?")
+        selectTask("Ok")
+        doTask("L1TradeTerminal FROM ProjectCard")
+        selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
+        doTasks("Floater<AerialMappers>", "Floater<FloatingRefinery>")
+        selectTask("Floater<CloudTourism>?")
+        doTask("Ok")
+        selectTask("Floater<FloatingHabs>?")
         doTask("Ok")
       }
     }
 
     shouldThrow<GameplayException> {
-      kim.playProject(L1TradeTerminal, 25) {
-        addCardResources(AerialMappers)
-        addCardResources(FloatingRefinery)
-        addCardResources(CloudTourism)
-        doTask("Floater<$FloatingHabs>")
+      kim.inTurn {
+        selectOnlyTask()
+        doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
+        selectTask("-X Titanium?")
+        selectTask("Ok")
+        doTask("L1TradeTerminal FROM ProjectCard")
+        selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
+        doTasks("Floater<AerialMappers>", "Floater<FloatingRefinery>", "Floater<CloudTourism>")
+        selectTask("Floater<FloatingHabs>?")
+        doTask("Floater<FloatingHabs>")
       }
     }
     kim.count("$L1TradeTerminal") shouldBe 0
 
-    kim.playProject(L1TradeTerminal, 25) {
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<L1TradeTerminal>>",
+              "-25 MC",
+              "L1TradeTerminal FROM ProjectCard",
+          )
+          selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
           shouldThrow<TaskException> {
             doTask("Floater<Stan, $JetStreamMicroscrappers<Stan>>")
           }
-          addCardResources(AerialMappers)
-          addCardResources(FloatingRefinery)
-          addCardResources(CloudTourism)
+          doTasks("Floater<AerialMappers>", "Floater<FloatingRefinery>", "Floater<CloudTourism>")
           // Decline the remaining Floating Habs.
-          declineTask()
+          selectTask("Floater<FloatingHabs>?")
+          doTask("Ok")
+          selectTask("-X Titanium?")
+          doTask("Ok")
         }
         .expect(
             "Floater<$AerialMappers>, Floater<$FloatingRefinery>, Floater<$CloudTourism>, " +
@@ -65,13 +83,24 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
     kim.exMachina("$FloatingHabs, Floater<$FloatingHabs>")
 
     shouldThrow<DeadEndException> {
-      kim.playProject(L1TradeTerminal, 25) { doTask("Ok") }
+      kim.inTurn {
+        selectOnlyTask()
+        doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
+        selectTask("-X Titanium?")
+        selectTask("Ok")
+        doTask("L1TradeTerminal FROM ProjectCard")
+        selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
+        doTask("Ok")
+      }
     }
 
-    kim.playProject(L1TradeTerminal, 25) {
-          addCardResources(FloatingHabs)
-        }
-        .expect("Floater<$FloatingHabs>")
+    kim.inTurn {
+      doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
+      selectTask("-X Titanium?")
+      doTasks("Ok", "L1TradeTerminal FROM ProjectCard")
+      selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
+      doTask("Floater<FloatingHabs>")
+    }
   }
 
   @Test
@@ -84,19 +113,28 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
     )
 
     shouldThrow<DeadEndException> {
-      kim.playProject(L1TradeTerminal, 25) {
-        addCardResources(FloatingHabs)
-        addCardResources(VenusianInsects)
+      kim.inTurn {
+        selectOnlyTask()
+        doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
+        selectTask("-X Titanium?")
+        selectTask("Ok")
+        doTask("L1TradeTerminal FROM ProjectCard")
+        selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
+        doTasks("Floater<FloatingHabs>", "Microbe<VenusianInsects>")
+        selectOnlyTask()
         doTask("Ok")
       }
     }
 
-    kim.playProject(L1TradeTerminal, 25) {
-          addCardResources(FloatingHabs)
-          addCardResources(VenusianInsects)
-          addCardResources(AerialMappers)
-        }
-        .expect("Floater<$FloatingHabs>, Microbe<$VenusianInsects>, Floater<$AerialMappers>")
+    kim.inTurn {
+      doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
+      selectTask("-X Titanium?")
+      doTasks("Ok", "L1TradeTerminal FROM ProjectCard")
+      selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
+      doTasks("Floater<FloatingHabs>", "Microbe<VenusianInsects>")
+      selectOnlyTask()
+      doTask("Floater<AerialMappers>")
+    }
   }
 
   @Test
@@ -109,25 +147,44 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
     )
 
     shouldThrow<NarrowingException> {
-      kim.playProject(L1TradeTerminal, 25) {
-        addCardResources(FloatingHabs)
-        doTask("Floater<$FloatingHabs>")
+      kim.inTurn {
+        selectOnlyTask()
+        doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
+        selectTask("-X Titanium?")
+        selectTask("Ok")
+        doTask("L1TradeTerminal FROM ProjectCard")
+        selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
+        doTask("Floater<FloatingHabs>")
+        selectOnlyTask()
+        doTask("Floater<FloatingHabs>")
       }
     }
     kim.count("$L1TradeTerminal") shouldBe 0
 
     shouldThrow<DeadEndException> {
-      kim.playProject(L1TradeTerminal, 25) {
-        addCardResources(FloatingHabs)
+      kim.inTurn {
+        selectOnlyTask()
+        doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
+        selectTask("-X Titanium?")
+        selectTask("Ok")
+        doTask("L1TradeTerminal FROM ProjectCard")
+        selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
+        doTask("Floater<FloatingHabs>")
+        selectOnlyTask()
         doTask("Ok")
       }
     }
 
-    kim.playProject(L1TradeTerminal, 25) {
-          addCardResources(FloatingHabs)
-          addCardResources(VenusianInsects)
+    kim.inTurn {
+          doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
+          selectTask("-X Titanium?")
+          doTasks("Ok", "L1TradeTerminal FROM ProjectCard")
+          selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
+          doTask("Floater<FloatingHabs>")
+          selectOnlyTask()
+          doTask("Microbe<VenusianInsects>")
         }
-        .expect("Floater<$FloatingHabs>, Microbe<$VenusianInsects>, 0 Floater<$FloatingTradeHub>")
+        .expect("0 Floater<$FloatingTradeHub>")
   }
 
   @Test
@@ -135,7 +192,12 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
     newTestGame("L1TradeTerminal, FloatingTradeHub")
     stan.exMachina("$FloatingTradeHub, Floater<$FloatingTradeHub>")
 
-    kim.playProject(L1TradeTerminal, 25)
-        .expect("$L1TradeTerminal, 0 Floater<Stan, $FloatingTradeHub<Stan>>")
+    kim.inTurn {
+          doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
+          selectTask("-X Titanium?")
+          doTasks("Ok", "L1TradeTerminal FROM ProjectCard")
+          selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
+        }
+        .expect("0 Floater<Stan, $FloatingTradeHub<Stan>>")
   }
 }

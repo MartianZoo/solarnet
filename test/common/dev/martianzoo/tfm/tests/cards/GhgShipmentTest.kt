@@ -13,6 +13,12 @@ internal class GhgShipmentTest : TfmSandboxTest() {
     )
     stan.exMachina("$AerialMappers, 2 Floater<$AerialMappers>")
 
-    kim.playProject(GhgShipment, 3).expect("PROD[Heat], 3 Heat")
+    kim.inTurn {
+          doTasks("PlayProject<Class<GhgShipment>>", "-3 MC")
+          selectTask("-X Titanium?")
+          doTasks("Ok", "GhgShipment FROM ProjectCard", "PROD[Heat]")
+          selectOnlyTask()
+        }
+        .expect("3 Heat")
   }
 }

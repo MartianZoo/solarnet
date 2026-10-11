@@ -12,16 +12,32 @@ internal class UnmiTest : TfmSandboxTest() {
   internal fun `Can use its action after raising TR`() {
     newTestGame(kimCorporation = UnitedNationsMarsInitiative)
     kim.setToExMachina(17, "MC")
-    kim.stdProject("AsteroidProject")
+    kim.inTurn {
+      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      selectTask("TemperatureStep.")
+      doTask("TerraformRating")
+    }
 
-    kim.cardAction1(UnitedNationsMarsInitiative).expect("TerraformRating")
+    kim.inTurn {
+          doTasks("UseCardAction<UnitedNationsMarsInitiative, Action1>", "-MC / Owed<Class<MC>>")
+          selectOnlyTask()
+        }
+        .expect("TerraformRating")
   }
 
   @Test
   internal fun `Cannot use its action without raising TR`() {
     newTestGame(kimCorporation = UnitedNationsMarsInitiative)
 
-    shouldThrow<RequirementException> { kim.cardAction1(UnitedNationsMarsInitiative) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("UseCardAction<UnitedNationsMarsInitiative, Action1>")
+        selectTask("-X MC?")
+        doTask("-MC / Owed<Class<MC>>")
+        selectOnlyTask()
+      }
+    }
   }
 
   internal class Gameplay : TfmGameplayTest() {

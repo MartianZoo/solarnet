@@ -14,7 +14,19 @@ internal class SponsoredAcademiesTest : TfmSandboxTest() {
     kim.setToExMachina(1, "ProjectCard")
     kim.setToExMachina(9, "MC")
 
-    kim.playProject(SponsoredAcademies, 9)
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<SponsoredAcademies>>",
+              "-9 MC",
+              "SponsoredAcademies FROM ProjectCard",
+          )
+          selectTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")
+          selectTask("ProjectCard<Kim, Hand>!")
+          selectTask("-ProjectCard<Kim, Hand>!")
+          selectTask("ProjectCard<Stan, Hand>!")
+          selectTask("ProjectCard<Rob, Hand>!")
+          selectOnlyTask()
+        }
         .expect("2 ProjectCard<Kim>, ProjectCard<Stan>, ProjectCard<Rob>")
   }
 
@@ -24,7 +36,18 @@ internal class SponsoredAcademiesTest : TfmSandboxTest() {
     kim.setToExMachina(1, "ProjectCard")
     kim.setToExMachina(9, "MC")
 
-    shouldThrow<LimitsException> { kim.playProject(SponsoredAcademies, 9) }
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<SponsoredAcademies>>")
+        selectTask("-X MC?")
+        doTasks("-9 MC", "SponsoredAcademies FROM ProjectCard")
+        selectTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")
+        selectTask("ProjectCard<Stan, Hand>!")
+        selectTask("ProjectCard<Rob, Hand>!")
+        selectTask("-ProjectCard<Kim, Hand>!")
+      }
+    }
 
     kim.assertCounts(9 to "MC", 1 to "ProjectCard", 0 to "$SponsoredAcademies")
   }

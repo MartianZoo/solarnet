@@ -13,7 +13,15 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
     kim.exMachina("2 Colony<Luna>")
     stan.exMachina("Colony<Io>")
 
-    kim.playProject(ColonialRepresentation, 10).expect("-4 MC")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<ColonialRepresentation>>",
+              "-10 MC",
+              "ColonialRepresentation FROM ProjectCard",
+          )
+          selectOnlyTask()
+        }
+        .expect("-4 MC")
   }
 
   internal class Gameplay : TfmGameplayTest() {

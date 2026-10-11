@@ -4,7 +4,6 @@ import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.cards.cardnames.MarketManipulation
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -14,9 +13,14 @@ internal class MarketManipulationTest : TfmSandboxTest() {
 
   @Test
   internal fun `Can raise one colony track and lower another`() {
-    kim.playProject(MarketManipulation, 1) {
-          selectTask("ColonyProduction FROM ColonyProduction")
-          narrowTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<MarketManipulation>>",
+              "-1 MC",
+              "MarketManipulation FROM ProjectCard",
+          )
+          selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
+          selectTask("ColonyProduction<Luna FROM Triton>!")
         }
         .expect("ColonyProduction<Luna>, -ColonyProduction<Triton>")
   }
@@ -26,9 +30,13 @@ internal class MarketManipulationTest : TfmSandboxTest() {
     admin.sneak("-ColonyProduction<Triton>")
 
     shouldThrow<LimitsException> {
-      kim.playProject(MarketManipulation, 1) {
-        selectTask("ColonyProduction FROM ColonyProduction")
-        narrowTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
+      kim.inTurn {
+        selectTask("StandardAction OR Pass")
+        doTask("PlayProject<Class<MarketManipulation>>")
+        selectTask("-X MC?")
+        doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
+        selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
+        narrowTask("ColonyProduction<Luna FROM Triton>")
       }
     }
   }
@@ -38,9 +46,13 @@ internal class MarketManipulationTest : TfmSandboxTest() {
     admin.sneak("5 ColonyProduction<Luna>")
 
     shouldThrow<LimitsException> {
-      kim.playProject(MarketManipulation, 1) {
-        selectTask("ColonyProduction FROM ColonyProduction")
-        narrowTask("ColonyProduction<Luna> FROM ColonyProduction<Triton>")
+      kim.inTurn {
+        selectTask("StandardAction OR Pass")
+        doTask("PlayProject<Class<MarketManipulation>>")
+        selectTask("-X MC?")
+        doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
+        selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
+        narrowTask("ColonyProduction<Luna FROM Triton>")
       }
     }
   }
@@ -48,9 +60,13 @@ internal class MarketManipulationTest : TfmSandboxTest() {
   @Test
   internal fun `Cannot select the same colony track twice`() {
     shouldThrow<ExpressionException> {
-      kim.playProject(MarketManipulation, 1) {
-        selectTask("ColonyProduction FROM ColonyProduction")
-        narrowTask("ColonyProduction<Luna> FROM ColonyProduction<Luna>")
+      kim.inTurn {
+        selectTask("StandardAction OR Pass")
+        doTask("PlayProject<Class<MarketManipulation>>")
+        selectTask("-X MC?")
+        doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
+        selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
+        narrowTask("ColonyProduction<Luna FROM Luna>")
       }
     }
   }
@@ -58,9 +74,13 @@ internal class MarketManipulationTest : TfmSandboxTest() {
   @Test
   internal fun `Cannot raise Titan's delayed colony track`() {
     shouldThrow<GameplayException> {
-      kim.playProject(MarketManipulation, 1) {
-        selectTask("ColonyProduction FROM ColonyProduction")
-        narrowTask("ColonyProduction<Titan> FROM ColonyProduction<Luna>")
+      kim.inTurn {
+        selectTask("StandardAction OR Pass")
+        doTask("PlayProject<Class<MarketManipulation>>")
+        selectTask("-X MC?")
+        doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
+        selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
+        narrowTask("ColonyProduction<Titan FROM Luna>")
       }
     }
   }
@@ -68,9 +88,13 @@ internal class MarketManipulationTest : TfmSandboxTest() {
   @Test
   internal fun `Cannot lower Titan's delayed colony track`() {
     shouldThrow<GameplayException> {
-      kim.playProject(MarketManipulation, 1) {
-        selectTask("ColonyProduction FROM ColonyProduction")
-        narrowTask("ColonyProduction<Luna> FROM ColonyProduction<Titan>")
+      kim.inTurn {
+        selectTask("StandardAction OR Pass")
+        doTask("PlayProject<Class<MarketManipulation>>")
+        selectTask("-X MC?")
+        doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
+        selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
+        narrowTask("ColonyProduction<Luna FROM Titan>")
       }
     }
   }

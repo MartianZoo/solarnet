@@ -397,7 +397,34 @@ include focused scenarios with and without that expansion. Keep assertions cente
 behavior; configuration checks normally belong to the existing configuration tests. Do not
 duplicate this coverage for every expansion card.
 
-The fixture otherwise leaves the default autoexecution policy untouched.
+After forking the prepared position, the sandbox sets every player's policy to `NONE`, following
+`OtbGame20261009Test`'s explicit task style. Card and rule scenarios retain the prepared position
+and visible `exMachina` corrections, then use generic
+`inTurn { doTasks(...) }` calls in place of Terraforming Mars gameplay helpers. Admin retains its
+default policy. `inTurn` supplies the sandbox turn and checks that the complete action leaves no
+pending tasks; payments, card transfers, player effects, and any player-assigned cleanup are explicit.
+In this style, omit `.expect()` assertions that merely repeat the submitted tasks; retain assertions
+for automatic consequences, excluded outcomes, and state after rejected actions. Continue using
+`setToExMachina` for desired absolute counts rather than calculating relative fixture adjustments.
+Prefer compact `FROM` expressions, such as `Steel<Kim FROM Rob>` and
+`ProjectCard<Hand FROM Selecting>`, whenever the transmutation shares the same Class.
+Do not retain Terraforming Mars gameplay helpers in sandbox scenarios, including tests of helper
+policies. Preserve payment and card rules through explicit tasks; helper-only policy checks are
+outside this suite. Nested `TfmGameplayTest` suites retain their real workflow. Tests solely
+comparing autoexecution policies are omitted.
+Use `selectOnlyTask()` when selecting the actor's sole pending task without further narrowing;
+`selectOnlyTask(x = 3)` binds X through the existing generic task operation. Keep other explicit
+choices in `doTask` or `narrowTask`. Do not copy full rule expressions to identify
+that sole task. Use meaningful short selectors when several tasks remain.
+Write scenario actions in sequence rather than loops. Small private scenario helpers may factor
+repeated explicit task sequences, with varying bonuses passed at each written-out call.
+Call the base fixture's `advanceUntilActionPhase()` to reach the next Action phase. From Action,
+it advances a generation; the sandbox currently expires generation-scoped state without running
+production or research. The base fixture owns that degree of simulation. From Corporation or
+Prelude, it skips remaining setup plays and enters Action phase.
+For rejection-and-rollback scenarios, put `shouldThrow` outside the operation. Do not catch the
+failure inside the operation and call `abort()` before checking the restored state.
+The shared fixture's own preparation still uses its existing helpers and autoexecution.
 When Turmoil is selected, it uses the existing test setup's initial global-event reveals
 (`DemocraticReform` and `MinimalImpactPolicy`) before entering Corporation phase.
 
@@ -546,7 +573,7 @@ relevant unchanged state and, when useful, the diagnostic identifying the proble
 
 ### Known-defect tests
 
-Card tests use adjacent test pairs in the class for the main card involved:
+Card and rule tests use adjacent test pairs in the class for the behavior involved:
 
 - An `@Test` with `@Ignore` states the intended behavior. Add a short comment explaining the defect
   that keeps it disabled, and preserve any existing rule-source reference beside the pair.

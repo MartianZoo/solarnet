@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -200,13 +200,37 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
     @Test
     internal fun `A party requirement accepts its government or two of the player's delegates`() {
       newTestGame(addOptions = "TurmoilExpansion")
-      kim.playProject(GmoContract, 3).expect("$GmoContract")
-      shouldThrow<NotNowException> { kim.playProject(SupportedResearch, 3) }
-      kim.stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
-      shouldThrow<NotNowException> { kim.playProject(SupportedResearch, 3) }
-      kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
-      shouldThrow<NotNowException> { stan.playProject(SupportedResearch, 3) }
-      kim.playProject(SupportedResearch, 3).expect("ProjectCard, $SupportedResearch")
+      kim.inTurn {
+        doTasks("PlayProject<Class<GmoContract>>", "-3 MC", "GmoContract FROM ProjectCard", "2 MC")
+      }
+      shouldThrow<RequirementException> {
+        kim.inTurn {
+          doTasks("PlayProject<Class<SupportedResearch>>", "-3 MC")
+          selectTask("MAX 0 Barrier: SupportedResearch FROM ProjectCard!")
+        }
+      }
+      kim.inTurn { doTasks("LobbyAction<Action1>", "PartyDelegate<Scientists>") }
+      shouldThrow<RequirementException> {
+        kim.inTurn {
+          doTasks("PlayProject<Class<SupportedResearch>>", "-3 MC")
+          selectTask("MAX 0 Barrier: SupportedResearch FROM ProjectCard!")
+        }
+      }
+      kim.inTurn { doTasks("LobbyAction<Action2>", "-5 MC", "PartyDelegate<Scientists>") }
+      shouldThrow<RequirementException> {
+        stan.inTurn {
+          doTasks("PlayProject<Class<SupportedResearch>>", "-3 MC")
+          selectTask("MAX 0 Barrier: SupportedResearch FROM ProjectCard!")
+        }
+      }
+      kim.inTurn {
+        doTasks(
+            "PlayProject<Class<SupportedResearch>>",
+            "-3 MC",
+            "SupportedResearch FROM ProjectCard",
+            "2 ProjectCard",
+        )
+      }
     }
   }
 }

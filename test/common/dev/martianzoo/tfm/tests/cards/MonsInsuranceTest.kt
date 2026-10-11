@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -11,32 +10,65 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
   internal fun `Starting production loss reaches every opponent but not its owner`() {
     newTestGame(kimCorporation = MonsInsurance, startAtCorporation = true)
 
-    kim.playCorp(MonsInsurance) {
+    kim.inTurn {
+          doTasks(
+              "PlayCard<Class<CorporationCard>, Class<MonsInsurance>>",
+              "MonsInsurance FROM CorporationCard",
+              "48 MC",
+              "PROD[4 MC]",
+          )
           doTask(
               "EACH Other@Player(NOT Kim) { -2 Production<Other@Player, Class<MC>>! BY Other@Player }"
           )
+          selectTask("-2 Production<Stan, Class<MC>>! BY Stan")
+          stan.selectOnlyTask()
+          selectTask("-2 Production<Rob, Class<MC>>! BY Rob")
+          rob.selectOnlyTask()
+          doTasks("-30 MC", "10 ProjectCard<Hand FROM Selecting>")
         }
-        .expect("18 MC, PROD[4 MC<Kim>, -2 MC<Stan>, -2 MC<Rob>]")
+        .expect("PROD[-2 MC<Stan>, -2 MC<Rob>]")
   }
 
   @Test
   internal fun `Starting production loss does not target the solo opponent`() {
     newTestGame(playerCount = 1, kimCorporation = MonsInsurance, startAtCorporation = true)
 
-    kim.playCorp(MonsInsurance) {
+    kim.inTurn {
+          doTasks(
+              "PlayCard<Class<CorporationCard>, Class<MonsInsurance>>",
+              "MonsInsurance FROM CorporationCard",
+              "48 MC",
+              "PROD[4 MC]",
+          )
           doTask(
               "EACH Other@Player(NOT Kim) { -2 Production<Other@Player, Class<MC>>! BY Other@Player }"
           )
+          doTasks("-30 MC", "10 ProjectCard<Hand FROM Selecting>")
         }
-        .expect("PROD[4 MC<Kim>, 0 MC<SoloOpponent>]")
+        .expect("PROD[0 MC<SoloOpponent>]")
   }
 
   @Test
   internal fun `Merger after Manutech pays for its own production gain only`() {
     newTestGame(addOptions = "PreludeExpansion", kimCorporation = Manutech)
 
-    kim.playPrelude(Merger) { kim.playCorp(MonsInsurance) }
-        .expect("10 MC<Kim>, PROD[4 MC<Kim>, -2 MC<Stan>, -2 MC<Rob>]")
+    kim.inTurn {
+          doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
+          selectTask("4 CorporationCard<Kim, Selecting>!")
+          selectTask("-3 CorporationCard<Kim, Selecting>!")
+          doTask("PlayCard<Class<CorporationCard>, Class<MonsInsurance>>")
+          selectTask("MAX 0 Barrier: MonsInsurance FROM CorporationCard<Kim, Selecting>!")
+          doTasks("48 MC", "-42 MC", "PROD[4 MC]")
+          selectTask(
+              "EACH Other@Player(NOT Kim) { -2 Production<Other@Player, Class<MC>>! BY Other@Player }"
+          )
+          doTask("4 MC")
+          selectTask("-2 Production<Stan, Class<MC>>! BY Stan")
+          stan.selectOnlyTask()
+          selectTask("-2 Production<Rob, Class<MC>>! BY Rob")
+          rob.selectOnlyTask()
+        }
+        .expect("PROD[-2 MC<Stan>, -2 MC<Rob>]")
   }
 
   @Test
@@ -45,9 +77,16 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.exMachina("$MonsInsurance")
     rob.exMachina("4 Steel")
 
-    stan
-        .playProject(HiredRaiders, 1) { doTask("2 Steel<Stan> FROM Steel<Rob>") }
-        .expect("2 Steel<Stan>, -2 Steel<Rob>, -3 MC<Kim>, 3 MC<Rob>")
+    stan.inTurn {
+      doTasks(
+          "PlayProject<Class<HiredRaiders>>",
+          "-1 MC",
+          "HiredRaiders FROM ProjectCard",
+          "2 Steel<Stan FROM Rob>",
+      )
+      selectTask("3 MC<Rob FROM Kim>.")
+      kim.selectTask("3 MC<Rob FROM Kim>!")
+    }
   }
 
   @Test
@@ -57,8 +96,21 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     stan.exMachina("Plant")
 
     with(kim) {
-      playPrelude(ExcentricSponsor) {
-            playProject(AsteroidCard, 0) { doTask("-Plant<Stan>") }
+      inTurn {
+            doTasks(
+                "PlayCard<Class<PreludeCard>, Class<ExcentricSponsor>>",
+                "ExcentricSponsor FROM PreludeCard",
+                "PlayCard<Class<ProjectCard>, Class<AsteroidCard>>",
+            )
+            selectTask("-25 Owed.")
+            doTask("AsteroidCard FROM ProjectCard")
+            selectTask("TemperatureStep.")
+            doTasks("2 Titanium", "TerraformRating")
+            selectTask("-X MC?")
+            doTask("Ok")
+            selectTask("-X Titanium?")
+            doTasks("Ok", "-Plant<Stan>")
+            selectOnlyTask()
           }
           .expect("-Plant<Stan>, -3 MC<Kim>, 3 MC<Stan>")
     }
@@ -71,8 +123,16 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.setToExMachina(13, "OxygenStep")
     stan.setToExMachina(3, "PROD[Plant]")
 
-    kim.playProject(Birds, 10) { doTask("PROD[-2 Plant<Stan>]") }
-        .expect("PROD[-2 Plant<Stan>], -13 MC<Kim>, 3 MC<Stan>")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<Birds>>",
+              "-10 MC",
+              "Birds FROM ProjectCard",
+              "PROD[-2 Plant<Stan>]",
+          )
+          selectOnlyTask()
+        }
+        .expect("-13 MC<Kim>, 3 MC<Stan>")
   }
 
   @Test
@@ -81,7 +141,17 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.exMachina("$MonsInsurance")
     stan.exMachina("Plant, OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>")
 
-    stan.playProject(Moss, 4).expect("-Plant<Stan>, -4 MC<Stan>, 0 MC<Kim>")
+    stan
+        .inTurn {
+          doTasks(
+              "PlayProject<Class<Moss>>",
+              "-4 MC",
+              "Moss FROM ProjectCard",
+              "PROD[Plant]",
+              "-Plant",
+          )
+        }
+        .expect("0 MC<Kim>")
   }
 
   @Test
@@ -91,9 +161,16 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.setToExMachina(2, "MC")
     rob.exMachina("2 Steel")
 
-    stan
-        .playProject(HiredRaiders, 1) { doTask("2 Steel<Stan> FROM Steel<Rob>") }
-        .expect("-2 MC<Kim>, 2 MC<Rob>")
+    stan.inTurn {
+      doTasks(
+          "PlayProject<Class<$HiredRaiders>>",
+          "-MC",
+          "$HiredRaiders FROM ProjectCard",
+          "2 Steel<Stan FROM Rob>",
+      )
+      selectTask("3 MC<Rob FROM Kim>.")
+      kim.doTask("2 MC<Rob FROM Kim>")
+    }
   }
 
   @Test
@@ -102,8 +179,16 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.exMachina("$MonsInsurance")
     stan.exMachina("$PharmacyUnion")
 
-    kim.playProject(IndustrialMicrobes, 12)
-        .expect("-12 MC<Kim>, -4 MC<Stan>, Disease<$PharmacyUnion<Stan>>")
+    kim.inTurn {
+          doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
+          selectTask("-X Steel?")
+          doTasks("Ok", "IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
+          selectTask("Disease<PharmacyUnion<Stan>>! OR (MAX 0 PharmacyUnion<Stan>: Ok)")
+          stan.selectOnlyTask()
+          selectOnlyTask()
+          stan.selectOnlyTask()
+        }
+        .expect("-4 MC<Stan>, Disease<$PharmacyUnion<Stan>>")
   }
 
   @Test
@@ -112,8 +197,16 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.exMachina("$MonsInsurance")
     stan.exMachina("Plant")
 
-    kim.playProject(AsteroidCard, 14) { declineTask() }
-        .expect("0 Plant<Stan>, -14 MC<Kim>, 0 MC<Stan>")
+    kim.inTurn {
+          doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+          selectTask("-X Titanium?")
+          doTasks("Ok", "AsteroidCard FROM ProjectCard")
+          selectTask("TemperatureStep.")
+          doTasks("2 Titanium", "TerraformRating")
+          selectTask("-3 Plant<Anyone>?")
+          doTask("Ok")
+        }
+        .expect("0 Plant<Stan>, 0 MC<Stan>")
   }
 
   @Test
@@ -121,7 +214,17 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     newTestGame(playerCount = 1)
     kim.exMachina("$MonsInsurance")
 
-    kim.playProject(HiredRaiders, 1) { doTask("3 MC<Kim> FROM MC<SoloOpponent>") }
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<HiredRaiders>>",
+              "-1 MC",
+              "HiredRaiders FROM ProjectCard",
+              "3 MC<Kim FROM SoloOpponent>",
+          )
+          selectTask("3 MC<SoloOpponent>! BY Admin")
+          selectOnlyTask()
+          selectOnlyTask()
+        }
         .expect("-1 MC<Kim>")
   }
 
@@ -131,7 +234,15 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.exMachina("$MonsInsurance")
     kim.exMachina("Plant")
 
-    stan.playProject(AsteroidCard, 14) { doTask("-Plant<Kim>") }.expect("-Plant<Kim>, 0 MC<Kim>")
+    stan
+        .inTurn {
+          doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+          selectTask("-X Titanium?")
+          doTasks("Ok", "AsteroidCard FROM ProjectCard")
+          selectTask("TemperatureStep.")
+          doTasks("2 Titanium", "TerraformRating", "-Plant<Kim>")
+        }
+        .expect("0 MC<Kim>")
   }
 
   @Test
@@ -149,22 +260,22 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.exMachina("$MonsInsurance")
     kim.setToExMachina(5, "MC")
     rob.setToExMachina(5, "MC")
-    players.forEach { it.autoExecPolicy = CONCRETE }
 
-    stan.playPrelude(Recession) {
+    stan.inTurn {
+      doTasks("PlayCard<Class<PreludeCard>, Class<Recession>>", "Recession FROM PreludeCard")
       doTask("10 MC")
+      selectOnlyTask()
       if (compensateFirst) {
         doTask("-5 MC<Rob>")
-        stan.selectTask("3 MC<Rob FROM Kim>.")
-        autoExecNow()
-        doTask("-2 MC<Kim>")
+        selectTask("3 MC<Rob FROM Kim>.")
+        kim.doTasks("3 MC<Rob FROM Kim>")
+        selectTask("-5 MC<Kim>.")
       } else {
-        doTask("-5 MC<Kim>")
-        doTask("-5 MC<Rob>")
-        stan.selectTask("3 MC<Rob FROM Kim>.")
-        autoExecNow()
+        doTasks("-5 MC<Kim>", "-5 MC<Rob>")
+        selectTask("3 MC<Rob FROM Kim>.")
       }
-      doTask("PROD[-MC<Kim>]")
+      doTasks("PROD[-MC<Kim>]", "PROD[-MC<Rob>]")
+      selectTask("3 MC<Rob FROM Kim>.")
     }
 
     rob.count("MC") shouldBe if (compensateFirst) 3 else 0

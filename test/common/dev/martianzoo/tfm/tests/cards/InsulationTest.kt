@@ -16,7 +16,14 @@ internal class InsulationTest : TfmSandboxTest() {
     kim.setToExMachina(0, "PROD[MC]")
     kim.setToExMachina(3, "PROD[Heat]")
 
-    kim.playProject(Insulation, 2) { doTask("PROD[2 MC FROM Heat]") }.expect("PROD[2 MC, -2 Heat]")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<Insulation>>",
+          "-2 MC",
+          "Insulation FROM ProjectCard",
+          "PROD[2 MC FROM Heat]",
+      )
+    }
   }
 
   @Test
@@ -26,7 +33,14 @@ internal class InsulationTest : TfmSandboxTest() {
     kim.setToExMachina(3, "PROD[Heat]")
 
     shouldThrow<NarrowingException> {
-      kim.playProject(Insulation, 2) { doTask("Ok") }
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<Insulation>>")
+        selectTask("-X MC?")
+        doTasks("-2 MC", "Insulation FROM ProjectCard")
+        selectOnlyTask()
+        doTask("Ok")
+      }
     }
   }
 }

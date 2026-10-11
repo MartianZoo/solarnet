@@ -1,7 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.BeforeTest
@@ -11,8 +9,22 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
   @BeforeTest
   fun initializeGame() {
     newTestGame(kimCorporation = PharmacyUnion, startAtCorporation = true)
-    kim.playCorp(PharmacyUnion) { repeat(2) { doTask("Disease<$PharmacyUnion>") } }
-    startActionPhase()
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>",
+          "PharmacyUnion FROM CorporationCard",
+      )
+      selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
+      selectTask("-4 MC.")
+      selectTask("-4 MC.")
+      doTasks(
+          "Disease<PharmacyUnion>",
+          "Disease<PharmacyUnion>",
+          "-30 MC",
+          "10 ProjectCard<Hand FROM Selecting>",
+      )
+    }
+    advanceUntilActionPhase()
   }
 
   // Resolved FAQ: starting money must precede the losses from the two microbe tags.
@@ -20,49 +32,85 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
   internal fun `Starting cash covers both disease losses as well as the starting projects`() {
     newTestGame(kimCorporation = PharmacyUnion, startAtCorporation = true)
 
-    kim.playCorp(PharmacyUnion) { repeat(2) { doTask("Disease<$PharmacyUnion>") } }
-        .expect("16 MC, 11 ProjectCard, 2 Disease<$PharmacyUnion>, 0 RequiredAction")
+    kim.inTurn {
+          doTasks(
+              "PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>",
+              "PharmacyUnion FROM CorporationCard",
+          )
+          selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
+          selectTask("-4 MC.")
+          selectTask("-4 MC.")
+          doTasks(
+              "Disease<PharmacyUnion>",
+              "Disease<PharmacyUnion>",
+              "-30 MC",
+              "10 ProjectCard<Hand FROM Selecting>",
+          )
+        }
+        .expect("16 MC, 11 ProjectCard, 0 RequiredAction")
   }
 
   @Test
   internal fun `A science tag removes disease and raises TR`() {
-    kim.playProject(PhysicsComplex, 12).expect("-Disease<$PharmacyUnion>, TerraformRating")
+    kim.inTurn {
+          doTasks("PlayProject<Class<PhysicsComplex>>", "-12 MC")
+          selectTask("-X Steel?")
+          doTasks("Ok", "PhysicsComplex FROM ProjectCard")
+          selectOnlyTask()
+        }
+        .expect("-Disease<$PharmacyUnion>, TerraformRating")
   }
 
   @Test
   internal fun `An opponent's microbe tag adds disease and costs the corporation money`() {
     stan.exMachina("3 OxygenStep, ProjectCard, 5 MC")
 
-    stan.playProject(Decomposers, 5).expect("Disease<$PharmacyUnion<Kim>>, -4 MC<Kim>")
+    stan
+        .inTurn {
+          doTasks("PlayProject<Class<Decomposers>>", "-5 MC", "Decomposers FROM ProjectCard")
+          selectTask("Microbe<Decomposers>.")
+          selectTask("Disease<PharmacyUnion<Kim>>! OR (MAX 0 PharmacyUnion<Kim>: Ok)")
+          kim.selectOnlyTask()
+          selectOnlyTask()
+          kim.selectOnlyTask()
+        }
+        .expect("Disease<$PharmacyUnion<Kim>>, -4 MC<Kim>")
   }
 
   @Test
   internal fun `Two science tags can remove the last disease and then flip the corporation`() {
     kim.setToExMachina(1, "Disease<$PharmacyUnion>")
     kim.exMachina("$Hospitals, Disease<$Hospitals>")
-    kim.autoExecPolicy = CONCRETE
 
-    kim.playProject(Research, 11) {
-          doTask("TerraformRating FROM Disease<$PharmacyUnion>")
-          doTask("PlayedEvent FROM $PharmacyUnion")
-          kim.autoExecPolicy = EAGER
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<Research>>",
+              "-11 MC",
+              "Research FROM ProjectCard",
+              "TerraformRating FROM Disease<PharmacyUnion>",
+              "PlayedEvent FROM PharmacyUnion",
+          )
+          selectTask("2 ProjectCard<Kim, Hand>!")
+          doTask("3 TerraformRating")
         }
-        .expect(
-            "-Disease<$PharmacyUnion>, 4 TerraformRating, 0 Disease<$Hospitals>, -$PharmacyUnion"
-        )
+        .expect("0 Disease<$Hospitals>")
   }
 
   @Test
   internal fun `Two science tags can flip the corporation only once`() {
     kim.setToExMachina(0, "Disease<$PharmacyUnion>")
-    kim.autoExecPolicy = CONCRETE
 
-    kim.playProject(Research, 11) {
-          doTask("PlayedEvent FROM $PharmacyUnion")
-          declineTask()
-          kim.autoExecPolicy = EAGER
-        }
-        .expect("3 TerraformRating, -$PharmacyUnion, PlayedEvent<Class<$PharmacyUnion>>")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<Research>>",
+          "-11 MC",
+          "Research FROM ProjectCard",
+          "PlayedEvent FROM PharmacyUnion",
+          "Ok",
+      )
+      selectTask("2 ProjectCard<Kim, Hand>!")
+      doTask("3 TerraformRating")
+    }
   }
 
   @Test
@@ -70,8 +118,14 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
     kim.setToExMachina(0, "Disease<$PharmacyUnion>")
     kim.exMachina("$MediaGroup")
 
-    kim.playProject(PhysicsComplex, 12) { doTask("PlayedEvent FROM $PharmacyUnion") }
-        .expect("-12 MC, 3 TerraformRating, -$PharmacyUnion")
+    kim.inTurn {
+          doTasks("PlayProject<Class<PhysicsComplex>>", "-12 MC")
+          selectTask("-X Steel?")
+          doTasks("Ok", "PhysicsComplex FROM ProjectCard")
+          selectOnlyTask()
+          doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
+        }
+        .expect("-12 MC")
   }
 
   // FAQ: a pending microbe trigger still loses 4 MC after the corporation flips,
@@ -80,13 +134,18 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
   internal fun `A microbe trigger still costs money after a science tag flips the corporation`() {
     kim.setToExMachina(0, "Disease<$PharmacyUnion>")
     kim.setToExMachina(17, "MC")
-    kim.autoExecPolicy = CONCRETE
 
-    kim.playProject(RegolithEaters, 13) {
-          doTask("PlayedEvent FROM $PharmacyUnion")
-          declineTask()
-          kim.autoExecPolicy = EAGER
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<RegolithEaters>>",
+              "-13 MC",
+              "RegolithEaters FROM ProjectCard",
+              "PlayedEvent FROM PharmacyUnion",
+              "Ok",
+          )
+          selectTask("-4 MC.")
+          doTask("3 TerraformRating")
         }
-        .expect("-17 MC, 3 TerraformRating, 0 Disease<$PharmacyUnion>, -$PharmacyUnion")
+        .expect("-17 MC, 0 Disease<$PharmacyUnion>")
   }
 }

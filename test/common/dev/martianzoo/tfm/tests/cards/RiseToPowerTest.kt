@@ -8,12 +8,28 @@ internal class RiseToPowerTest : TfmSandboxTest() {
   @Test
   internal fun `Delegates can lead three different parties and trigger Corridors of Power for each`() {
     newTestGame("PreludeExpansion, RiseToPower, CorridorsOfPower, TurmoilExpansion")
-    kim.playPrelude(CorridorsOfPower)
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<CorridorsOfPower>>",
+          "CorridorsOfPower FROM PreludeCard",
+          "TerraformRating",
+          "4 MC",
+      )
+    }
 
-    kim.playPrelude(RiseToPower) {
-          doTask("PartyDelegate<Scientists>")
+    kim.inTurn {
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<RiseToPower>>",
+              "RiseToPower FROM PreludeCard",
+              "PROD[3 MC]",
+              "PartyDelegate<Scientists>",
+          )
+          selectTask("ProjectCard<Kim, Hand>!")
           doTask("PartyDelegate<Unity>")
+          selectTask("ProjectCard<Kim, Hand>!")
+          selectOnlyTask()
           doTask("PartyDelegate<Greens>")
+          selectTask("ProjectCard<Kim, Hand>!")
         }
         .expect("3 ProjectCard, PartyLeader<Scientists>, PartyLeader<Unity>, PartyLeader<Greens>")
   }

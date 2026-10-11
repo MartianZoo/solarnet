@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -15,7 +14,16 @@ internal class PotatoesTest : TfmSandboxTest() {
     kim.setToExMachina(2, "MC")
     kim.setToExMachina(1, "Plant")
 
-    kim.playProject(Potatoes, 2) { doTask("Plant") }.expect("-Plant, PROD[2 MC]")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<Potatoes>>",
+          "-2 MC",
+          "Potatoes FROM ProjectCard",
+          "PROD[2 MC]",
+          "Plant",
+          "-2 Plant",
+      )
+    }
   }
 
   @Test
@@ -23,6 +31,14 @@ internal class PotatoesTest : TfmSandboxTest() {
     newTestGame(addOptions = "Tactician, Landlord, Banker")
     kim.exMachina("$Archaebacteria, $DustSeals, $SearchForLife, $Potatoes")
 
-    shouldThrow<RequirementException> { kim.claimMilestone(cn("Tactician")) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("ClaimMilestone<Class<Tactician>>")
+        selectTask("-X MC?")
+        doTask("-MC / Owed<Class<MC>>")
+        selectOnlyTask()
+      }
+    }
   }
 }

@@ -16,14 +16,31 @@ internal class AiCentralTest : TfmSandboxTest() {
     kim.setToExMachina(0, "PROD[Energy]")
     kim.setToExMachina(21, "MC")
 
-    shouldThrow<LimitsException> { kim.playProject(AiCentral, 21) }
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTasks("PlayProject<Class<AiCentral>>", "-21 MC")
+        selectTask("-X Steel?")
+        selectTask("Ok")
+        doTask("AiCentral FROM ProjectCard")
+        selectOnlyTask()
+      }
+    }
   }
 
   @Test
   internal fun `Cannot use its action twice in one generation`() {
     kim.exMachina("$AiCentral")
-    kim.cardAction1(AiCentral)
+    kim.inTurn {
+      doTask("UseCardAction<AiCentral, Action1>")
+      selectTask("2 ProjectCard<Kim, Hand>!")
+    }
 
-    shouldThrow<LimitsException> { kim.cardAction1(AiCentral) }
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("UseCardAction<AiCentral, Action1>")
+      }
+    }
   }
 }

@@ -20,7 +20,12 @@ internal class SolarProbeTest : TfmSandboxTest() {
     kim.setToExMachina(8, "MC")
     val cardsBefore = kim.count("ProjectCard")
 
-    shouldThrow<LimitsException> { kim.playProject(SolarProbe, 9) }
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTasks("PlayProject<Class<SolarProbe>>", "-9 MC")
+      }
+    }
     kim.assertCounts(
         8 to "MC",
         cardsBefore to "ProjectCard",
@@ -34,7 +39,13 @@ internal class SolarProbeTest : TfmSandboxTest() {
     kim.exMachina("$TransNeptuneProbe, $PhysicsComplex")
     kim.setToExMachina(9, "MC")
 
-    kim.playProject(SolarProbe, 9).expect("-9 MC, 0 ProjectCard")
+    kim.inTurn {
+          doTasks("PlayProject<Class<SolarProbe>>", "-9 MC")
+          selectTask("-X Titanium?")
+          doTasks("Ok", "SolarProbe FROM ProjectCard")
+          selectOnlyTask()
+        }
+        .expect("0 ProjectCard")
 
     kim.assertCounts(
         0 to "$SolarProbe",

@@ -10,9 +10,31 @@ internal class HighCirclesTest : TfmSandboxTest() {
   @Test
   internal fun `Its delegates enable a Scientists project through Excentric Sponsor during Preludes`() {
     newTestGame("PreludeExpansion, HighCircles, TurmoilExpansion", playerCount = 2)
-    kim.playPrelude(HighCircles) { doTask("2 PartyDelegate<Scientists>") }
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<HighCircles>>",
+          "HighCircles FROM PreludeCard",
+          "TerraformRating",
+      )
+      selectTask("SearchForCard<Kim, ReferenceFilter<Class<PartyRequirement>>>!")
+      selectOnlyTask()
+      doTask("2 PartyDelegate<Scientists>")
+    }
 
-    with(kim) { playPrelude(ExcentricSponsor) { playProject(SupportedResearch, 0) } }
+    with(kim) {
+          inTurn {
+            doTasks(
+                "PlayCard<Class<PreludeCard>, Class<ExcentricSponsor>>",
+                "ExcentricSponsor FROM PreludeCard",
+                "PlayCard<Class<ProjectCard>, Class<SupportedResearch>>",
+            )
+            selectTask("-25 Owed.")
+            doTask("SupportedResearch FROM ProjectCard")
+            selectTask("2 ProjectCard<Kim, Hand>!")
+            selectTask("-X MC?")
+            doTask("Ok")
+          }
+        }
         .expect("ProjectCard, $SupportedResearch")
   }
 
@@ -22,9 +44,30 @@ internal class HighCirclesTest : TfmSandboxTest() {
         "PreludeExpansion, HighCircles, TurmoilExpansion, EcologyExperts, Unsafe",
         playerCount = 2,
     )
-    kim.playPrelude(HighCircles) { doTask("2 PartyDelegate<Scientists>") }
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<HighCircles>>",
+          "HighCircles FROM PreludeCard",
+          "TerraformRating",
+      )
+      selectTask("SearchForCard<Kim, ReferenceFilter<Class<PartyRequirement>>>!")
+      selectOnlyTask()
+      doTask("2 PartyDelegate<Scientists>")
+    }
 
-    with(kim) { playPrelude(EcologyExperts) { playProject(SupportedResearch, 3) } }
+    with(kim) {
+          inTurn {
+            doTasks(
+                "PlayCard<Class<PreludeCard>, Class<EcologyExperts>>",
+                "EcologyExperts FROM PreludeCard",
+                "PROD[Plant]",
+                "PlayCard<Class<ProjectCard>, Class<SupportedResearch>>",
+            )
+            selectTask("-Required. / Required")
+            doTasks("-3 MC", "SupportedResearch FROM ProjectCard")
+            selectTask("2 ProjectCard<Kim, Hand>!")
+          }
+        }
         .expect("ProjectCard, $SupportedResearch")
   }
 

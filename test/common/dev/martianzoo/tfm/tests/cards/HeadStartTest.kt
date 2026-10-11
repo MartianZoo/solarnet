@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.TaskResult
@@ -18,16 +17,20 @@ internal class HeadStartTest : TfmSandboxTest() {
   internal fun `Head Start grants two mandatory actions`() {
     newTestGame(addOptions = "PreludeExpansion, FakeStuffBundle")
     kim.setToExMachina(4, "MC")
-    kim.turn {
-      playPrelude(FakeHeadStart) {
-        kim.assertCounts(2 to "Steel", 24 to "MC")
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<FakeHeadStart>>",
+          "FakeHeadStart FROM PreludeCard",
+          "2 Steel",
+          "20 MC",
+      )
+      kim.assertCounts(2 to "Steel", 24 to "MC")
 
-        useStdProject("PowerPlantProject")
-        useStdProject("PowerPlantProject")
+      doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
+      doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
 
-        kim.assertCounts(2 to "MC")
-        kim.production(cn("Energy")) shouldBe 3
-      }
+      kim.assertCounts(2 to "MC")
+      kim.production(cn("Energy")) shouldBe 3
     }
   }
 
@@ -35,12 +38,28 @@ internal class HeadStartTest : TfmSandboxTest() {
   internal fun `Head Start must use its first granted action to perform a required action`() {
     newTestGame(addOptions = "PreludeExpansion, FakeStuffBundle", kimCorporation = ValleyTrust)
 
-    kim.turn {
-      playPrelude(FakeHeadStart) {
-        kim.playPrelude(MartianIndustries) {
-          useStdProject("PowerPlantProject")
-        }
-      }
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<FakeHeadStart>>",
+          "FakeHeadStart FROM PreludeCard",
+          "2 Steel",
+      )
+      selectTask("2 MC! / ProjectCard<Kim, Hand>")
+      selectTask(
+          "(MAX 0 RequiredAction: StandardAction!) OR (RequiredAction: RequiredActionsSignal!)"
+      )
+      selectTask("3 PreludeCard<Kim, Selecting>!")
+      selectTask("-2 PreludeCard<Kim, Selecting>!")
+      doTask("PlayCard<Class<PreludeCard>, Class<MartianIndustries>>")
+      selectTask("MAX 0 Barrier: MartianIndustries FROM PreludeCard<Kim, Selecting>!")
+      doTasks(
+          "PROD[Energy]",
+          "PROD[Steel]",
+          "6 MC",
+          "UseStandardProject<PowerPlantProject>",
+          "-11 MC",
+          "PROD[Energy]",
+      )
     }
   }
 
@@ -48,17 +67,21 @@ internal class HeadStartTest : TfmSandboxTest() {
   internal fun `Fake Head Start allows money and steel after both actions without splitting steel`() {
     newTestGame(addOptions = "PreludeExpansion, FakeStuffBundle")
     kim.setToExMachina(2, "ProjectCard")
-    kim.autoExecPolicy = CONCRETE
 
-    kim.playPrelude(FakeHeadStart) {
-          shouldThrow<TaskException> { doTask("Steel") }
-          doTask("UseStandardProject<SellPatentsProject>")
-          doTask("MC FROM ProjectCard")
-          doTask("UseStandardProject<SellPatentsProject>")
-          doTask("MC FROM ProjectCard")
-          doTask("2 MC / ProjectCard")
-        }
-        .expect("2 MC, 2 Steel, -2 ProjectCard")
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<FakeHeadStart>>",
+          "FakeHeadStart FROM PreludeCard",
+      )
+      shouldThrow<TaskException> { doTask("Steel") }
+      doTasks(
+          "UseStandardProject<SellPatentsProject>",
+          "MC FROM ProjectCard",
+          "UseStandardProject<SellPatentsProject>",
+          "MC FROM ProjectCard",
+      )
+      doTasks("2 MC / ProjectCard", "2 Steel")
+    }
   }
 
   // https://boardgamegeek.com/thread/3335155/article/44575973#44575973
@@ -78,12 +101,23 @@ internal class HeadStartTest : TfmSandboxTest() {
     newTestGame(addOptions = "PreludeExpansion, FakeStuffBundle")
     kim.setToExMachina(4, "MC")
     kim.exMachina("10 Heat")
-    return kim.playPrelude(FakeHeadStart) {
-      doTask("ConvertHeat")
-      doTask("-8 Heat")
-      doTask("UseStandardProject<AquiferProject>")
-      doTask("-18 MC")
-      placeTile(5, 5)
+    return kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<FakeHeadStart>>",
+          "FakeHeadStart FROM PreludeCard",
+          "2 Steel",
+      )
+      selectTask("2 MC! / ProjectCard<Kim, Hand>")
+      doTasks("ConvertHeat", "-8 Heat")
+      selectTask("MAX 0 Billing: TemperatureStep.")
+      doTasks(
+          "TerraformRating",
+          "UseStandardProject<AquiferProject>",
+          "-18 MC",
+          "OceanTile<Tharsis_5_5>",
+          "TerraformRating",
+          "2 Plant",
+      )
     }
   }
 
@@ -95,11 +129,22 @@ internal class HeadStartTest : TfmSandboxTest() {
     kim.setToExMachina(0, "ProjectCard")
     val startingMoney = kim.count("MC")
 
-    kim.turn {
-      playPrelude(FakeHeadStart) {
-        useStdProject("PowerPlantProject")
-        useStdProject("PowerPlantProject")
-      }
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<FakeHeadStart>>",
+          "FakeHeadStart FROM PreludeCard",
+          "2 Steel",
+      )
+      selectTask("2 MC! / ProjectCard<Kim, Hand>")
+      doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
+      selectTask(
+          "(SuitableInfrastructureBonus<SuitableInfrastructure>: -SuitableInfrastructureBonus<SuitableInfrastructure>! THEN 2 MC!) OR (MAX 0 SuitableInfrastructureBonus<SuitableInfrastructure>: Ok)"
+      )
+      doTasks("2 MC", "UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
+      selectTask(
+          "(SuitableInfrastructureBonus<SuitableInfrastructure>: -SuitableInfrastructureBonus<SuitableInfrastructure>! THEN 2 MC!) OR (MAX 0 SuitableInfrastructureBonus<SuitableInfrastructure>: Ok)"
+      )
+      doTask("2 MC")
     }
 
     kim.assertProds(3 to "Energy")
@@ -126,14 +171,28 @@ internal class HeadStartTest : TfmSandboxTest() {
     kim.setToExMachina(54, "MC")
     kim.setToExMachina(0, "ProjectCard")
 
-    kim.turn {
-      playPrelude(FakeHeadStart) {
-        useStdAction("UseCardAction<$BoardOfDirectors, Action1>", payment = {}) {
-          doTask("-12 MC")
-          playPrelude(Merger) { playCorp(SagittaFrontierServices) }
-        }
-        useStdAction("ConvertHeat", payment = { doTask("-8 Heat") })
-      }
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<FakeHeadStart>>",
+          "FakeHeadStart FROM PreludeCard",
+          "2 Steel",
+      )
+      selectTask("2 MC! / ProjectCard<Kim, Hand>")
+      doTask("UseCardAction<BoardOfDirectors, Action1>")
+      selectTask("PreludeCard<Kim, Hand>!")
+      doTask("-12 MC")
+      selectTask("-Director<BoardOfDirectors>!")
+      doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
+      selectTask("4 CorporationCard<Kim, Selecting>!")
+      doTask("-42 MC")
+      selectTask("-3 CorporationCard<Kim, Selecting>!")
+      doTask("PlayCard<Class<CorporationCard>, Class<SagittaFrontierServices>>")
+      selectTask("MAX 0 Barrier: SagittaFrontierServices FROM CorporationCard<Kim, Selecting>!")
+      doTasks("31 MC", "PROD[Energy]", "PROD[2 MC]")
+      selectTask("SearchForCard<Kim, NoTagsFilter>!")
+      doTasks("4 MC", "ConvertHeat", "-8 Heat")
+      selectTask("MAX 0 Billing: TemperatureStep.")
+      doTask("TerraformRating")
     }
   }
 }

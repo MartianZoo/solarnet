@@ -16,7 +16,17 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     )
 
     // 31 starting MC plus the 4 MC rebate, minus the ten retained projects.
-    kim.playCorp(SagittaFrontierServices).expect("5 MC")
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<SagittaFrontierServices>>",
+          "SagittaFrontierServices FROM CorporationCard",
+          "31 MC",
+          "PROD[Energy]",
+          "PROD[2 MC]",
+      )
+      selectTask("SearchForCard<Kim, NoTagsFilter>!")
+      doTasks("4 MC", "-30 MC", "10 ProjectCard<Hand FROM Selecting>")
+    }
   }
 
   @Test
@@ -24,7 +34,16 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     newTestGame("-PromoCardPack", kimCorporation = SagittaFrontierServices)
     kim.setToExMachina(15, "MC")
 
-    kim.playProject(AtmoCollectors, 15) { addCardResources(AtmoCollectors) }.expect("-11 MC")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<AtmoCollectors>>",
+          "-15 MC",
+          "AtmoCollectors FROM ProjectCard",
+          "4 MC",
+      )
+      selectTask("2 Floater.")
+      doTask("2 Floater<AtmoCollectors>.")
+    }
   }
 
   // https://boardgamegeek.com/thread/3154781/do-event-tags-count-for-sagitta
@@ -32,7 +51,16 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
   internal fun `An event with no other tags earns the single-tag rebate`() {
     newTestGame("-PromoCardPack", kimCorporation = SagittaFrontierServices)
 
-    kim.playProject(Sabotage, 1) { doTask("-7 MC<Stan>") }.expect("0 MC")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<Sabotage>>",
+              "-1 MC",
+              "Sabotage FROM ProjectCard",
+              "MC",
+              "-7 MC<Stan>",
+          )
+        }
+        .expect("0 MC")
   }
 
   @Test
@@ -40,14 +68,25 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     newTestGame("-PromoCardPack, SmallAsteroid", kimCorporation = SagittaFrontierServices)
     kim.setToExMachina(10, "MC")
 
-    kim.playProject(SmallAsteroid, 10).expect("-10 MC")
+    kim.inTurn {
+      doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
+      selectTask("-X Titanium?")
+      doTasks("Ok", "SmallAsteroid FROM ProjectCard")
+      selectTask("TemperatureStep.")
+      selectTask("-2 Plant<Anyone>?")
+      doTask("TerraformRating")
+    }
   }
 
   @Test
   internal fun `A single building tag earns the single-tag rebate`() {
     newTestGame("-PromoCardPack", kimCorporation = SagittaFrontierServices)
 
-    kim.playProject(Mine, 4).expect("-3 MC")
+    kim.inTurn {
+      doTasks("PlayProject<Class<Mine>>", "-4 MC")
+      selectTask("-X Steel?")
+      doTasks("Ok", "Mine FROM ProjectCard", "PROD[Steel]", "MC")
+    }
   }
 
   @Test
@@ -55,14 +94,23 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     newTestGame("-PromoCardPack", kimCorporation = SagittaFrontierServices)
     kim.setToExMachina(11, "MC")
 
-    kim.playProject(Research, 11).expect("-11 MC")
+    kim.inTurn {
+      doTasks("PlayProject<Class<Research>>", "-11 MC", "Research FROM ProjectCard")
+      selectTask("2 ProjectCard<Kim, Hand>!")
+    }
   }
 
   @Test
   internal fun `Ignores another players card even when it has a single tag`() {
     newTestGame("-PromoCardPack", kimCorporation = SagittaFrontierServices)
 
-    stan.playProject(Mine, 4).expect("-4 MC, 0 MC<Kim>")
+    stan
+        .inTurn {
+          doTasks("PlayProject<Class<Mine>>", "-4 MC")
+          selectTask("-X Steel?")
+          doTasks("Ok", "Mine FROM ProjectCard", "PROD[Steel]")
+        }
+        .expect("0 MC<Kim>")
   }
 
   // https://boardgamegeek.com/thread/3335155/article/44575973#44575973
@@ -80,6 +128,16 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
   private fun acquireDuringPrelude(): TaskResult {
     newTestGame("PreludeExpansion, SagittaFrontierServices, Unsafe")
     kim.setToExMachina(54, "MC")
-    return kim.playPrelude(Merger) { kim.playCorp(SagittaFrontierServices) }
+    return kim.inTurn {
+      doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
+      selectTask("4 CorporationCard<Kim, Selecting>!")
+      doTask("-42 MC")
+      selectTask("-3 CorporationCard<Kim, Selecting>!")
+      doTask("PlayCard<Class<CorporationCard>, Class<SagittaFrontierServices>>")
+      selectTask("MAX 0 Barrier: SagittaFrontierServices FROM CorporationCard<Kim, Selecting>!")
+      doTasks("31 MC", "PROD[Energy]", "PROD[2 MC]")
+      selectTask("SearchForCard<Kim, NoTagsFilter>!")
+      doTask("4 MC")
+    }
   }
 }

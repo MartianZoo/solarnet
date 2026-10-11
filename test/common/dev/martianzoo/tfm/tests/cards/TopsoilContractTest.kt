@@ -12,6 +12,16 @@ internal class TopsoilContractTest : TfmSandboxTest() {
   internal fun `Its microbe tag triggers Decomposers and pays for that microbe`() {
     kim.exMachina("$Decomposers")
 
-    kim.playProject(TopsoilContract, 8).expect("Microbe<$Decomposers>, -7 MC")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<TopsoilContract>>",
+              "-8 MC",
+              "TopsoilContract FROM ProjectCard",
+              "3 Plant",
+          )
+          selectTask("Microbe<Decomposers>.")
+          doTask("MC")
+        }
+        .expect("Microbe<$Decomposers>")
   }
 }

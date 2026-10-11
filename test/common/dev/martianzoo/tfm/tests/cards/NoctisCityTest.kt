@@ -10,9 +10,17 @@ internal class NoctisCityTest : TfmSandboxTest() {
     newTestGame(addOptions = "HellasMap")
     kim.setToExMachina(18, "MC")
 
-    kim.playProject(NoctisCity, 18) {
-          placeTile(1, 3)
-        }
-        .expect("PROD[3 MC, -Energy], CityTile")
+    kim.inTurn {
+      doTasks("PlayProject<Class<NoctisCity>>", "-18 MC")
+      selectTask("-X Steel?")
+      doTasks(
+          "Ok",
+          "NoctisCity FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[3 MC]",
+          "CityTile<Hellas_1_3>",
+          "2 Plant",
+      )
+    }
   }
 }

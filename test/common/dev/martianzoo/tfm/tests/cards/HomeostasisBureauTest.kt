@@ -12,13 +12,24 @@ internal class HomeostasisBureauTest : TfmSandboxTest() {
   internal fun `Pays when its owner raises temperature`() {
     kim.exMachina("$HomeostasisBureau")
 
-    kim.stdProject("AsteroidProject").expect("TemperatureStep, TerraformRating, -11 MC")
+    kim.inTurn {
+          doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+          selectTask("TemperatureStep.")
+          doTasks("TerraformRating", "3 MC")
+        }
+        .expect("TemperatureStep")
   }
 
   @Test
   internal fun `Does not pay when an opponent raises temperature`() {
     kim.exMachina("$HomeostasisBureau")
 
-    stan.stdProject("AsteroidProject").expect("0 MC<Kim>")
+    stan
+        .inTurn {
+          doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+          selectTask("TemperatureStep.")
+          doTask("TerraformRating")
+        }
+        .expect("0 MC<Kim>")
   }
 }

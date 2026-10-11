@@ -11,8 +11,12 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
     stan.exMachina("$WorldGovernmentAdvisor")
 
     stan
-        .cardAction1(WorldGovernmentAdvisor) { doTask("TemperatureStep BY Admin") }
-        .expect("TemperatureStep, 0 TerraformRating")
+        .inTurn {
+          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          selectOnlyTask()
+          doTask("TemperatureStep BY Admin")
+        }
+        .expect("0 TerraformRating")
   }
 
   @Test
@@ -21,8 +25,14 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
     kim.exMachina("$WorldGovernmentAdvisor")
     stan.exMachina("$Aphrodite")
 
-    kim.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep BY Admin") }
-        .expect("VenusStep, 0 TerraformRating, 2 MC<Stan>")
+    kim.inTurn {
+          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          selectOnlyTask()
+          doTask("VenusStep BY Admin")
+          selectTask("2 MC<Stan>!")
+          stan.selectTask("2 MC!")
+        }
+        .expect("0 TerraformRating")
   }
 
   @Test
@@ -31,10 +41,16 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
     kim.exMachina("$WorldGovernmentAdvisor")
     stan.exMachina("$ArcticAlgae, $LakefrontResorts")
 
-    kim.cardAction1(WorldGovernmentAdvisor) { doTask("OceanTile<Tharsis_1_2> BY Admin") }
-        .expect(
-            "OceanTile<Tharsis_1_2>, 2 Plant<Stan>, PROD[MC<Stan>], 0 OceanCredit, 0 TerraformRating"
-        )
+    kim.inTurn {
+          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          selectOnlyTask()
+          doTask("OceanTile<Tharsis_1_2> BY Admin")
+          selectTask("2 Plant<Stan>!")
+          stan.selectTask("2 Plant!")
+          selectOnlyTask()
+          stan.selectTask("PROD[MC]")
+        }
+        .expect("PROD[MC<Stan>], 0 OceanCredit, 0 TerraformRating")
   }
 
   @Test
@@ -42,11 +58,15 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
     newTestGame("WorldGovernmentAdvisor")
     kim.exMachina("$WorldGovernmentAdvisor, 14 TemperatureStep")
 
-    kim.cardAction1(WorldGovernmentAdvisor) {
+    kim.inTurn {
+          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          selectOnlyTask()
           doTask("TemperatureStep BY Admin")
+          selectOnlyTask()
+          selectOnlyTask()
           doTask("OceanTile<Tharsis_1_2> BY Admin")
         }
-        .expect("TemperatureStep, OceanTile<Tharsis_1_2>, 0 TerraformRating, 0 Plant")
+        .expect("0 TerraformRating, 0 Plant")
   }
 
   @Test
@@ -54,8 +74,17 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
     newTestGame("WorldGovernmentAdvisor")
     kim.exMachina("$WorldGovernmentAdvisor, $HomeostasisBureau")
 
-    kim.cardAction1(WorldGovernmentAdvisor) { doTask("TemperatureStep BY Admin") }
-        .expect("TemperatureStep, 0 TerraformRating, 0 MC")
-    kim.stdProject("AsteroidProject").expect("TemperatureStep, TerraformRating, -11 MC")
+    kim.inTurn {
+          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          selectOnlyTask()
+          doTask("TemperatureStep BY Admin")
+        }
+        .expect("0 TerraformRating, 0 MC")
+    kim.inTurn {
+          doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+          selectTask("TemperatureStep.")
+          doTasks("TerraformRating", "3 MC")
+        }
+        .expect("TemperatureStep")
   }
 }
