@@ -184,7 +184,7 @@ CLASS Trade<@ColonyTile, GenerationScope> : Owned<Player> {
 }
 
 "One unresolved barrier to completing a Trade"
-CLASS TradeBarrier<@ColonyTile> : Owned<Player>, Barrier, Hidden {
+CLASS TradeBarrier<@ColonyTile> : Owned<Player>, Barrier, Hidden, System {
   -This IF MAX 0 This: FinishTrade<@ColonyTile>
 }
 

@@ -603,8 +603,9 @@ does not reproduce the source's Player policies. Routine Admin work is omitted; 
 choices such as global-event identities remain. Plain instructions replay through `doTasks`; `DO`
 uses single-task `doTask` semantics. `CHOOSE` preserves selections and committed form instructions,
 including partial choices that leave work pending. Later full form instructions replace earlier
-form narrowings when they only edited that task. Uncommitted form edits are not recorded;
-round-trips compare resulting state rather than requiring identical intermediate events.
+form narrowings when they only changed its instruction; steps that selected the task remain.
+Uncommitted form edits are not recorded; round-trips compare resulting state rather than requiring
+identical intermediate events.
 `DROP` and `EX MACHINA` retain interventions. See `TaskLog` KDoc for supported scope.
 The task text still requires its caller to supply the premise and launch the workflow.
 

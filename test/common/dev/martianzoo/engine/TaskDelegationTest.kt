@@ -65,6 +65,7 @@ internal class TaskDelegationTest {
 
       p1.doTask("Spare<Player1>")
       shouldThrow<TaskException> { p1.doTask("RewardA<Player2>") }
+      shouldThrow<TaskException> { p1.selectTask("RewardA<Player2>") }
       game.tasks.getTaskData(reward.id) shouldBe reward
       p1.selectTask(reward.id)
 

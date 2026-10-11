@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.EnergyMarket
+import dev.martianzoo.tfm.tests.cards.cardnames.FakeHelion
 import dev.martianzoo.tfm.tests.cards.cardnames.HiTechLab
 import dev.martianzoo.tfm.tests.cards.cardnames.PowerInfrastructure
 import dev.martianzoo.tfm.tests.cards.cardnames.TychoMagnetics
@@ -26,6 +27,15 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
     kim.exMachina("$EnergyMarket, 6 MC")
 
     kim.cardAction1(EnergyMarket, x = 3).expect("-6 MC, 3 Energy")
+  }
+
+  @Test
+  internal fun `Energy Market accepts Heat instead of MC for FakeHelion`() {
+    newTestGame(addOptions = "FakeStuffBundle", kimCorporation = FakeHelion)
+    kim.exMachina("$EnergyMarket, 6 Heat")
+    kim.setToExMachina(0, "MC")
+
+    kim.cardAction1(EnergyMarket, x = 3) { kim.pay(heat = 6) }.expect("-6 Heat, 0 MC, 3 Energy")
   }
 
   @Test

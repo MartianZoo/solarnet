@@ -7,7 +7,6 @@ import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
@@ -643,9 +642,7 @@ public class TfmGameplay(
                   task.instruction.descendantsOfType<Scalar>().any(Scalar::abstract)
             }
     val variableTask = variableTasks.single()
-    val bound = bindXTo(x).transformInstructionTree(variableTask.instruction)
-    selectTask(variableTask.id)
-    narrowTask(bound.toString())
+    selectTask(variableTask.bindXTo(x))
     operation.autoExecNow()
   }
 

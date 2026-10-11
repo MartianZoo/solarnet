@@ -26,7 +26,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     kim.exMachina("PartyDelegate<Unity, Neutral>")
 
     kim.playProject(BannedDelegate, 0) {
-          doTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>")
+          narrowTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>")
         }
         .expect(
             "-Dominant<MarsFirst>, Dominant<Unity>, " +
@@ -42,7 +42,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     kim.exMachina("3 PartyDelegate<Kelvinists, Neutral>, 2 PartyDelegate<Reds, Neutral>")
 
     kim.playProject(BannedDelegate, 0) {
-          doTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>")
+          narrowTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>")
         }
         .expect("-Dominant<MarsFirst>, Dominant<Kelvinists>, 0 Dominant<Reds>")
   }
@@ -56,7 +56,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     kim.exMachina("2 PartyDelegate<Reds, Neutral>, 3 PartyDelegate<Unity, Neutral>")
 
     kim.playProject(BannedDelegate, 0) {
-          doTask("BannedDelegateRemoval<Kim, Greens, Stan>")
+          narrowTask("BannedDelegateRemoval<Kim, Greens, Stan>")
         }
         .expect("-Dominant<Greens>, Dominant<Unity>, 0 Dominant<Reds>")
   }
@@ -70,7 +70,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     kim.exMachina("2 PartyDelegate<Scientists, Neutral>")
 
     kim.playProject(BannedDelegate, 0) {
-          doTask("BannedDelegateRemoval<Kim, Scientists, Stan>")
+          narrowTask("BannedDelegateRemoval<Kim, Scientists, Stan>")
         }
         .expect(
             "PartyLeader<Scientists, Kim>, -PartyLeader<Scientists, Stan>, " +
@@ -87,7 +87,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     stan.exMachina("2 PartyDelegate<Scientists>")
 
     kim.playProject(BannedDelegate, 0) {
-          doTask("BannedDelegateRemoval<Kim, Scientists, Rob>")
+          narrowTask("BannedDelegateRemoval<Kim, Scientists, Rob>")
         }
         .expect(
             "0 PartyLeader<Scientists, Kim>, 0 PartyLeader<Scientists, Stan>, " +
@@ -106,7 +106,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
 
     stan
         .playProject(BannedDelegate, 0) {
-          doTask("BannedDelegateRemoval<Stan, Scientists, Maya>")
+          narrowTask("BannedDelegateRemoval<Stan, Scientists, Maya>")
         }
         .expect(
             "0 PartyLeader<Scientists, Kim>, PartyLeader<Scientists, Rob>, " +
@@ -120,7 +120,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     stan.exMachina("2 PartyDelegate<MarsFirst>")
 
     kim.playProject(BannedDelegate, 0) {
-          doTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>")
+          narrowTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>")
         }
         .expect("-PartyDelegate<MarsFirst, Stan>, 0 PartyLeader<MarsFirst, Stan>")
   }
@@ -131,7 +131,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     kim.exMachina("2 PartyDelegate<Scientists>")
 
     kim.playProject(BannedDelegate, 0) {
-          doTask("BannedDelegateRemoval<Kim, Scientists, Kim>")
+          narrowTask("BannedDelegateRemoval<Kim, Scientists, Kim>")
         }
         .expect("-PartyDelegate<Scientists>, 0 PartyLeader<Scientists>")
   }
@@ -142,7 +142,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     kim.exMachina("2 PartyDelegate<Scientists, Neutral>")
 
     kim.playProject(BannedDelegate, 0) {
-          doTask("BannedDelegateRemoval<Kim, Scientists, Neutral>")
+          narrowTask("BannedDelegateRemoval<Kim, Scientists, Neutral>")
         }
         .expect("-PartyDelegate<Scientists, Neutral>, 0 PartyLeader<Scientists, Neutral>")
   }
@@ -171,7 +171,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.playProject(BannedDelegate, 0) {
-        doTask("BannedDelegateRemoval<Kim, Scientists, Stan>")
+        narrowTask("BannedDelegateRemoval<Kim, Scientists, Stan>")
       }
     }
   }
@@ -184,7 +184,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.playProject(BannedDelegate, 0) {
-        doTask("BannedDelegateRemoval<Kim, Scientists, Kim>")
+        narrowTask("BannedDelegateRemoval<Kim, Scientists, Kim>")
       }
     }
   }
@@ -195,7 +195,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     stan.exMachina("2 PartyDelegate<MarsFirst>, PartyDelegate<Scientists>")
 
     kim.playProject(BannedDelegate, 0) {
-          doTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>")
+          narrowTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>")
         }
         .expect("-PartyDelegate<MarsFirst, Stan>, 0 PartyDelegate<Scientists, Stan>")
   }

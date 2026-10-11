@@ -1,5 +1,6 @@
 package dev.martianzoo.state
 
+import dev.martianzoo.pets.Transforming
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
@@ -37,6 +38,12 @@ public data class Task(
     /** Why was this task born? */
     val cause: Cause?,
 ) {
+  /**
+   * Returns a proposed version of this task with its current instruction's linked X set to [value].
+   */
+  public fun bindXTo(value: Int): Task =
+      copy(instruction = Transforming.bindXTo(value).transformInstruction(instruction))
+
   override fun toString(): String = buildString {
     append(id)
     append(if (selected) "* " else "  ")

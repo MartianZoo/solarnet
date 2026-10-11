@@ -44,17 +44,20 @@ Fixed, concrete gains run as Admin, including scaled debt and gains inside autom
 An abstract type or variable amount such as `X Owed` stays with the Player until narrowed; Admin
 then performs the concrete gain. Acceptance opens resource-removal offers, which remain assigned
 to the Player. The Player's chosen removals retain that Player as their event Actor.
-Printed actions with an `X` standard-resource cost use the ordinary Pets action rule:
-`X Energy -> X MC` offers a shared `X` choice through the action task's form. Choosing `X = 4`
-specializes its sequence to `-4 Energy! THEN 4 MC`; committing the form spends the Energy, then
-the M€ gain follows. Fixed standard-resource action costs use billing so acceptance and price
-adjustments can apply.
+Both fixed and variable standard-resource action costs use billing so acceptance and price
+adjustments can apply. A variable cost keeps its shared `X` in the sequence from `Owed` through
+`Billing` to the action's result. Choosing `X = 4` for `X Energy -> X MC` opens a bill for 4 Energy;
+only after settlement does the sequence offer 4 M€. Energy Market's `2X MC -> X Energy` can
+therefore accept Heat through FakeHelion's ordinary billing listener instead of forcing an M€ loss.
 
 The linked `X` choice still appears after `UseCardAction` fires, so `ActionUsedMarker` may exist
 while the choice is open. The intended later design would let a client set `X` on the printed
 action before committing its use, then perform an ordinary concrete action. That requires action
 invocation and its consequences to share the same choice. Inferring `X` backwards when a caller
 tries to perform `3 Foo` against `X Foo` is optional and does not justify extra machinery by itself.
+A client that already knows `X = 5` can submit `selectTask(task.bindXTo(5))` directly. `TaskForm`
+remains optional for discovering open choices. This still selects the pending consequence after
+`UseCardAction`; moving the choice to the printed action before invocation remains future work.
 
 ## Verified gaps
 

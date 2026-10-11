@@ -57,6 +57,56 @@ internal class TaskIntersectionTest {
   }
 
   @Test
+  fun `selecting a compatible instruction also commits its narrowing`() {
+    agent.addTasks("Piece<Red, Shape>")
+
+    agent.selectTask("Piece<Color, Circle>")
+
+    agent.count("Piece<Red, Circle>") shouldBe 1
+    game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  fun `selection cannot discard a choice when resolving a gate splits the task`() {
+    val task = agent.addTasks("MAX 0 Marker: (Piece<Red, Shape>, Marker)").single()
+    val before = game.timeline.checkpoint()
+    val original = game.tasks.getTaskData(task)
+
+    for (narrowing in
+        listOf("Piece<Red, Circle>, Marker", "MAX 0 Marker: (Piece<Red, Circle>, Marker)")) {
+      shouldThrow<TaskException> { agent.selectTask(narrowing) }
+          .message
+          .shouldContain("splits during selection")
+
+      game.timeline.checkpoint() shouldBe before
+      game.tasks.getTaskData(task) shouldBe original
+      agent.count("Piece") shouldBe 0
+      agent.count("Marker") shouldBe 0
+    }
+
+    agent.selectTask(task)
+    agent.selectTask("Piece<Red, Circle>")
+    agent.doTask("Marker")
+
+    agent.count("Piece<Red, Circle>") shouldBe 1
+    agent.count("Piece<Red, Square>") shouldBe 0
+    agent.count("Marker") shouldBe 1
+    game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  fun `a task copy binds linked X without a form`() {
+    agent.addTasks("X Marker THEN X Notice<Red>")
+    val pending = agent.tasks.extract { it }.single()
+
+    agent.selectTask(pending.bindXTo(3))
+    agent.doTask("3 Notice<Red>")
+
+    agent.count("Marker") shouldBe 3
+    agent.count("Notice<Red>") shouldBe 3
+  }
+
+  @Test
   fun `a broader input inherits the task constraint`() {
     agent.addTasks("Piece<Red, Circle>")
 
