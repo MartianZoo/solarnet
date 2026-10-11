@@ -21,7 +21,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       GameConfig(
           """
           TharsisMap
-          PreludeExpansion, Prelude2CardPack, PromoCardPack, TurmoilExpansion
+          PreludeExpansion, prelude2:cards, promos:cards, TurmoilExpansion
           Tr63SoloObjective
           FakeStuffBundle
           """,

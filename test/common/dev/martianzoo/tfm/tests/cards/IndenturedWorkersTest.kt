@@ -90,7 +90,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
 
   @Test
   internal fun `Intervening Prelude leaves the discount for the next project card`() {
-    newTestGame(addOptions = "PreludeExpansion, Prelude2CardPack")
+    newTestGame(addOptions = "PreludeExpansion, prelude2:cards")
     advanceUntilActionPhase()
     kim.exMachina("$BoardOfDirectors, Director<$BoardOfDirectors>")
 

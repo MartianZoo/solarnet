@@ -57,7 +57,7 @@ internal class NewPartnerTest : TfmSandboxTest() {
 
   @Test
   internal fun `New Partner can fizzle an unaffordable Industrial Complex`() {
-    newTestGame(addOptions = "PreludeExpansion, Prelude2CardPack")
+    newTestGame(addOptions = "PreludeExpansion, prelude2:cards")
     kim.setToExMachina(13, "MC")
     shouldThrow<LimitsException> {
       kim.inTurn {

@@ -17,7 +17,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
       GameConfig(
           """
           HellasMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, ColoniesExpansion, PromoCardPack
+          VenusNextExpansion, PreludeExpansion, prelude2:cards, ColoniesExpansion, promos:cards
           Aridor
 
           Diversifier, Merchant, Fundraiser, Terraformer, Producer, Trader

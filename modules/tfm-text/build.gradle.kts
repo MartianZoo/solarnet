@@ -4,35 +4,35 @@ val textSourceDirectory =
     rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/text")
 val coloniesEnglishSourceDirectory =
     rootProject.layout.projectDirectory.dir(
-        "src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/english"
+        "src/common/dev/martianzoo/tfm/canon/bundles/colonies/english"
     )
 val corporateEraEnglishSourceDirectory =
     rootProject.layout.projectDirectory.dir(
-        "src/common/dev/martianzoo/tfm/canon/CorporateEraExpansion/english"
+        "src/common/dev/martianzoo/tfm/canon/bundles/corpera/english"
     )
 val prelude1EnglishSourceDirectory =
     rootProject.layout.projectDirectory.dir(
-        "src/common/dev/martianzoo/tfm/canon/Prelude1CardPack/english"
+        "src/common/dev/martianzoo/tfm/canon/bundles/prelude/english"
     )
 val prelude2EnglishSourceDirectory =
     rootProject.layout.projectDirectory.dir(
-        "src/common/dev/martianzoo/tfm/canon/Prelude2CardPack/english"
+        "src/common/dev/martianzoo/tfm/canon/bundles/prelude2/english"
     )
 val promoEnglishSourceDirectory =
     rootProject.layout.projectDirectory.dir(
-        "src/common/dev/martianzoo/tfm/canon/PromoCardPack/english"
+        "src/common/dev/martianzoo/tfm/canon/bundles/promos/english"
     )
 val turmoilEnglishSourceDirectory =
     rootProject.layout.projectDirectory.dir(
-        "src/common/dev/martianzoo/tfm/canon/TurmoilExpansion/english"
+        "src/common/dev/martianzoo/tfm/canon/bundles/turmoil/english"
     )
 val vastitasEnglishSourceDirectory =
     rootProject.layout.projectDirectory.dir(
-        "src/common/dev/martianzoo/tfm/canon/VastitasMap/english"
+        "src/common/dev/martianzoo/tfm/canon/bundles/vastitas/english"
     )
 val venusNextEnglishSourceDirectory =
     rootProject.layout.projectDirectory.dir(
-        "src/common/dev/martianzoo/tfm/canon/VenusNextExpansion/english"
+        "src/common/dev/martianzoo/tfm/canon/bundles/venus/english"
     )
 val textDataDirectory = rootProject.layout.projectDirectory.dir("src/jvm/dev/martianzoo/tfm/text")
 val randomCardInput = providers.gradleProperty("randomCardInput")

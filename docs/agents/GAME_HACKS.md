@@ -110,8 +110,8 @@ heat loss, and energy gain in history.
 **Fan card — Heat Brokerage:** “Whenever you gain any amount of heat, gain 1 M€.” **Literal:**
 `X Heat: MC`. Preserving energy pays the broker even though no heat should have been gained.
 
-**Source:** `Energy` in [resources.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/resources.pets)
-and `Supercapacitors` in [promo cards](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.json5).
+**Source:** `Energy` in [resources.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/base/resources.pets)
+and `Supercapacitors` in [promo cards](../../src/common/dev/martianzoo/tfm/canon/bundles/promos/cards.json5).
 [SupercapacitorsTest](../../test/common/dev/martianzoo/tfm/tests/cards/SupercapacitorsTest.kt) verifies
 retained quantities, not equivalence under heat listeners.
 
@@ -125,7 +125,7 @@ payments do not manufacture heat.
 paying with floaters earns money for invented heat. A heat-removal reward would also see too much
 heat spent; three floaters can supply all five heat without any real heat resources being spent.
 
-**Source:** `StormcraftIncorporated` in [Colonies cards](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/cards.json5)
+**Source:** `StormcraftIncorporated` in [Colonies cards](../../src/common/dev/martianzoo/tfm/canon/bundles/colonies/cards.json5)
 and [StormcraftIncorporatedTest](../../test/common/dev/martianzoo/tfm/tests/cards/colonies/StormcraftIncorporatedTest.kt).
 
 ### 3. The M€ production floor produces artificial income and losses
@@ -140,8 +140,8 @@ nothing from that track. Instead it sees the five offset removals and pays five 
 Raw production thresholds also need offset-aware arithmetic, but that is the same representation,
 not another entry.
 
-**Source:** `ProdOffset` and `Production` in [resources.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/resources.pets),
-and `Player` in [game.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/game.pets).
+**Source:** `ProdOffset` and `Production` in [resources.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/base/resources.pets),
+and `Player` in [game.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/base/game.pets).
 
 ### 4. The solo opponent's unlimited backing is a finite stock
 
@@ -157,7 +157,7 @@ has only 42. An explicit solo branch would repair this fan card by knowing about
 This example gives a determinate solo outcome rather than pretending that a neutral opponent has
 an official finite wealth to count.
 
-**Source:** `SoloStandardResourceReserve` in [solo.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/solo.pets).
+**Source:** `SoloStandardResourceReserve` in [solo.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/base/solo.pets).
 [CanonClassesTest](../../test/common/dev/martianzoo/tfm/tests/rules/CanonClassesTest.kt) exercises the
 backing stocks and their replenishment.
 
@@ -172,8 +172,8 @@ the two neutral city placements in the intended setup order. It sees neither; on
 substitute payout. This is the setup-order issue already tracked in TODO, generalized to a new
 corporation rather than another special payout.
 
-**Source:** `PlaceNeutralTiles` in [solo.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/solo.pets),
-`TharsisRepublic` in [base cards](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/cards.json5),
+**Source:** `PlaceNeutralTiles` in [solo.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/base/solo.pets),
+`TharsisRepublic` in [base cards](../../src/common/dev/martianzoo/tfm/canon/bundles/base/cards.json5),
 and [TharsisRepublicTest](../../test/common/dev/martianzoo/tfm/tests/cards/TharsisRepublicTest.kt).
 
 ### 7. L1 Trade Terminal's quota counts unrelated resource gains
@@ -187,7 +187,7 @@ animal consumes another Terminal allowance. A valid three-card distribution can 
 or the player can satisfy the counter with fewer Terminal gifts than the card requires.
 
 **Source:** `L1TradeTerminal` and its `L1GiftWatcher` component in
-[Prelude 2 cards](../../src/common/dev/martianzoo/tfm/canon/Prelude2CardPack/cards.json5),
+[Prelude 2 cards](../../src/common/dev/martianzoo/tfm/canon/bundles/prelude2/cards.json5),
 and the L1 scenarios in [L1TradeTerminalTest](../../test/common/dev/martianzoo/tfm/tests/cards/L1TradeTerminalTest.kt).
 
 ## Acquisition events standing in for particular game actions
@@ -208,7 +208,7 @@ oxygen still incomplete, `GreeneryTile.This` raises oxygen again; the area's til
 issues another `Placement` for an already occupied hex.
 
 **Source:** `MarsArea`, `Tile`, and `GreeneryTile` in
-[board.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/board.pets).
+[board.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/base/board.pets).
 
 ### 9. Changing a colony's owner looks like building it again
 
@@ -221,8 +221,8 @@ a Ceres colony nevertheless grants steel production; Europa offers another ocean
 `Colony<Anyone>` listener also treats this as a newly built colony.
 
 **Source:** `Ceres`, `Europa`, and `Colony` in
-[colonies.pets](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/colonies.pets), and `Poseidon`
-in [Colonies cards](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/cards.json5).
+[colonies.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/colonies/colonies.pets), and `Poseidon`
+in [Colonies cards](../../src/common/dev/martianzoo/tfm/canon/bundles/colonies/cards.json5).
 
 ### 10. Changing a played card's owner replays its direct effects
 
@@ -236,8 +236,8 @@ leaving production unchanged. This is more than another card reacting to the acq
 own direct effect repeats.
 
 **Source:** `onGainEffect` in [Transforming.kt](../../src/common/dev/martianzoo/pets/Transforming.kt),
-`CardFront` in [card-model.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets),
-and `Mine` in [Corporate Era cards](../../src/common/dev/martianzoo/tfm/canon/CorporateEraExpansion/cards.json5).
+`CardFront` in [card-model.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/base/card-model.pets),
+and `Mine` in [Corporate Era cards](../../src/common/dev/martianzoo/tfm/canon/bundles/corpera/cards.json5).
 
 ### 11. An action-use event occurs before its cost succeeds
 
@@ -251,7 +251,7 @@ With only one microbe on Regolith Eaters, the fan reward can run before the two-
 oxygen action. That action should be unavailable; the refund should arrive only after paying.
 
 **Source:** `actionToEffect` in [Transforming.kt](../../src/common/dev/martianzoo/pets/Transforming.kt),
-`RegolithEaters` in [base cards](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/cards.json5),
+`RegolithEaters` in [base cards](../../src/common/dev/martianzoo/tfm/canon/bundles/base/cards.json5),
 and the current-divergence account in [SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over).
 
 ## Inferring printed rules from a limited Pets spelling
@@ -298,7 +298,7 @@ and gains two actual plants. Astra Mechanica sees the signal gain but no `Specia
 event declaration, so it can recover an event its special-tile restriction should exclude.
 
 **Source:** `GainsOf` in [TfmEngine.kt](../../src/common/dev/martianzoo/tfm/engine/TfmEngine.kt) and `AstraMechanica` in
-[promo cards](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.json5).
+[promo cards](../../src/common/dev/martianzoo/tfm/canon/bundles/promos/cards.json5).
 
 ### 17. Requirement adjustments only understand one simple parameter requirement
 
@@ -311,8 +311,8 @@ With Inventrix, oxygen 6% and two Science tags should suffice. Ordinary evaluati
 printed conjunction, and the shortfall helper cannot expose its adjustable oxygen part.
 
 **Source:** `GpRequirementShortfall` in [TfmEngine.kt](../../src/common/dev/martianzoo/tfm/engine/TfmEngine.kt),
-`PlayCard` in [card-model.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets),
-and `Inventrix` in [base cards](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/cards.json5).
+`PlayCard` in [card-model.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/base/card-model.pets),
+and `Inventrix` in [base cards](../../src/common/dev/martianzoo/tfm/canon/bundles/base/cards.json5).
 
 ### 18. Played-event scoring recognizes only an exactly bare End trigger
 
@@ -325,7 +325,7 @@ condition is satisfied at game end, this effect is absent from the scoring helpe
 Writing `End: (3 GreeneryTile: 2 VictoryPoint)` would accommodate the helper instead.
 
 **Source:** `ScoreEventVps` in [TfmEngine.kt](../../src/common/dev/martianzoo/tfm/engine/TfmEngine.kt),
-`EventCard` and `PlayedEvent` in [card-model.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets),
+`EventCard` and `PlayedEvent` in [card-model.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/base/card-model.pets),
 and conditional-trigger structure in [Effect.kt](../../src/common/dev/martianzoo/pets/ast/Effect.kt).
 This is a limitation of restoring an event's scoring rule, not a criticism of scoring at End.
 
@@ -346,8 +346,8 @@ not retain the fact needed to compose it internally.
 
 This illustrates the remaining information loss for unplayed cards.
 
-**Source:** `PublicPlans` in [promo cards](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.json5),
-`CardBack` and `SearchForCard` in [card-model.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets),
+**Source:** `PublicPlans` in [promo cards](../../src/common/dev/martianzoo/tfm/canon/bundles/promos/cards.json5),
+`CardBack` and `SearchForCard` in [card-model.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/base/card-model.pets),
 and the owning design in [CARD_HANDLING.md](CARD_HANDLING.md).
 
 ## Watcher scope, political state, and payment boundaries
@@ -367,9 +367,9 @@ A distinguishing scenario uses the two-steel ocean space Tharsis (1,2) and the o
 space (8,9): the shortcut produces **6 steel and 1 titanium**, rather than **2 steel and 3 titanium**.
 
 **Source:** `FrontierTown` and `FrontierTownBonus` in
-[Prelude 2 cards](../../src/common/dev/martianzoo/tfm/canon/Prelude2CardPack/cards.json5),
+[Prelude 2 cards](../../src/common/dev/martianzoo/tfm/canon/bundles/prelude2/cards.json5),
 `RepeatPlacementBonus` in [TfmEngine.kt](../../src/common/dev/martianzoo/tfm/engine/TfmEngine.kt), and
-[Tharsis map](../../src/common/dev/martianzoo/tfm/canon/TharsisMap/tharsis.pets).
+[Tharsis map](../../src/common/dev/martianzoo/tfm/canon/bundles/tharsis/tharsis.pets).
 
 ### 21. Delegate removal relies on Banned Delegate to repair leadership
 
@@ -385,9 +385,9 @@ one, your opponent has two, but you incorrectly remain party leader. That also a
 leadership benefits and scoring.
 
 **Source:** `PartyDelegate` and `PartyLeader` in
-[Turmoil classes](../../src/common/dev/martianzoo/tfm/canon/TurmoilExpansion/classes.pets), and
+[Turmoil classes](../../src/common/dev/martianzoo/tfm/canon/bundles/turmoil/classes.pets), and
 `BannedDelegateRemoval` in Banned Delegate's `components` in
-[Turmoil cards.json5](../../src/common/dev/martianzoo/tfm/canon/TurmoilExpansion/cards.json5).
+[Turmoil cards.json5](../../src/common/dev/martianzoo/tfm/canon/bundles/turmoil/cards.json5).
 
 ### 22. Political influence is a snapshot, not a live quantity
 
@@ -405,8 +405,8 @@ current influence or know to invoke the snapshot machinery.
 This concerns current political influence, not victory points existing before final scoring.
 
 **Source:** `MeasureInfluence`, `Influence`, and its providers in
-[Turmoil classes](../../src/common/dev/martianzoo/tfm/canon/TurmoilExpansion/classes.pets), and
-`Politician` in [goals.pets](../../src/common/dev/martianzoo/tfm/canon/MilestonesAwardsExpansion/goals.pets).
+[Turmoil classes](../../src/common/dev/martianzoo/tfm/canon/bundles/turmoil/classes.pets), and
+`Politician` in [goals.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/goals/goals.pets).
 
 ### 23. A funded award retains no funder
 
@@ -419,8 +419,8 @@ supply historical evidence to a human; ordinary card conditions and counts canno
 components. Counting all `Award` components would pay for other players' funding too. A watcher
 installed when Civic Patronage enters play cannot recover the earlier funding.
 
-**Source:** `Award` in [scoring.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/scoring.pets)
-and `FundAward` in [actions.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/actions.pets).
+**Source:** `Award` in [scoring.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/base/scoring.pets)
+and `FundAward` in [actions.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/base/actions.pets).
 
 ### 24. Nested bills share debt and accepted resources
 
@@ -437,7 +437,7 @@ even though the fan effect grants no such permission. The probe bought Mine and 
 using three steel and zero M€: one steel toward Mine, then two steel against the combined balance.
 
 **Source:** `Owed`, `Billing`, `Accepting`, and `ResourceValue` in
-[payment.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets), and action
+[payment.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/base/payment.pets), and action
 billing in [TfmActionLowerer.kt](../../src/common/dev/martianzoo/tfm/canon/TfmActionLowerer.kt).
 
 ## Audit limits

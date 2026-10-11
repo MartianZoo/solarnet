@@ -22,11 +22,11 @@ internal class CatalogTest {
             .map(::parseOneLinerClass)
             .toSet()
     val first =
-        object : Bundle(cn("First")) {
+        object : Bundle("first") {
           override val explicitClassDeclarations = declarations
         }
     val second =
-        object : Bundle(cn("Second")) {
+        object : Bundle("second") {
           override val explicitClassDeclarations = declarations
         }
 
@@ -48,7 +48,7 @@ internal class CatalogTest {
   internal fun moduleOnlySelectsCardsInItsMatchingResourceGroup() {
     val card = parseOneLinerClass("CLASS ExampleCard : CardFront<Class<CardBack>>")
     val source =
-        object : Bundle(cn("ExampleBundle")) {
+        object : Bundle("example") {
           override val explicitClassDeclarations =
               setOf(
                   parseOneLinerClass("ABSTRACT CLASS Module"),
@@ -68,9 +68,9 @@ internal class CatalogTest {
   internal fun concreteSubclassesCanBeFoundByBundle() {
     val source =
         TfmCatalog(
-            bundle("Types", "ABSTRACT CLASS Goal"),
+            bundle("types", "ABSTRACT CLASS Goal"),
             bundle(
-                "Goals",
+                "goals",
                 """
                 ABSTRACT CLASS AbstractGoal : Goal
                 CLASS DirectGoal : Goal
@@ -78,10 +78,10 @@ internal class CatalogTest {
                 """
                     .trimIndent(),
             ),
-            bundle("OtherGoals", "CLASS OtherGoal : Goal"),
+            bundle("othergoals", "CLASS OtherGoal : Goal"),
         )
 
-    source.classNamesInBundle(cn("Goals"), cn("Goal")) shouldBe
+    source.classNamesInBundle("goals", cn("Goal")) shouldBe
         setOf(cn("DirectGoal"), cn("SpecializedGoal"))
   }
 
@@ -90,7 +90,7 @@ internal class CatalogTest {
     val source =
         TfmCatalog(
             bundle(
-                "Rules",
+                "rules",
                 """
                 ABSTRACT CLASS Module
                 CLASS MultiplayerMode : Module
@@ -100,7 +100,7 @@ internal class CatalogTest {
                     .trimIndent(),
             ),
             bundle(
-                "SparseMap",
+                "sparse",
                 """
                 CLASS SparseMap : Module
                 CLASS FirstMilestone : Milestone
@@ -110,6 +110,7 @@ internal class CatalogTest {
                 CLASS ThirdAward : Award
                 """
                     .trimIndent(),
+                primaryModuleName = cn("SparseMap"),
             ),
         )
 
@@ -132,7 +133,7 @@ internal class CatalogTest {
     val source =
         TfmCatalog(
             bundle(
-                "Rules",
+                "rules",
                 """
                 ABSTRACT CLASS Module
                 CLASS MultiplayerMode : Module
@@ -141,7 +142,7 @@ internal class CatalogTest {
                     .trimIndent(),
             ),
             bundle(
-                "SparseMap",
+                "sparse",
                 """
                 CLASS SparseMap : Module
                 CLASS GoalMetric : CustomMetric
@@ -163,12 +164,13 @@ internal class CatalogTest {
   internal fun cardResourceFragmentsActivateTheirCardsAndUnreferencedDeclarations() {
     val source =
         StandardFormBundle(
-            name = "CardPack",
-            resourceDirectory = "CardPack",
+            name = "cardpack",
+            primaryModuleName = cn("CardPack"),
+            resourceDirectory = "cardpack",
             resourceFilenames = setOf("support.pets", "cards.pets", "handwritten.cards.pets"),
             resourceReader = { path ->
               when (path) {
-                "CardPack/support.pets" ->
+                "cardpack/support.pets" ->
                     """
                     ABSTRACT CLASS Module
                     ABSTRACT CLASS CardBack
@@ -176,13 +178,13 @@ internal class CatalogTest {
                     CLASS CardPack : Module
                     """
                         .trimIndent()
-                "CardPack/cards.pets" ->
+                "cardpack/cards.pets" ->
                     """
                     CLASS ExampleCard : CardFront<Class<CardBack>>
                     CLASS PassiveHelper
                     """
                         .trimIndent()
-                "CardPack/handwritten.cards.pets" ->
+                "cardpack/handwritten.cards.pets" ->
                     "CLASS HandwrittenCard : CardFront<Class<CardBack>>"
                 else -> error("Unexpected resource $path")
               }
@@ -201,10 +203,10 @@ internal class CatalogTest {
     val source =
         TfmCatalog(
             bundle(
-                "Base",
+                "base",
                 "ABSTRACT CLASS Module\nABSTRACT CLASS CardBack\nABSTRACT CLASS CardFront<Class<CardBack>>\nCLASS Base : Module",
             ),
-            cardBundle("Cards", "ExampleCard"),
+            cardBundle("cards", "ExampleCard"),
         )
 
     val premise = source.gamePremise(GameConfig("Base, ExampleCard"))
@@ -216,7 +218,7 @@ internal class CatalogTest {
   internal fun bundleSelectionFiltersAndRejectsDependentContent() {
     val base =
         bundle(
-            "Base",
+            "base",
             """
             ABSTRACT CLASS Module
             ABSTRACT CLASS CardBack
@@ -232,13 +234,14 @@ internal class CatalogTest {
         )
     val feature =
         bundle(
-            "Feature",
+            "feature",
             """
             CLASS Feature : Module { HAS =1 Class<ObservedState>, =1 Class<LockedState> }
             CLASS ObservedState
             CLASS LockedState
             """
                 .trimIndent(),
+            primaryModuleName = cn("Feature"),
         )
     val cardDeclarations =
         """
@@ -253,13 +256,14 @@ internal class CatalogTest {
             .trimIndent()
     val contentPack =
         StandardFormBundle(
-            name = "ContentPack",
-            resourceDirectory = "ContentPack",
+            name = "content",
+            primaryModuleName = cn("ContentPack"),
+            resourceDirectory = "content",
             resourceFilenames = setOf("content.pets", "cards.pets"),
             resourceReader = { path ->
               when (path) {
-                "ContentPack/content.pets" -> "CLASS ContentPack : Module"
-                "ContentPack/cards.pets" -> cardDeclarations
+                "content/content.pets" -> "CLASS ContentPack : Module"
+                "content/cards.pets" -> cardDeclarations
                 else -> error("Unexpected resource $path")
               }
             },
@@ -314,13 +318,17 @@ internal class CatalogTest {
     explicitIndependent.isInhabited(independentCard) shouldBe true
   }
 
-  private fun bundle(name: String, declarations: String): Bundle =
-      object : Bundle(cn(name)) {
+  private fun bundle(
+      name: String,
+      declarations: String,
+      primaryModuleName: ClassName? = null,
+  ): Bundle =
+      object : Bundle(name, primaryModuleName) {
         override val explicitClassDeclarations = parseClasses(declarations).toSet()
       }
 
   private fun cardBundle(name: String, vararg cards: String): Bundle =
-      object : Bundle(cn(name)) {
+      object : Bundle(name) {
         override val explicitClassDeclarations =
             parseClasses(
                     cards.joinToString("\n") { card ->

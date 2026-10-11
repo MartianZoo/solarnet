@@ -93,7 +93,6 @@
         },
         {
           "name": "EcologyExperts",
-          "autoSelectWhen": "MAX 0 Prelude1CardPack",
           "tags": [ "PlantTag", "MicrobeTag" ],
           "direct": "PROD[Plant], PlayCard<Class<ProjectCard>, Class<CardFront>, Hand> THEN -Required / Required",
         },

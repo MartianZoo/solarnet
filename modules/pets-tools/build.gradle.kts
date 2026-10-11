@@ -6,7 +6,7 @@ plugins {
 val petsToolsSourceDirectory =
     rootProject.layout.projectDirectory.dir("src/jvm/dev/martianzoo/tfm/petstools")
 val canonSourceDirectory =
-    rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/canon")
+    rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/canon/bundles")
 
 kotlin {
   sourceSets {

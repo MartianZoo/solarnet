@@ -6,7 +6,7 @@ import dev.martianzoo.state.TaskResult
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.TestOption.FakeStuffBundle
-import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
+import dev.martianzoo.tfm.tests.TestOption.Prelude2Cards
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.TfmTest
@@ -62,7 +62,7 @@ internal class FakeWildTagTest : TfmTest() {
 
   @Test
   internal fun `Sagitta rewards a wild-only card as tagless`() {
-    game = setUpGame(canonicalPremise(PreludeExpansion, Prelude2CardPack, FakeStuffBundle))
+    game = setUpGame(canonicalPremise(PreludeExpansion, Prelude2Cards, FakeStuffBundle))
     kim.runOperation("$SagittaFrontierServices, ProjectCard")
     admin.phase("Action")
 
@@ -101,7 +101,7 @@ internal class FakeWildTagTest : TfmTest() {
   private fun interplanetaryTradeWithWildEvent(venus: Boolean) {
     val config =
         GameConfig(
-            "PreludeExpansion, PromoCardPack, CorporateEraExpansion, FakeStuffBundle, EcologyExperts, Unsafe" +
+            "PreludeExpansion, promos:cards, CorporateEraExpansion, FakeStuffBundle, EcologyExperts, Unsafe" +
                 if (venus) ", VenusNextExpansion" else "",
             "Player1",
             "Player2",

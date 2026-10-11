@@ -704,7 +704,7 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `selecting a task resolves a city already identified by area`() {
-    val game = TfmEngine.newGame(canonicalPremise(cn("PromoCardPack")))
+    val game = TfmEngine.newGame(canonicalPremise(cn("StJosephOfCupertinoMission")))
     val p1 = game.testAgent(PLAYER1)
     val p2 = game.testAgent(PLAYER2)
     p1.autoExecPolicy = NONE

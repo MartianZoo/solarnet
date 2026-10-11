@@ -21,8 +21,8 @@ import kotlin.test.assertSame
 internal class ClassTableSelectionTest {
   @Test
   internal fun `Promo global events are absent without the promo pack`() {
-    assertValidView("TurmoilExpansion, VenusNextExpansion, ColoniesExpansion, -PromoCardPack") {
-        view ->
+    assertValidView("TurmoilExpansion, VenusNextExpansion, ColoniesExpansion, -promos:cards") { view
+      ->
       assertOmitted(
           view,
           setOf(cn("MartianProtectionism"), cn("JovianColonyBoom"), cn("TitanVenusAlliance")),
@@ -32,8 +32,8 @@ internal class ClassTableSelectionTest {
 
   @Test
   internal fun `Venus global events require Venus even with the promo pack`() {
-    assertValidView("TurmoilExpansion, PromoCardPack, ColoniesExpansion, -VenusNextExpansion") {
-        view ->
+    assertValidView("TurmoilExpansion, promos:cards, ColoniesExpansion, -VenusNextExpansion") { view
+      ->
       assertSelected(view, setOf(cn("JovianColonyBoom")))
       assertOmitted(view, setOf(cn("MartianProtectionism"), cn("TitanVenusAlliance")))
     }
@@ -41,8 +41,8 @@ internal class ClassTableSelectionTest {
 
   @Test
   internal fun `Colony global events require Colonies even with Venus and the promo pack`() {
-    assertValidView("TurmoilExpansion, PromoCardPack, VenusNextExpansion, -ColoniesExpansion") {
-        view ->
+    assertValidView("TurmoilExpansion, promos:cards, VenusNextExpansion, -ColoniesExpansion") { view
+      ->
       assertSelected(view, setOf(cn("MartianProtectionism")))
       assertOmitted(view, setOf(cn("JovianColonyBoom"), cn("TitanVenusAlliance")))
     }
@@ -50,7 +50,7 @@ internal class ClassTableSelectionTest {
 
   @Test
   internal fun `Both expansions make the combined Venus colony events available`() {
-    assertValidView("TurmoilExpansion, PromoCardPack, VenusNextExpansion, ColoniesExpansion") { view
+    assertValidView("TurmoilExpansion, promos:cards, VenusNextExpansion, ColoniesExpansion") { view
       ->
       assertSelected(view, setOf(cn("TitanVenusAlliance"), cn("ImmigrationToVenus")))
     }
@@ -89,7 +89,6 @@ internal class ClassTableSelectionTest {
           assertSelected(
               view,
               setOf(example.module) +
-                  listOfNotNull(example.contentPack) +
                   example.intrinsicRules +
                   example.moduleSupport +
                   example.associatedNonPackContent +
@@ -109,10 +108,10 @@ internal class ClassTableSelectionTest {
           .filter { it.contentPack != null }
           .forEach { example ->
             val pack = requireNotNull(example.contentPack)
-            assertValidView(pack.toString()) { view ->
+            assertValidView(pack) { view ->
               assertSelected(
                   view,
-                  setOf(pack) + example.standaloneContent + example.contentSupport,
+                  example.standaloneContent + example.contentSupport,
               )
               assertOmitted(
                   view,
@@ -144,8 +143,7 @@ internal class ClassTableSelectionTest {
               )
               assertOmitted(
                   view,
-                  setOf(pack) +
-                      (example.contentSupport - example.moduleSupport) +
+                  (example.contentSupport - example.moduleSupport) +
                       example.standaloneContent +
                       example.moduleDependentContent,
               )
@@ -159,7 +157,7 @@ internal class ClassTableSelectionTest {
     assertSoftly {
       examples.forEach { example ->
         (listOf(example.module.toString()) +
-                listOfNotNull(example.contentPack?.toString()) +
+                listOfNotNull(example.contentPack) +
                 listOfNotNull(example.contentPack?.let { "${example.module}, -$it" }))
             .forEach { baseConfig ->
               assertValidView("$baseConfig, -${example.excludedContent}") { view ->
@@ -191,7 +189,6 @@ internal class ClassTableSelectionTest {
     listOf("PharmacyUnion", "Hospitals").forEach { card ->
       assertValidView(card) { view ->
         assertSelected(view, setOf(cn(card), cn("Disease")))
-        assertOmitted(view, setOf(cn("PromoCardPack")))
       }
     }
   }
@@ -200,7 +197,6 @@ internal class ClassTableSelectionTest {
   internal fun `card local instruction follows its card without the pack`() {
     assertValidView("IcyImpactors") { view ->
       assertSelected(view, setOf(cn("IcyImpactors"), cn("ChooseOceanArea")))
-      assertOmitted(view, setOf(cn("PromoCardPack")))
     }
   }
 
@@ -208,9 +204,8 @@ internal class ClassTableSelectionTest {
   internal fun `Mars Nomads marker follows its card without the pack`() {
     assertValidView("MarsNomads") { view ->
       assertSelected(view, setOf(cn("MarsNomads"), cn("NomadsMarker")))
-      assertOmitted(view, setOf(cn("PromoCardPack")))
     }
-    assertValidView("PromoCardPack, -MarsNomads") { view ->
+    assertValidView("promos:cards, -MarsNomads") { view ->
       assertOmitted(view, setOf(cn("MarsNomads"), cn("NomadsMarker")))
     }
   }
@@ -257,7 +252,7 @@ internal class ClassTableSelectionTest {
 
   @Test
   internal fun `Turmoil rules and events remain when its cards are individually excluded`() {
-    val bundle = cn("TurmoilExpansion")
+    val bundle = "turmoil"
     val declaredNames =
         Canon.bundles
             .single { it.bundleName == bundle }
@@ -267,11 +262,11 @@ internal class ClassTableSelectionTest {
     cards.containsAll(setOf(cn("AerialLenses"), cn("LakefrontResorts"))) shouldBe true
 
     // A narrower pool choice is resolved into individual exclusions before premise creation.
-    val config = (listOf(bundle.toString()) + cards.map { "-$it" }).joinToString(", ")
+    val config = (listOf("TurmoilExpansion") + cards.map { "-$it" }).joinToString(", ")
     assertValidView(config) { view ->
       assertSelected(
           view,
-          setOf(bundle, cn("Party"), cn("GlobalEvent"), cn("DemocraticReform")),
+          setOf(cn("TurmoilExpansion"), cn("Party"), cn("GlobalEvent"), cn("DemocraticReform")),
       )
       assertOmitted(view, cards)
     }
@@ -325,7 +320,7 @@ internal class ClassTableSelectionTest {
 
   @Test
   internal fun `guarded mode references do not force unavailable classes into selection`() {
-    val solo = gameView("Prelude1CardPack", "Me")
+    val solo = gameView("prelude:cards", "Me")
     val vitor = solo.classTable.getClass(cn("Vitor"))
 
     solo.classTable.isInhabited(cn("Vitor")) shouldBe true
@@ -432,7 +427,7 @@ internal class ClassTableSelectionTest {
   @Test
   internal fun `cross-bundle Colonies classes stay unselected without Colonies`() {
     // Promo has a Colonies-gated card; Utopia Planitia has a Colonies-gated milestone.
-    val bundle = Canon.bundles.single { it.bundleName == cn("ColoniesExpansion") }
+    val bundle = Canon.bundles.single { it.bundleName == "colonies" }
     fun contributedNames(catalog: TfmCatalog): Set<ClassName> = buildSet {
       catalog.explicitClassDeclarations.mapTo(this) { it.className }
       catalog.marsMapDefinitions.forEach { map ->
@@ -521,7 +516,7 @@ internal class ClassTableSelectionTest {
 
   private class ModuleContentExample(
       val module: ClassName,
-      val contentPack: ClassName? = null,
+      val contentPack: String? = null,
       val intrinsicRules: Set<ClassName>,
       val moduleSupport: Set<ClassName> = emptySet(),
       val associatedNonPackContent: Set<ClassName> = emptySet(),
@@ -536,7 +531,7 @@ internal class ClassTableSelectionTest {
       listOf(
           ModuleContentExample(
               module = cn("PreludeExpansion"),
-              contentPack = cn("Prelude1CardPack"),
+              contentPack = "prelude:cards",
               intrinsicRules = setOf(cn("PreludePhase")),
               moduleSupport = setOf(cn("PreludeCard")),
               contentSupport = setOf(cn("PreludeCard")),
@@ -586,13 +581,13 @@ internal class ClassTableSelectionTest {
   private val baseSolo = gameView("", "Me")
   private val promosUtopiaWithoutCorporateEra =
       gameView(
-          "PromoCardPack, UtopiaMap, -CorporateEraExpansion",
+          "promos:cards, UtopiaMap, -CorporateEraExpansion",
           "Player1",
           "Player2",
       )
   private val promosCimmeriaWithoutCorporateEra =
       gameView(
-          "PromoCardPack, CimmeriaMap, -CorporateEraExpansion",
+          "promos:cards, CimmeriaMap, -CorporateEraExpansion",
           "Player1",
           "Player2",
       )

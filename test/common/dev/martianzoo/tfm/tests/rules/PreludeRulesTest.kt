@@ -22,7 +22,7 @@ internal class PreludeRulesTest : TfmGameplayTest() {
   // https://boardgamegeek.com/thread/3412262/i-bit-confused-on-combining-this-and-prelude-1-int
   @Test
   internal fun `Both Prelude packs share the same two-card setup and a single Prelude phase`() {
-    newTestGame("PreludeExpansion, Prelude2CardPack", playerCount = 2)
+    newTestGame("PreludeExpansion, prelude2:cards", playerCount = 2)
     kim.count("PreludeCard") shouldBe 2
     stan.count("PreludeCard") shouldBe 2
 

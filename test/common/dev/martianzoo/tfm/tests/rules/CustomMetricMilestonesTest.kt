@@ -43,7 +43,7 @@ internal class CustomMetricMilestonesTest {
                 ColoniesExpansion,
                 Hellas,
                 VenusNextExpansion,
-                PromoCardPack,
+                PromoCards,
                 players = 2,
                 colonyTiles = testColonyTiles(2),
             )

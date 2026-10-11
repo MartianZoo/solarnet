@@ -8,7 +8,7 @@ plugins {
 val generateCardDataSources by
     tasks.registering(GenerateCatalogSources::class) {
       inputDirectory.set(
-          rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/canon")
+          rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/canon/bundles")
       )
       includedFileNames.set(setOf("cards.json5"))
       logicalPrefix.set("carddata")

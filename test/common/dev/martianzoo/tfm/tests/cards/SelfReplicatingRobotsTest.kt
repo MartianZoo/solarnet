@@ -868,7 +868,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   }
 
   private fun playTerminalWithHostedCard(choice: OperationBlock): TaskResult {
-    newTestGame(addOptions = "Prelude2CardPack, ColoniesExpansion, FakeStuffBundle")
+    newTestGame(addOptions = "prelude2:cards, ColoniesExpansion, FakeStuffBundle")
     kim.exMachina("$FakeSelfReplicatingRobots, $Pets, Animal<$Pets>")
     kim.setToExMachina(2, "ProjectCard")
     kim.inTurn {

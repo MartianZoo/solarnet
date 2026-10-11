@@ -20,7 +20,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       GameConfig(
           """
           VastitasMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack
+          VenusNextExpansion, PreludeExpansion, prelude2:cards, TurmoilExpansion, promos:cards
           ColoniesExpansion
           FakeStuffBundle
 

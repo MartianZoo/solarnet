@@ -214,7 +214,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Keeps Special Design when a Prelude intervenes before the next project`() {
-    newTestGame(addOptions = "PreludeExpansion, Prelude2CardPack")
+    newTestGame(addOptions = "PreludeExpansion, prelude2:cards")
     advanceUntilActionPhase()
     kim.exMachina("$BoardOfDirectors, Director<$BoardOfDirectors>, $AdaptationTechnology")
     kim.setToExMachina(13, "TemperatureStep")

@@ -94,8 +94,10 @@ internal fun canonicalPremise(
 ): GamePremise {
   val config =
       GameConfig.create(
-          included = options.map(TestOption::className) + colonyTiles,
-          excluded = excludedOptions.map(TestOption::className),
+          included = options.mapNotNull(TestOption::className) + colonyTiles,
+          excluded = excludedOptions.mapNotNull(TestOption::className),
+          includedCardBundles = options.mapNotNull(TestOption::cardBundleName),
+          excludedCardBundles = excludedOptions.mapNotNull(TestOption::cardBundleName),
           playerNames = Player.players(players).map(Player::className),
       )
   val defaultCatalog = canonicalCatalog(config)

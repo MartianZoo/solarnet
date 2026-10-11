@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
 internal class HellasPromoWithoutPreludeTest : AbstractFullGameTest() {
-  override val config = GameConfig("HellasMap, PromoCardPack", "Player1", "Player2")
+  override val config = GameConfig("HellasMap, promos:cards", "Player1", "Player2")
 
   @Test
   internal fun earlyGameWithNoPrelude() {

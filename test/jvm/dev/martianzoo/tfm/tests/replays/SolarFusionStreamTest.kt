@@ -19,7 +19,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
       GameConfig(
           """
           ElysiumMap
-          PreludeExpansion, PromoCardPack
+          PreludeExpansion, promos:cards
           FakeStuffBundle
 
           Builder, Philantropist, Spacefarer, Terraformer, Energizer

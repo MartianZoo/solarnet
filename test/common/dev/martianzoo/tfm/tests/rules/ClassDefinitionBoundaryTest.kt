@@ -75,8 +75,8 @@ internal class ClassDefinitionBoundaryTest {
   @Test
   internal fun `Prelude 2 cards needing Venus wait for Venus Next`() {
     val standardGame = classesInGame("")
-    val prelude2Game = classesInGame("Prelude2CardPack")
-    val prelude2WithVenus = classesInGame("Prelude2CardPack, VenusNextExpansion")
+    val prelude2Game = classesInGame("prelude2:cards")
+    val prelude2WithVenus = classesInGame("prelude2:cards, VenusNextExpansion")
 
     standardGame.shouldNotContain(cn("Ecotec"))
     prelude2Game.shouldContain(cn("Ecotec"))
@@ -110,7 +110,7 @@ internal class ClassDefinitionBoundaryTest {
   @Test
   internal fun `the promo pack selects the new Deimos Down instead of the original`() {
     val standardGame = classesInGame("")
-    val promoGame = classesInGame("PromoCardPack")
+    val promoGame = classesInGame("promos:cards")
 
     standardGame.shouldContain(cn("DeimosDown"))
     standardGame.shouldNotContain(cn("DeimosDownPromo"))

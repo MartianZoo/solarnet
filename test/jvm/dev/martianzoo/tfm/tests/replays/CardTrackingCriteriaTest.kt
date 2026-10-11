@@ -11,7 +11,7 @@ import kotlin.test.Test
 internal class CardTrackingCriteriaTest : CardTrackingFullGameTest() {
   override val config =
       GameConfig(
-          "PreludeExpansion, VenusNextExpansion, Prelude2CardPack, PromoCardPack, TurmoilExpansion",
+          "PreludeExpansion, VenusNextExpansion, prelude2:cards, promos:cards, TurmoilExpansion",
           "Player1",
       )
   internal override val producesReplayRecording = false

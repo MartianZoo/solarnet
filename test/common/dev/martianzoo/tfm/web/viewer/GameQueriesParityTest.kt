@@ -53,7 +53,7 @@ internal class GameQueriesParityTest {
   internal fun visibleLogSelectionHidesHiddenComponents() {
     val game =
         TfmEngine.newGame(
-            Canon.gamePremise(GameConfig("Prelude2CardPack, ColoniesExpansion", "Player1"))
+            Canon.gamePremise(GameConfig("prelude2:cards, ColoniesExpansion", "Player1"))
         )
 
     fun event(ordinal: Int, expression: String): ChangeEvent =

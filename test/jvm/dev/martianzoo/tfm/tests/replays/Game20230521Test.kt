@@ -16,7 +16,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
   override val config =
       GameConfig(
           """
-          VenusNextExpansion, PreludeExpansion, PromoCardPack
+          VenusNextExpansion, PreludeExpansion, promos:cards
           -WorldGovernmentRule
           """,
           "Player1",

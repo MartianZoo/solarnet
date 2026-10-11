@@ -31,7 +31,6 @@ private object TypeStructureReport {
           cn("PreludeExpansion"),
           cn("ColoniesExpansion"),
           cn("TurmoilExpansion"),
-          cn("PromoCardPack"),
       )
 
   fun createGame(): World {
@@ -41,6 +40,7 @@ private object TypeStructureReport {
         Canon.gamePremise(
             GameConfig.create(
                 included = selectedOptions + colonies,
+                includedCardBundles = listOf("promos"),
                 playerNames = (1..PLAYERS).map { cn("Player$it") },
             )
         )

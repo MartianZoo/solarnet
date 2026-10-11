@@ -210,7 +210,6 @@ Pets declaration:
 CLASS EcologyExperts : CardFront<Class<PreludeCard>> {
   HAS =1 PlantTag<This>, =1 MicrobeTag<This>
   cost = 0
-  autoSelectWhen = HAS "MAX 0 Prelude1CardPack"
   This: PROD[Plant], PlayCard<Class<ProjectCard>, Class<CardFront>, Hand> THEN -Required / Required
 }
 ```
@@ -1048,7 +1047,7 @@ Pets declaration:
 CLASS PreservationProgram : CardFront<Class<PreludeCard>> {
   HAS Class<PreservationTrWatcher>
   cost = 0
-  autoSelectWhen = HAS "Unsafe OR MAX 0 Prelude2CardPack"
+  autoSelectWhen = HAS "Unsafe"
   This: 5 TerraformRating
   X TerraformRating IF (ActionPhase, MAX 0 ActionPhaseTrGain):: -TerraformRating
 }

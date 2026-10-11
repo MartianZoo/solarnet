@@ -109,7 +109,7 @@ internal class GamePremiseTest {
   @Test
   internal fun observationalModuleReferencesDoNotCreateBootstrapDependencies() {
     val observers =
-        object : Bundle(cn("Observers")) {
+        object : Bundle("observers") {
           override val explicitClassDeclarations =
               parseClasses(
                       """
@@ -164,7 +164,7 @@ internal class GamePremiseTest {
         TfmEngine.newGame(
                 Canon.gamePremise(
                     GameConfig(
-                        "PreludeExpansion, Prelude2CardPack, -Prelude1CardPack",
+                        "PreludeExpansion, prelude2:cards, -prelude:cards",
                         "Player1",
                         "Player2",
                     )

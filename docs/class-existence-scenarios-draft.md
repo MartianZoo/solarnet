@@ -68,9 +68,9 @@ Test: [ClassDefinitionBoundaryTest, “Amazonis changes the rules for the Mars a
 Test: [ClassDefinitionBoundaryTest, “Prelude 2 cards needing Venus wait for Venus Next”](../test/common/dev/martianzoo/tfm/tests/rules/ClassDefinitionBoundaryTest.kt).
 
 - In the default game, `Ecotec` does not exist.
-- With `Prelude2CardPack`, `Ecotec` exists.
-- With `Prelude2CardPack`, `AtmosphericEnhancers` does not exist.
-- With `Prelude2CardPack, VenusNextExpansion`, `AtmosphericEnhancers` exists.
+- With `prelude2:cards`, `Ecotec` exists.
+- With `prelude2:cards`, `AtmosphericEnhancers` does not exist.
+- With `prelude2:cards, VenusNextExpansion`, `AtmosphericEnhancers` exists.
 
 ### A chosen card brings the right card back
 
@@ -94,8 +94,8 @@ Test: [ClassDefinitionBoundaryTest, “the promo pack selects the new Deimos Dow
 
 - In the default game, `DeimosDown` exists.
 - In the default game, `DeimosDownPromo` does not exist.
-- With `PromoCardPack`, `DeimosDown` does not exist.
-- With `PromoCardPack`, `DeimosDownPromo` exists.
+- With `promos:cards`, `DeimosDown` does not exist.
+- With `promos:cards`, `DeimosDownPromo` exists.
 
 ## 4. Modules and individual content
 
@@ -103,10 +103,10 @@ Test: [ClassDefinitionBoundaryTest, “the promo pack selects the new Deimos Dow
 
 Test: [ClassTableSelectionTest, “Content packs select only Content usable without their module” and “a module can exclude its associated card Content pack”](../test/common/dev/martianzoo/tfm/tests/rules/ClassTableSelectionTest.kt).
 
-- With `Prelude1CardPack` alone, `Vitor` exists.
-- With `Prelude1CardPack` alone, `PreludePhase` does not exist.
-- With `PreludeExpansion, -Prelude1CardPack`, `PreludePhase` exists.
-- With `PreludeExpansion, -Prelude1CardPack`, `Vitor` does not exist.
+- With `prelude:cards` alone, `Vitor` exists.
+- With `prelude:cards` alone, `PreludePhase` does not exist.
+- With `PreludeExpansion, -prelude:cards`, `PreludePhase` exists.
+- With `PreludeExpansion, -prelude:cards`, `Vitor` does not exist.
 
 ### Expansion rules and compatible standalone cards
 
@@ -143,15 +143,15 @@ Tests: [ClassTableSelectionTest, “shared promo card resource follows either ca
 - With either `PharmacyUnion` or `Hospitals` explicitly chosen, `Disease` exists.
 - With `IcyImpactors` explicitly chosen, `ChooseOceanArea` exists.
 - With `MarsNomads` explicitly chosen, `NomadsMarker` exists.
-- With `PromoCardPack, -MarsNomads`, `NomadsMarker` does not exist.
+- With `promos:cards, -MarsNomads`, `NomadsMarker` does not exist.
 
 ### References across packs do not turn on whole expansions
 
 Test: [ClassTableSelectionTest, “cross-bundle prelude Content selects its card back without Prelude rules” and “cross-bundle Venus classes stay unselected without Venus Next”](../test/common/dev/martianzoo/tfm/tests/rules/ClassTableSelectionTest.kt).
 
-- With `PromoCardPack, UtopiaMap, -CorporateEraExpansion`, `PreludeCard` exists.
-- With `PromoCardPack, UtopiaMap, -CorporateEraExpansion`, `PreludePhase` does not exist.
-- With `PromoCardPack, CimmeriaMap, -CorporateEraExpansion`, `VenusStep` does not exist.
+- With `promos:cards, UtopiaMap, -CorporateEraExpansion`, `PreludeCard` exists.
+- With `promos:cards, UtopiaMap, -CorporateEraExpansion`, `PreludePhase` does not exist.
+- With `promos:cards, CimmeriaMap, -CorporateEraExpansion`, `VenusStep` does not exist.
 
 ## 5. Milestones and other goals
 
@@ -189,5 +189,5 @@ Test: [ClassTableSelectionTest, “known selected and inhabited are different qu
 
 Test: [ClassTableSelectionTest, “guarded mode references do not force unavailable classes into selection”](../test/common/dev/martianzoo/tfm/tests/rules/ClassTableSelectionTest.kt).
 
-- In a **solo** game with `Prelude1CardPack`, `FirstPlace` does not exist.
-- In a **solo** game with `Prelude1CardPack`, `SecondPlace` does not exist.
+- In a **solo** game with `prelude:cards`, `FirstPlace` does not exist.
+- In a **solo** game with `prelude:cards`, `SecondPlace` does not exist.

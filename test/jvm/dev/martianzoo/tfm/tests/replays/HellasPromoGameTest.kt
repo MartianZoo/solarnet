@@ -12,7 +12,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
       GameConfig(
           """
           HellasMap
-          PromoCardPack, PreludeExpansion
+          promos:cards, PreludeExpansion
           """,
           "Player1",
           "Player2",

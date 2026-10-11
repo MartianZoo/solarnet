@@ -599,7 +599,6 @@ Pets declaration:
 CLASS DeimosDown : EventCard {
   HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 31
-  autoSelectWhen = HAS "MAX 0 PromoCardPack"
   This: 3 TemperatureStep, 4 Steel, -8 Plant<Anyone>?
 }
 ```
@@ -1041,7 +1040,6 @@ CLASS GreatDam : AutomatedCard {
   HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 12
   requirement = HAS "4 OceanTile"
-  autoSelectWhen = HAS "MAX 0 PromoCardPack"
   This: PROD[2 Energy]
   End: VictoryPoint
 }
@@ -1553,7 +1551,6 @@ Pets declaration:
 CLASS MagneticFieldGenerators : AutomatedCard {
   HAS =1 BuildingTag<This>
   cost = 20
-  autoSelectWhen = HAS "MAX 0 PromoCardPack"
   This: PROD[-4 Energy, 2 Plant], 3 TerraformRating
 }
 ```
@@ -6814,7 +6811,7 @@ Pets declaration:
 
 ```pets
 CLASS CrashSiteCleanup : EventCard {
-  HAS =1 EventTag<This>
+  HAS =1 EventTag<This>, Class<AttackHistoryWatcher>
   cost = 4
   requirement = HAS "MyResourceWasRemoved<Anyone, Class<Plant>, Me@>"
   This: Titanium OR 2 Steel
@@ -7231,7 +7228,7 @@ Pets declaration:
 
 ```pets
 CLASS LawSuit : EventCard {
-  HAS =1 EarthTag<This>, =1 EventTag<This>
+  HAS =1 EarthTag<This>, =1 EventTag<This>, Class<AttackHistoryWatcher>
   cost = 2
   This: (MyResourceWasRemoved<Me@, Attacker@Player> OR MyProductionWasDecreased<Me@, Attacker@Player>): 3 MC FROM MC<Attacker@Player> THEN PlayedEvent<Attacker@Player, Class<This>> FROM This
   End: -VictoryPoint

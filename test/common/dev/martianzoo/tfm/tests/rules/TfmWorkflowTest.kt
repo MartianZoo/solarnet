@@ -21,7 +21,7 @@ import dev.martianzoo.tfm.tests.TestOption.BeginnerVariant
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.TestOption.Hellas
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
+import dev.martianzoo.tfm.tests.TestOption.PromoCards
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -297,7 +297,7 @@ internal class TfmWorkflowTest {
 
   @Test
   internal fun turnDeclinesAnUnusedSecondAction() {
-    val game = TfmEngine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
+    val game = TfmEngine.newGame(canonicalPremise(Hellas, PromoCards, players = 2))
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
@@ -317,7 +317,7 @@ internal class TfmWorkflowTest {
 
   @Test
   internal fun soleRemainingPlayerDoesNotReceiveSecondActions() {
-    val game = TfmEngine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
+    val game = TfmEngine.newGame(canonicalPremise(Hellas, PromoCards, players = 2))
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)

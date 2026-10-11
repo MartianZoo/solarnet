@@ -10,7 +10,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
   override val config =
       GameConfig(
           """
-          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, PromoCardPack
+          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, promos:cards
           FakeStuffBundle
           Tr63SoloObjective
           Callisto, Ganymede, Luna, Miranda

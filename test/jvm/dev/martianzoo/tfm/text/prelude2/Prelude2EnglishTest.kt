@@ -6,7 +6,7 @@ import dev.martianzoo.tfm.canon.Canon
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class Prelude2CardPackEnglishTest {
+internal class Prelude2EnglishTest {
   private val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
 
   @Test

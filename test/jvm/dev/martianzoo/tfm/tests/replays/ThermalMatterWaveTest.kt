@@ -12,7 +12,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
   override val config =
       GameConfig(
           """
-          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, PromoCardPack, Tr63SoloObjective
+          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, promos:cards, Tr63SoloObjective
           Ceres, Io, Miranda, Triton
           """,
           "Player1",

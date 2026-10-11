@@ -113,7 +113,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       GameConfig(
           """
           CimmeriaMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, ColoniesExpansion, PromoCardPack
+          VenusNextExpansion, PreludeExpansion, prelude2:cards, ColoniesExpansion, promos:cards
           FakeStuffBundle
 
           Engineer, Fundraiser, Landshaper, Merchant, Metallurgist

@@ -68,7 +68,7 @@
           "actions": [ "3 MC -> HasRaisedTr: TerraformRating" ],
           "invariants": [ "Class<TrWatcher>" ],
           "components": [
-            // Must be identical to Pristar's declarations in TurmoilExpansion.
+            // Must be identical to Pristar's declarations in the turmoil bundle.
             "CLASS HasRaisedTr<GenerationScope> : Owned, System, Hidden { HAS MAX 1 This }",
             // PP counts attempts automatically; only its second and later Action-phase gains qualify.
             "CLASS TrWatcher : CardWatcher { TerraformRating IF MAX 0 HasRaisedTr, (MAX 0 ActionPhase OR MAX 0 PreservationProgram OR 2 ActionPhaseTrGain): HasRaisedTr. }"
@@ -292,7 +292,6 @@
         {
           "name": "DeimosDown",
           "cost": 31,
-          "autoSelectWhen": "MAX 0 PromoCardPack",
           "tags": [ "SpaceTag", "EventTag" ],
           "direct": "3 TemperatureStep, 4 Steel, -8 Plant<Anyone>?",
         },
@@ -454,7 +453,6 @@
           "name": "GreatDam",
           "requirement": "4 OceanTile",
           "cost": 12,
-          "autoSelectWhen": "MAX 0 PromoCardPack",
           "tags": [ "PowerTag", "BuildingTag" ],
           "direct": "PROD[2 Energy]",
           "effects": [ "End: VictoryPoint" ],
@@ -631,7 +629,6 @@
         {
           "name": "MagneticFieldGenerators",
           "cost": 20,
-          "autoSelectWhen": "MAX 0 PromoCardPack",
           "tags": [ "BuildingTag" ],
           "direct": "PROD[-4 Energy, 2 Plant], 3 TerraformRating",
         },

@@ -1,4 +1,0 @@
-"The Prelude 1 card pool, selected by Prelude rules, Valley Trust, or WG Project"
-CLASS Prelude1CardPack : Module {
-  autoSelectWhen = HAS "PreludeExpansion OR ((ValleyTrust OR WgProject), MAX 0 Prelude2CardPack)"
-}

@@ -21,7 +21,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
       GameConfig(
           """
           HellasMap
-          PreludeExpansion, PromoCardPack
+          PreludeExpansion, promos:cards
 
           Mayor, Diversifier, Trader, Sponsor, Tycoon
           Biologist, SpaceBaron, Forecaster, Botanist, Collector

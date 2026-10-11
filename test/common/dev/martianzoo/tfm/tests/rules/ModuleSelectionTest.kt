@@ -45,31 +45,13 @@ internal class ModuleSelectionTest {
         selectsExactly = multiplayerWith("VenusNextExpansion", "WorldGovernmentRule"),
         excludingItSelectsExactly = multiplayerWith("VenusNextExpansion"),
     )
-    defaultMayBeExcluded(
-        default = "Prelude1CardPack",
-        whenSelecting = "PreludeExpansion",
-        selectsExactly = multiplayerWith("PreludeExpansion", "Prelude1CardPack"),
-        excludingItSelectsExactly = multiplayerWith("PreludeExpansion"),
-    )
-    defaultMayBeExcluded(
-        default = "Prelude1CardPack",
-        whenSelecting = "ValleyTrust",
-        selectsExactly = multiplayerWith("Prelude1CardPack"),
-        excludingItSelectsExactly = multiplayerWith(),
-    )
-    defaultMayBeExcluded(
-        default = "Prelude1CardPack",
-        whenSelecting = "WgProject, TurmoilExpansion",
-        selectsExactly = multiplayerWith("Prelude1CardPack", "TurmoilExpansion"),
-        excludingItSelectsExactly = multiplayerWith("TurmoilExpansion"),
+    resolvesToExactly(
+        "ValleyTrust, prelude2:cards",
+        multiplayerWith(),
     )
     resolvesToExactly(
-        "ValleyTrust, Prelude2CardPack",
-        multiplayerWith("Prelude2CardPack"),
-    )
-    resolvesToExactly(
-        "WgProject, TurmoilExpansion, Prelude2CardPack",
-        multiplayerWith("TurmoilExpansion", "Prelude2CardPack"),
+        "WgProject, TurmoilExpansion, prelude2:cards",
+        multiplayerWith("TurmoilExpansion"),
     )
     defaultMayBeExcluded(
         default = "QuickStartVariant",
@@ -123,12 +105,9 @@ internal class ModuleSelectionTest {
     )
     resolvesToExactly("WorldGovernmentRule", multiplayerWith("WorldGovernmentRule"))
 
-    resolvesToExactly("Prelude1CardPack", multiplayerWith("Prelude1CardPack"))
-    resolvesToExactly("Prelude2CardPack", multiplayerWith("Prelude2CardPack"))
-    resolvesToExactly(
-        "Prelude1CardPack, Prelude2CardPack",
-        multiplayerWith("Prelude1CardPack", "Prelude2CardPack"),
-    )
+    resolvesToExactly("prelude:cards", multiplayerWith())
+    resolvesToExactly("prelude2:cards", multiplayerWith())
+    resolvesToExactly("prelude:cards, prelude2:cards", multiplayerWith())
 
     resolvesToExactly("TurmoilExpansion", multiplayerWith("TurmoilExpansion"))
     resolvesToExactly("QuickStartVariant", multiplayerWith("QuickStartVariant"))
@@ -139,7 +118,7 @@ internal class ModuleSelectionTest {
     val base = defaultMultiplayer - cn("CorporateEraExpansion") + cn("QuickStartVariant")
     mapOf(
             "VenusNextExpansion" to names("VenusNextExpansion, WorldGovernmentRule"),
-            "PreludeExpansion" to names("PreludeExpansion, Prelude1CardPack"),
+            "PreludeExpansion" to names("PreludeExpansion"),
             "ColoniesExpansion" to names("ColoniesExpansion"),
             "TurmoilExpansion" to names("TurmoilExpansion"),
         )
@@ -153,7 +132,7 @@ internal class ModuleSelectionTest {
     val base = defaultSolo - cn("StandardSoloObjective") + cn("Tr63SoloObjective")
     mapOf(
             "VenusNextExpansion" to names("VenusNextExpansion, WorldGovernmentRule"),
-            "PreludeExpansion" to names("PreludeExpansion, Prelude1CardPack"),
+            "PreludeExpansion" to names("PreludeExpansion"),
             "ColoniesExpansion" to names("ColoniesExpansion"),
             "TurmoilExpansion" to names("TurmoilExpansion"),
         )
@@ -165,12 +144,12 @@ internal class ModuleSelectionTest {
   @Test
   internal fun `optional content accepts standard or nonstandard pools`() {
     resolvesToExactly(
-        "PreludeExpansion, Prelude2CardPack",
-        multiplayerWith("PreludeExpansion", "Prelude1CardPack", "Prelude2CardPack"),
+        "PreludeExpansion, prelude2:cards",
+        multiplayerWith("PreludeExpansion"),
     )
     resolvesToExactly(
-        "PreludeExpansion, Prelude2CardPack, -Prelude1CardPack",
-        multiplayerWith("PreludeExpansion", "Prelude2CardPack"),
+        "PreludeExpansion, prelude2:cards, -prelude:cards",
+        multiplayerWith("PreludeExpansion"),
     )
 
     resolvesToExactly(
@@ -309,61 +288,65 @@ internal class ModuleSelectionTest {
 
   @Test
   internal fun `Terraforming Deal stays in the normal Prelude 2 pool`() {
-    val safe = classTable("Prelude2CardPack, TurmoilExpansion")
+    val safe = classTable("prelude2:cards, TurmoilExpansion")
     safe.isInhabited(cn("TerraformingDeal")) shouldBe true
     safe.isInhabited(cn("PreservationProgram")) shouldBe false
 
-    rejects("Prelude2CardPack, PreservationProgram")
+    rejects("prelude2:cards, PreservationProgram")
     rejects("TurmoilExpansion, PreservationProgram")
-    classTable("Prelude2CardPack, PreservationProgram, -TerraformingDeal")
+    classTable("prelude2:cards, PreservationProgram, -TerraformingDeal")
         .isInhabited(cn("PreservationProgram")) shouldBe true
-    classTable("Prelude2CardPack, TurmoilExpansion, Unsafe")
+    classTable("prelude2:cards, TurmoilExpansion, Unsafe")
         .isInhabited(cn("PreservationProgram")) shouldBe true
   }
 
   @Test
   internal fun `Merger takes precedence when Sagitta is also available`() {
-    val normal = classTable("PromoCardPack, Prelude2CardPack")
+    val normal = classTable("promos:cards, prelude2:cards")
     normal.isInhabited(cn("Merger")) shouldBe true
     normal.isInhabited(cn("SagittaFrontierServices")) shouldBe false
 
-    val explicitSagitta = classTable("PromoCardPack, Prelude2CardPack, SagittaFrontierServices")
+    val explicitSagitta = classTable("promos:cards, prelude2:cards, SagittaFrontierServices")
     explicitSagitta.isInhabited(cn("SagittaFrontierServices")) shouldBe true
     explicitSagitta.isInhabited(cn("Merger")) shouldBe false
 
-    rejects("PromoCardPack, Prelude2CardPack, Merger, SagittaFrontierServices")
-    val unsafe = classTable("PromoCardPack, Prelude2CardPack, Unsafe")
+    val explicitMerger = classTable("prelude2:cards, Merger")
+    explicitMerger.isInhabited(cn("Merger")) shouldBe true
+    explicitMerger.isInhabited(cn("SagittaFrontierServices")) shouldBe false
+
+    rejects("promos:cards, prelude2:cards, Merger, SagittaFrontierServices")
+    val unsafe = classTable("promos:cards, prelude2:cards, Unsafe")
     unsafe.isInhabited(cn("Merger")) shouldBe true
     unsafe.isInhabited(cn("SagittaFrontierServices")) shouldBe true
   }
 
   @Test
   internal fun `Ecology Experts is absent from normal Prelude 1 selection`() {
-    classTable("Prelude1CardPack").isInhabited(cn("EcologyExperts")) shouldBe false
-    classTable("Prelude1CardPack, Unsafe").isInhabited(cn("EcologyExperts")) shouldBe false
-    classTable("Prelude1CardPack, EcologyExperts, Unsafe")
-        .isInhabited(cn("EcologyExperts")) shouldBe true
+    classTable("prelude:cards").isInhabited(cn("EcologyExperts")) shouldBe false
+    classTable("prelude:cards, Unsafe").isInhabited(cn("EcologyExperts")) shouldBe false
+    classTable("prelude:cards, EcologyExperts, Unsafe").isInhabited(cn("EcologyExperts")) shouldBe
+        true
   }
 
   @Test
   internal fun `Ecology Experts and Viral Enhancers require Unsafe`() {
-    rejects("Prelude1CardPack, EcologyExperts, -EcologicalZone, -Decomposers, -GmoContract")
+    rejects("prelude:cards, EcologyExperts, -EcologicalZone, -Decomposers, -GmoContract")
   }
 
   @Test
   internal fun `Ecology Experts and Ecological Zone require Unsafe`() {
-    rejects("Prelude1CardPack, EcologyExperts, -ViralEnhancers, -Decomposers, -GmoContract")
+    rejects("prelude:cards, EcologyExperts, -ViralEnhancers, -Decomposers, -GmoContract")
   }
 
   @Test
   internal fun `Ecology Experts and Decomposers require Unsafe`() {
-    rejects("Prelude1CardPack, EcologyExperts, -ViralEnhancers, -EcologicalZone, -GmoContract")
+    rejects("prelude:cards, EcologyExperts, -ViralEnhancers, -EcologicalZone, -GmoContract")
   }
 
   @Test
   internal fun `Ecology Experts and GMO Contract require Unsafe`() {
     rejects(
-        "Prelude1CardPack, TurmoilExpansion, EcologyExperts, -ViralEnhancers, " +
+        "prelude:cards, TurmoilExpansion, EcologyExperts, -ViralEnhancers, " +
             "-EcologicalZone, -Decomposers"
     )
   }
@@ -371,7 +354,7 @@ internal class ModuleSelectionTest {
   @Test
   internal fun `Ecology Experts is usable when all four listeners are absent`() {
     classTable(
-            "Prelude1CardPack, EcologyExperts, -ViralEnhancers, -EcologicalZone, " +
+            "prelude:cards, EcologyExperts, -ViralEnhancers, -EcologicalZone, " +
                 "-Decomposers, -GmoContract"
         )
         .isInhabited(cn("EcologyExperts")) shouldBe true
@@ -386,7 +369,7 @@ internal class ModuleSelectionTest {
 
   @Test
   internal fun `a copied premise still checks the completed content pool`() {
-    val ordinary = premise("Prelude2CardPack", players = 2)
+    val ordinary = premise("prelude2:cards", players = 2)
     val altered =
         ordinary.copy(
             classSelections = ordinary.classSelections + ClassSelection(cn("PreservationProgram"))

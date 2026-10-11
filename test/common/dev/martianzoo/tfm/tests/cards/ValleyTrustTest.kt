@@ -41,7 +41,7 @@ internal class ValleyTrustTest : TfmSandboxTest() {
   @Test
   internal fun `First action can draw from Prelude 2 without Prelude 1`() {
     newTestGame(
-        addOptions = "PreludeExpansion, Prelude2CardPack, -Prelude1CardPack",
+        addOptions = "PreludeExpansion, prelude2:cards, -prelude:cards",
         kimCorporation = ValleyTrust,
     )
     advanceUntilActionPhase()
@@ -59,7 +59,7 @@ internal class ValleyTrustTest : TfmSandboxTest() {
 
   @Test
   internal fun `First action can fizzle an unaffordable Industrial Complex`() {
-    newTestGame(addOptions = "PreludeExpansion, Prelude2CardPack", kimCorporation = ValleyTrust)
+    newTestGame(addOptions = "PreludeExpansion, prelude2:cards", kimCorporation = ValleyTrust)
     advanceUntilActionPhase()
     kim.setToExMachina(13, "MC")
 

@@ -39,6 +39,7 @@
         },
         {
           "name": "MonsInsurance",
+          "invariants": [ "Class<AttackHistoryWatcher>" ],
           "direct": "48 MC, PROD[4 MC], EACH Other@Player(NOT Me@) { PROD[-2 MC<Other@>] BY Other@ }",
           "effects": [
             "MyResourceWasRemoved<Victim@Anyone(NOT Me@)>: 3 MC<Victim@ FROM Me@>.",
@@ -141,6 +142,7 @@
         },
         {
           "name": "Merger",
+          "replaces": "SagittaFrontierServices",
           "autoSelectWhen": "Unsafe OR MAX 0 SagittaFrontierServices",
           "direct": "4 CorporationCard<Selecting> THEN -3 CorporationCard<Selecting> THEN PlayCard<Class<CorporationCard>, Class<CardFront>, Selecting>, -42 MC",
         },
@@ -262,6 +264,7 @@
         },
         {
           "name": "CrashSiteCleanup",
+          "invariants": [ "Class<AttackHistoryWatcher>" ],
           "requirement": "MyResourceWasRemoved<Anyone, Class<Plant>, Me@>",
           "cost": 4,
           "tags": [ "EventTag" ],
@@ -282,11 +285,12 @@
           "cost": 16,
           "direct": "PROD[Steel], (BuildingTag<First@>: CopyProductionBox<First@CardFront>) THEN CopyProductionBox<CardFront(HAS BuildingTag, NOT First@)>",
           // Copies the single production box in a chosen card's direct effect.
-          // Must be identical to RoboticWorkforce's declaration in CorporateEraExpansion.
+          // Must be identical to RoboticWorkforce's declaration in the corpera bundle.
           "components": [ "CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, CustomInstruction" ],
         },
         {
           "name": "DeimosDownPromo",
+          "replaces": "DeimosDown",
           "cost": 31,
           "tags": [ "SpaceTag", "EventTag" ],
           "direct": "3 TemperatureStep, SpecialTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)> {}, 4 Steel, -6 Plant<Anyone>?",
@@ -337,6 +341,7 @@
         },
         {
           "name": "GreatDamPromo",
+          "replaces": "GreatDam",
           "requirement": "4 OceanTile",
           "cost": 15,
           "tags": [ "PowerTag", "BuildingTag" ],
@@ -421,6 +426,7 @@
         },
         {
           "name": "LawSuit",
+          "invariants": [ "Class<AttackHistoryWatcher>" ],
           "cost": 2,
           "tags": [ "EarthTag", "EventTag" ],
           "direct": "((MyResourceWasRemoved<Me@, Attacker@> OR MyProductionWasDecreased<Me@, Attacker@>): 3 MC FROM MC<Attacker@Player>) THEN PlayedEvent<Attacker@, Class<This>> FROM This",
@@ -428,6 +434,7 @@
         },
         {
           "name": "MagneticFieldGeneratorsPromo",
+          "replaces": "MagneticFieldGenerators",
           "cost": 22,
           "tags": [ "BuildingTag" ],
           "direct": "PROD[-4 Energy, 2 Plant], 3 TerraformRating, SpecialTile<> {}",

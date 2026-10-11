@@ -1,5 +1,5 @@
-"Adds official promotional project, corporation, and prelude cards"
-CLASS PromoCardPack : Module {
+"Installs attack history for cards that use it"
+CLASS AttackHistoryWatcher : CardWatcher {
   This: EACH @Class<Resource> { ResourceRemovalWatcher<@Class> }
   This: EACH @Class<StandardResource> { ProductionDecreaseWatcher<@Class> }
 }
@@ -11,11 +11,11 @@ CLASS MyResourceWasRemoved<Class<Resource>, Player, GenerationScope> : Owned, Sy
 CLASS MyProductionWasDecreased<Class<StandardResource>, Player, GenerationScope> : Owned, System, Hidden
 
 CLASS ResourceRemovalWatcher<Class<@Resource>> : System, Hidden {
-  HAS =1 This
+  HAS MAX 1 This
   -X @Resource<Victim@Owner(NOT Attacker@)> BY Attacker@Player: MyResourceWasRemoved<Victim@, Class<@Resource>, Attacker@>.
 }
 
 CLASS ProductionDecreaseWatcher<Class<@StandardResource>> : System, Hidden {
-  HAS =1 This
+  HAS MAX 1 This
   -X Production<Victim@Owner(NOT Attacker@), Class<@StandardResource>> BY Attacker@Player: MyProductionWasDecreased<Victim@, Class<@StandardResource>, Attacker@>.
 }

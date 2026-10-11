@@ -6,8 +6,8 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
 /**
- * Unresolved user intent expressed as unordered positive and negative class-name selections, signed
- * adjustments to concrete setup Components, and concrete user-facing player names in seat order. An
+ * Unresolved user intent expressed as unordered positive and negative class-name and bundle-card
+ * selections, signed adjustments to concrete setup Components, and player names in seat order. An
  * adjustment is written as an integer followed by a Class Name, such as `2 Supply` or `-1
  * SelectablePreludeCount`.
  *
@@ -28,8 +28,20 @@ public data class GameConfig(
     public val excludedClassNames: Set<ClassName> = emptySet(),
     public val playerNames: List<ClassName> = emptyList(),
     public val componentAdjustments: Map<ClassName, Int> = emptyMap(),
+    /**
+     * Bundle names whose compatible cards are requested, such as `colonies` for `colonies:cards`.
+     */
+    public val includedCardBundles: Set<String> = emptySet(),
+    /** Bundle card pools suppressed even when their gameplay Module is selected. */
+    public val excludedCardBundles: Set<String> = emptySet(),
 ) {
   init {
+    val multiplyConfiguredBundles = includedCardBundles intersect excludedCardBundles
+    if (multiplyConfiguredBundles.isNotEmpty()) {
+      throw InvalidGameConfigException(
+          "card bundles cannot be both included and excluded: ${multiplyConfiguredBundles.joinToString()}"
+      )
+    }
     if (playerNames.distinct().size != playerNames.size) {
       throw InvalidGameConfigException(
           "duplicate player names: ${playerNames.joinToString { "`$it`" }}"
@@ -63,7 +75,14 @@ public data class GameConfig(
   private constructor(
       parsed: Parsed,
       playerNames: List<ClassName>,
-  ) : this(parsed.included, parsed.excluded, playerNames, parsed.componentAdjustments)
+  ) : this(
+      parsed.included,
+      parsed.excluded,
+      playerNames,
+      parsed.componentAdjustments,
+      parsed.includedCardBundles,
+      parsed.excludedCardBundles,
+  )
 
   /**
    * Parses comma- or newline-separated class selections and signed count adjustments from [source],
@@ -85,7 +104,9 @@ public data class GameConfig(
   override fun toString(): String =
       (includedClassNames.map { "$it" } +
               componentAdjustments.map { (name, adjustment) -> "$adjustment $name" } +
-              excludedClassNames.map { "-$it" })
+              excludedClassNames.map { "-$it" } +
+              includedCardBundles.map { "$it:cards" } +
+              excludedCardBundles.map { "-$it:cards" })
           .joinToString()
 
   public companion object {
@@ -95,25 +116,34 @@ public data class GameConfig(
         val included: Set<ClassName>,
         val excluded: Set<ClassName>,
         val componentAdjustments: Map<ClassName, Int>,
+        val includedCardBundles: Set<String>,
+        val excludedCardBundles: Set<String>,
     )
 
     /**
-     * Creates a configuration from canonical class names and setup adjustments. Duplicate entries
-     * in [included] or [excluded] are rejected rather than collapsed; constructor validation also
-     * rejects contradictory selections, zero adjustments, and duplicate [playerNames].
+     * Creates a configuration from canonical Class selections, bundle card-pool names, and setup
+     * adjustments. Bundle names have no `:cards` suffix here. Duplicate entries in [included] or
+     * [excluded] are rejected rather than collapsed; constructor validation also rejects
+     * contradictory selections, zero adjustments, and duplicate [playerNames].
      */
     public fun create(
         included: Iterable<ClassName>,
         excluded: Iterable<ClassName> = emptyList(),
         playerNames: Iterable<ClassName> = emptyList(),
         componentAdjustments: Map<ClassName, Int> = emptyMap(),
+        includedCardBundles: Iterable<String> = emptyList(),
+        excludedCardBundles: Iterable<String> = emptyList(),
     ): GameConfig {
       val (includedNames, excludedNames) = toSets(included.toList(), excluded.toList())
+      val (includedBundles, excludedBundles) =
+          toBundleSets(includedCardBundles.toList(), excludedCardBundles.toList())
       return GameConfig(
           includedNames,
           excludedNames,
           playerNames.toList(),
           componentAdjustments.toMap(LinkedHashMap()),
+          includedBundles,
+          excludedBundles,
       )
     }
 
@@ -122,6 +152,8 @@ public data class GameConfig(
         val included = mutableListOf<ClassName>()
         val excluded = mutableListOf<ClassName>()
         val componentAdjustments = linkedMapOf<ClassName, Int>()
+        val includedCardBundles = mutableListOf<String>()
+        val excludedCardBundles = mutableListOf<String>()
         Regex("[^,\\n]+").findAll(source).forEach { match ->
           val token = match.value.trim()
           if (token.isEmpty()) return@forEach
@@ -131,7 +163,13 @@ public data class GameConfig(
             val selected = !token.startsWith('-')
             val entry = if (selected) token else token.drop(1)
             val counted = COUNTED_ENTRY.matchEntire(entry)
-            if (counted != null) {
+            if (entry.endsWith(":cards")) {
+              val bundle = entry.removeSuffix(":cards")
+              if (!CARD_BUNDLE_NAME.matches(bundle)) {
+                throw InvalidGameConfigException("invalid card bundle selection: `$token`")
+              }
+              (if (selected) includedCardBundles else excludedCardBundles).add(bundle)
+            } else if (counted != null) {
               val count =
                   counted.groupValues[1].toIntOrNull()
                       ?: throw InvalidGameConfigException("setup adjustment is too large: `$token`")
@@ -164,7 +202,15 @@ public data class GameConfig(
           }
         }
         val (includedNames, excludedNames) = toSets(included, excluded)
-        return Parsed(includedNames, excludedNames, componentAdjustments)
+        val (includedBundles, excludedBundles) =
+            toBundleSets(includedCardBundles, excludedCardBundles)
+        return Parsed(
+            includedNames,
+            excludedNames,
+            componentAdjustments,
+            includedBundles,
+            excludedBundles,
+        )
       } catch (e: IllegalArgumentException) {
         throw InvalidGameConfigException("invalid game configuration: `$source`", e)
       }
@@ -191,5 +237,23 @@ public data class GameConfig(
       }
       return included.toCollection(linkedSetOf()) to excluded.toCollection(linkedSetOf())
     }
+
+    private fun toBundleSets(
+        included: List<String>,
+        excluded: List<String>,
+    ): Pair<Set<String>, Set<String>> {
+      if ((included + excluded).distinct().size != included.size + excluded.size) {
+        throw InvalidGameConfigException(
+            "duplicate card bundle selections: ${(included + excluded).joinToString()}"
+        )
+      }
+      val invalid = (included + excluded).filterNot(CARD_BUNDLE_NAME::matches)
+      if (invalid.isNotEmpty()) {
+        throw InvalidGameConfigException("invalid card bundle names: ${invalid.joinToString()}")
+      }
+      return included.toCollection(linkedSetOf()) to excluded.toCollection(linkedSetOf())
+    }
+
+    private val CARD_BUNDLE_NAME = Regex("[a-z][a-z0-9]*")
   }
 }
