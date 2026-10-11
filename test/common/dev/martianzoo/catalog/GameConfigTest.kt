@@ -46,6 +46,18 @@ internal class GameConfigTest {
   }
 
   @Test
+  internal fun cardBundleSelectionsAreSeparateFromClassSelections() {
+    val config = GameConfig("ColoniesExpansion, promos:cards, -colonies:cards")
+
+    config.includedClassNames shouldBe setOf(cn("ColoniesExpansion"))
+    config.includedCardBundles shouldBe setOf("promos")
+    config.excludedCardBundles shouldBe setOf("colonies")
+    GameConfig(config.toString()) shouldBe config
+    shouldThrow<InvalidGameConfigException> { GameConfig("promos:cards, -promos:cards") }
+    shouldThrow<InvalidGameConfigException> { GameConfig("unknown:cards, unknown:cards") }
+  }
+
+  @Test
   internal fun acceptsArbitraryPlayerClassNamesSeparately() {
     val config = GameConfig("TerraformingMars", "Blue", "Yellow")
 

@@ -21,15 +21,18 @@ internal enum class TestOption(private val configuredName: String? = null) : Tes
   Cimmeria("CimmeriaMap"),
   VenusNextExpansion,
   PreludeExpansion,
-  Prelude1CardPack,
-  Prelude2CardPack,
+  PreludeCards("prelude:cards"),
+  Prelude2Cards("prelude2:cards"),
   ColoniesExpansion,
   TurmoilExpansion,
-  PromoCardPack,
+  PromoCards("promos:cards"),
   FakeStuffBundle,
   WorldGovernmentRule,
   MandatoryVenusVariant,
   Unsafe;
 
-  internal val className: ClassName = cn(configuredName ?: name)
+  internal val cardBundleName: String? =
+      configuredName?.takeIf { it.endsWith(":cards") }?.removeSuffix(":cards")
+  internal val className: ClassName? =
+      if (cardBundleName == null) cn(configuredName ?: name) else null
 }

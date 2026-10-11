@@ -137,7 +137,7 @@ internal class FinalGreeneryPhaseTest {
 
   @Test
   internal fun tenPlantsCanBecomeTwoGreeneriesWithPhilaresNeighborsAndTheElysiumBonus() {
-    val game = TfmEngine.newGame(canonicalPremise(Elysium, PromoCardPack))
+    val game = TfmEngine.newGame(canonicalPremise(Elysium, PromoCards))
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)

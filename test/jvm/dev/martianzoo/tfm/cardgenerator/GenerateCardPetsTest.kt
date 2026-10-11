@@ -160,7 +160,7 @@ internal class GenerateCardPetsTest {
 
   @Test
   internal fun groupedDecksPreserveCardDefinitionsAndDeriveProjectKinds() {
-    val cards = CardData.definitions("TerraformingMars").associateBy { it.name }
+    val cards = CardData.definitions("base").associateBy { it.name }
 
     assertEquals("CorporationCard", cards.getValue("CrediCor").deck)
     assertEquals(null, cards.getValue("CrediCor").projectKind)
@@ -172,7 +172,7 @@ internal class GenerateCardPetsTest {
 
   @Test
   internal fun supportingDeclarationsFollowTheirCard() {
-    val colonies = CardPetsGenerator.renderBundle("ColoniesExpansion")
+    val colonies = CardPetsGenerator.renderBundle("colonies")
     assertInOrder(
         colonies,
         "CLASS Aridor :",
@@ -183,7 +183,7 @@ internal class GenerateCardPetsTest {
 
   @Test
   internal fun authoredSpecialCardsFollowGeneratedCardsInTheSameResource() {
-    val cards = renderCardPets("TurmoilExpansion", "CLASS ExampleGlobalEvent : GlobalEvent\n")
+    val cards = renderCardPets("turmoil", "CLASS ExampleGlobalEvent : GlobalEvent\n")
 
     assertInOrder(cards, "CLASS AerialLenses :", "CLASS ExampleGlobalEvent : GlobalEvent")
     assertTrue(cards.endsWith('\n'))

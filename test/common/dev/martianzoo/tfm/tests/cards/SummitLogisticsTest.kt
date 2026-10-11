@@ -10,7 +10,7 @@ import kotlin.test.Test
 internal class SummitLogisticsTest : TfmSandboxTest() {
   @Test
   internal fun `Is unavailable when Turmoil is absent`() {
-    newTestGame("Prelude2CardPack")
+    newTestGame("prelude2:cards")
 
     shouldThrow<DeadEndException> { kim.playProject(SummitLogistics, 10) }
   }

@@ -9,7 +9,7 @@ internal class TfmPlayCommandTest {
     val repl = ScriptSession()
     repl.command(
         "newgame \"TerraformingMars, CorporateEraExpansion, ElysiumMap, " +
-            "PreludeExpansion, PromoCardPack\" Me purple"
+            "PreludeExpansion, promos:cards\" Me purple"
     )
     repl.command("task CityTile<Elysium_5_6, SoloOpponent>")
     repl.command("task GreeneryTile<Elysium_5_5, SoloOpponent>")

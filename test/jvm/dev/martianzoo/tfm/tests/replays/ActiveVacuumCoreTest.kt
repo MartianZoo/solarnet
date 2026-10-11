@@ -20,7 +20,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
       GameConfig(
           """
           TharsisMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack
+          VenusNextExpansion, PreludeExpansion, prelude2:cards, promos:cards
           FakeStuffBundle
 
           Diversifier, Mayor, Builder, Coastguard, Terran, Metallurgist

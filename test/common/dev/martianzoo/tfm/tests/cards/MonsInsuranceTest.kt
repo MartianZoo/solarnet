@@ -41,7 +41,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
 
   @Test
   internal fun `Hired Raiders compensates the victim after transferring stolen steel`() {
-    newTestGame()
+    newTestGame(addOptions = "-promos:cards, MonsInsurance")
     kim.exMachina("$MonsInsurance")
     rob.exMachina("4 Steel")
 

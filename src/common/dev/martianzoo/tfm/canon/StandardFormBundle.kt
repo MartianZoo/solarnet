@@ -5,24 +5,27 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.util.toSetStrict
+import dev.martianzoo.tfm.carddata.CardData
 
 /**
  * A Catalog-provider bundle built from conventionally named Pets and JSON sources.
  *
  * Every `.pets` resource supplies declarations. Generated `cards.pets` and handwritten
  * `*.cards.pets` fragments additionally identify the bundle's card declarations, while bundle
- * language files and compact map diagrams supply category-specific metadata. A bundle identity is
- * raw source provenance, not a Pets class, so no declaration is required or synthesized for it.
- * Callers whose resources are not in Canon's generated registry can provide [resourceFilenames] and
+ * language files and compact map diagrams supply category-specific metadata. Card replacement
+ * metadata comes from the corresponding authored card JSON. A bundle identity is raw source
+ * provenance, not a Pets class, so no declaration is required or synthesized for it. Callers whose
+ * resources are not in Canon's generated registry can provide [resourceFilenames] and
  * [resourceReader] directly.
  */
 public class StandardFormBundle
 public constructor(
     name: String,
+    primaryModuleName: ClassName? = null,
     private val resourceDirectory: String = "$DEFAULT_DIRECTORY/$name",
     private val resourceFilenames: Set<String> = CanonResources.filenames(resourceDirectory),
     private val resourceReader: (String) -> String = CanonResources::read,
-) : Bundle(cn(name)) {
+) : Bundle(name, primaryModuleName) {
   private val resources = listOf(ResourceSet(resourceDirectory, resourceFilenames))
 
   init {
@@ -50,12 +53,30 @@ public constructor(
   override val cardResourceClassNames: Set<ClassName> =
       cardDeclarationsByResource.values.flatten().mapTo(linkedSetOf(), ClassDeclaration::className)
 
-  override val moduleCardClassNames: Map<ClassName, Set<ClassName>> =
-      cardDeclarationsByResource
-          .filterValues(Set<ClassDeclaration>::isNotEmpty)
-          .mapKeys { (resourceSet, _) -> cn(resourceSet.directory.substringAfterLast('/')) }
-          .mapValues { (_, declarations) ->
-            declarations.mapTo(linkedSetOf(), ClassDeclaration::className)
+  override val replacements: Map<ClassName, ClassName> = buildMap {
+    if (name in CardData.bundleNames) {
+      CardData.definitions(name).forEach { card ->
+        card.replaces?.let { replaced ->
+          put(cn(card.name), cn(replaced))
+        }
+      }
+    }
+    resources
+        .filter { REPLACEMENTS_FILENAME in it.filenames }
+        .forEach { resourceSet ->
+          JsonReader.readReplacements(read(resourceSet, REPLACEMENTS_FILENAME)).forEach {
+              (replacement, relation) ->
+            require(replacement !in this) { "duplicate replacement relationship for $replacement" }
+            put(replacement, relation)
+          }
+        }
+  }
+
+  override val excludedDefaultCards: Set<ClassName> =
+      resources
+          .filter { DEFAULT_EXCLUSIONS_FILENAME in it.filenames }
+          .flatMapTo(linkedSetOf()) { resourceSet ->
+            JsonReader.readExcludedDefaultCards(read(resourceSet, DEFAULT_EXCLUSIONS_FILENAME))
           }
 
   override val explicitClassDeclarations: Set<ClassDeclaration> =
@@ -109,6 +130,8 @@ public constructor(
     private const val DEFAULT_DIRECTORY = "bundles"
     private const val CARD_PETS_FILENAME = "cards.pets"
     private const val CARD_PETS_SUFFIX = ".cards.pets"
+    private const val REPLACEMENTS_FILENAME = "replacements.json5"
+    private const val DEFAULT_EXCLUSIONS_FILENAME = "card-pool-exclusions.json5"
     private const val PETS_SUFFIX = ".pets"
     private val LANGUAGE_FILENAME = Regex("language/([^/]+)\\.json5")
   }

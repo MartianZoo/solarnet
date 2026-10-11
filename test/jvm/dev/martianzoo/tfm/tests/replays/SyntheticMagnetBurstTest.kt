@@ -16,12 +16,12 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
   // Government, two players, and these full-random milestone and award pools.
   // This replay still uses Builder and Sponsor stand-ins for Thawer and Briber.
   // Player-record evidence: Merger was dealt despite promo cards being disabled, so it is included
-  // individually without enabling PromoCardPack.
+  // individually without enabling promos:cards.
   override val config =
       GameConfig(
           """
           HellasMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, Merger, SagittaFrontierServices, Unsafe
+          VenusNextExpansion, PreludeExpansion, prelude2:cards, Merger, SagittaFrontierServices, Unsafe
           FakeStuffBundle
 
           Energizer, Builder, Generalist, Diversifier, Terraformer, Sponsor

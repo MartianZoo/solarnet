@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER3
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
+import dev.martianzoo.tfm.tests.TestOption.PromoCards
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalCatalog
@@ -49,7 +49,7 @@ internal class VerminTest : TfmSandboxTest() {
       game =
           setUpGame(
               canonicalPremise(
-                  PromoCardPack,
+                  PromoCards,
                   players = 3,
                   catalog = canonicalCatalog(false),
                   additionalClassDeclarations = attributionProbeDeclarations(3),

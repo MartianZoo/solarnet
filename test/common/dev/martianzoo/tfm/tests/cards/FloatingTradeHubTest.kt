@@ -7,7 +7,7 @@ import kotlin.test.Test
 internal class FloatingTradeHubTest : TfmSandboxTest() {
   @Test
   internal fun `Converts only the chosen floaters into titanium with Prelude and Prelude 2`() {
-    newTestGame(addOptions = "PreludeExpansion, Prelude2CardPack")
+    newTestGame(addOptions = "PreludeExpansion, prelude2:cards")
     startActionPhase()
     kim.exMachina("$FloatingTradeHub, 5 Floater<$FloatingTradeHub>")
 
@@ -17,7 +17,7 @@ internal class FloatingTradeHubTest : TfmSandboxTest() {
 
   @Test
   internal fun `Converts only the chosen floaters into titanium without Prelude`() {
-    newTestGame(addOptions = "-PreludeExpansion, -Prelude2CardPack, FloatingTradeHub")
+    newTestGame(addOptions = "-PreludeExpansion, -prelude2:cards, FloatingTradeHub")
     kim.exMachina("$FloatingTradeHub, 5 Floater<$FloatingTradeHub>")
 
     kim.cardAction2(FloatingTradeHub, x = 3) { doTask("3 Titanium") }

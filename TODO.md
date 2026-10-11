@@ -237,20 +237,21 @@ These concerns remain open; the ranking does not select replacement designs.
 - Consider allowing owner-local Class declarations only in gain instructions. They currently also
   parse in other expression positions, including a selector's `HAS` refinement; decide the intended
   boundary and account for existing uses before restricting the syntax.
-- Let a configuration select all compatible cards of a requested kind from any bundle, such as all
-  project cards from a bundle or the full Prelude 2 card pool, without a `CardPack` Module. Keep
-  bundle provenance distinct from ambient-rule Modules. Resolve narrower pool requests into
-  individual Class choices before the game premise is built; card dependencies such as
-  `PreludeCard` and `PlayOrFizzle` should follow selected cards without selecting
-  `PreludeExpansion`. Preserve the current Prelude 1 pool default for individually selected
-  Valley Trust or WG Project when no Prelude 2 pool is chosen, including explicit pool exclusions.
-  Resolve eligibility before offering that choice: promo replacements still test
-  `PromoCardPack`, whose current Module also supplies watchers; M&A goal invariants can use
-  non-simple Class metrics, and Venus cards/goals can become unviable when their supporting content
-  is absent. Keep Turmoil Global Events individually selectable with hard Turmoil dependencies.
-- Consider letting the Milestones & Awards bundle also provide goals identical to those supplied
+- Decide whether configurations need narrower card requests such as only project cards from a
+  bundle. Current `name:cards` selectors request all compatible cards, with explicit `-name:cards`
+  exclusions. The existing premise check now omits automatically selected cards and milestones
+  whose requirements or mandatory effects are provably impossible. The remaining eligibility
+  question is how to identify cards that should stay out of an automatic pool even when this check
+  cannot prove them impossible, beyond the current Ecology Experts exception. Keep Turmoil Global
+  Events individually selectable with hard Turmoil dependencies.
+- Decide what explicit exclusion of a replacement card means. Currently
+  `promos:cards, -DeimosDownPromo` selects neither Deimos Down version.
+  `promos:cards, prelude2:cards, -Merger` selects neither Merger nor Sagitta. Goal replacements
+  instead let the original return when their replacement is excluded. Choose one rule for both and
+  cover it with configuration tests.
+- Consider letting the `goals` bundle also provide goals identical to those supplied
   by map bundles, enforcing identical declarations across both sources. A user selecting such a
-  goal individually would resolve it through Milestones & Awards provenance, not through a map
+  goal individually would resolve it through `goals` provenance, not through a map
   bundle; selecting a map could still include its associated goal by default. This needs a clear
   source rule because an unqualified Class Name currently loses that provenance.
 - Replace `ModulesReady` with entering `BootstrapPhase` only after the generated premise has created
@@ -330,10 +331,6 @@ These concerns remain open; the ranking does not select replacement designs.
 - Derive selected singleton card watchers without explicit support-Class invariants. The current
   sites are United Nations Mars Initiative and Pristar retaining `TrWatcher`, and Hydrologist
   retaining `HydrologistWatcher`.
-- Put promo replacement defaults on or near their replacement Content, so `GreatDamPromo` can
-  identify `GreatDam` instead of the original card naming `PromoCardPack`. Preserve the three
-  tested choices: original by default, promo by default with Promos, and both when the original
-  is explicitly included. Deimos Down and Magnetic Field Generators follow the same pattern.
 - **Low priority:** [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve
   hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
 - Replace the [archived Life of an Effect walkthrough](docs/archive/life-of-an-effect.md) with a

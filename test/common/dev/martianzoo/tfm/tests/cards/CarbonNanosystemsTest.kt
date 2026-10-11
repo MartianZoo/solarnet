@@ -7,7 +7,7 @@ import kotlin.test.Test
 internal class CarbonNanosystemsTest : TfmSandboxTest() {
   @Test
   internal fun `Its graphene payment resource works without the Promo card pack`() {
-    newTestGame(addOptions = "-PromoCardPack, CarbonNanosystems")
+    newTestGame(addOptions = "-promos:cards, CarbonNanosystems")
     kim.exMachina("$CarbonNanosystems, 2 Graphene<$CarbonNanosystems>")
 
     kim.playProject(AsteroidCard, 6) { doTask("-2 Graphene<$CarbonNanosystems>") }

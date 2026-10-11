@@ -395,7 +395,7 @@ semantic invariant needs direct proof.
   [`Describers.kt`](../../src/common/dev/martianzoo/tfm/text/Describers.kt),
   [`TerraformingMarsDescribers.kt`](../../src/common/dev/martianzoo/tfm/text/TerraformingMarsDescribers.kt),
   and expansion-local `english/` directories such as
-  [`TurmoilExpansion/english/english.kt`](../../src/common/dev/martianzoo/tfm/canon/TurmoilExpansion/english/english.kt)
+  [`turmoil/english/english.kt`](../../src/common/dev/martianzoo/tfm/canon/bundles/turmoil/english/english.kt)
   — lexical facts, composition, and inheritance. Each bundle directory is an explicit `tfm-text`
   source root; `tfm-canon` excludes bundle-local `english/` directories to keep module ownership
   acyclic.

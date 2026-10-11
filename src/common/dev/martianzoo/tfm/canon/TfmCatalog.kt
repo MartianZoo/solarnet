@@ -49,9 +49,33 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
   public open val bundles: List<Bundle> =
       catalogs.filterIsInstance<TfmCatalog>().flatMap { it.bundles }
 
+  private val replacements: Map<ClassName, ClassName> by lazy {
+    buildMap {
+      bundles.forEach { bundle ->
+        bundle.replacements.forEach { (replacement, replaced) ->
+          require(replacement != replaced) { "$replacement cannot replace itself" }
+          require(replacement in allClassNames && replaced in allClassNames) {
+            "unknown replacement relationship: $replacement replaces $replaced"
+          }
+          require(
+              listOf(TfmClasses.CARD_FRONT, TfmClasses.MILESTONE, TfmClasses.AWARD).any { kind ->
+                isSubtypeOf(replacement, kind) && isSubtypeOf(replaced, kind)
+              }
+          ) {
+            "replacement must relate the same kind of Content: $replacement replaces $replaced"
+          }
+          val previous = put(replacement, replaced)
+          require(previous == null || previous == replaced) {
+            "conflicting replacement relationships for $replacement"
+          }
+        }
+      }
+    }
+  }
+
   /** Concrete subclasses of [superclass] whose declarations live in [bundleName]. */
   public fun classNamesInBundle(
-      bundleName: ClassName,
+      bundleName: String,
       superclass: ClassName,
   ): Set<ClassName> {
     val matchingBundles = bundles.filter { it.bundleName == bundleName }
@@ -66,10 +90,8 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
     buildMap<ClassName, MutableSet<ClassName>> {
           bundles.forEach { bundle ->
             val availabilityModules = buildSet {
-              val sameNamedModule =
-                  bundle.bundleName in allClassNames && isSubtypeOf(bundle.bundleName, MODULE_CLASS)
-              if (sameNamedModule) {
-                add(bundle.bundleName)
+              if (bundle.primaryModuleName != null) {
+                add(bundle.primaryModuleName)
               } else {
                 bundle.marsMapDefinitions.mapTo(this, MarsMapDefinition::className)
               }
@@ -115,8 +137,9 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
    * applying Catalog defaults and selection policies. Modules are Classes in the same selection
    * set; their ambient-rule role determines how their closure is resolved.
    *
-   * Structured inputs use canonical Class Names. Naming any milestones or awards selects the exact
-   * configured pool for that category; an explicitly named milestone bypasses automatic pool
+   * Class inputs use canonical Class Names; `name:cards` inputs select compatible cards from the
+   * named bundle independently of its gameplay Module. Naming any milestones or awards selects the
+   * exact configured pool for that category; an explicitly named milestone bypasses automatic pool
    * preferences. A playable Terraforming Mars Catalog requires at least one player name in seat
    * order. Missing names and the generated concrete `Premise` Class belong to the premise-local
    * declaration table; their immediate effects create the resolved Modules, Players, and exact
@@ -197,6 +220,7 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
             configurationTable,
         )
     included.addAll(selectedMilestoneNames + selectedAwardNames)
+    val selectedCardNames = selectCardPools(builder)
     val individualNames = included - moduleNames
     if (selectedMilestoneNames.isNotEmpty()) {
       builder.excluded.addAll(goalClassNames(TfmClasses.MILESTONE) - selectedMilestoneNames)
@@ -222,6 +246,59 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
     if (MODULES_READY in allClassNames) {
       builder.initializationEffects.add(parse("This: ModulesReady"))
     }
+    builder.omitImpossibleDefaults(
+        (selectedMilestoneNames + selectedAwardNames + selectedCardNames) - explicitlyIncluded
+    )
+  }
+
+  private fun selectCardPools(builder: GamePremiseBuilder): Set<ClassName> {
+    val pools =
+        bundles
+            .filter { it.cardResourceClassNames.isNotEmpty() }
+            .associateByStrict(Bundle::bundleName)
+    val unknown = (builder.includedCardBundles + builder.excludedCardBundles) - pools.keys
+    if (unknown.isNotEmpty()) {
+      throw InvalidGameConfigException("unknown card bundle: ${unknown.joinToString()}")
+    }
+
+    builder.excludedCardBundles.forEach { poolName ->
+      val names = pools.getValue(poolName).cardResourceClassNames
+      builder.excluded.addAll(names.intersect(cardClassNames) - builder.explicitlyIncluded)
+    }
+    val selectedPools = builder.includedCardBundles.toMutableSet()
+    if (
+        "prelude" !in builder.excludedCardBundles &&
+            (cn("PreludeExpansion") in builder.included ||
+                ("prelude2" !in selectedPools &&
+                    (cn("ValleyTrust") in builder.included || cn("WgProject") in builder.included)))
+    ) {
+      selectedPools.add("prelude")
+    }
+    val selections = linkedSetOf<ClassSelection>()
+    selectedPools.forEach { poolName ->
+      val bundle = pools.getValue(poolName)
+      selections.addCards(
+          cards.filter {
+            it.className in bundle.cardResourceClassNames &&
+                it.className !in bundle.excludedDefaultCards
+          }
+      )
+      selections.addCardResourceRoots(bundle.cardResourceClassNames)
+    }
+    val configuredNames = builder.included.toSet()
+    val selectedNames =
+        selections
+            .filter { it.appliesTo(configuredNames, builder.configurationTable) }
+            .mapTo(linkedSetOf(), ClassSelection::className)
+    val replacedNames =
+        replacedBy(
+            selectedNames + builder.explicitlyIncluded,
+            configuredNames + selectedNames,
+            builder.configurationTable,
+        ) - builder.explicitlyIncluded
+    builder.included.addAll(selectedNames - replacedNames)
+    builder.excluded.addAll(replacedNames)
+    return selectedNames - replacedNames
   }
 
   private fun selectGoalPool(
@@ -237,20 +314,47 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
     if (explicitlySelected.isNotEmpty()) return explicitlySelected
     if (MULTIPLAYER_MODE !in moduleNames) return emptySet()
 
-    return bundles
-        .filter { bundle -> bundle.bundleName in moduleNames }
-        .flatMap { bundle -> classNamesInBundle(bundle.bundleName, goalClass) }
-        .map { className ->
-          val declaration = classDeclaration(className)
-          ClassSelection(
-              className,
-              requirement = goalAutomaticSelectionRequirement(declaration),
-          )
-        }
-        .filter { selection -> selection.appliesTo(configuredClassNames, configurationTable) }
-        .mapTo(linkedSetOf(), ClassSelection::className)
-        .minus(explicitlyExcluded)
+    val selected =
+        bundles
+            .filter { bundle ->
+              bundle.primaryModuleName in moduleNames ||
+                  bundle.marsMapDefinitions.any { it.className in moduleNames }
+            }
+            .flatMap { bundle -> classNamesInBundle(bundle.bundleName, goalClass) }
+            .map { className ->
+              val declaration = classDeclaration(className)
+              ClassSelection(
+                  className,
+                  requirement = goalAutomaticSelectionRequirement(declaration),
+              )
+            }
+            .filter { selection -> selection.appliesTo(configuredClassNames, configurationTable) }
+            .mapTo(linkedSetOf(), ClassSelection::className)
+            .minus(explicitlyExcluded)
+    return selected - replacedBy(selected, configuredClassNames + selected, configurationTable)
   }
+
+  private fun replacedBy(
+      selected: Set<ClassName>,
+      configured: Set<ClassName>,
+      configurationTable: PremiseClassTable,
+  ): Set<ClassName> =
+      selected.mapNotNullTo(linkedSetOf()) { replacement ->
+        val replaced = replacements[replacement] ?: return@mapNotNullTo null
+        val condition =
+            (classDeclaration(replacement).properties[AUTO_SELECT_WHEN] as? RequirementValue)?.value
+        // A card's condition can allow coexistence only when it names the displaced card.
+        if (
+            replacement in cardClassNames &&
+                replaced in configured &&
+                condition != null &&
+                replaced in condition.descendantsOfType<ClassName>() &&
+                ClassSelection(replacement, requirement = condition)
+                    .appliesTo(configured, configurationTable)
+        )
+            null
+        else replaced
+      }
 
   /** Catalog-known concrete subclasses of the ordinary Pets `ColonyTile` class. */
   public val colonyTileClassNames: Set<ClassName> by lazy {
@@ -334,12 +438,16 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
           }
         }
     val selections = linkedSetOf<ClassSelection>()
-    owner.moduleCardClassNames[moduleName]?.let { names ->
-      val cards = cards.filterTo(linkedSetOf()) { it.className in names }
+    if (moduleName == owner.primaryModuleName && owner.cardResourceClassNames.isNotEmpty()) {
+      val names = owner.cardResourceClassNames
+      val cards =
+          cards.filterTo(linkedSetOf()) {
+            it.className in names && it.className !in owner.excludedDefaultCards
+          }
       selections.addCards(cards)
-      selections.addCardResourceRoots(owner.moduleCardClassNames.getValue(moduleName))
+      selections.addCardResourceRoots(names)
     }
-    if (moduleName == owner.bundleName) {
+    if (moduleName == owner.primaryModuleName) {
       owner.explicitClassDeclarations
           .filter { declaration ->
             !declaration.abstract &&

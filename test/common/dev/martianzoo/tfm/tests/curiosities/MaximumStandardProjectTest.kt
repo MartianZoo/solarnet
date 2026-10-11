@@ -14,7 +14,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       GameConfig(
           """
           HellasMap
-          CorporateEraExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack
+          CorporateEraExpansion, PreludeExpansion, prelude2:cards, promos:cards
           TurmoilExpansion
           """,
           "Me",

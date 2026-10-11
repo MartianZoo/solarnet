@@ -194,7 +194,6 @@ Pets declaration:
 
 ```pets
 CLASS Generalist : Milestone {
-  autoSelectWhen = HAS "MAX 0 QuickStartVariant"
   requirement = HAS "PROD[1 (MC - ProdOffset<Class<MC>>), Steel, Titanium, Plant, Energy, Heat]"
 }
 ```
@@ -459,7 +458,6 @@ Pets declaration:
 
 ```pets
 CLASS Producer : Milestone {
-  autoSelectWhen = HAS "MAX 0 QuickStartVariant"
   requirement = HAS "16 (PROD[StandardResource] - ProdOffset)"
 }
 ```

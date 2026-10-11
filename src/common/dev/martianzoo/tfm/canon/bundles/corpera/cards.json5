@@ -394,7 +394,7 @@
           "tags": [ "ScienceTag" ],
           "immediate": "CopyProductionBox<CardFront(HAS BuildingTag)>",
           // Copies the single immediate production box on a chosen card.
-          // Must be identical to CyberiaSystems' declaration in PromoCardPack.
+          // Must be identical to CyberiaSystems' declaration in the promos bundle.
           "components": [ "CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, CustomInstruction" ],
         },
         {

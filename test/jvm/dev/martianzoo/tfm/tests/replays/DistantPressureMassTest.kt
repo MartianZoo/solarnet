@@ -18,7 +18,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       GameConfig(
           """
           HellasMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, ColoniesExpansion, PromoCardPack, SagittaFrontierServices
+          VenusNextExpansion, PreludeExpansion, prelude2:cards, ColoniesExpansion, promos:cards, SagittaFrontierServices
           FakeStuffBundle
 
           Ecologist, Terraformer, Terran, Mayor, Merchant, Researcher

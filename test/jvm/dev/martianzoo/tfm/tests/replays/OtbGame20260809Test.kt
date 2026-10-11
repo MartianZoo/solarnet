@@ -21,7 +21,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
           """
           HellasMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion
-          PromoCardPack
+          promos:cards
 
           Coastguard, Landshaper, Mayor, Producer, Sponsor, Hoverlord
           Botanist, Founder, Landlord, Magnate, Metropolist, Venuphile

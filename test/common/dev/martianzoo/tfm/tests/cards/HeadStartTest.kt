@@ -89,7 +89,7 @@ internal class HeadStartTest : TfmSandboxTest() {
 
   @Test
   internal fun `Suitable Infrastructure pays separately for Head Start's nested actions`() {
-    newTestGame(addOptions = "PreludeExpansion, Prelude2CardPack, FakeStuffBundle")
+    newTestGame(addOptions = "PreludeExpansion, prelude2:cards, FakeStuffBundle")
     kim.exMachina("$SuitableInfrastructure")
     kim.setToExMachina(30, "MC")
     kim.setToExMachina(0, "ProjectCard")
@@ -121,7 +121,7 @@ internal class HeadStartTest : TfmSandboxTest() {
   }
 
   private fun acquireDuringHeadStart() {
-    newTestGame(addOptions = "PreludeExpansion, Prelude2CardPack, FakeStuffBundle, Unsafe")
+    newTestGame(addOptions = "PreludeExpansion, prelude2:cards, FakeStuffBundle, Unsafe")
     kim.exMachina("$BoardOfDirectors, 4 Director<$BoardOfDirectors>, 8 Heat")
     kim.setToExMachina(54, "MC")
     kim.setToExMachina(0, "ProjectCard")

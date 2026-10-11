@@ -11,7 +11,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class LawSuitTest : TfmSandboxTest() {
-  @BeforeTest fun setUp() = newTestGame()
+  @BeforeTest fun setUp() = newTestGame(addOptions = "-promos:cards, LawSuit, SmallAsteroid")
 
   @Test
   internal fun `Can charge an opponent who lowered the owner's production`() {

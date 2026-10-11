@@ -11,6 +11,7 @@ internal object OptionCodeTranslation {
       val players: Int,
       val options: Set<ClassName>,
       val excludedOptions: Set<ClassName>,
+      val includedCardBundles: Set<String>,
       val selectedColonies: Set<ClassName>,
   )
 
@@ -34,7 +35,14 @@ internal object OptionCodeTranslation {
       codes.mapNotNullTo(this) { positiveOptions[it] }
     }
     val excludedOptions = if (CORPORATE_ERA in options) emptySet() else setOf(CORPORATE_ERA)
-    return Setup(optionCodes, players, options, excludedOptions, selectedColonies)
+    return Setup(
+        optionCodes,
+        players,
+        options,
+        excludedOptions,
+        if ("X" in codes) setOf("promos") else emptySet(),
+        selectedColonies,
+    )
   }
 
   fun suggestions(currentOptionCodes: String): List<String> {
@@ -44,10 +52,12 @@ internal object OptionCodeTranslation {
     return common + generated
   }
 
-  fun optionCodes(options: Set<ClassName>): String =
-      optionByCode.entries
-          .filter { it.value in options }
-          .joinToString(separator = "") { (code) -> code }
+  fun optionCodes(options: Set<ClassName>, cardBundles: Set<String> = emptySet()): String =
+      optionsByCode
+          .filter { code ->
+            if (code == "X") "promos" in cardBundles else optionByCode[code] in options
+          }
+          .joinToString(separator = "")
 
   fun recognizedOptions(classNames: Set<ClassName>): Set<ClassName> =
       optionByCode.values.filterTo(linkedSetOf()) { it in classNames }
@@ -69,15 +79,15 @@ internal object OptionCodeTranslation {
           "P" to cn("PreludeExpansion"),
           "C" to cn("ColoniesExpansion"),
           "T" to cn("TurmoilExpansion"),
-          "X" to cn("PromoCardPack"),
       )
 
   private val optionsByCode = linkedSetOf("B", "R", "H", "U", "V", "P", "C", "T", "X")
 
-  private val optionByCode = optionsByCode.associateWith { code ->
-    when (code) {
-      "B" -> TERRAFORMING_MARS
-      else -> bundleDefaultMapOptions[code] ?: positiveOptions.getValue(code)
-    }
-  }
+  private val optionByCode =
+      (optionsByCode - "X").associateWith { code ->
+        when (code) {
+          "B" -> TERRAFORMING_MARS
+          else -> bundleDefaultMapOptions[code] ?: positiveOptions.getValue(code)
+        }
+      }
 }

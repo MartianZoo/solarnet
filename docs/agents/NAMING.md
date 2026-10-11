@@ -21,11 +21,11 @@
   display lookup; `defaultEnglishDisplayName` defines the display default.
 - [`GamePremise.kt`](../../src/common/dev/martianzoo/catalog/GamePremise.kt) — search for
   `playerNames` when changing configured Player identities.
-- [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) — read before adding a Module,
-  for the bundle-name coincidence rule.
-- Bundle `language/en.json5` files under
-  [`src/common/dev/martianzoo/tfm/canon`](../../src/common/dev/martianzoo/tfm/canon) own localized
-  printed names; inspect only the bundle containing the renamed Class.
+- [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) — read before adding a Module
+  or naming a source bundle.
+- Bundle `en.json5` files under
+  [`src/common/dev/martianzoo/tfm/canon/bundles`](../../src/common/dev/martianzoo/tfm/canon/bundles)
+  own localized printed names; inspect only the bundle containing the renamed Class.
 
 ## Identity
 
@@ -116,7 +116,7 @@ others carry a numeric qualifier.**
 The bare name goes to the version we consider primary:
 
 - Across reprints, the newer revision — the one the designers preferred. `Builder` (7 building tags,
-  from `MilestonesAwardsExpansion`) over `Builder8` (the original Tharsis printing).
+  from the `goals` bundle) over `Builder8` (the original Tharsis printing).
 - Across rules variants of one goal, the standard version. `Producer` (16 total production,
   including Quick Start production when present) over the optional Quick Start-adjusted
   `Producer22`, whose threshold is 22. Likewise `Generalist` over `Generalist2`, which asks for 2 of
@@ -220,26 +220,28 @@ The Catalog and Bundle APIs define Bundle, Module, and Content selection. The co
 concern their Class Names.
 
 Most genuine `Module` subtypes extend `Module` directly, and that is fine — they need no
-intermediate supertype just to justify a suffix. Four loose families exist today:
+intermediate supertype just to justify a suffix. Three loose families exist today:
 
 1. **Ambient rules** — published products contributing ambient rules use their own noun:
    `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, `PreludeExpansion`, and
    `TurmoilExpansion`.
-2. **Content-group controls** — `Prelude1CardPack`, `Prelude2CardPack`, and `PromoCardPack` use the
-   current transitional Module representation.
-3. **Exclusive choices** — a closed set behind an abstract supertype, exactly one selected. These
+2. **Exclusive choices** — a closed set behind an abstract supertype, exactly one selected. These
    already borrow the supertype's word, which reads well: `MultiplayerMode` and `SoloMode` under
    `GameMode`; `TharsisMap` and `HellasMap` under `MarsMap`; `StandardSoloObjective` and
    `Tr63SoloObjective` under `SoloObjective`.
-4. **Independent toggles** — optional rules switched on or off on their own:
+3. **Independent toggles** — optional rules switched on or off on their own:
    `QuickStartVariant`, `WorldGovernmentRule`, `MandatoryVenusVariant`.
 
-The third family currently uses two words for the same role. Do not add an abstract supertype merely
+The second family currently uses two words for the same role. Do not add an abstract supertype merely
 to supply a shared suffix.
 
-A Module whose Class Name equals its bundle name currently selects that bundle's cards and colony
-tiles by default. Check [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) before
-renaming either side; the coincidence has a selection consequence.
+Bundles have short lowercase source names matching their resource directories, independent of Class
+Names. For example, the `venus` bundle declares the `VenusNextExpansion` Module, and the `prelude`
+bundle declares the `PreludeExpansion` Module. A bundle's explicitly associated Module selects its
+cards and colony tiles by default; `name:cards` can select or exclude its card pool independently.
+`PreludeExpansion` therefore always names the Module, while `prelude` names the bundle. See
+[`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) and
+[`Canon.kt`](../../src/common/dev/martianzoo/tfm/canon/Canon.kt).
 
 ## Display names and localization
 
@@ -328,9 +330,9 @@ is clearer than treating each copy as a separately named token.
 `Barrier` and `GameEndBarrier` are **unrelated supertypes** that both use the word. `Barrier :
 MustCleanUp` means "the player must remove this to unblock a task" and backs the open-ended query
 `MAX 0 Barrier` in
-[`card-model.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets),
+[`card-model.pets`](../../src/common/dev/martianzoo/tfm/canon/bundles/base/card-model.pets),
 which spans `Required` there, `Owed` and `Billing` in
-[`payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets),
+[`payment.pets`](../../src/common/dev/martianzoo/tfm/canon/bundles/base/payment.pets),
 and `TradeBarrier` in Colonies. `GameEndBarrier` extends nothing, means "the game
 may not end yet", and is queried by name from
 [`TfmWorkflow.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt) and four tests. We are

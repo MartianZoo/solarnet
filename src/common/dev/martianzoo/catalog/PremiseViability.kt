@@ -24,22 +24,35 @@ import dev.martianzoo.pets.types.InhabitanceInterpreter
  */
 internal object PremiseViability {
   fun validate(table: ClassTable, selectedClassNames: Set<ClassName>) {
+    impossibleSelections(table, selectedClassNames).entries.firstOrNull()?.let { (name, reason) ->
+      unviable(name, reason)
+    }
+  }
+
+  fun impossibleSelections(
+      table: ClassTable,
+      selectedClassNames: Set<ClassName>,
+  ): Map<ClassName, String> {
     val interpreter = InhabitanceInterpreter(classIsUninhabited = { !table.isInhabited(it) })
-    selectedClassNames.forEach { className ->
-      val declaration = table.getClass(className).declaration
-      (declaration.properties[REQUIREMENT_PROPERTY] as? RequirementValue)?.let { property ->
-        if (interpreter.requirementIsFalse(property.value)) {
-          unviable(className, "impossible requirement ${property.value}")
-        }
-      }
-      table
-          .effects(table.getClass(className))
-          .filter { interpreter.triggerIsReachable(it.trigger) }
-          .forEach { effect ->
-            impossibleRemoval(effect.instruction, table, interpreter)?.let { removal ->
-              unviable(className, "reachable mandatory removal $removal")
-            }
+    return buildMap {
+      selectedClassNames.forEach { className ->
+        val declaration = table.getClass(className).declaration
+        (declaration.properties[REQUIREMENT_PROPERTY] as? RequirementValue)?.let { property ->
+          if (interpreter.requirementIsFalse(property.value)) {
+            put(className, "impossible requirement ${property.value}")
           }
+        }
+        table
+            .effects(table.getClass(className))
+            .filter { interpreter.triggerIsReachable(it.trigger) }
+            .forEach { effect ->
+              impossibleRemoval(effect.instruction, table, interpreter)?.let { removal ->
+                if (className !in this) {
+                  put(className, "reachable mandatory removal $removal")
+                }
+              }
+            }
+      }
     }
   }
 

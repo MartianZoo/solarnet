@@ -8,7 +8,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class CrashSiteCleanupTest : TfmSandboxTest() {
-  @BeforeTest fun setUp() = newTestGame()
+  @BeforeTest fun setUp() = newTestGame(addOptions = "-promos:cards, CrashSiteCleanup")
 
   @Test
   internal fun `Can be played after removing an opponent's plant`() {

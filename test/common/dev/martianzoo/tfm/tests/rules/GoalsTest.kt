@@ -9,7 +9,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class MilestonesAwardsExpansionTest : TfmSandboxTest() {
+internal class GoalsTest : TfmSandboxTest() {
   @Test
   internal fun `Briber costs twelve MC in addition to the normal claim cost`() {
     newTestGame(addOptions = "Briber, Builder, Engineer")

@@ -722,6 +722,7 @@ Pets declaration:
 
 ```pets
 CLASS MonsInsurance : CardFront<Class<CorporationCard>> {
+  HAS Class<AttackHistoryWatcher>
   cost = 0
   This: 48 MC, PROD[4 MC], EACH Other@Player(NOT Me@) { PROD[-2 MC<Other@Player>] BY Other@Player }
   MyResourceWasRemoved<Victim@Anyone(NOT Me@)>: 3 MC<Victim@Anyone FROM Me@>.
@@ -909,7 +910,6 @@ Pets declaration:
 ```pets
 CLASS SagittaFrontierServices : CardFront<Class<CorporationCard>> {
   cost = 0
-  autoSelectWhen = HAS "Unsafe OR (MAX 0 PromoCardPack, MAX 0 Merger)"
   This: 31 MC, PROD[Energy, 2 MC], SearchForCard<NoTagsFilter>
   CardFront(HAS =0 Tag): 4 MC
   CardFront(HAS =1 Tag): MC

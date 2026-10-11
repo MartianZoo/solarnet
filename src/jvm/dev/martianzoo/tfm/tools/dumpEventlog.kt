@@ -29,10 +29,8 @@ private val gameOptions: Set<ClassName> =
         cn("CorporateEraExpansion"),
         cn("VenusNextExpansion"),
         cn("PreludeExpansion"),
-        cn("Prelude2CardPack"),
         cn("ColoniesExpansion"),
         cn("TurmoilExpansion"),
-        cn("PromoCardPack"),
         cn("FakeCardsCardPack"),
     )
 
@@ -43,6 +41,7 @@ private fun createGame(playerCount: Int): World {
       Canon.gamePremise(
           GameConfig.create(
               included = gameOptions + colonies,
+              includedCardBundles = listOf("promos", "prelude2"),
               playerNames = (1..playerCount).map { cn("Player$it") },
           )
       )

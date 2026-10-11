@@ -2,7 +2,6 @@ CLASS ElysiumMap : MarsMap
 
 CLASS Generalist : Milestone {
   HAS MAX 1 Generalist
-  autoSelectWhen = HAS "MAX 0 QuickStartVariant"
   requirement = HAS "PROD[1 (MC - ProdOffset<Class<MC>>), Steel, Titanium, Plant, Energy, Heat]"
 }
 CLASS Generalist2 : Milestone {

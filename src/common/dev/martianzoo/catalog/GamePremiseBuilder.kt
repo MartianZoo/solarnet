@@ -29,6 +29,10 @@ internal constructor(
     additionalClassDeclarations: Set<ClassDeclaration> = emptySet(),
 ) {
   public val playerNames: List<ClassName> = config.playerNames
+  /** Explicit bundle card-pool requests, for Catalog-specific content selection. */
+  public val includedCardBundles: Set<String> = config.includedCardBundles
+  /** Explicit bundle card-pool exclusions, including pools selected by a Module default. */
+  public val excludedCardBundles: Set<String> = config.excludedCardBundles
   public val configurationTable: PremiseClassTable
   public val explicitlyIncluded: Set<ClassName>
   public val explicitlyExcluded: Set<ClassName>
@@ -134,6 +138,23 @@ internal constructor(
         premiseClassName = PREMISE_CLASS.takeIf { premiseDeclaration != null },
         premiseClassDeclarations = premiseClassDeclarations + listOfNotNull(premiseDeclaration),
     )
+  }
+
+  /**
+   * Omits inferred selections whose requirements or mandatory effects are provably impossible in
+   * the selected class table. Explicit configuration choices must not be passed here; they remain
+   * subject to ordinary premise validation. Rechecks after each omission because the available
+   * Classes may change.
+   */
+  public fun omitImpossibleDefaults(defaults: Set<ClassName>) {
+    val remaining = (defaults.intersect(included) - excluded).toMutableSet()
+    while (remaining.isNotEmpty()) {
+      val impossible = build().impossibleSelectedClasses(remaining)
+      if (impossible.isEmpty()) return
+      included.removeAll(impossible)
+      excluded.addAll(impossible)
+      remaining.removeAll(impossible)
+    }
   }
 
   /** Counts configured Classes matching a simple Class metric, including Player subclasses. */

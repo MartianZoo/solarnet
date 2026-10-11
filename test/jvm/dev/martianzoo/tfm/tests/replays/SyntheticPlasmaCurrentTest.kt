@@ -15,7 +15,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       GameConfig(
           """
           TharsisMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack, TurmoilExpansion
+          VenusNextExpansion, PreludeExpansion, prelude2:cards, promos:cards, TurmoilExpansion
           Tr63SoloObjective
           """,
           "Bloo",

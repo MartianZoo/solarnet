@@ -16,7 +16,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       GameConfig(
           """
           HellasMap
-          VenusNextExpansion, PreludeExpansion, PromoCardPack
+          VenusNextExpansion, PreludeExpansion, promos:cards
           FakeStuffBundle
 
           RimSettler, Ecologist, Producer, Fundraiser, Philantropist, Terraformer

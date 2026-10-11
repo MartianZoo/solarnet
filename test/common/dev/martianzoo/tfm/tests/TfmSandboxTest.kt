@@ -120,11 +120,15 @@ internal abstract class TfmSandboxTest : TfmTest() {
             listOf(addOptions, kimCorporation?.toString().orEmpty()).joinToString(),
             *PLAYER_NAMES.take(playerCount).toTypedArray(),
         )
+    val defaults = GameConfig(BASE_GAME_OPTIONS)
     val config =
         options.copy(
             includedClassNames =
-                (GameConfig(BASE_GAME_OPTIONS).includedClassNames + options.includedClassNames) -
-                    options.excludedClassNames
+                (defaults.includedClassNames + options.includedClassNames) -
+                    options.excludedClassNames,
+            includedCardBundles =
+                (defaults.includedCardBundles + options.includedCardBundles) -
+                    options.excludedCardBundles,
         )
     game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
     bindPlayers()
@@ -177,7 +181,7 @@ internal abstract class TfmSandboxTest : TfmTest() {
   private companion object {
     private const val BASE_GAME_OPTIONS =
         "CorporateEraExpansion, VenusNextExpansion, ColoniesExpansion, " +
-            "PromoCardPack, BeginnerVariant, QuickStartVariant"
+            "promos:cards, BeginnerVariant, QuickStartVariant"
 
     private val PLAYER_NAMES = listOf("Kim", "Stan", "Rob", "Maya", "Nadia")
 

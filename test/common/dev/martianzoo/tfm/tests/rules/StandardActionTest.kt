@@ -6,7 +6,7 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.testsupport.PLAYER1
-import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
+import dev.martianzoo.tfm.tests.TestOption.Prelude2Cards
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalPremise
@@ -130,7 +130,7 @@ internal class StandardActionTest : TfmTest() {
         setUpGame(
             canonicalPremise(
                 PreludeExpansion,
-                Prelude2CardPack,
+                Prelude2Cards,
             )
         )
     val p1 = game.testTfm(PLAYER1)
@@ -154,7 +154,7 @@ internal class StandardActionTest : TfmTest() {
         setUpGame(
             canonicalPremise(
                 PreludeExpansion,
-                Prelude2CardPack,
+                Prelude2Cards,
             )
         )
     val p1 = game.testTfm(PLAYER1)

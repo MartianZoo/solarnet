@@ -124,12 +124,13 @@ public class ScriptSession(
       playerNames: List<String>,
       purple: Boolean = false,
   ) {
-    val premise = Canon.gamePremise(GameConfig(configText, *playerNames.toTypedArray()))
+    val config = GameConfig(configText, *playerNames.toTypedArray())
+    val premise = Canon.gamePremise(config)
     val options = OptionCodeTranslation.recognizedOptions(premise.modules)
     val candidateGame = TfmEngine.newGame(premise)
     installGame(
         candidateGame,
-        OptionCodeTranslation.optionCodes(options),
+        OptionCodeTranslation.optionCodes(options, config.includedCardBundles),
         premise.actors.count { it is Player },
         purple,
     )
@@ -409,6 +410,7 @@ internal fun createGame(setup: OptionCodeTranslation.Setup): World {
       GameConfig.create(
           included = setup.options + setup.selectedColonies,
           excluded = setup.excludedOptions,
+          includedCardBundles = setup.includedCardBundles,
           playerNames =
               if (setup.players == 1) listOf(cn("Me"))
               else (1..setup.players).map { cn("Player$it") },

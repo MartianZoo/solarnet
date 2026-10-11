@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.testsupport.PLAYER1
-import dev.martianzoo.tfm.tests.TestOption.Prelude1CardPack
+import dev.martianzoo.tfm.tests.TestOption.PreludeCards
 import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.setUpGame
@@ -11,7 +11,7 @@ import kotlin.test.Test
 internal class AuditTest : TfmTest() {
   @Test
   internal fun `one generic search records different tag criteria only in audited history`() {
-    game = setUpGame(canonicalPremise(Prelude1CardPack))
+    game = setUpGame(canonicalPremise(PreludeCards))
     val p1 = game.testTfm(PLAYER1)
     val checkpoint = game.timeline.checkpoint()
 

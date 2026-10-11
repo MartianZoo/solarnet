@@ -10,6 +10,8 @@ public data class CardDefinition(
     val requirement: String? = null,
     val cost: Int = 0,
     val autoSelectWhen: String? = null,
+    /** Card whose automatic selection yields to this card; explicit selection remains possible. */
+    val replaces: String? = null,
     val tags: List<String> = emptyList(),
     val immediate: String? = null,
     val actions: List<String> = emptyList(),
@@ -37,6 +39,7 @@ public data class CardDefinition(
     require(invariants.none(String::isEmpty))
     require(requirement?.isNotEmpty() != false)
     require(autoSelectWhen?.isNotEmpty() != false)
+    require(replaces == null || CARD_NAME.matches(replaces)) { "Invalid replaced card: $replaces" }
     require(cost >= 0)
     if (deck != PROJECT_DECK) {
       require(EVENT_TAG !in tags) { "Non-project card has $EVENT_TAG: $name" }

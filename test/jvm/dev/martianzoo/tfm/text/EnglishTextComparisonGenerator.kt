@@ -58,36 +58,36 @@ private object EnglishTextComparisonGenerator {
     require(missingComponents.isEmpty()) { "Evidence has unlisted components: $missingComponents" }
     val bundleNames =
         listOf(
-            "TerraformingMars",
-            "CorporateEraExpansion",
-            "TharsisMap",
-            "HellasMap",
-            "ElysiumMap",
-            "VenusNextExpansion",
-            "Prelude1CardPack",
-            "ColoniesExpansion",
-            "TurmoilExpansion",
-            "PromoCardPack",
-            "MilestonesAwardsExpansion",
-            "Prelude2CardPack",
-            "AmazonisMap",
-            "VastitasMap",
-            "UtopiaMap",
-            "CimmeriaMap",
+            "base",
+            "corpera",
+            "tharsis",
+            "hellas",
+            "elysium",
+            "venus",
+            "prelude",
+            "colonies",
+            "turmoil",
+            "promos",
+            "goals",
+            "prelude2",
+            "amazonis",
+            "vastitas",
+            "utopia",
+            "cimmeria",
         )
     val bundles =
         Canon.bundles.sortedBy { bundle ->
-          bundleNames.indexOf(bundle.bundleName.toString()).takeIf { it >= 0 } ?: bundleNames.size
+          bundleNames.indexOf(bundle.bundleName).takeIf { it >= 0 } ?: bundleNames.size
         }
     val provenance =
         bundles
             .flatMap { bundle ->
               bundle.explicitClassDeclarations.map {
-                it.className to displayName(Canon, bundle.bundleName)
+                it.className to bundle.bundleName
               }
             }
             .toMap()
-    val groupOrder = bundles.map { displayName(Canon, it.bundleName) } + "Replay-only models"
+    val groupOrder = bundles.map { it.bundleName } + "Replay-only models"
     val sourceOrder =
         bundles
             .flatMap { it.explicitClassDeclarations }

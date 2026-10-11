@@ -59,16 +59,22 @@ public data class GamePremise(
    * Its normal effect lookup is premise-specialized; each Class declaration remains the reusable
    * backing form.
    */
-  private val classTableLazy = lazy(::createClassTable)
+  private val classTableLazy = lazy { createClassTable() }
   public val classTable: ClassTable
     get() = classTableLazy.value
+
+  /** Finds selected roots with provably impossible behavior before final premise validation. */
+  internal fun impossibleSelectedClasses(names: Set<ClassName>): Set<ClassName> {
+    val table = createClassTable(validateViability = false)
+    return PremiseViability.impossibleSelections(table, names.intersect(table.allClassNames)).keys
+  }
 
   /**
    * Forms and freezes this premise's playable view, reusing the Catalog's compiled objects as
    * required by
    * [rules T12-1 through T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
    */
-  private fun createClassTable(): ClassTable {
+  private fun createClassTable(validateViability: Boolean = true): ClassTable {
     val premiseTable = premiseClassTable
     val masterTable = premiseTable.master
     val configurationNames: Set<ClassName> =
@@ -150,7 +156,7 @@ public data class GamePremise(
           "structural selection conflicts with excluded classes: ${includedExclusions.joinToString { "`$it`" }}"
       )
     }
-    PremiseViability.validate(table, roots)
+    if (validateViability) PremiseViability.validate(table, roots)
     return table
   }
 
