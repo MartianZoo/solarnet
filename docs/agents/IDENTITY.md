@@ -131,11 +131,13 @@ rule applies. A concrete `BY` remains authoritative: naming a non-Admin performe
 the existing `System` creation guard and fails. The Admin assignment changes neither presentation
 nor scheduling.
 
-Player `doTask` rejects a narrowing that makes a `System` change concrete for Admin. Commit the
-choice through `fillInTask` or `narrowTask` instead; eager Admin policy then executes the resulting
-concrete task. The broader intended `doTask` contract is that the submitted change must actually
-be performed by this Actor; apply that rule to all handoffs when the general task-command API is
-ready, rather than adding further type-specific checks here.
+Player `doTask` rejects a narrowing that makes a `System` change concrete for Admin. Select and
+narrow the task directly; eager Admin policy then executes the resulting concrete task. `TaskForm`
+may assist with that choice but must remain optional, as specified in
+[ENGINE.md](ENGINE.md#tasks-are-choices-not-a-program-counter).
+The broader intended `doTask` contract is that the submitted change must actually be performed by
+this Actor; apply that rule to all handoffs when the general task-command API is ready, rather than
+adding further type-specific checks here.
 
 Use `System` for neutral table bookkeeping rather than a Player's game action. Fixed gains and
 concrete removals must themselves be safe for eager Admin execution. If they open a real choice, that
@@ -143,8 +145,8 @@ choice remains downstream work for the retained Player recipient. This classific
 independent of `Hidden`, which controls presentation, and `::`, which preserves an invariant within
 the initiating operation.
 
-Card-purchase, requirement, global-parameter-status, solo-countdown, and dominance bookkeeping use
-`System` for their concrete changes.
+Card-purchase, requirement, global-parameter-status, solo-countdown, dominance, and colony
+`TradeBarrier` bookkeeping use `System` for their concrete changes.
 
 ### Deferred System classifications
 

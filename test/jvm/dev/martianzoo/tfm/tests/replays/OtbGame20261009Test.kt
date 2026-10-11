@@ -286,7 +286,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     )
     p1.selectTask("ColonyProduction<Io>?")
     p1.narrowTask("ColonyProduction<Io>")
-    p1.doTasks("-2 TradeBarrier<Io>", "8 Heat")
+    p1.doTasks("8 Heat")
     p1.doTasks("Ok") // end turn
     p2.doTasks(
         "PlayProject<Class<$IndustrialCenter>>",
@@ -365,7 +365,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     )
     p1.selectTask("ColonyProduction<Triton>?")
     p1.narrowTask("ColonyProduction<Triton>")
-    p1.doTasks("-2 TradeBarrier<Triton>")
     p1.doTasks("6 Titanium")
     p2.doTasks(
         "UseCardAction<$ElectroCatapult, Action1>",
@@ -464,7 +463,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     )
     p1.selectTask("ColonyProduction<Callisto>?")
     p1.narrowTask("ColonyProduction<Callisto>")
-    p1.doTasks("-2 TradeBarrier<Callisto>", "13 Energy")
+    p1.doTasks("13 Energy")
     p1.doTasks("Ok") // end turn
     // "Requires six ocean tiles. Thank you, me."
     p2.doTasks(
@@ -637,7 +636,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     )
     p1.selectTask("ColonyProduction<Io>?")
     p1.narrowTask("ColonyProduction<Io>")
-    p1.doTasks("-2 TradeBarrier<Io>")
     p1.doTasks("2 Heat", "8 Heat")
 
     p2.doTasks("UseCardAction<$ElectroCatapult, Action2>", "-Steel", "7 MC")
@@ -652,7 +650,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     )
     p1.selectTask("ColonyProduction<Miranda>?")
     p1.narrowTask("ColonyProduction<Miranda>")
-    p1.doTasks("-2 TradeBarrier<Miranda>")
     // The printed three-animal trade reward had no legal holder and yielded nothing.
     agents[p1.actor].dropTask(game.tasks.extract { it }.single().id)
 
@@ -845,7 +842,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     )
     p1.selectTask("2 ColonyProduction<Triton> OR Ok")
     p1.narrowTask("2 ColonyProduction<Triton>")
-    p1.doTasks("Ok", "-3 TradeBarrier<Triton>") // decline Trading Colony's one step
+    p1.doTasks("Ok") // decline Trading Colony's one step
     p1.doTasks("Titanium", "5 Titanium")
 
     p2.doTasks(
@@ -888,7 +885,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     p1.narrowTask("ColonyProduction<Io>")
     p1.selectTask("2 ColonyProduction<Io> OR Ok") // L1 Trade Terminal
     p1.narrowTask("2 ColonyProduction<Io>")
-    p1.doTasks("-3 TradeBarrier<Io>")
     p1.doTasks("2 Heat", "10 Heat")
     p1.doTasks("ConvertHeat", "-8 Heat", "TemperatureStep", "TerraformRating")
     p2.doTasks("Pass")
@@ -977,7 +973,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     p1.narrowTask("ColonyProduction<Enceladus>")
     p1.selectTask("2 ColonyProduction<Enceladus> OR Ok")
     p1.narrowTask("2 ColonyProduction<Enceladus>")
-    p1.doTasks("-3 TradeBarrier<Enceladus>", "4 Microbe<$Decomposers>")
+    p1.doTasks("4 Microbe<$Decomposers>")
     p1.doTasks("Ok") // end turn
     p2.doTasks(
         "PlayProject<Class<$VenusShuttles>>",
@@ -1007,7 +1003,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     p1.narrowTask("ColonyProduction<Triton>")
     p1.selectTask("2 ColonyProduction<Triton> OR Ok")
     p1.narrowTask("2 ColonyProduction<Triton>")
-    p1.doTasks("-3 TradeBarrier<Triton>")
     p1.doTasks("Titanium", "4 Titanium")
     p1.doTasks("Ok") // end turn
     p2.doTasks(

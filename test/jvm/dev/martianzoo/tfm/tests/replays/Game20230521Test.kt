@@ -1651,8 +1651,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "$PowerInfrastructure FROM ProjectCard",
     )
     p1.doTask("UseCardAction<$PowerInfrastructure, Action1>")
-    p1.fillInTask(p1.tasks.ids().single()).apply { choose(decisions().single(), "8") }.commit()
-    p1.doTask("8 MC")
+    p1.selectTask(p1.tasks.extract { it }.single().bindXTo(8))
+    p1.doTasks("-8 Energy", "8 MC")
     p2.doTasks(
         "UseCardAction<$Factorum, Action2>",
         "-3 MC",
@@ -1790,8 +1790,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "Ok", // temperature maxed
     )
     p1.doTask("UseCardAction<$PowerInfrastructure, Action1>")
-    p1.fillInTask(p1.tasks.ids().single()).apply { choose(decisions().single(), "5") }.commit()
-    p1.doTask("5 MC")
+    p1.selectTask(p1.tasks.extract { it }.single().bindXTo(5))
+    p1.doTasks("-5 Energy", "5 MC")
     p1.doTasks(
         "UseCardAction<$ExtractorBalloons, Action1>",
         "Floater<$ExtractorBalloons>",

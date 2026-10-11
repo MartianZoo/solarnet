@@ -9,6 +9,8 @@ import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlin.test.Test
 
 internal class TaskLogTest {
@@ -124,7 +126,7 @@ internal class TaskLogTest {
       imported[PLAYER1].count("Marker") shouldBe 1
       imported.world.tasks.isEmpty() shouldBe true
 
-      // Finishing the source's form makes its earlier narrowing unnecessary in the export.
+      // Retain the step that selected the task, including any choices committed with selection.
       val partial = source.world.timeline.checkpoint()
       if (useForm) {
         player.fillInTask(player.tasks.ids().single()).apply {
@@ -134,7 +136,9 @@ internal class TaskLogTest {
       } else {
         player.narrowTask("Marker")
       }
-      val selection = if (useForm) "" else "$PLAYER1: CHOOSE Coin! OR Marker! OR Prize!\n"
+      val selection =
+          if (useForm) "$PLAYER1: CHOOSE Coin! OR Marker!\n"
+          else "$PLAYER1: CHOOSE Coin! OR Marker! OR Prize!\n"
       source.taskLog.text() shouldBe "${selection}$PLAYER1: CHOOSE Marker!\n"
       val completed = newAgents()
       TaskLog.replay(source.taskLog.text(), completed)
@@ -211,7 +215,7 @@ internal class TaskLogTest {
           TaskLog.replay("$PLAYER1: CHOOSE Coin", agents)
         }
 
-    failure.cause?.message shouldBe "ambiguous task selection: Coin"
+    failure.cause.shouldBeInstanceOf<TaskException>().message.shouldContain("ambiguous")
     agents.world.timeline.checkpoint() shouldBe checkpoint
     player.count("Coin") shouldBe 0
   }

@@ -423,6 +423,9 @@ These concerns remain open; the ranking does not select replacement designs.
 - Extend instruction intersection to preserve unresolved shared aliases and unnamed Type unions.
   These currently require a more specific submitted choice; keep task matching conservative and
   never substitute `Ok` for an unrepresentable nonempty intersection.
+- Let a combined selection and narrowing retain its choice when contextual resolution splits the
+  original task into siblings. Until that can reuse the existing task machinery cleanly, these
+  requests fail atomically; select the original task first and narrow its children separately.
 - Complete `TaskForm` decision and option enumeration for `EACH` and nested instruction shapes.
   Decide how a form should offer `Ok` for an optional change
   inside `PER`, whose current narrowing rule requires a change child until state resolution removes

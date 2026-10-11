@@ -34,7 +34,11 @@ internal class TfmActionLowererTest {
                     "Billing<Class<This>, Action2, Class<Steel>>"
             ),
             parse<Effect>("-Billing<Class<This>, Action2>: Bar"),
-            parse<Effect>("UseAction<This, Action3>: -X Plant! THEN X Heat"),
+            parse<Effect>(
+                "UseAction<This, Action3>: X Owed<Class<Plant>> THEN " +
+                    "Billing<Class<This>, Action3, Class<Plant>> THEN " +
+                    "MAX 0 Billing: (X Heat)"
+            ),
         )
   }
 }
