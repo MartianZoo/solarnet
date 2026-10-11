@@ -65,6 +65,11 @@ These concerns remain open; the ranking does not select replacement designs.
 
 ## User Ideas and Agreed Directions
 
+- [ ] Define a Canon guard for card effects that can remove heat outside `Billing`. Include
+  `FocusedOrganization`'s `-StandardResource` choice as well as literal `-Heat`; determine whether
+  Stormcraft's floaters apply to that choice before requiring every such card to be named by
+  Stormcraft.
+
 - Consider a separate rename of automatic (`::`) effects to “immediate”. Card effects now use
   “direct effect”; the dispatch terminology and behavior remain unchanged pending that decision.
 
