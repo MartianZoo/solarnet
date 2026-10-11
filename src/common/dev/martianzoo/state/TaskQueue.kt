@@ -4,7 +4,10 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.state.Task.TaskId
 
-/** A live read-only view of all pending tasks, optionally filtered to one [Actor]. */
+/**
+ * A live read-only view of pending tasks, optionally filtered to an [Actor]. Each query observes
+ * the current task store; returned collections are snapshots. Task order is diagnostic only.
+ */
 public class TaskQueue
 internal constructor(
     private val store: TaskStore,
@@ -22,17 +25,28 @@ internal constructor(
   /** Task ids in stable diagnostic order. Their order has no gameplay meaning. */
   public fun ids(): Set<TaskId> = filtered().toSetStrict { it.id }
 
+  /** Whether task [id] is currently visible through this queue's assignee filter. */
   public operator fun contains(id: TaskId): Boolean = filtered().any { it.id == id }
 
+  /** Whether this filtered queue currently contains no tasks. */
   public fun isEmpty(): Boolean = ids().none()
 
+  /** Ids of currently visible tasks satisfying [predicate], in diagnostic order. */
   public fun matching(predicate: (Task) -> Boolean): Set<TaskId> =
       filtered().filter(predicate).toSetStrict { it.id }
 
+  /**
+   * Applies [extractor] to each currently visible task in diagnostic order and returns the results.
+   */
   public fun <T> extract(extractor: (Task) -> T): List<T> = filtered().map(extractor)
 
+  /** Id of the selected visible task, or null when none is selected. */
   public fun selectedTask(): TaskId? = filtered().firstOrNull { it.selected }?.id
 
+  /**
+   * Returns the current task with [id]. Fails if it does not exist or belongs to another assignee
+   * than this queue's filter.
+   */
   public fun getTaskData(id: TaskId): Task = store.get(id).also(::validateAssignee)
 
   override fun toString(): String = filtered().joinToString("\n")

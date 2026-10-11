@@ -65,11 +65,20 @@ public value class Component public constructor(public val type: Type) : HasExpr
   override fun toString(): String = "$type"
 
   public companion object {
+    /**
+     * Resolves this [Expression] in [game] and wraps its concrete type as a [Component]. An
+     * abstract result fails the component constructor's concrete-type check.
+     */
     public fun Expression.toComponent(game: GameReader): Component = Component(game.resolve(this))
 
+    /**
+     * Returns this component unchanged, or resolves this value's expression in [game] and wraps the
+     * resulting concrete type.
+     */
     public fun HasExpression.toComponent(game: GameReader): Component =
         this as? Component ?: expression.toComponent(game)
   }
 }
 
+/** Wraps this concrete [Type] as a [Component]; throws if the type is abstract. */
 public fun Type.toComponent(): Component = Component(this)

@@ -71,6 +71,10 @@ public object Exceptions {
       cause: Throwable? = null,
       sourceLocation: SourceLocation? = null,
   ) : GameplayException(message, cause, sourceLocation) {
+    /**
+     * Wraps [cause] as an impossible gameplay path, preserving a domain exception's detail and
+     * source location when available; the original failure remains the cause.
+     */
     public constructor(
         cause: Throwable
     ) : this(

@@ -155,8 +155,8 @@ public abstract class PetTransformer protected constructor() {
   /** Transforms a scalar while preserving the [Scalar] kind. */
   public fun transformScalar(node: Scalar): Scalar = transformAsKind(node, Scalar::class)
 
-  /** Transforms heterogeneous infrastructure data without promising or checking a result kind. */
   // TODO: Contract this temporary tfm-canon seam.
+  /** Transforms heterogeneous infrastructure data without promising or checking a result kind. */
   public fun transformWithoutKindCheck(node: PetNode): PetNode =
       try {
         transformNode(node)

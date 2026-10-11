@@ -24,8 +24,14 @@ import dev.martianzoo.state.TaskResult
 private val MC: ClassName = cn("MC")
 
 /**
- * Wraps and extends an [Agent] to provide much more convenient functions specific to *Terraforming
- * Mars*.
+ * Actor-scoped Terraforming Mars operations and queries backed by [agents]. The [Agent] interface
+ * is delegated to [agents]' entry for [actor]; the convenience methods select and narrow the game's
+ * ordinary offered tasks rather than applying card effects directly.
+ *
+ * Methods that call [inTurn] run an operation and return its [TaskResult]. Their supplied `body`
+ * runs after the named choice and any default payment, so callers can make any remaining choices.
+ * Methods on [OperationScope] make the same choice within an existing operation, whose caller owns
+ * completion and failure handling. A task must actually be offered to this actor.
  */
 public class TfmGameplay(
     private val agents: Agents,
@@ -44,8 +50,16 @@ public class TfmGameplay(
         if (explicitUnusedActionCardsRequired) it.requireExplicitUnusedActionCards()
       }
 
+  /**
+   * Returns a view of the same world for [player], copying this wrapper's explicit-choice settings.
+   */
   public fun asPlayer(player: Player): TfmGameplay = asActor(player)
 
+  /**
+   * Moves through Production, Research, and Action phases. [cardsBought] gives the count bought by
+   * each player in seat order; omitted trailing players make no purchase through this helper.
+   * Requires an existing phase and leaves Action as the current phase.
+   */
   public fun nextGeneration(vararg cardsBought: Int) {
     phase("Production")
     phase("Research") {
@@ -56,7 +70,11 @@ public class TfmGameplay(
     phase("Action")
   }
 
-  /** Keeps [count] of the ten project cards offered during setup. */
+  /**
+   * Keeps [count] of the offered setup project cards and discards the rest. The count must be
+   * between zero and the number currently offered; the retained cards remain in `Selecting` until
+   * corporation purchase completes.
+   */
   public fun keepStartingProjects(count: Int): TaskResult = agent.continueOperation {
     discardUnwantedCards(count)
   }
@@ -89,7 +107,11 @@ public class TfmGameplay(
     }
   }
 
-  /** Buys the selected number of project cards and pays their adjusted M€ cost. */
+  /**
+   * Keeps [count] of the currently offered project cards, pays their adjusted MC cost, and moves
+   * the purchased cards from `Selecting` to `Hand`. The count must be between zero and the number
+   * offered. Remaining choices may leave the operation pending.
+   */
   public fun buyCards(count: Int): TaskResult = agent.continueOperation {
     buyOfferedCards(count)
   }
@@ -127,14 +149,23 @@ public class TfmGameplay(
     }
   }
 
+  /**
+   * Passes this actor's current action turn; with [requireExplicitUnusedActionCards] enabled, this
+   * also asserts that no unspent action card remains.
+   */
   public fun pass(): TaskResult {
     return if (explicitUnusedActionCardsRequired) pass(unused = emptySet())
     else passWithoutUnusedActionCardCheck()
   }
 
+  /** Passes after asserting that exactly these action cards have no `ActionUsedMarker`. */
   public fun pass(unused: ClassName, vararg additionallyUnused: ClassName): TaskResult =
       pass(unused = setOf(unused, *additionallyUnused))
 
+  /**
+   * Passes after asserting that [unused] is exactly the set of this actor's unspent action cards. A
+   * mismatch fails before the Pass task is selected.
+   */
   public fun pass(unused: Set<ClassName>): TaskResult {
     val actual =
         reader
@@ -149,17 +180,21 @@ public class TfmGameplay(
 
   private fun passWithoutUnusedActionCardCheck(): TaskResult = inTurn { doTask("Pass") }
 
+  // TODO: Contract temporary tfm-tests gameplay seams.
   /**
    * Performs the actions in one test-level turn, declining an unused second action when needed. If
    * every other player has passed, the workflow offers `NewTurn` rather than a second action; that
    * offer is deliberately left in place so this block can contain the rest of the generation.
    */
-  // TODO: Contract temporary tfm-tests gameplay seams.
   public fun turn(body: TfmGameplay.() -> Unit) {
     body()
     if (secondActionOffer() != null) declineSecondAction()
   }
 
+  /**
+   * Declines this actor's sole pending Action-phase second-action offer with `Ok`. Fails when there
+   * is no unique such offer.
+   */
   public fun declineSecondAction(): TaskResult {
     return inTurn {
       val secondAction =
@@ -184,12 +219,12 @@ public class TfmGameplay(
   }
 
   /**
-   * Selects [option] from the current turn offer, runs [payment], then completes its [body]. For
+   * Selects [option] from the current turn offer, runs [payment], then completes its `body`. For
    * example, use `ClaimMilestone<Class<Builder>>` or `TradeAction<Action2>`. When a required action
    * is pending, select `RequiredActionsSignal` instead.
    *
    * The default payment spends the bill's resource when it is the sole accepted resource. Supply
-   * [payment] for mixed payments and [body] for remaining choices. Selection must narrow an offered
+   * [payment] for mixed payments and `body` for remaining choices. Selection must narrow an offered
    * task; failures roll back this operation through [inTurn].
    */
   public fun stdAction(
@@ -200,7 +235,7 @@ public class TfmGameplay(
 
   /**
    * Selects [option] from an action granted within the enclosing operation, then runs [payment] and
-   * [body]. Uses the same option syntax and default payment as [stdAction]; the enclosing operation
+   * `body`. Uses the same option syntax and default payment as [stdAction]; the enclosing operation
    * owns completion and rollback.
    */
   public fun OperationScope.useStdAction(
@@ -213,9 +248,11 @@ public class TfmGameplay(
     body()
   }
 
+  /** Claims the offered [milestone] using the standard action and its default payment. */
   public fun claimMilestone(milestone: ClassName): TaskResult =
       stdAction("ClaimMilestone<Class<$milestone>>")
 
+  /** Funds the offered [award] and pays [amountPaid] through the current billing task. */
   public fun fundAward(award: ClassName, amountPaid: Int): TaskResult =
       stdAction("FundAward<Class<$award>>", payment = { pay(amountPaid) })
 
@@ -236,14 +273,29 @@ public class TfmGameplay(
         }
       }
 
+  /**
+   * Uses the offered conversion to settle an eight-Plant bill and gain a greenery tile. The
+   * caller's `body` chooses any placement still open after payment; without an offered action or a
+   * legal payment, the operation fails and rolls back.
+   */
   public fun convertPlants(body: OperationBlock = {}): TaskResult {
     return stdAction("ConvertPlants", body = body)
   }
 
+  /**
+   * Uses the offered conversion to settle an eight-Heat bill and raise temperature by one step. The
+   * caller's `body` handles any remaining choice; an unavailable action or payment fails and rolls
+   * back.
+   */
   public fun convertHeat(body: OperationBlock = {}): TaskResult {
     return stdAction("ConvertHeat", body = body)
   }
 
+  /**
+   * Uses an offered standard project named [stdProject]. The default [payment] settles its bill
+   * entirely in MC; `body` makes subsequent choices. A custom payment block must settle or leave
+   * the resulting billing tasks for the caller to handle.
+   */
   public fun stdProject(
       stdProject: String,
       payment: OperationBlock = {
@@ -265,6 +317,7 @@ public class TfmGameplay(
     useStdAction("UseStandardProject<$stdProject>", payment, body)
   }
 
+  /** Plays the offered prelude [cardName], then runs `body` for its resulting choices. */
   public fun playPrelude(
       cardName: ClassName,
       body: OperationBlock = {},
@@ -272,6 +325,7 @@ public class TfmGameplay(
     return inTurn { playPrelude(cardName, body) }
   }
 
+  /** Plays [cardName] as a prelude in the enclosing operation, then runs `body`. */
   public fun OperationScope.playPrelude(
       cardName: ClassName,
       body: OperationBlock = {},
@@ -279,6 +333,7 @@ public class TfmGameplay(
     playCardWithinOperation(cn("PreludeCard"), cardName, body)
   }
 
+  /** Plays [cardName] as a corporation in the enclosing operation, then runs `body`. */
   public fun OperationScope.playCorp(
       cardName: ClassName,
       body: OperationBlock = {},
@@ -295,11 +350,19 @@ public class TfmGameplay(
     body()
   }
 
-  // In the method after this, all the cost parameters are optional,
-  // but you've gotta provide ONE of them.
+  /**
+   * Rejects a project-play call with no stated payment. Supply a payment amount or block using the
+   * overload below; this overload always throws [IllegalStateException].
+   */
   public fun playProject(unused1: ClassName, unused2: OperationBlock = {}): Nothing =
       error("you must specify some cost")
 
+  /**
+   * Selects the offered project card [cardName], pays with the specified resource quantities, and
+   * runs `body` for remaining choices. [payment] replaces the quantity-based default when supplied.
+   * Unused card-payment offers are declined after the bill reaches zero. An unavailable resource or
+   * unoffered card fails through the underlying operation.
+   */
   public fun playProject(
       cardName: ClassName,
       mc: Int = 0,
@@ -316,6 +379,10 @@ public class TfmGameplay(
     }
   }
 
+  /**
+   * Plays [cardName] within the enclosing operation using the same payment and `body` sequence as
+   * [playProject]. The enclosing operation owns completion and failure handling.
+   */
   public fun OperationScope.playProject(
       cardName: ClassName,
       mc: Int = 0,
@@ -352,8 +419,15 @@ public class TfmGameplay(
   }
 
   /**
-   * Pays the open billing component and rejects any allocation containing a unit that could be
-   * returned without leaving the debt underpaid.
+   * Applies the specified resource quantities to this actor's open bill. The quantities are
+   * processed as plants, energy, heat, titanium, steel, then MC. A unit is rejected if removing it
+   * would still leave the whole bill covered; unavoidable excess is permitted. Each positive
+   * quantity must be accepted by an available payment task and owned by the payer. When the bill
+   * reaches zero, unused payment offers are declined and concrete follow-up work is advanced.
+   *
+   * [requireExplicitPaymentChoices] adds an audit of the default allocation. A call to
+   * [intentionalUnderpay] skips that audit for this call only; it does not bypass the game's
+   * payment rules. The operation's result reports whether any further choices remain.
    */
   public fun pay(
       mc: Int = 0,
@@ -543,60 +617,95 @@ public class TfmGameplay(
     }
   }
 
-  /** Exempts the next [pay] call from the default-allocation audit for a sourced legal payment. */
+  /**
+   * Exempts the next [pay] call from this wrapper's default-allocation audit. The flag is consumed
+   * by that call, including when the call fails; normal payment legality still applies.
+   */
   public fun intentionalUnderpay() {
     allowNondefaultPayment = true
   }
 
+  /**
+   * Requires subsequent [pay] calls to use the default resource allocation unless preceded by
+   * [intentionalUnderpay]. For each accepted non-MC resource valued above one MC, the allocation
+   * must use as many full-value units as the remaining bill and available stock permit before using
+   * later currencies. At value one, MC is preferred when it can settle the remaining bill. This
+   * setting stays on this wrapper and is copied by [asPlayer]. Returns this wrapper for chaining.
+   */
   public fun requireExplicitPaymentChoices(): TfmGameplay = apply {
     explicitPaymentChoicesRequired = true
   }
 
+  /**
+   * Makes parameterless [pass] assert that no action card is unused. Call a [pass] overload with
+   * the exact unused-card set to acknowledge such cards. Returns this wrapper for chaining.
+   */
   public fun requireExplicitUnusedActionCards(): TfmGameplay = apply {
     explicitUnusedActionCardsRequired = true
   }
 
   /**
    * How much of the open billing component one unit of [currency] settles: one when its
-   * denomination is [currency], plus one per [ResourceValue] the payer owns for it.
+   * denomination is [currency], plus one per `ResourceValue` the payer owns for it.
    */
   private fun paymentValue(currency: String): Int =
       count("ResourceValue<Class<$currency>>") + if (count("Owed<Class<$currency>>") > 0) 1 else 0
 
+  /**
+   * Uses [cardName]'s first offered action, pays a sole-resource bill if offered, then runs `body`.
+   */
   public fun cardAction1(cardName: ClassName, body: OperationBlock = {}): TaskResult =
       cardAction(1, cardName, body = body)
 
-  /** Selects the action's variable task and binds its X to positive [x]. */
+  /**
+   * Uses [cardName]'s first action and binds its unique variable task to positive [x] before
+   * payment and `body`.
+   */
   public fun cardAction1(
       cardName: ClassName,
       x: Int,
       body: OperationBlock = {},
   ): TaskResult = cardAction(1, cardName, x, body)
 
+  /**
+   * Uses [cardName]'s second offered action, pays a sole-resource bill if offered, then runs
+   * `body`.
+   */
   public fun cardAction2(cardName: ClassName, body: OperationBlock = {}): TaskResult =
       cardAction(2, cardName, body = body)
 
-  /** Binds the action's X to positive [x] without executing the resulting task. */
+  /**
+   * Uses [cardName]'s second action and binds its unique variable task to positive [x] before
+   * payment and `body`.
+   */
   public fun cardAction2(
       cardName: ClassName,
       x: Int,
       body: OperationBlock = {},
   ): TaskResult = cardAction(2, cardName, x, body)
 
+  /** Uses [cardName]'s first action within the enclosing operation, then runs `body`. */
   public fun OperationScope.cardAction1(cardName: ClassName, body: OperationBlock = {}) {
     useCardAction(1, cardName, body = body)
   }
 
-  /** Binds the action's X to positive [x] without executing the resulting task. */
+  /**
+   * Binds the first action's unique variable task to positive [x] within this operation; then runs
+   * `body`.
+   */
   public fun OperationScope.cardAction1(cardName: ClassName, x: Int, body: OperationBlock = {}) {
     useCardAction(1, cardName, x, body)
   }
 
+  /** Uses [cardName]'s second action within the enclosing operation, then runs `body`. */
   public fun OperationScope.cardAction2(cardName: ClassName, body: OperationBlock = {}) {
     useCardAction(2, cardName, body = body)
   }
 
-  /** Binds the action's X to positive [x] without executing the resulting task. */
+  /**
+   * Binds the second action's unique variable task to positive [x] within this operation; then runs
+   * `body`.
+   */
   public fun OperationScope.cardAction2(cardName: ClassName, x: Int, body: OperationBlock = {}) {
     useCardAction(2, cardName, x, body)
   }
@@ -654,11 +763,18 @@ public class TfmGameplay(
         else -> throw IllegalArgumentException("A component can offer only three actions: $which")
       }
 
+  /** Uses Sell Patents to discard [count] project cards and gain that many MC. */
   public fun sellPatents(count: Int): TaskResult =
       stdProject("SellPatentsProject") {
         doTask("$count MC FROM ProjectCard!")
       }
 
+  /**
+   * Replaces the sole current Phase with the named phase through an Admin operation (for example,
+   * `phase("Production")` selects `ProductionPhase`), then runs `body`. The caller must have
+   * started SetupPhase and must handle work left by the new phase. Throws [NotNowException] when
+   * there is not exactly one current Phase.
+   */
   public fun phase(phase: String, body: OperationBlock = {}) {
     if (count("Phase") != 1) {
       throw NotNowException(
@@ -668,13 +784,17 @@ public class TfmGameplay(
     asActor(ADMIN).runOperation("${phase}Phase FROM Phase", body)
   }
 
+  /** This actor's printed production of [kind]: live `PROD[kind]` minus `ProdOffset`. */
   public fun production(kind: ClassName): Int =
       count("PROD[$kind]") - count("ProdOffset<Class<$kind>>")
 
+  /** Current oxygen percentage, equal to the live `OxygenStep` count. */
   public fun oxygenPercent(): Int = count("OxygenStep")
 
+  /** Current temperature in Celsius: −30 at zero steps, −28 at one step, and so on. */
   public fun temperatureC(): Int = -30 + count("TemperatureStep") * 2
 
+  /** Current Venus percentage: 30% at step 15, 31% at step 16, then one more per step. */
   public fun venusPercent(): Int {
     val count = count("VenusStep")
     return if (count <= 15) count * 2 else count + 15 // thanks Amazonis

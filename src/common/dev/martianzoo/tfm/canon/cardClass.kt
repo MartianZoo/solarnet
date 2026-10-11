@@ -72,10 +72,13 @@ public fun cardProductionBoxes(card: Class): List<InstructionTransform> =
       it.transformKind == TfmClasses.PROD
     }
 
-/** Actions authored by this card declaration. */
+/** Returns this card's authored actions in declaration order, before action-to-effect lowering. */
 public fun cardActions(card: Class): List<Action> = card.declaration.authoredActions
 
-/** Non-action effects authored by this card declaration. */
+/**
+ * Returns authored effects other than the nonautomatic `This:` gain effects exposed by
+ * [cardDirectEffect]. Automatic effects remain in the result; lowered action effects do not.
+ */
 public fun cardEffects(card: Class): List<Effect> =
     card.declaration.authoredEffects.filterNot { effect ->
       effect.trigger == WhenGain && !effect.automatic

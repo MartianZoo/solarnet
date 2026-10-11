@@ -169,11 +169,11 @@ internal constructor(
     return interpreted
   }
 
+  // TODO: Contract this temporary tfm-canon seam.
   /**
    * The master universe containing this class, as required by
    * [rule T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
-  // TODO: Contract this temporary tfm-canon seam.
   public val classTable: ClassTable = loader
 
   /**

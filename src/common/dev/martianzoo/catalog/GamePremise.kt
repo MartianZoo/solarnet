@@ -22,20 +22,23 @@ import dev.martianzoo.pets.types.PremiseClassTable
  * Class presence and selected Module counts. Known Classes outside that closure remain uninhabited;
  * closure that reaches an excluded Class or an unrequested Module is invalid.
  *
+ * @property catalog Reusable source namespace from which this premise is resolved.
+ * @property classSelections Exact signed class choices after catalog selection policy is applied.
+ * @property componentAdjustments Signed changes to initial component counts after modules are made.
+ * @property playerNames Concrete player class names in seat order.
+ * @property bootstrapClassName Optional component Admin creates before the generated premise class.
+ * @property premiseClassName Generated configuration class, when setup requires one.
+ * @property premiseClassDeclarations Declarations local to this premise, absent from [catalog]'s
+ *   reusable master table.
  * @throws InvalidGameConfigException if its fields cannot describe a playable game configuration
  */
 public data class GamePremise(
     public val catalog: Catalog,
     public val classSelections: Set<ClassSelection>,
-    /** Signed setup-component changes applied after selected Modules are created. */
     public val componentAdjustments: Map<ClassName, Int> = emptyMap(),
-    /** Concrete Player Class Names in seat order. */
     public val playerNames: List<ClassName> = emptyList(),
-    /** Concrete Component created by Admin immediately before the generated premise Class. */
     public val bootstrapClassName: ClassName? = null,
-    /** Concrete configuration Class created during bootstrap, when the Catalog supplies one. */
     public val premiseClassName: ClassName? = null,
-    /** Generated and ad-hoc declarations owned only by this premise. */
     public val premiseClassDeclarations: Set<ClassDeclaration> = emptySet(),
 ) {
   /** Selected ambient-rule Classes, derived from the unified signed Class selections. */
@@ -54,12 +57,13 @@ public data class GamePremise(
   private val premiseClassTable: PremiseClassTable
     get() = premiseClassTableLazy.value
 
-  /**
-   * The immutable premise-selected class-table view shared by every World built from this premise.
-   * Its normal effect lookup is premise-specialized; each Class declaration remains the reusable
-   * backing form.
-   */
   private val classTableLazy = lazy(::createClassTable)
+  /**
+   * Immutable premise-selected class-table view shared by every World built from this premise.
+   * Effect lookup is premise-specialized while the underlying class declarations remain reusable.
+   * The view is created on first access and rejects invalid closure, exclusions, or starting
+   * choices instead of returning a partially usable table.
+   */
   public val classTable: ClassTable
     get() = classTableLazy.value
 

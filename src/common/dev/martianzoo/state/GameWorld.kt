@@ -15,6 +15,8 @@ import dev.martianzoo.state.GameEvent.TaskEvent
  * consequences. Supplying [initialEvents] reconstructs the exact projections produced by applying
  * that complete event sequence to a fresh world with the same [classTable]. [customClasses] may be
  * empty for passive playback; querying an unavailable custom metric then fails at the query.
+ *
+ * @property premise Immutable resolved game configuration shared with worlds forked from this one.
  */
 public class GameWorld
 private constructor(
@@ -23,31 +25,36 @@ private constructor(
     customClasses: Set<CustomClass>,
     copyFrom: GameWorld?,
 ) {
+  /**
+   * Creates an independently mutable world from [premise]. [initialEvents] must be a complete,
+   * ordered prefix of concrete game events starting at the first ordinal. [customClasses] supplies
+   * runtime implementations for custom queries; an empty set supports passive playback.
+   */
   public constructor(
       premise: GamePremise,
       initialEvents: List<GameEvent> = emptyList(),
       customClasses: Set<CustomClass> = emptySet(),
   ) : this(premise, initialEvents, customClasses, copyFrom = null)
 
-  /** The immutable classes available to this world. */
+  /** Premise-selected class universe shared with worlds forked from this world. */
   public val classTable: ClassTable = premise.classTable
 
   private val customClasses: Set<CustomClass> = customClasses.toSet()
   private val customClassesByName: Map<ClassName, List<CustomClass>> =
       this.customClasses.groupBy(CustomClass::className)
 
-  /** The current component multiset and its observable count indexes. */
+  /** Live component counts, updated by [apply] and [rollBackTo]. */
   public val components: ComponentGraph = copyFrom?.components?.fork() ?: ComponentGraph(classTable)
 
-  /** Everything that has happened in this world. */
+  /** Live event prefix; rollback removes its suffix. */
   public val events: EventLog = copyFrom?.events?.fork() ?: EventLog()
 
   private val taskStore: TaskStore = copyFrom?.taskStore?.fork() ?: TaskStore()
 
-  /** Every task currently pending in this world. */
+  /** Live view of every pending task, without an actor filter. */
   public val tasks: TaskQueue = taskStore.all()
 
-  /** Higher-level Pets queries over this world's materialized present. */
+  /** Live type and component queries over this world's materialized present. */
   public val reader: GameReader = GameReaderImpl(premise, this)
 
   /** Every Actor participating in this world, with seated Players in seat order. */
@@ -124,12 +131,21 @@ private constructor(
     return reversedChanges
   }
 
+  /**
+   * Returns change events since [checkpoint] in event order, plus task ids added in that interval
+   * that have not also been removed in it.
+   */
   public fun activitySince(checkpoint: Checkpoint): TaskResult = events.activitySince(checkpoint)
 
+  /**
+   * Marks [checkpoint] as the start of gameplay history for queries such as
+   * [EventLog.entriesSinceSetup]. Defaults to the current event position.
+   */
   public fun markSetupStart(checkpoint: Checkpoint = Checkpoint(nextOrdinal)) {
     events.markSetupStart(checkpoint)
   }
 
+  /** Throws [TaskException] if any task remains pending anywhere in this world. */
   public fun requireNoPendingTasks() {
     val pending = taskStore.getAll()
     if (pending.isNotEmpty()) {

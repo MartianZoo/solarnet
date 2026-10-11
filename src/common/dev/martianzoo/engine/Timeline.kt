@@ -3,7 +3,12 @@ package dev.martianzoo.engine
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.TaskResult
 
+/**
+ * Checkpoints and atomic history control for a live [World]. A checkpoint identifies a position in
+ * that world's event stream; rollback removes later events and restores their projected state.
+ */
 public interface Timeline {
+  /** Captures the current event position for a later [rollBack] call. */
   public fun checkpoint(): Checkpoint
 
   /**

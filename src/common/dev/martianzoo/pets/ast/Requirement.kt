@@ -122,6 +122,10 @@ public sealed class Requirement : PetElement() {
     /** The values of [metric] that meet this requirement. */
     public abstract val range: IntRange
 
+    /**
+     * Renders this count with [prefix], spelling a simple count in full when [fullSimpleMetric] is
+     * true so zero and exact-count requirements retain parseable form.
+     */
     protected fun countingString(prefix: String = "", fullSimpleMetric: Boolean = false): String {
       val countedMetric = metric
       val counted =
@@ -169,6 +173,7 @@ public sealed class Requirement : PetElement() {
    */
   public data class Max(val maximum: Int, val countedMetric: Metric) :
       Counting(maximum, countedMetric) {
+    /** Converts a scaled expression into a maximum count of its expression. */
     public constructor(
         scaledEx: ScaledExpression
     ) : this(scaledEx.actualScalar(), Metric.Count(scaledEx.expression))
@@ -184,6 +189,7 @@ public sealed class Requirement : PetElement() {
    */
   public data class Exact(public val expected: Int, public val countedMetric: Metric) :
       Counting(expected, countedMetric) {
+    /** Converts a scaled expression into an exact count of its expression. */
     public constructor(
         scaledEx: ScaledExpression
     ) : this(scaledEx.actualScalar(), Metric.Count(scaledEx.expression))

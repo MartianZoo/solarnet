@@ -11,12 +11,17 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
  * the implementation's Kotlin simple name.
  */
 public abstract class CustomClass(name: String? = null) : HasClassName {
+  /** Uses [className] as the Pets identity instead of the Kotlin class's simple name. */
   public constructor(className: ClassName) : this(className.toString())
 
   final override val className: ClassName = cn(name ?: requireNotNull(this::class.simpleName))
 }
 
-/** Checks the executable implementations supplied when starting a live game. */
+/**
+ * Verifies that each declared custom metric or instruction in [catalog] has a unique implementation
+ * of the matching Kotlin kind in [customClasses]. Duplicate names, missing implementations, and an
+ * implementation for a declared non-custom class fail with [InvalidPetDefinitionException].
+ */
 public fun validateCustomClasses(catalog: Catalog, customClasses: Set<CustomClass>) {
   val implementationsByName = customClasses.groupBy(CustomClass::className)
   implementationsByName.entries

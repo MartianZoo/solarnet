@@ -18,6 +18,7 @@ import dev.martianzoo.pets.ast.ClassName
  * the Bundle, Module, or Content.
  */
 public abstract class Bundle(
+    /** Identity of this source bundle; it need not name a Pets class. */
     public val bundleName: ClassName,
 ) : TfmCatalog() {
   /** Declarations that live in this bundle's card resource, including auxiliary classes. */
