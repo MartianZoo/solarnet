@@ -21,6 +21,7 @@ import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.typeVariablesFor
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.systemClassDeclarations
+import dev.martianzoo.pets.types.Dependency.Key
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -127,6 +128,20 @@ internal class Spec13TypeVariablesTest {
 
     table.getClass(cn("Box")).typeVariables.shouldContainExactly(listOf())
     table.getClass(cn("SelfBound")).typeVariables.map { "$it" } shouldContainExactly listOf()
+  }
+
+  @Test
+  internal fun `T13-2 a concrete self class literal in a supertype has no variable`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Selection<Class<Component>>",
+            "CLASS Selected : Selection<Class<Selected>>",
+        )
+
+    val selected = table.getClass(cn("Selected"))
+    selected.baseType.dependencies.get(Key(cn("Selection"), 0)).expressionFull shouldBe
+        te("Class<Selected>")
+    selected.typeVariables.shouldContainExactly(listOf())
   }
 
   @Test

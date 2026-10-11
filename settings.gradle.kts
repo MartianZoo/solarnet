@@ -4,6 +4,9 @@ pluginManagement { includeBuild("gradle/build-logic") }
 // https://docs.gradle.org/current/userguide/github-actions.html#enable_build_scan_publishing
 plugins { id("com.gradle.develocity") version ("4.2.2") }
 
+// Temporary local checkout of the fork while validating its JS fix and WASM target.
+includeBuild("_local/work4-better-parse")
+
 develocity {
   buildScan {
     publishing.onlyIf { System.getenv("CI") != null }
@@ -45,11 +48,5 @@ include(*modules.toTypedArray())
 modules.forEach { module -> project(":$module").projectDir = file("modules/$module") }
 
 dependencyResolutionManagement {
-  repositories {
-    mavenCentral()
-    exclusiveContent {
-      forRepository { maven { url = uri("https://jitpack.io") } }
-      filter { includeGroup("com.github.kevinb9n.better-parse") }
-    }
-  }
+  repositories { mavenCentral() }
 }

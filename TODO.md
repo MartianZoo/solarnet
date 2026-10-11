@@ -4,6 +4,13 @@
 
 Issue links provide background. Inline TODOs should be brief context pointers.
 
+## Build dependency
+
+- [ ] Return better-parse to a pinned JitPack fork commit after publishing the local JVM
+  regex offset fix and confirming that JitPack serves the JVM, JS, and WASM artifacts.
+  On 2026-10-11, JitPack reported its Queue monitor down and left fork commit `333d8d1`
+  queued without a build log; clean JVM, JS, and WASM publications passed locally.
+
 ## Standard actions
 
 - [ ] Fix missing-action selection and remove the action-slot dependency from general-purpose

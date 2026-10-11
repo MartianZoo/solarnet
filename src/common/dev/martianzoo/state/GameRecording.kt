@@ -66,7 +66,7 @@ public class GameRecording(
       if (world.nextOrdinal > target) {
         world.rollBackTo(target)
       } else {
-        events.subList(world.nextOrdinal, target).forEach(world::apply)
+        events.subList(world.nextOrdinal, target).forEach { world.apply(it) }
       }
       positionIndex = index
     }

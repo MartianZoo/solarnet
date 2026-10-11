@@ -169,8 +169,17 @@ non-overlapping package roots from the repository-wide `src/` and `test/` trees;
 applications configure their targets. Repository-wide formatting, the Node.js version, and
 Yarn policy remain in the root build.
 Dependency and plugin versions are declared in `gradle/libs.versions.toml`, while dependency
-repositories are declared centrally in `settings.gradle.kts`; JitPack is restricted to the pinned
-better-parse fork.
+repositories are declared centrally in `settings.gradle.kts`. During the temporary WASM experiment,
+the better-parse dependency comes from the local fork checkout at `_local/work4-better-parse`.
+Pets and the common library modules `agent`, `catalog`, `engine`, `script`, `state`, `tfm-canon`,
+`tfm-card-data`, `tfm-engine`, `tfm-fake`, `tfm-state`, and `tfm-text` declare WASM/JS browser and
+Node targets for this experiment. `tfm-tests` also declares a WASM/JS target for the shared replay
+tests. All production WASM targets compile. The shared WASM Node and browser suites pass for Pets,
+`agent`, `catalog`, and `state`; four modules have no shared WASM tests. The full WASM Node suites
+pass for `tfm-canon`, `tfm-fake`, `engine`, and `script`, and the `OtbGame20260828Test` replay passes
+in the WASM browser. Run a module's shared tests with `:<module>:wasmJsNodeTest` or
+`:<module>:wasmJsBrowserTest`.
+The checkout starts at fork commit `333d8d1` and has a local JVM regex offset-matching fix.
 
 All Kotlin modules use strict explicit API mode. Declarations that form a module's public API must
 spell out `public` and their public types; declarations used only within one module should be

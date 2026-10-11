@@ -1,5 +1,5 @@
 [versions]
-better-parse = "1e227e760395f6dca1cfd00de4d499c7229c51e3"
+better-parse = "0.4.4"
 detekt = "2.0.0-alpha.5"
 dokka = "2.2.0"
 jline = "3.30.17"
@@ -16,7 +16,7 @@ spotless = "8.8.0"
 truth = "1.4.5"
 
 [libraries]
-better-parse = { module = "com.github.kevinb9n.better-parse:better-parse", version.ref = "better-parse" }
+better-parse = { module = "com.github.h0tk3y.betterParse:better-parse", version.ref = "better-parse" }
 detekt-metrics = { module = "dev.detekt:detekt-metrics", version.ref = "detekt" }
 jline = { module = "org.jline:jline", version.ref = "jline" }
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }

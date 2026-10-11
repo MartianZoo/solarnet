@@ -1,4 +1,5 @@
 import dev.martianzoo.buildlogic.GenerateCatalogSources
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
   id("solarnet.kmp-jvm-js")
@@ -18,6 +19,12 @@ val generateCardDataSources by
     }
 
 kotlin {
+  @OptIn(ExperimentalWasmDsl::class)
+  wasmJs {
+    browser()
+    nodejs()
+  }
+
   sourceSets {
     commonMain {
       kotlin.setSrcDirs(
