@@ -7,8 +7,8 @@ import dev.martianzoo.pets.types.Class
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.canon.cardActions
+import dev.martianzoo.tfm.canon.cardDirectEffect
 import dev.martianzoo.tfm.canon.cardEffects
-import dev.martianzoo.tfm.canon.cardImmediate
 import dev.martianzoo.tfm.canon.cardRequirement
 import java.io.File
 
@@ -112,7 +112,7 @@ private object EnglishRandomCardTextGenerator {
   private fun bottomPets(card: Class, describers: Describers): List<String> =
       listOfNotNull(
           cardRequirement(card)?.let { "requirement = HAS \"$it\"" },
-          cardImmediate(card)?.let { "This: $it" },
+          cardDirectEffect(card)?.let { "This: $it" },
       ) +
           cardEffects(card)
               .filter { isEndEffect(it, describers) }

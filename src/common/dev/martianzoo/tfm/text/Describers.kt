@@ -194,8 +194,8 @@ private constructor(
   internal fun placementSite(className: ClassName): ComponentDescriber.PlacementSite? {
     val site = fact(className, ComponentDescriber::placementSite) ?: return null
     if (site.forSubclasses) return site
-    val direct = descriptions[className]?.placementSite
-    return site.takeIf { direct != null }
+    val declared = descriptions[className]?.placementSite
+    return site.takeIf { declared != null }
   }
 
   internal fun metricCount(className: ClassName): ComponentDescriber.MetricCount? {

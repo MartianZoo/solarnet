@@ -55,7 +55,7 @@ public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer(
     val bodyNodes = body.asDerivedDeclaration(generated, base.expression).allNodes
     // Rule L12-5: owner-local Classes do not nest, in the body or in an argument of the occurrence.
     if (
-        node.immediateChildren().any { it.containsDerivedClass() } ||
+        node.childNodes().any { it.containsDerivedClass() } ||
             bodyNodes.any { it.containsDerivedClass() }
     ) {
       throw PetSyntaxException(

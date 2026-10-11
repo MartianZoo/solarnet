@@ -70,13 +70,13 @@ public sealed class PetNode {
   protected open fun precedence(): Int = Int.MAX_VALUE
 
   /**
-   * Invokes [Visitor.maybeVisit] for each immediate child node of this [PetNode] (but not for this
-   * node).
+   * Invokes [Visitor.maybeVisit] for each child node of this [PetNode], excluding this node and
+   * deeper descendants.
    */
   protected abstract fun visitChildren(visitor: Visitor)
 
-  /** Immediate children in the same stable order used by descendant traversal. */
-  public fun immediateChildren(): List<PetNode> = buildList {
+  /** Child nodes in the same stable order used by descendant traversal. */
+  public fun childNodes(): List<PetNode> = buildList {
     visitChildren(
         Visitor {
           add(it)

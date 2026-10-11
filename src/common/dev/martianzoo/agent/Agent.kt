@@ -195,8 +195,8 @@ public interface Agent {
 
     /**
      * Selects a pending task whose current instruction equals [instruction], then runs automatic
-     * work. An abstract task remains selected for [narrowTask]; a concrete task may execute or
-     * hand off. See [Agent.selectTask].
+     * work. An abstract task remains selected for [narrowTask]; a concrete task may execute or hand
+     * off. See [Agent.selectTask].
      */
     public fun selectTask(instruction: String)
 

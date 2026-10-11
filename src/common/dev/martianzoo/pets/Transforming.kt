@@ -79,12 +79,12 @@ public object Transforming {
           ?: throw PetSyntaxException("action index must be between 1 and 3: `$index1Ref`")
 
   /**
-   * Returns the effect `This: instruction`, which is how a card's "do this now" section becomes an
-   * ordinary rule ([rule
+   * Returns the self-gain effect `This: instruction` (or `This:: instruction` when
+   * [effectIsAutomatic] is true), used to express a card's direct effect ([rule
    * L7-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-actions)).
-   * An immediate `Ok` produces no effect at all, so this returns null for one.
+   * An on-gain `Ok` produces no effect at all, so this returns null for one.
    */
-  public fun immediateToEffect(
+  public fun onGainEffect(
       instruction: InstructionTree,
       effectIsAutomatic: Boolean = false,
   ): Effect? {

@@ -72,7 +72,7 @@ internal object PremiseViability {
                       ?: table.getClass(it.className).defaults.removeOnly.quantifier) == MANDATORY
             }
         else ->
-            tree.immediateChildren().filterIsInstance<InstructionTree>().firstNotNullOfOrNull {
+            tree.childNodes().filterIsInstance<InstructionTree>().firstNotNullOfOrNull {
               impossibleRemoval(it, table, interpreter)
             }
       }

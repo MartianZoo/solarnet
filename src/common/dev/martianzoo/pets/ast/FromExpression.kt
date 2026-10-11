@@ -92,12 +92,10 @@ public sealed class FromExpression : PetNode() {
           retained: Expression,
       ): Expression? {
         if (projection === retained) return proposed as? Expression
-        return projection
-            .immediateChildren()
-            .zip(proposed.immediateChildren())
-            .firstNotNullOfOrNull { (wide, narrow) ->
-              correspondingExpression(wide, narrow, retained)
-            }
+        return projection.childNodes().zip(proposed.childNodes()).firstNotNullOfOrNull {
+            (wide, narrow) ->
+          correspondingExpression(wide, narrow, retained)
+        }
       }
 
       descendantsOfType<Unchanged>().forEach { unchanged ->

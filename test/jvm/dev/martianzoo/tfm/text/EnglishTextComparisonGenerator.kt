@@ -114,7 +114,7 @@ private object EnglishTextComparisonGenerator {
             "Printed text: [wording evidence](../../src/jvm/dev/martianzoo/tfm/text/$evidenceFile)."
         )
         appendLine(
-            "Generated text comes directly from the current English renderer. See the [reading notes](README.md#reading-the-comparisons)."
+            "Generated text comes from the current English renderer. See the [reading notes](README.md#reading-the-comparisons)."
         )
         entries
             .groupBy { provenance[it.className] ?: "Replay-only models" }
@@ -209,7 +209,7 @@ private object EnglishTextComparisonGenerator {
               appendLine("```")
               appendLine()
               appendLine(
-                  "This renders directly from the current model, without relying on saved generated-text snapshots. Printed wording is read only from the published evidence TSVs."
+                  "This renders from the current model, without relying on saved generated-text snapshots. Printed wording is read only from the published evidence TSVs."
               )
             }
         )

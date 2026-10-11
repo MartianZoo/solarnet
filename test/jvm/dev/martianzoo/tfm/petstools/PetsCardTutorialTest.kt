@@ -28,8 +28,8 @@ import dev.martianzoo.pets.types.Class as PetClass
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.cardActions
 import dev.martianzoo.tfm.canon.cardBack
+import dev.martianzoo.tfm.canon.cardDirectEffect
 import dev.martianzoo.tfm.canon.cardEffects
-import dev.martianzoo.tfm.canon.cardImmediate
 import dev.martianzoo.tfm.canon.cardRequirement
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -58,9 +58,9 @@ internal class PetsCardTutorialTest {
                 excludeCardsMatching { card, _, _, _, _ ->
                   PropertyName("autoSelectWhen") in card.declaration.properties
                 },
-                excludeCardsMatching { _, immediate, _, _, _ ->
+                excludeCardsMatching { _, directEffect, _, _, _ ->
                   containsUnsupportedTutorialSyntax(
-                      immediate,
+                      directEffect,
                       ACCEPTED_SEQUENCE_BASE_CLASS_NAMES +
                           setOf(
                               cn("OceanTile"),
@@ -116,13 +116,13 @@ internal class PetsCardTutorialTest {
                     )
                   }
                 },
-                excludeCardsMatching { _, immediate, _, actions, effects ->
-                  (listOfNotNull<PetNode>(immediate) + actions + effects).any {
+                excludeCardsMatching { _, directEffect, _, actions, effects ->
+                  (listOfNotNull<PetNode>(directEffect) + actions + effects).any {
                     cn("StandardResource") in it.descendantsOfType<ClassName>()
                   }
                 },
-                excludeCardsMatching { _, immediate, _, actions, effects ->
-                  (listOfNotNull<PetNode>(immediate) + actions + effects).any {
+                excludeCardsMatching { _, directEffect, _, actions, effects ->
+                  (listOfNotNull<PetNode>(directEffect) + actions + effects).any {
                     it.descendantsOfType<Then>().isNotEmpty()
                   }
                 },
@@ -132,13 +132,13 @@ internal class PetsCardTutorialTest {
                 excludeCardsMatching { _, _, _, _, effects ->
                   effects.any { it.trigger.descendantsOfType<OrTrigger>().isNotEmpty() }
                 },
-                excludeCardsMatching { _, immediate, _, actions, effects ->
-                  (listOfNotNull<PetNode>(immediate) + actions + effects).any { node ->
+                excludeCardsMatching { _, directEffect, _, actions, effects ->
+                  (listOfNotNull<PetNode>(directEffect) + actions + effects).any { node ->
                     node.descendantsOfType<Metric.Scaled>().any { it.unit > 1 }
                   }
                 },
-                excludeCardsMatching { _, immediate, _, actions, effects ->
-                  (listOfNotNull<PetNode>(immediate) + actions + effects).any {
+                excludeCardsMatching { _, directEffect, _, actions, effects ->
+                  (listOfNotNull<PetNode>(directEffect) + actions + effects).any {
                     cn("VictoryPoint") in it.descendantsOfType<ClassName>()
                   } || effects.any { it.descendantsOfType<Gated>().isNotEmpty() }
                 },
@@ -148,31 +148,31 @@ internal class PetsCardTutorialTest {
                 excludeCardsMatching { _, _, requirement, _, _ ->
                   requirement?.descendantsOfType<ClassName>()?.contains(cn("OceanTile")) == true
                 },
-                excludeCardsMatching { _, immediate, _, actions, effects ->
-                  (listOfNotNull<PetNode>(immediate) + actions + effects).any {
+                excludeCardsMatching { _, directEffect, _, actions, effects ->
+                  (listOfNotNull<PetNode>(directEffect) + actions + effects).any {
                     cn("OceanTile") in it.descendantsOfType<ClassName>()
                   }
                 },
-                excludeCardsMatching { _, immediate, _, actions, effects ->
-                  (listOfNotNull<PetNode>(immediate) + actions + effects).any {
+                excludeCardsMatching { _, directEffect, _, actions, effects ->
+                  (listOfNotNull<PetNode>(directEffect) + actions + effects).any {
                     it.descendantsOfType<Or>().isNotEmpty()
                   }
                 },
-                excludeCardsMatching { _, immediate, _, actions, effects ->
-                  (listOfNotNull<PetNode>(immediate) + actions + effects).any {
+                excludeCardsMatching { _, directEffect, _, actions, effects ->
+                  (listOfNotNull<PetNode>(directEffect) + actions + effects).any {
                     cn("ProjectCard") in it.descendantsOfType<ClassName>()
                   }
                 },
-                excludeCardsMatching { _, immediate, _, actions, effects ->
-                  (listOfNotNull<PetNode>(immediate) + actions + effects)
+                excludeCardsMatching { _, directEffect, _, actions, effects ->
+                  (listOfNotNull<PetNode>(directEffect) + actions + effects)
                       .flatMap { it.descendantsOfType<Gain>() }
                       .any {
                         it.gaining.className in CARD_RESOURCE_CLASS_NAMES &&
                             hasNoWrittenArgumentsOrRefinement(it.gaining)
                       }
                 },
-                excludeCardsMatching { _, immediate, requirement, actions, effects ->
-                  (listOfNotNull<PetNode>(requirement, immediate) + actions + effects)
+                excludeCardsMatching { _, directEffect, requirement, actions, effects ->
+                  (listOfNotNull<PetNode>(requirement, directEffect) + actions + effects)
                       .flatMap { it.descendantsOfType<Expression>() }
                       .filter { it.className in CARD_RESOURCE_CLASS_NAMES }
                       .any { expression ->
@@ -186,14 +186,14 @@ internal class PetsCardTutorialTest {
                                     expression.refinement == null))
                       }
                 },
-                excludeCardsMatching { _, immediate, _, actions, effects ->
-                  (listOfNotNull<PetNode>(immediate) + actions + effects).any { node ->
+                excludeCardsMatching { _, directEffect, _, actions, effects ->
+                  (listOfNotNull<PetNode>(directEffect) + actions + effects).any { node ->
                     node.descendantsOfType<ClassName>().any(CARD_RESOURCE_CLASS_NAMES::contains)
                   } || actions.size > 1
                 },
                 excludeCardsMatching { _, _, _, actions, _ -> actions.isNotEmpty() },
-                excludeCardsMatching { _, immediate, _, actions, effects ->
-                  (listOfNotNull<PetNode>(immediate) + actions + effects).any { node ->
+                excludeCardsMatching { _, directEffect, _, actions, effects ->
+                  (listOfNotNull<PetNode>(directEffect) + actions + effects).any { node ->
                     node.descendantsOfType<Per>().isNotEmpty() ||
                         node.descendantsOfType<Action.Cost.Per>().isNotEmpty()
                   }
@@ -203,46 +203,46 @@ internal class PetsCardTutorialTest {
                       !containsOnlyMinimumGlobalParameterRequirements(requirement)
                 },
                 excludeCardsMatching { _, _, requirement, _, _ -> requirement != null },
-                excludeCardsMatching { _, immediate, _, actions, effects ->
-                  (listOfNotNull<PetNode>(immediate) + actions + effects).any { node ->
+                excludeCardsMatching { _, directEffect, _, actions, effects ->
+                  (listOfNotNull<PetNode>(directEffect) + actions + effects).any { node ->
                     node.descendantsOfType<ClassName>().any {
                       it in setOf(cn("OxygenStep"), cn("TemperatureStep"), cn("VenusStep"))
                     }
                   }
                 },
-                excludeCardsMatching { _, immediate, _, _, _ ->
-                  productionTransformsIn(immediate).any {
+                excludeCardsMatching { _, directEffect, _, _, _ ->
+                  productionTransformsIn(directEffect).any {
                     it.descendantsOfType<Remove>().isNotEmpty()
                   }
                 },
-                excludeCardsMatching { _, immediate, _, _, effects ->
-                  containsRemoveOutsideProductionTransform(immediate) ||
+                excludeCardsMatching { _, directEffect, _, _, effects ->
+                  containsRemoveOutsideProductionTransform(directEffect) ||
                       effects.any { it.descendantsOfType<Remove>().isNotEmpty() }
                 },
-                excludeCardsMatching { _, immediate, _, _, _ ->
-                  productionTransformsIn(immediate).any {
+                excludeCardsMatching { _, directEffect, _, _, _ ->
+                  productionTransformsIn(directEffect).any {
                     InstructionGroup.of(it.instruction).size != 1
                   }
                 },
-                excludeCardsMatching { _, immediate, _, _, _ ->
-                  productionTransformsIn(immediate).isNotEmpty() &&
-                      (immediate == null ||
-                          immediate.instructions.size != 1 ||
-                          immediate.instructions.single() !is Transform ||
-                          (immediate.instructions.single() as Transform).transformKind != "PROD")
+                excludeCardsMatching { _, directEffect, _, _, _ ->
+                  productionTransformsIn(directEffect).isNotEmpty() &&
+                      (directEffect == null ||
+                          directEffect.instructions.size != 1 ||
+                          directEffect.instructions.single() !is Transform ||
+                          (directEffect.instructions.single() as Transform).transformKind != "PROD")
                 },
-                excludeCardsMatching { _, immediate, _, _, _ ->
-                  productionTransformsIn(immediate).isNotEmpty()
+                excludeCardsMatching { _, directEffect, _, _, _ ->
+                  productionTransformsIn(directEffect).isNotEmpty()
                 },
-                excludeCardsMatching { _, immediate, _, _, _ ->
+                excludeCardsMatching { _, directEffect, _, _, _ ->
                   containsUnsupportedTutorialSyntax(
-                      immediate,
+                      directEffect,
                       setOf(cn("MC"), cn("EventCard"), cn("TradeFleet")),
                       allowInstructionChoice = true,
                   )
                 },
-                excludeCardsMatching { _, immediate, _, _, _ ->
-                  immediate != null && !immediate.isEmpty()
+                excludeCardsMatching { _, directEffect, _, _, _ ->
+                  directEffect != null && !directEffect.isEmpty()
                 },
             ),
         )
@@ -605,8 +605,8 @@ internal class PetsCardTutorialTest {
     )
     assertEquals(
         setOf("CloudTourism", "SaturnSurfing"),
-        candidateMatches(allowMetricMaximum = true) { _, immediate, _, actions, effects ->
-          (listOfNotNull<PetNode>(immediate) + actions + effects).any {
+        candidateMatches(allowMetricMaximum = true) { _, directEffect, _, actions, effects ->
+          (listOfNotNull<PetNode>(directEffect) + actions + effects).any {
             it.descendantsOfType<Metric.Max>().isNotEmpty()
           }
         },
@@ -615,11 +615,11 @@ internal class PetsCardTutorialTest {
         setOf("Mangrove", "ProtectedValley"),
         candidateMatches(extraClassNames = SIMPLE_TILE_CLASS_NAMES + SIMPLE_AREA_CLASS_NAMES) {
             _,
-            immediate,
+            directEffect,
             _,
             actions,
             effects ->
-          hasOnlySimpleExplicitTilePlacements(immediate, actions, effects)
+          hasOnlySimpleExplicitTilePlacements(directEffect, actions, effects)
         },
     )
     assertEquals(
@@ -662,8 +662,8 @@ internal class PetsCardTutorialTest {
             "SmallAnimals",
             "SubZeroSaltFish",
         ),
-        candidateMatches(extraClassNames = setOf(cn("Anyone"))) { _, immediate, _, _, _ ->
-          productionTransformsIn(immediate).any { transform ->
+        candidateMatches(extraClassNames = setOf(cn("Anyone"))) { _, directEffect, _, _, _ ->
+          productionTransformsIn(directEffect).any { transform ->
             transform.descendantsOfType<Remove>().any {
               cn("Anyone") in it.removing.descendantsOfType<ClassName>()
             }
@@ -680,9 +680,9 @@ internal class PetsCardTutorialTest {
             "MiningExpedition",
             "SmallAsteroid",
         ),
-        candidateMatches(extraClassNames = setOf(cn("Anyone"))) { _, immediate, _, _, _ ->
+        candidateMatches(extraClassNames = setOf(cn("Anyone"))) { _, directEffect, _, _, _ ->
           var removesResourceFromAnyPlayer = false
-          immediate?.visitDescendants { descendant ->
+          directEffect?.visitDescendants { descendant ->
             when {
               descendant is Transform && descendant.transformKind == "PROD" -> false
               descendant is Remove -> {
@@ -708,7 +708,7 @@ internal class PetsCardTutorialTest {
       cardNeedsUnrevealedConcept:
           (
               card: PetClass,
-              immediate: InstructionGroup?,
+              directEffect: InstructionGroup?,
               requirement: Requirement?,
               actions: List<Action>,
               effects: List<Effect>,
@@ -716,7 +716,7 @@ internal class PetsCardTutorialTest {
   ): (PetClass) -> Boolean = { card ->
     !cardNeedsUnrevealedConcept(
         card,
-        cardImmediate(card),
+        cardDirectEffect(card),
         cardRequirement(card),
         cardActions(card),
         cardEffects(card),
@@ -757,7 +757,7 @@ internal class PetsCardTutorialTest {
       candidate:
           (
               card: PetClass,
-              immediate: InstructionGroup?,
+              directEffect: InstructionGroup?,
               requirement: Requirement?,
               actions: List<Action>,
               effects: List<Effect>,
@@ -782,7 +782,7 @@ internal class PetsCardTutorialTest {
         .filter { PropertyName("autoSelectWhen") !in it.declaration.properties }
         .filter { card ->
           !containsUnsupportedTutorialSyntax(
-              cardImmediate(card),
+              cardDirectEffect(card),
               allowedClassNames,
               allowInstructionChoice,
               allowMetricMaximum = allowMetricMaximum,
@@ -805,7 +805,7 @@ internal class PetsCardTutorialTest {
           }
         }
         .filter { card ->
-          listOfNotNull(cardImmediate(card)).none {
+          listOfNotNull(cardDirectEffect(card)).none {
             it.descendantsOfType<Gated>().isNotEmpty()
           } && cardActions(card).none { it.descendantsOfType<Gated>().isNotEmpty() }
         }
@@ -824,7 +824,7 @@ internal class PetsCardTutorialTest {
           }
         }
         .filter { card ->
-          (listOfNotNull<PetNode>(cardImmediate(card)) + cardActions(card) + cardEffects(card))
+          (listOfNotNull<PetNode>(cardDirectEffect(card)) + cardActions(card) + cardEffects(card))
               .none {
                 it.descendantsOfType<Then>().isNotEmpty()
               }
@@ -832,7 +832,7 @@ internal class PetsCardTutorialTest {
         .filter { card ->
           candidate(
               card,
-              cardImmediate(card),
+              cardDirectEffect(card),
               cardRequirement(card),
               cardActions(card),
               cardEffects(card),
@@ -912,12 +912,12 @@ internal class PetsCardTutorialTest {
         setOf("CityTile", "GreeneryTile", "OceanTile").mapTo(linkedSetOf(), ::cn)
 
     fun hasOnlySimpleExplicitTilePlacements(
-        immediate: InstructionGroup?,
+        directEffect: InstructionGroup?,
         actions: List<Action>,
         effects: List<Effect>,
     ): Boolean {
       val tiles =
-          (listOfNotNull<PetNode>(immediate) + actions + effects)
+          (listOfNotNull<PetNode>(directEffect) + actions + effects)
               .flatMap { it.descendantsOfType<Expression>() }
               .filter { it.className in TILE_CLASS_NAMES }
       return tiles.isNotEmpty() &&

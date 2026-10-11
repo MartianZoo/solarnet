@@ -160,7 +160,7 @@ second, non-inheriting accessor for one field.
 `TerraformingMarsDescribers` composes authored facts keyed by `ClassName`. Bundle-specific facts
 live in that bundle's `english/` directory, in `english.kt`, and are compiled by `tfm-text`. `Describers`
 owns Class resolution; absent Classes fall back to structural interpretation and default naming.
-For an opaque `Custom` requirement, `requirementKind` supplies only its English name: direct uses say
+For an opaque `Custom` requirement, `requirementKind` supplies only its English name: standalone uses say
 the player must meet that named requirement, rather than duplicating its hidden gameplay definition.
 
 ### Choosing the shape of a new fact
@@ -219,9 +219,9 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
 - Describe starting resources as `Gain ...` and starting production as an `Increase ... production`
   instruction, rather than using the printed `You start with ...` construction.
 - Describe reveal-until-matching-card searches as `Draw N [kind] cards` in card goals, consistently
-  across that search family. Tag names can modify `cards` directly (`Draw 2 plant cards`); other
+  across that search family. Tag names can modify `cards` (`Draw 2 plant cards`); other
   criteria must stay explicit (`Draw 2 cards with floater icons`, never `floater cards`).
-- Describe a direct exchange of anonymous card backs as `Discard N cards to draw N cards`.
+- Describe an exchange of anonymous card backs as `Discard N cards to draw N cards`.
   An unconditional choice to decline the exchange makes the complete action optional.
 - Card-play instructions resolve card back, card face, and source location by dependency role.
   Cost reductions and requirement waivers modify that same rendered instruction, preserving its
@@ -293,7 +293,8 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   metric-based victory-point behavior.
 - Render `PlanetaryTag` as `planetary tag`.
 
-Card rendering calls out `including this` when the entering card contributes to an immediate metric
+Card rendering calls out `including this` when the entering card contributes to a metric in its
+direct effect
 or satisfies a supported tag or card-play trigger and the reader could reasonably be unsure whether
 it counts. It does not infer the phrase through setup operations or effects that the renderer cannot
 otherwise interpret.
@@ -327,7 +328,7 @@ Event attribution uses `Actor`, independently of ownership.
 The once-per-action production reward recognizer accepts a fixed marker gain either as an
 automatic effect or as queued `System` work performed by Admin. Its unit limit, production trigger,
 and consume-on-reward structure still determine the rendered rule. Action resets come from the
-direct standard-action and required-action signals described in the vocabulary.
+standard-action and required-action signals described in the vocabulary.
 
 The card goals cover the same corpus as the card current and corrected files. That corpus follows
 the published wording evidence, including replay-only cards and the abstract Beginner Corporation.
@@ -379,7 +380,7 @@ lines, nullable exits, and renderer files together, stop and explain the cost be
 
 Do not add a test merely to prove one card lost brackets — the snapshots are the coverage
 characterization. Add a focused test when a new rule is not exercised by the corpus, or when a
-semantic invariant needs direct proof.
+semantic invariant needs a focused check.
 
 ## Source map
 

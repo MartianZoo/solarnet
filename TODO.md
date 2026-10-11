@@ -17,7 +17,7 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 ## Physical game conversion — 2026-10-09
 
 - [ ] Continue `OtbGame20261009Test` when the next recording is supplied. The current replay
-  covers generations 1–8 and stops before generation 9 Research. Preserve its direct
+  covers generations 1–8 and stops before generation 9 Research. Preserve its explicit
   `doTasks(...)` style, disabled player autoexecution, and automatic Admin.
   Original evidence and remaining source limits are in `_local/replays/Game20261009/sources.md`.
 
@@ -44,7 +44,7 @@ These concerns remain open; the ranking does not select replacement designs.
    [Solarnet roadmap](SOLARNET_ROADMAP.md#internal-design-and-game-execution).
 4. **The player-choice API cannot navigate all valid task shapes, and availability checks hide
    code faults.** Some valid forms throw `UnsupportedOperationException`; an injected custom-code
-   fault makes availability queries return `false` while direct execution reports the fault.
+   fault makes availability queries return `false` while explicit execution reports the fault.
    Improve choice assistance and preserve meaningful errors without requiring exhaustive legal-move
    enumeration. Named-card tracking remains a separate capability with ownership outside the engine.
    See the `TaskForm` follow-up below and
@@ -63,6 +63,9 @@ These concerns remain open; the ranking does not select replacement designs.
 
 ## User Ideas and Agreed Directions
 
+- Consider a separate rename of automatic (`::`) effects to “immediate”. Card effects now use
+  “direct effect”; the dispatch terminology and behavior remain unchanged pending that decision.
+
 - Replace the custom `PartyRequirement` metric with its expanded Pets condition (the party is
   ruling or you have at least 2 delegates there), so execution and English can use that condition
   directly. Preserve ownership and the grouping of combined requirements.
@@ -79,7 +82,7 @@ These concerns remain open; the ranking does not select replacement designs.
   A trial of twenty queued discounts left reductions pending during billing or lost a discount
   when its temporary source disappeared; `Owed` already being `System` did not resolve this.
 - [ ] Revisit queued search and claim effects after defining whether a batch of two search signals
-  should offer two separate card choices or a single two-card task. The direct `::` to `:` trial
+  should offer two separate card choices or a single two-card task. The `::` to `:` substitution trial
   changed the task shape in a full replay.
 - [ ] Rework a colony tile's starting `ColonyProduction` marker without a permanent `HAS =1`:
   the track can validly reset to zero. Queueing the initial marker with `BY Admin` left a player
@@ -92,7 +95,7 @@ These concerns remain open; the ranking does not select replacement designs.
 
 - [ ] Extend the build-time Canon invariant checks to indirect special-tile gains behind
   signals or supporting components (`GainsOf`; entry 15 of
-  [GAME_HACKS](docs/agents/GAME_HACKS.md)). Current checks cover direct authored shapes and do not
+  [GAME_HACKS](docs/agents/GAME_HACKS.md)). Current checks cover authored instruction shapes and do not
   establish that the introspection helpers see every printed tile-placement effect. Keep dynamic
   payment and watcher interactions in gameplay tests rather than treating syntax scans as proof.
 
@@ -146,7 +149,7 @@ These concerns remain open; the ranking does not select replacement designs.
   matching defaults. `CorporationCard<This, Hand FROM Selecting>` currently tries to resolve
   `This` as a class, while omitting it changes the pending task identity.
 - Make `ComponentGraph.listenToCount` update only subscriptions affected by a component change,
-  instead of recounting every watched Type after every change. Preserve immediate initial delivery,
+  instead of recounting every watched Type after every change. Preserve synchronous initial delivery,
   notifications only when the count changes, cancellation, and correct subtype/refinement handling
   through gains, removals, transmutations, and rollback. Prefer existing indexes and a small design;
   callers should continue receiving changes without polling.
@@ -192,7 +195,7 @@ These concerns remain open; the ranking does not select replacement designs.
   distribution across eligible cards.
 - Find a small, exact way for Ecology Experts' plant and microbe tags to trigger a newly played
   bio listener without replaying those tags or rewarding an older copy of that listener. Double
-  Down copies the Prelude's immediate instruction but not its effects, so the solution must also
+  Down copies the Prelude's direct effect but not its other effects, so the solution must also
   cover that path. Until then, keep the four affected combinations Unsafe-only; `EcologyExpertsTest`
   pairs the intended and current Viral Enhancers and Ecological Zone outcomes.
 - Consider a shared party-leader recalculation helper for the ranking repeated on delegate gains
@@ -308,7 +311,7 @@ These concerns remain open; the ranking does not select replacement designs.
   A temporary probe without inference left an owned gain abstract and allowed the caller to choose
   its recipient. Consider that simpler behavior, or rejection where Canon does not need the choice,
   before introducing replacement inference machinery.
-- Investigate WildlifeDome's immediate `GreeneryTile<>`: elaborating this Canon class fails because
+- Investigate WildlifeDome's direct effect `GreeneryTile<>`: elaborating this Canon class fails because
   GreeneryTile no longer has a gain dependency default. Specify the intended placement explicitly
   and verify it through card play; do not restore a global default merely to make the string pass.
 - Give Pets a real structural conjunction, spelled something like `Tile(IS Owned)`, and retire the
@@ -362,7 +365,7 @@ These concerns remain open; the ranking does not select replacement designs.
 - Carry resource/file names through Pets parsing and generated catalog inputs so diagnostic spans
   identify the original file as well as the submitted text, line, and column.
 - Preserve authored provenance when runtime narrowing and task normalization synthesize new trees.
-  Definition, query, and direct-change diagnostics retain available spans; some generated tasks and
+  Definition, query, and elementary-change diagnostics retain available spans; some generated tasks and
   failures computed solely from component Types still have no authored location.
 - Preserve the empty-intersection reason when rejecting a partial task submission. For an
   unavailable Type, the current fallback can misleadingly blame an omitted dependency instead.
@@ -381,12 +384,16 @@ These concerns remain open; the ranking does not select replacement designs.
 
 ## Autonomous Follow-ups
 
+- Refresh the English wording comparison documents from current Canon. Their saved Pets declarations
+  omit existing card-count invariants, and some entries contain older modeled effects. Review that
+  snapshot drift separately from terminology edits; `writeEnglishTextComparisons` exposes it.
+
 - Fix combined-production requirement wording. Metallurgist's `6 PROD[Metal]` currently renders
   "6 titanium or steel production," which can imply either production alone must reach 6; the
   printed requirement counts steel and titanium production together. Assert the intended meaning
   in a focused test rather than only updating the current-output snapshot.
 - Render conditional choices between standard and required actions using shared condition/action
-  semantics. `FakeHeadStart` now exposes these choices as bracketed Pets after the direct-action
+  semantics. `FakeHeadStart` now exposes these choices as bracketed Pets after the action
   migration; do not hide their conditions or add a card-specific rendering rule.
 - Model when a Prelude may fizzle instead of relying on the caller's honor. `PlayOrFizzle` Pets
   declares the play or discard choice and 15 M€ compensation, but does not gate the discard branch
@@ -410,7 +417,7 @@ These concerns remain open; the ranking does not select replacement designs.
   principled bundle-supplied description of the phase/latch relationship; do not add a Prelude-only
   boolean merely to relocate the class name.
 - Render the five beginner corporation copies from their inherited modeled setup semantics.
-- Complete the three visible goal-text refusals only from modeled semantics: Briber's immediate
+- Complete the three visible goal-text refusals only from modeled semantics: Briber's direct effect
   claim instruction, Philantropist's `GainsOf` metric, and Suburbian's map-edge concept.
 - Finish Global Event text from modeled semantics: ranked player selections in Election and
   Revolution, resource-card fanout in Sponsored Projects and Cloud Societies, and the procedure

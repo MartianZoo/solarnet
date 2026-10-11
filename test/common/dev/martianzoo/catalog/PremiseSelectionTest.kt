@@ -256,7 +256,7 @@ internal class PremiseSelectionTest {
             ABSTRACT CLASS Empty
             ABSTRACT CLASS AlsoEmpty
             CLASS Available
-            CLASS Direct { This:: -Empty! }
+            CLASS BareRemoval { This:: -Empty! }
             CLASS Nested { This:: Available THEN -Empty! }
             CLASS EveryAlternative { This:: (-Empty! OR -AlsoEmpty!) }
             CLASS Optional { This:: -Empty? }
@@ -268,7 +268,7 @@ internal class PremiseSelectionTest {
                 .trimIndent()
         )
 
-    listOf("Direct", "Nested", "EveryAlternative", "NonzeroTimes").forEach { selected ->
+    listOf("BareRemoval", "Nested", "EveryAlternative", "NonzeroTimes").forEach { selected ->
       shouldThrow<InvalidGameConfigException> { gameView(catalog, selected) }
     }
     listOf("Optional", "OneAlternative", "FalseGate", "ZeroTimes").forEach { selected ->

@@ -181,7 +181,7 @@ extraction remains a separate library-design direction below, not a prerequisite
    players-by-resource production is the proving case. Preserve independent recipient decisions and
    avoid turning `EACH` into an ordered loop, workflow mechanism, or general collection language.
 
-4. **Represent events and lifetimes truthfully.** Direct point events should be Signals rather than
+4. **Represent events and lifetimes truthfully.** Point events should be Signals rather than
    self-transmutations. Cleanup lifetime and log visibility should be independent facts. Preserve
    paired gain/removal reactions while keeping authored self-transmutations forbidden.
 

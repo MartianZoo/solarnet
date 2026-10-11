@@ -148,7 +148,7 @@ A choice that fails within the same transaction can often be rejected through or
 rollback. That does not cover an interaction spread across committed commands: rejecting a later
 payment step does not undo earlier partial payment.
 
-Distinguish precedence, immediate consequences, exclusive control, completion, and atomicity.
+Distinguish precedence, synchronous consequences, exclusive control, completion, and atomicity.
 
 | Mechanism | Meaning |
 | --- | --- |

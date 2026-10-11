@@ -197,7 +197,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         )
       }
       if (w::class != n::class) return emptyList()
-      return w.immediateChildren().zip(n.immediateChildren()).flatMap { (wc, nc) ->
+      return w.childNodes().zip(n.childNodes()).flatMap { (wc, nc) ->
         collect(wc, nc)
       }
     }
@@ -223,7 +223,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     } else if (wide is Expression && narrow is Expression) {
       visit(wide, narrow)
     } else if (wide::class == narrow::class) {
-      wide.immediateChildren().zip(narrow.immediateChildren()).forEach { (w, n) ->
+      wide.childNodes().zip(narrow.childNodes()).forEach { (w, n) ->
         matchingExpressions(w, n, info, visit)
       }
     }
@@ -581,7 +581,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
             )
           }
           val childrenObserve = observing || node.startsTypeVariableObservation
-          node.immediateChildren().forEach { child ->
+          node.childNodes().forEach { child ->
             collect(
                 child,
                 region,

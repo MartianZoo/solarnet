@@ -46,7 +46,7 @@ Test: [ClassDefinitionBoundaryTest, “a map defines its areas and an area can b
 
 - In the default game, `Hellas_1_1` does not exist.
 - With `HellasMap`, `Hellas_1_1` exists.
-- With `Hellas_1_1` chosen directly, `Hellas_1_1` exists.
+- With `Hellas_1_1` explicitly chosen, `Hellas_1_1` exists.
 
 ### Mars and Venus parameter tracks
 
@@ -76,8 +76,8 @@ Test: [ClassDefinitionBoundaryTest, “Prelude 2 cards needing Venus wait for Ve
 
 Test: [ClassDefinitionBoundaryTest, “a Prelude card brings its card back without the Prelude expansion”](../test/common/dev/martianzoo/tfm/tests/rules/ClassDefinitionBoundaryTest.kt).
 
-- With `AcquiredSpaceAgency` chosen directly, `PreludeCard` exists.
-- With `CheungShingMars` chosen directly, `PreludeCard` does not exist.
+- With `AcquiredSpaceAgency` explicitly chosen, `PreludeCard` exists.
+- With `CheungShingMars` explicitly chosen, `PreludeCard` does not exist.
 
 ### Beginner corporations
 
@@ -113,11 +113,11 @@ Test: [ClassTableSelectionTest, “Content packs select only Content usable with
 Test: [ClassTableSelectionTest, “modules normally select their intrinsic rules and associated Content” and “explicitly included compatible Content needs no module or bundle selection”](../test/common/dev/martianzoo/tfm/tests/rules/ClassTableSelectionTest.kt).
 
 - With `VenusNextExpansion`, `VenusStep` exists.
-- With `Manutech` chosen directly, `Manutech` exists.
+- With `Manutech` explicitly chosen, `Manutech` exists.
 - With `ColoniesExpansion`, `TradeAction` exists.
 - With `ColoniesExpansion`, `Callisto` exists.
 - With `TurmoilExpansion`, `Party` exists.
-- With `LakefrontResorts` chosen directly, `LakefrontResorts` exists.
+- With `LakefrontResorts` explicitly chosen, `LakefrontResorts` exists.
 
 ### Content that requires its expansion
 
@@ -134,15 +134,15 @@ Test: [ClassDefinitionBoundaryTest, “Refugee Camps brings its Camp resource un
 
 - With `ColoniesExpansion`, `Camp` exists.
 - With `ColoniesExpansion, -RefugeeCamps`, `Camp` does not exist.
-- With `Camp` chosen directly, `Camp` exists.
+- With `Camp` explicitly chosen, `Camp` exists.
 
 ### Support supplied by individual promo cards
 
 Tests: [ClassTableSelectionTest, “shared promo card resource follows either card without the pack”, “card local instruction follows its card without the pack”, and “Mars Nomads marker follows its card without the pack”](../test/common/dev/martianzoo/tfm/tests/rules/ClassTableSelectionTest.kt).
 
-- With either `PharmacyUnion` or `Hospitals` chosen directly, `Disease` exists.
-- With `IcyImpactors` chosen directly, `ChooseOceanArea` exists.
-- With `MarsNomads` chosen directly, `NomadsMarker` exists.
+- With either `PharmacyUnion` or `Hospitals` explicitly chosen, `Disease` exists.
+- With `IcyImpactors` explicitly chosen, `ChooseOceanArea` exists.
+- With `MarsNomads` explicitly chosen, `NomadsMarker` exists.
 - With `PromoCardPack, -MarsNomads`, `NomadsMarker` does not exist.
 
 ### References across packs do not turn on whole expansions
@@ -163,12 +163,12 @@ Test: [ClassDefinitionBoundaryTest, “a map milestone needing Turmoil waits for
 - With `TurmoilExpansion` alone, `Lobbyist` does not exist.
 - With `AmazonisMap, TurmoilExpansion`, `Lobbyist` exists.
 
-### An extra milestone chosen directly
+### An extra milestone explicitly chosen
 
 Test: [ClassDefinitionBoundaryTest, “an extra milestone is absent until chosen”](../test/common/dev/martianzoo/tfm/tests/rules/ClassDefinitionBoundaryTest.kt).
 
 - In the default game, `Briber` does not exist.
-- With `Briber` chosen directly, `Briber` exists.
+- With `Briber` explicitly chosen, `Briber` exists.
 
 ## 6. Solo setup for a chosen colony tile
 
@@ -185,7 +185,7 @@ Test: [ClassDefinitionBoundaryTest, “choosing a colony tile enables its solo s
 Test: [ClassTableSelectionTest, “known selected and inhabited are different questions”](../test/common/dev/martianzoo/tfm/tests/rules/ClassTableSelectionTest.kt).
 
 - In the default two-player game, `VenusStep` does not exist in the game's class table, although the catalog knows it.
-- In a **solo** game with `Award` chosen directly, `Award` exists in the game's class table but is uninhabited.
+- In a **solo** game with `Award` explicitly chosen, `Award` exists in the game's class table but is uninhabited.
 
 Test: [ClassTableSelectionTest, “guarded mode references do not force unavailable classes into selection”](../test/common/dev/martianzoo/tfm/tests/rules/ClassTableSelectionTest.kt).
 

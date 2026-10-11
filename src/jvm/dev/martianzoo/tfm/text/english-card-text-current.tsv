@@ -283,7 +283,7 @@ QuantumExtractor	Quantum Extractor	Requires 4 science tags. Increase your energy
 CallistoPenalMines	Callisto Penal Mines	Increase your M€ production 3 steps.
 TransNeptuneProbe	Trans-Neptune Probe
 CommercialDistrict	Commercial District	Decrease your energy production 1 step and increase your M€ production 4 steps. Place this tile. 1 VP per city tile in play next to this tile.
-RoboticWorkforce	Robotic Workforce	Copy the immediate production box of a building card.
+RoboticWorkforce	Robotic Workforce	Copy the production box in the direct effect of a building card.
 Research	Research	Draw 2 cards.
 GeneRepair	Gene Repair	Requires 3 science tags. Increase your M€ production 2 steps.
 IoMiningIndustries	Io Mining Industries	Increase your titanium production and your M€ production 2 steps each. 1 VP per Jovian tag you have.

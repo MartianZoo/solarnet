@@ -29,14 +29,14 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
     if (expression.refinement is Expression.Refinement.Not) return null
     val declaredClass = classesByName[expression.className] ?: return null
     val playerOwned = declaredClass.isSubtypeOf(classesByName.getValue(OWNED))
-    val directSourceType =
+    val authoredSourceType =
         try {
           classTable.resolve(expression)
         } catch (_: ExpressionException) {
           null
         }
     val semanticSourceArguments =
-        if (directSourceType != null) {
+        if (authoredSourceType != null) {
           expression.arguments
         } else {
           val contextualThisType = contextualThisKey?.let { key ->
@@ -56,7 +56,7 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
           }
         }
     val sourceType =
-        directSourceType
+        authoredSourceType
             ?: try {
               classTable.resolve(expression.copy(arguments = semanticSourceArguments))
             } catch (_: ExpressionException) {

@@ -27,6 +27,21 @@
   [`src/common/dev/martianzoo/tfm/canon`](../../src/common/dev/martianzoo/tfm/canon) own localized
   printed names; inspect only the bundle containing the renamed Class.
 
+## Effect and change terminology
+
+Use **direct effect** for the card behavior performed when the card enters play: `direct` in
+card data and `cardDirectEffect` in the card API. Use **self-gain effect** for the structural Pets
+category, which also includes effects that install persistent rules. The renderer handles these
+alongside the card's direct effect; that placement does not make their purposes identical.
+
+Use **elementary change** for a gain, removal, or transmutation instruction, and **correction** for
+`sneak` or `exMachina` adjustments. Distinguish explicit correction targets from derived changes.
+Retain established relationship terms such as **direct superclass** and **direct dependency** when
+the contrast with an indirect relationship matters. Avoid other invented uses of “direct”.
+
+Double-colon effects remain **automatic**; renaming that category is a separate decision. Ordinary
+timing adverbs and quoted source evidence retain their meaning and wording.
+
 ## Identity
 
 Every class has one engine-facing `ClassName`. Pets, declarations, Kotlin implementations, events,

@@ -160,7 +160,7 @@ after review. **Selected** means the direction is chosen while some design remai
    disagreements. The app-side projector, comparator, transcript persistence, and broader move
    families remain before this becomes a complete parity proof.
 
-5. **Keep REgo as the immediate experimental workbench.** The command-line interface remains the
+5. **Keep REgo as the current experimental workbench.** The command-line interface remains the
    fastest place to inspect state, submit tasks, apply corrections, and test the color-mode model.
    Improve it where that exposes genuine runtime capabilities—especially task forms, mode
    integrity, and state exploration—without mistaking terminal polish or the low-priority `list`

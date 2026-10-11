@@ -178,7 +178,7 @@ public abstract class PetTransformer protected constructor() {
     return transformed as P
   }
 
-  /** Returns [node] rebuilt after recursively transforming each immediate child. */
+  /** Returns [node] rebuilt after recursively transforming each child. */
   protected fun transformChildren(node: PetNode): PetNode {
     fun expressions(nodes: Iterable<Expression>): List<Expression> =
         nodes.map(::transformExpression)

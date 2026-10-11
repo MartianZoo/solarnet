@@ -213,7 +213,8 @@ T5-5).
 An instruction denotes a transition from a before-state to an after-state together with its gain
 and removal events. It is the only kind of element that does. Projecting away those events gives a
 relation between component multisets, but that relation alone does not distinguish `Ok` from a
-direct Signal gain (L2-1): both leave the multiset unchanged, and only the signal fires triggers.
+Signal gain without transmutation (L2-1): both leave the multiset unchanged, and only the signal
+fires triggers.
 
 **L2-1. The elementary instructions are gain, removal and transmutation.** `n Foo` says the after
 state holds n more components of type `Foo`; `-n Foo` that it holds n fewer; `n Foo FROM Bar` that
@@ -226,12 +227,12 @@ Removal          ::= "-" ScaledExpression Quantifier?
 Transmutation    ::= Scalar? FromExpression Quantifier?
 ```
 
-A direct gain of the system `Signal` class fires both gain and removal triggers while its count
-remains unchanged. Both changes are real — that is how a signal does its work, by what its gain and
+A gain of the system `Signal` class without transmutation fires both gain and removal triggers
+while its count remains unchanged. Both changes are real — that is how a signal does its work, by what its gain and
 the effects its gain and removal trigger (L6) — and no signal component remains behind. This
 point-event behavior
-belongs only to a direct Signal gain; writing `SignalSubtype FROM SignalSubtype` is a forbidden
-self-transmutation. A `Signal` gained by an explicit transmutation from another type is gained normally,
+belongs only to a Signal gain without transmutation; writing `SignalSubtype FROM SignalSubtype`
+is a forbidden self-transmutation. A `Signal` gained by an explicit transmutation from another type is gained normally,
 then removes itself.
 
 > **Non-normative example — placement bonuses.** Gaining a tile emits `Placement<This>` for its
@@ -276,8 +277,8 @@ invalid regardless of spelling, source count, or quantifier. A shared variable s
 `@Abstract FROM @Abstract` is also invalid: it forces both sides to select the same Type.
 Unmarked `Abstract FROM Abstract` retains independent choices and is valid while open, but each
 concrete narrowing must select different Types. If automatic narrowing leaves only a self-targeting
-option, that option is unavailable; other `OR` alternatives may still proceed. Direct Signal gains
-are point events, not self-transmutation instructions, and remain valid.
+option, that option is unavailable; other `OR` alternatives may still proceed. Signal gains without
+transmutation are point events, not self-transmutation instructions, and remain valid.
 
 > **Non-normative examples — Artificial Lake and asteroid attacks.** Artificial Lake's special
 > ocean placement is `!`: choosing that arm requires the exceptional land placement to succeed in
@@ -1047,12 +1048,12 @@ card: the first action is `Action1`. Swapping actions changes which action each 
 > positions (L7-5), but no card requires this concatenation order to give authored effects execution
 > priority. It specifies the resulting declaration's order, not a gameplay scheduling rule.
 
-**L7-7. An instruction that happens on gain is the effect `This: I`.** This is how a card's "do this
-now" section becomes an ordinary rule; an immediate `Ok` produces no effect at all.
+**L7-7. An instruction that happens on gain is the effect `This: I`.** This is how a card's direct
+effect becomes an ordinary rule; an on-gain `Ok` produces no effect at all.
 
-> **Non-normative example — Protected Valley.** Its immediate production increase and special greenery
-> placement are written `This: ...`, so they happen when that card component enters play. Treating
-> the instruction as free-floating would offer the bonus without playing the card.
+> **Non-normative example — Protected Valley.** Its direct effect raises production and places
+> a special greenery. These instructions are written `This: ...`, so they happen when that card
+> enters play. Treating the instruction as free-floating would offer the bonus without playing the card.
 
 **L7-8. Actions round-trip.** The cost keeps its authored form, and the result's grouping is
 L2-16's.
@@ -1251,12 +1252,12 @@ default (L9-7).
 > the card owner's context would incorrectly count resources on other cards in that tableau.
 
 **L9-10. Inside a refinement, an ordinary declared default is deferred when its dependency is a
-direct use of a class-header type variable** (T13-2), so candidate substitution can bind it through
+bare reference to a class-header type variable** (T13-2), so candidate substitution can bind it through
 that occurrence. Candidate binding also precedes omitted-owner insertion under L9-9. Writing `<>`
 accepts a declared default explicitly; it cannot accept a default that does not exist.
 
 > **Non-normative design note — no current TfM witness for this extra deferral.** Current canonical
-> `DEFAULT` clauses do not refer directly to header variables. CEO's Favorite Project demonstrates
+> `DEFAULT` clauses do not name header variables. CEO's Favorite Project demonstrates
 > candidate binding (L9-9), but does not require this additional header-variable default rule.
 > Its necessity remains an open fidelity-audit question, not an established card requirement.
 

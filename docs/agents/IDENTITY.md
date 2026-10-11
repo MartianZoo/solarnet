@@ -44,7 +44,7 @@ instruction.
 
 **Proposed representation and intended routing, not implemented.** The
 [turn lifecycle](SEQUENCING.md#turns-and-turn-offers) defines when a player is on-turn.
-The owner is open to recording the current player directly in the component graph with:
+The owner is open to recording the current player in the component graph with:
 
 ```pets
 CLASS OnTurn<Player> : System, Hidden { HAS MAX 1 OnTurn }
@@ -117,7 +117,7 @@ its owner dependency to select whose components match.
 
 ## Task assignment and delegation
 
-A direct task starts with its gameplay Actor as controller, selection assignee, and current
+A manually added task starts with its gameplay Actor as controller, selection assignee, and current
 assignee. Queued work produced during Player-controlled work keeps that Player as controller. Its
 selection assignee comes from the effect owner, changed component owner, then triggering Actor.
 Admin-controlled reactions instead use those sources to choose the controller in the same order.

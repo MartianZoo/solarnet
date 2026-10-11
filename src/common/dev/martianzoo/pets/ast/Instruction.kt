@@ -616,8 +616,7 @@ public sealed class Instruction : InstructionTree() {
       fun firstChoice(wide: PetNode, narrow: PetNode): Pair<Or, InstructionTree>? {
         if (wide is Or) return (narrow as? InstructionTree)?.let { wide to it }
         if (wide::class != narrow::class) return null
-        return wide.immediateChildren().zip(narrow.immediateChildren()).firstNotNullOfOrNull {
-            (w, n) ->
+        return wide.childNodes().zip(narrow.childNodes()).firstNotNullOfOrNull { (w, n) ->
           firstChoice(w, n)
         }
       }
@@ -833,8 +832,8 @@ public sealed class Instruction : InstructionTree() {
         }
         if (narrowNode == NoOp) return unbound
 
-        val wideChildren = wideNode.immediateChildren()
-        val narrowChildren = narrowNode.immediateChildren()
+        val wideChildren = wideNode.childNodes()
+        val narrowChildren = narrowNode.childNodes()
         if (wideChildren.size != narrowChildren.size) return emptySet()
         return wideChildren.zip(narrowChildren).fold(unbound) { result, (wideChild, narrowChild) ->
           merge(result, bindings(wideChild, narrowChild))
@@ -928,7 +927,7 @@ public sealed class Instruction : InstructionTree() {
               ) {
                 return true
               }
-              return node.immediateChildren().any(::usedOutside)
+              return node.childNodes().any(::usedOutside)
             }
             if (usedOutside(then)) {
               throw PetSyntaxException(

@@ -13,7 +13,7 @@ command-line application; no production or test source set consumes its output.
 
 The generator writes the supplied vocabulary to one Kotlin file. Abstract Pets classes become
 interfaces and concrete classes become final classes. Generated components retain their Pets
-`Expression`, expose direct authored effects and resolved class properties, and use typed root
+`Expression`, expose authored effects and resolved class properties, and use typed root
 descriptors for Pets class literals.
 
 Open dependency roots become covariant Kotlin parameters. Shared Kotlin parameters come only from
@@ -28,7 +28,7 @@ dependency bounds. It is not itself a Pets dependency argument; expression recon
 only the generated parameters that represent open dependency roots.
 
 Direct supertypes retain the subtype's resolved dependency projection. Concrete inherited bounds
-are written directly instead of receiving redundant Kotlin parameters. Parameter names derive from
+are written instead of receiving redundant Kotlin parameters. Parameter names derive from
 their bound class abbreviations, with numeric suffixes only when independent parameters would
 otherwise have the same name.
 

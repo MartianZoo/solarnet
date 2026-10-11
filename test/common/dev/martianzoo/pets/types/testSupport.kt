@@ -16,7 +16,7 @@ import io.kotest.assertions.throwables.shouldThrow
 /** Parses one type expression. */
 internal fun te(s: String): Expression = parse(s)
 
-/** Compiles Pets declarations directly, without game assembly or runtime implementations. */
+/** Compiles Pets declarations without game assembly or runtime implementations. */
 internal fun loadTypes(
     vararg declarations: String,
     transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> = emptyMap(),

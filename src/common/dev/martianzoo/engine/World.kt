@@ -12,7 +12,7 @@ import dev.martianzoo.state.TaskQueue
 
 /**
  * A live Pets world with transactional mutation, pending tasks, and event history. A world is the
- * aggregation of three mutable child objects, which callers access directly: a [ComponentGraph], an
+ * aggregation of three mutable child objects, which callers access: a [ComponentGraph], an
  * [EventLog], and a [TaskQueue]. These types embody the present, past, and future of the world
  * (respectively).
  *

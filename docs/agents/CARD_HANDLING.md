@@ -20,7 +20,7 @@ generic card backs by Player and location, never by printed identity:
 - `BeginnerCard<Hand>` is the separate back used only by the beginner variant;
 - `Selecting` temporarily holds anonymous backs for project-card look-and-keep effects and the
   modeled corporation and Prelude offers. Retained project cards move to `Hand`; selected Prelude
-  and Merger corporation cards are played directly from `Selecting`. The effect removes the rest;
+  and Merger corporation cards are played from `Selecting`. The effect removes the rest;
 - `Revealed` temporarily holds an already owned card for Public Plans, or one anonymous card
   revealed from outside the World for Asteroid Deflection System and Search for Life;
 - a concrete `CardFront<Class<CardBack>>` is an exact face in play; and
@@ -39,7 +39,7 @@ runs only for operations that declare themselves complete. Do not treat other le
 valid resting state or silently discard them to conceal a missing decision.
 
 Fixed-size project-card purchase offers enter `Selecting` first. Searches intentionally have no
-selection pool: the matching card enters the hand directly, and skipped cards have no relevant
+selection pool: the matching card enters the hand, and skipped cards have no relevant
 count or movement.
 There is no deck or discard Component, hidden face, physical-copy identity, shuffle state, or
 dealer policy. Playing a card consumes one generic back from its stated location and creates the
@@ -71,10 +71,10 @@ Corporation phase plays the retained corporation or beginner card from `Hand`. G
 when Admin starts the purchase. Completing the earlier `PlayCard` signal is not sufficient.
 Gameplay callers choose the card face without repeating its location. `PlayCard` has no location
 default: `doTask` intersects the caller's choice with the pending task, which supplies the authorized
-source (`Hand` for ordinary plays, `Selecting` for direct offered plays). An explicit conflicting
+source (`Hand` for ordinary plays, `Selecting` for plays from an offer). An explicit conflicting
 source is rejected even when that location contains another card.
 
-An ordinary draw adds `ProjectCard<Hand>` directly. Fixed-size project-card offers, including buys,
+An ordinary draw adds `ProjectCard<Hand>`. Fixed-size project-card offers, including buys,
 gain the full offer as `ProjectCard<Selecting>`. Look-and-keep effects move only retained backs to
 `Hand` and remove the remainder. For a buy, the Player removes unwanted backs, then
 `BuySelectedCards` is `System` and bills 3 M€ for each remaining selected back, applying card

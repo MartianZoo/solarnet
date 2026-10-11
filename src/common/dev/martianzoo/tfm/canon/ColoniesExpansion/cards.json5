@@ -16,7 +16,7 @@
         {
           "name": "Arklight",
           "tags": [ "AnimalTag" ],
-          "immediate": "45 MC, PROD[2 MC]",
+          "direct": "45 MC, PROD[2 MC]",
           "effects": [
             "AnimalTag OR PlantTag: Animal<This>",
             "End: VictoryPoint / 2 Animal<This>"
@@ -24,18 +24,18 @@
         },
         {
           "name": "Polyphemos",
-          "immediate": "50 MC, 5 Titanium, PROD[5 MC]",
+          "direct": "50 MC, 5 Titanium, PROD[5 MC]",
           "effects": [ "PayingFor<Class<ProjectCard>>:: 2 Owed<>" ],
         },
         {
           "name": "Poseidon",
-          "immediate": "45 MC, RequiredAction { -> Colony<> }",
+          "direct": "45 MC, RequiredAction { -> Colony<> }",
           "effects": [ "Colony<Anyone>: PROD[1 MC]" ],
         },
         {
           "name": "StormcraftIncorporated",
           "tags": [ "JovianTag" ],
-          "immediate": "48 MC",
+          "direct": "48 MC",
           "actions": [ "-> Floater" ],
           "effects": [
             "Billing<Class<Component>, Class<Heat>>:: AcceptingFromCard<This>",
@@ -54,19 +54,19 @@
           "name": "Airliners",
           "requirement": "3 Floater",
           "cost": 11,
-          "immediate": "PROD[2 MC], 2 Floater",
+          "direct": "PROD[2 MC], 2 Floater",
           "effects": [ "End: VictoryPoint" ],
         },
         {
           "name": "AirRaid",
           "cost": 0,
           "tags": [ "EventTag" ],
-          "immediate": "-Floater, 5 MC<Me@ FROM Anyone>",
+          "direct": "-Floater, 5 MC<Me@ FROM Anyone>",
         },
         {
           "name": "AtmoCollectors",
           "cost": 15,
-          "immediate": "2 Floater",
+          "direct": "2 Floater",
           "actions": [
             "-> Floater<This>",
             "Floater<This> -> 2 Titanium OR 3 Energy OR 4 Heat"
@@ -75,7 +75,7 @@
         {
           "name": "CommunityServices",
           "cost": 13,
-          "immediate": "PROD[1 MC / CardFront(HAS MAX 0 Tag)]",
+          "direct": "PROD[1 MC / CardFront(HAS MAX 0 Tag)]",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -83,7 +83,7 @@
           "requirement": "2 EarthTag",
           "cost": 5,
           "tags": [ "EarthTag", "EventTag" ],
-          "immediate": "NextCardEffect { PayingFor<Class<CardFront>>:: -16 Owed }",
+          "direct": "NextCardEffect { PayingFor<Class<CardFront>>:: -16 Owed }",
           "effects": [ "End: -VictoryPoint" ],
         },
         {
@@ -91,7 +91,7 @@
           "requirement": "4 ScienceTag",
           "cost": 10,
           "tags": [ "PowerTag", "SpaceTag" ],
-          "immediate": "PROD[4 Energy]",
+          "direct": "PROD[4 Energy]",
         },
         {
           "name": "CryoSleep",
@@ -103,26 +103,26 @@
           "name": "EarthElevator",
           "cost": 43,
           "tags": [ "EarthTag", "SpaceTag" ],
-          "immediate": "PROD[3 Titanium]",
+          "direct": "PROD[3 Titanium]",
           "effects": [ "End: 4 VictoryPoint" ],
         },
         {
           "name": "EcologyResearch",
           "cost": 21,
           "tags": [ "ScienceTag", "AnimalTag", "MicrobeTag", "PlantTag" ],
-          "immediate": "PROD[Plant / Colony], Animal, 2 Microbe",
+          "direct": "PROD[Plant / Colony], Animal, 2 Microbe",
           "effects": [ "End: VictoryPoint" ],
         },
         {
           "name": "FloaterLeasing",
           "cost": 3,
-          "immediate": "PROD[1 MC / 3 Floater]",
+          "direct": "PROD[1 MC / 3 Floater]",
         },
         {
           "name": "FloaterPrototypes",
           "cost": 2,
           "tags": [ "ScienceTag", "EventTag" ],
-          "immediate": "2 Floater",
+          "direct": "2 Floater",
         },
         {
           "name": "FloaterTechnology",
@@ -134,7 +134,7 @@
           "name": "GalileanWaystation",
           "cost": 15,
           "tags": [ "SpaceTag" ],
-          "immediate": "PROD[1 MC / JovianTag<Anyone>]",
+          "direct": "PROD[1 MC / JovianTag<Anyone>]",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -142,34 +142,34 @@
           "requirement": "2 EarthTag",
           "cost": 3,
           "tags": [ "EarthTag" ],
-          "immediate": "PROD[2 MC], 4 MC",
+          "direct": "PROD[2 MC], 4 MC",
           "effects": [ "End: -VictoryPoint" ],
         },
         {
           "name": "IceMoonColony",
           "cost": 23,
           "tags": [ "SpaceTag" ],
-          "immediate": "Colony<>, OceanTile<>",
+          "direct": "Colony<>, OceanTile<>",
         },
         {
           "name": "ImpactorSwarm",
           "requirement": "2 JovianTag",
           "cost": 11,
           "tags": [ "SpaceTag", "EventTag" ],
-          "immediate": "12 Heat, -2 Plant<Anyone>?",
+          "direct": "12 Heat, -2 Plant<Anyone>?",
         },
         {
           "name": "InterplanetaryColonyShip",
           "cost": 12,
           "tags": [ "EarthTag", "SpaceTag", "EventTag" ],
-          "immediate": "Colony<>",
+          "direct": "Colony<>",
         },
         {
           "name": "JovianLanterns",
           "requirement": "JovianTag",
           "cost": 20,
           "tags": [ "JovianTag" ],
-          "immediate": "TerraformRating, 2 Floater",
+          "direct": "TerraformRating, 2 Floater",
           "actions": [ "Titanium -> 2 Floater<This>" ],
           "effects": [ "End: VictoryPoint / 2 Floater<This>" ],
         },
@@ -189,25 +189,25 @@
           "requirement": "3 EarthTag",
           "cost": 4,
           "tags": [ "EarthTag", "EarthTag" ],
-          "immediate": "PROD[2 MC]",
+          "direct": "PROD[2 MC]",
         },
         {
           "name": "LunarExports",
           "cost": 19,
           "tags": [ "SpaceTag", "EarthTag" ],
-          "immediate": "PROD[2 Plant OR 5 MC]",
+          "direct": "PROD[2 Plant OR 5 MC]",
         },
         {
           "name": "LunarMining",
           "cost": 11,
           "tags": [ "EarthTag" ],
-          "immediate": "PROD[Titanium / 2 EarthTag]",
+          "direct": "PROD[Titanium / 2 EarthTag]",
         },
         {
           "name": "MarketManipulation",
           "cost": 1,
           "tags": [ "EarthTag", "EventTag" ],
-          "immediate": "ColonyProduction FROM ColonyProduction",
+          "direct": "ColonyProduction FROM ColonyProduction",
         },
         {
           "name": "MartianZoo",
@@ -224,26 +224,26 @@
           "name": "MiningColony",
           "cost": 20,
           "tags": [ "SpaceTag" ],
-          "immediate": "PROD[Titanium], Colony<>",
+          "direct": "PROD[Titanium], Colony<>",
         },
         {
           "name": "MinorityRefuge",
           "cost": 5,
           "tags": [ "SpaceTag" ],
-          "immediate": "PROD[-2 MC], Colony<>",
+          "direct": "PROD[-2 MC], Colony<>",
         },
         {
           "name": "MolecularPrinting",
           "cost": 11,
           "tags": [ "ScienceTag" ],
-          "immediate": "1 MC / CityTile<Anyone>, 1 MC / Colony<Anyone>",
+          "direct": "1 MC / CityTile<Anyone>, 1 MC / Colony<Anyone>",
           "effects": [ "End: VictoryPoint" ],
         },
         {
           "name": "NitrogenFromTitan",
           "cost": 25,
           "tags": [ "JovianTag", "SpaceTag" ],
-          "immediate": "2 TerraformRating, 2 Floater<CardFront(HAS JovianTag)>",
+          "direct": "2 TerraformRating, 2 Floater<CardFront(HAS JovianTag)>",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -251,19 +251,19 @@
           "requirement": "MAX 1 Colony",
           "cost": 13,
           "tags": [ "SpaceTag" ],
-          "immediate": "PROD[-2 MC], Colony<>",
+          "direct": "PROD[-2 MC], Colony<>",
           "effects": [ "End: 2 VictoryPoint" ],
         },
         {
           "name": "ProductiveOutpost",
           "cost": 0,
-          "immediate": "GainColonyBonuses",
+          "direct": "GainColonyBonuses",
         },
         {
           "name": "QuantumCommunications",
           "requirement": "4 ScienceTag",
           "cost": 8,
-          "immediate": "PROD[1 MC / Colony<Anyone>]",
+          "direct": "PROD[1 MC / Colony<Anyone>]",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -271,7 +271,7 @@
           "requirement": "3 ScienceTag",
           "cost": 17,
           "tags": [ "ScienceTag", "JovianTag" ],
-          "immediate": "2 ProjectCard",
+          "direct": "2 ProjectCard",
           "actions": [
             "-> Floater<This>",
             "Floater<This> -> ProjectCard"
@@ -290,7 +290,7 @@
           "name": "ResearchColony",
           "cost": 20,
           "tags": [ "ScienceTag", "SpaceTag" ],
-          "immediate": "Colony<ColonyTile>, 2 ProjectCard",
+          "direct": "Colony<ColonyTile>, 2 ProjectCard",
         },
         {
           "name": "RimFreighters",
@@ -303,7 +303,7 @@
           "requirement": "2 EarthTag",
           "cost": 18,
           "tags": [ "EarthTag", "SpaceTag" ],
-          "immediate": "TradeFleet",
+          "direct": "TradeFleet",
           "effects": [
             "PayingFor<Class<CardFront>>:: -1 Owed",
             "End: 2 VictoryPoint"
@@ -313,35 +313,35 @@
           "name": "SolarProbe",
           "cost": 9,
           "tags": [ "ScienceTag", "SpaceTag", "EventTag" ],
-          "immediate": "ProjectCard / 3 ScienceTag", // should be in play at the time
+          "direct": "ProjectCard / 3 ScienceTag", // should be in play at the time
           "effects": [ "End: VictoryPoint" ],
         },
         {
           "name": "SolarReflectors",
           "cost": 23,
           "tags": [ "SpaceTag" ],
-          "immediate": "PROD[5 Heat]",
+          "direct": "PROD[5 Heat]",
         },
         {
           "name": "SpacePort",
           "requirement": "Colony",
           "cost": 22,
           "tags": [ "CityTag", "BuildingTag" ],
-          "immediate": "TradeFleet, CityTile<>, PROD[-Energy, 4 MC]",
+          "direct": "TradeFleet, CityTile<>, PROD[-Energy, 4 MC]",
         },
         {
           "name": "SpacePortColony",
           "requirement": "Colony",
           "cost": 27,
           "tags": [ "SpaceTag" ],
-          "immediate": "Colony<ColonyTile>, TradeFleet",
+          "direct": "Colony<ColonyTile>, TradeFleet",
           "effects": [ "End: VictoryPoint / 2 Colony<Anyone>" ],
         },
         {
           "name": "SpinOffDepartment",
           "cost": 10,
           "tags": [ "BuildingTag" ],
-          "immediate": "PROD[2 MC]",
+          "direct": "PROD[2 MC]",
           "effects": [ "CardFront(HAS 20 cost): ProjectCard" ],
         },
         {
@@ -349,7 +349,7 @@
           "requirement": "12 TemperatureStep",
           "cost": 5,
           "tags": [ "AnimalTag" ],
-          "immediate": "PROD[-Plant<Anyone>]",
+          "direct": "PROD[-Plant<Anyone>]",
           "actions": [ "-> Animal<This>" ],
           "effects": [ "End: VictoryPoint / 2 Animal<This>" ],
         },
@@ -367,7 +367,7 @@
           "name": "TitanFloatingLaunchPad",
           "cost": 18,
           "tags": [ "JovianTag" ],
-          "immediate": "2 Floater<CardFront(HAS JovianTag)>",
+          "direct": "2 Floater<CardFront(HAS JovianTag)>",
           "actions": [
             "-> Floater<CardFront(HAS JovianTag)>",
             "Floater<This> -> Trade"
@@ -396,7 +396,7 @@
           "name": "TradingColony",
           "cost": 18,
           "tags": [ "SpaceTag" ],
-          "immediate": "Colony<>",
+          "direct": "Colony<>",
           "effects": [
             "Trade<@ColonyTile>:: TradeBarrier<@ColonyTile>",
             "Trade<@ColonyTile>: ColonyProduction<@ColonyTile>? THEN -TradeBarrier<@ColonyTile>",
@@ -407,7 +407,7 @@
           "requirement": "CityTile, Colony",
           "cost": 6,
           "tags": [ "MicrobeTag" ],
-          "immediate": "PROD[Plant], 2 Microbe",
+          "direct": "PROD[Plant], 2 Microbe",
         },
         {
           "name": "WarpDrive",

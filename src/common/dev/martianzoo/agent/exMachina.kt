@@ -17,7 +17,7 @@ import dev.martianzoo.state.Task.TaskId
 
 /**
  * Applies an evidenced replay adjustment, attributed to [adjustingActor], without leaving a
- * selected task resolved against stale state. Direct System, Hidden, and MustCleanUp targets are
+ * selected task resolved against stale state. Explicit System, Hidden, and MustCleanUp targets are
  * forbidden; required parts may still change them, but must not leave new unfinished work.
  */
 public fun Agents.exMachina(adjustingActor: Actor, adjustment: String) {
@@ -28,7 +28,7 @@ public fun Agents.exMachina(adjustingActor: Actor, adjustment: String) {
       val type = agent.reader.resolve(target)
       if (restricted.any(type.rootClass::isSubtypeOf)) {
         throw ExpressionException(
-            "exMachina cannot directly change System, Hidden, or MustCleanUp type `$target`"
+            "exMachina cannot explicitly target System, Hidden, or MustCleanUp type `$target`"
         )
       }
     }

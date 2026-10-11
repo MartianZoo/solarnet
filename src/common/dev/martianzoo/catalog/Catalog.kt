@@ -100,7 +100,7 @@ public open class Catalog(private vararg val catalogs: Catalog) {
   public val allClassNames: Set<ClassName>
     get() = allClassDeclarations.keys
 
-  /** Direct source declarations, before game-specific executable lowering. */
+  /** Authored source declarations, before game-specific executable lowering. */
   public open val explicitClassDeclarations: Set<ClassDeclaration> =
       catalogs.flatMapTo(linkedSetOf(), Catalog::explicitClassDeclarations)
 

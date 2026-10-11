@@ -218,7 +218,7 @@ internal class WorldTransactionTest {
   }
 
   @Test
-  internal fun directAgentMutationsReportAtomicCompletion() {
+  internal fun manualTaskEditsReportAtomicCompletion() {
     val game = Engine.newGame(testGamePremise())
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     agent.sneak("Token")

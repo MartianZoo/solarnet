@@ -117,7 +117,7 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  internal fun gatesDelaySystemRoutingUntilTheyResolveToADirectGain() {
+  internal fun gatesDelaySystemRoutingUntilTheyResolveToAnElementaryGain() {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }

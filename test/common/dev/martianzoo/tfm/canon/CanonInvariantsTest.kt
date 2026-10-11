@@ -124,7 +124,7 @@ internal class CanonInvariantsTest {
 
   // GAME_HACKS 12: CopyProductionBox extracts a subtree and discards its ancestors.
   @Test
-  internal fun buildingCardsHaveAtMostASingleImmediateProductionBox() {
+  internal fun buildingCardsHaveAtMostASingleDirectEffectProductionBox() {
     checkCards("CopyProductionBox cannot copy multiple PROD blocks", buildingCards()) {
       cardProductionBoxes(it).size <= 1
     }
@@ -147,7 +147,7 @@ internal class CanonInvariantsTest {
       // THEN is intentional for Mining Area/Rights: copying repeats production after the tile
       // already exists. Conditions, choices, scaling and bindings must travel with the box.
       var valid = true
-      cardImmediate(card)?.visitDescendants { node ->
+      cardDirectEffect(card)?.visitDescendants { node ->
         if (node is InstructionTransform && node.transformKind == TfmClasses.PROD) {
           false
         } else {
@@ -169,7 +169,7 @@ internal class CanonInvariantsTest {
 
   // GAME_HACKS 13: CopyPrelude reads only nonautomatic, bare This effects.
   // Boom Town's automatic removal installs a persistent penalty; copying must not repeat it.
-  // This checks direct gains, not benefits reached indirectly through support components.
+  // This checks authored gain instructions, not benefits reached through support components.
   @Test
   internal fun preludeSelfGainBenefitsAreVisibleToCopyPrelude() {
     checkCards(

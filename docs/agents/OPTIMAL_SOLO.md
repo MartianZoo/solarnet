@@ -20,7 +20,7 @@
   — search for a named counterexample such as `Factorum` before relying on the analysis.
 
 This note develops one facet of exact or conservative optimization for the TR63 solo variant. It
-does not describe an implemented optimizer. The immediate goal is to recognize when an additional
+does not describe an implemented optimizer. The current goal is to recognize when an additional
 component is a pure benefit, when loaded game material disproves that claim, and when facts about the
 current state restore it conditionally.
 
@@ -162,7 +162,7 @@ Factorum currently contains the action:
 ```
 
 When the player has no Energy, this action can increase Energy production. Adding one Energy removes
-that option. Factorum therefore supplies a direct hazard to the claim that Energy is always a pure
+that option. Factorum therefore supplies a counterexample to the claim that Energy is always a pure
 benefit. The action is not intrinsically harmful, so it cannot be dismissed merely as an unwanted
 option. Under the conservative rule, Energy is not catalog-wide certified monotonic.
 

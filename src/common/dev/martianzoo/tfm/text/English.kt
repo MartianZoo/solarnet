@@ -10,8 +10,8 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.tfm.canon.cardActions
+import dev.martianzoo.tfm.canon.cardDirectEffect
 import dev.martianzoo.tfm.canon.cardEffects
-import dev.martianzoo.tfm.canon.cardImmediate
 import dev.martianzoo.tfm.canon.cardRequirement
 import dev.martianzoo.tfm.canon.cardResourceType
 import dev.martianzoo.tfm.text.turmoilexpansion.renderGlobalEffect
@@ -87,22 +87,22 @@ internal class English(
             cardDescribers,
         )
     val requirement = cardRequirement(card)?.let { renderRequirement(it, cardDescribers) }
-    val immediateEffects =
-        renderImmediateSelfEffects(
+    val selfGainEffects =
+        renderSelfGainEffects(
             interpretedEffects
                 .filterNot { it in resourceValueEffects.first }
-                .filter(::isImmediateSelfEffect),
+                .filter(::isSelfGainEffect),
             enteringCardDescribers,
         )
     val instructions =
-        cardImmediate(card)?.let { renderInstructionTree(it, enteringCardDescribers) }
+        cardDirectEffect(card)?.let { renderInstructionTree(it, enteringCardDescribers) }
     val scoring =
         interpretedEffects
             .filter { isEndEffect(it, cardDescribers) }
             .filterNot { isUnconditionalFixedScore(it, cardDescribers) }
             .map { renderEffect(it, cardDescribers) }
     return EnglishText.join(
-        listOfNotNull(requirement) + immediateEffects + listOfNotNull(instructions) + scoring
+        listOfNotNull(requirement) + selfGainEffects + listOfNotNull(instructions) + scoring
     )
   }
 
@@ -121,7 +121,7 @@ internal class English(
     val persistentEffects =
         interpretedEffects
             .filterNot { it in resourceValueEffects.first }
-            .filterNot { isEndEffect(it, cardDescribers) || isImmediateSelfEffect(it) }
+            .filterNot { isEndEffect(it, cardDescribers) || isSelfGainEffect(it) }
     val integratedPayment =
         persistentEffects
             .mapIndexedNotNull { index, effect ->
@@ -179,12 +179,12 @@ internal class English(
   private fun interpretedCardEffects(card: Class): List<Effect> =
       cardEffects(card).map(card::interpretTypeVariablesIn)
 
-  private fun isImmediateSelfEffect(effect: Effect): Boolean {
+  private fun isSelfGainEffect(effect: Effect): Boolean {
     return (effect.automatic && effect.trigger == WhenGain) ||
         (effect.trigger as? IfTrigger)?.inner == WhenGain
   }
 
-  private fun renderImmediateSelfEffect(
+  private fun renderSelfGainEffect(
       effect: Effect,
       cardDescribers: Describers,
   ): EnglishText {
@@ -218,10 +218,10 @@ internal class English(
         .asText()
   }
 
-  private fun renderImmediateSelfEffects(
+  private fun renderSelfGainEffects(
       effects: List<Effect>,
       cardDescribers: Describers,
   ): List<EnglishText> = effects.map {
-    renderImmediateSelfEffect(it, cardDescribers)
+    renderSelfGainEffect(it, cardDescribers)
   }
 }

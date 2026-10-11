@@ -46,7 +46,7 @@ internal fun unadjustedMoneyProduction(metric: Metric, table: ClassTable): List<
             else -> inspect(node.minuend) + inspect(node.subtrahend)
           }
         }
-        else -> node.immediateChildren().filterIsInstance<Metric>().flatMap(::inspect)
+        else -> node.childNodes().filterIsInstance<Metric>().flatMap(::inspect)
       }
 
   return inspect(metric)

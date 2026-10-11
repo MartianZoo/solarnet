@@ -24,7 +24,7 @@ import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration
  *
  * Members of each kind retain source order; duplicate property assignments are rejected.
  * Declaration construction checks invariants and defaults and attaches nested declarations to their
- * immediate container. Inline derived-class expressions carry this body until extraction supplies
+ * enclosing container. Inline derived-class expressions carry this body until extraction supplies
  * their generated class name; scope resolution follows extraction.
  */
 internal class ClassBody(elements: List<Element> = emptyList()) {
@@ -80,7 +80,7 @@ internal class ClassBody(elements: List<Element> = emptyList()) {
       add(declaration)
       nestedDeclarations.forEach { nested ->
         val child = nested.declarations.first()
-        // L11-6: attach only the immediate child to this container. Its descendants already
+        // L11-6: attach only the child to this container. Its descendants already
         // name their own containers; preserve an explicitly supplied parent specialization.
         add(
             if (child.supertypes.any { it.className == header.className }) child

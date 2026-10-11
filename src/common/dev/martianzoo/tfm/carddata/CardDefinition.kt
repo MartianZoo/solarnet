@@ -11,7 +11,10 @@ public data class CardDefinition(
     val cost: Int = 0,
     val autoSelectWhen: String? = null,
     val tags: List<String> = emptyList(),
-    val immediate: String? = null,
+    /**
+     * Instructions performed when this card enters play; null means no direct effect is supplied.
+     */
+    val direct: String? = null,
     val actions: List<String> = emptyList(),
     val effects: List<String> = emptyList(),
     val invariants: Set<String> = emptySet(),

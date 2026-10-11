@@ -388,7 +388,7 @@ internal class EnglishTest {
   internal fun describesSelectedCardProcedures() {
     english.describe(
         parse<InstructionTree>("CopyProductionBox<CardFront(HAS BuildingTag)>")
-    ) shouldBe "Copy the immediate production box of a building card."
+    ) shouldBe "Copy the production box in the direct effect of a building card."
   }
 
   @Test
@@ -424,11 +424,11 @@ internal class EnglishTest {
   }
 
   @Test
-  internal fun placesConditionalSelfEffectsWithImmediateText() {
+  internal fun placesConditionalSelfEffectsWithDirectEffectText() {
     val card =
         syntheticCard(
             """
-            CLASS ConditionalImmediate : AutomatedCard {
+            CLASS ConditionalSelfGain : AutomatedCard {
               cost = 0
               This IF SoloMode: PROD[2 MC]
             }
@@ -597,7 +597,7 @@ internal class EnglishTest {
   }
 
   @Test
-  internal fun callsOutTheEnteringCardOnlyWhereItParticipatesImmediately() {
+  internal fun callsOutTheEnteringCardOnlyWhereItParticipatesOnEntry() {
     val card =
         syntheticCard(
             """

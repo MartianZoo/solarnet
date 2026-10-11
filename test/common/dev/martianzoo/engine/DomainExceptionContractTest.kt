@@ -50,7 +50,7 @@ internal class DomainExceptionContractTest {
   }
 
   @Test
-  internal fun directChangesRejectAbstractAndNonChangeInstructionsWithDomainExceptions() {
+  internal fun correctionsRejectAbstractAndNonChangeInstructionsWithDomainExceptions() {
     val agent = agent()
 
     val incomplete = shouldThrow<NotFullySpecifiedException> { agent.sneak("Plant OR Heat") }

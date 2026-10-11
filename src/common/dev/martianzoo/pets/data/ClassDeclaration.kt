@@ -23,8 +23,8 @@ import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.DefaultKind
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.OneDefault
 
 /**
- * A direct representation of the *declaration* of a component class, such as GreeneryTile, whose
- * source form is
+ * A representation of the *declaration* of a component class, such as GreeneryTile, whose source
+ * form is
  * [section 11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations).
  * A declaration is a signature — a name, an optional dependency list, and an optional supertype
  * list — plus an optional body ([rules L11-3 and
@@ -68,10 +68,10 @@ public data class ClassDeclaration(
      */
     public val invariants: Set<Requirement> = emptySet(),
 
-    /** Effects authored directly in this class body, in declaration order. */
+    /** Effects authored in this class body, in declaration order. */
     public val authoredEffects: List<Effect> = emptyList(),
 
-    /** Actions authored directly in this class body. */
+    /** Actions authored in this class body. */
     public val authoredActions: List<Action> = emptyList(),
 
     /** An catalog-specific executable form, when it differs from the authored form. */
@@ -87,8 +87,8 @@ public data class ClassDeclaration(
     public val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
 
     /**
-     * Property bounds or values declared directly by this class. A name is assigned at most once
-     * per body ([rule
+     * Property bounds or values declared by this class. A name is assigned at most once per body
+     * ([rule
      * L11-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations));
      * what the bounds and values mean is
      * [section 9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties)

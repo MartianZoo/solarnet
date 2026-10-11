@@ -1068,7 +1068,7 @@ public object Parsing {
         ) { (doc, signature, body) ->
           (body ?: ClassBody()).toDeclarations(signature, doc)
         }
-    // Pass this production directly to completionAtEnd: its analyzer understands combinators,
+    // Pass this production to completionAtEnd: its analyzer understands combinators,
     // while a Grammar wrapper would fall back to executing the parser and its semantic maps.
     override val rootParser: Parser<List<ClassDeclaration>> by
         zeroOrMore(declaration) and skip(newlines) map { it.flatten() }

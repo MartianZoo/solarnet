@@ -53,7 +53,7 @@ internal constructor(
     /** The class loader used while constructing this class. */
     private val loader: ClassLoader,
 
-    /** Whether resolving this declaration's immediate hierarchy includes those Classes. */
+    /** Whether resolving this declaration's direct hierarchy includes those Classes. */
     includeRelated: Boolean = true,
 
     /**

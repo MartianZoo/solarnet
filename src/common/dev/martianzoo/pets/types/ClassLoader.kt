@@ -572,11 +572,7 @@ private constructor(
         is Gated -> {
           if (!interpreter.requirementIsFalse(tree.gate)) collectInstruction(tree.inner)
         }
-        else ->
-            tree
-                .immediateChildren()
-                .filterIsInstance<InstructionTree>()
-                .forEach(::collectInstruction)
+        else -> tree.childNodes().filterIsInstance<InstructionTree>().forEach(::collectInstruction)
       }
     }
 

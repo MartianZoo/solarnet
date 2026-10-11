@@ -7,7 +7,7 @@
           "name": "AerialLenses",
           "requirement": "PartyRequirement<Kelvinists>",
           "cost": 2,
-          "immediate": "-2 Plant<Anyone>?, PROD[2 Heat]",
+          "direct": "-2 Plant<Anyone>?, PROD[2 Heat]",
           "effects": [ "End: -VictoryPoint" ],
         },
         {
@@ -15,7 +15,7 @@
           "requirement": "Chairman",
           "cost": 0,
           "tags": [ "EventTag" ],
-          "immediate":
+          "direct":
             "BannedDelegateRemoval<Party, Anyone>. / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1",
           "components": [
             // Returns a selected non-leader delegate, then resolves its party leadership.
@@ -28,14 +28,14 @@
           "requirement": "PartyRequirement<Unity>",
           "cost": 20,
           "tags": [ "CityTag", "BuildingTag" ],
-          "immediate": "PROD[-Energy, 3 MC], CityTile<>, 2 PartyDelegate",
+          "direct": "PROD[-Energy, 3 MC], CityTile<>, 2 PartyDelegate",
         },
         {
           "name": "DiasporaMovement",
           "requirement": "PartyRequirement<Reds>",
           "cost": 7,
           "tags": [ "JovianTag" ],
-          "immediate": "1 MC / JovianTag<Anyone>",
+          "direct": "1 MC / JovianTag<Anyone>",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -57,7 +57,7 @@
           "requirement": "PartyRequirement<MarsFirst>",
           "cost": 7,
           "tags": [ "BuildingTag" ],
-          "immediate": "PROD[2 MC]",
+          "direct": "PROD[2 MC]",
           "actions": [ "3 MC -> PartyDelegate" ],
         },
         {
@@ -65,7 +65,7 @@
           "requirement": "PartyRequirement<MarsFirst>",
           "cost": 8,
           "tags": [ "BuildingTag" ],
-          "immediate": "PROD[1 MC / 3 BuildingTag]",
+          "direct": "PROD[1 MC / 3 BuildingTag]",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -73,7 +73,7 @@
           "requirement": "PartyRequirement<Unity>",
           "cost": 7,
           "tags": [ "EarthTag" ],
-          "immediate": "TerraformRating, 1 MC / EarthTag",
+          "direct": "TerraformRating, 1 MC / EarthTag",
         },
         {
           "name": "PublicCelebrations",
@@ -86,7 +86,7 @@
           "name": "Recruitment",
           "cost": 2,
           "tags": [ "EventTag" ],
-          "immediate":
+          "direct":
             "PartyDelegate<Party(HAS 1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)), Me@ FROM Neutral>",
         },
         {
@@ -94,35 +94,35 @@
           "requirement": "PartyRequirement<Reds>",
           "cost": 3,
           "tags": [ "EarthTag", "EventTag" ],
-          "immediate": "1 MC / MarsArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile>)",
+          "direct": "1 MC / MarsArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile>)",
         },
         {
           "name": "SponsoredMohole",
           "requirement": "PartyRequirement<Kelvinists>",
           "cost": 5,
           "tags": [ "BuildingTag" ],
-          "immediate": "PROD[2 Heat]",
+          "direct": "PROD[2 Heat]",
         },
         {
           "name": "SupportedResearch",
           "requirement": "PartyRequirement<Scientists>",
           "cost": 3,
           "tags": [ "ScienceTag" ],
-          "immediate": "2 ProjectCard",
+          "direct": "2 ProjectCard",
         },
         {
           "name": "VoteOfNoConfidence",
           "requirement": "PartyLeader",
           "cost": 5,
           "tags": [ "EventTag" ],
-          "immediate": "Chairman<Me@ FROM Neutral>, TerraformRating",
+          "direct": "Chairman<Me@ FROM Neutral>, TerraformRating",
         },
         {
           "name": "WildlifeDome",
           "requirement": "PartyRequirement<Greens>",
           "cost": 15,
           "tags": [ "AnimalTag", "PlantTag", "BuildingTag" ],
-          "immediate": "DefaultGreeneryTile",
+          "direct": "DefaultGreeneryTile",
         },
       ],
     },
@@ -132,7 +132,7 @@
         {
           "name": "LakefrontResorts",
           "tags": [ "BuildingTag" ],
-          "immediate": "54 MC",
+          "direct": "54 MC",
           "effects": [
             "OceanTile BY Anyone: PROD[1 MC]",
             "Placement<@MarsArea>: 1 MC / Neighbor<OceanTile, @MarsArea>"
@@ -140,7 +140,7 @@
         },
         {
           "name": "Pristar",
-          "immediate": "53 MC, -2 TerraformRating",
+          "direct": "53 MC, -2 TerraformRating",
           "effects": [
             "ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6 MC",
             "End: VictoryPoint / Preservation<This>"
@@ -157,13 +157,13 @@
         {
           "name": "TerraLabsResearch",
           "tags": [ "ScienceTag", "EarthTag" ],
-          "immediate": "14 MC, -TerraformRating",
+          "direct": "14 MC, -TerraformRating",
           "effects": [ "PayingFor<Class<ProjectCard>>:: -2 Owed" ],
         },
         {
           "name": "UtopiaInvest",
           "tags": [ "BuildingTag" ],
-          "immediate": "40 MC, PROD[Steel, Titanium]",
+          "direct": "40 MC, PROD[Steel, Titanium]",
           "actions": [ "PROD[@StandardResource] -> 4 @StandardResource" ],
         },
       ],

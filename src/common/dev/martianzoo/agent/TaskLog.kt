@@ -21,8 +21,8 @@ import dev.martianzoo.state.Task.TaskId
  *
  * Reconstruction uses the same premise, implementation and workflow, with Player autoexecution
  * disabled and Admin remaining aggressive. Routine Admin work is omitted; explicit Admin choices
- * are retained. The text does not contain the premise, injected operations, direct `sneak` changes,
- * or external card-name annotations. Task ids and context-only disambiguation are not serialized;
+ * are retained. The text does not contain the premise, injected operations, `sneak` corrections, or
+ * external card-name annotations. Task ids and context-only disambiguation are not serialized;
  * imports fail when the instruction cannot identify equivalent pending work.
  */
 public class TaskLog internal constructor(private val world: World) {

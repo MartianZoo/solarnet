@@ -119,7 +119,7 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
    * configured pool for that category; an explicitly named milestone bypasses automatic pool
    * preferences. A playable Terraforming Mars Catalog requires at least one player name in seat
    * order. Missing names and the generated concrete `Premise` Class belong to the premise-local
-   * declaration table; their immediate effects create the resolved Modules, Players, and exact
+   * declaration table; their on-gain effects create the resolved Modules, Players, and exact
    * starting Components without recompiling this Catalog's master table.
    */
   final override fun configurePremise(builder: GamePremiseBuilder) {

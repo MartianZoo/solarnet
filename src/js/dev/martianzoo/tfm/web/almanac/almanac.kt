@@ -531,7 +531,7 @@ private fun collectUsages(
       return
     }
     is Requirement -> {
-      node.immediateChildren().forEach { child ->
+      node.childNodes().forEach { child ->
         collectUsages(child, inheritedCategories + REQUIREMENTS, record)
       }
       return
@@ -550,7 +550,7 @@ private fun collectUsages(
   if (node is ClassName) {
     (categories.ifEmpty { setOf(OTHER) }).forEach { record(node, it) }
   }
-  node.immediateChildren().forEach { child -> collectUsages(child, categories, record) }
+  node.childNodes().forEach { child -> collectUsages(child, categories, record) }
 }
 
 private fun loadCardImages(onLoaded: (Map<String, CardImage>) -> Unit) {

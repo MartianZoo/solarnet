@@ -3,7 +3,7 @@
 [All categories](README.md) · 71 entries
 
 Printed text: [wording evidence](../../src/jvm/dev/martianzoo/tfm/text/english-published-wording-evidence.tsv).
-Generated text comes directly from the current English renderer. See the [reading notes](README.md#reading-the-comparisons).
+Generated text comes from the current English renderer. See the [reading notes](README.md#reading-the-comparisons).
 
 ## Prelude 1 Card Pack
 
@@ -1321,7 +1321,7 @@ Class: `FakeHeadStart`
 Pets declaration:
 
 ```pets
-"Head Start with independently interleavable immediate actions"
+"Head Start with independently interleavable actions granted on entry"
 CLASS FakeHeadStart : CardFront<Class<PreludeCard>> {
   cost = 0
   This:: Audit

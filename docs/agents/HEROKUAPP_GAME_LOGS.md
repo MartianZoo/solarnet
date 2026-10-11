@@ -17,7 +17,7 @@
 - [`AbstractFullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
   — search for `abstract class AbstractFullGameTest` for shared replay chronology and assertions.
 - [`TestHelpers.kt`](../../test/common/dev/martianzoo/tfm/tests/TestHelpers.kt) —
-  search for `exMachina` only when evidence proves a direct reconciliation is required.
+  search for `exMachina` only when evidence proves a reconciliation is required.
 - [`TfmWorkflow.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt)
   — read only when the archive chronology crosses setup, phase, or endgame transitions that the
   replay helper does not explain.
@@ -101,7 +101,7 @@ can leave the replay in the action phase and make every later production or fina
 wrong. Verify phase transitions before adding resources to compensate.
 
 Check whether the archived game used fast mode. In fast-mode multiplayer games, a player must take two
-actions on every turn unless passing, so translate the actions directly and do not use `player.turn {
+actions on every turn unless passing, so translate the actions and do not use `player.turn {
 ... }` to auto-decline a second action. In games without that restriction, use `player.turn { ... }`
 consistently for routine turns instead of scattering many `declineSecondAction()` calls through the
 test. Once every other player has passed, keep the remaining player's actions through `pass()` in one
@@ -115,9 +115,9 @@ first action, determine whether it is this early declaration before translating 
 the one-action turn end normally and call `pass()` only when that player's next turn is actually
 selected; the executable pass-call order can therefore differ from the source log order. Preserve the
 verbatim log lines in their source order near the relevant scope, but do not treat every logged
-pass as an immediate gameplay event.
+pass as a gameplay event at that point.
 
-While copied log comments remain, keep each one directly above its representing statement. Put a
+While copied log comments remain, keep each one just above its representing statement. Put a
 consequence inside an action lambda only when that action causes it. Do not use an unrelated
 executable context as a place to hide a manual adjustment.
 
@@ -256,7 +256,7 @@ Use the end page and player records to assert the score table by category: TR, m
 second-place awards, greenery, cities, aggregate card VP, selected variable-card VP, totals, ties, and the
 winner. Assert final plants after greenery and all six final resources and production values when the
 player records expose them. Aggregate flat card VP when the archive reports only an aggregate; individual
-variable-card assertions are useful when directly checkable. Cross-check final tile ownership and map
+variable-card assertions are useful when observable. Cross-check final tile ownership and map
 locations against the archived board instead of relying only on aggregate points.
 
 ## Preserve valuable counterfactuals
@@ -300,7 +300,7 @@ defect, fix it only with a proportionate general design and add a smaller regres
 
 Before handoff:
 
-1. audit the test directly against the complete source log for chronology, choices, and consequences;
+1. audit the test against the complete source log for chronology, choices, and consequences;
 2. trace every setup fact and assertion to the raw log, screenshot, end page, or player record;
 3. recheck screenshot phase placement and all six values in every dashboard stanza;
 4. justify every `exMachina()` and search once more for chronology, payment, ownership, or workflow

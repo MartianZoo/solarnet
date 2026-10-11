@@ -41,8 +41,8 @@ import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.toComponent
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.cardBack
+import dev.martianzoo.tfm.canon.cardDirectEffect
 import dev.martianzoo.tfm.canon.cardEffects
-import dev.martianzoo.tfm.canon.cardImmediate
 import dev.martianzoo.tfm.canon.cardProductionBoxes
 import dev.martianzoo.tfm.canon.cardTags
 import dev.martianzoo.tfm.state.ApiUtils.mapDefinition
@@ -85,12 +85,12 @@ public object TfmEngine {
       if (card.className == cn("DoubleDown")) {
         throw NarrowingException("Cute, but Double Down can't copy itself")
       }
-      val immediate = cardImmediate(card) ?: return NoOp
+      val directEffect = cardDirectEffect(card) ?: return NoOp
       return PetElaborator(reader.classTable)
           .specializeEffect(
               card.defaultType,
               card.defaultType,
-              Effect(WhenGain, immediate),
+              Effect(WhenGain, directEffect),
               cn("DoubleDown").expression,
           )
           .instruction
@@ -100,13 +100,13 @@ public object TfmEngine {
   private object CopyProductionBox : CustomInstruction() {
     override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
       val card = reader.tfmCatalog.card(cardType.className)
-      val immediate =
-          cardImmediate(card)
-              ?: throw NarrowingException("card ${card.className} has no immediate instruction")
+      val directEffect =
+          cardDirectEffect(card)
+              ?: throw NarrowingException("card ${card.className} has no direct effect")
       val matches = cardProductionBoxes(card)
 
       if (
-          immediate.descendantsOfType<Instruction.Each>().any { each ->
+          directEffect.descendantsOfType<Instruction.Each>().any { each ->
             each.descendantsOfType<InstructionTransform>().any { it.transformKind == PROD }
           }
       ) {
@@ -116,7 +116,7 @@ public object TfmEngine {
       }
 
       return when (matches.size) {
-        0 -> throw NarrowingException("must choose a card that has an immediate PROD box")
+        0 -> throw NarrowingException("must choose a card that has a PROD box in its direct effect")
         1 -> matches.first()
         else -> error("Card ${card.className} is malformed, has ${matches.size} PROD blocks")
       }

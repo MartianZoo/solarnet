@@ -47,8 +47,11 @@ public fun cardTags(card: Class): Multiset<ClassName> {
   return HashMultiset.of(names)
 }
 
-/** Instructions performed when this card enters play. */
-public fun cardImmediate(card: Class): InstructionGroup? {
+/**
+ * The card's direct effect, collected from its authored, nonautomatic `This:` effects. Returns null
+ * when none are declared. Automatic and conditional self-gain effects are excluded.
+ */
+public fun cardDirectEffect(card: Class): InstructionGroup? {
   val instructions =
       card.declaration.authoredEffects
           .filter { !it.automatic && it.trigger == WhenGain }
@@ -59,13 +62,13 @@ public fun cardImmediate(card: Class): InstructionGroup? {
 }
 
 /**
- * Authored instruction-position `PROD` blocks in this card's [cardImmediate] instructions. `Plant /
- * PROD[Energy]` contains a production metric and contributes no production box. Returns every
- * instruction block, including nested blocks; callers must check cardinality and enclosing choices
- * or bindings before extracting a block for copying. No elaboration is applied.
+ * Authored instruction-position `PROD` blocks in this card's [cardDirectEffect] instructions.
+ * `Plant / PROD[Energy]` contains a production metric and contributes no production box. Returns
+ * every instruction block, including nested blocks; callers must check cardinality and enclosing
+ * choices or bindings before extracting a block for copying. No elaboration is applied.
  */
 public fun cardProductionBoxes(card: Class): List<InstructionTransform> =
-    cardImmediate(card)?.descendantsOfType<InstructionTransform>().orEmpty().filter {
+    cardDirectEffect(card)?.descendantsOfType<InstructionTransform>().orEmpty().filter {
       it.transformKind == TfmClasses.PROD
     }
 

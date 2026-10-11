@@ -577,7 +577,7 @@ public class TfmGameplay(
   public fun cardAction2(cardName: ClassName, body: OperationBlock = {}): TaskResult =
       cardAction(2, cardName, body = body)
 
-  /** Binds the action's X to positive [x] without directly executing the resulting task. */
+  /** Binds the action's X to positive [x] without executing the resulting task. */
   public fun cardAction2(
       cardName: ClassName,
       x: Int,
@@ -588,7 +588,7 @@ public class TfmGameplay(
     useCardAction(1, cardName, body = body)
   }
 
-  /** Binds the action's X to positive [x] without directly executing the resulting task. */
+  /** Binds the action's X to positive [x] without executing the resulting task. */
   public fun OperationScope.cardAction1(cardName: ClassName, x: Int, body: OperationBlock = {}) {
     useCardAction(1, cardName, x, body)
   }
@@ -597,7 +597,7 @@ public class TfmGameplay(
     useCardAction(2, cardName, body = body)
   }
 
-  /** Binds the action's X to positive [x] without directly executing the resulting task. */
+  /** Binds the action's X to positive [x] without executing the resulting task. */
   public fun OperationScope.cardAction2(cardName: ClassName, x: Int, body: OperationBlock = {}) {
     useCardAction(2, cardName, x, body)
   }

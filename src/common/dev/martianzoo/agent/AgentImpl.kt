@@ -411,7 +411,7 @@ internal class AgentImpl(
           settle = { autoExecLoop.run() },
       )
 
-  // Direct mutations preserve their legacy behavior of not invoking autoexecution.
+  // Manual task edits preserve their legacy behavior of not invoking autoexecution.
   private fun atomicWithoutAutoExec(block: () -> Unit): TaskResult =
       engine.transact(settle = {}, block = block)
 

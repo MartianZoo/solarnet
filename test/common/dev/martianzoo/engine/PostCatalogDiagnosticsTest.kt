@@ -1395,7 +1395,7 @@ internal class PostCatalogDiagnosticsTest {
         }
 
     assertEquals("module premise metrics cannot read properties: `Water.score`", error.detail)
-    // Prefer highlighting `Water.score`, or pointing directly at `score`, rather than only `Water`.
+    // Prefer highlighting `Water.score`, or pointing at `score`, rather than only `Water`.
     assertEquals(
         """
         |module premise metrics cannot read properties: `Water.score` at 1:41
@@ -2277,7 +2277,7 @@ internal class PostCatalogDiagnosticsTest {
   }
 
   @Test
-  internal fun abstractDirectChange() {
+  internal fun abstractCorrection() {
     val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
     val error =
         assertFailsWith<NotFullySpecifiedException> {
@@ -2297,18 +2297,22 @@ internal class PostCatalogDiagnosticsTest {
   }
 
   @Test
-  internal fun indirectDirectChange() {
+  internal fun gatedCorrection() {
     val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
     val error =
         assertFailsWith<ExpressionException> {
           agent.sneak("Water: Seed")
         }
 
-    assertEquals("sneak accepts only direct changes; found `Water: Seed<Player1>!`", error.detail)
-    // Prefer pointing at `:`, which makes this a gated instruction rather than a direct change.
+    assertEquals(
+        "sneak accepts only elementary changes; found `Water: Seed<Player1>!`",
+        error.detail,
+    )
+    // Prefer pointing at `:`, which makes this a gated instruction rather than an elementary
+    // change.
     assertEquals(
         """
-        |sneak accepts only direct changes; found `Water: Seed<Player1>!` at 1:1
+        |sneak accepts only elementary changes; found `Water: Seed<Player1>!` at 1:1
         |Water: Seed
         |^
         """

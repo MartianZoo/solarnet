@@ -678,7 +678,7 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `selection can resolve a limited task directly to completion`() {
+  internal fun `selection can resolve a limited task to completion`() {
     initiate("-30 TerraformRating?")
 
     writer.selectTask("-30 TerraformRating?")

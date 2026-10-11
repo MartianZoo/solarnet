@@ -627,7 +627,7 @@ public class PetElaborator(public val classTable: ClassTable) {
             }
         return node.refinement?.let(::needsMeInRefinement) ?: false
       }
-      return node.immediateChildren().any { needsMe(it, available) }
+      return node.childNodes().any { needsMe(it, available) }
     }
 
     fun supplyFromTrigger(trigger: Effect.Trigger): Pair<Effect.Trigger, Expression> {
@@ -1077,7 +1077,7 @@ public class PetElaborator(public val classTable: ClassTable) {
    * During this pass, an outermost dependent expression written without arguments reserves its
    * first candidate-compatible slot instead of accepting that slot's default (L9-9). Writing any
    * argument list, including `<>`, keeps ordinary default handling. Independently, L9-10 defers a
-   * direct class-header-variable default throughout a refinement.
+   * bare class-header-variable default throughout a refinement.
    */
   private fun insertExpressionDefaults(context: Expression): PetTransformer {
     var refinementDepth = 0

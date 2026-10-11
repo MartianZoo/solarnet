@@ -952,7 +952,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     green.turn {
       // "Remove a floater ... and gain an energy production." This is Deuterium Export's second
-      // action; it supplies Green ledger entry 151 without any direct state repair.
+      // action; it supplies Green ledger entry 151 without any state repair.
       cardAction2(DeuteriumExport).expect("-Floater<$DeuteriumExport>, PROD[Energy]")
     }
     yellow.turn {
@@ -1429,7 +1429,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Reds>") }
       // Both physical wild tags are chosen as Jovian for MicrogravityHealthProblems Movement.
       // Together with the
-      // card's own Jovian tag, they explain the spoken three-M€ payout directly.
+      // card's own Jovian tag, they explain the spoken three-M€ payout.
       exMachina(fakeWildTags("JovianTag", 2))
       playProject(DiasporaMovement, 5).expect("-2 MC")
     }

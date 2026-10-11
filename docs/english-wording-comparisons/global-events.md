@@ -3,7 +3,7 @@
 [All categories](README.md) · 36 entries
 
 Printed text: [wording evidence](../../src/jvm/dev/martianzoo/tfm/text/english-global-event-published-wording-evidence.tsv).
-Generated text comes directly from the current English renderer. See the [reading notes](README.md#reading-the-comparisons).
+Generated text comes from the current English renderer. See the [reading notes](README.md#reading-the-comparisons).
 
 ## Turmoil Expansion
 

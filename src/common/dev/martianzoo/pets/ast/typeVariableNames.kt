@@ -90,7 +90,7 @@ internal fun Then.localTypeVariableDeclarations(): List<Expression> = buildList 
       candidates += Candidate(region, node, observing)
     }
     val childrenObserve = observing || node.startsTypeVariableObservation
-    node.immediateChildren().forEach { collect(it, region, nextExcluded, childrenObserve) }
+    node.childNodes().forEach { collect(it, region, nextExcluded, childrenObserve) }
   }
 
   instructions.forEachIndexed { region, node ->
@@ -157,7 +157,7 @@ private fun PetNode.nonObservingTypeVariableDeclarations(): List<Expression> = b
   fun collect(node: PetNode, observing: Boolean) {
     if (!observing && node is Expression && node.typeVariableName is Declaration) add(node)
     val childrenObserve = observing || node.startsTypeVariableObservation
-    node.immediateChildren().forEach { collect(it, childrenObserve) }
+    node.childNodes().forEach { collect(it, childrenObserve) }
   }
   collect(this@nonObservingTypeVariableDeclarations, observing = false)
 }

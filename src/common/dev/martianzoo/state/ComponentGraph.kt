@@ -198,7 +198,7 @@ internal constructor(
       }
     }
     // This is the authoritative state invariant. Live engines may predict it while resolving an
-    // instruction, but passive replay and direct GameWorld use cannot rely on an engine check.
+    // instruction, but passive replay and engine-free GameWorld use cannot rely on an engine check.
     gaining?.let { component ->
       val missing =
           component.dependencyComponents.filter { dependency ->
