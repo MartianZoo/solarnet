@@ -101,7 +101,7 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
     stan.exMachina("Chairman FROM Chairman<Neutral>")
     stan
         .playProject(BannedDelegate, 0) {
-          doTask("BannedDelegateRemoval<Stan, Scientists, Kim>")
+          narrowTask("BannedDelegateRemoval<Stan, Scientists, Kim>")
         }
         .expect("-Delegate<Kim>, 0 LobbyActionAvailable<Kim>")
     shouldThrow<NotNowException> { kim.stdAction("LobbyAction") }
