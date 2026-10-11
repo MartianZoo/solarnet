@@ -344,13 +344,13 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
         val condition =
             (classDeclaration(replacement).properties[AUTO_SELECT_WHEN] as? RequirementValue)?.value
         // A card's condition can allow coexistence only when it names the displaced card.
+        // Consider that card even when a Module will select it after card-pool replacements.
         if (
             replacement in cardClassNames &&
-                replaced in configured &&
                 condition != null &&
                 replaced in condition.descendantsOfType<ClassName>() &&
                 ClassSelection(replacement, requirement = condition)
-                    .appliesTo(configured, configurationTable)
+                    .appliesTo(configured + replaced, configurationTable)
         )
             null
         else replaced

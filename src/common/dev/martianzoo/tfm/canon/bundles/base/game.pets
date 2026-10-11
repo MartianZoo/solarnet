@@ -4,7 +4,7 @@ CLASS TerraformingMars : Module {
 
   This:: 2 SelectableCorporationCount
   New@Player IF MultiplayerMode:: AfterMe<Player, New@>.
-  premiseRequirement = HAS "(Unsafe OR MAX 0 Class<EcologyExperts> OR (MAX 0 Class<ViralEnhancers>, MAX 0 Class<EcologicalZone>, MAX 0 Class<Decomposers>, MAX 0 Class<GmoContract>)), (Unsafe OR MAX 0 Class<AmazonisMap> OR (MAX 0 Class<MiningGuild>, MAX 0 Class<MiningRights>, MAX 0 Class<MiningArea>)), (Unsafe OR MAX 0 Class<PreservationProgram> OR (MAX 0 Class<TerraformingDeal>, MAX 0 Class<TurmoilExpansion>)), (Unsafe OR MAX 0 Class<Merger> OR MAX 0 Class<SagittaFrontierServices>)"
+  premiseRequirement = HAS "(Unsafe OR MAX 0 Class<EcologyExperts> OR (MAX 0 Class<ViralEnhancers>, MAX 0 Class<EcologicalZone>, MAX 0 Class<Decomposers>, MAX 0 Class<GmoContract>)), (Unsafe OR MAX 0 Class<AmazonisMap> OR (MAX 0 Class<MiningGuild>, MAX 0 Class<MiningRights>, MAX 0 Class<MiningArea>)), (Unsafe OR MAX 0 Class<PreservationProgram> OR (MAX 0 Class<TerraformingDeal>, MAX 0 Class<TurmoilExpansion>)), (Unsafe OR MAX 0 Class<Merger> OR MAX 0 Class<SagittaFrontierServices>), (Unsafe OR MAX 0 Class<FocusedOrganization> OR MAX 0 Class<StormcraftIncorporated>)"
 
   HAS =1 GameMode, =1 MarsMap
   HAS Class<Production>, Class<NormalCityTile>

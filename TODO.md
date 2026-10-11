@@ -390,7 +390,9 @@ These concerns remain open; the ranking does not select replacement designs.
   on unplayability; English currently states that caller-verified rule.
 - Make resource costs inside actions use `spend` consistently whether Pets expresses them before
   `->` or in a `THEN` sequence; Focused Organization and Board of Directors still expose the split.
-  Preserve `pay` for non-action payments.
+  Preserve `pay` for non-action payments. Focused Organization currently rejects a Stormcraft
+  floater when its action spends a standard resource; the pair now requires `Unsafe` and is tested
+  in `FocusedOrganizationTest`.
 - Extend card-play English to combine modeled card-face restrictions with the selected deck and
   source location. Preserve those restrictions in cost-reduced and requirement-waived plays;
   the current shared card-play interpreter refuses them rather than dropping the filter.
