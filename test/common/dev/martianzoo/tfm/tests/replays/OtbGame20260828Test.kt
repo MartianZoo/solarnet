@@ -1920,8 +1920,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           .choose("EventCard" to "MarketManipulation", outOf = 67)
           .done()
       fillInTask("ColonyProduction")
+          .choose("ColonyTile" to "Luna", outOf = 4)
           .choose("ColonyTile" to "Titan", outOf = 4)
-          .choose("ColonyTile" to "Luna", outOf = 3)
           .done()
 
       // "I want to fly my boat to Luna. And I get 14 money and yellow gets two." After correcting

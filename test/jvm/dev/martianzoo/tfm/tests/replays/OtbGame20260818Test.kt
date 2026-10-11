@@ -641,7 +641,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // Yellow: "I pay one for Market Manipulation. Increase the colony track one step."
       // Green: "So she's increasing Pluto." Yellow: "Yes. Decrease Io."
       playProject(MarketManipulation, 1) {
-        selectTask("ColonyProduction(NOT Source@) FROM Source@ColonyProduction")
+        selectTask("ColonyProduction FROM ColonyProduction")
         narrowTask("ColonyProduction<Pluto> FROM ColonyProduction<Io>")
       }
       // Yellow: "Then I will spend three energy to trade with Pluto, which now gives me three

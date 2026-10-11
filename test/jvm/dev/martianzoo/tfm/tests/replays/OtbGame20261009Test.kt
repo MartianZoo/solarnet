@@ -356,7 +356,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "PlayProject<Class<$MarketManipulation>>",
         "$MarketManipulation FROM ProjectCard",
     )
-    p1.selectTask("ColonyProduction(NOT Source@) FROM Source@ColonyProduction")
+    p1.selectTask("ColonyProduction FROM ColonyProduction")
     p1.narrowTask("ColonyProduction<Triton> FROM ColonyProduction<Miranda>")
     p1.doTasks(
         "TradeAction<Action2>",
