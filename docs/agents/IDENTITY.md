@@ -209,6 +209,63 @@ actor. Elaboration rejects an attempt to infer that Player from an ownerless Sys
 `Phase: Plant` needs an explicit recipient when `Phase` is System. A System event with an owned
 dependency can still supply the recipient through that dependency.
 
+### Ownership transition: current code and saved experiments
+
+The selected stopping point keeps implicit ownership and the useful fixes independent of OWN.
+Current Canon does not justify general support for arbitrary transform combinations. The
+`ownership` branch remains the place to pursue making Owned and Owner ordinary; its existing
+prototype and `docs/agents/OWNERSHIP.md` are the starting point, not a discarded direction.
+Do not merge that prototype into current code as incidental cleanup.
+
+Making inferred Actor and recipient bindings explicit belongs to that transition, not to the
+independent fixes kept here. Adding bare `BY Player` to the 16 audited rules only duplicated an
+existing filter while leaving the actual binding implicit; those edits were removed. For future
+work, prefer the fully explicit relationship, for example:
+
+```pets
+TemperatureStep BY Me@Player IF =3 TemperatureStep: PROD[Heat<Me@>]
+```
+
+This states both who performed the event and who receives the reward. It is a useful target for
+what OWN could eventually insert, not an approved migration of current Canon.
+
+The later experiment in supporting deferred transforms through EVAL and preserving transforms
+around extracted effects/actions is saved in local annotated tags:
+
+- `archive/transforms-before-main`: snapshot whose full build had passed before merging main.
+- `archive/transforms-after-main`: snapshot with unfinished integration after merging main.
+
+These tags point to stash commits: their main trees contain tracked files; their third parents
+contain the files that were untracked. Preserve both when recovering an experiment. Neither tag
+selects this machinery for current code, and the later snapshot need not be repaired for archival
+purposes. The experiment exposed the cost of carrying authored transform wrappers through source
+copying, class extraction, property evaluation, and consumers expecting concrete effects/actions.
+Resume it only for a demonstrated need, or as part of the deliberate ownership redesign.
+
+An October 10 audit at `fba575219` scanned all 1,581 compiled Canon classes, including generated
+cards. None of its 11 distinct RANK expressions had a selector refinement; no HAS refinement
+contained a Requirement.Eval. The EACH/RANK selector-scope disagreement and lost HAS-EVAL candidate
+therefore had no occurrence in that catalog. Award metrics evaluated inside RANK are a different
+case. The user selected leaving both questions documented without changing behavior. These are
+observations about current content, not restrictions on future content.
+
+The same temporary audit elaborated effects in solo and two-player premises across all seven maps,
+with the supported expansion/card packs selected. Trigger inference is actively used by placement
+bonuses, standard projects, colony rewards, phase offers, and global-parameter rewards. In
+particular, `GlobalParameter`'s `This: TerraformRating` acquires `BY Me@Player`, excluding Admin
+events. That dependency does not itself demonstrate incorrect gameplay; removing inference needs
+a deliberate migration. The audit could not elaborate WildlifeDome's `GreeneryTile<>`, which has
+no gain dependency default to accept; that separate content defect limits the elaboration sweep.
+The user selected recording WildlifeDome for later rather than fixing it during this work.
+
+**Potential later simplification, not selected for implementation:** stop supplying a missing player
+from the Actor merely because an effect's instruction needs an owner. A temporary engine probe with
+trigger inference disabled confirmed that `Pulse: Temperature, Plant` responds to Admin with both
+tasks, leaving `Plant!` abstract. The caller can choose `Plant<Player2>` and complete it. This exposes
+an unresolved recipient instead of silently filtering the whole effect, but does not itself reject
+an authoring mistake. Decide separately whether Canon needs such an open choice or whether these
+declarations should fail. Inference from an owned trigger's recipient is a separate question.
+
 ## Test responsibilities
 
 Generic engine tests may inspect Task Actor fields, assignee changes, selection state, and recorded

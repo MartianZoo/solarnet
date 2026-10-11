@@ -286,8 +286,10 @@ These concerns remain open; the ranking does not select replacement designs.
   See [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
 - Transform blocks now reject EVAL and inline class declarations. Reconsider either restriction
   only when a concrete Canon rule requires it. Deferred transforms and whole-effect/action trees
-  were tried and discarded: their cost was unjustified by current Canon. If a need arises, first
-  try writing the rule directly or declaring its local class separately.
+  were tried and removed from current code: their cost was unjustified by current Canon. Their
+  snapshots remain archived, while `ownership` remains the selected branch for continuing the
+  ownership redesign; see [IDENTITY](docs/agents/IDENTITY.md#ownership-transition-current-code-and-saved-experiments).
+  If a need arises here, first try writing the rule directly or declaring its local class separately.
 - Decide whether a named `RANK Me@Player` should also bind `Me` within its selector refinement,
   as `EACH Me@Player` currently does. In Player1's context, `Me@Player(HAS Box<Plant>)` gives the
   nested Plant the selected Me for EACH but Player1 for RANK. Establish Canon's required behavior
@@ -298,6 +300,17 @@ These concerns remain open; the ranking does not select replacement designs.
   Consider explicit trigger bindings or rejecting ambiguous ownerless rules; audit Canon's global
   conditions, OR triggers, System events, and non-Player recipients before changing it. See
   [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
+  The October 10 [Canon audit](docs/agents/IDENTITY.md#ownership-transition-current-code-and-saved-experiments)
+  found active reliance on trigger inference, but no occurrence of the problematic RANK selector
+  refinement or HAS-EVAL requirement forms above. Leave those two unused forms as open questions.
+  Keep explicit Actor/recipient rewrites with the `ownership` transition; the trial of adding bare
+  `BY Player` was removed because it did not constitute an independent correctness improvement.
+  A temporary probe without inference left an owned gain abstract and allowed the caller to choose
+  its recipient. Consider that simpler behavior, or rejection where Canon does not need the choice,
+  before introducing replacement inference machinery.
+- Investigate WildlifeDome's immediate `GreeneryTile<>`: elaborating this Canon class fails because
+  GreeneryTile no longer has a gain dependency default. Specify the intended placement explicitly
+  and verify it through card play; do not restore a global default merely to make the string pass.
 - Give Pets a real structural conjunction, spelled something like `Tile(IS Owned)`, and retire the
   nominal `OwnedTile` class once `Landlord` and the other owned-tile rules can name the intersection
   directly. Until then a master-universe Canon test checks the nominal `OwnedOccupant` and
