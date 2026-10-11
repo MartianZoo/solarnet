@@ -6,9 +6,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Standard actions
 
-- [ ] Remove the action-slot dependency from general-purpose `Billing`. Investigate generated
-  `Foo_Action1` and `Foo_Action2` classes as the actions' identities, preserving authored `This`
-  references to the source card and the card's shared once-per-generation use.
+- [ ] Fix missing-action selection and remove the action-slot dependency from general-purpose
+  `Billing`. See [action identity and invocation](docs/agents/ACTIONS.md) for the AI Central defect,
+  required behavior, and proposed direction.
 
 - [ ] Keep gated System work with Admin when the gate becomes available. With player autoexecution
   disabled, `MAX 0 Billing: DefaultGreeneryTile` currently needs the player to select it after

@@ -1,10 +1,13 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 internal class AiCentralTest : TfmSandboxTest() {
@@ -25,5 +28,23 @@ internal class AiCentralTest : TfmSandboxTest() {
     kim.cardAction1(AiCentral)
 
     shouldThrow<LimitsException> { kim.cardAction1(AiCentral) }
+  }
+
+  @Ignore // Known defect: an absent action slot is accepted and consumes the card's use.
+  @Test
+  internal fun `Cannot use a second action that AI Central does not have`() {
+    shouldThrow<NarrowingException> { useSecondAction() }
+    kim.cardAction1(AiCentral).expect("2 ProjectCard")
+  }
+
+  @Test
+  internal fun `BUG - A nonexistent second action uses AI Central without drawing cards`() {
+    useSecondAction().expect("0 ProjectCard")
+    shouldThrow<LimitsException> { kim.cardAction1(AiCentral) }
+  }
+
+  private fun useSecondAction(): TaskResult {
+    kim.exMachina("$AiCentral")
+    return kim.cardAction2(AiCentral)
   }
 }

@@ -25,6 +25,7 @@ architecture change. Then choose the narrowest relevant note:
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) |
 | Correction, `exMachina`, `sneak`, effect suppression, or correction invariants | [`EX_MACHINA.md`](EX_MACHINA.md) |
 | Card backs, draws, purchases, reveals, or replay card tracking | [`CARD_HANDLING.md`](CARD_HANDLING.md) |
+| Authored actions, action identity, invocation, or missing action slots | [`ACTIONS.md`](ACTIONS.md) |
 | Who may submit a player's decisions, hidden information, accepted game history, or agreed undo | [`ADVERSARIAL.md`](ADVERSARIAL.md) |
 
 Solarnet calculates game consequences for the Actor whose Agent receives the request. It does not
@@ -32,7 +33,7 @@ authenticate the person or program using that Agent. Before treating caller auth
 custody, or agreement on a live game as an engine gap, use the adversarial-play route above: those
 responsibilities belong to the surrounding application, whose implementation remains open.
 
-For actions, workflow, public client APIs, automatic policy, export, runtime layering, diagnostics,
+For workflow, public client APIs, automatic policy, export, runtime layering, diagnostics,
 or content selection, inspect the current source and tests for implemented behavior. Use the matching
 roadmap to locate the owning design note and understand its priority and status. Keep detailed
 decisions in that note rather than duplicating them in the roadmap.
