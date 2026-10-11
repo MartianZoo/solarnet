@@ -9,7 +9,9 @@ public object Exceptions {
 
   /** An automatic-effect chain attempted to exceed the engine's supported nesting depth. */
   public class RunawayEffectChainException(
+      /** Depth limit that the chain attempted to exceed. */
       public val maximumDepth: Int,
+      /** Effect instructions traversed before the limit was reached, in chain order. */
       public val effectChain: List<InstructionGroup>,
   ) :
       IllegalStateException(

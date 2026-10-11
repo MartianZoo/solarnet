@@ -15,6 +15,11 @@ import dev.martianzoo.pets.util.toSetStrict
  * raw source provenance, not a Pets class, so no declaration is required or synthesized for it.
  * Callers whose resources are not in Canon's generated registry can provide [resourceFilenames] and
  * [resourceReader] directly.
+ *
+ * @param name bundle identity and the default resource-directory suffix.
+ * @param resourceDirectory directory passed to [resourceReader], defaulting to `bundles/name`.
+ * @param resourceFilenames relative paths in that directory; an empty set is rejected.
+ * @param resourceReader reads each selected resource by its full path. Its failures propagate.
  */
 public class StandardFormBundle
 public constructor(

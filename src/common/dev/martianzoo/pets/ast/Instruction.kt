@@ -47,6 +47,11 @@ public sealed class Instruction : InstructionTree() {
 
   override val kind: kotlin.reflect.KClass<out PetNode> = Instruction::class
 
+  /**
+   * Subclass operation used by [times] after zero and unity are handled. [factor] is greater than
+   * one; the result must represent that many repetitions while preserving this instruction's
+   * remaining choices.
+   */
   protected abstract fun scale(factor: Int): Instruction
 
   /**
@@ -131,6 +136,11 @@ public sealed class Instruction : InstructionTree() {
       ensureChangeIsNarrowedBy(this, proposed, info)
     }
 
+    /**
+     * Verifies that [proposed] is a compatible choice for [authored]. An optional change accepts
+     * [NoOp]; otherwise the proposal must remain a change, narrow its count and quantifier, and
+     * narrow each present gained or removed expression. Failure throws [NarrowingException].
+     */
     protected fun ensureChangeIsNarrowedBy(
         authored: Change,
         proposed: InstructionTree,
@@ -1076,8 +1086,12 @@ public sealed class Instruction : InstructionTree() {
    * so neither narrows to the other ([rule
    * L3-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    */
-  public enum class Quantifier(public val symbol: String, public val abstract: Boolean = false) :
-      Specification<Quantifier> {
+  public enum class Quantifier(
+      /** Pets punctuation emitted for this quantifier. */
+      public val symbol: String,
+      /** Whether this quantifier still requires a narrowing choice. */
+      public val abstract: Boolean = false,
+  ) : Specification<Quantifier> {
     /** The full amount must be gained/removed/transmuted. */
     MANDATORY("!"),
 

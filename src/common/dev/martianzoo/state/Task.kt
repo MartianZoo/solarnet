@@ -6,6 +6,12 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import kotlin.jvm.JvmInline
 
+/**
+ * Current or recorded form of a pending instruction. [id] survives edits. [controller] owns the
+ * operation and its consequences; [selectionAssignee] receives the task on initial selection, and
+ * [assignee] currently controls it. [selected] holds the world's exclusive selection lock until the
+ * task is narrowed, executed, or removed. [instruction] may still require choices.
+ */
 public data class Task(
     /** Identifies this task by the ordinal of its add event. Stable through task edits. */
     val id: TaskId,

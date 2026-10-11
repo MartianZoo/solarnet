@@ -5,7 +5,11 @@ import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.state.Task.TaskId
 
-/** The event history of one game world. */
+/**
+ * Append-only event history of a game world until rollback removes a suffix. List queries return
+ * copies of the event sequence in ordinal order; event ordinals begin at zero. Events in those
+ * lists still carry mutable [GameEvent.notes] commentary.
+ */
 public class EventLog internal constructor() {
   private val events: MutableList<GameEvent> = mutableListOf()
 
@@ -44,6 +48,10 @@ public class EventLog internal constructor() {
   public fun changesSinceSetup(): List<ChangeEvent> =
       entriesSinceSetup().filterIsInstance<ChangeEvent>()
 
+  /**
+   * Returns events since [GameWorld.markSetupStart], including both changes and task events. Fails
+   * if setup start has not been marked.
+   */
   public fun entriesSinceSetup(): List<GameEvent> = entriesSince(checkNotNull(setupStart))
 
   /**
@@ -58,7 +66,11 @@ public class EventLog internal constructor() {
   public fun changesSince(checkpoint: Checkpoint): List<ChangeEvent> =
       entriesSince(checkpoint).filterIsInstance<ChangeEvent>()
 
-  /** Returns all events at or after [checkpoint]. */
+  /**
+   * Returns all events at or after [checkpoint]. For example, if the history has ordinals 0, 1, and
+   * 2, a checkpoint at ordinal 1 returns the events at 1 and 2. The checkpoint may also identify
+   * the end of the history, in which case the result is empty.
+   */
   public fun entriesSince(checkpoint: Checkpoint): List<GameEvent> {
     val ordinal = checkpoint.ordinal
     require(ordinal in 0..events.size)

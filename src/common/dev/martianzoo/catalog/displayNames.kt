@@ -10,7 +10,11 @@ import dev.martianzoo.pets.ast.ClassName
 /** The language tag used for display-name fallback. */
 public const val ENGLISH: String = "en"
 
-/** Returns [name]'s natural-language display name in [locale], with per-entry English fallback. */
+/**
+ * Returns [name]'s display name using [locale], then its parent language tags, then [ENGLISH]. Tags
+ * are compared case-insensitively with `_` treated as `-`; a missing entry falls back to
+ * [defaultEnglishDisplayName]. For example, `fr-CA` tries `fr-CA`, then `fr`, then `en`.
+ */
 public fun displayName(
     catalog: Catalog,
     name: ClassName,
@@ -30,7 +34,11 @@ public fun displayName(
       ?: defaultEnglishDisplayName(name)
 }
 
-/** Derives ordinary English display text by separating the words in [name]. */
+/**
+ * Derives English display text from [name] without catalog metadata: underscores become spaces, and
+ * a space is inserted at a lower-to-upper or letter-to-digit transition. For example, `Player2_Hex`
+ * becomes `Player 2 Hex`.
+ */
 public fun defaultEnglishDisplayName(name: ClassName): String {
   val source = name.toString()
   return buildString {

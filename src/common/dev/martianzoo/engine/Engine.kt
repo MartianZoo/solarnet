@@ -28,10 +28,16 @@ import dev.martianzoo.state.GameWorld
 import dev.martianzoo.state.actors
 import dev.martianzoo.state.validateCustomClasses
 
-/** Entry point to the solarnet engine -- create new games here. */
+/** Constructs live [World] instances from resolved [GamePremise]s. */
 public object Engine {
 
-  /** Creates a game at its committed initialization state, ready to be given to a workflow. */
+  /**
+   * Creates a game at its committed initialization state. [customClasses] must supply the runtime
+   * implementations required by the premise's custom declarations, with no conflicting identities.
+   * Setup creates the Admin, selected class representatives, and starting components before the
+   * world is returned; it may leave tasks for a workflow to settle. Invalid configuration or setup
+   * fails without returning a partial world.
+   */
   public fun newGame(
       premise: GamePremise,
       customClasses: Set<CustomClass> = emptySet(),

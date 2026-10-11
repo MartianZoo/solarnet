@@ -1,21 +1,25 @@
 package dev.martianzoo.agent
 
-/** Specifies to what extent you want the engine to execute tasks automatically. */
+/**
+ * Per-actor rule used by [Agent] when it settles pending tasks. The shared loop considers current
+ * tasks repeatedly until no eligible task can complete. Admin tasks are considered first; task
+ * iteration order is stable for a given queue but has no gameplay meaning.
+ */
 public enum class AutoExecPolicy {
-  /** Nothing is executed automatically. */
+  /** This actor's tasks remain pending until selected explicitly. */
   NONE,
 
   /**
-   * A task is only executed automatically if it is clear that no other task could succeed at this
-   * time. That is, this policy should never remove an option from the player that is allowed by the
-   * game rules.
+   * Considers this actor's task only when it is the sole currently selectable candidate assigned to
+   * that actor. The task must still complete without an unresolved choice, and another actor's
+   * offered option can prevent the loop from taking it.
    */
   CONCRETE,
 
   /**
-   * Performs `SMART` autoexec, then arbitrarily selects the first task in the implementation's
-   * stable iteration order that can execute successfully, then repeats. This might make suboptimal
-   * moves for the player... but it's convenient.
+   * Allows the loop to try this actor's selectable tasks even when several compete. It takes the
+   * first task that completes in Admin-first, then queue order and repeats, so a caller using this
+   * policy accepts that ordering as its choice.
    */
   EAGER,
 }

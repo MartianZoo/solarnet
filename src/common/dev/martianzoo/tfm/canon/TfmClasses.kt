@@ -31,6 +31,6 @@ public object TfmClasses {
   public val MC: dev.martianzoo.pets.ast.ClassName = cn("MC")
   public val PROD_OFFSET: ClassName = cn("ProdOffset")
 
-  // Okay so it's not really a class name
+  /** Pets transform kind that rewrites standard-resource changes as production changes. */
   public const val PROD: String = "PROD"
 }

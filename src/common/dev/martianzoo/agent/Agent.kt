@@ -20,11 +20,23 @@ import dev.martianzoo.state.TaskQueue
 import dev.martianzoo.state.TaskResult
 import kotlin.reflect.KClass
 
-/** The single, fully permissive mutation authority for one Actor in a World. */
+/**
+ * Actor-scoped access to a live world. Queries and submitted choices are interpreted for [actor],
+ * and [tasks] exposes that actor's current pending work. Holding an Agent grants the ability to
+ * submit that actor's choices; the engine does not authenticate the human or program holding it.
+ *
+ * Operation methods run their block as an atomic world interaction: a failure rolls back the
+ * changes from that call. [beginOperation] and [continueOperation] may return with tasks pending;
+ * [inTurn], [runOperation], and [completeOperation] require their operation's work to finish. A
+ * successful [TaskResult] reports changes and still-pending tasks created during that call, while
+ * later work can change the world again. [autoExecPolicy] controls eligible automatic work during
+ * settlement; it does not choose between unresolved player options.
+ */
 public interface Agent {
 
   // READ OPERATIONS
 
+  /** Actor to whom this Agent attributes queries and submitted choices. */
   public val actor: Actor
 
   /** The current World view used to interpret this Actor's tasks. */
@@ -39,6 +51,9 @@ public interface Agent {
    */
   public fun parseAs(type: KClass<out PetElement>, text: String): PetElement
 
+  /**
+   * Parses [requirement] in this actor's context and reports whether the current world meets it.
+   */
   public fun has(requirement: String): Boolean
 
   /** Counts [metric], allowing explicit `EVAL` of metric properties in this Actor's context. */
@@ -47,6 +62,7 @@ public interface Agent {
   /** Returns each matching component's exact type expression, preserving multiplicity. */
   public fun list(type: String): Multiset<Expression>
 
+  /** Parses [expression] and resolves it to a type in this actor's current world. */
   public fun resolve(expression: String): Type
 
   // Purple mode (and below)
@@ -68,10 +84,16 @@ public interface Agent {
    */
   public fun narrowTask(narrowing: String): TaskResult
 
-  /** Tells whether [selectTask] will complete normally. */
+  /**
+   * Probes whether [selectTask] would complete normally for [taskId] now. A missing or unselectable
+   * task yields false. The probe rolls back its attempted selection and any resulting effects.
+   */
   public fun canSelectTask(taskId: TaskId): Boolean
 
-  /** Tells whether this Actor can select and finish [taskId] without a choice or handoff. */
+  /**
+   * Probes whether this actor can select and finish [taskId] now without another choice or handoff.
+   * A missing or unfinished task yields false. The probe leaves the world unchanged.
+   */
   public fun canExecuteTask(taskId: TaskId): Boolean
 
   /**
@@ -170,6 +192,10 @@ public interface Agent {
    */
   public fun tryTask(taskId: TaskId): TaskResult
 
+  /**
+   * Runs eligible automatic tasks to a stable point under [autoExecPolicy] and returns their
+   * combined changes. A failure rolls back this invocation.
+   */
   public fun autoExecNow(): TaskResult
 
   /**
@@ -178,26 +204,61 @@ public interface Agent {
    */
   public fun autoExecNow(policy: AutoExecPolicy): TaskResult
 
+  /**
+   * Policy used when this Agent settles tasks. Changing it immediately runs autoexecution under the
+   * new policy; setting it to its current value does nothing. The policy belongs to this Agent,
+   * while automatic work may affect the shared world.
+   */
   public var autoExecPolicy: AutoExecPolicy
 
+  /**
+   * Creates a `NewTurn` task for [actor] and routes its initial Admin work. The resulting player
+   * choices may remain pending.
+   */
   public fun startTurn(): TaskResult
 
+  /**
+   * Runs `body` as a complete operation. If this actor has no pending task, first seeds a `NewTurn`
+   * operation; otherwise completes the already pending operation. A failure or unfinished work
+   * rolls back the call.
+   */
   public fun inTurn(body: OperationBlock = {}): TaskResult
 
-  /** Starts and completes an operation seeded by one or more independent instructions. */
+  /**
+   * Seeds an operation with [initialInstructions] and requires it to complete after `body` and
+   * automatic settlement. Other already-pending tasks may remain, but a selected task prevents the
+   * new operation from starting. Any failure or remaining work created by this operation rolls back
+   * the whole call.
+   */
   public fun runOperation(initialInstructions: String, body: OperationBlock = {}): TaskResult
 
-  /** Starts a resumable operation seeded by one or more independent instructions. */
+  /**
+   * Starts a resumable operation seeded by one or more independent instructions. For example,
+   * `beginOperation("X Plant")` may return with the quantity choice still pending; a later call can
+   * narrow that task before [completeOperation] finishes the operation. The world must have no
+   * pending tasks when this call starts.
+   */
   public fun beginOperation(initialInstructions: String, body: OperationBlock = {}): TaskResult
 
+  /**
+   * Runs `body` and configured autoexecution atomically, allowing tasks to remain pending for a
+   * later call. A failure rolls back this call's changes.
+   */
   public fun continueOperation(body: OperationBlock = {}): TaskResult
 
+  /**
+   * Runs `body` atomically and requires the world's operation work to be complete afterward. An
+   * incomplete or failed operation rolls back this call.
+   */
   public fun completeOperation(body: OperationBlock = {}): TaskResult
 
   /** Adds a manual task for the given [instruction], but does not select or execute it. */
   public fun addTasks(instruction: String, firstCause: Cause? = null): List<TaskId>
 
-  /** Removes the identified task ex-machina. */
+  /**
+   * Removes [taskId] from this actor's pending queue without executing its instruction. The
+   * returned event records that removal; an absent or other actor's task fails.
+   */
   public fun dropTask(taskId: TaskId): TaskRemovedEvent
 
   /**
@@ -207,8 +268,15 @@ public interface Agent {
    */
   public fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
 
+  /**
+   * Commands available inside an [OperationBlock]. They act on the enclosing Agent and contribute
+   * to its atomic result; a failure rolls back the enclosing operation. The scope's task and reader
+   * views reflect changes made earlier in the same block.
+   */
   public interface OperationScope {
+    /** This actor's current pending-task view. */
     public val tasks: TaskQueue
+    /** Current world view for interpreting the actor's tasks. */
     public val reader: GameReader
 
     /**
@@ -218,6 +286,7 @@ public interface Agent {
      */
     public fun selectTask(instruction: String)
 
+    /** Selects [task] by id and submits its instruction as a narrowing of the live task. */
     public fun selectTask(task: Task)
 
     /**
@@ -231,10 +300,13 @@ public interface Agent {
      */
     public fun narrowTask(narrowing: String)
 
+    /** Executes [narrowing] using [Agent.doTask]'s matching and completion rules. */
     public fun doTask(narrowing: String)
 
+    /** Executes [narrowing] against work caused by a component of [contextClass]. */
     public fun doTask(narrowing: String, contextClass: ClassName)
 
+    /** Executes [narrowing] against the pending task identified by [taskId]. */
     public fun doTask(narrowing: String, taskId: TaskId)
 
     /**
@@ -248,19 +320,30 @@ public interface Agent {
      */
     public fun doTasks(vararg narrowings: String)
 
+    /** Tries [narrowing], leaving incomplete or unavailable work pending. */
     public fun tryTask(narrowing: String)
 
+    /** Tries [narrowing] against the pending task identified by [taskId]. */
     public fun tryTask(narrowing: String, taskId: TaskId)
 
+    /** Runs eligible automatic work now under this Agent's configured policy. */
     public fun autoExecNow()
 
     /** Runs autoexecution while this Agent temporarily uses [policy]. */
     public fun autoExecNow(policy: AutoExecPolicy)
 
+    /**
+     * Aborts the enclosing atomic operation, rolling back its changes while the operation call
+     * itself completes normally with no changes.
+     */
     public fun abort(): Nothing = throw AbortTransactionException()
   }
 
   public companion object {
+    /**
+     * Parses and preprocesses [text] as [P] in this Agent's actor context. Throws
+     * [IllegalStateException] if preprocessing produces another element kind.
+     */
     public inline fun <reified P : PetElement> Agent.parse(text: String): P {
       val parsed = parseAs(P::class, text)
       if (parsed !is P) {

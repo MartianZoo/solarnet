@@ -67,6 +67,11 @@ public sealed class InstructionTree : PetElement(), Specification<InstructionTre
     }
   }
 
+  /**
+   * Subclass check that [proposed] is an allowed narrowing of this tree after [ensureNarrows] has
+   * checked the broad node-kind rule. Reject an invalid choice with [NarrowingException]; do not
+   * mutate either tree or the world.
+   */
   protected abstract fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo)
 
   override val kind: kotlin.reflect.KClass<out PetNode> = InstructionTree::class

@@ -8,6 +8,7 @@ import dev.martianzoo.pets.ast.Expression
 /** An identity that can initiate or continue game operations. */
 public sealed interface Actor : HasClassName, HasExpression {
   public companion object {
+    /** System actor used for game setup and other Admin-assigned work. */
     public val ADMIN: Actor = AdminActor
   }
 

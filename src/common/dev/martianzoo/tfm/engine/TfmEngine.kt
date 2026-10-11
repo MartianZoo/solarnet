@@ -49,15 +49,22 @@ import dev.martianzoo.tfm.state.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.state.tfmCatalog
 import kotlin.math.abs
 
-/** Terraforming Mars runtime entry point and its complete Kotlin implementation set. */
+/**
+ * Terraforming Mars runtime entry point. A [GamePremise] supplies selected Pets declarations and
+ * starting components; [customClasses] supplies the Kotlin implementations needed by the canonical
+ * game vocabulary. Card and phase rules still come from the configured premise.
+ */
 public object TfmEngine {
   private val preludeCard = cn("PreludeCard")
   private val projectCard = cn("ProjectCard")
 
-  /** Starts a live game with every Terraforming Mars custom implementation available. */
+  /**
+   * Builds a live [World] from [premise] with this engine's [customClasses] available. Invalid
+   * premises or missing custom declarations fail during world construction.
+   */
   public fun newGame(premise: GamePremise): World = Engine.newGame(premise, customClasses)
 
-  /** Kotlin implementations known to this Terraforming Mars engine. */
+  /** Custom instructions and metrics recognized when constructing a Terraforming Mars world. */
   public val customClasses: Set<CustomClass> =
       setOf(
           CopyPrelude,

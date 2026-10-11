@@ -42,14 +42,15 @@ public sealed class PetNode {
       }
     }
 
+  // TODO: Contract this temporary tfm-canon round-trip-test seam.
   /**
    * This node's primary API kind: the stable abstraction clients should rely on, rather than its
    * concrete implementation type. For example, a [Gain] has kind [Instruction], not [Gain]. A node
    * may also be accepted through a broader kind such as [InstructionTree].
    */
-  // TODO: Contract this temporary tfm-canon round-trip-test seam.
   public abstract val kind: KClass<out PetNode>
 
+  /** Renders [part] in parentheses only when its precedence would change this node's parse. */
   protected fun groupPartIfNeeded(part: PetNode): String =
       if (part.safeToNestIn(this)) "$part" else "($part)"
 

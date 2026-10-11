@@ -1,17 +1,25 @@
 package dev.martianzoo.pets.api
 
-/** An authored source span; offsets are zero-based, lines and columns are one-based. */
+/**
+ * An authored source span. [offset] is zero-based within [source], while [line] and [column] are
+ * one-based. [length] selects the offending text and defaults to a single character; a span that
+ * reaches past the end of [source] is clipped by [text]. Callers supply a nonnegative offset within
+ * the source and a nonnegative length.
+ */
 public data class SourceLocation(
     public val source: String,
     public val offset: Int,
     public val length: Int = 1,
 ) {
+  /** Line containing [offset], counting newline characters before it. */
   public val line: Int
     get() = source.take(offset).count { it == '\n' } + 1
 
+  /** Column containing [offset], measured after the most recent newline. */
   public val column: Int
     get() = offset - source.lastIndexOf('\n', offset - 1)
 
+  /** Source substring selected by this span, clipped to the source's end. */
   public val text: String
     get() = source.substring(offset, (offset + length).coerceAtMost(source.length))
 

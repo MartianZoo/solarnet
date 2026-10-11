@@ -8,6 +8,7 @@ import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.TransformNode
 import dev.martianzoo.pets.data.ClassDeclaration
 
+// TODO: Contract this temporary tfm-canon seam.
 /**
  * Lowers parsed owner-local Classes to ordinary, stably named Class declarations, as defined by
  * [section 12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-owner-local-classes).
@@ -26,7 +27,6 @@ import dev.martianzoo.pets.data.ClassDeclaration
  * ([rule
  * L8-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-transform-blocks)).
  */
-// TODO: Contract this temporary tfm-canon seam.
 public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer() {
   private val declarationsByBase = linkedMapOf<ClassName, ClassDeclaration>()
 
