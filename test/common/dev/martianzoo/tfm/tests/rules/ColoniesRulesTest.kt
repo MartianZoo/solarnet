@@ -37,7 +37,6 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.stdAction("TradeAction<Action1>") {
       doWithoutAutoExec(stan) {
         doTask("Trade<Enceladus>")
-        doTask("-TradeBarrier")
         doTask("Microbe<$RegolithEaters>")
         shouldThrow<TaskException> { kim.doTask("Microbe<$NitriteReducingBacteria>") }
         stan.selectTask("Microbe<Kim>.")
@@ -84,7 +83,6 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
         }
 
         doTask("Trade<Pluto>")
-        doTask("-TradeBarrier")
         doTask("2 ProjectCard")
         performForKim("ProjectCard<Kim>")
         shouldThrow<TaskException> { doTask("ProjectCard<Kim>") }
@@ -169,7 +167,6 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.stdAction("TradeAction<Action2>") {
       doWithoutAutoExec(stan) {
         doTask("Trade<Titan>")
-        doTask("-TradeBarrier")
         doTask("Floater<$Dirigibles>")
         stan.selectTask("Floater<Kim>.")
         kim.addCardResources(ForcedPrecipitation)

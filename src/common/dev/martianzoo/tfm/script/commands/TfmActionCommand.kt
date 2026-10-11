@@ -96,7 +96,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
           paymentGains(payment).single { gain ->
             gain.scaledEx.expression.className in owed.gaining!!.descendantsOfType<ClassName>()
           }
-      repl.agent.doTask("${supplied.scaledEx.scalar} ${owed.gaining}")
+      repl.agent.selectTask("${supplied.scaledEx.scalar} ${owed.gaining}")
     }
     if (repl.agent.count("Billing") > 0) {
       TfmPayCommand(repl).withArgs(payment)

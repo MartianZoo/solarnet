@@ -186,6 +186,14 @@ The current engine admits committed narrowing of a selected Task. It resolves th
 the live World, and each accepted partial choice becomes a `TaskEditedEvent`. It also validates a
 proposed narrowing without changing an unselected or selected Task, and can commit a narrowing by
 TaskId, selecting that Task if necessary. `Agent.narrowTask` still requires an already selected Task.
+`Agent.selectTask(instruction)` finds a unique compatible task and commits the supplied narrowing
+while selecting it. An exact instruction takes priority over other compatible tasks. If selecting
+the task alone transfers it to another Actor, a submitted choice fails instead of crossing the
+handoff. Clients with a task id can pass a copy of that `Task` to `selectTask`; `Task.bindXTo(4)`
+provides such a copy with its linked `X` choice set to 4.
+If contextual selection splits the original task before its supplied narrowing can be applied,
+the request fails without changing the World. Select the original task first, then narrow the
+resulting tasks; neither direct selection nor a form commit may silently discard that choice.
 
 An Agent-created `TaskForm` keeps a disposable narrowing draft before or after task selection.
 Its choice analysis makes no game mutation and claims no selection or assignment. The form
@@ -193,6 +201,12 @@ rechecks the current task and World before submission; the engine's stored instr
 authoritative. If committing an unchanged form selects a task that changes assignee, the command
 performs only that handoff. A form containing a choice instead fails, because the former assignee's
 draft cannot cross it.
+
+**Intended client API rule:** No game choice or task operation may require `TaskForm`. Clients may
+use it to query options and prepare a choice, but must also be able to make every known choice and
+complete every task through direct `Agent` commands. If a replay must construct a form or enumerate
+its decisions merely to submit a known choice, that exposes a direct-command API gap. A
+Terraforming Mars-specific helper that hides the form does not close the gap.
 
 After selection, resolution repeatedly evaluates state-dependent structure until it reaches a
 remaining choice or the first stage is executable. It handles metrics and gates, eliminates `OR`

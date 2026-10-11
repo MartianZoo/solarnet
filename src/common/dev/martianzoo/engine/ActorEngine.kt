@@ -236,7 +236,13 @@ internal constructor(
                 "`$contextualAssignee`"
         )
       }
-      val selected = selectTask(tasks, task) ?: return
+      val selected =
+          selectTask(tasks, task)
+              ?: if (narrowsBeforeHandoff) {
+                throw TaskException(
+                    "task $taskId splits during selection; select it before narrowing its child tasks"
+                )
+              } else return
       val selectedTask = allTasks.getTaskData(selected)
       if (selectedTask.assignee != actor) {
         if (narrowsBeforeHandoff) {
@@ -328,8 +334,50 @@ internal constructor(
     selectAndExecuteIfConcrete(tasks, taskId)
   }
 
-  public fun selectTask(instruction: Instruction): Unit =
-      selectTask(taskWithInstruction(instruction))
+  public fun selectTask(
+      narrowing: InstructionTree,
+      quantifierOmitted: Boolean = false,
+      taskId: TaskId? = null,
+  ) {
+    val evaluated = evaluatePer(narrowing)
+    val id =
+        (if (taskId == null && tasks.selectedTask() == null) {
+          val exact =
+              tasks.extract { it }.filter { it.assignee == actor && it.instruction == narrowing }
+          if (exact.isNotEmpty()) uniqueMatchingTask(exact)
+          else matchingTask(evaluated, quantifierOmitted = quantifierOmitted)
+        } else matchingTask(evaluated, taskId, quantifierOmitted))
+            ?: throw TaskException(
+                "no matching task; available tasks: ${if (tasks.isEmpty()) "none" else "\n$tasks"}"
+            )
+    val task = tasks.getTaskData(id)
+    if (narrowing == task.instruction || evaluated == task.instruction) {
+      selectTask(id)
+      return
+    }
+    val intersection = intersectTask(evaluated, task.instruction, quantifierOmitted)
+    if (intersection != null) {
+      narrowTask(id, intersection, quantifierOmitted)
+      return
+    }
+    if (!task.selected && selectionHandsOff(tasks, task)) {
+      throw TaskException(
+          "`$actor` cannot narrow task $id because selection assigns it to another Actor"
+      )
+    }
+    val selected =
+        selectTask(tasks, task)
+            ?: throw TaskException(
+                "task $id splits during selection; select it before narrowing its child tasks"
+            )
+    val selectedTask = allTasks.getTaskData(selected)
+    if (selectedTask.assignee != actor) return
+    narrowTask(
+        id,
+        intersectTask(evaluated, selectedTask.instruction, quantifierOmitted) ?: evaluated,
+        quantifierOmitted,
+    )
+  }
 
   private fun selectAndExecuteIfConcrete(queue: TaskQueue, taskId: TaskId) {
     val selected = selectTask(queue, queue.getTaskData(taskId)) ?: return
@@ -775,9 +823,6 @@ internal constructor(
             }
     )
   }
-
-  private fun taskWithInstruction(instruction: Instruction): TaskId =
-      uniqueMatchingTask(tasks.extract { it }.filter { it.instruction == instruction })
 
   private fun uniqueMatchingTask(matches: List<Task>): TaskId {
     val first =

@@ -14,6 +14,7 @@ import dev.martianzoo.state.Actor
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.state.GameReader
+import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
 import dev.martianzoo.state.TaskResult
@@ -89,10 +90,16 @@ public interface Agent {
   public fun selectTask(taskId: TaskId): TaskResult
 
   /**
-   * Selects the single pending task whose current instruction is [instruction]. Equivalent tasks
-   * that differ only by id are interchangeable.
+   * Finds the unique pending task compatible with [instruction], selects it, and commits the
+   * supplied narrowing. An unchanged instruction only selects. A nontrivial narrowing fails if
+   * selection alone transfers the task to another Actor or splits it before the narrowing can be
+   * applied. Such failures leave the World unchanged; select the original task first, then narrow
+   * its resulting tasks. Equivalent tasks that differ only by id are interchangeable.
    */
   public fun selectTask(instruction: String): TaskResult
+
+  /** Selects [task] by id and submits its instruction as a narrowing of the live task. */
+  public fun selectTask(task: Task): TaskResult
 
   /**
    * Carries out the task matched by the source-level [narrowing] instruction tree. A grouped tree
@@ -194,11 +201,13 @@ public interface Agent {
     public val reader: GameReader
 
     /**
-     * Selects a pending task whose current instruction equals [instruction], then runs automatic
-     * work. An abstract task remains selected for [narrowTask]; a concrete task may execute or
-     * hand off. See [Agent.selectTask].
+     * Selects and narrows a pending task compatible with [instruction], then runs automatic work.
+     * An abstract result remains selected for [narrowTask]; a concrete result may execute or hand
+     * off. See [Agent.selectTask] for selection and failure rules.
      */
     public fun selectTask(instruction: String)
+
+    public fun selectTask(task: Task)
 
     /**
      * Narrows this Actor's selected task and runs automatic work. A concrete `System` result passes
