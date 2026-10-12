@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests
 
+import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.exMachina
 import dev.martianzoo.catalog.GameConfig
@@ -10,21 +11,20 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.engine.TfmEngine
-import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 
 /** Focused scenarios with explicit corrections and selected phase shortcuts. */
 internal abstract class TfmSandboxTest : TfmTest() {
-  protected lateinit var players: List<TfmGameplay>
+  protected lateinit var players: List<Agent>
     private set
 
-  protected val kim: TfmGameplay
+  protected val kim: Agent
     get() = players[0]
 
-  protected val stan: TfmGameplay
+  protected val stan: Agent
     get() = checkNotNull(players.getOrNull(1)) { "Stan is sitting this game out" }
 
-  protected val rob: TfmGameplay
+  protected val rob: Agent
     get() = checkNotNull(players.getOrNull(2)) { "Rob is sitting this game out" }
 
   protected fun newTestGame(
@@ -70,7 +70,7 @@ internal abstract class TfmSandboxTest : TfmTest() {
     }
   }
 
-  protected fun TfmGameplay.setToExMachina(targetCount: Int, type: String) {
+  protected fun Agent.setToExMachina(targetCount: Int, type: String) {
     val countedExpression =
         (parseAs(Metric::class, type) as? Metric.Count)?.expression
             ?: error("Absolute correction requires a countable type: `$type`")
@@ -84,7 +84,8 @@ internal abstract class TfmSandboxTest : TfmTest() {
                       .representedClass
               )
               .className
-      val difference = targetCount - production(resource)
+      val difference =
+          targetCount - count("PROD[$resource]") + count("ProdOffset<Class<$resource>>")
       if (difference == 0) return
       val adjustment =
           when (difference) {
@@ -113,7 +114,7 @@ internal abstract class TfmSandboxTest : TfmTest() {
     }
   }
 
-  protected fun TfmGameplay.exMachina(adjustment: String) {
+  protected fun Agent.exMachina(adjustment: String) {
     agents.exMachina(actor, adjustment)
   }
 
@@ -138,10 +139,11 @@ internal abstract class TfmSandboxTest : TfmTest() {
         )
     game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
     bindPlayers()
+    players.forEach { it.autoExecPolicy = NONE }
   }
 
   private fun bindPlayers() {
-    players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
+    players = game.actors.filterIsInstance<Player>().map { agents[it] }
   }
 
   private fun chooseStartingCards(kimCorporation: ClassName?) {
@@ -150,8 +152,21 @@ internal abstract class TfmSandboxTest : TfmTest() {
       player.narrowTask(
           if (index == 0 && kimCorporation != null) "NonBeginnerMode" else "BeginnerMode"
       )
+      player.doTask(if (players.size == 1) "14 TerraformRating" else "20 TerraformRating")
+      if (index == 0 && kimCorporation != null) {
+        player.doTasks(
+            "2 CorporationCard",
+            "-CorporationCard",
+            "10 ProjectCard<Selecting>",
+            "Ok",
+        )
+      } else {
+        player.doTask("BeginnerCard")
+      }
+      if (admin.count("PreludeExpansion") > 0) {
+        player.doTasks("4 PreludeCard", "-2 PreludeCard")
+      }
     }
-    if (kimCorporation != null) kim.keepStartingProjects(10)
     revealTurmoilSetupEvents(game)
     if (players.size == 1) {
       val placements =
@@ -174,11 +189,15 @@ internal abstract class TfmSandboxTest : TfmTest() {
   private fun playStartingCorporations(kimCorporation: ClassName?) {
     players.forEachIndexed { index, player ->
       if (index == 0 && kimCorporation != null) {
-        player.playCorp(kimCorporation)
+        game.testTfm(player.actor).playCorp(kimCorporation)
       } else {
         player.inTurn {
-          doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation${index + 1}>, Hand>")
-          player.pay()
+          doTasks(
+              "PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation${index + 1}>, Hand>",
+              "BeginnerCorporation${index + 1} FROM BeginnerCard",
+              "42 MC",
+              "10 ProjectCard",
+          )
         }
       }
     }

@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -30,7 +29,7 @@ internal class HeadStartTest : TfmSandboxTest() {
       doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
 
       kim.assertCounts(2 to "MC")
-      kim.production(cn("Energy")) shouldBe 3
+      kim.count("PROD[Energy]") shouldBe 3
     }
   }
 

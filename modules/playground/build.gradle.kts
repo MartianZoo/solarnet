@@ -66,7 +66,11 @@ val bundleResources =
         include("*.png", "MC/*.png")
         into("files/icons")
       }
-      from(rootProject.layout.projectDirectory.file("src/js/dev/martianzoo/tfm/web/shared/map/mars.png")) {
+      from(
+          rootProject.layout.projectDirectory.file(
+              "src/js/dev/martianzoo/tfm/web/shared/map/mars.png"
+          )
+      ) {
         into("files/map")
       }
       into(layout.buildDirectory.dir("bundled-resources"))

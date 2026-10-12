@@ -93,15 +93,14 @@ public class TaskLog internal constructor(private val world: World) {
       block().also {
         val events = world.events.entriesSince(checkpoint)
         submission.anchor = events.firstOrNull()
-        submission.selectsTask =
-            events.any { event ->
-              when (event) {
-                is GameEvent.TaskEditedEvent -> !event.oldTask.selected && event.task.selected
-                is GameEvent.TaskRemovedEvent ->
-                    !event.task.selected && !instruction.startsWith("DROP ")
-                else -> false
-              }
-            }
+        submission.selectsTask = events.any { event ->
+          when (event) {
+            is GameEvent.TaskEditedEvent -> !event.oldTask.selected && event.task.selected
+            is GameEvent.TaskRemovedEvent ->
+                !event.task.selected && !instruction.startsWith("DROP ")
+            else -> false
+          }
+        }
         // A later full form instruction includes provisional instruction choices. Keep selection,
         // structural changes, continuations and Actor handoffs, which have independent effects.
         submission.onlyNarrows =

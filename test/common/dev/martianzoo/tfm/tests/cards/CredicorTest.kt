@@ -7,7 +7,15 @@ import kotlin.test.Test
 internal class CrediCorTest : TfmSandboxTest() {
   @Test
   internal fun `Uses printed cost for its rebate even when discounts bring payment below twenty MC`() {
-    newTestGame(kimCorporation = CrediCor)
+    newTestGame(kimCorporation = CrediCor, startAtCorporation = true)
+    kim.inTurn {
+      doTask("PlayCard<Class<CorporationCard>, Class<CrediCor>>")
+      doTask("CrediCor FROM CorporationCard")
+      doTask("57 MC")
+      doTask("-30 MC")
+      doTask("10 ProjectCard<Hand FROM Selecting>")
+    }
+    advanceUntilActionPhase()
 
     kim.exMachina("$EarthOffice, $ResearchOutpost")
 
@@ -23,7 +31,15 @@ internal class CrediCorTest : TfmSandboxTest() {
 
   @Test
   internal fun `Stacks its standard-project rebate with Standard Technology`() {
-    newTestGame(kimCorporation = CrediCor)
+    newTestGame(kimCorporation = CrediCor, startAtCorporation = true)
+    kim.inTurn {
+      doTask("PlayCard<Class<CorporationCard>, Class<CrediCor>>")
+      doTask("CrediCor FROM CorporationCard")
+      doTask("57 MC")
+      doTask("-30 MC")
+      doTask("10 ProjectCard<Hand FROM Selecting>")
+    }
+    advanceUntilActionPhase()
 
     kim.exMachina("$StandardTechnology")
 

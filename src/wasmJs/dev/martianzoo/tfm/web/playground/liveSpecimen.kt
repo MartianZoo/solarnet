@@ -177,24 +177,23 @@ internal fun liveSpecimen(
             selected = task.selected,
         )
       }
-  val events =
-      changes
-          .map { event ->
-            val change = event.change
-            Specimen.LoggedChange(
-                ordinal = event.ordinal,
-                actor = event.actor.toString(),
-                count = change.count,
-                gaining = change.gaining?.toString(),
-                removing = change.removing?.toString(),
-                real = listOfNotNull(change.gaining, change.removing).any {
-                  it.type.isSubtypeOf(real)
-                },
-                signal = change.gaining?.type?.isSubtypeOf(signal) == true,
-                givenBy = event.cause?.context?.toString(),
-                because = event.cause?.triggerEvent,
-            )
-          }
+  val events = changes.map { event ->
+    val change = event.change
+    Specimen.LoggedChange(
+        ordinal = event.ordinal,
+        actor = event.actor.toString(),
+        count = change.count,
+        gaining = change.gaining?.toString(),
+        removing = change.removing?.toString(),
+        real =
+            listOfNotNull(change.gaining, change.removing).any {
+              it.type.isSubtypeOf(real)
+            },
+        signal = change.gaining?.type?.isSubtypeOf(signal) == true,
+        givenBy = event.cause?.context?.toString(),
+        because = event.cause?.triggerEvent,
+    )
+  }
 
   val components = componentEntries.map { (type, amount) ->
     Specimen.PresentComponent(

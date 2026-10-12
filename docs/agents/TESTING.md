@@ -400,12 +400,17 @@ include focused scenarios with and without that expansion. Keep assertions cente
 behavior; configuration checks normally belong to the existing configuration tests. Do not
 duplicate this coverage for every expansion card.
 
-After forking the prepared position, the sandbox sets every player's policy to `NONE`, following
+Before setup and after forking the prepared position, the sandbox sets every player's policy to
+`NONE`, following
 `OtbGame20261009Test`'s explicit task style. Card and rule scenarios retain the prepared position
 and visible `exMachina` corrections, then use generic
 `inTurn { doTasks(...) }` calls in place of Terraforming Mars gameplay helpers. Admin retains its
 default policy. `inTurn` supplies the sandbox turn and checks that the complete action leaves no
 pending tasks; payments, card transfers, player effects, and any player-assigned cleanup are explicit.
+The sandbox exposes its players as plain `Agent`s. For corporation scenarios already converted to
+explicit setup, use `startAtCorporation = true` and submit the printed effects and starting-card
+purchase in the test. The fixture still uses `TfmGameplay.playCorp` for older named-corporation
+setups; those scenarios await migration.
 In this style, omit `.expect()` assertions that merely repeat the submitted tasks; retain assertions
 for automatic consequences, excluded outcomes, and state after rejected actions. Continue using
 `setToExMachina` for desired absolute counts rather than calculating relative fixture adjustments.

@@ -5,10 +5,9 @@ import dev.martianzoo.catalog.GamePremise
 /**
  * Immutable snapshot of [premise], an exact event history, and the positions exposed for playback.
  * Positions may include the state immediately before a recorded player request. Events must have
- * consecutive ordinals starting at zero. [positions] must be nonempty, strictly increasing, and
- * end at the event count. The constructor copies event values and positions; [events] returns fresh
- * event snapshots so callers cannot edit the saved history
- * through mutable commentary.
+ * consecutive ordinals starting at zero. [positions] must be nonempty, strictly increasing, and end
+ * at the event count. The constructor copies event values and positions; [events] returns fresh
+ * event snapshots so callers cannot edit the saved history through mutable commentary.
  */
 public class GameRecording(
     public val premise: GamePremise,
@@ -57,9 +56,9 @@ public class GameRecording(
     }
 
     /**
-     * Moves this view to the recorded position at [index]. For example, if [positions]
-     * have ordinals 0, 4, and 9, `seek(1)` materializes the world after the first four events and
-     * sets [positionIndex] to 1. An invalid index throws without changing this view.
+     * Moves this view to the recorded position at [index]. For example, if [positions] have
+     * ordinals 0, 4, and 9, `seek(1)` materializes the world after the first four events and sets
+     * [positionIndex] to 1. An invalid index throws without changing this view.
      */
     public fun seek(index: Int) {
       require(index in positions.indices) { "recording position $index does not exist" }

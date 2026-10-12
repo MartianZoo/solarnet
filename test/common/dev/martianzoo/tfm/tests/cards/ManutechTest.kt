@@ -24,7 +24,19 @@ internal class ManutechTest : TfmSandboxTest() {
 
   @Test
   internal fun `Production gains replace the plants spent on Nitrophilic Moss`() {
-    newTestGame(kimCorporation = Manutech)
+    newTestGame(kimCorporation = Manutech, startAtCorporation = true)
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<Manutech>>",
+          "Manutech FROM CorporationCard",
+          "35 MC",
+          "PROD[Steel]",
+          "Steel",
+          "-30 MC",
+          "10 ProjectCard<Hand FROM Selecting>",
+      )
+    }
+    advanceUntilActionPhase()
     kim.exMachina("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>")
     kim.setToExMachina(2, "Plant")
     kim.setToExMachina(8, "MC")

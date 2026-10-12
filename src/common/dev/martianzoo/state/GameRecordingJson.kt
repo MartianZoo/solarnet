@@ -20,8 +20,9 @@ public object GameRecordingJson {
   private val json = Json
 
   /**
-   * Encodes the premise recipe, viewer positions, and exact events in one JSON value. When supplied,
-   * [requestedConfig] preserves the caller's unresolved choices separately from the resolved recipe.
+   * Encodes the premise recipe, viewer positions, and exact events in one JSON value. When
+   * supplied, [requestedConfig] preserves the caller's unresolved choices separately from the
+   * resolved recipe.
    */
   public fun encode(recording: GameRecording, requestedConfig: GameConfig? = null): String {
     val premise = recording.premise

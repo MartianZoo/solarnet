@@ -77,20 +77,22 @@ internal fun ActorSquare(actor: String?, size: Dp = 11.dp, modifier: Modifier = 
     Canvas(Modifier.fillMaxSize()) {
       val width = this.size.width
       val height = this.size.height
-      val top = Path().apply {
-        moveTo(0f, 0f)
-        lineTo(width, 0f)
-        lineTo(width * 0.72f, height * 0.28f)
-        lineTo(width * 0.18f, height * 0.28f)
-        close()
-      }
-      val side = Path().apply {
-        moveTo(width, 0f)
-        lineTo(width, height)
-        lineTo(width * 0.72f, height)
-        lineTo(width * 0.72f, height * 0.28f)
-        close()
-      }
+      val top =
+          Path().apply {
+            moveTo(0f, 0f)
+            lineTo(width, 0f)
+            lineTo(width * 0.72f, height * 0.28f)
+            lineTo(width * 0.18f, height * 0.28f)
+            close()
+          }
+      val side =
+          Path().apply {
+            moveTo(width, 0f)
+            lineTo(width, height)
+            lineTo(width * 0.72f, height)
+            lineTo(width * 0.72f, height * 0.28f)
+            close()
+          }
       drawPath(top, Color.White.copy(alpha = 0.26f))
       drawPath(side, Color.Black.copy(alpha = 0.23f))
     }

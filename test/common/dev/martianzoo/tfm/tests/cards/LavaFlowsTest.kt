@@ -73,6 +73,6 @@ internal class LavaFlowsTest : TfmSandboxTest() {
     kim.count("ProjectCard") shouldBe cardsBefore
     kim.count("Tile<Tharsis_2_2>") shouldBe 1
     kim.count("$LavaFlows") shouldBe 0
-    kim.temperatureC() shouldBe -30
+    kim.count("TemperatureStep") shouldBe 0
   }
 }

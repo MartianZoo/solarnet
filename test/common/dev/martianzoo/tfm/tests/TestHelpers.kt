@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests
 
+import dev.martianzoo.agent.Agent
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.catalog.ClassSelection
@@ -152,11 +153,13 @@ internal object TestHelpers {
     return selected.take(count).toSet()
   }
 
-  fun TfmGameplay.assertCounts(vararg pairs: Pair<Int, String>) =
+  fun Agent.assertCounts(vararg pairs: Pair<Int, String>) =
       pairs.map { this.count(it.second) } shouldBe pairs.map { it.first }
 
-  fun TfmGameplay.assertProds(vararg pairs: Pair<Int, String>) =
-      pairs.map { production(cn(it.second)) } shouldBe pairs.map { it.first }
+  fun Agent.assertProds(vararg pairs: Pair<Int, String>) =
+      pairs.map {
+        (count("PROD[${it.second}]") - count("ProdOffset<Class<${it.second}>>"))
+      } shouldBe pairs.map { it.first }
 
   fun assertNetChanges(
       result: TaskResult,

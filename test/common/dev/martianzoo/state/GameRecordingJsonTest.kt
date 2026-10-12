@@ -27,8 +27,12 @@ internal class GameRecordingJsonTest {
   internal fun recordingKeepsRequestedConfigSeparateFromResolvedPremiseRecipe() {
     val catalog = testCatalog("CLASS Supply : System\nCLASS Token\nCLASS Inferred")
     val requested = GameConfig("Token, 2 Supply")
-    val premise = catalog.gamePremise(requested)
-        .copy(classSelections = setOf(ClassSelection(cn("Token")), ClassSelection(cn("Inferred"))))
+    val premise =
+        catalog
+            .gamePremise(requested)
+            .copy(
+                classSelections = setOf(ClassSelection(cn("Token")), ClassSelection(cn("Inferred")))
+            )
     val recording = GameRecording(premise, emptyList(), listOf(Checkpoint(0)))
 
     val document = GameRecordingJson.parse(GameRecordingJson.encode(recording, requested))

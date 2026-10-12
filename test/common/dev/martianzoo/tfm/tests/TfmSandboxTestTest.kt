@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.cards.cardnames.CorporateStronghold
 import dev.martianzoo.tfm.tests.cards.cardnames.Manutech
 import dev.martianzoo.tfm.tests.cards.cardnames.MineralDeposit
@@ -137,7 +136,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
 
     kim.count("$Manutech") shouldBe 1
     kim.count("BeginnerCorporation") shouldBe 0
-    kim.production(cn("Steel")) shouldBe 2
+    kim.count("PROD[Steel]") shouldBe 2
     kim.count("Steel") shouldBe 1
     stan.count("BeginnerCorporation2") shouldBe 1
     rob.count("BeginnerCorporation3") shouldBe 1
@@ -150,8 +149,8 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     kim.setToExMachina(0, "PROD[Energy]")
     kim.setToExMachina(3, "PROD[Heat]")
 
-    kim.production(cn("Energy")) shouldBe 0
-    kim.production(cn("Heat")) shouldBe 3
+    kim.count("PROD[Energy]") shouldBe 0
+    kim.count("PROD[Heat]") shouldBe 3
   }
 
   @Test

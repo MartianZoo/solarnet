@@ -119,16 +119,17 @@ internal class RecordingStore {
       val recordedEvents = recording.events
       var nextEvent = 0
       var pendingTasks = 0
-      val requestPositions = active.positions.indices.filter { index ->
-        while (nextEvent < active.positions[index].ordinal) {
-          when (recordedEvents[nextEvent++]) {
-            is TaskAddedEvent -> pendingTasks++
-            is TaskRemovedEvent -> pendingTasks--
-            else -> Unit
+      val requestPositions =
+          active.positions.indices.filter { index ->
+            while (nextEvent < active.positions[index].ordinal) {
+              when (recordedEvents[nextEvent++]) {
+                is TaskAddedEvent -> pendingTasks++
+                is TaskRemovedEvent -> pendingTasks--
+                else -> Unit
+              }
+            }
+            pendingTasks > 0 || index == active.positions.lastIndex
           }
-        }
-        pendingTasks > 0 || index == active.positions.lastIndex
-      }
       val selectable = requestPositions
       val initialEvent = if (name == "OtbGame20260912Test") 12896 else Int.MAX_VALUE
       val initialPosition =

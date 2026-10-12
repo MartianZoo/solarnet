@@ -147,6 +147,10 @@ These concerns remain open; the ranking does not select replacement designs.
   currently creates a turn whenever the acting player has no pending task, even while another
   player's turn is pending. Preserve authentic gameplay without adding a second test-side game
   driver; discuss the effect on sandbox and legacy callers before changing the shared helpers.
+- [ ] Finish moving named-corporation setup in `.cards` sandbox and workflow tests to explicit
+  `Agent` tasks. The sandbox still calls `TfmGameplay.playCorp` for older named-corporation
+  scenarios; workflow tests still expose `TfmGameplay` players. Keep player autoexecution at `NONE`
+  and Admin eager. Do not add a replacement corporation helper that hides the choices.
 - Distinguish counting Venus tags from carrying a Venus tag in card availability. Io Sulphur
   Research should work without Venus Next because it merely counts Venus tags, but the catalog
   currently rejects it. Cards that carry Venus tags, such as Corroder Suits and Dirigibles, must
