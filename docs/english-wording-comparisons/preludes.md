@@ -811,7 +811,7 @@ Pets declaration:
 ```pets
 CLASS NewPartner : CardFront<Class<PreludeCard>> {
   cost = 0
-  This: PROD[MC], 2 PreludeCard<Selecting> THEN -PreludeCard<Selecting> THEN PlayOrFizzle<Selecting>
+  This: PROD[MC], 2 PreludeCard<Selecting> THEN -PreludeCard<Selecting> THEN PlayPrelude<Selecting>
 }
 ```
 
@@ -871,7 +871,7 @@ CLASS BoardOfDirectors : ResourceCard<Class<Director>, Class<PreludeCard>>, Acti
   HAS =1 EarthTag<This>
   cost = 0
   This: 4 Director<This>
-  -> PreludeCard, -PreludeCard OR (-12 MC THEN -Director<This> THEN PlayOrFizzle)
+  -> PreludeCard, -PreludeCard OR (-12 MC THEN -Director<This> THEN PlayPrelude)
 }
 ```
 

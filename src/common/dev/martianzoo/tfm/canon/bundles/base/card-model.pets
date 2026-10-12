@@ -42,8 +42,8 @@ ABSTRACT CLASS Card : Owned<Player> {
 CLASS PreludeCard : CardBack
 
 "Play the selected Prelude, or declare it unplayable and receive the fizzle compensation"
-CLASS PlayOrFizzle<@CardLocation> : Owned<Player>, Signal, System {
-  DEFAULT PlayOrFizzle<Hand>
+CLASS PlayPrelude<@CardLocation> : Owned<Player>, Signal, System {
+  DEFAULT PlayPrelude<Hand>
   This: PlayCard<Class<PreludeCard>, @CardLocation> OR (-PreludeCard<@CardLocation> THEN Audit THEN 15 MC)
 }
 

@@ -182,9 +182,9 @@ public class TfmGameplay(
 
   // TODO: Contract temporary tfm-tests gameplay seams.
   /**
-   * Performs the actions in one test-level turn, declining an unused second action when needed. If
-   * every other player has passed, the workflow offers `NewTurn` rather than a second action; that
-   * offer is deliberately left in place so this block can contain the rest of the generation.
+   * Groups a player's corporation, Prelude, or action-phase turn. In the action phase, declines an
+   * unused second action when needed. If every other player has passed, the workflow may offer
+   * `NewTurn` immediately; this block leaves that offer in place.
    */
   public fun turn(body: TfmGameplay.() -> Unit) {
     body()

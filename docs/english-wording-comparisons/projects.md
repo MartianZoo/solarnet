@@ -8493,7 +8493,7 @@ CLASS WgProject : AutomatedCard {
   HAS =1 EarthTag<This>
   cost = 9
   requirement = HAS "Chairman"
-  This: 3 PreludeCard<Selecting> THEN -2 PreludeCard<Selecting> THEN PlayOrFizzle<Selecting>
+  This: 3 PreludeCard<Selecting> THEN -2 PreludeCard<Selecting> THEN PlayPrelude<Selecting>
 }
 ```
 

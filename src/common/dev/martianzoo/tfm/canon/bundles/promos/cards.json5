@@ -148,7 +148,7 @@
         },
         {
           "name": "NewPartner",
-          "direct": "PROD[1 MC], 2 PreludeCard<Selecting> THEN -PreludeCard<Selecting> THEN PlayOrFizzle<Selecting>",
+          "direct": "PROD[1 MC], 2 PreludeCard<Selecting> THEN -PreludeCard<Selecting> THEN PlayPrelude<Selecting>",
         },
         {
           "name": "StrategicBasePlanning",

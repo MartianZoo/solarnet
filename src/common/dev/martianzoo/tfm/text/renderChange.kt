@@ -66,7 +66,7 @@ private fun renderChangeOrNull(
     references: TypeVariableReferences,
 ): Clause? {
   if (instruction is Gain) {
-    renderPlayOrFizzle(instruction, describers)?.let {
+    renderPlayPrelude(instruction, describers)?.let {
       return it
     }
     renderCardSearch(instruction, describers)?.let {

@@ -16,10 +16,10 @@ internal class PreludeCardEnglishTest {
   }
 
   @Test
-  internal fun describesPlayOrFizzleFromItsDeclaredChoice() {
-    english.describe(parse<InstructionTree>("PlayOrFizzle")) shouldBe
+  internal fun describesPlayPreludeFromItsDeclaredChoice() {
+    english.describe(parse<InstructionTree>("PlayPrelude")) shouldBe
         "Either play the selected Prelude card or discard it for 15 M€ if it cannot be played."
-    english.describe(parse<InstructionTree>("PlayOrFizzle<Selecting>")) shouldBe
+    english.describe(parse<InstructionTree>("PlayPrelude<Selecting>")) shouldBe
         "Either play the selected Prelude card or discard it for 15 M€ if it cannot be played."
   }
 }

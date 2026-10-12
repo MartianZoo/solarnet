@@ -53,7 +53,7 @@ consequences of the declared face remain game rules for Solarnet to calculate.
 
 ## External offer procedures
 
-Prelude plays use `PlayOrFizzle`: play the chosen face, or discard its anonymous back, record an
+Prelude plays use `PlayPrelude`: play the chosen face, or discard its anonymous back, record an
 `Audit`, and gain 15 M€. The caller verifies that the selected Prelude is unplayable. This same
 signal serves the Prelude phase and additional Prelude plays granted by cards. Offered and rejected
 cards in the fixed Valley Trust, New Partner, WG Project, and Merger offers are counted in
@@ -62,10 +62,10 @@ from there.
 Each Player first gains the persistent `PlayerMode` recording their chosen setup path. Both modes
 are `System`: Admin installs a fixed mode, while the beginner-versus-normal choice remains a
 Player task when `BeginnerVariant` is enabled. The `NonBeginnerMode` path then puts both offered
-corporations in `Hand` and ten project cards in
-`Selecting`; one corporation and any unwanted project cards are discarded. The `BeginnerMode` path
-creates only `BeginnerCard`. Prelude's setup rule reacts to `PlayerMode` and owns its deal and
-discard.
+corporations in `Hand` and ten project cards in `Selecting`; one corporation and any unwanted
+project cards are discarded. The `BeginnerMode` path creates only `BeginnerCard`; the beginner
+corporation later adds ten project cards directly to `Hand`, without moving cards from `Selecting`.
+Prelude's setup rule reacts to `PlayerMode` and owns its deal and discard.
 Corporation phase plays the retained corporation or beginner card from `Hand`. Gaining that
 `CardFront` triggers `BuySelectedCards`, so the corporation's purchase modifiers are already live
 when Admin starts the purchase. Completing the earlier `PlayCard` signal is not sufficient.

@@ -12,5 +12,5 @@ CLASS PreludeExpansion : Module {
 CLASS SelectablePreludeCount : System
 
 CLASS PreludePhase : Phase {
-  NewTurn: PlayOrFizzle
+  NewTurn: PlayPrelude
 }
