@@ -13,6 +13,7 @@ private fun primaryModuleName(bundleName: String): ClassName? =
       "base" -> cn("TerraformingMars")
       "corpera" -> cn("CorporateEraExpansion")
       "prelude" -> cn("PreludeExpansion")
+      "prelude2" -> cn("Prelude2Expansion")
       "venus" -> cn("VenusNextExpansion")
       "colonies" -> cn("ColoniesExpansion")
       "turmoil" -> cn("TurmoilExpansion")
