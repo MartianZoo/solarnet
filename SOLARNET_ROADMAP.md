@@ -63,7 +63,7 @@ after review. **Selected** means the direction is chosen while some design remai
    submit the same Actor-authorized commands. Agent policy may choose among legal actions; it must
    never provide missing ordering, control, or completion semantics. Finish task-form support where
    real interactions need it, make policies attachable and composable only as experience demands,
-   and keep proof-oriented automation distinct from strategy.
+   and keep [proof-oriented automation](docs/agents/SMART_AUTOEXEC.md) distinct from strategy.
 
 6. **Give manual experimentation honest modes.** **Selected direction.** Purple plays the full
    game; blue grants a turn; green initiates an arbitrary operation; yellow permits deliberate task
