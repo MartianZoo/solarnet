@@ -28,8 +28,7 @@ internal class CanonInvariantsTest {
   internal fun signalsAreNotReal() {
     val signal = table.getClass(cn("Signal"))
     val real = table.getClass(cn("Real"))
-    val offenders =
-        table.allClasses().filter { it.isSubtypeOf(signal) && it.isSubtypeOf(real) }
+    val offenders = table.allClasses().filter { it.isSubtypeOf(signal) && it.isSubtypeOf(real) }
     assertTrue(
         offenders.isEmpty(),
         "Signal types cannot also be Real:\n${offenders.joinToString("\n") { it.className.toString() }}",
