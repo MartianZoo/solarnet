@@ -23,6 +23,7 @@ kotlin {
       kotlin.exclude("**/curiosities/**")
       dependencies {
         implementation(libs.kotest.assertions.core)
+        implementation(libs.kotlinx.coroutines.core)
         implementation(project(":agent"))
         implementation(project(":catalog"))
         implementation(project(":engine"))

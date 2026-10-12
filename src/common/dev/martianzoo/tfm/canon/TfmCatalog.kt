@@ -51,6 +51,48 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
   public open val bundles: List<Bundle> =
       catalogs.filterIsInstance<TfmCatalog>().flatMap { it.bundles }
 
+  final override val fingerprintMetadata: Map<String, String>
+    get() =
+        super.fingerprintMetadata +
+            buildMap {
+              bundles.forEach { bundle ->
+                put(
+                    "bundle:${bundle.bundleName}",
+                    listOf(
+                            bundle.primaryModuleName.toString(),
+                            bundle.cardResourceClassNames
+                                .map { it.toString() }
+                                .sorted()
+                                .joinToString(),
+                            bundle.excludedDefaultCards
+                                .map { it.toString() }
+                                .sorted()
+                                .joinToString(),
+                            bundle.replacements.entries
+                                .sortedBy { it.key.toString() }
+                                .joinToString { "${it.key}=${it.value}" },
+                        )
+                        .joinToString("\u0000"),
+                )
+              }
+              marsMapDefinitions.forEach { map ->
+                put(
+                    "map:${map.className}",
+                    map.areas.joinToString("\u0000") { area ->
+                      listOf(
+                              area.className,
+                              area.row,
+                              area.column,
+                              area.kind,
+                              area.bonusText,
+                              area.code,
+                          )
+                          .joinToString("\u0001")
+                    },
+                )
+              }
+            }
+
   private val replacements: Map<ClassName, ClassName> by lazy {
     buildMap {
       bundles.forEach { bundle ->

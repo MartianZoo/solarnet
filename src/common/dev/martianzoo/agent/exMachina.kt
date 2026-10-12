@@ -11,6 +11,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameEvent.TaskEditedEvent
+import dev.martianzoo.state.RecordedInput.Kind
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 
@@ -33,7 +34,7 @@ public fun Agents.exMachina(adjustingActor: Actor, adjustment: String) {
     }
   }
   val auditedAdjustment = "Audit<$adjustingActor>, $adjustment"
-  taskLog.capture(adjustingActor, "EX MACHINA $adjustment") {
+  taskLog.capture(adjustingActor, adjustment, kind = Kind.EX_MACHINA) {
     world.timeline.atomic {
       val unfinished = agent.list("MustCleanUp").entries.associate { it.key to it.value }
       val selected =

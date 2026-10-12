@@ -6,6 +6,7 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.RecordedInput
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -14,6 +15,14 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlin.test.Test
 
 internal class TaskLogTest {
+  private fun start(agents: Agents) {
+    agents.taskLog.start()
+    agents.taskLog.workflowStarted("test")
+  }
+
+  private fun replay(source: Agents, imported: Agents) {
+    TaskLog.replay(source.taskLog.inputs(), imported, startWorkflow = { it shouldBe "test" })
+  }
 
   @Test
   internal fun decliningAFormKeepsTheSelectionThatIdentifiesItsTask() {
@@ -24,7 +33,7 @@ internal class TaskLogTest {
           it[PLAYER1].addTasks("Coin?, Marker?")
         }
     val source = newAgents()
-    source.taskLog.start()
+    start(source)
     val player = source[PLAYER1]
     val coinTask = player.tasks.ids().first()
     player.selectTask(coinTask)
@@ -34,7 +43,7 @@ internal class TaskLogTest {
     }
 
     val imported = newAgents()
-    TaskLog.replay(source.taskLog.text(), imported)
+    replay(source, imported)
 
     imported.world.tasks.extract { it } shouldBe source.world.tasks.extract { it }
     imported[PLAYER1].count("Coin") shouldBe 0
@@ -52,18 +61,18 @@ internal class TaskLogTest {
           it[PLAYER1].addTasks("Coin OR Marker OR Prize")
         }
     val source = newAgents()
-    source.taskLog.start()
+    start(source)
     val player = source[PLAYER1]
     player.fillInTask(player.tasks.ids().single()).apply {
       narrow("Coin OR Marker")
       narrow("Coin")
-      source.taskLog.text() shouldBe ""
+      source.taskLog.inputs().size shouldBe 1
       commit()
     }
-    source.taskLog.text().lineSequence().filter { it.isNotBlank() }.count() shouldBe 1
+    source.taskLog.inputs().size shouldBe 2
 
     val imported = newAgents()
-    TaskLog.replay(source.taskLog.text(), imported)
+    replay(source, imported)
 
     imported[PLAYER1].count("Coin") shouldBe 1
     imported.world.tasks.isEmpty() shouldBe true
@@ -81,11 +90,11 @@ internal class TaskLogTest {
             it[PLAYER1].addTasks("($instruction) OR Marker")
           }
       val source = newAgents()
-      source.taskLog.start()
+      start(source)
       source[PLAYER1].doTask(instruction)
 
       val imported = newAgents()
-      TaskLog.replay(source.taskLog.text(), imported)
+      replay(source, imported)
 
       imported[PLAYER1].list("Component") shouldBe source[PLAYER1].list("Component")
       imported.world.tasks.extract { it } shouldBe source.world.tasks.extract { it }
@@ -103,7 +112,7 @@ internal class TaskLogTest {
         }
     for (useForm in listOf(true, false)) {
       val source = newAgents()
-      source.taskLog.start()
+      start(source)
       val player = source[PLAYER1]
       if (useForm) {
         player.fillInTask(player.tasks.ids().single()).apply {
@@ -116,7 +125,7 @@ internal class TaskLogTest {
       }
 
       val imported = newAgents()
-      TaskLog.replay(source.taskLog.text(), imported)
+      replay(source, imported)
 
       imported[PLAYER1].count("Coin") shouldBe 0
       imported[PLAYER1].count("Marker") shouldBe 0
@@ -136,19 +145,23 @@ internal class TaskLogTest {
       } else {
         player.narrowTask("Marker")
       }
-      val selection =
-          if (useForm) "$PLAYER1: CHOOSE Coin! OR Marker!\n"
-          else "$PLAYER1: CHOOSE Coin! OR Marker! OR Prize!\n"
-      source.taskLog.text() shouldBe "${selection}$PLAYER1: CHOOSE Marker!\n"
+      val selection = if (useForm) "Coin! OR Marker!" else "Coin! OR Marker! OR Prize!"
+      source.taskLog.inputs().drop(1).map {
+        (it as RecordedInput.Command).copy(taskSelector = null)
+      } shouldBe
+          listOf(
+              RecordedInput.Command(PLAYER1, RecordedInput.Kind.CHOOSE, selection),
+              RecordedInput.Command(PLAYER1, RecordedInput.Kind.CHOOSE, "Marker!"),
+          )
       val completed = newAgents()
-      TaskLog.replay(source.taskLog.text(), completed)
+      replay(source, completed)
       completed[PLAYER1].list("Component") shouldBe player.list("Component")
       completed.world.tasks.isEmpty() shouldBe true
 
       // A rolled-back completion must not erase the still-pending choice from an export.
       source.world.timeline.rollBack(partial)
       val restored = newAgents()
-      TaskLog.replay(source.taskLog.text(), restored)
+      replay(source, restored)
       restored.world.tasks.extract { it } shouldBe source.world.tasks.extract { it }
     }
   }
@@ -163,14 +176,14 @@ internal class TaskLogTest {
         }
     for (tryTask in listOf(true, false)) {
       val source = newAgents()
-      source.taskLog.start()
+      start(source)
       if (tryTask) source[PLAYER1].tryTask("Coin, Marker")
       else source[PLAYER1].doTask("Coin, Marker")
       source[PLAYER1].count("Coin") shouldBe 1
       source[PLAYER1].count("Marker") shouldBe 1
 
       val imported = newAgents()
-      TaskLog.replay(source.taskLog.text(), imported)
+      replay(source, imported)
 
       imported[PLAYER1].count("Coin") shouldBe 1
       imported[PLAYER1].count("Marker") shouldBe 1
@@ -189,17 +202,17 @@ internal class TaskLogTest {
           it[ADMIN].addTasks("Token: Reward!")
         }
     val source = newAgents()
-    source.taskLog.start()
+    start(source)
     source[PLAYER1].autoExecPolicy = EAGER
     source[ADMIN].count("Reward") shouldBe 1
 
     val imported = newAgents()
-    TaskLog.replay(source.taskLog.text(), imported)
+    replay(source, imported)
 
     imported[ADMIN].count("Reward") shouldBe 1
     imported.world.tasks.isEmpty() shouldBe true
     imported[PLAYER1].autoExecPolicy shouldBe NONE
-    imported[ADMIN].autoExecPolicy shouldBe EAGER
+    imported[ADMIN].autoExecPolicy shouldBe NONE
     imported.world.events.entriesSinceSetup() shouldBe source.world.events.entriesSinceSetup()
   }
 
@@ -212,7 +225,14 @@ internal class TaskLogTest {
 
     val failure =
         shouldThrow<IllegalArgumentException> {
-          TaskLog.replay("$PLAYER1: CHOOSE Coin", agents)
+          TaskLog.replay(
+              listOf(
+                  RecordedInput.StartWorkflow("test"),
+                  RecordedInput.Command(PLAYER1, RecordedInput.Kind.CHOOSE, "Coin"),
+              ),
+              agents,
+              startWorkflow = { it shouldBe "test" },
+          )
         }
 
     failure.cause.shouldBeInstanceOf<TaskException>().message.shouldContain("ambiguous")
@@ -229,15 +249,53 @@ internal class TaskLogTest {
           it[PLAYER1].addTasks("2 Coin!, Marker!")
         }
     val source = newAgents()
-    source.taskLog.start()
+    start(source)
     source[PLAYER1].autoExecPolicy = EAGER
 
     val imported = newAgents()
-    TaskLog.replay(source.taskLog.text(), imported)
+    replay(source, imported)
 
     imported[PLAYER1].list("Component") shouldBe source[PLAYER1].list("Component")
     imported.world.tasks.isEmpty() shouldBe true
     imported[PLAYER1].autoExecPolicy shouldBe NONE
+  }
+
+  @Test
+  internal fun disablingPoliciesBeforeWorkflowDoesNotExecuteExistingTasks() {
+    val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker")))
+    agents[PLAYER1].addTasks("Coin")
+    agents[ADMIN].addTasks("Marker")
+
+    TaskLog.replay(
+        listOf(RecordedInput.StartWorkflow("test")),
+        agents,
+        startWorkflow = { it shouldBe "test" },
+    )
+
+    agents[PLAYER1].count("Coin") shouldBe 0
+    agents[ADMIN].count("Marker") shouldBe 0
+    agents.world.tasks.extract { it }.size shouldBe 2
+  }
+
+  @Test
+  internal fun idOnlyTaskCommandCanHandWorkToAnotherActor() {
+    val premise = testGamePremise("CLASS Coin")
+    fun newAgents(): Agents =
+        Agents(Engine.newGame(premise)).also {
+          it[PLAYER1].autoExecPolicy = NONE
+          it[ADMIN].autoExecPolicy = NONE
+          it[PLAYER1].addTasks("Coin BY Admin")
+        }
+    val source = newAgents()
+    start(source)
+    source[PLAYER1].doTask(source[PLAYER1].tasks.ids().single())
+
+    val imported = newAgents()
+    replay(source, imported)
+
+    source.taskLog.inputs().last().let { it as RecordedInput.Command }.kind shouldBe
+        RecordedInput.Kind.DO_TASK_ID
+    imported.world.tasks.extract { it } shouldBe source.world.tasks.extract { it }
   }
 
   @Test
@@ -249,7 +307,7 @@ internal class TaskLogTest {
           it[PLAYER1].addTasks("(Coin, Marker) OR Prize")
         }
     val source = newAgents()
-    source.taskLog.start()
+    start(source)
     source[PLAYER1].fillInTask(source[PLAYER1].tasks.ids().single()).apply {
       narrow("Coin, Marker")
       commit()
@@ -257,7 +315,7 @@ internal class TaskLogTest {
     source[PLAYER1].doTasks("Marker")
 
     val imported = newAgents()
-    TaskLog.replay(source.taskLog.text(), imported)
+    replay(source, imported)
 
     imported[PLAYER1].count("Coin") shouldBe 0
     imported[PLAYER1].count("Marker") shouldBe 1
@@ -273,12 +331,12 @@ internal class TaskLogTest {
           it[PLAYER1].addTasks("Coin?, Marker!")
         }
     val source = newAgents()
-    source.taskLog.start()
+    start(source)
     source[PLAYER1].tryTask("Coin?")
 
     val imported = newAgents()
     imported[PLAYER1].autoExecPolicy = NONE
-    TaskLog.replay(source.taskLog.text(), imported)
+    replay(source, imported)
 
     imported[PLAYER1].count("Coin") shouldBe 0
     imported[PLAYER1].count("Marker") shouldBe 1
@@ -294,11 +352,11 @@ internal class TaskLogTest {
           it[PLAYER1].addTasks("2 Coin, 3 Coin, Marker")
         }
     val source = newAgents()
-    source.taskLog.start()
+    start(source)
     source[PLAYER1].doTasks("5 Coin")
 
     val imported = newAgents()
-    TaskLog.replay(source.taskLog.text(), imported)
+    replay(source, imported)
 
     imported[PLAYER1].count("Coin") shouldBe 5
     imported.world.tasks.extract { it } shouldBe source.world.tasks.extract { it }
@@ -310,17 +368,18 @@ internal class TaskLogTest {
     val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker")))
     val player = agents[PLAYER1].also { it.autoExecPolicy = NONE }
     player.addTasks("Coin OR Marker")
-    agents.taskLog.start()
+    start(agents)
 
     shouldThrow<TaskException> { player.doTasks("Coin", "Marker") }
-    agents.taskLog.text() shouldBe ""
+    agents.taskLog.inputs().size shouldBe 1
 
     val before = agents.world.timeline.checkpoint()
     player.doTasks("Coin")
     agents.world.timeline.rollBack(before)
     player.doTasks("Marker")
 
-    agents.taskLog.text() shouldBe "$PLAYER1: Marker\n"
+    agents.taskLog.inputs().drop(1) shouldBe
+        listOf(RecordedInput.Command(PLAYER1, RecordedInput.Kind.DO_TASKS, "Marker"))
     player.count("Coin") shouldBe 0
     player.count("Marker") shouldBe 1
   }

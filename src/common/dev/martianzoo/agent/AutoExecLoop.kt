@@ -9,6 +9,7 @@ import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.RecordedInput.Kind
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
 
@@ -57,7 +58,7 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
               policy(taskId) != NONE
             } ?: return false
         if (selected != null || candidates.isNotEmpty()) return false
-        command(taskId) { engineFor(taskId).doTask(taskId) }
+        command(taskId, Kind.DO_TASK_ID) { engineFor(taskId).doTask(taskId) }
         error("that should've completed")
       }
       // A manual Actor's available task still competes with this option. Do not acquire an
@@ -66,11 +67,11 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
           if (candidates.size == 1) {
             val taskId = options.single()
             val engine = engineFor(taskId)
-            command(taskId) { engine.selectTask(taskId) }
+            command(taskId, Kind.CHOOSE) { engine.selectTask(taskId) }
             if (taskId !in allTasks) return true
             if (allTasks.getTaskData(taskId).assignee != engine.actor) return true
             try {
-              if (command(taskId) { engine.trySelectedTask() }) return true
+              if (command(taskId, Kind.TRY_SELECTED) { engine.trySelectedTask() }) return true
             } catch (e: DeadEndException) {
               throw e.cause ?: e
             }
@@ -80,7 +81,9 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
     var recoverable = false
     for (taskId in options) {
       try {
-        world.timeline.atomic { command(taskId) { engineFor(taskId).doTask(taskId) } }
+        world.timeline.atomic {
+          command(taskId, Kind.DO_TASK_ID) { engineFor(taskId).doTask(taskId) }
+        }
         return true
       } catch (_: NotFullySpecifiedException) {
         recoverable = true
@@ -96,11 +99,15 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
 
   private fun canSelectTask(taskId: TaskId): Boolean = engineFor(taskId).canSelectTask(taskId)
 
-  private fun <T> command(taskId: TaskId, block: () -> T): T {
+  private fun <T> command(taskId: TaskId, kind: Kind, block: () -> T): T {
     val task = allTasks.getTaskData(taskId)
-    if (task.assignee == ADMIN) return block()
-    val instruction = "CHOOSE ${task.instruction}"
-    return taskLog.capture(task.assignee, instruction, block = block)
+    return taskLog.capture(
+        task.assignee,
+        task.instruction.toString(),
+        kind = kind,
+        taskId = taskId,
+        block = block,
+    )
   }
 
   private fun policy(taskId: TaskId): AutoExecPolicy {

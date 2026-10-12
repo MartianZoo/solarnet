@@ -16,6 +16,14 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `HeadStartTest` also needs two full conditional selectors for Suitable Infrastructure bonuses
   competing with nested actions; simplify those through general task handling, not a card helper.
 
+## Game files
+
+- [ ] After `work1` card tracking is committed, derive each command's structured card inputs from
+  its typed movements and `Cards:` notes, then verify full and short imports with the production
+  tracker. See [export design](docs/agents/EXPORT.md).
+- [ ] Decide how a short file carries arbitrary event commentary when no exact event stream is
+  present. Full files already retain all notes.
+
 ## Physical game conversion — 2026-10-09
 
 - [ ] Continue `OtbGame20261009Test` when the next recording is supplied. The current replay
@@ -456,13 +464,9 @@ These concerns remain open; the ranking does not select replacement designs.
   `2 Rating THEN Coin` with `Rating : Atomized` fails when the first stage expands to a group.
   This occurs before task recording; keep the Pets fix separate from decision-log work.
 
-- Extend task-text export with the Pets premise and external card identities. Task-id/context-only
-  disambiguation is not yet preserved: retain a meaningful selector before supporting logs that
-  depend on it, rather than trying alternative executions during import. Current replay checks use
-  the same premise in memory and compare engine state, not the test-owned card-name ledger.
 - Reconcile the old score discrepancy in `SoloGame20230721Test` against its original game record
   (`gf33a06d07a1c`). Restoring normal Flooding play preserves the asserted 95 VP; the legacy comments
-  claimed 99 and reported 111 on herokuapp. The task round-trip verifies reproduction, not which
+  claimed 99 and reported 111 on herokuapp. The game-file round-trip verifies reproduction, not which
   of those source/implementation totals is correct.
 
 - Extend instruction intersection to preserve unresolved shared aliases and unnamed Type unions.

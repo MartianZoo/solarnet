@@ -3,14 +3,14 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.state.Checkpoint
-import dev.martianzoo.state.EventLogJson
-import dev.martianzoo.state.GameWorld
+import dev.martianzoo.state.GameFileJson
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlinx.coroutines.runBlocking
 
 /** Live game begun Tue 2026-08-18. Quoted evidence is verbatim from the supplied transcripts. */
 internal class OtbGame20260818Test : AbstractFullGameTest() {
@@ -1666,8 +1666,10 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     }
 
     val originalEvents = game.events.entriesSince(Checkpoint(0))
-    val decodedEvents = EventLogJson.decode(EventLogJson.encode(originalEvents), game.classTable)
-    val reconstructed = GameWorld(gamePremise, decodedEvents)
+    val reconstructed = runBlocking {
+      GameFileJson.parse(checkNotNull(completedGameFileJson())).decode(gamePremise).open().world
+    }
+    val decodedEvents = reconstructed.events.entriesSince(Checkpoint(0))
     val allComponents = game.classTable.componentClass.baseType
 
     decodedEvents shouldBe originalEvents

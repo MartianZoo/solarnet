@@ -59,13 +59,13 @@ internal class EventLogJsonTest {
     events[3].notes = "line one\nline two\twith a tab"
     val original = GameWorld(premise, events)
 
-    val text = EventLogJson.encode(events)
-    val decoded = EventLogJson.decode(text, table)
+    val encoded = EventLogJson.encodeEvents(events)
+    val decoded = EventLogJson.decodeEvents(encoded, premise)
     val reconstructed = GameWorld(premise, decoded)
 
     decoded shouldBe events
     decoded.map { it.notes } shouldBe events.map { it.notes }
-    EventLogJson.encode(decoded) shouldBe text
+    EventLogJson.encodeEvents(decoded) shouldBe encoded
     reconstructed.events.entriesSince(Checkpoint(0)) shouldBe
         original.events.entriesSince(Checkpoint(0))
     reconstructed.tasks.extract { it } shouldBe original.tasks.extract { it }
