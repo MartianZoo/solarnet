@@ -117,40 +117,36 @@ criterion. The comment records an unmodeled rule fact, not dormant implementatio
 The World has no general check for an abandoned `Selecting` pool. Each currently modeled effect
 drains its own pool explicitly.
 
-## Replay tracking
+## Card-hand tracking
 
-[CardTrackingFullGameTest.kt](../../test/common/dev/martianzoo/tfm/tests/replays/CardTrackingFullGameTest.kt)
-maintains an exact-name ledger outside the World for stronger replay evidence. Named draws, buys,
-discards, plays, and returns annotate the matching generic card-count events. A discard-and-draw
-sequence records separate removal and gain events; strict tracking requires both to be named.
-`projectCardArrivalOrder` contains only cards that actually enter the
-indicated Player's hand, in arrival order. Rejected offers and searched-past cards do not appear in
-the fixture. Replay-local unknown names can stand in for hand cards whose faces are absent from the
-source evidence.
+[CardTracking](../../src/common/dev/martianzoo/tfm/engine/CardTracking.kt) is an optional mode
+selected once per World before the first card-hand movement. Once selected, each Agent command
+validates all surviving `CardBack<Hand>` gains and removals, including project, corporation,
+Prelude, and beginner cards, before it can complete. The client supplies names in each Player's
+per-back hand-entry order and names for otherwise anonymous departures. Supplied names must resolve
+to concrete `CardFront` classes with the matching back in the catalog. A source card can be named
+even when that card is excluded from this game's playable pool. An operation with missing names
+rolls back; automatic execution can leave the affected card task pending for the client.
+Unused supplied names may be replaced after a failed operation without changing names used by
+surviving events.
 
-Tracking verifies that every modeled project-card movement into or out of `Hand` is named and that
-the external ledger agrees with each Player's `ProjectCard<Hand>` count. A temporary
-`Hand`–`Revealed`–`Hand` cycle consumes no new arrival names, but strict tracking requires the caller
-to name both movements of the already held cards. `Selecting` gains and rejections consume no
-names; only a move from `Selecting` into `Hand` does. The focused scenarios in
-[CardTrackingFullGameTestTest.kt](../../test/jvm/dev/martianzoo/tfm/tests/replays/CardTrackingFullGameTestTest.kt)
-exercise named arrivals, plays, returns, discards, and tracking failures. This is implemented test
-support, not yet a production game-playing API.
-At strict completion, the tracker also checks the named arrivals produced by `SearchForCard` and
-`TakeSelectedCard` against their filters. Its test-only matcher uses `cardTags` for printed tags
-(including the event icon) and the card's Pets declaration for references to game concepts.
-Search for Life and Asteroid Deflection System successes require a matching card identity supplied
-with `nameFlippedCard(actionResult, cardName)`. This annotation never enters the hand ledger.
-The tracker reads the filter from the recorded `ClaimCardReward` choice offered by Pets, including
-when it was declined; it contains no card-specific mapping of claim names, rewards, or tags.
-Failed flips may remain unnamed; when named, their card must lack the relevant tag. If the source
-does not identify a successful flip, use a matching stand-in and explicitly comment that it is faked.
-`CardTrackingCriteriaTest` covers valid and invalid criteria and flip outcomes.
-The tracker cannot detect a missing offer or reveal event, and does not track
-corporation or Prelude card identities. Its success is not proof that all physical card movements
-were modeled; skipped search cards are intentionally outside the modeled movements.
-The four database-backed conversions and `StinaGameTest` use this strict base. Other full-game and
-solo replays use ordinary follow-mode test bases without a card ledger.
+The tracker writes a `Cards:` note on every hand-change event, checks that a played card was in
+that Player's hand, and compares named holdings with modeled hand counts for every back type.
+`SearchForCard` and `TakeSelectedCard` gains are checked against their recorded Pets `CardFilter`
+using printed tags or the card declaration. `Hand`–`Revealed`–`Hand` movements retain identity
+when unambiguous; a partial return needs supplied names. A card outside a hand may enter again
+after a discard or reshuffle. A hand arrival cannot reuse a card still held or played elsewhere.
+`PlayedEvent` already carries its card's exact name, so moving a played face into that type needs no
+supplied name or `Cards:` note. Plays directly from `Selecting` are not checked against previously
+seen cards.
+
+Only cards that enter a hand are tracked. Offers that stay in `Selecting`, rejected or searched-past
+project cards, and deck flips that never enter a hand are outside this mode. Full `Selecting`
+tracking remains deferred until clients can provide the offered identities; existing replays do not
+justify inventing whole offers.
+The four database-backed card-tracked replays and `StinaGameTest` now use this production mode;
+[CardTrackingTest](../../test/common/dev/martianzoo/tfm/tests/CardTrackingTest.kt)
+checks the focused integrity cases.
 
 ## Deliberate boundaries
 

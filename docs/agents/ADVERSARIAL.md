@@ -241,9 +241,9 @@ Several consequences follow for this proposal:
   the right moment. Auditing those claims requires the corresponding earlier evidence.
 
 **The current code provides ingredients, not this complete arrangement.**
-[Card-tracked replay support](../../test/common/dev/martianzoo/tfm/tests/replays/CardTrackingFullGameTest.kt)
-already names hand movements outside the World. It is test support, not a production dealer, and
-does not establish complete tracking of every offer or deck movement.
+[CardTracking](../../src/common/dev/martianzoo/tfm/engine/CardTracking.kt)
+names hand movements outside the World. It is an opt-in follow-mode integrity check, not a dealer,
+and does not establish complete tracking of every offer or deck movement.
 [GameRecording](../../src/common/dev/martianzoo/state/GameRecording.kt) and
 [its JSON encoding](../../src/common/dev/martianzoo/state/GameRecordingJson.kt) support passive event
 playback. That does not establish an appendable decision format, independent move verification, or

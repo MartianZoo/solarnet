@@ -30,5 +30,13 @@ internal constructor(
 
   override fun actorEngine(actor: Actor): ActorEngine = actorEngines.getValue(actor)
 
+  override var agentTransactionGuard: AgentTransactionGuard? = null
+    private set
+
+  override fun installAgentTransactionGuard(guard: AgentTransactionGuard) {
+    check(agentTransactionGuard == null) { "An Agent transaction guard is already installed" }
+    agentTransactionGuard = guard
+  }
+
   override var onTransactionComplete: () -> Unit = {}
 }

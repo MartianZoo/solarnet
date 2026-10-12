@@ -45,6 +45,12 @@ public interface World {
   /** Returns this world's stable mutation engine for [actor]; an unknown actor fails. */
   public fun actorEngine(actor: Actor): ActorEngine
 
+  /** The optional check shared by every Agent attached to this World. */
+  public val agentTransactionGuard: AgentTransactionGuard?
+
+  /** Installs a guard once, before its first Agent command; it cannot be removed or replaced. */
+  public fun installAgentTransactionGuard(guard: AgentTransactionGuard)
+
   /**
    * Callback after an outermost gameplay transaction commits its first completed position;
    * corrections do not invoke it. Synchronous gameplay started by the callback is settled before

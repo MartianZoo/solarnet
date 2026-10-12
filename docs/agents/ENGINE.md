@@ -435,6 +435,11 @@ System and MustCleanUp targets and any correction that leaves new MustCleanUp st
 It additionally restores and resumes an existing selection within one atomic lifecycle. See
 [EX_MACHINA.md](EX_MACHINA.md) for the contract and the remaining canon consistency gaps.
 
+A World may install one `AgentTransactionGuard` before Agent commands begin. Every Agent mutation
+then validates the guard before its transaction can commit. An automatic candidate that needs
+unsupplied client information rolls back locally and stays pending; an explicit Agent request fails.
+The Terraforming Mars hand-tracking use is described in [CARD_HANDLING.md](CARD_HANDLING.md#card-hand-tracking).
+
 Current autoexecution lives in `:agent`, not in the core engine. Policy selects legal Task commands;
 it does not alter their semantics. The shared policy loop tries eligible Admin work before Player
 work, including between explicit Player steps, but continues to an executable Player option when

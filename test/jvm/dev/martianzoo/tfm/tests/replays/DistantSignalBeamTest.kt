@@ -62,8 +62,8 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
         doTask("OceanTile<Hellas_4_6>")
         doTask("GreeneryTile<Hellas_4_5>")
         doTask("CityTile<Hellas_4_4>")
+        purple.discard(PowerSupplyConsortium, AdaptationTechnology, BreathingFilters)
       }
-      discard(PowerSupplyConsortium, AdaptationTechnology, BreathingFilters)
       // Database save 4: Project Eden introduced Purple's first city and plant tags.
       playPrelude(AlliedBank)
     }
@@ -107,7 +107,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
     purple.assertResources(m = 30, s = 0, t = 0, p = 1, e = 1, h = 0)
     purple.assertProduction(m = 14, s = 0, t = 0, p = 0, e = 1, h = 0)
     assertSidebar(gen = 2, temp = -30, oxygen = 1, oceans = 3, venus = 4)
-    checkHandSizes()
 
     purple.turn { claimMilestone(cn("Fundraiser")) }
     pink.turn {
@@ -148,7 +147,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 0, s = 1, t = 0, p = 0, e = 1, h = 3)
     purple.assertResources(m = 35, s = 0, t = 0, p = 1, e = 1, h = 1)
     purple.assertProduction(m = 16, s = 0, t = 0, p = 0, e = 1, h = 0)
-    checkHandSizes()
 
     pink.turn { cardAction1(TitanShuttles) { addCardResources(TitanShuttles, 2) } }
     purple.turn {
@@ -190,48 +188,74 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
 
     assertSidebar(gen = 3, temp = -30, oxygen = 2, oceans = 3, venus = 4)
     admin.assertCounts(5 to "Tile")
-    checkHandSizes()
     assertCardTrackingComplete()
   }
 
-  override val projectCardArrivalOrder =
+  override val cardArrivalOrder =
       mapOf(
-          cn("Pink") to
-              listOf(
-                  HousePrinting,
-                  CloudSeeding,
-                  MicroMills,
-                  Pets,
-                  LagrangeObservatory,
-                  GhgImportFromVenus,
-                  IoSulphurResearch,
-                  TitanShuttles,
-                  AtmoCollectors,
-                  Cartel,
-                  VenusSoils,
-                  SulphurEatingBacteria,
-                  StratosphericExpedition,
-                  HeatTrappers,
-                  StaticHarvesting,
-                  TerraformingContract,
+          // The source offered a third corporation per Player; the model deals two.
+          cn("CorporationCard") to
+              mapOf(
+                  cn("Pink") to listOf(Vitor, MorningStarInc),
+                  cn("Purple") to listOf(Aridor, Ecoline),
               ),
-          cn("Purple") to
-              listOf(
-                  RotatorImpacts,
-                  PowerSupplyConsortium,
-                  Tardigrades,
-                  InterplanetaryTrade,
-                  Casinos,
-                  AdaptationTechnology,
-                  FusionPower,
-                  BreathingFilters,
-                  PeroxidePower,
-                  NeutralizerFactory,
-                  Omnicourt,
-                  BactoviralResearch,
-                  SolarReflectors,
-                  LocalShading,
-                  MiningColony,
+          cn("PreludeCard") to
+              mapOf(
+                  cn("Pink") to
+                      listOf(PolarIndustries, AtmosphericEnhancers, Loan, PowerGeneration),
+                  cn("Purple") to
+                      listOf(BiosphereSupport, FocusedOrganization, ProjectEden, AlliedBank),
+              ),
+          cn("ProjectCard") to
+              mapOf(
+                  cn("Pink") to
+                      listOf(
+                          HousePrinting,
+                          CloudSeeding,
+                          MicroMills,
+                          Pets,
+                          LagrangeObservatory,
+                          GhgImportFromVenus,
+                          IoSulphurResearch,
+                          TitanShuttles,
+                          AtmoCollectors,
+                          Cartel,
+                          VenusSoils,
+                          SulphurEatingBacteria,
+                          StratosphericExpedition,
+                          HeatTrappers,
+                          StaticHarvesting,
+                          TerraformingContract,
+                      ),
+                  cn("Purple") to
+                      listOf(
+                          RotatorImpacts,
+                          PowerSupplyConsortium,
+                          Tardigrades,
+                          InterplanetaryTrade,
+                          Casinos,
+                          AdaptationTechnology,
+                          FusionPower,
+                          BreathingFilters,
+                          PeroxidePower,
+                          NeutralizerFactory,
+                          Omnicourt,
+                          BactoviralResearch,
+                          SolarReflectors,
+                          LocalShading,
+                          MiningColony,
+                      ),
+              ),
+      )
+
+  override val cardDepartureOrder =
+      mapOf(
+          cn("CorporationCard") to
+              mapOf(cn("Pink") to listOf(Vitor), cn("Purple") to listOf(Ecoline)),
+          cn("PreludeCard") to
+              mapOf(
+                  cn("Pink") to listOf(Loan, PowerGeneration),
+                  cn("Purple") to listOf(BiosphereSupport, FocusedOrganization),
               ),
       )
 }

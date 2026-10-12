@@ -654,33 +654,22 @@ The task text still requires its caller to supply the premise and launch the wor
 
 Whole-game tests are high-value integration coverage. When translating a supplied game log:
 
-- `CardTrackingFullGameTest` is an opt-in full-game base for source archives that identify project
-  cards. Named draw, purchase, discard, and return calls update one test-owned hand ledger and
-  annotate the corresponding project-card events. Naming may happen immediately before or after the
-  engine change.
-  A replay with complete source data may instead override `projectCardArrivalOrder` for each Player.
-  This is only the order in which cards enter that Player's modeled hand, not a claim about offers
-  or physical deck order. The tracker consumes the fixture according to anonymous hand-gain counts.
-  It rejects duplicate arrivals, an exhausted or partly unused fixture, and any attempt to discard
-  a card that never entered the indicated Player's hand.
-  Completion requires an identity label for each lasting project-card hand arrival and
-  departure, including both sides of an exchange, and checks tracked hand sizes against the World.
-  Temporary Hand–Revealed–Hand movements do not consume arrival names, but the strict tracker
-  requires both movements to be labeled with the names of cards already held.
-  When a source omits a hand card's identity, `unknownProjectCards()` supplies distinct replay-local
-  `UnknownCardNN` labels for cards that did
-  enter a hand; keep the source gap visible beside their use. These labels prove complete hand
-  accounting, not complete source knowledge. The database-backed Herokuapp conversions use this
-  base without unknown labels. A named discard is terminal unless an exact played Event later
-  returns to the hand.
-  Research archives that used drafting may assign each recovered post-draft four-card set as that
-  player's ordinary hand arrivals when the tested engine does not support drafting. Buy only the
-  evidenced count; never name cards that were not retained.
-  Ordinary full-game and solo replays use `AbstractFullGameTest` and `AbstractSoloTest` without an
-  external card ledger. Only the four database-backed conversions and `StinaGameTest` currently use
-  `CardTrackingFullGameTest`.
-  When a source gives only a discard count, an exact tracked hand requires the test to select
-  names explicitly and label that selection as test inference.
+- Card-tracked replays extend
+  [CardTrackingFullGameTest](../../test/common/dev/martianzoo/tfm/tests/replays/CardTrackingFullGameTest.kt),
+  which starts production [CardTracking](../../src/common/dev/martianzoo/tfm/engine/CardTracking.kt)
+  before gameplay. Use `cardArrivalOrder` and `cardDepartureOrder` to preload each Player's hand
+  movements by back type. `draw`, `discard`, `buyCards(cardNames)`, and `sellPatents(cardNames)`
+  supply names before the relevant Agent operation completes. `assertCardTrackingComplete` checks
+  unused supplied names.
+  This order describes hand entry, not offers or deck order. Cards may enter a hand again after
+  leaving play. Names must be concrete catalog `CardFront` classes with the matching back. When a
+  source omits rejected setup-card faces, use a small number of explicitly labeled invented card
+  assignments; `StinaGameTest` does this for three cards. Do not fabricate entire `Selecting` offers.
+  Research archives that used drafting may assign each recovered post-draft
+  four-card set as ordinary hand arrivals when the tested engine does not support drafting. Buy only
+  the evidenced count and name only retained cards. The four database-backed conversions and
+  `StinaGameTest` use this mode. When a source gives only a discard count, select names explicitly
+  and label that selection as test inference.
 - Before editing a dated whole-game test, explicitly inspect its matching
   `_local/replays/GameYYYYMMDD/` directory and read any `implementation-plan.md` there before acting. The
   repository's `_local` path may be a symlink, which `rg --files` does not traverse, so a general

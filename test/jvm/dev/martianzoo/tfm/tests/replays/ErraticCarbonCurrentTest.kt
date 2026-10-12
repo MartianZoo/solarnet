@@ -83,7 +83,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
 
     pink.turn { convertPlants { placeTile(3, 4) } }
     blue.turn { playProject(Potatoes, 2) }
-    pink.turn { sellPatents(SymbioticFungus) }
+    pink.turn {
+      sellPatents(SymbioticFungus)
+    }
     blue.turn {
       convertHeat()
       playProject(SmallAsteroid, 10) { doTask("-Plant<Pink>") }
@@ -149,7 +151,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.turn {
       playProject(MarsUniversity, steel = 4) {
         doTask("-ProjectCard")
-        discard(NoctisCity)
+        pink.discard(NoctisCity)
       }
     }
     blue.turn { playProject(AdaptedLichen, 8) }
@@ -226,7 +228,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       blue.exMachina(fakeWildTags("MicrobeTag", 2))
       playProject(Worms, 7).expect("PROD[2 Plant]")
     }
-    pink.turn { sellPatents(BuildingIndustries, MartianSurvey) }
+    pink.turn {
+      sellPatents(BuildingIndustries, MartianSurvey)
+    }
     blue.turn { cardAction2(ExtractorBalloons) }
     pink.turn { playProject(Moss, 4) }
     blue.pass()
@@ -385,16 +389,20 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     }
     pink.turn { convertPlants { placeTile(7, 5) } }
     blue.turn { fundAward(cn("Magnate"), 8) }
-    pink.turn { sellPatents(FieldCappedCity) }
+    pink.turn {
+      sellPatents(FieldCappedCity)
+    }
     blue.turn { convertPlants { placeTile(8, 8) } }
     pink.turn {
       cardAction1(BusinessNetwork) { buyCards(0) }
       playProject(CarbonNanosystems, steel = 7) {
         doTask("-ProjectCard")
-        discard(Plantation)
+        pink.discard(Plantation)
       }
     }
-    blue.turn { sellPatents(ArcticAlgae) }
+    blue.turn {
+      sellPatents(ArcticAlgae)
+    }
     pink.pass()
     blue.turn {
       cardAction1(FloatingHabs) { addCardResources(ExtractorBalloons) }
@@ -434,12 +442,10 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       playProject(AstraMechanica, 7) {
         doWithoutAutoExec(pink) {
           doTask("ProjectCard FROM PlayedEvent<Class<$InvestmentLoan>>")
-          returnToHand(InvestmentLoan)
           doTask("ProjectCard FROM PlayedEvent<Class<$Harvest>>")
-          returnToHand(Harvest)
         }
         doTask("-ProjectCard")
-        discard(Decomposers)
+        pink.discard(Decomposers)
       }
     }
     blue.turn { fundAward(cn("Suburbian"), 14) }
@@ -512,7 +518,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     assertCardTrackingComplete()
     blue.cardsHand shouldBe emptySet()
     pink.cardsHand shouldBe emptySet()
-    checkHandSizes()
     admin.assertCounts(1 to "End", 1 to "Phase")
 
     blue.assertCounts(45 to "TerraformRating", 102 to "VictoryPoint", 1 to "Victory")
@@ -536,91 +541,119 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 1, s = 1, t = 1, p = 11, e = 0, h = 4)
   }
 
-  override val projectCardArrivalOrder =
+  override val cardArrivalOrder =
       mapOf(
-          cn("Blue") to
-              listOf(
-                  Potatoes,
-                  Hackers,
-                  Lichen,
-                  NeutralizerFactory,
-                  SpaceHotels,
-                  ExtractorBalloons,
-                  Windmills,
-                  UndergroundCity,
-                  AerobrakedAmmoniaAsteroid,
-                  SmallAsteroid,
-                  HermeticOrderOfMars,
-                  FakeResearchCoordination,
-                  GreatEscarpmentConsortium,
-                  Worms,
-                  AdaptedLichen,
-                  ResearchOutpost,
-                  NitrogenRichAsteroid,
-                  Insects,
-                  PowerGrid,
-                  IoSulphurResearch,
-                  AiCentral,
-                  AqueductSystems,
-                  OlympusConference,
-                  NoctisFarming,
-                  VenusSoils,
-                  InterstellarColonyShip,
-                  UndergroundDetonations,
-                  HeatTrappers,
-                  MagneticFieldGeneratorsPromo,
-                  FloatingHabs,
-                  ArcticAlgae,
-                  HiredRaiders,
-                  Algae,
-                  InventionContest,
-                  Zeppelins,
-                  MediaArchives,
-                  AirScrappingExpedition,
-                  TropicalResort,
-                  ConvoyFromEuropa,
-                  Grass,
-                  Atmoscoop,
+          // The source offered three corporations per Player; the model deals two.
+          cn("CorporationCard") to
+              mapOf(
+                  cn("Blue") to listOf(Viron, CrediCor),
+                  cn("Pink") to listOf(Ecoline, Inventrix),
               ),
-          cn("Pink") to
-              listOf(
-                  VestaShipyard,
-                  MiningRights,
-                  BuildingIndustries,
-                  Ants,
-                  AstraMechanica,
-                  Moss,
-                  SymbioticFungus,
-                  BigAsteroid,
-                  MarsUniversity,
-                  ExtremeColdFungus,
-                  NitrophilicMoss,
-                  EarthOffice,
-                  LargeConvoy,
-                  NoctisCity,
-                  MartianSurvey,
-                  Harvest,
-                  Plantation,
-                  ReleaseOfInertGases,
-                  BusinessNetwork,
-                  MarsNomads,
-                  ImportedGhg,
-                  KelpFarming,
-                  LavaTubeSettlement,
-                  CarbonNanosystems,
-                  EcologicalZone,
-                  FieldCappedCity,
-                  ImportOfAdvancedGhg,
-                  Pets,
-                  AsteroidCard,
-                  Comet,
-                  Virus,
-                  EosChasmaNationalPark,
-                  InvestmentLoan,
-                  PublicBaths,
-                  Decomposers,
-                  GreatDamPromo,
-                  ColonizerTrainingCamp,
+          cn("PreludeCard") to
+              mapOf(
+                  // The source's Research Network uses the replay's fake implementation.
+                  cn("Blue") to
+                      listOf(UnmiContractor, AlbedoPlants, NewPartner, FakeResearchNetwork),
+                  cn("Pink") to
+                      listOf(MetalsCompany, BiosphereSupport, GiantSolarCollector, Biolab),
+              ),
+          cn("ProjectCard") to
+              mapOf(
+                  cn("Blue") to
+                      listOf(
+                          Potatoes,
+                          Hackers,
+                          Lichen,
+                          NeutralizerFactory,
+                          SpaceHotels,
+                          ExtractorBalloons,
+                          Windmills,
+                          UndergroundCity,
+                          AerobrakedAmmoniaAsteroid,
+                          SmallAsteroid,
+                          HermeticOrderOfMars,
+                          FakeResearchCoordination,
+                          GreatEscarpmentConsortium,
+                          Worms,
+                          AdaptedLichen,
+                          ResearchOutpost,
+                          NitrogenRichAsteroid,
+                          Insects,
+                          PowerGrid,
+                          IoSulphurResearch,
+                          AiCentral,
+                          AqueductSystems,
+                          OlympusConference,
+                          NoctisFarming,
+                          VenusSoils,
+                          InterstellarColonyShip,
+                          UndergroundDetonations,
+                          HeatTrappers,
+                          MagneticFieldGeneratorsPromo,
+                          FloatingHabs,
+                          ArcticAlgae,
+                          HiredRaiders,
+                          Algae,
+                          InventionContest,
+                          Zeppelins,
+                          MediaArchives,
+                          AirScrappingExpedition,
+                          TropicalResort,
+                          ConvoyFromEuropa,
+                          Grass,
+                          Atmoscoop,
+                      ),
+                  cn("Pink") to
+                      listOf(
+                          VestaShipyard,
+                          MiningRights,
+                          BuildingIndustries,
+                          Ants,
+                          AstraMechanica,
+                          Moss,
+                          SymbioticFungus,
+                          BigAsteroid,
+                          MarsUniversity,
+                          ExtremeColdFungus,
+                          NitrophilicMoss,
+                          EarthOffice,
+                          LargeConvoy,
+                          NoctisCity,
+                          MartianSurvey,
+                          Harvest,
+                          Plantation,
+                          ReleaseOfInertGases,
+                          BusinessNetwork,
+                          MarsNomads,
+                          ImportedGhg,
+                          KelpFarming,
+                          LavaTubeSettlement,
+                          CarbonNanosystems,
+                          EcologicalZone,
+                          FieldCappedCity,
+                          ImportOfAdvancedGhg,
+                          Pets,
+                          AsteroidCard,
+                          Comet,
+                          Virus,
+                          EosChasmaNationalPark,
+                          InvestmentLoan,
+                          PublicBaths,
+                          Decomposers,
+                          GreatDamPromo,
+                          ColonizerTrainingCamp,
+                      ),
+              ),
+      )
+
+  override val cardDepartureOrder =
+      mapOf(
+          cn("CorporationCard") to
+              mapOf(cn("Blue") to listOf(Viron), cn("Pink") to listOf(Inventrix)),
+          cn("PreludeCard") to
+              mapOf(
+                  cn("Blue") to listOf(UnmiContractor, NewPartner),
+                  cn("Pink") to listOf(MetalsCompany, GiantSolarCollector),
               ),
       )
 }
