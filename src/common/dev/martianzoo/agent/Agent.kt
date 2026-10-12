@@ -177,6 +177,9 @@ public interface Agent {
   /** Carries out [narrowing] against the task identified by [taskId]. */
   public fun doTask(narrowing: String, taskId: TaskId): TaskResult
 
+  /** Selects and attempts [taskId], leaving it pending after a handoff or needed choice. */
+  public fun doTask(taskId: TaskId): TaskResult
+
   /**
    * Attempts [narrowing], leaving its task pending when the play is incomplete or unavailable.
    * Invalid task selection, invalid narrowing, and dead ends still throw.

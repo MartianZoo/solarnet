@@ -107,23 +107,19 @@ after review. **Selected** means the direction is chosen while some design remai
 
 ## Game records and reconstruction
 
-1. **Make decision export and import faithful and clean.** **Selected; preserved experiment.** The
-   desired small file records what Actors decided or supplied from outside the rules, without task
-   ids or incidental engine choreography, and can reconstruct the same game using the same
-   declarations and implementation. The earlier round-trip experiment established useful syntax
-   and failure cases. Premise declarations, workflow start, external card identities, and explicit
-   disambiguation still need to become a complete file format. Keep decisions distinct from
-   their calculated consequences.
-   Replay tests now check task-text round-trips with Player autoexecution disabled and
-   Admin aggressive, comparing all components and pending work. Inconsequential intermediate form
-   choices need not survive export. The caller still supplies the premise and workflow.
+1. **Make full and faithful export/import round-trip.** **Active.** `work4` has a shared full/short
+   JSON format, hashes of Catalog data and the resolved premise, state-only exact import, and
+   Agent replay with every Actor policy disabled. Replay tests now emit both forms and compare
+   component changes and pending work without requiring matching task IDs or event ordinals.
+   Finish production card-input capture and replay with the uncommitted `work1` tracker, then
+   connect Playground's upload path. A public-database ingester and friendlier discrepancy flow
+   follow later. [Export design](docs/agents/EXPORT.md) owns the details.
 
 2. **Keep exact event recordings independently useful.** **Implemented foundation.** A recording
    must reconstruct components, pending tasks, history, and approved navigation points without an
    engine, firing effects, or needing the original live World. Continue treating this exact stream
-   and the decision stream as separate views of the same game. A future combined file should allow
-   passive playback and independent engine reconstruction, then compare their results rather than
-   letting either stream repair the other.
+   and the decision stream as separate views of the same game. The combined file permits passive
+   playback and independent Agent reconstruction, then compares their results.
 
 3. **Make game provenance durable.** Record enough premise and implementation identity to know
    which rules produced a game and to diagnose mismatches later. Saving and resuming an unfinished

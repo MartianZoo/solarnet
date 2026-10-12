@@ -62,9 +62,9 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   `test/jvm/dev/martianzoo/tfm/tests/replays` directory, excluding only its JUnit file-export hook.
   JVM-only tools and filesystem/terminal tests remain outside this target. Comment the target back
   out after a successful run.
-- `./gradlew :tfm-tests:jvmTest` runs the replay tests and writes one opaque JSON recording per
-  successful `AbstractFullGameTest` subclass under that module's
-  `generated/replay-event-logs` build directory. Task-text exports are written beside the recordings.
+- `./gradlew :tfm-tests:jvmTest` runs the replay tests and writes full `.json` and short
+  `.short.json` game files per successful `AbstractFullGameTest` subclass under that module's
+  `generated/replay-event-logs` build directory.
 - `./gradlew :tfm-tests:replayTestCoverage` runs only tests in the replay package and writes HTML and
   XML production-code coverage reports under that module's `reports/jacoco/replayTestCoverage`
   build directory. Its execution data comes from the separate `replayTest` task, so card, rule,
@@ -631,26 +631,25 @@ calls; retain its state checkpoints and final score/winner assertions. Purchase 
 scoring simulation without changing any Actor's autoexecution policy.
 
 `AbstractFullGameTest` starts `Agents.taskLog` before gameplay. After each successful JVM
-replay, `ReplayExportExtension` writes Actor/task text beside the recording JSON and imports it into a
-fresh game using the same premise and normal workflow. All imported Players use `NONE`; Admin
-retains aggressive autoexecution. The check compares every component, idle state, and pending task
-(including its instruction, continuation, ownership, selection, and causal ancestry; incidental
-ids and event ordinals may differ).
+replay, `ReplayExportExtension` writes full and short game files and reexecutes the full file in a
+fresh game using its checked premise and recorded workflow. Every imported Actor, including Admin,
+uses `NONE`. The check compares the component changes with their Actors and causal ancestry,
+the final components, and pending tasks. Incidental ids, event ordinals, and the order of independent
+changes may differ.
 A round-trip failure fails the test. Replays must keep the normal workflow running and use
 ordinary task submissions instead of injecting operations. Partial games may stop with decisions
 pending; hypothetical scoring checks use `withScorePreview`, which restores the live game.
 The hook reports each successful round-trip in test output.
 
-Task text retains submitted syntax and records policy-executed Player work explicitly, so import
-does not reproduce the source's Player policies. Routine Admin work is omitted; explicit Admin
-choices such as global-event identities remain. Plain instructions replay through `doTasks`; `DO`
-uses single-task `doTask` semantics. `CHOOSE` preserves selections and committed form instructions,
+Structured inputs retain submitted syntax and record policy-executed Player and Admin work, so
+import does not reproduce the source's policies. Batch and single-task operations retain their
+distinct semantics. `CHOOSE` preserves selections and committed form instructions,
 including partial choices that leave work pending. Later full form instructions replace earlier
 form narrowings when they only changed its instruction; steps that selected the task remain.
 Uncommitted form edits are not recorded; round-trips compare resulting state rather than requiring
 identical intermediate events.
-`DROP` and `EX MACHINA` retain interventions. See `TaskLog` KDoc for supported scope.
-The task text still requires its caller to supply the premise and launch the workflow.
+`DROP` and `EX_MACHINA` retain interventions. The file includes the premise recipe and workflow
+start. See `TaskLog` and `GameFileImporter` KDoc for supported scope.
 
 Whole-game tests are high-value integration coverage. When translating a supplied game log:
 

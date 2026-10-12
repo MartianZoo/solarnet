@@ -99,6 +99,22 @@ public open class Catalog(private vararg val catalogs: Catalog) {
   }
 
   /**
+   * Stable Catalog facts not already represented by class declarations or Module selections, keyed
+   * by source name. A composed Catalog merges equal contributions and rejects conflicting values
+   * for the same key. Overrides must return values that do not depend on object identity or the
+   * order in which this Catalog was queried.
+   */
+  public open val fingerprintMetadata: Map<String, String> by lazy {
+    catalogs
+        .flatMap { it.fingerprintMetadata.entries }
+        .groupBy({ it.key }, { it.value })
+        .mapValues { (name, values) ->
+          require(values.distinct().size == 1) { "conflicting fingerprint metadata: $name" }
+          values.first()
+        }
+  }
+
+  /**
    * Unique declaration for every class in this catalog's namespace, including Pets system classes
    * and contributed declarations after [contributedClassDeclarations] lowering. Conflicting names
    * fail rather than replacing an earlier declaration.

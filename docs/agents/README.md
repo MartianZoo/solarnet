@@ -39,6 +39,9 @@ or content selection, inspect the current source and tests for implemented behav
 roadmap to locate the owning design note and understand its priority and status. Keep detailed
 decisions in that note rather than duplicating them in the roadmap.
 
+For game export/import design, read [`EXPORT.md`](EXPORT.md), then inspect current recording,
+decision-log, premise, and replay code for implemented behavior.
+
 ## API specifications and KDoc
 
 For API documentation or specification-fidelity work, read

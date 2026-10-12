@@ -10,8 +10,8 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.EventLog
 import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.GameFileJson
 import dev.martianzoo.state.GameReader
-import dev.martianzoo.state.GameRecordingJson
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -21,6 +21,7 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.fake.FakeCanon
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlinx.coroutines.runBlocking
 
 private val gameOptions: Set<ClassName> =
     linkedSetOf(
@@ -106,7 +107,7 @@ public fun main(args: Array<String>) {
   when {
     args.size == 2 && args[0].endsWith(".json") -> {
       val text = Files.readString(Path.of(args[0]))
-      val document = GameRecordingJson.parse(text)
+      val document = GameFileJson.parse(text)
       val config = document.config
       val catalog =
           if (cn("FakeStuffBundle") in config.includedClassNames) {
@@ -114,8 +115,7 @@ public fun main(args: Array<String>) {
           } else {
             Canon
           }
-      val premise = catalog.gamePremise(config)
-      val world = document.decode(premise).open().world
+      val world = runBlocking { document.open(catalog).world }
       dump(world.reader, world.events, Path.of(args[1]))
     }
     args.size == 2 -> {
@@ -124,7 +124,7 @@ public fun main(args: Array<String>) {
     }
     else ->
         error(
-            "Usage: dumpEventlog <recording.json> <game.tsv> OR " +
+            "Usage: dumpEventlog <game.json> <game.tsv> OR " +
                 "dumpEventlog <three-player.tsv> <solo.tsv>"
         )
   }
