@@ -13,7 +13,7 @@ CLASS ColoniesExpansion : Module {
 }
 
 "A colony tile, such as Pluto"
-ABSTRACT CLASS ColonyTile : System {
+ABSTRACT CLASS ColonyTile : System, Real {
   HAS MAX 1 This, MAX 3 Colony<This>, MAX 1 Trade<This>
 
   This:: ColonyProduction<This>
@@ -169,22 +169,22 @@ CLASS Triton : ColonyTile, ColonyTileSelection<Class<Triton>> {
 }
 
 "One of the up-to-three colonies players can own on a ColonyTile"
-CLASS Colony<@ColonyTile> : Owned<Player> {
+CLASS Colony<@ColonyTile> : Owned<Player>, Real {
   DEFAULT +Colony<ColonyTile(HAS MAX 0 Colony)>
   FinishTrade<Anyone, @ColonyTile> OR GainColonyBonuses: GainColonyBonus<@ColonyTile>
 }
 
 "A player's persistent capacity to conduct one Trade per generation"
-CLASS TradeFleet : Owned<Player>
+CLASS TradeFleet : Owned<Player>, Real
 
 "A trade with one colony tile, retained until the next generation"
-CLASS Trade<@ColonyTile, GenerationScope> : Owned<Player> {
+CLASS Trade<@ColonyTile, GenerationScope> : Owned<Player>, Real {
   This:: (MAX 0 (Trade - TradeFleet): TradeBarrier<@ColonyTile>)
   This: -TradeBarrier<@ColonyTile>
 }
 
 "One unresolved barrier to completing a Trade"
-CLASS TradeBarrier<@ColonyTile> : Owned<Player>, Barrier, Hidden, System {
+CLASS TradeBarrier<@ColonyTile> : Owned<Player>, Barrier, System {
   -This IF MAX 0 This: FinishTrade<@ColonyTile>
 }
 
@@ -205,7 +205,7 @@ CLASS BuildColonyProject : StandardProject {
 ABSTRACT CLASS ColonyTileSelection<Class<ColonyTile>> { HAS MAX 1 This }
 
 "A colony selected by the premise but not realized until setup is complete"
-ABSTRACT CLASS SelectedColonyTile<Class<@ColonyTile>> : Hidden {
+ABSTRACT CLASS SelectedColonyTile<Class<@ColonyTile>> {
   HAS MAX 1 This
   CorporationPhase: ColonyTileSelection<Class<@ColonyTile>> FROM This
 }
@@ -223,13 +223,13 @@ CLASS TitanSelected : SelectedColonyTile<Class<Titan>>
 CLASS TritonSelected : SelectedColonyTile<Class<Triton>>
 
 "Lets the solo player discard one selected colony tile; owned so that player makes the choice"
-CLASS SoloColoniesSetup : Owned<Player>, System, Hidden {
+CLASS SoloColoniesSetup : Owned<Player>, System {
   HAS MAX 1 This
   This: -SelectedColonyTile THEN -This!
 }
 
 "A notch on the production track of a ColonyTile; note a tile has 0 to 6 of these (not 1 to 7)"
-CLASS ColonyProduction<ColonyTile> : System {
+CLASS ColonyProduction<ColonyTile> : System, Real {
   HAS MAX 6 This
 }
 

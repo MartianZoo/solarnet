@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.tools
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.api.SystemClasses.HIDDEN
+import dev.martianzoo.pets.api.SystemClasses.REAL
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -61,14 +61,14 @@ private fun createGame(playerCount: Int): World {
 }
 
 private fun specialSupertypes(reader: GameReader, event: ChangeEvent): String {
-  val hidden = reader.classTable.getClass(HIDDEN)
+  val real = reader.classTable.getClass(REAL)
   val system = reader.classTable.getClass(SYSTEM)
   return listOfNotNull(event.change.gaining, event.change.removing)
       .flatMap { component ->
         buildList {
           val changedClass = component.type.rootClass
           if (changedClass.isSubtypeOf(system)) add("System")
-          if (changedClass.isSubtypeOf(hidden)) add("Hidden")
+          if (changedClass.isSubtypeOf(real)) add("Real")
         }
       }
       .distinct()

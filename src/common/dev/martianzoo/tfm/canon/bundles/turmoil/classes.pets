@@ -23,7 +23,7 @@ CLASS Terraformer26 : Milestone {
 }
 
 "Runs TR revision and the current event, then changes government and advances the event queue"
-CLASS TurmoilSolarOperation : Temporary, System, Hidden {
+CLASS TurmoilSolarOperation : Temporary, System {
   HAS MAX 1 This
   This:: EACH Me@Player { -TerraformRating., MeasureInfluence }
   This: ResolveGlobalEvent
@@ -31,7 +31,7 @@ CLASS TurmoilSolarOperation : Temporary, System, Hidden {
 }
 
 "A revealed Global Event card, discarded by ChangingTimes after its Current generation"
-ABSTRACT CLASS GlobalEvent {
+ABSTRACT CLASS GlobalEvent : Real {
   HAS MAX 1 This
   HAS MAX 1 GlobalEventPosition<This>
   This IF RevealComingEvent:: Coming<This>
@@ -49,20 +49,20 @@ ABSTRACT CLASS GePartyCurrent<CurrentParty@Party> : GlobalEvent {
 }
 
 "One printed board position, occupied by at most one Global Event card"
-ABSTRACT CLASS GlobalEventPosition<GlobalEvent> {
+ABSTRACT CLASS GlobalEventPosition<GlobalEvent> : Real {
   CLASS Current { HAS MAX 1 Current }
   CLASS Coming { HAS MAX 1 Coming }
   CLASS Distant { HAS MAX 1 Distant }
 }
 
 "Requests the first revealed event and then the second setup event"
-CLASS RevealComingEvent : Barrier, System, Hidden {
+CLASS RevealComingEvent : Barrier, System {
   HAS MAX 1 This
   This: GlobalEvent THEN RevealDistantEvent FROM This
 }
 
 "Requests the next event for the Distant position"
-CLASS RevealDistantEvent : Barrier, System, Hidden {
+CLASS RevealDistantEvent : Barrier, System {
   HAS MAX 1 This
   This: GlobalEvent THEN -This!
 }
@@ -89,7 +89,7 @@ CLASS ChangingTimes : Signal, System {
 }
 
 "A player's reserve of seven delegates, held for as long as Turmoil is in play"
-CLASS TurmoilPlayer : Owned<Player>, System, Hidden {
+CLASS TurmoilPlayer : Owned<Player>, System {
   HAS MAX 1 This
   // This is the TurmoilPlayer component, whose effect inherits its lexical Me.
   Delegate IF 8 Delegate: Die
@@ -101,7 +101,7 @@ CLASS Neutral : Owner {
   HAS MAX 14 Delegate<This>
 }
 
-ABSTRACT CLASS Party {
+ABSTRACT CLASS Party : Real {
   HAS =1 This
   HAS MAX 1 AfterParty<This, Party>, MAX 1 AfterParty<Party, This>
   HAS MAX 1 PartyLeader<This, Anyone>
@@ -148,7 +148,7 @@ CLASS Scientists : Party {
 CLASS ScientistsPolicy : Policy<Ruling<Scientists>>, HasActions {
   10 MC -> 3 ProjectCard THEN ScientistsUsedMarker
 }
-CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player>, System {
+CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player>, System, Real {
   HAS MAX 1 This
 }
 
@@ -202,7 +202,7 @@ CLASS ApplyRulingBonus<Party> : Signal, System
 CLASS FormGovernment : Signal, System
 
 "Identifies the Party immediately after another Party around the committee"
-CLASS AfterParty<Party, Party> : System, Hidden { HAS MAX 1 This }
+CLASS AfterParty<Party, Party> : System { HAS MAX 1 This }
 
 "The forward distance from one Party to another around the committee"
 CLASS PartyDistance<Party, Party> : CustomMetric
@@ -213,7 +213,7 @@ CLASS PlayerDistance<Owner, Owner> : CustomMetric
 "Whether one player meets the ruling-party or two-delegate requirement for a party"
 CLASS PartyRequirement<Party> : Owned<Player>, CustomMetric
 
-ABSTRACT CLASS PartyStatus<Party> {
+ABSTRACT CLASS PartyStatus<Party> : Real {
   "The party with the greatest delegate count"
   CLASS Dominant {
     HAS MAX 1 Dominant
@@ -227,7 +227,7 @@ ABSTRACT CLASS PartyStatus<Party> {
 }
 
 "One of an owner's delegates, while it is placed on the committee"
-ABSTRACT CLASS Delegate : Owned {
+ABSTRACT CLASS Delegate : Owned, Real {
   "The delegate holding the committee chair"
   CLASS Chairman {
     HAS MAX 1 Chairman
@@ -258,7 +258,7 @@ ABSTRACT CLASS Delegate : Owned {
 
 
 "The owner whose delegate occupies one party's leader seat"
-CLASS PartyLeader<Delegation@Party> : Owned {
+CLASS PartyLeader<Delegation@Party> : Owned, Real {
   This:: -PartyLeader<Delegation@, Anyone>(NOT This).
   -PartyDelegate<Delegation@> \
     IF MAX 0 PartyDelegate<Delegation@>:: \
@@ -276,7 +276,7 @@ CLASS PartyLeader<Delegation@Party> : Owned {
 }
 
 "The unspent Lobby delegate, used by other placements only after the Delegate Reserve is empty"
-CLASS LobbyActionAvailable : Owned<Player>, System, Hidden {
+CLASS LobbyActionAvailable : Owned<Player>, System {
   HAS MAX 1 This
   Delegate IF 7 Delegate:: -This.
 }

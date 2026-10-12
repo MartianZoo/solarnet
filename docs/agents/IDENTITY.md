@@ -47,7 +47,7 @@ instruction.
 The owner is open to recording the current player in the component graph with:
 
 ```pets
-CLASS OnTurn<Player> : System, Hidden { HAS MAX 1 OnTurn }
+CLASS OnTurn<Player> : System { HAS MAX 1 OnTurn }
 ```
 
 This is a proposed game fact, not an implemented declaration. The maximum applies across players.
@@ -142,7 +142,7 @@ adding further type-specific checks here.
 Use `System` for neutral table bookkeeping rather than a Player's game action. Fixed gains and
 concrete removals must themselves be safe for eager Admin execution. If they open a real choice, that
 choice remains downstream work for the retained Player recipient. This classification is
-independent of `Hidden`, which controls presentation, and `::`, which preserves an invariant within
+independent of `Real`, which controls presentation, and `::`, which preserves an invariant within
 the initiating operation.
 
 Card-purchase, requirement, global-parameter-status, solo-countdown, dominance, and colony

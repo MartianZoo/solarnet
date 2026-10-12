@@ -11,8 +11,8 @@ import dev.martianzoo.pets.util.toSetStrict
  * the universal `Audit` signal plus the classes this language and the type system depend on,
  * including `Component` and `Class`, the identity root `Anyone`, ownership vocabulary `Owner` and
  * `Owned`, the actor root `Actor`, the identity signal `Ok`, the impossible type `Die`, and
- * `Atomized` and `CustomMetric` and `CustomInstruction`. A catalog's own source is loaded alongside
- * them.
+ * `Atomized`, `CustomMetric`, `CustomInstruction`, and `Real`. A catalog's own source is loaded
+ * alongside them.
  *
  * `GamePremise.classTable` always roots `Audit`; it decides which of the remaining declarations a
  * particular game contains.
@@ -38,8 +38,8 @@ private val systemDeclarationsSource =
     "Extend this to have plural instructions automatically split into individual instructions"
     ABSTRACT CLASS Atomized
 
-    "Implementation detail normally omitted from user-facing output"
-    ABSTRACT CLASS Hidden
+    "Really it means tangible: something a human player 'cares about' directly."
+    ABSTRACT CLASS Real
 
     "Admin bookkeeping; fully specified gains and removals normally execute as Admin"
     ABSTRACT CLASS System {
@@ -64,7 +64,7 @@ private val systemDeclarationsSource =
     ABSTRACT CLASS Barrier : MustCleanUp
 
     "An unscoped point event; `IF This` skips self-removal when no instance entered live state"
-    ABSTRACT CLASS Signal : MustCleanUp, Hidden {
+    ABSTRACT CLASS Signal : MustCleanUp {
       This IF This:: -This!
     }
 

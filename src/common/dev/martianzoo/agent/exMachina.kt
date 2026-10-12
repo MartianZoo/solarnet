@@ -4,7 +4,6 @@ import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
-import dev.martianzoo.pets.api.SystemClasses.HIDDEN
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -17,18 +16,18 @@ import dev.martianzoo.state.Task.TaskId
 
 /**
  * Applies an evidenced replay adjustment, attributed to [adjustingActor], without leaving a
- * selected task resolved against stale state. Explicit System, Hidden, and MustCleanUp targets are
+ * selected task resolved against stale state. Explicit System and MustCleanUp targets are
  * forbidden; required parts may still change them, but must not leave new unfinished work.
  */
 public fun Agents.exMachina(adjustingActor: Actor, adjustment: String) {
   val agent = this[adjustingActor]
-  val restricted = listOf(SYSTEM, HIDDEN, MUST_CLEAN_UP).map(world.classTable::getClass)
+  val restricted = listOf(SYSTEM, MUST_CLEAN_UP).map(world.classTable::getClass)
   for (change in agent.parse<InstructionTree>(adjustment).descendantsOfType<Change>()) {
     for (target in listOfNotNull(change.gaining, change.removing)) {
       val type = agent.reader.resolve(target)
       if (restricted.any(type.rootClass::isSubtypeOf)) {
         throw ExpressionException(
-            "exMachina cannot explicitly target System, Hidden, or MustCleanUp type `$target`"
+            "exMachina cannot explicitly target System or MustCleanUp type `$target`"
         )
       }
     }

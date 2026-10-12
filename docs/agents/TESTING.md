@@ -97,7 +97,7 @@ only when the change crosses a wider scope or the narrower result leaves a mater
 - `./gradlew :tools:dumpAllExpansionsEventLogs` creates three-player and solo games with every
   supported expansion plus `FakeCardsCardPack`, completes Player 1's corporation-phase turn with
   Interplanetary Cinematics and four bought cards in each, and writes every change event (including
-  `System` and `Hidden` changes, but no task events) to
+  `System` changes regardless of `Real`, but no task events) to
   `_local/eventlogs/three-player-all-expansions-eventlog.tsv` and
   `_local/eventlogs/solo-all-expansions-eventlog.tsv`. The `actor` column is engine attribution,
   not proof of a user choice: an automatic or queued effect carried by a Player-owned component may

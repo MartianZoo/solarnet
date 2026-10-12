@@ -29,7 +29,7 @@ ABSTRACT CLASS StandardAction : Owned<Player>, Signal {
   }
 }
 
-ABSTRACT CLASS StandardProject : HasActions {
+ABSTRACT CLASS StandardProject : HasActions, Real {
   HAS =1 This
   cost = Number
 
@@ -69,7 +69,7 @@ ABSTRACT CLASS StandardProject : HasActions {
 ABSTRACT CLASS HasActions { HAS MAX 1 This }
 
 "A simple enum type to identify which action of a `HasActions` you want"
-ABSTRACT CLASS ActionSlot : System, Hidden {
+ABSTRACT CLASS ActionSlot : System {
   HAS =1 This
   CLASS Action1
   CLASS Action2

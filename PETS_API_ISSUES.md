@@ -141,7 +141,7 @@ The same design considers deleting `Temporary` and `TemporaryScope`. The Pets ro
 calls for truthful point events and independent lifetime and log visibility. These changes reach
 [`systemClassDeclarations`](src/common/dev/martianzoo/pets/SystemDeclarations.kt),
 [`SystemClasses`](src/common/dev/martianzoo/pets/api/SystemClasses.kt), and their exported
-inheritance contracts: for example, `Signal` currently inherits `MustCleanUp` and `Hidden`.
+inheritance contracts: for example, `Signal` currently inherits `MustCleanUp` and has no `Real` classification.
 Removing or changing those facts affects custom declarations as well as Kotlin callers.
 
 Delegated control, payment simplification, and Player/Admin attribution remain related sources of

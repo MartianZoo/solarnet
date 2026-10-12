@@ -11,7 +11,7 @@ import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameRecording
 import dev.martianzoo.state.GameRecordingJson
 import dev.martianzoo.state.Player
-import dev.martianzoo.state.visibleLogEvents
+import dev.martianzoo.state.realLogEvents
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -100,7 +100,7 @@ public fun main() {
             val premise = catalog.gamePremise(config)
             val active = document.decode(premise).open()
             val logEvents =
-                active.world.events.changesSinceSetup().visibleLogEvents(active.world.reader)
+                active.world.events.changesSinceSetup().realLogEvents(active.world.reader)
             selectablePositions =
                 selectablePositionIndices(active.positions, logEvents.map(ChangeEvent::ordinal))
             mark("preparation.end")
