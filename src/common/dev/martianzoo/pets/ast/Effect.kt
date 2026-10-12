@@ -4,8 +4,8 @@ import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.THIS
+import dev.martianzoo.pets.ast.Instruction.Dispatch
 import dev.martianzoo.pets.ast.Instruction.Gated
-import dev.martianzoo.pets.ast.Instruction.Task
 import dev.martianzoo.pets.util.iff
 
 /**
@@ -38,8 +38,10 @@ public data class Effect(
     val automatic: Boolean = false,
 ) : PetElement() {
   init {
-    if (automatic && (instruction is Task || instruction.descendantsOfType<Task>().any())) {
-      throw PetSyntaxException("`TASK` cannot occur inside an automatic `::` effect")
+    if (automatic && (instruction is Dispatch || instruction.descendantsOfType<Dispatch>().any())) {
+      throw PetSyntaxException(
+          "`TASK`, `LATER`, and `FINALLY` cannot occur inside an automatic `::` effect"
+      )
     }
     // A bare Component subscription watches everything and states nothing; rule L6-11 requires it
     // to

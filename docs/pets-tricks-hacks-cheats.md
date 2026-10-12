@@ -162,7 +162,7 @@ that choice. It can replace a long manually enumerated list while keeping each c
 single generic rule can therefore make subclass-specific records and consequences without one
 effect per card, resource, or global parameter.
 
-- **Event cards:** [`-This ... :: PlayedEvent<Class<This>>`](../src/common/dev/martianzoo/tfm/canon/bundles/base/card-model.pets) records the exact event-card class when that card leaves play.
+- **Event cards:** [`This: LATER { PlayedEvent<Class<This>> FROM This. }`](../src/common/dev/martianzoo/tfm/canon/bundles/base/card-model.pets) records the exact event-card class when that card is flipped.
 - **Global parameters:** [`This: TerraformRating`](../src/common/dev/martianzoo/tfm/canon/bundles/base/board.pets) gives the actor TR when an oxygen, temperature, ocean, or Venus step is raised, all from the one `GlobalParameter` superclass rule.
 
 The contextual actor still matters: an Admin-driven step is not a player's TR gain. Inherited

@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.pets.ast.Deferral
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Component
@@ -7,11 +8,13 @@ import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.Player
 
-/** Triggered work that has not yet been admitted to a task queue. */
+/** Triggered or dispatched work that has not yet been admitted to a task queue. */
 internal data class PendingTask(
     val assignee: Actor,
     val instruction: InstructionGroup,
     val cause: Cause?,
+    /** The deferral of the tasks this work becomes; see [dev.martianzoo.state.Task.deferral]. */
+    val deferral: Deferral = Deferral.NONE,
 ) {
   operator fun times(factor: Int): PendingTask = copy(instruction = instruction * factor)
 

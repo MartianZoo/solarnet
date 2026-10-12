@@ -6155,15 +6155,14 @@ Class: `TradeEnvoys`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | — | Effect: When you trade, you may first increase that Colony Tile track 1 step. |
-| Generated text | — | Effect: When you trade, \[TradeBarrier&lt;@ColonyTile&gt;\]. \[Trade&lt;@ColonyTile&gt;: ColonyProduction&lt;@ColonyTile&gt;? THEN -TradeBarrier&lt;@ColonyTile&gt;\]. |
+| Generated text | — | Effect: When you trade, you may raise that colony tile track 1 step. |
 
 Pets declaration:
 
 ```pets
 CLASS TradeEnvoys : ActiveCard {
   cost = 6
-  Trade<@ColonyTile>:: TradeBarrier<@ColonyTile>
-  Trade<@ColonyTile>: ColonyProduction<@ColonyTile>? THEN -TradeBarrier<@ColonyTile>
+  Trade<@ColonyTile>: ColonyProduction<@ColonyTile>?
 }
 ```
 
@@ -6174,7 +6173,7 @@ Class: `TradingColony`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Place a colony. | Effect: When you trade, you may first increase that Colony Tile track 1 step. |
-| Generated text | Place a colony. | Effect: When you trade, \[TradeBarrier&lt;@ColonyTile&gt;\]. \[Trade&lt;@ColonyTile&gt;: ColonyProduction&lt;@ColonyTile&gt;? THEN -TradeBarrier&lt;@ColonyTile&gt;\]. |
+| Generated text | Place a colony. | Effect: When you trade, you may raise that colony tile track 1 step. |
 
 Pets declaration:
 
@@ -6183,8 +6182,7 @@ CLASS TradingColony : ActiveCard {
   HAS =1 SpaceTag<This>
   cost = 18
   This: Colony<>
-  Trade<@ColonyTile>:: TradeBarrier<@ColonyTile>
-  Trade<@ColonyTile>: ColonyProduction<@ColonyTile>? THEN -TradeBarrier<@ColonyTile>
+  Trade<@ColonyTile>: ColonyProduction<@ColonyTile>?
 }
 ```
 
@@ -8104,7 +8102,7 @@ Class: `L1TradeTerminal`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Add a resource to 3 different cards that already have resources. | Effect: When you trade, you may first increase that colony track 2 steps. |
-| Generated text | \[L1GiftWatcher\], then \[EACH @ResourceCard(HAS CardResource) { CardResource&lt;@ResourceCard&gt;? }\]. | Effect: When you trade, \[TradeBarrier&lt;@ColonyTile&gt;\]. \[Trade&lt;@ColonyTile&gt;: (2 ColonyProduction&lt;@ColonyTile&gt; OR Ok) THEN -TradeBarrier&lt;@ColonyTile&gt;\]. |
+| Generated text | \[L1GiftWatcher\], then \[EACH @ResourceCard(HAS CardResource) { CardResource&lt;@ResourceCard&gt;? }\]. | Effect: When you trade, you may raise that colony tile track 2 steps. |
 
 Pets declaration:
 
@@ -8113,8 +8111,7 @@ CLASS L1TradeTerminal : ActiveCard {
   HAS =1 SpaceTag<This>
   cost = 25
   This: L1GiftWatcher THEN EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }
-  Trade<@ColonyTile>:: TradeBarrier<@ColonyTile>
-  Trade<@ColonyTile>: (2 ColonyProduction<@ColonyTile> OR Ok) THEN -TradeBarrier<@ColonyTile>
+  Trade<@ColonyTile>: 2 ColonyProduction<@ColonyTile> OR Ok
   End: 2 VictoryPoint
 }
 ```

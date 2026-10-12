@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
+import dev.martianzoo.pets.ast.Deferral
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
@@ -40,6 +41,8 @@ import dev.martianzoo.state.Task.TaskId
  *   assignee after Admin finishes the System change. Abstract changes remain for the current
  *   assignee to choose; explicit instruction-side `BY` remains authoritative. Selected tasks cannot
  *   be replaced by independent siblings
+ * * Once no ordinary task remains, every task with the earliest remaining [Task.deferral] becomes
+ *   ordinary at once
  */
 internal class TaskQueues(private val gameWorld: GameWorld) {
   private val classTable: ClassTable = gameWorld.classTable
@@ -49,16 +52,13 @@ internal class TaskQueues(private val gameWorld: GameWorld) {
   }
 
   internal fun addTasks(task: PendingTask) =
-      addTasks(
-          task.instruction,
-          task.assignee,
-          task.cause,
-      )
+      addTasks(task.instruction, task.assignee, task.cause, task.deferral)
 
   internal fun addTasks(
       instruction: InstructionGroup,
       assignee: Actor,
       cause: Cause?,
+      deferral: Deferral = Deferral.NONE,
   ): List<TaskAddedEvent> {
     val newTasks =
         newTasks(
@@ -67,16 +67,34 @@ internal class TaskQueues(private val gameWorld: GameWorld) {
                 instruction = instruction,
                 cause = cause,
                 isAbstract = isAbstract,
+                deferral = deferral,
             )
             .map(::assignSystemChangeToAdmin)
-    return newTasks.map {
-      require(it.id.ordinal == gameWorld.nextOrdinal)
-      gameWorld.apply(TaskAddedEvent(gameWorld.nextOrdinal, it))
-    }
+    return newTasks
+        .map {
+          require(it.id.ordinal == gameWorld.nextOrdinal)
+          gameWorld.apply(TaskAddedEvent(gameWorld.nextOrdinal, it))
+        }
+        .also { promoteDeferredWork() }
   }
 
-  internal fun removeTask(task: Task): TaskRemovedEvent {
-    return gameWorld.apply(TaskRemovedEvent(gameWorld.nextOrdinal, task))
+  internal fun removeTask(task: Task): TaskRemovedEvent =
+      gameWorld.apply(TaskRemovedEvent(gameWorld.nextOrdinal, task)).also { promoteDeferredWork() }
+
+  /**
+   * Makes the earliest remaining deferred work ordinary once no ordinary task remains: all `LATER`
+   * work, or when none remains, all `FINALLY` work ([rules L2-18 and
+   * L2-19](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
+   * Work deferred while that batch runs waits for the whole batch. Promotion is an ordinary task
+   * edit, so rollback and replay restore it with its transaction.
+   */
+  private fun promoteDeferredWork() {
+    val pending = gameWorld.tasks.extract { it }
+    if (pending.isEmpty() || pending.any { !it.deferred }) return
+    val earliest = pending.minOf { it.deferral }
+    pending
+        .filter { it.deferral == earliest }
+        .forEach { editTask(it.copy(deferral = Deferral.NONE)) }
   }
 
   internal fun editTask(newTask: Task): TaskEditedEvent? {
@@ -117,7 +135,7 @@ internal class TaskQueues(private val gameWorld: GameWorld) {
         then =
             task.then?.let {
               InstructionGroup.of(
-                  Instruction.Task(
+                  Instruction.Dispatch(
                       task.assignee.expression,
                       InstructionGroup.createTree(it.instructions),
                   )

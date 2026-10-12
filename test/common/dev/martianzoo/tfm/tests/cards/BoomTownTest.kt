@@ -53,10 +53,12 @@ internal class BoomTownTest : TfmSandboxTest() {
           "-3 Titanium",
           "-4 MC",
           "SmallAsteroid FROM ProjectCard",
+          "LATER { PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid. }",
       )
       selectTask("TemperatureStep.")
       selectTask("-2 Plant<Anyone>?")
       doTask("TerraformRating")
+      doTask("PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid")
     }
     stan.inTurn {
       doTasks(
@@ -95,10 +97,12 @@ internal class BoomTownTest : TfmSandboxTest() {
           "-3 Titanium",
           "-4 MC",
           "SmallAsteroid FROM ProjectCard",
+          "LATER { PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid. }",
       )
       selectTask("TemperatureStep.")
       selectTask("-2 Plant<Anyone>?")
       doTask("TerraformRating")
+      doTask("PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid")
     }
   }
 

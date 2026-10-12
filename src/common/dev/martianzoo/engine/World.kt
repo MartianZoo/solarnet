@@ -38,9 +38,8 @@ public interface World {
   /** The immutable classes available to this world. */
   public val classTable: ClassTable
 
-  /** Whether no task, mandatory cleanup, or temporary component remains unfinished. */
-  public fun isIdle(): Boolean =
-      tasks.isEmpty() && reader.has(parse("MAX 0 MustCleanUp, MAX 0 Temporary"))
+  /** Whether no task or mandatory cleanup remains unfinished. */
+  public fun isIdle(): Boolean = tasks.isEmpty() && reader.has(parse("MAX 0 MustCleanUp"))
 
   /** Returns this world's stable mutation engine for [actor]; an unknown actor fails. */
   public fun actorEngine(actor: Actor): ActorEngine

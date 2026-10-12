@@ -16,7 +16,7 @@ internal class TitanFloatingLaunchPadTest : TfmSandboxTest() {
           doTask("UseCardAction<TitanFloatingLaunchPad, Action2>")
           selectTask("-Floater<TitanFloatingLaunchPad>!")
           selectTask("Trade!")
-          doTasks("Trade<Io>", "3 Heat")
+          doTasks("Trade<Io>", "LATER { FinishTrade<Io> }", "3 Heat")
         }
         .expect("-Floater, 3 Heat")
   }

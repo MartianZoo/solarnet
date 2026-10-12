@@ -19,11 +19,13 @@ internal class LocalHeatTrappingTest : TfmSandboxTest() {
               "PlayProject<Class<LocalHeatTrapping>>",
               "-1 MC",
               "LocalHeatTrapping FROM ProjectCard",
+              "LATER { PlayedEvent<Class<LocalHeatTrapping>> FROM LocalHeatTrapping. }",
               "-5 Heat",
           )
           selectOnlyTask()
           // Decline gaining plants by choosing animals when no animal holder exists.
           doTask("Ok")
+          doTask("PlayedEvent<Class<LocalHeatTrapping>> FROM LocalHeatTrapping")
         }
         .expect("0 Plant")
   }
@@ -38,7 +40,11 @@ internal class LocalHeatTrappingTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("PlayProject<Class<LocalHeatTrapping>>")
         selectTask("-X MC?")
-        doTasks("-1 MC", "LocalHeatTrapping FROM ProjectCard")
+        doTasks(
+            "-1 MC",
+            "LocalHeatTrapping FROM ProjectCard",
+            "LATER { PlayedEvent<Class<LocalHeatTrapping>> FROM LocalHeatTrapping. }",
+        )
         selectTask("-5 Heat!")
         selectOnlyTask()
         doTask("Ok")

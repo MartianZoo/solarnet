@@ -1,6 +1,7 @@
 package dev.martianzoo.state
 
 import dev.martianzoo.pets.Transforming
+import dev.martianzoo.pets.ast.Deferral
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
@@ -9,7 +10,8 @@ import kotlin.jvm.JvmInline
 /**
  * Current or recorded form of a pending instruction. [id] survives edits. [assignee] controls the
  * task. [selected] holds the world's exclusive selection lock until the task is narrowed, executed,
- * or removed. [instruction] may still require choices or dispatch separate work through `Task`.
+ * or removed. [instruction] may still require choices or dispatch separate work through `TASK` or
+ * `LATER`. A [deferred] task waits until no earlier-deferred work remains.
  */
 public data class Task(
     /** Identifies this task by the ordinal of its add event. Stable through task edits. */
@@ -33,7 +35,23 @@ public data class Task(
 
     /** Why was this task born? */
     val cause: Cause?,
+
+    /**
+     * Whether `LATER` or `FINALLY` admitted this task ([rules L2-18 and
+     * L2-19](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
+     * No task may be selected while a task with an earlier [Deferral] remains. When no ordinary
+     * task remains, every task with the earliest remaining deferral becomes ordinary at once.
+     */
+    val deferral: Deferral = Deferral.NONE,
 ) {
+  init {
+    require(!deferred || !selected) { "a deferred task cannot be selected: $this" }
+  }
+
+  /** Whether this task waits for ordinary, or earlier-deferred, work to finish. */
+  val deferred: Boolean
+    get() = deferral != Deferral.NONE
+
   /**
    * Returns a proposed version of this task with its current instruction's linked X set to [value].
    */
@@ -44,6 +62,7 @@ public data class Task(
     append(id)
     append(if (selected) "* " else "  ")
     appendAssigneeLabel()
+    if (deferred) append("(${deferral.keyword}) ")
     append(instruction)
     then?.let { append(" (THEN $it)") }
     cause?.let { append(" $cause") }

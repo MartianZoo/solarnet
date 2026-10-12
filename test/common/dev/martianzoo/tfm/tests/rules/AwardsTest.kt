@@ -195,11 +195,11 @@ internal class AwardsTest : TfmTest() {
     p2.autoExecPolicy = NONE
 
     admin.runOperation("End FROM Phase")
+    admin.runOperation("VictoryPhase FROM Phase")
 
     p1.assertCounts(4 to "VictoryPoint<Player1>", 0 to "Victory<Player1>")
     p2.assertCounts(5 to "VictoryPoint<Player2>", 1 to "Victory<Player2>")
-    admin.count("End") shouldBe 1
-    admin.count("FinalScoringPending") shouldBe 0
+    admin.count("VictoryPhase") shouldBe 1
     admin.count("MeasureAward<Banker>") shouldBe 0
     game.tasks.isEmpty() shouldBe true
   }

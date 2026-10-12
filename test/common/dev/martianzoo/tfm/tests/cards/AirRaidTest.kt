@@ -22,9 +22,11 @@ internal class AirRaidTest : TfmSandboxTest() {
       doTasks(
           "PlayProject<Class<$AirRaid>>",
           "$AirRaid FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$AirRaid>> FROM $AirRaid. }",
           "-Floater<$AtmoCollectors>",
           "5 MC<Kim FROM Rob>",
       )
+      doTask("PlayedEvent<Class<$AirRaid>> FROM $AirRaid")
     }
   }
 
@@ -37,7 +39,11 @@ internal class AirRaidTest : TfmSandboxTest() {
     shouldThrow<ExpressionException> {
       kim.inTurn {
         selectOnlyTask()
-        doTasks("PlayProject<Class<AirRaid>>", "AirRaid FROM ProjectCard")
+        doTasks(
+            "PlayProject<Class<AirRaid>>",
+            "AirRaid FROM ProjectCard",
+            "LATER { PlayedEvent<Class<AirRaid>> FROM AirRaid. }",
+        )
         selectTask("-Floater!")
         selectOnlyTask()
         doTask("5 MC<Kim FROM Kim>")
@@ -55,7 +61,11 @@ internal class AirRaidTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         selectOnlyTask()
-        doTasks("PlayProject<Class<AirRaid>>", "AirRaid FROM ProjectCard")
+        doTasks(
+            "PlayProject<Class<AirRaid>>",
+            "AirRaid FROM ProjectCard",
+            "LATER { PlayedEvent<Class<AirRaid>> FROM AirRaid. }",
+        )
         selectTask("-Floater!")
         selectOnlyTask()
         doTask("5 MC<Kim FROM Stan>")

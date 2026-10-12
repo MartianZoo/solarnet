@@ -103,9 +103,15 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
       doTask("Community<Tharsis_9_7>")
     }
     kim.inTurn {
-      doTasks("PlayProject<Class<LandClaim>>", "-1 MC", "LandClaim FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<LandClaim>>",
+          "-1 MC",
+          "LandClaim FROM ProjectCard",
+          "LATER { PlayedEvent<Class<LandClaim>> FROM LandClaim. }",
+      )
       selectOnlyTask()
       doTask("Community<Tharsis_1_1>")
+      doTask("PlayedEvent<Class<LandClaim>> FROM LandClaim")
     }
     kim.setToExMachina(23, "MC")
 

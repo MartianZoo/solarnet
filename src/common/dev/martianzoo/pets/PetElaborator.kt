@@ -595,7 +595,7 @@ public class PetElaborator(public val classTable: ClassTable) {
         }
 
     fun needsMe(node: PetNode, available: Boolean = false): Boolean {
-      if (node is Instruction.Task) {
+      if (node is Instruction.Dispatch) {
         return (node.actor?.let { needsMe(it, available) } ?: false) ||
             needsMe(node.body, available = true)
       }
@@ -751,12 +751,12 @@ public class PetElaborator(public val classTable: ClassTable) {
             me = previous
           }
         }
-        if (node is Instruction.Task) {
+        if (node is Instruction.Dispatch) {
           val recipient = node.actor?.let(::transformExpression) ?: me ?: ADMIN.expression
           val previous = me
           me = recipient
           return try {
-            Instruction.Task(recipient, transformInstructionTree(node.body)).also {
+            node.copy(actor = recipient, body = transformInstructionTree(node.body)).also {
               it.sourceLocation = node.sourceLocation
             }
           } finally {

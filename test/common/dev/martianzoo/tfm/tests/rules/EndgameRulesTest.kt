@@ -49,7 +49,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     stan.pass()
     kim.doTask("Ok") // No final greenery.
     stan.doTask("Ok") // No final greenery.
-    admin.count("End") shouldBe 1
+    admin.count("VictoryPhase") shouldBe 1
   }
 
   @Test
@@ -106,7 +106,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     playSoloTerraforming(completeVenus = false)
     kim.count("Victory") shouldBe 1
     kim.doTask("Ok") // Decline final greenery.
-    admin.count("End") shouldBe 1
+    admin.count("VictoryPhase") shouldBe 1
   }
 
   @Test

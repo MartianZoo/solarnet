@@ -17,9 +17,14 @@ internal class CometForVenusTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<CometForVenus>>", "-11 MC")
       selectTask("-X Titanium?")
-      doTasks("Ok", "CometForVenus FROM ProjectCard")
+      doTasks(
+          "Ok",
+          "CometForVenus FROM ProjectCard",
+          "LATER { PlayedEvent<Class<CometForVenus>> FROM CometForVenus. }",
+      )
       selectTask("VenusStep.")
       doTasks("TerraformRating", "-4 MC<Stan>")
+      doTask("PlayedEvent<Class<CometForVenus>> FROM CometForVenus")
     }
   }
 }

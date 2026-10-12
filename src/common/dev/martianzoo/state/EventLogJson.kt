@@ -3,6 +3,7 @@ package dev.martianzoo.state
 import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Deferral
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
@@ -214,6 +215,7 @@ public object EventLogJson {
         } ?: JsonNull,
     )
     put("cause", encodeCause(task.cause))
+    put("deferral", task.deferral.name)
   }
 
   private fun decodeTask(source: JsonObject, decodeActor: (String) -> Actor): Task {
@@ -232,6 +234,7 @@ public object EventLogJson {
         instruction = parse(requiredString(source, "instruction")),
         then = then,
         cause = decodeCause(requiredElement(source, "cause")),
+        deferral = Deferral.valueOf(requiredString(source, "deferral")),
     )
   }
 

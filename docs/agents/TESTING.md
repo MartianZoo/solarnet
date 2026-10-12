@@ -690,7 +690,10 @@ Whole-game tests are high-value integration coverage. When translating a supplie
   turn block; workflow-provided `NewTurn` tasks let that block continue across the remaining nominal
   turns.
 - When an Event card's sibling tasks require explicit replay ordering, record only the gameplay
-  consequences. The engine moves the card to `PlayedEvent` automatically after all queues empty.
+  consequences. The card's owner dispatches its flip with `LATER` and performs the flip once no
+  ordinary work remains. Autoexecution performs both; a replay whose Players do not autoexecute
+  records them as explicit `LATER { PlayedEvent<Class<X>> FROM X. }` and
+  `PlayedEvent<Class<X>> FROM X` steps.
 - Use the same turn block for a player's two Prelude plays. This also supports Prelude effects that
   immediately play another Prelude or project inside one of those plays.
 - Keep the supplied machine log as a separate source artifact rather than copying its lines into the

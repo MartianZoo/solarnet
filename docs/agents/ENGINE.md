@@ -240,9 +240,10 @@ state for changing assignee midway through such a Task, and Canon has no use req
 The finishing task's assignee receives structural children and continuations. A System handoff
 encodes the former assignee in its continuation, so Admin executes the System step and returns later
 work to that Actor. Authored `TASK` dispatch can also give work to another Actor. Queued reactions
-use ownership and event attribution as described in [IDENTITY.md](IDENTITY.md). There is no task
-priority or persistent delegated operation in current task data. The remaining routing and
-completion questions are in
+use ownership and event attribution as described in [IDENTITY.md](IDENTITY.md). Deferral by `LATER`
+and `FINALLY` is the only task priority ([SEQUENCING.md](SEQUENCING.md#deferred-work)), and there
+is no persistent delegated
+operation in current task data. The remaining routing and completion questions are in
 [SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over). Any game-rule restriction
 on which task may execute must apply equally to explicit commands and autoexecution. Protecting a
 player from somebody else calling their Agent is instead an external submission concern covered
@@ -428,7 +429,7 @@ pre-existing unselected Tasks, and rejects newly unfinished Tasks or `MustCleanU
 start while a pre-existing selected Task holds the World lock. `sneak` applies a fully concrete
 correction group, constructs exact required parts, removes dependents, and audits every applicable
 count invariant. The entire group rolls back on failure. It runs automatic effects and suppresses queued effects recursively
-while bypassing settlement, idle cleanup, and completion callbacks. `exMachina` rejects explicit
+while bypassing settlement and completion callbacks. `exMachina` rejects explicit
 System and MustCleanUp targets and any correction that leaves new MustCleanUp state.
 It additionally restores and resumes an existing selection within one atomic lifecycle. See
 [EX_MACHINA.md](EX_MACHINA.md) for the contract and the remaining canon consistency gaps.

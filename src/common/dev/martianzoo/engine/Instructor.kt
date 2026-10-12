@@ -122,7 +122,7 @@ internal constructor(
   private fun doExecute(
       instruction: Instruction,
       cause: Cause?,
-      deferred: MutableList<PendingTask>,
+      spawned: MutableList<PendingTask>,
       actor: Actor,
       queuedEffects: Boolean = true,
   ) {
@@ -131,7 +131,7 @@ internal constructor(
           doExecuteResolved(
               resolved,
               cause,
-              deferred,
+              spawned,
               actor,
               queuedEffects,
           )
@@ -139,7 +139,7 @@ internal constructor(
       // enqueued task turns them into separately selectable work.
       is InstructionGroup ->
           resolved.instructions.forEach {
-            doExecute(it, cause, deferred, actor, queuedEffects)
+            doExecute(it, cause, spawned, actor, queuedEffects)
           }
     }
   }
@@ -147,7 +147,7 @@ internal constructor(
   private fun doExecuteResolved(
       resolved: Instruction,
       cause: Cause?,
-      deferred: MutableList<PendingTask>,
+      spawned: MutableList<PendingTask>,
       actor: Actor,
       queuedEffects: Boolean = true,
   ) {
@@ -162,7 +162,7 @@ internal constructor(
           executeChange(
               resolved,
               cause,
-              deferred,
+              spawned,
               if (
                   automaticEffectStack.isNotEmpty() &&
                       (resolved.gaining ?: resolved.removing)?.let {
@@ -173,13 +173,7 @@ internal constructor(
               else actor,
               queuedEffects,
           )
-      is Instruction.Task ->
-          deferred +=
-              PendingTask(
-                  assignee = actorFor(taskRecipient(resolved)),
-                  instruction = InstructionGroup.of(resolved.body),
-                  cause = cause,
-              )
+      is Instruction.Dispatch -> spawned += admitted(resolved, cause)
       is By ->
           throw ExpressionException(
               "instruction-side `BY` reached execution without a task-assignment handoff: " +
@@ -190,13 +184,13 @@ internal constructor(
         doExecuteResolved(
             resolved.first,
             cause,
-            deferred,
+            spawned,
             actor,
             queuedEffects,
         )
         resolved.instructions.drop(1).forEach { tree ->
           InstructionGroup.of(tree).instructions.forEach {
-            doExecute(it, cause, deferred, actor, queuedEffects)
+            doExecute(it, cause, spawned, actor, queuedEffects)
           }
         }
       }
@@ -209,7 +203,7 @@ internal constructor(
   private fun executeChange(
       instruction: Change,
       cause: Cause?,
-      deferred: MutableList<PendingTask>,
+      spawned: MutableList<PendingTask>,
       actor: Actor,
       queuedEffects: Boolean,
   ) {
@@ -230,7 +224,7 @@ internal constructor(
               actor = actor,
           )
 
-      constructPartsAndFire(result, deferred, queuedEffects)
+      constructPartsAndFire(result, spawned, queuedEffects)
       if (done) break
     }
     if (queuedEffects && automaticEffectStack.isEmpty()) {
@@ -249,7 +243,7 @@ internal constructor(
   /** Required parts all exist before any event in their construction dispatches effects. */
   private fun constructPartsAndFire(
       event: ChangeEvent,
-      deferred: MutableList<PendingTask>,
+      spawned: MutableList<PendingTask>,
       queuedEffects: Boolean,
   ) {
     val recorded = ConstructionEvent(event, automaticEffectStack)
@@ -293,7 +287,7 @@ internal constructor(
                 automatic = true,
                 instruction = InstructionGroup.of(instruction),
             ),
-            deferred,
+            spawned,
             queuedEffects,
             origin.ancestors,
         )
@@ -303,19 +297,19 @@ internal constructor(
     }
     for ((change) in events.asReversed()) {
       for (task in effector.fire(change, automatic = true)) {
-        executeAutomaticEffect(task, deferred, queuedEffects)
+        executeAutomaticEffect(task, spawned, queuedEffects)
       }
     }
     if (queuedEffects) {
       for ((change) in events) {
-        deferred += effector.fire(change, automatic = false)
+        spawned += effector.fire(change, automatic = false)
       }
     }
   }
 
   private fun executeAutomaticEffect(
       task: PendingTask,
-      deferred: MutableList<PendingTask>,
+      spawned: MutableList<PendingTask>,
       queuedEffects: Boolean,
       ancestors: List<PendingTask> = automaticEffectStack,
   ) {
@@ -332,7 +326,7 @@ internal constructor(
         doExecute(
             it,
             task.cause,
-            deferred,
+            spawned,
             task.assignee,
             queuedEffects,
         )
@@ -369,15 +363,15 @@ internal constructor(
               resolve(unresolved.inner, worldGainNarrowing),
               canonicalActorExpression(unresolved),
           )
-      is Instruction.Task -> {
+      is Instruction.Dispatch -> {
         val recipient = taskRecipient(unresolved)
         if (reader.resolve(recipient).abstract) {
           throw ExpressionException(
-              "`TASK` requires a fixed Actor recipient; `$recipient` is open",
+              "`${keyword(unresolved)}` requires a fixed Actor recipient; `$recipient` is open",
               sourceLocation = recipient.sourceLocation ?: unresolved.sourceLocation,
           )
         }
-        unresolved.copy(actor = actorFor(recipient, "`TASK`").expression)
+        unresolved.copy(actor = actorFor(recipient, "`${keyword(unresolved)}`").expression)
       }
       is Per ->
           resolveTree(
@@ -501,12 +495,25 @@ internal constructor(
 
   internal fun actorFor(instruction: By): Actor = actorFor(instruction.actor, "`BY`")
 
-  private fun taskRecipient(instruction: Instruction.Task): Expression =
+  private fun taskRecipient(instruction: Instruction.Dispatch): Expression =
       instruction.actor
           ?: throw ExpressionException(
-              "`TASK` needs a recipient after elaboration",
+              "`${keyword(instruction)}` needs a recipient after elaboration",
               sourceLocation = instruction.sourceLocation,
           )
+
+  private fun keyword(dispatch: Instruction.Dispatch) = dispatch.deferral.keyword
+
+  /**
+   * The work [dispatch] admits: its body, for its recipient, with its deferral (L2-17 to L2-19).
+   */
+  private fun admitted(dispatch: Instruction.Dispatch, cause: Cause?): PendingTask =
+      PendingTask(
+          assignee = actorFor(taskRecipient(dispatch), "`${keyword(dispatch)}`"),
+          instruction = InstructionGroup.of(dispatch.body),
+          cause = cause,
+          deferral = dispatch.deferral,
+      )
 
   internal fun actorFor(expression: Expression, assignment: String = "`TASK`"): Actor {
     val type = reader.resolve(expression)

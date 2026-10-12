@@ -512,8 +512,37 @@ one choice to every Player. `EACH` itself gives every match more work to the cur
 which creates no tasks (L2-15).
 
 ```ebnf
-TaskDispatch ::= "TASK" Expression? "{" InstructionGroup "}"
+TaskDispatch ::= ( "TASK" | "LATER" | "FINALLY" ) Expression? "{" InstructionGroup "}"
 ```
+
+**L2-18. `LATER Recipient { body }` dispatches deferred work.** It is `TASK` (L2-17) in every
+respect but one: the work it admits is deferred. No actor may carry out deferred work while ordinary
+work is pending, whichever actor that work belongs to. When no ordinary task remains, all `LATER`
+work becomes ordinary at once, unordered among itself; work deferred after that moment, including by
+that work, waits for the next such moment. Deferred work is still pending work, so anything that
+waits for all pending work also waits for it. A `LATER` nested in another is performed in its turn
+like any instruction: it defers its body behind the ordinary work pending then.
+
+Deferral settles nothing early. Admitted work is resolved when it is carried out, like any task, so
+`LATER { Done / Flag }` counts the flags present then.
+
+> **Non-normative example — played events.** `EventCard`'s
+> `This: LATER { PlayedEvent<Class<This>> FROM This. }` keeps a just-played event face up until the
+> work its play caused has finished; then its owner moves it to the played-event pile. Solar Probe
+> draws a card per three science tags, counting its own. As ordinary work, the flip would be an
+> independent task (L2-9) that could be performed first. The `.` lets the flip find nothing when Law
+> Suit has already moved itself into another player's pile.
+
+> **Non-normative example — trading.** `Trade` dispatches `LATER { FinishTrade<@ColonyTile> }`,
+> which pays income from the colony's track position and then resets the track. Deferral lets
+> reactions to the trade, such as Trade Envoys' optional `ColonyProduction<@ColonyTile>` step, move
+> the track first. A `THEN` orders only the trade's own stages; it cannot wait for other cards'
+> reactions.
+
+**L2-19. `FINALLY Recipient { body }` dispatches final work.** It is `LATER` (L2-18), except that
+final work also waits for `LATER` work: no actor may carry out final work while ordinary or `LATER`
+work is pending. When none remains, all final work becomes ordinary at once. Final work therefore
+follows every consequence of the work pending before it, including work that `LATER` work defers.
 
 ---
 
@@ -921,9 +950,10 @@ They also scale differently, which is part of what each one means:
 - An `X` trigger (L6-5) takes that n as the value of `X` instead of multiplying, so the rule reacts
   once and can speak about the size of what happened.
 
-> **Non-normative example — played events.** The generic event rule's `-This` follows the removal of
-> that exact face-up event into `PlayedEvent<Class<This>>`. A subscription to the card's type could
-> fire once for every matching event-rule bearer instead of closing over the component being removed.
+> **Non-normative example — played events.** The generic event rule's `This` closes over the exact
+> face-up event that it later turns into `PlayedEvent<Class<This>>` (L2-18). A subscription to the
+> card's type could fire once for every matching event-rule bearer instead of closing over the
+> component just played.
 
 **L6-5. `X` before a trigger's expression binds the size of the change.** `X Plant: X Heat` reacts to
 a gain of any number of plants with the same number of heat. A removal is written `-X Plant`.
@@ -1368,15 +1398,15 @@ Thus `GreeneryTile`, `Tharsis_2_2`, `A_foo`, `L1TradeTerminal`, `MC`, and `TOOLO
 > lowercase identifiers and prose labels out.
 
 **L10-2. Keywords are reserved and case-sensitive.** `ABSTRACT`, `BY`, `CLASS`, `COUNT`,
-`DEFAULT`, `EACH`, `EVAL`, `FROM`, `HAS`, `IF`, `MAX`, `NOT`, `OR`, `RANK`, `TASK`, `THEN` and `X`, together
-with the property-value words `Metric`, `Number` and `Requirement`, are the words the grammar itself
+`DEFAULT`, `EACH`, `EVAL`, `FINALLY`, `FROM`, `HAS`, `IF`, `LATER`, `MAX`, `NOT`, `OR`, `RANK`,
+`TASK`, `THEN` and `X`, together with the property-value words `Metric`, `Number` and `Requirement`, are the words the grammar itself
 uses, and none of them may be a class name. Because the reserved spellings are exact, `Max`, `By`
 and `Has` are perfectly good class names.
 
 ```ebnf
-Keyword ::= "ABSTRACT" | "BY" | "CLASS" | "COUNT" | "DEFAULT" | "EACH" | "EVAL"
-          | "FROM" | "HAS" | "IF" | "MAX" | "NOT" | "OR" | "RANK" | "TASK" | "THEN" | "X"
-          | "Metric" | "Number" | "Requirement"
+Keyword ::= "ABSTRACT" | "BY" | "CLASS" | "COUNT" | "DEFAULT" | "EACH" | "EVAL" | "FINALLY"
+          | "FROM" | "HAS" | "IF" | "LATER" | "MAX" | "NOT" | "OR" | "RANK" | "TASK" | "THEN"
+          | "X" | "Metric" | "Number" | "Requirement"
 ```
 
 **L10-3. A property name is lowerCamelCase**: a lowercase letter followed by letters and digits.
@@ -1739,7 +1769,8 @@ PrimaryInstruction    ::= Change                                                
                         | "(" InstructionGroup ")"
 
 Each                  ::= "EACH" PlainExpression "{" InstructionGroup "}"        /* L2-14 */
-TaskDispatch          ::= "TASK" Expression? "{" InstructionGroup "}"            /* L2-17 */
+TaskDispatch          ::= ( "TASK" | "LATER" | "FINALLY" ) Expression?
+                          "{" InstructionGroup "}"                      /* L2-17 to L2-19 */
 
 Change                ::= ElementaryChange ( "/" MetricDifference )?             /* L2-6 */
 ElementaryChange      ::= Gain | Removal | Transmutation                         /* L2-1 */
@@ -1855,8 +1886,8 @@ ClassName     ::= ( [A-Z] [A-Za-z0-9_]* ) - Keyword                             
 TransformKind ::= ( [A-Z] [A-Z0-9_]* ) - Keyword                                       /* L10-4 */
 PropertyName  ::= [a-z] [A-Za-z0-9]*                                                   /* L10-3 */
 Keyword       ::= "ABSTRACT" | "BY" | "CLASS" | "COUNT" | "DEFAULT" | "EACH" | "EVAL"  /* L10-2 */
-                | "FROM" | "HAS" | "IF" | "MAX" | "NOT" | "OR" | "RANK" | "TASK" | "THEN" | "X"
-                | "Metric" | "Number" | "Requirement"
+                | "FINALLY" | "FROM" | "HAS" | "IF" | "LATER" | "MAX" | "NOT" | "OR" | "RANK"
+                | "TASK" | "THEN" | "X" | "Metric" | "Number" | "Requirement"
 Integer       ::= "0" | [1-9] [0-9]*                                                   /* L11-9 */
 QuotedText    ::= '"' [^"]* '"'                                                        /* L11-7 */
 

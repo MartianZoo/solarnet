@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.SystemClasses.DIE
+import dev.martianzoo.pets.ast.Deferral
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
@@ -30,6 +31,7 @@ internal fun newTasks(
     instruction: InstructionGroup,
     cause: Cause?,
     isAbstract: ((Expression) -> Boolean)? = null,
+    deferral: Deferral = Deferral.NONE,
 ): List<Task> {
   var nextOrdinal = firstId.ordinal
   val normalized =
@@ -41,6 +43,7 @@ internal fun newTasks(
             assignee = assignee,
             instruction = it,
             cause = cause,
+            deferral = deferral,
         ),
         isAbstract,
     )
@@ -72,7 +75,7 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
             is NoOp -> NoOp
             else -> tree.copy(body = body)
           }
-      is Instruction.Task ->
+      is Instruction.Dispatch ->
           when (val body = normalizeForTask(tree.body)) {
             is NoOp -> NoOp
             else -> tree.copy(body = body)

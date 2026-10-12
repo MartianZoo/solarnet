@@ -434,6 +434,9 @@ internal constructor(
 
   private fun selectTask(queue: TaskQueue, task: Task): TaskId? {
     enforceSelectLock(task.id)
+    if (task.deferred) {
+      throw TaskException("task ${task.id} is deferred until no earlier work remains: $task")
+    }
     if (task.selected) return task.id
     val resolved = instructor.resolve(task.instruction, worldGainNarrowing = true)
     applyResolution(queue, task, resolved, then = task.then)

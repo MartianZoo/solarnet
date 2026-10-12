@@ -100,7 +100,7 @@ private fun instructionRefusalReason(
       is Instruction.Gated -> RefusalReason.UNSUPPORTED_GATE
       is Instruction.Then -> RefusalReason.UNSUPPORTED_SEQUENCE
       is Instruction.By,
-      is Instruction.Task,
+      is Instruction.Dispatch,
       is Instruction.Transform -> RefusalReason.UNSUPPORTED_INSTRUCTION_KIND
       is NoOp -> error("NoOp is always renderable")
     }
@@ -133,7 +133,7 @@ private fun renderInstruction(
       is NoOp -> doNothingClause
       is Instruction.Transform -> error("Transforms are expanded before ordinary instructions")
       is Instruction.By,
-      is Instruction.Task -> null
+      is Instruction.Dispatch -> null
     }
 
 private fun renderPlayerFanout(

@@ -27,8 +27,7 @@ adjustment or assertion; it is not proof of player consent or an external custod
 - Queued (`:`) effects are suppressed throughout the correction and its derived changes.
 - Every applicable declared count invariant is checked against the completed World. Validation
   rejects an invalid result; it does not repair it.
-- Corrections do not settle pending tasks, perform idle cleanup, or call the gameplay completion
-  callback.
+- Corrections do not settle pending tasks or call the gameplay completion callback.
 - A correction need not enforce game history that is not represented as an invariant. For
   example, arbitrary delegate edits need not reconstruct political leadership, and a corrected
   tile does not grant placement rewards.

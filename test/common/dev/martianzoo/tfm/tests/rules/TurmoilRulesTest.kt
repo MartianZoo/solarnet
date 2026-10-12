@@ -185,10 +185,15 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
     stan.exMachina("Chairman<Stan FROM Neutral>")
     stan
         .inTurn {
-          doTasks("PlayProject<Class<BannedDelegate>>", "BannedDelegate FROM ProjectCard")
+          doTasks(
+              "PlayProject<Class<BannedDelegate>>",
+              "BannedDelegate FROM ProjectCard",
+              "LATER { PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate. }",
+          )
           selectOnlyTask()
           selectTask("BannedDelegateRemoval<Stan, Scientists, Kim>.")
           selectOnlyTask()
+          doTask("PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate")
         }
         .expect("-Delegate<Kim>, 0 LobbyActionAvailable<Kim>")
     shouldThrow<NotNowException> {

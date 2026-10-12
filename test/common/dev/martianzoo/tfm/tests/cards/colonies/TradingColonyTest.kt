@@ -18,7 +18,7 @@ internal class TradingColonyTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("TradeAction", "-MC / Owed<Class<MC>>")
       selectTask("Trade!")
-      doTask("Trade<Europa>")
+      doTasks("Trade<Europa>", "LATER { FinishTrade<Europa> }")
       selectTask("ColonyProduction<Europa>?")
       doTasks("Ok", "PROD[Energy]", "MC")
     }

@@ -387,7 +387,6 @@ internal class TfmWorkflowTest {
     p1.count("TerraformRating") shouldBe 20
     p2.count("TerraformRating") shouldBe 20
     admin.count("VenusSolarPhase") shouldBe 1
-    admin.count("TurmoilSolarOperation") shouldBe 0
 
     p1.doTask("VenusStep! BY Admin")
 

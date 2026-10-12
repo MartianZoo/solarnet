@@ -11,6 +11,7 @@ CLASS TerraformingMars : Module {
   HAS Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>
   HAS Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<VenusSolarPhase>
   HAS Class<ColoniesSolarPhase>, Class<TurmoilSolarPhase>, Class<FinalGreeneryPhase>, Class<End>
+  HAS Class<VictoryPhase>
   HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
 
   This: SellPatentsProject, PowerPlantProject, AsteroidProject, AquiferProject, GreeneryProject, CityProject
@@ -65,8 +66,7 @@ ABSTRACT CLASS GameMode : Module {
     HAS Class<ClaimMilestone>, Class<FundAward>
     This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
 
-    // TODO.md: move final scoring and victory assignment into their real phase boundaries
-    -FinalScoringPending: EACH Me@Player(HAS =1 (RANK Me@Player { VictoryPoint, MC })) { Victory }
+    VictoryPhase: EACH Me@Player(HAS =1 (RANK Me@Player { VictoryPoint, MC })) { Victory }
   }
 }
 
@@ -122,7 +122,7 @@ CLASS AfterMe<Previous@Owner, Next@Player> : System {
   ResearchPhase IF MultiplayerMode, StartToken<Previous@>: StartToken<Next@ FROM Previous@>.
 }
 
-"The current game phase; exactly one exists from bootstrap through the terminal End phase"
+"The current game phase; exactly one exists from bootstrap through the terminal VictoryPhase"
 ABSTRACT CLASS Phase : System, Real {
   HAS =1 Phase
 
@@ -155,10 +155,11 @@ ABSTRACT CLASS Phase : System, Real {
     NewTurn: ConvertPlants?
   }
 
-  "The terminal game phase"
-  CLASS End {
-    This:: FinalScoringPending
-  }
+  "Final scoring"
+  CLASS End
+
+  "The terminal game phase, which names the winner after final scoring has finished"
+  CLASS VictoryPhase
 }
 
 "This is what the engine creates to grant you a 'turn' (note in some phases you get two in a row)"

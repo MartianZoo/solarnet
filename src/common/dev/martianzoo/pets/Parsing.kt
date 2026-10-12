@@ -37,6 +37,7 @@ import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Deferral
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
@@ -554,9 +555,11 @@ public object Parsing {
     private val countKeyword by keyword("COUNT")
     private val eachKeyword by keyword("EACH")
     private val evalKeyword by keyword("EVAL")
+    private val finallyKeyword by keyword("FINALLY")
     private val fromKeyword by keyword("FROM")
     private val hasKeyword by keyword("HAS")
     private val ifKeyword by keyword("IF")
+    private val laterKeyword by keyword("LATER")
     private val maxKeyword by keyword("MAX")
     private val notKeyword by keyword("NOT")
     private val orKeyword by keyword("OR")
@@ -862,18 +865,20 @@ public object Parsing {
             { (selector, body) ->
               Instruction.Each(selector, body)
             }
-    private val taskInstruction by
-        skip(taskKeyword) and
+    private val dispatchInstruction by
+        ((taskKeyword asJust Deferral.NONE) or
+            (laterKeyword asJust Deferral.LATER) or
+            (finallyKeyword asJust Deferral.FINALLY)) and
             optional(expression) and
             skip(lbrace) and
             parser { instructionSyntax } and
             skip(rbrace) map
-            { (actor, body) ->
-              Instruction.Task(actor, body)
+            { (deferral, actor, body) ->
+              Instruction.Dispatch(actor, body, deferral)
             }
     private val instructionPrimary: Parser<InstructionTree> by
         each or
-            taskInstruction or
+            dispatchInstruction or
             instructionTransform or
             perInstruction or
             group(parser { instructionSyntax })

@@ -292,8 +292,10 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$InvestmentLoan>>",
           "$InvestmentLoan FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$InvestmentLoan>> FROM $InvestmentLoan. }",
           "PROD[-MC]",
           "10 MC",
+          "PlayedEvent<Class<$InvestmentLoan>> FROM $InvestmentLoan",
       )
 
       doTasks(
@@ -355,10 +357,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "-4 Titanium",
           "-2 MC",
           "$AsteroidCard FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$AsteroidCard>> FROM $AsteroidCard. }",
           "Ok", // no plants removed
           "TemperatureStep",
           "TerraformRating",
           "2 Titanium",
+          "PlayedEvent<Class<$AsteroidCard>> FROM $AsteroidCard",
       )
     }
 
@@ -413,9 +417,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "-4 MC",
           "Ok", // no titanium paid
           "$ImportedGhg FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$ImportedGhg>> FROM $ImportedGhg. }",
           "PROD[Heat]",
           "7 Heat",
           "3 MC",
+          "PlayedEvent<Class<$ImportedGhg>> FROM $ImportedGhg",
       )
     }
 
@@ -560,11 +566,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "-16 MC",
           "Ok", // no titanium paid
           "$SpinInducingAsteroid FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$SpinInducingAsteroid>> FROM $SpinInducingAsteroid. }",
           "2 VenusStep",
           "2 TerraformRating",
           "ProjectCard",
           "3 MC",
           "3 Heat",
+          "PlayedEvent<Class<$SpinInducingAsteroid>> FROM $SpinInducingAsteroid",
       )
 
       doTasks("Pass")
@@ -605,12 +613,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "-10 MC",
           "Ok", // no titanium paid
           "$SmallAsteroid FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$SmallAsteroid>> FROM $SmallAsteroid. }",
           "-2 Plant<Player2>",
           "TemperatureStep",
           "3 MC",
           "TerraformRating",
           "PROD[Heat]",
           "4 Heat",
+          "PlayedEvent<Class<$SmallAsteroid>> FROM $SmallAsteroid",
       )
     }
 
@@ -996,11 +1006,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$InventionContest>>",
           "$InventionContest FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$InventionContest>> FROM $InventionContest. }",
           "3 ProjectCard<Selecting>",
           "ProjectCard<Hand FROM Selecting>",
           "-2 ProjectCard<Selecting>",
           "-ProjectCard",
           "ProjectCard",
+          "PlayedEvent<Class<$InventionContest>> FROM $InventionContest",
       )
     }
 
@@ -1044,9 +1056,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$ProjectInspection>>",
           "$ProjectInspection FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$ProjectInspection>> FROM $ProjectInspection. }",
           "UseAction<$DevelopmentCenter, Action1>",
           "-1 Energy",
           "ProjectCard",
+          "PlayedEvent<Class<$ProjectInspection>> FROM $ProjectInspection",
       )
     }
 
@@ -1382,6 +1396,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "-5 Titanium",
           "-9 MC",
           "$DeimosDownPromo FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$DeimosDownPromo>> FROM $DeimosDownPromo. }",
           "3 TemperatureStep",
           "OceanTile<Tharsis_6_7>",
           "DeimosDownPromo_SpecialTile<Tharsis_2_5>",
@@ -1390,6 +1405,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "3 Plant",
           "4 TerraformRating",
           "6 MC",
+          "PlayedEvent<Class<$DeimosDownPromo>> FROM $DeimosDownPromo",
       )
       doTasks(
           "UseCardAction<$AiCentral, Action1>",
@@ -1490,8 +1506,10 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "PlayProject<Class<$Harvest>>",
           "-2 MC",
           "$Harvest FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$Harvest>> FROM $Harvest. }",
           "Animal<$EcologicalZone>",
           "12 MC",
+          "PlayedEvent<Class<$Harvest>> FROM $Harvest",
       )
     }
 
@@ -1569,10 +1587,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "-1 Titanium",
           "-4 MC",
           "$WaterToVenus FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$WaterToVenus>> FROM $WaterToVenus. }",
           "VenusStep",
           "TerraformRating",
           "3 MC",
           "3 Heat",
+          "PlayedEvent<Class<$WaterToVenus>> FROM $WaterToVenus",
       )
     }
 
@@ -1676,7 +1696,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$HiredRaiders>>",
           "$HiredRaiders FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders. }",
           "2 Steel FROM Steel<Player1>",
+          "PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders",
       )
       doTasks(
           "ConvertHeat",
@@ -1794,12 +1816,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "-1 Titanium",
           "-26 MC",
           "$NitrogenRichAsteroid FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$NitrogenRichAsteroid>> FROM $NitrogenRichAsteroid. }",
           "PROD[4 Plant]",
           "2 TerraformRating",
           "Ok", // temperature maxed
           "3 MC",
           "3 Heat",
           "4 Plant",
+          "PlayedEvent<Class<$NitrogenRichAsteroid>> FROM $NitrogenRichAsteroid",
       )
 
       doTasks("ConvertPlants", "-8 Plant")
@@ -1974,12 +1998,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "-1 Titanium",
           "-15 MC",
           "$ImportedNitrogen FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$ImportedNitrogen>> FROM $ImportedNitrogen. }",
           "3 Microbe<$VenusianInsects>",
           "2 Animal<$StratosphericBirds>",
           "TerraformRating",
           "4 Plant",
           "3 MC",
           "3 Heat",
+          "PlayedEvent<Class<$ImportedNitrogen>> FROM $ImportedNitrogen",
       )
       doTasks(
           "UseCardAction<$DevelopmentCenter, Action1>",
@@ -2026,12 +2052,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "PlayProject<Class<$MiningExpedition>>",
           "-10 MC",
           "$MiningExpedition FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$MiningExpedition>> FROM $MiningExpedition. }",
           "-2 Plant<Player1>",
           "OxygenStep",
           "TerraformRating",
           "2 Steel",
           "3 MC",
           "Ok", // temperature maxed
+          "PlayedEvent<Class<$MiningExpedition>> FROM $MiningExpedition",
       )
     }
 
@@ -2158,11 +2186,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "-4 Titanium",
           "-1 MC",
           "$TowingAComet FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$TowingAComet>> FROM $TowingAComet. }",
           "OceanTile<Tharsis_6_8>",
           "5 Plant",
           "OxygenStep",
           "2 TerraformRating",
           "5 MC",
+          "PlayedEvent<Class<$TowingAComet>> FROM $TowingAComet",
       )
     }
 
@@ -2200,11 +2230,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "-31 MC",
           "Ok", // no titanium paid
           "$LargeConvoy FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$LargeConvoy>> FROM $LargeConvoy. }",
           "4 Animal<$StratosphericBirds>",
           "Ok", // oceans full
           "2 ProjectCard",
           "3 MC",
           "3 Heat",
+          "PlayedEvent<Class<$LargeConvoy>> FROM $LargeConvoy",
       )
 
       doTasks(

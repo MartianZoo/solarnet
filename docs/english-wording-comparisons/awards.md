@@ -336,8 +336,7 @@ Pets declaration:
 ```pets
 CLASS Politician : Award {
   metric = COUNT "PartyLeader OR Influence"
-  MeasureAward<This>:: EACH Measured@Influence<Anyone> { -Measured@Influence! }
-  MeasureAward<This>:: EACH Scored@Player { MeasureInfluence<Scored@Player> }
+  End:: EACH Scored@Player { MeasureInfluence<Scored@Player> }
 }
 ```
 

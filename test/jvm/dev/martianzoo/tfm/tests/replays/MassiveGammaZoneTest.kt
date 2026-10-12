@@ -212,7 +212,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       admin.autoExecPolicy = CONCRETE
       try {
         doTask("-OceanTile<Tharsis_2_6>")
-        val resourceChoices = game.tasks.extract { it }
+        val resourceChoices = game.tasks.extract { it }.filterNot { it.deferred }
         doTask("Titanium", resourceChoices[0].id)
         doTask("Heat", resourceChoices[1].id)
       } finally {
@@ -533,7 +533,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       convertPlants { placeTile(2, 3) }
       declineTask() // Decline another final greenery with only 5 plants remaining.
       assertCounts(0 to "ProjectCard")
-      admin.assertCounts(1 to "End", 1 to "Phase")
+      admin.assertCounts(1 to "VictoryPhase", 1 to "Phase")
 
       // Player-record evidence: complete final dashboard and score table.
       assertResources(m = 124, s = 4, t = 2, p = 5, e = 0, h = 27)

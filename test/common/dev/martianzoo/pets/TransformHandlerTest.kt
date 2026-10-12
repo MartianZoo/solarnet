@@ -56,8 +56,8 @@ internal class TransformHandlerTest {
   internal fun unregisteredTransformIsLeftForALaterPass() {
     val dispatcher = TransformHandler.dispatcher(emptyMap())
 
-    dispatcher.transformInstructionTree(parse<InstructionTree>("LATER[Inside]")).toString() shouldBe
-        "LATER[Inside]"
+    dispatcher.transformInstructionTree(parse<InstructionTree>("DELAY[Inside]")).toString() shouldBe
+        "DELAY[Inside]"
   }
 
   @Test

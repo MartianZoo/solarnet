@@ -42,8 +42,13 @@ internal class SolarProbeTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<SolarProbe>>", "-9 MC")
           selectTask("-X Titanium?")
-          doTasks("Ok", "SolarProbe FROM ProjectCard")
+          doTasks(
+              "Ok",
+              "SolarProbe FROM ProjectCard",
+              "LATER { PlayedEvent<Class<SolarProbe>> FROM SolarProbe. }",
+          )
           selectOnlyTask()
+          doTask("PlayedEvent<Class<$SolarProbe>> FROM $SolarProbe")
         }
         .expect("0 ProjectCard")
 

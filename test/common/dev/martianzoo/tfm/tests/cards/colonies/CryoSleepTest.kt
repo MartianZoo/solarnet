@@ -15,7 +15,7 @@ internal class CryoSleepTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("TradeAction<Action1>", "-MC / Owed<Class<MC>>")
           selectTask("Trade!")
-          doTasks("Trade<Io>", "3 Heat")
+          doTasks("Trade<Io>", "LATER { FinishTrade<Io> }", "3 Heat")
         }
         .expect("-8 MC, 3 Heat")
   }
@@ -26,7 +26,13 @@ internal class CryoSleepTest : TfmSandboxTest() {
     kim.setToExMachina(2, "Energy")
 
     kim.inTurn {
-      doTasks("TradeAction<Action2>", "-2 Energy", "Trade<Io>", "3 Heat")
+      doTasks(
+          "TradeAction<Action2>",
+          "-2 Energy",
+          "Trade<Io>",
+          "LATER { FinishTrade<Io> }",
+          "3 Heat",
+      )
     }
   }
 
@@ -37,7 +43,7 @@ internal class CryoSleepTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("TradeAction<Action1>", "-MC / Owed<Class<MC>>")
           selectTask("Trade!")
-          doTasks("Trade<Io>", "3 Heat")
+          doTasks("Trade<Io>", "LATER { FinishTrade<Io> }", "3 Heat")
         }
         .expect("-7 MC, 3 Heat")
   }

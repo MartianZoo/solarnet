@@ -28,7 +28,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
         selectTask("-X Titanium?")
         selectTask("Ok")
-        doTask("L1TradeTerminal FROM ProjectCard")
+        doTasks("L1TradeTerminal FROM ProjectCard", "LATER { -L1GiftWatcher! }")
         selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         doTasks("Floater<AerialMappers>", "Floater<FloatingRefinery>")
         selectTask("Floater<CloudTourism>?")
@@ -44,7 +44,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
         selectTask("-X Titanium?")
         selectTask("Ok")
-        doTask("L1TradeTerminal FROM ProjectCard")
+        doTasks("L1TradeTerminal FROM ProjectCard", "LATER { -L1GiftWatcher! }")
         selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         doTasks("Floater<AerialMappers>", "Floater<FloatingRefinery>", "Floater<CloudTourism>")
         selectTask("Floater<FloatingHabs>?")
@@ -58,6 +58,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
               "PlayProject<Class<L1TradeTerminal>>",
               "-25 MC",
               "L1TradeTerminal FROM ProjectCard",
+              "LATER { -L1GiftWatcher! }",
           )
           selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
           shouldThrow<TaskException> {
@@ -88,7 +89,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
         selectTask("-X Titanium?")
         selectTask("Ok")
-        doTask("L1TradeTerminal FROM ProjectCard")
+        doTasks("L1TradeTerminal FROM ProjectCard", "LATER { -L1GiftWatcher! }")
         selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         doTask("Ok")
       }
@@ -97,7 +98,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
       selectTask("-X Titanium?")
-      doTasks("Ok", "L1TradeTerminal FROM ProjectCard")
+      doTasks("Ok", "L1TradeTerminal FROM ProjectCard", "LATER { -L1GiftWatcher! }")
       selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
       doTask("Floater<FloatingHabs>")
     }
@@ -118,7 +119,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
         selectTask("-X Titanium?")
         selectTask("Ok")
-        doTask("L1TradeTerminal FROM ProjectCard")
+        doTasks("L1TradeTerminal FROM ProjectCard", "LATER { -L1GiftWatcher! }")
         selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         doTasks("Floater<FloatingHabs>", "Microbe<VenusianInsects>")
         selectOnlyTask()
@@ -129,7 +130,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
       selectTask("-X Titanium?")
-      doTasks("Ok", "L1TradeTerminal FROM ProjectCard")
+      doTasks("Ok", "L1TradeTerminal FROM ProjectCard", "LATER { -L1GiftWatcher! }")
       selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
       doTasks("Floater<FloatingHabs>", "Microbe<VenusianInsects>")
       selectOnlyTask()
@@ -152,7 +153,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
         selectTask("-X Titanium?")
         selectTask("Ok")
-        doTask("L1TradeTerminal FROM ProjectCard")
+        doTasks("L1TradeTerminal FROM ProjectCard", "LATER { -L1GiftWatcher! }")
         selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         doTask("Floater<FloatingHabs>")
         selectOnlyTask()
@@ -167,7 +168,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
         selectTask("-X Titanium?")
         selectTask("Ok")
-        doTask("L1TradeTerminal FROM ProjectCard")
+        doTasks("L1TradeTerminal FROM ProjectCard", "LATER { -L1GiftWatcher! }")
         selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         doTask("Floater<FloatingHabs>")
         selectOnlyTask()
@@ -178,7 +179,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
           selectTask("-X Titanium?")
-          doTasks("Ok", "L1TradeTerminal FROM ProjectCard")
+          doTasks("Ok", "L1TradeTerminal FROM ProjectCard", "LATER { -L1GiftWatcher! }")
           selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
           doTask("Floater<FloatingHabs>")
           selectOnlyTask()
@@ -195,7 +196,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
           selectTask("-X Titanium?")
-          doTasks("Ok", "L1TradeTerminal FROM ProjectCard")
+          doTasks("Ok", "L1TradeTerminal FROM ProjectCard", "LATER { -L1GiftWatcher! }")
           selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         }
         .expect("0 Floater<Stan, $FloatingTradeHub<Stan>>")

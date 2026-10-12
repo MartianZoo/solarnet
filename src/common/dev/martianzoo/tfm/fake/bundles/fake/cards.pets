@@ -1,8 +1,12 @@
 "An inert stand-in for a printed wild tag"
 CLASS FakeWildTag : Cardbound
 
-"A temporary holder for tags supplied by a replay"
-CLASS FakeWildTagUse : TagHolder, Temporary { HAS MAX 1 This }
+"A holder for tags supplied by a replay, removed after its owner's next action or Prelude play"
+CLASS FakeWildTagUse : TagHolder {
+  HAS MAX 1 This
+  StandardAction: LATER { -This. }
+  PlayPrelude: LATER { -This. }
+}
 
 CLASS FakeResearchNetwork : CardFront<Class<PreludeCard>> {
   cost = 0

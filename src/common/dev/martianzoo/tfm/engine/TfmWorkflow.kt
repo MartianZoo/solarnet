@@ -89,6 +89,9 @@ public object TfmWorkflow {
 
     /** Replaces the current phase with End and returns the resulting operation result. */
     public fun endPhase(): TaskResult = adminOps.runOperation("End FROM Phase")
+
+    /** Replaces End, once final scoring has finished, with the terminal VictoryPhase. */
+    public fun victoryPhase(): TaskResult = adminOps.runOperation("VictoryPhase FROM Phase")
   }
 
   /**
@@ -190,6 +193,7 @@ public object TfmWorkflow {
       }
       finalGreeneryPhase()
       m.endPhase()
+      m.victoryPhase()
     }
 
     private suspend fun corporationPhase() {

@@ -23,8 +23,10 @@ internal class DiversitySupportTest : TfmSandboxTest() {
           "PlayProject<Class<DiversitySupport>>",
           "-1 MC",
           "DiversitySupport FROM ProjectCard",
+          "LATER { PlayedEvent<Class<DiversitySupport>> FROM DiversitySupport. }",
           "TerraformRating",
       )
+      doTask("PlayedEvent<Class<DiversitySupport>> FROM DiversitySupport")
     }
   }
 

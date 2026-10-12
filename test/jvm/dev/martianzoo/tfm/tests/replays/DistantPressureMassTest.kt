@@ -714,7 +714,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
     been.declineTask()
     keen.assertCounts(1 to "ProjectCard")
     been.assertCounts(0 to "ProjectCard")
-    admin.assertCounts(1 to "End", 1 to "Phase")
+    admin.assertCounts(1 to "VictoryPhase", 1 to "Phase")
 
     keen.assertCounts(47 to "TerraformRating", 117 to "VictoryPoint", 1 to "Victory")
     been.assertCounts(45 to "TerraformRating", 99 to "VictoryPoint", 0 to "Victory")

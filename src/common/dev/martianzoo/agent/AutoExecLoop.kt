@@ -32,7 +32,7 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
     val selected = allTasks.selectedTask()
     val candidates =
         selected?.let(::listOf)
-            ?: allTasks.ids().let { pending ->
+            ?: allTasks.ids().filterNot(::isDeferred).let { pending ->
               // A sole task has no competing choice. Selection still validates its execution,
               // and the enclosing Agent transaction rolls back any failure.
               if (pending.size == 1) pending.toList() else pending.filter(::canSelectTask)
@@ -54,7 +54,7 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
       0 -> {
         val taskId =
             allTasks.ids().firstOrNull { taskId ->
-              policy(taskId) != NONE
+              policy(taskId) != NONE && !isDeferred(taskId)
             } ?: return false
         if (selected != null || candidates.isNotEmpty()) return false
         command(taskId) { engineFor(taskId).doTask(taskId) }
@@ -95,6 +95,8 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
   }
 
   private fun canSelectTask(taskId: TaskId): Boolean = engineFor(taskId).canSelectTask(taskId)
+
+  private fun isDeferred(taskId: TaskId): Boolean = allTasks.getTaskData(taskId).deferred
 
   private fun <T> command(taskId: TaskId, block: () -> T): T {
     val task = allTasks.getTaskData(taskId)

@@ -689,24 +689,21 @@ internal class EnglishTest {
 
   @Test
   internal fun tracksAStandaloneUnsupportedTriggeredInstruction() {
-    val effect = parse<Effect>("Trade<ColonyTile>:: TradeBarrier<ColonyTile>")
+    val effect = parse<Effect>("Trade<ColonyTile>:: PlutoLock")
     val rendering =
         renderEffect(
             effect,
             Describers(Canon.classTable, TerraformingMarsDescribers.descriptions),
         )
 
-    rendering.linearize() shouldBe "When you trade, [TradeBarrier<ColonyTile>]."
+    rendering.linearize() shouldBe "When you trade, [PlutoLock]."
     rendering.unresolved().map { it.node.toString() to it.reason } shouldBe
-        listOf("TradeBarrier<ColonyTile>" to RefusalReason.UNKNOWN_CHANGE_FRAME)
+        listOf("PlutoLock" to RefusalReason.UNKNOWN_CHANGE_FRAME)
   }
 
   @Test
   internal fun refusesACompoundTriggeredInstructionWithUnsupportedPartsAsAUnit() {
-    val effect =
-        parse<Effect>(
-            "Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier<ColonyTile>"
-        )
+    val effect = parse<Effect>("Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -PlutoLock")
     val rendering =
         renderEffect(
             effect,
@@ -714,7 +711,7 @@ internal class EnglishTest {
         )
 
     rendering.linearize() shouldBe
-        "[Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier<ColonyTile>]."
+        "[Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -PlutoLock]."
     rendering.unresolved().map { it.node.toString() to it.reason } shouldBe
         listOf(effect.toString() to RefusalReason.UNSUPPORTED_EFFECT_TRIGGER)
   }

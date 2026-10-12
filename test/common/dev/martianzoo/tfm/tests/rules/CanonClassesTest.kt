@@ -69,7 +69,6 @@ internal class CanonClassesTest {
     assertNamedIntersection("OwnedOccupant", "Owned", "Occupant")
     assertNamedIntersection("OwnedTile", "Owned", "Tile")
     assertNamedIntersection("ResourceCard", "ResourceHolder", "CardFront")
-    assertNamedIntersection("TemporaryScope", "Temporary", "Scope")
   }
 
   @Test

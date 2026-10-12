@@ -82,9 +82,11 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           "PlayProject<Class<HiredRaiders>>",
           "-1 MC",
           "HiredRaiders FROM ProjectCard",
+          "LATER { PlayedEvent<Class<HiredRaiders>> FROM HiredRaiders. }",
           "2 Steel<Stan FROM Rob>",
       )
       kim.doTask("3 MC<Rob FROM Kim>")
+      doTask("PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders")
     }
   }
 
@@ -102,7 +104,10 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
                 "PlayCard<Class<ProjectCard>, Class<AsteroidCard>>",
             )
             selectTask("-25 Owed.")
-            doTask("AsteroidCard FROM ProjectCard")
+            doTasks(
+                "AsteroidCard FROM ProjectCard",
+                "LATER { PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard. }",
+            )
             selectTask("TemperatureStep.")
             doTasks("2 Titanium", "TerraformRating")
             selectTask("-X MC?")
@@ -110,6 +115,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
             selectTask("-X Titanium?")
             doTasks("Ok", "-Plant<Stan>")
             selectOnlyTask()
+            doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
           }
           .expect("-Plant<Stan>, -3 MC<Kim>, 3 MC<Stan>")
     }
@@ -165,9 +171,11 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           "PlayProject<Class<$HiredRaiders>>",
           "-MC",
           "$HiredRaiders FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders. }",
           "2 Steel<Stan FROM Rob>",
       )
       kim.doTask("2 MC<Rob FROM Kim>")
+      doTask("PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders")
     }
   }
 
@@ -196,11 +204,16 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
           selectTask("-X Titanium?")
-          doTasks("Ok", "AsteroidCard FROM ProjectCard")
+          doTasks(
+              "Ok",
+              "AsteroidCard FROM ProjectCard",
+              "LATER { PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard. }",
+          )
           selectTask("TemperatureStep.")
           doTasks("2 Titanium", "TerraformRating")
           selectTask("-3 Plant<Anyone>?")
           doTask("Ok")
+          doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
         }
         .expect("0 Plant<Stan>, 0 MC<Stan>")
   }
@@ -215,11 +228,13 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
               "PlayProject<Class<HiredRaiders>>",
               "-1 MC",
               "HiredRaiders FROM ProjectCard",
+              "LATER { PlayedEvent<Class<HiredRaiders>> FROM HiredRaiders. }",
               "3 MC<Kim FROM SoloOpponent>",
           )
           selectTask("3 MC<SoloOpponent>! BY Admin")
           selectOnlyTask()
           selectOnlyTask()
+          doTask("PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders")
         }
         .expect("-1 MC<Kim>")
   }
@@ -234,9 +249,14 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
         .inTurn {
           doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
           selectTask("-X Titanium?")
-          doTasks("Ok", "AsteroidCard FROM ProjectCard")
+          doTasks(
+              "Ok",
+              "AsteroidCard FROM ProjectCard",
+              "LATER { PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard. }",
+          )
           selectTask("TemperatureStep.")
           doTasks("2 Titanium", "TerraformRating", "-Plant<Kim>")
+          doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
         }
         .expect("0 MC<Kim>")
   }

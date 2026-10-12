@@ -16,11 +16,13 @@ internal class InterplanetaryTradeTest : TfmSandboxTest() {
       doTasks(
           "Ok",
           "ImportedHydrogen FROM ProjectCard",
+          "LATER { PlayedEvent<Class<ImportedHydrogen>> FROM ImportedHydrogen. }",
           "3 Plant",
           "OceanTile<Tharsis_1_2>",
           "TerraformRating",
           "2 Steel",
       )
+      doTask("PlayedEvent<Class<ImportedHydrogen>> FROM ImportedHydrogen")
     }
 
     kim.inTurn {

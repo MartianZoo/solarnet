@@ -15,8 +15,15 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<ImportedGhg>>", "-5 MC")
           selectTask("-X Titanium?")
-          doTasks("Ok", "ImportedGhg FROM ProjectCard", "PROD[Heat]", "3 Heat")
+          doTasks(
+              "Ok",
+              "ImportedGhg FROM ProjectCard",
+              "LATER { PlayedEvent<Class<ImportedGhg>> FROM ImportedGhg. }",
+              "PROD[Heat]",
+              "3 Heat",
+          )
           selectTask("ProjectCard<Kim, Hand>!")
+          doTask("PlayedEvent<Class<ImportedGhg>> FROM ImportedGhg")
         }
         .expect("0 ProjectCard")
   }
@@ -31,9 +38,11 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
           "-5 MC",
           "Ok", // No titanium paid.
           "$TechnologyDemonstration FROM ProjectCard",
+          "LATER { PlayedEvent<Class<$TechnologyDemonstration>> FROM $TechnologyDemonstration. }",
           "2 ProjectCard",
       )
       kim.doTask("ProjectCard")
+      doTask("PlayedEvent<Class<$TechnologyDemonstration>> FROM $TechnologyDemonstration")
     }
   }
 }

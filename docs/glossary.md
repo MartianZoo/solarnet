@@ -137,7 +137,6 @@
 - **task id:**
 - **task queue:** The one stored, unordered set of pending tasks in a game world. Every task records its assignee; Actor-specific queues are filtered views of that set. Enumeration order has no gameplay meaning.
 - **task result:** The change events and newly spawned task ids returned by a successful operation.
-- **TemporaryScope:** A Scope depending on a parent Scope that the engine removes after queued work and dependent mandatory cleanup finish.
 - **This:** A built-in contextual binding. In a class declaration it remains late-bound through inheritance and is fixed from the exact context Component; in an effect trigger it denotes that Component's own gain or removal event.
 - **transmutation:** One state change that removes copies of one type and gains the same number of another without exposing an intermediate state.
 - **trigger:** The part of an effect that selects the state changes to which it responds.

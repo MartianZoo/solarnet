@@ -48,7 +48,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks("TradeAction<Action1>", "-9 MC")
       run {
-        doTasks("Trade<Enceladus>", "Microbe<$RegolithEaters>")
+        doTasks("Trade<Enceladus>", "LATER { FinishTrade<Enceladus> }", "Microbe<$RegolithEaters>")
         kim.selectTask("Microbe<Kim>.")
         kim.doTask("Microbe<$NitriteReducingBacteria>")
       }
@@ -72,7 +72,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks("TradeAction<Action2>", "-Energy / Owed<Class<Energy>>")
       selectOnlyTask()
-      doTask("Trade<Pluto>")
+      doTasks("Trade<Pluto>", "LATER { FinishTrade<Pluto> }")
       selectTask("ProjectCard<Stan, Hand>!")
       kim.selectTask("ProjectCard<Kim, Hand>!")
       kim.selectTask("-ProjectCard<Kim, Hand>!")
@@ -107,7 +107,13 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     kim.setToExMachina(0, "ProjectCard")
 
     stan.beginOperation("NewTurn")
-    stan.doTasks("TradeAction<Action2>", "-3 Energy", "Trade<Pluto>", "2 ProjectCard")
+    stan.doTasks(
+        "TradeAction<Action2>",
+        "-3 Energy",
+        "Trade<Pluto>",
+        "LATER { FinishTrade<Pluto> }",
+        "2 ProjectCard",
+    )
     kim.doTask("ProjectCard<Kim>")
     shouldThrow<TaskException> { stan.doTask("ProjectCard<Kim>") }
     kim.count("ProjectCard") shouldBe 1
@@ -163,7 +169,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
         .inTurn {
           doTasks("TradeAction<Action2>", "-Energy / Owed<Class<Energy>>")
           selectOnlyTask()
-          doTask("Trade<Enceladus>")
+          doTasks("Trade<Enceladus>", "LATER { FinishTrade<Enceladus> }")
           selectOnlyTask()
         }
         .expect("0 Microbe<Anyone>")
@@ -215,7 +221,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks("TradeAction<Action2>", "-Energy / Owed<Class<Energy>>")
       selectOnlyTask()
-      doTasks("Trade<Titan>", "Floater<Dirigibles>")
+      doTasks("Trade<Titan>", "LATER { FinishTrade<Titan> }", "Floater<Dirigibles>")
       kim.selectTask("Floater<Kim>.")
       kim.doTask("Floater<ForcedPrecipitation>.")
       kim.selectTask("Floater<Kim>.")

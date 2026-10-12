@@ -309,10 +309,10 @@ public abstract class PetTransformer protected constructor() {
                     transformExpression(node.selector),
                     transformInstructionTree(node.body),
                 )
-            is Instruction.Task ->
-                Instruction.Task(
-                    node.actor?.let(::transformExpression),
-                    transformInstructionTree(node.body),
+            is Instruction.Dispatch ->
+                node.copy(
+                    actor = node.actor?.let(::transformExpression),
+                    body = transformInstructionTree(node.body),
                 )
             is Instruction.Or -> Instruction.Or.createTree(trees(node.instructions))
             is Instruction.Transform ->

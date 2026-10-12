@@ -7,12 +7,9 @@ import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
-import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
-import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
@@ -20,7 +17,6 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.ModuleProperties.PREMISE_REQUIREMENT
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.state.Actor
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.CustomClass
 import dev.martianzoo.state.GameReader
@@ -90,7 +86,6 @@ public object Engine {
             timeline,
             { world.onTransactionComplete() },
             recordingPositions,
-            ::removeTemporaryComponent,
         )
     private val instructor =
         Instructor(reader, limiter, changer, effector, classTable, elaborator, timeline)
@@ -178,33 +173,6 @@ public object Engine {
           if (unexpected.isNotEmpty()) append("; unexpected: ${unexpected.joinToString()}")
         }
       }
-    }
-
-    /**
-     * Removes all copies of one eligible concrete `Temporary` Type.
-     *
-     * Cleanup is offered only while the whole task pool is empty. A Type is ineligible while any
-     * direct or indirect dependent is itself `Temporary` or `MustCleanUp`, which makes nested
-     * lifetimes retire from the inside out. Returning after one Type lets transaction settlement
-     * process removal effects and re-read both tasks and dependencies before the next attempt.
-     */
-    private fun removeTemporaryComponent(): Boolean {
-      if (!gameWorld.tasks.isEmpty()) return false
-      val temporary = classTable.getClass(TEMPORARY).baseType
-      val temporaryComponents = reader.getComponents(temporary)
-      if (temporaryComponents.isEmpty()) return false
-
-      val mustCleanUp = classTable.getClass(MUST_CLEAN_UP).baseType
-      val type =
-          temporaryComponents.elements.firstOrNull { type ->
-            !gameWorld.components.hasDependentMatching(type, mustCleanUp, reader) &&
-                !gameWorld.components.hasDependentMatching(type, temporary, reader)
-          } ?: return false
-
-      instructor
-          .execute(remove(type, reader.countComponent(type)), cause = null, actor = ADMIN)
-          .forEach(taskQueues::addTasks)
-      return true
     }
 
     private fun validatePremise(classTable: ClassTable) {

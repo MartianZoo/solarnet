@@ -112,13 +112,16 @@ public interface Agent {
   public fun selectTask(taskId: TaskId): TaskResult
 
   /**
-   * Selects this Actor's sole pending task by id, using [selectTask]'s resolution and handoff
-   * rules. When [x] is supplied, binds the task's X scalars to that value before selection, using
-   * [Task.bindXTo] and [selectTask]'s narrowing rules. Otherwise selects without narrowing. Throws
-   * [TaskException] without changing the World if this Actor has no pending task or more than one.
+   * Selects this Actor's sole pending task that is not [deferred][Task.deferred], using
+   * [selectTask]'s resolution and handoff rules. When [x] is supplied, binds the task's X scalars
+   * to that value before selection, using [Task.bindXTo] and [selectTask]'s narrowing rules.
+   * Otherwise selects without narrowing. Throws [TaskException] without changing the World if this
+   * Actor has no such task or more than one.
    */
   public fun selectOnlyTask(x: Int? = null): TaskResult {
-    val id = tasks.ids().singleOrNull() ?: throw TaskException("Expected exactly one pending task")
+    val id =
+        tasks.matching { !it.deferred }.singleOrNull()
+            ?: throw TaskException("Expected exactly one pending task that is not deferred")
     return if (x == null) selectTask(id) else selectTask(tasks.getTaskData(id).bindXTo(x))
   }
 

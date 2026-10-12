@@ -20,8 +20,10 @@ internal class HiredRaidersTest : TfmSandboxTest() {
               "PlayProject<Class<HiredRaiders>>",
               "-1 MC",
               "HiredRaiders FROM ProjectCard",
+              "LATER { PlayedEvent<Class<HiredRaiders>> FROM HiredRaiders. }",
               "3 MC<Kim FROM Stan>",
           )
+          doTask("PlayedEvent<Class<HiredRaiders>> FROM HiredRaiders")
         }
         .expect("0 Steel<Kim>")
   }
@@ -37,7 +39,11 @@ internal class HiredRaidersTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("PlayProject<Class<HiredRaiders>>")
         selectTask("-X MC?")
-        doTasks("-1 MC", "HiredRaiders FROM ProjectCard")
+        doTasks(
+            "-1 MC",
+            "HiredRaiders FROM ProjectCard",
+            "LATER { PlayedEvent<Class<HiredRaiders>> FROM HiredRaiders. }",
+        )
         selectOnlyTask()
         doTask("Ok")
       }
@@ -55,8 +61,10 @@ internal class HiredRaidersTest : TfmSandboxTest() {
               "PlayProject<Class<HiredRaiders>>",
               "-1 MC",
               "HiredRaiders FROM ProjectCard",
+              "LATER { PlayedEvent<Class<HiredRaiders>> FROM HiredRaiders. }",
               "Steel<Kim FROM Rob>",
           )
+          doTask("PlayedEvent<Class<HiredRaiders>> FROM HiredRaiders")
         }
         .expect("0 Steel<Stan>")
   }

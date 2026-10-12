@@ -440,12 +440,19 @@ public sealed class Instruction : InstructionTree() {
   }
 
   /**
-   * Dispatches [body] as unresolved work for a fixed [actor] under rule L2-17. The body may stay
-   * abstract. A missing recipient is filled from lexical `Me`, or Admin, during elaboration.
+   * `TASK`, `LATER`, or `FINALLY`: dispatches [body] as unresolved work for a fixed [actor], with
+   * the given [deferral] ([rules L2-17 to
+   * L2-19](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
+   * The body may stay abstract. A missing recipient is filled from lexical `Me`, or Admin, during
+   * elaboration.
    */
-  public data class Task(val actor: Expression?, val body: InstructionTree) : Instruction() {
+  public data class Dispatch(
+      val actor: Expression?,
+      val body: InstructionTree,
+      val deferral: Deferral = Deferral.NONE,
+  ) : Instruction() {
     init {
-      if (body == NoOp) throw PetSyntaxException("`TASK` requires a non-`Ok` body")
+      if (body == NoOp) throw PetSyntaxException("`${deferral.keyword}` requires a non-`Ok` body")
     }
 
     override fun visitChildren(visitor: Visitor) {
@@ -458,8 +465,9 @@ public sealed class Instruction : InstructionTree() {
     override fun isAbstract(info: TypeInfo): Boolean = actor?.isAbstract(info) != false
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      proposed as? Task
-          ?: throw NarrowingException("`$proposed` does not preserve task recipient `$actor`")
+      if (proposed !is Dispatch || proposed.deferral != deferral) {
+        throw NarrowingException("`$proposed` does not preserve `${deferral.keyword}` to `$actor`")
+      }
       if (proposed.actor != actor) {
         throw NarrowingException("cannot change task recipient `$actor` to `${proposed.actor}`")
       }
@@ -470,7 +478,7 @@ public sealed class Instruction : InstructionTree() {
       }
     }
 
-    override fun toString(): String = "TASK${actor?.let { " $it" } ?: ""} { $body }"
+    override fun toString(): String = "${deferral.keyword}${actor?.let { " $it" } ?: ""} { $body }"
   }
 
   /**
@@ -612,7 +620,7 @@ public sealed class Instruction : InstructionTree() {
       // Every left operand must remain one task and cannot itself contain an enqueue sequence.
       if (
           stages.any {
-            it !is Task &&
+            it !is Dispatch &&
                 (it.descendantsOfType<InstructionGroup>().any() ||
                     it.descendantsOfType<Then>().any())
           }

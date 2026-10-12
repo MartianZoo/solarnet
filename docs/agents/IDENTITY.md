@@ -146,8 +146,8 @@ dispatch work to a different recipient. This classification is
 independent of `Real`, which controls presentation, and `::`, which preserves an invariant within
 the initiating operation.
 
-Card-purchase, requirement, global-parameter-status, solo-countdown, dominance, and colony
-`TradeBarrier` bookkeeping use `System` for their concrete changes.
+Card-purchase, requirement, global-parameter-status, solo-countdown, and dominance bookkeeping use
+`System` for their concrete changes.
 
 ### Deferred System classifications
 

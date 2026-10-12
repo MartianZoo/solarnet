@@ -30,16 +30,17 @@ after review. **Selected** means the direction is chosen while some design remai
    [action identity and invocation](docs/agents/ACTIONS.md),
    [turns and turn offers](docs/agents/SEQUENCING.md#turns-and-turn-offers), including
    the Head Start variant, [on-turn identity and routing](docs/agents/IDENTITY.md#who-is-on-turn-and-who-decides),
-   and [task priority](docs/agents/SEQUENCING.md#task-priority-working-direction). Ordering delegated
+   and [deferred work](docs/agents/SEQUENCING.md#deferred-work). Ordering delegated
    responses and their payments remains open; see [completion](docs/agents/SEQUENCING.md#the-missing-rule-when-an-operation-is-over)
    and [payment gaps](docs/agents/PAYMENTS.md#verified-gaps).
 
 2. **Make the game advance through authored rules instead of a mirrored Kotlin workflow.**
    **Selected.** Phase order, player rotation, setup, expansion phases, final greenery, scoring, and
-   victory should arise from live game components and ordinary engine scheduling. The working
-   direction makes the next turn or phase P3 work in the
-   [task priority](docs/agents/SEQUENCING.md#task-priority-working-direction) bands, selectable
-   only after all other work and its settlement finish. The `workflow` branch removed the
+   victory should arise from live game components and ordinary engine scheduling.
+   [Deferred work](docs/agents/SEQUENCING.md#deferred-work) settles work within an operation, and
+   `FINALLY` work, which waits for everything else including `LATER` work, carries the next turn or
+   phase. `TfmWorkflow` is to be deleted rather than kept as Terraforming Mars-specific Kotlin. The
+   `workflow` branch removed the
    coroutine-owned phase sequence but is not intended to land. It measured the cost of representing
    deferred work as components: per-rule mode guards, continuation components, and a compiler for
    expansion phase order. Preserve full-game replay evidence through the change.

@@ -15,9 +15,15 @@ internal class LandClaimTest : TfmSandboxTest() {
   @Test
   internal fun `Prevents an opponent from building on the claimed area`() {
     kim.inTurn {
-      doTasks("PlayProject<Class<LandClaim>>", "-1 MC", "LandClaim FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<LandClaim>>",
+          "-1 MC",
+          "LandClaim FROM ProjectCard",
+          "LATER { PlayedEvent<Class<LandClaim>> FROM LandClaim. }",
+      )
       selectOnlyTask()
       doTask("Community<Tharsis_1_1>")
+      doTask("PlayedEvent<Class<LandClaim>> FROM LandClaim")
     }
 
     shouldThrow<LimitsException> {
@@ -230,7 +236,11 @@ internal class LandClaimTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("PlayProject<Class<LandClaim>>")
         selectTask("-X MC?")
-        doTasks("-1 MC", "LandClaim FROM ProjectCard")
+        doTasks(
+            "-1 MC",
+            "LandClaim FROM ProjectCard",
+            "LATER { PlayedEvent<Class<LandClaim>> FROM LandClaim. }",
+        )
         selectOnlyTask()
         doTask("Community<Tharsis_1_1>")
       }
@@ -247,7 +257,11 @@ internal class LandClaimTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("PlayProject<Class<LandClaim>>")
         selectTask("-X MC?")
-        doTasks("-1 MC", "LandClaim FROM ProjectCard")
+        doTasks(
+            "-1 MC",
+            "LandClaim FROM ProjectCard",
+            "LATER { PlayedEvent<Class<LandClaim>> FROM LandClaim. }",
+        )
         selectOnlyTask()
         doTask("Community<Tharsis_1_3>")
       }

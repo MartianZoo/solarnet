@@ -23,10 +23,16 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
             selectTask("-25 Owed.")
             doTask("-6 MC")
             selectTask("-X Titanium?")
-            doTasks("Ok", "NitrogenRichAsteroid FROM ProjectCard", "2 TerraformRating")
+            doTasks(
+                "Ok",
+                "NitrogenRichAsteroid FROM ProjectCard",
+                "LATER { PlayedEvent<Class<NitrogenRichAsteroid>> FROM NitrogenRichAsteroid. }",
+                "2 TerraformRating",
+            )
             selectTask("TemperatureStep.")
             selectTask("PROD[Plant] OR (3 PlantTag: PROD[4 Plant])")
             doTask("TerraformRating")
+            doTask("PlayedEvent<Class<NitrogenRichAsteroid>> FROM NitrogenRichAsteroid")
           }
           .expect("-6 MC, PROD[Plant], 3 TerraformRating")
     }
@@ -42,13 +48,17 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
             "PlayCard<Class<ProjectCard>, Class<GhgImportFromVenus>>",
         )
         selectTask("-25 Owed.")
-        doTask("GhgImportFromVenus FROM ProjectCard")
+        doTasks(
+            "GhgImportFromVenus FROM ProjectCard",
+            "LATER { PlayedEvent<Class<GhgImportFromVenus>> FROM GhgImportFromVenus. }",
+        )
         selectTask("VenusStep.")
         doTasks("PROD[3 Heat]", "TerraformRating")
         selectTask("-X MC?")
         doTask("Ok")
         selectTask("-X Titanium?")
         doTask("Ok")
+        doTask("PlayedEvent<Class<GhgImportFromVenus>> FROM GhgImportFromVenus")
       }
     }
   }
