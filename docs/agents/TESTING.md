@@ -64,9 +64,7 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   out after a successful run.
 - `./gradlew :tfm-tests:jvmTest` runs the replay tests and writes one opaque JSON recording per
   successful `AbstractFullGameTest` subclass under that module's
-  `generated/replay-event-logs` build directory. The browser viewer applies those recordings through
-  `:state` and never runs the engine. Rebuilding viewer resources packages all generated recordings
-  and their task-text files; the selected game's `Task text` link opens its export.
+  `generated/replay-event-logs` build directory. Task-text exports are written beside the recordings.
 - `./gradlew :tfm-tests:replayTestCoverage` runs only tests in the replay package and writes HTML and
   XML production-code coverage reports under that module's `reports/jacoco/replayTestCoverage`
   build directory. Its execution data comes from the separate `replayTest` task, so card, rule,
@@ -231,7 +229,7 @@ clear coverage of these contracts matters more than preserving every current tes
    `CoreRulesTest` documents game-wide rules in this same style.
 5. **Whole-game tests.** Long scenarios that show the workflow and many rules operate together,
    especially when reconstructed from independent game records. Every successful replay test also
-   emits the recording consumed by the viewer.
+   emits an exact recording.
 6. **Canon admissibility tests.** A compact gate confirming that the complete authority loads and
    that representative supported configurations compose into usable projected class tables and
    worlds. This is not a demand to restate the contents of every card or bundle in assertions.
@@ -242,7 +240,7 @@ clear coverage of these contracts matters more than preserving every current tes
    contract. These are useful interface coverage even though they are not a development priority.
 9. **Cross-runtime browser coverage.** Browser-specific tests cover browser APIs, one representative
    replay checks the shared engine on JavaScript, and production JavaScript compilation and resource
-   assembly cover the engine-free viewer.
+   assembly cover the Web REPL and Almanac.
 
 This list does not itself decide which current tests should be retained. Test-deletion proposals
 are a separate review.
@@ -633,7 +631,7 @@ calls; retain its state checkpoints and final score/winner assertions. Purchase 
 scoring simulation without changing any Actor's autoexecution policy.
 
 `AbstractFullGameTest` starts `Agents.taskLog` before gameplay. After each successful JVM
-replay, `ReplayExportExtension` writes Actor/task text beside the viewer JSON and imports it into a
+replay, `ReplayExportExtension` writes Actor/task text beside the recording JSON and imports it into a
 fresh game using the same premise and normal workflow. All imported Players use `NONE`; Admin
 retains aggressive autoexecution. The check compares every component, idle state, and pending task
 (including its instruction, continuation, ownership, selection, and causal ancestry; incidental

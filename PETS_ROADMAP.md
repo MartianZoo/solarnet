@@ -51,7 +51,7 @@ separate repositories. These are acceptance requirements, not claims about the c
   selected. An invalid source selection must explain how to correct it rather than silently
   switching modes.
 - **Keep familiar daily commands.** Combined build, test, and formatting commands must cover both
-  builds, and the development server must still serve Viewer, Web REPL, and Almanac together.
+  builds, and the development server must still serve Web REPL and Almanac together.
   Wire verification tasks explicitly: compiling an included library does not run its tests.
   Document the actual setup, mode-switching, and verification commands when implemented.
 
@@ -69,9 +69,9 @@ separate repositories. These are acceptance requirements, not claims about the c
    names and behavior unchanged; this is build separation, not an API redesign.
 3. **Preserve the combined development workflow.** Root build, test, and formatting commands and
    CI must still cover both halves. Keep the existing JVM and browser coverage, including the
-   Pets browser test and Web's history test and selected replay. Adapt `webAppsDevelopmentRun` so
-   Viewer, Web REPL, and Almanac still run together: Viewer currently starts Almanac tasks in the
-   same build and reads JavaScript from the shared output layout. Update affected build and setup
+   Pets browser test and Web's history test and selected replay. Preserve `webAppsDevelopmentRun`
+   so Web REPL and Almanac still run together: Web starts Almanac tasks in the same build and reads
+   JavaScript from the shared output layout. Update affected build and setup
    documentation with the actual commands.
 
 ### Acceptance checks

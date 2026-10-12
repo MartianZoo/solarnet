@@ -81,7 +81,7 @@ after review. **Selected** means the direction is chosen while some design remai
 
 2. **Preserve and deepen source-backed whole-game evidence.** Full replays are the strongest proof
    that independent rules compose. Keep original logs, screenshots, and corrections visible in the
-   replay tests while keeping viewer recordings compact. Finish the incomplete 2026-08-20 replay
+   replay tests while keeping generated recordings compact. Finish the incomplete 2026-08-20 replay
    from its preserved evidence, retain the recovered final-greenery scenarios on `work1`, and use
    the preserved TFMBot games as additional integration evidence where their source decisions can
    be represented honestly.
@@ -148,11 +148,11 @@ after review. **Selected** means the direction is chosen while some design remai
    The preserved TFMBot replay work is evidence and a future corpus, not permission to create a
    special bot engine or to confuse eager execution with strategy.
 
-3. **Turn replay viewing and reconstruction into a compelling way to explore games.** Extend the
-   existing engine-free viewer around exact recordings, coherent history positions, useful queries,
-   and trustworthy provenance. Pair it eventually with the compact decision format so a game can
-   be read as both an exact evolving World and an explanatory sequence of choices. Broader causal
-   analytics remain conditional on being derived cheaply from these foundations.
+3. **Turn replay viewing and reconstruction into a compelling way to explore games.** Use Mars
+   Playground to browse exact recordings, coherent history positions, useful queries, and trustworthy
+   provenance. Pair it eventually with the compact decision format so a game can be read as both an
+   exact evolving World and an explanatory sequence of choices. Broader causal analytics remain
+   conditional on being derived cheaply from these foundations.
 
 4. **Continue the dual-engine parity experiment.** **Active exploratory branch.** The
    `heroku-experiment` branch proves a Kotlin/JS facade that can accept semantic moves, drive a

@@ -19,7 +19,7 @@ import kotlinx.serialization.json.put
 public object GameRecordingJson {
   private val json = Json
 
-  /** Encodes the premise recipe, viewer positions, and exact events in one JSON value. */
+  /** Encodes the premise recipe, navigable positions, and exact events in one JSON value. */
   public fun encode(recording: GameRecording): String {
     val premise = recording.premise
     val selectedClasses = buildList {

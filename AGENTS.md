@@ -22,9 +22,9 @@ the router.
 > dozens of lines of custom machinery and present that as a completed solution.
 
 Keep embedded Pets declarations multiline when they do not fit comfortably on one line; do not
-replace them with `parseOneLinerClass` merely to shorten Kotlin. Keep viewer recordings compact:
+replace them with `parseOneLinerClass` merely to shorten Kotlin. Keep replay recordings compact:
 source evidence, commentary, and assertions belong in the corresponding replay test, not in the
-recording used by the viewer.
+generated recording.
 
 ## Always apply these principles
 
