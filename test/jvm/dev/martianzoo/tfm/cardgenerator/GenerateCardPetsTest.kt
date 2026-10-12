@@ -19,7 +19,7 @@ internal class GenerateCardPetsTest {
             name = "EventFirst",
             deck = "ProjectCard",
             tags = listOf("EventTag", "SpaceTag"),
-            immediate = "Plant",
+            direct = "Plant",
         )
     val card = CardPetsGenerator.GeneratedCard(data).declaration
     assertEquals("EventCard", data.projectKind)
@@ -77,7 +77,7 @@ internal class GenerateCardPetsTest {
                     "=2 MicrobeTag<This>",
                 ),
             effects = listOf("This:: 5 MC"),
-            immediate = "2 Plant",
+            direct = "2 Plant",
         )
     val generated = CardPetsGenerator.GeneratedCard(data)
     val rendered = generated.render()
@@ -146,7 +146,7 @@ internal class GenerateCardPetsTest {
             name = "Example",
             deck = "ProjectCard",
             tags = listOf("ScienceTag"),
-            immediate = "ProjectCard",
+            direct = "ProjectCard",
         )
     val card = parseClasses(CardPetsGenerator.GeneratedCard(data).render()).single()
 

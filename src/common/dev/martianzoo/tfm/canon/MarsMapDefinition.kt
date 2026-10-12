@@ -18,10 +18,21 @@ import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.pets.util.Grid
 import dev.martianzoo.tfm.canon.TfmClasses.PLACEMENT
 
+/**
+ * A map's Pets class [className] and the areas described by its source diagram. [areas] keeps their
+ * hex-grid coordinates and diagram order; it does not describe live tile placement.
+ */
 public data class MarsMapDefinition(
     val className: ClassName,
     val areas: Grid<AreaDefinition>,
 ) {
+  /**
+   * An authored hex on a [MarsMapDefinition]. [row] and [column] are positive, one-based diagram
+   * coordinates. [bonusText] is the decoded Pets instruction, if any; [code] retains the compact
+   * source spelling from which the area kind and bonus were read.
+   *
+   * @throws IllegalArgumentException if [row] or [column] is less than 1.
+   */
   public data class AreaDefinition(
       /** Generated identity of this area, such as `Tharsis_1_1` or `Demo_01_01`. */
       val className: ClassName,
@@ -41,10 +52,10 @@ public data class MarsMapDefinition(
        */
       val kind: ClassName,
 
-      /** The pets instruction for this map area's bonus. */
+      /** Pets instruction text for the placement bonus, or null when the area has no bonus. */
       val bonusText: String?,
 
-      /** A short code like `LPP` summarizing this map area. */
+      /** Source code for the area, such as `LPP` for land with two plant bonuses. */
       val code: String,
   ) {
 
@@ -53,13 +64,22 @@ public data class MarsMapDefinition(
       require(column >= 1) { "bad column: $column" }
     }
 
+    /** Parsed [bonusText], or null when no bonus is supplied; invalid Pets text fails parsing. */
     val bonus: InstructionGroup? = bonusText?.let {
       InstructionGroup.of(parse<InstructionTree>(it))
     }
 
-    /** Placement-bonus sigils with multiplier prefixes expanded. */
+    /**
+     * Bonus sigils after the area-kind prefix, with repeated and digit-prefixed sigils expanded.
+     * For example, an area with code `L3P` has bonus codes `P`, `P`, `P`.
+     */
     public val expandedBonusCodes: List<Char> = MarsMapReader.expandBonusCodes(code.drop(1))
 
+    /**
+     * Concrete Pets declaration for this area, with [kind] as its supertype, numeric `row` and
+     * `column` properties, and an on-placement effect for a nonempty [bonus]. Delegate bonuses
+     * cannot be combined with other bonus kinds.
+     */
     public val asClassDeclaration: ClassDeclaration
       get() =
           ClassDeclaration(

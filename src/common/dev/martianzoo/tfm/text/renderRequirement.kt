@@ -7,7 +7,7 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Dependency.Key
 
-/** The component expression counted by a cardinality requirement, if it directly counts one. */
+/** The component expression counted by a cardinality requirement, if it is a component count. */
 internal fun countedExpression(requirement: Requirement.Counting): Expression? =
     (requirement.metric as? Metric.Count)?.expression
 

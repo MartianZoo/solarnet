@@ -18,9 +18,9 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 /**
- * Two ways to drive the Terraforming Mars game-phase sequence: [Automatic] uses a coroutine to
- * advance phases automatically; [Stepwise] exposes each phase transition as an explicit public
- * method for tests that need to drive the game step-by-step.
+ * Drivers for the Terraforming Mars game-phase sequence. [Stepwise] leaves phase ordering and
+ * pending player work to its caller. [Automatic] offers turns in game order and waits for each
+ * resulting task queue to drain before advancing. Both operate on the world in their [Agents].
  */
 public object TfmWorkflow {
 
@@ -36,26 +36,39 @@ public object TfmWorkflow {
 
     internal val adminOps: Agent = agents[ADMIN]
 
-    /** Starts fully effectful game setup by replacing the initial bootstrap phase. */
+    /**
+     * Replaces the bootstrap phase with SetupPhase and returns its operation result. Call once
+     * before subsequent phase transitions.
+     */
     public fun setupPhase(): TaskResult = adminOps.beginOperation("SetupPhase FROM Phase")
 
+    /** Enters CorporationPhase. Handle its corporation choices before advancing. */
     public fun corporationPhase(): TaskResult = adminOps.runOperation("CorporationPhase FROM Phase")
 
+    /** Enters PreludePhase. Handle each player's retained preludes before advancing. */
     public fun preludePhase(): TaskResult = adminOps.runOperation("PreludePhase FROM Phase")
 
+    /** Enters ActionPhase; the caller supplies and resolves player turns. */
     public fun actionPhase(): TaskResult = adminOps.runOperation("ActionPhase FROM Phase")
 
+    /** Enters ProductionPhase and exposes any resulting tasks to the caller. */
     public fun productionPhase(): TaskResult = adminOps.runOperation("ProductionPhase FROM Phase")
 
-    /** Enters the universal Solar phase unless the game ended after production. */
+    /**
+     * Enters the universal SolarPhase while `GameEndBarrier` exists; otherwise returns null and
+     * leaves the phase unchanged. The caller must handle pending Solar tasks before advancing.
+     */
     public fun solarPhase(): TaskResult? =
         if (adminOps.has("GameEndBarrier")) adminOps.beginOperation("SolarPhase FROM Phase")
         else null
 
-    /** Enters World Government Terraforming, the first expansion-specific Solar phase. */
+    /**
+     * Enters World Government Terraforming, the first expansion-specific Solar phase. Call only
+     * when its module is configured and the preceding Solar work is complete.
+     */
     public fun venusSolarPhase(): TaskResult = adminOps.beginOperation("VenusSolarPhase FROM Phase")
 
-    /** Enters colony-track production, after World Government Terraforming when both are active. */
+    /** Enters colony-track production after World Government Terraforming when both are active. */
     public fun coloniesSolarPhase(): TaskResult =
         adminOps.beginOperation("ColoniesSolarPhase FROM Phase")
 
@@ -63,24 +76,30 @@ public object TfmWorkflow {
     public fun turmoilSolarPhase(): TaskResult =
         adminOps.beginOperation("TurmoilSolarPhase FROM Phase")
 
+    /** Enters FinalGreeneryPhase; the caller resolves each eligible player's placements. */
     public fun finalGreeneryPhase(): TaskResult =
         adminOps.runOperation("FinalGreeneryPhase FROM Phase")
 
+    /**
+     * Enters ResearchPhase and runs [body] within the Admin operation. Player research choices left
+     * pending must be handled before the next phase.
+     */
     public fun researchPhase(body: OperationBlock = {}): TaskResult =
         adminOps.runOperation("ResearchPhase FROM Phase", body)
 
+    /** Replaces the current phase with End and returns the resulting operation result. */
     public fun endPhase(): TaskResult = adminOps.runOperation("End FROM Phase")
   }
 
   /**
-   * Orchestrates the full Terraforming Mars game flow using a single coroutine, so each phase can
-   * be written as straight-line sequential code.
+   * Drives the full Terraforming Mars phase and turn sequence from the world's committed bootstrap
+   * position. After [launch], it advances through work the game can perform automatically and waits
+   * whenever player tasks remain. Completing those tasks through an [Agent] allows the workflow to
+   * continue; callers still choose how each player's offered tasks are resolved.
    *
-   * The coroutine suspends whenever the game has outstanding tasks (choosing cards, placing tiles,
-   * etc.), and resumes once the task queue drains. Synchronization uses [resumeSignal], a
-   * [Channel.RENDEZVOUS] channel: [Channel.trySend] only succeeds when a [Channel.receive] is
-   * already waiting, so signals fired during automatic Admin-controlled phases are dropped rather
-   * than queued, preventing spurious wakeups.
+   * Construction installs this workflow as the world's transaction-completion callback, replacing
+   * any previous callback. [shutdown] or normal completion clears it. Use a single active workflow
+   * per world.
    */
   public class Automatic(private val agents: Agents) {
 
@@ -104,7 +123,10 @@ public object TfmWorkflow {
     private val workflowScope = CoroutineScope(lifecycleJob + Dispatchers.Unconfined)
     private var workflowJob: Job? = null
 
-    // TODO: Contract temporary tfm-tests lifecycle seams.
+    /**
+     * Whether this workflow's coroutine is currently active; false before [launch] and after it
+     * finishes or [shutdown] cancels it.
+     */
     public val isRunning: Boolean
       get() = workflowJob?.isActive == true
 
@@ -120,11 +142,9 @@ public object TfmWorkflow {
     }
 
     /**
-     * Launches the game-flow coroutine and returns `this` for chaining. An [Automatic] instance can
-     * be launched only once.
-     *
-     * [Dispatchers.Unconfined] is used so the coroutine resumes synchronously in whichever thread
-     * delivers the next [resumeSignal], avoiding unnecessary thread hops.
+     * Starts the game flow and returns this workflow. It runs until player work is pending or the
+     * game ends; later task completions resume it. An instance can be launched only once, even
+     * after [shutdown].
      */
     public fun launch(): Automatic {
       check(workflowJob == null) { "Workflow has already been launched" }
@@ -141,9 +161,9 @@ public object TfmWorkflow {
     }
 
     /**
-     * Stops the workflow cleanly and cancels its coroutine. If the coroutine is suspended waiting
-     * for a player to handle a workflow-created task (NewTurn or SecondAction), that task is rolled
-     * back so the queue is empty and the game is ready for a manual phase transition.
+     * Cancels future automatic phase progression and clears the world's completion callback. If the
+     * workflow is waiting on a turn task it just created, rolls back all events since the
+     * checkpoint before that offer, including any partial responses. Calling again is harmless.
      */
     public fun shutdown() {
       game.onTransactionComplete = {}

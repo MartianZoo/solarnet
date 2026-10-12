@@ -10,6 +10,18 @@ internal class GmoContractTest : TfmSandboxTest() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("$GmoContract, $Fish, $Decomposers, $AdaptedLichen")
 
-    kim.playProject(AdvancedEcosystems, 11).expect("-5 MC")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<AdvancedEcosystems>>",
+          "-11 MC",
+          "AdvancedEcosystems FROM ProjectCard",
+          "2 MC",
+      )
+      selectTask("Microbe<Decomposers>.")
+      doTask("2 MC")
+      selectTask("Microbe<Decomposers>.")
+      doTask("2 MC")
+      selectTask("Microbe<Decomposers>.")
+    }
   }
 }

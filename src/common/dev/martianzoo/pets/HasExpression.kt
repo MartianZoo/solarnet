@@ -13,10 +13,13 @@ public interface HasExpression {
     get() = expression
 
   public companion object {
+    /** Returns expressions in input order, including repeats. */
     public fun Iterable<HasExpression>.expressions(): List<Expression> = map { it.expression }
 
+    /** Lazily produces expressions in input order, including repeats. */
     public fun Sequence<HasExpression>.expressions(): Sequence<Expression> = map { it.expression }
 
+    /** Copies expressions into a set, throwing if distinct elements have equal expressions. */
     public fun Set<HasExpression>.expressions(): Set<Expression> = toSetStrict { it.expression }
   }
 }

@@ -25,7 +25,10 @@ after review. **Selected** means the direction is chosen while some design remai
 
 1. **Make actions, payments, delegated control, and completion a single intelligible lifecycle.**
    **Selected; active design.** Unify the lifecycle while preserving choice, rollback, and Actor
-   authority. See [turns and turn offers](docs/agents/SEQUENCING.md#turns-and-turn-offers), including
+   authority. Fix action identity as a necessary part of this work: a nonexistent second action on
+   AI Central currently succeeds and consumes its use without drawing cards. See
+   [action identity and invocation](docs/agents/ACTIONS.md),
+   [turns and turn offers](docs/agents/SEQUENCING.md#turns-and-turn-offers), including
    the Head Start variant, [on-turn identity and routing](docs/agents/IDENTITY.md#who-is-on-turn-and-who-decides),
    and [task priority](docs/agents/SEQUENCING.md#task-priority-working-direction). Ordering delegated
    responses and their payments remains open; see [completion](docs/agents/SEQUENCING.md#the-missing-rule-when-an-operation-is-over)
@@ -160,7 +163,7 @@ after review. **Selected** means the direction is chosen while some design remai
    disagreements. The app-side projector, comparator, transcript persistence, and broader move
    families remain before this becomes a complete parity proof.
 
-5. **Keep REgo as the immediate experimental workbench.** The command-line interface remains the
+5. **Keep REgo as the current experimental workbench.** The command-line interface remains the
    fastest place to inspect state, submit tasks, apply corrections, and test the color-mode model.
    Improve it where that exposes genuine runtime capabilities—especially task forms, mode
    integrity, and state exploration—without mistaking terminal polish or the low-priority `list`

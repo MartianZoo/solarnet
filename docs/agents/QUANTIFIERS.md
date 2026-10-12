@@ -68,7 +68,7 @@ Instructions normally resolve against the World in which their task is selected,
 which an effect originally created the task. The resolved instruction must execute next against that
 same World. Quantifiers do not preserve trigger-time target existence.
 
-Resolution checks immediate prerequisites and calculates quantities; it does not predict whether
+Resolution checks execution prerequisites and calculates quantities; it does not predict whether
 the completed operation will satisfy count invariants. Mandatory choices can lead to recoverable
 dead ends. Exploring and pruning those branches for a client belongs to its Agent, not engine
 resolution.
@@ -176,7 +176,7 @@ Transmuting a concrete Type into itself is invalid for every quantifier, includi
 class header, or `EACH` binding makes the Types equal. Content must exclude those bindings, as Mons
 Insurance and StartToken do. A self-target selected by automatic narrowing of an open transfer has
 zero capacity instead: mandatory resolution fails, while optional and AMAP can become `Ok`.
-Direct Signal gains remain valid point events (L2-1), not self-transmutation instructions.
+Signal gains without transmutation remain valid point events (L2-1), not self-transmutation instructions.
 
 A zero AMAP transmutation can still bind Type Variables in a
 following `THEN`; target selection and component movement are separate consequences of that stage.
@@ -193,7 +193,7 @@ search ignores declared count bounds; AMAP requires at least one candidate with 
 under those bounds. Target narrowing uses identity and present dependencies, without filtering by
 capacity. Neither search executes consequences or predicts the result of an operation.
 
-- Mandatory uses required count `n`. If no candidate meets the immediate prerequisites for all `n`,
+- Mandatory uses required count `n`. If no candidate meets the execution prerequisites for all `n`,
   resolution throws `LimitsException`. A selected candidate must execute all `n` and satisfy
   invariants at operation completion. It can fail then even when resolution left it available.
 - AMAP uses required count one when deciding whether a useful target exists. If no candidate can

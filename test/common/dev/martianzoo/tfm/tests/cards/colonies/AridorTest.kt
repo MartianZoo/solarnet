@@ -9,9 +9,10 @@ internal class AridorTest : TfmSandboxTest() {
   internal fun `First action adds a selected colony tile`() {
     newTestGame(addOptions = "Luna, Ceres, Triton, Ganymede, Callisto", kimCorporation = Aridor)
 
-    kim.stdAction("RequiredActionsSignal") {
-          selectTask("ColonyTileSelection")
-          narrowTask("Europa")
+    kim.inTurn {
+          doTask("RequiredActionsSignal")
+          selectTask("ColonyTileSelection!")
+          selectTask("Europa!")
         }
         .expect("Europa, ColonyProduction, -RequiredAction")
   }
@@ -21,9 +22,10 @@ internal class AridorTest : TfmSandboxTest() {
     newTestGame(addOptions = "Luna, Ceres, Triton, Ganymede, Callisto", kimCorporation = Aridor)
     kim.exMachina("$TitanShuttles, Floater<$TitanShuttles>")
 
-    kim.stdAction("RequiredActionsSignal") {
-          selectTask("ColonyTileSelection")
-          narrowTask("DelayedTitan")
+    kim.inTurn {
+          doTask("RequiredActionsSignal")
+          selectTask("ColonyTileSelection!")
+          selectTask("DelayedTitan!")
         }
         .expect("Titan, ColonyProduction, 0 DelayedTitan")
   }
@@ -31,14 +33,19 @@ internal class AridorTest : TfmSandboxTest() {
   @Test
   internal fun `New tag classes count for its owner even if another player already has them`() {
     newTestGame(kimCorporation = Aridor)
-    kim.stdAction("RequiredActionsSignal") {
-      selectTask("ColonyTileSelection")
-      narrowTask("Europa")
+    kim.inTurn {
+      doTask("RequiredActionsSignal")
+      selectTask("ColonyTileSelection!")
+      selectTask("Europa!")
     }
     stan.exMachina("$Mine")
     kim.setToExMachina(11, "MC")
 
-    kim.playProject(DevelopmentCenter, 11).expect("PROD[2 MC]")
+    kim.inTurn {
+      doTasks("PlayProject<Class<DevelopmentCenter>>", "-11 MC")
+      selectTask("-X Steel?")
+      doTasks("Ok", "DevelopmentCenter FROM ProjectCard", "PROD[MC]", "PROD[MC]")
+    }
   }
 
   @Test
@@ -46,64 +53,132 @@ internal class AridorTest : TfmSandboxTest() {
     newTestGame(addOptions = "PreludeExpansion")
     kim.exMachina("$PharmacyUnion, $EarthCatapult")
 
-    kim.playPrelude(Merger) { kim.playCorp(Aridor) }.expect("PROD[0 MC]")
+    kim.inTurn {
+          doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
+          selectTask("4 CorporationCard<Kim, Selecting>!")
+          doTask("-42 MC")
+          selectTask("-3 CorporationCard<Kim, Selecting>!")
+          doTask("PlayCard<Class<CorporationCard>, Class<Aridor>>")
+          selectTask("MAX 0 Barrier: Aridor FROM CorporationCard<Kim, Selecting>!")
+          doTask("40 MC")
+          selectTask("Aridor_RequiredAction!")
+        }
+        .expect("PROD[0 MC]")
   }
 
   @Test
   internal fun `A microbe tag lost when Pharmacy Union flips can be rewarded again`() {
     newTestGame(kimCorporation = Aridor)
-    kim.stdAction("RequiredActionsSignal") {
-      selectTask("ColonyTileSelection")
-      narrowTask("Europa")
+    kim.inTurn {
+      doTask("RequiredActionsSignal")
+      selectTask("ColonyTileSelection!")
+      selectTask("Europa!")
     }
     kim.exMachina("$PharmacyUnion, 3 OxygenStep")
     kim.setToExMachina(16, "MC")
-    kim.playProject(CryoSleep, 10) { doTask("PlayedEvent FROM $PharmacyUnion") }
+    kim.inTurn {
+      doTasks("PlayProject<Class<CryoSleep>>", "-10 MC", "CryoSleep FROM ProjectCard", "PROD[MC]")
+      selectTask(
+          "TerraformRating FROM Disease<PharmacyUnion>! OR (MAX 0 Disease<PharmacyUnion>: (PlayedEvent<Kim, Class<PharmacyUnion>> FROM PharmacyUnion! THEN 3 TerraformRating!) OR Ok)"
+      )
+      doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
+    }
 
-    kim.playProject(Decomposers, 5).expect("PROD[MC]")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<Decomposers>>",
+          "-5 MC",
+          "Decomposers FROM ProjectCard",
+          "PROD[MC]",
+      )
+      selectTask("Microbe<Decomposers>.")
+    }
   }
 
   @Test
   internal fun `A surviving microbe tag prevents a fresh reward after Pharmacy Union flips`() {
     newTestGame(kimCorporation = Aridor)
-    kim.stdAction("RequiredActionsSignal") {
-      selectTask("ColonyTileSelection")
-      narrowTask("Europa")
+    kim.inTurn {
+      doTask("RequiredActionsSignal")
+      selectTask("ColonyTileSelection!")
+      selectTask("Europa!")
     }
     kim.exMachina("$PharmacyUnion, $Decomposers, $Mine")
     kim.setToExMachina(23, "MC")
-    kim.playProject(CryoSleep, 10) { doTask("PlayedEvent FROM $PharmacyUnion") }
+    kim.inTurn {
+      doTasks("PlayProject<Class<CryoSleep>>", "-10 MC", "CryoSleep FROM ProjectCard", "PROD[MC]")
+      selectTask(
+          "TerraformRating FROM Disease<PharmacyUnion>! OR (MAX 0 Disease<PharmacyUnion>: (PlayedEvent<Kim, Class<PharmacyUnion>> FROM PharmacyUnion! THEN 3 TerraformRating!) OR Ok)"
+      )
+      doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
+    }
 
-    kim.playProject(IndustrialMicrobes, 12).expect("PROD[0 MC]")
+    kim.inTurn {
+          doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
+          selectTask("-X Steel?")
+          doTasks("Ok", "IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
+          selectTask("Microbe<Decomposers>.")
+        }
+        .expect("PROD[0 MC]")
   }
 
   @Test
   internal fun `An event's printed tags do not reward production`() {
     newTestGame(kimCorporation = Aridor)
-    kim.stdAction("RequiredActionsSignal") {
-      selectTask("ColonyTileSelection")
-      narrowTask("Europa")
+    kim.inTurn {
+      doTask("RequiredActionsSignal")
+      selectTask("ColonyTileSelection!")
+      selectTask("Europa!")
     }
 
-    kim.playProject(BribedCommittee, 7).expect("PROD[0 MC]")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<BribedCommittee>>",
+              "-7 MC",
+              "BribedCommittee FROM ProjectCard",
+              "2 TerraformRating",
+          )
+        }
+        .expect("PROD[0 MC]")
   }
 
   @Test
   internal fun `Two copies of a new tag on Pharmacy Union reward production only once`() {
     newTestGame(addOptions = "PreludeExpansion", kimCorporation = Aridor)
 
-    kim.playPrelude(Merger) { kim.playCorp(PharmacyUnion) }.expect("PROD[MC]")
+    kim.inTurn {
+      doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
+      selectTask("4 CorporationCard<Kim, Selecting>!")
+      selectTask("-3 CorporationCard<Kim, Selecting>!")
+      doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
+      selectTask("MAX 0 Barrier: PharmacyUnion FROM CorporationCard<Kim, Selecting>!")
+      doTask("-42 MC")
+      selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
+      doTask("PROD[MC]")
+      selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
+      selectTask("-4 MC.")
+      selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
+      selectTask("-4 MC.")
+    }
   }
 
   @Test
   internal fun `A Venus tag can introduce a new tag class`() {
     newTestGame(kimCorporation = Aridor)
-    kim.stdAction("RequiredActionsSignal") {
-      selectTask("ColonyTileSelection")
-      narrowTask("Europa")
+    kim.inTurn {
+      doTask("RequiredActionsSignal")
+      selectTask("ColonyTileSelection!")
+      selectTask("Europa!")
     }
 
     kim.setToExMachina(11, "MC")
-    kim.playProject(AerialMappers, 11).expect("PROD[MC]")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<AerialMappers>>",
+          "-11 MC",
+          "AerialMappers FROM ProjectCard",
+          "PROD[MC]",
+      )
+    }
   }
 }

@@ -12,6 +12,14 @@ internal class IoSulphurResearchTest : TfmSandboxTest() {
   internal fun `Can choose the lesser card draw despite three Venus tags`() {
     kim.exMachina("$AerialMappers, $DeuteriumExport, $Dirigibles")
 
-    kim.playProject(IoSulphurResearch, 17) { doTask("ProjectCard") }.expect("0 ProjectCard")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<IoSulphurResearch>>",
+              "-17 MC",
+              "IoSulphurResearch FROM ProjectCard",
+              "ProjectCard",
+          )
+        }
+        .expect("0 ProjectCard")
   }
 }

@@ -3,7 +3,7 @@
 [All categories](README.md) · 427 entries
 
 Printed text: [wording evidence](../../src/jvm/dev/martianzoo/tfm/text/english-published-wording-evidence.tsv).
-Generated text comes directly from the current English renderer. See the [reading notes](README.md#reading-the-comparisons).
+Generated text comes from the current English renderer. See the [reading notes](README.md#reading-the-comparisons).
 
 ## Terraforming Mars
 
@@ -3783,7 +3783,7 @@ Class: `RoboticWorkforce`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Duplicate only the production box of one of your building cards. | — |
-| Generated text | Copy the immediate production box of a building card. | — |
+| Generated text | Copy the production box in the direct effect of a building card. | — |
 
 Pets declaration:
 

@@ -5,11 +5,11 @@ import dev.martianzoo.state.TaskResult
 /**
  * Coordinates nested game mutations as one failure-atomic interaction.
  *
- * For ordinary gameplay, the outermost call and a direct reentry from its completion callback,
- * settle configured policy, repeatedly offer the engine one eligible idle-cleanup step, and
- * validate the caller's completion rule. The outermost call then records the resulting position and
- * reports completion. Work started synchronously by that callback is settled and cleaned up before
- * the final position is recorded. A cleanup step can create new work; [settleAndCleanUp] settles it
+ * For ordinary gameplay, the outermost call and a reentry from its completion callback, settle
+ * configured policy, repeatedly offer the engine one eligible idle-cleanup step, and validate the
+ * caller's completion rule. The outermost call then records the resulting position and reports
+ * completion. Work started synchronously by that callback is settled and cleaned up before the
+ * final position is recorded. A cleanup step can create new work; [settleAndCleanUp] settles it
  * before another cleanup step can be attempted. Corrections use [correct] to validate and record
  * state without advancing gameplay.
  */

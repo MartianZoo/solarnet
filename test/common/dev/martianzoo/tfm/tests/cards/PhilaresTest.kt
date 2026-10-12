@@ -9,15 +9,22 @@ internal class PhilaresTest : TfmSandboxTest() {
   @BeforeTest
   fun initializeGame() {
     newTestGame(kimCorporation = Philares)
-    kim.stdAction("RequiredActionsSignal") { placeTile(4, 2) }
+    kim.inTurn {
+      doTasks("RequiredActionsSignal", "GreeneryTile<Tharsis_4_2>")
+      selectTask("OxygenStep.")
+      doTasks("Plant", "TerraformRating")
+    }
   }
 
   @Test
   internal fun `Pays its owner when an opponent places an adjacent greenery`() {
     stan
-        .stdProject("GreeneryProject") {
-          placeTile(3, 2)
+        .inTurn {
+          doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_3_2>")
+          selectTask("StandardResource<Kim>!")
           kim.doTask("Titanium")
+          selectTask("OxygenStep.")
+          doTask("TerraformRating")
         }
         .expect("Titanium<Kim>")
   }
@@ -27,11 +34,13 @@ internal class PhilaresTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Tharsis_2_2>")
     kim.setToExMachina(23, "MC")
 
-    kim.stdProject("GreeneryProject") {
-          placeTile(3, 2)
-          kim.doTask("Titanium")
-        }
-        .expect("Titanium")
+    kim.inTurn {
+      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_3_2>")
+      selectTask("OxygenStep.")
+      doTask("TerraformRating")
+      selectTask("StandardResource!")
+      doTask("Titanium")
+    }
   }
 
   @Test
@@ -39,7 +48,11 @@ internal class PhilaresTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Tharsis_1_1>")
 
     stan
-        .stdProject("GreeneryProject") { placeTile(2, 1) }
+        .inTurn {
+          doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_2_1>")
+          selectTask("OxygenStep.")
+          doTask("TerraformRating")
+        }
         .expect(
             "0 Steel<Kim>, 0 Titanium<Kim>, 0 MC<Kim>, 0 Plant<Kim>, 0 Energy<Kim>, 0 Heat<Kim>"
         )
@@ -49,8 +62,12 @@ internal class PhilaresTest : TfmSandboxTest() {
   internal fun `Does not pay its owner for adjacency to their own tile`() {
     kim.setToExMachina(23, "MC")
 
-    kim.stdProject("GreeneryProject") { placeTile(3, 2) }
-        .expect("0 Steel, 0 Titanium, -23 MC, 0 Energy, 0 Heat")
+    kim.inTurn {
+          doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_3_2>")
+          selectTask("OxygenStep.")
+          doTask("TerraformRating")
+        }
+        .expect("0 Steel, 0 Titanium, 0 Energy, 0 Heat")
   }
 
   @Test
@@ -58,10 +75,20 @@ internal class PhilaresTest : TfmSandboxTest() {
     stan.exMachina("$ArcadianCommunities, GreeneryTile<Tharsis_4_3>")
 
     stan
-        .playProject(KaguyaTech, 10) {
+        .inTurn {
+          doTasks(
+              "PlayProject<Class<KaguyaTech>>",
+              "-10 MC",
+              "KaguyaTech FROM ProjectCard",
+              "PROD[2 MC]",
+          )
+          selectTask("ProjectCard<Stan, Hand>!")
+          selectOnlyTask()
           doTask("CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_3>")
+          selectTask("StandardResource<Kim>!")
           kim.doTask("Titanium")
+          doTask("Plant")
         }
-        .expect("-10 MC, Titanium<Kim>, 0 Community<Stan>")
+        .expect("Titanium<Kim>, 0 Community<Stan>")
   }
 }

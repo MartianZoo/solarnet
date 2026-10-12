@@ -45,7 +45,7 @@ internal class InitializerTest {
   }
 
   @Test
-  internal fun bootstrapCauseUsesItsFirstChangeWhenImmediateEffectsFollow() {
+  internal fun bootstrapCauseUsesItsFirstChangeWhenGainEffectsFollow() {
     val premise =
         testGamePremise(
                 """
@@ -63,7 +63,7 @@ internal class InitializerTest {
   }
 
   @Test
-  internal fun directPremiseCreatesPlayersWithoutAGeneratedRecipe() {
+  internal fun customPremiseCreatesPlayersWithoutAGeneratedRecipe() {
     val premise = testGamePremise(players = 2)
 
     val game = Engine.newGame(premise)

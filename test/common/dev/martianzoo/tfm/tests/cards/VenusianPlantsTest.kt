@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.VenusianAnimals
-import dev.martianzoo.tfm.tests.cards.cardnames.VenusianPlants
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -15,7 +14,13 @@ internal class VenusianPlantsTest : TfmSandboxTest() {
     kim.exMachina("$VenusianAnimals")
 
     // Unlike Corroder Suits, the microbe arm can resolve to nothing despite the animal holder.
-    kim.playProject(VenusianPlants, 13) { declineTask() }
+    kim.inTurn {
+          doTasks("PlayProject<Class<VenusianPlants>>", "-13 MC", "VenusianPlants FROM ProjectCard")
+          selectTask("VenusStep.")
+          doTask("TerraformRating")
+          selectOnlyTask()
+          doTask("Ok")
+        }
         .expect("VenusStep, 0 Animal<$VenusianAnimals>")
   }
 }

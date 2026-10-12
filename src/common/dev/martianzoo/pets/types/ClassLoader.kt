@@ -123,6 +123,11 @@ private constructor(
     }
   }
 
+  /**
+   * Returns declaration effects in a master loader and premise-specialized effects in a premise
+   * loader. [klass] must belong to this loader's universe; a premise loader also requires the class
+   * to be included and its effect compilation to be complete.
+   */
   public override fun effects(klass: Class): List<Effect> {
     require(accepts(klass.classTable)) { "`$klass` belongs to a different Catalog" }
     if (masterSource == null) return klass.declaration.effects
@@ -572,11 +577,7 @@ private constructor(
         is Gated -> {
           if (!interpreter.requirementIsFalse(tree.gate)) collectInstruction(tree.inner)
         }
-        else ->
-            tree
-                .immediateChildren()
-                .filterIsInstance<InstructionTree>()
-                .forEach(::collectInstruction)
+        else -> tree.childNodes().filterIsInstance<InstructionTree>().forEach(::collectInstruction)
       }
     }
 

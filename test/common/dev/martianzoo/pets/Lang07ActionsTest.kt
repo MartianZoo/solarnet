@@ -3,7 +3,7 @@ package dev.martianzoo.pets
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Transforming.actionListToEffects
-import dev.martianzoo.pets.Transforming.immediateToEffect
+import dev.martianzoo.pets.Transforming.onGainEffect
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
@@ -142,14 +142,14 @@ internal class Lang07ActionsTest {
         )
   }
 
-  // L7-7 Immediate instructions
+  // L7-7 On-gain instructions
 
   @Test
   internal fun `L7-7 an instruction that happens on gain is the effect This colon it`() {
-    immediateToEffect(parse("Widget, Gizmo")) shouldBe parse<Effect>("This: Widget, Gizmo")
-    immediateToEffect(parse("Ore: Widget")) shouldBe parse<Effect>("This: (Ore: Widget)")
-    immediateToEffect(parse("Ok")) shouldBe null
-    immediateToEffect(parse("Widget"), effectIsAutomatic = true)!!.automatic shouldBe true
+    onGainEffect(parse("Widget, Gizmo")) shouldBe parse<Effect>("This: Widget, Gizmo")
+    onGainEffect(parse("Ore: Widget")) shouldBe parse<Effect>("This: (Ore: Widget)")
+    onGainEffect(parse("Ok")) shouldBe null
+    onGainEffect(parse("Widget"), effectIsAutomatic = true)!!.automatic shouldBe true
   }
 
   // L7-8 Rendering

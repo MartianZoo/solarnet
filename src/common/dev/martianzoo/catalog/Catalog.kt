@@ -21,12 +21,18 @@ import dev.martianzoo.pets.types.ClassTable
  * their own lowering and selection policies to the assembled namespace.
  */
 public open class Catalog(private vararg val catalogs: Catalog) {
-  /** The fully compiled Catalog structure shared by its playable games. */
+  /**
+   * Fully compiled class namespace shared by premises built from this catalog. Computed on first
+   * access; invalid or conflicting declarations fail while loading it.
+   */
   public val classTable: ClassTable by lazy {
     createClassLoader(this).loadEverything()
   }
 
-  /** Handlers for this game's explicitly marked Pets syntax, bound to one game class table. */
+  /**
+   * Factories for named Pets transforms, each bound later to a game's class table. Contributions
+   * with the same name must use the same factory or composition fails.
+   */
   public open val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> by lazy {
     val combined = linkedMapOf<String, (ClassTable) -> TransformHandler>()
     catalogs.forEach { catalog ->
@@ -60,7 +66,10 @@ public open class Catalog(private vararg val catalogs: Catalog) {
         }
   }
 
-  /** Modules whose selection makes each otherwise bundle-local ambient Class available. */
+  /**
+   * For each otherwise bundle-local ambient class, the modules that make it available. Composed
+   * catalogs union the module sets for the same class name.
+   */
   public open val classAvailabilityModules: Map<ClassName, Set<ClassName>> by lazy {
     catalogs
         .flatMap { it.classAvailabilityModules.entries }
@@ -70,6 +79,8 @@ public open class Catalog(private vararg val catalogs: Catalog) {
 
   /**
    * Natural-language display names keyed first by language tag and then by canonical class name.
+   * Composed catalogs may repeat an identical name; conflicting values for the same language and
+   * class fail when this map is loaded.
    */
   public open val displayNamesByLanguage: Map<String, Map<ClassName, String>> by lazy {
     val combined = mutableMapOf<String, MutableMap<ClassName, String>>()
@@ -87,7 +98,11 @@ public open class Catalog(private vararg val catalogs: Catalog) {
     combined
   }
 
-  /** The unique declaration for every class in this Catalog's namespace. */
+  /**
+   * Unique declaration for every class in this catalog's namespace, including Pets system classes
+   * and contributed declarations after [contributedClassDeclarations] lowering. Conflicting names
+   * fail rather than replacing an earlier declaration.
+   */
   public val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
     ClassDeclaration.indexByName(systemClassDeclarations.toList() + contributedClassDeclarations)
   }
@@ -96,20 +111,23 @@ public open class Catalog(private vararg val catalogs: Catalog) {
   protected open val contributedClassDeclarations: List<ClassDeclaration>
     get() = explicitClassDeclarations.toList()
 
-  /** Every canonical class name in this Catalog's namespace. */
+  /** Names of [allClassDeclarations], including system and contributed classes. */
   public val allClassNames: Set<ClassName>
     get() = allClassDeclarations.keys
 
-  /** Direct source declarations, before game-specific executable lowering. */
+  /** Authored declarations from the composed catalogs, before game-specific executable lowering. */
   public open val explicitClassDeclarations: Set<ClassDeclaration> =
       catalogs.flatMapTo(linkedSetOf(), Catalog::explicitClassDeclarations)
 
-  /** Declarations whose executable behavior must be supplied when starting a live game. */
+  /** Declarations marked as custom metrics or instructions whose runtime code a live game needs. */
   public val customClassDeclarations: List<ClassDeclaration> by lazy {
     allClassDeclarations.values.filter { it.customMetric || it.customInstruction }
   }
 
-  /** Static vocabulary required by custom behavior, independently of its Kotlin implementation. */
+  /**
+   * Static vocabulary required by custom behavior, independently of its Kotlin implementation.
+   * Composed catalogs must agree on the entire dependency set for each custom class name.
+   */
   public open val customClassDependencies: Map<ClassName, Set<ClassName>> by lazy {
     catalogs
         .flatMap { it.customClassDependencies.entries }
@@ -121,14 +139,16 @@ public open class Catalog(private vararg val catalogs: Catalog) {
         }
   }
 
-  /** Returns the unique declaration having [name]. */
+  /** Returns [name]'s declaration, or throws [IllegalArgumentException] if it is unknown. */
   public fun classDeclaration(name: ClassName): ClassDeclaration =
       allClassDeclarations[name]
           ?: throw IllegalArgumentException("no class declaration named `$name`")
 
   /**
-   * Resolves signed Class selections and additive setup adjustments over this Catalog's master
-   * table.
+   * Resolves [config]'s signed class selections and additive setup adjustments over this catalog's
+   * master table. [additionalClassDeclarations] are local to the resulting premise; they do not
+   * change this reusable catalog. Selection policy, dependency closure, and validation occur before
+   * the [GamePremise] is returned. Invalid selections fail rather than producing a partial premise.
    */
   public fun gamePremise(
       config: GameConfig,
@@ -139,10 +159,14 @@ public open class Catalog(private vararg val catalogs: Catalog) {
     return builder.build()
   }
 
-  /** Applies game-specific selection and setup policy before this Catalog freezes a premise. */
+  /** Subclass hook to add game-specific selection and setup policy before the builder is frozen. */
   protected open fun configurePremise(builder: GamePremiseBuilder) {}
 
-  /** Cooks a premise whose player names and seat order come from [playerDeclarations]. */
+  /**
+   * Resolves [config] with concrete player classes supplied by [playerDeclarations], in seat order.
+   * The declarations are local to the premise. A nonempty list cannot be combined with player names
+   * already in [config]; an empty list delegates to [gamePremise] unchanged.
+   */
   public fun gamePremise(
       config: GameConfig,
       playerDeclarations: List<ClassDeclaration>,
@@ -158,7 +182,12 @@ public open class Catalog(private vararg val catalogs: Catalog) {
     )
   }
 
-  /** Returns this Catalog composed with concrete `Player1` through `PlayerN` seat Classes. */
+  /**
+   * Returns this catalog with concrete `Player1` through `PlayerN` classes available. Existing
+   * suitable classes are reused; [playerCount] must be positive. This does not seat players in a
+   * game until a [GameConfig] names them. For example, `withPlayers(2)` makes `Player1` and
+   * `Player2` available, but does not put either in a game's [GamePremise.playerNames].
+   */
   public fun withPlayers(playerCount: Int): Catalog {
     require(playerCount > 0) { "player count must be positive: $playerCount" }
     val names = conventionalPlayerClassNames(playerCount)
@@ -166,7 +195,11 @@ public open class Catalog(private vararg val catalogs: Catalog) {
     return conventionalPlayerCatalogs.getOrPut(playerCount) { withPlayerClassesUncached(names) }
   }
 
-  /** Returns this Catalog composed with concrete `Player` subclasses named by [playerNames]. */
+  /**
+   * Returns this catalog with concrete `Player` subclasses for [playerNames]. Names must be
+   * nonempty and distinct; an existing name must already be a concrete Player subclass. This does
+   * not seat them until a [GameConfig] supplies the names in seat order.
+   */
   public fun withPlayers(playerNames: List<ClassName>): Catalog {
     require(playerNames.isNotEmpty()) { "a game must have at least one player name" }
     require(playerNames.distinct().size == playerNames.size) {
@@ -207,7 +240,7 @@ public open class Catalog(private vararg val catalogs: Catalog) {
     return withDeclarations(declarations)
   }
 
-  /** Preserves the game's Catalog policies when adding declarations. */
+  /** Subclass hook for composing [declarations] while preserving game-specific catalog policy. */
   protected open fun withDeclarations(declarations: Set<ClassDeclaration>): Catalog =
       Catalog(
           this,
@@ -216,6 +249,10 @@ public open class Catalog(private vararg val catalogs: Catalog) {
           },
       )
 
+  /**
+   * Whether [className] is [possibleSupertype] or inherits it through declared supertypes. Unknown
+   * class names fail through [classDeclaration].
+   */
   protected fun isSubtypeOf(className: ClassName, possibleSupertype: ClassName): Boolean {
     if (className == possibleSupertype) return true
     return classDeclaration(className).supertypes.any { supertype ->

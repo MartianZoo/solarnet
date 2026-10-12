@@ -13,8 +13,16 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
   internal fun `Vote of No Confidence can appoint the final available delegate as chairman`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("6 PartyDelegate<Greens>")
-    kim.playProject(VoteOfNoConfidence, 5)
-        .expect("Chairman, -Chairman<Neutral>, TerraformRating, -LobbyActionAvailable")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<VoteOfNoConfidence>>",
+              "-5 MC",
+              "VoteOfNoConfidence FROM ProjectCard",
+          )
+          selectTask("Chairman<Kim FROM Neutral>!")
+          doTask("TerraformRating")
+        }
+        .expect("-LobbyActionAvailable")
   }
 
   @Test
@@ -22,7 +30,16 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("7 PartyDelegate<Greens>")
 
-    shouldThrow<DeadEndException> { kim.playProject(VoteOfNoConfidence, 5) }
+    shouldThrow<DeadEndException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<VoteOfNoConfidence>>")
+        selectTask("-X MC?")
+        doTasks("-5 MC", "VoteOfNoConfidence FROM ProjectCard")
+        selectTask("TerraformRating!")
+        selectTask("Chairman<Kim FROM Neutral>!")
+      }
+    }
 
     admin.count("Chairman<Neutral>") shouldBe 1
     kim.count("Chairman") shouldBe 0
@@ -32,9 +49,18 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
   internal fun `Vote of No Confidence cannot replace a non-neutral chairman`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("2 PartyDelegate<Greens>")
-    kim.exMachina("Chairman<Stan> FROM Chairman<Neutral>")
+    kim.exMachina("Chairman<Stan FROM Neutral>")
 
-    shouldThrow<LimitsException> { kim.playProject(VoteOfNoConfidence, 5) }
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<VoteOfNoConfidence>>")
+        selectTask("-X MC?")
+        doTasks("-5 MC", "VoteOfNoConfidence FROM ProjectCard")
+        selectTask("TerraformRating!")
+        selectTask("Chairman<Kim FROM Neutral>!")
+      }
+    }
 
     kim.count("MC") shouldBe 42
     kim.count("Chairman") shouldBe 0

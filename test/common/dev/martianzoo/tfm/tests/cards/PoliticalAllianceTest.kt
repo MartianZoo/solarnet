@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.cards.cardnames.PoliticalAlliance
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
@@ -12,14 +11,24 @@ internal class PoliticalAllianceTest : TfmSandboxTest() {
   internal fun `Cannot be played without Turmoil`() {
     newTestGame()
 
-    shouldThrow<DeadEndException> { kim.playProject(PoliticalAlliance, 4) }
+    shouldThrow<DeadEndException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<PoliticalAlliance>>")
+      }
+    }
   }
 
   @Test
   internal fun `Cannot be played without party leadership`() {
     newTestGame(addOptions = "TurmoilExpansion")
 
-    shouldThrow<RequirementException> { kim.playProject(PoliticalAlliance, 4) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<PoliticalAlliance>>")
+      }
+    }
   }
 
   @Test
@@ -27,7 +36,12 @@ internal class PoliticalAllianceTest : TfmSandboxTest() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("-Chairman<Neutral>, Chairman, PartyDelegate<Scientists>")
 
-    shouldThrow<RequirementException> { kim.playProject(PoliticalAlliance, 4) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<PoliticalAlliance>>")
+      }
+    }
   }
 
   @Test
@@ -35,6 +49,13 @@ internal class PoliticalAllianceTest : TfmSandboxTest() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("PartyDelegate<Scientists>, PartyDelegate<Unity>")
 
-    kim.playProject(PoliticalAlliance, 4).expect("TerraformRating")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<PoliticalAlliance>>",
+          "-4 MC",
+          "PoliticalAlliance FROM ProjectCard",
+          "TerraformRating",
+      )
+    }
   }
 }

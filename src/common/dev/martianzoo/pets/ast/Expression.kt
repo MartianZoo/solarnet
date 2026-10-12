@@ -8,6 +8,8 @@ import dev.martianzoo.pets.types.ClassLoader
 import dev.martianzoo.pets.types.Type
 import kotlin.reflect.KClass
 
+// A parser may attach source-only information through a subtype and extract it before returning
+// an AST. Structural operations and copy always describe the ordinary expression.
 /**
  * The noun of the Pets language: a particular *representation* of a type, as defined by
  * [section 1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions).
@@ -28,8 +30,6 @@ import kotlin.reflect.KClass
  * collapsing the distinctions the syntax deliberately keeps ([rule
  * L1-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)).
  */
-// A parser may attach source-only information through a subtype and extract it before returning
-// an AST. Structural operations and copy always describe the ordinary expression.
 public open class Expression(
     final override val className: ClassName,
 
@@ -162,6 +162,11 @@ public open class Expression(
         override val boundClassName: ClassName,
         override val resolution: Resolution?,
     ) : TypeVariableName() {
+      /**
+       * Creates an unresolved declaration marker for [boundClassName], optionally distinguished by
+       * [name]. Scope resolution later assigns its lexical identity; equal source markers before
+       * that step identify the same binding candidate.
+       */
       public constructor(
           name: String?,
           boundClassName: ClassName,

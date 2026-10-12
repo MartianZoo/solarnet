@@ -15,6 +15,10 @@ internal class RedShipsTest : TfmSandboxTest() {
             "MiningRights_SpecialTile<Kim, Tharsis_2_2>"
     )
 
-    kim.cardAction1(RedShips).expect("2 MC")
+    kim.inTurn {
+          doTask("UseCardAction<RedShips, Action1>")
+          selectOnlyTask()
+        }
+        .expect("2 MC")
   }
 }

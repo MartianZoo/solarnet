@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.cardgenerator
 import dev.martianzoo.pets.DerivedClassLowerer
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
-import dev.martianzoo.pets.Transforming.immediateToEffect
+import dev.martianzoo.pets.Transforming.onGainEffect
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
@@ -54,7 +54,7 @@ internal object CardPetsGenerator {
 
     private val deck = data.deck?.let(::cn)
     private val projectKind = data.projectKind?.let(::cn)
-    private val immediate = data.immediate?.let { parseAuthored<InstructionTree>(it) }
+    private val directEffect = data.direct?.let { parseAuthored<InstructionTree>(it) }
     private val actions = data.actions.map { parseAuthored<Action>(it) }
     private val effects = data.effects.map { parseAuthored<Effect>(it) }
     private val authoredAutomaticThisEffects = effects.filter {
@@ -88,8 +88,8 @@ internal object CardPetsGenerator {
 
     internal val declaration: ClassDeclaration by lazy {
       val onPlayEffects =
-          listOfNotNull(immediate).mapNotNull { parsed ->
-            immediateToEffect(InstructionGroup.of(parsed.node), false)
+          listOfNotNull(directEffect).mapNotNull { parsed ->
+            onGainEffect(InstructionGroup.of(parsed.node), false)
           }
       val cardBack = (deck ?: CARD_BACK).classExpression()
       val roles =
@@ -145,7 +145,7 @@ internal object CardPetsGenerator {
       }
       val renderedEffects = buildList {
         authoredAutomaticThisEffects.mapTo(this) { it.render() }
-        immediate?.let { add("This: ${it.render()}") }
+        directEffect?.let { add("This: ${it.render()}") }
         authoredThisEffects.mapTo(this) { it.render() }
         otherEffects.mapTo(this) { it.render() }
       }
@@ -162,7 +162,7 @@ internal object CardPetsGenerator {
     /** A card holds a resource exactly when its own instructions can meaningfully use it. */
     private fun deriveResourceTypeCandidates(): Set<ClassName> {
       val cardNodes =
-          listOfNotNull<PetNode>(immediate?.node) +
+          listOfNotNull<PetNode>(directEffect?.node) +
               actions.map(Parsed<Action>::node) +
               effects.map(Parsed<Effect>::node)
       val authoredNodes = cardNodes + componentClasses.flatMap(ClassDeclaration::allNodes)

@@ -14,6 +14,12 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
  * A Catalog-specific premise factory applies defaults, selection policies, and validation to cook
  * this into a complete [GamePremise]. The configuration itself never records inferred selections.
  *
+ * @property includedClassNames explicitly selected classes; inferred defaults are not stored here.
+ * @property excludedClassNames explicitly excluded classes, disjoint from included classes.
+ * @property playerNames concrete player class names in seat order, each distinct and absent from
+ *   the selection and adjustment collections.
+ * @property componentAdjustments nonzero signed changes to initial component counts, keyed by a
+ *   class that appears in neither selection set.
  * @throws InvalidGameConfigException if the configuration contains invalid or contradictory user
  *   input
  */
@@ -78,11 +84,23 @@ public data class GameConfig(
       parsed.excludedCardBundles,
   )
 
+  /**
+   * Parses comma- or newline-separated class selections and signed count adjustments from [source],
+   * and uses [playerNames] in argument order. For example, `TerraformingMars, -PreludeExpansion, 2
+   * Supply` includes the first class, excludes the second, and adds two Supply components. Invalid
+   * or duplicate entries throw [InvalidGameConfigException].
+   */
   public constructor(
       source: String,
       vararg playerNames: String,
   ) : this(parse(source), parsePlayerNames(playerNames.toList()))
 
+  /**
+   * Renders explicit inclusions, adjustments, and exclusions in that order, separated by commas;
+   * player names are not included in this string. For example, `GameConfig("TerraformingMars,
+   * -PreludeExpansion, 2 Supply", "Blue").toString()` returns `"TerraformingMars, 2 Supply,
+   * -PreludeExpansion"`.
+   */
   override fun toString(): String =
       (includedClassNames.map { "$it" } +
               componentAdjustments.map { (name, adjustment) -> "$adjustment $name" } +
@@ -104,7 +122,9 @@ public data class GameConfig(
 
     /**
      * Creates a configuration from canonical Class selections, bundle card-pool names, and setup
-     * adjustments. Bundle names have no `:cards` suffix here.
+     * adjustments. Bundle names have no `:cards` suffix here. Duplicate entries in [included] or
+     * [excluded] are rejected rather than collapsed; constructor validation also rejects
+     * contradictory selections, zero adjustments, and duplicate [playerNames].
      */
     public fun create(
         included: Iterable<ClassName>,

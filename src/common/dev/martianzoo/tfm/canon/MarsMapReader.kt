@@ -4,11 +4,21 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.util.Grid
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
 
-/** Reads the compact map diagrams embedded in Pets source comments. */
+/** Reads authored hex diagrams from specially marked comments in Pets source. */
 public object MarsMapReader {
+  /** Exact comment that begins a generated-area diagram and separates consecutive diagrams. */
   public const val GENERATED_AREAS_COMMENT: String =
       "// The map areas below are code-generated based on the following comment"
 
+  /**
+   * Returns a definition for each marked diagram in [source], in source order. The first generated
+   * `CLASS Prefix_row_column` line following each diagram supplies its map name, `PrefixMap`.
+   * Diagram rows determine one-based, slanted hex coordinates; area codes determine kinds and
+   * placement bonuses. Returns an empty list when there are no markers.
+   *
+   * A marked section must contain diagram rows and a following generated area class. Malformed
+   * alignment, area codes, or bonus codes fail instead of silently dropping an area.
+   */
   public fun readMaps(source: String): List<MarsMapDefinition> {
     val lines = source.lines()
     return lines.indices.mapNotNull { headerIndex ->

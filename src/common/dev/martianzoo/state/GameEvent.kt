@@ -2,13 +2,20 @@ package dev.martianzoo.state
 
 import dev.martianzoo.pets.ast.Expression
 
+/**
+ * An event at [ordinal] in a world's exact history. Task events edit the pending queue; change
+ * events edit the component multiset. [notes] is optional commentary, not gameplay state.
+ */
 public sealed class GameEvent private constructor() {
+  /** Zero-based position of this event in its world's history. */
   public abstract val ordinal: Int
 
   /** Mutable commentary excluded from this event's value equality and all gameplay semantics. */
   public var notes: String? = null
 
+  /** A task-queue change whose [task] is the added, removed, or replacement task. */
   public sealed class TaskEvent : GameEvent() {
+    /** Task state after an add or edit, or before a removal. */
     public abstract val task: Task
 
     internal fun taskToString() = buildString {
@@ -18,6 +25,7 @@ public sealed class GameEvent private constructor() {
     }
   }
 
+  /** Adds [task] at [ordinal]; its id must encode the same ordinal. */
   public data class TaskAddedEvent(
       override val ordinal: Int,
       override val task: Task,
@@ -29,6 +37,7 @@ public sealed class GameEvent private constructor() {
     override fun toString(): String = taskToString()
   }
 
+  /** Removes the previously pending [task] at [ordinal]. */
   public data class TaskRemovedEvent(
       override val ordinal: Int,
       override val task: Task,
@@ -36,6 +45,7 @@ public sealed class GameEvent private constructor() {
     override fun toString(): String = "$ordinal: -Task${task.id}"
   }
 
+  /** Replaces [oldTask] with [task] at [ordinal], preserving its task id. */
   public data class TaskEditedEvent(
       override val ordinal: Int,
       val oldTask: Task,

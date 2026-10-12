@@ -8,11 +8,16 @@ internal class FloatingTradeHubTest : TfmSandboxTest() {
   @Test
   internal fun `Converts only the chosen floaters into titanium with Prelude and Prelude 2`() {
     newTestGame(addOptions = "PreludeExpansion, prelude2:cards")
-    startActionPhase()
+    advanceUntilActionPhase()
     kim.exMachina("$FloatingTradeHub, 5 Floater<$FloatingTradeHub>")
 
-    kim.cardAction2(FloatingTradeHub, x = 3) { doTask("3 Titanium") }
-        .expect("-3 Floater<$FloatingTradeHub>, 3 Titanium")
+    kim.inTurn {
+      doTask("UseCardAction<FloatingTradeHub, Action2>")
+      selectOnlyTask()
+      selectTask("-3 Floater<FloatingTradeHub>! THEN 3 StandardResource!")
+      selectOnlyTask()
+      doTask("3 Titanium")
+    }
   }
 
   @Test
@@ -20,7 +25,12 @@ internal class FloatingTradeHubTest : TfmSandboxTest() {
     newTestGame(addOptions = "-PreludeExpansion, -prelude2:cards, FloatingTradeHub")
     kim.exMachina("$FloatingTradeHub, 5 Floater<$FloatingTradeHub>")
 
-    kim.cardAction2(FloatingTradeHub, x = 3) { doTask("3 Titanium") }
-        .expect("-3 Floater<$FloatingTradeHub>, 3 Titanium")
+    kim.inTurn {
+      doTask("UseCardAction<FloatingTradeHub, Action2>")
+      selectOnlyTask()
+      selectTask("-3 Floater<FloatingTradeHub>! THEN 3 StandardResource!")
+      selectOnlyTask()
+      doTask("3 Titanium")
+    }
   }
 }

@@ -147,6 +147,12 @@ public object Parsing {
       parseNode(expectedType, elementSource)
 
   // TODO: Contract this temporary tfm-canon seam.
+  /**
+   * Parses [elementSource] as [expectedType], extracting owner-local classes into [derivedClasses]
+   * as it goes. The lowerer retains those generated declarations for its owning declaration; this
+   * overload therefore accepts inline class bodies that ordinary [parse] rejects. Invalid syntax or
+   * an element of the wrong kind fails instead of returning a partial node.
+   */
   public fun <P : PetNode> parse(
       expectedType: KClass<P>,
       elementSource: String,
@@ -467,6 +473,11 @@ public object Parsing {
     }
   }
 
+  /**
+   * Whether [candidate] begins with a token that the grammar for [expectedType] would accept after
+   * [source]. This is a completion hint, not proof that the complete source plus candidate parses.
+   * [PetNode] itself is too broad to select a grammar and is rejected.
+   */
   public fun acceptsNextToken(
       expectedType: KClass<out PetNode>,
       source: String,
@@ -1068,7 +1079,7 @@ public object Parsing {
         ) { (doc, signature, body) ->
           (body ?: ClassBody()).toDeclarations(signature, doc)
         }
-    // Pass this production directly to completionAtEnd: its analyzer understands combinators,
+    // Pass this production to completionAtEnd: its analyzer understands combinators,
     // while a Grammar wrapper would fall back to executing the parser and its semantic maps.
     override val rootParser: Parser<List<ClassDeclaration>> by
         zeroOrMore(declaration) and skip(newlines) map { it.flatten() }

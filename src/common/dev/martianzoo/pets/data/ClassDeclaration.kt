@@ -23,8 +23,8 @@ import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.DefaultKind
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.OneDefault
 
 /**
- * A direct representation of the *declaration* of a component class, such as GreeneryTile, whose
- * source form is
+ * A representation of the *declaration* of a component class, such as GreeneryTile, whose source
+ * form is
  * [section 11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations).
  * A declaration is a signature — a name, an optional dependency list, and an optional supertype
  * list — plus an optional body ([rules L11-3 and
@@ -68,10 +68,10 @@ public data class ClassDeclaration(
      */
     public val invariants: Set<Requirement> = emptySet(),
 
-    /** Effects authored directly in this class body, in declaration order. */
+    /** Effects authored in this class body, in declaration order. */
     public val authoredEffects: List<Effect> = emptyList(),
 
-    /** Actions authored directly in this class body. */
+    /** Actions authored in this class body. */
     public val authoredActions: List<Action> = emptyList(),
 
     /** An catalog-specific executable form, when it differs from the authored form. */
@@ -87,8 +87,8 @@ public data class ClassDeclaration(
     public val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
 
     /**
-     * Property bounds or values declared directly by this class. A name is assigned at most once
-     * per body ([rule
+     * Property bounds or values declared by this class. A name is assigned at most once per body
+     * ([rule
      * L11-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations));
      * what the bounds and values mean is
      * [section 9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties)
@@ -108,13 +108,13 @@ public data class ClassDeclaration(
      */
     public val extraNodes: Set<PetNode> = emptySet(),
 ) : HasClassName {
+  // TODO: Contract temporary tfm-canon declaration-lowering seams.
   /**
    * This class's authored effects followed by its lowered actions, in that order ([rule
    * L7-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-actions)).
    * No rule may rely on the ordering to resolve simultaneous gameplay — sequencing owns that — but
    * it makes introspection deterministic once actions have become ordinary effects.
    */
-  // TODO: Contract temporary tfm-canon declaration-lowering seams.
   public val authoredEffectsWithActions: List<Effect>
     get() = authoredEffects + actionListToEffects(authoredActions)
 
@@ -127,8 +127,13 @@ public data class ClassDeclaration(
   public val effects: List<Effect>
     get() = executableEffects ?: authoredEffectsWithActions
 
+  /**
+   * Whether this declaration directly names `CustomMetric` as a supertype. Such a declaration may
+   * not supply Pets invariants, effects, actions, or defaults; its value comes from Kotlin.
+   */
   public val customMetric: Boolean = CUSTOM_METRIC.expression in supertypes
 
+  /** Whether this declaration directly names `CustomInstruction` as a supertype. */
   public val customInstruction: Boolean = CUSTOM_INSTRUCTION.expression in supertypes
 
   init {
@@ -175,8 +180,11 @@ public data class ClassDeclaration(
     }
   }
 
+  /** Authored concreteness; see type-system rule T2-1. */
   public enum class ClassKind {
+    /** Instances of this class may exist when its type is inhabited. */
     CONCRETE,
+    /** The class may organize subtypes but has no direct instances. */
     ABSTRACT,
   }
 
@@ -206,8 +214,21 @@ public data class ClassDeclaration(
     }
   }
 
+  /** True precisely when [kind] is [ClassKind.ABSTRACT]. */
   public val abstract: Boolean = kind == ABSTRACT
 
+  /**
+   * Authored dependency and quantifier defaults, kept separately for all uses, gains, and removals
+   * under
+   * [type-system rule T10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
+   * [forClass] identifies the declaring class; it may be null only when all three sets are empty.
+   * Merging clauses does not resolve or inherit defaults.
+   *
+   * @property universal Defaults that apply in every use context.
+   * @property gainOnly Additional defaults applied only to a gain.
+   * @property removeOnly Additional defaults applied only to a removal.
+   * @property forClass Declaring class name, or null for an empty declaration.
+   */
   public data class DefaultsDeclaration(
       val universal: OneDefault = OneDefault(),
       val gainOnly: OneDefault = OneDefault(),
@@ -222,6 +243,10 @@ public data class ClassDeclaration(
       }
     }
 
+    /**
+     * Dependency [specs] and an optional [quantifier] for a single use kind. Empty specs leave
+     * dependency choices open; a null quantifier leaves that choice to inheritance.
+     */
     public data class OneDefault(
         val specs: List<Expression> = emptyList(),
         val quantifier: Quantifier? = null,
@@ -241,6 +266,11 @@ public data class ClassDeclaration(
         }
 
     public companion object {
+      /**
+       * Combines clauses for the same declaring class. Identical dependency specs and quantifiers
+       * coalesce; conflicting values or different declaring classes fail. An empty input yields an
+       * empty [DefaultsDeclaration].
+       */
       public fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
         val owners = defs.mapNotNull { it.forClass }.distinct()
         if (owners.size > 1) {
@@ -292,6 +322,10 @@ public data class ClassDeclaration(
         listOf(universal, gainOnly, removeOnly).flatMap { it.specs }.toSet()
   }
 
+  /**
+   * Distinct Pets nodes reachable directly from this declaration's signature and executable body.
+   * It includes lowered action effects through [effects] and excludes source-only [docstring].
+   */
   public val allNodes: Set<PetNode> =
       setOf<PetNode>() +
           className +

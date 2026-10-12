@@ -86,8 +86,11 @@ public data class Action(
       override fun toInstruction() = remove(scaledEx)
     }
 
-    /** Scales [cost] by the value of [metric], mirroring [Instruction.Per]. */
     // can't do non-prod per prod yet
+    /**
+     * Multiplies [cost] by [metric] when the action is used, using [Instruction.Per] semantics. A
+     * [Per] cost cannot itself be nested inside another [Per]; construction rejects that form.
+     */
     public data class Per(val cost: Cost, val metric: Metric) : Cost() {
       init {
         if (cost is Per)

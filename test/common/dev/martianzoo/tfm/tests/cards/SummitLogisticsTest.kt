@@ -12,7 +12,12 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
   internal fun `Is unavailable when Turmoil is absent`() {
     newTestGame("prelude2:cards")
 
-    shouldThrow<DeadEndException> { kim.playProject(SummitLogistics, 10) }
+    shouldThrow<DeadEndException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<SummitLogistics>>")
+      }
+    }
   }
 
   @Test
@@ -20,16 +25,39 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
     newTestGame("SummitLogistics, TurmoilExpansion, -VenusNextExpansion, Luna")
     kim.exMachina("$EarthOffice, $VestaShipyard, Colony<Luna>, 2 PartyDelegate<Scientists>")
 
-    kim.playProject(SummitLogistics, 10).expect("-7 MC, ProjectCard")
+    kim.inTurn {
+          doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
+          selectTask("-X Titanium?")
+          doTask("Ok")
+          selectTask("-X Steel?")
+          doTasks("Ok", "SummitLogistics FROM ProjectCard")
+          selectTask("MC! / (PlanetaryTag OR Colony)")
+          selectTask("2 ProjectCard<Kim, Hand>!")
+        }
+        .expect("-7 MC, ProjectCard")
   }
 
   @Test
   internal fun `Two delegates satisfy its requirement without Scientists ruling`() {
     newTestGame("SummitLogistics, TurmoilExpansion")
 
-    shouldThrow<RequirementException> { kim.playProject(SummitLogistics, 10) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<SummitLogistics>>")
+      }
+    }
     kim.exMachina("2 PartyDelegate<Scientists>")
-    kim.playProject(SummitLogistics, 10).expect("ProjectCard")
+    kim.inTurn {
+          doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
+          selectTask("-X Titanium?")
+          doTask("Ok")
+          selectTask("-X Steel?")
+          doTasks("Ok", "SummitLogistics FROM ProjectCard")
+          selectTask("MC! / (PlanetaryTag OR Colony)")
+          selectTask("2 ProjectCard<Kim, Hand>!")
+        }
+        .expect("ProjectCard")
   }
 
   @Test
@@ -40,6 +68,15 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
     )
     stan.exMachina("Colony<Luna>")
 
-    kim.playProject(SummitLogistics, 10).expect("-4 MC, ProjectCard")
+    kim.inTurn {
+          doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
+          selectTask("-X Titanium?")
+          doTask("Ok")
+          selectTask("-X Steel?")
+          doTasks("Ok", "SummitLogistics FROM ProjectCard")
+          selectTask("MC! / (PlanetaryTag OR Colony)")
+          selectTask("2 ProjectCard<Kim, Hand>!")
+        }
+        .expect("-4 MC, ProjectCard")
   }
 }

@@ -71,7 +71,7 @@ limiter, instructor, changer, and Actor Engines. Initialization crosses three co
 
 1. Structural construction installs the included concrete `Class<T>` representatives and runtime
    indexes. This is not an Actor mutation and creates no Change Events.
-2. The initializer directly creates `Admin`, the minimum concrete Actor state needed to receive
+2. The initializer creates `Admin`, the minimum concrete Actor state needed to receive
    ordinary work.
 3. Admin Tasks create `BootstrapPhase` and the premise component. Ordinary effects of the premise,
    Modules, and Players create the remaining selected state.
@@ -94,7 +94,7 @@ except one. If several legal concrete targets remain, the gain stays abstract. U
 do not use capacity as an implicit choice.
 
 `Engine.fork` constructs an independently mutable live World only at a completed gameplay
-position. It shares the immutable premise and Class Table, directly copies the passive component,
+position. It shares the immutable premise and Class Table, copies the passive component,
 dependency, task, event, completed-position, and live-effect-index collections, and builds fresh
 engine services around them. Immutable compiled live effects are shared, while index storage is
 independent and retains source registration order. The fork point is the new timeline commit floor,
@@ -116,8 +116,8 @@ Removing the final target cascades through existing dependents before the reques
 retried. The graph owns the reverse-dependency index, while the engine owns the decision to cascade.
 
 Every live mutation is an exact gain, removal, or transmutation. A transmutation removes before it
-gains. A transmutation must change its concrete Type. A direct Signal uses a paired gain/removal
-event without requiring an existing source; that event represents a signal, not a self-transmutation.
+gains. A transmutation must change its concrete Type. A Signal gain without transmutation uses a paired
+gain/removal event without requiring an existing source; that event represents a signal, not a self-transmutation.
 `CustomMetric` types never become components. `CustomInstruction` classes are ordinary Signals:
 their gains are recorded, their Pets effects run, and Kotlin supplies one additional queued effect.
 
@@ -166,7 +166,7 @@ A Task retains:
 - its cause.
 
 The three Actor fields are independent. An unselected task normally starts assigned to its
-controller. A normalized task that directly gains a `System` Component, alone or under a top-level
+controller. A normalized task containing an elementary gain of a `System` Component, alone or under a top-level
 instruction-side `BY`, instead starts assigned to Admin before its add event is recorded. Contextual
 selection reapplies that assignment before a concrete instruction-side `BY` performs its later,
 authoritative handoff. Use [IDENTITY.md](IDENTITY.md) before changing them.
@@ -193,7 +193,7 @@ handoff. Clients with a task id can pass a copy of that `Task` to `selectTask`; 
 provides such a copy with its linked `X` choice set to 4.
 If contextual selection splits the original task before its supplied narrowing can be applied,
 the request fails without changing the World. Select the original task first, then narrow the
-resulting tasks; neither direct selection nor a form commit may silently discard that choice.
+resulting tasks; neither `selectTask` nor a form commit may silently discard that choice.
 
 An Agent-created `TaskForm` keeps a disposable narrowing draft before or after task selection.
 Its choice analysis makes no game mutation and claims no selection or assignment. The form
@@ -204,13 +204,13 @@ draft cannot cross it.
 
 **Intended client API rule:** No game choice or task operation may require `TaskForm`. Clients may
 use it to query options and prepare a choice, but must also be able to make every known choice and
-complete every task through direct `Agent` commands. If a replay must construct a form or enumerate
-its decisions merely to submit a known choice, that exposes a direct-command API gap. A
+complete every task through `Agent` commands. If a replay must construct a form or enumerate
+its decisions merely to submit a known choice, that exposes an `Agent` API gap. A
 Terraforming Mars-specific helper that hides the form does not close the gap.
 
 After selection, resolution repeatedly evaluates state-dependent structure until it reaches a
 remaining choice or the first stage is executable. It handles metrics and gates, eliminates `OR`
-arms whose immediate prerequisites fail, narrows an abstract gain when present dependencies
+arms whose execution prerequisites fail, narrows an abstract gain when present dependencies
 identify one target, resolves quantities, and translates concrete custom instructions. Mandatory
 resolution checks physical availability and dependencies; AMAP and optional quantities also use
 current count bounds. This may settle a location as well as a class, or an existing dependency
@@ -309,7 +309,7 @@ An owned effect listening to an unowned event defaults to its Player owner unles
 `System` or the effect explicitly says `BY Anyone`. Unowned System events are necessarily performed
 by Admin and are observed table-wide; Player-specific System events carry an owner. Trigger-side
 `BY` filters the triggering Actor. On queued work, instruction-side `BY`
-changes the task's assignee once its instruction is concrete. It does not directly rewrite event
+changes the task's assignee once its instruction is concrete. It does not rewrite event
 attribution.
 
 Queued `:` effects produce pending Tasks. Automatic `::` effects execute recursively before queued
@@ -325,7 +325,7 @@ current graph. A metric union is a multiset union: for each concrete Type it ret
 matching multiplicity rather than double-counting overlapping arms. Custom metrics over abstract
 dependencies normally specialize only through live dependency targets, not the full structural
 cross-product.
-Resolution's component-existence checks use `Limiter` to query the graph directly, stopping at the
+Resolution's component-existence checks use `Limiter` to query the graph, stopping at the
 first match without constructing a result collection. Refinements still use the current World.
 
 The game `ClassTable` view compiles inherited invariants into immutable per-Class limits. Each
@@ -352,7 +352,7 @@ invariant templates used for validation.
 Abstract or refined Types, minimum-only bounds, self-counts, and indirect or unrelated requirements
 remain constraints; construction neither chooses their components nor invents missing prerequisites.
 Signals do not reconstruct parts. Ordinary instruction execution and
-direct `sneak` corrections share this construction rule; corrections suppress queued reactions.
+`sneak` corrections share this construction rule; corrections suppress queued reactions.
 
 Completed-state validation instantiates a self-count for every inhabited concrete specialization.
 A dependent count containing `This` is instantiated only for live declaring Types, so an absent
@@ -360,14 +360,14 @@ owner does not itself require dependent state.
 
 For component-count validation, a full operation is one initiating change and all its recursive
 automatic effects. Intermediate counts may cross declared bounds; the completed operation must
-satisfy them. Source availability and dependency integrity remain immediate. Resolution never
+satisfy them. Source availability and dependency integrity are checked at execution. Resolution never
 executes consequences to predict a choice's outcome; failure at completion uses the existing
 transaction rollback path. [QUANTIFIERS.md](QUANTIFIERS.md#invariants-at-operation-completion) owns
 the bounds and choice-resolution contract.
 Initialization still audits all applicable positive minimums after constructing the initial world.
 Ordinary gameplay selects global minimum checks through the changed components' existing per-Class
 limit index. It still checks required dependents of live affected owners, including absent parts;
-unchanged global counts need no recheck. Initialization and direct corrections retain the full
+unchanged global counts need no recheck. Initialization and corrections retain the full
 invariant query.
 
 Prefer atomic transmutation when two faces share a stable invariant. Separate queued tasks and
@@ -408,7 +408,7 @@ general mechanism or leave marginal content unsupported with an explicit blocker
 
 The promo attack model is the reference case: one generic victim-owned watcher records removed
 resources and decreased production while retaining the attacked Type and Actor. Crash Site Cleanup
-and Mons Insurance consume those records; prevention rules remain direct removal triggers. Do not
+and Mons Insurance consume those records; prevention rules remain removal triggers. Do not
 replace that shape with an `AttackKind` hierarchy and per-resource watchers.
 
 ## Actor Engines and Agents
@@ -428,7 +428,7 @@ pre-existing unselected Tasks, and rejects newly unfinished Tasks or `MustCleanU
 start while a pre-existing selected Task holds the World lock. `sneak` applies a fully concrete
 correction group, constructs exact required parts, removes dependents, and audits every applicable
 count invariant. The entire group rolls back on failure. It runs automatic effects and suppresses queued effects recursively
-while bypassing settlement, idle cleanup, and completion callbacks. `exMachina` rejects direct System,
+while bypassing settlement, idle cleanup, and completion callbacks. `exMachina` rejects explicit System,
 Hidden, and MustCleanUp targets and any correction that leaves new MustCleanUp state.
 It additionally restores and resumes an existing selection within one atomic lifecycle. See
 [EX_MACHINA.md](EX_MACHINA.md) for the contract and the remaining canon consistency gaps.
@@ -437,7 +437,7 @@ Current autoexecution lives in `:agent`, not in the core engine. Policy selects 
 it does not alter their semantics. The shared policy loop tries eligible Admin work before Player
 work, including between explicit Player steps, but continues to an executable Player option when
 Admin work is abstract or temporarily unavailable. It cannot interrupt an authored `::` chain or
-supply a missing scheduling rule. Direct engine primitives remain available to any caller for local
+supply a missing scheduling rule. Engine primitives remain available to any caller for local
 exploration, workflow, replay correction, tests, and cheats. Restricting access to those primitives
 is not an engine responsibility. [ADVERSARIAL.md](ADVERSARIAL.md) describes how external participants
 or software decide which proposed results and supplied facts to accept as shared play.

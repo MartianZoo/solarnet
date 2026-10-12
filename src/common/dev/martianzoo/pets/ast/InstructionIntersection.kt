@@ -107,7 +107,7 @@ internal class InstructionIntersection(private val table: ClassTable, private va
           narrow.ensureNarrows(wide, info)
           values += narrow.value / wide.multiple
         } else if (wide::class == narrow::class && wide !is Or) {
-          wide.immediateChildren().zip(narrow.immediateChildren()).forEach { (w, n) ->
+          wide.childNodes().zip(narrow.childNodes()).forEach { (w, n) ->
             captureX(w, n)
           }
         }

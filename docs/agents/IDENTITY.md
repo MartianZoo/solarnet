@@ -44,7 +44,7 @@ instruction.
 
 **Proposed representation and intended routing, not implemented.** The
 [turn lifecycle](SEQUENCING.md#turns-and-turn-offers) defines when a player is on-turn.
-The owner is open to recording the current player directly in the component graph with:
+The owner is open to recording the current player in the component graph with:
 
 ```pets
 CLASS OnTurn<Player> : System, Hidden { HAS MAX 1 OnTurn }
@@ -117,7 +117,7 @@ its owner dependency to select whose components match.
 
 ## Task assignment and delegation
 
-A direct task starts with its gameplay Actor as controller, selection assignee, and current
+A manually added task starts with its gameplay Actor as controller, selection assignee, and current
 assignee. Queued work produced during Player-controlled work keeps that Player as controller. Its
 selection assignee comes from the effect owner, changed component owner, then triggering Actor.
 Admin-controlled reactions instead use those sources to choose the controller in the same order.
@@ -131,9 +131,9 @@ rule applies. A concrete `BY` remains authoritative: naming a non-Admin performe
 the existing `System` creation guard and fails. The Admin assignment changes neither presentation
 nor scheduling.
 
-Player `doTask` rejects a narrowing that makes a `System` change concrete for Admin. Select and
-narrow the task directly; eager Admin policy then executes the resulting concrete task. `TaskForm`
-may assist with that choice but must remain optional, as specified in
+Player `doTask` rejects a narrowing that makes a `System` change concrete for Admin. Use `selectTask`
+or `narrowTask` to submit the choice; eager Admin policy then executes the resulting concrete task.
+`TaskForm` may assist with that choice but must remain optional, as specified in
 [ENGINE.md](ENGINE.md#tasks-are-choices-not-a-program-counter).
 The broader intended `doTask` contract is that the submitted change must actually be performed by
 this Actor; apply that rule to all handoffs when the general task-command API is ready, rather than

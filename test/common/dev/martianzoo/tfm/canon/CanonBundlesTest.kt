@@ -149,7 +149,8 @@ internal class CanonBundlesTest {
 
   @Test
   internal fun coloniesDependentCardsCannotBeSelectedWithoutColonies() {
-    // These cover an observed standard action, a count, a direct fleet gain, and an optional trade.
+    // These cover an observed standard action, a count, a fleet gain instruction, and an optional
+    // trade.
     listOf("CryoSleep", "EcologyResearch", "SkyDocks", "TitanFloatingLaunchPad").forEach { cardName
       ->
       shouldThrow<InvalidGameConfigException> { table(cn(cardName)) }

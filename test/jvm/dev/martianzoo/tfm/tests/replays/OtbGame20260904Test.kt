@@ -2051,7 +2051,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 9:32:57 PM — Yellow: "Base bird."
       assertCardResources(6 to StratosphericBirds)
       // Rainbow physically used Maxwell Base at both 9:21:58 and 9:32:51 in the same generation.
-      // The first use consumed its action, so record the directly evidenced illegal second bird.
+      // The first use consumed its action, so record the recorded illegal second bird.
       exMachina("Animal<$StratosphericBirds>")
       assertCardResources(7 to StratosphericBirds)
     }
@@ -2105,7 +2105,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // 9:35:59 PM — Yellow: "I pass."
     yellow.pass(unused = SpaceMirrors)
     // Yellow's app has no entries for CEO's Favorite or either late patent sale. Those three
-    // directly evidenced actions net +1 M€, but the next app balance remains 2 M€ before the
+    // recorded actions net +1 M€, but the next app balance remains 2 M€ before the
     // 44 M€ production credit. Reconcile that recorded one-M€ omission at Yellow's final action.
     yellow.assertCounts(3 to "MC")
     yellow.exMachina("-MC")

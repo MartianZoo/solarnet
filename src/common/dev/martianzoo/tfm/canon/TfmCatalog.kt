@@ -22,9 +22,11 @@ import dev.martianzoo.pets.types.PremiseClassTable
 import dev.martianzoo.pets.util.associateByStrict
 
 /**
- * A Terraforming Mars Catalog with declarations, structured card/map data, and selection rules.
- * Canon's card-authoring conventions are audited during the build by its tests, not when a Catalog
- * is loaded. Pets structural validation and game-configuration checks still apply to every Catalog.
+ * A Terraforming Mars [Catalog] with declarations, structured card/map data, and selection rules.
+ * The constructor composes the supplied catalogs; their [bundles] and [marsMapDefinitions] are
+ * collected in argument order. [card] and [marsMap] search that composed content. Canon's
+ * card-authoring conventions are audited during the build by its tests, not when a Catalog is
+ * loaded. Pets structural validation and game-configuration checks still apply to every Catalog.
  */
 public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
   final override val customClassDependencies: Map<ClassName, Set<ClassName>> = buildMap {
@@ -45,7 +47,7 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
   private val universe: ClassTable
     get() = classTable
 
-  /** Organizational bundles from which this Catalog is assembled. */
+  /** Source bundles contributed by the supplied Terraforming Mars catalogs, in argument order. */
   public open val bundles: List<Bundle> =
       catalogs.filterIsInstance<TfmCatalog>().flatMap { it.bundles }
 
@@ -73,7 +75,11 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
     }
   }
 
-  /** Concrete subclasses of [superclass] whose declarations live in [bundleName]. */
+  /**
+   * Names of concrete subclasses of [superclass] declared directly in the uniquely named
+   * [bundleName], including declarations that may not be selected in a particular game. Fails
+   * unless exactly one loaded bundle has that name.
+   */
   public fun classNamesInBundle(
       bundleName: String,
       superclass: ClassName,
@@ -142,7 +148,7 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
    * exact configured pool for that category; an explicitly named milestone bypasses automatic pool
    * preferences. A playable Terraforming Mars Catalog requires at least one player name in seat
    * order. Missing names and the generated concrete `Premise` Class belong to the premise-local
-   * declaration table; their immediate effects create the resolved Modules, Players, and exact
+   * declaration table; their on-gain effects create the resolved Modules, Players, and exact
    * starting Components without recompiling this Catalog's master table.
    */
   final override fun configurePremise(builder: GamePremiseBuilder) {
@@ -356,7 +362,10 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
         else replaced
       }
 
-  /** Catalog-known concrete subclasses of the ordinary Pets `ColonyTile` class. */
+  /**
+   * Names of nonabstract `ColonyTile` subclasses in this catalog's class table. Empty when the
+   * catalog has no `ColonyTile` class.
+   */
   public val colonyTileClassNames: Set<ClassName> by lazy {
     val colonyTile = universe.findClass(COLONY_TILE) ?: return@lazy emptySet()
     universe
@@ -566,6 +575,10 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
 
   // STRUCTURED CONTENT DATA
 
+  /**
+   * Returns the resolved concrete card-face class named [name]. A class that exists but is not a
+   * card face is not a match. Throws [IllegalArgumentException] if no card has that name.
+   */
   public fun card(name: ClassName): PetClass =
       cardsByClassName[name] ?: throw IllegalArgumentException("No card named $name")
 
@@ -588,10 +601,12 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
     cards.associateByStrict(PetClass::className)
   }
 
+  /** Returns the map definition named [name], or throws [IllegalArgumentException] if absent. */
   public fun marsMap(name: ClassName): MarsMapDefinition =
       marsMapDefinitions.firstOrNull { it.className == name }
           ?: throw IllegalArgumentException("No `$name` in this Catalog")
 
+  /** Map definitions supplied by the composed Terraforming Mars catalogs. */
   public open val marsMapDefinitions: Set<MarsMapDefinition> =
       catalogs.filterIsInstance<TfmCatalog>().flatMapTo(linkedSetOf()) { it.marsMapDefinitions }
 

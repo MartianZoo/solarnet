@@ -13,7 +13,13 @@ internal class SaturnSurfingTest : TfmSandboxTest() {
     kim.exMachina("$SaturnSurfing")
     kim.setToExMachina(6, "Floater<$SaturnSurfing>")
 
-    kim.cardAction1(SaturnSurfing).expect("-Floater, 5 MC")
+    kim.inTurn {
+          doTask("UseCardAction<SaturnSurfing, Action1>")
+          selectOnlyTask()
+          selectTask("MC! / Floater<SaturnSurfing> MAX 4")
+          doTask("MC")
+        }
+        .expect("-Floater, 5 MC")
   }
 
   @Test
@@ -21,6 +27,12 @@ internal class SaturnSurfingTest : TfmSandboxTest() {
     kim.exMachina("$SaturnSurfing")
     kim.setToExMachina(4, "Floater<$SaturnSurfing>")
 
-    kim.cardAction1(SaturnSurfing).expect("-Floater, 4 MC")
+    kim.inTurn {
+          doTask("UseCardAction<SaturnSurfing, Action1>")
+          selectOnlyTask()
+          selectTask("MC! / Floater<SaturnSurfing> MAX 4")
+          doTask("MC")
+        }
+        .expect("-Floater, 4 MC")
   }
 }

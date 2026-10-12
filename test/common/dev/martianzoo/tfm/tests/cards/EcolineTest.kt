@@ -10,6 +10,13 @@ internal class EcolineTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Ecoline)
     kim.setToExMachina(7, "Plant")
 
-    kim.convertPlants { placeTile(2, 1) }.expect("-7 Plant, GreeneryTile")
+    kim.inTurn {
+          doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
+          selectOnlyTask()
+          doTask("GreeneryTile<Tharsis_2_1>")
+          selectTask("OxygenStep.")
+          doTask("TerraformRating")
+        }
+        .expect("-7 Plant")
   }
 }

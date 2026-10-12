@@ -14,10 +14,17 @@ internal class KaguyaTechTest : TfmSandboxTest() {
   internal fun `Replaces a greenery with its city in the same area`() {
     kim.exMachina("GreeneryTile<Kim, Tharsis_4_2>")
 
-    kim.playProject(KaguyaTech, 10) {
-          doTask("CityTile<Tharsis_4_2> FROM GreeneryTile<Tharsis_4_2>")
-        }
-        .expect("-GreeneryTile<Tharsis_4_2>, CityTile<Tharsis_4_2>")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<KaguyaTech>>",
+          "-10 MC",
+          "KaguyaTech FROM ProjectCard",
+          "PROD[2 MC]",
+      )
+      selectTask("ProjectCard<Kim, Hand>!")
+      selectOnlyTask()
+      doTasks("CityTile<Tharsis_4_2> FROM GreeneryTile<Tharsis_4_2>", "Plant")
+    }
   }
 
   @Test
@@ -25,7 +32,14 @@ internal class KaguyaTechTest : TfmSandboxTest() {
     kim.exMachina("GreeneryTile<Kim, Tharsis_4_2>")
 
     shouldThrow<NarrowingException> {
-      kim.playProject(KaguyaTech, 10) {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<KaguyaTech>>")
+        selectTask("-X MC?")
+        doTasks("-10 MC", "KaguyaTech FROM ProjectCard")
+        selectTask("PROD[2 MC]")
+        selectTask("ProjectCard<Kim, Hand>!")
+        selectOnlyTask()
         doTask("CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_2>")
       }
     }
@@ -35,9 +49,16 @@ internal class KaguyaTechTest : TfmSandboxTest() {
   internal fun `Replaces a greenery on an ocean area`() {
     kim.exMachina("GreeneryTile<Kim, Tharsis_1_2>")
 
-    kim.playProject(KaguyaTech, 10) {
-          doTask("CityTile<Tharsis_1_2> FROM GreeneryTile<Tharsis_1_2>")
-        }
-        .expect("-GreeneryTile<Tharsis_1_2>, CityTile<Tharsis_1_2>")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<KaguyaTech>>",
+          "-10 MC",
+          "KaguyaTech FROM ProjectCard",
+          "PROD[2 MC]",
+      )
+      selectTask("ProjectCard<Kim, Hand>!")
+      selectOnlyTask()
+      doTasks("CityTile<Tharsis_1_2> FROM GreeneryTile<Tharsis_1_2>", "2 Steel")
+    }
   }
 }

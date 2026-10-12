@@ -242,7 +242,7 @@ Concrete results:
   producing better rules.
 - Compiler success was too weak: privatizing protected `testAgent` changed which function subclass
   calls resolved to without causing a compile error. Behavioral testing found the problem; a
-  before/after resolved-symbol comparison would have identified it directly.
+  before/after resolved-symbol comparison would have identified it.
 - Byte offsets made convenient mutation keys but poor durable symbol identities. Formatting or
   unrelated edits can invalidate them.
 - The parsed inventory and visibility-only diff checker demonstrated useful supporting techniques.

@@ -11,16 +11,21 @@ import dev.martianzoo.pets.types.Type
  * dependency arity fails with [ExpressionException].
  */
 public abstract class CustomInstruction(name: String? = null) : CustomClass(name) {
+  /** Uses [className] as the Pets identity instead of the Kotlin class's simple name. */
   public constructor(className: ClassName) : this(className.toString())
 
+  /** Translates a custom instruction with no type dependencies. Override for this arity. */
   public open fun translate(game: GameReader): InstructionTree = noInstructionBehavior(0)
 
+  /** Translates a custom instruction with one type dependency. Override for this arity. */
   public open fun translate(game: GameReader, type0: Type): InstructionTree =
       noInstructionBehavior(1)
 
+  /** Translates a custom instruction with two type dependencies. Override for this arity. */
   public open fun translate(game: GameReader, type0: Type, type1: Type): InstructionTree =
       noInstructionBehavior(2)
 
+  /** Translates a custom instruction with three type dependencies. Override for this arity. */
   public open fun translate(
       game: GameReader,
       type0: Type,
@@ -28,6 +33,7 @@ public abstract class CustomInstruction(name: String? = null) : CustomClass(name
       type2: Type,
   ): InstructionTree = noInstructionBehavior(3)
 
+  /** Translates a custom instruction with four type dependencies. Override for this arity. */
   public open fun translate(
       game: GameReader,
       type0: Type,

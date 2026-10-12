@@ -53,7 +53,7 @@ internal constructor(
     /** The class loader used while constructing this class. */
     private val loader: ClassLoader,
 
-    /** Whether resolving this declaration's immediate hierarchy includes those Classes. */
+    /** Whether resolving this declaration's direct hierarchy includes those Classes. */
     includeRelated: Boolean = true,
 
     /**
@@ -169,11 +169,11 @@ internal constructor(
     return interpreted
   }
 
+  // TODO: Contract this temporary tfm-canon seam.
   /**
    * The master universe containing this class, as required by
    * [rule T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
-  // TODO: Contract this temporary tfm-canon seam.
   public val classTable: ClassTable = loader
 
   /**

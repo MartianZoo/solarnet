@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
@@ -29,6 +28,8 @@ internal class ConstructorTest : TfmSandboxTest() {
   private fun fundWithoutColonies(): TaskResult {
     newTestGame(addOptions = "AmazonisMap, -ColoniesExpansion")
     kim.exMachina("NormalCityTile<Amazonis_05_01>")
-    return kim.fundAward(cn("Constructor"), 8)
+    return kim.inTurn {
+      doTask("FundAward<Class<Constructor>>")
+    }
   }
 }

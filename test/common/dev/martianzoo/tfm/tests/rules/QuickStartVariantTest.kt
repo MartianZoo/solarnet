@@ -1,27 +1,32 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 internal class QuickStartVariantTest : TfmSandboxTest() {
+  private fun assertQuickStartProduction(seat: Int) {
+    players[seat].assertProds(
+        1 to "MC",
+        1 to "Steel",
+        1 to "Titanium",
+        1 to "Plant",
+        1 to "Energy",
+        1 to "Heat",
+    )
+  }
+
   @Test
   internal fun `Quick Start supplies production to all five players`() {
     newTestGame(addOptions = "-CorporateEraExpansion", playerCount = 5)
 
-    players.forEach {
-      it.assertProds(
-          1 to "MC",
-          1 to "Steel",
-          1 to "Titanium",
-          1 to "Plant",
-          1 to "Energy",
-          1 to "Heat",
-      )
-    }
+    assertQuickStartProduction(0)
+    assertQuickStartProduction(1)
+    assertQuickStartProduction(2)
+    assertQuickStartProduction(3)
+    assertQuickStartProduction(4)
   }
 
   @Test
@@ -53,21 +58,55 @@ internal class QuickStartVariantTest : TfmSandboxTest() {
   @Test
   internal fun `Quick Start's Generalist requires two production of every resource`() {
     newTestGame(addOptions = "ElysiumMap")
-    shouldThrow<RequirementException> { kim.claimMilestone(cn("Generalist2")) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("ClaimMilestone<Class<Generalist2>>")
+        selectTask("-X MC?")
+        doTask("-MC / Owed<Class<MC>>")
+        selectOnlyTask()
+      }
+    }
     kim.exMachina("PROD[MC, Steel, Titanium, Plant, Heat]")
-    shouldThrow<RequirementException> { kim.claimMilestone(cn("Generalist2")) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("ClaimMilestone<Class<Generalist2>>")
+        selectTask("-X MC?")
+        doTask("-MC / Owed<Class<MC>>")
+        selectOnlyTask()
+      }
+    }
 
-    kim.stdProject("PowerPlantProject")
-    kim.claimMilestone(cn("Generalist2")).expect("-8 MC, Generalist2")
+    kim.inTurn {
+      doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
+    }
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Generalist2>>", "-MC / Owed<Class<MC>>")
+      selectOnlyTask()
+    }
   }
 
   @Test
   internal fun `Without Quick Start Generalist needs only a single production of each resource`() {
     newTestGame(addOptions = "ElysiumMap, -QuickStartVariant")
     kim.exMachina("PROD[MC, Steel, Titanium, Plant, Heat]")
-    shouldThrow<RequirementException> { kim.claimMilestone(cn("Generalist")) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("ClaimMilestone<Class<Generalist>>")
+        selectTask("-X MC?")
+        doTask("-MC / Owed<Class<MC>>")
+        selectOnlyTask()
+      }
+    }
 
-    kim.stdProject("PowerPlantProject")
-    kim.claimMilestone(cn("Generalist")).expect("-8 MC, Generalist")
+    kim.inTurn {
+      doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
+    }
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Generalist>>", "-MC / Owed<Class<MC>>")
+      selectOnlyTask()
+    }
   }
 }

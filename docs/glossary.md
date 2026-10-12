@@ -58,11 +58,13 @@
 - **Die:** A concrete, final Type with the invariant `HAS MAX 0 This`. A mandatory gain is a dead
   end; a nonmandatory gain can resolve to no change.
 - **difference type:** A refinement written `B(NOT C)` that denotes the Types in explicit domain `B` which do not overlap excluded Type `C`.
+- **direct effect:** A card's instructions performed when it enters play, authored in card data as `direct` and normally expressed in Pets with `This:`. The term describes card behavior; it does not specify automatic (`::`) versus queued (`:`) dispatch.
 - **display name:** The locale-specific natural-language name used for UI text, such as a printed card title. It need not be a valid or stable Pets identifier.
 - **double-colon effect:** Synonym for automatic effect.
 - **drain:** To become empty. The global task pool or an Actor-filtered view becoming empty can advance workflow.
 - **effect:** A trigger, an instruction, and the choice between automatic and queued dispatch, attached to a class or specialized for a Component.
-- **engine:** The passive mechanism that validates direct Actor-attributed mutations and calculates their state consequences. It is not an Actor or Component.
+- **elementary change:** A gain, removal, or transmutation instruction (`Instruction.Change`). A correction accepts fully concrete elementary changes.
+- **engine:** The passive mechanism that validates Actor-attributed mutations and calculates their state consequences. It is not an Actor or Component.
 - **event log:** The ordered history of state changes and task lifecycle events in a game world.
 - **expression:** A Pets source or AST representation of a type, naming it through a class, optional written dependency bounds, and an optional refinement. Distinct expressions may resolve to the same type, and one expression may resolve differently in different contexts.
 - **FakeCanon:** The separate catalog of noncanonical support declarations. Tests, replays, and tools compose it with Canon only when they need fake content.
@@ -73,8 +75,7 @@
 - **game world:** The complete live engine state of a game: its component graph, global task queue, event log, timeline, and class table, together with the catalog and immutable premise behind them. ActorAccess, agents, agent drivers, and generic pulse dispatch are configured above that state.
 - **game world revision:**
 - **gated instruction:** An instruction guarded by a requirement, such as `HasRaisedTr: -3 THEN TerraformRating`. An unsatisfied gate does not mean “do nothing”; it makes that task uncompletable unless its quantifier or enclosing choice permits another result.
-- **Hidden:** A presentation classification for types normally omitted from user-visible output. It does not mean information concealed from Players. `exMachina` also excludes Hidden types from direct correction targets.
-- **immediate instruction:** An on-create instruction expressed with `This:`, or supplied by transitional card data's `immediate` field.
+- **Hidden:** A presentation classification for types normally omitted from user-visible output. It does not mean information concealed from Players. `exMachina` also excludes Hidden types from explicit correction targets.
 - **instruction:** A Pets specification of work that may change a game world.
 - **invariant:** A class-declared requirement. Component-count invariants must hold at [operation completion](type-system.md#invariants-and-operation-completion); positive exact counts of concrete dependent parts also construct those parts when their owner is gained. Selected Module requirements also participate in premise validation.
 - **limit:** A counting invariant that places a minimum, maximum, or exact bound on matching Components, such as `HAS MAX 1 This`. Limits constrain completed operations and also bound AMAP and optional quantities in the current World.
@@ -110,7 +111,7 @@
 - **REgo PLastics:** Solarnet's command-line interface for driving the engine.
 - **represented-type variable:** Inside a refined class literal such as `Class<@Tag>(HAS @Tag<Player1>)`, the marked operand and use share the represented class. Testing `Class<SpaceTag>` therefore tests for `SpaceTag<Player1>` without treating the class token as an owned Component.
 - **requirement:** A Pets predicate evaluated against a game world, used for queries, gates, invariants, and refinements.
-- **resolution:** The engine's interpretation of an instruction against the current game world. It evaluates gates and metrics, checks immediate prerequisites, bounds AMAP and optional quantities, translates concrete custom instructions, and performs forced narrowing without making client choices or predicting final invariant satisfaction. Resolution follows selection and repeats after each narrowing.
+- **resolution:** The engine's interpretation of an instruction against the current game world. It evaluates gates and metrics, checks execution prerequisites, bounds AMAP and optional quantities, translates concrete custom instructions, and performs forced narrowing without making client choices or predicting final invariant satisfaction. Resolution follows selection and repeats after each narrowing.
 - **root type:** The class at the head of an expression, before its written dependency bounds.
 - **rule class:** A Class expressing general game vocabulary or behavior, including standard actions and standard projects. A selected Module reaches its intrinsic rule Classes through ordinary selection edges. This is a role, not a Pets supertype or the opposite of Content: named content such as a party or map can carry rules too.
 - **scalar:**
@@ -129,7 +130,7 @@
 - **source effect:** An effect as authored in `.pets` or generated from structured content data, before class-level inheritance and transformation.
 - **state change:** An exact Component gain, removal, or transmutation that occurred in a game world.
 - **structured content data:** Transitional category-specific card or map data used to generate class declarations and retain metadata not yet authored in Pets. It is not a common engine representation.
-- **System:** Admin-only machinery. A normalized queued task that directly gains a System Component, alone or under a top-level instruction-side `BY`, begins assigned to Admin before any Player could select it. A later explicit `BY` remains authoritative, but the gain still cannot be performed by any Actor except Admin. An unowned System occurrence does not implicitly restrict effect matching by its Actor. Presentation visibility is classified separately.
+- **System:** Admin-only machinery. A normalized queued task containing an elementary gain of a System Component, alone or under a top-level instruction-side `BY`, begins assigned to Admin before any Player could select it. A later explicit `BY` remains authoritative, but the gain still cannot be performed by any Actor except Admin. An unowned System occurrence does not implicitly restrict effect matching by its Actor. Presentation visibility is classified separately.
 - **system type:** A Pets type supplied by the declarations in `SystemDeclarations.kt` because the generic engine requires it.
 - **task:** A unit of pending work containing an instruction; controller, selection-assignee, and current-assignee Actors; optional cause; and lifecycle metadata. It represents both what must eventually happen and the choices still permitted.
 - **task event:**

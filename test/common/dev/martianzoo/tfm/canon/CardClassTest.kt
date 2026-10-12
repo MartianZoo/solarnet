@@ -59,7 +59,7 @@ internal class CardClassTest {
     cardCost(card) shouldBe 7
     cardRequirement(card).toString() shouldBe "3 OceanTile"
     cardTags(card).elements.shouldContainExactlyInAnyOrder(cn("EarthTag"), cn("BuildingTag"))
-    cardImmediate(card).toString() shouldBe "2 MC"
+    cardDirectEffect(card).toString() shouldBe "2 MC"
     cardActions(card).map { it.toString() }.shouldContainExactly("Plant -> Microbe<This>")
     cardEffects(card).map { it.toString() }.shouldContainExactly("End: VictoryPoint")
     cardResourceType(card) shouldBe cn("Microbe")

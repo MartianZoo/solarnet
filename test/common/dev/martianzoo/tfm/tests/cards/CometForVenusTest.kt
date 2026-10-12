@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.cards.cardnames.CometForVenus
 import dev.martianzoo.tfm.tests.cards.cardnames.Dirigibles
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -15,6 +14,12 @@ internal class CometForVenusTest : TfmSandboxTest() {
     stan.setToExMachina(4, "MC")
     stan.exMachina("$Dirigibles")
 
-    kim.playProject(CometForVenus, 11) { doTask("-4 MC<Stan>") }.expect("-4 MC<Stan>")
+    kim.inTurn {
+      doTasks("PlayProject<Class<CometForVenus>>", "-11 MC")
+      selectTask("-X Titanium?")
+      doTasks("Ok", "CometForVenus FROM ProjectCard")
+      selectTask("VenusStep.")
+      doTasks("TerraformRating", "-4 MC<Stan>")
+    }
   }
 }

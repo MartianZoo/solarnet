@@ -14,11 +14,18 @@ internal class LocalHeatTrappingTest : TfmSandboxTest() {
   internal fun `Can choose unavailable animals instead of plants`() {
     kim.setToExMachina(5, "Heat")
 
-    kim.playProject(LocalHeatTrapping, 1) {
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<LocalHeatTrapping>>",
+              "-1 MC",
+              "LocalHeatTrapping FROM ProjectCard",
+              "-5 Heat",
+          )
+          selectOnlyTask()
           // Decline gaining plants by choosing animals when no animal holder exists.
-          declineTask()
+          doTask("Ok")
         }
-        .expect("-5 Heat, 0 Plant")
+        .expect("0 Plant")
   }
 
   @Test
@@ -27,7 +34,15 @@ internal class LocalHeatTrappingTest : TfmSandboxTest() {
     kim.exMachina("$Pets")
 
     shouldThrow<NarrowingException> {
-      kim.playProject(LocalHeatTrapping, 1) { declineTask() }
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("PlayProject<Class<LocalHeatTrapping>>")
+        selectTask("-X MC?")
+        doTasks("-1 MC", "LocalHeatTrapping FROM ProjectCard")
+        selectTask("-5 Heat!")
+        selectOnlyTask()
+        doTask("Ok")
+      }
     }
   }
 }

@@ -230,7 +230,7 @@ Several consequences follow for this proposal:
 - A player can immediately decrypt anything encrypted under a key they already possess. Future
   draws cannot be published under that key before acceptance. They must remain unavailable or
   protected by unreleased key material.
-- Fresh ciphertext can avoid a direct equality comparison, but public card handles, hand slots,
+- Fresh ciphertext can avoid an equality comparison, but public card handles, hand slots,
   lengths, or ordering can still expose a draw-to-discard relationship. The complete visible
   record needs examination. Some deductions are inherent: a player holding a single card who
   discards it cannot conceal that relationship.

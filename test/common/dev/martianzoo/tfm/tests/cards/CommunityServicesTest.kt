@@ -8,11 +8,19 @@ internal class CommunityServicesTest : TfmSandboxTest() {
   @Test
   internal fun `Does not count Ecology Experts or Decomposers as tagless`() {
     newTestGame(addOptions = "PreludeExpansion, EcologyExperts, Unsafe")
-    startActionPhase()
+    advanceUntilActionPhase()
     kim.exMachina("$EcologyExperts, $Decomposers")
     kim.setToExMachina(13, "MC")
 
     // The beginner corporation and Community Services itself are the two tagless cards.
-    kim.playProject(CommunityServices, 13).expect("PROD[2 MC]")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<CommunityServices>>",
+              "-13 MC",
+              "CommunityServices FROM ProjectCard",
+          )
+          selectOnlyTask()
+        }
+        .expect("PROD[2 MC]")
   }
 }

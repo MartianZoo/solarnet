@@ -11,6 +11,14 @@ internal class DiasporaMovementTest : TfmSandboxTest() {
     kim.exMachina("2 PartyDelegate<Reds>")
     stan.exMachina("$ColonizerTrainingCamp")
 
-    kim.playProject(DiasporaMovement, 7).expect("-5 MC")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<DiasporaMovement>>",
+              "-7 MC",
+              "DiasporaMovement FROM ProjectCard",
+          )
+          selectOnlyTask()
+        }
+        .expect("-5 MC")
   }
 }

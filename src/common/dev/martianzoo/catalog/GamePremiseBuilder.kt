@@ -28,19 +28,32 @@ internal constructor(
     config: GameConfig,
     additionalClassDeclarations: Set<ClassDeclaration> = emptySet(),
 ) {
+  /** Player class names in the [GameConfig]'s seat order. */
   public val playerNames: List<ClassName> = config.playerNames
   /** Explicit bundle card-pool requests, for Catalog-specific content selection. */
   public val includedCardBundles: Set<String> = config.includedCardBundles
   /** Explicit bundle card-pool exclusions, including pools selected by a Module default. */
   public val excludedCardBundles: Set<String> = config.excludedCardBundles
+  /** Master class table plus declarations supplied only for this premise. */
   public val configurationTable: PremiseClassTable
+  /** Explicit positive choices, including the configured player names. */
   public val explicitlyIncluded: Set<ClassName>
+  /** Explicit negative choices from the configuration. */
   public val explicitlyExcluded: Set<ClassName>
+  /** Mutable selected names, initialized from explicit choices and automatic module defaults. */
   public val included: MutableSet<ClassName>
+  /** Mutable excluded names, initialized from explicit negative choices. */
   public val excluded: MutableSet<ClassName>
+  /** Optional component Admin creates before the generated premise class. */
   public var bootstrapClassName: ClassName? = null
-  /** Additional effects on the generated Premise, after its ordinary initialization effects. */
+  /**
+   * Additional effects on the generated Premise, after its ordinary initialization effects. If no
+   * generated Premise is needed, adding an effect causes one to be created.
+   */
   public val initializationEffects: MutableList<Effect> = mutableListOf()
+  /**
+   * Selected module names in [included]; adding or removing an included module changes this view.
+   */
   public val moduleNames: Set<ClassName>
     get() = included.filterTo(linkedSetOf()) { it in catalog.modules }
 
@@ -157,7 +170,11 @@ internal constructor(
     }
   }
 
-  /** Counts configured Classes matching a simple Class metric, including Player subclasses. */
+  /**
+   * Counts [configuredClassNames] that are the class named by [metric] or its subclasses in
+   * [configurationTable], including player subclasses. [metric] must be a simple Class count; other
+   * metrics throw [InvalidPetDefinitionException].
+   */
   public fun countConfigured(
       metric: Metric,
       configuredClassNames: Set<ClassName>,

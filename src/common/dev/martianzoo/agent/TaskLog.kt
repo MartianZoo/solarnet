@@ -21,8 +21,8 @@ import dev.martianzoo.state.Task.TaskId
  *
  * Reconstruction uses the same premise, implementation and workflow, with Player autoexecution
  * disabled and Admin remaining aggressive. Routine Admin work is omitted; explicit Admin choices
- * are retained. The text does not contain the premise, injected operations, direct `sneak` changes,
- * or external card-name annotations. Task ids and context-only disambiguation are not serialized;
+ * are retained. The text does not contain the premise, injected operations, `sneak` corrections, or
+ * external card-name annotations. Task ids and context-only disambiguation are not serialized;
  * imports fail when the instruction cannot identify equivalent pending work.
  */
 public class TaskLog internal constructor(private val world: World) {
@@ -90,9 +90,10 @@ public class TaskLog internal constructor(private val world: World) {
     /**
      * Applies nonblank lines to their named Actors. The caller first reconstructs the premise,
      * disables Player autoexecution, leaves Admin aggressive, and starts the normal workflow.
-     * Selection matches and narrows pending tasks directly; it does not try alternative executions
-     * or backtrack. Source task ids and recorded consequences are unused. An invalid, ambiguous, or
-     * failed command stops import with its line number; preceding successful lines remain applied.
+     * Selection matches and narrows pending tasks through [Agent.selectTask]; it does not try
+     * alternative executions or backtrack. Source task ids and recorded consequences are unused. An
+     * invalid, ambiguous, or failed command stops import with its line number; preceding successful
+     * lines remain applied.
      */
     public fun replay(text: String, agents: Agents) {
       val actors = agents.world.actors.associateBy { it.toString() }

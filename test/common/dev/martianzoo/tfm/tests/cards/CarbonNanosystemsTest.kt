@@ -10,8 +10,20 @@ internal class CarbonNanosystemsTest : TfmSandboxTest() {
     newTestGame(addOptions = "-promos:cards, CarbonNanosystems")
     kim.exMachina("$CarbonNanosystems, 2 Graphene<$CarbonNanosystems>")
 
-    kim.playProject(AsteroidCard, 6) { doTask("-2 Graphene<$CarbonNanosystems>") }
-        .expect("-2 Graphene<$CarbonNanosystems>")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<AsteroidCard>>",
+          "-6 MC",
+          "-2 Graphene<CarbonNanosystems>",
+          "AsteroidCard FROM ProjectCard",
+      )
+      selectTask("TemperatureStep.")
+      doTask("2 Titanium")
+      selectTask("-3 Plant<Anyone>?")
+      doTask("TerraformRating")
+      selectTask("-X Titanium?")
+      doTask("Ok")
+    }
   }
 
   @Test
@@ -19,7 +31,19 @@ internal class CarbonNanosystemsTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("$CarbonNanosystems, 2 Graphene<$CarbonNanosystems>")
 
-    kim.playProject(AsteroidCard, 6) { doTask("-2 Graphene<$CarbonNanosystems>") }
-        .expect("-2 Graphene<$CarbonNanosystems>")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<AsteroidCard>>",
+          "-6 MC",
+          "-2 Graphene<CarbonNanosystems>",
+          "AsteroidCard FROM ProjectCard",
+      )
+      selectTask("TemperatureStep.")
+      doTask("2 Titanium")
+      selectTask("-3 Plant<Anyone>?")
+      doTask("TerraformRating")
+      selectTask("-X Titanium?")
+      doTask("Ok")
+    }
   }
 }

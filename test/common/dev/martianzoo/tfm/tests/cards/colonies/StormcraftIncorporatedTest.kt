@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -12,8 +11,11 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
     newTestGame(kimCorporation = StormcraftIncorporated)
     kim.exMachina("$TitanShuttles")
 
-    kim.cardAction1(StormcraftIncorporated) { doTask("Floater<$TitanShuttles>") }
-        .expect("Floater<$TitanShuttles>")
+    kim.inTurn {
+      doTask("UseCardAction<StormcraftIncorporated, Action1>")
+      selectTask("Floater.")
+      doTask("Floater<TitanShuttles>")
+    }
   }
 
   @Test
@@ -21,13 +23,11 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
     newTestGame(kimCorporation = StormcraftIncorporated)
     kim.exMachina("Floater<$StormcraftIncorporated>, 6 Heat")
 
-    kim.stdAction(
-            "ConvertHeat",
-            payment = {
-              doTask("-Floater<$StormcraftIncorporated>")
-              doTask("-6 Heat")
-            },
-        )
+    kim.inTurn {
+          doTasks("ConvertHeat", "-Floater<StormcraftIncorporated>", "-6 Heat")
+          selectTask("MAX 0 Billing: TemperatureStep.")
+          doTask("TerraformRating")
+        }
         .expect("-Floater<$StormcraftIncorporated>, -6 Heat, TemperatureStep")
   }
 
@@ -35,8 +35,17 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
   internal fun `Can spend no floaters on Local Heat Trapping`() {
     initializeStormcraftGame(floaters = 1, heat = 5)
 
-    kim.playProject(LocalHeatTrapping, 1) {
-          doTask("4 Plant")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<LocalHeatTrapping>>",
+              "-1 MC",
+              "LocalHeatTrapping FROM ProjectCard",
+              "-5 Heat",
+              "4 Plant",
+          )
+          selectTask(
+              "(-Floater<StormcraftIncorporated>! THEN 2 Heat!) OR (-2 Floater<StormcraftIncorporated>! THEN 4 Heat!) OR (-3 Floater<StormcraftIncorporated>! THEN 5 Heat!) OR Ok"
+          )
           doTask("Ok")
         }
         .expect("-5 Heat, 4 Plant, 0 Floater<$StormcraftIncorporated>")
@@ -46,9 +55,18 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
   internal fun `Can spend two floaters after Local Heat Trapping removes heat`() {
     initializeStormcraftGame(floaters = 2, heat = 5)
 
-    kim.playProject(LocalHeatTrapping, 1) {
-          doTask("4 Plant")
-          doTask("-2 Floater THEN 4 Heat")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<LocalHeatTrapping>>",
+              "-1 MC",
+              "LocalHeatTrapping FROM ProjectCard",
+              "-5 Heat",
+              "4 Plant",
+          )
+          selectTask(
+              "(-Floater<StormcraftIncorporated>! THEN 2 Heat!) OR (-2 Floater<StormcraftIncorporated>! THEN 4 Heat!) OR (-3 Floater<StormcraftIncorporated>! THEN 5 Heat!) OR Ok"
+          )
+          doTasks("-2 Floater THEN 4 Heat", "4 Heat")
         }
         .expect("-2 Floater<$StormcraftIncorporated>, -Heat, 4 Plant")
   }
@@ -57,9 +75,16 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
   internal fun `Can spend three floaters before Local Heat Trapping removes heat`() {
     initializeStormcraftGame(floaters = 3, heat = 0)
 
-    kim.playProject(LocalHeatTrapping, 1) {
-          doTask("-3 Floater THEN 5 Heat")
-          doTask("4 Plant")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<LocalHeatTrapping>>",
+              "-1 MC",
+              "LocalHeatTrapping FROM ProjectCard",
+              "-3 Floater THEN 5 Heat",
+              "5 Heat",
+              "-5 Heat",
+              "4 Plant",
+          )
         }
         .expect("-3 Floater<$StormcraftIncorporated>, 4 Plant")
   }
@@ -75,15 +100,18 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
     newTestGame(playerCount = 2, kimCorporation = StormcraftIncorporated)
     kim.exMachina("9 Floater<$StormcraftIncorporated>")
     stan.setToExMachina(2, "Heat")
-    kim.fundAward(cn("Thermalist"), 8)
+    kim.inTurn {
+      doTasks("FundAward<Class<Thermalist>>", "-8 MC")
+      selectTask("MAX 0 Billing: Thermalist!")
+    }
 
-    kim.stdAction(
-            "ConvertHeat",
-            payment = {
-              doTask("-4 Floater<$StormcraftIncorporated>")
-              declineTask()
-            },
-        )
+    kim.inTurn {
+          doTasks("ConvertHeat", "-4 Floater<StormcraftIncorporated>")
+          selectTask("MAX 0 Billing: TemperatureStep.")
+          doTask("TerraformRating")
+          selectTask("-X Heat?")
+          doTask("Ok")
+        }
         .expect("TemperatureStep, 0 Heat")
 
     victoryPoints() shouldBe listOf(21, 25)

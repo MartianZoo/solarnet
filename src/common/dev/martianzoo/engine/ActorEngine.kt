@@ -46,6 +46,10 @@ import dev.martianzoo.state.TaskResult
  * after resolving enclosing instructions, while explicit instruction-side `BY` remains
  * authoritative. The original controller and selection recipient are retained for continuations and
  * queued effects.
+ *
+ * This is a low-level mutation surface. Task methods can change the live world immediately; callers
+ * that need a failure-atomic interaction enclose the sequence in [transact]. Automatic task policy
+ * belongs to the Agent layer, not this engine.
  */
 public class ActorEngine
 internal constructor(
@@ -74,7 +78,13 @@ internal constructor(
 
   private val possibleWorldFacts = narrowingFacts(requirementsHold = true)
 
-  /** Runs one engine transaction and returns its net result. */
+  /**
+   * Runs [block] atomically, then calls [settle] to advance eligible work and [validateCompletion]
+   * to reject an unfinished result. Settlement can run again if idle cleanup creates more work. A
+   * failure in these stages rolls back the interaction; a successful result reports its changes and
+   * newly created tasks still pending. For an outermost transaction, the world's completion
+   * callback runs after the first commit.
+   */
   public fun transact(
       settle: () -> Unit,
       validateCompletion: () -> Unit = {},
@@ -99,7 +109,9 @@ internal constructor(
   // CHANGES LAYER
 
   /**
-   * Applies and validates a correction with automatic effects, but no queued effects or cleanup.
+   * Applies and validates [changes] as a correction attributed to [actor], with automatic effects
+   * but no queued effects, task settlement, or idle cleanup. Failure rolls back the correction;
+   * success records a completed position without calling the world's completion callback.
    */
   public fun sneak(changes: InstructionGroup, cause: Cause? = null): TaskResult =
       worldTransaction.correct {
@@ -108,9 +120,17 @@ internal constructor(
 
   // TASKS LAYER
 
+  /**
+   * Adds [instructions] as pending tasks controlled by [actor] and returns their ids in creation
+   * order. [firstCause], when supplied, identifies the source of the initial task.
+   */
   public fun addTasks(instructions: InstructionGroup, firstCause: Cause? = null): List<TaskId> =
       taskQueues.addTasks(instructions, actor, firstCause).map { it.task.id }
 
+  /**
+   * Removes [taskId] from this actor's queue and returns its removal event. Fails if the task is
+   * absent or belongs to another actor. No task instruction is executed.
+   */
   public fun dropTask(taskId: TaskId): TaskRemovedEvent {
     val task = tasks.getTaskData(taskId)
     return taskQueues.removeTask(task)
@@ -171,6 +191,11 @@ internal constructor(
 
   // TASK COMMANDS
 
+  /**
+   * Narrows this actor's currently selected task with [narrowing]. An omitted quantifier can be
+   * retained from the pending task when [quantifierOmitted] is true. A concrete result may execute
+   * or be assigned to another actor; incompatible narrowing fails.
+   */
   public fun narrowTask(narrowing: InstructionTree, quantifierOmitted: Boolean = false) {
     val taskId = tasks.selectedTask() ?: throw TaskException("`$actor` has no selected task")
     narrowSelectedTask(taskId, narrowing, quantifierOmitted)
@@ -289,6 +314,10 @@ internal constructor(
   }
 
   @Suppress("TooGenericExceptionCaught") // TODO narrow? log?
+  /**
+   * Whether selecting [taskId] could complete normally in the current world. The probe rolls back
+   * its own changes and returns false on any thrown failure.
+   */
   public fun canSelectTask(taskId: TaskId): Boolean {
     return try {
       timeline.atomic {
@@ -311,6 +340,10 @@ internal constructor(
   }
 
   @Suppress("TooGenericExceptionCaught") // Keep this probe aligned with canSelectTask for now.
+  /**
+   * Whether [taskId] could be selected and finished now without a remaining task or handoff. The
+   * probe rolls back its own changes and returns false on any thrown failure.
+   */
   public fun canExecuteTask(taskId: TaskId): Boolean {
     return try {
       timeline.atomic {
@@ -326,6 +359,10 @@ internal constructor(
     }
   }
 
+  /**
+   * Selects [taskId] from this actor's queue, resolving and executing it if concrete. An abstract
+   * or reassigned task remains pending for its current assignee.
+   */
   public fun selectTask(taskId: TaskId) {
     val task = tasks.getTaskData(taskId)
     if (actor != task.assignee) {
@@ -334,6 +371,12 @@ internal constructor(
     selectAndExecuteIfConcrete(tasks, taskId)
   }
 
+  /**
+   * Finds a task compatible with [narrowing] (or [taskId] when given), selects it, and submits the
+   * narrowing. [quantifierOmitted] preserves a stronger pending quantifier when appropriate.
+   * Ambiguous distinct matches or a handoff that prevents narrowing fail; equivalent matches that
+   * differ only by id are interchangeable.
+   */
   public fun selectTask(
       narrowing: InstructionTree,
       quantifierOmitted: Boolean = false,
@@ -455,6 +498,10 @@ internal constructor(
     }
   }
 
+  /**
+   * Selects and attempts to finish [taskId]. A handoff leaves it pending for the receiving actor;
+   * an abstract instruction requires further narrowing.
+   */
   public fun doTask(taskId: TaskId) {
     doTask(tasks, taskId)
   }
@@ -853,6 +900,12 @@ internal constructor(
     }
   }
 
+  /**
+   * Tries [narrowing] against [taskId], or a compatible task when no id is supplied. Incomplete or
+   * currently unavailable work leaves the task and event history unchanged. Invalid selection or
+   * narrowing still fails. [executeSubmittedGroup] treats an explicitly supplied group as a single
+   * bundled command.
+   */
   public fun tryTask(
       narrowing: InstructionTree,
       quantifierOmitted: Boolean = false,
@@ -873,6 +926,11 @@ internal constructor(
   }
 
   // Similar to tryTask, but a NotNowException is unrecoverable once selection holds the lock.
+  /**
+   * Attempts the world's currently selected task. Returns true if it finishes, false if it still
+   * needs a choice; an unavailable selected task is a dead end and throws. Requires a selected
+   * task.
+   */
   public fun trySelectedTask(): Boolean {
     val taskId = allTasks.selectedTask()!!
     return try {

@@ -2,11 +2,14 @@ package dev.martianzoo.pets.util
 
 import kotlin.random.Random
 
+/** Copies elements to a set, throwing if any two elements compare equal. */
 public fun <T> Iterable<T>.toSetStrict(): Set<T> =
     toSet().also { require(it.size == count()) { "duplicate values: `$this`" } }
 
+/** Maps each element with [fn], then throws if two mapped values compare equal. */
 public inline fun <T, K> Iterable<T>.toSetStrict(fn: (T) -> K): Set<K> = map(fn).toSetStrict()
 
+/** Associates each element with its [x] key, throwing on duplicate keys rather than overwriting. */
 public fun <T, K> Collection<T>.associateByStrict(x: (T) -> K): Map<K, T> {
   val map: Map<K, T> = associateBy(x)
   require(map.size == size) {
@@ -23,10 +26,12 @@ private fun <T, K, V> Collection<T>.associateStrict(x: (T) -> Pair<K, V>): Map<K
   return map
 }
 
+/** Converts each element with `toString`, spelling a null element as `"null"`, in input order. */
 public fun <C : Iterable<Any?>> C.toStrings(): List<String> = map { it?.toString() ?: "null" }
 
 private fun <C : Sequence<Any?>> C.toStrings(): Sequence<String> = map { it?.toString() ?: "null" }
 
+/** Chooses uniformly from a nonempty sequence using [Random.Default]; an empty sequence fails. */
 public fun <T> Sequence<T>.random(): T {
   var i = 0
   return findLast { Random.nextInt(++i) == 0 }

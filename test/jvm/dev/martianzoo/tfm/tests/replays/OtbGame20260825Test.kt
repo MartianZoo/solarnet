@@ -49,7 +49,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "I had to experience what it might be like to have Terra Labs and have money at the same
       // time." Head Start gains two steel and 22 M€ for the eleven project cards in hand.
       playPrelude(FakeHeadStart) {
-        // The first immediate action reuses Focused Organization: discard Red Ships and 1 M€,
+        // Head Start grants an action to reuse Focused Organization: discard Red Ships and 1 M€,
         // then draw a card and take titanium.
         cardAction1(FocusedOrganization) {
           doTask("-MC")
@@ -133,7 +133,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 2, temp = -30, oxygen = 1, oceans = 3, venus = 0)
 
-    // 9:47:18 pm: Green's direct TerraLabs buttons record four one-M€ purchases; Yellow's app
+    // 9:47:18 pm: Green's TerraLabs purchase buttons record four one-M€ purchases; Yellow's app
     // records two ordinary purchases for six M€.
     yellow.buyCards(2)
     green.buyCards(4)
@@ -1294,7 +1294,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // to the next one." The final photograph identifies the adjacent space.
       convertPlants { placeTile(7, 7) }
       // Green says "now I'll sell two more cards" while working out whether another greenery is
-      // possible, but does not complete that sale: the app goes directly from 8 M€ to the
+      // possible, but does not complete that sale: the app goes from 8 M€ to the
       // House Printing payment, and the sourced card ledger leaves only the later two-card sale.
       // "I cannot quite make it. So I'm just going to do stupid House Printing for stupid all of
       // my money, and technically I get a steel production from that."

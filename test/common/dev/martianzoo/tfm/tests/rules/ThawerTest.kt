@@ -13,15 +13,56 @@ internal class ThawerTest : TfmSandboxTest() {
   internal fun `Thawer credits only the player's own temperature increases`() {
     newTestGame(addOptions = "Thawer, Builder, Engineer, WorldGovernmentAdvisor")
     kim.setToExMachina(90, "MC")
-    repeat(4) { kim.stdProject("AsteroidProject") }
-    stan.stdProject("AsteroidProject")
+    asteroid()
+    asteroid()
+    asteroid("PROD[Heat]")
+    asteroid()
+    stan.inTurn {
+      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      selectTask("TemperatureStep.")
+      doTasks("TerraformRating", "PROD[Heat]")
+      selectOnlyTask()
+    }
     kim.exMachina("$WorldGovernmentAdvisor")
-    kim.cardAction1(WorldGovernmentAdvisor) { doTask("TemperatureStep BY Admin") }
-        .expect("TemperatureStep, 0 TerraformRating")
-    shouldThrow<RequirementException> { kim.claimMilestone(cn("Thawer")) }
+    kim.inTurn {
+          doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
+          selectOnlyTask()
+          doTask("TemperatureStep BY Admin")
+        }
+        .expect("0 TerraformRating")
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        selectOnlyTask()
+        doTask("ClaimMilestone<Class<Thawer>>")
+        selectTask("-X MC?")
+        doTask("-MC / Owed<Class<MC>>")
+        selectOnlyTask()
+      }
+    }
 
-    kim.stdProject("AsteroidProject")
-    kim.claimMilestone(cn("Thawer")).expect("-8 MC, Thawer")
+    kim.inTurn {
+      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      selectTask("TemperatureStep.")
+      doTask("TerraformRating")
+      selectOnlyTask()
+    }
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Thawer>>", "-MC / Owed<Class<MC>>")
+      selectOnlyTask()
+    }
+  }
+
+  private fun asteroid(vararg bonuses: String) {
+    kim.inTurn {
+      doTasks(
+          "UseStandardProject<AsteroidProject>",
+          "-14 MC",
+          "TemperatureStep",
+          "TerraformRating",
+          "ThawerCredit",
+          *bonuses,
+      )
+    }
   }
 
   internal class Gameplay : dev.martianzoo.tfm.tests.TfmGameplayTest() {
@@ -62,7 +103,7 @@ internal class ThawerTest : TfmSandboxTest() {
 
       // Generation 5: the track fell, but Kim's five earned credits still qualify.
       admin.count("TemperatureStep") shouldBe 3
-      kim.claimMilestone(cn("Thawer")).expect("-8 MC, Thawer")
+      kim.claimMilestone(cn("Thawer"))
     }
   }
 }

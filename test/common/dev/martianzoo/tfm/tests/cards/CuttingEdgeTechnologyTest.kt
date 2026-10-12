@@ -12,13 +12,16 @@ internal class CuttingEdgeTechnologyTest : TfmSandboxTest() {
   internal fun `Discounts a card with a requirement`() {
     kim.exMachina("$CuttingEdgeTechnology")
 
-    kim.playProject(DustSeals, 0).expect("0 MC")
+    kim.inTurn { doTasks("PlayProject<Class<$DustSeals>>", "$DustSeals FROM ProjectCard") }
+        .expect("0 MC")
   }
 
   @Test
   internal fun `Does not discount a card without a requirement`() {
     kim.exMachina("$CuttingEdgeTechnology")
 
-    kim.playProject(Advertising, 4).expect("-4 MC")
+    kim.inTurn {
+      doTasks("PlayProject<Class<Advertising>>", "-4 MC", "Advertising FROM ProjectCard")
+    }
   }
 }

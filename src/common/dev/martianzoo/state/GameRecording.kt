@@ -2,7 +2,13 @@ package dev.martianzoo.state
 
 import dev.martianzoo.catalog.GamePremise
 
-/** Immutable event history and the completed gameplay positions it exposes. */
+/**
+ * Immutable snapshot of [premise], an exact event history, and the completed gameplay positions
+ * exposed for playback. Events must have consecutive ordinals starting at zero. [positions] must be
+ * nonempty, strictly increasing, and end at the event count. The constructor copies event values
+ * and positions; [events] returns fresh event snapshots so callers cannot edit the saved history
+ * through mutable commentary.
+ */
 public class GameRecording(
     public val premise: GamePremise,
     events: List<GameEvent>,
@@ -14,6 +20,7 @@ public class GameRecording(
   public val events: List<GameEvent>
     get() = recordedEvents.map(GameEvent::snapshot)
 
+  /** Completed positions in ascending event order; the last is the end of the recording. */
   public val positions: List<Checkpoint> = positions.toList()
 
   init {
@@ -34,10 +41,13 @@ public class GameRecording(
   /** One independently navigable materialization of a [GameRecording]. */
   public class Playback internal constructor(private val recording: GameRecording) {
     private val events = recording.recordedEvents.map(GameEvent::snapshot)
+    /** Passive, independently mutable world at the currently selected [positionIndex]. */
     public val world: GameWorld = GameWorld(recording.premise, events)
+    /** Completed positions available to [seek]. */
     public val positions: List<Checkpoint>
       get() = recording.positions
 
+    /** Index into [positions] currently materialized by [world]. Initially the last position. */
     public var positionIndex: Int = positions.lastIndex
       private set
 
@@ -45,7 +55,11 @@ public class GameRecording(
       world.markSetupStart(positions.first())
     }
 
-    /** Moves this view to the completed gameplay position at [index]. */
+    /**
+     * Moves this view to the completed gameplay position at [index]. For example, if [positions]
+     * have ordinals 0, 4, and 9, `seek(1)` materializes the world after the first four events and
+     * sets [positionIndex] to 1. An invalid index throws without changing this view.
+     */
     public fun seek(index: Int) {
       require(index in positions.indices) { "recording position $index does not exist" }
       val target = positions[index].ordinal

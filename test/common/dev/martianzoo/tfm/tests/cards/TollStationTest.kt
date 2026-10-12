@@ -13,6 +13,12 @@ internal class TollStationTest : TfmSandboxTest() {
     // Tags must be added with the cards they depend on.
     stan.exMachina("$VestaShipyard, $SpaceElevator, $SolarWindPower")
 
-    kim.playProject(TollStation, 12).expect("PROD[3 MC]")
+    kim.inTurn {
+          doTasks("PlayProject<Class<TollStation>>", "-12 MC")
+          selectTask("-X Titanium?")
+          doTasks("Ok", "TollStation FROM ProjectCard")
+          selectOnlyTask()
+        }
+        .expect("PROD[3 MC]")
   }
 }

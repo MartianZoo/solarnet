@@ -202,6 +202,11 @@ internal class AgentImpl(
       autoExecLoop.run()
     }
 
+    override fun selectOnlyTask(x: Int?) {
+      this@AgentImpl.selectOnlyTask(x)
+      autoExecLoop.run()
+    }
+
     override fun narrowTask(narrowing: String) {
       this@AgentImpl.narrowTask(narrowing)
       autoExecLoop.run()
@@ -423,7 +428,7 @@ internal class AgentImpl(
           settle = { autoExecLoop.run() },
       )
 
-  // Direct mutations preserve their legacy behavior of not invoking autoexecution.
+  // Manual task edits preserve their legacy behavior of not invoking autoexecution.
   private fun atomicWithoutAutoExec(block: () -> Unit): TaskResult =
       engine.transact(settle = {}, block = block)
 

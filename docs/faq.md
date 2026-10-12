@@ -20,7 +20,7 @@ product would all be nice. I do not care enough about them to distort the core d
 current projects. End-to-end solo play, by a human or a computer using the same game-playing
 capabilities, is a desirable goal; its place in the work schedule is unsettled.
 
-The REgo PLastics command-line interface is intentionally just a direct way to interact with the
+The REgo PLastics command-line interface is intentionally just a way to interact with the
 low-level engine; turning it into a polished player interface is not a goal.
 
 ### Could this engine be used for other games?
@@ -65,7 +65,7 @@ are lower-priority possibilities around it.
   This single-sourcing was what initially drew me into all this. It would be cool if from looking at
   a card you *know* how it has to work, because it could hardly do otherwise.
 * Logfile analysis. Solarnet logs are a fully detailed record of the game, in a very analyzable form. For example, for any card, you could pretty easily find out how much that card actually "paid out" over the course of the game. It would be great to build a queryable database out of this stuff.
-* I hope it might be good for training AI players. Since the cards are fully introspectable (i.e. code can use the Pets AST API directly), the AIs could make immediate use of cards they'd never seen before.
+* I hope it might be good for training AI players. Since the cards are fully introspectable (i.e. code can use the Pets AST API directly), the AIs could make use of cards they'd never seen before.
 * Parity tests between it and any other engine out there. Whether that turns up bugs in this engine, that engine, or both, it'll be a useful activity.
 * Fan cards and fan variants, of course... *eventually*. We must focus on the core stuff for now.
 * The optimized engine alluded to above.

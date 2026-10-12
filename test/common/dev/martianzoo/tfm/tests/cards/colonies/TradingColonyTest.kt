@@ -15,11 +15,13 @@ internal class TradingColonyTest : TfmSandboxTest() {
     kim.setToExMachina(9, "MC")
     admin.sneak("ColonyProduction<Europa>")
 
-    kim.stdAction("TradeAction") {
-          doTask("Trade<Europa>")
-          declineTask()
-        }
-        .expect("PROD[Energy]")
+    kim.inTurn {
+      doTasks("TradeAction", "-MC / Owed<Class<MC>>")
+      selectTask("Trade!")
+      doTask("Trade<Europa>")
+      selectTask("ColonyProduction<Europa>?")
+      doTasks("Ok", "PROD[Energy]", "MC")
+    }
 
     kim.assertCounts(1 to "ColonyProduction<Europa>")
   }

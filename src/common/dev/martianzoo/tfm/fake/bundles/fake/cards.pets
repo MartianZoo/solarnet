@@ -1,7 +1,7 @@
 "An inert stand-in for a printed wild tag"
 CLASS FakeWildTag : Cardbound
 
-"A temporary holder for tags supplied directly by a replay"
+"A temporary holder for tags supplied by a replay"
 CLASS FakeWildTagUse : TagHolder, Temporary { HAS MAX 1 This }
 
 CLASS FakeResearchNetwork : CardFront<Class<PreludeCard>> {
@@ -82,7 +82,7 @@ CLASS FakeSeptemTribus : ActionCard<Class<CorporationCard>> {
   -> 2 MC / Class<@Party>(HAS PartyDelegate<@Party>)
 }
 
-"Head Start with independently interleavable immediate actions"
+"Head Start with independently interleavable actions granted on entry"
 CLASS FakeHeadStart : CardFront<Class<PreludeCard>> {
   cost = 0
 

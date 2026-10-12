@@ -30,4 +30,4 @@ From the repository root:
 ./gradlew :tfm-text:writeEnglishTextComparisons
 ```
 
-This renders directly from the current model, without relying on saved generated-text snapshots. Printed wording is read only from the published evidence TSVs.
+This renders from the current model, without relying on saved generated-text snapshots. Printed wording is read only from the published evidence TSVs.

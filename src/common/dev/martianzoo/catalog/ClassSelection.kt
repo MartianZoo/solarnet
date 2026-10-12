@@ -14,6 +14,11 @@ import dev.martianzoo.pets.types.PremiseClassTable
  * premise selections are unconditional and express exact choices. Catalogs may use this generic
  * mechanism for individually overridable Content; Content itself is a premise-policy role rather
  * than a Pets supertype.
+ *
+ * @property className selected class, whether included or excluded.
+ * @property included true to include this class, false to exclude it.
+ * @property requirement condition on the completed configuration, or null for an unconditional
+ *   selection. The candidate class does not count toward its own condition.
  */
 public data class ClassSelection(
     public val className: ClassName,
@@ -21,7 +26,10 @@ public data class ClassSelection(
     public val requirement: Requirement? = null,
 ) {
   /**
-   * Whether this selection applies in a premise-local namespace over its imported master.
+   * Whether this selection applies to [configuredClassNames] in a premise-local namespace over its
+   * imported master. A null [requirement] always applies. Count metrics in a condition count
+   * configured names that are subclasses of the named class, excluding this selection's own
+   * [className]. [included] affects the selection's sign, not whether its condition is met.
    *
    * @throws dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException if its authored
    *   condition is not a count of one simple class

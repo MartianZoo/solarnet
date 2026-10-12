@@ -6,7 +6,7 @@ import kotlin.test.assertTrue
 
 internal class TfmActionCommandTest {
   @Test
-  internal fun `tfm action selects the requested card directly from the turn offer`() {
+  internal fun `tfm action selects the requested card from the turn offer`() {
     val repl = actionGame("PROD[Energy], AiCentral")
 
     val output = repl.command("tfm_action AiCentral 1")

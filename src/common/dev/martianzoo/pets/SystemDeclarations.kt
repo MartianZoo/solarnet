@@ -4,6 +4,7 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.util.toSetStrict
 
+// TODO: Replace this temporary tfm-canon seam with the generic Catalog contract.
 /**
  * Pets runtime declarations that are available to every Catalog, as required by
  * [rule L11-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations):
@@ -16,7 +17,6 @@ import dev.martianzoo.pets.util.toSetStrict
  * `GamePremise.classTable` always roots `Audit`; it decides which of the remaining declarations a
  * particular game contains.
  */
-// TODO: Replace this temporary tfm-canon seam with the generic Catalog contract.
 public val systemClassDeclarations: Set<ClassDeclaration> by lazy {
   parseClasses(systemDeclarationsSource).toSetStrict()
 }

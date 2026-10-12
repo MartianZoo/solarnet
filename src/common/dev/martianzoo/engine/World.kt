@@ -1,8 +1,6 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.ComponentGraph
@@ -11,35 +9,30 @@ import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.TaskQueue
 
 /**
- * A live Pets world with transactional mutation, pending tasks, and event history. A world is the
- * aggregation of three mutable child objects, which callers access directly: a [ComponentGraph], an
- * [EventLog], and a [TaskQueue]. These types embody the present, past, and future of the world
- * (respectively).
- *
- * These are live read surfaces over state owned by one `GameWorld`. [actorEngine] provides the
- * Actor-attributed mutation boundary used by higher-level clients.
- *
- * A [GameReader] provides the public component queries, including queries expressed as a Pets
- * [Metric] or [Requirement].
+ * A live Pets world with transactional mutation, pending tasks, and event history. [components],
+ * [events], and [tasks] are live read surfaces: retaining them keeps a view of this same world,
+ * including later gameplay and rollback. Use [reader] for typed component queries and [actorEngine]
+ * for actor-attributed changes. A [Timeline] checkpoint identifies an event position within this
+ * world; it is not a separate copy of the world.
  */
 public interface World {
   /** Every Actor participating in this world, with seated Players in seat order. */
   public val actors: List<Actor>
     get() = reader.actors
 
-  /** The current component graph. */
+  /** Live component graph; queries reflect subsequent gameplay and rollback. */
   public val components: ComponentGraph
 
-  /** Everything that has already happened in this world. */
+  /** Live event history, including task events and component changes. */
   public val events: EventLog
 
-  /** What this world is waiting on an Actor to do. */
+  /** Live view of all pending tasks, across actors. */
   public val tasks: TaskQueue
 
   /** Checkpoint, rollback, and atomic interaction control. */
   public val timeline: Timeline
 
-  /** Higher-level Pets queries over this world. */
+  /** Typed, read-only queries over the current world. */
   public val reader: GameReader
 
   /** The immutable classes available to this world. */
@@ -49,9 +42,14 @@ public interface World {
   public fun isIdle(): Boolean =
       tasks.isEmpty() && reader.has(parse("MAX 0 MustCleanUp, MAX 0 Temporary"))
 
-  /** Returns the stable mutation engine for [actor]. */
+  /** Returns this world's stable mutation engine for [actor]; an unknown actor fails. */
   public fun actorEngine(actor: Actor): ActorEngine
 
-  /** Called after every outermost gameplay transaction completes; corrections do not invoke it. */
+  /**
+   * Callback after an outermost gameplay transaction commits its first completed position;
+   * corrections do not invoke it. Synchronous gameplay started by the callback is settled before
+   * the final position is recorded. If the callback throws, its exception propagates after the
+   * original transaction has committed.
+   */
   public var onTransactionComplete: () -> Unit
 }

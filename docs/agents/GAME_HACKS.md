@@ -30,7 +30,7 @@ audit now lives in test sources; structural Pets and per-game configuration vali
 | Microbe holders have Microbe tags | The reverse is false: Pharmacy Union holds Disease and Vermin holds Animals. |
 | Resource cards identify a concrete resource; resource-holding projects are Active | Protects the resource-holder model and the generator's inferred role. |
 | ActionCard agrees with authored actions; events have no actions or resource storage | Detects roles whose behavior would be lost or misrepresented. |
-| Building-card immediate instructions contain at most a single PROD box, without outer conditions, choices, scaling, actor changes or EACH bindings | Entry 12. THEN remains allowed: Mining Area/Rights copy production after their tile already exists. Both the check and CopyProductionBox use `cardProductionBoxes`: only instruction-position PROD blocks count. `Plant / PROD[Energy]` has no copyable box; its PROD is a metric. |
+| Building-card direct effects contain at most a single PROD box, without outer conditions, choices, scaling, actor changes or EACH bindings | Entry 12. THEN remains allowed: Mining Area/Rights copy production after their tile already exists. Both the check and CopyProductionBox use `cardProductionBoxes`: only instruction-position PROD blocks count. `Plant / PROD[Energy]` has no copyable box; its PROD is a metric. |
 | Instruction and action-cost multipliers that count production capable of including MC account for its offset | Entry 3. After lowering PROD, each count must subtract its matching ProdOffset, or subtract stored production from an offset-adjusted target as Industrial Complex does. Resource and owner arguments must match; merely mentioning an offset is insufficient. New arithmetic forms fail for review. |
 | Copied PROD boxes do not use This for the original card | Entry 12. The copier returns the subtree without rebinding This to its source card. |
 | Prelude self-gain effects have bare This triggers and do not hide gains in automatic effects | Entry 13. Boom Town's automatic removal installs a persistent penalty that Double Down deliberately does not repeat; its gameplay test covers that distinction. |
@@ -47,7 +47,7 @@ repeated EventTag entries remain invalid.
 
 Do not infer that every production effect on gaining a Building-tagged card is a copyable printed
 production box: Tharsis Republic's conditioned solo compensation is a counterexample (entry 5).
-The syntax checks above do not prove the completeness of immediate-effect extraction.
+The syntax checks above do not prove the completeness of direct-effect extraction.
 
 Indirect special-tile behavior (entry 15), nested bills, watcher lifetimes, finite solo
 reserves, and lost historical facts are not proven by these checks. They need further source review
@@ -93,7 +93,8 @@ correct, not a hack. Coordinates, support components, and custom Kotlin are not 
 either: every entry below identifies a particular false equivalence or lost fact.
 
 Fan-card names and rules are illustrative; costs and balancing are omitted. **Literal** means the
-fan card's relevant effect is a direct gain, removal, transfer, condition, or reaction. Some entries
+fan card's relevant effect is a gain, removal, transfer, condition, or reaction in its own declaration.
+Some entries
 instead require a missing observation, or expose an assumption about how a truthful card is written.
 Pets fragments are implementation sketches, not compilation claims. Related repair work remains
 in [TODO.md](../../TODO.md) and the owning design documents; this inventory does not authorize fixes.
@@ -193,7 +194,7 @@ and the L1 scenarios in [L1TradeTerminalTest](../../test/common/dev/martianzoo/t
 
 The next three cases share a design assumption, but affect distinct existing rule owners. Their fan
 cards change ownership while keeping the object in play. Ownership transfer is the intended new
-rule; replaying construction or immediate benefits is the unintended consequence.
+rule; replaying construction or benefits from the direct effect is the unintended consequence.
 
 ### 8. Changing a tile's owner looks like placing it again
 
@@ -223,18 +224,18 @@ a Ceres colony nevertheless grants steel production; Europa offers another ocean
 [colonies.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/colonies/colonies.pets), and `Poseidon`
 in [Colonies cards](../../src/common/dev/martianzoo/tfm/canon/bundles/colonies/cards.json5).
 
-### 10. Changing a played card's owner replays its immediate instructions
+### 10. Changing a played card's owner replays its direct effects
 
-**Hack:** an immediate instruction is an effect on gaining the card component. Acquiring an
+**Hack:** a direct effect is an effect on gaining the card component. Acquiring an
 already-played card therefore executes it again.
 
 **Fan card — Patent Acquisition:** “Take ownership of an opponent's green card. Do not replay its
-immediate effects; existing production is unchanged.” **Literal:** transfer an `AutomatedCard` owner.
+direct effects; existing production is unchanged.” **Literal:** transfer an `AutomatedCard` owner.
 Acquiring Mine grants the new owner another steel production, despite the fan card explicitly
 leaving production unchanged. This is more than another card reacting to the acquisition: Mine's
-own immediate instruction repeats.
+own direct effect repeats.
 
-**Source:** `immediateToEffect` in [Transforming.kt](../../src/common/dev/martianzoo/pets/Transforming.kt),
+**Source:** `onGainEffect` in [Transforming.kt](../../src/common/dev/martianzoo/pets/Transforming.kt),
 `CardFront` in [card-model.pets](../../src/common/dev/martianzoo/tfm/canon/bundles/base/card-model.pets),
 and `Mine` in [Corporate Era cards](../../src/common/dev/martianzoo/tfm/canon/bundles/corpera/cards.json5).
 
@@ -260,8 +261,8 @@ These are authoring restrictions, not claims that every card using custom code i
 
 ### 12. Robotic Workforce / Cyberia require exactly one production subtree
 
-**Hack:** `CopyProductionBox` extracts exactly one immediate `PROD` subtree and loses surrounding
-conditions; it rejects multiple subtrees and `PROD` nested inside `EACH`.
+**Hack:** `CopyProductionBox` extracts exactly one `PROD` subtree from the direct effect and loses
+surrounding conditions; it rejects multiple subtrees and `PROD` nested inside `EACH`.
 
 **Fan card — Adaptive Factories:** a Building card whose production box says “If you have at least
 three Building tags, increase steel production 1; otherwise increase energy production 1.”
@@ -273,20 +274,20 @@ condition inside one `PROD[...]` is an accommodation to the copier.
 [CopyProductionBoxTest](../../test/common/dev/martianzoo/tfm/tests/rules/CopyProductionBoxTest.kt) makes
 one of the required spelling restrictions explicit.
 
-### 13. Double Down recognizes only nonautomatic immediate effects
+### 13. Double Down recognizes only nonautomatic direct effects
 
-**Hack:** `CopyPrelude` uses `cardImmediate`, which selects bare `This` effects only when they are
-not automatic. A choice-free immediate benefit written with `::` disappears from the copy.
+**Hack:** `CopyPrelude` uses `cardDirectEffect`, which selects bare `This` effects only when they are
+not automatic. A choice-free direct effect written with `::` disappears from the copy.
 
 **Fan Prelude — Guaranteed Funds:** “Gain 18 M€ and 2 steel.” **Literal spelling:**
-`This:: 18 MC, 2 Steel`. The Prelude really gives those resources, but Double Down finds no immediate
-instruction to copy. The same gain written with `This:` would work. The fan rule is ordinary;
+`This:: 18 MC, 2 Steel`. The Prelude really gives those resources, but Double Down finds no direct effect
+to copy. The same gain written with `This:` would work. The fan rule is ordinary;
 which colon the author used is not a printed distinction.
 
-**Source:** `cardImmediate` in [cardClass.kt](../../src/common/dev/martianzoo/tfm/canon/cardClass.kt)
+**Source:** `cardDirectEffect` in [cardClass.kt](../../src/common/dev/martianzoo/tfm/canon/cardClass.kt)
 and `CopyPrelude` in [TfmEngine.kt](../../src/common/dev/martianzoo/tfm/engine/TfmEngine.kt).
 
-### 15. Astra Mechanica only detects directly authored special-tile gains
+### 15. Astra Mechanica only detects explicitly authored special-tile gains
 
 **Hack:** `GainsOf` traverses the card's own authored instructions. It does not follow a signal's
 consequences to discover that the card places its printed special tile.

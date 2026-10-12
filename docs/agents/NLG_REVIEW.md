@@ -22,7 +22,7 @@ That maps reasonably well onto the classical NLG pipeline described by
 - [`ExpressionResolver.kt`](../../src/common/dev/martianzoo/tfm/text/ExpressionResolver.kt#L22)
   resolves types, defaults, contextual `This`, ownership, and keyed semantic arguments.
 - [`English.kt`](../../src/common/dev/martianzoo/tfm/text/English.kt#L53) performs content and
-  document planning: top versus bottom, action/effect labels, requirements, immediate behavior, and
+  document planning: top versus bottom, action/effect labels, requirements, direct effects, and
   scoring.
 - The `render*.kt` families recognize domain constructions and lexicalize them.
 - `Clause`, `Predicate`, `NounPhrase`, and related classes form a shallow English syntax tree.
@@ -108,7 +108,7 @@ The renderer makes several domain-specific distinctions:
 - “any card” versus “another card” based on the current card’s resource capacity;
 - ownership and “that player”;
 - action costs versus results;
-- immediate, persistent, and endgame effects;
+- direct, persistent, and endgame effects;
 - top/bottom artwork regions and `Action:`/`Effect:` labels;
 - omission of unconditional fixed VP because the physical icon already expresses it.
 
@@ -156,7 +156,7 @@ author already knew.
 
 ## The advertised two-pass architecture is not yet reality
 
-The project documentation states this directly: the two-pass architecture is a
+The project documentation states this explicitly: the two-pass architecture is a
 [target, not current behavior](LANGUAGE.md#where-each-piece-of-logic-belongs).
 
 Today the EST remains porous:

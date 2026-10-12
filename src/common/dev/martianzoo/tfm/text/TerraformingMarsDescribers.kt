@@ -484,7 +484,7 @@ internal object TerraformingMarsDescribers {
                 changeFrame =
                     Frame.Procedure(
                         "copy",
-                        "the immediate production box",
+                        "the production box in the direct effect",
                         cardTargetRelation = "of",
                     )
             ),

@@ -5,14 +5,14 @@
       "cards": [
         {
           "name": "ArcadianCommunities",
-          "immediate": "40 MC, 10 Steel, RequiredAction { -> Community }",
+          "direct": "40 MC, 10 Steel, RequiredAction { -> Community }",
           "actions": [ "-> Community<LandArea(HAS Neighbor<OwnedOccupant>)>" ],
           "effects": [ "-Community<LandArea(HAS Tile)>: 3 MC" ],
         },
         {
           "name": "AstroDrill",
           "tags": [ "SpaceTag" ],
-          "immediate": "35 MC, 3 Asteroid<This>",
+          "direct": "35 MC, 3 Asteroid<This>",
           "actions": [
             "-> Asteroid OR StandardResource",
             "Asteroid<This> -> 3 Titanium"
@@ -21,7 +21,7 @@
         {
           "name": "Factorum",
           "tags": [ "PowerTag", "BuildingTag" ],
-          "immediate": "37 MC, PROD[Steel]",
+          "direct": "37 MC, PROD[Steel]",
           "actions": [
             "-> MAX 0 Energy: PROD[Energy]",
             "3 MC -> SearchForCard<TagFilter<Class<BuildingTag>>>"
@@ -30,7 +30,7 @@
         {
           "name": "KuiperCooperative",
           "tags": [ "SpaceTag", "SpaceTag" ],
-          "immediate": "33 MC, PROD[Titanium]",
+          "direct": "33 MC, PROD[Titanium]",
           "actions": [ "-> Asteroid<This> / SpaceTag" ],
           "effects": [
             "UseAction<AsteroidProject> OR UseAction<AquiferProject>:: AcceptingFromCard<This>",
@@ -40,7 +40,7 @@
         {
           "name": "MonsInsurance",
           "invariants": [ "Class<AttackHistoryWatcher>" ],
-          "immediate": "48 MC, PROD[4 MC], EACH Other@Player(NOT Me@) { PROD[-2 MC<Other@>] BY Other@ }",
+          "direct": "48 MC, PROD[4 MC], EACH Other@Player(NOT Me@) { PROD[-2 MC<Other@>] BY Other@ }",
           "effects": [
             "MyResourceWasRemoved<Victim@Anyone(NOT Me@)>: 3 MC<Victim@ FROM Me@>.",
             "MyProductionWasDecreased<Victim@Anyone(NOT Me@)>: 3 MC<Victim@ FROM Me@>.",
@@ -49,7 +49,7 @@
         {
           "name": "PharmacyUnion",
           "tags": [ "MicrobeTag", "MicrobeTag" ],
-          "immediate": "SearchForCard<TagFilter<Class<ScienceTag>>>",
+          "direct": "SearchForCard<TagFilter<Class<ScienceTag>>>",
           "effects": [
             // This is the only card I know of that has a double-colon effect. Without it, the engine
             // automatically tried to take the 2 disease cubes first and lose no money, then pocketed
@@ -67,7 +67,7 @@
         {
           "name": "Philares",
           "tags": [ "BuildingTag" ],
-          "immediate": "47 MC, RequiredAction { -> DefaultGreeneryTile }",
+          "direct": "47 MC, RequiredAction { -> DefaultGreeneryTile }",
           "effects": [
             "Adjacency<OwnedTile, OwnedTile<Anyone(NOT Me@)>> BY Anyone: StandardResource",
           ],
@@ -75,7 +75,7 @@
         {
           "name": "Recyclon",
           "tags": [ "MicrobeTag", "BuildingTag" ],
-          "immediate": "38 MC, PROD[Steel]",
+          "direct": "38 MC, PROD[Steel]",
           "effects": [ "BuildingTag: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])" ],
         },
         {
@@ -93,7 +93,7 @@
         {
           "name": "TychoMagnetics",
           "tags": [ "PowerTag", "ScienceTag" ],
-          "immediate": "42 MC, PROD[Energy]",
+          "direct": "42 MC, PROD[Energy]",
           "actions": [ "X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting> THEN -X ProjectCard<Selecting>." ],
         },
       ],
@@ -104,13 +104,13 @@
         {
           "name": "AlbedoPlants",
           "tags": [ "PlantTag" ],
-          "immediate": "PROD[Plant], Plant",
+          "direct": "PROD[Plant], Plant",
           "effects": [ "PlantTag: 3 Heat" ],
         },
         {
           "name": "AntiDesertificationTechniques",
           "tags": [ "MicrobeTag", "PlantTag" ],
-          "immediate": "3 MC, PROD[Plant, Steel]",
+          "direct": "3 MC, PROD[Plant, Steel]",
         },
         {
           "name": "BoomTown",
@@ -124,36 +124,36 @@
         {
           "name": "CorporateArchives",
           "tags": [ "ScienceTag" ],
-          "immediate": "13 MC, 7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>, -5 ProjectCard<Selecting>",
+          "direct": "13 MC, 7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>, -5 ProjectCard<Selecting>",
         },
         {
           "name": "DoubleDown",
-          "immediate": "CopyPrelude",
+          "direct": "CopyPrelude",
           "components": [ "CLASS CopyPrelude<CardFront<@Player>> : Owned<@Player>, CustomInstruction" ],
         },
         {
           "name": "EstablishedMethods",
-          "immediate": "30 MC, UseAction<StandardProject(HAS cost)>!, UseAction<StandardProject(HAS cost)>!",
+          "direct": "30 MC, UseAction<StandardProject(HAS cost)>!, UseAction<StandardProject(HAS cost)>!",
         },
         {
           "name": "GiantSolarCollector",
           "tags": [ "PowerTag", "SpaceTag" ],
-          "immediate": "PROD[2 Energy], VenusStep",
+          "direct": "PROD[2 Energy], VenusStep",
         },
         {
           "name": "Merger",
           "replaces": "SagittaFrontierServices",
           "autoSelectWhen": "Unsafe OR MAX 0 SagittaFrontierServices",
-          "immediate": "4 CorporationCard<Selecting> THEN -3 CorporationCard<Selecting> THEN PlayCard<Class<CorporationCard>, Class<CardFront>, Selecting>, -42 MC",
+          "direct": "4 CorporationCard<Selecting> THEN -3 CorporationCard<Selecting> THEN PlayCard<Class<CorporationCard>, Class<CardFront>, Selecting>, -42 MC",
         },
         {
           "name": "NewPartner",
-          "immediate": "PROD[1 MC], 2 PreludeCard<Selecting> THEN -PreludeCard<Selecting> THEN PlayOrFizzle<Selecting>",
+          "direct": "PROD[1 MC], 2 PreludeCard<Selecting> THEN -PreludeCard<Selecting> THEN PlayOrFizzle<Selecting>",
         },
         {
           "name": "StrategicBasePlanning",
           "tags": [ "CityTag", "BuildingTag", "SpaceTag" ],
-          "immediate": "-3 MC, CityTile<>, Colony<>",
+          "direct": "-3 MC, CityTile<>, Colony<>",
         },
       ],
     },
@@ -171,14 +171,14 @@
           "requirement": "Adjacency<CityTile, OceanTile>",
           "cost": 9,
           "tags": [ "BuildingTag" ],
-          "immediate": "3 SearchForCard<TagFilter<Class<BuildingTag>>>",
+          "direct": "3 SearchForCard<TagFilter<Class<BuildingTag>>>",
           "effects": [ "End: VictoryPoint" ],
         },
         {
           "name": "AsteroidDeflectionSystem",
           "cost": 13,
           "tags": [ "EarthTag", "SpaceTag", "BuildingTag" ],
-          "immediate": "PROD[-Energy]",
+          "direct": "PROD[-Energy]",
           "actions": [ "-> ProjectCard<Revealed> THEN ClaimCardReward<TagFilter<Class<SpaceTag>>, This>? THEN -ProjectCard<Revealed>" ],
           "effects": [
             // TODO: in what cases do we want to trigger this way vs by the AttackHappened thingies?
@@ -198,7 +198,7 @@
           "name": "AsteroidRights",
           "cost": 10,
           "tags": [ "EarthTag", "SpaceTag" ],
-          "immediate": "2 Asteroid<This>",
+          "direct": "2 Asteroid<This>",
           "actions": [
             "1 MC -> Asteroid",
             "Asteroid<This> -> PROD[1 MC] OR 2 Titanium"
@@ -208,7 +208,7 @@
           "name": "AstraMechanica",
           "cost": 7,
           "tags": [ "ScienceTag" ],
-          "immediate": "2 TakeEventCard",
+          "direct": "2 TakeEventCard",
           "components": [
             "CLASS TakeEventCard : Owned, Signal, System, Atomized { This: ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)> }",
             "CLASS GainsOf<Class<CardFront>, Class<Component>> : CustomMetric",
@@ -218,7 +218,7 @@
           "name": "BactoviralResearch",
           "cost": 10,
           "tags": [ "MicrobeTag", "ScienceTag" ],
-          "immediate": "ProjectCard, Microbe / ScienceTag",
+          "direct": "ProjectCard, Microbe / ScienceTag",
         },
         {
           "name": "BioPrintingFacility",
@@ -243,14 +243,14 @@
           "requirement": "CityTile",
           "cost": 5,
           "tags": [ "BuildingTag" ],
-          "immediate": "PROD[-Energy, 4 MC]",
+          "direct": "PROD[-Energy, 4 MC]",
         },
         {
           "name": "CityParks",
           "requirement": "3 CityTile",
           "cost": 7,
           "tags": [ "PlantTag" ],
-          "immediate": "2 Plant",
+          "direct": "2 Plant",
           "effects": [ "End: 2 VictoryPoint" ],
         },
         {
@@ -268,7 +268,7 @@
           "requirement": "MyResourceWasRemoved<Anyone, Class<Plant>, Me@>",
           "cost": 4,
           "tags": [ "EventTag" ],
-          "immediate": "Titanium OR 2 Steel",
+          "direct": "Titanium OR 2 Steel",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -283,8 +283,8 @@
         {
           "name": "CyberiaSystems",
           "cost": 16,
-          "immediate": "PROD[Steel], (BuildingTag<First@>: CopyProductionBox<First@CardFront>) THEN CopyProductionBox<CardFront(HAS BuildingTag, NOT First@)>",
-          // Copies the single immediate production box on a chosen card.
+          "direct": "PROD[Steel], (BuildingTag<First@>: CopyProductionBox<First@CardFront>) THEN CopyProductionBox<CardFront(HAS BuildingTag, NOT First@)>",
+          // Copies the single production box in a chosen card's direct effect.
           // Must be identical to RoboticWorkforce's declaration in the corpera bundle.
           "components": [ "CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, CustomInstruction" ],
         },
@@ -293,7 +293,7 @@
           "replaces": "DeimosDown",
           "cost": 31,
           "tags": [ "SpaceTag", "EventTag" ],
-          "immediate": "3 TemperatureStep, SpecialTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)> {}, 4 Steel, -6 Plant<Anyone>?",
+          "direct": "3 TemperatureStep, SpecialTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)> {}, 4 Steel, -6 Plant<Anyone>?",
         },
         {
           "name": "DirectedHeatUsage",
@@ -315,14 +315,14 @@
           "requirement": "9 Class<@Resource>(HAS @Resource)",
           "cost": 1,
           "tags": [ "EventTag" ],
-          "immediate": "TerraformRating",
+          "direct": "TerraformRating",
         },
         {
           "name": "DuskLaserMining",
           "requirement": "2 ScienceTag",
           "cost": 8,
           "tags": [ "SpaceTag" ],
-          "immediate": "PROD[-Energy, Titanium], 4 Titanium",
+          "direct": "PROD[-Energy, Titanium], 4 Titanium",
         },
         {
           "name": "EnergyMarket",
@@ -337,7 +337,7 @@
           "name": "FieldCappedCity",
           "cost": 29,
           "tags": [ "PowerTag", "CityTag", "BuildingTag" ],
-          "immediate": "PROD[2 MC, Energy], 3 Plant, CityTile<>",
+          "direct": "PROD[2 MC, Energy], 3 Plant, CityTile<>",
         },
         {
           "name": "GreatDamPromo",
@@ -345,7 +345,7 @@
           "requirement": "4 OceanTile",
           "cost": 15,
           "tags": [ "PowerTag", "BuildingTag" ],
-          "immediate": "PROD[2 Energy], SpecialTile<LandArea(HAS Neighbor<OceanTile>)> {}",
+          "direct": "PROD[2 Energy], SpecialTile<LandArea(HAS Neighbor<OceanTile>)> {}",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -353,13 +353,13 @@
           "requirement": "3 GreeneryTile",
           "cost": 4,
           "tags": [ "PlantTag", "EventTag" ],
-          "immediate": "12 MC",
+          "direct": "12 MC",
         },
         {
           "name": "HermeticOrderOfMars",
           "requirement": "MAX 4 OxygenStep",
           "cost": 10,
-          "immediate": "PROD[2 MC], 1 MC / MarsArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile>)",
+          "direct": "PROD[2 MC], 1 MC / MarsArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile>)",
         },
         {
           "name": "HiTechLab",
@@ -372,14 +372,14 @@
           "name": "HomeostasisBureau",
           "cost": 16,
           "tags": [ "BuildingTag" ],
-          "immediate": "PROD[2 Heat]",
+          "direct": "PROD[2 Heat]",
           "effects": [ "TemperatureStep: 3 MC" ],
         },
         {
           "name": "Hospitals",
           "cost": 8,
           "tags": [ "BuildingTag" ],
-          "immediate": "PROD[-Energy]",
+          "direct": "PROD[-Energy]",
           "actions": [ "Disease -> 1 MC / CityTile<Anyone>" ],
           "effects": [
             "CityTile<Anyone>: Disease<This>",
@@ -402,34 +402,34 @@
           "name": "ImportedNutrients",
           "cost": 14,
           "tags": [ "EarthTag", "SpaceTag", "EventTag" ],
-          "immediate": "4 Plant, 4 Microbe",
+          "direct": "4 Plant, 4 Microbe",
         },
         {
           "name": "InterplanetaryTrade",
           "cost": 27,
           "tags": [ "SpaceTag" ],
-          "immediate": "PROD[1 MC / Class<@Tag>(HAS @Tag)]",
+          "direct": "PROD[1 MC / Class<@Tag>(HAS @Tag)]",
           "effects": [ "End: VictoryPoint" ],
         },
         {
           "name": "JovianEmbassy",
           "cost": 14,
           "tags": [ "JovianTag", "BuildingTag" ],
-          "immediate": "TerraformRating",
+          "direct": "TerraformRating",
           "effects": [ "End: VictoryPoint" ],
         },
         {
           "name": "KaguyaTech",
           "cost": 10,
           "tags": [ "CityTag", "PlantTag" ],
-          "immediate": "PROD[2 MC], ProjectCard, CityTile<@MarsArea> FROM GreeneryTile<@MarsArea>",
+          "direct": "PROD[2 MC], ProjectCard, CityTile<@MarsArea> FROM GreeneryTile<@MarsArea>",
         },
         {
           "name": "LawSuit",
           "invariants": [ "Class<AttackHistoryWatcher>" ],
           "cost": 2,
           "tags": [ "EarthTag", "EventTag" ],
-          "immediate": "((MyResourceWasRemoved<Me@, Attacker@> OR MyProductionWasDecreased<Me@, Attacker@>): 3 MC FROM MC<Attacker@Player>) THEN PlayedEvent<Attacker@, Class<This>> FROM This",
+          "direct": "((MyResourceWasRemoved<Me@, Attacker@> OR MyProductionWasDecreased<Me@, Attacker@>): 3 MC FROM MC<Attacker@Player>) THEN PlayedEvent<Attacker@, Class<This>> FROM This",
           "effects": [ "End: -VictoryPoint" ],
         },
         {
@@ -437,19 +437,19 @@
           "replaces": "MagneticFieldGenerators",
           "cost": 22,
           "tags": [ "BuildingTag" ],
-          "immediate": "PROD[-4 Energy, 2 Plant], 3 TerraformRating, SpecialTile<> {}",
+          "direct": "PROD[-4 Energy, 2 Plant], 3 TerraformRating, SpecialTile<> {}",
         },
         {
           "name": "MagneticShield",
           "requirement": "3 PowerTag",
           "cost": 24,
           "tags": [ "SpaceTag" ],
-          "immediate": "4 TerraformRating",
+          "direct": "4 TerraformRating",
         },
         {
           "name": "MarsNomads",
           "cost": 13,
-          "immediate": "NomadsMarker<LandArea(HAS MAX 0 Occupant)>",
+          "direct": "NomadsMarker<LandArea(HAS MAX 0 Occupant)>",
           "actions": [
             "-> NomadsMarker<NewHome@LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker>) FROM LandArea> THEN Placement<NewHome@>"
           ],
@@ -489,7 +489,7 @@
           "cost": 31,
           "tags": [ "BuildingTag" ],
           // Following text order instead of icon order on published cards.
-          "immediate": "OceanTile<>, TemperatureStep, 3 Plant",
+          "direct": "OceanTile<>, TemperatureStep, 3 Plant",
           "actions": [ "-> Microbe OR Animal" ],
         },
         {
@@ -510,7 +510,7 @@
           "name": "OrbitalCleanup",
           "cost": 14,
           "tags": [ "EarthTag", "SpaceTag" ],
-          "immediate": "PROD[-2 MC]",
+          "direct": "PROD[-2 MC]",
           "actions": [ "-> 1 MC / ScienceTag" ],
           "effects": [ "End: 2 VictoryPoint" ],
         },
@@ -518,7 +518,7 @@
           "name": "OutdoorSports",
           "requirement": "Adjacency<CityTile<Anyone>, OceanTile>",
           "cost": 8,
-          "immediate": "PROD[2 MC]",
+          "direct": "PROD[2 MC]",
         },
         {
           "name": "Penguins",
@@ -532,34 +532,34 @@
           "name": "Potatoes",
           "cost": 2,
           "tags": [ "PlantTag" ],
-          "immediate": "-2 Plant, PROD[2 MC]",
+          "direct": "-2 Plant, PROD[2 MC]",
         },
         {
           "name": "ProjectInspection",
           "cost": 0,
           "tags": [ "EventTag" ],
-          "immediate": "UseAction<ActionCard(HAS ActionUsedMarker)>",
+          "direct": "UseAction<ActionCard(HAS ActionUsedMarker)>",
         },
         {
           "name": "ProtectedGrowth",
           "requirement": "MAX 7 OxygenStep",
           "cost": 2,
           "tags": [ "PlantTag", "EventTag" ],
-          "immediate": "Plant / PowerTag",
+          "direct": "Plant / PowerTag",
         },
         {
           "name": "PublicBaths",
           "requirement": "6 OceanTile",
           "cost": 6,
           "tags": [ "BuildingTag" ],
-          "immediate": "6 MC",
+          "direct": "6 MC",
           "effects": [ "End: VictoryPoint" ],
         },
         {
           "name": "PublicPlans",
           "cost": 7,
           "tags": [ "EventTag" ],
-          "immediate": "X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X MC",
+          "direct": "X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X MC",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -583,13 +583,13 @@
           "name": "RobotPollinators",
           "requirement": "4 OxygenStep",
           "cost": 9,
-          "immediate": "PROD[Plant], Plant / PlantTag",
+          "direct": "PROD[Plant], Plant / PlantTag",
         },
         {
           "name": "SaturnSurfing",
           "cost": 13,
           "tags": [ "JovianTag", "EarthTag" ],
-          "immediate": "Floater<This> / EarthTag",
+          "direct": "Floater<This> / EarthTag",
           "actions": [ "Floater<This> -> 1 MC / Floater<This> MAX 4, 1 MC" ],
           "effects": [ "End: VictoryPoint" ],
         },
@@ -597,39 +597,39 @@
           "name": "ShipmentToEarth",
           "cost": 17,
           "tags": [ "SpaceTag", "EventTag" ],
-          "immediate": "-3 Plant, -3 Steel, 3 TerraformRating, 2 MC / EarthTag",
+          "direct": "-3 Plant, -3 Steel, 3 TerraformRating, 2 MC / EarthTag",
         },
         {
           "name": "SixteenPsyche",
           "cost": 31,
           "tags": [ "SpaceTag" ],
-          "immediate": "PROD[2 Titanium], 3 Titanium",
+          "direct": "PROD[2 Titanium], 3 Titanium",
           "effects": [ "End: 2 VictoryPoint" ],
         },
         {
           "name": "SmallAsteroid",
           "cost": 10,
           "tags": [ "SpaceTag", "EventTag" ],
-          "immediate": "TemperatureStep, -2 Plant<Anyone>?",
+          "direct": "TemperatureStep, -2 Plant<Anyone>?",
         },
         {
           "name": "SnowAlgae",
           "requirement": "2 OceanTile",
           "cost": 12,
           "tags": [ "PlantTag" ],
-          "immediate": "PROD[Plant, Heat]",
+          "direct": "PROD[Plant, Heat]",
         },
         {
           "name": "SoilEnrichment",
           "cost": 6,
           "tags": [ "MicrobeTag", "PlantTag", "EventTag" ],
-          "immediate": "-Microbe, 5 Plant",
+          "direct": "-Microbe, 5 Plant",
         },
         {
           "name": "SolarLogistics",
           "cost": 20,
           "tags": [ "EarthTag", "SpaceTag" ],
-          "immediate": "2 Titanium",
+          "direct": "2 Titanium",
           "effects": [
             "PayingFor<Class<EarthTag>>:: -2 Owed",
             "EventCard<Anyone>(HAS SpaceTag): ProjectCard",
@@ -640,7 +640,7 @@
           "name": "StanfordTorus",
           "cost": 12,
           "tags": [ "CityTag", "SpaceTag" ],
-          "immediate": "CityTile<RemoteArea {}>",
+          "direct": "CityTile<RemoteArea {}>",
           "effects": [ "End: 2 VictoryPoint" ],
         },
         {
@@ -648,13 +648,13 @@
           "requirement": "MAX 3 OceanTile",
           "cost": 5,
           "tags": [ "PowerTag" ],
-          "immediate": "PROD[Energy], 1 MC / BuildingTag",
+          "direct": "PROD[Energy], 1 MC / BuildingTag",
         },
         {
           "name": "SterlingVents",
           "cost": 5,
           "tags": [ "PowerTag", "BuildingTag" ],
-          "immediate": "PROD[-2 Heat, 2 Energy]",
+          "direct": "PROD[-2 Heat, 2 Energy]",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -684,28 +684,28 @@
           "name": "Supercapacitors",
           "cost": 4,
           "tags": [ "PowerTag", "BuildingTag" ],
-          "immediate": "PROD[1 MC]",
+          "direct": "PROD[1 MC]",
           "effects": [ "-Energy IF ProductionPhase: Energy FROM Heat?" ],
         },
         {
           "name": "Supermarkets",
           "requirement": "2 CityTile<Anyone>",
           "cost": 9,
-          "immediate": "PROD[2 MC]",
+          "direct": "PROD[2 MC]",
           "effects": [ "End: VictoryPoint" ],
         },
         {
           "name": "Teslaract",
           "cost": 14,
           "tags": [ "PowerTag", "BuildingTag" ],
-          "immediate": "TerraformRating",
+          "direct": "TerraformRating",
           "actions": [ "PROD[Energy] -> PROD[Plant]" ],
         },
         {
           "name": "TopsoilContract",
           "cost": 8,
           "tags": [ "EarthTag", "MicrobeTag" ],
-          "immediate": "3 Plant",
+          "direct": "3 Plant",
           "effects": [ "Microbe: 1 MC" ],
         },
         {
@@ -722,7 +722,7 @@
           "name": "WeatherBalloons",
           "cost": 11,
           "tags": [ "ScienceTag" ],
-          "immediate": "ProjectCard",
+          "direct": "ProjectCard",
           "actions": [
             "-> Floater<This>",
             "Floater<This> -> 1 MC / CityTile<MarsArea, Anyone>"
@@ -738,7 +738,7 @@
           "requirement": "2 PartyLeader",
           "cost": 4,
           "tags": [ "EventTag" ],
-          "immediate": "TerraformRating",
+          "direct": "TerraformRating",
         },
       ],
     },

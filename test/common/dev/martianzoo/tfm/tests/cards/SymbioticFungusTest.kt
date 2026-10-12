@@ -13,6 +13,10 @@ internal class SymbioticFungusTest : TfmSandboxTest() {
   internal fun `Can use its action without an eligible target`() {
     kim.exMachina("$SymbioticFungus")
 
-    kim.cardAction1(SymbioticFungus).expect("0 Microbe")
+    kim.inTurn {
+          doTask("UseCardAction<SymbioticFungus, Action1>")
+          selectOnlyTask()
+        }
+        .expect("0 Microbe")
   }
 }

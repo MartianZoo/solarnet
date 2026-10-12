@@ -94,7 +94,7 @@ internal constructor(
       val change =
           it as? Change
               ?: throw ExpressionException(
-                  "sneak accepts only direct changes; found `$it`",
+                  "sneak accepts only elementary changes; found `$it`",
                   sourceLocation = it.sourceLocation,
               )
       executeChange(change, cause, mutableListOf(), actor, actor, actor, queuedEffects = false)

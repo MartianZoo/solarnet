@@ -20,7 +20,7 @@
 | Write or move a card/rule test or gameplay helper | Test design through the relevant test category; also read [Sandbox and gameplay fixture migration](#sandbox-and-gameplay-fixture-migration) |
 | Use `TaskResult.expect()` | Expectations |
 | Preserve known incorrect behavior | Known-defect tests |
-| Reconstruct a whole game | Game replay tests and Direct state reconciliation, then the routed replay guide |
+| Reconstruct a whole game | Game replay tests and State reconciliation, then the routed replay guide |
 | Change shared multiplatform tests | Multiplatform tests |
 
 ## Test-support entry points
@@ -38,7 +38,7 @@
 
 ## Standard verification
 
-The wrapper supports and directly uses the JDK selected by `JAVA_HOME` from 17 through 26. JVM code
+The wrapper supports and uses the JDK selected by `JAVA_HOME` from 17 through 26. JVM code
 targets the Java 17 bytecode and API surface, while Kotlin source and standard-library APIs target
 Kotlin 2.2. CI uses Temurin 25 LTS. Contributors do not need another JDK installed.
 
@@ -166,7 +166,7 @@ The Pets module also attaches its filtered browser test to `test`; its complete 
 suite remains available through the temporary full-browser target.
 Module build scripts under `modules/` keep only module-specific configuration and select their
 non-overlapping package roots from the repository-wide `src/` and `test/` trees; JavaScript-only
-applications configure their targets directly. Repository-wide formatting, the Node.js version, and
+applications configure their targets. Repository-wide formatting, the Node.js version, and
 Yarn policy remain in the root build.
 Dependency and plugin versions are declared in `gradle/libs.versions.toml`, while dependency
 repositories are declared centrally in `settings.gradle.kts`; JitPack is restricted to the pinned
@@ -179,7 +179,7 @@ spell out `public` and their public types; declarations used only within one mod
 ## Test design
 
 Do not add tests whose sole purpose is to specify what happens after `exMachina` or `sneak`.
-Direct corrections are test setup, not the subject or evidence of a card test. Keep assertions
+Corrections are test setup, not the subject or evidence of a card test. Keep assertions
 focused on the subsequent player action, card behavior, or shared engine behavior. Evidence-backed
 corrections inside whole-game replays remain appropriate; the replay tests the game, not correction
 semantics.
@@ -198,7 +198,7 @@ semantics.
 
 Terraforming Mars integration tests live under `dev.martianzoo.tfm.tests`: `cards` contains
 component-focused behavior, `rules` contains game-wide and cross-component behavior, and `replays`
-contains whole-game chronologies. Shared integrated-test support lives directly in the parent
+contains whole-game chronologies. Shared integrated-test support lives in the parent
 package. Test placement follows purpose: a test of engine behavior belongs with engine even when it
 uses Terraforming Mars declarations to construct its scenario, while a test of Terraforming Mars
 rules or content belongs in the Terraforming Mars suites. Test-only dependencies may cross that
@@ -250,7 +250,7 @@ are a separate review.
 Give each scenario variant its own named test, using a private helper for shared steps. Do not put
 variants in a `for` loop inside one test: the failing test name should identify the case. Exercise
 the behavior under test through gameplay. For sandbox tests, establish incidental
-preconditions through the standardized fixture and direct corrections by default. Use authentic
+preconditions through the standardized fixture and corrections by default. Use authentic
 gameplay instead when the way a precondition is reached can affect, or provide useful evidence for,
 the behavior under test.
 Use `CONCRETE` when ordering choices matter; reserve `NONE` for tests that must control otherwise
@@ -300,9 +300,9 @@ belongs in player-level scenarios.
 Keep scenarios minimal and legible. Project-card tests that fit the standardized fixture follow the
 migration rules below. Other card tests use the smallest suitable configuration and consistently
 name their gameplay objects. Use `runOperation()` when an operation's resulting setup matters and a
-direct correction is not suitable. Card and rule scenarios do not call `sneak` directly; eligible
+correction is not suitable. Card and rule scenarios do not call `sneak` directly; eligible
 project-card scenarios use the fixture's explicit `exMachina` setup methods.
-Synthetic engine checks can construct a premise directly from `TfmTest`, using the existing
+Synthetic engine checks can construct a premise from `TfmTest`, using the existing
 `canonicalPremise` and `setUpGame` functions. `FakeWildTagTest` exercises explicit temporary-tag
 injection, and `VerminTest.Attribution` supplies a synthetic listener; neither represents a
 player-facing scenario through sandbox or gameplay. Audit-history and arbitrary task-selection
@@ -314,7 +314,7 @@ routine task expressions. The tile and card-resource helpers require a single ma
 choice; card-resource matching includes the destination card, so offers for different cards can
 coexist. Keep raw `doTask()` calls where multiple placements are pending.
 When unrelated optional tasks are pending, pass the pending instruction to `declineTask(instruction)`.
-Inside an existing operation that directly offers a repeated card action, such as Project Inspection,
+Inside an existing operation that offers a repeated card action, such as Project Inspection,
 use `cardAction1()` or `cardAction2()`; the operation-body overload selects and pays that action
 without starting the usual use-card-action wrapper.
 Use `declineTask()` only when exactly one pending task accepts `Ok`, and comment what is declined.
@@ -397,7 +397,34 @@ include focused scenarios with and without that expansion. Keep assertions cente
 behavior; configuration checks normally belong to the existing configuration tests. Do not
 duplicate this coverage for every expansion card.
 
-The fixture otherwise leaves the default autoexecution policy untouched.
+After forking the prepared position, the sandbox sets every player's policy to `NONE`, following
+`OtbGame20261009Test`'s explicit task style. Card and rule scenarios retain the prepared position
+and visible `exMachina` corrections, then use generic
+`inTurn { doTasks(...) }` calls in place of Terraforming Mars gameplay helpers. Admin retains its
+default policy. `inTurn` supplies the sandbox turn and checks that the complete action leaves no
+pending tasks; payments, card transfers, player effects, and any player-assigned cleanup are explicit.
+In this style, omit `.expect()` assertions that merely repeat the submitted tasks; retain assertions
+for automatic consequences, excluded outcomes, and state after rejected actions. Continue using
+`setToExMachina` for desired absolute counts rather than calculating relative fixture adjustments.
+Prefer compact `FROM` expressions, such as `Steel<Kim FROM Rob>` and
+`ProjectCard<Hand FROM Selecting>`, whenever the transmutation shares the same Class.
+Do not retain Terraforming Mars gameplay helpers in sandbox scenarios, including tests of helper
+policies. Preserve payment and card rules through explicit tasks; helper-only policy checks are
+outside this suite. Nested `TfmGameplayTest` suites retain their real workflow. Tests solely
+comparing autoexecution policies are omitted.
+Use `selectOnlyTask()` when selecting the actor's sole pending task without further narrowing;
+`selectOnlyTask(x = 3)` binds X through the existing generic task operation. Keep other explicit
+choices in `doTask` or `narrowTask`. Do not copy full rule expressions to identify
+that sole task. Use meaningful short selectors when several tasks remain.
+Write scenario actions in sequence rather than loops. Small private scenario helpers may factor
+repeated explicit task sequences, with varying bonuses passed at each written-out call.
+Call the base fixture's `advanceUntilActionPhase()` to reach the next Action phase. From Action,
+it advances a generation; the sandbox currently expires generation-scoped state without running
+production or research. The base fixture owns that degree of simulation. From Corporation or
+Prelude, it skips remaining setup plays and enters Action phase.
+For rejection-and-rollback scenarios, put `shouldThrow` outside the operation. Do not catch the
+failure inside the operation and call `abort()` before checking the restored state.
+The shared fixture's own preparation still uses its existing helpers and autoexecution.
 When Turmoil is selected, it uses the existing test setup's initial global-event reveals
 (`DemocraticReform` and `MinimalImpactPolicy`) before entering Corporation phase.
 
@@ -407,7 +434,7 @@ and operation order may be incidental, copied from another scenario, obsolete, o
 old behavior. Begin with the behavior named by the scenario and its meaningful observable coverage.
 Challenge every setup step: if removing it does not change the behavior under test, remove it. For
 sandbox scenarios, do not preserve gameplay merely because the old test used it to reach a state
-that a direct correction can express. Gameplay scenarios must still reach their conditions through
+that a correction can express. Gameplay scenarios must still reach their conditions through
 play. Do not infer a configuration requirement solely from the old test's configuration.
 
 Review an unmigrated class for test value and structure before deciding whether it fits the fixture.
@@ -445,7 +472,7 @@ is irrelevant; finish pending choices first. This is a sandbox shortcut, so othe
 cards need not be resolved when they are irrelevant to the scenario. Gameplay leaves those choices
 to the test and advances through the normal workflow.
 
-In sandbox tests, conditions beyond that initial state should normally be direct, visible corrections:
+In sandbox tests, conditions beyond that initial state should normally be visible corrections:
 
 - Use `setToExMachina(targetCount, type)` for a desired absolute count. It calculates the gain or
   loss from the current count, so the scenario states its intended condition rather than assuming
@@ -455,9 +482,9 @@ In sandbox tests, conditions beyond that initial state should normally be direct
 - Use `exMachina(adjustment)` for a naturally relative change or a known absent-to-present fact.
   Prefer a concrete Type such as `NormalCityTile` when an abstract Type cannot be created directly.
 - If initial play of the subject card is not being tested, install that card directly. Do not first
-  satisfy its play requirement, pay its price, or reproduce its immediate instructions. Correct any
+  satisfy its play requirement, pay its price, or reproduce its direct effect. Correct any
   independent state that the behavior under test actually needs.
-- If initial play, payment, requirements, immediate instructions, or entry-trigger interactions are
+- If initial play, payment, requirements, direct effects, or entry-trigger interactions are
   the subject, play the card normally and establish whatever legal setup that action requires.
 - To test behavior at a completed global parameter, correct the track to its penultimate step and
   use an ordinary standard project for the final step when available. This preserves the real
@@ -481,7 +508,7 @@ Authentic setup through gameplay remains valid and is sometimes preferable. Use 
 when the path into the state matters: trigger history, attribution, task ordering, payment,
 requirements, card-entry effects, global-parameter completion, workflow, or interactions among
 setup actions. It is also appropriate when a broader integration scenario is valuable in its own
-right. Direct correction is the default for irrelevant preconditions because it keeps focused card
+right. Correction is the default for irrelevant preconditions because it keeps focused card
 tests short and makes their real subject obvious; it is not a ban on authentic gameplay.
 
 Review each retained scenario before selecting its fixture. A coherent card suite can use gameplay
@@ -528,7 +555,7 @@ another Player or an intentionally cross-player total. Do not restate costs, tes
 include explicitly narrated gains/removals and interesting automatic effects, even when the
 expected net differs from the narrated gross amount. Prefer a nearby absolute assertion when the
 source states an absolute value or the absolute state itself is the subject. Failed and deliberately
-aborted actions have no successful `TaskResult`, so assert their relevant unchanged state directly.
+aborted actions have no successful `TaskResult`, so assert their relevant unchanged state.
 Use a zero scalar, such as `0 Plant` or `PROD[0 Energy]`, to assert that a particular type did not
 change.
 
@@ -546,7 +573,7 @@ relevant unchanged state and, when useful, the diagnostic identifying the proble
 
 ### Known-defect tests
 
-Card tests use adjacent test pairs in the class for the main card involved:
+Card and rule tests use adjacent test pairs in the class for the behavior involved:
 
 - An `@Test` with `@Ignore` states the intended behavior. Add a short comment explaining the defect
   that keeps it disabled, and preserve any existing rule-source reference beside the pair.
@@ -577,7 +604,7 @@ Use resolved, concrete instructions and `PROD[...]` in its `doTasks` calls, with
 unevaluated metrics. Combine amounts when the matching tasks are already pending. A scalar total
 consumes all pending gains and removals of the same type and quantifier when their signed total
 matches, even if an individual task has that amount. Gains execute first; effects created while
-those changes run do not join the total. Direct `p1.doTasks(...)` and `p2.doTasks(...)` calls are
+those changes run do not join the total. Explicit `p1.doTasks(...)` and `p2.doTasks(...)` calls are
 atomic, resumable batches. In explicit setup, have each player take their starting TR before either
 player handles starting cards.
 Use the shared card-name constants, give every `Ok` a short inline comment to its right naming
@@ -655,7 +682,7 @@ Whole-game tests are high-value integration coverage. When translating a supplie
 - In multiplayer action phases, express each player's actions as `player.turn { ... }`. A normal
   turn block contains up to two actions and automatically declines an unused second action. The
   exception is a sourced fast-mode game, where players must take two actions unless passing; translate
-  those actions directly instead of using `turn {}`, and preserve explicit passes or declined second
+  those actions instead of using `turn {}`, and preserve explicit passes or declined second
   actions when the source records them.
   Once every other player has passed, keep the remaining player's actions through `pass()` in one
   turn block; workflow-provided `NewTurn` tasks let that block continue across the remaining nominal
@@ -665,7 +692,7 @@ Whole-game tests are high-value integration coverage. When translating a supplie
 - Use the same turn block for a player's two Prelude plays. This also supports Prelude effects that
   immediately play another Prelude or project inside one of those plays.
 - Keep the supplied machine log as a separate source artifact rather than copying its lines into the
-  test solely for traceability. Periodically audit the test directly against that artifact for
+  test solely for traceability. Periodically audit the test against that artifact for
   chronology, choices, and consequences. Assert selective checkpoints, summaries, and final facts
   rather than mechanically asserting every log entry. Audio transcript translations may drop filler
   and repetition while retaining gameplay-relevant personality, uncertainty, corrections, and mistakes.
@@ -685,7 +712,7 @@ Whole-game tests are high-value integration coverage. When translating a supplie
   excess needs no marker. Explain the sourced later payment or checkpoint that requires an unusual
   allocation, and prefer correcting an unsupported allocation over declaring intent.
   For a recorded physical game, first search the transcript and player-board logs for an explicit
-  payment composition; prefer that direct evidence to inference from a later balance.
+  payment composition; prefer that source evidence to inference from a later balance.
 - Call `requireExplicitUnusedActionCards()` on replay players when every pass should audit unused
   action cards. For those players, `pass()` asserts that no action cards are unused; otherwise use
   `pass(unused = CardA, CardB)`. The pass fails if the complete set does not match.
@@ -695,13 +722,13 @@ Whole-game tests are high-value integration coverage. When translating a supplie
   implementation. Work around unsupported engine behavior narrowly and record real follow-ups in
   `TODO.md`.
 
-### Direct state reconciliation
+### State reconciliation
 
 - Express a sourced per-player setup rule, such as a starting handicap, on that replay's concrete
   Player Class with a `SetupPhase` effect supplied through `playerClassPets`. It is game
-  setup, not a direct state reconciliation.
+  setup, not a state reconciliation.
 - Never call `sneak` directly in a game test. Use the test's `exMachina` helper for an
-  evidence-backed player error that requires a direct state adjustment. Place it as late in the
+  evidence-backed player error that requires a state adjustment. Place it as late in the
   timeline as the sourced assertions allow, with a comment saying which later step requires it. Add
   source-backed `.expect()` assertions for the mistake-prone types to preceding actions wherever
   practical so the remaining unexplained gap is bounded as narrowly as possible.

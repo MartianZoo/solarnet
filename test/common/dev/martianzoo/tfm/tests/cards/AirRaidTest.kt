@@ -14,13 +14,18 @@ internal class AirRaidTest : TfmSandboxTest() {
 
   @Test
   internal fun `Steals all five MC`() {
-    kim.exMachina("$AtmoCollectors, 2 Floater<$AtmoCollectors>")
+    kim.exMachina("$AtmoCollectors")
+    kim.setToExMachina(2, "Floater<$AtmoCollectors>")
     rob.setToExMachina(5, "MC")
 
-    kim.playProject(AirRaid, 0) {
-          doTask("5 MC FROM MC<Rob>")
-        }
-        .expect("-Floater<$AtmoCollectors>, 5 MC<Kim>, -5 MC<Rob>")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<$AirRaid>>",
+          "$AirRaid FROM ProjectCard",
+          "-Floater<$AtmoCollectors>",
+          "5 MC<Kim FROM Rob>",
+      )
+    }
   }
 
   @Test
@@ -30,7 +35,13 @@ internal class AirRaidTest : TfmSandboxTest() {
     rob.setToExMachina(5, "MC")
 
     shouldThrow<ExpressionException> {
-      kim.playProject(AirRaid, 0) { doTask("5 MC FROM MC<Kim>") }
+      kim.inTurn {
+        selectOnlyTask()
+        doTasks("PlayProject<Class<AirRaid>>", "AirRaid FROM ProjectCard")
+        selectTask("-Floater!")
+        selectOnlyTask()
+        doTask("5 MC<Kim FROM Kim>")
+      }
     }
   }
 
@@ -42,7 +53,13 @@ internal class AirRaidTest : TfmSandboxTest() {
     rob.setToExMachina(4, "MC")
 
     shouldThrow<LimitsException> {
-      kim.playProject(AirRaid, 0) { doTask("5 MC FROM MC<Stan>") }
+      kim.inTurn {
+        selectOnlyTask()
+        doTasks("PlayProject<Class<AirRaid>>", "AirRaid FROM ProjectCard")
+        selectTask("-Floater!")
+        selectOnlyTask()
+        doTask("5 MC<Kim FROM Stan>")
+      }
     }
   }
 }

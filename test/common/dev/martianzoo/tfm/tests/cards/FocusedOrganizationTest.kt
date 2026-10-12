@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -14,11 +14,16 @@ internal class FocusedOrganizationTest : TfmSandboxTest() {
     newTestGame("FocusedOrganization")
     kim.exMachina("$FocusedOrganization, Steel")
 
-    kim.cardAction1(FocusedOrganization) {
+    kim.inTurn {
+          doTask("UseCardAction<FocusedOrganization, Action1>")
+          selectTask("-ProjectCard<Kim, Hand>!")
+          selectOnlyTask()
           doTask("-Steel")
+          selectTask("ProjectCard<Kim, Hand>!")
+          selectTask("StandardResource!")
           doTask("Plant")
         }
-        .expect("-Steel, Plant, 0 ProjectCard")
+        .expect("0 ProjectCard")
   }
 
   @Test
@@ -38,8 +43,11 @@ internal class FocusedOrganizationTest : TfmSandboxTest() {
     setupStormcraftFloater()
     val projectCardsBefore = kim.count("ProjectCard")
 
-    shouldThrow<NarrowingException> {
-      kim.cardAction1(FocusedOrganization) {
+    shouldThrow<TaskException> {
+      kim.inTurn {
+        doTask("UseCardAction<FocusedOrganization, Action1>")
+        selectTask("-ProjectCard<Kim, Hand>!")
+        selectOnlyTask()
         doTask("-Floater<$StormcraftIncorporated>")
         doTask("Plant")
       }
