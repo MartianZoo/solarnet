@@ -127,7 +127,6 @@ internal constructor(
   internal fun build(): GamePremise {
     val modules = moduleNames
     val resolvedSelections = linkedMapOf<ClassName, Boolean>()
-    catalog.modules.keys.forEach { resolvedSelections[it] = false }
     included.forEach { resolvedSelections[it] = true }
     excluded.forEach { resolvedSelections[it] = false }
     val premiseDeclaration =

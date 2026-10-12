@@ -228,12 +228,6 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
     included.addAll(selectedMilestoneNames + selectedAwardNames)
     val selectedCardNames = selectCardPools(builder)
     val individualNames = included - moduleNames
-    if (selectedMilestoneNames.isNotEmpty()) {
-      builder.excluded.addAll(goalClassNames(TfmClasses.MILESTONE) - selectedMilestoneNames)
-    }
-    if (selectedAwardNames.isNotEmpty()) {
-      builder.excluded.addAll(goalClassNames(TfmClasses.AWARD) - selectedAwardNames)
-    }
     val selectedByModules =
         moduleNames
             .flatMap { modules.getValue(it) }

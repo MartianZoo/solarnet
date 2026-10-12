@@ -70,6 +70,13 @@ internal class GamePremiseTest {
   }
 
   @Test
+  internal fun unchosenOptionsNeedNoNegativePremiseSelections() {
+    val premise = Canon.gamePremise(GameConfig("", "Player1", "Player2"))
+
+    premise.classSelections.filterNot(ClassSelection::included).shouldBeEmpty()
+  }
+
+  @Test
   internal fun worldsFromOnePremiseShareTheClassModelButNotLiveState() {
     val premise = Canon.gamePremise(GameConfig("", "Player1", "Player2"))
     val first = TfmEngine.newGame(premise)
@@ -320,10 +327,11 @@ internal class GamePremiseTest {
     goalSelections
         .filter { it.included && Canon.classTable.getClass(it.className).isSubtypeOf(award) }
         .size shouldBe 4
-    goalSelections.mapTo(linkedSetOf(), ClassSelection::className) shouldBe
-        (Canon.classTable.allSubclasses(milestone) + Canon.classTable.allSubclasses(award))
-            .filterNot { it.abstract }
-            .mapTo(linkedSetOf()) { it.className }
+    goalSelections.all(ClassSelection::included) shouldBe true
+    val selectedNames = goalSelections.mapTo(linkedSetOf(), ClassSelection::className)
+    (Canon.classTable.allSubclasses(milestone) + Canon.classTable.allSubclasses(award))
+        .filterNot { it.abstract || it.className in selectedNames }
+        .forEach { premise.classTable.isInhabited(it.className) shouldBe false }
   }
 
   @Test

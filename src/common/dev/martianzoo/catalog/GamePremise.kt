@@ -16,10 +16,11 @@ import dev.martianzoo.pets.types.PremiseClassTable
 /**
  * The complete immutable, resolved input from which equivalent playable worlds are constructed.
  *
- * [classSelections] records every signed Class choice, [componentAdjustments] changes Module-owned
- * setup quantities, and [playerNames] fixes seat order. [classTable] forms their inclusion closure
- * over the Catalog's reusable master table and derives executable effects using fixed structural
- * Class presence and selected Module counts. Known Classes outside that closure remain uninhabited;
+ * [classSelections] records selected Classes and explicit or policy-imposed exclusions. Unmentioned
+ * catalog Classes need no negative entry. [componentAdjustments] changes Module-owned setup
+ * quantities, and [playerNames] fixes seat order. [classTable] forms their inclusion closure over
+ * the Catalog's reusable master table and derives executable effects using fixed structural Class
+ * presence and selected Module counts. Known Classes outside that closure remain uninhabited;
  * closure that reaches an excluded Class or an unrequested Module is invalid.
  *
  * @property catalog Reusable source namespace from which this premise is resolved.

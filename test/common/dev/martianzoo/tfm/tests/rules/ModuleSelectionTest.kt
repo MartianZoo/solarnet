@@ -459,7 +459,8 @@ internal class ModuleSelectionTest {
 
   private fun GamePremise.shouldHaveSameSelectionAs(expected: GamePremise) {
     modules shouldBe expected.modules
-    classSelections shouldBe expected.classSelections
+    classSelections.filter(ClassSelection::included).toSet() shouldBe
+        expected.classSelections.filter(ClassSelection::included).toSet()
     playerNames shouldBe expected.playerNames
   }
 
