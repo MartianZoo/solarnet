@@ -10,7 +10,7 @@ import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 
 /** Live game begun Tue 2026-08-18. Quoted evidence is verbatim from the supplied transcripts. */
 internal class OtbGame20260818Test : AbstractFullGameTest() {
@@ -1665,19 +1665,20 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       assertCounts(44 to "TerraformRating", 11 to "Animal<$Pets>")
     }
 
-    val originalEvents = game.events.entriesSince(Checkpoint(0))
-    val reconstructed = runBlocking {
-      GameFileJson.parse(checkNotNull(completedGameFileJson())).decode(gamePremise).open().world
-    }
-    val decodedEvents = reconstructed.events.entriesSince(Checkpoint(0))
-    val allComponents = game.classTable.componentClass.baseType
+    runTest {
+      val originalEvents = game.events.entriesSince(Checkpoint(0))
+      val reconstructed =
+          GameFileJson.parse(checkNotNull(completedGameFileJson())).decode(gamePremise).open().world
+      val decodedEvents = reconstructed.events.entriesSince(Checkpoint(0))
+      val allComponents = game.classTable.componentClass.baseType
 
-    decodedEvents shouldBe originalEvents
-    decodedEvents.map { it.notes } shouldBe originalEvents.map { it.notes }
-    reconstructed.events.entriesSince(Checkpoint(0)) shouldBe originalEvents
-    reconstructed.tasks.extract { it } shouldBe game.tasks.extract { it }
-    reconstructed.components.getAll(allComponents, NoGameState).entries shouldBe
-        game.components.getAll(allComponents, NoGameState).entries
+      decodedEvents shouldBe originalEvents
+      decodedEvents.map { it.notes } shouldBe originalEvents.map { it.notes }
+      reconstructed.events.entriesSince(Checkpoint(0)) shouldBe originalEvents
+      reconstructed.tasks.extract { it } shouldBe game.tasks.extract { it }
+      reconstructed.components.getAll(allComponents, NoGameState).entries shouldBe
+          game.components.getAll(allComponents, NoGameState).entries
+    }
 
     // "So I'm going to 1-2 and 1-3."
     green.convertPlants { placeTile(1, 2) }.expect("-8 Plant")

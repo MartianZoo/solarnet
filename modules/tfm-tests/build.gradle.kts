@@ -24,6 +24,7 @@ kotlin {
       dependencies {
         implementation(libs.kotest.assertions.core)
         implementation(libs.kotlinx.coroutines.core)
+        implementation(libs.kotlinx.coroutines.test)
         implementation(project(":agent"))
         implementation(project(":catalog"))
         implementation(project(":engine"))
