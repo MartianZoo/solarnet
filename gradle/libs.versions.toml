@@ -1,5 +1,6 @@
 [versions]
-better-parse = "1e227e760395f6dca1cfd00de4d499c7229c51e3"
+better-parse = "8e01263"
+compose-multiplatform = "1.12.1"
 detekt = "2.0.0-alpha.5"
 dokka = "2.2.0"
 jline = "3.30.17"
@@ -34,6 +35,8 @@ kotlin-multiplatform-gradle-plugin = { module = "org.jetbrains.kotlin.multiplatf
 kotlin-jvm-gradle-plugin = { module = "org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin", version.ref = "kotlin" }
 
 [plugins]
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 jmh = { id = "me.champeau.jmh", version.ref = "jmh-gradle" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

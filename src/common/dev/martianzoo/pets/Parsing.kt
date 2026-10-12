@@ -16,7 +16,7 @@ import com.github.h0tk3y.betterParse.lexer.Token
 import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 import com.github.h0tk3y.betterParse.lexer.literalToken
-import com.github.h0tk3y.betterParse.lexer.token
+import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.ParseException
 import com.github.h0tk3y.betterParse.parser.ParseResult
 import com.github.h0tk3y.betterParse.parser.Parsed
@@ -217,7 +217,7 @@ public object Parsing {
                   "lowerCamel" -> "a property name"
                   "scalar" -> "a non-negative integer"
                   "\n" -> "a newline"
-                  "\"[^\"]*\"" -> "quoted text"
+                  "quoted text" -> "quoted text"
                   "arrow" -> "`->`"
                   "doubleColon" -> "`::`"
                   else -> "`$name`"
@@ -523,11 +523,11 @@ public object Parsing {
   private object PetsGrammar : Grammar<List<ClassDeclaration>>() {
     // First match wins: comments precede '/', multi-character punctuation precedes its prefixes,
     // and keywords precede names. Newlines separate declaration-body elements and are significant.
-    private val continuation by regexToken(Regex("\\\\\r?\n"), "backslash-newline", ignored = true)
+    private val continuation by regexToken("backslash-newline", Regex("\\\\\r?\n"), ignore = true)
     private val whitespace by
-        regexToken(Regex("[ \\t\\r]+"), "horizontal-whitespace", ignored = true)
-    private val comment by regexToken(Regex("//[^\\r\\n]*"), "line-comment", ignored = true)
-    private val quotedToken by regexToken(Regex("\"[^\"]*\""))
+        regexToken("horizontal-whitespace", Regex("[ \\t\\r]+"), ignore = true)
+    private val comment by regexToken("line-comment", Regex("//[^\\r\\n]*"), ignore = true)
+    private val quotedToken by regexToken("quoted text", Regex("\"[^\"]*\""))
     private val arrow by literalToken("arrow", "->")
     private val doubleColon by literalToken("doubleColon", "::")
     private val bang by literalToken("!", "!")
@@ -571,12 +571,12 @@ public object Parsing {
     private val requirementKeyword by keyword("Requirement")
     private val mixedCaseName by
         regexToken(
-            Regex("""\b[A-Z](?=[A-Za-z0-9_]*[a-z])[A-Za-z0-9_]*\b"""),
             "mixed-case class name",
+            Regex("""\b[A-Z](?=[A-Za-z0-9_]*[a-z])[A-Za-z0-9_]*\b"""),
         )
-    private val allCapsName by regexToken(Regex("""\b[A-Z][A-Z0-9_]*\b"""), "ALLCAPS")
-    private val lowerCamelName by regexToken(Regex("""\b[a-z][A-Za-z0-9]*\b"""), "lowerCamel")
-    private val integerToken by regexToken(Regex("""\b(0|[1-9][0-9]*)"""), "scalar")
+    private val allCapsName by regexToken("ALLCAPS", Regex("""\b[A-Z][A-Z0-9_]*\b"""))
+    private val lowerCamelName by regexToken("lowerCamel", Regex("""\b[a-z][A-Za-z0-9]*\b"""))
+    private val integerToken by regexToken("scalar", Regex("""\b(0|[1-9][0-9]*)"""))
 
     private val sourcePosition: Parser<SourceLocation?> =
         object : Parser<SourceLocation?> {
@@ -1136,17 +1136,7 @@ public object Parsing {
           .also { it.sourceLocation = clazz.sourceLocation }
     }
 
-    // Keep regex matching anchored on every runtime. The pinned better-parse JS regex token
-    // accesses Kotlin's private regex fields to set a sticky flag; Regex.matchAt needs no such
-    // hook.
-    private fun regexToken(
-        regex: Regex,
-        name: String = regex.pattern,
-        ignored: Boolean = false,
-    ): Token =
-        token(name, ignored) { input, from -> regex.matchAt(input, from)?.value?.length ?: 0 }
-
-    private fun keyword(word: String): Token = regexToken(Regex("$word\\b"), word)
+    private fun keyword(word: String): Token = regexToken(word, Regex("$word\\b"))
 
     private inline fun <reified T> commaSeparated(parser: Parser<T>) = separatedTerms(parser, comma)
 

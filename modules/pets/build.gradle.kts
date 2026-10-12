@@ -1,5 +1,6 @@
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
   id("solarnet.kmp-jvm-js")
@@ -11,11 +12,16 @@ val commonSourceDirectory =
 val commonTestDirectory = rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/pets")
 
 kotlin {
+  @OptIn(ExperimentalWasmDsl::class)
+  wasmJs {
+    browser()
+    nodejs()
+  }
+
   sourceSets {
     commonMain {
       kotlin.setSrcDirs(listOf(commonSourceDirectory))
       dependencies {
-        // Pin the exact tested JitPack build from the better-parse fork; tag lookup was unreliable.
         implementation(libs.better.parse)
       }
     }

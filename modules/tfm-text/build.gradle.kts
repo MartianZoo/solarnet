@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins { id("solarnet.kmp-jvm-js") }
 
 val textSourceDirectory =
@@ -41,6 +43,12 @@ val randomCardEnglishComparisonOutput =
     providers.gradleProperty("randomCardEnglishComparisonOutput")
 
 kotlin {
+  @OptIn(ExperimentalWasmDsl::class)
+  wasmJs {
+    browser()
+    nodejs()
+  }
+
   sourceSets {
     commonMain {
       kotlin.setSrcDirs(

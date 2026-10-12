@@ -170,7 +170,10 @@ applications configure their targets. Repository-wide formatting, the Node.js ve
 Yarn policy remain in the root build.
 Dependency and plugin versions are declared in `gradle/libs.versions.toml`, while dependency
 repositories are declared centrally in `settings.gradle.kts`; JitPack is restricted to the pinned
-better-parse fork.
+better-parse fork commit `8e01263` (full SHA `8e01263e2887a46341cbdd81232310a865d56997`).
+Pets and the common library modules `agent`, `catalog`, `engine`, `script`, `state`, `tfm-canon`,
+`tfm-card-data`, `tfm-engine`, `tfm-fake`, `tfm-state`, and `tfm-text` declare WASM/JS targets.
+`tfm-tests` also declares a WASM/JS target for shared replay tests.
 
 All Kotlin modules use strict explicit API mode. Declarations that form a module's public API must
 spell out `public` and their public types; declarations used only within one module should be

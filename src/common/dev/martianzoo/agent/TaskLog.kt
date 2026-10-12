@@ -4,6 +4,7 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameEvent
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 
@@ -27,10 +28,14 @@ import dev.martianzoo.state.Task.TaskId
  */
 public class TaskLog internal constructor(private val world: World) {
   private class Submission(
+      val actor: Actor,
       val line: String,
       val formTask: TaskId?,
+      val automatic: Boolean = false,
       var anchor: GameEvent? = null,
       var onlyNarrows: Boolean = false,
+      var selectsTask: Boolean = false,
+      val correction: Boolean = false,
   )
 
   private var recording = false
@@ -44,31 +49,59 @@ public class TaskLog internal constructor(private val world: World) {
 
   /** Exports surviving submissions in order, with a trailing newline when nonempty. */
   public fun text(): String {
-    val events = world.events.entriesSince(Checkpoint(0))
-    val surviving = submissions.filter { item ->
-      item.anchor?.let { events.getOrNull(it.ordinal) === it } == true
-    }
+    val surviving = survivingSubmissions()
     val lastFormCommit = surviving.filter { it.formTask != null }.associateBy { it.formTask }
     return surviving
         .filter { !it.onlyNarrows || lastFormCommit[it.formTask] === it }
         .joinToString("") { "${it.line}\n" }
   }
 
+  /** Positions before surviving explicit Player task selections and replay corrections. */
+  public fun selectionCheckpoints(): List<Checkpoint> =
+      survivingSubmissions()
+          .filter { it.correction || (it.actor is Player && !it.automatic && it.selectsTask) }
+          .map { Checkpoint(checkNotNull(it.anchor).ordinal) }
+          .distinct()
+
+  private fun survivingSubmissions(): List<Submission> {
+    val events = world.events.entriesSince(Checkpoint(0))
+    return submissions.filter { item ->
+      item.anchor?.let { events.getOrNull(it.ordinal) === it } == true
+    }
+  }
+
   internal fun <T> capture(
       actor: Actor,
       instruction: String,
       formTask: TaskId? = null,
+      automatic: Boolean = false,
       block: () -> T,
   ): T {
     if (!recording) return block()
     require('\n' !in instruction && '\r' !in instruction) { "task text must fit on a line" }
     val checkpoint = world.timeline.checkpoint()
-    val submission = Submission("$actor: $instruction", formTask)
+    val submission =
+        Submission(
+            actor,
+            "$actor: $instruction",
+            formTask,
+            automatic = automatic,
+            correction = instruction.startsWith("EX MACHINA "),
+        )
     submissions += submission
     return try {
       block().also {
         val events = world.events.entriesSince(checkpoint)
         submission.anchor = events.firstOrNull()
+        submission.selectsTask =
+            events.any { event ->
+              when (event) {
+                is GameEvent.TaskEditedEvent -> !event.oldTask.selected && event.task.selected
+                is GameEvent.TaskRemovedEvent ->
+                    !event.task.selected && !instruction.startsWith("DROP ")
+                else -> false
+              }
+            }
         // A later full form instruction includes provisional instruction choices. Keep selection,
         // structural changes, continuations and Actor handoffs, which have independent effects.
         submission.onlyNarrows =

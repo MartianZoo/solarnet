@@ -100,7 +100,7 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
     val task = allTasks.getTaskData(taskId)
     if (task.assignee == ADMIN) return block()
     val instruction = "CHOOSE ${task.instruction}"
-    return taskLog.capture(task.assignee, instruction, block = block)
+    return taskLog.capture(task.assignee, instruction, automatic = true, block = block)
   }
 
   private fun policy(taskId: TaskId): AutoExecPolicy {

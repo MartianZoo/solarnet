@@ -1,6 +1,14 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins { id("solarnet.kmp-jvm-js") }
 
 kotlin {
+  @OptIn(ExperimentalWasmDsl::class)
+  wasmJs {
+    browser()
+    nodejs()
+  }
+
   sourceSets {
     commonMain {
       kotlin.setSrcDirs(
@@ -33,6 +41,11 @@ kotlin {
     jsMain {
       kotlin.setSrcDirs(
           listOf(rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/engine"))
+      )
+    }
+    wasmJsMain {
+      kotlin.setSrcDirs(
+          listOf(rootProject.layout.projectDirectory.dir("src/wasmJs/dev/martianzoo/engine"))
       )
     }
     jsTest {

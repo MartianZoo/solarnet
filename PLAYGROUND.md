@@ -8,6 +8,8 @@ is omniscient and controls every player. Solarnet supplies the game rules.
 
 - Use **Compose Multiplatform**, with Kotlin as the UI implementation language. This choice is
   settled; it means the Compose Multiplatform UI toolkit, not Compose HTML or Kobweb.
+- The `:playground` module holds the current history viewer and adjustable workspace; see its
+  [README](modules/playground/README.md).
 - Target desktop and tablet browsers. Phone layouts are out of scope. An installable desktop
   version might be useful later, but is not a current requirement.
 - Run Solarnet locally in the browser. Offline use is desirable; application and asset caching

@@ -19,8 +19,11 @@ import kotlinx.serialization.json.put
 public object GameRecordingJson {
   private val json = Json
 
-  /** Encodes the premise recipe, viewer positions, and exact events in one JSON value. */
-  public fun encode(recording: GameRecording): String {
+  /**
+   * Encodes the premise recipe, viewer positions, and exact events in one JSON value. When supplied,
+   * [requestedConfig] preserves the caller's unresolved choices separately from the resolved recipe.
+   */
+  public fun encode(recording: GameRecording, requestedConfig: GameConfig? = null): String {
     val premise = recording.premise
     val selectedClasses = buildList {
       premise.classSelections.mapTo(this) { selection ->
@@ -33,6 +36,10 @@ public object GameRecordingJson {
         .sorted()
     return encodeJson(
         buildJsonObject {
+          requestedConfig?.let {
+            put("requestedConfig", it.toString())
+            put("requestedPlayers", strings(it.playerNames.map { name -> name.toString() }))
+          }
           put("classes", strings(selectedClasses))
           put("players", strings(recording.premise.playerNames.map { it.toString() }))
           put(
@@ -53,6 +60,12 @@ public object GameRecordingJson {
   public class Document internal constructor(private val source: JsonObject) {
     /** The premise recipe that must be reconstructed before typed events can be decoded. */
     public val config: GameConfig = GameRecordingJson.config(source)
+
+    /** The original unresolved choices, when the recording exporter supplied them. */
+    public val requestedConfig: GameConfig? =
+        source["requestedConfig"]?.jsonPrimitive?.content?.let { requested ->
+          GameConfig(requested, *requiredStrings(source, "requestedPlayers").toTypedArray())
+        }
 
     /** Decodes the exact event stream against its reconstructed [premise]. */
     public fun decode(premise: GamePremise): GameRecording {

@@ -17,6 +17,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.ComponentChange
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.GameRecording
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
@@ -88,7 +89,15 @@ internal abstract class AbstractFullGameTest : TfmTest() {
 
   internal fun completedRecordingJson(): String? {
     if (game.events.entriesSinceSetup().isEmpty()) return null
-    return dev.martianzoo.state.GameRecordingJson.encode(game.recording())
+    val completed = game.recording()
+    val positions =
+        (listOf(completed.positions.first()) +
+                agents.taskLog.selectionCheckpoints() +
+                completed.positions.last())
+            .distinct()
+            .sortedBy { it.ordinal }
+    val recording = GameRecording(completed.premise, completed.events, positions)
+    return dev.martianzoo.state.GameRecordingJson.encode(recording, config)
   }
 
   @BeforeTest

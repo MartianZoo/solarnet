@@ -24,6 +24,32 @@ internal class GameRecordingJsonTest {
   }
 
   @Test
+  internal fun recordingKeepsRequestedConfigSeparateFromResolvedPremiseRecipe() {
+    val catalog = testCatalog("CLASS Supply : System\nCLASS Token\nCLASS Inferred")
+    val requested = GameConfig("Token, 2 Supply")
+    val premise = catalog.gamePremise(requested)
+        .copy(classSelections = setOf(ClassSelection(cn("Token")), ClassSelection(cn("Inferred"))))
+    val recording = GameRecording(premise, emptyList(), listOf(Checkpoint(0)))
+
+    val document = GameRecordingJson.parse(GameRecordingJson.encode(recording, requested))
+
+    document.requestedConfig shouldBe requested
+    document.config shouldBe GameConfig("Token, Inferred, 2 Supply")
+  }
+
+  @Test
+  internal fun recordingDoesNotAddPremisePlayersToRequestedConfig() {
+    val premise = testGamePremise("CLASS Token")
+    val requested = GameConfig("Token")
+    val recording = GameRecording(premise, emptyList(), listOf(Checkpoint(0)))
+
+    val document = GameRecordingJson.parse(GameRecordingJson.encode(recording, requested))
+
+    document.config.playerNames shouldBe premise.playerNames
+    document.requestedConfig shouldBe requested
+  }
+
+  @Test
   internal fun recordingRoundTripsAndOpensIndependentViews() {
     val premise =
         testGamePremise("CLASS Token\nCLASS Marker")

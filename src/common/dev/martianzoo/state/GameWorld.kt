@@ -63,7 +63,7 @@ private constructor(
   init {
     require(copyFrom == null || copyFrom.premise === premise)
     require(copyFrom == null || initialEvents.isEmpty())
-    initialEvents.forEach(::apply)
+    initialEvents.forEach { apply(it) }
   }
 
   /**

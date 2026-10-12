@@ -4,6 +4,13 @@
 
 Issue links provide background. Inline TODOs should be brief context pointers.
 
+## Mars Playground history
+
+- [ ] Give player-action squares English choice summaries. The action signal identifies the move,
+  but details such as the number of patents sold are recorded in later effects. Design a summary
+  from the chosen action and its completed event group without adding component-specific English
+  rules to the viewer; the existing card-text renderer does not summarize chosen actions.
+
 ## Standard actions
 
 - [ ] Fix missing-action selection and remove the action-slot dependency from general-purpose
@@ -189,10 +196,11 @@ These concerns remain open; the ranking does not select replacement designs.
 - Add scenario saving and reloading to [Mars Playground](PLAYGROUND.md) after the initial version.
 - Add shareable URLs for [Mars Playground](PLAYGROUND.md#technology-and-experience) later. First
   decide what restoring the same view includes: scenario, history position, camera, and windows.
-- [ ] Remove the viewer's current saved-games feature completely: delete `SavedGame`,
-  `SavedGames`, generated `games/index.txt`, packaged-replay dropdown discovery/loading, and their
-  tests. Do not preserve a placeholder API or design the replacement during removal. Reintroduce
-  recording selection only when there is a concrete, useful workflow to replace it.
+- Add sandbox and gameplay operations to Mars Playground after its passive history viewer is sound.
+  Let the same world and task rules supply those operations; keep the current history positions
+  limited to completed replay steps.
+- Retire the separate browser viewer and its duplicate recording discovery when Mars Playground
+  covers its remaining useful views.
 - Review derived lookups on delegated Catalogs: `classDeclaration` and `allClassNames` use the
   delegate's properties even when the wrapper overrides them. Keep this existing issue separate
   from the class-loading cleanup.
@@ -458,6 +466,9 @@ These concerns remain open; the ranking does not select replacement designs.
   disambiguation is not yet preserved: retain a meaningful selector before supporting logs that
   depend on it, rather than trying alternative executions during import. Current replay checks use
   the same premise in memory and compare engine state, not the test-owned card-name ledger.
+- Evaluate replaying decision exports through the browser engine for History mode after those exports
+  contain the premise and card identities. Compare the resulting state with the state-change
+  recording before replacing passive playback.
 - Reconcile the old score discrepancy in `SoloGame20230721Test` against its original game record
   (`gf33a06d07a1c`). Restoring normal Flooding play preserves the asserted 95 VP; the legacy comments
   claimed 99 and reported 111 on herokuapp. The task round-trip verifies reproduction, not which

@@ -35,6 +35,7 @@ val modules =
         "almanac",
         "pets-tools",
         "viewer",
+        "playground",
         "tools",
         "codegen",
         "benchmarks",
@@ -47,6 +48,7 @@ modules.forEach { module -> project(":$module").projectDir = file("modules/$modu
 dependencyResolutionManagement {
   repositories {
     mavenCentral()
+    google()
     exclusiveContent {
       forRepository { maven { url = uri("https://jitpack.io") } }
       filter { includeGroup("com.github.kevinb9n.better-parse") }

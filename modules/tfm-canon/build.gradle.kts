@@ -1,5 +1,6 @@
 import dev.martianzoo.buildlogic.GenerateCatalogSources
 import org.gradle.api.tasks.Sync
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
   id("solarnet.kmp-jvm-js")
@@ -36,6 +37,12 @@ val generateCanonSources by
     }
 
 kotlin {
+  @OptIn(ExperimentalWasmDsl::class)
+  wasmJs {
+    browser()
+    nodejs()
+  }
+
   sourceSets {
     commonMain {
       kotlin.setSrcDirs(listOf(canonSourceDirectory))

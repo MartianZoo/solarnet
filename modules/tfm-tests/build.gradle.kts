@@ -1,6 +1,7 @@
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier
 import org.gradle.testing.jacoco.plugins.JacocoTaskExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
   id("solarnet.kmp-jvm-js")
@@ -8,6 +9,12 @@ plugins {
 }
 
 kotlin {
+  @OptIn(ExperimentalWasmDsl::class)
+  wasmJs {
+    browser()
+    nodejs()
+  }
+
   sourceSets {
     commonTest {
       kotlin.setSrcDirs(
@@ -50,6 +57,15 @@ kotlin {
       )
       // The replay scenarios are portable; their JUnit file-export hook is JVM-only.
       kotlin.exclude("ReplayExportExtension.kt")
+    }
+    wasmJsTest {
+      kotlin.setSrcDirs(
+          listOf(
+              rootProject.layout.projectDirectory.dir(
+                  "test/common/dev/martianzoo/tfm/tests/replays"
+              )
+          )
+      )
     }
     jvmTest {
       kotlin.setSrcDirs(
