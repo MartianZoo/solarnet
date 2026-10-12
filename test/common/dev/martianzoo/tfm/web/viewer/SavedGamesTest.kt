@@ -30,7 +30,7 @@ internal class SavedGamesTest {
   }
 
   @Test
-  internal fun selectablePositionsCollapseRunsWithoutVisibleLogEvents() {
+  internal fun selectablePositionsCollapseRunsWithoutRealLogEvents() {
     val positions = listOf(0, 4, 7, 10, 13).map(::Checkpoint)
 
     assertEquals(listOf(0, 1, 3, 4), selectablePositionIndices(positions, listOf(1, 8)))

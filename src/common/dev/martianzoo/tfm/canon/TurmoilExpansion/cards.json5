@@ -20,7 +20,7 @@
           "components": [
             // Returns a selected non-leader delegate, then resolves its party leadership.
             // A transfer also removes a delegate; leadership changes only after this selected removal.
-            "CLASS BannedDelegateRemoval<@Party, @Owner> : Owned<Player>, Barrier, System, Hidden { HAS MAX 1 This; This IF MAX 0 (PartyDelegate<@Party, @Owner> - PartyLeader<@Party, @Owner>):: Die; This: -PartyDelegate<@Party, @Owner> THEN -This!; -This:: EACH Next@Owner(HAS MAX 0 PartyLeader<@Party>, HAS =1 (RANK Ranked@Owner { PartyDelegate<@Party, Ranked@>, PartyLeader<@Party, Ranked@>, Player - PlayerDistance<Me@, Ranked@> })) { PartyLeader<@Party, Next@> FROM PartyLeader<@Party, Anyone> } }"
+            "CLASS BannedDelegateRemoval<@Party, @Owner> : Owned<Player>, Barrier, System { HAS MAX 1 This; This IF MAX 0 (PartyDelegate<@Party, @Owner> - PartyLeader<@Party, @Owner>):: Die; This: -PartyDelegate<@Party, @Owner> THEN -This!; -This:: EACH Next@Owner(HAS MAX 0 PartyLeader<@Party>, HAS =1 (RANK Ranked@Owner { PartyDelegate<@Party, Ranked@>, PartyLeader<@Party, Ranked@>, Player - PlayerDistance<Me@, Ranked@> })) { PartyLeader<@Party, Next@> FROM PartyLeader<@Party, Anyone> } }"
           ],
         },
         {
@@ -149,7 +149,7 @@
           "components": [
             "CLASS Preservation : CardResource",
             // Must be identical to UnitedNationsMarsInitiative's declarations in TerraformingMars.
-            "CLASS HasRaisedTr<GenerationScope> : Owned, System, Hidden { HAS MAX 1 This }",
+            "CLASS HasRaisedTr<GenerationScope> : Owned, System { HAS MAX 1 This }",
             // PP counts attempts automatically; only its second and later Action-phase gains qualify.
             "CLASS TrWatcher : CardWatcher { TerraformRating IF MAX 0 HasRaisedTr, (MAX 0 ActionPhase OR MAX 0 PreservationProgram OR 2 ActionPhaseTrGain): HasRaisedTr. }"
           ],

@@ -1,10 +1,10 @@
 "Marks the winner after final scoring"
-CLASS Victory : Owned<Player> { HAS MAX 1 This }
+CLASS Victory : Owned<Player>, Real { HAS MAX 1 This }
 
-CLASS VictoryPoint : Owned<Player>, System
+CLASS VictoryPoint : Owned<Player>, System, Real
 
 "A milestone that has been claimed"
-ABSTRACT CLASS Milestone : Owned<Player> {
+ABSTRACT CLASS Milestone : Owned<Player>, Real {
   HAS MAX 3 Milestone
   autoSelectWhen = Requirement?
   requirement = Requirement
@@ -14,7 +14,7 @@ ABSTRACT CLASS Milestone : Owned<Player> {
 }
 
 "An award that has been funded"
-ABSTRACT CLASS Award {
+ABSTRACT CLASS Award : Real {
   HAS MAX 1 This
   // HAS MAX 3 Award - actually it is only the FundAward standard action that can't fund a 4th award
   metric = Metric
@@ -23,16 +23,16 @@ ABSTRACT CLASS Award {
 }
 
 // TODO.md: FinalScoringPhase should own measurement instead of this removal effect
-CLASS MeasureAward<@Award, FinalScoringPending> : Temporary, System, Hidden {
+CLASS MeasureAward<@Award, FinalScoringPending> : Temporary, System {
   -This:: EACH Me@Player(HAS =1 (RANK Me@Player { EVAL @Award.metric })) { FirstPlace<@Award> }
   -This IF 3 Player:: EACH Me@Player(HAS =2 (RANK Me@Player { EVAL @Award.metric })) { SecondPlace<@Award> }
 }
 
-CLASS FirstPlace<Award> : Owned<Player> { This: 5 VictoryPoint }
-CLASS SecondPlace<Award> : Owned<Player> { This: 2 VictoryPoint }
+CLASS FirstPlace<Award> : Owned<Player>, Real { This: 5 VictoryPoint }
+CLASS SecondPlace<Award> : Owned<Player>, Real { This: 2 VictoryPoint }
 
 "A marker removed after every final-scoring task has completed"
-CLASS FinalScoringPending : Temporary, System, Hidden { HAS MAX 1 This }
+CLASS FinalScoringPending : Temporary, System { HAS MAX 1 This }
 
 "A scoring Signal whose instruction is computed from a played event's printed effects"
 CLASS ScoreEventVps<Class<CardFront>> : Owned<Player>, CustomInstruction, System

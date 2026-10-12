@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.script.commands
 
 import dev.martianzoo.state.Checkpoint
-import dev.martianzoo.state.visibleLogEvents
+import dev.martianzoo.state.realLogEvents
 import dev.martianzoo.tfm.script.ScriptCommand
 import dev.martianzoo.tfm.script.ScriptCompletion
 import dev.martianzoo.tfm.script.ScriptCompletionContext
@@ -12,10 +12,9 @@ internal class LogCommand(private val repl: ScriptSession) : ScriptCommand("log"
   override val usage = "log [full]"
   override val help =
       """
-        Shows everything that has happened in the current game (`log full`) or just the more
-        interesting bits (i.e., filtering out Task changes, and filtering out changes to Hidden
-        components other than phases -- just like the default output after `exec` or `task`
-        does). Component Types are shown in compact form.
+        Shows changes since game setup began that have at least one Real side (`log`).
+        Use `log full` to include engine initialization, non-Real changes, and task events.
+        Component types are shown in compact form.
       """
   override val isReadOnly = true
 
@@ -23,7 +22,7 @@ internal class LogCommand(private val repl: ScriptSession) : ScriptCommand("log"
       context.completions("full", group = "log options")
 
   override fun noArgs() =
-      repl.game.events.changesSinceSetup().visibleLogEvents(repl.game.reader).map { it.toString() }
+      repl.game.events.changesSinceSetup().realLogEvents(repl.game.reader).map { it.toString() }
 
   override fun withArgs(args: String): List<String> {
     if (args == "full") {

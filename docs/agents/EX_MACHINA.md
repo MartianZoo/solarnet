@@ -44,7 +44,7 @@ provides required-part construction, dependent removal, recursive automatic effe
 invariant validation.
 
 `Agents.exMachina` is the client-facing correction path. It adds an internal `Audit` and rejects
-explicit changes to `System`, `Hidden`, and `MustCleanUp` types on either side of a transmutation.
+explicit changes to `System` and `MustCleanUp` types on either side of a transmutation.
 Derived changes may still touch those types when required by the corrected state. It also rejects
 any result that leaves additional `MustCleanUp` state, so a correction cannot start a workflow
 whose ordinary completion effects were suppressed.

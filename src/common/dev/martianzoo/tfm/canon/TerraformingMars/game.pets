@@ -108,22 +108,22 @@ CLASS NonBeginnerMode : PlayerMode {
 }
 
 "One step on the terraform rating track; you generally start with 20 of them"
-CLASS TerraformRating : Owned<Player> {
+CLASS TerraformRating : Owned<Player>, Real {
   ProductionPhase: 1 MC
   End: VictoryPoint
 }
 
 "Marks the player who takes the first turn"
-CLASS StartToken : Owned<Player> { HAS =1 StartToken }
+CLASS StartToken : Owned<Player>, Real { HAS =1 StartToken }
 
 "Identifies the Player immediately after another Player in seat order"
-CLASS AfterMe<Previous@Owner, Next@Player> : System, Hidden {
+CLASS AfterMe<Previous@Owner, Next@Player> : System {
   HAS MAX 1 This
   ResearchPhase IF MultiplayerMode, StartToken<Previous@>: StartToken<Next@ FROM Previous@>.
 }
 
 "The current game phase; exactly one exists from bootstrap through the terminal End phase"
-ABSTRACT CLASS Phase : System {
+ABSTRACT CLASS Phase : System, Real {
   HAS =1 Phase
 
   CLASS BootstrapPhase
@@ -168,15 +168,15 @@ CLASS NewTurn : Owned<Player>, Signal, System
 CLASS SecondAction : Owned<Player>, Signal, System
 
 "Instead of taking an action you can gain this, and be out for the rest of the generation"
-CLASS Pass<GenerationScope> : Owned<Player> { HAS MAX 1 This }
+CLASS Pass<GenerationScope> : Owned<Player>, Real { HAS MAX 1 This }
 
 "Tells what generation we're in"
-CLASS Generation : System {
+CLASS Generation : System, Real {
   This IF MAX 0 GenerationScope:: GenerationScope
 }
 
 "The lifetime anchor for components that exist only during the current generation"
-CLASS GenerationScope : Scope, System, Hidden {
+CLASS GenerationScope : Scope, System {
   HAS MAX 1 This
   Generation:: -This! THEN This!
 }

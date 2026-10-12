@@ -1,5 +1,5 @@
 // Anything represented by a copper cube IRL
-ABSTRACT CLASS Resource : Owned {
+ABSTRACT CLASS Resource : Owned, Real {
   "A resource that doesn't need a card to live on"
   ABSTRACT CLASS StandardResource {
     CLASS MC
@@ -26,12 +26,12 @@ ABSTRACT CLASS Resource : Owned {
 }
 
 "Each instance of this creates an instance of a standard resource during ProductionPhase"
-CLASS Production<Class<@StandardResource>> : Owned {
+CLASS Production<Class<@StandardResource>> : Owned, Real {
   ProductionPhase: @StandardResource
 }
 
 "TODO: consider rename to ProductionBasement"
-CLASS ProdOffset<Class<@StandardResource>> : Owned<Player>, System, Hidden {
+CLASS ProdOffset<Class<@StandardResource>> : Owned<Player>, System {
   This: PROD[@StandardResource] BY Admin
   ProductionPhase: -@StandardResource
 }

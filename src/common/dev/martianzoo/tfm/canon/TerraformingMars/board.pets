@@ -4,7 +4,7 @@ ABSTRACT CLASS MarsMap : Module {
 }
 
 "Any single hexagonal area where a tile can go"
-ABSTRACT CLASS Area {
+ABSTRACT CLASS Area : Real {
   HAS =1 This
   HAS MAX 1 Occupant<This>
 
@@ -31,7 +31,7 @@ ABSTRACT CLASS Area {
   ABSTRACT CLASS RemoteArea
 }
 
-ABSTRACT CLASS AreaPiece<Area>
+ABSTRACT CLASS AreaPiece<Area> : Real
 
 "A component that occupies an area exclusively"
 ABSTRACT CLASS Occupant : AreaPiece
@@ -80,7 +80,7 @@ ABSTRACT CLASS OwnedTile : OwnedOccupant, Tile {
 }
 
 "When Tile B is placed next to existing Tile A, a ForwardAdj<A, B> and BackwardAdj<B, A> are created"
-ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>> : Hidden {
+ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>> {
   CLASS ForwardAdjacency
   CLASS BackwardAdjacency
 }
@@ -92,7 +92,7 @@ CLASS DefaultGreeneryTile : Owned, Signal, System {
       GreeneryTile<LandArea>)
 }
 
-CLASS Photosynthesis : System, Hidden {
+CLASS Photosynthesis : System {
   HAS MAX 1 This
   FinalGreeneryPhase: -This!
 }
@@ -101,10 +101,10 @@ CLASS Photosynthesis : System, Hidden {
 CLASS PlacementBonus<Class<Resource>, MarsArea> : CustomMetric
 
 "Each geometric neighbor relation between a component and an adjacent area"
-CLASS Neighbor<AreaPiece, MarsArea> : Hidden, CustomMetric
+CLASS Neighbor<AreaPiece, MarsArea> : CustomMetric
 
 "A single step along a global parameter track"
-ABSTRACT CLASS GlobalParameter : Atomized {
+ABSTRACT CLASS GlobalParameter : Atomized, Real {
   DEFAULT +GlobalParameter.
   DEFAULT -GlobalParameter.
 
@@ -124,7 +124,7 @@ ABSTRACT CLASS GlobalParameter : Atomized {
 }
 
 "Enforces the limits, rewards, and completion steps printed on the standard global-parameter tracks"
-CLASS StandardGpTrackRules : System, Hidden {
+CLASS StandardGpTrackRules : System {
   HAS =1 This
 
   // TODO: redundant info
@@ -146,17 +146,17 @@ CLASS StandardGpTrackRules : System, Hidden {
 }
 
 "A global parameter type that has not reached its maximum"
-CLASS GpIncomplete<Class<GlobalParameter>> : Hidden, System { HAS MAX 1 This }
+CLASS GpIncomplete<Class<GlobalParameter>> : System { HAS MAX 1 This }
 
 "A global parameter type that has reached its maximum"
-CLASS GpComplete<Class<@GlobalParameter>> : Hidden, System {
+CLASS GpComplete<Class<@GlobalParameter>> : System {
   HAS MAX 1 This
   This:: -GpIncomplete<Class<@GlobalParameter>>!
   -@GlobalParameter:: Die
 }
 
 "An obstacle to the game ending"
-CLASS GpGameEndBarrier<@Class<GlobalParameter>> : GameEndBarrier, System, Hidden {
+CLASS GpGameEndBarrier<@Class<GlobalParameter>> : GameEndBarrier, System {
   HAS MAX 1 This
   GpComplete<@Class>:: -This!
 }

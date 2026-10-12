@@ -94,7 +94,7 @@ CLASS FakeHeadStart : CardFront<Class<PreludeCard>> {
 }
 
 "One robot unit stored with a card that reduces its play cost by 1 MC"
-CLASS RobotUnit<Class<@CardFront>> : Resource, Owned<Player>, Hidden {
+CLASS RobotUnit<Class<@CardFront>> : Resource, Owned<Player> {
   ReplicateForStagedProject<Class<@CardFront>>: This!
   PlayCard<Class<CardBack>, Class<@CardFront>>: -Owed, -This!
 }

@@ -80,8 +80,9 @@ These concerns remain open; the ranking does not select replacement designs.
   current Player effect to `ResearchPhase` with `EACH Player` leaves the second Player's sequence
   assigned to Admin; `BY Player` transfers only a selected task. Solve per-Player task routing
   without a replay-only context alias, then try direct context matching first and restrict fallback
-  lookup to Hidden cause intermediates. The broader causal-chain matcher tried for the replay was
-  removed along with its context arguments; current matching uses only the direct effect context.
+  lookup to internal bookkeeping cause intermediates. The broader causal-chain matcher tried for
+  the replay was removed along with its context arguments; current matching uses only the direct
+  effect context.
 - Consider a separate rename of automatic (`::`) effects to “immediate”. Card effects now use
   “direct effect”; the dispatch terminology and behavior remain unchanged pending that decision.
 
@@ -289,9 +290,6 @@ These concerns remain open; the ranking does not select replacement designs.
 - Replace the duplicated `TemperatureStep BY Player`/`BY Admin` threshold-ocean triggers and the
   synthetic `AdminOceanPlacement` signal with one rule that separates who chooses the tile from
   whose action the placement is attributed to, shared by the standard and extended tracks.
-- Revisit whether `ColonyTileSelection` should be `Hidden`. An earlier conversion experiment did
-  not settle whether a Player choosing a colony tile should see the selection type or just the
-  chosen tile; keep the current visible declaration until that presentation is checked.
 - Investigate whether Player identity can survive Player → Admin → Player task chains without
   making bookkeeping classes `Owned` solely to carry that Player through. Preserve real ownership,
   cross-player effects, explicitly named recipients, and phases with no unique on-turn Player; do

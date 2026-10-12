@@ -31,7 +31,7 @@ internal class TaskAssignmentCharacterizationTest {
               CLASS Marker<Owner>
               CLASS PlayerStep<Owner> { This: SystemToken }
               CLASS AdminToken
-              CLASS HiddenToken : Hidden
+              CLASS RealToken : Real
               CLASS SystemToken : System
               ABSTRACT CLASS Reward : Owned<Player> {
                 CLASS RewardA
@@ -104,12 +104,12 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  internal fun hiddenGainRemainsAssignedToPlayer() {
+  internal fun realGainRemainsAssignedToPlayer() {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
 
-    val taskId = p1.addTasks("HiddenToken").single()
+    val taskId = p1.addTasks("RealToken").single()
 
     p1.tasks.ids().shouldContainExactly(taskId)
     admin.tasks.isEmpty() shouldBe true
