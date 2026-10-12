@@ -99,7 +99,10 @@ internal class AgentImpl(
   // CHANGES
 
   override fun sneak(changes: String, fakeCause: Cause?): TaskResult =
-      engine.sneak(parseInstructionGroup(changes), fakeCause)
+      world.timeline.atomic {
+        engine.sneak(parseInstructionGroup(changes), fakeCause)
+        world.agentTransactionGuard?.validate()
+      }
 
   // TASKS
 
@@ -286,7 +289,10 @@ internal class AgentImpl(
   }
 
   private fun autoExecAtomically(): TaskResult =
-      engine.transact(settle = {}, block = { autoExecLoop.run() })
+      engine.transact(
+          settle = { world.agentTransactionGuard?.validate() },
+          block = { autoExecLoop.run() },
+      )
 
   // TURNS
 
@@ -433,12 +439,15 @@ internal class AgentImpl(
       engine.transact(
           block = block,
           validateCompletion = validateCompletion,
-          settle = { autoExecLoop.run() },
+          settle = {
+            autoExecLoop.run()
+            world.agentTransactionGuard?.validate()
+          },
       )
 
   // Manual task edits preserve their legacy behavior of not invoking autoexecution.
   private fun atomicWithoutAutoExec(block: () -> Unit): TaskResult =
-      engine.transact(settle = {}, block = block)
+      engine.transact(settle = { world.agentTransactionGuard?.validate() }, block = block)
 
   private data class ParsedTaskNarrowing(
       val instruction: InstructionTree,
