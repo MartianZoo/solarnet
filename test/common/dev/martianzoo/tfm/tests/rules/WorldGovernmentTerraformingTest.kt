@@ -25,12 +25,9 @@ internal class WorldGovernmentTerraformingTest {
     admin.runOperation("StartToken<Player2> FROM StartToken<Player1>")
     val checkpoint = game.timeline.checkpoint()
 
-    with(TfmWorkflow.Stepwise(game.testAgents())) {
-      solarPhase()
-      venusSolarPhase()
-    }
+    TfmWorkflow.Stepwise(game.testAgents()).solarPhase()
 
-    admin.count("VenusSolarPhase") shouldBe 1
+    admin.count("SolarPhase") shouldBe 1
     p2.doTask("VenusStep! BY Admin")
 
     val venusIncrease =
@@ -54,10 +51,7 @@ internal class WorldGovernmentTerraformingTest {
     )
     admin.count("GpIncomplete") shouldBe 0
 
-    with(TfmWorkflow.Stepwise(game.testAgents())) {
-      solarPhase()
-      venusSolarPhase()
-    }
+    TfmWorkflow.Stepwise(game.testAgents()).solarPhase()
 
     game.tasks.ids() shouldBe emptySet()
   }

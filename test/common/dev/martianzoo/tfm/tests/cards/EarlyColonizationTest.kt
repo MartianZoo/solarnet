@@ -117,11 +117,9 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
       stan.playPrelude(MetalsCompany)
       kim.pass()
       stan.pass()
-      admin.count("ColonyProduction<Luna>") shouldBe 3
-      admin.count("ColonyProduction<Ceres>") shouldBe 3
 
-      kim.wgt("VenusStep")
-
+      // The tracks advance as the Solar phase begins, without waiting for World Government.
+      admin.count("SolarPhase") shouldBe 1
       admin.count("ColonyProduction<Luna>") shouldBe 4
       admin.count("ColonyProduction<Ceres>") shouldBe 4
       admin.count("ColonyProduction<Miranda>") shouldBe 0

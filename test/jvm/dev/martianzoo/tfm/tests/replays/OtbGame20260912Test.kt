@@ -223,7 +223,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     green.wgt("OceanTile<Vastitas_5_8>").expect("0 TerraformRating<Green>")
     // "Oh, turmoil." "Walk us through it." "TR Revision, all players lose one TR." "Boo."
     // "New Government. The dominant party now becomes ruling. Change policy title to Scientists."
-    // The automatic Solar operation performs TR revision, forms the Scientists government, and
+    // The Turmoil phase that follows performs TR revision, forms the Scientists government, and
     // advances both printed events before requesting only the next distant event.
     // "Changing times. Got the coming global event. Move a distant global event to coming. Turn the
     // top part of global event face up. It is sponsored projects."
@@ -417,8 +417,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       assertCounts(22 to "TerraformRating")
     }
 
-    // "Ellie does World Government ... ocean ... five seven."
-    yellow.wgt("OceanTile<Vastitas_5_7>").expect("0 TerraformRating<Yellow>")
+    // "Ellie does World Government ... ocean ... five seven." The Admin ocean awards Yellow no TR;
+    // the Turmoil phase then begins at once, and its TR revision costs every player one.
+    yellow.wgt("OceanTile<Vastitas_5_7>").expect("-1 TerraformRating<Yellow>")
     // Mud Slides charges nobody because influence covers every adjacent owned tile. Greens forms
     // the government and Green becomes chairman.
     admin.doTask("BioengineeringBoom")
@@ -566,7 +567,8 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 3, temp = -24, oxygen = 3, oceans = 2, venus = 0)
 
-    // "Why not Venus? Venus it is. ... Venus is now at two." TR revision remains pending.
+    // "Why not Venus? Venus it is. ... Venus is now at two." The Turmoil phase follows at once:
+    // Blue loses one TR to revision and regains it as chairman.
     blue.wgt("VenusStep").expect("0 TerraformRating<Blue>")
     // Venus Infrastructure pays Green 6 M€, Yellow 4 M€, and Blue 4 M€ from their recorded
     // Venus tags and influence. Unity then pays 1/3/2 M€ for planetary tags and makes Blue
@@ -841,7 +843,8 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     // reward, not a table mistake. The engine suppresses it because its generation watcher still
     // sees Yellow's chairman TR from the preceding Solar transition.
     yellow.exMachina("6 MC")
-    yellow.wgt("OceanTile<Vastitas_4_3>").expect("0 TerraformRating<Yellow>")
+    // The Admin ocean awards Yellow no TR; the Turmoil phase's TR revision then costs one.
+    yellow.wgt("OceanTile<Vastitas_4_3>").expect("-1 TerraformRating<Yellow>")
     // Spin-Off Products and the Scientists ruling bonus pay for science tags. Diversity becomes
     // current, Improved Energy Templates becomes coming, and Revolution is revealed.
     admin.doTask("WorldGovernmentDirectives")
@@ -1035,7 +1038,8 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 6, temp = -14, oxygen = 6, oceans = 5, venus = 4)
 
-    blue.wgt("VenusStep").expect("0 TerraformRating<Blue>")
+    // The Turmoil phase's TR revision follows World Government at once and costs Blue one TR.
+    blue.wgt("VenusStep").expect("-1 TerraformRating<Blue>")
     // Diversity resolves, Greens takes government, and Snow Cover is revealed.
     admin.doTask("MoholeLakeGlobalEvent")
     // The physical Greens delegation makes Yellow chairman; the engine retained the neutral

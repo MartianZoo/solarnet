@@ -386,18 +386,17 @@ internal class TfmWorkflowTest {
 
     p1.count("TerraformRating") shouldBe 20
     p2.count("TerraformRating") shouldBe 20
-    admin.count("VenusSolarPhase") shouldBe 1
+    admin.count("SolarPhase") shouldBe 1
 
     p1.doTask("VenusStep! BY Admin")
 
     p1.count("TerraformRating") shouldBe 19
     p2.count("TerraformRating") shouldBe 19
-    admin.count("TurmoilSolarPhase") shouldBe 1
     workflow.shutdown()
   }
 
   @Test
-  internal fun automaticSolarWaitsForWorldGovernmentBeforeColonies() {
+  internal fun automaticSolarAdvancesColonyTracksAlongsideWorldGovernment() {
     val game =
         TfmEngine.newGame(
             canonicalPremise(
@@ -420,13 +419,13 @@ internal class TfmWorkflowTest {
     p1.pass()
     p2.pass()
 
-    admin.count("VenusSolarPhase") shouldBe 1
-    admin.count("ColoniesSolarPhase") shouldBe 0
-    admin.count("ColonyProduction<Luna>") shouldBe lunaProduction
+    // Neither expansion's solar work affects the other's, so the tracks need not wait.
+    admin.count("SolarPhase") shouldBe 1
+    admin.count("ColonyProduction<Luna>") shouldBe lunaProduction + 1
 
     p1.doTask("TemperatureStep! BY Admin")
 
-    admin.count("ColonyProduction<Luna>") shouldBe lunaProduction + 1
+    admin.count("ResearchPhase") shouldBe 1
     workflow.shutdown()
   }
 }

@@ -14,9 +14,15 @@ CLASS TurmoilExpansion : Module {
   SetupPhase:: EACH Me@Player { TurmoilPlayer, LobbyActionAvailable }
   SetupPhase:: Chairman<Neutral>, Ruling<Greens>
   SetupPhase: RevealComingEvent
+  // Deferred so that other solar-phase work, like World Government Terraforming, finishes first.
+  SolarPhase: LATER { TurmoilPhase }
+}
+
+"Turmoil's part of the solar phase; a signal, not a game Phase"
+CLASS TurmoilPhase : Signal, System {
   // Revise TR and resolve the current event, then form the government and change times.
-  TurmoilSolarPhase:: EACH Me@Player { -TerraformRating., MeasureInfluence }
-  TurmoilSolarPhase: ResolveGlobalEvent, LATER { FormGovernment THEN ChangingTimes }
+  This:: EACH Me@Player { -TerraformRating., MeasureInfluence }
+  This: ResolveGlobalEvent, LATER { FormGovernment THEN ChangingTimes }
 }
 
 CLASS Terraformer26 : Milestone {

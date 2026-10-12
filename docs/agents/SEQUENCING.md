@@ -281,7 +281,7 @@ Devices replaced by deferral:
 | --- | --- |
 | `EventCard` as `Temporary` | `This: LATER { PlayedEvent<Class<This>> FROM This. }`, performed by the owner |
 | `TradeBarrier` | `Trade`'s `This: LATER { FinishTrade<@ColonyTile> }` |
-| `TurmoilSolarOperation` | `TurmoilSolarPhase: ResolveGlobalEvent, LATER { FormGovernment THEN ChangingTimes }` |
+| `TurmoilSolarOperation` | `SolarPhase: LATER { TurmoilPhase }`; `TurmoilPhase: ResolveGlobalEvent, LATER { FormGovernment THEN ChangingTimes }` |
 | `L1GiftWatcher` as `Temporary` | `LATER { -This! }` beside the gift fanout |
 | `FakeWildTagUse` as `Temporary` | `StandardAction: LATER { -This. }` and `PlayPrelude: LATER { -This. }` |
 

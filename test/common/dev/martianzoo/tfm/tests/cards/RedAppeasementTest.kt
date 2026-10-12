@@ -32,6 +32,6 @@ internal class RedAppeasementTest : TfmGameplayTest() {
     kim.playProject(RedAppeasement, 0).expect("PROD[2 MC], Pass, 0 Pass<Stan>")
     stan.pass()
 
-    admin.count("VenusSolarPhase") shouldBe 1
+    admin.count("SolarPhase") shouldBe 1
   }
 }

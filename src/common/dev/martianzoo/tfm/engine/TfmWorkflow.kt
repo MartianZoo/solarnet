@@ -55,26 +55,13 @@ public object TfmWorkflow {
     public fun productionPhase(): TaskResult = adminOps.runOperation("ProductionPhase FROM Phase")
 
     /**
-     * Enters the universal SolarPhase while `GameEndBarrier` exists; otherwise returns null and
-     * leaves the phase unchanged. The caller must handle pending Solar tasks before advancing.
+     * Enters SolarPhase while `GameEndBarrier` exists; otherwise returns null and leaves the phase
+     * unchanged. Expansions add their solar work as triggers; the caller must handle the pending
+     * Solar tasks before advancing.
      */
     public fun solarPhase(): TaskResult? =
         if (adminOps.has("GameEndBarrier")) adminOps.beginOperation("SolarPhase FROM Phase")
         else null
-
-    /**
-     * Enters World Government Terraforming, the first expansion-specific Solar phase. Call only
-     * when its module is configured and the preceding Solar work is complete.
-     */
-    public fun venusSolarPhase(): TaskResult = adminOps.beginOperation("VenusSolarPhase FROM Phase")
-
-    /** Enters colony-track production after World Government Terraforming when both are active. */
-    public fun coloniesSolarPhase(): TaskResult =
-        adminOps.beginOperation("ColoniesSolarPhase FROM Phase")
-
-    /** Enters the Turmoil operation after every other active expansion-specific Solar phase. */
-    public fun turmoilSolarPhase(): TaskResult =
-        adminOps.beginOperation("TurmoilSolarPhase FROM Phase")
 
     /** Enters FinalGreeneryPhase; the caller resolves each eligible player's placements. */
     public fun finalGreeneryPhase(): TaskResult =
@@ -222,19 +209,7 @@ public object TfmWorkflow {
         return false
       }
       letPlayerFinish()
-      runOptionalSolarPhase("WorldGovernmentRule", m::venusSolarPhase)
-      runOptionalSolarPhase("ColoniesExpansion", m::coloniesSolarPhase)
-      runOptionalSolarPhase("TurmoilExpansion", m::turmoilSolarPhase)
       return true
-    }
-
-    private suspend fun runOptionalSolarPhase(
-        phaseName: String,
-        beginPhase: () -> TaskResult,
-    ) {
-      if (!game.classTable.isInhabited(cn(phaseName))) return
-      beginPhase()
-      letPlayerFinish()
     }
 
     private suspend fun finalGreeneryPhase() {

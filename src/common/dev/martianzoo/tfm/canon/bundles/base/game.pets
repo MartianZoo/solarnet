@@ -9,9 +9,8 @@ CLASS TerraformingMars : Module {
   HAS =1 GameMode, =1 MarsMap
   HAS Class<Production>, Class<NormalCityTile>
   HAS Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>
-  HAS Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<VenusSolarPhase>
-  HAS Class<ColoniesSolarPhase>, Class<TurmoilSolarPhase>, Class<FinalGreeneryPhase>, Class<End>
-  HAS Class<VictoryPhase>
+  HAS Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>
+  HAS Class<End>, Class<VictoryPhase>
   HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
 
   This: SellPatentsProject, PowerPlantProject, AsteroidProject, AquiferProject, GreeneryProject, CityProject
@@ -147,10 +146,8 @@ ABSTRACT CLASS Phase : System, Real {
     SecondAction IF RequiredAction: RequiredActionsSignal?
   }
   CLASS ProductionPhase
+  "Expansions add their solar-phase work as triggers on this phase"
   CLASS SolarPhase
-  CLASS VenusSolarPhase
-  CLASS ColoniesSolarPhase
-  CLASS TurmoilSolarPhase
   CLASS FinalGreeneryPhase {
     NewTurn: ConvertPlants?
   }

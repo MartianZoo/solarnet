@@ -29,7 +29,7 @@ internal class TerraformingDealTest : TfmGameplayTest() {
     stan.playPrelude(MetalsCompany)
     kim.pass()
     stan.pass()
-    admin.count("VenusSolarPhase") shouldBe 1
+    admin.count("SolarPhase") shouldBe 1
     val moneyAfterProduction = kim.count("MC")
     val ratingBeforeRevision = kim.count("TerraformRating")
 
