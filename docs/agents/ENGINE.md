@@ -34,7 +34,7 @@ is unresolved work. `GameReader` supplies higher-level queries over the same sta
 Narrower notes own adjacent subjects:
 
 - [SEQUENCING.md](SEQUENCING.md) owns ordering, `THEN`, barriers, and completion scopes.
-- [IDENTITY.md](IDENTITY.md) owns controller, assignee, Actor, Owner, Anyone, Admin, and attribution roles.
+- [IDENTITY.md](IDENTITY.md) owns assignee, Actor, Owner, Anyone, Admin, and attribution roles.
 - [QUANTIFIERS.md](QUANTIFIERS.md) owns instruction counts and limit behavior.
 - [type-system-spec.md](../type-system-spec.md) and
   [pets-language-spec.md](../pets-language-spec.md) own static Types and authored Pets semantics.
@@ -158,18 +158,19 @@ A Task retains:
 
 - a `TaskId` derived from its original add-event ordinal and preserved across edits;
 - one task-shaped `Instruction`;
-- the controlling Actor that ordered the work;
-- the Actor who receives it upon selection;
 - its current assignee;
 - whether it is selected;
 - an optional `THEN` continuation; and
 - its cause.
 
-The three Actor fields are independent. An unselected task normally starts assigned to its
-controller. A normalized task containing an elementary gain of a `System` Component, alone or under a top-level
-instruction-side `BY`, instead starts assigned to Admin before its add event is recorded. Contextual
-selection reapplies that assignment before a concrete instruction-side `BY` performs its later,
-authoritative handoff. Use [IDENTITY.md](IDENTITY.md) before changing them.
+An unselected task normally starts assigned to the Actor that admitted it. A normalized task
+containing an elementary gain of a `System` Component, alone or under top-level instruction-side
+`BY`, instead starts assigned to Admin. Contextual selection reapplies that rule before a concrete
+`BY` performs its later handoff. If that Admin assignment interrupts a `THEN` sequence, the engine
+encodes the previous assignee in a `TASK Actor { body }` continuation. Admin executes the System
+step, then dispatches the remaining work back to that Actor. An authored `TASK Actor { body }`
+likewise admits unresolved body instructions for its named Actor when the dispatch task executes.
+See [IDENTITY.md](IDENTITY.md).
 
 Queue admission normalizes an `InstructionGroup` into one Task per independent member. `A THEN B`
 stores A as current work and B as a continuation; completing A admits B as ordinary work with no
@@ -218,10 +219,9 @@ whose declared maximum is one. The same World-based gain narrowing applies when 
 receives an explicit narrowing. `ActorEngine` separately executes a selected Task once its
 instruction is concrete.
 
-Resolution may leave a genuine Player choice abstract. Selection transfers the same task to its
-recorded selection assignee, who alone may narrow it. If resolution exposes independent
-instructions, the selected structural Task is replaced by ordinary unselected siblings rather than
-transferring its selection to one arbitrarily.
+Resolution may leave a genuine Player choice abstract. The task's current assignee alone may narrow
+it. If resolution exposes independent instructions, the selected structural Task completes and
+admits ordinary unselected children without transferring its selection to a child.
 
 The combined `doTask` and `tryTask` commands reject an unselected task when selection alone changes
 assignee, including through a concrete `BY`. Such a call would only select and hand off while
@@ -237,12 +237,12 @@ Task normalization distributes `BY` across `THEN` stages when they become separa
 inside a sequence that must remain a single Task is rejected; the engine has no partial-execution
 state for changing assignee midway through such a Task, and Canon has no use requiring it.
 
-The original controller receives those siblings and continuations even when the selected choice
-was delegated to another Actor. Triggered work retains a Player controller; Admin-controlled work
-instead uses the ownership fallback described in [IDENTITY.md](IDENTITY.md). There is no task
-priority or persistent delegated operation in current task data. Neptunian's payment stages return
-to the original controller for selection before the payer supplies the assigned choices. The
-remaining routing and completion questions are in
+The finishing task's assignee receives structural children and continuations. A System handoff
+encodes the former assignee in its continuation, so Admin executes the System step and returns later
+work to that Actor. Authored `TASK` dispatch can also give work to another Actor. Queued reactions
+use ownership and event attribution as described in [IDENTITY.md](IDENTITY.md). There is no task
+priority or persistent delegated operation in current task data. The remaining routing and
+completion questions are in
 [SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over). Any game-rule restriction
 on which task may execute must apply equally to explicit commands and autoexecution. Protecting a
 player from somebody else calling their Agent is instead an external submission concern covered

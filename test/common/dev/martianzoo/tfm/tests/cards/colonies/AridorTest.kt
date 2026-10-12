@@ -59,7 +59,7 @@ internal class AridorTest : TfmSandboxTest() {
           doTask("-42 MC")
           selectTask("-3 CorporationCard<Kim, Selecting>!")
           doTask("PlayCard<Class<CorporationCard>, Class<Aridor>>")
-          selectTask("MAX 0 Barrier: Aridor FROM CorporationCard<Kim, Selecting>!")
+          doTask("Aridor<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTask("40 MC")
           selectTask("Aridor_RequiredAction!")
         }
@@ -151,7 +151,7 @@ internal class AridorTest : TfmSandboxTest() {
       selectTask("4 CorporationCard<Kim, Selecting>!")
       selectTask("-3 CorporationCard<Kim, Selecting>!")
       doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
-      selectTask("MAX 0 Barrier: PharmacyUnion FROM CorporationCard<Kim, Selecting>!")
+      doTask("PharmacyUnion<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTask("-42 MC")
       selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
       doTask("PROD[MC]")

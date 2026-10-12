@@ -26,10 +26,9 @@ import dev.martianzoo.state.Task.TaskId
 
 internal fun newTasks(
     firstId: TaskId,
-    controller: Actor,
+    assignee: Actor,
     instruction: InstructionGroup,
     cause: Cause?,
-    selectionAssignee: Actor = controller,
     isAbstract: ((Expression) -> Boolean)? = null,
 ): List<Task> {
   var nextOrdinal = firstId.ordinal
@@ -39,8 +38,7 @@ internal fun newTasks(
     normalizeTask(
         Task(
             id = TaskId(nextOrdinal++),
-            controller = controller,
-            selectionAssignee = selectionAssignee,
+            assignee = assignee,
             instruction = it,
             cause = cause,
         ),
@@ -70,6 +68,11 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
         }
       }
       is Each ->
+          when (val body = normalizeForTask(tree.body)) {
+            is NoOp -> NoOp
+            else -> tree.copy(body = body)
+          }
+      is Instruction.Task ->
           when (val body = normalizeForTask(tree.body)) {
             is NoOp -> NoOp
             else -> tree.copy(body = body)

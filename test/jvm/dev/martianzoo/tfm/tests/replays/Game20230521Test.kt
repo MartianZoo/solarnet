@@ -1250,7 +1250,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "TemperatureStep",
           "2 TerraformRating",
       )
-      selectTask("2 Plant<Player2>!")
       p2.doTasks("2 Plant")
 
       doTasks(

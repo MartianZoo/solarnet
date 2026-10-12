@@ -17,7 +17,6 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
               "OceanTile<Tharsis_1_2>",
               "TerraformRating",
           )
-          selectTask("Production<Kim, Class<MC>>!")
           kim.selectTask("PROD[MC]")
           doTask("2 Steel")
         }

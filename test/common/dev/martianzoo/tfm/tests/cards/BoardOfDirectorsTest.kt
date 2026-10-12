@@ -99,7 +99,7 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
           selectTask("4 CorporationCard<Kim, Selecting>!")
           selectTask("-3 CorporationCard<Kim, Selecting>!")
           doTask("PlayCard<Class<CorporationCard>, Class<Inventrix>>")
-          selectTask("MAX 0 Barrier: Inventrix FROM CorporationCard<Kim, Selecting>!")
+          doTask("Inventrix<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTasks("45 MC", "-42 MC")
           selectOnlyTask()
         }

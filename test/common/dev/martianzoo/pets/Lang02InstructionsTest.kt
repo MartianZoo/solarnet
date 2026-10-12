@@ -210,6 +210,17 @@ internal class Lang02InstructionsTest {
         "Plant THEN (Heat, Steel)"
   }
 
+  @Test
+  internal fun `L2-10 EACH cannot be followed by THEN`() {
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("EACH Player { Plant } THEN Heat")
+    }
+    roundTrip<Instruction>("Plant THEN EACH Player { Heat }")
+    roundTrip<Instruction>("EACH Player { Plant THEN Heat }")
+    roundTrip<Instruction>("TASK Player1 { EACH Player { Plant } } THEN Heat")
+    shouldThrow<PetSyntaxException> { parse<Instruction>("TASK<Player1> { Plant }") }
+  }
+
   // L2-11 X across one instruction
 
   @Test

@@ -35,7 +35,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       selectTask("4 CorporationCard<Kim, Selecting>!")
       selectTask("-3 CorporationCard<Kim, Selecting>!")
       doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
-      selectTask("MAX 0 Barrier: TharsisRepublic FROM CorporationCard<Kim, Selecting>!")
+      doTask("TharsisRepublic<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTasks("40 MC", "-42 MC")
       selectTask("TharsisRepublic_RequiredAction!")
     }
@@ -46,7 +46,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       selectTask("3 PreludeCard<Kim, Selecting>!")
       selectTask("-2 PreludeCard<Kim, Selecting>!")
       doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
-      selectTask("MAX 0 Barrier: Donation FROM PreludeCard<Kim, Selecting>!")
+      doTask("Donation<Kim> FROM PreludeCard<Kim, Selecting>!")
       doTasks("21 MC", "CityTile<Tharsis_3_3>", "PROD[MC]", "3 MC")
     }
     kim.count("CityTile<Tharsis_3_3>") shouldBe 1
@@ -77,7 +77,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       doTask("-42 MC")
       selectTask("-3 CorporationCard<Kim, Selecting>!")
       doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
-      selectTask("MAX 0 Barrier: TharsisRepublic FROM CorporationCard<Kim, Selecting>!")
+      doTask("TharsisRepublic<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTask("40 MC")
       selectTask("TharsisRepublic_RequiredAction!")
       selectTask(

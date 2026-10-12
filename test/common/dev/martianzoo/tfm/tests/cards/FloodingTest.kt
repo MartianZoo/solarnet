@@ -374,7 +374,7 @@ internal class FloodingTest : TfmSandboxTest() {
 
       doTasks(
           "OceanTile<Tharsis_5_4>! THEN -4 MC<Kim>?",
-          "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
+          "UseAction<NeptunianOption, Action1>",
       )
       selectTask("-X Steel?")
       doTask("Ok")
@@ -417,9 +417,9 @@ internal class FloodingTest : TfmSandboxTest() {
       doTasks("PlayProject<Class<Flooding>>", "-7 MC", "Flooding FROM ProjectCard")
 
       doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Stan>?")
-      kim.selectTask("UseAction<Stan, NeptunianOption<NeptunianPowerConsultants<Stan>>>?")
+      stan.selectTask("UseAction<NeptunianOption>?")
       shouldThrow<TaskException> { kim.doTask("-4 MC<Stan>!") }
-      stan.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
+      stan.doTask("UseAction<NeptunianOption, Action1>")
       assertWhileBillOpen()
       // The test observes the interruption while payment remains pending, then abandons the play.
       abort()
@@ -443,7 +443,7 @@ internal class FloodingTest : TfmSandboxTest() {
     partlyPayOpponentsNeptunianBonus {
       kim.selectTask("-4 MC<Stan>?")
       kim.doTask("-1 MC<Stan>!")
-      kim.selectTask("-X MC<Stan>?")
+      stan.selectTask("-X MC<Stan>?")
       shouldThrow<LimitsException> { stan.doTask("-MC!") }
       stan.assertCounts(0 to "Steel", 0 to "MC", 1 to "Owed", 0 to "Hydroelectric")
       stan.assertProds(0 to "Energy")
@@ -460,12 +460,11 @@ internal class FloodingTest : TfmSandboxTest() {
       doTasks("PlayProject<Class<Flooding>>", "-7 MC", "Flooding FROM ProjectCard")
 
       doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Stan>?")
-      kim.selectTask("UseAction<Stan, NeptunianOption<NeptunianPowerConsultants<Stan>>>?")
-      stan.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
-      // Admin opens the bill; Kim selects the payment choice for Stan.
-      admin.doTask("5 Owed<Stan>")
-      admin.doTask("Billing<Stan, Class<NeptunianOption>, Action1>")
-      kim.selectTask("-X Steel<Stan>?")
+      stan.selectTask("UseAction<NeptunianOption>?")
+      stan.doTask("UseAction<NeptunianOption, Action1>")
+      autoExecNow()
+      // Stan selects his payment choice after Admin opens the bill.
+      stan.selectTask("-X Steel<Stan>?")
       stan.doTask("-2 Steel")
       assertWhileBillOpen()
       abort()

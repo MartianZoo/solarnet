@@ -21,7 +21,6 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
           "OceanTile<Tharsis_1_2>",
           "TerraformRating",
       )
-      selectTask("2 Plant<Kim>!")
       kim.selectTask("2 Plant!")
       doTask("2 Steel")
     }
@@ -44,11 +43,9 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
       shouldThrow<TaskException> { stan.doTask("2 Plant") }
       doTask("OceanTile<Tharsis_1_2>")
       doTasks("TerraformRating", "2 Steel")
-      selectTask("2 Plant<Stan>")
       stan.doTask("2 Plant")
       doTask("OceanTile<Tharsis_1_4>")
       doTasks("TerraformRating", "ProjectCard")
-      selectTask("2 Plant<Stan>")
       stan.doTask("2 Plant")
       doTask("-6 Plant<Stan>")
       selectTask("-X Titanium?")
@@ -73,10 +70,8 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
           "OceanTile<Tharsis_1_2>",
           "TerraformRating",
       )
-      selectTask("2 Plant<Stan>!")
       stan.selectTask("2 Plant!")
       doTasks("2 Steel", "OceanTile<Tharsis_1_4>", "TerraformRating")
-      selectTask("2 Plant<Stan>!")
       stan.selectTask("2 Plant!")
       selectTask("ProjectCard<Kim, Hand>!")
     }

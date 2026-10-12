@@ -1136,7 +1136,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
         rainbow.doTask("OceanTile<Amazonis_02_01> BY Green")
         green.doTask("OceanTile<Amazonis_02_01>")
         green.doTask("TerraformRating")
-        selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
+        blue.selectTask("UseAction<NeptunianOption>?")
         blue.narrowTask("Ok")
       }
     }

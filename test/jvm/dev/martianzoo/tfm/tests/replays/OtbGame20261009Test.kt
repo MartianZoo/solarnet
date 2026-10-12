@@ -227,7 +227,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "Steel",
         "PROD[MC]",
     )
-    p1.selectTask("Animal<$Pets<Pink>>")
     p2.doTasks("Animal<$Pets>")
     p1.doTasks("Ok") // end turn
     p2.doTasks(
@@ -533,7 +532,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "2 Plant",
         "Animal<$Pets>",
     )
-    p2.selectTask("PROD[MC<Aqua>]")
     p1.doTasks("PROD[MC]")
     p2.doTasks("ConvertPlants", "-8 Plant")
     p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")

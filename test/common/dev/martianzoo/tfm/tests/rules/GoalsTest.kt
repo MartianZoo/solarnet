@@ -141,14 +141,14 @@ internal class GoalsTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTasks("ClaimMilestone<Class<$milestone>>", "-8 MC")
-        selectTask("MAX 0 Billing: $milestone!")
+        doTask(milestone)
       }
     }
 
     kim.exMachina("PROD[Energy]")
     kim.inTurn {
       doTasks("ClaimMilestone<Class<$milestone>>", "-8 MC")
-      selectTask("MAX 0 Billing: $milestone!")
+      doTask(milestone)
     }
   }
 

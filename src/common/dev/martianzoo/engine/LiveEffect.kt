@@ -34,7 +34,6 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.types.TypeVariable
 import dev.martianzoo.pets.types.TypeVariableScope
-import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameReader
@@ -60,21 +59,18 @@ private constructor(
 
   internal fun onChangeToSelf(
       triggerEvent: ChangeEvent,
-      controller: Actor,
       reader: GameReader,
       resolvedChange: ResolvedChange,
-  ): PendingTask? = onChange(triggerEvent, controller, reader, resolvedChange, isSelf = true)
+  ): PendingTask? = onChange(triggerEvent, reader, resolvedChange, isSelf = true)
 
   internal fun onChangeToOther(
       triggerEvent: ChangeEvent,
-      controller: Actor,
       reader: GameReader,
       resolvedChange: ResolvedChange,
-  ): PendingTask? = onChange(triggerEvent, controller, reader, resolvedChange, isSelf = false)
+  ): PendingTask? = onChange(triggerEvent, reader, resolvedChange, isSelf = false)
 
   private fun onChange(
       triggerEvent: ChangeEvent,
-      controller: Actor,
       reader: GameReader,
       resolvedChange: ResolvedChange,
       isSelf: Boolean,
@@ -106,11 +102,9 @@ private constructor(
     return PendingTask.fromEffect(
         context = context,
         triggerEvent = triggerEvent,
-        controller = controller,
         changedComponentPlayer = changedComponentPlayer,
         automatic = automatic,
         instruction = InstructionGroup.of(instruction),
-        queuedEffectFallback = resolvedChange.queuedEffectFallback,
     )
   }
 
@@ -141,7 +135,6 @@ private constructor(
   internal class ResolvedChange(
       val gaining: Type?,
       val removing: Type?,
-      val queuedEffectFallback: Actor?,
   ) {
     val changedComponentPlayer: Player? = (gaining ?: removing)?.toComponent()?.owningPlayer
 

@@ -665,6 +665,23 @@ internal class TaskNarrowingTest {
   }
 
   @Test
+  internal fun `doing EACH admits a single unselected branch`() {
+    writer.runOperation("Plant")
+    val original = initiate("EACH Player(HAS Plant) { Heat }").single()
+
+    writer.doTask("EACH Player(HAS Plant) { Heat }")
+
+    (original in tasks) shouldBe false
+    writer.count("Heat") shouldBe 0
+    val branch = tasks.ids().single()
+    tasks.getTaskData(branch).selected shouldBe false
+
+    writer.doTask("Heat", branch)
+    writer.count("Heat") shouldBe 1
+    tasks.isEmpty() shouldBe true
+  }
+
+  @Test
   internal fun `narrowing to Ok automatically handles the task`() {
     initiate("2 Plant?")
 

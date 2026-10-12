@@ -13,7 +13,6 @@ internal class AphroditeTest : TfmSandboxTest() {
       doTasks("UseStandardProject<AirScrappingProject>", "-15 MC")
       selectTask("VenusStep.")
       doTask("TerraformRating")
-      selectTask("2 MC<Kim>!")
       kim.selectTask("2 MC!")
     }
   }

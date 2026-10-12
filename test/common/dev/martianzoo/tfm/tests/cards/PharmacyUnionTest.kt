@@ -69,10 +69,8 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
         .inTurn {
           doTasks("PlayProject<Class<Decomposers>>", "-5 MC", "Decomposers FROM ProjectCard")
           selectTask("Microbe<Decomposers>.")
-          selectTask("Disease<PharmacyUnion<Kim>>! OR (MAX 0 PharmacyUnion<Kim>: Ok)")
-          kim.selectOnlyTask()
-          selectOnlyTask()
-          kim.selectOnlyTask()
+          kim.selectTask("Disease<PharmacyUnion<Kim>>! OR (MAX 0 PharmacyUnion<Kim>: Ok)")
+          kim.doTask("-4 MC")
         }
         .expect("Disease<$PharmacyUnion<Kim>>, -4 MC<Kim>")
   }

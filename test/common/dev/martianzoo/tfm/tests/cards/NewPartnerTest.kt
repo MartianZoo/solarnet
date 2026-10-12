@@ -40,7 +40,7 @@ internal class NewPartnerTest : TfmSandboxTest() {
       selectOnlyTask()
       selectOnlyTask()
       doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
-      selectTask("MAX 0 Barrier: Donation FROM PreludeCard<Kim, Selecting>!")
+      doTask("Donation<Kim> FROM PreludeCard<Kim, Selecting>!")
       doTask("21 MC")
     }
     kim.assertCounts(1 to "PreludeCard<Hand>", 0 to "PreludeCard<Selecting>", 1 to "$Donation")

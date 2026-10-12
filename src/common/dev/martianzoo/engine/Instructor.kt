@@ -80,8 +80,6 @@ internal constructor(
 
   private data class ConstructionEvent(
       val event: ChangeEvent,
-      val controller: Actor,
-      val selectionAssignee: Actor,
       val ancestors: List<PendingTask>,
   )
 
@@ -97,7 +95,7 @@ internal constructor(
                   "sneak accepts only elementary changes; found `$it`",
                   sourceLocation = it.sourceLocation,
               )
-      executeChange(change, cause, mutableListOf(), actor, actor, actor, queuedEffects = false)
+      executeChange(change, cause, mutableListOf(), actor, queuedEffects = false)
     }
     limiter.checkAllInvariants()
   }
@@ -106,10 +104,8 @@ internal constructor(
       instruction: Instruction,
       cause: Cause?,
       actor: Actor,
-      controller: Actor = actor,
-      selectionAssignee: Actor = controller,
   ): List<PendingTask> = buildList {
-    doExecute(instruction, cause, this, actor, controller, selectionAssignee)
+    doExecute(instruction, cause, this, actor)
   }
 
   /**
@@ -119,10 +115,8 @@ internal constructor(
       instruction: Instruction,
       cause: Cause?,
       actor: Actor,
-      controller: Actor = actor,
-      selectionAssignee: Actor = controller,
   ): List<PendingTask> = buildList {
-    doExecuteResolved(instruction, cause, this, actor, controller, selectionAssignee)
+    doExecuteResolved(instruction, cause, this, actor)
   }
 
   private fun doExecute(
@@ -130,8 +124,6 @@ internal constructor(
       cause: Cause?,
       deferred: MutableList<PendingTask>,
       actor: Actor,
-      controller: Actor,
-      selectionAssignee: Actor,
       queuedEffects: Boolean = true,
   ) {
     when (val resolved = resolve(instruction)) {
@@ -141,15 +133,13 @@ internal constructor(
               cause,
               deferred,
               actor,
-              controller,
-              selectionAssignee,
               queuedEffects,
           )
       // Independent siblings, such as the branches of a fanout, execute in place here; only an
       // enqueued task turns them into separately selectable work.
       is InstructionGroup ->
           resolved.instructions.forEach {
-            doExecute(it, cause, deferred, actor, controller, selectionAssignee, queuedEffects)
+            doExecute(it, cause, deferred, actor, queuedEffects)
           }
     }
   }
@@ -159,8 +149,6 @@ internal constructor(
       cause: Cause?,
       deferred: MutableList<PendingTask>,
       actor: Actor,
-      controller: Actor,
-      selectionAssignee: Actor,
       queuedEffects: Boolean = true,
   ) {
     if (resolved !is Then && resolved.isAbstract(reader)) {
@@ -183,10 +171,15 @@ internal constructor(
               )
                   ADMIN
               else actor,
-              controller,
-              selectionAssignee,
               queuedEffects,
           )
+      is Instruction.Task ->
+          deferred +=
+              PendingTask(
+                  assignee = actorFor(taskRecipient(resolved)),
+                  instruction = InstructionGroup.of(resolved.body),
+                  cause = cause,
+              )
       is By ->
           throw ExpressionException(
               "instruction-side `BY` reached execution without a task-assignment handoff: " +
@@ -199,13 +192,11 @@ internal constructor(
             cause,
             deferred,
             actor,
-            controller,
-            selectionAssignee,
             queuedEffects,
         )
         resolved.instructions.drop(1).forEach { tree ->
           InstructionGroup.of(tree).instructions.forEach {
-            doExecute(it, cause, deferred, actor, controller, selectionAssignee, queuedEffects)
+            doExecute(it, cause, deferred, actor, queuedEffects)
           }
         }
       }
@@ -220,8 +211,6 @@ internal constructor(
       cause: Cause?,
       deferred: MutableList<PendingTask>,
       actor: Actor,
-      controller: Actor,
-      selectionAssignee: Actor,
       queuedEffects: Boolean,
   ) {
     val ct = instruction.count as ActualScalar
@@ -241,7 +230,7 @@ internal constructor(
               actor = actor,
           )
 
-      constructPartsAndFire(result, controller, selectionAssignee, deferred, queuedEffects)
+      constructPartsAndFire(result, deferred, queuedEffects)
       if (done) break
     }
     if (queuedEffects && automaticEffectStack.isEmpty()) {
@@ -260,12 +249,10 @@ internal constructor(
   /** Required parts all exist before any event in their construction dispatches effects. */
   private fun constructPartsAndFire(
       event: ChangeEvent,
-      controller: Actor,
-      selectionAssignee: Actor,
       deferred: MutableList<PendingTask>,
       queuedEffects: Boolean,
   ) {
-    val recorded = ConstructionEvent(event, controller, selectionAssignee, automaticEffectStack)
+    val recorded = ConstructionEvent(event, automaticEffectStack)
     constructionEvents?.let {
       it += recorded
       return
@@ -302,7 +289,6 @@ internal constructor(
             PendingTask.fromEffect(
                 context = owner,
                 triggerEvent = origin.event,
-                controller = origin.controller,
                 changedComponentPlayer = owner.owningPlayer,
                 automatic = true,
                 instruction = InstructionGroup.of(instruction),
@@ -315,26 +301,14 @@ internal constructor(
     } finally {
       constructionEvents = null
     }
-    for ((change, changeController, changeSelectionAssignee) in events.asReversed()) {
-      for (task in
-          effector.fire(
-              change,
-              changeController,
-              changeSelectionAssignee,
-              automatic = true,
-          )) {
+    for ((change) in events.asReversed()) {
+      for (task in effector.fire(change, automatic = true)) {
         executeAutomaticEffect(task, deferred, queuedEffects)
       }
     }
     if (queuedEffects) {
-      for ((change, changeController, changeSelectionAssignee) in events) {
-        deferred +=
-            effector.fire(
-                change,
-                changeController,
-                changeSelectionAssignee,
-                automatic = false,
-            )
+      for ((change) in events) {
+        deferred += effector.fire(change, automatic = false)
       }
     }
   }
@@ -359,9 +333,7 @@ internal constructor(
             it,
             task.cause,
             deferred,
-            task.selectionAssignee,
-            task.controller,
-            task.selectionAssignee,
+            task.assignee,
             queuedEffects,
         )
       }
@@ -397,6 +369,16 @@ internal constructor(
               resolve(unresolved.inner, worldGainNarrowing),
               canonicalActorExpression(unresolved),
           )
+      is Instruction.Task -> {
+        val recipient = taskRecipient(unresolved)
+        if (reader.resolve(recipient).abstract) {
+          throw ExpressionException(
+              "`TASK` requires a fixed Actor recipient; `$recipient` is open",
+              sourceLocation = recipient.sourceLocation ?: unresolved.sourceLocation,
+          )
+        }
+        unresolved.copy(actor = actorFor(recipient, "`TASK`").expression)
+      }
       is Per ->
           resolveTree(
               elaborator.atomizeGains(unresolved.inner * reader.count(unresolved.metric)),
@@ -517,12 +499,21 @@ internal constructor(
     return type.expression
   }
 
-  internal fun actorFor(instruction: By): Actor {
-    val type = reader.resolve(instruction.actor)
+  internal fun actorFor(instruction: By): Actor = actorFor(instruction.actor, "`BY`")
+
+  private fun taskRecipient(instruction: Instruction.Task): Expression =
+      instruction.actor
+          ?: throw ExpressionException(
+              "`TASK` needs a recipient after elaboration",
+              sourceLocation = instruction.sourceLocation,
+          )
+
+  internal fun actorFor(expression: Expression, assignment: String = "`TASK`"): Actor {
+    val type = reader.resolve(expression)
     if (reader.countComponent(type) != 1) {
       throw ExpressionException(
-          "`BY` requires a participating `Actor`; `${type.expression}` has no component in this world",
-          sourceLocation = instruction.actor.sourceLocation,
+          "$assignment requires a participating `Actor`; `${type.expression}` has no component in this world",
+          sourceLocation = expression.sourceLocation,
       )
     }
     if (type.className == ADMIN.className) return ADMIN
@@ -749,7 +740,8 @@ internal constructor(
     }
     val targets = reader.getComponents(selectorType).map { it.expression }
     val branches = targets.map { branchFor(each, it, worldGainNarrowing) }
-    return InstructionGroup.createTree(branches)
+    // Preserve independent branches for task admission, including a single branch.
+    return InstructionGroup.of(branches)
   }
 
   private fun branchFor(

@@ -7,26 +7,16 @@ import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import kotlin.jvm.JvmInline
 
 /**
- * Current or recorded form of a pending instruction. [id] survives edits. [controller] owns the
- * operation and its consequences; [selectionAssignee] receives the task on initial selection, and
- * [assignee] currently controls it. [selected] holds the world's exclusive selection lock until the
- * task is narrowed, executed, or removed. [instruction] may still require choices.
+ * Current or recorded form of a pending instruction. [id] survives edits. [assignee] controls the
+ * task. [selected] holds the world's exclusive selection lock until the task is narrowed, executed,
+ * or removed. [instruction] may still require choices or dispatch separate work through `Task`.
  */
 public data class Task(
     /** Identifies this task by the ordinal of its add event. Stable through task edits. */
     val id: TaskId,
 
-    /** Who controls the surrounding operation and receives work caused by this task. */
-    val controller: Actor,
-
-    /**
-     * Who receives this task when its controller selects it. That Actor supplies any remaining
-     * choices and, absent a later `BY` handoff, executes the concrete instruction.
-     */
-    val selectionAssignee: Actor = controller,
-
     /** Who currently has exclusive authority to advance this task. */
-    val assignee: Actor = controller,
+    val assignee: Actor,
 
     /** Whether this task has been selected and therefore holds the global select-lock. */
     val selected: Boolean = false,

@@ -45,7 +45,6 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
         .inTurn {
           doTasks("PlayProject<Class<Decomposers>>", "-5 MC", "Decomposers FROM ProjectCard")
           selectTask("Microbe<Decomposers>.")
-          selectTask("2 MC<Kim>!")
           kim.selectTask("2 MC!")
           doTask("2 MC")
         }
@@ -74,7 +73,6 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
         .inTurn {
           doTasks("PlayProject<Class<Decomposers>>", "-5 MC", "Decomposers FROM ProjectCard")
           selectTask("Microbe<Decomposers>.")
-          selectTask("2 MC<Kim>!")
           kim.selectTask("2 MC!")
           doTask("Microbe<Decomposers>!")
         }
@@ -103,7 +101,6 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
         .inTurn {
           doTasks("PlayProject<Class<Decomposers>>", "-5 MC", "Decomposers FROM ProjectCard")
           selectTask("Microbe<Decomposers>.")
-          selectTask("2 MC<Kim>")
           kim.doTask("2 MC")
           selectOnlyTask()
           shouldThrow<NarrowingException> { doTask("Microbe<$RegolithEaters>!") }
@@ -134,7 +131,6 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
           selectTask("-X Steel?")
           doTasks("Ok", "IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
-          selectTask("2 MC<Kim>!")
           kim.selectTask("2 MC!")
           selectOnlyTask()
           doTask("Ok")

@@ -6,15 +6,38 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Standard actions
 
+- [ ] Settle Admin's available work before a nested cross-Actor Agent call returns. Currently
+  `WorldTransaction` waits for the outer operation; the Pluto scenario must use separate top-level
+  calls to let Admin run. Draining every nested call changed source-backed replay outcomes, so
+  determine which calls form complete player decisions before changing settlement.
+
 - [ ] Fix missing-action selection and remove the action-slot dependency from general-purpose
   `Billing`. See [action identity and invocation](docs/agents/ACTIONS.md) for the AI Central defect,
   required behavior, and proposed direction.
 
 - [ ] Keep gated System work with Admin when the gate becomes available. With player autoexecution
-  disabled, `MAX 0 Billing: DefaultGreeneryTile` currently needs the player to select it after
-  payment before Admin performs the signal; `Game20230521Test` shows the extra selections.
-  `HeadStartTest` also needs two full conditional selectors for Suitable Infrastructure bonuses
-  competing with nested actions; simplify those through general task handling, not a card helper.
+  disabled, `MAX 0 Billing: DefaultGreeneryTile` still needs the player to select it after payment
+  before Admin performs the signal; `Game20230521Test` shows the extra selections.
+
+- [ ] Simplify `HeadStartTest`'s two full conditional selectors for Suitable Infrastructure bonuses
+  competing with nested actions through general task handling, not a card helper.
+
+## Task dispatch
+
+- [ ] Separate task selection from execution: with player autoexecution disabled, selecting a
+  concrete task currently executes it. Make `selectTask` select and resolve only, and require an
+  explicit `doTask` (or enabled autoexecution) to carry out the selected work. Revisit Agent
+  contracts, task handoffs, continuations, and replay `CHOOSE` commands together.
+
+- [ ] When a Canon card needs an open `TASK` recipient, make the recipient and the body's `Me`
+  one shared choice. First check whether the existing `THEN` and transmutation Type-variable
+  machinery can serve this case before adding another representation.
+
+## Task submissions
+
+- [ ] Decide whether Agent task submissions must give concrete numeric amounts. Tests should pay
+  an amount such as `-8 Heat`, not submit arithmetic over `Owed` and ask the engine to calculate
+  the player's choice. Keep this input rule separate from authored Pets expressions.
 
 ## Physical game conversion — 2026-10-09
 
@@ -74,25 +97,40 @@ These concerns remain open; the ranking does not select replacement designs.
   the beginner corporation move those cards to `Hand` for free. Keep the standard discard supplied
   by `NonBeginnerMode`, and make starting TR genuinely come from `MultiplayerMode` or `SoloMode`.
   Avoid using creation of `PlayerMode` as a proxy trigger. A queued `SetupPhase: EACH Player` effect
-  completes as soon as it enqueues its per-Player branches, but those branches inherit Admin as
-  selection assignee. `BY Player` transfers only a selected branch, whose select lock then blocks
-  independent player tasks. The automatic form
-  `MultiplayerMode { SetupPhase:: EACH Me@Player { 20 TerraformRating<Me@> } }` correctly grants TR
-  to both players, but removes their starting-TR tasks; an automatic card deal likewise removes
-  the card-draw tasks. Try per-Player owned setup signals as the source of each Player's choices
-  before changing task routing. Investigate whether `EACH` should be rejected as a left operand of
-  `THEN`: `EACH Player { A } THEN B` is currently admitted even though fanout can produce multiple
-  tasks and no join is intended.
-- Make `ResearchPhase` the actual provider of each Player's four-card offer and discard. Moving the
-  current Player effect to `ResearchPhase` with `EACH Player` leaves the second Player's sequence
-  assigned to Admin; `BY Player` transfers only a selected task. Solve per-Player task routing
-  without a replay-only context alias, then try direct context matching first and restrict fallback
-  lookup to internal bookkeeping cause intermediates. The broader causal-chain matcher tried for
-  the replay was removed along with its context arguments; current matching uses only the direct
-  effect context.
+  completes as soon as it enqueues its per-Player branches. Use an explicit per-Player `TASK` when
+  setup should leave a card offer or choice on each player's queue; verify the starting TR and card
+  handling together. Try per-Player owned setup signals as another source of those choices.
+- Make `ResearchPhase` the actual provider of each Player's four-card offer and discard. If it uses
+  `EACH Player`, dispatch each player's choice explicitly with `TASK`; `BY Player` transfers only a
+  selected concrete task. Then try direct context matching first and restrict fallback lookup to
+  internal bookkeeping cause intermediates. The broader causal-chain matcher tried for the replay
+  was removed along with its context arguments; current matching uses only the direct effect
+  context.
 - Consider a separate rename of automatic (`::`) effects to “immediate”. Card effects now use
   “direct effect”; the dispatch terminology and behavior remain unchanged pending that decision.
 
+- [ ] Prefer ordinary work plus a single `LATER` mechanism, without `FINALLY` or nested `LATER`
+  unless nesting follows naturally from the whole design. Evaluate retaining a few existing
+  completion mechanisms and meaningful phase transitions for remaining waits, rather than adding
+  priority levels to eliminate every helper. A transition queued beside cleanup cannot itself
+  guarantee completion; retain coherent operation completion and undo. Details remain undecided.
+- [ ] Before reusing the deferred-work prototype, cover normal operation admission and rollback.
+  At `daec917f6`, `beginOperation("Start, LATER Cleanup")` tries to select Cleanup immediately when
+  Start leaves a pending choice; direct task admission handles the same scenario. The prototype
+  needs scheduling contract tests beyond its existing game scenarios.
+- [ ] Verify event tag lifetimes through deferred consequences before replacing `Temporary` with
+  a `LATER` flip. A promoted flip can precede consequences generated by another promoted peer;
+  the old empty-pool sweep waited for all tasks. The passing Solar Probe cases do not establish
+  equivalence for those compositions. Retain lifetime handling where required by the selected rule.
+- [ ] Evaluate temporarily lowering the on-turn player's waiting work during an explicitly
+  handed-off response. Include Admin billing and payment descendants through their current
+  assignees, and prevent response settlement from tying with suspended caller work. This remains
+  a candidate, not a selected design. In the task-priority comparison, check both ordinary reactions
+  and newly deferred children: batch promotion and fixed bands order these differently. Compare
+  the handoff rule with a complete payment-allocation decision, including same-player payment.
+- [ ] In the priority experiment, prove that Head Start's next mandatory turn waits for the previous
+  turn's deferred cleanup. Nested `LATER` alone allows the next action to run before that cleanup;
+  distinct turns and returning to Prelude play remain necessary for the selected variant.
 - Replace the custom `PartyRequirement` metric with its expanded Pets condition (the party is
   ruling or you have at least 2 delegates there), so execution and English can use that condition
   directly. Preserve ownership and the grouping of combined requirements.

@@ -34,9 +34,10 @@ import dev.martianzoo.state.Task.TaskId
  * * `a OR Die!` becomes `a`; if every option is mandatory `Die`, the task produces
  *   [DeadEndException]
  * * A concrete selected task is guaranteed to execute successfully
- * * Normalization retains task identity, controller, selection assignee, current assignee,
- *   selection, and cause. Admission and contextual selection assign concrete System gains and
- *   removals to Admin, including changes scaled by `Per`. Abstract changes remain for the current
+ * * Normalization retains task identity, current assignee, selection, and cause. Admission and
+ *   contextual selection assign concrete System gains and removals to Admin, including changes
+ *   scaled by `Per`. When that changes the assignee, a continuation dispatches back to the former
+ *   assignee after Admin finishes the System change. Abstract changes remain for the current
  *   assignee to choose; explicit instruction-side `BY` remains authoritative. Selected tasks cannot
  *   be replaced by independent siblings
  */
@@ -50,24 +51,21 @@ internal class TaskQueues(private val gameWorld: GameWorld) {
   internal fun addTasks(task: PendingTask) =
       addTasks(
           task.instruction,
-          task.controller,
+          task.assignee,
           task.cause,
-          task.selectionAssignee,
       )
 
   internal fun addTasks(
       instruction: InstructionGroup,
-      controller: Actor,
+      assignee: Actor,
       cause: Cause?,
-      selectionAssignee: Actor = controller,
   ): List<TaskAddedEvent> {
     val newTasks =
         newTasks(
                 firstId = TaskId(gameWorld.nextOrdinal),
-                controller = controller,
+                assignee = assignee,
                 instruction = instruction,
                 cause = cause,
-                selectionAssignee = selectionAssignee,
                 isAbstract = isAbstract,
             )
             .map(::assignSystemChangeToAdmin)
@@ -94,11 +92,12 @@ internal class TaskQueues(private val gameWorld: GameWorld) {
       assignSystemChangeToAdmin(normalizeTask(task, isAbstract))
 
   internal fun assigneeAfterContextualSelection(task: Task): Actor {
-    val selected = task.copy(assignee = task.selectionAssignee, selected = true)
+    val selected = task.copy(selected = true)
     return normalizeForSelection(selected).assignee
   }
 
   private fun assignSystemChangeToAdmin(task: Task): Task {
+    if (task.assignee == ADMIN) return task
     if (task.instruction.isAbstract(gameWorld.reader)) return task
     fun change(instruction: Instruction): Change? =
         when (instruction) {
@@ -110,8 +109,21 @@ internal class TaskQueues(private val gameWorld: GameWorld) {
     val change = change(task.instruction) ?: return task
     val affected = change.gaining ?: change.removing ?: return task
     val affectedType = classTable.resolve(affected)
-    return if (affectedType.rootClass.isSubtypeOf(systemClass)) task.copy(assignee = ADMIN)
-    else task
+    if (!affectedType.rootClass.isSubtypeOf(systemClass)) return task
+    // The System step belongs to Admin, but completing it must return later work to the actor
+    // who had the sequence before this handoff. Encode that recipient in the continuation itself.
+    return task.copy(
+        assignee = ADMIN,
+        then =
+            task.then?.let {
+              InstructionGroup.of(
+                  Instruction.Task(
+                      task.assignee.expression,
+                      InstructionGroup.createTree(it.instructions),
+                  )
+              )
+            },
+    )
   }
 
   override fun toString(): String = gameWorld.tasks.toString()

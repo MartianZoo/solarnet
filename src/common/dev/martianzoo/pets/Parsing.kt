@@ -561,6 +561,7 @@ public object Parsing {
     private val notKeyword by keyword("NOT")
     private val orKeyword by keyword("OR")
     private val rankKeyword by keyword("RANK")
+    private val taskKeyword by keyword("TASK")
     private val thenKeyword by keyword("THEN")
     private val xKeyword by keyword("X")
     private val abstractKeyword by keyword("ABSTRACT")
@@ -861,8 +862,21 @@ public object Parsing {
             { (selector, body) ->
               Instruction.Each(selector, body)
             }
+    private val taskInstruction by
+        skip(taskKeyword) and
+            optional(expression) and
+            skip(lbrace) and
+            parser { instructionSyntax } and
+            skip(rbrace) map
+            { (actor, body) ->
+              Instruction.Task(actor, body)
+            }
     private val instructionPrimary: Parser<InstructionTree> by
-        each or instructionTransform or perInstruction or group(parser { instructionSyntax })
+        each or
+            taskInstruction or
+            instructionTransform or
+            perInstruction or
+            group(parser { instructionSyntax })
     private val instructionAtom by
         instructionPrimary and
             optional(skip(byKeyword) and expression) map

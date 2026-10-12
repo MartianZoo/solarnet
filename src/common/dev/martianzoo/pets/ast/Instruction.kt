@@ -440,6 +440,40 @@ public sealed class Instruction : InstructionTree() {
   }
 
   /**
+   * Dispatches [body] as unresolved work for a fixed [actor] under rule L2-17. The body may stay
+   * abstract. A missing recipient is filled from lexical `Me`, or Admin, during elaboration.
+   */
+  public data class Task(val actor: Expression?, val body: InstructionTree) : Instruction() {
+    init {
+      if (body == NoOp) throw PetSyntaxException("`TASK` requires a non-`Ok` body")
+    }
+
+    override fun visitChildren(visitor: Visitor) {
+      actor?.let { visitor.visit(it) }
+      visitor.visit(body)
+    }
+
+    override fun scale(factor: Int): Instruction = copy(body = body * factor)
+
+    override fun isAbstract(info: TypeInfo): Boolean = actor?.isAbstract(info) != false
+
+    override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
+      proposed as? Task
+          ?: throw NarrowingException("`$proposed` does not preserve task recipient `$actor`")
+      if (proposed.actor != actor) {
+        throw NarrowingException("cannot change task recipient `$actor` to `${proposed.actor}`")
+      }
+      if (proposed.body != body) {
+        throw NarrowingException(
+            "cannot change a dispatched task's body from `$body` to `${proposed.body}`"
+        )
+      }
+    }
+
+    override fun toString(): String = "TASK${actor?.let { " $it" } ?: ""} { $body }"
+  }
+
+  /**
    * Makes [inner] available only while [gate] holds ([rule
    * L2-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * The gate is not a choice: it decides whether the result is available at all, and a proposal
@@ -572,10 +606,15 @@ public sealed class Instruction : InstructionTree() {
       if (continuation is Then) {
         throw PetSyntaxException("`THEN` continuation cannot contain another `THEN`")
       }
+      if (stages.any { it is Each }) {
+        throw PetSyntaxException("`EACH` cannot be followed by `THEN`")
+      }
       // Every left operand must remain one task and cannot itself contain an enqueue sequence.
       if (
           stages.any {
-            it.descendantsOfType<InstructionGroup>().any() || it.descendantsOfType<Then>().any()
+            it !is Task &&
+                (it.descendantsOfType<InstructionGroup>().any() ||
+                    it.descendantsOfType<Then>().any())
           }
       ) {
         throw PetSyntaxException("`THEN` left operands cannot contain groups or other `THEN`s")

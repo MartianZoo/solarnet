@@ -204,8 +204,6 @@ public object EventLogJson {
 
   private fun encodeTask(task: Task): JsonObject = buildJsonObject {
     put("id", task.id.ordinal)
-    put("controller", task.controller.className.toString())
-    put("selectionAssignee", task.selectionAssignee.className.toString())
     put("assignee", task.assignee.className.toString())
     put("selected", task.selected)
     put("instruction", task.instruction.toString())
@@ -229,8 +227,6 @@ public object EventLogJson {
         }
     return Task(
         TaskId(requiredInt(source, "id")),
-        decodeActor(requiredString(source, "controller")),
-        selectionAssignee = decodeActor(requiredString(source, "selectionAssignee")),
         assignee = decodeActor(requiredString(source, "assignee")),
         selected = requiredBoolean(source, "selected"),
         instruction = parse(requiredString(source, "instruction")),

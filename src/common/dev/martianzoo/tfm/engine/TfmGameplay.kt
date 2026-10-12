@@ -96,8 +96,8 @@ public class TfmGameplay(
     return try {
       inTurn {
         doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
-        payAllMc()
         chooseConcreteCorporationEffectsBeforePurchase()
+        payAllMc()
         body()
         chooseConcreteCorporationEffectsBeforePurchase()
         buySelectedCards()
@@ -142,7 +142,7 @@ public class TfmGameplay(
           tasks
               .extract { it }
               .filter { task ->
-                task.selectionAssignee == actor && asActor(task.assignee).canSelectTask(task.id)
+                task.assignee == actor && asActor(task.assignee).canSelectTask(task.id)
               }
               .firstOrNull { task -> !task.instruction.isAbstract(reader) } ?: return
       selectTaskForActor(next)
@@ -528,7 +528,7 @@ public class TfmGameplay(
         game.tasks
             .extract { it }
             .filter { task ->
-              task.selectionAssignee == actor &&
+              task.assignee == actor &&
                   task.instruction.descendantsOfType<Change>().any { change ->
                     change.gaining?.className == cn("Owed")
                   }
@@ -568,7 +568,7 @@ public class TfmGameplay(
           game.tasks
               .extract { it }
               .filter { task ->
-                task.selectionAssignee == actor &&
+                task.assignee == actor &&
                     task.cause == cause &&
                     !task.instruction.isAbstract(reader) &&
                     asActor(task.assignee).canSelectTask(task.id)
@@ -596,7 +596,7 @@ public class TfmGameplay(
           .extract { it }
           .filter { task ->
             val context = task.cause?.context
-            task.selectionAssignee == actor &&
+            task.assignee == actor &&
                 when (context?.className) {
                   cn("Accepting") ->
                       currency == null ||

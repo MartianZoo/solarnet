@@ -261,9 +261,9 @@ in a test just to detect that the list changed. Test observable behavior through
 test-facing layer: test the card, rule, or workflow result rather than a private transformation,
 exact intermediate task text, or other implementation detail.
 
-Keep task-routing mechanism tests in the generic engine suite. Those tests may inspect task
-controller, selection assignee, current assignee, selection, and event Actor because those are the
-contract under test. A player-level card or rule scenario should instead demonstrate routing
+Keep task-routing mechanism tests in the generic engine suite. Those tests may inspect the current
+assignee, selection, and event Actor because those are the contract under test. A player-level card
+or rule scenario should instead demonstrate routing
 through public gameplay: which Player can select or narrow, whether competing gameplay is blocked,
 the resulting state, and, when necessary, an authored `BY` reaction that makes attribution
 observable. Do not locate card reactions by exact rendered instruction, `Task.cause`, internal
@@ -276,8 +276,8 @@ and test intervening work against the intended game outcome with autoexecution d
 necessary. Do not require the engine to identify who operates an Agent or reject a program merely
 because it calls another Player's Agent. [ADVERSARIAL.md](ADVERSARIAL.md) assigns that submission
 check to the external game arrangement. [SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over)
-records the remaining operation-level questions; current return-to-controller tests characterize
-existing routing and do not select a broader exclusive-control model.
+records the remaining operation-level questions. Do not preserve former routing fields merely to
+keep synthetic characterizations passing.
 
 Keep trigger matching separate from queue routing. A `BY` characterization should show which
 triggers fire and how Actor variables bind through observable changes. Do not make its continued
@@ -412,10 +412,10 @@ Do not retain Terraforming Mars gameplay helpers in sandbox scenarios, including
 policies. Preserve payment and card rules through explicit tasks; helper-only policy checks are
 outside this suite. Nested `TfmGameplayTest` suites retain their real workflow. Tests solely
 comparing autoexecution policies are omitted.
-Use `selectOnlyTask()` when selecting the actor's sole pending task without further narrowing;
-`selectOnlyTask(x = 3)` binds X through the existing generic task operation. Keep other explicit
-choices in `doTask` or `narrowTask`. Do not copy full rule expressions to identify
-that sole task. Use meaningful short selectors when several tasks remain.
+Use `selectTask` and `selectOnlyTask` only for an unresolved choice or handoff, never to carry out
+concrete work. Use `doTask` for the Actor's explicit work, naming a short, meaningful instruction.
+This also applies when binding X would make a task concrete. Do not copy full rule expressions
+merely to identify the sole task.
 Write scenario actions in sequence rather than loops. Small private scenario helpers may factor
 repeated explicit task sequences, with varying bonuses passed at each written-out call.
 Call the base fixture's `advanceUntilActionPhase()` to reach the next Action phase. From Action,

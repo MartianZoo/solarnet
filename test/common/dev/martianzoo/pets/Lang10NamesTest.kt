@@ -54,6 +54,7 @@ internal class Lang10NamesTest {
           "NOT",
           "OR",
           "RANK",
+          "TASK",
           "THEN",
           "X",
           "Metric",
@@ -81,6 +82,7 @@ internal class Lang10NamesTest {
   internal fun `L10-2 reserved spellings are exact, and former keywords are class names`() {
     parse<Expression>("Has<By, Max, AS>").toString() shouldBe "Has<By, Max, AS>"
     parse<Expression>("Rank").className shouldBe cn("Rank")
+    parse<Expression>("Task").className shouldBe cn("Task")
   }
 
   @Test

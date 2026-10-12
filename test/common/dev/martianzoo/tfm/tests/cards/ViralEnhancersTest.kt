@@ -135,7 +135,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
           doTask("-42 MC")
           selectTask("-3 CorporationCard<Kim, Selecting>!")
           doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
-          selectTask("MAX 0 Barrier: PharmacyUnion FROM CorporationCard<Kim, Selecting>!")
+          doTask("PharmacyUnion<Kim> FROM CorporationCard<Kim, Selecting>!")
           selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
           selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
           selectTask("-4 MC.")

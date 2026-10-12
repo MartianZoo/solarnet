@@ -4,6 +4,7 @@ import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -861,7 +862,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   @Test
   internal fun `BUG - L1 Trade Terminal rejects a hosted card`() {
     playTerminalWithHostedCard {
-          shouldThrow<NarrowingException> { doTask("RobotUnit<Class<$Mine>>") }
+          shouldThrow<TaskException> { doTask("RobotUnit<Class<$Mine>>") }
           doTask("Animal<Pets>")
         }
         .expect("0 RobotUnit, Animal<$Pets>")

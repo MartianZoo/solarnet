@@ -168,10 +168,11 @@ repair ordering through `TfmGameplay`, policy settings, rendered-task matching, 
 Task normalization stores A as current work and B as its continuation. Shared unresolved Type
 variables can keep the stages together until narrowing supplies their value. When A finishes, B
 becomes ordinary pending work with no priority over siblings or A's reactions. The selected-task
-lock ends with A.
+lock ends with A. If A is transferred to Admin because it is a concrete System change, the engine
+dispatches B back to the Actor who had the task before that transfer.
 
-`EACH Player { A THEN B }` gives each branch a continuation. `EACH Player { A } THEN B` does not
-join the branches or wait for their descendants; language rule L9-1 owns fanout semantics.
+`EACH Player { A THEN B }` gives each branch a continuation. `EACH Player { A } THEN B` is invalid:
+completing the `EACH` task admits independent branches and does not wait for them to finish.
 
 ## Automatic effects
 
@@ -212,8 +213,8 @@ These are not the same completion point. `Barrier` and `MustCleanUp` are checks,
 intervening selection.
 
 Neptunian Power Consultants demonstrates the interaction. P1 may hand an optional decision to P2,
-but the selected-task lock ends when that task finishes. Payment descendants return to P1's controller,
-and P1 can resume unrelated work while P2's payment remains unfinished. `FloodingTest` contains current
+but the selected-task lock ends when that task finishes. P1 can resume unrelated work while P2's
+payment remains unfinished. `FloodingTest` contains current
 observable characterizations, including resource changes that can make the payment fail;
 [`PAYMENTS.md`](PAYMENTS.md#verified-gaps) describes the payment-specific evidence.
 

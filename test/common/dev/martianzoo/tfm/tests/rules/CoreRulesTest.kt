@@ -24,8 +24,8 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Heat")
 
     kim.inTurn {
-          doTasks("ConvertHeat", "-Heat / Owed<Class<Heat>>")
-          selectTask("MAX 0 Billing: TemperatureStep.")
+          doTasks("ConvertHeat", "-8 Heat")
+          doTask("TemperatureStep")
           doTask("TerraformRating")
         }
         .expect("-8 Heat, TemperatureStep")
@@ -37,8 +37,8 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Heat, 2 TemperatureStep")
 
     kim.inTurn {
-          doTasks("ConvertHeat", "-Heat / Owed<Class<Heat>>")
-          selectTask("MAX 0 Billing: TemperatureStep.")
+          doTasks("ConvertHeat", "-8 Heat")
+          doTask("TemperatureStep")
           doTasks("TerraformRating", "PROD[Heat]")
         }
         .expect("-8 Heat, TemperatureStep")

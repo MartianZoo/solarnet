@@ -37,8 +37,8 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
       doTask("TerraformRating")
     }
     kim.inTurn {
-      doTasks("ConvertHeat", "-Heat / Owed<Class<Heat>>")
-      selectTask("MAX 0 Billing: TemperatureStep.")
+      doTasks("ConvertHeat", "-8 Heat")
+      doTask("TemperatureStep")
       doTask("TerraformRating")
     }
     kim.inTurn {

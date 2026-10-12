@@ -49,8 +49,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
       doTasks("TradeAction<Action1>", "-9 MC")
       run {
         doTasks("Trade<Enceladus>", "Microbe<$RegolithEaters>")
-        shouldThrow<TaskException> { kim.doTask("Microbe<$NitriteReducingBacteria>") }
-        stan.selectOnlyTask()
+        kim.selectTask("Microbe<Kim>.")
         kim.doTask("Microbe<$NitriteReducingBacteria>")
       }
     }
@@ -75,9 +74,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
       selectOnlyTask()
       doTask("Trade<Pluto>")
       selectTask("ProjectCard<Stan, Hand>!")
-      selectTask("ProjectCard<Kim, Hand>!")
       kim.selectTask("ProjectCard<Kim, Hand>!")
-      selectTask("-ProjectCard<Kim, Hand>!")
       kim.selectTask("-ProjectCard<Kim, Hand>!")
     }
 
@@ -109,23 +106,19 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     }
     kim.setToExMachina(0, "ProjectCard")
 
-    stan.inTurn {
-      doTasks("TradeAction<Action2>", "-3 Energy", "Trade<Pluto>", "2 ProjectCard")
-      selectTask("ProjectCard<Kim>")
-      kim.doTasks("ProjectCard")
-      shouldThrow<TaskException> { doTask("ProjectCard<Kim>") }
-      kim.count("ProjectCard") shouldBe 1
-      doTask("ProjectCard<Stan>")
-      stan.count("ProjectCard") shouldBe 3
-      doTask("-ProjectCard<Stan>")
-      selectOnlyTask()
-      kim.doTasks("-ProjectCard")
-      selectTask("ProjectCard<Kim>")
-      kim.doTasks("ProjectCard")
-      kim.count("ProjectCard") shouldBe 1
-      selectOnlyTask()
-      kim.doTasks("-ProjectCard")
-    }
+    stan.beginOperation("NewTurn")
+    stan.doTasks("TradeAction<Action2>", "-3 Energy", "Trade<Pluto>", "2 ProjectCard")
+    kim.doTask("ProjectCard<Kim>")
+    shouldThrow<TaskException> { stan.doTask("ProjectCard<Kim>") }
+    kim.count("ProjectCard") shouldBe 1
+    stan.doTask("ProjectCard<Stan>")
+    stan.count("ProjectCard") shouldBe 3
+    stan.doTask("-ProjectCard<Stan>")
+    kim.doTask("-ProjectCard<Kim>")
+    kim.doTask("ProjectCard<Kim>")
+    kim.count("ProjectCard") shouldBe 1
+    kim.doTask("-ProjectCard<Kim>")
+    stan.completeOperation {}
 
     kim.count("ProjectCard") shouldBe 0
     stan.count("ProjectCard") shouldBe 2
@@ -223,9 +216,9 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
       doTasks("TradeAction<Action2>", "-Energy / Owed<Class<Energy>>")
       selectOnlyTask()
       doTasks("Trade<Titan>", "Floater<Dirigibles>")
-      selectTask("Floater<Kim>.")
+      kim.selectTask("Floater<Kim>.")
       kim.doTask("Floater<ForcedPrecipitation>.")
-      selectTask("Floater<Kim>.")
+      kim.selectTask("Floater<Kim>.")
       kim.doTask("Floater<ExtractorBalloons>.")
     }
 

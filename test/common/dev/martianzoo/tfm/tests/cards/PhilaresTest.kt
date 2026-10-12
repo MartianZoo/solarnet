@@ -21,7 +21,6 @@ internal class PhilaresTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_3_2>")
-          selectTask("StandardResource<Kim>!")
           kim.doTask("Titanium")
           selectTask("OxygenStep.")
           doTask("TerraformRating")
@@ -85,7 +84,6 @@ internal class PhilaresTest : TfmSandboxTest() {
           selectTask("ProjectCard<Stan, Hand>!")
           selectOnlyTask()
           doTask("CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_3>")
-          selectTask("StandardResource<Kim>!")
           kim.doTask("Titanium")
           doTask("Plant")
         }

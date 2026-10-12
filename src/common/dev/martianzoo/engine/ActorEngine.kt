@@ -44,8 +44,7 @@ import dev.martianzoo.state.TaskResult
  * Concrete changes that gain or remove a `System` component are assigned to Admin. Player choices
  * remain with the Player until narrowing makes the change concrete. Selection reapplies this rule
  * after resolving enclosing instructions, while explicit instruction-side `BY` remains
- * authoritative. The original controller and selection recipient are retained for continuations and
- * queued effects.
+ * authoritative.
  *
  * This is a low-level mutation surface. Task methods can change the live world immediately; callers
  * that need a failure-atomic interaction enclose the sequence in [transact]. Automatic task policy
@@ -170,9 +169,8 @@ internal constructor(
     task.then?.let {
       taskQueues.addTasks(
           it,
-          task.controller,
+          task.assignee,
           task.cause,
-          task.selectionAssignee,
       )
     }
     val stored = queue.getTaskData(task.id)
@@ -305,11 +303,11 @@ internal constructor(
 
     // A selected group completes structurally before its children resolve against successive
     // worlds.
-    val replacement =
+    val resolved =
         if (effectiveNarrowing is Instruction)
             instructor.resolve(effectiveNarrowing, worldGainNarrowing = true)
         else effectiveNarrowing
-    replace1WithN(tasks, task, replacement, then = continuation)
+    applyResolution(tasks, task, resolved, then = continuation)
     if (taskId in allTasks) executeSelectedIfConcrete(taskId)
   }
 
@@ -437,8 +435,8 @@ internal constructor(
   private fun selectTask(queue: TaskQueue, task: Task): TaskId? {
     enforceSelectLock(task.id)
     if (task.selected) return task.id
-    val replacement = instructor.resolve(task.instruction, worldGainNarrowing = true)
-    replace1WithN(queue, task, replacement, then = task.then)
+    val resolved = instructor.resolve(task.instruction, worldGainNarrowing = true)
+    applyResolution(queue, task, resolved, then = task.then)
     return task.id.takeIf { it in allTasks }
   }
 
@@ -455,19 +453,18 @@ internal constructor(
     }
   }
 
-  private fun replace1WithN(
+  private fun applyResolution(
       queue: TaskQueue,
       original: Task,
-      replacement: InstructionTree,
+      resolved: InstructionTree,
       then: InstructionGroup?,
   ) {
-    val group = InstructionGroup.of(replacement)
-    if (group.size == 1) {
+    val group = InstructionGroup.of(resolved)
+    // A group is independent work even when it currently contains only one instruction.
+    if (resolved !is InstructionGroup && group.size == 1) {
       var updated =
           taskQueues.normalizeForSelection(
               original.copy(
-                  assignee =
-                      if (original.selected) original.assignee else original.selectionAssignee,
                   selected = true,
                   instruction = group.instructions.single(),
                   then = then,
@@ -486,13 +483,12 @@ internal constructor(
         validateConcreteHandoff(updated.id)
       }
     } else {
-      // Structural completion replaces the selected task with ordinary pending siblings. No child
-      // inherits selection; a later player input must select whichever sibling comes next.
+      // Structural completion admits ordinary pending work and fulfills the selected task. No child
+      // inherits selection; a later player input must select whichever child comes next.
       taskQueues.addTasks(
           group,
-          original.controller,
+          original.assignee,
           original.cause,
-          original.selectionAssignee,
       )
       handleTask(queue, original.copy(then = then))
     }
@@ -529,8 +525,6 @@ internal constructor(
             selectedTask.instruction,
             selectedTask.cause,
             executingActor,
-            selectedTask.controller,
-            selectedTask.selectionAssignee,
         )
     newTasks.forEach(taskQueues::addTasks)
     handleTask(queue, selectedTask)

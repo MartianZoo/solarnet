@@ -134,7 +134,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
       doTask("-42 MC")
       selectTask("-3 CorporationCard<Kim, Selecting>!")
       doTask("PlayCard<Class<CorporationCard>, Class<SagittaFrontierServices>>")
-      selectTask("MAX 0 Barrier: SagittaFrontierServices FROM CorporationCard<Kim, Selecting>!")
+      doTask("SagittaFrontierServices<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTasks("31 MC", "PROD[Energy]", "PROD[2 MC]")
       selectTask("SearchForCard<Kim, NoTagsFilter>!")
       doTask("4 MC")
