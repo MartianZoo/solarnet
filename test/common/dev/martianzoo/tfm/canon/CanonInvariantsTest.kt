@@ -24,6 +24,18 @@ internal class CanonInvariantsTest {
   private val table = Canon.classTable
   private val cards = Canon.cards
 
+  @Test
+  internal fun signalsAreNotReal() {
+    val signal = table.getClass(cn("Signal"))
+    val real = table.getClass(cn("Real"))
+    val offenders =
+        table.allClasses().filter { it.isSubtypeOf(signal) && it.isSubtypeOf(real) }
+    assertTrue(
+        offenders.isEmpty(),
+        "Signal types cannot also be Real:\n${offenders.joinToString("\n") { it.className.toString() }}",
+    )
+  }
+
   // GAME_HACKS 3: stored MC production includes the production-floor offset.
   @Test
   internal fun perMoneyProductionAccountsForItsOffset() {
