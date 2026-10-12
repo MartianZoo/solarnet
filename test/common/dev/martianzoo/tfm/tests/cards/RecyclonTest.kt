@@ -7,8 +7,7 @@ import kotlin.test.Test
 internal class RecyclonTest : TfmSandboxTest() {
   @Test
   internal fun `Its own building tag adds a starting microbe`() {
-    newTestGame(kimCorporation = Recyclon, startAtCorporation = true)
-
+    newTestGameBeforeCorporationPlay()
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<Recyclon>>",
@@ -16,27 +15,15 @@ internal class RecyclonTest : TfmSandboxTest() {
           "38 MC",
           "PROD[Steel]",
           "Microbe<Recyclon>",
-          "-30 MC",
-          "10 ProjectCard<Hand FROM Selecting>",
+          "-15 MC",
+          "5 ProjectCard<Hand FROM Selecting>",
       )
     }
   }
 
   @Test
   internal fun `Gains a microbe when its owner plays a building card`() {
-    newTestGame(kimCorporation = Recyclon, startAtCorporation = true)
-    kim.inTurn {
-      doTasks(
-          "PlayCard<Class<CorporationCard>, Class<Recyclon>>",
-          "Recyclon FROM CorporationCard",
-          "38 MC",
-          "PROD[Steel]",
-          "Microbe<Recyclon>",
-          "-30 MC",
-          "10 ProjectCard<Hand FROM Selecting>",
-      )
-    }
-    advanceUntilActionPhase()
+    newTestGame(kimCorporation = Recyclon)
 
     kim.inTurn {
           doTasks("PlayProject<Class<Mine>>", "-4 MC")
@@ -49,20 +36,8 @@ internal class RecyclonTest : TfmSandboxTest() {
 
   @Test
   internal fun `Converts accumulated microbes including the new building microbe into production`() {
-    newTestGame(kimCorporation = Recyclon, startAtCorporation = true)
-    kim.inTurn {
-      doTasks(
-          "PlayCard<Class<CorporationCard>, Class<Recyclon>>",
-          "Recyclon FROM CorporationCard",
-          "38 MC",
-          "PROD[Steel]",
-          "Microbe<Recyclon>",
-          "-30 MC",
-          "10 ProjectCard<Hand FROM Selecting>",
-      )
-    }
-    advanceUntilActionPhase()
-    kim.exMachina("2 Microbe<$Recyclon>")
+    newTestGame(kimCorporation = Recyclon)
+    kim.exMachina("Microbe<$Recyclon>")
 
     kim.inTurn {
       doTasks("PlayProject<Class<TitaniumMine>>", "-7 MC")

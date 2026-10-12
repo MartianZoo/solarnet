@@ -14,7 +14,7 @@ import kotlin.test.Test
 internal class MergerTest : TfmSandboxTest() {
   @Test
   internal fun `Both corporations retain their required first actions`() {
-    newTestGame(addOptions = "PreludeExpansion", kimCorporation = ValleyTrust)
+    newTestGame(addOptions = "PreludeExpansion, ValleyTrust", kimCorporation = ValleyTrust)
     kim.inTurn {
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
       selectTask("4 CorporationCard<Kim, Selecting>!")

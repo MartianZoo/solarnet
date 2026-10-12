@@ -132,6 +132,27 @@ internal class SafeAutoExecTest {
   }
 
   @Test
+  internal fun scopedPolicyExecutesWorkWithoutChangingTheConfiguredPolicyInsideTheBlock() {
+    val game = Engine.newGame(testGamePremise("CLASS Token"))
+    val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
+
+    player.addTasks("Token!")
+    player.completeOperation {
+      player.count("Token") shouldBe 0
+      doWithAutoExecPolicy(EAGER) {
+        player.autoExecPolicy shouldBe NONE
+        player.count("Token") shouldBe 1
+      }
+    }
+
+    player.autoExecPolicy shouldBe NONE
+    player.addTasks("Token!")
+    player.autoExecNow()
+    player.count("Token") shouldBe 1
+    game.tasks.ids().size shouldBe 1
+  }
+
+  @Test
   internal fun safeExecutesTheAvailableTaskBeforeTheTaskItEnables() {
     val game = Engine.newGame(testGamePremise("CLASS Token\nCLASS Reward"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }

@@ -9,7 +9,7 @@ import kotlin.test.Test
 internal class ValleyTrustTest : TfmSandboxTest() {
   @Test
   internal fun `First action draws a Prelude without Prelude rules or an explicitly selected pool`() {
-    newTestGame(kimCorporation = ValleyTrust)
+    newTestGame(addOptions = "ValleyTrust", kimCorporation = ValleyTrust)
 
     kim.inTurn {
           doTask("RequiredActionsSignal")
@@ -24,7 +24,7 @@ internal class ValleyTrustTest : TfmSandboxTest() {
 
   @Test
   internal fun `First action plays a Prelude after the Prelude phase has ended`() {
-    newTestGame(addOptions = "PreludeExpansion", kimCorporation = ValleyTrust)
+    newTestGame(addOptions = "PreludeExpansion, ValleyTrust", kimCorporation = ValleyTrust)
     advanceUntilActionPhase()
 
     kim.inTurn {
@@ -41,7 +41,7 @@ internal class ValleyTrustTest : TfmSandboxTest() {
   @Test
   internal fun `First action can draw from Prelude 2 without Prelude 1`() {
     newTestGame(
-        addOptions = "PreludeExpansion, prelude2:cards, -prelude:cards",
+        addOptions = "PreludeExpansion, prelude2:cards, -prelude:cards, ValleyTrust",
         kimCorporation = ValleyTrust,
     )
     advanceUntilActionPhase()
@@ -59,7 +59,10 @@ internal class ValleyTrustTest : TfmSandboxTest() {
 
   @Test
   internal fun `First action can fizzle an unaffordable Industrial Complex`() {
-    newTestGame(addOptions = "PreludeExpansion, prelude2:cards", kimCorporation = ValleyTrust)
+    newTestGame(
+        addOptions = "PreludeExpansion, prelude2:cards, ValleyTrust",
+        kimCorporation = ValleyTrust,
+    )
     advanceUntilActionPhase()
     kim.setToExMachina(13, "MC")
 

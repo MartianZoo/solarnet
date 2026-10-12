@@ -10,7 +10,7 @@ import kotlin.test.Test
 internal class VitorTest : TfmSandboxTest() {
   @Test
   internal fun `Funds its starting award for free`() {
-    newTestGame(kimCorporation = Vitor)
+    newTestGame(addOptions = "Vitor", kimCorporation = Vitor)
 
     kim.inTurn {
           doTask("RequiredActionsSignal")
@@ -22,7 +22,7 @@ internal class VitorTest : TfmSandboxTest() {
 
   @Test
   internal fun `In solo play its corporation turn creates no award-funding action`() {
-    newTestGame(playerCount = 1, kimCorporation = Vitor, startAtCorporation = true)
+    newTestGameBeforeCorporationPlay(addOptions = "Vitor", playerCount = 1)
 
     kim.inTurn {
           doTasks(
@@ -30,8 +30,8 @@ internal class VitorTest : TfmSandboxTest() {
               "Vitor FROM CorporationCard",
               "45 MC",
               "3 MC",
-              "-30 MC",
-              "10 ProjectCard<Hand FROM Selecting>",
+              "-15 MC",
+              "5 ProjectCard<Hand FROM Selecting>",
           )
         }
         .expect("0 RequiredAction, 0 Award")
@@ -39,7 +39,7 @@ internal class VitorTest : TfmSandboxTest() {
 
   @Test
   internal fun `Rebates Search for Life before it has earned any victory points`() {
-    newTestGame(kimCorporation = Vitor)
+    newTestGame(addOptions = "Vitor", kimCorporation = Vitor)
     kim.inTurn {
       doTask("RequiredActionsSignal")
       selectOnlyTask()
@@ -59,7 +59,7 @@ internal class VitorTest : TfmSandboxTest() {
 
   @Test
   internal fun `Does not rebate a card without victory points`() {
-    newTestGame(kimCorporation = Vitor)
+    newTestGame(addOptions = "Vitor", kimCorporation = Vitor)
     kim.inTurn {
       doTask("RequiredActionsSignal")
       selectOnlyTask()
@@ -75,7 +75,7 @@ internal class VitorTest : TfmSandboxTest() {
 
   @Test
   internal fun `Does not rebate a card with negative victory points`() {
-    newTestGame(kimCorporation = Vitor)
+    newTestGame(addOptions = "Vitor", kimCorporation = Vitor)
     kim.inTurn {
       doTask("RequiredActionsSignal")
       selectOnlyTask()

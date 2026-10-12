@@ -137,7 +137,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Collects the larger ocean bonus with Lakefront Resorts`() {
-    newTestGame(kimCorporation = LakefrontResorts)
+    newTestGame(addOptions = "LakefrontResorts", kimCorporation = LakefrontResorts)
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_4_6>, OceanTile<Tharsis_4_8>")
 
     kim.inTurn {

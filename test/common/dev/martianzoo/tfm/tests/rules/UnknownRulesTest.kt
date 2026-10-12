@@ -29,7 +29,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   // https://boardgamegeek.com/thread/2874012/article/40859020#40859020
   @Test
   internal fun `Valley Trust Merger Tharsis currently places the city in the first required action`() {
-    newTestGame(addOptions = "PreludeExpansion", kimCorporation = ValleyTrust)
+    newTestGame(addOptions = "PreludeExpansion, ValleyTrust", kimCorporation = ValleyTrust)
     kim.inTurn {
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
       selectTask("4 CorporationCard<Kim, Selecting>!")

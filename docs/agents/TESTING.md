@@ -345,7 +345,10 @@ this: `Agent.inTurn` creates a turn when the acting player has no pending task, 
 is waiting for another player. For example, Stan's action can succeed while Kim's turn is pending.
 Running the automatic workflow therefore does not by itself prove that a test follows turn order.
 
-Both extend the existing `TfmTest` directly and expose the same `newTestGame` arguments.
+Both extend the existing `TfmTest` directly. Both expose
+`newTestGameBeforeCorporationPlay()` for explicit corporation plays; a normal
+`newTestGame(kimCorporation = ...)` plays the corporation during setup. `kimCorporation` never
+changes the game configuration; use `addOptions` to include cards outside the default bundles.
 Each owns its setup; there is no intermediate shared base. Neither is restricted to project cards.
 Their differences should follow from sandbox versus gameplay, not separate setup policies.
 Shared rules get representative coverage using base-game content where possible: for example,
@@ -353,10 +356,14 @@ Shared rules get representative coverage using base-game content where possible:
 corporation with a required first action.
 
 Both normally return at generation 1 Prelude phase when `PreludeExpansion` is selected, otherwise
-Action phase. `startAtCorporation = true` instead returns before any corporation is played;
-the test then makes the corporation plays and their choices explicitly. Do not add corporation-choice
-arguments to the fixture. Select `kimCorporation` to give Kim the normal corporation path (retaining ten starting projects for purchase); other seats use the beginner path.
-Unless `startAtCorporation` is true, the fixture plays all starting corporations before returning.
+Action phase. `newTestGameBeforeCorporationPlay` instead returns before any corporation is played;
+Kim takes the nonbeginner setup path, and the test makes the corporation plays and their choices
+explicitly. Select a card through `addOptions` when it is outside the default bundles, so it can
+appear in Kim's offer. Do not add extra arguments for corporation offers or project purchases.
+Select `kimCorporation` to give Kim the normal corporation path; other seats use the beginner path.
+Both fixtures discard five of Kim's ten offered projects before corporation play. Normal setup
+then purchases the remaining five; explicit corporation-play tests make that purchase themselves.
+The sandbox pays through `-MC / Owed` in normal setup.
 The default game has:
 
 - Tharsis, Venus Next, Colonies, and Promos;
@@ -366,8 +373,8 @@ The default game has:
   20 TR in multiplayer (14 in solo), and production of 1 for each standard resource.
 
 For corporation-named suites, prefer sandbox unless the scenario needs real phase progression.
-Use `kimCorporation` for the subject corporation. When testing its initial play, also pass
-`startAtCorporation = true` and assert the result of playing it explicitly. Tests of an ongoing
+Use `kimCorporation` for the subject corporation. In sandbox tests of its initial play, call
+`newTestGameBeforeCorporationPlay` and assert the result of playing it explicitly. Tests of an ongoing
 effect or action can use the default setup with that corporation already played. Acquiring another
 corporation through Merger instead belongs in the phase where Merger is played.
 
@@ -404,10 +411,14 @@ and visible `exMachina` corrections, then use generic
 `inTurn { doTasks(...) }` calls in place of Terraforming Mars gameplay helpers. Admin retains its
 default policy. `inTurn` supplies the sandbox turn and checks that the complete action leaves no
 pending tasks; payments, card transfers, player effects, and any player-assigned cleanup are explicit.
-The sandbox exposes its players as plain `Agent`s. For corporation scenarios already converted to
-explicit setup, use `startAtCorporation = true` and submit the printed effects and starting-card
-purchase in the test. The fixture still uses `TfmGameplay.playCorp` for older named-corporation
-setups; those scenarios await migration.
+The sandbox exposes its players as plain `Agent`s. For corporation scenarios that exercise the
+initial play, use `newTestGameBeforeCorporationPlay` and submit the printed effects and starting-card
+purchase in the test. For ordinary named-corporation setup, the fixture submits the corporation
+play as an Agent task and runs `doWithAutoExecPolicy(EAGER)` to settle its effects and pay
+`-MC / Owed`. Kim's configured policy remains `NONE` throughout.
+Do not use this normal setup path for Pharmacy Union yet: `-MC / Owed` omits its two 4 MC disease
+losses. Its scenarios play the corporation explicitly and pay the known 15 MC starting-card cost;
+the payment defect is tracked in `TODO.md`.
 In this style, omit `.expect()` assertions that merely repeat the submitted tasks; retain assertions
 for automatic consequences, excluded outcomes, and state after rejected actions. Continue using
 `setToExMachina` for desired absolute counts rather than calculating relative fixture adjustments.

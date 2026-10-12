@@ -8,7 +8,7 @@ import kotlin.test.Test
 internal class MonsInsuranceTest : TfmSandboxTest() {
   @Test
   internal fun `Starting production loss reaches every opponent but not its owner`() {
-    newTestGame(kimCorporation = MonsInsurance, startAtCorporation = true)
+    newTestGameBeforeCorporationPlay()
 
     kim.inTurn {
           doTasks(
@@ -24,14 +24,14 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           stan.selectOnlyTask()
           selectTask("-2 Production<Rob, Class<MC>>! BY Rob")
           rob.selectOnlyTask()
-          doTasks("-30 MC", "10 ProjectCard<Hand FROM Selecting>")
+          doTasks("-15 MC", "5 ProjectCard<Hand FROM Selecting>")
         }
         .expect("PROD[-2 MC<Stan>, -2 MC<Rob>]")
   }
 
   @Test
   internal fun `Starting production loss does not target the solo opponent`() {
-    newTestGame(playerCount = 1, kimCorporation = MonsInsurance, startAtCorporation = true)
+    newTestGameBeforeCorporationPlay(playerCount = 1)
 
     kim.inTurn {
           doTasks(
@@ -43,7 +43,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           doTask(
               "EACH Other@Player(NOT Kim) { -2 Production<Other@Player, Class<MC>>! BY Other@Player }"
           )
-          doTasks("-30 MC", "10 ProjectCard<Hand FROM Selecting>")
+          doTasks("-15 MC", "5 ProjectCard<Hand FROM Selecting>")
         }
         .expect("PROD[0 MC<SoloOpponent>]")
   }

@@ -9,13 +9,8 @@ import kotlin.test.Test
 internal class SagittaFrontierServicesTest : TfmSandboxTest() {
   @Test
   internal fun `Its own tagless corporation play earns the rebate`() {
-    newTestGame(
-        "-promos:cards",
-        kimCorporation = SagittaFrontierServices,
-        startAtCorporation = true,
-    )
+    newTestGameBeforeCorporationPlay(addOptions = "SagittaFrontierServices")
 
-    // 31 starting MC plus the 4 MC rebate, minus the ten retained projects.
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<SagittaFrontierServices>>",
@@ -25,13 +20,13 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
           "PROD[2 MC]",
       )
       selectTask("SearchForCard<Kim, NoTagsFilter>!")
-      doTasks("4 MC", "-30 MC", "10 ProjectCard<Hand FROM Selecting>")
+      doTasks("4 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
   }
 
   @Test
   internal fun `Pays four MC for a tagless project`() {
-    newTestGame("-promos:cards", kimCorporation = SagittaFrontierServices)
+    newTestGame("SagittaFrontierServices", kimCorporation = SagittaFrontierServices)
     kim.setToExMachina(15, "MC")
 
     kim.inTurn {
@@ -49,7 +44,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
   // https://boardgamegeek.com/thread/3154781/do-event-tags-count-for-sagitta
   @Test
   internal fun `An event with no other tags earns the single-tag rebate`() {
-    newTestGame("-promos:cards", kimCorporation = SagittaFrontierServices)
+    newTestGame("SagittaFrontierServices", kimCorporation = SagittaFrontierServices)
 
     kim.inTurn {
           doTasks(
@@ -65,7 +60,10 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
 
   @Test
   internal fun `An event with another printed tag earns no rebate`() {
-    newTestGame("-promos:cards, SmallAsteroid", kimCorporation = SagittaFrontierServices)
+    newTestGame(
+        "SmallAsteroid, SagittaFrontierServices",
+        kimCorporation = SagittaFrontierServices,
+    )
     kim.setToExMachina(10, "MC")
 
     kim.inTurn {
@@ -80,7 +78,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
 
   @Test
   internal fun `A single building tag earns the single-tag rebate`() {
-    newTestGame("-promos:cards", kimCorporation = SagittaFrontierServices)
+    newTestGame("SagittaFrontierServices", kimCorporation = SagittaFrontierServices)
 
     kim.inTurn {
       doTasks("PlayProject<Class<Mine>>", "-4 MC")
@@ -91,7 +89,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
 
   @Test
   internal fun `Repeated tags still count separately for the rebate threshold`() {
-    newTestGame("-promos:cards", kimCorporation = SagittaFrontierServices)
+    newTestGame("SagittaFrontierServices", kimCorporation = SagittaFrontierServices)
     kim.setToExMachina(11, "MC")
 
     kim.inTurn {
@@ -102,7 +100,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
 
   @Test
   internal fun `Ignores another players card even when it has a single tag`() {
-    newTestGame("-promos:cards", kimCorporation = SagittaFrontierServices)
+    newTestGame("SagittaFrontierServices", kimCorporation = SagittaFrontierServices)
 
     stan
         .inTurn {

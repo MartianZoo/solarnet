@@ -197,7 +197,7 @@ internal class DoubleDownTest : TfmSandboxTest() {
 
   @Test
   internal fun `Repeats the benefit without adding tags or triggering Point Luna`() {
-    newTestGame("PreludeExpansion", kimCorporation = PointLuna)
+    newTestGame("PreludeExpansion, PointLuna", kimCorporation = PointLuna)
     kim.inTurn {
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<AlliedBank>>",

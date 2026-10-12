@@ -9,7 +9,7 @@ import kotlin.test.Test
 internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
   @Test
   internal fun `Can choose money for its own microbe tag`() {
-    newTestGame(kimCorporation = SpliceTacticalGenomics, startAtCorporation = true)
+    newTestGameBeforeCorporationPlay()
 
     kim.inTurn {
       doTasks(
@@ -19,13 +19,13 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
       )
       selectTask("SpliceTacticalGenomics_RequiredAction!")
       selectTask("2 MC!")
-      doTasks("2 MC", "-30 MC", "10 ProjectCard<Hand FROM Selecting>")
+      doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
   }
 
   @Test
   internal fun `Another player's microbe tag can pay both players`() {
-    newTestGame(kimCorporation = SpliceTacticalGenomics, startAtCorporation = true)
+    newTestGameBeforeCorporationPlay()
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<SpliceTacticalGenomics>>",
@@ -34,7 +34,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
       )
       selectTask("SpliceTacticalGenomics_RequiredAction!")
       selectTask("2 MC!")
-      doTasks("2 MC", "-30 MC", "10 ProjectCard<Hand FROM Selecting>")
+      doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
     stan.exMachina("3 OxygenStep")
@@ -54,7 +54,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
 
   @Test
   internal fun `The other player can take a microbe instead of money`() {
-    newTestGame(kimCorporation = SpliceTacticalGenomics, startAtCorporation = true)
+    newTestGameBeforeCorporationPlay()
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<SpliceTacticalGenomics>>",
@@ -63,7 +63,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
       )
       selectTask("SpliceTacticalGenomics_RequiredAction!")
       selectTask("2 MC!")
-      doTasks("2 MC", "-30 MC", "10 ProjectCard<Hand FROM Selecting>")
+      doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
     stan.exMachina("3 OxygenStep")
@@ -83,7 +83,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
 
   @Test
   internal fun `The microbe must go on the card just played`() {
-    newTestGame(kimCorporation = SpliceTacticalGenomics, startAtCorporation = true)
+    newTestGameBeforeCorporationPlay()
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<SpliceTacticalGenomics>>",
@@ -92,7 +92,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
       )
       selectTask("SpliceTacticalGenomics_RequiredAction!")
       selectTask("2 MC!")
-      doTasks("2 MC", "-30 MC", "10 ProjectCard<Hand FROM Selecting>")
+      doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
     stan.exMachina("3 OxygenStep, $RegolithEaters")
@@ -114,7 +114,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Can forgo money even when the played card cannot hold microbes`() {
-    newTestGame(kimCorporation = SpliceTacticalGenomics, startAtCorporation = true)
+    newTestGameBeforeCorporationPlay()
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<SpliceTacticalGenomics>>",
@@ -123,7 +123,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
       )
       selectTask("SpliceTacticalGenomics_RequiredAction!")
       selectTask("2 MC!")
-      doTasks("2 MC", "-30 MC", "10 ProjectCard<Hand FROM Selecting>")
+      doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
     stan.setToExMachina(12, "MC")

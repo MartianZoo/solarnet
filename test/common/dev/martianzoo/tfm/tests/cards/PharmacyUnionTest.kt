@@ -8,7 +8,7 @@ import kotlin.test.Test
 internal class PharmacyUnionTest : TfmSandboxTest() {
   @BeforeTest
   fun initializeGame() {
-    newTestGame(kimCorporation = PharmacyUnion, startAtCorporation = true)
+    newTestGameBeforeCorporationPlay()
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>",
@@ -20,8 +20,8 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
       doTasks(
           "Disease<PharmacyUnion>",
           "Disease<PharmacyUnion>",
-          "-30 MC",
-          "10 ProjectCard<Hand FROM Selecting>",
+          "-15 MC",
+          "5 ProjectCard<Hand FROM Selecting>",
       )
     }
     advanceUntilActionPhase()
@@ -30,7 +30,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
   // Resolved FAQ: starting money must precede the losses from the two microbe tags.
   @Test
   internal fun `Starting cash covers both disease losses as well as the starting projects`() {
-    newTestGame(kimCorporation = PharmacyUnion, startAtCorporation = true)
+    newTestGameBeforeCorporationPlay()
 
     kim.inTurn {
           doTasks(
@@ -43,11 +43,11 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
           doTasks(
               "Disease<PharmacyUnion>",
               "Disease<PharmacyUnion>",
-              "-30 MC",
-              "10 ProjectCard<Hand FROM Selecting>",
+              "-15 MC",
+              "5 ProjectCard<Hand FROM Selecting>",
           )
         }
-        .expect("16 MC, 11 ProjectCard, 0 RequiredAction")
+        .expect("31 MC, 6 ProjectCard, 0 RequiredAction")
   }
 
   @Test

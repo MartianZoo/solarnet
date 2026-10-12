@@ -35,7 +35,10 @@ internal class HeadStartTest : TfmSandboxTest() {
 
   @Test
   internal fun `Head Start must use its first granted action to perform a required action`() {
-    newTestGame(addOptions = "PreludeExpansion, FakeStuffBundle", kimCorporation = ValleyTrust)
+    newTestGame(
+        addOptions = "PreludeExpansion, FakeStuffBundle, ValleyTrust",
+        kimCorporation = ValleyTrust,
+    )
 
     kim.inTurn {
       doTasks(

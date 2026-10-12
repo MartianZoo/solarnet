@@ -9,7 +9,7 @@ import kotlin.test.Test
 internal class SpireTest : TfmSandboxTest() {
   @Test
   internal fun `Counts event tags toward its two-tag threshold`() {
-    newTestGame(kimCorporation = Spire)
+    newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectOnlyTask()
@@ -42,7 +42,7 @@ internal class SpireTest : TfmSandboxTest() {
 
   @Test
   internal fun `Repeated science tags earn a single resource`() {
-    newTestGame(kimCorporation = Spire)
+    newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectOnlyTask()
@@ -60,7 +60,7 @@ internal class SpireTest : TfmSandboxTest() {
 
   @Test
   internal fun `Science pays two MC toward a standard project`() {
-    newTestGame(kimCorporation = Spire)
+    newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectOnlyTask()
@@ -81,7 +81,7 @@ internal class SpireTest : TfmSandboxTest() {
 
   @Test
   internal fun `Science cannot pay for project cards`() {
-    newTestGame(kimCorporation = Spire)
+    newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectOnlyTask()
@@ -99,7 +99,7 @@ internal class SpireTest : TfmSandboxTest() {
 
   @Test
   internal fun `Selling patents does not offer science for the following project payment`() {
-    newTestGame(kimCorporation = Spire)
+    newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectOnlyTask()

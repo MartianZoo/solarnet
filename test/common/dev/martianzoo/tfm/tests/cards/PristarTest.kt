@@ -9,7 +9,7 @@ import kotlin.test.Test
 internal class PristarTest : TfmGameplayTest() {
   @Test
   internal fun `Pays its production bonus when TR did not increase`() {
-    newTestGame(playerCount = 2, kimCorporation = Pristar)
+    newTestGame(addOptions = "Pristar", playerCount = 2, kimCorporation = Pristar)
     kim.pass()
     val money = kim.count("MC")
     val income = kim.count("TerraformRating") + kim.production(cn("MC")) + 6
@@ -23,7 +23,7 @@ internal class PristarTest : TfmGameplayTest() {
 
   @Test
   internal fun `An opponent's TR increase does not suppress the production bonus`() {
-    newTestGame(playerCount = 2, kimCorporation = Pristar)
+    newTestGame(addOptions = "Pristar", playerCount = 2, kimCorporation = Pristar)
     kim.pass()
     stan.stdProject("AsteroidProject")
 
@@ -35,7 +35,7 @@ internal class PristarTest : TfmGameplayTest() {
 
   @Test
   internal fun `Does not pay its production bonus after a TR increase`() {
-    newTestGame(playerCount = 2, kimCorporation = Pristar)
+    newTestGame(addOptions = "Pristar", playerCount = 2, kimCorporation = Pristar)
     kim.turn { stdProject("AsteroidProject") }
     stan.pass()
 

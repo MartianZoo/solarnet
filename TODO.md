@@ -38,7 +38,9 @@ These concerns remain open; the ranking does not select replacement designs.
 2. **Payment validation differs between execution paths.** The gameplay helper rejects paying
    11 M€ for the 10 M€ Olympus Conference, while the REPL accepts and spends all 11. Separately,
    the payer's own resource loss for another purpose can settle an open bill. Make validation
-   consistent and tie settlement to the intended payment; see [payments](docs/agents/PAYMENTS.md).
+   consistent and tie settlement to the intended payment. In `PharmacyUnionTest`, paying the
+   starting-card bill via `-MC / Owed` omits both 4 MC disease penalties, while `-15 MC` preserves
+   them; investigate whether these share a cause. See [payments](docs/agents/PAYMENTS.md).
 3. **Kotlin orchestration owns game-flow rules that belong in Pets.** Phase order, expansion
    participation, and turn progression remain in Kotlin. Callback failure guarantees also need
    attention: a completion callback can throw after a successful mutation. Actual coroutine/Admin
@@ -140,10 +142,10 @@ These concerns remain open; the ranking does not select replacement designs.
   currently creates a turn whenever the acting player has no pending task, even while another
   player's turn is pending. Preserve authentic gameplay without adding a second test-side game
   driver; discuss the effect on sandbox and legacy callers before changing the shared helpers.
-- [ ] Finish moving named-corporation setup in `.cards` sandbox and workflow tests to explicit
-  `Agent` tasks. The sandbox still calls `TfmGameplay.playCorp` for older named-corporation
-  scenarios; workflow tests still expose `TfmGameplay` players. Keep player autoexecution at `NONE`
-  and Admin eager. Do not add a replacement corporation helper that hides the choices.
+- [ ] Finish moving `.cards` workflow tests to explicit `Agent` tasks; those tests still expose
+  `TfmGameplay` players. Sandbox setup now plays ordinary named corporations through Agent tasks
+  and uses a scoped `EAGER` override to finish their setup; Kim's configured policy stays `NONE`,
+  while Admin remains eager. Preserve explicit corporation plays for scenarios that test their choices.
 - Distinguish counting Venus tags from carrying a Venus tag in card availability. Io Sulphur
   Research should work without Venus Next because it merely counts Venus tags, but the catalog
   currently rejects it. Cards that carry Venus tags, such as Corroder Suits and Dirigibles, must

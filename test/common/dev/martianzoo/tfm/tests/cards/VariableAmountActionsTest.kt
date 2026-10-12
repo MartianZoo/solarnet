@@ -5,7 +5,6 @@ import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.EnergyMarket
-import dev.martianzoo.tfm.tests.cards.cardnames.FakeHelion
 import dev.martianzoo.tfm.tests.cards.cardnames.HiTechLab
 import dev.martianzoo.tfm.tests.cards.cardnames.PowerInfrastructure
 import dev.martianzoo.tfm.tests.cards.cardnames.TychoMagnetics
@@ -45,7 +44,19 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Energy Market accepts Heat instead of MC for FakeHelion`() {
-    newTestGame(addOptions = "FakeStuffBundle", kimCorporation = FakeHelion)
+    // Its starting purchase offers Heat payment, which this test declines explicitly.
+    newTestGameBeforeCorporationPlay(addOptions = "FakeStuffBundle")
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<FakeHelion>>",
+          "FakeHelion FROM CorporationCard",
+          "42 MC",
+          "PROD[3 Heat]",
+      )
+      selectTask("-X Heat?")
+      doTasks("Ok", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
+    }
+    advanceUntilActionPhase()
     kim.exMachina("$EnergyMarket")
     kim.setToExMachina(6, "Heat")
     kim.setToExMachina(0, "MC")

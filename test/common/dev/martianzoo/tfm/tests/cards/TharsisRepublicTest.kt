@@ -7,7 +7,7 @@ import kotlin.test.Test
 internal class TharsisRepublicTest : TfmSandboxTest() {
   @Test
   internal fun `Original solo corporation gains production for the two opponent cities`() {
-    newTestGame(playerCount = 1, kimCorporation = TharsisRepublic, startAtCorporation = true)
+    newTestGameBeforeCorporationPlay(playerCount = 1)
 
     kim.inTurn {
       doTasks(
@@ -16,7 +16,7 @@ internal class TharsisRepublicTest : TfmSandboxTest() {
           "40 MC",
       )
       selectTask("TharsisRepublic_RequiredAction!")
-      doTasks("PROD[2 MC]", "-30 MC", "10 ProjectCard<Hand FROM Selecting>")
+      doTasks("PROD[2 MC]", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
   }
 

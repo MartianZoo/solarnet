@@ -27,7 +27,7 @@ internal class HellasMapTest : TfmSandboxTest() {
 
   @Test
   internal fun `Ocean income from the south pole bonus can fund its payment`() {
-    newTestGame(addOptions = "HellasMap", kimCorporation = LakefrontResorts)
+    newTestGame(addOptions = "HellasMap, LakefrontResorts", kimCorporation = LakefrontResorts)
     kim.exMachina("OceanTile<Hellas_4_7>, OceanTile<Hellas_5_6>")
     kim.setToExMachina(0, "MC")
     kim.setToExMachina(8, "Plant")

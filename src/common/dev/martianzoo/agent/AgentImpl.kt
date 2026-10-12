@@ -259,16 +259,24 @@ internal class AgentImpl(
     }
 
     override fun autoExecNow(policy: AutoExecPolicy) {
-      withAutoExecPolicy(policy) { autoExecLoop.run() }
+      withAutoExecPolicyOverride(policy) { autoExecLoop.run() }
+    }
+
+    override fun doWithAutoExecPolicy(policy: AutoExecPolicy, body: OperationBlock) {
+      withAutoExecPolicyOverride(policy) {
+        autoExecLoop.run()
+        body(this@Adapter)
+        autoExecLoop.run()
+      }
     }
   }
 
   override fun autoExecNow() = atomic {}
 
   override fun autoExecNow(policy: AutoExecPolicy): TaskResult =
-      withAutoExecPolicy(policy) { atomic {} }
+      withAutoExecPolicyOverride(policy) { atomic {} }
 
-  private inline fun <T> withAutoExecPolicy(policy: AutoExecPolicy, block: () -> T): T {
+  private inline fun <T> withAutoExecPolicyOverride(policy: AutoExecPolicy, block: () -> T): T {
     autoExecPolicyOverrides.add(policy)
     return try {
       block()

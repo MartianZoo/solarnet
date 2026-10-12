@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.exMachina
 import dev.martianzoo.catalog.GameConfig
@@ -31,17 +32,29 @@ internal abstract class TfmSandboxTest : TfmTest() {
       addOptions: String = "",
       playerCount: Int = 3,
       kimCorporation: ClassName? = null,
-      startAtCorporation: Boolean = false,
+  ) = prepareTestGame(addOptions, playerCount, kimCorporation, playCorporations = true)
+
+  /** Prepares Kim to choose and play a corporation explicitly. */
+  protected fun newTestGameBeforeCorporationPlay(
+      addOptions: String = "",
+      playerCount: Int = 3,
+  ) = prepareTestGame(addOptions, playerCount, null, playCorporations = false)
+
+  private fun prepareTestGame(
+      addOptions: String,
+      playerCount: Int,
+      kimCorporation: ClassName?,
+      playCorporations: Boolean,
   ) {
-    val key = Triple(addOptions, playerCount, kimCorporation) to startAtCorporation
+    val key = Triple(addOptions, playerCount, kimCorporation) to playCorporations
     val prepared =
         preparedWorlds.getOrPut(key) {
-          createWorld(addOptions, playerCount, kimCorporation)
+          createWorld(addOptions, playerCount)
           val workflow = TfmWorkflow.Stepwise(agents)
           workflow.setupPhase()
-          chooseStartingCards(kimCorporation)
+          chooseStartingCards(kimCorporation, playCorporations)
           workflow.corporationPhase()
-          if (!startAtCorporation) {
+          if (playCorporations) {
             playStartingCorporations(kimCorporation)
             if (admin.count("PreludeExpansion") > 0) workflow.preludePhase()
             else workflow.actionPhase()
@@ -118,15 +131,11 @@ internal abstract class TfmSandboxTest : TfmTest() {
     agents.exMachina(actor, adjustment)
   }
 
-  private fun createWorld(addOptions: String, playerCount: Int, kimCorporation: ClassName?) {
+  private fun createWorld(addOptions: String, playerCount: Int) {
     require(playerCount in 1..PLAYER_NAMES.size) {
       "The fixture supports one to ${PLAYER_NAMES.size} players: $playerCount"
     }
-    val options =
-        GameConfig(
-            listOf(addOptions, kimCorporation?.toString().orEmpty()).joinToString(),
-            *PLAYER_NAMES.take(playerCount).toTypedArray(),
-        )
+    val options = GameConfig(addOptions, *PLAYER_NAMES.take(playerCount).toTypedArray())
     val defaults = GameConfig(BASE_GAME_OPTIONS)
     val config =
         options.copy(
@@ -146,19 +155,20 @@ internal abstract class TfmSandboxTest : TfmTest() {
     players = game.actors.filterIsInstance<Player>().map { agents[it] }
   }
 
-  private fun chooseStartingCards(kimCorporation: ClassName?) {
+  private fun chooseStartingCards(kimCorporation: ClassName?, playCorporations: Boolean) {
     players.forEachIndexed { index, player ->
       player.selectTask("BeginnerMode OR NonBeginnerMode")
       player.narrowTask(
-          if (index == 0 && kimCorporation != null) "NonBeginnerMode" else "BeginnerMode"
+          if (index == 0 && (kimCorporation != null || !playCorporations)) "NonBeginnerMode"
+          else "BeginnerMode"
       )
       player.doTask(if (players.size == 1) "14 TerraformRating" else "20 TerraformRating")
-      if (index == 0 && kimCorporation != null) {
+      if (index == 0 && (kimCorporation != null || !playCorporations)) {
         player.doTasks(
             "2 CorporationCard",
             "-CorporationCard",
             "10 ProjectCard<Selecting>",
-            "Ok",
+            "-5 ProjectCard<Selecting>",
         )
       } else {
         player.doTask("BeginnerCard")
@@ -189,7 +199,10 @@ internal abstract class TfmSandboxTest : TfmTest() {
   private fun playStartingCorporations(kimCorporation: ClassName?) {
     players.forEachIndexed { index, player ->
       if (index == 0 && kimCorporation != null) {
-        game.testTfm(player.actor).playCorp(kimCorporation)
+        player.inTurn {
+          doTask("PlayCard<Class<CorporationCard>, Class<$kimCorporation>>")
+          doWithAutoExecPolicy(EAGER) { doTask("-MC / Owed") }
+        }
       } else {
         player.inTurn {
           doTasks(
