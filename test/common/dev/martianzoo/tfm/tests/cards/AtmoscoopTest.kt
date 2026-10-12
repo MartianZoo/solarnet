@@ -16,12 +16,12 @@ internal class AtmoscoopTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<Atmoscoop>>", "-22 MC")
-          selectTask("-X Titanium?")
+          selectTask("-X? Titanium")
           doTasks("Ok", "Atmoscoop FROM ProjectCard")
-          selectTask("2 Floater.")
+          selectTask("2* Floater")
           doTask("2 VenusStep")
-          selectTask("VenusStep.")
-          selectTask("VenusStep.")
+          selectTask("VenusStep*")
+          selectTask("VenusStep*")
         }
         .expect("0 TemperatureStep, 0 VenusStep")
   }

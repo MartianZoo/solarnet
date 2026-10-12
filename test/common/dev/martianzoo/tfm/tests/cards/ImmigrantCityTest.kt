@@ -17,7 +17,7 @@ internal class ImmigrantCityTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<ImmigrantCity>>", "-13 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks(
           "Ok",
           "ImmigrantCity FROM ProjectCard",

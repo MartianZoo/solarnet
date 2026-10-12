@@ -53,7 +53,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
         .playCorp(MonsInsurance) {
           yellow.selectTask(
               "EACH Other@Player(NOT Yellow) { " +
-                  "-2 Production<Other@Player, Class<MC>>! BY Other@Player }"
+                  "-2! Production<Other@Player, Class<MC>> BY Other@Player }"
           )
           autoExecNow()
         }

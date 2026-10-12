@@ -14,7 +14,7 @@ internal class TitanShuttlesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("UseCardAction<TitanShuttles, Action2>")
-          selectTask("-X Floater<TitanShuttles>! THEN X Titanium!")
+          selectTask("-X! Floater<TitanShuttles> THEN X! Titanium")
           doTasks("-5 Floater THEN 5 Titanium", "5 Titanium")
         }
         .expect("-5 Floater<$TitanShuttles>, 5 Titanium")
@@ -27,7 +27,7 @@ internal class TitanShuttlesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("UseCardAction<TitanShuttles, Action2>")
-          selectTask("-X Floater<TitanShuttles>! THEN X Titanium!")
+          selectTask("-X! Floater<TitanShuttles> THEN X! Titanium")
           doTasks("-5 Floater THEN 5 Titanium", "5 Titanium")
         }
         .expect("-5 Floater<$TitanShuttles>, 5 Titanium")
@@ -42,7 +42,7 @@ internal class TitanShuttlesTest : TfmSandboxTest() {
       kim.inTurn {
         selectTask("StandardAction OR Pass")
         doTask("UseCardAction<TitanShuttles, Action2>")
-        selectTask("-X Floater<TitanShuttles>! THEN X Titanium!")
+        selectTask("-X! Floater<TitanShuttles> THEN X! Titanium")
         doTask("-4 Floater THEN 5 Titanium")
       }
     }

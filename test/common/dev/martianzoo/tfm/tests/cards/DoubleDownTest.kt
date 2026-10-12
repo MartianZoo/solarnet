@@ -58,7 +58,7 @@ internal class DoubleDownTest : TfmSandboxTest() {
           "EarlyColonization FROM PreludeCard",
           "3 Energy",
       )
-      selectTask("EACH @ColonyTile { 2 ColonyProduction<@ColonyTile>! }")
+      selectTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
       doTasks("Colony<Luna>", "PROD[2 MC]")
     }
 
@@ -66,7 +66,7 @@ internal class DoubleDownTest : TfmSandboxTest() {
           doTasks("PlayCard<Class<PreludeCard>, Class<DoubleDown>>", "DoubleDown FROM PreludeCard")
           selectOnlyTask()
           doTasks("CopyPrelude<EarlyColonization>", "3 Energy")
-          selectTask("EACH @ColonyTile { 2 ColonyProduction<@ColonyTile>! }")
+          selectTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
           doTasks("Colony<Ceres>", "PROD[Steel]")
         }
         .expect("2 ColonyProduction<Luna>, 2 ColonyProduction<Ceres>")
@@ -170,12 +170,12 @@ internal class DoubleDownTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-        selectTask("4 CorporationCard<Kim, Selecting>!")
-        selectTask("-3 CorporationCard<Kim, Selecting>!")
+        selectTask("4! CorporationCard<Kim, Selecting>")
+        selectTask("-3! CorporationCard<Kim, Selecting>")
         selectTask("PlayCard<Kim, Class<CorporationCard>, Class<CardFront>, Selecting>!")
         doTask("PlayCard<Class<CorporationCard>, Class<NirgalEnterprises>>")
         selectTask("MAX 0 Barrier: NirgalEnterprises FROM CorporationCard<Kim, Selecting>!")
-        selectTask("30 MC!")
+        selectTask("30! MC")
         selectTask("PROD[Energy]")
         selectTask("PROD[Plant]")
         selectTask("PROD[Steel]")

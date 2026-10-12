@@ -18,7 +18,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           "44 MC",
       )
       selectTask("SpliceTacticalGenomics_RequiredAction!")
-      selectTask("2 MC!")
+      selectTask("2! MC")
       doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
   }
@@ -33,7 +33,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           "44 MC",
       )
       selectTask("SpliceTacticalGenomics_RequiredAction!")
-      selectTask("2 MC!")
+      selectTask("2! MC")
       doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
@@ -44,9 +44,9 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("PlayProject<Class<Decomposers>>", "-5 MC", "Decomposers FROM ProjectCard")
-          selectTask("Microbe<Decomposers>.")
-          selectTask("2 MC<Kim>!")
-          kim.selectTask("2 MC!")
+          selectTask("Microbe<Decomposers>*")
+          selectTask("2! MC<Kim>")
+          kim.selectTask("2! MC")
           doTask("2 MC")
         }
         .expect("-3 MC<Stan>, Microbe<$Decomposers<Stan>>")
@@ -62,7 +62,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           "44 MC",
       )
       selectTask("SpliceTacticalGenomics_RequiredAction!")
-      selectTask("2 MC!")
+      selectTask("2! MC")
       doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
@@ -73,9 +73,9 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("PlayProject<Class<Decomposers>>", "-5 MC", "Decomposers FROM ProjectCard")
-          selectTask("Microbe<Decomposers>.")
-          selectTask("2 MC<Kim>!")
-          kim.selectTask("2 MC!")
+          selectTask("Microbe<Decomposers>*")
+          selectTask("2! MC<Kim>")
+          kim.selectTask("2! MC")
           doTask("Microbe<Decomposers>!")
         }
         .expect("-5 MC<Stan>, 2 Microbe<$Decomposers<Stan>>")
@@ -91,7 +91,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           "44 MC",
       )
       selectTask("SpliceTacticalGenomics_RequiredAction!")
-      selectTask("2 MC!")
+      selectTask("2! MC")
       doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
@@ -102,7 +102,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("PlayProject<Class<Decomposers>>", "-5 MC", "Decomposers FROM ProjectCard")
-          selectTask("Microbe<Decomposers>.")
+          selectTask("Microbe<Decomposers>*")
           selectTask("2 MC<Kim>")
           kim.doTask("2 MC")
           selectOnlyTask()
@@ -122,7 +122,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           "44 MC",
       )
       selectTask("SpliceTacticalGenomics_RequiredAction!")
-      selectTask("2 MC!")
+      selectTask("2! MC")
       doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
@@ -132,10 +132,10 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
-          selectTask("-X Steel?")
+          selectTask("-X? Steel")
           doTasks("Ok", "IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
-          selectTask("2 MC<Kim>!")
-          kim.selectTask("2 MC!")
+          selectTask("2! MC<Kim>")
+          kim.selectTask("2! MC")
           selectOnlyTask()
           doTask("Ok")
         }

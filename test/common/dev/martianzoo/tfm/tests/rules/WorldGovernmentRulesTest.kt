@@ -15,7 +15,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     kim.exMachina("$WorldGovernmentAdvisor, 14 VenusStep")
     kim.inTurn {
       doTasks("UseStandardProject<AirScrappingProject>", "-15 MC")
-      selectTask("VenusStep.")
+      selectTask("VenusStep*")
       doTask("TerraformRating")
     }
 
@@ -38,9 +38,9 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("UseStandardProject<AirScrappingProject>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-15 MC")
-        selectTask("VenusStep.")
+        selectTask("VenusStep*")
         selectTask("TerraformRating!")
         selectTask("Colony<Kim, ColonyTile(HAS MAX 0 Colony)>!")
         doTask("Colony<Luna>")
@@ -107,17 +107,17 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     kim.setToExMachina(100, "MC")
     kim.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTask("TerraformRating")
     }
     kim.inTurn {
       doTasks("UseStandardProject<AirScrappingProject>", "-15 MC")
-      selectTask("VenusStep.")
+      selectTask("VenusStep*")
       doTask("TerraformRating")
     }
     kim.inTurn {
       doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_3_3>")
-      selectTask("OxygenStep.")
+      selectTask("OxygenStep*")
       doTasks("2 MC", "2 MC", "TerraformRating")
     }
     kim.inTurn {

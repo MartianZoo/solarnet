@@ -12,7 +12,7 @@ internal class InterplanetaryTradeTest : TfmSandboxTest() {
     kim.setToExMachina(43, "MC")
     kim.inTurn {
       doTasks("PlayProject<Class<ImportedHydrogen>>", "-16 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks(
           "Ok",
           "ImportedHydrogen FROM ProjectCard",
@@ -25,7 +25,7 @@ internal class InterplanetaryTradeTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<InterplanetaryTrade>>", "-27 MC")
-          selectTask("-X Titanium?")
+          selectTask("-X? Titanium")
           doTasks("Ok", "InterplanetaryTrade FROM ProjectCard")
           selectOnlyTask()
         }

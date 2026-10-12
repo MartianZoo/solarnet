@@ -809,7 +809,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "-3 Steel",
           "-1 MC",
           "$OlympusConference FROM ProjectCard",
-          "Science<$OlympusConference>. OR ProjectCard FROM Science<$OlympusConference>",
+          "Science<$OlympusConference>* OR ProjectCard FROM Science<$OlympusConference>",
       )
 
       doTasks(
@@ -1250,7 +1250,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "TemperatureStep",
           "2 TerraformRating",
       )
-      selectTask("2 Plant<Player2>!")
+      selectTask("2! Plant<Player2>")
       p2.doTasks("2 Plant")
 
       doTasks(

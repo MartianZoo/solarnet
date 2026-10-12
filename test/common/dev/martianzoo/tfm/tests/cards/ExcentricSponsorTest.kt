@@ -20,11 +20,11 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
                 "ExcentricSponsor FROM PreludeCard",
                 "PlayCard<Class<ProjectCard>, Class<NitrogenRichAsteroid>>",
             )
-            selectTask("-25 Owed.")
+            selectTask("-25* Owed")
             doTask("-6 MC")
-            selectTask("-X Titanium?")
+            selectTask("-X? Titanium")
             doTasks("Ok", "NitrogenRichAsteroid FROM ProjectCard", "2 TerraformRating")
-            selectTask("TemperatureStep.")
+            selectTask("TemperatureStep*")
             selectTask("PROD[Plant] OR (3 PlantTag: PROD[4 Plant])")
             doTask("TerraformRating")
           }
@@ -41,13 +41,13 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
             "ExcentricSponsor FROM PreludeCard",
             "PlayCard<Class<ProjectCard>, Class<GhgImportFromVenus>>",
         )
-        selectTask("-25 Owed.")
+        selectTask("-25* Owed")
         doTask("GhgImportFromVenus FROM ProjectCard")
-        selectTask("VenusStep.")
+        selectTask("VenusStep*")
         doTasks("PROD[3 Heat]", "TerraformRating")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("Ok")
-        selectTask("-X Titanium?")
+        selectTask("-X? Titanium")
         doTask("Ok")
       }
     }
@@ -64,9 +64,9 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
             "ExcentricSponsor FROM PreludeCard",
             "PlayCard<Class<ProjectCard>, Class<DustSeals>>",
         )
-        selectTask("-25 Owed.")
+        selectTask("-25* Owed")
         doTask("DustSeals FROM ProjectCard")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("Ok")
       }
       inTurn {
@@ -76,11 +76,11 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
             )
             selectOnlyTask()
             doTasks("CopyPrelude<ExcentricSponsor>", "PlayCard<Class<ProjectCard>, Class<Mine>>")
-            selectTask("-25 Owed.")
+            selectTask("-25* Owed")
             doTasks("Mine FROM ProjectCard", "PROD[Steel]")
-            selectTask("-X MC?")
+            selectTask("-X? MC")
             doTask("Ok")
-            selectTask("-X Steel?")
+            selectTask("-X? Steel")
             doTask("Ok")
           }
           .expect("$Mine, PROD[Steel], 0 MC")

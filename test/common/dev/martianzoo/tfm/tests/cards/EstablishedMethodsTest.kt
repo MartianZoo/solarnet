@@ -49,13 +49,13 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
             "PlayCard<Class<PreludeCard>, Class<EstablishedMethods>>",
             "EstablishedMethods FROM PreludeCard",
         )
-        selectTask("30 MC!")
+        selectTask("30! MC")
         doTasks("UseAction<CityProject, Action1>", "-25 MC")
         selectTask("PROD[MC]")
         doTask("CityTile<Tharsis_3_3>")
         selectTask("UseAction<Kim, StandardProject(HAS cost)>!")
         doTask("UseAction<PowerPlantProject, Action1>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-11 MC")
       }
     }

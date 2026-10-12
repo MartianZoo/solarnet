@@ -12,7 +12,7 @@ internal class CommercialDistrictTest : TfmSandboxTest() {
     kim.exMachina("NormalCityTile<Kim, Tharsis_3_2>")
     kim.inTurn {
       doTasks("PlayProject<Class<CommercialDistrict>>", "-16 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks(
           "Ok",
           "CommercialDistrict FROM ProjectCard",

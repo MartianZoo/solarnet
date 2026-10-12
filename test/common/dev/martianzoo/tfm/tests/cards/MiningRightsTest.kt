@@ -29,7 +29,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
     newTestGame(addOptions = "AmazonisMap, Unsafe")
     return kim.inTurn {
       doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks("Ok", "MiningRights FROM ProjectCard", "MiningRights_SpecialTile<Amazonis_05_03>")
       selectTask("StandardResource!")
       doTask("Steel")
@@ -45,7 +45,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks(
           "Ok",
           "MiningRights FROM ProjectCard",
@@ -74,7 +74,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
-        selectTask("-X Steel?")
+        selectTask("-X? Steel")
         selectTask("Ok")
         doTask("MiningRights FROM ProjectCard")
         selectOnlyTask()
@@ -90,7 +90,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks(
           "Ok",
           "MiningRights FROM ProjectCard",

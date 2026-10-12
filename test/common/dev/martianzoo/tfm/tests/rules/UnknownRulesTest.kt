@@ -32,8 +32,8 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "PreludeExpansion, ValleyTrust", kimCorporation = ValleyTrust)
     kim.inTurn {
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      selectTask("4 CorporationCard<Kim, Selecting>!")
-      selectTask("-3 CorporationCard<Kim, Selecting>!")
+      selectTask("4! CorporationCard<Kim, Selecting>")
+      selectTask("-3! CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
       selectTask("MAX 0 Barrier: TharsisRepublic FROM CorporationCard<Kim, Selecting>!")
       doTasks("40 MC", "-42 MC")
@@ -43,8 +43,8 @@ internal class UnknownRulesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectTask("3 PreludeCard<Kim, Selecting>!")
-      selectTask("-2 PreludeCard<Kim, Selecting>!")
+      selectTask("3! PreludeCard<Kim, Selecting>")
+      selectTask("-2! PreludeCard<Kim, Selecting>")
       doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
       selectTask("MAX 0 Barrier: Donation FROM PreludeCard<Kim, Selecting>!")
       doTasks("21 MC", "CityTile<Tharsis_3_3>", "PROD[MC]", "3 MC")
@@ -67,15 +67,15 @@ internal class UnknownRulesTest : TfmSandboxTest() {
           "FakeHeadStart FROM PreludeCard",
           "2 Steel",
       )
-      selectTask("2 MC! / ProjectCard<Kim, Hand>")
+      selectTask("2! MC / ProjectCard<Kim, Hand>")
       doTask("UseCardAction<BoardOfDirectors, Action1>")
       selectTask("PreludeCard<Kim, Hand>!")
       doTask("-12 MC")
       selectTask("-Director<BoardOfDirectors>!")
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      selectTask("4 CorporationCard<Kim, Selecting>!")
+      selectTask("4! CorporationCard<Kim, Selecting>")
       doTask("-42 MC")
-      selectTask("-3 CorporationCard<Kim, Selecting>!")
+      selectTask("-3! CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
       selectTask("MAX 0 Barrier: TharsisRepublic FROM CorporationCard<Kim, Selecting>!")
       doTask("40 MC")
@@ -116,9 +116,9 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "PreludeExpansion, Luna, Ceres, Triton, Ganymede, Callisto")
     kim.inTurn {
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      selectTask("4 CorporationCard<Kim, Selecting>!")
+      selectTask("4! CorporationCard<Kim, Selecting>")
       doTask("-42 MC")
-      selectTask("-3 CorporationCard<Kim, Selecting>!")
+      selectTask("-3! CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<Poseidon>>")
       selectOnlyTask()
       doTask("45 MC")

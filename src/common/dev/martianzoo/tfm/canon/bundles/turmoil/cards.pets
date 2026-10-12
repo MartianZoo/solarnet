@@ -100,7 +100,7 @@ CLASS HeatFirstPolicy : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
 
 CLASS GlobalDustStorm : GlobalEffect {
   ResolveGlobalEvent: EACH Me@Player { \
-    -Heat! / Heat, -2 MC. / (BuildingTag MAX 5 - Influence) \
+    -Heat! / Heat, -2* MC / (BuildingTag MAX 5 - Influence) \
   }
 }
 
@@ -136,7 +136,7 @@ CLASS RisingAlloyDemand : GePartyDistant<MarsFirst>, GePartyCurrent<Greens> {
 
 CLASS MinersOnStrike : GlobalEffect {
   ResolveGlobalEvent: EACH Me@Player { \
-    -Titanium. / (JovianTag MAX 5 - Influence) \
+    -Titanium* / (JovianTag MAX 5 - Influence) \
   }
 }
 
@@ -146,7 +146,7 @@ CLASS ThawMining : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
 
 CLASS MudSlides : GlobalEffect {
   ResolveGlobalEvent: EACH Me@Player { \
-    -4 MC. / (OwnedTile<MarsArea(HAS Neighbor<OceanTile>)> MAX 5 - Influence) \
+    -4* MC / (OwnedTile<MarsArea(HAS Neighbor<OceanTile>)> MAX 5 - Influence) \
   }
 }
 
@@ -156,7 +156,7 @@ CLASS ViralModificationsApproved : GePartyDistant<Greens>, GePartyCurrent<MarsFi
 
 CLASS Pandemic : GlobalEffect {
   ResolveGlobalEvent: EACH Me@Player { \
-    -3 MC. / (BuildingTag MAX 5 - Influence) \
+    -3* MC / (BuildingTag MAX 5 - Influence) \
   }
 }
 
@@ -165,7 +165,7 @@ CLASS ScientificConsensus : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
 }
 
 CLASS ParadigmBreakdown : GlobalEffect {
-  ResolveGlobalEvent: EACH Me@Player { -2 ProjectCard., 2 MC / Influence }
+  ResolveGlobalEvent: EACH Me@Player { -2* ProjectCard, 2 MC / Influence }
 }
 
 CLASS ScientificProgress : GePartyDistant<Scientists>, GePartyCurrent<MarsFirst> {
@@ -182,7 +182,7 @@ CLASS AntarcticaMelts : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
 
 CLASS RedInfluence : GlobalEffect {
   ResolveGlobalEvent: EACH Me@Player { \
-    -3 MC. / (5 (TerraformRating - 10) MAX 5), PROD[1 MC / Influence] \
+    -3* MC / (5 (TerraformRating - 10) MAX 5), PROD[1 MC / Influence] \
   }
 }
 
@@ -195,16 +195,16 @@ CLASS Revolution : GlobalEffect {
     EACH Me@Player(HAS 1 (EarthTag OR Influence), HAS =1 (RANK Ranked@Player { \
       EarthTag<Ranked@> OR Influence<Ranked@> \
     })) { \
-      -2 TerraformRating. \
+      -2* TerraformRating \
     }
   ResolveGlobalEvent IF MultiplayerMode: \
     EACH Me@Player(HAS 1 (EarthTag OR Influence), HAS =2 (RANK Ranked@Player { \
       EarthTag<Ranked@> OR Influence<Ranked@> \
     })) { \
-      -TerraformRating. \
+      -TerraformRating* \
     }
   ResolveGlobalEvent IF SoloMode: \
-    EACH Me@Player(HAS 4 (EarthTag OR Influence)) { -2 TerraformRating. }
+    EACH Me@Player(HAS 4 (EarthTag OR Influence)) { -2* TerraformRating }
 }
 
 CLASS IndependenceMovement : GePartyDistant<MarsFirst>, GePartyCurrent<Reds> {
@@ -212,7 +212,7 @@ CLASS IndependenceMovement : GePartyDistant<MarsFirst>, GePartyCurrent<Reds> {
 }
 
 CLASS Riots : GlobalEffect {
-  ResolveGlobalEvent: EACH Me@Player { -4 MC. / (CityTile MAX 5 - Influence) }
+  ResolveGlobalEvent: EACH Me@Player { -4* MC / (CityTile MAX 5 - Influence) }
 }
 
 CLASS CorporateAlliance : GePartyDistant<Unity>, GePartyCurrent<Reds> {
@@ -221,7 +221,7 @@ CLASS CorporateAlliance : GePartyDistant<Unity>, GePartyCurrent<Reds> {
 
 CLASS SabotageGlobalEffect : GlobalEffect {
   ResolveGlobalEvent: EACH Me@Player { \
-    PROD[-Steel., -Energy.], Steel / Influence \
+    PROD[-Steel*, -Energy*], Steel / Influence \
   }
 }
 
@@ -247,7 +247,7 @@ CLASS IncreasedInterplanetaryTrade : GePartyDistant<Unity>, GePartyCurrent<Kelvi
 }
 
 CLASS SolarFlare : GlobalEffect {
-  ResolveGlobalEvent: EACH Me@Player { -3 MC. / (SpaceTag MAX 5 - Influence) }
+  ResolveGlobalEvent: EACH Me@Player { -3* MC / (SpaceTag MAX 5 - Influence) }
 }
 
 CLASS AiResearch : GePartyDistant<Scientists>, GePartyCurrent<MarsFirst> {
@@ -255,7 +255,7 @@ CLASS AiResearch : GePartyDistant<Scientists>, GePartyCurrent<MarsFirst> {
 }
 
 CLASS SolarnetShutdown : GlobalEffect {
-  ResolveGlobalEvent: EACH Me@Player { -3 MC. / (ActiveCard MAX 5 - Influence) }
+  ResolveGlobalEvent: EACH Me@Player { -3* MC / (ActiveCard MAX 5 - Influence) }
 }
 
 CLASS BioengineeringBoom : GePartyDistant<Greens>, GePartyCurrent<Scientists> {
@@ -306,5 +306,5 @@ CLASS SeparatistMovement : GePartyDistant<MarsFirst>, GePartyCurrent<Kelvinists>
 }
 
 CLASS WarOnEarth : GlobalEffect {
-  ResolveGlobalEvent: EACH Me@Player { -TerraformRating. / (4 - Influence) }
+  ResolveGlobalEvent: EACH Me@Player { -TerraformRating* / (4 - Influence) }
 }

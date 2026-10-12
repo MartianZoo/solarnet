@@ -168,7 +168,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("ClaimMilestone<Class<Planner>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
       }
@@ -210,7 +210,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTasks("UseStandardProject<SellPatentsProject>", "1 MC FROM ProjectCard!")
+          doTasks("UseStandardProject<SellPatentsProject>", "1! MC FROM ProjectCard")
         }
         .expect("0 RobotUnit")
 
@@ -288,12 +288,12 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.inTurn {
       doTask("PlayProject<Class<ImmigrantCity>>")
       selectTask("ProjectCard<Kim, Hand>!")
-      selectTask("-16 Owed.")
-      selectTask("-16 RobotUnit<Kim, Class<ImmigrantCity>>!")
+      selectTask("-16* Owed")
+      selectTask("-16! RobotUnit<Kim, Class<ImmigrantCity>>")
       doTasks("ImmigrantCity FROM ProjectCard", "PROD[-Energy]", "PROD[-2 MC]")
-      selectTask("-X MC?")
+      selectTask("-X? MC")
       doTask("Ok")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks("Ok", "CityTile<Tharsis_7_4>", "PROD[MC]")
     }
 
@@ -317,10 +317,10 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.inTurn {
       doTask("PlayProject<Class<Mine>>")
       selectTask("ProjectCard<Kim, Hand>!")
-      selectTask("-2 Owed.")
-      selectTask("-2 RobotUnit<Kim, Class<Mine>>!")
+      selectTask("-2* Owed")
+      selectTask("-2! RobotUnit<Kim, Class<Mine>>")
       doTask("-2 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks("Ok", "Mine FROM ProjectCard", "PROD[Steel]")
     }
 
@@ -354,12 +354,12 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("PlayProject<Class<Mine>>")
           selectTask("ProjectCard<Kim, Hand>!")
-          selectTask("-8 Owed.")
-          selectTask("-8 RobotUnit<Kim, Class<Mine>>!")
+          selectTask("-8* Owed")
+          selectTask("-8! RobotUnit<Kim, Class<Mine>>")
           doTasks("Mine FROM ProjectCard", "PROD[Steel]")
-          selectTask("-X MC?")
+          selectTask("-X? MC")
           doTask("Ok")
-          selectTask("-X Steel?")
+          selectTask("-X? Steel")
           doTask("Ok")
         }
         .expect("0 MC")
@@ -402,12 +402,12 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("PlayProject<Class<Mine>>")
           selectTask("ProjectCard<Kim, Hand>!")
-          selectTask("-4 Owed.")
-          selectTask("-4 RobotUnit<Kim, Class<Mine>>!")
+          selectTask("-4* Owed")
+          selectTask("-4! RobotUnit<Kim, Class<Mine>>")
           doTasks("Mine FROM ProjectCard", "PROD[Steel]")
-          selectTask("-X MC?")
+          selectTask("-X? MC")
           doTask("Ok")
-          selectTask("-X Steel?")
+          selectTask("-X? Steel")
           doTask("Ok")
         }
         .expect("0 MC")
@@ -589,7 +589,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<SponsoredAcademies>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-9 MC", "SponsoredAcademies FROM ProjectCard")
         selectTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")
         selectTask("ProjectCard<Stan, Hand>!")
@@ -626,10 +626,10 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("PlayProject<Class<ResearchOutpost>>")
           selectTask("ProjectCard<Kim, Hand>!")
-          selectTask("-2 Owed.")
-          selectTask("-2 RobotUnit<Kim, Class<ResearchOutpost>>!")
+          selectTask("-2* Owed")
+          selectTask("-2! RobotUnit<Kim, Class<ResearchOutpost>>")
           doTask("-16 MC")
-          selectTask("-X Steel?")
+          selectTask("-X? Steel")
           doTasks("Ok", "ResearchOutpost FROM ProjectCard")
           selectTask("(-ProjectCard<Kim, Hand>! THEN ProjectCard<Kim, Hand>!) OR Ok")
           doTasks("CityTile<Tharsis_4_2>", "Plant")
@@ -808,7 +808,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "-1 MC",
           "CeosFavoriteProject FROM ProjectCard",
       )
-      selectTask("CardResource<CardFront(HAS CardResource)>.")
+      selectTask("CardResource<CardFront(HAS CardResource)>*")
       choice()
     }
   }
@@ -881,7 +881,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     }
     return kim.inTurn {
       doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks("Ok", "L1TradeTerminal FROM ProjectCard")
       selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
       choice()
@@ -902,11 +902,11 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("PlayProject<Class<CeosFavoriteProject>>")
           selectTask("ProjectCard<Kim, Hand>!")
-          selectTask("-2 Owed.")
-          selectTask("-2 RobotUnit<Kim, Class<CeosFavoriteProject>>!")
+          selectTask("-2* Owed")
+          selectTask("-2! RobotUnit<Kim, Class<CeosFavoriteProject>>")
           doTask("CeosFavoriteProject FROM ProjectCard")
-          selectTask("CardResource<CardFront(HAS CardResource)>.")
-          selectTask("-X MC?")
+          selectTask("CardResource<CardFront(HAS CardResource)>*")
+          selectTask("-X? MC")
           doTask("Ok")
         }
         .expect("PlayedEvent<Class<$CeosFavoriteProject>>")

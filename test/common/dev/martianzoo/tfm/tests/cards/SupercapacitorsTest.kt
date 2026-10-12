@@ -30,7 +30,7 @@ internal class SupercapacitorsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Can retain existing energy but cannot convert newly produced heat to energy`() {
-    shouldThrow<NarrowingException> { kim.doTask("2 Energy FROM Heat!") }
+    shouldThrow<NarrowingException> { kim.doTask("2! Energy FROM Heat") }
     kim.doTask("Energy FROM Heat!")
     kim.assertCounts(2 to "Energy", 2 to "Heat")
   }

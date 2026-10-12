@@ -40,7 +40,7 @@ internal class SponsoredAcademiesTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<SponsoredAcademies>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-9 MC", "SponsoredAcademies FROM ProjectCard")
         selectTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")
         selectTask("ProjectCard<Stan, Hand>!")

@@ -11,7 +11,7 @@ internal class PhilaresTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Philares)
     kim.inTurn {
       doTasks("RequiredActionsSignal", "GreeneryTile<Tharsis_4_2>")
-      selectTask("OxygenStep.")
+      selectTask("OxygenStep*")
       doTasks("Plant", "TerraformRating")
     }
   }
@@ -23,7 +23,7 @@ internal class PhilaresTest : TfmSandboxTest() {
           doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_3_2>")
           selectTask("StandardResource<Kim>!")
           kim.doTask("Titanium")
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           doTask("TerraformRating")
         }
         .expect("Titanium<Kim>")
@@ -36,7 +36,7 @@ internal class PhilaresTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_3_2>")
-      selectTask("OxygenStep.")
+      selectTask("OxygenStep*")
       doTask("TerraformRating")
       selectTask("StandardResource!")
       doTask("Titanium")
@@ -50,7 +50,7 @@ internal class PhilaresTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_2_1>")
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           doTask("TerraformRating")
         }
         .expect(
@@ -64,7 +64,7 @@ internal class PhilaresTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_3_2>")
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           doTask("TerraformRating")
         }
         .expect("0 Steel, 0 Titanium, 0 Energy, 0 Heat")

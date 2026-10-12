@@ -48,7 +48,7 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
           selectTask("UseAction<Kim, NeptunianOption<NeptunianPowerConsultants<Kim>>>?")
           kim.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
           doTask("2 Steel")
-          selectTask("-X Steel<Kim>?")
+          selectTask("-X? Steel<Kim>")
           kim.selectTask("Ok")
           selectOnlyTask()
           kim.doTask("-5 MC")

@@ -139,7 +139,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
 
   protected fun TfmGameplay.sellPatents(vararg cardClasses: ClassName): TaskResult {
     return stdProject("SellPatentsProject") {
-      doTask("${cardClasses.size} MC FROM ProjectCard!")
+      doTask("${cardClasses.size}! MC FROM ProjectCard")
       discard(*cardClasses)
     }
   }

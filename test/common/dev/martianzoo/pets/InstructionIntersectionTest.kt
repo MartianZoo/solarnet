@@ -24,11 +24,11 @@ internal class InstructionIntersectionTest {
 
   @Test
   fun `intersection preserves fixed counts and optional ceilings`() {
-    intersection("2 Token<Player1>?", "3 RedToken<Anyone>?", "2 RedToken<Player1>?")
-    intersection("2 Token<Player1>!", "3 RedToken<Anyone>?", "2 RedToken<Player1>!")
-    intersection("3 Token<Player1>!", "2 RedToken<Anyone>?", null)
-    intersection("X Token<Player1>!", "3 RedToken<Anyone>!", "3 RedToken<Player1>!")
-    intersection("2 Token<Player1>!", "2 RedToken<Anyone>.", null)
+    intersection("2? Token<Player1>", "3? RedToken<Anyone>", "2? RedToken<Player1>")
+    intersection("2! Token<Player1>", "3? RedToken<Anyone>", "2! RedToken<Player1>")
+    intersection("3! Token<Player1>", "2? RedToken<Anyone>", null)
+    intersection("X! Token<Player1>", "3! RedToken<Anyone>", "3! RedToken<Player1>")
+    intersection("2! Token<Player1>", "2* RedToken<Anyone>", null)
     intersection("RedToken?", "BlueToken?", "Ok")
   }
 

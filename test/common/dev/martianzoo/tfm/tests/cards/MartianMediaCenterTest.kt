@@ -45,7 +45,7 @@ internal class MartianMediaCenterTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("UseCardAction<MartianMediaCenter, Action1>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
         doTask("PartyDelegate<Greens>")

@@ -14,7 +14,7 @@ internal class EcolineTest : TfmSandboxTest() {
           doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
           selectOnlyTask()
           doTask("GreeneryTile<Tharsis_2_1>")
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           doTask("TerraformRating")
         }
         .expect("-7 Plant")

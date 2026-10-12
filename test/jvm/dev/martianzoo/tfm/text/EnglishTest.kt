@@ -73,7 +73,7 @@ internal class EnglishTest {
     english.describe(parse<Effect>("CardFront(HAS 2 Tag): Science<This>")) shouldBe
         "When you play a card with 2 or more tags, add 1 science resource to this card."
     english.describe(
-        parse<Effect>("AnimalTag<CardFront<Anyone>, Anyone>: -2 Heat<Anyone>?")
+        parse<Effect>("AnimalTag<CardFront<Anyone>, Anyone>: -2? Heat<Anyone>")
     ) shouldBe "When any animal tag is played, you may remove up to 2 heat from that player."
     english.describe(listOf(parse<Action>("4 Energy -> 2 Steel, OxygenStep"))) shouldBe
         "Spend 4 energy to gain 2 steel and raise oxygen 1 step."
@@ -100,7 +100,7 @@ internal class EnglishTest {
         "Decrease your M€ production 1 step and increase your plant production, your energy production, and your heat production 1 step each."
     english.describe(parse<InstructionTree>("MC? / ProjectCard")) shouldBe
         "You may gain up to 1 M€ per card in hand."
-    english.describe(parse<InstructionTree>("-4 MC.")) shouldBe
+    english.describe(parse<InstructionTree>("-4* MC")) shouldBe
         "Remove 4 M€, or as much as possible."
     english.describe(parse<InstructionTree>("Plant / (VenusTag OR PlantTag OR Colony)")) shouldBe
         "Gain 1 plant per Venus tag you have, plant tag you have, or colony you own."
@@ -112,7 +112,7 @@ internal class EnglishTest {
     english.describe(parse<InstructionTree>("Animal<This>?")) shouldBe
         "You may add up to 1 animal to this card."
     english.describe(
-        parse<InstructionTree>("3 MC<Anyone> FROM MC."),
+        parse<InstructionTree>("3* MC<Anyone> FROM MC"),
     ) shouldBe "Pay 3 M€ to any player, or as much as possible."
     english.describe(parse<Requirement>("MAX 6 OxygenStep")) shouldBe "Requires 6% oxygen or less."
     english.describe(
@@ -163,7 +163,7 @@ internal class EnglishTest {
         parseClasses(
                 """
                 CLASS Rule<Me@Anyone> {
-                  This: EACH Other@Player(NOT Me@) { -5 MC<Other@>., PROD[-1 MC<Other@>] }
+                  This: EACH Other@Player(NOT Me@) { -5* MC<Other@>, PROD[-1 MC<Other@>] }
                 }
                 """
             )
@@ -372,14 +372,14 @@ internal class EnglishTest {
 
   @Test
   internal fun anUnrestrictedActorDoesNotBindAnIndependentResourceOwner() {
-    english.describe(parse<Effect>("OceanTile BY Anyone: -2 Heat<Anyone>?")) shouldBe
+    english.describe(parse<Effect>("OceanTile BY Anyone: -2? Heat<Anyone>")) shouldBe
         "When any ocean tile is placed, you may remove up to 2 heat from any player."
   }
 
   @Test
   internal fun alternativeUnrestrictedActorsDoNotBindAnIndependentResourceOwner() {
     english.describe(
-        parse<Effect>("(OxygenStep BY Anyone) OR (TemperatureStep BY Anyone): -2 Heat<Anyone>?")
+        parse<Effect>("(OxygenStep BY Anyone) OR (TemperatureStep BY Anyone): -2? Heat<Anyone>")
     ) shouldBe
         "When oxygen is raised 1 step or temperature is raised 1 step, you may remove up to 2 heat from any player."
   }
@@ -446,7 +446,7 @@ internal class EnglishTest {
             """
             CLASS FlexibleNextCard : AutomatedCard {
               cost = 0
-              This: NextCardEffect { CheckRequirement:: -2 Required<Class<GlobalParameter>>. }
+              This: NextCardEffect { CheckRequirement:: -2* Required<Class<GlobalParameter>> }
             }
             """
         )
@@ -497,13 +497,13 @@ internal class EnglishTest {
   @Test
   internal fun compactAndExpandedTransmutationsRenderIdentically() {
     val compact =
-        parseClasses("CLASS Rule<Me@Anyone> { This: 2 Steel<Me@ FROM Anyone>? }")
+        parseClasses("CLASS Rule<Me@Anyone> { This: 2? Steel<Me@ FROM Anyone> }")
             .single()
             .authoredEffects
             .single()
             .instruction
     val expanded =
-        parseClasses("CLASS Rule<Me@Anyone> { This: 2 Steel<Me@> FROM Steel<Anyone>? }")
+        parseClasses("CLASS Rule<Me@Anyone> { This: 2? Steel<Me@> FROM Steel<Anyone> }")
             .single()
             .authoredEffects
             .single()

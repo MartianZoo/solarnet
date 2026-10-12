@@ -53,7 +53,7 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
           "42 MC",
           "PROD[3 Heat]",
       )
-      selectTask("-X Heat?")
+      selectTask("-X? Heat")
       doTasks("Ok", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
@@ -66,7 +66,7 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
           selectOnlyTask()
           selectOnlyTask(x = 3)
           doTask("-6 Heat")
-          selectTask("-X MC?")
+          selectTask("-X? MC")
           doTask("Ok")
           selectOnlyTask()
         }
@@ -99,7 +99,7 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
           selectOnlyTask(x = 3)
           doTask("-Energy / Owed<Class<Energy>>")
           selectOnlyTask()
-          selectTask("3 ProjectCard<Kim, Selecting>!")
+          selectTask("3! ProjectCard<Kim, Selecting>")
           selectOnlyTask()
           selectOnlyTask()
         }
@@ -119,7 +119,7 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
           selectOnlyTask(x = 4)
           doTask("-Energy / Owed<Class<Energy>>")
           selectOnlyTask()
-          selectTask("4 ProjectCard<Kim, Selecting>!")
+          selectTask("4! ProjectCard<Kim, Selecting>")
           selectOnlyTask()
           selectOnlyTask()
         }

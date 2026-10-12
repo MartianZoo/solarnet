@@ -51,7 +51,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     KB.playCorp(MonsInsurance) {
           doTask(
               "EACH Other@Player(NOT KB) { " +
-                  "-2 Production<Other@Player, Class<MC>>! BY Other@Player }"
+                  "-2! Production<Other@Player, Class<MC>> BY Other@Player }"
           )
         }
         .expect("PROD[-2 MC<JR>, -2 MC<ER>]")

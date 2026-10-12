@@ -15,7 +15,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks("Ok", "FrontierTown FROM ProjectCard")
       selectTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Amazonis_02_02>")
@@ -34,7 +34,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks("Ok", "FrontierTown FROM ProjectCard")
       selectTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Hellas_9_7>")
@@ -66,7 +66,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks("Ok", "FrontierTown FROM ProjectCard")
       selectTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Cimmeria_3_3>")
@@ -101,7 +101,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-        selectTask("-X Steel?")
+        selectTask("-X? Steel")
         selectTask("Ok")
         doTask("FrontierTown FROM ProjectCard")
         selectTask("FrontierTownBonus!")
@@ -111,11 +111,11 @@ internal class FrontierTownTest : TfmSandboxTest() {
         selectTask("-FrontierTownBonus!")
         selectTask("CimmeriaPlacementBonus!")
         selectTask("RepeatPlacementBonus<Kim, Cimmeria_3_3>!")
-        selectTask("-5 MC!")
+        selectTask("-5! MC")
         selectTask("CimmeriaPlacementBonus!")
         selectTask("CimmeriaPlacementBonus!")
-        selectTask("-5 MC!")
-        selectTask("-5 MC!")
+        selectTask("-5! MC")
+        selectTask("-5! MC")
         doTask("Colony<Luna>")
         selectTask("PROD[2 MC]")
         doTask("Colony<Ceres>")
@@ -140,7 +140,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks("Ok", "FrontierTown FROM ProjectCard")
       selectTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Tharsis_4_5>")

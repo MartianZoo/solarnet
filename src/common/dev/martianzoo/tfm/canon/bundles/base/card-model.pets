@@ -110,7 +110,7 @@ CLASS PriceAspectCount<Class<CardFront>, Class<Component>> : CustomMetric
 
 "A temporary shortfall between a printed global requirement and the current parameter"
 CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier, System {
-  DEFAULT -Required.
+  DEFAULT -Required*
 }
 
 "The current place of an anonymous unplayed card associated with a Player"

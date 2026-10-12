@@ -92,7 +92,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
               "TerraformRating",
               "TerraformRating",
           )
-          selectTask("-6 Plant<Anyone>?")
+          selectTask("-6? Plant<Anyone>")
           doTask("Ok")
           val checkpoint = game.timeline.checkpoint()
           shouldThrow<IllegalStateException> { victoryPoints() }
@@ -191,7 +191,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     shouldThrow<IllegalStateException> { rob }.message shouldBe "Rob is sitting this game out"
     kim.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTask("TerraformRating")
     }
   }

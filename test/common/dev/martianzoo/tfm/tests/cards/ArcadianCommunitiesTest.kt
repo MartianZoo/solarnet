@@ -88,7 +88,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
               "GreeneryTile<Tharsis_1_1>",
               "3 MC",
           )
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           doTasks("2 Steel", "TerraformRating")
         }
         .expect("-Community, 0 MC<Stan>")
@@ -116,7 +116,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
               "GreeneryTile<Tharsis_1_1>",
               "3 MC",
           )
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           doTasks("2 Steel", "TerraformRating")
         }
         .expect("-Community")
@@ -137,7 +137,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
       stan.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-        selectTask("-X Steel?")
+        selectTask("-X? Steel")
         selectTask("Ok")
         doTask("ArtificialLake FROM ProjectCard")
         selectOnlyTask()
@@ -147,7 +147,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
     kim.setToExMachina(15, "MC")
     kim.inTurn {
           doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-          selectTask("-X Steel?")
+          selectTask("-X? Steel")
           doTasks(
               "Ok",
               "ArtificialLake FROM ProjectCard",

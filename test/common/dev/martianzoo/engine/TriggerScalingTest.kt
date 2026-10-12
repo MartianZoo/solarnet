@@ -23,13 +23,13 @@ internal class TriggerScalingTest {
     val game = TfmEngine.newGame(premise)
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
 
-    agent.beginOperation("5 ScalingSignal!") {
+    agent.beginOperation("5! ScalingSignal") {
       game.tasks
           .extract { it.instruction.toString() }
           .shouldContainExactlyInAnyOrder(
-              "5 ScaledResult!",
+              "5! ScaledResult",
               "UnscaledResult!",
-              "10 BoundResult!",
+              "10! BoundResult",
               "FixedResult!",
           )
     }
@@ -46,10 +46,10 @@ internal class TriggerScalingTest {
     val game = TfmEngine.newGame(premise)
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
 
-    agent.beginOperation("3 SelfScaler!") {
+    agent.beginOperation("3! SelfScaler") {
       game.tasks
           .extract { it.instruction.toString() }
-          .shouldContainExactlyInAnyOrder("3 SelfResult!")
+          .shouldContainExactlyInAnyOrder("3! SelfResult")
     }
   }
 

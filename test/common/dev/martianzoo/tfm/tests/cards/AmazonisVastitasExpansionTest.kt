@@ -19,13 +19,13 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("ClaimMilestone<Class<Merchant3>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
       }
     }
     kim.inTurn {
-      doTasks("UseStandardProject<SellPatentsProject>", "1 MC FROM ProjectCard!")
+      doTasks("UseStandardProject<SellPatentsProject>", "1! MC FROM ProjectCard")
     }
     kim.inTurn {
       doTasks("ClaimMilestone<Class<Merchant3>>", "-MC / Owed<Class<MC>>")
@@ -106,7 +106,7 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("UseStandardProject<CityProject>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-25 MC")
         selectTask("PROD[MC]")
         selectOnlyTask()
@@ -149,7 +149,7 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("UseStandardProject<CityProject>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-25 MC")
         selectTask("PROD[MC]")
         selectOnlyTask()
@@ -170,7 +170,7 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("ClaimMilestone<Class<Geologist>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
       }
@@ -202,7 +202,7 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("UseStandardProject<CityProject>", "-25 MC", "PROD[MC]", "CityTile<Vastitas_5_5>")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTasks("-4 MC", "TerraformRating")
     }
   }
@@ -216,12 +216,12 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("UseStandardProject<CityProject>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-25 MC")
         selectTask("PROD[MC]")
         selectOnlyTask()
         doTask("CityTile<Vastitas_5_5>")
-        selectTask("TemperatureStep.")
+        selectTask("TemperatureStep*")
         selectTask("TerraformRating!")
       }
     }

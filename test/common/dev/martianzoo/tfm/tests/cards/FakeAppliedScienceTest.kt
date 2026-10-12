@@ -17,7 +17,7 @@ internal class FakeAppliedScienceTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("UseCardAction<FakeAppliedScience, Action1>")
           selectOnlyTask()
-          doTask("Director<BoardOfDirectors>.")
+          doTask("Director<BoardOfDirectors>*")
         }
         .expect("Director<$BoardOfDirectors>")
   }
