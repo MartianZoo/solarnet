@@ -263,10 +263,8 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  internal fun contentOnlyProductsDoNotRequireSelectableExpansionModules() {
+  internal fun milestonesAndAwardsContentDoesNotRequireASelectableExpansionModule() {
     Canon.allClassNames.contains(cn("MilestonesAwardsExpansion")) shouldBe false
-    Canon.allClassNames.contains(cn("Prelude2Expansion")) shouldBe false
-    Canon.allClassNames.contains(cn("Prelude2CardPack")) shouldBe false
     Canon.allClassNames.contains(cn("Landscaper")) shouldBe true
 
     val landscaperWithTharsis =

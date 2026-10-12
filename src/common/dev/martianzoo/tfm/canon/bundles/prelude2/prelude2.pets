@@ -1,0 +1,4 @@
+"The published Prelude 2 expansion; its rules come from Prelude"
+CLASS Prelude2Expansion : Module {
+  premiseRequirement = HAS "PreludeExpansion"
+}
