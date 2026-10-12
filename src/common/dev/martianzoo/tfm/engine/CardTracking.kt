@@ -55,7 +55,7 @@ public class CardTracking private constructor(private val world: World) : AgentT
     requireBack(back)
     requireCards(cards, back)
     val key = player to back
-    val used = snapshot().arrivalOffsets.getOrDefault(key, 0)
+    val used = snapshot().arrivalOffsets[key] ?: 0
     val names = arrivals.getOrPut(key) { mutableListOf() }
     names.subList(used, names.size).clear()
     names.addAll(cards)
@@ -88,7 +88,7 @@ public class CardTracking private constructor(private val world: World) : AgentT
     requireBack(back)
     requireCards(cards, back)
     val key = player to back
-    val used = snapshot().departureOffsets.getOrDefault(key, 0)
+    val used = snapshot().departureOffsets[key] ?: 0
     val names = departures.getOrPut(key) { mutableListOf() }
     names.subList(used, names.size).clear()
     names.addAll(cards)
@@ -110,15 +110,15 @@ public class CardTracking private constructor(private val world: World) : AgentT
   public fun requireComplete() {
     val result = snapshot()
     arrivals.forEach { (key, names) ->
-      check(result.arrivalOffsets.getOrDefault(key, 0) == names.size) {
+      check((result.arrivalOffsets[key] ?: 0) == names.size) {
         "unused ${key.second} arrivals for ${key.first}: " +
-            names.drop(result.arrivalOffsets.getOrDefault(key, 0))
+            names.drop(result.arrivalOffsets[key] ?: 0)
       }
     }
     departures.forEach { (key, names) ->
-      check(result.departureOffsets.getOrDefault(key, 0) == names.size) {
+      check((result.departureOffsets[key] ?: 0) == names.size) {
         "unused ${key.second} departures for ${key.first}: " +
-            names.drop(result.departureOffsets.getOrDefault(key, 0))
+            names.drop(result.departureOffsets[key] ?: 0)
       }
     }
   }
@@ -144,7 +144,7 @@ public class CardTracking private constructor(private val world: World) : AgentT
     ): List<ClassName> {
       val key = player to back
       val names = supplied[key].orEmpty()
-      val start = offsets.getOrDefault(key, 0)
+      val start = offsets[key] ?: 0
       val end = start + count
       if (end > names.size) {
         throw AgentInputRequiredException(
