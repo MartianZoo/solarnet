@@ -63,6 +63,25 @@ These concerns remain open; the ranking does not select replacement designs.
 
 ## User Ideas and Agreed Directions
 
+- Give beginner and standard players the same ten-card `Selecting` offer during setup, then have
+  the beginner corporation move those cards to `Hand` for free. Keep the standard discard supplied
+  by `NonBeginnerMode`, and make starting TR genuinely come from `MultiplayerMode` or `SoloMode`.
+  Avoid using creation of `PlayerMode` as a proxy trigger. A queued `SetupPhase: EACH Player` effect
+  completes as soon as it enqueues its per-Player branches, but those branches inherit Admin as
+  selection assignee. `BY Player` transfers only a selected branch, whose select lock then blocks
+  independent player tasks. The automatic form
+  `MultiplayerMode { SetupPhase:: EACH Me@Player { 20 TerraformRating<Me@> } }` correctly grants TR
+  to both players, but removes their starting-TR tasks; an automatic card deal likewise removes
+  the card-draw tasks. Try per-Player owned setup signals as the source of each Player's choices
+  before changing task routing. Investigate whether `EACH` should be rejected as a left operand of
+  `THEN`: `EACH Player { A } THEN B` is currently admitted even though fanout can produce multiple
+  tasks and no join is intended.
+- Make `ResearchPhase` the actual provider of each Player's four-card offer and discard. Moving the
+  current Player effect to `ResearchPhase` with `EACH Player` leaves the second Player's sequence
+  assigned to Admin; `BY Player` transfers only a selected task. Solve per-Player task routing
+  without a replay-only context alias, then try direct context matching first and restrict fallback
+  lookup to Hidden cause intermediates. The broader causal-chain matcher tried for the replay was
+  removed along with its context arguments; current matching uses only the direct effect context.
 - Consider a separate rename of automatic (`::`) effects to “immediate”. Card effects now use
   “direct effect”; the dispatch terminology and behavior remain unchanged pending that decision.
 

@@ -577,14 +577,16 @@ Use resolved, concrete instructions and `PROD[...]` in its `doTasks` calls, with
 unevaluated metrics. Combine amounts when the matching tasks are already pending. A scalar total
 consumes all pending gains and removals of the same type and quantifier when their signed total
 matches, even if an individual task has that amount. Gains execute first; effects created while
-those changes run do not join the total. Explicit `p1.doTasks(...)` and `p2.doTasks(...)` calls are
-atomic, resumable batches. In explicit setup, have each player take their starting TR before either
-player handles starting cards.
+those changes run do not join the total. Explicit `doTasks(...)` calls are atomic, resumable batches.
+In explicit setup, have each player take their starting TR before either player handles starting
+cards. Group each corporation, Prelude, and action-phase turn in `player.turn { ... }`; the wrapper
+declines an unused second action. Keep the task submissions inside each section as raw `doTasks`
+calls.
 Use the shared card-name constants, give every `Ok` a short inline comment to its right naming
 the task it dismisses (for example, `// no steel paid`). Keep the replay free of `.expect()`
 calls; retain its state checkpoints and final score/winner assertions. Purchase transfers into
-`Hand` are explicit tasks from `Selecting`. Keep the replay's task calls instead of reintroducing
-`TfmGameplay` action, payment, or turn helpers. Shared score-preview assertions roll back their
+`Hand` are explicit tasks from `Selecting`. Keep the replay's task calls instead of introducing
+`TfmGameplay` action or payment helpers. Shared score-preview assertions roll back their
 scoring simulation without changing any Actor's autoexecution policy.
 
 `AbstractFullGameTest` starts `Agents.taskLog` before gameplay. After each successful JVM
