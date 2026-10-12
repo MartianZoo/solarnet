@@ -321,6 +321,30 @@ internal class ModuleSelectionTest {
   }
 
   @Test
+  internal fun `Focused Organization takes precedence when Stormcraft is also available`() {
+    classTable("prelude2:cards").isInhabited(cn("FocusedOrganization")) shouldBe true
+    classTable("ColoniesExpansion").isInhabited(cn("StormcraftIncorporated")) shouldBe true
+
+    val normal = classTable("ColoniesExpansion, prelude2:cards")
+    normal.isInhabited(cn("FocusedOrganization")) shouldBe true
+    normal.isInhabited(cn("StormcraftIncorporated")) shouldBe false
+
+    val explicitStormcraft = classTable("ColoniesExpansion, prelude2:cards, StormcraftIncorporated")
+    explicitStormcraft.isInhabited(cn("StormcraftIncorporated")) shouldBe true
+    explicitStormcraft.isInhabited(cn("FocusedOrganization")) shouldBe false
+
+    val explicitFocusedOrganization =
+        classTable("ColoniesExpansion, prelude2:cards, FocusedOrganization")
+    explicitFocusedOrganization.isInhabited(cn("FocusedOrganization")) shouldBe true
+    explicitFocusedOrganization.isInhabited(cn("StormcraftIncorporated")) shouldBe false
+
+    rejects("ColoniesExpansion, prelude2:cards, FocusedOrganization, StormcraftIncorporated")
+    val unsafe = classTable("ColoniesExpansion, prelude2:cards, Unsafe")
+    unsafe.isInhabited(cn("FocusedOrganization")) shouldBe true
+    unsafe.isInhabited(cn("StormcraftIncorporated")) shouldBe true
+  }
+
+  @Test
   internal fun `Ecology Experts is absent from normal Prelude 1 selection`() {
     classTable("prelude:cards").isInhabited(cn("EcologyExperts")) shouldBe false
     classTable("prelude:cards, Unsafe").isInhabited(cn("EcologyExperts")) shouldBe false
