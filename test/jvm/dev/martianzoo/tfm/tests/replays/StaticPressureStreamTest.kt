@@ -4,7 +4,6 @@ import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.fake.FakeCanon
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -39,7 +38,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
 
   @Test
   internal fun staticPressureStream() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     keepStartingProjects(6, 4)
     generation1()
     generation2()

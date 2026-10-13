@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -41,7 +40,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
 
   @Test
   internal fun completeGame() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     val green = p1.requireExplicitUnusedActionCards()
     val yellow = p2.requireExplicitUnusedActionCards()
     val blue = p3.requireExplicitUnusedActionCards()

@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
@@ -10,7 +9,7 @@ internal class HellasPromoWithoutPreludeTest : AbstractFullGameTest() {
 
   @Test
   internal fun earlyGameWithNoPrelude() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     p1.keepStartingProjects(7)
     p2.keepStartingProjects(5)
     p1.playCorp(InterplanetaryCinematics)

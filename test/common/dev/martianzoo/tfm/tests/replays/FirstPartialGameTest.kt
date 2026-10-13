@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -18,7 +17,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
 
   @Test
   internal fun fourWholeGenerations() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     keepStartingProjects(3, 8)
     p1.playCorp(LakefrontResorts)
     p2.playCorp(InterplanetaryCinematics)

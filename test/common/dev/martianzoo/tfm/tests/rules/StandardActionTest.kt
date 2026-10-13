@@ -11,6 +11,7 @@ import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.setUpGame
+import dev.martianzoo.tfm.tests.startCorporationPhaseOutOfTurn
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -107,7 +108,7 @@ internal class StandardActionTest : TfmTest() {
     game = setUpGame(canonicalPremise())
     val p1 = game.testTfm(PLAYER1)
     p1.runOperation("Ecoline, 4 Plant")
-    admin.phase("Corporation")
+    game.startCorporationPhaseOutOfTurn()
     admin.phase("Action")
     p1.autoExecPolicy = NONE
 

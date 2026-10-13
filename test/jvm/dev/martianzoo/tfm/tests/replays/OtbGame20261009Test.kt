@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
@@ -29,7 +28,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
   internal fun game20261009ThroughGeneration8() {
     p1.autoExecPolicy = NONE
     p2.autoExecPolicy = NONE
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     // Each player takes their starting TR before their other setup tasks.
     p1.doTasks("20 TerraformRating")
     p2.doTasks("20 TerraformRating")
@@ -664,7 +663,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     p1.selectTask("ColonyProduction<Miranda>?")
     p1.narrowTask("ColonyProduction<Miranda>")
     // The printed three-animal trade reward had no legal holder and yielded nothing.
-    agents[p1.actor].dropTask(game.tasks.extract { it }.single().id)
+    agents[p1.actor].dropTask(game.tasks.extract { it }.single { !it.deferred }.id)
 
     p2.doTasks(
         "PlayProject<Class<$SixteenPsyche>>",

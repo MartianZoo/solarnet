@@ -39,8 +39,8 @@ after review. **Selected** means the direction is chosen while some design remai
    victory should arise from live game components and ordinary engine scheduling.
    [Deferred work](docs/agents/SEQUENCING.md#deferred-work) settles work within an operation, and
    `FINALLY` work, which waits for everything else including `LATER` work, carries the next turn or
-   phase. `TfmWorkflow` is to be deleted rather than kept as Terraforming Mars-specific Kotlin. The
-   `workflow` branch removed the
+   phase. The [game flow](docs/agents/SEQUENCING.md#game-flow) is now authored this way and
+   `TfmWorkflow` is deleted; a turn scope remains open. The `workflow` branch removed the
    coroutine-owned phase sequence but is not intended to land. It measured the cost of representing
    deferred work as components: per-rule mode guards, continuation components, and a compiler for
    expansion phase order. Preserve full-game replay evidence through the change.

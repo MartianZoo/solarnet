@@ -16,10 +16,10 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     kim.pass()
     kim.count("Plant") shouldBe plants + 1
     kim.count("Steel") shouldBe steel + 1
-    stan.doTask("Ok") // Decline Stan's final greenery.
+    stan.doTask("Done") // Decline Stan's final greenery.
     kim.convertPlants { placeTile(3, 3) }
         .expect("-8 Plant, GreeneryTile, 0 OxygenStep, 0 TerraformRating")
-    kim.doTask("Ok") // Decline another final greenery.
+    kim.doTask("Done") // Decline another final greenery.
     kim.count("VictoryPoint") shouldBe 21
     stan.count("VictoryPoint") shouldBe 20
   }
@@ -30,8 +30,8 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     stan.pass()
     kim.sellPatents(1).expect("MC, -ProjectCard")
     kim.pass()
-    stan.doTask("Ok") // No final greenery.
-    kim.doTask("Ok") // No final greenery.
+    stan.doTask("Done") // No final greenery.
+    kim.doTask("Done") // No final greenery.
     kim.count("VictoryPoint") shouldBe 20
     stan.count("VictoryPoint") shouldBe 20
     kim.count("MC") shouldBe stan.count("MC") + 1
@@ -47,8 +47,8 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     admin.count("Generation") shouldBe 57
     kim.pass()
     stan.pass()
-    kim.doTask("Ok") // No final greenery.
-    stan.doTask("Ok") // No final greenery.
+    kim.doTask("Done") // No final greenery.
+    stan.doTask("Done") // No final greenery.
     admin.count("VictoryPhase") shouldBe 1
   }
 
@@ -105,7 +105,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     prepareSoloEconomy("-VenusNextExpansion")
     playSoloTerraforming(completeVenus = false)
     kim.count("Victory") shouldBe 1
-    kim.doTask("Ok") // Decline final greenery.
+    kim.doTask("Done") // Decline final greenery.
     admin.count("VictoryPhase") shouldBe 1
   }
 
@@ -126,7 +126,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     prepareSoloEconomy("")
     playSoloTerraforming(completeVenus = true)
     kim.count("Victory") shouldBe 1
-    kim.doTask("Ok") // Decline final greenery.
+    kim.doTask("Done") // Decline final greenery.
   }
 
   @Test
@@ -138,7 +138,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     admin.count("OxygenStep") shouldBe 0
     kim.convertPlants { placeTile(3, 3) }
         .expect("GreeneryTile, -8 Plant, 0 OxygenStep, 0 TerraformRating")
-    kim.doTask("Ok") // Decline further final greeneries.
+    kim.doTask("Done") // Decline further final greeneries.
     kim.count("TerraformRating") shouldBe 63
     // Miranda Resort supplies one printed VP in addition to the final greenery.
     kim.count("VictoryPoint") shouldBe 65

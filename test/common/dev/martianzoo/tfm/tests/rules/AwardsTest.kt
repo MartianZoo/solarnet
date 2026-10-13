@@ -195,7 +195,6 @@ internal class AwardsTest : TfmTest() {
     p2.autoExecPolicy = NONE
 
     admin.runOperation("End FROM Phase")
-    admin.runOperation("VictoryPhase FROM Phase")
 
     p1.assertCounts(4 to "VictoryPoint<Player1>", 0 to "Victory<Player1>")
     p2.assertCounts(5 to "VictoryPoint<Player2>", 1 to "Victory<Player2>")

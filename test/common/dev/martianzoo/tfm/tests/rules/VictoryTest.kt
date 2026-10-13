@@ -22,7 +22,6 @@ internal class VictoryTest {
     val p2 = game.testTfm(PLAYER2)
 
     admin.runOperation("End FROM Phase")
-    admin.runOperation("VictoryPhase FROM Phase")
 
     p1.count("Victory<Player1>") shouldBe 1
     p2.count("Victory<Player2>") shouldBe 1
@@ -39,7 +38,6 @@ internal class VictoryTest {
     p1.sneak("MC")
 
     admin.runOperation("End FROM Phase")
-    admin.runOperation("VictoryPhase FROM Phase")
 
     p1.count("Victory<Player1>") shouldBe 1
     p2.count("Victory<Player2>") shouldBe 0

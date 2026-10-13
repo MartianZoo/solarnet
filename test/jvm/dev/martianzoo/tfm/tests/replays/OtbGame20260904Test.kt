@@ -4,7 +4,6 @@ import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -48,7 +47,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
 
   @Test
   internal fun otbGame20260904() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     val yellow = p1.requireExplicitUnusedActionCards()
     val rainbow = p2.requireExplicitUnusedActionCards()
     val blue = p3.requireExplicitUnusedActionCards()

@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -32,7 +31,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
 
   @Test
   internal fun game20260819() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     val JR = p1
     val KB = p2
     val ER = p3

@@ -243,6 +243,7 @@ internal class ModuleSelectionTest {
     cannotSelectTogether("TharsisMap", "HellasMap")
     cannotSelectTogether("SoloMode", "MultiplayerMode")
     cannotSelectTogether("StandardSoloObjective", "Tr63SoloObjective", players = 1)
+    cannotSelectTogether("PreludeExpansion", "NoPreludes")
 
     rejects("SoloMode, -MultiplayerMode")
     rejects("MultiplayerMode, -SoloMode", players = 1)
@@ -463,14 +464,17 @@ internal class ModuleSelectionTest {
     playerNames shouldBe expected.playerNames
   }
 
+  /** Expects [expectedModules], plus `NoPreludes`, which every game without Prelude selects. */
   private fun resolvesToExactly(
       config: String,
       expectedModules: Set<ClassName>,
       players: Int = 2,
   ): GamePremise =
       resolvedPremise(config, players).also { premise ->
+        val noPreludes =
+            if (cn("PreludeExpansion") in expectedModules) emptySet() else setOf(cn("NoPreludes"))
         withClue("[$config] with $players player(s)") {
-          premise.modules.shouldContainExactlyInAnyOrder(expectedModules)
+          premise.modules.shouldContainExactlyInAnyOrder(expectedModules + noPreludes)
         }
       }
 

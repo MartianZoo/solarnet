@@ -20,7 +20,6 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.Access.BlueMode
 import dev.martianzoo.tfm.script.Access.GreenMode
 import dev.martianzoo.tfm.script.Access.PurpleMode
@@ -97,10 +96,13 @@ public class ScriptSession(
   ) {
     val candidateAgents = Agents(candidateGame)
     val candidateAgent = candidateAgents[ADMIN] // default autoexec policy
-    if (purple) {
-      TfmWorkflow.Automatic(candidateAgents).launch()
-    } else {
-      TfmWorkflow.Stepwise(candidateAgents).setupPhase()
+    candidateAgents.tfm(ADMIN).startGame()
+    if (!purple) {
+      // Outside purple mode the user changes phases, so the game does not leave setup on its own.
+      candidateGame.tasks
+          .extract { it }
+          .filter { it.deferred }
+          .forEach { candidateAgents[it.assignee].dropTask(it.id) }
     }
     optionCodes = candidateOptionCodes
     playerCount = candidatePlayerCount

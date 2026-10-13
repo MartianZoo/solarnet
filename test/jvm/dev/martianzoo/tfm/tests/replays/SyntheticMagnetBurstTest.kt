@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -33,7 +32,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
 
   @Test
   internal fun gameThroughGeneration10() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     val pink = p1
     val green = p2
     keepStartingProjects(7, 4)

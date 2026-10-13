@@ -5,7 +5,6 @@ import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.EventLogJson
 import dev.martianzoo.state.GameWorld
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -39,7 +38,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
   @Test
   internal fun otbGame20260818() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     val green = player(1)
     val yellow = player(2)
     keepStartingProjects(7, 5)

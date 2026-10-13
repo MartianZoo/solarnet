@@ -15,6 +15,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.ComponentChange
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.Player
@@ -23,7 +24,7 @@ import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmTest
@@ -54,7 +55,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     val imported = TfmEngine.newGame(gamePremise)
     val importedAgents = Agents(imported)
     imported.actors.filterIsInstance<Player>().forEach { importedAgents[it].autoExecPolicy = NONE }
-    TfmWorkflow.Automatic(importedAgents).launch()
+    importedAgents.tfm(ADMIN).startGame()
     TaskLog.replay(completedTaskLogText(), importedAgents)
     importedAgents[p1.actor].list("Component").entries shouldBe p1.list("Component").entries
 
@@ -219,19 +220,22 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     assertCounts(expected to "VictoryPoint")
   }
 
-  /** Checks hypothetical end scoring, then restores the live game and its pending decisions. */
+  /**
+   * Checks hypothetical end scoring after one more production phase, then restores the live game
+   * and its pending decisions. Nothing prevents that production from ending the game, so no solar
+   * phase follows it.
+   */
   protected fun withScorePreview(assertions: () -> Unit) {
-    val onTransactionComplete = game.onTransactionComplete
     val checkpoint = game.timeline.checkpoint()
-    game.onTransactionComplete = {}
     try {
       dropPendingTasksForSnapshot()
-      admin.phase("Production") { dropPendingTasksForSnapshot() }
+      val barriers = game.reader.getComponents(cn("GameEndBarrier").expression)
+      barriers.elements.forEach { admin.sneak("-${barriers.count(it)} ${it.expression}") }
+      admin.runOperation("ProductionPhase FROM Phase") { dropPendingTasksForSnapshot() }
       admin.runOperation("End FROM Phase") { dropPendingTasksForSnapshot() }
       assertions()
     } finally {
       game.timeline.rollBack(checkpoint)
-      game.onTransactionComplete = onTransactionComplete
     }
   }
 

@@ -56,19 +56,11 @@ public class TfmGameplay(
   public fun asPlayer(player: Player): TfmGameplay = asActor(player)
 
   /**
-   * Moves through Production, Research, and Action phases. [cardsBought] gives the count bought by
-   * each player in seat order; omitted trailing players make no purchase through this helper.
-   * Requires an existing phase and leaves Action as the current phase.
+   * Starts the game: SetupPhase replaces BootstrapPhase, and from then on the game's own rules
+   * offer every turn and begin every phase. The setup choices remain pending for their players.
    */
-  public fun nextGeneration(vararg cardsBought: Int) {
-    phase("Production")
-    phase("Research") {
-      for ((cards, player) in cardsBought.zip(game.actors.filterIsInstance<Player>())) {
-        asPlayer(player).buyCards(cards)
-      }
-    }
-    phase("Action")
-  }
+  public fun startGame(): TaskResult =
+      asActor(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
 
   /**
    * Keeps [count] of the offered setup project cards and discards the rest. The count must be
@@ -770,18 +762,17 @@ public class TfmGameplay(
       }
 
   /**
-   * Replaces the sole current Phase with the named phase through an Admin operation (for example,
-   * `phase("Production")` selects `ProductionPhase`), then runs `body`. The caller must have
-   * started SetupPhase and must handle work left by the new phase. Throws [NotNowException] when
-   * there is not exactly one current Phase.
+   * Puts the game in the named phase ex machina (for example, `phase("Action")` places
+   * `ActionPhase`). The new phase's automatic effects run, but its queued start-of-phase rules,
+   * such as offering turns or handing off to a later phase, do not; this suits focused scenarios
+   * that need a phase without the game's flow. Fails when no pending work may be left behind.
    */
-  public fun phase(phase: String, body: OperationBlock = {}) {
-    if (count("Phase") != 1) {
-      throw NotNowException(
-          "No current Phase; start SetupPhase through TfmWorkflow before changing phases"
-      )
+  public fun phase(phase: String): TaskResult {
+    if (!game.tasks.isEmpty()) {
+      throw NotNowException("Finish pending tasks before putting the game in ${phase}Phase")
     }
-    asActor(ADMIN).runOperation("${phase}Phase FROM Phase", body)
+    val current = reader.getComponents(resolve("Phase")).elements.single().className
+    return asActor(ADMIN).sneak("${phase}Phase FROM $current")
   }
 
   /** This actor's printed production of [kind]: live `PROD[kind]` minus `ProdOffset`. */

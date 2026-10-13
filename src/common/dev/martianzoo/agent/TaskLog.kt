@@ -109,10 +109,13 @@ public class TaskLog internal constructor(private val world: World) {
             instruction.startsWith("CHOOSE ") -> choose(agent, instruction.removePrefix("CHOOSE "))
             instruction.startsWith("EX MACHINA ") ->
                 agents.exMachina(agent.actor, instruction.removePrefix("EX MACHINA "))
-            instruction.startsWith("DROP ") ->
-                agent.dropTask(
-                    requireNotNull(matchingTask(agent, instruction.removePrefix("DROP "))).id
-                )
+            instruction.startsWith("DROP ") -> {
+              agent.dropTask(
+                  requireNotNull(matchingTask(agent, instruction.removePrefix("DROP "))).id
+              )
+              // A drop does not settle by itself; routine Admin work it unblocks resumes now.
+              agent.autoExecNow()
+            }
             else -> agent.doTasks(instruction)
           }
         } catch (e: Exception) {

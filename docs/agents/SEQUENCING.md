@@ -24,6 +24,7 @@ meaning.
   that waits until no ordinary work, or no ordinary and `LATER` work, remains in the World.
 
 Deferral is the only task priority, and there is no exclusive interaction spanning several tasks.
+The turn order and every phase change are authored rules; see [Game flow](#game-flow).
 An Agent may choose among its available tasks; policy cannot supply a missing game rule.
 [Deferred work](#deferred-work) owns the rules.
 
@@ -106,9 +107,9 @@ may interleave with another player's response or payment within a turn.
 
 ### Remaining design work
 
-- Define acceptance and completion through authored rules and settlement. Current `NewTurn` and
-  `SecondAction` are signals, not lasting turn scopes; deferred work and the workflow's wait for an
-  idle World are not by themselves the new lifecycle.
+- Turn completion is authored now (`TurnOver`, under [Game flow](#game-flow)), but `NewTurn` and
+  `SecondAction` are still signals, not lasting turn scopes. Define acceptance and a turn scope
+  through authored rules and settlement.
 - Keep turn identity separate from generic ability invocation: `UseAction` currently represents
   both normal actions and reactive offers. It must not automatically create a turn.
 - Reduce overloaded action names when changing the relevant APIs. `ActionSlot` / `Action1` /
@@ -117,6 +118,38 @@ may interleave with another player's response or payment within a turn.
 - Verify wild-tag allocation timing, Suitable Infrastructure, extra-turn ordering, and completion
   through cross-player responses before treating the model as implemented. Do not add nesting or
   a second scope representation without a concrete case that requires it.
+
+## Game flow
+
+The game's own rules carry play from `SetupPhase` to `VictoryPhase`. A client only starts the game
+(`TfmGameplay.startGame`, which performs `SetupPhase FROM BootstrapPhase`). There is no Kotlin
+workflow, and nothing turns the flow on or off.
+
+- **Phases without turns hand off when their work is done.** `SetupPhase`, `ProductionPhase`,
+  `SolarPhase`, `ResearchPhase`, and `End` each dispatch `FINALLY { Next FROM This }` as they begin.
+  Production hands off to `SolarPhase` while a `GameEndBarrier` exists, and otherwise signals
+  `CheckGameEnd`.
+- **Phases with turns hand off from their last turn.** A turn lasts through its `LATER` cleanup, so
+  its end is `FINALLY` work, and all pending `FINALLY` work becomes ordinary together. A handoff
+  dispatched as the Corporation, Prelude, Action, or final greenery phase began would therefore run
+  after its first turn; these phases instead say what follows each turn.
+- **Turn order.** `TakeTurn<P>` gives `NewTurn<P>` and dispatches `FINALLY { TurnOver<P> }`; each
+  phase with turns says what follows `TurnOver`. `NextPlayer<P>` passes play to the next seat
+  through `AfterMe`. Outside the action phase, reaching the start player again is `RoundOver`; in
+  the action phase, play passes over players who have passed, and production begins once everyone
+  has. With one player, `NextPlayer` is always `RoundOver`. These signals take a Player argument
+  rather than an owner, so their work stays with Admin, as it must for Players who do not
+  autoexecute.
+- **Modules own phase order.** The corporation phase ends in `RoundOver`. `NoPreludes`, selected in
+  every game without Prelude, then begins the first `ActionPhase`; `PreludeExpansion` begins
+  `PreludePhase` instead, whose own `RoundOver` begins the action phase. Expansions add their solar
+  work as triggers on the one `SolarPhase`, and Turmoil's waits under `LATER` for the rest.
+- **A turn given outside turn order has no continuation.** `NewTurn` alone is just a turn; only
+  `TakeTurn` attaches what follows. Sandbox scenarios and the REPL's manual modes take turns this
+  way. They leave the flow by dropping its pending tasks once, and then place phases ex machina
+  (`TfmGameplay.phase`), whose queued start-of-phase rules do not run.
+- **Declining another final greenery is `Done<Phase>`.** A signal would vanish at once, before
+  `TurnOver` could read it, so `Done` instead lasts until its phase ends.
 
 ## Required promises
 
@@ -331,19 +364,27 @@ work defers. It exists for the turn and phase workflow.
 
 ### Operation completion
 
-An operation's work is over when no task remains, whatever its deferral. `World.isIdle` also
-requires that no `MustCleanUp` remains, and `TfmWorkflow.Automatic` currently begins the next turn
-or phase only then. A manual operation likewise fails while its own deferred work is pending. That
-gives [the missing rule](#the-missing-rule-when-an-operation-is-over) a whole-World answer. It does
-not settle delegated control within one operation: in the Neptunian case, P1 can still select
-unrelated work while P2's payment remains.
+An operation's work is over when no new task remains, or when the World's `FINALLY` work has begun
+since the operation's last decision. `FINALLY` work begins only once no ordinary or `LATER` work
+remains (L2-19), so by then everything the operation started, including the cleanup it deferred,
+is finished. The turn handoffs and phase changes that follow, and the offers they create, belong to
+whatever comes next. `ActorEngine.requireComplete` judges cleanup components at that same point,
+from the event log; the Agents record when each operation begins and decides, and automatic
+execution is not a decision. That gives [the missing
+rule](#the-missing-rule-when-an-operation-is-over) a whole-World answer. It does not settle
+delegated control within one operation: in the Neptunian case, P1 can still select unrelated work
+while P2's payment remains.
 
 ### Decisions and open questions
 
 - **`FINALLY` for workflow.** On 2026-10-11 the owner ruled out a band below `LATER`. On
   2026-10-12, once nested `LATER` proved to need either a depth rule or a lowest band, he chose
   `FINALLY`, so that turns and phases can advance through authored rules. Keeping
-  Terraforming Mars-specific Kotlin such as `TfmWorkflow` is out of the question.
+  Terraforming Mars-specific Kotlin such as `TfmWorkflow` was out of the question; it is deleted.
+- **Game flow.** On 2026-10-12 the owner ruled that the Pets model must never be shaped by turning
+  the flow on or off, that tests be either clear sandbox or clear gameplay scenarios, and that
+  modules contribute phase order without a central orchestrator. He proposed `NoPreludes` so that
+  exactly one module owns each handoff out of the corporation phase.
 - **Exclusion is not deferral.** Deferral orders work; it cannot keep other work out while an
   interaction is under way. The Neptunian payment above needs exclusion or a join, which deferral
   does not provide.

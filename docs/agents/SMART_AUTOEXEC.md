@@ -20,8 +20,8 @@ preferable outcome that is lost by doing this task first. Include tasks generate
 the queue and the effects of cards already in play. Do not use tasks inserted by a test, a
 hypothetical card, FakeCanon, or FakeHeadStart as counterexamples to a claim about current Canon.
 
-`TfmWorkflow.Automatic` waits for outstanding work to drain before starting the next phase or
-granting the next action. Production cannot occur midway through clearing a Player's queue. In
+The game's flow begins the next phase or turn only as `FINALLY` work, after all other work has
+drained ([game flow](SEQUENCING.md#game-flow)). Production cannot occur midway through clearing a Player's queue. In
 particular, Factorum's action is not a counterexample to immediately taking a pending Energy gain
 unless a reachable Canon play actually puts both tasks in that queue. A future Canon edit that
 changes a proved premise should ideally be caught by a check like `CanonInvariantsTest`; that is a
@@ -186,8 +186,8 @@ An earlier attempt wrote tests by inserting pairs of tasks with `Agent.addTasks`
 what the engine does when given those pairs. It did not show that current Canon can put both tasks
 in a Player's queue. In particular, pairing an Energy gain with Factorum's action assumed the
 very scheduling fact that needed checking. Pairing a Player's removal task with an Admin production
-phase was invalid for this question: the automatic workflow waits for outstanding work to clear
-before starting production.
+phase was invalid for this question: the game's flow waits for outstanding work to clear before
+starting production.
 
 The replacement tests used real Canon card plays, but mostly compared two orders within a single
 card. Agreement in those plays could not establish that doing a Type's gain or removal first is

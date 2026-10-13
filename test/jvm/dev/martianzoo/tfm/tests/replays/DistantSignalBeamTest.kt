@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -36,7 +35,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
 
   @Test
   internal fun distantSignalBeam() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     keepStartingProjects(7, 10)
     generation1()
     generation2()

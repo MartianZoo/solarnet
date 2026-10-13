@@ -205,7 +205,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
 
   internal class TfmGameplayTestTest : TfmGameplayTest() {
     @Test
-    internal fun `Corporation entry lets the players finish setup through the workflow`() {
+    internal fun `Corporation entry lets the players finish setup in turn order`() {
       newTestGame(playerCount = 2, kimCorporation = Manutech, startAtCorporation = true)
 
       kim.count("$Manutech") shouldBe 0
@@ -215,18 +215,6 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
         doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation2>, Hand>")
         stan.pay()
       }
-      kim.playProject(MineralDeposit, 5).expect("5 Steel")
-    }
-
-    @Test
-    internal fun `Starting another game clears the previous workflows unfinished turn`() {
-      newTestGame()
-      val previousGame = game
-      previousGame.tasks.isEmpty() shouldBe false
-
-      newTestGame()
-
-      previousGame.tasks.isEmpty() shouldBe true
       kim.playProject(MineralDeposit, 5).expect("5 Steel")
     }
   }

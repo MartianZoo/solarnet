@@ -13,6 +13,8 @@ import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Deferral.FINALLY
+import dev.martianzoo.pets.ast.Deferral.NONE
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
@@ -29,7 +31,10 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.GameEvent.TaskEditedEvent
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameWorld
@@ -144,21 +149,55 @@ internal constructor(
     taskQueues.editTask(task)
   }
 
-  /** Requires that no new pending task or cleanup component remains. */
-  public fun requireComplete(allowedPendingTasks: Set<TaskId> = emptySet()) {
+  /**
+   * Requires that the operation's work is over and left no cleanup component. Its work is over when
+   * no new pending task remains, or when the World's `FINALLY` work has begun since [lastDecision]:
+   * that happens only once no ordinary or `LATER` work remains (L2-19), and work admitted from then
+   * on belongs to whatever comes next. Cleanup is judged at that same point.
+   */
+  public fun requireComplete(
+      allowedPendingTasks: Set<TaskId> = emptySet(),
+      lastDecision: Checkpoint? = null,
+  ) {
     val pending = allTasks.extract { it }.filter { it.id !in allowedPendingTasks }
-    if (pending.isNotEmpty()) {
+    val workOver = lastDecision?.let(::finalWorkBegan)
+    if (pending.isNotEmpty() && workOver == null) {
       if (pending.any { it.instruction.isAbstract(reader) }) {
         throw NotFullySpecifiedException("pending abstract tasks:\n${pending.joinToString("\n")}")
       }
       throw TaskException("pending tasks:\n${pending.joinToString("\n")}")
     }
-    if (!reader.has(parse("MAX 0 $MUST_CLEAN_UP"))) {
+    val cleanupLeft =
+        if (pending.isEmpty() || workOver == null) !reader.has(parse("MAX 0 $MUST_CLEAN_UP"))
+        else cleanupComponentsAt(workOver) > 0
+    if (cleanupLeft) {
       throw DeadEndException(
           "components requiring cleanup remained after the operation: " +
               reader.getComponents(MUST_CLEAN_UP.expression).elements
       )
     }
+  }
+
+  /** Where the World's `FINALLY` work first began since [checkpoint], if it has. */
+  private fun finalWorkBegan(checkpoint: Checkpoint): Checkpoint? =
+      gameWorld.events
+          .entriesSince(checkpoint)
+          .firstOrNull {
+            it is TaskEditedEvent && it.oldTask.deferral == FINALLY && it.task.deferral == NONE
+          }
+          ?.let { Checkpoint(it.ordinal) }
+
+  /** How many cleanup components existed at [checkpoint]: those present now, less later change. */
+  private fun cleanupComponentsAt(checkpoint: Checkpoint): Int {
+    val mustCleanUp = reader.classTable.getClass(MUST_CLEAN_UP)
+    fun cleanup(component: Component?) =
+        component?.type?.rootClass?.isSubtypeOf(mustCleanUp) == true
+    val changeSince =
+        gameWorld.events.changesSince(checkpoint).sumOf {
+          (if (cleanup(it.change.gaining)) it.change.count else 0) -
+              (if (cleanup(it.change.removing)) it.change.count else 0)
+        }
+    return reader.count(reader.resolve(MUST_CLEAN_UP.expression)) - changeSince
   }
 
   /**

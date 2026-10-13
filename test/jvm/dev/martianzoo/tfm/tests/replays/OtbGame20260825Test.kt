@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -28,7 +27,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
 
   @Test
   internal fun otbGame20260825() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     val green = player(1)
     val yellow = player(2)
     keepStartingProjects(10, 5)

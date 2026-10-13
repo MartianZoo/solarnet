@@ -8,6 +8,11 @@ CLASS SoloMode : GameMode {
   This: SoloOpponent
   This: 14 SoloGenerationsLeft
   Generation: -SoloGenerationsLeft
+
+  // With one player, every turn completes a round.
+  NextPlayer: RoundOver
+  // Only a won solo game has final greenery and scoring.
+  Victory IF ProductionPhase: FinalGreeneryPhase FROM ProductionPhase BY Admin
 }
 
 "Exactly one solo objective Module active in a solo game"

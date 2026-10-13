@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -38,7 +37,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
 
   @Test
   internal fun distantPressureMass() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     keepStartingProjects(4, 4)
     generation1()
     generation2()

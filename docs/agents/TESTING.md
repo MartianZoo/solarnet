@@ -32,7 +32,7 @@
 - [`TfmSandboxTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmSandboxTest.kt) —
   focused scenarios with corrections and selected phase shortcuts.
 - [`TfmGameplayTest.kt`](../../test/common/dev/martianzoo/tfm/tests/TfmGameplayTest.kt) —
-  scenarios reached through play under the real automatic workflow.
+  scenarios reached through play, with the game's own rules offering turns and beginning phases.
 - [`AbstractFullGameTest.kt`](../../test/common/dev/martianzoo/tfm/tests/replays/AbstractFullGameTest.kt)
   — read only for whole-game chronology.
 
@@ -334,16 +334,26 @@ Choose the fixture by what the scenario proves, not the kind of card:
 
 - `TfmSandboxTest` supplies a prepared position, explicit corrections, and selected phase shortcuts.
   Use it for focused card interactions and rules that do not depend on authentic turn/phase history.
-- `TfmGameplayTest` uses `TfmWorkflow.Automatic`. Reach the scenario through real play, including
-  passing through production to obtain resources. Do not inject resources, replace phases, or
-  invoke internal rule instructions. A setup convenience may play a documented ordered selection
-  of corporations or Preludes through the workflow; convenience must not bypass their gameplay.
-  The implemented default already plays the starting corporations; Prelude choices remain explicit.
+  Its game is set up and enters the corporation phase normally; the fixture then drops the turn
+  order that phase begins, so scenarios take turns ex machina and `TfmGameplay.phase` places later
+  phases without their queued start-of-phase rules. A scenario that needs a phase's real effects,
+  such as production, a solar phase, or research, belongs in `TfmGameplayTest`.
+- `TfmGameplayTest` starts the game and lets its own rules offer every turn and begin every phase.
+  Reach the scenario through real play, including passing through production to obtain resources.
+  Do not inject resources, replace phases, or invoke internal rule instructions. A setup
+  convenience may play a documented ordered selection of corporations or Preludes in turn order;
+  convenience must not bypass their gameplay. The implemented default already plays the starting
+  corporations; Prelude choices remain explicit.
 
-Gameplay tests must follow the turns offered by the workflow. The current helpers do not enforce
-this: `Agent.inTurn` creates a turn when the acting player has no pending task, even if the workflow
-is waiting for another player. For example, Stan's action can succeed while Kim's turn is pending.
-Running the automatic workflow therefore does not by itself prove that a test follows turn order.
+Gameplay tests must follow the turns the game offers. The current helpers do not enforce this:
+`Agent.inTurn` creates a turn when the acting player has no pending task, even if the game is
+waiting for another player. For example, Stan's action can succeed while Kim's turn is pending.
+Following the game's flow therefore does not by itself prove that a test follows turn order.
+
+Synthetic engine checks that only need setup use `setUpGame`, which starts the game and drops setup's
+pending handoff (`startSetupOnly`), so the game stays in `SetupPhase`. `startCorporationPhaseOutOfTurn`
+moves such a game into the corporation phase through that phase's own start, then drops the turn
+order it begins.
 
 Both extend the existing `TfmTest` directly and expose the same `newTestGame` arguments.
 Each owns its setup; there is no intermediate shared base. Neither is restricted to project cards.
@@ -559,9 +569,10 @@ aborted actions have no successful `TaskResult`, so assert their relevant unchan
 Use a zero scalar, such as `0 Plant` or `PROD[0 Energy]`, to assert that a particular type did not
 change.
 
-An action's result does not include automatic workflow operations that run afterward. To check
-those phase effects, compare the relevant state immediately before and after the phase; for example,
-snapshot resources after production and before the world-government choice when testing Turmoil.
+An action's result includes whatever the game's flow performs before the next decision, such as
+the next turn's offer, production, or a Turmoil phase that follows World Government Terraforming.
+To check one phase's effects, compare the relevant state immediately before and after that phase;
+for example, snapshot resources after production and before the world-government choice.
 
 Cover meaningful interfaces, negative cases, non-targets, and option combinations rather than only
 the happy path. A filtering or Type-variable test should include several tempting Components that must not
@@ -597,8 +608,8 @@ characterization over a disproportionate workaround.
 the replay and score previews, while Admin retains normal autoexecution and handles fixed payment
 bookkeeping and final scoring. `VictoryPoint` and `ScoreEventVps` are `System`; players do not submit
 scoring tasks. A pending negative score can wait for a positive score to supply the points.
-Keep the automatic workflow running through the last passes, production, final greenery, and
-scoring; do not shut it down and manually supply turns or phase transitions. Omit copied game-log
+Follow the game's flow through the last passes, production, final greenery, and scoring; do not
+manually supply turns or phase transitions. Omit copied game-log
 comments that only restate the submitted tasks.
 Use resolved, concrete instructions and `PROD[...]` in its `doTasks` calls, without AMAP dots or
 unevaluated metrics. Combine amounts when the matching tasks are already pending. A scalar total

@@ -241,12 +241,12 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(BiomassCombustors, mc = 1, steel = 1) {
         // The archive's solo implementation omitted the mandatory plant-production reduction.
         // Drop only that unsupported effect so the replay preserves the sourced action and state.
-        me.dropTask(game.tasks.extract { it }.single().id)
+        me.dropTask(game.tasks.extract { it }.single { !it.deferred }.id)
       }
       playProject(GhgFactories, steel = 4)
       playProject(HeatTrappers, steel = 2) {
         // As with Biomass Combustors, the archive omitted the solo production reduction.
-        me.dropTask(game.tasks.extract { it }.single().id)
+        me.dropTask(game.tasks.extract { it }.single { !it.deferred }.id)
       }
       convertPlants { placeTile(6, 5) }
       playProject(StJosephOfCupertinoMission, 7)
@@ -411,7 +411,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(CuttingEdgeTechnology, 12)
       playProject(CloudSeeding, 9) {
         // The archive again omitted a solo-only production target.
-        me.dropTask(game.tasks.extract { it }.single().id)
+        me.dropTask(game.tasks.extract { it }.single { !it.deferred }.id)
       }
       stdProject("AsteroidProject")
       stdProject("AsteroidProject")

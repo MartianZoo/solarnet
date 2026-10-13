@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.World
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -26,7 +25,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
   @Test
   internal fun game20230521() {
     listOf(p1, p2).forEach { it.autoExecPolicy = NONE }
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     p1.doTasks("20 TerraformRating")
     p2.doTasks("20 TerraformRating")
     p1.doTasks(
@@ -2380,14 +2379,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "Plant",
         "4 MC",
     )
-    p1.doTasks("Ok") // no more greenery
+    p1.doTasks("Done") // no more greenery
     p2.doTasks("ConvertPlants", "-8 Plant")
     p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p2.doTasks(
         "GreeneryTile<Tharsis_8_8>",
         "2 MC",
     )
-    p2.doTasks("Ok") // no more greenery
+    p2.doTasks("Done") // no more greenery
 
     p1.assertCounts(126 to "VictoryPoint", 1 to "Victory")
     p2.assertCounts(92 to "VictoryPoint", 0 to "Victory")

@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -56,7 +55,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
 
   @Test
   internal fun completeGame() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     keepStartingProjects(5, 6, 7, 3)
     generation1()
     generation2()
