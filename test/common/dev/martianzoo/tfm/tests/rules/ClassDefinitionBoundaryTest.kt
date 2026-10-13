@@ -120,8 +120,8 @@ internal class ClassDefinitionBoundaryTest {
 
   @Test
   internal fun `Refugee Camps brings its Camp resource unless the card is excluded`() {
-    val coloniesGame = classesInGame("ColoniesExpansion")
-    val withoutRefugeeCamps = classesInGame("ColoniesExpansion, -RefugeeCamps")
+    val coloniesGame = classesInGame("ColoniesExpansion, Callisto")
+    val withoutRefugeeCamps = classesInGame("ColoniesExpansion, Callisto, -RefugeeCamps")
     val gameSelectingCampDirectly = classesInGame("Camp")
 
     coloniesGame.shouldContain(cn("Camp"))
@@ -142,7 +142,7 @@ internal class ClassDefinitionBoundaryTest {
 
   @Test
   internal fun `choosing a colony tile enables its solo setup`() {
-    val soloWithoutTileChoice = classesInGame("ColoniesExpansion", players = 1)
+    val soloWithoutTileChoice = classesInGame("", players = 1)
     val soloWithTileChoice = classesInGame("ColoniesExpansion, Callisto", players = 1)
     val multiplayerWithTileChoice = classesInGame("ColoniesExpansion, Callisto", players = 2)
 

@@ -9,6 +9,7 @@ import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
@@ -188,10 +189,12 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
    * Class inputs use canonical Class Names; `name:cards` inputs select compatible cards from the
    * named bundle independently of its gameplay Module. Naming any milestones or awards selects the
    * exact configured pool for that category; an explicitly named milestone bypasses automatic pool
-   * preferences. A playable Terraforming Mars Catalog requires at least one player name in seat
-   * order. Missing names and the generated concrete `Premise` Class belong to the premise-local
-   * declaration table; their on-gain effects create the resolved Modules, Players, and exact
-   * starting Components without recompiling this Catalog's master table.
+   * preferences. An explicitly named card may count an unavailable class in its on-gain effect as
+   * zero; automatic card pools still require all referenced Modules. Selecting ColoniesExpansion
+   * requires at least one named colony tile. A playable Terraforming Mars Catalog requires at least
+   * one player name in seat order. Missing names and the generated concrete `Premise` Class belong
+   * to the premise-local declaration table; their on-gain effects create the resolved Modules,
+   * Players, and exact starting Components without recompiling this Catalog's master table.
    */
   final override fun configurePremise(builder: GamePremiseBuilder) {
     if (PLAYER in allClassNames && builder.playerNames.isEmpty()) {
@@ -249,6 +252,11 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
       }
     }
     val moduleNames = builder.moduleNames
+    if (cn("ColoniesExpansion") in moduleNames && included.none { it in colonyTileClassNames }) {
+      throw InvalidGameConfigException(
+          "ColoniesExpansion requires at least one selected colony tile, such as Callisto"
+      )
+    }
     val selectedMilestoneNames =
         selectGoalPool(
             moduleNames,
@@ -567,9 +575,12 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
       )
 
   private fun cardCompatibilityRequirement(card: PetClass): Requirement? =
-      cardBundleCompatibilityRequirement(card)
+      cardBundleCompatibilityRequirement(card, allowUnavailableCounts = true)
 
-  private fun cardBundleCompatibilityRequirement(card: PetClass): Requirement? {
+  private fun cardBundleCompatibilityRequirement(
+      card: PetClass,
+      allowUnavailableCounts: Boolean = false,
+  ): Requirement? {
     val declarations = linkedMapOf<ClassName, ClassDeclaration>()
     val pending = ArrayDeque<ClassName>().apply { add(card.className) }
     while (pending.isNotEmpty()) {
@@ -579,7 +590,11 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
           .flatMap { node -> node.descendantsOfType<ClassName>() }
           .filterTo(pending) { referencedName -> referencedName in cardAuxiliaryClassNames }
     }
-    return bundleCompatibilityRequirement(card.className, declarations.values.toList())
+    return bundleCompatibilityRequirement(
+        card.className,
+        declarations.values.toList(),
+        allowUnavailableCounts,
+    )
   }
 
   private val cardAuxiliaryClassNames: Set<ClassName> by lazy {
@@ -592,11 +607,29 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
   private fun bundleCompatibilityRequirement(
       className: ClassName,
       declarations: List<ClassDeclaration>,
+      allowUnavailableCounts: Boolean = false,
   ): Requirement? {
     val referencedClassNames =
         declarations
             .flatMap { it.allNodes }
-            .flatMapTo(linkedSetOf()) { node -> node.descendantsOfType<ClassName>() }
+            .flatMapTo(linkedSetOf()) { node ->
+              if (
+                  !allowUnavailableCounts ||
+                      className !in cardClassNames ||
+                      node !is Effect ||
+                      node.trigger != Effect.Trigger.WhenGain
+              ) {
+                return@flatMapTo node.descendantsOfType<ClassName>()
+              }
+              val required = linkedSetOf<ClassName>()
+              node.visitDescendants { part ->
+                // A play-time count of an unavailable class contributes zero.
+                if (part is Count) return@visitDescendants false
+                if (part is ClassName) required.add(part)
+                true
+              }
+              required
+            }
             .filter { it != className && it in allClassNames }
     val derived =
         listOfNotNull(availabilityRequirement(className)) +

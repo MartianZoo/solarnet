@@ -22,7 +22,7 @@ internal class FloatingTradeHubTest : TfmSandboxTest() {
 
   @Test
   internal fun `Converts only the chosen floaters into titanium without Prelude`() {
-    newTestGame(addOptions = "-PreludeExpansion, -prelude2:cards, FloatingTradeHub")
+    newTestGame(addOptions = "FloatingTradeHub")
     kim.exMachina("$FloatingTradeHub, 5 Floater<$FloatingTradeHub>")
 
     kim.inTurn {

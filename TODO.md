@@ -450,10 +450,11 @@ These concerns remain open; the ranking does not select replacement designs.
   if that can be done generally, without a card-specific renderer fact. The local Fryxelius archive
   has no Astra Mechanica ruling; current tests permit returning zero cards.
 - Define an authored, game-neutral way for bundle compatibility inference to distinguish hard
-  dependencies from references that may safely disappear when a companion bundle is absent. Start
-  with characterization tests for Suitable Infrastructure, Constructor, Soil Studies, and Summit
-  Logistics; decide ambiguous no-op cards explicitly, and let English consume the same modeled fact
-  rather than adding a renderer-only flag.
+  dependencies from references that may safely disappear when a companion bundle is absent. The
+  catalog now permits explicitly named cards whose only missing class is counted in an immediate
+  on-gain effect, while automatic pools still require the referenced Module;
+  continue with Suitable Infrastructure, Constructor, and Soil Studies. Decide ambiguous no-op cards
+  explicitly, and let English consume the same modeled fact rather than adding a renderer-only flag.
 - Move `PreludePhase` out of `tfm-text`'s `resetsForPreludeAction` recognizer once there is a
   principled bundle-supplied description of the phase/latch relationship; do not add a Prelude-only
   boolean merely to relocate the class name.
@@ -536,13 +537,12 @@ attribution, features, and unresolved rule questions. Related symptoms are group
    [DerivedClassLowerer](src/common/dev/martianzoo/pets/DerivedClassLowerer.kt) and the owner-local
    specialization characterization in [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
 
-2. **Expansion compatibility rejects usable content.** Constructor, Summit Logistics, and Molecular
-   Printing are blocked without Colonies; Suitable Infrastructure is blocked without Prelude rules
-   despite its surviving standard-action effect. Configuration probes confirmed these rejections.
-   Constructor's combined city/colony metric is treated as a hard Colonies dependency. This also
-   forces an inaccurate Colonies setting into `OtbGame20260912Test`: Summit Logistics lacks a
-   printed Colonies dependency icon and should allow its smaller payout without enabling unused
-   Colonies gameplay. See
+2. **Expansion compatibility rejects usable content.** Constructor remains blocked without Colonies,
+   and Suitable Infrastructure is blocked without Prelude rules despite its surviving standard-action
+   effect. Counts in on-gain card effects do not block explicitly named Summit Logistics or
+   Molecular Printing without Colonies; `OtbGame20260912Test` now uses the ordinary
+   Summit Logistics card without a colony board. Constructor's city/colony scoring and other optional
+   references still need a general eligibility rule. See
    the eligibility direction in the
    [Pets roadmap](PETS_ROADMAP.md#canon-and-game-rule-modeling).
    Keep Suitable Infrastructure out of the
