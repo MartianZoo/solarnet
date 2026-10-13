@@ -245,6 +245,7 @@ internal class DoubleDownTest : TfmSandboxTest() {
           selectOnlyTask()
           doTasks("CopyPrelude<IndustrialComplex>", "-18 MC")
           selectOnlyTask()
+          doTask("PROD[Steel]")
         }
         .expect("PROD[0 MC, Steel, 0 Titanium, 0 Plant, 0 Energy, 0 Heat]")
   }

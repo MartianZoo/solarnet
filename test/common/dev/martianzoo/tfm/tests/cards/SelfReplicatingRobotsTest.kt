@@ -909,6 +909,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       selectTask("-X? Titanium")
       doTasks("Ok", "L1TradeTerminal FROM ProjectCard")
       selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
+      selectOnlyTask()
       choice()
     }
   }
