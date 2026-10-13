@@ -462,7 +462,8 @@ internal constructor(
       then: InstructionGroup?,
   ) {
     val group = InstructionGroup.of(replacement)
-    if (group.size == 1) {
+    // A group is independent work even when it currently contains only one instruction.
+    if (replacement !is InstructionGroup && group.size == 1) {
       var updated =
           taskQueues.normalizeForSelection(
               original.copy(

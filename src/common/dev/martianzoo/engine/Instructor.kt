@@ -749,7 +749,8 @@ internal constructor(
     }
     val targets = reader.getComponents(selectorType).map { it.expression }
     val branches = targets.map { branchFor(each, it, worldGainNarrowing) }
-    return InstructionGroup.createTree(branches)
+    // Preserve independent branches for task admission, including a single branch.
+    return InstructionGroup.of(branches)
   }
 
   private fun branchFor(
