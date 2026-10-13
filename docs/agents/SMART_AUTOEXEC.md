@@ -102,8 +102,8 @@ relevant relationships and every subsequent legal command are preserved. Current
 consult causes, and a proposed causal scope could depend on ancestry, so excluding history needs
 an argument appropriate to the actual contract.
 
-Iteration order and derived indexes should not create gameplay meaning. If a custom implementation,
-workflow, or external card-identity record can affect later play, either account for it or state
+Iteration order and derived indexes should not create gameplay meaning. If a custom implementation
+or external card-identity record can affect later play, either account for it or state
 that the proof does not cover that execution path. Do not claim whole-game safety from an engine
 projection that omits such facts.
 

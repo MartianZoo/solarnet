@@ -133,7 +133,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
     p1.pass()
     p2.pass()
 
-    // Four generations are complete; the normal workflow now offers generation 5 research.
+    // Four generations are complete; the game now offers generation 5 research.
     admin.assertCounts(5 to "Generation")
     admin.assertCounts(0 to "OceanTile", 0 to "OxygenStep", 0 to "TemperatureStep")
 

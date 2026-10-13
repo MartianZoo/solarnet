@@ -93,8 +93,7 @@ The owner is willing to change Head Start's timing to avoid requiring nested tur
 3. Resume the normal Prelude sequence from where it stopped.
 
 Two tokens could record the owed turns. Their names and implementation are undecided; express the
-entitlement and its consumption through ordinary rules, without teaching Kotlin workflow about
-Head Start. This is explicit permission to explore those entitlement components, not a general
+entitlement and its consumption through ordinary rules, without teaching Kotlin about Head Start. This is explicit permission to explore those entitlement components, not a general
 return to components used only to schedule arbitrary continuations.
 
 This is a deliberate variant, not a claim of exact published timing. Money and steel, and all
@@ -278,8 +277,8 @@ operation is required. Local failure restores the enclosing transaction; agreeme
 already shared decisions or proceed after a disclosure belongs to [ADVERSARIAL.md](ADVERSARIAL.md).
 The external arrangement handles that agreement without making incorrect payment or cleanup
 calculations acceptable. The [turn design](#turns-and-turn-offers) records the intended enclosing
-lifecycle; [operation completion](#operation-completion) states the whole-World rule the workflow
-uses.
+lifecycle; [operation completion](#operation-completion) states the whole-World rule that ends an
+operation.
 
 ## Cleanup
 
@@ -315,7 +314,7 @@ generic.
 The owner's proposed Head Start entitlement tokens are a specific design direction recorded in
 the [turn design](#head-start-acceptable-variant-to-pursue). They describe
 turns owed to a player; evaluate them with that game meaning rather than rejecting them solely
-because workflow will consume them. Their implementation remains open.
+because turn order will consume them. Their implementation remains open.
 
 Devices replaced by deferral:
 
@@ -351,7 +350,7 @@ The language rules state what deferral means. A task's deferral records which di
 
 Playing Solar Probe creates its effects as ordinary work and its flip as `LATER` work. Its own
 science tag therefore counts for every consequence of its effects, and it reaches the played-event
-pile before the workflow offers another turn.
+pile before the game offers another turn.
 
 L2-18 promotes a whole batch at once. The alternative leaves deferral fixed and makes deferred work
 selectable only while no ordinary work exists. The two differ only when a promoted task creates
@@ -372,7 +371,7 @@ ordinary work pending at that moment, but not for work deferred by the same batc
 completion deferred more work, that work and the inner body would become ordinary together. Making
 a nested `LATER` mean "later than later" would need a depth rule. `FINALLY` states the ordering
 directly: final work follows every consequence of the work before it, including work that `LATER`
-work defers. It exists for the turn and phase workflow.
+work defers. It exists for turn and phase handoffs.
 
 ### Operation completion
 
@@ -392,7 +391,7 @@ while P2's payment remains.
 - **Dispatch is not a step.** On 2026-10-12 the owner ruled that a pure dispatch should never sit in
   a queue as current work; the engine performs it, as it releases a `THEN` continuation. This
   replaced the earlier rule that each dispatch was a task of its own.
-- **`FINALLY` for workflow.** On 2026-10-11 the owner ruled out a band below `LATER`. On
+- **`FINALLY` for game flow.** On 2026-10-11 the owner ruled out a band below `LATER`. On
   2026-10-12, once nested `LATER` proved to need either a depth rule or a lowest band, he chose
   `FINALLY`, so that turns and phases can advance through authored rules. Keeping
   Terraforming Mars-specific Kotlin such as `TfmWorkflow` was out of the question; it is deleted.

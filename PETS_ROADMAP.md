@@ -2,8 +2,8 @@
 
 Pets is the static-model side of the planned repository split: the Pets language and type model,
 canonical and fake Terraforming Mars content, card-data generation, derived English, the Almanac,
-and supporting generation or analysis tools. Runtime state, the engine, Agents, gameplay workflow,
-replays, and Mars Playground belong to the [Solarnet roadmap](SOLARNET_ROADMAP.md).
+and supporting generation or analysis tools. Runtime state, the engine, Agents, replays, and Mars
+Playground belong to the [Solarnet roadmap](SOLARNET_ROADMAP.md).
 
 The largest project-wide concern is the complexity accumulated between the engine and functional
 tests. That machinery is outside this document, but it changes how work here is judged. A new Pets
@@ -179,7 +179,7 @@ extraction remains a separate library-design direction below, not a prerequisite
 
 3. **Support honest nested fanout where the game truly has two domains.** Quick Start's
    players-by-resource production is the proving case. Preserve independent recipient decisions and
-   avoid turning `EACH` into an ordered loop, workflow mechanism, or general collection language.
+   avoid turning `EACH` into an ordered loop, sequencing mechanism, or general collection language.
 
 4. **Represent events and lifetimes truthfully.** Point events should be Signals rather than
    self-transmutations. Cleanup lifetime and log visibility should be independent facts. Preserve
@@ -250,7 +250,7 @@ extraction remains a separate library-design direction below, not a prerequisite
 
 - Simplifying the engine-to-functional-test stack is the highest related project concern, but its
   implementation belongs in the Solarnet roadmap.
-- Workflow, Agents, task scheduling, payments, replays, the REPL, and Mars Playground are runtime
+- Agents, task scheduling, payments, replays, the REPL, and Mars Playground are runtime
   work even when they reveal pressure on Pets APIs.
 - Isolated card defects, old open issues, and abandoned stashes are not roadmap commitments.
 - Broad official-content coverage, multilingual generation, micro-optimization, and a polished

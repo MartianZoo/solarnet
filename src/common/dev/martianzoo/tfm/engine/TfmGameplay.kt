@@ -62,7 +62,7 @@ public class TfmGameplay(
    * offer every turn and begin every phase. The setup choices remain pending for their players.
    */
   public fun startGame(): TaskResult {
-    agents.taskLog.workflowStarted("tfm-automatic")
+    agents.taskLog.gameStarted()
     return asActor(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
   }
 

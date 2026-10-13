@@ -980,7 +980,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       stan.pass()
       kim.pass()
       stan.wgt("VenusStep")
-      // The workflow resolves the event after the world-government action returns.
+      // The game resolves the event after the world-government action returns.
       return kim.count("RobotUnit<Class<$Mine>>") to kim.count("Animal<$Pets>")
     }
   }

@@ -189,11 +189,11 @@ These concerns remain open; the ranking does not select replacement designs.
   [fixture notes](docs/agents/TESTING.md#remaining-fixture-development).
 - [ ] Investigate automatic attack-history effects separately; test migration does not justify
   changing the effects used by Law Suit and Crash Site Cleanup.
-- [ ] Investigate enforcing the workflow's offered turn order in `TfmGameplayTest`. `Agent.inTurn`
+- [ ] Investigate enforcing the game's offered turn order in `TfmGameplayTest`. `Agent.inTurn`
   currently creates a turn whenever the acting player has no pending task, even while another
   player's turn is pending. Preserve authentic gameplay without adding a second test-side game
   driver; discuss the effect on sandbox and legacy callers before changing the shared helpers.
-- [ ] Finish moving `.cards` workflow tests to explicit `Agent` tasks; those tests still expose
+- [ ] Finish moving `.cards` gameplay tests to explicit `Agent` tasks; those tests still expose
   `TfmGameplay` players. Sandbox setup now plays ordinary named corporations through Agent tasks
   and uses a scoped `EAGER` override to finish their setup; Kim's configured policy stays `NONE`,
   while Admin remains eager. Preserve explicit corporation plays for scenarios that test their choices.
@@ -398,7 +398,7 @@ These concerns remain open; the ranking does not select replacement designs.
   Type's compact expression, and its full expression. Keep syntax expressions universe-independent;
   converting an arbitrary expression to either resolved form must take a `ClassTable` explicitly.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
-  the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
+  the exact lifecycle it denotes, including atomic calls, task completion, and turn-order play.
 - **Low priority:** [#54: ownership-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)
   — Resolve contextual ownership correctly and display the resolved player.
 - Consider requirement-gated action costs, using United Nations Mars Initiative to make
@@ -550,7 +550,7 @@ These concerns remain open; the ranking does not select replacement designs.
 - Separate `Instructor`'s resolution-only capability from execution so `Changer`, `Effector`, and
   the default Actor do not remain nullable solely for `InstructionResolutionTest`.
 - Replace `World.onTransactionComplete`'s mutable single callback with scoped listener registration once
-  multiple workflow or monitoring observers need to coexist.
+  multiple monitoring observers need to coexist.
 
 ## Ranked bug report — 2026-10-02
 

@@ -277,7 +277,7 @@ the latter still inherits effects from Catalog and Canon changes. Generator/tool
 points and their dependencies may move, and renaming `pets-tools` to `tools` is tracked for after
 the split. That module/task-name change is distinct from a Kotlin type or function redesign.
 
-Runtime-only changes to `World`, `Instructor`, `LiveEffect`, Agents, workflow callbacks, recordings,
+Runtime-only changes to `World`, `Instructor`, `LiveEffect`, Agents, recordings,
 and test fixtures do not qualify on their own because those APIs are staying in Solarnet. Pure
 documentation, build-runner updates, and ordinary defect repairs likewise do not establish a need
 to redesign the moving APIs.

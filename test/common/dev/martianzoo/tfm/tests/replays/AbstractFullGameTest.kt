@@ -49,10 +49,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
             document,
             catalog,
             newAgents = { Agents(TfmEngine.newGame(it)) },
-            startWorkflow = { agents, workflow ->
-              require(workflow == "tfm-automatic")
-              agents.tfm(ADMIN).startGame()
-            },
+            startGame = { agents -> agents.tfm(ADMIN).startGame() },
         )
     importedAgents[p1.actor].list("Component").entries shouldBe p1.list("Component").entries
   }

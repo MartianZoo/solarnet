@@ -27,8 +27,8 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
       """
         Uses one of a Terraforming Mars card's actions. The card must already be owned, and the
         action number must be 1, 2, or 3. It selects the card from the offered
-        turn option or granted card-action task. Payment text after the first comma either drives the action's `tfm_pay`
-        workflow or selects its resource-removal cost.
+        turn option or granted card-action task. Payment text after the first comma either pays
+        the action's cost as `tfm_pay` would or selects its resource-removal cost.
       """
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =

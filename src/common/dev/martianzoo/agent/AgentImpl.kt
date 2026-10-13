@@ -320,8 +320,8 @@ internal class AgentImpl(
   }
 
   // GAMES (methods that can't break game-integrity)
-  // This layer is only usable if you have a running workflow, so that >0 players always have a
-  // task in their queue at any given time
+  // This layer assumes a started game, whose own rules keep some player's queue nonempty until it
+  // ends
 
   override fun fillInTask(taskId: TaskId): TaskForm =
       TaskForm(taskId, tasks.getTaskData(taskId).instruction, this)

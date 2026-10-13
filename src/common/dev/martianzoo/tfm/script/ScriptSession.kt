@@ -390,7 +390,7 @@ public class ScriptSession(
     YELLOW("Task integrity: changes have consequences", MC),
     GREEN("Operation integrity: clear task queue before starting new operation", PLANT),
     BLUE("Turn integrity: must perform a valid game turn for this phase", OCEAN_TILE),
-    PURPLE("Game integrity: the engine fully controls the workflow", ENERGY),
+    PURPLE("Game integrity: the game's own rules drive every turn and phase", ENERGY),
   }
 
   internal fun actor(name: String): Actor {

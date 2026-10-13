@@ -45,8 +45,8 @@ invariant validation.
 `Agents.exMachina` is the client-facing correction path. It adds an internal `Audit` and rejects
 explicit changes to `System` and `MustCleanUp` types on either side of a transmutation.
 Derived changes may still touch those types when required by the corrected state. It also rejects
-any result that leaves additional `MustCleanUp` state, so a correction cannot start a workflow
-whose ordinary completion effects were suppressed.
+any result that leaves additional `MustCleanUp` state, so a correction cannot begin work whose
+ordinary completion effects were suppressed.
 
 When a task is selected, `exMachina` restores its unresolved form, applies the correction, and
 resumes selection under the existing policy. The whole sequence remains failure-atomic.

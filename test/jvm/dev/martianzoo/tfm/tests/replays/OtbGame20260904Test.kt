@@ -1460,7 +1460,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // that A_I_ knows that I need to buy two. Yeah. Um I have bought two cards. It is also stupid
     // of
     // me to buy two, but whatever."
-    // Research is submitted below in workflow order; the quotes remain in recording order.
+    // Research is submitted below in the game's order; the quotes remain in recording order.
     green.buyCards(3)
     yellow.buyCards(2)
     rainbow.buyCards(2)
@@ -1773,7 +1773,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // 6:06:19 PM — Blue: "Pigeon, I'm I'm buying two cards. I'm by one card."
     // 6:06:32 PM — Green: "I would buy one card."
     // All four app histories supply the otherwise unspoken Yellow and Rainbow counts. Research is
-    // submitted in workflow order.
+    // submitted in the game's order.
     yellow.buyCards(2)
     rainbow.buyCards(2)
     blue.buyCards(1)

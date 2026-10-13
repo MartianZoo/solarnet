@@ -32,7 +32,7 @@ internal class GameFileImporterTest {
     val source = Agents(Engine.newGame(premise))
     source[PLAYER1].autoExecPolicy = NONE
     source.taskLog.start()
-    source.taskLog.workflowStarted("test")
+    source.taskLog.gameStarted()
     source[PLAYER1].addTasks("Left, Right")
     source[PLAYER1].doTasks("Left", "Middle", "Coin", "Right", "Middle", "Coin")
     val recording = source.world.recording()
@@ -42,7 +42,7 @@ internal class GameFileImporterTest {
             GameFileJson.parse(GameFileJson.encode(recording, source.taskLog.inputs())),
             premise.catalog,
             newAgents = { Agents(Engine.newGame(it)) },
-            startWorkflow = { agents, _ -> agents[PLAYER1].addTasks("Left, Right") },
+            startGame = { agents -> agents[PLAYER1].addTasks("Left, Right") },
         )
 
     replay(recording)[PLAYER1].count("Coin") shouldBe 2
@@ -70,7 +70,7 @@ internal class GameFileImporterTest {
     val source = Agents(Engine.newGame(premise))
     source[PLAYER1].autoExecPolicy = NONE
     source.taskLog.start()
-    source.taskLog.workflowStarted("test")
+    source.taskLog.gameStarted()
     source[PLAYER1].addTasks("Coin")
     source[PLAYER1].doTask("Coin")
     source.exMachina(PLAYER1, "Coin")
@@ -84,10 +84,7 @@ internal class GameFileImporterTest {
             document,
             premise.catalog,
             newAgents = { Agents(Engine.newGame(it)) },
-            startWorkflow = { agents, name ->
-              name shouldBe "test"
-              agents[PLAYER1].addTasks("Coin")
-            },
+            startGame = { agents -> agents[PLAYER1].addTasks("Coin") },
         )
 
     imported[PLAYER1].count("Coin") shouldBe 2
@@ -117,7 +114,7 @@ internal class GameFileImporterTest {
             GameFileJson.encode(
                 source.world.recording(),
                 listOf(
-                    RecordedInput.StartWorkflow("test"),
+                    RecordedInput.StartGame,
                     RecordedInput.Command(
                         player,
                         RecordedInput.Kind.DO_TASK,
@@ -135,7 +132,7 @@ internal class GameFileImporterTest {
             document,
             premise.catalog,
             newAgents = { Agents(Engine.newGame(it)) },
-            startWorkflow = { agents, _ -> agents[PLAYER1].addTasks("Coin") },
+            startGame = { agents -> agents[PLAYER1].addTasks("Coin") },
             supplyCardInputs = { agents, inputs ->
               agents[PLAYER1].count("Coin") shouldBe 0
               inputs shouldBe listOf(cardInput)
@@ -149,7 +146,7 @@ internal class GameFileImporterTest {
           document,
           premise.catalog,
           newAgents = { Agents(Engine.newGame(it)) },
-          startWorkflow = { agents, _ -> agents[PLAYER1].addTasks("Coin") },
+          startGame = { agents -> agents[PLAYER1].addTasks("Coin") },
       )
     }
   }

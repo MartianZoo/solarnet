@@ -32,7 +32,7 @@ test, Git history, commit message, or previous agent summary is not evidence abo
 Do not begin translating actions until the source archive has been inventoried. For a dated test,
 inspect `_local/replays/GameYYYYMMDD/` explicitly, including any source inventory; `_local` may be a symlink
 that a repository-wide file search does not traverse. Read an `implementation-plan.md` only for its
-general workflow, never for game-specific answers.
+general procedure, never for game-specific answers.
 
 Given any player ID from an endgame or player URL, collect the machine-readable sources before editing:
 
@@ -76,7 +76,7 @@ removing them, preserve the complete raw log under `_local/replays/GameYYYYMMDD/
 it for action identity, order, choices, and consequences. Delete the copied lines once a complete
 replay is working and that audit is complete; retain them in an incomplete replay where they still
 support reconstruction. When the test disagrees, first suspect our chronology, payment allocation,
-card implementation, workflow, or engine. Override a logged claim only with stronger independent
+card implementation, game flow, or engine. Override a logged claim only with stronger independent
 evidence and say why.
 
 Never invent a source-style comment. A comment that reads like a log line must be traceable to that
@@ -106,7 +106,7 @@ actions on every turn unless passing, so translate the actions and do not use `p
 ... }` to auto-decline a second action. In games without that restriction, use `player.turn { ... }`
 consistently for routine turns instead of scattering many `declineSecondAction()` calls through the
 test. Once every other player has passed, keep the remaining player's actions through `pass()` in one
-turn block when the workflow permits. Play both of a player's Preludes in the same turn block.
+turn block when the turn order permits. Play both of a player's Preludes in the same turn block.
 
 A Herokuapp `Player passed` log line does not always mean that the pass happened at that point in turn
 order. After taking one action, a player can combine three declarations in one request: forgo the
@@ -238,7 +238,7 @@ Before retaining an `exMachina()`:
 2. maximize plausible full-value non-money payments;
 3. add source-backed expectations since the prior checkpoint;
 4. check configuration and persistent patterns;
-5. test whether the discrepancy identifies a real card, ownership, workflow, or engine bug;
+5. test whether the discrepancy identifies a real card, ownership, game-flow, or engine bug;
 6. add a focused regression when a production defect is found;
 7. record unsupported real behavior in `TODO.md`.
 
@@ -251,7 +251,7 @@ explicit in the canon data and cover every opponent in a focused multiplayer reg
 Confirm that every player has actually passed and that final production completed before translating
 final greenery. Preserve final-generation player order. After each player's last greenery, explicitly
 submit `Ok` before advancing to the next player. Do not try to predict whether bonuses could enable one
-more greenery; the workflow intentionally asks the player to decline.
+more greenery; the game intentionally asks the player to decline.
 
 Use the end page and player records to assert the score table by category: TR, milestones, first- and
 second-place awards, greenery, cities, aggregate card VP, selected variable-card VP, totals, ties, and the
@@ -304,8 +304,8 @@ Before handoff:
 1. audit the test against the complete source log for chronology, choices, and consequences;
 2. trace every setup fact and assertion to the raw log, screenshot, end page, or player record;
 3. recheck screenshot phase placement and all six values in every dashboard stanza;
-4. justify every `exMachina()` and search once more for chronology, payment, ownership, or workflow
-   explanations;
+4. justify every `exMachina()` and search once more for chronology, payment, ownership, or
+   game-flow explanations;
 5. confirm final passes, production, greenery `Ok`s, full final state, scoring categories, and winner;
 6. run formatting, the documented engine or repository-wide suite appropriate to the changes, and
    `git diff --check`;

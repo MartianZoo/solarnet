@@ -31,8 +31,8 @@ public object Engine {
    * Creates a game at its committed initialization state. [customClasses] must supply the runtime
    * implementations required by the premise's custom declarations, with no conflicting identities.
    * Setup creates the Admin, selected class representatives, and starting components before the
-   * world is returned; it may leave tasks for a workflow to settle. Invalid configuration or setup
-   * fails without returning a partial world.
+   * world is returned; it may leave tasks pending. Invalid configuration or setup fails without
+   * returning a partial world.
    */
   public fun newGame(
       premise: GamePremise,
@@ -45,8 +45,7 @@ public object Engine {
   /**
    * Creates an independently mutable live World at the same completed gameplay position as
    * [source]. Immutable premise data is shared, while state and every engine service are rebuilt.
-   * Application callbacks, component listeners, Agents, provisional forms, and workflow control
-   * state are not copied.
+   * Application callbacks, component listeners, Agents, and provisional forms are not copied.
    *
    * @throws IllegalArgumentException if [source] was not created by this Engine
    * @throws IllegalStateException if [source] is between completed gameplay positions

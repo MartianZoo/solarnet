@@ -1,7 +1,7 @@
 # Solarnet roadmap
 
 Solarnet is the runtime side of the planned repository split: Game World, the engine, Agents,
-Terraforming Mars gameplay and workflow, recordings and replays, and applications that execute or
+Terraforming Mars gameplay, recordings and replays, and applications that execute or
 explore a game. The [Pets roadmap](PETS_ROADMAP.md) owns the static language and type model, Canon,
 derived English and iconography, and the Almanac. Goals that require both static meaning and live
 execution belong in both roadmaps, with each document describing its part and linking to the other.
@@ -70,12 +70,12 @@ after review. **Selected** means the direction is chosen while some design remai
    game; blue grants a turn; green initiates an arbitrary operation; yellow permits deliberate task
    abandonment; red applies corrections without advancing gameplay. Make those promises real in
    the REPL and reusable by Mars Playground. Mode changes must handle existing work explicitly and
-   must not smuggle a second workflow into application code.
+   must not smuggle a Kotlin game driver into application code.
 
 ## Code clarity and confidence
 
 1. **Collapse the engine-to-functional-test stack.** **Active.** Ordinary scenarios should express
-   player-visible setup and actions through the full workflow, not rebuild phases, relocate rule
+   player-visible setup and actions through the full game flow, not rebuild phases, relocate rule
    components, chase task causes, or rely on rendered instruction text. Keep focused lower-level
    tests where they prove an engine contract; delete gameplay conveniences that exist only to
    compensate for missing semantics.
@@ -141,7 +141,7 @@ after review. **Selected** means the direction is chosen while some design remai
 2. **Enable complete human and autonomous play through the same capabilities.** **Selected
    direction.** End-to-end solo and multiplayer operation is desirable, including computer-driven
    play, but it must not split into separate gameplay architectures. Card tracking, task forms,
-   Agent policies, workflow, and decision records should compose into a usable game-playing surface.
+   Agent policies, and decision records should compose into a usable game-playing surface.
    The preserved TFMBot replay work is evidence and a future corpus, not permission to create a
    special bot engine or to confuse eager execution with strategy.
 

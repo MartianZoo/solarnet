@@ -399,7 +399,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
 
     // Complete phone-ledger checkpoint after Generation 2 production. Pristar's preservation
     // reward is included because the players apply it immediately before World Government. The
-    // automatic workflow is now waiting for that World Government choice.
+    // game is now waiting for that World Government choice.
     with(green) {
       assertProduction(m = -3, s = 0, t = 0, p = 1, e = 4, h = 0)
       assertResources(m = 18, s = 0, t = 0, p = 2, e = 4, h = 1)
@@ -541,7 +541,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     // board-12-36-50.jpg and the phone histories show these complete physical ledgers after
     // production and before World Government or Turmoil. Yellow's phone still reads 40 M€ because
     // its 6 M€ Pristar reward is entered later with the Solar payouts; the engine has already
-    // awarded it and therefore reads 46 M€ here. Automatic workflow is waiting for World
+    // awarded it and therefore reads 46 M€ here. The game is waiting for World
     // Government, so no Turmoil TR revision has happened yet.
     with(green) {
       assertProduction(m = -3, s = 0, t = 0, p = 1, e = 4, h = 0)
@@ -887,8 +887,8 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     blue.turn { convertHeat() }
 
-    // The transcript resumes with Yellow although Green had not passed. To preserve the legal
-    // workflow, Green's next narrated action is advanced into that skipped physical turn; the
+    // The transcript resumes with Yellow although Green had not passed. To preserve legal turn
+    // order, Green's next narrated action is advanced into that skipped physical turn; the
     // remaining Green actions stay in their sourced order through the otherwise silent Toll
     // Station play.
     green.turn {

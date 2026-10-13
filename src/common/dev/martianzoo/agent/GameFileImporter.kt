@@ -18,8 +18,8 @@ import dev.martianzoo.state.Task.TaskId
 public object GameFileImporter {
   /**
    * Checks the Catalog and resolved premise before creating a live game. [newAgents] provides the
-   * game's runtime classes; [startWorkflow] launches the recorded workflow. A full file also checks
-   * every component change and pending task after replay, ignoring internal event ordinals and
+   * game's runtime classes; [startGame] starts the recorded game. A full file also checks every
+   * component change and pending task after replay, ignoring internal event ordinals and
    * intermediate task revisions. Change commentary from the file is retained on matching live
    * changes; commentary produced by the live game must appear verbatim in the recorded note.
    */
@@ -27,7 +27,7 @@ public object GameFileImporter {
       document: GameFileJson.Document,
       catalog: Catalog,
       newAgents: (GamePremise) -> Agents,
-      startWorkflow: (Agents, String) -> Unit,
+      startGame: (Agents) -> Unit,
       supplyCardInputs: ((Agents, List<RecordedInput.CardInput>) -> Unit)? = null,
   ): Agents {
     val premise = document.premise(catalog)
@@ -36,7 +36,7 @@ public object GameFileImporter {
     TaskLog.replay(
         document.inputs(premise),
         agents,
-        startWorkflow = { startWorkflow(agents, it) },
+        startGame = { startGame(agents) },
         supplyCardInputs = { command ->
           requireNotNull(supplyCardInputs) { "card identities have no input supplier" }(
               agents,

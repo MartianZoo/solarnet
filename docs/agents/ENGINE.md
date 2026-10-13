@@ -39,7 +39,7 @@ Narrower notes own adjacent subjects:
 - [type-system-spec.md](../type-system-spec.md) and
   [pets-language-spec.md](../pets-language-spec.md) own static Types and authored Pets semantics.
 
-For proposed changes to runtime layering, public APIs, policy, or workflow, use the Solarnet roadmap
+For proposed changes to runtime layering, public APIs, policy, or game flow, use the Solarnet roadmap
 for direction and inspect current source and tests for the implemented contract.
 
 ## From a premise to a ready World
@@ -101,7 +101,7 @@ dependency, task, event, completed-position, and live-effect-index collections, 
 engine services around them. Immutable compiled live effects are shared, while index storage is
 independent and retains source registration order. The fork point is the new timeline commit floor,
 so the fork cannot roll back into source history. Application callbacks, component listeners,
-transactions, Agents, and workflow control remain fresh.
+transactions, and Agents remain fresh.
 
 The generated premise is executable output of configuration resolution. Live initialization does
 not reconsider Module defaults or assemble a second representation of the premise. Required state
@@ -447,7 +447,7 @@ it does not alter their semantics. The shared policy loop tries eligible Admin w
 work, including between explicit Player steps, but continues to an executable Player option when
 Admin work is abstract or temporarily unavailable. It cannot interrupt an authored `::` chain or
 supply a missing scheduling rule. Engine primitives remain available to any caller for local
-exploration, workflow, replay correction, tests, and cheats. Restricting access to those primitives
+exploration, replay correction, tests, and cheats. Restricting access to those primitives
 is not an engine responsibility. [ADVERSARIAL.md](ADVERSARIAL.md) describes how external participants
 or software decide which proposed results and supplied facts to accept as shared play.
 

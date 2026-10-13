@@ -79,7 +79,7 @@ An Actor's Agent binds normal client calls to that Actor and presents a filtered
 task pool. If a request arrives through FooPlayer's Agent for work currently assigned to FooPlayer,
 that establishes the Actor for the calculation. Solarnet does not authenticate the caller or demand
 proof that FooPlayer's human or bot approved it. The same program may use every Actor's Agent.
-Lower-level engine mutation also remains available for exploration, workflow, replay, and correction.
+Lower-level engine mutation also remains available for exploration, replay, and correction.
 
 The assignment and handoff checks below preserve the meaning of game decisions and resulting
 events. They do not restrict who can obtain or call an Agent. Whether a submitted decision really
@@ -153,7 +153,7 @@ Card-purchase, requirement, global-parameter-status, solo-countdown, and dominan
 
 `PlayCard` remains open. An isolated `System` trial passed corporation selection and New Partner's
 nested free Prelude when the caller committed a task form and ran automatic work before continuing
-its operation. The full card-play workflow, payment, free plays, shared fixtures, replays, and
+its operation. The full card-play sequence, payment, free plays, shared fixtures, replays, and
 `tfm_play` still need migration and verification.
 
 `UseAction` remains separate. An isolated trial exposed Viron's nested action timing: its

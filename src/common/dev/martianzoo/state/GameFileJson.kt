@@ -24,7 +24,7 @@ import kotlinx.serialization.json.put
 
 /**
  * A version-locked game file. Every file has the resolved premise recipe and an ordered input
- * sequence beginning with workflow launch. Full files also contain exact events and completed
+ * sequence beginning with the game's start. Full files also contain exact events and completed
  * positions, which [Document.open] can replay without an engine. Short files omit those facts and
  * require an Agent-based importer to execute the inputs. No recorded event is used to repair an
  * Agent replay. Encoding and hash-checked imports suspend while the browser computes SHA-256 with
@@ -36,18 +36,16 @@ public object GameFileJson {
 
   /**
    * Encodes [recording] and [inputs]. With [short] true, omits events and positions while retaining
-   * the same premise and input fields. [inputs] must start the workflow exactly once.
+   * the same premise and input fields. [inputs] must start the game exactly once, first.
    */
   public suspend fun encode(
       recording: GameRecording,
       inputs: List<RecordedInput>,
       short: Boolean = false,
   ): String {
-    require(inputs.firstOrNull() is RecordedInput.StartWorkflow) {
-      "a game file must start its workflow"
-    }
-    require(inputs.drop(1).none { it is RecordedInput.StartWorkflow }) {
-      "a game file cannot start another workflow"
+    require(inputs.firstOrNull() == RecordedInput.StartGame) { "a game file must start its game" }
+    require(inputs.drop(1).none { it == RecordedInput.StartGame }) {
+      "a game file cannot start its game twice"
     }
     val premise = recording.premise
     val catalogHash = GameFingerprint.catalog(premise.catalog)
@@ -119,10 +117,10 @@ public object GameFileJson {
       }
       val inputs = requiredArray(source, "inputs")
       require(inputs.firstOrNull()?.jsonObject?.get("kind")?.jsonPrimitive?.content == "start") {
-        "a game file must start its workflow"
+        "a game file must start its game"
       }
       require(inputs.drop(1).none { it.jsonObject["kind"]?.jsonPrimitive?.content == "start" }) {
-        "a game file cannot start another workflow"
+        "a game file cannot start its game twice"
       }
     }
 
@@ -182,7 +180,7 @@ public object GameFileJson {
       return requiredArray(source, "inputs").map { value ->
         val input = value.jsonObject
         when (requiredString(input, "kind")) {
-          "start" -> RecordedInput.StartWorkflow(requiredString(input, "workflow"))
+          "start" -> RecordedInput.StartGame
           "command" ->
               RecordedInput.Command(
                   requireNotNull(actors[requiredString(input, "actor")]) {
@@ -246,10 +244,7 @@ public object GameFileJson {
 
   private fun encodeInput(input: RecordedInput): JsonObject = buildJsonObject {
     when (input) {
-      is RecordedInput.StartWorkflow -> {
-        put("kind", "start")
-        put("workflow", input.name)
-      }
+      is RecordedInput.StartGame -> put("kind", "start")
       is RecordedInput.Command -> {
         put("kind", "command")
         put("actor", input.actor.className.toString())

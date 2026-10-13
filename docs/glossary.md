@@ -61,7 +61,7 @@
 - **direct effect:** A card's instructions performed when it enters play, authored in card data as `direct` and normally expressed in Pets with `This:`. The term describes card behavior; it does not specify automatic (`::`) versus queued (`:`) dispatch.
 - **display name:** The locale-specific natural-language name used for UI text, such as a printed card title. It need not be a valid or stable Pets identifier.
 - **double-colon effect:** Synonym for automatic effect.
-- **drain:** To become empty. The global task pool or an Actor-filtered view becoming empty can advance workflow.
+- **drain:** To become empty. Once no ordinary task remains, the earliest remaining deferred work (`LATER`, then `FINALLY`) becomes ordinary.
 - **effect:** A trigger, an instruction, and the choice between automatic and queued dispatch, attached to a class or specialized for a Component.
 - **elementary change:** A gain, removal, or transmutation instruction (`Instruction.Change`). A correction accepts fully concrete elementary changes.
 - **engine:** The passive mechanism that validates Actor-attributed mutations and calculates their state consequences. It is not an Actor or Component.
@@ -80,7 +80,7 @@
 - **invariant:** A class-declared requirement. Component-count invariants must hold at [operation completion](type-system.md#invariants-and-operation-completion); positive exact counts of concrete dependent parts also construct those parts when their owner is gained. Selected Module requirements also participate in premise validation.
 - **limit:** A counting invariant that places a minimum, maximum, or exact bound on matching Components, such as `HAS MAX 1 This`. Limits constrain completed operations and also bound AMAP and optional quantities in the current World.
 - **live effect:** A component effect paired with its existing context Component, so that it can respond to change events. It counts according to the multiplicity of that type.
-- **manual:** Initiated by a Solarnet client rather than caused by an effect or workflow. Selecting or narrowing an already pending task is not a new manual action. Once a game is started, its own rules offer every turn and begin every phase, so a game can contain no manual operation beyond its start.
+- **manual:** Initiated by a Solarnet client rather than caused by an effect. Selecting or narrowing an already pending task is not a new manual action. Once a game is started, its own rules offer every turn and begin every phase, so a game can contain no manual operation beyond its start.
 - **master class table:** The complete immutable class model compiled once from a catalog's reusable declarations. A game reuses its classes and types rather than compiling them again.
 - **metric:** A Pets expression that computes a nonnegative integer from a game world.
 - **compact form:** A round-tripping Type expression with no individually removable argument. It omits declared bounds except where needed to protect greedy argument matching, then removes redundancies proved by Type resolution, including dependency equalities.
@@ -151,4 +151,3 @@
 - **universe:** One game's combined master and premise class tables, within which classes and types can be resolved and compared. Master values are reusable in every universe importing that master; premise values belong only to their own universe.
 - **variable scope:**
 - **whole-world idleness:**
-- **workflow:** The higher-level driver that orchestrates game phases and waits for the appropriate filtered task view or control scope to drain.
