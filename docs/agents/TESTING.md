@@ -387,11 +387,12 @@ seat in order. Accessing `stan` in solo or `rob` with fewer than three players f
 with a fixture error. Both styles resolve neutral solo placements through the setup tasks, using
 the same fixed positions on Tharsis, Hellas, and Elysium; other solo maps still need positions.
 
-The sandbox prepares and caches a `World` for each option-set, player-count, Kim corporation, and
-entry-point combination, then gives every test an independent `Engine.fork` of that prepared
-position. The cached World is never exposed or mutated after preparation. The base class does not
-create a game automatically. Gameplay creates a fresh World and starts its own workflow for every
-call; replacing a game or finishing a test shuts that workflow down. A uniform class declares its
+The sandbox prepares and caches up to eight recently used `World`s, keyed by option-set,
+player-count, Kim corporation, and entry-point combination, then gives every test an independent
+`Engine.fork` of that prepared position. A cached World is never exposed or mutated after
+preparation. The base class does not create a game automatically. Gameplay creates a fresh World and
+starts its own workflow for every call; replacing a game or finishing a test shuts that workflow
+down. A uniform class declares its
 own `@BeforeTest` method that calls `newTestGame()`. A class whose methods need different compatible
 selections or player counts calls `newTestGame()` explicitly in each method, passing arguments such
 as `addOptions = "CimmeriaMap"` or `playerCount = 4` where needed. Pass `kimCorporation` only when its
