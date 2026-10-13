@@ -21,8 +21,7 @@ import kotlin.test.assertSame
 internal class ClassTableSelectionTest {
   @Test
   internal fun `Promo global events are absent without the promo pack`() {
-    assertValidView("TurmoilExpansion, VenusNextExpansion, ColoniesExpansion, -promos:cards") { view
-      ->
+    assertValidView("TurmoilExpansion, VenusNextExpansion, ColoniesExpansion, Callisto") { view ->
       assertOmitted(
           view,
           setOf(cn("MartianProtectionism"), cn("JovianColonyBoom"), cn("TitanVenusAlliance")),
@@ -32,8 +31,7 @@ internal class ClassTableSelectionTest {
 
   @Test
   internal fun `Venus global events require Venus even with the promo pack`() {
-    assertValidView("TurmoilExpansion, promos:cards, ColoniesExpansion, -VenusNextExpansion") { view
-      ->
+    assertValidView("TurmoilExpansion, promos:cards, ColoniesExpansion, Callisto") { view ->
       assertSelected(view, setOf(cn("JovianColonyBoom")))
       assertOmitted(view, setOf(cn("MartianProtectionism"), cn("TitanVenusAlliance")))
     }
@@ -41,8 +39,7 @@ internal class ClassTableSelectionTest {
 
   @Test
   internal fun `Colony global events require Colonies even with Venus and the promo pack`() {
-    assertValidView("TurmoilExpansion, promos:cards, VenusNextExpansion, -ColoniesExpansion") { view
-      ->
+    assertValidView("TurmoilExpansion, promos:cards, VenusNextExpansion") { view ->
       assertSelected(view, setOf(cn("MartianProtectionism")))
       assertOmitted(view, setOf(cn("JovianColonyBoom"), cn("TitanVenusAlliance")))
     }
@@ -50,8 +47,9 @@ internal class ClassTableSelectionTest {
 
   @Test
   internal fun `Both expansions make the combined Venus colony events available`() {
-    assertValidView("TurmoilExpansion, promos:cards, VenusNextExpansion, ColoniesExpansion") { view
-      ->
+    assertValidView(
+        "TurmoilExpansion, promos:cards, VenusNextExpansion, ColoniesExpansion, Callisto"
+    ) { view ->
       assertSelected(view, setOf(cn("TitanVenusAlliance"), cn("ImmigrationToVenus")))
     }
   }
@@ -65,8 +63,8 @@ internal class ClassTableSelectionTest {
   }
 
   @Test
-  internal fun `Disabling Quick Start selects Generalist without Generalist2`() {
-    assertValidView("ElysiumMap, -QuickStartVariant") { view ->
+  internal fun `Without Quick Start Elysium selects Generalist without Generalist2`() {
+    assertValidView("ElysiumMap") { view ->
       assertSelected(view, setOf(cn("Generalist")))
       assertOmitted(view, setOf(cn("Generalist2")))
     }
@@ -85,7 +83,7 @@ internal class ClassTableSelectionTest {
   internal fun `modules normally select their intrinsic rules and associated Content`() {
     assertSoftly {
       examples.forEach { example ->
-        assertValidView(example.module.toString()) { view ->
+        assertValidView(example.moduleConfig) { view ->
           assertSelected(
               view,
               setOf(example.module) +
@@ -133,7 +131,7 @@ internal class ClassTableSelectionTest {
           .filter { it.contentPack != null }
           .forEach { example ->
             val pack = requireNotNull(example.contentPack)
-            assertValidView("${example.module}, -$pack") { view ->
+            assertValidView("${example.moduleConfig}, -$pack") { view ->
               assertSelected(
                   view,
                   setOf(example.module) +
@@ -156,14 +154,11 @@ internal class ClassTableSelectionTest {
   internal fun `explicitly excluded Content and its private support stay unselected`() {
     assertSoftly {
       examples.forEach { example ->
-        (listOf(example.module.toString()) +
-                listOfNotNull(example.contentPack) +
-                listOfNotNull(example.contentPack?.let { "${example.module}, -$it" }))
-            .forEach { baseConfig ->
-              assertValidView("$baseConfig, -${example.excludedContent}") { view ->
-                assertOmitted(view, setOf(example.excludedContent) + example.privateSupport)
-              }
-            }
+        (listOf(example.moduleConfig) + listOfNotNull(example.contentPack)).forEach { baseConfig ->
+          assertValidView("$baseConfig, -${example.excludedContent}") { view ->
+            assertOmitted(view, setOf(example.excludedContent) + example.privateSupport)
+          }
+        }
       }
     }
   }
@@ -173,9 +168,11 @@ internal class ClassTableSelectionTest {
     assertSoftly {
       examples.forEach { example ->
         example.standaloneContent.forEach { content ->
-          (listOf(content.toString(), "${example.module}, $content") +
+          (listOf(content.toString(), "${example.moduleConfig}, $content") +
                   listOfNotNull(example.contentPack?.let { "$it, $content" }) +
-                  listOfNotNull(example.contentPack?.let { "${example.module}, -$it, $content" }))
+                  listOfNotNull(
+                      example.contentPack?.let { "${example.moduleConfig}, -$it, $content" }
+                  ))
               .forEach { config ->
                 assertValidView(config) { view -> assertSelected(view, setOf(content)) }
               }
@@ -217,11 +214,11 @@ internal class ClassTableSelectionTest {
         example.moduleDependentContent.forEach { content ->
           assertInvalidView(content.toString())
           example.contentPack?.let { assertInvalidView("$it, $content") }
-          assertValidView("${example.module}, $content") { view ->
+          assertValidView("${example.moduleConfig}, $content") { view ->
             assertSelected(view, setOf(content))
           }
           example.contentPack?.let { pack ->
-            assertValidView("${example.module}, -$pack, $content") { view ->
+            assertValidView("${example.moduleConfig}, -$pack, $content") { view ->
               assertSelected(view, setOf(content))
             }
           }
@@ -386,7 +383,8 @@ internal class ClassTableSelectionTest {
   @Test
   internal fun `premise effects specialize selected module presence`() {
     val withoutColonies = gameView("CimmeriaMap", "Player1", "Player2").classTable
-    val withColonies = gameView("CimmeriaMap, ColoniesExpansion", "Player1", "Player2").classTable
+    val withColonies =
+        gameView("CimmeriaMap, ColoniesExpansion, Callisto", "Player1", "Player2").classTable
     val bonus = Canon.classTable.getClass(cn("CimmeriaPlacementBonus"))
 
     (bonus.declaration.effects.single().trigger is IfTrigger) shouldBe true
@@ -516,6 +514,7 @@ internal class ClassTableSelectionTest {
 
   private class ModuleContentExample(
       val module: ClassName,
+      val moduleConfig: String = module.toString(),
       val contentPack: String? = null,
       val intrinsicRules: Set<ClassName>,
       val moduleSupport: Set<ClassName> = emptySet(),
@@ -553,6 +552,7 @@ internal class ClassTableSelectionTest {
           ),
           ModuleContentExample(
               module = cn("ColoniesExpansion"),
+              moduleConfig = "ColoniesExpansion, Callisto",
               intrinsicRules = setOf(cn("TradeAction"), cn("BuildColonyProject")),
               associatedNonPackContent = setOf(cn("Callisto")),
               standaloneContent = setOf(cn("Arklight"), cn("RefugeeCamps")),

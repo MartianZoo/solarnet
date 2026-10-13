@@ -39,7 +39,7 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Two delegates satisfy its requirement without Scientists ruling`() {
-    newTestGame("SummitLogistics, TurmoilExpansion")
+    newTestGame("SummitLogistics, TurmoilExpansion, -ColoniesExpansion")
 
     shouldThrow<RequirementException> {
       kim.inTurn {

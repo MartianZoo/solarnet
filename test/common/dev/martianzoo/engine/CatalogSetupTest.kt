@@ -16,7 +16,8 @@ internal class CatalogSetupTest {
     val catalog =
         object : Catalog() {
           override val explicitClassDeclarations =
-              parseClasses("CLASS A\nCLASS B\nCLASS C\nCLASS D").toSet()
+              parseClasses("CLASS A : System\nCLASS B\nCLASS C\nCLASS D").toSet()
+          override val modules = mapOf(cn("A") to setOf(ClassSelection(cn("C"))))
         }
 
     val game = Engine.newGame(catalog.gamePremise(GameConfig("A, B, -C, D")))

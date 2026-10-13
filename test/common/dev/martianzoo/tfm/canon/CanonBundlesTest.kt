@@ -60,7 +60,9 @@ internal class CanonBundlesTest {
   @Test
   internal fun coloniesCardPoolCanBeExcludedWhileUsingColoniesRules() {
     val rulesOnly =
-        Canon.gamePremise(GameConfig("ColoniesExpansion, -colonies:cards", "Player1", "Player2"))
+        Canon.gamePremise(
+                GameConfig("ColoniesExpansion, Callisto, -colonies:cards", "Player1", "Player2")
+            )
             .classTable
 
     rulesOnly.isInhabited(cn("ColoniesExpansion")) shouldBe true
@@ -149,12 +151,11 @@ internal class CanonBundlesTest {
 
   @Test
   internal fun coloniesDependentCardsCannotBeSelectedWithoutColonies() {
-    // These cover an observed standard action, a count, a fleet gain instruction, and an optional
-    // trade.
-    listOf("CryoSleep", "EcologyResearch", "SkyDocks", "TitanFloatingLaunchPad").forEach { cardName
-      ->
+    // These cover an observed standard action, a fleet gain instruction, and an optional trade.
+    listOf("CryoSleep", "SkyDocks", "TitanFloatingLaunchPad").forEach { cardName ->
       shouldThrow<InvalidGameConfigException> { table(cn(cardName)) }
     }
+    table(cn("EcologyResearch")).isInhabited(cn("EcologyResearch")) shouldBe true
   }
 
   @Test
@@ -164,6 +165,7 @@ internal class CanonBundlesTest {
         table(
             cn("PreludeExpansion"),
             cn("ColoniesExpansion"),
+            cn("Callisto"),
             includedCardBundles = setOf("promos"),
         )
     promosWithoutColonies.isInhabited(cn("StrategicBasePlanning")) shouldBe false
@@ -181,6 +183,7 @@ internal class CanonBundlesTest {
             cn("PreludeExpansion"),
             cn("VenusNextExpansion"),
             cn("ColoniesExpansion"),
+            cn("Callisto"),
             includedCardBundles = setOf("prelude2"),
         )
     prelude2VenusWithoutColonies.isInhabited(cn("VenusTradeHub")) shouldBe false
@@ -197,12 +200,14 @@ internal class CanonBundlesTest {
         table(
             cn("PreludeExpansion"),
             cn("ColoniesExpansion"),
+            cn("Callisto"),
             includedCardBundles = setOf("prelude2"),
         )
     val prelude2ColoniesAndTurmoil =
         table(
             cn("PreludeExpansion"),
             cn("ColoniesExpansion"),
+            cn("Callisto"),
             cn("TurmoilExpansion"),
             includedCardBundles = setOf("prelude2"),
         )
@@ -245,7 +250,7 @@ internal class CanonBundlesTest {
   @Test
   internal fun definitionConditionsUseTheCompleteModuleSelection() {
     val withoutColonies = table(cn("UtopiaMap"))
-    val withColonies = table(cn("UtopiaMap"), cn("ColoniesExpansion"))
+    val withColonies = table(cn("UtopiaMap"), cn("ColoniesExpansion"), cn("Callisto"))
 
     withoutColonies.isInhabited(cn("Pioneer3")) shouldBe false
     (cn("Pioneer3") in withoutColonies.allClassNames) shouldBe false

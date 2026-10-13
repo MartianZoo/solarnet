@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -48,6 +49,13 @@ internal abstract class TfmGameplayTest : TfmTest() {
     shutdownWorkflow()
     createWorld(addOptions, playerCount)
     workflow = TfmWorkflow.Automatic(agents).launch()
+    if (
+        playerCount == 1 &&
+            GameConfig(addOptions).includedClassNames.none { it in Canon.colonyTileClassNames } &&
+            admin.count("SoloColoniesSetup") == 1
+    ) {
+      kim.doTask("-SelectedColonyTile<Class<Callisto>>")
+    }
     chooseStartingCards(kimCorporation, playCorporations)
     if (playCorporations) playStartingCorporations(kimCorporation)
   }
@@ -64,15 +72,7 @@ internal abstract class TfmGameplayTest : TfmTest() {
     }
     val options = GameConfig(addOptions, *PLAYER_NAMES.take(playerCount).toTypedArray())
     val defaults = GameConfig(BASE_GAME_OPTIONS)
-    val config =
-        options.copy(
-            includedClassNames =
-                (defaults.includedClassNames + options.includedClassNames) -
-                    options.excludedClassNames,
-            includedCardBundles =
-                (defaults.includedCardBundles + options.includedCardBundles) -
-                    options.excludedCardBundles,
-        )
+    val config = fixtureConfig(options, defaults)
     game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
     bindPlayers()
   }

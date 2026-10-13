@@ -174,7 +174,7 @@ internal class CardTrackingTest : TfmTest() {
   internal fun astraMechanicaReturnsLawSuitFromTheAttackersEventPileToHand() {
     val config =
         GameConfig(
-            "PreludeExpansion, -promos:cards, LawSuit, AstraMechanica, MineralDeposit",
+            "PreludeExpansion, LawSuit, AstraMechanica, MineralDeposit",
             "Player1",
             "Player2",
         )
@@ -216,7 +216,7 @@ internal class CardTrackingTest : TfmTest() {
   internal fun astraMechanicaCannotTakePharmacyUnionInATrackedGame() {
     val (tracking, player) =
         newTrackedGame(
-            "PreludeExpansion, -promos:cards, AstraMechanica, PharmacyUnion, MineralDeposit, BribedCommittee"
+            "PreludeExpansion, AstraMechanica, PharmacyUnion, MineralDeposit, BribedCommittee"
         )
     val agent = agents[player]
     tracking.expectArrivals(

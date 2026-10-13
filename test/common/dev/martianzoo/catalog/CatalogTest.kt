@@ -38,6 +38,17 @@ internal class CatalogTest {
   }
 
   @Test
+  internal fun exclusionsMustChangeTheResolvedPremise() {
+    val catalog = testCatalog("CLASS OptionalPiece")
+
+    val failure =
+        shouldThrow<InvalidGameConfigException> {
+          catalog.gamePremise(GameConfig("-OptionalPiece"))
+        }
+    failure.message.orEmpty() shouldContain "-OptionalPiece"
+  }
+
+  @Test
   internal fun concreteClassInvariantLimitsCopiesAcrossPlayers() {
     val table =
         catalog(

@@ -2,6 +2,7 @@ package dev.martianzoo.catalog
 
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.TransformHandler
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.data.ClassDeclaration
@@ -164,15 +165,74 @@ public open class Catalog(private vararg val catalogs: Catalog) {
    * Resolves [config]'s signed class selections and additive setup adjustments over this catalog's
    * master table. [additionalClassDeclarations] are local to the resulting premise; they do not
    * change this reusable catalog. Selection policy, dependency closure, and validation occur before
-   * the [GamePremise] is returned. Invalid selections fail rather than producing a partial premise.
+   * the [GamePremise] is returned. An explicit class or card-bundle exclusion must change the
+   * resolved premise; an exclusion whose removal leaves the same playable selection is rejected.
+   * Invalid selections fail rather than producing a partial premise.
    */
   public fun gamePremise(
       config: GameConfig,
       additionalClassDeclarations: Set<ClassDeclaration> = emptySet(),
   ): GamePremise {
+    val premise = resolvePremise(config, additionalClassDeclarations)
+    if (config.excludedClassNames.isEmpty() && config.excludedCardBundles.isEmpty()) return premise
+    premise.classTable
+    config.excludedClassNames.forEach { excluded ->
+      val without = config.copy(excludedClassNames = config.excludedClassNames - excluded)
+      rejectIneffectiveExclusion(
+          "-$excluded",
+          premise,
+          without,
+          additionalClassDeclarations,
+      )
+    }
+    config.excludedCardBundles.forEach { excluded ->
+      val without = config.copy(excludedCardBundles = config.excludedCardBundles - excluded)
+      rejectIneffectiveExclusion(
+          "-$excluded:cards",
+          premise,
+          without,
+          additionalClassDeclarations,
+      )
+    }
+    return premise
+  }
+
+  private fun resolvePremise(
+      config: GameConfig,
+      additionalClassDeclarations: Set<ClassDeclaration>,
+  ): GamePremise {
     val builder = GamePremiseBuilder(this, config, additionalClassDeclarations)
     configurePremise(builder)
     return builder.build()
+  }
+
+  private fun rejectIneffectiveExclusion(
+      entry: String,
+      premise: GamePremise,
+      without: GameConfig,
+      additionalClassDeclarations: Set<ClassDeclaration>,
+  ) {
+    val alternative =
+        runCatching {
+          resolvePremise(without, additionalClassDeclarations).also { it.classTable }
+        }
+            .getOrNull() ?: return
+    val selected =
+        premise.classSelections.filter(ClassSelection::included).mapTo(hashSetOf()) { it.className }
+    val alternativeSelected =
+        alternative.classSelections.filter(ClassSelection::included).mapTo(hashSetOf()) {
+          it.className
+        }
+    if (
+        selected == alternativeSelected &&
+            premise.componentAdjustments == alternative.componentAdjustments &&
+            premise.classTable.allClassNames == alternative.classTable.allClassNames &&
+            premise.premiseClassDeclarations == alternative.premiseClassDeclarations &&
+            premise.bootstrapClassName == alternative.bootstrapClassName &&
+            premise.premiseClassName == alternative.premiseClassName
+    ) {
+      throw InvalidGameConfigException("configuration exclusion has no effect: `$entry`")
+    }
   }
 
   /** Subclass hook to add game-specific selection and setup policy before the builder is frozen. */

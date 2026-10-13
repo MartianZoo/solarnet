@@ -165,15 +165,6 @@ internal class BootstrapLifecycleTest {
   }
 
   @Test
-  internal fun soloColoniesSetupIsAbsentWithoutSelectedColonies() {
-    val game = TfmEngine.newGame(canonicalPremise(ColoniesExpansion, players = 1))
-
-    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
-
-    game.testAgent(ADMIN).count("SoloColoniesSetup") shouldBe 0
-  }
-
-  @Test
   internal fun soloColoniesSetupRemovesOneSelectedColony() {
     val colonies = testColonyTiles(players = 1)
     val game =
