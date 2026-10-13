@@ -272,7 +272,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("TradeAction<Action2>", "-Energy / Owed<Class<Energy>>")
           selectOnlyTask()
-          doTasks("Trade<Ceres>", "LATER { FinishTrade<Ceres> }", "2 Steel")
+          doTasks("Trade<Ceres>", "2 Steel")
         }
         .expect("-3 Energy")
   }

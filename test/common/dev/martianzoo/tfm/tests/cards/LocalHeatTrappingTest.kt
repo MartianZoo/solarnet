@@ -19,7 +19,6 @@ internal class LocalHeatTrappingTest : TfmSandboxTest() {
               "PlayProject<Class<LocalHeatTrapping>>",
               "-1 MC",
               "LocalHeatTrapping FROM ProjectCard",
-              "LATER { PlayedEvent<Class<LocalHeatTrapping>> FROM LocalHeatTrapping. }",
               "-5 Heat",
           )
           selectOnlyTask()
@@ -43,7 +42,6 @@ internal class LocalHeatTrappingTest : TfmSandboxTest() {
         doTasks(
             "-1 MC",
             "LocalHeatTrapping FROM ProjectCard",
-            "LATER { PlayedEvent<Class<LocalHeatTrapping>> FROM LocalHeatTrapping. }",
         )
         selectTask("-5 Heat!")
         selectOnlyTask()

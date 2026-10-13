@@ -18,7 +18,6 @@ internal class MarketManipulationTest : TfmSandboxTest() {
               "PlayProject<Class<MarketManipulation>>",
               "-1 MC",
               "MarketManipulation FROM ProjectCard",
-              "LATER { PlayedEvent<Class<MarketManipulation>> FROM MarketManipulation. }",
           )
           selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
           selectTask("ColonyProduction<Luna FROM Triton>!")

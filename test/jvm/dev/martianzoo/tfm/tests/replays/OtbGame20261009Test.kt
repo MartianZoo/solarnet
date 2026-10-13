@@ -140,7 +140,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "-36 MC",
         "Ok", // no titanium paid
         "$GiantIceAsteroid FROM ProjectCard",
-        "LATER { PlayedEvent<Class<$GiantIceAsteroid>> FROM $GiantIceAsteroid. }",
         "2 TemperatureStep",
         "2 TerraformRating",
         "OceanTile<Vastitas_6_7>",
@@ -283,7 +282,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "TradeAction<Action2>",
         "-3 Energy",
         "Trade<Io>",
-        "LATER { FinishTrade<Io> }",
     )
     p1.selectTask("ColonyProduction<Io>?")
     p1.narrowTask("ColonyProduction<Io>")
@@ -314,7 +312,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "PlayProject<Class<$InventionContest>>",
         "-1 MC",
         "$InventionContest FROM ProjectCard",
-        "LATER { PlayedEvent<Class<$InventionContest>> FROM $InventionContest. }",
         "3 ProjectCard<Selecting>",
         "ProjectCard<Hand FROM Selecting>",
         "-2 ProjectCard<Selecting>",
@@ -358,7 +355,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     p1.doTasks(
         "PlayProject<Class<$MarketManipulation>>",
         "$MarketManipulation FROM ProjectCard",
-        "LATER { PlayedEvent<Class<$MarketManipulation>> FROM $MarketManipulation. }",
     )
     p1.selectTask("ColonyProduction FROM ColonyProduction")
     p1.narrowTask("ColonyProduction<Triton> FROM ColonyProduction<Miranda>")
@@ -367,7 +363,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "TradeAction<Action2>",
         "-3 Energy",
         "Trade<Triton>",
-        "LATER { FinishTrade<Triton> }",
     )
     p1.selectTask("ColonyProduction<Triton>?")
     p1.narrowTask("ColonyProduction<Triton>")
@@ -417,9 +412,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "PlayProject<Class<$Conscription>>",
         "-2 MC",
         "$Conscription FROM ProjectCard",
-        "LATER { PlayedEvent<Class<$Conscription>> FROM $Conscription. }",
         "Conscription_NextCardEffect",
-        "LATER { -FakeWildTagUse. }",
         "PlayedEvent<Class<$Conscription>> FROM $Conscription",
         "-FakeWildTagUse",
     )
@@ -470,7 +463,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "UseCardAction<$TitanFloatingLaunchPad, Action2>",
         "-Floater<$TitanFloatingLaunchPad>",
         "Trade<Callisto>",
-        "LATER { FinishTrade<Callisto> }",
     )
     p1.selectTask("ColonyProduction<Callisto>?")
     p1.narrowTask("ColonyProduction<Callisto>")
@@ -643,7 +635,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "UseCardAction<$TitanFloatingLaunchPad, Action2>",
         "-Floater<$TitanFloatingLaunchPad>",
         "Trade<Io>",
-        "LATER { FinishTrade<Io> }",
     )
     p1.selectTask("ColonyProduction<Io>?")
     p1.narrowTask("ColonyProduction<Io>")
@@ -658,7 +649,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "TradeAction<Action3>",
         "-3 Titanium",
         "Trade<Miranda>",
-        "LATER { FinishTrade<Miranda> }",
     )
     p1.selectTask("ColonyProduction<Miranda>?")
     p1.narrowTask("ColonyProduction<Miranda>")
@@ -743,7 +733,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "-2 MC",
         "Ok", // no titanium paid
         "$ImportedGhg FROM ProjectCard",
-        "LATER { PlayedEvent<Class<$ImportedGhg>> FROM $ImportedGhg. }",
         "PROD[Heat]",
         "3 Heat",
         "ProjectCard", // Solar Logistics sees the space event
@@ -773,7 +762,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "-3 Titanium",
         "-24 MC",
         "$GiantIceAsteroid FROM ProjectCard",
-        "LATER { PlayedEvent<Class<$GiantIceAsteroid>> FROM $GiantIceAsteroid. }",
         "2 TemperatureStep",
         "2 TerraformRating",
         "OceanTile<Vastitas_3_2>",
@@ -792,7 +780,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "PlayProject<Class<$LavaFlows>>",
         "-18 MC",
         "$LavaFlows FROM ProjectCard",
-        "LATER { PlayedEvent<Class<$LavaFlows>> FROM $LavaFlows. }",
         "2 TemperatureStep",
         "2 TerraformRating",
         "LavaFlows_SpecialTile<Vastitas_2_6>",
@@ -845,7 +832,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "-7 Titanium",
         "-8 MC",
         "$L1TradeTerminal FROM ProjectCard",
-        "LATER { -L1GiftWatcher! }",
     )
     p1.selectTask(
         game.tasks.extract { it }.single { !it.deferred }.id
@@ -860,7 +846,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "UseCardAction<$TitanFloatingLaunchPad, Action2>",
         "-Floater<$TitanFloatingLaunchPad>",
         "Trade<Triton>",
-        "LATER { FinishTrade<Triton> }",
     )
     p1.selectTask("2 ColonyProduction<Triton> OR Ok")
     p1.narrowTask("2 ColonyProduction<Triton>")
@@ -872,7 +857,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "-2 MC",
         "Ok", // no titanium paid
         "$ImportedGhg FROM ProjectCard",
-        "LATER { PlayedEvent<Class<$ImportedGhg>> FROM $ImportedGhg. }",
         "PROD[Heat]",
         "3 Heat",
         "ProjectCard", // Solar Logistics
@@ -888,7 +872,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "-Titanium",
         "-5 MC",
         "$SolarProbe FROM ProjectCard",
-        "LATER { PlayedEvent<Class<$SolarProbe>> FROM $SolarProbe. }",
         "2 ProjectCard", // six science tags
         "ProjectCard", // Solar Logistics
         "PlayedEvent<Class<$SolarProbe>> FROM $SolarProbe",
@@ -906,7 +889,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "TradeAction<Action2>",
         "-3 Energy",
         "Trade<Io>",
-        "LATER { FinishTrade<Io> }",
     )
     p1.selectTask("ColonyProduction<Io>?") // Trading Colony
     p1.narrowTask("ColonyProduction<Io>")
@@ -969,7 +951,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     p1.doTasks(
         "PlayProject<Class<$HiredRaiders>>",
         "$HiredRaiders FROM ProjectCard",
-        "LATER { PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders. }",
         "3 MC FROM MC<Pink>",
         "PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders",
     )
@@ -997,7 +978,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "TradeAction<Action2>",
         "-3 Energy",
         "Trade<Enceladus>",
-        "LATER { FinishTrade<Enceladus> }",
     )
     p1.selectTask("ColonyProduction<Enceladus>?")
     p1.narrowTask("ColonyProduction<Enceladus>")
@@ -1028,7 +1008,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "UseCardAction<$TitanFloatingLaunchPad, Action2>",
         "-Floater<$TitanFloatingLaunchPad>",
         "Trade<Triton>",
-        "LATER { FinishTrade<Triton> }",
     )
     p1.selectTask("ColonyProduction<Triton>?")
     p1.narrowTask("ColonyProduction<Triton>")

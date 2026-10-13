@@ -87,7 +87,6 @@ internal class VitorTest : TfmSandboxTest() {
           "PlayProject<Class<BribedCommittee>>",
           "-7 MC",
           "BribedCommittee FROM ProjectCard",
-          "LATER { PlayedEvent<Class<BribedCommittee>> FROM BribedCommittee. }",
           "2 TerraformRating",
       )
       doTask("PlayedEvent<Class<BribedCommittee>> FROM BribedCommittee")

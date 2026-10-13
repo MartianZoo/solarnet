@@ -188,7 +188,6 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
-              "LATER { PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate. }",
           )
           selectOnlyTask()
           selectTask("BannedDelegateRemoval<Stan, Scientists, Kim>.")

@@ -43,6 +43,8 @@ import dev.martianzoo.state.Task.TaskId
  *   be replaced by independent siblings
  * * Once no ordinary task remains, every task with the earliest remaining [Task.deferral] becomes
  *   ordinary at once
+ * * An ordinary task whose instruction is a dispatch is performed at once: `TASK R { b } >> c`
+ *   becomes task `b` for R, with the dispatch's deferral, and task `c`
  */
 internal class TaskQueues(private val gameWorld: GameWorld) {
   private val classTable: ClassTable = gameWorld.classTable
@@ -59,24 +61,45 @@ internal class TaskQueues(private val gameWorld: GameWorld) {
       assignee: Actor,
       cause: Cause?,
       deferral: Deferral = Deferral.NONE,
-  ): List<TaskAddedEvent> {
-    val newTasks =
-        newTasks(
-                firstId = TaskId(gameWorld.nextOrdinal),
-                assignee = assignee,
-                instruction = instruction,
-                cause = cause,
-                isAbstract = isAbstract,
-                deferral = deferral,
+  ): List<TaskAddedEvent> =
+      admit(instruction, assignee, cause, deferral).also { promoteDeferredWork() }
+
+  /**
+   * Adds [instruction]'s tasks without promoting deferred work, so that a whole group is admitted
+   * before promotion is considered. An ordinary task that is only a dispatch is never added: the
+   * dispatch is performed instead.
+   */
+  private fun admit(
+      instruction: InstructionGroup,
+      assignee: Actor,
+      cause: Cause?,
+      deferral: Deferral,
+  ): List<TaskAddedEvent> =
+      taskInstructions(instruction).flatMap {
+        val task =
+            assignSystemChangeToAdmin(
+                newTask(TaskId(gameWorld.nextOrdinal), assignee, it, cause, isAbstract, deferral)
             )
-            .map(::assignSystemChangeToAdmin)
-    return newTasks
-        .map {
-          require(it.id.ordinal == gameWorld.nextOrdinal)
-          gameWorld.apply(TaskAddedEvent(gameWorld.nextOrdinal, it))
+        val dispatch = task.instruction as? Instruction.Dispatch
+        if (dispatch != null && !task.deferred) {
+          perform(dispatch, task)
+        } else {
+          listOf(gameWorld.apply(TaskAddedEvent(gameWorld.nextOrdinal, task)))
         }
-        .also { promoteDeferredWork() }
-  }
+      }
+
+  /**
+   * Performs [dispatch], the instruction of ordinary [task]: its body becomes work for its
+   * recipient with its deferral (L2-17 to L2-19), and any continuation of [task] follows at once,
+   * as it would after any finished task. Nothing about a dispatch is left to decide.
+   */
+  private fun perform(dispatch: Instruction.Dispatch, task: Task): List<TaskAddedEvent> =
+      admit(
+          InstructionGroup.of(dispatch.body),
+          gameWorld.reader.recipientOf(dispatch),
+          task.cause,
+          dispatch.deferral,
+      ) + task.then?.let { admit(it, task.assignee, task.cause, Deferral.NONE) }.orEmpty()
 
   internal fun removeTask(task: Task): TaskRemovedEvent =
       gameWorld.apply(TaskRemovedEvent(gameWorld.nextOrdinal, task)).also { promoteDeferredWork() }
@@ -85,16 +108,27 @@ internal class TaskQueues(private val gameWorld: GameWorld) {
    * Makes the earliest remaining deferred work ordinary once no ordinary task remains: all `LATER`
    * work, or when none remains, all `FINALLY` work ([rules L2-18 and
    * L2-19](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
-   * Work deferred while that batch runs waits for the whole batch. Promotion is an ordinary task
-   * edit, so rollback and replay restore it with its transaction.
+   * Work deferred while that batch runs waits for the whole batch. A promoted dispatch is performed
+   * at once, before it is removed, so its body joins the batch's work. Promotion is an ordinary
+   * task edit, so rollback and replay restore it with its transaction.
    */
   private fun promoteDeferredWork() {
-    val pending = gameWorld.tasks.extract { it }
-    if (pending.isEmpty() || pending.any { !it.deferred }) return
-    val earliest = pending.minOf { it.deferral }
-    pending
-        .filter { it.deferral == earliest }
-        .forEach { editTask(it.copy(deferral = Deferral.NONE)) }
+    while (true) {
+      val pending = gameWorld.tasks.extract { it }
+      if (pending.isEmpty() || pending.any { !it.deferred }) return
+      val earliest = pending.minOf { it.deferral }
+      val batch = pending.filter { it.deferral == earliest }
+      batch.forEach { editTask(it.copy(deferral = Deferral.NONE)) }
+      val dispatches =
+          batch
+              .map { gameWorld.tasks.getTaskData(it.id) }
+              .filter { it.instruction is Instruction.Dispatch }
+      if (dispatches.isEmpty()) return
+      for (task in dispatches) {
+        perform(task.instruction as Instruction.Dispatch, task)
+        gameWorld.apply(TaskRemovedEvent(gameWorld.nextOrdinal, task))
+      }
+    }
   }
 
   internal fun editTask(newTask: Task): TaskEditedEvent? {

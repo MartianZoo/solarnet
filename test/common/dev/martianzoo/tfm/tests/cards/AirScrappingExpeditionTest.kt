@@ -22,7 +22,6 @@ internal class AirScrappingExpeditionTest : TfmSandboxTest() {
         doTasks(
             "-13 MC",
             "AirScrappingExpedition FROM ProjectCard",
-            "LATER { PlayedEvent<Class<AirScrappingExpedition>> FROM AirScrappingExpedition. }",
         )
         selectTask("VenusStep.")
         selectTask("TerraformRating!")

@@ -16,7 +16,6 @@ import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
 import dev.martianzoo.pets.api.SystemClasses.DIE
-import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
@@ -50,7 +49,6 @@ import dev.martianzoo.state.Component.Companion.toComponent
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameReader
-import dev.martianzoo.state.Player
 import dev.martianzoo.state.toComponent
 import kotlin.math.min
 
@@ -363,16 +361,7 @@ internal constructor(
               resolve(unresolved.inner, worldGainNarrowing),
               canonicalActorExpression(unresolved),
           )
-      is Instruction.Dispatch -> {
-        val recipient = taskRecipient(unresolved)
-        if (reader.resolve(recipient).abstract) {
-          throw ExpressionException(
-              "`${keyword(unresolved)}` requires a fixed Actor recipient; `$recipient` is open",
-              sourceLocation = recipient.sourceLocation ?: unresolved.sourceLocation,
-          )
-        }
-        unresolved.copy(actor = actorFor(recipient, "`${keyword(unresolved)}`").expression)
-      }
+      is Instruction.Dispatch -> unresolved.copy(actor = reader.recipientOf(unresolved).expression)
       is Per ->
           resolveTree(
               elaborator.atomizeGains(unresolved.inner * reader.count(unresolved.metric)),
@@ -493,42 +482,18 @@ internal constructor(
     return type.expression
   }
 
-  internal fun actorFor(instruction: By): Actor = actorFor(instruction.actor, "`BY`")
-
-  private fun taskRecipient(instruction: Instruction.Dispatch): Expression =
-      instruction.actor
-          ?: throw ExpressionException(
-              "`${keyword(instruction)}` needs a recipient after elaboration",
-              sourceLocation = instruction.sourceLocation,
-          )
-
-  private fun keyword(dispatch: Instruction.Dispatch) = dispatch.deferral.keyword
+  internal fun actorFor(instruction: By): Actor = reader.actorNamed(instruction.actor, "`BY`")
 
   /**
    * The work [dispatch] admits: its body, for its recipient, with its deferral (L2-17 to L2-19).
    */
   private fun admitted(dispatch: Instruction.Dispatch, cause: Cause?): PendingTask =
       PendingTask(
-          assignee = actorFor(taskRecipient(dispatch), "`${keyword(dispatch)}`"),
+          assignee = reader.recipientOf(dispatch),
           instruction = InstructionGroup.of(dispatch.body),
           cause = cause,
           deferral = dispatch.deferral,
       )
-
-  internal fun actorFor(expression: Expression, assignment: String = "`TASK`"): Actor {
-    val type = reader.resolve(expression)
-    if (reader.countComponent(type) != 1) {
-      throw ExpressionException(
-          "$assignment requires a participating `Actor`; `${type.expression}` has no component in this world",
-          sourceLocation = expression.sourceLocation,
-      )
-    }
-    if (type.className == ADMIN.className) return ADMIN
-    if (type.rootClass.isSubtypeOf(classTable.getClass(PLAYER))) {
-      return Player(type.className)
-    }
-    throw ExpressionException("unsupported Actor: ${type.expression}")
-  }
 
   private fun resolveChange(change: Change, worldGainNarrowing: Boolean): InstructionTree {
     val quantifier = change.quantifier ?: error("missing quantifier: $change")

@@ -22,7 +22,6 @@ internal class FloodingTest : TfmSandboxTest() {
               "PlayProject<Class<Flooding>>",
               "-7 MC",
               "Flooding FROM ProjectCard",
-              "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
           )
           selectOnlyTask()
           doTasks("OceanTile<Tharsis_5_4>! THEN -4 MC<Rob>!", "TerraformRating")
@@ -41,7 +40,6 @@ internal class FloodingTest : TfmSandboxTest() {
               "PlayProject<Class<Flooding>>",
               "-7 MC",
               "Flooding FROM ProjectCard",
-              "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
           )
           selectOnlyTask()
           doTasks("OceanTile<Tharsis_5_4>", "TerraformRating", "2 Plant")
@@ -63,7 +61,6 @@ internal class FloodingTest : TfmSandboxTest() {
         doTasks(
             "-7 MC",
             "Flooding FROM ProjectCard",
-            "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
         )
         selectOnlyTask()
         doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Stan>!")
@@ -82,7 +79,6 @@ internal class FloodingTest : TfmSandboxTest() {
               "PlayProject<Class<Flooding>>",
               "-7 MC",
               "Flooding FROM ProjectCard",
-              "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
           )
           selectOnlyTask()
           doTasks("OceanTile<Tharsis_5_4>! THEN -2 MC<Stan>!", "TerraformRating")
@@ -104,7 +100,6 @@ internal class FloodingTest : TfmSandboxTest() {
         doTasks(
             "-7 MC",
             "Flooding FROM ProjectCard",
-            "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
         )
         selectOnlyTask()
         doTask("OceanTile<Tharsis_5_4>! THEN -5 MC<Stan>!")
@@ -139,7 +134,6 @@ internal class FloodingTest : TfmSandboxTest() {
           "PlayProject<Class<Flooding>>",
           "-7 MC",
           "Flooding FROM ProjectCard",
-          "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
       )
       selectOnlyTask()
       doTasks("OceanTile<Tharsis_5_4>", "TerraformRating", "2 Plant")
@@ -173,7 +167,6 @@ internal class FloodingTest : TfmSandboxTest() {
               "PlayProject<Class<Flooding>>",
               "-7 MC",
               "Flooding FROM ProjectCard",
-              "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
           )
           selectOnlyTask()
           doTasks("OceanTile<Tharsis_5_4>! THEN -4 MC<Stan>!", "TerraformRating")
@@ -208,7 +201,6 @@ internal class FloodingTest : TfmSandboxTest() {
               "PlayProject<Class<Flooding>>",
               "-7 MC",
               "Flooding FROM ProjectCard",
-              "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
           )
           selectOnlyTask()
           doTask("PlayedEvent<Class<Flooding>> FROM Flooding")
@@ -229,7 +221,6 @@ internal class FloodingTest : TfmSandboxTest() {
               "PlayProject<Class<Flooding>>",
               "-7 MC",
               "Flooding FROM ProjectCard",
-              "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
           )
           selectOnlyTask()
           doTasks("OceanTile<Tharsis_5_4>! THEN -4 MC<Stan>!", "TerraformRating")
@@ -252,7 +243,6 @@ internal class FloodingTest : TfmSandboxTest() {
         doTasks(
             "-7 MC",
             "Flooding FROM ProjectCard",
-            "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
         )
         selectOnlyTask()
         narrowTask("OceanTile<WaterArea(HAS MAX 0 Tile)>! THEN -4 MC<Maya>!")
@@ -271,7 +261,6 @@ internal class FloodingTest : TfmSandboxTest() {
         doTasks(
             "-7 MC",
             "Flooding FROM ProjectCard",
-            "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
         )
         selectOnlyTask()
         doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Stan>?")
@@ -294,7 +283,6 @@ internal class FloodingTest : TfmSandboxTest() {
         doTasks(
             "-7 MC",
             "Flooding FROM ProjectCard",
-            "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
         )
         selectOnlyTask()
         doTask("Ok")
@@ -314,7 +302,6 @@ internal class FloodingTest : TfmSandboxTest() {
         doTasks(
             "-7 MC",
             "Flooding FROM ProjectCard",
-            "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
         )
         selectOnlyTask()
         doTask("OceanTile<Tharsis_1_2>! THEN -4 MC<Maya>!")
@@ -333,7 +320,6 @@ internal class FloodingTest : TfmSandboxTest() {
         doTasks(
             "-7 MC",
             "Flooding FROM ProjectCard",
-            "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
         )
         selectOnlyTask()
         doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Maya>!")
@@ -352,7 +338,6 @@ internal class FloodingTest : TfmSandboxTest() {
         doTasks(
             "-7 MC",
             "Flooding FROM ProjectCard",
-            "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
         )
         selectOnlyTask()
         doTask("OceanTile<Tharsis_1_2>! THEN -4 MC<Stan>!")
@@ -371,7 +356,6 @@ internal class FloodingTest : TfmSandboxTest() {
         doTasks(
             "-7 MC",
             "Flooding FROM ProjectCard",
-            "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
         )
         selectOnlyTask()
         narrowTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Anyone>?")
@@ -390,7 +374,6 @@ internal class FloodingTest : TfmSandboxTest() {
         doTasks(
             "-7 MC",
             "Flooding FROM ProjectCard",
-            "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
         )
         selectOnlyTask()
         narrowTask(
@@ -409,7 +392,6 @@ internal class FloodingTest : TfmSandboxTest() {
               "PlayProject<Class<Flooding>>",
               "-7 MC",
               "Flooding FROM ProjectCard",
-              "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
           )
           selectOnlyTask()
           doTasks("OceanTile<Tharsis_5_4>! THEN Ok", "TerraformRating", "2 Plant")
@@ -426,7 +408,6 @@ internal class FloodingTest : TfmSandboxTest() {
               "PlayProject<Class<Flooding>>",
               "-7 MC",
               "Flooding FROM ProjectCard",
-              "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
           )
           selectOnlyTask()
           doTasks("OceanTile<Tharsis_5_4>! THEN -2 MC<Stan>?", "TerraformRating", "2 Plant")
@@ -468,7 +449,6 @@ internal class FloodingTest : TfmSandboxTest() {
           "PlayProject<Class<Flooding>>",
           "-7 MC",
           "Flooding FROM ProjectCard",
-          "LATER { PlayedEvent<Class<Flooding>> FROM Flooding. }",
       )
 
       doTasks(

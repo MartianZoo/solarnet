@@ -80,7 +80,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
           "PlayProject<Class<SpecialDesign>>",
           "-4 MC",
           "SpecialDesign FROM ProjectCard",
-          "LATER { PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign. }",
       )
       selectOnlyTask()
       doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
@@ -113,7 +112,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
           "PlayProject<Class<SpecialDesign>>",
           "-4 MC",
           "SpecialDesign FROM ProjectCard",
-          "LATER { PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign. }",
       )
       selectOnlyTask()
       doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
@@ -185,7 +183,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
           "PlayProject<Class<SpecialDesign>>",
           "-4 MC",
           "SpecialDesign FROM ProjectCard",
-          "LATER { PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign. }",
       )
       selectOnlyTask()
       doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
@@ -216,7 +213,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
           "PlayProject<Class<SpecialDesign>>",
           "-4 MC",
           "SpecialDesign FROM ProjectCard",
-          "LATER { PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign. }",
       )
       selectOnlyTask()
       doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
@@ -247,7 +243,6 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
           "PlayProject<Class<SpecialDesign>>",
           "-4 MC",
           "SpecialDesign FROM ProjectCard",
-          "LATER { PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign. }",
       )
       selectOnlyTask()
       doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")

@@ -48,7 +48,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks("TradeAction<Action1>", "-9 MC")
       run {
-        doTasks("Trade<Enceladus>", "LATER { FinishTrade<Enceladus> }", "Microbe<$RegolithEaters>")
+        doTasks("Trade<Enceladus>", "Microbe<$RegolithEaters>")
         kim.selectTask("Microbe<Kim>.")
         kim.doTask("Microbe<$NitriteReducingBacteria>")
       }
@@ -72,7 +72,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks("TradeAction<Action2>", "-Energy / Owed<Class<Energy>>")
       selectOnlyTask()
-      doTasks("Trade<Pluto>", "LATER { FinishTrade<Pluto> }")
+      doTasks("Trade<Pluto>")
       selectTask("ProjectCard<Stan, Hand>!")
       kim.selectTask("ProjectCard<Kim, Hand>!")
       kim.selectTask("-ProjectCard<Kim, Hand>!")
@@ -111,7 +111,6 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
         "TradeAction<Action2>",
         "-3 Energy",
         "Trade<Pluto>",
-        "LATER { FinishTrade<Pluto> }",
         "2 ProjectCard",
     )
     kim.doTask("ProjectCard<Kim>")
@@ -169,7 +168,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
         .inTurn {
           doTasks("TradeAction<Action2>", "-Energy / Owed<Class<Energy>>")
           selectOnlyTask()
-          doTasks("Trade<Enceladus>", "LATER { FinishTrade<Enceladus> }")
+          doTasks("Trade<Enceladus>")
           selectOnlyTask()
         }
         .expect("0 Microbe<Anyone>")
@@ -221,7 +220,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks("TradeAction<Action2>", "-Energy / Owed<Class<Energy>>")
       selectOnlyTask()
-      doTasks("Trade<Titan>", "LATER { FinishTrade<Titan> }", "Floater<Dirigibles>")
+      doTasks("Trade<Titan>", "Floater<Dirigibles>")
       kim.selectTask("Floater<Kim>.")
       kim.doTask("Floater<ForcedPrecipitation>.")
       kim.selectTask("Floater<Kim>.")

@@ -16,7 +16,6 @@ internal class ColonialEnvoysTest : TfmSandboxTest() {
               "PlayProject<Class<ColonialEnvoys>>",
               "-4 MC",
               "ColonialEnvoys FROM ProjectCard",
-              "LATER { PlayedEvent<Class<ColonialEnvoys>> FROM ColonialEnvoys. }",
           )
           selectOnlyTask()
           doTask("PartyDelegate<Scientists>")

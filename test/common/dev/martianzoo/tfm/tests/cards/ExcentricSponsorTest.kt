@@ -26,7 +26,6 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
             doTasks(
                 "Ok",
                 "NitrogenRichAsteroid FROM ProjectCard",
-                "LATER { PlayedEvent<Class<NitrogenRichAsteroid>> FROM NitrogenRichAsteroid. }",
                 "2 TerraformRating",
             )
             selectTask("TemperatureStep.")
@@ -50,7 +49,6 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
         selectTask("-25 Owed.")
         doTasks(
             "GhgImportFromVenus FROM ProjectCard",
-            "LATER { PlayedEvent<Class<GhgImportFromVenus>> FROM GhgImportFromVenus. }",
         )
         selectTask("VenusStep.")
         doTasks("PROD[3 Heat]", "TerraformRating")

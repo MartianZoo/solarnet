@@ -18,7 +18,6 @@ internal class NitrogenRichAsteroidTest : TfmSandboxTest() {
       doTasks(
           "Ok",
           "NitrogenRichAsteroid FROM ProjectCard",
-          "LATER { PlayedEvent<Class<NitrogenRichAsteroid>> FROM NitrogenRichAsteroid. }",
           "2 TerraformRating",
       )
       selectTask("TemperatureStep.")

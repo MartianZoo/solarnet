@@ -23,7 +23,6 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
           doTasks(
               "Ok",
               "ImportedNitrogen FROM ProjectCard",
-              "LATER { PlayedEvent<Class<ImportedNitrogen>> FROM ImportedNitrogen. }",
               "TerraformRating",
               "4 Plant",
           )
@@ -50,7 +49,6 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
           doTasks(
               "Ok",
               "ImportedNitrogen FROM ProjectCard",
-              "LATER { PlayedEvent<Class<ImportedNitrogen>> FROM ImportedNitrogen. }",
               "TerraformRating",
               "4 Plant",
               "3 Microbe<Tardigrades>.",

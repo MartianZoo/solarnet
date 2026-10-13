@@ -18,7 +18,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("TradeAction", "-MC / Owed<Class<MC>>")
           selectTask("Trade!")
-          doTasks("Trade<Luna>", "LATER { FinishTrade<Luna> }")
+          doTasks("Trade<Luna>")
           selectTask("ColonyProduction<Luna>?")
           selectTask("ColonyProduction<Luna>!")
           doTask("13 MC")
@@ -38,7 +38,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
       doTask("UseCardAction<TitanFloatingLaunchPad, Action2>")
       selectTask("-Floater<TitanFloatingLaunchPad>!")
       selectTask("Trade!")
-      doTasks("Trade<Luna>", "LATER { FinishTrade<Luna> }")
+      doTasks("Trade<Luna>")
       selectTask("ColonyProduction<Luna>?")
       selectTask("ColonyProduction<Luna>!")
       doTask("13 MC")
@@ -56,7 +56,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("TradeAction", "-MC / Owed<Class<MC>>")
           selectTask("Trade!")
-          doTasks("Trade<Luna>", "LATER { FinishTrade<Luna> }")
+          doTasks("Trade<Luna>")
           selectTask("ColonyProduction<Luna>?")
           doTask("17 MC")
         }
@@ -75,7 +75,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
           // Decline the other card's additional optional track increase.
           doTasks("TradeAction", "-MC / Owed<Class<MC>>")
           selectTask("Trade!")
-          doTasks("Trade<Luna>", "LATER { FinishTrade<Luna> }")
+          doTasks("Trade<Luna>")
           selectTask("ColonyProduction<Luna>?")
           selectTask("ColonyProduction<Luna>!")
           selectTask("ColonyProduction<Luna>?")

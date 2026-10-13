@@ -30,7 +30,6 @@ internal class LawSuitTest : TfmSandboxTest() {
               "PlayProject<Class<LawSuit>>",
               "-2 MC",
               "LawSuit FROM ProjectCard",
-              "LATER { PlayedEvent<Class<LawSuit>> FROM LawSuit. }",
           )
           selectOnlyTask()
           doTask("3 MC<Kim FROM Stan>")
@@ -57,7 +56,6 @@ internal class LawSuitTest : TfmSandboxTest() {
               "PlayProject<Class<LawSuit>>",
               "-2 MC",
               "LawSuit FROM ProjectCard",
-              "LATER { PlayedEvent<Class<LawSuit>> FROM LawSuit. }",
           )
           selectOnlyTask()
           doTask("3 MC<Kim FROM Stan>")
@@ -76,7 +74,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           "Ok",
           "AsteroidCard FROM ProjectCard",
-          "LATER { PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard. }",
       )
       selectTask("TemperatureStep.")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Kim>")
@@ -88,7 +85,6 @@ internal class LawSuitTest : TfmSandboxTest() {
               "PlayProject<Class<LawSuit>>",
               "-2 MC",
               "LawSuit FROM ProjectCard",
-              "LATER { PlayedEvent<Class<LawSuit>> FROM LawSuit. }",
           )
           selectOnlyTask()
           doTask("3 MC<Kim FROM Stan>")
@@ -116,7 +112,6 @@ internal class LawSuitTest : TfmSandboxTest() {
               "PlayProject<Class<LawSuit>>",
               "-2 MC",
               "LawSuit FROM ProjectCard",
-              "LATER { PlayedEvent<Class<LawSuit>> FROM LawSuit. }",
           )
           selectOnlyTask()
           doTask("3 MC<Kim FROM Stan>")
@@ -144,7 +139,6 @@ internal class LawSuitTest : TfmSandboxTest() {
               "PlayProject<Class<LawSuit>>",
               "-2 MC",
               "LawSuit FROM ProjectCard",
-              "LATER { PlayedEvent<Class<LawSuit>> FROM LawSuit. }",
               "3 MC",
           )
           selectOnlyTask()
@@ -173,7 +167,6 @@ internal class LawSuitTest : TfmSandboxTest() {
               "PlayProject<Class<LawSuit>>",
               "-2 MC",
               "LawSuit FROM ProjectCard",
-              "LATER { PlayedEvent<Class<LawSuit>> FROM LawSuit. }",
           )
           selectOnlyTask()
           doTask("3 MC<Kim FROM Stan>")
@@ -200,7 +193,6 @@ internal class LawSuitTest : TfmSandboxTest() {
         doTasks(
             "-2 MC",
             "LawSuit FROM ProjectCard",
-            "LATER { PlayedEvent<Class<LawSuit>> FROM LawSuit. }",
         )
         selectOnlyTask()
         doTask("3 MC<Kim FROM Stan>")
@@ -231,7 +223,6 @@ internal class LawSuitTest : TfmSandboxTest() {
         doTasks(
             "-2 MC",
             "LawSuit FROM ProjectCard",
-            "LATER { PlayedEvent<Class<LawSuit>> FROM LawSuit. }",
         )
         selectOnlyTask()
         doTask("3 MC<Kim FROM Stan>")
@@ -249,7 +240,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           "Ok",
           "AsteroidCard FROM ProjectCard",
-          "LATER { PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard. }",
       )
       selectTask("TemperatureStep.")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Kim>")
@@ -261,7 +251,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           "Ok",
           "SmallAsteroid FROM ProjectCard",
-          "LATER { PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid. }",
       )
       selectTask("TemperatureStep.")
       doTasks("TerraformRating", "-Plant<Kim>")
@@ -278,7 +267,6 @@ internal class LawSuitTest : TfmSandboxTest() {
         doTasks(
             "-2 MC",
             "LawSuit FROM ProjectCard",
-            "LATER { PlayedEvent<Class<LawSuit>> FROM LawSuit. }",
         )
         selectOnlyTask()
         doTask("3 MC<Kim FROM Stan>")
@@ -298,7 +286,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           "Ok",
           "AsteroidCard FROM ProjectCard",
-          "LATER { PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard. }",
       )
       selectTask("TemperatureStep.")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Kim>")
@@ -310,7 +297,6 @@ internal class LawSuitTest : TfmSandboxTest() {
       doTasks(
           "Ok",
           "SmallAsteroid FROM ProjectCard",
-          "LATER { PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid. }",
       )
       selectTask("TemperatureStep.")
       doTasks("TerraformRating", "-Plant<Kim>")
@@ -322,7 +308,6 @@ internal class LawSuitTest : TfmSandboxTest() {
               "PlayProject<Class<LawSuit>>",
               "-2 MC",
               "LawSuit FROM ProjectCard",
-              "LATER { PlayedEvent<Class<LawSuit>> FROM LawSuit. }",
           )
           selectOnlyTask()
           doTask("3 MC<Kim FROM Stan>")
@@ -350,7 +335,6 @@ internal class LawSuitTest : TfmSandboxTest() {
             "PlayProject<Class<LawSuit>>",
             "-2 MC",
             "LawSuit FROM ProjectCard",
-            "LATER { PlayedEvent<Class<LawSuit>> FROM LawSuit. }",
         )
         selectOnlyTask()
         narrowTask("3 MC<Kim FROM Rob> THEN PlayedEvent<Rob, Class<LawSuit>> FROM LawSuit")
@@ -377,7 +361,6 @@ internal class LawSuitTest : TfmSandboxTest() {
           "PlayProject<Class<LawSuit>>",
           "-2 MC",
           "LawSuit FROM ProjectCard",
-          "LATER { PlayedEvent<Class<LawSuit>> FROM LawSuit. }",
       )
       selectOnlyTask()
       doTask("3 MC<Kim FROM Stan>")

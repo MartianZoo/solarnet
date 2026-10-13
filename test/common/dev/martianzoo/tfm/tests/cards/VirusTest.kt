@@ -23,7 +23,6 @@ internal class VirusTest : TfmSandboxTest() {
         doTasks(
             "-1 MC",
             "Virus FROM ProjectCard",
-            "LATER { PlayedEvent<Class<Virus>> FROM Virus. }",
         )
         selectOnlyTask()
         doTask("-Animal<Stan, Birds<Stan>>, -Animal<Stan, Fish<Stan>>")

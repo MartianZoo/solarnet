@@ -107,7 +107,6 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
           "PlayProject<Class<LandClaim>>",
           "-1 MC",
           "LandClaim FROM ProjectCard",
-          "LATER { PlayedEvent<Class<LandClaim>> FROM LandClaim. }",
       )
       selectOnlyTask()
       doTask("Community<Tharsis_1_1>")

@@ -20,7 +20,6 @@ internal class CometForVenusTest : TfmSandboxTest() {
       doTasks(
           "Ok",
           "CometForVenus FROM ProjectCard",
-          "LATER { PlayedEvent<Class<CometForVenus>> FROM CometForVenus. }",
       )
       selectTask("VenusStep.")
       doTasks("TerraformRating", "-4 MC<Stan>")

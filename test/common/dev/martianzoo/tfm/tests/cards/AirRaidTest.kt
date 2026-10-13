@@ -22,7 +22,6 @@ internal class AirRaidTest : TfmSandboxTest() {
       doTasks(
           "PlayProject<Class<$AirRaid>>",
           "$AirRaid FROM ProjectCard",
-          "LATER { PlayedEvent<Class<$AirRaid>> FROM $AirRaid. }",
           "-Floater<$AtmoCollectors>",
           "5 MC<Kim FROM Rob>",
       )
@@ -42,7 +41,6 @@ internal class AirRaidTest : TfmSandboxTest() {
         doTasks(
             "PlayProject<Class<AirRaid>>",
             "AirRaid FROM ProjectCard",
-            "LATER { PlayedEvent<Class<AirRaid>> FROM AirRaid. }",
         )
         selectTask("-Floater!")
         selectOnlyTask()
@@ -64,7 +62,6 @@ internal class AirRaidTest : TfmSandboxTest() {
         doTasks(
             "PlayProject<Class<AirRaid>>",
             "AirRaid FROM ProjectCard",
-            "LATER { PlayedEvent<Class<AirRaid>> FROM AirRaid. }",
         )
         selectTask("-Floater!")
         selectOnlyTask()

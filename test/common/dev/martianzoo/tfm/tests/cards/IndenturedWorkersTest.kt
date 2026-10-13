@@ -14,7 +14,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
       doTasks(
           "PlayProject<Class<IndenturedWorkers>>",
           "IndenturedWorkers FROM ProjectCard",
-          "LATER { PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers. }",
       )
       selectOnlyTask()
       doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
@@ -36,7 +35,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
       doTasks(
           "PlayProject<Class<IndenturedWorkers>>",
           "IndenturedWorkers FROM ProjectCard",
-          "LATER { PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers. }",
       )
       selectOnlyTask()
       doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
@@ -70,7 +68,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
       doTasks(
           "PlayProject<Class<IndenturedWorkers>>",
           "IndenturedWorkers FROM ProjectCard",
-          "LATER { PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers. }",
       )
       selectOnlyTask()
       doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
@@ -93,7 +90,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
       doTasks(
           "PlayProject<Class<IndenturedWorkers>>",
           "IndenturedWorkers FROM ProjectCard",
-          "LATER { PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers. }",
       )
       selectOnlyTask()
       doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
@@ -118,7 +114,6 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
       doTasks(
           "PlayProject<Class<IndenturedWorkers>>",
           "IndenturedWorkers FROM ProjectCard",
-          "LATER { PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers. }",
       )
       selectOnlyTask()
       doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")

@@ -35,7 +35,6 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
           "PlayProject<Class<GiantIceAsteroid>>",
           "-36 MC",
           "GiantIceAsteroid FROM ProjectCard",
-          "LATER { PlayedEvent<Class<GiantIceAsteroid>> FROM GiantIceAsteroid. }",
           "TemperatureStep",
           "TemperatureStep",
           "TerraformRating",
@@ -65,7 +64,6 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
       doTasks(
           "Ok",
           "GiantIceAsteroid FROM ProjectCard",
-          "LATER { PlayedEvent<Class<GiantIceAsteroid>> FROM GiantIceAsteroid. }",
       )
       selectTask("TemperatureStep.")
       selectTask("TemperatureStep.")

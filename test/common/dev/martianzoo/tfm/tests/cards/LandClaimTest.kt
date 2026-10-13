@@ -19,7 +19,6 @@ internal class LandClaimTest : TfmSandboxTest() {
           "PlayProject<Class<LandClaim>>",
           "-1 MC",
           "LandClaim FROM ProjectCard",
-          "LATER { PlayedEvent<Class<LandClaim>> FROM LandClaim. }",
       )
       selectOnlyTask()
       doTask("Community<Tharsis_1_1>")
@@ -239,7 +238,6 @@ internal class LandClaimTest : TfmSandboxTest() {
         doTasks(
             "-1 MC",
             "LandClaim FROM ProjectCard",
-            "LATER { PlayedEvent<Class<LandClaim>> FROM LandClaim. }",
         )
         selectOnlyTask()
         doTask("Community<Tharsis_1_1>")
@@ -260,7 +258,6 @@ internal class LandClaimTest : TfmSandboxTest() {
         doTasks(
             "-1 MC",
             "LandClaim FROM ProjectCard",
-            "LATER { PlayedEvent<Class<LandClaim>> FROM LandClaim. }",
         )
         selectOnlyTask()
         doTask("Community<Tharsis_1_3>")

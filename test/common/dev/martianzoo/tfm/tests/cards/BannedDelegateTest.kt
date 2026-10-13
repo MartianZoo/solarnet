@@ -34,7 +34,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
-              "LATER { PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate. }",
           )
           selectOnlyTask()
           selectTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>.")
@@ -58,7 +57,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
-              "LATER { PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate. }",
           )
           selectOnlyTask()
           selectTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>.")
@@ -80,7 +78,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
-              "LATER { PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate. }",
           )
           selectOnlyTask()
           selectTask("BannedDelegateRemoval<Kim, Greens, Stan>.")
@@ -102,7 +99,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
-              "LATER { PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate. }",
           )
           selectOnlyTask()
           selectTask("BannedDelegateRemoval<Kim, Scientists, Stan>.")
@@ -127,7 +123,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
-              "LATER { PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate. }",
           )
           selectOnlyTask()
           selectTask("BannedDelegateRemoval<Kim, Scientists, Rob>.")
@@ -154,7 +149,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
-              "LATER { PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate. }",
           )
           selectOnlyTask()
           selectTask("BannedDelegateRemoval<Stan, Scientists, Maya>.")
@@ -177,7 +171,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
           doTasks(
               "PlayProject<Class<$BannedDelegate>>",
               "$BannedDelegate FROM ProjectCard",
-              "LATER { PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate. }",
           )
           selectTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>")
           doTask("-PartyDelegate<MarsFirst, Stan>")
@@ -195,7 +188,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
-              "LATER { PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate. }",
           )
           selectOnlyTask()
           selectTask("BannedDelegateRemoval<Kim, Scientists, Kim>.")
@@ -214,7 +206,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
-              "LATER { PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate. }",
           )
           selectOnlyTask()
           selectTask("BannedDelegateRemoval<Kim, Scientists, Neutral>.")
@@ -232,7 +223,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
-              "LATER { PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate. }",
           )
           selectOnlyTask()
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
@@ -251,7 +241,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
         doTasks(
             "PlayProject<Class<BannedDelegate>>",
             "BannedDelegate FROM ProjectCard",
-            "LATER { PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate. }",
         )
         selectOnlyTask()
         doTask("Ok")
@@ -270,7 +259,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
         doTasks(
             "PlayProject<Class<BannedDelegate>>",
             "BannedDelegate FROM ProjectCard",
-            "LATER { PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate. }",
         )
         selectOnlyTask()
         narrowTask("BannedDelegateRemoval<Kim, Scientists, Stan>")
@@ -290,7 +278,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
         doTasks(
             "PlayProject<Class<BannedDelegate>>",
             "BannedDelegate FROM ProjectCard",
-            "LATER { PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate. }",
         )
         selectOnlyTask()
         narrowTask("BannedDelegateRemoval<Kim, Scientists, Kim>")
@@ -307,7 +294,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
           doTasks(
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
-              "LATER { PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate. }",
           )
           selectOnlyTask()
           selectTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>.")

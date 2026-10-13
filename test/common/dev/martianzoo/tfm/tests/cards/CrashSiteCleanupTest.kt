@@ -19,7 +19,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
       doTasks(
           "Ok",
           "AsteroidCard FROM ProjectCard",
-          "LATER { PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard. }",
       )
       selectTask("TemperatureStep.")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
@@ -31,7 +30,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
           "PlayProject<Class<CrashSiteCleanup>>",
           "-4 MC",
           "CrashSiteCleanup FROM ProjectCard",
-          "LATER { PlayedEvent<Class<CrashSiteCleanup>> FROM CrashSiteCleanup. }",
           "Titanium",
       )
       doTask("PlayedEvent<Class<CrashSiteCleanup>> FROM CrashSiteCleanup")
@@ -47,7 +45,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
       doTasks(
           "Ok",
           "AsteroidCard FROM ProjectCard",
-          "LATER { PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard. }",
       )
       selectTask("TemperatureStep.")
       doTasks("2 Titanium", "TerraformRating", "-Plant")
@@ -71,7 +68,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
       doTasks(
           "Ok",
           "AsteroidCard FROM ProjectCard",
-          "LATER { PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard. }",
       )
       selectTask("TemperatureStep.")
       doTasks("2 Titanium", "TerraformRating", "-Plant")
@@ -95,7 +91,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
       doTasks(
           "Ok",
           "AsteroidCard FROM ProjectCard",
-          "LATER { PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard. }",
       )
       selectTask("TemperatureStep.")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
@@ -120,7 +115,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
       doTasks(
           "Ok",
           "AsteroidCard FROM ProjectCard",
-          "LATER { PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard. }",
       )
       selectTask("TemperatureStep.")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
@@ -144,7 +138,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
           doTasks(
               "Ok",
               "AsteroidCard FROM ProjectCard",
-              "LATER { PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard. }",
           )
           selectTask("TemperatureStep.")
           doTasks("2 Titanium", "TerraformRating")

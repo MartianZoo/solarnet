@@ -40,7 +40,6 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
               "PlayProject<Class<LocalHeatTrapping>>",
               "-1 MC",
               "LocalHeatTrapping FROM ProjectCard",
-              "LATER { PlayedEvent<Class<LocalHeatTrapping>> FROM LocalHeatTrapping. }",
               "-5 Heat",
               "4 Plant",
           )
@@ -62,7 +61,6 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
               "PlayProject<Class<LocalHeatTrapping>>",
               "-1 MC",
               "LocalHeatTrapping FROM ProjectCard",
-              "LATER { PlayedEvent<Class<LocalHeatTrapping>> FROM LocalHeatTrapping. }",
               "-5 Heat",
               "4 Plant",
           )
@@ -84,7 +82,6 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
               "PlayProject<Class<LocalHeatTrapping>>",
               "-1 MC",
               "LocalHeatTrapping FROM ProjectCard",
-              "LATER { PlayedEvent<Class<LocalHeatTrapping>> FROM LocalHeatTrapping. }",
               "-3 Floater THEN 5 Heat",
               "5 Heat",
               "-5 Heat",

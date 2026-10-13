@@ -21,7 +21,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
         doTasks(
             "-2 MC",
             "Recruitment FROM ProjectCard",
-            "LATER { PlayedEvent<Class<Recruitment>> FROM Recruitment. }",
         )
         selectOnlyTask()
       }
@@ -42,7 +41,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
               "PlayProject<Class<Recruitment>>",
               "-2 MC",
               "Recruitment FROM ProjectCard",
-              "LATER { PlayedEvent<Class<Recruitment>> FROM Recruitment. }",
               "PartyDelegate<MarsFirst, Kim FROM Neutral>",
           )
           doTask("PlayedEvent<Class<$Recruitment>> FROM $Recruitment")
@@ -64,7 +62,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
               "PlayProject<Class<Recruitment>>",
               "-2 MC",
               "Recruitment FROM ProjectCard",
-              "LATER { PlayedEvent<Class<Recruitment>> FROM Recruitment. }",
               "PartyDelegate<MarsFirst, Kim FROM Neutral>",
           )
           doTask("PlayedEvent<Class<$Recruitment>> FROM $Recruitment")
@@ -86,7 +83,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
               "PlayProject<Class<Recruitment>>",
               "-2 MC",
               "Recruitment FROM ProjectCard",
-              "LATER { PlayedEvent<Class<Recruitment>> FROM Recruitment. }",
               "PartyDelegate<MarsFirst, Kim FROM Neutral>",
           )
           doTask("PlayedEvent<Class<$Recruitment>> FROM $Recruitment")
@@ -108,7 +104,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
               "PlayProject<Class<Recruitment>>",
               "-2 MC",
               "Recruitment FROM ProjectCard",
-              "LATER { PlayedEvent<Class<Recruitment>> FROM Recruitment. }",
               "PartyDelegate<MarsFirst, Kim FROM Neutral>",
           )
           doTask("PlayedEvent<Class<$Recruitment>> FROM $Recruitment")
@@ -129,7 +124,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
               "PlayProject<Class<$Recruitment>>",
               "-2 MC",
               "$Recruitment FROM ProjectCard",
-              "LATER { PlayedEvent<Class<$Recruitment>> FROM $Recruitment. }",
               "PartyDelegate<MarsFirst, Kim FROM Neutral>",
           )
           doTask("PlayedEvent<Class<$Recruitment>> FROM $Recruitment")
@@ -154,7 +148,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
               "PlayProject<Class<Recruitment>>",
               "-2 MC",
               "Recruitment FROM ProjectCard",
-              "LATER { PlayedEvent<Class<Recruitment>> FROM Recruitment. }",
               "PartyDelegate<MarsFirst, Stan FROM Neutral>",
           )
           doTask("PlayedEvent<Class<$Recruitment>> FROM $Recruitment")
@@ -179,7 +172,6 @@ internal class RecruitmentTest : TfmSandboxTest() {
         doTasks(
             "-2 MC",
             "Recruitment FROM ProjectCard",
-            "LATER { PlayedEvent<Class<Recruitment>> FROM Recruitment. }",
         )
         selectOnlyTask()
         doTask("PartyDelegate<MarsFirst, Kim FROM Neutral>")

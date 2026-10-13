@@ -43,7 +43,6 @@ internal class DeferredWorkTest {
   @Test
   internal fun `deferred work waits until no ordinary work remains`() {
     p1.addTasks("Start, LATER { Cleanup }")
-    p1.doTask("LATER { Cleanup }")
     p1.doTask("Start")
 
     val cleanup = p1.tasks.matching { it.deferred }.single()
@@ -55,7 +54,7 @@ internal class DeferredWorkTest {
   }
 
   @Test
-  internal fun `an operation performs its dispatch and admits the deferred work`() {
+  internal fun `an operation admits the work its dispatch defers`() {
     p1.beginOperation("Start, LATER { Cleanup }") {
       p1.doTask("ChoiceA")
       p1.doTask("Cleanup")
@@ -66,7 +65,7 @@ internal class DeferredWorkTest {
   }
 
   @Test
-  internal fun `automatic execution performs a dispatch but waits to perform deferred work`() {
+  internal fun `automatic execution waits to perform deferred work`() {
     p1.autoExecPolicy = CONCRETE
     p1.addTasks("Choice, LATER { Cleanup }")
 
@@ -81,7 +80,6 @@ internal class DeferredWorkTest {
   internal fun `deferred work waits for every actor's work`() {
     p2.addTasks("Choice")
     p1.addTasks("LATER { Cleanup }")
-    p1.doTask("LATER { Cleanup }")
 
     shouldThrow<TaskException> { p1.doTask("Cleanup") }
     p2.doTask("ChoiceA")
@@ -91,8 +89,6 @@ internal class DeferredWorkTest {
   @Test
   internal fun `deferred work becomes ordinary together and stays unordered`() {
     p1.addTasks("Choice, LATER { First }, LATER { Cleanup }")
-    p1.doTask("LATER { First }")
-    p1.doTask("LATER { Cleanup }")
     p1.doTask("ChoiceA")
     p1.doTask("First")
 
@@ -105,11 +101,8 @@ internal class DeferredWorkTest {
   @Test
   internal fun `work deferred while a batch runs waits for that batch`() {
     p1.addTasks("Choice, LATER { First }, LATER { Cleanup }")
-    p1.doTask("LATER { First }")
-    p1.doTask("LATER { Cleanup }")
     p1.doTask("ChoiceA")
     p1.doTask("First")
-    p1.doTask("LATER { Second }")
 
     shouldThrow<TaskException> { p1.doTask("Second") }
     p1.doTask("Reaction")
@@ -121,7 +114,6 @@ internal class DeferredWorkTest {
   @Test
   internal fun `a deferred instruction is evaluated when it becomes ordinary`() {
     p1.addTasks("Start, LATER { Done / Flag }")
-    p1.doTask("LATER { Done / Flag }")
     p1.doTask("Start")
     p1.doTask("ChoiceA")
     p1.autoExecNow(CONCRETE)
@@ -132,7 +124,6 @@ internal class DeferredWorkTest {
   @Test
   internal fun `a deferred fanout enumerates when it becomes ordinary`() {
     p1.addTasks("Start, LATER { EACH Flag<Anyone> { Done } }")
-    p1.doTask("LATER { EACH Flag<Anyone> { Done } }")
     p1.doTask("Start")
     p1.doTask("ChoiceA")
     p1.doTask("EACH Flag<Anyone> { Done }")
@@ -145,7 +136,6 @@ internal class DeferredWorkTest {
   @Test
   internal fun `a deferred group admits independent tasks`() {
     p1.addTasks("Choice, LATER { Cleanup, Done }")
-    p1.doTask("LATER { Cleanup, Done }")
     p1.doTask("ChoiceA")
 
     p1.doTask("Done")
@@ -153,25 +143,25 @@ internal class DeferredWorkTest {
   }
 
   @Test
-  internal fun `a nested LATER defers its body again when it is performed`() {
-    p1.addTasks("Choice, LATER { LATER { Cleanup } }")
-    p1.doTask("LATER { LATER { Cleanup } }")
+  internal fun `a nested LATER defers its body again when it becomes ordinary`() {
+    p1.addTasks("Choice, LATER { LATER { Cleanup } }, LATER { First }")
     p1.doTask("ChoiceA")
 
-    p1.doTask("LATER { Cleanup }")
+    // The inner LATER became ordinary alongside First, so Cleanup waits for First's work.
+    shouldThrow<TaskException> { p1.doTask("Cleanup") }
+    p1.doTask("First")
+    shouldThrow<TaskException> { p1.doTask("Cleanup") }
+    p1.doTask("Reaction")
     p1.doTask("Cleanup")
   }
 
   @Test
   internal fun `final work waits for deferred work and everything it defers`() {
     p1.addTasks("Choice, LATER { First }, FINALLY { Cleanup }")
-    p1.doTask("LATER { First }")
-    p1.doTask("FINALLY { Cleanup }")
     p1.doTask("ChoiceA")
 
     shouldThrow<TaskException> { p1.doTask("Cleanup") }
     p1.doTask("First")
-    p1.doTask("LATER { Second }")
     p1.doTask("Reaction")
     shouldThrow<TaskException> { p1.doTask("Cleanup") }
     p1.doTask("Second")
@@ -181,7 +171,6 @@ internal class DeferredWorkTest {
   @Test
   internal fun `rollback restores deferral`() {
     p1.addTasks("Choice, LATER { Cleanup }")
-    p1.doTask("LATER { Cleanup }")
     val beforeChoice = game.timeline.checkpoint()
     p1.doTask("ChoiceA")
 

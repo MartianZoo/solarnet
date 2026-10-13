@@ -18,7 +18,6 @@ internal class LavaFlowsTest : TfmSandboxTest() {
           "PlayProject<Class<LavaFlows>>",
           "-18 MC",
           "LavaFlows FROM ProjectCard",
-          "LATER { PlayedEvent<Class<LavaFlows>> FROM LavaFlows. }",
       )
       selectTask("TemperatureStep.")
       selectTask("TemperatureStep.")
@@ -42,7 +41,6 @@ internal class LavaFlowsTest : TfmSandboxTest() {
           "PlayProject<Class<LavaFlows>>",
           "-18 MC",
           "LavaFlows FROM ProjectCard",
-          "LATER { PlayedEvent<Class<LavaFlows>> FROM LavaFlows. }",
       )
       selectTask("TemperatureStep.")
       selectTask("TemperatureStep.")
@@ -74,7 +72,6 @@ internal class LavaFlowsTest : TfmSandboxTest() {
         doTasks(
             "-18 MC",
             "LavaFlows FROM ProjectCard",
-            "LATER { PlayedEvent<Class<LavaFlows>> FROM LavaFlows. }",
         )
         selectTask("TemperatureStep.")
         selectTask("TemperatureStep.")

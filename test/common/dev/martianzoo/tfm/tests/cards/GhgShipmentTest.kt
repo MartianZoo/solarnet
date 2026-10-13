@@ -19,7 +19,6 @@ internal class GhgShipmentTest : TfmSandboxTest() {
           doTasks(
               "Ok",
               "GhgShipment FROM ProjectCard",
-              "LATER { PlayedEvent<Class<GhgShipment>> FROM GhgShipment. }",
               "PROD[Heat]",
           )
           selectOnlyTask()

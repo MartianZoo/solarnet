@@ -56,7 +56,6 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
               "PlayProject<Class<Sabotage>>",
               "-1 MC",
               "Sabotage FROM ProjectCard",
-              "LATER { PlayedEvent<Class<Sabotage>> FROM Sabotage. }",
               "MC",
               "-7 MC<Stan>",
           )
@@ -76,7 +75,6 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
       doTasks(
           "Ok",
           "SmallAsteroid FROM ProjectCard",
-          "LATER { PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid. }",
       )
       selectTask("TemperatureStep.")
       selectTask("-2 Plant<Anyone>?")

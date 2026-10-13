@@ -24,7 +24,6 @@ internal class UnexpectedApplicationTest : TfmSandboxTest() {
         doTasks(
             "-4 MC",
             "UnexpectedApplication FROM ProjectCard",
-            "LATER { PlayedEvent<Class<UnexpectedApplication>> FROM UnexpectedApplication. }",
         )
         selectTask("-ProjectCard<Kim, Hand>!")
       }
@@ -37,7 +36,6 @@ internal class UnexpectedApplicationTest : TfmSandboxTest() {
               "PlayProject<Class<UnexpectedApplication>>",
               "-4 MC",
               "UnexpectedApplication FROM ProjectCard",
-              "LATER { PlayedEvent<Class<UnexpectedApplication>> FROM UnexpectedApplication. }",
           )
           selectTask("-ProjectCard<Kim, Hand>!")
           selectTask("VenusStep.")

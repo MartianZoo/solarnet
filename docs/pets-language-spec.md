@@ -496,14 +496,16 @@ PrimaryInstruction ::= Change
 > and gain three TR.”
 
 **L2-17. `TASK Recipient { body }` dispatches unresolved work.** The recipient is optional and
-must identify a fixed participating Actor when the dispatch is selected: a concrete Actor, or a
+must identify a fixed participating Actor when the dispatch is performed: a concrete Actor, or a
 marker already bound by an enclosing `EACH` or trigger-side `BY @Player`. An open expression,
 including a refined `Player(HAS StartToken)` that currently matches just one Player, is not a
 recipient. Write `EACH @Player(HAS StartToken) { TASK @Player { body } }` to bind that Player first.
 
-Executing `TASK` admits `body` as unresolved ordinary tasks for the recipient and fulfills the
-dispatch task. The recipient selects and narrows those tasks later. Narrowing a dispatch cannot
-change its recipient or any part of its body. When the recipient is omitted, it is the rule's
+A dispatch is performed as soon as the work containing it is ordinary, the way a finished `THEN`
+stage releases the next one: `TASK` admits `body` as unresolved ordinary tasks for the recipient.
+Since nothing about a dispatch is left to choose, it is never a task of its own. The recipient
+selects and narrows the admitted tasks later. Narrowing a dispatch that sits in an open choice
+cannot change its recipient or any part of its body. When the recipient is omitted, it is the rule's
 lexical `Me`: its owner, an enclosing `EACH Me@…` selection, or the submitting player. With no
 lexical `Me`, it is Admin. The recipient supplies `Me` inside the body. Thus
 `EACH @Player { TASK @Player { Choice } }` and `EACH Me@Player { TASK { Choice } }` each dispatch
@@ -520,8 +522,9 @@ respect but one: the work it admits is deferred. No actor may carry out deferred
 work is pending, whichever actor that work belongs to. When no ordinary task remains, all `LATER`
 work becomes ordinary at once, unordered among itself; work deferred after that moment, including by
 that work, waits for the next such moment. Deferred work is still pending work, so anything that
-waits for all pending work also waits for it. A `LATER` nested in another is performed in its turn
-like any instruction: it defers its body behind the ordinary work pending then.
+waits for all pending work also waits for it. A `LATER` nested in another is performed when the
+work containing it becomes ordinary: it defers its body again, behind the ordinary work pending
+then.
 
 Deferral settles nothing early. Admitted work is resolved when it is carried out, like any task, so
 `LATER { Done / Flag }` counts the flags present then.

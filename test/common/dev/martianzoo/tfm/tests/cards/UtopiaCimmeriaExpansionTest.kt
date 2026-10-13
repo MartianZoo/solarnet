@@ -62,7 +62,6 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
       doTasks(
           "Ok",
           "SmallAsteroid FROM ProjectCard",
-          "LATER { PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid. }",
       )
       selectTask("TemperatureStep.")
       selectTask("-2 Plant<Anyone>?")

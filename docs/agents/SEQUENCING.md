@@ -330,8 +330,11 @@ Where the component also records a real fact, keep it and change only the timing
 The language rules state what deferral means. A task's deferral records which dispatch admitted it:
 `TASK`, `LATER`, or `FINALLY`. A selected task is always ordinary. Beyond those rules:
 
-- A dispatch is a task of its own, and performing it admits its body with that deferral. Only
-  promotion changes a task's deferral afterward; authored Pets cannot defer or promote another task.
+- The engine performs a dispatch as soon as the work holding it is ordinary, as it releases a
+  `THEN` continuation: the body is admitted with the dispatch's deferral, and no task ever consists
+  of a dispatch alone. A dispatch in deferred work is performed when that work is promoted, before
+  any later deferral could be. Only promotion changes a task's deferral afterward; authored Pets
+  cannot defer or promote another task.
 - Deferral restricts selection only. It applies equally to explicit commands and autoexecution, and
   it does not order tasks with the same deferral: legal sibling orders stay available.
 - Promotion edits the task's deferral. It rolls back with its transaction and is reproduced from
@@ -377,6 +380,9 @@ while P2's payment remains.
 
 ### Decisions and open questions
 
+- **Dispatch is not a step.** On 2026-10-12 the owner ruled that a pure dispatch should never sit in
+  a queue as current work; the engine performs it, as it releases a `THEN` continuation. This
+  replaced the earlier rule that each dispatch was a task of its own.
 - **`FINALLY` for workflow.** On 2026-10-11 the owner ruled out a band below `LATER`. On
   2026-10-12, once nested `LATER` proved to need either a depth rule or a lowest band, he chose
   `FINALLY`, so that turns and phases can advance through authored rules. Keeping

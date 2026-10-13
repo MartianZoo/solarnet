@@ -25,30 +25,29 @@ import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 
-internal fun newTasks(
-    firstId: TaskId,
+/** The independent instructions that [instruction] becomes as tasks, after normalization. */
+internal fun taskInstructions(instruction: InstructionGroup): List<Instruction> =
+    InstructionGroup.of(instruction.instructions.map(::normalizeForTask)).instructions
+
+/** One normalized task for a single [instruction] from [taskInstructions]. */
+internal fun newTask(
+    id: TaskId,
     assignee: Actor,
-    instruction: InstructionGroup,
+    instruction: Instruction,
     cause: Cause?,
     isAbstract: ((Expression) -> Boolean)? = null,
     deferral: Deferral = Deferral.NONE,
-): List<Task> {
-  var nextOrdinal = firstId.ordinal
-  val normalized =
-      InstructionGroup.of(instruction.instructions.map(::normalizeForTask)).instructions
-  return normalized.map {
+): Task =
     normalizeTask(
         Task(
-            id = TaskId(nextOrdinal++),
+            id = id,
             assignee = assignee,
-            instruction = it,
+            instruction = instruction,
             cause = cause,
             deferral = deferral,
         ),
         isAbstract,
     )
-  }
-}
 
 private fun normalizeForTask(tree: InstructionTree): InstructionTree =
     when (tree) {

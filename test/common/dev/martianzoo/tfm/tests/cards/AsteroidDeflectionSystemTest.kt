@@ -39,7 +39,6 @@ internal class AsteroidDeflectionSystemTest : TfmSandboxTest() {
         doTasks(
             "-1 MC",
             "Virus FROM ProjectCard",
-            "LATER { PlayedEvent<Class<Virus>> FROM Virus. }",
         )
         selectOnlyTask()
         doTask("-Plant<Kim>")

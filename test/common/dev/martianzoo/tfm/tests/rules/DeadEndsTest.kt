@@ -135,7 +135,6 @@ internal class DeadEndsTest : TfmSandboxTest() {
         selectTask("Ok")
         doTasks(
             "SmallAsteroid FROM ProjectCard",
-            "LATER { PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid. }",
             "-Plant<Stan>",
             "3 MC<Stan FROM Kim>.",
             "TemperatureStep",
@@ -154,7 +153,6 @@ internal class DeadEndsTest : TfmSandboxTest() {
           doTasks(
               "Ok",
               "SmallAsteroid FROM ProjectCard",
-              "LATER { PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid. }",
               "-Plant<Stan>",
               "TemperatureStep",
               "TerraformRating",

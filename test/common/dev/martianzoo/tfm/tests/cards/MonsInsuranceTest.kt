@@ -82,7 +82,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           "PlayProject<Class<HiredRaiders>>",
           "-1 MC",
           "HiredRaiders FROM ProjectCard",
-          "LATER { PlayedEvent<Class<HiredRaiders>> FROM HiredRaiders. }",
           "2 Steel<Stan FROM Rob>",
       )
       kim.doTask("3 MC<Rob FROM Kim>")
@@ -106,7 +105,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
             selectTask("-25 Owed.")
             doTasks(
                 "AsteroidCard FROM ProjectCard",
-                "LATER { PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard. }",
             )
             selectTask("TemperatureStep.")
             doTasks("2 Titanium", "TerraformRating")
@@ -171,7 +169,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           "PlayProject<Class<$HiredRaiders>>",
           "-MC",
           "$HiredRaiders FROM ProjectCard",
-          "LATER { PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders. }",
           "2 Steel<Stan FROM Rob>",
       )
       kim.doTask("2 MC<Rob FROM Kim>")
@@ -207,7 +204,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           doTasks(
               "Ok",
               "AsteroidCard FROM ProjectCard",
-              "LATER { PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard. }",
           )
           selectTask("TemperatureStep.")
           doTasks("2 Titanium", "TerraformRating")
@@ -228,7 +224,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
               "PlayProject<Class<HiredRaiders>>",
               "-1 MC",
               "HiredRaiders FROM ProjectCard",
-              "LATER { PlayedEvent<Class<HiredRaiders>> FROM HiredRaiders. }",
               "3 MC<Kim FROM SoloOpponent>",
           )
           selectTask("3 MC<SoloOpponent>! BY Admin")
@@ -252,7 +247,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           doTasks(
               "Ok",
               "AsteroidCard FROM ProjectCard",
-              "LATER { PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard. }",
           )
           selectTask("TemperatureStep.")
           doTasks("2 Titanium", "TerraformRating", "-Plant<Kim>")

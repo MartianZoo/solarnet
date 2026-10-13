@@ -173,8 +173,9 @@ internal class AgentImpl(
 
   private fun addInitialTasks(initialInstructions: InstructionGroup) {
     engine.addTasks(initialInstructions).forEach { taskId ->
-      // Initial routing may assign the task to another Actor before settlement begins.
-      if (taskId !in tasks) return@forEach
+      // Initial routing may assign the task to another Actor before settlement begins, and a
+      // dispatch admits work that may wait.
+      if (taskId !in tasks || tasks.getTaskData(taskId).deferred) return@forEach
       try {
         engine.doTask(taskId)
       } catch (_: NotFullySpecifiedException) {

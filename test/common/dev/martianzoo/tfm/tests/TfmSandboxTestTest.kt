@@ -24,7 +24,6 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
           "PlayProject<Class<MineralDeposit>>",
           "-5 MC",
           "MineralDeposit FROM ProjectCard",
-          "LATER { PlayedEvent<Class<MineralDeposit>> FROM MineralDeposit. }",
           "5 Steel",
       )
       doTask("PlayedEvent<Class<MineralDeposit>> FROM MineralDeposit")
@@ -56,7 +55,6 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
           "PlayProject<Class<MineralDeposit>>",
           "-5 MC",
           "MineralDeposit FROM ProjectCard",
-          "LATER { PlayedEvent<Class<MineralDeposit>> FROM MineralDeposit. }",
           "5 Steel",
       )
       doTask("PlayedEvent<Class<MineralDeposit>> FROM MineralDeposit")
@@ -78,7 +76,6 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
           "PlayProject<Class<MineralDeposit>>",
           "-5 MC",
           "MineralDeposit FROM ProjectCard",
-          "LATER { PlayedEvent<Class<MineralDeposit>> FROM MineralDeposit. }",
           "5 Steel",
       )
       doTask("PlayedEvent<Class<MineralDeposit>> FROM MineralDeposit")
@@ -94,7 +91,6 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
               "PlayProject<Class<GiantIceAsteroid>>",
               "-36 MC",
               "GiantIceAsteroid FROM ProjectCard",
-              "LATER { PlayedEvent<Class<GiantIceAsteroid>> FROM GiantIceAsteroid. }",
               "TemperatureStep",
               "TemperatureStep",
               "TerraformRating",

@@ -45,7 +45,6 @@ internal class SolarProbeTest : TfmSandboxTest() {
           doTasks(
               "Ok",
               "SolarProbe FROM ProjectCard",
-              "LATER { PlayedEvent<Class<SolarProbe>> FROM SolarProbe. }",
           )
           selectOnlyTask()
           doTask("PlayedEvent<Class<$SolarProbe>> FROM $SolarProbe")

@@ -16,7 +16,6 @@ internal class SpecialPermitTest : TfmSandboxTest() {
               "PlayProject<Class<SpecialPermit>>",
               "-5 MC",
               "SpecialPermit FROM ProjectCard",
-              "LATER { PlayedEvent<Class<SpecialPermit>> FROM SpecialPermit. }",
               "4 Plant<Kim FROM Stan>",
           )
           doTask("PlayedEvent<Class<SpecialPermit>> FROM SpecialPermit")

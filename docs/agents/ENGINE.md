@@ -169,7 +169,8 @@ containing an elementary gain of a `System` Component, alone or under top-level 
 `BY` performs its later handoff. If that Admin assignment interrupts a `THEN` sequence, the engine
 encodes the previous assignee in a `TASK Actor { body }` continuation. Admin executes the System
 step, then dispatches the remaining work back to that Actor. An authored `TASK Actor { body }`
-likewise admits unresolved body instructions for its named Actor when the dispatch task executes.
+likewise admits unresolved body instructions for its named Actor as soon as the work holding it is
+ordinary; a dispatch is never a task of its own.
 See [IDENTITY.md](IDENTITY.md).
 
 Queue admission normalizes an `InstructionGroup` into one Task per independent member. `A THEN B`

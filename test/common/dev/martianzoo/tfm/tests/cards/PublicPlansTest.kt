@@ -18,7 +18,6 @@ internal class PublicPlansTest : TfmSandboxTest() {
           "PlayProject<Class<PublicPlans>>",
           "-7 MC",
           "PublicPlans FROM ProjectCard",
-          "LATER { PlayedEvent<Class<PublicPlans>> FROM PublicPlans. }",
       )
       selectOnlyTask()
       doTask("2 ProjectCard<Revealed FROM Hand>")
@@ -37,7 +36,6 @@ internal class PublicPlansTest : TfmSandboxTest() {
           "PlayProject<Class<PublicPlans>>",
           "-7 MC",
           "PublicPlans FROM ProjectCard",
-          "LATER { PlayedEvent<Class<PublicPlans>> FROM PublicPlans. }",
       )
       selectOnlyTask()
       doTask("ProjectCard<Revealed FROM Hand>")
@@ -59,7 +57,6 @@ internal class PublicPlansTest : TfmSandboxTest() {
         doTasks(
             "-7 MC",
             "PublicPlans FROM ProjectCard",
-            "LATER { PlayedEvent<Class<PublicPlans>> FROM PublicPlans. }",
         )
         selectOnlyTask()
         doTask("ProjectCard<Revealed FROM Hand>")

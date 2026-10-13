@@ -18,7 +18,6 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
           doTasks(
               "Ok",
               "ImportedGhg FROM ProjectCard",
-              "LATER { PlayedEvent<Class<ImportedGhg>> FROM ImportedGhg. }",
               "PROD[Heat]",
               "3 Heat",
           )
@@ -38,7 +37,6 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
           "-5 MC",
           "Ok", // No titanium paid.
           "$TechnologyDemonstration FROM ProjectCard",
-          "LATER { PlayedEvent<Class<$TechnologyDemonstration>> FROM $TechnologyDemonstration. }",
           "2 ProjectCard",
       )
       kim.doTask("ProjectCard")

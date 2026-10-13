@@ -32,13 +32,16 @@ internal class TaskDispatchTest {
   }
 
   @Test
-  internal fun `dispatch cannot choose the recipient's abstract body`() {
+  internal fun `a dispatch gives its body to its recipient at once`() {
     val game = game()
     val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
-    val task = admin.addTasks("TASK Player2 { Choice }").single()
+    val blue = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
 
-    shouldThrow<TaskException> { admin.selectTask("TASK Player2 { ChoiceA }") }
-    admin.tasks.ids().toList() shouldBe listOf(task)
+    admin.addTasks("TASK Player2 { Choice }")
+
+    admin.tasks.isEmpty() shouldBe true
+    blue.tasks.extract { it.instruction.toString() } shouldBe listOf("Choice<Player2>!")
+    shouldThrow<TaskException> { admin.selectTask("ChoiceA<Player2>") }
   }
 
   @Test
@@ -114,12 +117,10 @@ internal class TaskDispatchTest {
     val second = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
 
     first.addTasks("TASK { Choice }")
-    first.doTask("TASK { Choice }")
     first.tasks.extract { it.instruction.toString() } shouldBe listOf("Choice<Player1>!")
     first.doTask("ChoiceA<Player1>")
 
     second.beginOperation("OwnedDispatch<Player1>")
-    first.doTask("TASK Player1 { Choice }")
     first.tasks.extract { it.instruction.toString() } shouldBe listOf("Choice<Player1>!")
   }
 
@@ -130,7 +131,6 @@ internal class TaskDispatchTest {
     val admin = game.testAgent(ADMIN)
 
     first.beginOperation("UnownedDispatch")
-    first.doTask("TASK Admin { Marker }")
 
     first.tasks.isEmpty() shouldBe true
     admin.tasks.isEmpty() shouldBe true
@@ -143,7 +143,6 @@ internal class TaskDispatchTest {
     val first = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
 
     first.beginOperation("TriggerDispatch")
-    first.doTask("TASK Player1 { Choice }")
 
     first.tasks.extract { it.instruction.toString() } shouldBe listOf("Choice<Player1>!")
   }
@@ -154,9 +153,8 @@ internal class TaskDispatchTest {
     val admin = game.testAgent(ADMIN)
     admin.runOperation("StartToken<Player1>")
 
-    val task = admin.addTasks("TASK Player(HAS StartToken) { Choice }").single()
-    shouldThrow<ExpressionException> { admin.selectTask(task) }
-    admin.tasks.ids().toList() shouldBe listOf(task)
+    shouldThrow<ExpressionException> { admin.addTasks("TASK Player(HAS StartToken) { Choice }") }
+    game.tasks.isEmpty() shouldBe true
   }
 
   @Test

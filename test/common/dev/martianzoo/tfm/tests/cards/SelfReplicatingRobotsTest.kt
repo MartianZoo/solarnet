@@ -711,7 +711,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "PlayProject<Class<DiversitySupport>>",
           "-1 MC",
           "DiversitySupport FROM ProjectCard",
-          "LATER { PlayedEvent<Class<DiversitySupport>> FROM DiversitySupport. }",
           "TerraformRating",
       )
       doTask("PlayedEvent<Class<$DiversitySupport>> FROM $DiversitySupport")
@@ -810,7 +809,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "PlayProject<Class<CeosFavoriteProject>>",
           "-1 MC",
           "CeosFavoriteProject FROM ProjectCard",
-          "LATER { PlayedEvent<Class<CeosFavoriteProject>> FROM CeosFavoriteProject. }",
       )
       selectTask("CardResource<CardFront(HAS CardResource)>.")
       choice()
@@ -887,7 +885,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     return kim.inTurn {
       doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
       selectTask("-X Titanium?")
-      doTasks("Ok", "L1TradeTerminal FROM ProjectCard", "LATER { -L1GiftWatcher! }")
+      doTasks("Ok", "L1TradeTerminal FROM ProjectCard")
       selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
       choice()
     }
@@ -911,7 +909,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           selectTask("-2 RobotUnit<Kim, Class<CeosFavoriteProject>>!")
           doTasks(
               "CeosFavoriteProject FROM ProjectCard",
-              "LATER { PlayedEvent<Class<CeosFavoriteProject>> FROM CeosFavoriteProject. }",
           )
           selectTask("CardResource<CardFront(HAS CardResource)>.")
           selectTask("-X MC?")

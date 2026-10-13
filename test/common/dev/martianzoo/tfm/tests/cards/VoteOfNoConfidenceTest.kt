@@ -18,7 +18,6 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
               "PlayProject<Class<VoteOfNoConfidence>>",
               "-5 MC",
               "VoteOfNoConfidence FROM ProjectCard",
-              "LATER { PlayedEvent<Class<VoteOfNoConfidence>> FROM VoteOfNoConfidence. }",
           )
           selectTask("Chairman<Kim FROM Neutral>!")
           doTask("TerraformRating")

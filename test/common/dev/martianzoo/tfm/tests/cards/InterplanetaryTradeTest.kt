@@ -16,7 +16,6 @@ internal class InterplanetaryTradeTest : TfmSandboxTest() {
       doTasks(
           "Ok",
           "ImportedHydrogen FROM ProjectCard",
-          "LATER { PlayedEvent<Class<ImportedHydrogen>> FROM ImportedHydrogen. }",
           "3 Plant",
           "OceanTile<Tharsis_1_2>",
           "TerraformRating",

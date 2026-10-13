@@ -20,7 +20,6 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
           "PlayProject<Class<CeosFavoriteProject>>",
           "-1 MC",
           "CeosFavoriteProject FROM ProjectCard",
-          "LATER { PlayedEvent<Class<CeosFavoriteProject>> FROM CeosFavoriteProject. }",
           "Science<SearchForLife>",
       )
       doTask("PlayedEvent<Class<CeosFavoriteProject>> FROM CeosFavoriteProject")
@@ -37,7 +36,6 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
               "PlayProject<Class<CeosFavoriteProject>>",
               "-1 MC",
               "CeosFavoriteProject FROM ProjectCard",
-              "LATER { PlayedEvent<Class<CeosFavoriteProject>> FROM CeosFavoriteProject. }",
           )
           selectTask("CardResource<CardFront(HAS CardResource)>.")
           doTask("PlayedEvent<Class<CeosFavoriteProject>> FROM CeosFavoriteProject")
