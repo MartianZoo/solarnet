@@ -1,7 +1,7 @@
 "A finalized quantity still owed in one standard-resource denomination"
 CLASS Owed<@Class<StandardResource>> : Owned<Player>, Barrier, System {
   DEFAULT +Owed<Class<MC>>
-  DEFAULT -Owed<Class<MC>>.
+  DEFAULT -Owed<Class<MC>>*
   X This:: Accepting<@Class>
 }
 
@@ -18,8 +18,8 @@ CLASS Billing<Class<Component>, ActionSlot, @Class<StandardResource>> : Owned<Pl
 
 CLASS Accepting<Class<@StandardResource>> : Owned<Player>, MustCleanUp, System {
   HAS MAX 1 This
-  DEFAULT +Accepting.
-  Billing: -X @StandardResource?
+  DEFAULT +Accepting*
+  Billing: -X? @StandardResource
   -@StandardResource BY Me@:: -Owed<Class<@StandardResource>>
   -X Billing:: -This!
 }
@@ -27,7 +27,7 @@ CLASS Accepting<Class<@StandardResource>> : Owned<Player>, MustCleanUp, System {
 "Offers payment using the resource held by a specific card"
 CLASS AcceptingFromCard<@ResourceCard<Class<@CardResource>, @Player>> : Owned<@Player>, MustCleanUp, System {
   HAS MAX 1 This
-  Billing: -X @CardResource<@ResourceCard>?
+  Billing: -X? @CardResource<@ResourceCard>
   -X Billing:: -This!
 }
 

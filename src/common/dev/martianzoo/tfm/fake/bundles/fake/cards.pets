@@ -113,7 +113,7 @@ CLASS FakeSelfReplicatingRobots : ActionCard, ActiveCard {
 }
 
 CLASS StageForReplicatedProject<Class<@CardFront>> : Owned<Player>, Signal {
-  This: -ProjectCard THEN 2 RobotUnit<Class<@CardFront>>!
+  This: -ProjectCard THEN 2 RobotUnit<Class<@CardFront>>
 }
 
 CLASS ReplicateForStagedProject<Class<CardFront>> : Owned<Player>, Signal

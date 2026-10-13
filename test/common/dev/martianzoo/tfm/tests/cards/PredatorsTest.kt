@@ -99,7 +99,7 @@ internal class PredatorsTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("UseCardAction<Predators, Action1>")
           selectOnlyTask()
-          selectTask("Animal<SoloCardResourceReserve<Class<Animal>>>. BY Admin")
+          selectTask("Animal<SoloCardResourceReserve<Class<Animal>>>* BY Admin")
           selectOnlyTask()
         }
         .expect("Animal<$Predators>")

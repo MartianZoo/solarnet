@@ -24,7 +24,7 @@ internal class CeresTechMarketTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("UseCardAction<CeresTechMarket, Action1>")
           selectOnlyTask()
-          selectTask("-4 ProjectCard<Kim, Hand>! THEN 8 MC!")
+          selectTask("-4! ProjectCard<Kim, Hand> THEN 8! MC")
           doTask("8 MC")
         }
         .expect("-4 ProjectCard")

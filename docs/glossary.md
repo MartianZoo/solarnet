@@ -9,7 +9,7 @@
 - **Admin:** The non-Player Actor and Component that performs neutral table activity. Admin may receive, select, and narrow ordinary tasks, including real choices made by an installed policy.
 - **agent:** The unique mutation issuer for one Actor in one configured game world. Explicit client requests and autonomous decisions both pass through it; its private agent driver chooses the latter. It is not a task queue or core-engine concept.
 - **agent driver:** The private part of an agent that autonomously chooses further legal actions according to installed policies.
-- **AMAP:** The `.` quantifier, meaning “as much as possible.” Resolution caps the requested amount by current invariant bounds and source availability, clamps negative capacity to zero, and makes that amount mandatory.
+- **AMAP:** The `*` quantifier, meaning “as much as possible.” Resolution caps the requested amount by current invariant bounds and source availability, clamps negative capacity to zero, and makes that amount mandatory.
 - **Anyone:** The ordinary common supertype of `Owner` and `Actor`. `<Anyone>` accepts every eligible owner through the dependency’s bound; trigger-side `BY Anyone` accepts every Actor, including Admin.
 - **assignee:** The Actor with exclusive authority to advance a task now. Initially the controller selects it; selection may reassign it to the task's selection assignee, who narrows any remaining choices. When instruction-side `BY` becomes concrete, it may reassign the task again. The final assignee's agent executes it.
 - **atomicity:** Indivisibility with respect to a stated scope. One `FROM` is a single transmutation state change, so its removal and gain cannot be observed separately. A timeline operation is failure-atomic: all of its events commit or all are rolled back. An instruction, task, or chain of automatic effects is not thereby one indivisible gameplay event; intermediate state changes may fire effects and be observed by them. Unrelated to atomize, which splits an instruction apart.
@@ -103,7 +103,7 @@
 - **player-relative observation:**
 - **policy-relative stable point:** A coherent game world revision at which every agent driver has inspected that revision and declined to issue another mutation. It depends on the installed policies and does not imply an empty global task queue.
 - **production box:** Terraforming Mars-specific `PROD[...]` notation that preprocessing lowers into production-Component operations.
-- **quantifier:** The policy on a change instruction: mandatory (`!`), optional (`?`), or AMAP (`.`).
+- **quantifier:** The policy on a change instruction: mandatory (`!`), optional (`?`), or AMAP (`*`).
 - **queue position:**
 - **queued effect:** An effect written with `:`. Its triggered instruction becomes a task instead of executing inline. Antonym: automatic effect.
 - **refinement:** A conjunction of `HAS` world requirements and `NOT` structural exclusions attached to an expression to restrict the matching Types or Components.

@@ -18,12 +18,12 @@ internal class AirScrappingExpeditionTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<AirScrappingExpedition>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-13 MC", "AirScrappingExpedition FROM ProjectCard")
-        selectTask("VenusStep.")
+        selectTask("VenusStep*")
         selectTask("TerraformRating!")
         selectOnlyTask()
-        doTask("3 Floater<AtmoCollectors>.")
+        doTask("3* Floater<AtmoCollectors>")
       }
     }
   }

@@ -17,52 +17,52 @@ internal class SpecificationTest {
 
   @Test
   internal fun instructionsNarrowCompositionally() {
-    test("5 OxygenStep!", "5 OxygenStep!")
-    test("5 OxygenStep.", "5 OxygenStep.")
-    test("5 OxygenStep?", "5 OxygenStep!")
-    test("5 OxygenStep?", "5 OxygenStep.")
+    test("5! OxygenStep", "5! OxygenStep")
+    test("5* OxygenStep", "5* OxygenStep")
+    test("5? OxygenStep", "5! OxygenStep")
+    test("5? OxygenStep", "5* OxygenStep")
     test("-OxygenStep!", "-OxygenStep!")
-    test("-OxygenStep.", "-OxygenStep.")
+    test("-OxygenStep*", "-OxygenStep*")
     test("-OxygenStep?", "-OxygenStep!")
-    test("-OxygenStep?", "-OxygenStep.")
-    test("5 GlobalParameter!", "5 OxygenStep!")
-    test("5 GlobalParameter.", "5 OxygenStep.")
-    test("5 GlobalParameter?", "5 OxygenStep!")
-    test("5 GlobalParameter?", "5 OxygenStep.")
-    test("X StandardResource?", "2 Plant!")
+    test("-OxygenStep?", "-OxygenStep*")
+    test("5! GlobalParameter", "5! OxygenStep")
+    test("5* GlobalParameter", "5* OxygenStep")
+    test("5? GlobalParameter", "5! OxygenStep")
+    test("5? GlobalParameter", "5* OxygenStep")
+    test("X? StandardResource", "2! Plant")
     test("MarsArea!", "Tharsis_5_5!")
     test("WaterArea!", "Tharsis_5_5!")
     test("Tharsis_5_5! OR Tharsis_6_6!", "Tharsis_5_5!")
     test("Tharsis_5_5! OR Tharsis_6_6!", "Tharsis_6_6!")
     test("Tharsis_5_5! OR Tharsis_6_6!", "Tharsis_5_5! OR Tharsis_6_6!")
     test("Tharsis_5_5! OR Tharsis_6_6! OR Tharsis_7_7!", "Tharsis_5_5! OR Tharsis_7_7!")
-    test("Plant: 2 StandardResource?", "Plant: 2 Heat?")
-    test("Plant: 2 StandardResource?", "Plant: 2 Heat!")
-    test("Plant: 2 StandardResource?", "Plant: Heat!")
-    test("Plant: 2 StandardResource?", "Plant: Ok")
-    test("Plant: 2 StandardResource?", "Plant: StandardResource!")
-    test("5 OxygenStep! / Plant<Anyone>", "5 OxygenStep! / Plant<Anyone>")
-    test("5 OxygenStep. / Plant<Anyone>", "5 OxygenStep. / Plant<Anyone>")
-    test("5 OxygenStep? / Plant<Anyone>", "5 OxygenStep! / Plant<Anyone>")
-    test("5 OxygenStep? / Plant<Anyone>", "5 OxygenStep. / Plant<Anyone>")
+    test("Plant: 2? StandardResource", "Plant: 2? Heat")
+    test("Plant: 2? StandardResource", "Plant: 2! Heat")
+    test("Plant: 2? StandardResource", "Plant: Heat!")
+    test("Plant: 2? StandardResource", "Plant: Ok")
+    test("Plant: 2? StandardResource", "Plant: StandardResource!")
+    test("5! OxygenStep / Plant<Anyone>", "5! OxygenStep / Plant<Anyone>")
+    test("5* OxygenStep / Plant<Anyone>", "5* OxygenStep / Plant<Anyone>")
+    test("5? OxygenStep / Plant<Anyone>", "5! OxygenStep / Plant<Anyone>")
+    test("5? OxygenStep / Plant<Anyone>", "5* OxygenStep / Plant<Anyone>")
 
     test("WaterArea(HAS MAX 0 Tile)!", "Tharsis_5_5!")
     test("StandardResource<Anyone(NOT Player1)>?", "Plant<Player2>!")
     testInvalid("WaterArea(HAS Tile)!", "Tharsis_5_5!")
     testInvalid("StandardResource<Anyone(NOT Player1)>?", "Plant<Player1>!")
-    testInvalid("Plant: 2 StandardResource?", "Heat: 2 Heat!")
+    testInvalid("Plant: 2? StandardResource", "Heat: 2! Heat")
   }
 
   @Test
   internal fun noOpDoesNotNarrowAnUnresolvedPerInstruction() {
-    testInvalid("2 Plant! / Player", "Ok")
+    testInvalid("2! Plant / Player", "Ok")
   }
 
   @Test
   internal fun unresolvedInstructionsCanAlreadyBeNonAbstract() {
-    parse<Instruction>("5 OxygenStep.").isAbstract(game.reader) shouldBe false
-    parse<Instruction>("Plant: 5 OxygenStep!").isAbstract(game.reader) shouldBe false
-    parse<Instruction>("5 OxygenStep! / Plant<Player1>").isAbstract(game.reader) shouldBe false
+    parse<Instruction>("5* OxygenStep").isAbstract(game.reader) shouldBe false
+    parse<Instruction>("Plant: 5! OxygenStep").isAbstract(game.reader) shouldBe false
+    parse<Instruction>("5! OxygenStep / Plant<Player1>").isAbstract(game.reader) shouldBe false
   }
 
   @Test

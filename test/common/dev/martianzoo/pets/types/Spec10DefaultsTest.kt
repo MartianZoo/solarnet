@@ -96,11 +96,11 @@ internal class Spec10DefaultsTest {
     val table =
         loadTypes(
             """
-            ABSTRACT CLASS GlobalParameter { DEFAULT +GlobalParameter. }
+            ABSTRACT CLASS GlobalParameter { DEFAULT +GlobalParameter* }
             ABSTRACT CLASS Optional { DEFAULT -Optional? }
             CLASS OceanTile : GlobalParameter, Optional
             ABSTRACT CLASS Mandatory { DEFAULT +Mandatory! }
-            CLASS Fixed : Mandatory { DEFAULT +Fixed. }
+            CLASS Fixed : Mandatory { DEFAULT +Fixed* }
             """
                 .trimIndent()
         )
@@ -117,7 +117,7 @@ internal class Spec10DefaultsTest {
   internal fun `T10-2 supertypes that disagree about a quantifier are an error`() {
     shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
-          "ABSTRACT CLASS Eager { DEFAULT +Eager. }",
+          "ABSTRACT CLASS Eager { DEFAULT +Eager* }",
           "ABSTRACT CLASS Choosy { DEFAULT +Choosy? }",
           "CLASS Both : Eager, Choosy",
       )

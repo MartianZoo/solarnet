@@ -13,8 +13,8 @@ internal class ValleyTrustTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("RequiredActionsSignal")
-          selectTask("3 PreludeCard<Kim, Selecting>!")
-          selectTask("-2 PreludeCard<Kim, Selecting>!")
+          selectTask("3! PreludeCard<Kim, Selecting>")
+          selectTask("-2! PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
           selectTask("MAX 0 Barrier: Donation FROM PreludeCard<Kim, Selecting>!")
           doTask("21 MC")
@@ -29,8 +29,8 @@ internal class ValleyTrustTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("RequiredActionsSignal")
-          selectTask("3 PreludeCard<Kim, Selecting>!")
-          selectTask("-2 PreludeCard<Kim, Selecting>!")
+          selectTask("3! PreludeCard<Kim, Selecting>")
+          selectTask("-2! PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<MartianIndustries>>")
           selectTask("MAX 0 Barrier: MartianIndustries FROM PreludeCard<Kim, Selecting>!")
           doTasks("PROD[Energy]", "PROD[Steel]", "6 MC")
@@ -48,8 +48,8 @@ internal class ValleyTrustTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("RequiredActionsSignal")
-          selectTask("3 PreludeCard<Kim, Selecting>!")
-          selectTask("-2 PreludeCard<Kim, Selecting>!")
+          selectTask("3! PreludeCard<Kim, Selecting>")
+          selectTask("-2! PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<SpaceLanes>>")
           selectOnlyTask()
           doTask("3 Titanium")
@@ -70,18 +70,18 @@ internal class ValleyTrustTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("RequiredActionsSignal")
-        selectTask("3 PreludeCard<Kim, Selecting>!")
-        selectTask("-2 PreludeCard<Kim, Selecting>!")
+        selectTask("3! PreludeCard<Kim, Selecting>")
+        selectTask("-2! PreludeCard<Kim, Selecting>")
         selectOnlyTask()
         doTask("PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>")
         selectOnlyTask()
-        selectTask("-18 MC!")
+        selectTask("-18! MC")
       }
     }
     kim.inTurn {
           doTask("RequiredActionsSignal")
-          selectTask("3 PreludeCard<Kim, Selecting>!")
-          selectTask("-2 PreludeCard<Kim, Selecting>!")
+          selectTask("3! PreludeCard<Kim, Selecting>")
+          selectTask("-2! PreludeCard<Kim, Selecting>")
           doTask("-PreludeCard<Selecting>")
           selectTask("Audit!")
           doTask("15 MC")

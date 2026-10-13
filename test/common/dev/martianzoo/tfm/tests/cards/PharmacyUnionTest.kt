@@ -15,8 +15,8 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
           "PharmacyUnion FROM CorporationCard",
       )
       selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
-      selectTask("-4 MC.")
-      selectTask("-4 MC.")
+      selectTask("-4* MC")
+      selectTask("-4* MC")
       doTasks(
           "Disease<PharmacyUnion>",
           "Disease<PharmacyUnion>",
@@ -38,8 +38,8 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
               "PharmacyUnion FROM CorporationCard",
           )
           selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
-          selectTask("-4 MC.")
-          selectTask("-4 MC.")
+          selectTask("-4* MC")
+          selectTask("-4* MC")
           doTasks(
               "Disease<PharmacyUnion>",
               "Disease<PharmacyUnion>",
@@ -54,7 +54,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
   internal fun `A science tag removes disease and raises TR`() {
     kim.inTurn {
           doTasks("PlayProject<Class<PhysicsComplex>>", "-12 MC")
-          selectTask("-X Steel?")
+          selectTask("-X? Steel")
           doTasks("Ok", "PhysicsComplex FROM ProjectCard")
           selectOnlyTask()
         }
@@ -68,7 +68,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("PlayProject<Class<Decomposers>>", "-5 MC", "Decomposers FROM ProjectCard")
-          selectTask("Microbe<Decomposers>.")
+          selectTask("Microbe<Decomposers>*")
           selectTask("Disease<PharmacyUnion<Kim>>! OR (MAX 0 PharmacyUnion<Kim>: Ok)")
           kim.selectOnlyTask()
           selectOnlyTask()
@@ -90,7 +90,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
               "TerraformRating FROM Disease<PharmacyUnion>",
               "PlayedEvent FROM PharmacyUnion",
           )
-          selectTask("2 ProjectCard<Kim, Hand>!")
+          selectTask("2! ProjectCard<Kim, Hand>")
           doTask("3 TerraformRating")
         }
         .expect("0 Disease<$Hospitals>")
@@ -108,7 +108,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
           "PlayedEvent FROM PharmacyUnion",
           "Ok",
       )
-      selectTask("2 ProjectCard<Kim, Hand>!")
+      selectTask("2! ProjectCard<Kim, Hand>")
       doTask("3 TerraformRating")
     }
   }
@@ -120,7 +120,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<PhysicsComplex>>", "-12 MC")
-          selectTask("-X Steel?")
+          selectTask("-X? Steel")
           doTasks("Ok", "PhysicsComplex FROM ProjectCard")
           selectOnlyTask()
           doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
@@ -143,7 +143,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
               "PlayedEvent FROM PharmacyUnion",
               "Ok",
           )
-          selectTask("-4 MC.")
+          selectTask("-4* MC")
           doTask("3 TerraformRating")
         }
         .expect("-17 MC, 0 Disease<$PharmacyUnion>")

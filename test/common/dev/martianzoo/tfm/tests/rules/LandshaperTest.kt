@@ -16,7 +16,7 @@ internal class LandshaperTest : TfmSandboxTest() {
     setupLandshaperCapital()
     kim.inTurn {
       doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_05_02>")
-      selectTask("OxygenStep.")
+      selectTask("OxygenStep*")
       doTasks("Plant", "TerraformRating")
     }
 
@@ -24,7 +24,7 @@ internal class LandshaperTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("ClaimMilestone<Class<Landshaper>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
       }
@@ -38,12 +38,12 @@ internal class LandshaperTest : TfmSandboxTest() {
     setupLandshaperCapital()
     kim.inTurn {
       doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_05_02>")
-      selectTask("OxygenStep.")
+      selectTask("OxygenStep*")
       doTasks("Plant", "TerraformRating")
     }
     kim.inTurn {
       doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_06_01>")
-      selectTask("OxygenStep.")
+      selectTask("OxygenStep*")
       doTasks("Plant", "TerraformRating")
     }
 
@@ -51,7 +51,7 @@ internal class LandshaperTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("ClaimMilestone<Class<Landshaper>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
       }
@@ -65,7 +65,7 @@ internal class LandshaperTest : TfmSandboxTest() {
     setupLandshaperCapital()
     kim.inTurn {
       doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_05_02>")
-      selectTask("OxygenStep.")
+      selectTask("OxygenStep*")
       doTasks("Plant", "TerraformRating")
     }
     kim.inTurn {
@@ -92,7 +92,7 @@ internal class LandshaperTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("ClaimMilestone<Class<Landshaper>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
       }

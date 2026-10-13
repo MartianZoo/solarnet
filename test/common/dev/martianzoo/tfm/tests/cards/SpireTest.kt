@@ -13,7 +13,7 @@ internal class SpireTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectOnlyTask()
-          selectTask("-3 ProjectCard<Kim, Hand>!")
+          selectTask("-3! ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
 
@@ -23,9 +23,9 @@ internal class SpireTest : TfmSandboxTest() {
               "-7 MC",
               "BusinessContacts FROM ProjectCard",
           )
-          selectTask("4 ProjectCard<Kim, Selecting>!")
-          selectTask("2 ProjectCard<Kim, Hand FROM Selecting>!")
-          selectTask("-2 ProjectCard<Kim, Selecting>!")
+          selectTask("4! ProjectCard<Kim, Selecting>")
+          selectTask("2! ProjectCard<Kim, Hand FROM Selecting>")
+          selectTask("-2! ProjectCard<Kim, Selecting>")
           selectOnlyTask()
         }
         .expect("Science<$Spire>")
@@ -46,13 +46,13 @@ internal class SpireTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectOnlyTask()
-          selectTask("-3 ProjectCard<Kim, Hand>!")
+          selectTask("-3! ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
 
     kim.inTurn {
           doTasks("PlayProject<Class<Research>>", "-11 MC", "Research FROM ProjectCard")
-          selectTask("2 ProjectCard<Kim, Hand>!")
+          selectTask("2! ProjectCard<Kim, Hand>")
           selectOnlyTask()
         }
         .expect("Science<$Spire>")
@@ -64,7 +64,7 @@ internal class SpireTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectOnlyTask()
-          selectTask("-3 ProjectCard<Kim, Hand>!")
+          selectTask("-3! ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
 
@@ -85,7 +85,7 @@ internal class SpireTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectOnlyTask()
-          selectTask("-3 ProjectCard<Kim, Hand>!")
+          selectTask("-3! ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
 
@@ -103,11 +103,11 @@ internal class SpireTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectOnlyTask()
-          selectTask("-3 ProjectCard<Kim, Hand>!")
+          selectTask("-3! ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
     kim.inTurn {
-      doTasks("UseStandardProject<SellPatentsProject>", "1 MC FROM ProjectCard!")
+      doTasks("UseStandardProject<SellPatentsProject>", "1! MC FROM ProjectCard")
     }
 
     shouldThrow<TaskException> {

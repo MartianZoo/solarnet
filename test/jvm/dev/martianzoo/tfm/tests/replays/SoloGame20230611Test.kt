@@ -139,7 +139,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
 
       // The player chose to convert only one of three energy with Supercapacitors.
       pass()
-      doTask("2 Energy FROM Heat!")
+      doTask("2! Energy FROM Heat")
       buyCards(3)
 
       assertProduction(m = 14, s = 1, t = 2, p = 2, e = 3, h = 1)
@@ -161,7 +161,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
 
       // The player chose to convert none of five energy with Supercapacitors.
       pass()
-      doTask("5 Energy FROM Heat!")
+      doTask("5! Energy FROM Heat")
       buyCards(2)
 
       convertHeat()
@@ -176,7 +176,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
 
       // The player chose to convert only two of five energy with Supercapacitors.
       pass()
-      doTask("3 Energy FROM Heat!")
+      doTask("3! Energy FROM Heat")
       buyCards(0)
 
       assertProduction(m = 17, s = 1, t = 3, p = 3, e = 3, h = 5)
@@ -200,7 +200,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
 
       // The player chose to convert only three of six energy with Supercapacitors.
       pass()
-      doTask("3 Energy FROM Heat!")
+      doTask("3! Energy FROM Heat")
       buyCards(3)
 
       convertHeat()

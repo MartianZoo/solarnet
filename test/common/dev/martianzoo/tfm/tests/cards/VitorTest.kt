@@ -68,7 +68,7 @@ internal class VitorTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<Mine>>", "-4 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks("Ok", "Mine FROM ProjectCard", "PROD[Steel]")
     }
   }
@@ -123,8 +123,8 @@ internal class VitorTest : TfmSandboxTest() {
       doTask("-12 MC")
       selectTask("-Director<BoardOfDirectors>!")
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      selectTask("4 CorporationCard<Kim, Selecting>!")
-      selectTask("-3 CorporationCard<Kim, Selecting>!")
+      selectTask("4! CorporationCard<Kim, Selecting>")
+      selectTask("-3! CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<Vitor>>")
       selectTask("MAX 0 Barrier: Vitor FROM CorporationCard<Kim, Selecting>!")
       doTasks("45 MC", "-42 MC")

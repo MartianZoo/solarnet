@@ -16,8 +16,8 @@ internal class WgProjectTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<WgProject>>", "-9 MC", "WgProject FROM ProjectCard")
-          selectTask("3 PreludeCard<Kim, Selecting>!")
-          selectTask("-2 PreludeCard<Kim, Selecting>!")
+          selectTask("3! PreludeCard<Kim, Selecting>")
+          selectTask("-2! PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<HighCircles>>")
           selectOnlyTask()
           doTask("TerraformRating")
@@ -39,20 +39,20 @@ internal class WgProjectTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<WgProject>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-9 MC", "WgProject FROM ProjectCard")
-        selectTask("3 PreludeCard<Kim, Selecting>!")
-        selectTask("-2 PreludeCard<Kim, Selecting>!")
+        selectTask("3! PreludeCard<Kim, Selecting>")
+        selectTask("-2! PreludeCard<Kim, Selecting>")
         selectOnlyTask()
         doTask("PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>")
         selectOnlyTask()
-        selectTask("-18 MC!")
+        selectTask("-18! MC")
       }
     }
     kim.inTurn {
           doTasks("PlayProject<Class<WgProject>>", "-9 MC", "WgProject FROM ProjectCard")
-          selectTask("3 PreludeCard<Kim, Selecting>!")
-          selectTask("-2 PreludeCard<Kim, Selecting>!")
+          selectTask("3! PreludeCard<Kim, Selecting>")
+          selectTask("-2! PreludeCard<Kim, Selecting>")
           doTask("-PreludeCard<Selecting>")
           selectTask("Audit!")
           doTask("15 MC")
@@ -72,8 +72,8 @@ internal class WgProjectTest : TfmSandboxTest() {
     kim.setToExMachina(1, "ProjectCard")
     return kim.inTurn {
       doTasks("PlayProject<Class<WgProject>>", "-9 MC", "WgProject FROM ProjectCard")
-      selectTask("3 PreludeCard<Kim, Selecting>!")
-      selectTask("-2 PreludeCard<Kim, Selecting>!")
+      selectTask("3! PreludeCard<Kim, Selecting>")
+      selectTask("-2! PreludeCard<Kim, Selecting>")
       doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
       selectTask("MAX 0 Barrier: Donation FROM PreludeCard<Kim, Selecting>!")
       doTask("21 MC")

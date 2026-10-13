@@ -160,12 +160,12 @@ internal class InvariantCompletionTest {
             """
             CLASS Token {
               HAS MAX 1 This
-              This IF =2 Token:: 5 Token., -Token!
+              This IF =2 Token:: 5* Token, -Token!
             }
             """
         )
     val admin = world.testAgent(ADMIN)
-    admin.runOperation("5 Token.")
+    admin.runOperation("5* Token")
     admin.count("Token") shouldBe 1
 
     val result = admin.runOperation("Token!")
@@ -176,7 +176,7 @@ internal class InvariantCompletionTest {
 
   @Test
   internal fun amapDoesNotInferATargetByExcludingAZeroCapacitySubclass() {
-    checkZeroCapacityChoice(".")
+    checkZeroCapacityChoice("*")
   }
 
   @Test
@@ -829,7 +829,7 @@ internal class InvariantCompletionTest {
         world(
             """
             ABSTRACT CLASS Status { HAS =1 Status }
-            CLASS Ready : Status { -This:: -Ready., Passed! }
+            CLASS Ready : Status { -This:: -Ready*, Passed! }
             CLASS Passed : Status
             """,
             "Ready",
@@ -1009,7 +1009,7 @@ internal class InvariantCompletionTest {
           """
           ABSTRACT CLASS Status {
             HAS =1 Status
-            This:: -Status(NOT This).
+            This:: -Status(NOT This)*
           }
           CLASS Ready : Status
           CLASS Passed : Status

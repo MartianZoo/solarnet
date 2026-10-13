@@ -63,8 +63,8 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<EcologicalZone>>", "-12 MC", "EcologicalZone FROM ProjectCard")
-          selectTask("Animal<EcologicalZone>.")
-          selectTask("Animal<EcologicalZone>.")
+          selectTask("Animal<EcologicalZone>*")
+          selectTask("Animal<EcologicalZone>*")
           doTasks("EcologicalZone_SpecialTile<Tharsis_4_5>", "2 Plant", "Plant", "Animal")
         }
         // One plant from Viral Enhancers and two from the Tharsis 4,5 placement bonus.
@@ -97,7 +97,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<RegolithEaters>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-13 MC", "RegolithEaters FROM ProjectCard")
         selectOnlyTask()
         doTask("Microbe<NitriteReducingBacteria>")
@@ -131,16 +131,16 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-          selectTask("4 CorporationCard<Kim, Selecting>!")
+          selectTask("4! CorporationCard<Kim, Selecting>")
           doTask("-42 MC")
-          selectTask("-3 CorporationCard<Kim, Selecting>!")
+          selectTask("-3! CorporationCard<Kim, Selecting>")
           doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
           selectTask("MAX 0 Barrier: PharmacyUnion FROM CorporationCard<Kim, Selecting>!")
           selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
           selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
-          selectTask("-4 MC.")
+          selectTask("-4* MC")
           selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
-          selectTask("-4 MC.")
+          selectTask("-4* MC")
           doTasks("Plant", "Plant")
         }
         .expect("2 Disease<$PharmacyUnion>")
@@ -155,17 +155,17 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-        selectTask("4 CorporationCard<Kim, Selecting>!")
-        selectTask("-42 MC!")
-        selectTask("-3 CorporationCard<Kim, Selecting>!")
+        selectTask("4! CorporationCard<Kim, Selecting>")
+        selectTask("-42! MC")
+        selectTask("-3! CorporationCard<Kim, Selecting>")
         selectTask("PlayCard<Kim, Class<CorporationCard>, Class<CardFront>, Selecting>!")
         doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
         selectTask("MAX 0 Barrier: PharmacyUnion FROM CorporationCard<Kim, Selecting>!")
         selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
         selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
-        selectTask("-4 MC.")
+        selectTask("-4* MC")
         selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
-        selectTask("-4 MC.")
+        selectTask("-4* MC")
         doTask("Disease<PharmacyUnion>")
       }
     }
@@ -177,7 +177,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     kim.exMachina("$ViralEnhancers")
     kim.inTurn {
       doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks("Ok", "IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]", "Plant")
     }
   }
@@ -190,7 +190,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     // Choose the uncollectible bonus instead of the available plant.
     kim.inTurn {
           doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
-          selectTask("-X Steel?")
+          selectTask("-X? Steel")
           doTasks("Ok", "IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
           selectOnlyTask()
           doTask("Ok")

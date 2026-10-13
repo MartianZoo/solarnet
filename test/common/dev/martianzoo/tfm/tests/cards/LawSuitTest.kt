@@ -60,9 +60,9 @@ internal class LawSuitTest : TfmSandboxTest() {
     kim.exMachina("Plant")
     stan.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks("Ok", "AsteroidCard FROM ProjectCard")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Kim>")
     }
 
@@ -146,7 +146,7 @@ internal class LawSuitTest : TfmSandboxTest() {
     kim.setToExMachina(2, "PROD[Heat]")
     kim.inTurn {
       doTasks("PlayProject<Class<HeatTrappers>>", "-6 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks("Ok", "HeatTrappers FROM ProjectCard", "PROD[Energy]", "PROD[-2 Heat]")
     }
 
@@ -154,7 +154,7 @@ internal class LawSuitTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<LawSuit>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-2 MC", "LawSuit FROM ProjectCard")
         selectOnlyTask()
         doTask("3 MC<Kim FROM Stan>")
@@ -181,7 +181,7 @@ internal class LawSuitTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<LawSuit>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-2 MC", "LawSuit FROM ProjectCard")
         selectOnlyTask()
         doTask("3 MC<Kim FROM Stan>")
@@ -195,16 +195,16 @@ internal class LawSuitTest : TfmSandboxTest() {
     kim.exMachina("2 Plant")
     stan.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks("Ok", "AsteroidCard FROM ProjectCard")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Kim>")
     }
     rob.inTurn {
       doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks("Ok", "SmallAsteroid FROM ProjectCard")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTasks("TerraformRating", "-Plant<Kim>")
     }
     stan.setToExMachina(2, "MC")
@@ -214,7 +214,7 @@ internal class LawSuitTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<LawSuit>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-2 MC", "LawSuit FROM ProjectCard")
         selectOnlyTask()
         doTask("3 MC<Kim FROM Stan>")
@@ -230,16 +230,16 @@ internal class LawSuitTest : TfmSandboxTest() {
     kim.exMachina("2 Plant")
     stan.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks("Ok", "AsteroidCard FROM ProjectCard")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Kim>")
     }
     rob.inTurn {
       doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks("Ok", "SmallAsteroid FROM ProjectCard")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTasks("TerraformRating", "-Plant<Kim>")
     }
 

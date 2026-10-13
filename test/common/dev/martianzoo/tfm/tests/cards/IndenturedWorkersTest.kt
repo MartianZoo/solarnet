@@ -16,7 +16,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "-27 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks("Ok", "Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }
@@ -33,20 +33,20 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTask("TerraformRating")
     }
     kim.inTurn {
       doTasks("ConvertHeat", "-Heat / Owed<Class<Heat>>")
-      selectTask("MAX 0 Billing: TemperatureStep.")
+      selectTask("MAX 0 Billing: TemperatureStep*")
       doTask("TerraformRating")
     }
     kim.inTurn {
-      doTasks("UseStandardProject<SellPatentsProject>", "2 MC FROM ProjectCard!")
+      doTasks("UseStandardProject<SellPatentsProject>", "2! MC FROM ProjectCard")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "-27 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks("Ok", "Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }
@@ -62,7 +62,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "-27 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks("Ok", "Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
     kim.inTurn {
@@ -83,7 +83,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "-35 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks("Ok", "Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }
@@ -109,7 +109,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "-27 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks("Ok", "Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }

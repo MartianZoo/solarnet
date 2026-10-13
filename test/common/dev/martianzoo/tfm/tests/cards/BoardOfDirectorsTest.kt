@@ -61,7 +61,7 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
             "PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>",
             "IndustrialComplex FROM PreludeCard",
         )
-        selectTask("-18 MC!")
+        selectTask("-18! MC")
       }
     }
     kim.inTurn {
@@ -96,8 +96,8 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
           doTask("-12 MC")
           selectTask("-Director<BoardOfDirectors>!")
           doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-          selectTask("4 CorporationCard<Kim, Selecting>!")
-          selectTask("-3 CorporationCard<Kim, Selecting>!")
+          selectTask("4! CorporationCard<Kim, Selecting>")
+          selectTask("-3! CorporationCard<Kim, Selecting>")
           doTask("PlayCard<Class<CorporationCard>, Class<Inventrix>>")
           selectTask("MAX 0 Barrier: Inventrix FROM CorporationCard<Kim, Selecting>!")
           doTasks("45 MC", "-42 MC")
@@ -146,7 +146,7 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
           "PROD[Plant]",
           "PlayCard<Class<ProjectCard>, Class<DustSeals>>",
       )
-      selectTask("-Required. / Required")
+      selectTask("-Required* / Required")
       doTasks("-1 MC", "DustSeals FROM ProjectCard")
     }
   }

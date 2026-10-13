@@ -73,7 +73,7 @@ internal class MiningGuildTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_05_03>")
-      selectTask("OxygenStep.")
+      selectTask("OxygenStep*")
       doTask("PROD[Steel]")
       selectTask("Audit!")
       doTask("TerraformRating")
@@ -100,7 +100,7 @@ internal class MiningGuildTest : TfmSandboxTest() {
     kim.setToExMachina(23, "MC")
     return kim.inTurn {
       doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_05_03>")
-      selectTask("OxygenStep.")
+      selectTask("OxygenStep*")
       doTask("PROD[Steel]")
       selectTask("Audit!")
       doTask("TerraformRating")

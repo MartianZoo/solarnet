@@ -33,7 +33,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<BannedDelegate>>", "BannedDelegate FROM ProjectCard")
           selectOnlyTask()
-          selectTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>.")
+          selectTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>*")
           selectOnlyTask()
         }
         .expect(
@@ -52,7 +52,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<BannedDelegate>>", "BannedDelegate FROM ProjectCard")
           selectOnlyTask()
-          selectTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>.")
+          selectTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>*")
           selectOnlyTask()
         }
         .expect("-Dominant<MarsFirst>, Dominant<Kelvinists>, 0 Dominant<Reds>")
@@ -69,7 +69,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<BannedDelegate>>", "BannedDelegate FROM ProjectCard")
           selectOnlyTask()
-          selectTask("BannedDelegateRemoval<Kim, Greens, Stan>.")
+          selectTask("BannedDelegateRemoval<Kim, Greens, Stan>*")
           selectOnlyTask()
         }
         .expect("-Dominant<Greens>, Dominant<Unity>, 0 Dominant<Reds>")
@@ -86,7 +86,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<BannedDelegate>>", "BannedDelegate FROM ProjectCard")
           selectOnlyTask()
-          selectTask("BannedDelegateRemoval<Kim, Scientists, Stan>.")
+          selectTask("BannedDelegateRemoval<Kim, Scientists, Stan>*")
           selectOnlyTask()
         }
         .expect(
@@ -106,7 +106,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<BannedDelegate>>", "BannedDelegate FROM ProjectCard")
           selectOnlyTask()
-          selectTask("BannedDelegateRemoval<Kim, Scientists, Rob>.")
+          selectTask("BannedDelegateRemoval<Kim, Scientists, Rob>*")
           selectOnlyTask()
         }
         .expect(
@@ -128,7 +128,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
         .inTurn {
           doTasks("PlayProject<Class<BannedDelegate>>", "BannedDelegate FROM ProjectCard")
           selectOnlyTask()
-          selectTask("BannedDelegateRemoval<Stan, Scientists, Maya>.")
+          selectTask("BannedDelegateRemoval<Stan, Scientists, Maya>*")
           selectOnlyTask()
         }
         .expect(
@@ -159,7 +159,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<BannedDelegate>>", "BannedDelegate FROM ProjectCard")
           selectOnlyTask()
-          selectTask("BannedDelegateRemoval<Kim, Scientists, Kim>.")
+          selectTask("BannedDelegateRemoval<Kim, Scientists, Kim>*")
           selectOnlyTask()
         }
         .expect("-PartyDelegate<Scientists>, 0 PartyLeader<Scientists>")
@@ -173,7 +173,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<BannedDelegate>>", "BannedDelegate FROM ProjectCard")
           selectOnlyTask()
-          selectTask("BannedDelegateRemoval<Kim, Scientists, Neutral>.")
+          selectTask("BannedDelegateRemoval<Kim, Scientists, Neutral>*")
           selectOnlyTask()
         }
         .expect("-PartyDelegate<Scientists, Neutral>, 0 PartyLeader<Scientists, Neutral>")
@@ -244,7 +244,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<BannedDelegate>>", "BannedDelegate FROM ProjectCard")
           selectOnlyTask()
-          selectTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>.")
+          selectTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>*")
           selectOnlyTask()
         }
         .expect("-PartyDelegate<MarsFirst, Stan>, 0 PartyDelegate<Scientists, Stan>")

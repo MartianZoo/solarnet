@@ -28,10 +28,10 @@ internal class HighCirclesTest : TfmSandboxTest() {
                 "ExcentricSponsor FROM PreludeCard",
                 "PlayCard<Class<ProjectCard>, Class<SupportedResearch>>",
             )
-            selectTask("-25 Owed.")
+            selectTask("-25* Owed")
             doTask("SupportedResearch FROM ProjectCard")
-            selectTask("2 ProjectCard<Kim, Hand>!")
-            selectTask("-X MC?")
+            selectTask("2! ProjectCard<Kim, Hand>")
+            selectTask("-X? MC")
             doTask("Ok")
           }
         }
@@ -63,9 +63,9 @@ internal class HighCirclesTest : TfmSandboxTest() {
                 "PROD[Plant]",
                 "PlayCard<Class<ProjectCard>, Class<SupportedResearch>>",
             )
-            selectTask("-Required. / Required")
+            selectTask("-Required* / Required")
             doTasks("-3 MC", "SupportedResearch FROM ProjectCard")
-            selectTask("2 ProjectCard<Kim, Hand>!")
+            selectTask("2! ProjectCard<Kim, Hand>")
           }
         }
         .expect("ProjectCard, $SupportedResearch")

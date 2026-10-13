@@ -14,7 +14,7 @@ internal class MiningAreaTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<MiningArea>>", "-4 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks("Ok", "MiningArea FROM ProjectCard", "MiningArea_SpecialTile<Tharsis_8_9>")
       doTasks("Titanium", "PROD[Titanium]")
     }
@@ -59,7 +59,7 @@ internal class MiningAreaTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<MiningArea>>", "-4 MC")
-        selectTask("-X Steel?")
+        selectTask("-X? Steel")
         selectTask("Ok")
         doTask("MiningArea FROM ProjectCard")
         selectOnlyTask()

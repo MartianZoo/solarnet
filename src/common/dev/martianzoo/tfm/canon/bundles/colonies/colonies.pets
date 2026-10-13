@@ -18,8 +18,8 @@ ABSTRACT CLASS ColonyTile : System, Real {
 
   This:: ColonyProduction<This>
   Colony<This>:: ColonyProduction<This> / Colony<This, Anyone> - ColonyProduction<This>
-  ResetColonyProduction<This>: -ColonyProduction<This>. / ColonyProduction<This> - Colony<This, Anyone>
-  AdvanceColonyTracks: ColonyProduction<This>.
+  ResetColonyProduction<This>: -ColonyProduction<This>* / ColonyProduction<This> - Colony<This, Anyone>
+  AdvanceColonyTracks: ColonyProduction<This>*
   FinishTrade<This>: ResetColonyProduction<This>
 }
 

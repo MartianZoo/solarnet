@@ -28,12 +28,12 @@ internal class TaskResolutionTest {
 
   @Test
   internal fun `selecting resolves an abstract task and takes the select-lock`() {
-    initiate("2 Plant?")
-    agent.selectTask("2 Plant?")
+    initiate("2? Plant")
+    agent.selectTask("2? Plant")
 
     val task = tasks.extract { it }.single()
     task.selected shouldBe true
-    "${task.instruction}" shouldBe "2 Plant<Player1>?"
+    "${task.instruction}" shouldBe "2? Plant<Player1>"
     assertHistoryTypes(
         TaskAddedEvent::class,
         TaskEditedEvent::class,
@@ -42,8 +42,8 @@ internal class TaskResolutionTest {
 
   @Test
   internal fun `selection that resolves to NoOp completes the task`() {
-    initiate("-2 Plant?")
-    agent.selectTask("-2 Plant?")
+    initiate("-2? Plant")
+    agent.selectTask("-2? Plant")
 
     tasks.isEmpty() shouldBe true
     assertHistoryTypes(
@@ -69,9 +69,9 @@ internal class TaskResolutionTest {
 
   @Test
   internal fun `selection resolves limits before narrowing`() {
-    initiate("-30 TerraformRating?")
-    agent.selectTask("-30 TerraformRating?")
-    tasksAsText().shouldContainExactlyInAnyOrder("-20 TerraformRating<Player1>?")
+    initiate("-30? TerraformRating")
+    agent.selectTask("-30? TerraformRating")
+    tasksAsText().shouldContainExactlyInAnyOrder("-20? TerraformRating<Player1>")
     tasks.extract { it.selected }.shouldContainExactly(true)
   }
 

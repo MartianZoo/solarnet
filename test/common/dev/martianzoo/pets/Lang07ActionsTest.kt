@@ -158,7 +158,7 @@ internal class Lang07ActionsTest {
   internal fun `L7-8 actions round-trip`() {
     roundTripAll<Action>(
         """
-        -> 2 MC?
+        -> 2? MC
         Abc -> Ok
         Foo -> MC
         Ore -> Ok
@@ -185,10 +185,10 @@ internal class Lang07ActionsTest {
         Qux / Eep -> -Ooh<Foo, Eep>
         X Abc -> -MC, Foo<Bar<Qux>>
         -> (Foo: Foo FROM Foo) OR Ok
-        -> -X Ahh<Foo>(HAS MAX 0 MC)!
+        -> -X! Ahh<Foo>(HAS MAX 0 MC)
         X Plant(NOT Xyz) -> 2X Widget
         2 MC -> -Wau<Plant(NOT Gizmo)>
-        2 Wau -> -X Foo(NOT Ooh<Xyz>)!
+        2 Wau -> -X! Foo(NOT Ooh<Xyz>)
         2 Xyz -> -2X MC, Widget / Plant
         PROD[Qux] -> Qux FROM Bar / Abc
         Plant / Eep -> -Ooh<Plant, Eep>
@@ -196,24 +196,24 @@ internal class Lang07ActionsTest {
         -> (Plant: Plant FROM Plant) OR Ok
         Abc<Qux<Eep>> -> Ok OR (MC, 2 Foo)
         PROD[MC] -> (-Foo OR MC / Qux) OR Ooh
-        5 Ooh<Ooh, Bar> -> -2X Foo(HAS =1 MC).
+        5 Ooh<Ooh, Bar> -> -2X* Foo(HAS =1 MC)
         X Ooh<Abc>(HAS MC) -> Foo: -MC, -X Ooh
         MC / EVAL Bar.score - Abc MAX 11 -> -Foo
-        -> MAX 0 MC: MC THEN MC., PROD[PROD[Bar]]
+        -> MAX 0 MC: MC THEN MC*, PROD[PROD[Bar]]
         5 Qux -> PROD[MC], PROD[Qux THEN Foo<Qux>]
-        Ooh / 3 Ooh<Bar> MAX 5 -> 11 Abc FROM Ooh?
-        2 Qux<Xyz(HAS MAX 1 MC, HAS MC)> -> X Ahh<Bar>.
-        -> MAX 0 MC: MC THEN MC., PROD[PROD[Widget]]
+        Ooh / 3 Ooh<Bar> MAX 5 -> 11? Abc FROM Ooh
+        2 Qux<Xyz(HAS MAX 1 MC, HAS MC)> -> X* Ahh<Bar>
+        -> MAX 0 MC: MC THEN MC*, PROD[PROD[Widget]]
         MC / EVAL Widget.score - Ore MAX 11 -> -Plant
         2 MC / Qux -> Bar, (Ooh FROM Bar / Foo) BY Foo
         PROD[Xyz(HAS MC)] -> X Bar(NOT Foo) FROM Ooh<Foo>
         5 Gizmo -> PROD[MC], PROD[Gizmo THEN Plant<Gizmo>]
         -> 5 MC, (MAX 0 Foo OR (MC OR Foo)): X Bar<Qux, Qux>
-        PROD[PROD[Bar]] -> -Bar<Foo> BY Foo<Xyz<Ooh>> OR Abc.
+        PROD[PROD[Bar]] -> -Bar<Foo> BY Foo<Xyz<Ooh>> OR Abc*
         2 MC / Gizmo -> Widget, (Ooh FROM Widget / Plant) BY Plant
         Ooh -> -Foo / Ooh - Abc - 2 (Foo MAX 5) THEN Ok THEN X Foo
         2 Wau -> (MC BY Bar, MC) OR (Ooh / 2 Bar) BY Qux<Xyz>, -Abc
-        PROD[Bar] -> -2 Bar<Foo(NOT Bar<Eep, Foo<Bar, Foo>, Abc>)>!
+        PROD[Bar] -> -2! Bar<Foo(NOT Bar<Eep, Foo<Bar, Foo>, Abc>)>
         Ooh -> -Plant / Ooh - Ore - 2 (Plant MAX 5) THEN Ok THEN X Plant
         """
     )

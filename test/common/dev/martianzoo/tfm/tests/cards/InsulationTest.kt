@@ -36,7 +36,7 @@ internal class InsulationTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<Insulation>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-2 MC", "Insulation FROM ProjectCard")
         selectOnlyTask()
         doTask("Ok")

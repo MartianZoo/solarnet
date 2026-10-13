@@ -246,7 +246,7 @@ internal class TaskLogTest {
     fun newAgents(): Agents =
         Agents(Engine.newGame(premise)).also {
           it[PLAYER1].autoExecPolicy = NONE
-          it[PLAYER1].addTasks("2 Coin!, Marker!")
+          it[PLAYER1].addTasks("2! Coin, Marker!")
         }
     val source = newAgents()
     start(source)
