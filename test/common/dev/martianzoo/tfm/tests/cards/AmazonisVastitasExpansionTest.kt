@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
-import dev.martianzoo.pets.api.Exceptions.GameplayException
+import dev.martianzoo.pets.api.Exceptions.DomainException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
@@ -212,7 +212,7 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
     newTestGame(addOptions = "VastitasMap")
     kim.setToExMachina(28, "MC")
 
-    shouldThrow<GameplayException> {
+    shouldThrow<DomainException> {
       kim.inTurn {
         selectOnlyTask()
         doTask("UseStandardProject<CityProject>")

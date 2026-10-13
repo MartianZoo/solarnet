@@ -411,7 +411,7 @@
           "requirement": "Chairman",
           "cost": 9,
           "tags": [ "EarthTag" ],
-          "direct": "3 PreludeCard<Selecting> THEN -2 PreludeCard<Selecting> THEN PlayPrelude<Selecting>",
+          "direct": "3 PreludeCard<Selecting>, PlayPrelude<Selecting>",
         },
       ],
     },

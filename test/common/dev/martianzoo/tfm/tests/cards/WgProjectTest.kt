@@ -17,7 +17,6 @@ internal class WgProjectTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<WgProject>>", "-9 MC", "WgProject FROM ProjectCard")
           selectTask("3! PreludeCard<Kim, Selecting>")
-          selectTask("-2! PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<HighCircles>>")
           selectOnlyTask()
           doTask("TerraformRating")
@@ -42,7 +41,6 @@ internal class WgProjectTest : TfmSandboxTest() {
         selectTask("-X? MC")
         doTasks("-9 MC", "WgProject FROM ProjectCard")
         selectTask("3! PreludeCard<Kim, Selecting>")
-        selectTask("-2! PreludeCard<Kim, Selecting>")
         selectOnlyTask()
         doTask("PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>")
         selectOnlyTask()
@@ -52,7 +50,6 @@ internal class WgProjectTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<WgProject>>", "-9 MC", "WgProject FROM ProjectCard")
           selectTask("3! PreludeCard<Kim, Selecting>")
-          selectTask("-2! PreludeCard<Kim, Selecting>")
           doTask("-PreludeCard<Selecting>")
           selectTask("Audit!")
           doTask("15 MC")
@@ -73,7 +70,6 @@ internal class WgProjectTest : TfmSandboxTest() {
     return kim.inTurn {
       doTasks("PlayProject<Class<WgProject>>", "-9 MC", "WgProject FROM ProjectCard")
       selectTask("3! PreludeCard<Kim, Selecting>")
-      selectTask("-2! PreludeCard<Kim, Selecting>")
       doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
       doTask("Donation<Kim> FROM PreludeCard<Kim, Selecting>!")
       doTask("21 MC")

@@ -51,7 +51,6 @@ internal class HeadStartTest : TfmSandboxTest() {
           "(MAX 0 RequiredAction: StandardAction!) OR (RequiredAction: RequiredActionsSignal!)"
       )
       selectTask("3! PreludeCard<Kim, Selecting>")
-      selectTask("-2! PreludeCard<Kim, Selecting>")
       doTask("PlayCard<Class<PreludeCard>, Class<MartianIndustries>>")
       selectTask("MAX 0 Barrier: MartianIndustries FROM PreludeCard<Kim, Selecting>!")
       doTasks(
@@ -187,7 +186,6 @@ internal class HeadStartTest : TfmSandboxTest() {
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
       selectTask("4! CorporationCard<Kim, Selecting>")
       doTask("-42 MC")
-      selectTask("-3! CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<SagittaFrontierServices>>")
       selectTask("MAX 0 Barrier: SagittaFrontierServices FROM CorporationCard<Kim, Selecting>!")
       doTasks("31 MC", "PROD[Energy]", "PROD[2 MC]")

@@ -76,7 +76,7 @@
           "name": "BusinessContacts",
           "cost": 7,
           "tags": [ "EarthTag", "EventTag" ],
-          "direct": "4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>, -2 ProjectCard<Selecting>",
+          "direct": "4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>",
         },
         {
           "name": "BusinessNetwork",
@@ -220,7 +220,7 @@
           "name": "InventionContest",
           "cost": 2,
           "tags": [ "ScienceTag", "EventTag" ],
-          "direct": "3 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>, -2 ProjectCard<Selecting>",
+          "direct": "3 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>",
         },
         {
           "name": "InventorsGuild",

@@ -125,7 +125,6 @@ internal class VitorTest : TfmSandboxTest() {
       selectTask("-Director<BoardOfDirectors>!")
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
       selectTask("4! CorporationCard<Kim, Selecting>")
-      selectTask("-3! CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<Vitor>>")
       doTask("Vitor<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTasks("45 MC", "-42 MC")

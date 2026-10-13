@@ -25,7 +25,6 @@ internal class SpireTest : TfmSandboxTest() {
           )
           selectTask("4! ProjectCard<Kim, Selecting>")
           selectTask("2! ProjectCard<Kim, Hand FROM Selecting>")
-          selectTask("-2! ProjectCard<Kim, Selecting>")
           selectOnlyTask()
           doTask("PlayedEvent<Class<BusinessContacts>> FROM BusinessContacts")
         }

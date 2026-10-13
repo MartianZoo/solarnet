@@ -55,7 +55,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
           selectTask("4! CorporationCard<Kim, Selecting>")
-          selectTask("-3! CorporationCard<Kim, Selecting>")
           doTask("PlayCard<Class<CorporationCard>, Class<MonsInsurance>>")
           doTask("MonsInsurance<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTasks("48 MC", "-42 MC", "PROD[4 MC]")

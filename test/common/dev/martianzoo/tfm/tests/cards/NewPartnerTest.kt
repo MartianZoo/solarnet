@@ -1,20 +1,23 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agent.exMachina
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.Donation
 import dev.martianzoo.tfm.tests.cards.cardnames.IndustrialComplex
 import dev.martianzoo.tfm.tests.cards.cardnames.NewPartner
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
-internal class NewPartnerTest : TfmSandboxTest() {
+internal class NewPartnerTest : TfmGameplayTest() {
 
   @Test
   internal fun `New Partner plays the offered Prelude and leaves the other hand card alone`() {
     newTestGame(addOptions = "PreludeExpansion")
+    kim.autoExecPolicy = NONE
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
@@ -23,7 +26,6 @@ internal class NewPartnerTest : TfmSandboxTest() {
             "NewPartner FROM PreludeCard",
             "PROD[MC]",
             "2 PreludeCard<Selecting>",
-            "-PreludeCard<Selecting>",
         )
         selectOnlyTask()
         kim.assertCounts(1 to "PreludeCard<Hand>")
@@ -37,7 +39,7 @@ internal class NewPartnerTest : TfmSandboxTest() {
           "NewPartner FROM PreludeCard",
           "PROD[MC]",
       )
-      selectOnlyTask()
+      selectTask("2! PreludeCard<Kim, Selecting>")
       selectOnlyTask()
       doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
       doTask("Donation<Kim> FROM PreludeCard<Kim, Selecting>!")
@@ -58,13 +60,14 @@ internal class NewPartnerTest : TfmSandboxTest() {
   @Test
   internal fun `New Partner can fizzle an unaffordable Industrial Complex`() {
     newTestGame(addOptions = "PreludeExpansion, prelude2:cards")
-    kim.setToExMachina(13, "MC")
+    kim.autoExecPolicy = NONE
+    agents.exMachina(kim.actor, "-${kim.count("MC") - 13} MC")
     shouldThrow<LimitsException> {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayCard<Class<PreludeCard>, Class<NewPartner>>", "NewPartner FROM PreludeCard")
         selectTask("PROD[MC]")
-        selectOnlyTask()
+        selectTask("2! PreludeCard<Kim, Selecting>")
         selectOnlyTask()
         selectOnlyTask()
         doTask("PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>")
@@ -79,7 +82,7 @@ internal class NewPartnerTest : TfmSandboxTest() {
           "NewPartner FROM PreludeCard",
           "PROD[MC]",
       )
-      selectOnlyTask()
+      selectTask("2! PreludeCard<Kim, Selecting>")
       selectOnlyTask()
       doTask("-PreludeCard<Selecting>")
       selectTask("Audit!")

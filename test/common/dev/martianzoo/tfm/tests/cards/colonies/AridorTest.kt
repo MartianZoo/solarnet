@@ -57,7 +57,6 @@ internal class AridorTest : TfmSandboxTest() {
           doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
           selectTask("4! CorporationCard<Kim, Selecting>")
           doTask("-42 MC")
-          selectTask("-3! CorporationCard<Kim, Selecting>")
           doTask("PlayCard<Class<CorporationCard>, Class<Aridor>>")
           doTask("Aridor<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTask("40 MC")
@@ -150,7 +149,6 @@ internal class AridorTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
       selectTask("4! CorporationCard<Kim, Selecting>")
-      selectTask("-3! CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
       doTask("PharmacyUnion<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTask("-42 MC")

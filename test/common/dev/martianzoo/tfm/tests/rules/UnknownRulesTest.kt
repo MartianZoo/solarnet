@@ -33,7 +33,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
       selectTask("4! CorporationCard<Kim, Selecting>")
-      selectTask("-3! CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
       doTask("TharsisRepublic<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTasks("40 MC", "-42 MC")
@@ -44,7 +43,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.inTurn {
       doTask("RequiredActionsSignal")
       selectTask("3! PreludeCard<Kim, Selecting>")
-      selectTask("-2! PreludeCard<Kim, Selecting>")
       doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
       doTask("Donation<Kim> FROM PreludeCard<Kim, Selecting>!")
       doTasks("21 MC", "CityTile<Tharsis_3_3>", "PROD[MC]", "3 MC")
@@ -75,7 +73,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
       selectTask("4! CorporationCard<Kim, Selecting>")
       doTask("-42 MC")
-      selectTask("-3! CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
       doTask("TharsisRepublic<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTask("40 MC")
@@ -118,7 +115,6 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
       selectTask("4! CorporationCard<Kim, Selecting>")
       doTask("-42 MC")
-      selectTask("-3! CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<Poseidon>>")
       selectOnlyTask()
       doTask("45 MC")

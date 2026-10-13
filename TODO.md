@@ -6,6 +6,9 @@ Keep tasks brief; linked notes and tests carry the background.
 
 ## Card tracking
 
+- [ ] Revisit player-owned card locations together: `Selecting`, `Hand`, and played events.
+  The shared `Selecting` pool currently needs per-player turn cleanup because another player's
+  corporation-phase project offer may still be there.
 - [ ] Decide whether to verify card identities and claim filters for deck flips outside tracked hands
   and Selecting offers, such as Search for Life and Asteroid Deflection System.
 

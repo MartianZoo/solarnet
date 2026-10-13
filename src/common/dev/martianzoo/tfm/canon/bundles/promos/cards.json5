@@ -94,7 +94,7 @@
           "name": "TychoMagnetics",
           "tags": [ "PowerTag", "ScienceTag" ],
           "direct": "42 MC, PROD[Energy]",
-          "actions": [ "X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting> THEN -X* ProjectCard<Selecting>" ],
+          "actions": [ "X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>" ],
         },
       ],
     },
@@ -124,7 +124,7 @@
         {
           "name": "CorporateArchives",
           "tags": [ "ScienceTag" ],
-          "direct": "13 MC, 7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>, -5 ProjectCard<Selecting>",
+          "direct": "13 MC, 7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>",
         },
         {
           "name": "DoubleDown",
@@ -144,11 +144,11 @@
           "name": "Merger",
           "replaces": "SagittaFrontierServices",
           "autoSelectWhen": "Unsafe OR MAX 0 SagittaFrontierServices",
-          "direct": "4 CorporationCard<Selecting> THEN -3 CorporationCard<Selecting> THEN PlayCard<Class<CorporationCard>, Class<CardFront>, Selecting>, -42 MC",
+          "direct": "4 CorporationCard<Selecting>, PlayCard<Class<CorporationCard>, Class<CardFront>, Selecting>, -42 MC",
         },
         {
           "name": "NewPartner",
-          "direct": "PROD[1 MC], 2 PreludeCard<Selecting> THEN -PreludeCard<Selecting> THEN PlayPrelude<Selecting>",
+          "direct": "PROD[1 MC], 2 PreludeCard<Selecting>, PlayPrelude<Selecting>",
         },
         {
           "name": "StrategicBasePlanning",
@@ -365,7 +365,7 @@
           "name": "HiTechLab",
           "cost": 17,
           "tags": [ "ScienceTag", "BuildingTag" ],
-          "actions": [ "X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting> THEN -X* ProjectCard<Selecting>" ],
+          "actions": [ "X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>" ],
           "effects": [ "End: VictoryPoint" ],
         },
         {

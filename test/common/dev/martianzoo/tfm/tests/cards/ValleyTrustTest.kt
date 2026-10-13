@@ -14,7 +14,6 @@ internal class ValleyTrustTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectTask("3! PreludeCard<Kim, Selecting>")
-          selectTask("-2! PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
           doTask("Donation<Kim> FROM PreludeCard<Kim, Selecting>!")
           doTask("21 MC")
@@ -30,7 +29,6 @@ internal class ValleyTrustTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectTask("3! PreludeCard<Kim, Selecting>")
-          selectTask("-2! PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<MartianIndustries>>")
           doTask("MartianIndustries<Kim> FROM PreludeCard<Kim, Selecting>!")
           doTasks("PROD[Energy]", "PROD[Steel]", "6 MC")
@@ -49,7 +47,6 @@ internal class ValleyTrustTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectTask("3! PreludeCard<Kim, Selecting>")
-          selectTask("-2! PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<SpaceLanes>>")
           selectOnlyTask()
           doTask("3 Titanium")
@@ -71,7 +68,6 @@ internal class ValleyTrustTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("RequiredActionsSignal")
         selectTask("3! PreludeCard<Kim, Selecting>")
-        selectTask("-2! PreludeCard<Kim, Selecting>")
         selectOnlyTask()
         doTask("PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>")
         selectOnlyTask()
@@ -81,7 +77,6 @@ internal class ValleyTrustTest : TfmSandboxTest() {
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectTask("3! PreludeCard<Kim, Selecting>")
-          selectTask("-2! PreludeCard<Kim, Selecting>")
           doTask("-PreludeCard<Selecting>")
           selectTask("Audit!")
           doTask("15 MC")

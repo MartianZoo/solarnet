@@ -171,7 +171,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
         selectOnlyTask()
         doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
         selectTask("4! CorporationCard<Kim, Selecting>")
-        selectTask("-3! CorporationCard<Kim, Selecting>")
         selectTask("PlayCard<Kim, Class<CorporationCard>, Class<CardFront>, Selecting>!")
         doTask("PlayCard<Class<CorporationCard>, Class<NirgalEnterprises>>")
         doTask("NirgalEnterprises<Kim> FROM CorporationCard<Kim, Selecting>!")

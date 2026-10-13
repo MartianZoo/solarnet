@@ -356,7 +356,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "$InventionContest FROM ProjectCard",
           "3 ProjectCard<Selecting>",
           "ProjectCard<Hand FROM Selecting>",
-          "-2 ProjectCard<Selecting>",
           "PlayedEvent<Class<$InventionContest>> FROM $InventionContest",
       )
     }

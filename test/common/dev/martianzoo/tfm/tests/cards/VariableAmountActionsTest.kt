@@ -88,7 +88,7 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun `Hi-Tech Lab discards every card it did not keep`() {
+  internal fun `Hi-Tech Lab keeps a card from its selection`() {
     newTestGame()
     kim.exMachina("$HiTechLab")
     kim.setToExMachina(3, "Energy")
@@ -101,14 +101,13 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
           selectOnlyTask()
           selectTask("3! ProjectCard<Kim, Selecting>")
           selectOnlyTask()
-          selectOnlyTask()
         }
         .expect("-3 Energy, ProjectCard")
     kim.assertCounts(0 to "ProjectCard<Selecting>")
   }
 
   @Test
-  internal fun `Tycho Magnetics discards every card it did not keep`() {
+  internal fun `Tycho Magnetics keeps a card from its selection`() {
     newTestGame()
     kim.exMachina("$TychoMagnetics")
     kim.setToExMachina(4, "Energy")
@@ -120,7 +119,6 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
           doTask("-Energy / Owed<Class<Energy>>")
           selectOnlyTask()
           selectTask("4! ProjectCard<Kim, Selecting>")
-          selectOnlyTask()
           selectOnlyTask()
         }
         .expect("-4 Energy, ProjectCard")
