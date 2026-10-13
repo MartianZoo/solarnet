@@ -84,6 +84,7 @@ ABSTRACT CLASS Player : Owner, Actor {
   HAS MAX 1 AfterMe<This, Anyone>, MAX 1 AfterMe<Anyone, This>
   HAS MAX 0 AfterMe<This, This>
   HAS MAX 1 PlayerMode<This>
+  HAS MAX 1 RoundStatus<This>
 
   This:: StartToken<This>*
 
@@ -161,9 +162,11 @@ ABSTRACT CLASS Phase : System, Real {
     This: FINALLY { ActionPhase FROM This }
   }
   CLASS ActionPhase {
-    This:: EACH Me@Player { ImAwake }
+    // A player who has already passed this generation stays out.
+    This:: EACH Me@Player { ImAwake* }
+    This: EACH Starter@Player(HAS StartToken) { TakeTurn<Starter@> }
 
-    // Production starts once everyone has passed, in either mode.
+    // Production starts once everyone has passed.
     TurnOver IF MAX 0 ImAwake: ProductionPhase FROM This
   }
   CLASS ProductionPhase {
@@ -197,9 +200,9 @@ ABSTRACT CLASS Phase : System, Real {
 "Offers a player a turn; ImAwake or the current phase supplies its choices"
 CLASS NewTurn : Owned<Player>, Signal, System
 
-"Invites a player to take a turn; ImAwake or Pass answers during the action phase"
+"Gives a player their turn in turn order, unless they have passed in the action phase"
 CLASS TakeTurn<Taker@Player> : Signal, System {
-  This IF MAX 0 ActionPhase: NewTurn<Taker@>, FINALLY { TurnOver<Taker@> }
+  This IF MAX 0 ActionPhase OR ImAwake<Taker@>: NewTurn<Taker@>, FINALLY { TurnOver<Taker@> }
 }
 
 "Completes a player's turn in seat order after its work has finished"
@@ -214,13 +217,11 @@ CLASS RoundOver : Signal, System
 "A player has finished with the current phase, as when declining another final greenery"
 CLASS Done<Phase> : Owned<Player> { HAS MAX 1 This }
 
+"Whether a player is still taking action-phase turns or has passed"
+ABSTRACT CLASS RoundStatus : Owned<Player>
+
 "Lets a player take action-phase turns until they pass"
-CLASS ImAwake<ActionPhase> : Owned<Player>, System {
-  HAS MAX 1 This
-
-  This IF StartToken: TakeTurn<Me@>
-  TakeTurn<Me@>: NewTurn, FINALLY { TurnOver<Me@> }
-
+CLASS ImAwake<ActionPhase> : RoundStatus, System {
   NewTurn IF MAX 0 RequiredAction: StandardAction OR Pass
   NewTurn IF RequiredAction: RequiredActionsSignal OR Pass
   TurnOver<Me@> IF 2 ImAwake<Player>, MAX 0 RequiredAction: StandardAction?
@@ -230,8 +231,7 @@ CLASS ImAwake<ActionPhase> : Owned<Player>, System {
 }
 
 "Instead of taking an action you can gain this, and be out for the rest of the generation"
-CLASS Pass<GenerationScope> : Owned<Player>, Real {
-  HAS MAX 1 This
+CLASS Pass<GenerationScope> : RoundStatus, Real {
   This:: -ImAwake*
 
   TakeTurn<Me@> OR TurnOver<Me@> IF ImAwake<Player>: NextPlayer<Me@>

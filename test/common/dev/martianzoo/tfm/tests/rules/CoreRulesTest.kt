@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -275,6 +276,18 @@ internal class CoreRulesTest : TfmSandboxTest() {
           doTasks("Trade<Ceres>", "2 Steel")
         }
         .expect("-3 Energy")
+  }
+
+  @Test
+  internal fun `A player who passed before the action phase cannot act in it`() {
+    newTestGame(addOptions = "PreludeExpansion", playerCount = 2)
+    // As when Red Appeasement is played through Head Start during the Prelude phase.
+    kim.exMachina("Pass")
+
+    admin.phase("Action")
+
+    shouldThrow<TaskException> { kim.inTurn { doTask("Pass") } }
+    stan.inTurn { doTask("Pass") }
   }
 
   internal class Gameplay : dev.martianzoo.tfm.tests.TfmGameplayTest() {

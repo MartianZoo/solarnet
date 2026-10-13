@@ -178,8 +178,9 @@ public class TfmGameplay(
 
   // TODO: Contract temporary tfm-tests gameplay seams.
   /**
-   * Groups a player's corporation, Prelude, or action-phase turn. In the action phase, declines an
-   * unused second action when needed. If every other player has passed, ImAwake offers another
+   * Groups a player's corporation, Prelude, or action-phase turn in the published game's sense; the
+   * game model counts an action-phase turn's one or two actions as separate turns. Declines an
+   * unused second action when needed. If every other player has passed, the game offers another
    * first action immediately; this block leaves that offer in place.
    */
   public fun turn(body: TfmGameplay.() -> Unit) {

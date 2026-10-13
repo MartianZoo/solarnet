@@ -21,7 +21,7 @@ ABSTRACT CLASS Card : Owned<Player>, Real {
     "A red project card"
     ABSTRACT CLASS EventCard : CardFront<Class<ProjectCard>> {
       HAS =1 EventTag<This>
-      // An event stays face up until no other work remains. The `.` covers an event, such as Law
+      // An event stays face up until no other work remains. The `*` covers an event, such as Law
       // Suit, that has already moved itself into another player's pile.
       This: LATER { PlayedEvent<Class<This>> FROM This* }
     }

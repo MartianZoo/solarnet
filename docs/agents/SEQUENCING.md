@@ -35,7 +35,8 @@ envelope of a player's accepted opportunity and its resolution. Consecutive turn
 the same player. Do not call this an action scope, move, or turn segment. This deliberately differs
 from the published game's terminology: its action-phase turn of up to two actions becomes up to
 two consecutive turns here. Preserve when play advances to the next player; the terminology change
-does not grant additional opportunities.
+does not grant additional opportunities. Tests accept the difference: `TfmGameplay.turn { }`
+groups a published turn of one or two actions, which can be two turns in this sense.
 
 ### Offering, taking, and finishing a turn
 
@@ -47,8 +48,9 @@ does not grant additional opportunities.
 - A turn lasts through payment, effects, placement bonuses, other players' responses, and resulting
   work and cleanup. Completion of the initiating task alone does not finish the turn.
 - This first/second offer rule describes ordinary action-phase rotation. It does not make
-  corporation plays, Prelude plays, or Head Start's mandatory grants optional. Preserve the
-  workflow's treatment of the last unpassed player without inventing additional turn groupings.
+  corporation plays, Prelude plays, or Head Start's mandatory grants optional. Keep offering the
+  last unpassed player a fresh first offer after each turn, without inventing additional turn
+  groupings.
 
 The intended units are:
 
@@ -122,8 +124,8 @@ may interleave with another player's response or payment within a turn.
 ## Game flow
 
 The game's own rules carry play from `SetupPhase` to `VictoryPhase`. A client only starts the game
-(`TfmGameplay.startGame`, which performs `SetupPhase FROM BootstrapPhase`). There is no Kotlin
-workflow, and nothing turns the flow on or off.
+(`TfmGameplay.startGame`, which performs `SetupPhase FROM BootstrapPhase`). Nothing turns the
+flow on or off.
 
 - **Phases without turns hand off when their work is done.** `SetupPhase`, `ProductionPhase`,
   `SolarPhase`, `ResearchPhase`, and `End` each dispatch `FINALLY { Next FROM This }` as they begin.
@@ -133,23 +135,19 @@ workflow, and nothing turns the flow on or off.
   its end is `FINALLY` work, and all pending `FINALLY` work becomes ordinary together. A handoff
   dispatched as the Corporation, Prelude, Action, or final greenery phase began would therefore run
   after its first turn; these phases instead say what follows each turn.
-- **Turn order.** `TakeTurn<P>` invites a player to take a turn. Outside the action phase it gives
-  `NewTurn<P>` and dispatches `FINALLY { TurnOver<P> }`; the current phase handles completion.
+- **Turn order.** `TakeTurn<P>` gives `NewTurn<P>` and dispatches `FINALLY { TurnOver<P> }`,
+  unless `P` has passed in the action phase; each phase with turns says what follows `TurnOver`.
   `NextPlayer<P>` passes play to the next seat through `AfterMe`. Outside the action phase,
-  reaching the start player again is `RoundOver`. With a solo player, `NextPlayer` is always
+  reaching the start player again is `RoundOver`; with one player, `NextPlayer` is always
   `RoundOver`. These signals take a Player argument rather than an owner, so their work stays with
   Admin, as it must for Players who do not autoexecute.
-- **Awake players own action-phase turns.** `ActionPhase` creates `ImAwake` for every player through
-  an automatic effect. Each `ImAwake` depends on that phase, invites its owner to start if they
-  hold the start token, and answers `TakeTurn<Me>` with `NewTurn` and deferred `TurnOver<Me>`.
-  It supplies the actual action choices and, on `TurnOver`, directly offers an optional second
-  action while at least two players remain awake, with deferred `NextPlayer` after that choice.
-  The last awake player keeps taking turns until they pass. `Pass` removes its
-  owner's `ImAwake` through `This::`, then answers the same invitation by forwarding `NextPlayer`
-  without starting a turn or scheduling its completion. It also forwards play after its owner's
-  passing turn finishes. `ActionPhase` begins production on `TurnOver IF MAX 0 ImAwake`.
-  Action-phase play is cyclic: returning to the start player has no special meaning and never
-  emits `RoundOver`.
+- **Round status drives the action phase.** Each player has at most one `RoundStatus`: `ImAwake`
+  while they may still act in the action phase, or `Pass` once they have passed. The action phase
+  wakes every player who has not passed. `ImAwake` supplies each turn's choices; when the turn ends
+  it offers a second action and then `NextPlayer` while another player is awake, and otherwise
+  another turn. `Pass` replaces its owner's `ImAwake` and passes play on, both when the passing
+  turn ends and whenever that player's turn comes round again. Production begins at the first
+  `TurnOver` with nobody awake. Play goes around the table without `RoundOver`.
 - **Modules own phase order.** The corporation phase ends in `RoundOver`. `NoPreludes`, selected in
   every game without Prelude, then begins the first `ActionPhase`; `PreludeExpansion` begins
   `PreludePhase` instead, whose own `RoundOver` begins the action phase. Expansions add their solar
@@ -157,7 +155,8 @@ workflow, and nothing turns the flow on or off.
 - **A turn given outside turn order has no continuation.** `NewTurn` alone is just a turn; only
   `TakeTurn` attaches what follows. Sandbox scenarios and the REPL's manual modes take turns this
   way. They leave the flow by dropping its pending tasks once, and then place phases ex machina
-  (`TfmGameplay.phase`), whose queued start-of-phase rules do not run.
+  (`TfmGameplay.phase`). Placing a phase runs its automatic effects but not its queued rules, so a
+  placed action phase wakes every player without giving anyone a turn.
 - **Declining another final greenery is `Done<Phase>`.** A signal would vanish at once, before
   `TurnOver` could read it, so `Done` instead lasts until its phase ends.
 
