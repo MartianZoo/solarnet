@@ -21,7 +21,7 @@ internal class MangroveTest : TfmSandboxTest() {
               "Mangrove FROM ProjectCard",
               "GreeneryTile<Tharsis_1_2>",
           )
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           doTasks("2 Steel", "TerraformRating")
         }
         .expect("OxygenStep")

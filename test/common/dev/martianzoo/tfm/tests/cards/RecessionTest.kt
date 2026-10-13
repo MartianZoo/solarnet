@@ -24,9 +24,9 @@ internal class RecessionTest : TfmSandboxTest() {
               "10 MC",
           )
           selectOnlyTask()
-          selectTask("-5 MC<Stan>.")
+          selectTask("-5* MC<Stan>")
           selectTask("-Production<Stan, Class<MC>>!")
-          selectTask("-5 MC<Rob>.")
+          selectTask("-5* MC<Rob>")
           selectTask("-Production<Rob, Class<MC>>!")
         }
         .expect("-4 MC<Stan>, -5 MC<Rob>, PROD[0 MC, -MC<Stan>, -MC<Rob>]")
@@ -56,10 +56,10 @@ internal class RecessionTest : TfmSandboxTest() {
         selectTask("-Director<BoardOfDirectors>!")
         selectOnlyTask()
         doTasks("PlayCard<Class<PreludeCard>, Class<Recession>>", "Recession FROM PreludeCard")
-        selectTask("10 MC!")
+        selectTask("10! MC")
         selectOnlyTask()
-        selectTask("-5 MC<Stan>.")
-        selectTask("-5 MC<Rob>.")
+        selectTask("-5* MC<Stan>")
+        selectTask("-5* MC<Rob>")
         selectTask("-Production<Rob, Class<MC>>!")
         selectTask("-Production<Stan, Class<MC>>!")
       }
@@ -78,10 +78,10 @@ internal class RecessionTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayCard<Class<PreludeCard>, Class<Recession>>", "Recession FROM PreludeCard")
-        selectTask("10 MC!")
+        selectTask("10! MC")
         selectOnlyTask()
-        selectTask("-5 MC<Stan>.")
-        selectTask("-5 MC<Rob>.")
+        selectTask("-5* MC<Stan>")
+        selectTask("-5* MC<Rob>")
         selectTask("-Production<Rob, Class<MC>>!")
         selectTask("-Production<Stan, Class<MC>>!")
       }

@@ -13,9 +13,6 @@ import dev.martianzoo.state.GameRecording
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.TfmClasses.MC
 import dev.martianzoo.tfm.state.ApiUtils.mapDefinition
-import dev.martianzoo.tfm.web.viewer.GameQueries
-import dev.martianzoo.tfm.web.viewer.hasActionUsedMarker
-import dev.martianzoo.tfm.web.viewer.playedCards
 
 private val resourceNames = listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat")
 private val tagNames =

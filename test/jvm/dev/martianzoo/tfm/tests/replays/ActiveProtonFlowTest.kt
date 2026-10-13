@@ -4,6 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -24,6 +25,54 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
           """,
           "KB",
           "ER",
+      )
+  override val cardArrivalOrder =
+      mapOf(
+          cn("BeginnerCard") to mapOf(cn("KB") to listOf(cn("BeginnerCorporation1"))),
+          cn("CorporationCard") to mapOf(cn("ER") to listOf(ThorGate, MiningGuild)),
+      )
+  override val cardDepartureOrder =
+      mapOf(cn("CorporationCard") to mapOf(cn("ER") to listOf(ThorGate)))
+  // Source save 0 and saves 27-28 identify these modeled setup and Research offers.
+  override val selectingArrivalOrder =
+      mapOf(
+          cn("ProjectCard") to
+              mapOf(
+                  cn("ER") to
+                      listOf(
+                          ArcticAlgae,
+                          ReleaseOfInertGases,
+                          Flooding,
+                          LavaFlows,
+                          RadChemFactory,
+                          PowerPlant,
+                          RegolithEaters,
+                          Greenhouses,
+                          AsteroidMining,
+                          CupolaCity,
+                          BlackPolarDust,
+                          NitrophilicMoss,
+                          HeatTrappers,
+                          Farming,
+                      ),
+                  cn("KB") to listOf(ImmigrantCity, MagneticFieldGenerators, Ants, LargeConvoy),
+              ),
+      )
+  override val selectingDepartureOrder =
+      mapOf(
+          cn("ProjectCard") to
+              mapOf(
+                  cn("ER") to
+                      listOf(
+                          ReleaseOfInertGases,
+                          RadChemFactory,
+                          RegolithEaters,
+                          Greenhouses,
+                          AsteroidMining,
+                          Farming,
+                      ),
+                  cn("KB") to listOf(Ants, LargeConvoy),
+              ),
       )
 
   private val green
@@ -53,8 +102,6 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     generation1()
     generation2()
 
-    // Close generation 2's card ledger before the next Research deal begins.
-    assertCardTrackingComplete()
     green.pass()
 
     // Database save 37: generation 3 Research, immediately after generation 2 production.
@@ -83,14 +130,10 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
 
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 2)
     admin.assertCounts(2 to "Tile")
-    checkHandSizes()
+    assertCardTrackingComplete()
   }
 
   private fun generation1() {
-    green.inTurn {
-      doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation1>, Hand>")
-      doTask("42 MC")
-    }
     green.draw(
         GreatDam,
         GeothermalPower,
@@ -103,19 +146,32 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
         SpaceMirrors,
         PermafrostExtraction,
     )
+    green.inTurn {
+      doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation1>, Hand>")
+      doTask("42 MC")
+    }
     green.autoExecPolicy = EAGER
     pink.autoExecPolicy = EAGER
+    pink.draw(
+        PowerPlant,
+        Flooding,
+        ArcticAlgae,
+        LavaFlows,
+        CupolaCity,
+    )
     pink.playCorp(MiningGuild)
-    pink.draw(PowerPlant, Flooding, ArcticAlgae, LavaFlows, CupolaCity)
 
     green.turn { playProject(SpaceMirrors, 3) }
     pink.turn { playProject(ArcticAlgae, 12) }
     green.turn {
       playProject(OptimalAerobraking, 7)
+      draw(
+          OreProcessor,
+          ImportedHydrogen,
+          ResearchOutpost,
+      )
       playProject(ConvoyFromEuropa, 15) {
-            draw(OreProcessor)
             placeTile(2, 6)
-            draw(ImportedHydrogen, ResearchOutpost)
           }
           .expect("-12 MC, 3 Heat")
     }
@@ -140,8 +196,6 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 1, s = 2, t = 1, p = 1, e = 2, h = 1)
     pink.assertCounts(20 to "TerraformRating", 6 to "ProjectCard")
     assertSidebar(gen = 2, temp = -30, oxygen = 0, oceans = 1)
-    checkHandSizes()
-
     pink.turn { playProject(BlackPolarDust, 15) { placeTile(9, 9) } }
     green.turn { cardAction1(SpaceMirrors) }
     pink.pass()

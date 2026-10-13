@@ -76,3 +76,11 @@ tasks.named<ProcessResources>("jsProcessResources") {
   from(webReplSourceDirectory) { include("*.html", "*.css") }
   from(sharedSourceDirectory) { into("assets") }
 }
+
+// The Web development server also serves the Almanac.
+tasks.named("jsBrowserDevelopmentRun") {
+  dependsOn(
+      ":almanac:jsDevelopmentExecutableCompileSync",
+      ":almanac:jsProcessResources",
+  )
+}

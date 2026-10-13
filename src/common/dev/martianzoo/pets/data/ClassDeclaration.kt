@@ -218,6 +218,19 @@ public data class ClassDeclaration(
   public val abstract: Boolean = kind == ABSTRACT
 
   /**
+   * Whether this declaration has its own body content. Absent and empty bodies return false, as
+   * does a body containing only nested classes: those become separate declarations. Signature
+   * dependencies and supertypes are not body content.
+   */
+  public fun hasBody(): Boolean =
+      invariants.isNotEmpty() ||
+          authoredEffects.isNotEmpty() ||
+          authoredActions.isNotEmpty() ||
+          defaultsDeclaration.forClass != null ||
+          properties.isNotEmpty() ||
+          extraNodes.isNotEmpty()
+
+  /**
    * Authored dependency and quantifier defaults, kept separately for all uses, gains, and removals
    * under
    * [type-system rule T10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).

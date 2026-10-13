@@ -14,11 +14,11 @@ import kotlin.test.Test
 internal class MergerTest : TfmSandboxTest() {
   @Test
   internal fun `Both corporations retain their required first actions`() {
-    newTestGame(addOptions = "PreludeExpansion", kimCorporation = ValleyTrust)
+    newTestGame(addOptions = "PreludeExpansion, ValleyTrust", kimCorporation = ValleyTrust)
     kim.inTurn {
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      selectTask("4 CorporationCard<Kim, Selecting>!")
-      selectTask("-3 CorporationCard<Kim, Selecting>!")
+      selectTask("4! CorporationCard<Kim, Selecting>")
+      selectTask("-3! CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<Celestic>>")
       selectTask("MAX 0 Barrier: Celestic FROM CorporationCard<Kim, Selecting>!")
       doTasks("42 MC", "-42 MC")
@@ -28,9 +28,9 @@ internal class MergerTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("RequiredActionsSignal")
-          selectTask("2 SearchForCard<Kim, ReferenceFilter<Class<Floater>>>!")
-          selectTask("3 PreludeCard<Kim, Selecting>!")
-          selectTask("-2 PreludeCard<Kim, Selecting>!")
+          selectTask("2! SearchForCard<Kim, ReferenceFilter<Class<Floater>>>")
+          selectTask("3! PreludeCard<Kim, Selecting>")
+          selectTask("-2! PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<SocietySupport>>")
           selectOnlyTask()
           doTasks("PROD[-MC]", "PROD[Plant]", "PROD[Energy]", "PROD[Heat]")
@@ -52,9 +52,9 @@ internal class MergerTest : TfmSandboxTest() {
           selectOnlyTask()
           doTask("PlayCard<Class<PreludeCard>, Class<Merger>>")
           selectOnlyTask()
-          selectTask("4 CorporationCard<Kim, Selecting>!")
+          selectTask("4! CorporationCard<Kim, Selecting>")
           doTask("-42 MC")
-          selectTask("-3 CorporationCard<Kim, Selecting>!")
+          selectTask("-3! CorporationCard<Kim, Selecting>")
           doTask("PlayCard<Class<CorporationCard>, Class<Celestic>>")
           selectTask("MAX 0 Barrier: Celestic FROM CorporationCard<Kim, Selecting>!")
           doTask("42 MC")
@@ -70,16 +70,16 @@ internal class MergerTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-          selectTask("4 CorporationCard<Kim, Selecting>!")
-          selectTask("-3 CorporationCard<Kim, Selecting>!")
+          selectTask("4! CorporationCard<Kim, Selecting>")
+          selectTask("-3! CorporationCard<Kim, Selecting>")
           doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
           selectTask("MAX 0 Barrier: PharmacyUnion FROM CorporationCard<Kim, Selecting>!")
           doTask("-42 MC")
           selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
           selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
-          selectTask("-4 MC.")
+          selectTask("-4* MC")
           selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
-          selectTask("-4 MC.")
+          selectTask("-4* MC")
         }
         .expect("4 MC, 2 Disease<$PharmacyUnion>")
   }
@@ -108,14 +108,14 @@ internal class MergerTest : TfmSandboxTest() {
         selectTask("-Director<BoardOfDirectors>!")
         selectOnlyTask()
         doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-        selectTask("4 CorporationCard<Kim, Selecting>!")
-        selectTask("-3 CorporationCard<Kim, Selecting>!")
+        selectTask("4! CorporationCard<Kim, Selecting>")
+        selectTask("-3! CorporationCard<Kim, Selecting>")
         selectTask("PlayCard<Kim, Class<CorporationCard>, Class<CardFront>, Selecting>!")
         doTasks(
             "PlayCard<Class<CorporationCard>, Class<Recyclon>>",
             "Recyclon FROM CorporationCard<Selecting>",
             "38 MC",
-            "-4 MC.",
+            "-4* MC",
             "-42 MC",
         )
       }

@@ -27,19 +27,19 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
-          selectTask("-X Titanium?")
+          selectTask("-X? Titanium")
           doTask("Ok")
-          selectTask("-X Steel?")
+          selectTask("-X? Steel")
           doTasks("Ok", "SummitLogistics FROM ProjectCard")
           selectTask("MC! / (PlanetaryTag OR Colony)")
-          selectTask("2 ProjectCard<Kim, Hand>!")
+          selectTask("2! ProjectCard<Kim, Hand>")
         }
         .expect("-7 MC, ProjectCard")
   }
 
   @Test
   internal fun `Two delegates satisfy its requirement without Scientists ruling`() {
-    newTestGame("SummitLogistics, TurmoilExpansion")
+    newTestGame("SummitLogistics, TurmoilExpansion, -ColoniesExpansion")
 
     shouldThrow<RequirementException> {
       kim.inTurn {
@@ -50,12 +50,12 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
     kim.exMachina("2 PartyDelegate<Scientists>")
     kim.inTurn {
           doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
-          selectTask("-X Titanium?")
+          selectTask("-X? Titanium")
           doTask("Ok")
-          selectTask("-X Steel?")
+          selectTask("-X? Steel")
           doTasks("Ok", "SummitLogistics FROM ProjectCard")
           selectTask("MC! / (PlanetaryTag OR Colony)")
-          selectTask("2 ProjectCard<Kim, Hand>!")
+          selectTask("2! ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
   }
@@ -70,12 +70,12 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
-          selectTask("-X Titanium?")
+          selectTask("-X? Titanium")
           doTask("Ok")
-          selectTask("-X Steel?")
+          selectTask("-X? Steel")
           doTasks("Ok", "SummitLogistics FROM ProjectCard")
           selectTask("MC! / (PlanetaryTag OR Colony)")
-          selectTask("2 ProjectCard<Kim, Hand>!")
+          selectTask("2! ProjectCard<Kim, Hand>")
         }
         .expect("-4 MC, ProjectCard")
   }

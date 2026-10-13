@@ -11,6 +11,12 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   from the chosen action and its completed event group without adding component-specific English
   rules to the viewer; the existing card-text renderer does not summarize chosen actions.
 
+## Card tracking
+
+- [ ] Decide whether to verify identities and Pets claim filters for deck flips that never enter a
+  Player's hand or a tracked Selecting offer, such as Search for Life and Asteroid Deflection System.
+  The former replay helper's flip checks were removed with it.
+
 ## Standard actions
 
 - [ ] Fix missing-action selection and remove the action-slot dependency from general-purpose
@@ -23,12 +29,21 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `HeadStartTest` also needs two full conditional selectors for Suitable Infrastructure bonuses
   competing with nested actions; simplify those through general task handling, not a card helper.
 
+## Game files
+
+- [ ] Derive each command's structured card inputs from
+  its typed movements and `Cards:` notes, then verify full and short imports with the production
+  tracker. See [export design](docs/agents/EXPORT.md).
+- [ ] Decide how a short file carries arbitrary event commentary when no exact event stream is
+  present. Full files already retain all notes.
+
 ## Physical game conversion — 2026-10-09
 
-- [ ] Continue `OtbGame20261009Test` when the next recording is supplied. The current replay
-  covers generations 1–8 and stops before generation 9 Research. Preserve its explicit
-  `doTasks(...)` style, disabled player autoexecution, and automatic Admin.
-  Original evidence and remaining source limits are in `_local/replays/Game20261009/sources.md`.
+- [ ] If a final score sheet or player recollection becomes available, resolve the
+  one-point difference between Pink's spoken 138 and the completed replay's 139.
+  The replay agrees with the recorded winner and all sourced resource checkpoints;
+  its six score categories and the available source limits are in
+  `_local/replays/Game20261009/sources.md`.
 
 ## Consensus top five project concerns — 2026-10-08
 
@@ -45,7 +60,9 @@ These concerns remain open; the ranking does not select replacement designs.
 2. **Payment validation differs between execution paths.** The gameplay helper rejects paying
    11 M€ for the 10 M€ Olympus Conference, while the REPL accepts and spends all 11. Separately,
    the payer's own resource loss for another purpose can settle an open bill. Make validation
-   consistent and tie settlement to the intended payment; see [payments](docs/agents/PAYMENTS.md).
+   consistent and tie settlement to the intended payment. In `PharmacyUnionTest`, paying the
+   starting-card bill via `-MC / Owed` omits both 4 MC disease penalties, while `-15 MC` preserves
+   them; investigate whether these share a cause. See [payments](docs/agents/PAYMENTS.md).
 3. **Kotlin orchestration owns game-flow rules that belong in Pets.** Phase order, expansion
    participation, and turn progression remain in Kotlin. Callback failure guarantees also need
    attention: a completion callback can throw after a successful mutation. Actual coroutine/Admin
@@ -122,10 +139,9 @@ These concerns remain open; the ranking does not select replacement designs.
   the track can validly reset to zero. Queueing the initial marker with `BY Admin` left a player
   task in a replay; making every marker `System` changed later trade handling. Keep the current
   automatic gain until the marker's task ownership is clear.
-- [ ] Review the `Current<GlobalEvent>` to `GlobalEffect` relationship. Gaining `Current` creates
-  its effect automatically, but the effect depends on the event rather than `Current`; removing
-  `Current` alone appears to leave that effect active. Choose a single owner relationship that
-  covers both directions before changing the 36 event declarations.
+- [ ] Restore Global Event English rendering for player-owned `GlobalEffect` signals and the
+  `This IF StartToken` clauses that apply a shared effect once. The stale renderer, generated
+  snapshot, and comparison report are disabled; retain the published wording evidence.
 
 - [ ] Extend the build-time Canon invariant checks to indirect special-tile gains behind
   signals or supporting components (`GainsOf`; entry 15 of
@@ -147,10 +163,10 @@ These concerns remain open; the ranking does not select replacement designs.
   currently creates a turn whenever the acting player has no pending task, even while another
   player's turn is pending. Preserve authentic gameplay without adding a second test-side game
   driver; discuss the effect on sandbox and legacy callers before changing the shared helpers.
-- [ ] Finish moving named-corporation setup in `.cards` sandbox and workflow tests to explicit
-  `Agent` tasks. The sandbox still calls `TfmGameplay.playCorp` for older named-corporation
-  scenarios; workflow tests still expose `TfmGameplay` players. Keep player autoexecution at `NONE`
-  and Admin eager. Do not add a replacement corporation helper that hides the choices.
+- [ ] Finish moving `.cards` workflow tests to explicit `Agent` tasks; those tests still expose
+  `TfmGameplay` players. Sandbox setup now plays ordinary named corporations through Agent tasks
+  and uses a scoped `EAGER` override to finish their setup; Kim's configured policy stays `NONE`,
+  while Admin remains eager. Preserve explicit corporation plays for scenarios that test their choices.
 - Distinguish counting Venus tags from carrying a Venus tag in card availability. Io Sulphur
   Research should work without Venus Next because it merely counts Venus tags, but the catalog
   currently rejects it. Cards that carry Venus tags, such as Corroder Suits and Dirigibles, must
@@ -203,8 +219,6 @@ These concerns remain open; the ranking does not select replacement designs.
 - Add sandbox and gameplay operations to Mars Playground after its passive history viewer is sound.
   Let the same world and task rules supply those operations; keep the current history positions
   limited to completed replay steps.
-- Retire the separate browser viewer and its duplicate recording discovery when Mars Playground
-  covers its remaining useful views.
 - Review derived lookups on delegated Catalogs: `classDeclaration` and `allClassNames` use the
   delegate's properties even when the wrapper overrides them. Keep this existing issue separate
   from the class-loading cleanup.
@@ -444,10 +458,11 @@ These concerns remain open; the ranking does not select replacement designs.
   if that can be done generally, without a card-specific renderer fact. The local Fryxelius archive
   has no Astra Mechanica ruling; current tests permit returning zero cards.
 - Define an authored, game-neutral way for bundle compatibility inference to distinguish hard
-  dependencies from references that may safely disappear when a companion bundle is absent. Start
-  with characterization tests for Suitable Infrastructure, Constructor, Soil Studies, and Summit
-  Logistics; decide ambiguous no-op cards explicitly, and let English consume the same modeled fact
-  rather than adding a renderer-only flag.
+  dependencies from references that may safely disappear when a companion bundle is absent. The
+  catalog now permits explicitly named cards whose only missing class is counted in an immediate
+  on-gain effect, while automatic pools still require the referenced Module;
+  continue with Suitable Infrastructure, Constructor, and Soil Studies. Decide ambiguous no-op cards
+  explicitly, and let English consume the same modeled fact rather than adding a renderer-only flag.
 - Move `PreludePhase` out of `tfm-text`'s `resetsForPreludeAction` recognizer once there is a
   principled bundle-supplied description of the phase/latch relationship; do not add a Prelude-only
   boolean merely to relocate the class name.
@@ -466,16 +481,9 @@ These concerns remain open; the ranking does not select replacement designs.
   `2 Rating THEN Coin` with `Rating : Atomized` fails when the first stage expands to a group.
   This occurs before task recording; keep the Pets fix separate from decision-log work.
 
-- Extend task-text export with the Pets premise and external card identities. Task-id/context-only
-  disambiguation is not yet preserved: retain a meaningful selector before supporting logs that
-  depend on it, rather than trying alternative executions during import. Current replay checks use
-  the same premise in memory and compare engine state, not the test-owned card-name ledger.
-- Evaluate replaying decision exports through the browser engine for History mode after those exports
-  contain the premise and card identities. Compare the resulting state with the state-change
-  recording before replacing passive playback.
 - Reconcile the old score discrepancy in `SoloGame20230721Test` against its original game record
   (`gf33a06d07a1c`). Restoring normal Flooding play preserves the asserted 95 VP; the legacy comments
-  claimed 99 and reported 111 on herokuapp. The task round-trip verifies reproduction, not which
+  claimed 99 and reported 111 on herokuapp. The game-file round-trip verifies reproduction, not which
   of those source/implementation totals is correct.
 
 - Extend instruction intersection to preserve unresolved shared aliases and unnamed Type unions.
@@ -537,13 +545,12 @@ attribution, features, and unresolved rule questions. Related symptoms are group
    [DerivedClassLowerer](src/common/dev/martianzoo/pets/DerivedClassLowerer.kt) and the owner-local
    specialization characterization in [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
 
-2. **Expansion compatibility rejects usable content.** Constructor, Summit Logistics, and Molecular
-   Printing are blocked without Colonies; Suitable Infrastructure is blocked without Prelude rules
-   despite its surviving standard-action effect. Configuration probes confirmed these rejections.
-   Constructor's combined city/colony metric is treated as a hard Colonies dependency. This also
-   forces an inaccurate Colonies setting into `OtbGame20260912Test`: Summit Logistics lacks a
-   printed Colonies dependency icon and should allow its smaller payout without enabling unused
-   Colonies gameplay. See
+2. **Expansion compatibility rejects usable content.** Constructor remains blocked without Colonies,
+   and Suitable Infrastructure is blocked without Prelude rules despite its surviving standard-action
+   effect. Counts in on-gain card effects do not block explicitly named Summit Logistics or
+   Molecular Printing without Colonies; `OtbGame20260912Test` now uses the ordinary
+   Summit Logistics card without a colony board. Constructor's city/colony scoring and other optional
+   references still need a general eligibility rule. See
    the eligibility direction in the
    [Pets roadmap](PETS_ROADMAP.md#canon-and-game-rule-modeling).
    Keep Suitable Infrastructure out of the

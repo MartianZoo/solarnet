@@ -33,7 +33,7 @@ internal class CorroderSuitsTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<CorroderSuits>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-8 MC", "CorroderSuits FROM ProjectCard")
         selectTask("PROD[2 MC]")
         selectOnlyTask()

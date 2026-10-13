@@ -125,6 +125,34 @@ internal fun canonicalCatalog(config: GameConfig): TfmCatalog =
 internal fun canonicalCatalog(includeFakeCards: Boolean): TfmCatalog =
     if (includeFakeCards) CANON_WITH_FAKE_CARDS else Canon
 
+/**
+ * Applies fixture defaults while retaining exclusions that also override the game's own defaults.
+ */
+internal fun fixtureConfig(options: GameConfig, defaults: GameConfig): GameConfig {
+  val corporateEra = cn("CorporateEraExpansion")
+  val quickStart = cn("QuickStartVariant")
+  val inferredDefaults =
+      if (corporateEra in options.excludedClassNames) setOf(corporateEra, quickStart)
+      else setOf(corporateEra)
+  val colonies = cn("ColoniesExpansion")
+  val selected =
+      (defaults.includedClassNames + options.includedClassNames) - options.excludedClassNames
+  val colonyTile =
+      if (colonies in selected && selected.none { it in Canon.colonyTileClassNames })
+          setOf(cn("Callisto"))
+      else emptySet()
+  return options.copy(
+      includedClassNames = selected + colonyTile,
+      excludedClassNames =
+          (options.excludedClassNames - defaults.includedClassNames) +
+              (options.excludedClassNames intersect inferredDefaults),
+      includedCardBundles =
+          (defaults.includedCardBundles + options.includedCardBundles) -
+              options.excludedCardBundles,
+      excludedCardBundles = options.excludedCardBundles - defaults.includedCardBundles,
+  )
+}
+
 private val CANON_WITH_FAKE_CARDS: TfmCatalog by lazy { TfmCatalog(Canon, FakeCanon) }
 
 private fun canonicalOptions(vararg selectedOptions: TestOption): Set<TestOption> {

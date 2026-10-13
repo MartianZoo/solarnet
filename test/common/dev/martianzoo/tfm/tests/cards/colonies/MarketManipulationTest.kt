@@ -33,7 +33,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
       kim.inTurn {
         selectTask("StandardAction OR Pass")
         doTask("PlayProject<Class<MarketManipulation>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
         narrowTask("ColonyProduction<Luna FROM Triton>")
@@ -49,7 +49,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
       kim.inTurn {
         selectTask("StandardAction OR Pass")
         doTask("PlayProject<Class<MarketManipulation>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
         narrowTask("ColonyProduction<Luna FROM Triton>")
@@ -63,7 +63,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
       kim.inTurn {
         selectTask("StandardAction OR Pass")
         doTask("PlayProject<Class<MarketManipulation>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
         narrowTask("ColonyProduction<Luna FROM Luna>")
@@ -77,7 +77,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
       kim.inTurn {
         selectTask("StandardAction OR Pass")
         doTask("PlayProject<Class<MarketManipulation>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
         narrowTask("ColonyProduction<Titan FROM Luna>")
@@ -91,7 +91,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
       kim.inTurn {
         selectTask("StandardAction OR Pass")
         doTask("PlayProject<Class<MarketManipulation>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
         narrowTask("ColonyProduction<Luna FROM Titan>")

@@ -135,8 +135,8 @@ internal class SimpleAddsRemovesTest {
 
     val p2 = game.testTfm(PLAYER2)
 
-    p2.runOperation("5 Heat<Player2>!")
-    p2.runOperation("10 Heat<Player1>!")
+    p2.runOperation("5! Heat<Player2>")
+    p2.runOperation("10! Heat<Player1>")
 
     admin.count("Heat") shouldBe 15
 
@@ -148,11 +148,11 @@ internal class SimpleAddsRemovesTest {
     admin.count("StandardResource") shouldBe 11
     admin.count("StandardResource<Player1>") shouldBe 10
 
-    p2.runOperation("3 Steel<Player1> FROM Heat<Player1>!")
+    p2.runOperation("3! Steel<Player1> FROM Heat<Player1>")
     admin.count("StandardResource<Player1>") shouldBe 10
     admin.count("Steel") shouldBe 3
 
-    p2.runOperation("2 Heat<Player2> FROM Heat<Player1>!")
+    p2.runOperation("2! Heat<Player2> FROM Heat<Player1>")
     admin.has("=3 Heat<Player2>") shouldBe true
     admin.has("=5 Heat<Player1>") shouldBe true
 

@@ -12,8 +12,8 @@ import dev.martianzoo.state.ComponentChange
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
+import dev.martianzoo.state.GameFileJson
 import dev.martianzoo.state.GameRecording
-import dev.martianzoo.state.GameRecordingJson
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.fake.FakeCanon
@@ -81,14 +81,14 @@ internal class RecordingStore {
     require(name in gameNames)
     try {
       val text = Res.readBytes("files/games/$name.json").decodeToString()
-      val document = GameRecordingJson.parse(text)
+      val document = GameFileJson.parse(text)
       val catalog: TfmCatalog =
-          if (cn("FakeStuffBundle") in document.config.includedClassNames) {
+          if (document.config.includedClassNames.any { it in FakeCanon.allClassNames }) {
             TfmCatalog(Canon, FakeCanon)
           } else {
             Canon
           }
-      val recording = document.decode(catalog.gamePremise(document.config))
+      val recording = document.decode(document.premise(catalog))
       val active = recording.open()
       val allChanges = active.world.events.changesSinceSetup()
       val recordedChanges = allChanges
@@ -143,7 +143,7 @@ internal class RecordingStore {
       generationStarts = generationEvents.map(ChangeEvent::ordinal)
       actionStops = recordedActions
       gameName = name
-      config = document.requestedConfig
+      config = document.config
       specimen = display
       error = null
     } catch (failure: Throwable) {

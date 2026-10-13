@@ -809,7 +809,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "-3 Steel",
           "-1 MC",
           "$OlympusConference FROM ProjectCard",
-          "Science<$OlympusConference>. OR ProjectCard FROM Science<$OlympusConference>",
+          "Science<$OlympusConference>* OR ProjectCard FROM Science<$OlympusConference>",
       )
 
       doTasks(
@@ -1250,7 +1250,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "TemperatureStep",
           "2 TerraformRating",
       )
-      selectTask("2 Plant<Player2>!")
+      selectTask("2! Plant<Player2>")
       p2.doTasks("2 Plant")
 
       doTasks(
@@ -2349,14 +2349,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "Plant",
         "4 MC",
     )
-    p1.doTasks("Ok") // no more greenery
+    p1.declineTask("ConvertPlants<Player1>?") // no more greenery
     p2.doTasks("ConvertPlants", "-8 Plant")
     p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p2.doTasks(
         "GreeneryTile<Tharsis_8_8>",
         "2 MC",
     )
-    p2.doTasks("Ok") // no more greenery
+    p2.declineTask("ConvertPlants<Player2>?") // no more greenery
 
     p1.assertCounts(126 to "VictoryPoint", 1 to "Victory")
     p2.assertCounts(92 to "VictoryPoint", 0 to "Victory")

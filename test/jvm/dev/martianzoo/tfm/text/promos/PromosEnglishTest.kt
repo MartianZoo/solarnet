@@ -33,7 +33,7 @@ internal class PromosEnglishTest {
     english.describe(
         parseClasses(
                 "CLASS Rule<Me@Anyone> { MyResourceWasRemoved<Anyone> OR MyProductionWasDecreased<Anyone>: " +
-                    "3 MC<Anyone FROM Me@>. }"
+                    "3* MC<Anyone FROM Me@> }"
             )
             .single()
             .authoredEffects

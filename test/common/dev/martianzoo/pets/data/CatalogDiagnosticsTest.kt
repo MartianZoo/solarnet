@@ -1720,7 +1720,7 @@ internal class CatalogDiagnosticsTest {
   internal fun conflictingInheritedQuantifiers() {
     val source =
         """
-        ABSTRACT CLASS Eager { DEFAULT +Eager. }
+        ABSTRACT CLASS Eager { DEFAULT +Eager* }
         ABSTRACT CLASS Choosy { DEFAULT +Choosy? }
         CLASS Garden : Eager, Choosy
         """
@@ -1728,13 +1728,13 @@ internal class CatalogDiagnosticsTest {
     val error = assertFailsWith<InvalidPetDefinitionException> { loadTypes(source) }
 
     assertEquals(
-        "`Garden` inherits conflicting gain quantifier defaults: `.`, `?`",
+        "`Garden` inherits conflicting gain quantifier defaults: `*`, `?`",
         error.detail,
     )
     // Prefer highlighting `Eager, Choosy` and showing their conflicting default clauses.
     assertEquals(
         """
-        |`Garden` inherits conflicting gain quantifier defaults: `.`, `?` at 3:7
+        |`Garden` inherits conflicting gain quantifier defaults: `*`, `?` at 3:7
         |CLASS Garden : Eager, Choosy
         |      ^
         """

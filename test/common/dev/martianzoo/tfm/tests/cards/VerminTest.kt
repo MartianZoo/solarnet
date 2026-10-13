@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.tests.TestOption.PromoCards
@@ -34,7 +33,7 @@ internal class VerminTest : TfmSandboxTest() {
     kim.exMachina("$Vermin, $Decomposers")
 
     kim.inTurn {
-          doTasks("UseCardAction<Vermin, Action1>", "Microbe<Decomposers>.")
+          doTasks("UseCardAction<Vermin, Action1>", "Microbe<Decomposers>*")
         }
         .expect("Microbe<$Decomposers>")
   }
@@ -67,8 +66,8 @@ internal class VerminTest : TfmSandboxTest() {
                   additionalClassDeclarations = attributionProbeDeclarations(3),
               )
           )
-      val kim = game.testTfm(PLAYER1)
-      val p3 = game.testTfm(PLAYER3)
+      val kim = agents[PLAYER1]
+      val p3 = agents[PLAYER3]
       kim.runOperation("$Vermin, 10 Animal<$Vermin>, CityTile<Tharsis_2_1>, $attributionProbe")
       p3.runOperation("CityTile<Tharsis_3_3>")
 

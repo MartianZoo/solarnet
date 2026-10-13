@@ -1,4 +1,4 @@
-package dev.martianzoo.tfm.web.viewer
+package dev.martianzoo.tfm.web.playground
 
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
@@ -7,7 +7,7 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Player
 
-/** Actor-contextual read conveniences used by the passive recording UI. */
+/** Player-contextual read conveniences for the passive recording display. */
 internal class GameQueries(private val reader: GameReader) {
   private val elaborator = PetElaborator(reader.classTable)
 

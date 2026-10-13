@@ -15,6 +15,7 @@ kotlin {
           listOf(rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/agent"))
       )
       dependencies {
+        implementation(project(":catalog"))
         implementation(project(":engine"))
         implementation(project(":pets"))
         implementation(project(":state"))
@@ -29,6 +30,7 @@ kotlin {
       )
       dependencies {
         implementation(libs.kotest.assertions.core)
+        implementation(libs.kotlinx.coroutines.test)
         implementation(project(":catalog"))
       }
     }

@@ -38,7 +38,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<CyberiaSystems>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-16 MC", "CyberiaSystems FROM ProjectCard")
         selectTask("PROD[Steel]")
         doTask("CopyProductionBox<Mine>")

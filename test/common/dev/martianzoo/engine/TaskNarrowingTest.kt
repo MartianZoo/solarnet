@@ -53,7 +53,7 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `nonmandatory Die is the empty zero-capacity change`() {
     initiate("Die?")
-    initiate("Die.")
+    initiate("Die*")
 
     tasks.isEmpty() shouldBe true
     history().shouldBeEmpty()
@@ -62,20 +62,20 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `initiating an abstract task works as expected`() {
-    initiate("2 Plant?")
+    initiate("2? Plant")
 
-    tasks.extract { "${it.instruction}" }.shouldContainExactlyInAnyOrder("2 Plant<Player1>?")
+    tasks.extract { "${it.instruction}" }.shouldContainExactlyInAnyOrder("2? Plant<Player1>")
     history().shouldHaveSize(1)
   }
 
   @Test
   internal fun `narrowing an instruction to itself adds no history after selection`() {
-    initiate("2 Plant?")
-    writer.selectTask("2 Plant?")
+    initiate("2? Plant")
+    writer.selectTask("2? Plant")
     val before = game.timeline.checkpoint()
 
-    writer.narrowTask("2 Plant?")
-    tasksAsText().shouldContainExactlyInAnyOrder("2 Plant<Player1>?")
+    writer.narrowTask("2? Plant")
+    tasksAsText().shouldContainExactlyInAnyOrder("2? Plant<Player1>")
     events.entriesSince(before).shouldBeEmpty()
   }
 
@@ -90,16 +90,16 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `an unselected task can be filled in progressively without changing the World`() {
-    val id = initiate("3 StandardResource?").single()
+    val id = initiate("3? StandardResource").single()
     val before = game.timeline.checkpoint()
     val form = writer.fillInTask(id)
 
-    form.narrow("2 StandardResource?")
+    form.narrow("2? StandardResource")
     form.narrow("Plant!")
 
     events.entriesSince(before).shouldBeEmpty()
     tasks.selectedTask() shouldBe null
-    tasksAsText().shouldContainExactly("3 StandardResource<Player1>?")
+    tasksAsText().shouldContainExactly("3? StandardResource<Player1>")
     form.instruction.toString() shouldBe "Plant<Player1>!"
 
     form.commit()
@@ -148,7 +148,7 @@ internal class TaskNarrowingTest {
     target.decisions().single().kind shouldBe AMOUNT
 
     writer.sneak("2 Plant")
-    val xId = initiate("-X Plant! THEN X Heat!").single()
+    val xId = initiate("-X! Plant THEN X! Heat").single()
     val x = writer.fillInTask(xId)
     val amount = x.decisions().single()
     amount.kind shouldBe AMOUNT
@@ -184,7 +184,7 @@ internal class TaskNarrowingTest {
         )
     val agent = fixture.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
     agent.runOperation("One, Two, Red, Blue")
-    val form = agent.fillInTask(agent.addTasks("Choice.").single())
+    val form = agent.fillInTask(agent.addTasks("Choice*").single())
 
     val root = form.decisions().single()
     root.kind shouldBe TARGET
@@ -231,7 +231,7 @@ internal class TaskNarrowingTest {
         )
     val agent = fixture.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     agent.sneak("Available<Player1>, OtherPlayers<Player2>")
-    val form = agent.fillInTask(agent.addTasks("Token<Holder<Player1>>.").single())
+    val form = agent.fillInTask(agent.addTasks("Token<Holder<Player1>>*").single())
     val before = fixture.timeline.checkpoint()
     val holder = form.decisions().single()
     holder.focus.toString() shouldBe "Holder"
@@ -255,7 +255,7 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `a class literal chooses represented classes without instance dependencies`() {
-    val form = writer.fillInTask(initiate("Class<StandardResource>.").single())
+    val form = writer.fillInTask(initiate("Class<StandardResource>*").single())
 
     val representedClass = form.decisions().single()
     representedClass.kind shouldBe TARGET
@@ -299,7 +299,7 @@ internal class TaskNarrowingTest {
             )
         )
     val agent = fixture.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
-    val form = agent.fillInTask(agent.addTasks("Spot(HAS MAX 0 Mark).").single())
+    val form = agent.fillInTask(agent.addTasks("Spot(HAS MAX 0 Mark)*").single())
 
     form.decisions().shouldBeEmpty()
   }
@@ -307,7 +307,7 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `a form can choose a shared X target before its amount`() {
     writer.sneak("Plant, Heat")
-    val id = initiate("-X StandardResource! THEN X MC!").single()
+    val id = initiate("-X! StandardResource THEN X! MC").single()
     val form = writer.fillInTask(id)
     val target = form.decisions().single()
 
@@ -321,25 +321,25 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `a PER metric bounds an X choice after scaling`() {
     writer.sneak("2 Heat, 3 Plant")
-    val id = initiate("-X Plant! / Heat").single()
+    val id = initiate("-X! Plant / Heat").single()
     val form = writer.fillInTask(id)
 
     form.decisions().single().kind shouldBe AMOUNT
     form.options(form.decisions().single()).toList() shouldBe listOf("1")
 
     writer.sneak("2 Plant")
-    val doubled = writer.fillInTask(initiate("-2X Plant! / Heat").single())
+    val doubled = writer.fillInTask(initiate("-2X! Plant / Heat").single())
     doubled.options(doubled.decisions().single()).toList() shouldBe listOf("1")
   }
 
   @Test
   internal fun `an uncapped X remains a lazy choice sequence`() {
-    val id = initiate("X Plant!").single()
+    val id = initiate("X! Plant").single()
     val form = writer.fillInTask(id)
 
     form.options(form.decisions().single()).take(3).toList() shouldBe listOf("1", "2", "3")
     form.choose(form.decisions().single(), "1000000")
-    form.instruction.toString() shouldBe "1000000 Plant<Player1>!"
+    form.instruction.toString() shouldBe "1000000! Plant<Player1>"
   }
 
   @Test
@@ -363,7 +363,7 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `a form can choose a transmutation source before its optional count`() {
     writer.sneak("Plant, Heat")
-    val id = initiate("3 Plant FROM StandardResource?").single()
+    val id = initiate("3? Plant FROM StandardResource").single()
     val form = writer.fillInTask(id)
 
     form.decisions().single().kind shouldBe TARGET
@@ -390,7 +390,7 @@ internal class TaskNarrowingTest {
         )
     val agent = fixture.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
     agent.runOperation("Full")
-    val id = agent.addTasks("Choice.").single()
+    val id = agent.addTasks("Choice*").single()
     val form = agent.fillInTask(id)
 
     form.decisions().single().kind shouldBe TARGET
@@ -501,7 +501,7 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `id-based narrowing of a selected task executes when concrete`() {
-    val taskId = initiate("2 Plant?").single()
+    val taskId = initiate("2? Plant").single()
     writer.selectTask(taskId)
 
     writer.narrowTask("Plant!")
@@ -512,29 +512,29 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `a concrete narrowing executes immediately`() {
-    initiate("2 Plant?")
+    initiate("2? Plant")
 
-    selectAndNarrow("2 Plant?", "Plant!")
+    selectAndNarrow("2? Plant", "Plant!")
     writer.count("Plant") shouldBe 1
     tasks.isEmpty() shouldBe true
   }
 
   @Test
   internal fun `an invalid narrowing fails, atomically`() {
-    initiate("2 Plant?")
+    initiate("2? Plant")
     history().shouldHaveSize(1)
-    shouldThrow<NarrowingException> { selectAndNarrow("2 Plant?", "3 Plant!") }
+    shouldThrow<NarrowingException> { selectAndNarrow("2? Plant", "3! Plant") }
     history().shouldHaveSize(2)
     tasks.extract { it.selected }.shouldContainExactly(true)
   }
 
   @Test
   internal fun `repeated narrowing`() {
-    initiate("3 StandardResource?")
+    initiate("3? StandardResource")
 
-    selectAndNarrow("3 StandardResource?", "2 StandardResource?")
-    selectAndNarrow("2 StandardResource?", "2 Plant?")
-    selectAndNarrow("2 Plant?", "Plant?")
+    selectAndNarrow("3? StandardResource", "2? StandardResource")
+    selectAndNarrow("2? StandardResource", "2? Plant")
+    selectAndNarrow("2? Plant", "Plant?")
     selectAndNarrow("Plant?", "Plant!")
 
     writer.count("Plant") shouldBe 1
@@ -544,7 +544,7 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `narrowing an OR works normally`() {
     initiate("5 Plant OR 4 Heat")
-    tasksAsText().shouldContainExactlyInAnyOrder("5 Plant<Player1>! OR 4 Heat<Player1>!")
+    tasksAsText().shouldContainExactlyInAnyOrder("5! Plant<Player1> OR 4! Heat<Player1>")
 
     selectAndNarrow("5 Plant OR 4 Heat", "5 Plant")
     writer.count("Plant") shouldBe 5
@@ -564,14 +564,14 @@ internal class TaskNarrowingTest {
         TaskAddedEvent::class, // energy
         TaskRemovedEvent::class, // -full one
     )
-    tasksAsText().shouldContainExactlyInAnyOrder("4 Heat<Player1>!", "2 Energy<Player1>!")
+    tasksAsText().shouldContainExactlyInAnyOrder("4! Heat<Player1>", "2! Energy<Player1>")
   }
 
   @Test
   internal fun `an OR with only one live grouped arm starts each grouped task`() {
     initiate("(4 Heat, 2 Energy) OR Die")
 
-    tasksAsText().shouldContainExactlyInAnyOrder("4 Heat<Player1>!", "2 Energy<Player1>!")
+    tasksAsText().shouldContainExactlyInAnyOrder("4! Heat<Player1>", "2! Energy<Player1>")
   }
 
   @Test
@@ -594,7 +594,7 @@ internal class TaskNarrowingTest {
     writer.count("Heat") shouldBe 0
     writer.count("Energy") shouldBe 0
     tasksAsText()
-        .shouldContainExactly("5 Plant<Player1>! OR (4 Heat<Player1>!, 2 Energy<Player1>!)")
+        .shouldContainExactly("5! Plant<Player1> OR (4! Heat<Player1>, 2! Energy<Player1>)")
   }
 
   @Test
@@ -617,7 +617,7 @@ internal class TaskNarrowingTest {
         "4 Heat, 2 Energy",
     )
 
-    tasksAsText().shouldContainExactlyInAnyOrder("4 Heat<Player1>!", "2 Energy<Player1>!")
+    tasksAsText().shouldContainExactlyInAnyOrder("4! Heat<Player1>", "2! Energy<Player1>")
   }
 
   @Test
@@ -666,9 +666,9 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `narrowing to Ok automatically handles the task`() {
-    initiate("2 Plant?")
+    initiate("2? Plant")
 
-    selectAndNarrow("2 Plant?", "Ok")
+    selectAndNarrow("2? Plant", "Ok")
     assertHistoryTypes(
         TaskAddedEvent::class,
         GameEvent.TaskEditedEvent::class,
@@ -679,9 +679,9 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `selection can resolve a limited task to completion`() {
-    initiate("-30 TerraformRating?")
+    initiate("-30? TerraformRating")
 
-    writer.selectTask("-30 TerraformRating?")
+    writer.selectTask("-30? TerraformRating")
 
     writer.count("TerraformRating") shouldBe 0
     tasks.isEmpty() shouldBe true
@@ -719,9 +719,9 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `AMAP saturates only the selected target`() {
     game.testAgent(PLAYER2).runOperation("3 MC")
-    initiate("-5 MC<Player>.")
+    initiate("-5* MC<Player>")
 
-    selectAndNarrow("-5 MC<Player>.", "-5 MC<Player1>.")
+    selectAndNarrow("-5* MC<Player>", "-5* MC<Player1>")
 
     tasks.isEmpty() shouldBe true
     writer.count("MC") shouldBe 0
@@ -731,11 +731,11 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `AMAP gain may select a maxed target while another target has capacity`() {
     writer.autoExecPolicy = AutoExecPolicy.EAGER
-    writer.runOperation("14 OxygenStep!")
+    writer.runOperation("14! OxygenStep")
     writer.autoExecPolicy = NONE
-    initiate("GlobalParameter.")
+    initiate("GlobalParameter*")
 
-    selectAndNarrow("GlobalParameter.", "OxygenStep.")
+    selectAndNarrow("GlobalParameter*", "OxygenStep*")
 
     tasks.isEmpty() shouldBe true
     writer.count("OxygenStep") shouldBe 14
@@ -746,7 +746,7 @@ internal class TaskNarrowingTest {
   internal fun `an omitted selection quantifier preserves a stronger pending quantifier`() {
     initiate("OceanTile<LandArea>!")
 
-    shouldThrow<TaskException> { writer.doTask("OceanTile<Tharsis_2_3>.") }
+    shouldThrow<TaskException> { writer.doTask("OceanTile<Tharsis_2_3>*") }
     writer.doTask("OceanTile<Tharsis_2_3>")
 
     writer.count("OceanTile<Tharsis_2_3>") shouldBe 1
@@ -787,7 +787,7 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `doing a task evaluates a PER narrowing before matching`() {
     writer.runOperation("3 Heat")
-    initiate("X Plant?")
+    initiate("X? Plant")
 
     writer.doTask("Plant / Heat")
 
@@ -829,20 +829,20 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `a lone X does not keep otherwise independent THEN stages together`() {
-    initiate("Plant? THEN X StandardResource?")
+    initiate("Plant? THEN X? StandardResource")
 
     val task = tasks.extract { it }.single()
     task.instruction.toString() shouldBe "Plant<Player1>?"
-    task.then.toString() shouldBe "X StandardResource<Player1>?"
+    task.then.toString() shouldBe "X? StandardResource<Player1>"
   }
 
   @Test
   internal fun `selecting a THEN head carries its X into the continuation`() {
-    initiate("X Plant? THEN X Heat?")
+    initiate("X? Plant THEN X? Heat")
 
     writer.doTask("3 Plant")
 
-    tasksAsText().shouldContainExactly("3 Heat<Player1>?")
+    tasksAsText().shouldContainExactly("3? Heat<Player1>")
   }
 
   @Test
@@ -886,12 +886,12 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `narrowing a variable-sharing THEN to a concrete sequence splits its first stage`() {
-    initiate("X Plant? THEN X Heat?")
+    initiate("X? Plant THEN X? Heat")
 
-    selectAndNarrow("X Plant? THEN X Heat?", "3 Plant THEN 3 Heat")
+    selectAndNarrow("X? Plant THEN X? Heat", "3 Plant THEN 3 Heat")
 
     val task = tasks.extract { it }.single()
-    task.instruction.toString() shouldBe "3 Heat<Player1>!"
+    task.instruction.toString() shouldBe "3! Heat<Player1>"
     task.then shouldBe null
     writer.count("Plant") shouldBe 3
   }
@@ -915,33 +915,33 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `autoexec leaves an AMAP choice that binds a later stage to the player`() {
     game.testAgent(PLAYER2).runOperation("3 MC")
-    initiate("3 MC FROM MC<@Player>. THEN Plant<@Player>")
+    initiate("3* MC FROM MC<@Player> THEN Plant<@Player>")
 
     writer.autoExecNow()
 
-    tasksAsText().shouldContainExactly("3 MC<Player1> FROM MC<Player>. THEN Plant<Player>!")
+    tasksAsText().shouldContainExactly("3* MC<Player1> FROM MC<Player> THEN Plant<Player>!")
     game.testAgent(PLAYER2).count("MC") shouldBe 3
   }
 
   @Test
   internal fun `autoexec does not infer an abstract AMAP actor from the sole existing component`() {
     game.testAgent(PLAYER2).runOperation("3 MC")
-    initiate("3 MC FROM MC<Player>.")
+    initiate("3* MC FROM MC<Player>")
 
     writer.autoExecNow()
 
-    tasksAsText().shouldContainExactly("3 MC<Player1> FROM MC<Player>.")
+    tasksAsText().shouldContainExactly("3* MC<Player1> FROM MC<Player>")
     game.testAgent(PLAYER2).count("MC") shouldBe 3
   }
 
   @Test
   internal fun `selecting a zero-count AMAP actor after autoexec still binds the continuation`() {
     writer.runOperation("3 MC")
-    initiate("3 MC FROM MC<@Player>. THEN Plant<@Player>")
+    initiate("3* MC FROM MC<@Player> THEN Plant<@Player>")
     writer.autoExecNow()
     writer.autoExecPolicy = NONE
 
-    writer.doTask("3 MC FROM MC<Player2>.")
+    writer.doTask("3* MC FROM MC<Player2>")
 
     tasksAsText().shouldContainExactly("Plant<Player2>!")
     writer.count("MC") shouldBe 3
@@ -952,9 +952,9 @@ internal class TaskNarrowingTest {
   internal fun `selecting an AMAP source binds the later stage before resolution`() {
     game.testAgent(PLAYER2).runOperation("3 MC")
     writer.autoExecPolicy = NONE
-    initiate("3 MC FROM MC<@Player>. THEN Plant<@Player>")
+    initiate("3* MC FROM MC<@Player> THEN Plant<@Player>")
 
-    writer.doTask("3 MC FROM MC<Player2>.")
+    writer.doTask("3* MC FROM MC<Player2>")
 
     tasksAsText().shouldContainExactly("Plant<Player2>!")
     writer.count("MC") shouldBe 3

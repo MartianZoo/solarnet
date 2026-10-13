@@ -140,7 +140,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
 
   @Test
   fun `Prelude benefit still disqualifies Pristar after a prevented Action phase gain`() {
-    newProgramGame(Pristar)
+    newProgramGame(Pristar, extraOptions = "Pristar")
     playPreludes()
     kim.turn { stdProject("AsteroidProject") }
     stan.pass()
@@ -152,7 +152,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
 
   @Test
   fun `Pristar receives its production bonus after only a prevented gain`() {
-    newProgramGame(Pristar)
+    newProgramGame(Pristar, extraOptions = "Pristar")
     playPreludes()
     passGeneration()
     stan.pass()
@@ -168,7 +168,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
 
   @Test
   fun `Pristar loses its production bonus after an actual gain`() {
-    newProgramGame(Pristar)
+    newProgramGame(Pristar, extraOptions = "Pristar")
     playPreludes()
     passGeneration()
     stan.pass()
@@ -443,11 +443,9 @@ internal class PreservationProgramTest : TfmGameplayTest() {
   }
 
   private fun startPharmacyGame() {
-    newTestGame(
+    newTestGameBeforeCorporationPlay(
         addOptions = "PreludeExpansion, PreservationProgram",
         playerCount = 2,
-        kimCorporation = PharmacyUnion,
-        startAtCorporation = true,
     )
     kim.playCorp(PharmacyUnion) { repeat(2) { doTask("Disease<$PharmacyUnion>!") } }
     stan.inTurn {

@@ -69,7 +69,7 @@ internal class SafeAutoExecTest {
   internal fun adminRetriesANegativeSystemAmountAfterTheLaterGain() {
     val game = Engine.newGame(testGamePremise("CLASS Point : System"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
-    player.addTasks("-2 Point!, 5 Point!")
+    player.addTasks("-2! Point, 5! Point")
     val before = game.timeline.checkpoint()
 
     player.doTasks()
@@ -96,7 +96,7 @@ internal class SafeAutoExecTest {
             )
         )
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
-    val taskId = player.addTasks("2 Token!").single()
+    val taskId = player.addTasks("2! Token").single()
     val task = game.tasks.getTaskData(taskId)
     val before = game.timeline.checkpoint()
 
@@ -127,6 +127,27 @@ internal class SafeAutoExecTest {
     player.addTasks("Token!")
     player.autoExecNow()
 
+    player.count("Token") shouldBe 1
+    game.tasks.ids().size shouldBe 1
+  }
+
+  @Test
+  internal fun scopedPolicyExecutesWorkWithoutChangingTheConfiguredPolicyInsideTheBlock() {
+    val game = Engine.newGame(testGamePremise("CLASS Token"))
+    val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
+
+    player.addTasks("Token!")
+    player.completeOperation {
+      player.count("Token") shouldBe 0
+      doWithAutoExecPolicy(EAGER) {
+        player.autoExecPolicy shouldBe NONE
+        player.count("Token") shouldBe 1
+      }
+    }
+
+    player.autoExecPolicy shouldBe NONE
+    player.addTasks("Token!")
+    player.autoExecNow()
     player.count("Token") shouldBe 1
     game.tasks.ids().size shouldBe 1
   }

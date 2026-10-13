@@ -9,7 +9,7 @@ import kotlin.test.Test
 internal class UtopiaInvestTest : TfmSandboxTest() {
   @Test
   internal fun `Decreases and gains the same standard resource`() {
-    newTestGame(kimCorporation = UtopiaInvest)
+    newTestGame(addOptions = "UtopiaInvest", kimCorporation = UtopiaInvest)
     kim.setToExMachina(2, "PROD[Plant]")
 
     kim.inTurn {
@@ -19,7 +19,7 @@ internal class UtopiaInvestTest : TfmSandboxTest() {
 
   @Test
   internal fun `Cannot sacrifice plant production to gain a different resource`() {
-    newTestGame(kimCorporation = UtopiaInvest)
+    newTestGame(addOptions = "UtopiaInvest", kimCorporation = UtopiaInvest)
     kim.setToExMachina(2, "PROD[Plant]")
 
     shouldThrow<TaskException> {

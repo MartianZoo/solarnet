@@ -30,10 +30,10 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
 
   @Test
   internal fun `Corporation entry is independent of the cached game with corporations played`() {
-    newTestGame(kimCorporation = Manutech)
-    newTestGame(kimCorporation = Manutech, startAtCorporation = true)
+    newTestGame()
+    newTestGameBeforeCorporationPlay()
 
-    kim.count("$Manutech") shouldBe 0
+    kim.count("BeginnerCorporation1") shouldBe 0
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<Manutech>>",
@@ -41,8 +41,8 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
           "35 MC",
           "PROD[Steel]",
           "Steel",
-          "-30 MC",
-          "10 ProjectCard<Hand FROM Selecting>",
+          "-15 MC",
+          "5 ProjectCard<Hand FROM Selecting>",
       )
     }
     stan.count("BeginnerCorporation2") shouldBe 0
@@ -92,7 +92,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
               "TerraformRating",
               "TerraformRating",
           )
-          selectTask("-6 Plant<Anyone>?")
+          selectTask("-6? Plant<Anyone>")
           doTask("Ok")
           val checkpoint = game.timeline.checkpoint()
           shouldThrow<IllegalStateException> { victoryPoints() }
@@ -136,6 +136,8 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
 
     kim.count("$Manutech") shouldBe 1
     kim.count("BeginnerCorporation") shouldBe 0
+    kim.count("ProjectCard<Hand>") shouldBe 5
+    kim.count("MC") shouldBe 20
     kim.count("PROD[Steel]") shouldBe 2
     kim.count("Steel") shouldBe 1
     stan.count("BeginnerCorporation2") shouldBe 1
@@ -189,7 +191,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     shouldThrow<IllegalStateException> { rob }.message shouldBe "Rob is sitting this game out"
     kim.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTask("TerraformRating")
     }
   }
@@ -197,7 +199,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
   internal class TfmGameplayTestTest : TfmGameplayTest() {
     @Test
     internal fun `Corporation entry lets the players finish setup through the workflow`() {
-      newTestGame(playerCount = 2, kimCorporation = Manutech, startAtCorporation = true)
+      newTestGameBeforeCorporationPlay(playerCount = 2)
 
       kim.count("$Manutech") shouldBe 0
       kim.playCorp(Manutech).expect("Steel")

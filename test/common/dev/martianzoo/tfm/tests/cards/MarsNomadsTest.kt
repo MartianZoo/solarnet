@@ -97,7 +97,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
       stan.inTurn {
         selectOnlyTask()
         doTask("UseStandardProject<GreeneryProject>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-23 MC")
         selectOnlyTask()
         doTask("GreeneryTile<Tharsis_1_1>")
@@ -137,7 +137,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Collects the larger ocean bonus with Lakefront Resorts`() {
-    newTestGame(kimCorporation = LakefrontResorts)
+    newTestGame(addOptions = "LakefrontResorts", kimCorporation = LakefrontResorts)
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_4_6>, OceanTile<Tharsis_4_8>")
 
     kim.inTurn {
@@ -180,7 +180,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Philares)
     kim.inTurn {
       doTasks("RequiredActionsSignal", "GreeneryTile<Tharsis_2_2>")
-      selectTask("OxygenStep.")
+      selectTask("OxygenStep*")
       doTasks("Steel", "TerraformRating")
     }
     stan.exMachina("$MarsNomads, NomadsMarker<Tharsis_2_1>")
@@ -256,7 +256,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("NomadsMarker<Cimmeria_3_3 FROM Cimmeria_3_2>")
         selectTask("CimmeriaPlacementBonus!")
-        selectTask("-5 MC!")
+        selectTask("-5! MC")
         selectOnlyTask()
       }
     }
@@ -288,7 +288,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     shouldThrow<DeadEndException> {
       kim.inTurn {
         doTask("ConvertPlants")
-        selectTask("-X Plant?")
+        selectTask("-X? Plant")
         doTask("-Plant / Owed<Class<Plant>>")
         selectOnlyTask()
         selectOnlyTask()

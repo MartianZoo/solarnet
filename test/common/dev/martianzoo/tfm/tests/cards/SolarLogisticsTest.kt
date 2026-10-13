@@ -14,7 +14,7 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
     // The drawn card replaces the played event in hand.
     kim.inTurn {
           doTasks("PlayProject<Class<ImportedGhg>>", "-5 MC")
-          selectTask("-X Titanium?")
+          selectTask("-X? Titanium")
           doTasks("Ok", "ImportedGhg FROM ProjectCard", "PROD[Heat]", "3 Heat")
           selectTask("ProjectCard<Kim, Hand>!")
         }

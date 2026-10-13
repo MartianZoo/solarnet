@@ -9,11 +9,11 @@ import kotlin.test.Test
 internal class SpireTest : TfmSandboxTest() {
   @Test
   internal fun `Counts event tags toward its two-tag threshold`() {
-    newTestGame(kimCorporation = Spire)
+    newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectOnlyTask()
-          selectTask("-3 ProjectCard<Kim, Hand>!")
+          selectTask("-3! ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
 
@@ -23,9 +23,9 @@ internal class SpireTest : TfmSandboxTest() {
               "-7 MC",
               "BusinessContacts FROM ProjectCard",
           )
-          selectTask("4 ProjectCard<Kim, Selecting>!")
-          selectTask("2 ProjectCard<Kim, Hand FROM Selecting>!")
-          selectTask("-2 ProjectCard<Kim, Selecting>!")
+          selectTask("4! ProjectCard<Kim, Selecting>")
+          selectTask("2! ProjectCard<Kim, Hand FROM Selecting>")
+          selectTask("-2! ProjectCard<Kim, Selecting>")
           selectOnlyTask()
         }
         .expect("Science<$Spire>")
@@ -42,17 +42,17 @@ internal class SpireTest : TfmSandboxTest() {
 
   @Test
   internal fun `Repeated science tags earn a single resource`() {
-    newTestGame(kimCorporation = Spire)
+    newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectOnlyTask()
-          selectTask("-3 ProjectCard<Kim, Hand>!")
+          selectTask("-3! ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
 
     kim.inTurn {
           doTasks("PlayProject<Class<Research>>", "-11 MC", "Research FROM ProjectCard")
-          selectTask("2 ProjectCard<Kim, Hand>!")
+          selectTask("2! ProjectCard<Kim, Hand>")
           selectOnlyTask()
         }
         .expect("Science<$Spire>")
@@ -60,11 +60,11 @@ internal class SpireTest : TfmSandboxTest() {
 
   @Test
   internal fun `Science pays two MC toward a standard project`() {
-    newTestGame(kimCorporation = Spire)
+    newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectOnlyTask()
-          selectTask("-3 ProjectCard<Kim, Hand>!")
+          selectTask("-3! ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
 
@@ -81,11 +81,11 @@ internal class SpireTest : TfmSandboxTest() {
 
   @Test
   internal fun `Science cannot pay for project cards`() {
-    newTestGame(kimCorporation = Spire)
+    newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectOnlyTask()
-          selectTask("-3 ProjectCard<Kim, Hand>!")
+          selectTask("-3! ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
 
@@ -99,15 +99,15 @@ internal class SpireTest : TfmSandboxTest() {
 
   @Test
   internal fun `Selling patents does not offer science for the following project payment`() {
-    newTestGame(kimCorporation = Spire)
+    newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectOnlyTask()
-          selectTask("-3 ProjectCard<Kim, Hand>!")
+          selectTask("-3! ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
     kim.inTurn {
-      doTasks("UseStandardProject<SellPatentsProject>", "1 MC FROM ProjectCard!")
+      doTasks("UseStandardProject<SellPatentsProject>", "1! MC FROM ProjectCard")
     }
 
     shouldThrow<TaskException> {

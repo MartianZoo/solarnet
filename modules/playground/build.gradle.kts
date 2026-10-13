@@ -12,8 +12,6 @@ plugins {
 
 val sourceDirectory =
     rootProject.layout.projectDirectory.dir("src/wasmJs/dev/martianzoo/tfm/web/playground")
-val viewerSourceDirectory =
-    rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/web/viewer")
 val localDirectory = rootProject.layout.projectDirectory.dir("_local")
 val replayEventLogsDirectory =
     project(":tfm-tests").layout.buildDirectory.dir("generated/replay-event-logs")
@@ -29,7 +27,6 @@ kotlin {
     wasmJsMain {
       // Adds rather than replaces: Compose generates resource accessors into this source set.
       kotlin.srcDir(sourceDirectory)
-      kotlin.srcDir(viewerSourceDirectory)
       dependencies {
         implementation(project(":catalog"))
         implementation(project(":pets"))
@@ -55,7 +52,8 @@ val bundleResources =
       dependsOn(":tfm-tests:jvmTest")
       from(layout.projectDirectory.dir("resources")) { exclude("files/specimen.json") }
       from(replayEventLogsDirectory) {
-        include("*.json", "*.txt")
+        include("*.json")
+        exclude("*.short.json")
         into("files/games")
       }
       from(localDirectory.dir("images")) {

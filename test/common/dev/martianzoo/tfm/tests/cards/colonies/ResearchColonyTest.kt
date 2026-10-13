@@ -16,9 +16,9 @@ internal class ResearchColonyTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<ResearchColony>>", "-20 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks("Ok", "ResearchColony FROM ProjectCard")
-      selectTask("2 ProjectCard<Kim, Hand>!")
+      selectTask("2! ProjectCard<Kim, Hand>")
       selectTask("Colony<Kim, ColonyTile>!")
       doTasks("Colony<Luna>", "PROD[2 MC]")
     }

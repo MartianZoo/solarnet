@@ -338,26 +338,22 @@ The goal-text goals may cover a selected proving corpus; the goal current snapsh
 concrete goal. Current refusals are recorded mechanically in the generated `*-refusals.tsv`; do not
 restate them here.
 
-Global Event resolution text is rendered from the lower-half `GlobalEffect` declarations in each
-player's context by the Turmoil vocabulary's `renderGlobalEffect.kt`, which selects the resolution
-effects and preserves conditional,
-first-player, and Admin attribution. Effect bodies use the shared instruction renderer. The shared
-`EnglishTextCurrentGenerator` writes goal and Global Event snapshots and refusal reports; event
-names and order follow the published evidence, while effect wording derives only from Pets.
+Global Event resolution rendering is paused after its lower-half `GlobalEffect` declarations moved
+to player-owned signals. The published wording evidence remains available for a later renderer.
+`EnglishGoalTextCurrentGenerator` writes goal snapshots and refusal reports.
 
 The category reports in [`docs/english-wording-comparisons/`](../english-wording-comparisons/README.md)
 compare the published evidence with live renderer output and serialized authored Pets declarations.
 Regenerate them with `./gradlew :tfm-text:writeEnglishTextComparisons`. They enumerate every canonical
-card and concrete goal/event, plus evidence-backed replay card models and replay-only goals; missing
-printed transcriptions and replay provenance remain explicit. No saved current-text snapshot is used
-as input to these reports.
+card and concrete goal, plus evidence-backed replay card models and replay-only goals; missing
+printed transcriptions and replay provenance remain explicit. These reports currently cover cards
+and goals; no saved current-text snapshot is used as input.
 
 After an intentional output change, run:
 
 ```text
 ./gradlew :tfm-text:writeEnglishCardTextCurrent
 ./gradlew :tfm-text:writeEnglishGoalTextCurrent
-./gradlew :tfm-text:writeEnglishGlobalEventTextCurrent
 ./gradlew :tfm-text:test
 ```
 

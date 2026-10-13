@@ -19,7 +19,7 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("UseStandardProject<PowerPlantProject>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-11 MC")
       }
     }
@@ -48,26 +48,26 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
 
   @Test
   internal fun `Receives a rebate when Spire pays with science after temperature is complete`() {
-    newTestGame(kimCorporation = Spire)
+    newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
       doTask("RequiredActionsSignal")
       selectOnlyTask()
-      selectTask("-3 ProjectCard<Kim, Hand>!")
+      selectTask("-3! ProjectCard<Kim, Hand>")
     }
     kim.exMachina("$StandardTechnology")
     kim.setToExMachina(7, "Science<$Spire>")
     stan.setToExMachina(18, "TemperatureStep")
     stan.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTask("TerraformRating")
     }
 
     kim.inTurn {
           doTasks("UseStandardProject<AsteroidProject>", "-7 Science<Spire>")
-          selectTask("TemperatureStep.")
+          selectTask("TemperatureStep*")
           doTask("3 MC")
-          selectTask("-X MC?")
+          selectTask("-X? MC")
           doTask("Ok")
         }
         .expect("0 TemperatureStep, 0 TerraformRating")

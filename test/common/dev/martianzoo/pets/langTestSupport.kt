@@ -72,7 +72,7 @@ private const val LANG_DECLARATIONS: String =
 
     "Classes whose gain and removal quantifier defaults differ"
     CLASS Chit : Owned { DEFAULT +Chit? }
-    CLASS Slug : Owned { DEFAULT -Slug. }
+    CLASS Slug : Owned { DEFAULT -Slug* }
 
     "A card, and a resource whose owner is forced to be its card's owner (T3-8)"
     ABSTRACT CLASS CardFront : Owned { CLASS Ants }

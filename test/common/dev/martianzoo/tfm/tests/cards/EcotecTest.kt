@@ -7,8 +7,7 @@ import kotlin.test.Test
 internal class EcotecTest : TfmSandboxTest() {
   @Test
   internal fun `Rewards both of its own starting tags`() {
-    newTestGame(kimCorporation = Ecotec, startAtCorporation = true)
-
+    newTestGameBeforeCorporationPlay(addOptions = "Ecotec")
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<Ecotec>>",
@@ -17,8 +16,8 @@ internal class EcotecTest : TfmSandboxTest() {
           "PROD[Plant]",
           "Plant",
           "Plant",
-          "-30 MC",
-          "10 ProjectCard<Hand FROM Selecting>",
+          "-15 MC",
+          "5 ProjectCard<Hand FROM Selecting>",
       )
     }
   }

@@ -1,26 +1,19 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agent.Agents
-import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agent.TaskLog
+import dev.martianzoo.agent.GameFileImporter
 import dev.martianzoo.agent.exMachina
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
-import dev.martianzoo.engine.World
 import dev.martianzoo.engine.recording
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.state.Actor
-import dev.martianzoo.state.ComponentChange
-import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.GameFileJson
 import dev.martianzoo.state.GameRecording
 import dev.martianzoo.state.Player
-import dev.martianzoo.state.Task
-import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
@@ -49,45 +42,26 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   protected open val requireExplicitPaymentChoices: Boolean = true
   internal open val producesReplayRecording: Boolean = true
 
-  internal fun completedTaskLogText(): String = agents.taskLog.text()
-
-  internal fun verifyTaskRoundTrip() {
-    val imported = TfmEngine.newGame(gamePremise)
-    val importedAgents = Agents(imported)
-    imported.actors.filterIsInstance<Player>().forEach { importedAgents[it].autoExecPolicy = NONE }
-    TfmWorkflow.Automatic(importedAgents).launch()
-    TaskLog.replay(completedTaskLogText(), importedAgents)
+  internal suspend fun verifyGameFileRoundTrip() {
+    val document = GameFileJson.parse(checkNotNull(completedGameFileJson()))
+    val importedAgents =
+        GameFileImporter.replay(
+            document,
+            catalog,
+            newAgents = { Agents(TfmEngine.newGame(it)) },
+            startWorkflow = { agents, workflow ->
+              require(workflow == "tfm-automatic")
+              TfmWorkflow.Automatic(agents).launch()
+            },
+        )
     importedAgents[p1.actor].list("Component").entries shouldBe p1.list("Component").entries
-
-    fun causeHistory(
-        world: World,
-        cause: Cause?,
-    ): List<Triple<Expression, Actor, ComponentChange>> {
-      if (cause == null) return emptyList()
-      val trigger = checkNotNull(world.events.changeAt(cause.triggerEvent))
-      return listOf(Triple(cause.context, trigger.actor, trigger.change)) +
-          causeHistory(world, trigger.cause)
-    }
-
-    fun pending(
-        world: World
-    ): Map<Pair<Task, List<Triple<Expression, Actor, ComponentChange>>>, Int> =
-        world.tasks
-            .extract {
-              it.copy(id = TaskId(0), cause = null) to causeHistory(world, it.cause)
-            }
-            .groupingBy { it }
-            .eachCount()
-
-    pending(imported) shouldBe pending(game)
-    imported.isIdle() shouldBe game.isIdle()
   }
 
   /** Pets declarations for concrete Players with sourced per-seat setup rules. */
   protected open val playerClassPets: String = ""
   protected open val catalog: TfmCatalog by lazy { canonicalCatalog(config) }
 
-  internal fun completedRecordingJson(): String? {
+  internal suspend fun completedGameFileJson(short: Boolean = false): String? {
     if (game.events.entriesSinceSetup().isEmpty()) return null
     val completed = game.recording()
     val positions =
@@ -97,7 +71,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
             .distinct()
             .sortedBy { it.ordinal }
     val recording = GameRecording(completed.premise, completed.events, positions)
-    return dev.martianzoo.state.GameRecordingJson.encode(recording, config)
+    return GameFileJson.encode(recording, agents.taskLog.inputs(), short)
   }
 
   @BeforeTest

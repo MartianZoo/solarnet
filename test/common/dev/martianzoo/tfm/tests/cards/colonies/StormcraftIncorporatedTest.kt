@@ -13,7 +13,7 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTask("UseCardAction<StormcraftIncorporated, Action1>")
-      selectTask("Floater.")
+      selectTask("Floater*")
       doTask("Floater<TitanShuttles>")
     }
   }
@@ -25,7 +25,7 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("ConvertHeat", "-Floater<StormcraftIncorporated>", "-6 Heat")
-          selectTask("MAX 0 Billing: TemperatureStep.")
+          selectTask("MAX 0 Billing: TemperatureStep*")
           doTask("TerraformRating")
         }
         .expect("-Floater<$StormcraftIncorporated>, -6 Heat, TemperatureStep")
@@ -44,7 +44,7 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
               "4 Plant",
           )
           selectTask(
-              "(-Floater<StormcraftIncorporated>! THEN 2 Heat!) OR (-2 Floater<StormcraftIncorporated>! THEN 4 Heat!) OR (-3 Floater<StormcraftIncorporated>! THEN 5 Heat!) OR Ok"
+              "(-Floater<StormcraftIncorporated>! THEN 2! Heat) OR (-2! Floater<StormcraftIncorporated> THEN 4! Heat) OR (-3! Floater<StormcraftIncorporated> THEN 5! Heat) OR Ok"
           )
           doTask("Ok")
         }
@@ -64,7 +64,7 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
               "4 Plant",
           )
           selectTask(
-              "(-Floater<StormcraftIncorporated>! THEN 2 Heat!) OR (-2 Floater<StormcraftIncorporated>! THEN 4 Heat!) OR (-3 Floater<StormcraftIncorporated>! THEN 5 Heat!) OR Ok"
+              "(-Floater<StormcraftIncorporated>! THEN 2! Heat) OR (-2! Floater<StormcraftIncorporated> THEN 4! Heat) OR (-3! Floater<StormcraftIncorporated> THEN 5! Heat) OR Ok"
           )
           doTasks("-2 Floater THEN 4 Heat", "4 Heat")
         }
@@ -107,9 +107,9 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("ConvertHeat", "-4 Floater<StormcraftIncorporated>")
-          selectTask("MAX 0 Billing: TemperatureStep.")
+          selectTask("MAX 0 Billing: TemperatureStep*")
           doTask("TerraformRating")
-          selectTask("-X Heat?")
+          selectTask("-X? Heat")
           doTask("Ok")
         }
         .expect("TemperatureStep, 0 Heat")

@@ -432,15 +432,15 @@ internal fun TurmoilTab() {
   }
 }
 
-/** The recording's original GameConfig and resolved GamePremise selections. */
+/** The game file's resolved GameConfig and GamePremise selections. */
 @Composable
 internal fun ConfigTab(config: GameConfig?, premise: GamePremise?) {
   val palette = LocalPalette.current
   TabColumn {
-    SectionLabel("GAME CONFIG")
+    SectionLabel("FILE CONFIG · RESOLVED")
     if (premise == null) return@TabColumn
     if (config == null) {
-      Text("Original config is absent from this recording.", style = palette.body)
+      Text("Game-file config is absent from this recording.", style = palette.body)
     } else {
       Text(
           listOf(config.playerNames.joinToString(), config.toString())

@@ -31,6 +31,8 @@ internal class GamePremiseBuilderTest {
 
     val group = catalog.gamePremise(GameConfig("", "Blue", "Red"))
     group.modules shouldBe setOf(cn("GroupRules"), cn("ExtraRules"))
+    group.classSelections shouldBe
+        setOf(ClassSelection(cn("GroupRules")), ClassSelection(cn("ExtraRules")))
     group.classTable.isInhabited(cn("OptionalPiece")) shouldBe true
     assertSame(
         catalog.classTable.getClass(cn("GroupRules")),
@@ -41,7 +43,9 @@ internal class GamePremiseBuilderTest {
     val excluded = catalog.gamePremise(GameConfig("-ExtraRules", "Blue", "Red"))
     excluded.modules shouldBe setOf(cn("GroupRules"))
     excluded.classTable.isInhabited(cn("OptionalPiece")) shouldBe false
-    catalog.gamePremise(GameConfig("", "Blue")).modules shouldBe emptySet()
+    val alone = catalog.gamePremise(GameConfig("", "Blue"))
+    alone.modules shouldBe emptySet()
+    alone.classSelections shouldBe emptySet()
   }
 
   @Test

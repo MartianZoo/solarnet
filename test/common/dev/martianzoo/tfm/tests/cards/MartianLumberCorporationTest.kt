@@ -15,7 +15,7 @@ internal class MartianLumberCorporationTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<Mine>>", "-1 MC", "-Plant", "Mine FROM ProjectCard", "PROD[Steel]")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTask("Ok")
     }
   }

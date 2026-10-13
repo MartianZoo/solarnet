@@ -1,44 +1,46 @@
 package dev.martianzoo.agent
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameEvent
 import dev.martianzoo.state.Player
+import dev.martianzoo.state.RecordedInput
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 
 /**
- * Opt-in task text for engine reconstruction, retaining submitted instruction syntax.
+ * Opt-in Actor-input capture for engine reconstruction, retaining submitted instruction syntax.
  *
  * Captures task submissions, selections, form commits, successful tries, drops, [exMachina], and
- * policy-executed Player tasks. Ordinary lines use `Actor: instruction` for [Agent.doTasks]; `DO`
- * preserves [Agent.doTask] single-task execution, and `CHOOSE` preserves selection or form
- * narrowing that may leave child tasks pending. `DROP` and `EX MACHINA` retain explicit
- * interventions. Failed, no-op, and rolled-back submissions are omitted. Later form commits replace
- * earlier form narrowings of that task when those earlier steps only edited its instruction.
- * Selection steps remain because later narrowing may require the selected Actor. Intermediate event
- * history is not preserved.
+ * policy-executed tasks for every Actor. [RecordedInput.Command.kind] preserves distinct Agent
+ * operations, including task selection, single-task execution, and corrections. Failed, no-op, and
+ * rolled-back submissions are omitted. Later form commits replace earlier form narrowings of that
+ * task when those earlier steps only edited its instruction. Selection steps remain because later
+ * narrowing may require the selected Actor. Intermediate event history is not preserved.
  *
- * Reconstruction uses the same premise, implementation and workflow, with Player autoexecution
- * disabled and Admin remaining aggressive. Routine Admin work is omitted; explicit Admin choices
- * are retained. The text does not contain the premise, injected operations, `sneak` corrections, or
- * external card-name annotations. Task ids and context-only disambiguation are not serialized;
- * imports fail when the instruction cannot identify equivalent pending work.
+ * Reconstruction uses the same premise and implementation, with every Actor's autoexecution
+ * disabled. Workflow start is recorded explicitly. Task selectors retain causal context instead of
+ * source event ordinals. External card identities are carried by [RecordedInput.Command], but their
+ * Agent-side capture awaits integration with CardTracking.
  */
 public class TaskLog internal constructor(private val world: World) {
   private class Submission(
       val actor: Actor,
-      val line: String,
+      val kind: RecordedInput.Kind,
+      val instruction: String,
+      val taskSelector: RecordedInput.TaskSelector?,
       val formTask: TaskId?,
       val automatic: Boolean = false,
       var anchor: GameEvent? = null,
       var onlyNarrows: Boolean = false,
       var selectsTask: Boolean = false,
-      val correction: Boolean = false,
   )
 
   private var recording = false
+  private var workflowName: String? = null
   private val submissions = mutableListOf<Submission>()
 
   /** Starts retaining subsequent submissions. Call before starting the recorded gameplay. */
@@ -47,46 +49,66 @@ public class TaskLog internal constructor(private val world: World) {
     recording = true
   }
 
-  /** Exports surviving submissions in order, with a trailing newline when nonempty. */
-  public fun text(): String {
-    val surviving = survivingSubmissions()
+  /** Records the workflow whose launch precedes every submitted game task. */
+  public fun workflowStarted(name: String) {
+    if (!recording) return
+    require(name.isNotBlank())
+    check(workflowName == null) { "workflow already recorded" }
+    workflowName = name
+  }
+
+  /** Structured inputs for the shared game file, with rolled-back submissions removed. */
+  public fun inputs(): List<RecordedInput> {
+    val workflow = requireNotNull(workflowName) { "workflow start was not recorded" }
+    return listOf(RecordedInput.StartWorkflow(workflow)) +
+        survivingSubmissions().map { item ->
+          RecordedInput.Command(
+              item.actor,
+              item.kind,
+              item.instruction,
+              taskSelector = item.taskSelector,
+          )
+        }
+  }
+
+  private fun survivingSubmissions(): List<Submission> {
+    val events = world.events.entriesSince(Checkpoint(0))
+    val surviving = submissions.filter { item ->
+      item.anchor?.let { events.getOrNull(it.ordinal) === it } == true
+    }
     val lastFormCommit = surviving.filter { it.formTask != null }.associateBy { it.formTask }
-    return surviving
-        .filter { !it.onlyNarrows || lastFormCommit[it.formTask] === it }
-        .joinToString("") { "${it.line}\n" }
+    return surviving.filter { !it.onlyNarrows || lastFormCommit[it.formTask] === it }
   }
 
   /** Positions before surviving explicit Player task selections and replay corrections. */
   public fun selectionCheckpoints(): List<Checkpoint> =
       survivingSubmissions()
-          .filter { it.correction || (it.actor is Player && !it.automatic && it.selectsTask) }
+          .filter {
+            it.kind == RecordedInput.Kind.EX_MACHINA ||
+                (it.actor is Player && !it.automatic && it.selectsTask)
+          }
           .map { Checkpoint(checkNotNull(it.anchor).ordinal) }
           .distinct()
-
-  private fun survivingSubmissions(): List<Submission> {
-    val events = world.events.entriesSince(Checkpoint(0))
-    return submissions.filter { item ->
-      item.anchor?.let { events.getOrNull(it.ordinal) === it } == true
-    }
-  }
 
   internal fun <T> capture(
       actor: Actor,
       instruction: String,
       formTask: TaskId? = null,
+      kind: RecordedInput.Kind = RecordedInput.Kind.DO_TASKS,
+      taskId: TaskId? = null,
       automatic: Boolean = false,
       block: () -> T,
   ): T {
     if (!recording) return block()
-    require('\n' !in instruction && '\r' !in instruction) { "task text must fit on a line" }
     val checkpoint = world.timeline.checkpoint()
     val submission =
         Submission(
             actor,
-            "$actor: $instruction",
+            kind,
+            instruction,
+            taskId?.let { taskSelectorFor(actor, it) },
             formTask,
             automatic = automatic,
-            correction = instruction.startsWith("EX MACHINA "),
         )
     submissions += submission
     return try {
@@ -96,8 +118,7 @@ public class TaskLog internal constructor(private val world: World) {
         submission.selectsTask = events.any { event ->
           when (event) {
             is GameEvent.TaskEditedEvent -> !event.oldTask.selected && event.task.selected
-            is GameEvent.TaskRemovedEvent ->
-                !event.task.selected && !instruction.startsWith("DROP ")
+            is GameEvent.TaskRemovedEvent -> !event.task.selected && kind != RecordedInput.Kind.DROP
             else -> false
           }
         }
@@ -118,37 +139,98 @@ public class TaskLog internal constructor(private val world: World) {
     }
   }
 
+  private fun taskSelectorFor(
+      actor: Actor,
+      taskId: TaskId,
+  ): RecordedInput.TaskSelector {
+    val taskInstruction = world.tasks.getTaskData(taskId).instruction.toString()
+    val matches =
+        world.tasks
+            .extract { it }
+            .filter {
+              it.assignee == actor && it.instruction.toString() == taskInstruction
+            }
+    val target = matches.single { it.id == taskId }
+    val cause = causeSteps(world, target)
+    val peers = matches.filter { causeSteps(world, it) == cause }
+    return RecordedInput.TaskSelector(taskInstruction, cause, peers.indexOf(target))
+  }
+
   public companion object {
     /**
-     * Applies nonblank lines to their named Actors. The caller first reconstructs the premise,
-     * disables Player autoexecution, leaves Admin aggressive, and starts the normal workflow.
-     * Selection matches and narrows pending tasks through [Agent.selectTask]; it does not try
-     * alternative executions or backtrack. Source task ids and recorded consequences are unused. An
-     * invalid, ambiguous, or failed command stops import with its line number; preceding successful
-     * lines remain applied.
+     * Replays the shared file's inputs with every Actor policy disabled. [startWorkflow] launches
+     * the named workflow; [supplyCardInputs] runs before a command that needs supplied card names.
+     * A failed command stops replay and leaves earlier successful commands applied.
      */
-    public fun replay(text: String, agents: Agents) {
-      val actors = agents.world.actors.associateBy { it.toString() }
-      text.lineSequence().forEachIndexed { index, line ->
-        if (line.isBlank()) return@forEachIndexed
+    public fun replay(
+        inputs: List<RecordedInput>,
+        agents: Agents,
+        startWorkflow: (String) -> Unit,
+        supplyCardInputs: ((RecordedInput.Command) -> Unit)? = null,
+    ) {
+      val start =
+          inputs.firstOrNull() as? RecordedInput.StartWorkflow
+              ?: throw IllegalArgumentException("game inputs must start the workflow")
+      require(inputs.drop(1).none { it is RecordedInput.StartWorkflow })
+      agents.world.actors.forEach { agents[it].autoExecPolicy = NONE }
+      startWorkflow(start.name)
+      inputs.drop(1).forEachIndexed { index, input ->
+        val command = input as RecordedInput.Command
         try {
-          val colon = line.indexOf(": ")
-          require(colon > 0) { "expected Actor: instruction" }
-          val agent = agents[requireNotNull(actors[line.substring(0, colon)]) { "unknown Actor" }]
-          val instruction = line.substring(colon + 2)
-          when {
-            instruction.startsWith("DO ") -> agent.doTask(instruction.removePrefix("DO "))
-            instruction.startsWith("CHOOSE ") -> choose(agent, instruction.removePrefix("CHOOSE "))
-            instruction.startsWith("EX MACHINA ") ->
-                agents.exMachina(agent.actor, instruction.removePrefix("EX MACHINA "))
-            instruction.startsWith("DROP ") ->
-                agent.dropTask(
-                    requireNotNull(matchingTask(agent, instruction.removePrefix("DROP "))).id
+          if (command.cardInputs.isNotEmpty()) {
+            requireNotNull(supplyCardInputs) { "card identities have no input supplier" }(command)
+          }
+          val agent = agents[command.actor]
+          val target =
+              command.taskSelector?.let { selector ->
+                val candidates =
+                    agent.tasks
+                        .extract { it }
+                        .filter { task ->
+                          task.instruction.toString() == selector.instruction
+                        }
+                val peers = candidates.filter { causeSteps(agents.world, it) == selector.cause }
+                (peers.getOrNull(selector.occurrence) ?: candidates.singleOrNull())
+                    ?: error("recorded task is absent: ${command.instruction}")
+              }
+          when (command.kind) {
+            RecordedInput.Kind.DO_TASKS -> agent.doTasks(command.instruction)
+            RecordedInput.Kind.DO_TASK ->
+                if (target == null) agent.doTask(command.instruction)
+                else agent.doTask(command.instruction, target.id)
+            RecordedInput.Kind.DO_TASK_ID ->
+                agent.doTask(
+                    (target ?: requireNotNull(matchingTask(agent, command.instruction))).id
                 )
-            else -> agent.doTasks(instruction)
+            RecordedInput.Kind.TRY_TASK ->
+                if (target == null) agent.tryTask(command.instruction)
+                else agent.tryTask(command.instruction, target.id)
+            RecordedInput.Kind.TRY_TASK_ID ->
+                agent.tryTask(
+                    (target ?: requireNotNull(matchingTask(agent, command.instruction))).id
+                )
+            RecordedInput.Kind.CHOOSE ->
+                if (target == null) choose(agent, command.instruction)
+                else if (target.instruction.toString() == command.instruction)
+                    agent.selectTask(target.id)
+                else
+                    agent.selectTask(
+                        target.copy(
+                            instruction =
+                                agent.parseAs(Instruction::class, command.instruction)
+                                    as Instruction
+                        )
+                    )
+            RecordedInput.Kind.TRY_SELECTED ->
+                agent.tryTask(checkNotNull(agent.tasks.selectedTask()) { "no selected task" })
+            RecordedInput.Kind.DROP ->
+                agent.dropTask(
+                    (target ?: requireNotNull(matchingTask(agent, command.instruction))).id
+                )
+            RecordedInput.Kind.EX_MACHINA -> agents.exMachina(command.actor, command.instruction)
           }
         } catch (e: Exception) {
-          throw IllegalArgumentException("cannot import task line ${index + 1}: $line", e)
+          throw IllegalArgumentException("cannot replay game input ${index + 2}: $input", e)
         }
       }
     }
@@ -168,4 +250,16 @@ public class TaskLog internal constructor(private val world: World) {
       return first
     }
   }
+}
+
+private fun causeSteps(world: World, task: Task): List<RecordedInput.CauseStep> {
+  val cause = task.cause ?: return emptyList()
+  val trigger = checkNotNull(world.events.changeAt(cause.triggerEvent))
+  return listOf(
+      RecordedInput.CauseStep(
+          cause.context.toString(),
+          trigger.actor.className.toString(),
+          trigger.change.toString(),
+      )
+  ) + causeSteps(world, task.copy(cause = trigger.cause))
 }

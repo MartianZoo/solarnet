@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -31,13 +32,32 @@ internal abstract class TfmGameplayTest : TfmTest() {
       addOptions: String = "",
       playerCount: Int = 3,
       kimCorporation: ClassName? = null,
-      startAtCorporation: Boolean = false,
+  ) = prepareTestGame(addOptions, playerCount, kimCorporation, playCorporations = true)
+
+  /** Prepares Kim to choose and play a corporation explicitly. */
+  protected fun newTestGameBeforeCorporationPlay(
+      addOptions: String = "",
+      playerCount: Int = 3,
+  ) = prepareTestGame(addOptions, playerCount, null, playCorporations = false)
+
+  private fun prepareTestGame(
+      addOptions: String,
+      playerCount: Int,
+      kimCorporation: ClassName?,
+      playCorporations: Boolean,
   ) {
     shutdownWorkflow()
-    createWorld(addOptions, playerCount, kimCorporation)
+    createWorld(addOptions, playerCount)
     workflow = TfmWorkflow.Automatic(agents).launch()
-    chooseStartingCards(kimCorporation)
-    if (!startAtCorporation) playStartingCorporations(kimCorporation)
+    if (
+        playerCount == 1 &&
+            GameConfig(addOptions).includedClassNames.none { it in Canon.colonyTileClassNames } &&
+            admin.count("SoloColoniesSetup") == 1
+    ) {
+      kim.doTask("-SelectedColonyTile<Class<Callisto>>")
+    }
+    chooseStartingCards(kimCorporation, playCorporations)
+    if (playCorporations) playStartingCorporations(kimCorporation)
   }
 
   @AfterTest
@@ -46,25 +66,13 @@ internal abstract class TfmGameplayTest : TfmTest() {
     workflow = null
   }
 
-  private fun createWorld(addOptions: String, playerCount: Int, kimCorporation: ClassName?) {
+  private fun createWorld(addOptions: String, playerCount: Int) {
     require(playerCount in 1..PLAYER_NAMES.size) {
       "The fixture supports one to ${PLAYER_NAMES.size} players: $playerCount"
     }
-    val options =
-        GameConfig(
-            listOf(addOptions, kimCorporation?.toString().orEmpty()).joinToString(),
-            *PLAYER_NAMES.take(playerCount).toTypedArray(),
-        )
+    val options = GameConfig(addOptions, *PLAYER_NAMES.take(playerCount).toTypedArray())
     val defaults = GameConfig(BASE_GAME_OPTIONS)
-    val config =
-        options.copy(
-            includedClassNames =
-                (defaults.includedClassNames + options.includedClassNames) -
-                    options.excludedClassNames,
-            includedCardBundles =
-                (defaults.includedCardBundles + options.includedCardBundles) -
-                    options.excludedCardBundles,
-        )
+    val config = fixtureConfig(options, defaults)
     game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
     bindPlayers()
   }
@@ -73,14 +81,15 @@ internal abstract class TfmGameplayTest : TfmTest() {
     players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
   }
 
-  private fun chooseStartingCards(kimCorporation: ClassName?) {
+  private fun chooseStartingCards(kimCorporation: ClassName?, playCorporations: Boolean) {
     players.forEachIndexed { index, player ->
       player.selectTask("BeginnerMode OR NonBeginnerMode")
       player.narrowTask(
-          if (index == 0 && kimCorporation != null) "NonBeginnerMode" else "BeginnerMode"
+          if (index == 0 && (kimCorporation != null || !playCorporations)) "NonBeginnerMode"
+          else "BeginnerMode"
       )
     }
-    if (kimCorporation != null) kim.keepStartingProjects(10)
+    if (kimCorporation != null || !playCorporations) kim.keepStartingProjects(5)
     revealTurmoilSetupEvents(game)
     if (players.size == 1) {
       val placements =

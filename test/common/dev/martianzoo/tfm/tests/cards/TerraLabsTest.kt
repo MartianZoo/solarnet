@@ -7,7 +7,11 @@ import kotlin.test.Test
 internal class TerraLabsTest : TfmGameplayTest() {
   @Test
   internal fun `Buys all four research cards for four MC`() {
-    newTestGame(playerCount = 2, kimCorporation = TerraLabsResearch)
+    newTestGame(
+        addOptions = "TerraLabsResearch",
+        playerCount = 2,
+        kimCorporation = TerraLabsResearch,
+    )
     kim.pass()
     stan.pass()
     kim.wgt("VenusStep")
@@ -18,7 +22,7 @@ internal class TerraLabsTest : TfmGameplayTest() {
   @Test
   internal fun `Acquiring Polyphemos cancels the card-purchase discount`() {
     newTestGame(
-        addOptions = "PreludeExpansion",
+        addOptions = "PreludeExpansion, TerraLabsResearch",
         playerCount = 2,
         kimCorporation = TerraLabsResearch,
     )

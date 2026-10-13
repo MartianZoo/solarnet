@@ -20,7 +20,7 @@ internal class ComponentGraphIndexTest {
     val componentCount = agent.count("Component")
     val checkpoint = game.timeline.checkpoint()
 
-    agent.runOperation("3 BothBranches!")
+    agent.runOperation("3! BothBranches")
 
     agent.count("LeftBranch") shouldBe 3
     agent.count("RightBranch") shouldBe 3

@@ -219,7 +219,8 @@ internal class EndgameRulesTest : TfmGameplayTest() {
   }
 
   private fun prepareSoloEconomy(options: String, secondPrelude: ClassName = AlliedBank) {
-    newTestGame(addOptions = "PreludeExpansion, -WorldGovernmentRule, $options", playerCount = 1)
+    val worldGovernment = if ("-VenusNextExpansion" in options) "" else "-WorldGovernmentRule, "
+    newTestGame(addOptions = "PreludeExpansion, $worldGovernment$options", playerCount = 1)
     kim.turn {
       playPrelude(BusinessEmpire)
       playPrelude(secondPrelude)

@@ -72,9 +72,9 @@ internal class PhantomTypeTest {
     val agent = agent()
 
     agent.runOperation("VenusTag?")
-    agent.runOperation("VenusTag.")
+    agent.runOperation("VenusTag*")
     agent.runOperation("-VenusTag?")
-    agent.runOperation("-VenusTag.")
+    agent.runOperation("-VenusTag*")
     shouldThrow<DeadEndException> { agent.runOperation("VenusTag!") }
     shouldThrow<DeadEndException> { agent.runOperation("-VenusTag!") }
     agent.count("VenusTag") shouldBe 0
@@ -178,7 +178,7 @@ internal class PhantomTypeTest {
                       CLASS PhantomEffectProbe {
                         HAS =1 This
                         This: VenusTag?
-                        This: VenusTag.
+                        This: VenusTag*
                         VenusTag: Plant<Player1>!
                       }
                       """

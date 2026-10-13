@@ -36,7 +36,7 @@ internal class DomainExceptionContractTest {
 
   @Test
   internal fun preprocessingKindChangesAreProgrammerErrors() {
-    shouldThrow<IllegalStateException> { agent().parse<Instruction>("2 OxygenStep!") }
+    shouldThrow<IllegalStateException> { agent().parse<Instruction>("2! OxygenStep") }
   }
 
   @Test
