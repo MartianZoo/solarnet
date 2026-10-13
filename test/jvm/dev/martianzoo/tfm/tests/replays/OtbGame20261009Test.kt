@@ -31,8 +31,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     p2.autoExecPolicy = NONE
     TfmWorkflow.Automatic(agents).launch()
     // Each player takes their starting TR before their other setup tasks.
-    p1.doTasks("20 TerraformRating")
-    p2.doTasks("20 TerraformRating")
     p1.doTasks(
         "2 CorporationCard",
         "-CorporationCard",
@@ -120,7 +118,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "-4 MC",
         "TemperatureStep",
         "OxygenStep",
-        "2 TerraformRating",
+        "TerraformRating",
+        "TerraformRating",
         "-3 ProjectCard",
     )
     // The table omitted Project Eden's oxygen and TR. The 13:53:05 photo shows oxygen 0,
@@ -153,7 +152,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Ok", // no titanium paid
           "$GiantIceAsteroid FROM ProjectCard",
           "2 TemperatureStep",
-          "2 TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
           "OceanTile<Vastitas_6_7>",
           "TerraformRating",
           "4 MC",
@@ -882,7 +882,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "-24 MC",
           "$GiantIceAsteroid FROM ProjectCard",
           "2 TemperatureStep",
-          "2 TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
           "OceanTile<Vastitas_3_2>",
           "TerraformRating",
           "4 MC",
@@ -899,7 +900,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "-18 MC",
           "$LavaFlows FROM ProjectCard",
           "2 TemperatureStep",
-          "2 TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
           "LavaFlows_SpecialTile<Vastitas_2_6>",
           "ProjectCard",
           "OceanTile<Vastitas_5_3>", // the 0 C threshold grants the final ocean
@@ -1200,7 +1202,9 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Ok", // no MC paid
           "$OrbitalReflectors FROM ProjectCard",
           "2 VenusStep",
-          "3 TerraformRating", // includes the Venus 16% threshold
+          "TerraformRating",
+          "TerraformRating",
+          "TerraformRating", // includes the Venus 16% threshold
           "PROD[2 Heat]",
       )
     }
@@ -1666,7 +1670,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "-18 MC",
           "$Atmoscoop FROM ProjectCard",
           "2 VenusStep",
-          "2 TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
           "2 Floater<$JovianLanterns>",
       )
     }
@@ -1870,7 +1875,12 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "-Titanium",
           "-29 MC",
           "$TerraformingGanymede FROM ProjectCard",
-          "5 TerraformRating",
+          "TerraformRating / JovianTag",
+          "TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
       )
     }
     p1.turn {
@@ -1912,7 +1922,9 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "$MagneticFieldGeneratorsPromo FROM ProjectCard",
           "PROD[-4 Energy]",
           "PROD[2 Plant]",
-          "3 TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
           "MagneticFieldGeneratorsPromo_SpecialTile<Vastitas_2_2>",
           "4 MC",
           "2 Plant",

@@ -65,13 +65,12 @@
           "name": "UnitedNationsMarsInitiative",
           "tags": [ "EarthTag" ],
           "direct": "40 MC",
-          "actions": [ "3 MC -> HasRaisedTr: TerraformRating" ],
+          "actions": [ "3 MC -> HasRaisedTr: TryTerraformRating" ],
           "invariants": [ "Class<TrWatcher>" ],
           "components": [
             // Must be identical to Pristar's declarations in the turmoil bundle.
             "CLASS HasRaisedTr<GenerationScope> : Owned, System { HAS MAX 1 This }",
-            // PP counts attempts automatically; only its second and later Action-phase gains qualify.
-            "CLASS TrWatcher : CardWatcher { TerraformRating IF MAX 0 HasRaisedTr, (MAX 0 ActionPhase OR MAX 0 ActionPhaseTrGain OR 2 ActionPhaseTrGain): HasRaisedTr* }"
+            "CLASS TrWatcher : CardWatcher { TerraformRating: HasRaisedTr* }"
           ],
         },
       ],
@@ -345,7 +344,7 @@
           "name": "EquatorialMagnetizer",
           "cost": 11,
           "tags": [ "BuildingTag" ],
-          "actions": [ "PROD[Energy] -> TerraformRating" ],
+          "actions": [ "PROD[Energy] -> TryTerraformRating" ],
         },
         {
           "name": "ExtremeColdFungus",
@@ -531,7 +530,7 @@
           "name": "ImportedNitrogen",
           "cost": 23,
           "tags": [ "EarthTag", "SpaceTag", "EventTag" ],
-          "direct": "TerraformRating, 4 Plant, 3 Microbe, 2 Animal",
+          "direct": "TryTerraformRating, 4 Plant, 3 Microbe, 2 Animal",
         },
         {
           "name": "ImportOfAdvancedGhg",
@@ -624,13 +623,13 @@
           "name": "MagneticFieldDome",
           "cost": 5,
           "tags": [ "BuildingTag" ],
-          "direct": "PROD[-2 Energy, Plant], TerraformRating",
+          "direct": "PROD[-2 Energy, Plant], TryTerraformRating",
         },
         {
           "name": "MagneticFieldGenerators",
           "cost": 20,
           "tags": [ "BuildingTag" ],
-          "direct": "PROD[-4 Energy, 2 Plant], 3 TerraformRating",
+          "direct": "PROD[-4 Energy, 2 Plant], 3 TryTerraformRating",
         },
         {
           "name": "Mangrove",
@@ -701,7 +700,7 @@
           "direct": "3 Microbe<This>",
           "actions": [
             "-> Microbe<This>",
-            "3 Microbe<This> -> TerraformRating"
+            "3 Microbe<This> -> TryTerraformRating"
           ],
         },
         {
@@ -709,7 +708,7 @@
           "cost": 31,
           "tags": [ "SpaceTag", "EventTag" ],
           // Following text order instead of icon order on published cards.
-          "direct": "2 TerraformRating, TemperatureStep, PROD[Plant OR (3 PlantTag: 4 Plant)]",
+          "direct": "2 TryTerraformRating, TemperatureStep, PROD[Plant OR (3 PlantTag: 4 Plant)]",
         },
         {
           "name": "NitrophilicMoss",
@@ -833,7 +832,7 @@
           "name": "RadChemFactory",
           "cost": 8,
           "tags": [ "BuildingTag" ],
-          "direct": "PROD[-Energy], 2 TerraformRating",
+          "direct": "PROD[-Energy], 2 TryTerraformRating",
         },
         {
           "name": "RegolithEaters",
@@ -848,7 +847,7 @@
           "name": "ReleaseOfInertGases",
           "cost": 14,
           "tags": [ "EventTag" ],
-          "direct": "2 TerraformRating",
+          "direct": "2 TryTerraformRating",
         },
         {
           "name": "ResearchOutpost",

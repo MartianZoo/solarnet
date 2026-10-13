@@ -41,7 +41,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
         selectTask("-X? MC")
         doTask("-15 MC")
         selectTask("VenusStep*")
-        selectTask("TerraformRating!")
+        selectTask("TryTerraformRating!")
         selectTask("Colony<Kim, ColonyTile(HAS MAX 0 Colony)>!")
         doTask("Colony<Luna>")
       }

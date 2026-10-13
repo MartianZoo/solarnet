@@ -59,7 +59,8 @@ signal serves the Prelude phase and additional Prelude plays granted by cards. O
 cards in the fixed Valley Trust, New Partner, WG Project, and Merger offers are counted in
 `Selecting`; the rejected backs are removed without names before the chosen back is played directly
 from there.
-Each Player first gains the persistent `PlayerMode` recording their chosen setup path. Both modes
+Admin grants each player's starting real TR when `SetupPhase` begins. Each Player then gains the
+persistent `PlayerMode` recording their chosen setup path. Both modes
 are `System`: Admin installs a fixed mode, while the beginner-versus-normal choice remains a
 Player task when `BeginnerVariant` is enabled. The `NonBeginnerMode` path then puts both offered
 corporations in `Hand` and ten project cards in `Selecting`; one corporation and any unwanted

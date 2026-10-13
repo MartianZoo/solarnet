@@ -69,7 +69,7 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
         selectTask("-X? Titanium")
         selectTask("Ok")
         doTask("ImportedNitrogen FROM ProjectCard")
-        selectTask("TerraformRating!")
+        selectTask("TryTerraformRating!")
         selectTask("4! Plant")
         selectTask("2* Animal")
         selectTask("3* Microbe")

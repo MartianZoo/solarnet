@@ -1158,7 +1158,7 @@ omitted owners are inserted during elaboration by L9-3.
 
 > **Non-normative design note — no current TfM witness for this declared-default case.** No current
 > canonical declaration defaults an owner dependency to `Anyone`. Multiplayer setup's
-> `EACH Me@Player { 20 TerraformRating }` instead relies on omitted-owner insertion (L9-3), so it
+> `EACH Me@Player { 20 TerraformRating<Me@> }` supplies the selected owner explicitly, so it
 > does not justify this special mention of `Anyone` in the default rules. The example above states
 > the consequence of ordinary intersection, not a demonstrated extra gameplay capability.
 
@@ -1651,7 +1651,7 @@ Predicates retained on an unfinished choice are checked when that choice is even
 > ```text
 > EACH Leader@Player(HAS PartyLeader<This>) {
 >   Chairman<Leader@Player> FROM PartyDelegate<This, Leader@Player>
->   THEN TerraformRating<Leader@Player>
+>   THEN TryTerraformRating<Leader@Player>
 > }
 > ```
 >

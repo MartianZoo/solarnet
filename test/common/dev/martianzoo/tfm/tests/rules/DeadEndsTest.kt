@@ -99,7 +99,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
         selectTask("-3! ProjectCard<Kim, Hand>")
         doTask("GreeneryTile<Tharsis_8_8>")
         selectTask("OxygenStep*")
-        selectTask("TerraformRating!")
+        selectTask("TryTerraformRating!")
         doTask("CityTile<Tharsis_3_3>")
       }
     }

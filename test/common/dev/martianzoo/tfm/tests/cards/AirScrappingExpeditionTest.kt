@@ -21,7 +21,7 @@ internal class AirScrappingExpeditionTest : TfmSandboxTest() {
         selectTask("-X? MC")
         doTasks("-13 MC", "AirScrappingExpedition FROM ProjectCard")
         selectTask("VenusStep*")
-        selectTask("TerraformRating!")
+        selectTask("TryTerraformRating!")
         selectOnlyTask()
         doTask("3* Floater<AtmoCollectors>")
       }

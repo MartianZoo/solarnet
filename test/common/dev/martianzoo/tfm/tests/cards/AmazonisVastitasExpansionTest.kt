@@ -222,7 +222,7 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("CityTile<Vastitas_5_5>")
         selectTask("TemperatureStep*")
-        selectTask("TerraformRating!")
+        selectTask("TryTerraformRating!")
       }
     }
     kim.count("CityTile") shouldBe 0

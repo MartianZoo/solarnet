@@ -185,7 +185,7 @@ CLASS UnitedNationsMarsInitiative : ActionCard<Class<CorporationCard>> {
   HAS Class<TrWatcher>, =1 EarthTag<This>
   cost = 0
   This: 40 MC
-  3 MC -> HasRaisedTr: TerraformRating
+  3 MC -> HasRaisedTr: TryTerraformRating
 }
 ```
 
@@ -737,7 +737,7 @@ Class: `PharmacyUnion`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | You start with 54 M€. Draw a science card. | Effect: When ANY microbe tag is played, including these 2, add a disease here and lose 4 M€ or as much as possible. When you play a science tag, remove 1 disease from here and raise your TR 1 step, OR, if there are no diseases here, you may raise your TR 3 steps and place this card in your event pile. It now counts as a played event. |
-| Generated text | Gain 54 M€. Draw 1 science card. | Effect: \[MicrobeTag&lt;Anyone&gt;: Disease&lt;This&gt;! OR (MAX 0 This: Ok), -4 MC.\]. \[ScienceTag: TerraformRating FROM Disease&lt;This&gt;! OR (MAX 0 Disease&lt;This&gt;: (PlayedEvent&lt;Class&lt;This&gt;&gt; FROM This THEN 3 TerraformRating) OR Ok)\]. |
+| Generated text | Gain 54 M€. Draw 1 science card. | Effect: \[MicrobeTag&lt;Anyone&gt;: Disease&lt;This&gt;! OR (MAX 0 This: Ok), -4 MC.\]. \[ScienceTag: TryTerraformRating FROM Disease&lt;This&gt;! OR (MAX 0 Disease&lt;This&gt;: (PlayedEvent&lt;Class&lt;This&gt;&gt; FROM This THEN 3 TryTerraformRating) OR Ok)\]. |
 
 Pets declaration:
 
@@ -748,7 +748,7 @@ CLASS PharmacyUnion : ResourceCard<Class<Disease>, Class<CorporationCard>> {
   This:: 54 MC
   This: SearchForCard<TagFilter<Class<ScienceTag>>>
   MicrobeTag<Anyone>: Disease<This>! OR (MAX 0 This: Ok), -4 MC.
-  ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease<This>: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)
+  ScienceTag: TryTerraformRating FROM Disease<This>! OR (MAX 0 Disease<This>: (PlayedEvent<Class<This>> FROM This THEN 3 TryTerraformRating) OR Ok)
 }
 ```
 

@@ -358,7 +358,7 @@ keeping the shared word. The trap to watch: a new class that blocks game end wil
 happily under `Barrier`, and would then silently join the payment query — check which supertype you
 mean.
 
-`TerraformRating` names the track while instantiating one step of it. `TerraformRatingStep` is more
-correct; we are not doing it.
+`TryTerraformRating` names an abstract request for a step on the track. `TerraformRating` is the
+actual scoring step; `SkippedTerraformRating` represents Preservation Program's skipped step.
 
 [camel-case]: https://google.github.io/styleguide/javaguide.html#s5.3-camel-case

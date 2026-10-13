@@ -469,7 +469,7 @@ Pets declaration:
 ```pets
 CLASS NitrogenShipment : CardFront<Class<PreludeCard>> {
   cost = 0
-  This: TerraformRating, PROD[Plant], 5 MC
+  This: TryTerraformRating, PROD[Plant], 5 MC
 }
 ```
 
@@ -638,7 +638,7 @@ Pets declaration:
 CLASS UnmiContractor : CardFront<Class<PreludeCard>> {
   HAS =1 EarthTag<This>
   cost = 0
-  This: 3 TerraformRating, ProjectCard
+  This: 3 TryTerraformRating, ProjectCard
 }
 ```
 
@@ -1028,7 +1028,7 @@ Pets declaration:
 CLASS PlanetaryAlliance : CardFront<Class<PreludeCard>> {
   HAS =1 EarthTag<This>, =1 JovianTag<This>, =1 VenusTag<This>
   cost = 0
-  This: 2 TerraformRating, SearchForCard<TagFilter<Class<JovianTag>>>, SearchForCard<TagFilter<Class<VenusTag>>>
+  This: 2 TryTerraformRating, SearchForCard<TagFilter<Class<JovianTag>>>, SearchForCard<TagFilter<Class<VenusTag>>>
 }
 ```
 
@@ -1039,17 +1039,16 @@ Class: `PreservationProgram`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Raise your TR 5 steps. | Effect: SKIP THE FIRST TR YOU GAIN IN EACH GENERATION'S ACTION PHASE |
-| Generated text | Raise your terraform rating 5 steps. | Effect: \[X TerraformRating IF (ActionPhase, MAX 0 ActionPhaseTrGain):: -TerraformRating\]. |
+| Modeled behavior | Raise your terraform rating 5 steps. | The first Action phase TR gain resolves as a skipped step. |
 
 Pets declaration:
 
 ```pets
 CLASS PreservationProgram : CardFront<Class<PreludeCard>> {
-  HAS Class<PreservationTrWatcher>
+  HAS Class<PreservationTrWatcher>, Class<SkippedTerraformRating>
   cost = 0
-  autoSelectWhen = HAS "Unsafe"
-  This: 5 TerraformRating
-  X TerraformRating IF (ActionPhase, MAX 0 ActionPhaseTrGain):: -TerraformRating
+  This: 5 TryTerraformRating
+  TerraformRating IF ActionPhase, MAX 0 ActionPhaseTrGain:: Die
 }
 ```
 
@@ -1185,7 +1184,7 @@ Pets declaration:
 CLASS VenusContract : CardFront<Class<PreludeCard>> {
   HAS =1 VenusTag<This>
   cost = 0
-  This: SearchForCard<TagFilter<Class<VenusTag>>>, TerraformRating
+  This: SearchForCard<TagFilter<Class<VenusTag>>>, TryTerraformRating
   VenusStep: 3 MC
 }
 ```
@@ -1224,7 +1223,7 @@ Pets declaration:
 CLASS WorldGovernmentAdvisor : ActionCard<Class<PreludeCard>> {
   HAS =1 EarthTag<This>
   cost = 0
-  This: 2 TerraformRating, ProjectCard
+  This: 2 TryTerraformRating, ProjectCard
   -> GlobalParameter BY Admin
 }
 ```
@@ -1244,7 +1243,7 @@ Pets declaration:
 CLASS CorridorsOfPower : CardFront<Class<PreludeCard>> {
   HAS =1 EarthTag<This>
   cost = 0
-  This: TerraformRating, 4 MC
+  This: TryTerraformRating, 4 MC
   PartyLeader<Party>: ProjectCard
 }
 ```
@@ -1264,7 +1263,7 @@ Pets declaration:
 CLASS HighCircles : CardFront<Class<PreludeCard>> {
   HAS =1 EarthTag<This>
   cost = 0
-  This: TerraformRating, SearchForCard<ReferenceFilter<Class<PartyRequirement>>>, 2 PartyDelegate
+  This: TryTerraformRating, SearchForCard<ReferenceFilter<Class<PartyRequirement>>>, 2 PartyDelegate
   MeasureInfluence:: HighCirclesInfluence
 }
 ```

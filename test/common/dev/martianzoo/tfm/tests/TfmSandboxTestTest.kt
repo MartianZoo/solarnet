@@ -112,7 +112,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     shouldThrow<LimitsException> { victoryPoints() }
     game.timeline.checkpoint() shouldBe checkpoint
 
-    kim.exMachina("20 TerraformRating")
+    repeat(20) { kim.exMachina("TerraformRating") }
     victoryPoints() shouldBe listOf(18, 20, 20)
   }
 

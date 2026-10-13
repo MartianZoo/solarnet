@@ -740,7 +740,7 @@ Pets declaration:
 CLASS EquatorialMagnetizer : ActiveCard, ActionCard {
   HAS =1 BuildingTag<This>
   cost = 11
-  PROD[Energy] -> TerraformRating
+  PROD[Energy] -> TryTerraformRating
 }
 ```
 
@@ -1258,7 +1258,7 @@ Pets declaration:
 CLASS ImportedNitrogen : EventCard {
   HAS =1 EarthTag<This>, =1 SpaceTag<This>, =1 EventTag<This>
   cost = 23
-  This: TerraformRating, 4 Plant, 3 Microbe, 2 Animal
+  This: TryTerraformRating, 4 Plant, 3 Microbe, 2 Animal
 }
 ```
 
@@ -1532,7 +1532,7 @@ Pets declaration:
 CLASS MagneticFieldDome : AutomatedCard {
   HAS =1 BuildingTag<This>
   cost = 5
-  This: PROD[-2 Energy, Plant], TerraformRating
+  This: PROD[-2 Energy, Plant], TryTerraformRating
 }
 ```
 
@@ -1551,7 +1551,7 @@ Pets declaration:
 CLASS MagneticFieldGenerators : AutomatedCard {
   HAS =1 BuildingTag<This>
   cost = 20
-  This: PROD[-4 Energy, 2 Plant], 3 TerraformRating
+  This: PROD[-4 Energy, 2 Plant], 3 TryTerraformRating
 }
 ```
 
@@ -1750,7 +1750,7 @@ CLASS NitriteReducingBacteria : ActiveCard, ResourceCard<Class<Microbe>>, Action
   cost = 11
   This: 3 Microbe<This>
   -> Microbe<This>
-  3 Microbe<This> -> TerraformRating
+  3 Microbe<This> -> TryTerraformRating
 }
 ```
 
@@ -1769,7 +1769,7 @@ Pets declaration:
 CLASS NitrogenRichAsteroid : EventCard {
   HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 31
-  This: 2 TerraformRating, TemperatureStep, PROD[Plant OR (3 PlantTag: 4 Plant)]
+  This: 2 TryTerraformRating, TemperatureStep, PROD[Plant OR (3 PlantTag: 4 Plant)]
 }
 ```
 
@@ -2125,7 +2125,7 @@ Pets declaration:
 CLASS RadChemFactory : AutomatedCard {
   HAS =1 BuildingTag<This>
   cost = 8
-  This: PROD[-Energy], 2 TerraformRating
+  This: PROD[-Energy], 2 TryTerraformRating
 }
 ```
 
@@ -2164,7 +2164,7 @@ Pets declaration:
 CLASS ReleaseOfInertGases : EventCard {
   HAS =1 EventTag<This>
   cost = 14
-  This: 2 TerraformRating
+  This: 2 TryTerraformRating
 }
 ```
 
@@ -2846,7 +2846,7 @@ Pets declaration:
 CLASS BribedCommittee : EventCard {
   HAS =1 EarthTag<This>, =1 EventTag<This>
   cost = 7
-  This: 2 TerraformRating
+  This: 2 TryTerraformRating
   End: -2 VictoryPoint
 }
 ```
@@ -2944,7 +2944,7 @@ Pets declaration:
 CLASS CaretakerContract : ActiveCard, ActionCard {
   cost = 3
   requirement = HAS "15 TemperatureStep"
-  8 Heat -> TerraformRating
+  8 Heat -> TryTerraformRating
 }
 ```
 
@@ -3986,7 +3986,7 @@ Pets declaration:
 CLASS TerraformingGanymede : AutomatedCard {
   HAS =1 JovianTag<This>, =1 SpaceTag<This>
   cost = 33
-  This: TerraformRating / JovianTag
+  This: TryTerraformRating / JovianTag
   End: 2 VictoryPoint
 }
 ```
@@ -4708,7 +4708,7 @@ CLASS Omnicourt : AutomatedCard {
   HAS =1 BuildingTag<This>
   cost = 11
   requirement = HAS "VenusTag, EarthTag, JovianTag"
-  This: 2 TerraformRating
+  This: 2 TryTerraformRating
 }
 ```
 
@@ -5595,7 +5595,7 @@ CLASS JovianLanterns : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
   HAS =1 JovianTag<This>
   cost = 20
   requirement = HAS "JovianTag"
-  This: TerraformRating, 2 Floater
+  This: TryTerraformRating, 2 Floater
   End: VictoryPoint / 2 Floater<This>
   Titanium -> 2 Floater<This>
 }
@@ -5795,7 +5795,7 @@ Pets declaration:
 CLASS NitrogenFromTitan : AutomatedCard {
   HAS =1 JovianTag<This>, =1 SpaceTag<This>
   cost = 25
-  This: 2 TerraformRating, 2 Floater<CardFront(HAS JovianTag)>
+  This: 2 TryTerraformRating, 2 Floater<CardFront(HAS JovianTag)>
   End: VictoryPoint
 }
 ```
@@ -6101,7 +6101,7 @@ CLASS TitanAirScrapping : ActiveCard, ResourceCard<Class<Floater>>, ActionCard {
   cost = 21
   End: 2 VictoryPoint
   Titanium -> 2 Floater<This>
-  2 Floater<This> -> TerraformRating
+  2 Floater<This> -> TryTerraformRating
 }
 ```
 
@@ -6410,7 +6410,7 @@ CLASS PrOffice : AutomatedCard {
   HAS =1 EarthTag<This>
   cost = 7
   requirement = HAS "PartyRequirement<Unity>"
-  This: TerraformRating, MC / EarthTag
+  This: TryTerraformRating, MC / EarthTag
 }
 ```
 
@@ -6529,7 +6529,7 @@ CLASS VoteOfNoConfidence : EventCard {
   HAS =1 EventTag<This>
   cost = 5
   requirement = HAS "PartyLeader"
-  This: Chairman<Me@ FROM Neutral>, TerraformRating
+  This: Chairman<Me@ FROM Neutral>, TryTerraformRating
 }
 ```
 
@@ -6931,7 +6931,7 @@ CLASS DiversitySupport : EventCard {
   HAS =1 EventTag<This>
   cost = 1
   requirement = HAS "9 Class<@Resource>(HAS @Resource)"
-  This: TerraformRating
+  This: TryTerraformRating
 }
 ```
 
@@ -7191,7 +7191,7 @@ Pets declaration:
 CLASS JovianEmbassy : AutomatedCard {
   HAS =1 JovianTag<This>, =1 BuildingTag<This>
   cost = 14
-  This: TerraformRating
+  This: TryTerraformRating
   End: VictoryPoint
 }
 ```
@@ -7250,7 +7250,7 @@ Pets declaration:
 CLASS MagneticFieldGeneratorsPromo : AutomatedCard {
   HAS =1 BuildingTag<This>
   cost = 22
-  This: PROD[-4 Energy, 2 Plant], 3 TerraformRating, MagneticFieldGeneratorsPromo_SpecialTile<>
+  This: PROD[-4 Energy, 2 Plant], 3 TryTerraformRating, MagneticFieldGeneratorsPromo_SpecialTile<>
 }
 ```
 
@@ -7270,7 +7270,7 @@ CLASS MagneticShield : AutomatedCard {
   HAS =1 SpaceTag<This>
   cost = 24
   requirement = HAS "3 PowerTag"
-  This: 4 TerraformRating
+  This: 4 TryTerraformRating
 }
 ```
 
@@ -7664,7 +7664,7 @@ Pets declaration:
 CLASS ShipmentToEarth : EventCard {
   HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 17
-  This: -3 Plant, -3 Steel, 3 TerraformRating, 2 MC / EarthTag
+  This: -3 Plant, -3 Steel, 3 TryTerraformRating, 2 MC / EarthTag
 }
 ```
 
@@ -7925,7 +7925,7 @@ Pets declaration:
 CLASS Teslaract : ActiveCard, ActionCard {
   HAS =1 PowerTag<This>, =1 BuildingTag<This>
   cost = 14
-  This: TerraformRating
+  This: TryTerraformRating
   PROD[Energy] -> PROD[Plant]
 }
 ```
@@ -8008,7 +8008,7 @@ CLASS PoliticalAlliance : EventCard {
   HAS =1 EventTag<This>
   cost = 4
   requirement = HAS "2 PartyLeader"
-  This: TerraformRating
+  This: TryTerraformRating
 }
 ```
 
@@ -8453,7 +8453,7 @@ CLASS SponsoringNation : AutomatedCard {
   HAS =1 EarthTag<This>
   cost = 21
   requirement = HAS "4 EarthTag"
-  This: 3 TerraformRating, 2 PartyDelegate
+  This: 3 TryTerraformRating, 2 PartyDelegate
 }
 ```
 

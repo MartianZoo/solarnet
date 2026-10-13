@@ -32,7 +32,7 @@ ABSTRACT CLASS SoloObjective : Module {
 "Raises terraform rating in the TR63 solo objective"
 CLASS BufferGasProject : StandardProject {
   cost = 16
-  1 MC / cost -> TerraformRating
+  1 MC / cost -> TryTerraformRating
 }
 
 "One generation that must begin before a solo game may end"

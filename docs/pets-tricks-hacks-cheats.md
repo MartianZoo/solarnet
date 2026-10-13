@@ -132,6 +132,10 @@ effects. In particular, `GlobalParameter` gains use `.`, while `CardResource` ga
 An explicit quantifier should mean a real exception. When an abstract AMAP target has no useful
 concrete narrowing, it becomes `Ok`; a mandatory target does not.
 
+Lean on AMAP and declared limits before adding a separate absence test. UNMI and Pristar use
+`TerraformRating: HasRaisedTr*`: `HasRaisedTr` has `HAS MAX 1 This`, so further triggers create no
+additional marker without an `IF MAX 0 HasRaisedTr` gate.
+
 ## 11. Make a refinement's candidate fill an unspoken dependency
 
 Inside `Foo(HAS Bar)`, the `Bar` query can use the `Foo` candidate as its missing dependency. It
@@ -163,7 +167,7 @@ single generic rule can therefore make subclass-specific records and consequence
 effect per card, resource, or global parameter.
 
 - **Event cards:** [`-This ... :: PlayedEvent<Class<This>>`](../src/common/dev/martianzoo/tfm/canon/bundles/base/card-model.pets) records the exact event-card class when that card leaves play.
-- **Global parameters:** [`This: TerraformRating`](../src/common/dev/martianzoo/tfm/canon/bundles/base/board.pets) gives the actor TR when an oxygen, temperature, ocean, or Venus step is raised, all from the one `GlobalParameter` superclass rule.
+- **Global parameters:** [`This: TryTerraformRating`](../src/common/dev/martianzoo/tfm/canon/bundles/base/board.pets) requests a TR gain for the actor when an oxygen, temperature, ocean, or Venus step is raised, all from the one `GlobalParameter` superclass rule.
 
 The contextual actor still matters: an Admin-driven step is not a player's TR gain. Inherited
 `This` removes duplicated declarations; it does not erase attribution.

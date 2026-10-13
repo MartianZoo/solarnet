@@ -14,7 +14,7 @@ CLASS StandardVenusTrackRules : System {
   HAS MAX 15 VenusStep
 
   VenusStep IF =4 VenusStep: ProjectCard
-  VenusStep IF =8 VenusStep: TerraformRating
+  VenusStep IF =8 VenusStep: TryTerraformRating
   VenusStep IF =15 VenusStep:: GpComplete<Class<VenusStep>>
 }
 
@@ -25,7 +25,7 @@ CLASS ExtendedVenusTrackRules : System {
 
   VenusStep IF =4 VenusStep: ProjectCard
   VenusStep IF =8 VenusStep, ColoniesExpansion: Colony<>
-  VenusStep IF =11 VenusStep: TerraformRating
+  VenusStep IF =11 VenusStep: TryTerraformRating
   VenusStep IF =18 VenusStep:: GpComplete<Class<VenusStep>>
 }
 

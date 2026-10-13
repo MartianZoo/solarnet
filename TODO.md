@@ -218,9 +218,6 @@ Keep tasks brief; linked notes and tests carry the background.
 - Find a clean way to make Turmoil's `ApplyRulingBonus` player-owned without complicating the Reds
   tied-lowest-player selection. It currently remains one global signal whose party effect fans out
   over the players.
-- Make Preservation Program compatible with Turmoil's Reds without requiring Turmoil. Update the
-  premise gate, `ModuleSelectionTest`, and `docs/what-is-supported.md` when resolved. Keep
-  Terraforming Deal's reversed-TR payout separate.
 - See whether `CimmeriaPlacementBonus`, `PlaceNeutralTiles`, and `StageForReplicatedProject` can
   avoid named helper Classes while preserving their ownership and selection behavior.
 - Consider rejecting `@` markers on concrete types, such as `Class<@BuildingTag>`, where the

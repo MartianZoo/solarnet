@@ -66,6 +66,6 @@ There are several basic elements to the language.
 * Actions (`Steel -> 5 MC` means "spend 1 steel to gain 5 MC")
 * Component expressions (`CityTile<LandArea(HAS 2 Neighbor<CityTile<Anyone>>)>` means "a city tile on a land area next to >=2 city tiles", no matter which of the above element kinds it appears in)
 * ChangeEvents, aka game log entries (`469: +OxygenStep BY Player2 VIA GreeneryTile<Player2, Tharsis_5_5> BECAUSE 448`)
-* Class declarations (`CLASS TerraformRating { ProductionPhase: 1 MC; End: VictoryPoint }`)
+* Class declarations (`CLASS Energy { ProductionPhase: Heat FROM This }`)
 
 See the [Pets language specification](pets-language-spec.md).

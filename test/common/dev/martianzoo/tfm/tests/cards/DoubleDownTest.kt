@@ -109,8 +109,8 @@ internal class DoubleDownTest : TfmSandboxTest() {
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<UnmiContractor>>",
           "UnmiContractor FROM PreludeCard",
-          "3 TerraformRating",
       )
+      repeat(3) { doTask("TerraformRating") }
       selectTask("ProjectCard<Stan, Hand>!")
     }
 
@@ -259,7 +259,12 @@ internal class DoubleDownTest : TfmSandboxTest() {
       stan.playPrelude(Supplier)
       stan.playPrelude(MetalsCompany)
 
-      kim.playProject(Comet, 21) { placeTile(1, 2) }.expect("TerraformRating")
+      kim.playProject(Comet, 21) {
+            placeTile(1, 2)
+            doTask("SkippedTerraformRating")
+            doTask("TerraformRating")
+          }
+          .expect("TerraformRating")
     }
   }
 }

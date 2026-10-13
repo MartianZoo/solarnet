@@ -621,8 +621,9 @@ unevaluated metrics. Combine amounts when the matching tasks are already pending
 consumes all pending gains and removals of the same type and quantifier when their signed total
 matches, even if an individual task has that amount. Gains execute first; effects created while
 those changes run do not join the total. Explicit `doTasks(...)` calls are atomic, resumable batches.
-In explicit setup, have each player take their starting TR before either player handles starting
-cards. Group each corporation, Prelude, and action-phase turn in `player.turn { ... }`; the wrapper
+In explicit setup, Admin grants each player their starting real TR when `SetupPhase` begins; the
+replay handles only the subsequent starting-card choices. Group each corporation, Prelude, and
+action-phase turn in `player.turn { ... }`; the wrapper
 declines an unused second action. Keep the task submissions inside each section as raw `doTasks`
 calls.
 Use the shared card-name constants, give every `Ok` a short inline comment to its right naming

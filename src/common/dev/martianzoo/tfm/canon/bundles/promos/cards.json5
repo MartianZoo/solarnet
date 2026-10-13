@@ -61,7 +61,7 @@
             "MicrobeTag<Anyone>: (Disease<This>! OR (MAX 0 This: Ok)), -4* MC",
             // Check the disease count when each tag consequence executes, so two simultaneous science
             // tags can remove the last disease and then offer the flip.
-            "ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease<This>: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)"
+            "ScienceTag: TryTerraformRating FROM Disease<This>! OR (MAX 0 Disease<This>: (PlayedEvent<Class<This>> FROM This THEN 3 TryTerraformRating) OR Ok)"
           ],
         },
         {
@@ -315,7 +315,7 @@
           "requirement": "9 Class<@Resource>(HAS @Resource)",
           "cost": 1,
           "tags": [ "EventTag" ],
-          "direct": "TerraformRating",
+          "direct": "TryTerraformRating",
         },
         {
           "name": "DuskLaserMining",
@@ -415,7 +415,7 @@
           "name": "JovianEmbassy",
           "cost": 14,
           "tags": [ "JovianTag", "BuildingTag" ],
-          "direct": "TerraformRating",
+          "direct": "TryTerraformRating",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -437,14 +437,14 @@
           "replaces": "MagneticFieldGenerators",
           "cost": 22,
           "tags": [ "BuildingTag" ],
-          "direct": "PROD[-4 Energy, 2 Plant], 3 TerraformRating, SpecialTile<> {}",
+          "direct": "PROD[-4 Energy, 2 Plant], 3 TryTerraformRating, SpecialTile<> {}",
         },
         {
           "name": "MagneticShield",
           "requirement": "3 PowerTag",
           "cost": 24,
           "tags": [ "SpaceTag" ],
-          "direct": "4 TerraformRating",
+          "direct": "4 TryTerraformRating",
         },
         {
           "name": "MarsNomads",
@@ -597,7 +597,7 @@
           "name": "ShipmentToEarth",
           "cost": 17,
           "tags": [ "SpaceTag", "EventTag" ],
-          "direct": "-3 Plant, -3 Steel, 3 TerraformRating, 2 MC / EarthTag",
+          "direct": "-3 Plant, -3 Steel, 3 TryTerraformRating, 2 MC / EarthTag",
         },
         {
           "name": "SixteenPsyche",
@@ -698,7 +698,7 @@
           "name": "Teslaract",
           "cost": 14,
           "tags": [ "PowerTag", "BuildingTag" ],
-          "direct": "TerraformRating",
+          "direct": "TryTerraformRating",
           "actions": [ "PROD[Energy] -> PROD[Plant]" ],
         },
         {
@@ -738,7 +738,7 @@
           "requirement": "2 PartyLeader",
           "cost": 4,
           "tags": [ "EventTag" ],
-          "direct": "TerraformRating",
+          "direct": "TryTerraformRating",
         },
       ],
     },

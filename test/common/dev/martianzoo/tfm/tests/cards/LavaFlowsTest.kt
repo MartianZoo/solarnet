@@ -62,8 +62,8 @@ internal class LavaFlowsTest : TfmSandboxTest() {
         doTasks("-18 MC", "LavaFlows FROM ProjectCard")
         selectTask("TemperatureStep*")
         selectTask("TemperatureStep*")
-        selectTask("TerraformRating!")
-        selectTask("TerraformRating!")
+        selectTask("TryTerraformRating!")
+        selectTask("TryTerraformRating!")
         selectOnlyTask()
         doTask("LavaFlows_SpecialTile<Tharsis_2_2>")
       }

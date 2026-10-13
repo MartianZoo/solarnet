@@ -337,16 +337,13 @@ internal class ModuleSelectionTest {
   }
 
   @Test
-  internal fun `Terraforming Deal stays in the normal Prelude 2 pool`() {
+  internal fun `Preservation Program works alongside Terraforming Deal and Turmoil`() {
     val safe = classTable("prelude2:cards, TurmoilExpansion")
     safe.isInhabited(cn("TerraformingDeal")) shouldBe true
-    safe.isInhabited(cn("PreservationProgram")) shouldBe false
-
-    rejects("prelude2:cards, PreservationProgram")
-    rejects("TurmoilExpansion, PreservationProgram")
-    classTable("prelude2:cards, PreservationProgram, -TerraformingDeal")
-        .isInhabited(cn("PreservationProgram")) shouldBe true
-    classTable("prelude2:cards, TurmoilExpansion, Unsafe")
+    safe.isInhabited(cn("PreservationProgram")) shouldBe true
+    classTable("prelude2:cards, PreservationProgram").isInhabited(cn("TerraformingDeal")) shouldBe
+        true
+    classTable("TurmoilExpansion, PreservationProgram")
         .isInhabited(cn("PreservationProgram")) shouldBe true
   }
 
@@ -447,11 +444,9 @@ internal class ModuleSelectionTest {
 
   @Test
   internal fun `a copied premise still checks the completed content pool`() {
-    val ordinary = premise("prelude2:cards", players = 2)
+    val ordinary = premise("HellasMap", players = 2)
     val altered =
-        ordinary.copy(
-            classSelections = ordinary.classSelections + ClassSelection(cn("PreservationProgram"))
-        )
+        ordinary.copy(classSelections = ordinary.classSelections + ClassSelection(cn("ElysiumMap")))
 
     shouldThrow<InvalidGameConfigException> { TfmEngine.newGame(altered) }
   }

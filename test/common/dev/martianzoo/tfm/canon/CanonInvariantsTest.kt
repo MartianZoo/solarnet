@@ -35,6 +35,42 @@ internal class CanonInvariantsTest {
     )
   }
 
+  @Test
+  internal fun terraformRatingCountsUseRealSteps() {
+    val abstractRating = cn("TryTerraformRating")
+    val offenders =
+        Canon.explicitClassDeclarations.flatMap { declaration ->
+          declaration.allNodes.flatMap { node ->
+            node
+                .descendantsOfType<Metric.Count>()
+                .filter { it.expression.className == abstractRating }
+                .map { "${declaration.className}: $it" }
+          }
+        }
+    assertTrue(
+        offenders.isEmpty(),
+        "Count TerraformRating, not the abstract gain target:\n${offenders.joinToString("\n")}",
+    )
+  }
+
+  @Test
+  internal fun terraformRatingLossesRemoveRealSteps() {
+    val abstractRating = cn("TryTerraformRating")
+    val offenders =
+        Canon.explicitClassDeclarations.flatMap { declaration ->
+          declaration.allNodes.flatMap { node ->
+            node
+                .descendantsOfType<Instruction.Change>()
+                .filter { it.removing?.className == abstractRating }
+                .map { "${declaration.className}: $it" }
+          }
+        }
+    assertTrue(
+        offenders.isEmpty(),
+        "Lower TR by removing TerraformRating:\n${offenders.joinToString("\n")}",
+    )
+  }
+
   // GAME_HACKS 3: stored MC production includes the production-floor offset.
   @Test
   internal fun perMoneyProductionAccountsForItsOffset() {

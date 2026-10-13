@@ -104,10 +104,10 @@ internal class CoreRulesTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("GreeneryTile<Hellas_9_7>")
         selectTask("OxygenStep*")
-        selectTask("TerraformRating!")
+        selectTask("TryTerraformRating!")
         selectTask("OceanTile<WaterArea(HAS MAX 0 Tile)>*")
         doTask("OceanTile<Hellas_6_7>")
-        selectTask("TerraformRating!")
+        selectTask("TryTerraformRating!")
         selectOnlyTask()
       }
     }

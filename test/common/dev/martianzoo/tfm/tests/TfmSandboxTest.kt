@@ -170,7 +170,6 @@ internal abstract class TfmSandboxTest : TfmTest() {
           if (index == 0 && (kimCorporation != null || !playCorporations)) "NonBeginnerMode"
           else "BeginnerMode"
       )
-      player.doTask(if (players.size == 1) "14 TerraformRating" else "20 TerraformRating")
       if (index == 0 && (kimCorporation != null || !playCorporations)) {
         player.doTasks(
             "2 CorporationCard",

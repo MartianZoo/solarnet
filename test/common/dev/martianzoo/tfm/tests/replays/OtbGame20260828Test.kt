@@ -148,11 +148,11 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // get one energy production, one plant production, and two plants."
       fillInTask("PlayCard")
           .chooseAlternative("PlayCard", outOf = 2)
-          .choose("CardFront" to "Biofuels", outOf = 92)
+          .choose("CardFront" to "Biofuels", outOf = 93)
           .done()
       fillInTask("PlayCard")
           .chooseAlternative("PlayCard", outOf = 2)
-          .choose("CardFront" to "Supplier", outOf = 92)
+          .choose("CardFront" to "Supplier", outOf = 93)
           .done()
     }
     blue.turn {
@@ -160,7 +160,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // That's row two, column one, for two titanium." The second placement is stated below.
       fillInTask("PlayCard")
           .chooseAlternative("PlayCard", outOf = 2)
-          .choose("CardFront" to "GreatAquifer", outOf = 92)
+          .choose("CardFront" to "GreatAquifer", outOf = 93)
           .done()
       fillInTask("OceanTile").choose("WaterArea" to "Cimmeria_2_1", outOf = 12).done()
       fillInTask("OceanTile").choose("WaterArea" to "Cimmeria_9_5", outOf = 12).done()
@@ -169,7 +169,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // two steps."
       fillInTask("PlayCard")
           .chooseAlternative("PlayCard", outOf = 2)
-          .choose("CardFront" to "AtmosphericEnhancers", outOf = 92)
+          .choose("CardFront" to "AtmosphericEnhancers", outOf = 93)
           .done()
       fillInTask("VenusStep").chooseAlternative("VenusStep", outOf = 3).done()
     }
@@ -177,13 +177,13 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Orbital Construction Yard: I gain titanium production and four titanium."
       fillInTask("PlayCard")
           .chooseAlternative("PlayCard", outOf = 2)
-          .choose("CardFront" to "OrbitalConstructionYard", outOf = 92)
+          .choose("CardFront" to "OrbitalConstructionYard", outOf = 93)
           .done()
       // "Early Colonization: I place a colony on Luna, which means I gain 2 money production, I
       // gain 3 energy—not energy production, 3 energy—and raise all colony tracks 2 steps."
       fillInTask("PlayCard")
           .chooseAlternative("PlayCard", outOf = 2)
-          .choose("CardFront" to "EarlyColonization", outOf = 92)
+          .choose("CardFront" to "EarlyColonization", outOf = 93)
           .done()
       fillInTask("Colony").choose("ColonyTile" to "Luna", outOf = 4).done()
     }
@@ -1916,7 +1916,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       fillInTask("StandardAction")
           .chooseAlternative("StandardAction", outOf = 2)
           .choose("StandardAction" to "PlayProject", outOf = 8)
-          .choose("CardFront" to "EventCard", outOf = 92)
+          .choose("CardFront" to "EventCard", outOf = 93)
           .choose("EventCard" to "MarketManipulation", outOf = 67)
           .done()
       fillInTask("ColonyProduction")
@@ -1936,7 +1936,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       fillInTask("StandardAction")
           .chooseAlternative("StandardAction", outOf = 2)
           .choose("StandardAction" to "PlayProject", outOf = 8)
-          .choose("CardFront" to "EventCard", outOf = 92)
+          .choose("CardFront" to "EventCard", outOf = 93)
           .choose("EventCard" to "IndenturedWorkers", outOf = 67)
           .done()
       // "I'm going to pay one titanium and 25 money." "I took your one plant, and I'm going to
@@ -1960,7 +1960,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       fillInTask("StandardAction")
           .chooseAlternative("StandardAction", outOf = 2)
           .choose("StandardAction" to "PlayProject", outOf = 8)
-          .choose("CardFront" to "EventCard", outOf = 92)
+          .choose("CardFront" to "EventCard", outOf = 93)
           .choose("EventCard" to "InventionContest", outOf = 67)
           .done()
       fillInTask("StandardAction").choose("StandardAction" to "Ok", outOf = 9).done()
@@ -2197,7 +2197,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       fillInTask("StandardAction")
           .chooseAlternative("StandardAction", outOf = 2)
           .choose("StandardAction" to "PlayProject", outOf = 8)
-          .choose("CardFront" to "AutomatedCard", outOf = 92)
+          .choose("CardFront" to "AutomatedCard", outOf = 93)
           .choose("AutomatedCard" to "LunaGovernor", outOf = 189)
           .done()
       fillInTask("StandardAction").choose("StandardAction" to "Ok", outOf = 9).done()
@@ -2582,7 +2582,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       fillInTask("StandardAction")
           .chooseAlternative("StandardAction", outOf = 2)
           .choose("StandardAction" to "PlayProject", outOf = 8)
-          .choose("CardFront" to "AutomatedCard", outOf = 92)
+          .choose("CardFront" to "AutomatedCard", outOf = 93)
           .choose("AutomatedCard" to "TransNeptuneProbe", outOf = 189)
           .done()
       fillInTask("ProjectCard")

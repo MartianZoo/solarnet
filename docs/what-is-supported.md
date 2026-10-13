@@ -36,9 +36,7 @@ Almost all the published game content except Automa works.
 
 The first column has precedence in normal selection. Selecting both halves explicitly rejects the
 game unless `Unsafe` is selected. `Unsafe` also restores suppressed defaults, except Ecology Experts,
-which must always be selected individually. Preservation Program is manual-only in Prelude 2 because
-Terraforming Deal belongs to that pack's default pool; it can be selected when neither Terraforming
-Deal nor Turmoil is present.
+which must always be selected individually.
 
 | Preferred content | Excluded content | What goes wrong if both are present |
 | --- | --- | --- |
@@ -48,8 +46,6 @@ Deal nor Turmoil is present.
 | GMO Contract | Ecology Experts | Played through Ecology Experts, GMO Contract misses 4 M€ from Ecology Experts' plant and microbe tags. |
 | Merger | Sagitta Frontier Services | When Merger plays Sagitta, Sagitta misses 4 M€ for Merger's lack of tags. |
 | Focused Organization | Stormcraft Incorporated | Focused Organization cannot spend a Stormcraft floater as heat for its action. |
-| Terraforming Deal | Preservation Program | Terraforming Deal pays 2 M€ for TR that Preservation Program reverses. |
-| Turmoil expansion | Preservation Program | Reds Party charges 3 M€ for TR that Preservation Program reverses. |
 | Amazonis Planitia | Mining Guild | A wild-resource placement grants steel production and an Audit even when the chosen resource is not metal. |
 | Amazonis Planitia | Mining Rights | Cannot place its tile on a wild-resource area. |
 | Amazonis Planitia | Mining Area | Cannot place its tile on a wild-resource area. |

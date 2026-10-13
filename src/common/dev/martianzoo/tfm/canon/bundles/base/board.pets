@@ -108,7 +108,7 @@ ABSTRACT CLASS GlobalParameter : Atomized, Real {
   DEFAULT +GlobalParameter*
   DEFAULT -GlobalParameter*
 
-  This: TerraformRating
+  This: TryTerraformRating
 
   CLASS OceanTile : Tile<MarsArea> {
     DEFAULT +OceanTile<WaterArea(HAS MAX 0 Tile)>

@@ -79,9 +79,10 @@ internal class AridorTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<CryoSleep>>", "-10 MC", "CryoSleep FROM ProjectCard", "PROD[MC]")
       selectTask(
-          "TerraformRating FROM Disease<PharmacyUnion>! OR (MAX 0 Disease<PharmacyUnion>: (PlayedEvent<Kim, Class<PharmacyUnion>> FROM PharmacyUnion! THEN 3! TerraformRating) OR Ok)"
+          "TryTerraformRating FROM Disease<PharmacyUnion>! OR (MAX 0 Disease<PharmacyUnion>: (PlayedEvent<Kim, Class<PharmacyUnion>> FROM PharmacyUnion! THEN 3! TryTerraformRating) OR Ok)"
       )
-      doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
+      doTask("PlayedEvent FROM PharmacyUnion")
+      repeat(3) { doTask("TerraformRating") }
     }
 
     kim.inTurn {
@@ -108,9 +109,10 @@ internal class AridorTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<CryoSleep>>", "-10 MC", "CryoSleep FROM ProjectCard", "PROD[MC]")
       selectTask(
-          "TerraformRating FROM Disease<PharmacyUnion>! OR (MAX 0 Disease<PharmacyUnion>: (PlayedEvent<Kim, Class<PharmacyUnion>> FROM PharmacyUnion! THEN 3! TerraformRating) OR Ok)"
+          "TryTerraformRating FROM Disease<PharmacyUnion>! OR (MAX 0 Disease<PharmacyUnion>: (PlayedEvent<Kim, Class<PharmacyUnion>> FROM PharmacyUnion! THEN 3! TryTerraformRating) OR Ok)"
       )
-      doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
+      doTask("PlayedEvent FROM PharmacyUnion")
+      repeat(3) { doTask("TerraformRating") }
     }
 
     kim.inTurn {
@@ -136,8 +138,8 @@ internal class AridorTest : TfmSandboxTest() {
               "PlayProject<Class<BribedCommittee>>",
               "-7 MC",
               "BribedCommittee FROM ProjectCard",
-              "2 TerraformRating",
           )
+          repeat(2) { doTask("TerraformRating") }
         }
         .expect("PROD[0 MC]")
   }

@@ -62,7 +62,7 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
         doTask("AsteroidCard FROM ProjectCard")
         selectTask("TemperatureStep*")
         selectTask("2! Titanium")
-        selectTask("TerraformRating!")
+        selectTask("TryTerraformRating!")
         selectTask("-3? Plant<Anyone>")
         doTask("-Plant<Kim>")
       }

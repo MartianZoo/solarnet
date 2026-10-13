@@ -254,7 +254,7 @@ observations about current content, not restrictions on future content.
 The same temporary audit elaborated effects in solo and two-player premises across all seven maps,
 with the supported expansion/card packs selected. Trigger inference is actively used by placement
 bonuses, standard projects, colony rewards, phase offers, and global-parameter rewards. In
-particular, `GlobalParameter`'s `This: TerraformRating` acquires `BY Me@Player`, excluding Admin
+particular, `GlobalParameter`'s `This: TryTerraformRating` acquires `BY Me@Player`, excluding Admin
 events. That dependency does not itself demonstrate incorrect gameplay; removing inference needs
 a deliberate migration. The audit could not elaborate WildlifeDome's `GreeneryTile<>`, which has
 no gain dependency default to accept; that separate content defect limits the elaboration sweep.

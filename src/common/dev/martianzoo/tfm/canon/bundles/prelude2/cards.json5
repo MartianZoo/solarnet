@@ -115,20 +115,19 @@
         {
           "name": "PlanetaryAlliance",
           "tags": [ "EarthTag", "JovianTag", "VenusTag" ],
-          "direct": "2 TerraformRating, SearchForCard<TagFilter<Class<JovianTag>>>, SearchForCard<TagFilter<Class<VenusTag>>>",
+          "direct": "2 TryTerraformRating, SearchForCard<TagFilter<Class<JovianTag>>>, SearchForCard<TagFilter<Class<VenusTag>>>",
         },
         {
           "name": "PreservationProgram",
-          // Terraforming Deal defaults with this pack; keep PP individually selectable.
-          "autoSelectWhen": "Unsafe",
-          "direct": "5 TerraformRating",
-          "invariants": [ "Class<PreservationTrWatcher>" ],
+          "direct": "5 TryTerraformRating",
+          "invariants": [ "Class<PreservationTrWatcher>, Class<SkippedTerraformRating>" ],
           "effects": [
-            "X TerraformRating IF ActionPhase, MAX 0 ActionPhaseTrGain:: -TerraformRating",
+            "TerraformRating IF ActionPhase, MAX 0 ActionPhaseTrGain:: Die",
           ],
           "components": [
-            "CLASS PreservationTrWatcher : CardWatcher { TerraformRating IF ActionPhase:: ActionPhaseTrGain }",
-            "CLASS ActionPhaseTrGain<GenerationScope> : Owned",
+            "CLASS PreservationTrWatcher : CardWatcher { TryTerraformRating IF ActionPhase, MAX 0 ActionPhaseTrGain:: ActionPhaseTrGain* }",
+            "CLASS ActionPhaseTrGain<GenerationScope> : Owned { HAS MAX 1 This }",
+            "CLASS SkippedTerraformRating<PreservationProgram<@Player>, ActionPhase> : TryTerraformRating<@Player> { HAS MAX 1 This; This IF ActionPhaseTrGain:: Die }",
           ],
         },
         {
@@ -174,7 +173,7 @@
         {
           "name": "VenusContract",
           "tags": [ "VenusTag" ],
-          "direct": "SearchForCard<TagFilter<Class<VenusTag>>>, TerraformRating",
+          "direct": "SearchForCard<TagFilter<Class<VenusTag>>>, TryTerraformRating",
           "effects": [ "VenusStep: 3 MC" ],
         },
         {
@@ -185,7 +184,7 @@
         {
           "name": "WorldGovernmentAdvisor",
           "tags": [ "EarthTag" ],
-          "direct": "2 TerraformRating, ProjectCard",
+          "direct": "2 TryTerraformRating, ProjectCard",
           "actions": [ "-> GlobalParameter BY Admin" ],
         },
       ],
@@ -310,13 +309,13 @@
         {
           "name": "CorridorsOfPower",
           "tags": [ "EarthTag" ],
-          "direct": "TerraformRating, 4 MC",
+          "direct": "TryTerraformRating, 4 MC",
           "effects": [ "PartyLeader<Party>: ProjectCard" ],
         },
         {
           "name": "HighCircles",
           "tags": [ "EarthTag" ],
-          "direct": "TerraformRating, SearchForCard<ReferenceFilter<Class<PartyRequirement>>>, 2 PartyDelegate",
+          "direct": "TryTerraformRating, SearchForCard<ReferenceFilter<Class<PartyRequirement>>>, 2 PartyDelegate",
           "effects": [ "MeasureInfluence:: HighCirclesInfluence" ],
           "components": [
             "CLASS HighCirclesInfluence : Influence { HAS MAX 1 This }",
@@ -398,7 +397,7 @@
           "requirement": "4 EarthTag",
           "cost": 21,
           "tags": [ "EarthTag" ],
-          "direct": "3 TerraformRating, 2 PartyDelegate",
+          "direct": "3 TryTerraformRating, 2 PartyDelegate",
         },
         {
           "name": "SummitLogistics",

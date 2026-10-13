@@ -258,7 +258,7 @@
           "requirement": "VenusTag, EarthTag, JovianTag",
           "cost": 11,
           "tags": [ "BuildingTag" ],
-          "direct": "2 TerraformRating",
+          "direct": "2 TryTerraformRating",
         },
         {
           "name": "OrbitalReflectors",

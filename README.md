@@ -19,7 +19,7 @@
 | `ArcticAlgae`     | `OceanTile BY Actor: 2 Plant`                               |
 | `Insulation`      | `This: PROD[X MC FROM Heat]`                                |
 | `EarthCatapult`   | `PlayCard:: -2 Owed<MC>`                              |
-| `TerraformRating` | `ProductionPhase: MC`, `End: VictoryPoint`                  |
+| `TerraformRating` | `ProductionPhase: MC`, `End: VictoryPoint`              |
 | `CityProject`     | `25 MC -> CityTile<>, PROD[MC]`                             |
 | `CityTile`        | `End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>`   |
 

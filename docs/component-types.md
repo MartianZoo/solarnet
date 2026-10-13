@@ -73,18 +73,15 @@ The abstract class these all subclass is `Player`, which is both an `Owner` and 
 
 The `Owned` abstract type is extremely important. It has a dependency onto `Owner` (which `Player1` etc. all extend), meaning that every concrete instance of any `Owned` subclass must always know which owner it belongs to. Many, many component types have `Owned` as a direct or indirect supertype.
 
-A simple example of an owned component type is `VictoryPoint`.
-
-`TerraformRating` is a very simple class to understand; it looks like this:
+A simple example of an owned component type is `Production`:
 
 ```
-CLASS TerraformRating {
-    ProductionPhase: 1 MC
-    End: VictoryPoint
+CLASS Production<Class<@StandardResource>> : Owned, Real {
+    ProductionPhase: @StandardResource
 }
 ```
 
-When the `ProductionPhase` signal goes out, each occurence of `TerraformRating` generates 1 MC for its owner. Likewise when the `End` signal gets posted, each occurrence of `TR` generates a victory point. And that's all there is to terraform rating.
+When the `ProductionPhase` signal goes out, each occurrence of `Production<Class<MC>>` generates 1 MC for its owner. `Production<Class<Plant>>` generates a plant instead. The owner and resource kind are ordinary component dependencies.
 
 The `Owned-Owner` dependency is a regular component dependency just like any other in the game.
 
@@ -115,10 +112,10 @@ Resources are divided into `StandardResource` and `CardResource`. The latter has
 The standard resources are mostly boring except Energy has this:
 
 ```
-CLASS Energy { ProductionPhase:: Heat FROM This }
+CLASS Energy { ProductionPhase: Heat FROM This }
 ```
 
-We discussed the `Phase` types above. As much as possible, these types do nothing by themselves; they exist only to trigger instructions like this one. Every single Energy instance in the game will respond to that trigger by transmuting itself into Heat. The double colon ensures that it happens first before regular production.
+We discussed the `Phase` types above. As much as possible, these types do nothing by themselves; they exist only to trigger instructions like this one. Every single Energy instance in the game responds to that trigger by transmuting itself into Heat.
 
 ### Cards
 

@@ -27,8 +27,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
   internal fun game20230521() {
     listOf(p1, p2).forEach { it.autoExecPolicy = NONE }
     TfmWorkflow.Automatic(agents).launch()
-    p1.doTasks("20 TerraformRating")
-    p2.doTasks("20 TerraformRating")
     p1.doTasks(
         "2 CorporationCard",
         "-CorporationCard",
@@ -80,7 +78,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "-PreludeCard<Selecting>",
           "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
           "$UnmiContractor FROM PreludeCard<Selecting>",
-          "3 TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
           "ProjectCard",
       )
     }
@@ -561,7 +561,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "Ok", // no titanium paid
           "$SpinInducingAsteroid FROM ProjectCard",
           "2 VenusStep",
-          "2 TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
           "ProjectCard",
           "3 MC",
           "3 Heat",
@@ -1219,7 +1220,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "UseCardAction<$ExtractorBalloons, Action2>",
           "-2 Floater<$ExtractorBalloons>",
           "VenusStep",
-          "2 TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
       )
     }
 
@@ -1248,7 +1250,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "OceanTile<Tharsis_5_5>",
           "5 Plant",
           "TemperatureStep",
-          "2 TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
       )
       selectTask("2! Plant<Player2>")
       p2.doTasks("2 Plant")
@@ -1389,7 +1392,10 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "-4 Plant<Player1>",
           "4 Steel",
           "3 Plant",
-          "4 TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
           "6 MC",
       )
       doTasks(
@@ -1779,7 +1785,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "$Atmoscoop FROM ProjectCard",
           "2 VenusStep",
           "2 Floater<$AerialMappers>",
-          "2 TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
       )
 
       doTasks(
@@ -1796,7 +1803,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "-26 MC",
           "$NitrogenRichAsteroid FROM ProjectCard",
           "PROD[4 Plant]",
-          "2 TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
           "Ok", // temperature maxed
           "3 MC",
           "3 Heat",
@@ -2149,7 +2157,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_6_6>",
           "PROD[-4 Energy]",
           "PROD[2 Plant]",
-          "3 TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
           "6 MC",
           "Plant",
       )
@@ -2162,7 +2172,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "OceanTile<Tharsis_6_8>",
           "5 Plant",
           "OxygenStep",
-          "2 TerraformRating",
+          "TerraformRating",
+          "TerraformRating",
           "5 MC",
       )
     }

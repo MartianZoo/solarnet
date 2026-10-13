@@ -392,7 +392,7 @@ internal object TerraformingMarsDescribers {
                             ),
                     ),
             ),
-        klass("TerraformRating") to
+        klass("TryTerraformRating") to
             ComponentDescriber(
                 changeFrame = Frame.Scale("your terraform rating"),
                 requirement =

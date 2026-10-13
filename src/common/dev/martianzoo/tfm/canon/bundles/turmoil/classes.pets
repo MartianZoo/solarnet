@@ -125,7 +125,7 @@ ABSTRACT CLASS Party : Real {
     }, \
     EACH Leader@Player(HAS PartyLeader<This>) { \
       Chairman<Leader@> FROM PartyDelegate<This, Leader@> THEN \
-      TerraformRating<Leader@> \
+      TryTerraformRating<Leader@> \
     }, \
     EACH Leader@Neutral(HAS PartyLeader<This>) { \
       Chairman<Leader@> FROM PartyDelegate<This, Leader@> \
@@ -179,10 +179,10 @@ CLASS Reds : Party {
   ApplyRulingBonus<This> IF MAX 0 SoloMode:: EACH Lowest@Player( \
     HAS =1 (RANK Ranked@Player { TerraformRating<Anyone(NOT Ranked@)> }) \
   ) { \
-    TerraformRating<Lowest@> \
+    TryTerraformRating<Lowest@> \
   }
   ApplyRulingBonus<This> IF SoloMode:: EACH Me@Player(HAS MAX 20 TerraformRating) { \
-    TerraformRating \
+    TryTerraformRating \
   }
   ActionPhase IF Ruling<This>:: RedsPolicy
 }

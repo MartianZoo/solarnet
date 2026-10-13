@@ -91,6 +91,9 @@ a behavior or architecture change.
 ### Be exact about evidence
 
 - Separate verified current behavior, proposed behavior, and aspiration.
+- A selectable choice that later reaches a dead end is fundamentally acceptable. Do not treat that
+  possibility as a defect or as a reason to reject a design. The engine may offer such choices and
+  roll back a failed attempt; only an illegal result that commits is a correctness problem.
 - Prefer original logs, images, rules, and data over artifacts derived from them.
 - Do not invent game rules, requirements, abstractions, or explanations for surprising behavior.
 - Passing compilation or one narrow test is not enough evidence of success. Review the resulting

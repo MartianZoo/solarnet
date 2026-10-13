@@ -169,7 +169,7 @@
           "requirement": "JovianTag",
           "cost": 20,
           "tags": [ "JovianTag" ],
-          "direct": "TerraformRating, 2 Floater",
+          "direct": "TryTerraformRating, 2 Floater",
           "actions": [ "Titanium -> 2 Floater<This>" ],
           "effects": [ "End: VictoryPoint / 2 Floater<This>" ],
         },
@@ -243,7 +243,7 @@
           "name": "NitrogenFromTitan",
           "cost": 25,
           "tags": [ "JovianTag", "SpaceTag" ],
-          "direct": "2 TerraformRating, 2 Floater<CardFront(HAS JovianTag)>",
+          "direct": "2 TryTerraformRating, 2 Floater<CardFront(HAS JovianTag)>",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -359,7 +359,7 @@
           "tags": [ "JovianTag" ],
           "actions": [
             "Titanium -> 2 Floater<This>",
-            "2 Floater<This> -> TerraformRating"
+            "2 Floater<This> -> TryTerraformRating"
           ],
           "effects": [ "End: 2 VictoryPoint" ],
         },

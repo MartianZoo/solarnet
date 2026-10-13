@@ -63,7 +63,7 @@
           "name": "BribedCommittee",
           "cost": 7,
           "tags": [ "EarthTag", "EventTag" ],
-          "direct": "2 TerraformRating",
+          "direct": "2 TryTerraformRating",
           "effects": [ "End: -2 VictoryPoint" ],
         },
         {
@@ -96,7 +96,7 @@
           "name": "CaretakerContract",
           "requirement": "15 TemperatureStep",
           "cost": 3,
-          "actions": [ "8 Heat -> TerraformRating" ],
+          "actions": [ "8 Heat -> TryTerraformRating" ],
         },
         {
           "name": "Cartel",
@@ -463,7 +463,7 @@
           "name": "TerraformingGanymede",
           "cost": 33,
           "tags": [ "JovianTag", "SpaceTag" ],
-          "direct": "TerraformRating / JovianTag",
+          "direct": "TryTerraformRating / JovianTag",
           "effects": [ "End: 2 VictoryPoint" ],
         },
         {

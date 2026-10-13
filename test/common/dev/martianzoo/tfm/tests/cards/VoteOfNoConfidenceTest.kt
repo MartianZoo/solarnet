@@ -36,7 +36,7 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
         doTask("PlayProject<Class<VoteOfNoConfidence>>")
         selectTask("-X? MC")
         doTasks("-5 MC", "VoteOfNoConfidence FROM ProjectCard")
-        selectTask("TerraformRating!")
+        selectTask("TryTerraformRating!")
         selectTask("Chairman<Kim FROM Neutral>!")
       }
     }
@@ -57,7 +57,7 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
         doTask("PlayProject<Class<VoteOfNoConfidence>>")
         selectTask("-X? MC")
         doTasks("-5 MC", "VoteOfNoConfidence FROM ProjectCard")
-        selectTask("TerraformRating!")
+        selectTask("TryTerraformRating!")
         selectTask("Chairman<Kim FROM Neutral>!")
       }
     }

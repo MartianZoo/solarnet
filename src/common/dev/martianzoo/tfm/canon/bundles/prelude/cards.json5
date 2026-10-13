@@ -157,7 +157,7 @@
         },
         {
           "name": "NitrogenShipment",
-          "direct": "TerraformRating, PROD[Plant], 5 MC",
+          "direct": "TryTerraformRating, PROD[Plant], 5 MC",
         },
         {
           "name": "OrbitalConstructionYard",
@@ -200,7 +200,7 @@
         {
           "name": "UnmiContractor",
           "tags": [ "EarthTag" ],
-          "direct": "3 TerraformRating, ProjectCard",
+          "direct": "3 TryTerraformRating, ProjectCard",
         },
       ],
     },

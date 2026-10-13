@@ -117,8 +117,9 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun manualWorkflowStartsFullyEffectfulGenerationOneSetup() {
     val game = TfmEngine.newGame(canonicalPremise())
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    game.testAgent(PLAYER1).autoExecPolicy = NONE
+    game.testAgent(PLAYER2).autoExecPolicy = NONE
+    val checkpoint = game.timeline.checkpoint()
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
 
     val admin = game.testAgent(ADMIN)
@@ -126,23 +127,30 @@ internal class BootstrapLifecycleTest {
     admin.count("SetupPhase") shouldBe 1
     admin.count("Generation") shouldBe 1
     admin.count("StartToken<Player1>") shouldBe 1
-    admin.count("TerraformRating<Player1>") shouldBe 0
-    admin.count("TerraformRating<Player2>") shouldBe 0
-    p1.doTask("20 TerraformRating")
-    p2.doTask("20 TerraformRating")
     admin.count("TerraformRating<Player1>") shouldBe 20
     admin.count("TerraformRating<Player2>") shouldBe 20
+    val startingTr =
+        game.events.changesSince(checkpoint).filter {
+          it.change.gaining?.className == cn("TerraformRating")
+        }
+    startingTr.size shouldBe 40
+    startingTr.all { it.actor == ADMIN } shouldBe true
   }
 
   @Test
-  internal fun soloPlayerTakesStartingTerraformRatingDuringSetup() {
+  internal fun adminGivesSoloPlayerStartingTerraformRatingDuringSetup() {
     val game = TfmEngine.newGame(canonicalPremise(players = 1))
-    val player = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    game.testAgent(PLAYER1).autoExecPolicy = NONE
+    val checkpoint = game.timeline.checkpoint()
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
 
-    game.testAgent(ADMIN).count("TerraformRating<Player1>") shouldBe 0
-    player.doTask("14 TerraformRating")
     game.testAgent(ADMIN).count("TerraformRating<Player1>") shouldBe 14
+    val startingTr =
+        game.events.changesSince(checkpoint).filter {
+          it.change.gaining?.className == cn("TerraformRating")
+        }
+    startingTr.size shouldBe 14
+    startingTr.all { it.actor == ADMIN } shouldBe true
   }
 
   @Test

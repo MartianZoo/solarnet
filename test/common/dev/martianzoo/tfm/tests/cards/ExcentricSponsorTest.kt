@@ -23,7 +23,8 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
             selectTask("-25* Owed")
             doTask("-6 MC")
             selectTask("-X? Titanium")
-            doTasks("Ok", "NitrogenRichAsteroid FROM ProjectCard", "2 TerraformRating")
+            doTasks("Ok", "NitrogenRichAsteroid FROM ProjectCard")
+            repeat(2) { doTask("TerraformRating") }
             selectTask("TemperatureStep*")
             selectTask("PROD[Plant] OR (3 PlantTag: PROD[4 Plant])")
             doTask("TerraformRating")
