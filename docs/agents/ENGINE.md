@@ -87,7 +87,7 @@ selection representing an inhabited concrete Class has a live `Class<T>` compone
 negative selection lacks one.
 
 Bootstrap does not change ordinary Pets meaning to force progress: it must not turn queued `:`
-effects into automatic `::` effects or discard a change's `?`, `.`, or `!` quantifier. Starting
+effects into automatic `::` effects or discard a change's `?`, `*`, or `!` quantifier. Starting
 state that requires a Player choice remains exact premise state which opens that choice during
 ordinary setup; bootstrap does not make it on the Player's behalf.
 
@@ -141,7 +141,8 @@ resources or presentation order.
 `Timeline` adds checkpoints, failure-atomic blocks, rollback, and a commit floor. An atomic failure
 restores components, Tasks, events, and derived indexes together.
 `Exceptions.AbortTransactionException` requests that restoration without surfacing as a caller
-failure. The commit floor prevents rollback across initialization or a committed workflow boundary.
+failure. The commit floor prevents rollback across initialization or a fork point. Gameplay commits
+nothing, so rollback may deliberately cross turn and phase changes.
 
 These commits are local timeline mechanics, not acceptance of a shared game's Git history. They
 do not grant or deny a takeback between players. [ADVERSARIAL.md](ADVERSARIAL.md) places that

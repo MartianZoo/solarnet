@@ -123,8 +123,8 @@ default to accept. A bare removal can also deliberately decline its removal-only
 ## 10. Put an amount policy on the class, then omit it everywhere else
 
 Classes can declare gain and removal quantifiers. Bare `I` then inherits a policy: mandatory `!`,
-as-much-as-possible `.`, or optional `?`. A single class declaration governs many cards and
-effects. In particular, `GlobalParameter` gains use `.`, while `CardResource` gains use `.`.
+as-much-as-possible `*`, or optional `?`. A single class declaration governs many cards and
+effects. In particular, `GlobalParameter` and `CardResource` gains both use `*`.
 
 - **Large Convoy:** [`5 Plant OR 4 Animal`](../src/common/dev/martianzoo/tfm/canon/bundles/base/cards.json5) inherits ordinary plant and card-resource gain policies. The animal arm can give as many as a compatible holder permits, including zero if no useful holder exists.
 - **Atmoscoop:** [`2 TemperatureStep OR 2 VenusStep`](../src/common/dev/martianzoo/tfm/canon/bundles/venus/cards.json5) inherits `GlobalParameter`'s as-much-as-possible gain policy, so a track with less than two spaces left can still be raised to its limit.
@@ -162,7 +162,7 @@ that choice. It can replace a long manually enumerated list while keeping each c
 single generic rule can therefore make subclass-specific records and consequences without one
 effect per card, resource, or global parameter.
 
-- **Event cards:** [`This: LATER { PlayedEvent<Class<This>> FROM This. }`](../src/common/dev/martianzoo/tfm/canon/bundles/base/card-model.pets) records the exact event-card class when that card is flipped.
+- **Event cards:** [`This: LATER { PlayedEvent<Class<This>> FROM This* }`](../src/common/dev/martianzoo/tfm/canon/bundles/base/card-model.pets) records the exact event-card class when that card is flipped.
 - **Global parameters:** [`This: TerraformRating`](../src/common/dev/martianzoo/tfm/canon/bundles/base/board.pets) gives the actor TR when an oxygen, temperature, ocean, or Venus step is raised, all from the one `GlobalParameter` superclass rule.
 
 The contextual actor still matters: an Admin-driven step is not a player's TR gain. Inherited

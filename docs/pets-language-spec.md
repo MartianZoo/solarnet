@@ -533,10 +533,10 @@ Deferral settles nothing early. Admitted work is resolved when it is carried out
 `LATER { Done / Flag }` counts the flags present then.
 
 > **Non-normative example — played events.** `EventCard`'s
-> `This: LATER { PlayedEvent<Class<This>> FROM This. }` keeps a just-played event face up until the
+> `This: LATER { PlayedEvent<Class<This>> FROM This* }` keeps a just-played event face up until the
 > work its play caused has finished; then its owner moves it to the played-event pile. Solar Probe
 > draws a card per three science tags, counting its own. As ordinary work, the flip would be an
-> independent task (L2-9) that could be performed first. The `.` lets the flip find nothing when Law
+> independent task (L2-9) that could be performed first. The `*` lets the flip find nothing when Law
 > Suit has already moved itself into another player's pile.
 
 > **Non-normative example — trading.** `Trade` dispatches `LATER { FinishTrade<@ColonyTile> }`,

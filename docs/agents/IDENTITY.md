@@ -275,5 +275,5 @@ an observable attribution consequence when material. Do not match rendered task 
 event metadata merely to restate the mechanism.
 
 Read `EffectActorCharacterizationTest`, `TaskAssignmentCharacterizationTest`,
-`ByTriggerCharacterizationTest`, `TaskDelegationTest`, and `PhilaresTest` before changing these
+`ByTriggerCharacterizationTest`, `TaskDispatchTest`, and `PhilaresTest` before changing these
 contracts.

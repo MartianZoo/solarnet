@@ -242,7 +242,7 @@ Pets declaration:
 CLASS AsteroidCard : EventCard {
   HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 14
-  This: TemperatureStep, 2 Titanium, -3 Plant<Anyone>?
+  This: TemperatureStep, 2 Titanium, -3? Plant<Anyone>
 }
 ```
 
@@ -302,7 +302,7 @@ Pets declaration:
 CLASS BigAsteroid : EventCard {
   HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 27
-  This: 2 TemperatureStep, 4 Titanium, -4 Plant<Anyone>?
+  This: 2 TemperatureStep, 4 Titanium, -4? Plant<Anyone>
 }
 ```
 
@@ -501,7 +501,7 @@ Pets declaration:
 CLASS Comet : EventCard {
   HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 21
-  This: TemperatureStep, OceanTile<>, -3 Plant<Anyone>?
+  This: TemperatureStep, OceanTile<>, -3? Plant<Anyone>
 }
 ```
 
@@ -599,7 +599,7 @@ Pets declaration:
 CLASS DeimosDown : EventCard {
   HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 31
-  This: 3 TemperatureStep, 4 Steel, -8 Plant<Anyone>?
+  This: 3 TemperatureStep, 4 Steel, -8? Plant<Anyone>
 }
 ```
 
@@ -823,7 +823,7 @@ Pets declaration:
 CLASS Flooding : EventCard {
   HAS =1 EventTag<This>
   cost = 7
-  This: OceanTile<> OR (GpIncomplete<Class<OceanTile>>: (OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>! THEN -4 MC<@Anyone>?))
+  This: OceanTile<> OR (GpIncomplete<Class<OceanTile>>: (OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>! THEN -4? MC<@Anyone>))
   End: -VictoryPoint
 }
 ```
@@ -981,7 +981,7 @@ Pets declaration:
 CLASS GiantIceAsteroid : EventCard {
   HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 36
-  This: 2 TemperatureStep, 2 OceanTile<>, -6 Plant<Anyone>?
+  This: 2 TemperatureStep, 2 OceanTile<>, -6? Plant<Anyone>
 }
 ```
 
@@ -1649,7 +1649,7 @@ Pets declaration:
 CLASS MiningExpedition : EventCard {
   HAS =1 EventTag<This>
   cost = 12
-  This: OxygenStep, -2 Plant<Anyone>?, 2 Steel
+  This: OxygenStep, -2? Plant<Anyone>, 2 Steel
 }
 ```
 
@@ -3810,7 +3810,7 @@ Pets declaration:
 CLASS Sabotage : EventCard {
   HAS =1 EventTag<This>
   cost = 1
-  This: -3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 MC<Anyone>?
+  This: -3? Titanium<Anyone> OR -4? Steel<Anyone> OR -7? MC<Anyone>
 }
 ```
 
@@ -4122,7 +4122,7 @@ Pets declaration:
 CLASS Virus : EventCard {
   HAS =1 MicrobeTag<This>, =1 EventTag<This>
   cost = 1
-  This: -2 Animal<Anyone>? OR -5 Plant<Anyone>?
+  This: -2? Animal<Anyone> OR -5? Plant<Anyone>
 }
 ```
 
@@ -4246,7 +4246,7 @@ Pets declaration:
 CLASS CometForVenus : EventCard {
   HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 11
-  This: VenusStep, -4 MC<Anyone(HAS VenusTag)>?
+  This: VenusStep, -4? MC<Anyone(HAS VenusTag)>
 }
 ```
 
@@ -5556,7 +5556,7 @@ CLASS ImpactorSwarm : EventCard {
   HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 11
   requirement = HAS "2 JovianTag"
-  This: 12 Heat, -2 Plant<Anyone>?
+  This: 12 Heat, -2? Plant<Anyone>
 }
 ```
 
@@ -6244,7 +6244,7 @@ Pets declaration:
 CLASS AerialLenses : AutomatedCard {
   cost = 2
   requirement = HAS "PartyRequirement<Kelvinists>"
-  This: -2 Plant<Anyone>?, PROD[2 Heat]
+  This: -2? Plant<Anyone>, PROD[2 Heat]
   End: -VictoryPoint
 }
 ```
@@ -6265,7 +6265,7 @@ CLASS BannedDelegate : EventCard {
   HAS =1 EventTag<This>
   cost = 0
   requirement = HAS "Chairman"
-  This: BannedDelegateRemoval<Party, Anyone>. / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1
+  This: BannedDelegateRemoval<Party, Anyone>* / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1
 }
 ```
 
@@ -6870,7 +6870,7 @@ Pets declaration:
 CLASS DeimosDownPromo : EventCard {
   HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 31
-  This: 3 TemperatureStep, DeimosDownPromo_SpecialTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>, 4 Steel, -6 Plant<Anyone>?
+  This: 3 TemperatureStep, DeimosDownPromo_SpecialTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>, 4 Steel, -6? Plant<Anyone>
 }
 ```
 
@@ -7068,7 +7068,7 @@ CLASS HiTechLab : ActiveCard, ActionCard {
   HAS =1 ScienceTag<This>, =1 BuildingTag<This>
   cost = 17
   End: VictoryPoint
-  X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting> THEN -X ProjectCard<Selecting>.
+  X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting> THEN -X* ProjectCard<Selecting>
 }
 ```
 
@@ -7701,7 +7701,7 @@ Pets declaration:
 CLASS SmallAsteroid : EventCard {
   HAS =1 SpaceTag<This>, =1 EventTag<This>
   cost = 10
-  This: TemperatureStep, -2 Plant<Anyone>?
+  This: TemperatureStep, -2? Plant<Anyone>
 }
 ```
 
@@ -8230,7 +8230,7 @@ Pets declaration:
 CLASS VenusOrbitalSurvey : ActiveCard, ActionCard {
   HAS =1 VenusTag<This>, =1 SpaceTag<This>
   cost = 18
-  -> 2 ProjectCard<Selecting> THEN 2 TakeSelectedCard<TagFilter<Class<VenusTag>>>? THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards
+  -> 2 ProjectCard<Selecting> THEN 2? TakeSelectedCard<TagFilter<Class<VenusTag>>> THEN -2? ProjectCard<Selecting> THEN BuySelectedCards
 }
 ```
 

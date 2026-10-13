@@ -342,7 +342,7 @@ internal constructor(
    * Resolution iterates to a fixed point. Examples include:
    * * Replaces inert instructions with `Ok`
    * * Auto-narrows gained and removed types to the extent possible
-   * * Modifies a `?` or `.` change based on limits (upgrading `.` to `!`)
+   * * Modifies a `?` or `*` change based on limits (upgrading `*` to `!`)
    * * Validates and removes "gates"
    * * Evaluates a metric in a [Per] instruction, multiplying the inner instruction appropriately
    * * Resolves each option of an [Or]

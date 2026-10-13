@@ -725,8 +725,8 @@ CLASS MonsInsurance : CardFront<Class<CorporationCard>> {
   HAS Class<AttackHistoryWatcher>
   cost = 0
   This: 48 MC, PROD[4 MC], EACH Other@Player(NOT Me@) { PROD[-2 MC<Other@Player>] BY Other@Player }
-  MyResourceWasRemoved<Victim@Anyone(NOT Me@)>: 3 MC<Victim@Anyone FROM Me@>.
-  MyProductionWasDecreased<Victim@Anyone(NOT Me@)>: 3 MC<Victim@Anyone FROM Me@>.
+  MyResourceWasRemoved<Victim@Anyone(NOT Me@)>: 3* MC<Victim@Anyone FROM Me@>
+  MyProductionWasDecreased<Victim@Anyone(NOT Me@)>: 3* MC<Victim@Anyone FROM Me@>
 }
 ```
 
@@ -747,7 +747,7 @@ CLASS PharmacyUnion : ResourceCard<Class<Disease>, Class<CorporationCard>> {
   cost = 0
   This:: 54 MC
   This: SearchForCard<TagFilter<Class<ScienceTag>>>
-  MicrobeTag<Anyone>: Disease<This>! OR (MAX 0 This: Ok), -4 MC.
+  MicrobeTag<Anyone>: Disease<This>! OR (MAX 0 This: Ok), -4* MC
   ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease<This>: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)
 }
 ```
@@ -828,7 +828,7 @@ CLASS TychoMagnetics : ActionCard<Class<CorporationCard>> {
   HAS =1 PowerTag<This>, =1 ScienceTag<This>
   cost = 0
   This: 42 MC, PROD[Energy]
-  X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting> THEN -X ProjectCard<Selecting>.
+  X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting> THEN -X* ProjectCard<Selecting>
 }
 ```
 

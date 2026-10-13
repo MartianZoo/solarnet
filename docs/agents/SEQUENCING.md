@@ -322,11 +322,11 @@ Devices replaced by deferral:
 
 | Former device | Deferred work now |
 | --- | --- |
-| `EventCard` as `Temporary` | `This: LATER { PlayedEvent<Class<This>> FROM This. }`, performed by the owner |
+| `EventCard` as `Temporary` | `This: LATER { PlayedEvent<Class<This>> FROM This* }`, performed by the owner |
 | `TradeBarrier` | `Trade`'s `This: LATER { FinishTrade<@ColonyTile> }` |
 | `TurmoilSolarOperation` | `SolarPhase: LATER { TurmoilPhase }`; `TurmoilPhase: ResolveGlobalEvent, LATER { FormGovernment THEN ChangingTimes }` |
 | `L1GiftWatcher` as `Temporary` | `LATER { -This! }` beside the gift fanout |
-| `FakeWildTagUse` as `Temporary` | `StandardAction: LATER { -This. }` and `PlayPrelude: LATER { -This. }` |
+| `FakeWildTagUse` as `Temporary` | `StandardAction: LATER { -This* }` and `PlayPrelude: LATER { -This* }` |
 
 `FinalScoringPending` and the `Temporary` `MeasureAward` were replaced by a phase instead: `End`
 scores, and the terminal `VictoryPhase` names the winner after that work has finished. With these
@@ -424,13 +424,13 @@ while P2's payment remains.
 
 - [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt): task replacement,
   selection, and execution.
-- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt): controller, assignees, selection, and
+- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt): assignee, selection, deferral, and
   cause.
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) and
   [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt): automatic and queued effects.
 - [`WorldTransaction.kt`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) and
-  [`Engine.kt`](../../src/common/dev/martianzoo/engine/Engine.kt): settlement and cleanup.
+  [`Engine.kt`](../../src/common/dev/martianzoo/engine/Engine.kt): settlement.
 - [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt): admission and
   promotion of deferred work.
-- `TaskDelegationTest`, `PhilaresTest`, `DeferredWorkTest`, and the Neptunian cases in
+- `TaskDispatchTest`, `PhilaresTest`, `DeferredWorkTest`, and the Neptunian cases in
   `FloodingTest`: current observable contracts and gaps.
