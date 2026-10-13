@@ -212,8 +212,9 @@ Keep tasks brief; linked notes and tests carry the background.
 - Replace the [archived Life of an Effect walkthrough](docs/archive/life-of-an-effect.md) with a
   current account of lexical `Me` and the transformation pipeline.
 - Reconsider Turmoil's `PartyLeader` representation and name. It currently supplements the actual
-  `PartyDelegate` as a non-`Delegate` role; decide whether a clearer role name or a true delegate
-  subtype can express leadership without representing or counting the physical marker twice.
+  `PartyDelegate` as a non-`Delegate` role; evaluate the exploratory
+  [Leader/Follower delegate model](docs/agents/DELEGATES.md), especially choice-free subtype
+  selection and leadership after removal, before deciding whether to replace the marker.
 - Find a clean way to make Turmoil's `ApplyRulingBonus` player-owned without complicating the Reds
   tied-lowest-player selection. It currently remains one global signal whose party effect fans out
   over the players.
