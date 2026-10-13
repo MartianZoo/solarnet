@@ -1,41 +1,13 @@
 package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.tfm.canon.Canon
-import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class EnglishGlobalEventTextTest {
+internal class EnglishInstructionRenderingTest {
   private val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
-
-  @Test
-  internal fun allGlobalEventTextMatchesCurrentSnapshot() {
-    val current =
-        EnglishTextData.parse(readEnglishCardText("english-global-event-text-current.tsv"))
-    val published =
-        EnglishTextData.parse(
-            readEnglishCardText("english-global-event-published-wording-evidence.tsv")
-        )
-    val globalEffect = Canon.classTable.getClass(cn("GlobalEffect"))
-    current.keys shouldBe
-        Canon.classTable.allClassNames
-            .map(Canon.classTable::getClass)
-            .filter { !it.abstract && it.isSubtypeOf(globalEffect) }
-            .map { it.className }
-            .toSet()
-    current.keys.toList() shouldBe published.keys.toList()
-    current.forEach { (name, expected) ->
-      withClue(name.toString()) {
-        expected.englishName shouldBe published.getValue(name).englishName
-        val actual = english.renderGlobalEffect(Canon.classTable.getClass(name))
-        actual.text shouldBe expected.text
-        countRenderedPetsFallbacks(actual.text) shouldBe actual.unresolved.size
-      }
-    }
-  }
 
   @Test
   internal fun preservesCapOrderAndResourceRetention() {

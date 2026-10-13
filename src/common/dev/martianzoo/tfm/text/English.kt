@@ -14,7 +14,6 @@ import dev.martianzoo.tfm.canon.cardDirectEffect
 import dev.martianzoo.tfm.canon.cardEffects
 import dev.martianzoo.tfm.canon.cardRequirement
 import dev.martianzoo.tfm.canon.cardResourceType
-import dev.martianzoo.tfm.text.turmoilexpansion.renderGlobalEffect
 
 /** English Pets text using one structural vocabulary and its sparse component descriptions. */
 internal class English(
@@ -41,14 +40,6 @@ internal class English(
   /** Returns the best available English text describing [goal]. */
   internal fun renderGoal(goal: Class): EnglishRendering {
     val rendered = renderGoal(goal, describers)
-    return EnglishRendering(rendered.linearize(), rendered.unresolved())
-  }
-
-  /**
-   * Returns the resolution text addressed to each player for a global event's lower-half effect.
-   */
-  internal fun renderGlobalEffect(effect: Class): EnglishRendering {
-    val rendered = renderGlobalEffect(effect, describers)
     return EnglishRendering(rendered.linearize(), rendered.unresolved())
   }
 

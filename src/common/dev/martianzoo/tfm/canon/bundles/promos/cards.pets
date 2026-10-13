@@ -10,65 +10,46 @@ CLASS NomadsMarker : Owned<Player>, AreaPiece<@LandArea> {
 // Published promotional Global Events, appended to the generated cards.
 CLASS JovianColonyBoom : GePartyDistant<Scientists>, GePartyCurrent<Unity> {
   HAS Class<Colony>
-  Current<This>:: JovianTaxRights<This>
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<JovianTaxRights>>
 }
 
 CLASS JovianTaxRights : GlobalEffect {
-  ResolveGlobalEvent: EACH Me@Player { \
-    PROD[MC / Colony MAX 5], Titanium / Influence \
-  }
+  This: PROD[MC / Colony MAX 5], Titanium / Influence
 }
 
 CLASS Diaspora : GePartyDistant<MarsFirst>, GePartyCurrent<Scientists> {
   HAS Class<Colony>
-  Current<This>:: MicrogravityHealthProblems<This>
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<MicrogravityHealthProblems>>
 }
 
 CLASS MicrogravityHealthProblems : GlobalEffect {
-  ResolveGlobalEvent: EACH Me@Player { \
-    -3* MC / (Colony MAX 5 - Influence) \
-  }
+  This: -3* MC / (Colony MAX 5 - Influence)
 }
 
 CLASS MartianProtectionism : GePartyDistant<MarsFirst>, GePartyCurrent<Unity> {
   HAS Class<VenusTag>
-  Current<This>:: VenusInfrastructure<This>
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<VenusInfrastructure>>
 }
 
 CLASS VenusInfrastructure : GlobalEffect {
-  ResolveGlobalEvent: EACH Me@Player { \
-    2 MC / VenusTag MAX 5, 2 MC / Influence \
-  }
+  This: 2 MC / VenusTag MAX 5, 2 MC / Influence
 }
 
 CLASS TitanVenusAlliance : GePartyDistant<Unity>, GePartyCurrent<Reds> {
   HAS Class<VenusTag>, Class<Colony>
-  Current<This>:: CloudSocieties<This>
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<CloudSocieties>>
 }
 
 CLASS CloudSocieties : GlobalEffect {
-  ResolveGlobalEvent: \
-    EACH @ResourceCard<Class<Floater>, Anyone> { \
-      Floater<@ResourceCard> \
-    }
-  ResolveGlobalEvent: EACH Me@Player { ChooseInfluenceFloaterCard }
-}
-
-"Lets one player put all Cloud Societies influence floaters on a single compatible card"
-CLASS ChooseInfluenceFloaterCard : Owned<Player>, Signal, System {
+  This IF StartToken: EACH @ResourceCard<Class<Floater>, Anyone> { Floater<@ResourceCard> BY Admin }
   This: Floater<ResourceCard<Class<Floater>>> / Influence
 }
 
 CLASS ImmigrationToVenus : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
   HAS Class<VenusTag>, Class<Colony>
-  Current<This>:: CorrosiveRain<This>
+  Current<This>:: PendingGlobalEffect<Current<This>, Class<CorrosiveRain>>
 }
 
 CLASS CorrosiveRain : GlobalEffect {
-  ResolveGlobalEvent: EACH Me@Player { ResolveCorrosiveRain }
-}
-
-"Lets one player pay Corrosive Rain before drawing cards for influence"
-CLASS ResolveCorrosiveRain : Owned<Player>, Signal, System {
-  This: (-2 Floater OR -10* MC) THEN ProjectCard / Influence
+  This: (-2! Floater OR -10* MC) THEN ProjectCard / Influence
 }

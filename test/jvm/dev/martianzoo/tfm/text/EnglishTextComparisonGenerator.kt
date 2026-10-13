@@ -19,10 +19,6 @@ private object EnglishTextComparisonGenerator {
         EnglishCardTextData.parse(readEnglishCardText("english-published-wording-evidence.tsv"))
     val goals =
         EnglishTextData.parse(readEnglishCardText("english-goal-published-wording-evidence.tsv"))
-    val events =
-        EnglishTextData.parse(
-            readEnglishCardText("english-global-event-published-wording-evidence.tsv")
-        )
     val categories =
         listOf(
             Category("corporations", "Corporations", "CorporationCard"),
@@ -30,7 +26,6 @@ private object EnglishTextComparisonGenerator {
             Category("preludes", "Preludes", "PreludeCard"),
             Category("milestones", "Milestones", "Milestone", card = false),
             Category("awards", "Awards", "Award", card = false),
-            Category("global-events", "Global event effects", "GlobalEffect", card = false),
             Category("other-cards", "Other cards", "CardBack"),
         )
     val components =
@@ -53,8 +48,7 @@ private object EnglishTextComparisonGenerator {
         candidate?.isSubtypeOf(catalog.classTable.getClass(cn(category.superclass))) == true
       }
     }
-    val missingComponents =
-        (cards.keys + goals.keys + events.keys) - components.map { it.className }.toSet()
+    val missingComponents = (cards.keys + goals.keys) - components.map { it.className }.toSet()
     require(missingComponents.isEmpty()) { "Evidence has unlisted components: $missingComponents" }
     val bundleNames =
         listOf(
@@ -101,7 +95,6 @@ private object EnglishTextComparisonGenerator {
           when (category.id) {
             "milestones",
             "awards" -> "english-goal-published-wording-evidence.tsv"
-            "global-events" -> "english-global-event-published-wording-evidence.tsv"
             else -> "english-published-wording-evidence.tsv"
           }
       var missing = 0
@@ -127,7 +120,7 @@ private object EnglishTextComparisonGenerator {
                   .forEach { component ->
                     val name = component.className
                     val printedCard = cards[name]
-                    val printedText = (if (category.id == "global-events") events else goals)[name]
+                    val printedText = goals[name]
                     val printedName = printedCard?.englishName ?: printedText?.englishName
                     val title = printedName ?: displayName(catalog, name)
                     val hasEvidence =
@@ -149,9 +142,7 @@ private object EnglishTextComparisonGenerator {
                           "| Generated text | ${cell(rendering.bottom)} | ${cell(rendering.top)} |"
                       )
                     } else {
-                      val rendering =
-                          if (category.id == "global-events") english.renderGlobalEffect(component)
-                          else english.renderGoal(component)
+                      val rendering = english.renderGoal(component)
                       appendLine("| | Text |")
                       appendLine("| --- | --- |")
                       appendLine("| Printed text | ${cell(printedText?.text)} |")
@@ -182,6 +173,11 @@ private object EnglishTextComparisonGenerator {
               appendLine("| --- | ---: | ---: |")
               indexRows.forEach(::appendLine)
               appendLine()
+              appendLine(
+                  "Global Event comparisons are paused while their renderer is updated for " +
+                      "player-owned effects. The published wording evidence remains in the source corpus."
+              )
+              appendLine()
               appendLine("## Reading the comparisons")
               appendLine()
               appendLine(
@@ -189,11 +185,11 @@ private object EnglishTextComparisonGenerator {
               )
               appendLine()
               appendLine(
-                  "Coverage includes every canonical card, milestone, award, and global event, plus the abstract Beginner Corporation and replay-only card models named in the published evidence. Replay-only models are listed separately; they may deliberately differ from the physical cards. Classes distinguish names shared by different milestone or award variants."
+                  "Coverage includes every canonical card, milestone, and award, plus the abstract Beginner Corporation and replay-only card models named in the published evidence. Replay-only models are listed separately; they may deliberately differ from the physical cards. Classes distinguish names shared by different milestone or award variants."
               )
               appendLine()
               appendLine(
-                  "Card tables retain the bottom/top text regions. Costs, tags, fixed victory-point icons, and other icon-only information are outside those text regions. Global events compare resolution text only. Pets blocks serialize each authored class declaration with normalized formatting; they are not transcriptions of the physical component. Inherited behavior is declared on the named superclass (including the five Beginner Corporation copies)."
+                  "Card tables retain the bottom/top text regions. Costs, tags, fixed victory-point icons, and other icon-only information are outside those text regions. Pets blocks serialize each authored class declaration with normalized formatting; they are not transcriptions of the physical component. Inherited behavior is declared on the named superclass (including the five Beginner Corporation copies)."
               )
               appendLine()
               appendLine(

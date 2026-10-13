@@ -43,6 +43,25 @@ internal class WorldGovernmentTerraformingTest {
   }
 
   @Test
+  internal fun `first player chooses the threshold ocean after Admin raises temperature`() {
+    val game = setUpGame(VenusNextExpansion, players = 2)
+    val admin = game.testTfm(ADMIN)
+    val p2 = game.testTfm(PLAYER2)
+    admin.runOperation("StartToken<Player2> FROM StartToken<Player1>")
+    admin.runOperation("14 TemperatureStep")
+    val checkpoint = game.timeline.checkpoint()
+
+    admin.runOperation("TemperatureStep") { p2.doTask("OceanTile<Tharsis_1_2> BY Admin") }
+
+    val ocean =
+        game.events.changesSince(checkpoint).single {
+          it.change.gaining?.className.toString() == "OceanTile"
+        }
+    ocean.actor shouldBe ADMIN
+    admin.count("TemperatureStep") shouldBe 15
+  }
+
+  @Test
   internal fun `World Government is skipped after every parameter is complete`() {
     val game = setUpGame(VenusNextExpansion)
     val admin = game.testTfm(ADMIN)

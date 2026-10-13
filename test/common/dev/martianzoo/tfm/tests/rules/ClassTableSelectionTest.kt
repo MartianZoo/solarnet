@@ -240,8 +240,6 @@ internal class ClassTableSelectionTest {
           setOf(
               cn("MinimalImpactPolicy"),
               cn("DryDeserts"),
-              cn("RemoveOceanForGlobalEvent"),
-              cn("ResolveDryDeserts"),
           ),
       )
     }

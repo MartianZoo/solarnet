@@ -6,43 +6,27 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import java.io.File
 
-private object EnglishTextCurrentGenerator {
+private object EnglishGoalTextCurrentGenerator {
   @JvmStatic
   fun main(args: Array<String>) {
-    require(args.size == 3)
-    val globalEvents = args[2] == "global-events"
-    require(globalEvents || args[2] == "goals")
+    require(args.size == 2)
     val output = File(args[0])
     val refusalOutput = File(args[1])
-    val published =
-        if (globalEvents)
-            EnglishTextData.parse(
-                readEnglishCardText("english-global-event-published-wording-evidence.tsv")
-            )
-        else emptyMap()
-    val previousOrder =
-        if (globalEvents) published.keys else EnglishTextData.parse(output.readText()).keys
+    val previousOrder = EnglishTextData.parse(output.readText()).keys
     val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
     val milestone = Canon.classTable.getClass(cn("Milestone"))
     val award = Canon.classTable.getClass(cn("Award"))
-    val globalEffect = Canon.classTable.getClass(cn("GlobalEffect"))
     val components =
         Canon.classTable.allClassNames
             .map(Canon.classTable::getClass)
-            .filter {
-              !it.abstract &&
-                  if (globalEvents) it.isSubtypeOf(globalEffect)
-                  else it.isSubtypeOf(milestone) || it.isSubtypeOf(award)
-            }
+            .filter { !it.abstract && (it.isSubtypeOf(milestone) || it.isSubtypeOf(award)) }
             .associateBy { it.className }
     val orderedNames =
         previousOrder.filter(components::containsKey) +
             components.keys.filterNot(previousOrder::contains).sortedBy { it.toString() }
     val renderings = orderedNames.map { className ->
       val component = components.getValue(className)
-      val rendering =
-          if (globalEvents) english.renderGlobalEffect(component) else english.renderGoal(component)
-      Row(className, published[className]?.englishName ?: displayName(Canon, className), rendering)
+      Row(className, displayName(Canon, className), english.renderGoal(component))
     }
     val rows = renderings.map { row ->
       listOf(row.className.toString(), row.englishName, row.rendering.text)
