@@ -114,7 +114,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           """
           CimmeriaMap
           VenusNextExpansion, PreludeExpansion, prelude2:cards, ColoniesExpansion, promos:cards
-          FakeStuffBundle
+          fakes:cards
 
           Engineer, Fundraiser, Landshaper, Merchant, Metallurgist
           Benefactor, EstateDealer, Industrialist, Metropolist, SpaceBaron

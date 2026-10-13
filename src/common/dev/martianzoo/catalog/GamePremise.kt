@@ -128,9 +128,6 @@ public data class GamePremise(
         ClassLoader.forPremise(
             premiseTable = premiseTable,
             roots = roots,
-            additionalRequiredClasses = {
-              catalog.customClassDependencies[it.className].orEmpty()
-            },
             checkAvailability = ::checkAvailability,
             exactCount = ::configuredCount,
             selectedModuleCount = ::selectedModuleCount,

@@ -13,14 +13,15 @@ import dev.martianzoo.pets.ast.ClassName
  * requires another Pets supertype. Maps currently fill both roles, while parties do not yet support
  * individual selection.
  *
- * A bundle has a short lowercase source name independent of its Classes. An explicit primary Module
- * association, when present, lets that Module select the bundle's cards and colony tiles by
- * default.
+ * A bundle has a short lowercase source name independent of its Classes. Its primary Module, when
+ * present, controls default selection of the bundle's cards, goals, and colony tiles, plus
+ * availability of supporting declarations. Canon supplies this association from its authored bundle
+ * manifest.
  */
 public abstract class Bundle(
     /** Source identity, also used by `name:cards`; never a Pets Class Name. */
     public val bundleName: String,
-    /** Gameplay Module that selects this bundle's cards and colony tiles by default, if any. */
+    /** Gameplay Module governing this bundle's default Content and support availability, if any. */
     internal val primaryModuleName: ClassName? = null,
 ) : TfmCatalog() {
   init {

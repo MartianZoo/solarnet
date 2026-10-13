@@ -93,7 +93,7 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   than part of `check`, and Gradle reanalyzes only added or changed files after its first run. The
   current scope excludes benchmarks, standalone tools, and `dev.martianzoo.tfm.text`.
 - `./gradlew :tools:dumpAllExpansionsEventLogs` creates three-player and solo games with every
-  supported expansion plus `FakeCardsCardPack`, completes Player 1's corporation-phase turn with
+  supported expansion plus the `fakes:cards` pool, completes Player 1's corporation-phase turn with
   Interplanetary Cinematics and four bought cards in each, and writes every change event (including
   `System` changes regardless of `Real`, but no task events) to
   `_local/eventlogs/three-player-all-expansions-eventlog.tsv` and

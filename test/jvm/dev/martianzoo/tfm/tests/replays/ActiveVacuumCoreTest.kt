@@ -21,7 +21,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
           """
           TharsisMap
           VenusNextExpansion, PreludeExpansion, prelude2:cards, promos:cards
-          FakeStuffBundle
+          fakes:cards
 
           Diversifier, Mayor, Builder, Coastguard, Terran, Metallurgist
           Visionary, Landlord, Investor, Forecaster, Traveller, Celebrity

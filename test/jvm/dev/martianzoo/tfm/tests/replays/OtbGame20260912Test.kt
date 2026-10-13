@@ -22,7 +22,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
           VastitasMap
           VenusNextExpansion, PreludeExpansion, prelude2:cards, TurmoilExpansion, promos:cards
           SummitLogistics
-          FakeStuffBundle
+          fakes:cards
 
           Farmer, Generalist, Lobbyist, Philantropist, Producer
           Collector, Forecaster, Landscaper, Politician, Suburbian

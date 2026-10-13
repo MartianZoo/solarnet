@@ -5,6 +5,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 internal object JsonReader {
+  fun readBundleManifest(json5: String): Map<String, String?> = fromJson5(json5)
 
   /** Reads one bundle language file keyed by canonical class name. */
   public fun readDisplayNames(json5: String): Map<dev.martianzoo.pets.ast.ClassName, String> =

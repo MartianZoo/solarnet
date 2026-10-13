@@ -11,7 +11,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       GameConfig(
           """
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion, promos:cards
-          FakeStuffBundle
+          fakes:cards
           Tr63SoloObjective
           Callisto, Ganymede, Luna, Miranda
           """,

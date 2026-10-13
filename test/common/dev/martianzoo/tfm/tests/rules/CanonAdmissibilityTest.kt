@@ -45,7 +45,6 @@ internal class CanonAdmissibilityTest {
       (implementation is CustomMetric) shouldBe declaration.customMetric
       (implementation is CustomInstruction) shouldBe declaration.customInstruction
     }
-    Canon.customClassDependencies.keys.all(declarations::containsKey) shouldBe true
   }
 
   @Test

@@ -24,28 +24,6 @@ internal class PremiseSelectionTest {
   }
 
   @Test
-  internal fun `custom class requirements are included with the custom class only`() {
-    val declarations =
-        """
-        CLASS DependencySource : CustomInstruction
-        CLASS RuntimeDependency
-        """
-            .trimIndent()
-    val catalog =
-        testCatalog(
-            declarations,
-            customClassDependencies =
-                mapOf(cn("DependencySource") to setOf(cn("RuntimeDependency"))),
-        )
-
-    val unselected = gameView(catalog)
-    unselected.allClassNames.contains(cn("RuntimeDependency")) shouldBe false
-
-    val selected = gameView(catalog, "DependencySource")
-    selected.allClassNames.contains(cn("RuntimeDependency")) shouldBe true
-  }
-
-  @Test
   internal fun `custom classes cannot be declared only for a premise`() {
     val catalog = testCatalog("")
 

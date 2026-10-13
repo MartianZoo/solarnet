@@ -31,20 +31,21 @@ private val gameOptions: Set<ClassName> =
         cn("PreludeExpansion"),
         cn("ColoniesExpansion"),
         cn("TurmoilExpansion"),
-        cn("FakeCardsCardPack"),
     )
 
 private fun createGame(playerCount: Int): World {
   val colonyCount = if (playerCount == 1) 4 else if (playerCount == 2) 5 else playerCount + 2
   val colonies = Canon.colonyTileClassNames.sorted().take(colonyCount)
   val premise =
-      Canon.gamePremise(
-          GameConfig.create(
-              included = gameOptions + colonies,
-              includedCardBundles = listOf("promos", "prelude2"),
-              playerNames = (1..playerCount).map { cn("Player$it") },
+      TfmCatalog(Canon, FakeCanon)
+          .gamePremise(
+              GameConfig.create(
+                  included = gameOptions + colonies,
+                  includedCardBundles =
+                      listOf("promos", "prelude2") + FakeCanon.bundles.map { it.bundleName },
+                  playerNames = (1..playerCount).map { cn("Player$it") },
+              )
           )
-      )
   return TfmEngine.newGame(premise).also { game ->
     val agents = Agents(game)
     TfmWorkflow.Stepwise(agents).setupPhase()
@@ -101,7 +102,10 @@ public fun main(args: Array<String>) {
       val document = GameFileJson.parse(text)
       val config = document.config
       val catalog =
-          if (cn("FakeStuffBundle") in config.includedClassNames) {
+          if (
+              FakeCanon.bundles.any { it.bundleName in config.includedCardBundles } ||
+                  config.includedClassNames.any { it in FakeCanon.allClassNames }
+          ) {
             TfmCatalog(Canon, FakeCanon)
           } else {
             Canon

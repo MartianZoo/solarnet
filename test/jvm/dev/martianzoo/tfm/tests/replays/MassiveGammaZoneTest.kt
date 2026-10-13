@@ -23,7 +23,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
           TharsisMap
           PreludeExpansion, prelude2:cards, promos:cards, TurmoilExpansion
           Tr63SoloObjective
-          FakeStuffBundle
+          fakes:cards
           """,
           "EK",
       )

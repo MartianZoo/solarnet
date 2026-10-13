@@ -44,7 +44,7 @@ public open class BusyPreludePhaseBenchmark {
                 .gamePremise(
                     GameConfig(
                         "TerraformingMars, TharsisMap, PreludeExpansion, " +
-                            "ColoniesExpansion, promos:cards, FakeStuffBundle, Callisto, Ceres, Ganymede, " +
+                            "ColoniesExpansion, promos:cards, fakes:cards, Callisto, Ceres, Ganymede, " +
                             "Luna",
                         "Player1",
                     )

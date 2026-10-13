@@ -18,7 +18,7 @@ internal class GameFileJsonTest {
     val catalog = testCatalog("CLASS Token : System")
     val premise = catalog.gamePremise(GameConfig("Token"))
     GameFingerprint.catalog(catalog) shouldBe
-        "8626972fd52c81abb54244b7eb9d61c1164f25aa201f55a0731fc213612d5da5"
+        "08f825a6483e4b1e36e50394bbb8958a2731b04fa5f04ae2349a96bb59038925"
     GameFingerprint.premise(premise) shouldBe
         "cc5e77f88ca5b097573a30bc0273b7d95bfa4a39c16211f8f5efaf7c0cdc5a53"
   }

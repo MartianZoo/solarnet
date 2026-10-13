@@ -14,7 +14,7 @@ import kotlin.test.Test
 internal class HeadStartTest : TfmSandboxTest() {
   @Test
   internal fun `Head Start grants two mandatory actions`() {
-    newTestGame(addOptions = "PreludeExpansion, FakeStuffBundle")
+    newTestGame(addOptions = "PreludeExpansion, fakes:cards")
     kim.setToExMachina(4, "MC")
     kim.inTurn {
       doTasks(
@@ -36,7 +36,7 @@ internal class HeadStartTest : TfmSandboxTest() {
   @Test
   internal fun `Head Start must use its first granted action to perform a required action`() {
     newTestGame(
-        addOptions = "PreludeExpansion, FakeStuffBundle, ValleyTrust",
+        addOptions = "PreludeExpansion, fakes:cards, ValleyTrust",
         kimCorporation = ValleyTrust,
     )
 
@@ -67,7 +67,7 @@ internal class HeadStartTest : TfmSandboxTest() {
 
   @Test
   internal fun `Fake Head Start allows money and steel after both actions without splitting steel`() {
-    newTestGame(addOptions = "PreludeExpansion, FakeStuffBundle")
+    newTestGame(addOptions = "PreludeExpansion, fakes:cards")
     kim.setToExMachina(2, "ProjectCard")
 
     kim.inTurn {
@@ -100,7 +100,7 @@ internal class HeadStartTest : TfmSandboxTest() {
   }
 
   private fun interleaveHeatAndAquifer(): TaskResult {
-    newTestGame(addOptions = "PreludeExpansion, FakeStuffBundle")
+    newTestGame(addOptions = "PreludeExpansion, fakes:cards")
     kim.setToExMachina(4, "MC")
     kim.exMachina("10 Heat")
     return kim.inTurn {
@@ -125,7 +125,7 @@ internal class HeadStartTest : TfmSandboxTest() {
 
   @Test
   internal fun `Suitable Infrastructure pays separately for Head Start's nested actions`() {
-    newTestGame(addOptions = "PreludeExpansion, prelude2:cards, FakeStuffBundle")
+    newTestGame(addOptions = "PreludeExpansion, prelude2:cards, fakes:cards")
     kim.exMachina("$SuitableInfrastructure")
     kim.setToExMachina(30, "MC")
     kim.setToExMachina(0, "ProjectCard")
@@ -168,7 +168,7 @@ internal class HeadStartTest : TfmSandboxTest() {
   }
 
   private fun acquireDuringHeadStart() {
-    newTestGame(addOptions = "PreludeExpansion, prelude2:cards, FakeStuffBundle, Unsafe")
+    newTestGame(addOptions = "PreludeExpansion, prelude2:cards, fakes:cards, Unsafe")
     kim.exMachina("$BoardOfDirectors, 4 Director<$BoardOfDirectors>, 8 Heat")
     kim.setToExMachina(54, "MC")
     kim.setToExMachina(0, "ProjectCard")

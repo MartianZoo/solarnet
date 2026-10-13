@@ -17,7 +17,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
           """
           CimmeriaMap
           VenusNextExpansion, PreludeExpansion, prelude2:cards, promos:cards, TerraLabsResearch
-          FakeStuffBundle
+          fakes:cards
 
           Energizer, Farmer, Philantropist, Producer, RimSettler, Hoverlord
           Magnate, Manufacturer, Metropolist, SpaceBaron, Suburbian, Venuphile
