@@ -54,6 +54,11 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   tests and the selected replay through `:web:jsBrowserTest`; Almanac runs its English card-text
   browser test through `:almanac:jsBrowserTest`. Other generated browser tasks are
   inert outside the intentionally commented-out full-browser target in the root build.
+- `./gradlew :tfm-tests:sandboxTest` runs every `TfmSandboxTest` subclass, including nested
+  sandbox cases, without gameplay or full-game replay tests. Its class selection follows the
+  shared test-source declarations; the JVM-only JUnit `@Tag` cannot label shared JVM/JS tests.
+  To measure a fresh run without recompiling everything, use
+  `./gradlew :tfm-tests:cleanSandboxTest :tfm-tests:sandboxTest --profile`.
 - `./gradlew :pets:test` runs Pets JVM tests and its browser-specific test. The routine browser
   run excludes the shared JVM/JS suites; use the temporary full-browser target below to run those.
 - Temporarily uncomment `allBrowserTests` in the root build and run
