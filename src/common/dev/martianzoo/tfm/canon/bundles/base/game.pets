@@ -65,6 +65,9 @@ CLASS ModulesReady : Signal, System {
 ABSTRACT CLASS GameMode : Module {
   HAS =1 GameMode
 
+  // The last player still playing can keep taking actions until they pass, including in solo.
+  TurnOver<@Player> IF ActionPhase, MAX 0 Pass<@Player>, MAX 0 Player(HAS MAX 0 Pass, NOT @Player): TakeTurn<@Player>
+
   "Multiplayer rules, including the end condition that deliberately excludes Venus"
   CLASS MultiplayerMode {
     HAS 2 Player
@@ -72,6 +75,11 @@ ABSTRACT CLASS GameMode : Module {
 
     HAS Class<ClaimMilestone>, Class<FundAward>
     This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
+
+    // Offer a second action while another player is still playing, then pass play to the next seat.
+    TurnOver<@Player> IF ActionPhase, MAX 0 Pass<@Player>, Player(HAS MAX 0 Pass, NOT @Player): \
+      SecondAction<@Player>, FINALLY { NextPlayer<@Player> }
+    TurnOver<@Player> IF ActionPhase, Pass<@Player>, Player(HAS MAX 0 Pass): NextPlayer<@Player>
 
     VictoryPhase: EACH Me@Player(HAS =1 (RANK Me@Player { VictoryPoint, MC })) { Victory }
     CheckGameEnd: FinalGreeneryPhase FROM ProductionPhase
@@ -171,12 +179,7 @@ ABSTRACT CLASS Phase : System, Real {
     SecondAction IF MAX 0 RequiredAction: StandardAction?
     SecondAction IF RequiredAction: RequiredActionsSignal?
 
-    // After an action: a second one while anyone else is still playing, else another turn.
-    TurnOver<@Player> IF MAX 0 Pass<@Player>, 2 Player(HAS MAX 0 Pass): \
-      SecondAction<@Player>, FINALLY { NextPlayer<@Player> }
-    TurnOver<@Player> IF MAX 0 Pass<@Player>, MAX 1 Player(HAS MAX 0 Pass): TakeTurn<@Player>
-    // After passing: the next player who has not passed, or production once everyone has.
-    TurnOver<@Player> IF Pass<@Player>, Player(HAS MAX 0 Pass): NextPlayer<@Player>
+    // Production starts once everyone has passed, in either mode.
     TurnOver IF MAX 0 Player(HAS MAX 0 Pass): ProductionPhase FROM This
   }
   CLASS ProductionPhase {

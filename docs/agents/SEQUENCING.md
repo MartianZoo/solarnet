@@ -140,6 +140,11 @@ workflow, and nothing turns the flow on or off.
   has. With one player, `NextPlayer` is always `RoundOver`. These signals take a Player argument
   rather than an owner, so their work stays with Admin, as it must for Players who do not
   autoexecute.
+- **Game modes own action-phase continuation.** `MultiplayerMode` offers the optional second action
+  while another unpassed player exists, then advances to the next seat. Both modes inherit the
+  last-active-player rule from `GameMode`: keep offering that player turns until they pass. The
+  effect's live context is `SoloMode` or `MultiplayerMode`. `ActionPhase` begins production once
+  everyone has passed; these checks concern current pass status, not the configured player count.
 - **Modules own phase order.** The corporation phase ends in `RoundOver`. `NoPreludes`, selected in
   every game without Prelude, then begins the first `ActionPhase`; `PreludeExpansion` begins
   `PreludePhase` instead, whose own `RoundOver` begins the action phase. Expansions add their solar
