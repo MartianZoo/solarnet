@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.cards.cardnames.CorporateStronghold
 import dev.martianzoo.tfm.tests.cards.cardnames.Manutech
 import dev.martianzoo.tfm.tests.cards.cardnames.MineralDeposit
@@ -32,10 +31,10 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
 
   @Test
   internal fun `Corporation entry is independent of the cached game with corporations played`() {
-    newTestGame(kimCorporation = Manutech)
-    newTestGame(kimCorporation = Manutech, startAtCorporation = true)
+    newTestGame()
+    newTestGameBeforeCorporationPlay()
 
-    kim.count("$Manutech") shouldBe 0
+    kim.count("BeginnerCorporation1") shouldBe 0
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<Manutech>>",
@@ -43,8 +42,8 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
           "35 MC",
           "PROD[Steel]",
           "Steel",
-          "-30 MC",
-          "10 ProjectCard<Hand FROM Selecting>",
+          "-15 MC",
+          "5 ProjectCard<Hand FROM Selecting>",
       )
     }
     stan.count("BeginnerCorporation2") shouldBe 0
@@ -96,7 +95,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
               "TerraformRating",
               "TerraformRating",
           )
-          selectTask("-6 Plant<Anyone>?")
+          selectTask("-6? Plant<Anyone>")
           doTask("Ok")
           val checkpoint = game.timeline.checkpoint()
           shouldThrow<IllegalStateException> { victoryPoints() }
@@ -141,7 +140,9 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
 
     kim.count("$Manutech") shouldBe 1
     kim.count("BeginnerCorporation") shouldBe 0
-    kim.production(cn("Steel")) shouldBe 2
+    kim.count("ProjectCard<Hand>") shouldBe 5
+    kim.count("MC") shouldBe 20
+    kim.count("PROD[Steel]") shouldBe 2
     kim.count("Steel") shouldBe 1
     stan.count("BeginnerCorporation2") shouldBe 1
     rob.count("BeginnerCorporation3") shouldBe 1
@@ -154,8 +155,8 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     kim.setToExMachina(0, "PROD[Energy]")
     kim.setToExMachina(3, "PROD[Heat]")
 
-    kim.production(cn("Energy")) shouldBe 0
-    kim.production(cn("Heat")) shouldBe 3
+    kim.count("PROD[Energy]") shouldBe 0
+    kim.count("PROD[Heat]") shouldBe 3
   }
 
   @Test
@@ -194,7 +195,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     shouldThrow<IllegalStateException> { rob }.message shouldBe "Rob is sitting this game out"
     kim.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTask("TerraformRating")
     }
   }
@@ -202,7 +203,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
   internal class TfmGameplayTestTest : TfmGameplayTest() {
     @Test
     internal fun `Corporation entry lets the players finish setup in turn order`() {
-      newTestGame(playerCount = 2, kimCorporation = Manutech, startAtCorporation = true)
+      newTestGameBeforeCorporationPlay(playerCount = 2)
 
       kim.count("$Manutech") shouldBe 0
       kim.playCorp(Manutech).expect("Steel")

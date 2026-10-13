@@ -43,7 +43,7 @@ internal class AridorTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<DevelopmentCenter>>", "-11 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks("Ok", "DevelopmentCenter FROM ProjectCard", "PROD[MC]", "PROD[MC]")
     }
   }
@@ -55,9 +55,9 @@ internal class AridorTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-          selectTask("4 CorporationCard<Kim, Selecting>!")
+          selectTask("4! CorporationCard<Kim, Selecting>")
           doTask("-42 MC")
-          selectTask("-3 CorporationCard<Kim, Selecting>!")
+          selectTask("-3! CorporationCard<Kim, Selecting>")
           doTask("PlayCard<Class<CorporationCard>, Class<Aridor>>")
           doTask("Aridor<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTask("40 MC")
@@ -79,7 +79,7 @@ internal class AridorTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<CryoSleep>>", "-10 MC", "CryoSleep FROM ProjectCard", "PROD[MC]")
       selectTask(
-          "TerraformRating FROM Disease<PharmacyUnion>! OR (MAX 0 Disease<PharmacyUnion>: (PlayedEvent<Kim, Class<PharmacyUnion>> FROM PharmacyUnion! THEN 3 TerraformRating!) OR Ok)"
+          "TerraformRating FROM Disease<PharmacyUnion>! OR (MAX 0 Disease<PharmacyUnion>: (PlayedEvent<Kim, Class<PharmacyUnion>> FROM PharmacyUnion! THEN 3! TerraformRating) OR Ok)"
       )
       doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
     }
@@ -91,7 +91,7 @@ internal class AridorTest : TfmSandboxTest() {
           "Decomposers FROM ProjectCard",
           "PROD[MC]",
       )
-      selectTask("Microbe<Decomposers>.")
+      selectTask("Microbe<Decomposers>*")
     }
   }
 
@@ -108,16 +108,16 @@ internal class AridorTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<CryoSleep>>", "-10 MC", "CryoSleep FROM ProjectCard", "PROD[MC]")
       selectTask(
-          "TerraformRating FROM Disease<PharmacyUnion>! OR (MAX 0 Disease<PharmacyUnion>: (PlayedEvent<Kim, Class<PharmacyUnion>> FROM PharmacyUnion! THEN 3 TerraformRating!) OR Ok)"
+          "TerraformRating FROM Disease<PharmacyUnion>! OR (MAX 0 Disease<PharmacyUnion>: (PlayedEvent<Kim, Class<PharmacyUnion>> FROM PharmacyUnion! THEN 3! TerraformRating) OR Ok)"
       )
       doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
     }
 
     kim.inTurn {
           doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
-          selectTask("-X Steel?")
+          selectTask("-X? Steel")
           doTasks("Ok", "IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
-          selectTask("Microbe<Decomposers>.")
+          selectTask("Microbe<Decomposers>*")
         }
         .expect("PROD[0 MC]")
   }
@@ -149,17 +149,17 @@ internal class AridorTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      selectTask("4 CorporationCard<Kim, Selecting>!")
-      selectTask("-3 CorporationCard<Kim, Selecting>!")
+      selectTask("4! CorporationCard<Kim, Selecting>")
+      selectTask("-3! CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
       doTask("PharmacyUnion<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTask("-42 MC")
       selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
       doTask("PROD[MC]")
       selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
-      selectTask("-4 MC.")
+      selectTask("-4* MC")
       selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
-      selectTask("-4 MC.")
+      selectTask("-4* MC")
     }
   }
 

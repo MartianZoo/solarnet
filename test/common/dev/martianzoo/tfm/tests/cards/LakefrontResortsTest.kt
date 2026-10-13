@@ -7,7 +7,7 @@ import kotlin.test.Test
 internal class LakefrontResortsTest : TfmSandboxTest() {
   @Test
   internal fun `An opponent's ocean placement raises MC production`() {
-    newTestGame(kimCorporation = LakefrontResorts)
+    newTestGame(addOptions = "LakefrontResorts", kimCorporation = LakefrontResorts)
 
     stan
         .inTurn {
@@ -25,7 +25,7 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Does not pay when an opponent places a tile adjacent to an ocean`() {
-    newTestGame(kimCorporation = LakefrontResorts)
+    newTestGame(addOptions = "LakefrontResorts", kimCorporation = LakefrontResorts)
     kim.exMachina("OceanTile<Tharsis_1_2>")
 
     stan
@@ -44,7 +44,7 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Pays for each ocean adjacency`() {
-    newTestGame(kimCorporation = LakefrontResorts)
+    newTestGame(addOptions = "LakefrontResorts", kimCorporation = LakefrontResorts)
     kim.exMachina("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_2_1>")
     kim.setToExMachina(25, "MC")
 

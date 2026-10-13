@@ -11,9 +11,9 @@ internal class AphroditeTest : TfmSandboxTest() {
 
     stan.inTurn {
       doTasks("UseStandardProject<AirScrappingProject>", "-15 MC")
-      selectTask("VenusStep.")
+      selectTask("VenusStep*")
       doTask("TerraformRating")
-      kim.selectTask("2 MC!")
+      kim.selectTask("2! MC")
     }
   }
 }

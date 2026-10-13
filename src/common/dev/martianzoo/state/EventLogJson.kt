@@ -2,7 +2,6 @@ package dev.martianzoo.state
 
 import dev.martianzoo.catalog.GamePremise
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Deferral
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -14,7 +13,6 @@ import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.state.GameEvent.TaskEditedEvent
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.state.Task.TaskId
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
@@ -29,17 +27,8 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 
-/** Opaque JSON encoding for an exact sequence of [GameEvent] values. */
-public object EventLogJson {
-  private val json = Json
-
-  /** Encodes [events] without embedding the Catalog needed to interpret their component Types. */
-  public fun encode(events: List<GameEvent>): String =
-      json.encodeToString(JsonArray.serializer(), encodeEvents(events))
-
-  /** Decodes events against the [classTable] that gives their component Types meaning. */
-  public fun decode(text: String, classTable: ClassTable): List<GameEvent> =
-      decodeEvents(json.parseToJsonElement(text).jsonArray, classTable)
+/** Exact event field codec nested inside [GameFileJson]; it does not define a standalone file. */
+internal object EventLogJson {
 
   internal fun encodeEvents(events: List<GameEvent>): JsonArray {
     val tasks = mutableMapOf<TaskId, Task>()
@@ -50,9 +39,6 @@ public object EventLogJson {
       }
     }
   }
-
-  internal fun decodeEvents(source: JsonArray, classTable: ClassTable): List<GameEvent> =
-      decodeEvents(source, classTable, ::decodeActor)
 
   internal fun decodeEvents(source: JsonArray, premise: GamePremise): List<GameEvent> {
     val actorsByName = premise.actors.associateBy { it.className.toString() }
@@ -236,11 +222,6 @@ public object EventLogJson {
         cause = decodeCause(requiredElement(source, "cause")),
         deferral = Deferral.valueOf(requiredString(source, "deferral")),
     )
-  }
-
-  private fun decodeActor(source: String): Actor {
-    val className = parse<ClassName>(source)
-    return if (className == Actor.ADMIN.className) Actor.ADMIN else Player(className)
   }
 
   private fun encodeCause(cause: Cause?): JsonElement =

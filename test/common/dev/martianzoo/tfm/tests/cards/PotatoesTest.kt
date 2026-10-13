@@ -35,7 +35,7 @@ internal class PotatoesTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("ClaimMilestone<Class<Tactician>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
       }

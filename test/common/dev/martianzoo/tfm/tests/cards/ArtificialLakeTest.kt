@@ -21,7 +21,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-        selectTask("-X Steel?")
+        selectTask("-X? Steel")
         selectTask("Ok")
         doTask("ArtificialLake FROM ProjectCard")
         selectOnlyTask()
@@ -40,7 +40,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks(
           "Ok",
           "ArtificialLake FROM ProjectCard",
@@ -69,7 +69,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-          selectTask("-X Steel?")
+          selectTask("-X? Steel")
           doTasks("Ok", "ArtificialLake FROM ProjectCard")
           selectOnlyTask()
         }
@@ -86,7 +86,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-        selectTask("-X Steel?")
+        selectTask("-X? Steel")
         selectTask("Ok")
         doTask("ArtificialLake FROM ProjectCard")
         selectOnlyTask()

@@ -19,7 +19,7 @@ internal class VirusTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<Virus>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks(
             "-1 MC",
             "Virus FROM ProjectCard",

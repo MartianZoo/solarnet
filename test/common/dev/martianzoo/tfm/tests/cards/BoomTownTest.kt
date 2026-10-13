@@ -54,8 +54,8 @@ internal class BoomTownTest : TfmSandboxTest() {
           "-4 MC",
           "SmallAsteroid FROM ProjectCard",
       )
-      selectTask("TemperatureStep.")
-      selectTask("-2 Plant<Anyone>?")
+      selectTask("TemperatureStep*")
+      selectTask("-2? Plant<Anyone>")
       doTask("TerraformRating")
       doTask("PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid")
     }
@@ -97,8 +97,8 @@ internal class BoomTownTest : TfmSandboxTest() {
           "-4 MC",
           "SmallAsteroid FROM ProjectCard",
       )
-      selectTask("TemperatureStep.")
-      selectTask("-2 Plant<Anyone>?")
+      selectTask("TemperatureStep*")
+      selectTask("-2? Plant<Anyone>")
       doTask("TerraformRating")
       doTask("PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid")
     }
@@ -107,8 +107,9 @@ internal class BoomTownTest : TfmSandboxTest() {
   @Test
   internal fun `Its penalty stacks with both alloys PhoboLog and Unity for card actions`() {
     newTestGame(addOptions = "TurmoilExpansion")
+    // The correction changes government after ActionPhase began, so include its policy.
     kim.exMachina(
-        "$BoomTown, $PhoboLog, $AdvancedAlloys, $MercurianAlloys, $IcyImpactors, Titanium, Ruling<Unity FROM Greens>"
+        "$BoomTown, $PhoboLog, $AdvancedAlloys, $MercurianAlloys, $IcyImpactors, Titanium, Ruling<Unity FROM Greens>, UnityPolicy"
     )
 
     // Titanium is worth 3 - 1 + 1 + 1 + 1 + 1 = 6 MC.

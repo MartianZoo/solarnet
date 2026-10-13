@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
@@ -30,6 +31,25 @@ internal class WorldGovernmentTerraformingTest : TfmGameplayTest() {
     venusIncrease.actor shouldBe ADMIN
     stan.count("TerraformRating") shouldBe 20
     kim.count("MC") shouldBe mcBefore + 2
+  }
+
+  @Test
+  internal fun `first player chooses the threshold ocean after Admin raises temperature`() {
+    val game = setUpGame(VenusNextExpansion, players = 2)
+    val admin = game.testTfm(ADMIN)
+    val p2 = game.testTfm(PLAYER2)
+    admin.runOperation("StartToken<Player2> FROM StartToken<Player1>")
+    admin.runOperation("14 TemperatureStep")
+    val checkpoint = game.timeline.checkpoint()
+
+    admin.runOperation("TemperatureStep") { p2.doTask("OceanTile<Tharsis_1_2> BY Admin") }
+
+    val ocean =
+        game.events.changesSince(checkpoint).single {
+          it.change.gaining?.className.toString() == "OceanTile"
+        }
+    ocean.actor shouldBe ADMIN
+    admin.count("TemperatureStep") shouldBe 15
   }
 
   @Test

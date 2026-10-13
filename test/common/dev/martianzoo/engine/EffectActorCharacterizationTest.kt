@@ -49,7 +49,7 @@ internal class EffectActorCharacterizationTest {
     admin.beginOperation("GreeneryTile<Player1, Elysium_9_8>") {
       game.tasks
           .extract { it.assignee to it.instruction.toString() }
-          .shouldContainExactly(PLAYER1 to "OxygenStep.")
+          .shouldContainExactly(PLAYER1 to "OxygenStep*")
 
       admin.has("Neighbor") shouldBe true
       admin.count("ProjectCard<Player1>") shouldBe 0

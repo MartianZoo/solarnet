@@ -47,8 +47,10 @@ for direction and inspect current source and tests for the implemented contract.
 `GameConfig` is unresolved intent. Catalog resolution produces an immutable `GamePremise`: a
 single set of signed Class selections, seated Player Classes, additive setup-component adjustments,
 and premise-local declarations. Modules are derived from the selected Classes; they are not stored
-as a parallel premise choice. Setup adjustments and game-specific setup become ordinary effects of
-the generated premise Class. The premise retains one immutable game `ClassTable` view sharing its
+as a parallel premise choice. Unchosen catalog Classes have no selection entry; negative entries
+record explicit or policy-imposed exclusions rather than listing every unavailable Module or goal.
+Setup adjustments and game-specific setup become ordinary effects of the generated premise Class.
+The premise retains one immutable game `ClassTable` view sharing its
 Catalog's compiled master structure; separate Worlds from that premise share compiled class facts
 but no mutable game state. See
 [`GamePremise.kt`](../../src/common/dev/martianzoo/catalog/GamePremise.kt).
@@ -434,6 +436,11 @@ while bypassing settlement and completion callbacks. `exMachina` rejects explici
 System and MustCleanUp targets and any correction that leaves new MustCleanUp state.
 It additionally restores and resumes an existing selection within one atomic lifecycle. See
 [EX_MACHINA.md](EX_MACHINA.md) for the contract and the remaining canon consistency gaps.
+
+A World may install one `AgentTransactionGuard` before Agent commands begin. Every Agent mutation
+then validates the guard before its transaction can commit. An automatic candidate that needs
+unsupplied client information rolls back locally and stays pending; an explicit Agent request fails.
+The Terraforming Mars hand-tracking use is described in [CARD_HANDLING.md](CARD_HANDLING.md#card-hand-tracking).
 
 Current autoexecution lives in `:agent`, not in the core engine. Policy selects legal Task commands;
 it does not alter their semantics. The shared policy loop tries eligible Admin work before Player

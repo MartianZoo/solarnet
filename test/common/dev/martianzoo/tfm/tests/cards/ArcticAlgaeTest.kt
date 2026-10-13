@@ -21,7 +21,7 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
           "OceanTile<Tharsis_1_2>",
           "TerraformRating",
       )
-      kim.selectTask("2 Plant!")
+      kim.selectTask("2! Plant")
       doTask("2 Steel")
     }
   }
@@ -48,7 +48,7 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
       doTasks("TerraformRating", "ProjectCard")
       stan.doTask("2 Plant")
       doTask("-6 Plant<Stan>")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTask("Ok")
       doTask("PlayedEvent<Class<GiantIceAsteroid>> FROM GiantIceAsteroid")
     }
@@ -60,13 +60,13 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<GiantIceAsteroid>>", "-36 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks(
           "Ok",
           "GiantIceAsteroid FROM ProjectCard",
       )
-      selectTask("TemperatureStep.")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
+      selectTask("TemperatureStep*")
       doTasks(
           "TerraformRating",
           "TerraformRating",
@@ -74,9 +74,9 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
           "OceanTile<Tharsis_1_2>",
           "TerraformRating",
       )
-      stan.selectTask("2 Plant!")
+      stan.selectTask("2! Plant")
       doTasks("2 Steel", "OceanTile<Tharsis_1_4>", "TerraformRating")
-      stan.selectTask("2 Plant!")
+      stan.selectTask("2! Plant")
       selectTask("ProjectCard<Kim, Hand>!")
       doTask("PlayedEvent<Class<GiantIceAsteroid>> FROM GiantIceAsteroid")
     }

@@ -156,7 +156,7 @@
           "requirement": "2 JovianTag",
           "cost": 11,
           "tags": [ "SpaceTag", "EventTag" ],
-          "direct": "12 Heat, -2 Plant<Anyone>?",
+          "direct": "12 Heat, -2? Plant<Anyone>",
         },
         {
           "name": "InterplanetaryColonyShip",

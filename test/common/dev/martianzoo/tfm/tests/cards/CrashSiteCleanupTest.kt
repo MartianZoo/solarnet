@@ -15,12 +15,12 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     stan.exMachina("Plant")
     kim.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks(
           "Ok",
           "AsteroidCard FROM ProjectCard",
       )
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
       doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
@@ -41,12 +41,12 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     kim.exMachina("Plant")
     kim.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks(
           "Ok",
           "AsteroidCard FROM ProjectCard",
       )
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTasks("2 Titanium", "TerraformRating", "-Plant")
       doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
@@ -64,12 +64,12 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     stan.exMachina("Plant")
     stan.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks(
           "Ok",
           "AsteroidCard FROM ProjectCard",
       )
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTasks("2 Titanium", "TerraformRating", "-Plant")
       doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
@@ -87,12 +87,12 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     stan.exMachina("Plant")
     kim.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks(
           "Ok",
           "AsteroidCard FROM ProjectCard",
       )
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
       doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
@@ -111,12 +111,12 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     stan.exMachina("Plant")
     rob.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks(
           "Ok",
           "AsteroidCard FROM ProjectCard",
       )
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
       doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
@@ -134,14 +134,14 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     stan.exMachina("Plant")
     kim.inTurn {
           doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-          selectTask("-X Titanium?")
+          selectTask("-X? Titanium")
           doTasks(
               "Ok",
               "AsteroidCard FROM ProjectCard",
           )
-          selectTask("TemperatureStep.")
+          selectTask("TemperatureStep*")
           doTasks("2 Titanium", "TerraformRating")
-          selectTask("-3 Plant<Anyone>?")
+          selectTask("-3? Plant<Anyone>")
           doTask("Ok")
           doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
         }

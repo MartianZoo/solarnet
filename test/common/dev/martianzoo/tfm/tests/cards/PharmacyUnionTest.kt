@@ -8,20 +8,20 @@ import kotlin.test.Test
 internal class PharmacyUnionTest : TfmSandboxTest() {
   @BeforeTest
   fun initializeGame() {
-    newTestGame(kimCorporation = PharmacyUnion, startAtCorporation = true)
+    newTestGameBeforeCorporationPlay()
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>",
           "PharmacyUnion FROM CorporationCard",
       )
       selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
-      selectTask("-4 MC.")
-      selectTask("-4 MC.")
+      selectTask("-4* MC")
+      selectTask("-4* MC")
       doTasks(
           "Disease<PharmacyUnion>",
           "Disease<PharmacyUnion>",
-          "-30 MC",
-          "10 ProjectCard<Hand FROM Selecting>",
+          "-15 MC",
+          "5 ProjectCard<Hand FROM Selecting>",
       )
     }
     advanceUntilActionPhase()
@@ -30,7 +30,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
   // Resolved FAQ: starting money must precede the losses from the two microbe tags.
   @Test
   internal fun `Starting cash covers both disease losses as well as the starting projects`() {
-    newTestGame(kimCorporation = PharmacyUnion, startAtCorporation = true)
+    newTestGameBeforeCorporationPlay()
 
     kim.inTurn {
           doTasks(
@@ -38,23 +38,23 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
               "PharmacyUnion FROM CorporationCard",
           )
           selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
-          selectTask("-4 MC.")
-          selectTask("-4 MC.")
+          selectTask("-4* MC")
+          selectTask("-4* MC")
           doTasks(
               "Disease<PharmacyUnion>",
               "Disease<PharmacyUnion>",
-              "-30 MC",
-              "10 ProjectCard<Hand FROM Selecting>",
+              "-15 MC",
+              "5 ProjectCard<Hand FROM Selecting>",
           )
         }
-        .expect("16 MC, 11 ProjectCard, 0 RequiredAction")
+        .expect("31 MC, 6 ProjectCard, 0 RequiredAction")
   }
 
   @Test
   internal fun `A science tag removes disease and raises TR`() {
     kim.inTurn {
           doTasks("PlayProject<Class<PhysicsComplex>>", "-12 MC")
-          selectTask("-X Steel?")
+          selectTask("-X? Steel")
           doTasks("Ok", "PhysicsComplex FROM ProjectCard")
           selectOnlyTask()
         }
@@ -68,7 +68,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("PlayProject<Class<Decomposers>>", "-5 MC", "Decomposers FROM ProjectCard")
-          selectTask("Microbe<Decomposers>.")
+          selectTask("Microbe<Decomposers>*")
           kim.selectTask("Disease<PharmacyUnion<Kim>>! OR (MAX 0 PharmacyUnion<Kim>: Ok)")
           kim.doTask("-4 MC")
         }
@@ -88,7 +88,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
               "TerraformRating FROM Disease<PharmacyUnion>",
               "PlayedEvent FROM PharmacyUnion",
           )
-          selectTask("2 ProjectCard<Kim, Hand>!")
+          selectTask("2! ProjectCard<Kim, Hand>")
           doTask("3 TerraformRating")
         }
         .expect("0 Disease<$Hospitals>")
@@ -106,7 +106,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
           "PlayedEvent FROM PharmacyUnion",
           "Ok",
       )
-      selectTask("2 ProjectCard<Kim, Hand>!")
+      selectTask("2! ProjectCard<Kim, Hand>")
       doTask("3 TerraformRating")
     }
   }
@@ -118,7 +118,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<PhysicsComplex>>", "-12 MC")
-          selectTask("-X Steel?")
+          selectTask("-X? Steel")
           doTasks("Ok", "PhysicsComplex FROM ProjectCard")
           selectOnlyTask()
           doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
@@ -141,7 +141,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
               "PlayedEvent FROM PharmacyUnion",
               "Ok",
           )
-          selectTask("-4 MC.")
+          selectTask("-4* MC")
           doTask("3 TerraformRating")
         }
         .expect("-17 MC, 0 Disease<$PharmacyUnion>")

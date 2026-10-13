@@ -22,6 +22,7 @@ import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.Player
+import dev.martianzoo.state.RecordedInput.Kind
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
@@ -59,7 +60,7 @@ internal class AgentImpl(
     set(newPolicy) {
       if (newPolicy != field) {
         field = newPolicy
-        autoExecAtomically()
+        if (newPolicy != AutoExecPolicy.NONE) autoExecAtomically()
       }
     }
 
@@ -99,7 +100,10 @@ internal class AgentImpl(
   // CHANGES
 
   override fun sneak(changes: String, fakeCause: Cause?): TaskResult =
-      engine.sneak(parseInstructionGroup(changes), fakeCause)
+      world.timeline.atomic {
+        engine.sneak(parseInstructionGroup(changes), fakeCause)
+        world.agentTransactionGuard?.validate()
+      }
 
   // TASKS
 
@@ -114,7 +118,12 @@ internal class AgentImpl(
   override fun dropTask(taskId: TaskId): TaskRemovedEvent {
     lateinit var removed: TaskRemovedEvent
     atomicWithoutAutoExec {
-      taskLog.capture(actor, "DROP ${tasks.getTaskData(taskId).instruction}") {
+      taskLog.capture(
+          actor,
+          tasks.getTaskData(taskId).instruction.toString(),
+          kind = Kind.DROP,
+          taskId = taskId,
+      ) {
         removed = engine.dropTask(taskId)
       }
     }
@@ -262,16 +271,24 @@ internal class AgentImpl(
     }
 
     override fun autoExecNow(policy: AutoExecPolicy) {
-      withAutoExecPolicy(policy) { autoExecLoop.run() }
+      withAutoExecPolicyOverride(policy) { autoExecLoop.run() }
+    }
+
+    override fun doWithAutoExecPolicy(policy: AutoExecPolicy, body: OperationBlock) {
+      withAutoExecPolicyOverride(policy) {
+        autoExecLoop.run()
+        body(this@Adapter)
+        autoExecLoop.run()
+      }
     }
   }
 
   override fun autoExecNow() = atomic {}
 
   override fun autoExecNow(policy: AutoExecPolicy): TaskResult =
-      withAutoExecPolicy(policy) { atomic {} }
+      withAutoExecPolicyOverride(policy) { atomic {} }
 
-  private inline fun <T> withAutoExecPolicy(policy: AutoExecPolicy, block: () -> T): T {
+  private inline fun <T> withAutoExecPolicyOverride(policy: AutoExecPolicy, block: () -> T): T {
     autoExecPolicyOverrides.add(policy)
     return try {
       block()
@@ -281,7 +298,10 @@ internal class AgentImpl(
   }
 
   private fun autoExecAtomically(): TaskResult =
-      engine.transact(settle = {}, block = { autoExecLoop.run() })
+      engine.transact(
+          settle = { world.agentTransactionGuard?.validate() },
+          block = { autoExecLoop.run() },
+      )
 
   // TURNS
 
@@ -317,7 +337,7 @@ internal class AgentImpl(
   internal fun changeLimit(change: Change): Int? = engine.changeLimit(change)
 
   internal fun commitForm(taskId: TaskId, narrowing: InstructionTree): TaskResult = decide {
-    taskLog.capture(actor, "CHOOSE $narrowing", formTask = taskId) {
+    taskLog.capture(actor, narrowing.toString(), formTask = taskId, kind = Kind.CHOOSE) {
       engine.narrowTask(taskId, narrowing)
     }
   }
@@ -327,7 +347,7 @@ internal class AgentImpl(
     val taskId = tasks.selectedTask() ?: throw TaskException("`$actor` has no selected task")
     val instruction =
         engine.prepareTaskNarrowing(taskId, parsed.instruction, parsed.quantifierOmitted)
-    taskLog.capture(actor, "CHOOSE $instruction", formTask = taskId) {
+    taskLog.capture(actor, instruction.toString(), formTask = taskId, kind = Kind.CHOOSE) {
       engine.narrowTask(parsed.instruction, parsed.quantifierOmitted)
     }
   }
@@ -337,26 +357,37 @@ internal class AgentImpl(
   override fun canExecuteTask(taskId: TaskId) = engine.canExecuteTask(taskId)
 
   override fun selectTask(taskId: TaskId) = decide {
-    taskLog.capture(actor, "CHOOSE ${tasks.getTaskData(taskId).instruction}") {
+    taskLog.capture(
+        actor,
+        tasks.getTaskData(taskId).instruction.toString(),
+        kind = Kind.CHOOSE,
+        taskId = taskId,
+    ) {
       engine.selectTask(taskId)
     }
   }
 
   override fun selectTask(instruction: String) = decide {
-    taskLog.capture(actor, "CHOOSE $instruction") {
+    taskLog.capture(actor, instruction, kind = Kind.CHOOSE) {
       val parsed = parseTaskNarrowing(instruction)
       engine.selectTask(parsed.instruction, parsed.quantifierOmitted)
     }
   }
 
   override fun selectTask(task: Task) = decide {
-    taskLog.capture(actor, "CHOOSE ${task.instruction}", formTask = task.id) {
+    taskLog.capture(
+        actor,
+        task.instruction.toString(),
+        formTask = task.id,
+        kind = Kind.CHOOSE,
+        taskId = task.id,
+    ) {
       engine.selectTask(task.instruction, taskId = task.id)
     }
   }
 
   override fun doTask(narrowing: String) = decide {
-    taskLog.capture(actor, "DO $narrowing") {
+    taskLog.capture(actor, narrowing, kind = Kind.DO_TASK) {
       val parsed = parseTaskNarrowing(narrowing)
       engine.doTask(
           parsed.instruction,
@@ -367,7 +398,7 @@ internal class AgentImpl(
   }
 
   override fun doTask(narrowing: String, contextClass: ClassName) = decide {
-    taskLog.capture(actor, "DO $narrowing") {
+    taskLog.capture(actor, narrowing, kind = Kind.DO_TASK) {
       val parsed = parseTaskNarrowing(narrowing)
       engine.doTask(
           parsed.instruction,
@@ -379,7 +410,7 @@ internal class AgentImpl(
   }
 
   override fun doTask(narrowing: String, taskId: TaskId) = decide {
-    taskLog.capture(actor, "DO $narrowing") {
+    taskLog.capture(actor, narrowing, kind = Kind.DO_TASK, taskId = taskId) {
       val parsed = parseTaskNarrowing(narrowing)
       engine.doTask(
           parsed.instruction,
@@ -390,8 +421,19 @@ internal class AgentImpl(
     }
   }
 
+  override fun doTask(taskId: TaskId) = decide {
+    taskLog.capture(
+        actor,
+        tasks.getTaskData(taskId).instruction.toString(),
+        kind = Kind.DO_TASK_ID,
+        taskId = taskId,
+    ) {
+      engine.doTask(taskId)
+    }
+  }
+
   override fun tryTask(narrowing: String) = decide {
-    taskLog.capture(actor, "DO $narrowing") {
+    taskLog.capture(actor, narrowing, kind = Kind.TRY_TASK) {
       val parsed = parseTaskNarrowing(narrowing)
       engine.tryTask(
           parsed.instruction,
@@ -402,7 +444,7 @@ internal class AgentImpl(
   }
 
   override fun tryTask(narrowing: String, taskId: TaskId) = decide {
-    taskLog.capture(actor, "DO $narrowing") {
+    taskLog.capture(actor, narrowing, kind = Kind.TRY_TASK, taskId = taskId) {
       val parsed = parseTaskNarrowing(narrowing)
       engine.tryTask(
           parsed.instruction,
@@ -414,7 +456,12 @@ internal class AgentImpl(
   }
 
   override fun tryTask(taskId: TaskId) = decide {
-    taskLog.capture(actor, "CHOOSE ${tasks.getTaskData(taskId).instruction}") {
+    taskLog.capture(
+        actor,
+        tasks.getTaskData(taskId).instruction.toString(),
+        kind = Kind.TRY_TASK_ID,
+        taskId = taskId,
+    ) {
       engine.tryTask(taskId)
     }
   }
@@ -441,12 +488,15 @@ internal class AgentImpl(
       engine.transact(
           block = block,
           validateCompletion = validateCompletion,
-          settle = { autoExecLoop.run() },
+          settle = {
+            autoExecLoop.run()
+            world.agentTransactionGuard?.validate()
+          },
       )
 
   // Manual task edits preserve their legacy behavior of not invoking autoexecution.
   private fun atomicWithoutAutoExec(block: () -> Unit): TaskResult =
-      engine.transact(settle = {}, block = block)
+      engine.transact(settle = { world.agentTransactionGuard?.validate() }, block = block)
 
   private data class ParsedTaskNarrowing(
       val instruction: InstructionTree,

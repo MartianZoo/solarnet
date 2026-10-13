@@ -9,13 +9,8 @@ import kotlin.test.Test
 internal class SagittaFrontierServicesTest : TfmSandboxTest() {
   @Test
   internal fun `Its own tagless corporation play earns the rebate`() {
-    newTestGame(
-        "-promos:cards",
-        kimCorporation = SagittaFrontierServices,
-        startAtCorporation = true,
-    )
+    newTestGameBeforeCorporationPlay(addOptions = "SagittaFrontierServices")
 
-    // 31 starting MC plus the 4 MC rebate, minus the ten retained projects.
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<SagittaFrontierServices>>",
@@ -25,13 +20,13 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
           "PROD[2 MC]",
       )
       selectTask("SearchForCard<Kim, NoTagsFilter>!")
-      doTasks("4 MC", "-30 MC", "10 ProjectCard<Hand FROM Selecting>")
+      doTasks("4 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
   }
 
   @Test
   internal fun `Pays four MC for a tagless project`() {
-    newTestGame("-promos:cards", kimCorporation = SagittaFrontierServices)
+    newTestGame("SagittaFrontierServices", kimCorporation = SagittaFrontierServices)
     kim.setToExMachina(15, "MC")
 
     kim.inTurn {
@@ -41,15 +36,15 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
           "AtmoCollectors FROM ProjectCard",
           "4 MC",
       )
-      selectTask("2 Floater.")
-      doTask("2 Floater<AtmoCollectors>.")
+      selectTask("2* Floater")
+      doTask("2* Floater<AtmoCollectors>")
     }
   }
 
   // https://boardgamegeek.com/thread/3154781/do-event-tags-count-for-sagitta
   @Test
   internal fun `An event with no other tags earns the single-tag rebate`() {
-    newTestGame("-promos:cards", kimCorporation = SagittaFrontierServices)
+    newTestGame("SagittaFrontierServices", kimCorporation = SagittaFrontierServices)
 
     kim.inTurn {
           doTasks(
@@ -66,18 +61,21 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
 
   @Test
   internal fun `An event with another printed tag earns no rebate`() {
-    newTestGame("-promos:cards, SmallAsteroid", kimCorporation = SagittaFrontierServices)
+    newTestGame(
+        "SmallAsteroid, SagittaFrontierServices",
+        kimCorporation = SagittaFrontierServices,
+    )
     kim.setToExMachina(10, "MC")
 
     kim.inTurn {
       doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks(
           "Ok",
           "SmallAsteroid FROM ProjectCard",
       )
-      selectTask("TemperatureStep.")
-      selectTask("-2 Plant<Anyone>?")
+      selectTask("TemperatureStep*")
+      selectTask("-2? Plant<Anyone>")
       doTask("TerraformRating")
       doTask("PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid")
     }
@@ -85,34 +83,34 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
 
   @Test
   internal fun `A single building tag earns the single-tag rebate`() {
-    newTestGame("-promos:cards", kimCorporation = SagittaFrontierServices)
+    newTestGame("SagittaFrontierServices", kimCorporation = SagittaFrontierServices)
 
     kim.inTurn {
       doTasks("PlayProject<Class<Mine>>", "-4 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks("Ok", "Mine FROM ProjectCard", "PROD[Steel]", "MC")
     }
   }
 
   @Test
   internal fun `Repeated tags still count separately for the rebate threshold`() {
-    newTestGame("-promos:cards", kimCorporation = SagittaFrontierServices)
+    newTestGame("SagittaFrontierServices", kimCorporation = SagittaFrontierServices)
     kim.setToExMachina(11, "MC")
 
     kim.inTurn {
       doTasks("PlayProject<Class<Research>>", "-11 MC", "Research FROM ProjectCard")
-      selectTask("2 ProjectCard<Kim, Hand>!")
+      selectTask("2! ProjectCard<Kim, Hand>")
     }
   }
 
   @Test
   internal fun `Ignores another players card even when it has a single tag`() {
-    newTestGame("-promos:cards", kimCorporation = SagittaFrontierServices)
+    newTestGame("SagittaFrontierServices", kimCorporation = SagittaFrontierServices)
 
     stan
         .inTurn {
           doTasks("PlayProject<Class<Mine>>", "-4 MC")
-          selectTask("-X Steel?")
+          selectTask("-X? Steel")
           doTasks("Ok", "Mine FROM ProjectCard", "PROD[Steel]")
         }
         .expect("0 MC<Kim>")
@@ -135,9 +133,9 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     kim.setToExMachina(54, "MC")
     return kim.inTurn {
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      selectTask("4 CorporationCard<Kim, Selecting>!")
+      selectTask("4! CorporationCard<Kim, Selecting>")
       doTask("-42 MC")
-      selectTask("-3 CorporationCard<Kim, Selecting>!")
+      selectTask("-3! CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<SagittaFrontierServices>>")
       doTask("SagittaFrontierServices<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTasks("31 MC", "PROD[Energy]", "PROD[2 MC]")

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests
 
+import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agent.Agents
@@ -59,11 +60,11 @@ internal abstract class TfmTest {
 
   protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
 
-  protected fun TfmGameplay.auditGainsSince(checkpoint: Checkpoint): Int =
+  protected fun Agent.auditGainsSince(checkpoint: Checkpoint): Int =
       game.events.changesSince(checkpoint).count { it.change.gaining?.type == resolve("Audit") }
 
   protected fun <T> OperationScope.doWithoutAutoExec(
-      agent: TfmGameplay,
+      agent: Agent,
       body: OperationScope.() -> T,
   ): T {
     val previousAutoExecPolicy = agent.autoExecPolicy
@@ -75,21 +76,21 @@ internal abstract class TfmTest {
     }
   }
 
-  protected fun TfmGameplay.placeTile(row: Int, column: Int): TaskResult =
+  protected fun Agent.placeTile(row: Int, column: Int): TaskResult =
       doTask(tilePlacement(reader, pendingTasks(), row, column))
 
   protected fun OperationScope.placeTile(row: Int, column: Int) {
     doTask(tilePlacement(reader, tasks.extract { it }, row, column))
   }
 
-  protected fun TfmGameplay.addCardResources(card: ClassName, count: Int? = null): TaskResult =
+  protected fun Agent.addCardResources(card: ClassName, count: Int? = null): TaskResult =
       doTask(cardResources(reader, pendingTasks(), card, count))
 
   protected fun OperationScope.addCardResources(card: ClassName, count: Int? = null) {
     doTask(cardResources(reader, tasks.extract { it }, card, count))
   }
 
-  protected fun TfmGameplay.wgt(choice: String): TaskResult = doTask("$choice! BY Admin")
+  protected fun Agent.wgt(choice: String): TaskResult = doTask("$choice! BY Admin")
 
   protected fun OperationScope.wgt(choice: String) {
     doTask("$choice! BY Admin")
@@ -99,7 +100,7 @@ internal abstract class TfmTest {
    * Declines this actor's offered task: with `Done` where the offer gives that choice, as final
    * greenery does, and otherwise with `Ok`.
    */
-  protected fun TfmGameplay.declineTask(): TaskResult {
+  protected fun Agent.declineTask(): TaskResult {
     val offersDone =
         pendingTasks().any { task ->
           task.instruction.descendantsOfType<Gain>().any { it.gaining.className == cn("Done") }
@@ -107,7 +108,7 @@ internal abstract class TfmTest {
     return doTask(if (offersDone) "Done" else "Ok")
   }
 
-  protected fun TfmGameplay.declineTask(instruction: String): TaskResult {
+  protected fun Agent.declineTask(instruction: String): TaskResult {
     val taskId = singleDeclinableTaskId(pendingTasks(), reader, instruction)
     return doTask("Ok", taskId)
   }
@@ -198,6 +199,6 @@ internal abstract class TfmTest {
     return matches.single().id
   }
 
-  private fun TfmGameplay.pendingTasks(): List<Task> =
+  private fun Agent.pendingTasks(): List<Task> =
       game.tasks.extract { it }.filter { it.assignee == actor }
 }

@@ -25,6 +25,7 @@ kotlin {
 }
 
 dependencies {
+  implementation(libs.kotlinx.coroutines.core)
   implementation(project(":agent"))
   implementation(project(":catalog"))
   implementation(project(":tfm-canon"))

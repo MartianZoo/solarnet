@@ -16,7 +16,7 @@ internal class VenusianPlantsTest : TfmSandboxTest() {
     // Unlike Corroder Suits, the microbe arm can resolve to nothing despite the animal holder.
     kim.inTurn {
           doTasks("PlayProject<Class<VenusianPlants>>", "-13 MC", "VenusianPlants FROM ProjectCard")
-          selectTask("VenusStep.")
+          selectTask("VenusStep*")
           doTask("TerraformRating")
           selectOnlyTask()
           doTask("Ok")

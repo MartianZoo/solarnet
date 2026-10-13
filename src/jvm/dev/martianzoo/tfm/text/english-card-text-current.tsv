@@ -44,7 +44,7 @@ Factorum	Factorum	Gain 37 M€. Increase your steel production 1 step.	Action: I
 MonsInsurance	Mons Insurance	Gain 48 M€. Increase your M€ production 4 steps. Each other player decreases their own M€ production 2 steps.	Effect: When any player has their resources removed by another player, pay 3 M€ to that player, or as much as possible. When any player has their production decreased by another player, pay 3 M€ to that player, or as much as possible.
 Philares	Philares	Gain 47 M€. As your first action, place a greenery tile.	Effect: When an adjacency between one of your tiles and an opponent's tile is created, gain 1 standard resource.
 AstroDrill	AstroDrill	Gain 35 M€. Add 3 asteroids to this card.	Action: Add 1 asteroid to any card or gain 1 standard resource, or spend 1 asteroid from this card to gain 3 titanium.
-PharmacyUnion	Pharmacy Union	Gain 54 M€. Draw 1 science card.	Effect: [MicrobeTag<Anyone>: Disease<This>! OR (MAX 0 This: Ok), -4 MC.]. [ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease<This>: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)].
+PharmacyUnion	Pharmacy Union	Gain 54 M€. Draw 1 science card.	Effect: [MicrobeTag<Anyone>: Disease<This>! OR (MAX 0 This: Ok), -4* MC]. [ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease<This>: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)].
 KuiperCooperative	Kuiper Cooperative	Gain 33 M€. Increase your titanium production 1 step.	Action: Add 1 asteroid to this card per space tag you have. / Effect: When you use a standard project or a standard project, asteroids on this card may be used as 1 M€ each.
 TychoMagnetics	Tycho Magnetics	Gain 42 M€. Increase your energy production 1 step.	Action: Spend 1 or more energy to look at that many cards, then keep 1 of them, then discard the rest.
 AlliedBank	Allied Bank	Increase your M€ production 4 steps. Gain 3 M€.
@@ -244,7 +244,7 @@ IceCapMelting	Ice Cap Melting	Requires +2°C or warmer. Place an ocean tile.
 BiomassCombustors	Biomass Combustors	Requires 6% oxygen. Decrease any player's plant production 1 step and increase your energy production 2 steps.
 Livestock	Livestock	Requires 9% oxygen. Decrease your plant production 1 step and increase your M€ production 2 steps. 1 VP per animal on this card.	Action: Add 1 animal to this card.
 AquiferPumping	Aquifer Pumping		Action: Spend 8 M€ (steel may be used) to place an ocean tile.
-Flooding	Flooding	Place an ocean tile, or if the number of ocean tiles has not reached its maximum, [OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>!], then [-4 MC<@Anyone>?].
+Flooding	Flooding	Place an ocean tile, or if the number of ocean tiles has not reached its maximum, [OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>!], then [-4? MC<@Anyone>].
 EnergySaving	Energy Saving	Increase your energy production 1 step per city tile in play.
 LocalHeatTrapping	Local Heat Trapping	Remove 5 heat. Gain 4 plants or add 2 animals to another card.
 PermafrostExtraction	Permafrost Extraction	Requires -8°C or warmer. Place an ocean tile.
@@ -432,7 +432,7 @@ TradingColony	Trading Colony	Place a colony.	Effect: When you trade, you may rai
 UrbanDecomposers	Urban Decomposers	Requires that you have a city tile and a colony. Increase your plant production 1 step. Add 2 microbes to another card.
 WarpDrive	Warp Drive	Requires 5 science tags.	Effect: When you play a space tag, you pay 4 M€ less for it.
 AerialLenses	Aerial Lenses	Requires that you meet the party requirement for the Kelvinists party. You may remove up to 2 plants from any player. Increase your heat production 2 steps.
-BannedDelegate	Banned Delegate	Requires that you are chairman. [BannedDelegateRemoval<Party, Anyone>. / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1].
+BannedDelegate	Banned Delegate	Requires that you are chairman. [BannedDelegateRemoval<Party, Anyone>* / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1].
 CulturalMetropolis	Cultural Metropolis	Requires that you meet the party requirement for Unity. Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile and 2 delegates.
 DiasporaMovement	Diaspora Movement	Requires that you meet the party requirement for the Reds party. Gain 1 M€ per Jovian tag in play (including this).
 EventAnalysts	Event Analysts	Requires that you meet the party requirement for the Scientists party.	Effect: When influence is counted, gain 1 influence.

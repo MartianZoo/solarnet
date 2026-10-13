@@ -42,7 +42,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<AstraMechanica>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks(
             "-7 MC",
             "AstraMechanica FROM ProjectCard",
@@ -63,7 +63,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<AstraMechanica>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks(
             "-7 MC",
             "AstraMechanica FROM ProjectCard",
@@ -82,7 +82,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<AstraMechanica>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks(
             "-7 MC",
             "AstraMechanica FROM ProjectCard",
@@ -100,7 +100,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<AstraMechanica>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-7 MC", "AstraMechanica FROM ProjectCard")
         doTask("ProjectCard FROM PlayedEvent<Class<Flooding>>")
         selectOnlyTask()

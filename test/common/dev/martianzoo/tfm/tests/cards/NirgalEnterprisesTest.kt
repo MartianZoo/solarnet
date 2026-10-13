@@ -7,7 +7,7 @@ import kotlin.test.Test
 internal class NirgalEnterprisesTest : TfmSandboxTest() {
   @Test
   internal fun `Claims a milestone without paying its usual fee`() {
-    newTestGame(kimCorporation = NirgalEnterprises)
+    newTestGame(addOptions = "NirgalEnterprises", kimCorporation = NirgalEnterprises)
     kim.setToExMachina(16, "ProjectCard")
 
     kim.inTurn {
@@ -19,7 +19,7 @@ internal class NirgalEnterprisesTest : TfmSandboxTest() {
 
   @Test
   internal fun `Funds an award without paying its usual fee`() {
-    newTestGame(kimCorporation = NirgalEnterprises)
+    newTestGame(addOptions = "NirgalEnterprises", kimCorporation = NirgalEnterprises)
 
     kim.inTurn {
           doTask("FundAward<Class<Landlord>>")
@@ -30,7 +30,7 @@ internal class NirgalEnterprisesTest : TfmSandboxTest() {
 
   @Test
   internal fun `Still pays the twelve MC required by Briber`() {
-    newTestGame("Briber, Builder, Engineer", kimCorporation = NirgalEnterprises)
+    newTestGame("Briber, Builder, Engineer, NirgalEnterprises", kimCorporation = NirgalEnterprises)
     kim.setToExMachina(12, "MC")
 
     kim.inTurn {

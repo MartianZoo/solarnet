@@ -69,7 +69,7 @@ internal class NewPartnerTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>")
         selectOnlyTask()
-        selectTask("-18 MC!")
+        selectTask("-18! MC")
       }
     }
 

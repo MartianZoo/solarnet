@@ -29,7 +29,7 @@ internal class LandClaimTest : TfmSandboxTest() {
       stan.inTurn {
         selectOnlyTask()
         doTask("UseStandardProject<CityProject>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-25 MC")
         selectTask("PROD[MC]")
         selectOnlyTask()
@@ -45,7 +45,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_1_1>")
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           doTasks("2 Steel", "TerraformRating")
         }
         .expect("-Community")
@@ -60,7 +60,7 @@ internal class LandClaimTest : TfmSandboxTest() {
       stan.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-        selectTask("-X Steel?")
+        selectTask("-X? Steel")
         selectTask("Ok")
         doTask("ArtificialLake FROM ProjectCard")
         selectOnlyTask()
@@ -112,7 +112,7 @@ internal class LandClaimTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("UseStandardProject<GreeneryProject>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-23 MC")
         selectOnlyTask()
         doTask("GreeneryTile<Tharsis_4_3>")
@@ -127,7 +127,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_2_1>")
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           doTask("TerraformRating")
         }
         .expect("0 Community")
@@ -140,7 +140,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_9_7>")
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           doTask("TerraformRating")
         }
         .expect("0 Community<Stan>")
@@ -155,7 +155,7 @@ internal class LandClaimTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("UseStandardProject<GreeneryProject>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-23 MC")
         selectOnlyTask()
         doTask("GreeneryTile<Tharsis_2_2>")
@@ -173,7 +173,7 @@ internal class LandClaimTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("UseStandardProject<GreeneryProject>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-23 MC")
         selectOnlyTask()
         doTask("GreeneryTile<Tharsis_9_7>")
@@ -189,7 +189,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_2_2>")
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           doTasks("Steel", "TerraformRating")
         }
         .expect("-Community")
@@ -204,7 +204,7 @@ internal class LandClaimTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("UseStandardProject<GreeneryProject>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-23 MC")
         selectOnlyTask()
         doTask("GreeneryTile<Tharsis_9_7>")
@@ -220,7 +220,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_2_1>")
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           doTask("TerraformRating")
         }
         .expect("0 Community<Stan>")
@@ -234,7 +234,7 @@ internal class LandClaimTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<LandClaim>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks(
             "-1 MC",
             "LandClaim FROM ProjectCard",
@@ -254,7 +254,7 @@ internal class LandClaimTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<LandClaim>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks(
             "-1 MC",
             "LandClaim FROM ProjectCard",

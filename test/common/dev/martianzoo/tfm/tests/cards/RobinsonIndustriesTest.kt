@@ -10,7 +10,7 @@ import kotlin.test.Test
 internal class RobinsonIndustriesTest : TfmSandboxTest() {
   @BeforeTest
   fun initializeGame() {
-    newTestGame(kimCorporation = RobinsonIndustries)
+    newTestGame(addOptions = "RobinsonIndustries", kimCorporation = RobinsonIndustries)
     kim.setToExMachina(0, "PROD[MC]")
     kim.setToExMachina(0, "PROD[Steel]")
     kim.setToExMachina(0, "PROD[Titanium]")
@@ -59,7 +59,7 @@ internal class RobinsonIndustriesTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("UseCardAction<RobinsonIndustries, Action1>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
         doTask("PROD[Steel]")

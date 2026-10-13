@@ -82,9 +82,9 @@ internal class BasicTest {
     val game = setUpGame()
     val session = game.testTfm(PLAYER1)
 
-    session.runOperation("3 Heat!")
-    session.runOperation("4 Heat.")
-    session.runOperation("-9 Heat.")
+    session.runOperation("3! Heat")
+    session.runOperation("4* Heat")
+    session.runOperation("-9* Heat")
     assertEquals(0, session.count("Heat"))
   }
 

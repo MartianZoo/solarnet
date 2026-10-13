@@ -53,7 +53,7 @@ internal class PublicPlansTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<PublicPlans>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks(
             "-7 MC",
             "PublicPlans FROM ProjectCard",

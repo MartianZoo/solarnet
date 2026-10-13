@@ -19,7 +19,7 @@ internal class ThawerTest : TfmSandboxTest() {
     asteroid()
     stan.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTasks("TerraformRating", "PROD[Heat]")
       selectOnlyTask()
     }
@@ -34,7 +34,7 @@ internal class ThawerTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("ClaimMilestone<Class<Thawer>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
       }
@@ -42,7 +42,7 @@ internal class ThawerTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTask("TerraformRating")
       selectOnlyTask()
     }

@@ -90,9 +90,9 @@ internal class TaskDispatchTest {
     val blue = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
     blue.runOperation("10 Token<Player2>")
 
-    admin.beginOperation("TASK Player2 { -10 Token<Player2>? }")
+    admin.beginOperation("TASK Player2 { -10? Token<Player2> }")
 
-    blue.tasks.extract { it.instruction.toString() } shouldBe listOf("-10 Token<Player2>?")
+    blue.tasks.extract { it.instruction.toString() } shouldBe listOf("-10? Token<Player2>")
     blue.doTask("-3 Token<Player2>")
     blue.count("Token<Player2>") shouldBe 7
   }

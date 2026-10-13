@@ -29,7 +29,7 @@
    context.
 2. Count matching events and effect activations. Repeated components normally scale through
    repeated hits, not an added `AMAP` or authored count.
-3. Add `!`, `?`, or `.` only when the rule intentionally differs from the inherited default.
+3. Add `!`, `?`, or `*` only when the rule intentionally differs from the inherited default.
 4. Keep the quantifier responsible only for the count of one change; choice, targeting, gates, and
    sequencing have separate rules.
 
@@ -114,7 +114,10 @@ select the new value; the cleanup does not choose the winner.
 | --- | --- | --- |
 | `!` | mandatory | Execute exactly `n`: require sources and dependencies immediately, validate count bounds at operation completion. |
 | `?` | optional | Let the player choose any count from zero through `min(n, m)`. |
-| `.` | AMAP | Execute `min(n, m)`; the engine, not the player, chooses the count. |
+| `*` | AMAP | Execute `min(n, m)`; the engine, not the player, chooses the count. |
+
+With an explicit scalar, place the quantifier immediately after it (`3? Plant`). With the default
+scalar of one, place the quantifier after the type (`Plant?`).
 
 An omitted quantifier is filled from the changed Class before play. `Component` supplies mandatory
 gain and removal defaults. A subclass may override either direction independently. For example,

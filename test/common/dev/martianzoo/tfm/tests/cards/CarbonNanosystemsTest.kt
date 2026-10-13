@@ -17,11 +17,11 @@ internal class CarbonNanosystemsTest : TfmSandboxTest() {
           "-2 Graphene<CarbonNanosystems>",
           "AsteroidCard FROM ProjectCard",
       )
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTask("2 Titanium")
-      selectTask("-3 Plant<Anyone>?")
+      selectTask("-3? Plant<Anyone>")
       doTask("TerraformRating")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTask("Ok")
       doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
@@ -39,11 +39,11 @@ internal class CarbonNanosystemsTest : TfmSandboxTest() {
           "-2 Graphene<CarbonNanosystems>",
           "AsteroidCard FROM ProjectCard",
       )
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTask("2 Titanium")
-      selectTask("-3 Plant<Anyone>?")
+      selectTask("-3? Plant<Anyone>")
       doTask("TerraformRating")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTask("Ok")
       doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }

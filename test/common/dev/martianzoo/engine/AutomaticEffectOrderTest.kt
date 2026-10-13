@@ -76,7 +76,7 @@ internal class AutomaticEffectOrderTest {
               This:: Watcher<This>
               This:: Pulse
             }
-            CLASS Watcher<Subject> { Pulse:: Observed. }
+            CLASS Watcher<Subject> { Pulse:: Observed* }
             CLASS Pulse
             CLASS Observed
             """,
@@ -88,8 +88,8 @@ internal class AutomaticEffectOrderTest {
             """
             CLASS Trigger : Signal
             CLASS Token
-            CLASS Earlier { Trigger:: -Token. }
-            CLASS Later { Trigger:: -Token. }
+            CLASS Earlier { Trigger:: -Token* }
+            CLASS Later { Trigger:: -Token* }
             """,
             players = 0,
         )

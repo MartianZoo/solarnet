@@ -59,8 +59,10 @@ public class TfmGameplay(
    * Starts the game: SetupPhase replaces BootstrapPhase, and from then on the game's own rules
    * offer every turn and begin every phase. The setup choices remain pending for their players.
    */
-  public fun startGame(): TaskResult =
-      asActor(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
+  public fun startGame(): TaskResult {
+    agents.taskLog.workflowStarted("tfm-automatic")
+    return asActor(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
+  }
 
   /**
    * Keeps [count] of the offered setup project cards and discards the rest. The count must be
@@ -758,7 +760,7 @@ public class TfmGameplay(
   /** Uses Sell Patents to discard [count] project cards and gain that many MC. */
   public fun sellPatents(count: Int): TaskResult =
       stdProject("SellPatentsProject") {
-        doTask("$count MC FROM ProjectCard!")
+        doTask("$count! MC FROM ProjectCard")
       }
 
   /**

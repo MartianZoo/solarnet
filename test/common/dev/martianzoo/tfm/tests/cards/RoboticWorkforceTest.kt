@@ -35,7 +35,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<RoboticWorkforce>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-9 MC", "RoboticWorkforce FROM ProjectCard")
         selectOnlyTask()
         doTask("CopyProductionBox<MassConverter>")
@@ -53,7 +53,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<RoboticWorkforce>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-9 MC", "RoboticWorkforce FROM ProjectCard")
         selectOnlyTask()
         doTask("CopyProductionBox<Mine<Stan>>")
@@ -70,7 +70,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<RoboticWorkforce>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-9 MC", "RoboticWorkforce FROM ProjectCard")
         selectOnlyTask()
         doTask("CopyProductionBox<Mine>")
@@ -107,7 +107,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
     newTestGame()
     kim.inTurn {
           doTasks("PlayProject<Class<MedicalLab>>", "-13 MC")
-          selectTask("-X Steel?")
+          selectTask("-X? Steel")
           doTasks("Ok", "MedicalLab FROM ProjectCard")
           selectOnlyTask()
         }
@@ -133,7 +133,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
     stan.setToExMachina(2, "PROD[Heat]")
     kim.inTurn {
       doTasks("PlayProject<Class<HeatTrappers>>", "-6 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks("Ok", "HeatTrappers FROM ProjectCard", "PROD[Energy]", "PROD[-2 Heat<Stan>]")
     }
     stan.setToExMachina(2, "PROD[Heat]")

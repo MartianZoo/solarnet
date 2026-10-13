@@ -52,7 +52,7 @@ internal class TaskSelectionTest {
     game.tasks
         .extract { it.instruction.toString() }
         .filter { it.startsWith("TemperatureStep") }
-        .shouldContainExactly("TemperatureStep.", "TemperatureStep.")
+        .shouldContainExactly("TemperatureStep*", "TemperatureStep*")
   }
 
   @Test

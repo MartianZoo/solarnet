@@ -103,13 +103,13 @@ internal class VironTest : TfmSandboxTest() {
     kim.inTurn {
       doTask("UseCardAction<Celestic, Action1>")
       selectOnlyTask()
-      doTask("Floater<Celestic>.")
+      doTask("Floater<Celestic>*")
     }
 
     kim.inTurn {
           doTasks("UseCardAction<Viron, Action1>", "UseAction<Celestic, Action1>")
           selectOnlyTask()
-          doTask("Floater<Celestic>.")
+          doTask("Floater<Celestic>*")
         }
         .expect("Floater<$Celestic>")
   }

@@ -4,8 +4,8 @@ CLASS FakeWildTag : Cardbound
 "A holder for tags supplied by a replay, removed after its owner's next action or Prelude play"
 CLASS FakeWildTagUse : TagHolder {
   HAS MAX 1 This
-  StandardAction: LATER { -This. }
-  PlayPrelude: LATER { -This. }
+  StandardAction: LATER { -This* }
+  PlayPrelude: LATER { -This* }
 }
 
 CLASS FakeResearchNetwork : CardFront<Class<PreludeCard>> {
@@ -117,7 +117,7 @@ CLASS FakeSelfReplicatingRobots : ActionCard, ActiveCard {
 }
 
 CLASS StageForReplicatedProject<Class<@CardFront>> : Owned<Player>, Signal {
-  This: -ProjectCard THEN 2 RobotUnit<Class<@CardFront>>!
+  This: -ProjectCard THEN 2 RobotUnit<Class<@CardFront>>
 }
 
 CLASS ReplicateForStagedProject<Class<CardFront>> : Owned<Player>, Signal

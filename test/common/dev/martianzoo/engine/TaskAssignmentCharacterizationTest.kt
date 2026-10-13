@@ -530,7 +530,7 @@ internal class TaskAssignmentCharacterizationTest {
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
 
     val task =
-        p1.addTasks("((X Token<Player1>? THEN X Marker<Player1>?) OR -Marker<Player1>) BY Player2")
+        p1.addTasks("((X? Token<Player1> THEN X? Marker<Player1>) OR -Marker<Player1>) BY Player2")
             .single()
     val beforeSelection = game.tasks.getTaskData(task)
 

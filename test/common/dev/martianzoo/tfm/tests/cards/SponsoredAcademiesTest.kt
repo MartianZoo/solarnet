@@ -10,7 +10,7 @@ import kotlin.test.Test
 internal class SponsoredAcademiesTest : TfmSandboxTest() {
   @Test
   internal fun `Point Luna draw supplies the mandatory discard when it is the only hand card`() {
-    newTestGame(kimCorporation = PointLuna)
+    newTestGame(addOptions = "PointLuna", kimCorporation = PointLuna)
     kim.setToExMachina(1, "ProjectCard")
     kim.setToExMachina(9, "MC")
 
@@ -40,7 +40,7 @@ internal class SponsoredAcademiesTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<SponsoredAcademies>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-9 MC", "SponsoredAcademies FROM ProjectCard")
         selectTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")
         selectTask("ProjectCard<Stan, Hand>!")

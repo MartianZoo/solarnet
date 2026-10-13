@@ -31,7 +31,7 @@ internal class SuitableInfrastructureTest : TfmGameplayTest() {
   @Test
   internal fun `Pays for production inside Valley Trusts required action`() {
     newTestGame(
-        "PreludeExpansion, SuitableInfrastructure",
+        "PreludeExpansion, SuitableInfrastructure, ValleyTrust",
         playerCount = 2,
         kimCorporation = ValleyTrust,
     )

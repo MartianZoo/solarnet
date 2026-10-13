@@ -537,6 +537,7 @@ public object Parsing {
     private val comma by literalToken(",", ",")
     private val minus by literalToken("-", "-")
     private val dot by literalToken(".", ".")
+    private val star by literalToken("*", "*")
     private val slash by literalToken("/", "/")
     private val colon by literalToken(":", ":")
     private val semicolon by literalToken(";", ";")
@@ -620,7 +621,7 @@ public object Parsing {
     private val xScalar by optional(integer) and skip(xKeyword) map { XScalar(it ?: 1) }
     val scalar: Parser<Scalar> by xScalar or numericScalar
     private val quantifier by
-        optional((bang asJust MANDATORY) or (dot asJust AMAP) or (question asJust OPTIONAL))
+        optional((bang asJust MANDATORY) or (star asJust AMAP) or (question asJust OPTIONAL))
 
     // Expressions recurse through arguments and refinements. Selectors and class headers cannot
     // consume an owner-local body: their following braces belong to the enclosing production.
@@ -822,26 +823,50 @@ public object Parsing {
         commaSeparated(requirementDisjunction) map Requirement.And.Companion::create
 
     // Instructions: change, per, BY, OR, gate, THEN, comma group (L2-16).
-    private val gain by
-        scaledExpression and
+    private val prefixedChange by
+        scalar and
+            quantifier and
+            optional(expression) map
+            { (scalar, quantifier, expression) ->
+              val denomination =
+                  expression
+                      ?: denominationlessClass.expression.copy().also {
+                        it.sourceLocation = scalar.sourceLocation
+                      }
+              ScaledExpression.scaledEx(denomination, scalar) to quantifier
+            }
+    private val unscaledChange by
+        expression and
             quantifier map
+            { (expression, quantifier) ->
+              ScaledExpression.scaledEx(expression) to quantifier
+            }
+    private val quantifiedChange by prefixedChange or unscaledChange
+    private val gain by
+        quantifiedChange map
             { (amount, quantifier) ->
               Instruction.Gain.gain(amount, quantifier)
             }
     private val remove by
         skip(minus) and
-            scaledExpression and
-            quantifier map
+            quantifiedChange map
             { (amount, quantifier) ->
               Instruction.Remove.remove(amount, quantifier)
             }
-    private val transmute by
-        optional(scalar) and
-            fromExpression and
-            quantifier map
-            { (scalar, from, quantifier) ->
-              Instruction.Transmute(from, scalar ?: ActualScalar(1), quantifier)
+    private val prefixedTransmute by
+        scalar and
+            quantifier and
+            fromExpression map
+            { (scalar, quantifier, from) ->
+              Instruction.Transmute(from, scalar, quantifier)
             }
+    private val unscaledTransmute by
+        fromExpression and
+            quantifier map
+            { (from, quantifier) ->
+              Instruction.Transmute(from, ActualScalar(1), quantifier)
+            }
+    private val transmute by prefixedTransmute or unscaledTransmute
     private val change by locatedNode(transmute or gain or remove)
     private val perInstruction by
         change and

@@ -74,8 +74,8 @@ internal class ScriptCompletionEngineTest {
 
   @Test
   internal fun completesTaskInstructionsAndSingletonTaskActions() {
-    (repl.agent as Agent).addTasks("2 Plant?")
-    (repl.agent as Agent).addTasks("3 Heat?")
+    (repl.agent as Agent).addTasks("2? Plant")
+    (repl.agent as Agent).addTasks("3? Heat")
 
     assertFalse(values("task ").any { it == "A" || it == "B" })
     assertContainsAll(values("task Pl"), "Plant", "PlantTag")
@@ -86,24 +86,24 @@ internal class ScriptCompletionEngineTest {
   @Test
   internal fun taskListingsHaveNoIdsAndSingletonActionsNeedNoPosition() {
     val taskLayer = repl.agent as Agent
-    taskLayer.addTasks("2 Plant?")
+    taskLayer.addTasks("2? Plant")
     assertTrue(repl.command("tasks").single().startsWith("[Admin] "))
     assertTrue(repl.command("task select").single().startsWith("* [Admin] "))
 
     repl.command("mode yellow")
     repl.command("task drop")
-    taskLayer.addTasks("3 Heat?")
+    taskLayer.addTasks("3? Heat")
 
     val remaining = repl.command("tasks").single()
     assertTrue(remaining.startsWith("[Admin] "), remaining)
-    assertTrue("3 Heat?" in remaining, remaining)
+    assertTrue("3? Heat" in remaining, remaining)
   }
 
   @Test
   internal fun selectAndDropRejectMultipleTasks() {
     val taskLayer = repl.agent as Agent
-    taskLayer.addTasks("2 Plant?")
-    taskLayer.addTasks("3 Heat?")
+    taskLayer.addTasks("2? Plant")
+    taskLayer.addTasks("3? Heat")
     repl.command("mode yellow")
 
     assertEquals(
@@ -150,9 +150,9 @@ internal class ScriptCompletionEngineTest {
     repl.command("newgame BRP 2")
     repl.command("become Player1")
     val taskLayer = repl.agent as Agent
-    taskLayer.addTasks("3 Plant?")
+    taskLayer.addTasks("3? Plant")
 
-    repl.command("task 2 Plant!")
+    repl.command("task 2! Plant")
 
     assertEquals(2, repl.agent.count("Plant"))
   }

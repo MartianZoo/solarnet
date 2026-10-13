@@ -12,15 +12,15 @@ import kotlin.test.assertEquals
 
 /** Three-player physical game begun Saturday, 2026-09-12. */
 internal class OtbGame20260912Test : AbstractFullGameTest() {
-  // The physical deck incorrectly included the Colonies-dependent Summit Logistics without using
-  // colonies. Selecting the dependency with no colony tiles keeps that evidenced card available
-  // while introducing no colony board or trade opportunities.
+  // The physical deck included Summit Logistics without Colonies, and the recorded game had no
+  // colony board. Name the ordinary card explicitly because its colony count contributes zero,
+  // while the Prelude 2 card pack selects it automatically only when Colonies is available.
   override val config =
       GameConfig(
           """
           VastitasMap
           VenusNextExpansion, PreludeExpansion, prelude2:cards, TurmoilExpansion, promos:cards
-          ColoniesExpansion
+          SummitLogistics
           FakeStuffBundle
 
           Farmer, Generalist, Lobbyist, Philantropist, Producer
@@ -935,7 +935,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     blue.turn { playProject(ReleaseOfInertGases, 14) }
     green.turn { stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Scientists>") } }
     yellow.turn {
-      // Summit Logistics: two steel, one titanium, three M€, then five planetary tags/colonies.
+      // Summit Logistics: two steel, one titanium, three M€, then five planetary tags.
       exMachina(fakeWildTags("EarthTag", 2))
       intentionalUnderpay()
       playProject(SummitLogistics, 3, steel = 2, titanium = 1).expect("2 MC")

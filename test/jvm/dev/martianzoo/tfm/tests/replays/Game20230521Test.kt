@@ -813,7 +813,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "-3 Steel",
           "-1 MC",
           "$OlympusConference FROM ProjectCard",
-          "Science<$OlympusConference>. OR ProjectCard FROM Science<$OlympusConference>",
+          "Science<$OlympusConference>* OR ProjectCard FROM Science<$OlympusConference>",
       )
 
       doTasks(

@@ -23,7 +23,7 @@ ABSTRACT CLASS Card : Owned<Player>, Real {
       HAS =1 EventTag<This>
       // An event stays face up until no other work remains. The `.` covers an event, such as Law
       // Suit, that has already moved itself into another player's pile.
-      This: LATER { PlayedEvent<Class<This>> FROM This. }
+      This: LATER { PlayedEvent<Class<This>> FROM This* }
     }
 
     "Any card with actions, including corporation and prelude cards"
@@ -110,7 +110,7 @@ CLASS PriceAspectCount<Class<CardFront>, Class<Component>> : CustomMetric
 
 "A temporary shortfall between a printed global requirement and the current parameter"
 CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier, System {
-  DEFAULT -Required.
+  DEFAULT -Required*
 }
 
 "The current place of an anonymous unplayed card associated with a Player"

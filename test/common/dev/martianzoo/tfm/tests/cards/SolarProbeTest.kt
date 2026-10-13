@@ -41,7 +41,7 @@ internal class SolarProbeTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<SolarProbe>>", "-9 MC")
-          selectTask("-X Titanium?")
+          selectTask("-X? Titanium")
           doTasks(
               "Ok",
               "SolarProbe FROM ProjectCard",

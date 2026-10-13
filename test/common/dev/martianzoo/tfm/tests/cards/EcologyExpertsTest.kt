@@ -37,10 +37,10 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
             "PROD[Plant]",
             "PlayCard<Class<ProjectCard>, Class<EcologicalZone>>",
         )
-        selectTask("-Required. / Required")
+        selectTask("-Required* / Required")
         doTasks("-12 MC", "EcologicalZone FROM ProjectCard")
-        selectTask("Animal<EcologicalZone>.")
-        selectTask("Animal<EcologicalZone>.")
+        selectTask("Animal<EcologicalZone>*")
+        selectTask("Animal<EcologicalZone>*")
         doTasks("EcologicalZone_SpecialTile<Tharsis_4_5>", "2 Plant")
       }
     }
@@ -82,9 +82,9 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
             "PROD[Plant]",
             "PlayCard<Class<ProjectCard>, Class<Decomposers>>",
         )
-        selectTask("-Required. / Required")
+        selectTask("-Required* / Required")
         doTasks("-5 MC", "Decomposers FROM ProjectCard")
-        selectTask("Microbe<Decomposers>.")
+        selectTask("Microbe<Decomposers>*")
       }
     }
   }
@@ -103,12 +103,12 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
             "EcologyExperts FROM PreludeCard",
             "PROD[Plant]",
         )
-        stan.selectTask("2 MC!")
+        stan.selectTask("2! MC")
         doTasks("2 MC", "PlayCard<Class<ProjectCard>, Class<Decomposers>>")
-        selectTask("-Required. / Required")
+        selectTask("-Required* / Required")
         doTasks("-5 MC", "Decomposers FROM ProjectCard")
-        selectTask("Microbe<Decomposers>.")
-        stan.selectTask("2 MC!")
+        selectTask("Microbe<Decomposers>*")
+        stan.selectTask("2! MC")
         doTask("2 MC")
       }
     }
@@ -129,7 +129,7 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
             "PROD[Plant]",
             "PlayCard<Class<ProjectCard>, Class<DustSeals>>",
         )
-        selectTask("-Required. / Required")
+        selectTask("-Required* / Required")
         doTasks("-2 MC", "DustSeals FROM ProjectCard")
       }
     }
@@ -147,7 +147,7 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
             "PROD[Plant]",
             "PlayCard<Class<ProjectCard>, Class<DustSeals>>",
         )
-        selectTask("-Required. / Required")
+        selectTask("-Required* / Required")
         doTasks("-2 MC", "DustSeals FROM ProjectCard")
       }
       inTurn {
@@ -158,9 +158,9 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
             "PROD[Plant]",
             "PlayCard<Class<ProjectCard>, Class<Decomposers>>",
         )
-        selectTask("-Required. / Required")
+        selectTask("-Required* / Required")
         doTasks("-5 MC", "Decomposers FROM ProjectCard")
-        selectTask("Microbe<Decomposers>.")
+        selectTask("Microbe<Decomposers>*")
       }
     }
   }
@@ -208,7 +208,7 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
             "PROD[Plant]",
             "PlayCard<Class<ProjectCard>, Class<ViralEnhancers>>",
         )
-        selectTask("-Required. / Required")
+        selectTask("-Required* / Required")
         doTasks("-9 MC", "ViralEnhancers FROM ProjectCard", "Plant")
       }
     }

@@ -38,7 +38,7 @@ internal class PsychrophilesTest : TfmSandboxTest() {
           "AdaptedLichen FROM ProjectCard",
           "PROD[Plant]",
       )
-      selectTask("-X MC?")
+      selectTask("-X? MC")
       doTask("Ok")
     }
   }

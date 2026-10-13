@@ -21,7 +21,7 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
               "EarlyColonization FROM PreludeCard",
               "3 Energy",
           )
-          selectTask("EACH @ColonyTile { 2 ColonyProduction<@ColonyTile>! }")
+          selectTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
           doTasks("Colony<Luna>", "PROD[2 MC]")
         }
         .expect(
@@ -42,8 +42,8 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
             "PlayCard<Class<PreludeCard>, Class<EarlyColonization>>",
             "EarlyColonization FROM PreludeCard",
         )
-        selectTask("3 Energy!")
-        selectTask("EACH @ColonyTile { 2 ColonyProduction<@ColonyTile>! }")
+        selectTask("3! Energy")
+        selectTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
         selectOnlyTask()
       }
     }
@@ -84,8 +84,8 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
             "PlayCard<Class<PreludeCard>, Class<EarlyColonization>>",
             "EarlyColonization FROM PreludeCard",
         )
-        selectTask("3 Energy!")
-        selectTask("EACH @ColonyTile { 2 ColonyProduction<@ColonyTile>! }")
+        selectTask("3! Energy")
+        selectTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
         selectTask("Colony<Kim, ColonyTile(HAS MAX 0 Colony)>!")
         doTask("Colony<Ceres>")
         selectTask("PROD[Steel]")

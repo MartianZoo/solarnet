@@ -180,6 +180,9 @@ public interface Agent {
   /** Carries out [narrowing] against the task identified by [taskId]. */
   public fun doTask(narrowing: String, taskId: TaskId): TaskResult
 
+  /** Selects and attempts [taskId], leaving it pending after a handoff or needed choice. */
+  public fun doTask(taskId: TaskId): TaskResult
+
   /**
    * Attempts [narrowing], leaving its task pending when the play is incomplete or unavailable.
    * Invalid task selection, invalid narrowing, and dead ends still throw.
@@ -202,8 +205,8 @@ public interface Agent {
   public fun autoExecNow(): TaskResult
 
   /**
-   * Runs autoexecution to a policy-relative stable point while this Agent temporarily uses
-   * [policy]. The configured [autoExecPolicy] is unchanged.
+   * Runs autoexecution to a policy-relative stable point under a scoped [policy] override. The
+   * configured [autoExecPolicy] is unchanged.
    */
   public fun autoExecNow(policy: AutoExecPolicy): TaskResult
 
@@ -332,8 +335,17 @@ public interface Agent {
     /** Runs eligible automatic work now under this Agent's configured policy. */
     public fun autoExecNow()
 
-    /** Runs autoexecution while this Agent temporarily uses [policy]. */
+    /**
+     * Runs autoexecution under a scoped [policy] override without changing the configured policy.
+     */
     public fun autoExecNow(policy: AutoExecPolicy)
+
+    /**
+     * Runs automatic work before, between, and after [body]'s commands under [policy]. The
+     * configured [Agent.autoExecPolicy] is never changed, including while [body] runs. The scope
+     * shares its enclosing operation's atomic transaction and completion requirement.
+     */
+    public fun doWithAutoExecPolicy(policy: AutoExecPolicy, body: OperationBlock)
 
     /**
      * Aborts the enclosing atomic operation, rolling back its changes while the operation call

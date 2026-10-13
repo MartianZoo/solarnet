@@ -39,7 +39,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
               "PROD[Titanium]",
               "Colony<Pluto>",
           )
-          selectTask("2 ProjectCard<Kim, Hand>!")
+          selectTask("2! ProjectCard<Kim, Hand>")
           selectTask("-ProjectCard<Kim, Hand>!")
         }
         .expect("ProjectCard")
@@ -48,12 +48,13 @@ internal class DeadEndsTest : TfmSandboxTest() {
   @Test
   internal fun `Amazonis placement can fund Reds but choosing steel leaves the action unpaid`() {
     newTestGame(addOptions = "AmazonisMap, TurmoilExpansion")
-    kim.exMachina("Ruling<Reds FROM Greens>, 8 Plant")
+    // The correction changes government after ActionPhase began, so include its policy.
+    kim.exMachina("Ruling<Reds FROM Greens>, RedsPolicy, 8 Plant")
     kim.setToExMachina(2, "MC")
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTask("ConvertPlants")
-        selectTask("-X Plant?")
+        selectTask("-X? Plant")
         doTask("-Plant / Owed<Class<Plant>>")
         selectOnlyTask()
         selectOnlyTask()
@@ -69,7 +70,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
           doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
           selectOnlyTask()
           doTasks("GreeneryTile<Amazonis_05_03>", "MC")
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           doTasks("TerraformRating", "-3 MC")
         }
         .expect("-8 Plant")
@@ -95,9 +96,9 @@ internal class DeadEndsTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayCard<Class<PreludeCard>, Class<ProjectEden>>", "ProjectEden FROM PreludeCard")
-        selectTask("-3 ProjectCard<Kim, Hand>!")
+        selectTask("-3! ProjectCard<Kim, Hand>")
         doTask("GreeneryTile<Tharsis_8_8>")
-        selectTask("OxygenStep.")
+        selectTask("OxygenStep*")
         selectTask("TerraformRating!")
         doTask("CityTile<Tharsis_3_3>")
       }
@@ -111,9 +112,9 @@ internal class DeadEndsTest : TfmSandboxTest() {
               "PlayCard<Class<PreludeCard>, Class<ProjectEden>>",
               "ProjectEden FROM PreludeCard",
           )
-          selectTask("-3 ProjectCard<Kim, Hand>!")
+          selectTask("-3! ProjectCard<Kim, Hand>")
           doTasks("CityTile<Tharsis_8_8>", "GreeneryTile<Tharsis_3_3>")
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           doTasks("TerraformRating", "OceanTile<Tharsis_1_5>", "TerraformRating")
         }
         .expect("-3 ProjectCard")
@@ -123,7 +124,8 @@ internal class DeadEndsTest : TfmSandboxTest() {
   internal fun `Mons compensation must wait until Small Asteroid pays Reds`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("$MonsInsurance")
-    kim.exMachina("Ruling<Reds FROM Greens>")
+    // The correction changes government after ActionPhase began, so include its policy.
+    kim.exMachina("Ruling<Reds FROM Greens>, RedsPolicy")
     kim.setToExMachina(13, "MC")
     stan.exMachina("Plant")
 
@@ -131,12 +133,12 @@ internal class DeadEndsTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
-        selectTask("-X Titanium?")
+        selectTask("-X? Titanium")
         selectTask("Ok")
         doTasks(
             "SmallAsteroid FROM ProjectCard",
             "-Plant<Stan>",
-            "3 MC<Stan FROM Kim>.",
+            "3* MC<Stan FROM Kim>",
             "TemperatureStep",
             "TerraformRating",
             "-3 MC",
@@ -149,7 +151,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
-          selectTask("-X Titanium?")
+          selectTask("-X? Titanium")
           doTasks(
               "Ok",
               "SmallAsteroid FROM ProjectCard",
@@ -178,10 +180,10 @@ internal class DeadEndsTest : TfmSandboxTest() {
             "PlayCard<Class<PreludeCard>, Class<StrategicBasePlanning>>",
             "StrategicBasePlanning FROM PreludeCard",
         )
-        selectTask("-3 MC!")
+        selectTask("-3! MC")
         doTask("CityTile<Cimmeria_3_3>")
         selectTask("CimmeriaPlacementBonus!")
-        selectTask("-5 MC!")
+        selectTask("-5! MC")
         doTask("Colony<Callisto>")
         selectTask("PROD[Energy]")
         selectOnlyTask()

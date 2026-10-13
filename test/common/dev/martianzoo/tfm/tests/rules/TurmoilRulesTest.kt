@@ -49,7 +49,7 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("LobbyAction<Action2>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
       }
@@ -142,7 +142,7 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("LobbyAction<Action2>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
       }
@@ -190,7 +190,7 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
               "BannedDelegate FROM ProjectCard",
           )
           selectOnlyTask()
-          selectTask("BannedDelegateRemoval<Stan, Scientists, Kim>.")
+          selectTask("BannedDelegateRemoval<Stan, Scientists, Kim>*")
           selectOnlyTask()
           doTask("PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate")
         }

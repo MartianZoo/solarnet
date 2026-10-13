@@ -23,7 +23,7 @@ internal class AiCentralTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<AiCentral>>", "-21 MC")
-        selectTask("-X Steel?")
+        selectTask("-X? Steel")
         selectTask("Ok")
         doTask("AiCentral FROM ProjectCard")
         selectOnlyTask()
@@ -36,7 +36,7 @@ internal class AiCentralTest : TfmSandboxTest() {
     kim.exMachina("$AiCentral")
     kim.inTurn {
       doTask("UseCardAction<AiCentral, Action1>")
-      selectTask("2 ProjectCard<Kim, Hand>!")
+      selectTask("2! ProjectCard<Kim, Hand>")
     }
 
     shouldThrow<LimitsException> {
@@ -51,17 +51,17 @@ internal class AiCentralTest : TfmSandboxTest() {
   @Test
   internal fun `Cannot use a second action that AI Central does not have`() {
     shouldThrow<NarrowingException> { useSecondAction() }
-    kim.cardAction1(AiCentral).expect("2 ProjectCard")
+    kim.inTurn { doTasks("UseCardAction<AiCentral, Action1>", "2 ProjectCard") }
   }
 
   @Test
   internal fun `BUG - A nonexistent second action uses AI Central without drawing cards`() {
     useSecondAction().expect("0 ProjectCard")
-    shouldThrow<LimitsException> { kim.cardAction1(AiCentral) }
+    shouldThrow<LimitsException> { kim.inTurn { doTask("UseCardAction<AiCentral, Action1>") } }
   }
 
   private fun useSecondAction(): TaskResult {
     kim.exMachina("$AiCentral")
-    return kim.cardAction2(AiCentral)
+    return kim.inTurn { doTask("UseCardAction<AiCentral, Action2>") }
   }
 }

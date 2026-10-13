@@ -3,18 +3,11 @@ const path = require("path");
 if (process.env.WEBPACK_SERVE) {
   const apps = [
     {
-      route: "viewer",
-      title: "Solarnet Viewer",
-      entry: path.resolve(__dirname, "kotlin/solarnet-viewer.js"),
-      bundle: "viewer.js",
-      resources: path.resolve(__dirname, "kotlin"),
-    },
-    {
       route: "webrepl",
       title: "REgo PLastics Web REPL",
-      entry: path.resolve(__dirname, "../solarnet-web/kotlin/solarnet-web.js"),
+      entry: path.resolve(__dirname, "kotlin/solarnet-web.js"),
       bundle: "web.js",
-      resources: path.resolve(__dirname, "../solarnet-web/kotlin"),
+      resources: path.resolve(__dirname, "kotlin"),
     },
     {
       route: "almanac",

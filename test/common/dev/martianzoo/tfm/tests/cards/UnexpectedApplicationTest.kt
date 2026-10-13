@@ -20,7 +20,7 @@ internal class UnexpectedApplicationTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<UnexpectedApplication>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks(
             "-4 MC",
             "UnexpectedApplication FROM ProjectCard",
@@ -38,7 +38,7 @@ internal class UnexpectedApplicationTest : TfmSandboxTest() {
               "UnexpectedApplication FROM ProjectCard",
           )
           selectTask("-ProjectCard<Kim, Hand>!")
-          selectTask("VenusStep.")
+          selectTask("VenusStep*")
           doTask("TerraformRating")
           selectTask("ProjectCard<Kim, Hand>!")
           doTask("PlayedEvent<Class<UnexpectedApplication>> FROM UnexpectedApplication")

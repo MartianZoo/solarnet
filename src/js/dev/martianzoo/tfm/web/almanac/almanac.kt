@@ -440,12 +440,12 @@ private fun renderImage(
       add(it.full)
       add(it.thumbnail)
     }
-    add("/viewer/images/${klass.className}.png")
+    add("/almanac/images/${klass.className}.png")
     klass.className
         .toString()
         .takeIf { it.endsWith("Map") }
         ?.removeSuffix("Map")
-        ?.let { add("/viewer/images/$it.png") }
+        ?.let { add("/almanac/images/$it.png") }
   }
   var sourceIndex = 0
 

@@ -138,7 +138,7 @@
         },
         {
           "name": "Recession",
-          "direct": "10 MC, EACH Other@Player(NOT Me@) { -5 MC<Other@>., PROD[-1 MC<Other@>] }",
+          "direct": "10 MC, EACH Other@Player(NOT Me@) { -5* MC<Other@>, PROD[-1 MC<Other@>] }",
         },
         {
           "name": "SoilBacteria",
@@ -159,8 +159,8 @@
           "tags": [ "BuildingTag" ],
           "direct": "5 Steel",
           "effects": [
-            "StandardAction OR RequiredActionsSignal: SuitableInfrastructureBonus<This>.",
-            "NewTurn IF PreludePhase: SuitableInfrastructureBonus<This>.",
+            "StandardAction OR RequiredActionsSignal: SuitableInfrastructureBonus<This>*",
+            "NewTurn IF PreludePhase: SuitableInfrastructureBonus<This>*",
           ],
           "components": [
             "CLASS SuitableInfrastructureBonus : Cardbound<SuitableInfrastructure<Player>>, System, Atomized { HAS MAX 1 This; X Production<Class<StandardResource>>: (This: -This! THEN 2 MC) OR (MAX 0 This: Ok) }",
@@ -279,7 +279,7 @@
           "cost": 18,
           "tags": [ "VenusTag", "SpaceTag" ],
           "actions": [
-            "-> 2 ProjectCard<Selecting> THEN 2 TakeSelectedCard<TagFilter<Class<VenusTag>>>? THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards",
+            "-> 2 ProjectCard<Selecting> THEN 2? TakeSelectedCard<TagFilter<Class<VenusTag>>> THEN -2? ProjectCard<Selecting> THEN BuySelectedCards",
           ],
         },
         {

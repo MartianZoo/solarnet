@@ -58,13 +58,13 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     stan.exMachina("$Mine")
     kim.inTurn {
       doTasks("PlayProject<Class<SmallAsteroid>>", "-8 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks(
           "Ok",
           "SmallAsteroid FROM ProjectCard",
       )
-      selectTask("TemperatureStep.")
-      selectTask("-2 Plant<Anyone>?")
+      selectTask("TemperatureStep*")
+      selectTask("-2? Plant<Anyone>")
       doTask("TerraformRating")
       doTask("PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid")
     }
@@ -138,7 +138,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("ClaimMilestone<Class<Fundraiser>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
       }

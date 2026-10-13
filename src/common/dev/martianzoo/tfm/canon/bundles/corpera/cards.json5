@@ -401,7 +401,7 @@
           "name": "Sabotage",
           "cost": 1,
           "tags": [ "EventTag" ],
-          "direct": "-3 Titanium<Anyone>? OR -4 Steel<Anyone>? OR -7 MC<Anyone>?",
+          "direct": "-3? Titanium<Anyone> OR -4? Steel<Anyone> OR -7? MC<Anyone>",
         },
         {
           "name": "Satellites",
@@ -508,7 +508,7 @@
           "name": "Virus",
           "cost": 1,
           "tags": [ "MicrobeTag", "EventTag" ],
-          "direct": "-2 Animal<Anyone>? OR -5 Plant<Anyone>?",
+          "direct": "-2? Animal<Anyone> OR -5? Plant<Anyone>",
         },
       ],
     },

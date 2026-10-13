@@ -14,7 +14,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.setToExMachina(3, "ProjectCard")
 
     kim.inTurn {
-      doTasks("UseStandardProject<SellPatentsProject>", "2 MC FROM ProjectCard!")
+      doTasks("UseStandardProject<SellPatentsProject>", "2! MC FROM ProjectCard")
     }
   }
 
@@ -72,7 +72,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
           doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
           selectOnlyTask()
           doTask("GreeneryTile<Tharsis_3_3>")
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           doTask("TerraformRating")
         }
         .expect("-8 Plant, OxygenStep")
@@ -88,7 +88,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     shouldThrow<NarrowingException> {
       kim.inTurn {
         doTask("ConvertPlants")
-        selectTask("-X Plant?")
+        selectTask("-X? Plant")
         doTask("-Plant / Owed<Class<Plant>>")
         selectOnlyTask()
         selectOnlyTask()
@@ -98,14 +98,14 @@ internal class CoreRulesTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTask("ConvertPlants")
-        selectTask("-X Plant?")
+        selectTask("-X? Plant")
         doTask("-Plant / Owed<Class<Plant>>")
         selectOnlyTask()
         selectOnlyTask()
         doTask("GreeneryTile<Hellas_9_7>")
-        selectTask("OxygenStep.")
+        selectTask("OxygenStep*")
         selectTask("TerraformRating!")
-        selectTask("OceanTile<WaterArea(HAS MAX 0 Tile)>.")
+        selectTask("OceanTile<WaterArea(HAS MAX 0 Tile)>*")
         doTask("OceanTile<Hellas_6_7>")
         selectTask("TerraformRating!")
         selectOnlyTask()
@@ -118,7 +118,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
       doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
       selectOnlyTask()
       doTask("GreeneryTile<Hellas_9_7>")
-      selectTask("OxygenStep.")
+      selectTask("OxygenStep*")
       doTasks("-6 MC", "TerraformRating", "OceanTile<Hellas_6_7>", "TerraformRating")
     }
   }
@@ -129,7 +129,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Plant, 13 OxygenStep")
     stan.inTurn {
       doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_1_1>")
-      selectTask("OxygenStep.")
+      selectTask("OxygenStep*")
       doTasks("2 Steel", "TerraformRating")
     }
 
@@ -137,7 +137,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
           doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
           selectOnlyTask()
           doTask("GreeneryTile<Tharsis_3_3>")
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
         }
         .expect("-8 Plant, 0 OxygenStep, 0 TerraformRating")
   }
@@ -151,9 +151,9 @@ internal class CoreRulesTest : TfmSandboxTest() {
           doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
           selectOnlyTask()
           doTask("GreeneryTile<Tharsis_3_3>")
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           doTask("TerraformRating")
-          selectTask("TemperatureStep.")
+          selectTask("TemperatureStep*")
           doTask("TerraformRating")
         }
         .expect("-8 Plant, OxygenStep, TemperatureStep")
@@ -168,7 +168,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
           doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
           selectOnlyTask()
           doTask("GreeneryTile<Tharsis_4_7>")
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           doTasks("Plant", "2 MC", "TerraformRating")
         }
         .expect("-7 Plant, OxygenStep")
@@ -184,7 +184,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTask("TerraformRating")
     }
     kim.inTurn {
@@ -209,7 +209,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_4_5>")
-      selectTask("OxygenStep.")
+      selectTask("OxygenStep*")
       doTasks("2 Plant", "TerraformRating")
     }
   }
@@ -239,7 +239,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
       stan.inTurn {
         selectOnlyTask()
         doTask("ClaimMilestone<Class<Terraformer35>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
       }

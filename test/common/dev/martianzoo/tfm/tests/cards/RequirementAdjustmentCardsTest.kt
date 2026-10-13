@@ -131,7 +131,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<Birds>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-10 MC")
         selectOnlyTask()
       }
@@ -149,7 +149,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<RotatorImpacts>>", "-6 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks("Ok", "RotatorImpacts FROM ProjectCard")
     }
   }
@@ -167,7 +167,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<Algae>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-10 MC")
         selectOnlyTask()
       }
@@ -189,7 +189,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Mine>>", "-4 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks("Ok", "Mine FROM ProjectCard", "PROD[Steel]")
     }
 
@@ -197,7 +197,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<ArcticAlgae>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-12 MC")
         selectOnlyTask()
       }
@@ -225,7 +225,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<ArcticAlgae>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-12 MC")
         selectOnlyTask()
       }

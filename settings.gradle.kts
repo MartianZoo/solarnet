@@ -34,7 +34,6 @@ val modules =
         "web",
         "almanac",
         "pets-tools",
-        "viewer",
         "tools",
         "codegen",
         "benchmarks",

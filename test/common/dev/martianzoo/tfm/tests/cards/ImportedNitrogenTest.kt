@@ -19,15 +19,15 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<ImportedNitrogen>>", "-23 MC")
-          selectTask("-X Titanium?")
+          selectTask("-X? Titanium")
           doTasks(
               "Ok",
               "ImportedNitrogen FROM ProjectCard",
               "TerraformRating",
               "4 Plant",
           )
-          selectTask("3 Microbe.")
-          selectTask("2 Animal.")
+          selectTask("3* Microbe")
+          selectTask("2* Animal")
           doTask("PlayedEvent<Class<ImportedNitrogen>> FROM ImportedNitrogen")
         }
         .expect(
@@ -45,17 +45,17 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<ImportedNitrogen>>", "-23 MC")
-          selectTask("-X Titanium?")
+          selectTask("-X? Titanium")
           doTasks(
               "Ok",
               "ImportedNitrogen FROM ProjectCard",
               "TerraformRating",
               "4 Plant",
-              "3 Microbe<Tardigrades>.",
+              "3* Microbe<Tardigrades>",
               "3 MC",
           )
-          selectTask("2 Animal.")
-          doTasks("2 Animal<Pets>.", "4 MC")
+          selectTask("2* Animal")
+          doTasks("2* Animal<Pets>", "4 MC")
           doTask("PlayedEvent<Class<ImportedNitrogen>> FROM ImportedNitrogen")
         }
         .expect(
@@ -73,13 +73,13 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<ImportedNitrogen>>", "-23 MC")
-        selectTask("-X Titanium?")
+        selectTask("-X? Titanium")
         selectTask("Ok")
         doTask("ImportedNitrogen FROM ProjectCard")
         selectTask("TerraformRating!")
-        selectTask("4 Plant!")
-        selectTask("2 Animal.")
-        selectTask("3 Microbe.")
+        selectTask("4! Plant")
+        selectTask("2* Animal")
+        selectTask("3* Microbe")
         doTask("Microbe<Tardigrades>")
       }
     }

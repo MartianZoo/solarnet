@@ -3,7 +3,7 @@ CLASS TerraformingMars : Module {
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
   This:: 2 SelectableCorporationCount
-  New@Player IF MultiplayerMode:: AfterMe<Player, New@>.
+  New@Player IF MultiplayerMode:: AfterMe<Player, New@>*
   premiseRequirement = HAS "(Unsafe OR MAX 0 Class<EcologyExperts> OR (MAX 0 Class<ViralEnhancers>, MAX 0 Class<EcologicalZone>, MAX 0 Class<Decomposers>, MAX 0 Class<GmoContract>)), (Unsafe OR MAX 0 Class<AmazonisMap> OR (MAX 0 Class<MiningGuild>, MAX 0 Class<MiningRights>, MAX 0 Class<MiningArea>)), (Unsafe OR MAX 0 Class<PreservationProgram> OR (MAX 0 Class<TerraformingDeal>, MAX 0 Class<TurmoilExpansion>)), (Unsafe OR MAX 0 Class<Merger> OR MAX 0 Class<SagittaFrontierServices>), (Unsafe OR MAX 0 Class<FocusedOrganization> OR MAX 0 Class<StormcraftIncorporated>)"
 
   HAS =1 GameMode, =1 MarsMap
@@ -85,7 +85,7 @@ ABSTRACT CLASS Player : Owner, Actor {
   HAS MAX 0 AfterMe<This, This>
   HAS MAX 1 PlayerMode<This>
 
-  This:: StartToken<This>.
+  This:: StartToken<This>*
 
   // Queued `This` work gives every Player its production floor and payment values only after the
   // complete seat layer exists.
@@ -94,7 +94,7 @@ ABSTRACT CLASS Player : Owner, Actor {
 
   SetupPhase IF MAX 0 BeginnerVariant: NonBeginnerMode<This>
   SetupPhase IF BeginnerVariant: BeginnerMode<This> OR NonBeginnerMode<This>
-  ResearchPhase: 4 ProjectCard<This, Selecting> THEN -4 ProjectCard<This, Selecting>? THEN BuySelectedCards<This>
+  ResearchPhase: 4 ProjectCard<This, Selecting> THEN -4? ProjectCard<This, Selecting> THEN BuySelectedCards<This>
   -Billing<This, Class<BuySelectedCards>, Action1>: \
     ProjectCard<This, Hand> FROM ProjectCard<This, Selecting> / ProjectCard<This, Selecting>
 }
@@ -112,7 +112,7 @@ CLASS SelectableCorporationCount : System
 CLASS NonBeginnerMode : PlayerMode {
   This: CorporationCard / SelectableCorporationCount, \
     -CorporationCard / (SelectableCorporationCount - 1), \
-    10 ProjectCard<Selecting>, -10 ProjectCard<Selecting>?
+    10 ProjectCard<Selecting>, -10? ProjectCard<Selecting>
 }
 
 "One step on the terraform rating track; you generally start with 20 of them"
@@ -127,7 +127,7 @@ CLASS StartToken : Owned<Player>, Real { HAS =1 StartToken }
 "Identifies the Player immediately after another Player in seat order"
 CLASS AfterMe<Previous@Owner, Next@Player> : System {
   HAS MAX 1 This
-  ResearchPhase IF MultiplayerMode, StartToken<Previous@>: StartToken<Next@ FROM Previous@>.
+  ResearchPhase IF MultiplayerMode, StartToken<Previous@>: StartToken<Next@ FROM Previous@>*
 
   // Outside the action phase, play goes once around the table from the start player.
   NextPlayer<Previous@> IF MAX 0 ActionPhase, MAX 0 StartToken<Next@>: TakeTurn<Next@>

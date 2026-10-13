@@ -77,9 +77,7 @@ The engine knows how to modify a Game World by executing card Instructions.
 
 ### <a href="tfm-state/dev.martianzoo.tfm.state/index.html">dev.martianzoo.tfm.state</a>
 
-Terraforming Mars-specific read-only projections over live and recorded Game World state. It lets
-the engine and passive viewer share Catalog-backed queries without making the viewer depend on
-execution.
+Terraforming Mars-specific read-only projections over live and recorded Game World state.
 
 ## module TFM-ENGINE
 
@@ -111,14 +109,6 @@ An early rough browser version of REgo PLastics.
 
 Pets Almanac, a searchable viewer for Canon's normalized Pets declarations, type information, and
 derived card text.
-
-## module VIEWER
-
-### <a href="viewer/dev.martianzoo.tfm.web.viewer/index.html">dev.martianzoo.tfm.web.viewer</a>
-
-An engine-free browser viewer that discovers generated replay-test recordings and navigates their
-event-log timelines through passive state playback. The REPL and viewer use assets owned by
-`dev/martianzoo/tfm/web/shared`.
 
 ## module PETS-TOOLS
 

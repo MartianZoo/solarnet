@@ -17,7 +17,7 @@ internal class RecruitmentTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<Recruitment>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks(
             "-2 MC",
             "Recruitment FROM ProjectCard",
@@ -168,7 +168,7 @@ internal class RecruitmentTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<Recruitment>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks(
             "-2 MC",
             "Recruitment FROM ProjectCard",

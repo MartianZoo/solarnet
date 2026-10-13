@@ -29,7 +29,7 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
           doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
           selectOnlyTask()
           doTask("VenusStep BY Admin")
-          stan.selectTask("2 MC!")
+          stan.selectTask("2! MC")
         }
         .expect("0 TerraformRating")
   }
@@ -44,7 +44,7 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
           doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
           selectOnlyTask()
           doTask("OceanTile<Tharsis_1_2> BY Admin")
-          stan.selectTask("2 Plant!")
+          stan.selectTask("2! Plant")
           stan.selectTask("PROD[MC]")
         }
         .expect("PROD[MC<Stan>], 0 OceanCredit, 0 TerraformRating")
@@ -79,7 +79,7 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
         .expect("0 TerraformRating, 0 MC")
     kim.inTurn {
           doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-          selectTask("TemperatureStep.")
+          selectTask("TemperatureStep*")
           doTasks("TerraformRating", "3 MC")
         }
         .expect("TemperatureStep")

@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.tests
 
+import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.exMachina
 import dev.martianzoo.catalog.GameConfig
@@ -8,41 +10,62 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.state.Player
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.engine.TfmEngine
-import dev.martianzoo.tfm.engine.TfmGameplay
 
 /**
  * Focused scenarios with explicit corrections and selected phase shortcuts. The game is set up and
  * enters the corporation phase normally, but scenarios then act outside the game's turn order.
  */
 internal abstract class TfmSandboxTest : TfmTest() {
-  protected lateinit var players: List<TfmGameplay>
+  protected lateinit var players: List<Agent>
     private set
 
-  protected val kim: TfmGameplay
+  protected val kim: Agent
     get() = players[0]
 
-  protected val stan: TfmGameplay
+  protected val stan: Agent
     get() = checkNotNull(players.getOrNull(1)) { "Stan is sitting this game out" }
 
-  protected val rob: TfmGameplay
+  protected val rob: Agent
     get() = checkNotNull(players.getOrNull(2)) { "Rob is sitting this game out" }
 
   protected fun newTestGame(
       addOptions: String = "",
       playerCount: Int = 3,
       kimCorporation: ClassName? = null,
-      startAtCorporation: Boolean = false,
+  ) = prepareTestGame(addOptions, playerCount, kimCorporation, playCorporations = true)
+
+  /** Prepares Kim to choose and play a corporation explicitly. */
+  protected fun newTestGameBeforeCorporationPlay(
+      addOptions: String = "",
+      playerCount: Int = 3,
+  ) = prepareTestGame(addOptions, playerCount, null, playCorporations = false)
+
+  private fun prepareTestGame(
+      addOptions: String,
+      playerCount: Int,
+      kimCorporation: ClassName?,
+      playCorporations: Boolean,
   ) {
-    val key = Triple(addOptions, playerCount, kimCorporation) to startAtCorporation
+    val key = Triple(addOptions, playerCount, kimCorporation) to playCorporations
     val prepared =
         preparedWorlds.getOrPut(key) {
-          createWorld(addOptions, playerCount, kimCorporation)
+          createWorld(addOptions, playerCount)
           admin.startGame()
-          chooseStartingCards(kimCorporation)
+          if (
+              playerCount == 1 &&
+                  GameConfig(addOptions).includedClassNames.none {
+                    it in Canon.colonyTileClassNames
+                  } &&
+                  admin.count("SoloColoniesSetup") == 1
+          ) {
+            kim.doTask("-SelectedColonyTile<Class<Callisto>>")
+          }
+          chooseStartingCards(kimCorporation, playCorporations)
           leaveTurnOrder()
-          if (!startAtCorporation) {
+          if (playCorporations) {
             playStartingCorporations(kimCorporation)
             admin.phase(if (admin.count("PreludeExpansion") > 0) "Prelude" else "Action")
           }
@@ -82,7 +105,7 @@ internal abstract class TfmSandboxTest : TfmTest() {
         }
   }
 
-  protected fun TfmGameplay.setToExMachina(targetCount: Int, type: String) {
+  protected fun Agent.setToExMachina(targetCount: Int, type: String) {
     val countedExpression =
         (parseAs(Metric::class, type) as? Metric.Count)?.expression
             ?: error("Absolute correction requires a countable type: `$type`")
@@ -96,7 +119,8 @@ internal abstract class TfmSandboxTest : TfmTest() {
                       .representedClass
               )
               .className
-      val difference = targetCount - production(resource)
+      val difference =
+          targetCount - count("PROD[$resource]") + count("ProdOffset<Class<$resource>>")
       if (difference == 0) return
       val adjustment =
           when (difference) {
@@ -125,45 +149,48 @@ internal abstract class TfmSandboxTest : TfmTest() {
     }
   }
 
-  protected fun TfmGameplay.exMachina(adjustment: String) {
+  protected fun Agent.exMachina(adjustment: String) {
     agents.exMachina(actor, adjustment)
   }
 
-  private fun createWorld(addOptions: String, playerCount: Int, kimCorporation: ClassName?) {
+  private fun createWorld(addOptions: String, playerCount: Int) {
     require(playerCount in 1..PLAYER_NAMES.size) {
       "The fixture supports one to ${PLAYER_NAMES.size} players: $playerCount"
     }
-    val options =
-        GameConfig(
-            listOf(addOptions, kimCorporation?.toString().orEmpty()).joinToString(),
-            *PLAYER_NAMES.take(playerCount).toTypedArray(),
-        )
+    val options = GameConfig(addOptions, *PLAYER_NAMES.take(playerCount).toTypedArray())
     val defaults = GameConfig(BASE_GAME_OPTIONS)
-    val config =
-        options.copy(
-            includedClassNames =
-                (defaults.includedClassNames + options.includedClassNames) -
-                    options.excludedClassNames,
-            includedCardBundles =
-                (defaults.includedCardBundles + options.includedCardBundles) -
-                    options.excludedCardBundles,
-        )
+    val config = fixtureConfig(options, defaults)
     game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
     bindPlayers()
+    players.forEach { it.autoExecPolicy = NONE }
   }
 
   private fun bindPlayers() {
-    players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
+    players = game.actors.filterIsInstance<Player>().map { agents[it] }
   }
 
-  private fun chooseStartingCards(kimCorporation: ClassName?) {
+  private fun chooseStartingCards(kimCorporation: ClassName?, playCorporations: Boolean) {
     players.forEachIndexed { index, player ->
       player.selectTask("BeginnerMode OR NonBeginnerMode")
       player.narrowTask(
-          if (index == 0 && kimCorporation != null) "NonBeginnerMode" else "BeginnerMode"
+          if (index == 0 && (kimCorporation != null || !playCorporations)) "NonBeginnerMode"
+          else "BeginnerMode"
       )
+      player.doTask(if (players.size == 1) "14 TerraformRating" else "20 TerraformRating")
+      if (index == 0 && (kimCorporation != null || !playCorporations)) {
+        player.doTasks(
+            "2 CorporationCard",
+            "-CorporationCard",
+            "10 ProjectCard<Selecting>",
+            "-5 ProjectCard<Selecting>",
+        )
+      } else {
+        player.doTask("BeginnerCard")
+      }
+      if (admin.count("PreludeExpansion") > 0) {
+        player.doTasks("4 PreludeCard", "-2 PreludeCard")
+      }
     }
-    if (kimCorporation != null) kim.keepStartingProjects(10)
     revealTurmoilSetupEvents(game)
     if (players.size == 1) {
       val placements =
@@ -186,11 +213,18 @@ internal abstract class TfmSandboxTest : TfmTest() {
   private fun playStartingCorporations(kimCorporation: ClassName?) {
     players.forEachIndexed { index, player ->
       if (index == 0 && kimCorporation != null) {
-        player.playCorp(kimCorporation)
+        player.inTurn {
+          doTask("PlayCard<Class<CorporationCard>, Class<$kimCorporation>>")
+          doWithAutoExecPolicy(EAGER) { doTask("-MC / Owed") }
+        }
       } else {
         player.inTurn {
-          doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation${index + 1}>, Hand>")
-          player.pay()
+          doTasks(
+              "PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation${index + 1}>, Hand>",
+              "BeginnerCorporation${index + 1} FROM BeginnerCard",
+              "42 MC",
+              "10 ProjectCard",
+          )
         }
       }
     }
