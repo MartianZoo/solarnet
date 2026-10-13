@@ -11,7 +11,7 @@ CLASS TerraformingMars : Module {
   HAS Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>
   HAS Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>
   HAS Class<End>, Class<VictoryPhase>
-  HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
+  HAS Class<UseAction>, Class<NewTurn>
 
   This: SellPatentsProject, PowerPlantProject, AsteroidProject, AquiferProject, GreeneryProject, CityProject
   HAS Class<PlayProject>, Class<UseStandardProject>, Class<UseCardAction>, Class<ConvertPlants>, Class<ConvertHeat>
@@ -65,9 +65,6 @@ CLASS ModulesReady : Signal, System {
 ABSTRACT CLASS GameMode : Module {
   HAS =1 GameMode
 
-  // The last player still playing can keep taking actions until they pass, including in solo.
-  TurnOver<@Player> IF ActionPhase, MAX 0 Pass<@Player>, MAX 0 Player(HAS MAX 0 Pass, NOT @Player): TakeTurn<@Player>
-
   "Multiplayer rules, including the end condition that deliberately excludes Venus"
   CLASS MultiplayerMode {
     HAS 2 Player
@@ -75,11 +72,6 @@ ABSTRACT CLASS GameMode : Module {
 
     HAS Class<ClaimMilestone>, Class<FundAward>
     This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
-
-    // Offer a second action while another player is still playing, then pass play to the next seat.
-    TurnOver<@Player> IF ActionPhase, MAX 0 Pass<@Player>, Player(HAS MAX 0 Pass, NOT @Player): \
-      SecondAction<@Player>, FINALLY { NextPlayer<@Player> }
-    TurnOver<@Player> IF ActionPhase, Pass<@Player>, Player(HAS MAX 0 Pass): NextPlayer<@Player>
 
     VictoryPhase: EACH Me@Player(HAS =1 (RANK Me@Player { VictoryPoint, MC })) { Victory }
     CheckGameEnd: FinalGreeneryPhase FROM ProductionPhase
@@ -137,12 +129,9 @@ CLASS AfterMe<Previous@Owner, Next@Player> : System {
   HAS MAX 1 This
   ResearchPhase IF MultiplayerMode, StartToken<Previous@>: StartToken<Next@ FROM Previous@>*
 
-  // Outside the action phase, play goes once around the table from the start player.
-  NextPlayer<Previous@> IF MAX 0 ActionPhase, MAX 0 StartToken<Next@>: TakeTurn<Next@>
+  // Continue cyclically during the action phase; otherwise stop at the start player.
+  NextPlayer<Previous@> IF ActionPhase OR MAX 0 StartToken<Next@>: TakeTurn<Next@>
   NextPlayer<Previous@> IF MAX 0 ActionPhase, StartToken<Next@>: RoundOver
-  // In the action phase, play keeps going around, over players who have passed.
-  NextPlayer<Previous@> IF ActionPhase, MAX 0 Pass<Next@>: TakeTurn<Next@>
-  NextPlayer<Previous@> IF ActionPhase, Pass<Next@>: NextPlayer<Next@>
 }
 
 "The current game phase; exactly one exists from bootstrap through the terminal VictoryPhase"
@@ -172,15 +161,10 @@ ABSTRACT CLASS Phase : System, Real {
     This: FINALLY { ActionPhase FROM This }
   }
   CLASS ActionPhase {
-    This: EACH Starter@Player(HAS StartToken) { TakeTurn<Starter@> }
-
-    NewTurn IF MAX 0 RequiredAction: StandardAction OR Pass
-    NewTurn IF RequiredAction: RequiredActionsSignal OR Pass
-    SecondAction IF MAX 0 RequiredAction: StandardAction?
-    SecondAction IF RequiredAction: RequiredActionsSignal?
+    This:: EACH Me@Player { ImAwake }
 
     // Production starts once everyone has passed, in either mode.
-    TurnOver IF MAX 0 Player(HAS MAX 0 Pass): ProductionPhase FROM This
+    TurnOver IF MAX 0 ImAwake: ProductionPhase FROM This
   }
   CLASS ProductionPhase {
     // The game goes on while anything prevents it from ending.
@@ -210,15 +194,15 @@ ABSTRACT CLASS Phase : System, Real {
   CLASS VictoryPhase
 }
 
-"Offers a player a turn; each phase says what the turn may do (in some phases you get two in a row)"
+"Offers a player a turn; ImAwake or the current phase supplies its choices"
 CLASS NewTurn : Owned<Player>, Signal, System
 
-"Gives a player their turn in turn order; play goes on once all of that turn's work has finished"
+"Invites a player to take a turn; ImAwake or Pass answers during the action phase"
 CLASS TakeTurn<Taker@Player> : Signal, System {
-  This: NewTurn<Taker@>, FINALLY { TurnOver<Taker@> }
+  This IF MAX 0 ActionPhase: NewTurn<Taker@>, FINALLY { TurnOver<Taker@> }
 }
 
-"Ends a player's turn in turn order; each phase with turns says what comes next"
+"Completes a player's turn in seat order after its work has finished"
 CLASS TurnOver<Player> : Signal, System
 
 "Passes play to the next player in seat order"
@@ -230,11 +214,28 @@ CLASS RoundOver : Signal, System
 "A player has finished with the current phase, as when declining another final greenery"
 CLASS Done<Phase> : Owned<Player> { HAS MAX 1 This }
 
-"Offers the second action of an action-phase turn; there is no Pass option"
-CLASS SecondAction : Owned<Player>, Signal, System
+"Lets a player take action-phase turns until they pass"
+CLASS ImAwake<ActionPhase> : Owned<Player>, System {
+  HAS MAX 1 This
+
+  This IF StartToken: TakeTurn<Me@>
+  TakeTurn<Me@>: NewTurn, FINALLY { TurnOver<Me@> }
+
+  NewTurn IF MAX 0 RequiredAction: StandardAction OR Pass
+  NewTurn IF RequiredAction: RequiredActionsSignal OR Pass
+  TurnOver<Me@> IF 2 ImAwake<Player>, MAX 0 RequiredAction: StandardAction?
+  TurnOver<Me@> IF 2 ImAwake<Player>, RequiredAction: RequiredActionsSignal?
+  TurnOver<Me@> IF 2 ImAwake<Player>: FINALLY { NextPlayer<Me@> }
+  TurnOver<Me@> IF =1 ImAwake<Player>: TakeTurn<Me@>
+}
 
 "Instead of taking an action you can gain this, and be out for the rest of the generation"
-CLASS Pass<GenerationScope> : Owned<Player>, Real { HAS MAX 1 This }
+CLASS Pass<GenerationScope> : Owned<Player>, Real {
+  HAS MAX 1 This
+  This:: -ImAwake*
+
+  TakeTurn<Me@> OR TurnOver<Me@> IF ImAwake<Player>: NextPlayer<Me@>
+}
 
 "Tells what generation we're in"
 CLASS Generation : System, Real {

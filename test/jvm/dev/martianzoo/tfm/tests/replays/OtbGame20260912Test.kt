@@ -525,9 +525,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // "Red Appeasement for zero ... gain two money production and this counts as me passing."
       playProject(RedAppeasement, 0).expect("PROD[2 MC], Pass")
     }
-    // Automatic workflow notices Pass after a first action, while Red Appeasement supplies it as
-    // Yellow's second. Temporarily defer that Pass until the redundant turn the workflow offers.
-    yellow.exMachina("-Pass")
     blue.turn {
       // "Blue is going to send her lobbyist to ... Greens."
       stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Greens>") }
@@ -538,9 +535,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       cardAction1(OrbitalCleanup).expect("4 MC")
     }
     green.exMachina("-ScienceTag<$FakeSeptemTribus>, -ScienceTag<$FakeNobelPrize>")
-    // This is the Pass already supplied physically by Red Appeasement, deferred solely so the
-    // unchanged workflow can recognize it at the point where it checks first-action results.
-    yellow.pass(unused = SearchForLife).expect("Pass")
     blue.pass()
     green.pass()
 

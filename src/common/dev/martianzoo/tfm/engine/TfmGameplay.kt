@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
@@ -12,6 +13,7 @@ import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.state.Actor
@@ -177,8 +179,8 @@ public class TfmGameplay(
   // TODO: Contract temporary tfm-tests gameplay seams.
   /**
    * Groups a player's corporation, Prelude, or action-phase turn. In the action phase, declines an
-   * unused second action when needed. If every other player has passed, the workflow may offer
-   * `NewTurn` immediately; this block leaves that offer in place.
+   * unused second action when needed. If every other player has passed, ImAwake offers another
+   * first action immediately; this block leaves that offer in place.
    */
   public fun turn(body: TfmGameplay.() -> Unit) {
     body()
@@ -198,18 +200,14 @@ public class TfmGameplay(
     }
   }
 
-  private fun secondActionOffer(): Task? =
-      game.tasks
-          .extract { it }
-          .filter { it.assignee == actor }
-          .filter { task -> task.isActionPhaseSecondAction() }
-          .singleOrNull()
-
-  private fun Task.isActionPhaseSecondAction(): Boolean {
-    val origin = cause ?: return false
-    if (origin.context.className != cn("ActionPhase")) return false
-    val trigger = game.events.changeAt(origin.triggerEvent)
-    return trigger?.change?.gaining?.className == cn("SecondAction")
+  private fun secondActionOffer(): Task? {
+    val ordinary = parse<Instruction>("StandardAction?")
+    val required = parse<Instruction>("RequiredActionsSignal?")
+    return tasks
+        .extract { it }
+        .singleOrNull {
+          it.instruction == ordinary || it.instruction == required
+        }
   }
 
   /**

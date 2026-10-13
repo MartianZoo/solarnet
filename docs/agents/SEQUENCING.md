@@ -107,9 +107,9 @@ may interleave with another player's response or payment within a turn.
 
 ### Remaining design work
 
-- Turn completion is authored now (`TurnOver`, under [Game flow](#game-flow)), but `NewTurn` and
-  `SecondAction` are still signals, not lasting turn scopes. Define acceptance and a turn scope
-  through authored rules and settlement.
+- Turn completion is authored now (`TurnOver`, under [Game flow](#game-flow)), but `NewTurn` is
+  still a signal, not a lasting turn scope. Define acceptance and a turn scope through authored
+  rules and settlement.
 - Keep turn identity separate from generic ability invocation: `UseAction` currently represents
   both normal actions and reactive offers. It must not automatically create a turn.
 - Reduce overloaded action names when changing the relevant APIs. `ActionSlot` / `Action1` /
@@ -133,18 +133,23 @@ workflow, and nothing turns the flow on or off.
   its end is `FINALLY` work, and all pending `FINALLY` work becomes ordinary together. A handoff
   dispatched as the Corporation, Prelude, Action, or final greenery phase began would therefore run
   after its first turn; these phases instead say what follows each turn.
-- **Turn order.** `TakeTurn<P>` gives `NewTurn<P>` and dispatches `FINALLY { TurnOver<P> }`; each
-  phase with turns says what follows `TurnOver`. `NextPlayer<P>` passes play to the next seat
-  through `AfterMe`. Outside the action phase, reaching the start player again is `RoundOver`; in
-  the action phase, play passes over players who have passed, and production begins once everyone
-  has. With one player, `NextPlayer` is always `RoundOver`. These signals take a Player argument
-  rather than an owner, so their work stays with Admin, as it must for Players who do not
-  autoexecute.
-- **Game modes own action-phase continuation.** `MultiplayerMode` offers the optional second action
-  while another unpassed player exists, then advances to the next seat. Both modes inherit the
-  last-active-player rule from `GameMode`: keep offering that player turns until they pass. The
-  effect's live context is `SoloMode` or `MultiplayerMode`. `ActionPhase` begins production once
-  everyone has passed; these checks concern current pass status, not the configured player count.
+- **Turn order.** `TakeTurn<P>` invites a player to take a turn. Outside the action phase it gives
+  `NewTurn<P>` and dispatches `FINALLY { TurnOver<P> }`; the current phase handles completion.
+  `NextPlayer<P>` passes play to the next seat through `AfterMe`. Outside the action phase,
+  reaching the start player again is `RoundOver`. With a solo player, `NextPlayer` is always
+  `RoundOver`. These signals take a Player argument rather than an owner, so their work stays with
+  Admin, as it must for Players who do not autoexecute.
+- **Awake players own action-phase turns.** `ActionPhase` creates `ImAwake` for every player through
+  an automatic effect. Each `ImAwake` depends on that phase, invites its owner to start if they
+  hold the start token, and answers `TakeTurn<Me>` with `NewTurn` and deferred `TurnOver<Me>`.
+  It supplies the actual action choices and, on `TurnOver`, directly offers an optional second
+  action while at least two players remain awake, with deferred `NextPlayer` after that choice.
+  The last awake player keeps taking turns until they pass. `Pass` removes its
+  owner's `ImAwake` through `This::`, then answers the same invitation by forwarding `NextPlayer`
+  without starting a turn or scheduling its completion. It also forwards play after its owner's
+  passing turn finishes. `ActionPhase` begins production on `TurnOver IF MAX 0 ImAwake`.
+  Action-phase play is cyclic: returning to the start player has no special meaning and never
+  emits `RoundOver`.
 - **Modules own phase order.** The corporation phase ends in `RoundOver`. `NoPreludes`, selected in
   every game without Prelude, then begins the first `ActionPhase`; `PreludeExpansion` begins
   `PreludePhase` instead, whose own `RoundOver` begins the action phase. Expansions add their solar

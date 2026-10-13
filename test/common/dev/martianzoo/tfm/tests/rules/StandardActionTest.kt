@@ -40,7 +40,7 @@ internal class StandardActionTest : TfmTest() {
 
     p1.beginOperation("NewTurn")
     p1.doTasks("ClaimMilestone<Class<Terraformer35>>", "-8 MC", "Terraformer35")
-    p1.beginOperation("SecondAction")
+    p1.beginOperation("NewTurn")
     p1.doTasks("FundAward<Class<Banker>>", "-8 MC", "Banker")
 
     p1.count("MC") shouldBe 24
@@ -60,7 +60,7 @@ internal class StandardActionTest : TfmTest() {
     p1.doTasks("RequiredActionsSignal", "3 ProjectCard")
 
     p1.count("RequiredAction") shouldBe 0
-    p1.beginOperation("SecondAction")
+    p1.beginOperation("NewTurn")
     p1.doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
     game.isIdle() shouldBe true
   }
@@ -76,9 +76,9 @@ internal class StandardActionTest : TfmTest() {
     p1.beginOperation("NewTurn")
     p1.doTasks("UseCardAction<DevelopmentCenter, Action1>", "-Energy", "ProjectCard")
     p1.count("ActionUsedMarker<DevelopmentCenter>") shouldBe 1
-    p1.beginOperation("SecondAction")
+    p1.beginOperation("NewTurn")
     shouldThrow<LimitsException> { p1.doTask("UseCardAction<DevelopmentCenter, Action1>") }
-    p1.doTask("Ok")
+    p1.doTask("Pass")
 
     p1.count("Energy") shouldBe 1
     p1.count("ProjectCard") shouldBe 1
@@ -142,7 +142,7 @@ internal class StandardActionTest : TfmTest() {
 
     p1.beginOperation("NewTurn")
     p1.doTasks("ClaimMilestone<Class<Terraformer35>>", "Terraformer35")
-    p1.beginOperation("SecondAction")
+    p1.beginOperation("NewTurn")
     p1.doTasks("FundAward<Class<Banker>>", "Banker")
 
     p1.count("MC") shouldBe startingMoney
