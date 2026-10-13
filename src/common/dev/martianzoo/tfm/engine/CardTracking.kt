@@ -15,46 +15,60 @@ import dev.martianzoo.tfm.canon.cardTags
 import dev.martianzoo.tfm.state.tfmCatalog
 
 /**
- * Opt-in, game-wide record of named cards that enter a Player's hand. Call [start] before the first
- * hand movement, then supply names before the Agent operation that needs them. Every successful
- * Agent operation names all CardBack movements into or out of Hand; missing names fail atomically.
- * Cards outside a hand, a hand-origin reveal, or play are not located more precisely. A discarded
- * card may enter a hand again. Hand movements cannot reuse a card still held or played elsewhere;
- * plays directly from an untracked location are not checked against previously seen cards.
+ * Opt-in, game-wide record of named cards. Call [start] before the first hand movement, then supply
+ * names before the Agent operation that needs them. Every successful Agent operation names all
+ * CardBack movements into or out of Hand; missing names fail atomically. When [start] enables
+ * Selecting tracking, every Selecting movement must also be named. A discarded card may enter the
+ * game again. A card cannot occupy a tracked Hand, Selecting area, or played location twice. Direct
+ * plays from Selecting are not checked against previously seen cards when Selecting tracking is
+ * disabled. Supplied names must be concrete catalog CardFront classes with the matching CardBack.
+ * Each named change gets a `Cards:` event note; wrong names or missing required names roll back the
+ * Agent request. Names queued for a later change are consumed in that Player's per-back,
+ * per-location event order.
  *
  * The current event history and supplied name sequences are the sources of truth. Validation
  * rebuilds the named locations from surviving events, so timeline rollback also restores tracking.
  * This tracks client-declared identities; it does not deal cards or verify a physical reshuffle.
  */
-public class CardTracking private constructor(private val world: World) : AgentTransactionGuard {
-  private val arrivals = mutableMapOf<Pair<Player, ClassName>, MutableList<ClassName>>()
-  private val departures = mutableMapOf<Pair<Player, ClassName>, MutableList<ClassName>>()
+public class CardTracking
+private constructor(
+    private val world: World,
+    private val requireSelectingNames: Boolean,
+) : AgentTransactionGuard {
+  private val arrivals =
+      mutableMapOf<Triple<Player, ClassName, ClassName>, MutableList<ClassName>>()
+  private val departures =
+      mutableMapOf<Triple<Player, ClassName, ClassName>, MutableList<ClassName>>()
 
   /**
-   * Supplies names in the order cards of [back] next enter [player]'s hand. Omit [back] for project
-   * cards.
+   * Supplies names in the order cards of [back] next enter [player]'s [location]. Omit [back] for
+   * project cards and [location] for Hand. Selecting names require Selecting tracking at [start].
    */
   public fun expectArrivals(
       player: Player,
       vararg cards: ClassName,
       back: ClassName = PROJECT_CARD,
+      location: ClassName = HAND,
   ) {
     requirePlayer(player)
     requireBack(back)
+    requireLocation(location)
     requireCards(cards, back)
-    arrivals.getOrPut(player to back) { mutableListOf() }.addAll(cards)
+    arrivals.getOrPut(Triple(player, back, location)) { mutableListOf() }.addAll(cards)
   }
 
-  /** Replaces unused arrival names for this Player and back, preserving names already in events. */
+  /** Replaces unused arrival names for this Player, back, and location. */
   public fun replacePendingArrivals(
       player: Player,
       vararg cards: ClassName,
       back: ClassName = PROJECT_CARD,
+      location: ClassName = HAND,
   ) {
     requirePlayer(player)
     requireBack(back)
+    requireLocation(location)
     requireCards(cards, back)
-    val key = player to back
+    val key = Triple(player, back, location)
     val used = snapshot().arrivalOffsets.getOrDefault(key, 0)
     val names = arrivals.getOrPut(key) { mutableListOf() }
     names.subList(used, names.size).clear()
@@ -62,32 +76,34 @@ public class CardTracking private constructor(private val world: World) : AgentT
   }
 
   /**
-   * Supplies names for upcoming anonymous departures of [back] from [player]'s hand. Omit [back]
-   * for project cards.
+   * Supplies names for upcoming anonymous departures of [back] from [player]'s [location]. Omit
+   * [back] for project cards and [location] for Hand.
    */
   public fun expectDepartures(
       player: Player,
       vararg cards: ClassName,
       back: ClassName = PROJECT_CARD,
+      location: ClassName = HAND,
   ) {
     requirePlayer(player)
     requireBack(back)
+    requireLocation(location)
     requireCards(cards, back)
-    departures.getOrPut(player to back) { mutableListOf() }.addAll(cards)
+    departures.getOrPut(Triple(player, back, location)) { mutableListOf() }.addAll(cards)
   }
 
-  /**
-   * Replaces unused departure names for this Player and back, preserving names already in events.
-   */
+  /** Replaces unused departure names for this Player, back, and location. */
   public fun replacePendingDepartures(
       player: Player,
       vararg cards: ClassName,
       back: ClassName = PROJECT_CARD,
+      location: ClassName = HAND,
   ) {
     requirePlayer(player)
     requireBack(back)
+    requireLocation(location)
     requireCards(cards, back)
-    val key = player to back
+    val key = Triple(player, back, location)
     val used = snapshot().departureOffsets.getOrDefault(key, 0)
     val names = departures.getOrPut(key) { mutableListOf() }
     names.subList(used, names.size).clear()
@@ -106,18 +122,18 @@ public class CardTracking private constructor(private val world: World) : AgentT
         .keys
   }
 
-  /** Requires every supplied name to have been used and every hand movement to be named. */
+  /** Requires every supplied name to have been used; movement checks run per Agent request. */
   public fun requireComplete() {
     val result = snapshot()
     arrivals.forEach { (key, names) ->
       check(result.arrivalOffsets.getOrDefault(key, 0) == names.size) {
-        "unused ${key.second} arrivals for ${key.first}: " +
+        "unused ${key.second} ${key.third} arrivals for ${key.first}: " +
             names.drop(result.arrivalOffsets.getOrDefault(key, 0))
       }
     }
     departures.forEach { (key, names) ->
       check(result.departureOffsets.getOrDefault(key, 0) == names.size) {
-        "unused ${key.second} departures for ${key.first}: " +
+        "unused ${key.second} ${key.third} departures for ${key.first}: " +
             names.drop(result.departureOffsets.getOrDefault(key, 0))
       }
     }
@@ -129,20 +145,21 @@ public class CardTracking private constructor(private val world: World) : AgentT
 
   private fun snapshot(): Snapshot {
     val locations = linkedMapOf<ClassName, CardState>()
-    val arrivalOffsets = mutableMapOf<Pair<Player, ClassName>, Int>()
-    val departureOffsets = mutableMapOf<Pair<Player, ClassName>, Int>()
+    val arrivalOffsets = mutableMapOf<Triple<Player, ClassName, ClassName>, Int>()
+    val departureOffsets = mutableMapOf<Triple<Player, ClassName, ClassName>, Int>()
     val notes = mutableMapOf<ChangeEvent, String>()
 
     fun takeNames(
-        supplied: Map<Pair<Player, ClassName>, List<ClassName>>,
-        offsets: MutableMap<Pair<Player, ClassName>, Int>,
+        supplied: Map<Triple<Player, ClassName, ClassName>, List<ClassName>>,
+        offsets: MutableMap<Triple<Player, ClassName, ClassName>, Int>,
         player: Player,
         back: ClassName,
+        location: ClassName,
         count: Int,
         event: ChangeEvent,
         direction: String,
     ): List<ClassName> {
-      val key = player to back
+      val key = Triple(player, back, location)
       val names = supplied[key].orEmpty()
       val start = offsets.getOrDefault(key, 0)
       val end = start + count
@@ -161,28 +178,32 @@ public class CardTracking private constructor(private val world: World) : AgentT
       val gaining = change.gaining
       val removingBack = removing.cardBackAt(HAND)
       val gainingBack = gaining.cardBackAt(HAND)
+      val playedFace =
+          gaining?.className?.takeIf { name ->
+            world.classTable.getClass(name).isSubtypeOf(world.classTable.getClass(CARD_FRONT))
+          }
+      val selectingRemovalBack = removing.cardBackAt(SELECTING).takeIf { requireSelectingNames }
+      val selectingGainBack = gaining.cardBackAt(SELECTING).takeIf { requireSelectingNames }
       val handRemoval = removingBack != null
       val handGain = gainingBack != null
       var removedNames = emptyList<ClassName>()
       var gainedNames = emptyList<ClassName>()
+      var selectedRemovedNames = emptyList<ClassName>()
+      var selectedGainedNames = emptyList<ClassName>()
 
       if (handRemoval) {
         val player = checkNotNull(removing?.owningPlayer)
         removedNames =
-            if (
-                gaining?.className != null &&
-                    world.classTable
-                        .getClass(gaining.className)
-                        .isSubtypeOf(world.classTable.getClass(CARD_FRONT))
-            ) {
+            if (playedFace != null) {
               check(change.count == 1) { "one played face cannot consume ${change.count} cards" }
-              listOf(gaining.className)
+              listOf(playedFace)
             } else {
               takeNames(
                   departures,
                   departureOffsets,
                   player,
                   checkNotNull(removingBack),
+                  HAND,
                   change.count,
                   event,
                   "departures",
@@ -198,10 +219,9 @@ public class CardTracking private constructor(private val world: World) : AgentT
           val location =
               when {
                 gaining.cardBackAt(REVEALED) == removingBack -> Revealed(player)
-                gaining?.className != null &&
-                    world.classTable
-                        .getClass(gaining.className)
-                        .isSubtypeOf(world.classTable.getClass(CARD_FRONT)) -> Played(player)
+                requireSelectingNames && gaining.cardBackAt(SELECTING) == removingBack ->
+                    Selecting(player)
+                playedFace != null -> Played(player)
                 else -> Outside
               }
           locations[name] = CardState(checkNotNull(removingBack), location)
@@ -232,6 +252,7 @@ public class CardTracking private constructor(private val world: World) : AgentT
                         arrivalOffsets,
                         player,
                         gainingBack,
+                        HAND,
                         change.count,
                         event,
                         "returns",
@@ -243,6 +264,7 @@ public class CardTracking private constructor(private val world: World) : AgentT
                       arrivalOffsets,
                       player,
                       checkNotNull(gainingBack),
+                      HAND,
                       change.count,
                       event,
                       "arrivals",
@@ -259,6 +281,8 @@ public class CardTracking private constructor(private val world: World) : AgentT
                     previous == CardState(gainingBack, Played(player))
                 removing.cardBackAt(REVEALED) != null ->
                     previous == CardState(gainingBack, Revealed(player))
+                removing.cardBackAt(SELECTING) != null && requireSelectingNames ->
+                    previous == CardState(gainingBack, Selecting(player))
                 else -> previous == null || previous == CardState(gainingBack, Outside)
               }
           ) {
@@ -282,13 +306,85 @@ public class CardTracking private constructor(private val world: World) : AgentT
         }
       }
 
-      if (handGain || handRemoval) {
-        notes[event] =
-            if (gainedNames.isNotEmpty() && removedNames.isNotEmpty()) {
-              "Cards: ${gainedNames.joinToString()} FROM ${removedNames.joinToString()}"
-            } else {
-              "Cards: ${(gainedNames + removedNames).joinToString()}"
+      if (selectingRemovalBack != null) {
+        val player = checkNotNull(removing?.owningPlayer)
+        val back = selectingRemovalBack
+        if (handGain) check(gainingBack == back) { "a selected card changed backs at $event" }
+        selectedRemovedNames =
+            when {
+              handGain -> gainedNames
+              playedFace != null -> {
+                check(change.count == 1) { "one played face cannot consume ${change.count} cards" }
+                requireCards(arrayOf(playedFace), back)
+                listOf(playedFace)
+              }
+              else ->
+                  takeNames(
+                      departures,
+                      departureOffsets,
+                      player,
+                      back,
+                      SELECTING,
+                      change.count,
+                      event,
+                      "Selecting departures",
+                  )
             }
+        check(selectedRemovedNames.size == selectedRemovedNames.distinct().size) {
+          "the same card leaves $player's Selecting twice in $event"
+        }
+        selectedRemovedNames.forEach { name ->
+          if (!handGain) {
+            check(locations[name] == CardState(back, Selecting(player))) {
+              "$name was not in $player's Selecting at $event"
+            }
+            locations[name] = CardState(back, if (playedFace == name) Played(player) else Outside)
+          }
+        }
+      }
+
+      if (selectingGainBack != null) {
+        val player = checkNotNull(gaining?.owningPlayer)
+        val back = selectingGainBack
+        selectedGainedNames =
+            if (handRemoval) removedNames
+            else
+                takeNames(
+                    arrivals,
+                    arrivalOffsets,
+                    player,
+                    back,
+                    SELECTING,
+                    change.count,
+                    event,
+                    "Selecting arrivals",
+                )
+        check(selectedGainedNames.size == selectedGainedNames.distinct().size) {
+          "the same card enters $player's Selecting twice in $event"
+        }
+        selectedGainedNames.forEach { name ->
+          if (!handRemoval) {
+            val previous = locations[name]
+            check(previous == null || previous == CardState(back, Outside)) {
+              "$name cannot enter $player's Selecting from $previous at $event"
+            }
+            locations[name] = CardState(back, Selecting(player))
+          }
+        }
+      }
+
+      if (
+          handGain ||
+              handRemoval ||
+              selectedGainedNames.isNotEmpty() ||
+              selectedRemovedNames.isNotEmpty()
+      ) {
+        val gained = if (handGain) gainedNames else selectedGainedNames
+        val removed = if (handRemoval) removedNames else selectedRemovedNames
+        check(gained.isEmpty() || removed.isEmpty() || gained == removed) {
+          "a card changed identity at $event: $removed became $gained"
+        }
+        notes[event] = "Cards: ${(gained.ifEmpty { removed }).joinToString()}"
       }
       // PlayedEvent already names its face. Keep the location of a previously held card current
       // for later Hand checks; no name needs to be supplied or written on this event.
@@ -338,6 +434,25 @@ public class CardTracking private constructor(private val world: World) : AgentT
             }
             .eachCount()
     check(named == modeled) { "named hand cards $named differ from modeled hand cards $modeled" }
+    if (requireSelectingNames) {
+      val modeledSelecting =
+          world.reader
+              .getComponents(CARD_BACK.expression)
+              .entries
+              .filter { (type, _) ->
+                type.expressionFull.arguments.any { it.className == SELECTING }
+              }
+              .groupBy { (type, _) -> type.toComponent().owningPlayer to type.className }
+              .mapValues { (_, entries) -> entries.sumOf { it.value } }
+      val namedSelecting =
+          locations.values
+              .filter { it.location is Selecting }
+              .groupingBy { (it.location as Selecting).player to it.back }
+              .eachCount()
+      check(namedSelecting == modeledSelecting) {
+        "named Selecting cards $namedSelecting differ from modeled Selecting cards $modeledSelecting"
+      }
+    }
     notes.forEach { (event, cardNote) ->
       var inserted = false
       val lines =
@@ -390,6 +505,15 @@ public class CardTracking private constructor(private val world: World) : AgentT
     }
   }
 
+  private fun requireLocation(location: ClassName) {
+    require(location == HAND || location == SELECTING) {
+      "$location must be Hand or Selecting"
+    }
+    require(location != SELECTING || requireSelectingNames) {
+      "start Selecting tracking before supplying Selecting names"
+    }
+  }
+
   private fun requireCards(cards: Array<out ClassName>, back: ClassName) {
     // A replay may name a genuine source card excluded from this game's playable pool.
     val classes = world.reader.tfmCatalog.classTable
@@ -423,6 +547,8 @@ public class CardTracking private constructor(private val world: World) : AgentT
 
   private data class Hand(val player: Player) : Location
 
+  private data class Selecting(val player: Player) : Location
+
   private data class Revealed(val player: Player) : Location
 
   private data class Played(val player: Player) : Location
@@ -431,8 +557,8 @@ public class CardTracking private constructor(private val world: World) : AgentT
 
   private data class Snapshot(
       val locations: Map<ClassName, CardState>,
-      val arrivalOffsets: Map<Pair<Player, ClassName>, Int>,
-      val departureOffsets: Map<Pair<Player, ClassName>, Int>,
+      val arrivalOffsets: Map<Triple<Player, ClassName, ClassName>, Int>,
+      val departureOffsets: Map<Triple<Player, ClassName, ClassName>, Int>,
   )
 
   public companion object {
@@ -442,21 +568,29 @@ public class CardTracking private constructor(private val world: World) : AgentT
     private val CARD_FRONT = cn("CardFront")
     private val CARD_FILTER = cn("CardFilter")
     private val HAND = cn("Hand")
+    private val SELECTING = cn("Selecting")
     private val REVEALED = cn("Revealed")
     private val FILTERED_HAND_ARRIVALS = setOf(cn("SearchForCard"), cn("TakeSelectedCard"))
 
-    /** Starts mandatory tracking before the first card back moves through any Player's hand. */
-    public fun start(world: World): CardTracking {
-      val tracker = CardTracking(world)
+    /**
+     * Starts mandatory Hand tracking before the first hand movement. When [requireSelectingNames]
+     * is true, start before the first Selecting movement too; every such movement must be named.
+     * Otherwise Selecting movements are outside tracking and Selecting names cannot be supplied.
+     */
+    public fun start(world: World, requireSelectingNames: Boolean = false): CardTracking {
+      val tracker = CardTracking(world, requireSelectingNames)
       check(
           world.events.changesSinceSetup().none { event ->
             with(tracker) {
               event.change.gaining.cardBackAt(HAND) != null ||
-                  event.change.removing.cardBackAt(HAND) != null
+                  event.change.removing.cardBackAt(HAND) != null ||
+                  (requireSelectingNames &&
+                      (event.change.gaining.cardBackAt(SELECTING) != null ||
+                          event.change.removing.cardBackAt(SELECTING) != null))
             }
           }
       ) {
-        "card hand movements already occurred before tracking started"
+        "tracked card movements already occurred before tracking started"
       }
       world.installAgentTransactionGuard(tracker)
       return tracker

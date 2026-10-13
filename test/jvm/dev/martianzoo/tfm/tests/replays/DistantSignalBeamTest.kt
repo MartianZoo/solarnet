@@ -44,14 +44,37 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
   }
 
   private fun generation1() {
+    pink.draw(
+        HousePrinting,
+        CloudSeeding,
+        MicroMills,
+        Pets,
+        LagrangeObservatory,
+        GhgImportFromVenus,
+        IoSulphurResearch,
+    )
     pink.playCorp(MorningStarInc)
+    purple.draw(
+        RotatorImpacts,
+        PowerSupplyConsortium,
+        Tardigrades,
+        InterplanetaryTrade,
+        Casinos,
+        AdaptationTechnology,
+        FusionPower,
+        BreathingFilters,
+        PeroxidePower,
+        NeutralizerFactory,
+    )
     purple.playCorp(Aridor)
 
     pink.turn {
       playPrelude(AtmosphericEnhancers) {
+        draw(TitanShuttles, AtmoCollectors)
         doTask("2 VenusStep")
       }
       playPrelude(PolarIndustries) {
+        draw(Cartel)
         placeTile(5, 6)
       }
     }
@@ -70,7 +93,9 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
     // Database save 5: Allied Bank introduced Purple's first Earth tag.
 
     pink.turn {
-      stdAction("RequiredActionsSignal")
+      stdAction("RequiredActionsSignal") {
+        draw(VenusSoils, SulphurEatingBacteria, StratosphericExpedition)
+      }
       playProject(TitanShuttles, 23)
     }
     purple.turn {
@@ -99,8 +124,8 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
   }
 
   private fun generation2() {
-    pink.buyCards(1)
-    purple.buyCards(3)
+    pink.buyCards(HeatTrappers)
+    purple.buyCards(Omnicourt, BactoviralResearch, SolarReflectors)
     // Database save 42: immediately after both Research purchases.
     pink.assertResources(m = 20, s = 0, t = 0, p = 0, e = 0, h = 2)
     pink.assertProduction(m = 0, s = 0, t = 0, p = 0, e = 0, h = 2)
@@ -111,10 +136,11 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
     purple.turn { claimMilestone(cn("Fundraiser")) }
     pink.turn {
       cardAction2(TitanShuttles, 2)
-      playProject(LagrangeObservatory, 3, titanium = 2)
+      playProject(LagrangeObservatory, 3, titanium = 2) { draw(StaticHarvesting) }
     }
     purple.turn {
       playProject(BactoviralResearch, 10) {
+        draw(LocalShading)
         addCardResources(Tardigrades)
       }
       // Database save 49: Bactoviral Research introduced Purple's first science tag.
@@ -140,8 +166,8 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
   }
 
   private fun generation3BeforeResignation() {
-    pink.buyCards(1)
-    purple.buyCards(1)
+    pink.buyCards(TerraformingContract)
+    purple.buyCards(MiningColony)
     // Database save 74: immediately after both Research purchases.
     pink.assertResources(m = 21, s = 1, t = 0, p = 0, e = 1, h = 5)
     pink.assertProduction(m = 0, s = 1, t = 0, p = 0, e = 1, h = 3)
@@ -193,7 +219,8 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
 
   override val cardArrivalOrder =
       mapOf(
-          // The source offered a third corporation per Player; the model deals two.
+          // Source save 0: the third corporation offers were PolderTECH Dutch for Pink and
+          // Point Luna for Purple.
           cn("CorporationCard") to
               mapOf(
                   cn("Pink") to listOf(Vitor, MorningStarInc),
@@ -206,6 +233,22 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
                   cn("Purple") to
                       listOf(BiosphereSupport, FocusedOrganization, ProjectEden, AlliedBank),
               ),
+      )
+
+  override val cardDepartureOrder =
+      mapOf(
+          cn("CorporationCard") to
+              mapOf(cn("Pink") to listOf(Vitor), cn("Purple") to listOf(Ecoline)),
+          cn("PreludeCard") to
+              mapOf(
+                  cn("Pink") to listOf(Loan, PowerGeneration),
+                  cn("Purple") to listOf(BiosphereSupport, FocusedOrganization),
+              ),
+      )
+
+  // Source setup saves and saves 41-42, 73-74 identify these modeled offers.
+  override val selectingArrivalOrder =
+      mapOf(
           cn("ProjectCard") to
               mapOf(
                   cn("Pink") to
@@ -217,15 +260,17 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
                           LagrangeObservatory,
                           GhgImportFromVenus,
                           IoSulphurResearch,
-                          TitanShuttles,
-                          AtmoCollectors,
-                          Cartel,
-                          VenusSoils,
-                          SulphurEatingBacteria,
-                          StratosphericExpedition,
+                          Insects,
+                          EcologyResearch,
+                          SecurityFleet,
+                          GeothermalPower,
                           HeatTrappers,
-                          StaticHarvesting,
+                          PhobosSpaceHaven,
+                          DirectedHeatUsage,
                           TerraformingContract,
+                          ElectroCatapult,
+                          UndergroundCity,
+                          Shuttles,
                       ),
                   cn("Purple") to
                       listOf(
@@ -240,22 +285,34 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
                           PeroxidePower,
                           NeutralizerFactory,
                           Omnicourt,
-                          BactoviralResearch,
                           SolarReflectors,
-                          LocalShading,
+                          SoilFactory,
+                          BactoviralResearch,
+                          RedSpotObservatory,
                           MiningColony,
+                          OutdoorSports,
+                          SoilEnrichment,
                       ),
               ),
       )
-
-  override val cardDepartureOrder =
+  override val selectingDepartureOrder =
       mapOf(
-          cn("CorporationCard") to
-              mapOf(cn("Pink") to listOf(Vitor), cn("Purple") to listOf(Ecoline)),
-          cn("PreludeCard") to
+          cn("ProjectCard") to
               mapOf(
-                  cn("Pink") to listOf(Loan, PowerGeneration),
-                  cn("Purple") to listOf(BiosphereSupport, FocusedOrganization),
+                  cn("Pink") to
+                      listOf(
+                          Insects,
+                          EcologyResearch,
+                          SecurityFleet,
+                          GeothermalPower,
+                          PhobosSpaceHaven,
+                          DirectedHeatUsage,
+                          ElectroCatapult,
+                          UndergroundCity,
+                          Shuttles,
+                      ),
+                  cn("Purple") to
+                      listOf(SoilFactory, RedSpotObservatory, OutdoorSports, SoilEnrichment),
               ),
       )
 }

@@ -657,14 +657,20 @@ Whole-game tests are high-value integration coverage. When translating a supplie
 - Card-tracked replays extend
   [CardTrackingFullGameTest](../../test/common/dev/martianzoo/tfm/tests/replays/CardTrackingFullGameTest.kt),
   which starts production [CardTracking](../../src/common/dev/martianzoo/tfm/engine/CardTracking.kt)
-  before gameplay. Use `cardArrivalOrder` and `cardDepartureOrder` to preload each Player's hand
-  movements by back type. `draw`, `discard`, `buyCards(cardNames)`, and `sellPatents(cardNames)`
-  supply names before the relevant Agent operation completes. `assertCardTrackingComplete` checks
-  unused supplied names.
-  This order describes hand entry, not offers or deck order. Cards may enter a hand again after
-  leaving play. Names must be concrete catalog `CardFront` classes with the matching back. When a
-  source omits rejected setup-card faces, use a small number of explicitly labeled invented card
-  assignments; `StinaGameTest` does this for three cards. Do not fabricate entire `Selecting` offers.
+  before gameplay. Use `cardArrivalOrder` and `cardDepartureOrder` for automatically dealt setup
+  cards. Name project hand movements beside their actions with `draw`, `discard`,
+  `buyCards(cardNames)`, and `sellPatents(cardNames)` before the relevant Agent operation completes.
+  `assertCardTrackingComplete` checks unused supplied names. `cardArrivalOrder` describes hand
+  entry, not offers or deck order. When a replay has names for every `Selecting` movement,
+  `selectingArrivalOrder` and `selectingDepartureOrder` enable game-wide Selecting tracking.
+  All five card-tracked replays exercise this option. The four database replays use sourced setup
+  and Research offers; `ErraticCarbonCurrentTest` labels two invented Invention Contest rejects.
+  `StinaGameTest` also labels its invented offer assignments. If even a single modeled Selecting
+  movement lacks identities, leave the option off or label a few invented assignments explicitly.
+  Cards may enter a hand again after leaving play.
+  Names must be concrete catalog `CardFront` classes with the matching back. When a source omits
+  rejected setup-card faces, use a small number of explicitly labeled invented card assignments;
+  `StinaGameTest` does this for three cards. Do not fabricate entire `Selecting` offers.
   Research archives that used drafting may assign each recovered post-draft
   four-card set as ordinary hand arrivals when the tested engine does not support drafting. Buy only
   the evidenced count and name only retained cards. The four database-backed conversions and

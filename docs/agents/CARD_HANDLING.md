@@ -137,13 +137,20 @@ using printed tags or the card declaration. `Hand`–`Revealed`–`Hand` movemen
 when unambiguous; a partial return needs supplied names. A card outside a hand may enter again
 after a discard or reshuffle. A hand arrival cannot reuse a card still held or played elsewhere.
 `PlayedEvent` already carries its card's exact name, so moving a played face into that type needs no
-supplied name or `Cards:` note. Plays directly from `Selecting` are not checked against previously
-seen cards.
+supplied name or `Cards:` note. With Selecting tracking off, a direct play from `Selecting` is not
+checked against previously seen cards.
 
-Only cards that enter a hand are tracked. Offers that stay in `Selecting`, rejected or searched-past
-project cards, and deck flips that never enter a hand are outside this mode. Full `Selecting`
-tracking remains deferred until clients can provide the offered identities; existing replays do not
-justify inventing whole offers.
+`CardTracking.start(world, requireSelectingNames = true)` additionally requires every `Selecting`
+movement to be named. The option applies to the whole game; it cannot mix known and unknown offers.
+The default mode ignores Selecting identities and rejects supplied Selecting names. In the enabled
+mode, the tracker compares named Selecting holdings with modeled counts, checks card locations, and
+writes `Cards:` notes for Selecting changes. Transfers to `Hand` use the required hand-arrival names,
+and direct plays carry the face in their type. Use `location = cn("Selecting")` with the same
+`expectArrivals`, `expectDepartures`, and `replacePending...` methods used for Hand. Supply names
+just before the matching operation or in exact event order; queued names always belong to the next
+matching event. Cards rejected from `Selecting` are named in the enabled mode. Cards only passed
+over during a deck search and deck flips remain outside it.
+
 The four database-backed card-tracked replays and `StinaGameTest` now use this production mode;
 [CardTrackingTest](../../test/common/dev/martianzoo/tfm/tests/CardTrackingTest.kt)
 checks the focused integrity cases.

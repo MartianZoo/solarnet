@@ -23,6 +23,41 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
           cn("CorporationCard") to mapOf(cn("Me") to listOf(CrediCor)),
           cn("PreludeCard") to mapOf(cn("Me") to listOf(AlliedBank, BusinessEmpire)),
       )
+  // Test assignments: the source does not name the Invention Contest or Business Contacts
+  // rejects. These four late-game cards do not help terraform the planet in generation 1.
+  override val selectingArrivalOrder =
+      mapOf(
+          cn("ProjectCard") to
+              mapOf(
+                  cn("Me") to
+                      listOf(
+                          EarthOffice,
+                          MediaGroup,
+                          InvestmentLoan,
+                          IndenturedWorkers,
+                          EarthCatapult,
+                          HiredRaiders,
+                          OlympusConference,
+                          AdvancedAlloys,
+                          MineralDeposit,
+                          ResearchOutpost,
+                          // Invention Contest
+                          MassConverter,
+                          SecurityFleet,
+                          Penguins,
+                          // Business Contacts
+                          TowingAComet,
+                          AdaptationTechnology,
+                          Herbivores,
+                          Predators,
+                      ),
+              ),
+      )
+  override val selectingDepartureOrder =
+      mapOf(
+          cn("ProjectCard") to
+              mapOf(cn("Me") to listOf(SecurityFleet, Penguins, Herbivores, Predators)),
+      )
 
   private val me
     get() = p1

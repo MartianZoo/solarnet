@@ -14,11 +14,14 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class CardTrackingTest : TfmTest() {
-  private fun newTrackedGame(expansions: String = "PreludeExpansion"): Pair<CardTracking, Player> {
+  private fun newTrackedGame(
+      expansions: String = "PreludeExpansion",
+      requireSelectingNames: Boolean = false,
+  ): Pair<CardTracking, Player> {
     val config = GameConfig(expansions, "Player1")
     game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
     val player = game.actors.filterIsInstance<Player>().single()
-    return CardTracking.start(game) to player
+    return CardTracking.start(game, requireSelectingNames) to player
   }
 
   @Test
@@ -71,7 +74,7 @@ internal class CardTrackingTest : TfmTest() {
 
   @Test
   internal fun suppliedNamesMustBeConcreteCardFrontsWithTheRightBack() {
-    val (tracking, player) = newTrackedGame()
+    val (tracking, player) = newTrackedGame(requireSelectingNames = true)
 
     shouldThrow<IllegalArgumentException> {
       tracking.expectArrivals(player, cn("NeverPrintedCard"))
@@ -81,6 +84,17 @@ internal class CardTrackingTest : TfmTest() {
     shouldThrow<IllegalArgumentException> { tracking.expectArrivals(player, cn("Ecoline")) }
     shouldThrow<IllegalArgumentException> {
       tracking.expectDepartures(player, cn("Biolab"), back = cn("CorporationCard"))
+    }
+    shouldThrow<IllegalArgumentException> {
+      tracking.expectArrivals(
+          player,
+          cn("Biolab"),
+          back = cn("ProjectCard"),
+          location = cn("Selecting"),
+      )
+    }
+    shouldThrow<IllegalArgumentException> {
+      tracking.expectDepartures(player, cn("CardFront"), location = cn("Selecting"))
     }
   }
 
@@ -417,6 +431,169 @@ internal class CardTrackingTest : TfmTest() {
     agent.runOperation("-2 ProjectCard<Selecting>")
 
     tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"))
+    tracking.requireComplete()
+  }
+
+  @Test
+  internal fun trackedOfferRecordsItsChoicesAndChecksTheHandTransfer() {
+    val (tracking, player) = newTrackedGame(requireSelectingNames = true)
+    val agent = agents[player]
+    val before = game.timeline.checkpoint()
+    tracking.expectArrivals(
+        player,
+        cn("AcquiredCompany"),
+        cn("AdaptedLichen"),
+        cn("MicroMills"),
+        location = cn("Selecting"),
+    )
+    agent.runOperation("3 ProjectCard<Selecting>")
+    tracking.expectDepartures(
+        player,
+        cn("AdaptedLichen"),
+        cn("MicroMills"),
+        location = cn("Selecting"),
+    )
+    agent.runOperation("-2 ProjectCard<Selecting>")
+    tracking.expectArrivals(player, cn("AcquiredCompany"))
+    agent.runOperation("ProjectCard<Hand FROM Selecting>")
+
+    tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"))
+    game.events.changesSince(before).map { it.notes } shouldBe
+        listOf(
+            "Cards: AcquiredCompany, AdaptedLichen, MicroMills",
+            "Cards: AdaptedLichen, MicroMills",
+            "Cards: AcquiredCompany",
+        )
+    tracking.requireComplete()
+  }
+
+  @Test
+  internal fun selectingOfferCannotReuseAHeldCardButCanOfferADiscardedCardAgain() {
+    val (tracking, player) = newTrackedGame(requireSelectingNames = true)
+    val agent = agents[player]
+    tracking.expectArrivals(player, cn("AdaptedLichen"))
+    agent.runOperation("ProjectCard")
+    tracking.expectArrivals(player, cn("AdaptedLichen"), location = cn("Selecting"))
+    val before = game.timeline.checkpoint()
+
+    shouldThrow<IllegalStateException> { agent.runOperation("ProjectCard<Selecting>") }
+    game.timeline.checkpoint() shouldBe before
+
+    tracking.replacePendingArrivals(player, cn("MicroMills"), location = cn("Selecting"))
+    agent.runOperation("ProjectCard<Selecting>")
+    tracking.expectDepartures(player, cn("MicroMills"), location = cn("Selecting"))
+    agent.runOperation("-ProjectCard<Selecting>")
+    tracking.expectArrivals(player, cn("MicroMills"), location = cn("Selecting"))
+    agent.runOperation("ProjectCard<Selecting>")
+
+    tracking.hand(player) shouldBe setOf(cn("AdaptedLichen"))
+    tracking.requireComplete()
+  }
+
+  @Test
+  internal fun selectingNamesRequireSelectingTrackingAtGameStart() {
+    val (tracking, player) = newTrackedGame()
+    val agent = agents[player]
+    agent.runOperation("ProjectCard<Selecting>")
+    shouldThrow<IllegalArgumentException> {
+      tracking.expectArrivals(player, cn("AcquiredCompany"), location = cn("Selecting"))
+    }
+    tracking.expectArrivals(player, cn("AcquiredCompany"))
+    agent.runOperation("ProjectCard<Hand FROM Selecting>")
+
+    tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"))
+    tracking.requireComplete()
+  }
+
+  @Test
+  internal fun namedSelectingOfferCannotSilentlyLoseOrSubstituteACard() {
+    val (tracking, player) = newTrackedGame(requireSelectingNames = true)
+    val agent = agents[player]
+    tracking.expectArrivals(
+        player,
+        cn("AcquiredCompany"),
+        cn("AdaptedLichen"),
+        location = cn("Selecting"),
+    )
+    agent.runOperation("2 ProjectCard<Selecting>")
+    val before = game.timeline.checkpoint()
+
+    shouldThrow<AgentInputRequiredException> { agent.runOperation("-ProjectCard<Selecting>") }
+    tracking.expectArrivals(player, cn("MicroMills"))
+    shouldThrow<IllegalStateException> {
+      agent.runOperation("ProjectCard<Hand FROM Selecting>")
+    }
+
+    game.timeline.checkpoint() shouldBe before
+    tracking.expectDepartures(player, cn("AdaptedLichen"), location = cn("Selecting"))
+    agent.runOperation("-ProjectCard<Selecting>")
+    tracking.replacePendingArrivals(player, cn("AcquiredCompany"))
+    agent.runOperation("ProjectCard<Hand FROM Selecting>")
+    tracking.hand(player) shouldBe setOf(cn("AcquiredCompany"))
+    tracking.requireComplete()
+  }
+
+  @Test
+  internal fun strictSelectingModeRequiresNamesBeforeTheOfferCompletes() {
+    val (tracking, player) = newTrackedGame(requireSelectingNames = true)
+    val agent = agents[player]
+    val before = game.timeline.checkpoint()
+
+    shouldThrow<AgentInputRequiredException> { agent.runOperation("2 ProjectCard<Selecting>") }
+    game.timeline.checkpoint() shouldBe before
+    tracking.expectArrivals(player, cn("AcquiredCompany"), location = cn("Selecting"))
+    shouldThrow<AgentInputRequiredException> { agent.runOperation("2 ProjectCard<Selecting>") }
+    game.timeline.checkpoint() shouldBe before
+    tracking.replacePendingArrivals(
+        player,
+        cn("AcquiredCompany"),
+        cn("AdaptedLichen"),
+        location = cn("Selecting"),
+    )
+    agent.runOperation("2 ProjectCard<Selecting>")
+    tracking.expectDepartures(player, cn("AdaptedLichen"), location = cn("Selecting"))
+    agent.runOperation("-ProjectCard<Selecting>")
+    tracking.expectArrivals(player, cn("AcquiredCompany"))
+    agent.runOperation("ProjectCard<Hand FROM Selecting>")
+    tracking.requireComplete()
+  }
+
+  @Test
+  internal fun strictSelectingTaskWaitsForNamesWhileOtherAutomaticWorkRuns() {
+    val (tracking, player) = newTrackedGame(requireSelectingNames = true)
+    val agent = agents[player]
+    agent.autoExecPolicy = NONE
+    agent.addTasks("ProjectCard<Selecting>, MC")
+
+    agent.autoExecPolicy = EAGER
+
+    agent.count("MC") shouldBe 1
+    agent.count("ProjectCard<Selecting>") shouldBe 0
+    tracking.expectArrivals(player, cn("AcquiredCompany"), location = cn("Selecting"))
+    agent.autoExecNow()
+    agent.count("ProjectCard<Selecting>") shouldBe 1
+    tracking.requireComplete()
+  }
+
+  @Test
+  internal fun aPreludePlayedDirectlyFromSelectingUsesItsNamedOffer() {
+    val (tracking, player) = newTrackedGame(requireSelectingNames = true)
+    val agent = agents[player]
+    tracking.expectArrivals(
+        player,
+        cn("AlliedBank"),
+        back = cn("PreludeCard"),
+        location = cn("Selecting"),
+    )
+    agent.runOperation("PreludeCard<Selecting>")
+    val before = game.timeline.checkpoint()
+
+    shouldThrow<IllegalStateException> {
+      agent.runOperation("Biolab FROM PreludeCard<Selecting>")
+    }
+    game.timeline.checkpoint() shouldBe before
+    agent.runOperation("AlliedBank FROM PreludeCard<Selecting>")
+    game.events.changesSince(before).mapNotNull { it.notes } shouldBe listOf("Cards: AlliedBank")
     tracking.requireComplete()
   }
 

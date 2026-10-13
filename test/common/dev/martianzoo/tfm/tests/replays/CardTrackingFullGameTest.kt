@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.engine.CardTracking
@@ -12,13 +13,22 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   protected open val cardArrivalOrder: Map<ClassName, Map<ClassName, List<ClassName>>> = emptyMap()
   protected open val cardDepartureOrder: Map<ClassName, Map<ClassName, List<ClassName>>> =
       emptyMap()
+  protected open val selectingArrivalOrder: Map<ClassName, Map<ClassName, List<ClassName>>> =
+      emptyMap()
+  protected open val selectingDepartureOrder: Map<ClassName, Map<ClassName, List<ClassName>>> =
+      emptyMap()
   protected lateinit var cards: CardTracking
     private set
 
   @BeforeTest
   override fun commonSetup() {
     super.commonSetup()
-    cards = CardTracking.start(game)
+    cards =
+        CardTracking.start(
+            game,
+            requireSelectingNames =
+                selectingArrivalOrder.isNotEmpty() || selectingDepartureOrder.isNotEmpty(),
+        )
     val players = game.actors.filterIsInstance<Player>().associateBy { it.className }
     cardArrivalOrder.forEach { (back, byPlayer) ->
       byPlayer.forEach { (player, names) ->
@@ -28,6 +38,26 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
     cardDepartureOrder.forEach { (back, byPlayer) ->
       byPlayer.forEach { (player, names) ->
         cards.expectDepartures(checkNotNull(players[player]), *names.toTypedArray(), back = back)
+      }
+    }
+    selectingArrivalOrder.forEach { (back, byPlayer) ->
+      byPlayer.forEach { (player, names) ->
+        cards.expectArrivals(
+            checkNotNull(players[player]),
+            *names.toTypedArray(),
+            back = back,
+            location = cn("Selecting"),
+        )
+      }
+    }
+    selectingDepartureOrder.forEach { (back, byPlayer) ->
+      byPlayer.forEach { (player, names) ->
+        cards.expectDepartures(
+            checkNotNull(players[player]),
+            *names.toTypedArray(),
+            back = back,
+            location = cn("Selecting"),
+        )
       }
     }
   }

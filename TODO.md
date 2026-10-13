@@ -6,11 +6,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Card tracking
 
-- [ ] Extend card tracking through `Selecting` when a client can supply every offered identity.
-  Existing replays often lack those names; do not populate their offers with invented bulk data.
 - [ ] Decide whether to verify identities and Pets claim filters for deck flips that never enter a
-  Player's hand, such as Search for Life and Asteroid Deflection System. The current mode deliberately
-  tracks only cards that reach a hand; the former replay helper's flip checks were removed with it.
+  Player's hand or a tracked Selecting offer, such as Search for Life and Asteroid Deflection System.
+  The former replay helper's flip checks were removed with it.
 
 ## Standard actions
 
