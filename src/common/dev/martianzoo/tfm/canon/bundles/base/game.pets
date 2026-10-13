@@ -148,6 +148,7 @@ ABSTRACT CLASS Phase : System, Real {
     This: Photosynthesis
     This: EACH Class<@CardWatcher> { @CardWatcher }
     This: EACH Starter@Player(HAS StartToken) { TakeTurn<Starter@> }
+    TakeTurn<@Player>: NewTurn<@Player>, FINALLY { TurnOver<@Player> }
 
     NewTurn IF CorporationCard<Hand>: \
       PlayCard<Class<CorporationCard>, Class<CardFront>, Hand>
@@ -180,6 +181,7 @@ ABSTRACT CLASS Phase : System, Real {
   }
   CLASS FinalGreeneryPhase {
     This: EACH Starter@Player(HAS StartToken) { TakeTurn<Starter@> }
+    TakeTurn<@Player>: NewTurn<@Player>, FINALLY { TurnOver<@Player> }
 
     NewTurn: ConvertPlants OR Done<This>
     // Each greenery is its own turn, until the player is done.
@@ -200,10 +202,8 @@ ABSTRACT CLASS Phase : System, Real {
 "Offers a player a turn; ImAwake or the current phase supplies its choices"
 CLASS NewTurn : Owned<Player>, Signal, System
 
-"Gives a player their turn in turn order, unless they have passed in the action phase"
-CLASS TakeTurn<Taker@Player> : Signal, System {
-  This IF MAX 0 ActionPhase OR ImAwake<Taker@>: NewTurn<Taker@>, FINALLY { TurnOver<Taker@> }
-}
+"Invites a player to take a turn; the phase answers, or the player's RoundStatus in the action phase"
+CLASS TakeTurn<Taker@Player> : Signal, System
 
 "Completes a player's turn in seat order after its work has finished"
 CLASS TurnOver<Player> : Signal, System
@@ -222,6 +222,8 @@ ABSTRACT CLASS RoundStatus : Owned<Player>
 
 "Lets a player take action-phase turns until they pass"
 CLASS ImAwake<ActionPhase> : RoundStatus, System {
+  TakeTurn<Me@>: NewTurn, FINALLY { TurnOver<Me@> }
+
   NewTurn IF MAX 0 RequiredAction: StandardAction OR Pass
   NewTurn IF RequiredAction: RequiredActionsSignal OR Pass
   TurnOver<Me@> IF 2 ImAwake<Player>, MAX 0 RequiredAction: StandardAction?

@@ -93,8 +93,9 @@ The owner is willing to change Head Start's timing to avoid requiring nested tur
 3. Resume the normal Prelude sequence from where it stopped.
 
 Two tokens could record the owed turns. Their names and implementation are undecided; express the
-entitlement and its consumption through ordinary rules, without teaching Kotlin about Head Start. This is explicit permission to explore those entitlement components, not a general
-return to components used only to schedule arbitrary continuations.
+entitlement and its consumption through ordinary rules, without teaching Kotlin about Head Start.
+This is explicit permission to explore those entitlement components, not a general return to
+components used only to schedule arbitrary continuations.
 
 This is a deliberate variant, not a claim of exact published timing. Money and steel, and all
 consequences of the basic instructions, must resolve before either extra turn. In particular, the
@@ -134,19 +135,20 @@ flow on or off.
   its end is `FINALLY` work, and all pending `FINALLY` work becomes ordinary together. A handoff
   dispatched as the Corporation, Prelude, Action, or final greenery phase began would therefore run
   after its first turn; these phases instead say what follows each turn.
-- **Turn order.** `TakeTurn<P>` gives `NewTurn<P>` and dispatches `FINALLY { TurnOver<P> }`,
-  unless `P` has passed in the action phase; each phase with turns says what follows `TurnOver`.
-  `NextPlayer<P>` passes play to the next seat through `AfterMe`. Outside the action phase,
-  reaching the start player again is `RoundOver`; with one player, `NextPlayer` is always
-  `RoundOver`. These signals take a Player argument rather than an owner, so their work stays with
-  Admin, as it must for Players who do not autoexecute.
+- **Turn order.** `TakeTurn<P>` only invites `P` to take a turn; whatever governs that player's
+  turns answers it. The corporation, Prelude, and final greenery phases give `NewTurn<P>` and
+  dispatch `FINALLY { TurnOver<P> }`, and each says what follows `TurnOver`. In the action phase
+  the player's `RoundStatus` answers instead. `NextPlayer<P>` passes play to the next seat through
+  `AfterMe`. Outside the action phase, reaching the start player again is `RoundOver`; with one
+  player, `NextPlayer` is always `RoundOver`. These signals take a Player argument rather than an
+  owner, so their work stays with Admin, as it must for Players who do not autoexecute.
 - **Round status drives the action phase.** Each player has at most one `RoundStatus`: `ImAwake`
   while they may still act in the action phase, or `Pass` once they have passed. The action phase
-  wakes every player who has not passed. `ImAwake` supplies each turn's choices; when the turn ends
-  it offers a second action and then `NextPlayer` while another player is awake, and otherwise
-  another turn. `Pass` replaces its owner's `ImAwake` and passes play on, both when the passing
-  turn ends and whenever that player's turn comes round again. Production begins at the first
-  `TurnOver` with nobody awake. Play goes around the table without `RoundOver`.
+  wakes every player who has not passed. `ImAwake` gives its owner each turn and supplies the turn's
+  choices; when the turn ends it offers a second action and then `NextPlayer` while another player
+  is awake, and otherwise another turn. `Pass` replaces its owner's `ImAwake` and passes play on,
+  both when the passing turn ends and whenever that player's turn comes round again. Production
+  begins at the first `TurnOver` with nobody awake. Play goes around the table without `RoundOver`.
 - **Modules own phase order.** The corporation phase ends in `RoundOver`. `NoPreludes`, selected in
   every game without Prelude, then begins the first `ActionPhase`; `PreludeExpansion` begins
   `PreludePhase` instead, whose own `RoundOver` begins the action phase. Expansions add their solar
@@ -395,6 +397,10 @@ while P2's payment remains.
   2026-10-12, once nested `LATER` proved to need either a depth rule or a lowest band, he chose
   `FINALLY`, so that turns and phases can advance through authored rules. Keeping
   Terraforming Mars-specific Kotlin such as `TfmWorkflow` was out of the question; it is deleted.
+- **Present components answer.** On 2026-10-13 the owner asked that active behavior come from
+  components that are present rather than from conditions: an effect that relies on a player not
+  having passed belongs on `ImAwake`, so its presence says so. `TakeTurn` therefore has no rule of
+  its own.
 - **Game flow.** On 2026-10-12 the owner ruled that the Pets model must never be shaped by turning
   the flow on or off, that tests be either clear sandbox or clear gameplay scenarios, and that
   modules contribute phase order without a central orchestrator. He proposed `NoPreludes` so that

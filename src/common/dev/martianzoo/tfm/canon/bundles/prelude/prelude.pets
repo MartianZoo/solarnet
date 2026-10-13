@@ -15,6 +15,7 @@ CLASS SelectablePreludeCount : System
 
 CLASS PreludePhase : Phase {
   This: EACH Starter@Player(HAS StartToken) { TakeTurn<Starter@> }
+  TakeTurn<@Player>: NewTurn<@Player>, FINALLY { TurnOver<@Player> }
 
   NewTurn IF PreludeCard<Hand>: PlayPrelude
   // Each player plays all of their preludes on consecutive turns.
