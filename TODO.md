@@ -117,10 +117,9 @@ These concerns remain open; the ranking does not select replacement designs.
   the track can validly reset to zero. Queueing the initial marker with `BY Admin` left a player
   task in a replay; making every marker `System` changed later trade handling. Keep the current
   automatic gain until the marker's task ownership is clear.
-- [ ] Review the `Current<GlobalEvent>` to `GlobalEffect` relationship. Gaining `Current` creates
-  its effect automatically, but the effect depends on the event rather than `Current`; removing
-  `Current` alone appears to leave that effect active. Choose a single owner relationship that
-  covers both directions before changing the 36 event declarations.
+- [ ] Restore Global Event English rendering for player-owned `GlobalEffect` signals and the
+  `This IF StartToken` clauses that apply a shared effect once. The stale renderer, generated
+  snapshot, and comparison report are disabled; retain the published wording evidence.
 
 - [ ] Extend the build-time Canon invariant checks to indirect special-tile gains behind
   signals or supporting components (`GainsOf`; entry 15 of

@@ -67,9 +67,12 @@ CLASS RevealDistantEvent : Barrier, System {
   This: GlobalEvent THEN -This!
 }
 
-"The lower half of the current Global Event, removed with its card"
-ABSTRACT CLASS GlobalEffect<GlobalEvent> {
-  HAS MAX 1 GlobalEffect
+"The lower half of a Global Event, resolved separately for each player"
+ABSTRACT CLASS GlobalEffect : Owned<Player>, Signal, System
+
+"The effect chosen by the current Global Event card, waiting for the solar phase"
+CLASS PendingGlobalEffect<Current<GlobalEvent>, Class<@GlobalEffect>> : System {
+  ResolveGlobalEvent: EACH Me@Player { @GlobalEffect }
 }
 
 "Resolves the active Global Effect"

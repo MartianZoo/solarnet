@@ -172,8 +172,9 @@ pays its owner when someone trades — Productive Outpost says "gain all your co
 
 Global Event cards use their upper printed title, such as `ExperimentalLifeforms`; their
 `GlobalEffect` uses the lower title, such as `EcoSabotage`. The card creates its effect with
-`Current<This>:: EcoSabotage<This>`. The effect depends on that card and disappears when the card
-is discarded; only the active effect listens to the untargeted `ResolveGlobalEvent` signal.
+`Current<This>:: PendingGlobalEffect<Current<This>, Class<EcoSabotage>>`. The pending component
+depends on `Current` and disappears with it. When `ResolveGlobalEvent` fires, that component
+creates one player-owned `EcoSabotage` signal per player.
 The titles come from the [physical card scans](https://tm.hadronikle.com/).
 
 Printed-name collisions retain the smallest category qualifier: `SolarnetGlobalEvent` and

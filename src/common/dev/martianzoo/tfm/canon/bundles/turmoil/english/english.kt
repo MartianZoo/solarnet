@@ -25,8 +25,6 @@ internal val turmoilEnglishDeclarations: List<Pair<ClassName, ComponentDescriber
                         "preservation resources",
                     )
             ),
-        cn("RemoveOceanForGlobalEvent") to
-            ComponentDescriber(changeFrame = Frame.Procedure("remove", "an ocean tile")),
         cn("Ruling") to
             ComponentDescriber(
                 requirementCondition = Condition.ArgumentState(rulingParty, "is ruling"),
