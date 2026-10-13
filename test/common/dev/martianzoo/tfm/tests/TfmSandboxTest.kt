@@ -71,6 +71,12 @@ internal abstract class TfmSandboxTest : TfmTest() {
           }
           game
         }
+    // Move the prepared world to the newest position before evicting the oldest.
+    preparedWorlds.remove(key)
+    preparedWorlds[key] = prepared
+    if (preparedWorlds.size > MAX_PREPARED_WORLDS) {
+      preparedWorlds.remove(preparedWorlds.keys.first())
+    }
     game = Engine.fork(prepared)
     bindPlayers()
     players.forEach { it.autoExecPolicy = NONE }
@@ -231,6 +237,8 @@ internal abstract class TfmSandboxTest : TfmTest() {
   }
 
   private companion object {
+    private const val MAX_PREPARED_WORLDS = 8
+
     private const val BASE_GAME_OPTIONS =
         "CorporateEraExpansion, VenusNextExpansion, ColoniesExpansion, " +
             "promos:cards, BeginnerVariant, QuickStartVariant"
@@ -238,6 +246,6 @@ internal abstract class TfmSandboxTest : TfmTest() {
     private val PLAYER_NAMES = listOf("Kim", "Stan", "Rob", "Maya", "Nadia")
 
     private val preparedWorlds =
-        mutableMapOf<Pair<Triple<String, Int, ClassName?>, Boolean>, World>()
+        linkedMapOf<Pair<Triple<String, Int, ClassName?>, Boolean>, World>()
   }
 }
