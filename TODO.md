@@ -32,10 +32,11 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Physical game conversion — 2026-10-09
 
-- [ ] Continue `OtbGame20261009Test` when the next recording is supplied. The current replay
-  covers generations 1–8 and stops before generation 9 Research. Preserve its explicit
-  `doTasks(...)` style, disabled player autoexecution, and automatic Admin.
-  Original evidence and remaining source limits are in `_local/replays/Game20261009/sources.md`.
+- [ ] If a final score sheet or player recollection becomes available, resolve the
+  one-point difference between Pink's spoken 138 and the completed replay's 139.
+  The replay agrees with the recorded winner and all sourced resource checkpoints;
+  its six score categories and the available source limits are in
+  `_local/replays/Game20261009/sources.md`.
 
 ## Consensus top five project concerns — 2026-10-08
 
