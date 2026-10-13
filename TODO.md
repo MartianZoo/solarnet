@@ -18,6 +18,42 @@ Keep tasks brief; linked notes and tests carry the background.
 - [ ] Keep gated System work with Admin when its gate becomes available. Simplify the extra player
   selections in `Game20230521Test` and `HeadStartTest` through general task handling.
 
+- [ ] Let Admin settle its available work before a nested cross-Actor Agent call returns; the Pluto
+  scenario in `ColoniesRulesTest` uses separate top-level calls instead. Draining every nested call
+  changed source-backed replay outcomes, so first determine which calls form complete decisions.
+
+## Task dispatch
+
+- [ ] Separate task selection from execution: with autoexecution disabled, selecting a concrete task
+  currently executes it. Revisit Agent contracts, handoffs, continuations, and replay `CHOOSE`
+  commands together.
+- [ ] When a Canon card needs an open `TASK` recipient, make the recipient and the body's `Me` one
+  shared choice, reusing existing Type-variable machinery if it can serve.
+- [ ] Decide whether Agent task submissions must give concrete amounts (`-8 Heat`) rather than
+  arithmetic over `Owed`.
+
+## Game flow
+
+- [ ] Reconsider the operation-completion rule: an operation's work is over once the World's
+  `FINALLY` work has begun since its last decision. It is judged from the event log against
+  `AutoExecLoop.lastDecision`, which is Agent-side state shared by every Actor, so a nested
+  cross-Actor call moves it. See [operation completion](docs/agents/SEQUENCING.md#operation-completion).
+- [ ] Check for game end at the end of `ProductionPhase`, not as it begins. Its `IF GameEndBarrier`
+  gates are evaluated when the phase is gained; the check could instead be part of the phase's own
+  `FINALLY` work.
+- [ ] Give the Corporation, Prelude, and final greenery phases a shared abstract phase class for
+  their repeated turn-order rules (`EACH Starter@Player(HAS StartToken) { TakeTurn<Starter@> }` and
+  the `TakeTurn` answer).
+- [ ] Verify event tag lifetimes through deferred consequences. An event's `LATER` flip is promoted
+  together with other `LATER` work and can precede consequences that work generates; the deleted
+  `Temporary` sweep waited for all tasks. No Canon case is known.
+- [ ] Evaluate lowering the on-turn player's waiting work during an explicitly handed-off response,
+  including Admin billing and payment descendants. Compare it with a complete payment-allocation
+  decision, including same-player payment.
+- [ ] When implementing the [Head Start variant](docs/agents/SEQUENCING.md#head-start-acceptable-variant-to-pursue),
+  give each owed turn through `TakeTurn`, so that it waits for the previous turn's `LATER` cleanup;
+  nested `LATER` alone lets the next action run first.
+
 ## Game files
 
 - [ ] Derive game-file card inputs from typed movements and `Cards:` notes; verify full and short
@@ -36,8 +72,8 @@ Keep tasks brief; linked notes and tests carry the background.
 2. Make payment validation consistent across gameplay and REPL execution, and settle only the
    intended bill. Check `PharmacyUnionTest`'s missing disease penalties. See
    [payments](docs/agents/PAYMENTS.md).
-3. Move phase, expansion, and turn rules from Kotlin orchestration into Pets; define callback
-   failure behavior. See the [Solarnet roadmap](SOLARNET_ROADMAP.md#internal-design-and-game-execution).
+3. Give turns a lasting scope through authored rules, now that the [game flow](docs/agents/SEQUENCING.md#game-flow)
+   is in Pets; define callback failure behavior. See the [Solarnet roadmap](SOLARNET_ROADMAP.md#internal-design-and-game-execution).
 4. Support valid task shapes in the player-choice API and surface code faults during availability
    checks. See [TaskForm below](#autonomous-follow-ups) and [engine notes](docs/agents/ENGINE.md#actor-engines-and-agents).
 5. Repair specified Pets composition failures, including owner-local specialization. See
@@ -56,10 +92,9 @@ Keep tasks brief; linked notes and tests carry the background.
 
 - Give beginner and standard players the same ten-card `Selecting` offer. Let the beginner
   corporation take it for free, retain `NonBeginnerMode`'s discard, and source starting TR from
-  `MultiplayerMode` or `SoloMode`. Resolve per-Player task ownership first.
-- Make `ResearchPhase` provide each Player's four-card offer and discard. Resolve per-Player task
-  routing without replay-specific context matching.
-- Decide whether `EACH Player { A } THEN B` should be rejected when fanout has no join.
+  `MultiplayerMode` or `SoloMode`. Dispatch each Player's choice with `TASK`.
+- Make `ResearchPhase` provide each Player's four-card offer and discard, dispatching each Player's
+  choice with `TASK` and without replay-specific context matching.
 - Consider renaming automatic (`::`) effects to “immediate.”
 
 - Replace `PartyRequirement` with its Pets condition: ruling party or at least two of your delegates.
@@ -87,9 +122,9 @@ Keep tasks brief; linked notes and tests carry the background.
   [fixture notes](docs/agents/TESTING.md#remaining-fixture-development).
 - [ ] Investigate automatic attack-history effects separately; test migration does not justify
   changing the effects used by Law Suit and Crash Site Cleanup.
-- [ ] Enforce the workflow's offered turn order in `TfmGameplayTest`; `Agent.inTurn` can currently
+- [ ] Enforce the game's offered turn order in `TfmGameplayTest`; `Agent.inTurn` can currently
   start a turn while another Player's turn is pending.
-- [ ] Move remaining `.cards` workflow tests from `TfmGameplay` helpers to explicit `Agent` tasks.
+- [ ] Move remaining `.cards` gameplay tests from `TfmGameplay` helpers to explicit `Agent` tasks.
 - Distinguish counting Venus tags from carrying one in card availability. Io Sulphur Research should
   work without Venus Next; cards bearing Venus tags should still require it.
 - [ ] Continue the [adversarial-play design](docs/agents/ADVERSARIAL.md): settle acceptance, card
@@ -185,8 +220,6 @@ Keep tasks brief; linked notes and tests carry the background.
   individual selection.
 - Replace `ModulesReady` by entering `BootstrapPhase` after premise components exist. Revisit
   `Initializer` order and the `AfterMe` cycle; see [engine notes](docs/agents/ENGINE.md).
-- Replace `FinalScoringPending` with a `FinalScoringPhase` whose work completes before terminal
-  `End` assigns victory.
 - Replace the duplicated `TemperatureStep BY Player`/`BY Admin` threshold-ocean triggers and the
   synthetic `AdminOceanPlacement` signal with one rule that separates who chooses the tile from
   whose action the placement is attributed to, shared by the standard and extended tracks.
@@ -208,7 +241,7 @@ Keep tasks brief; linked notes and tests carry the background.
   Type's compact expression, and its full expression. Keep syntax expressions universe-independent;
   converting an arbitrary expression to either resolved form must take a `ClassTable` explicitly.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
-  the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
+  the exact lifecycle it denotes, including atomic calls, task completion, and turn-order play.
 - **Low priority:** [#54: ownership-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)
   — Resolve contextual ownership correctly and display the resolved player.
 - Consider requirement-gated action costs, using United Nations Mars Initiative to make

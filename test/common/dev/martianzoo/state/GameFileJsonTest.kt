@@ -18,7 +18,7 @@ internal class GameFileJsonTest {
     val catalog = testCatalog("CLASS Token : System")
     val premise = catalog.gamePremise(GameConfig("Token"))
     GameFingerprint.catalog(catalog) shouldBe
-        "08f825a6483e4b1e36e50394bbb8958a2731b04fa5f04ae2349a96bb59038925"
+        "2742ba3dbbbe1fbc59b340784da6cf438cade2a7b970ae8162b36bf2d9243410"
     GameFingerprint.premise(premise) shouldBe
         "cc5e77f88ca5b097573a30bc0273b7d95bfa4a39c16211f8f5efaf7c0cdc5a53"
   }
@@ -33,7 +33,7 @@ internal class GameFileJsonTest {
     val recording = GameRecording(premise, listOf(event), listOf(Checkpoint(0), Checkpoint(1)))
     val inputs =
         listOf(
-            RecordedInput.StartWorkflow("test-workflow"),
+            RecordedInput.StartGame,
             RecordedInput.Command(ADMIN, RecordedInput.Kind.EX_MACHINA, "2 Token"),
         )
 
@@ -50,7 +50,7 @@ internal class GameFileJsonTest {
     val catalog = testCatalog("CLASS Token : System")
     val premise = catalog.gamePremise(GameConfig("Token"))
     val recording = GameRecording(premise, emptyList(), listOf(Checkpoint(0)))
-    val inputs = listOf(RecordedInput.StartWorkflow("test-workflow"))
+    val inputs = listOf(RecordedInput.StartGame)
 
     val file = GameFileJson.parse(GameFileJson.encode(recording, inputs, short = true))
     file.hasEvents shouldBe false
@@ -63,10 +63,7 @@ internal class GameFileJsonTest {
     val catalog = testCatalog("CLASS Token : System")
     val premise = catalog.gamePremise(GameConfig("Token"))
     val recording = GameRecording(premise, emptyList(), listOf(Checkpoint(0)))
-    val file =
-        GameFileJson.parse(
-            GameFileJson.encode(recording, listOf(RecordedInput.StartWorkflow("test-workflow")))
-        )
+    val file = GameFileJson.parse(GameFileJson.encode(recording, listOf(RecordedInput.StartGame)))
     val enlargedCatalog = testCatalog("CLASS Token : System\nCLASS Spare : System")
 
     shouldThrow<IllegalArgumentException> { file.premise(enlargedCatalog) }
@@ -80,7 +77,7 @@ internal class GameFileJsonTest {
         GameFileJson.parse(
             GameFileJson.encode(
                 GameRecording(premise, emptyList(), listOf(Checkpoint(0))),
-                listOf(RecordedInput.StartWorkflow("test-workflow")),
+                listOf(RecordedInput.StartGame),
             )
         )
 
@@ -111,12 +108,11 @@ internal class GameFileJsonTest {
         GameFileJson.parse(
             GameFileJson.encode(
                 GameRecording(premise, emptyList(), listOf(Checkpoint(0))),
-                listOf(RecordedInput.StartWorkflow("test-workflow"), input),
+                listOf(RecordedInput.StartGame, input),
                 short = true,
             )
         )
 
-    file.inputs(file.premise(premise.catalog)) shouldBe
-        listOf(RecordedInput.StartWorkflow("test-workflow"), input)
+    file.inputs(file.premise(premise.catalog)) shouldBe listOf(RecordedInput.StartGame, input)
   }
 }

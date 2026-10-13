@@ -17,11 +17,8 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
       selectTask("-X? Steel")
       doTasks("Ok", "Cathedral<CityTile<Anyone, Tharsis_4_2>>")
       selectOnlyTask()
-      selectOnlyTask()
       stan.doTasks("UseAction<CathedralOption, Action1>")
-      selectTask("-X? MC<Stan>")
       stan.doTasks("-2 MC")
-      selectTask("ProjectCard<Stan, Hand>!")
       stan.doTasks("ProjectCard")
     }
   }
@@ -37,7 +34,6 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
       doTasks("UseCardAction<StJosephOfCupertinoMission, Action1>", "-5 MC")
       selectTask("-X? Steel")
       doTasks("Ok", "Cathedral<CityTile<Anyone, Tharsis_2_5>>")
-      selectOnlyTask()
       selectOnlyTask()
       stan.doTask("Ok")
     }

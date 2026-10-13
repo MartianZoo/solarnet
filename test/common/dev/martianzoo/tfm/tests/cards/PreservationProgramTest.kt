@@ -146,7 +146,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     stan.pass()
 
     kim.pass()
-    admin.count("VenusSolarPhase") shouldBe 1
+    admin.count("SolarPhase") shouldBe 1
     kim.count("Preservation<$Pristar>") shouldBe 0
   }
 
@@ -176,7 +176,7 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     kim.stdProject("AsteroidProject")
 
     kim.pass()
-    admin.count("VenusSolarPhase") shouldBe 1
+    admin.count("SolarPhase") shouldBe 1
     kim.count("Preservation<$Pristar>") shouldBe 0
   }
 

@@ -131,14 +131,19 @@ the existing transform model should be assessed before assuming a new public rep
 
 ## 7. Task priorities, point events, and cleanup lifetime
 
-**Working runtime direction with Pets consequences.**
+**Deferral made; point events and lifetime remain direction.**
 
-The [priority design](docs/agents/SEQUENCING.md#task-priority-working-direction) needs a Pets
-spelling for settlement and workflow work. A new instruction wrapper or effect attribute would
-affect public `Instruction`/`InstructionTree` or `Effect` construction and interpretation.
+[Deferred work](docs/agents/SEQUENCING.md#deferred-work) added `LATER` and `FINALLY` beside
+`TASK` (language rules L2-17 to L2-19): the public `Instruction.Dispatch` node and `Deferral` enum,
+`Task.deferral`, and the reserved keywords `TASK`, `LATER`, and `FINALLY`. A class or transform
+kind spelled with one of those keywords is no longer accepted, and no dispatch may appear in an
+automatic effect.
+The same change deleted `Temporary`, `TemporaryScope`, and `SystemClasses.TEMPORARY`; a custom
+declaration that extended either class, or a Kotlin caller of the constant, must change. Canon
+lost `TradeBarrier`, `TurmoilSolarOperation`, and `FinalScoringPending` and gained `VictoryPhase`.
 
-The same design considers deleting `Temporary` and `TemporaryScope`. The Pets roadmap separately
-calls for truthful point events and independent lifetime and log visibility. These changes reach
+The Pets roadmap separately calls for truthful point events and independent lifetime and log
+visibility. These changes reach
 [`systemClassDeclarations`](src/common/dev/martianzoo/pets/SystemDeclarations.kt),
 [`SystemClasses`](src/common/dev/martianzoo/pets/api/SystemClasses.kt), and their exported
 inheritance contracts: for example, `Signal` currently inherits `MustCleanUp` and has no `Real` classification.
@@ -220,15 +225,12 @@ identify these removals or representation changes:
   Actor-value reuse machinery.
 - `ModulesReady`, replaced by correctly timed `BootstrapPhase` entry. This also changes the
   construction-order promise currently documented on `GamePremise.bootstrapClassName`.
-- `FinalScoringPending`, replaced by a real `FinalScoringPhase`; associated `MeasureAward` and
-  victory scheduling would change.
 - `AdminOceanPlacement`, replaced by a rule separating chooser and attribution.
 - `PartyLeader`'s name or representation, and possibly `ApplyRulingBonus` ownership.
 - Named helpers `CimmeriaPlacementBonus`, `PlaceNeutralTiles`, and `StageForReplicatedProject`.
 - `ProdOffset`, whose inline TODO proposes `ProductionBasement`. This also reaches the public
   Kotlin constant `TfmClasses.PROD_OFFSET`.
-- Singleton watchers and deferred-work devices such as `TradeBarrier` and
-  `TurmoilSolarOperation`, if general rules make them unnecessary.
+- Singleton watchers, if general rules make them unnecessary.
 
 Even when no public Kotlin class has the corresponding name, consumers can name these declarations
 through the public ClassTable and parsing APIs. Changed names, supertypes, or dependency arguments
@@ -275,7 +277,7 @@ the latter still inherits effects from Catalog and Canon changes. Generator/tool
 points and their dependencies may move, and renaming `pets-tools` to `tools` is tracked for after
 the split. That module/task-name change is distinct from a Kotlin type or function redesign.
 
-Runtime-only changes to `World`, `Instructor`, `LiveEffect`, Agents, workflow callbacks, recordings,
+Runtime-only changes to `World`, `Instructor`, `LiveEffect`, Agents, recordings,
 and test fixtures do not qualify on their own because those APIs are staying in Solarnet. Pure
 documentation, build-runner updates, and ordinary defect repairs likewise do not establish a need
 to redesign the moving APIs.

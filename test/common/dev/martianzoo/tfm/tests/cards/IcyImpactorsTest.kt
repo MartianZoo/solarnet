@@ -17,7 +17,6 @@ internal class IcyImpactorsTest : TfmSandboxTest() {
           doTask("UseCardAction<IcyImpactors, Action2>")
           selectOnlyTask()
           selectOnlyTask()
-          selectOnlyTask()
           kim.doTask("OceanTile<Tharsis_2_6> BY Stan")
           selectOnlyTask()
           doTask("TerraformRating")

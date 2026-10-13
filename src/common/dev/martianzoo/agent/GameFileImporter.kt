@@ -18,8 +18,8 @@ import dev.martianzoo.state.Task.TaskId
 public object GameFileImporter {
   /**
    * Checks the Catalog and resolved premise before creating a live game. [newAgents] provides the
-   * game's runtime classes; [startWorkflow] launches the recorded workflow. A full file also checks
-   * every component change and pending task after replay, ignoring internal event ordinals and
+   * game's runtime classes; [startGame] starts the recorded game. A full file also checks every
+   * component change and pending task after replay, ignoring internal event ordinals and
    * intermediate task revisions. Change commentary from the file is retained on matching live
    * changes; commentary produced by the live game must appear verbatim in the recorded note.
    */
@@ -27,7 +27,7 @@ public object GameFileImporter {
       document: GameFileJson.Document,
       catalog: Catalog,
       newAgents: (GamePremise) -> Agents,
-      startWorkflow: (Agents, String) -> Unit,
+      startGame: (Agents) -> Unit,
       supplyCardInputs: ((Agents, List<RecordedInput.CardInput>) -> Unit)? = null,
   ): Agents {
     val premise = document.premise(catalog)
@@ -36,7 +36,7 @@ public object GameFileImporter {
     TaskLog.replay(
         document.inputs(premise),
         agents,
-        startWorkflow = { startWorkflow(agents, it) },
+        startGame = { startGame(agents) },
         supplyCardInputs = { command ->
           requireNotNull(supplyCardInputs) { "card identities have no input supplier" }(
               agents,
@@ -48,8 +48,11 @@ public object GameFileImporter {
       val actual = agents.world.recording()
       val sourceChanges = source.events.filterIsInstance<GameEvent.ChangeEvent>()
       val actualChanges = actual.events.filterIsInstance<GameEvent.ChangeEvent>()
-      val sourceByChange = sourceChanges.groupBy { signature(source.events, it) }
-      val actualByChange = actualChanges.groupBy { signature(actual.events, it) }
+      val sharedSignatures = mutableMapOf<ChangeSignature, Int>()
+      val sourceSignatures = signatures(sourceChanges, sharedSignatures)
+      val actualSignatures = signatures(actualChanges, sharedSignatures)
+      val sourceByChange = sourceChanges.groupBy { sourceSignatures.getValue(it.ordinal) }
+      val actualByChange = actualChanges.groupBy { actualSignatures.getValue(it.ordinal) }
       check(
           sourceByChange.mapValues { it.value.size } == actualByChange.mapValues { it.value.size }
       ) {
@@ -77,8 +80,8 @@ public object GameFileImporter {
         "replayed final components differ: expected only ${expectedComponents - actualComponents}; actual only ${actualComponents - expectedComponents}"
       }
       check(
-          pending(passive.tasks.extract { it }, source.events) ==
-              pending(agents.world.tasks.extract { it }, actual.events)
+          pending(passive.tasks.extract { it }, sourceSignatures) ==
+              pending(agents.world.tasks.extract { it }, actualSignatures)
       ) {
         "replayed pending tasks differ"
       }
@@ -89,28 +92,35 @@ public object GameFileImporter {
   private data class ChangeSignature(
       val actor: Actor,
       val change: ComponentChange,
-      val cause: List<Triple<Expression, Actor, ComponentChange>>,
+      val cause: Pair<Expression, Int>?,
   )
 
-  private fun signature(events: List<GameEvent>, event: GameEvent.ChangeEvent): ChangeSignature =
-      ChangeSignature(event.actor, event.change, causeHistory(events, event.cause))
-
-  private fun causeHistory(
-      events: List<GameEvent>,
-      cause: Cause?,
-  ): List<Triple<Expression, Actor, ComponentChange>> {
-    if (cause == null) return emptyList()
-    val trigger = events[cause.triggerEvent] as GameEvent.ChangeEvent
-    return listOf(Triple(cause.context, trigger.actor, trigger.change)) +
-        causeHistory(events, trigger.cause)
+  // Intern both histories together: a cause points to its trigger's signature, preserving the
+  // complete ancestry without copying an increasingly long list for every change in a game.
+  private fun signatures(
+      changes: List<GameEvent.ChangeEvent>,
+      shared: MutableMap<ChangeSignature, Int>,
+  ): Map<Int, Int> {
+    val byOrdinal = mutableMapOf<Int, Int>()
+    changes.forEach { event ->
+      val signature =
+          ChangeSignature(event.actor, event.change, causeSignature(event.cause, byOrdinal))
+      byOrdinal[event.ordinal] = shared.getOrPut(signature) { shared.size }
+    }
+    return byOrdinal
   }
+
+  private fun causeSignature(
+      cause: Cause?,
+      signatures: Map<Int, Int>,
+  ): Pair<Expression, Int>? = cause?.let { it.context to signatures.getValue(it.triggerEvent) }
 
   private fun pending(
       tasks: List<Task>,
-      events: List<GameEvent>,
-  ): Map<Pair<Task, List<Triple<Expression, Actor, ComponentChange>>>, Int> =
+      signatures: Map<Int, Int>,
+  ): Map<Pair<Task, Pair<Expression, Int>?>, Int> =
       tasks
-          .map { it.copy(id = TaskId(0), cause = null) to causeHistory(events, it.cause) }
+          .map { it.copy(id = TaskId(0), cause = null) to causeSignature(it.cause, signatures) }
           .groupingBy { it }
           .eachCount()
 }

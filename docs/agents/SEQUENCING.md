@@ -5,9 +5,9 @@
 > **Read when:** designing turns and offers, Head Start timing, task order, delegated control,
 > `THEN`, automatic effects, cleanup, task priority, or how later work waits for earlier work.
 >
-> **Status:** current contracts, a verified missing completion rule, selected turn semantics, and
-> proposed task-priority machinery. This note owns sequencing design decisions; unimplemented
-> behavior is labeled separately. The [roadmap](../../SOLARNET_ROADMAP.md) indexes the work.
+> **Status:** current contracts, including deferred work; a verified missing completion rule; and
+> selected turn semantics. This note owns sequencing design decisions; unimplemented behavior is
+> labeled separately. The [roadmap](../../SOLARNET_ROADMAP.md) indexes the work.
 
 ## Current model
 
@@ -20,10 +20,13 @@ meaning.
 - `A THEN B` admits B after A's task finishes, without waiting for A's queued reactions.
 - `A:: B` executes B inline before queued effects of A are evaluated.
 - A component gate can make an instruction unavailable until its prerequisites hold.
+- `TASK R { B }` dispatches B as R's work; `LATER { B }` and `FINALLY { B }` dispatch B as work
+  that waits until no ordinary work, or no ordinary and `LATER` work, remains in the World.
 
-There is no general task priority or exclusive interaction spanning several tasks. An Agent may
-choose among its available tasks; policy cannot supply a missing game rule.
-[Task priority](#task-priority-working-direction) is the working direction for deferred work.
+Deferral is the only task priority, and there is no exclusive interaction spanning several tasks.
+The turn order and every phase change are authored rules; see [Game flow](#game-flow).
+An Agent may choose among its available tasks; policy cannot supply a missing game rule.
+[Deferred work](#deferred-work) owns the rules.
 
 ## Turns and turn offers
 
@@ -32,7 +35,8 @@ envelope of a player's accepted opportunity and its resolution. Consecutive turn
 the same player. Do not call this an action scope, move, or turn segment. This deliberately differs
 from the published game's terminology: its action-phase turn of up to two actions becomes up to
 two consecutive turns here. Preserve when play advances to the next player; the terminology change
-does not grant additional opportunities.
+does not grant additional opportunities. Tests accept the difference: `TfmGameplay.turn { }`
+groups a published turn of one or two actions, which can be two turns in this sense.
 
 ### Offering, taking, and finishing a turn
 
@@ -44,8 +48,9 @@ does not grant additional opportunities.
 - A turn lasts through payment, effects, placement bonuses, other players' responses, and resulting
   work and cleanup. Completion of the initiating task alone does not finish the turn.
 - This first/second offer rule describes ordinary action-phase rotation. It does not make
-  corporation plays, Prelude plays, or Head Start's mandatory grants optional. Preserve the
-  workflow's treatment of the last unpassed player without inventing additional turn groupings.
+  corporation plays, Prelude plays, or Head Start's mandatory grants optional. Keep offering the
+  last unpassed player a fresh first offer after each turn, without inventing additional turn
+  groupings.
 
 The intended units are:
 
@@ -88,9 +93,9 @@ The owner is willing to change Head Start's timing to avoid requiring nested tur
 3. Resume the normal Prelude sequence from where it stopped.
 
 Two tokens could record the owed turns. Their names and implementation are undecided; express the
-entitlement and its consumption through ordinary rules, without teaching Kotlin workflow about
-Head Start. This is explicit permission to explore those entitlement components, not a general
-return to components used only to schedule arbitrary continuations.
+entitlement and its consumption through ordinary rules, without teaching Kotlin about Head Start.
+This is explicit permission to explore those entitlement components, not a general return to
+components used only to schedule arbitrary continuations.
 
 This is a deliberate variant, not a claim of exact published timing. Money and steel, and all
 consequences of the basic instructions, must resolve before either extra turn. In particular, the
@@ -104,9 +109,9 @@ may interleave with another player's response or payment within a turn.
 
 ### Remaining design work
 
-- Define acceptance and completion through authored rules and settlement. Current `NewTurn` and
-  `SecondAction` are signals, not lasting turn scopes; whole-World idle cleanup is not by itself
-  the new lifecycle. Coordinate with the task-priority direction without treating it as implemented.
+- Turn completion is authored now (`TurnOver`, under [Game flow](#game-flow)), but `NewTurn` is
+  still a signal, not a lasting turn scope. Define acceptance and a turn scope through authored
+  rules and settlement.
 - Keep turn identity separate from generic ability invocation: `UseAction` currently represents
   both normal actions and reactive offers. It must not automatically create a turn.
 - Reduce overloaded action names when changing the relevant APIs. `ActionSlot` / `Action1` /
@@ -115,6 +120,46 @@ may interleave with another player's response or payment within a turn.
 - Verify wild-tag allocation timing, Suitable Infrastructure, extra-turn ordering, and completion
   through cross-player responses before treating the model as implemented. Do not add nesting or
   a second scope representation without a concrete case that requires it.
+
+## Game flow
+
+The game's own rules carry play from `SetupPhase` to `VictoryPhase`. A client only starts the game
+(`TfmGameplay.startGame`, which performs `SetupPhase FROM BootstrapPhase`). Nothing turns the
+flow on or off.
+
+- **Phases without turns hand off when their work is done.** `SetupPhase`, `ProductionPhase`,
+  `SolarPhase`, `ResearchPhase`, and `End` each dispatch `FINALLY { Next FROM This }` as they begin.
+  Production hands off to `SolarPhase` while a `GameEndBarrier` exists, and otherwise signals
+  `CheckGameEnd`.
+- **Phases with turns hand off from their last turn.** A turn lasts through its `LATER` cleanup, so
+  its end is `FINALLY` work, and all pending `FINALLY` work becomes ordinary together. A handoff
+  dispatched as the Corporation, Prelude, Action, or final greenery phase began would therefore run
+  after its first turn; these phases instead say what follows each turn.
+- **Turn order.** `TakeTurn<P>` only invites `P` to take a turn; whatever governs that player's
+  turns answers it. The corporation, Prelude, and final greenery phases give `NewTurn<P>` and
+  dispatch `FINALLY { TurnOver<P> }`, and each says what follows `TurnOver`. In the action phase
+  the player's `RoundStatus` answers instead. `NextPlayer<P>` passes play to the next seat through
+  `AfterMe`. Outside the action phase, reaching the start player again is `RoundOver`; with one
+  player, `NextPlayer` is always `RoundOver`. These signals take a Player argument rather than an
+  owner, so their work stays with Admin, as it must for Players who do not autoexecute.
+- **Round status drives the action phase.** Each player has at most one `RoundStatus`: `ImAwake`
+  while they may still act in the action phase, or `Pass` once they have passed. The action phase
+  wakes every player who has not passed. `ImAwake` gives its owner each turn and supplies the turn's
+  choices; when the turn ends it offers a second action and then `NextPlayer` while another player
+  is awake, and otherwise another turn. `Pass` replaces its owner's `ImAwake` and passes play on,
+  both when the passing turn ends and whenever that player's turn comes round again. Production
+  begins at the first `TurnOver` with nobody awake. Play goes around the table without `RoundOver`.
+- **Modules own phase order.** The corporation phase ends in `RoundOver`. `NoPreludes`, selected in
+  every game without Prelude, then begins the first `ActionPhase`; `PreludeExpansion` begins
+  `PreludePhase` instead, whose own `RoundOver` begins the action phase. Expansions add their solar
+  work as triggers on the one `SolarPhase`, and Turmoil's waits under `LATER` for the rest.
+- **A turn given outside turn order has no continuation.** `NewTurn` alone is just a turn; only
+  `TakeTurn` attaches what follows. Sandbox scenarios and the REPL's manual modes take turns this
+  way. They leave the flow by dropping its pending tasks once, and then place phases ex machina
+  (`TfmGameplay.phase`). Placing a phase runs its automatic effects but not its queued rules, so a
+  placed action phase wakes every player without giving anyone a turn.
+- **Declining another final greenery is `Done<Phase>`.** A signal would vanish at once, before
+  `TurnOver` could read it, so `Done` instead lasts until its phase ends.
 
 ## Required promises
 
@@ -156,6 +201,8 @@ Distinguish precedence, synchronous consequences, exclusive control, completion,
 | `A: B` | A creates ordinary selectable B work. |
 | `A:: B` | B restores coherence before queued player work can proceed. |
 | `A THEN B` | A's task must finish before B is admitted. |
+| `A: LATER { B }` | B waits until no ordinary work remains in the World. |
+| `A: FINALLY { B }` | B waits until no ordinary or `LATER` work remains in the World. |
 | Committed precursor | A modifier needs an event before the final result exists. |
 | Specific latch | Known prerequisites must finish before later work becomes legal. |
 
@@ -168,10 +215,13 @@ repair ordering through `TfmGameplay`, policy settings, rendered-task matching, 
 Task normalization stores A as current work and B as its continuation. Shared unresolved Type
 variables can keep the stages together until narrowing supplies their value. When A finishes, B
 becomes ordinary pending work with no priority over siblings or A's reactions. The selected-task
-lock ends with A.
+lock ends with A. If A is transferred to Admin because it is a concrete System change, the engine
+dispatches B back to the Actor who had the task before that transfer. Work that must also wait for
+A's reactions is deferred instead; it waits for all other work in the World
+([deferred work](#deferred-work)).
 
-`EACH Player { A THEN B }` gives each branch a continuation. `EACH Player { A } THEN B` does not
-join the branches or wait for their descendants; language rule L9-1 owns fanout semantics.
+`EACH Player { A THEN B }` gives each branch a continuation. `EACH Player { A } THEN B` is invalid:
+completing the `EACH` task admits independent branches and does not wait for them to finish.
 
 ## Automatic effects
 
@@ -203,8 +253,8 @@ The engine has no general completion rule for an interaction that spans queued w
 | Existing fact | What it measures |
 | --- | --- |
 | `THEN` | Completion of its current task. |
-| `Temporary` | Emptiness of the entire task pool. |
-| `Owed`, `Billing`, `TradeBarrier` | Prerequisites represented by a particular lifecycle. |
+| `LATER` | No pending work in the World except deferred work. |
+| `Owed`, `Billing` | Prerequisites represented by a particular lifecycle. |
 | An Actor's empty filtered view | All currently assigned work, including possibly unrelated work. |
 | A client task search | A recognized implementation pattern. |
 
@@ -212,8 +262,8 @@ These are not the same completion point. `Barrier` and `MustCleanUp` are checks,
 intervening selection.
 
 Neptunian Power Consultants demonstrates the interaction. P1 may hand an optional decision to P2,
-but the selected-task lock ends when that task finishes. Payment descendants return to P1's controller,
-and P1 can resume unrelated work while P2's payment remains unfinished. `FloodingTest` contains current
+but the selected-task lock ends when that task finishes. P1 can resume unrelated work while P2's
+payment remains unfinished. `FloodingTest` contains current
 observable characterizations, including resource changes that can make the payment fail;
 [`PAYMENTS.md`](PAYMENTS.md#verified-gaps) describes the payment-specific evidence.
 
@@ -229,7 +279,8 @@ operation is required. Local failure restores the enclosing transaction; agreeme
 already shared decisions or proceed after a disclosure belongs to [ADVERSARIAL.md](ADVERSARIAL.md).
 The external arrangement handles that agreement without making incorrect payment or cleanup
 calculations acceptable. The [turn design](#turns-and-turn-offers) records the intended enclosing
-lifecycle; [task priority](#operation-completion) proposes a whole-World completion rule.
+lifecycle; [operation completion](#operation-completion) states the whole-World rule that ends an
+operation.
 
 ## Cleanup
 
@@ -238,25 +289,22 @@ lifecycle; [task priority](#operation-completion) proposes a whole-World complet
 | `MustCleanUp` | State forbidden by operations that declare themselves complete. |
 | `Barrier` | `MustCleanUp` state removed by its owning game rule. |
 | `Signal` | An unscoped point event that removes itself automatically. |
-| `Temporary` | State removed when the entire task pool is empty. |
-| `TemporaryScope<Parent>` | A parent-dependent `Scope`, both `Temporary` and `MustCleanUp`. |
 
-After policy settlement, an empty global task pool lets the engine remove a concrete `Temporary`
-Type with no direct or indirect `Temporary` or `MustCleanUp` dependent. It settles resulting work
-and rechecks before further cleanup. The workflow completion callback follows this process.
+Nothing is removed merely because the World is idle. A component whose end is future work
+schedules that work as a deferred task: an event card's move to `PlayedEvent`, `L1GiftWatcher`'s
+removal, and `FakeWildTagUse`'s removal after its owner's next action. The owner performs each such
+task, so a test whose Players do not autoexecute performs it explicitly.
 
-Plain `Temporary` is not `MustCleanUp`: unrelated tasks can keep it alive across a narrower manual
-interaction. Event cards become `PlayedEvent` through idle cleanup, not an explicit end-of-turn
-task.
+## Deferred work
 
-## Task priority (working direction)
-
-**Working direction, not implemented.** The owner expects that one small priority concept may
-replace the deferred-work devices listed below; the proving cases decide whether it is adopted. An
-August 2026 version of this direction (commit `b074f54dd`) was replaced within days by
-`Idle<Player>` and `Yield<Player>` signal designs, then by whole-World `Temporary` cleanup. Each
-replacement moved deferred work back into components. Do not reintroduce a signal, marker, or
-continuation component for deferred work without the owner's direction.
+`LATER` and `FINALLY` ([language rules L2-18 and L2-19](../pets-language-spec.md#2-instructions))
+are the task priorities. Like `TASK` (L2-17), each dispatches its body as separate work, but that
+work waits: `LATER` work until no ordinary work remains in the World, and `FINALLY` work until no
+ordinary or `LATER` work remains. An August 2026 priority
+design (commit `b074f54dd`) was replaced within days by `Idle<Player>` and `Yield<Player>` signal
+designs, then by whole-World `Temporary` cleanup. Each replacement moved deferred work back into
+components. Do not reintroduce a signal, marker, or continuation component for deferred work
+without the owner's direction.
 
 ### Facts in components, future work in tasks
 
@@ -268,115 +316,121 @@ generic.
 The owner's proposed Head Start entitlement tokens are a specific design direction recorded in
 the [turn design](#head-start-acceptable-variant-to-pursue). They describe
 turns owed to a player; evaluate them with that game meaning rather than rejecting them solely
-because workflow will consume them. Their implementation remains open.
+because turn order will consume them. Their implementation remains open.
 
-Current devices:
+Devices replaced by deferral:
 
-| Device | Work it defers |
+| Former device | Deferred work now |
 | --- | --- |
-| `EventCard` as `Temporary` | The move to `PlayedEvent`, at an empty task pool |
-| `TradeBarrier` | `FinishTrade`, until every barrier the Trade received is removed |
-| `TurmoilSolarOperation` | `FormGovernment THEN ChangingTimes`, after TR revision and the current global event |
-| `FinalScoringPending`, `MeasureAward` | Award placement and `Victory`, after final-scoring work |
-| `TfmWorkflow.Automatic` with `World.onTransactionComplete` | The next phase or turn, from Kotlin, at World idle |
+| `EventCard` as `Temporary` | `This: LATER { PlayedEvent<Class<This>> FROM This* }`, performed by the owner |
+| `TradeBarrier` | `Trade`'s `This: LATER { FinishTrade<@ColonyTile> }` |
+| `TurmoilSolarOperation` | `SolarPhase: LATER { TurmoilPhase }`; `TurmoilPhase: ResolveGlobalEvent, LATER { FormGovernment THEN ChangingTimes }` |
+| `L1GiftWatcher` as `Temporary` | `LATER { -This! }` beside the gift fanout |
+| `FakeWildTagUse` as `Temporary` | `StandardAction: LATER { -This* }` and `PlayPrelude: LATER { -This* }` |
+
+`FinalScoringPending` and the `Temporary` `MeasureAward` were replaced by a phase instead: `End`
+scores, and the terminal `VictoryPhase` names the winner after that work has finished. With these
+conversions `Temporary`, `TemporaryScope`, and the engine's idle cleanup were deleted.
 
 Where the component also records a real fact, keep it and change only the timing. A played
-`EventCard` is in play, and its tags count, until it is flipped; only the flip becomes deferred
-work.
+`EventCard` is in play, and its tags count, until it is flipped; only the flip is deferred work.
 
-### Bands
+### Engine obligations
 
-| Band | Meaning |
-| --- | --- |
-| P0 | The selected task: the only task that may advance. |
-| P1 | Ordinary pending work: any P1 task may become the next P0. |
-| P2 | Settlement: work that completes the current operation after its ordinary consequences. |
-| P3 | Workflow: the next turn or phase. |
+The language rules state what deferral means. A task's deferral records which dispatch admitted it:
+`TASK`, `LATER`, or `FINALLY`. A selected task is always ordinary. Beyond those rules:
 
-P0 and P1 are the current model. P2 and P3 are new.
+- The engine performs a dispatch as soon as the work holding it is ordinary, as it releases a
+  `THEN` continuation: the body is admitted with the dispatch's deferral, and no task ever consists
+  of a dispatch alone. A dispatch in deferred work is performed when that work is promoted, before
+  any later deferral could be. Only promotion changes a task's deferral afterward; authored Pets
+  cannot defer or promote another task.
+- Deferral restricts selection only. It applies equally to explicit commands and autoexecution, and
+  it does not order tasks with the same deferral: legal sibling orders stay available.
+- Promotion edits the task's deferral. It rolls back with its transaction and is reproduced from
+  the event history.
 
-- **TP1.** No P2 task may be selected while any P0 or P1 task exists. No P3 task may be selected
-  while any P0, P1, or P2 task exists.
-- **TP2.** When no P0 or P1 task exists, every P2 task becomes P1 at once. When no P0, P1, or P2
-  task exists, every P3 task becomes P1 at once.
-- **TP3.** Work created by executing any task enters P1 unless its instruction is authored as P2 or
-  P3. With TP1 and TP2, deferred work created while a promoted batch runs waits for that whole
-  batch and its consequences.
-- **TP4.** A task's band is set when the task is created. Only promotion changes it; authored Pets
-  cannot change another task's band.
-- **TP5.** Bands restrict selection only. They apply equally to explicit commands and
-  autoexecution, and they do not order tasks within a band: legal sibling orders stay available.
-- **TP6.** Bands apply to the whole World task pool, not to one Actor's queue.
-- **TP7.** Promotion changes task state. It rolls back with its transaction and must be
-  reproducible from the event history.
+Playing Solar Probe creates its effects as ordinary work and its flip as `LATER` work. Its own
+science tag therefore counts for every consequence of its effects, and it reaches the played-event
+pile before the game offers another turn.
 
-P3 is below P2 because settlement belongs to the operation that caused it. Playing Solar Probe
-creates its effects as P1 work and its flip as P2 work. Its own science tag therefore counts for
-every consequence of its effects, and it reaches the played-event pile before any P3 turn handoff.
-Entering Research creates each Player's research choices as P1 work and
-`ActionPhase FROM ResearchPhase` as P3 work. Action begins only after every Player has finished and
-their settlement has run.
+L2-18 promotes a whole batch at once. The alternative leaves deferral fixed and makes deferred work
+selectable only while no ordinary work exists. The two differ only when a promoted task creates
+ordinary work while others from its batch still wait: under L2-18 those others stay selectable
+beside the new work; under the alternative they wait for it. No Terraforming Mars case is known to
+distinguish them. Batch promotion is preferred because "a deferred batch becomes ordinary work" is
+the simpler statement.
 
-TP2's alternative leaves bands fixed and makes the highest occupied band selectable. The two differ
-only when a promoted task creates P1 work while others from its batch still wait. Under TP2 those
-others stay selectable beside the new work; under the alternative they wait for it. No Terraforming
-Mars case is known to distinguish them. TP2 is preferred because "a settlement batch becomes
-ordinary work" is the simpler statement.
-
-Priority is neither `THEN` nor a gate. `A THEN B` admits B when A's own task finishes, without
-waiting for A's reactions; a P2 task waits for all P0 and P1 work in the World. `Owed` and
+Deferral is neither `THEN` nor a gate. `A THEN B` admits B when A's own task finishes, without
+waiting for A's reactions; deferred work waits for all ordinary work in the World. `Owed` and
 `Required` remain components because they record quantities, and their survival still makes an
 operation incomplete.
 
+### Why `FINALLY`
+
+A `LATER` nested in another defers its body again when it runs. That body then waits for the
+ordinary work pending at that moment, but not for work deferred by the same batch: if a trade
+completion deferred more work, that work and the inner body would become ordinary together. Making
+a nested `LATER` mean "later than later" would need a depth rule. `FINALLY` states the ordering
+directly: final work follows every consequence of the work before it, including work that `LATER`
+work defers. It exists for turn and phase handoffs.
+
 ### Operation completion
 
-Under these bands, an operation is over when no P0, P1, or P2 task remains, and P3 work begins the
-next operation. That gives [the missing rule](#the-missing-rule-when-an-operation-is-over) a
-whole-World answer. It does not settle delegated control within one operation: in the Neptunian
-case, P1 can still select unrelated P1 work while P2's payment remains.
+An operation's work is over when no new task remains, or when the World's `FINALLY` work has begun
+since the operation's last decision. `FINALLY` work begins only once no ordinary or `LATER` work
+remains (L2-19), so by then everything the operation started, including the cleanup it deferred,
+is finished. The turn handoffs and phase changes that follow, and the offers they create, belong to
+whatever comes next. `ActorEngine.requireComplete` judges cleanup components at that same point,
+from the event log; the Agents record when each operation begins and decides, and automatic
+execution is not a decision. That gives [the missing
+rule](#the-missing-rule-when-an-operation-is-over) a whole-World answer. It does not settle
+delegated control within one operation: in the Neptunian case, P1 can still select unrelated work
+while P2's payment remains.
 
-### Open questions
+### Decisions and open questions
 
-1. **Who runs promoted P3 work, and in which transaction.** If the operation whose completion
-   released it runs it during settlement, the next turn or phase becomes part of that operation, for
-   example a Player's final Pass. P3 work probably runs as its own Admin operation with its own
-   recorded position. P2 work stays inside the operation it settles.
-2. **Pets spelling.** How an instruction is authored as P2 or P3. The August version preferred a
-   few named bands over author-chosen numbers.
-3. **`Temporary`.** Each Canon `Temporary` could become its component plus a P2 task that removes
-   it; `L1GiftWatcher`, which has no removal effect, would need only the removal task. Determine
-   whether the `Temporary` policy, `TemporaryScope`, and the engine's idle-cleanup loop can then be
-   deleted. While idle cleanup remains, it must disregard P3 tasks, or a pending P3 task stalls it.
-4. **Late evaluation.** Queued work already resolves metrics and gates against the live World after
-   selection ([ENGINE.md](ENGINE.md)). Confirm the same for fanout, so a turn handoff finds the next
-   eligible Player as of when it runs.
-5. **Manual phase control.** Phase-entry rules would create P3 tasks in sandbox tests too. Stepping
-   becomes executing the pending P3 task, and jumping to another phase must discard it. Decide
-   whether manual phase changes remain.
-6. **Scope.** TP6 starts global. The August `Idle<Player>` design was per Player, so that one
-   Player's empty queue could not flip another Player's event card. Narrow the scope only for a
-   Terraforming Mars case that needs it.
+- **Dispatch is not a step.** On 2026-10-12 the owner ruled that a pure dispatch should never sit in
+  a queue as current work; the engine performs it, as it releases a `THEN` continuation. This
+  replaced the earlier rule that each dispatch was a task of its own.
+- **`FINALLY` for game flow.** On 2026-10-11 the owner ruled out a band below `LATER`. On
+  2026-10-12, once nested `LATER` proved to need either a depth rule or a lowest band, he chose
+  `FINALLY`, so that turns and phases can advance through authored rules. Keeping
+  Terraforming Mars-specific Kotlin such as `TfmWorkflow` was out of the question; it is deleted.
+- **Present components answer.** On 2026-10-13 the owner asked that active behavior come from
+  components that are present rather than from conditions: an effect that relies on a player not
+  having passed belongs on `ImAwake`, so its presence says so. `TakeTurn` therefore has no rule of
+  its own.
+- **Game flow.** On 2026-10-12 the owner ruled that the Pets model must never be shaped by turning
+  the flow on or off, that tests be either clear sandbox or clear gameplay scenarios, and that
+  modules contribute phase order without a central orchestrator. He proposed `NoPreludes` so that
+  exactly one module owns each handoff out of the corporation phase.
+- **Exclusion is not deferral.** Deferral orders work; it cannot keep other work out while an
+  interaction is under way. The Neptunian payment above needs exclusion or a join, which deferral
+  does not provide.
+- **Scope.** Deferral is global (L2-18). The August `Idle<Player>` design was per Player, so that
+  one Player's empty queue could not flip another Player's event card. Narrow the scope only for a
+  Terraforming Mars case that needs it.
 
-### Proving order
+### Evidence
 
-1. The `EventCard` flip as P2 work; `SolarProbeTest` already checks that Solar Probe counts its own
-   science tag.
-2. `FinishTrade` as P2 work, deleting `TradeBarrier`, including L1 Trade Terminal's second barrier.
-3. `TurmoilSolarOperation`, `MeasureAward`, and `FinalScoringPending`.
-4. P3 phase transitions and turn handoffs, deleting `TfmWorkflow.Automatic` and
-   `World.onTransactionComplete`.
-
-Judge each step by what it deletes.
+- `DeferredWorkTest`: selection, promotion batches, every Actor's work, late evaluation of metrics
+  and fanouts, groups, nesting, final work, and rollback.
+- `Lang02InstructionsTest`: L2-18 and L2-19 syntax; `TaskDispatchTest`: dispatch recipients.
+- `SolarProbeTest`, `TradeEnvoysTest`, `L1TradeTerminalTest`, `TurmoilSolarPhaseTest`,
+  `AwardsTest`, `VictoryTest`, and `FakeWildTagTest`: the converted devices.
 
 ## Source evidence
 
 - [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt): task replacement,
   selection, and execution.
-- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt): controller, assignees, selection, and
+- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt): assignee, selection, deferral, and
   cause.
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) and
   [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt): automatic and queued effects.
 - [`WorldTransaction.kt`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) and
-  [`Engine.kt`](../../src/common/dev/martianzoo/engine/Engine.kt): settlement and cleanup.
-- `TaskDelegationTest`, `PhilaresTest`, `TemporaryCleanupTest`, and the Neptunian cases in
+  [`Engine.kt`](../../src/common/dev/martianzoo/engine/Engine.kt): settlement.
+- [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt): admission and
+  promotion of deferred work.
+- `TaskDispatchTest`, `PhilaresTest`, `DeferredWorkTest`, and the Neptunian cases in
   `FloodingTest`: current observable contracts and gaps.

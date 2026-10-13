@@ -232,12 +232,11 @@
           "tags": [ "SpaceTag" ],
           "direct": "L1GiftWatcher",
           "effects": [
-            "Trade<@ColonyTile>:: TradeBarrier<@ColonyTile>",
-            "Trade<@ColonyTile>: (2 ColonyProduction<@ColonyTile> OR Ok) THEN -TradeBarrier<@ColonyTile>",
+            "Trade<@ColonyTile>: 2 ColonyProduction<@ColonyTile> OR Ok",
             "End: 2 VictoryPoint",
           ],
           "components": [
-            "CLASS L1GiftWatcher : Owned<Player>, Temporary, System { This:: L1Gift / (ResourceCard(HAS CardResource) MAX 3); This: EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }; CardResource:: -L1Gift }",
+            "CLASS L1GiftWatcher : Owned<Player>, System { This:: L1Gift / (ResourceCard(HAS CardResource) MAX 3); This: EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }, LATER { -This! }; CardResource:: -L1Gift }",
             "CLASS L1Gift : Owned<Player>, MustCleanUp",
           ],
         },

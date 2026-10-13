@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testAgents
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
@@ -18,7 +18,6 @@ import dev.martianzoo.tfm.canon.Bundle
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.cards.cardnames.ColonizerTrainingCamp
 import io.kotest.assertions.throwables.shouldThrow
@@ -83,7 +82,7 @@ internal class GamePremiseTest {
     val second = TfmEngine.newGame(premise)
 
     first.classTable shouldBe second.classTable
-    TfmWorkflow.Stepwise(first.testAgents()).setupPhase()
+    first.testTfm(ADMIN).startGame()
     first.testAgent(ADMIN).count("SetupPhase") shouldBe 1
     second.testAgent(ADMIN).count("SetupPhase") shouldBe 0
   }
@@ -155,7 +154,7 @@ internal class GamePremiseTest {
     game.actors.shouldContainExactly(Player(blue), Player(yellow), ADMIN)
     game.reader.getComponents(cn("Player").expression).map { it.className }.toSet() shouldBe
         setOf(blue, yellow)
-    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    game.testTfm(ADMIN).startGame()
     game.testAgent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
     game.testAgent(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
     game.reader
@@ -216,7 +215,6 @@ internal class GamePremiseTest {
             )
         )
     val admin = game.testAgent(ADMIN)
-    val workflow = TfmWorkflow.Stepwise(game.testAgents())
 
     admin.count("SelectedColonyTile") shouldBe 3
     admin.count("CallistoSelected") shouldBe 1
@@ -224,8 +222,10 @@ internal class GamePremiseTest {
     admin.count("EnceladusSelected") shouldBe 1
     admin.count("SelectedColonyTile<Class<Ceres>>") shouldBe 0
 
-    workflow.setupPhase()
-    workflow.corporationPhase()
+    game.testTfm(ADMIN).startGame()
+    game.testTfm(Player(cn("Player1"))).keepStartingProjects(0)
+    game.testTfm(Player(cn("Player2"))).keepStartingProjects(0)
+    admin.count("CorporationPhase") shouldBe 1
 
     admin.count("SelectedColonyTile") shouldBe 0
     admin.count("Callisto") shouldBe 1

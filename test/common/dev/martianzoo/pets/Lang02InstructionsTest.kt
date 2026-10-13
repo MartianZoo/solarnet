@@ -215,6 +215,17 @@ internal class Lang02InstructionsTest {
         "Plant THEN (Heat, Steel)"
   }
 
+  @Test
+  internal fun `L2-10 EACH cannot be followed by THEN`() {
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("EACH Player { Plant } THEN Heat")
+    }
+    roundTrip<Instruction>("Plant THEN EACH Player { Heat }")
+    roundTrip<Instruction>("EACH Player { Plant THEN Heat }")
+    roundTrip<Instruction>("TASK Player1 { EACH Player { Plant } } THEN Heat")
+    shouldThrow<PetSyntaxException> { parse<Instruction>("TASK<Player1> { Plant }") }
+  }
+
   // L2-11 X across one instruction
 
   @Test
@@ -536,5 +547,25 @@ internal class Lang02InstructionsTest {
         "PROD[(Ooh / MC, Foo, MC), Bar / Bar THEN MC, MC]",
         "PROD[Ooh / MC, Foo, MC, Bar / Bar THEN MC, MC]",
     )
+  }
+
+  // L2-18 LATER and L2-19 FINALLY
+
+  @Test
+  internal fun `L2-18 LATER and L2-19 FINALLY dispatch like TASK`() {
+    roundTrip<Instruction>("LATER { Plant }")
+    roundTrip<Instruction>("LATER Player1 { Plant, Heat }")
+    roundTrip<Instruction>("FINALLY { Plant }")
+    roundTrip<Instruction>("Heat THEN LATER { Plant }")
+    roundTrip<Effect>("Foo: LATER { -This* }")
+    shouldThrow<PetSyntaxException> { parse<Instruction>("LATER { Ok }") }
+    shouldThrow<PetSyntaxException> { parse<Effect>("Foo:: LATER { Plant }") }
+    shouldThrow<PetSyntaxException> { parse<Effect>("Foo:: FINALLY { Plant }") }
+  }
+
+  @Test
+  internal fun `L2-18 a LATER may contain another`() {
+    roundTrip<Instruction>("LATER { LATER { Plant } }")
+    roundTrip<Instruction>("FINALLY { LATER { Plant } }")
   }
 }

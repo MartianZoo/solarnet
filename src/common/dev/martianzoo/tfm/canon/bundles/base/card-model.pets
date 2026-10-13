@@ -19,11 +19,11 @@ ABSTRACT CLASS Card : Owned<Player>, Real {
     "A green project card"
     ABSTRACT CLASS AutomatedCard : CardFront<Class<ProjectCard>>
     "A red project card"
-    ABSTRACT CLASS EventCard : CardFront<Class<ProjectCard>>, Temporary {
+    ABSTRACT CLASS EventCard : CardFront<Class<ProjectCard>> {
       HAS =1 EventTag<This>
-      // Some effects move an event directly into another player's pile. Record it only if that
-      // move did not already create the one played-event record for this physical card.
-      -This IF MAX 0 PlayedEvent<Anyone, Class<This>>:: PlayedEvent<Class<This>>
+      // An event stays face up until no other work remains. The `*` covers an event, such as Law
+      // Suit, that has already moved itself into another player's pile.
+      This: LATER { PlayedEvent<Class<This>> FROM This* }
     }
 
     "Any card with actions, including corporation and prelude cards"

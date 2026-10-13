@@ -1086,7 +1086,7 @@ Pets declaration:
 ```pets
 CLASS Recession : CardFront<Class<PreludeCard>> {
   cost = 0
-  This: 10 MC, EACH Other@Player(NOT Me@) { -5 MC<Other@Player>., PROD[-MC<Other@Player>] }
+  This: 10 MC, EACH Other@Player(NOT Me@) { -5* MC<Other@Player>, PROD[-MC<Other@Player>] }
 }
 ```
 
@@ -1146,8 +1146,8 @@ CLASS SuitableInfrastructure : CardFront<Class<PreludeCard>> {
   HAS =1 BuildingTag<This>
   cost = 0
   This: 5 Steel
-  UseAction<StandardAction>:: SuitableInfrastructureBonus<This>.
-  NewTurn IF PreludePhase:: SuitableInfrastructureBonus<This>.
+  UseAction<StandardAction>:: SuitableInfrastructureBonus<This>*
+  NewTurn IF PreludePhase:: SuitableInfrastructureBonus<This>*
 }
 ```
 

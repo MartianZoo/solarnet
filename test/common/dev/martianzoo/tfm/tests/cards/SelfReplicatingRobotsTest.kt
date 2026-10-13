@@ -5,7 +5,6 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.state.TaskResult
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmGameplayTest
@@ -713,6 +712,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           "DiversitySupport FROM ProjectCard",
           "TerraformRating",
       )
+      doTask("PlayedEvent<Class<$DiversitySupport>> FROM $DiversitySupport")
     }
   }
 
@@ -727,7 +727,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     fundCollectorWithRobotUnits()
     val checkpoint = game.timeline.checkpoint()
 
-    TfmWorkflow.Stepwise(agents).endPhase()
+    admin.runOperation("End FROM Phase")
 
     players.map { it.count("VictoryPoint") } shouldBe listOf(25, 23, 20)
     kim.auditGainsSince(checkpoint) shouldBe 1
@@ -740,7 +740,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     kim.exMachina("-Plant, -Heat")
     val checkpoint = game.timeline.checkpoint()
 
-    TfmWorkflow.Stepwise(agents).endPhase()
+    admin.runOperation("End FROM Phase")
 
     players.map { it.count("VictoryPoint") } shouldBe listOf(22, 26, 20)
     kim.auditGainsSince(checkpoint) shouldBe 1
@@ -835,6 +835,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       )
       selectTask("CardResource<CardFront(HAS CardResource)>*")
       choice()
+      doTask("PlayedEvent<Class<$CeosFavoriteProject>> FROM $CeosFavoriteProject")
     }
   }
 
@@ -930,10 +931,13 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           selectTask("ProjectCard<Kim, Hand>!")
           selectTask("-2* Owed")
           selectTask("-2! RobotUnit<Kim, Class<CeosFavoriteProject>>")
-          doTask("CeosFavoriteProject FROM ProjectCard")
+          doTasks(
+              "CeosFavoriteProject FROM ProjectCard",
+          )
           selectTask("CardResource<CardFront(HAS CardResource)>*")
           selectTask("-X? MC")
           doTask("Ok")
+          doTask("PlayedEvent<Class<$CeosFavoriteProject>> FROM $CeosFavoriteProject")
         }
         .expect("PlayedEvent<Class<$CeosFavoriteProject>>")
   }
@@ -1000,7 +1004,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       stan.pass()
       kim.pass()
       stan.wgt("VenusStep")
-      // The workflow resolves the event after the world-government action returns.
+      // The game resolves the event after the world-government action returns.
       return kim.count("RobotUnit<Class<$Mine>>") to kim.count("Animal<$Pets>")
     }
   }

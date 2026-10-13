@@ -9,7 +9,7 @@ CLASS ColoniesExpansion : Module {
   SetupPhase: EACH Me@Player { TradeFleet }
   SetupPhase IF SoloMode, SelectedColonyTile: EACH Me@Player { SoloColoniesSetup }
   SetupPhase IF SoloMode: PROD[-2 MC<Player>]
-  ColoniesSolarPhase: AdvanceColonyTracks
+  SolarPhase: AdvanceColonyTracks
 }
 
 "A colony tile, such as Pluto"
@@ -179,13 +179,8 @@ CLASS TradeFleet : Owned<Player>, Real
 
 "A trade with one colony tile, retained until the next generation"
 CLASS Trade<@ColonyTile, GenerationScope> : Owned<Player>, Real {
-  This:: (MAX 0 (Trade - TradeFleet): TradeBarrier<@ColonyTile>)
-  This: -TradeBarrier<@ColonyTile>
-}
-
-"One unresolved barrier to completing a Trade"
-CLASS TradeBarrier<@ColonyTile> : Owned<Player>, Barrier, System {
-  -This IF MAX 0 This: FinishTrade<@ColonyTile>
+  This:: MAX 0 (Trade - TradeFleet): Ok
+  This: LATER { FinishTrade<@ColonyTile> }
 }
 
 "The owner-attributed event that begins a Trade's completion consequences"

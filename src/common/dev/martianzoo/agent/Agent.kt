@@ -98,9 +98,9 @@ public interface Agent {
 
   /**
    * Selects one pending task and resolves its instruction against the current World. An abstract
-   * result remains selected for later [narrowTask] calls. Selection may assign the task to its
-   * selection assignee, and concrete instruction-side `BY` may assign it again. This call stops at
-   * either handoff; otherwise a concrete result executes before it returns.
+   * result remains selected for later [narrowTask] calls. Concrete instruction-side `BY` may assign
+   * it to another Actor; this call stops at that handoff. Otherwise a concrete result executes
+   * before it returns.
    *
    * If resolution produces independent instructions, selecting the structural task completes it and
    * admits those instructions as ordinary pending siblings.
@@ -112,13 +112,16 @@ public interface Agent {
   public fun selectTask(taskId: TaskId): TaskResult
 
   /**
-   * Selects this Actor's sole pending task by id, using [selectTask]'s resolution and handoff
-   * rules. When [x] is supplied, binds the task's X scalars to that value before selection, using
-   * [Task.bindXTo] and [selectTask]'s narrowing rules. Otherwise selects without narrowing. Throws
-   * [TaskException] without changing the World if this Actor has no pending task or more than one.
+   * Selects this Actor's sole pending task that is not [deferred][Task.deferred], using
+   * [selectTask]'s resolution and handoff rules. When [x] is supplied, binds the task's X scalars
+   * to that value before selection, using [Task.bindXTo] and [selectTask]'s narrowing rules.
+   * Otherwise selects without narrowing. Throws [TaskException] without changing the World if this
+   * Actor has no such task or more than one.
    */
   public fun selectOnlyTask(x: Int? = null): TaskResult {
-    val id = tasks.ids().singleOrNull() ?: throw TaskException("Expected exactly one pending task")
+    val id =
+        tasks.matching { !it.deferred }.singleOrNull()
+            ?: throw TaskException("Expected exactly one pending task that is not deferred")
     return if (x == null) selectTask(id) else selectTask(tasks.getTaskData(id).bindXTo(x))
   }
 

@@ -1,7 +1,7 @@
 # Solarnet roadmap
 
 Solarnet is the runtime side of the planned repository split: Game World, the engine, Agents,
-Terraforming Mars gameplay and workflow, recordings and replays, and applications that execute or
+Terraforming Mars gameplay, recordings and replays, and applications that execute or
 explore a game. The [Pets roadmap](PETS_ROADMAP.md) owns the static language and type model, Canon,
 derived English and iconography, and the Almanac. Goals that require both static meaning and live
 execution belong in both roadmaps, with each document describing its part and linking to the other.
@@ -30,16 +30,17 @@ after review. **Selected** means the direction is chosen while some design remai
    [action identity and invocation](docs/agents/ACTIONS.md),
    [turns and turn offers](docs/agents/SEQUENCING.md#turns-and-turn-offers), including
    the Head Start variant, [on-turn identity and routing](docs/agents/IDENTITY.md#who-is-on-turn-and-who-decides),
-   and [task priority](docs/agents/SEQUENCING.md#task-priority-working-direction). Ordering delegated
+   and [deferred work](docs/agents/SEQUENCING.md#deferred-work). Ordering delegated
    responses and their payments remains open; see [completion](docs/agents/SEQUENCING.md#the-missing-rule-when-an-operation-is-over)
    and [payment gaps](docs/agents/PAYMENTS.md#verified-gaps).
 
 2. **Make the game advance through authored rules instead of a mirrored Kotlin workflow.**
    **Selected.** Phase order, player rotation, setup, expansion phases, final greenery, scoring, and
-   victory should arise from live game components and ordinary engine scheduling. The working
-   direction makes the next turn or phase P3 work in the
-   [task priority](docs/agents/SEQUENCING.md#task-priority-working-direction) bands, selectable
-   only after all other work and its settlement finish. The `workflow` branch removed the
+   victory should arise from live game components and ordinary engine scheduling.
+   [Deferred work](docs/agents/SEQUENCING.md#deferred-work) settles work within an operation, and
+   `FINALLY` work, which waits for everything else including `LATER` work, carries the next turn or
+   phase. The [game flow](docs/agents/SEQUENCING.md#game-flow) is now authored this way and
+   `TfmWorkflow` is deleted; a turn scope remains open. The `workflow` branch removed the
    coroutine-owned phase sequence but is not intended to land. It measured the cost of representing
    deferred work as components: per-rule mode guards, continuation components, and a compiler for
    expansion phase order. Preserve full-game replay evidence through the change.
@@ -69,12 +70,12 @@ after review. **Selected** means the direction is chosen while some design remai
    game; blue grants a turn; green initiates an arbitrary operation; yellow permits deliberate task
    abandonment; red applies corrections without advancing gameplay. Make those promises real in
    the REPL and reusable by Mars Playground. Mode changes must handle existing work explicitly and
-   must not smuggle a second workflow into application code.
+   must not smuggle a Kotlin game driver into application code.
 
 ## Code clarity and confidence
 
 1. **Collapse the engine-to-functional-test stack.** **Active.** Ordinary scenarios should express
-   player-visible setup and actions through the full workflow, not rebuild phases, relocate rule
+   player-visible setup and actions through the full game flow, not rebuild phases, relocate rule
    components, chase task causes, or rely on rendered instruction text. Keep focused lower-level
    tests where they prove an engine contract; delete gameplay conveniences that exist only to
    compensate for missing semantics.
@@ -140,7 +141,7 @@ after review. **Selected** means the direction is chosen while some design remai
 2. **Enable complete human and autonomous play through the same capabilities.** **Selected
    direction.** End-to-end solo and multiplayer operation is desirable, including computer-driven
    play, but it must not split into separate gameplay architectures. Card tracking, task forms,
-   Agent policies, workflow, and decision records should compose into a usable game-playing surface.
+   Agent policies, and decision records should compose into a usable game-playing surface.
    The preserved TFMBot replay work is evidence and a future corpus, not permission to create a
    special bot engine or to confuse eager execution with strategy.
 

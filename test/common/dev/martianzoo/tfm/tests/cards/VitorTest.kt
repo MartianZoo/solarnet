@@ -89,6 +89,7 @@ internal class VitorTest : TfmSandboxTest() {
           "BribedCommittee FROM ProjectCard",
           "2 TerraformRating",
       )
+      doTask("PlayedEvent<Class<BribedCommittee>> FROM BribedCommittee")
     }
   }
 
@@ -126,7 +127,7 @@ internal class VitorTest : TfmSandboxTest() {
       selectTask("4! CorporationCard<Kim, Selecting>")
       selectTask("-3! CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<Vitor>>")
-      selectTask("MAX 0 Barrier: Vitor FROM CorporationCard<Kim, Selecting>!")
+      doTask("Vitor<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTasks("45 MC", "-42 MC")
       selectTask("Vitor_RequiredAction!")
       doTask("3 MC")

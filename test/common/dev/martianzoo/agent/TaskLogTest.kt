@@ -17,11 +17,11 @@ import kotlin.test.Test
 internal class TaskLogTest {
   private fun start(agents: Agents) {
     agents.taskLog.start()
-    agents.taskLog.workflowStarted("test")
+    agents.taskLog.gameStarted()
   }
 
   private fun replay(source: Agents, imported: Agents) {
-    TaskLog.replay(source.taskLog.inputs(), imported, startWorkflow = { it shouldBe "test" })
+    TaskLog.replay(source.taskLog.inputs(), imported, startGame = {})
   }
 
   @Test
@@ -227,11 +227,11 @@ internal class TaskLogTest {
         shouldThrow<IllegalArgumentException> {
           TaskLog.replay(
               listOf(
-                  RecordedInput.StartWorkflow("test"),
+                  RecordedInput.StartGame,
                   RecordedInput.Command(PLAYER1, RecordedInput.Kind.CHOOSE, "Coin"),
               ),
               agents,
-              startWorkflow = { it shouldBe "test" },
+              startGame = {},
           )
         }
 
@@ -261,16 +261,12 @@ internal class TaskLogTest {
   }
 
   @Test
-  internal fun disablingPoliciesBeforeWorkflowDoesNotExecuteExistingTasks() {
+  internal fun disablingPoliciesBeforeStartDoesNotExecuteExistingTasks() {
     val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker")))
     agents[PLAYER1].addTasks("Coin")
     agents[ADMIN].addTasks("Marker")
 
-    TaskLog.replay(
-        listOf(RecordedInput.StartWorkflow("test")),
-        agents,
-        startWorkflow = { it shouldBe "test" },
-    )
+    TaskLog.replay(listOf(RecordedInput.StartGame), agents, startGame = {})
 
     agents[PLAYER1].count("Coin") shouldBe 0
     agents[ADMIN].count("Marker") shouldBe 0

@@ -5,7 +5,7 @@ import kotlin.test.assertEquals
 
 internal class TfmPlayCommandTest {
   @Test
-  internal fun `tfm play uses the authorized source within the automatic solo workflow`() {
+  internal fun `tfm play uses the authorized source within an automatic solo game`() {
     val repl = ScriptSession()
     repl.command(
         "newgame \"TerraformingMars, CorporateEraExpansion, ElysiumMap, " +

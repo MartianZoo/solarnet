@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -34,7 +33,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
 
   @Test
   internal fun erraticCarbonCurrent() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     keepStartingProjects(6, 4)
     generation1()
     generation2()
@@ -541,7 +540,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     assertCardTrackingComplete()
     blue.cardsHand shouldBe emptySet()
     pink.cardsHand shouldBe emptySet()
-    admin.assertCounts(1 to "End", 1 to "Phase")
+    admin.assertCounts(1 to "VictoryPhase", 1 to "Phase")
 
     blue.assertCounts(45 to "TerraformRating", 102 to "VictoryPoint", 1 to "Victory")
     pink.assertCounts(41 to "TerraformRating", 85 to "VictoryPoint", 0 to "Victory")

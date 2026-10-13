@@ -57,7 +57,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           selectTask("4! CorporationCard<Kim, Selecting>")
           selectTask("-3! CorporationCard<Kim, Selecting>")
           doTask("PlayCard<Class<CorporationCard>, Class<MonsInsurance>>")
-          selectTask("MAX 0 Barrier: MonsInsurance FROM CorporationCard<Kim, Selecting>!")
+          doTask("MonsInsurance<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTasks("48 MC", "-42 MC", "PROD[4 MC]")
           selectTask(
               "EACH Other@Player(NOT Kim) { -2! Production<Other@Player, Class<MC>> BY Other@Player }"
@@ -84,8 +84,8 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           "HiredRaiders FROM ProjectCard",
           "2 Steel<Stan FROM Rob>",
       )
-      selectTask("3* MC<Rob FROM Kim>")
-      kim.selectTask("3! MC<Rob FROM Kim>")
+      kim.doTask("3 MC<Rob FROM Kim>")
+      doTask("PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders")
     }
   }
 
@@ -103,7 +103,9 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
                 "PlayCard<Class<ProjectCard>, Class<AsteroidCard>>",
             )
             selectTask("-25* Owed")
-            doTask("AsteroidCard FROM ProjectCard")
+            doTasks(
+                "AsteroidCard FROM ProjectCard",
+            )
             selectTask("TemperatureStep*")
             doTasks("2 Titanium", "TerraformRating")
             selectTask("-X? MC")
@@ -111,6 +113,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
             selectTask("-X? Titanium")
             doTasks("Ok", "-Plant<Stan>")
             selectOnlyTask()
+            doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
           }
           .expect("-Plant<Stan>, -3 MC<Kim>, 3 MC<Stan>")
     }
@@ -168,8 +171,8 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           "$HiredRaiders FROM ProjectCard",
           "2 Steel<Stan FROM Rob>",
       )
-      selectTask("3* MC<Rob FROM Kim>")
       kim.doTask("2 MC<Rob FROM Kim>")
+      doTask("PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders")
     }
   }
 
@@ -183,9 +186,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
           selectTask("-X? Steel")
           doTasks("Ok", "IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
-          selectTask("Disease<PharmacyUnion<Stan>>! OR (MAX 0 PharmacyUnion<Stan>: Ok)")
-          stan.selectOnlyTask()
-          selectOnlyTask()
+          stan.selectTask("Disease<PharmacyUnion<Stan>>! OR (MAX 0 PharmacyUnion<Stan>: Ok)")
           stan.selectOnlyTask()
         }
         .expect("-4 MC<Stan>, Disease<$PharmacyUnion<Stan>>")
@@ -200,11 +201,15 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
           selectTask("-X? Titanium")
-          doTasks("Ok", "AsteroidCard FROM ProjectCard")
+          doTasks(
+              "Ok",
+              "AsteroidCard FROM ProjectCard",
+          )
           selectTask("TemperatureStep*")
           doTasks("2 Titanium", "TerraformRating")
           selectTask("-3? Plant<Anyone>")
           doTask("Ok")
+          doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
         }
         .expect("0 Plant<Stan>, 0 MC<Stan>")
   }
@@ -224,6 +229,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           selectTask("3! MC<SoloOpponent> BY Admin")
           selectOnlyTask()
           selectOnlyTask()
+          doTask("PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders")
         }
         .expect("-1 MC<Kim>")
   }
@@ -238,9 +244,13 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
         .inTurn {
           doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
           selectTask("-X? Titanium")
-          doTasks("Ok", "AsteroidCard FROM ProjectCard")
+          doTasks(
+              "Ok",
+              "AsteroidCard FROM ProjectCard",
+          )
           selectTask("TemperatureStep*")
           doTasks("2 Titanium", "TerraformRating", "-Plant<Kim>")
+          doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
         }
         .expect("0 MC<Kim>")
   }
@@ -267,15 +277,14 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
       selectOnlyTask()
       if (compensateFirst) {
         doTask("-5 MC<Rob>")
-        selectTask("3* MC<Rob FROM Kim>")
-        kim.doTasks("3 MC<Rob FROM Kim>")
+        kim.doTask("3* MC<Rob FROM Kim>")
         selectTask("-5* MC<Kim>")
       } else {
         doTasks("-5 MC<Kim>", "-5 MC<Rob>")
-        selectTask("3* MC<Rob FROM Kim>")
+        kim.doTask("3* MC<Rob FROM Kim>")
       }
       doTasks("PROD[-MC<Kim>]", "PROD[-MC<Rob>]")
-      selectTask("3* MC<Rob FROM Kim>")
+      kim.doTask("3* MC<Rob FROM Kim>")
     }
 
     rob.count("MC") shouldBe if (compensateFirst) 3 else 0

@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.startSetupOnly
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
@@ -12,7 +13,6 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.TfmWorkflow
 
 internal fun canonicalPremise(
     vararg included: ClassName,
@@ -44,7 +44,7 @@ internal fun canonicalPremise(
 internal fun setUpGame(premise: GamePremise = canonicalPremise()): World =
     TfmEngine.newGame(premise).apply {
       val agents = testAgents()
-      TfmWorkflow.Stepwise(agents).setupPhase()
+      startSetupOnly()
       actors.filterIsInstance<Player>().forEach { player ->
         agents.tfm(player).keepStartingProjects(0)
       }

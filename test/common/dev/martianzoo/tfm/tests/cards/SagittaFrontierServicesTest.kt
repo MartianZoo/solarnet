@@ -54,6 +54,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
               "MC",
               "-7 MC<Stan>",
           )
+          doTask("PlayedEvent<Class<Sabotage>> FROM Sabotage")
         }
         .expect("0 MC")
   }
@@ -69,10 +70,14 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
       selectTask("-X? Titanium")
-      doTasks("Ok", "SmallAsteroid FROM ProjectCard")
+      doTasks(
+          "Ok",
+          "SmallAsteroid FROM ProjectCard",
+      )
       selectTask("TemperatureStep*")
       selectTask("-2? Plant<Anyone>")
       doTask("TerraformRating")
+      doTask("PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid")
     }
   }
 
@@ -132,7 +137,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
       doTask("-42 MC")
       selectTask("-3! CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<SagittaFrontierServices>>")
-      selectTask("MAX 0 Barrier: SagittaFrontierServices FROM CorporationCard<Kim, Selecting>!")
+      doTask("SagittaFrontierServices<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTasks("31 MC", "PROD[Energy]", "PROD[2 MC]")
       selectTask("SearchForCard<Kim, NoTagsFilter>!")
       doTask("4 MC")

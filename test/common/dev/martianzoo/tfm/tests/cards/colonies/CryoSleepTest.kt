@@ -26,7 +26,12 @@ internal class CryoSleepTest : TfmSandboxTest() {
     kim.setToExMachina(2, "Energy")
 
     kim.inTurn {
-      doTasks("TradeAction<Action2>", "-2 Energy", "Trade<Io>", "3 Heat")
+      doTasks(
+          "TradeAction<Action2>",
+          "-2 Energy",
+          "Trade<Io>",
+          "3 Heat",
+      )
     }
   }
 

@@ -2,12 +2,10 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
-import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.HashMultiset
 import dev.martianzoo.pets.util.invoke
-import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.ComponentChange
 import dev.martianzoo.state.GameEvent.ChangeEvent
@@ -25,8 +23,6 @@ internal class Effector(
   private val registry = mutableMapOf<LiveEffect.RegistryKey, HashMultiset<LiveEffect>>()
 
   private val effects = mutableMapOf<Component, List<LiveEffect>>()
-
-  private val systemClass = elaborator.classTable.getClass(SYSTEM)
 
   /** Copies the derived subscription index while preserving independent-listener order. */
   internal fun copyIndexFrom(source: Effector) {
@@ -87,26 +83,13 @@ internal class Effector(
    */
   internal fun fire(
       triggerEvent: ChangeEvent,
-      controller: Actor,
-      selectionAssignee: Actor,
       automatic: Boolean? = null,
   ): List<PendingTask> {
     val gaining = triggerEvent.change.gaining?.type
     val removing = triggerEvent.change.removing?.type
-    val resolvedChange =
-        LiveEffect.ResolvedChange(
-            gaining = gaining,
-            removing = removing,
-            // Admin performs the System change; its retained recipient handles an unowned queued
-            // consequence. Owner-based effect routing still takes precedence in PendingTask.
-            queuedEffectFallback =
-                selectionAssignee.takeIf {
-                  automatic == false &&
-                      (gaining ?: removing)?.rootClass?.isSubtypeOf(systemClass) == true
-                },
-        )
-    val selfEffects = fireSelfEffects(triggerEvent, controller, automatic, resolvedChange)
-    val otherEffects = fireOtherEffects(triggerEvent, controller, automatic, resolvedChange)
+    val resolvedChange = LiveEffect.ResolvedChange(gaining = gaining, removing = removing)
+    val selfEffects = fireSelfEffects(triggerEvent, automatic, resolvedChange)
+    val otherEffects = fireOtherEffects(triggerEvent, automatic, resolvedChange)
     val pending =
         when {
           automatic != true -> selfEffects + otherEffects
@@ -123,8 +106,6 @@ internal class Effector(
   /** The Kotlin output is one queued self-effect of the gained CustomInstruction. */
   private fun customInstructionEffect(
       triggerEvent: ChangeEvent,
-      controller: Actor,
-      resolvedChange: LiveEffect.ResolvedChange,
   ): PendingTask? {
     val component = triggerEvent.change.gaining ?: return null
     if (!component.type.rootClass.isSubtypeOf(elaborator.classTable.getClass(CUSTOM_INSTRUCTION))) {
@@ -134,17 +115,14 @@ internal class Effector(
     return PendingTask.fromEffect(
         context = component,
         triggerEvent = triggerEvent,
-        controller = controller,
         changedComponentPlayer = component.owningPlayer,
         automatic = false,
         instruction = InstructionGroup.of(instruction) * triggerEvent.change.count,
-        queuedEffectFallback = resolvedChange.queuedEffectFallback,
     )
   }
 
   private fun fireSelfEffects(
       triggerEvent: ChangeEvent,
-      controller: Actor,
       automatic: Boolean? = null,
       resolvedChange: LiveEffect.ResolvedChange,
   ): List<PendingTask> {
@@ -154,22 +132,19 @@ internal class Effector(
             .map(Type::toComponent)
             .flatMap { liveEffects(it) }
             .filter { automatic == null || it.automatic == automatic }
-            .mapNotNull { it.onChangeToSelf(triggerEvent, controller, reader(), resolvedChange) }
+            .mapNotNull { it.onChangeToSelf(triggerEvent, reader(), resolvedChange) }
     val computed =
-        if (automatic != true)
-            listOfNotNull(customInstructionEffect(triggerEvent, controller, resolvedChange))
-        else emptyList()
+        if (automatic != true) listOfNotNull(customInstructionEffect(triggerEvent)) else emptyList()
     return authored + computed
   }
 
   private fun fireOtherEffects(
       triggerEvent: ChangeEvent,
-      controller: Actor,
       automatic: Boolean? = null,
       resolvedChange: LiveEffect.ResolvedChange,
   ): List<PendingTask> =
       candidatesFor(automatic, resolvedChange).mapNotNull { (effect, count) ->
-        effect.onChangeToOther(triggerEvent, controller, reader(), resolvedChange)?.times(count)
+        effect.onChangeToOther(triggerEvent, reader(), resolvedChange)?.times(count)
       }
 
   private fun candidatesFor(
@@ -198,9 +173,8 @@ internal class Effector(
     /** Reproducible history order only; sibling precedence must not depend on this comparator. */
     val stableAutomaticOrder: Comparator<PendingTask> =
         compareBy(
-            { it.cause.context.toString() },
-            { it.selectionAssignee.toString() },
-            { it.controller.toString() },
+            { it.cause?.context.toString() },
+            { it.assignee.toString() },
             { it.instruction.toString() },
         )
   }

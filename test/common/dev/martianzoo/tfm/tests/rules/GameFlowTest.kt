@@ -29,23 +29,27 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class TfmWorkflowTest {
+internal class GameFlowTest {
   @Test
   internal fun startingPurchasesUseTheCorporationAlreadyInPlay() {
     for ((corporation, cost) in listOf(TerraLabsResearch to 2, Polyphemos to 10)) {
       val game = TfmEngine.newGame(Canon.gamePremise(GameConfig("$corporation", "Player1")))
       val agents = game.testAgents()
       val player = agents[PLAYER1].also { it.autoExecPolicy = NONE }
-      val workflow = TfmWorkflow.Stepwise(agents)
-      workflow.setupPhase()
+      val admin = game.testTfm(ADMIN)
+      admin.startGame()
       player.doTasks(
+          "14 TerraformRating",
           "2 CorporationCard",
           "-CorporationCard",
           "10 ProjectCard<Selecting>",
           "-8 ProjectCard<Selecting>",
       )
-      workflow.corporationPhase()
-      player.startTurn()
+      admin.doTask("CityTile<Tharsis_4_1>")
+      admin.doTask("GreeneryTile<Tharsis_5_1>")
+      admin.doTask("CityTile<Tharsis_2_2>")
+      admin.doTask("GreeneryTile<Tharsis_2_3>")
+      admin.count("CorporationPhase") shouldBe 1
 
       player.doTasks("PlayCard<Class<CorporationCard>, Class<$corporation>>")
       player.count("$corporation") shouldBe 0
@@ -72,12 +76,10 @@ internal class TfmWorkflowTest {
                 )
             )
         )
-    val agents = game.testAgents()
-    val workflow = TfmWorkflow.Stepwise(agents)
     val p1 = game.testTfm(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testTfm(PLAYER2).also { it.autoExecPolicy = NONE }
 
-    workflow.setupPhase()
+    game.testTfm(ADMIN).startGame()
     p1.assertCounts(
         0 to "BeginnerCard",
         0 to "CorporationCard",
@@ -121,8 +123,9 @@ internal class TfmWorkflowTest {
         2 to "PreludeCard",
     )
 
-    workflow.corporationPhase()
-    p1.startTurn()
+    p1.doTask("20 TerraformRating")
+    p2.doTask("20 TerraformRating")
+
     shouldThrow<TaskException> {
       p1.doTask("PlayCard<Class<CorporationCard>, Class<CrediCor>, Hand>")
     }
@@ -137,7 +140,6 @@ internal class TfmWorkflowTest {
         0 to "Owed",
     )
 
-    p2.startTurn()
     shouldThrow<ExpressionException> {
       p2.doTask("PlayCard<Class<CorporationCard>, Class<BeginnerCorporation2>, Hand>")
     }
@@ -156,19 +158,17 @@ internal class TfmWorkflowTest {
   @Test
   internal fun beginnerCorporationCopiesLetTwoPlayersChooseTheBeginnerPath() {
     val game = TfmEngine.newGame(canonicalPremise(BeginnerVariant, players = 2))
-    val workflow = TfmWorkflow.Stepwise(game.testAgents())
     val p1 = game.testTfm(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testTfm(PLAYER2).also { it.autoExecPolicy = NONE }
 
-    workflow.setupPhase()
+    game.testTfm(ADMIN).startGame()
     listOf(p1, p2).forEach { player ->
       player.selectTask("BeginnerMode OR NonBeginnerMode")
       player.narrowTask("BeginnerMode")
       player.doTask("BeginnerCard")
+      player.doTask("20 TerraformRating")
     }
 
-    workflow.corporationPhase()
-    p1.startTurn()
     p1.doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation1>, Hand>")
     p1.doTask("BeginnerCorporation1 FROM BeginnerCard<Hand>")
     p1.doTask("42 MC")
@@ -181,7 +181,6 @@ internal class TfmWorkflowTest {
         0 to "ProjectCard",
     )
 
-    p2.startTurn()
     p2.doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation2>, Hand>")
     p2.doTask("BeginnerCorporation2 FROM BeginnerCard<Hand>")
     p2.doTask("42 MC")
@@ -210,7 +209,7 @@ internal class TfmWorkflowTest {
     val p2 = game.testTfm(PLAYER2)
     p1.autoExecPolicy = NONE
     p2.autoExecPolicy = NONE
-    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    game.testTfm(ADMIN).startGame()
     p1.assertCounts(
         1 to "NonBeginnerMode",
         0 to "CorporationCard",
@@ -261,7 +260,7 @@ internal class TfmWorkflowTest {
     val players = listOf(game.testTfm(PLAYER1), game.testTfm(PLAYER2))
     players.forEach { it.autoExecPolicy = NONE }
 
-    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    game.testTfm(ADMIN).startGame()
     players.forEach { player ->
       player.doTask("3 CorporationCard")
       player.doTask("3 PreludeCard")
@@ -301,7 +300,7 @@ internal class TfmWorkflowTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    admin.startGame()
     p1.keepStartingProjects(7)
     p2.keepStartingProjects(5)
     p1.playCorp(InterplanetaryCinematics)
@@ -312,7 +311,6 @@ internal class TfmWorkflowTest {
     p1.pass()
 
     admin.assertCounts(2 to "Generation", 1 to "ResearchPhase")
-    workflow.shutdown()
   }
 
   @Test
@@ -321,7 +319,7 @@ internal class TfmWorkflowTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    admin.startGame()
     p1.keepStartingProjects(7)
     p2.keepStartingProjects(5)
     p1.playCorp(InterplanetaryCinematics)
@@ -335,15 +333,14 @@ internal class TfmWorkflowTest {
     }
 
     admin.assertCounts(2 to "Generation", 1 to "ResearchPhase")
-    workflow.shutdown()
   }
 
   @Test
-  internal fun automaticPreludePhasePlaysEveryRetainedPrelude() {
+  internal fun preludePhasePlaysEveryRetainedPrelude() {
     val game = TfmEngine.newGame(canonicalPremise(PreludeExpansion, players = 2))
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    game.testTfm(ADMIN).startGame()
     p1.sneak("PreludeCard")
     p1.keepStartingProjects(0)
     p2.keepStartingProjects(0)
@@ -363,17 +360,16 @@ internal class TfmWorkflowTest {
 
     p1.count("PreludeCard") shouldBe 0
     p2.count("PreludeCard") shouldBe 0
-    workflow.shutdown()
   }
 
   @Test
-  internal fun automaticSolarWaitsForWorldGovernmentBeforeTurmoil() {
+  internal fun solarWaitsForWorldGovernmentBeforeTurmoil() {
     val game =
         TfmEngine.newGame(canonicalPremise(VenusNextExpansion, TurmoilExpansion, players = 2))
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    admin.startGame()
     admin.doTask("DemocraticReform")
     admin.doTask("MinimalImpactPolicy")
     p1.keepStartingProjects(0)
@@ -386,19 +382,16 @@ internal class TfmWorkflowTest {
 
     p1.count("TerraformRating") shouldBe 20
     p2.count("TerraformRating") shouldBe 20
-    admin.count("VenusSolarPhase") shouldBe 1
-    admin.count("TurmoilSolarOperation") shouldBe 0
+    admin.count("SolarPhase") shouldBe 1
 
     p1.doTask("VenusStep! BY Admin")
 
     p1.count("TerraformRating") shouldBe 19
     p2.count("TerraformRating") shouldBe 19
-    admin.count("TurmoilSolarPhase") shouldBe 1
-    workflow.shutdown()
   }
 
   @Test
-  internal fun automaticSolarWaitsForWorldGovernmentBeforeColonies() {
+  internal fun solarAdvancesColonyTracksAlongsideWorldGovernment() {
     val game =
         TfmEngine.newGame(
             canonicalPremise(
@@ -411,7 +404,7 @@ internal class TfmWorkflowTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    admin.startGame()
     p1.keepStartingProjects(0)
     p2.keepStartingProjects(0)
     playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
@@ -421,13 +414,12 @@ internal class TfmWorkflowTest {
     p1.pass()
     p2.pass()
 
-    admin.count("VenusSolarPhase") shouldBe 1
-    admin.count("ColoniesSolarPhase") shouldBe 0
-    admin.count("ColonyProduction<Luna>") shouldBe lunaProduction
+    // Neither expansion's solar work affects the other's, so the tracks need not wait.
+    admin.count("SolarPhase") shouldBe 1
+    admin.count("ColonyProduction<Luna>") shouldBe lunaProduction + 1
 
     p1.doTask("TemperatureStep! BY Admin")
 
-    admin.count("ColonyProduction<Luna>") shouldBe lunaProduction + 1
-    workflow.shutdown()
+    admin.count("ResearchPhase") shouldBe 1
   }
 }

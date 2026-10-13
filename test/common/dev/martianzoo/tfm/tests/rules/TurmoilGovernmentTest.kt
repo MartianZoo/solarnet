@@ -191,7 +191,7 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
     val kimMoney = kim.count("MC")
     val stanMoney = stan.count("MC")
     kim.wgt("VenusStep")
-    // Government forms in a subsequent workflow operation, outside wgt's TaskResult.
+    // Government forms in later work, outside wgt's TaskResult.
     kim.count("MC") shouldBe kimMoney + kimBonus
     stan.count("MC") shouldBe stanMoney + stanBonus
   }

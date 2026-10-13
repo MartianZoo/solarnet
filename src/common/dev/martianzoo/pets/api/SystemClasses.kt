@@ -31,7 +31,6 @@ public object SystemClasses {
   public val SIGNAL: ClassName = cn("Signal")
   public val SYSTEM: ClassName = cn("System")
   public val MUST_CLEAN_UP: ClassName = cn("MustCleanUp")
-  public val TEMPORARY: ClassName = cn("Temporary")
   public val OWNER: ClassName = cn("Owner")
   public val OWNED: ClassName = cn("Owned")
   public val ANYONE: ClassName = cn("Anyone")

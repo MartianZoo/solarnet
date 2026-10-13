@@ -80,6 +80,7 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byPlayerBindsTheConcreteActorInTheTriggerAndInstruction() {
     val game = newGame()
+    game.testAgent(PLAYER1).autoExecPolicy = NONE
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
     p2.sneak("ActorBindingProbe!, OwnedActorTrigger<Player1>!")
 

@@ -114,9 +114,14 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks("PlayProject<Class<LandClaim>>", "-1 MC", "LandClaim FROM ProjectCard")
+          doTasks(
+              "PlayProject<Class<LandClaim>>",
+              "-1 MC",
+              "LandClaim FROM ProjectCard",
+          )
           selectOnlyTask()
           doTask("Community<Tharsis_1_1>")
+          doTask("PlayedEvent<Class<LandClaim>> FROM LandClaim")
         }
         .expect("0 NomadsMarker<Kim>")
   }

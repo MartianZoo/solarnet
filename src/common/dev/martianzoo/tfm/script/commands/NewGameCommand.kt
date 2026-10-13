@@ -36,7 +36,7 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
       when (context.argIndex) {
         0 -> context.optionSuggestions()
         1 -> (1..5).map { ScriptCompletion(it.toString(), "common player counts") }
-        2 -> context.completions("purple", group = "workflow modes")
+        2 -> context.completions("purple", group = "integrity modes")
         else -> emptyList()
       }
 
@@ -59,7 +59,7 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
         return listOf(
             "New ${repl.playerCount}-player game created with config: $configText; " +
                 "players: ${playerNames.joinToString()}"
-        ) + (if (purple) listOf("Purple mode: workflow active") else emptyList())
+        ) + (if (purple) listOf("Purple mode: the game's own rules drive play") else emptyList())
       }
 
       val optionCodes = parts.getOrNull(0) ?: throw UsageException()
@@ -71,7 +71,7 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
       val effectiveOptionCodes = repl.optionCodes
 
       return listOf("New $playerCount-player game created with options: $effectiveOptionCodes") +
-          (if (purple) listOf("Purple mode: workflow active") else emptyList())
+          (if (purple) listOf("Purple mode: the game's own rules drive play") else emptyList())
     } catch (e: InvalidGameConfigException) {
       throw UsageException(e.message)
     } catch (e: RuntimeException) {

@@ -13,6 +13,8 @@ import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Deferral.FINALLY
+import dev.martianzoo.pets.ast.Deferral.NONE
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
@@ -29,7 +31,10 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.GameEvent.TaskEditedEvent
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameWorld
@@ -44,8 +49,7 @@ import dev.martianzoo.state.TaskResult
  * Concrete changes that gain or remove a `System` component are assigned to Admin. Player choices
  * remain with the Player until narrowing makes the change concrete. Selection reapplies this rule
  * after resolving enclosing instructions, while explicit instruction-side `BY` remains
- * authoritative. The original controller and selection recipient are retained for continuations and
- * queued effects.
+ * authoritative.
  *
  * This is a low-level mutation surface. Task methods can change the live world immediately; callers
  * that need a failure-atomic interaction enclose the sequence in [transact]. Automatic task policy
@@ -145,21 +149,55 @@ internal constructor(
     taskQueues.editTask(task)
   }
 
-  /** Requires that no new pending task or cleanup component remains. */
-  public fun requireComplete(allowedPendingTasks: Set<TaskId> = emptySet()) {
+  /**
+   * Requires that the operation's work is over and left no cleanup component. Its work is over when
+   * no new pending task remains, or when the World's `FINALLY` work has begun since [lastDecision]:
+   * that happens only once no ordinary or `LATER` work remains (L2-19), and work admitted from then
+   * on belongs to whatever comes next. Cleanup is judged at that same point.
+   */
+  public fun requireComplete(
+      allowedPendingTasks: Set<TaskId> = emptySet(),
+      lastDecision: Checkpoint? = null,
+  ) {
     val pending = allTasks.extract { it }.filter { it.id !in allowedPendingTasks }
-    if (pending.isNotEmpty()) {
+    val workOver = lastDecision?.let(::finalWorkBegan)
+    if (pending.isNotEmpty() && workOver == null) {
       if (pending.any { it.instruction.isAbstract(reader) }) {
         throw NotFullySpecifiedException("pending abstract tasks:\n${pending.joinToString("\n")}")
       }
       throw TaskException("pending tasks:\n${pending.joinToString("\n")}")
     }
-    if (!reader.has(parse("MAX 0 $MUST_CLEAN_UP"))) {
+    val cleanupLeft =
+        if (pending.isEmpty() || workOver == null) !reader.has(parse("MAX 0 $MUST_CLEAN_UP"))
+        else cleanupComponentsAt(workOver) > 0
+    if (cleanupLeft) {
       throw DeadEndException(
           "components requiring cleanup remained after the operation: " +
               reader.getComponents(MUST_CLEAN_UP.expression).elements
       )
     }
+  }
+
+  /** Where the World's `FINALLY` work first began since [checkpoint], if it has. */
+  private fun finalWorkBegan(checkpoint: Checkpoint): Checkpoint? =
+      gameWorld.events
+          .entriesSince(checkpoint)
+          .firstOrNull {
+            it is TaskEditedEvent && it.oldTask.deferral == FINALLY && it.task.deferral == NONE
+          }
+          ?.let { Checkpoint(it.ordinal) }
+
+  /** How many cleanup components existed at [checkpoint]: those present now, less later change. */
+  private fun cleanupComponentsAt(checkpoint: Checkpoint): Int {
+    val mustCleanUp = reader.classTable.getClass(MUST_CLEAN_UP)
+    fun cleanup(component: Component?) =
+        component?.type?.rootClass?.isSubtypeOf(mustCleanUp) == true
+    val changeSince =
+        gameWorld.events.changesSince(checkpoint).sumOf {
+          (if (cleanup(it.change.gaining)) it.change.count else 0) -
+              (if (cleanup(it.change.removing)) it.change.count else 0)
+        }
+    return reader.count(reader.resolve(MUST_CLEAN_UP.expression)) - changeSince
   }
 
   /**
@@ -170,9 +208,8 @@ internal constructor(
     task.then?.let {
       taskQueues.addTasks(
           it,
-          task.controller,
+          task.assignee,
           task.cause,
-          task.selectionAssignee,
       )
     }
     val stored = queue.getTaskData(task.id)
@@ -305,11 +342,11 @@ internal constructor(
 
     // A selected group completes structurally before its children resolve against successive
     // worlds.
-    val replacement =
+    val resolved =
         if (effectiveNarrowing is Instruction)
             instructor.resolve(effectiveNarrowing, worldGainNarrowing = true)
         else effectiveNarrowing
-    replace1WithN(tasks, task, replacement, then = continuation)
+    applyResolution(tasks, task, resolved, then = continuation)
     if (taskId in allTasks) executeSelectedIfConcrete(taskId)
   }
 
@@ -436,9 +473,12 @@ internal constructor(
 
   private fun selectTask(queue: TaskQueue, task: Task): TaskId? {
     enforceSelectLock(task.id)
+    if (task.deferred) {
+      throw TaskException("task ${task.id} is deferred until no earlier work remains: $task")
+    }
     if (task.selected) return task.id
-    val replacement = instructor.resolve(task.instruction, worldGainNarrowing = true)
-    replace1WithN(queue, task, replacement, then = task.then)
+    val resolved = instructor.resolve(task.instruction, worldGainNarrowing = true)
+    applyResolution(queue, task, resolved, then = task.then)
     return task.id.takeIf { it in allTasks }
   }
 
@@ -455,20 +495,18 @@ internal constructor(
     }
   }
 
-  private fun replace1WithN(
+  private fun applyResolution(
       queue: TaskQueue,
       original: Task,
-      replacement: InstructionTree,
+      resolved: InstructionTree,
       then: InstructionGroup?,
   ) {
-    val group = InstructionGroup.of(replacement)
+    val group = InstructionGroup.of(resolved)
     // A group is independent work even when it currently contains only one instruction.
-    if (replacement !is InstructionGroup && group.size == 1) {
+    if (resolved !is InstructionGroup && group.size == 1) {
       var updated =
           taskQueues.normalizeForSelection(
               original.copy(
-                  assignee =
-                      if (original.selected) original.assignee else original.selectionAssignee,
                   selected = true,
                   instruction = group.instructions.single(),
                   then = then,
@@ -487,13 +525,12 @@ internal constructor(
         validateConcreteHandoff(updated.id)
       }
     } else {
-      // Structural completion replaces the selected task with ordinary pending siblings. No child
-      // inherits selection; a later player input must select whichever sibling comes next.
+      // Structural completion admits ordinary pending work and fulfills the selected task. No child
+      // inherits selection; a later player input must select whichever child comes next.
       taskQueues.addTasks(
           group,
-          original.controller,
+          original.assignee,
           original.cause,
-          original.selectionAssignee,
       )
       handleTask(queue, original.copy(then = then))
     }
@@ -530,8 +567,6 @@ internal constructor(
             selectedTask.instruction,
             selectedTask.cause,
             executingActor,
-            selectedTask.controller,
-            selectedTask.selectionAssignee,
         )
     newTasks.forEach(taskQueues::addTasks)
     handleTask(queue, selectedTask)

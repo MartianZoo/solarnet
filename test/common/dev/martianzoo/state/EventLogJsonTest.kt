@@ -29,9 +29,8 @@ internal class EventLogJsonTest {
     val player = Player(cn("Player1"))
     val task =
         Task(
-            TaskId(1),
-            ADMIN,
-            player,
+            id = TaskId(1),
+            assignee = ADMIN,
             instruction = parse<Instruction>("Token! BY Player1"),
             then = InstructionGroup(listOf(parse<Instruction>("Marker!"))),
             cause = Cause(parse("Token"), 0),

@@ -18,7 +18,10 @@ internal class RecruitmentTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("PlayProject<Class<Recruitment>>")
         selectTask("-X? MC")
-        doTasks("-2 MC", "Recruitment FROM ProjectCard")
+        doTasks(
+            "-2 MC",
+            "Recruitment FROM ProjectCard",
+        )
         selectOnlyTask()
       }
     }
@@ -40,6 +43,7 @@ internal class RecruitmentTest : TfmSandboxTest() {
               "Recruitment FROM ProjectCard",
               "PartyDelegate<MarsFirst, Kim FROM Neutral>",
           )
+          doTask("PlayedEvent<Class<$Recruitment>> FROM $Recruitment")
         }
         .expect(
             "PartyDelegate<MarsFirst>, Delegate, -Delegate<Neutral>, 0 Dominant<MarsFirst>, 0 PartyLeader<MarsFirst, Neutral>"
@@ -60,6 +64,7 @@ internal class RecruitmentTest : TfmSandboxTest() {
               "Recruitment FROM ProjectCard",
               "PartyDelegate<MarsFirst, Kim FROM Neutral>",
           )
+          doTask("PlayedEvent<Class<$Recruitment>> FROM $Recruitment")
         }
         .expect(
             "PartyLeader<MarsFirst>, -PartyLeader<MarsFirst, Neutral>, 0 PartyLeader<MarsFirst, Stan>"
@@ -80,6 +85,7 @@ internal class RecruitmentTest : TfmSandboxTest() {
               "Recruitment FROM ProjectCard",
               "PartyDelegate<MarsFirst, Kim FROM Neutral>",
           )
+          doTask("PlayedEvent<Class<$Recruitment>> FROM $Recruitment")
         }
         .expect(
             "PartyLeader<MarsFirst, Stan>, -PartyLeader<MarsFirst, Neutral>, 0 PartyLeader<MarsFirst>"
@@ -100,6 +106,7 @@ internal class RecruitmentTest : TfmSandboxTest() {
               "Recruitment FROM ProjectCard",
               "PartyDelegate<MarsFirst, Kim FROM Neutral>",
           )
+          doTask("PlayedEvent<Class<$Recruitment>> FROM $Recruitment")
         }
         .expect("0 PartyLeader<MarsFirst>, 0 PartyLeader<MarsFirst, Stan>")
   }
@@ -119,6 +126,7 @@ internal class RecruitmentTest : TfmSandboxTest() {
               "$Recruitment FROM ProjectCard",
               "PartyDelegate<MarsFirst, Kim FROM Neutral>",
           )
+          doTask("PlayedEvent<Class<$Recruitment>> FROM $Recruitment")
         }
         .expect(
             "PartyLeader<MarsFirst, Stan>, 0 PartyLeader<MarsFirst, Rob>, " +
@@ -142,6 +150,7 @@ internal class RecruitmentTest : TfmSandboxTest() {
               "Recruitment FROM ProjectCard",
               "PartyDelegate<MarsFirst, Stan FROM Neutral>",
           )
+          doTask("PlayedEvent<Class<$Recruitment>> FROM $Recruitment")
         }
         .expect(
             "PartyLeader<MarsFirst, Rob>, 0 PartyLeader<MarsFirst, Kim>, " +
@@ -160,7 +169,10 @@ internal class RecruitmentTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("PlayProject<Class<Recruitment>>")
         selectTask("-X? MC")
-        doTasks("-2 MC", "Recruitment FROM ProjectCard")
+        doTasks(
+            "-2 MC",
+            "Recruitment FROM ProjectCard",
+        )
         selectOnlyTask()
         doTask("PartyDelegate<MarsFirst, Kim FROM Neutral>")
       }

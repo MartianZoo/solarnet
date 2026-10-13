@@ -21,7 +21,10 @@ internal class UnexpectedApplicationTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("PlayProject<Class<UnexpectedApplication>>")
         selectTask("-X? MC")
-        doTasks("-4 MC", "UnexpectedApplication FROM ProjectCard")
+        doTasks(
+            "-4 MC",
+            "UnexpectedApplication FROM ProjectCard",
+        )
         selectTask("-ProjectCard<Kim, Hand>!")
       }
     }
@@ -38,6 +41,7 @@ internal class UnexpectedApplicationTest : TfmSandboxTest() {
           selectTask("VenusStep*")
           doTask("TerraformRating")
           selectTask("ProjectCard<Kim, Hand>!")
+          doTask("PlayedEvent<Class<UnexpectedApplication>> FROM UnexpectedApplication")
         }
         .expect("VenusStep")
   }

@@ -14,7 +14,11 @@ internal class LavaFlowsTest : TfmSandboxTest() {
     kim.setToExMachina(18, "MC")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<LavaFlows>>", "-18 MC", "LavaFlows FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<LavaFlows>>",
+          "-18 MC",
+          "LavaFlows FROM ProjectCard",
+      )
       selectTask("TemperatureStep*")
       selectTask("TemperatureStep*")
       doTasks(
@@ -23,6 +27,7 @@ internal class LavaFlowsTest : TfmSandboxTest() {
           "LavaFlows_SpecialTile<Tharsis_2_2>",
           "Steel",
       )
+      doTask("PlayedEvent<Class<$LavaFlows>> FROM $LavaFlows")
     }
   }
 
@@ -32,7 +37,11 @@ internal class LavaFlowsTest : TfmSandboxTest() {
     kim.setToExMachina(18, "MC")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<LavaFlows>>", "-18 MC", "LavaFlows FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<LavaFlows>>",
+          "-18 MC",
+          "LavaFlows FROM ProjectCard",
+      )
       selectTask("TemperatureStep*")
       selectTask("TemperatureStep*")
       doTasks(
@@ -41,6 +50,7 @@ internal class LavaFlowsTest : TfmSandboxTest() {
           "LavaFlows_SpecialTile<Hellas_1_5>",
           "Plant",
       )
+      doTask("PlayedEvent<Class<$LavaFlows>> FROM $LavaFlows")
     }
   }
 
@@ -59,7 +69,10 @@ internal class LavaFlowsTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("PlayProject<Class<LavaFlows>>")
         selectTask("-X? MC")
-        doTasks("-18 MC", "LavaFlows FROM ProjectCard")
+        doTasks(
+            "-18 MC",
+            "LavaFlows FROM ProjectCard",
+        )
         selectTask("TemperatureStep*")
         selectTask("TemperatureStep*")
         selectTask("TerraformRating!")

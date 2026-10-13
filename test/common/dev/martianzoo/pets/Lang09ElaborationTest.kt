@@ -275,7 +275,7 @@ internal class Lang09ElaborationTest {
 
   @Test
   internal fun `L9-8 the two default quantifiers are intersected, the stricter winning`() {
-    // `Chit` defaults its gain to `?`; `Slug` defaults its removal to `.`; `Plant` inherits `!`.
+    // `Chit` defaults its gain to `?`; `Slug` defaults its removal to `*`; `Plant` inherits `!`.
     elaborate("Chit") shouldBe parse<InstructionTree>("Chit<Player1>?")
     elaborate("-Slug") shouldBe parse<InstructionTree>("-Slug<Player1>*")
 

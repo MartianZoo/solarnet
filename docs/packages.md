@@ -83,7 +83,7 @@ Terraforming Mars-specific read-only projections over live and recorded Game Wor
 
 ### <a href="tfm-engine/dev.martianzoo.tfm.engine/index.html">dev.martianzoo.tfm.engine</a>
 
-Terraforming Mars-specific gameplay, workflow, and shared presentation rules.
+Terraforming Mars-specific gameplay and shared presentation rules.
 
 ## module SCRIPT
 

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
@@ -12,6 +13,7 @@ import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.state.Actor
@@ -56,18 +58,12 @@ public class TfmGameplay(
   public fun asPlayer(player: Player): TfmGameplay = asActor(player)
 
   /**
-   * Moves through Production, Research, and Action phases. [cardsBought] gives the count bought by
-   * each player in seat order; omitted trailing players make no purchase through this helper.
-   * Requires an existing phase and leaves Action as the current phase.
+   * Starts the game: SetupPhase replaces BootstrapPhase, and from then on the game's own rules
+   * offer every turn and begin every phase. The setup choices remain pending for their players.
    */
-  public fun nextGeneration(vararg cardsBought: Int) {
-    phase("Production")
-    phase("Research") {
-      for ((cards, player) in cardsBought.zip(game.actors.filterIsInstance<Player>())) {
-        asPlayer(player).buyCards(cards)
-      }
-    }
-    phase("Action")
+  public fun startGame(): TaskResult {
+    agents.taskLog.gameStarted()
+    return asActor(ADMIN).beginOperation("SetupPhase FROM BootstrapPhase")
   }
 
   /**
@@ -96,8 +92,8 @@ public class TfmGameplay(
     return try {
       inTurn {
         doTask("PlayCard<Class<CorporationCard>, Class<$cardName>>")
-        payAllMc()
         chooseConcreteCorporationEffectsBeforePurchase()
+        payAllMc()
         body()
         chooseConcreteCorporationEffectsBeforePurchase()
         buySelectedCards()
@@ -142,7 +138,7 @@ public class TfmGameplay(
           tasks
               .extract { it }
               .filter { task ->
-                task.selectionAssignee == actor && asActor(task.assignee).canSelectTask(task.id)
+                task.assignee == actor && asActor(task.assignee).canSelectTask(task.id)
               }
               .firstOrNull { task -> !task.instruction.isAbstract(reader) } ?: return
       selectTaskForActor(next)
@@ -182,9 +178,10 @@ public class TfmGameplay(
 
   // TODO: Contract temporary tfm-tests gameplay seams.
   /**
-   * Groups a player's corporation, Prelude, or action-phase turn. In the action phase, declines an
-   * unused second action when needed. If every other player has passed, the workflow may offer
-   * `NewTurn` immediately; this block leaves that offer in place.
+   * Groups a player's corporation, Prelude, or action-phase turn in the published game's sense; the
+   * game model counts an action-phase turn's one or two actions as separate turns. Declines an
+   * unused second action when needed. If every other player has passed, the game offers another
+   * first action immediately; this block leaves that offer in place.
    */
   public fun turn(body: TfmGameplay.() -> Unit) {
     body()
@@ -204,18 +201,14 @@ public class TfmGameplay(
     }
   }
 
-  private fun secondActionOffer(): Task? =
-      game.tasks
-          .extract { it }
-          .filter { it.assignee == actor }
-          .filter { task -> task.isActionPhaseSecondAction() }
-          .singleOrNull()
-
-  private fun Task.isActionPhaseSecondAction(): Boolean {
-    val origin = cause ?: return false
-    if (origin.context.className != cn("ActionPhase")) return false
-    val trigger = game.events.changeAt(origin.triggerEvent)
-    return trigger?.change?.gaining?.className == cn("SecondAction")
+  private fun secondActionOffer(): Task? {
+    val ordinary = parse<Instruction>("StandardAction?")
+    val required = parse<Instruction>("RequiredActionsSignal?")
+    return tasks
+        .extract { it }
+        .singleOrNull {
+          it.instruction == ordinary || it.instruction == required
+        }
   }
 
   /**
@@ -528,7 +521,7 @@ public class TfmGameplay(
         game.tasks
             .extract { it }
             .filter { task ->
-              task.selectionAssignee == actor &&
+              task.assignee == actor &&
                   task.instruction.descendantsOfType<Change>().any { change ->
                     change.gaining?.className == cn("Owed")
                   }
@@ -568,7 +561,7 @@ public class TfmGameplay(
           game.tasks
               .extract { it }
               .filter { task ->
-                task.selectionAssignee == actor &&
+                task.assignee == actor &&
                     task.cause == cause &&
                     !task.instruction.isAbstract(reader) &&
                     asActor(task.assignee).canSelectTask(task.id)
@@ -596,7 +589,7 @@ public class TfmGameplay(
           .extract { it }
           .filter { task ->
             val context = task.cause?.context
-            task.selectionAssignee == actor &&
+            task.assignee == actor &&
                 when (context?.className) {
                   cn("Accepting") ->
                       currency == null ||
@@ -770,18 +763,17 @@ public class TfmGameplay(
       }
 
   /**
-   * Replaces the sole current Phase with the named phase through an Admin operation (for example,
-   * `phase("Production")` selects `ProductionPhase`), then runs `body`. The caller must have
-   * started SetupPhase and must handle work left by the new phase. Throws [NotNowException] when
-   * there is not exactly one current Phase.
+   * Puts the game in the named phase ex machina (for example, `phase("Action")` places
+   * `ActionPhase`). The new phase's automatic effects run, but its queued start-of-phase rules,
+   * such as offering turns or handing off to a later phase, do not; this suits focused scenarios
+   * that need a phase without the game's flow. Fails when no pending work may be left behind.
    */
-  public fun phase(phase: String, body: OperationBlock = {}) {
-    if (count("Phase") != 1) {
-      throw NotNowException(
-          "No current Phase; start SetupPhase through TfmWorkflow before changing phases"
-      )
+  public fun phase(phase: String): TaskResult {
+    if (!game.tasks.isEmpty()) {
+      throw NotNowException("Finish pending tasks before putting the game in ${phase}Phase")
     }
-    asActor(ADMIN).runOperation("${phase}Phase FROM Phase", body)
+    val current = reader.getComponents(resolve("Phase")).elements.single().className
+    return asActor(ADMIN).sneak("${phase}Phase FROM $current")
   }
 
   /** This actor's printed production of [kind]: live `PROD[kind]` minus `ProdOffset`. */

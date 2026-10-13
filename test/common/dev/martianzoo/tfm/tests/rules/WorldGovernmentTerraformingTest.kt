@@ -1,10 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agenttestsupport.testAgents
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
@@ -13,33 +10,27 @@ import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class WorldGovernmentTerraformingTest {
+internal class WorldGovernmentTerraformingTest : TfmGameplayTest() {
   @Test
   internal fun `start player chooses an Admin increase that triggers Aphrodite`() {
-    val game = setUpGame(VenusNextExpansion, players = 3)
-    val admin = game.testTfm(ADMIN)
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
-    p1.runOperation("$Aphrodite")
-    val mcBefore = p1.count("MC")
-    admin.runOperation("StartToken<Player2> FROM StartToken<Player1>")
+    newTestGame(kimCorporation = Aphrodite)
+    admin.sneak("StartToken<Stan> FROM StartToken<Kim>")
+    kim.pass()
+    stan.pass()
+    rob.pass()
+    val mcBefore = kim.count("MC")
     val checkpoint = game.timeline.checkpoint()
 
-    with(TfmWorkflow.Stepwise(game.testAgents())) {
-      solarPhase()
-      venusSolarPhase()
-    }
-
-    admin.count("VenusSolarPhase") shouldBe 1
-    p2.doTask("VenusStep! BY Admin")
+    admin.count("SolarPhase") shouldBe 1
+    stan.wgt("VenusStep")
 
     val venusIncrease =
         game.events.changesSince(checkpoint).single {
           it.change.gaining?.className.toString() == "VenusStep"
         }
     venusIncrease.actor shouldBe ADMIN
-    p2.count("TerraformRating") shouldBe 20
-    p1.count("MC") shouldBe mcBefore + 2
+    stan.count("TerraformRating") shouldBe 20
+    kim.count("MC") shouldBe mcBefore + 2
   }
 
   @Test
@@ -73,26 +64,24 @@ internal class WorldGovernmentTerraformingTest {
     )
     admin.count("GpIncomplete") shouldBe 0
 
-    with(TfmWorkflow.Stepwise(game.testAgents())) {
-      solarPhase()
-      venusSolarPhase()
-    }
+    admin.runOperation("WorldGovernmentTerraforming<Player1>")
 
     game.tasks.ids() shouldBe emptySet()
   }
 
   @Test
   internal fun `Solar phase is skipped when production ends the game`() {
-    val game = setUpGame(VenusNextExpansion)
-    val admin = game.testTfm(ADMIN)
-    admin.runOperation(
+    newTestGame()
+    admin.sneak(
         "GpComplete<Class<TemperatureStep>>, " +
             "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
     )
 
-    TfmWorkflow.Stepwise(game.testAgents()).solarPhase()
+    kim.pass()
+    stan.pass()
+    rob.pass()
 
     admin.count("SolarPhase") shouldBe 0
-    game.tasks.ids() shouldBe emptySet()
+    admin.count("FinalGreeneryPhase") shouldBe 1
   }
 }

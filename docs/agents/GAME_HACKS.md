@@ -445,7 +445,7 @@ billing in [TfmActionLowerer.kt](../../src/common/dev/martianzoo/tfm/canon/TfmAc
 The full canon pass covered all **536 definitions in the eight card-data files**, the accompanying
 Pets declarations, all seven maps and their milestones/awards, solo and beginner setup, colonies,
 Turmoil and global events, card introspection and custom instructions, payments, action lowering,
-and the phase/turn workflow. Shared change and effect dispatch were checked where the examples
+and the phase and turn flow. Shared change and effect dispatch were checked where the examples
 depend on them. Repeated ordinary resource/production instructions and coordinate/bonus data were
 reviewed as families, not counted as separate hacks.
 

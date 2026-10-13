@@ -21,6 +21,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
           )
           selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
           selectTask("ColonyProduction<Luna FROM Triton>!")
+          doTask("PlayedEvent<Class<MarketManipulation>> FROM MarketManipulation")
         }
         .expect("ColonyProduction<Luna>, -ColonyProduction<Triton>")
   }

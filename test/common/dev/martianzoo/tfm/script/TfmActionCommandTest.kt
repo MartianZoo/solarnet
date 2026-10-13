@@ -44,7 +44,7 @@ internal class TfmActionCommandTest {
   }
 
   @Test
-  internal fun `tfm action forwards inline payment through an accept workflow`() {
+  internal fun `tfm action pays its owed cost from inline payment`() {
     val repl = actionGame("WaterImportFromEuropa, 12 MC")
 
     val output = repl.command("tfm_action WaterImportFromEuropa 1, 12 MC")

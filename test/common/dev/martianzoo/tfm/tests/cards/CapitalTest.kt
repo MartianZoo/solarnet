@@ -64,7 +64,6 @@ internal class CapitalTest : TfmSandboxTest() {
               "PROD[5 MC]",
               "CapitalTile<Tharsis_3_3>",
           )
-          selectTask("Production<Kim, Class<MC>>!")
           kim.selectTask("PROD[MC]")
         }
         .expect("PROD[MC<Kim>]")

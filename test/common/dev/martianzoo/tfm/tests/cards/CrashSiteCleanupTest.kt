@@ -16,9 +16,13 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
       selectTask("-X? Titanium")
-      doTasks("Ok", "AsteroidCard FROM ProjectCard")
+      doTasks(
+          "Ok",
+          "AsteroidCard FROM ProjectCard",
+      )
       selectTask("TemperatureStep*")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
+      doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
 
     kim.inTurn {
@@ -28,6 +32,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
           "CrashSiteCleanup FROM ProjectCard",
           "Titanium",
       )
+      doTask("PlayedEvent<Class<CrashSiteCleanup>> FROM CrashSiteCleanup")
     }
   }
 
@@ -37,9 +42,13 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
       selectTask("-X? Titanium")
-      doTasks("Ok", "AsteroidCard FROM ProjectCard")
+      doTasks(
+          "Ok",
+          "AsteroidCard FROM ProjectCard",
+      )
       selectTask("TemperatureStep*")
       doTasks("2 Titanium", "TerraformRating", "-Plant")
+      doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
 
     shouldThrow<RequirementException> {
@@ -56,9 +65,13 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
       selectTask("-X? Titanium")
-      doTasks("Ok", "AsteroidCard FROM ProjectCard")
+      doTasks(
+          "Ok",
+          "AsteroidCard FROM ProjectCard",
+      )
       selectTask("TemperatureStep*")
       doTasks("2 Titanium", "TerraformRating", "-Plant")
+      doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
 
     shouldThrow<RequirementException> {
@@ -75,9 +88,13 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
       selectTask("-X? Titanium")
-      doTasks("Ok", "AsteroidCard FROM ProjectCard")
+      doTasks(
+          "Ok",
+          "AsteroidCard FROM ProjectCard",
+      )
       selectTask("TemperatureStep*")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
+      doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
     advanceUntilActionPhase()
 
@@ -95,9 +112,13 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     rob.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
       selectTask("-X? Titanium")
-      doTasks("Ok", "AsteroidCard FROM ProjectCard")
+      doTasks(
+          "Ok",
+          "AsteroidCard FROM ProjectCard",
+      )
       selectTask("TemperatureStep*")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
+      doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
 
     shouldThrow<RequirementException> {
@@ -114,11 +135,15 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
           selectTask("-X? Titanium")
-          doTasks("Ok", "AsteroidCard FROM ProjectCard")
+          doTasks(
+              "Ok",
+              "AsteroidCard FROM ProjectCard",
+          )
           selectTask("TemperatureStep*")
           doTasks("2 Titanium", "TerraformRating")
           selectTask("-3? Plant<Anyone>")
           doTask("Ok")
+          doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
         }
         .expect("0 Plant<Stan>")
 

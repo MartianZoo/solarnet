@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -41,7 +40,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
 
   @Test
   internal fun completeGame() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     val green = p1.requireExplicitUnusedActionCards()
     val yellow = p2.requireExplicitUnusedActionCards()
     val blue = p3.requireExplicitUnusedActionCards()
@@ -223,7 +222,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     green.wgt("OceanTile<Vastitas_5_8>").expect("0 TerraformRating<Green>")
     // "Oh, turmoil." "Walk us through it." "TR Revision, all players lose one TR." "Boo."
     // "New Government. The dominant party now becomes ruling. Change policy title to Scientists."
-    // The automatic Solar operation performs TR revision, forms the Scientists government, and
+    // The Turmoil phase that follows performs TR revision, forms the Scientists government, and
     // advances both printed events before requesting only the next distant event.
     // "Changing times. Got the coming global event. Move a distant global event to coming. Turn the
     // top part of global event face up. It is sponsored projects."
@@ -400,7 +399,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
 
     // Complete phone-ledger checkpoint after Generation 2 production. Pristar's preservation
     // reward is included because the players apply it immediately before World Government. The
-    // automatic workflow is now waiting for that World Government choice.
+    // game is now waiting for that World Government choice.
     with(green) {
       assertProduction(m = -3, s = 0, t = 0, p = 1, e = 4, h = 0)
       assertResources(m = 18, s = 0, t = 0, p = 2, e = 4, h = 1)
@@ -417,8 +416,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       assertCounts(22 to "TerraformRating")
     }
 
-    // "Ellie does World Government ... ocean ... five seven."
-    yellow.wgt("OceanTile<Vastitas_5_7>").expect("0 TerraformRating<Yellow>")
+    // "Ellie does World Government ... ocean ... five seven." The Admin ocean awards Yellow no TR;
+    // the Turmoil phase then begins at once, and its TR revision costs every player one.
+    yellow.wgt("OceanTile<Vastitas_5_7>").expect("-1 TerraformRating<Yellow>")
     // Mud Slides charges nobody because influence covers every adjacent owned tile. Greens forms
     // the government and Green becomes chairman.
     admin.doTask("BioengineeringBoom")
@@ -525,9 +525,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // "Red Appeasement for zero ... gain two money production and this counts as me passing."
       playProject(RedAppeasement, 0).expect("PROD[2 MC], Pass")
     }
-    // Automatic workflow notices Pass after a first action, while Red Appeasement supplies it as
-    // Yellow's second. Temporarily defer that Pass until the redundant turn the workflow offers.
-    yellow.exMachina("-Pass")
     blue.turn {
       // "Blue is going to send her lobbyist to ... Greens."
       stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Greens>") }
@@ -538,16 +535,13 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       cardAction1(OrbitalCleanup).expect("4 MC")
     }
     green.exMachina("-ScienceTag<$FakeSeptemTribus>, -ScienceTag<$FakeNobelPrize>")
-    // This is the Pass already supplied physically by Red Appeasement, deferred solely so the
-    // unchanged workflow can recognize it at the point where it checks first-action results.
-    yellow.pass(unused = SearchForLife).expect("Pass")
     blue.pass()
     green.pass()
 
     // board-12-36-50.jpg and the phone histories show these complete physical ledgers after
     // production and before World Government or Turmoil. Yellow's phone still reads 40 M€ because
     // its 6 M€ Pristar reward is entered later with the Solar payouts; the engine has already
-    // awarded it and therefore reads 46 M€ here. Automatic workflow is waiting for World
+    // awarded it and therefore reads 46 M€ here. The game is waiting for World
     // Government, so no Turmoil TR revision has happened yet.
     with(green) {
       assertProduction(m = -3, s = 0, t = 0, p = 1, e = 4, h = 0)
@@ -566,7 +560,8 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 3, temp = -24, oxygen = 3, oceans = 2, venus = 0)
 
-    // "Why not Venus? Venus it is. ... Venus is now at two." TR revision remains pending.
+    // "Why not Venus? Venus it is. ... Venus is now at two." The Turmoil phase follows at once:
+    // Blue loses one TR to revision and regains it as chairman.
     blue.wgt("VenusStep").expect("0 TerraformRating<Blue>")
     // Venus Infrastructure pays Green 6 M€, Yellow 4 M€, and Blue 4 M€ from their recorded
     // Venus tags and influence. Unity then pays 1/3/2 M€ for planetary tags and makes Blue
@@ -841,7 +836,8 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     // reward, not a table mistake. The engine suppresses it because its generation watcher still
     // sees Yellow's chairman TR from the preceding Solar transition.
     yellow.exMachina("6 MC")
-    yellow.wgt("OceanTile<Vastitas_4_3>").expect("0 TerraformRating<Yellow>")
+    // The Admin ocean awards Yellow no TR; the Turmoil phase's TR revision then costs one.
+    yellow.wgt("OceanTile<Vastitas_4_3>").expect("-1 TerraformRating<Yellow>")
     // Spin-Off Products and the Scientists ruling bonus pay for science tags. Diversity becomes
     // current, Improved Energy Templates becomes coming, and Revolution is revealed.
     admin.doTask("WorldGovernmentDirectives")
@@ -891,8 +887,8 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     blue.turn { convertHeat() }
 
-    // The transcript resumes with Yellow although Green had not passed. To preserve the legal
-    // workflow, Green's next narrated action is advanced into that skipped physical turn; the
+    // The transcript resumes with Yellow although Green had not passed. To preserve legal turn
+    // order, Green's next narrated action is advanced into that skipped physical turn; the
     // remaining Green actions stay in their sourced order through the otherwise silent Toll
     // Station play.
     green.turn {
@@ -1035,7 +1031,8 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 6, temp = -14, oxygen = 6, oceans = 5, venus = 4)
 
-    blue.wgt("VenusStep").expect("0 TerraformRating<Blue>")
+    // The Turmoil phase's TR revision follows World Government at once and costs Blue one TR.
+    blue.wgt("VenusStep").expect("-1 TerraformRating<Blue>")
     // Diversity resolves, Greens takes government, and Snow Cover is revealed.
     admin.doTask("MoholeLakeGlobalEvent")
     // The physical Greens delegation makes Yellow chairman; the engine retained the neutral

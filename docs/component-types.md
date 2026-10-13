@@ -20,7 +20,7 @@ limits and bonuses without changing the global-parameter classes.
 Completion removes the matching `GpIncomplete` marker, and the resulting `GpComplete` component
 rejects any attempted removal after completion.
 
-The definition of the `GlobalParameter` Class includes the line `+This.`. Any gain/remove Instruction in PETS can be followed by a Quantifier: either `!` meaning "mandatory", `?` meaning "optional", or `.` meaning "to the extent possible". The `Component` Class sets a default gain Quantifier of `!`, because most things in the game are mandatory. This line in `GlobalParameter` says that all gains of `GlobalParameter` instances default to "if possible". At the selected track's limit, the Instruction remains executable and simply does nothing. As you might guess if you know the TfM rules well, `CardResource` also has the same default.
+The definition of the `GlobalParameter` Class includes the line `DEFAULT +GlobalParameter*`. Any gain/remove Instruction in PETS can carry a Quantifier: either `!` meaning "mandatory", `?` meaning "optional", or `*` meaning "to the extent possible". The `Component` Class sets a default gain Quantifier of `!`, because most things in the game are mandatory. This line in `GlobalParameter` says that all gains of `GlobalParameter` instances default to "if possible". At the selected track's limit, the Instruction remains executable and simply does nothing. As you might guess if you know the TfM rules well, `CardResource` also has the same default.
 
 ### Maps
 

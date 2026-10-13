@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.agent.Agent
+import dev.martianzoo.agenttestsupport.startSetupOnly
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.catalog.ClassSelection
@@ -37,12 +38,23 @@ import io.kotest.matchers.shouldBe
 internal fun setUpGame(premise: GamePremise): World =
     TfmEngine.newGame(premise).apply {
       val agents = testAgents()
-      TfmWorkflow.Stepwise(agents).setupPhase()
+      startSetupOnly()
       actors.filterIsInstance<Player>().forEach { player ->
         agents.tfm(player).keepStartingProjects(0)
       }
       revealTurmoilSetupEvents(this)
     }
+
+/**
+ * Moves a setup-only game into the corporation phase through that phase's own start, so its queued
+ * rules (such as realizing the selected colony tiles) run, then drops the corporation turn order it
+ * begins: the scenario plays out of turn.
+ */
+internal fun World.startCorporationPhaseOutOfTurn() {
+  val agents = testAgents()
+  agents[ADMIN].beginOperation("CorporationPhase FROM SetupPhase")
+  tasks.extract { it.id to it.assignee }.forEach { (id, assignee) -> agents[assignee].dropTask(id) }
+}
 
 internal fun revealTurmoilSetupEvents(game: World) {
   val admin = game.testAgent(ADMIN)

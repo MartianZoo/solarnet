@@ -13,15 +13,15 @@
 
 ## Scope of the current question
 
-Start with a concrete, non-Hidden gain or removal task already present in a Player's queue during
+Start with a concrete, Real gain or removal task already present in a Player's queue during
 play with current Canon. The Player must resolve every pending task; only their order and any
 authored choices are at issue. Ask whether some legal way to clear the resulting work produces a
 preferable outcome that is lost by doing this task first. Include tasks generated while clearing
 the queue and the effects of cards already in play. Do not use tasks inserted by a test, a
 hypothetical card, FakeCanon, or FakeHeadStart as counterexamples to a claim about current Canon.
 
-`TfmWorkflow.Automatic` waits for outstanding work to drain before starting the next phase or
-granting the next action. Production cannot occur midway through clearing a Player's queue. In
+The game's flow begins the next phase or turn only as `FINALLY` work, after all other work has
+drained ([game flow](SEQUENCING.md#game-flow)). Production cannot occur midway through clearing a Player's queue. In
 particular, Factorum's action is not a counterexample to immediately taking a pending Energy gain
 unless a reachable Canon play actually puts both tasks in that queue. A future Canon edit that
 changes a proved premise should ideally be caught by a check like `CanonInvariantsTest`; that is a
@@ -45,8 +45,8 @@ execution remain open.
   `canSelectTask`, `prepareTaskNarrowing`, and `requireComplete` define current command constraints.
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt): `resolve` and
   `executeResolved` distinguish current-state simplification from execution and consequences.
-- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt): controller, selection assignee,
-  current assignee, selection, instruction, continuation, and cause all affect unfinished work.
+- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt): current assignee, selection,
+  instruction, continuation, and cause all affect unfinished work.
 - [`SafeAutoExecTest.kt`](../../test/common/dev/martianzoo/agent/SafeAutoExecTest.kt): current
   singleton selection, per-Actor policy, enabled-task, and rollback scenarios. The test name does
   not establish safety for arbitrary compositions.
@@ -92,7 +92,7 @@ Equal visible resource counts are too weak. A candidate state comparison must ac
 
 - exact component Types, multiplicities, dependencies, and ownership;
 - pending instructions and continuations, including unresolved linked choices;
-- controller, selection assignee, current assignee, and selection state;
+- current assignee and selection state;
 - any cause relationships that the compared operations or client helpers consult; and
 - scheduling eligibility and operation membership, if a future model adds them.
 
@@ -102,8 +102,8 @@ relevant relationships and every subsequent legal command are preserved. Current
 consult causes, and a proposed causal scope could depend on ancestry, so excluding history needs
 an argument appropriate to the actual contract.
 
-Iteration order and derived indexes should not create gameplay meaning. If a custom implementation,
-workflow, or external card-identity record can affect later play, either account for it or state
+Iteration order and derived indexes should not create gameplay meaning. If a custom implementation
+or external card-identity record can affect later play, either account for it or state
 that the proof does not cover that execution path. Do not claim whole-game safety from an engine
 projection that omits such facts.
 
@@ -186,8 +186,8 @@ An earlier attempt wrote tests by inserting pairs of tasks with `Agent.addTasks`
 what the engine does when given those pairs. It did not show that current Canon can put both tasks
 in a Player's queue. In particular, pairing an Energy gain with Factorum's action assumed the
 very scheduling fact that needed checking. Pairing a Player's removal task with an Admin production
-phase was invalid for this question: the automatic workflow waits for outstanding work to clear
-before starting production.
+phase was invalid for this question: the game's flow waits for outstanding work to clear before
+starting production.
 
 The replacement tests used real Canon card plays, but mostly compared two orders within a single
 card. Agreement in those plays could not establish that doing a Type's gain or removal first is

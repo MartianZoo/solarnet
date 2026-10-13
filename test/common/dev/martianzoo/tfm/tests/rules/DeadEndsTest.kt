@@ -161,6 +161,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
               "-3 MC",
               "Ok",
           )
+          doTask("PlayedEvent<Class<$SmallAsteroid>> FROM $SmallAsteroid")
         }
         .expect("0 MC<Stan>")
   }

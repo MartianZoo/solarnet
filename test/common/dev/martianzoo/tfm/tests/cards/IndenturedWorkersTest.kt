@@ -11,8 +11,12 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     kim.setToExMachina(27, "MC")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<IndenturedWorkers>>", "IndenturedWorkers FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<IndenturedWorkers>>",
+          "IndenturedWorkers FROM ProjectCard",
+      )
       selectOnlyTask()
+      doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "-27 MC")
@@ -28,8 +32,12 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     kim.setToExMachina(8, "Heat")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<IndenturedWorkers>>", "IndenturedWorkers FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<IndenturedWorkers>>",
+          "IndenturedWorkers FROM ProjectCard",
+      )
       selectOnlyTask()
+      doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
     }
     kim.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
@@ -37,8 +45,8 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
       doTask("TerraformRating")
     }
     kim.inTurn {
-      doTasks("ConvertHeat", "-Heat / Owed<Class<Heat>>")
-      selectTask("MAX 0 Billing: TemperatureStep*")
+      doTasks("ConvertHeat", "-8 Heat")
+      doTask("TemperatureStep")
       doTask("TerraformRating")
     }
     kim.inTurn {
@@ -57,8 +65,12 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     kim.setToExMachina(36, "MC")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<IndenturedWorkers>>", "IndenturedWorkers FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<IndenturedWorkers>>",
+          "IndenturedWorkers FROM ProjectCard",
+      )
       selectOnlyTask()
+      doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "-27 MC")
@@ -75,8 +87,12 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     newTestGame()
 
     kim.inTurn {
-      doTasks("PlayProject<Class<IndenturedWorkers>>", "IndenturedWorkers FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<IndenturedWorkers>>",
+          "IndenturedWorkers FROM ProjectCard",
+      )
       selectOnlyTask()
+      doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
     }
     advanceUntilActionPhase()
     kim.setToExMachina(35, "MC")
@@ -95,8 +111,12 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     kim.exMachina("$BoardOfDirectors, Director<$BoardOfDirectors>")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<IndenturedWorkers>>", "IndenturedWorkers FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<IndenturedWorkers>>",
+          "IndenturedWorkers FROM ProjectCard",
+      )
       selectOnlyTask()
+      doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
     }
     kim.inTurn {
       doTask("UseCardAction<BoardOfDirectors, Action1>")

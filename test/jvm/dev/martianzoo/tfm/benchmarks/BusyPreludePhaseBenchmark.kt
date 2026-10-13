@@ -13,7 +13,6 @@ import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.fake.FakeCanon
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations.Benchmark
@@ -33,8 +32,7 @@ public open class BusyPreludePhaseBenchmark {
   private val fakeHeadStart = cn("FakeHeadStart")
   private lateinit var game: World
   private lateinit var me: TfmGameplay
-  private lateinit var workflow: TfmWorkflow.Stepwise
-  private lateinit var beforeCorporationPhase: Checkpoint
+  private lateinit var beforeCorporationPlay: Checkpoint
 
   @Setup(Level.Trial)
   public fun setUp() {
@@ -53,26 +51,25 @@ public open class BusyPreludePhaseBenchmark {
     val agents = Agents(game)
     me = agents.tfm(PLAYER1)
     val admin = agents.tfm(ADMIN)
-    workflow = TfmWorkflow.Stepwise(agents)
 
-    workflow.setupPhase()
+    admin.startGame()
     me.keepStartingProjects(10)
     me.doTask("-SelectedColonyTile<Class<Ceres>>")
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     admin.doTask("CityTile<Tharsis_5_8, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_7, SoloOpponent>")
-    check(game.tasks.isEmpty()) { "benchmark setup left pending tasks:\n${game.tasks}" }
+    check(admin.count("CorporationPhase") == 1) {
+      "benchmark setup did not reach the corporation phase:\n${game.tasks}"
+    }
 
-    beforeCorporationPhase = game.timeline.checkpoint()
+    beforeCorporationPlay = game.timeline.checkpoint()
   }
 
   @Benchmark
   public fun corporationThroughFirstActionPhase(): Int {
-    workflow.corporationPhase()
     me.playCorp(cn("Teractor"))
 
-    workflow.preludePhase()
     me.playPrelude(fakeHeadStart) {
       doTask("PlayProject<Class<EarthOffice>>")
       me.pay(0)
@@ -85,7 +82,6 @@ public open class BusyPreludePhaseBenchmark {
       }
     }
 
-    workflow.actionPhase()
     // Jacob Fryxelius's ruling makes Valley Trust's required action the first action-phase action.
     // https://boardgamegeek.com/thread/3055761/article/41996773#41996773
     me.stdAction("RequiredActionsSignal") {
@@ -105,11 +101,11 @@ public open class BusyPreludePhaseBenchmark {
 
   @TearDown(Level.Invocation)
   public fun rollBack() {
-    if (game.timeline.checkpoint() == beforeCorporationPhase) return
+    if (game.timeline.checkpoint() == beforeCorporationPlay) return
     // Teractor + Valley Trust, four Preludes, and four projects.
     check(me.count("CardFront") == 10)
     val mc = me.count("MC")
     check(mc == 65) { "expected 65 MC, found $mc" }
-    game.timeline.rollBack(beforeCorporationPhase)
+    game.timeline.rollBack(beforeCorporationPlay)
   }
 }

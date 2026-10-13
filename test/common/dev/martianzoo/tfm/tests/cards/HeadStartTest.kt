@@ -140,11 +140,11 @@ internal class HeadStartTest : TfmSandboxTest() {
       selectTask("2! MC / ProjectCard<Kim, Hand>")
       doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
       selectTask(
-          "(SuitableInfrastructureBonus<SuitableInfrastructure>: -SuitableInfrastructureBonus<SuitableInfrastructure>! THEN 2! MC) OR (MAX 0 SuitableInfrastructureBonus<SuitableInfrastructure>: Ok)"
+          "(SuitableInfrastructureBonus<SuitableInfrastructure<Kim>>: -SuitableInfrastructureBonus<SuitableInfrastructure<Kim>>! THEN 2! MC<Kim>) OR (MAX 0 SuitableInfrastructureBonus<SuitableInfrastructure<Kim>>: Ok)"
       )
       doTasks("2 MC", "UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
       selectTask(
-          "(SuitableInfrastructureBonus<SuitableInfrastructure>: -SuitableInfrastructureBonus<SuitableInfrastructure>! THEN 2! MC) OR (MAX 0 SuitableInfrastructureBonus<SuitableInfrastructure>: Ok)"
+          "(SuitableInfrastructureBonus<SuitableInfrastructure<Kim>>: -SuitableInfrastructureBonus<SuitableInfrastructure<Kim>>! THEN 2! MC<Kim>) OR (MAX 0 SuitableInfrastructureBonus<SuitableInfrastructure<Kim>>: Ok)"
       )
       doTask("2 MC")
     }

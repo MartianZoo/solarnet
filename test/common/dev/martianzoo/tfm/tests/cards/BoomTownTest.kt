@@ -57,6 +57,7 @@ internal class BoomTownTest : TfmSandboxTest() {
       selectTask("TemperatureStep*")
       selectTask("-2? Plant<Anyone>")
       doTask("TerraformRating")
+      doTask("PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid")
     }
     stan.inTurn {
       doTasks(
@@ -99,6 +100,7 @@ internal class BoomTownTest : TfmSandboxTest() {
       selectTask("TemperatureStep*")
       selectTask("-2? Plant<Anyone>")
       doTask("TerraformRating")
+      doTask("PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid")
     }
   }
 

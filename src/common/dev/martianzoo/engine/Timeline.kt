@@ -19,8 +19,8 @@ public interface Timeline {
 
   /**
    * Marks the current position as the rollback floor: [rollBack] will refuse to go earlier than
-   * this. Called after engine initialization and by the automatic workflow after phase transitions,
-   * so that players cannot undo the engine's structural decisions.
+   * this. Called after engine initialization and at a fork point, which nothing in this World can
+   * undo. Gameplay sets no floor, so rollback may cross turn and phase changes.
    */
   public fun commit()
 

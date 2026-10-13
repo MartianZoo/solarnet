@@ -5,7 +5,6 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -83,7 +82,7 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
 
   @Test
   internal fun activeProtonFlowThroughGeneration2() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
 
     green.autoExecPolicy = NONE
     pink.autoExecPolicy = NONE

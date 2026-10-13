@@ -14,11 +14,16 @@ internal class PublicPlansTest : TfmSandboxTest() {
     kim.setToExMachina(3, "ProjectCard")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<PublicPlans>>", "-7 MC", "PublicPlans FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<PublicPlans>>",
+          "-7 MC",
+          "PublicPlans FROM ProjectCard",
+      )
       selectOnlyTask()
       doTask("2 ProjectCard<Revealed FROM Hand>")
       selectOnlyTask()
       doTask("2 MC")
+      doTask("PlayedEvent<Class<PublicPlans>> FROM PublicPlans")
     }
   }
 
@@ -27,11 +32,16 @@ internal class PublicPlansTest : TfmSandboxTest() {
     kim.setToExMachina(3, "ProjectCard")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<PublicPlans>>", "-7 MC", "PublicPlans FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<PublicPlans>>",
+          "-7 MC",
+          "PublicPlans FROM ProjectCard",
+      )
       selectOnlyTask()
       doTask("ProjectCard<Revealed FROM Hand>")
       selectOnlyTask()
       doTask("MC")
+      doTask("PlayedEvent<Class<PublicPlans>> FROM PublicPlans")
     }
   }
 
@@ -44,7 +54,10 @@ internal class PublicPlansTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("PlayProject<Class<PublicPlans>>")
         selectTask("-X? MC")
-        doTasks("-7 MC", "PublicPlans FROM ProjectCard")
+        doTasks(
+            "-7 MC",
+            "PublicPlans FROM ProjectCard",
+        )
         selectOnlyTask()
         doTask("ProjectCard<Revealed FROM Hand>")
       }

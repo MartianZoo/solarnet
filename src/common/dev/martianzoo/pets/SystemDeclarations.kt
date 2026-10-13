@@ -49,16 +49,8 @@ private val systemDeclarationsSource =
     "Mandatory unfinished state that a completed operation may not leave behind"
     ABSTRACT CLASS MustCleanUp
 
-    "Removed only at a whole-World empty task pool, once no dependent Temporary or MustCleanUp remains"
-    ABSTRACT CLASS Temporary
-
     "A lifetime anchor for components that depend on it"
     ABSTRACT CLASS Scope
-
-    "A child Scope combining whole-World idle removal with mandatory completion"
-    ABSTRACT CLASS TemporaryScope<Scope> : Scope, Temporary, MustCleanUp {
-      HAS MAX 1 This
-    }
 
     "Mandatory unfinished state removed by its owning game rule; `MAX 0 Barrier:` is a common gate"
     ABSTRACT CLASS Barrier : MustCleanUp

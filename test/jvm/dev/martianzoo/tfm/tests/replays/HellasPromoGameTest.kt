@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -20,8 +19,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
 
   @Test
   internal fun hellasPromoGame() {
-    val workflow = TfmWorkflow.Automatic(agents).launch()
-    workflow.isRunning shouldBe true
+    admin.startGame()
     keepStartingProjects(7, 5)
 
     p1.playCorp(InterplanetaryCinematics)
@@ -139,6 +137,5 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
       p2.assertCounts(28 to "VictoryPoint")
       sum.net("Card", "VictoryPoint<Player2>") shouldBe 3
     }
-    workflow.isRunning shouldBe true
   }
 }

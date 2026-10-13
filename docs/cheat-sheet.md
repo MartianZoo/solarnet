@@ -24,8 +24,8 @@ Type `help <ClassName>` or, for the gruesome details, `desc <ClassName>`.
 * `PROD[Plant OR (3 PlantTag: 4 Plant)]` means to increase plant production 1 step, or, if you have 3 plant tags, 4 steps
 * `2 Steel<Player1> FROM Steel<Player2>` or `2 Steel<Player1 FROM Player2>` means to transfer 2 steel from Player2 to Player1
 * `-2 Microbe<This> THEN PROD[Plant]` means to remove 2 microbes from that card; only you've done that, a new task will appear to increase your plant production
-* `-3 MC.` (with a dot) means to lose 3 MC or as much of that amount as possible
-* `-6 Plant<Anyone>?` (with a question mark) means to remove *up to* 6 plants from any player (i.e., optional)
+* `-3* MC` (with a star) means to lose 3 MC or as much of that amount as possible
+* `-6? Plant<Anyone>` (with a question mark) means to remove *up to* 6 plants from any player (i.e., optional)
 * `Ok` means to do nothing, which is sometimes needed because instructions are mandatory
 
 ## other syntax

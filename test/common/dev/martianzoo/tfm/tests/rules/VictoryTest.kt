@@ -25,8 +25,8 @@ internal class VictoryTest {
 
     p1.count("Victory<Player1>") shouldBe 1
     p2.count("Victory<Player2>") shouldBe 1
-    admin.count("End") shouldBe 1
-    shouldThrow<LimitsException> { admin.runOperation("-End") }
+    admin.count("VictoryPhase") shouldBe 1
+    shouldThrow<LimitsException> { admin.runOperation("-VictoryPhase") }
   }
 
   @Test

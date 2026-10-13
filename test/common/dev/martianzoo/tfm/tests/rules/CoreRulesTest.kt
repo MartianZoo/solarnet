@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -24,8 +25,8 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Heat")
 
     kim.inTurn {
-          doTasks("ConvertHeat", "-Heat / Owed<Class<Heat>>")
-          selectTask("MAX 0 Billing: TemperatureStep*")
+          doTasks("ConvertHeat", "-8 Heat")
+          doTask("TemperatureStep")
           doTask("TerraformRating")
         }
         .expect("-8 Heat, TemperatureStep")
@@ -37,8 +38,8 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Heat, 2 TemperatureStep")
 
     kim.inTurn {
-          doTasks("ConvertHeat", "-Heat / Owed<Class<Heat>>")
-          selectTask("MAX 0 Billing: TemperatureStep*")
+          doTasks("ConvertHeat", "-8 Heat")
+          doTask("TemperatureStep")
           doTasks("TerraformRating", "PROD[Heat]")
         }
         .expect("-8 Heat, TemperatureStep")
@@ -275,6 +276,18 @@ internal class CoreRulesTest : TfmSandboxTest() {
           doTasks("Trade<Ceres>", "2 Steel")
         }
         .expect("-3 Energy")
+  }
+
+  @Test
+  internal fun `A player who passed before the action phase cannot act in it`() {
+    newTestGame(addOptions = "PreludeExpansion", playerCount = 2)
+    // As when Red Appeasement is played through Head Start during the Prelude phase.
+    kim.exMachina("Pass")
+
+    admin.phase("Action")
+
+    shouldThrow<TaskException> { kim.inTurn { doTask("Pass") } }
+    stan.inTurn { doTask("Pass") }
   }
 
   internal class Gameplay : dev.martianzoo.tfm.tests.TfmGameplayTest() {
