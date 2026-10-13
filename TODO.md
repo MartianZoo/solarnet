@@ -2,7 +2,7 @@
 
 # TODO
 
-Issue links provide background. Inline TODOs should be brief context pointers.
+Keep tasks brief; linked notes and tests carry the background.
 
 ## Mars Playground history
 
@@ -13,9 +13,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Card tracking
 
-- [ ] Decide whether to verify identities and Pets claim filters for deck flips that never enter a
-  Player's hand or a tracked Selecting offer, such as Search for Life and Asteroid Deflection System.
-  The former replay helper's flip checks were removed with it.
+- [ ] Decide whether to verify card identities and claim filters for deck flips outside tracked hands
+  and Selecting offers, such as Search for Life and Asteroid Deflection System.
 
 ## Standard actions
 
@@ -23,69 +22,37 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `Billing`. See [action identity and invocation](docs/agents/ACTIONS.md) for the AI Central defect,
   required behavior, and proposed direction.
 
-- [ ] Keep gated System work with Admin when the gate becomes available. With player autoexecution
-  disabled, `MAX 0 Billing: DefaultGreeneryTile` currently needs the player to select it after
-  payment before Admin performs the signal; `Game20230521Test` shows the extra selections.
-  `HeadStartTest` also needs two full conditional selectors for Suitable Infrastructure bonuses
-  competing with nested actions; simplify those through general task handling, not a card helper.
+- [ ] Keep gated System work with Admin when its gate becomes available. Simplify the extra player
+  selections in `Game20230521Test` and `HeadStartTest` through general task handling.
 
 ## Game files
 
-- [ ] Derive each command's structured card inputs from
-  its typed movements and `Cards:` notes, then verify full and short imports with the production
-  tracker. See [export design](docs/agents/EXPORT.md).
-- [ ] Decide how a short file carries arbitrary event commentary when no exact event stream is
-  present. Full files already retain all notes.
+- [ ] Derive game-file card inputs from typed movements and `Cards:` notes; verify full and short
+  imports with production `CardTracking`. See [export design](docs/agents/EXPORT.md).
+- [ ] Decide whether short game files need arbitrary event commentary.
 
 ## Physical game conversion — 2026-10-09
 
-- [ ] If a final score sheet or player recollection becomes available, resolve the
-  one-point difference between Pink's spoken 138 and the completed replay's 139.
-  The replay agrees with the recorded winner and all sourced resource checkpoints;
-  its six score categories and the available source limits are in
+- [ ] If new source evidence appears, resolve Pink's spoken 138 versus the replay's 139. See
   `_local/replays/Game20261009/sources.md`.
 
-## Consensus top five project concerns — 2026-10-08
+## Project priorities — 2026-10-08 review
 
-Ranked after independent Codex and Opus/xhigh reviews and three debate rounds, reviewing
-`work3` at `8efcc32abb94493bd6e7ae35f1ecccf6a1f00d68`. This is the holistic priority ranking;
-the older bug-only report below has a narrower scope.
-These concerns remain open; the ranking does not select replacement designs.
-
-1. **Operation completion and delegated control lack a coherent rule.** Per-task locking and
-   cleanup at global queue exhaustion do not reliably describe an action and all its delegated
-   work. Neptunian and Head Start cases expose the consequences. Resolve the underlying lifecycle
-   rule; see [sequencing](docs/agents/SEQUENCING.md) and the selected
-   [turn terminology, lifecycle, and Head Start direction](docs/agents/SEQUENCING.md#turns-and-turn-offers).
-2. **Payment validation differs between execution paths.** The gameplay helper rejects paying
-   11 M€ for the 10 M€ Olympus Conference, while the REPL accepts and spends all 11. Separately,
-   the payer's own resource loss for another purpose can settle an open bill. Make validation
-   consistent and tie settlement to the intended payment. In `PharmacyUnionTest`, paying the
-   starting-card bill via `-MC / Owed` omits both 4 MC disease penalties, while `-15 MC` preserves
-   them; investigate whether these share a cause. See [payments](docs/agents/PAYMENTS.md).
-3. **Kotlin orchestration owns game-flow rules that belong in Pets.** Phase order, expansion
-   participation, and turn progression remain in Kotlin. Callback failure guarantees also need
-   attention: a completion callback can throw after a successful mutation. Actual coroutine/Admin
-   exception propagation was not verified. See the
-   [Solarnet roadmap](SOLARNET_ROADMAP.md#internal-design-and-game-execution).
-4. **The player-choice API cannot navigate all valid task shapes, and availability checks hide
-   code faults.** Some valid forms throw `UnsupportedOperationException`; an injected custom-code
-   fault makes availability queries return `false` while explicit execution reports the fault.
-   Improve choice assistance and preserve meaningful errors without requiring exhaustive legal-move
-   enumeration. Named-card tracking remains a separate capability with ownership outside the engine.
-   See the `TaskForm` follow-up below and
-   [the live-engine note](docs/agents/ENGINE.md#actor-engines-and-agents).
-5. **Specified Pets features fail when combined.** Local-class specialization still has concrete
-   defect characterizations. Repair the remaining composition failures;
-   implementation complexity alone does not justify a rewrite. See
-   [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt) and the
-   [Pets roadmap](PETS_ROADMAP.md#code-clarity-and-confidence).
+1. Resolve operation completion and delegated control across an action and its tasks. See
+   [sequencing](docs/agents/SEQUENCING.md#turns-and-turn-offers).
+2. Make payment validation consistent across gameplay and REPL execution, and settle only the
+   intended bill. Check `PharmacyUnionTest`'s missing disease penalties. See
+   [payments](docs/agents/PAYMENTS.md).
+3. Move phase, expansion, and turn rules from Kotlin orchestration into Pets; define callback
+   failure behavior. See the [Solarnet roadmap](SOLARNET_ROADMAP.md#internal-design-and-game-execution).
+4. Support valid task shapes in the player-choice API and surface code faults during availability
+   checks. See [TaskForm below](#autonomous-follow-ups) and [engine notes](docs/agents/ENGINE.md#actor-engines-and-agents).
+5. Repair specified Pets composition failures, including owner-local specialization. See
+   [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
 
 ## Pets specification fidelity audit
 
-- [ ] Continue the specification-fidelity audit from the
-  [Pets roadmap](PETS_ROADMAP.md#code-clarity-and-confidence), reassessing every lead against the
-  current specifications, tests, KDoc, and implementation.
+- [ ] Continue the [Pets specification-fidelity audit](PETS_ROADMAP.md#code-clarity-and-confidence).
 
 ## User Ideas and Agreed Directions
 
@@ -94,193 +61,111 @@ These concerns remain open; the ranking does not select replacement designs.
   Stormcraft's floaters apply to that choice before requiring every such card to be named by
   Stormcraft.
 
-- Give beginner and standard players the same ten-card `Selecting` offer during setup, then have
-  the beginner corporation move those cards to `Hand` for free. Keep the standard discard supplied
-  by `NonBeginnerMode`, and make starting TR genuinely come from `MultiplayerMode` or `SoloMode`.
-  Avoid using creation of `PlayerMode` as a proxy trigger. A queued `SetupPhase: EACH Player` effect
-  completes as soon as it enqueues its per-Player branches, but those branches inherit Admin as
-  selection assignee. `BY Player` transfers only a selected branch, whose select lock then blocks
-  independent player tasks. The automatic form
-  `MultiplayerMode { SetupPhase:: EACH Me@Player { 20 TerraformRating<Me@> } }` correctly grants TR
-  to both players, but removes their starting-TR tasks; an automatic card deal likewise removes
-  the card-draw tasks. Try per-Player owned setup signals as the source of each Player's choices
-  before changing task routing. Investigate whether `EACH` should be rejected as a left operand of
-  `THEN`: `EACH Player { A } THEN B` is currently admitted even though fanout can produce multiple
-  tasks and no join is intended.
-- Make `ResearchPhase` the actual provider of each Player's four-card offer and discard. Moving the
-  current Player effect to `ResearchPhase` with `EACH Player` leaves the second Player's sequence
-  assigned to Admin; `BY Player` transfers only a selected task. Solve per-Player task routing
-  without a replay-only context alias, then try direct context matching first and restrict fallback
-  lookup to internal bookkeeping cause intermediates. The broader causal-chain matcher tried for
-  the replay was removed along with its context arguments; current matching uses only the direct
-  effect context.
-- Consider a separate rename of automatic (`::`) effects to “immediate”. Card effects now use
-  “direct effect”; the dispatch terminology and behavior remain unchanged pending that decision.
+- Give beginner and standard players the same ten-card `Selecting` offer. Let the beginner
+  corporation take it for free, retain `NonBeginnerMode`'s discard, and source starting TR from
+  `MultiplayerMode` or `SoloMode`. Resolve per-Player task ownership first.
+- Make `ResearchPhase` provide each Player's four-card offer and discard. Resolve per-Player task
+  routing without replay-specific context matching.
+- Decide whether `EACH Player { A } THEN B` should be rejected when fanout has no join.
+- Consider renaming automatic (`::`) effects to “immediate.”
 
-- Replace the custom `PartyRequirement` metric with its expanded Pets condition (the party is
-  ruling or you have at least 2 delegates there), so execution and English can use that condition
-  directly. Preserve ownership and the grouping of combined requirements.
+- Replace `PartyRequirement` with its Pets condition: ruling party or at least two of your delegates.
 - Let English component roles default to one canonical component noun so placement, requirements,
   and metrics do not repeat singular and plural wording.
 - Extend derived `including this` wording to setup operations and otherwise unsupported effects
   without adding card-specific rendering rules.
 - Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
-- Review the remaining `::` sequencing, payment, and mixed-purpose effects without treating
-  current task order as a permanent justification. Preserve intrinsic card-tag construction,
-  conversion of the Energy present when production begins, and Pharmacy Union's starting money
-  before its tag penalties until a coherent replacement establishes the same behavior.
-- [ ] Redesign card-payment adjustment timing before queueing the remaining `PayingFor` discounts.
-  A trial of twenty queued discounts left reductions pending during billing or lost a discount
-  when its temporary source disappeared; `Owed` already being `System` did not resolve this.
-- [ ] Revisit queued search and claim effects after defining whether a batch of two search signals
-  should offer two separate card choices or a single two-card task. The `::` to `:` substitution trial
-  changed the task shape in a full replay.
-- [ ] Rework a colony tile's starting `ColonyProduction` marker without a permanent `HAS =1`:
-  the track can validly reset to zero. Queueing the initial marker with `BY Admin` left a player
-  task in a replay; making every marker `System` changed later trade handling. Keep the current
-  automatic gain until the marker's task ownership is clear.
-- [ ] Restore Global Event English rendering for player-owned `GlobalEffect` signals and the
-  `This IF StartToken` clauses that apply a shared effect once. The stale renderer, generated
-  snapshot, and comparison report are disabled; retain the published wording evidence.
+- Review remaining automatic (`::`) sequencing and payment effects, preserving card-tag
+  construction, Energy conversion timing, and Pharmacy Union's starting-money timing.
+- [ ] Resolve card-payment adjustment timing before queueing remaining `PayingFor` discounts.
+- [ ] Decide whether two search signals offer separate card choices or a single two-card task, then
+  revisit queued search and claim effects.
+- [ ] Rework a colony tile's starting `ColonyProduction` marker without permanent `HAS =1`; the
+  track may reset to zero. Resolve the marker task's ownership first.
+- [ ] Restore Global Event English rendering for player-owned `GlobalEffect` signals and
+  `This IF StartToken` clauses.
 
-- [ ] Extend the build-time Canon invariant checks to indirect special-tile gains behind
-  signals or supporting components (`GainsOf`; entry 15 of
-  [GAME_HACKS](docs/agents/GAME_HACKS.md)). Current checks cover authored instruction shapes and do not
-  establish that the introspection helpers see every printed tile-placement effect. Keep dynamic
-  payment and watcher interactions in gameplay tests rather than treating syntax scans as proof.
+- [ ] Extend build-time Canon checks to indirect special-tile gains behind signals or `GainsOf`.
+  See [GAME_HACKS](docs/agents/GAME_HACKS.md).
 
-- [ ] Write and review clear public API specifications and KDoc for the
-  [nine priority modules](docs/agents/SPEC_FIDELITY.md#priority-scope), following the documented
-  audience and intended-contract standards. Preserve useful Pets documentation and fill gaps;
-  track implementation defects separately. This standards update does not complete the module
-  documentation or conformance audits.
-- [ ] Extend the fixtures' solo-map placements when a scenario needs maps beyond Tharsis, Hellas,
-  and Elysium; reassess sandbox phase shortcuts only from concrete needs. See the
+- [ ] Complete public API specifications and KDoc for the
+  [nine priority modules](docs/agents/SPEC_FIDELITY.md#priority-scope), then audit conformance.
+- [ ] Extend solo-map fixtures beyond Tharsis, Hellas, and Elysium when a scenario needs them. See
   [fixture notes](docs/agents/TESTING.md#remaining-fixture-development).
 - [ ] Investigate automatic attack-history effects separately; test migration does not justify
   changing the effects used by Law Suit and Crash Site Cleanup.
-- [ ] Investigate enforcing the workflow's offered turn order in `TfmGameplayTest`. `Agent.inTurn`
-  currently creates a turn whenever the acting player has no pending task, even while another
-  player's turn is pending. Preserve authentic gameplay without adding a second test-side game
-  driver; discuss the effect on sandbox and legacy callers before changing the shared helpers.
-- [ ] Finish moving `.cards` workflow tests to explicit `Agent` tasks; those tests still expose
-  `TfmGameplay` players. Sandbox setup now plays ordinary named corporations through Agent tasks
-  and uses a scoped `EAGER` override to finish their setup; Kim's configured policy stays `NONE`,
-  while Admin remains eager. Preserve explicit corporation plays for scenarios that test their choices.
-- Distinguish counting Venus tags from carrying a Venus tag in card availability. Io Sulphur
-  Research should work without Venus Next because it merely counts Venus tags, but the catalog
-  currently rejects it. Cards that carry Venus tags, such as Corroder Suits and Dirigibles, must
-  continue to require the expansion. Keep this catalog change separate from the test-only batch.
-- [ ] Continue the [adversarial-play design discussion](docs/agents/ADVERSARIAL.md): settle acceptance,
-  trusted card custody, information release, and simultaneous choices before selecting an
-  implementation. Work through draw/discard, Icy Impactors handoff, accepted work that cannot
-  finish, and agreed undo examples. Preserve the meaning of accepted prefixes; keep Git
-  coordination and hidden-information enforcement outside the engine.
-- Revisit `RepeatPlacementBonus` now that premise-specialized effects remove its runtime condition
-  check. Determine whether it can duplicate `AreaDefinition.bonus` directly again without reading
-  the area's generated Class effect, while still omitting unavailable delegate bonuses.
-- Resolve the nested self-transmutation case characterized in `pets/BugsTest`: an abstract Box
-  currently permits identical concrete shared arguments. Preserve shared abstract arguments and
-  rejection of dropping their markers; clarify when an open nested shared transmutation itself
-  should be rejected.
+- [ ] Enforce the workflow's offered turn order in `TfmGameplayTest`; `Agent.inTurn` can currently
+  start a turn while another Player's turn is pending.
+- [ ] Move remaining `.cards` workflow tests from `TfmGameplay` helpers to explicit `Agent` tasks.
+- Distinguish counting Venus tags from carrying one in card availability. Io Sulphur Research should
+  work without Venus Next; cards bearing Venus tags should still require it.
+- [ ] Continue the [adversarial-play design](docs/agents/ADVERSARIAL.md): settle acceptance, card
+  custody, information release, simultaneous choices, and agreed undo.
+- Revisit whether `RepeatPlacementBonus` can duplicate `AreaDefinition.bonus` directly while omitting
+  unavailable delegate bonuses.
+- Resolve nested self-transmutation with identical concrete shared arguments in `pets/BugsTest`,
+  preserving shared abstract arguments.
 - Reject declarations of new type variables in `OR` triggers. Use separate effects when each
   trigger must bind a variable.
-- Revisit Mons Insurance self-compensation only if an authoritative ruling supports it. The
-  selected provisional behavior excludes its owner from compensation triggers.
-- [ ] Revisit
-  [payment simplification and automatic-execution policy](SOLARNET_ROADMAP.md#internal-design-and-game-execution).
-  Compare the exchanges plus a small, general policy adjustment against the current payment
-  machinery; automatic execution is tunable outside the pure engine model.
-- Find a simple, natural way for the presence of `Class<Aridor>` to bring all unused
-  `Class<ColonyTile>` definitions into the game. Without Aridor present, only the explicitly
-  selected colony tiles should be defined. This should depend on Aridor's Class being present,
-  not on anyone playing the corporation; the implementation remains open.
-- Consider extending `Name@` shorthand to represented-Class applications such as `Chosen@<Player>`.
-  Inferring types at supplying occurrences (especially `EACH` and `RANK` domains) and retaining
-  short spelling after resolution also remain deferred; supported shorthand references one
-  uniquely named typed binding.
+- [ ] Revisit [payment simplification and automatic execution](SOLARNET_ROADMAP.md#internal-design-and-game-execution).
+- Let `Class<Aridor>` bring unused `Class<ColonyTile>` definitions into the game, without requiring
+  anyone to play Aridor.
+- Consider `Name@` shorthand for represented-Class applications, supplier domains, and compact
+  resolved spelling.
 - Let compact same-class transmutations retain an explicit lexical `This` dependency before
   matching defaults. `CorporationCard<This, Hand FROM Selecting>` currently tries to resolve
   `This` as a class, while omitting it changes the pending task identity.
-- Make `ComponentGraph.listenToCount` update only subscriptions affected by a component change,
-  instead of recounting every watched Type after every change. Preserve synchronous initial delivery,
-  notifications only when the count changes, cancellation, and correct subtype/refinement handling
-  through gains, removals, transmutations, and rollback. Prefer existing indexes and a small design;
-  callers should continue receiving changes without polling.
+- Make `ComponentGraph.listenToCount` update only affected subscriptions while preserving initial
+  delivery, change-only notifications, cancellation, and rollback behavior.
 - When preparing the [PETS repository draft](docs/pets-repo-draft.md) for publication, decide
   whether to include Sponsored Academies, currently retained as a draft note after the gallery.
 - After the repository split, rename `:pets-tools` to `:tools` in the Pets repository.
-- Before separating Git repositories, choose the Pets publishing host and version convention,
-  automate tagged releases, and verify Solarnet against a hosted release. This follows build
-  separation; see the [release workflow](PETS_ROADMAP.md#release-workflow-before-the-git-split).
+- Before the repository split, choose a Pets publishing host and version convention, automate
+  releases, and verify Solarnet against a hosted version. See [release workflow](PETS_ROADMAP.md#release-workflow-before-the-git-split).
 - Add scenario saving and reloading to [Mars Playground](PLAYGROUND.md) after the initial version.
-- Add shareable URLs for [Mars Playground](PLAYGROUND.md#technology-and-experience) later. First
-  decide what restoring the same view includes: scenario, history position, camera, and windows.
+- Add shareable [Mars Playground](PLAYGROUND.md#technology-and-experience) URLs after defining which
+  scenario and view state they restore.
 - Add sandbox and gameplay operations to Mars Playground after its passive history viewer is sound.
   Let the same world and task rules supply those operations; keep the current history positions
   limited to completed replay steps.
 - Review derived lookups on delegated Catalogs: `classDeclaration` and `allClassNames` use the
   delegate's properties even when the wrapper overrides them. Keep this existing issue separate
   from the class-loading cleanup.
-- Try to simplify Flooding and Artificial Lake's ocean instructions without engine prediction.
-  Preserve full-track no-placement behavior (including Amazonis), Artificial Lake's required
-  placement below the cap, and Flooding's linked placement and victim choice.
-- Shorten `DefaultGreeneryTile` using existing Pets. Keep it independent of `Community`, preserve
-  own and opposing claims' different effects on fallback, and do not treat unaffordable placement
-  consequences as permitting fallback. This is a local expression simplification, not an `ELSE`
-  language or execution-search project.
+- Simplify Flooding and Artificial Lake's ocean instructions while preserving full-track behavior,
+  required placement, and Flooding's victim choice.
+- Shorten `DefaultGreeneryTile` with existing Pets, keeping it independent of `Community` and
+  rejecting fallback when placement consequences are unaffordable.
 - Fix greenery fallback when Mars Nomads blocks the last adjacent land area. `MarsNomadsTest` records
   that both the blocked placement and a distant placement currently fail. Keep promo-specific
   names out of the core greenery rule.
-- Prefer the positive Arcadian Communities reward trigger `Tile<LandArea(HAS Community)>: 3 MC`
-  when it can observe the claim before automatic ejection while keeping the reward queued.
-  Currently ordinary trigger matching sees the area after ejection; making the reward automatic
-  would also pay during corrections. Until a small solution exists, retain
-  `-Community<LandArea(HAS Tile)>: 3 MC`.
-- Look for a small way to evaluate the existing `CardFilter` criteria against a card Class in Pets.
-  Replay tracking currently checks them in Kotlin; avoid adding engine card identities or a new
-  processing stage just for this. Named-header specialization of Requirement properties and
-  inspecting authored references are the current obstacles (see
-  [card handling](docs/agents/CARD_HANDLING.md#external-offer-procedures)).
-- Make L1 Trade Terminal's resource allowance count only its own gifts, not resource gains from
-  other cards reacting to them. First reproduce the interaction with a literal `Microbe: Animal`
-  fan-card effect, then find the smallest correction that preserves the Terminal's required
-  distribution across eligible cards.
-- Find a small, exact way for Ecology Experts' plant and microbe tags to trigger a newly played
-  bio listener without replaying those tags or rewarding an older copy of that listener. Double
-  Down copies the Prelude's direct effect but not its other effects, so the solution must also
-  cover that path. Until then, keep the four affected combinations Unsafe-only; `EcologyExpertsTest`
-  pairs the intended and current Viral Enhancers and Ecological Zone outcomes.
+- Use a positive Arcadian Communities tile reward trigger if it can observe the claim before
+  ejection without paying during corrections.
+- Evaluate `CardFilter` criteria against card Classes in Pets if a small design works. See
+  [card handling](docs/agents/CARD_HANDLING.md#external-offer-procedures).
+- Make L1 Trade Terminal's allowance count only its own gifts, including when other cards react to
+  them; reproduce the interaction first.
+- Make Ecology Experts' tags trigger a newly played bio listener, including through Double Down,
+  without rewarding an older listener. See `EcologyExpertsTest`.
 - Consider a shared party-leader recalculation helper for the ranking repeated on delegate gains
   and Banned Delegate. Replacement cleanup belongs to `PartyLeader`; share the remaining winner
   selection only if it simplifies the model overall and preserves Recruitment's transfer semantics.
-- Place the neutral solo tiles immediately after the original corporation play, then remove Tharsis
-  Republic's solo-only +2 M€ production effect. Its normal city-placement effect should grant the
-  two production steps; verify that neutral greeneries still do not raise oxygen and that a
-  Tharsis acquired later through Merger receives no setup bonus.
+- Place neutral solo tiles after the original corporation play and remove Tharsis Republic's
+  solo-only +2 M€ production effect. Check Merger and oxygen behavior.
 - Find realistic setups for impossible original first actions of Tharsis, Philares, Arcadian
   Communities, and Aridor; only Poseidon has a focused characterization. Do not fill a map
   synthetically just to manufacture the failure.
 - Clarify how Thawer markers behave when Snow Cover lowers a marked temperature step and that step
   is raised again. A generic count of temperature increases cannot prove which physical step is marked.
-- Fix Point Luna's played-Earth-tag response so a temporary assigned tag still counts for Cartel
-  but does not cause a card draw. First try the existing card-holder distinction; do not bypass
-  trigger execution. Full wild-tag assignment remains deferred until a clean rule representation is
-  available; the intended lifetime is the accepted [turn](docs/agents/SEQUENCING.md#uses-of-the-scope).
-  Historical replays still use explicit adjustments for unsupported choices.
+- Fix Point Luna's Earth-tag response so a temporary assigned tag counts for Cartel without drawing
+  a card. See the accepted [turn scope](docs/agents/SEQUENCING.md#uses-of-the-scope).
 - Keep Fake Self-Replicating Robots permanently in `:tfm-fake`. Move its paired defect scenarios
   from `SelfReplicatingRobotsTest` into that module. Reuse existing test-support sources before
   considering a fixture API.
-- Follow through on the FAQ-audit defects characterized in
-  `MiningGuildTest`, `SelfReplicatingRobotsTest`, and
-  [`MiningRightsTest.kt`](test/common/dev/martianzoo/tfm/tests/cards/MiningRightsTest.kt):
-  Mining Rights/Area and Mining Guild on wild placement bonuses; Sponsored Projects adding
-  resources to SRR's hosted cards. Preserve the external-card-selection boundary when addressing
-  copied Merger commitment after new information is revealed.
-- Investigate whether production-box copying can preserve enclosing bindings and conditions so
-  Industrial Complex's former `EACH ... { PROD[...] }` spelling would work. For now, copying
-  rejects a `PROD` nested inside `EACH` with an authoring diagnostic; the working form puts
-  `EACH` inside `PROD`.
+- Fix FAQ-audit defects in `MiningGuildTest`, `SelfReplicatingRobotsTest`, and
+  [MiningRightsTest](test/common/dev/martianzoo/tfm/tests/cards/MiningRightsTest.kt): wild placement
+  bonuses, Sponsored Projects on SRR cards, and copied Merger commitment.
+- Investigate whether production-box copying can preserve enclosing bindings so
+  `EACH ... { PROD[...] }` works for Industrial Complex.
 - Reconcile `OtbGame20260912Test` with the original physical-game evidence. Verify the reported
   extra Prelude per player and Blue's three-TR handicap, then express the evidenced setup in the
   correct order.
@@ -293,85 +178,33 @@ These concerns remain open; the ranking does not select replacement designs.
 - Consider allowing owner-local Class declarations only in gain instructions. They currently also
   parse in other expression positions, including a selector's `HAS` refinement; decide the intended
   boundary and account for existing uses before restricting the syntax.
-- Decide whether configurations need narrower card requests such as only project cards from a
-  bundle. Current `name:cards` selectors request all compatible cards, with explicit `-name:cards`
-  exclusions. The existing premise check now omits automatically selected cards and milestones
-  whose requirements or mandatory effects are provably impossible. The remaining eligibility
-  question is how to identify cards that should stay out of an automatic pool even when this check
-  cannot prove them impossible, beyond the current Ecology Experts exception. Keep Turmoil Global
-  Events individually selectable with hard Turmoil dependencies.
-- Decide what explicit exclusion of a replacement card means. Currently
-  `promos:cards, -DeimosDownPromo` selects neither Deimos Down version.
-  `promos:cards, prelude2:cards, -Merger` selects neither Merger nor Sagitta. Goal replacements
-  instead let the original return when their replacement is excluded. Choose one rule for both and
-  cover it with configuration tests.
-- Consider letting the `goals` bundle also provide goals identical to those supplied
-  by map bundles, enforcing identical declarations across both sources. A user selecting such a
-  goal individually would resolve it through `goals` provenance, not through a map
-  bundle; selecting a map could still include its associated goal by default. This needs a clear
-  source rule because an unqualified Class Name currently loses that provenance.
-- Replace `ModulesReady` with entering `BootstrapPhase` only after the generated premise has created
-  the selected modules and configured components. Moving its effects to `SetupPhase` was tested and
-  fails because bootstrap validation already requires the exact-one global-parameter rule systems.
-  The smallest promising direction is to reverse premise/`BootstrapPhase` creation in `Initializer`,
-  then move its effects, including closing the `AfterMe` cycle, and update its lifecycle tests and
-  the bootstrap account in `ENGINE.md` and the Solarnet roadmap.
-- Replace `FinalScoringPending` with a real `FinalScoringPhase`. Today `End` creates the temporary
-  marker, `MeasureAward` depends on it, and marker removal assigns `Victory`; instead final-scoring
-  effects should belong to the new phase, whose phase scope drains into terminal `End`, where victory
-  is assigned. Coordinate this with `TfmWorkflow` and the runtime design in the Solarnet roadmap; do not
-  merely rename the completion marker into a phase.
+- Decide whether configurations need narrower card requests and how to exclude cards from automatic
+  pools when ordinary compatibility checks cannot prove them impossible.
+- Decide whether excluding a replacement card restores its original version. Card and goal
+  replacements currently differ; cover the chosen rule in configuration tests.
+- Consider allowing identical goals in both `goals` and map bundles, with a clear source rule for
+  individual selection.
+- Replace `ModulesReady` by entering `BootstrapPhase` after premise components exist. Revisit
+  `Initializer` order and the `AfterMe` cycle; see [engine notes](docs/agents/ENGINE.md).
+- Replace `FinalScoringPending` with a `FinalScoringPhase` whose work completes before terminal
+  `End` assigns victory.
 - Replace the duplicated `TemperatureStep BY Player`/`BY Admin` threshold-ocean triggers and the
   synthetic `AdminOceanPlacement` signal with one rule that separates who chooses the tile from
   whose action the placement is attributed to, shared by the standard and extended tracks.
-- Investigate whether Player identity can survive Player → Admin → Player task chains without
-  making bookkeeping classes `Owned` solely to carry that Player through. Preserve real ownership,
-  cross-player effects, explicitly named recipients, and phases with no unique on-turn Player; do
-  not replace those distinct cases with a guessed current player. Current identity roles and
-  routing are recorded in [IDENTITY.md](docs/agents/IDENTITY.md).
+- Preserve Player identity across Player → Admin → Player task chains without fake ownership of
+  bookkeeping classes. See [identity notes](docs/agents/IDENTITY.md).
 - Revisit causal ownership inside `BootstrapPhase`, moving initialization work under ordinary
   phase-caused tasks as soon as the required runtime state can express them.
-- Let refinements reference their candidate explicitly, so a selector can relate a nested
-  dependency to that candidate without repeating its complete expression.
-  Include `HAS EVAL` in that design: property expansion loses the surrounding candidate, even
-  without ownership. `First(HAS Token)` reserves Token's Area dependency for First; moving Token
-  into a requirement property instead inserts its `Second` default. Decide what Canon actually
-  needs before supporting candidate-aware properties; rejecting unsupported cases is acceptable.
+- Let refinements and `HAS EVAL` properties reference their candidate explicitly if Canon needs it.
   See [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
-- Transform blocks now reject EVAL and inline class declarations. Reconsider either restriction
-  only when a concrete Canon rule requires it. Deferred transforms and whole-effect/action trees
-  were tried and removed from current code: their cost was unjustified by current Canon. Their
-  snapshots remain archived, while `ownership` remains the selected branch for continuing the
-  ownership redesign; see [IDENTITY](docs/agents/IDENTITY.md#ownership-transition-current-code-and-saved-experiments).
-  If a need arises here, first try writing the rule directly or declaring its local class separately.
-- Decide whether a named `RANK Me@Player` should also bind `Me` within its selector refinement,
-  as `EACH Me@Player` currently does. In Player1's context, `Me@Player(HAS Box<Plant>)` gives the
-  nested Plant the selected Me for EACH but Player1 for RANK. Establish Canon's required behavior
-  before changing this scope or rejecting the unused form. See
-  [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
-- Revisit inferring an ownerless rule's subscription from its result. `Pulse: Prize<Player1>` can
-  hear Admin's Pulse; adding bare Plant makes `needsMe` insert `BY Me@Player`, excluding that event.
-  Consider explicit trigger bindings or rejecting ambiguous ownerless rules; audit Canon's global
-  conditions, OR triggers, System events, and non-Player recipients before changing it. See
-  [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
-  The October 10 [Canon audit](docs/agents/IDENTITY.md#ownership-transition-current-code-and-saved-experiments)
-  found active reliance on trigger inference, but no occurrence of the problematic RANK selector
-  refinement or HAS-EVAL requirement forms above. Leave those two unused forms as open questions.
-  Keep explicit Actor/recipient rewrites with the `ownership` transition; the trial of adding bare
-  `BY Player` was removed because it did not constitute an independent correctness improvement.
-  A temporary probe without inference left an owned gain abstract and allowed the caller to choose
-  its recipient. Consider that simpler behavior, or rejection where Canon does not need the choice,
-  before introducing replacement inference machinery.
-- Investigate WildlifeDome's direct effect `GreeneryTile<>`: elaborating this Canon class fails because
-  GreeneryTile no longer has a gain dependency default. Specify the intended placement explicitly
-  and verify it through card play; do not restore a global default merely to make the string pass.
-- Give Pets a real structural conjunction, spelled something like `Tile(IS Owned)`, and retire the
-  nominal `OwnedTile` class once `Landlord` and the other owned-tile rules can name the intersection
-  directly. Until then a master-universe Canon test checks the nominal `OwnedOccupant` and
-  `OwnedTile` relationships without depending on one active configuration.
-- Decide whether compact Type expressions must be globally shortest. They currently remove each
-  individually redundant argument, including T3-8 duplicates, without the subset search needed to
-  prove a global minimum; search only equality-related arguments if exact minimality becomes useful.
+- Decide whether `RANK Me@Player` should bind `Me` inside its selector refinement like `EACH`.
+  See [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
+- Revisit ownerless rule subscription inference, which can change when a result gains a bare Player
+  resource. See [identity notes](docs/agents/IDENTITY.md#ownership-transition-current-code-and-saved-experiments)
+  and [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
+- Specify Wildlife Dome's `GreeneryTile<>` placement explicitly and verify its card play; current
+  elaboration fails without a gain dependency default.
+- Add structural conjunction in Pets so owned-tile rules can drop nominal `OwnedTile`.
 - Separate the expression API's three intents: an object's natural available expression, a resolved
   Type's compact expression, and its full expression. Keep syntax expressions universe-independent;
   converting an arbitrary expression to either resolved form must take a `ClassTable` explicitly.
@@ -388,137 +221,79 @@ These concerns remain open; the ranking does not select replacement designs.
   hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
 - Replace the [archived Life of an Effect walkthrough](docs/archive/life-of-an-effect.md) with a
   current account of lexical `Me` and the transformation pipeline.
-- Give Admin an installable autoexecution policy for Global Events that pulls exact cards from an
-  ordered list; until then callers explicitly complete reveal tasks.
 - Reconsider Turmoil's `PartyLeader` representation and name. It currently supplements the actual
   `PartyDelegate` as a non-`Delegate` role; decide whether a clearer role name or a true delegate
   subtype can express leadership without representing or counting the physical marker twice.
 - Find a clean way to make Turmoil's `ApplyRulingBonus` player-owned without complicating the Reds
   tied-lowest-player selection. It currently remains one global signal whose party effect fans out
   over the players.
-- Make Preservation Program compatible with Turmoil's Reds without making the card require Turmoil.
-  A trial `3 MC / Ruling<Reds>` rebate on its automatic first-TR correction removed the observed
-  Reds overcharge and affordability failures, but the catalog treats that reference as a hard
-  Turmoil dependency even when a separate rebate trigger has `IF TurmoilExpansion`. Investigate an
-  optional count reference or a Turmoil-owned rule without adding a card-specific gameplay helper.
-  If resolved, update the premise compatibility gate, `ModuleSelectionTest`, and
-  `docs/what-is-supported.md`; Terraforming Deal's payout for reversed TR remains a separate defect.
-- Investigate whether the three self-handling signals `CimmeriaPlacementBonus`,
-  `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
-  requiring authored references to generated names. Preserve Cimmeria map generation,
-  `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit card-Class selection.
+- Make Preservation Program compatible with Turmoil's Reds without requiring Turmoil. Update the
+  premise gate, `ModuleSelectionTest`, and `docs/what-is-supported.md` when resolved. Keep
+  Terraforming Deal's reversed-TR payout separate.
+- See whether `CimmeriaPlacementBonus`, `PlaceNeutralTiles`, and `StageForReplicatedProject` can
+  avoid named helper Classes while preserving their ownership and selection behavior.
 - Consider rejecting `@` markers on concrete types, such as `Class<@BuildingTag>`, where the
   represented class is already fixed. Decide whether this should be an authoring error.
 - Carry resource/file names through Pets parsing and generated catalog inputs so diagnostic spans
   identify the original file as well as the submitted text, line, and column.
-- Preserve authored provenance when runtime narrowing and task normalization synthesize new trees.
-  Definition, query, and elementary-change diagnostics retain available spans; some generated tasks and
-  failures computed solely from component Types still have no authored location.
+- Preserve authored source locations through runtime narrowing and task normalization.
 - Preserve the empty-intersection reason when rejecting a partial task submission. For an
   unavailable Type, the current fallback can misleadingly blame an omitted dependency instead.
 - Improve the specific caret targets and related-source context recorded beside message assertions
   in `CatalogDiagnosticsTest` and `PostCatalogDiagnosticsTest`; consider rendering span widths as
   well as their starting positions.
-- Clarify T10-4 when an inherited dependency default is disjoint from a subclass's bound. The
-  compiler currently drops that default; `MoholeArea_SpecialTile` relies on this for its WaterArea
-  bound versus SpecialTile's LandArea default. Keep this semantic question separate from diagnostic
-  improvements.
-
-### Hypothetical Card Behavior
-
-- Decompose a future card's `2 CityTile` instruction into two placement choices; consider making
-  `Tile` atomized ([#64](https://github.com/MartianZoo/solarnet/issues/64)).
+- Clarify T10-4 when an inherited dependency default conflicts with a subclass's bound, as in
+  `MoholeArea_SpecialTile`.
 
 ## Autonomous Follow-ups
 
-- Refresh the English wording comparison documents from current Canon. Their saved Pets declarations
-  omit existing card-count invariants, and some entries contain older modeled effects. Review that
-  snapshot drift separately from terminology edits; `writeEnglishTextComparisons` exposes it.
+- Refresh [English wording comparisons](docs/english-wording-comparisons/README.md) from current
+  Canon using `writeEnglishTextComparisons`.
 
-- Fix combined-production requirement wording. Metallurgist's `6 PROD[Metal]` currently renders
-  "6 titanium or steel production," which can imply either production alone must reach 6; the
-  printed requirement counts steel and titanium production together. Assert the intended meaning
-  in a focused test rather than only updating the current-output snapshot.
-- Render conditional choices between standard and required actions using shared condition/action
-  semantics. `FakeHeadStart` now exposes these choices as bracketed Pets after the action
-  migration; do not hide their conditions or add a card-specific rendering rule.
-- Model when a Prelude may fizzle instead of relying on the caller's honor. `PlayPrelude` Pets
-  declares the play or discard choice and 15 M€ compensation, but does not gate the discard branch
-  on unplayability; English currently states that caller-verified rule.
-- Make resource costs inside actions use `spend` consistently whether Pets expresses them before
-  `->` or in a `THEN` sequence; Focused Organization and Board of Directors still expose the split.
-  Preserve `pay` for non-action payments. Focused Organization currently rejects a Stormcraft
-  floater when its action spends a standard resource; the pair now requires `Unsafe` and is tested
-  in `FocusedOrganizationTest`.
-- Extend card-play English to combine modeled card-face restrictions with the selected deck and
-  source location. Preserve those restrictions in cost-reduced and requirement-waived plays;
-  the current shared card-play interpreter refuses them rather than dropping the filter.
-- Reconcile Astra Mechanica's printed instruction to return 2 event cards that do not place special
-  tiles with its `2 TakeEventCard` signal. Derive English from the signal's modeled procedure only
-  if that can be done generally, without a card-specific renderer fact. The local Fryxelius archive
-  has no Astra Mechanica ruling; current tests permit returning zero cards.
-- Define an authored, game-neutral way for bundle compatibility inference to distinguish hard
-  dependencies from references that may safely disappear when a companion bundle is absent. The
-  catalog now permits explicitly named cards whose only missing class is counted in an immediate
-  on-gain effect, while automatic pools still require the referenced Module;
-  continue with Suitable Infrastructure, Constructor, and Soil Studies. Decide ambiguous no-op cards
-  explicitly, and let English consume the same modeled fact rather than adding a renderer-only flag.
+- Clarify combined-production requirement wording: Metallurgist counts steel and titanium
+  production together. Add a focused assertion.
+- Render conditional choices between standard and required actions from shared semantics;
+  `FakeHeadStart` currently shows bracketed Pets.
+- Model when a Prelude may fizzle; `PlayPrelude` currently leaves that check to the caller.
+- Use `spend` consistently for action costs before `->` and in `THEN`; keep `pay` for other
+  payments. Check Focused Organization with Stormcraft in `FocusedOrganizationTest`.
+- Extend card-play English to combine modeled face restrictions with deck and source location,
+  including discounted and requirement-waived plays.
+- Reconcile Astra Mechanica's printed two-card return with its `2 TakeEventCard` signal and
+  zero-card behavior, without a card-specific English rule.
+- Define game-neutral bundle compatibility for optional references; continue with Suitable
+  Infrastructure, Constructor, and Soil Studies. Let English use the same modeled fact.
 - Move `PreludePhase` out of `tfm-text`'s `resetsForPreludeAction` recognizer once there is a
   principled bundle-supplied description of the phase/latch relationship; do not add a Prelude-only
   boolean merely to relocate the class name.
 - Render the five beginner corporation copies from their inherited modeled setup semantics.
 - Complete the three visible goal-text refusals only from modeled semantics: Briber's direct effect
   claim instruction, Philantropist's `GainsOf` metric, and Suburbian's map-edge concept.
-- Finish Global Event text from modeled semantics: ranked player selections in Election and
-  Revolution, resource-card fanout in Sponsored Projects and Cloud Societies, and the procedure
-  bodies used by Dry Deserts, Cloud Societies, and Corrosive Rain. Keep unsupported nodes visible;
-  do not replace these with copied card wording or new gameplay APIs.
+- Finish Global Event text from modeled semantics for ranked selections, resource-card fanout,
+  and procedure bodies. Keep unsupported nodes visible.
 - Fill the missing printed transcriptions identified in
   [the wording comparisons](docs/english-wording-comparisons/README.md) from verified printed evidence.
 - Correct defaulted Type-variable references: `pets/BugsTest` shows bare references incorrectly
   inheriting their supplier's `<>`.
-- Investigate atomized gains in the first stage of `THEN`: elaborating
-  `2 Rating THEN Coin` with `Rating : Atomized` fails when the first stage expands to a group.
-  This occurs before task recording; keep the Pets fix separate from decision-log work.
+- Fix atomized gains in the first stage of `THEN` when that stage expands to a group.
 
-- Reconcile the old score discrepancy in `SoloGame20230721Test` against its original game record
-  (`gf33a06d07a1c`). Restoring normal Flooding play preserves the asserted 95 VP; the legacy comments
-  claimed 99 and reported 111 on herokuapp. The game-file round-trip verifies reproduction, not which
-  of those source/implementation totals is correct.
+- Reconcile `SoloGame20230721Test`'s 95 VP with its original record (`gf33a06d07a1c`), which
+  also mentions 99 and 111.
 
-- Extend instruction intersection to preserve unresolved shared aliases and unnamed Type unions.
-  These currently require a more specific submitted choice; keep task matching conservative and
-  never substitute `Ok` for an unrepresentable nonempty intersection.
-- Let a combined selection and narrowing retain its choice when contextual resolution splits the
-  original task into siblings. Until that can reuse the existing task machinery cleanly, these
-  requests fail atomically; select the original task first and narrow its children separately.
-- Complete `TaskForm` decision and option enumeration for `EACH` and nested instruction shapes.
-  Decide how a form should offer `Ok` for an optional change
-  inside `PER`, whose current narrowing rule requires a change child until state resolution removes
-  the wrapper. Settle how a form recognizes a forced type resolution before offering a later amount
-  in nested instructions.
-- Express card-face/card-back compatibility in the selectable `PlayCard` specification so generic
-  forms can restrict Prelude faces without interpreting later card-playing effects. Its independent
-  class-literal parameters currently leave `CardFront` options broader than the selected card back.
-- If clients need options proved completable, add a separate analysis of the same one-step options.
-  Report inconclusive searches explicitly; keep broad option enumeration independent of speculative
-  engine resolution.
-- Extend the Mining Rights/Area wild-resource regression after placement is fixed: Robotic
-  Workforce and Cyberia Systems may choose either originally available metal production even if
-  the placement awarded a nonmetal resource. No remembered resource choice is required.
+- Preserve unresolved shared aliases and unnamed Type unions during instruction intersection.
+- Preserve a combined selection and narrowing when contextual resolution splits a task into siblings.
+- Complete `TaskForm` options for `EACH`, nested instructions, optional changes inside `PER`, and
+  forced type resolution before a later amount.
+- Express face/back compatibility in selectable `PlayCard` so generic forms restrict Prelude faces.
+- Extend the Mining Rights/Area wild-resource test after placement is fixed: Robotic Workforce and
+  Cyberia Systems may choose either originally available metal production.
 
-- Revisit aligning multiplatform JVM tests with the repository JUnit BOM. Setup overrides now
-  explicitly declare `@BeforeTest`, including `ActiveVacuumCoreTest.commonSetup`. Verify lifecycle
-  compatibility and the full replay suite before changing the runner.
+- Revisit the multiplatform JVM test runner's alignment with the repository JUnit BOM.
 
-- Revisit Dokka's transitive Jackson 2.15.3, jsoup 1.16.1, and FreeMarker 2.3.32 advisory
-  matches when a stable Dokka update is available. These documentation-time dependencies remain
-  unchanged to avoid maintaining unverified overrides.
+- Revisit Dokka's transitive Jackson, jsoup, and FreeMarker advisories when a stable update exists.
 
-- Review [the class-existence scenario draft](docs/class-existence-scenarios-draft.md) for
-  clarity and coverage, then consolidate `ClassDefinitionBoundaryTest` and
-  `ClassTableSelectionTest`. Keep each distinct selection boundary tested once and remove
-  repetitive assertions without losing the readable scenarios or broad module/content cases.
+- Review the [class-existence scenario draft](docs/class-existence-scenarios-draft.md), then
+  consolidate repeated cases in `ClassDefinitionBoundaryTest` and `ClassTableSelectionTest`.
 
 - Find a principled way for narrower dependency defaults to retain compatible refinements from
   wider defaults, so `Tile` can own area occupancy once while its subclasses select their kinds of
@@ -527,51 +302,11 @@ These concerns remain open; the ranking does not select replacement designs.
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
 - Separate `Instructor`'s resolution-only capability from execution so `Changer`, `Effector`, and
   the default Actor do not remain nullable solely for `InstructionResolutionTest`.
-- Replace `World.onTransactionComplete`'s mutable single callback with scoped listener registration once
-  multiple workflow or monitoring observers need to coexist.
 
-## Ranked bug report — 2026-10-02
+## Bugs from the 2026-10-02 review
 
-Review of `work1` at `9b26e816c`, using source, tests, open issues, historical audits, and temporary
-reproduction probes. This ranking weights foundational semantics and reliable replay evidence above
-isolated card coverage, following [VALUES.md](docs/agents/VALUES.md). It excludes fakecanon-only bugs,
-Unsafe-only incompatible pairings, simple over-permissiveness that records the expected `Audit`,
-attribution, features, and unresolved rule questions. Related symptoms are grouped.
-
-1. **Owner-local classes fail when specialization fixes a dependency.** Mars First's inline
-   `Policy<This> { Tile<MarsArea>: Steel }` produces `MarsFirst_Policy<This>` extending
-   `Policy<MarsFirst>`. The argument survives after its dependency position disappears, so
-   elaboration rejects the gain. Reproduced during review. See
-   [DerivedClassLowerer](src/common/dev/martianzoo/pets/DerivedClassLowerer.kt) and the owner-local
-   specialization characterization in [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
-
-2. **Expansion compatibility rejects usable content.** Constructor remains blocked without Colonies,
-   and Suitable Infrastructure is blocked without Prelude rules despite its surviving standard-action
-   effect. Counts in on-gain card effects do not block explicitly named Summit Logistics or
-   Molecular Printing without Colonies; `OtbGame20260912Test` now uses the ordinary
-   Summit Logistics card without a colony board. Constructor's city/colony scoring and other optional
-   references still need a general eligibility rule. See
-   the eligibility direction in the
-   [Pets roadmap](PETS_ROADMAP.md#canon-and-game-rule-modeling).
-   Keep Suitable Infrastructure out of the
-   [value-dependency inventory](https://docs.google.com/spreadsheets/d/13WRf7ljJLuy3iwTr5caQgKhTPhNugPKJuGx1ikALshY/edit?gid=0#gid=0)
-   for now.
-
-3. **Corporations acquired after Prelude defer their mandatory first action.** Board of Directors
-   → Merger → Tharsis leaves the city placement for another action instead of resolving it
-   immediately. This changes action timing and available intervening choices. Implement the resolved
-   FAQ behavior: an impossible first action must invalidate the Prelude play. See the Board/Merger/
-   Tharsis pair in [MergerTest](test/common/dev/martianzoo/tfm/tests/cards/MergerTest.kt).
-
-4. **`DEFAULT` silently discards a root type-variable marker.** For example,
-   `DEFAULT +@Piece<First>` becomes an ordinary default without reporting the invalid marker.
-   Reproduced during review. Reject the marker when recording the declaring class and argument
-   specs; keep this diagnostic change separate from owner-local declaration extraction. See
-   [Parsing](src/common/dev/martianzoo/pets/Parsing.kt), `rejectInvalidDefaultRoot`, and the marker
-   characterization in [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
-
-5. **Parser errors can identify the wrong character.** `Foo<~ Bar>` blames `<` rather than the
-   invalid `~`, misleading the author about what needs fixing. Reproduced during review. The
-   better-parse completion analyzer drops `NoMatchingToken` failures; address that diagnostic
-   separately from grammar organization. The misplaced diagnostic is characterized in
-   [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
+- Resolve a corporation's mandatory first action immediately after Merger; an impossible action
+  invalidates the Prelude play. See [MergerTest](test/common/dev/martianzoo/tfm/tests/cards/MergerTest.kt).
+- Reject a type-variable marker on a `DEFAULT` root; see [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
+- Point parser diagnostics at the invalid character in `Foo<~ Bar>`; see
+  [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
