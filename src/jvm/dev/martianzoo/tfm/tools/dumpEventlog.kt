@@ -4,7 +4,6 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.SystemClasses.REAL
-import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -60,19 +59,11 @@ private fun createGame(playerCount: Int): World {
   }
 }
 
-private fun specialSupertypes(reader: GameReader, event: ChangeEvent): String {
+private fun isReal(reader: GameReader, event: ChangeEvent): Boolean {
   val real = reader.classTable.getClass(REAL)
-  val system = reader.classTable.getClass(SYSTEM)
-  return listOfNotNull(event.change.gaining, event.change.removing)
-      .flatMap { component ->
-        buildList {
-          val changedClass = component.type.rootClass
-          if (changedClass.isSubtypeOf(system)) add("System")
-          if (changedClass.isSubtypeOf(real)) add("Real")
-        }
-      }
-      .distinct()
-      .joinToString(",")
+  return listOfNotNull(event.change.gaining, event.change.removing).any {
+    it.type.rootClass.isSubtypeOf(real)
+  }
 }
 
 private fun tsv(value: Any?): String = value?.toString().orEmpty()
@@ -86,7 +77,7 @@ private fun toTsv(reader: GameReader, event: ChangeEvent): String =
             tsv(event.change.removing),
             tsv(event.cause?.context),
             event.cause?.triggerEvent ?: "",
-            specialSupertypes(reader, event),
+            isReal(reader, event),
         )
         .joinToString("\t")
 
@@ -95,7 +86,7 @@ private fun dump(reader: GameReader, events: EventLog, output: Path) {
   Files.createDirectories(output.parent)
   Files.newBufferedWriter(output).use { writer ->
     writer.appendLine(
-        "ordinal\tactor\tcount\tgaining\tremoving\tcause_context\tcause_trigger\tspecial_supertypes"
+        "ordinal\tactor\tcount\tgaining\tremoving\tcause_context\tcause_trigger\tReal?"
     )
     changes.forEach { writer.appendLine(toTsv(reader, it)) }
   }

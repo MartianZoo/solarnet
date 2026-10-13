@@ -97,7 +97,8 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   Interplanetary Cinematics and four bought cards in each, and writes every change event (including
   `System` changes regardless of `Real`, but no task events) to
   `_local/eventlogs/three-player-all-expansions-eventlog.tsv` and
-  `_local/eventlogs/solo-all-expansions-eventlog.tsv`. The `actor` column is engine attribution,
+  `_local/eventlogs/solo-all-expansions-eventlog.tsv`. The `Real?` column is `true` when either
+  side of the change has a `Real` type. The `actor` column is engine attribution,
   not proof of a user choice: an automatic or queued effect carried by a Player-owned component may
   attribute its derived changes to that Player. Use the cause columns to trace derivation; because
   task events are omitted, the TSV cannot by itself classify every row as chosen versus automatic.
