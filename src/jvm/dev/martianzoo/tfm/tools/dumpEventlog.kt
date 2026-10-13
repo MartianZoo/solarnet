@@ -62,8 +62,9 @@ private fun createGame(playerCount: Int): World {
 
 private fun isReal(reader: GameReader, event: ChangeEvent): Boolean {
   val real = reader.classTable.getClass(REAL)
-  return listOfNotNull(event.change.gaining, event.change.removing)
-      .any { it.type.rootClass.isSubtypeOf(real) }
+  return listOfNotNull(event.change.gaining, event.change.removing).any {
+    it.type.rootClass.isSubtypeOf(real)
+  }
 }
 
 private fun tsv(value: Any?): String = value?.toString().orEmpty()
