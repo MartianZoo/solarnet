@@ -41,16 +41,6 @@ internal object GameFingerprint {
                       }
                 },
             )
-            put(
-                "customDependencies",
-                buildJsonObject {
-                  catalog.customClassDependencies.entries
-                      .sortedBy { it.key.toString() }
-                      .forEach { (name, dependencies) ->
-                        put(name.toString(), strings(dependencies.map { it.toString() }.sorted()))
-                      }
-                },
-            )
             put("transforms", strings(catalog.transformHandlerFactories.keys.sorted()))
             put(
                 "metadata",

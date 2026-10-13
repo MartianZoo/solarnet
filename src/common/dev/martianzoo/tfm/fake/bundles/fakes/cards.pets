@@ -97,6 +97,8 @@ CLASS FakeHeadStart : CardFront<Class<PreludeCard>> {
 CLASS RobotUnit<Class<@CardFront>> : Resource, Owned<Player> {
   ReplicateForStagedProject<Class<@CardFront>>: This!
   PlayCard<Class<CardBack>, Class<@CardFront>>: -Owed, -This!
+  FirstPlace<Collector> IF This:: Audit
+  SecondPlace<Collector> IF This:: Audit
 }
 
 "Self-Replicating Robots with printed-tag selection delegated in follow mode"

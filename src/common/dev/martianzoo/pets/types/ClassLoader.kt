@@ -49,7 +49,6 @@ private constructor(
     private val declarations: Map<ClassName, ClassDeclaration>,
     internal override val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler>,
     private val validateDeclaration: (ClassDeclaration) -> Unit,
-    private val additionalRequiredClasses: (ClassDeclaration) -> Set<ClassName>,
     private val masterSource: ClassTable?,
     private val checkAvailability: (ClassName, ClassName?) -> Unit = { _, _ -> },
     private val exactCount: (Expression, ClassTable) -> Int? = { _, _ -> null },
@@ -58,19 +57,16 @@ private constructor(
   /**
    * Begins compiling a master universe from [declarations]. Call [loadEverything] before
    * enumeration. By default this compiles Pets declarations alone. [validateDeclaration] applies
-   * additional declaration checks; [additionalRequiredClasses] names dependencies not expressed in
-   * Pets declarations. Catalog assembly supplies both callbacks.
+   * additional declaration checks supplied by Catalog assembly.
    */
   public constructor(
       declarations: Map<ClassName, ClassDeclaration>,
       transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> = emptyMap(),
       validateDeclaration: (ClassDeclaration) -> Unit = {},
-      additionalRequiredClasses: (ClassDeclaration) -> Set<ClassName> = { emptySet() },
   ) : this(
       declarations,
       transformHandlerFactories,
       validateDeclaration,
-      additionalRequiredClasses,
       null,
   )
 
@@ -596,7 +592,6 @@ private constructor(
         .filter { it != THIS && it in knownClassNames && knownDeclaration(it).customMetric }
         .forEach(::add)
     declaration.extraNodes.forEach { node -> node.descendantsOfType<ClassName>().forEach(::add) }
-    addAll(additionalRequiredClasses(declaration))
   }
 
   private fun loadSingle(name: ClassName): Class =
@@ -807,7 +802,6 @@ private constructor(
      * returns the completed inclusion closure of [roots]. Master Classes and Types are reused. The
      * returned view is immutable; game-specific configuration validation belongs to its caller.
      *
-     * [additionalRequiredClasses] supplies dependencies absent from Pets source.
      * [checkAvailability] may reject a required Class and receives the Class that required it, or
      * null for a root. [exactCount] supplies configuration counts used only while deciding which
      * declarations can become reachable; its table's inclusion set is still being computed.
@@ -821,7 +815,6 @@ private constructor(
     public fun forPremise(
         premiseTable: PremiseClassTable,
         roots: Collection<ClassName>,
-        additionalRequiredClasses: (ClassDeclaration) -> Set<ClassName> = { emptySet() },
         checkAvailability: (ClassName, ClassName?) -> Unit = { _, _ -> },
         exactCount: (Expression, ClassTable) -> Int? = { _, _ -> null },
         selectedModuleCount: (Expression, ClassTable) -> Int? = { _, _ -> null },
@@ -834,7 +827,6 @@ private constructor(
               premiseTable.declarations,
               masterTable.transformHandlerFactories,
               {},
-              additionalRequiredClasses,
               masterTable,
               checkAvailability,
               exactCount,

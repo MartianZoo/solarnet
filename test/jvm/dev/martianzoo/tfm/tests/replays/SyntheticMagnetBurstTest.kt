@@ -22,7 +22,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
           """
           HellasMap
           VenusNextExpansion, PreludeExpansion, prelude2:cards, Merger, SagittaFrontierServices, Unsafe
-          FakeStuffBundle
+          fakes:cards
 
           Energizer, Builder, Generalist, Diversifier, Terraformer, Sponsor
           Scientist, Landscaper, Founder, Contractor, Forecaster, Incorporator

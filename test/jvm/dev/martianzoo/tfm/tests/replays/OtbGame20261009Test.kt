@@ -16,7 +16,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           """
           VastitasMap
           CorporateEraExpansion, PreludeExpansion, prelude2:cards, VenusNextExpansion
-          ColoniesExpansion, promos:cards, FakeStuffBundle
+          ColoniesExpansion, promos:cards, fakes:cards
           Callisto, Enceladus, Io, Miranda, Triton
           Diversifier, Engineer, Forester, Legend, Researcher
           Botanist, Investor, Landscaper, Manufacturer, Traveller

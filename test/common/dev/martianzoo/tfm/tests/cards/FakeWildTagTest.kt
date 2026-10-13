@@ -5,7 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
-import dev.martianzoo.tfm.tests.TestOption.FakeStuffBundle
+import dev.martianzoo.tfm.tests.TestOption.FakeCards
 import dev.martianzoo.tfm.tests.TestOption.Prelude2Cards
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
@@ -32,7 +32,7 @@ internal class FakeWildTagTest : TfmTest() {
 
   @Test
   internal fun `Fake wild tag stays inert on its card`() {
-    game = setUpGame(canonicalPremise(PreludeExpansion, FakeStuffBundle))
+    game = setUpGame(canonicalPremise(PreludeExpansion, FakeCards))
     kim.runOperation("PreludeCard")
     admin.phase("Prelude")
     kim.startTurn()
@@ -45,7 +45,7 @@ internal class FakeWildTagTest : TfmTest() {
 
   @Test
   internal fun `An assigned wild Event tag does not count as a played event for Media Archives`() {
-    game = setUpGame(canonicalPremise(PreludeExpansion, CorporateEraExpansion, FakeStuffBundle))
+    game = setUpGame(canonicalPremise(PreludeExpansion, CorporateEraExpansion, FakeCards))
     kim.runOperation("50 MC, 4 ProjectCard")
     admin.phase("Action")
     kim.playProject(FakeResearchCoordination, 4)
@@ -62,7 +62,7 @@ internal class FakeWildTagTest : TfmTest() {
 
   @Test
   internal fun `Sagitta rewards a wild-only card as tagless`() {
-    game = setUpGame(canonicalPremise(PreludeExpansion, Prelude2Cards, FakeStuffBundle))
+    game = setUpGame(canonicalPremise(PreludeExpansion, Prelude2Cards, FakeCards))
     kim.runOperation("$SagittaFrontierServices, ProjectCard")
     admin.phase("Action")
 
@@ -71,7 +71,7 @@ internal class FakeWildTagTest : TfmTest() {
 
   @Test
   internal fun `An assigned wild science tag satisfies Excentric Sponsor during the Prelude phase`() {
-    game = setUpGame(canonicalPremise(PreludeExpansion, VenusNextExpansion, FakeStuffBundle))
+    game = setUpGame(canonicalPremise(PreludeExpansion, VenusNextExpansion, FakeCards))
     kim.runOperation("$Inventrix")
     admin.phase("Prelude")
     kim.playPrelude(FakeResearchNetwork)
@@ -101,7 +101,7 @@ internal class FakeWildTagTest : TfmTest() {
   private fun interplanetaryTradeWithWildEvent(venus: Boolean) {
     val config =
         GameConfig(
-            "PreludeExpansion, promos:cards, CorporateEraExpansion, FakeStuffBundle, EcologyExperts, Unsafe" +
+            "PreludeExpansion, promos:cards, CorporateEraExpansion, fakes:cards, EcologyExperts, Unsafe" +
                 if (venus) ", VenusNextExpansion" else "",
             "Player1",
             "Player2",
@@ -141,7 +141,7 @@ internal class FakeWildTagTest : TfmTest() {
   }
 
   private fun playCartelWithWildEarthTag(): TaskResult {
-    game = setUpGame(canonicalPremise(PreludeExpansion, CorporateEraExpansion, FakeStuffBundle))
+    game = setUpGame(canonicalPremise(PreludeExpansion, CorporateEraExpansion, FakeCards))
     kim.runOperation("$PointLuna, ProjectCard")
     admin.phase("Action")
     kim.playProject(FakeResearchCoordination, 4)

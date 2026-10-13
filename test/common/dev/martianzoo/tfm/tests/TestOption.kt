@@ -26,7 +26,7 @@ internal enum class TestOption(private val configuredName: String? = null) : Tes
   ColoniesExpansion,
   TurmoilExpansion,
   PromoCards("promos:cards"),
-  FakeStuffBundle,
+  FakeCards("fakes:cards"),
   WorldGovernmentRule,
   MandatoryVenusVariant,
   Unsafe;

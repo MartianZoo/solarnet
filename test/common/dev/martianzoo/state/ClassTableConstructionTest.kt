@@ -84,11 +84,7 @@ internal class ClassTableConstructionTest {
     val active =
         ClassLoader.forPremise(
             declarations,
-            roots + cn("Flag"),
-            additionalRequiredClasses = { declaration ->
-              if (declaration.className == cn("Source")) setOf(cn("RuntimeDependency"))
-              else emptySet()
-            },
+            roots + cn("Flag") + cn("RuntimeDependency"),
             exactCount = { expression, _ ->
               when (expression.className) {
                 cn("Selected") -> 1
@@ -109,7 +105,6 @@ internal class ClassTableConstructionTest {
     active.allClassNames.contains(cn("Product")) shouldBe true
     dormant.allClassNames.contains(cn("RuntimeDependency")) shouldBe false
     active.allClassNames.contains(cn("RuntimeDependency")) shouldBe true
-
     master.effects(master.getClass(cn("Source"))).single().toString() shouldBe
         "This IF Class<Flag>: Product"
     dormant.effects(dormant.getClass(cn("Source"))) shouldBe emptyList()

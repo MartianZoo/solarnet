@@ -27,7 +27,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
           UtopiaMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion
           promos:cards
-          FakeStuffBundle
+          fakes:cards
 
           Ecologist, Merchant, Metallurgist, Tactician, Hoverlord
           Constructor, Excentric, Highlander, Mogul, Traveller, Venuphile

@@ -14,11 +14,12 @@ import dev.martianzoo.tfm.carddata.CardData
  * `*.cards.pets` fragments additionally identify the bundle's card declarations, while bundle
  * language files and compact map diagrams supply category-specific metadata. Card replacement
  * metadata comes from the corresponding authored card JSON. A bundle identity is raw source
- * provenance, not a Pets class, so no declaration is required or synthesized for it. Callers whose
- * resources are not in Canon's generated registry can provide [resourceFilenames] and
- * [resourceReader] directly.
+ * provenance, not a Pets class, so no declaration is required or synthesized for it. Canon supplies
+ * [primaryModuleName] from its bundle manifest. Callers whose resources are not in Canon's
+ * generated registry can provide [resourceFilenames] and [resourceReader] directly.
  *
  * @param name bundle identity and the default resource-directory suffix.
+ * @param primaryModuleName Module governing this bundle's default Content and support availability.
  * @param resourceDirectory directory passed to [resourceReader], defaulting to `bundles/name`.
  * @param resourceFilenames relative paths in that directory; an empty set is rejected.
  * @param resourceReader reads each selected resource by its full path. Its failures propagate.

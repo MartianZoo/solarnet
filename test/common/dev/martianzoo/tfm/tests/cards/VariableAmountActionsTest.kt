@@ -45,7 +45,7 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
   @Test
   internal fun `Energy Market accepts Heat instead of MC for FakeHelion`() {
     // Its starting purchase offers Heat payment, which this test declines explicitly.
-    newTestGameBeforeCorporationPlay(addOptions = "FakeStuffBundle")
+    newTestGameBeforeCorporationPlay(addOptions = "fakes:cards")
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<FakeHelion>>",

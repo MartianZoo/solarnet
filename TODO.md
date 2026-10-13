@@ -165,6 +165,15 @@ Keep tasks brief; linked notes and tests carry the background.
   for now.
 - Implement individual Turmoil party and whole-map selection described in the
   [Pets roadmap](PETS_ROADMAP.md#canon-and-game-rule-modeling).
+- Follow the bundle-loading metadata move with a separate look at the legacy REPL option-code
+  mapping and content-specific English describers. Both still name game content in Kotlin; neither
+  determines which declarations a bundle loads or which cards its pool selects.
+- Move the map-diagram area kinds and bonus sigils in `MarsMapReader` into authored map data together
+  with their delegate handling; the generated area Pets and diagram reader must continue to agree.
+- Derive the standard-resource action-cost set in `TfmActionLowerer` from the
+  `StandardResource` Pets hierarchy after resolving when action lowering has that hierarchy.
+- Revisit the expansion names in `TfmWorkflow`'s Prelude and solar-phase sequencing when moving
+  game-phase rules out of Kotlin; this is separate from card-pool selection.
 - Consider allowing owner-local Class declarations only in gain instructions. They currently also
   parse in other expression positions, including a selector's `HAS` refinement; decide the intended
   boundary and account for existing uses before restricting the syntax.

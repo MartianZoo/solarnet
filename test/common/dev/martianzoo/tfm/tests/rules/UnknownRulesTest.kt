@@ -57,7 +57,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   // https://boardgamegeek.com/thread/2993276/article/41447529#41447529
   @Test
   internal fun `Head Start Board Merger Tharsis currently uses the next granted action for its city`() {
-    newTestGame(addOptions = "PreludeExpansion, FakeStuffBundle, BoardOfDirectors")
+    newTestGame(addOptions = "PreludeExpansion, fakes:cards, BoardOfDirectors")
     kim.exMachina("$BoardOfDirectors, Director<$BoardOfDirectors>")
     kim.setToExMachina(54, "MC")
 

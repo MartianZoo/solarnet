@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.state.TaskResult
+import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmGameplayTest
@@ -151,7 +152,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Staged cards remain outside hand for Planner`() {
-    newTestGame(addOptions = "FakeStuffBundle")
+    newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeSelfReplicatingRobots")
     kim.setToExMachina(16, "ProjectCard")
     kim.inTurn {
@@ -177,7 +178,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Staged cards remain outside hand for Visionary`() {
-    newTestGame(addOptions = "FakeStuffBundle, Visionary, Landlord, Banker", playerCount = 2)
+    newTestGame(addOptions = "fakes:cards, Visionary, Landlord, Banker", playerCount = 2)
     kim.exMachina("$FakeSelfReplicatingRobots")
     kim.setToExMachina(2, "ProjectCard")
     stan.setToExMachina(2, "ProjectCard")
@@ -220,7 +221,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Excentric ignores resources on a card that is not in play`() {
-    newTestGame(addOptions = "HellasMap, FakeStuffBundle", playerCount = 2)
+    newTestGame(addOptions = "HellasMap, fakes:cards", playerCount = 2)
     kim.exMachina("$FakeSelfReplicatingRobots")
     kim.setToExMachina(1, "ProjectCard")
     stan.exMachina("$SearchForLife, Science<$SearchForLife>")
@@ -264,7 +265,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Staging a card does not fire its play effects or triggers`() {
-    newTestGame(addOptions = "FakeStuffBundle")
+    newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeSelfReplicatingRobots, PROD[2 MC, Energy]")
     kim.setToExMachina(1, "ProjectCard")
     kim.inTurn {
@@ -546,7 +547,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   }
 
   private fun initialize(cards: Int) {
-    newTestGame(addOptions = "FakeStuffBundle")
+    newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeSelfReplicatingRobots")
     kim.setToExMachina(cards, "ProjectCard")
   }
@@ -650,7 +651,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   }
 
   private fun playCorroderWithHostedVenusCard(): TaskResult {
-    newTestGame(addOptions = "FakeStuffBundle")
+    newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeSelfReplicatingRobots")
     kim.setToExMachina(2, "ProjectCard")
     kim.inTurn {
@@ -685,7 +686,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   }
 
   private fun setUpEightResourceTypesWithRobots() {
-    newTestGame(addOptions = "AmazonisMap, FakeStuffBundle")
+    newTestGame(addOptions = "AmazonisMap, fakes:cards")
     val standardResources = "MC, Steel, Titanium, Plant, Energy, Heat"
     kim.setToExMachina(2, "ProjectCard")
     kim.exMachina(
@@ -723,10 +724,35 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
 
   @Test
   internal fun `BUG - Robot units break a tie for Collector`() {
-    scoreCollectorWithRobotUnits() shouldBe listOf(25, 23, 20)
+    fundCollectorWithRobotUnits()
+    val checkpoint = game.timeline.checkpoint()
+
+    TfmWorkflow.Stepwise(agents).endPhase()
+
+    players.map { it.count("VictoryPoint") } shouldBe listOf(25, 23, 20)
+    kim.auditGainsSince(checkpoint) shouldBe 1
+    stan.auditGainsSince(checkpoint) shouldBe 0
+  }
+
+  @Test
+  internal fun `Second-place Collector scoring with robot units records an Audit`() {
+    fundCollectorWithRobotUnits()
+    kim.exMachina("-Plant, -Heat")
+    val checkpoint = game.timeline.checkpoint()
+
+    TfmWorkflow.Stepwise(agents).endPhase()
+
+    players.map { it.count("VictoryPoint") } shouldBe listOf(22, 26, 20)
+    kim.auditGainsSince(checkpoint) shouldBe 1
+    stan.auditGainsSince(checkpoint) shouldBe 0
   }
 
   private fun scoreCollectorWithRobotUnits(): List<Int> {
+    fundCollectorWithRobotUnits()
+    return victoryPoints()
+  }
+
+  private fun fundCollectorWithRobotUnits() {
     setUpEightResourceTypesWithRobots()
     stan.exMachina(
         "MC, Steel, Titanium, Plant, Energy, Heat, $Predators, $RegolithEaters, " +
@@ -736,7 +762,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       doTasks("FundAward<Class<Collector>>", "-8 MC")
       selectOnlyTask()
     }
-    return victoryPoints()
   }
 
   @Ignore // Hosted cards are not resource destinations.
@@ -756,7 +781,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   }
 
   private fun useMaxwellWithHostedVenusCard(choice: OperationBlock): TaskResult {
-    newTestGame(addOptions = "FakeStuffBundle")
+    newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeSelfReplicatingRobots, " + "$AerialMappers, Floater<$AerialMappers>")
     kim.inTurn {
       doTasks(
@@ -791,7 +816,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   }
 
   private fun playCeosFavoriteWithHostedCard(choice: OperationBlock): TaskResult {
-    newTestGame(addOptions = "FakeStuffBundle")
+    newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeSelfReplicatingRobots, $Pets, Animal<$Pets>")
     kim.setToExMachina(2, "ProjectCard")
     kim.inTurn {
@@ -830,7 +855,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   }
 
   private fun useAppliedScienceWithHostedCard(choice: OperationBlock): TaskResult {
-    newTestGame(addOptions = "FakeStuffBundle")
+    newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeSelfReplicatingRobots, $FakeAppliedScience, Science<$FakeAppliedScience>")
     kim.setToExMachina(1, "ProjectCard")
     kim.inTurn {
@@ -868,7 +893,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   }
 
   private fun playTerminalWithHostedCard(choice: OperationBlock): TaskResult {
-    newTestGame(addOptions = "prelude2:cards, ColoniesExpansion, FakeStuffBundle")
+    newTestGame(addOptions = "prelude2:cards, ColoniesExpansion, fakes:cards")
     kim.exMachina("$FakeSelfReplicatingRobots, $Pets, Animal<$Pets>")
     kim.setToExMachina(2, "ProjectCard")
     kim.inTurn {
@@ -913,7 +938,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   }
 
   private fun stageCardWithoutEligibleTag(): TaskResult {
-    newTestGame(addOptions = "FakeStuffBundle")
+    newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeSelfReplicatingRobots")
     kim.setToExMachina(1, "ProjectCard")
     return kim.inTurn {
@@ -940,7 +965,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     }
 
     private fun resolveSponsoredProjectsWithHostedCard(): Pair<Int, Int> {
-      newTestGame(addOptions = "TurmoilExpansion, FakeStuffBundle", playerCount = 2)
+      newTestGame(addOptions = "TurmoilExpansion, fakes:cards", playerCount = 2)
       kim.turn {
         playProject(Research, 11)
         playProject(FakeSelfReplicatingRobots, 7)

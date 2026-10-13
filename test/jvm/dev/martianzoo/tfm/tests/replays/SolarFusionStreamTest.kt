@@ -20,7 +20,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
           """
           ElysiumMap
           PreludeExpansion, promos:cards
-          FakeStuffBundle
+          fakes:cards
 
           Builder, Philantropist, Spacefarer, Terraformer, Energizer
           Incorporator, Botanist, Founder, Benefactor, Banker

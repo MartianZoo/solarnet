@@ -188,8 +188,7 @@ internal class ModuleSelectionTest {
   @Test
   internal fun `Colonies requires a selected colony tile`() {
     val failure = shouldThrow<InvalidGameConfigException> { premise("ColoniesExpansion", 2) }
-    failure.message shouldBe
-        "ColoniesExpansion requires at least one selected colony tile, such as Callisto"
+    failure.message shouldBe "ColoniesExpansion requires at least one selected colony tile"
     premise("ColoniesExpansion, Callisto", 2)
   }
 

@@ -325,7 +325,7 @@ names `TerraLabs`. Jacob's forum posts and the official
 
 ## Intentional exceptions
 
-The `Fake`-prefixed cards in FakeCanon's explicitly selected `FakeStuffBundle` are deliberate
+The `Fake`-prefixed cards in FakeCanon's explicitly selected `fakes:cards` pool are deliberate
 incomplete stand-ins. The wild-tag cards preserve every other modeled behavior while creating only
 an inert `FakeWildTag`; replays add the chosen ordinary tag explicitly when source evidence requires
 it. The other stand-ins preserve only their documented subset of the printed card. Their names must

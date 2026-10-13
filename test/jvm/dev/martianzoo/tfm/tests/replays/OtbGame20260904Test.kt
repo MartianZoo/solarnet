@@ -23,7 +23,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
           """
           AmazonisMap, Unsafe
           VenusNextExpansion, PreludeExpansion, prelude2:cards, promos:cards
-          FakeStuffBundle
+          fakes:cards
 
           Builder, Diversifier, Generalist, Landshaper, Tactician
           Administrator, Excentric, Highlander, Promoter, Thermalist

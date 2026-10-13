@@ -7,7 +7,7 @@ import kotlin.test.Test
 internal class FakeSeptemTribusTest : TfmSandboxTest() {
   @Test
   internal fun `Action ignores the chairman and pays once for each party with an owned delegate`() {
-    newTestGame(addOptions = "TurmoilExpansion, FakeStuffBundle")
+    newTestGame(addOptions = "TurmoilExpansion, fakes:cards")
     kim.exMachina("$FakeSeptemTribus")
     kim.exMachina("-Chairman<Neutral>")
     kim.exMachina(

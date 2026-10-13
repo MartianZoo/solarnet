@@ -120,7 +120,10 @@ internal fun canonicalPremise(
 }
 
 internal fun canonicalCatalog(config: GameConfig): TfmCatalog =
-    canonicalCatalog(cn("FakeStuffBundle") in config.includedClassNames)
+    canonicalCatalog(
+        FakeCanon.bundles.any { it.bundleName in config.includedCardBundles } ||
+            config.includedClassNames.any { it in FakeCanon.allClassNames }
+    )
 
 internal fun canonicalCatalog(includeFakeCards: Boolean): TfmCatalog =
     if (includeFakeCards) CANON_WITH_FAKE_CARDS else Canon
