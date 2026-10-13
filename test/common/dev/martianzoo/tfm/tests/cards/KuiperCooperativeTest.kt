@@ -39,7 +39,7 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
               "-2 Asteroid<KuiperCooperative>",
               "-MC / Owed",
           )
-          selectTask("TemperatureStep.")
+          selectTask("TemperatureStep*")
           doTask("TerraformRating")
         }
         .expect("-12 MC, TemperatureStep")
@@ -70,7 +70,7 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("UseStandardProject<PowerPlantProject>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-2 Asteroid<KuiperCooperative>")
       }
     }

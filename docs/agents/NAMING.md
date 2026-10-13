@@ -237,9 +237,10 @@ concern their Class Names.
 Most genuine `Module` subtypes extend `Module` directly, and that is fine — they need no
 intermediate supertype just to justify a suffix. Three loose families exist today:
 
-1. **Ambient rules** — published products contributing ambient rules use their own noun:
-   `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, `PreludeExpansion`, and
-   `TurmoilExpansion`.
+1. **Published expansions** — selected products use their own noun:
+   `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, `PreludeExpansion`,
+   `Prelude2Expansion`, and `TurmoilExpansion`. `Prelude2Expansion` contributes its cards and
+   requires `PreludeExpansion`; it has no additional rules of its own.
 2. **Exclusive choices** — a closed set behind an abstract supertype, exactly one selected. These
    already borrow the supertype's word, which reads well: `MultiplayerMode` and `SoloMode` under
    `GameMode`; `TharsisMap` and `HellasMap` under `MarsMap`; `StandardSoloObjective` and
@@ -252,8 +253,9 @@ to supply a shared suffix.
 
 Bundles have short lowercase source names matching their resource directories, independent of Class
 Names. For example, the `venus` bundle declares the `VenusNextExpansion` Module, and the `prelude`
-bundle declares the `PreludeExpansion` Module. A bundle's explicitly associated Module selects its
-cards and colony tiles by default; `name:cards` can select or exclude its card pool independently.
+bundle declares the `PreludeExpansion` Module, and the `prelude2` bundle declares the
+`Prelude2Expansion` Module. A bundle's explicitly associated Module selects its cards and colony
+tiles by default; `name:cards` can select or exclude its card pool independently.
 `PreludeExpansion` therefore always names the Module, while `prelude` names the bundle. See
 [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) and
 [`Canon.kt`](../../src/common/dev/martianzoo/tfm/canon/Canon.kt).

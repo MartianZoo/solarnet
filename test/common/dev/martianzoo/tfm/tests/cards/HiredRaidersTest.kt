@@ -36,7 +36,7 @@ internal class HiredRaidersTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<HiredRaiders>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-1 MC", "HiredRaiders FROM ProjectCard")
         selectOnlyTask()
         doTask("Ok")

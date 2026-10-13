@@ -2284,10 +2284,10 @@ internal class PostCatalogDiagnosticsTest {
           agent.sneak("X Water")
         }
 
-    assertEquals("instruction is abstract: `X Water!`", error.detail)
+    assertEquals("instruction is abstract: `X! Water`", error.detail)
     assertEquals(
         """
-        |instruction is abstract: `X Water!` at 1:1
+        |instruction is abstract: `X! Water` at 1:1
         |X Water
         |^
         """
@@ -2369,12 +2369,12 @@ internal class PostCatalogDiagnosticsTest {
           agent.completeOperation()
         }
 
-    assertEquals("pending abstract tasks:\n9* [Player1] X Water!", error.detail)
+    assertEquals("pending abstract tasks:\n9* [Player1] X! Water", error.detail)
     // Prefer a caret on `X` in the pending authored instruction `X Water`.
     assertEquals(
         """
         |pending abstract tasks:
-        |9* [Player1] X Water!
+        |9* [Player1] X! Water
         """
             .trimMargin(),
         error.message,
@@ -2393,11 +2393,11 @@ internal class PostCatalogDiagnosticsTest {
         }
 
     assertEquals(
-        "`Player2` cannot queue a task assigned to `Player1`: 9  [Player1] X Water!",
+        "`Player2` cannot queue a task assigned to `Player1`: 9  [Player1] X! Water",
         error.detail,
     )
     assertEquals(
-        "`Player2` cannot queue a task assigned to `Player1`: 9  [Player1] X Water!",
+        "`Player2` cannot queue a task assigned to `Player1`: 9  [Player1] X! Water",
         error.message,
     )
   }
@@ -2437,7 +2437,7 @@ internal class PostCatalogDiagnosticsTest {
   internal fun optionalExcludedClassCanBeSkipped() {
     val restricted = premise.copy(classSelections = setOf(ClassSelection(cn("Water"))))
     val agent = Engine.newGame(restricted).testAgent(Player(cn("Player1")))
-    agent.runOperation("Rose.")
+    agent.runOperation("Rose*")
     assertEquals(0, agent.count("Rose"))
   }
 

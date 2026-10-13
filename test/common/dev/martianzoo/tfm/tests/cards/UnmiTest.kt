@@ -14,7 +14,7 @@ internal class UnmiTest : TfmSandboxTest() {
     kim.setToExMachina(17, "MC")
     kim.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTask("TerraformRating")
     }
 
@@ -33,7 +33,7 @@ internal class UnmiTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("UseCardAction<UnitedNationsMarsInitiative, Action1>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
       }

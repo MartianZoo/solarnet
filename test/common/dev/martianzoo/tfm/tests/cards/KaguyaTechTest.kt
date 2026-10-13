@@ -35,7 +35,7 @@ internal class KaguyaTechTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<KaguyaTech>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-10 MC", "KaguyaTech FROM ProjectCard")
         selectTask("PROD[2 MC]")
         selectTask("ProjectCard<Kim, Hand>!")

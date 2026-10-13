@@ -7,7 +7,7 @@
           "name": "AerialLenses",
           "requirement": "PartyRequirement<Kelvinists>",
           "cost": 2,
-          "direct": "-2 Plant<Anyone>?, PROD[2 Heat]",
+          "direct": "-2? Plant<Anyone>, PROD[2 Heat]",
           "effects": [ "End: -VictoryPoint" ],
         },
         {
@@ -16,7 +16,7 @@
           "cost": 0,
           "tags": [ "EventTag" ],
           "direct":
-            "BannedDelegateRemoval<Party, Anyone>. / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1",
+            "BannedDelegateRemoval<Party, Anyone>* / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1",
           "components": [
             // Returns a selected non-leader delegate, then resolves its party leadership.
             // A transfer also removes a delegate; leadership changes only after this selected removal.
@@ -151,7 +151,7 @@
             // Must be identical to UnitedNationsMarsInitiative's declarations in the base bundle.
             "CLASS HasRaisedTr<GenerationScope> : Owned, System { HAS MAX 1 This }",
             // PP counts attempts automatically; only its second and later Action-phase gains qualify.
-            "CLASS TrWatcher : CardWatcher { TerraformRating IF MAX 0 HasRaisedTr, (MAX 0 ActionPhase OR MAX 0 ActionPhaseTrGain OR 2 ActionPhaseTrGain): HasRaisedTr. }"
+            "CLASS TrWatcher : CardWatcher { TerraformRating IF MAX 0 HasRaisedTr, (MAX 0 ActionPhase OR MAX 0 ActionPhaseTrGain OR 2 ActionPhaseTrGain): HasRaisedTr* }"
           ],
         },
         {

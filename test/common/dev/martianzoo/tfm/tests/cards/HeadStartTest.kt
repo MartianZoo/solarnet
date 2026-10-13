@@ -46,12 +46,12 @@ internal class HeadStartTest : TfmSandboxTest() {
           "FakeHeadStart FROM PreludeCard",
           "2 Steel",
       )
-      selectTask("2 MC! / ProjectCard<Kim, Hand>")
+      selectTask("2! MC / ProjectCard<Kim, Hand>")
       selectTask(
           "(MAX 0 RequiredAction: StandardAction!) OR (RequiredAction: RequiredActionsSignal!)"
       )
-      selectTask("3 PreludeCard<Kim, Selecting>!")
-      selectTask("-2 PreludeCard<Kim, Selecting>!")
+      selectTask("3! PreludeCard<Kim, Selecting>")
+      selectTask("-2! PreludeCard<Kim, Selecting>")
       doTask("PlayCard<Class<PreludeCard>, Class<MartianIndustries>>")
       selectTask("MAX 0 Barrier: MartianIndustries FROM PreludeCard<Kim, Selecting>!")
       doTasks(
@@ -109,9 +109,9 @@ internal class HeadStartTest : TfmSandboxTest() {
           "FakeHeadStart FROM PreludeCard",
           "2 Steel",
       )
-      selectTask("2 MC! / ProjectCard<Kim, Hand>")
+      selectTask("2! MC / ProjectCard<Kim, Hand>")
       doTasks("ConvertHeat", "-8 Heat")
-      selectTask("MAX 0 Billing: TemperatureStep.")
+      selectTask("MAX 0 Billing: TemperatureStep*")
       doTasks(
           "TerraformRating",
           "UseStandardProject<AquiferProject>",
@@ -137,14 +137,14 @@ internal class HeadStartTest : TfmSandboxTest() {
           "FakeHeadStart FROM PreludeCard",
           "2 Steel",
       )
-      selectTask("2 MC! / ProjectCard<Kim, Hand>")
+      selectTask("2! MC / ProjectCard<Kim, Hand>")
       doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
       selectTask(
-          "(SuitableInfrastructureBonus<SuitableInfrastructure>: -SuitableInfrastructureBonus<SuitableInfrastructure>! THEN 2 MC!) OR (MAX 0 SuitableInfrastructureBonus<SuitableInfrastructure>: Ok)"
+          "(SuitableInfrastructureBonus<SuitableInfrastructure>: -SuitableInfrastructureBonus<SuitableInfrastructure>! THEN 2! MC) OR (MAX 0 SuitableInfrastructureBonus<SuitableInfrastructure>: Ok)"
       )
       doTasks("2 MC", "UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
       selectTask(
-          "(SuitableInfrastructureBonus<SuitableInfrastructure>: -SuitableInfrastructureBonus<SuitableInfrastructure>! THEN 2 MC!) OR (MAX 0 SuitableInfrastructureBonus<SuitableInfrastructure>: Ok)"
+          "(SuitableInfrastructureBonus<SuitableInfrastructure>: -SuitableInfrastructureBonus<SuitableInfrastructure>! THEN 2! MC) OR (MAX 0 SuitableInfrastructureBonus<SuitableInfrastructure>: Ok)"
       )
       doTask("2 MC")
     }
@@ -179,21 +179,21 @@ internal class HeadStartTest : TfmSandboxTest() {
           "FakeHeadStart FROM PreludeCard",
           "2 Steel",
       )
-      selectTask("2 MC! / ProjectCard<Kim, Hand>")
+      selectTask("2! MC / ProjectCard<Kim, Hand>")
       doTask("UseCardAction<BoardOfDirectors, Action1>")
       selectTask("PreludeCard<Kim, Hand>!")
       doTask("-12 MC")
       selectTask("-Director<BoardOfDirectors>!")
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      selectTask("4 CorporationCard<Kim, Selecting>!")
+      selectTask("4! CorporationCard<Kim, Selecting>")
       doTask("-42 MC")
-      selectTask("-3 CorporationCard<Kim, Selecting>!")
+      selectTask("-3! CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<SagittaFrontierServices>>")
       selectTask("MAX 0 Barrier: SagittaFrontierServices FROM CorporationCard<Kim, Selecting>!")
       doTasks("31 MC", "PROD[Energy]", "PROD[2 MC]")
       selectTask("SearchForCard<Kim, NoTagsFilter>!")
       doTasks("4 MC", "ConvertHeat", "-8 Heat")
-      selectTask("MAX 0 Billing: TemperatureStep.")
+      selectTask("MAX 0 Billing: TemperatureStep*")
       doTask("TerraformRating")
     }
   }

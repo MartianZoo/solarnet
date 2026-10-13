@@ -246,7 +246,7 @@ internal class TaskIntersectionTest {
 
   @Test
   fun `omitted quantifiers still inherit while explicit incompatible quantifiers fail`() {
-    agent.addTasks("Piece<Red, Shape>.")
+    agent.addTasks("Piece<Red, Shape>*")
     val before = game.timeline.checkpoint()
 
     shouldThrow<TaskException> { agent.doTask("Piece<Color, Circle>!") }
@@ -294,7 +294,7 @@ internal class TaskIntersectionTest {
 
   @Test
   fun `an omitted quantifier cannot weaken an incompatible count into an optional ceiling`() {
-    agent.addTasks("2 Piece<Red, Shape>?")
+    agent.addTasks("2? Piece<Red, Shape>")
     val before = game.timeline.checkpoint()
 
     shouldThrow<TaskException> { agent.doTask("3 Piece<Color, Circle>") }
@@ -318,7 +318,7 @@ internal class TaskIntersectionTest {
 
   @Test
   fun `incompatible counts disambiguate otherwise overlapping type domains`() {
-    agent.addTasks("FirstChoice!, 2 RightChoice!")
+    agent.addTasks("FirstChoice!, 2! RightChoice")
 
     agent.doTask("LeftChoice!")
 

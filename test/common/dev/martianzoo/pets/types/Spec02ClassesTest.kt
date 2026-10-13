@@ -243,7 +243,7 @@ internal class Spec02ClassesTest {
     listOf(
             "ABSTRACT CLASS Behaving { Trigger: Result }\nCLASS Trigger\nCLASS Result",
             "ABSTRACT CLASS Behaving { HAS MAX 1 This }",
-            "ABSTRACT CLASS Behaving { DEFAULT +Behaving. }",
+            "ABSTRACT CLASS Behaving { DEFAULT +Behaving* }",
         )
         .forEach { parent ->
           val loader =

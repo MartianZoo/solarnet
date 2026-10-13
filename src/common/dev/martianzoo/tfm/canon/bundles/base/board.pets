@@ -105,8 +105,8 @@ CLASS Neighbor<AreaPiece, MarsArea> : CustomMetric
 
 "A single step along a global parameter track"
 ABSTRACT CLASS GlobalParameter : Atomized, Real {
-  DEFAULT +GlobalParameter.
-  DEFAULT -GlobalParameter.
+  DEFAULT +GlobalParameter*
+  DEFAULT -GlobalParameter*
 
   This: TerraformRating
 

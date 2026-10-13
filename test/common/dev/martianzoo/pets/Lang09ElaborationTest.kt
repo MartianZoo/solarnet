@@ -133,9 +133,9 @@ internal class Lang09ElaborationTest {
     bound.transformInstructionTree(parse("Plant<This>")).toString() shouldBe "Plant<It<Worked>>"
     bound.transformInstructionTree(parse("Class<This>")).toString() shouldBe "Class<It>"
     bound
-        .transformEffect(parse("-Ooh<Plant<Xyz, This, Gizmo>>: 5 This?, =0 This: -Widget"))
+        .transformEffect(parse("-Ooh<Plant<Xyz, This, Gizmo>>: 5? This, =0 This: -Widget"))
         .toString() shouldBe
-        "-Ooh<Plant<Xyz, It<Worked>, Gizmo>>: 5 It<Worked>?, =0 It<Worked>: -Widget"
+        "-Ooh<Plant<Xyz, It<Worked>, Gizmo>>: 5? It<Worked>, =0 It<Worked>: -Widget"
   }
 
   // L9-3 Owned context
@@ -277,9 +277,9 @@ internal class Lang09ElaborationTest {
   internal fun `L9-8 the two default quantifiers are intersected, the stricter winning`() {
     // `Chit` defaults its gain to `?`; `Slug` defaults its removal to `.`; `Plant` inherits `!`.
     elaborate("Chit") shouldBe parse<InstructionTree>("Chit<Player1>?")
-    elaborate("-Slug") shouldBe parse<InstructionTree>("-Slug<Player1>.")
+    elaborate("-Slug") shouldBe parse<InstructionTree>("-Slug<Player1>*")
 
-    elaborate("Chit FROM Slug") shouldBe parse<InstructionTree>("Chit<Player1> FROM Slug<Player1>.")
+    elaborate("Chit FROM Slug") shouldBe parse<InstructionTree>("Chit<Player1> FROM Slug<Player1>*")
     elaborate("Chit FROM Plant") shouldBe
         parse<InstructionTree>("Chit<Player1> FROM Plant<Player1>!")
     elaborate("Chit FROM Slug!") shouldBe
@@ -364,7 +364,7 @@ internal class Lang09ElaborationTest {
             "ProjectCard<Player1>!, ProjectCard<Player1>!, ProjectCard<Player1>!"
         )
     elaborate("ProjectCard") shouldBe parse<InstructionTree>("ProjectCard<Player1>!")
-    elaborate("-3 ProjectCard") shouldBe parse<InstructionTree>("-3 ProjectCard<Player1>!")
+    elaborate("-3 ProjectCard") shouldBe parse<InstructionTree>("-3! ProjectCard<Player1>")
   }
 
   // L9-12 EVAL
@@ -581,12 +581,12 @@ internal class Lang09ElaborationTest {
 
     specialize("This: Steel<Seat1>!").instruction shouldBe parse<InstructionTree>("Die!")
     specialize("This: Steel<Seat1>?").instruction shouldBe parse<InstructionTree>("Ok")
-    specialize("This: Steel<Seat1>.").instruction shouldBe parse<InstructionTree>("Ok")
+    specialize("This: Steel<Seat1>*").instruction shouldBe parse<InstructionTree>("Ok")
     specialize("This: Empty!").instruction shouldBe parse<InstructionTree>("Die!")
     specialize("This: Empty?").instruction shouldBe parse<InstructionTree>("Ok")
     specialize("This: Plant<This>!").instruction shouldBe parse<InstructionTree>("Die!")
     specialize("This: Plant<This>?").instruction shouldBe parse<InstructionTree>("Ok")
-    specialize("This: Plant<This>.").instruction shouldBe parse<InstructionTree>("Ok")
+    specialize("This: Plant<This>*").instruction shouldBe parse<InstructionTree>("Ok")
     specialize("This: Empty? / Plant<Seat1>").instruction shouldBe parse<InstructionTree>("Ok")
     specialize("This: EACH Plant<Seat1> { Empty? }").instruction shouldBe
         parse<InstructionTree>("Ok")

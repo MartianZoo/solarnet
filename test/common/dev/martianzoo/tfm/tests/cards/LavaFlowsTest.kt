@@ -15,8 +15,8 @@ internal class LavaFlowsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<LavaFlows>>", "-18 MC", "LavaFlows FROM ProjectCard")
-      selectTask("TemperatureStep.")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
+      selectTask("TemperatureStep*")
       doTasks(
           "TerraformRating",
           "TerraformRating",
@@ -33,8 +33,8 @@ internal class LavaFlowsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<LavaFlows>>", "-18 MC", "LavaFlows FROM ProjectCard")
-      selectTask("TemperatureStep.")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
+      selectTask("TemperatureStep*")
       doTasks(
           "TerraformRating",
           "TerraformRating",
@@ -58,10 +58,10 @@ internal class LavaFlowsTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<LavaFlows>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-18 MC", "LavaFlows FROM ProjectCard")
-        selectTask("TemperatureStep.")
-        selectTask("TemperatureStep.")
+        selectTask("TemperatureStep*")
+        selectTask("TemperatureStep*")
         selectTask("TerraformRating!")
         selectTask("TerraformRating!")
         selectOnlyTask()

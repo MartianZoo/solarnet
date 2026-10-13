@@ -45,9 +45,9 @@ internal class Lang03NarrowingTest {
 
   @Test
   internal fun `L3-1 an instruction is abstract when something is still open`() {
-    abstract("2 Plant!") shouldBe false
-    abstract("2 Plant?") shouldBe true
-    abstract("X Plant!") shouldBe true
+    abstract("2! Plant") shouldBe false
+    abstract("2? Plant") shouldBe true
+    abstract("X! Plant") shouldBe true
     abstract("Plant! OR Heat!") shouldBe true
     abstract("Tile<>") shouldBe true
     abstract("GreeneryTile<Land1>") shouldBe false
@@ -97,21 +97,21 @@ internal class Lang03NarrowingTest {
 
   @Test
   internal fun `L3-4 a count may not grow, and shrinks only under an optional quantifier`() {
-    narrows("2 Plant!", "2 Plant!") shouldBe true
-    refuses("2 Plant!", "3 Plant!")
-    refuses("2 Plant!", "Plant!")
-    narrows("2 Plant?", "Plant?") shouldBe true
-    refuses("2 Plant?", "3 Plant?")
-    refuses("2 Plant.", "Plant.")
+    narrows("2! Plant", "2! Plant") shouldBe true
+    refuses("2! Plant", "3! Plant")
+    refuses("2! Plant", "Plant!")
+    narrows("2? Plant", "Plant?") shouldBe true
+    refuses("2? Plant", "3? Plant")
+    refuses("2* Plant", "Plant*")
   }
 
   @Test
   internal fun `L3-4 an optional quantifier may become anything, and mandatory and AMAP may not`() {
-    narrows("2 Plant?", "2 Plant!") shouldBe true
-    narrows("2 Plant?", "2 Plant.") shouldBe true
-    narrows("2 Plant?", "2 Plant?") shouldBe true
-    refuses("2 Plant!", "2 Plant.")
-    refuses("2 Plant.", "2 Plant!")
+    narrows("2? Plant", "2! Plant") shouldBe true
+    narrows("2? Plant", "2* Plant") shouldBe true
+    narrows("2? Plant", "2? Plant") shouldBe true
+    refuses("2! Plant", "2* Plant")
+    refuses("2* Plant", "2! Plant")
   }
 
   @Test
@@ -153,9 +153,9 @@ internal class Lang03NarrowingTest {
 
   @Test
   internal fun `L3-5 Ok narrows an optional change and nothing else`() {
-    narrows("2 Plant?", "Ok") shouldBe true
-    refuses("2 Plant!", "Ok")
-    refuses("2 Plant.", "Ok")
+    narrows("2? Plant", "Ok") shouldBe true
+    refuses("2! Plant", "Ok")
+    refuses("2* Plant", "Ok")
   }
 
   // L3-6 OR
@@ -185,7 +185,7 @@ internal class Lang03NarrowingTest {
     refuses("X Plant THEN X Heat", "3 Plant THEN X Heat")
     refuses("2X Plant THEN Heat", "3 Plant THEN Heat")
     refuses("X Plant THEN X Heat", "3 Plant THEN 2 Heat")
-    refuses("(X Plant? OR 2X Plant?) THEN X Steel?", "4 Plant? THEN Ok")
+    refuses("(X? Plant OR 2X? Plant) THEN X? Steel", "4? Plant THEN Ok")
   }
 
   @Test
@@ -206,9 +206,9 @@ internal class Lang03NarrowingTest {
 
   @Test
   internal fun `L3-7 one X around a group settles every member of it`() {
-    narrows("-X Heat! THEN (X Steel!, X Plant!)", "-3 Heat! THEN (3 Steel!, 3 Plant!)") shouldBe
+    narrows("-X! Heat THEN (X! Steel, X! Plant)", "-3! Heat THEN (3! Steel, 3! Plant)") shouldBe
         true
-    refuses("-X Heat! THEN (X Steel!, X Plant!)", "-3 Heat! THEN (3 Steel!, 2 Plant!)")
+    refuses("-X! Heat THEN (X! Steel, X! Plant)", "-3! Heat THEN (3! Steel, 2! Plant)")
   }
 
   // L3-8 Shared type variables
@@ -528,8 +528,8 @@ internal class Lang03NarrowingTest {
 
   @Test
   internal fun `L3-10 narrows answers and ensureNarrows explains`() {
-    narrows("2 Plant!", "3 Plant!") shouldBe false
-    refuses("2 Plant!", "3 Plant!").message!!.contains("does not narrow") shouldBe true
+    narrows("2! Plant", "3! Plant") shouldBe false
+    refuses("2! Plant", "3! Plant").message!!.contains("does not narrow") shouldBe true
   }
 
   @Test

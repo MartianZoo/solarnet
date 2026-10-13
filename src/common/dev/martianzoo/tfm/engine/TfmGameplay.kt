@@ -766,7 +766,7 @@ public class TfmGameplay(
   /** Uses Sell Patents to discard [count] project cards and gain that many MC. */
   public fun sellPatents(count: Int): TaskResult =
       stdProject("SellPatentsProject") {
-        doTask("$count MC FROM ProjectCard!")
+        doTask("$count! MC FROM ProjectCard")
       }
 
   /**

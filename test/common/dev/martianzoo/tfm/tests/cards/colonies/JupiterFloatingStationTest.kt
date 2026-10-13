@@ -17,7 +17,7 @@ internal class JupiterFloatingStationTest : TfmSandboxTest() {
     kim.exMachina("$JupiterFloatingStation, $TitanShuttles")
 
     kim.inTurn {
-          doTasks("UseCardAction<JupiterFloatingStation, Action1>", "Floater<TitanShuttles>.")
+          doTasks("UseCardAction<JupiterFloatingStation, Action1>", "Floater<TitanShuttles>*")
         }
         .expect("Floater<$TitanShuttles>")
   }
@@ -30,7 +30,7 @@ internal class JupiterFloatingStationTest : TfmSandboxTest() {
       kim.inTurn {
         selectTask("StandardAction OR Pass")
         doTask("UseCardAction<JupiterFloatingStation, Action1>")
-        selectTask("Floater<CardFront(HAS JovianTag)>.")
+        selectTask("Floater<CardFront(HAS JovianTag)>*")
         doTask("Floater<AtmoCollectors>")
       }
     }

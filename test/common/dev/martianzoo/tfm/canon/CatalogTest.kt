@@ -248,7 +248,7 @@ internal class CatalogTest {
         CLASS ObservingCard : AutomatedCard { cost = 0; requirement = HAS "ObservedState" }
         CLASS ConstructingCard : AutomatedCard { cost = 0; This: LockedState }
         CLASS ObservingMaximumCard : AutomatedCard { cost = 0; requirement = HAS "MAX 5 ObservedState" }
-        CLASS ObservingRemovalCard : AutomatedCard { cost = 0; This: -LockedState. }
+        CLASS ObservingRemovalCard : AutomatedCard { cost = 0; This: -LockedState* }
         CLASS SupportingClassCard : AutomatedCard { cost = 0 }
         CLASS IndependentCard : AutomatedCard { cost = 0 }
         CLASS SupportingClass<LockedState>

@@ -36,7 +36,7 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
               "-1 MC",
               "CeosFavoriteProject FROM ProjectCard",
           )
-          selectTask("CardResource<CardFront(HAS CardResource)>.")
+          selectTask("CardResource<CardFront(HAS CardResource)>*")
         }
         .expect("0 Microbe<$Tardigrades>")
   }
@@ -49,9 +49,9 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("PlayProject<Class<CeosFavoriteProject>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTasks("-1 MC", "CeosFavoriteProject FROM ProjectCard")
-        selectTask("CardResource<CardFront(HAS CardResource)>.")
+        selectTask("CardResource<CardFront(HAS CardResource)>*")
         doTask("Ok")
       }
     }

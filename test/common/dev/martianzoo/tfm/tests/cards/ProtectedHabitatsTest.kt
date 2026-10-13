@@ -19,7 +19,7 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
           doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
           selectOnlyTask()
           doTask("GreeneryTile<Tharsis_1_1>")
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           doTasks("2 Steel", "TerraformRating")
         }
         .expect("-8 Plant")
@@ -57,13 +57,13 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
       stan.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-        selectTask("-X Titanium?")
+        selectTask("-X? Titanium")
         selectTask("Ok")
         doTask("AsteroidCard FROM ProjectCard")
-        selectTask("TemperatureStep.")
-        selectTask("2 Titanium!")
+        selectTask("TemperatureStep*")
+        selectTask("2! Titanium")
         selectTask("TerraformRating!")
-        selectTask("-3 Plant<Anyone>?")
+        selectTask("-3? Plant<Anyone>")
         doTask("-Plant<Kim>")
       }
     }

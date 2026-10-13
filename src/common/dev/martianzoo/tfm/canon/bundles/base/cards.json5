@@ -71,7 +71,7 @@
             // Must be identical to Pristar's declarations in the turmoil bundle.
             "CLASS HasRaisedTr<GenerationScope> : Owned, System { HAS MAX 1 This }",
             // PP counts attempts automatically; only its second and later Action-phase gains qualify.
-            "CLASS TrWatcher : CardWatcher { TerraformRating IF MAX 0 HasRaisedTr, (MAX 0 ActionPhase OR MAX 0 ActionPhaseTrGain OR 2 ActionPhaseTrGain): HasRaisedTr. }"
+            "CLASS TrWatcher : CardWatcher { TerraformRating IF MAX 0 HasRaisedTr, (MAX 0 ActionPhase OR MAX 0 ActionPhaseTrGain OR 2 ActionPhaseTrGain): HasRaisedTr* }"
           ],
         },
       ],
@@ -164,7 +164,7 @@
           "name": "AsteroidCard", // name "Asteroid", but we gave that name to the resources
           "cost": 14,
           "tags": [ "SpaceTag", "EventTag" ],
-          "direct": "TemperatureStep, 2 Titanium, -3 Plant<Anyone>?",
+          "direct": "TemperatureStep, 2 Titanium, -3? Plant<Anyone>",
         },
         {
           "name": "AsteroidMining",
@@ -185,7 +185,7 @@
           "name": "BigAsteroid",
           "cost": 27,
           "tags": [ "SpaceTag", "EventTag" ],
-          "direct": "2 TemperatureStep, 4 Titanium, -4 Plant<Anyone>?",
+          "direct": "2 TemperatureStep, 4 Titanium, -4? Plant<Anyone>",
         },
         {
           "name": "BiomassCombustors",
@@ -257,7 +257,7 @@
           "name": "Comet",
           "cost": 21,
           "tags": [ "SpaceTag", "EventTag" ],
-          "direct": "TemperatureStep, OceanTile<>, -3 Plant<Anyone>?",
+          "direct": "TemperatureStep, OceanTile<>, -3? Plant<Anyone>",
         },
         {
           "name": "ConvoyFromEuropa",
@@ -293,7 +293,7 @@
           "name": "DeimosDown",
           "cost": 31,
           "tags": [ "SpaceTag", "EventTag" ],
-          "direct": "3 TemperatureStep, 4 Steel, -8 Plant<Anyone>?",
+          "direct": "3 TemperatureStep, 4 Steel, -8? Plant<Anyone>",
         },
         {
           "name": "DesignedMicroorganisms",
@@ -378,7 +378,7 @@
           "name": "Flooding",
           "cost": 7,
           "tags": [ "EventTag" ],
-          "direct": "OceanTile<> OR (GpIncomplete<Class<OceanTile>>: (OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>! THEN -4 MC<@Anyone>?))",
+          "direct": "OceanTile<> OR (GpIncomplete<Class<OceanTile>>: (OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>! THEN -4? MC<@Anyone>))",
           "effects": [ "End: -VictoryPoint" ],
         },
         {
@@ -434,7 +434,7 @@
           "name": "GiantIceAsteroid",
           "cost": 36,
           "tags": [ "SpaceTag", "EventTag" ],
-          "direct": "2 TemperatureStep, 2 OceanTile<>, -6 Plant<Anyone>?",
+          "direct": "2 TemperatureStep, 2 OceanTile<>, -6? Plant<Anyone>",
         },
         {
           "name": "GiantSpaceMirror",
@@ -663,7 +663,7 @@
           "name": "MiningExpedition",
           "cost": 12,
           "tags": [ "EventTag" ],
-          "direct": "OxygenStep, -2 Plant<Anyone>?, 2 Steel",
+          "direct": "OxygenStep, -2? Plant<Anyone>, 2 Steel",
         },
         {
           "name": "MiningRights",

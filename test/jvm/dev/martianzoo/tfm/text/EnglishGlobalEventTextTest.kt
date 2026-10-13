@@ -39,13 +39,13 @@ internal class EnglishGlobalEventTextTest {
 
   @Test
   internal fun preservesCapOrderAndResourceRetention() {
-    english.describe(parse<InstructionTree>("-2 MC. / (BuildingTag MAX 3 - Influence)")) shouldBe
+    english.describe(parse<InstructionTree>("-2* MC / (BuildingTag MAX 3 - Influence)")) shouldBe
         "Remove 2 M€ per building tag you have (max 3) in excess of influence, or as much as possible."
-    english.describe(parse<InstructionTree>("-2 MC. / (BuildingTag - Influence) MAX 3")) shouldBe
+    english.describe(parse<InstructionTree>("-2* MC / (BuildingTag - Influence) MAX 3")) shouldBe
         "Remove 2 M€ per building tag you have in excess of influence (max 3), or as much as possible."
     english.describe(parse<InstructionTree>("-Steel! / (Steel - Influence - 2)")) shouldBe
         "Remove all steel except 2 plus influence."
-    english.describe(parse<InstructionTree>("-2 Steel! / Steel")) shouldBe
+    english.describe(parse<InstructionTree>("-2! Steel / Steel")) shouldBe
         "Remove 2 steel per steel you have."
     english.describe(parse<InstructionTree>("-Steel? / Steel")) shouldBe "[-Steel? / Steel]."
     english.describe(parse<InstructionTree>("2 MC / (BuildingTag - (Influence - 2))")) shouldBe

@@ -14,7 +14,7 @@ internal class AdditionalGoalsTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("ClaimMilestone<Class<Terraformer26>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
       }
@@ -22,7 +22,7 @@ internal class AdditionalGoalsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep.")
+      selectTask("TemperatureStep*")
       doTask("TerraformRating")
     }
     kim.inTurn {
@@ -33,7 +33,7 @@ internal class AdditionalGoalsTest : TfmSandboxTest() {
       stan.inTurn {
         selectOnlyTask()
         doTask("ClaimMilestone<Class<Terraformer35>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
       }
@@ -53,7 +53,7 @@ internal class AdditionalGoalsTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("ClaimMilestone<Class<Lobbyist>>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
       }

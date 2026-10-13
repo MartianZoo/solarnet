@@ -59,7 +59,7 @@ internal class RobinsonIndustriesTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTask("UseCardAction<RobinsonIndustries, Action1>")
-        selectTask("-X MC?")
+        selectTask("-X? MC")
         doTask("-MC / Owed<Class<MC>>")
         selectOnlyTask()
         doTask("PROD[Steel]")

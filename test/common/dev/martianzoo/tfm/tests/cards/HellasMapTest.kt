@@ -36,7 +36,7 @@ internal class HellasMapTest : TfmSandboxTest() {
           doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
           selectOnlyTask()
           doTask("GreeneryTile<Hellas_9_7>")
-          selectTask("OxygenStep.")
+          selectTask("OxygenStep*")
           selectTask("MC! / Neighbor<OceanTile, Hellas_9_7>")
           doTasks(
               "TerraformRating",

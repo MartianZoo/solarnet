@@ -222,9 +222,9 @@ n components of `Bar` have become n of `Foo`.
 
 ```ebnf
 ElementaryChange ::= Gain | Removal | Transmutation
-Gain             ::= ScaledExpression Quantifier?
-Removal          ::= "-" ScaledExpression Quantifier?
-Transmutation    ::= Scalar? FromExpression Quantifier?
+Gain             ::= Scalar Quantifier? Expression | Expression Quantifier?
+Removal          ::= "-" (Scalar Quantifier? Expression | Expression Quantifier?)
+Transmutation    ::= Scalar Quantifier? FromExpression | FromExpression Quantifier?
 ```
 
 A gain of the system `Signal` class without transmutation fires both gain and removal triggers
@@ -252,12 +252,15 @@ Scalar           ::= Integer | Integer? "X"
 > choose how many microbes to spend while fixing the three-to-one exchange rate. Replacing `X` with
 > unrelated open counts would allow the paid and received amounts to drift apart.
 
-**L2-3. A quantifier says how much of the count must happen.** `!` means the whole amount, `.` as
+**L2-3. A quantifier says how much of the count must happen.** `!` means the whole amount, `*` as
 much of it as possible, and `?` any part of it including none. An authored change may omit the
 quantifier; elaboration then supplies the class's default (T10-2, L9-5).
+When a scalar is written, its quantifier follows that scalar: `3? Plant`. When the scalar is
+omitted, its quantifier follows the type: `Plant?`. The two forms express the same amount when the
+scalar is `1`.
 
 ```ebnf
-Quantifier ::= "!" | "." | "?"
+Quantifier ::= "!" | "*" | "?"
 ```
 
 The three differ in *who* settles the amount, which is why later rules treat them so differently:
@@ -266,11 +269,11 @@ The three differ in *who* settles the amount, which is why later rules treat the
 | --- | --- | --- |
 | `!` | already fixed | nobody; the change happens in full or not at all |
 | `?` | an open choice | whoever settles the instruction, who may choose none (L3-1) |
-| `.` | fixed, but not yet known | the state the change is carried out against |
+| `*` | fixed, but not yet known | the state the change is carried out against |
 
-So `!` is concrete, `?` is abstract, and `.` is neither: it leaves no choice, but its amount is
+So `!` is concrete, `?` is abstract, and `*` is neither: it leaves no choice, but its amount is
 read off a state rather than written down. Narrowing can settle a choice (L3); only
-resolution against a state can settle a `.`.
+resolution against a state can settle a `*`.
 
 A transmutation must change its concrete Type. Equal concrete Types (T5-1) on both sides are
 invalid regardless of spelling, source count, or quantifier. A shared variable such as
@@ -473,7 +476,7 @@ AttributedInstruction ::= PrimaryInstruction ( "BY" Expression )?
 > action and recursively mirrored; canonical source does not currently need the group-distribution
 > shorthand.
 
-**L2-16. Precedence, tightest first:** a scaled expression and its quantifier, `/`, `BY`, `OR`, the
+**L2-16. Precedence, tightest first:** a change and its quantifier, `/`, `BY`, `OR`, the
 gate `:`, `THEN`, `,`. Parentheses group, and rendering re-inserts grouping wherever re-parsing
 would otherwise read the tree differently. A transmutation written in full binds tighter than
 `OR`, so `Plant FROM Heat OR Steel` chooses between the transmutation and gaining Steel.
@@ -501,9 +504,9 @@ could have brought about, and every choice P still leaves open retains Q's const
 relationships. The rules below define that relation; discharging a `HAS` condition also consults
 the world in which the choice is made.
 
-**Narrowing is not resolution.** Settling `3 Plant.` against a state with room for two yields
-`2 Plant!`, and that is not a narrowing: nothing in the two instructions says so, and in another
-state the same `.` settles differently. Narrowing restricts an open choice; resolution determines
+**Narrowing is not resolution.** Settling `3* Plant` against a state with room for two yields
+`2! Plant`, and that is not a narrowing: nothing in the two instructions says so, and in another
+state the same `*` settles differently. Narrowing restricts an open choice; resolution determines
 the change permitted by a state. Every narrowing rule here is state-independent, except where a
 `HAS` refinement asks a world about a candidate (T8-8).
 
@@ -511,11 +514,11 @@ This section is about *elaborated* instructions. An authored change carries no q
 elaboration supplies one (L2-3), and narrowing has nothing to compare until it does.
 
 **L3-1. An instruction is abstract when something is still open:** an unfixed
-`X`, an absent or optional quantifier, an abstract expression (T5-3), or an `OR`. `2 Plant<Player1>!`
-is not abstract; `2 Plant<Player1>?` is, because doing less is permitted and nothing has said how
+`X`, an absent or optional quantifier, an abstract expression (T5-3), or an `OR`. `2! Plant<Player1>`
+is not abstract; `2? Plant<Player1>` is, because doing less is permitted and nothing has said how
 much less.
 
-> **Non-normative example — Virus.** Its `-2 Animal<Anyone>? OR -5 Plant<Anyone>?` remains open even
+> **Non-normative example — Virus.** Its `-2? Animal<Anyone> OR -5? Plant<Anyone>` remains open even
 > after one arm is selected: the target player and how much optional loss actually occurs still need
 > settlement. Calling the authored card concrete would skip choices printed on it.
 
@@ -542,17 +545,17 @@ For example, `Tile<Place(HAS Marker)>` may narrow to `Tile<First>` when First ha
 `Tile<Place(HAS Marker)>`. It cannot narrow to `Tile<Place>` merely because some place has a marker:
 a later choice would otherwise be free to select an unmarked place.
 
-Only `?` leaves a choice, so only `?` narrows: it may become `!`, `.` or a smaller count. `!` and
-`.` leave no choice at all, so neither narrows to the other (L2-3). In particular a proposal may not
-turn `3 Plant.` into `3 Plant!`: as much as possible is not the same claim as all of it, and which
-amount `.` means is for resolution, not for the settler, to decide.
+Only `?` leaves a choice, so only `?` narrows: it may become `!`, `*` or a smaller count. `!` and
+`*` leave no choice at all, so neither narrows to the other (L2-3). In particular a proposal may not
+turn `3* Plant` into `3! Plant`: as much as possible is not the same claim as all of it, and which
+amount `*` means is for resolution, not for the settler, to decide.
 
 > **Non-normative example — Comet.** Its optional loss of up to three plants may narrow to one, two,
 > three, or none, but its mandatory temperature and ocean gains may not shrink. The quantifier—not
 > merely the number—carries that printed asymmetry.
 
-**L3-5. `Ok` narrows an optional change and nothing else.** Declining `2 Plant?` entirely is a
-narrowing; declining `2 Plant!` or `2 Plant.` is not.
+**L3-5. `Ok` narrows an optional change and nothing else.** Declining `2? Plant` entirely is a
+narrowing; declining `2! Plant` or `2* Plant` is not.
 
 > **Non-normative example — Virus.** If no useful opponent target is chosen, `Ok` is a valid
 > realization of the selected optional removal. Letting it replace a mandatory or
@@ -1214,17 +1217,17 @@ syntax remains compact; defaulting its two projections does not duplicate a reta
 Where the transmutation writes no quantifier of its own, it must satisfy both projections' defaults
 at once, and takes the one quantifier that permits exactly the amounts both of them permit.
 
-That is not a ranking of the three quantifiers (L3-4 keeps `!` and `.` incomparable); it is what
-their policies leave in common. `!` permits only the full count; `.` permits only the most the state
-allows; `?` permits anything up to that. So `!` with `.` permits the full count when the state
-allows it and nothing otherwise, which is `!`; `.` with `?` permits only the most possible, which is
-`.`; and `!` with `?` is `!`. Written as a table, the combination is:
+That is not a ranking of the three quantifiers (L3-4 keeps `!` and `*` incomparable); it is what
+their policies leave in common. `!` permits only the full count; `*` permits only the most the state
+allows; `?` permits anything up to that. So `!` with `*` permits the full count when the state
+allows it and nothing otherwise, which is `!`; `*` with `?` permits only the most possible, which is
+`*`; and `!` with `?` is `!`. Written as a table, the combination is:
 
-| | `!` | `.` | `?` |
+| | `!` | `*` | `?` |
 | --- | --- | --- | --- |
 | **`!`** | `!` | `!` | `!` |
-| **`.`** | `!` | `.` | `.` |
-| **`?`** | `!` | `.` | `?` |
+| **`*`** | `!` | `*` | `*` |
+| **`?`** | `!` | `*` | `?` |
 
 > **Non-normative example — Olympus Conference.** Its `ProjectCard FROM Science<This>` removes
 > a science resource from this card and draws a project card into hand. The gained card inherits
@@ -1716,10 +1719,10 @@ Each                  ::= "EACH" PlainExpression "{" InstructionGroup "}"       
 
 Change                ::= ElementaryChange ( "/" MetricDifference )?             /* L2-6 */
 ElementaryChange      ::= Gain | Removal | Transmutation                         /* L2-1 */
-Gain                  ::= ScaledExpression Quantifier?                           /* L2-1 */
-Removal               ::= "-" ScaledExpression Quantifier?                       /* L2-1 */
-Transmutation         ::= Scalar? FromExpression Quantifier?                     /* L2-1 */
-Quantifier            ::= "!" | "." | "?"                                        /* L2-3 */
+Gain                  ::= Scalar Quantifier? Expression | Expression Quantifier? /* L2-1 */
+Removal               ::= "-" (Scalar Quantifier? Expression | Expression Quantifier?) /* L2-1 */
+Transmutation         ::= Scalar Quantifier? FromExpression | FromExpression Quantifier? /* L2-1 */
+Quantifier            ::= "!" | "*" | "?"                                        /* L2-3 */
 ```
 
 ### Metrics

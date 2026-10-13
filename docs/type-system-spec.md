@@ -1117,13 +1117,13 @@ The gain default says that a special tile placed without saying where goes on a 
 > not invent a placement target. That is why the gain, removal and all-uses defaults cannot be one
 > set.
 
-**T10-2. Quantifiers.** A gain or removal default may also carry a quantifier: `!` mandatory, `.`
+**T10-2. Quantifiers.** A gain or removal default may also carry a quantifier: `!` mandatory, `*`
 as much as possible, or `?` optional. `Component` supplies `!` for both, so every class inherits
 one. Gain and removal quantifiers are inherited independently, and supertypes that disagree about
 one are an error.
 
 > **Non-normative example — paying `Owed`.** Creating a debt is mandatory, while removing one
-> defaults to as-much-as-possible (`DEFAULT -Owed<Class<MC>>.`), so a debt can be paid off in parts
+> defaults to as-much-as-possible (`DEFAULT -Owed<Class<MC>>*`), so a debt can be paid off in parts
 > from mixed sources. A single inherited quantifier for both directions would make either the debt
 > optional or partial payment illegal.
 

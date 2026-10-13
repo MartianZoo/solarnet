@@ -209,7 +209,9 @@ public sealed class Instruction : InstructionTree() {
 
     override fun scale(factor: Int): Instruction = copy(scaledEx = scaledEx * factor)
 
-    override fun toString(): String = "$scaledEx${quantifier?.symbol ?: ""}"
+    override fun toString(): String =
+        if (count == ActualScalar(1)) "$gaining${quantifier?.symbol ?: ""}"
+        else "$count${quantifier?.symbol ?: ""} $gaining"
 
     init {
       checkNonzero(count)
@@ -252,7 +254,9 @@ public sealed class Instruction : InstructionTree() {
 
     override fun scale(factor: Int): Instruction = copy(scaledEx = scaledEx * factor)
 
-    override fun toString(): String = "-$scaledEx${quantifier?.symbol ?: ""}"
+    override fun toString(): String =
+        if (count == ActualScalar(1)) "-$removing${quantifier?.symbol ?: ""}"
+        else "-$count${quantifier?.symbol ?: ""} $removing"
 
     init {
       checkNonzero(count)
@@ -284,8 +288,9 @@ public sealed class Instruction : InstructionTree() {
     override fun scale(factor: Int): Instruction = copy(scalar = scalar * factor)
 
     override fun toString(): String {
-      val scalText = if (scalar == ActualScalar(1)) "" else "$scalar "
-      return "$scalText$fromEx${quantifier?.symbol ?: ""}"
+      val quantifierText = quantifier?.symbol ?: ""
+      return if (scalar == ActualScalar(1)) "$fromEx$quantifierText"
+      else "$scalar$quantifierText $fromEx"
     }
 
     init {
@@ -1099,7 +1104,7 @@ public sealed class Instruction : InstructionTree() {
      * Do "as much as possible" of the amount. What that resolves to against a real state is
      * `QUANTIFIERS.md`'s subject.
      */
-    AMAP("."),
+    AMAP("*"),
 
     /** The player can choose how much of the amount to do, including none of it. */
     OPTIONAL("?", true),

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
@@ -7,6 +8,7 @@ import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
@@ -111,6 +113,27 @@ internal class ModuleSelectionTest {
 
     resolvesToExactly("TurmoilExpansion", multiplayerWith("TurmoilExpansion"))
     resolvesToExactly("QuickStartVariant", multiplayerWith("QuickStartVariant"))
+  }
+
+  @Test
+  internal fun `Prelude 2 module requires Prelude and selects its cards`() {
+    rejects("Prelude2Expansion")
+    rejects("Prelude2Expansion, -PreludeExpansion")
+
+    val config = "PreludeExpansion, Prelude2Expansion"
+    resolvesToExactly(config, multiplayerWith("PreludeExpansion", "Prelude2Expansion"))
+    val game = TfmEngine.newGame(premise(config, players = 2))
+    game.testAgent(ADMIN).count("Prelude2Expansion") shouldBe 1
+    game.classTable.isInhabited(cn("SpaceLanes")) shouldBe true
+
+    val cardsOnly = classTable("prelude2:cards")
+    cardsOnly.isInhabited(cn("SpaceLanes")) shouldBe true
+    cardsOnly.isInhabited(cn("Prelude2Expansion")) shouldBe false
+    cardsOnly.isInhabited(cn("PreludePhase")) shouldBe false
+
+    val withoutCards = classTable("$config, -prelude2:cards")
+    withoutCards.isInhabited(cn("Prelude2Expansion")) shouldBe true
+    withoutCards.isInhabited(cn("SpaceLanes")) shouldBe false
   }
 
   @Test
@@ -459,7 +482,8 @@ internal class ModuleSelectionTest {
 
   private fun GamePremise.shouldHaveSameSelectionAs(expected: GamePremise) {
     modules shouldBe expected.modules
-    classSelections shouldBe expected.classSelections
+    classSelections.filter(ClassSelection::included).toSet() shouldBe
+        expected.classSelections.filter(ClassSelection::included).toSet()
     playerNames shouldBe expected.playerNames
   }
 

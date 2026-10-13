@@ -14,12 +14,12 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("UseCardAction<StJosephOfCupertinoMission, Action1>", "-5 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks("Ok", "Cathedral<CityTile<Anyone, Tharsis_4_2>>")
       selectOnlyTask()
       selectOnlyTask()
       stan.doTasks("UseAction<CathedralOption, Action1>")
-      selectTask("-X MC<Stan>?")
+      selectTask("-X? MC<Stan>")
       stan.doTasks("-2 MC")
       selectTask("ProjectCard<Stan, Hand>!")
       stan.doTasks("ProjectCard")
@@ -35,7 +35,7 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
     kim.inTurn {
       // Decline paying 2 MC for the city owner's card draw.
       doTasks("UseCardAction<StJosephOfCupertinoMission, Action1>", "-5 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks("Ok", "Cathedral<CityTile<Anyone, Tharsis_2_5>>")
       selectOnlyTask()
       selectOnlyTask()
@@ -70,7 +70,7 @@ internal class StJosephOfCupertinoMissionTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("UseCardAction<StJosephOfCupertinoMission, Action1>", "-5 MC")
-      selectTask("-X Steel?")
+      selectTask("-X? Steel")
       doTasks("Ok", "Cathedral<CityTile<Anyone, Tharsis_4_1>>")
       selectOnlyTask()
     }

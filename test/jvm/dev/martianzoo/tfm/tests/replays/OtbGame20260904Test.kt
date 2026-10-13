@@ -772,7 +772,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
             autoExecNow()
             blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
-            doTask("-5 Plant<Yellow>!")
+            doTask("-5! Plant<Yellow>")
           }
           .expect("-16 MC, -2 Titanium, Steel, 2 Plant, PROD[3 Energy<Blue>]")
     }
@@ -1846,7 +1846,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 6:13:16 PM — Green: "Two cubes. Says you take two floaters off."
       // 6:13:23 PM — Rainbow: "was dumb of me I could have put my applied science somewhere super
       // better all right fine two off for one titanium and two money D aww, yeah,"
-      cardAction2(FloatingRefinery) { doTask("-2 Floater<$FloatingRefinery>!") }
+      cardAction2(FloatingRefinery) { doTask("-2! Floater<$FloatingRefinery>") }
       // The app records a 3 M€ gain for the card's 2 M€ action.
       rainbow.exMachina("MC")
       // 6:14:06 PM — Rainbow: "I'm gonna take my thermal viol back, that too out a microbe to any

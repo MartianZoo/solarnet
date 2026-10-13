@@ -45,11 +45,19 @@ public object TfmWorkflow {
     /** Enters CorporationPhase. Handle its corporation choices before advancing. */
     public fun corporationPhase(): TaskResult = adminOps.runOperation("CorporationPhase FROM Phase")
 
+    internal fun beginCorporationPhase(): TaskResult =
+        adminOps.beginOperation("CorporationPhase FROM Phase")
+
     /** Enters PreludePhase. Handle each player's retained preludes before advancing. */
     public fun preludePhase(): TaskResult = adminOps.runOperation("PreludePhase FROM Phase")
 
+    internal fun beginPreludePhase(): TaskResult =
+        adminOps.beginOperation("PreludePhase FROM Phase")
+
     /** Enters ActionPhase; the caller supplies and resolves player turns. */
     public fun actionPhase(): TaskResult = adminOps.runOperation("ActionPhase FROM Phase")
+
+    internal fun beginActionPhase(): TaskResult = adminOps.beginOperation("ActionPhase FROM Phase")
 
     /** Enters ProductionPhase and exposes any resulting tasks to the caller. */
     public fun productionPhase(): TaskResult = adminOps.runOperation("ProductionPhase FROM Phase")
@@ -80,6 +88,9 @@ public object TfmWorkflow {
     public fun finalGreeneryPhase(): TaskResult =
         adminOps.runOperation("FinalGreeneryPhase FROM Phase")
 
+    internal fun beginFinalGreeneryPhase(): TaskResult =
+        adminOps.beginOperation("FinalGreeneryPhase FROM Phase")
+
     /**
      * Enters ResearchPhase and runs [body] within the Admin operation. Player research choices left
      * pending must be handled before the next phase.
@@ -89,6 +100,8 @@ public object TfmWorkflow {
 
     /** Replaces the current phase with End and returns the resulting operation result. */
     public fun endPhase(): TaskResult = adminOps.runOperation("End FROM Phase")
+
+    internal fun beginEndPhase(): TaskResult = adminOps.beginOperation("End FROM Phase")
   }
 
   /**
@@ -148,6 +161,7 @@ public object TfmWorkflow {
      */
     public fun launch(): Automatic {
       check(workflowJob == null) { "Workflow has already been launched" }
+      agents.taskLog.workflowStarted("tfm-automatic")
       workflowJob =
           workflowScope.launch(start = CoroutineStart.LAZY) {
             try {
@@ -189,17 +203,20 @@ public object TfmWorkflow {
         if (!adminOps.has("Victory<${players.single()}>")) return
       }
       finalGreeneryPhase()
-      m.endPhase()
+      m.beginEndPhase()
+      awaitTasksDrained()
     }
 
     private suspend fun corporationPhase() {
-      m.corporationPhase()
+      m.beginCorporationPhase()
+      awaitTasksDrained()
       for (player in players) grantFirstActionTo(player)
     }
 
     // TODO: This is slightly inconsistent with the action-phase turn model; revisit.
     private suspend fun preludePhase() {
-      m.preludePhase()
+      m.beginPreludePhase()
+      awaitTasksDrained()
       for (player in players) {
         // The retained cards are the setup fact; custom and replay setups need not retain two.
         repeat(opsFor(player).count("PreludeCard")) { grantFirstActionTo(player) }
@@ -213,7 +230,7 @@ public object TfmWorkflow {
 
     private suspend fun solarPhase(): Boolean {
       if (m.solarPhase() == null) {
-        adminOps.runOperation("CheckGameEnd")
+        adminOps.beginOperation("CheckGameEnd")
         awaitTasksDrained()
         return false
       }
@@ -234,7 +251,8 @@ public object TfmWorkflow {
     }
 
     private suspend fun finalGreeneryPhase() {
-      m.finalGreeneryPhase()
+      m.beginFinalGreeneryPhase()
+      awaitTasksDrained()
       for (player in rotatedByFirstPlayer()) {
         var placedGreenery: Boolean
         do {
@@ -251,7 +269,8 @@ public object TfmWorkflow {
     }
 
     private suspend fun actionPhase() {
-      m.actionPhase()
+      m.beginActionPhase()
+      awaitTasksDrained()
       val active = ArrayDeque(rotatedByFirstPlayer())
       while (active.isNotEmpty()) {
         val player = active.first()

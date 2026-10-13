@@ -74,7 +74,7 @@ internal class Lang06EffectsTest {
 
     parse<Effect>("-X Plant: X Heat").trigger.toString() shouldBe "-X Plant"
     parse<Effect>("X This: Ok").trigger.toString() shouldBe "X This"
-    parse<Effect>("-X This: 5 MC!").trigger.toString() shouldBe "-X This"
+    parse<Effect>("-X This: 5! MC").trigger.toString() shouldBe "-X This"
   }
 
   // L6-6 OR, and no mixing
@@ -219,21 +219,21 @@ internal class Lang06EffectsTest {
         X This: Ok
         -Foo: -5X MC
         Plant: 11 MC
-        This: 5 Abc?
+        This: 5? Abc
         -Plant: -5X MC
-        -X This: 5 MC!
+        -X This: 5! MC
         PROD[Qux]: MC?
-        This: 5 Steel?
+        This: 5? Steel
         PROD[Plant]: MC?
         PROD[X This]: Ok
-        X Eep<Bar>: 5X MC?
+        X Eep<Bar>: 5X? MC
         PROD[Bar]: Ahh, Ahh
-        PROD[X Xyz]:: -2 MC.
-        X Ore<Plant>: 5X MC?
+        PROD[X Xyz]:: -2* MC
+        X Ore<Plant>: 5X? MC
         -This: MC / PROD[Qux]
         -Xyz: 2 MC / Xyz OR MC
         PROD[Qux]: -Xyz, 2 Bar
-        PROD[X Steel]:: -2 MC.
+        PROD[X Steel]:: -2* MC
         This: (MC: Abc) BY Bar
         -This: MC / PROD[Plant]
         -X Foo(HAS Foo): -X Eep
@@ -269,21 +269,21 @@ internal class Lang06EffectsTest {
         PROD[-Xyz] BY Foo:: MC / Foo MAX 5, Foo(HAS MC)
         PROD[Foo<Qux>]: 5X MC, Ahh<Qux> / Xyz, PROD[MC]
         Qux(HAS MAX 1 MC): (-5 MC, Qux FROM Qux) OR Xyz
-        -This: X MC!, Xyz(HAS Foo) FROM Foo, -5 Foo / Qux
+        -This: X! MC, Xyz(HAS Foo) FROM Foo, -5 Foo / Qux
         PROD[X Bar]: PROD[MC / Foo, Qux], Xyz, Qux, 2 Abc
         Ahh<Abc, Xyz>: -Eep(HAS Bar) OR (Bar: -Xyz BY Bar)
         PROD[X This]: 5X Eep<Bar<Abc>>, 2 MC, Abc<Ooh, Qux>!
         X Qux:: ((MC OR Bar): Abc) OR Ok OR -5 Qux, PROD[Ok]
         Ahh IF MAX 1 Foo: PROD[2 Bar, MC / Bar, Bar<Foo>: Xyz]
-        (This BY Abc) BY Xyz: Bar(NOT Foo<Foo>), MC!, MC: X MC.
+        (This BY Abc) BY Xyz: Bar(NOT Foo<Foo>), MC!, MC: X* MC
         PROD[-Steel] BY Plant:: MC / Plant MAX 5, Plant(HAS MC)
-        Bar(NOT Foo): -MC / Foo, Ooh FROM Bar, 5 MC!, Abc OR Qux
+        Bar(NOT Foo): -MC / Foo, Ooh FROM Bar, 5! MC, Abc OR Qux
         Bar IF MAX 2 Bar: X Abc / Qux<Eep> OR PROD[MC] BY Bar<Xyz>
-        PROD[Foo]:: 2 Qux FROM Foo OR (-Foo, MC), 2 Qux FROM Ahh.
+        PROD[Foo]:: 2 Qux FROM Foo OR (-Foo, MC), 2* Qux FROM Ahh
         PROD[Foo] OR PROD[Bar]:: -5X MC, 2 MC THEN Foo<Qux> FROM Foo
         PROD[Eep]:: -5 MC, -2 Ooh<Abc>, (Foo: 2 MC) OR Qux FROM Foo
-        PROD[X This]: MC: MC, Abc / Bar<Bar<Bar>> OR 2 Foo., -2X Qux.
-        (This BY Heat) BY Steel: Plant(NOT Plant<Plant>), MC!, MC: X MC.
+        PROD[X This]: MC: MC, Abc / Bar<Bar<Bar>> OR 2* Foo, -2X* Qux
+        (This BY Heat) BY Steel: Plant(NOT Plant<Plant>), MC!, MC: X* MC
         Ahh<Foo>: (Qux<Qux, Foo>, MC / 2 Bar OR 2 MC) OR Abc / PROD[Abc]
         -Foo<Bar(NOT Qux)>: -X Foo<Bar(NOT Qux<Bar<Foo>, Abc>)> / 2 (2 Foo<Abc>)
         """

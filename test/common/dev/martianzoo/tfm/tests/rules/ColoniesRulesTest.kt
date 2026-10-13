@@ -41,7 +41,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Enceladus>")
-      selectTask("3 Microbe.")
+      selectTask("3* Microbe")
       doTask("3 Microbe<NitriteReducingBacteria>")
     }
 
@@ -64,7 +64,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "Pluto, Luna, Ceres, Triton, Ganymede", playerCount = 2)
     kim.inTurn {
       doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Pluto>")
-      selectTask("2 ProjectCard<Kim, Hand>!")
+      selectTask("2! ProjectCard<Kim, Hand>")
     }
     kim.setToExMachina(0, "ProjectCard")
     stan.exMachina("3 Energy")
@@ -96,16 +96,16 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.setToExMachina(0, "ProjectCard")
     kim.inTurn {
       doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Pluto>")
-      selectTask("2 ProjectCard<Kim, Hand>!")
+      selectTask("2! ProjectCard<Kim, Hand>")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<ResearchColony>>", "-20 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks("Ok", "ResearchColony FROM ProjectCard")
-      selectTask("2 ProjectCard<Kim, Hand>!")
+      selectTask("2! ProjectCard<Kim, Hand>")
       selectOnlyTask()
       doTask("Colony<Pluto>")
-      selectTask("2 ProjectCard<Kim, Hand>!")
+      selectTask("2! ProjectCard<Kim, Hand>")
     }
     kim.setToExMachina(0, "ProjectCard")
 
@@ -150,7 +150,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Europa>")
-          selectTask("OceanTile<WaterArea(HAS MAX 0 Tile)>.")
+          selectTask("OceanTile<WaterArea(HAS MAX 0 Tile)>*")
         }
         .expect("0 OceanTile")
 
@@ -201,17 +201,17 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Titan>")
       selectOnlyTask()
-      doTask("3 Floater<ForcedPrecipitation>.")
+      doTask("3* Floater<ForcedPrecipitation>")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<ResearchColony>>", "-20 MC")
-      selectTask("-X Titanium?")
+      selectTask("-X? Titanium")
       doTasks("Ok", "ResearchColony FROM ProjectCard")
-      selectTask("2 ProjectCard<Kim, Hand>!")
+      selectTask("2! ProjectCard<Kim, Hand>")
       selectOnlyTask()
       doTask("Colony<Titan>")
       selectOnlyTask()
-      doTask("3 Floater<ExtractorBalloons>.")
+      doTask("3* Floater<ExtractorBalloons>")
     }
     stan.inTurn {
       doTasks("PlayProject<Class<Dirigibles>>", "-11 MC", "Dirigibles FROM ProjectCard")
@@ -223,10 +223,10 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
       doTasks("TradeAction<Action2>", "-Energy / Owed<Class<Energy>>")
       selectOnlyTask()
       doTasks("Trade<Titan>", "Floater<Dirigibles>")
-      selectTask("Floater<Kim>.")
-      kim.doTask("Floater<ForcedPrecipitation>.")
-      selectTask("Floater<Kim>.")
-      kim.doTask("Floater<ExtractorBalloons>.")
+      selectTask("Floater<Kim>*")
+      kim.doTask("Floater<ForcedPrecipitation>*")
+      selectTask("Floater<Kim>*")
+      kim.doTask("Floater<ExtractorBalloons>*")
     }
 
     kim.count("Floater<$ForcedPrecipitation>") shouldBe precipitationBefore + 1

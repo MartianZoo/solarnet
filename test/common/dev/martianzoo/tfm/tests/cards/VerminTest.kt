@@ -33,7 +33,7 @@ internal class VerminTest : TfmSandboxTest() {
     kim.exMachina("$Vermin, $Decomposers")
 
     kim.inTurn {
-          doTasks("UseCardAction<Vermin, Action1>", "Microbe<Decomposers>.")
+          doTasks("UseCardAction<Vermin, Action1>", "Microbe<Decomposers>*")
         }
         .expect("Microbe<$Decomposers>")
   }

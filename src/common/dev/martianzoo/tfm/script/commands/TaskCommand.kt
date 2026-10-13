@@ -13,7 +13,7 @@ internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("tas
       """
         Carry out the pending task matched by an instruction, narrowing it when needed. For
         example, `task -2 Plant<Player1>` can resolve a queued
-        `-3 StandardResource<Anyone>?`. The instruction must match only one pending task, though
+        `-3? StandardResource<Anyone>`. The instruction must match only one pending task, though
         identical tasks are interchangeable and a selected task always wins. `task select` and
         `task drop` are available only when exactly one task is pending.
       """

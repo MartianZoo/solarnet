@@ -69,7 +69,7 @@ private constructor(
     requireLocation(location)
     requireCards(cards, back)
     val key = Triple(player, back, location)
-    val used = snapshot().arrivalOffsets.getOrDefault(key, 0)
+    val used = snapshot().arrivalOffsets[key] ?: 0
     val names = arrivals.getOrPut(key) { mutableListOf() }
     names.subList(used, names.size).clear()
     names.addAll(cards)
@@ -104,7 +104,7 @@ private constructor(
     requireLocation(location)
     requireCards(cards, back)
     val key = Triple(player, back, location)
-    val used = snapshot().departureOffsets.getOrDefault(key, 0)
+    val used = snapshot().departureOffsets[key] ?: 0
     val names = departures.getOrPut(key) { mutableListOf() }
     names.subList(used, names.size).clear()
     names.addAll(cards)
@@ -126,15 +126,15 @@ private constructor(
   public fun requireComplete() {
     val result = snapshot()
     arrivals.forEach { (key, names) ->
-      check(result.arrivalOffsets.getOrDefault(key, 0) == names.size) {
+      check((result.arrivalOffsets[key] ?: 0) == names.size) {
         "unused ${key.second} ${key.third} arrivals for ${key.first}: " +
-            names.drop(result.arrivalOffsets.getOrDefault(key, 0))
+            names.drop(result.arrivalOffsets[key] ?: 0)
       }
     }
     departures.forEach { (key, names) ->
-      check(result.departureOffsets.getOrDefault(key, 0) == names.size) {
+      check((result.departureOffsets[key] ?: 0) == names.size) {
         "unused ${key.second} ${key.third} departures for ${key.first}: " +
-            names.drop(result.departureOffsets.getOrDefault(key, 0))
+            names.drop(result.departureOffsets[key] ?: 0)
       }
     }
   }
@@ -161,7 +161,7 @@ private constructor(
     ): List<ClassName> {
       val key = Triple(player, back, location)
       val names = supplied[key].orEmpty()
-      val start = offsets.getOrDefault(key, 0)
+      val start = offsets[key] ?: 0
       val end = start + count
       if (end > names.size) {
         throw AgentInputRequiredException(

@@ -26,8 +26,8 @@ internal class TharsisRepublicTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-          selectTask("4 CorporationCard<Kim, Selecting>!")
-          selectTask("-3 CorporationCard<Kim, Selecting>!")
+          selectTask("4! CorporationCard<Kim, Selecting>")
+          selectTask("-3! CorporationCard<Kim, Selecting>")
           doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
           selectTask("MAX 0 Barrier: TharsisRepublic FROM CorporationCard<Kim, Selecting>!")
           doTasks("40 MC", "-42 MC")

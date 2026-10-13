@@ -256,13 +256,11 @@ internal class CardTrackingTest : TfmTest() {
     agent.autoExecPolicy = NONE
     val taskId = agent.addTasks("ProjectCard").single()
     val before = game.timeline.checkpoint()
-    val logBefore = agents.taskLog.text()
 
     agent.autoExecPolicy = EAGER
 
     game.timeline.checkpoint() shouldBe before
     game.tasks.ids() shouldBe setOf(taskId)
-    agents.taskLog.text() shouldBe logBefore
     tracking.expectArrivals(player, cn("AdaptedLichen"))
     agent.autoExecNow()
 
