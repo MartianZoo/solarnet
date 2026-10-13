@@ -13,9 +13,11 @@ import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.engine.TfmEngine
-import dev.martianzoo.tfm.engine.TfmWorkflow
 
-/** Focused scenarios with explicit corrections and selected phase shortcuts. */
+/**
+ * Focused scenarios with explicit corrections and selected phase shortcuts. The game is set up and
+ * enters the corporation phase normally, but scenarios then act outside the game's turn order.
+ */
 internal abstract class TfmSandboxTest : TfmTest() {
   protected lateinit var players: List<Agent>
     private set
@@ -51,8 +53,7 @@ internal abstract class TfmSandboxTest : TfmTest() {
     val prepared =
         preparedWorlds.getOrPut(key) {
           createWorld(addOptions, playerCount)
-          val workflow = TfmWorkflow.Stepwise(agents)
-          workflow.setupPhase()
+          admin.startGame()
           if (
               playerCount == 1 &&
                   GameConfig(addOptions).includedClassNames.none {
@@ -63,11 +64,10 @@ internal abstract class TfmSandboxTest : TfmTest() {
             kim.doTask("-SelectedColonyTile<Class<Callisto>>")
           }
           chooseStartingCards(kimCorporation, playCorporations)
-          workflow.corporationPhase()
+          leaveTurnOrder()
           if (playCorporations) {
             playStartingCorporations(kimCorporation)
-            if (admin.count("PreludeExpansion") > 0) workflow.preludePhase()
-            else workflow.actionPhase()
+            admin.phase(if (admin.count("PreludeExpansion") > 0) "Prelude" else "Action")
           }
           game
         }
@@ -95,8 +95,20 @@ internal abstract class TfmSandboxTest : TfmTest() {
       check(admin.count("CorporationPhase") + admin.count("PreludePhase") == 1) {
         "Expected Corporation, Prelude, or Action phase"
       }
-      TfmWorkflow.Stepwise(agents).actionPhase()
+      admin.phase("Action")
     }
+  }
+
+  /**
+   * Setup has handed off to the corporation phase, whose turn order now offers the start player a
+   * corporation. Drops that pending turn order, so that scenarios take their turns ex machina.
+   */
+  private fun leaveTurnOrder() {
+    game.tasks
+        .extract { it.id to it.assignee }
+        .forEach { (id, assignee) ->
+          agents[assignee].dropTask(id)
+        }
   }
 
   protected fun Agent.setToExMachina(targetCount: Int, type: String) {
@@ -135,7 +147,7 @@ internal abstract class TfmSandboxTest : TfmTest() {
     check(game.tasks.isEmpty()) { "Finish pending choices before querying victory points" }
     val checkpoint = game.timeline.checkpoint()
     try {
-      TfmWorkflow.Stepwise(agents).endPhase()
+      admin.runOperation("End FROM Phase")
       check(game.tasks.isEmpty()) { "Final scoring has unresolved choices" }
       return players.map { it.count("VictoryPoint") }
     } finally {

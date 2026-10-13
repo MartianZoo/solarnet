@@ -103,13 +103,11 @@ internal class EcologyExpertsTest : TfmSandboxTest() {
             "EcologyExperts FROM PreludeCard",
             "PROD[Plant]",
         )
-        selectTask("2! MC<Stan>")
         stan.selectTask("2! MC")
         doTasks("2 MC", "PlayCard<Class<ProjectCard>, Class<Decomposers>>")
         selectTask("-Required* / Required")
         doTasks("-5 MC", "Decomposers FROM ProjectCard")
         selectTask("Microbe<Decomposers>*")
-        selectTask("2! MC<Stan>")
         stan.selectTask("2! MC")
         doTask("2 MC")
       }

@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -21,7 +20,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
           """
           TharsisMap
           VenusNextExpansion, PreludeExpansion, prelude2:cards, promos:cards
-          FakeStuffBundle
+          fakes:cards
 
           Diversifier, Mayor, Builder, Coastguard, Terran, Metallurgist
           Visionary, Landlord, Investor, Forecaster, Traveller, Celebrity
@@ -56,7 +55,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
 
   @Test
   internal fun completeGame() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     keepStartingProjects(5, 6, 7, 3)
     generation1()
     generation2()
@@ -1087,7 +1086,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     purple.assertTags(but = 6, spt = 2, sct = 2, pot = 7, vet = 1, plt = 1)
     purple.assertDashRight(events = 7, tagless = 1, cities = 2)
     assertSidebar(gen = 8, temp = 8, oxygen = 14, oceans = 9, venus = 24)
-    admin.assertCounts(1 to "End", 1 to "Phase")
+    admin.assertCounts(1 to "VictoryPhase", 1 to "Phase")
 
     val score = Summarizer(game)
     score.net("Milestone", "VictoryPoint<Purple>") shouldBe 0

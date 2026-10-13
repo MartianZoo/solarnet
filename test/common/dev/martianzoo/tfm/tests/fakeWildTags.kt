@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests
 
-// Temporary removes the holder when pending gameplay finishes. Supply these tags through
+// The holder removes itself after its owner's next action or Prelude play. Supply these tags
+// through
 // runOperation in card tests so their gains exercise the normal trigger machinery.
 internal fun fakeWildTags(tag: String, count: Int = 1): String {
   require(count > 0)

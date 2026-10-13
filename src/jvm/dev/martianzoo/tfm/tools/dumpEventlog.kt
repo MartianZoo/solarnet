@@ -6,6 +6,7 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.SystemClasses.REAL
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.EventLog
 import dev.martianzoo.state.GameEvent.ChangeEvent
@@ -16,7 +17,6 @@ import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.fake.FakeCanon
 import java.nio.file.Files
 import java.nio.file.Path
@@ -31,23 +31,24 @@ private val gameOptions: Set<ClassName> =
         cn("PreludeExpansion"),
         cn("ColoniesExpansion"),
         cn("TurmoilExpansion"),
-        cn("FakeCardsCardPack"),
     )
 
 private fun createGame(playerCount: Int): World {
   val colonyCount = if (playerCount == 1) 4 else if (playerCount == 2) 5 else playerCount + 2
   val colonies = Canon.colonyTileClassNames.sorted().take(colonyCount)
   val premise =
-      Canon.gamePremise(
-          GameConfig.create(
-              included = gameOptions + colonies,
-              includedCardBundles = listOf("promos", "prelude2"),
-              playerNames = (1..playerCount).map { cn("Player$it") },
+      TfmCatalog(Canon, FakeCanon)
+          .gamePremise(
+              GameConfig.create(
+                  included = gameOptions + colonies,
+                  includedCardBundles =
+                      listOf("promos", "prelude2") + FakeCanon.bundles.map { it.bundleName },
+                  playerNames = (1..playerCount).map { cn("Player$it") },
+              )
           )
-      )
   return TfmEngine.newGame(premise).also { game ->
     val agents = Agents(game)
-    TfmWorkflow.Stepwise(agents).setupPhase()
+    agents.tfm(ADMIN).startGame()
     val players = game.actors.filterIsInstance<Player>()
     if (playerCount == 1) {
       agents.tfm(players.first()).doTask("-SelectedColonyTile<Class<${colonies.first()}>>")
@@ -55,7 +56,6 @@ private fun createGame(playerCount: Int): World {
     players.forEachIndexed { index, player ->
       agents.tfm(player).keepStartingProjects(if (index == 0) 4 else 0)
     }
-    TfmWorkflow.Stepwise(agents).corporationPhase()
     agents.tfm(players.first()).playCorp(cn("InterplanetaryCinematics"))
   }
 }
@@ -101,7 +101,10 @@ public fun main(args: Array<String>) {
       val document = GameFileJson.parse(text)
       val config = document.config
       val catalog =
-          if (cn("FakeStuffBundle") in config.includedClassNames) {
+          if (
+              FakeCanon.bundles.any { it.bundleName in config.includedCardBundles } ||
+                  config.includedClassNames.any { it in FakeCanon.allClassNames }
+          ) {
             TfmCatalog(Canon, FakeCanon)
           } else {
             Canon

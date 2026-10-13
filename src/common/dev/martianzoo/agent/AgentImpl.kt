@@ -142,11 +142,12 @@ internal class AgentImpl(
                 "cannot start a manual operation while task $it holds the select-lock"
             )
           }
+          markDecision()
           addInitialTasks(parseInstructionGroup(initialInstructions))
           continueOperationBody { Adapter().body() }
-          engine.requireComplete(allowedPendingTasks)
+          requireComplete(allowedPendingTasks)
         },
-        validateCompletion = { engine.requireComplete(allowedPendingTasks) },
+        validateCompletion = { requireComplete(allowedPendingTasks) },
     )
   }
 
@@ -171,17 +172,19 @@ internal class AgentImpl(
   override fun completeOperation(body: OperationBlock): TaskResult {
     return atomic(
         block = {
+          markDecision()
           continueOperationBody { Adapter().body() }
-          engine.requireComplete()
+          requireComplete()
         },
-        validateCompletion = { engine.requireComplete() },
+        validateCompletion = { requireComplete() },
     )
   }
 
   private fun addInitialTasks(initialInstructions: InstructionGroup) {
     engine.addTasks(initialInstructions).forEach { taskId ->
-      // Initial routing may assign the task to another Actor before settlement begins.
-      if (taskId !in tasks) return@forEach
+      // Initial routing may assign the task to another Actor before settlement begins, and a
+      // dispatch admits work that may wait.
+      if (taskId !in tasks || tasks.getTaskData(taskId).deferred) return@forEach
       try {
         engine.doTask(taskId)
       } catch (_: NotFullySpecifiedException) {
@@ -229,7 +232,7 @@ internal class AgentImpl(
     override fun doTasks(vararg narrowings: String) {
       narrowings.forEach { narrowing ->
         val parsed = parseTaskNarrowing(narrowing)
-        atomic {
+        decide {
           taskLog.capture(actor, narrowing) {
             engine.doTask(
                 parsed.instruction,
@@ -317,8 +320,8 @@ internal class AgentImpl(
   }
 
   // GAMES (methods that can't break game-integrity)
-  // This layer is only usable if you have a running workflow, so that >0 players always have a
-  // task in their queue at any given time
+  // This layer assumes a started game, whose own rules keep some player's queue nonempty until it
+  // ends
 
   override fun fillInTask(taskId: TaskId): TaskForm =
       TaskForm(taskId, tasks.getTaskData(taskId).instruction, this)
@@ -333,13 +336,13 @@ internal class AgentImpl(
 
   internal fun changeLimit(change: Change): Int? = engine.changeLimit(change)
 
-  internal fun commitForm(taskId: TaskId, narrowing: InstructionTree): TaskResult = atomic {
+  internal fun commitForm(taskId: TaskId, narrowing: InstructionTree): TaskResult = decide {
     taskLog.capture(actor, narrowing.toString(), formTask = taskId, kind = Kind.CHOOSE) {
       engine.narrowTask(taskId, narrowing)
     }
   }
 
-  override fun narrowTask(narrowing: String) = atomic {
+  override fun narrowTask(narrowing: String) = decide {
     val parsed = parseTaskNarrowing(narrowing)
     val taskId = tasks.selectedTask() ?: throw TaskException("`$actor` has no selected task")
     val instruction =
@@ -353,7 +356,7 @@ internal class AgentImpl(
 
   override fun canExecuteTask(taskId: TaskId) = engine.canExecuteTask(taskId)
 
-  override fun selectTask(taskId: TaskId) = atomic {
+  override fun selectTask(taskId: TaskId) = decide {
     taskLog.capture(
         actor,
         tasks.getTaskData(taskId).instruction.toString(),
@@ -364,14 +367,14 @@ internal class AgentImpl(
     }
   }
 
-  override fun selectTask(instruction: String) = atomic {
+  override fun selectTask(instruction: String) = decide {
     taskLog.capture(actor, instruction, kind = Kind.CHOOSE) {
       val parsed = parseTaskNarrowing(instruction)
       engine.selectTask(parsed.instruction, parsed.quantifierOmitted)
     }
   }
 
-  override fun selectTask(task: Task) = atomic {
+  override fun selectTask(task: Task) = decide {
     taskLog.capture(
         actor,
         task.instruction.toString(),
@@ -383,7 +386,7 @@ internal class AgentImpl(
     }
   }
 
-  override fun doTask(narrowing: String) = atomic {
+  override fun doTask(narrowing: String) = decide {
     taskLog.capture(actor, narrowing, kind = Kind.DO_TASK) {
       val parsed = parseTaskNarrowing(narrowing)
       engine.doTask(
@@ -394,7 +397,7 @@ internal class AgentImpl(
     }
   }
 
-  override fun doTask(narrowing: String, contextClass: ClassName) = atomic {
+  override fun doTask(narrowing: String, contextClass: ClassName) = decide {
     taskLog.capture(actor, narrowing, kind = Kind.DO_TASK) {
       val parsed = parseTaskNarrowing(narrowing)
       engine.doTask(
@@ -406,7 +409,7 @@ internal class AgentImpl(
     }
   }
 
-  override fun doTask(narrowing: String, taskId: TaskId) = atomic {
+  override fun doTask(narrowing: String, taskId: TaskId) = decide {
     taskLog.capture(actor, narrowing, kind = Kind.DO_TASK, taskId = taskId) {
       val parsed = parseTaskNarrowing(narrowing)
       engine.doTask(
@@ -418,7 +421,7 @@ internal class AgentImpl(
     }
   }
 
-  override fun doTask(taskId: TaskId) = atomic {
+  override fun doTask(taskId: TaskId) = decide {
     taskLog.capture(
         actor,
         tasks.getTaskData(taskId).instruction.toString(),
@@ -429,7 +432,7 @@ internal class AgentImpl(
     }
   }
 
-  override fun tryTask(narrowing: String) = atomic {
+  override fun tryTask(narrowing: String) = decide {
     taskLog.capture(actor, narrowing, kind = Kind.TRY_TASK) {
       val parsed = parseTaskNarrowing(narrowing)
       engine.tryTask(
@@ -440,7 +443,7 @@ internal class AgentImpl(
     }
   }
 
-  override fun tryTask(narrowing: String, taskId: TaskId) = atomic {
+  override fun tryTask(narrowing: String, taskId: TaskId) = decide {
     taskLog.capture(actor, narrowing, kind = Kind.TRY_TASK, taskId = taskId) {
       val parsed = parseTaskNarrowing(narrowing)
       engine.tryTask(
@@ -452,7 +455,7 @@ internal class AgentImpl(
     }
   }
 
-  override fun tryTask(taskId: TaskId) = atomic {
+  override fun tryTask(taskId: TaskId) = decide {
     taskLog.capture(
         actor,
         tasks.getTaskData(taskId).instruction.toString(),
@@ -462,6 +465,19 @@ internal class AgentImpl(
       engine.tryTask(taskId)
     }
   }
+
+  /** Runs a decision atomically; the current operation's work must drain after it. */
+  private fun decide(block: () -> Unit): TaskResult = atomic {
+    markDecision()
+    block()
+  }
+
+  private fun markDecision() {
+    autoExecLoop.lastDecision = world.timeline.checkpoint()
+  }
+
+  private fun requireComplete(allowedPendingTasks: Set<TaskId> = emptySet()) =
+      engine.requireComplete(allowedPendingTasks, autoExecLoop.lastDecision)
 
   // autoExecNow() and cross-Actor Agent calls can re-enter this call site. Its depth is shared
   // by every Actor in the world so only the true outermost operation drains and reports completion.

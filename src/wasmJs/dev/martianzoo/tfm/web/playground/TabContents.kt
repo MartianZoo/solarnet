@@ -550,8 +550,6 @@ internal fun PetsInfoTab(selectedTask: Int?, selectedClass: String?, classTable:
       RawField("id", "${task.id}")
       RawField("instruction", task.instruction)
       RawField("then", task.then ?: "")
-      RawField("controller", task.controller)
-      RawField("selectionAssignee", task.selectionAssignee)
       RawField("assignee", task.assignee)
       RawField("selected", "${task.selected}")
       RawField("cause", "VIA ${task.givenBy} BECAUSE ${task.because}")

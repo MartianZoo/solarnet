@@ -14,20 +14,20 @@ CLASS TurmoilExpansion : Module {
   SetupPhase:: EACH Me@Player { TurmoilPlayer, LobbyActionAvailable }
   SetupPhase:: Chairman<Neutral>, Ruling<Greens>
   SetupPhase: RevealComingEvent
-  TurmoilSolarPhase: TurmoilSolarOperation
+  // Deferred so that other solar-phase work, like World Government Terraforming, finishes first.
+  SolarPhase: LATER { TurmoilPhase }
+}
+
+"Turmoil's part of the solar phase; a signal, not a game Phase"
+CLASS TurmoilPhase : Signal, System {
+  // Revise TR and resolve the current event, then form the government and change times.
+  This:: EACH Me@Player { -TerraformRating*, MeasureInfluence }
+  This: ResolveGlobalEvent, LATER { FormGovernment THEN ChangingTimes }
 }
 
 CLASS Terraformer26 : Milestone {
   HAS MAX 1 Terraformer26
   requirement = HAS "26 TerraformRating"
-}
-
-"Runs TR revision and the current event, then changes government and advances the event queue"
-CLASS TurmoilSolarOperation : Temporary, System {
-  HAS MAX 1 This
-  This:: EACH Me@Player { -TerraformRating*, MeasureInfluence }
-  This: ResolveGlobalEvent
-  -This: FormGovernment THEN ChangingTimes
 }
 
 "A revealed Global Event card, discarded by ChangingTimes after its Current generation"

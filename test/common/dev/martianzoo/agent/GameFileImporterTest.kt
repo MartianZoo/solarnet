@@ -5,7 +5,9 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.recording
 import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameFileJson
+import dev.martianzoo.state.GameRecording
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.RecordedInput
 import dev.martianzoo.state.actors
@@ -17,12 +19,58 @@ import kotlinx.coroutines.test.runTest
 
 internal class GameFileImporterTest {
   @Test
+  internal fun fullReplayRejectsChangedAncestryWithTheSameFinalComponents() = runTest {
+    val premise =
+        testGamePremise(
+            """
+            CLASS Left : Signal { This: Middle }
+            CLASS Right : Signal { This: Middle }
+            CLASS Middle : Signal { This: Coin }
+            CLASS Coin
+            """
+        )
+    val source = Agents(Engine.newGame(premise))
+    source[PLAYER1].autoExecPolicy = NONE
+    source.taskLog.start()
+    source.taskLog.gameStarted()
+    source[PLAYER1].addTasks("Left, Right")
+    source[PLAYER1].doTasks("Left", "Middle", "Coin", "Right", "Middle", "Coin")
+    val recording = source.world.recording()
+
+    suspend fun replay(recording: GameRecording): Agents =
+        GameFileImporter.replay(
+            GameFileJson.parse(GameFileJson.encode(recording, source.taskLog.inputs())),
+            premise.catalog,
+            newAgents = { Agents(Engine.newGame(it)) },
+            startGame = { agents -> agents[PLAYER1].addTasks("Left, Right") },
+        )
+
+    replay(recording)[PLAYER1].count("Coin") shouldBe 2
+    val coins =
+        recording.events.filterIsInstance<ChangeEvent>().filter {
+          it.change.gaining?.className.toString() == "Coin"
+        }
+    val changedAncestry =
+        GameRecording(
+            premise,
+            recording.events.map { event ->
+              if (event.ordinal == coins.last().ordinal)
+                  coins.last().copy(cause = coins.first().cause)
+              else event
+            },
+            recording.positions,
+        )
+
+    shouldThrow<IllegalStateException> { replay(changedAncestry) }
+  }
+
+  @Test
   internal fun fullReplayChecksChangesAndRetainsCommentaryAndCorrection() = runTest {
     val premise = testGamePremise("CLASS Coin")
     val source = Agents(Engine.newGame(premise))
     source[PLAYER1].autoExecPolicy = NONE
     source.taskLog.start()
-    source.taskLog.workflowStarted("test")
+    source.taskLog.gameStarted()
     source[PLAYER1].addTasks("Coin")
     source[PLAYER1].doTask("Coin")
     source.exMachina(PLAYER1, "Coin")
@@ -36,10 +84,7 @@ internal class GameFileImporterTest {
             document,
             premise.catalog,
             newAgents = { Agents(Engine.newGame(it)) },
-            startWorkflow = { agents, name ->
-              name shouldBe "test"
-              agents[PLAYER1].addTasks("Coin")
-            },
+            startGame = { agents -> agents[PLAYER1].addTasks("Coin") },
         )
 
     imported[PLAYER1].count("Coin") shouldBe 2
@@ -69,7 +114,7 @@ internal class GameFileImporterTest {
             GameFileJson.encode(
                 source.world.recording(),
                 listOf(
-                    RecordedInput.StartWorkflow("test"),
+                    RecordedInput.StartGame,
                     RecordedInput.Command(
                         player,
                         RecordedInput.Kind.DO_TASK,
@@ -87,7 +132,7 @@ internal class GameFileImporterTest {
             document,
             premise.catalog,
             newAgents = { Agents(Engine.newGame(it)) },
-            startWorkflow = { agents, _ -> agents[PLAYER1].addTasks("Coin") },
+            startGame = { agents -> agents[PLAYER1].addTasks("Coin") },
             supplyCardInputs = { agents, inputs ->
               agents[PLAYER1].count("Coin") shouldBe 0
               inputs shouldBe listOf(cardInput)
@@ -101,7 +146,7 @@ internal class GameFileImporterTest {
           document,
           premise.catalog,
           newAgents = { Agents(Engine.newGame(it)) },
-          startWorkflow = { agents, _ -> agents[PLAYER1].addTasks("Coin") },
+          startGame = { agents -> agents[PLAYER1].addTasks("Coin") },
       )
     }
   }

@@ -16,8 +16,13 @@ internal class GhgShipmentTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<GhgShipment>>", "-3 MC")
           selectTask("-X? Titanium")
-          doTasks("Ok", "GhgShipment FROM ProjectCard", "PROD[Heat]")
+          doTasks(
+              "Ok",
+              "GhgShipment FROM ProjectCard",
+              "PROD[Heat]",
+          )
           selectOnlyTask()
+          doTask("PlayedEvent<Class<GhgShipment>> FROM GhgShipment")
         }
         .expect("3 Heat")
   }

@@ -27,8 +27,7 @@ adjustment or assertion; it is not proof of player consent or an external custod
 - Queued (`:`) effects are suppressed throughout the correction and its derived changes.
 - Every applicable declared count invariant is checked against the completed World. Validation
   rejects an invalid result; it does not repair it.
-- Corrections do not settle pending tasks, perform idle cleanup, or call the gameplay completion
-  callback.
+- Corrections do not settle pending tasks or call the gameplay completion callback.
 - A correction need not enforce game history that is not represented as an invariant. For
   example, arbitrary delegate edits need not reconstruct political leadership, and a corrected
   tile does not grant placement rewards.
@@ -46,8 +45,8 @@ invariant validation.
 `Agents.exMachina` is the client-facing correction path. It adds an internal `Audit` and rejects
 explicit changes to `System` and `MustCleanUp` types on either side of a transmutation.
 Derived changes may still touch those types when required by the corrected state. It also rejects
-any result that leaves additional `MustCleanUp` state, so a correction cannot start a workflow
-whose ordinary completion effects were suppressed.
+any result that leaves additional `MustCleanUp` state, so a correction cannot begin work whose
+ordinary completion effects were suppressed.
 
 When a task is selected, `exMachina` restores its unresolved form, applies the correction, and
 resumes selection under the existing policy. The whole sequence remains failure-atomic.

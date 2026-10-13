@@ -1,0 +1,20 @@
+{
+  "base": "TerraformingMars",
+  "corpera": "CorporateEraExpansion",
+  "venus": "VenusNextExpansion",
+  "prelude": "PreludeExpansion",
+  "colonies": "ColoniesExpansion",
+  "turmoil": "TurmoilExpansion",
+  "prelude2": "Prelude2Expansion",
+  "goals": null,
+
+  "tharsis": "TharsisMap",
+  "hellas": "HellasMap",
+  "elysium": "ElysiumMap",
+  "utopia": "UtopiaMap",
+  "cimmeria": "CimmeriaMap",
+  "amazonis": "AmazonisMap",
+  "vastitas": "VastitasMap",
+
+  "promos": null,
+}

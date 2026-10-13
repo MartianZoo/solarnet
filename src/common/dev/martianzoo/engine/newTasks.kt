@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.SystemClasses.DIE
+import dev.martianzoo.pets.ast.Deferral
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
@@ -24,30 +25,29 @@ import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 
-internal fun newTasks(
-    firstId: TaskId,
-    controller: Actor,
-    instruction: InstructionGroup,
+/** The independent instructions that [instruction] becomes as tasks, after normalization. */
+internal fun taskInstructions(instruction: InstructionGroup): List<Instruction> =
+    InstructionGroup.of(instruction.instructions.map(::normalizeForTask)).instructions
+
+/** One normalized task for a single [instruction] from [taskInstructions]. */
+internal fun newTask(
+    id: TaskId,
+    assignee: Actor,
+    instruction: Instruction,
     cause: Cause?,
-    selectionAssignee: Actor = controller,
     isAbstract: ((Expression) -> Boolean)? = null,
-): List<Task> {
-  var nextOrdinal = firstId.ordinal
-  val normalized =
-      InstructionGroup.of(instruction.instructions.map(::normalizeForTask)).instructions
-  return normalized.map {
+    deferral: Deferral = Deferral.NONE,
+): Task =
     normalizeTask(
         Task(
-            id = TaskId(nextOrdinal++),
-            controller = controller,
-            selectionAssignee = selectionAssignee,
-            instruction = it,
+            id = id,
+            assignee = assignee,
+            instruction = instruction,
             cause = cause,
+            deferral = deferral,
         ),
         isAbstract,
     )
-  }
-}
 
 private fun normalizeForTask(tree: InstructionTree): InstructionTree =
     when (tree) {
@@ -70,6 +70,11 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
         }
       }
       is Each ->
+          when (val body = normalizeForTask(tree.body)) {
+            is NoOp -> NoOp
+            else -> tree.copy(body = body)
+          }
+      is Instruction.Dispatch ->
           when (val body = normalizeForTask(tree.body)) {
             is NoOp -> NoOp
             else -> tree.copy(body = body)

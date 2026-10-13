@@ -53,11 +53,10 @@ The **TASK QUEUE (PENDING)** and **EVENT LOG (PAST)** sit side by side below the
 They present raw information in aligned columns, without decorative event or task treatments.
 The task queue is global and shows all pending tasks, including their assignee information. Each
 task includes its ID, raw full-form Pets instruction, **GIVEN BY** context, **BECAUSE** event
-ordinal, and a **WHO** column of three ordered squares. Their tooltips read exactly **“Decides when
-the task will happen”**, **“Makes choices for the task”**, and **“Actually carries out the task”**.
-Admin uses a very pale neutral grey. Clicking a task selects it and resolves it against current
-game state. The UI should then show why it remains abstract and allow narrowing at the relevant
-segment of the instruction: click an abstract root class to choose a concrete subclass first;
+ordinal, and a **WHO** square for its assignee. Admin uses a very pale neutral grey. Clicking a task
+selects it and resolves it against current game state. The UI should then show why it remains
+abstract and allow narrowing at the relevant segment of the instruction: click an abstract root
+class to choose a concrete subclass first;
 after that, click an abstract dependency to narrow it; click a `?` scalar to choose a value and
 remove the `?`; click an OR instruction to choose its branch. A choice widget is attached to the
 relevant Pets text. Prefer sending the narrowing directly to the engine if its API permits it.
@@ -117,8 +116,8 @@ dividers, and left/right arrows step between player-action squares. Later events
 dimmed. A BECAUSE number scrolls to and highlights its event without seeking. When its cause is
 outside the displayed change log, the number is plain text with a tooltip showing the event.
 Generation tabs seek to the start of a generation. The colored squares below them seek to the first
-recorded position after each player action slot opens. A first action comes from `NewTurn`, and a
-second action comes from `SecondAction`; passes and unused second slots have no square.
+recorded position after each player action slot opens. Each action slot comes from `NewTurn`
+answered by `ImAwake`; passes and unused second slots have no square.
 The Mars tab uses the old viewer's planet image and hex layout, including empty-area bonuses,
 Noctis and volcano marks, tile images, and centered owner cubes. The same cube marks used actions
 on played cards, centered two-thirds of the way up each marked card.

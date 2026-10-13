@@ -32,7 +32,6 @@ internal class TaskNormalizationTest {
 
     queues.editTask(
         original.copy(
-            selectionAssignee = PLAYER2,
             assignee = PLAYER2,
             selected = true,
             instruction = parse<Instruction>("3 Plant THEN 3 Heat"),
@@ -41,8 +40,6 @@ internal class TaskNormalizationTest {
 
     val edited = world.tasks.getTaskData(original.id)
     edited.id shouldBe original.id
-    edited.controller shouldBe PLAYER1
-    edited.selectionAssignee shouldBe PLAYER2
     edited.assignee shouldBe PLAYER2
     edited.selected shouldBe true
     edited.instruction shouldBe parse<Instruction>("3 Plant")

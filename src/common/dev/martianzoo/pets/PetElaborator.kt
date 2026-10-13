@@ -7,6 +7,7 @@ import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.SystemClasses.ADMIN
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
@@ -594,6 +595,10 @@ public class PetElaborator(public val classTable: ClassTable) {
         }
 
     fun needsMe(node: PetNode, available: Boolean = false): Boolean {
+      if (node is Instruction.Dispatch) {
+        return (node.actor?.let { needsMe(it, available) } ?: false) ||
+            needsMe(node.body, available = true)
+      }
       if (node is Each) {
         val selected = available || selectedMe(node.selector) != null
         return needsMe(node.selector, selected) || needsMe(node.body, selected)
@@ -742,6 +747,18 @@ public class PetElaborator(public val classTable: ClassTable) {
                 .also {
                   it.sourceLocation = node.sourceLocation
                 }
+          } finally {
+            me = previous
+          }
+        }
+        if (node is Instruction.Dispatch) {
+          val recipient = node.actor?.let(::transformExpression) ?: me ?: ADMIN.expression
+          val previous = me
+          me = recipient
+          return try {
+            node.copy(actor = recipient, body = transformInstructionTree(node.body)).also {
+              it.sourceLocation = node.sourceLocation
+            }
           } finally {
             me = previous
           }

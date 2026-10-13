@@ -216,25 +216,29 @@ internal constructor(
     return copy(refinement = applicable)
   }
 
-  private val expressionLazy = lazy {
-    toExpressionUsingSpecs(compactDependencyExpressions())
-  }
+  private var cachedExpression: Expression? = null
   /**
    * The compact round-tripping expression specified by
    * [rule T5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
   override val expression: Expression
-    get() = expressionLazy.value
+    get() =
+        cachedExpression
+            ?: toExpressionUsingSpecs(compactDependencyExpressions()).also {
+              cachedExpression = it
+            }
 
-  private val expressionFullLazy = lazy {
-    toExpressionUsingSpecs(argumentDependencies.expressionsFull())
-  }
+  private var cachedExpressionFull: Expression? = null
   /**
    * The full round-tripping expression specified by
    * [rule T5-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
   override val expressionFull: Expression
-    get() = expressionFullLazy.value
+    get() =
+        cachedExpressionFull
+            ?: toExpressionUsingSpecs(argumentDependencies.expressionsFull()).also {
+              cachedExpressionFull = it
+            }
 
   private val narrowedDependenciesLazy = lazy {
     dependencies.minus(rootClass.dependencies)

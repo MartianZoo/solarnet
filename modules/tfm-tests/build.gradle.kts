@@ -100,6 +100,53 @@ val jvmTestCompilation = kotlin.targets.getByName("jvm").compilations.getByName(
 val jvmTestRuntimeClasspath =
     configurations.named(requireNotNull(jvmTestCompilation.runtimeDependencyConfigurationName))
 
+tasks.register<Test>("sandboxTest") {
+  group = LifecycleBasePlugin.VERIFICATION_GROUP
+  description = "Runs every TfmSandboxTest subclass without gameplay or replay tests."
+  // Shared tests cannot use JUnit's JVM-only @Tag, so select fixture subclasses from source.
+  // Each file has one top-level class; nested sandbox classes use its JVM binary-name prefix.
+  val sandboxTestClasses =
+      rootProject
+          .fileTree("test") {
+            include("common/dev/martianzoo/tfm/tests/**/*Test.kt")
+            include("jvm/dev/martianzoo/tfm/tests/**/*Test.kt")
+          }
+          .files
+          .flatMap { file ->
+            val source = file.readText()
+            val packageName =
+                requireNotNull(Regex("(?m)^package (\\S+)").find(source)?.groupValues?.get(1)) {
+                  "Missing package declaration in $file"
+                }
+            val topLevelClass =
+                requireNotNull(
+                    Regex("(?m)^internal (?:abstract )?class (\\w+)")
+                        .find(source)
+                        ?.groupValues
+                        ?.get(1)
+                ) {
+                  "Missing top-level internal class in $file"
+                }
+            val baseName = "$packageName.$topLevelClass"
+            val fixture = "(?:dev\\.martianzoo\\.tfm\\.tests\\.)?TfmSandboxTest"
+            val direct = Regex("(?m)^internal class \\w+ : $fixture\\(").containsMatchIn(source)
+            val nested =
+                Regex("(?m)^[ \\t]+internal class (\\w+) : $fixture\\(")
+                    .findAll(source)
+                    .map { "$baseName\$${it.groupValues[1]}" }
+                    .toList()
+            (if (direct) listOf(baseName) else emptyList()) + nested
+          }
+          .sorted()
+  check(sandboxTestClasses.isNotEmpty()) { "No TfmSandboxTest subclasses found" }
+
+  outputs.cacheIf("rerun sandbox tests for timing") { false }
+  dependsOn(jvmTestCompilation.compileTaskProvider)
+  testClassesDirs = jvmTestCompilation.output.classesDirs
+  classpath = files(jvmTestCompilation.output.allOutputs, jvmTestCompilation.runtimeDependencyFiles)
+  filter { sandboxTestClasses.forEach { includeTestsMatching(it) } }
+}
+
 tasks.withType<Test>().configureEach {
   extensions.configure<JacocoTaskExtension> { isEnabled = false }
 }

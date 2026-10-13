@@ -631,7 +631,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       convertPlants { placeTile(5, 1) }
       declineTask()
       assertCounts(0 to "ProjectCard")
-      admin.assertCounts(1 to "End", 1 to "Phase")
+      admin.assertCounts(1 to "VictoryPhase", 1 to "Phase")
 
       assertResources(m = 113, s = 12, t = 8, p = 2, e = 0, h = 11)
       assertProduction(m = 36, s = 3, t = 5, p = 14, e = 0, h = 11)

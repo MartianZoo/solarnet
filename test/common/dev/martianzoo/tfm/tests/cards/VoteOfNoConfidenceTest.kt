@@ -21,6 +21,7 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
           )
           selectTask("Chairman<Kim FROM Neutral>!")
           doTask("TerraformRating")
+          doTask("PlayedEvent<Class<VoteOfNoConfidence>> FROM VoteOfNoConfidence")
         }
         .expect("-LobbyActionAvailable")
   }

@@ -6,12 +6,11 @@ import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmWorkflow
-import kotlin.test.AfterTest
 
 /**
- * Scenarios reached through play under the real automatic workflow. Tests must follow the offered
- * turn order; the current gameplay helpers do not reject out-of-turn actions.
+ * Scenarios reached through play, with the game's own rules offering every turn and beginning every
+ * phase. Tests must follow the offered turn order; the current gameplay helpers do not reject
+ * out-of-turn actions.
  */
 internal abstract class TfmGameplayTest : TfmTest() {
   protected lateinit var players: List<TfmGameplay>
@@ -25,8 +24,6 @@ internal abstract class TfmGameplayTest : TfmTest() {
 
   protected val rob: TfmGameplay
     get() = checkNotNull(players.getOrNull(2)) { "Rob is sitting this game out" }
-
-  private var workflow: TfmWorkflow.Automatic? = null
 
   protected fun newTestGame(
       addOptions: String = "",
@@ -46,9 +43,8 @@ internal abstract class TfmGameplayTest : TfmTest() {
       kimCorporation: ClassName?,
       playCorporations: Boolean,
   ) {
-    shutdownWorkflow()
     createWorld(addOptions, playerCount)
-    workflow = TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     if (
         playerCount == 1 &&
             GameConfig(addOptions).includedClassNames.none { it in Canon.colonyTileClassNames } &&
@@ -58,12 +54,6 @@ internal abstract class TfmGameplayTest : TfmTest() {
     }
     chooseStartingCards(kimCorporation, playCorporations)
     if (playCorporations) playStartingCorporations(kimCorporation)
-  }
-
-  @AfterTest
-  fun shutdownWorkflow() {
-    workflow?.shutdown()
-    workflow = null
   }
 
   private fun createWorld(addOptions: String, playerCount: Int) {

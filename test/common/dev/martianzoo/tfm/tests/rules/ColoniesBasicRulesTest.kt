@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.DependencyException
@@ -45,7 +44,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
   init {
     game = setUpGame(premise)
-    TfmWorkflow.Stepwise(game.testAgents()).corporationPhase()
+    game.startCorporationPhaseOutOfTurn()
   }
 
   private val p1 = game.testTfm(PLAYER1)
@@ -84,7 +83,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
             colonyTiles = colonies,
         )
     val game = setUpGame(premise)
-    TfmWorkflow.Stepwise(game.testAgents()).corporationPhase()
+    game.startCorporationPhaseOutOfTurn()
     val admin = game.testTfm(ADMIN)
     val p1 = admin.asPlayer(PLAYER1)
 
@@ -123,7 +122,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     val p1 = game.testTfm(PLAYER1)
 
     admin.assertCounts(0 to "ColonyTile", 4 to "SelectedColonyTile")
-    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    game.testTfm(ADMIN).startGame()
     p1.doTask("-SelectedColonyTile<Class<Luna>>")
     admin.assertCounts(
         0 to "ColonyTile",
@@ -147,7 +146,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
             colonyTiles = colonies,
         )
     val game = setUpGame(premise)
-    TfmWorkflow.Stepwise(game.testAgents()).corporationPhase()
+    game.startCorporationPhaseOutOfTurn()
     val admin = game.testTfm(ADMIN)
     val p1 = admin.asPlayer(PLAYER1)
 
@@ -232,11 +231,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
     // When the generation ends, the recorded trades clear and all white markers move 1 step up the
     // Colony track. The players' trade-fleet capacities remain.
-    admin.phase("Production")
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      coloniesSolarPhase()
-    }
+    admin.runOperation("AdvanceColonyTracks")
     admin.runOperation("Generation")
     admin.assertCounts(
         0 to "Trade",
@@ -248,12 +243,8 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   @Test
   internal fun `colony production leaves a maximum track at maximum`() {
     admin.runOperation("5 ColonyProduction<Luna>")
-    admin.phase("Production")
 
-    with(TfmWorkflow.Stepwise(agents)) {
-      solarPhase()
-      coloniesSolarPhase()
-    }
+    admin.runOperation("AdvanceColonyTracks")
 
     admin.count("ColonyProduction<Luna>") shouldBe 6
   }

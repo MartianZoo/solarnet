@@ -11,12 +11,18 @@ internal sealed class Access private constructor() {
 
   internal abstract fun phase(phase: String): TaskResult
 
-  internal fun doPhase(agent: Agent, phase: String): TaskResult =
-      agent.beginOperation("${phase}Phase FROM Phase")
+  /**
+   * Puts the game in the named phase ex machina, without that phase's queued start-of-phase rules,
+   * since outside purple mode the user, not the game, moves play forward.
+   */
+  internal fun doPhase(agent: Agent, phase: String): TaskResult {
+    val current = agent.reader.getComponents(agent.resolve("Phase")).elements.single().className
+    return agent.sneak("${phase}Phase FROM $current")
+  }
 
   internal open fun dropTask(id: TaskId): Unit = error("not allowed in this mode")
 
-  // PURPLE: Game integrity: the engine fully controls the workflow
+  // PURPLE: Game integrity: the game's own rules drive every turn and phase
   internal class PurpleMode : Access() {
     override fun phase(phase: String): TaskResult = error("not allowed in this mode")
 

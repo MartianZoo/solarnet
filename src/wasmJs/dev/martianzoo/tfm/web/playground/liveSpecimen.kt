@@ -96,7 +96,7 @@ internal fun liveSpecimen(
             .changesSinceSetup()
             .asReversed()
             .firstOrNull {
-              it.change.gaining?.className?.toString() in setOf("NewTurn", "SecondAction")
+              it.change.gaining?.className?.toString() == "NewTurn"
             }
             ?.change
             ?.gaining
@@ -168,8 +168,6 @@ internal fun liveSpecimen(
             then = task.then?.toString(),
             givenBy = task.cause?.context?.toString(),
             because = task.cause?.triggerEvent,
-            controller = task.controller.toString(),
-            selectionAssignee = task.selectionAssignee.toString(),
             assignee = task.assignee.toString(),
             selected = task.selected,
         )

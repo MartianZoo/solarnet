@@ -81,6 +81,7 @@ CLASS Administrator : Award { metric = COUNT "CardFront(HAS MAX 0 Tag)" }
 CLASS Biologist : Award { metric = COUNT "BioTag" }
 CLASS Politician : Award {
   metric = COUNT "PartyLeader OR Influence"
-  MeasureAward<This>: EACH Scored@Player { MeasureInfluence<Scored@> }
+  // Refresh every player's influence before any award is measured.
+  End:: EACH Scored@Player { MeasureInfluence<Scored@> }
 }
 CLASS Visionary : Award { metric = COUNT "ProjectCard" }

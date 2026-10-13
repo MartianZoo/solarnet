@@ -16,7 +16,7 @@ internal class PristarTest : TfmGameplayTest() {
 
     stan.pass()
 
-    admin.count("VenusSolarPhase") shouldBe 1
+    admin.count("SolarPhase") shouldBe 1
     kim.count("Preservation<$Pristar>") shouldBe 1
     kim.count("MC") shouldBe money + income
   }
@@ -29,7 +29,7 @@ internal class PristarTest : TfmGameplayTest() {
 
     stan.pass()
 
-    admin.count("VenusSolarPhase") shouldBe 1
+    admin.count("SolarPhase") shouldBe 1
     kim.count("Preservation<$Pristar>") shouldBe 1
   }
 
@@ -41,7 +41,7 @@ internal class PristarTest : TfmGameplayTest() {
 
     kim.pass()
 
-    admin.count("VenusSolarPhase") shouldBe 1
+    admin.count("SolarPhase") shouldBe 1
     kim.count("Preservation<$Pristar>") shouldBe 0
   }
 }

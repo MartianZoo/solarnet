@@ -27,6 +27,7 @@ internal class SpireTest : TfmSandboxTest() {
           selectTask("2! ProjectCard<Kim, Hand FROM Selecting>")
           selectTask("-2! ProjectCard<Kim, Selecting>")
           selectOnlyTask()
+          doTask("PlayedEvent<Class<BusinessContacts>> FROM BusinessContacts")
         }
         .expect("Science<$Spire>")
     kim.inTurn {
@@ -36,6 +37,7 @@ internal class SpireTest : TfmSandboxTest() {
               "MineralDeposit FROM ProjectCard",
               "5 Steel",
           )
+          doTask("PlayedEvent<Class<MineralDeposit>> FROM MineralDeposit")
         }
         .expect("0 Science<$Spire>")
   }

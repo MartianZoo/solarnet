@@ -174,7 +174,7 @@ internal class DoubleDownTest : TfmSandboxTest() {
         selectTask("-3! CorporationCard<Kim, Selecting>")
         selectTask("PlayCard<Kim, Class<CorporationCard>, Class<CardFront>, Selecting>!")
         doTask("PlayCard<Class<CorporationCard>, Class<NirgalEnterprises>>")
-        selectTask("MAX 0 Barrier: NirgalEnterprises FROM CorporationCard<Kim, Selecting>!")
+        doTask("NirgalEnterprises<Kim> FROM CorporationCard<Kim, Selecting>!")
         selectTask("30! MC")
         selectTask("PROD[Energy]")
         selectTask("PROD[Plant]")
@@ -245,6 +245,7 @@ internal class DoubleDownTest : TfmSandboxTest() {
           selectOnlyTask()
           doTasks("CopyPrelude<IndustrialComplex>", "-18 MC")
           selectOnlyTask()
+          doTask("PROD[Steel]")
         }
         .expect("PROD[0 MC, Steel, 0 Titanium, 0 Plant, 0 Energy, 0 Heat]")
   }

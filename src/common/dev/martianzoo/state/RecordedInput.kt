@@ -2,13 +2,13 @@ package dev.martianzoo.state
 
 /**
  * An input supplied to a game in chronological order, separate from its calculated [GameEvent]s.
- * The first input starts the workflow. A [Command] retains the Actor's submitted instruction and
- * any external card identities needed before that command can run. Engine-owned effects are not
+ * The first input starts the game. A [Command] retains the Actor's submitted instruction and any
+ * external card identities needed before that command can run. Engine-owned effects are not
  * commands. The exact event recording, when present, describes the consequences of these inputs.
  */
 public sealed class RecordedInput {
-  /** Starts the named game workflow before any Actor command is replayed. */
-  public data class StartWorkflow(public val name: String) : RecordedInput()
+  /** Starts the game before any Actor command is replayed. */
+  public data object StartGame : RecordedInput()
 
   /**
    * A successful Actor submission. [kind] preserves how the instruction was submitted; [cardInputs]

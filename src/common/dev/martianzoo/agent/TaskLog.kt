@@ -22,7 +22,7 @@ import dev.martianzoo.state.Task.TaskId
  * narrowing may require the selected Actor. Intermediate event history is not preserved.
  *
  * Reconstruction uses the same premise and implementation, with every Actor's autoexecution
- * disabled. Workflow start is recorded explicitly. Task selectors retain causal context instead of
+ * disabled. Game start is recorded explicitly. Task selectors retain causal context instead of
  * source event ordinals. External card identities are carried by [RecordedInput.Command], but their
  * Agent-side capture awaits integration with CardTracking.
  */
@@ -40,7 +40,7 @@ public class TaskLog internal constructor(private val world: World) {
   )
 
   private var recording = false
-  private var workflowName: String? = null
+  private var gameStartRecorded = false
   private val submissions = mutableListOf<Submission>()
 
   /** Starts retaining subsequent submissions. Call before starting the recorded gameplay. */
@@ -49,18 +49,17 @@ public class TaskLog internal constructor(private val world: World) {
     recording = true
   }
 
-  /** Records the workflow whose launch precedes every submitted game task. */
-  public fun workflowStarted(name: String) {
+  /** Records the game start, which precedes every submitted game task. */
+  public fun gameStarted() {
     if (!recording) return
-    require(name.isNotBlank())
-    check(workflowName == null) { "workflow already recorded" }
-    workflowName = name
+    check(!gameStartRecorded) { "game start already recorded" }
+    gameStartRecorded = true
   }
 
   /** Structured inputs for the shared game file, with rolled-back submissions removed. */
   public fun inputs(): List<RecordedInput> {
-    val workflow = requireNotNull(workflowName) { "workflow start was not recorded" }
-    return listOf(RecordedInput.StartWorkflow(workflow)) +
+    check(gameStartRecorded) { "game start was not recorded" }
+    return listOf(RecordedInput.StartGame) +
         survivingSubmissions().map { item ->
           RecordedInput.Command(
               item.actor,
@@ -151,6 +150,8 @@ public class TaskLog internal constructor(private val world: World) {
               it.assignee == actor && it.instruction.toString() == taskInstruction
             }
     val target = matches.single { it.id == taskId }
+    // A unique instruction identifies its task without copying the game's causal history.
+    if (matches.size == 1) return RecordedInput.TaskSelector(taskInstruction, emptyList(), 0)
     val cause = causeSteps(world, target)
     val peers = matches.filter { causeSteps(world, it) == cause }
     return RecordedInput.TaskSelector(taskInstruction, cause, peers.indexOf(target))
@@ -158,22 +159,20 @@ public class TaskLog internal constructor(private val world: World) {
 
   public companion object {
     /**
-     * Replays the shared file's inputs with every Actor policy disabled. [startWorkflow] launches
-     * the named workflow; [supplyCardInputs] runs before a command that needs supplied card names.
-     * A failed command stops replay and leaves earlier successful commands applied.
+     * Replays the shared file's inputs with every Actor policy disabled. [startGame] starts the
+     * game; [supplyCardInputs] runs before a command that needs supplied card names. A failed
+     * command stops replay and leaves earlier successful commands applied.
      */
     public fun replay(
         inputs: List<RecordedInput>,
         agents: Agents,
-        startWorkflow: (String) -> Unit,
+        startGame: () -> Unit,
         supplyCardInputs: ((RecordedInput.Command) -> Unit)? = null,
     ) {
-      val start =
-          inputs.firstOrNull() as? RecordedInput.StartWorkflow
-              ?: throw IllegalArgumentException("game inputs must start the workflow")
-      require(inputs.drop(1).none { it is RecordedInput.StartWorkflow })
+      require(inputs.firstOrNull() == RecordedInput.StartGame) { "game inputs must start the game" }
+      require(inputs.drop(1).none { it == RecordedInput.StartGame })
       agents.world.actors.forEach { agents[it].autoExecPolicy = NONE }
-      startWorkflow(start.name)
+      startGame()
       inputs.drop(1).forEachIndexed { index, input ->
         val command = input as RecordedInput.Command
         try {
@@ -189,8 +188,10 @@ public class TaskLog internal constructor(private val world: World) {
                         .filter { task ->
                           task.instruction.toString() == selector.instruction
                         }
-                val peers = candidates.filter { causeSteps(agents.world, it) == selector.cause }
-                (peers.getOrNull(selector.occurrence) ?: candidates.singleOrNull())
+                candidates.singleOrNull()
+                    ?: candidates
+                        .filter { causeSteps(agents.world, it) == selector.cause }
+                        .getOrNull(selector.occurrence)
                     ?: error("recorded task is absent: ${command.instruction}")
               }
           when (command.kind) {

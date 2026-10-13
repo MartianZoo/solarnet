@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.catalog.Catalog
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
@@ -31,17 +30,6 @@ internal class CatalogTest {
         }
 
     shouldThrow<IllegalArgumentException> { TfmCatalog(first, second).modules }
-  }
-
-  @Test
-  internal fun compositionRejectsConflictingCustomClassDependencies() {
-    val conflicting =
-        object : Catalog() {
-          override val customClassDependencies: Map<ClassName, Set<ClassName>> =
-              mapOf(cn("PartyDistance") to emptySet())
-        }
-
-    shouldThrow<IllegalArgumentException> { TfmCatalog(conflicting) }
   }
 
   @Test
@@ -158,6 +146,30 @@ internal class CatalogTest {
     premise.classSelections.filter { it.included }.mapTo(linkedSetOf()) { it.className } shouldBe
         setOf(cn("MultiplayerMode"), cn("FirstAward"))
     premise.classTable.getClass(cn("GoalMetric")).declaration.customMetric shouldBe true
+  }
+
+  @Test
+  internal fun aModuleOwningColonyTilesRequiresASelectedTile() {
+    val source =
+        TfmCatalog(
+            bundle(
+                "tiles",
+                """
+                ABSTRACT CLASS Module
+                ABSTRACT CLASS ColonyTile
+                CLASS FixtureExpansion : Module
+                CLASS FixtureTile : ColonyTile
+                """
+                    .trimIndent(),
+                primaryModuleName = cn("FixtureExpansion"),
+            )
+        )
+
+    source.gamePremise(GameConfig("FixtureExpansion, FixtureTile"))
+    shouldThrow<InvalidGameConfigException> {
+          source.gamePremise(GameConfig("FixtureExpansion, -FixtureTile"))
+        }
+        .message shouldBe "FixtureExpansion requires at least one selected colony tile"
   }
 
   @Test

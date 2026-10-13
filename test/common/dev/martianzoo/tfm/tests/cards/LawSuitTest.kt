@@ -26,10 +26,15 @@ internal class LawSuitTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTasks("PlayProject<Class<LawSuit>>", "-2 MC", "LawSuit FROM ProjectCard")
+          doTasks(
+              "PlayProject<Class<LawSuit>>",
+              "-2 MC",
+              "LawSuit FROM ProjectCard",
+          )
           selectOnlyTask()
           doTask("3 MC<Kim FROM Stan>")
           selectTask("PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit!")
+          doTask("PlayedEvent<Class<$LawSuit>> FROM $LawSuit")
         }
         .expect("MC<Kim>, -3 MC<Stan>")
   }
@@ -47,10 +52,15 @@ internal class LawSuitTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTasks("PlayProject<Class<LawSuit>>", "-2 MC", "LawSuit FROM ProjectCard")
+          doTasks(
+              "PlayProject<Class<LawSuit>>",
+              "-2 MC",
+              "LawSuit FROM ProjectCard",
+          )
           selectOnlyTask()
           doTask("3 MC<Kim FROM Stan>")
           selectTask("PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit!")
+          doTask("PlayedEvent<Class<$LawSuit>> FROM $LawSuit")
         }
         .expect("0 PlayedEvent<Kim, Class<$LawSuit>>, PlayedEvent<Stan, Class<$LawSuit>>")
   }
@@ -61,16 +71,25 @@ internal class LawSuitTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
       selectTask("-X? Titanium")
-      doTasks("Ok", "AsteroidCard FROM ProjectCard")
+      doTasks(
+          "Ok",
+          "AsteroidCard FROM ProjectCard",
+      )
       selectTask("TemperatureStep*")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Kim>")
+      doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
 
     kim.inTurn {
-          doTasks("PlayProject<Class<LawSuit>>", "-2 MC", "LawSuit FROM ProjectCard")
+          doTasks(
+              "PlayProject<Class<LawSuit>>",
+              "-2 MC",
+              "LawSuit FROM ProjectCard",
+          )
           selectOnlyTask()
           doTask("3 MC<Kim FROM Stan>")
           selectTask("PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit!")
+          doTask("PlayedEvent<Class<$LawSuit>> FROM $LawSuit")
         }
         .expect("MC<Kim>, -3 MC<Stan>")
   }
@@ -89,10 +108,15 @@ internal class LawSuitTest : TfmSandboxTest() {
     kim.setToExMachina(2, "MC")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<LawSuit>>", "-2 MC", "LawSuit FROM ProjectCard")
+          doTasks(
+              "PlayProject<Class<LawSuit>>",
+              "-2 MC",
+              "LawSuit FROM ProjectCard",
+          )
           selectOnlyTask()
           doTask("3 MC<Kim FROM Stan>")
           selectTask("PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit!")
+          doTask("PlayedEvent<Class<$LawSuit>> FROM $LawSuit")
         }
         .expect("MC<Kim>, -3 MC<Stan>")
   }
@@ -111,10 +135,16 @@ internal class LawSuitTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTasks("PlayProject<Class<LawSuit>>", "-2 MC", "LawSuit FROM ProjectCard", "3 MC")
+          doTasks(
+              "PlayProject<Class<LawSuit>>",
+              "-2 MC",
+              "LawSuit FROM ProjectCard",
+              "3 MC",
+          )
           selectOnlyTask()
           doTask("3 MC<Kim FROM Stan>")
           selectTask("PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit!")
+          doTask("PlayedEvent<Class<$LawSuit>> FROM $LawSuit")
         }
         .expect("4 MC<Kim>, -3 MC<Stan>")
   }
@@ -133,10 +163,15 @@ internal class LawSuitTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTasks("PlayProject<Class<LawSuit>>", "-2 MC", "LawSuit FROM ProjectCard")
+          doTasks(
+              "PlayProject<Class<LawSuit>>",
+              "-2 MC",
+              "LawSuit FROM ProjectCard",
+          )
           selectOnlyTask()
           doTask("3 MC<Kim FROM Stan>")
           selectTask("PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit!")
+          doTask("PlayedEvent<Class<$LawSuit>> FROM $LawSuit")
         }
         .expect("MC<Kim>, -3 MC<Stan>")
   }
@@ -155,7 +190,10 @@ internal class LawSuitTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("PlayProject<Class<LawSuit>>")
         selectTask("-X? MC")
-        doTasks("-2 MC", "LawSuit FROM ProjectCard")
+        doTasks(
+            "-2 MC",
+            "LawSuit FROM ProjectCard",
+        )
         selectOnlyTask()
         doTask("3 MC<Kim FROM Stan>")
       }
@@ -182,7 +220,10 @@ internal class LawSuitTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("PlayProject<Class<LawSuit>>")
         selectTask("-X? MC")
-        doTasks("-2 MC", "LawSuit FROM ProjectCard")
+        doTasks(
+            "-2 MC",
+            "LawSuit FROM ProjectCard",
+        )
         selectOnlyTask()
         doTask("3 MC<Kim FROM Stan>")
       }
@@ -196,16 +237,24 @@ internal class LawSuitTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
       selectTask("-X? Titanium")
-      doTasks("Ok", "AsteroidCard FROM ProjectCard")
+      doTasks(
+          "Ok",
+          "AsteroidCard FROM ProjectCard",
+      )
       selectTask("TemperatureStep*")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Kim>")
+      doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
     rob.inTurn {
       doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
       selectTask("-X? Titanium")
-      doTasks("Ok", "SmallAsteroid FROM ProjectCard")
+      doTasks(
+          "Ok",
+          "SmallAsteroid FROM ProjectCard",
+      )
       selectTask("TemperatureStep*")
       doTasks("TerraformRating", "-Plant<Kim>")
+      doTask("PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid")
     }
     stan.setToExMachina(2, "MC")
     rob.setToExMachina(2, "MC")
@@ -215,7 +264,10 @@ internal class LawSuitTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("PlayProject<Class<LawSuit>>")
         selectTask("-X? MC")
-        doTasks("-2 MC", "LawSuit FROM ProjectCard")
+        doTasks(
+            "-2 MC",
+            "LawSuit FROM ProjectCard",
+        )
         selectOnlyTask()
         doTask("3 MC<Kim FROM Stan>")
       }
@@ -231,23 +283,36 @@ internal class LawSuitTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
       selectTask("-X? Titanium")
-      doTasks("Ok", "AsteroidCard FROM ProjectCard")
+      doTasks(
+          "Ok",
+          "AsteroidCard FROM ProjectCard",
+      )
       selectTask("TemperatureStep*")
       doTasks("2 Titanium", "TerraformRating", "-Plant<Kim>")
+      doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
     rob.inTurn {
       doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
       selectTask("-X? Titanium")
-      doTasks("Ok", "SmallAsteroid FROM ProjectCard")
+      doTasks(
+          "Ok",
+          "SmallAsteroid FROM ProjectCard",
+      )
       selectTask("TemperatureStep*")
       doTasks("TerraformRating", "-Plant<Kim>")
+      doTask("PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid")
     }
 
     kim.inTurn {
-          doTasks("PlayProject<Class<LawSuit>>", "-2 MC", "LawSuit FROM ProjectCard")
+          doTasks(
+              "PlayProject<Class<LawSuit>>",
+              "-2 MC",
+              "LawSuit FROM ProjectCard",
+          )
           selectOnlyTask()
           doTask("3 MC<Kim FROM Stan>")
           selectTask("PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit!")
+          doTask("PlayedEvent<Class<$LawSuit>> FROM $LawSuit")
         }
         .expect("MC<Kim>, -3 MC<Stan>, 0 MC<Rob>")
   }
@@ -266,7 +331,11 @@ internal class LawSuitTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<LawSuit>>", "-2 MC", "LawSuit FROM ProjectCard")
+        doTasks(
+            "PlayProject<Class<LawSuit>>",
+            "-2 MC",
+            "LawSuit FROM ProjectCard",
+        )
         selectOnlyTask()
         narrowTask("3 MC<Kim FROM Rob> THEN PlayedEvent<Rob, Class<LawSuit>> FROM LawSuit")
       }
@@ -288,10 +357,15 @@ internal class LawSuitTest : TfmSandboxTest() {
       )
     }
     kim.inTurn {
-      doTasks("PlayProject<Class<LawSuit>>", "-2 MC", "LawSuit FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<LawSuit>>",
+          "-2 MC",
+          "LawSuit FROM ProjectCard",
+      )
       selectOnlyTask()
       doTask("3 MC<Kim FROM Stan>")
       selectTask("PlayedEvent<Stan, Class<LawSuit>> FROM LawSuit!")
+      doTask("PlayedEvent<Class<$LawSuit>> FROM $LawSuit")
     }
 
     // Energy Tapping and Law Suit each cost Stan a point.

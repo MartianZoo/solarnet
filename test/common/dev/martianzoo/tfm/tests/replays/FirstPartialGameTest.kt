@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -18,7 +17,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
 
   @Test
   internal fun fourWholeGenerations() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     keepStartingProjects(3, 8)
     p1.playCorp(LakefrontResorts)
     p2.playCorp(InterplanetaryCinematics)
@@ -134,7 +133,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
     p1.pass()
     p2.pass()
 
-    // Four generations are complete; the normal workflow now offers generation 5 research.
+    // Four generations are complete; the game now offers generation 5 research.
     admin.assertCounts(5 to "Generation")
     admin.assertCounts(0 to "OceanTile", 0 to "OxygenStep", 0 to "TemperatureStep")
 

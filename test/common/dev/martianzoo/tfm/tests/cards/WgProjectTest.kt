@@ -61,12 +61,12 @@ internal class WgProjectTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun `Drawn Prelude is playable without explicitly selecting its pool`() {
-    playDonationWithoutPreludePool().expect("12 MC, 0 PreludeCard")
+  internal fun `Drawn Prelude is playable without Prelude rules`() {
+    playDonationWithoutPreludeRules().expect("12 MC, 0 PreludeCard")
   }
 
-  private fun playDonationWithoutPreludePool(): TaskResult {
-    newTestGame("WgProject, TurmoilExpansion")
+  private fun playDonationWithoutPreludeRules(): TaskResult {
+    newTestGame("WgProject, TurmoilExpansion, prelude:cards")
     kim.exMachina("-Chairman<Neutral>, Chairman")
     kim.setToExMachina(9, "MC")
     kim.setToExMachina(1, "ProjectCard")
@@ -75,7 +75,7 @@ internal class WgProjectTest : TfmSandboxTest() {
       selectTask("3! PreludeCard<Kim, Selecting>")
       selectTask("-2! PreludeCard<Kim, Selecting>")
       doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
-      selectTask("MAX 0 Barrier: Donation FROM PreludeCard<Kim, Selecting>!")
+      doTask("Donation<Kim> FROM PreludeCard<Kim, Selecting>!")
       doTask("21 MC")
     }
   }

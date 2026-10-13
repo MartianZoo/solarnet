@@ -21,7 +21,6 @@ internal class VerminTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("UseStandardProject<CityProject>", "-25 MC", "PROD[MC]", "CityTile<Tharsis_2_1>")
-          selectOnlyTask()
           kim.selectOnlyTask()
         }
         .expect("Animal<$Vermin<Kim>>")

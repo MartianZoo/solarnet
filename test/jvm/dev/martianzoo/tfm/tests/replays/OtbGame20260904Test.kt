@@ -4,7 +4,6 @@ import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -23,7 +22,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
           """
           AmazonisMap, Unsafe
           VenusNextExpansion, PreludeExpansion, prelude2:cards, promos:cards
-          FakeStuffBundle
+          fakes:cards
 
           Builder, Diversifier, Generalist, Landshaper, Tactician
           Administrator, Excentric, Highlander, Promoter, Thermalist
@@ -48,7 +47,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
 
   @Test
   internal fun otbGame20260904() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     val yellow = p1.requireExplicitUnusedActionCards()
     val rainbow = p2.requireExplicitUnusedActionCards()
     val blue = p3.requireExplicitUnusedActionCards()
@@ -137,7 +136,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     rainbow.turn {
       // 2:23:34 PM — Rainbow: "Okay. I draw cards until I get three Venus."
       stdAction("RequiredActionsSignal")
-      rainbow.exMachina(fakeWildTags("VenusTag"))
     }
     // 2:26:16 PM — Green: "you paid sixteen for that full price, you got two heat production."
     blue.turn { playProject(HomeostasisBureau, 16).expect("PROD[2 Heat]") }
@@ -1136,7 +1134,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
         rainbow.doTask("OceanTile<Amazonis_02_01> BY Green")
         green.doTask("OceanTile<Amazonis_02_01>")
         green.doTask("TerraformRating")
-        selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
+        blue.selectTask("UseAction<NeptunianOption>?")
         blue.narrowTask("Ok")
       }
     }
@@ -1462,7 +1460,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // that A_I_ knows that I need to buy two. Yeah. Um I have bought two cards. It is also stupid
     // of
     // me to buy two, but whatever."
-    // Research is submitted below in workflow order; the quotes remain in recording order.
+    // Research is submitted below in the game's order; the quotes remain in recording order.
     green.buyCards(3)
     yellow.buyCards(2)
     rainbow.buyCards(2)
@@ -1775,7 +1773,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // 6:06:19 PM — Blue: "Pigeon, I'm I'm buying two cards. I'm by one card."
     // 6:06:32 PM — Green: "I would buy one card."
     // All four app histories supply the otherwise unspoken Yellow and Rainbow counts. Research is
-    // submitted in workflow order.
+    // submitted in the game's order.
     yellow.buyCards(2)
     rainbow.buyCards(2)
     blue.buyCards(1)

@@ -4,7 +4,6 @@ import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -26,7 +25,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           """
           ElysiumMap
           PreludeExpansion
-          FakeStuffBundle
+          fakes:cards
           EcologyExperts, Unsafe
           """,
           "Stanley",
@@ -37,7 +36,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
 
   @Test
   internal fun wsbg2025() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     val stanley = player(1)
     val jacopo = player(2)
     val jon = player(3)

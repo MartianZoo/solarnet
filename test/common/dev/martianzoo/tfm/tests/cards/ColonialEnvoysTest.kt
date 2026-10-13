@@ -12,11 +12,16 @@ internal class ColonialEnvoysTest : TfmSandboxTest() {
     stan.exMachina("Colony<Io>")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<ColonialEnvoys>>", "-4 MC", "ColonialEnvoys FROM ProjectCard")
+          doTasks(
+              "PlayProject<Class<ColonialEnvoys>>",
+              "-4 MC",
+              "ColonialEnvoys FROM ProjectCard",
+          )
           selectOnlyTask()
           doTask("PartyDelegate<Scientists>")
           selectOnlyTask()
           doTask("PartyDelegate<Greens>")
+          doTask("PlayedEvent<Class<ColonialEnvoys>> FROM ColonialEnvoys")
         }
         .expect("0 PartyDelegate<Stan>")
   }

@@ -15,8 +15,14 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<ImportedGhg>>", "-5 MC")
           selectTask("-X? Titanium")
-          doTasks("Ok", "ImportedGhg FROM ProjectCard", "PROD[Heat]", "3 Heat")
+          doTasks(
+              "Ok",
+              "ImportedGhg FROM ProjectCard",
+              "PROD[Heat]",
+              "3 Heat",
+          )
           selectTask("ProjectCard<Kim, Hand>!")
+          doTask("PlayedEvent<Class<ImportedGhg>> FROM ImportedGhg")
         }
         .expect("0 ProjectCard")
   }
@@ -33,8 +39,8 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
           "$TechnologyDemonstration FROM ProjectCard",
           "2 ProjectCard",
       )
-      stan.selectTask("ProjectCard<Kim>") // Hand the reaction to Solar Logistics' owner.
       kim.doTask("ProjectCard")
+      doTask("PlayedEvent<Class<$TechnologyDemonstration>> FROM $TechnologyDemonstration")
     }
   }
 }

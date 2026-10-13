@@ -59,10 +59,14 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<SmallAsteroid>>", "-8 MC")
       selectTask("-X? Titanium")
-      doTasks("Ok", "SmallAsteroid FROM ProjectCard")
+      doTasks(
+          "Ok",
+          "SmallAsteroid FROM ProjectCard",
+      )
       selectTask("TemperatureStep*")
       selectTask("-2? Plant<Anyone>")
       doTask("TerraformRating")
+      doTask("PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid")
     }
 
     kim.inTurn {

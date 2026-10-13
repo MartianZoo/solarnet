@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
@@ -16,7 +15,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           """
           VastitasMap
           CorporateEraExpansion, PreludeExpansion, prelude2:cards, VenusNextExpansion
-          ColoniesExpansion, promos:cards, FakeStuffBundle
+          ColoniesExpansion, promos:cards, fakes:cards
           Callisto, Enceladus, Io, Miranda, Triton
           Diversifier, Engineer, Forester, Legend, Researcher
           Botanist, Investor, Landscaper, Manufacturer, Traveller
@@ -29,7 +28,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
   internal fun game20261009() {
     p1.autoExecPolicy = NONE
     p2.autoExecPolicy = NONE
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     // Each player takes their starting TR before their other setup tasks.
     p1.doTasks("20 TerraformRating")
     p2.doTasks("20 TerraformRating")
@@ -164,6 +163,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "2 Plant",
           "-Plant<Aqua>",
           "PROD[Heat]",
+          "PlayedEvent<Class<$GiantIceAsteroid>> FROM $GiantIceAsteroid",
       )
       // Pink's logs show no heat production and +1 heat (entry 27), apparently confusing
       // the −24°C production bonus with a resource.
@@ -252,7 +252,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Steel",
           "PROD[MC]",
       )
-      selectTask("Animal<$Pets<Pink>>")
       p2.doTasks("Animal<$Pets>")
     }
     p2.turn {
@@ -358,6 +357,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "3 ProjectCard<Selecting>",
           "ProjectCard<Hand FROM Selecting>",
           "-2 ProjectCard<Selecting>",
+          "PlayedEvent<Class<$InventionContest>> FROM $InventionContest",
       )
     }
     p2.turn {
@@ -407,6 +407,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       )
       selectTask("ColonyProduction FROM ColonyProduction")
       narrowTask("ColonyProduction<Triton> FROM ColonyProduction<Miranda>")
+      doTask("PlayedEvent<Class<$MarketManipulation>> FROM $MarketManipulation")
       doTasks(
           "TradeAction<Action2>",
           "-3 Energy",
@@ -474,6 +475,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "-2 MC",
           "$Conscription FROM ProjectCard",
           "Conscription_NextCardEffect",
+          "PlayedEvent<Class<$Conscription>> FROM $Conscription",
+          "-FakeWildTagUse",
       )
     }
     p2.turn {
@@ -615,7 +618,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "2 Plant",
           "Animal<$Pets>",
       )
-      selectTask("PROD[MC<Aqua>]")
       p1.doTasks("PROD[MC]")
       doTasks("ConvertPlants", "-8 Plant")
       selectTask("MAX 0 Billing: DefaultGreeneryTile")
@@ -751,7 +753,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       selectTask("ColonyProduction<Miranda>?")
       narrowTask("ColonyProduction<Miranda>")
       // The printed three-animal trade reward had no legal holder and yielded nothing.
-      agents[p1.actor].dropTask(game.tasks.extract { it }.single().id)
+      agents[p1.actor].dropTask(game.tasks.extract { it }.single { !it.deferred }.id)
     }
     p2.turn {
       doTasks(
@@ -848,6 +850,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "PROD[Heat]",
           "3 Heat",
           "ProjectCard", // Solar Logistics sees the space event
+          "PlayedEvent<Class<$ImportedGhg>> FROM $ImportedGhg",
       )
     }
     p1.turn {
@@ -893,6 +896,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "2 Heat",
           "-Plant<Aqua>",
           "ProjectCard", // Solar Logistics sees the space event
+          "PlayedEvent<Class<$GiantIceAsteroid>> FROM $GiantIceAsteroid",
       )
       doTasks(
           "PlayProject<Class<$LavaFlows>>",
@@ -906,6 +910,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "TerraformRating",
           "Plant",
           "2 MC",
+          "PlayedEvent<Class<$LavaFlows>> FROM $LavaFlows",
       )
     }
     p1.turn {
@@ -960,7 +965,9 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "-8 MC",
           "$L1TradeTerminal FROM ProjectCard",
       )
-      selectTask(game.tasks.extract { it }.single().id) // L1's three distinct holders
+      selectTask(
+          game.tasks.extract { it }.single { !it.deferred }.id
+      ) // L1's three distinct holders
       doTasks(
           "Asteroid<$RotatorImpacts>",
           "Floater<$Dirigibles>",
@@ -986,6 +993,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "PROD[Heat]",
           "3 Heat",
           "ProjectCard", // Solar Logistics
+          "PlayedEvent<Class<$ImportedGhg>> FROM $ImportedGhg",
       )
       doTasks("ConvertHeat", "-8 Heat", "TemperatureStep", "TerraformRating")
     }
@@ -1002,6 +1010,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "$SolarProbe FROM ProjectCard",
           "2 ProjectCard", // six science tags
           "ProjectCard", // Solar Logistics
+          "PlayedEvent<Class<$SolarProbe>> FROM $SolarProbe",
       )
     }
     p1.turn {
@@ -1098,6 +1107,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "PlayProject<Class<$HiredRaiders>>",
           "$HiredRaiders FROM ProjectCard",
           "3 MC FROM MC<Pink>",
+          "PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders",
       )
       doTasks(
           "PlayProject<Class<$Decomposers>>",
@@ -1615,6 +1625,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "ProjectCard", // Solar Logistics
       )
       declineTask("-X? Titanium<Pink>") // no titanium paid
+      doTask("PlayedEvent<Class<$HydrogenToVenus>> FROM $HydrogenToVenus")
     }
     p1.turn {
       doTasks(
@@ -1622,6 +1633,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "-2 MC",
           "$MineralDeposit FROM ProjectCard",
           "5 Steel",
+          "PlayedEvent<Class<$MineralDeposit>> FROM $MineralDeposit",
       )
       doTasks("UseCardAction<$ArcadianCommunities, Action1>", "Community<Vastitas_3_6>")
     }
@@ -1782,7 +1794,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       )
       // Pink records only the two placement plants, missing Viral Enhancers' optional plant.
       declineTask("Plant<Pink>! OR Ok")
-      selectTask("PROD[MC<Aqua>]")
       p1.doTasks("PROD[MC]")
       doTasks("ConvertPlants", "-8 Plant")
       selectTask("MAX 0 Billing: DefaultGreeneryTile")
@@ -1822,6 +1833,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "4 Microbe<$VenusianInsects>",
           "3 MC", // Media Group
           "ProjectCard", // Solar Logistics
+          "PlayedEvent<Class<$ImportedNutrients>> FROM $ImportedNutrients",
       )
     }
     // "Whoo, this is what I'm reduced to." "You are reduced to produce."
@@ -1951,6 +1963,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "4 Animal<$Pets>",
           "3 MC", // Media Group
           "ProjectCard", // Solar Logistics
+          "PlayedEvent<Class<$LargeConvoy>> FROM $LargeConvoy",
       )
     }
     // "Probably not actually better but I'm just gonna do it anyway to be different."
@@ -1965,7 +1978,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "3 MC", // Arcadian community
           "PROD[MC]", // Immigrant City
       )
-      selectTask("Animal<$Pets<Pink>>")
       p2.doTasks("Animal<$Pets>")
       doTasks("PROD[MC]") // the city's own production, in addition to Immigrant City
     }
@@ -2034,13 +2046,13 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     // The phone app advances its display to generation 12; Solarnet keeps the final played
     // generation.
     assertSidebar(gen = 11, temp = 8, oxygen = 14, oceans = 9, venus = 30)
-    p1.declineTask("ConvertPlants<Aqua>?") // only three plants; no final greenery
+    p1.doTasks("Done") // only three plants; no final greenery
     // "Do you replace, you don't." "I do actually." "You do." "Probably on two four."
     // The final photo shows Pink's last greenery here.
     p2.doTasks("ConvertPlants", "-8 Plant")
     p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p2.doTasks("GreeneryTile<Vastitas_2_4>")
-    p2.declineTask("ConvertPlants<Pink>?") // no more plants to convert
+    p2.doTasks("Done") // no more plants to convert
     // board-16-47-03.jpg, after final greenery.
     p2.assertCounts(7 to "GreeneryTile", 3 to "CityTile", 56 to "TerraformRating")
     // "Almost completely shut me out, but not quite."

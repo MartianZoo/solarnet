@@ -25,6 +25,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
           "MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
+      doTask("PlayedEvent<Class<MineralDeposit>> FROM MineralDeposit")
     }
   }
 
@@ -55,6 +56,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
           "MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
+      doTask("PlayedEvent<Class<MineralDeposit>> FROM MineralDeposit")
     }
   }
 
@@ -75,6 +77,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
           "MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
+      doTask("PlayedEvent<Class<MineralDeposit>> FROM MineralDeposit")
     }
   }
 
@@ -99,6 +102,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
           game.timeline.checkpoint() shouldBe checkpoint
           doTasks("OceanTile<Tharsis_1_2>", "TerraformRating", "2 Steel")
           doTasks("OceanTile<Tharsis_1_4>", "TerraformRating", "ProjectCard")
+          doTask("PlayedEvent<Class<GiantIceAsteroid>> FROM GiantIceAsteroid")
         }
         .expect("2 OceanTile")
   }
@@ -198,7 +202,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
 
   internal class TfmGameplayTestTest : TfmGameplayTest() {
     @Test
-    internal fun `Corporation entry lets the players finish setup through the workflow`() {
+    internal fun `Corporation entry lets the players finish setup in turn order`() {
       newTestGameBeforeCorporationPlay(playerCount = 2)
 
       kim.count("$Manutech") shouldBe 0
@@ -208,18 +212,6 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
         doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation2>, Hand>")
         stan.pay()
       }
-      kim.playProject(MineralDeposit, 5).expect("5 Steel")
-    }
-
-    @Test
-    internal fun `Starting another game clears the previous workflows unfinished turn`() {
-      newTestGame()
-      val previousGame = game
-      previousGame.tasks.isEmpty() shouldBe false
-
-      newTestGame()
-
-      previousGame.tasks.isEmpty() shouldBe true
       kim.playProject(MineralDeposit, 5).expect("5 Steel")
     }
   }

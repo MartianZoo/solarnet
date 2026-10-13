@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -22,7 +21,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
           """
           HellasMap
           VenusNextExpansion, PreludeExpansion, prelude2:cards, Merger, SagittaFrontierServices, Unsafe
-          FakeStuffBundle
+          fakes:cards
 
           Energizer, Builder, Generalist, Diversifier, Terraformer, Sponsor
           Scientist, Landscaper, Founder, Contractor, Forecaster, Incorporator
@@ -33,7 +32,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
 
   @Test
   internal fun gameThroughGeneration10() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     val pink = p1
     val green = p2
     keepStartingProjects(7, 4)
@@ -1215,7 +1214,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     green.assertCounts(0 to "ProjectCard")
 
     // This game id was ga5237bd2fb08
-    admin.assertCounts(1 to "End", 1 to "Phase")
+    admin.assertCounts(1 to "VictoryPhase", 1 to "Phase")
 
     pink.assertCounts(
         41 to "TerraformRating",

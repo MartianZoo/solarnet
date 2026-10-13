@@ -80,8 +80,6 @@ internal data class Specimen(
       val then: String?,
       val givenBy: String?,
       val because: Int?,
-      val controller: String,
-      val selectionAssignee: String,
       val assignee: String,
       val selected: Boolean,
   ) {

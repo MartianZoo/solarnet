@@ -11,6 +11,29 @@ import kotlin.test.Test
 
 internal class CanonBundlesTest {
   @Test
+  internal fun manifestListsEveryCanonBundleDirectory() {
+    val resourceBundleNames =
+        CanonResources.filenames("bundles")
+            .filter { '/' in it }
+            .mapTo(linkedSetOf()) { it.substringBefore('/') }
+
+    CanonResources.bundleModules.keys shouldBe resourceBundleNames
+  }
+
+  @Test
+  internal fun eachMapBundleNamesItsMapAsPrimaryModule() {
+    val mismatchedBundles =
+        Canon.bundles
+            .filter { it.marsMapDefinitions.isNotEmpty() }
+            .filter { bundle ->
+              bundle.primaryModuleName != bundle.marsMapDefinitions.single().className
+            }
+            .map(Bundle::bundleName)
+
+    mismatchedBundles shouldBe emptyList()
+  }
+
+  @Test
   internal fun beginnerCorporationsRequireTheBeginnerVariant() {
     val standard = table()
     val beginner = table(cn("BeginnerVariant"))
@@ -134,19 +157,23 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  internal fun valleyTrustDefaultsToPreludeOneCardsUnlessAnotherPoolIsChosen() {
-    val default = Canon.gamePremise(GameConfig("ValleyTrust", "Player1", "Player2")).classTable
-    val second =
+  internal fun drawingPreludeCardsDoesNotSelectAPreludePool() {
+    val valleyTrust = Canon.gamePremise(GameConfig("ValleyTrust", "Player1", "Player2")).classTable
+    val wgProject =
+        Canon.gamePremise(
+                GameConfig("TerraformingMars, TurmoilExpansion, WgProject", "Player1", "Player2")
+            )
+            .classTable
+    val selected =
         Canon.gamePremise(GameConfig("ValleyTrust, prelude2:cards", "Player1", "Player2"))
             .classTable
-    val excluded =
-        Canon.gamePremise(GameConfig("ValleyTrust, -prelude:cards", "Player1", "Player2"))
-            .classTable
 
-    default.isInhabited(cn("Vitor")) shouldBe true
-    second.isInhabited(cn("SpaceLanes")) shouldBe true
-    second.isInhabited(cn("Vitor")) shouldBe false
-    excluded.isInhabited(cn("Vitor")) shouldBe false
+    valleyTrust.isInhabited(cn("ValleyTrust")) shouldBe true
+    valleyTrust.isInhabited(cn("Vitor")) shouldBe false
+    wgProject.isInhabited(cn("WgProject")) shouldBe true
+    wgProject.isInhabited(cn("Vitor")) shouldBe false
+    selected.isInhabited(cn("SpaceLanes")) shouldBe true
+    selected.isInhabited(cn("Vitor")) shouldBe false
   }
 
   @Test

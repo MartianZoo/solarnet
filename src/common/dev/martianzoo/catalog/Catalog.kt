@@ -141,21 +141,6 @@ public open class Catalog(private vararg val catalogs: Catalog) {
     allClassDeclarations.values.filter { it.customMetric || it.customInstruction }
   }
 
-  /**
-   * Static vocabulary required by custom behavior, independently of its Kotlin implementation.
-   * Composed catalogs must agree on the entire dependency set for each custom class name.
-   */
-  public open val customClassDependencies: Map<ClassName, Set<ClassName>> by lazy {
-    catalogs
-        .flatMap { it.customClassDependencies.entries }
-        .groupBy({ it.key }, { it.value })
-        .mapValues { (name, contributions) ->
-          val dependencies = contributions.distinct()
-          require(dependencies.size == 1) { "Conflicting custom class dependencies for $name" }
-          dependencies.single()
-        }
-  }
-
   /** Returns [name]'s declaration, or throws [IllegalArgumentException] if it is unknown. */
   public fun classDeclaration(name: ClassName): ClassDeclaration =
       allClassDeclarations[name]

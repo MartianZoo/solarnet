@@ -19,7 +19,10 @@ internal class AirScrappingExpeditionTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("PlayProject<Class<AirScrappingExpedition>>")
         selectTask("-X? MC")
-        doTasks("-13 MC", "AirScrappingExpedition FROM ProjectCard")
+        doTasks(
+            "-13 MC",
+            "AirScrappingExpedition FROM ProjectCard",
+        )
         selectTask("VenusStep*")
         selectTask("TerraformRating!")
         selectOnlyTask()

@@ -15,7 +15,6 @@ import dev.martianzoo.state.Player
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -114,7 +113,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           """
           CimmeriaMap
           VenusNextExpansion, PreludeExpansion, prelude2:cards, ColoniesExpansion, promos:cards
-          FakeStuffBundle
+          fakes:cards
 
           Engineer, Fundraiser, Landshaper, Merchant, Metallurgist
           Benefactor, EstateDealer, Industrialist, Metropolist, SpaceBaron
@@ -127,7 +126,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
 
   @Test
   internal fun otbGame20260828() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     val green = p1.requireExplicitUnusedActionCards()
     val blue = p2.requireExplicitUnusedActionCards()
     val yellow = p3.requireExplicitUnusedActionCards()
@@ -3253,12 +3252,12 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     yellow.convertPlants {
       yellow.fillInTask("GreeneryTile").choose("LandArea" to "Cimmeria_6_3", outOf = 46).done()
     }
-    yellow.fillInTask("ConvertPlants").chooseAmount(0, outOf = 2).done()
-    green.fillInTask("ConvertPlants").chooseAmount(0, outOf = 2).done()
+    yellow.fillInTask("ConvertPlants").chooseAlternative("Done", outOf = 2).done()
+    green.fillInTask("ConvertPlants").chooseAlternative("Done", outOf = 2).done()
     blue.convertPlants {
       blue.fillInTask("GreeneryTile").choose("LandArea" to "Cimmeria_6_8", outOf = 46).done()
     }
-    blue.fillInTask("ConvertPlants").chooseAmount(0, outOf = 2).done()
+    blue.fillInTask("ConvertPlants").chooseAlternative("Done", outOf = 2).done()
 
     green.assertCounts(
         0 to "ProjectCard",

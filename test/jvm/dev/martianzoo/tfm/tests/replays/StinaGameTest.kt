@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.BeforeTest
@@ -65,7 +64,7 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
   @BeforeTest
   override fun commonSetup() {
     super.commonSetup()
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     admin.doTask("CityTile<Elysium_5_6, SoloOpponent>")
     admin.doTask("GreeneryTile<Elysium_5_5, SoloOpponent>")
     admin.doTask("CityTile<Elysium_7_7, SoloOpponent>")

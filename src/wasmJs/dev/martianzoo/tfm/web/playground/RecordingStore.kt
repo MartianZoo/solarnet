@@ -92,14 +92,13 @@ internal class RecordingStore {
       val active = recording.open()
       val allChanges = active.world.events.changesSinceSetup()
       val recordedChanges = allChanges
-      val actionSignals = setOf(cn("NewTurn"), cn("SecondAction"))
       val generationEvents = recordedChanges.filter {
         it.change is ComponentChange.Gain && it.change.gaining?.className == cn("Generation")
       }
       val performedActionTriggers =
           recordedChanges
               .filter {
-                it.cause?.context?.className == cn("ActionPhase") &&
+                it.cause?.context?.className == cn("ImAwake") &&
                     it.change.gaining != null &&
                     it.change.gaining?.className != cn("Pass")
               }
@@ -107,7 +106,7 @@ internal class RecordingStore {
               .toSet()
       val recordedActions = recordedChanges.mapNotNull { event ->
         val gained = event.change.gaining ?: return@mapNotNull null
-        if (event.ordinal !in performedActionTriggers || gained.className !in actionSignals)
+        if (event.ordinal !in performedActionTriggers || gained.className != cn("NewTurn"))
             return@mapNotNull null
         val player = gained.owningPlayer?.className?.toString() ?: return@mapNotNull null
         ActionStop(

@@ -69,7 +69,6 @@ internal class CanonClassesTest {
     assertNamedIntersection("OwnedOccupant", "Owned", "Occupant")
     assertNamedIntersection("OwnedTile", "Owned", "Tile")
     assertNamedIntersection("ResourceCard", "ResourceHolder", "CardFront")
-    assertNamedIntersection("TemporaryScope", "Temporary", "Scope")
   }
 
   @Test
@@ -92,8 +91,7 @@ internal class CanonClassesTest {
           }
         }
 
-    val aspects =
-        listOf("Owned", "Real", "System", "HasActions", "ColonyTileSelection", "MustCleanUp")
+    val aspects = listOf("Owned", "Real", "System", "HasActions", "ColonyTileSelection")
     aspects.forEach { name ->
       withClue("$name adds an aspect") {
         table.isProbableAspect(table.getClass(cn(name))) shouldBe true

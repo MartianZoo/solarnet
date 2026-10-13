@@ -203,7 +203,7 @@ looking it up.
   as "when you ___": `PlayCard`, `AdvanceColonyTracks`; `PayingFor` reads as "while paying
   for ___". Write the name so that phrase reads back.
 - **Other `MustCleanUp` state** — the transient thing sitting on the table during an action, not the
-  event — is a noun or a past participle: `Owed`, `Required`, `Billing`, `TradeBarrier`. Do not give it
+  event — is a noun or a past participle: `Owed`, `Required`, `Billing`. Do not give it
   the bare-verb shape that belongs to Signals.
 - **Custom instructions** are imperative verb phrases: `CopyProductionBox`. Use the
   published verb when the game prints one — Robotic Workforce
@@ -325,7 +325,7 @@ names `TerraLabs`. Jacob's forum posts and the official
 
 ## Intentional exceptions
 
-The `Fake`-prefixed cards in FakeCanon's explicitly selected `FakeStuffBundle` are deliberate
+The `Fake`-prefixed cards in FakeCanon's explicitly selected `fakes:cards` pool are deliberate
 incomplete stand-ins. The wild-tag cards preserve every other modeled behavior while creating only
 an inert `FakeWildTag`; replays add the chosen ordinary tag explicitly when source evidence requires
 it. The other stand-ins preserve only their documented subset of the printed card. Their names must
@@ -349,11 +349,11 @@ is clearer than treating each copy as a separately named token.
 MustCleanUp` means "the player must remove this to unblock a task" and backs the open-ended query
 `MAX 0 Barrier` in
 [`card-model.pets`](../../src/common/dev/martianzoo/tfm/canon/bundles/base/card-model.pets),
-which spans `Required` there, `Owed` and `Billing` in
-[`payment.pets`](../../src/common/dev/martianzoo/tfm/canon/bundles/base/payment.pets),
-and `TradeBarrier` in Colonies. `GameEndBarrier` extends nothing, means "the game
-may not end yet", and is queried by name from
-[`TfmWorkflow.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt) and four tests. We are
+which spans `Required` there and `Owed` and `Billing` in
+[`payment.pets`](../../src/common/dev/martianzoo/tfm/canon/bundles/base/payment.pets).
+`GameEndBarrier` extends nothing, means "the game
+may not end yet", and is queried by name from `ProductionPhase`'s handoff in
+[`game.pets`](../../src/common/dev/martianzoo/tfm/canon/bundles/base/game.pets) and several tests. We are
 keeping the shared word. The trap to watch: a new class that blocks game end will compile just as
 happily under `Barrier`, and would then silently join the payment query — check which supertype you
 mean.

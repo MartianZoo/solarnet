@@ -9,7 +9,7 @@ import kotlin.test.Test
 internal class FakeAppliedScienceTest : TfmSandboxTest() {
   @Test
   internal fun `Can replenish an existing director`() {
-    newTestGame(addOptions = "FakeStuffBundle, BoardOfDirectors")
+    newTestGame(addOptions = "fakes:cards, BoardOfDirectors")
     kim.exMachina(
         "$FakeAppliedScience, Science<$FakeAppliedScience>, $BoardOfDirectors, Director<$BoardOfDirectors>"
     )
@@ -24,7 +24,7 @@ internal class FakeAppliedScienceTest : TfmSandboxTest() {
 
   @Test
   internal fun `Cannot replenish an empty board`() {
-    newTestGame(addOptions = "FakeStuffBundle, BoardOfDirectors")
+    newTestGame(addOptions = "fakes:cards, BoardOfDirectors")
     kim.exMachina("$FakeAppliedScience, Science<$FakeAppliedScience>, $BoardOfDirectors")
 
     kim.inTurn {
@@ -38,7 +38,7 @@ internal class FakeAppliedScienceTest : TfmSandboxTest() {
 
   @Test
   internal fun `Spending the last science leaves only the standard resource option`() {
-    newTestGame(addOptions = "FakeStuffBundle")
+    newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeAppliedScience, Science<$FakeAppliedScience>")
 
     kim.inTurn {

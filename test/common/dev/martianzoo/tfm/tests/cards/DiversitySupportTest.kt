@@ -25,6 +25,7 @@ internal class DiversitySupportTest : TfmSandboxTest() {
           "DiversitySupport FROM ProjectCard",
           "TerraformRating",
       )
+      doTask("PlayedEvent<Class<DiversitySupport>> FROM DiversitySupport")
     }
   }
 

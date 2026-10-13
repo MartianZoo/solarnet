@@ -20,7 +20,7 @@ internal class MergerTest : TfmSandboxTest() {
       selectTask("4! CorporationCard<Kim, Selecting>")
       selectTask("-3! CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<Celestic>>")
-      selectTask("MAX 0 Barrier: Celestic FROM CorporationCard<Kim, Selecting>!")
+      doTask("Celestic<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTasks("42 MC", "-42 MC")
       selectOnlyTask()
     }
@@ -56,7 +56,7 @@ internal class MergerTest : TfmSandboxTest() {
           doTask("-42 MC")
           selectTask("-3! CorporationCard<Kim, Selecting>")
           doTask("PlayCard<Class<CorporationCard>, Class<Celestic>>")
-          selectTask("MAX 0 Barrier: Celestic FROM CorporationCard<Kim, Selecting>!")
+          doTask("Celestic<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTask("42 MC")
           selectOnlyTask()
         }
@@ -73,7 +73,7 @@ internal class MergerTest : TfmSandboxTest() {
           selectTask("4! CorporationCard<Kim, Selecting>")
           selectTask("-3! CorporationCard<Kim, Selecting>")
           doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
-          selectTask("MAX 0 Barrier: PharmacyUnion FROM CorporationCard<Kim, Selecting>!")
+          doTask("PharmacyUnion<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTask("-42 MC")
           selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
           selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")

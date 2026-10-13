@@ -8,6 +8,7 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgents as retainedTestAgents
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -95,8 +96,16 @@ internal abstract class TfmTest {
     doTask("$choice! BY Admin")
   }
 
+  /**
+   * Declines this actor's offered task: with `Done` where the offer gives that choice, as final
+   * greenery does, and otherwise with `Ok`.
+   */
   protected fun Agent.declineTask(): TaskResult {
-    return doTask("Ok")
+    val offersDone =
+        pendingTasks().any { task ->
+          task.instruction.descendantsOfType<Gain>().any { it.gaining.className == cn("Done") }
+        }
+    return doTask(if (offersDone) "Done" else "Ok")
   }
 
   protected fun Agent.declineTask(instruction: String): TaskResult {

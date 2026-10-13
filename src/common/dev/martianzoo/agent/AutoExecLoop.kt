@@ -10,6 +10,7 @@ import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.RecordedInput.Kind
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
@@ -20,6 +21,12 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
     get() = world.tasks
 
   private val policies = mutableMapOf<Actor, () -> AutoExecPolicy>()
+
+  /**
+   * Where the current operation, through any of these Agents, last began or made a decision. Its
+   * work is over once the World's `FINALLY` work has begun since then.
+   */
+  internal var lastDecision: Checkpoint? = null
 
   internal fun register(actor: Actor, policy: () -> AutoExecPolicy) {
     check(policies.put(actor, policy) == null) { "Agent already registered for $actor" }
@@ -34,7 +41,7 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
     val selected = allTasks.selectedTask()
     val candidates =
         selected?.let(::listOf)
-            ?: allTasks.ids().let { pending ->
+            ?: allTasks.ids().filterNot(::isDeferred).let { pending ->
               // A sole task has no competing choice. Selection still validates its execution,
               // and the enclosing Agent transaction rolls back any failure.
               if (pending.size == 1) pending.toList() else pending.filter(::canSelectTask)
@@ -56,7 +63,7 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
       0 -> {
         val taskId =
             allTasks.ids().firstOrNull { taskId ->
-              policy(taskId) != NONE
+              policy(taskId) != NONE && !isDeferred(taskId)
             } ?: return false
         if (selected != null || candidates.isNotEmpty()) return false
         command(taskId, Kind.DO_TASK_ID) { engineFor(taskId).doTask(taskId) }
@@ -110,6 +117,8 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
   }
 
   private fun canSelectTask(taskId: TaskId): Boolean = engineFor(taskId).canSelectTask(taskId)
+
+  private fun isDeferred(taskId: TaskId): Boolean = allTasks.getTaskData(taskId).deferred
 
   private fun <T> command(taskId: TaskId, kind: Kind, block: () -> T): T {
     val task = allTasks.getTaskData(taskId)

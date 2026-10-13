@@ -76,8 +76,13 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.setToExMachina(11, "TemperatureStep")
     kim.setToExMachina(30, "MC")
     kim.inTurn {
-      doTasks("PlayProject<Class<SpecialDesign>>", "-4 MC", "SpecialDesign FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<SpecialDesign>>",
+          "-4 MC",
+          "SpecialDesign FROM ProjectCard",
+      )
       selectOnlyTask()
+      doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
     }
 
     kim.inTurn {
@@ -103,8 +108,13 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.setToExMachina(11, "TemperatureStep")
     kim.setToExMachina(30, "MC")
     kim.inTurn {
-      doTasks("PlayProject<Class<SpecialDesign>>", "-4 MC", "SpecialDesign FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<SpecialDesign>>",
+          "-4 MC",
+          "SpecialDesign FROM ProjectCard",
+      )
       selectOnlyTask()
+      doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
     }
     kim.inTurn {
       doTasks(
@@ -169,8 +179,13 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     newTestGame()
     kim.setToExMachina(11, "TemperatureStep")
     kim.inTurn {
-      doTasks("PlayProject<Class<SpecialDesign>>", "-4 MC", "SpecialDesign FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<SpecialDesign>>",
+          "-4 MC",
+          "SpecialDesign FROM ProjectCard",
+      )
       selectOnlyTask()
+      doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Mine>>", "-4 MC")
@@ -194,8 +209,13 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     newTestGame()
     kim.setToExMachina(11, "TemperatureStep")
     kim.inTurn {
-      doTasks("PlayProject<Class<SpecialDesign>>", "-4 MC", "SpecialDesign FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<SpecialDesign>>",
+          "-4 MC",
+          "SpecialDesign FROM ProjectCard",
+      )
       selectOnlyTask()
+      doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<DustSeals>>", "-2 MC", "DustSeals FROM ProjectCard")
@@ -219,8 +239,13 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     kim.exMachina("$BoardOfDirectors, Director<$BoardOfDirectors>, $AdaptationTechnology")
     kim.setToExMachina(13, "TemperatureStep")
     kim.inTurn {
-      doTasks("PlayProject<Class<SpecialDesign>>", "-4 MC", "SpecialDesign FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<SpecialDesign>>",
+          "-4 MC",
+          "SpecialDesign FROM ProjectCard",
+      )
       selectOnlyTask()
+      doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
     }
     kim.inTurn {
       doTask("UseCardAction<BoardOfDirectors, Action1>")

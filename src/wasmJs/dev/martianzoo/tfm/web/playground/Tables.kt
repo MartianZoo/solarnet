@@ -41,14 +41,6 @@ private val TASK_COLUMNS =
         TableColumn("BECAUSE", end = true),
     )
 
-/** The squares in a task's WHO column, in order, with their exact tooltips. */
-private val TASK_ROLES =
-    listOf<Pair<String, (Specimen.PendingTask) -> String>>(
-        "Decides when the task will happen" to { it.controller },
-        "Makes choices for the task" to { it.selectionAssignee },
-        "Actually carries out the task" to { it.assignee },
-    )
-
 /**
  * TASK QUEUE (PENDING): every pending task in the world, with its raw Pets instruction. Clicking a
  * row selects it.
@@ -82,11 +74,7 @@ internal fun TaskQueue(
               cells =
                   listOf(
                       { NumberText(task.id) },
-                      {
-                        Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                          for ((tip, role) in TASK_ROLES) Tooltip(tip) { ActorSquare(role(task)) }
-                        }
-                      },
+                      { Tooltip("Controls the task") { ActorSquare(task.assignee) } },
                       { PetsText(task.fullInstruction) },
                       { task.givenBy?.let { PetsText(it) } },
                       {

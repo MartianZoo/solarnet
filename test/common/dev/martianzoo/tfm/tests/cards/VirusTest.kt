@@ -20,7 +20,10 @@ internal class VirusTest : TfmSandboxTest() {
         selectOnlyTask()
         doTask("PlayProject<Class<Virus>>")
         selectTask("-X? MC")
-        doTasks("-1 MC", "Virus FROM ProjectCard")
+        doTasks(
+            "-1 MC",
+            "Virus FROM ProjectCard",
+        )
         selectOnlyTask()
         doTask("-Animal<Stan, Birds<Stan>>, -Animal<Stan, Fish<Stan>>")
       }

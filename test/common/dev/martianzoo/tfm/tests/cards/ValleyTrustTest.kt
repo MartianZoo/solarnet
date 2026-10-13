@@ -8,15 +8,15 @@ import kotlin.test.Test
 
 internal class ValleyTrustTest : TfmSandboxTest() {
   @Test
-  internal fun `First action draws a Prelude without Prelude rules or an explicitly selected pool`() {
-    newTestGame(addOptions = "ValleyTrust", kimCorporation = ValleyTrust)
+  internal fun `First action draws a Prelude without Prelude rules`() {
+    newTestGame(addOptions = "ValleyTrust, prelude:cards", kimCorporation = ValleyTrust)
 
     kim.inTurn {
           doTask("RequiredActionsSignal")
           selectTask("3! PreludeCard<Kim, Selecting>")
           selectTask("-2! PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
-          selectTask("MAX 0 Barrier: Donation FROM PreludeCard<Kim, Selecting>!")
+          doTask("Donation<Kim> FROM PreludeCard<Kim, Selecting>!")
           doTask("21 MC")
         }
         .expect("-RequiredAction, 0 PreludeCard<Selecting>")
@@ -32,7 +32,7 @@ internal class ValleyTrustTest : TfmSandboxTest() {
           selectTask("3! PreludeCard<Kim, Selecting>")
           selectTask("-2! PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<MartianIndustries>>")
-          selectTask("MAX 0 Barrier: MartianIndustries FROM PreludeCard<Kim, Selecting>!")
+          doTask("MartianIndustries<Kim> FROM PreludeCard<Kim, Selecting>!")
           doTasks("PROD[Energy]", "PROD[Steel]", "6 MC")
         }
         .expect("-RequiredAction, 0 PreludeCard<Selecting>")
