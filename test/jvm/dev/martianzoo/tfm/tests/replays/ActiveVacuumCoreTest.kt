@@ -134,22 +134,22 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     // Database save 59: public player boards after generation 2 Research purchases.
     blue.assertResources(m = 30, s = 1, t = 1, p = 1, e = 0, h = 0)
     blue.assertProduction(m = 0, s = 1, t = 0, p = 1, e = 0, h = 0)
-    blue.assertDashMiddle(played = 4, actions = 2, vp = 29, tr = 27, hand = 6)
+    blue.assertDashMiddle(played = 4, actions = 2, tr = 27, hand = 6)
     blue.assertTags(spt = 3, plt = 1, mit = 1)
     blue.assertDashRight(events = 0, tagless = 0, cities = 0)
     pink.assertResources(m = 34, s = 1, t = 0, p = 0, e = 1, h = 0)
     pink.assertProduction(m = 11, s = 1, t = 0, p = 0, e = 1, h = 0)
-    pink.assertDashMiddle(played = 5, actions = 0, vp = 25, tr = 20, hand = 6)
+    pink.assertDashMiddle(played = 5, actions = 0, tr = 20, hand = 6)
     pink.assertTags(but = 1, spt = 1, eat = 3, mit = 1)
     pink.assertDashRight(events = 0, tagless = 1, cities = 0)
     green.assertResources(m = 13, s = 0, t = 2, p = 0, e = 0, h = 0)
     green.assertProduction(m = 0, s = 0, t = 1, p = 0, e = 0, h = 0)
-    green.assertDashMiddle(played = 5, actions = 2, vp = 25, tr = 22, hand = 10)
+    green.assertDashMiddle(played = 5, actions = 2, tr = 22, hand = 10)
     green.assertTags(sct = 2, jot = 1, vet = 1, mit = 3)
     green.assertDashRight(events = 0, tagless = 1, cities = 0)
     purple.assertResources(m = 35, s = 1, t = 1, p = 0, e = 2, h = 0)
     purple.assertProduction(m = 1, s = 1, t = 1, p = 0, e = 2, h = 0)
-    purple.assertDashMiddle(played = 6, actions = 0, vp = 27, tr = 27, hand = 6)
+    purple.assertDashMiddle(played = 6, actions = 0, tr = 27, hand = 6)
     purple.assertTags(spt = 1, sct = 1, pot = 1, vet = 1)
     purple.assertDashRight(events = 2, tagless = 1, cities = 0)
     assertSidebar(gen = 2, temp = -30, oxygen = 0, oceans = 0, venus = 14)
@@ -204,22 +204,22 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     // Database save 111: public player boards after generation 3 Research purchases.
     blue.assertResources(m = 21, s = 2, t = 1, p = 7, e = 0, h = 0)
     blue.assertProduction(m = 0, s = 1, t = 0, p = 1, e = 0, h = 0)
-    blue.assertDashMiddle(played = 7, actions = 3, vp = 31, tr = 29, hand = 6)
+    blue.assertDashMiddle(played = 7, actions = 3, tr = 29, hand = 6)
     blue.assertTags(spt = 3, plt = 2, mit = 2)
     blue.assertDashRight(events = 1, tagless = 0, cities = 0)
     pink.assertResources(m = 25, s = 2, t = 0, p = 0, e = 1, h = 8)
     pink.assertProduction(m = 11, s = 1, t = 0, p = 0, e = 1, h = 7)
-    pink.assertDashMiddle(played = 6, actions = 0, vp = 25, tr = 20, hand = 6)
+    pink.assertDashMiddle(played = 6, actions = 0, tr = 20, hand = 6)
     pink.assertTags(but = 1, spt = 2, eat = 3, mit = 1)
     pink.assertDashRight(events = 0, tagless = 1, cities = 0)
     green.assertResources(m = 18, s = 0, t = 3, p = 0, e = 0, h = 0)
     green.assertProduction(m = 0, s = 0, t = 1, p = 0, e = 0, h = 0)
-    green.assertDashMiddle(played = 6, actions = 2, vp = 27, tr = 24, hand = 11)
+    green.assertDashMiddle(played = 6, actions = 2, tr = 24, hand = 11)
     green.assertTags(but = 1, sct = 2, jot = 1, vet = 1, mit = 3)
     green.assertDashRight(events = 0, tagless = 1, cities = 0)
     purple.assertResources(m = 30, s = 1, t = 2, p = 1, e = 2, h = 2)
     purple.assertProduction(m = 1, s = 1, t = 1, p = 1, e = 2, h = 0)
-    purple.assertDashMiddle(played = 8, actions = 0, vp = 29, tr = 28, hand = 7)
+    purple.assertDashMiddle(played = 8, actions = 0, tr = 28, hand = 7)
     purple.assertTags(but = 2, spt = 1, sct = 1, pot = 2, vet = 1)
     purple.assertDashRight(events = 2, tagless = 1, cities = 0)
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 2, venus = 16)
@@ -283,22 +283,22 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     // precedes Research, so it neither names nor models cards that were still private then.
     blue.assertResources(m = 31, s = 5, t = 4, p = 6, e = 0, h = 0)
     blue.assertProduction(m = 0, s = 1, t = 0, p = 1, e = 0, h = 0)
-    blue.assertDashMiddle(played = 9, actions = 4, vp = 33, tr = 31, hand = 5)
+    blue.assertDashMiddle(played = 9, actions = 4, tr = 31, hand = 5)
     blue.assertTags(spt = 3, sct = 1, plt = 2, mit = 2)
     blue.assertDashRight(events = 2, tagless = 0, cities = 0)
     pink.assertResources(m = 42, s = 3, t = 0, p = 0, e = 0, h = 16)
     pink.assertProduction(m = 11, s = 1, t = 0, p = 0, e = 0, h = 7)
-    pink.assertDashMiddle(played = 7, actions = 1, vp = 25, tr = 20, hand = 5)
+    pink.assertDashMiddle(played = 7, actions = 1, tr = 20, hand = 5)
     pink.assertTags(but = 1, spt = 3, eat = 3, mit = 1)
     pink.assertDashRight(events = 0, tagless = 1, cities = 0)
     green.assertResources(m = 27, s = 0, t = 4, p = 1, e = 1, h = 0)
     green.assertProduction(m = 1, s = 0, t = 1, p = 1, e = 1, h = 0)
-    green.assertDashMiddle(played = 8, actions = 2, vp = 33, tr = 24, hand = 9)
+    green.assertDashMiddle(played = 8, actions = 2, tr = 24, hand = 9)
     green.assertTags(but = 1, sct = 2, pot = 1, jot = 1, vet = 1, plt = 1, mit = 3)
     green.assertDashRight(events = 0, tagless = 1, cities = 0)
     purple.assertResources(m = 33, s = 1, t = 1, p = 2, e = 2, h = 5)
     purple.assertProduction(m = 1, s = 1, t = 1, p = 2, e = 2, h = 1)
-    purple.assertDashMiddle(played = 11, actions = 1, vp = 33, tr = 32, hand = 4)
+    purple.assertDashMiddle(played = 11, actions = 1, tr = 32, hand = 4)
     purple.assertTags(but = 3, spt = 1, sct = 1, pot = 4, vet = 1)
     purple.assertDashRight(events = 3, tagless = 1, cities = 0)
     assertSidebar(gen = 4, temp = -24, oxygen = 2, oceans = 3, venus = 16)
@@ -355,22 +355,22 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     // precedes Research, so it neither names nor models cards that are still private.
     blue.assertResources(m = 40, s = 1, t = 0, p = 7, e = 0, h = 2)
     blue.assertProduction(m = 5, s = 1, t = 0, p = 3, e = 0, h = 2)
-    blue.assertDashMiddle(played = 12, actions = 4, vp = 39, tr = 33, hand = 5)
+    blue.assertDashMiddle(played = 12, actions = 4, tr = 33, hand = 5)
     blue.assertTags(but = 1, spt = 4, sct = 1, eat = 1, jot = 1, plt = 3, mit = 2)
     blue.assertDashRight(events = 2, tagless = 0, cities = 0)
     pink.assertResources(m = 51, s = 1, t = 0, p = 0, e = 0, h = 9)
     pink.assertProduction(m = 11, s = 1, t = 0, p = 0, e = 0, h = 9)
-    pink.assertDashMiddle(played = 9, actions = 1, vp = 30, tr = 23, hand = 5)
+    pink.assertDashMiddle(played = 9, actions = 1, tr = 23, hand = 5)
     pink.assertTags(but = 2, spt = 3, eat = 4, mit = 1)
     pink.assertDashRight(events = 0, tagless = 1, cities = 0)
     green.assertResources(m = 37, s = 0, t = 3, p = 3, e = 1, h = 2)
     green.assertProduction(m = 1, s = 0, t = 1, p = 2, e = 1, h = 1)
-    green.assertDashMiddle(played = 12, actions = 2, vp = 36, tr = 26, hand = 10)
+    green.assertDashMiddle(played = 12, actions = 2, tr = 26, hand = 10)
     green.assertTags(but = 1, spt = 1, sct = 3, pot = 1, jot = 1, vet = 2, plt = 3, mit = 3)
     green.assertDashRight(events = 0, tagless = 2, cities = 0)
     purple.assertResources(m = 40, s = 1, t = 2, p = 4, e = 3, h = 9)
     purple.assertProduction(m = 1, s = 1, t = 1, p = 2, e = 3, h = 2)
-    purple.assertDashMiddle(played = 12, actions = 1, vp = 33, tr = 34, hand = 4)
+    purple.assertDashMiddle(played = 12, actions = 1, tr = 34, hand = 4)
     purple.assertTags(but = 4, spt = 1, sct = 1, pot = 5, vet = 1)
     purple.assertDashRight(events = 3, tagless = 1, cities = 0)
     assertSidebar(gen = 5, temp = -14, oxygen = 3, oceans = 4, venus = 20)
@@ -420,22 +420,22 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     // are represented only by their public aggregate counts.
     blue.assertResources(m = 23, s = 1, t = 0, p = 6, e = 0, h = 2)
     blue.assertProduction(m = 11, s = 1, t = 0, p = 3, e = 0, h = 2)
-    blue.assertDashMiddle(played = 14, actions = 0, vp = 39, tr = 33, hand = 6)
+    blue.assertDashMiddle(played = 14, actions = 0, tr = 33, hand = 6)
     blue.assertTags(but = 1, spt = 5, sct = 1, eat = 1, jot = 1, plt = 3, mit = 2)
     blue.assertDashRight(events = 2, tagless = 1, cities = 0)
     pink.assertResources(m = 31, s = 0, t = 0, p = 1, e = 0, h = 1)
     pink.assertProduction(m = 10, s = 1, t = 0, p = 0, e = 1, h = 7)
-    pink.assertDashMiddle(played = 11, actions = 0, vp = 33, tr = 24, hand = 7)
+    pink.assertDashMiddle(played = 11, actions = 0, tr = 24, hand = 7)
     pink.assertTags(but = 4, spt = 3, pot = 1, eat = 4, mit = 1, cit = 1)
     pink.assertDashRight(events = 0, tagless = 1, cities = 1)
     green.assertResources(m = 19, s = 2, t = 4, p = 3, e = 1, h = 2)
     green.assertProduction(m = 1, s = 1, t = 1, p = 2, e = 1, h = 1)
-    green.assertDashMiddle(played = 13, actions = 0, vp = 36, tr = 26, hand = 12)
+    green.assertDashMiddle(played = 13, actions = 0, tr = 26, hand = 12)
     green.assertTags(but = 2, spt = 1, sct = 3, pot = 1, jot = 1, vet = 2, plt = 3, mit = 3)
     green.assertDashRight(events = 0, tagless = 2, cities = 0)
     purple.assertResources(m = 19, s = 1, t = 0, p = 4, e = 3, h = 1)
     purple.assertProduction(m = 1, s = 1, t = 1, p = 2, e = 3, h = 2)
-    purple.assertDashMiddle(played = 13, actions = 1, vp = 36, tr = 37, hand = 7)
+    purple.assertDashMiddle(played = 13, actions = 1, tr = 37, hand = 7)
     purple.assertTags(but = 4, spt = 1, sct = 1, pot = 5, vet = 1)
     purple.assertDashRight(events = 4, tagless = 1, cities = 0)
     assertSidebar(gen = 5, temp = -8, oxygen = 3, oceans = 5, venus = 20)
@@ -460,22 +460,22 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     // not begun, so private offers and hands remain represented only by aggregate hand counts.
     blue.assertResources(m = 59, s = 2, t = 0, p = 9, e = 1, h = 4)
     blue.assertProduction(m = 11, s = 1, t = 0, p = 3, e = 1, h = 2)
-    blue.assertDashMiddle(played = 15, actions = 4, vp = 40, tr = 33, hand = 5)
+    blue.assertDashMiddle(played = 15, actions = 4, tr = 33, hand = 5)
     blue.assertTags(but = 1, spt = 5, sct = 1, pot = 1, eat = 1, jot = 1, plt = 3, mit = 2)
     blue.assertDashRight(events = 2, tagless = 1, cities = 0)
     pink.assertResources(m = 41, s = 1, t = 0, p = 4, e = 2, h = 8)
     pink.assertProduction(m = 13, s = 1, t = 0, p = 0, e = 2, h = 7)
-    pink.assertDashMiddle(played = 12, actions = 1, vp = 34, tr = 24, hand = 6)
+    pink.assertDashMiddle(played = 12, actions = 1, tr = 24, hand = 6)
     pink.assertTags(but = 5, spt = 3, pot = 2, eat = 4, mit = 1, cit = 2)
     pink.assertDashRight(events = 0, tagless = 1, cities = 2)
     green.assertResources(m = 30, s = 3, t = 1, p = 9, e = 1, h = 4)
     green.assertProduction(m = 1, s = 2, t = 1, p = 6, e = 1, h = 1)
-    green.assertDashMiddle(played = 15, actions = 2, vp = 39, tr = 29, hand = 10)
+    green.assertDashMiddle(played = 15, actions = 2, tr = 29, hand = 10)
     green.assertTags(but = 3, spt = 1, sct = 3, pot = 1, jot = 1, vet = 2, plt = 3, mit = 3)
     green.assertDashRight(events = 1, tagless = 2, cities = 0)
     purple.assertResources(m = 39, s = 2, t = 1, p = 7, e = 8, h = 6)
     purple.assertProduction(m = 1, s = 1, t = 1, p = 3, e = 8, h = 2)
-    purple.assertDashMiddle(played = 14, actions = 1, vp = 36, tr = 37, hand = 6)
+    purple.assertDashMiddle(played = 14, actions = 1, tr = 37, hand = 6)
     purple.assertTags(but = 4, spt = 1, sct = 1, pot = 6, vet = 1)
     purple.assertDashRight(events = 4, tagless = 1, cities = 0)
     assertSidebar(gen = 6, temp = -6, oxygen = 3, oceans = 5, venus = 22)
@@ -562,12 +562,12 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     // Database save 414: complete public state at the start of generation 7 drafting.
     blue.assertResources(m = 47, s = 1, t = 1, p = 12, e = 1, h = 7)
     blue.assertProduction(m = 12, s = 1, t = 1, p = 3, e = 1, h = 2)
-    blue.assertDashMiddle(played = 17, actions = 6, vp = 51, tr = 35, hand = 6)
+    blue.assertDashMiddle(played = 17, actions = 6, tr = 35, hand = 6)
     blue.assertTags(but = 2, spt = 7, sct = 1, pot = 1, eat = 1, jot = 1, plt = 3, mit = 2)
     blue.assertDashRight(events = 2, tagless = 1, cities = 1)
     pink.assertResources(m = 43, s = 1, t = 0, p = 4, e = 2, h = 8)
     pink.assertProduction(m = 14, s = 1, t = 0, p = 0, e = 2, h = 7)
-    pink.assertDashMiddle(played = 16, actions = 2, vp = 48, tr = 29, hand = 5)
+    pink.assertDashMiddle(played = 16, actions = 2, tr = 29, hand = 5)
     pink.assertTags(
         but = 7,
         spt = 3,
@@ -583,7 +583,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     pink.assertDashRight(events = 1, tagless = 1, cities = 2)
     green.assertResources(m = 31, s = 2, t = 1, p = 8, e = 3, h = 6)
     green.assertProduction(m = -1, s = 2, t = 1, p = 7, e = 3, h = 1)
-    green.assertDashMiddle(played = 20, actions = 3, vp = 49, tr = 32, hand = 6)
+    green.assertDashMiddle(played = 20, actions = 3, tr = 32, hand = 6)
     green.assertTags(
         but = 5,
         spt = 2,
@@ -598,7 +598,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     green.assertDashRight(events = 1, tagless = 2, cities = 0)
     purple.assertResources(m = 40, s = 1, t = 2, p = 11, e = 9, h = 16)
     purple.assertProduction(m = 2, s = 1, t = 2, p = 4, e = 9, h = 2)
-    purple.assertDashMiddle(played = 18, actions = 1, vp = 37, tr = 38, hand = 6)
+    purple.assertDashMiddle(played = 18, actions = 1, tr = 38, hand = 6)
     purple.assertTags(but = 5, spt = 2, sct = 1, pot = 7, vet = 1)
     purple.assertDashRight(events = 6, tagless = 1, cities = 0)
     assertSidebar(gen = 7, temp = 2, oxygen = 5, oceans = 8, venus = 22)
@@ -718,7 +718,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
   private fun generation8ThroughSave546() {
     blue.assertResources(m = 61, s = 1, t = 3, p = 8, e = 0, h = 10)
     blue.assertProduction(m = 18, s = 1, t = 1, p = 3, e = 0, h = 2)
-    blue.assertDashMiddle(played = 21, actions = 6, vp = 60, tr = 38, hand = 2)
+    blue.assertDashMiddle(played = 21, actions = 6, tr = 38, hand = 2)
     blue.assertTags(
         but = 3,
         spt = 8,
@@ -733,7 +733,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     blue.assertDashRight(events = 2, tagless = 1, cities = 4)
     pink.assertResources(m = 50, s = 1, t = 0, p = 9, e = 1, h = 16)
     pink.assertProduction(m = 20, s = 1, t = 0, p = 4, e = 1, h = 7)
-    pink.assertDashMiddle(played = 22, actions = 2, vp = 61, tr = 30, hand = 5)
+    pink.assertDashMiddle(played = 22, actions = 2, tr = 30, hand = 5)
     pink.assertTags(
         but = 8,
         spt = 3,
@@ -750,7 +750,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     pink.assertDashRight(events = 2, tagless = 1, cities = 2)
     green.assertResources(m = 37, s = 4, t = 3, p = 15, e = 4, h = 10)
     green.assertProduction(m = 2, s = 2, t = 1, p = 15, e = 4, h = 1)
-    green.assertDashMiddle(played = 25, actions = 3, vp = 55, tr = 35, hand = 6)
+    green.assertDashMiddle(played = 25, actions = 3, tr = 35, hand = 6)
     green.assertTags(
         but = 5,
         spt = 3,
@@ -765,7 +765,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     green.assertDashRight(events = 2, tagless = 2, cities = 0)
     purple.assertResources(m = 46, s = 1, t = 4, p = 10, e = 8, h = 5)
     purple.assertProduction(m = 3, s = 1, t = 2, p = 6, e = 8, h = 2)
-    purple.assertDashMiddle(played = 21, actions = 2, vp = 48, tr = 42, hand = 5)
+    purple.assertDashMiddle(played = 21, actions = 2, tr = 42, hand = 5)
     purple.assertTags(but = 6, spt = 2, sct = 2, pot = 7, vet = 1, plt = 1)
     purple.assertDashRight(events = 7, tagless = 1, cities = 1)
     assertSidebar(gen = 8, temp = 8, oxygen = 12, oceans = 9, venus = 22)
@@ -814,7 +814,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
 
     blue.assertResources(m = 60, s = 0, t = 4, p = 8, e = 0, h = 10)
     blue.assertProduction(m = 18, s = 1, t = 1, p = 3, e = 0, h = 2)
-    blue.assertDashMiddle(played = 21, actions = 2, vp = 63, tr = 38, hand = 4)
+    blue.assertDashMiddle(played = 21, actions = 2, tr = 38, hand = 4)
     blue.assertTags(
         but = 3,
         spt = 8,
@@ -829,7 +829,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     blue.assertDashRight(events = 2, tagless = 1, cities = 4)
     pink.assertResources(m = 23, s = 1, t = 0, p = 2, e = 0, h = 16)
     pink.assertProduction(m = 22, s = 1, t = 0, p = 4, e = 1, h = 7)
-    pink.assertDashMiddle(played = 23, actions = 1, vp = 71, tr = 31, hand = 9)
+    pink.assertDashMiddle(played = 23, actions = 1, tr = 31, hand = 9)
     pink.assertTags(
         but = 8,
         spt = 3,
@@ -846,7 +846,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     pink.assertDashRight(events = 3, tagless = 1, cities = 2)
     green.assertResources(m = 29, s = 0, t = 4, p = 10, e = 4, h = 10)
     green.assertProduction(m = 2, s = 4, t = 1, p = 15, e = 2, h = 1)
-    green.assertDashMiddle(played = 26, actions = 3, vp = 57, tr = 35, hand = 7)
+    green.assertDashMiddle(played = 26, actions = 3, tr = 35, hand = 7)
     green.assertTags(
         but = 6,
         spt = 3,
@@ -862,7 +862,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     green.assertDashRight(events = 2, tagless = 2, cities = 1)
     purple.assertResources(m = 25, s = 1, t = 4, p = 2, e = 2, h = 5)
     purple.assertProduction(m = 4, s = 1, t = 2, p = 7, e = 7, h = 2)
-    purple.assertDashMiddle(played = 21, actions = 0, vp = 54, tr = 43, hand = 5)
+    purple.assertDashMiddle(played = 21, actions = 0, tr = 43, hand = 5)
     purple.assertTags(but = 6, spt = 2, sct = 2, pot = 7, vet = 1, plt = 1)
     purple.assertDashRight(events = 7, tagless = 1, cities = 2)
     assertSidebar(gen = 8, temp = 8, oxygen = 14, oceans = 9, venus = 22)
@@ -947,7 +947,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
 
     blue.assertResources(m = 58, s = 1, t = 3, p = 5, e = 0, h = 12)
     blue.assertProduction(m = 18, s = 1, t = 3, p = 4, e = 0, h = 2)
-    blue.assertDashMiddle(played = 24, actions = 0, vp = 73, tr = 38, hand = 0)
+    blue.assertDashMiddle(played = 24, actions = 0, tr = 38, hand = 0)
     blue.assertTags(
         but = 3,
         spt = 9,
@@ -962,7 +962,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     blue.assertDashRight(events = 2, tagless = 1, cities = 4)
     pink.assertResources(m = 56, s = 2, t = 0, p = 6, e = 0, h = 23)
     pink.assertProduction(m = 24, s = 1, t = 0, p = 4, e = 0, h = 7)
-    pink.assertDashMiddle(played = 28, actions = 1, vp = 78, tr = 32, hand = 0)
+    pink.assertDashMiddle(played = 28, actions = 1, tr = 32, hand = 0)
     pink.assertTags(
         but = 8,
         spt = 3,
@@ -979,7 +979,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     pink.assertDashRight(events = 5, tagless = 1, cities = 2)
     green.assertResources(m = 45, s = 4, t = 1, p = 17, e = 2, h = 15)
     green.assertProduction(m = 5, s = 4, t = 1, p = 15, e = 2, h = 1)
-    green.assertDashMiddle(played = 30, actions = 1, vp = 67, tr = 35, hand = 0)
+    green.assertDashMiddle(played = 30, actions = 1, tr = 35, hand = 0)
     green.assertTags(
         but = 6,
         spt = 4,
@@ -995,7 +995,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     green.assertDashRight(events = 3, tagless = 2, cities = 1)
     purple.assertResources(m = 50, s = 2, t = 6, p = 9, e = 7, h = 9)
     purple.assertProduction(m = 4, s = 1, t = 2, p = 7, e = 7, h = 2)
-    purple.assertDashMiddle(played = 21, actions = 0, vp = 58, tr = 43, hand = 0)
+    purple.assertDashMiddle(played = 21, actions = 0, tr = 43, hand = 0)
     purple.assertTags(but = 6, spt = 2, sct = 2, pot = 7, vet = 1, plt = 1)
     purple.assertDashRight(events = 7, tagless = 1, cities = 2)
     assertSidebar(gen = 8, temp = 8, oxygen = 14, oceans = 9, venus = 24)

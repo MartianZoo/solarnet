@@ -45,3 +45,9 @@ Delete entries when they are done.
   cleanup of shared `Selecting` while other players' starting offers remain there.
 - Determine which nested cross-Actor Agent calls should settle Admin work before returning;
   the Pluto scenario in `ColoniesRulesTest` currently uses separate top-level calls.
+- Replace recursive task-ancestry list concatenation with linear construction, and avoid rebuilding
+  the target's ancestry when comparing matching tasks. Preserve recorded task disambiguation.
+- Reduce repeated parsing during game-file decoding and reuse the full export already produced
+  for reconstruction instead of serializing it again.
+- Investigate repeated selection probes followed by execution under `EAGER`; preserve manual-task
+  competition and failure handling before removing probes.

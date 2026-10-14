@@ -1664,19 +1664,24 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       assertCounts(44 to "TerraformRating", 11 to "Animal<$Pets>")
     }
 
-    runTest {
-      val originalEvents = game.events.entriesSince(Checkpoint(0))
-      val reconstructed =
-          GameFileJson.parse(checkNotNull(completedGameFileJson())).decode(gamePremise).open().world
-      val decodedEvents = reconstructed.events.entriesSince(Checkpoint(0))
-      val allComponents = game.classTable.componentClass.baseType
+    if (exportReplay) {
+      runTest {
+        val originalEvents = game.events.entriesSince(Checkpoint(0))
+        val reconstructed =
+            GameFileJson.parse(checkNotNull(completedGameFileJson()))
+                .decode(gamePremise)
+                .open()
+                .world
+        val decodedEvents = reconstructed.events.entriesSince(Checkpoint(0))
+        val allComponents = game.classTable.componentClass.baseType
 
-      decodedEvents shouldBe originalEvents
-      decodedEvents.map { it.notes } shouldBe originalEvents.map { it.notes }
-      reconstructed.events.entriesSince(Checkpoint(0)) shouldBe originalEvents
-      reconstructed.tasks.extract { it } shouldBe game.tasks.extract { it }
-      reconstructed.components.getAll(allComponents, NoGameState).entries shouldBe
-          game.components.getAll(allComponents, NoGameState).entries
+        decodedEvents shouldBe originalEvents
+        decodedEvents.map { it.notes } shouldBe originalEvents.map { it.notes }
+        reconstructed.events.entriesSince(Checkpoint(0)) shouldBe originalEvents
+        reconstructed.tasks.extract { it } shouldBe game.tasks.extract { it }
+        reconstructed.components.getAll(allComponents, NoGameState).entries shouldBe
+            game.components.getAll(allComponents, NoGameState).entries
+      }
     }
 
     // "So I'm going to 1-2 and 1-3."

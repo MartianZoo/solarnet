@@ -393,6 +393,8 @@ Ordinary gameplay selects global minimum checks through the changed components' 
 limit index. It still checks required dependents of live affected owners, including absent parts;
 unchanged global counts need no recheck. Initialization and corrections retain the full
 invariant query.
+Each World's `Limiter` reuses the immutable declared limits bound to a component type. Live counts
+and the required dependents of affected owners are still checked against current state.
 
 Prefer atomic transmutation when two faces share a stable invariant. Separate queued tasks and
 `THEN` stages outside the initiating automatic cascade cannot repair a completed operation: lifecycle
@@ -464,8 +466,11 @@ unsupplied client information rolls back locally and stays pending; an explicit 
 The Terraforming Mars hand-tracking use is described in [CARD_HANDLING.md](CARD_HANDLING.md#card-hand-tracking).
 
 Current autoexecution lives in `:agent`, not in the core engine. Policy selects legal Task commands;
-it does not alter their semantics. The shared policy loop tries eligible Admin work before Player
-work, including between explicit Player steps, but continues to an executable Player option when
+it does not alter their semantics. Before probing tasks, the loop checks whether any pending
+candidate has an effective policy other than `NONE`. If none does, it returns without probes or
+execution, even when an Actor with no pending work has autoexecution enabled. When automatic work
+is available, manual tasks still compete with it. The shared policy loop tries eligible Admin work
+before Player work, including between explicit Player steps, but continues to an executable Player option when
 Admin work is abstract or temporarily unavailable. It cannot interrupt an authored `::` chain or
 supply a missing scheduling rule. Engine primitives remain available to any caller for local
 exploration, replay correction, tests, and cheats. Restricting access to those primitives

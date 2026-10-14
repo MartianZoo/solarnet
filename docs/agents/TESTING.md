@@ -70,13 +70,17 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   `test/jvm/dev/martianzoo/tfm/tests/replays` directory, excluding only its JUnit file-export hook.
   JVM-only tools and filesystem/terminal tests remain outside this target. Comment the target back
   out after a successful run.
-- `./gradlew :tfm-tests:jvmTest` runs the replay tests and writes full `.json` and short
-  `.short.json` game files per successful `AbstractFullGameTest` subclass under that module's
-  `generated/replay-event-logs` build directory.
+- `./gradlew :tfm-tests:jvmTest` runs the replay tests without input recording or export.
+  Add `-PreplayExports` to record inputs, write full `.json` and short `.short.json` game files
+  per successful `AbstractFullGameTest` subclass, and verify reconstruction in a fresh game.
+  Files go under that module's `generated/replay-event-logs` build directory. Ordinary runs
+  leave existing exports untouched. Direct JUnit runs need `-Dsolarnet.replayExports=true` and
+  `-Djunit.jupiter.extensions.autodetection.enabled=true`.
 - `./gradlew :tfm-tests:replayTestCoverage` runs only tests in the replay package and writes HTML and
   XML production-code coverage reports under that module's `reports/jacoco/replayTestCoverage`
   build directory. Its execution data comes from the separate `replayTest` task, so card, rule,
-  random-card, and browser tests do not contribute to the report.
+  random-card, and browser tests do not contribute to the report. This coverage run excludes input
+  recording, export, and reconstruction, and ignores `-PreplayExports`.
 - `./gradlew :pets:jvmTestCoverage` runs only the Pets module's JVM test suite and writes HTML and
   XML coverage reports for Pets production code under that module's
   `reports/jacoco/jvmTestCoverage` build directory.
@@ -110,9 +114,9 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   not proof of a user choice: an automatic or queued effect carried by a Player-owned component may
   attribute its derived changes to that Player. Use the cause columns to trace derivation; because
   task events are omitted, the TSV cannot by itself classify every row as chosen versus automatic.
-- `./gradlew :tools:dumpOtbGame20260828EventLog` and
-  `./gradlew :tools:dumpOtbGame20260912EventLog` run the JVM replay suite, read those generated
-  physical-game recordings, and write every change event in the same format under
+- `./gradlew :tools:dumpOtbGame20260828EventLog -PreplayExports` and
+  `./gradlew :tools:dumpOtbGame20260912EventLog -PreplayExports` run the JVM replay suite, read the
+  generated physical-game recordings, and write every change event in the same format under
   `_local/eventlogs/`.
 - `SOLARNET_RANDOM_AUTOMATIC_EFFECTS=true ./gradlew test --rerun-tasks` runs the unchanged JVM suites
   while choosing a random execution order for each batch of independent automatic-effect listeners.
@@ -244,8 +248,8 @@ clear coverage of these contracts matters more than preserving every current tes
    observations available to a player rather than internal state or implementation details.
    `CoreRulesTest` documents game-wide rules in this same style.
 5. **Whole-game tests.** Long scenarios that show the game flow and many rules operating together,
-   especially when reconstructed from independent game records. Every successful replay test also
-   emits an exact recording.
+   especially when reconstructed from independent game records. With `-PreplayExports`, every
+   successful JVM replay test also emits an exact recording and verifies reconstruction.
 6. **Canon admissibility tests.** A compact gate confirming that the complete authority loads and
    that representative supported configurations compose into usable projected class tables and
    worlds. This is not a demand to restate the contents of every card or bundle in assertions.
@@ -674,7 +678,7 @@ characterization over a disproportionate workaround.
 ## Game replay tests
 
 `Game20230521Test` deliberately exercises the raw Agent task API. Its players use `NONE` during
-the replay and score previews, while Admin retains normal autoexecution and handles fixed payment
+the replay, while Admin retains normal autoexecution and handles fixed payment
 bookkeeping and final scoring. `VictoryPoint` and `ScoreEventVps` are `System`; players do not submit
 scoring tasks. A pending negative score can wait for a positive score to supply the points.
 Follow the game's flow through the last passes, production, final greenery, and scoring; do not
@@ -693,18 +697,23 @@ Use the shared card-name constants, give every `Ok` a short inline comment to it
 the task it dismisses (for example, `// no steel paid`). Keep the replay free of `.expect()`
 calls; retain its state checkpoints and final score/winner assertions. Purchase transfers into
 `Hand` are explicit tasks from `Selecting`. Keep the replay's task calls instead of introducing
-`TfmGameplay` action or payment helpers. Shared score-preview assertions roll back their
-scoring simulation without changing any Actor's autoexecution policy.
+`TfmGameplay` action or payment helpers.
 
+Replay tests assert victory points only after the game's actual final scoring. Mid-game
+checkpoints verify the live state without simulating production or scoring; partial replays
+do not assert hypothetical victory points.
+
+Replay input recording and export are disabled by default, including in browser tests.
+With `-PreplayExports`, `ReplayExportExtension` enables recording before test setup, so
 `AbstractFullGameTest` starts `Agents.taskLog` before gameplay. After each successful JVM
-replay, `ReplayExportExtension` writes full and short game files and reexecutes the full file in a
+replay, the extension writes full and short game files and reexecutes the full file in a
 fresh game using its checked premise and recorded inputs. Every imported Actor, including Admin,
 uses `NONE`. The check compares the component changes with their Actors and causal ancestry,
 the final components, and pending tasks. Incidental ids, event ordinals, and the order of independent
 changes may differ.
 A round-trip failure fails the test. Replays must follow the game's normal flow and use
 ordinary task submissions instead of injecting operations. Partial games may stop with decisions
-pending; hypothetical scoring checks use `withScorePreview`, which restores the live game.
+pending.
 The hook reports each successful round-trip in test output.
 
 Structured inputs retain submitted syntax and record policy-executed Player and Admin work, so

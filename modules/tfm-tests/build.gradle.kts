@@ -70,14 +70,20 @@ kotlin {
 }
 
 val replayEventLogsDirectory = layout.buildDirectory.dir("generated/replay-event-logs")
+val replayExportsEnabled =
+    providers
+        .gradleProperty("replayExports")
+        .map { it.isEmpty() || it.toBooleanStrict() }
+        .orElse(false)
 
 tasks.named<Test>("jvmTest") {
   systemProperty("junit.jupiter.extensions.autodetection.enabled", "true")
+  systemProperty("solarnet.replayExports", replayExportsEnabled.get())
   systemProperty(
       "solarnet.replayEventLogDirectory",
       replayEventLogsDirectory.get().asFile.absolutePath,
   )
-  outputs.dir(replayEventLogsDirectory)
+  if (replayExportsEnabled.get()) outputs.dir(replayEventLogsDirectory)
 }
 
 val jvmTestCompilation = kotlin.targets.getByName("jvm").compilations.getByName("test")

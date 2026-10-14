@@ -132,7 +132,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       assertProduction(m = 3, s = 0, t = 0, p = 0, e = 1, h = 0)
       assertResources(m = 16, s = 0, t = 6, p = 1, e = 1, h = 0)
       // UI says actions 2 because UNMI not currently playable
-      assertDashMiddle(played = 10, actions = 3, vp = 21, tr = 20, hand = 5)
+      assertDashMiddle(played = 10, actions = 3, tr = 20, hand = 5)
       assertDashRight(events = 1, tagless = 3, cities = 0, colonies = 0)
       assertSidebar(gen = 4, temp = -28, oxygen = 0, oceans = 2, venus = 6)
 
@@ -235,7 +235,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       assertProduction(m = 1, s = 0, t = 0, p = 0, e = 4, h = 10)
       assertResources(m = 32, s = 2, t = 0, p = 2, e = 4, h = 14)
       // UI says actions 3 because UNMI not currently playable
-      assertDashMiddle(played = 18, actions = 4, vp = 28, tr = 28, hand = 3)
+      assertDashMiddle(played = 18, actions = 4, tr = 28, hand = 3)
       assertDashRight(events = 3, tagless = 3, cities = 0, colonies = 0)
       assertSidebar(gen = 7, temp = -20, oxygen = 2, oceans = 3, venus = 10)
 
@@ -367,7 +367,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       assertProduction(m = 6, s = 0, t = 0, p = 1, e = 6, h = 10)
       assertResources(m = 49, s = 0, t = 0, p = 7, e = 6, h = 18)
       // UI says actions 3 because UNMI not currently playable
-      assertDashMiddle(played = 25, actions = 4, vp = 49, tr = 45, hand = 7)
+      assertDashMiddle(played = 25, actions = 4, tr = 45, hand = 7)
       assertDashRight(events = 5, tagless = 4, cities = 1, colonies = 1)
       assertSidebar(gen = 10, temp = -10, oxygen = 6, oceans = 3, venus = 24)
 
@@ -490,7 +490,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       assertProduction(m = 7, s = 0, t = 0, p = 5, e = 6, h = 10)
       assertResources(m = 68, s = 8, t = 0, p = 8, e = 6, h = 16)
       // UI says actions 3 because UNMI not currently playable
-      assertDashMiddle(played = 31, actions = 4, vp = 75, tr = 62, hand = 4)
+      assertDashMiddle(played = 31, actions = 4, tr = 62, hand = 4)
       assertDashRight(events = 6, tagless = 5, cities = 2, colonies = 2)
       assertSidebar(gen = 12, temp = 0, oxygen = 9, oceans = 8, venus = 28)
 

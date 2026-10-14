@@ -18,6 +18,8 @@ internal class Limiter(
     private val gameWorld: GameWorld,
 ) {
   private val limits: ClassLimitTable = classTable.componentLimits
+  // Binding a type's declared limits is independent of live counts and survives rollback.
+  private val componentLimitsByType = mutableMapOf<Type, Set<ClassLimitTable.Limit>>()
 
   // Bootstrap constructs an incomplete world and audits all required counts when it finishes.
   internal var checkRequiredCounts: Boolean = false
@@ -28,7 +30,7 @@ internal class Limiter(
         gameWorld.components.getAll(classTable.componentClass.baseType, NoGameState).elements.map {
           it.type
         }
-    val allLimits = liveTypes.flatMap(limits::limitsFor).toSet() + limits.requiredLimits(liveTypes)
+    val allLimits = liveTypes.flatMap(::limitsFor).toSet() + limits.requiredLimits(liveTypes)
     for (limit in allLimits) {
       val count = gameWorld.components.count(limit.type, NoGameState)
       if (count !in limit.range) {
@@ -62,7 +64,7 @@ internal class Limiter(
         } else {
           emptySet()
         }
-    val touched = changed.flatMap { limitsFor(it) }.toSet()
+    val touched = changed.flatMap { limitsFor(it.type) }.toSet()
     for (limit in touched + required) {
       if (limit.range.first == 0 && limit.range.last == MAX_VALUE) continue
       val count = gameWorld.components.count(limit.type, NoGameState)
@@ -98,8 +100,8 @@ internal class Limiter(
     // We must ignore any that are in common; the transmutation must hold them constant
     val (gainInvars, removeInvars) =
         run {
-          val g = if (invariants) limitsFor(gaining) else emptySet()
-          val r = if (invariants) limitsFor(removing) else emptySet()
+          val g = if (invariants) limitsFor(gaining?.type) else emptySet()
+          val r = if (invariants) limitsFor(removing?.type) else emptySet()
           (g - r) to (r - g)
         }
 
@@ -149,7 +151,7 @@ internal class Limiter(
         type.dependencies.typeDependencies().any { dependency ->
           val target = dependency.boundType
           target.abstract &&
-              limits.limitsFor(target).any { it.range.last <= 1 } &&
+              limitsFor(target).any { it.range.last <= 1 } &&
               gameWorld.components.matchingTypes(target, info).take(2).count() == 1
         }
     if (!addedGainDependency && !uniqueExistingDependency) return null
@@ -208,8 +210,8 @@ internal class Limiter(
     }
   }
 
-  private fun limitsFor(component: Component?): Set<ClassLimitTable.Limit> {
-    val type = component?.type ?: return emptySet()
-    return limits.limitsFor(type)
+  private fun limitsFor(type: Type?): Set<ClassLimitTable.Limit> {
+    if (type == null) return emptySet()
+    return componentLimitsByType.getOrPut(type) { limits.limitsFor(type) }
   }
 }

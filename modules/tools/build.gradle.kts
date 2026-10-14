@@ -61,6 +61,11 @@ val otbGame20260912EventLogDumpOutput =
     rootProject.layout.projectDirectory.file("_local/eventlogs/otb-game-20260912-eventlog.tsv")
 val replayEventLogsDirectory =
     project(":tfm-tests").layout.buildDirectory.dir("generated/replay-event-logs")
+val replayExportsEnabled =
+    providers
+        .gradleProperty("replayExports")
+        .map { it.isEmpty() || it.toBooleanStrict() }
+        .orElse(false)
 
 tasks.register<JavaExec>("dumpAllExpansionsEventLogs") {
   group = "reporting"
@@ -73,7 +78,9 @@ tasks.register<JavaExec>("dumpAllExpansionsEventLogs") {
 tasks.register<JavaExec>("dumpOtbGame20260828EventLog") {
   group = "reporting"
   description = "Dumps the generated 2026-08-28 replay-test event log as TSV."
-  dependsOn(":tfm-tests:jvmTest")
+  val exportsEnabled = replayExportsEnabled.get()
+  if (exportsEnabled) dependsOn(":tfm-tests:jvmTest")
+  doFirst { check(exportsEnabled) { "Pass -PreplayExports to generate replay files." } }
   classpath = sourceSets.main.get().runtimeClasspath
   mainClass.set("dev.martianzoo.tfm.tools.DumpEventlogKt")
   args(
@@ -87,7 +94,9 @@ tasks.register<JavaExec>("dumpOtbGame20260828EventLog") {
 tasks.register<JavaExec>("dumpOtbGame20260912EventLog") {
   group = "reporting"
   description = "Dumps the generated 2026-09-12 replay-test event log as TSV."
-  dependsOn(":tfm-tests:jvmTest")
+  val exportsEnabled = replayExportsEnabled.get()
+  if (exportsEnabled) dependsOn(":tfm-tests:jvmTest")
+  doFirst { check(exportsEnabled) { "Pass -PreplayExports to generate replay files." } }
   classpath = sourceSets.main.get().runtimeClasspath
   mainClass.set("dev.martianzoo.tfm.tools.DumpEventlogKt")
   args(
