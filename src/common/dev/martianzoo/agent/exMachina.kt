@@ -7,6 +7,7 @@ import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Checkpoint
@@ -45,7 +46,10 @@ public fun Agents.exMachina(adjustingActor: Actor, adjustment: String) {
       selected?.let { (beforeSelection, currentAssignee) ->
         world.actorEngine(currentAssignee.actor).restoreTask(beforeSelection)
       }
-      agent.sneak(auditedAdjustment)
+      world
+          .actorEngine(adjustingActor)
+          .sneak(InstructionGroup.of(agent.parse<InstructionTree>(auditedAdjustment)))
+      world.agentTransactionGuard?.validate()
       if (
           agent.list("MustCleanUp").entries.any { (type, count) -> count > (unfinished[type] ?: 0) }
       ) {
@@ -57,6 +61,7 @@ public fun Agents.exMachina(adjustingActor: Actor, adjustment: String) {
       }
     }
   }
+  world.timeline.recordPosition()
 }
 
 private fun World.taskBeforeSelection(selectedId: TaskId): Task {

@@ -29,7 +29,7 @@ internal class ComponentGraphIndexTest {
     game.reader.getComponents(game.reader.resolve(parse<Expression>("Component"))).size shouldBe
         componentCount + 3
 
-    game.timeline.rollBack(checkpoint)
+    game.timeline.seek(checkpoint)
 
     agent.count("LeftBranch") shouldBe 0
     agent.count("RightBranch") shouldBe 0

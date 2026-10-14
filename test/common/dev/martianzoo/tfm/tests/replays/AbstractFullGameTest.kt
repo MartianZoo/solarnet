@@ -206,6 +206,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
    * phase follows it.
    */
   protected fun withScorePreview(assertions: () -> Unit) {
+    game.timeline.recordPosition()
     val checkpoint = game.timeline.checkpoint()
     try {
       dropPendingTasksForSnapshot()
@@ -215,7 +216,9 @@ internal abstract class AbstractFullGameTest : TfmTest() {
       admin.runOperation("End FROM Phase") { dropPendingTasksForSnapshot() }
       assertions()
     } finally {
-      game.timeline.rollBack(checkpoint)
+      game.timeline.recordPosition()
+      game.timeline.seek(checkpoint)
+      game.timeline.truncate()
     }
   }
 

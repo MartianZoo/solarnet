@@ -63,7 +63,7 @@ internal constructor(
     private val taskQueues: TaskQueues,
     /** The live game state read by this engine. */
     public val reader: GameReader,
-    private val timeline: Timeline,
+    private val timeline: TimelineImpl,
     /** The Actor to which ordinary mutations through this engine are attributed. */
     public val actor: Actor,
     private val instructor: Instructor,
@@ -114,8 +114,9 @@ internal constructor(
 
   /**
    * Applies and validates [changes] as a correction attributed to [actor], with automatic effects
-   * but no queued effects, task settlement, or idle cleanup. Failure rolls back the correction;
-   * success records a completed position without calling the world's completion callback.
+   * but no queued effects, task settlement, or idle cleanup. Failure rolls back the correction; the
+   * caller-facing Agent records a position when its method returns. The world's completion callback
+   * is not called.
    */
   public fun sneak(changes: InstructionGroup, cause: Cause? = null): TaskResult =
       worldTransaction.correct {
@@ -356,6 +357,7 @@ internal constructor(
    * its own changes and returns false on any thrown failure.
    */
   public fun canSelectTask(taskId: TaskId): Boolean {
+    timeline.requireAtEnd()
     return try {
       timeline.atomic {
         val selected = selectTask(tasks, tasks.getTaskData(taskId))
@@ -382,6 +384,7 @@ internal constructor(
    * probe rolls back its own changes and returns false on any thrown failure.
    */
   public fun canExecuteTask(taskId: TaskId): Boolean {
+    timeline.requireAtEnd()
     return try {
       timeline.atomic {
         doTask(taskId)

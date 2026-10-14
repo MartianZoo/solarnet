@@ -138,11 +138,19 @@ Ordinary game mechanics react to the current World and the event being processed
 arbitrary event history. Event ordinals and Task ids are causal and diagnostic identities, not game
 resources or presentation order.
 
-`Timeline` adds checkpoints, failure-atomic blocks, rollback, and a commit floor. An atomic failure
-restores components, Tasks, events, and derived indexes together.
+`Timeline` owns the positions between caller-facing Player Agent methods, its retained future when
+seeking backward, failure-atomic blocks, and a commit floor. Public seeking accepts only completed
+positions at or after that floor; stepping moves between the same positions. Seeking preserves later
+events and restores components, Tasks, and derived indexes in either direction. Gameplay cannot
+mutate the World while a future is retained; `truncate()` deliberately discards it before new play.
+A Player Agent method records a position after its work finishes, including an `OperationScope`
+method inside an enclosing client block. Admin calls do not automatically create positions. The
+enclosing block remains failure-atomic; it does not hide positions between its nested Player calls.
+Seeking inside an atomic call cannot cross that call's start. An atomic failure instead discards
+that interaction's events and restores its starting state.
 `Exceptions.AbortTransactionException` requests that restoration without surfacing as a caller
-failure. The commit floor prevents rollback across initialization or a fork point. Gameplay commits
-nothing, so rollback may deliberately cross turn and phase changes.
+failure. The commit floor prevents navigation across initialization or a fork point. Gameplay
+commits nothing, so seeking may cross turn and phase changes.
 
 These commits are local timeline mechanics, not acceptance of a shared game's Git history. They
 do not grant or deny a takeback between players. [ADVERSARIAL.md](ADVERSARIAL.md) places that

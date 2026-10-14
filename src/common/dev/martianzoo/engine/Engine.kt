@@ -43,21 +43,21 @@ public object Engine {
   }
 
   /**
-   * Creates an independently mutable live World at the same completed gameplay position as
-   * [source]. Immutable premise data is shared, while state and every engine service are rebuilt.
+   * Creates an independently mutable live World at the end of [source]'s completed gameplay
+   * history. Immutable premise data is shared, while state and every engine service are rebuilt.
    * Application callbacks, component listeners, Agents, and provisional forms are not copied.
    *
    * @throws IllegalArgumentException if [source] was not created by this Engine
-   * @throws IllegalStateException if [source] is between completed gameplay positions
+   * @throws IllegalStateException if [source] is not at the end of its completed history
    */
   public fun fork(source: World): World {
     val wholeWorld =
         source as? WholeWorld
             ?: throw IllegalArgumentException("Unknown World implementation: ${source::class}")
     val current = source.timeline.checkpoint()
-    val positions = wholeWorld.recordingPositions.snapshot()
+    val positions = source.timeline.positions
     check(positions.lastOrNull() == current) {
-      "cannot fork a World between completed gameplay positions"
+      "cannot fork a World away from the end of completed gameplay history"
     }
     val gameWorld = wholeWorld.gameWorld.fork()
     return Wiring(gameWorld.premise, gameWorld).createFork(positions, wholeWorld.effector)
@@ -74,18 +74,13 @@ public object Engine {
 
     // Effect compilation needs the reader, but no effect is read until state begins changing.
     private val effector: Effector = Effector(elaborator, customClasses) { reader }
-    private val taskQueues = TaskQueues(gameWorld)
-    private val recordingPositions = RecordingPositions()
+    private val taskQueues: TaskQueues = TaskQueues(gameWorld) { timeline.requireAtEnd() }
     private val reader: GameReader = gameWorld.reader
-    private val changer = Changer(reader, gameWorld, effector)
-    private val timeline = TimelineImpl(gameWorld, changer, recordingPositions)
+    private val changer: Changer = Changer(reader, gameWorld, effector) { timeline.requireAtEnd() }
+    private val timeline: TimelineImpl = TimelineImpl(gameWorld, changer)
     private val limiter = Limiter(classTable, gameWorld)
     private val worldTransaction: WorldTransaction =
-        WorldTransaction(
-            timeline,
-            { world.onTransactionComplete() },
-            recordingPositions,
-        )
+        WorldTransaction(timeline) { world.onTransactionComplete() }
     private val instructor =
         Instructor(reader, limiter, changer, effector, classTable, elaborator, timeline)
     private val actorEngines: Map<Actor, ActorEngine> =
@@ -109,7 +104,6 @@ public object Engine {
             reader,
             classTable,
             actorEngines,
-            recordingPositions,
             effector,
         )
 
@@ -130,14 +124,14 @@ public object Engine {
             e.sourceLocation,
         )
       }
-      recordingPositions.record(timeline.checkpoint().ordinal)
+      timeline.recordCompletedPosition()
       requireSignedSelectionsMatchClassComponents()
       return world
     }
 
     internal fun createFork(positions: List<Checkpoint>, sourceEffector: Effector): WholeWorld {
       effector.copyIndexFrom(sourceEffector)
-      positions.forEach { recordingPositions.record(it.ordinal) }
+      timeline.restoreCompletedPositions(positions)
       timeline.commit()
       limiter.checkRequiredCounts = true
       requireSignedSelectionsMatchClassComponents()
