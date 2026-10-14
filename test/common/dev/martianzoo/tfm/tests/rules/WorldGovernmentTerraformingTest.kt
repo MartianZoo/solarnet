@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.engine.*
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER2
@@ -14,74 +15,93 @@ internal class WorldGovernmentTerraformingTest : TfmGameplayTest() {
   @Test
   internal fun `start player chooses an Admin increase that triggers Aphrodite`() {
     newTestGame(kimCorporation = Aphrodite)
-    admin.sneak("StartToken<Stan> FROM StartToken<Kim>")
-    kim.pass()
-    stan.pass()
-    rob.pass()
-    val mcBefore = kim.count("MC")
-    val checkpoint = game.timeline.checkpoint()
+    kim.doTask("Pass")
+    stan.doTask("Pass")
+    rob.doTask("Pass")
+    players.forEach { it.autoExecNow(EAGER) }
+    kim.doTask("OxygenStep! BY Admin")
+
+    players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
+    // Research passes the start token to Stan; use the next genuine Solar phase.
+    stan.doTask("Pass")
+    rob.doTask("Pass")
+    kim.doTask("Pass")
+    players.forEach { it.autoExecNow(EAGER) }
 
     admin.count("SolarPhase") shouldBe 1
-    stan.wgt("VenusStep")
-
-    val venusIncrease =
-        game.events.changesSince(checkpoint).single {
-          it.change.gaining?.className.toString() == "VenusStep"
-        }
-    venusIncrease.actor shouldBe ADMIN
-    stan.count("TerraformRating") shouldBe 20
-    kim.count("MC") shouldBe mcBefore + 2
-  }
-
-  @Test
-  internal fun `first player chooses the threshold ocean after Admin raises temperature`() {
-    val game = setUpGame(VenusNextExpansion, players = 2)
-    val admin = game.testTfm(ADMIN)
-    val p2 = game.testTfm(PLAYER2)
-    admin.runOperation("StartToken<Player2> FROM StartToken<Player1>")
-    admin.runOperation("14 TemperatureStep")
-    val checkpoint = game.timeline.checkpoint()
-
-    admin.runOperation("TemperatureStep") { p2.doTask("OceanTile<Tharsis_1_2> BY Admin") }
-
-    val ocean =
-        game.events.changesSince(checkpoint).single {
-          it.change.gaining?.className.toString() == "OceanTile"
-        }
-    ocean.actor shouldBe ADMIN
-    admin.count("TemperatureStep") shouldBe 15
-  }
-
-  @Test
-  internal fun `World Government is skipped after every parameter is complete`() {
-    val game = setUpGame(VenusNextExpansion)
-    val admin = game.testTfm(ADMIN)
-    admin.runOperation(
-        "GpComplete<Class<TemperatureStep>>, " +
-            "GpComplete<Class<OxygenStep>>, " +
-            "GpComplete<Class<OceanTile>>, " +
-            "GpComplete<Class<VenusStep>>"
-    )
-    admin.count("GpIncomplete") shouldBe 0
-
-    admin.runOperation("WorldGovernmentTerraforming<Player1>")
-
-    game.tasks.ids() shouldBe emptySet()
+    stan
+        .doTask("VenusStep! BY Admin")
+        .expect("VenusStep, 2 MC<Kim>, 0 TerraformRating<Kim>, 0 TerraformRating<Stan>")
   }
 
   @Test
   internal fun `Solar phase is skipped when production ends the game`() {
     newTestGame()
-    admin.sneak(
-        "GpComplete<Class<TemperatureStep>>, " +
-            "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
-    )
+    repeat(19) { finishGeneration("TemperatureStep") }
+    repeat(8) { finishGeneration("OceanTile") }
+    repeat(14) { finishGeneration("OxygenStep") }
 
-    kim.pass()
-    stan.pass()
-    rob.pass()
+    rob.doTask("Pass")
+    kim.doTask("Pass")
+    stan.doTask("Pass")
+    players.forEach { it.autoExecNow(EAGER) }
 
     admin.count("SolarPhase") shouldBe 0
     admin.count("FinalGreeneryPhase") shouldBe 1
+  }
+
+  private fun finishGeneration(parameter: String) {
+    val first = players.indexOfFirst { it.count("StartToken") == 1 }
+    val order = players.drop(first) + players.take(first)
+    order.forEach { it.doTask("Pass") }
+    players.forEach { it.autoExecNow(EAGER) }
+    val temperature = admin.count("TemperatureStep")
+    val choice =
+        if (parameter == "OceanTile") "OceanTile<${kim.list("WaterArea(HAS MAX 0 Tile)").first()}>"
+        else parameter
+    order.first().doTask("$choice! BY Admin")
+
+    if (parameter == "TemperatureStep" && temperature == 14)
+        order.first().doTask("OceanTile<Tharsis_1_2> BY Admin")
+
+    players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
+  }
+
+  internal class Attribution : TfmTest() {
+    @Test
+    internal fun `first player chooses the threshold ocean after Admin raises temperature`() {
+      val game = setUpGame(VenusNextExpansion, players = 2)
+      val admin = game.testAgent(ADMIN)
+      val p2 = game.testAgent(PLAYER2)
+      admin.runOperation("StartToken<Player2> FROM StartToken<Player1>")
+      admin.runOperation("14 TemperatureStep")
+      val checkpoint = game.timeline.checkpoint()
+
+      admin.runOperation("TemperatureStep") { p2.doTask("OceanTile<Tharsis_1_2> BY Admin") }
+
+      val ocean =
+          game.events.changesSince(checkpoint).single {
+            it.change.gaining?.className.toString() == "OceanTile"
+          }
+      ocean.actor shouldBe ADMIN
+      admin.count("TemperatureStep") shouldBe 15
+    }
+
+    @Test
+    internal fun `World Government is skipped after every parameter is complete`() {
+      val game = setUpGame(VenusNextExpansion)
+      val admin = game.testAgent(ADMIN)
+      admin.runOperation(
+          "GpComplete<Class<TemperatureStep>>, " +
+              "GpComplete<Class<OxygenStep>>, " +
+              "GpComplete<Class<OceanTile>>, " +
+              "GpComplete<Class<VenusStep>>"
+      )
+      admin.count("GpIncomplete") shouldBe 0
+
+      admin.runOperation("WorldGovernmentTerraforming<Player1>")
+
+      game.tasks.ids() shouldBe emptySet()
+    }
   }
 }

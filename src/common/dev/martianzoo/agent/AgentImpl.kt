@@ -2,7 +2,6 @@ package dev.martianzoo.agent
 
 import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agent.Agent.OperationScope
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.engine.ActorEngine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Parsing
@@ -36,6 +35,7 @@ internal class AgentImpl(
     private val elaborator: PetElaborator,
     private val autoExecLoop: AutoExecLoop,
     private val taskLog: TaskLog,
+    initialPolicy: AutoExecPolicy,
 ) : Agent {
 
   private val autoExecPolicyOverrides = mutableListOf<AutoExecPolicy>()
@@ -61,7 +61,7 @@ internal class AgentImpl(
   private val allTasks: TaskQueue
     get() = world.tasks
 
-  override var autoExecPolicy: AutoExecPolicy = EAGER
+  override var autoExecPolicy: AutoExecPolicy = initialPolicy
     set(newPolicy) {
       if (newPolicy != field) {
         field = newPolicy

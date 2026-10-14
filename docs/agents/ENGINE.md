@@ -440,7 +440,8 @@ replace that shape with an `AttackKind` hierarchy and per-resource watchers.
 Each World retains one policy-free `ActorEngine` per Actor. It owns attributed task and state
 commands but shares the World's changer, instructor, timeline, and Task services. `Agents(world)`
 constructs the corresponding normal client objects and prevents pairing an Agent with an unrelated
-World.
+World. Its optional `initialPolicy` function supplies each Actor's policy at construction without
+executing pending work; callers need not assign the policy afterward.
 
 For Actor attribution, receiving the request through that Actor's Agent is sufficient. The engine
 checks the task's current assignee and legal mutation, not the identity or consent of the person

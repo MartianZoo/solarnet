@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
@@ -294,28 +295,31 @@ internal class CoreRulesTest : TfmSandboxTest() {
     @Test
     internal fun `Research cards cost three MC each`() {
       newTestGame(playerCount = 2, addOptions = "-VenusNextExpansion")
-      kim.pass()
-      stan.pass()
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
 
-      kim.buyCards(3).expect("-9 MC, 3 ProjectCard")
-      stan.buyCards(0)
+      kim.doTasks("-1 ProjectCard<Selecting>", "-9 MC").expect("-9 MC, 3 ProjectCard")
+      stan.doTask("-4 ProjectCard<Selecting>")
       admin.count("Generation") shouldBe 2
     }
 
     @Test
     internal fun `Production converts existing energy before producing new resources`() {
       newTestGame(playerCount = 2, addOptions = "-VenusNextExpansion")
-      kim.pass()
-      stan.pass()
-      kim.buyCards(0)
-      stan.buyCards(0)
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      kim.doTask("-4 ProjectCard<Selecting>")
+      stan.doTask("-4 ProjectCard<Selecting>")
       kim.count("Energy") shouldBe 1
       kim.count("Heat") shouldBe 1
 
-      stan.pass()
-      kim.pass()
-      kim.buyCards(0)
-      stan.buyCards(0)
+      stan.doTask("Pass")
+      kim.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      kim.doTask("-4 ProjectCard<Selecting>")
+      stan.doTask("-4 ProjectCard<Selecting>")
 
       kim.count("Energy") shouldBe 1
       kim.count("Heat") shouldBe 3
@@ -325,10 +329,11 @@ internal class CoreRulesTest : TfmSandboxTest() {
     @Test
     internal fun `World Government terraforming gives no terraform rating`() {
       newTestGame(playerCount = 2)
-      kim.pass()
-      stan.pass()
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
 
-      kim.wgt("TemperatureStep").expect("TemperatureStep, 0 TerraformRating")
+      kim.doTask("TemperatureStep! BY Admin").expect("TemperatureStep, 0 TerraformRating")
     }
   }
 }

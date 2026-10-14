@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
@@ -210,50 +211,98 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
     @Test
     internal fun `A new government cannot refill a lobby while all seven delegates remain placed`() {
       newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
-      kim.turn {
-        stdAction("LobbyAction") { doTask("PartyDelegate<Unity>") }
-        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Unity>") }
+      kim.completeOperation {
+        doTask("LobbyAction")
+        doTask("PartyDelegate<Unity>")
       }
-      stan.turn {
-        stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
-        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
+      kim.completeOperation {
+        doTasks("LobbyAction<Action2>", "-5 MC")
+        doTask("PartyDelegate<Unity>")
       }
-      kim.turn {
-        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Unity>") }
-        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Greens>") }
+      stan.completeOperation {
+        doTask("LobbyAction")
+        doTask("PartyDelegate<Scientists>")
       }
-      stan.turn {
-        repeat(2) { stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") } }
+      stan.completeOperation {
+        doTasks("LobbyAction<Action2>", "-5 MC")
+        doTask("PartyDelegate<Scientists>")
       }
-      kim.turn {
-        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Greens>") }
-        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Kelvinists>") }
+      kim.completeOperation {
+        doTasks("LobbyAction<Action2>", "-5 MC")
+        doTask("PartyDelegate<Unity>")
       }
-      stan.turn { stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") } }
-      kim.turn { stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Kelvinists>") } }
-      stan.pass()
-      kim.pass()
-      kim.wgt("VenusStep")
+      kim.completeOperation {
+        doTasks("LobbyAction<Action2>", "-5 MC")
+        doTask("PartyDelegate<Greens>")
+      }
+      stan.completeOperation {
+        doTasks("LobbyAction<Action2>", "-5 MC")
+        doTask("PartyDelegate<Scientists>")
+      }
+      stan.completeOperation {
+        doTasks("LobbyAction<Action2>", "-5 MC")
+        doTask("PartyDelegate<Scientists>")
+      }
+      kim.completeOperation {
+        doTasks("LobbyAction<Action2>", "-5 MC")
+        doTask("PartyDelegate<Greens>")
+      }
+      kim.completeOperation {
+        doTasks("LobbyAction<Action2>", "-5 MC")
+        doTask("PartyDelegate<Kelvinists>")
+      }
+      stan.completeOperation {
+        doTasks("LobbyAction<Action2>", "-5 MC")
+        doTask("PartyDelegate<Scientists>")
+      }
+      stan.doTask("0 StandardAction") // Decline the second action.
+      kim.completeOperation {
+        doTasks("LobbyAction<Action2>", "-5 MC")
+        doTask("PartyDelegate<Kelvinists>")
+      }
+      kim.doTask("0 StandardAction") // Decline the second action.
+      stan.doTask("Pass")
+      kim.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      kim.doTask("VenusStep! BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
+
       admin.doTask("ExploreFirstDirective")
-      players.forEach { it.buyCards(0) }
+      players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       admin.count("Ruling<Scientists>") shouldBe 1
       kim.count("Delegate") shouldBe 7
       kim.count("LobbyActionAvailable") shouldBe 0
-      stan.turn {
-        stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }.expect("Delegate, 0 MC")
-      }
-      shouldThrow<NotNowException> { kim.stdAction("LobbyAction") }
+      stan
+          .completeOperation {
+            doTask("LobbyAction")
+            doTask("PartyDelegate<Scientists>")
+          }
+          .expect("Delegate, 0 MC")
+
+      stan.doTask("0 StandardAction") // Decline the second action.
+      shouldThrow<NotNowException> { kim.doTask("LobbyAction") }
     }
 
     @Test
     internal fun `A party leader's sole delegate does not also count as an ordinary delegate`() {
       newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
-      kim.turn { stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") } }
-      stan.turn { stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") } }
-      kim.pass()
-      stan.pass()
-      kim.wgt("VenusStep")
+      kim.completeOperation {
+        doTask("LobbyAction")
+        doTask("PartyDelegate<Scientists>")
+      }
+      kim.doTask("0 StandardAction") // Decline the second action.
+      stan.completeOperation {
+        doTask("LobbyAction")
+        doTask("PartyDelegate<Scientists>")
+      }
+      stan.doTask("0 StandardAction") // Decline the second action.
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      kim.doTask("VenusStep! BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
+
       kim.count("Influence") shouldBe 1
       stan.count("Influence") shouldBe 1
     }
@@ -261,20 +310,34 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
     @Test
     internal fun `Influence counts chairman leader and ordinary delegates then expires at Research`() {
       newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
-      kim.turn {
-        stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
-        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
+      kim.completeOperation {
+        doTask("LobbyAction")
+        doTask("PartyDelegate<Scientists>")
       }
-      stan.turn { stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") } }
-      kim.turn { playProject(VoteOfNoConfidence, 5) }
-      stan.pass()
-      kim.pass()
-      kim.wgt("VenusStep")
+      kim.completeOperation {
+        doTasks("LobbyAction<Action2>", "-5 MC")
+        doTask("PartyDelegate<Scientists>")
+      }
+      stan.completeOperation {
+        doTask("LobbyAction")
+        doTask("PartyDelegate<Scientists>")
+      }
+      stan.doTask("0 StandardAction") // Decline the second action.
+      kim.completeOperation {
+        doTasks("PlayProject<Class<$VoteOfNoConfidence>>", "-5 MC")
+        autoExecNow(EAGER)
+      }
+      kim.doTask("0 StandardAction") // Decline the second action.
+      stan.doTask("Pass")
+      kim.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      kim.doTask("VenusStep! BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
 
       kim.count("Influence") shouldBe 3
       stan.count("Influence") shouldBe 1
       admin.doTask("ExploreFirstDirective")
-      players.forEach { it.buyCards(0) }
+      players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
       kim.count("Influence") shouldBe 0
       stan.count("Influence") shouldBe 0
     }
@@ -282,20 +345,34 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
     @Test
     internal fun `A new government refills the lobby without returning other parties' delegates`() {
       newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
-      kim.turn { stdAction("LobbyAction") { doTask("PartyDelegate<Unity>") } }
-      stan.turn {
-        stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
-        stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Scientists>") }
+      kim.completeOperation {
+        doTask("LobbyAction")
+        doTask("PartyDelegate<Unity>")
       }
-      kim.pass()
-      stan.pass()
-      kim.wgt("VenusStep")
+      kim.doTask("0 StandardAction") // Decline the second action.
+      stan.completeOperation {
+        doTask("LobbyAction")
+        doTask("PartyDelegate<Scientists>")
+      }
+      stan.completeOperation {
+        doTasks("LobbyAction<Action2>", "-5 MC")
+        doTask("PartyDelegate<Scientists>")
+      }
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      kim.doTask("VenusStep! BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
+
       admin.doTask("ExploreFirstDirective")
-      players.forEach { it.buyCards(0) }
-      stan.pass()
+      players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
+      stan.doTask("Pass")
 
       kim.count("PartyDelegate<Unity>") shouldBe 1
-      kim.stdAction("LobbyAction") { doTask("PartyDelegate<Unity>") }
+      kim.completeOperation {
+            doTask("LobbyAction")
+            doTask("PartyDelegate<Unity>")
+          }
           .expect("PartyDelegate<Unity>, 0 MC")
     }
   }

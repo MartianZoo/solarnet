@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.state.TaskResult
@@ -134,22 +135,32 @@ internal class MergerTest : TfmSandboxTest() {
     @Test
     internal fun `BUG - Defers Tharsis first action when acquired after Preludes`() {
       acquireTharsisThroughBoard().expect("0 CityTile")
-      kim.stdAction("RequiredActionsSignal") { placeTile(3, 3) }.expect("CityTile<Tharsis_3_3>")
+      kim.completeOperation {
+            doTask("RequiredActionsSignal")
+            doTask("CityTile<Tharsis_3_3>")
+            autoExecNow(EAGER)
+          }
+          .expect("CityTile<Tharsis_3_3>")
     }
 
     private fun acquireTharsisThroughBoard(cityPlacement: OperationBlock = {}): TaskResult {
       newTestGame(addOptions = "PreludeExpansion, BoardOfDirectors", playerCount = 2)
-      kim.turn {
-        playPrelude(BoardOfDirectors)
-        playPrelude(Donation)
-      }
-      stan.turn {
-        playPrelude(Supplier)
-        playPrelude(MetalsCompany)
-      }
-      return kim.cardAction1(BoardOfDirectors) {
+      kim.doTask("PlayCard<Class<PreludeCard>, Class<$BoardOfDirectors>>")
+      kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
+      stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
+      stan.autoExecNow(EAGER)
+
+      stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
+      stan.autoExecNow(EAGER)
+
+      return kim.completeOperation {
+        doTask("UseCardAction<$BoardOfDirectors, Action1>")
         doTask("-12 MC")
-        kim.playPrelude(Merger) { kim.playCorp(TharsisRepublic, body = cityPlacement) }
+        autoExecNow(EAGER)
+        doTask("PlayCard<Class<PreludeCard>, Class<$Merger>>")
+        doTask("PlayCard<Class<CorporationCard>, Class<$TharsisRepublic>>")
+        cityPlacement()
+        autoExecNow(EAGER)
       }
     }
   }

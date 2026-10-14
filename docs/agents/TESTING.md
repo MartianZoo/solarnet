@@ -55,6 +55,8 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   tests and the selected replay through `:web:jsBrowserTest`; Almanac runs its English card-text
   browser test through `:almanac:jsBrowserTest`. Other generated browser tasks are
   inert outside the intentionally commented-out full-browser target in the root build.
+- `./gradlew :tfm-tests:gameplayTest` runs every `TfmGameplayTest` subclass, including gameplay
+  classes nested inside sandbox suites, without sandbox, synthetic setup, or full-game replay tests.
 - `./gradlew :tfm-tests:sandboxTest` runs every `TfmSandboxTest` subclass, including nested
   sandbox cases, without gameplay or full-game replay tests. Its class selection follows the
   shared test-source declarations; the JVM-only JUnit `@Tag` cannot label shared JVM/JS tests.
@@ -326,7 +328,7 @@ Use `declineTask()` only when exactly one pending task accepts `Ok`, and comment
 
 `CoreRulesTest` uses the same player-level style to document rules that belong to the game rather
 than any individual card. Its scenarios should reproduce only the important preconditions observed
-in whole games and should use the standard `TfmGameplay` actions and result expectations.
+in whole games and should use explicit Agent task submissions and result expectations.
 Full-game tests override a `config` property with a `GameConfig`, conventionally built from an
 indented multiline string followed by player-name varargs. Catalog-backed premise resolution adds
 `TerraformingMars` and, when no other map is named, `TharsisMap`; the parser already trims each
@@ -350,22 +352,40 @@ Choose the fixture by what the scenario proves, not the kind of card:
   convenience must not bypass their gameplay. The implemented default already plays the starting
   corporations; Prelude choices remain explicit.
 
-Gameplay tests must follow the turns the game offers. The current helpers do not enforce this:
-`Agent.inTurn` creates a turn when the acting player has no pending task, even if the game is
-waiting for another player. For example, Stan's action can succeed while Kim's turn is pending.
-Following the game's flow therefore does not by itself prove that a test follows turn order.
+Gameplay tests submit the turns the game offers through plain `Agent`s. Use `doTask`/`doTasks`
+for explicit choices, or `completeOperation { ... }` when the whole operation must finish before
+returning. Do not use `inTurn`: it can create an out-of-turn offer when the actor has no pending
+work. Decline an offered second action explicitly with `0 StandardAction`; do not insert that
+choice after both actions, after a Prelude, or when all opponents have already passed.
+
+`TfmGameplayTest` describes authentic game flow, not the `TfmGameplay` convenience class. The
+fixture owns its `World` and `Agents` directly and exposes Admin and all players as plain Agents.
+Scenario payments state concrete amounts, including research purchases; do not use `/ Owed` or
+payment helpers. Shared corporation setup alone reads the bill for its five starting projects,
+so corporations such as TerraLabs use their actual purchase price.
+
+Gameplay constructs players with `CONCRETE`; suites that exercise intermediate steps request
+`TfmGameplayTest(NONE)`. Admin uses `EAGER`. These policies stay fixed: neither the fixture nor its
+scenarios assign `autoExecPolicy`. Use explicit `autoExecNow(EAGER)` calls to settle competing
+routine effects, production, and phase cleanup. Put them inside the observed operation or
+`expectChanges` block when their effects belong to the assertion. An automatically selected order
+is not evidence of a required order; scripts testing that order must state the steps explicitly.
+Decline unused payment offers explicitly and explain each `Ok`. Short repeated action sequences
+are written out; loops remain appropriate for seat-order traversal and long generation/endgame
+progressions.
 
 Synthetic engine checks that only need setup use `setUpGame`, which starts the game and drops setup's
 pending handoff (`startSetupOnly`), so the game stays in `SetupPhase`. `startCorporationPhaseOutOfTurn`
 moves such a game into the corporation phase through that phase's own start, then drops the turn
 order it begins.
 
-Both extend the existing `TfmTest` directly. Both expose
+The sandbox extends `TfmTest`; gameplay has no dependency on that convenience fixture. Both expose
 `newTestGameBeforeCorporationPlay()` for explicit corporation plays; a normal
 `newTestGame(kimCorporation = ...)` plays the corporation during setup. `kimCorporation` never
 changes the game configuration; use `addOptions` to include cards outside the default bundles.
 Each owns its setup; there is no intermediate shared base. Neither is restricted to project cards.
-Their differences should follow from sandbox versus gameplay, not separate setup policies.
+Their setup defaults remain aligned; differences follow from prepared positions versus authentic
+play and the explicit autoexecution policies described here.
 Shared rules get representative coverage using base-game content where possible: for example,
 `rules/RequiredFirstActionTest` uses Inventrix rather than repeating the same rule for each
 corporation with a required first action.
@@ -590,10 +610,15 @@ aborted actions have no successful `TaskResult`, so assert their relevant unchan
 Use a zero scalar, such as `0 Plant` or `PROD[0 Energy]`, to assert that a particular type did not
 change.
 
-An action's result includes whatever the game's flow performs before the next decision, such as
-the next turn's offer, production, or a Turmoil phase that follows World Government Terraforming.
-To check one phase's effects, compare the relevant state immediately before and after that phase;
-for example, snapshot resources after production and before the world-government choice.
+A `TaskResult` includes its operation's changes, but subsequent completion callbacks can begin
+production or continue a Solar phase after that result was recorded. Gameplay tests use
+`expectChanges("...") { ... }` when the observation must include that follow-up work or several
+choices in the same phase. This assertion reads change events across the block without changing
+transaction or autoexecution behavior. Place it immediately around the relevant choices, and use
+explicit player holders for cross-player effects. For example, a global-event payout may occur
+before its ocean choice, so observe both World Government and that placement together. Do not
+save pre-action counts and assert arithmetic against them. Retain literal absolute assertions for
+phase identity, complete final scores, and unchanged state after a rejected operation.
 
 Cover meaningful interfaces, negative cases, non-targets, and option combinations rather than only
 the happy path. A filtering or Type-variable test should include several tempting Components that must not

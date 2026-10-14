@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.cards.cardnames.CorporateStronghold
 import dev.martianzoo.tfm.tests.cards.cardnames.Manutech
@@ -206,13 +207,18 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
       newTestGameBeforeCorporationPlay(playerCount = 2)
 
       kim.count("$Manutech") shouldBe 0
-      kim.playCorp(Manutech).expect("Steel")
+      kim.completeOperation {
+            doTask("PlayCard<Class<CorporationCard>, Class<$Manutech>>")
+            autoExecNow(EAGER)
+            doTask("-15 MC")
+          }
+          .expect("Steel")
       stan.count("BeginnerCorporation2") shouldBe 0
-      stan.inTurn {
+      stan.completeOperation {
         doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation2>, Hand>")
-        stan.pay()
+        autoExecNow(EAGER)
       }
-      kim.playProject(MineralDeposit, 5).expect("5 Steel")
+      kim.doTasks("PlayProject<Class<$MineralDeposit>>", "-5 MC").expect("5 Steel")
     }
   }
 }

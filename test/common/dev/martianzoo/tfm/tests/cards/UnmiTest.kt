@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
@@ -44,12 +45,21 @@ internal class UnmiTest : TfmSandboxTest() {
     @Test
     internal fun `Can use UNMI acquired after an earlier TR gain in the generation`() {
       newTestGame(addOptions = "PreludeExpansion", playerCount = 2, kimCorporation = CrediCor)
-      kim.playPrelude(UnmiContractor)
-      kim.playPrelude(Merger) { kim.playCorp(UnitedNationsMarsInitiative) }
-      stan.playPrelude(Supplier)
-      stan.playPrelude(MetalsCompany)
+      kim.doTask("PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>")
+      kim.autoExecNow(EAGER)
+      kim.completeOperation {
+        doTask("PlayCard<Class<PreludeCard>, Class<$Merger>>")
+        doTask("PlayCard<Class<CorporationCard>, Class<$UnitedNationsMarsInitiative>>")
+        autoExecNow(EAGER)
+      }
+      stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
+      stan.autoExecNow(EAGER)
 
-      kim.cardAction1(UnitedNationsMarsInitiative).expect("TerraformRating")
+      stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
+      stan.autoExecNow(EAGER)
+
+      kim.doTasks("UseCardAction<$UnitedNationsMarsInitiative, Action1>", "-3 MC")
+          .expect("TerraformRating")
     }
 
     @Test
@@ -59,12 +69,17 @@ internal class UnmiTest : TfmSandboxTest() {
           playerCount = 2,
           kimCorporation = UnitedNationsMarsInitiative,
       )
-      kim.playPrelude(UnmiContractor)
-      kim.playPrelude(Donation)
-      stan.playPrelude(Supplier)
-      stan.playPrelude(MetalsCompany)
+      kim.doTask("PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>")
+      kim.autoExecNow(EAGER)
+      kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
+      stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
+      stan.autoExecNow(EAGER)
 
-      kim.cardAction1(UnitedNationsMarsInitiative).expect("TerraformRating")
+      stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
+      stan.autoExecNow(EAGER)
+
+      kim.doTasks("UseCardAction<$UnitedNationsMarsInitiative, Action1>", "-3 MC")
+          .expect("TerraformRating")
     }
   }
 }

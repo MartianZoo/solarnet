@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -11,12 +12,17 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
   @Test
   internal fun `Greens rewards greenery during action play and leaves before solar`() {
     newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
-    kim.turn {
-      stdProject("GreeneryProject") { placeTile(3, 3) }
-          .expect("-19 MC, GreeneryTile, TerraformRating")
-    }
-    stan.pass()
-    kim.pass()
+    kim.completeOperation {
+          doTasks("UseStandardProject<GreeneryProject>", "-23 MC")
+          doTask("GreeneryTile<Tharsis_3_3>")
+          autoExecNow(EAGER)
+        }
+        .expect("-19 MC, GreeneryTile, TerraformRating")
+
+    kim.doTask("0 StandardAction") // Decline the second action.
+    stan.doTask("Pass")
+    kim.doTask("Pass")
+    players.forEach { it.autoExecNow(EAGER) }
 
     admin.count("GreensPolicy") shouldBe 0
   }
@@ -24,18 +30,24 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
   @Test
   internal fun `Mars First rewards a city placed on Mars`() {
     electGovernment("MarsFirst")
-    stan.pass()
+    stan.doTask("Pass")
 
-    kim.stdProject("CityProject") { placeTile(3, 3) }.expect("CityTile, Steel, PROD[MC]")
+    kim.completeOperation {
+          doTasks("UseStandardProject<CityProject>", "-25 MC")
+          doTask("CityTile<Tharsis_3_3>")
+          autoExecNow(EAGER)
+        }
+        .expect("CityTile, Steel, PROD[MC]")
   }
 
   @Test
   internal fun `Scientists draws three cards only once per generation`() {
     electGovernment("Scientists")
-    stan.pass()
-    kim.stdAction("UseTurmoilPolicyAction").expect("-10 MC, 3 ProjectCard")
-    shouldThrow<NotNowException> { kim.stdAction("UseTurmoilPolicyAction") }
-    kim.pass()
+    stan.doTask("Pass")
+    kim.doTasks("UseTurmoilPolicyAction", "-10 MC").expect("-10 MC, 3 ProjectCard")
+    shouldThrow<NotNowException> { kim.doTasks("UseTurmoilPolicyAction", "-10 MC") }
+    kim.doTask("Pass")
+    players.forEach { it.autoExecNow(EAGER) }
 
     admin.count("ScientistsPolicy") shouldBe 0
   }
@@ -43,10 +55,18 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
   @Test
   internal fun `Unity increases both players titanium payment value`() {
     electGovernment("Unity")
-    stan.turn { playProject(SolarWindPower, mc = 7, titanium = 1).expect("Titanium, -7 MC") }
-    kim.turn { playProject(VestaShipyard, mc = 11, titanium = 1).expect("-Titanium, -11 MC") }
-    stan.pass()
-    kim.pass()
+    stan
+        .completeOperation {
+          doTasks("PlayProject<Class<$SolarWindPower>>", "-1 Titanium", "-7 MC")
+          autoExecNow(EAGER)
+        }
+        .expect("Titanium, -7 MC")
+    stan.doTask("0 StandardAction") // Decline the second action.
+    kim.doTasks("PlayProject<Class<$VestaShipyard>>", "-1 Titanium", "-11 MC")
+        .expect("-Titanium, -11 MC")
+    kim.doTask("0 StandardAction") // Decline the second action.
+    stan.doTask("Pass")
+    kim.doTask("Pass")
 
     kim.count("ResourceValue<Class<Titanium>>") shouldBe 3
     stan.count("ResourceValue<Class<Titanium>>") shouldBe 3
@@ -55,51 +75,80 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
   @Test
   internal fun `Reds charges for both TR steps gained by Bribed Committee`() {
     electGovernment("Reds")
-    stan.pass()
+    stan.doTask("Pass")
 
-    kim.playProject(BribedCommittee, 7).expect("-13 MC, 2 TerraformRating")
+    kim.doTasks("PlayProject<Class<$BribedCommittee>>", "-7 MC").expect("-13 MC, 2 TerraformRating")
   }
 
   @Test
   internal fun `Reds rejects an unaffordable TR gain without charging or terraforming`() {
     electGovernment("Reds")
-    stan.pass()
-    kim.stdProject("AsteroidProject").expect("-17 MC, TemperatureStep, TerraformRating")
-    kim.stdProject("AsteroidProject").expect("-17 MC, TemperatureStep, TerraformRating")
+    stan.doTask("Pass")
+    kim.completeOperation {
+          doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+          autoExecNow(EAGER)
+        }
+        .expect("-17 MC, TemperatureStep, TerraformRating")
+    kim.completeOperation {
+          doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+          autoExecNow(EAGER)
+        }
+        .expect("-17 MC, TemperatureStep, TerraformRating")
     // The remaining 14 MC covers the project but not Reds' additional 3 MC.
     kim.count("MC") shouldBe 14
-    val ratingBefore = kim.count("TerraformRating")
-    val temperatureBefore = admin.count("TemperatureStep")
-    shouldThrow<NotNowException> { kim.stdProject("AsteroidProject") }
+    shouldThrow<NotNowException> {
+      kim.completeOperation {
+        doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+        autoExecNow(EAGER)
+      }
+    }
 
     kim.count("MC") shouldBe 14
-    kim.count("TerraformRating") shouldBe ratingBefore
-    admin.count("TemperatureStep") shouldBe temperatureBefore
+    kim.count("TerraformRating") shouldBe 23
+    admin.count("TemperatureStep") shouldBe 2
   }
 
   @Test
   internal fun `Kelvinists raises heat and energy production for ten MC`() {
     electGovernment("Kelvinists")
-    stan.pass()
+    stan.doTask("Pass")
 
-    kim.stdAction("UseTurmoilPolicyAction<Action2>").expect("-10 MC, PROD[Heat, Energy]")
-    kim.pass()
+    kim.completeOperation {
+          doTasks("UseTurmoilPolicyAction<Action2>", "-10 MC")
+          autoExecNow(EAGER)
+        }
+        .expect("-10 MC, PROD[Heat, Energy]")
+    kim.doTask("Pass")
+    players.forEach { it.autoExecNow(EAGER) }
     admin.count("KelvinistsPolicy") shouldBe 0
   }
 
   private fun electGovernment(party: String) {
     newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
-    kim.turn {
-      stdAction("LobbyAction") { doTask("PartyDelegate<$party>") }
-      stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<$party>") }
+    kim.completeOperation {
+      doTask("LobbyAction")
+      doTask("PartyDelegate<$party>")
     }
-    stan.pass()
-    kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<$party>") }
-    kim.stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<$party>") }
-    kim.pass()
-    kim.wgt("VenusStep")
+    kim.completeOperation {
+      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTask("PartyDelegate<$party>")
+    }
+    stan.doTask("Pass")
+    kim.completeOperation {
+      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTask("PartyDelegate<$party>")
+    }
+    kim.completeOperation {
+      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTask("PartyDelegate<$party>")
+    }
+    kim.doTask("Pass")
+    players.forEach { it.autoExecNow(EAGER) }
+    kim.doTask("VenusStep! BY Admin")
+    players.forEach { it.autoExecNow(EAGER) }
+
     admin.doTask("ExploreFirstDirective")
-    players.forEach { it.buyCards(0) }
+    players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
     admin.count("Ruling<$party>") shouldBe 1
   }
 }

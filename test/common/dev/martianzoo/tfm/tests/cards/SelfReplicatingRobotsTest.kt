@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
@@ -971,39 +972,55 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
 
     private fun resolveSponsoredProjectsWithHostedCard(): Pair<Int, Int> {
       newTestGame(addOptions = "TurmoilExpansion, fakes:cards", playerCount = 2)
-      kim.turn {
-        playProject(Research, 11)
-        playProject(FakeSelfReplicatingRobots, 7)
+      kim.completeOperation {
+        doTasks("PlayProject<Class<$Research>>", "-11 MC")
+        autoExecNow(EAGER)
       }
-      stan.pass()
-      kim.turn {
-        cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
-        playProject(Pets, 10)
-        pass()
+      kim.doTasks("PlayProject<Class<$FakeSelfReplicatingRobots>>", "-7 MC")
+      stan.doTask("Pass")
+      kim.completeOperation {
+        doTask("UseCardAction<$FakeSelfReplicatingRobots, Action1>")
+        doTask("StageForReplicatedProject<Class<$Mine>>")
       }
-      kim.wgt("VenusStep")
+      kim.doTasks("PlayProject<Class<$Pets>>", "-10 MC")
+      kim.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      kim.doTask("VenusStep! BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
+
       admin.doTask("ScienceSummit")
-      kim.buyCards(0)
-      stan.buyCards(0)
+      kim.doTask("-4 ProjectCard<Selecting>")
+      stan.doTask("-4 ProjectCard<Selecting>")
 
-      stan.pass()
-      kim.pass()
-      stan.wgt("VenusStep")
+      stan.doTask("Pass")
+      kim.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      stan.doTask("VenusStep! BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
+
       stan.doTask("OceanTile<Tharsis_1_5> BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
+
       admin.doTask("ExploreFirstDirective")
-      kim.buyCards(0)
-      stan.buyCards(0)
+      kim.doTask("-4 ProjectCard<Selecting>")
+      stan.doTask("-4 ProjectCard<Selecting>")
 
-      kim.pass()
-      stan.pass()
-      kim.wgt("VenusStep")
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      kim.doTask("VenusStep! BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
+
       admin.doTask("MoralMovement")
-      kim.buyCards(0)
-      stan.buyCards(0)
+      kim.doTask("-4 ProjectCard<Selecting>")
+      stan.doTask("-4 ProjectCard<Selecting>")
 
-      stan.pass()
-      kim.pass()
-      stan.wgt("VenusStep")
+      stan.doTask("Pass")
+      kim.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      stan.doTask("VenusStep! BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
+
       // The game resolves the event after the world-government action returns.
       return kim.count("RobotUnit<Class<$Mine>>") to kim.count("Animal<$Pets>")
     }
