@@ -101,7 +101,7 @@ internal class BasicTest {
     session.runOperation("-6 Heat")
     assertEquals(1, session.count("Heat"))
 
-    game.timeline.rollBack(checkpoint)
+    game.timeline.seek(checkpoint)
     assertEquals(7, session.count("Heat"))
   }
 

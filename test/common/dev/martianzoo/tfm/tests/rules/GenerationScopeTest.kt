@@ -22,7 +22,8 @@ internal class GenerationScopeTest {
     admin.count("GenerationScope") shouldBe 1
     player.count("Pass") shouldBe 0
 
-    game.timeline.rollBack(beforeGeneration)
+    game.timeline.recordPosition()
+    game.timeline.seek(beforeGeneration)
 
     admin.count("GenerationScope") shouldBe 1
     player.count("Pass") shouldBe 1

@@ -106,6 +106,7 @@ public open class BusyPreludePhaseBenchmark {
     check(me.count("CardFront") == 10)
     val mc = me.count("MC")
     check(mc == 65) { "expected 65 MC, found $mc" }
-    game.timeline.rollBack(beforeCorporationPlay)
+    game.timeline.seek(beforeCorporationPlay)
+    game.timeline.truncate()
   }
 }

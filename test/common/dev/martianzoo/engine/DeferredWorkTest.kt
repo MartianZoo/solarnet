@@ -174,7 +174,8 @@ internal class DeferredWorkTest {
     val beforeChoice = game.timeline.checkpoint()
     p1.doTask("ChoiceA")
 
-    game.timeline.rollBack(beforeChoice)
+    game.timeline.seek(beforeChoice)
+    game.timeline.truncate()
 
     shouldThrow<TaskException> { p1.doTask("Cleanup") }
     p1.doTask("ChoiceB")

@@ -47,7 +47,10 @@ import dev.martianzoo.state.Task.TaskId
  * * An ordinary task whose instruction is a dispatch is performed at once: `TASK R { b } >> c`
  *   becomes task `b` for R, with the dispatch's deferral, and task `c`
  */
-internal class TaskQueues(private val gameWorld: GameWorld) {
+internal class TaskQueues(
+    private val gameWorld: GameWorld,
+    private val requireAtEnd: () -> Unit = {},
+) {
   private val classTable: ClassTable = gameWorld.classTable
   private val systemClass = classTable.getClass(SYSTEM)
   private val isAbstract: (Expression) -> Boolean = { expression ->
@@ -62,8 +65,10 @@ internal class TaskQueues(private val gameWorld: GameWorld) {
       assignee: Actor,
       cause: Cause?,
       deferral: Deferral = Deferral.NONE,
-  ): List<TaskAddedEvent> =
-      admit(instruction, assignee, cause, deferral).also { promoteDeferredWork() }
+  ): List<TaskAddedEvent> {
+    requireAtEnd()
+    return admit(instruction, assignee, cause, deferral).also { promoteDeferredWork() }
+  }
 
   /**
    * Adds [instruction]'s tasks without promoting deferred work, so that a whole group is admitted
@@ -102,8 +107,12 @@ internal class TaskQueues(private val gameWorld: GameWorld) {
           dispatch.deferral,
       ) + task.then?.let { admit(it, task.assignee, task.cause, Deferral.NONE) }.orEmpty()
 
-  internal fun removeTask(task: Task): TaskRemovedEvent =
-      gameWorld.apply(TaskRemovedEvent(gameWorld.nextOrdinal, task)).also { promoteDeferredWork() }
+  internal fun removeTask(task: Task): TaskRemovedEvent {
+    requireAtEnd()
+    return gameWorld.apply(TaskRemovedEvent(gameWorld.nextOrdinal, task)).also {
+      promoteDeferredWork()
+    }
+  }
 
   /**
    * Makes the earliest remaining deferred work ordinary once no ordinary task remains: all `LATER`
@@ -133,6 +142,7 @@ internal class TaskQueues(private val gameWorld: GameWorld) {
   }
 
   internal fun editTask(newTask: Task): TaskEditedEvent? {
+    requireAtEnd()
     val normalized = normalizeTask(newTask, isAbstract)
     val oldTask = gameWorld.tasks.getTaskData(normalized.id)
     if (normalized == oldTask) return null

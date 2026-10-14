@@ -158,8 +158,8 @@ internal class TaskLogTest {
       completed[PLAYER1].list("Component") shouldBe player.list("Component")
       completed.world.tasks.isEmpty() shouldBe true
 
-      // A rolled-back completion must not erase the still-pending choice from an export.
-      source.world.timeline.rollBack(partial)
+      // Exporting an earlier completed position retains its still-pending choice.
+      source.world.timeline.seek(partial)
       val restored = newAgents()
       replay(source, restored)
       restored.world.tasks.extract { it } shouldBe source.world.tasks.extract { it }
@@ -371,7 +371,8 @@ internal class TaskLogTest {
 
     val before = agents.world.timeline.checkpoint()
     player.doTasks("Coin")
-    agents.world.timeline.rollBack(before)
+    agents.world.timeline.seek(before)
+    agents.world.timeline.truncate()
     player.doTasks("Marker")
 
     agents.taskLog.inputs().drop(1) shouldBe
