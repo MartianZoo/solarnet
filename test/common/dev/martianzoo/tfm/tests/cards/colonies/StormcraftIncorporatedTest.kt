@@ -13,7 +13,6 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTask("UseCardAction<StormcraftIncorporated, Action1>")
-      selectTask("Floater*")
       doTask("Floater<TitanShuttles>")
     }
   }
@@ -25,7 +24,7 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("ConvertHeat", "-Floater<StormcraftIncorporated>", "-6 Heat")
-          selectTask("MAX 0 Billing: TemperatureStep*")
+          doTask("TemperatureStep")
           doTask("TerraformRating")
         }
         .expect("-Floater<$StormcraftIncorporated>, -6 Heat, TemperatureStep")
@@ -42,9 +41,6 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
               "LocalHeatTrapping FROM ProjectCard",
               "-5 Heat",
               "4 Plant",
-          )
-          selectTask(
-              "(-Floater<StormcraftIncorporated>! THEN 2! Heat) OR (-2! Floater<StormcraftIncorporated> THEN 4! Heat) OR (-3! Floater<StormcraftIncorporated> THEN 5! Heat) OR Ok"
           )
           doTask("Ok")
           doTask("PlayedEvent<Class<LocalHeatTrapping>> FROM LocalHeatTrapping")
@@ -63,9 +59,6 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
               "LocalHeatTrapping FROM ProjectCard",
               "-5 Heat",
               "4 Plant",
-          )
-          selectTask(
-              "(-Floater<StormcraftIncorporated>! THEN 2! Heat) OR (-2! Floater<StormcraftIncorporated> THEN 4! Heat) OR (-3! Floater<StormcraftIncorporated> THEN 5! Heat) OR Ok"
           )
           doTasks("-2 Floater THEN 4 Heat", "4 Heat")
           doTask("PlayedEvent<Class<LocalHeatTrapping>> FROM LocalHeatTrapping")
@@ -105,15 +98,14 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
     stan.setToExMachina(2, "Heat")
     kim.inTurn {
       doTasks("FundAward<Class<Thermalist>>", "-8 MC")
-      selectTask("MAX 0 Billing: Thermalist!")
+      doTask("Thermalist")
     }
 
     kim.inTurn {
           doTasks("ConvertHeat", "-4 Floater<StormcraftIncorporated>")
-          selectTask("MAX 0 Billing: TemperatureStep*")
+          doTask("TemperatureStep")
           doTask("TerraformRating")
-          selectTask("-X? Heat")
-          doTask("Ok")
+          doTask("Ok" /* No Heat payment. */)
         }
         .expect("TemperatureStep, 0 Heat")
 

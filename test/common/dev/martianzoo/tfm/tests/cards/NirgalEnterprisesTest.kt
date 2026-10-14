@@ -12,7 +12,7 @@ internal class NirgalEnterprisesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("ClaimMilestone<Class<Planner>>")
-          selectOnlyTask()
+          doTask("Planner")
         }
         .expect("0 MC")
   }
@@ -23,7 +23,7 @@ internal class NirgalEnterprisesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("FundAward<Class<Landlord>>")
-          selectOnlyTask()
+          doTask("Landlord")
         }
         .expect("0 MC")
   }
@@ -35,7 +35,7 @@ internal class NirgalEnterprisesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTask("ClaimMilestone<Class<Briber>>")
-      selectOnlyTask()
+      doTask("Briber")
       doTask("-12 MC")
     }
   }

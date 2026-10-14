@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -17,8 +17,9 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           "SpliceTacticalGenomics FROM CorporationCard",
           "44 MC",
       )
-      selectTask("SpliceTacticalGenomics_RequiredAction!")
-      selectTask("2! MC")
+      doTask("SpliceTacticalGenomics_RequiredAction!")
+      // Resolve Splice's mandatory income separately from its optional tag bonus.
+      selectTask("2 MC")
       doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
   }
@@ -32,8 +33,9 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           "SpliceTacticalGenomics FROM CorporationCard",
           "44 MC",
       )
-      selectTask("SpliceTacticalGenomics_RequiredAction!")
-      selectTask("2! MC")
+      doTask("SpliceTacticalGenomics_RequiredAction!")
+      // Resolve Splice's mandatory income separately from its optional tag bonus.
+      selectTask("2 MC")
       doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
@@ -44,8 +46,9 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("PlayProject<Class<Decomposers>>", "-5 MC", "Decomposers FROM ProjectCard")
+          // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
           selectTask("Microbe<Decomposers>*")
-          kim.selectTask("2! MC")
+          kim.doTask("2 MC")
           doTask("2 MC")
         }
         .expect("-3 MC<Stan>, Microbe<$Decomposers<Stan>>")
@@ -60,8 +63,9 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           "SpliceTacticalGenomics FROM CorporationCard",
           "44 MC",
       )
-      selectTask("SpliceTacticalGenomics_RequiredAction!")
-      selectTask("2! MC")
+      doTask("SpliceTacticalGenomics_RequiredAction!")
+      // Resolve Splice's mandatory income separately from its optional tag bonus.
+      selectTask("2 MC")
       doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
@@ -72,8 +76,9 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("PlayProject<Class<Decomposers>>", "-5 MC", "Decomposers FROM ProjectCard")
+          // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
           selectTask("Microbe<Decomposers>*")
-          kim.selectTask("2! MC")
+          kim.doTask("2 MC")
           doTask("Microbe<Decomposers>!")
         }
         .expect("-5 MC<Stan>, 2 Microbe<$Decomposers<Stan>>")
@@ -88,8 +93,9 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           "SpliceTacticalGenomics FROM CorporationCard",
           "44 MC",
       )
-      selectTask("SpliceTacticalGenomics_RequiredAction!")
-      selectTask("2! MC")
+      doTask("SpliceTacticalGenomics_RequiredAction!")
+      // Resolve Splice's mandatory income separately from its optional tag bonus.
+      selectTask("2 MC")
       doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
@@ -100,10 +106,10 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("PlayProject<Class<Decomposers>>", "-5 MC", "Decomposers FROM ProjectCard")
+          // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
           selectTask("Microbe<Decomposers>*")
           kim.doTask("2 MC")
-          selectOnlyTask()
-          shouldThrow<NarrowingException> { doTask("Microbe<$RegolithEaters>!") }
+          shouldThrow<TaskException> { doTask("Microbe<$RegolithEaters>!") }
           doTask("Microbe<Decomposers>")
         }
         .expect("2 Microbe<$Decomposers<Stan>>, 0 Microbe<$RegolithEaters<Stan>>")
@@ -118,8 +124,9 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
           "SpliceTacticalGenomics FROM CorporationCard",
           "44 MC",
       )
-      selectTask("SpliceTacticalGenomics_RequiredAction!")
-      selectTask("2! MC")
+      doTask("SpliceTacticalGenomics_RequiredAction!")
+      // Resolve Splice's mandatory income separately from its optional tag bonus.
+      selectTask("2 MC")
       doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
@@ -129,10 +136,13 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
-          selectTask("-X? Steel")
-          doTasks("Ok", "IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
-          kim.selectTask("2! MC")
-          selectOnlyTask()
+          doTasks(
+              "Ok" /* No Steel payment. */,
+              "IndustrialMicrobes FROM ProjectCard",
+              "PROD[Energy]",
+              "PROD[Steel]",
+          )
+          kim.doTask("2 MC")
           doTask("Ok")
         }
         .expect("-12 MC<Stan>, 0 Microbe<Stan>")

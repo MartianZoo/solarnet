@@ -17,9 +17,9 @@ internal class ColonialEnvoysTest : TfmSandboxTest() {
               "-4 MC",
               "ColonialEnvoys FROM ProjectCard",
           )
+          // Expand the per-colony reward into separate delegate choices.
           selectOnlyTask()
           doTask("PartyDelegate<Scientists>")
-          selectOnlyTask()
           doTask("PartyDelegate<Greens>")
           doTask("PlayedEvent<Class<ColonialEnvoys>> FROM ColonialEnvoys")
         }

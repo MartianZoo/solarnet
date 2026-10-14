@@ -19,36 +19,34 @@ internal class ThawerTest : TfmSandboxTest() {
     asteroid()
     stan.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep*")
+      doTask("TemperatureStep")
       doTasks("TerraformRating", "PROD[Heat]")
-      selectOnlyTask()
+      doTask("ThawerCredit")
     }
     kim.exMachina("$WorldGovernmentAdvisor")
     kim.inTurn {
           doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
-          selectOnlyTask()
+
           doTask("TemperatureStep BY Admin")
         }
         .expect("0 TerraformRating")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("ClaimMilestone<Class<Thawer>>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
+        doTask("-8 MC")
+        doTask("Thawer")
       }
     }
 
     kim.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep*")
+      doTask("TemperatureStep")
       doTask("TerraformRating")
-      selectOnlyTask()
+      doTask("ThawerCredit")
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Thawer>>", "-MC / Owed<Class<MC>>")
-      selectOnlyTask()
+      doTasks("ClaimMilestone<Class<Thawer>>", "-8 MC")
+      doTask("Thawer")
     }
   }
 

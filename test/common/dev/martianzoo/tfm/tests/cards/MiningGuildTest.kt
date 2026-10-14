@@ -73,11 +73,12 @@ internal class MiningGuildTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_05_03>")
-      selectTask("OxygenStep*")
+      doTask("OxygenStep")
       doTask("PROD[Steel]")
+      // Hand the fizzle audit to Admin before receiving compensation.
       selectTask("Audit!")
       doTask("TerraformRating")
-      selectTask("StandardResource!")
+
       doTask("Titanium")
     }
     kim.auditGainsSince(checkpoint) shouldBe 1
@@ -100,11 +101,12 @@ internal class MiningGuildTest : TfmSandboxTest() {
     kim.setToExMachina(23, "MC")
     return kim.inTurn {
       doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_05_03>")
-      selectTask("OxygenStep*")
+      doTask("OxygenStep")
       doTask("PROD[Steel]")
+      // Hand the fizzle audit to Admin before receiving compensation.
       selectTask("Audit!")
       doTask("TerraformRating")
-      selectTask("StandardResource!")
+
       doTask("Plant")
     }
   }

@@ -15,7 +15,7 @@ internal class TharsisRepublicTest : TfmSandboxTest() {
           "TharsisRepublic FROM CorporationCard",
           "40 MC",
       )
-      selectTask("TharsisRepublic_RequiredAction!")
+      doTask("TharsisRepublic_RequiredAction!")
       doTasks("PROD[2 MC]", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
   }
@@ -26,11 +26,11 @@ internal class TharsisRepublicTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-          selectTask("4! CorporationCard<Kim, Selecting>")
+          doTask("4 CorporationCard<Kim, Selecting>")
           doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
           doTask("TharsisRepublic<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTasks("40 MC", "-42 MC")
-          selectTask("TharsisRepublic_RequiredAction!")
+          doTask("TharsisRepublic_RequiredAction!")
         }
         .expect("PROD[0 MC]")
   }

@@ -16,9 +16,8 @@ internal class RedShipsTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-          doTask("UseCardAction<RedShips, Action1>")
-          selectOnlyTask()
-        }
-        .expect("2 MC")
+      doTask("UseCardAction<RedShips, Action1>")
+      doTask("2 MC")
+    }
   }
 }

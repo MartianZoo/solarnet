@@ -2,20 +2,21 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class PharmacyUnionTest : TfmSandboxTest() {
-  @BeforeTest
-  fun initializeGame() {
+
+  private fun initializeGame() {
     newTestGameBeforeCorporationPlay()
     kim.inTurn {
       doTasks(
           "PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>",
           "PharmacyUnion FROM CorporationCard",
       )
-      selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
+      doTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
+      // Resolve the disease loss separately from the project payment.
       selectTask("-4* MC")
+      // Resolve the disease loss separately from the project payment.
       selectTask("-4* MC")
       doTasks(
           "Disease<PharmacyUnion>",
@@ -37,8 +38,10 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
               "PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>",
               "PharmacyUnion FROM CorporationCard",
           )
-          selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
+          doTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
+          // Resolve the disease loss separately from the project payment.
           selectTask("-4* MC")
+          // Resolve the disease loss separately from the project payment.
           selectTask("-4* MC")
           doTasks(
               "Disease<PharmacyUnion>",
@@ -52,24 +55,25 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
 
   @Test
   internal fun `A science tag removes disease and raises TR`() {
+    initializeGame()
     kim.inTurn {
           doTasks("PlayProject<Class<PhysicsComplex>>", "-12 MC")
-          selectTask("-X? Steel")
-          doTasks("Ok", "PhysicsComplex FROM ProjectCard")
-          selectOnlyTask()
+          doTasks("Ok" /* No Steel payment. */, "PhysicsComplex FROM ProjectCard")
+          doTask("TerraformRating FROM Disease<PharmacyUnion>")
         }
         .expect("-Disease<$PharmacyUnion>, TerraformRating")
   }
 
   @Test
   internal fun `An opponent's microbe tag adds disease and costs the corporation money`() {
+    initializeGame()
     stan.exMachina("3 OxygenStep, ProjectCard, 5 MC")
 
     stan
         .inTurn {
           doTasks("PlayProject<Class<Decomposers>>", "-5 MC", "Decomposers FROM ProjectCard")
-          selectTask("Microbe<Decomposers>*")
-          kim.selectTask("Disease<PharmacyUnion<Kim>>! OR (MAX 0 PharmacyUnion<Kim>: Ok)")
+          doTask("Microbe<Decomposers>*")
+          kim.doTask("Disease<PharmacyUnion<Kim>>")
           kim.doTask("-4 MC")
         }
         .expect("Disease<$PharmacyUnion<Kim>>, -4 MC<Kim>")
@@ -77,6 +81,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
 
   @Test
   internal fun `Two science tags can remove the last disease and then flip the corporation`() {
+    initializeGame()
     kim.setToExMachina(1, "Disease<$PharmacyUnion>")
     kim.exMachina("$Hospitals, Disease<$Hospitals>")
 
@@ -88,7 +93,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
               "TerraformRating FROM Disease<PharmacyUnion>",
               "PlayedEvent FROM PharmacyUnion",
           )
-          selectTask("2! ProjectCard<Kim, Hand>")
+          doTask("2 ProjectCard<Kim, Hand>")
           doTask("3 TerraformRating")
         }
         .expect("0 Disease<$Hospitals>")
@@ -96,6 +101,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
 
   @Test
   internal fun `Two science tags can flip the corporation only once`() {
+    initializeGame()
     kim.setToExMachina(0, "Disease<$PharmacyUnion>")
 
     kim.inTurn {
@@ -106,30 +112,29 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
           "PlayedEvent FROM PharmacyUnion",
           "Ok",
       )
-      selectTask("2! ProjectCard<Kim, Hand>")
+      doTask("2 ProjectCard<Kim, Hand>")
       doTask("3 TerraformRating")
     }
   }
 
   @Test
   internal fun `Flipping the corporation does not pay a Media Group rebate`() {
+    initializeGame()
     kim.setToExMachina(0, "Disease<$PharmacyUnion>")
     kim.exMachina("$MediaGroup")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<PhysicsComplex>>", "-12 MC")
-          selectTask("-X? Steel")
-          doTasks("Ok", "PhysicsComplex FROM ProjectCard")
-          selectOnlyTask()
-          doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
-        }
-        .expect("-12 MC")
+      doTasks("PlayProject<Class<PhysicsComplex>>", "-12 MC")
+      doTasks("Ok" /* No Steel payment. */, "PhysicsComplex FROM ProjectCard")
+      doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
+    }
   }
 
   // FAQ: a pending microbe trigger still loses 4 MC after the corporation flips,
   // but cannot place disease on the corporation that has left play.
   @Test
   internal fun `A microbe trigger still costs money after a science tag flips the corporation`() {
+    initializeGame()
     kim.setToExMachina(0, "Disease<$PharmacyUnion>")
     kim.setToExMachina(17, "MC")
 
@@ -141,6 +146,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
               "PlayedEvent FROM PharmacyUnion",
               "Ok",
           )
+          // Resolve the disease loss separately from the project payment.
           selectTask("-4* MC")
           doTask("3 TerraformRating")
         }

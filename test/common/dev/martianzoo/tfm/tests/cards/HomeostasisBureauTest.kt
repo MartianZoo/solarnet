@@ -13,11 +13,10 @@ internal class HomeostasisBureauTest : TfmSandboxTest() {
     kim.exMachina("$HomeostasisBureau")
 
     kim.inTurn {
-          doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-          selectTask("TemperatureStep*")
-          doTasks("TerraformRating", "3 MC")
-        }
-        .expect("TemperatureStep")
+      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTask("TemperatureStep")
+      doTasks("TerraformRating", "3 MC")
+    }
   }
 
   @Test
@@ -27,7 +26,7 @@ internal class HomeostasisBureauTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-          selectTask("TemperatureStep*")
+          doTask("TemperatureStep")
           doTask("TerraformRating")
         }
         .expect("0 MC<Kim>")

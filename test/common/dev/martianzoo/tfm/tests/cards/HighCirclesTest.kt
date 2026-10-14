@@ -17,24 +17,21 @@ internal class HighCirclesTest : TfmSandboxTest() {
           "HighCircles FROM PreludeCard",
           "TerraformRating",
       )
-      selectTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
-      selectOnlyTask()
+      doTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
       doTask("2 PartyDelegate<Scientists>")
     }
 
-    with(kim) {
-          inTurn {
-            doTasks(
-                "PlayCard<Class<PreludeCard>, Class<ExcentricSponsor>>",
-                "ExcentricSponsor FROM PreludeCard",
-                "PlayCard<Class<ProjectCard>, Class<SupportedResearch>>",
-            )
-            selectTask("-25* Owed")
-            doTask("SupportedResearch FROM ProjectCard")
-            selectTask("2! ProjectCard<Kim, Hand>")
-            selectTask("-X? MC")
-            doTask("Ok")
-          }
+    kim.inTurn {
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<ExcentricSponsor>>",
+              "ExcentricSponsor FROM PreludeCard",
+              "PlayCard<Class<ProjectCard>, Class<SupportedResearch>>",
+          )
+          // Hand the discount to Admin before the remaining payment is offered.
+          selectTask("-25* Owed")
+          doTask("SupportedResearch FROM ProjectCard")
+          doTask("2 ProjectCard<Kim, Hand>")
+          doTask("Ok" /* No MC payment. */)
         }
         .expect("ProjectCard, $SupportedResearch")
   }
@@ -51,23 +48,21 @@ internal class HighCirclesTest : TfmSandboxTest() {
           "HighCircles FROM PreludeCard",
           "TerraformRating",
       )
-      selectTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
-      selectOnlyTask()
+      doTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
       doTask("2 PartyDelegate<Scientists>")
     }
 
-    with(kim) {
-          inTurn {
-            doTasks(
-                "PlayCard<Class<PreludeCard>, Class<EcologyExperts>>",
-                "EcologyExperts FROM PreludeCard",
-                "PROD[Plant]",
-                "PlayCard<Class<ProjectCard>, Class<SupportedResearch>>",
-            )
-            selectTask("-Required* / Required")
-            doTasks("-3 MC", "SupportedResearch FROM ProjectCard")
-            selectTask("2! ProjectCard<Kim, Hand>")
-          }
+    kim.inTurn {
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<EcologyExperts>>",
+              "EcologyExperts FROM PreludeCard",
+              "PROD[Plant]",
+              "PlayCard<Class<ProjectCard>, Class<SupportedResearch>>",
+          )
+          // Hand the requirement waiver to Admin before playing the project.
+          selectTask("-Required* / Required")
+          doTasks("-3 MC", "SupportedResearch FROM ProjectCard")
+          doTask("2 ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard, $SupportedResearch")
   }

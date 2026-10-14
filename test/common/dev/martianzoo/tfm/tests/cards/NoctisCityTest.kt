@@ -12,9 +12,8 @@ internal class NoctisCityTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<NoctisCity>>", "-18 MC")
-      selectTask("-X? Steel")
       doTasks(
-          "Ok",
+          "Ok" /* No Steel payment. */,
           "NoctisCity FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",

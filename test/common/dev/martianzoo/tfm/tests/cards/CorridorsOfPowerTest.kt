@@ -20,9 +20,8 @@ internal class CorridorsOfPowerTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("LobbyAction<Action1>")
-          selectOnlyTask()
           doTask("PartyDelegate<Scientists>")
-          selectTask("ProjectCard<Kim, Hand>!")
+          doTask("ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
     kim.inTurn {

@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -29,10 +28,14 @@ internal class MiningRightsTest : TfmSandboxTest() {
     newTestGame(addOptions = "AmazonisMap, Unsafe")
     return kim.inTurn {
       doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "MiningRights FROM ProjectCard", "MiningRights_SpecialTile<Amazonis_05_03>")
-      selectTask("StandardResource!")
+      doTasks(
+          "Ok" /* No Steel payment. */,
+          "MiningRights FROM ProjectCard",
+          "MiningRights_SpecialTile<Amazonis_05_03>",
+      )
+
       doTask("Steel")
+      // Resolve the production choice to expose the known wild-area requirement failure.
       selectOnlyTask()
     }
   }
@@ -45,9 +48,8 @@ internal class MiningRightsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
-      selectTask("-X? Steel")
       doTasks(
-          "Ok",
+          "Ok" /* No Steel payment. */,
           "MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Cimmeria_6_4>",
           "Titanium",
@@ -70,15 +72,13 @@ internal class MiningRightsTest : TfmSandboxTest() {
   @Test
   internal fun `Cannot select an area without a metal placement bonus`() {
     newTestGame()
-    shouldThrow<GameplayException> {
+    shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
-        selectTask("-X? Steel")
-        selectTask("Ok")
+        doTask("Ok" /* No Steel payment. */)
         doTask("MiningRights FROM ProjectCard")
-        selectOnlyTask()
         doTask("MiningRights_SpecialTile<Tharsis_2_1>")
+        // Resolve the production choice to check that this area supplies a metal bonus.
         selectOnlyTask()
       }
     }
@@ -90,9 +90,8 @@ internal class MiningRightsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
-      selectTask("-X? Steel")
       doTasks(
-          "Ok",
+          "Ok" /* No Steel payment. */,
           "MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Cimmeria_6_4>",
           "Titanium",

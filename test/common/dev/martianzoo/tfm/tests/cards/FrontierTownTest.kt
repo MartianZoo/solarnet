@@ -15,14 +15,13 @@ internal class FrontierTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "FrontierTown FROM ProjectCard")
-      selectTask("FrontierTownBonus!")
+      doTasks("Ok" /* No Steel payment. */, "FrontierTown FROM ProjectCard")
+      doTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Amazonis_02_02>")
-      selectTask("-FrontierTownBonus!")
+      doTask("-FrontierTownBonus!")
+      // Hand the repeat-bonus signal to Admin so the area offers its bonus again.
       selectTask("RepeatPlacementBonus<Kim, Amazonis_02_02>!")
       doTasks("PartyDelegate<Scientists>", "PartyDelegate<Scientists>")
-      selectOnlyTask()
       doTask("PartyDelegate<Scientists>")
     }
   }
@@ -34,12 +33,12 @@ internal class FrontierTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "FrontierTown FROM ProjectCard")
-      selectTask("FrontierTownBonus!")
+      doTasks("Ok" /* No Steel payment. */, "FrontierTown FROM ProjectCard")
+      doTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Hellas_9_7>")
-      selectTask("-FrontierTownBonus!")
+      doTask("-FrontierTownBonus!")
       doTask("-6 MC")
+      // Hand the repeat-bonus signal to Admin so the area offers its bonus again.
       selectTask("RepeatPlacementBonus<Kim, Hellas_9_7>!")
       doTasks(
           "-6 MC",
@@ -66,16 +65,16 @@ internal class FrontierTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "FrontierTown FROM ProjectCard")
-      selectTask("FrontierTownBonus!")
+      doTasks("Ok" /* No Steel payment. */, "FrontierTown FROM ProjectCard")
+      doTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Cimmeria_3_3>")
-      selectTask("-FrontierTownBonus!")
-      selectTask("CimmeriaPlacementBonus!")
+      doTask("-FrontierTownBonus!")
+      doTask("CimmeriaPlacementBonus!")
+      // Hand the repeat-bonus signal to Admin so the area offers its bonus again.
       selectTask("RepeatPlacementBonus<Kim, Cimmeria_3_3>!")
       doTask("-5 MC")
-      selectTask("CimmeriaPlacementBonus!")
-      selectTask("CimmeriaPlacementBonus!")
+      doTask("CimmeriaPlacementBonus!")
+      doTask("CimmeriaPlacementBonus!")
       doTasks(
           "-5 MC",
           "-5 MC",
@@ -99,28 +98,27 @@ internal class FrontierTownTest : TfmSandboxTest() {
 
     shouldThrow<DependencyException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-        selectTask("-X? Steel")
-        selectTask("Ok")
+        doTask("Ok" /* No Steel payment. */)
         doTask("FrontierTown FROM ProjectCard")
-        selectTask("FrontierTownBonus!")
-        selectTask("PROD[-Energy]")
-        selectOnlyTask()
+        doTask("FrontierTownBonus!")
+        doTask("PROD[-Energy]")
         doTask("CityTile<Cimmeria_3_3>")
-        selectTask("-FrontierTownBonus!")
-        selectTask("CimmeriaPlacementBonus!")
+        doTask("-FrontierTownBonus!")
+        doTask("CimmeriaPlacementBonus!")
+        // Hand the repeat-bonus signal to Admin so the area offers its bonus again.
         selectTask("RepeatPlacementBonus<Kim, Cimmeria_3_3>!")
-        selectTask("-5! MC")
-        selectTask("CimmeriaPlacementBonus!")
-        selectTask("CimmeriaPlacementBonus!")
-        selectTask("-5! MC")
-        selectTask("-5! MC")
+        doTask("-5 MC")
+        doTask("CimmeriaPlacementBonus!")
+        doTask("CimmeriaPlacementBonus!")
+        doTask("-5 MC")
+        doTask("-5 MC")
         doTask("Colony<Luna>")
-        selectTask("PROD[2 MC]")
+        doTask("PROD[2 MC]")
         doTask("Colony<Ceres>")
-        selectTask("PROD[Steel]")
-        selectOnlyTask()
+        doTask("PROD[Steel]")
+        // Resolve the remaining colony offer to prove that no eligible tile remains.
+        selectTask("Colony<>")
       }
     }
     kim.assertCounts(
@@ -140,13 +138,12 @@ internal class FrontierTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "FrontierTown FROM ProjectCard")
-      selectTask("FrontierTownBonus!")
+      doTasks("Ok" /* No Steel payment. */, "FrontierTown FROM ProjectCard")
+      doTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Tharsis_4_5>")
-      selectTask("-FrontierTownBonus!")
+      doTask("-FrontierTownBonus!")
       doTasks("2 Plant", "2 MC")
-      selectOnlyTask()
+      doTask("RepeatPlacementBonus<Tharsis_4_5>")
       doTasks("2 Plant", "2 Plant")
     }
   }

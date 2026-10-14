@@ -96,6 +96,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
               "TerraformRating",
               "TerraformRating",
           )
+          // Resolve the empty plant attack separately from the pending ocean placements.
           selectTask("-6? Plant<Anyone>")
           doTask("Ok") // No titanium paid.
           val checkpoint = game.timeline.checkpoint()
@@ -196,7 +197,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     shouldThrow<IllegalStateException> { rob }.message shouldBe "Rob is sitting this game out"
     kim.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep*")
+      doTask("TemperatureStep")
       doTask("TerraformRating")
     }
   }

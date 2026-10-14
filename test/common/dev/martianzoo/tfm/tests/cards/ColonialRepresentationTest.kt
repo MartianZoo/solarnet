@@ -19,7 +19,7 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
               "-10 MC",
               "ColonialRepresentation FROM ProjectCard",
           )
-          selectOnlyTask()
+          doTask("6 MC")
         }
         .expect("-4 MC")
   }

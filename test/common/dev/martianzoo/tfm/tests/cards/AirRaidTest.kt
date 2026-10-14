@@ -37,13 +37,11 @@ internal class AirRaidTest : TfmSandboxTest() {
 
     shouldThrow<ExpressionException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks(
             "PlayProject<Class<AirRaid>>",
             "AirRaid FROM ProjectCard",
         )
-        selectTask("-Floater!")
-        selectOnlyTask()
+        doTask("-Floater")
         doTask("5 MC<Kim FROM Kim>")
       }
     }
@@ -58,13 +56,11 @@ internal class AirRaidTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks(
             "PlayProject<Class<AirRaid>>",
             "AirRaid FROM ProjectCard",
         )
-        selectTask("-Floater!")
-        selectOnlyTask()
+        doTask("-Floater")
         doTask("5 MC<Kim FROM Stan>")
       }
     }

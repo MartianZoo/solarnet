@@ -24,7 +24,7 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("UseCardAction<KuiperCooperative, Action1>")
-          selectOnlyTask()
+          doTask("3 Asteroid<KuiperCooperative>")
         }
         .expect("3 Asteroid<$KuiperCooperative>")
   }
@@ -34,15 +34,14 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
     kim.exMachina("2 Asteroid<$KuiperCooperative>")
 
     kim.inTurn {
-          doTasks(
-              "UseStandardProject<AsteroidProject>",
-              "-2 Asteroid<KuiperCooperative>",
-              "-MC / Owed",
-          )
-          selectTask("TemperatureStep*")
-          doTask("TerraformRating")
-        }
-        .expect("-12 MC, TemperatureStep")
+      doTasks(
+          "UseStandardProject<AsteroidProject>",
+          "-2 Asteroid<KuiperCooperative>",
+          "-12 MC",
+      )
+      doTask("TemperatureStep")
+      doTask("TerraformRating")
+    }
   }
 
   @Test
@@ -53,7 +52,7 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
           doTasks(
               "UseStandardProject<AquiferProject>",
               "-2 Asteroid<KuiperCooperative>",
-              "-MC / Owed",
+              "-16 MC",
               "OceanTile<Tharsis_1_2>",
               "TerraformRating",
               "2 Steel",
@@ -68,8 +67,8 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseStandardProject<PowerPlantProject>")
+        // Select the payment to test the outstanding bill independently of the pending attack.
         selectTask("-X? MC")
         doTask("-2 Asteroid<KuiperCooperative>")
       }
@@ -82,7 +81,6 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("UseStandardProject<AsteroidProject>", "-Asteroid<AstroDrill>")
       }
     }

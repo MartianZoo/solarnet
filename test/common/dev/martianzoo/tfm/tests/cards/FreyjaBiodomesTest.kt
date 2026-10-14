@@ -23,7 +23,6 @@ internal class FreyjaBiodomesTest : TfmSandboxTest() {
               "PROD[-Energy]",
               "PROD[2 MC]",
           )
-          selectOnlyTask()
           doTask("Ok")
         }
         .expect("0 Animal<$VenusianAnimals>")

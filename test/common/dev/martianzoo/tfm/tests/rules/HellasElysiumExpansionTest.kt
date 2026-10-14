@@ -12,21 +12,19 @@ internal class HellasElysiumExpansionTest : TfmSandboxTest() {
     kim.setToExMachina(9, "PROD[MC]")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("ClaimMilestone<Class<Specialist>>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
+        doTask("-8 MC")
+        doTask("Specialist")
       }
     }
 
     kim.inTurn {
       doTasks("UseStandardProject<CityProject>", "-25 MC", "PROD[MC]", "CityTile<Elysium_1_5>")
-      selectTask("ProjectCard<Kim, Hand>!")
+      doTask("ProjectCard<Kim, Hand>")
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Specialist>>", "-MC / Owed<Class<MC>>")
-      selectOnlyTask()
+      doTasks("ClaimMilestone<Class<Specialist>>", "-8 MC")
+      doTask("Specialist")
     }
   }
 }

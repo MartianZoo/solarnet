@@ -16,9 +16,8 @@ internal class FakeSeptemTribusTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-          doTask("UseCardAction<FakeSeptemTribus, Action1>")
-          selectOnlyTask()
-        }
-        .expect("4 MC")
+      doTask("UseCardAction<FakeSeptemTribus, Action1>")
+      doTask("4 MC")
+    }
   }
 }

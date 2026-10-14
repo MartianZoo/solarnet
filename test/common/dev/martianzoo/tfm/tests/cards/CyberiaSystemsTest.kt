@@ -1,22 +1,21 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class CyberiaSystemsTest : TfmSandboxTest() {
-  @BeforeTest
-  fun initializeGame() {
+
+  private fun initializeGame() {
     newTestGame()
     kim.exMachina("$Mine, $IndustrialMicrobes")
   }
 
   @Test
   internal fun `Copies production boxes from two different building cards`() {
+    initializeGame()
     kim.inTurn {
       doTasks(
           "PlayProject<Class<CyberiaSystems>>",
@@ -34,16 +33,14 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Cannot copy the same card twice`() {
-    shouldThrow<NarrowingException> {
+    initializeGame()
+    shouldThrow<TaskException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<CyberiaSystems>>")
-        selectTask("-X? MC")
         doTasks("-16 MC", "CyberiaSystems FROM ProjectCard")
-        selectTask("PROD[Steel]")
+        doTask("PROD[Steel]")
         doTask("CopyProductionBox<Mine>")
-        selectTask("PROD[Steel]")
-        selectOnlyTask()
+        doTask("PROD[Steel]")
         doTask("CopyProductionBox<Mine>")
       }
     }
@@ -51,6 +48,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Cannot copy itself`() {
+    initializeGame()
     shouldThrow<TaskException> {
       kim.inTurn {
         doTasks(
@@ -85,6 +83,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
           "2 Plant",
           "CopyProductionBox<IndustrialComplex>",
       )
+      // Expand the copied production box into its separate resource increases.
       selectOnlyTask()
       doTasks(
           "PROD[MC]",

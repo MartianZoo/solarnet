@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.BannedDelegate
 import io.kotest.assertions.throwables.shouldThrow
@@ -16,7 +16,6 @@ internal class BannedDelegateTest : TfmSandboxTest() {
 
     shouldThrow<NotNowException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<BannedDelegate>>")
       }
     }
@@ -35,9 +34,9 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          selectOnlyTask()
+          // Hand the chosen removal to Admin, which updates the delegate reserve.
           selectTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>*")
-          selectOnlyTask()
+          doTask("-PartyDelegate<Stan, MarsFirst>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect(
@@ -58,9 +57,9 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          selectOnlyTask()
+          // Hand the chosen removal to Admin, which updates the delegate reserve.
           selectTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>*")
-          selectOnlyTask()
+          doTask("-PartyDelegate<Stan, MarsFirst>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect("-Dominant<MarsFirst>, Dominant<Kelvinists>, 0 Dominant<Reds>")
@@ -79,9 +78,9 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          selectOnlyTask()
+          // Hand the chosen removal to Admin, which updates the delegate reserve.
           selectTask("BannedDelegateRemoval<Kim, Greens, Stan>*")
-          selectOnlyTask()
+          doTask("-PartyDelegate<Stan, Greens>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect("-Dominant<Greens>, Dominant<Unity>, 0 Dominant<Reds>")
@@ -100,9 +99,9 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          selectOnlyTask()
+          // Hand the chosen removal to Admin, which updates the delegate reserve.
           selectTask("BannedDelegateRemoval<Kim, Scientists, Stan>*")
-          selectOnlyTask()
+          doTask("-PartyDelegate<Stan, Scientists>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect(
@@ -124,9 +123,9 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          selectOnlyTask()
+          // Hand the chosen removal to Admin, which updates the delegate reserve.
           selectTask("BannedDelegateRemoval<Kim, Scientists, Rob>*")
-          selectOnlyTask()
+          doTask("-PartyDelegate<Rob, Scientists>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect(
@@ -150,9 +149,9 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          selectOnlyTask()
+          // Hand the chosen removal to Admin, which updates the delegate reserve.
           selectTask("BannedDelegateRemoval<Stan, Scientists, Maya>*")
-          selectOnlyTask()
+          doTask("-PartyDelegate<Maya, Scientists>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect(
@@ -172,6 +171,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "PlayProject<Class<$BannedDelegate>>",
               "$BannedDelegate FROM ProjectCard",
           )
+          // Hand the chosen removal to Admin, which updates the delegate reserve.
           selectTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>")
           doTask("-PartyDelegate<MarsFirst, Stan>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
@@ -189,9 +189,9 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          selectOnlyTask()
+          // Hand the chosen removal to Admin, which updates the delegate reserve.
           selectTask("BannedDelegateRemoval<Kim, Scientists, Kim>*")
-          selectOnlyTask()
+          doTask("-PartyDelegate<Scientists>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect("-PartyDelegate<Scientists>, 0 PartyLeader<Scientists>")
@@ -207,9 +207,9 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          selectOnlyTask()
+          // Hand the chosen removal to Admin, which updates the delegate reserve.
           selectTask("BannedDelegateRemoval<Kim, Scientists, Neutral>*")
-          selectOnlyTask()
+          doTask("-PartyDelegate<Neutral, Scientists>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect("-PartyDelegate<Scientists, Neutral>, 0 PartyLeader<Scientists, Neutral>")
@@ -224,7 +224,7 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          selectOnlyTask()
+          doTask("0* BannedDelegateRemoval<Anyone, Party>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect("0 PartyDelegate<Anyone>")
@@ -235,14 +235,12 @@ internal class BannedDelegateTest : TfmSandboxTest() {
     arrangeChairman()
     stan.exMachina("2 PartyDelegate<MarsFirst>")
 
-    shouldThrow<NarrowingException> {
+    shouldThrow<TaskException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks(
             "PlayProject<Class<BannedDelegate>>",
             "BannedDelegate FROM ProjectCard",
         )
-        selectOnlyTask()
         doTask("Ok")
       }
     }
@@ -255,12 +253,12 @@ internal class BannedDelegateTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks(
             "PlayProject<Class<BannedDelegate>>",
             "BannedDelegate FROM ProjectCard",
         )
-        selectOnlyTask()
+        // Select the removal choice before testing an incompatible partial narrowing.
+        selectTask("BannedDelegateRemoval")
         narrowTask("BannedDelegateRemoval<Kim, Scientists, Stan>")
       }
     }
@@ -274,12 +272,12 @@ internal class BannedDelegateTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks(
             "PlayProject<Class<BannedDelegate>>",
             "BannedDelegate FROM ProjectCard",
         )
-        selectOnlyTask()
+        // Select the removal choice before testing an incompatible partial narrowing.
+        selectTask("BannedDelegateRemoval")
         narrowTask("BannedDelegateRemoval<Kim, Scientists, Kim>")
       }
     }
@@ -295,9 +293,9 @@ internal class BannedDelegateTest : TfmSandboxTest() {
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          selectOnlyTask()
+          // Hand the chosen removal to Admin, which updates the delegate reserve.
           selectTask("BannedDelegateRemoval<Kim, MarsFirst, Stan>*")
-          selectOnlyTask()
+          doTask("-PartyDelegate<Stan, MarsFirst>")
           doTask("PlayedEvent<Class<$BannedDelegate>> FROM $BannedDelegate")
         }
         .expect("-PartyDelegate<MarsFirst, Stan>, 0 PartyDelegate<Scientists, Stan>")

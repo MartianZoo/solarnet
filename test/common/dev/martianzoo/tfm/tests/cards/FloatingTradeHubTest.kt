@@ -13,9 +13,7 @@ internal class FloatingTradeHubTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTask("UseCardAction<FloatingTradeHub, Action2>")
-      selectOnlyTask()
-      selectTask("-3! Floater<FloatingTradeHub> THEN 3! StandardResource")
-      selectOnlyTask()
+      doTask("-3 Floater<FloatingTradeHub> THEN 3 Titanium")
       doTask("3 Titanium")
     }
   }
@@ -27,9 +25,7 @@ internal class FloatingTradeHubTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTask("UseCardAction<FloatingTradeHub, Action2>")
-      selectOnlyTask()
-      selectTask("-3! Floater<FloatingTradeHub> THEN 3! StandardResource")
-      selectOnlyTask()
+      doTask("-3 Floater<FloatingTradeHub> THEN 3 Titanium")
       doTask("3 Titanium")
     }
   }

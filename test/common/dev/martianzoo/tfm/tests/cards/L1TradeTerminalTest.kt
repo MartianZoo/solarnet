@@ -1,8 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
-import dev.martianzoo.pets.api.Exceptions.GameplayException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -26,9 +25,9 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
       kim.inTurn {
         // Decline the remaining Floating Habs.
         doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
-        selectTask("-X? Titanium")
-        selectTask("Ok")
+        doTask("Ok" /* No Titanium payment. */)
         doTasks("L1TradeTerminal FROM ProjectCard")
+        // Expand the bonus into a separate resource choice for each eligible card.
         selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         doTasks("Floater<AerialMappers>", "Floater<FloatingRefinery>")
         doTask("0 Floater<CloudTourism>")
@@ -36,16 +35,14 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
       }
     }
 
-    shouldThrow<GameplayException> {
+    shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
-        selectTask("-X? Titanium")
-        selectTask("Ok")
+        doTask("Ok" /* No Titanium payment. */)
         doTasks("L1TradeTerminal FROM ProjectCard")
+        // Expand the bonus into a separate resource choice for each eligible card.
         selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         doTasks("Floater<AerialMappers>", "Floater<FloatingRefinery>", "Floater<CloudTourism>")
-        selectTask("Floater<FloatingHabs>?")
         doTask("Floater<FloatingHabs>")
       }
     }
@@ -57,6 +54,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
               "-25 MC",
               "L1TradeTerminal FROM ProjectCard",
           )
+          // Expand the bonus into a separate resource choice for each eligible card.
           selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
           shouldThrow<TaskException> {
             doTask("Floater<Stan, $JetStreamMicroscrappers<Stan>>")
@@ -64,8 +62,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
           doTasks("Floater<AerialMappers>", "Floater<FloatingRefinery>", "Floater<CloudTourism>")
           // Decline the remaining Floating Habs.
           doTask("0 Floater<FloatingHabs>")
-          selectTask("-X? Titanium")
-          doTask("Ok")
+          doTask("Ok" /* No Titanium payment. */)
         }
         .expect(
             "Floater<$AerialMappers>, Floater<$FloatingRefinery>, Floater<$CloudTourism>, " +
@@ -81,11 +78,10 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
-        selectTask("-X? Titanium")
-        selectTask("Ok")
+        doTask("Ok" /* No Titanium payment. */)
         doTasks("L1TradeTerminal FROM ProjectCard")
+        // Expand the bonus into a separate resource choice for each eligible card.
         selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         doTask("0 Floater<FloatingHabs>")
       }
@@ -93,8 +89,8 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "L1TradeTerminal FROM ProjectCard")
+      doTasks("Ok" /* No Titanium payment. */, "L1TradeTerminal FROM ProjectCard")
+      // Expand the bonus into a separate resource choice for each eligible card.
       selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
       doTask("Floater<FloatingHabs>")
     }
@@ -111,25 +107,22 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
-        selectTask("-X? Titanium")
-        selectTask("Ok")
+        doTask("Ok" /* No Titanium payment. */)
         doTasks("L1TradeTerminal FROM ProjectCard")
+        // Expand the bonus into a separate resource choice for each eligible card.
         selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         doTasks("Floater<FloatingHabs>", "Microbe<VenusianInsects>")
-        selectOnlyTask()
         doTask("0 Floater<AerialMappers>")
       }
     }
 
     kim.inTurn {
       doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "L1TradeTerminal FROM ProjectCard")
+      doTasks("Ok" /* No Titanium payment. */, "L1TradeTerminal FROM ProjectCard")
+      // Expand the bonus into a separate resource choice for each eligible card.
       selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
       doTasks("Floater<FloatingHabs>", "Microbe<VenusianInsects>")
-      selectOnlyTask()
       doTask("Floater<AerialMappers>")
     }
   }
@@ -143,16 +136,14 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
             "$FloatingTradeHub"
     )
 
-    shouldThrow<NarrowingException> {
+    shouldThrow<TaskException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
-        selectTask("-X? Titanium")
-        selectTask("Ok")
+        doTask("Ok" /* No Titanium payment. */)
         doTasks("L1TradeTerminal FROM ProjectCard")
+        // Expand the bonus into a separate resource choice for each eligible card.
         selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         doTask("Floater<FloatingHabs>")
-        selectOnlyTask()
         doTask("Floater<FloatingHabs>")
       }
     }
@@ -160,25 +151,22 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
-        selectTask("-X? Titanium")
-        selectTask("Ok")
+        doTask("Ok" /* No Titanium payment. */)
         doTasks("L1TradeTerminal FROM ProjectCard")
+        // Expand the bonus into a separate resource choice for each eligible card.
         selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         doTask("Floater<FloatingHabs>")
-        selectOnlyTask()
         doTask("0 Microbe<VenusianInsects>")
       }
     }
 
     kim.inTurn {
           doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
-          selectTask("-X? Titanium")
-          doTasks("Ok", "L1TradeTerminal FROM ProjectCard")
+          doTasks("Ok" /* No Titanium payment. */, "L1TradeTerminal FROM ProjectCard")
+          // Expand the bonus into a separate resource choice for each eligible card.
           selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
           doTask("Floater<FloatingHabs>")
-          selectOnlyTask()
           doTask("Microbe<VenusianInsects>")
         }
         .expect("0 Floater<$FloatingTradeHub>")
@@ -191,8 +179,8 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
-          selectTask("-X? Titanium")
-          doTasks("Ok", "L1TradeTerminal FROM ProjectCard")
+          doTasks("Ok" /* No Titanium payment. */, "L1TradeTerminal FROM ProjectCard")
+          // Expand the bonus into a separate resource choice for each eligible card.
           selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         }
         .expect("0 Floater<Stan, $FloatingTradeHub<Stan>>")

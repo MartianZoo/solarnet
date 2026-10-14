@@ -21,7 +21,7 @@ internal class VerminTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("UseStandardProject<CityProject>", "-25 MC", "PROD[MC]", "CityTile<Tharsis_2_1>")
-          kim.selectOnlyTask()
+          kim.doTask("Animal<Vermin>")
         }
         .expect("Animal<$Vermin<Kim>>")
   }
@@ -46,10 +46,10 @@ internal class VerminTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Tharsis_3_2>")
     rob.exMachina("NormalCityTile<Tharsis_3_3>")
 
-    admin.runOperation("End FROM Phase") {
+    victoryPoints {
+      // Expand the per-player deductions; Admin applies the scoring changes.
       kim.selectOnlyTask()
-    }
-    players.map { it.count("VictoryPoint") } shouldBe listOf(18, 19, 19)
+    } shouldBe listOf(18, 19, 19)
   }
 
   // This synthetic listener tests engine attribution, rather than Vermin's player-facing result.

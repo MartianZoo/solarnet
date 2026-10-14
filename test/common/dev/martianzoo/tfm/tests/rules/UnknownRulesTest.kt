@@ -32,17 +32,17 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "PreludeExpansion, ValleyTrust", kimCorporation = ValleyTrust)
     kim.inTurn {
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      selectTask("4! CorporationCard<Kim, Selecting>")
+      doTask("4 CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
       doTask("TharsisRepublic<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTasks("40 MC", "-42 MC")
-      selectTask("TharsisRepublic_RequiredAction!")
+      doTask("TharsisRepublic_RequiredAction!")
     }
     advanceUntilActionPhase()
 
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectTask("3! PreludeCard<Kim, Selecting>")
+      doTask("3 PreludeCard<Kim, Selecting>")
       doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
       doTask("Donation<Kim> FROM PreludeCard<Kim, Selecting>!")
       doTasks("21 MC", "CityTile<Tharsis_3_3>", "PROD[MC]", "3 MC")
@@ -65,21 +65,19 @@ internal class UnknownRulesTest : TfmSandboxTest() {
           "FakeHeadStart FROM PreludeCard",
           "2 Steel",
       )
-      selectTask("2! MC / ProjectCard<Kim, Hand>")
+      doTask("20 MC")
       doTask("UseCardAction<BoardOfDirectors, Action1>")
-      selectTask("PreludeCard<Kim, Hand>!")
+      doTask("PreludeCard<Kim, Hand>")
       doTask("-12 MC")
-      selectTask("-Director<BoardOfDirectors>!")
+      doTask("-Director<BoardOfDirectors>")
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      selectTask("4! CorporationCard<Kim, Selecting>")
+      doTask("4 CorporationCard<Kim, Selecting>")
       doTask("-42 MC")
       doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
       doTask("TharsisRepublic<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTask("40 MC")
-      selectTask("TharsisRepublic_RequiredAction!")
-      selectTask(
-          "(MAX 0 RequiredAction: StandardAction!) OR (RequiredAction: RequiredActionsSignal!)"
-      )
+      doTask("TharsisRepublic_RequiredAction!")
+      doTask("RequiredActionsSignal")
       doTasks("CityTile<Tharsis_3_3>", "PROD[MC]", "3 MC")
     }
 
@@ -96,9 +94,8 @@ internal class UnknownRulesTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("RequiredActionsSignal")
-        selectTask("Colony<Kim, ColonyTile(HAS MAX 0 Colony)>!")
+
         doTask("Colony<Luna>")
       }
     }
@@ -113,28 +110,27 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "PreludeExpansion, Luna, Ceres, Triton, Ganymede, Callisto")
     kim.inTurn {
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      selectTask("4! CorporationCard<Kim, Selecting>")
+      doTask("4 CorporationCard<Kim, Selecting>")
       doTask("-42 MC")
       doTask("PlayCard<Class<CorporationCard>, Class<Poseidon>>")
-      selectOnlyTask()
+      doTask("Poseidon FROM CorporationCard<Selecting>")
       doTask("45 MC")
-      selectOnlyTask()
+      doTask("Poseidon_RequiredAction")
     }
-    val moneyAfterMerger = kim.count("MC")
+    kim.setToExMachina(20, "MC")
     fillSelectedColonySlots()
     advanceUntilActionPhase()
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("RequiredActionsSignal")
-        selectTask("Colony<Kim, ColonyTile(HAS MAX 0 Colony)>!")
+
         doTask("Colony<Luna>")
       }
     }
     kim.count("$Poseidon") shouldBe 1
     kim.count("$Merger") shouldBe 1
-    kim.count("MC") shouldBe moneyAfterMerger
+    kim.count("MC") shouldBe 20
     kim.count("RequiredAction") shouldBe 1
     kim.count("Colony") shouldBe 0
   }

@@ -30,6 +30,8 @@ Delete entries when they are done.
 - Clarify Astra Mechanica's zero/one/two eligible-event behavior and reconcile its modeled return
   with printed and derived English.
 - Separate task selection from execution when automatic execution is disabled.
+- Investigate selecting tasks by their main class without narrowing them, including grouped
+  instructions, so more sandbox `selectOnlyTask` calls can use meaningful names.
 - actually plan out how exMachina should work
 - Keep gated System work with Admin when its condition becomes satisfied, removing unnecessary
   player selections such as those in Head Start scenarios.

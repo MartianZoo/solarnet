@@ -17,11 +17,11 @@ internal class GmoContractTest : TfmSandboxTest() {
           "AdvancedEcosystems FROM ProjectCard",
           "2 MC",
       )
-      selectTask("Microbe<Decomposers>*")
+      doTask("Microbe<Decomposers>*")
       doTask("2 MC")
-      selectTask("Microbe<Decomposers>*")
+      doTask("Microbe<Decomposers>*")
       doTask("2 MC")
-      selectTask("Microbe<Decomposers>*")
+      doTask("Microbe<Decomposers>*")
     }
   }
 }

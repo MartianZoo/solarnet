@@ -18,20 +18,20 @@ internal class MergerTest : TfmSandboxTest() {
     newTestGame(addOptions = "PreludeExpansion, ValleyTrust", kimCorporation = ValleyTrust)
     kim.inTurn {
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      selectTask("4! CorporationCard<Kim, Selecting>")
+      doTask("4 CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<Celestic>>")
       doTask("Celestic<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTasks("42 MC", "-42 MC")
-      selectOnlyTask()
+      doTask("Celestic_RequiredAction")
     }
     advanceUntilActionPhase()
 
     kim.inTurn {
           doTask("RequiredActionsSignal")
-          selectTask("2! SearchForCard<Kim, ReferenceFilter<Class<Floater>>>")
-          selectTask("3! PreludeCard<Kim, Selecting>")
+          doTask("2 SearchForCard<ReferenceFilter<Class<Floater>>>")
+          doTask("3 PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<SocietySupport>>")
-          selectOnlyTask()
+          doTask("SocietySupport FROM PreludeCard<Selecting>")
           doTasks("PROD[-MC]", "PROD[Plant]", "PROD[Energy]", "PROD[Heat]")
         }
         .expect("2 ProjectCard, -2 RequiredAction")
@@ -47,16 +47,15 @@ internal class MergerTest : TfmSandboxTest() {
               "NewPartner FROM PreludeCard",
               "PROD[MC]",
           )
-          selectTask("2! PreludeCard<Kim, Selecting>")
-          selectOnlyTask()
+          doTask("2 PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<Merger>>")
-          selectOnlyTask()
-          selectTask("4! CorporationCard<Kim, Selecting>")
+          doTask("Merger FROM PreludeCard<Selecting>")
+          doTask("4 CorporationCard<Kim, Selecting>")
           doTask("-42 MC")
           doTask("PlayCard<Class<CorporationCard>, Class<Celestic>>")
           doTask("Celestic<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTask("42 MC")
-          selectOnlyTask()
+          doTask("Celestic_RequiredAction")
         }
         .expect("$Merger, $Celestic, 0 CorporationCard<Selecting>, 0 PreludeCard<Selecting>")
   }
@@ -68,15 +67,15 @@ internal class MergerTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-          selectTask("4! CorporationCard<Kim, Selecting>")
+          doTask("4 CorporationCard<Kim, Selecting>")
           doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
           doTask("PharmacyUnion<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTask("-42 MC")
-          selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
-          selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
-          selectTask("-4* MC")
-          selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
-          selectTask("-4* MC")
+          doTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
+          doTask("Disease<PharmacyUnion>")
+          doTask("-4* MC")
+          doTask("Disease<PharmacyUnion>")
+          doTask("-4* MC")
         }
         .expect("4 MC, 2 Disease<$PharmacyUnion>")
   }
@@ -90,23 +89,20 @@ internal class MergerTest : TfmSandboxTest() {
           "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
           "BoardOfDirectors FROM PreludeCard",
       )
-      selectOnlyTask()
+      doTask("4 Director<BoardOfDirectors>")
     }
     advanceUntilActionPhase()
     kim.setToExMachina(17, "MC")
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseCardAction<BoardOfDirectors, Action1>")
-        selectTask("PreludeCard<Kim, Hand>!")
-        selectOnlyTask()
+        doTask("PreludeCard<Kim, Hand>")
         doTask("-12 MC")
-        selectTask("-Director<BoardOfDirectors>!")
-        selectOnlyTask()
+        doTask("-Director<BoardOfDirectors>")
         doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-        selectTask("4! CorporationCard<Kim, Selecting>")
-        selectTask("PlayCard<Kim, Class<CorporationCard>, Class<CardFront>, Selecting>!")
+        doTask("4 CorporationCard<Kim, Selecting>")
+
         doTasks(
             "PlayCard<Class<CorporationCard>, Class<Recyclon>>",
             "Recyclon FROM CorporationCard<Selecting>",

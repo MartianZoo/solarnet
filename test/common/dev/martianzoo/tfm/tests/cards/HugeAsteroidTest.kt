@@ -16,9 +16,9 @@ internal class HugeAsteroidTest : TfmSandboxTest() {
               "PlayCard<Class<PreludeCard>, Class<HugeAsteroid>>",
               "HugeAsteroid FROM PreludeCard",
           )
-          selectTask("TemperatureStep*")
-          selectTask("TemperatureStep*")
-          selectTask("TemperatureStep*")
+          doTask("TemperatureStep")
+          doTask("TemperatureStep")
+          doTask("TemperatureStep")
           doTask("-5 MC")
         }
         .expect("0 TemperatureStep, 0 TerraformRating")

@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
@@ -26,11 +25,10 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Heat")
 
     kim.inTurn {
-          doTasks("ConvertHeat", "-8 Heat")
-          doTask("TemperatureStep")
-          doTask("TerraformRating")
-        }
-        .expect("-8 Heat, TemperatureStep")
+      doTasks("ConvertHeat", "-8 Heat")
+      doTask("TemperatureStep")
+      doTask("TerraformRating")
+    }
   }
 
   @Test
@@ -39,11 +37,10 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Heat, 2 TemperatureStep")
 
     kim.inTurn {
-          doTasks("ConvertHeat", "-8 Heat")
-          doTask("TemperatureStep")
-          doTasks("TerraformRating", "PROD[Heat]")
-        }
-        .expect("-8 Heat, TemperatureStep")
+      doTasks("ConvertHeat", "-8 Heat")
+      doTask("TemperatureStep")
+      doTasks("TerraformRating", "PROD[Heat]")
+    }
   }
 
   @Test
@@ -71,13 +68,13 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Plant")
 
     kim.inTurn {
-          doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
-          selectOnlyTask()
-          doTask("GreeneryTile<Tharsis_3_3>")
-          selectTask("OxygenStep*")
-          doTask("TerraformRating")
-        }
-        .expect("-8 Plant, OxygenStep")
+      doTasks("ConvertPlants", "-8 Plant")
+      // Hand the paid conversion to Admin to offer the legal greenery areas.
+      selectTask("DefaultGreeneryTile")
+      doTask("GreeneryTile<Tharsis_3_3>")
+      doTask("OxygenStep")
+      doTask("TerraformRating")
+    }
   }
 
   @Test
@@ -87,40 +84,39 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.setToExMachina(0, "MC")
     stan.exMachina("GreeneryTile<Hellas_9_5>, GreeneryTile<Hellas_8_5>, GreeneryTile<Hellas_8_6>")
 
-    shouldThrow<NarrowingException> {
+    shouldThrow<TaskException> {
       kim.inTurn {
         doTask("ConvertPlants")
-        selectTask("-X? Plant")
-        doTask("-Plant / Owed<Class<Plant>>")
-        selectOnlyTask()
-        selectOnlyTask()
+        doTask("-8 Plant")
+        // Hand the paid conversion to Admin to offer the legal greenery areas.
+        selectTask("DefaultGreeneryTile")
         doTask("GreeneryTile<Hellas_1_1>")
       }
     }
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTask("ConvertPlants")
-        selectTask("-X? Plant")
-        doTask("-Plant / Owed<Class<Plant>>")
-        selectOnlyTask()
-        selectOnlyTask()
+        doTask("-8 Plant")
+        // Hand the paid conversion to Admin to offer the legal greenery areas.
+        selectTask("DefaultGreeneryTile")
         doTask("GreeneryTile<Hellas_9_7>")
-        selectTask("OxygenStep*")
-        selectTask("TerraformRating!")
-        selectTask("OceanTile<WaterArea(HAS MAX 0 Tile)>*")
+        doTask("OxygenStep")
+        doTask("TerraformRating")
         doTask("OceanTile<Hellas_6_7>")
-        selectTask("TerraformRating!")
-        selectOnlyTask()
+        doTask("TerraformRating")
+        // Resolve the mandatory Hellas placement bill to expose the unaffordable cost.
+        doTask("-6 MC")
       }
     }
     kim.count("GreeneryTile") shouldBe 0
 
     kim.exMachina("6 MC")
     kim.inTurn {
-      doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
-      selectOnlyTask()
+      doTasks("ConvertPlants", "-8 Plant")
+      // Hand the paid conversion to Admin to offer the legal greenery areas.
+      selectTask("DefaultGreeneryTile")
       doTask("GreeneryTile<Hellas_9_7>")
-      selectTask("OxygenStep*")
+      doTask("OxygenStep")
       doTasks("-6 MC", "TerraformRating", "OceanTile<Hellas_6_7>", "TerraformRating")
     }
   }
@@ -131,15 +127,16 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Plant, 13 OxygenStep")
     stan.inTurn {
       doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_1_1>")
-      selectTask("OxygenStep*")
+      doTask("OxygenStep")
       doTasks("2 Steel", "TerraformRating")
     }
 
     kim.inTurn {
-          doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
-          selectOnlyTask()
+          doTasks("ConvertPlants", "-8 Plant")
+          // Hand the paid conversion to Admin to offer the legal greenery areas.
+          selectTask("DefaultGreeneryTile")
           doTask("GreeneryTile<Tharsis_3_3>")
-          selectTask("OxygenStep*")
+          doTask("OxygenStep")
         }
         .expect("-8 Plant, 0 OxygenStep, 0 TerraformRating")
   }
@@ -150,15 +147,15 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Plant, 7 OxygenStep")
 
     kim.inTurn {
-          doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
-          selectOnlyTask()
-          doTask("GreeneryTile<Tharsis_3_3>")
-          selectTask("OxygenStep*")
-          doTask("TerraformRating")
-          selectTask("TemperatureStep*")
-          doTask("TerraformRating")
-        }
-        .expect("-8 Plant, OxygenStep, TemperatureStep")
+      doTasks("ConvertPlants", "-8 Plant")
+      // Hand the paid conversion to Admin to offer the legal greenery areas.
+      selectTask("DefaultGreeneryTile")
+      doTask("GreeneryTile<Tharsis_3_3>")
+      doTask("OxygenStep")
+      doTask("TerraformRating")
+      doTask("TemperatureStep")
+      doTask("TerraformRating")
+    }
   }
 
   @Test
@@ -167,10 +164,11 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("8 Plant, OceanTile<Tharsis_4_8>")
 
     kim.inTurn {
-          doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
-          selectOnlyTask()
+          doTasks("ConvertPlants", "-8 Plant")
+          // Hand the paid conversion to Admin to offer the legal greenery areas.
+          selectTask("DefaultGreeneryTile")
           doTask("GreeneryTile<Tharsis_4_7>")
-          selectTask("OxygenStep*")
+          doTask("OxygenStep")
           doTasks("Plant", "2 MC", "TerraformRating")
         }
         .expect("-7 Plant, OxygenStep")
@@ -186,7 +184,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep*")
+      doTask("TemperatureStep")
       doTask("TerraformRating")
     }
     kim.inTurn {
@@ -211,7 +209,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_4_5>")
-      selectTask("OxygenStep*")
+      doTask("OxygenStep")
       doTasks("2 Plant", "TerraformRating")
     }
   }
@@ -222,8 +220,8 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.setToExMachina(35, "TerraformRating")
 
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Terraformer35>>", "-MC / Owed<Class<MC>>")
-      selectOnlyTask()
+      doTasks("ClaimMilestone<Class<Terraformer35>>", "-8 MC")
+      doTask("Terraformer35")
     }
   }
 
@@ -233,17 +231,15 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.setToExMachina(35, "TerraformRating")
     stan.setToExMachina(35, "TerraformRating")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Terraformer35>>", "-MC / Owed<Class<MC>>")
-      selectOnlyTask()
+      doTasks("ClaimMilestone<Class<Terraformer35>>", "-8 MC")
+      doTask("Terraformer35")
     }
 
     shouldThrow<LimitsException> {
       stan.inTurn {
-        selectOnlyTask()
         doTask("ClaimMilestone<Class<Terraformer35>>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
+        doTask("-8 MC")
+        doTask("Terraformer35")
       }
     }
   }
@@ -254,15 +250,15 @@ internal class CoreRulesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("FundAward<Class<Landlord>>", "-8 MC")
-      selectOnlyTask()
+      doTask("Landlord")
     }
     kim.inTurn {
       doTasks("FundAward<Class<Scientist>>", "-14 MC")
-      selectOnlyTask()
+      doTask("Scientist")
     }
     kim.inTurn {
       doTasks("FundAward<Class<Thermalist>>", "-20 MC")
-      selectOnlyTask()
+      doTask("Thermalist")
     }
   }
 
@@ -272,11 +268,9 @@ internal class CoreRulesTest : TfmSandboxTest() {
     kim.exMachina("3 Energy")
 
     kim.inTurn {
-          doTasks("TradeAction<Action2>", "-Energy / Owed<Class<Energy>>")
-          selectOnlyTask()
-          doTasks("Trade<Ceres>", "2 Steel")
-        }
-        .expect("-3 Energy")
+      doTasks("TradeAction<Action2>", "-3 Energy")
+      doTasks("Trade<Ceres>", "2 Steel")
+    }
   }
 
   @Test
@@ -285,7 +279,7 @@ internal class CoreRulesTest : TfmSandboxTest() {
     // As when Red Appeasement is played through Head Start during the Prelude phase.
     kim.exMachina("Pass")
 
-    admin.phase("Action")
+    advanceUntilActionPhase()
 
     shouldThrow<TaskException> { kim.inTurn { doTask("Pass") } }
     stan.inTurn { doTask("Pass") }

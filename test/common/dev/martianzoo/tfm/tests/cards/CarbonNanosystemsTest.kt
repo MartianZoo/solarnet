@@ -17,12 +17,12 @@ internal class CarbonNanosystemsTest : TfmSandboxTest() {
           "-2 Graphene<CarbonNanosystems>",
           "AsteroidCard FROM ProjectCard",
       )
-      selectTask("TemperatureStep*")
+      doTask("TemperatureStep")
       doTask("2 Titanium")
+      // Resolve the optional attack: no unprotected plant target is available.
       selectTask("-3? Plant<Anyone>")
       doTask("TerraformRating")
-      selectTask("-X? Titanium")
-      doTask("Ok")
+      doTask("Ok" /* No Titanium payment. */)
       doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
   }
@@ -39,12 +39,12 @@ internal class CarbonNanosystemsTest : TfmSandboxTest() {
           "-2 Graphene<CarbonNanosystems>",
           "AsteroidCard FROM ProjectCard",
       )
-      selectTask("TemperatureStep*")
+      doTask("TemperatureStep")
       doTask("2 Titanium")
+      // Resolve the optional attack: no unprotected plant target is available.
       selectTask("-3? Plant<Anyone>")
       doTask("TerraformRating")
-      selectTask("-X? Titanium")
-      doTask("Ok")
+      doTask("Ok" /* No Titanium payment. */)
       doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
   }

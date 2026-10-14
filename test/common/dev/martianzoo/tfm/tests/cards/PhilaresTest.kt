@@ -11,7 +11,7 @@ internal class PhilaresTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Philares)
     kim.inTurn {
       doTasks("RequiredActionsSignal", "GreeneryTile<Tharsis_4_2>")
-      selectTask("OxygenStep*")
+      doTask("OxygenStep")
       doTasks("Plant", "TerraformRating")
     }
   }
@@ -22,7 +22,7 @@ internal class PhilaresTest : TfmSandboxTest() {
         .inTurn {
           doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_3_2>")
           kim.doTask("Titanium")
-          selectTask("OxygenStep*")
+          doTask("OxygenStep")
           doTask("TerraformRating")
         }
         .expect("Titanium<Kim>")
@@ -35,9 +35,9 @@ internal class PhilaresTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_3_2>")
-      selectTask("OxygenStep*")
+      doTask("OxygenStep")
       doTask("TerraformRating")
-      selectTask("StandardResource!")
+
       doTask("Titanium")
     }
   }
@@ -49,7 +49,7 @@ internal class PhilaresTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_2_1>")
-          selectTask("OxygenStep*")
+          doTask("OxygenStep")
           doTask("TerraformRating")
         }
         .expect(
@@ -63,7 +63,7 @@ internal class PhilaresTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_3_2>")
-          selectTask("OxygenStep*")
+          doTask("OxygenStep")
           doTask("TerraformRating")
         }
         .expect("0 Steel, 0 Titanium, 0 Energy, 0 Heat")
@@ -81,8 +81,7 @@ internal class PhilaresTest : TfmSandboxTest() {
               "KaguyaTech FROM ProjectCard",
               "PROD[2 MC]",
           )
-          selectTask("ProjectCard<Stan, Hand>!")
-          selectOnlyTask()
+          doTask("ProjectCard<Stan, Hand>")
           doTask("CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_3>")
           kim.doTask("Titanium")
           doTask("Plant")

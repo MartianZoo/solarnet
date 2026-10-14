@@ -16,16 +16,14 @@ internal class AirScrappingExpeditionTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<AirScrappingExpedition>>")
-        selectTask("-X? MC")
+
         doTasks(
             "-13 MC",
             "AirScrappingExpedition FROM ProjectCard",
         )
-        selectTask("VenusStep*")
-        selectTask("TerraformRating!")
-        selectOnlyTask()
+        doTask("VenusStep")
+        doTask("TerraformRating")
         doTask("3* Floater<AtmoCollectors>")
       }
     }

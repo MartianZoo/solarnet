@@ -23,8 +23,8 @@ internal class RobinsonIndustriesTest : TfmSandboxTest() {
   internal fun `Can raise MC production from a negative level`() {
     kim.exMachina("PROD[-1 MC]")
     kim.inTurn {
-          doTasks("UseCardAction<RobinsonIndustries, Action1>", "-MC / Owed<Class<MC>>")
-          selectOnlyTask()
+          doTasks("UseCardAction<RobinsonIndustries, Action1>", "-4 MC")
+          doTask("PROD[MC]")
         }
         .expect("PROD[1 MC]")
   }
@@ -33,10 +33,9 @@ internal class RobinsonIndustriesTest : TfmSandboxTest() {
   internal fun `Can raise uniquely lowest titanium production`() {
     kim.exMachina("PROD[1 MC, Steel, Plant, Energy, Heat]")
     kim.inTurn {
-          doTasks("UseCardAction<RobinsonIndustries, Action1>", "-MC / Owed<Class<MC>>")
-          selectOnlyTask()
-        }
-        .expect("PROD[Titanium]")
+      doTasks("UseCardAction<RobinsonIndustries, Action1>", "-4 MC")
+      doTask("PROD[Titanium]")
+    }
   }
 
   @Test
@@ -45,7 +44,7 @@ internal class RobinsonIndustriesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "UseCardAction<RobinsonIndustries, Action1>",
-          "-MC / Owed<Class<MC>>",
+          "-4 MC",
           "PROD[Titanium]",
       )
     }
@@ -57,11 +56,8 @@ internal class RobinsonIndustriesTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseCardAction<RobinsonIndustries, Action1>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
+        doTask("-4 MC")
         doTask("PROD[Steel]")
       }
     }

@@ -13,7 +13,7 @@ internal class TestHelpersTest : TfmSandboxTest() {
     newTestGame()
     val result = kim.inTurn {
       doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_6_6>")
-      selectTask("OxygenStep*")
+      doTask("OxygenStep")
       doTasks("Plant", "TerraformRating")
     }
 

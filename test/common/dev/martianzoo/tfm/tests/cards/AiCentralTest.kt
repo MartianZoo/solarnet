@@ -21,12 +21,10 @@ internal class AiCentralTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayProject<Class<AiCentral>>", "-21 MC")
-        selectTask("-X? Steel")
-        selectTask("Ok")
+        doTask("Ok" /* No Steel payment. */)
         doTask("AiCentral FROM ProjectCard")
-        selectOnlyTask()
+        doTask("PROD[-Energy]")
       }
     }
   }
@@ -36,12 +34,11 @@ internal class AiCentralTest : TfmSandboxTest() {
     kim.exMachina("$AiCentral")
     kim.inTurn {
       doTask("UseCardAction<AiCentral, Action1>")
-      selectTask("2! ProjectCard<Kim, Hand>")
+      doTask("2 ProjectCard<Kim, Hand>")
     }
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseCardAction<AiCentral, Action1>")
       }
     }

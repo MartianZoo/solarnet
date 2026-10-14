@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -16,16 +16,15 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
           "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
           "BoardOfDirectors FROM PreludeCard",
       )
-      selectOnlyTask()
+      doTask("4 Director<BoardOfDirectors>")
     }
     advanceUntilActionPhase()
 
     kim.inTurn {
           doTask("UseCardAction<BoardOfDirectors, Action1>")
-          selectTask("PreludeCard<Kim, Hand>!")
-          selectOnlyTask()
+          doTask("PreludeCard<Kim, Hand>")
           doTask("-12 MC")
-          selectTask("-Director<BoardOfDirectors>!")
+          doTask("-Director<BoardOfDirectors>")
           doTasks(
               "PlayCard<Class<PreludeCard>, Class<Donation>>",
               "Donation FROM PreludeCard",
@@ -43,34 +42,31 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
           "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
           "BoardOfDirectors FROM PreludeCard",
       )
-      selectOnlyTask()
+      doTask("4 Director<BoardOfDirectors>")
     }
     advanceUntilActionPhase()
     kim.setToExMachina(24, "MC")
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseCardAction<BoardOfDirectors, Action1>")
-        selectTask("PreludeCard<Kim, Hand>!")
-        selectOnlyTask()
+        doTask("PreludeCard<Kim, Hand>")
         doTask("-12 MC")
-        selectTask("-Director<BoardOfDirectors>!")
-        selectOnlyTask()
+        doTask("-Director<BoardOfDirectors>")
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>",
             "IndustrialComplex FROM PreludeCard",
         )
-        selectTask("-18! MC")
+        doTask("-18 MC")
       }
     }
     kim.inTurn {
           doTask("UseCardAction<BoardOfDirectors, Action1>")
-          selectTask("PreludeCard<Kim, Hand>!")
-          selectOnlyTask()
+          doTask("PreludeCard<Kim, Hand>")
           doTask("-12 MC")
-          selectTask("-Director<BoardOfDirectors>!")
+          doTask("-Director<BoardOfDirectors>")
           doTask("-PreludeCard")
+          // Hand the fizzle audit to Admin before receiving compensation.
           selectTask("Audit!")
           doTask("15 MC")
         }
@@ -85,35 +81,32 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
           "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
           "BoardOfDirectors FROM PreludeCard",
       )
-      selectOnlyTask()
+      doTask("4 Director<BoardOfDirectors>")
     }
     advanceUntilActionPhase()
 
     kim.inTurn {
           doTask("UseCardAction<BoardOfDirectors, Action1>")
-          selectTask("PreludeCard<Kim, Hand>!")
-          selectOnlyTask()
+          doTask("PreludeCard<Kim, Hand>")
           doTask("-12 MC")
-          selectTask("-Director<BoardOfDirectors>!")
+          doTask("-Director<BoardOfDirectors>")
           doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-          selectTask("4! CorporationCard<Kim, Selecting>")
+          doTask("4 CorporationCard<Kim, Selecting>")
           doTask("PlayCard<Class<CorporationCard>, Class<Inventrix>>")
           doTask("Inventrix<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTasks("45 MC", "-42 MC")
-          selectOnlyTask()
+          doTask("Inventrix_RequiredAction")
         }
         .expect("$Inventrix")
-    shouldThrow<NarrowingException> {
+    shouldThrow<TaskException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseStandardProject<PowerPlantProject>")
       }
     }
     kim.inTurn {
-          doTask("RequiredActionsSignal")
-          selectOnlyTask()
-        }
-        .expect("3 ProjectCard")
+      doTask("RequiredActionsSignal")
+      doTask("3 ProjectCard")
+    }
     kim.inTurn {
       doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
     }
@@ -127,7 +120,7 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
           "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
           "BoardOfDirectors FROM PreludeCard",
       )
-      selectOnlyTask()
+      doTask("4 Director<BoardOfDirectors>")
     }
     advanceUntilActionPhase()
     kim.exMachina("$SkyDocks")
@@ -135,16 +128,16 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTask("UseCardAction<BoardOfDirectors, Action1>")
-      selectTask("PreludeCard<Kim, Hand>!")
-      selectOnlyTask()
+      doTask("PreludeCard<Kim, Hand>")
       doTask("-12 MC")
-      selectTask("-Director<BoardOfDirectors>!")
+      doTask("-Director<BoardOfDirectors>")
       doTasks(
           "PlayCard<Class<PreludeCard>, Class<EcologyExperts>>",
           "EcologyExperts FROM PreludeCard",
           "PROD[Plant]",
           "PlayCard<Class<ProjectCard>, Class<DustSeals>>",
       )
+      // Hand the requirement waiver to Admin before playing the project.
       selectTask("-Required* / Required")
       doTasks("-1 MC", "DustSeals FROM ProjectCard")
     }

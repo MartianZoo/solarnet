@@ -15,15 +15,14 @@ internal class UnmiTest : TfmSandboxTest() {
     kim.setToExMachina(17, "MC")
     kim.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep*")
+      doTask("TemperatureStep")
       doTask("TerraformRating")
     }
 
     kim.inTurn {
-          doTasks("UseCardAction<UnitedNationsMarsInitiative, Action1>", "-MC / Owed<Class<MC>>")
-          selectOnlyTask()
-        }
-        .expect("TerraformRating")
+      doTasks("UseCardAction<UnitedNationsMarsInitiative, Action1>", "-3 MC")
+      doTask("TerraformRating")
+    }
   }
 
   @Test
@@ -32,11 +31,10 @@ internal class UnmiTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseCardAction<UnitedNationsMarsInitiative, Action1>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
+        doTask("-3 MC")
+        // Resolve the TR reward so the earlier-TR-gain requirement is checked.
+        selectTask("TerraformRating")
       }
     }
   }

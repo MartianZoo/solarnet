@@ -37,6 +37,7 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
               "-1 MC",
               "CeosFavoriteProject FROM ProjectCard",
           )
+          // Resolve the resource offer: no eligible card already holds a resource.
           selectTask("CardResource<CardFront(HAS CardResource)>*")
           doTask("PlayedEvent<Class<CeosFavoriteProject>> FROM CeosFavoriteProject")
         }
@@ -49,10 +50,9 @@ internal class CeosFavoriteTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<CeosFavoriteProject>>")
-        selectTask("-X? MC")
         doTasks("-1 MC", "CeosFavoriteProject FROM ProjectCard")
+        // Select the resource offer before testing whether a required gain can be declined.
         selectTask("CardResource<CardFront(HAS CardResource)>*")
         doTask("Ok")
       }

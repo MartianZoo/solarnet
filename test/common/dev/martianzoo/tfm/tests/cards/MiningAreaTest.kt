@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.GameplayException
+import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -14,8 +14,11 @@ internal class MiningAreaTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<MiningArea>>", "-4 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "MiningArea FROM ProjectCard", "MiningArea_SpecialTile<Tharsis_8_9>")
+      doTasks(
+          "Ok" /* No Steel payment. */,
+          "MiningArea FROM ProjectCard",
+          "MiningArea_SpecialTile<Tharsis_8_9>",
+      )
       doTasks("Titanium", "PROD[Titanium]")
     }
   }
@@ -55,15 +58,13 @@ internal class MiningAreaTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("NormalCityTile<Kim, Tharsis_2_1>")
 
-    shouldThrow<GameplayException> {
+    shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayProject<Class<MiningArea>>", "-4 MC")
-        selectTask("-X? Steel")
-        selectTask("Ok")
+        doTask("Ok" /* No Steel payment. */)
         doTask("MiningArea FROM ProjectCard")
-        selectOnlyTask()
         doTask("MiningArea_SpecialTile<Tharsis_3_2>")
+        // Resolve the production choice to check that this area supplies a metal bonus.
         selectOnlyTask()
       }
     }

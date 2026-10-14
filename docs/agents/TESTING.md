@@ -203,8 +203,9 @@ semantics.
 > operation, never one card's rule or missing engine semantics.
 
 > **Default assertion style:** Almost every successful gameplay action that returns a `TaskResult`
-> should chain `.expect(...)` directly to that action. Prefer this over later absolute resource or
-> component counts: the chained expectation proves the net change came from the action under test,
+> should chain `.expect(...)` directly to that action in gameplay tests. Sandbox tests instead
+> submit concrete expected work explicitly and add expectations only for additional consequences.
+> Prefer relative expectations over later absolute resource or component counts: the chained expectation proves the net change came from the action under test,
 > while an absolute count can pass because of setup or an earlier action. Use an absolute assertion
 > only when the absolute state is itself the contract, no successful result exists to inspect, or a
 > source explicitly states an absolute value.
@@ -266,8 +267,8 @@ the behavior under test through gameplay. For sandbox tests, establish incidenta
 preconditions through the standardized fixture and corrections by default. Use authentic
 gameplay instead when the way a precondition is reached can affect, or provide useful evidence for,
 the behavior under test.
-Use `CONCRETE` when ordering choices matter; reserve `NONE` for tests that must control otherwise
-unambiguous automatic steps.
+Sandbox players always use `NONE`. Gameplay players default to `CONCRETE`; suites that must
+control intermediate steps request `TfmGameplayTest(NONE)`, as described below.
 
 Prefer tests that exercise several pieces together. Do not mirror a production list or data object
 in a test just to detect that the list changed. Test observable behavior through the normal
@@ -322,19 +323,13 @@ player-facing scenario through sandbox or gameplay. Audit-history and arbitrary 
 checks also use `TfmTest` directly rather than claiming authentic gameplay.
 When a custom instruction reads authored card metadata from the catalog, compose the synthetic
 card into a fixture `TfmCatalog`; premise-only declarations do not populate that metadata.
-Use `placeTile(row, column)`, `addCardResources(card)`, and `wgt(choice)` instead of spelling their
-routine task expressions. The tile and card-resource helpers require a single matching pending
-choice; card-resource matching includes the destination card, so offers for different cards can
-coexist. Keep raw `doTask()` calls where multiple placements are pending.
-When unrelated optional tasks are pending, pass the pending instruction to `declineTask(instruction)`.
-Inside an existing operation that offers a repeated card action, such as Project Inspection,
-use `cardAction1()` or `cardAction2()`; the operation-body overload selects and pays that action
-without starting the usual use-card-action wrapper.
-Use `declineTask()` only when exactly one pending task accepts `Ok`, and comment what is declined.
+Sandbox and gameplay scenarios use explicit Agent task submissions rather than the helpers on
+`TfmTest` or `TfmGameplay`. The fixture-specific operation and payment conventions are described
+below.
 
 `CoreRulesTest` uses the same player-level style to document rules that belong to the game rather
 than any individual card. Its scenarios should reproduce only the important preconditions observed
-in whole games and should use explicit Agent task submissions and result expectations.
+in whole games and use explicit sandbox tasks with expectations for additional consequences.
 Full-game tests override a `config` property with a `GameConfig`, conventionally built from an
 indented multiline string followed by player-name varargs. Catalog-backed premise resolution adds
 `TerraformingMars` and, when no other map is named, `TharsisMap`; the parser already trims each
@@ -348,8 +343,8 @@ Choose the fixture by what the scenario proves, not the kind of card:
 - `TfmSandboxTest` supplies a prepared position, explicit corrections, and selected phase shortcuts.
   Use it for focused card interactions and rules that do not depend on authentic turn/phase history.
   Its game is set up and enters the corporation phase normally; the fixture then drops the turn
-  order that phase begins, so scenarios take turns ex machina and `TfmGameplay.phase` places later
-  phases without their queued start-of-phase rules. A scenario that needs a phase's real effects,
+  order that phase begins, so scenarios take turns ex machina. Its private phase correction places
+  later phases without their queued start-of-phase rules. A scenario that needs a phase's real effects,
   such as production, a solar phase, or research, belongs in `TfmGameplayTest`.
 - `TfmGameplayTest` starts the game and lets its own rules offer every turn and begin every phase.
   Reach the scenario through real play, including passing through production to obtain resources.
@@ -385,7 +380,8 @@ pending handoff (`startSetupOnly`), so the game stays in `SetupPhase`. `startCor
 moves such a game into the corporation phase through that phase's own start, then drops the turn
 order it begins.
 
-The sandbox extends `TfmTest`; gameplay has no dependency on that convenience fixture. Both expose
+The sandbox owns its plain `Agent` fixture directly and must not use `TfmGameplay`, including
+through inherited helpers. Gameplay also owns its fixture directly; neither extends `TfmTest`. Both expose
 `newTestGameBeforeCorporationPlay()` for explicit corporation plays; a normal
 `newTestGame(kimCorporation = ...)` plays the corporation during setup. `kimCorporation` never
 changes the game configuration; use `addOptions` to include cards outside the default bundles.
@@ -430,9 +426,10 @@ The sandbox prepares and caches up to eight recently used `World`s, keyed by opt
 player-count, Kim corporation, and entry-point combination, then gives every test an independent
 `Engine.fork` of that prepared position. A cached World is never exposed or mutated after
 preparation. The base class does not create a game automatically. Gameplay creates a fresh World and
-starts the game for every call. A uniform class declares its own `@BeforeTest` method that calls
-`newTestGame()`. A class whose methods need different compatible
-selections or player counts calls `newTestGame()` explicitly in each method, passing arguments such
+starts the game for every call. Use `@BeforeTest` when every method needs the same setup.
+When some methods need a different setup, call the common setup explicitly from the methods that
+need it and initialize the exceptions directly. Never prepare a game only to replace it at the
+start of a test. Keep scenario-specific corrections visible in the test. Pass named arguments such
 as `addOptions = "CimmeriaMap"` or `playerCount = 4` where needed. Pass `kimCorporation` only when its
 live effect is part of the scenario; Kim then plays that corporation normally and resolves its setup
 effects, while every
@@ -469,10 +466,25 @@ Do not retain Terraforming Mars gameplay helpers in sandbox scenarios, including
 policies. Preserve payment and card rules through explicit tasks; helper-only policy checks are
 outside this suite. Nested `TfmGameplayTest` suites follow the real game flow. Tests solely
 comparing autoexecution policies are omitted.
-Use `selectTask` and `selectOnlyTask` only for an unresolved choice or handoff, never to carry out
-concrete work. Use `doTask` for the Actor's explicit work, naming a short, meaningful instruction.
-This also applies when binding X would make a task concrete. Do not copy full rule expressions
+Use `selectTask` and `selectOnlyTask` only for an unresolved choice, structural expansion, or
+handoff, never to carry out concrete player work. Every retained selection must have a local
+comment explaining why it is necessary. Prefer a short named selection, such as
+`selectTask("DefaultGreeneryTile")`, to an anonymous selection. String selection also narrows the
+task; it is not a name-only lookup. Keep `selectOnlyTask` when a short instruction cannot identify
+an `EACH` group or would discard part of a linked choice, as in Flooding's placement and attack.
+Use `doTask` for the Actor's explicit work, naming a short, meaningful instruction.
+This also applies when binding X makes player work concrete. When the bound amount instead opens
+a bill through Admin, use a commented `selectOnlyTask(x = ...)`. Do not copy full rule expressions
 merely to identify the sole task.
+Write expected payment amounts explicitly, such as `-6 MC`; never pay `/ Owed` in a sandbox
+scenario. Write `kim.inTurn { ... }` directly, without redundant `with(kim)` wrappers. Inside that
+block, helpers on its operation receiver do not repeat `kim.`; another actor remains explicit.
+`TfmGameplay.turn` groups the published game's turn, including declining an unused second action.
+`Agent.inTurn` provides a complete atomic operation and creates `NewTurn` when needed. Sandbox
+scenarios use the latter. Cross-player Agent calls can leave Admin work waiting within that block;
+use a locally explained `autoExecNow()` only when it must settle before the next player choice.
+Use `doTasks` for consecutive concrete instructions. Preserve order when it matters to the scenario.
+Comment an ambiguous `Ok` to identify what is being declined.
 Write scenario actions in sequence rather than loops. Small private scenario helpers may factor
 repeated explicit task sequences, with varying bonuses passed at each written-out call.
 Call the base fixture's `advanceUntilActionPhase()` to reach the next Action phase. From Action,
@@ -524,18 +536,17 @@ same semantic pattern for another card with different literals.
 Every state change in a migrated sandbox test must come from real player-facing gameplay or from
 its explicit fixture methods. Do not use `runOperation`, `beginOperation`, `sneak`, arbitrary manual
 phase changes, or other lower-level shortcuts in either fixture's subclasses. The sandbox provides
-`startActionPhase()` to leave explicit corporation setup or skip unplayed Preludes when their play
+`advanceUntilActionPhase()` to leave explicit corporation setup or skip unplayed Preludes when their play
 is irrelevant; finish pending choices first. This is a sandbox shortcut, so other unplayed starting
 cards need not be resolved when they are irrelevant to the scenario. Gameplay leaves those choices
 to the test and advances through the game's normal flow.
 
 In sandbox tests, conditions beyond that initial state should normally be visible corrections:
 
-- Use `setToExMachina(targetCount, type)` for a desired absolute count. It calculates the gain or
+- Use `setToExMachina(targetCount, type)` for a desired absolute count. Admin may use it for
+  System markers such as colony tracks; the fixture contains the required `sneak` call. It calculates the gain or
   loss from the current count, so the scenario states its intended condition rather than assuming
-  the fixture's prior value. Production types such as `PROD[Heat]` work the same way. To establish
-  negative production, first set its production to zero, then use `exMachina` for the remaining
-  negative adjustment.
+  the fixture's prior value. Production types such as `PROD[Heat]` work the same way, including negative printed production.
 - Use `exMachina(adjustment)` for a naturally relative change or a known absent-to-present fact.
   Prefer a concrete Type such as `NormalCityTile` when an abstract Type cannot be created directly.
 - If initial play of the subject card is not being tested, install that card directly. Do not first
@@ -546,15 +557,15 @@ In sandbox tests, conditions beyond that initial state should normally be visibl
 - To test behavior at a completed global parameter, correct the track to its penultimate step and
   use an ordinary standard project for the final step when available. This preserves the real
   completion lifecycle, including `GpComplete`, instead of asking a correction to stand in for it.
-- The sandbox's retained `nextGeneration()` shortcut runs Production, Research, and Action with
-  every player buying zero cards. It does not run the full expansion Solar sequence or accommodate
-  production choices. A scenario that needs those phases or their ordering belongs in gameplay;
-  do not silently broaden this helper into another game driver.
+- `advanceUntilActionPhase()` expires generation-scoped state without production or research.
+  A scenario that needs real phase effects or their ordering belongs in gameplay; do not broaden
+  the sandbox shortcut into another game driver.
 - Use `victoryPoints()` to query final VP totals in player-seat order for the current position.
   Finish pending choices before querying. It executes the existing final-scoring phase and rolls
   back in `finally`, including on failure. It does not advance through production or final greenery;
   arrange the position to be scored explicitly. The query preserves the live game's state and
-  history for subsequent gameplay.
+  history for subsequent gameplay. Supply `victoryPoints { ... }` when scoring offers player
+  choices, such as Vermin's per-player deductions.
 
 Corrections intentionally suppress ordinary queued effects while retaining the structural work
 documented in [EX_MACHINA.md](EX_MACHINA.md). Therefore, never treat the correction itself as proof
@@ -629,6 +640,12 @@ phase identity, complete final scores, and unchanged state after a rejected oper
 Cover meaningful interfaces, negative cases, non-targets, and option combinations rather than only
 the happy path. A filtering or Type-variable test should include several tempting Components that must not
 match. Preserve this coverage during refactoring.
+
+Absolute checks should be rare. Prefer `.expect()` for the action's relevant net effects. When
+an absolute check is needed, establish a known initial amount and assert a literal result; do not
+save an old count and assert `oldValue + change`. `assertCounts` remains useful for several relevant
+absolute facts, and `assertProds` reports signed printed production by subtracting `ProdOffset`.
+Neither replaces a suitable relative expectation.
 
 Assert the actual exception type with `shouldThrow<ExpectedException>`; do not use `shouldThrowAny`
 or a catch-all superclass. An unrelated failure must not satisfy a rejection test. Also check the

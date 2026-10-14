@@ -20,12 +20,13 @@ internal class SponsoredAcademiesTest : TfmSandboxTest() {
               "-9 MC",
               "SponsoredAcademies FROM ProjectCard",
           )
+          // Expand the reward into separate tasks for each other player.
           selectTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")
-          selectTask("ProjectCard<Kim, Hand>!")
-          selectTask("-ProjectCard<Kim, Hand>!")
-          selectTask("ProjectCard<Stan, Hand>!")
-          selectTask("ProjectCard<Rob, Hand>!")
-          selectOnlyTask()
+          doTask("ProjectCard<Kim, Hand>")
+          doTask("-ProjectCard<Kim, Hand>")
+          doTask("ProjectCard<Stan, Hand>")
+          doTask("ProjectCard<Rob, Hand>")
+          doTask("3 ProjectCard")
         }
         .expect("2 ProjectCard<Kim>, ProjectCard<Stan>, ProjectCard<Rob>")
   }
@@ -38,14 +39,13 @@ internal class SponsoredAcademiesTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<SponsoredAcademies>>")
-        selectTask("-X? MC")
         doTasks("-9 MC", "SponsoredAcademies FROM ProjectCard")
+        // Expand the reward into separate tasks for each other player.
         selectTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")
-        selectTask("ProjectCard<Stan, Hand>!")
-        selectTask("ProjectCard<Rob, Hand>!")
-        selectTask("-ProjectCard<Kim, Hand>!")
+        doTask("ProjectCard<Stan, Hand>")
+        doTask("ProjectCard<Rob, Hand>")
+        doTask("-ProjectCard<Kim, Hand>")
       }
     }
 

@@ -13,7 +13,6 @@ internal class PoliticalAllianceTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<PoliticalAlliance>>")
       }
     }
@@ -25,7 +24,6 @@ internal class PoliticalAllianceTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<PoliticalAlliance>>")
       }
     }
@@ -38,7 +36,6 @@ internal class PoliticalAllianceTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<PoliticalAlliance>>")
       }
     }

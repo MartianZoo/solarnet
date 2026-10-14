@@ -15,16 +15,13 @@ internal class CeresTechMarketTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseCardAction<CeresTechMarket, Action1>")
-        selectOnlyTask()
-        narrowTask("-5 ProjectCard THEN 10 MC")
+        doTask("-5 ProjectCard THEN 10 MC")
       }
     }
     kim.inTurn {
           doTask("UseCardAction<CeresTechMarket, Action1>")
-          selectOnlyTask()
-          selectTask("-4! ProjectCard<Kim, Hand> THEN 8! MC")
+          doTask("-4 ProjectCard THEN 8 MC")
           doTask("8 MC")
         }
         .expect("-4 ProjectCard")

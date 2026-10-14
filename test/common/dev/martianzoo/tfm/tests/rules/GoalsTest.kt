@@ -16,8 +16,8 @@ internal class GoalsTest : TfmSandboxTest() {
     kim.setToExMachina(20, "MC")
 
     kim.inTurn {
-          doTasks("ClaimMilestone<Class<Briber>>", "-MC / Owed<Class<MC>>")
-          selectOnlyTask()
+          doTasks("ClaimMilestone<Class<Briber>>", "-8 MC")
+          doTask("Briber")
           doTask("-12 MC")
         }
         .expect("-20 MC, Briber")
@@ -30,12 +30,10 @@ internal class GoalsTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("ClaimMilestone<Class<Briber>>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
-        selectOnlyTask()
+        doTask("-8 MC")
+        doTask("Briber")
+        doTask("-12 MC")
       }
     }
 
@@ -54,18 +52,16 @@ internal class GoalsTest : TfmSandboxTest() {
     // outside Kim's requirement.
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("ClaimMilestone<Class<Philantropist>>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
+        doTask("-8 MC")
+        doTask("Philantropist")
       }
     }
 
     kim.exMachina("$SpaceElevator")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Philantropist>>", "-MC / Owed<Class<MC>>")
-      selectOnlyTask()
+      doTasks("ClaimMilestone<Class<Philantropist>>", "-8 MC")
+      doTask("Philantropist")
     }
   }
 
@@ -77,11 +73,9 @@ internal class GoalsTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("ClaimMilestone<Class<Merchant>>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
+        doTask("-8 MC")
+        doTask("Merchant")
       }
     }
     kim.count("MC") shouldBe 9
@@ -89,8 +83,8 @@ internal class GoalsTest : TfmSandboxTest() {
 
     kim.setToExMachina(10, "MC")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Merchant>>", "-MC / Owed<Class<MC>>")
-      selectOnlyTask()
+      doTasks("ClaimMilestone<Class<Merchant>>", "-8 MC")
+      doTask("Merchant")
     }
   }
 
@@ -119,16 +113,14 @@ internal class GoalsTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       stan.inTurn {
-        selectOnlyTask()
         doTask("ClaimMilestone<Class<Hydrologist>>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
+        doTask("-8 MC")
+        doTask("Hydrologist")
       }
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Hydrologist>>", "-MC / Owed<Class<MC>>")
-      selectOnlyTask()
+      doTasks("ClaimMilestone<Class<Hydrologist>>", "-8 MC")
+      doTask("Hydrologist")
     }
   }
 
@@ -167,18 +159,16 @@ internal class GoalsTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("ClaimMilestone<Class<Producer>>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
+        doTask("-8 MC")
+        doTask("Producer")
       }
     }
 
     kim.exMachina("PROD[Energy]")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Producer>>", "-MC / Owed<Class<MC>>")
-      selectOnlyTask()
+      doTasks("ClaimMilestone<Class<Producer>>", "-8 MC")
+      doTask("Producer")
     }
   }
 
@@ -189,18 +179,16 @@ internal class GoalsTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("ClaimMilestone<Class<Producer22>>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
+        doTask("-8 MC")
+        doTask("Producer22")
       }
     }
 
     kim.exMachina("PROD[Energy]")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Producer22>>", "-MC / Owed<Class<MC>>")
-      selectOnlyTask()
+      doTasks("ClaimMilestone<Class<Producer22>>", "-8 MC")
+      doTask("Producer22")
     }
   }
 

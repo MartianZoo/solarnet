@@ -16,11 +16,11 @@ internal class AwardsRulesTest : TfmSandboxTest() {
     rob.setToExMachina(2, "Steel")
     kim.inTurn {
       doTasks("FundAward<Class<Thermalist>>", "-8 MC")
-      selectOnlyTask()
+      doTask("Thermalist")
     }
     stan.inTurn {
       doTasks("FundAward<Class<Miner>>", "-14 MC")
-      selectOnlyTask()
+      doTask("Miner")
     }
 
     victoryPoints() shouldBe listOf(30, 27, 22)
@@ -32,7 +32,7 @@ internal class AwardsRulesTest : TfmSandboxTest() {
     kim.setToExMachina(1, "Heat")
     kim.inTurn {
       doTasks("FundAward<Class<Thermalist>>", "-8 MC")
-      selectOnlyTask()
+      doTask("Thermalist")
     }
 
     victoryPoints() shouldBe listOf(25, 20)

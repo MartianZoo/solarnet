@@ -16,14 +16,12 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.inTurn {
           doTask("LobbyAction")
-          selectOnlyTask()
           doTask("PartyDelegate<Scientists>")
         }
         .expect("PartyLeader<Scientists>, -LobbyActionAvailable, 0 MC")
     stan
         .inTurn {
           doTask("LobbyAction")
-          selectOnlyTask()
           doTask("PartyDelegate<Unity>")
         }
         .expect("-LobbyActionAvailable, 0 MC")
@@ -33,9 +31,8 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
       }
     }
     kim.inTurn {
-          doTasks("LobbyAction<Action2>", "-MC / Owed<Class<MC>>", "PartyDelegate<Scientists>")
-        }
-        .expect("-5 MC")
+      doTasks("LobbyAction<Action2>", "-5 MC", "PartyDelegate<Scientists>")
+    }
   }
 
   @Test
@@ -43,23 +40,22 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("5 PartyDelegate<Unity>")
     kim.inTurn {
-          doTasks("LobbyAction<Action2>", "-MC / Owed<Class<MC>>", "PartyDelegate<Scientists>")
+          doTasks("LobbyAction<Action2>", "-5 MC", "PartyDelegate<Scientists>")
         }
         .expect("-5 MC, Delegate, 0 LobbyActionAvailable")
-    val money = kim.count("MC")
+    kim.setToExMachina(10, "MC")
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("LobbyAction<Action2>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
+        doTask("-5 MC")
+        // Resolve the delegate offer so the reserve requirement is checked.
+        selectTask("PartyDelegate")
       }
     }
-    kim.count("MC") shouldBe money
+    kim.count("MC") shouldBe 10
     kim.count("Delegate") shouldBe 6
     kim.inTurn {
           doTask("LobbyAction")
-          selectOnlyTask()
           doTask("PartyDelegate<Scientists>")
         }
         .expect("Delegate, -LobbyActionAvailable, 0 MC")
@@ -71,27 +67,25 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.inTurn {
           doTask("LobbyAction")
-          selectOnlyTask()
           doTask("PartyDelegate<Scientists>")
         }
         .expect("0 Dominant<Scientists>")
     kim.inTurn {
-          doTasks("LobbyAction<Action2>", "-MC / Owed<Class<MC>>", "PartyDelegate<Scientists>")
+          doTasks("LobbyAction<Action2>", "-5 MC", "PartyDelegate<Scientists>")
         }
         .expect("Dominant<Scientists>, -Dominant<MarsFirst>")
     stan.inTurn {
       doTask("LobbyAction")
-      selectOnlyTask()
       doTask("PartyDelegate<Unity>")
     }
     stan
         .inTurn {
-          doTasks("LobbyAction<Action2>", "-MC / Owed<Class<MC>>", "PartyDelegate<Unity>")
+          doTasks("LobbyAction<Action2>", "-5 MC", "PartyDelegate<Unity>")
         }
         .expect("0 Dominant<Unity>, 0 Dominant<Scientists>")
     stan
         .inTurn {
-          doTasks("LobbyAction<Action2>", "-MC / Owed<Class<MC>>", "PartyDelegate<Unity>")
+          doTasks("LobbyAction<Action2>", "-5 MC", "PartyDelegate<Unity>")
         }
         .expect("Dominant<Unity>, -Dominant<Scientists>")
   }
@@ -101,26 +95,24 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.inTurn {
       doTask("LobbyAction")
-      selectOnlyTask()
       doTask("PartyDelegate<Scientists>")
     }
     stan
         .inTurn {
           doTask("LobbyAction")
-          selectOnlyTask()
           doTask("PartyDelegate<Scientists>")
         }
         .expect("0 PartyLeader<Scientists, Stan>, 0 PartyLeader<Scientists, Kim>")
     stan
         .inTurn {
-          doTasks("LobbyAction<Action2>", "-MC / Owed<Class<MC>>", "PartyDelegate<Scientists>")
+          doTasks("LobbyAction<Action2>", "-5 MC", "PartyDelegate<Scientists>")
         }
         .expect("PartyLeader<Scientists, Stan>, -PartyLeader<Scientists, Kim>")
   }
 
   private fun lobbyScientists() {
     kim.inTurn {
-      doTasks("LobbyAction<Action2>", "-MC / Owed<Class<MC>>", "PartyDelegate<Scientists>")
+      doTasks("LobbyAction<Action2>", "-5 MC", "PartyDelegate<Scientists>")
     }
   }
 
@@ -129,7 +121,6 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.inTurn {
       doTask("LobbyAction")
-      selectOnlyTask()
       doTask("PartyDelegate<Scientists>")
     }
     lobbyScientists()
@@ -139,23 +130,22 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
     lobbyScientists()
     lobbyScientists()
     kim.count("Delegate") shouldBe 7
-    val money = kim.count("MC")
+    kim.setToExMachina(10, "MC")
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("LobbyAction<Action2>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
+        doTask("-5 MC")
+        // Resolve the delegate offer so the reserve requirement is checked.
+        selectTask("PartyDelegate")
       }
     }
-    kim.count("MC") shouldBe money
+    kim.count("MC") shouldBe 10
     kim.count("Delegate") shouldBe 7
 
     // Kim's full reserve does not consume Stan's delegates.
     stan
         .inTurn {
           doTask("LobbyAction")
-          selectOnlyTask()
           doTask("PartyDelegate<Unity>")
         }
         .expect("Delegate, 0 MC")
@@ -166,14 +156,12 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("$MartianMediaCenter")
     kim.inTurn {
-          doTasks("UseCardAction<MartianMediaCenter, Action1>", "-MC / Owed<Class<MC>>")
-          selectOnlyTask()
+          doTasks("UseCardAction<MartianMediaCenter, Action1>", "-3 MC")
           doTask("PartyDelegate<Scientists>")
         }
         .expect("-3 MC, Delegate, 0 LobbyActionAvailable")
     kim.inTurn {
           doTask("LobbyAction")
-          selectOnlyTask()
           doTask("PartyDelegate<Unity>")
         }
         .expect("Delegate, -LobbyActionAvailable, 0 MC")
@@ -190,9 +178,9 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
               "PlayProject<Class<BannedDelegate>>",
               "BannedDelegate FROM ProjectCard",
           )
-          selectOnlyTask()
+          // Hand the chosen removal to Admin, which updates the delegate reserve.
           selectTask("BannedDelegateRemoval<Stan, Scientists, Kim>*")
-          selectOnlyTask()
+          doTask("-PartyDelegate<Kim, Scientists>")
           doTask("PlayedEvent<Class<BannedDelegate>> FROM BannedDelegate")
         }
         .expect("-Delegate<Kim>, 0 LobbyActionAvailable<Kim>")
@@ -202,7 +190,7 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
       }
     }
     kim.inTurn {
-          doTasks("LobbyAction<Action2>", "-MC / Owed<Class<MC>>", "PartyDelegate<Unity>")
+          doTasks("LobbyAction<Action2>", "-5 MC", "PartyDelegate<Unity>")
         }
         .expect("-5 MC, Delegate")
   }

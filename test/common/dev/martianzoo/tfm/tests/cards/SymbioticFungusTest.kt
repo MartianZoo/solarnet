@@ -15,7 +15,8 @@ internal class SymbioticFungusTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("UseCardAction<SymbioticFungus, Action1>")
-          selectOnlyTask()
+          // Resolve the microbe offer: no eligible card can hold it.
+          selectTask("Microbe")
         }
         .expect("0 Microbe")
   }

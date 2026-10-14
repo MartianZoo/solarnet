@@ -22,7 +22,7 @@ internal class HermeticOrderOfMarsTest : TfmSandboxTest() {
               "HermeticOrderOfMars FROM ProjectCard",
               "PROD[2 MC]",
           )
-          selectOnlyTask()
+          doTask("MC")
         }
         .expect("-9 MC")
   }

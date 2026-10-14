@@ -16,13 +16,13 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     kim.exMachina("$WorldGovernmentAdvisor, 14 VenusStep")
     kim.inTurn {
       doTasks("UseStandardProject<AirScrappingProject>", "-15 MC")
-      selectTask("VenusStep*")
+      doTask("VenusStep")
       doTask("TerraformRating")
     }
 
     kim.inTurn {
           doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
-          selectOnlyTask()
+
           doTask("VenusStep BY Admin")
         }
         .expect("0 VenusStep, 0 TemperatureStep, 0 TerraformRating")
@@ -37,13 +37,11 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseStandardProject<AirScrappingProject>")
-        selectTask("-X? MC")
         doTask("-15 MC")
-        selectTask("VenusStep*")
-        selectTask("TerraformRating!")
-        selectTask("Colony<Kim, ColonyTile(HAS MAX 0 Colony)>!")
+        doTask("VenusStep")
+        doTask("TerraformRating")
+
         doTask("Colony<Luna>")
       }
     }
@@ -62,7 +60,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
-          selectOnlyTask()
+
           doTask("VenusStep BY Admin")
         }
         .expect("0 Colony<Anyone>, 0 TerraformRating")
@@ -75,7 +73,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
-          selectOnlyTask()
+
           doTask("VenusStep BY Admin")
         }
         .expect("0 Colony<Anyone>, 0 TerraformRating")
@@ -108,17 +106,17 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     kim.setToExMachina(100, "MC")
     kim.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep*")
+      doTask("TemperatureStep")
       doTask("TerraformRating")
     }
     kim.inTurn {
       doTasks("UseStandardProject<AirScrappingProject>", "-15 MC")
-      selectTask("VenusStep*")
+      doTask("VenusStep")
       doTask("TerraformRating")
     }
     kim.inTurn {
       doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_3_3>")
-      selectTask("OxygenStep*")
+      doTask("OxygenStep")
       doTasks("2 MC", "2 MC", "TerraformRating")
     }
     kim.inTurn {
@@ -133,7 +131,8 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
-          selectOnlyTask()
+          // Resolve the world-government handoff even though all tracks are complete.
+          selectTask("GlobalParameter* BY Admin")
         }
         .expect("0 TerraformRating, 0 VenusStep, 0 TemperatureStep, 0 OxygenStep, 0 OceanTile")
     kim.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1

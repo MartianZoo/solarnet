@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -21,14 +22,14 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
           "EstablishedMethods FROM PreludeCard",
           "30 MC",
       )
-      selectTask("UseAction<Kim, StandardProject(HAS cost)>!")
+
       kim.count("MC") shouldBe 30
       shouldThrow<NarrowingException> { doTask("UseAction<SellPatentsProject, Action1>") }
-      shouldThrow<NarrowingException> { doTask("PlayProject<Class<Mine>>") }
+      shouldThrow<TaskException> { doTask("PlayProject<Class<Mine>>") }
       doTask("UseAction<PowerPlantProject, Action1>")
       doTasks("-11 MC", "PROD[Energy]")
-      selectTask("UseAction<Kim, StandardProject(HAS cost)>!")
-      shouldThrow<NarrowingException> { doTask("Ok") }
+
+      shouldThrow<TaskException> { doTask("Ok") }
       doTask("UseAction<PowerPlantProject, Action1>")
       doTasks("-11 MC", "PROD[Energy]")
     }
@@ -40,27 +41,25 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
   internal fun `First project cannot leave the mandatory second project unaffordable`() {
     newTestGame(addOptions = "PreludeExpansion")
     kim.setToExMachina(0, "MC")
-    val preludesBefore = kim.count("PreludeCard")
+    kim.setToExMachina(2, "PreludeCard")
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<EstablishedMethods>>",
             "EstablishedMethods FROM PreludeCard",
         )
-        selectTask("30! MC")
+        doTask("30 MC")
         doTasks("UseAction<CityProject, Action1>", "-25 MC")
-        selectTask("PROD[MC]")
+        doTask("PROD[MC]")
         doTask("CityTile<Tharsis_3_3>")
-        selectTask("UseAction<Kim, StandardProject(HAS cost)>!")
+
         doTask("UseAction<PowerPlantProject, Action1>")
-        selectTask("-X? MC")
         doTask("-11 MC")
       }
     }
     kim.assertCounts(0 to "$EstablishedMethods", 0 to "CityTile")
-    kim.count("PreludeCard") shouldBe preludesBefore
+    kim.count("PreludeCard") shouldBe 2
     kim.count("MC") shouldBe 0
   }
 

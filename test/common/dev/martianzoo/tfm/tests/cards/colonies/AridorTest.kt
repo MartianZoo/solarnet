@@ -11,7 +11,9 @@ internal class AridorTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("RequiredActionsSignal")
+          // Hand colony selection to Admin so the unused tiles become available.
           selectTask("ColonyTileSelection!")
+          // Hand the chosen tile to Admin to activate its colony track.
           selectTask("Europa!")
         }
         .expect("Europa, ColonyProduction, -RequiredAction")
@@ -24,7 +26,9 @@ internal class AridorTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("RequiredActionsSignal")
+          // Hand colony selection to Admin so the unused tiles become available.
           selectTask("ColonyTileSelection!")
+          // Hand the chosen tile to Admin; Titan remains delayed until floaters are in play.
           selectTask("DelayedTitan!")
         }
         .expect("Titan, ColonyProduction, 0 DelayedTitan")
@@ -35,7 +39,9 @@ internal class AridorTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Aridor)
     kim.inTurn {
       doTask("RequiredActionsSignal")
+      // Hand colony selection to Admin so the unused tiles become available.
       selectTask("ColonyTileSelection!")
+      // Hand the chosen tile to Admin to activate its colony track.
       selectTask("Europa!")
     }
     stan.exMachina("$Mine")
@@ -43,8 +49,12 @@ internal class AridorTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<DevelopmentCenter>>", "-11 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "DevelopmentCenter FROM ProjectCard", "PROD[MC]", "PROD[MC]")
+      doTasks(
+          "Ok" /* No Steel payment. */,
+          "DevelopmentCenter FROM ProjectCard",
+          "PROD[MC]",
+          "PROD[MC]",
+      )
     }
   }
 
@@ -55,12 +65,12 @@ internal class AridorTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-          selectTask("4! CorporationCard<Kim, Selecting>")
+          doTask("4 CorporationCard<Kim, Selecting>")
           doTask("-42 MC")
           doTask("PlayCard<Class<CorporationCard>, Class<Aridor>>")
           doTask("Aridor<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTask("40 MC")
-          selectTask("Aridor_RequiredAction!")
+          doTask("Aridor_RequiredAction!")
         }
         .expect("PROD[0 MC]")
   }
@@ -70,16 +80,15 @@ internal class AridorTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Aridor)
     kim.inTurn {
       doTask("RequiredActionsSignal")
+      // Hand colony selection to Admin so the unused tiles become available.
       selectTask("ColonyTileSelection!")
+      // Hand the chosen tile to Admin to activate its colony track.
       selectTask("Europa!")
     }
     kim.exMachina("$PharmacyUnion, 3 OxygenStep")
     kim.setToExMachina(16, "MC")
     kim.inTurn {
       doTasks("PlayProject<Class<CryoSleep>>", "-10 MC", "CryoSleep FROM ProjectCard", "PROD[MC]")
-      selectTask(
-          "TerraformRating FROM Disease<PharmacyUnion>! OR (MAX 0 Disease<PharmacyUnion>: (PlayedEvent<Kim, Class<PharmacyUnion>> FROM PharmacyUnion! THEN 3! TerraformRating) OR Ok)"
-      )
       doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
     }
 
@@ -90,7 +99,7 @@ internal class AridorTest : TfmSandboxTest() {
           "Decomposers FROM ProjectCard",
           "PROD[MC]",
       )
-      selectTask("Microbe<Decomposers>*")
+      doTask("Microbe<Decomposers>*")
     }
   }
 
@@ -99,24 +108,27 @@ internal class AridorTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Aridor)
     kim.inTurn {
       doTask("RequiredActionsSignal")
+      // Hand colony selection to Admin so the unused tiles become available.
       selectTask("ColonyTileSelection!")
+      // Hand the chosen tile to Admin to activate its colony track.
       selectTask("Europa!")
     }
     kim.exMachina("$PharmacyUnion, $Decomposers, $Mine")
     kim.setToExMachina(23, "MC")
     kim.inTurn {
       doTasks("PlayProject<Class<CryoSleep>>", "-10 MC", "CryoSleep FROM ProjectCard", "PROD[MC]")
-      selectTask(
-          "TerraformRating FROM Disease<PharmacyUnion>! OR (MAX 0 Disease<PharmacyUnion>: (PlayedEvent<Kim, Class<PharmacyUnion>> FROM PharmacyUnion! THEN 3! TerraformRating) OR Ok)"
-      )
       doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
     }
 
     kim.inTurn {
           doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
-          selectTask("-X? Steel")
-          doTasks("Ok", "IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
-          selectTask("Microbe<Decomposers>*")
+          doTasks(
+              "Ok" /* No Steel payment. */,
+              "IndustrialMicrobes FROM ProjectCard",
+              "PROD[Energy]",
+              "PROD[Steel]",
+          )
+          doTask("Microbe<Decomposers>*")
         }
         .expect("PROD[0 MC]")
   }
@@ -126,7 +138,9 @@ internal class AridorTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Aridor)
     kim.inTurn {
       doTask("RequiredActionsSignal")
+      // Hand colony selection to Admin so the unused tiles become available.
       selectTask("ColonyTileSelection!")
+      // Hand the chosen tile to Admin to activate its colony track.
       selectTask("Europa!")
     }
 
@@ -148,16 +162,16 @@ internal class AridorTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      selectTask("4! CorporationCard<Kim, Selecting>")
+      doTask("4 CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
       doTask("PharmacyUnion<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTask("-42 MC")
-      selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
+      doTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
       doTask("PROD[MC]")
-      selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
-      selectTask("-4* MC")
-      selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
-      selectTask("-4* MC")
+      doTask("Disease<PharmacyUnion>")
+      doTask("-4* MC")
+      doTask("Disease<PharmacyUnion>")
+      doTask("-4* MC")
     }
   }
 
@@ -166,7 +180,9 @@ internal class AridorTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Aridor)
     kim.inTurn {
       doTask("RequiredActionsSignal")
+      // Hand colony selection to Admin so the unused tiles become available.
       selectTask("ColonyTileSelection!")
+      // Hand the chosen tile to Admin to activate its colony track.
       selectTask("Europa!")
     }
 

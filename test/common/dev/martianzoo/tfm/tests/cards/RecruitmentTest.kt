@@ -15,14 +15,14 @@ internal class RecruitmentTest : TfmSandboxTest() {
 
     shouldThrow<NotNowException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<Recruitment>>")
-        selectTask("-X? MC")
+
         doTasks(
             "-2 MC",
             "Recruitment FROM ProjectCard",
         )
-        selectOnlyTask()
+        // Resolve the delegate choice to expose the missing eligible delegate.
+        selectTask("PartyDelegate<Kim FROM Neutral>")
       }
     }
   }
@@ -166,14 +166,12 @@ internal class RecruitmentTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<Recruitment>>")
-        selectTask("-X? MC")
+
         doTasks(
             "-2 MC",
             "Recruitment FROM ProjectCard",
         )
-        selectOnlyTask()
         doTask("PartyDelegate<MarsFirst, Kim FROM Neutral>")
       }
     }

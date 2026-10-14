@@ -12,36 +12,32 @@ internal class AdditionalGoalsTest : TfmSandboxTest() {
     kim.setToExMachina(25, "TerraformRating")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("ClaimMilestone<Class<Terraformer26>>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
+        doTask("-8 MC")
+        doTask("Terraformer26")
       }
     }
 
     kim.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep*")
+      doTask("TemperatureStep")
       doTask("TerraformRating")
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Terraformer26>>", "-MC / Owed<Class<MC>>")
-      selectOnlyTask()
+      doTasks("ClaimMilestone<Class<Terraformer26>>", "-8 MC")
+      doTask("Terraformer26")
     }
     shouldThrow<RequirementException> {
       stan.inTurn {
-        selectOnlyTask()
         doTask("ClaimMilestone<Class<Terraformer35>>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
+        doTask("-8 MC")
+        doTask("Terraformer35")
       }
     }
     stan.setToExMachina(35, "TerraformRating")
     stan.inTurn {
-      doTasks("ClaimMilestone<Class<Terraformer35>>", "-MC / Owed<Class<MC>>")
-      selectOnlyTask()
+      doTasks("ClaimMilestone<Class<Terraformer35>>", "-8 MC")
+      doTask("Terraformer35")
     }
   }
 
@@ -51,22 +47,19 @@ internal class AdditionalGoalsTest : TfmSandboxTest() {
     kim.exMachina("5 PartyDelegate<Scientists>, Chairman<Kim FROM Neutral>")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("ClaimMilestone<Class<Lobbyist>>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
+        doTask("-8 MC")
+        doTask("Lobbyist")
       }
     }
 
     kim.inTurn {
       doTask("LobbyAction<Action1>")
-      selectOnlyTask()
       doTask("PartyDelegate<Scientists>")
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Lobbyist>>", "-MC / Owed<Class<MC>>")
-      selectOnlyTask()
+      doTasks("ClaimMilestone<Class<Lobbyist>>", "-8 MC")
+      doTask("Lobbyist")
     }
   }
 }

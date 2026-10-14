@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -17,7 +16,6 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     // The unavailable animal branch has already resolved to an untyped Ok.
     kim.inTurn {
           doTasks("PlayProject<Class<RegolithEaters>>", "-13 MC", "RegolithEaters FROM ProjectCard")
-          selectOnlyTask()
           doTask("Ok")
         }
         .expect("0 Microbe<$RegolithEaters>, 0 Plant, 0 Animal")
@@ -63,7 +61,9 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<EcologicalZone>>", "-12 MC", "EcologicalZone FROM ProjectCard")
+          // Resolve Ecological Zone's resource separately from Viral Enhancers' choice.
           selectTask("Animal<EcologicalZone>*")
+          // Resolve Ecological Zone's resource separately from Viral Enhancers' choice.
           selectTask("Animal<EcologicalZone>*")
           doTasks("EcologicalZone_SpecialTile<Tharsis_4_5>", "2 Plant", "Plant", "Animal")
         }
@@ -93,13 +93,10 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
   @Test
   internal fun `Cannot add a microbe to a different card`() {
     initializeExistingMicrobeCard()
-    shouldThrow<NarrowingException> {
+    shouldThrow<TaskException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<RegolithEaters>>")
-        selectTask("-X? MC")
         doTasks("-13 MC", "RegolithEaters FROM ProjectCard")
-        selectOnlyTask()
         doTask("Microbe<NitriteReducingBacteria>")
       }
     }
@@ -131,15 +128,15 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-          selectTask("4! CorporationCard<Kim, Selecting>")
+          doTask("4 CorporationCard<Kim, Selecting>")
           doTask("-42 MC")
           doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
           doTask("PharmacyUnion<Kim> FROM CorporationCard<Kim, Selecting>!")
-          selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
-          selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
-          selectTask("-4* MC")
-          selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
-          selectTask("-4* MC")
+          doTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
+          doTask("Disease<PharmacyUnion>")
+          doTask("-4* MC")
+          doTask("Disease<PharmacyUnion>")
+          doTask("-4* MC")
           doTasks("Plant", "Plant")
         }
         .expect("2 Disease<$PharmacyUnion>")
@@ -152,18 +149,17 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-        selectTask("4! CorporationCard<Kim, Selecting>")
-        selectTask("-42! MC")
-        selectTask("PlayCard<Kim, Class<CorporationCard>, Class<CardFront>, Selecting>!")
+        doTask("4 CorporationCard<Kim, Selecting>")
+        doTask("-42 MC")
+
         doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
-        selectTask("MAX 0 Barrier: PharmacyUnion FROM CorporationCard<Kim, Selecting>!")
-        selectTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
-        selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
-        selectTask("-4* MC")
-        selectTask("Disease<PharmacyUnion>! OR (MAX 0 PharmacyUnion: Ok)")
-        selectTask("-4* MC")
+        doTask("PharmacyUnion FROM CorporationCard<Selecting>")
+        doTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
+        doTask("Disease<PharmacyUnion>")
+        doTask("-4* MC")
+        doTask("Disease<PharmacyUnion>")
+        doTask("-4* MC")
         doTask("Disease<PharmacyUnion>")
       }
     }
@@ -175,8 +171,13 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     kim.exMachina("$ViralEnhancers")
     kim.inTurn {
       doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]", "Plant")
+      doTasks(
+          "Ok" /* No Steel payment. */,
+          "IndustrialMicrobes FROM ProjectCard",
+          "PROD[Energy]",
+          "PROD[Steel]",
+          "Plant",
+      )
     }
   }
 
@@ -188,9 +189,12 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     // Choose the uncollectible bonus instead of the available plant.
     kim.inTurn {
           doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
-          selectTask("-X? Steel")
-          doTasks("Ok", "IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
-          selectOnlyTask()
+          doTasks(
+              "Ok" /* No Steel payment. */,
+              "IndustrialMicrobes FROM ProjectCard",
+              "PROD[Energy]",
+              "PROD[Steel]",
+          )
           doTask("Ok")
         }
         .expect("0 Plant, 0 CardResource")

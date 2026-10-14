@@ -13,7 +13,7 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
-          selectOnlyTask()
+
           doTask("TemperatureStep BY Admin")
         }
         .expect("0 TerraformRating")
@@ -27,9 +27,9 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
-          selectOnlyTask()
+
           doTask("VenusStep BY Admin")
-          stan.selectTask("2! MC")
+          stan.doTask("2 MC")
         }
         .expect("0 TerraformRating")
   }
@@ -42,10 +42,10 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
-          selectOnlyTask()
+
           doTask("OceanTile<Tharsis_1_2> BY Admin")
-          stan.selectTask("2! Plant")
-          stan.selectTask("PROD[MC]")
+          stan.doTask("2 Plant")
+          stan.doTask("PROD[MC]")
         }
         .expect("PROD[MC<Stan>], 0 OceanCredit, 0 TerraformRating")
   }
@@ -57,10 +57,11 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
-          selectOnlyTask()
+
           doTask("TemperatureStep BY Admin")
-          selectOnlyTask()
-          selectOnlyTask()
+          // Hand the threshold ocean choice to the start player before placing it.
+          selectTask("OceanTile<> BY Admin")
+
           doTask("OceanTile<Tharsis_1_2> BY Admin")
         }
         .expect("0 TerraformRating, 0 Plant")
@@ -73,15 +74,14 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("UseCardAction<WorldGovernmentAdvisor, Action1>")
-          selectOnlyTask()
+
           doTask("TemperatureStep BY Admin")
         }
         .expect("0 TerraformRating, 0 MC")
     kim.inTurn {
-          doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-          selectTask("TemperatureStep*")
-          doTasks("TerraformRating", "3 MC")
-        }
-        .expect("TemperatureStep")
+      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTask("TemperatureStep")
+      doTasks("TerraformRating", "3 MC")
+    }
   }
 }

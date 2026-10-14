@@ -16,10 +16,9 @@ internal class ResearchColonyTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<ResearchColony>>", "-20 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "ResearchColony FROM ProjectCard")
-      selectTask("2! ProjectCard<Kim, Hand>")
-      selectTask("Colony<Kim, ColonyTile>!")
+      doTasks("Ok" /* No Titanium payment. */, "ResearchColony FROM ProjectCard")
+      doTask("2 ProjectCard<Kim, Hand>")
+
       doTasks("Colony<Luna>", "PROD[2 MC]")
     }
   }

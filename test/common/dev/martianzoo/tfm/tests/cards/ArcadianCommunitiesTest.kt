@@ -16,7 +16,6 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectOnlyTask()
       shouldThrow<LimitsException> { doTask("Community<Tharsis_1_1>") }
       shouldThrow<LimitsException> { doTask("Community<Tharsis_1_3>") }
       doTask("Community<Tharsis_9_7>")
@@ -42,7 +41,6 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
     newTestGame(kimCorporation = ArcadianCommunities)
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectOnlyTask()
       doTask("Community<Tharsis_4_2>")
     }
 
@@ -58,13 +56,11 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
     stan.exMachina("Community<Tharsis_4_2>")
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectOnlyTask()
       doTask("Community<Tharsis_9_7>")
     }
 
     kim.inTurn {
       doTask("UseCardAction<ArcadianCommunities, Action1>")
-      selectOnlyTask()
       shouldThrow<NarrowingException> { doTask("Community<Tharsis_2_1>") }
       shouldThrow<NarrowingException> { doTask("Community<Tharsis_4_3>") }
       doTask("Community<Tharsis_9_6>")
@@ -76,7 +72,6 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
     newTestGame(kimCorporation = ArcadianCommunities)
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectOnlyTask()
       doTask("Community<Tharsis_1_1>")
     }
     kim.setToExMachina(23, "MC")
@@ -88,7 +83,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
               "GreeneryTile<Tharsis_1_1>",
               "3 MC",
           )
-          selectTask("OxygenStep*")
+          doTask("OxygenStep")
           doTasks("2 Steel", "TerraformRating")
         }
         .expect("-Community, 0 MC<Stan>")
@@ -99,7 +94,6 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
     newTestGame(kimCorporation = ArcadianCommunities)
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectOnlyTask()
       doTask("Community<Tharsis_9_7>")
     }
     kim.inTurn {
@@ -108,7 +102,6 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
           "-1 MC",
           "LandClaim FROM ProjectCard",
       )
-      selectOnlyTask()
       doTask("Community<Tharsis_1_1>")
       doTask("PlayedEvent<Class<LandClaim>> FROM LandClaim")
     }
@@ -121,7 +114,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
               "GreeneryTile<Tharsis_1_1>",
               "3 MC",
           )
-          selectTask("OxygenStep*")
+          doTask("OxygenStep")
           doTasks("2 Steel", "TerraformRating")
         }
         .expect("-Community")
@@ -132,7 +125,6 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
     newTestGame(kimCorporation = ArcadianCommunities)
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectOnlyTask()
       doTask("Community<Tharsis_1_3>")
     }
     kim.setToExMachina(14, "MC")
@@ -140,21 +132,17 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       stan.inTurn {
-        selectOnlyTask()
         doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-        selectTask("-X? Steel")
-        selectTask("Ok")
+        doTask("Ok" /* No Steel payment. */)
         doTask("ArtificialLake FROM ProjectCard")
-        selectOnlyTask()
         doTask("OceanTile<Tharsis_1_3>")
       }
     }
     kim.setToExMachina(15, "MC")
     kim.inTurn {
           doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-          selectTask("-X? Steel")
           doTasks(
-              "Ok",
+              "Ok" /* No Steel payment. */,
               "ArtificialLake FROM ProjectCard",
               "OceanTile<Tharsis_1_3>",
               "3 MC",

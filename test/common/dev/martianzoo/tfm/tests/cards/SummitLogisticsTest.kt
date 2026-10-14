@@ -14,7 +14,6 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<SummitLogistics>>")
       }
     }
@@ -27,12 +26,12 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
+          // Other optional tasks also accept Ok; identify the Titanium payment first.
           selectTask("-X? Titanium")
-          doTask("Ok")
-          selectTask("-X? Steel")
-          doTasks("Ok", "SummitLogistics FROM ProjectCard")
-          selectTask("MC! / (PlanetaryTag OR Colony)")
-          selectTask("2! ProjectCard<Kim, Hand>")
+          doTask("Ok" /* No Titanium payment. */)
+          doTasks("Ok" /* No Steel payment. */, "SummitLogistics FROM ProjectCard")
+          doTask("3 MC")
+          doTask("2 ProjectCard<Kim, Hand>")
         }
         .expect("-7 MC, ProjectCard")
   }
@@ -43,19 +42,18 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<SummitLogistics>>")
       }
     }
     kim.exMachina("2 PartyDelegate<Scientists>")
     kim.inTurn {
           doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
+          // Other optional tasks also accept Ok; identify the Titanium payment first.
           selectTask("-X? Titanium")
-          doTask("Ok")
-          selectTask("-X? Steel")
-          doTasks("Ok", "SummitLogistics FROM ProjectCard")
-          selectTask("MC! / (PlanetaryTag OR Colony)")
-          selectTask("2! ProjectCard<Kim, Hand>")
+          doTask("Ok" /* No Titanium payment. */)
+          doTasks("Ok" /* No Steel payment. */, "SummitLogistics FROM ProjectCard")
+          doTask("0 MC")
+          doTask("2 ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
   }
@@ -70,12 +68,12 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
+          // Other optional tasks also accept Ok; identify the Titanium payment first.
           selectTask("-X? Titanium")
-          doTask("Ok")
-          selectTask("-X? Steel")
-          doTasks("Ok", "SummitLogistics FROM ProjectCard")
-          selectTask("MC! / (PlanetaryTag OR Colony)")
-          selectTask("2! ProjectCard<Kim, Hand>")
+          doTask("Ok" /* No Titanium payment. */)
+          doTasks("Ok" /* No Steel payment. */, "SummitLogistics FROM ProjectCard")
+          doTask("6 MC")
+          doTask("2 ProjectCard<Kim, Hand>")
         }
         .expect("-4 MC, ProjectCard")
   }

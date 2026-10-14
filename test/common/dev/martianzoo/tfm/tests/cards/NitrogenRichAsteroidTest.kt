@@ -14,13 +14,12 @@ internal class NitrogenRichAsteroidTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<NitrogenRichAsteroid>>", "-31 MC")
-      selectTask("-X? Titanium")
       doTasks(
-          "Ok",
+          "Ok" /* No Titanium payment. */,
           "NitrogenRichAsteroid FROM ProjectCard",
           "2 TerraformRating",
       )
-      selectTask("TemperatureStep*")
+      doTask("TemperatureStep")
       doTasks("TerraformRating", "PROD[Plant]")
       doTask("PlayedEvent<Class<NitrogenRichAsteroid>> FROM NitrogenRichAsteroid")
     }

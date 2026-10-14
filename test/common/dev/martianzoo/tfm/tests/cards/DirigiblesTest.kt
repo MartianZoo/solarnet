@@ -36,7 +36,7 @@ internal class DirigiblesTest : TfmSandboxTest() {
               "-3 MC",
               "StratosphericBirds FROM ProjectCard",
           )
-          selectTask("-Floater!")
+          doTask("-Floater")
         }
         .expect("-4 Floater<$Dirigibles>")
   }

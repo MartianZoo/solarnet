@@ -13,10 +13,9 @@ internal class VenusShuttlesTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-          doTasks("UseCardAction<VenusShuttles, Action1>", "-MC / Owed<Class<MC>>")
-          selectTask("VenusStep*")
-          doTask("TerraformRating")
-        }
-        .expect("-6 MC, VenusStep")
+      doTasks("UseCardAction<VenusShuttles, Action1>", "-6 MC")
+      doTask("VenusStep")
+      doTask("TerraformRating")
+    }
   }
 }

@@ -14,14 +14,13 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
     // The drawn card replaces the played event in hand.
     kim.inTurn {
           doTasks("PlayProject<Class<ImportedGhg>>", "-5 MC")
-          selectTask("-X? Titanium")
           doTasks(
-              "Ok",
+              "Ok" /* No Titanium payment. */,
               "ImportedGhg FROM ProjectCard",
               "PROD[Heat]",
               "3 Heat",
           )
-          selectTask("ProjectCard<Kim, Hand>!")
+          doTask("ProjectCard<Kim, Hand>")
           doTask("PlayedEvent<Class<ImportedGhg>> FROM ImportedGhg")
         }
         .expect("0 ProjectCard")
