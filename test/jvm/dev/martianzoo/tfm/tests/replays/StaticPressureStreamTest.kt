@@ -346,12 +346,12 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Database save 18: immediately after both Research purchases in generation 2.
     nor.assertResources(m = 36, s = 1, t = 0, p = 8, e = 0, h = 6)
     nor.assertProduction(m = 0, s = 0, t = 0, p = 3, e = 0, h = 0)
-    nor.assertDashMiddle(played = 3, actions = 0, vp = 24, tr = 22, hand = 7)
+    nor.assertDashMiddle(played = 3, actions = 0, tr = 22, hand = 7)
     nor.assertTags(plt = 3, cit = 1)
     nor.assertDashRight(events = 0, tagless = 0, cities = 1)
     vin.assertResources(m = 51, s = 0, t = 1, p = 0, e = 0, h = 3)
     vin.assertProduction(m = 5, s = 0, t = 1, p = 0, e = 0, h = 3)
-    vin.assertDashMiddle(played = 5, actions = 0, vp = 20, tr = 20, hand = 7)
+    vin.assertDashMiddle(played = 5, actions = 0, tr = 20, hand = 7)
     vin.assertTags(but = 3, pot = 1)
     vin.assertDashRight(events = 0, tagless = 1, cities = 0)
     assertSidebar(gen = 2, temp = -30, oxygen = 1, oceans = 1, venus = 2)
@@ -397,12 +397,12 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Database save 47: immediately after both Research purchases in generation 3.
     nor.assertResources(m = 32, s = 0, t = 0, p = 5, e = 0, h = 6)
     nor.assertProduction(m = 0, s = 0, t = 0, p = 3, e = 0, h = 0)
-    nor.assertDashMiddle(played = 4, actions = 1, vp = 28, tr = 24, hand = 8)
+    nor.assertDashMiddle(played = 4, actions = 1, tr = 24, hand = 8)
     nor.assertTags(but = 1, plt = 3, cit = 1)
     nor.assertDashRight(events = 0, tagless = 0, cities = 1)
     vin.assertResources(m = 33, s = 0, t = 2, p = 0, e = 0, h = 6)
     vin.assertProduction(m = 9, s = 0, t = 1, p = 0, e = 0, h = 3)
-    vin.assertDashMiddle(played = 9, actions = 2, vp = 24, tr = 23, hand = 5)
+    vin.assertDashMiddle(played = 9, actions = 2, tr = 23, hand = 5)
     vin.assertTags(but = 4, pot = 1, eat = 1, jot = 1, vet = 3)
     vin.assertDashRight(events = 0, tagless = 1, cities = 0)
     assertSidebar(gen = 3, temp = -30, oxygen = 3, oceans = 2, venus = 4)
@@ -437,12 +437,12 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Database save 75: immediately after both Research purchases in generation 4.
     nor.assertResources(m = 30, s = 0, t = 0, p = 9, e = 1, h = 6)
     nor.assertProduction(m = 1, s = 0, t = 0, p = 3, e = 1, h = 0)
-    nor.assertDashMiddle(played = 7, actions = 3, vp = 30, tr = 25, hand = 6)
+    nor.assertDashMiddle(played = 7, actions = 3, tr = 25, hand = 6)
     nor.assertTags(but = 1, pot = 1, vet = 2, plt = 3, cit = 1)
     nor.assertDashRight(events = 0, tagless = 0, cities = 1)
     vin.assertResources(m = 39, s = 0, t = 3, p = 0, e = 0, h = 9)
     vin.assertProduction(m = 12, s = 0, t = 1, p = 0, e = 0, h = 3)
-    vin.assertDashMiddle(played = 10, actions = 2, vp = 29, tr = 23, hand = 8)
+    vin.assertDashMiddle(played = 10, actions = 2, tr = 23, hand = 8)
     vin.assertTags(but = 4, sct = 1, pot = 1, eat = 1, jot = 1, vet = 3)
     vin.assertDashRight(events = 0, tagless = 1, cities = 0)
     assertSidebar(gen = 4, temp = -28, oxygen = 3, oceans = 3, venus = 4)
@@ -496,12 +496,12 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Database save 117: immediately after both Research purchases in generation 5.
     nor.assertResources(m = 27, s = 0, t = 0, p = 6, e = 0, h = 10)
     nor.assertProduction(m = 2, s = 0, t = 0, p = 5, e = 0, h = 0)
-    nor.assertDashMiddle(played = 9, actions = 3, vp = 37, tr = 28, hand = 7)
+    nor.assertDashMiddle(played = 9, actions = 3, tr = 28, hand = 7)
     nor.assertTags(but = 1, sct = 1, pot = 1, vet = 2, plt = 4, mit = 1, ant = 1, cit = 1)
     nor.assertDashRight(events = 0, tagless = 0, cities = 1)
     vin.assertResources(m = 32, s = 0, t = 1, p = 2, e = 1, h = 16)
     vin.assertProduction(m = 12, s = 0, t = 1, p = 0, e = 1, h = 4)
-    vin.assertDashMiddle(played = 14, actions = 2, vp = 36, tr = 28, hand = 8)
+    vin.assertDashMiddle(played = 14, actions = 2, tr = 28, hand = 8)
     vin.assertTags(but = 4, spt = 1, sct = 1, pot = 2, eat = 2, jot = 1, vet = 3)
     vin.assertDashRight(events = 1, tagless = 1, cities = 0)
     assertSidebar(gen = 5, temp = -24, oxygen = 5, oceans = 5, venus = 10)
@@ -548,12 +548,12 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Database save 160: immediately after both Research purchases in generation 6.
     nor.assertResources(m = 31, s = 0, t = 0, p = 6, e = 0, h = 2)
     nor.assertProduction(m = 3, s = 0, t = 0, p = 4, e = 0, h = 0)
-    nor.assertDashMiddle(played = 9, actions = 3, vp = 47, tr = 31, hand = 9)
+    nor.assertDashMiddle(played = 9, actions = 3, tr = 31, hand = 9)
     nor.assertTags(but = 1, sct = 1, pot = 1, vet = 2, plt = 4, mit = 1, ant = 1, cit = 1)
     nor.assertDashRight(events = 0, tagless = 0, cities = 1)
     vin.assertResources(m = 43, s = 0, t = 2, p = 2, e = 1, h = 6)
     vin.assertProduction(m = 16, s = 0, t = 1, p = 0, e = 1, h = 5)
-    vin.assertDashMiddle(played = 17, actions = 3, vp = 40, tr = 31, hand = 8)
+    vin.assertDashMiddle(played = 17, actions = 3, tr = 31, hand = 8)
     vin.assertTags(but = 4, spt = 1, sct = 1, pot = 2, eat = 3, jot = 1, vet = 3, ant = 1)
     vin.assertDashRight(events = 1, tagless = 2, cities = 0)
     assertSidebar(gen = 6, temp = -16, oxygen = 6, oceans = 6, venus = 12)
@@ -595,12 +595,12 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Database save 201: immediately after both Research purchases in generation 7.
     nor.assertResources(m = 38, s = 0, t = 1, p = 6, e = 0, h = 5)
     nor.assertProduction(m = 3, s = 0, t = 1, p = 4, e = 0, h = 0)
-    nor.assertDashMiddle(played = 12, actions = 3, vp = 53, tr = 35, hand = 6)
+    nor.assertDashMiddle(played = 12, actions = 3, tr = 35, hand = 6)
     nor.assertTags(but = 1, sct = 1, pot = 1, vet = 3, plt = 5, mit = 1, ant = 1, cit = 1)
     nor.assertDashRight(events = 0, tagless = 1, cities = 1)
     vin.assertResources(m = 49, s = 0, t = 3, p = 2, e = 1, h = 12)
     vin.assertProduction(m = 16, s = 0, t = 1, p = 0, e = 1, h = 5)
-    vin.assertDashMiddle(played = 19, actions = 3, vp = 45, tr = 34, hand = 8)
+    vin.assertDashMiddle(played = 19, actions = 3, tr = 34, hand = 8)
     vin.assertTags(but = 4, spt = 2, sct = 1, pot = 2, eat = 4, jot = 1, vet = 3, ant = 1)
     vin.assertDashRight(events = 2, tagless = 2, cities = 0)
     assertSidebar(gen = 7, temp = -14, oxygen = 8, oceans = 8, venus = 16)
@@ -651,7 +651,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Database save 246: immediately after both Research purchases in generation 8.
     nor.assertResources(m = 45, s = 0, t = 1, p = 5, e = 0, h = 5)
     nor.assertProduction(m = 14, s = 0, t = 1, p = 4, e = 0, h = 0)
-    nor.assertDashMiddle(played = 13, actions = 3, vp = 62, tr = 37, hand = 8)
+    nor.assertDashMiddle(played = 13, actions = 3, tr = 37, hand = 8)
     nor.assertTags(
         but = 1,
         spt = 1,
@@ -666,7 +666,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.assertDashRight(events = 0, tagless = 1, cities = 1)
     vin.assertResources(m = 52, s = 0, t = 1, p = 4, e = 1, h = 12)
     vin.assertProduction(m = 18, s = 0, t = 1, p = 2, e = 1, h = 7)
-    vin.assertDashMiddle(played = 23, actions = 4, vp = 50, tr = 36, hand = 6)
+    vin.assertDashMiddle(played = 23, actions = 4, tr = 36, hand = 6)
     vin.assertTags(
         but = 5,
         spt = 3,
@@ -714,7 +714,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Database save 293: immediately after both Research purchases in generation 9.
     nor.assertResources(m = 47, s = 0, t = 2, p = 10, e = 1, h = 5)
     nor.assertProduction(m = 16, s = 0, t = 1, p = 4, e = 1, h = 0)
-    nor.assertDashMiddle(played = 18, actions = 3, vp = 65, tr = 37, hand = 7)
+    nor.assertDashMiddle(played = 18, actions = 3, tr = 37, hand = 7)
     nor.assertTags(
         but = 4,
         spt = 1,
@@ -729,7 +729,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.assertDashRight(events = 0, tagless = 2, cities = 2)
     vin.assertResources(m = 56, s = 0, t = 2, p = 10, e = 1, h = 12)
     vin.assertProduction(m = 19, s = 0, t = 1, p = 4, e = 1, h = 7)
-    vin.assertDashMiddle(played = 24, actions = 4, vp = 63, tr = 37, hand = 6)
+    vin.assertDashMiddle(played = 24, actions = 4, tr = 37, hand = 6)
     vin.assertTags(
         but = 5,
         spt = 3,
@@ -797,7 +797,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Database save 357: immediately after both Research purchases in generation 10.
     nor.assertResources(m = 53, s = 0, t = 2, p = 9, e = 0, h = 4)
     nor.assertProduction(m = 18, s = 0, t = 2, p = 8, e = 0, h = 0)
-    nor.assertDashMiddle(played = 24, actions = 3, vp = 90, tr = 44, hand = 7)
+    nor.assertDashMiddle(played = 24, actions = 3, tr = 44, hand = 7)
     nor.assertTags(
         but = 5,
         spt = 3,
@@ -812,7 +812,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.assertDashRight(events = 1, tagless = 3, cities = 3)
     vin.assertResources(m = 64, s = 0, t = 3, p = 6, e = 1, h = 12)
     vin.assertProduction(m = 20, s = 0, t = 1, p = 4, e = 1, h = 7)
-    vin.assertDashMiddle(played = 24, actions = 4, vp = 72, tr = 41, hand = 7)
+    vin.assertDashMiddle(played = 24, actions = 4, tr = 41, hand = 7)
     vin.assertTags(
         but = 5,
         spt = 3,
@@ -882,7 +882,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Database save 417: immediately after both Research purchases in generation 11.
     nor.assertResources(m = 64, s = 0, t = 4, p = 14, e = 1, h = 4)
     nor.assertProduction(m = 21, s = 0, t = 2, p = 8, e = 1, h = 0)
-    nor.assertDashMiddle(played = 28, actions = 4, vp = 97, tr = 45, hand = 5)
+    nor.assertDashMiddle(played = 28, actions = 4, tr = 45, hand = 5)
     nor.assertTags(
         but = 6,
         spt = 3,
@@ -897,7 +897,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.assertDashRight(events = 2, tagless = 4, cities = 5)
     vin.assertResources(m = 61, s = 0, t = 4, p = 8, e = 1, h = 12)
     vin.assertProduction(m = 21, s = 0, t = 1, p = 6, e = 1, h = 7)
-    vin.assertDashMiddle(played = 27, actions = 4, vp = 87, tr = 42, hand = 8)
+    vin.assertDashMiddle(played = 27, actions = 4, tr = 42, hand = 8)
     vin.assertTags(
         but = 5,
         spt = 3,

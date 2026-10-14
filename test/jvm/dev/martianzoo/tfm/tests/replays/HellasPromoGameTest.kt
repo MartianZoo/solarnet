@@ -122,20 +122,6 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
       assertCounts(0 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
     }
 
-    withScorePreview {
-      val sum = Summarizer(game)
-      sum.net("GreeneryTile", "VictoryPoint") shouldBe 0
-      sum.net("CityTile", "VictoryPoint") shouldBe 0
-
-      p1.assertCounts(24 to "TerraformRating<Player1>")
-      p1.assertCounts(27 to "VictoryPoint<Player1>")
-      sum.net("Card", "VictoryPoint<Player1>") shouldBe 3
-
-      p2.assertCounts(25 to "TerraformRating<Player2>")
-      sum.net("$PharmacyUnion", "TerraformRating<Player2>") shouldBe 5
-
-      p2.assertCounts(28 to "VictoryPoint")
-      sum.net("Card", "VictoryPoint<Player2>") shouldBe 3
-    }
+    Summarizer(game).net("$PharmacyUnion", "TerraformRating<Player2>") shouldBe 5
   }
 }

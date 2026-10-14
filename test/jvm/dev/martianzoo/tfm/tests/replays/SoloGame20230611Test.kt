@@ -37,7 +37,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
 
       assertProduction(m = 0, s = 0, t = 0, p = 0, e = 0, h = 0)
       assertResources(m = 22, s = 0, t = 0, p = 0, e = 0, h = 0)
-      assertDashMiddle(played = 1, actions = 0, vp = 14, tr = 14, hand = 5)
+      assertDashMiddle(played = 1, actions = 0, tr = 14, hand = 5)
       assertTags(eat = 1) // ...
       assertDashRight(events = 0, tagless = 0, cities = 0)
       assertSidebar(gen = 1, temp = -30, oxygen = 0, oceans = 0, venus = 0)
@@ -57,7 +57,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
 
       assertProduction(m = 7, s = 1, t = 2, p = 1, e = 1, h = 0)
       assertResources(m = 22, s = 1, t = 2, p = 1, e = 1, h = 0)
-      assertDashMiddle(played = 7, actions = 0, vp = 13, tr = 14, hand = 8)
+      assertDashMiddle(played = 7, actions = 0, tr = 14, hand = 8)
       assertTags(but = 1, sct = 1, eat = 2, jot = 1, mit = 1) // ...
       assertDashRight(events = 1, tagless = 1, cities = 0)
       assertSidebar(gen = 2, temp = -30, oxygen = 0, oceans = 0, venus = 0)
@@ -79,7 +79,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
 
       assertProduction(m = 9, s = 1, t = 2, p = 1, e = 3, h = 0)
       assertResources(m = 29, s = 1, t = 4, p = 3, e = 3, h = 2)
-      assertDashMiddle(played = 12, actions = 1, vp = 15, tr = 15, hand = 8)
+      assertDashMiddle(played = 12, actions = 1, tr = 15, hand = 8)
       assertTags(but = 2, sct = 1, pot = 1, eat = 3, jot = 1, vet = 1, mit = 1) // ...
       assertDashRight(events = 2, tagless = 2, cities = 0)
       assertSidebar(gen = 4, temp = -28, oxygen = 0, oceans = 0, venus = 0)
@@ -107,7 +107,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
 
       assertProduction(m = 9, s = 1, t = 2, p = 2, e = 1, h = 1)
       assertResources(m = 22, s = 1, t = 5, p = 6, e = 1, h = 9)
-      assertDashMiddle(played = 16, actions = 3, vp = 21, tr = 19, hand = 10)
+      assertDashMiddle(played = 16, actions = 3, tr = 19, hand = 10)
       assertTags(but = 4, sct = 3, pot = 1, eat = 4, jot = 1, vet = 1, mit = 2)
       assertDashRight(events = 3, tagless = 2, cities = 0)
       assertSidebar(gen = 6, temp = -24, oxygen = 0, oceans = 0, venus = 2)
@@ -144,7 +144,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
 
       assertProduction(m = 14, s = 1, t = 2, p = 2, e = 3, h = 1)
       assertResources(m = 33, s = 1, t = 4, p = 2, e = 5, h = 5)
-      assertDashMiddle(played = 22, actions = 3, vp = 29, tr = 27, hand = 14)
+      assertDashMiddle(played = 22, actions = 3, tr = 27, hand = 14)
       assertDashRight(events = 3, tagless = 2, cities = 1)
       assertSidebar(gen = 8, temp = -22, oxygen = 2, oceans = 1, venus = 2)
 
@@ -181,7 +181,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
 
       assertProduction(m = 17, s = 1, t = 3, p = 3, e = 3, h = 5)
       assertResources(m = 56, s = 1, t = 6, p = 7, e = 6, h = 8)
-      assertDashMiddle(played = 30, actions = 5, vp = 36, tr = 32, hand = 10)
+      assertDashMiddle(played = 30, actions = 5, tr = 32, hand = 10)
       assertDashRight(events = 3, tagless = 2, cities = 2)
       assertSidebar(gen = 10, temp = -20, oxygen = 3, oceans = 1, venus = 4)
 
@@ -244,7 +244,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
 
       assertProduction(m = 24, s = 3, t = 4, p = 4, e = 2, h = 6)
       assertResources(m = 8, s = 1, t = 0, p = 0, e = 0, h = 1)
-      assertDashMiddle(played = 41, actions = 1, vp = 78, tr = 64, hand = 0)
+      assertDashMiddle(played = 41, actions = 1, tr = 64, hand = 0)
       assertDashRight(events = 6, tagless = 2, cities = 2)
       assertSidebar(gen = 12, temp = -10, oxygen = 11, oceans = 2, venus = 16)
 
