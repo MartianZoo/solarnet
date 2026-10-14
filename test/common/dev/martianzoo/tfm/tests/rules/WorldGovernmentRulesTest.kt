@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -143,40 +144,45 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     internal fun `Solar World Government cannot choose a completed parameter`() {
       newTestGame(playerCount = 2)
       repeat(15) { finishGeneration("VenusStep") }
-      stan.pass()
-      kim.pass()
+      stan.doTask("Pass")
+      kim.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
 
-      shouldThrow<LimitsException> { stan.wgt("VenusStep") }
-      stan.wgt("TemperatureStep").expect("TemperatureStep, 0 TerraformRating")
+      shouldThrow<LimitsException> { stan.doTask("VenusStep! BY Admin") }
+      stan.doTask("TemperatureStep! BY Admin").expect("TemperatureStep, 0 TerraformRating")
     }
 
     @Test
     internal fun `Admin terraforming triggers Aphrodite without granting terraform rating`() {
       newTestGame(playerCount = 2, kimCorporation = Aphrodite)
-      kim.pass()
-      stan.pass()
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
 
-      kim.wgt("VenusStep").expect("VenusStep, 2 MC, 0 TerraformRating")
+      kim.doTask("VenusStep! BY Admin").expect("VenusStep, 2 MC, 0 TerraformRating")
     }
 
     @Test
     internal fun `Admin terraforming does not trigger Homeostasis Bureau's owner effect`() {
       newTestGame(playerCount = 2)
-      kim.turn { playProject(HomeostasisBureau, 16) }
-      stan.pass()
-      kim.pass()
+      kim.doTasks("PlayProject<Class<$HomeostasisBureau>>", "-16 MC", "Ok" /* No Steel payment. */)
+      kim.doTask("0 StandardAction") // Decline the second action.
+      stan.doTask("Pass")
+      kim.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
 
-      kim.wgt("TemperatureStep").expect("TemperatureStep, 0 MC, 0 TerraformRating")
+      kim.doTask("TemperatureStep! BY Admin").expect("TemperatureStep, 0 MC, 0 TerraformRating")
     }
 
     @Test
     internal fun `Without Venus or World Government passes lead straight to Research`() {
       newTestGame(addOptions = "-VenusNextExpansion", playerCount = 2)
-      kim.pass()
-      stan.pass()
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
 
-      kim.buyCards(0)
-      stan.buyCards(0)
+      kim.doTask("-4 ProjectCard<Selecting>")
+      stan.doTask("-4 ProjectCard<Selecting>")
       admin.count("Generation") shouldBe 2
       admin.count("TemperatureStep") shouldBe 0
     }
@@ -184,11 +190,12 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     @Test
     internal fun `World Government can be disabled while Venus remains in play`() {
       newTestGame(addOptions = "-WorldGovernmentRule", playerCount = 2)
-      kim.pass()
-      stan.pass()
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
 
-      kim.buyCards(0)
-      stan.buyCards(0)
+      kim.doTask("-4 ProjectCard<Selecting>")
+      stan.doTask("-4 ProjectCard<Selecting>")
       admin.count("Generation") shouldBe 2
       admin.count("VenusStep") shouldBe 0
     }
@@ -196,20 +203,23 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     @Test
     internal fun `World Government can be selected without Venus`() {
       newTestGame(addOptions = "-VenusNextExpansion, WorldGovernmentRule", playerCount = 2)
-      kim.pass()
-      stan.pass()
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
 
-      kim.wgt("TemperatureStep").expect("TemperatureStep, 0 TerraformRating")
+      kim.doTask("TemperatureStep! BY Admin").expect("TemperatureStep, 0 TerraformRating")
     }
 
     @Test
     internal fun `First player places the standard temperature track's threshold ocean`() {
       newTestGame(playerCount = 2)
       repeat(14) { finishGeneration("TemperatureStep") }
-      kim.pass()
-      stan.pass()
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
 
-      kim.wgt("TemperatureStep").expect("TemperatureStep, 0 TerraformRating")
+      kim.doTask("TemperatureStep! BY Admin").expect("TemperatureStep, 0 TerraformRating")
+
       kim.doTask("OceanTile<Tharsis_1_2> BY Admin").expect("OceanTile, 0 TerraformRating")
     }
 
@@ -217,31 +227,35 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     internal fun `First player places the extended temperature track's threshold ocean`() {
       newTestGame(addOptions = "AmazonisMap", playerCount = 2)
       repeat(14) { finishGeneration("TemperatureStep") }
-      kim.pass()
-      stan.pass()
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
 
-      kim.wgt("TemperatureStep").expect("TemperatureStep, 0 TerraformRating")
+      kim.doTask("TemperatureStep! BY Admin").expect("TemperatureStep, 0 TerraformRating")
+
       kim.doTask("OceanTile<Amazonis_02_01> BY Admin").expect("OceanTile, 0 TerraformRating")
     }
 
     @Test
     internal fun `Solo Venus advances a generation with World Government disabled`() {
       newTestGame(addOptions = "-WorldGovernmentRule", playerCount = 1)
-      val remaining = admin.count("SoloGenerationsLeft")
-      kim.pass()
-      kim.buyCards(0)
-
-      admin.count("SoloGenerationsLeft") shouldBe remaining - 1
+      expectChanges("-SoloGenerationsLeft") {
+        kim.doTask("Pass")
+        players.forEach { it.autoExecNow(EAGER) }
+        kim.doTask("-4 ProjectCard<Selecting>")
+      }
       admin.count("VenusStep") shouldBe 0
       admin.count("TemperatureStep") shouldBe 0
     }
 
     private fun finishGeneration(choice: String) {
       val first = players.single { it.count("StartToken") == 1 }
-      first.pass()
-      players.single { it != first }.pass()
-      first.wgt(choice)
-      players.forEach { it.buyCards(0) }
+      first.doTask("Pass")
+      players.single { it != first }.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      first.doTask("$choice! BY Admin")
+
+      players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
     }
   }
 }

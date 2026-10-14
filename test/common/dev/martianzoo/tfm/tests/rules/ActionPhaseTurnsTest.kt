@@ -7,11 +7,10 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class ActionPhaseTurnsTest : TfmGameplayTest() {
+internal class ActionPhaseTurnsTest : TfmGameplayTest(NONE) {
   @Test
-  internal fun multiplayerSkipsPassedPlayersAndLetsTheLastPlayerContinue() {
+  internal fun `Multiplayer skips passed players and lets the last player continue`() {
     newTestGame(playerCount = 3)
-    players.forEach { it.autoExecPolicy = NONE }
 
     shouldThrow<TaskException> { stan.doTask("Pass") }
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
@@ -44,11 +43,12 @@ internal class ActionPhaseTurnsTest : TfmGameplayTest() {
   }
 
   @Test
-  internal fun soloKeepsOfferingActionsUntilThePlayerPasses() {
+  internal fun `Solo keeps offering actions until the player passes`() {
     newTestGame(playerCount = 1)
-    kim.autoExecPolicy = NONE
 
-    repeat(3) { kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard") }
+    kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
+    kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
+    kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
     kim.doTask("Pass")
     admin.count("ProductionPhase") shouldBe 1
     kim.doTasks("13 MC", "Steel", "Titanium", "Plant", "Energy", "Heat")

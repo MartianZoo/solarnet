@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class EventAnalystsTest : TfmGameplayTest() {
@@ -12,45 +12,67 @@ internal class EventAnalystsTest : TfmGameplayTest() {
         "PreludeExpansion, HighCircles, TurmoilExpansion, ColonialRepresentation, Luna",
         playerCount = 2,
     )
-    kim.turn {
-      playPrelude(HighCircles) { doTask("2 PartyDelegate<Scientists>") }
-      playPrelude(Donation)
+    kim.completeOperation {
+      doTask("PlayCard<Class<PreludeCard>, Class<$HighCircles>>")
+      doTask("2 PartyDelegate<Scientists>")
+      autoExecNow(EAGER)
     }
-    stan.turn {
-      playPrelude(Supplier)
-      playPrelude(MetalsCompany)
-    }
-    kim.turn {
-      playProject(EventAnalysts, 5)
-      stdProject("BuildColonyProject") { doTask("Colony<Luna>") }
-    }
-    stan.pass()
-    kim.turn {
-      playProject(ColonialRepresentation, 10)
-      pass()
-    }
-    kim.wgt("VenusStep")
-    admin.doTask("ExploreFirstDirective")
-    kim.buyCards(0)
-    stan.buyCards(0)
-    stan.pass()
-    kim.turn {
-      // The chairman retains its influence; the dominant party supplies leader and delegate
-      // influence.
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Scientists>") }
-      repeat(3) {
-        stdAction("LobbyAction<Action2>", payment = { kim.pay(5) }) {
-          doTask("PartyDelegate<Scientists>")
-        }
-      }
-      pass()
-    }
-    val plantsAfterProduction = kim.count("Plant")
-    val steelAfterProduction = kim.count("Steel")
-    stan.wgt("VenusStep")
-    stan.doTask("OceanTile<Tharsis_1_5> BY Admin")
+    kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
+    stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
+    stan.autoExecNow(EAGER)
 
-    kim.count("Plant") shouldBe plantsAfterProduction + 6
-    kim.count("Steel") shouldBe steelAfterProduction + 6
+    stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
+    stan.autoExecNow(EAGER)
+
+    kim.doTasks("PlayProject<Class<$EventAnalysts>>", "-5 MC")
+    kim.completeOperation {
+      doTasks("UseStandardProject<BuildColonyProject>", "-17 MC")
+      doTask("Colony<Luna>")
+      autoExecNow(EAGER)
+    }
+    stan.doTask("Pass")
+    kim.doTasks("PlayProject<Class<$ColonialRepresentation>>", "-10 MC")
+    kim.doTask("Pass")
+    players.forEach { it.autoExecNow(EAGER) }
+    kim.doTask("VenusStep! BY Admin")
+    players.forEach { it.autoExecNow(EAGER) }
+
+    admin.doTask("ExploreFirstDirective")
+    kim.doTask("-4 ProjectCard<Selecting>")
+    stan.doTask("-4 ProjectCard<Selecting>")
+    stan.doTask("Pass")
+    // The chairman retains its influence; the dominant party supplies leader and delegate
+    // influence.
+    kim.completeOperation {
+      doTask("LobbyAction<Action1>")
+      doTask("PartyDelegate<Scientists>")
+    }
+    kim.completeOperation {
+      doTask("LobbyAction<Action2>")
+      doTask("-5 MC")
+
+      doTask("PartyDelegate<Scientists>")
+    }
+    kim.completeOperation {
+      doTask("LobbyAction<Action2>")
+      doTask("-5 MC")
+
+      doTask("PartyDelegate<Scientists>")
+    }
+    kim.completeOperation {
+      doTask("LobbyAction<Action2>")
+      doTask("-5 MC")
+
+      doTask("PartyDelegate<Scientists>")
+    }
+    kim.doTask("Pass")
+    players.forEach { it.autoExecNow(EAGER) }
+    expectChanges("6 Steel<Kim>, 6 Plant<Kim>") {
+      stan.doTask("VenusStep! BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
+
+      stan.doTask("OceanTile<Tharsis_1_5> BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
+    }
   }
 }

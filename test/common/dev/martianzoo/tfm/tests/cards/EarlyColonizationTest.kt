@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
@@ -111,12 +112,21 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
           "PreludeExpansion, EarlyColonization, Luna, Ceres, Miranda, Titan, Enceladus",
           playerCount = 2,
       )
-      kim.playPrelude(EarlyColonization) { doTask("Colony<Luna>") }
-      kim.playPrelude(Donation)
-      stan.playPrelude(Supplier)
-      stan.playPrelude(MetalsCompany)
-      kim.pass()
-      stan.pass()
+      kim.completeOperation {
+        doTask("PlayCard<Class<PreludeCard>, Class<$EarlyColonization>>")
+        doTask("Colony<Luna>")
+        autoExecNow(EAGER)
+      }
+      kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
+      stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
+      stan.autoExecNow(EAGER)
+
+      stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
+      stan.autoExecNow(EAGER)
+
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
 
       // The tracks advance as the Solar phase begins, without waiting for World Government.
       admin.count("SolarPhase") shouldBe 1

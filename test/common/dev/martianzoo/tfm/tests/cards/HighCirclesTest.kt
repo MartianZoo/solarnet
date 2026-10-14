@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -75,28 +76,40 @@ internal class HighCirclesTest : TfmSandboxTest() {
     @Test
     internal fun `Its influence adds to the chairmans Global Event payout`() {
       newTestGame("PreludeExpansion, HighCircles, TurmoilExpansion", playerCount = 2)
-      kim.playPrelude(HighCircles) { doTask("2 PartyDelegate<Scientists>") }
-      kim.playPrelude(Donation)
-      stan.playPrelude(Supplier)
-      stan.playPrelude(MetalsCompany)
-      kim.pass()
-      stan.pass()
-      kim.wgt("VenusStep")
+      kim.completeOperation {
+        doTask("PlayCard<Class<PreludeCard>, Class<$HighCircles>>")
+        doTask("2 PartyDelegate<Scientists>")
+        autoExecNow(EAGER)
+      }
+      kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
+      stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
+      stan.autoExecNow(EAGER)
+
+      stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
+      stan.autoExecNow(EAGER)
+
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      kim.doTask("VenusStep! BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
+
       kim.count("Chairman") shouldBe 1
       admin.doTask("ExploreFirstDirective")
-      kim.buyCards(0)
-      stan.buyCards(0)
-      stan.pass()
-      kim.pass()
-      val plantsAfterProduction = kim.count("Plant")
-      val steelAfterProduction = kim.count("Steel")
+      kim.doTask("-4 ProjectCard<Selecting>")
+      stan.doTask("-4 ProjectCard<Selecting>")
+      stan.doTask("Pass")
+      kim.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
 
-      stan.wgt("VenusStep")
-      // Aquifer Released by Public Council pays for both the card and chairman influence.
-      stan.doTask("OceanTile<Tharsis_1_5> BY Admin")
+      expectChanges("2 Plant<Kim>, 2 Steel<Kim>") {
+        stan.doTask("VenusStep! BY Admin")
+        players.forEach { it.autoExecNow(EAGER) }
 
-      kim.count("Plant") shouldBe plantsAfterProduction + 2
-      kim.count("Steel") shouldBe steelAfterProduction + 2
+        // Aquifer Released by Public Council pays for both the card and chairman influence.
+        stan.doTask("OceanTile<Tharsis_1_5> BY Admin")
+        players.forEach { it.autoExecNow(EAGER) }
+      }
     }
   }
 }

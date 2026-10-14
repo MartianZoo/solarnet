@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
@@ -253,13 +254,25 @@ internal class DoubleDownTest : TfmSandboxTest() {
     @Test
     internal fun `Copying Preservation Program adds TR without another Action phase skip`() {
       newTestGame("PreludeExpansion, PreservationProgram", playerCount = 2)
-      kim.playPrelude(PreservationProgram)
-      kim.playPrelude(DoubleDown) { doTask("CopyPrelude<$PreservationProgram>") }
+      kim.doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
+      kim.completeOperation {
+            doTask("PlayCard<Class<PreludeCard>, Class<$DoubleDown>>")
+            doTask("CopyPrelude<$PreservationProgram>")
+            autoExecNow(EAGER)
+          }
           .expect("5 TerraformRating")
-      stan.playPrelude(Supplier)
-      stan.playPrelude(MetalsCompany)
+      stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
+      stan.autoExecNow(EAGER)
 
-      kim.playProject(Comet, 21) { placeTile(1, 2) }.expect("TerraformRating")
+      stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
+      stan.autoExecNow(EAGER)
+
+      kim.completeOperation {
+            doTasks("PlayProject<Class<$Comet>>", "-21 MC", "Ok" /* No Titanium payment. */)
+            doTask("OceanTile<Tharsis_1_2>")
+            autoExecNow(EAGER)
+          }
+          .expect("TerraformRating")
     }
   }
 }
