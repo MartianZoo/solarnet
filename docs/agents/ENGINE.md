@@ -425,6 +425,9 @@ uses, but they express different operations and are not redundant special cases.
 union cannot substitute for arithmetic addition. Treat the small number of clients as evidence that
 the metric algebra is still sparse, not as a reason to collapse these operators. `Metric.Rank`
 likewise replaces game-specific ranking instructions with reusable comparison semantics.
+Ranking scores the candidate once, skips comparing it with itself, and evaluates each peer's
+later tiebreakers only while earlier scores remain tied. Scores are local to that rank query;
+they are not retained across state changes or rollback.
 
 ### Content must not compensate for an engine gap
 
