@@ -22,7 +22,7 @@ internal class EnglishTest {
   private val catalog = TfmCatalog(Canon, FakeCanon)
   private val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
   private val publishedEnglish =
-      English(catalog.classTable, TerraformingMarsDescribers.descriptions)
+      English(catalog.classTable, TerraformingMarsDescribers.descriptions + fakeEnglishDescriptions)
   private val cardsByClassName = Canon.cards.associateBy { it.className }
   private val published =
       EnglishCardTextData.parse(readEnglishCardText("english-published-wording-evidence.tsv"))

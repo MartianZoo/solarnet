@@ -295,10 +295,10 @@ Keep tasks brief; linked notes and tests carry the background.
 
 - Improve the bracketed English fragments exposed by removing the exact-expression phrase table,
   using ordinary composition only where it stays small. Delegate replacement,
-  marker movement, row values, distinct-type filters, and L1 Trade Terminal’s gift watcher
-  remain unsupported; row filters now retain their surrounding tile and area wording.
-  Philantropist still needs its class-token count: `GainsOf` also evaluates event classes after
-  those cards leave play, and a card-instance-only metric breaks Astra Mechanica.
+  marker movement, distinct-type filters, and L1 Trade Terminal’s gift watcher
+  remain unsupported. Philantropist's class-token requirement now names cards in play but retains
+  bracketed `GainsOf`. A card instance cannot fill that metric's `Class<CardFront>` dependency;
+  Astra Mechanica also evaluates event classes after those cards leave play.
 - Share the `NonNegativeIconsOf` citation scan between gameplay and English; both currently walk
   authored effects independently, so a later change to the icon rule could make their answers differ.
   Briber's self-claim requirement still appears as `[Briber]`; keep it separate from the direct

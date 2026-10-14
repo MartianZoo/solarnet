@@ -283,6 +283,9 @@ private fun Describers.recognizeCountedExpression(
   renderCountedRelation(expression, this)?.let { relation ->
     return MetricRendering(relation.countedObject(count))
   }
+  renderFilteredDistinctKinds(expression, count, possessorEstablished, this)?.let {
+    return MetricRendering(it)
+  }
   distinctOwnedKinds(expression, this)?.let { noun ->
     var phrase =
         NounPhrase(noun.singular, noun.plural, count = count)
@@ -357,7 +360,10 @@ private fun Describers.renderFilteredPlacementCount(
   val noun =
       placementCountPhrase(expression.copy(refinement = null), count, possessorEstablished)
           ?: return null
-  val modifier = renderSpatialFilter(refinement.requirement, expression.className) ?: return null
+  val modifier =
+      renderSpatialFilter(refinement.requirement, expression.className)
+          ?: renderMetricFilter(expression.className, refinement.requirement)
+          ?: return null
   val relation = (refinement.requirement as? Requirement.Counting)?.let(::countedExpression)
   if (
       relation != null &&
@@ -434,13 +440,24 @@ private fun Describers.renderMetricFilter(
       }
     }
   }
-  val frame = triggerFrame(className) as? ComponentDescriber.TriggerFrame.PlayCard ?: return null
   val counting = requirement as? Requirement.Counting ?: return null
   val property = counting.metric as? Property ?: return null
   if (property.receiver != null) return null
+  val frame = triggerFrame(className) as? ComponentDescriber.TriggerFrame.PlayCard
   val threshold =
-      frame.minimumProperties[property.propertyName.value]
-          as? ComponentDescriber.MinimumProperty.Threshold ?: return null
+      frame?.minimumProperties?.get(property.propertyName.value)
+          as? ComponentDescriber.MinimumProperty.Threshold
+  if (threshold == null) {
+    val propertyName = property.propertyName.value
+    if (placementSite(className) == null || propertyName.any { it !in 'a'..'z' }) return null
+    val comparison =
+        when (counting) {
+          is Requirement.Min -> "at least"
+          is Requirement.Max -> "at most"
+          is Requirement.Exact -> "exactly"
+        }
+    return Modifier.Phrase("whose $propertyName is $comparison ${counting.target}")
+  }
   val comparison =
       when (counting) {
         is Requirement.Min -> "or more"
@@ -502,6 +519,42 @@ internal fun distinctOwnedKinds(
     return null
   }
   return describers.fact(kind.className, ComponentDescriber::distinctKinds)
+}
+
+private fun renderFilteredDistinctKinds(
+    expression: Expression,
+    count: Int?,
+    possessorEstablished: Boolean,
+    describers: Describers,
+): NounPhrase? {
+  val refinements =
+      (expression.refinement as? Expression.Refinement.And)?.refinements ?: return null
+  val member =
+      refinements.firstNotNullOfOrNull { refinement ->
+        distinctOwnedKinds(expression.copy(refinement = refinement), describers)?.let {
+          refinement to it
+        }
+      } ?: return null
+  var phrase =
+      NounPhrase(member.second.singular, member.second.plural, count = count)
+          .withOwnership("you have", possessorEstablished)
+  val kind = expression.arguments.singleOrNull()?.className ?: return null
+  refinements
+      .filterNot { it === member.first }
+      .forEach { refinement ->
+        val requirement = (refinement as? Expression.Refinement.Has)?.requirement ?: return null
+        phrase =
+            phrase.withModifier(
+                describers.renderMetricFilter(kind, requirement)
+                    ?: Modifier.Relation(
+                        "with",
+                        NounPhrase.rawPets(
+                            Unresolved(requirement, RefusalReason.UNSUPPORTED_METRIC)
+                        ),
+                    )
+            )
+      }
+  return phrase
 }
 
 private fun Describers.renderComponentCount(
@@ -673,6 +726,7 @@ private fun Describers.renderPlacementLocation(expression: Expression): Modifier
   val refinement = authoredRefinement as? Expression.Refinement.Has ?: return null
   val modifier =
       renderSpatialFilter(refinement.requirement, expression.className)
+          ?: renderMetricFilter(expression.className, refinement.requirement)
           ?: Modifier.Relation(
               "that have",
               NounPhrase.rawPets(

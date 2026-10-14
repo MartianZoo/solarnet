@@ -124,7 +124,15 @@ internal class EnglishCompositionalRenderingTest {
     english.describe(parse<InstructionTree>("2 MC / Party(HAS PartyDelegate)")) shouldBe
         "Gain 2 M€ per party with [PartyDelegate]."
     english.describe(parse<Requirement>("3 OwnedTile<MarsArea(HAS 8 row)>")) shouldBe
-        "Requires that you have 3 tiles on Mars areas that have [8 row]."
+        "Requires that you have 3 tiles on Mars areas whose row is at least 8."
+    english.describe(parse<Requirement>("3 OwnedTile<MarsArea(HAS MAX 5 row)>")) shouldBe
+        "Requires that you have 3 tiles on Mars areas whose row is at most 5."
+    english.describe(
+        parse<Requirement>("5 Class<@CardFront>(HAS @CardFront, HAS GainsOf<Class<VictoryPoint>>)")
+    ) shouldBe "Requires that you have 5 cards in play with [GainsOf<Class<VictoryPoint>>]."
+    english.describe(
+        parse<Requirement>("5 Class<@CardFront>(HAS @CardFront, HAS 20 cost)")
+    ) shouldBe "Requires that you have 5 cards in play with a printed cost of 20 M€ or more."
   }
 
   @Test
