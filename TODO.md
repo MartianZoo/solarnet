@@ -65,3 +65,5 @@ Delete entries when they are done.
   for reconstruction instead of serializing it again.
 - Investigate repeated selection probes followed by execution under `EAGER`; preserve manual-task
   competition and failure handling before removing probes.
+- Investigate repeated ranking of the same field while testing each candidate. Scores must reflect
+  the current state, including rollback; avoid a second persistent representation of game scores.

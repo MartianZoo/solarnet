@@ -71,12 +71,16 @@ internal class GameReaderImpl(
           "`RANK` candidate `${candidate.expressionFull}` is not a live `$selector`"
       )
     }
-    val candidateScore = rankScore(metric, candidate)
-    return 1 + peers.count { compareRankScores(rankScore(metric, it), candidateScore) > 0 }
+    val candidateScore = rankScore(metric, candidate).toList()
+    return 1 +
+        peers.count {
+          it != candidate && compareRankScores(rankScore(metric, it), candidateScore) > 0
+        }
   }
 
-  private fun rankScore(metric: Rank, candidate: Type): List<Int> {
-    return metric.metricsFor(candidate.expressionFull).map { score ->
+  private fun rankScore(metric: Rank, candidate: Type): Sequence<Int> {
+    // Evaluate later tiebreakers only while the preceding scores are tied.
+    return metric.metricsFor(candidate.expressionFull).asSequence().map { score ->
       val evaluated =
           elaborator.evaluateProperties(
               score,
@@ -86,10 +90,9 @@ internal class GameReaderImpl(
     }
   }
 
-  private fun compareRankScores(left: List<Int>, right: List<Int>): Int {
-    check(left.size == right.size)
-    left.indices.forEach { index ->
-      val comparison = left[index].compareTo(right[index])
+  private fun compareRankScores(left: Sequence<Int>, right: List<Int>): Int {
+    left.forEachIndexed { index, score ->
+      val comparison = score.compareTo(right[index])
       if (comparison != 0) return comparison
     }
     return 0
