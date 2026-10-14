@@ -40,6 +40,7 @@ shadowJar.configure {
 tasks.register("shadowJarPath") {
   group = LifecycleBasePlugin.BUILD_GROUP
   description = "Builds the REPL fat jar and prints its absolute path."
+  dependsOn(shadowJar)
   val jarFile = shadowJar.flatMap(ShadowJar::getArchiveFile)
   doLast { println(jarFile.get().asFile.absolutePath) }
 }

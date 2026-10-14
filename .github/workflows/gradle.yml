@@ -1,7 +1,6 @@
 # Continuous Integration for Gradle
-# Runs `gradle build` (which also executes tests) and then builds and uploads
-# the :repl:shadowJar artifact. Gradle is also configured to generate
-# Build Scan links (see settings.gradle.kts) which is surfaced with the build.
+# Runs `gradle build` (which also executes tests), then builds, smoke-tests, and uploads
+# the :repl:shadowJar artifact. Gradle also generates Build Scan links (see settings.gradle.kts).
 #
 # References:
 # * https://docs.gradle.org/current/userguide/github-actions.html
@@ -30,6 +29,33 @@ jobs:
       run: ./gradlew build
     - name: Build REPL jar
       run: ./gradlew :repl:shadowJar
+    - name: Smoke-test packaged REPL outside the checkout
+      run: |
+        python3 - <<'PY'
+        from pathlib import Path
+        import re
+        import subprocess
+        import tempfile
+
+        jar = Path("modules/repl/build/libs/repl-all.jar").resolve(strict=True)
+        with tempfile.TemporaryDirectory() as directory:
+            result = subprocess.run(
+                ["java", f"-Duser.home={directory}", "-jar", str(jar)],
+                cwd=directory,
+                input="newgame B 3\ncount Player\nexit\n",
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                timeout=60,
+                check=True,
+            )
+            print(result.stdout)
+            output = re.sub(r"\x1b\[[0-?]*[ -/]*[@-~]", "", result.stdout)
+            lines = [line.rsplit("> ", 1)[-1] for line in output.splitlines()]
+            for expected in ("New 3-player game created with options: B", "3 Player", "Bye"):
+                assert expected in lines, f"Missing REPL result: {expected}"
+            assert "Error:" not in result.stdout, "REPL command failed"
+        PY
     - name: Upload REPL jar
       uses: actions/upload-artifact@v6.0.0
       with:
