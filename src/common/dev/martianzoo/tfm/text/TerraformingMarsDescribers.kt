@@ -27,8 +27,42 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.ClassName,
             ),
+        klass("Delegate") to
+            ComponentDescriber(
+                metricCount =
+                    ComponentDescriber.MetricCount(
+                        counted("delegate", "delegates"),
+                        unqualifiedSuffix = "",
+                    ),
+            ),
+        klass("OceanCredit") to
+            ComponentDescriber(
+                metricCount =
+                    ComponentDescriber.MetricCount(
+                        counted("ocean tile you have placed", "ocean tiles you have placed"),
+                        unqualifiedSuffix = "",
+                    ),
+            ),
+        klass("ThawerCredit") to
+            ComponentDescriber(
+                metricCount =
+                    ComponentDescriber.MetricCount(
+                        counted(
+                            "temperature increase you have made",
+                            "temperature increases you have made",
+                        ),
+                        unqualifiedSuffix = "",
+                    ),
+            ),
         klass("HasRaisedTr") to
             ComponentDescriber(presenceCondition = "your terraform rating has been raised"),
+        klass("ActionPhase") to
+            ComponentDescriber(presenceCondition = "the action phase is active"),
+        klass("ProductionPhase") to
+            ComponentDescriber(
+                presenceCondition = "the production phase is active",
+                triggerFrame = Trigger.Named("begins", "the production phase", passive = true),
+            ),
         klass("SoloMode") to ComponentDescriber(presenceCondition = "this is a solo game"),
         klass("CorporationPhase") to
             ComponentDescriber(presenceCondition = "the corporation phase is active"),
@@ -72,7 +106,7 @@ internal object TerraformingMarsDescribers {
         klass("ProjectCard") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("card", "cards"),
-                countNoun = ComponentDescriber.Noun.Counted("card", "cards"),
+                countNoun = ComponentDescriber.Noun.Counted("project card", "project cards"),
                 metricLocation = "in hand",
                 numericSingularChange = true,
                 changeFrame = Frame.Deck,
@@ -103,7 +137,20 @@ internal object TerraformingMarsDescribers {
                         anyoneSuffix = "in all players' event piles",
                     )
             ),
-        klass("GlobalParameter") to ComponentDescriber(requirementKind = "global parameter"),
+        klass("GlobalParameter") to
+            ComponentDescriber(
+                requirementKind = "global parameter",
+                changeFrame = Frame.Procedure("raise", "any global parameter"),
+            ),
+        klass("Admin") to ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("Admin")),
+        klass("Party") to
+            ComponentDescriber(
+                metricCount =
+                    ComponentDescriber.MetricCount(
+                        noun = ComponentDescriber.Noun.Counted("party", "parties"),
+                        unqualifiedSuffix = "",
+                    ),
+            ),
         klass("GpIncomplete") to
             ComponentDescriber(
                 requirementCondition =
@@ -216,7 +263,7 @@ internal object TerraformingMarsDescribers {
                     ),
                 placementSite =
                     ComponentDescriber.PlacementSite(
-                        noun = ComponentDescriber.Noun.Counted("area", "areas"),
+                        noun = ComponentDescriber.Noun.Counted("Mars area", "Mars areas"),
                         forSubclasses = false,
                     ),
             ),
@@ -498,7 +545,12 @@ internal object TerraformingMarsDescribers {
             ),
         klass("ProdOffset") to ComponentDescriber(productionOffset = true),
         klass("QuickStartVariant") to ComponentDescriber(productionOffset = true),
-        klass("VictoryPoint") to ComponentDescriber(score = ComponentDescriber.Score("VP", "VPs")),
+        klass("VictoryPoint") to
+            ComponentDescriber(
+                score = ComponentDescriber.Score("VP", "VPs"),
+                noun = counted("VP", "VP"),
+                changeFrame = Frame.Countable,
+            ),
         klass("Die") to ComponentDescriber(deadEndSignal = true),
         klass("PlayCard") to
             ComponentDescriber(
@@ -542,6 +594,22 @@ internal object TerraformingMarsDescribers {
                                 objectPronoun = false,
                             ),
                     )
+            ),
+        klass("AsteroidProject") to
+            ComponentDescriber(
+                actionUse =
+                    ComponentDescriber.ActionUse(
+                        ComponentDescriber.ActionUse.Reference.Fixed(
+                            "the Asteroid standard project"
+                        )
+                    ),
+            ),
+        klass("AquiferProject") to
+            ComponentDescriber(
+                actionUse =
+                    ComponentDescriber.ActionUse(
+                        ComponentDescriber.ActionUse.Reference.Fixed("the Aquifer standard project")
+                    ),
             ),
         klass("PowerPlantProject") to
             ComponentDescriber(

@@ -74,7 +74,7 @@ CLASS ThawerCredit : Owned<Player>
 
 CLASS Tycoon : Milestone {
   HAS MAX 1 Tycoon
-  requirement = HAS "10 (ActiveCard OR AutomatedCard)"
+  requirement = HAS "10 CardFront<Class<ProjectCard>>"
 }
 
 CLASS Administrator : Award { metric = COUNT "CardFront(HAS MAX 0 Tag)" }

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.text.promocardpack
 
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.tfm.text.ComponentDescriber
 import dev.martianzoo.tfm.text.ComponentDescriber.ChangeFrame as Frame
 import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as Trigger
@@ -11,21 +12,31 @@ internal val promoEnglishDeclarations: List<Pair<ClassName, ComponentDescriber>>
     listOf(
         cn("MyResourceWasRemoved") to
             ComponentDescriber(
+                requirementCondition =
+                    ComponentDescriber.RequirementCondition.ArgumentState(
+                        Key(cn("MyResourceWasRemoved"), 1),
+                        "removed your resources this generation",
+                    ),
                 triggerFrame =
                     Trigger.Named(
                         "has their resources removed by another player",
                         "any player",
                         passive = true,
-                    )
+                    ),
             ),
         cn("MyProductionWasDecreased") to
             ComponentDescriber(
+                requirementCondition =
+                    ComponentDescriber.RequirementCondition.ArgumentState(
+                        Key(cn("MyProductionWasDecreased"), 1),
+                        "decreased your production this generation",
+                    ),
                 triggerFrame =
                     Trigger.Named(
                         "has their production decreased by another player",
                         "any player",
                         passive = true,
-                    )
+                    ),
             ),
         cn("Disease") to
             ComponentDescriber(

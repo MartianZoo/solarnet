@@ -65,6 +65,7 @@ internal val turmoilEnglishDeclarations: List<Pair<ClassName, ComponentDescriber
         cn("PartyLeader") to
             ComponentDescriber(
                 triggerFrame = Trigger.Named("become", "a party leader"),
+                countNoun = counted("party leadership", "party leaderships"),
                 requirementCondition =
                     Condition.OwnedCount(
                         counted("party", "parties"),

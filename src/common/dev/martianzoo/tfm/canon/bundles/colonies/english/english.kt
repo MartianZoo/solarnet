@@ -12,10 +12,11 @@ internal val coloniesEnglishDeclarations: List<Pair<ClassName, ComponentDescribe
     listOf(
         cn("ColonyTile") to
             ComponentDescriber(
+                countNoun = ComponentDescriber.Noun.Counted("colony tile", "colony tiles"),
                 placementSite =
                     ComponentDescriber.PlacementSite(
                         ComponentDescriber.Noun.Counted("colony tile", "colony tiles")
-                    )
+                    ),
             ),
         cn("Colony") to
             ComponentDescriber(
@@ -56,7 +57,9 @@ internal val coloniesEnglishDeclarations: List<Pair<ClassName, ComponentDescribe
                 changeFrame = Frame.Countable,
             ),
         cn("ColonyProduction") to
-            ComponentDescriber(changeFrame = Frame.Scale("colony tile track")),
+            ComponentDescriber(
+                changeFrame = Frame.Scale("production track", "increase", "decrease")
+            ),
         cn("Trade") to ComponentDescriber(changeFrame = Frame.Procedure("trade")),
         cn("TradeAction") to
             ComponentDescriber(

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Action
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.canon.Canon
@@ -15,16 +16,16 @@ internal class EnglishInstructionRenderingTest {
   @Test
   internal fun preservesCapOrderAndResourceRetention() {
     english.describe(parse<InstructionTree>("-2* MC / (BuildingTag MAX 3 - Influence)")) shouldBe
-        "Remove 2 M€ per building tag you have (max 3) in excess of influence, or as much as possible."
+        "Lose 2 M€ per building tag you have (max 3) in excess of influence (to the extent possible)."
     english.describe(parse<InstructionTree>("-2* MC / (BuildingTag - Influence) MAX 3")) shouldBe
-        "Remove 2 M€ per building tag you have in excess of influence (max 3), or as much as possible."
+        "Lose 2 M€ per building tag you have in excess of influence (max 3) (to the extent possible)."
     english.describe(parse<InstructionTree>("-Steel! / (Steel - Influence - 2)")) shouldBe
         "Remove all steel except 2 plus influence."
     english.describe(parse<InstructionTree>("-2! Steel / Steel")) shouldBe
-        "Remove 2 steel per steel you have."
+        "Lose 2 steel per steel you have."
     english.describe(parse<InstructionTree>("-Steel? / Steel")) shouldBe "[-Steel? / Steel]."
     english.describe(parse<InstructionTree>("2 MC / (BuildingTag - (Influence - 2))")) shouldBe
-        "[2 MC / BuildingTag - (Influence - 2)]."
+        "Gain 2 M€ per [BuildingTag - (Influence - 2)]."
   }
 
   @Test
@@ -72,5 +73,30 @@ internal class EnglishInstructionRenderingTest {
         "Requires that you have 6 steel and titanium production combined."
     english.describe(parse<Requirement>("6 PROD[Steel]")) shouldBe
         "Requires that you have 6 steel production."
+  }
+
+  @Test
+  internal fun preservesUnsupportedConditionsInsideRenderedEffects() {
+    english.describe(parse<Effect>("ProductionPhase IF MAX 0 Audit: 8 MC")) shouldBe
+        "When the production phase begins, if [MAX 0 Audit], gain 8 M€."
+    english.describe(parse<Effect>("ProductionPhase IF MAX 0 HasRaisedTr: 8 MC")) shouldBe
+        "When the production phase begins, if it is not the case that your terraform rating has been raised this generation, gain 8 M€."
+    english.describe(parse<Effect>("ProductionPhase IF MAX 0 ActionPhase: 8 MC")) shouldBe
+        "When the production phase begins, if it is not the case that the action phase is active, gain 8 M€."
+  }
+
+  @Test
+  internal fun distinguishesEachFromPerAndUsesTheSelectedComponent() {
+    english.describe(parse<InstructionTree>("EACH Colony { 2 PartyDelegate }")) shouldBe
+        "For each colony you own: place 2 delegates."
+    english.describe(parse<InstructionTree>("2 PartyDelegate / Colony")) shouldBe
+        "Place 2 delegates per colony you own."
+    english.describe(
+        parse<InstructionTree>("EACH @ColonyTile { 2 ColonyProduction<@ColonyTile> }")
+    ) shouldBe "For each colony tile: increase that production track 2 steps."
+    english.describe(
+        parse<InstructionTree>("EACH Colony<Anyone> { 2 PartyDelegate }")
+    ) shouldContain "["
+    english.describe(parse<InstructionTree>("EACH @Colony { MC<@Colony> }")) shouldContain "["
   }
 }

@@ -17,7 +17,7 @@ internal sealed interface CardCriterion {
 
   data class ResourceIcon(val className: ClassName) : CardCriterion
 
-  data class PrintedIcon(val className: ClassName) : CardCriterion
+  data class NonNegativeIcon(val className: ClassName) : CardCriterion
 }
 
 internal fun Describers.cardFilterCriterion(filter: Expression): CardCriterion? {
@@ -72,9 +72,9 @@ internal fun Describers.cardCriterion(requirement: Requirement): CardCriterion? 
         if (cardResourceNoun(resource, 1) == null) return null
         return CardCriterion.ResourceIcon(resource)
       }
-      if (fact(citations.className, ComponentDescriber::printedIconCount) == true) {
+      if (fact(citations.className, ComponentDescriber::nonNegativeIconCount) == true) {
         val icon = representedClassName(citations) ?: return null
-        return CardCriterion.PrintedIcon(icon)
+        return CardCriterion.NonNegativeIcon(icon)
       }
     }
   }
@@ -95,21 +95,40 @@ private fun Describers.referenceCriterion(referenced: ClassName): CardCriterion?
       CardCriterion.PropertyPresence("$kind requirement")
     } ?: referenced.takeIf { cardResourceNoun(it, 1) != null }?.let(CardCriterion::ResourceIcon)
 
-internal fun Describers.cardSelector(expression: Expression): NounPhrase? {
+internal fun Describers.cardSelector(
+    expression: Expression,
+    references: TypeVariableReferences = TypeVariableReferences.EMPTY,
+): NounPhrase? {
+  if (triggerFrame(expression.className) !is ComponentDescriber.TriggerFrame.PlayCard) return null
   if (
-      expression.refinement is Expression.Refinement.Not ||
-          triggerFrame(expression.className) !is ComponentDescriber.TriggerFrame.PlayCard
-  ) {
-    return null
-  }
-  val resolved = resolveExpression(expression) ?: return null
-  if (resolved.sourceDependencies.isNotEmpty()) return null
-  val refinement = expression.refinement as? Expression.Refinement.Has ?: return null
-  val criterion = cardCriterion(refinement.requirement) ?: return null
-  return NounPhrase(
-      matchingCardNoun(criterion, singular = true, this),
-      determiner = Determiner.INDEFINITE,
+      expression.refinement == null &&
+          expression.arguments.isEmpty() &&
+          references.variableUsedAt(expression) != null
   )
+      return NounPhrase("card", determiner = Determiner.THAT)
+  val resolved = resolveExpression(expression.copy(refinement = null)) ?: return null
+  if (resolved.sourceDependencies.isNotEmpty()) return null
+  val refinements =
+      when (val refinement = expression.refinement) {
+        is Expression.Refinement.And -> refinement.refinements
+        null -> emptyList()
+        else -> listOf(refinement)
+      }
+  val criterion =
+      refinements.filterIsInstance<Expression.Refinement.Has>().singleOrNull()?.let {
+        cardCriterion(it.requirement) ?: return null
+      }
+  if (refinements.count { it is Expression.Refinement.Has } > 1) return null
+  var noun =
+      NounPhrase(
+          criterion?.let { matchingCardNoun(it, true, this) } ?: "card",
+          determiner = Determiner.INDEFINITE,
+      )
+  for (excluded in refinements.filterIsInstance<Expression.Refinement.Not>()) {
+    if (references.variableUsedAt(excluded.excluded) == null) return null
+    noun = noun.withModifier(Modifier.Phrase("that is not that card"))
+  }
+  return noun
 }
 
 internal fun matchingCardNoun(
@@ -129,14 +148,14 @@ internal fun matchingCardNoun(
         val resource = checkNotNull(describers.cardResourceNoun(criterion.className, 1))
         "${if (singular) "card" else "cards"} with $resource ${if (singular) "icon" else "icons"}"
       }
-      is CardCriterion.PrintedIcon -> {
+      is CardCriterion.NonNegativeIcon -> {
         val noun =
             describers.fact(criterion.className, ComponentDescriber::score)?.singular
                 ?: describers.componentNoun(criterion.className, 1)
         if (singular) {
-          "card with ${NounPhrase(noun, determiner = Determiner.INDEFINITE).linearize()} icon"
+          "card with a non-negative $noun icon"
         } else {
-          "cards with $noun icons"
+          "cards with non-negative $noun icons"
         }
       }
     }

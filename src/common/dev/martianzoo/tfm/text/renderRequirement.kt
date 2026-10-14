@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.OWNED
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
@@ -14,12 +15,80 @@ internal fun countedExpression(requirement: Requirement.Counting): Expression? =
 internal fun renderRequirement(
     requirement: Requirement,
     describers: Describers,
-): EnglishText =
-    Sentence(
-            renderLoweredRequirement(describers.lowerProductionSyntax(requirement), describers)
-                ?: Clause.RawPets(Unresolved(requirement, RefusalReason.UNKNOWN_REQUIREMENT_FRAME))
-        )
-        .asText()
+    terse: Boolean = false,
+): EnglishText {
+  val lowered = describers.lowerProductionSyntax(requirement)
+  val clause =
+      renderUniformResourceRequirement(lowered, describers)
+          ?: renderLoweredRequirement(lowered, describers)
+          ?: Clause.RawPets(Unresolved(requirement, RefusalReason.UNKNOWN_REQUIREMENT_FRAME))
+  val simple = clause as? Clause.Simple
+  val condition =
+      (simple?.predicate?.complement as? Predicate.Complement.That)?.clause as? Clause.Simple
+  val shortened =
+      if (
+          terse &&
+              condition?.subject == NounPhrase.you() &&
+              condition.predicate.verb == Verb.HAVE &&
+              condition.predicate.modifiers.isEmpty() &&
+              condition.predicate.complement == null
+      ) {
+        Clause.Simple(Predicate(Verb("requires"), condition.predicate.objects))
+      } else clause
+  return Sentence(shortened).asText()
+}
+
+/** Equal thresholds covering the complete resource category can share their quantity. */
+private fun renderUniformResourceRequirement(
+    requirement: Requirement,
+    describers: Describers,
+): Clause? {
+  val members =
+      when (requirement) {
+        is Requirement.And -> requirement.requirements
+        is Requirement.Or -> requirement.requirements
+        else -> return null
+      }
+  val minima = members.map { it as? Requirement.Min ?: return null }
+  val amount = minima.map { it.minimum }.distinct().singleOrNull() ?: return null
+  val expressions = minima.map { minimum ->
+    when (val metric = minimum.metric) {
+      is Metric.Count -> metric.expression
+      is Metric.Subtract -> {
+        val offset = (metric.subtrahend as? Metric.Count)?.expression ?: return null
+        if (!describers.isProductionOffset(offset)) return null
+        val production = (metric.minuend as? Metric.Count)?.expression ?: return null
+        val resource = productionExpression(production, describers)?.resource ?: return null
+        if (describers.representedClass(offset)?.className != resource) return null
+        production
+      }
+      else -> return null
+    }
+  }
+  if (expressions.any { it.refinement != null }) return null
+  val production = expressions.all { describers.isProduction(it.className) }
+  val resources = expressions.map {
+    if (production) {
+      val selected = productionExpression(it, describers) ?: return null
+      if (selected.owner != null) return null
+      selected.resource
+    } else {
+      if (!it.simple || !describers.isStandardResource(it.className)) return null
+      it.className
+    }
+  }
+  val category = cn("StandardResource")
+  if (
+      resources.size != resources.toSet().size ||
+          resources.toSet() != describers.expressions.concreteSubclassesOf(category).toSet()
+  )
+      return null
+  val selector = if (requirement is Requirement.Or) "any" else "each"
+  val objectPhrase =
+      if (production) "$amount production of $selector standard resource type"
+      else "$amount of $selector standard resource type"
+  return Clause.Simple(Predicate(Verb("requires"), Coordination.one(NounPhrase.text(objectPhrase))))
+}
 
 private fun renderLoweredRequirement(requirement: Requirement, describers: Describers): Clause? =
     describers.renderDescribedRequirementCondition(requirement)?.let(::requirementClause)
@@ -35,18 +104,19 @@ private fun renderLoweredRequirement(requirement: Requirement, describers: Descr
 
 internal fun Describers.renderDescribedRequirementCondition(
     requirement: Requirement,
+    references: TypeVariableReferences = TypeVariableReferences.EMPTY,
 ): Clause? =
     when (requirement) {
       is Requirement.And ->
           requirement.requirements
               .sortedBy { it is Requirement.Or }
-              .map { renderDescribedRequirementCondition(it) ?: return null }
+              .map { renderDescribedRequirementCondition(it, references) ?: return null }
               .let { Clause.Coordinated(Coordination(it, Conjunction.AND)) }
       is Requirement.Or ->
           requirement.requirements
-              .map { renderDescribedRequirementCondition(it) ?: return null }
+              .map { renderDescribedRequirementCondition(it, references) ?: return null }
               .let { Clause.Either(Coordination(it, Conjunction.OR)) }
-      is Requirement.Min -> renderDescribedMinimumCondition(requirement)
+      is Requirement.Min -> renderDescribedMinimumCondition(requirement, references)
       is Requirement.Max -> renderDescribedMaximumCondition(requirement)
       is Requirement.Eval,
       is Requirement.Exact,
@@ -55,6 +125,7 @@ internal fun Describers.renderDescribedRequirementCondition(
 
 private fun Describers.renderDescribedMinimumCondition(
     requirement: Requirement.Min,
+    references: TypeVariableReferences,
 ): Clause? {
   renderDescribedDifferenceCondition(requirement)?.let {
     return it
@@ -63,7 +134,24 @@ private fun Describers.renderDescribedMinimumCondition(
   return when (val frame = fact(expression.className, ComponentDescriber::requirementCondition)) {
     is ComponentDescriber.RequirementCondition.ArgumentState -> {
       if (requirement.target != 1 || expression.refinement != null) return null
-      val subject = resolveExpression(expression)?.sourceDependency(frame.dependency) ?: return null
+      val resolved = resolveExpression(expression) ?: return null
+      val subject = resolved.sourceDependency(frame.dependency) ?: return null
+      if (isGameParticipant(subject.className)) {
+        val ownerKey = Key(OWNED, 0)
+        if (
+            resolved.sourceDependency(ownerKey)?.let { !expressions.isOwner(it) } == true ||
+                resolved.sourceDependencies.keys.any { it != ownerKey && it != frame.dependency } ||
+                subject.refinement != null
+        )
+            return null
+        val determiner =
+            if (references.variableUsedAt(subject) == null) Determiner.INDEFINITE
+            else Determiner.THAT
+        return Clause.Simple(
+            Predicate(Verb(frame.predicate)),
+            NounPhrase("player", determiner = determiner),
+        )
+      }
       val represented = representedClassArgument(subject)
       val noun =
           if (represented != null) {
@@ -434,7 +522,7 @@ private fun ownedRequirementClause(objectPhrase: NounPhrase): Clause.Simple =
     ownedRequirementClause(Coordination.one(objectPhrase))
 
 private fun ownedRequirementClause(objects: Coordination<NounPhrase>): Clause.Simple =
-    requirementClause(NounPhrase.you(), Verb("have"), objects)
+    requirementClause(NounPhrase.you(), Verb.HAVE, objects)
 
 private fun requirementClause(
     subject: NounPhrase,

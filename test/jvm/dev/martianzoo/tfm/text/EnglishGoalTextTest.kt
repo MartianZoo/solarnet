@@ -1,8 +1,11 @@
 package dev.martianzoo.tfm.text
 
 import dev.martianzoo.catalog.displayName
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.TfmCatalog
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
@@ -32,5 +35,27 @@ internal class EnglishGoalTextTest {
         }
       }
     }
+  }
+
+  @Test
+  internal fun claimPaymentIsSeparateFromTheMilestoneRequirement() {
+    val additions =
+        object : TfmCatalog() {
+          override val explicitClassDeclarations: Set<ClassDeclaration> =
+              parseClasses(
+                      """
+          CLASS ExtraClaimCost : Milestone {
+            requirement = HAS "This"
+            This: -7 MC
+          }
+          """
+                  )
+                  .toSet()
+        }
+    val catalog = TfmCatalog(Canon, additions)
+    val english = English(catalog.classTable, TerraformingMarsDescribers.descriptions)
+    val goal = catalog.classTable.getClass(cn("ExtraClaimCost"))
+    english.renderGoal(goal).text shouldBe "[ExtraClaimCost]."
+    english.describe(goal.declaration.authoredEffects.single().instruction) shouldBe "Lose 7 M€."
   }
 }

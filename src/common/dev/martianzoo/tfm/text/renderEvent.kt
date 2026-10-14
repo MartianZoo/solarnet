@@ -37,11 +37,21 @@ internal fun Describers.renderEvent(trigger: Trigger): Event? {
   val removed = (trigger as? OnRemoveOf)?.expression
   if (removed != null) {
     if (!removed.simple || !concrete(removed.className)) return null
+    if (isStandardResource(removed.className)) {
+      return Event(
+          Event.Kind.REMOVE,
+          Event.ActorConstraint.UNRESTRICTED,
+          quantifiedComponentNounPhrase(removed.className, 1),
+          listOf(Modifier.Phrase("from you")),
+      )
+    }
     val positioned = positionedFrame(removed.className) ?: return null
+    val marker = NounPhrase(positioned.noun.singular, determiner = positioned.determiner)
     return Event(
         Event.Kind.REMOVE,
-        Event.ActorConstraint.YOU,
-        NounPhrase(positioned.noun.singular, determiner = positioned.determiner),
+        Event.ActorConstraint.UNRESTRICTED,
+        if (isPlayerOwned(removed.className)) marker.withModifier(Modifier.Phrase("you own"))
+        else marker,
     )
   }
   val expression = (trigger as? OnGainOf)?.expression ?: return null
@@ -395,7 +405,7 @@ internal fun Describers.playedCardEvent(expression: Expression): Event? {
   val cardPhrase = NounPhrase(card, determiner = determiner)
   val criterion =
       (expression.refinement as? Expression.Refinement.Has)?.requirement?.let(::cardCriterion)
-  if (criterion is CardCriterion.PrintedIcon) {
+  if (criterion is CardCriterion.NonNegativeIcon) {
     return Event(
         Event.Kind.PLAY,
         actorConstraint,

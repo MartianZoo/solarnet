@@ -19,7 +19,7 @@ CLASS Ecologist : Milestone {
 }
 CLASS Tycoon15 : Milestone {
   HAS MAX 1 Tycoon15
-  requirement = HAS "15 (ActiveCard OR AutomatedCard)"
+  requirement = HAS "15 CardFront<Class<ProjectCard>>"
 }
 CLASS Legend5 : Milestone {
   HAS MAX 1 Legend5
