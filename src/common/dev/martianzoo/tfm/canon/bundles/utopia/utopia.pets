@@ -24,7 +24,7 @@ CLASS Researcher : Milestone {
 CLASS Suburbian : Award { metric = COUNT "OwnedTile(HAS MAX 5 Neighbor)" }
 CLASS Investor : Award { metric = COUNT "EarthTag" }
 CLASS Botanist : Award { metric = COUNT "PROD[Plant]" }
-CLASS Incorporator : Award { metric = COUNT "ActiveCard(HAS MAX 10 cost) OR AutomatedCard(HAS MAX 10 cost)" }
+CLASS Incorporator : Award { metric = COUNT "CardFront<Class<ProjectCard>>(HAS MAX 10 cost)" }
 CLASS Metropolist : Award { metric = COUNT "CityTile" }
 
 // The map areas below are code-generated based on the following comment

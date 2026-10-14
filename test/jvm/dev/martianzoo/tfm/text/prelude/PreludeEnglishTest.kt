@@ -13,6 +13,6 @@ internal class PreludeEnglishTest {
   internal fun describesPrintedIconRequirements() {
     english.describe(
         parse<Effect>("CardFront(HAS NonNegativeIconsOf<Class<VictoryPoint>>): 3 MC")
-    ) shouldBe "When you play a card with a VP icon, gain 3 M€."
+    ) shouldBe "When you play a card with a non-negative VP icon, gain 3 M€."
   }
 }

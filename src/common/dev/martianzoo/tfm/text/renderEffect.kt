@@ -785,6 +785,13 @@ private fun Describers.renderEventTrigger(trigger: Trigger): Clause? {
 }
 
 private fun Describers.renderEventTriggerWithoutCardContext(trigger: Trigger): Clause? {
+  if (trigger is XTrigger) {
+    val expression = (trigger.inner as? OnGainOf)?.expression ?: return null
+    if (!expression.simple || scaleFrame(expression.className) == null) return null
+    val rendered =
+        renderEventTriggerWithoutCardContext(trigger.inner) as? Clause.Simple ?: return null
+    return rendered.copy(predicate = rendered.predicate.copy(modifiers = emptyList()))
+  }
   renderAbstractTagTrigger(trigger)?.let {
     return it
   }
@@ -909,7 +916,13 @@ private fun renderTriggeredInstructions(
     effect: Effect,
     describers: Describers,
 ): EnglishText? {
-  val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
+  val conditional = effect.trigger as? Trigger.IfTrigger
+  val event = conditional?.inner ?: effect.trigger
+  val trigger = describers.renderEventTrigger(event) ?: return null
+  val condition = conditional?.let {
+    describers.renderGateCondition(it.condition)
+        ?: Clause.RawPets(Unresolved(it.condition, RefusalReason.UNKNOWN_REQUIREMENT_FRAME))
+  }
   fun eventReferencesAnyone(trigger: Trigger): Boolean =
       when (trigger) {
         is OnGainOf -> describers.anyoneExpression in trigger.expression
@@ -938,7 +951,12 @@ private fun renderTriggeredInstructions(
   return Sentence(
           Clause.Prefaced(
               Clause.Preface.Temporal(trigger),
-              result.asCoordinatedClause(),
+              if (condition == null) result.asCoordinatedClause()
+              else
+                  Clause.Prefaced(
+                      Clause.Preface.Conditional(condition),
+                      result.asCoordinatedClause(),
+                  ),
           )
       )
       .asText()

@@ -5,6 +5,7 @@ import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Remove
@@ -28,8 +29,31 @@ internal fun renderEndEffect(effect: Effect, describers: Describers): EnglishTex
     if (condition != null) return null
     return it
   }
-  val points = describers.renderFixedScore(effect.instruction) ?: return null
-  return Sentence(NounPhrase.text("$points${condition?.let { " $it" } ?: ""}")).asText()
+  val points = describers.renderFixedScore(effect.instruction)
+  if (points != null)
+      return Sentence(NounPhrase.text("$points${condition?.let { " $it" } ?: ""}")).asText()
+  val changes = effect.instruction.descendantsOfType<Instruction.Change>()
+  if (
+      changes.isEmpty() ||
+          changes.any { change ->
+            val expression = change.gaining ?: change.removing
+            expression == null ||
+                describers.fact(expression.className, ComponentDescriber::score) == null
+          }
+  )
+      return null
+  val clauses = renderInstructions(effect.instruction, describers)
+  if (clauses.unresolved.isNotEmpty()) return null
+  val conditional =
+      (effect.trigger as? IfTrigger)?.condition?.let {
+        describers.renderGateCondition(it) ?: return null
+      }
+  val result = clauses.asCoordinatedClause()
+  return Sentence(
+          if (conditional == null) result
+          else Clause.Prefaced(Clause.Preface.Conditional(conditional), result)
+      )
+      .asText()
 }
 
 internal fun isEndEffect(effect: Effect, describers: Describers): Boolean =

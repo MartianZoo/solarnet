@@ -83,7 +83,7 @@ CLASS FakeSeptemTribus : ActionCard<Class<CorporationCard>> {
   HAS =1 FakeWildTag<This>
   This: 36 MC
 
-  -> 2 MC / Class<@Party>(HAS PartyDelegate<@Party>)
+  -> 2 MC / Party(HAS PartyDelegate)
 }
 
 "Head Start with independently interleavable actions granted on entry"

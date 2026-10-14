@@ -22,12 +22,19 @@ internal class TypeVariableReferences(private val scopes: List<TypeVariableScope
     else TypeVariableReferences(scopes + scope)
   }
 
+  internal fun sameVariable(first: Expression, second: Expression): Boolean = scopes.any { scope ->
+    val variable = scope.variableAt(first)
+    variable != null && variable === scope.variableAt(second)
+  }
+
   internal fun variableUsedAt(expression: Expression): TypeVariable? =
       scopes
           .mapNotNull { scope ->
             scope.variables.singleOrNull { variable ->
+              // An observing condition can mention the choice before its supplying declaration.
+              // English refers back to that mention even at the declaration itself.
               val usage =
-                  variable.usages.singleOrNull { scope.currentExpression(it) === expression }
+                  variable.occurrences.singleOrNull { scope.currentExpression(it) === expression }
                       ?: return@singleOrNull false
               variable.occurrences.any { occurrence ->
                 occurrence.ordinal < usage.ordinal && scope.currentExpression(occurrence) != null

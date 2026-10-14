@@ -31,7 +31,15 @@ internal sealed interface Clause {
   }
 
   data class Coordinated(public val clauses: Coordination<Clause>) : Clause {
-    override fun linearize(): String = clauses.linearize(Clause::linearize)
+    override fun linearize(): String = clauses.linearize { member ->
+      val alternatives =
+          member is Either ||
+              member is Coordinated &&
+                  member.clauses.conjunction in listOf(Conjunction.OR, Conjunction.COMMA_OR)
+      if (alternatives && clauses.conjunction in listOf(Conjunction.AND, Conjunction.THEN))
+          "(${member.linearize()})"
+      else member.linearize()
+    }
   }
 
   data class Either(public val alternatives: Coordination<Clause>) : Clause {
@@ -47,11 +55,16 @@ internal sealed interface Clause {
   }
 
   data class Prefaced(val preface: Preface, val clause: Clause) : Clause {
-    override fun linearize(): String = "${preface.linearize()}, ${clause.linearize()}"
+    override fun linearize(): String =
+        "${preface.linearize()}${if (preface is Preface.ForEach) ":" else ","} ${clause.linearize()}"
   }
 
   sealed interface Preface {
     fun linearize(): String
+
+    data class ForEach(val selector: NounPhrase) : Preface {
+      override fun linearize(): String = "for each ${selector.linearize()}"
+    }
 
     data class Conditional(val condition: Clause) : Preface {
       override fun linearize(): String = "if ${condition.linearize()}"
@@ -92,6 +105,7 @@ internal fun Clause.unresolved(): List<Unresolved> =
           subject.unresolved() + predicates.members.flatMap(Predicate::unresolved)
       is Clause.Prefaced ->
           when (val preface = preface) {
+            is Clause.Preface.ForEach -> preface.selector.unresolved()
             is Clause.Preface.Conditional -> preface.condition.unresolved()
             is Clause.Preface.Temporal -> preface.event.unresolved()
             Clause.Preface.FirstAction,
