@@ -14,8 +14,7 @@ internal class MiningAreaTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<MiningArea>>", "-4 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "MiningArea FROM ProjectCard", "MiningArea_SpecialTile<Tharsis_8_9>")
+      doTasks("MiningArea FROM ProjectCard", "MiningArea_SpecialTile<Tharsis_8_9>")
       doTasks("Titanium", "PROD[Titanium]")
     }
   }
@@ -30,7 +29,6 @@ internal class MiningAreaTest : TfmSandboxTest() {
       doTasks(
           "PlayProject<Class<$MiningArea>>",
           "-4 MC",
-          "Ok", // No steel paid.
           "$MiningArea FROM ProjectCard",
           "MiningArea_SpecialTile<Cimmeria_6_4>",
           "2 Steel",

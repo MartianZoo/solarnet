@@ -61,7 +61,6 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
       doTasks(
           "PlayCard<Class<ProjectCard>, Class<$Soletta>>",
           "-10 MC",
-          "Ok", /* No Titanium payment. */
       )
       autoExecNow(EAGER)
     }

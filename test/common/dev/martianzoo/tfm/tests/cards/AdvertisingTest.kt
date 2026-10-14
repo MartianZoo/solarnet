@@ -14,8 +14,7 @@ internal class AdvertisingTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<LunarExports>>", "-19 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "LunarExports FROM ProjectCard", "PROD[5 MC]")
+      doTasks("LunarExports FROM ProjectCard", "PROD[5 MC]")
     }
   }
 
@@ -25,8 +24,7 @@ internal class AdvertisingTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<GanymedeColony>>", "-20 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "GanymedeColony FROM ProjectCard")
+      doTasks("GanymedeColony FROM ProjectCard")
       selectTask("CityTile<Kim, GanymedeColony_RemoteArea>!")
       doTask("PROD[MC]")
     }

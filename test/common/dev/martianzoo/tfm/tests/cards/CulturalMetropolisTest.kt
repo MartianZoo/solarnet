@@ -18,8 +18,6 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<CulturalMetropolis>>", "-20 MC")
-        selectTask("-X? Steel")
-        selectTask("Ok")
         doTask("CulturalMetropolis FROM ProjectCard")
         selectTask("PROD[-Energy]")
         selectTask("PROD[3 MC]")
@@ -42,9 +40,7 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<CulturalMetropolis>>", "-20 MC")
-          selectTask("-X? Steel")
           doTasks(
-              "Ok",
               "CulturalMetropolis FROM ProjectCard",
               "PROD[-Energy]",
               "PROD[3 MC]",

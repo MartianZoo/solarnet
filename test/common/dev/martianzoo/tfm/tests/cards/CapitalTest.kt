@@ -56,9 +56,7 @@ internal class CapitalTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("PlayProject<Class<Capital>>", "-26 MC")
-          selectTask("-X? Steel")
           doTasks(
-              "Ok",
               "Capital FROM ProjectCard",
               "PROD[-2 Energy]",
               "PROD[5 MC]",

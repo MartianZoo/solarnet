@@ -149,8 +149,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<RotatorImpacts>>", "-6 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "RotatorImpacts FROM ProjectCard")
+      doTasks("RotatorImpacts FROM ProjectCard")
     }
   }
 
@@ -189,8 +188,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Mine>>", "-4 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "Mine FROM ProjectCard", "PROD[Steel]")
+      doTasks("Mine FROM ProjectCard", "PROD[Steel]")
     }
 
     shouldThrow<RequirementException> {

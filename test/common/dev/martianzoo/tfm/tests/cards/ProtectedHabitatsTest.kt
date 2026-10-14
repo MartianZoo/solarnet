@@ -57,8 +57,6 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
       stan.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-        selectTask("-X? Titanium")
-        selectTask("Ok")
         doTask("AsteroidCard FROM ProjectCard")
         selectTask("TemperatureStep*")
         selectTask("2! Titanium")

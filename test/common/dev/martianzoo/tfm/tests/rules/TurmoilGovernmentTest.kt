@@ -131,8 +131,8 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
   @Test
   internal fun `Mars First pays for building tags`() {
     prepareElection("MarsFirst")
-    kim.doTasks("PlayProject<Class<$Mine>>", "-4 MC", "Ok" /* No Steel payment. */)
-    kim.doTasks("PlayProject<Class<$PowerPlant>>", "-4 MC", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$Mine>>", "-4 MC")
+    kim.doTasks("PlayProject<Class<$PowerPlant>>", "-4 MC")
     assertRulingBonus(2, 0)
   }
 
@@ -150,7 +150,7 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
   internal fun `Unity combines Earth and Jovian tags`() {
     prepareElection("Unity")
     kim.doTasks("PlayProject<Class<$EarthOffice>>", "-1 MC")
-    kim.doTasks("PlayProject<Class<$VestaShipyard>>", "-15 MC", "Ok" /* No Titanium payment. */)
+    kim.doTasks("PlayProject<Class<$VestaShipyard>>", "-15 MC")
     assertRulingBonus(2, 0)
   }
 

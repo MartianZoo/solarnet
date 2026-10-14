@@ -60,8 +60,6 @@ internal class LandClaimTest : TfmSandboxTest() {
       stan.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-        selectTask("-X? Steel")
-        selectTask("Ok")
         doTask("ArtificialLake FROM ProjectCard")
         selectOnlyTask()
         doTask("OceanTile<Tharsis_1_3>")
@@ -79,7 +77,6 @@ internal class LandClaimTest : TfmSandboxTest() {
           doTasks(
               "PlayProject<Class<$ArtificialLake>>",
               "-15 MC",
-              "Ok", // No steel paid.
               "$ArtificialLake FROM ProjectCard",
               "OceanTile<Tharsis_1_3>",
               "TerraformRating",

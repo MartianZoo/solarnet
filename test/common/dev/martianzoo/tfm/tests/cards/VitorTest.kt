@@ -68,8 +68,7 @@ internal class VitorTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<Mine>>", "-4 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "Mine FROM ProjectCard", "PROD[Steel]")
+      doTasks("Mine FROM ProjectCard", "PROD[Steel]")
     }
   }
 

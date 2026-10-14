@@ -15,8 +15,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "FrontierTown FROM ProjectCard")
+      doTasks("FrontierTown FROM ProjectCard")
       selectTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Amazonis_02_02>")
       selectTask("-FrontierTownBonus!")
@@ -34,8 +33,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "FrontierTown FROM ProjectCard")
+      doTasks("FrontierTown FROM ProjectCard")
       selectTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Hellas_9_7>")
       selectTask("-FrontierTownBonus!")
@@ -66,8 +64,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "FrontierTown FROM ProjectCard")
+      doTasks("FrontierTown FROM ProjectCard")
       selectTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Cimmeria_3_3>")
       selectTask("-FrontierTownBonus!")
@@ -101,8 +98,6 @@ internal class FrontierTownTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-        selectTask("-X? Steel")
-        selectTask("Ok")
         doTask("FrontierTown FROM ProjectCard")
         selectTask("FrontierTownBonus!")
         selectTask("PROD[-Energy]")
@@ -140,8 +135,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "FrontierTown FROM ProjectCard")
+      doTasks("FrontierTown FROM ProjectCard")
       selectTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Tharsis_4_5>")
       selectTask("-FrontierTownBonus!")

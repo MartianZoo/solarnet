@@ -129,8 +129,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
-          selectTask("-X? Steel")
-          doTasks("Ok", "IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
+          doTasks("IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
           kim.selectTask("2! MC")
           selectOnlyTask()
           doTask("Ok")

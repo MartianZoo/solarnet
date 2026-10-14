@@ -43,8 +43,7 @@ internal class AridorTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<DevelopmentCenter>>", "-11 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "DevelopmentCenter FROM ProjectCard", "PROD[MC]", "PROD[MC]")
+      doTasks("DevelopmentCenter FROM ProjectCard", "PROD[MC]", "PROD[MC]")
     }
   }
 
@@ -114,8 +113,7 @@ internal class AridorTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
-          selectTask("-X? Steel")
-          doTasks("Ok", "IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
+          doTasks("IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
           selectTask("Microbe<Decomposers>*")
         }
         .expect("PROD[0 MC]")

@@ -142,8 +142,6 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
       stan.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-        selectTask("-X? Steel")
-        selectTask("Ok")
         doTask("ArtificialLake FROM ProjectCard")
         selectOnlyTask()
         doTask("OceanTile<Tharsis_1_3>")

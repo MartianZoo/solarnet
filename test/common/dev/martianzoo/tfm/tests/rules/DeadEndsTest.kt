@@ -133,8 +133,6 @@ internal class DeadEndsTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
-        selectTask("-X? Titanium")
-        selectTask("Ok")
         doTasks(
             "SmallAsteroid FROM ProjectCard",
             "-Plant<Stan>",
@@ -151,9 +149,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
-          selectTask("-X? Titanium")
           doTasks(
-              "Ok",
               "SmallAsteroid FROM ProjectCard",
               "-Plant<Stan>",
               "TemperatureStep",

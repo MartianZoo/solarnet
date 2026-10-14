@@ -107,8 +107,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
     newTestGame()
     kim.inTurn {
           doTasks("PlayProject<Class<MedicalLab>>", "-13 MC")
-          selectTask("-X? Steel")
-          doTasks("Ok", "MedicalLab FROM ProjectCard")
+          doTasks("MedicalLab FROM ProjectCard")
           selectOnlyTask()
         }
         .expect("PROD[0 MC]")
@@ -133,8 +132,7 @@ internal class RoboticWorkforceTest : TfmSandboxTest() {
     stan.setToExMachina(2, "PROD[Heat]")
     kim.inTurn {
       doTasks("PlayProject<Class<HeatTrappers>>", "-6 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "HeatTrappers FROM ProjectCard", "PROD[Energy]", "PROD[-2 Heat<Stan>]")
+      doTasks("HeatTrappers FROM ProjectCard", "PROD[Energy]", "PROD[-2 Heat<Stan>]")
     }
     stan.setToExMachina(2, "PROD[Heat]")
 

@@ -21,8 +21,6 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-        selectTask("-X? Steel")
-        selectTask("Ok")
         doTask("ArtificialLake FROM ProjectCard")
         selectOnlyTask()
         doTask("OceanTile<Tharsis_2_3>")
@@ -40,9 +38,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-      selectTask("-X? Steel")
       doTasks(
-          "Ok",
           "ArtificialLake FROM ProjectCard",
           "OceanTile<Tharsis_2_3>",
           "TerraformRating",
@@ -69,8 +65,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-          selectTask("-X? Steel")
-          doTasks("Ok", "ArtificialLake FROM ProjectCard")
+          doTasks("ArtificialLake FROM ProjectCard")
           selectOnlyTask()
         }
         .expect("0 OceanTile, 0 TerraformRating")
@@ -86,8 +81,6 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-        selectTask("-X? Steel")
-        selectTask("Ok")
         doTask("ArtificialLake FROM ProjectCard")
         selectOnlyTask()
         doTask("Ok")

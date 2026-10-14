@@ -58,9 +58,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     stan.exMachina("$Mine")
     kim.inTurn {
       doTasks("PlayProject<Class<SmallAsteroid>>", "-8 MC")
-      selectTask("-X? Titanium")
       doTasks(
-          "Ok",
           "SmallAsteroid FROM ProjectCard",
       )
       selectTask("TemperatureStep*")

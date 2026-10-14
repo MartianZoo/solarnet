@@ -109,8 +109,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
             doTasks("2 Titanium", "TerraformRating")
             selectTask("-X? MC")
             doTask("Ok")
-            selectTask("-X? Titanium")
-            doTasks("Ok", "-Plant<Stan>")
+            doTasks("-Plant<Stan>")
             selectOnlyTask()
             doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
           }
@@ -183,8 +182,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
-          selectTask("-X? Steel")
-          doTasks("Ok", "IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
+          doTasks("IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
           stan.selectTask("Disease<PharmacyUnion<Stan>>! OR (MAX 0 PharmacyUnion<Stan>: Ok)")
           stan.selectOnlyTask()
         }
@@ -199,9 +197,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-          selectTask("-X? Titanium")
           doTasks(
-              "Ok",
               "AsteroidCard FROM ProjectCard",
           )
           selectTask("TemperatureStep*")
@@ -241,9 +237,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-          selectTask("-X? Titanium")
           doTasks(
-              "Ok",
               "AsteroidCard FROM ProjectCard",
           )
           selectTask("TemperatureStep*")

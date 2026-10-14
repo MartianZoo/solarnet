@@ -14,9 +14,7 @@ internal class NitrogenRichAsteroidTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<NitrogenRichAsteroid>>", "-31 MC")
-      selectTask("-X? Titanium")
       doTasks(
-          "Ok",
           "NitrogenRichAsteroid FROM ProjectCard",
           "2 TerraformRating",
       )

@@ -70,9 +70,7 @@ internal class LawSuitTest : TfmSandboxTest() {
     kim.exMachina("Plant")
     stan.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-      selectTask("-X? Titanium")
       doTasks(
-          "Ok",
           "AsteroidCard FROM ProjectCard",
       )
       selectTask("TemperatureStep*")
@@ -181,8 +179,7 @@ internal class LawSuitTest : TfmSandboxTest() {
     kim.setToExMachina(2, "PROD[Heat]")
     kim.inTurn {
       doTasks("PlayProject<Class<HeatTrappers>>", "-6 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "HeatTrappers FROM ProjectCard", "PROD[Energy]", "PROD[-2 Heat]")
+      doTasks("HeatTrappers FROM ProjectCard", "PROD[Energy]", "PROD[-2 Heat]")
     }
 
     shouldThrow<NarrowingException> {
@@ -236,9 +233,7 @@ internal class LawSuitTest : TfmSandboxTest() {
     kim.exMachina("2 Plant")
     stan.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-      selectTask("-X? Titanium")
       doTasks(
-          "Ok",
           "AsteroidCard FROM ProjectCard",
       )
       selectTask("TemperatureStep*")
@@ -247,9 +242,7 @@ internal class LawSuitTest : TfmSandboxTest() {
     }
     rob.inTurn {
       doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
-      selectTask("-X? Titanium")
       doTasks(
-          "Ok",
           "SmallAsteroid FROM ProjectCard",
       )
       selectTask("TemperatureStep*")
@@ -282,9 +275,7 @@ internal class LawSuitTest : TfmSandboxTest() {
     kim.exMachina("2 Plant")
     stan.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-      selectTask("-X? Titanium")
       doTasks(
-          "Ok",
           "AsteroidCard FROM ProjectCard",
       )
       selectTask("TemperatureStep*")
@@ -293,9 +284,7 @@ internal class LawSuitTest : TfmSandboxTest() {
     }
     rob.inTurn {
       doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
-      selectTask("-X? Titanium")
       doTasks(
-          "Ok",
           "SmallAsteroid FROM ProjectCard",
       )
       selectTask("TemperatureStep*")

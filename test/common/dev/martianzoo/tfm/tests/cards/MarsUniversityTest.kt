@@ -31,8 +31,7 @@ internal class MarsUniversityTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<MarsUniversity>>", "-8 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "MarsUniversity FROM ProjectCard")
+      doTasks("MarsUniversity FROM ProjectCard")
       selectTask("(-ProjectCard<Kim, Hand>! THEN ProjectCard<Kim, Hand>!) OR Ok")
     }
   }

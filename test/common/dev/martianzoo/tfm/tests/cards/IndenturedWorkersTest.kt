@@ -20,8 +20,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "-27 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "Soletta FROM ProjectCard", "PROD[7 Heat]")
+      doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }
 
@@ -54,8 +53,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "-27 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "Soletta FROM ProjectCard", "PROD[7 Heat]")
+      doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }
 
@@ -74,8 +72,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "-27 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "Soletta FROM ProjectCard", "PROD[7 Heat]")
+      doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<AdvancedAlloys>>", "-9 MC", "AdvancedAlloys FROM ProjectCard")
@@ -99,8 +96,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "-35 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "Soletta FROM ProjectCard", "PROD[7 Heat]")
+      doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }
 
@@ -129,8 +125,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "-27 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "Soletta FROM ProjectCard", "PROD[7 Heat]")
+      doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }
 }

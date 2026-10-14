@@ -54,8 +54,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
   internal fun `A science tag removes disease and raises TR`() {
     kim.inTurn {
           doTasks("PlayProject<Class<PhysicsComplex>>", "-12 MC")
-          selectTask("-X? Steel")
-          doTasks("Ok", "PhysicsComplex FROM ProjectCard")
+          doTasks("PhysicsComplex FROM ProjectCard")
           selectOnlyTask()
         }
         .expect("-Disease<$PharmacyUnion>, TerraformRating")
@@ -118,8 +117,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<PhysicsComplex>>", "-12 MC")
-          selectTask("-X? Steel")
-          doTasks("Ok", "PhysicsComplex FROM ProjectCard")
+          doTasks("PhysicsComplex FROM ProjectCard")
           selectOnlyTask()
           doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
         }

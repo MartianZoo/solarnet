@@ -21,8 +21,6 @@ internal class CarbonNanosystemsTest : TfmSandboxTest() {
       doTask("2 Titanium")
       selectTask("-3? Plant<Anyone>")
       doTask("TerraformRating")
-      selectTask("-X? Titanium")
-      doTask("Ok")
       doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
   }
@@ -43,8 +41,6 @@ internal class CarbonNanosystemsTest : TfmSandboxTest() {
       doTask("2 Titanium")
       selectTask("-3? Plant<Anyone>")
       doTask("TerraformRating")
-      selectTask("-X? Titanium")
-      doTask("Ok")
       doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
   }

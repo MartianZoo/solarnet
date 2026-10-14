@@ -175,8 +175,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     kim.exMachina("$ViralEnhancers")
     kim.inTurn {
       doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]", "Plant")
+      doTasks("IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]", "Plant")
     }
   }
 
@@ -188,8 +187,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     // Choose the uncollectible bonus instead of the available plant.
     kim.inTurn {
           doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
-          selectTask("-X? Steel")
-          doTasks("Ok", "IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
+          doTasks("IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
           selectOnlyTask()
           doTask("Ok")
         }

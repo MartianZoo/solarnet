@@ -10,6 +10,9 @@ Delete entries when they are done.
   dead-ends the turn) and what could benefit.
 - Add Canon invariant tests for incompatibilities: self-heat removal outside Billing, except
   Local Heat Trapping, must be declared incompatible with Stormcraft. Include abstract resource choices.
+- Revisit Stormcraft plus Helion payment composition if that combination is supported.
+  `Accepting` now skips alternative standard-resource offers when the payer has none; it does not
+  consider possible substitutes such as Stormcraft floaters for heat.
 - Verify as a Canon invariant which tasks can interleave with card play: gaining MC production,
   Head Start's two actions, and any other actual exceptions. Establish the complete list.
 - Share the Corporation, Prelude, and final greenery phases' turn procedure through an abstract

@@ -15,9 +15,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     stan.exMachina("Plant")
     kim.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-      selectTask("-X? Titanium")
       doTasks(
-          "Ok",
           "AsteroidCard FROM ProjectCard",
       )
       selectTask("TemperatureStep*")
@@ -41,9 +39,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     kim.exMachina("Plant")
     kim.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-      selectTask("-X? Titanium")
       doTasks(
-          "Ok",
           "AsteroidCard FROM ProjectCard",
       )
       selectTask("TemperatureStep*")
@@ -64,9 +60,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     stan.exMachina("Plant")
     stan.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-      selectTask("-X? Titanium")
       doTasks(
-          "Ok",
           "AsteroidCard FROM ProjectCard",
       )
       selectTask("TemperatureStep*")
@@ -87,9 +81,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     stan.exMachina("Plant")
     kim.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-      selectTask("-X? Titanium")
       doTasks(
-          "Ok",
           "AsteroidCard FROM ProjectCard",
       )
       selectTask("TemperatureStep*")
@@ -111,9 +103,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     stan.exMachina("Plant")
     rob.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-      selectTask("-X? Titanium")
       doTasks(
-          "Ok",
           "AsteroidCard FROM ProjectCard",
       )
       selectTask("TemperatureStep*")
@@ -134,9 +124,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     stan.exMachina("Plant")
     kim.inTurn {
           doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-          selectTask("-X? Titanium")
           doTasks(
-              "Ok",
               "AsteroidCard FROM ProjectCard",
           )
           selectTask("TemperatureStep*")

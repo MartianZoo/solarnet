@@ -294,8 +294,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       doTasks("ImmigrantCity FROM ProjectCard", "PROD[-Energy]", "PROD[-2 MC]")
       selectTask("-X? MC")
       doTask("Ok")
-      selectTask("-X? Steel")
-      doTasks("Ok", "CityTile<Tharsis_7_4>", "PROD[MC]")
+      doTasks("CityTile<Tharsis_7_4>", "PROD[MC]")
     }
 
     kim.assertProds(2 to "MC", 1 to "Energy")
@@ -321,8 +320,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       selectTask("-2* Owed")
       selectTask("-2! RobotUnit<Kim, Class<Mine>>")
       doTask("-2 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "Mine FROM ProjectCard", "PROD[Steel]")
+      doTasks("Mine FROM ProjectCard", "PROD[Steel]")
     }
 
     kim.assertCounts(0 to "ProjectCard", 1 to "$Mine")
@@ -359,8 +357,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           selectTask("-8! RobotUnit<Kim, Class<Mine>>")
           doTasks("Mine FROM ProjectCard", "PROD[Steel]")
           selectTask("-X? MC")
-          doTask("Ok")
-          selectTask("-X? Steel")
           doTask("Ok")
         }
         .expect("0 MC")
@@ -407,8 +403,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           selectTask("-4! RobotUnit<Kim, Class<Mine>>")
           doTasks("Mine FROM ProjectCard", "PROD[Steel]")
           selectTask("-X? MC")
-          doTask("Ok")
-          selectTask("-X? Steel")
           doTask("Ok")
         }
         .expect("0 MC")
@@ -630,8 +624,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           selectTask("-2* Owed")
           selectTask("-2! RobotUnit<Kim, Class<ResearchOutpost>>")
           doTask("-16 MC")
-          selectTask("-X? Steel")
-          doTasks("Ok", "ResearchOutpost FROM ProjectCard")
+          doTasks("ResearchOutpost FROM ProjectCard")
           selectTask("(-ProjectCard<Kim, Hand>! THEN ProjectCard<Kim, Hand>!) OR Ok")
           doTasks("CityTile<Tharsis_4_2>", "Plant")
         }
@@ -908,8 +901,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     }
     return kim.inTurn {
       doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "L1TradeTerminal FROM ProjectCard")
+      doTasks("L1TradeTerminal FROM ProjectCard")
       selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
       selectOnlyTask()
       choice()

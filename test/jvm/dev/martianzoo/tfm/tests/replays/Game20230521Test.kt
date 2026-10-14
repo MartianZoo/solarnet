@@ -185,7 +185,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$CarbonateProcessing>>",
           "-6 MC",
-          "Ok", // no steel paid
           "$CarbonateProcessing FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 Heat]",
@@ -298,7 +297,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$DeuteriumExport>>",
           "-11 MC",
-          "Ok", // no titanium paid
           "$DeuteriumExport FROM ProjectCard",
       )
       doTasks(
@@ -378,7 +376,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$OptimalAerobraking>>",
           "-7 MC",
-          "Ok", // no titanium paid
           "$OptimalAerobraking FROM ProjectCard",
       )
     }
@@ -395,7 +392,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$RotatorImpacts, Action1>",
           "-6 MC",
-          "Ok", // no titanium paid
           "Asteroid<$RotatorImpacts>",
       )
     }
@@ -411,7 +407,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$ImportedGhg>>",
           "-4 MC",
-          "Ok", // no titanium paid
           "$ImportedGhg FROM ProjectCard",
           "PROD[Heat]",
           "7 Heat",
@@ -483,7 +478,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$AquiferPumping, Action1>",
           "-8 MC",
-          "Ok", // no steel paid
           "OceanTile<Tharsis_2_6>",
           "TerraformRating",
           "2 ProjectCard",
@@ -559,7 +553,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$SpinInducingAsteroid>>",
           "-16 MC",
-          "Ok", // no titanium paid
           "$SpinInducingAsteroid FROM ProjectCard",
           "2 VenusStep",
           "2 TerraformRating",
@@ -605,7 +598,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$SmallAsteroid>>",
           "-10 MC",
-          "Ok", // no titanium paid
           "$SmallAsteroid FROM ProjectCard",
           "-2 Plant<Player2>",
           "TemperatureStep",
@@ -679,7 +671,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$DirectedImpactors, Action1>",
           "-6 MC",
-          "Ok", // no titanium paid
           "Asteroid<$RotatorImpacts>",
       )
       doTasks(
@@ -694,7 +685,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$FueledGenerators>>",
           "-1 MC",
-          "Ok", // no steel paid
           "$FueledGenerators FROM ProjectCard",
           "PROD[-MC]",
           "PROD[Energy]",
@@ -798,7 +788,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$AquiferPumping, Action1>",
           "-8 MC",
-          "Ok", // no steel paid
           "OceanTile<Tharsis_1_5>",
           "4 MC",
           "TerraformRating",
@@ -843,7 +832,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$DuskLaserMining>>",
           "-8 MC",
-          "Ok", // no titanium paid
           "$DuskLaserMining FROM ProjectCard",
           "PROD[Titanium]",
           "PROD[-Energy]",
@@ -864,7 +852,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$Mine>>",
           "-4 MC",
-          "Ok", // no steel paid
           "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
@@ -888,7 +875,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$MiningQuota>>",
           "-5 MC",
-          "Ok", // no steel paid
           "$MiningQuota FROM ProjectCard",
           "PROD[2 Steel]",
           "2 Steel",
@@ -1086,7 +1072,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$TitaniumMine>>",
           "-5 MC",
-          "Ok", // no steel paid
           "$TitaniumMine FROM ProjectCard",
           "PROD[Titanium]",
       )
@@ -1461,7 +1446,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$DirectedImpactors, Action1>",
           "-6 MC",
-          "Ok", // no titanium paid
           "Asteroid<$RotatorImpacts>",
       )
     }
@@ -1829,7 +1813,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$DirectedImpactors, Action1>",
           "-6 MC",
-          "Ok", // no titanium paid
           "Asteroid<$RotatorImpacts>",
       )
     }
@@ -1868,7 +1851,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$PowerInfrastructure>>",
           "-4 MC",
-          "Ok", // no steel paid
           "$PowerInfrastructure FROM ProjectCard",
       )
       doTask("UseCardAction<$PowerInfrastructure, Action1>")
@@ -2210,7 +2192,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$LargeConvoy>>",
           "-31 MC",
-          "Ok", // no titanium paid
           "$LargeConvoy FROM ProjectCard",
           "4 Animal<$StratosphericBirds>",
           "Ok", // oceans full
@@ -2268,7 +2249,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$Greenhouses>>",
           "-4 MC",
-          "Ok", // no steel paid
           "$Greenhouses FROM ProjectCard",
           "Animal<$EcologicalZone>",
           "6 Plant",

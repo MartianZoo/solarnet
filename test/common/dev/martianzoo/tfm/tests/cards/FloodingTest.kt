@@ -455,8 +455,6 @@ internal class FloodingTest : TfmSandboxTest() {
           "OceanTile<Tharsis_5_4>! THEN -4? MC<Kim>",
           "UseAction<NeptunianOption, Action1>",
       )
-      selectTask("-X? Steel")
-      doTask("Ok")
       kim.selectTask("-4? MC")
       doTask("-4 MC")
       kim.count("Owed") shouldBe remainingDebt

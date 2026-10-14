@@ -27,10 +27,7 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
-          selectTask("-X? Titanium")
-          doTask("Ok")
-          selectTask("-X? Steel")
-          doTasks("Ok", "SummitLogistics FROM ProjectCard")
+          doTasks("SummitLogistics FROM ProjectCard")
           selectTask("MC! / (PlanetaryTag OR Colony)")
           selectTask("2! ProjectCard<Kim, Hand>")
         }
@@ -50,10 +47,7 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
     kim.exMachina("2 PartyDelegate<Scientists>")
     kim.inTurn {
           doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
-          selectTask("-X? Titanium")
-          doTask("Ok")
-          selectTask("-X? Steel")
-          doTasks("Ok", "SummitLogistics FROM ProjectCard")
+          doTasks("SummitLogistics FROM ProjectCard")
           selectTask("MC! / (PlanetaryTag OR Colony)")
           selectTask("2! ProjectCard<Kim, Hand>")
         }
@@ -70,10 +64,7 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
-          selectTask("-X? Titanium")
-          doTask("Ok")
-          selectTask("-X? Steel")
-          doTasks("Ok", "SummitLogistics FROM ProjectCard")
+          doTasks("SummitLogistics FROM ProjectCard")
           selectTask("MC! / (PlanetaryTag OR Colony)")
           selectTask("2! ProjectCard<Kim, Hand>")
         }

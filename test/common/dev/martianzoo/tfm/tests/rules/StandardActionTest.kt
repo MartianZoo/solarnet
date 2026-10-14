@@ -26,7 +26,7 @@ internal class StandardActionTest : TfmTest() {
     p1.autoExecPolicy = NONE
 
     p1.beginOperation("NewTurn")
-    p1.doTasks("PlayProject<Class<Mine>>", "-4 MC", "Ok", "Mine FROM ProjectCard", "PROD[Steel]")
+    p1.doTasks("PlayProject<Class<Mine>>", "-4 MC", "Mine FROM ProjectCard", "PROD[Steel]")
     game.isIdle() shouldBe true
   }
 

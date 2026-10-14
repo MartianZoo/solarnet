@@ -16,8 +16,7 @@ internal class AtmoscoopTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<Atmoscoop>>", "-22 MC")
-          selectTask("-X? Titanium")
-          doTasks("Ok", "Atmoscoop FROM ProjectCard")
+          doTasks("Atmoscoop FROM ProjectCard")
           selectTask("2* Floater")
           doTask("2 VenusStep")
           selectTask("VenusStep*")

@@ -19,9 +19,7 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<ImportedNitrogen>>", "-23 MC")
-          selectTask("-X? Titanium")
           doTasks(
-              "Ok",
               "ImportedNitrogen FROM ProjectCard",
               "TerraformRating",
               "4 Plant",
@@ -45,9 +43,7 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<ImportedNitrogen>>", "-23 MC")
-          selectTask("-X? Titanium")
           doTasks(
-              "Ok",
               "ImportedNitrogen FROM ProjectCard",
               "TerraformRating",
               "4 Plant",
@@ -73,8 +69,6 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
       kim.inTurn {
         selectOnlyTask()
         doTasks("PlayProject<Class<ImportedNitrogen>>", "-23 MC")
-        selectTask("-X? Titanium")
-        selectTask("Ok")
         doTask("ImportedNitrogen FROM ProjectCard")
         selectTask("TerraformRating!")
         selectTask("4! Plant")

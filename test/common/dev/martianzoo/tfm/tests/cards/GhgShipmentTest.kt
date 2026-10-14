@@ -15,9 +15,7 @@ internal class GhgShipmentTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<GhgShipment>>", "-3 MC")
-          selectTask("-X? Titanium")
           doTasks(
-              "Ok",
               "GhgShipment FROM ProjectCard",
               "PROD[Heat]",
           )
