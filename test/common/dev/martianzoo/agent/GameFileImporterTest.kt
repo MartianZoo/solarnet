@@ -19,6 +19,21 @@ import kotlinx.coroutines.test.runTest
 
 internal class GameFileImporterTest {
   @Test
+  internal fun exMachinaRecordsOnlyItsFinishedCorrection() {
+    val agents = Agents(Engine.newGame(testGamePremise("CLASS Coin\nCLASS Marker")))
+    val player = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val task = player.addTasks("Coin OR Marker").single()
+    player.selectTask(task)
+    val before = agents.world.timeline.positions
+
+    agents.exMachina(PLAYER1, "Coin")
+
+    agents.world.timeline.positions shouldBe before + agents.world.timeline.checkpoint()
+    player.tasks.selectedTask() shouldBe task
+    player.count("Coin") shouldBe 1
+  }
+
+  @Test
   internal fun fullReplayRejectsChangedAncestryWithTheSameFinalComponents() = runTest {
     val premise =
         testGamePremise(

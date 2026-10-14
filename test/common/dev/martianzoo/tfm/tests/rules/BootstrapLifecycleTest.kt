@@ -48,7 +48,7 @@ internal class BootstrapLifecycleTest {
     game.tasks.isEmpty() shouldBe true
     game.events.entriesSinceSetup().shouldBeEmpty()
 
-    shouldThrow<IllegalArgumentException> { game.timeline.rollBack(Checkpoint(0)) }
+    shouldThrow<IllegalArgumentException> { game.timeline.seek(Checkpoint(0)) }
         .message
         .orEmpty()
         .shouldInclude("committed through")

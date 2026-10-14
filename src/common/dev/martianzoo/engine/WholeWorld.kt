@@ -16,7 +16,6 @@ internal constructor(
     override val reader: GameReader,
     override val classTable: ClassTable,
     private val actorEngines: Map<Actor, ActorEngine>,
-    internal val recordingPositions: RecordingPositions,
     internal val effector: Effector,
 ) : World {
   override val components: ComponentGraph

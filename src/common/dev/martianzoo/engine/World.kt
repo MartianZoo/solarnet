@@ -11,9 +11,9 @@ import dev.martianzoo.state.TaskQueue
 /**
  * A live Pets world with transactional mutation, pending tasks, and event history. [components],
  * [events], and [tasks] are live read surfaces: retaining them keeps a view of this same world,
- * including later gameplay and rollback. Use [reader] for typed component queries and [actorEngine]
- * for actor-attributed changes. A [Timeline] checkpoint identifies an event position within this
- * world; it is not a separate copy of the world.
+ * including later gameplay and timeline seeking. Use [reader] for typed component queries and
+ * [actorEngine] for actor-attributed changes. A [Timeline] checkpoint identifies an event position
+ * within this world; it is not a separate copy of the world.
  */
 public interface World {
   /** Every Actor participating in this world, with seated Players in seat order. */
@@ -29,7 +29,7 @@ public interface World {
   /** Live view of all pending tasks, across actors. */
   public val tasks: TaskQueue
 
-  /** Checkpoint, rollback, and atomic interaction control. */
+  /** Completed-position navigation, tail truncation, and atomic interaction control. */
   public val timeline: Timeline
 
   /** Typed, read-only queries over the current world. */
@@ -51,10 +51,11 @@ public interface World {
   public fun installAgentTransactionGuard(guard: AgentTransactionGuard)
 
   /**
-   * Callback after an outermost gameplay transaction commits its first completed position;
-   * corrections do not invoke it. Synchronous gameplay started by the callback is settled before
-   * the final position is recorded. If the callback throws, its exception propagates after the
-   * original transaction has committed.
+   * Callback after an outermost gameplay transaction succeeds; corrections do not invoke it.
+   * Synchronous gameplay started by the callback is settled before the calling Agent method returns
+   * and records its position. An Agent method called by the callback also records a position when
+   * it returns. If the callback throws, its exception propagates after the original transaction has
+   * completed; the calling Agent method does not record a position because it did not return.
    */
   public var onTransactionComplete: () -> Unit
 }

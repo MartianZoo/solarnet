@@ -36,7 +36,10 @@ public object GameFileImporter {
     TaskLog.replay(
         document.inputs(premise),
         agents,
-        startGame = { startGame(agents) },
+        startGame = {
+          startGame(agents)
+          agents.world.timeline.recordPosition()
+        },
         supplyCardInputs = { command ->
           requireNotNull(supplyCardInputs) { "card identities have no input supplier" }(
               agents,
@@ -44,6 +47,7 @@ public object GameFileImporter {
           )
         },
     )
+    agents.world.timeline.recordPosition()
     expected?.let { source ->
       val actual = agents.world.recording()
       val sourceChanges = source.events.filterIsInstance<GameEvent.ChangeEvent>()

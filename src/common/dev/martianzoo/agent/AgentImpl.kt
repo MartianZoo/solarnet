@@ -39,6 +39,11 @@ internal class AgentImpl(
 ) : Agent {
 
   private val autoExecPolicyOverrides = mutableListOf<AutoExecPolicy>()
+  private var delegatingFromOperationScope = 0
+
+  private fun recordPlayerReturn() {
+    if (actor != ADMIN) world.timeline.recordPosition()
+  }
 
   init {
     autoExecLoop.register(engine.actor) { autoExecPolicyOverrides.lastOrNull() ?: autoExecPolicy }
@@ -60,7 +65,10 @@ internal class AgentImpl(
     set(newPolicy) {
       if (newPolicy != field) {
         field = newPolicy
-        if (newPolicy != AutoExecPolicy.NONE) autoExecAtomically()
+        if (newPolicy != AutoExecPolicy.NONE) {
+          autoExecAtomically()
+          recordPlayerReturn()
+        }
       }
     }
 
@@ -100,10 +108,12 @@ internal class AgentImpl(
   // CHANGES
 
   override fun sneak(changes: String, fakeCause: Cause?): TaskResult =
-      world.timeline.atomic {
-        engine.sneak(parseInstructionGroup(changes), fakeCause)
-        world.agentTransactionGuard?.validate()
-      }
+      world.timeline
+          .atomic {
+            engine.sneak(parseInstructionGroup(changes), fakeCause)
+            world.agentTransactionGuard?.validate()
+          }
+          .also { recordPlayerReturn() }
 
   // TASKS
 
@@ -161,8 +171,8 @@ internal class AgentImpl(
     }
   }
 
-  override fun doTasks(vararg narrowings: String): TaskResult = continueOperation {
-    doTasks(*narrowings)
+  override fun doTasks(vararg narrowings: String): TaskResult = atomic {
+    continueOperationBody { Adapter().performTasks(narrowings) }
   }
 
   override fun continueOperation(body: OperationBlock): TaskResult {
@@ -204,74 +214,90 @@ internal class AgentImpl(
 
     override val reader = this@AgentImpl.reader
 
-    override fun selectTask(instruction: String) {
-      this@AgentImpl.selectTask(instruction)
+    private inline fun <T> delegate(block: () -> T): T {
+      delegatingFromOperationScope++
+      return try {
+        block()
+      } finally {
+        delegatingFromOperationScope--
+      }
+    }
+
+    private inline fun <T> returnedCall(block: () -> T): T {
+      val result = delegate(block)
       autoExecLoop.run()
+      recordPlayerReturn()
+      return result
+    }
+
+    override fun selectTask(instruction: String) {
+      returnedCall { this@AgentImpl.selectTask(instruction) }
     }
 
     override fun selectTask(task: Task) {
-      this@AgentImpl.selectTask(task)
-      autoExecLoop.run()
+      returnedCall { this@AgentImpl.selectTask(task) }
     }
 
     override fun selectOnlyTask(x: Int?) {
-      this@AgentImpl.selectOnlyTask(x)
-      autoExecLoop.run()
+      returnedCall { this@AgentImpl.selectOnlyTask(x) }
     }
 
     override fun narrowTask(narrowing: String) {
-      this@AgentImpl.narrowTask(narrowing)
-      autoExecLoop.run()
+      returnedCall { this@AgentImpl.narrowTask(narrowing) }
     }
 
     override fun doTask(narrowing: String) {
-      this@AgentImpl.doTask(narrowing)
-      autoExecLoop.run()
+      returnedCall { this@AgentImpl.doTask(narrowing) }
     }
 
-    override fun doTasks(vararg narrowings: String) {
+    fun performTasks(narrowings: Array<out String>) {
       narrowings.forEach { narrowing ->
         val parsed = parseTaskNarrowing(narrowing)
-        decide {
-          taskLog.capture(actor, narrowing) {
-            engine.doTask(
-                parsed.instruction,
-                parsed.quantifierOmitted,
-                parsed.submittedAsGroup || parsed.instruction is InstructionGroup,
-                combineScalars = true,
-            )
+        delegate {
+          decide {
+            taskLog.capture(actor, narrowing) {
+              engine.doTask(
+                  parsed.instruction,
+                  parsed.quantifierOmitted,
+                  parsed.submittedAsGroup || parsed.instruction is InstructionGroup,
+                  combineScalars = true,
+              )
+            }
           }
         }
         autoExecLoop.run()
       }
     }
 
+    override fun doTasks(vararg narrowings: String) {
+      performTasks(narrowings)
+      recordPlayerReturn()
+    }
+
     override fun doTask(narrowing: String, contextClass: ClassName) {
-      this@AgentImpl.doTask(narrowing, contextClass)
-      autoExecLoop.run()
+      returnedCall { this@AgentImpl.doTask(narrowing, contextClass) }
     }
 
     override fun doTask(narrowing: String, taskId: TaskId) {
-      this@AgentImpl.doTask(narrowing, taskId)
-      autoExecLoop.run()
+      returnedCall { this@AgentImpl.doTask(narrowing, taskId) }
     }
 
     override fun tryTask(narrowing: String) {
-      this@AgentImpl.tryTask(narrowing)
-      autoExecLoop.run()
+      returnedCall { this@AgentImpl.tryTask(narrowing) }
     }
 
     override fun tryTask(narrowing: String, taskId: TaskId) {
-      this@AgentImpl.tryTask(narrowing, taskId)
-      autoExecLoop.run()
+      returnedCall { this@AgentImpl.tryTask(narrowing, taskId) }
     }
 
     override fun autoExecNow() {
       autoExecLoop.run()
+      recordPlayerReturn()
     }
 
     override fun autoExecNow(policy: AutoExecPolicy) {
       withAutoExecPolicyOverride(policy) { autoExecLoop.run() }
+      recordPlayerReturn()
     }
 
     override fun doWithAutoExecPolicy(policy: AutoExecPolicy, body: OperationBlock) {
@@ -280,6 +306,7 @@ internal class AgentImpl(
         body(this@Adapter)
         autoExecLoop.run()
       }
+      recordPlayerReturn()
     }
   }
 
@@ -485,18 +512,24 @@ internal class AgentImpl(
       validateCompletion: () -> Unit = {},
       block: () -> Unit,
   ): TaskResult =
-      engine.transact(
-          block = block,
-          validateCompletion = validateCompletion,
-          settle = {
-            autoExecLoop.run()
-            world.agentTransactionGuard?.validate()
-          },
-      )
+      engine
+          .transact(
+              block = block,
+              validateCompletion = validateCompletion,
+              settle = {
+                autoExecLoop.run()
+                world.agentTransactionGuard?.validate()
+              },
+          )
+          .also {
+            if (delegatingFromOperationScope == 0) recordPlayerReturn()
+          }
 
   // Manual task edits preserve their legacy behavior of not invoking autoexecution.
   private fun atomicWithoutAutoExec(block: () -> Unit): TaskResult =
-      engine.transact(settle = { world.agentTransactionGuard?.validate() }, block = block)
+      engine.transact(settle = { world.agentTransactionGuard?.validate() }, block = block).also {
+        if (delegatingFromOperationScope == 0) recordPlayerReturn()
+      }
 
   private data class ParsedTaskNarrowing(
       val instruction: InstructionTree,

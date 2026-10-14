@@ -61,9 +61,11 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
           .map { ScriptCompletion(it, "phases") }
 
   fun checkpointIds(): List<ScriptCompletion> =
-      (0..repl.game.timeline.checkpoint().toString().toInt()).map {
-        ScriptCompletion(it.toString(), "checkpoints")
-      }
+      repl.game.timeline.positions
+          .filter { it.ordinal >= repl.game.timeline.floor.ordinal }
+          .map {
+            ScriptCompletion(it.ordinal.toString(), "completed positions")
+          }
 
   fun optionSuggestions(): List<ScriptCompletion> {
     return OptionCodeTranslation.suggestions(repl.optionCodes).map {

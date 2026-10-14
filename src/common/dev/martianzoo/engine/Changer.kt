@@ -7,6 +7,7 @@ import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.Component.Companion.toComponent
 import dev.martianzoo.state.ComponentChange
+import dev.martianzoo.state.GameEvent
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameReader
@@ -16,6 +17,7 @@ internal class Changer(
     private val reader: GameReader,
     private val gameWorld: GameWorld,
     private val effector: Effector,
+    private val requireAtEnd: () -> Unit = {},
 ) {
 
   internal fun change(
@@ -25,6 +27,7 @@ internal class Changer(
       cause: Cause?,
       actor: Actor,
   ): Pair<ChangeEvent, Boolean> {
+    requireAtEnd()
     return try {
       val change =
           when {
@@ -42,9 +45,9 @@ internal class Changer(
     }
   }
 
-  /** Reapplies one recorded component event without calculating its consequences. */
-  private fun replay(event: ChangeEvent) {
-    applyEvent(event)
+  /** Reapplies an exact saved event without calculating new consequences. */
+  internal fun replay(event: GameEvent) {
+    if (event is ChangeEvent) applyEvent(event) else gameWorld.apply(event)
   }
 
   /** Reverses authoritative state and then synchronizes the engine's derived effect index. */

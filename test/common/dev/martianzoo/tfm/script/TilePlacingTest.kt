@@ -114,7 +114,7 @@ internal class TilePlacingTest {
       // try to fool it by having an opponent tile at the XX below
       runOperation("CityTile<Player2, Tharsis_6_7>")
 
-      // Use the standard project so that the placement rule is in effect
+      // Use the standard project so that the placement rule is in effect.
       stdProject("GreeneryProject") {
         fun checkCantPlaceGreenery(area: String) =
             assertFailsWith<NarrowingException>(area) { doTask("GreeneryTile<$area>") }
@@ -138,18 +138,22 @@ internal class TilePlacingTest {
 
         // 1 away - should work
 
-        val cp = game.timeline.checkpoint()
-        doTask("GreeneryTile<Tharsis_7_5>") // NW
-        game.timeline.rollBack(cp)
-        doTask("GreeneryTile<Tharsis_7_6>") // NE
-        game.timeline.rollBack(cp)
-        doTask("GreeneryTile<Tharsis_8_5>") // W
-        game.timeline.rollBack(cp)
-        doTask("GreeneryTile<Tharsis_8_7>") // E
-        game.timeline.rollBack(cp)
-        doTask("GreeneryTile<Tharsis_9_6>") // SW
-        game.timeline.rollBack(cp)
-        doTask("GreeneryTile<Tharsis_9_7>") // SE
+        val beforePlacement = game.timeline.checkpoint()
+        for (area in
+            listOf(
+                "Tharsis_7_5",
+                "Tharsis_7_6",
+                "Tharsis_8_5",
+                "Tharsis_8_7",
+                "Tharsis_9_6",
+                "Tharsis_9_7",
+            )) {
+          doTask("GreeneryTile<$area>")
+          if (area != "Tharsis_9_7") {
+            game.timeline.seek(beforePlacement)
+            game.timeline.truncate()
+          }
+        }
       }
     }
   }
