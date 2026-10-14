@@ -589,6 +589,8 @@ internal constructor(
    * removals of its type when their signed sum matches. Newly caused tasks do not join the total.
    * Gains precede removals. Otherwise, executes a single matching task. A Player's submitted
    * narrowing cannot perform a `System` change assigned to Admin; use [narrowTask] for that choice.
+   * A submitted action may omit an enclosing gate or `/` metric; the matched task still checks its
+   * gate and calculated amount against the live World.
    */
   public fun doTask(
       narrowing: InstructionTree,
@@ -754,8 +756,8 @@ internal constructor(
       val matches = assigned.filter(::weCanNarrowIt)
       if (matches.isNotEmpty()) return uniqueMatchingTask(matches)
 
-      // A failed live refinement can still identify the intended task. Let normal narrowing report
-      // which requirement failed instead of replacing that reason with a generic no-task match.
+      // A failed gate or live refinement can still identify the intended task. Let normal narrowing
+      // report which requirement failed instead of replacing it with a generic no-task match.
       val possibleMatches = assigned.filter { task ->
         intersectTask(narrowing, task.instruction, quantifierOmitted, possibleWorldFacts) != null
       }
@@ -795,6 +797,11 @@ internal constructor(
         effectiveNarrowing(narrowing, existing, quantifierOmitted, info, intersect = true)
     effective.intersect(existing, reader.classTable, info)?.let {
       return it
+    }
+    if (existing is Gated && info.has(existing.gate)) {
+      effective.intersect(existing.inner, reader.classTable, info)?.let {
+        return Gated.createTree(existing.gate, it)
+      }
     }
     if (selectFirstStageOrNull(existing, effective) != null) return effective
     val sequences =
