@@ -244,6 +244,11 @@ The combined `doTask` and `tryTask` commands reject an unselected task when sele
 assignee, including through a concrete `BY`. Such a call would only select and hand off while
 silently discarding its submitted instruction. The caller must use `selectTask`; the receiving
 assignee can then narrow or execute the selected task.
+`doTask` can identify a gated task by its body, and a `/` task by its calculated action, without
+repeating the gate or metric in the submitted instruction. The task still checks those conditions.
+When matching a task by its body, a failed gate does not compete with available matches. If no
+available task matches, the failed gate can identify the task so execution reports the unmet
+requirement.
 
 When a top-level instruction-side `BY` becomes concrete, task processing resolves the named
 participating Actor, removes the wrapper, and transfers the task to that Actor. The prior assignee's
