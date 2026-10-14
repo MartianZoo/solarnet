@@ -87,13 +87,21 @@ internal class English(
         )
     val instructions =
         cardDirectEffect(card)?.let { renderInstructionTree(it, enteringCardDescribers) }
+    val invariantSentences =
+        Requirement.split(card.declaration.invariants)
+            .filterIsInstance<Requirement.Exact>()
+            .mapNotNull { literalCardInvariant(it, cardDescribers) }
     val scoring =
         interpretedEffects
             .filter { isEndEffect(it, cardDescribers) }
             .filterNot { isUnconditionalFixedScore(it, cardDescribers) }
             .map { renderEffect(it, cardDescribers) }
     return EnglishText.join(
-        listOfNotNull(requirement) + selfGainEffects + listOfNotNull(instructions) + scoring
+        listOfNotNull(requirement) +
+            selfGainEffects +
+            listOfNotNull(instructions) +
+            invariantSentences +
+            scoring
     )
   }
 
@@ -151,12 +159,8 @@ internal class English(
               invariant in resourceValueEffects.first ||
                   countedExpression(invariant)?.let { cardDescribers.isTag(it.className) } == true
             }
-            .map { invariant ->
-              Sentence(
-                      Clause.RawPets(Unresolved(invariant, RefusalReason.UNKNOWN_REQUIREMENT_FRAME))
-                  )
-                  .asText()
-            }
+            .filterNot { literalCardInvariant(it, cardDescribers) != null }
+            .map(::renderCardInvariant)
     val effectTexts =
         listOfNotNull(renderedPersistentEffects, resourceValueEffects.second) + invariantTexts
     val effects =
@@ -165,6 +169,33 @@ internal class English(
             ?.let { EnglishText.join(it) }
             ?.let { EnglishText.Labeled("Effect: ", it) }
     return EnglishText.join(listOfNotNull(actions, effects), " / ")
+  }
+
+  private fun literalCardInvariant(
+      invariant: Requirement.Exact,
+      cardDescribers: Describers,
+  ): EnglishText.LiteralSentence? {
+    if (invariant.target != 1) return null
+    val component = countedExpression(invariant) ?: return null
+    return cardDescribers.cardInvariantSentence(component.className)?.let {
+      EnglishText.LiteralSentence(it)
+    }
+  }
+
+  private fun renderCardInvariant(invariant: Requirement.Exact): EnglishText {
+    val component = countedExpression(invariant)
+    if (component == null || invariant.target <= 0) {
+      return Sentence(
+              Clause.RawPets(Unresolved(invariant, RefusalReason.UNKNOWN_REQUIREMENT_FRAME))
+          )
+          .asText()
+    }
+    val noun =
+        NounPhrase.countedRawPets(
+            Unresolved(component, RefusalReason.UNKNOWN_REQUIREMENT_FRAME),
+            invariant.target,
+        )
+    return Sentence(Clause.Simple(Predicate(Verb("gain"), Coordination.one(noun)))).asText()
   }
 
   private fun interpretedCardEffects(card: Class): List<Effect> =

@@ -178,6 +178,7 @@ private constructor(
             ComponentDescriber::cardLocation,
             ComponentDescriber::cardProcedure,
             ComponentDescriber::cardLocationDependency,
+            ComponentDescriber::cardInvariantSentence,
         )
     classesByName.values.forEach { componentClass ->
       facts.forEach { fact ->
@@ -208,6 +209,9 @@ private constructor(
 
   internal fun changeFrame(className: ClassName): ComponentDescriber.ChangeFrame? =
       fact(className, ComponentDescriber::changeFrame)
+
+  internal fun cardInvariantSentence(className: ClassName): String? =
+      fact(className, ComponentDescriber::cardInvariantSentence)
 
   internal fun triggerFrame(className: ClassName): ComponentDescriber.TriggerFrame? =
       fact(className, ComponentDescriber::triggerFrame)

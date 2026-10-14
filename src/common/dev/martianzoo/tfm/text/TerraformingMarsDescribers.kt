@@ -202,6 +202,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Fixed("card"),
                 countNoun = ComponentDescriber.Noun.Counted("card", "cards"),
+                distinctKinds = ComponentDescriber.Noun.Counted("card in play", "cards in play"),
                 metricCount =
                     ComponentDescriber.MetricCount(
                         noun = ComponentDescriber.Noun.Counted("card", "cards"),

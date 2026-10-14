@@ -19,7 +19,7 @@ Legend	Legend	Requires 4 cards in your event pile.
 Mayor	Mayor	Requires 3 city tiles.
 Merchant	Merchant	Requires 2 of each standard resource type.
 Metallurgist	Metallurgist	Requires 6 steel and titanium production combined.
-Philantropist	Philantropist	[5 Class<@CardFront>(HAS @CardFront, HAS GainsOf<Class<VictoryPoint>>)].
+Philantropist	Philantropist	Requires 5 cards in play with [GainsOf<Class<VictoryPoint>>].
 Pioneer	Pioneer	Requires 4 colonies.
 Planetologist	Planetologist	Requires 2 Earth tags, 2 Venus tags, and 2 Jovian tags.
 Planner	Planner	Requires 16 cards in hand.
@@ -71,7 +71,7 @@ Zoologist	Zoologist	Most animals and microbes combined.
 Agronomist	Agronomist	Requires 4 plant tags.
 Architect	Architect	Requires 3 city tags.
 Blacksmith	Blacksmith	Highest steel and titanium production combined.
-DesertSettler	Desert Settler	Most tiles on Mars areas that have [6 row].
+DesertSettler	Desert Settler	Most tiles on Mars areas whose row is at least 6.
 Hoverlord	Hoverlord	Requires 7 floaters.
 Hydrologist	Hydrologist	Requires 4 ocean tiles you have placed.
 Innovator	Innovator	Most cards in play and cards in your event pile combined.
@@ -81,7 +81,7 @@ Manager	Manager	Requires 3 special tiles.
 Merchant3	Merchant	Requires 3 of each standard resource type.
 Physicist	Physicist	Most science tags and space tags combined.
 Pioneer3	Pioneer	Requires 3 colonies.
-PolarExplorer	Polar Explorer	Requires 3 tiles on Mars areas that have [8 row].
+PolarExplorer	Polar Explorer	Requires 3 tiles on Mars areas whose row is at least 8.
 Politician	Politician	Most party leaderships and influence combined.
 Specialist	Specialist	Requires 10 production of any standard resource type.
 Tactician5	Tactician	Requires 5 cards in play with requirements.

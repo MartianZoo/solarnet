@@ -19,7 +19,6 @@ internal data class NounPhrase(
     require(coordinatedHead == null || singular.isEmpty())
     require(rawPets == null || singular.isEmpty())
     require(rawPets == null || coordinatedHead == null)
-    require(rawPets == null || count == null)
     require(rawPets == null || determiner == null)
     require(rawPets == null || modifiers.isEmpty())
     require(rawPets == null || grammaticalNumber == null)
@@ -119,6 +118,9 @@ internal data class NounPhrase(
         NounPhrase("", coordinatedHead = nouns)
 
     fun rawPets(unresolved: Unresolved): NounPhrase = NounPhrase("", rawPets = unresolved)
+
+    fun countedRawPets(unresolved: Unresolved, count: Int): NounPhrase =
+        NounPhrase("", count = count, rawPets = unresolved)
 
     fun you(): NounPhrase = NounPhrase("you", grammaticalNumber = GrammaticalNumber.PLURAL)
   }

@@ -96,6 +96,11 @@ An enclosing clause can also keep a recognized head while a nested metric or `HA
 remains unresolved. The `PER` modifier retains its rendered instruction and brackets only the metric;
 filtered component and location nouns bracket only an unrecognized refinement. This is a nested
 lexicalization point after the applicable refinement recognizers have declined it.
+An exact positive card invariant can likewise state its quantity as a gain while leaving the
+component noun in brackets. The bracket retains the full Pets expression, including its arguments.
+Vocabulary can supply a literal sentence for a specific card invariant when its printed meaning
+cannot be recovered from the inert component. The fake-card text generator supplies such a sentence
+for every fake wild tag, placing it below the artwork with the card's play-time text.
 
 `Describers` still exposes several narrower producers (`componentNounPhrase`,
 `quantifiedComponentNounPhrase`, `cardResourceNounPhrase`, `playedTagPhrase`, `describedNoun`,
@@ -306,6 +311,13 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   `PER` scaling. A marked selector may supply `that` inside the body.
 - For production counts over a complete resource category with one excluded type, name the
   exclusion instead of listing all remaining concrete types.
+- A numeric property filter on a placement site can state its actual comparison when the property
+  has a simple word name: `HAS 6 row` says `whose row is at least 6`; `HAS MAX 5 row` says
+  `whose row is at most 5`. Other property names retain their Pets source unless vocabulary
+  supplies a description.
+- A class-token count with a matching component-presence filter may use that component's count noun;
+  additional `HAS` filters remain attached and bracket individually when unsupported. This keeps
+  Philantropist's class-token gameplay requirement while saying `cards in play with [GainsOf<...>]`.
 - Preserve shared implicit player identity across a trigger and its result as `that player`.
   An unrestricted `BY Anyone` or `BY Actor` constrains the performer of the event; it does not
   establish the owner of resources mentioned independently in the result.

@@ -18,6 +18,12 @@ internal sealed interface EnglishText {
     override fun unresolved(): List<Unresolved> = sentence.unresolved()
   }
 
+  data class LiteralSentence(val text: String) : EnglishText {
+    override fun linearize(): String = text
+
+    override fun unresolved(): List<Unresolved> = emptyList()
+  }
+
   data class Sequence(
       val members: List<EnglishText>,
       val separator: String,
