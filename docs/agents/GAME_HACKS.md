@@ -77,6 +77,14 @@ See [TfmEngine.kt](../../src/common/dev/martianzoo/tfm/engine/TfmEngine.kt),
 [cardEffects](../../src/common/dev/martianzoo/tfm/canon/cardClass.kt), and
 [VitorTest](../../test/common/dev/martianzoo/tfm/tests/cards/VitorTest.kt).
 
+## Decided interpretation: milestone credit survives global events
+
+The owner's decided rule interpretation is that global events do not remove earned milestone
+credit. Thawer and Hydrologist use cumulative counters, independent of the current temperature
+level or surviving ocean tiles. In particular, Hydrologist's `OceanCredit` must not depend on an
+`OceanTile`. The current declarations in `bundles/goals/goals.pets` already use independent counters;
+do not reopen this as an unresolved marker-identity question.
+
 ## Inclusion rule
 
 A **truthful** implementation makes the game changes its rules actually call for. Another card
