@@ -30,6 +30,10 @@ Keep tasks brief; linked notes and tests carry the background.
 - [ ] Separate task selection from execution: with autoexecution disabled, selecting a concrete task
   currently executes it. Revisit Agent contracts, handoffs, continuations, and replay `CHOOSE`
   commands together.
+- [ ] Give `sneak` and `exMachina` the same correction semantics. When a task is selected, rewind
+  its selection in history, apply the correction including `::` effects, then select it again. Any
+  failure must restore the exact prior state and event history. Remove public `restoreTask`; the
+  current timeline cannot restore a history suffix deliberately rewound inside `atomic`.
 - [ ] When a Canon card needs an open `TASK` recipient, make the recipient and the body's `Me` one
   shared choice, reusing existing Type-variable machinery if it can serve.
 - [ ] Decide whether Agent task submissions must give concrete amounts (`-8 Heat`) rather than
