@@ -96,7 +96,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
               "TerraformRating",
           )
           selectTask("-6? Plant<Anyone>")
-          doTask("Ok")
+          doTask("Ok") // No titanium paid.
           val checkpoint = game.timeline.checkpoint()
           shouldThrow<IllegalStateException> { victoryPoints() }
           game.timeline.checkpoint() shouldBe checkpoint

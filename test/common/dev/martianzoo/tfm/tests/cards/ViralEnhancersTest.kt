@@ -14,7 +14,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("$ViralEnhancers")
 
-    // The uncollectible animal branch resolves to Ok, selected through declineTask().
+    // The unavailable animal branch has already resolved to an untyped Ok.
     kim.inTurn {
           doTasks("PlayProject<Class<RegolithEaters>>", "-13 MC", "RegolithEaters FROM ProjectCard")
           selectOnlyTask()

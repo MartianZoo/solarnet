@@ -223,6 +223,11 @@ whose declared maximum is one. The same World-based gain narrowing applies when 
 receives an explicit narrowing. `ActorEngine` separately executes a selected Task once its
 instruction is concrete.
 
+Task admission discards literal zero changes. Counts calculated while selecting an existing task
+retain their Types through matching and execute without component events.
+Typed-zero submissions cannot identify work solely through an `Ok` intersection, including an
+unrelated alternative at the start of a sequence.
+
 Resolution may leave a genuine Player choice abstract. The task's current assignee alone may narrow
 it. If resolution exposes independent instructions, the selected structural Task completes and
 admits ordinary unselected children without transferring its selection to a child.
@@ -258,13 +263,14 @@ uses that Player for omitted ownership. `Cathedral<CityTile<Anyone, Tharsis_4_2>
 submitted narrowing can then resolve the existing city at that area without naming its concrete
 subclass, and fails when there is no city there.
 
-The executable first-stage forms are deliberately small: no-op, fully concrete change, or `THEN`
+The executable first-stage forms are deliberately small: no-op, zero-count change (or alternatives
+consisting entirely of zero changes and no-ops), fully concrete change, or `THEN`
 whose first stage is executable. Task processing consumes instruction-side `BY` before this point.
 Later `THEN` stages stay as Pets until earlier state changes have happened. Execution removes the
 completed Task, admits its continuation, and routes changes through the ordinary mutation/effect
-path. `Gated`, `Per`, `Or`, gains of virtual `CustomMetric` types, marked transforms, and instruction
-groups cannot reach execution as a first stage; resolution must consume, reject, choose, or split
-them first.
+path. `Gated`, `Per`, alternatives with remaining choices, gains of virtual `CustomMetric` types,
+marked transforms, and instruction groups cannot reach execution as a first stage; resolution must
+consume, reject, choose, or split them first.
 
 ## One instruction becomes events in stages
 

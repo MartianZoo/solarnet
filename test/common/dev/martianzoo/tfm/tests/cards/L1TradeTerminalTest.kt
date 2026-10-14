@@ -31,10 +31,8 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         doTasks("L1TradeTerminal FROM ProjectCard")
         selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         doTasks("Floater<AerialMappers>", "Floater<FloatingRefinery>")
-        selectTask("Floater<CloudTourism>?")
-        doTask("Ok")
-        selectTask("Floater<FloatingHabs>?")
-        doTask("Ok")
+        doTask("0 Floater<CloudTourism>")
+        doTask("0 Floater<FloatingHabs>")
       }
     }
 
@@ -65,8 +63,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
           }
           doTasks("Floater<AerialMappers>", "Floater<FloatingRefinery>", "Floater<CloudTourism>")
           // Decline the remaining Floating Habs.
-          selectTask("Floater<FloatingHabs>?")
-          doTask("Ok")
+          doTask("0 Floater<FloatingHabs>")
           selectTask("-X? Titanium")
           doTask("Ok")
         }
@@ -90,7 +87,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         selectTask("Ok")
         doTasks("L1TradeTerminal FROM ProjectCard")
         selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
-        doTask("Ok")
+        doTask("0 Floater<FloatingHabs>")
       }
     }
 
@@ -122,7 +119,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         doTasks("Floater<FloatingHabs>", "Microbe<VenusianInsects>")
         selectOnlyTask()
-        doTask("Ok")
+        doTask("0 Floater<AerialMappers>")
       }
     }
 
@@ -171,7 +168,7 @@ internal class L1TradeTerminalTest : TfmSandboxTest() {
         selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
         doTask("Floater<FloatingHabs>")
         selectOnlyTask()
-        doTask("Ok")
+        doTask("0 Microbe<VenusianInsects>")
       }
     }
 

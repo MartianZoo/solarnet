@@ -240,8 +240,10 @@ then removes itself.
 > could be counted or awarded again. This motivates a point event; the transmutation edge cases
 > above have no separate canonical card witness.
 
-**L2-2. A count is a positive integer or `X`.** `X` denotes an amount left open, and may carry a
-coefficient: `2X Plant` is an even number of plants. A count of zero is rejected.
+**L2-2. A count is a nonnegative integer or `X`.** `X` denotes a positive amount left open, and may
+carry a coefficient: `2X Plant` is an even number of plants. A zero-count change retains its Types
+for matching but executes without changing components or emitting events. Scaling a change by zero
+also retains its Types.
 
 ```ebnf
 ScaledExpression ::= Scalar? Expression
@@ -573,7 +575,8 @@ elaboration supplies one (L2-3), and narrowing has nothing to compare until it d
 **L3-1. An instruction is abstract when something is still open:** an unfixed
 `X`, an absent or optional quantifier, an abstract expression (T5-3), or an `OR`. `2! Plant<Player1>`
 is not abstract; `2? Plant<Player1>` is, because doing less is permitted and nothing has said how
-much less.
+much less. A zero-count change is not abstract, even when its Type or quantifier is open. An `OR`
+whose arms are all zero-count changes or `Ok` likewise requires no decision.
 
 > **Non-normative example — Virus.** Its `-2? Animal<Anyone> OR -5? Plant<Anyone>` remains open even
 > after one arm is selected: the target player and how much optional loss actually occurs still need
@@ -581,7 +584,7 @@ much less.
 
 **L3-2. A proposal must have the same shape.** A narrowing preserves the kind of node, the number of
 `THEN` stages and the size of a group. Two exceptions, and only two: any instruction may narrow an
-`OR` by narrowing one of its arms, and `Ok` may narrow an optional change.
+`OR` by narrowing one of its arms, and `Ok` may narrow an optional or zero-count change.
 
 > **Non-normative example — Flooding.** Choosing its ordinary ocean arm may replace the surrounding
 > `OR`; choosing the compensation arm must retain both its ocean-placement and payment stages.
@@ -611,8 +614,10 @@ amount `*` means is for resolution, not for the settler, to decide.
 > three, or none, but its mandatory temperature and ocean gains may not shrink. The quantifier—not
 > merely the number—carries that printed asymmetry.
 
-**L3-5. `Ok` narrows an optional change and nothing else.** Declining `2? Plant` entirely is a
-narrowing; declining `2! Plant` or `2* Plant` is not.
+**L3-5. `Ok` narrows an optional or zero-count change.** Declining `2? Plant` entirely is a
+narrowing; declining `2! Plant` or `2* Plant` is not. `0 Plant` can narrow `2? Plant` while retaining
+the named Type. Two change instructions intersect only through compatible Types and counts; their
+shared ability to do nothing does not make unrelated Types a match.
 
 > **Non-normative example — Virus.** If no useful opponent target is chosen, `Ok` is a valid
 > realization of the selected optional removal. Letting it replace a mandatory or
@@ -1909,7 +1914,7 @@ The grammar is context-free. Among the rules that reject sources it admits:
   component count (L4-6).
 - Every `THEN` stage but the last is one instruction, containing no group or sequence (L2-10), and a
   gate does not directly contain another gate (L2-7).
-- No count, minimum or metric unit is zero (L2-2, L5-3, L4-3).
+- No minimum or metric unit is zero (L5-3, L4-3); instruction counts may be zero (L2-2).
 - A signature carries no refinement (L11-4), and a body assigns each property at most once (L11-9).
 - A Type-variable marker is matched by another occurrence in its scope (L1-7).
 - `RANK` omits its selector only inside a `HAS` refinement (L4-8).

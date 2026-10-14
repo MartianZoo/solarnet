@@ -216,7 +216,8 @@ public object Parsing {
                   "ALLCAPS",
                   "mixed-case class name" -> "a class name"
                   "lowerCamel" -> "a property name"
-                  "scalar" -> "a non-negative integer"
+                  "scalar",
+                  "zero" -> "a non-negative integer"
                   "\n" -> "a newline"
                   "\"[^\"]*\"" -> "quoted text"
                   "arrow" -> "`->`"
@@ -581,7 +582,8 @@ public object Parsing {
         )
     private val allCapsName by regexToken(Regex("""\b[A-Z][A-Z0-9_]*\b"""), "ALLCAPS")
     private val lowerCamelName by regexToken(Regex("""\b[a-z][A-Za-z0-9]*\b"""), "lowerCamel")
-    private val integerToken by regexToken(Regex("""\b(0|[1-9][0-9]*)"""), "scalar")
+    private val integerToken by regexToken(Regex("""\b[1-9][0-9]*"""), "scalar")
+    private val zeroToken by regexToken(Regex("""\b0"""), "zero")
 
     private val sourcePosition: Parser<SourceLocation?> =
         object : Parser<SourceLocation?> {
@@ -607,7 +609,7 @@ public object Parsing {
             {
               PropertyName(it.text).also { name -> name.sourceLocation = location(it) }
             }
-    private val integer by
+    private val positiveInteger by
         integerToken map
             {
               it.text.toIntOrNull()
@@ -616,8 +618,10 @@ public object Parsing {
                       sourceLocation = location(it),
                   )
             }
+    private val integer by positiveInteger or (zeroToken asJust 0)
     private val quotedText by quotedToken map { it.text.removeSurrounding("\"") }
     private val numericScalar by locatedNode(integer map ::ActualScalar)
+    private val positiveScalar by locatedNode(positiveInteger map ::ActualScalar)
     private val xScalar by optional(integer) and skip(xKeyword) map { XScalar(it ?: 1) }
     val scalar: Parser<Scalar> by xScalar or numericScalar
     private val quantifier by
@@ -784,8 +788,10 @@ public object Parsing {
     private val countedMetric by integer and metricAtom
     private val minimumRequirement: Parser<Requirement> by
         (property map { Requirement.Min(1, it) }) or
-            mapLocated(countedMetric) { (target, metric) -> Requirement.Min(target, metric) } or
-            mapLocated(requirementAmount, Requirement::Min)
+            mapLocated(positiveInteger and metricAtom) { (target, metric) ->
+              Requirement.Min(target, metric)
+            } or
+            mapLocated(scaledExpression(positiveScalar), Requirement::Min)
     private val maximumRequirement by
         skip(maxKeyword) and
             ((countedMetric map { (target, metric) -> Requirement.Max(target, metric) }) or

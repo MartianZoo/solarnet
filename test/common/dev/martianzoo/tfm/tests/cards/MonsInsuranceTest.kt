@@ -206,8 +206,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           )
           selectTask("TemperatureStep*")
           doTasks("2 Titanium", "TerraformRating")
-          selectTask("-3? Plant<Anyone>")
-          doTask("Ok")
+          doTask("-0 Plant<Anyone>")
           doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
         }
         .expect("0 Plant<Stan>, 0 MC<Stan>")

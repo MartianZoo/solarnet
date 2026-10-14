@@ -485,10 +485,13 @@ internal class CatalogDiagnosticsTest {
     val source = "CLASS Garden { requirement = HAS \"0 Plant\" }"
     val error = assertFailsWith<PetSyntaxException> { loadTypes(source) }
 
-    assertEquals("count must be positive; found 0", error.detail)
+    assertEquals(
+        "expected `(` or `=` or `@` or `EVAL` or `MAX` or a class name or a non-negative integer or a property name; found `0`",
+        error.detail,
+    )
     assertEquals(
         """
-        |count must be positive; found 0 at 1:35
+        |expected `(` or `=` or `@` or `EVAL` or `MAX` or a class name or a non-negative integer or a property name; found `0` at 1:35
         |CLASS Garden { requirement = HAS "0 Plant" }
         |                                  ^
         """
@@ -690,10 +693,13 @@ internal class CatalogDiagnosticsTest {
     val source = "CLASS Garden { HAS 0 Plant }"
     val error = assertFailsWith<PetSyntaxException> { loadTypes(source) }
 
-    assertEquals("count must be positive; found 0", error.detail)
+    assertEquals(
+        "expected `(` or `=` or `@` or `EVAL` or `MAX` or a class name or a non-negative integer or a property name; found `0`",
+        error.detail,
+    )
     assertEquals(
         """
-        |count must be positive; found 0 at 1:20
+        |expected `(` or `=` or `@` or `EVAL` or `MAX` or a class name or a non-negative integer or a property name; found `0` at 1:20
         |CLASS Garden { HAS 0 Plant }
         |                   ^
         """
@@ -751,23 +757,6 @@ internal class CatalogDiagnosticsTest {
         |money amounts must name `MC` explicitly at 1:20
         |CLASS Garden { HAS 3 }
         |                   ^
-        """
-            .trimMargin(),
-        error.message,
-    )
-  }
-
-  @Test
-  internal fun zeroInstructionCount() {
-    val source = "CLASS Garden { This: 0 Plant }"
-    val error = assertFailsWith<PetSyntaxException> { loadTypes(source) }
-
-    assertEquals("count must be positive; found 0", error.detail)
-    assertEquals(
-        """
-        |count must be positive; found 0 at 1:22
-        |CLASS Garden { This: 0 Plant }
-        |                     ^
         """
             .trimMargin(),
         error.message,

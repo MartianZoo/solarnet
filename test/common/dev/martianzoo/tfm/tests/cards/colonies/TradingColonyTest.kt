@@ -20,7 +20,7 @@ internal class TradingColonyTest : TfmSandboxTest() {
       selectTask("Trade!")
       doTasks("Trade<Europa>")
       selectTask("ColonyProduction<Europa>?")
-      doTasks("Ok", "PROD[Energy]", "MC")
+      doTasks("0 ColonyProduction<Europa>", "PROD[Energy]", "MC")
     }
 
     kim.assertCounts(1 to "ColonyProduction<Europa>")

@@ -131,7 +131,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$InventorsGuild, Action1>",
           "ProjectCard<Selecting>",
-          "Ok", // keep card
+          "-0 ProjectCard<Selecting>", // keep card
           "-3 MC",
           "ProjectCard<Hand FROM Selecting>",
       )
@@ -241,7 +241,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$InventorsGuild, Action1>",
           "ProjectCard<Selecting>",
-          "Ok", // keep card
+          "-0 ProjectCard<Selecting>", // keep card
           "-3 MC",
           "ProjectCard<Hand FROM Selecting>",
       )
@@ -354,7 +354,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "-4 Titanium",
           "-2 MC",
           "$AsteroidCard FROM ProjectCard",
-          "Ok", // no plants removed
+          "-0 Plant<Anyone>", // no plants removed
           "TemperatureStep",
           "TerraformRating",
           "2 Titanium",
@@ -473,7 +473,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$InventorsGuild, Action1>",
           "ProjectCard<Selecting>",
-          "Ok", // keep card
+          "-0 ProjectCard<Selecting>", // keep card
           "-3 MC",
           "ProjectCard<Hand FROM Selecting>",
       )
@@ -524,7 +524,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "UseCardAction<$SearchForLife, Action1>",
           "-MC",
           "ProjectCard<Revealed>",
-          "Ok", // no reward
+          "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>", // no reward
           "-ProjectCard<Revealed>",
       )
     }
@@ -735,7 +735,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
-        "Ok", // keep all four
+        "-0 ProjectCard<Selecting>", // keep all four
         "-12 MC",
         "4 ProjectCard<Hand FROM Selecting>",
     )
@@ -781,7 +781,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$InventorsGuild, Action1>",
           "ProjectCard<Selecting>",
-          "Ok", // keep card
+          "-0 ProjectCard<Selecting>", // keep card
           "-3 MC",
           "ProjectCard<Hand FROM Selecting>",
       )
@@ -872,7 +872,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "UseCardAction<$SearchForLife, Action1>",
           "-MC",
           "ProjectCard<Revealed>",
-          "Ok", // no reward
+          "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>", // no reward
           "-ProjectCard<Revealed>",
       )
     }
@@ -1284,7 +1284,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$InventorsGuild, Action1>",
           "ProjectCard<Selecting>",
-          "Ok", // keep card
+          "-0 ProjectCard<Selecting>", // keep card
           "-3 MC",
           "ProjectCard<Hand FROM Selecting>",
       )
@@ -1374,7 +1374,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$InventorsGuild, Action1>",
           "ProjectCard<Selecting>",
-          "Ok", // keep card
+          "-0 ProjectCard<Selecting>", // keep card
           "-3 MC",
           "ProjectCard<Hand FROM Selecting>",
       )
@@ -1615,7 +1615,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "UseCardAction<$SearchForLife, Action1>",
           "-MC",
           "ProjectCard<Revealed>",
-          "Ok", // no reward
+          "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>", // no reward
           "-ProjectCard<Revealed>",
       )
     }
@@ -1804,7 +1804,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "$NitrogenRichAsteroid FROM ProjectCard",
           "PROD[4 Plant]",
           "2 TerraformRating",
-          "Ok", // temperature maxed
+          "0 TemperatureStep", // temperature maxed
           "3 MC",
           "3 Heat",
           "4 Plant",
@@ -1957,7 +1957,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "UseCardAction<$SearchForLife, Action1>",
           "-MC",
           "ProjectCard<Revealed>",
-          "Ok", // no reward
+          "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>", // no reward
           "-ProjectCard<Revealed>",
       )
       doTasks("Pass")
@@ -2041,7 +2041,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "TerraformRating",
           "2 Steel",
           "3 MC",
-          "Ok", // temperature maxed
+          "0 TemperatureStep", // temperature maxed
           "PlayedEvent<Class<$MiningExpedition>> FROM $MiningExpedition",
       )
     }
@@ -2084,7 +2084,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$BusinessNetwork, Action1>",
           "ProjectCard<Selecting>",
-          "Ok", // keep card
+          "-0 ProjectCard<Selecting>", // keep card
           "-3 MC",
           "ProjectCard<Hand FROM Selecting>",
       )
@@ -2292,7 +2292,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "GreeneryTile<Tharsis_4_4>",
           "Plant",
           "4 MC",
-          "Ok", // oxygen maxed
+          "0 OxygenStep", // oxygen maxed
       )
     }
 

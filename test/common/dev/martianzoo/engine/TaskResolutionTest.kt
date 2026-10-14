@@ -41,13 +41,14 @@ internal class TaskResolutionTest {
   }
 
   @Test
-  internal fun `selection that resolves to NoOp completes the task`() {
+  internal fun `selection that resolves to zero completes the task`() {
     initiate("-2? Plant")
     agent.selectTask("-2? Plant")
 
     tasks.isEmpty() shouldBe true
     assertHistoryTypes(
         TaskAddedEvent::class,
+        TaskEditedEvent::class,
         TaskRemovedEvent::class,
     )
   }

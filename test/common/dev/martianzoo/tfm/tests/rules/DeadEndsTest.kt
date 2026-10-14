@@ -159,7 +159,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
               "TemperatureStep",
               "TerraformRating",
               "-3 MC",
-              "Ok",
+              "0 MC<Stan FROM Kim>",
           )
           doTask("PlayedEvent<Class<$SmallAsteroid>> FROM $SmallAsteroid")
         }

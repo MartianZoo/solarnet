@@ -192,7 +192,7 @@ internal constructor(
           }
         }
       }
-      is Or -> error("abstract OR passed the execution boundary: $resolved")
+      is Or -> {} // Every surviving arm is a zero change; abstraction was checked above.
       is NoOp -> {}
       else -> error("somehow a ${resolved::class.simpleName} was enqueued: $resolved")
     }
@@ -206,6 +206,7 @@ internal constructor(
       queuedEffects: Boolean,
   ) {
     val ct = instruction.count as ActualScalar
+    if (ct.value == 0) return
     check(!queuedEffects || instruction.quantifier == MANDATORY)
 
     val gaining = instruction.gaining?.toComponent(reader)
@@ -518,6 +519,7 @@ internal constructor(
   ): InstructionTree {
     // can't resolve at all if we still have an X?
     val count = (change.count as? ActualScalar)?.value ?: return change
+    if (count == 0) return change
     if (change is Transmute) {
       // An exclusion containing an open co-reference becomes meaningful only when an atomic
       // proposal binds that explicitly named variable.

@@ -21,6 +21,7 @@ import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
+import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Remove
@@ -791,10 +792,12 @@ internal constructor(
       quantifierOmitted: Boolean,
       info: TypeInfo = reader,
   ): InstructionTree? {
+    val typedZero = narrowing is Change && narrowing.count == ActualScalar(0)
     val effective =
         effectiveNarrowing(narrowing, existing, quantifierOmitted, info, intersect = true)
     effective.intersect(existing, reader.classTable, info)?.let {
-      return it
+      // A shared no-op does not establish that the submitted Type identifies this task.
+      return it.takeUnless { typedZero && it == NoOp }
     }
     if (selectFirstStageOrNull(existing, effective) != null) return effective
     val sequences =
@@ -810,7 +813,9 @@ internal constructor(
           val head =
               effectiveNarrowing(narrowing, selectable, quantifierOmitted, info, intersect = true)
                   .intersect(selectable, reader.classTable, info)
-          head?.takeIf { selectFirstStageOrNull(existing, it) != null }
+          head
+              ?.takeUnless { typedZero && it == NoOp }
+              ?.takeIf { selectFirstStageOrNull(existing, it) != null }
         }
         .distinct()
         .singleOrNull()

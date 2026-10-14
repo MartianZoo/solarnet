@@ -29,7 +29,7 @@ internal class InstructionIntersectionTest {
     intersection("3! Token<Player1>", "2? RedToken<Anyone>", null)
     intersection("X! Token<Player1>", "3! RedToken<Anyone>", "3! RedToken<Player1>")
     intersection("2! Token<Player1>", "2* RedToken<Anyone>", null)
-    intersection("RedToken?", "BlueToken?", "Ok")
+    intersection("RedToken?", "BlueToken?", null)
   }
 
   @Test

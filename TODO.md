@@ -27,6 +27,10 @@ Keep tasks brief; linked notes and tests carry the background.
 
 ## Task dispatch
 
+- [ ] Extend retained zero counts to unavailable abstract targets and optional missing-dependency
+  fallbacks. These still become `Ok`, so their zero outcomes cannot be identified by Type. See
+  [computed-zero changes](docs/agents/QUANTIFIERS.md#uninhabited-and-computed-zero-changes).
+
 - [ ] Separate task selection from execution: with autoexecution disabled, selecting a concrete task
   currently executes it. Revisit Agent contracts, handoffs, continuations, and replay `CHOOSE`
   commands together.

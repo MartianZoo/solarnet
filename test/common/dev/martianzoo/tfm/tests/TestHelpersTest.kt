@@ -17,7 +17,7 @@ internal class TestHelpersTest : TfmSandboxTest() {
       doTasks("Plant", "TerraformRating")
     }
 
-    result.expect("GreeneryTile")
+    result.expect("GreeneryTile, 0 Steel, -0 Titanium, PROD[0 Energy]")
     shouldThrow<IllegalArgumentException> { result.expect("GreeneryTile<>") }.message shouldBe
         "empty argument lists are not allowed in net-change expectations; write `GreeneryTile` instead of `GreeneryTile<>`"
   }

@@ -33,7 +33,11 @@ internal class RedAppeasementTest : TfmGameplayTest() {
 
   @Test
   internal fun `Passes its owner so the next players pass ends the generation`() {
-    stan.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard", "Ok")
+    stan.doTasks(
+        "UseStandardProject<SellPatentsProject>",
+        "MC FROM ProjectCard",
+        "0 StandardAction",
+    )
     val mcProductionBefore = kim.count("PROD[MC]")
 
     kim.doTasks(
@@ -52,7 +56,11 @@ internal class RedAppeasementTest : TfmGameplayTest() {
 
   @Test
   internal fun `Playing as the second action passes its owner immediately`() {
-    stan.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard", "Ok")
+    stan.doTasks(
+        "UseStandardProject<SellPatentsProject>",
+        "MC FROM ProjectCard",
+        "0 StandardAction",
+    )
 
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
     val mcProductionBefore = kim.count("PROD[MC]")

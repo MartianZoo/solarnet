@@ -70,7 +70,7 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
               "OceanTile<Tharsis_1_2>",
               "TerraformRating",
           )
-          kim.doTask("Ok")
+          kim.doTask("0 UseAction<NeptunianOption<NeptunianPowerConsultants>>")
           doTask("2 Steel")
         }
         .expect("0 Hydroelectric<Kim>")

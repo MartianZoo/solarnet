@@ -33,7 +33,7 @@ internal class SearchForLifeTest : TfmSandboxTest() {
       doTasks("UseCardAction<SearchForLife, Action1>", "-MC / Owed<Class<MC>>")
       selectOnlyTask()
       selectOnlyTask()
-      doTask("Ok")
+      doTask("0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>")
       selectOnlyTask()
     }
     result.expect("-MC, 0 Science<$SearchForLife>, 0 ProjectCard<Revealed>")

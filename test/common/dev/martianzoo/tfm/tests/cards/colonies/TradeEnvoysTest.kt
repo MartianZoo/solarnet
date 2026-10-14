@@ -79,7 +79,7 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
           selectTask("ColonyProduction<Luna>?")
           selectTask("ColonyProduction<Luna>!")
           selectTask("ColonyProduction<Luna>?")
-          doTasks("Ok", "13 MC")
+          doTasks("0 ColonyProduction<Luna>", "13 MC")
         }
         .expect("4 MC")
 
