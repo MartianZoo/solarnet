@@ -87,6 +87,11 @@ tag, with its singleton Components supplied by the rule Module. Its `Class<Tag>`
 criterion; it has no `criteria` property because Requirement properties do not currently
 specialize named header variables.
 
+Party-requirement searches use `ReferenceFilter<Class<Ruling>>`: the current Canon cards cite
+`Ruling` in their ordinary `Ruling<Party> OR 2 PartyDelegate<Party>` requirements. Playing those
+cards evaluates the Pets condition directly; no custom party-requirement metric is needed.
+No current Canon card cites `Ruling` outside such a requirement.
+
 Venus Orbital Survey offers two anonymous backs in `Selecting`. The caller may keep each
 Venus-tagged card for free through the externally asserted `TakeSelectedCard<TagFilter>` signal,
 discard any unwanted remainder, and buy every back still selected. The World records the counts

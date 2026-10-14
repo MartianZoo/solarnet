@@ -108,7 +108,6 @@ Keep tasks brief; linked notes and tests carry the background.
   choice with `TASK` and without replay-specific context matching.
 - Consider renaming automatic (`::`) effects to “immediate.”
 
-- Replace `PartyRequirement` with its Pets condition: ruling party or at least two of your delegates.
 - Let English component roles default to one canonical component noun so placement, requirements,
   and metrics do not repeat singular and plural wording.
 - Extend derived `including this` wording to setup operations and otherwise unsupported effects

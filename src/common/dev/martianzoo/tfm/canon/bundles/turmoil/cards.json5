@@ -5,7 +5,7 @@
       "cards": [
         {
           "name": "AerialLenses",
-          "requirement": "PartyRequirement<Kelvinists>",
+          "requirement": "Ruling<Kelvinists> OR 2 PartyDelegate<Kelvinists>",
           "cost": 2,
           "direct": "-2? Plant<Anyone>, PROD[2 Heat]",
           "effects": [ "End: -VictoryPoint" ],
@@ -25,14 +25,14 @@
         },
         {
           "name": "CulturalMetropolis",
-          "requirement": "PartyRequirement<Unity>",
+          "requirement": "Ruling<Unity> OR 2 PartyDelegate<Unity>",
           "cost": 20,
           "tags": [ "CityTag", "BuildingTag" ],
           "direct": "PROD[-Energy, 3 MC], CityTile<>, 2 PartyDelegate",
         },
         {
           "name": "DiasporaMovement",
-          "requirement": "PartyRequirement<Reds>",
+          "requirement": "Ruling<Reds> OR 2 PartyDelegate<Reds>",
           "cost": 7,
           "tags": [ "JovianTag" ],
           "direct": "1 MC / JovianTag<Anyone>",
@@ -40,21 +40,21 @@
         },
         {
           "name": "EventAnalysts",
-          "requirement": "PartyRequirement<Scientists>",
+          "requirement": "Ruling<Scientists> OR 2 PartyDelegate<Scientists>",
           "cost": 5,
           "tags": [ "ScienceTag" ],
           "effects": [ "MeasureInfluence:: EventAnalystsInfluence" ],
         },
         {
           "name": "GmoContract",
-          "requirement": "PartyRequirement<Greens>",
+          "requirement": "Ruling<Greens> OR 2 PartyDelegate<Greens>",
           "cost": 3,
           "tags": [ "MicrobeTag", "ScienceTag" ],
           "effects": [ "BioTag: 2 MC" ],
         },
         {
           "name": "MartianMediaCenter",
-          "requirement": "PartyRequirement<MarsFirst>",
+          "requirement": "Ruling<MarsFirst> OR 2 PartyDelegate<MarsFirst>",
           "cost": 7,
           "tags": [ "BuildingTag" ],
           "direct": "PROD[2 MC]",
@@ -62,7 +62,7 @@
         },
         {
           "name": "ParliamentHall",
-          "requirement": "PartyRequirement<MarsFirst>",
+          "requirement": "Ruling<MarsFirst> OR 2 PartyDelegate<MarsFirst>",
           "cost": 8,
           "tags": [ "BuildingTag" ],
           "direct": "PROD[1 MC / 3 BuildingTag]",
@@ -70,7 +70,7 @@
         },
         {
           "name": "PrOffice",
-          "requirement": "PartyRequirement<Unity>",
+          "requirement": "Ruling<Unity> OR 2 PartyDelegate<Unity>",
           "cost": 7,
           "tags": [ "EarthTag" ],
           "direct": "TerraformRating, 1 MC / EarthTag",
@@ -91,21 +91,21 @@
         },
         {
           "name": "RedTourismWave",
-          "requirement": "PartyRequirement<Reds>",
+          "requirement": "Ruling<Reds> OR 2 PartyDelegate<Reds>",
           "cost": 3,
           "tags": [ "EarthTag", "EventTag" ],
           "direct": "1 MC / MarsArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile>)",
         },
         {
           "name": "SponsoredMohole",
-          "requirement": "PartyRequirement<Kelvinists>",
+          "requirement": "Ruling<Kelvinists> OR 2 PartyDelegate<Kelvinists>",
           "cost": 5,
           "tags": [ "BuildingTag" ],
           "direct": "PROD[2 Heat]",
         },
         {
           "name": "SupportedResearch",
-          "requirement": "PartyRequirement<Scientists>",
+          "requirement": "Ruling<Scientists> OR 2 PartyDelegate<Scientists>",
           "cost": 3,
           "tags": [ "ScienceTag" ],
           "direct": "2 ProjectCard",
@@ -119,7 +119,7 @@
         },
         {
           "name": "WildlifeDome",
-          "requirement": "PartyRequirement<Greens>",
+          "requirement": "Ruling<Greens> OR 2 PartyDelegate<Greens>",
           "cost": 15,
           "tags": [ "AnimalTag", "PlantTag", "BuildingTag" ],
           "direct": "DefaultGreeneryTile",

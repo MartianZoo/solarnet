@@ -16,7 +16,7 @@ internal class HighCirclesTest : TfmSandboxTest() {
           "HighCircles FROM PreludeCard",
           "TerraformRating",
       )
-      selectTask("SearchForCard<Kim, ReferenceFilter<Class<PartyRequirement>>>!")
+      selectTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
       selectOnlyTask()
       doTask("2 PartyDelegate<Scientists>")
     }
@@ -50,7 +50,7 @@ internal class HighCirclesTest : TfmSandboxTest() {
           "HighCircles FROM PreludeCard",
           "TerraformRating",
       )
-      selectTask("SearchForCard<Kim, ReferenceFilter<Class<PartyRequirement>>>!")
+      selectTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
       selectOnlyTask()
       doTask("2 PartyDelegate<Scientists>")
     }

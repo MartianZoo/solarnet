@@ -20,7 +20,7 @@ internal class WgProjectTest : TfmSandboxTest() {
           doTask("PlayCard<Class<PreludeCard>, Class<HighCircles>>")
           selectOnlyTask()
           doTask("TerraformRating")
-          selectTask("SearchForCard<Kim, ReferenceFilter<Class<PartyRequirement>>>!")
+          selectTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
           selectOnlyTask()
           doTask("2 PartyDelegate<Unity>")
         }
