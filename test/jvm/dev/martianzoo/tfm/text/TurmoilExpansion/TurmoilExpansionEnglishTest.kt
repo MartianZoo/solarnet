@@ -18,8 +18,10 @@ internal class TurmoilExpansionEnglishTest {
 
   @Test
   internal fun describesPartyRequirement() {
-    english.describe(parse<Requirement>("PartyRequirement<Scientists>")) shouldBe
-        "Requires that you meet the party requirement for the Scientists party."
+    english.describe(
+        parse<Requirement>("Ruling<Scientists> OR 2 PartyDelegate<Scientists>")
+    ) shouldBe
+        "Requires that either the Scientists party is ruling or you have 2 delegates in the Scientists party."
   }
 
   @Test

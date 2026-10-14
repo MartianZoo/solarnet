@@ -50,21 +50,8 @@ private fun renderLoweredInstructions(
   renderScopedInstruction(instructions, describers, localReferences)?.let {
     return it
   }
-  val rendered = mutableListOf<Pair<Instruction, Clause>>()
-  var index = 0
-  while (index < instructions.size) {
-    val cardOffer = renderCardOffer(instructions, index, describers)
-    if (cardOffer != null) {
-      rendered += instructions[index] to cardOffer.second
-      index += cardOffer.first
-      continue
-    }
-    val instruction = instructions[index]
-    val clauses = lexicalizeInstruction(instruction, describers, localReferences)
-    rendered += clauses.map { instruction to it }
-    index++
-  }
-  return RenderedInstructions(rewriteAdjacentClauses(rendered.map { it.second }))
+  val clauses = instructions.flatMap { lexicalizeInstruction(it, describers, localReferences) }
+  return RenderedInstructions(rewriteAdjacentClauses(clauses))
 }
 
 /** Total pass-one boundary for one prepared instruction. */

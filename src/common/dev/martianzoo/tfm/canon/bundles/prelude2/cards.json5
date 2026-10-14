@@ -315,7 +315,7 @@
         {
           "name": "HighCircles",
           "tags": [ "EarthTag" ],
-          "direct": "TerraformRating, SearchForCard<ReferenceFilter<Class<PartyRequirement>>>, 2 PartyDelegate",
+          "direct": "TerraformRating, SearchForCard<ReferenceFilter<Class<Ruling>>>, 2 PartyDelegate",
           "effects": [ "MeasureInfluence:: HighCirclesInfluence" ],
           "components": [
             "CLASS HighCirclesInfluence : Influence { HAS MAX 1 This }",
@@ -332,7 +332,7 @@
       "cards": [
         {
           "name": "ColonialEnvoys",
-          "requirement": "PartyRequirement<Unity>",
+          "requirement": "Ruling<Unity> OR 2 PartyDelegate<Unity>",
           "cost": 4,
           "tags": [ "EventTag" ],
           "direct": "EACH Colony { PartyDelegate }",
@@ -355,7 +355,7 @@
         },
         {
           "name": "FrontierTown",
-          "requirement": "PartyRequirement<MarsFirst>",
+          "requirement": "Ruling<MarsFirst> OR 2 PartyDelegate<MarsFirst>",
           "cost": 11,
           "tags": [ "CityTag", "BuildingTag" ],
           "direct": "FrontierTownBonus, PROD[-Energy], CityTile<>",
@@ -366,7 +366,7 @@
         },
         {
           "name": "GhgShipment",
-          "requirement": "PartyRequirement<Kelvinists>",
+          "requirement": "Ruling<Kelvinists> OR 2 PartyDelegate<Kelvinists>",
           "cost": 3,
           "tags": [ "SpaceTag", "EventTag" ],
           "direct": "PROD[Heat], Heat / Floater",
@@ -380,14 +380,14 @@
         },
         {
           "name": "RedAppeasement",
-          "requirement": "PartyRequirement<Reds>, MAX 0 Pass<Anyone>",
+          "requirement": "Ruling<Reds> OR 2 PartyDelegate<Reds>, MAX 0 Pass<Anyone>",
           "cost": 0,
           "tags": [ "EventTag" ],
           "direct": "PROD[2 MC], Pass",
         },
         {
           "name": "SpecialPermit",
-          "requirement": "PartyRequirement<Greens>",
+          "requirement": "Ruling<Greens> OR 2 PartyDelegate<Greens>",
           "cost": 5,
           "tags": [ "PlantTag", "EventTag" ],
           "direct": "4 Plant<Me@ FROM Anyone>",
@@ -401,7 +401,7 @@
         },
         {
           "name": "SummitLogistics",
-          "requirement": "PartyRequirement<Scientists>",
+          "requirement": "Ruling<Scientists> OR 2 PartyDelegate<Scientists>",
           "cost": 10,
           "tags": [ "BuildingTag", "SpaceTag" ],
           "direct": "1 MC / (PlanetaryTag OR Colony), 2 ProjectCard",

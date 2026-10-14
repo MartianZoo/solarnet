@@ -104,7 +104,9 @@ private fun renderChangeOrNull(
       is ComponentDescriber.ChangeFrame.Positioned ->
           renderPlacement(instruction, frame, describers)
       ComponentDescriber.ChangeFrame.Deck ->
-          renderDiscard(instruction, describers) ?: renderCardDrawOrLook(instruction, describers)
+          renderCardKeep(instruction, describers)
+              ?: renderDiscard(instruction, describers)
+              ?: renderCardDrawOrLook(instruction, describers)
       is ComponentDescriber.ChangeFrame.Procedure -> renderProcedure(instruction, frame, describers)
       is ComponentDescriber.ChangeFrame.CountedProcedure ->
           renderCountedProcedure(instruction, frame, describers)
@@ -264,6 +266,34 @@ private fun renderStateChange(
       ?: Clause.Simple(Predicate(Verb(procedure.verb)))
 }
 
+/** A retained card moves from the selection into the same player's hand. */
+private fun renderCardKeep(instruction: Instruction, describers: Describers): Clause? {
+  val move = instruction as? Transmute ?: return null
+  if (move.quantifier.modality() != Modality.REQUIRED) return null
+  val count = move.count.fixedQuantity() ?: return null
+  val gaining = move.gaining
+  val removing = move.removing
+  if (
+      gaining.className != removing.className ||
+          gaining.refinement != null ||
+          removing.refinement != null
+  )
+      return null
+  val locationKey =
+      describers.fact(gaining.className, ComponentDescriber::cardLocationDependency) ?: return null
+  val destination = describers.resolveExpression(gaining) ?: return null
+  val source = describers.resolveExpression(removing) ?: return null
+  if (
+      destination.sourceDependencies.keys.any { it != locationKey } ||
+          source.sourceDependencies.keys.any { it != locationKey } ||
+          describers.location(gaining) != ComponentDescriber.CardLocation.HAND ||
+          describers.location(removing) != ComponentDescriber.CardLocation.SELECTING
+  )
+      return null
+  return clause("keep", describers.quantifiedComponentNounPhrase(gaining.className, count))
+      .withModifier(Modifier.Relation("from", NounPhrase.text("the selection")))
+}
+
 private fun renderDiscard(
     instruction: Instruction,
     describers: Describers,
@@ -288,6 +318,11 @@ private fun renderCardDrawOrLook(
           gain.gaining.refinement == null &&
           describers.location(gain.gaining) == ComponentDescriber.CardLocation.SELECTING
   ) {
+    val locationKey =
+        describers.fact(gain.gaining.className, ComponentDescriber::cardLocationDependency)
+            ?: return null
+    val resolved = describers.resolveExpression(gain.gaining) ?: return null
+    if (resolved.sourceDependencies.keys.any { it != locationKey }) return null
     val count = gain.count.fixedQuantity() ?: return null
     return clause(
         "look at",
@@ -443,8 +478,7 @@ private fun renderRequiredAction(
   val actionUse = describers.actionUseEvent(effect.trigger) ?: return null
   if (actionUse.provider != describers.thisExpression) return null
   if (actionUse.slot != ClassName.cn("Action1").expression) return null
-  val result =
-      renderInstructions(effect.instruction, describers).clauses.singleOrNull() ?: return null
+  val result = renderInstructions(effect.instruction, describers).asCoordinatedClause()
   return Clause.Prefaced(Clause.Preface.FirstAction, result)
 }
 

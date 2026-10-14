@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.text
 import dev.martianzoo.catalog.displayName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
+import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -21,12 +22,14 @@ internal class EnglishGoalTextTest {
             .filter { !it.abstract && (it.isSubtypeOf(milestone) || it.isSubtypeOf(award)) }
             .map { it.className }
             .toSet()
-    current.forEach { (className, expected) ->
-      withClue(className.toString()) {
-        expected.englishName shouldBe displayName(Canon, className)
-        val rendering = english.renderGoal(Canon.classTable.getClass(className))
-        rendering.text shouldBe expected.text
-        countRenderedPetsFallbacks(rendering.text) shouldBe rendering.unresolved.size
+    assertSoftly {
+      current.forEach { (className, expected) ->
+        withClue(className.toString()) {
+          expected.englishName shouldBe displayName(Canon, className)
+          val rendering = english.renderGoal(Canon.classTable.getClass(className))
+          rendering.text shouldBe expected.text
+          countRenderedPetsFallbacks(rendering.text) shouldBe rendering.unresolved.size
+        }
       }
     }
   }

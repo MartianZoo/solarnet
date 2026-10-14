@@ -7,8 +7,10 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Then
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.types.Dependency.Key
 
 internal fun renderActions(
@@ -175,18 +177,24 @@ private fun Describers.renderResourceSpend(
 private fun Describers.renderLinkedXAction(action: Action): RenderedAction? {
   val spend = action.cost as? Cost.Spend ?: return null
   val costScalar = spend.scaledEx.scalar.variableQuantity() ?: return null
-  val gain = action.instruction as? Gain ?: return null
+  val instructions = InstructionGroup.of(action.instruction).instructions
+  val gain = instructions.firstOrNull() as? Gain ?: return null
   if (gain.quantifier.modality() != Modality.REQUIRED) return null
   val gainScalar = gain.count.variableQuantity() ?: return null
   val gaining = gain.gaining
-  if (!gaining.simple || !isStandardResource(gaining.className)) {
+  val deck = changeFrame(gaining.className) == ComponentDescriber.ChangeFrame.Deck
+  if (!deck && (!gaining.simple || !isStandardResource(gaining.className))) {
     return null
   }
+  val unit =
+      renderChange(gain.copy(scaledEx = scaledEx(gaining, 1)), this) as? Clause.Simple
+          ?: return null
   val cost = renderSpendCost(spend) ?: return null
   val noun = fact(gaining.className, ComponentDescriber::noun)
   val resultQuantity =
       when {
         costScalar.multiple > 1 -> "$gainScalar ${componentNoun(gaining.className, 2)}"
+        gainScalar.multiple == 1 && deck -> "that many ${componentNoun(gaining.className, 2)}"
         gainScalar.multiple == 1 && !concrete(gaining.className) ->
             "the same number of one ${componentNoun(gaining.className, 1)}"
         gainScalar.multiple == 1 && noun is ComponentDescriber.Noun.Fixed ->
@@ -198,14 +206,25 @@ private fun Describers.renderLinkedXAction(action: Action): RenderedAction? {
             "triple that amount of ${componentNoun(gaining.className, 1)}"
         else -> return null
       }
-  val result =
-      RenderedInstructions(
-          listOf(
-              Clause.Simple(
-                  Predicate(Verb("gain"), Coordination.one(NounPhrase.text(resultQuantity)))
-              )
-          )
+  val first =
+      unit.copy(
+          predicate =
+              unit.predicate.copy(objects = Coordination.one(NounPhrase.text(resultQuantity)))
       )
+  val remaining =
+      instructions
+          .drop(1)
+          .takeIf { it.isNotEmpty() }
+          ?.let {
+            renderPreparedInstructions(
+                    InstructionGroup.of(it),
+                    this,
+                    TypeVariableReferences.from(action),
+                )
+                .clauses
+          }
+          .orEmpty()
+  val result = RenderedInstructions(listOf(first) + remaining)
   return RenderedAction(cost, result)
 }
 

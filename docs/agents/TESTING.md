@@ -45,8 +45,8 @@ Kotlin 2.2. CI uses Temurin 25 LTS. Contributors do not need another JDK install
 Start with the smallest test or build task that verifies the changed behavior. Expand verification
 only when the change crosses a wider scope or the narrower result leaves a material risk.
 
-- `./gradlew build` checks the repository except `:tfm-text` tests, plus all production JavaScript
-  compilation and packaging. Run `./gradlew :tfm-text:test` explicitly for the English JVM tests.
+- `./gradlew build` checks the repository, including the English JVM tests, plus all production
+  JavaScript compilation and packaging. Run `./gradlew :tfm-text:test` for the English suite alone.
   Use the full build only when repository-wide verification is warranted by the scope of the change
   or explicitly requested.
 - `./gradlew test` runs every repository JVM test suite, every browser-specific test, and the
@@ -166,7 +166,8 @@ Convention plugins under `gradle/build-logic` are layered by responsibility. `so
 the policy shared by every Kotlin target: compilation, explicit API mode, dependency alignment,
 Detekt, Dokka, and test logging. `solarnet.jvm` adds the JVM plugin and the repository's standard
 Kotlin/JUnit 5 test dependencies. `solarnet.kmp-jvm-js` configures the JVM and browser targets, adds
-shared `kotlin.test`, and exposes each module's `jvmTest` as `test`.
+shared `kotlin.test`, declares the same JUnit BOM, Kotlin/JUnit 5 adapter, and platform launcher
+for `jvmTest` as the JVM convention, and exposes each module's `jvmTest` as `test`.
 The Pets module also attaches its filtered browser test to `test`; its complete shared browser
 suite remains available through the temporary full-browser target.
 Module build scripts under `modules/` keep only module-specific configuration and select their
@@ -176,6 +177,11 @@ Yarn policy remain in the root build.
 Dependency and plugin versions are declared in `gradle/libs.versions.toml`, while dependency
 repositories are declared centrally in `settings.gradle.kts`; JitPack is restricted to the pinned
 better-parse fork.
+
+`./rego` asks `:repl:shadowJarPath` to build the fat jar and report its relocated path before each
+launch, including after the `rebuild` command. A Gradle failure stops the launcher. CI also executes
+the packaged jar from an empty temporary directory, creates a Canon game, checks its player count,
+and exits before uploading the artifact.
 
 All Kotlin modules use strict explicit API mode. Declarations that form a module's public API must
 spell out `public` and their public types; declarations used only within one module should be

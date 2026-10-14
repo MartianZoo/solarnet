@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Do not launch a previous jar if Gradle fails.
+set -o pipefail
+
 # https://stackoverflow.com/q/59895/113632
 cd "$(dirname "${BASH_SOURCE[0]}")" || exit
 
@@ -13,7 +16,7 @@ fi
 
 # Rebuild in a loop as long as the process exits with the "rebuild" exit code
 while true; do
-    jar_path=$(./gradlew --quiet :repl:shadowJarPath | tail -n 1)
+    jar_path=$(./gradlew --quiet :repl:shadowJarPath | tail -n 1) || exit 1
     if [[ ! -f "$jar_path" ]]; then
         printf 'Error: could not build the REPL jar.\n' >&2
         exit 1

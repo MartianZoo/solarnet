@@ -4,7 +4,7 @@ CLASS TurmoilExpansion : Module {
   UseTurmoilPolicyAction<Action2>:: UseAction<KelvinistsPolicy, Action1>
   LobbyAction<Action1>: -LobbyActionAvailable! THEN PartyDelegate
   LobbyAction<Action2>: 5 Owed<> THEN Billing<Class<LobbyAction>, Action2>
-  This: Neutral, ReferenceFilter<Class<PartyRequirement>>
+  This: Neutral, ReferenceFilter<Class<Ruling>>
   HAS Class<LobbyAction>, Class<UseTurmoilPolicyAction>
   -Billing<Class<LobbyAction>>: MAX 6 (Delegate OR LobbyActionAvailable): PartyDelegate
 
@@ -212,9 +212,6 @@ CLASS PartyDistance<Party, Party> : CustomMetric
 
 "The clockwise seat distance between owners, with unseated owners last"
 CLASS PlayerDistance<Owner, Owner> : CustomMetric
-
-"Whether one player meets the ruling-party or two-delegate requirement for a party"
-CLASS PartyRequirement<Party> : Owned<Player>, CustomMetric
 
 ABSTRACT CLASS PartyStatus<Party> : Real {
   "The party with the greatest delegate count"

@@ -9,117 +9,18 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.tfm.text.ComponentDescriber.CardLocation as Location
 import dev.martianzoo.tfm.text.ComponentDescriber.CardProcedure as Procedure
 
-/** Reads the temporary card locations as one offer or reveal procedure. */
-internal fun renderCardOffer(
-    instructions: List<Instruction>,
-    index: Int,
-    describers: Describers,
-): Pair<Int, Clause>? {
-  val first = instructions.getOrNull(index) ?: return null
-  if (first is Gain) {
-    val second = instructions.getOrNull(index + 1)
-    val third = instructions.getOrNull(index + 2)
-    if (second is Transmute && third is Remove) {
-      renderKeepOffer(first, second, third, describers)?.let {
-        return 3 to it
-      }
-    }
-    if (second is Instruction.Then) {
-      val move = second.stages.singleOrNull() as? Transmute
-      val discard = second.continuation as? Remove
-      if (move != null && discard != null) {
-        renderKeepOffer(first, move, discard, describers)?.let {
-          return 2 to it
-        }
-      }
-    }
-  }
-  return null
-}
-
 internal fun renderCardOfferSequence(
     sequence: Instruction.Then,
     describers: Describers,
 ): Clause? =
-    renderPlayOffer(sequence, describers)
-        ?: renderPurchaseOffer(sequence, describers)
+    renderPurchaseOffer(sequence, describers)
         ?: renderRevealedReward(sequence, describers)
         ?: renderHandReveal(sequence, describers)
 
-private fun renderKeepOffer(
-    offer: Gain,
-    keep: Transmute,
-    discard: Remove,
-    describers: Describers,
-): Clause? {
-  if (!offer.isCardAt(Location.SELECTING, describers)) return null
-  if (!keep.moves(offer.gaining, Location.SELECTING, Location.HAND, describers)) return null
-  if (!discard.removes(offer.gaining, Location.SELECTING, describers)) return null
-  val offered = offer.count.fixedQuantity()
-  val kept = keep.count.fixedQuantity()
-  val rejected = discard.count.fixedQuantity()
-  val linkedX =
-      offer.count.variableQuantity()?.takeIf { it.multiple == 1 } != null &&
-          kept == 1 &&
-          discard.count.variableQuantity() == offer.count.variableQuantity() &&
-          discard.quantifier.modality() == Modality.BEST_EFFORT
-  if (
-      !linkedX &&
-          (offered == null || kept == null || rejected == null || kept + rejected != offered)
-  )
-      return null
-  if (!linkedX && discard.quantifier.modality() != Modality.REQUIRED) return null
-  val countText = if (linkedX) "that many" else offered.toString()
-  val cardNoun = describers.componentNoun(offer.gaining.className, if (offered == 1) 1 else 2)
-  return sequence(
-      offerClause("look at", NounPhrase.text("$countText $cardNoun")),
-      offerClause("keep", NounPhrase.text("${if (kept == 1) "1" else kept} of them")),
-      offerClause("discard", NounPhrase.text("the rest")),
-  )
-}
-
-private fun renderPlayOffer(sequence: Instruction.Then, describers: Describers): Clause? {
-  val offer = sequence.stages.getOrNull(0) as? Gain ?: return null
-  val discard = sequence.stages.getOrNull(1) as? Remove ?: return null
-  val play = sequence.continuation as? Gain ?: return null
-  if (sequence.stages.size != 2 || !offer.isCardAt(Location.SELECTING, describers)) return null
-  val plays = describers.changeFrame(play.gaining.className) == ComponentDescriber.ChangeFrame.Play
-  val playChoice =
-      renderPlayPrelude(play, describers, NounPhrase.text("the other"))
-          ?: if (plays) offerClause("play", NounPhrase.text("the other")) else return null
-  if (play.count.fixedQuantity() != 1 || play.quantifier.modality() != Modality.REQUIRED)
-      return null
-  if (describers.location(play.gaining) != Location.SELECTING) return null
-  if (
-      !discard.removes(offer.gaining, Location.SELECTING, describers) ||
-          discard.quantifier.modality() != Modality.REQUIRED
-  )
-      return null
-  if (
-      plays &&
-          play.gaining.arguments
-              .firstOrNull()
-              ?.let(describers::representedClassArgument)
-              ?.className != offer.gaining.className
-  )
-      return null
-  val offered = offer.count.fixedQuantity() ?: return null
-  if (discard.count.fixedQuantity() != offered - 1 || offered < 2) return null
-  val cardNoun = describers.componentNoun(offer.gaining.className, 2)
-  return sequence(
-      offerClause("look at", NounPhrase.text("$offered $cardNoun")),
-      offerClause("discard", NounPhrase.text("${offered - 1} of them")),
-      playChoice,
-  )
-}
-
-/**
- * Reads one card-play choice from the signal's own Pets, with an optional selected-card referent.
- */
+/** Reads a card-play choice from the signal's own Pets. */
 internal fun renderPlayPrelude(
     signal: Gain,
     describers: Describers,
-    selected: NounPhrase? = null,
 ): Clause? {
   if (
       describers.fact(signal.gaining.className, ComponentDescriber::cardProcedure) !=
@@ -169,10 +70,7 @@ internal fun renderPlayPrelude(
       return null
   val amount = compensation.count.fixedQuantity() ?: return null
   val card =
-      selected
-          ?: NounPhrase.text(
-              "the selected ${describers.componentNoun(discard.removing.className, 1)}"
-          )
+      NounPhrase.text("the selected ${describers.componentNoun(discard.removing.className, 1)}")
   val reward =
       NounPhrase.text("$amount ${describers.componentNoun(compensation.gaining.className, amount)}")
   val playClause = offerClause("play", card)

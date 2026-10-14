@@ -230,7 +230,7 @@ private fun Describers.recognizeCountedExpression(
     count: Int?,
     possessorEstablished: Boolean,
 ): MetricRendering? {
-  refinedProductionCategoryExpressions(expression, this)?.let { productions ->
+  countedProductionCategories(expression, this)?.let { productions ->
     if (productions.any { it.owner != null }) return null
     val productionPhrases = productions.map { production ->
       productionNounPhrase(production.resource)

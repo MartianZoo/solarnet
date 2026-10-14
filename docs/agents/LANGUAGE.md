@@ -227,19 +227,22 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   Cost reductions and requirement waivers modify that same rendered instruction, preserving its
   deck and source rather than assuming a card from hand. Unsupported face restrictions remain
   visible as Pets.
-- Describe a fixed offer, hand transfer, and cleanup together as `Look at N cards, then keep K of
-  them, then discard the rest.` The renderer checks that the counts balance. A variable offer that
-  keeps one card uses `that many` when it follows a matching action cost.
 - `Selecting` and `Revealed` are temporary card locations. Gaining card backs into `Selecting`
-  means looking at them. Gaining them into hand means drawing them. Interpret the subsequent offer,
-  purchase, play, reward, and return procedures together from Pets. In selected Prelude and
-  corporation offers, describe the rejected cards before playing the remaining one. The selected
-  Prelude's play-or-discard choice and 15 M€ compensation are read from `PlayPrelude` Pets wherever
-  that signal is used. The `if it cannot be played` qualifier describes a caller-verified rule;
-  `PlayPrelude` Pets does not gate its discard branch on unplayability.
+  means looking at them. Moving backs from `Selecting` into the owner's hand means keeping them
+  from the selection. Render these instructions independently; do not infer an immediate discard
+  from the offer size. Current turn cleanup owns the unselected cards.
+- Interpret explicit purchase, play, reward, and return procedures from Pets. The selected Prelude's
+  play-or-discard choice and 15 M€ compensation are read from `PlayPrelude` Pets wherever that signal
+  is used. The `if it cannot be played` qualifier describes a caller-verified rule; `PlayPrelude`
+  Pets does not gate its discard branch on unplayability.
+- A required first action can contain multiple clauses. Keep all of them under its first-action
+  preface, including any narrow unresolved fragments.
+- Count production categories by their concrete members, just as for refined production selections:
+  `6 PROD[Metal]` means steel and titanium production combined, not a choice between the two.
 - Normally describe variable amounts as `1 or more`, followed by `that amount`, `the same number`,
   `twice that amount`, or `triple that amount`, as appropriate. Use X notation when a multiplied
-  cost must precede the base amount, as in `Spend 2X M€ to gain X energy`. This distinction depends
+  cost must precede the base amount, as in `Spend 2X M€ to gain X energy`. A card count linked to
+  an action cost uses `that many` only when the quantities match. This distinction depends
   on the quantities, not the card. Preserve genuinely zero-inclusive choices separately.
 - Keep permission to use special payment resources concise: `Spend 8 M€ (steel may be used)`.
 - Use `raise`/`lower` for global parameters and terraform rating; `increase`/`decrease` for
@@ -336,7 +339,8 @@ Retain supported printed constraints in reviewed goals even when Pets does not y
 record the model gap separately. Such a target is not permission to invent a renderer special case.
 The goal-text goals may cover a selected proving corpus; the goal current snapshot covers every
 concrete goal. Current refusals are recorded mechanically in the generated `*-refusals.tsv`; do not
-restate them here.
+restate them here. Card and goal snapshot assertions collect wording differences across the entire
+corpus in each run, rather than stopping at the first mismatched component.
 
 Global Event resolution rendering is paused after its lower-half `GlobalEffect` declarations moved
 to player-owned signals. The published wording evidence remains available for a later renderer.

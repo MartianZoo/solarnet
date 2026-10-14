@@ -74,7 +74,6 @@ public object TfmEngine {
           Neighbor,
           NonNegativeIconsOf,
           PartyDistance,
-          PartyRequirement,
           PlacementBonus,
           PlayerDistance,
           PriceAspectCount,
@@ -227,25 +226,6 @@ public object TfmEngine {
         if (current == target) return distance
       }
       error("$target is not reachable from $source through AfterParty")
-    }
-  }
-
-  private object PartyRequirement : CustomMetric() {
-    private val party = cn("Party")
-    private val partyDelegate = cn("PartyDelegate")
-    private val ruling = cn("Ruling")
-
-    override fun count(game: GameReader, type: Type): Int {
-      val partyType = game.resolve(party.expression)
-      val partyTypeArgument =
-          type.typeDependencies.map { it.boundType }.single { it.narrows(partyType, game) }
-      val player = checkNotNull(type.toComponent().owningPlayer)
-      val isRuling = game.count(game.resolve(ruling.of(partyTypeArgument.expression))) == 1
-      val delegates =
-          game.count(
-              game.resolve(partyDelegate.of(partyTypeArgument.expression, player.expression))
-          )
-      return if (isRuling || delegates >= 2) 1 else 0
     }
   }
 

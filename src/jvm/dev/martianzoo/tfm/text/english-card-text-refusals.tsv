@@ -6,7 +6,7 @@ count	reason	examples
 4	UNSUPPORTED_FANOUT	Aridor: EACH @Class<Tag> { AridorTagWatcher<@Class, This> } | EarlyColonization: EACH @ColonyTile { 2 ColonyProduction<@ColonyTile> }
 2	UNSUPPORTED_DECLARED_CHANGE	Recruitment: PartyDelegate<Party(HAS 1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)), Me@Owner FROM Neutral> | CyberiaSystems: CopyProductionBox<CardFront(HAS BuildingTag, NOT First@CardFront)>
 2	UNSUPPORTED_PLACEMENT_CHANGE	Flooding: OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>! | MarsNomads: NomadsMarker<NewHome@LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker>) FROM LandArea>
-2	UNSUPPORTED_SCALING	FakeSeptemTribus: 2 MC / Class<@Party>(HAS PartyDelegate<@Party>) | BannedDelegate: BannedDelegateRemoval<Party, Anyone>. / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1
+2	UNSUPPORTED_SCALING	FakeSeptemTribus: 2 MC / Class<@Party>(HAS PartyDelegate<@Party>) | BannedDelegate: BannedDelegateRemoval<Party, Anyone>* / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1
 1	UNSUPPORTED_END_EFFECT	Vermin: End IF 10 Animal<This>: EACH Me@Player { -VictoryPoint / CityTile }
 1	UNSUPPORTED_INSTRUCTION_KIND	WorldGovernmentAdvisor: GlobalParameter BY Admin
-1	UNSUPPORTED_STANDARD_RESOURCE_CHANGE	Flooding: -4 MC<@Anyone>?
+1	UNSUPPORTED_STANDARD_RESOURCE_CHANGE	Flooding: -4? MC<@Anyone>
