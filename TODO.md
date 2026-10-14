@@ -283,6 +283,9 @@ Keep tasks brief; linked notes and tests carry the background.
 
 ## Autonomous Follow-ups
 
+- Reconcile the Valley Trust English snapshot: `EnglishTest` expects its Prelude action text, but
+  the renderer currently emits `[ValleyTrust_RequiredAction]`. Restore `:tfm-text` tests to the
+  standard build once the English suite passes.
 - Refresh [English wording comparisons](docs/english-wording-comparisons/README.md) from current
   Canon using `writeEnglishTextComparisons`.
 

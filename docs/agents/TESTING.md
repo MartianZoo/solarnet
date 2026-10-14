@@ -45,9 +45,10 @@ Kotlin 2.2. CI uses Temurin 25 LTS. Contributors do not need another JDK install
 Start with the smallest test or build task that verifies the changed behavior. Expand verification
 only when the change crosses a wider scope or the narrower result leaves a material risk.
 
-- `./gradlew build` checks the whole repository: the same tests as `test`, plus all production
-  JavaScript compilation and packaging. Use it only when repository-wide verification is warranted
-  by the scope of the change or explicitly requested.
+- `./gradlew build` checks the repository except `:tfm-text` tests, plus all production JavaScript
+  compilation and packaging. Run `./gradlew :tfm-text:test` explicitly for the English JVM tests.
+  Use the full build only when repository-wide verification is warranted by the scope of the change
+  or explicitly requested.
 - `./gradlew test` runs every repository JVM test suite, every browser-specific test, and the
   `OtbGame20260828Test` replay once in a browser. The multiplatform modules' JVM test tasks are named
   `jvmTest`. Pets runs `BrowserPetsTest` through `:pets:jsBrowserTest`; Web runs its browser history
