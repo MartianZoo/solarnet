@@ -31,7 +31,7 @@ internal class MarsUniversityTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<MarsUniversity>>", "-8 MC")
-      doTasks("Ok" /* No Steel payment. */, "MarsUniversity FROM ProjectCard")
+      doTasks("MarsUniversity FROM ProjectCard")
       // Resolve the exchange offer: the empty hand leaves no card to discard.
       selectTask("(-ProjectCard<Kim, Hand>! THEN ProjectCard<Kim, Hand>!) OR Ok")
     }

@@ -16,7 +16,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
       doTasks(
-          "Ok" /* No Titanium payment. */,
           "AsteroidCard FROM ProjectCard",
       )
       doTask("TemperatureStep")
@@ -41,7 +40,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
       doTasks(
-          "Ok" /* No Titanium payment. */,
           "AsteroidCard FROM ProjectCard",
       )
       doTask("TemperatureStep")
@@ -62,7 +60,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
       doTasks(
-          "Ok" /* No Titanium payment. */,
           "AsteroidCard FROM ProjectCard",
       )
       doTask("TemperatureStep")
@@ -83,7 +80,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
       doTasks(
-          "Ok" /* No Titanium payment. */,
           "AsteroidCard FROM ProjectCard",
       )
       doTask("TemperatureStep")
@@ -105,7 +101,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     rob.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
       doTasks(
-          "Ok" /* No Titanium payment. */,
           "AsteroidCard FROM ProjectCard",
       )
       doTask("TemperatureStep")
@@ -126,7 +121,6 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
           doTasks(
-              "Ok" /* No Titanium payment. */,
               "AsteroidCard FROM ProjectCard",
           )
           doTask("TemperatureStep")

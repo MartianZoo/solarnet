@@ -59,7 +59,6 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<SmallAsteroid>>", "-8 MC")
       doTasks(
-          "Ok" /* No Titanium payment. */,
           "SmallAsteroid FROM ProjectCard",
       )
       doTask("TemperatureStep")

@@ -50,7 +50,6 @@ internal class AridorTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<DevelopmentCenter>>", "-11 MC")
       doTasks(
-          "Ok" /* No Steel payment. */,
           "DevelopmentCenter FROM ProjectCard",
           "PROD[MC]",
           "PROD[MC]",
@@ -123,7 +122,6 @@ internal class AridorTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
           doTasks(
-              "Ok" /* No Steel payment. */,
               "IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",
               "PROD[Steel]",

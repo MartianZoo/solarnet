@@ -57,7 +57,6 @@ internal class CapitalTest : TfmSandboxTest() {
         .inTurn {
           doTasks("PlayProject<Class<Capital>>", "-26 MC")
           doTasks(
-              "Ok" /* No Steel payment. */,
               "Capital FROM ProjectCard",
               "PROD[-2 Energy]",
               "PROD[5 MC]",

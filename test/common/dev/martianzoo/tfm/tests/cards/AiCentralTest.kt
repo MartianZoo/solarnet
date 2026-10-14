@@ -22,7 +22,6 @@ internal class AiCentralTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTasks("PlayProject<Class<AiCentral>>", "-21 MC")
-        doTask("Ok" /* No Steel payment. */)
         doTask("AiCentral FROM ProjectCard")
         doTask("PROD[-Energy]")
       }

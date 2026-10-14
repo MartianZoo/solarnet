@@ -55,7 +55,6 @@ internal class LandClaimTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       stan.inTurn {
         doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-        doTask("Ok" /* No Steel payment. */)
         doTask("ArtificialLake FROM ProjectCard")
         doTask("OceanTile<Tharsis_1_3>")
       }
@@ -72,7 +71,6 @@ internal class LandClaimTest : TfmSandboxTest() {
           doTasks(
               "PlayProject<Class<$ArtificialLake>>",
               "-15 MC",
-              "Ok", // No steel paid.
               "$ArtificialLake FROM ProjectCard",
               "OceanTile<Tharsis_1_3>",
               "TerraformRating",

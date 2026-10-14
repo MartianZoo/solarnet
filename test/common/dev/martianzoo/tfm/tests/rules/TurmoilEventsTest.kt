@@ -265,7 +265,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   internal fun `Miners on Strike takes only the titanium available`() {
     prepareEvent("RisingAlloyDemand")
     kim.doTasks("PlayProject<Class<$VestaShipyard>>", "-3 Titanium", "-6 MC")
-    kim.doTasks("PlayProject<Class<$MirandaResort>>", "-12 MC", "Ok" /* No Titanium payment. */)
+    kim.doTasks("PlayProject<Class<$MirandaResort>>", "-12 MC")
     kim.doTasks("PlayProject<Class<$JovianEmbassy>>", "-14 MC", "Ok" /* No Steel payment. */)
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -361,7 +361,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         autoExecNow(EAGER)
       }
       kim.doTask("0 StandardAction") // Decline the second action.
-      stan.doTasks("PlayProject<Class<$TitanShuttles>>", "-23 MC", "Ok" /* No Titanium payment. */)
+      stan.doTasks("PlayProject<Class<$TitanShuttles>>", "-23 MC")
       stan.completeOperation {
         doTask("UseCardAction<$TitanShuttles, Action1>")
         doTask("2 Floater<$TitanShuttles>")
@@ -450,7 +450,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         autoExecNow(EAGER)
       }
       kim.doTask("0 StandardAction") // Decline the second action.
-      stan.doTasks("PlayProject<Class<$TitanShuttles>>", "-23 MC", "Ok" /* No Titanium payment. */)
+      stan.doTasks("PlayProject<Class<$TitanShuttles>>", "-23 MC")
       stan.doTask("0 StandardAction") // Decline the second action.
     }
     kim.doTasks("PlayProject<Class<$FloatingHabs>>", "-5 MC")

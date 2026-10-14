@@ -29,7 +29,6 @@ internal class MiningRightsTest : TfmSandboxTest() {
     return kim.inTurn {
       doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
       doTasks(
-          "Ok" /* No Steel payment. */,
           "MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Amazonis_05_03>",
       )
@@ -49,7 +48,6 @@ internal class MiningRightsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
       doTasks(
-          "Ok" /* No Steel payment. */,
           "MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Cimmeria_6_4>",
           "Titanium",
@@ -75,7 +73,6 @@ internal class MiningRightsTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
-        doTask("Ok" /* No Steel payment. */)
         doTask("MiningRights FROM ProjectCard")
         doTask("MiningRights_SpecialTile<Tharsis_2_1>")
         // Resolve the production choice to check that this area supplies a metal bonus.
@@ -91,7 +88,6 @@ internal class MiningRightsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
       doTasks(
-          "Ok" /* No Steel payment. */,
           "MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Cimmeria_6_4>",
           "Titanium",
@@ -109,7 +105,6 @@ internal class MiningRightsTest : TfmSandboxTest() {
       doTasks(
           "PlayProject<Class<$MiningRights>>",
           "-9 MC",
-          "Ok", // No steel paid.
           "$MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Cimmeria_6_4>",
           "2 Steel",

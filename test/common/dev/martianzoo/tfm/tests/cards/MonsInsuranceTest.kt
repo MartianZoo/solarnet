@@ -115,9 +115,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           // Other optional tasks also accept Ok; identify the MC payment first.
           selectTask("-X? MC")
           doTask("Ok" /* No MC payment. */)
-          // Other optional tasks also accept Ok; identify the Titanium payment first.
-          selectTask("-X? Titanium")
-          doTasks("Ok" /* No Titanium payment. */, "-Plant<Stan>")
+          doTasks("-Plant<Stan>")
           doTask("3 MC<Stan FROM Kim>")
           doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
         }
@@ -190,7 +188,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
           doTasks(
-              "Ok" /* No Steel payment. */,
               "IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",
               "PROD[Steel]",
@@ -210,7 +207,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
           doTasks(
-              "Ok" /* No Titanium payment. */,
               "AsteroidCard FROM ProjectCard",
           )
           doTask("TemperatureStep")
@@ -253,7 +249,6 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
         .inTurn {
           doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
           doTasks(
-              "Ok" /* No Titanium payment. */,
               "AsteroidCard FROM ProjectCard",
           )
           doTask("TemperatureStep")

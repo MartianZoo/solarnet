@@ -27,7 +27,7 @@ internal class RecyclonTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<Mine>>", "-4 MC")
-          doTasks("Ok" /* No Steel payment. */, "Mine FROM ProjectCard", "PROD[Steel]")
+          doTasks("Mine FROM ProjectCard", "PROD[Steel]")
           doTask("Microbe<Recyclon>")
         }
         .expect("Microbe<$Recyclon>")
@@ -40,7 +40,7 @@ internal class RecyclonTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<TitaniumMine>>", "-7 MC")
-      doTasks("Ok" /* No Steel payment. */, "TitaniumMine FROM ProjectCard", "PROD[Titanium]")
+      doTasks("TitaniumMine FROM ProjectCard", "PROD[Titanium]")
       doTasks("-2 Microbe THEN PROD[Plant]", "PROD[Plant]")
     }
   }

@@ -44,6 +44,11 @@ Fixed, concrete gains run as Admin, including scaled debt and gains inside autom
 An abstract type or variable amount such as `X Owed` stays with the Player until narrowed; Admin
 then performs the concrete gain. Acceptance opens resource-removal offers, which remain assigned
 to the Player. The Player's chosen removals retain that Player as their event Actor.
+`Accepting` opens that offer only if the payer holds the accepted standard resource when `Billing`
+fires or owes that denomination. Empty alternatives such as Steel on an M€ bill therefore need no
+explicit decline. The bill's own denomination stays offered because starting-card billing can
+precede the corporation's starting cash. Acceptance itself remains in place until settlement;
+this check does not search for substitutes or reopen an alternative offer if stock arrives later.
 Both fixed and variable standard-resource action costs use billing so acceptance and price
 adjustments can apply. A variable cost keeps its shared `X` in the sequence from `Owed` through
 `Billing` to the action's result. Choosing `X = 4` for `X Energy -> X MC` opens a bill for 4 Energy;

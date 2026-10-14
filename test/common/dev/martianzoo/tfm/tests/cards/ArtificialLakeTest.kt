@@ -20,7 +20,6 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-        doTask("Ok" /* No Steel payment. */)
         doTask("ArtificialLake FROM ProjectCard")
         doTask("OceanTile<Tharsis_2_3>")
       }
@@ -38,7 +37,6 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
       doTasks(
-          "Ok" /* No Steel payment. */,
           "ArtificialLake FROM ProjectCard",
           "OceanTile<Tharsis_2_3>",
           "TerraformRating",
@@ -65,7 +63,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-          doTasks("Ok" /* No Steel payment. */, "ArtificialLake FROM ProjectCard")
+          doTasks("ArtificialLake FROM ProjectCard")
           // Resolve the placement offer: the full ocean track leaves no legal placement.
           selectOnlyTask()
         }
@@ -81,7 +79,6 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
     shouldThrow<TaskException> {
       kim.inTurn {
         doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-        doTask("Ok" /* No Steel payment. */)
         doTask("ArtificialLake FROM ProjectCard")
         doTask("Ok")
       }

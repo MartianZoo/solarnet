@@ -98,7 +98,6 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
           )
           // Resolve the empty plant attack separately from the pending ocean placements.
           selectTask("-6? Plant<Anyone>")
-          doTask("Ok") // No titanium paid.
           val checkpoint = game.timeline.checkpoint()
           shouldThrow<IllegalStateException> { victoryPoints() }
           game.timeline.checkpoint() shouldBe checkpoint

@@ -15,7 +15,6 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<ImportedGhg>>", "-5 MC")
           doTasks(
-              "Ok" /* No Titanium payment. */,
               "ImportedGhg FROM ProjectCard",
               "PROD[Heat]",
               "3 Heat",
@@ -34,7 +33,6 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
       doTasks(
           "PlayProject<Class<$TechnologyDemonstration>>",
           "-5 MC",
-          "Ok", // No titanium paid.
           "$TechnologyDemonstration FROM ProjectCard",
           "2 ProjectCard",
       )

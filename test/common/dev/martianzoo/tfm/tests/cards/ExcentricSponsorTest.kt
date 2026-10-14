@@ -23,7 +23,6 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
           selectTask("-25* Owed")
           doTask("-6 MC")
           doTasks(
-              "Ok" /* No Titanium payment. */,
               "NitrogenRichAsteroid FROM ProjectCard",
               "2 TerraformRating",
           )
@@ -54,7 +53,6 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
       // Other optional tasks also accept Ok; identify the MC payment first.
       selectTask("-X? MC")
       doTask("Ok" /* No MC payment. */)
-      doTask("Ok" /* No Titanium payment. */)
       doTask("PlayedEvent<Class<GhgImportFromVenus>> FROM GhgImportFromVenus")
     }
   }
@@ -86,7 +84,6 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
           // Other optional tasks also accept Ok; identify the MC payment first.
           selectTask("-X? MC")
           doTask("Ok" /* No MC payment. */)
-          doTask("Ok" /* No Steel payment. */)
         }
         .expect("$Mine, PROD[Steel], 0 MC")
   }

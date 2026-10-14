@@ -133,7 +133,6 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       stan.inTurn {
         doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-        doTask("Ok" /* No Steel payment. */)
         doTask("ArtificialLake FROM ProjectCard")
         doTask("OceanTile<Tharsis_1_3>")
       }

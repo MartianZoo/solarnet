@@ -15,7 +15,7 @@ internal class TollStationTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<TollStation>>", "-12 MC")
-      doTasks("Ok" /* No Titanium payment. */, "TollStation FROM ProjectCard")
+      doTasks("TollStation FROM ProjectCard")
       doTask("PROD[3 MC]")
     }
   }

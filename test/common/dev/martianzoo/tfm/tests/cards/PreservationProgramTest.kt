@@ -266,7 +266,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
           doTasks(
               "PlayProject<Class<$MagneticFieldGeneratorsPromo>>",
               "-22 MC",
-              "Ok", /* No Steel payment. */
           )
           doTask("MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_2_4>")
           autoExecNow(EAGER)
@@ -902,7 +901,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       kim.doTasks(
           "PlayProject<Class<$GiantSpaceMirror>>",
           "-17 MC",
-          "Ok", /* No Titanium payment. */
       )
       kim.doTask("0 StandardAction") // Decline the second action.
     }
@@ -911,7 +909,6 @@ internal class PreservationProgramTest : TfmGameplayTest() {
         kim.doTasks(
             "PlayProject<Class<$GiantSpaceMirror>>",
             "-17 MC",
-            "Ok", /* No Titanium payment. */
         )
     passGeneration(nextEvent = if (rulingParty == null) null else "ExploreFirstDirective")
     stan.doTask("Pass")

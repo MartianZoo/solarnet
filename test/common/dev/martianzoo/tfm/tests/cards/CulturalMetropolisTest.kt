@@ -17,7 +17,6 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
     shouldThrow<DeadEndException> {
       kim.inTurn {
         doTasks("PlayProject<Class<CulturalMetropolis>>", "-20 MC")
-        doTask("Ok" /* No Steel payment. */)
         doTask("CulturalMetropolis FROM ProjectCard")
         doTask("PROD[-Energy]")
         doTask("PROD[3 MC]")
@@ -40,7 +39,6 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<CulturalMetropolis>>", "-20 MC")
           doTasks(
-              "Ok" /* No Steel payment. */,
               "CulturalMetropolis FROM ProjectCard",
               "PROD[-Energy]",
               "PROD[3 MC]",

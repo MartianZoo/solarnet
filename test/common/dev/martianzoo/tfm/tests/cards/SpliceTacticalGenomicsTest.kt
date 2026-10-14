@@ -137,7 +137,6 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
         .inTurn {
           doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
           doTasks(
-              "Ok" /* No Steel payment. */,
               "IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",
               "PROD[Steel]",

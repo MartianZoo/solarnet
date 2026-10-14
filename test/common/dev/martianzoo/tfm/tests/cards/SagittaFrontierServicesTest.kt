@@ -69,7 +69,6 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
       doTasks(
-          "Ok" /* No Titanium payment. */,
           "SmallAsteroid FROM ProjectCard",
       )
       doTask("TemperatureStep")
@@ -86,7 +85,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<Mine>>", "-4 MC")
-      doTasks("Ok" /* No Steel payment. */, "Mine FROM ProjectCard", "PROD[Steel]", "MC")
+      doTasks("Mine FROM ProjectCard", "PROD[Steel]", "MC")
     }
   }
 
@@ -108,7 +107,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("PlayProject<Class<Mine>>", "-4 MC")
-          doTasks("Ok" /* No Steel payment. */, "Mine FROM ProjectCard", "PROD[Steel]")
+          doTasks("Mine FROM ProjectCard", "PROD[Steel]")
         }
         .expect("0 MC<Kim>")
   }

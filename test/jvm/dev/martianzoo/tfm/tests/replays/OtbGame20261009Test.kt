@@ -149,7 +149,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$GiantIceAsteroid>>",
           "-36 MC",
-          "Ok", // no titanium paid
           "$GiantIceAsteroid FROM ProjectCard",
           "2 TemperatureStep",
           "2 TerraformRating",
@@ -232,7 +231,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$ElectroCatapult>>",
           "-17 MC",
-          "Ok", // no steel paid
           "$ElectroCatapult FROM ProjectCard",
           "PROD[-Energy]",
       )
@@ -246,7 +244,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$ResearchOutpost>>",
           "-18 MC",
-          "Ok", // no steel paid
           "$ResearchOutpost FROM ProjectCard",
           "CityTile<Vastitas_9_9>",
           "Steel",
@@ -258,7 +255,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$Casinos>>",
           "-5 MC",
-          "Ok", // no steel paid
           "$Casinos FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[4 MC]",
@@ -327,7 +323,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$IndustrialCenter>>",
           "-4 MC",
-          "Ok", // no steel paid
           "$IndustrialCenter FROM ProjectCard",
           "IndustrialCenter_SpecialTile<Vastitas_8_8>",
           "Steel",
@@ -608,7 +603,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$CorporateStronghold>>",
           "-11 MC",
-          "Ok", // no steel paid
           "$CorporateStronghold FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
@@ -762,7 +756,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$SixteenPsyche>>",
           "-31 MC",
-          "Ok", // no titanium paid
           "$SixteenPsyche FROM ProjectCard",
           "PROD[2 Titanium]",
           "3 Titanium",
@@ -1631,7 +1624,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "3 MC", // Media Group
           "ProjectCard", // Solar Logistics
       )
-      declineTask("-X? Titanium<Pink>") // no titanium paid
       doTask("PlayedEvent<Class<$HydrogenToVenus>> FROM $HydrogenToVenus")
     }
     p1.turn {
@@ -1962,8 +1954,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "-27 MC",
           "$LargeConvoy FROM ProjectCard",
       )
-      selectTask("-X? Titanium<Pink>")
-      declineTask("-X? Titanium<Pink>") // no titanium paid
       doTasks(
           "Ok", // all oceans are already placed
           "2 ProjectCard",

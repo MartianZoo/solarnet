@@ -15,7 +15,6 @@ internal class MiningAreaTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<MiningArea>>", "-4 MC")
       doTasks(
-          "Ok" /* No Steel payment. */,
           "MiningArea FROM ProjectCard",
           "MiningArea_SpecialTile<Tharsis_8_9>",
       )
@@ -33,7 +32,6 @@ internal class MiningAreaTest : TfmSandboxTest() {
       doTasks(
           "PlayProject<Class<$MiningArea>>",
           "-4 MC",
-          "Ok", // No steel paid.
           "$MiningArea FROM ProjectCard",
           "MiningArea_SpecialTile<Cimmeria_6_4>",
           "2 Steel",
@@ -61,7 +59,6 @@ internal class MiningAreaTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTasks("PlayProject<Class<MiningArea>>", "-4 MC")
-        doTask("Ok" /* No Steel payment. */)
         doTask("MiningArea FROM ProjectCard")
         doTask("MiningArea_SpecialTile<Tharsis_3_2>")
         // Resolve the production choice to check that this area supplies a metal bonus.

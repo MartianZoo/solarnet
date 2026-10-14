@@ -70,7 +70,6 @@ internal class LawSuitTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
       doTasks(
-          "Ok" /* No Titanium payment. */,
           "AsteroidCard FROM ProjectCard",
       )
       doTask("TemperatureStep")
@@ -176,7 +175,6 @@ internal class LawSuitTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<HeatTrappers>>", "-6 MC")
       doTasks(
-          "Ok" /* No Steel payment. */,
           "HeatTrappers FROM ProjectCard",
           "PROD[Energy]",
           "PROD[-2 Heat]",
@@ -231,7 +229,6 @@ internal class LawSuitTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
       doTasks(
-          "Ok" /* No Titanium payment. */,
           "AsteroidCard FROM ProjectCard",
       )
       doTask("TemperatureStep")
@@ -241,7 +238,6 @@ internal class LawSuitTest : TfmSandboxTest() {
     rob.inTurn {
       doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
       doTasks(
-          "Ok" /* No Titanium payment. */,
           "SmallAsteroid FROM ProjectCard",
       )
       doTask("TemperatureStep")
@@ -273,7 +269,6 @@ internal class LawSuitTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
       doTasks(
-          "Ok" /* No Titanium payment. */,
           "AsteroidCard FROM ProjectCard",
       )
       doTask("TemperatureStep")
@@ -283,7 +278,6 @@ internal class LawSuitTest : TfmSandboxTest() {
     rob.inTurn {
       doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
       doTasks(
-          "Ok" /* No Titanium payment. */,
           "SmallAsteroid FROM ProjectCard",
       )
       doTask("TemperatureStep")

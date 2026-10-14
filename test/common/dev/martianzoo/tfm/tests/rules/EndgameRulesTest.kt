@@ -265,7 +265,7 @@ internal class EndgameRulesTest : TfmGameplayTest() {
     kim.doTasks("PlayProject<Class<$Sponsors>>", "-3 MC")
     kim.doTasks("PlayProject<Class<$AcquiredCompany>>", "-7 MC")
     kim.doTasks("PlayProject<Class<$Cartel>>", "-5 MC")
-    kim.doTasks("PlayProject<Class<$MirandaResort>>", "-12 MC", "Ok" /* No Titanium payment. */)
+    kim.doTasks("PlayProject<Class<$MirandaResort>>", "-12 MC")
     kim.doTasks("PlayProject<Class<$StandardTechnology>>", "-6 MC")
   }
 

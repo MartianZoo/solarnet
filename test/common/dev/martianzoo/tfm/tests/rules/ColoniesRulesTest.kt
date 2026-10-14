@@ -94,7 +94,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks("PlayProject<Class<ResearchColony>>", "-20 MC")
-      doTasks("Ok" /* No Titanium payment. */, "ResearchColony FROM ProjectCard")
+      doTasks("ResearchColony FROM ProjectCard")
       doTask("2 ProjectCard<Kim, Hand>")
       doTask("Colony<Pluto>")
       doTask("2 ProjectCard<Kim, Hand>")
@@ -198,7 +198,7 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks("PlayProject<Class<ResearchColony>>", "-20 MC")
-      doTasks("Ok" /* No Titanium payment. */, "ResearchColony FROM ProjectCard")
+      doTasks("ResearchColony FROM ProjectCard")
       doTask("2 ProjectCard<Kim, Hand>")
       doTask("Colony<Titan>")
       doTask("3* Floater<ExtractorBalloons>")

@@ -13,7 +13,6 @@ internal class CommercialDistrictTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<CommercialDistrict>>", "-16 MC")
       doTasks(
-          "Ok" /* No Steel payment. */,
           "CommercialDistrict FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[4 MC]",

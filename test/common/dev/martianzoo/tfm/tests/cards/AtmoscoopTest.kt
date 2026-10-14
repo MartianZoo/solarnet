@@ -16,7 +16,7 @@ internal class AtmoscoopTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<Atmoscoop>>", "-22 MC")
-          doTasks("Ok" /* No Titanium payment. */, "Atmoscoop FROM ProjectCard")
+          doTasks("Atmoscoop FROM ProjectCard")
           doTask("2* Floater")
           doTask("2 VenusStep")
           doTask("VenusStep")

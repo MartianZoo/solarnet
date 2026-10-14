@@ -129,7 +129,6 @@ internal class DeadEndsTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
-        doTask("Ok" /* No Titanium payment. */)
         doTasks(
             "SmallAsteroid FROM ProjectCard",
             "-Plant<Stan>",
@@ -147,7 +146,6 @@ internal class DeadEndsTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
           doTasks(
-              "Ok" /* No Titanium payment. */,
               "SmallAsteroid FROM ProjectCard",
               "-Plant<Stan>",
               "TemperatureStep",

@@ -430,9 +430,6 @@ internal class FloodingTest : TfmSandboxTest() {
           "OceanTile<Tharsis_5_4>! THEN -4? MC<Kim>",
           "UseAction<NeptunianOption, Action1>",
       )
-      // Other optional tasks also accept Ok; identify the Steel payment first.
-      selectTask("-X? Steel")
-      doTask("Ok" /* No Steel payment. */)
       // Select Flooding's loss separately from the still-open Neptunian payment.
       selectTask("-4? MC")
       doTask("-4 MC")

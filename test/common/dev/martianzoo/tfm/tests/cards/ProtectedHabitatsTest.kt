@@ -56,7 +56,6 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
     shouldThrow<DeadEndException> {
       stan.inTurn {
         doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-        doTask("Ok" /* No Titanium payment. */)
         doTask("AsteroidCard FROM ProjectCard")
         doTask("TemperatureStep")
         doTask("2 Titanium")

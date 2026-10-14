@@ -26,10 +26,7 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
-          // Other optional tasks also accept Ok; identify the Titanium payment first.
-          selectTask("-X? Titanium")
-          doTask("Ok" /* No Titanium payment. */)
-          doTasks("Ok" /* No Steel payment. */, "SummitLogistics FROM ProjectCard")
+          doTasks("SummitLogistics FROM ProjectCard")
           doTask("3 MC")
           doTask("2 ProjectCard<Kim, Hand>")
         }
@@ -48,10 +45,7 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
     kim.exMachina("2 PartyDelegate<Scientists>")
     kim.inTurn {
           doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
-          // Other optional tasks also accept Ok; identify the Titanium payment first.
-          selectTask("-X? Titanium")
-          doTask("Ok" /* No Titanium payment. */)
-          doTasks("Ok" /* No Steel payment. */, "SummitLogistics FROM ProjectCard")
+          doTasks("SummitLogistics FROM ProjectCard")
           doTask("0 MC")
           doTask("2 ProjectCard<Kim, Hand>")
         }
@@ -68,10 +62,7 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
-          // Other optional tasks also accept Ok; identify the Titanium payment first.
-          selectTask("-X? Titanium")
-          doTask("Ok" /* No Titanium payment. */)
-          doTasks("Ok" /* No Steel payment. */, "SummitLogistics FROM ProjectCard")
+          doTasks("SummitLogistics FROM ProjectCard")
           doTask("6 MC")
           doTask("2 ProjectCard<Kim, Hand>")
         }

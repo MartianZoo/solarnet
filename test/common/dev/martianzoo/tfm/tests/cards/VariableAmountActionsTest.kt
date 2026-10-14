@@ -42,7 +42,6 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Energy Market accepts Heat instead of MC for FakeHelion`() {
-    // Its starting purchase offers Heat payment, which this test declines explicitly.
     newTestGameBeforeCorporationPlay(addOptions = "fakes:cards")
     kim.inTurn {
       doTasks(
@@ -51,9 +50,7 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
           "42 MC",
           "PROD[3 Heat]",
       )
-      // Other optional tasks also accept Ok; identify the Heat payment first.
-      selectTask("-X? Heat")
-      doTasks("Ok" /* No Heat payment. */, "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
+      doTasks("-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
     kim.exMachina("$EnergyMarket")

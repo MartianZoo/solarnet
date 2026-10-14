@@ -46,9 +46,6 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
           )
           kim.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
           doTask("2 Steel")
-          // Other optional tasks also accept Ok; identify the Steel payment first.
-          kim.selectTask("-X? Steel")
-          kim.doTask("Ok" /* No Steel payment. */)
           kim.doTask("-5 MC")
           kim.doTask("PROD[Energy]")
           kim.doTask("Hydroelectric<NeptunianPowerConsultants>")

@@ -58,7 +58,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
     initializeGame()
     kim.inTurn {
           doTasks("PlayProject<Class<PhysicsComplex>>", "-12 MC")
-          doTasks("Ok" /* No Steel payment. */, "PhysicsComplex FROM ProjectCard")
+          doTasks("PhysicsComplex FROM ProjectCard")
           doTask("TerraformRating FROM Disease<PharmacyUnion>")
         }
         .expect("-Disease<$PharmacyUnion>, TerraformRating")
@@ -125,7 +125,7 @@ internal class PharmacyUnionTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<PhysicsComplex>>", "-12 MC")
-      doTasks("Ok" /* No Steel payment. */, "PhysicsComplex FROM ProjectCard")
+      doTasks("PhysicsComplex FROM ProjectCard")
       doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
     }
   }

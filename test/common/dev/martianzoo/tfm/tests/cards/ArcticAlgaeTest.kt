@@ -48,7 +48,6 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
       doTasks("TerraformRating", "ProjectCard")
       stan.doTask("2 Plant")
       doTask("-6 Plant<Stan>")
-      doTask("Ok" /* No Titanium payment. */)
       doTask("PlayedEvent<Class<GiantIceAsteroid>> FROM GiantIceAsteroid")
     }
   }
@@ -60,7 +59,6 @@ internal class ArcticAlgaeTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<GiantIceAsteroid>>", "-36 MC")
       doTasks(
-          "Ok" /* No Titanium payment. */,
           "GiantIceAsteroid FROM ProjectCard",
       )
       doTask("TemperatureStep")

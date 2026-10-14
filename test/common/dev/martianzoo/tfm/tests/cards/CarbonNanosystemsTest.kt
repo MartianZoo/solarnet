@@ -22,7 +22,6 @@ internal class CarbonNanosystemsTest : TfmSandboxTest() {
       // Resolve the optional attack: no unprotected plant target is available.
       selectTask("-3? Plant<Anyone>")
       doTask("TerraformRating")
-      doTask("Ok" /* No Titanium payment. */)
       doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
   }
@@ -44,7 +43,6 @@ internal class CarbonNanosystemsTest : TfmSandboxTest() {
       // Resolve the optional attack: no unprotected plant target is available.
       selectTask("-3? Plant<Anyone>")
       doTask("TerraformRating")
-      doTask("Ok" /* No Titanium payment. */)
       doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
     }
   }

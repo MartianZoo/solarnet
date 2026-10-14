@@ -293,7 +293,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       // Other optional tasks also accept Ok; identify the MC payment first.
       selectTask("-X? MC")
       doTask("Ok" /* No MC payment. */)
-      doTasks("Ok" /* No Steel payment. */, "CityTile<Tharsis_7_4>", "PROD[MC]")
+      doTasks("CityTile<Tharsis_7_4>", "PROD[MC]")
     }
 
     kim.assertProds(2 to "MC", 1 to "Energy")
@@ -320,7 +320,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       selectTask("-2* Owed")
       doTask("-2 RobotUnit<Kim, Class<Mine>>")
       doTask("-2 MC")
-      doTasks("Ok" /* No Steel payment. */, "Mine FROM ProjectCard", "PROD[Steel]")
+      doTasks("Mine FROM ProjectCard", "PROD[Steel]")
     }
 
     kim.assertCounts(0 to "ProjectCard", 1 to "$Mine")
@@ -360,7 +360,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           // Other optional tasks also accept Ok; identify the MC payment first.
           selectTask("-X? MC")
           doTask("Ok" /* No MC payment. */)
-          doTask("Ok" /* No Steel payment. */)
         }
         .expect("0 MC")
 
@@ -409,7 +408,6 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           // Other optional tasks also accept Ok; identify the MC payment first.
           selectTask("-X? MC")
           doTask("Ok" /* No MC payment. */)
-          doTask("Ok" /* No Steel payment. */)
         }
         .expect("0 MC")
 
@@ -630,7 +628,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           selectTask("-2* Owed")
           doTask("-2 RobotUnit<Kim, Class<ResearchOutpost>>")
           doTask("-16 MC")
-          doTasks("Ok" /* No Steel payment. */, "ResearchOutpost FROM ProjectCard")
+          doTasks("ResearchOutpost FROM ProjectCard")
           // Resolve the exchange offer: the empty hand leaves no card to discard.
           selectTask("(-ProjectCard<Kim, Hand>! THEN ProjectCard<Kim, Hand>!) OR Ok")
           doTasks("CityTile<Tharsis_4_2>", "Plant")
@@ -906,7 +904,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     }
     return kim.inTurn {
       doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
-      doTasks("Ok" /* No Titanium payment. */, "L1TradeTerminal FROM ProjectCard")
+      doTasks("L1TradeTerminal FROM ProjectCard")
       // Expand the bonus into a separate resource choice for each eligible card.
       selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
       choice()

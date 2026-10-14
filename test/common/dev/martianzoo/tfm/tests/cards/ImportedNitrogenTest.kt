@@ -20,7 +20,6 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<ImportedNitrogen>>", "-23 MC")
           doTasks(
-              "Ok" /* No Titanium payment. */,
               "ImportedNitrogen FROM ProjectCard",
               "TerraformRating",
               "4 Plant",
@@ -45,7 +44,6 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks("PlayProject<Class<ImportedNitrogen>>", "-23 MC")
           doTasks(
-              "Ok" /* No Titanium payment. */,
               "ImportedNitrogen FROM ProjectCard",
               "TerraformRating",
               "4 Plant",
@@ -69,7 +67,6 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
     shouldThrow<NarrowingException> {
       kim.inTurn {
         doTasks("PlayProject<Class<ImportedNitrogen>>", "-23 MC")
-        doTask("Ok" /* No Titanium payment. */)
         doTask("ImportedNitrogen FROM ProjectCard")
         doTask("TerraformRating")
         doTask("4 Plant")

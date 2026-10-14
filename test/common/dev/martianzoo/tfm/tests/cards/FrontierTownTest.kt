@@ -15,7 +15,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-      doTasks("Ok" /* No Steel payment. */, "FrontierTown FROM ProjectCard")
+      doTasks("FrontierTown FROM ProjectCard")
       doTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Amazonis_02_02>")
       doTask("-FrontierTownBonus!")
@@ -33,7 +33,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-      doTasks("Ok" /* No Steel payment. */, "FrontierTown FROM ProjectCard")
+      doTasks("FrontierTown FROM ProjectCard")
       doTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Hellas_9_7>")
       doTask("-FrontierTownBonus!")
@@ -65,7 +65,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-      doTasks("Ok" /* No Steel payment. */, "FrontierTown FROM ProjectCard")
+      doTasks("FrontierTown FROM ProjectCard")
       doTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Cimmeria_3_3>")
       doTask("-FrontierTownBonus!")
@@ -99,7 +99,6 @@ internal class FrontierTownTest : TfmSandboxTest() {
     shouldThrow<DependencyException> {
       kim.inTurn {
         doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-        doTask("Ok" /* No Steel payment. */)
         doTask("FrontierTown FROM ProjectCard")
         doTask("FrontierTownBonus!")
         doTask("PROD[-Energy]")
@@ -138,7 +137,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
-      doTasks("Ok" /* No Steel payment. */, "FrontierTown FROM ProjectCard")
+      doTasks("FrontierTown FROM ProjectCard")
       doTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Tharsis_4_5>")
       doTask("-FrontierTownBonus!")
