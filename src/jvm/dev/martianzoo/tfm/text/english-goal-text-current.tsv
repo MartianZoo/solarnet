@@ -18,13 +18,13 @@ Landshaper	Landshaper	Requires that you have 1 city tile, 1 greenery tile, 1 spe
 Legend	Legend	Requires that you have 4 cards in your event pile.
 Mayor	Mayor	Requires that you have 3 city tiles.
 Merchant	Merchant	Requires that you have 2 M€, 2 steel, 2 titanium, 2 plants, 2 energy, and 2 heat.
-Metallurgist	Metallurgist	Requires that you have 6 titanium or steel production.
+Metallurgist	Metallurgist	Requires that you have 6 steel and titanium production combined.
 Philantropist	Philantropist	[5 Class<@CardFront>(HAS @CardFront, HAS GainsOf<Class<VictoryPoint>>)].
 Pioneer	Pioneer	Requires that you have 4 colonies.
 Planetologist	Planetologist	Requires 2 Earth tags, 2 Venus tags, and 2 Jovian tags.
 Planner	Planner	Requires that you have 16 cards in hand.
-Producer	Producer	Requires that you have 16 standard resource production.
-Producer22	Producer	Requires that you have 22 standard resource production.
+Producer	Producer	Requires that you have 16 M€, steel, titanium, plant, energy, and heat production combined.
+Producer22	Producer	Requires that you have 22 M€, steel, titanium, plant, energy, and heat production combined.
 Researcher	Researcher	Requires 4 science tags.
 RimSettler	Rim Settler	Requires 3 Jovian tags.
 Spacefarer	Spacefarer	Requires 4 space tags.
@@ -70,7 +70,7 @@ Visionary	Visionary	Most cards in hand.
 Zoologist	Zoologist	Most animals and microbes combined.
 Agronomist	Agronomist	Requires 4 plant tags.
 Architect	Architect	Requires 3 city tags.
-Blacksmith	Blacksmith	Highest titanium or steel production.
+Blacksmith	Blacksmith	Highest steel and titanium production combined.
 DesertSettler	Desert Settler	[OwnedTile<MarsArea(HAS 6 row)>].
 Hoverlord	Hoverlord	Requires that you have 7 floaters.
 Hydrologist	Hydrologist	[4 OceanCredit].

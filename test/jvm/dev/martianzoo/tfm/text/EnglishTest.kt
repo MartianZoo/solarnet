@@ -13,6 +13,7 @@ import dev.martianzoo.pets.types.Class
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.fake.FakeCanon
+import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -38,17 +39,19 @@ internal class EnglishTest {
     goals.keys.toList() shouldBe published.keys.toList()
     current.keys.toList() shouldBe published.keys.toList()
     corrected.keys.toList() shouldBe published.keys.toList()
-    current.forEach { (cardFront, expected) ->
-      withClue(cardFront.toString()) {
-        val card = catalog.classTable.getClass(cardFront)
-        val rendering = publishedEnglish.renderCard(card)
-        expected.englishName shouldBe published.getValue(cardFront).englishName
-        expected.englishName shouldBe corrected.getValue(cardFront).englishName
-        expected.englishName.contains("Fake", ignoreCase = true) shouldBe false
-        rendering.top shouldBe expected.top
-        rendering.bottom shouldBe expected.bottom
-        countRenderedPetsFallbacks(rendering.top) +
-            countRenderedPetsFallbacks(rendering.bottom) shouldBe rendering.unresolved.size
+    assertSoftly {
+      current.forEach { (cardFront, expected) ->
+        withClue(cardFront.toString()) {
+          val card = catalog.classTable.getClass(cardFront)
+          val rendering = publishedEnglish.renderCard(card)
+          expected.englishName shouldBe published.getValue(cardFront).englishName
+          expected.englishName shouldBe corrected.getValue(cardFront).englishName
+          expected.englishName.contains("Fake", ignoreCase = true) shouldBe false
+          rendering.top shouldBe expected.top
+          rendering.bottom shouldBe expected.bottom
+          countRenderedPetsFallbacks(rendering.top) +
+              countRenderedPetsFallbacks(rendering.bottom) shouldBe rendering.unresolved.size
+        }
       }
     }
   }

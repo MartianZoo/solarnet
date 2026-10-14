@@ -290,14 +290,9 @@ Keep tasks brief; linked notes and tests carry the background.
 
 ## Autonomous Follow-ups
 
-- Reconcile the Valley Trust English snapshot: `EnglishTest` expects its Prelude action text, but
-  the renderer currently emits `[ValleyTrust_RequiredAction]`. Restore `:tfm-text` tests to the
-  standard build once the English suite passes.
 - Refresh [English wording comparisons](docs/english-wording-comparisons/README.md) from current
   Canon using `writeEnglishTextComparisons`.
 
-- Clarify combined-production requirement wording: Metallurgist counts steel and titanium
-  production together. Add a focused assertion.
 - Render conditional choices between standard and required actions from shared semantics;
   `FakeHeadStart` currently shows bracketed Pets.
 - Model when a Prelude may fizzle; `PlayPrelude` currently leaves that check to the caller.
@@ -313,8 +308,8 @@ Keep tasks brief; linked notes and tests carry the background.
   principled bundle-supplied description of the phase/latch relationship; do not add a Prelude-only
   boolean merely to relocate the class name.
 - Render the five beginner corporation copies from their inherited modeled setup semantics.
-- Complete the three visible goal-text refusals only from modeled semantics: Briber's direct effect
-  claim instruction, Philantropist's `GainsOf` metric, and Suburbian's map-edge concept.
+- Complete the remaining goal-text refusals from modeled semantics, including Briber's direct
+  effect claim instruction, Philantropist's `GainsOf` metric, and the unsupported map relations.
 - Finish Global Event text from modeled semantics for ranked selections, resource-card fanout,
   and procedure bodies. Keep unsupported nodes visible.
 - Fill the missing printed transcriptions identified in

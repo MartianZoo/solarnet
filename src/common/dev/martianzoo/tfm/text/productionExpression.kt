@@ -23,14 +23,14 @@ internal fun productionCategoryExpression(
       describers.plainGainCategoryNoun(production.resource, 1) != null
     }
 
-internal fun refinedProductionCategoryExpressions(
+internal fun countedProductionCategories(
     expression: Expression,
     describers: Describers,
 ): List<ProductionExpression>? {
   val resolved = describers.resolveExpression(expression) ?: return null
   if (!describers.isProduction(resolved.type.rootClass.className)) return null
   val resource = resolved.dependency(Key(PRODUCTION, 0)) ?: return null
-  if (resource.refinement == null) return null
+  if (resource.refinement == null && resource.representedClass?.abstract != true) return null
   val ownerKey = Key(OWNED, 0)
   if (resolved.dependency(ownerKey) == null) return null
   val owner = resolved.sourceDependency(ownerKey)?.takeUnless { it == describers.ownerExpression }

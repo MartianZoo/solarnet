@@ -1,14 +1,5 @@
 plugins { id("solarnet.kmp-jvm-js") }
 
-// English snapshots are run explicitly while their current Canon wording is being reconciled.
-// Keep test tasks available, but do not make this module's check (and build) run them.
-tasks.named("check") {
-  setDependsOn(
-      dependsOn -
-          setOf(tasks.named("jvmTest"), tasks.named("jsBrowserTest"), tasks.named("allTests"))
-  )
-}
-
 val textSourceDirectory =
     rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/text")
 val coloniesEnglishSourceDirectory =
