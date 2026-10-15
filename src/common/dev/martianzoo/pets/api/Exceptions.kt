@@ -6,7 +6,8 @@ import dev.martianzoo.pets.types.Type
 public object Exceptions {
   /**
    * A diagnosed domain failure, optionally tied to an authored occurrence. Subtypes distinguish
-   * expected gameplay rejection from invalid definitions, requests, and custom code failures.
+   * expected gameplay rejection from invalid definitions, requests, resource limits, and custom
+   * code failures.
    */
   public sealed class DomainException(
       public val detail: String,
@@ -119,6 +120,17 @@ public object Exceptions {
   ) : GameplayException(message, cause)
 
   // Other domain failures
+
+  /**
+   * Pets processing stopped at an implementation resource limit, such as parser nesting, class
+   * construction depth, or automatic-effect depth. The input may be valid; this failure does not
+   * establish that a gameplay choice is illegal or impossible. The message identifies the limit.
+   */
+  public class ResourceLimitException(
+      message: String,
+      cause: Throwable? = null,
+      sourceLocation: SourceLocation? = null,
+  ) : DomainException(message, cause, sourceLocation)
 
   /** A structurally understandable game configuration cannot produce the requested premise. */
   public class InvalidGameConfigException(

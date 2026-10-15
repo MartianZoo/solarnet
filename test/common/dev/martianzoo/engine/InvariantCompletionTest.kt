@@ -2,17 +2,16 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.engine.Exceptions.RunawayEffectChainException
-import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
+import dev.martianzoo.pets.api.Exceptions.ResourceLimitException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldStartWith
 import kotlin.test.Test
 
 internal class InvariantCompletionTest {
@@ -578,11 +577,9 @@ internal class InvariantCompletionTest {
     val admin = world.testAgent(ADMIN)
     val before = world.timeline.checkpoint()
 
-    val failure = shouldThrow<RunawayEffectChainException> { admin.runOperation("Seed!") }
+    val failure = shouldThrow<ResourceLimitException> { admin.runOperation("Seed!") }
 
-    failure.maximumDepth shouldBe 8
-    failure.effectChain.size shouldBe 9
-    failure.effectChain.first().instructions.single() shouldBe parse<Instruction>("Assembly!")
+    failure.detail shouldStartWith "automatic effect chain exceeded depth 8: Assembly! -> "
     world.timeline.checkpoint() shouldBe before
     world.tasks.isEmpty() shouldBe true
     admin.count("Seed") shouldBe 0

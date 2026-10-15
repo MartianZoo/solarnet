@@ -338,9 +338,11 @@ attribution.
 
 Queued `:` effects produce pending Tasks. Automatic `::` effects execute recursively before queued
 effects from the same change are admitted. The recursion limit is eight nested automatic effects;
-exceeding it fails the enclosing operation atomically. Because automatic effects create no Task,
-their instructions cannot use instruction-side `BY`. Read [SEQUENCING.md](SEQUENCING.md) before
-using `:` versus `::` to force an order.
+exceeding it raises the shared Pets `ResourceLimitException` and rolls back the enclosing operation.
+Parser and class-loading resource limits use the same exception. Task selection and execution
+probes propagate it rather than reporting an unavailable choice. Because automatic effects create
+no Task, their instructions cannot use instruction-side `BY`. Read [SEQUENCING.md](SEQUENCING.md)
+before using `:` versus `::` to force an order.
 
 ## Queries, invariants, and dead ends
 
