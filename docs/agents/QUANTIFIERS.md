@@ -71,8 +71,10 @@ same World. Quantifiers do not preserve trigger-time target existence.
 
 Resolution checks execution prerequisites and calculates quantities; it does not predict whether
 the completed operation will satisfy count invariants. Mandatory choices can lead to recoverable
-dead ends. Exploring and pruning those branches for a client belongs to its Agent, not engine
-resolution.
+dead ends. Exploring and pruning those branches belongs to the player's agent or client, not
+engine resolution. Under the [universal design assumption](../../AGENTS.md#decision-tree-pruning-belongs-to-the-players-agent-or-client),
+either the caller presents only choices known not to dead-end the turn or exposing dead ends is
+acceptable; a missing pruner does not justify changing quantifier semantics.
 
 ## Invariants at operation completion
 

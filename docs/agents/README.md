@@ -16,6 +16,13 @@ they should not own detailed design decisions. Bounded loose work lives in [`TOD
 Read [`VALUES.md`](VALUES.md) before designing, implementing, or reviewing a behavior or
 architecture change. Then choose the narrowest relevant note:
 
+Always apply the [decision-tree principle](../../AGENTS.md#decision-tree-pruning-belongs-to-the-players-agent-or-client):
+assume the player's agent or client presents only choices known not to dead-end the turn, or accept
+that dead ends are exposed.
+Do not treat missing pruning as an engine or Pets modeling issue. Protected Habitats rejecting an
+attempted theft through a later dead end and rollback is valid. The engine note owns the detailed
+explanation; the autoexecution note owns optional pruning policy.
+
 | Subject | Read |
 | --- | --- |
 | Live World construction, components, tasks, effects, transactions, rollback, or Agent responsibilities | [`ENGINE.md`](ENGINE.md) |

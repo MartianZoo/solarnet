@@ -87,6 +87,12 @@ do not reopen this as an unresolved marker-identity question.
 
 ## Inclusion rule
 
+**An exposed dead end is not a hack or defect.** Apply the
+[decision-tree principle](../../AGENTS.md#decision-tree-pruning-belongs-to-the-players-agent-or-client):
+the player's agent or client handles pruning, or we accept unsuccessful paths. Do not add an entry
+merely because a choice fails later or requires rollback, even if no pruner exists. Protected
+Habitats is valid as modeled; it needs no precheck to prevent an attempted plant theft.
+
 A **truthful** implementation makes the game changes its rules actually call for. Another card
 can observe them without needing special knowledge of its implementation. Rejecting an illegal
 operation by rolling back its changes, consequences, and history counts as truthful: Protected

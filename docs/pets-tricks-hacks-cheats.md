@@ -72,13 +72,18 @@ scope established by its instruction, effect or `EACH` selector.
 
 ## 6. Let an illegal event happen, then make the operation dead-end
 
-An automatic `:: Die` listener can reject a bad operation *after* its triggering change. The
-enclosing transaction rolls back that change, its consequences, tasks and history. This is the
-large hack: the rule can describe the forbidden result directly, without prechecking every path by
-which somebody might produce it. It is appropriate only when a dead end rejects the entire
-operation; it does not make an already committed result harmless.
+A `Die` consequence can reject a path *after* its triggering change. An automatic `:: Die`
+fails within the triggering operation; a queued `: Die` can expose the dead end later. Failure
+rolls back its encompassing transaction; if earlier commands already succeeded, the caller must
+roll back farther to abandon the unsuccessful path, potentially the turn.
 
-- **Protected Habitats:** [`-Plant OR -Animal OR -Microbe BY Player(NOT Me@Owner):: Die`](../src/common/dev/martianzoo/tfm/canon/bundles/corpera/cards.json5) catches an opponent's attack regardless of which action caused the removal. The attempted removal rolls back.
+This is valid modeling. The engine and model enforce the rule without prechecking every path
+that could violate it. Universally assume either that the player's agent or client presents only
+choices known not to dead-end the turn, or that exposing dead ends is acceptable. Missing pruning
+does not make this a defect or require a different card model. The prohibited result must not
+survive successful turn completion.
+
+- **Protected Habitats:** [`-Plant OR -Animal OR -Microbe BY Player(NOT Me@): Die`](../src/common/dev/martianzoo/tfm/canon/bundles/corpera/cards.json5) queues a consequence of an opponent's attack regardless of which action caused the removal. An opponent may attempt to take a plant, but that path dead-ends and requires rollback. There is nothing wrong with exposing that choice.
 - **Global parameter completion:** [`-@GlobalParameter:: Die`](../src/common/dev/martianzoo/tfm/canon/bundles/base/board.pets) rejects any later attempt to lower a completed track, no matter which card or event requested it.
 
 The same rollback pattern protects the Mars Nomads marker through its ordinary `: Die` effect.
