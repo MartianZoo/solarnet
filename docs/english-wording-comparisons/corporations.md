@@ -716,7 +716,7 @@ Class: `MonsInsurance`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | You start with 48 M€. Increase your M€ production 4 steps. ALL OPPONENTS DECREASE THEIR M€ PRODUCTION 2 STEPS. THIS DOES NOT TRIGGER THE EFFECT BELOW. | Effect: When a player causes another player to decrease production or lose resources, pay 3 M€ to the victim, or as much as possible. |
-| Generated text | Gain 48 M€. Increase your M€ production 4 steps. Each other player decreases their own M€ production 2 steps. | Effect: When any player has their resources removed by another player, pay 3 M€ to that player, or as much as possible. When any player has their production decreased by another player, pay 3 M€ to that player, or as much as possible. |
+| Generated text | Gain 48 M€. Increase your M€ production 4 steps. Each other player decreases their own M€ production 2 steps. | Effect: When any player has their resources removed by another player, pay 3 M€ to that player (to the extent possible). When any player has their production decreased by another player, pay 3 M€ to that player (to the extent possible). |
 
 Pets declaration:
 

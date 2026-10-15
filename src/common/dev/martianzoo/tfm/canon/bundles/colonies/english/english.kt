@@ -73,8 +73,6 @@ internal val coloniesEnglishDeclarations: List<Pair<ClassName, ComponentDescribe
                         paymentDiscount =
                             ComponentDescriber.PaymentDiscount(
                                 "use the Trade standard action",
-                                categoryNoun =
-                                    ComponentDescriber.Noun.Counted("resource", "resources"),
                             ),
                     ),
             ),

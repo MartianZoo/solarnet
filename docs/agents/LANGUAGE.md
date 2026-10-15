@@ -108,6 +108,14 @@ for every fake wild tag, placing it below the artwork with the card's play-time 
 derivation. These serve contexts that already established a narrower semantic role; do not use them
 to recreate a competing general expression dispatcher.
 
+`cardCriterionModifier` owns the shared tag, property-presence, and icon filter wording for card
+searches and metrics. Callers retain their context-specific restrictions and choice of an attributive
+tag name versus a `with` modifier. `renderPropertyThreshold` shares numeric property comparisons
+between metrics and event triggers; action-use triggers retain their positive-value shorthand.
+Payment effects and persistent value grants share `renderExtraResourceValue` after their separate
+recognizers establish the resource and value. The best-effort qualifier is `Modifier.BEST_EFFORT`;
+modifier ordering must use that shared value rather than independently spelling its text.
+
 `ChangeFrame` is the one axis that got this right: a closed classification, dispatched exhaustively,
 declared as data. Treat it as the template, not as a finished job.
 

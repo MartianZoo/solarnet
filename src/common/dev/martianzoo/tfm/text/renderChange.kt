@@ -42,7 +42,7 @@ internal fun renderChange(
   val rendered =
       renderChangeOrNull(mandatory, expression, describers, references) as? Clause.Simple
           ?: return null
-  return rendered.withModifier(Modifier.Parenthetical("to the extent possible"))
+  return rendered.withModifier(Modifier.BEST_EFFORT)
 }
 
 internal fun changeRefusalReason(
@@ -83,9 +83,6 @@ private fun renderChangeOrNull(
     renderCardBackExchange(instruction, describers)?.let {
       return it
     }
-    renderPlayedEventRecovery(instruction, describers)?.let {
-      return it
-    }
     renderCardResourceDrawExchange(instruction, describers)?.let {
       return it
     }
@@ -119,7 +116,6 @@ private fun renderChangeOrNull(
       is ComponentDescriber.ChangeFrame.CountedProcedure ->
           renderCountedProcedure(instruction, frame, describers)
       is ComponentDescriber.ChangeFrame.State -> renderStateChange(instruction, frame, describers)
-      is ComponentDescriber.ChangeFrame.CappedProcedure -> null
       is ComponentDescriber.ChangeFrame.ScopedInstruction -> null
       ComponentDescriber.ChangeFrame.RequiredAction -> renderRequiredAction(instruction, describers)
       ComponentDescriber.ChangeFrame.NextCardEffect -> renderNextCardEffect(instruction, describers)
@@ -197,7 +193,6 @@ private fun changeRefusalReason(
     is ComponentDescriber.ChangeFrame.Procedure,
     is ComponentDescriber.ChangeFrame.CountedProcedure,
     is ComponentDescriber.ChangeFrame.State,
-    is ComponentDescriber.ChangeFrame.CappedProcedure,
     is ComponentDescriber.ChangeFrame.ScopedInstruction,
     ComponentDescriber.ChangeFrame.RequiredAction,
     ComponentDescriber.ChangeFrame.NextCardEffect,
@@ -346,16 +341,6 @@ private fun renderCardDrawOrLook(
   }
   val count = gain.count.fixedQuantity() ?: return null
   return clause("draw", describers.quantifiedComponentNounPhrase(gain.gaining.className, count))
-}
-
-internal fun standardResourceGain(
-    instruction: Instruction,
-    describers: Describers,
-): Pair<ClassName, Int>? {
-  val (className, count) = concreteMandatoryGain(instruction) ?: return null
-  return (className to count).takeIf {
-    describers.concrete(className) && describers.isStandardResource(className)
-  }
 }
 
 private fun renderProcedure(
@@ -530,7 +515,7 @@ private fun renderNextCardEffect(
       declaration.authoredEffects.singleOrNull()?.let(describers::prepareForRendering)
           ?: return null
   paymentDiscount(effect, describers)?.let { discount ->
-    if (discount.categoryReduction || discount.reduction.count == 0) return null
+    if (discount.reduction.count == 0) return null
     val trigger =
         Clause.Simple(
             subject = NounPhrase.you(),
@@ -1107,14 +1092,6 @@ private fun concreteMandatoryGain(instruction: Instruction): Pair<ClassName, Int
   if (!gain.gaining.simple) return null
   val count = gain.count.fixedQuantity() ?: return null
   return gain.gaining.className to count
-}
-
-private fun concreteMandatoryRemoval(instruction: Instruction): Pair<ClassName, Int>? {
-  val removal = instruction as? Remove ?: return null
-  if (removal.quantifier.modality() != Modality.REQUIRED) return null
-  if (!removal.removing.simple) return null
-  val count = removal.count.fixedQuantity() ?: return null
-  return removal.removing.className to count
 }
 
 private fun Describers.renderCardResourceHolder(expression: Expression): NounPhrase? {

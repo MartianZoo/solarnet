@@ -97,11 +97,6 @@ internal data class ComponentDescriber(
         internal val ownershipTransfers: Map<ClassName, Procedure> = emptyMap(),
     ) : ChangeFrame
 
-    public data class CappedProcedure(
-        internal val verb: String,
-        internal val noun: Noun.Counted,
-    ) : ChangeFrame
-
     public data class ScopedInstruction(internal val resultModifier: String) : ChangeFrame
 
     public data object RequiredAction : ChangeFrame
@@ -240,7 +235,6 @@ internal data class ComponentDescriber(
 
   internal data class PaymentDiscount(
       internal val predicate: String,
-      internal val categoryNoun: Noun.Counted? = null,
       internal val objectPronoun: Boolean = true,
   )
 
@@ -256,6 +250,5 @@ internal data class ComponentDescriber(
   internal enum class PaymentRole {
     OWED,
     ACCEPTANCE,
-    BARRIER,
   }
 }
