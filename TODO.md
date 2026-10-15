@@ -100,13 +100,20 @@ Delete entries when they are done.
 - Refresh the remaining `docs/english-wording-comparisons/` entries against current Canon and
   rendering. Entries touched by the delegate work are current; older entries still show previous
   invariant declarations and wording.
+- Continue the selected-task English experiment using `English.describe(instruction, player)`.
+  Preserve named awards and card-play targets; support other-player resource changes, variable
+  payments, and remaining selection/reveal operations. Recognized Audit steps are omitted; interpret
+  remaining billing obligations before hiding any additional bookkeeping. The local input is
+  `_local/replay-selected-task-instructions.txt`; the comparison is `_local/replay-task-english.txt`.
+  Do not treat bracket-free counts as UI readiness.
+
 - Share the `NonNegativeIconsOf` citation scan between gameplay and English; both currently walk
   authored effects independently, so a later change to the icon rule could make their answers differ.
   Briber's self-claim requirement still appears as `[Briber]`; keep it separate from the direct
   `Lose 12 M€` effect. The marked-variable references now follow recorded occurrences, but the older
   interaction-trigger Anyone-to-Player normalization still supplies an implicit `that player`.
-- Finish Head Start's English setup wording: its Audit marker and action-choice signals still
-  appear as bracketed Pets after removing the exact-expression substitution.
+- Finish Head Start's English setup wording: its gated action-choice signals still appear as
+  bracketed Pets after removing the exact-expression substitution.
 - Replace recursive task-ancestry list concatenation with linear construction, and avoid rebuilding
   the target's ancestry when comparing matching tasks. Preserve recorded task disambiguation.
 - Reduce repeated parsing during game-file decoding and reuse the full export already produced

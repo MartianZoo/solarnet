@@ -29,9 +29,14 @@ internal class English(
   internal fun describe(actions: List<Action>): String =
       renderActions(actions, describers).linearize()
 
-  /** Returns complete, context-neutral English sentences describing [instructionTree]. */
-  internal fun describe(instructionTree: InstructionTree): String =
-      renderInstructionTree(instructionTree, describers).linearize()
+  /** Describes [instructionTree], optionally addressing the named [player] as "you". */
+  internal fun describe(instructionTree: InstructionTree, player: ClassName? = null): String =
+      renderInstructionTree(
+              player?.let { playerRelativeInstruction(instructionTree, it, describers) }
+                  ?: instructionTree,
+              describers,
+          )
+          .linearize()
 
   /** Returns complete English sentences describing [requirement]. */
   internal fun describe(requirement: Requirement): String =

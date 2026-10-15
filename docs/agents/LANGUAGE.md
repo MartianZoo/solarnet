@@ -389,6 +389,30 @@ Tags remain card metadata. Lexical `Me` references mean the current owner; a nam
 must explicitly target its selected player, while `EACH Me@Player` rebinds ownership in its body.
 Event attribution uses `Actor`, independently of ownership.
 
+Standalone `English.describe(instruction, player)` optionally addresses a concrete player as
+`you`. `playerRelativeInstruction` rewrites the AST before interpretation, omitting that player's
+ownership only when the remaining arguments keep their dependency roles. Compact transfers are
+expanded to preserve both endpoints; `BY` retains its actor and can say `performed by you`.
+Instructions already containing a lexical `Me` are left unchanged to avoid capturing a fanout's
+owner. This is an internal experimental entry point, not a public gameplay-UI API.
+Concrete card selectors, placement sites, named card-resource holders, and card action providers
+retain their names; explicit action slots remain visible. For named content targets (cards, goals, colony tiles, parties, and similar selected items),
+use literal Class Names directly. The owner explicitly authorized this policy; do not add per-item
+describers merely to supply display names. Procedure `targetRelation` also
+supports named placement sites (such as trading with a colony tile). Explicit `Hand` gains/removals
+use the ordinary draw/discard wording; discards from `Selecting` and `Revealed` name their source.
+Typed resource destinations use "any card" when their resource type matches the change, retaining
+extra restrictions such as a science tag; removals retain "your" ownership. Optional changes
+preserve the quantity and target. Only mandatory discards are phrased as costs for a later result;
+optional discards retain sequential wording so the reward remains unconditional. Explicit
+resource-payment transmutations say "spend", using the existing payment-event interpretation;
+actions and standard projects retain their provider and explicit slot. A sequence inside an OR
+branch is parenthesized, and coordination must not flatten AND objects into OR alternatives.
+Readable output is not proof of complete task rendering: named award/card-play targets, variable
+payments, and additional internal bookkeeping remain follow-ups in `TODO.md`. Recognized `Audit`
+gains are omitted from instruction groups/sequences with the owner's approval; payment obligations,
+gates, and unknown System work are not suppressed.
+
 The once-per-action production reward recognizer accepts a fixed marker gain either as an
 automatic effect or as queued `System` work performed by Admin. Its unit limit, production trigger,
 and consume-on-reward structure still determine the rendered rule. Action resets come from the

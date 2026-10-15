@@ -60,7 +60,8 @@ internal val coloniesEnglishDeclarations: List<Pair<ClassName, ComponentDescribe
             ComponentDescriber(
                 changeFrame = Frame.Scale("production track", "increase", "decrease")
             ),
-        cn("Trade") to ComponentDescriber(changeFrame = Frame.Procedure("trade")),
+        cn("Trade") to
+            ComponentDescriber(changeFrame = Frame.Procedure("trade", targetRelation = "with")),
         cn("TradeAction") to
             ComponentDescriber(
                 changeFrame = Frame.Procedure("use", "the Trade standard action"),

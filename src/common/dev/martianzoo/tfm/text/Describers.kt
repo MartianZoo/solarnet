@@ -314,6 +314,9 @@ private constructor(
         null -> unCamelCase(className.toString())
       }
 
+  internal fun namedComponent(className: ClassName): NounPhrase =
+      NounPhrase.text(className.toString())
+
   internal fun plainGainNoun(className: ClassName, count: Int): String? =
       componentNoun(className, count).takeIf {
         expressions.concrete(className) && expressions.isStandardResource(className)

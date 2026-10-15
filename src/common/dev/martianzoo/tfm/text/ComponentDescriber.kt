@@ -83,7 +83,7 @@ internal data class ComponentDescriber(
     public data class Procedure(
         internal val verb: String,
         internal val objectPhrase: String? = null,
-        internal val cardTargetRelation: String? = null,
+        internal val targetRelation: String? = null,
     ) : ChangeFrame
 
     public data class State(

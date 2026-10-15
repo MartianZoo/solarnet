@@ -108,6 +108,9 @@ internal fun Describers.cardSelector(
       return NounPhrase("card", determiner = Determiner.THAT)
   val resolved = resolveExpression(expression.copy(refinement = null)) ?: return null
   if (resolved.sourceDependencies.isNotEmpty()) return null
+  if (concrete(expression.className)) {
+    return namedComponent(expression.className).takeIf { expression.refinement == null }
+  }
   val refinements =
       when (val refinement = expression.refinement) {
         is Expression.Refinement.And -> refinement.refinements

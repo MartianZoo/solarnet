@@ -23,7 +23,8 @@ internal class EnglishInstructionRenderingTest {
         "Remove all steel except 2 plus influence."
     english.describe(parse<InstructionTree>("-2! Steel / Steel")) shouldBe
         "Lose 2 steel per steel you have."
-    english.describe(parse<InstructionTree>("-Steel? / Steel")) shouldBe "[-Steel? / Steel]."
+    english.describe(parse<InstructionTree>("-Steel? / Steel")) shouldBe
+        "You may remove up to 1 steel per steel you have."
     english.describe(parse<InstructionTree>("2 MC / (BuildingTag - (Influence - 2))")) shouldBe
         "Gain 2 M€ per [BuildingTag - (Influence - 2)]."
   }

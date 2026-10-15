@@ -36,14 +36,20 @@ internal sealed interface Clause {
           member is Either ||
               member is Coordinated &&
                   member.clauses.conjunction in listOf(Conjunction.OR, Conjunction.COMMA_OR)
-      if (alternatives && clauses.conjunction in listOf(Conjunction.AND, Conjunction.THEN))
+      val sequence =
+          member is Coordinated &&
+              member.clauses.conjunction in listOf(Conjunction.AND, Conjunction.THEN)
+      if (
+          (alternatives && clauses.conjunction in listOf(Conjunction.AND, Conjunction.THEN)) ||
+              (sequence && clauses.conjunction in listOf(Conjunction.OR, Conjunction.COMMA_OR))
+      )
           "(${member.linearize()})"
       else member.linearize()
     }
   }
 
   data class Either(public val alternatives: Coordination<Clause>) : Clause {
-    override fun linearize(): String = "either ${alternatives.linearize(Clause::linearize)}"
+    override fun linearize(): String = "either ${Coordinated(alternatives).linearize()}"
   }
 
   data class SharedSubject(
@@ -141,6 +147,7 @@ private fun coordinatePredicateObjects(
     return null
   }
   val objects = predicates.map { it.objects ?: return null }
+  if (objects.any { it.members.size > 1 && it.conjunction != conjunction }) return null
   return first.copy(
       objects = Coordination(objects.flatMap { it.members }, conjunction),
   )

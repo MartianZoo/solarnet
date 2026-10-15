@@ -27,7 +27,7 @@ internal class TurmoilExpansionEnglishTest {
     ) shouldBe "Place a delegate in a party, then place a delegate in a party."
     english.describe(
         parse<InstructionTree>("PartyDelegate<Scientists> THEN PartyDelegate<Unity>")
-    ) shouldBe "Place a delegate in the Scientists party, then place a delegate in Unity."
+    ) shouldBe "Place a delegate in Scientists, then place a delegate in Unity."
     english.describe(parse<InstructionTree>("PartyDelegate<Anyone>")) shouldContain "["
   }
 

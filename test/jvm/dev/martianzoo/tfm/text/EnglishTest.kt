@@ -110,7 +110,7 @@ internal class EnglishTest {
     english.describe(parse<InstructionTree>("PROD[1 MC / EarthTag MAX VenusTag]")) shouldBe
         "Increase your M€ production 1 step per pair of Earth and Venus tags you have."
     english.describe(parse<InstructionTree>("-3 MC THEN TemperatureStep")) shouldBe
-        "Pay 3 M€ to raise temperature 1 step."
+        "Spend 3 M€ to raise temperature 1 step."
     english.describe(parse<InstructionTree>("-2 Plant")) shouldBe "Lose 2 plants."
     english.describe(parse<InstructionTree>("Animal<This>?")) shouldBe
         "You may add up to 1 animal to this card."
@@ -658,15 +658,16 @@ internal class EnglishTest {
 
   @Test
   internal fun retainsUnsupportedPetsAlongsideRenderedInstructions() {
-    english.describe(parse<InstructionTree>("2 Steel, 3 Audit")) shouldBe "Gain 2 steel. [3 Audit]."
+    english.describe(parse<InstructionTree>("2 Steel, 3 Billing")) shouldBe
+        "Gain 2 steel. [3 Billing]."
 
     val rendering =
         renderInstructionTree(
-            parse("2 Steel, 3 Audit"),
+            parse("2 Steel, 3 Billing"),
             Describers(Canon.classTable, TerraformingMarsDescribers.descriptions),
         )
     rendering.unresolved().map { it.node.toString() to it.reason } shouldBe
-        listOf("3 Audit" to RefusalReason.UNKNOWN_CHANGE_FRAME)
+        listOf("3 Billing" to RefusalReason.UNKNOWN_CHANGE_FRAME)
   }
 
   @Test
@@ -677,16 +678,16 @@ internal class EnglishTest {
 
   @Test
   internal fun retainsUnsupportedPetsWithinPaymentResults() {
-    val instruction = parse<InstructionTree>("-2 Steel THEN 3 Audit")
+    val instruction = parse<InstructionTree>("-2 Steel THEN 3 Billing")
     val rendering =
         renderInstructionTree(
             instruction,
             Describers(Canon.classTable, TerraformingMarsDescribers.descriptions),
         )
 
-    rendering.linearize() shouldBe "Pay 2 steel to [3 Audit]."
+    rendering.linearize() shouldBe "Spend 2 steel to [3 Billing]."
     rendering.unresolved().map { it.node.toString() to it.reason } shouldBe
-        listOf("3 Audit" to RefusalReason.UNKNOWN_CHANGE_FRAME)
+        listOf("3 Billing" to RefusalReason.UNKNOWN_CHANGE_FRAME)
   }
 
   @Test

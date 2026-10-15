@@ -15,7 +15,7 @@ internal class Prelude2EnglishTest {
         "Remove 1 director resource from this card."
     english.describe(
         parse<InstructionTree>("-12 MC THEN -Director<This> THEN PlayCard<Class<PreludeCard>>")
-    ) shouldBe "Pay 12 M€ and remove 1 director resource from this card to play a Prelude card."
+    ) shouldBe "Spend 12 M€ and remove 1 director resource from this card to play a Prelude card."
   }
 
   @Test
@@ -25,7 +25,7 @@ internal class Prelude2EnglishTest {
             "-ProjectCard THEN -StandardResource THEN ProjectCard THEN StandardResource"
         )
     ) shouldBe
-        "Discard 1 card and pay 1 standard resource to draw 1 card and gain 1 standard resource."
+        "Discard 1 card and spend 1 standard resource to draw 1 card and gain 1 standard resource."
   }
 
   @Test

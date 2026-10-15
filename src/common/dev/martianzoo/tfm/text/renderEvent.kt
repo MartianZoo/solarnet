@@ -262,11 +262,25 @@ private fun Describers.relationshipParticipant(expression: Expression): NounPhra
   }
 }
 
-internal fun Describers.renderActionUse(expression: Expression): NounPhrase? {
+internal fun Describers.renderActionUse(
+    expression: Expression,
+    slot: Expression? = null,
+): NounPhrase? {
   val resolved = resolveExpression(expression) ?: return null
   if (resolved.sourceDependencies.isNotEmpty()) return null
   val use = fact(expression.className, ComponentDescriber::actionUse) ?: return null
-  val objectPhrase = NounPhrase.text(use.reference.text)
+  val objectPhrase =
+      if (slot != null && use.reference == ComponentDescriber.ActionUse.Reference.AnyAction) {
+        if (!slot.simple) return null
+        namedComponent(slot.className)
+      } else NounPhrase.text(use.reference.text)
+  if (concrete(expression.className)) {
+    if (expression.refinement != null) return null
+    val named = namedComponent(expression.className)
+    return if (use.reference == ComponentDescriber.ActionUse.Reference.AnyAction) {
+      objectPhrase.withModifier(Modifier.Relation("on", named))
+    } else named
+  }
   val refinement = expression.refinement ?: return objectPhrase
   if (refinement is Expression.Refinement.And) {
     if (refinement.refinements.none { it is Expression.Refinement.Has }) return null

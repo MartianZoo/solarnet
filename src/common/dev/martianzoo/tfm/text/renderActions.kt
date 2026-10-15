@@ -268,6 +268,7 @@ private data class RenderedAction(
   fun asSentences(): EnglishText {
     if (condition == null) {
       if (cost == null) return result.asSentences()
+      if (result.clauses.isEmpty()) return Sentence(Clause.Simple(cost)).asText()
       val infinitive = checkNotNull(result.asActionResultInfinitive())
       val first =
           if (!separateResultSentences) {
