@@ -818,10 +818,11 @@ constraint that cannot meet the domain at all accepts nothing.
 ## 7. Greatest lower bounds
 
 **T7-1. Greatest lower bound (`⊓`).** The meet of two types, in the universe that interprets them,
-is the most general type below both, or **absent** when there is none. It is computed componentwise:
-the root classes by T2-8, each shared dependency key by `⊓` again, and the refinements by T8-9. The
-selected root class then contributes its own declared dependency set. That can add keys neither
-operand had, and bounds narrower than either operand stated.
+is the most general type below both, or **absent** when there is none. The result must satisfy
+both operands' dependency bounds as well as its root class's declared bounds and shared-variable
+equalities. Its root class can contribute keys neither operand had and bounds narrower than either
+operand stated. Refinements combine by T8-9. Dependency constraints can identify a greatest type
+even when the root classes alone have no greatest common subclass under T2-8.
 
 ```text
 Tile<Tharsis_2_2>  ⊓  Owned<Player1>                =  OwnedTile<Player1, Tharsis_2_2>
@@ -1007,6 +1008,11 @@ and its uses: `Class<@X>(HAS @X)`. Testing `Class<BuildingTag>` against
 counts tag classes, not tag components. An unmarked `Tag` inside `Class<Tag>(HAS Tag<Player1>)`
 is not linked by its root name; it follows ordinary candidate substitution (T8-3).
 
+A marked reference denotes the literal's candidate class independently of its original bound.
+Thus `Class<@BuildingTag>(HAS @BuildingTag)` narrows `Class<@Tag>(HAS @Tag)`: the domain is
+narrower, and both predicates test the same candidate class. This is the same-predicate case
+of T8-1 and T8-8, not inference between different predicates.
+
 Within a class-literal refinement, an expression that cannot accept the class-literal candidate as
 a dependency is left unchanged after explicit represented-class substitution. It is still evaluated as part
 of the requirement; unlike an ordinary component refinement (T8-3), the unmatched binding does not
@@ -1050,8 +1056,9 @@ is then absent.
 > making those card classes incomplete.
 
 **T9-2. A subclass may narrow, never override.** `Metric` may narrow to `Number`, `Number` to a
-literal, and `Requirement` to a requirement. Overriding a value a superclass already fixed is an
-error, and so is a "narrowing" that is not one.
+literal, `Requirement?` to `Requirement` or a requirement, and `Requirement` to a requirement.
+Narrowing `Requirement?` to `Requirement` removes permission to leave the property unfilled.
+Overriding a value a superclass already fixed is an error, and so is a "narrowing" that is not one.
 
 **T9-3. A concrete class must fix every property it inherits**, except an unfilled `Requirement?`
 (T9-1). A concrete class with an unfixed property is an error.
@@ -1135,10 +1142,12 @@ one are an error.
 
 **T10-4. Inheriting dependency defaults.** For one dependency key and one use kind, only the
 nearest declaring superclasses supply a default: anything a nearer superclass overrode is
-discarded. The survivors are intersected (`⊓`), and survivors with no common narrowing are an
-error. Each inherited default is also intersected with the inheriting class's own bound, so a
-default can only get narrower. A default that a class declares, and that merely restates that
-class's own bound for the key, records nothing at all.
+discarded. After resolving overrides, each survivor is intersected with the inheriting class's
+own bound. A survivor with no common narrowing with that bound is omitted; this does not restore
+any overridden default. The remaining survivors are intersected (`⊓`), and survivors with no
+common narrowing with each other are an error. If none remain, the key has no default for this
+use kind. A default that a class declares, and that merely restates that class's own bound for
+the key, records nothing at all.
 
 > **Non-normative example — Lava Flows.** Its tile is declared plainly as
 > `LavaFlows_SpecialTile : SpecialTile`. On a map without volcanic areas the card places
@@ -1146,10 +1155,15 @@ class's own bound for the key, records nothing at all.
 > Had the tile been declared `SpecialTile<VolcanicArea>`, the inherited default would have narrowed
 > to `VolcanicArea` with it.
 
-> **Non-normative design note — the precedence cases still need a witness.** Lava Flows motivates
+> **Non-normative example — Mohole Area.** Its tile specializes `SpecialTile<WaterArea>`. The
+> inherited land-area placement default is incompatible with this bound and is omitted; the
+> tile keeps its water-area restriction.
+
+> **Non-normative design note — the precedence cases still lack Canon witnesses.** Lava Flows motivates
 > inheriting defaults and intersecting them with bounds. It does not demonstrate competing defaults
-> from several nearest ancestors or a nearer override hiding an incompatible ancestor. No current
-> canonical TfM example has been identified for those cases; their necessity remains under audit.
+> from several nearest ancestors, a nearer override hiding an incompatible ancestor, or an
+> incompatible nearer override that leaves a compatible ancestor discarded. No current canonical
+> TfM example has been identified for those cases; their necessity remains under audit.
 
 **T10-5. `Anyone` in a declared default obeys T10-4.** It is an ordinary class expression and is
 intersected with the class's bound. `Card : Owned<Player> { DEFAULT Card<Anyone> }` therefore has

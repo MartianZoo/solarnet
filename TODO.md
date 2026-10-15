@@ -6,6 +6,32 @@ Delete entries when they are done.
   dependency/default expansion, concrete-type enumeration, and automatic-effect cascades. The
   current depth and subtraction limits are not a general execution-work budget.
 
+- Skip equality-incompatible subclasses in concrete-type queries (T11-1, T11-3, and T12-4).
+  Pets `BugsTest` shows `Pair<First, Second>` should retain `Independent<First, Second>` and omit
+  `Same`, whose two arguments must agree. Enumeration and automatic narrowing instead throw while
+  constructing `Same<First, Second>`; inhabitance returns true or throws depending on declaration order.
+
+- Exclude subclasses with empty dependency differences during automatic narrowing (T11-3).
+  Pets `BugsTest` shows `Tile<Area(NOT Land)>` correctly enumerates only `Ocean`, but automatic
+  narrowing returns no result because it also counts `Greenery` with the impossible `Land(NOT Land)`.
+
+- Preserve represented-class bindings when rendered types are parsed again (T5-6 and T8-10).
+  Pets `BugsTest` shows a predicate that asks about `BuildingTag<Player1>` before rendering
+  incorrectly asks about `Tag<Player1>` afterward. A repair must also handle candidate classes
+  with fixed dependencies and nested declarations sharing the candidate's bound without losing
+  their distinct bindings.
+
+- Recognize the same represented-class predicate under a narrower bound (T8-1 and T8-10).
+  Pets `BugsTest` shows `Class<@BuildingTag>(HAS @BuildingTag)` incorrectly fails to narrow
+  `Class<@Tag>(HAS @Tag)`, although both predicates ask about the selected class.
+
+- Implement T7-1's greatest-lower-bound promise beyond the current root-first calculation.
+  Pets `BugsTest` shows `CardFront` intersected with `ResourceHolder<Class<Animal>>` returns no result
+  even when `Pets` is the greatest common type and the only rival, `Ants`, is excluded by its resource kind.
+  A bounded candidate-search experiment was rejected: a failed dependency meet can mean an
+  unnamed overlap, not disjointness, so discarding that candidate can return a false greatest
+  type. `Spec07BoundsTest` preserves the competing `Broad<Second>` and `Narrow` witness.
+
 - Simplify Flooding and Artificial Lake's ocean instructions, preserving full-track behavior,
   mandatory placement, and Flooding's victim choice.
 - Derive `TfmActionLowerer`'s standard-resource cost classification from Pets declarations

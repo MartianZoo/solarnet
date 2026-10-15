@@ -1,11 +1,15 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.PetElaborator
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Quantifier.AMAP
 import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration
@@ -15,6 +19,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 /** Section 10 of `docs/type-system-spec.md`: defaults. */
@@ -210,6 +215,33 @@ internal class Spec10DefaultsTest {
   }
 
   @Test
+  internal fun `T10-4 an inapplicable independent default leaves the compatible default available`() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Area {
+              ABSTRACT CLASS LandArea {
+                CLASS First
+                CLASS Second
+              }
+              ABSTRACT CLASS WaterArea { CLASS Ocean }
+            }
+            ABSTRACT CLASS Tile<Area>
+            ABSTRACT CLASS LandTile : Tile { DEFAULT +LandTile<First> }
+            ABSTRACT CLASS WaterTile : Tile { DEFAULT +WaterTile<Ocean> }
+            CLASS RestrictedTile : LandTile<LandArea>, WaterTile
+            """
+        )
+
+    val elaborator = PetElaborator(table)
+    // The independent water default cannot apply, but the land default still selects First.
+    elaborator.elaborateInput(parse<InstructionTree>("RestrictedTile<>")) shouldBe
+        parse<InstructionTree>("RestrictedTile<First>!")
+    elaborator.elaborateInput(parse<InstructionTree>("RestrictedTile<Second>")) shouldBe
+        parse<InstructionTree>("RestrictedTile<Second>!")
+  }
+
+  @Test
   internal fun `T10-4 a default that merely restates the declared bound records nothing`() {
     val table =
         loadTypes(
@@ -237,6 +269,42 @@ internal class Spec10DefaultsTest {
               .trimIndent()
       )
     }
+  }
+
+  @Test
+  internal fun `T10-4 an inapplicable override leaves the choice open without reviving an ancestor`() {
+    // Synthetic precedence case; no Canon card requiring this combination is known.
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Area {
+              ABSTRACT CLASS LandArea {
+                CLASS First
+                CLASS Second
+              }
+              ABSTRACT CLASS WaterArea { CLASS Ocean }
+            }
+            ABSTRACT CLASS Tile<Area> { DEFAULT +Tile<First> }
+            ABSTRACT CLASS WaterTile : Tile { DEFAULT +WaterTile<WaterArea> }
+            CLASS RestrictedTile : WaterTile<LandArea>
+            """
+        )
+
+    val elaborator = PetElaborator(table)
+    elaborator.elaborateInput(parse<InstructionTree>("WaterTile<>")) shouldBe
+        parse<InstructionTree>("WaterTile<WaterArea>!")
+    elaborator.elaborateInput(parse<InstructionTree>("RestrictedTile<Second>")) shouldBe
+        parse<InstructionTree>("RestrictedTile<Second>!")
+
+    // WaterTile already overrode First. Its inapplicable default is omitted, leaving both
+    // land areas available instead of silently restoring First.
+    elaborator.elaborateInput(parse<InstructionTree>("RestrictedTile")) shouldBe
+        parse<InstructionTree>("RestrictedTile!")
+    table.getClass(cn("RestrictedTile")).defaults.gainOnly.dependencies.keys.shouldBeEmpty()
+    shouldThrow<ExpressionException> {
+          elaborator.elaborateInput(parse<InstructionTree>("RestrictedTile<>"))
+        }
+        .detail shouldContain "has no gain dependency defaults to accept"
   }
 
   // T10-5 Anyone is an ordinary default argument
