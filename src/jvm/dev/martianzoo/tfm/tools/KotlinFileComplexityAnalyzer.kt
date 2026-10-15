@@ -50,7 +50,8 @@ internal class KotlinFileComplexityAnalyzer(classpath: Collection<File>) : AutoC
         psiFactory.javaClass
             .getMethod("createFile", String::class.java, String::class.java)
             .invoke(psiFactory, relativePath.substringAfterLast('/'), source)
-    if (relativePath.startsWith("test/") && containsTestCase(kotlinFile)) return null
+    val testSource = relativePath.startsWith("test/") || relativePath.startsWith("pets/test/")
+    if (testSource && containsTestCase(kotlinFile)) return null
 
     val config = complexityConfigClass.getConstructor().newInstance()
     complexityConfigClass

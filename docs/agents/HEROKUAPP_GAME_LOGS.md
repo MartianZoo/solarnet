@@ -18,10 +18,10 @@
   — search for `abstract class AbstractFullGameTest` for shared replay chronology and assertions.
 - [`TestHelpers.kt`](../../test/common/dev/martianzoo/tfm/tests/TestHelpers.kt) —
   search for `exMachina` only when evidence proves a reconciliation is required.
-- [`game.pets`](../../src/common/dev/martianzoo/tfm/canon/bundles/base/game.pets) — search for
+- [`game.pets`](../../pets/src/common/dev/martianzoo/tfm/canon/bundles/base/game.pets) — search for
   `ABSTRACT CLASS Phase` only when the archive chronology crosses setup, phase, or endgame
   transitions that the replay helper does not explain; the turn order and phase handoffs are rules
-  there ([game flow](SEQUENCING.md#game-flow)).
+  there ([game flow](../../pets/docs/agents/GAME_FLOW.md#game-flow)).
 
 This guide intentionally contains no setup, action, balance, coordinate, or scoring answer for a
 particular archived game. Reconstruct each test independently from its archive. An existing dated

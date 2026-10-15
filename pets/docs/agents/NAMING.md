@@ -1,0 +1,363 @@
+# Class names and display names
+
+> **Agent information:** This is an agent-maintained information-tracking document, written by
+> agents for agents. It can record human decisions, but it is not human-authored documentation.
+>
+> **Read when:** naming or renaming a Class, resolving a printed-name collision, adding a Module,
+> changing Player Class Names, editing a `language/*.json5` file, or deciding whether a concept needs a
+> separate identifier.
+>
+> **Skip when:** changing only grammatical wording; use [LANGUAGE.md](LANGUAGE.md).
+>
+> **Status:** current naming model and intentional exceptions.
+
+## Source map
+
+- [`ClassName.kt`](../../src/common/dev/martianzoo/pets/ast/ClassName.kt) — inspect syntax and
+  canonical identity constraints.
+- [`SystemDeclarations.kt`](../../src/common/dev/martianzoo/pets/SystemDeclarations.kt) — the root
+  classes every Catalog inherits.
+- [`displayNames.kt`](../../src/common/dev/martianzoo/catalog/displayNames.kt) — stateless localized
+  display lookup; `defaultEnglishDisplayName` defines the display default.
+- [`GamePremise.kt`](../../src/common/dev/martianzoo/catalog/GamePremise.kt) — search for
+  `playerNames` when changing configured Player identities.
+- [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) — read before adding a Module
+  or naming a source bundle.
+- Bundle `en.json5` files under
+  [`src/common/dev/martianzoo/tfm/canon/bundles`](../../src/common/dev/martianzoo/tfm/canon/bundles)
+  own localized printed names; inspect only the bundle containing the renamed Class.
+
+## Effect and change terminology
+
+Use **direct effect** for the card behavior performed when the card enters play: `direct` in
+card data and `cardDirectEffect` in the card API. Use **self-gain effect** for the structural Pets
+category, which also includes effects that install persistent rules. The renderer handles these
+alongside the card's direct effect; that placement does not make their purposes identical.
+
+Use **elementary change** for a gain, removal, or transmutation instruction, and **correction** for
+`sneak` or `exMachina` adjustments. Distinguish explicit correction targets from derived changes.
+Retain established relationship terms such as **direct superclass** and **direct dependency** when
+the contrast with an indirect relationship matters. Avoid other invented uses of “direct”.
+
+Double-colon effects remain **automatic**; renaming that category is a separate decision. Ordinary
+timing adverbs and quoted source evidence retain their meaning and wording.
+
+## Identity
+
+Every class has one engine-facing `ClassName`. Pets, declarations, Kotlin implementations, events,
+saved state, and engine APIs use it. A `ClassName` begins with an ASCII uppercase letter and then
+contains ASCII letters, digits, or underscores. Pets keywords are case-sensitive and their exact
+spellings are reserved as class names.
+
+Structured content uses globally unique semantic English names such as `Birds`, `Landlord`, and
+`Enceladus`. A definition's Class Name is its sole identity; there is no separate card, milestone,
+award, colony, or standard-action identifier. Replacement relationships name the replaced Class
+directly.
+
+Two bundles may declare the same Class Name when the parsed declarations are equal. Identical
+declarations merge into one master Class; differing declarations under one name are an error.
+
+## Choosing a name
+
+### Represent the published name; never invent one
+
+We do not choose the names of published components, only how to spell them in Pets. Convert the
+printed English title with the [Google Java Style camel-case conversion][camel-case]: remove
+apostrophes, split on other punctuation, whitespace, and conventional internal camel-case word
+divisions, lowercase each word, capitalize its first character, and join. `UNMI Contractor` becomes
+`UnmiContractor`; `Hi-Tech Lab` becomes `HiTechLab`; `L1 Trade Terminal` becomes `L1TradeTerminal`.
+
+Do not expand what the card does not expand. Digits stay digits. Spell a number out only when the
+printed title *begins* with one, since a `ClassName` cannot: `16 Psyche` becomes `SixteenPsyche`,
+which is currently the only such case.
+
+A placeholder implementation still uses the real name unless it is one of the deliberate fake
+cards recorded under [Intentional exceptions](#intentional-exceptions). Otherwise, never ship a
+class whose name announces its own incompleteness — an unimplemented card belongs in the
+`docs/what-is-supported.md` table plus, if it is worth exercising, a test-only fixture.
+
+### Supertype suffixes
+
+Do not append a supertype's name to a subtype *mechanically*, as a substitute for the type system:
+not `BankerMilestone` or `ClaimMilestoneSA`. The declaration already records the supertype, and an
+initialism bolted on to every member of a category is usually noise.
+
+Standard projects deliberately use the `Project` suffix consistently, including
+`PowerPlantProject`, `AsteroidProject`, and `SellPatentsProject`. The game uses "standard project"
+as the name of this family, and the uniform suffix distinguishes its members from cards, resources,
+and other game concepts without deciding each collision differently.
+
+Turn choices are signals under `StandardAction`: `PlayProject`, `UseCardAction`, `ConvertPlants`,
+`ClaimMilestone`, and the other concrete choices. Their dependencies carry the selected card,
+milestone, or award directly; there is no preliminary standard-action provider.
+
+We are not zealots about this. A category word that reads naturally in English earns its place, and
+most of ours do: `GreeneryTile`, `BuildingTag`, `ActionPhase`, `ColonyTile`, and `ProjectCard` all
+keep their nouns because the game says them out loud. The test is whether a fluent speaker of the
+game would say the whole phrase, not whether the word happens to name a supertype.
+
+### Qualifying a collision
+
+When two things want one name, the bare name goes to **the one the rest of the game refers to**, and
+the other takes the smallest meaningful qualifier.
+
+The sharpest test is trigger position. A class that other declarations *trigger on* is a concept the
+game talks about; a class that is only ever *invoked* is plumbing, and plumbing yields the name.
+Grep the candidate in trigger position before deciding:
+
+- `Trade` is triggered on by cards — `Trade: 3 MC` on Spire, `Trade<ColonyTile>::` on two Colonies
+  cards. It is a real game concept that happens to share the published game's icon with the standard
+  action. So the concept keeps `Trade` and the standard action becomes `TradeAction`, and we are
+  improving on the printed game by distinguishing them at all.
+- `PlayCard` names the reusable card-play operation invoked by standard turns, setup, and card
+  effects. The standard action is specifically `PlayProject`.
+
+Worked cases:
+
+| Collision | Bare name goes to | Qualified |
+| --- | --- | --- |
+| Power Plant: card vs. standard project | card `PowerPlant` | standard project `PowerPlantProject` |
+| Asteroid: card vs. resource vs. standard project | resource `Asteroid` | `AsteroidCard`, `AsteroidProject` |
+| Trade: game concept vs. standard action | concept `Trade` | `TradeAction` |
+| Play card: operation vs. standard action | operation `PlayCard` | `PlayProject` |
+| Required action: component vs. its signal | component `RequiredAction` | `RequiredActionsSignal` |
+| Reprinted goals | the newer, revised printing | the superseded one (see below) |
+
+### Reprints and variants
+
+When one printed goal exists with several rules, **one version gets the unqualified name and the
+others carry a numeric qualifier.**
+
+The bare name goes to the version we consider primary:
+
+- Across reprints, the newer revision — the one the designers preferred. `Builder` (7 building tags,
+  from the `goals` bundle) over `Builder8` (the original Tharsis printing).
+- Across rules variants of one goal, the standard version. `Producer` (16 total production,
+  including Quick Start production when present) over the optional Quick Start-adjusted
+  `Producer22`, whose threshold is 22. Likewise `Generalist` over `Generalist2`, which asks for 2 of
+  each production rather than 1.
+
+For thresholds, the qualifier is **the number the variant's own printing would show**: the printed
+base, adjusted the way the variant adjusts it. `Producer22` is 16 plus the 6 production
+`QuickStartVariant` hands you at setup, exactly as `Generalist2` is 1 of each plus the 1 of each you
+start with. Neither variant is actually printed; both numbers are what a printing would logically
+say, and that is the number to use.
+
+Do not derive a qualifier by reading the Pets requirement expression. Those can carry engine
+offsets, and a name that inherits one is wrong even when it happens to match.
+
+When several identical printed components need distinct identities to preserve a per-name physical
+limit, number every copy `Name1` through `NameN` and give them the same display name. This copy
+numbering is not a rules-variant qualifier; the beginner corporations are the precedent.
+
+### Abbreviations
+
+Spell a concept out when it stands alone; abbreviate it only where it is a *component* of a longer
+name. `GlobalParameter`, `TerraformRating`, and `VictoryPoint` are classes; `GpComplete`,
+`GpGameEndBarrier`, `Tr63SoloObjective`, `HasRaisedTr`, and `ScoreEventVps` are compounds. Do not mix
+the two forms in one name.
+
+Bundle-specific abbreviations are not allowed as prefixes: write `CimmeriaPlacementBonus`, not
+`TcPlacementBonus`.
+
+### Two published bonuses, two words
+
+**Placement bonus** is what an area prints and you collect for covering it — Mining Guild, Mining
+Rights, and Mining Area all say it, so `PlacementBonus` is the metric and Terra Cimmeria's special
+one is `CimmeriaPlacementBonus`. **Colony bonus** is the separate published term for what a colony
+pays its owner when someone trades — Productive Outpost says "gain all your colony bonuses", so
+`GainColonyBonus` and `GainColonyBonuses`. Neither is a "map bonus"; the game never uses that phrase.
+
+### Global event cards and their active effects
+
+Global Event cards use their upper printed title, such as `ExperimentalLifeforms`; their
+`GlobalEffect` uses the lower title, such as `EcoSabotage`. The card creates its effect with
+`Current<This>:: PendingGlobalEffect<Current<This>, Class<EcoSabotage>>`. The pending component
+depends on `Current` and disappears with it. When `ResolveGlobalEvent` fires, that component
+creates one player-owned `EcoSabotage` signal per player.
+The titles come from the [physical card scans](https://tm.hadronikle.com/).
+
+Printed-name collisions retain the smallest category qualifier: `SolarnetGlobalEvent` and
+`MoholeLakeGlobalEvent` distinguish the cards from project cards, while
+`AsteroidMiningGlobalEffect`, `InterplanetaryTradeGlobalEffect`, and `SabotageGlobalEffect`
+distinguish the active effects. Display names omit those qualifiers.
+
+### Derived and card-local classes
+
+The `{}` sugar generates a derived class named `<EnclosingClassName>_<SupertypeName>`, as in
+`NaturalPreserve_SpecialTile`. The underscore is the marker of a structurally derived class and is
+intentional. A hand-written declaration that fills the same slot uses the same spelling, as
+`LavaFlows_SpecialTile` does.
+
+A hand-written helper that is *not* a structural derivative — a singleton observer, an extra action
+host — does not take the underscore.
+
+## Grammar, by kind of thing
+
+Match the shape of the name to the kind of thing, so a reader can tell what a class is before
+looking it up.
+
+- **Persistent components** are noun phrases: `GreeneryTile`, `TradeFleet`, `ColonyProduction`,
+  `TerraformRating`. Name the *unit* you actually instantiate, not the track it sits on.
+- **Signals** are the event phrase that completes the trigger clause a card would print. Most read
+  as "when you ___": `PlayCard`, `AdvanceColonyTracks`; `PayingFor` reads as "while paying
+  for ___". Write the name so that phrase reads back.
+- **Other `MustCleanUp` state** — the transient thing sitting on the table during an action, not the
+  event — is a noun or a past participle: `Owed`, `Required`, `Billing`. Do not give it
+  the bare-verb shape that belongs to Signals.
+- **Custom instructions** are imperative verb phrases: `CopyProductionBox`. Use the
+  published verb when the game prints one — Robotic Workforce
+  and Cyberia Systems both say "copy ... production box", which is why `CopyProductionBox` is right.
+  Never a programming verb: `Handle`, `Get`, `Process`, `Update`.
+- **Custom metrics** are noun phrases naming the printed thing being counted, not things that happen:
+  `TileInLargestGroup`. A name may end in a preposition when the argument the reader sees next is
+  its object, as in `GainsOf<Class<VictoryPoint>>`.
+- **Capabilities** (supertypes that say what a component can do) read as predicates or agent nouns:
+  `HasActions`, `ResourceHolder`. Reserve the `Has` prefix for this use.
+- **Records** that something already happened use the passive voice when the actor does not matter
+  (`ActionUsedMarker`) and the `My` prefix when it does: `My` marks
+  that the *victim* is the owner while the actor rides along in a separate parameter, as in
+  `MyResourceWasRemoved<Class<Resource>, Player>`.
+- **Markers** name real physical components players handle: `ActionUsedMarker`, `Community`,
+  `NomadsMarker`. `StartToken` keeps `Token` because the honest
+  `StartPlayerMarker` is long and `StartMarker` reads wrong.
+- **Singular vs. plural** may distinguish one-of from all-of over the same subject —
+  `GainColonyBonus` (one colony) against `GainColonyBonuses` (every colony the player owns) — and
+  may distinguish a whole operation from its per-item step. It may **not** distinguish two
+  different *kinds* of thing; give those unrelated names.
+- **Do not use implementation or game-design vocabulary** as a component name. "Mechanic", "hack",
+  "fake", and Pets grammar terms such as "effect" describe how we built something, not what it is in
+  the game. Settled exceptions are not to be re-flagged; see
+  [Intentional exceptions](#intentional-exceptions).
+
+## Module names
+
+The Catalog and Bundle APIs define Bundle, Module, and Content selection. The conventions here
+concern their Class Names.
+
+Most genuine `Module` subtypes extend `Module` directly, and that is fine — they need no
+intermediate supertype just to justify a suffix. Three loose families exist today:
+
+1. **Published expansions** — selected products use their own noun:
+   `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, `PreludeExpansion`,
+   `Prelude2Expansion`, and `TurmoilExpansion`. `Prelude2Expansion` contributes its cards and
+   requires `PreludeExpansion`; it has no additional rules of its own.
+2. **Exclusive choices** — a closed set behind an abstract supertype, exactly one selected. These
+   already borrow the supertype's word, which reads well: `MultiplayerMode` and `SoloMode` under
+   `GameMode`; `TharsisMap` and `HellasMap` under `MarsMap`; `StandardSoloObjective` and
+   `Tr63SoloObjective` under `SoloObjective`.
+3. **Independent toggles** — optional rules switched on or off on their own:
+   `QuickStartVariant`, `WorldGovernmentRule`, `MandatoryVenusVariant`.
+
+The second family currently uses two words for the same role. Do not add an abstract supertype merely
+to supply a shared suffix.
+
+Bundles have short lowercase source names matching their resource directories, independent of Class
+Names. For example, the `venus` bundle declares the `VenusNextExpansion` Module, and the `prelude`
+bundle declares the `PreludeExpansion` Module, and the `prelude2` bundle declares the
+`Prelude2Expansion` Module. A bundle's explicitly associated Module selects its cards and colony
+tiles by default; `name:cards` can select or exclude its card pool independently.
+`PreludeExpansion` therefore always names the Module, while `prelude` names the bundle. See
+[`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) and
+[`Canon.kt`](../../src/common/dev/martianzoo/tfm/canon/Canon.kt).
+
+## Display names and localization
+
+Pets input and rendering use canonical Class Names. Display names are presentation metadata read
+from a Catalog by stateless UI lookup; they are not session or Game World state.
+
+Bundle files at `language/<tag>.json5` map Class Names to display names. Lookup falls back from the
+requested locale to less-specific locales and then English, independently for each entry. Keep
+entries grouped by content category and sorted by Class Name within each group; milestones precede
+awards and cards are last.
+
+**English display text defaults to `defaultEnglishDisplayName`**, which separates words at
+lower-to-upper transitions, at digit boundaries, and at underscores. English language files contain
+**only exceptions to that default** — an entry whose value equals the default is noise and must be
+deleted.
+
+Printed card titles are typeset in all caps and carry no case information. English display
+text is Title Case with **every** word capitalized, including articles and prepositions and
+including the word after a hyphen: `Import Of Advanced GHG`, `Board Of Directors`,
+`Anti-Desertification Techniques`.
+
+Preserve punctuation from the printed card scans, even when ordinary English might suggest a
+different hyphenation. Use [the card scans](https://tm.hadronikle.com/), rather than transcribed
+database titles, as the evidence.
+
+**Two classes may share display text, and often must.** Whenever a Class Name was qualified to break
+a collision, the display name drops the qualifier and goes back to the printed title, so the clash
+reappears on purpose: `Trade` and `TradeAction` both display "Trade", `PowerPlant` and `PowerPlantProject`
+both display "Power Plant", `AsteroidCard` and `AsteroidProject` both display "Asteroid", and
+`DeimosDown` and `DeimosDownPromo` both display "Deimos Down". Never invent a parenthetical or other
+disambiguator that no printed component carries.
+
+Display text is presentation, not identity. UI code must therefore call `displayName` with its
+Catalog and locale; Pets-oriented output uses canonical Class Names directly.
+
+### Corporation brand casing
+
+Corporation logos are evidence of branding, but not sufficient evidence of ordinary capitalization:
+the card titles are usually all caps, and logo typography may vary letter size or color for design
+rather than spelling. Prefer the closest explicit English prose from the board-game publisher or
+designer. When official sources conflict, prefer a source that discusses the same board-game
+corporation by name over a later adaptation that silently regularizes it.
+
+The supported names that do not follow ordinary title casing are settled individually:
+
+| Display name | Class Name | Decisive evidence |
+| --- | --- | --- |
+| `CrediCor` | `CrediCor` | Jacob Fryxelius's [logo commentary](https://fryxgames.se/easter-eggs-with-jacob-4/) spells it this way in prose. |
+| `PhoboLog` | `PhoboLog` | The [base-game rulebook](https://fryxgames.se/wp-content/uploads/2023/04/TMRULESFINAL.pdf) repeatedly uses this spelling in both setup and play examples. |
+| `ThorGate` | `ThorGate` | The same rulebook repeatedly uses this spelling in both setup and play examples. |
+| `AstroDrill` | `AstroDrill` | The corporation card's own flavor prose names AstroDrill; later digital-store prose regularizes it to “Astrodrill.” |
+| `TerraLabs Research` | `TerraLabsResearch` | The [Turmoil corporation card's flavor prose](https://cards.hadronikle.com/corporations/Turmoil%20-%20TerraLabs%20Research.png) explicitly names TerraLabs. |
+
+`Ecoline` and `Ecotec` are ordinary title case: the publisher's
+[Automa corporation rules](https://fryxgames.se/wp-content/uploads/2024/09/TM-Automa-rulebook-B-08-15-2023.pdf)
+use both spellings in prose. Do not infer internal capitals from all-caps wordmarks, OCR artifacts,
+or third-party databases.
+
+`TerraLabs Research` follows the Turmoil corporation card's own flavor prose, which explicitly
+names `TerraLabs`. Jacob's forum posts and the official
+[Dice Game rulebook](https://fryxgames.se/wp-content/uploads/2023/10/TMDG_RULES_ENGi.pdf) use
+`Terralabs`, but the printed Turmoil card is the closest evidence for this corporation.
+
+## Intentional exceptions
+
+The `Fake`-prefixed cards in FakeCanon's explicitly selected `fakes:cards` pool are deliberate
+incomplete stand-ins. All five wild-tag cards belong to Canon.
+The stand-ins preserve only their documented subset of the printed card. Their names must
+remain visibly fake so Canon does not claim to model the published cards faithfully.
+
+`ProdOffset` names the component representing the five synthetic M€-production steps.
+
+`NextCardEffect` keeps its name. It was chosen for how you would explain the thing to a
+player, and "effect" there is the ordinary English word, not the Pets grammar term the prohibition
+is aimed at.
+
+Hand-written card helpers use whatever category word fits the card — `NeptunianOption`,
+`CathedralOption`, and the `...Watcher` singletons. There is no plan to regularize these suffixes;
+do not propose one.
+
+`SoloGenerationsLeft` deliberately names the counted collection: a solo game begins with fourteen
+and removes one whenever a Generation begins. The plural reads naturally at its principal uses and
+is clearer than treating each copy as a separately named token.
+
+`Barrier` and `GameEndBarrier` are **unrelated supertypes** that both use the word. `Barrier :
+MustCleanUp` means "the player must remove this to unblock a task" and backs the open-ended query
+`MAX 0 Barrier` in
+[`card-model.pets`](../../src/common/dev/martianzoo/tfm/canon/bundles/base/card-model.pets),
+which spans `Required` there and `Owed` and `Billing` in
+[`payment.pets`](../../src/common/dev/martianzoo/tfm/canon/bundles/base/payment.pets).
+`GameEndBarrier` extends nothing, means "the game
+may not end yet", and is queried by name from `ProductionPhase`'s handoff in
+[`game.pets`](../../src/common/dev/martianzoo/tfm/canon/bundles/base/game.pets) and several tests. We are
+keeping the shared word. The trap to watch: a new class that blocks game end will compile just as
+happily under `Barrier`, and would then silently join the payment query — check which supertype you
+mean.
+
+`TerraformRating` names the track while instantiating one step of it. `TerraformRatingStep` is more
+correct; we are not doing it.
+
+[camel-case]: https://google.github.io/styleguide/javaguide.html#s5.3-camel-case

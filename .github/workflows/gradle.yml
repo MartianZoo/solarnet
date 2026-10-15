@@ -27,6 +27,8 @@ jobs:
       run: ./gradlew spotlessCheck
     - name: Build with Gradle
       run: ./gradlew build
+    - name: Verify independent Pets and Solarnet builds
+      run: python3 scripts/verify-build-separation.py
     - name: Build REPL jar
       run: ./gradlew :repl:shadowJar
     - name: Smoke-test packaged REPL outside the checkout

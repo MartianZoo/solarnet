@@ -7,9 +7,9 @@ modules moving to Pets. It does not select additional work or make these changes
 build separation. The linked roadmaps and TODOs own the decisions; this document records their API
 implications. Reassess an entry when its owning plan changes.
 
-The [selected split](PETS_ROADMAP.md#next-step-separate-gradle-builds) moves nine modules:
-`pets`, `catalog`, `tfm-card-data`, `tfm-card-generator`, `tfm-canon`, `tfm-fake`, `almanac`,
-`pets-tools`, and `codegen`. Runtime modules remain in Solarnet. The split itself currently promises
+The [selected split](PETS_ROADMAP.md#independent-gradle-builds) moves nine modules:
+`pets`, `catalog`, `tfm-card-data`, `tfm-compiler`, `tfm-canon`, `tfm-fake`, `almanac`,
+`junkdrawer`, and `codegen`. Runtime modules remain in Solarnet. The split itself currently promises
 unchanged Kotlin packages and behavior.
 
 The review covered both roadmaps, `TODO.md`, inline source TODOs, the relevant focused design notes,
@@ -32,9 +32,9 @@ The [expression TODO](TODO.md) calls for separate APIs for an object's naturally
 expression, a resolved Type's compact expression, and its full expression. Resolving arbitrary
 syntax into either resolved form must explicitly take a `ClassTable`.
 
-Current surfaces include [`HasExpression.expression` and `expressionFull`](src/common/dev/martianzoo/pets/HasExpression.kt),
-their implementations on [`Type`](src/common/dev/martianzoo/pets/types/Type.kt), and syntax
-[`Expression`](src/common/dev/martianzoo/pets/ast/Expression.kt). Separating these responsibilities
+Current surfaces include [`HasExpression.expression` and `expressionFull`](pets/src/common/dev/martianzoo/pets/HasExpression.kt),
+their implementations on [`Type`](pets/src/common/dev/martianzoo/pets/types/Type.kt), and syntax
+[`Expression`](pets/src/common/dev/martianzoo/pets/ast/Expression.kt). Separating these responsibilities
 could remove inherited members or replace properties with context-taking functions. The related
 question about globally shortest compact expressions could change rendered output without changing
 signatures.
@@ -45,15 +45,15 @@ signatures.
 
 The following public declarations have source TODOs identifying temporary exposure:
 
-- [`DerivedClassLowerer`](src/common/dev/martianzoo/pets/DerivedClassLowerer.kt).
-- [`Parsing.parse(expectedType, elementSource, derivedClasses)`](src/common/dev/martianzoo/pets/Parsing.kt).
-- [`systemClassDeclarations`](src/common/dev/martianzoo/pets/SystemDeclarations.kt), intended to give
+- [`DerivedClassLowerer`](pets/src/common/dev/martianzoo/pets/DerivedClassLowerer.kt).
+- [`Parsing.parse(expectedType, elementSource, derivedClasses)`](pets/src/common/dev/martianzoo/pets/Parsing.kt).
+- [`systemClassDeclarations`](pets/src/common/dev/martianzoo/pets/SystemDeclarations.kt), intended to give
   way to the generic Catalog contract.
-- [`PetTransformer.transformWithoutKindCheck`](src/common/dev/martianzoo/pets/PetTransformer.kt).
-- [`PetNode.kind`](src/common/dev/martianzoo/pets/ast/PetNode.kt).
-- [`Class.classTable`](src/common/dev/martianzoo/pets/types/Class.kt).
+- [`PetTransformer.transformWithoutKindCheck`](pets/src/common/dev/martianzoo/pets/PetTransformer.kt).
+- [`PetNode.kind`](pets/src/common/dev/martianzoo/pets/ast/PetNode.kt).
+- [`Class.classTable`](pets/src/common/dev/martianzoo/pets/types/Class.kt).
 - The declaration-lowering surface around
-  [`ClassDeclaration.authoredEffectsWithActions` and `effects`](src/common/dev/martianzoo/pets/data/ClassDeclaration.kt).
+  [`ClassDeclaration.authoredEffectsWithActions` and `effects`](pets/src/common/dev/martianzoo/pets/data/ClassDeclaration.kt).
 
 Removing these members or reducing their visibility breaks callers. Their final replacements and
 the exact extent of contraction remain to be designed. Some comments call these Canon-facing APIs
@@ -76,7 +76,7 @@ and signatures stay unchanged. Existing string-to-AST convenience entry points a
 ownership decision when the model no longer depends on parsing.
 
 Separately, compiling canonical content into typed declarations could affect
-[`StandardFormBundle`](src/common/dev/martianzoo/tfm/canon/StandardFormBundle.kt), whose public
+[`StandardFormBundle`](pets/src/common/dev/martianzoo/tfm/canon/StandardFormBundle.kt), whose public
 constructor accepts a resource directory, resource filenames, and a text reader. Replacing that
 loading contract would affect custom bundles. Precompiling built-in Canon alone need not remove
 support for source-backed bundles; that decision has not been made.
@@ -90,12 +90,12 @@ The [content-selection direction](PETS_ROADMAP.md#canon-and-game-rule-modeling) 
 Turmoil parties and maps, shared goals with distinct source provenance, replacement defaults,
 Aridor making unused colony definitions available, and eligibility based on surviving meaning.
 
-Potentially affected public contracts include [`GameConfig`](src/common/dev/martianzoo/catalog/GameConfig.kt),
-[`ClassSelection`](src/common/dev/martianzoo/catalog/ClassSelection.kt),
-[`GamePremise`](src/common/dev/martianzoo/catalog/GamePremise.kt),
-[`Catalog`](src/common/dev/martianzoo/catalog/Catalog.kt),
-[`TfmCatalog`](src/common/dev/martianzoo/tfm/canon/TfmCatalog.kt), and
-[`Bundle`](src/common/dev/martianzoo/tfm/canon/Bundle.kt). For example, a bare Class Name currently
+Potentially affected public contracts include [`GameConfig`](pets/src/common/dev/martianzoo/catalog/GameConfig.kt),
+[`ClassSelection`](pets/src/common/dev/martianzoo/catalog/ClassSelection.kt),
+[`GamePremise`](pets/src/common/dev/martianzoo/catalog/GamePremise.kt),
+[`Catalog`](pets/src/common/dev/martianzoo/catalog/Catalog.kt),
+[`TfmCatalog`](pets/src/common/dev/martianzoo/tfm/canon/TfmCatalog.kt), and
+[`Bundle`](pets/src/common/dev/martianzoo/tfm/canon/Bundle.kt). For example, a bare Class Name currently
 cannot distinguish the proposed sources of an identical goal. Preserving that distinction could
 change selection arguments or stored selections. Removing transitional CardPack concepts can also
 invalidate existing configuration strings.
@@ -124,7 +124,7 @@ The [ownership proposal](PETS_ROADMAP.md#language-and-modeling) replaces implici
 `OWN[...]`, including whole-effect transforms and automatic card/map marks. Existing declarations
 that rely on an omitted owner would need migration.
 
-[`PetElaborator`](src/common/dev/martianzoo/pets/PetElaborator.kt) currently accepts owner context
+[`PetElaborator`](pets/src/common/dev/martianzoo/pets/PetElaborator.kt) currently accepts owner context
 and performs lexical ownership insertion. Its input contract and possibly its parameters would
 change. Whole-effect transforms may also affect `Effect`, `TransformNode`, and `TransformHandler`;
 the existing transform model should be assessed before assuming a new public representation.
@@ -144,8 +144,8 @@ lost `TradeBarrier`, `TurmoilSolarOperation`, and `FinalScoringPending` and gain
 
 The Pets roadmap separately calls for truthful point events and independent lifetime and log
 visibility. These changes reach
-[`systemClassDeclarations`](src/common/dev/martianzoo/pets/SystemDeclarations.kt),
-[`SystemClasses`](src/common/dev/martianzoo/pets/api/SystemClasses.kt), and their exported
+[`systemClassDeclarations`](pets/src/common/dev/martianzoo/pets/SystemDeclarations.kt),
+[`SystemClasses`](pets/src/common/dev/martianzoo/pets/api/SystemClasses.kt), and their exported
 inheritance contracts: for example, `Signal` currently inherits `MustCleanUp` and has no `Real` classification.
 Removing or changing those facts affects custom declarations as well as Kotlin callers.
 
@@ -159,7 +159,7 @@ design pressure. They may be solved in runtime code and authored rules, but any 
 
 The [language roadmap](PETS_ROADMAP.md#language-and-modeling) considers abstract property defaults,
 instruction-valued printed facts, and richer cardinality. Instruction values would extend or
-reshape the public sealed [`PropertyValue`](src/common/dev/martianzoo/pets/ast/PropertyValue.kt)
+reshape the public sealed [`PropertyValue`](pets/src/common/dev/martianzoo/pets/ast/PropertyValue.kt)
 hierarchy and property-query methods on `Type` and `Class`.
 
 The [TODOs](TODO.md) also ask how narrower dependency defaults retain compatible refinements and
@@ -194,7 +194,7 @@ The [diagnostic TODOs](TODO.md) ask for original filenames through parsing and g
 preserved provenance through synthesized trees, better span targets, and retained intersection
 failure reasons.
 
-[`SourceLocation`](src/common/dev/martianzoo/pets/api/SourceLocation.kt) currently stores submitted
+[`SourceLocation`](pets/src/common/dev/martianzoo/pets/api/SourceLocation.kt) currently stores submitted
 source text, offset, and length. File identity could change its constructor and generated data-class
 methods. Parsing parameters, `PetNode.sourceLocation`, and exception payloads are other possible
 surfaces. Better messages or provenance propagation alone need not change signatures.
@@ -274,7 +274,7 @@ settled.
 
 There is no separately identified breaking Kotlin API proposal for `tfm-card-data` or `tfm-fake`;
 the latter still inherits effects from Catalog and Canon changes. Generator/tool application entry
-points and their dependencies may move, and renaming `pets-tools` to `tools` is tracked for after
+points and their dependencies may move, and renaming `junkdrawer` to `tools` is tracked for after
 the split. That module/task-name change is distinct from a Kotlin type or function redesign.
 
 Runtime-only changes to `World`, `Instructor`, `LiveEffect`, Agents, recordings,

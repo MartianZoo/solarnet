@@ -58,7 +58,7 @@ Reject the change if:
   missing choice, task identity, completion, or engine semantics. Exposing a path that must later
   be rolled back is not itself missing semantics; apply the dead-end principle above.
 
-Use [`VALUES.md`](VALUES.md#keep-pets-central), [`TESTING.md`](TESTING.md#test-design),
+Use [`VALUES.md`](../../pets/docs/agents/VALUES.md#keep-pets-central), [`TESTING.md`](TESTING.md#test-design),
 and [`SEQUENCING.md`](SEQUENCING.md#before-adding-order) for the detailed tests. Inspect the current
 Agent policy source before relying on automatic execution.
 

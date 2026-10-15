@@ -117,7 +117,7 @@ internal class TaskQueues(
   /**
    * Makes the earliest remaining deferred work ordinary once no ordinary task remains: all `LATER`
    * work, or when none remains, all `FINALLY` work ([rules L2-18 and
-   * L2-19](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
+   * L2-19](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/pets-language-spec.md#2-instructions)).
    * Work deferred while that batch runs waits for the whole batch. A promoted dispatch is performed
    * at once, before it is removed, so its body joins the batch's work. Promotion is an ordinary
    * task edit, so rollback and replay restore it with its transaction.

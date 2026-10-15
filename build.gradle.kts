@@ -16,16 +16,17 @@ val allBrowserTestsRequested =
 
 extra["allBrowserTestsRequested"] = allBrowserTestsRequested
 
-// Kotlin creates a browser-test task for every JS target. Pets, Web, and Almanac run routinely.
+// Kotlin creates a browser-test task for every JS target. Web runs routinely in this build; Pets
+// owns its own browser suites.
 // Other modules are inert unless the full-browser target below is temporarily restored.
 subprojects {
-  if (name !in setOf("pets", "web", "almanac")) {
+  if (name != "web") {
     tasks
         .matching { it.name == "jsBrowserTest" }
         .configureEach {
           description = "Disabled except through the temporary full-browser test target."
           inputs.property("allBrowserTestsRequested", allBrowserTestsRequested)
-          onlyIf("only the Pets, Web, and Almanac browser suites run routinely") { task ->
+          onlyIf("only the Web browser suite runs routinely in this build") { task ->
             task.inputs.properties["allBrowserTestsRequested"] == true
           }
         }
@@ -96,19 +97,13 @@ dokka {
 }
 
 dependencies {
-  dokka(project(":pets"))
-  dokka(project(":catalog"))
-  dokka(project(":tfm-text"))
   dokka(project(":state"))
   dokka(project(":engine"))
   dokka(project(":tfm-state"))
   dokka(project(":tfm-engine"))
   dokka(project(":script"))
   dokka(project(":repl"))
-  dokka(project(":tfm-canon"))
-  dokka(project(":tfm-fake"))
   dokka(project(":web"))
-  dokka(project(":almanac"))
 }
 
 tasks.register<Exec>("installGitHooks") {
@@ -122,3 +117,33 @@ tasks.register("webAppsDevelopmentRun") {
   description = "Starts one development server for every browser app."
   dependsOn(":web:jsBrowserDevelopmentRun")
 }
+
+val localPets = gradle.includedBuilds.find { it.name == "pets" }
+
+listOf(
+        "build",
+        "check",
+        "test",
+        "assemble",
+        "clean",
+        "spotlessCheck",
+        "spotlessApply",
+        "dokkaGenerateHtml",
+    )
+    .forEach { taskName ->
+      val lifecycle =
+          if (taskName in tasks.names) tasks.named(taskName) else tasks.register(taskName)
+      if (localPets != null) lifecycle.configure { dependsOn(localPets.task(":$taskName")) }
+    }
+
+val petsDescription = gradle.extra["petsDescription"] as String
+val petsMode by tasks.registering {
+  group = "help"
+  description = "Shows the selected Pets source or release and this working copy's selection file."
+  val message = petsDescription
+  doLast { println(message) }
+}
+
+tasks.named("help") { dependsOn(petsMode) }
+
+listOf("build", "check", "test").forEach { tasks.named(it) { dependsOn(petsMode) } }

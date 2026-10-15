@@ -27,19 +27,19 @@ after review. **Selected** means the direction is chosen while some design remai
    **Selected; active design.** Unify the lifecycle while preserving choice, rollback, and Actor
    authority. Fix action identity as a necessary part of this work: a nonexistent second action on
    AI Central currently succeeds and consumes its use without drawing cards. See
-   [action identity and invocation](docs/agents/ACTIONS.md),
-   [turns and turn offers](docs/agents/SEQUENCING.md#turns-and-turn-offers), including
+   [action identity and invocation](pets/docs/agents/ACTIONS.md),
+   [turns and turn offers](pets/docs/agents/GAME_FLOW.md#turns-and-turn-offers), including
    the Head Start variant, [on-turn identity and routing](docs/agents/IDENTITY.md#who-is-on-turn-and-who-decides),
    and [deferred work](docs/agents/SEQUENCING.md#deferred-work). Ordering delegated
    responses and their payments remains open; see [completion](docs/agents/SEQUENCING.md#the-missing-rule-when-an-operation-is-over)
-   and [payment gaps](docs/agents/PAYMENTS.md#verified-gaps).
+   and [payment gaps](docs/agents/PAYMENTS.md#allocation-validation).
 
 2. **Make the game advance through authored rules instead of a mirrored Kotlin workflow.**
    **Selected.** Phase order, player rotation, setup, expansion phases, final greenery, scoring, and
    victory should arise from live game components and ordinary engine scheduling.
    [Deferred work](docs/agents/SEQUENCING.md#deferred-work) settles work within an operation, and
    `FINALLY` work, which waits for everything else including `LATER` work, carries the next turn or
-   phase. The [game flow](docs/agents/SEQUENCING.md#game-flow) is now authored this way and
+   phase. The [game flow](pets/docs/agents/GAME_FLOW.md#game-flow) is now authored this way and
    `TfmWorkflow` is deleted; a turn scope remains open. The `workflow` branch removed the
    coroutine-owned phase sequence but is not intended to land. It measured the cost of representing
    deferred work as components: per-rule mode guards, continuation components, and a compiler for
@@ -181,7 +181,7 @@ after review. **Selected** means the direction is chosen while some design remai
   [Pets roadmap: Derived applications](PETS_ROADMAP.md#derived-applications-of-the-static-model).
 - **Separate the Gradle builds before splitting Git repositories.** Solarnet will consume Pets
   libraries by artifact coordinates, with local composite substitution for combined development.
-  The [repo-split next step](PETS_ROADMAP.md#next-step-separate-gradle-builds) owns the implementation
+  The [repo-split next step](PETS_ROADMAP.md#independent-gradle-builds) owns the implementation
   scope and acceptance checks, including building an isolated Solarnet copy against freshly built
   Pets artifacts without Pets source. Developer comfort is a completion condition: prove explicit
   release/source selection, independent worktree pairings, IDE editing across both builds, and

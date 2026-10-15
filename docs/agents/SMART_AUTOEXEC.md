@@ -380,7 +380,7 @@ An earlier attempt built a corpus from inserted task pairs, then from pairs of o
 card plays. Both encoded the wrong premise. Pairing an Energy gain with Factorum's action assumed
 that a reachable play puts both in one queue. Pairing a Player's removal with an Admin production
 phase ignored the fact that the game's flow starts the next phase only as `FINALLY` work, after
-everything else drains ([SEQUENCING.md](SEQUENCING.md#game-flow)). Those tests were removed and
+everything else drains ([SEQUENCING.md](../../pets/docs/agents/GAME_FLOW.md#game-flow)). Those tests were removed and
 nothing from them was kept.
 
 The test subject is a **pending concrete task at a real decision point**:

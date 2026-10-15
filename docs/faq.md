@@ -35,26 +35,20 @@ You're speaking directly to the engine API, and the engine is extremely low-leve
 
 ### Where are the rest of the cards?
 
-There are currently over 570 cards supported. The full inventory and remaining card and non-card components are listed at [what is supported](what-is-supported.md).
+There are currently over 570 cards supported. The full inventory and remaining card and non-card components are listed at [what is supported](../pets/docs/what-is-supported.md).
 
 ### Does Solarnet use any house rules?
 
-Only for a few exceptionally minor edge cases. They are listed in the [incompatibilities table](what-is-supported.md#incompatibilities).
+Only for a few exceptionally minor edge cases. They are listed in the [incompatibilities table](../pets/docs/what-is-supported.md#incompatibilities).
 
 ### What about Turmoil?
 
 Turmoil is largely implemented, including all its Global Events and all six parties. The
-[support inventory](what-is-supported.md) lists the remaining card exceptions.
+[support inventory](../pets/docs/what-is-supported.md) lists the remaining card exceptions.
 
 ### Could I add my own fan cards?
 
-That's part of the idea, for sure! However, a couple caveats:
-
-* There's no user-facing provision for bringing fan cards into the system, so for now you would fork the project and edit a bundle's `cards.json5` file. The build generates the corresponding Pets declarations. We can talk about a better way to do it, for sure.
-* This will work fine if your fan cards remix existing game mechanics. Further-out behavior may
-  need a bounded custom instruction, metric, or class after a genuine attempt to express it in
-  ordinary Pets. A new general feature is not justified merely because one published or fan card
-  needs it.
+See the [Pets FAQ](../pets/docs/faq.md#could-i-add-my-own-fan-cards).
 
 ### What could potentially get built around this?
 
@@ -72,9 +66,7 @@ are lower-priority possibilities around it.
 
 ### Can we please improve the error messages? They're almost mocking me.
 
-Yes. A parser's responsibility is not merely to accept correct Pets; it should precisely highlight
-why incorrect Pets is incorrect, especially for commonly encountered mistakes. I value that highly,
-but it is not a current program of work.
+See the [Pets FAQ](../pets/docs/faq.md#can-we-please-improve-the-error-messages-theyre-almost-mocking-me).
 
 ### What do the FryxFolk think of this project?
 

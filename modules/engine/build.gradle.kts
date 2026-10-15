@@ -8,8 +8,10 @@ kotlin {
       )
       dependencies {
         implementation(libs.kotlinx.coroutines.core)
-        implementation(project(":catalog"))
-        implementation(project(":pets"))
+        implementation(
+            "dev.martianzoo.pets:catalog:${providers.gradleProperty("petsVersion").get()}"
+        )
+        implementation("dev.martianzoo.pets:pets:${providers.gradleProperty("petsVersion").get()}")
         implementation(project(":state"))
       }
     }
@@ -26,7 +28,9 @@ kotlin {
       dependencies {
         implementation(libs.kotest.assertions.core)
         implementation(project(":agent"))
-        implementation(project(":tfm-canon"))
+        implementation(
+            "dev.martianzoo.pets:tfm-canon:${providers.gradleProperty("petsVersion").get()}"
+        )
         implementation(project(":tfm-engine"))
       }
     }
