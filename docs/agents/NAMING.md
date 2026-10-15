@@ -326,9 +326,8 @@ names `TerraLabs`. Jacob's forum posts and the official
 ## Intentional exceptions
 
 The `Fake`-prefixed cards in FakeCanon's explicitly selected `fakes:cards` pool are deliberate
-incomplete stand-ins. The wild-tag cards preserve every other modeled behavior while creating only
-an inert `FakeWildTag`; replays add the chosen ordinary tag explicitly when source evidence requires
-it. The other stand-ins preserve only their documented subset of the printed card. Their names must
+incomplete stand-ins. All five wild-tag cards belong to Canon.
+The stand-ins preserve only their documented subset of the printed card. Their names must
 remain visibly fake so Canon does not claim to model the published cards faithfully.
 
 `ProdOffset` names the component representing the five synthetic M€-production steps.

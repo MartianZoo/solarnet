@@ -14,6 +14,31 @@ internal class EnglishInstructionRenderingTest {
   private val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
 
   @Test
+  internal fun omitsWildTagAllocationInstructions() {
+    english.describe(
+        parse<InstructionTree>("EACH Choice@WildTag { Tag<Choice@WildTag>? }")
+    ) shouldBe ""
+    english.describe(
+        parse<InstructionTree>("EACH @WildTag(HAS MAX 0 Tag) { ScienceTag<@WildTag> }")
+    ) shouldBe ""
+    english.describe(
+        parse<InstructionTree>("EACH @WildTag { Tag<@WildTag>? }, PROD[MC / Class<@Tag>(HAS @Tag)]")
+    ) shouldBe "Increase your M€ production 1 step per different tag you have."
+    english.describe(
+        parse<Effect>(
+            "UseAction<OrbitalCleanup, Action1>:: EACH @WildTag(HAS MAX 0 Tag) { ScienceTag<@WildTag> }"
+        )
+    ) shouldBe ""
+    english.describe(parse<InstructionTree>("AllocateCloudTourismWildTags")) shouldBe ""
+    english.describe(
+        parse<InstructionTree>("EACH @WildTag(HAS MAX 0 Tag) { 2 ScienceTag<@WildTag> }")
+    ) shouldContain "["
+    english.describe(
+        parse<InstructionTree>("EACH @WildTag<Anyone>(HAS MAX 0 Tag) { Tag<@WildTag>? }")
+    ) shouldContain "["
+  }
+
+  @Test
   internal fun preservesCapOrderAndResourceRetention() {
     english.describe(parse<InstructionTree>("-2* MC / (BuildingTag MAX 3 - Influence)")) shouldBe
         "Lose 2 M€ per building tag you have (max 3) in excess of influence (to the extent possible)."
@@ -23,7 +48,8 @@ internal class EnglishInstructionRenderingTest {
         "Remove all steel except 2 plus influence."
     english.describe(parse<InstructionTree>("-2! Steel / Steel")) shouldBe
         "Lose 2 steel per steel you have."
-    english.describe(parse<InstructionTree>("-Steel? / Steel")) shouldBe "[-Steel? / Steel]."
+    english.describe(parse<InstructionTree>("-Steel? / Steel")) shouldBe
+        "You may remove up to 1 steel per steel you have."
     english.describe(parse<InstructionTree>("2 MC / (BuildingTag - (Influence - 2))")) shouldBe
         "Gain 2 M€ per [BuildingTag - (Influence - 2)]."
   }

@@ -5,6 +5,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Class
@@ -29,9 +30,14 @@ internal class English(
   internal fun describe(actions: List<Action>): String =
       renderActions(actions, describers).linearize()
 
-  /** Returns complete, context-neutral English sentences describing [instructionTree]. */
-  internal fun describe(instructionTree: InstructionTree): String =
-      renderInstructionTree(instructionTree, describers).linearize()
+  /** Describes [instructionTree], optionally addressing the named [player] as "you". */
+  internal fun describe(instructionTree: InstructionTree, player: ClassName? = null): String =
+      renderInstructionTree(
+              player?.let { playerRelativeInstruction(instructionTree, it, describers) }
+                  ?: instructionTree,
+              describers,
+          )
+          .linearize()
 
   /** Returns complete English sentences describing [requirement]. */
   internal fun describe(requirement: Requirement): String =
@@ -199,7 +205,12 @@ internal class English(
   }
 
   private fun interpretedCardEffects(card: Class): List<Effect> =
-      cardEffects(card).map { card.interpretTypeVariablesIn(it).untransformed }
+      cardEffects(card)
+          .map { card.interpretTypeVariablesIn(it).untransformed }
+          .filterNot { effect ->
+            val instructions = InstructionGroup.of(effect.instruction).instructions
+            instructions.isNotEmpty() && instructions.all { isImplicitInstruction(it, describers) }
+          }
 
   private fun isSelfGainEffect(effect: Effect): Boolean {
     return (effect.automatic && effect.trigger == WhenGain) ||

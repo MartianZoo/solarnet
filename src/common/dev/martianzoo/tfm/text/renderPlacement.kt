@@ -140,12 +140,8 @@ internal fun renderPlacementSites(
   if (resolvedSite.sourceDependencies.isNotEmpty()) return null
 
   val siteNoun =
-      if (
-          describers.concrete(expression.className) &&
-              describers.fact(expression.className, ComponentDescriber::noun) is
-                  ComponentDescriber.Noun.Fixed
-      ) {
-        NounPhrase.text(describers.componentNoun(expression.className, 1))
+      if (describers.concrete(expression.className)) {
+        describers.namedComponent(expression.className)
       } else {
         NounPhrase(
             describers.describedNoun(expression.className, site.noun, 1),
@@ -199,6 +195,10 @@ private fun renderEmptySiteRequirement(
   val expression = countedExpression(maximum) ?: return null
   if (!expression.simple) return null
   val noun = describers.componentNoun(expression.className, 1)
+  val placement = describers.positionedFrame(expression.className)
+  if (placement?.unqualifiedOwnership == ComponentDescriber.OwnershipPhrase.YOURS) {
+    return Modifier.Phrase("with none of your ${placement.noun.plural}")
+  }
   return Modifier.Relation("with", NounPhrase(noun, determiner = Determiner.NO))
 }
 

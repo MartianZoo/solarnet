@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -87,7 +87,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     }
     green.turn {
       playPrelude(IoResearchOutpost)
-      playPrelude(FakeAppliedScience)
+      playPrelude(AppliedScience)
     }
     purple.turn {
       playPrelude(MetalsCompany)
@@ -103,7 +103,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
       stdAction("RequiredActionsSignal") { doTask("Investor") }
       playProject(IndustrialMicrobes, 12)
     }
-    green.turn { cardAction1(FakeAppliedScience) { doTask("Titanium") } }
+    green.turn { cardAction1(AppliedScience) { doTask("Titanium") } }
     purple.turn {
       stdAction("RequiredActionsSignal")
       playProject(BribedCommittee, 7)
@@ -159,9 +159,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
       playProject(Soletta, 35)
     }
     green.turn {
-      green.exMachina(fakeWildTags("EarthTag"))
       playProject(Omnicourt, 9)
-      green.assertCounts(0 to "FakeWildTagUse")
     }
     purple.turn { playProject(SolarPower, 9, steel = 1) }
     blue.turn {
@@ -179,7 +177,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
       }
     }
     green.turn {
-      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(AppliedScience) { addCardResources(SulphurEatingBacteria) }
     }
     purple.turn { stdProject("PowerPlantProject") }
     blue.turn {
@@ -225,9 +223,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 2, venus = 16)
 
     green.turn {
-      green.exMachina(fakeWildTags("ScienceTag"))
       playProject(LightningHarvest, 6)
-      green.assertCounts(0 to "FakeWildTagUse")
     }
     purple.turn {
       playProject(DeimosDownPromo, 25, titanium = 2) {
@@ -240,7 +236,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     }
     pink.turn { playProject(DirectedImpactors, 8) }
     green.turn {
-      cardAction1(FakeAppliedScience) { doTask("Plant") }
+      cardAction1(AppliedScience) { doTask("Plant") }
       playProject(Moss, 2)
     }
     purple.turn {
@@ -256,9 +252,13 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
       }
     }
     green.turn {
-      green.exMachina(fakeWildTags("EarthTag"))
-      claimMilestone(cn("Diversifier"))
-      green.assertCounts(0 to "FakeWildTagUse")
+      inTurn {
+        doWithAutoExecPolicy(CONCRETE) {
+          useStdAction("ClaimMilestone<Class<Diversifier>>") {
+            doTask("EarthTag<WildTag<AppliedScience>>")
+          }
+        }
+      }
     }
     purple.turn { playProject(Teslaract, 4, steel = 5) }
     blue.turn {
@@ -317,7 +317,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     }
     pink.turn { playProject(EarthCatapult, 23) }
     green.turn {
-      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(AppliedScience) { addCardResources(SulphurEatingBacteria) }
     }
     purple.pass()
     blue.turn { cardAction1(AstroDrill) { addCardResources(CometAiming) } }
@@ -337,9 +337,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     blue.turn { playProject(TerraformingContract, 8) }
     pink.turn { cardAction2(DirectedImpactors) }
     green.turn {
-      green.exMachina(fakeWildTags("EarthTag"))
       playProject(Solarnet, 5)
-      green.assertCounts(0 to "FakeWildTagUse")
     }
     blue.turn { cardAction2(CometAiming) { placeTile(6, 7) } }
     pink.pass()
@@ -402,17 +400,15 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
       }
     }
     blue.turn {
-      playProject(FakeResearchCoordination, 4)
-      blue.exMachina(fakeWildTags("SpaceTag"))
+      playProject(ResearchCoordination, 4)
       playProject(Satellites, 4, titanium = 2)
-      blue.assertCounts(0 to "FakeWildTagUse")
     }
     pink.turn {
       stdAction("UseCardAction<$DirectedImpactors, Action1>", payment = { pay(6) }) {
         addCardResources(DirectedImpactors)
       }
     }
-    green.turn { cardAction1(FakeAppliedScience) { doTask("Titanium") } }
+    green.turn { cardAction1(AppliedScience) { doTask("Titanium") } }
 
     // Database save 282: complete public state after Green's Applied Science action. Private hands
     // are represented only by their public aggregate counts.
@@ -517,7 +513,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
       playProject(DevelopmentCenter, 3, steel = 3)
       cardAction1(DevelopmentCenter)
     }
-    green.turn { cardAction1(FakeAppliedScience) { doTask("Titanium") } }
+    green.turn { cardAction1(AppliedScience) { doTask("Titanium") } }
     purple.turn { cardAction1(Teslaract) }
     blue.turn { cardAction2(WeatherBalloons) }
     pink.turn {
@@ -540,9 +536,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     }
     pink.pass()
     green.turn {
-      green.exMachina(fakeWildTags("ScienceTag"))
       cardAction1(OrbitalCleanup)
-      green.assertCounts(0 to "FakeWildTagUse")
     }
     blue.turn { claimMilestone(cn("Coastguard")) }
     green.turn { cardAction1(SulphurEatingBacteria) }
@@ -639,19 +633,15 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
       playProject(AdvancedEcosystems, 9)
     }
     green.turn {
-      green.exMachina(fakeWildTags("ScienceTag"))
       cardAction1(OrbitalCleanup)
-      green.assertCounts(0 to "FakeWildTagUse")
     }
     purple.turn {
       convertPlants { placeTile(4, 5) }
       stdProject("CityProject") { placeTile(3, 5) }
     }
     blue.turn {
-      blue.exMachina(fakeWildTags("ScienceTag"))
       intentionalUnderpay()
       playProject(MercurianAlloys, 3)
-      blue.assertCounts(0 to "FakeWildTagUse")
       stdProject("CityProject") { placeTile(3, 7) }
     }
     pink.turn {
@@ -660,9 +650,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     }
     green.turn {
       playProject(SisterPlanetSupport, 5)
-      green.exMachina(fakeWildTags("PlantTag"))
       playProject(Insects, 7)
-      green.assertCounts(0 to "FakeWildTagUse")
     }
     purple.turn { cardAction1(Teslaract) }
     blue.turn {
@@ -672,9 +660,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     pink.turn { playProject(SponsoredAcademies, 7) }
     green.turn {
       cardAction2(SulphurEatingBacteria, x = 2)
-      green.exMachina(fakeWildTags("MicrobeTag"))
       playProject(Worms, 6)
-      green.assertCounts(0 to "FakeWildTagUse")
     }
     purple.turn {
       playProject(ProtectedGrowth, 2)
@@ -893,9 +879,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
       playProject(FreyjaBiodomes, 12) { addCardResources(VenusianAnimals, 2) }
     }
     green.turn {
-      green.exMachina(fakeWildTags("EarthTag"))
       playProject(SaturnSurfing, 13)
-      green.assertCounts(0 to "FakeWildTagUse")
     }
     purple.pass()
     blue.turn { convertPlants { placeTile(5, 8) } }
@@ -926,9 +910,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
     }
     pink.turn { sellPatents(1) }
     green.turn {
-      green.exMachina(fakeWildTags("ScienceTag"))
       cardAction1(OrbitalCleanup)
-      green.assertCounts(0 to "FakeWildTagUse")
       playProject(SoilEnrichment, 6)
     }
     blue.pass()

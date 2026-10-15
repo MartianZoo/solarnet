@@ -1271,10 +1271,16 @@ that relationship where they need it.
 > `-ProjectCard` discards from hand rather than from `Selecting` or `Revealed`. This inherited
 > all-use default supplies card location; the player's ownership is supplied separately by L9-3.
 
-**L9-5. A gain or removal also receives the defaults for its use kind**, and a gain must opt in.
+**L9-5. A gain, removal, or gain/removal trigger also receives its use-kind defaults.**
+Gains and triggers must opt in.
 When a class has gain dependency defaults, a gain may not leave its argument list implicit: write
 `OceanTile<>` to accept them, or supply at least one argument. This keeps a defaulted placement
 visible at the point of use.
+
+The same acceptance rule applies to trigger dependency defaults. With `DEFAULT Tag<CardFront>:`,
+`EarthTag<>:` listens only to printed Earth tags; `EarthTag<TagHolder>:` explicitly includes every
+holder. Bare `EarthTag:` is rejected. This applies to both gain and removal triggers, including
+triggers wrapped in `OR`, `IF`, or `BY`; it does not change tag metrics or gain instructions.
 
 Where both sets speak to one dependency key, the use-kind default wins: it is the more specific
 statement about what this use means. The all-use set then fills only the keys it left open. A
@@ -1598,7 +1604,7 @@ of one use-kind default. Clauses that disagree about their class, dependency arg
 are rejected; declaration order never selects a winner. A clause naming another class is rejected.
 
 ```ebnf
-DefaultClause ::= "DEFAULT" ( Expression | ( "+" | "-" ) Expression Quantifier? )
+DefaultClause ::= "DEFAULT" ( Expression ":"? | ( "+" | "-" ) Expression Quantifier? )
 ```
 
 > **Non-normative design note — split defaults are an authoring convenience.** Ocean placement
@@ -1912,7 +1918,7 @@ ClassMember        ::= BodyElement | Declaration                                
 BodyElement        ::= Invariant | DefaultClause | PropertyAssignment | Effect | Action  /* L11-5 */
 
 Invariant          ::= "HAS" Requirement                                                 /* L11-5 */
-DefaultClause      ::= "DEFAULT" ( Expression | ( "+" | "-" ) Expression Quantifier? )   /* L11-8 */
+DefaultClause      ::= "DEFAULT" ( Expression ":"? | ( "+" | "-" ) Expression Quantifier? )   /* L11-8 */
 PropertyAssignment ::= PropertyName "=" PropertyValue                                    /* L11-9 */
 PropertyValue      ::= "Number" | "Metric" | "Requirement" "?"? | Integer                /* L11-9 */
                      | "COUNT" QuotedText

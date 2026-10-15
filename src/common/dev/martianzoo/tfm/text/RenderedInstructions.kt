@@ -2,15 +2,12 @@ package dev.martianzoo.tfm.text
 
 /** Ordered English clauses describing one instruction tree. */
 internal data class RenderedInstructions(val clauses: List<Clause>) {
-  init {
-    require(clauses.isNotEmpty())
-  }
-
   internal fun asSentences(): EnglishText = EnglishText.join(clauses.map { Sentence(it).asText() })
 
-  internal fun asCoordinatedClause(): Clause = clauses.reduce { preceding, next ->
-    Clause.Coordinated(Coordination(listOf(preceding, next), Conjunction.AND))
-  }
+  internal fun asCoordinatedClause(): Clause =
+      clauses.reduceOrNull { preceding, next ->
+        Clause.Coordinated(Coordination(listOf(preceding, next), Conjunction.AND))
+      } ?: doNothingClause
 
   internal val unresolved: List<Unresolved>
     get() = clauses.flatMap(Clause::unresolved)

@@ -16,6 +16,8 @@ import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Has
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
@@ -524,7 +526,32 @@ public class PetElaborator(public val classTable: ClassTable) {
   }
 
   private fun insertDefaults(context: Expression): PetTransformer =
-      chain(insertGainRemoveDefaults(context), insertExpressionDefaults(context))
+      chain(
+          insertTriggerDefaults(context),
+          insertGainRemoveDefaults(context),
+          insertExpressionDefaults(context),
+      )
+
+  private fun insertTriggerDefaults(context: Expression): PetTransformer =
+      object : PetTransformer() {
+        override fun transformNode(node: PetNode): PetNode {
+          val original =
+              when (node) {
+                is OnGainOf -> node.expression
+                is OnRemoveOf -> node.expression
+                else -> return transformChildren(node)
+              }
+          if (leaveItAlone(original)) return node
+          val spec = classTable.getClass(original.className).defaults.triggerOnly
+          rejectEmptyArgumentsWithoutDefaults(original, spec, "trigger")
+          requireExplicitDependencyDefaults(original, spec, "trigger")
+          val fixed = insertDefaultsIntoExpr(original, spec.dependencies, context, classTable)
+          return when (node) {
+            is OnGainOf -> OnGainOf.create(fixed)
+            is OnRemoveOf -> OnRemoveOf.create(fixed)
+          }.also { it.sourceLocation = node.sourceLocation }
+        }
+      }
 
   /** Rebuilds a compact transmutation after independently processing its two projections. */
   private fun retainCompactForm(

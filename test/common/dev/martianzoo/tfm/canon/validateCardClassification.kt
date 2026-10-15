@@ -26,7 +26,8 @@ internal fun validateCardClassification(catalog: TfmCatalog) {
   val activeCard = table.findClass(TfmClasses.ACTIVE_CARD)
   val automatedCard = table.findClass(TfmClasses.AUTOMATED_CARD)
   catalog.cards.forEach { card ->
-    if (TfmClasses.EVENT_TAG in cardTags(card).elements) {
+    val printedTags = cardTags(card).elements
+    if (TfmClasses.EVENT_TAG in printedTags) {
       require(eventCard != null && card.isSubtypeOf(eventCard)) {
         "non-EventCard ${card.className} has an EventTag"
       }
@@ -46,6 +47,7 @@ internal fun validateCardClassification(catalog: TfmCatalog) {
                 it.expected > 0 &&
                     expression != null &&
                     THIS.expression in expression.arguments &&
+                    expression.className !in printedTags &&
                     carriesPersistentBehavior(table.getClass(expression.className))
               } ||
               cardEffects(card).any { effect ->

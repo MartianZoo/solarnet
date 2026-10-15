@@ -6,6 +6,7 @@ import dev.martianzoo.catalog.GamePremiseBuilder
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
+import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -135,13 +136,17 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
                   listOf(TfmClasses.MILESTONE, TfmClasses.AWARD).flatMap { goalClass ->
                     bundleClassesBelow(bundle, goalClass, includeAbstract = true)
                   }
-              val customClassNames =
-                  customClassDeclarations.mapTo(hashSetOf(), ClassDeclaration::className)
+              val supportClassNames =
+                  (customClassDeclarations +
+                          bundle.explicitClassDeclarations.filter {
+                            isSubtypeOf(it.className, cn("CardWatcher"))
+                          })
+                      .mapTo(hashSetOf(), ClassDeclaration::className)
               val goalSupportClassNames =
                   goalDeclarations
                       .flatMap(ClassDeclaration::allNodes)
                       .flatMapTo(linkedSetOf()) { node -> node.descendantsOfType<ClassName>() }
-                      .filterTo(linkedSetOf()) { it in customClassNames }
+                      .filterTo(linkedSetOf()) { it in supportClassNames }
               val contentClassNames = buildSet {
                 addAll(bundle.cardResourceClassNames)
                 bundle.marsMapDefinitions.forEach { map ->
@@ -542,7 +547,11 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
                           as? RequirementValue)
                       ?.value,
               ),
-              declaration.invariants.fold<Requirement, Requirement?>(null, Requirement::join),
+              // Required class tokens bring support into the selected pool; they are not
+              // conditions that must already hold before the goal is selected.
+              Requirement.split(declaration.invariants)
+                  .filterNot { it is Min && (it.metric as? Count)?.expression?.className == CLASS }
+                  .fold<Requirement, Requirement?>(null, Requirement::join),
           ),
           bundleCompatibilityRequirement(declaration.className, listOf(declaration)),
       )

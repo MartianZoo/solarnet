@@ -17,7 +17,7 @@ CLASS TerraformingMars : Module {
   HAS Class<PlayProject>, Class<UseStandardProject>, Class<UseCardAction>, Class<ConvertPlants>, Class<ConvertHeat>
 
   This: Hand, Selecting, Revealed
-  This: NoTagsFilter
+  This: NoTagsFilter, RequirementFilter
   This: EACH Class<@Tag> { TagFilter<Class<@Tag>> }
   This: EACH @Class<GlobalParameter> { GpIncomplete<@Class> }
   This: EACH Class<@RemoteArea> { @RemoteArea }

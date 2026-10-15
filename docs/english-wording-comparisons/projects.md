@@ -5243,6 +5243,24 @@ CLASS SpaceHotels : AutomatedCard {
 }
 ```
 
+### Research Coordination
+
+Class: `ResearchCoordination`
+
+| | Bottom | Top |
+| --- | --- | --- |
+| Printed text | After being played, when you perform an action, the wild tag counts as any tag of your choice. | — |
+| Generated text | While performing a future action, the wild tag can become any tag of your choice. | — |
+
+Pets declaration:
+
+```pets
+CLASS ResearchCoordination : AutomatedCard {
+  HAS MAX 1 ResearchCoordination, =1 WildTag<This>
+  cost = 4
+}
+```
+
 ## Colonies Expansion
 
 ### Airliners
@@ -8496,24 +8514,6 @@ CLASS WgProject : AutomatedCard {
 ```
 
 ## Replay-only models
-
-### Research Coordination
-
-Class: `FakeResearchCoordination`
-
-| | Bottom | Top |
-| --- | --- | --- |
-| Printed text | After being played, when you perform an action, the wild tag counts as any tag of your choice. | — |
-| Generated text | — | Effect: \[=1 FakeWildTag&lt;This&gt;\]. |
-
-Pets declaration:
-
-```pets
-CLASS FakeResearchCoordination : AutomatedCard {
-  HAS =1 FakeWildTag<This>
-  cost = 4
-}
-```
 
 ### Self-Replicating Robots
 

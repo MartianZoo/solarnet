@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.text
 
+import dev.martianzoo.pets.api.SystemClasses.AUDIT
 import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -19,8 +20,15 @@ internal fun renderInstructionTree(
     describers: Describers,
 ): EnglishText {
   val prepared = describers.prepareForRendering(instructionTree)
+  val instructions = InstructionGroup.of(prepared).instructions
+  val visible = instructions.filterNot { isImplicitInstruction(it, describers) }
+  if (instructions.isNotEmpty() && visible.isEmpty()) return EnglishText.Empty
   val rendered =
-      renderPreparedInstructions(prepared, describers, TypeVariableReferences.from(prepared))
+      renderPreparedInstructions(
+          InstructionGroup.of(visible),
+          describers,
+          TypeVariableReferences.from(prepared),
+      )
   return rendered.asSentences()
 }
 
@@ -44,16 +52,20 @@ private fun renderLoweredInstructions(
     references: TypeVariableReferences,
 ): RenderedInstructions {
   val localReferences = references.including(instructionTree)
-  val instructions = InstructionGroup.of(instructionTree).instructions
-  if (instructions.isEmpty()) {
-    return RenderedInstructions(listOf(doNothingClause))
-  }
+  val authored = InstructionGroup.of(instructionTree).instructions
+  if (authored.isEmpty()) return RenderedInstructions(listOf(doNothingClause))
+  val instructions = authored.filterNot(::isBookkeeping)
+  if (instructions.isEmpty()) return RenderedInstructions(emptyList())
   renderScopedInstruction(instructions, describers, localReferences)?.let {
     return it
   }
   val clauses = instructions.flatMap { lexicalizeInstruction(it, describers, localReferences) }
   return RenderedInstructions(rewriteAdjacentClauses(clauses))
 }
+
+// Audit checks engine invariants; it asks the player to do no additional work.
+private fun isBookkeeping(instruction: InstructionTree): Boolean =
+    instruction is Gain && instruction.gaining == AUDIT.expression
 
 /** Total pass-one boundary for one prepared instruction. */
 private fun lexicalizeInstruction(
@@ -110,29 +122,72 @@ private fun renderInstruction(
       is Instruction.Or -> renderAlternatives(instruction, describers, references)
       is Instruction.Per -> renderPer(instruction, describers, references)
       is Instruction.Gated -> renderGated(instruction, describers, references)
-      is Instruction.Then ->
-          renderCardOfferSequence(instruction, describers)
-              ?: renderCardPlaySequence(instruction, describers)
-              ?: renderCombinedCostSequence(instruction, describers, references)
-              ?: renderStandardResourceCostSequence(instruction, describers, references)
-              ?: renderDiscardCostSequence(instruction, describers, references)
-              ?: renderCardResourceCostSequence(instruction, describers, references)
-              ?: renderSequentialThen(instruction, describers, references)
+      is Instruction.Then -> {
+        val visible = instruction.instructions.filterNot(::isBookkeeping)
+        if (visible.size != instruction.instructions.size) {
+          renderLoweredInstructions(Instruction.Then.createTree(visible), describers, references)
+              .asCoordinatedClause()
+        } else
+            renderCardOfferSequence(instruction, describers)
+                ?: renderCardPlaySequence(instruction, describers)
+                ?: renderCombinedCostSequence(instruction, describers, references)
+                ?: renderStandardResourceCostSequence(instruction, describers, references)
+                ?: renderDiscardCostSequence(instruction, describers, references)
+                ?: renderCardResourceCostSequence(instruction, describers, references)
+                ?: renderSequentialThen(instruction, describers, references)
+      }
       is NoOp -> doNothingClause
       is Instruction.Transform -> error("Transforms are expanded before ordinary instructions")
       is Instruction.By -> {
         val actor =
-            instruction.actor
-                .takeIf { it.simple }
-                ?.className
-                ?.takeIf { describers.fact(it, ComponentDescriber::noun) != null } ?: return null
+            if (describers.expressions.isOwner(instruction.actor)) "you"
+            else
+                instruction.actor
+                    .takeIf { it.simple }
+                    ?.className
+                    ?.takeIf { describers.fact(it, ComponentDescriber::noun) != null }
+                    ?.let { describers.componentNoun(it, 1) } ?: return null
         (renderInstruction(instruction.inner, describers, references) as? Clause.Simple)
-            ?.withModifier(
-                Modifier.Parenthetical("performed by ${describers.componentNoun(actor, 1)}")
-            )
+            ?.withModifier(Modifier.Parenthetical("performed by $actor"))
       }
       is Instruction.Dispatch -> null
     }
+
+/** Allocation is implicit bookkeeping, omitted from human-readable card instructions. */
+internal fun isImplicitInstruction(instruction: Instruction, describers: Describers): Boolean =
+    when (instruction) {
+      is Instruction.Each -> isTagAssignmentFanout(instruction, describers)
+      is Gain ->
+          describers.fact(instruction.gaining.className, ComponentDescriber::implicitInstruction) ==
+              true
+      else -> false
+    }
+
+private fun isTagAssignmentFanout(
+    instruction: Instruction.Each,
+    describers: Describers,
+): Boolean {
+  val selector = instruction.selector
+  if (describers.fact(selector.className, ComponentDescriber::tagAssignmentHolder) != true)
+      return false
+  if (selector.arguments.isNotEmpty()) return false
+  if (selector.refinement != null) {
+    val absent =
+        (selector.refinement as? Expression.Refinement.Has)?.requirement as? Requirement.Max
+            ?: return false
+    val counted = (absent.metric as? Metric.Count)?.expression ?: return false
+    if (absent.target != 0 || counted != cn("Tag").expression) return false
+  }
+  val gain =
+      InstructionGroup.of(instruction.body).instructions.singleOrNull() as? Gain ?: return false
+  if (gain.count.fixedQuantity() != 1 || gain.gaining.refinement != null) return false
+  val holder = gain.gaining.arguments.singleOrNull() ?: return false
+  if (!sameNamedTypeVariable(holder, selector) || !describers.isTag(gain.gaining.className))
+      return false
+  val modality = gain.quantifier.modality()
+  if (modality == Modality.BEST_EFFORT) return false
+  return true
+}
 
 private fun renderPlayerFanout(
     instruction: Instruction.Each,
@@ -404,7 +459,7 @@ private fun renderCombinedCostSequence(
       removal.removing.simple && describers.isStandardResource(removal.removing.className) ->
           Clause.Simple(
               Predicate(
-                  Verb("pay"),
+                  Verb("spend"),
                   Coordination.one(
                       describers.componentNounPhrase(removal.removing.className, count)
                   ),
@@ -449,7 +504,7 @@ private fun renderStandardResourceCostSequence(
   val cost =
       Clause.Simple(
           Predicate(
-              Verb("pay"),
+              Verb("spend"),
               Coordination.one(describers.componentNounPhrase(removal.removing.className, count)),
           )
       )
@@ -462,6 +517,7 @@ private fun renderDiscardCostSequence(
     references: TypeVariableReferences,
 ): Clause? {
   val removal = instruction.stages.singleOrNull() as? Remove ?: return null
+  if (removal.quantifier.modality() != Modality.REQUIRED) return null
   val discarded = renderChange(removal, describers, references) as? Clause.Simple ?: return null
   if (describers.changeFrame(removal.removing.className) !is ComponentDescriber.ChangeFrame.Deck) {
     return null
@@ -576,7 +632,7 @@ private fun renderGated(
           references.sameVariable(target, holder) &&
           (describers.changeFrame(procedure.gaining.className)
                   as? ComponentDescriber.ChangeFrame.Procedure)
-              ?.cardTargetRelation != null
+              ?.targetRelation != null
   ) {
     val selectedCard =
         holder.copy(
@@ -772,8 +828,7 @@ private fun renderAlternatives(
   }
   val alternatives =
       instruction.instructions.map { option ->
-        renderLoweredInstructions(option, describers, references).clauses.singleOrNull()
-            ?: return null
+        renderLoweredInstructions(option, describers, references).asCoordinatedClause()
       }
   if (alternatives.size == 2) {
     val firstAction = alternatives.singleOrNull {
@@ -802,7 +857,7 @@ private fun renderAlternatives(
 
 private fun Clause?.isDoNothing(): Boolean = this === doNothingClause
 
-private val doNothingClause: Clause.Simple =
+internal val doNothingClause: Clause.Simple =
     Clause.Simple(Predicate(Verb("do"), Coordination.one(NounPhrase.text("nothing"))))
 
 private fun renderPlacementSiteFallback(

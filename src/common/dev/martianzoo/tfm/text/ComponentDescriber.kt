@@ -36,6 +36,8 @@ internal data class ComponentDescriber(
     internal val cardProcedure: CardProcedure? = null,
     internal val cardLocationDependency: Key? = null,
     internal val cardInvariantSentence: String? = null,
+    internal val tagAssignmentHolder: Boolean? = null,
+    internal val implicitInstruction: Boolean? = null,
 ) {
   internal enum class CardLocation {
     HAND,
@@ -83,7 +85,7 @@ internal data class ComponentDescriber(
     public data class Procedure(
         internal val verb: String,
         internal val objectPhrase: String? = null,
-        internal val cardTargetRelation: String? = null,
+        internal val targetRelation: String? = null,
     ) : ChangeFrame
 
     public data class State(

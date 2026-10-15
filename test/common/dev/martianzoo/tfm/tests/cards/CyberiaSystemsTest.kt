@@ -1,12 +1,46 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 internal class CyberiaSystemsTest : TfmSandboxTest() {
+
+  // Copying does not yet allocate wilds for the selected card or its production counts.
+  @Ignore
+  @Test
+  internal fun `Copies Research Network using its wild Building tag`() {
+    newTestGame("ResearchNetwork")
+    kim.exMachina("ResearchNetwork, Mine")
+    copyResearchNetwork().expect("PROD[MC]")
+  }
+
+  @Test
+  internal fun `BUG - Cannot copy Research Network using its wild Building tag`() {
+    newTestGame("ResearchNetwork")
+    kim.exMachina("ResearchNetwork, Mine")
+    val before = game.timeline.checkpoint()
+    shouldThrow<DependencyException> { copyResearchNetwork() }
+    game.timeline.checkpoint() shouldBe before
+  }
+
+  private fun copyResearchNetwork() = kim.inTurn {
+    doTasks(
+        "PlayProject<Class<CyberiaSystems>>",
+        "16 Pay<> FROM MC",
+        "CyberiaSystems FROM ProjectCard",
+        "PROD[Steel]",
+        "CopyProductionBox<Mine>",
+        "PROD[Steel]",
+        "CopyProductionBox<ResearchNetwork>",
+        "PROD[MC]",
+    )
+  }
 
   private fun initializeGame() {
     newTestGame()

@@ -1,12 +1,9 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.fakeWildTags
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -58,7 +55,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
 
     keen.turn {
       playPrelude(IndustrialComplex)
-      playPrelude(FakeAppliedScience).expect("6 Science, 4 MC")
+      playPrelude(AppliedScience).expect("6 Science, 4 MC")
     }
 
     been.turn {
@@ -70,7 +67,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       playPrelude(EarlySettlement) { placeTile(2, 6) }
     }
 
-    keen.turn { cardAction1(FakeAppliedScience) { doTask("Titanium") } }
+    keen.turn { cardAction1(AppliedScience) { doTask("Titanium") } }
     been.turn {
       playProject(LunarExports, 4, titanium = 5) { doTask("PROD[5 MC]") }
     }
@@ -102,7 +99,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
             declineTask()
           }
           .expect("0 Science")
-      cardAction1(FakeAppliedScience) { doTask("Titanium") }
+      cardAction1(AppliedScience) { doTask("Titanium") }
       pass()
     }
     been.wgt("OceanTile<Hellas_4_6>")
@@ -139,7 +136,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
 
     been.buyCards(2)
     keen.turn {
-      cardAction1(FakeAppliedScience) { doTask("Energy") }
+      cardAction1(AppliedScience) { doTask("Energy") }
       claimMilestone(cn("Merchant"))
     }
     been.turn {
@@ -153,10 +150,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       playProject(MarsUniversity, 4, steel = 2) {
         doTask("-ProjectCard")
       }
-      shouldThrow<RequirementException> {
-        claimMilestone(cn("Researcher"))
-      }
-      keen.exMachina(fakeWildTags("ScienceTag"))
       claimMilestone(cn("Researcher"))
     }
     been.turn {
@@ -218,7 +211,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
         placeTile(6, 2)
       }
     }
-    keen.turn { playProject(FakeResearchCoordination, 2) }
+    keen.turn { playProject(ResearchCoordination, 2) }
     been.turn { stdProject("PowerPlantProject") }
     keen.turn {
       cardAction1(BusinessNetwork) {
@@ -230,7 +223,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
     }
     been.pass()
     keen.turn {
-      cardAction1(FakeAppliedScience) { doTask("Titanium") }
+      cardAction1(AppliedScience) { doTask("Titanium") }
       pass()
     }
     been.wgt("VenusStep")
@@ -252,10 +245,9 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
         addCardResources(ForcedPrecipitation, 3)
       }
     }
-    keen.turn { cardAction1(FakeAppliedScience) { doTask("Titanium") } }
+    keen.turn { cardAction1(AppliedScience) { doTask("Titanium") } }
     been.turn { cardAction1(ExtractorBalloons) }
     keen.turn {
-      keen.exMachina(fakeWildTags("EarthTag", 2))
       playProject(LunarMining, 9)
     }
     been.turn { playProject(SisterPlanetSupport, 7) }
@@ -309,7 +301,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       intentionalUnderpay()
       playProject(SpaceMirrors, 3)
     }
-    keen.turn { cardAction1(FakeAppliedScience) { doTask("Titanium") } }
+    keen.turn { cardAction1(AppliedScience) { doTask("Titanium") } }
     been.turn { cardAction1(SpaceMirrors) }
     keen.turn {
       playProject(LightningHarvest, 4).expect("PROD[1 MC, Energy], -3 MC")
@@ -528,7 +520,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
     keen.turn {
       // The archive pays Solar Probe entirely in M€ despite Keen retaining usable titanium.
       intentionalUnderpay()
-      keen.exMachina(fakeWildTags("ScienceTag", 2))
       playProject(SolarProbe, 7) {
             doTask("-ProjectCard")
           }

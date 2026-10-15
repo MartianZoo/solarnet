@@ -12,6 +12,8 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 internal class GenerateCardPetsTest {
+  private val classes = RawClassIndex(emptyList())
+
   @Test
   internal fun eventClassificationDoesNotDependOnTagOrder() {
     val data =
@@ -21,7 +23,7 @@ internal class GenerateCardPetsTest {
             tags = listOf("EventTag", "SpaceTag"),
             direct = "Plant",
         )
-    val card = CardPetsGenerator.GeneratedCard(data).declaration
+    val card = CardPetsGenerator.GeneratedCard(data, classes).declaration
     assertEquals("EventCard", data.projectKind)
     assertEquals(listOf("EventCard"), card.supertypes.map { it.className.toString() })
     assertEquals(
@@ -56,7 +58,7 @@ internal class GenerateCardPetsTest {
         )
     val failure =
         assertFailsWith<IllegalArgumentException> {
-          CardPetsGenerator.GeneratedCard(invalid).render()
+          CardPetsGenerator.GeneratedCard(invalid, classes).render()
         }
     assertTrue(failure.message.orEmpty().contains("AmbiguousHolder has ambiguous resource storage"))
     assertTrue(failure.message.orEmpty().contains("Animal"))
@@ -79,7 +81,7 @@ internal class GenerateCardPetsTest {
             effects = listOf("This:: 5 MC"),
             direct = "2 Plant",
         )
-    val generated = CardPetsGenerator.GeneratedCard(data)
+    val generated = CardPetsGenerator.GeneratedCard(data, classes)
     val rendered = generated.render()
     val card = parseClasses(rendered).single()
     assertEquals(generated.declaration, card)
@@ -118,7 +120,7 @@ internal class GenerateCardPetsTest {
                     "=1 Refined<This>(NOT Excluded)",
                 ),
         )
-    val card = parseClasses(CardPetsGenerator.GeneratedCard(data).render()).single()
+    val card = parseClasses(CardPetsGenerator.GeneratedCard(data, classes).render()).single()
 
     assertEquals(
         (data.invariants + "MAX 1 Example").map { parse<Requirement>(it) }.toSet(),
@@ -148,7 +150,7 @@ internal class GenerateCardPetsTest {
             tags = listOf("ScienceTag"),
             direct = "ProjectCard",
         )
-    val card = parseClasses(CardPetsGenerator.GeneratedCard(data).render()).single()
+    val card = parseClasses(CardPetsGenerator.GeneratedCard(data, classes).render()).single()
 
     assertEquals("AutomatedCard", data.projectKind)
     assertEquals(
@@ -172,7 +174,7 @@ internal class GenerateCardPetsTest {
 
   @Test
   internal fun supportingDeclarationsFollowTheirCard() {
-    val colonies = CardPetsGenerator.renderBundle("colonies")
+    val colonies = CardPetsGenerator.renderBundle("colonies", classes)
     assertInOrder(
         colonies,
         "CLASS Aridor :",
@@ -183,7 +185,7 @@ internal class GenerateCardPetsTest {
 
   @Test
   internal fun authoredSpecialCardsFollowGeneratedCardsInTheSameResource() {
-    val cards = renderCardPets("turmoil", "CLASS ExampleGlobalEvent : GlobalEvent\n")
+    val cards = renderCardPets("turmoil", "CLASS ExampleGlobalEvent : GlobalEvent\n", classes)
 
     assertInOrder(cards, "CLASS AerialLenses :", "CLASS ExampleGlobalEvent : GlobalEvent")
     assertTrue(cards.endsWith('\n'))

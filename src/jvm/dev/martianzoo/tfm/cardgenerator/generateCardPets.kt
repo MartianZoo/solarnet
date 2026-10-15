@@ -13,6 +13,7 @@ public fun main(args: Array<String>) {
   }
   val outputDirectory = Path.of(args[0])
   val authoredCardPetsDirectory = Path.of(args[1])
+  val classes = RawClassIndex.fromSources(authoredCardPetsDirectory)
   outputDirectory.toFile().deleteRecursively()
   CardData.bundleNames.sorted().forEach { bundleName ->
     val authoredPath = authoredCardPetsDirectory.resolve(bundleName).resolve("cards.pets")
@@ -21,13 +22,13 @@ public fun main(args: Array<String>) {
         .resolve(bundleName)
         .also { it.createDirectories() }
         .resolve("cards.pets")
-        .writeText(renderCardPets(bundleName, authored))
+        .writeText(renderCardPets(bundleName, authored, classes))
   }
 }
 
-internal fun renderCardPets(bundleName: String, authored: String?): String =
+internal fun renderCardPets(bundleName: String, authored: String?, classes: RawClassIndex): String =
     listOfNotNull(
-            CardPetsGenerator.renderBundle(bundleName).trimEnd(),
+            CardPetsGenerator.renderBundle(bundleName, classes).trimEnd(),
             authored?.trim()?.takeIf(String::isNotEmpty),
         )
         .joinToString("\n\n", postfix = "\n")

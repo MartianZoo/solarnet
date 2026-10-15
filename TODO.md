@@ -4,6 +4,15 @@ Delete entries when they are done.
 
 - Continue the [ownership transition](docs/agents/OWNERSHIP.md#next-steps), including its
   [choices needing human review](docs/agents/OWNERSHIP.md#things-that-need-human-review).
+- Wild tags are not yet supported when Robotic Workforce or Cyberia Systems copies production:
+  Research Network cannot be selected through its wild, and copied Gyropolis does not allocate
+  Earth tags for its production. Allocate only after the copy target is known; preserve Building
+  counting for Medical Lab and keep each assignment for the whole action. Bug-test pairs cover
+  the rejected Research Network copies.
+- Investigate represented-tag binding before shortening `@Tag<WildTag<@CardFront>>` to
+  `@Tag<This>` or moving the assignment rule into an inherited `LikesTag` self-effect.
+  The short spelling fails while `recordTypeVariableScopes` resolves the represented-tag usage:
+  `This` has not yet been replaced with the declaring holder. Explicit holder spelling works.
 
 - Finish faithful coverage of the 2026-10-14 unanswered-rules scenarios where current content or
   inputs cannot express the situation. `UnknownRulesTest` covers rejecting partial Celestic and
@@ -103,13 +112,20 @@ Delete entries when they are done.
 - Refresh the remaining `docs/english-wording-comparisons/` entries against current Canon and
   rendering. Entries touched by the delegate work are current; older entries still show previous
   invariant declarations and wording.
+- Continue the selected-task English experiment using `English.describe(instruction, player)`.
+  Preserve named awards and card-play targets; support other-player resource changes, variable
+  payments, and remaining selection/reveal operations. Recognized Audit steps are omitted; interpret
+  remaining billing obligations before hiding any additional bookkeeping. The local input is
+  `_local/replay-selected-task-instructions.txt`; the comparison is `_local/replay-task-english.txt`.
+  Do not treat bracket-free counts as UI readiness.
+
 - Share the `NonNegativeIconsOf` citation scan between gameplay and English; both currently walk
   authored effects independently, so a later change to the icon rule could make their answers differ.
   Briber's self-claim requirement still appears as `[Briber]`; keep it separate from the direct
   `Lose 12 M€` effect. The marked-variable references now follow recorded occurrences, but the older
   interaction-trigger Anyone-to-Player normalization still supplies an implicit `that player`.
-- Finish Head Start's English setup wording: its Audit marker and action-choice signals still
-  appear as bracketed Pets after removing the exact-expression substitution.
+- Finish Head Start's English setup wording: its gated action-choice signals still appear as
+  bracketed Pets after removing the exact-expression substitution.
 - Replace recursive task-ancestry list concatenation with linear construction, and avoid rebuilding
   the target's ancestry when comparing matching tasks. Preserve recorded task disambiguation.
 - Reduce repeated parsing during game-file decoding and reuse the full export already produced

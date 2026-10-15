@@ -29,7 +29,7 @@ public fun cardBack(card: Class): Class? {
   return representedClasses(card).singleOrNull { it.isSubtypeOf(cardBack) }
 }
 
-/** Tags printed on this card, including the Event tag authored on event declarations. */
+/** Printed tag icons, including Wild and the Event icon authored on event declarations. */
 public fun cardTags(card: Class): Multiset<ClassName> {
   val tag = card.classTable.getClass(TAG)
   val names =
@@ -39,7 +39,7 @@ public fun cardTags(card: Class): Multiset<ClassName> {
             expression
                 ?.takeIf { THIS.expression in it.arguments }
                 ?.let { card.classTable.getClass(it.className) }
-        if (part != null && part.isSubtypeOf(tag)) {
+        if (part != null && (part.isSubtypeOf(tag) || part.className == cn("WildTag"))) {
           List(required.expected) { part.className }
         } else {
           emptyList()

@@ -361,10 +361,10 @@ internal class CardTrackingTest : TfmTest() {
   @Test
   internal fun aTaglessFilterUsesPrintedTags() {
     val (tracking, player) = newTrackedGame()
-    tracking.expectArrivals(player, cn("MicroMills"))
-    agents[player].runOperation("SearchForCard<NoTagsFilter>")
+    tracking.expectArrivals(player, cn("MicroMills"), cn("ResearchCoordination"))
+    agents[player].runOperation("2 SearchForCard<NoTagsFilter>")
 
-    tracking.hand(player) shouldBe setOf(cn("MicroMills"))
+    tracking.hand(player) shouldBe setOf(cn("MicroMills"), cn("ResearchCoordination"))
     tracking.requireComplete()
   }
 
@@ -376,6 +376,30 @@ internal class CardTrackingTest : TfmTest() {
 
     shouldThrow<IllegalStateException> {
       agents[player].runOperation("SearchForCard<NoTagsFilter>")
+    }
+
+    game.timeline.checkpoint() shouldBe before
+    tracking.hand(player) shouldBe emptySet()
+  }
+
+  @Test
+  internal fun aRequirementFilterAcceptsBothTagAndGlobalRequirements() {
+    val (tracking, player) = newTrackedGame()
+    tracking.expectArrivals(player, cn("MassConverter"), cn("Algae"))
+    agents[player].runOperation("2 SearchForCard<RequirementFilter>")
+
+    tracking.hand(player) shouldBe setOf(cn("MassConverter"), cn("Algae"))
+    tracking.requireComplete()
+  }
+
+  @Test
+  internal fun aRequirementFilterRejectsCardsWithoutRequirements() {
+    val (tracking, player) = newTrackedGame()
+    tracking.expectArrivals(player, cn("AcquiredCompany"))
+    val before = game.timeline.checkpoint()
+
+    shouldThrow<IllegalStateException> {
+      agents[player].runOperation("SearchForCard<RequirementFilter>")
     }
 
     game.timeline.checkpoint() shouldBe before

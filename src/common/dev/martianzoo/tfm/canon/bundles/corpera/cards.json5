@@ -7,7 +7,7 @@
           "name": "SaturnSystems",
           "tags": [ "JovianTag" ],
           "direct": "42 MC, PROD[Titanium]",
-          "effects": [ "JovianTag<Anyone>: PROD[1 MC]" ],
+          "effects": [ "JovianTag<CardFront<Anyone>>: PROD[1 MC]" ],
         },
         {
           "name": "Teractor",
@@ -267,7 +267,7 @@
           "cost": 8,
           "tags": [ "ScienceTag", "BuildingTag" ],
           "effects": [
-            "ScienceTag: (-ProjectCard THEN ProjectCard) OR Ok",
+            "ScienceTag<>: (-ProjectCard THEN ProjectCard) OR Ok",
             "End: VictoryPoint"
           ],
         },
@@ -330,7 +330,7 @@
           "cost": 10,
           "tags": [ "ScienceTag", "EarthTag", "BuildingTag" ],
           "effects": [
-            "ScienceTag: Science<This> OR (ProjectCard FROM Science<This>)",
+            "ScienceTag<>: Science<This> OR (ProjectCard FROM Science<This>)",
             "End: VictoryPoint"
           ],
         },

@@ -22,7 +22,7 @@ internal class EnglishTest {
   private val catalog = TfmCatalog(Canon, FakeCanon)
   private val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
   private val publishedEnglish =
-      English(catalog.classTable, TerraformingMarsDescribers.descriptions + fakeEnglishDescriptions)
+      English(catalog.classTable, TerraformingMarsDescribers.descriptions)
   private val cardsByClassName = Canon.cards.associateBy { it.className }
   private val published =
       EnglishCardTextData.parse(readEnglishCardText("english-published-wording-evidence.tsv"))
@@ -67,6 +67,8 @@ internal class EnglishTest {
     ) shouldBe "When you place a tile on Mars, gain 1 M€ per ocean tile next to that Mars area."
     english.describe(parse<Effect>("PlantTag<CardFront<Anyone>, Anyone>: Steel")) shouldBe
         "When any plant tag is played, gain 1 steel."
+    english.describe(parse<Effect>("PlantTag<CardFront<Anyone>>: Steel")) shouldBe
+        "When any plant tag is played, gain 1 steel."
     english.describe(parse<Effect>("TerraformRating: 2 MC")) shouldBe
         "When you raise your terraform rating 1 step, gain 2 M€."
     english.describe(parse<Effect>("CardFront(HAS MAX 0 Tag): 4 MC")) shouldBe
@@ -110,7 +112,7 @@ internal class EnglishTest {
     english.describe(parse<InstructionTree>("PROD[1 MC / EarthTag MAX VenusTag]")) shouldBe
         "Increase your M€ production 1 step per pair of Earth and Venus tags you have."
     english.describe(parse<InstructionTree>("-3 MC THEN TemperatureStep")) shouldBe
-        "Pay 3 M€ to raise temperature 1 step."
+        "Spend 3 M€ to raise temperature 1 step."
     english.describe(parse<InstructionTree>("-2 Plant")) shouldBe "Lose 2 plants."
     english.describe(parse<InstructionTree>("Animal<This>?")) shouldBe
         "You may add up to 1 animal to this card."
@@ -664,15 +666,16 @@ internal class EnglishTest {
 
   @Test
   internal fun retainsUnsupportedPetsAlongsideRenderedInstructions() {
-    english.describe(parse<InstructionTree>("2 Steel, 3 Audit")) shouldBe "Gain 2 steel. [3 Audit]."
+    english.describe(parse<InstructionTree>("2 Steel, 3 Billing")) shouldBe
+        "Gain 2 steel. [3 Billing]."
 
     val rendering =
         renderInstructionTree(
-            parse("2 Steel, 3 Audit"),
+            parse("2 Steel, 3 Billing"),
             Describers(Canon.classTable, TerraformingMarsDescribers.descriptions),
         )
     rendering.unresolved().map { it.node.toString() to it.reason } shouldBe
-        listOf("3 Audit" to RefusalReason.UNKNOWN_CHANGE_FRAME)
+        listOf("3 Billing" to RefusalReason.UNKNOWN_CHANGE_FRAME)
   }
 
   @Test
@@ -683,16 +686,16 @@ internal class EnglishTest {
 
   @Test
   internal fun retainsUnsupportedPetsWithinPaymentResults() {
-    val instruction = parse<InstructionTree>("-2 Steel THEN 3 Audit")
+    val instruction = parse<InstructionTree>("-2 Steel THEN 3 Billing")
     val rendering =
         renderInstructionTree(
             instruction,
             Describers(Canon.classTable, TerraformingMarsDescribers.descriptions),
         )
 
-    rendering.linearize() shouldBe "Pay 2 steel to [3 Audit]."
+    rendering.linearize() shouldBe "Spend 2 steel to [3 Billing]."
     rendering.unresolved().map { it.node.toString() to it.reason } shouldBe
-        listOf("3 Audit" to RefusalReason.UNKNOWN_CHANGE_FRAME)
+        listOf("3 Billing" to RefusalReason.UNKNOWN_CHANGE_FRAME)
   }
 
   @Test

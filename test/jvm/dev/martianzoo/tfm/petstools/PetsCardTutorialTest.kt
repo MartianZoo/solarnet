@@ -525,7 +525,6 @@ internal class PetsCardTutorialTest {
             "MethaneFromTitan",
             "MirandaResort",
             "NoctisFarming",
-            "OrbitalCleanup",
             "Penguins",
             "PhysicsComplex",
             "PublicBaths",
@@ -618,8 +617,9 @@ internal class PetsCardTutorialTest {
           effects.any { it.trigger.descendantsOfType<OrTrigger>().isNotEmpty() }
         },
     )
+    // Cloud Tourism also needs the custom wild-allocation instruction, outside this slide's scope.
     assertEquals(
-        setOf("CloudTourism", "SaturnSurfing"),
+        setOf("SaturnSurfing"),
         candidateMatches(allowMetricMaximum = true) { _, directEffect, _, actions, effects ->
           (listOfNotNull<PetNode>(directEffect) + actions + effects).any {
             it.descendantsOfType<Metric.Max>().isNotEmpty()

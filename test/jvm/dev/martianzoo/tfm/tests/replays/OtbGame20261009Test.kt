@@ -453,12 +453,11 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Floater<$LocalShading>",
       )
     }
-    // Research Coordination uses the existing inert wild-tag stand-in.
     p1.turn {
       doTasks(
-          "PlayProject<Class<$FakeResearchCoordination>>",
+          "PlayProject<Class<$ResearchCoordination>>",
           "1 Pay<> FROM MC",
-          "$FakeResearchCoordination FROM ProjectCard",
+          "$ResearchCoordination FROM ProjectCard",
       )
       doTasks(
           "UseCardAction<$ArcadianCommunities, Action1>",
@@ -475,22 +474,19 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "$ViralEnhancers FROM ProjectCard",
           "Plant",
       )
-      doTasks(
-          "ClaimMilestone<Class<Diversifier>>",
-          "8 Pay<> FROM MC",
-          "Diversifier",
-      )
-      // 22:18:07: the wild tag supplies Conscription's second Earth tag.
-      p1.exMachina("FakeWildTagUse, EarthTag<FakeWildTagUse>")
+      doTask("ClaimMilestone<Class<Diversifier>>")
+      // P2 has no wilds: finish this claim's empty allocation prompt.
+      selectTask("EACH @WildTag { Tag<@WildTag>? }")
+      doTasks("8 Pay<> FROM MC", "Diversifier")
     }
     p1.turn {
+      // 22:18:07: the wild tag supplies Conscription's second Earth tag.
       doTasks(
           "PlayProject<Class<$Conscription>>",
           "2 Pay<> FROM MC",
           "$Conscription FROM ProjectCard",
           "Conscription_NextCardEffect",
           "PlayedEvent<Class<$Conscription>> FROM $Conscription",
-          "-FakeWildTagUse",
       )
     }
     p2.turn {

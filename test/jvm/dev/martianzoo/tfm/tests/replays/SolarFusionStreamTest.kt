@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -67,7 +66,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     }
 
     KB.turn {
-      playPrelude(FakeResearchNetwork).expect("PROD[1 MC], FakeWildTag")
+      playPrelude(ResearchNetwork).expect("PROD[1 MC], WildTag")
       playPrelude(EstablishedMethods) {
             useStdAction("UseAction<PowerPlantProject, Action1>", payment = { pay(11) })
             useStdAction("UseAction<PowerPlantProject, Action1>", payment = { pay(11) })
@@ -113,7 +112,6 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
       placeTile(3, 3)
     }
     JR.playProject(Pets, 10)
-    KB.exMachina(fakeWildTags("BuildingTag"))
     KB.playProject(StaticHarvesting, 4).expect("-1 MC")
     KB.stdAction("ClaimMilestone<Class<Energizer>>")
     ER.cardAction1(IndustrialCenter)
@@ -140,7 +138,6 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     ER.pass()
     JR.playProject(EnergyMarket, 3)
     JR.declineSecondAction()
-    KB.exMachina(fakeWildTags("ScienceTag"))
     KB.playProject(QuantumExtractor, 12) {
       doTask("ProjectCard FROM Science")
     }
@@ -157,7 +154,6 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     JR.playProject(KaguyaTech, 10) {
       doTask("CityTile<Elysium_2_6> FROM GreeneryTile<Elysium_2_6>")
     }
-    KB.exMachina(fakeWildTags("ScienceTag"))
     KB.playProject(MassConverter, 7)
     KB.playProject(InvestmentLoan, 0)
     ER.cardAction1(TychoMagnetics, x = 2)
@@ -439,7 +435,6 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     KB.stdAction("FundAward<Class<Benefactor>>")
     ER.sellPatents(1)
     ER.sellPatents(1)
-    KB.exMachina(fakeWildTags("ScienceTag"))
     KB.playProject(BactoviralResearch, 7) {
       addCardResources(Ants)
     }
@@ -451,7 +446,6 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     ER.sellPatents(1)
     // Consequence reconstruction: ER gained one money production.
     ER.stdProject("CityProject") { placeTile(6, 2) }
-    KB.exMachina(fakeWildTags("MicrobeTag"))
     KB.playProject(Worms, 5)
     KB.playProject(ImportedNutrients, 1, titanium = 1) {
       addCardResources(Ants)

@@ -279,7 +279,7 @@
           "cost": 5,
           "tags": [ "MicrobeTag" ],
           "effects": [
-            "BioTag: Microbe<This>",
+            "BioTag<>: Microbe<This>",
             "End: VictoryPoint / 3 Microbe<This>"
           ],
         },
@@ -323,7 +323,7 @@
           "tags": [ "AnimalTag", "PlantTag" ],
           "direct": "SpecialTile<LandArea(HAS Neighbor<GreeneryTile<Anyone>>)> {}",
           "effects": [
-            "AnimalTag OR PlantTag: Animal<This>",
+            "AnimalTag<> OR PlantTag<>: Animal<This>",
             "End: VictoryPoint / 2 Animal<This>"
           ],
         },

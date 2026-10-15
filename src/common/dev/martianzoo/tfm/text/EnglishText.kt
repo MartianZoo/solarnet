@@ -49,10 +49,14 @@ internal sealed interface EnglishText {
 
   companion object {
     internal fun join(members: List<EnglishText>, separator: String = " "): EnglishText =
-        when (members.size) {
-          0 -> Empty
-          1 -> members.single()
-          else -> Sequence(members, separator)
-        }
+        members
+            .filterNot { it === Empty }
+            .let { visible ->
+              when (visible.size) {
+                0 -> Empty
+                1 -> visible.single()
+                else -> Sequence(visible, separator)
+              }
+            }
   }
 }

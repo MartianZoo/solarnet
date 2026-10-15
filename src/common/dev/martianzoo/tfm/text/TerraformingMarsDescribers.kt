@@ -365,6 +365,14 @@ internal object TerraformingMarsDescribers {
                 countNoun = ComponentDescriber.Noun.Counted("tag", "tags"),
                 distinctKinds = ComponentDescriber.Noun.Counted("different tag", "different tags"),
             ),
+        klass("WildTag") to
+            ComponentDescriber(
+                countNoun = counted("wild tag", "wild tags"),
+                tagAssignmentHolder = true,
+                cardInvariantSentence =
+                    "While performing a future action, the wild tag can become any tag of your choice.",
+            ),
+        klass("AllocateCloudTourismWildTags") to ComponentDescriber(implicitInstruction = true),
         klass("Resource") to
             ComponentDescriber(
                 distinctKinds =
@@ -517,7 +525,7 @@ internal object TerraformingMarsDescribers {
                     Frame.Procedure(
                         "copy",
                         "the production box in the direct effect",
-                        cardTargetRelation = "of",
+                        targetRelation = "of",
                     )
             ),
         klass("ActionUsedMarker") to
@@ -635,6 +643,8 @@ internal object TerraformingMarsDescribers {
                         paymentDiscount = ComponentDescriber.PaymentDiscount("use an action"),
                     )
             ),
+        klass("UseCardAction") to ComponentDescriber(triggerFrame = Trigger.UseAction),
+        klass("UseStandardProject") to ComponentDescriber(triggerFrame = Trigger.UseAction),
         klass("StandardAction") to
             ComponentDescriber(
                 triggerFrame = Trigger.Named("take", "an action"),

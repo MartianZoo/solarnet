@@ -56,11 +56,11 @@ public data class CardDefinition(
   /**
    * Printed project-card category. Null for other decks; `EventCard` when tagged `EventTag`;
    * otherwise `ActiveCard` when the card has an action, an invariant starting with `=`, or a
-   * non-scoring effect. The remaining project cards are `AutomatedCard`. Effects starting with
-   * `End:` or `End IF ` count as scoring effects for this classification. For example,
-   * `CardDefinition(name = "Demo", deck = "ProjectCard").projectKind` is `AutomatedCard`; adding an
-   * action makes it `ActiveCard`, while adding `EventTag` makes it `EventCard` even if it also has
-   * an action.
+   * persistent effect. The remaining project cards are `AutomatedCard`. Effects starting with
+   * `End:` or `End IF ` are scoring effects; `This:` and `This IF ` are immediate play effects.
+   * Neither makes a card active by itself. For example, `CardDefinition(name = "Demo", deck =
+   * "ProjectCard").projectKind` is `AutomatedCard`; adding an action makes it `ActiveCard`, while
+   * adding `EventTag` makes it `EventCard` even if it also has an action.
    */
   public val projectKind: String? =
       when {
@@ -68,7 +68,9 @@ public data class CardDefinition(
         EVENT_TAG in tags -> EVENT_CARD
         actions.isNotEmpty() ||
             invariants.any { it.startsWith("=") } ||
-            effects.any { !it.isScoringEffect() } -> ACTIVE_CARD
+            effects.any {
+              !it.isScoringEffect() && !it.startsWith("This:") && !it.startsWith("This IF ")
+            } -> ACTIVE_CARD
         else -> AUTOMATED_CARD
       }
 
