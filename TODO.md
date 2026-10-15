@@ -2,12 +2,62 @@
 
 Delete entries when they are done.
 
+- Finish faithful coverage of the 2026-10-14 unanswered-rules scenarios where current content or
+  inputs cannot express the situation. `UnknownRulesTest` covers rejecting partial Celestic and
+  Morning Star search counts (question 8), but not exhaustion after finding some cards: searches
+  have no deck or discard supply. Question 16 (Helion retaining 2 MC while paying partial Mons
+  Insurance with heat) needs real Helion; only `FakeHelion`, explicitly lacking correct payment
+  allocation, exists. Do not treat that stand-in as evidence for the Canon interaction.
+  Source: `/Users/dev/martianzoo/player-resources/_local/unanswered-rules-questions-2026-10-14.md`.
+  Links: https://boardgamegeek.com/thread/1705209/article/37732543#37732543 and
+  https://boardgamegeek.com/thread/3752654/article/48054640#48054640.
+
+- Undo the decision to hard-code the full test catalog's fingerprint in
+  `GameFileJsonTest.premiseAndCatalogFingerprintsMatchAcrossTargets`. Removing the redundant `!`
+  from the built-in Signal declaration required an unrelated hash update. Preserve verification
+  that JVM and JavaScript compute matching fingerprints without coupling the expected value to
+  evolving built-in declarations.
+
+- Continue adversarial Pets testing beyond parser nesting and nominal inheritance: investigate
+  dependency/default expansion, concrete-type enumeration, and automatic-effect cascades. The
+  current depth and subtraction limits are not a general execution-work budget.
+
+- Skip equality-incompatible subclasses in concrete-type queries (T11-1, T11-3, and T12-4).
+  Pets `BugsTest` shows `Pair<First, Second>` should retain `Independent<First, Second>` and omit
+  `Same`, whose two arguments must agree. Enumeration and automatic narrowing instead throw while
+  constructing `Same<First, Second>`; inhabitance returns true or throws depending on declaration order.
+
+- Exclude subclasses with empty dependency differences during automatic narrowing (T11-3).
+  Pets `BugsTest` shows `Tile<Area(NOT Land)>` correctly enumerates only `Ocean`, but automatic
+  narrowing returns no result because it also counts `Greenery` with the impossible `Land(NOT Land)`.
+
+- Preserve represented-class bindings when rendered types are parsed again (T5-6 and T8-10).
+  Pets `BugsTest` shows a predicate that asks about `BuildingTag<Player1>` before rendering
+  incorrectly asks about `Tag<Player1>` afterward. A repair must also handle candidate classes
+  with fixed dependencies and nested declarations sharing the candidate's bound without losing
+  their distinct bindings.
+
+- Recognize the same represented-class predicate under a narrower bound (T8-1 and T8-10).
+  Pets `BugsTest` shows `Class<@BuildingTag>(HAS @BuildingTag)` incorrectly fails to narrow
+  `Class<@Tag>(HAS @Tag)`, although both predicates ask about the selected class.
+
+- Implement T7-1's greatest-lower-bound promise beyond the current root-first calculation.
+  Pets `BugsTest` shows `CardFront` intersected with `ResourceHolder<Class<Animal>>` returns no result
+  even when `Pets` is the greatest common type and the only rival, `Ants`, is excluded by its resource kind.
+  A bounded candidate-search experiment was rejected: a failed dependency meet can mean an
+  unnamed overlap, not disjointness, so discarding that candidate can return a false greatest
+  type. `Spec07BoundsTest` preserves the competing `Broad<Second>` and `Narrow` witness.
+
+- Let card delegate placements choose the lobby delegate even while reserve delegates remain.
+  `CulturalMetropolisTest` covers taking both from reserve and the missing reserve-plus-lobby
+  choice. Currently `LobbyActionAvailable` is consumed only when all seven delegates are placed.
+
 - Simplify Flooding and Artificial Lake's ocean instructions, preserving full-track behavior,
   mandatory placement, and Flooding's victim choice.
 - Derive `TfmActionLowerer`'s standard-resource cost classification from Pets declarations
   instead of its hardcoded resource list, without adding a loading stage.
-- Investigate the two versions of ELSE (if those tasks can't complete vs. if that option
-  dead-ends the turn) and what could benefit.
+- Decide whether to add shallow/deep ELSE or instruction-level `(A)*`; candidate uses and
+  restrictions are in [ELSE.md](docs/agents/ELSE.md).
 - Add Canon invariant tests for incompatibilities: self-heat removal outside Billing, except
   Local Heat Trapping, must be declared incompatible with Stormcraft. Include abstract resource choices.
 - Revisit Stormcraft plus Helion payment composition if that combination is supported.
@@ -38,7 +88,7 @@ Delete entries when they are done.
 - actually plan out how exMachina should work
 - Keep gated System work with Admin when its condition becomes satisfied, removing unnecessary
   player selections such as those in Head Start scenarios.
-- Audit remaining non-payment `::` effects, including Pharmacy Union's starting money; retain
+- Audit remaining non-payment `::` effects; retain
   immediate execution only where a concrete gameplay need justifies it.
 
 - Revisit ownership of `Selecting`, `Hand`, and played events together, including per-player

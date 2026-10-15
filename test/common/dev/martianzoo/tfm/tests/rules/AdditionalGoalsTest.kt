@@ -13,30 +13,30 @@ internal class AdditionalGoalsTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Terraformer26>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Terraformer26")
       }
     }
 
     kim.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTask("TerraformRating")
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Terraformer26>>", "-8 MC")
+      doTasks("ClaimMilestone<Class<Terraformer26>>", "8 Pay<> FROM MC")
       doTask("Terraformer26")
     }
     shouldThrow<RequirementException> {
       stan.inTurn {
         doTask("ClaimMilestone<Class<Terraformer35>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Terraformer35")
       }
     }
     stan.setToExMachina(35, "TerraformRating")
     stan.inTurn {
-      doTasks("ClaimMilestone<Class<Terraformer35>>", "-8 MC")
+      doTasks("ClaimMilestone<Class<Terraformer35>>", "8 Pay<> FROM MC")
       doTask("Terraformer35")
     }
   }
@@ -48,7 +48,7 @@ internal class AdditionalGoalsTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Lobbyist>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Lobbyist")
       }
     }
@@ -58,7 +58,7 @@ internal class AdditionalGoalsTest : TfmSandboxTest() {
       doTask("PartyDelegate<Scientists>")
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Lobbyist>>", "-8 MC")
+      doTasks("ClaimMilestone<Class<Lobbyist>>", "8 Pay<> FROM MC")
       doTask("Lobbyist")
     }
   }

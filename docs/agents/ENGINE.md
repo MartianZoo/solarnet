@@ -338,11 +338,28 @@ attribution.
 
 Queued `:` effects produce pending Tasks. Automatic `::` effects execute recursively before queued
 effects from the same change are admitted. The recursion limit is eight nested automatic effects;
-exceeding it fails the enclosing operation atomically. Because automatic effects create no Task,
-their instructions cannot use instruction-side `BY`. Read [SEQUENCING.md](SEQUENCING.md) before
-using `:` versus `::` to force an order.
+exceeding it raises the shared Pets `ResourceLimitException` and rolls back the enclosing operation.
+Parser and class-loading resource limits use the same exception. Task selection and execution
+probes propagate it rather than reporting an unavailable choice. Because automatic effects create
+no Task, their instructions cannot use instruction-side `BY`. Read [SEQUENCING.md](SEQUENCING.md)
+before using `:` versus `::` to force an order.
 
 ## Queries, invariants, and dead ends
+
+**Owner direction (2026-10-14): decision-tree pruning is the player's agent or client's
+responsibility, never an engine or model obligation.** Universally assume either that the caller
+diligently presents only choices known not to dead-end the turn, or that exposing dead ends does
+not matter. This assumption does not depend on a pruner existing today. Task availability,
+selection, narrowing, and successful intermediate commands do not promise a successful turn.
+
+Protected Habitats is the concrete example. Its
+[`-Plant OR -Animal OR -Microbe BY Player(NOT Me@): Die`](../../src/common/dev/martianzoo/tfm/canon/bundles/corpera/cards.json5)
+queues a consequence of an opponent's removal. The attempted removal may happen before that
+consequence prevents completion; the caller must roll back the unsuccessful path, potentially
+the turn. The engine need not anticipate that consequence or hide the protected target. This is
+valid modeling, not an issue to fix. The existing
+[ProtectedHabitatsTest](../../test/common/dev/martianzoo/tfm/tests/cards/ProtectedHabitatsTest.kt)
+expects failed attacks and retained protected resources.
 
 `GameReader` evaluates component counts, requirements, refinements, and custom metrics against the
 current graph. A metric union is a multiset union: for each concrete Type it retains the greatest
@@ -404,9 +421,15 @@ exact one. Completion spanning queued work remains a separate
 
 A locally legal choice can discover later that its remaining work cannot complete. This is a
 recoverable dead end: `DeadEndException` rolls the encompassing transaction back so another branch
-can be tried. A broad choice is not a correctness bug merely because one branch fails late; it is a
-bug if an illegal result can commit. An offered choice need not contain a successful branch; a client
+can be tried. A broad choice is not a correctness bug merely because a branch fails late; it is a
+bug if a prohibited result survives successful turn completion. An offered choice need not contain a successful branch; a client
 can roll back farther when the whole choice leads to dead ends.
+
+Failure atomicity covers the encompassing transaction; it does not promise that a later failed
+command automatically undoes every earlier successful command in the turn. A caller exploring
+across commands must roll back far enough to abandon the unsuccessful path. Neither that need
+nor the absence of lookahead is an engine/model defect. Report a separate rule failure, such as
+a prohibited result surviving successful turn completion or a required legal outcome being lost.
 
 Whether that local calculation can be accepted as shared play, and what players do when already
 accepted work cannot finish, are external questions in [ADVERSARIAL.md](ADVERSARIAL.md). The engine
@@ -414,9 +437,9 @@ does not need to prove every future continuation succeeds before exposing a task
 local rollback to make a result count as an achievement.
 
 The engine can leave a mandatory choice available even when its count invariants will fail.
-Client-facing exploration and pruning belong to Agents. Engine resolution uses current source and
-dependency prerequisites, authored gates, and AMAP/optional capacity, without predicting repairs or
-pruning mandatory choices by count bounds.
+Client-facing exploration and pruning belong to the player's agent or client. Engine resolution
+uses current source and dependency prerequisites, authored gates, and AMAP/optional capacity,
+without predicting repairs or pruning mandatory choices by count bounds.
 
 ### The metric operators are intentional
 

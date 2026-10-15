@@ -18,7 +18,7 @@ internal class TerraformingDealTest : TfmGameplayTest() {
     stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
     stan.autoExecNow(EAGER)
 
-    kim.doTasks("PlayProject<Class<$BribedCommittee>>", "-7 MC").expect("2 TerraformRating, -3 MC")
+    kim.doTasks("PlayProject<Class<$BribedCommittee>>").expect("2 TerraformRating, -3 MC")
   }
 
   @Test

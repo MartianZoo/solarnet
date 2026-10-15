@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.script
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 internal class TfmPlayCommandTest {
   @Test
@@ -31,7 +32,7 @@ internal class TfmPlayCommandTest {
   }
 
   @Test
-  internal fun `tfm play selects the play card action and forwards inline payment`() {
+  internal fun `tfm play settles alternatives first and rolls back an incorrect remainder`() {
     val repl = ScriptSession()
     repl.command("newgame BRP 2")
     repl.keepStartingProjects(0, 0)
@@ -41,7 +42,15 @@ internal class TfmPlayCommandTest {
     repl.command("phase Action")
     repl.command("turn")
 
-    repl.command("tfm_play OlympusConference, 2 Steel, 6 MC")
+    val policy = repl.agent.autoExecPolicy
+    val rejected = repl.command("tfm_play OlympusConference, 5 MC, 2 Steel")
+    assertTrue(rejected.single().contains("no matching task"), rejected.joinToString("\n"))
+    assertEquals(2, repl.agent.count("Steel"))
+    assertEquals(6, repl.agent.count("MC"))
+    assertEquals(0, repl.agent.count("Owed"))
+    assertEquals(policy, repl.agent.autoExecPolicy)
+
+    repl.command("tfm_play OlympusConference, 6 MC, 2 Steel")
 
     assertEquals(1, repl.agent.count("OlympusConference<Player1>"))
     assertEquals(0, repl.agent.count("Steel<Player1>"))

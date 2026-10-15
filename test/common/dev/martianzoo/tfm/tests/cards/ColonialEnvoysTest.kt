@@ -14,7 +14,7 @@ internal class ColonialEnvoysTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<ColonialEnvoys>>",
-              "-4 MC",
+              "4 Pay<> FROM MC",
               "ColonialEnvoys FROM ProjectCard",
           )
           // Expand the per-colony reward into separate delegate choices.

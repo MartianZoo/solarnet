@@ -29,9 +29,9 @@ internal class HighCirclesTest : TfmSandboxTest() {
           )
           // Hand the discount to Admin before the remaining payment is offered.
           selectTask("-25* Owed")
+          doTask("Ok") // The discount covers the full cost.
           doTask("SupportedResearch FROM ProjectCard")
           doTask("2 ProjectCard<Kim, Hand>")
-          doTask("Ok" /* No MC payment. */)
         }
         .expect("ProjectCard, $SupportedResearch")
   }
@@ -61,7 +61,7 @@ internal class HighCirclesTest : TfmSandboxTest() {
           )
           // Hand the requirement waiver to Admin before playing the project.
           selectTask("-Required* / Required")
-          doTasks("-3 MC", "SupportedResearch FROM ProjectCard")
+          doTasks("3 Pay<> FROM MC", "SupportedResearch FROM ProjectCard")
           doTask("2 ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard, $SupportedResearch")

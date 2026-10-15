@@ -40,7 +40,7 @@
           "effects": [
             "CardFront(HAS 2 Tag): Science<This>",
             "UseAction<StandardProject(HAS cost)>:: AcceptingFromCard<This>",
-            "-Science<This> BY Me@ IF AcceptingFromCard<This>:: -2 Owed",
+            "PayFromCard<This>:: -2 Owed",
           ],
         },
       ],
@@ -163,7 +163,7 @@
             "NewTurn IF PreludePhase: SuitableInfrastructureBonus<This>*",
           ],
           "components": [
-            "CLASS SuitableInfrastructureBonus : Cardbound<SuitableInfrastructure<Player>>, System, Atomized { HAS MAX 1 This; X Production<Class<StandardResource>>: (This: -This! THEN 2 MC) OR (MAX 0 This: Ok) }",
+            "CLASS SuitableInfrastructureBonus : Cardbound<SuitableInfrastructure<Player>>, System, Atomized { HAS MAX 1 This; X Production<Class<StandardResource>>: (This: -This THEN 2 MC) OR (MAX 0 This: Ok) }",
           ],
         },
         {
@@ -236,7 +236,7 @@
             "End: 2 VictoryPoint",
           ],
           "components": [
-            "CLASS L1GiftWatcher : Owned<Player>, System { This:: L1Gift / (ResourceCard(HAS CardResource) MAX 3); This: EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }, LATER { -This! }; CardResource:: -L1Gift }",
+            "CLASS L1GiftWatcher : Owned<Player>, System { This:: L1Gift / (ResourceCard(HAS CardResource) MAX 3); This: EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }, LATER { -This }; CardResource:: -L1Gift }",
             "CLASS L1Gift : Owned<Player>, MustCleanUp",
           ],
         },
@@ -360,7 +360,7 @@
           "tags": [ "CityTag", "BuildingTag" ],
           "direct": "FrontierTownBonus, PROD[-Energy], CityTile<>",
           "components": [
-            "CLASS FrontierTownBonus : Owned<Player> { HAS MAX 1 This; CityTile<Area@MarsArea>: -This! THEN RepeatPlacementBonus<Area@> }",
+            "CLASS FrontierTownBonus : Owned<Player> { HAS MAX 1 This; CityTile<Area@MarsArea>: -This THEN RepeatPlacementBonus<Area@> }",
             "CLASS RepeatPlacementBonus<MarsArea> : Owned<Player>, CustomInstruction",
           ],
         },

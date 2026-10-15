@@ -92,7 +92,8 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       playProject(RotatorImpacts, 2, titanium = 1)
       // me used Rotator Impacts action
       // me added 1 asteroid(s) to Rotator Impacts
-      cardAction1(RotatorImpacts) { pay(2, titanium = 1) }.expect("Asteroid")
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(2, titanium = 1) })
+          .expect("Asteroid")
 
       // me passed
       // me acted as World Government and increased Venus scale
@@ -116,8 +117,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me played Project Inspection
       playProject(ProjectInspection, 0) {
         // me used United Nations Mars Initiative action with Project Inspection
-        doTask("UseAction<$UnitedNationsMarsInitiative, Action1>")
-        pay(3)
+        useStdAction("UseAction<$UnitedNationsMarsInitiative, Action1>", payment = { pay(3) })
       }
       // me played Energy Tapping
       playProject(EnergyTapping, 3)
@@ -141,7 +141,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       cardAction1(AtmoCollectors)
       // me used Rotator Impacts action
       // me added 1 asteroid(s) to Rotator Impacts
-      cardAction1(RotatorImpacts) { pay(2, titanium = 1) }
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(2, titanium = 1) })
       // me played Nuclear Power
       // me's mc production decreased by 2
       // me's energy production increased by 3
@@ -199,7 +199,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       cardAction1(UnitedNationsMarsInitiative)
       // me used Rotator Impacts action
       // me added 1 asteroid(s) to Rotator Impacts
-      cardAction1(RotatorImpacts) { pay(2, titanium = 1) }
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(2, titanium = 1) })
       // me used Atmo Collectors action
       // me added 1 floater(s) to Atmo Collectors
       cardAction1(AtmoCollectors)
@@ -336,7 +336,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       cardAction1(UnitedNationsMarsInitiative)
       // me used Rotator Impacts action
       // me added 1 asteroid(s) to Rotator Impacts
-      cardAction1(RotatorImpacts) { pay(6) }
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(6) })
       // me played Moss
       // me's plants production increased by 1
       playProject(Moss, 4)
@@ -472,7 +472,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
           .expect("-7 Plant, 8 MC, Card, 3 TerraformRating")
       // me used Rotator Impacts action1 2 ***
       // me added 1 asteroid(s) to Rotator Impacts
-      cardAction1(RotatorImpacts) { pay(2, titanium = 1) }
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(2, titanium = 1) })
       // me used City standard project
       stdProject("CityProject") {
         // me placed city tile on row 6 position 7

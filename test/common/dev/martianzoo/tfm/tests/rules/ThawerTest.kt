@@ -18,7 +18,7 @@ internal class ThawerTest : TfmSandboxTest() {
     asteroid("PROD[Heat]")
     asteroid()
     stan.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTasks("TerraformRating", "PROD[Heat]")
       doTask("ThawerCredit")
@@ -33,19 +33,19 @@ internal class ThawerTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Thawer>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Thawer")
       }
     }
 
     kim.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTask("TerraformRating")
       doTask("ThawerCredit")
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Thawer>>", "-8 MC")
+      doTasks("ClaimMilestone<Class<Thawer>>", "8 Pay<> FROM MC")
       doTask("Thawer")
     }
   }
@@ -54,7 +54,7 @@ internal class ThawerTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "UseStandardProject<AsteroidProject>",
-          "-14 MC",
+          "14 Pay<> FROM MC",
           "TemperatureStep",
           "TerraformRating",
           "ThawerCredit",
@@ -64,6 +64,8 @@ internal class ThawerTest : TfmSandboxTest() {
   }
 
   internal class Gameplay : dev.martianzoo.tfm.tests.TfmGameplayTest() {
+    // Unresolved adjudication (question 28, 2026-10-14); this records current behavior.
+    // https://boardgamegeek.com/thread/3478406/article/47218204#47218204
     @Test
     internal fun `Snow Cover does not undo credit for earlier temperature increases`() {
       newTestGame(addOptions = "TurmoilExpansion, Thawer, Builder, Engineer", playerCount = 2)
@@ -104,23 +106,23 @@ internal class ThawerTest : TfmSandboxTest() {
       // Generation 4: Kim earns five temperature credits before Snow Cover removes two steps.
       stan.doTask("Pass")
       kim.completeOperation {
-        doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+        doTasks("UseStandardProject<AsteroidProject>")
         autoExecNow(EAGER)
       }
       kim.completeOperation {
-        doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+        doTasks("UseStandardProject<AsteroidProject>")
         autoExecNow(EAGER)
       }
       kim.completeOperation {
-        doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+        doTasks("UseStandardProject<AsteroidProject>")
         autoExecNow(EAGER)
       }
       kim.completeOperation {
-        doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+        doTasks("UseStandardProject<AsteroidProject>")
         autoExecNow(EAGER)
       }
       kim.completeOperation {
-        doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+        doTasks("UseStandardProject<AsteroidProject>")
         autoExecNow(EAGER)
       }
       admin.count("TemperatureStep") shouldBe 5
@@ -133,8 +135,15 @@ internal class ThawerTest : TfmSandboxTest() {
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       // Generation 5: the track fell, but Kim's five earned credits still qualify.
+      // Re-raising a removed step also earns fresh credit.
       admin.count("TemperatureStep") shouldBe 3
-      kim.doTasks("ClaimMilestone<Class<Thawer>>", "-8 MC")
+      kim.completeOperation {
+            doTasks("UseStandardProject<AsteroidProject>")
+            autoExecNow(EAGER)
+          }
+          .expect("TemperatureStep, ThawerCredit, TerraformRating")
+      kim.count("ThawerCredit") shouldBe 6
+      kim.doTasks("ClaimMilestone<Class<Thawer>>")
     }
   }
 }

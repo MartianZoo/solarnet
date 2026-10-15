@@ -249,7 +249,7 @@ CLASS Generation : System, Real {
 "The lifetime anchor for components that exist only during the current generation"
 CLASS GenerationScope : Scope, System {
   HAS MAX 1 This
-  Generation:: -This! THEN This!
+  Generation:: -This THEN This
 }
 
 "Anything that prevents the game from ending"

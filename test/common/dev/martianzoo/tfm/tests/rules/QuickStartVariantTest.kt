@@ -61,7 +61,7 @@ internal class QuickStartVariantTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Generalist2>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Generalist2")
       }
     }
@@ -69,16 +69,16 @@ internal class QuickStartVariantTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Generalist2>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Generalist2")
       }
     }
 
     kim.inTurn {
-      doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
+      doTasks("UseStandardProject<PowerPlantProject>", "11 Pay<> FROM MC", "PROD[Energy]")
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Generalist2>>", "-8 MC")
+      doTasks("ClaimMilestone<Class<Generalist2>>", "8 Pay<> FROM MC")
       doTask("Generalist2")
     }
   }
@@ -90,16 +90,16 @@ internal class QuickStartVariantTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Generalist>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Generalist")
       }
     }
 
     kim.inTurn {
-      doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
+      doTasks("UseStandardProject<PowerPlantProject>", "11 Pay<> FROM MC", "PROD[Energy]")
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Generalist>>", "-8 MC")
+      doTasks("ClaimMilestone<Class<Generalist>>", "8 Pay<> FROM MC")
       doTask("Generalist")
     }
   }

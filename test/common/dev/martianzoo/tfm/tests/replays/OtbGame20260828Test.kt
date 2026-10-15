@@ -799,15 +799,12 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     // "I think I'm also buying three. Three cards for nine money."
     green.continueOperation {
       green.fillInTask("ProjectCard").chooseAmount(1, outOf = 5).done()
-      green.pay(mc = 9)
     }
     blue.continueOperation {
       blue.fillInTask("ProjectCard").chooseAmount(1, outOf = 5).done()
-      blue.pay(mc = 9)
     }
     yellow.continueOperation {
       yellow.fillInTask("ProjectCard").chooseAmount(3, outOf = 5).done()
-      yellow.pay(mc = 3)
     }
 
     green.turn {
@@ -1160,9 +1157,13 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // on
       // Stratopolis."
       // "You are the floater queen."
-      playProject(Stratopolis, 16) {
-        doTask("-2 Floater<$Dirigibles>")
-      }
+      playProject(
+          Stratopolis,
+          payment = {
+            doTask("2 PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>")
+            pay(16)
+          },
+      )
       fillInTask("StandardAction").choose("StandardAction" to "Ok", outOf = 9).done()
     }
     yellow.turn {
@@ -1339,7 +1340,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       playProject(
           Extremophiles,
           payment = {
-            doTask("-Floater<$Dirigibles>")
+            doTask("PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>")
           },
       )
       // "Awesome. Okay, I'm going to use my Extremophiles action to add one microbe to Nitrite
@@ -1382,7 +1383,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       playProject(
           VenusTradeHub,
           payment = {
-            doTask("-4 Floater<$Dirigibles>")
+            doTask("4 PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>")
           },
       )
       pass(unused = emptySet())
@@ -1825,8 +1826,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           IshtarMining,
           2,
           payment = {
+            doTask("PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>")
             pay(2)
-            doTask("-Floater<$Dirigibles>")
           },
       )
       fillInTask("StandardAction").choose("StandardAction" to "Ok", outOf = 9).done()
@@ -3208,9 +3209,13 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Carbon Nanosystems ... four steel ... and then six real."
       playProject(CarbonNanosystems, 6, steel = 4)
       // "Vesta's Shipyard ... three titanium ... Carbon Nano is worth four ... my two real."
-      playProject(VestaShipyard, 2, titanium = 3) {
-        doTask("-Graphene<$CarbonNanosystems>")
-      }
+      playProject(
+          VestaShipyard,
+          payment = {
+            doTask("PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>")
+            pay(2, titanium = 3)
+          },
+      )
       // Yellow's app ledger records one final M€ after Vesta and before Pass.
       fillInTask("StandardAction")
           .chooseAlternative("StandardAction", outOf = 2)

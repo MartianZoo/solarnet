@@ -9,37 +9,53 @@ CLASS Owed<@Class<StandardResource>> : Owned<Player>, Barrier, System {
 CLASS PayingFor<Class<Component>> : Owned<Player>, Signal, System
 
 "A finalized debt; removing it signals that its denomination has been fully paid"
-CLASS Billing<Class<Component>, ActionSlot, @Class<StandardResource>> : Owned<Player>, Barrier, System {
+CLASS Billing<Class<Component>, ActionSlot, Class<@StandardResource>> : Owned<Player>, Barrier, System {
   DEFAULT +Billing<Class<Component>, Action1, Class<MC>>
   HAS MAX 1 This
-  This IF MAX 0 Owed<@Class>:: -This!
-  -X Owed<@Class> IF MAX 0 Owed<@Class>:: -This!
+  This IF MAX 0 Owed<Class<@StandardResource>>:: -This
+  // Skip the queued payment if the automatic zero-debt check already removed this bill.
+  This IF This: \
+    (MAX 0 (Accepting(NOT Accepting<Class<@StandardResource>>) OR AcceptingFromCard): \
+      1! Pay<Class<@StandardResource>> FROM @StandardResource / Owed<Class<@StandardResource>>) THEN -This
 }
 
 CLASS Accepting<Class<@StandardResource>> : Owned<Player>, MustCleanUp, System {
   HAS MAX 1 This
   DEFAULT +Accepting*
-  Billing IF @StandardResource OR Owed<Class<@StandardResource>>: -X? @StandardResource
-  -@StandardResource BY Me@:: -Owed<Class<@StandardResource>>
-  -X Billing:: -This!
+  Billing<Class<Component>, Class<StandardResource>(NOT Class<@StandardResource>)> IF @StandardResource: \
+    (X Pay<Class<@StandardResource>> FROM @StandardResource OR Ok) THEN -This
+  // Billing can itself install acceptance, so inspect empty alternatives after its automatic effects.
+  Billing<Class<Component>, Class<StandardResource>(NOT Class<@StandardResource>)> IF MAX 0 @StandardResource: -This
+  -X Billing:: -This
+}
+
+"Records an explicit payment in units of the resource spent"
+CLASS Pay<@Class<StandardResource>> : Owned<Player>, Signal {
+  DEFAULT +Pay<Class<MC>>
+  This:: -Owed<@Class>
 }
 
 "Offers payment using the resource held by a specific card"
 CLASS AcceptingFromCard<@ResourceCard<Class<@CardResource>, @Player>> : Owned<@Player>, MustCleanUp, System {
   HAS MAX 1 This
-  Billing: -X? @CardResource<@ResourceCard>
-  -X Billing:: -This!
+  Billing IF @CardResource<@ResourceCard>: \
+    (X PayFromCard<@ResourceCard> FROM @CardResource<@ResourceCard> OR Ok) THEN -This
+  Billing IF MAX 0 @CardResource<@ResourceCard>: -This
+  -X Billing:: -This
 }
+
+"Records an explicit payment from a particular card's resources"
+CLASS PayFromCard<ResourceCard<Class<CardResource>, @Player>> : Owned<@Player>, Signal
 
 "A card-owned adjustment that remains in play until the next project card play"
 ABSTRACT CLASS NextCardEffect<GenerationScope> : Owned<Player> {
-  PayingFor<Class<CardFront>>:: -This!
+  PayingFor<Class<CardFront>>:: -This
 }
 
 "A component that makes a standard resource worth one M€ when paid"
 ABSTRACT CLASS ResourceValue<Class<@StandardResource>> : Owned<Player> {
   // The resource being spent can be Steel or Titanium, but it settles the default M€ debt.
-  -@StandardResource BY Me@ IF Accepting<Class<@StandardResource>>:: -Owed<Class<MC>>
+  Pay<Class<@StandardResource>>:: -Owed<Class<MC>>
 
   "One M€ of a standard resource's ordinary payment value"
   CLASS BaseResourceValue

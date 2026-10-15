@@ -18,7 +18,7 @@ internal class FreyjaBiodomesTest : TfmSandboxTest() {
           // Decline adding animals to Venusian Animals by choosing the unavailable microbe gain.
           doTasks(
               "PlayProject<Class<FreyjaBiodomes>>",
-              "-14 MC",
+              "14 Pay<> FROM MC",
               "FreyjaBiodomes FROM ProjectCard",
               "PROD[-Energy]",
               "PROD[2 MC]",

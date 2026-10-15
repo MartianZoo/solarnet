@@ -23,8 +23,7 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
     passFirstGeneration()
     kim.doTask("RequiredActionsSignal")
 
-    kim.doTasks("PlayProject<Class<$Mine>>", "-4 MC", "Ok" /* No Steel payment. */)
-        .expect("PROD[Steel]")
+    kim.doTasks("PlayProject<Class<$Mine>>", "Ok" /* No Steel payment. */).expect("PROD[Steel]")
   }
 
   @Test
@@ -32,7 +31,7 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
     newTestGame(playerCount = 2, kimCorporation = Inventrix)
 
     shouldThrow<NarrowingException> {
-      kim.doTasks("PlayProject<Class<$Mine>>", "-4 MC", "Ok" /* No Steel payment. */)
+      kim.doTasks("PlayProject<Class<$Mine>>", "Ok" /* No Steel payment. */)
     }
     kim.count("$Mine") shouldBe 0
     kim.count("RequiredAction") shouldBe 1
@@ -45,7 +44,7 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
 
     shouldThrow<NarrowingException> {
       kim.completeOperation {
-        doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+        doTasks("UseStandardProject<AsteroidProject>")
         autoExecNow(EAGER)
       }
     }
@@ -60,7 +59,6 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
       doTask("PlayCard<Class<PreludeCard>, Class<$ExcentricSponsor>>")
       doTasks(
           "PlayCard<Class<ProjectCard>, Class<$Soletta>>",
-          "-10 MC",
       )
       autoExecNow(EAGER)
     }
@@ -74,7 +72,7 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
     passFirstGeneration()
     kim.count("Heat") shouldBe 8
 
-    shouldThrow<NarrowingException> { kim.doTasks("ConvertHeat", "-8 Heat") }
+    shouldThrow<NarrowingException> { kim.doTasks("ConvertHeat", "8 Pay<Class<Heat>> FROM Heat") }
     kim.count("Heat") shouldBe 8
     kim.count("RequiredAction") shouldBe 1
   }

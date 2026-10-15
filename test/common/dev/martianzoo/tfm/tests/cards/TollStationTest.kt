@@ -14,7 +14,7 @@ internal class TollStationTest : TfmSandboxTest() {
     stan.exMachina("$VestaShipyard, $SpaceElevator, $SolarWindPower")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<TollStation>>", "-12 MC")
+      doTasks("PlayProject<Class<TollStation>>", "12 Pay<> FROM MC")
       doTasks("TollStation FROM ProjectCard")
       doTask("PROD[3 MC]")
     }

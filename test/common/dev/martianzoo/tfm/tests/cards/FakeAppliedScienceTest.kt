@@ -7,6 +7,22 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 internal class FakeAppliedScienceTest : TfmSandboxTest() {
+  // Unresolved adjudication (question 13, 2026-10-14): may an uncollectible resource be chosen?
+  // FakeAppliedScience is the agreed stand-in for this interaction.
+  // https://boardgamegeek.com/thread/1650981/article/30704489#30704489
+  @Test
+  internal fun `Can spend the last science to receive nothing instead of a standard resource`() {
+    newTestGame(addOptions = "fakes:cards")
+    kim.exMachina("$FakeAppliedScience, Science<$FakeAppliedScience>")
+
+    kim.inTurn {
+          doTasks("UseCardAction<FakeAppliedScience, Action1>", "-Science<FakeAppliedScience>")
+          // No card holds resources now; the uncollectible card-resource option resolves to Ok.
+          doTask("Ok")
+        }
+        .expect("0 Animal, 0 StandardResource")
+  }
+
   @Test
   internal fun `Can replenish an existing director`() {
     newTestGame(addOptions = "fakes:cards, BoardOfDirectors")
@@ -36,7 +52,7 @@ internal class FakeAppliedScienceTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun `Spending the last science leaves only the standard resource option`() {
+  internal fun `Spending the last science prevents replenishing that card`() {
     newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeAppliedScience, Science<$FakeAppliedScience>")
 

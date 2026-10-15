@@ -215,12 +215,12 @@ internal class EnglishTest {
   }
 
   @Test
-  internal fun paymentValuesRequireMatchingAcceptedLossByOwner() {
+  internal fun paymentValuesRequireAnExplicitPayment() {
     english.describe(
         parseClasses(
                 """
                 CLASS PaymentValue : Owned<Player> {
-                  -Steel BY Me@ IF Accepting<Class<Steel>>:: -Owed
+                  Pay<Class<Steel>>:: -Owed
                 }
                 """
             )
@@ -233,6 +233,9 @@ internal class EnglishTest {
     val unsupported =
         listOf(
             "-Steel",
+            "Pay<Anyone, Class<Steel>>",
+            "-Pay<Class<Steel>>",
+            "Pay<Class<Steel>> IF ScienceTag",
             "-Steel BY Me@",
             "-Steel IF Accepting<Class<Steel>>",
             "-Steel BY Anyone IF Accepting<Class<Steel>>",
@@ -273,7 +276,7 @@ internal class EnglishTest {
             CLASS HeatPayingScience : ActiveCard, ResourceCard<Class<Science>> {
               cost = 0
               Billing<Class<Component>, Class<Heat>>:: AcceptingFromCard<This>
-              -Science<This> BY Me@ IF AcceptingFromCard<This>:: -3 Owed<Class<Heat>>
+              PayFromCard<This>:: -3 Owed<Class<Heat>>
             }
             """
         )

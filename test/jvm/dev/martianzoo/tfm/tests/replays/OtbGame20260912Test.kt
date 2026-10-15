@@ -90,11 +90,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // "Established methods. Gain 30 monies." "Wow." "I'm gonna greenery for 23. I'm gonna put
       // it here for two cards... And that gave me the temperatura."
       playPrelude(EstablishedMethods) {
-        doTask("UseAction<GreeneryProject, Action1>")
-        yellow.pay(23)
+        useStdAction("UseAction<GreeneryProject, Action1>", payment = { yellow.pay(23) })
         placeTile(5, 9)
-        doTask("UseAction<AsteroidProject, Action1>")
-        yellow.pay(14)
+        useStdAction("UseAction<AsteroidProject, Action1>", payment = { yellow.pay(14) })
       }
       // The players acknowledged this initial Greens-policy payout during Prelude as the same rule
       // mistake. Yellow nevertheless took 4 M€ here (transcript and Yellow ledger entry 15).
@@ -981,8 +979,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.turn { cardAction1(FakeAppliedScience) { addCardResources(SecurityFleet) } }
     blue.turn { stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Unity>") } }
     green.turn {
-      cardAction1(AquiferPumping) {
-        pay(8)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
         placeTile(5, 6)
       }
     }
@@ -1090,8 +1087,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     blue.turn { cardAction1(DirectedHeatUsage) { doTask("4 MC") } }
     green.turn {
       cardAction1(DeuteriumExport)
-      cardAction1(AquiferPumping) {
-        pay(8)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
         placeTile(6, 6)
       }
     }
@@ -1247,8 +1243,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.turn { playProject(Research, 9) }
     blue.turn { playProject(VenusianAnimals, 15) }
     green.turn {
-      cardAction1(AquiferPumping) {
-        pay(8)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
         placeTile(5, 3)
       }
       convertPlants { placeTile(4, 4) }

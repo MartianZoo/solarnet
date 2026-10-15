@@ -16,7 +16,7 @@ internal class EcotecTest : TfmSandboxTest() {
           "PROD[Plant]",
           "Plant",
           "Plant",
-          "-15 MC",
+          "15 Pay<> FROM MC",
           "5 ProjectCard<Hand FROM Selecting>",
       )
     }

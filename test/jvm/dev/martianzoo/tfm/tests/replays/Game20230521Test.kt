@@ -53,7 +53,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "35 MC",
           "PROD[Steel]",
           "Steel",
-          "-15 MC",
+          "15 Pay<> FROM MC",
           "5 ProjectCard<Hand FROM Selecting>",
       )
     }
@@ -64,7 +64,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "$Factorum FROM CorporationCard",
           "37 MC",
           "PROD[Steel]",
-          "-12 MC",
+          "12 Pay<> FROM MC",
           "4 ProjectCard<Hand FROM Selecting>",
       )
     }
@@ -113,7 +113,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$InventorsGuild>>",
-          "-9 MC",
+          "9 Pay<> FROM MC",
           "$InventorsGuild FROM ProjectCard",
       )
     }
@@ -121,7 +121,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$ArcticAlgae>>",
-          "-12 MC",
+          "12 Pay<> FROM MC",
           "$ArcticAlgae FROM ProjectCard",
           "Plant",
       )
@@ -132,7 +132,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "UseCardAction<$InventorsGuild, Action1>",
           "ProjectCard<Selecting>",
           "-0 ProjectCard<Selecting>", // keep card
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "ProjectCard<Hand FROM Selecting>",
       )
     }
@@ -147,14 +147,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "UseStandardProject<PowerPlantProject>",
-          "-11 MC",
+          "11 Pay<> FROM MC",
           "PROD[Energy]",
           "Energy",
       )
       doTasks(
           "PlayProject<Class<$BuildingIndustries>>",
-          "-1 Steel",
-          "-4 MC",
+          "1 Pay<Class<Steel>> FROM Steel",
+          "4 Pay<> FROM MC",
           "$BuildingIndustries FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[2 Steel]",
@@ -165,13 +165,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$RotatorImpacts>>",
-          "-2 Titanium",
+          "2 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no mc paid
           "$RotatorImpacts FROM ProjectCard",
       )
       doTasks(
           "UseCardAction<$RotatorImpacts, Action1>",
-          "-2 Titanium",
+          "2 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no mc paid
           "Asteroid<$RotatorImpacts>",
       )
@@ -184,14 +184,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$CarbonateProcessing>>",
-          "-6 MC",
+          "6 Pay<> FROM MC",
           "$CarbonateProcessing FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 Heat]",
       )
       doTasks(
           "PlayProject<Class<$Archaebacteria>>",
-          "-6 MC",
+          "6 Pay<> FROM MC",
           "$Archaebacteria FROM ProjectCard",
           "PROD[Plant]",
       )
@@ -203,8 +203,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("20 MC", "Steel", "Titanium", "3 Heat", "Plant")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
-    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
+    p1.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
+    p2.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
 
     p1.assertProduction(m = 5, s = 3, t = 0, p = 0, e = 0, h = 0)
     p1.assertResources(m = 23, s = 5, t = 0, p = 0, e = 0, h = 1)
@@ -223,13 +231,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "UseCardAction<$Factorum, Action2>",
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "SearchForCard<TagFilter<Class<BuildingTag>>>",
       )
       doTasks(
           "PlayProject<Class<$MarsUniversity>>",
-          "-1 Steel",
-          "-6 MC",
+          "1 Pay<Class<Steel>> FROM Steel",
+          "6 Pay<> FROM MC",
           "$MarsUniversity FROM ProjectCard",
           "-ProjectCard",
           "ProjectCard",
@@ -241,12 +249,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "UseCardAction<$InventorsGuild, Action1>",
           "ProjectCard<Selecting>",
           "-0 ProjectCard<Selecting>", // keep card
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "ProjectCard<Hand FROM Selecting>",
       )
       doTasks(
           "PlayProject<Class<$EarthOffice>>",
-          "-1 MC",
+          "1 Pay<> FROM MC",
           "$EarthOffice FROM ProjectCard",
       )
     }
@@ -263,13 +271,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$DevelopmentCenter>>",
-          "-5 Steel",
-          "-1 MC",
+          "5 Pay<Class<Steel>> FROM Steel",
+          "1 Pay<> FROM MC",
           "$DevelopmentCenter FROM ProjectCard",
       )
       doTasks(
           "UseStandardProject<PowerPlantProject>",
-          "-11 MC",
+          "11 Pay<> FROM MC",
           "PROD[Energy]",
           "Energy",
       )
@@ -282,7 +290,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "UseCardAction<$DevelopmentCenter, Action1>",
-          "-Energy",
+          "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
 
@@ -296,7 +304,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
       doTasks(
           "PlayProject<Class<$DeuteriumExport>>",
-          "-11 MC",
+          "11 Pay<> FROM MC",
           "$DeuteriumExport FROM ProjectCard",
       )
       doTasks(
@@ -311,8 +319,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("21 MC", "Steel", "Titanium", "3 Heat", "Plant")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
-    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
+    p1.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
+    p2.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
 
     p1.assertProduction(m = 4, s = 3, t = 0, p = 0, e = 1, h = 0)
     p1.assertResources(m = 27, s = 3, t = 0, p = 0, e = 1, h = 1)
@@ -331,7 +347,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "UseCardAction<$DevelopmentCenter, Action1>",
-          "-Energy",
+          "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
       doTasks(
@@ -349,8 +365,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
       doTasks(
           "PlayProject<Class<$AsteroidCard>>",
-          "-4 Titanium",
-          "-2 MC",
+          "4 Pay<Class<Titanium>> FROM Titanium",
+          "2 Pay<> FROM MC",
           "$AsteroidCard FROM ProjectCard",
           "-0 Plant<Anyone>", // no plants removed
           "TemperatureStep",
@@ -363,8 +379,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$CorporateStronghold>>",
-          "-3 Steel",
-          "-5 MC",
+          "3 Pay<Class<Steel>> FROM Steel",
+          "5 Pay<> FROM MC",
           "$CorporateStronghold FROM ProjectCard",
           "PROD[3 MC]",
           "3 MC",
@@ -375,7 +391,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
       doTasks(
           "PlayProject<Class<$OptimalAerobraking>>",
-          "-7 MC",
+          "7 Pay<> FROM MC",
           "$OptimalAerobraking FROM ProjectCard",
       )
     }
@@ -383,7 +399,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$TransNeptuneProbe>>",
-          "-2 Titanium",
+          "2 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no mc paid
           "$TransNeptuneProbe FROM ProjectCard",
           "-ProjectCard",
@@ -391,7 +407,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTasks(
           "UseCardAction<$RotatorImpacts, Action1>",
-          "-6 MC",
+          "6 Pay<> FROM MC",
           "Asteroid<$RotatorImpacts>",
       )
     }
@@ -406,7 +422,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
       doTasks(
           "PlayProject<Class<$ImportedGhg>>",
-          "-4 MC",
+          "4 Pay<> FROM MC",
           "$ImportedGhg FROM ProjectCard",
           "PROD[Heat]",
           "7 Heat",
@@ -428,8 +444,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("22 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard<Hand FROM Selecting>")
-    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
+    p1.doTasks(
+        "-3 ProjectCard<Selecting>",
+        "3 Pay<> FROM MC",
+        "ProjectCard<Hand FROM Selecting>",
+    )
+    p2.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
 
     p1.assertProduction(m = 7, s = 3, t = 0, p = 0, e = 1, h = 1)
     p1.assertResources(m = 44, s = 3, t = 0, p = 1, e = 1, h = 10)
@@ -448,13 +472,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "UseCardAction<$Factorum, Action2>",
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "SearchForCard<TagFilter<Class<BuildingTag>>>",
       )
       doTasks(
           "PlayProject<Class<$AquiferPumping>>",
-          "-2 Steel",
-          "-14 MC",
+          "2 Pay<Class<Steel>> FROM Steel",
+          "14 Pay<> FROM MC",
           "$AquiferPumping FROM ProjectCard",
       )
     }
@@ -462,14 +486,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "UseCardAction<$DevelopmentCenter, Action1>",
-          "-Energy",
+          "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
       doTasks(
           "UseCardAction<$InventorsGuild, Action1>",
           "ProjectCard<Selecting>",
           "-0 ProjectCard<Selecting>", // keep card
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "ProjectCard<Hand FROM Selecting>",
       )
     }
@@ -477,7 +501,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "UseCardAction<$AquiferPumping, Action1>",
-          "-8 MC",
+          "8 Pay<> FROM MC",
           "OceanTile<Tharsis_2_6>",
           "TerraformRating",
           "2 ProjectCard",
@@ -485,7 +509,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTasks(
           "PlayProject<Class<$SearchForLife>>",
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "$SearchForLife FROM ProjectCard",
           "-ProjectCard",
           "ProjectCard",
@@ -499,8 +523,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTasks(
           "PlayProject<Class<$TectonicStressPower>>",
-          "-3 Steel",
-          "-12 MC",
+          "3 Pay<Class<Steel>> FROM Steel",
+          "12 Pay<> FROM MC",
           "$TectonicStressPower FROM ProjectCard",
           "PROD[3 Energy]",
           "3 Energy",
@@ -516,7 +540,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTasks(
           "UseCardAction<$SearchForLife, Action1>",
-          "-MC",
+          "Pay<> FROM MC",
           "ProjectCard<Revealed>",
           "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>", // no reward
           "-ProjectCard<Revealed>",
@@ -526,13 +550,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "ConvertHeat",
-          "-8 Heat",
+          "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
       doTasks(
           "UseStandardProject<AsteroidProject>",
-          "-14 MC",
+          "14 Pay<> FROM MC",
           "TemperatureStep",
           "TerraformRating",
           "PROD[Heat]",
@@ -552,7 +576,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
       doTasks(
           "PlayProject<Class<$SpinInducingAsteroid>>",
-          "-16 MC",
+          "16 Pay<> FROM MC",
           "$SpinInducingAsteroid FROM ProjectCard",
           "2 VenusStep",
           "2 TerraformRating",
@@ -570,8 +594,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("Heat FROM Energy", "24 MC", "Steel", "Titanium", "3 Heat", "Plant", "Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
-    p2.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
+    p1.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
+    p2.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
     p1.assertProduction(m = 7, s = 3, t = 0, p = 0, e = 4, h = 2)
     p1.assertResources(m = 28, s = 3, t = 0, p = 1, e = 4, h = 11)
     p1.assertDashMiddle(played = 15, actions = 3, tr = 27, hand = 9)
@@ -591,13 +623,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "ConvertHeat",
-          "-8 Heat",
+          "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
       doTasks(
           "PlayProject<Class<$SmallAsteroid>>",
-          "-10 MC",
+          "10 Pay<> FROM MC",
           "$SmallAsteroid FROM ProjectCard",
           "-2 Plant<Player2>",
           "TemperatureStep",
@@ -612,13 +644,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "UseCardAction<$Factorum, Action2>",
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "SearchForCard<TagFilter<Class<BuildingTag>>>",
       )
       doTasks(
           "PlayProject<Class<$DirectedImpactors>>",
-          "-2 Titanium",
-          "-2 MC",
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "2 Pay<> FROM MC",
           "$DirectedImpactors FROM ProjectCard",
       )
     }
@@ -626,7 +658,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "UseCardAction<$DevelopmentCenter, Action1>",
-          "-Energy",
+          "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
       doTasks(
@@ -656,8 +688,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTasks(
           "PlayProject<Class<$DomedCrater>>",
-          "-3 Steel",
-          "-18 MC",
+          "3 Pay<Class<Steel>> FROM Steel",
+          "18 Pay<> FROM MC",
           "$DomedCrater FROM ProjectCard",
           "3 Plant",
           "PROD[-Energy]",
@@ -670,7 +702,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "UseCardAction<$DirectedImpactors, Action1>",
-          "-6 MC",
+          "6 Pay<> FROM MC",
           "Asteroid<$RotatorImpacts>",
       )
       doTasks(
@@ -684,7 +716,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$FueledGenerators>>",
-          "-1 MC",
+          "1 Pay<> FROM MC",
           "$FueledGenerators FROM ProjectCard",
           "PROD[-MC]",
           "PROD[Energy]",
@@ -695,15 +727,15 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "ConvertHeat",
-          "-8 Heat",
+          "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
 
       doTasks(
           "UseCardAction<$AquiferPumping, Action1>",
-          "-1 Steel",
-          "-6 MC",
+          "1 Pay<Class<Steel>> FROM Steel",
+          "6 Pay<> FROM MC",
           "OceanTile<Tharsis_1_4>",
           "TerraformRating",
           "ProjectCard",
@@ -726,10 +758,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
         "-0 ProjectCard<Selecting>", // keep all four
-        "-12 MC",
+        "12 Pay<> FROM MC",
         "4 ProjectCard<Hand FROM Selecting>",
     )
-    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
 
     p1.assertProduction(m = 9, s = 3, t = 0, p = 0, e = 5, h = 3)
     p1.assertResources(m = 31, s = 3, t = 0, p = 4, e = 5, h = 15)
@@ -746,7 +782,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     assertSidebar(gen = 6, temp = -18, oxygen = 0, oceans = 2, venus = 10)
 
     p2.turn {
-      doTasks("ConvertPlants", "-8 Plant")
+      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       selectTask("MAX 0 Billing: DefaultGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_8_7>",
@@ -756,7 +792,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTasks(
           "UseCardAction<$Factorum, Action2>",
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "SearchForCard<TagFilter<Class<BuildingTag>>>",
       )
     }
@@ -764,7 +800,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "UseCardAction<$DevelopmentCenter, Action1>",
-          "-Energy",
+          "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
 
@@ -772,7 +808,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "UseCardAction<$InventorsGuild, Action1>",
           "ProjectCard<Selecting>",
           "-0 ProjectCard<Selecting>", // keep card
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "ProjectCard<Hand FROM Selecting>",
       )
     }
@@ -780,14 +816,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$PowerPlant>>",
-          "-1 Steel",
-          "-2 MC",
+          "1 Pay<Class<Steel>> FROM Steel",
+          "2 Pay<> FROM MC",
           "$PowerPlant FROM ProjectCard",
           "PROD[Energy]",
       )
       doTasks(
           "UseCardAction<$AquiferPumping, Action1>",
-          "-8 MC",
+          "8 Pay<> FROM MC",
           "OceanTile<Tharsis_1_5>",
           "4 MC",
           "TerraformRating",
@@ -798,15 +834,15 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$OlympusConference>>",
-          "-3 Steel",
-          "-1 MC",
+          "3 Pay<Class<Steel>> FROM Steel",
+          "1 Pay<> FROM MC",
           "$OlympusConference FROM ProjectCard",
           "Science<$OlympusConference>* OR ProjectCard FROM Science<$OlympusConference>",
       )
 
       doTasks(
           "PlayProject<Class<$SisterPlanetSupport>>",
-          "-4 MC",
+          "4 Pay<> FROM MC",
           "$SisterPlanetSupport FROM ProjectCard",
           "PROD[3 MC]",
           "3 MC",
@@ -816,8 +852,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "UseCardAction<$DirectedImpactors, Action1>",
-          "-1 Titanium",
-          "-3 MC",
+          "1 Pay<Class<Titanium>> FROM Titanium",
+          "3 Pay<> FROM MC",
           "Asteroid<$RotatorImpacts>",
       )
       doTasks(
@@ -831,7 +867,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$DuskLaserMining>>",
-          "-8 MC",
+          "8 Pay<> FROM MC",
           "$DuskLaserMining FROM ProjectCard",
           "PROD[Titanium]",
           "PROD[-Energy]",
@@ -840,7 +876,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
       doTasks(
           "PlayProject<Class<$MirandaResort>>",
-          "-4 Titanium",
+          "4 Pay<Class<Titanium>> FROM Titanium",
           "Ok", // no mc paid
           "$MirandaResort FROM ProjectCard",
           "PROD[5 MC]",
@@ -851,13 +887,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$Mine>>",
-          "-4 MC",
+          "4 Pay<> FROM MC",
           "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
       doTasks(
           "UseCardAction<$SearchForLife, Action1>",
-          "-MC",
+          "Pay<> FROM MC",
           "ProjectCard<Revealed>",
           "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>", // no reward
           "-ProjectCard<Revealed>",
@@ -867,14 +903,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$Solarnet>>",
-          "-7 MC",
+          "7 Pay<> FROM MC",
           "$Solarnet FROM ProjectCard",
           "2 ProjectCard",
       )
 
       doTasks(
           "PlayProject<Class<$MiningQuota>>",
-          "-5 MC",
+          "5 Pay<> FROM MC",
           "$MiningQuota FROM ProjectCard",
           "PROD[2 Steel]",
           "2 Steel",
@@ -884,7 +920,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "ConvertHeat",
-          "-8 Heat",
+          "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
@@ -893,7 +929,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "ConvertHeat",
-          "-8 Heat",
+          "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
@@ -910,8 +946,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$LagrangeObservatory>>",
-          "-1 Titanium",
-          "-6 MC",
+          "1 Pay<Class<Titanium>> FROM Titanium",
+          "6 Pay<> FROM MC",
           "$LagrangeObservatory FROM ProjectCard",
           "ProjectCard FROM Science<$OlympusConference>",
           "ProjectCard",
@@ -919,7 +955,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
       doTasks(
           "PlayProject<Class<$VenusGovernor>>",
-          "-4 MC",
+          "4 Pay<> FROM MC",
           "$VenusGovernor FROM ProjectCard",
           "PROD[2 MC]",
           "2 MC",
@@ -930,7 +966,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTasks(
           "PlayProject<Class<$Moss>>",
-          "-4 MC",
+          "4 Pay<> FROM MC",
           "$Moss FROM ProjectCard",
           "-Plant",
           "PROD[Plant]",
@@ -945,8 +981,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("Heat FROM Energy", "31 MC", "2 Steel", "Titanium", "3 Heat", "Plant", "2 Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
-    p2.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard<Hand FROM Selecting>")
+    p1.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
+    p2.doTasks(
+        "-3 ProjectCard<Selecting>",
+        "3 Pay<> FROM MC",
+        "ProjectCard<Hand FROM Selecting>",
+    )
 
     p1.assertProduction(m = 19, s = 5, t = 1, p = 1, e = 4, h = 3)
     p1.assertResources(m = 40, s = 7, t = 1, p = 5, e = 4, h = 14)
@@ -965,13 +1009,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "ClaimMilestone<Class<Builder8>>",
-          "-8 MC",
+          "8 Pay<> FROM MC",
           "Builder8",
       )
 
       doTasks(
           "UseCardAction<$DevelopmentCenter, Action1>",
-          "-Energy",
+          "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
     }
@@ -979,7 +1023,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$EarthCatapult>>",
-          "-23 MC",
+          "23 Pay<> FROM MC",
           "$EarthCatapult FROM ProjectCard",
       )
       doTasks(
@@ -1001,7 +1045,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTasks(
           "PlayProject<Class<$QuantumExtractor>>",
-          "-13 MC",
+          "13 Pay<> FROM MC",
           "$QuantumExtractor FROM ProjectCard",
           "Science",
           "PROD[4 Energy]",
@@ -1012,13 +1056,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$BioPrintingFacility>>",
-          "-2 Steel",
-          "-1 MC",
+          "2 Pay<Class<Steel>> FROM Steel",
+          "1 Pay<> FROM MC",
           "$BioPrintingFacility FROM ProjectCard",
       )
       doTasks(
           "UseCardAction<$BioPrintingFacility, Action1>",
-          "-2 Energy",
+          "2 Pay<Class<Energy>> FROM Energy",
           "2 Plant",
       )
     }
@@ -1034,7 +1078,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "PlayProject<Class<$ProjectInspection>>",
           "$ProjectInspection FROM ProjectCard",
           "UseAction<$DevelopmentCenter, Action1>",
-          "-1 Energy",
+          "1 Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
           "PlayedEvent<Class<$ProjectInspection>> FROM $ProjectInspection",
       )
@@ -1048,7 +1092,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
       doTasks(
           "PlayProject<Class<$PowerSupplyConsortium>>",
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "$PowerSupplyConsortium FROM ProjectCard",
           "PROD[-Energy<Player1>]",
           "PROD[Energy]",
@@ -1058,12 +1102,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$FloatingHabs>>",
-          "-5 MC",
+          "5 Pay<> FROM MC",
           "$FloatingHabs FROM ProjectCard",
       )
       doTasks(
           "UseCardAction<$FloatingHabs, Action1>",
-          "-2 MC",
+          "2 Pay<> FROM MC",
           "Floater<$DeuteriumExport>",
       )
     }
@@ -1071,7 +1115,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$TitaniumMine>>",
-          "-5 MC",
+          "5 Pay<> FROM MC",
           "$TitaniumMine FROM ProjectCard",
           "PROD[Titanium]",
       )
@@ -1080,14 +1124,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "ConvertHeat",
-          "-8 Heat",
+          "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
 
       doTasks(
           "PlayProject<Class<$StratosphericBirds>>",
-          "-12 MC",
+          "12 Pay<> FROM MC",
           "$StratosphericBirds FROM ProjectCard",
           "-Floater",
       )
@@ -1111,8 +1155,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("31 MC", "2 Steel", "2 Titanium", "3 Heat", "Plant", "4 Energy")
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
-    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
+    p1.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
+    p2.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
 
     p1.assertProduction(m = 19, s = 5, t = 1, p = 1, e = 8, h = 3)
     p1.assertResources(m = 44, s = 12, t = 2, p = 6, e = 8, h = 16)
@@ -1142,7 +1194,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$AdvancedAlloys>>",
-          "-7 MC",
+          "7 Pay<> FROM MC",
           "$AdvancedAlloys FROM ProjectCard",
           "-ProjectCard",
           "ProjectCard",
@@ -1150,8 +1202,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
       doTasks(
           "PlayProject<Class<$AiCentral>>",
-          "-2 Steel",
-          "-13 MC",
+          "2 Pay<Class<Steel>> FROM Steel",
+          "13 Pay<> FROM MC",
           "$AiCentral FROM ProjectCard",
           "PROD[-Energy]",
           "-ProjectCard",
@@ -1162,14 +1214,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$ExtractorBalloons>>",
-          "-21 MC",
+          "21 Pay<> FROM MC",
           "$ExtractorBalloons FROM ProjectCard",
           "3 Floater<$ExtractorBalloons>",
       )
 
       doTasks(
           "UseCardAction<$DevelopmentCenter, Action1>",
-          "-Energy",
+          "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
     }
@@ -1184,8 +1236,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
       doTasks(
           "UseCardAction<$DirectedImpactors, Action1>",
-          "-1 Titanium",
-          "-2 MC",
+          "1 Pay<Class<Titanium>> FROM Titanium",
+          "2 Pay<> FROM MC",
           "Asteroid<$RotatorImpacts>",
       )
     }
@@ -1195,8 +1247,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$SulphurExports>>",
-          "-2 Titanium",
-          "-13 MC",
+          "2 Pay<Class<Titanium>> FROM Titanium",
+          "13 Pay<> FROM MC",
           "$SulphurExports FROM ProjectCard",
           "VenusStep",
           "TerraformRating",
@@ -1222,7 +1274,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
       doTasks(
           "PlayProject<Class<$IshtarMining>>",
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "$IshtarMining FROM ProjectCard",
           "PROD[Titanium]",
       )
@@ -1231,8 +1283,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$MoholeLake>>",
-          "-12 Steel",
-          "-7 MC",
+          "12 Pay<Class<Steel>> FROM Steel",
+          "7 Pay<> FROM MC",
           "$MoholeLake FROM ProjectCard",
           "OceanTile<Tharsis_5_5>",
           "5 Plant",
@@ -1243,7 +1295,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
       doTasks(
           "ClaimMilestone<Class<Terraformer35>>",
-          "-8 MC",
+          "8 Pay<> FROM MC",
           "Terraformer35",
       )
     }
@@ -1251,11 +1303,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "ConvertHeat",
-          "-8 Heat",
+          "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTasks("ConvertPlants", "-8 Plant")
+      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       selectTask("MAX 0 Billing: DefaultGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_8_6>",
@@ -1270,7 +1322,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "UseCardAction<$InventorsGuild, Action1>",
           "ProjectCard<Selecting>",
           "-0 ProjectCard<Selecting>", // keep card
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "ProjectCard<Hand FROM Selecting>",
       )
       doTasks(
@@ -1282,7 +1334,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "UseCardAction<$BioPrintingFacility, Action1>",
-          "-2 Energy",
+          "2 Pay<Class<Energy>> FROM Energy",
           "2 Plant",
       )
     }
@@ -1290,11 +1342,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "ConvertHeat",
-          "-8 Heat",
+          "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
-      doTasks("ConvertPlants", "-8 Plant")
+      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       selectTask("MAX 0 Billing: DefaultGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_3_5>",
@@ -1333,8 +1385,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
-    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
+    p1.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
+    p2.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
 
     p1.assertProduction(m = 27, s = 5, t = 1, p = 1, e = 8, h = 3)
     p1.assertResources(m = 56, s = 5, t = 1, p = 4, e = 8, h = 18)
@@ -1353,14 +1413,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "UseCardAction<$DevelopmentCenter, Action1>",
-          "-Energy",
+          "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
       doTasks(
           "UseCardAction<$InventorsGuild, Action1>",
           "ProjectCard<Selecting>",
           "-0 ProjectCard<Selecting>", // keep card
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "ProjectCard<Hand FROM Selecting>",
       )
     }
@@ -1368,8 +1428,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$DeimosDownPromo>>",
-          "-5 Titanium",
-          "-9 MC",
+          "5 Pay<Class<Titanium>> FROM Titanium",
+          "9 Pay<> FROM MC",
           "$DeimosDownPromo FROM ProjectCard",
           "3 TemperatureStep",
           "OceanTile<Tharsis_6_7>",
@@ -1390,13 +1450,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "ConvertHeat",
-          "-8 Heat",
+          "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
       doTasks(
           "ConvertHeat",
-          "-8 Heat",
+          "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
@@ -1405,14 +1465,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "UseCardAction<$AquiferPumping, Action1>",
-          "-3 Steel",
+          "3 Pay<Class<Steel>> FROM Steel",
           "Ok", // no mc paid
           "OceanTile<Tharsis_5_6>",
           "4 MC",
           "TerraformRating",
           "4 Plant",
       )
-      doTasks("ConvertPlants", "-8 Plant")
+      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       selectTask("MAX 0 Billing: DefaultGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_9_7>",
@@ -1424,14 +1484,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$RegoPlastics>>",
-          "-10 MC",
           "Ok", // no steel paid
+          "10 Pay<> FROM MC",
           "$RegoPlastics FROM ProjectCard",
       )
       doTasks(
           "PlayProject<Class<$SfMemorial>>",
-          "-2 Steel",
-          "-1 MC",
+          "2 Pay<Class<Steel>> FROM Steel",
+          "1 Pay<> FROM MC",
           "$SfMemorial FROM ProjectCard",
           "ProjectCard",
       )
@@ -1440,12 +1500,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "ClaimMilestone<Class<Gardener>>",
-          "-8 MC",
+          "8 Pay<> FROM MC",
           "Gardener",
       )
       doTasks(
           "UseCardAction<$DirectedImpactors, Action1>",
-          "-6 MC",
+          "6 Pay<> FROM MC",
           "Asteroid<$RotatorImpacts>",
       )
     }
@@ -1453,7 +1513,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "UseCardAction<$FloatingHabs, Action1>",
-          "-2 MC",
+          "2 Pay<> FROM MC",
           "Floater<$ExtractorBalloons>",
       )
       doTasks(
@@ -1467,7 +1527,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$EcologicalZone>>",
-          "-10 MC",
+          "10 Pay<> FROM MC",
           "$EcologicalZone FROM ProjectCard",
           "EcologicalZone_SpecialTile<Tharsis_4_5>",
           "2 Animal<$EcologicalZone>",
@@ -1477,7 +1537,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
       doTasks(
           "PlayProject<Class<$Harvest>>",
-          "-2 MC",
+          "2 Pay<> FROM MC",
           "$Harvest FROM ProjectCard",
           "Animal<$EcologicalZone>",
           "12 MC",
@@ -1488,8 +1548,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$NoctisFarming>>",
-          "-3 Steel",
-          "-1 MC",
+          "3 Pay<Class<Steel>> FROM Steel",
+          "1 Pay<> FROM MC",
           "$NoctisFarming FROM ProjectCard",
           "2 Plant",
           "PROD[MC]",
@@ -1507,7 +1567,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "UseCardAction<$BioPrintingFacility, Action1>",
-          "-2 Energy",
+          "2 Pay<Class<Energy>> FROM Energy",
           "Animal<$EcologicalZone>",
       )
       doTasks(
@@ -1533,14 +1593,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "UseCardAction<$Factorum, Action2>",
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "SearchForCard<TagFilter<Class<BuildingTag>>>",
       )
 
       doTasks(
           "PlayProject<Class<$NaturalPreserve>>",
-          "-2 Steel",
-          "-1 MC",
+          "2 Pay<Class<Steel>> FROM Steel",
+          "1 Pay<> FROM MC",
           "$NaturalPreserve FROM ProjectCard",
           "-ProjectCard",
           "NaturalPreserve_SpecialTile<Tharsis_3_1>",
@@ -1556,8 +1616,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTasks(
           "PlayProject<Class<$WaterToVenus>>",
-          "-1 Titanium",
-          "-4 MC",
+          "1 Pay<Class<Titanium>> FROM Titanium",
+          "4 Pay<> FROM MC",
           "$WaterToVenus FROM ProjectCard",
           "VenusStep",
           "TerraformRating",
@@ -1574,7 +1634,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTasks(
           "PlayProject<Class<$KelpFarming>>",
-          "-15 MC",
+          "15 Pay<> FROM MC",
           "$KelpFarming FROM ProjectCard",
           "Animal<$EcologicalZone>",
           "2 Plant",
@@ -1586,18 +1646,18 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$Trees>>",
-          "-13 MC",
+          "13 Pay<> FROM MC",
           "$Trees FROM ProjectCard",
           "PROD[3 Plant]",
           "4 Plant",
       )
-      doTasks("FundAward<Class<Banker>>", "-8 MC", "Banker")
+      doTasks("FundAward<Class<Banker>>", "8 Pay<> FROM MC", "Banker")
     }
 
     p2.turn {
       doTasks(
           "UseCardAction<$SearchForLife, Action1>",
-          "-MC",
+          "Pay<> FROM MC",
           "ProjectCard<Revealed>",
           "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>", // no reward
           "-ProjectCard<Revealed>",
@@ -1607,7 +1667,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$VenusianInsects>>",
-          "-5 MC",
+          "5 Pay<> FROM MC",
           "$VenusianInsects FROM ProjectCard",
       )
       doTasks(
@@ -1621,7 +1681,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     p1.turn {
-      doTasks("FundAward<Class<Venuphile>>", "-14 MC", "Venuphile")
+      doTasks("FundAward<Class<Venuphile>>", "14 Pay<> FROM MC", "Venuphile")
       doTasks("Pass")
     }
 
@@ -1646,8 +1706,16 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
-    p2.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
+    p1.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
+    p2.doTasks(
+        "-1 ProjectCard<Selecting>",
+        "9 Pay<> FROM MC",
+        "3 ProjectCard<Hand FROM Selecting>",
+    )
 
     p1.assertProduction(m = 28, s = 5, t = 1, p = 4, e = 9, h = 3)
     p1.assertResources(m = 66, s = 5, t = 1, p = 10, e = 9, h = 16)
@@ -1672,7 +1740,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTasks(
           "ConvertHeat",
-          "-8 Heat",
+          "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
@@ -1681,13 +1749,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "ConvertHeat",
-          "-8 Heat",
+          "8 Pay<Class<Heat>> FROM Heat",
           "TemperatureStep",
           "TerraformRating",
       )
       doTasks(
           "UseStandardProject<CityProject>",
-          "-25 MC",
+          "25 Pay<> FROM MC",
           "CityTile<Tharsis_7_6>",
           "PROD[MC]",
           "MC",
@@ -1695,7 +1763,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     p2.turn {
-      doTasks("ConvertPlants", "-8 Plant")
+      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       selectTask("MAX 0 Billing: DefaultGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_9_6>",
@@ -1713,7 +1781,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "UseCardAction<$DevelopmentCenter, Action1>",
-          "-Energy",
+          "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
       doTasks(
@@ -1726,13 +1794,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$MercurianAlloys>>",
-          "-1 MC",
           "Ok", // no titanium paid
+          "1 Pay<> FROM MC",
           "$MercurianAlloys FROM ProjectCard",
       )
       doTasks(
           "PlayProject<Class<$AerialMappers>>",
-          "-9 MC",
+          "9 Pay<> FROM MC",
           "$AerialMappers FROM ProjectCard",
       )
     }
@@ -1740,8 +1808,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$LavaTubeSettlement>>",
-          "-3 Steel",
-          "-6 MC",
+          "3 Pay<Class<Steel>> FROM Steel",
+          "6 Pay<> FROM MC",
           "$LavaTubeSettlement FROM ProjectCard",
           "CityTile<Tharsis_2_2>",
           "Steel",
@@ -1752,8 +1820,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
       doTasks(
           "PlayProject<Class<$UrbanizedArea>>",
-          "-1 Steel",
-          "-7 MC",
+          "1 Pay<Class<Steel>> FROM Steel",
+          "7 Pay<> FROM MC",
           "$UrbanizedArea FROM ProjectCard",
           "CityTile<Tharsis_2_3>",
           "PROD[-Energy]",
@@ -1765,8 +1833,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$Atmoscoop>>",
-          "-3 Titanium",
-          "-5 MC",
+          "3 Pay<Class<Titanium>> FROM Titanium",
+          "5 Pay<> FROM MC",
           "$Atmoscoop FROM ProjectCard",
           "2 VenusStep",
           "2 Floater<$AerialMappers>",
@@ -1783,8 +1851,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$NitrogenRichAsteroid>>",
-          "-1 Titanium",
-          "-26 MC",
+          "1 Pay<Class<Titanium>> FROM Titanium",
+          "26 Pay<> FROM MC",
           "$NitrogenRichAsteroid FROM ProjectCard",
           "PROD[4 Plant]",
           "2 TerraformRating",
@@ -1795,7 +1863,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "PlayedEvent<Class<$NitrogenRichAsteroid>> FROM $NitrogenRichAsteroid",
       )
 
-      doTasks("ConvertPlants", "-8 Plant")
+      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       selectTask("MAX 0 Billing: DefaultGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_3_3>",
@@ -1807,12 +1875,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "UseCardAction<$BioPrintingFacility, Action1>",
-          "-2 Energy",
+          "2 Pay<Class<Energy>> FROM Energy",
           "Animal<$EcologicalZone>",
       )
       doTasks(
           "UseCardAction<$DirectedImpactors, Action1>",
-          "-6 MC",
+          "6 Pay<> FROM MC",
           "Asteroid<$RotatorImpacts>",
       )
     }
@@ -1838,8 +1906,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
       doTasks(
           "UseCardAction<$AquiferPumping, Action1>",
-          "-2 Steel",
-          "-2 MC",
+          "2 Pay<Class<Steel>> FROM Steel",
+          "2 Pay<> FROM MC",
           "OceanTile<Tharsis_9_9>",
           "2 Titanium",
           "TerraformRating",
@@ -1850,18 +1918,18 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$PowerInfrastructure>>",
-          "-4 MC",
+          "4 Pay<> FROM MC",
           "$PowerInfrastructure FROM ProjectCard",
       )
       doTask("UseCardAction<$PowerInfrastructure, Action1>")
       selectTask(p1.tasks.extract { it }.single().bindXTo(8))
-      doTasks("-8 Energy", "8 MC")
+      doTasks("8 Pay<Class<Energy>> FROM Energy", "8 MC")
     }
 
     p2.turn {
       doTasks(
           "UseCardAction<$Factorum, Action2>",
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "SearchForCard<TagFilter<Class<BuildingTag>>>",
       )
       doTasks(
@@ -1884,7 +1952,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$Bushes>>",
-          "-8 MC",
+          "8 Pay<> FROM MC",
           "$Bushes FROM ProjectCard",
           "Animal<$EcologicalZone>",
           "2 Plant",
@@ -1892,7 +1960,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTasks(
           "PlayProject<Class<$EnergyTapping>>",
-          "-1 MC",
+          "1 Pay<> FROM MC",
           "$EnergyTapping FROM ProjectCard",
           "PROD[-Energy<Player1>]",
           "PROD[Energy]",
@@ -1902,7 +1970,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "UseCardAction<$FloatingHabs, Action1>",
-          "-2 MC",
+          "2 Pay<> FROM MC",
           "Floater<$FloatingHabs>",
       )
       doTasks(
@@ -1914,7 +1982,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$NuclearPower>>",
-          "-3 Steel",
+          "3 Pay<Class<Steel>> FROM Steel",
           "Ok", // no mc paid
           "$NuclearPower FROM ProjectCard",
           "PROD[-2 MC]",
@@ -1922,7 +1990,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTasks(
           "PlayProject<Class<$BiomassCombustors>>",
-          "-1 Steel",
+          "1 Pay<Class<Steel>> FROM Steel",
           "Ok", // no mc paid
           "$BiomassCombustors FROM ProjectCard",
           "PROD[-Plant<Player1>]",
@@ -1937,7 +2005,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "UseCardAction<$SearchForLife, Action1>",
-          "-MC",
+          "Pay<> FROM MC",
           "ProjectCard<Revealed>",
           "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>", // no reward
           "-ProjectCard<Revealed>",
@@ -1957,13 +2025,21 @@ internal class Game20230521Test : AbstractFullGameTest() {
     )
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
-    p2.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard<Hand FROM Selecting>")
+    p1.doTasks(
+        "-2 ProjectCard<Selecting>",
+        "6 Pay<> FROM MC",
+        "2 ProjectCard<Hand FROM Selecting>",
+    )
+    p2.doTasks(
+        "-3 ProjectCard<Selecting>",
+        "3 Pay<> FROM MC",
+        "ProjectCard<Hand FROM Selecting>",
+    )
     p1.turn {
       doTasks(
           "PlayProject<Class<$ImportedNitrogen>>",
-          "-1 Titanium",
-          "-15 MC",
+          "1 Pay<Class<Titanium>> FROM Titanium",
+          "15 Pay<> FROM MC",
           "$ImportedNitrogen FROM ProjectCard",
           "3 Microbe<$VenusianInsects>",
           "2 Animal<$StratosphericBirds>",
@@ -1975,7 +2051,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTasks(
           "UseCardAction<$DevelopmentCenter, Action1>",
-          "-Energy",
+          "Pay<Class<Energy>> FROM Energy",
           "ProjectCard",
       )
     }
@@ -1987,13 +2063,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTasks(
           "UseCardAction<$Factorum, Action2>",
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "SearchForCard<TagFilter<Class<BuildingTag>>>",
       )
     }
 
     p1.turn {
-      doTasks("ConvertPlants", "-8 Plant")
+      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       selectTask("MAX 0 Billing: DefaultGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_2_4>",
@@ -2011,12 +2087,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$MediaGroup>>",
-          "-4 MC",
+          "4 Pay<> FROM MC",
           "$MediaGroup FROM ProjectCard",
       )
       doTasks(
           "PlayProject<Class<$MiningExpedition>>",
-          "-10 MC",
+          "10 Pay<> FROM MC",
           "$MiningExpedition FROM ProjectCard",
           "-2 Plant<Player1>",
           "OxygenStep",
@@ -2031,7 +2107,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTask("UseCardAction<$PowerInfrastructure, Action1>")
       selectTask(p1.tasks.extract { it }.single().bindXTo(5))
-      doTasks("-5 Energy", "5 MC")
+      doTasks("5 Pay<Class<Energy>> FROM Energy", "5 MC")
       doTasks(
           "UseCardAction<$ExtractorBalloons, Action1>",
           "Floater<$ExtractorBalloons>",
@@ -2041,13 +2117,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "UseCardAction<$BioPrintingFacility, Action1>",
-          "-2 Energy",
+          "2 Pay<Class<Energy>> FROM Energy",
           "Animal<$EcologicalZone>",
       )
       doTasks(
           "UseCardAction<$AquiferPumping, Action1>",
-          "-2 Steel",
-          "-2 MC",
+          "2 Pay<Class<Steel>> FROM Steel",
+          "2 Pay<> FROM MC",
           "OceanTile<Tharsis_5_4>",
           "2 MC",
           "TerraformRating",
@@ -2058,7 +2134,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$BusinessNetwork>>",
-          "-1 MC",
+          "1 Pay<> FROM MC",
           "$BusinessNetwork FROM ProjectCard",
           "PROD[-MC]",
       )
@@ -2067,7 +2143,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "UseCardAction<$BusinessNetwork, Action1>",
           "ProjectCard<Selecting>",
           "-0 ProjectCard<Selecting>", // keep card
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "ProjectCard<Hand FROM Selecting>",
       )
     }
@@ -2075,11 +2151,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "UseStandardProject<CityProject>",
-          "-25 MC",
+          "25 Pay<> FROM MC",
           "CityTile<Tharsis_8_5>",
           "PROD[MC]",
       )
-      doTasks("ConvertPlants", "-8 Plant")
+      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       selectTask("MAX 0 Billing: DefaultGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_8_4>",
@@ -2099,13 +2175,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
       doTasks(
           "UseCardAction<$FloatingHabs, Action1>",
-          "-2 MC",
+          "2 Pay<> FROM MC",
           "Floater<$FloatingHabs>",
       )
     }
 
     p2.turn {
-      doTasks("ConvertPlants", "-8 Plant")
+      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       selectTask("MAX 0 Billing: DefaultGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_9_5>",
@@ -2135,8 +2211,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$MagneticFieldGeneratorsPromo>>",
-          "-6 Steel",
-          "-2 MC",
+          "6 Pay<Class<Steel>> FROM Steel",
+          "2 Pay<> FROM MC",
           "$MagneticFieldGeneratorsPromo FROM ProjectCard",
           "MagneticFieldGeneratorsPromo_SpecialTile<Tharsis_6_6>",
           "PROD[-4 Energy]",
@@ -2148,8 +2224,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
       doTasks(
           "PlayProject<Class<$TowingAComet>>",
-          "-4 Titanium",
-          "-1 MC",
+          "4 Pay<Class<Titanium>> FROM Titanium",
+          "1 Pay<> FROM MC",
           "$TowingAComet FROM ProjectCard",
           "OceanTile<Tharsis_6_8>",
           "5 Plant",
@@ -2167,7 +2243,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTasks(
           "PlayProject<Class<$StandardTechnology>>",
-          "-6 MC",
+          "6 Pay<> FROM MC",
           "$StandardTechnology FROM ProjectCard",
           "ProjectCard FROM Science",
       )
@@ -2176,7 +2252,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$AtalantaPlanitiaLab>>",
-          "-8 MC",
+          "8 Pay<> FROM MC",
           "$AtalantaPlanitiaLab FROM ProjectCard",
           "2 ProjectCard",
           "-ProjectCard",
@@ -2191,7 +2267,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$LargeConvoy>>",
-          "-31 MC",
+          "31 Pay<> FROM MC",
           "$LargeConvoy FROM ProjectCard",
           "4 Animal<$StratosphericBirds>",
           "Ok", // oceans full
@@ -2203,7 +2279,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
       doTasks(
           "PlayProject<Class<$WaterSplittingPlant>>",
-          "-4 Steel",
+          "4 Pay<Class<Steel>> FROM Steel",
           "Ok", // no mc paid
           "$WaterSplittingPlant FROM ProjectCard",
       )
@@ -2212,13 +2288,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$RobotPollinators>>",
-          "-7 MC",
+          "7 Pay<> FROM MC",
           "$RobotPollinators FROM ProjectCard",
           "PROD[Plant]",
           "4 Plant",
       )
 
-      doTasks("ConvertPlants", "-8 Plant")
+      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       selectTask("MAX 0 Billing: DefaultGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_7_4>",
@@ -2230,13 +2306,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$MediaArchives>>",
-          "-5 MC",
+          "5 Pay<> FROM MC",
           "$MediaArchives FROM ProjectCard",
           "16 MC",
       )
       doTasks(
           "UseStandardProject<GreeneryProject>",
-          "-23 MC",
+          "23 Pay<> FROM MC",
           "GreeneryTile<Tharsis_5_7>",
           "9 MC",
           "2 Plant",
@@ -2248,13 +2324,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.turn {
       doTasks(
           "PlayProject<Class<$Greenhouses>>",
-          "-4 MC",
+          "4 Pay<> FROM MC",
           "$Greenhouses FROM ProjectCard",
           "Animal<$EcologicalZone>",
           "6 Plant",
       )
 
-      doTasks("ConvertPlants", "-8 Plant")
+      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       selectTask("MAX 0 Billing: DefaultGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_9_8>",
@@ -2265,8 +2341,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     p1.turn {
-      doTasks("FundAward<Class<Thermalist>>", "-20 MC", "Thermalist")
-      doTasks("ConvertPlants", "-8 Plant")
+      doTasks("FundAward<Class<Thermalist>>", "20 Pay<> FROM MC", "Thermalist")
+      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       selectTask("MAX 0 Billing: DefaultGreeneryTile")
       doTasks(
           "GreeneryTile<Tharsis_4_4>",
@@ -2283,7 +2359,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       )
       doTasks(
           "PlayProject<Class<$Penguins>>",
-          "-5 MC",
+          "5 Pay<> FROM MC",
           "$Penguins FROM ProjectCard",
           "Animal<$EcologicalZone>",
       )
@@ -2292,7 +2368,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$AdvancedEcosystems>>",
-          "-11 MC",
+          "11 Pay<> FROM MC",
           "$AdvancedEcosystems FROM ProjectCard",
       )
       doTasks(
@@ -2311,7 +2387,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       doTasks(
           "PlayProject<Class<$GeneRepair>>",
-          "-12 MC",
+          "12 Pay<> FROM MC",
           "$GeneRepair FROM ProjectCard",
           "PROD[2 MC]",
           "Science",
@@ -2334,7 +2410,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.doTasks("7 Energy", "3 Heat", "Titanium", "7 Plant")
 
     // Final greenery placement
-    p1.doTasks("ConvertPlants", "-8 Plant")
+    p1.doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
     p1.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p1.doTasks(
         "GreeneryTile<Tharsis_6_5>",
@@ -2342,7 +2418,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         "4 MC",
     )
     p1.doTasks("Done") // no more greenery
-    p2.doTasks("ConvertPlants", "-8 Plant")
+    p2.doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
     p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
     p2.doTasks(
         "GreeneryTile<Tharsis_8_8>",

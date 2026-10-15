@@ -14,7 +14,7 @@ internal class DiasporaMovementTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<DiasporaMovement>>",
-              "-7 MC",
+              "7 Pay<> FROM MC",
               "DiasporaMovement FROM ProjectCard",
           )
           doTask("2 MC")

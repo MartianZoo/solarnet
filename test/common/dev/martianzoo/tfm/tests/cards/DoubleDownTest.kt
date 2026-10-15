@@ -259,7 +259,7 @@ internal class DoubleDownTest : TfmSandboxTest() {
       stan.autoExecNow(EAGER)
 
       kim.completeOperation {
-            doTasks("PlayProject<Class<$Comet>>", "-21 MC", "Ok" /* No Titanium payment. */)
+            doTasks("PlayProject<Class<$Comet>>", "Ok" /* No Titanium payment. */)
             doTask("OceanTile<Tharsis_1_2>")
             autoExecNow(EAGER)
           }

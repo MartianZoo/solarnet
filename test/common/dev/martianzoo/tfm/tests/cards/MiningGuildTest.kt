@@ -17,7 +17,7 @@ internal class MiningGuildTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "UseStandardProject<CityProject>",
-          "-25 MC",
+          "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Tharsis_1_1>",
           "PROD[Steel]",
@@ -36,7 +36,7 @@ internal class MiningGuildTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "UseStandardProject<CityProject>",
-          "-25 MC",
+          "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Tharsis_8_9>",
           "PROD[Steel]",
@@ -54,7 +54,7 @@ internal class MiningGuildTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "UseStandardProject<CityProject>",
-              "-25 MC",
+              "25 Pay<> FROM MC",
               "PROD[MC]",
               "CityTile<Tharsis_4_4>",
               "Plant",
@@ -72,7 +72,11 @@ internal class MiningGuildTest : TfmSandboxTest() {
     val checkpoint = game.timeline.checkpoint()
 
     kim.inTurn {
-      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_05_03>")
+      doTasks(
+          "UseStandardProject<GreeneryProject>",
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Amazonis_05_03>",
+      )
       doTask("OxygenStep")
       doTask("PROD[Steel]")
       // Hand the fizzle audit to Admin before receiving compensation.
@@ -100,7 +104,11 @@ internal class MiningGuildTest : TfmSandboxTest() {
     newTestGame(addOptions = "AmazonisMap, Unsafe", kimCorporation = MiningGuild)
     kim.setToExMachina(23, "MC")
     return kim.inTurn {
-      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_05_03>")
+      doTasks(
+          "UseStandardProject<GreeneryProject>",
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Amazonis_05_03>",
+      )
       doTask("OxygenStep")
       doTask("PROD[Steel]")
       // Hand the fizzle audit to Admin before receiving compensation.

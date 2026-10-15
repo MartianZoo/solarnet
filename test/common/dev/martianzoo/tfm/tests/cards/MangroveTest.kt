@@ -17,7 +17,7 @@ internal class MangroveTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<Mangrove>>",
-          "-12 MC",
+          "12 Pay<> FROM MC",
           "Mangrove FROM ProjectCard",
           "GreeneryTile<Tharsis_1_2>",
       )

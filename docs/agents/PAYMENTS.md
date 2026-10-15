@@ -10,22 +10,21 @@
 
 ## Current contract
 
-Players pay through ordinary removals such as `-13 MC` and `-3 Floater<Dirigibles>`. There are no
-`Pay` or `PayFromCard` signals. A loss performed by the payer is the payment event:
+Players pay through explicit exchanges such as `15 Pay<Class<MC>> FROM MC` and
+`3 PayFromCard<Dirigibles> FROM Floater<Dirigibles>`. The removal consumes the resources;
+the payment signal credits the debt in the same transaction:
 
-- `Accepting` reduces debt in the resource's own denomination.
-- `ResourceValue` reduces M€ debt when that standard resource is accepted.
-- A card's loss listener reduces the appropriate debt while `AcceptingFromCard<This>` exists.
+- `Pay<Class<Resource>>` reduces debt in that resource's denomination.
+- `ResourceValue` credits M€ debt for an explicit payment of the valued standard resource.
+- A card's `PayFromCard<This>` listener credits the appropriate debt for its held resources.
 
-Every payment-loss trigger uses `BY Me@`: the event Actor must be the payer who owns the accepted
-resource. This is independent of who controls the surrounding task. An opponent's removal cannot
-pay the victim's bill; a delegated payer's own removal can.
+`Pay` defaults its gained resource class to MC, so test commands use the shorter
+`15 Pay<> FROM MC`. The amount and source resource remain explicit.
 
-Here “performed by the payer” means submitted through the payer's Agent. The engine does not
-authenticate the caller or ask whether the real player consented to the spending. A local program
-may call both players' Agents. [ADVERSARIAL.md](ADVERSARIAL.md) assigns verification of submitted
-decisions to the surrounding game arrangement; payment arithmetic and Actor attribution remain
-engine responsibilities.
+Ordinary resource losses never credit a bill, even when performed by the payer while acceptance
+is open. Payment signals are player-owned and are not `System`: choosing a payment remains player
+work, and `NONE` does not execute it automatically. The offered exchange fixes the payment resource
+or card holder; clients cannot turn a different resource removal into payment credit.
 
 Acceptance begins during pricing. `Owed` installs its denomination, and `PayingFor` or `UseAction`
 can install alternatives before `Billing`. Removing the bill removes acceptance before the
@@ -42,13 +41,30 @@ reason broad, as in `Billing<Class<Component>, Class<Heat>>`.
 `Owed`, `PayingFor`, `Billing`, `Accepting`, and `AcceptingFromCard` are `System` bookkeeping.
 Fixed, concrete gains run as Admin, including scaled debt and gains inside automatic effects.
 An abstract type or variable amount such as `X Owed` stays with the Player until narrowed; Admin
-then performs the concrete gain. Acceptance opens resource-removal offers, which remain assigned
-to the Player. The Player's chosen removals retain that Player as their event Actor.
-`Accepting` opens that offer only if the payer holds the accepted standard resource when `Billing`
-fires or owes that denomination. Empty alternatives such as Steel on an M€ bill therefore need no
-explicit decline. The bill's own denomination stays offered because starting-card billing can
-precede the corporation's starting cash. Acceptance itself remains in place until settlement;
-this check does not search for substitutes or reopen an alternative offer if stock arrives later.
+then performs the concrete gain. Acceptance opens explicit payment exchanges, which remain
+assigned to the Player.
+`Accepting` offers `X Pay<Class<Resource>> FROM Resource OR Ok` only for a resource other than
+the bill's denomination, and only if the payer holds that resource when `Billing` fires. The player
+chooses whether to spend, then chooses an exact positive amount. Card-held offers use
+`X PayFromCard<Holder> FROM Resource<Holder> OR Ok` only when that holder has resources.
+There is no optional quantifier on `X`:
+choosing an amount must not leave another choice to spend less than that amount.
+Empty alternatives, including card-held resources, are removed by Admin without an explicit decline.
+Spending or declining an alternative finishes its acceptance through `THEN -This`; card-held
+payment offers do the same.
+
+`Billing` offers its own denomination as an exact mandatory remainder, gated until all alternative
+acceptance is gone. For M€ this is `1! Pay<Class<MC>> FROM MC / Owed<Class<MC>>`, with neither
+`X` nor `?`. The metric is evaluated when the gated task is selected, after alternatives have reduced
+the debt. Full coverage by alternatives leaves `Ok`; positive debt cannot be partially paid or declined. Finishing
+that task removes the bill, so purchased results wait for the final payment or acknowledgement.
+A bill already at zero when created closes immediately. The same rule lets Stormcraft's floaters
+precede an exact Heat remainder. Starting-card billing can precede the corporation's starting cash;
+the exact payment remains pending until affordable. Alternative acceptance does not search for
+substitutes or reopen if stock arrives later.
+
+With player autoexecution set to `NONE`, the zero-balance acknowledgement also remains explicit.
+Skipping such work may be a future autoexecution policy; it must not override `NONE`.
 Both fixed and variable standard-resource action costs use billing so acceptance and price
 adjustments can apply. A variable cost keeps its shared `X` in the sequence from `Owed` through
 `Billing` to the action's result. Choosing `X = 4` for `X Energy -> X MC` opens a bill for 4 Energy;
@@ -64,29 +80,30 @@ A client that already knows `X = 5` can submit `selectTask(task.bindXTo(5))` dir
 remains optional for discovering open choices. This still selects the pending consequence after
 `UseCardAction`; moving the choice to the printed action before invocation remains future work.
 
-## Verified gaps
+## Ordinary resource losses
 
-`BY Me@` identifies the performer, not the purpose of a loss. If Flooding targets its own player
-while that player's Neptunian bill is open, the 4 M€ loss incorrectly reduces that bill. Search
-[`FloodingTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/FloodingTest.kt) for the characterized
-case. Do not add transaction identity for hypothetical concurrent invoices without a selected
-systemic rule.
+Pharmacy Union's disease losses and Flooding's self-inflicted loss leave an open bill unchanged.
+Their sandbox tests resolve those losses before the explicit payment and verify the full cost.
+Pharmacy Union's starting 54 MC is queued behind a zero-disease gate; its microbe reaction places
+disease before offering the capped 4 MC loss. Choosing disease before starting cash can leave setup
+unable to finish, requiring undo. This is allowed; the model need not make every available choice
+lead to completion. No special starting-resource phase or autoexecution exception is used.
 
-Delegated payment also exposes a routing and completion question. P1 can hand a Neptunian decision
-to P2, but the select lock covers only that selected task. Admin opens the fixed bill;
-payment offers are routed by their effect owner, changed component owner, or triggering Actor. The
-`pay` helper selects through each task's current assignee. Calling those Agents is legitimate
-calculator use. A helper-driven scenario can succeed without establishing which selections each
-Agent requires or whether intervening work changes the
-payment result; inspect those game semantics separately from authorization of the external caller.
+## Interleaving and rollback
 
-`FloodingTest` characterizes intervention immediately after acceptance and after a separate Steel
-payment. Earlier committed spending remains consumed if a later payment command fails. `Owed` and
-`Billing` are `Barrier`s, but that checks completion; it does not exclude unrelated task selection.
-The remaining completion and task-order questions are recorded in
-[`SEQUENCING.md`](SEQUENCING.md#the-missing-rule-when-an-operation-is-over).
-External acceptance can reject an unauthorized submitted decision, but cannot repair a calculation
-that reduces the wrong bill or loses the distinction between spending and another resource loss.
+Accepting Neptunian's offer does not prevent the player playing Flooding from resolving its loss
+while the purchase remains unpaid. This ordering is allowed. On 2026-10-14 the owner explicitly
+confirmed that making the purchase unaffordable this way is a voluntarily dead-ended turn, not a
+bug: the player playing Flooding must roll back.
+
+`FloodingTest` covers losses both before payment and after a separate Steel payment. The loss
+never credits the bill. A failed cash payment leaves the earlier Steel payment intact; rolling
+back the enclosing turn restores both players' resources and removes the debt. These scenarios do
+not require a lock around the purchase or automatic rollback of earlier payment commands.
+
+Payment offers are routed by their effect owner, changed component owner, or triggering Actor.
+The `pay` helper selects through each task's current assignee. Calling those Agents is legitimate
+calculator use, independently of who operates the external caller.
 
 ## Current pieces
 
@@ -98,13 +115,19 @@ that reduces the wrong bill or loses the distinction between spending and anothe
 | `Accepting` | Restricts ordinary resources by payment context. |
 | `AcceptingFromCard` | Restricts spending to the correct card holder. |
 | `ResourceValue` | Supplies dynamic standard-resource values. |
-| Kotlin payment helpers | Submit allocations, reject some excess, and drain unused offers. |
+| `Pay` and `PayFromCard` | Identify explicit spending so only payments credit debt. |
+| Kotlin payment helpers | Submit explicit exchanges, decline unused alternatives, and settle the exact remainder. |
 
-`Billing: -X Resource?` creates an independent optional task. Removing `Accepting` unregisters its
-effects but does not retract work already queued by them. A settled bill can therefore leave unused
-removal tasks, which current helpers resolve by choosing `Ok`. Blanket deletion of tasks whose
-effect owner disappeared would be wrong because ordinary consequences must survive removal of
-their source.
+Alternative payment offers must finish before the exact denomination payment. No unused payment
+offers remain after normal settlement. Removing an effect owner still does not retract its queued
+work; payment completion follows the authored acceptance lifecycle rather than task deletion.
+
+The sandbox suite exercises this ordering with explicit submissions. Gameplay helpers suspend
+player autoexecution while submitting a specified payment allocation. Under `CONCRETE` or `EAGER`,
+a cash-only bill may otherwise finish automatically; callers must not submit that payment again.
+Custom allocations belong in the helper's payment callback, before the purchased result.
+The script `tfm_pay` command uses the same allocation helper; `tfm_play` and `tfm_action` pause
+player autoexecution while submitting a written payment, then restore the configured policy.
 
 ## Allocation validation
 
@@ -122,7 +145,7 @@ P - D < vi for every selected unit i
 ```
 
 Full payment separately requires `P >= D`. Card-held resources are submitted separately, and raw
-engine tasks and `TfmPayCommand` do not apply the same whole-allocation check. The physical-game
+engine tasks do not apply the same whole-allocation check. The physical-game
 rule for the characterized mixed-metal case is unverified; do not describe current behavior as a
 settled rules defect.
 

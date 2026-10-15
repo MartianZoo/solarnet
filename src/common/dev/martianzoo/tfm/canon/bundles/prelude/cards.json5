@@ -236,7 +236,7 @@
           "actions": [ "-> Microbe<This>" ],
           "effects": [
             "PayingFor<Class<PlantTag>>:: AcceptingFromCard<This>",
-            "-Microbe<This> BY Me@ IF AcceptingFromCard<This>:: -2 Owed"
+            "PayFromCard<This>:: -2 Owed"
           ],
         },
         {

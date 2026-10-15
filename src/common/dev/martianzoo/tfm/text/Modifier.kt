@@ -4,6 +4,10 @@ package dev.martianzoo.tfm.text
  * A clause modifier kept separate so factoring cannot cross different destinations or conditions.
  */
 internal sealed interface Modifier {
+  companion object {
+    val BEST_EFFORT: Modifier = Parenthetical("to the extent possible")
+  }
+
   val separator: String
     get() = " "
 

@@ -79,7 +79,7 @@ internal class WorldGovernmentAdvisorTest : TfmSandboxTest() {
         }
         .expect("0 TerraformRating, 0 MC")
     kim.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTasks("TerraformRating", "3 MC")
     }

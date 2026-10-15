@@ -16,6 +16,13 @@ they should not own detailed design decisions. Bounded loose work lives in [`TOD
 Read [`VALUES.md`](VALUES.md) before designing, implementing, or reviewing a behavior or
 architecture change. Then choose the narrowest relevant note:
 
+Always apply the [decision-tree principle](../../AGENTS.md#decision-tree-pruning-belongs-to-the-players-agent-or-client):
+assume the player's agent or client presents only choices known not to dead-end the turn, or accept
+that dead ends are exposed.
+Do not treat missing pruning as an engine or Pets modeling issue. Protected Habitats rejecting an
+attempted theft through a later dead end and rollback is valid. The engine note owns the detailed
+explanation; the autoexecution note owns optional pruning policy.
+
 | Subject | Read |
 | --- | --- |
 | Live World construction, components, tasks, effects, transactions, rollback, or Agent responsibilities | [`ENGINE.md`](ENGINE.md) |
@@ -24,6 +31,7 @@ architecture change. Then choose the narrowest relevant note:
 | Payment choices, accepted resources, billing, or settlement | [`PAYMENTS.md`](PAYMENTS.md) |
 | Autoexecution policy, pruning, Admin's greedy settling, or whether an automatic command preserves player outcomes and choices | [`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md) |
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) |
+| Proposed ELSE or instruction-level `(A)*` fallbacks and their Canon uses | [`ELSE.md`](ELSE.md) |
 | Turmoil delegates, party leadership, or the proposed Leader/Follower model | [`DELEGATES.md`](DELEGATES.md) |
 | Correction, `exMachina`, `sneak`, effect suppression, or correction invariants | [`EX_MACHINA.md`](EX_MACHINA.md) |
 | Card backs, draws, purchases, reveals, or replay card tracking | [`CARD_HANDLING.md`](CARD_HANDLING.md) |

@@ -15,13 +15,21 @@ internal class SteelworksTest : TfmSandboxTest() {
     kim.setToExMachina(13, "OxygenStep")
     kim.setToExMachina(4, "Energy")
     kim.inTurn {
-      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_5_2>")
+      doTasks(
+          "UseStandardProject<GreeneryProject>",
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Tharsis_5_2>",
+      )
       doTask("OxygenStep")
       doTasks("2 Plant", "TerraformRating")
     }
 
     kim.inTurn {
-          doTasks("UseCardAction<Steelworks, Action1>", "-4 Energy", "2 Steel")
+          doTasks(
+              "UseCardAction<Steelworks, Action1>",
+              "4 Pay<Class<Energy>> FROM Energy",
+              "2 Steel",
+          )
           doTask("OxygenStep")
         }
         .expect("-4 Energy, 0 OxygenStep, 0 TerraformRating")

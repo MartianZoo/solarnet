@@ -20,7 +20,6 @@ internal class TerraLabsTest : TfmGameplayTest() {
 
     kim.doTasks(
             "Ok", // Keep all four research cards.
-            "-4 MC",
         )
         .expect("4 ProjectCard, -4 MC")
   }
@@ -49,7 +48,6 @@ internal class TerraLabsTest : TfmGameplayTest() {
 
     kim.doTasks(
             "Ok", // Keep all four research cards.
-            "-12 MC",
         )
         .expect("4 ProjectCard, -12 MC")
   }

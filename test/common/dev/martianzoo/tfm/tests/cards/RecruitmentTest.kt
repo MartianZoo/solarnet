@@ -18,7 +18,7 @@ internal class RecruitmentTest : TfmSandboxTest() {
         doTask("PlayProject<Class<Recruitment>>")
 
         doTasks(
-            "-2 MC",
+            "2 Pay<> FROM MC",
             "Recruitment FROM ProjectCard",
         )
         // Resolve the delegate choice to expose the missing eligible delegate.
@@ -39,7 +39,7 @@ internal class RecruitmentTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<Recruitment>>",
-              "-2 MC",
+              "2 Pay<> FROM MC",
               "Recruitment FROM ProjectCard",
               "PartyDelegate<MarsFirst, Kim FROM Neutral>",
           )
@@ -60,7 +60,7 @@ internal class RecruitmentTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<Recruitment>>",
-              "-2 MC",
+              "2 Pay<> FROM MC",
               "Recruitment FROM ProjectCard",
               "PartyDelegate<MarsFirst, Kim FROM Neutral>",
           )
@@ -81,7 +81,7 @@ internal class RecruitmentTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<Recruitment>>",
-              "-2 MC",
+              "2 Pay<> FROM MC",
               "Recruitment FROM ProjectCard",
               "PartyDelegate<MarsFirst, Kim FROM Neutral>",
           )
@@ -102,7 +102,7 @@ internal class RecruitmentTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<Recruitment>>",
-              "-2 MC",
+              "2 Pay<> FROM MC",
               "Recruitment FROM ProjectCard",
               "PartyDelegate<MarsFirst, Kim FROM Neutral>",
           )
@@ -122,7 +122,7 @@ internal class RecruitmentTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<$Recruitment>>",
-              "-2 MC",
+              "2 Pay<> FROM MC",
               "$Recruitment FROM ProjectCard",
               "PartyDelegate<MarsFirst, Kim FROM Neutral>",
           )
@@ -146,7 +146,7 @@ internal class RecruitmentTest : TfmSandboxTest() {
         .inTurn {
           doTasks(
               "PlayProject<Class<Recruitment>>",
-              "-2 MC",
+              "2 Pay<> FROM MC",
               "Recruitment FROM ProjectCard",
               "PartyDelegate<MarsFirst, Stan FROM Neutral>",
           )
@@ -169,7 +169,7 @@ internal class RecruitmentTest : TfmSandboxTest() {
         doTask("PlayProject<Class<Recruitment>>")
 
         doTasks(
-            "-2 MC",
+            "2 Pay<> FROM MC",
             "Recruitment FROM ProjectCard",
         )
         doTask("PartyDelegate<MarsFirst, Kim FROM Neutral>")

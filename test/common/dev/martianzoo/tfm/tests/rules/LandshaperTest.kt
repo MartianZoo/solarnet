@@ -8,14 +8,17 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class LandshaperTest : TfmSandboxTest() {
-  // Resolved FAQ: the city, greenery, and special tile must be three distinct tiles.
-  // Earlier question:
-  // https://boardgamegeek.com/thread/3512556/article/46088087#46088087
+  // Unresolved adjudication (question 26, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3512556
   @Test
   internal fun `Capital and one greenery do not satisfy Landshaper`() {
     setupLandshaperCapital()
     kim.inTurn {
-      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_05_02>")
+      doTasks(
+          "UseStandardProject<GreeneryProject>",
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Amazonis_05_02>",
+      )
       doTask("OxygenStep")
       doTasks("Plant", "TerraformRating")
     }
@@ -23,7 +26,7 @@ internal class LandshaperTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Landshaper>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Landshaper")
       }
     }
@@ -31,16 +34,26 @@ internal class LandshaperTest : TfmSandboxTest() {
     kim.count("Landshaper") shouldBe 0
   }
 
+  // Unresolved adjudication (question 26, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3512556
   @Test
   internal fun `Capital and two greeneries do not satisfy Landshaper`() {
     setupLandshaperCapital()
     kim.inTurn {
-      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_05_02>")
+      doTasks(
+          "UseStandardProject<GreeneryProject>",
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Amazonis_05_02>",
+      )
       doTask("OxygenStep")
       doTasks("Plant", "TerraformRating")
     }
     kim.inTurn {
-      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_06_01>")
+      doTasks(
+          "UseStandardProject<GreeneryProject>",
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Amazonis_06_01>",
+      )
       doTask("OxygenStep")
       doTasks("Plant", "TerraformRating")
     }
@@ -48,7 +61,7 @@ internal class LandshaperTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Landshaper>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Landshaper")
       }
     }
@@ -56,18 +69,24 @@ internal class LandshaperTest : TfmSandboxTest() {
     kim.count("Landshaper") shouldBe 0
   }
 
+  // Unresolved adjudication (question 26, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3512556
   @Test
   internal fun `Capital and distinct city and greenery satisfy Landshaper`() {
     setupLandshaperCapital()
     kim.inTurn {
-      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_05_02>")
+      doTasks(
+          "UseStandardProject<GreeneryProject>",
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Amazonis_05_02>",
+      )
       doTask("OxygenStep")
       doTasks("Plant", "TerraformRating")
     }
     kim.inTurn {
       doTasks(
           "UseStandardProject<CityProject>",
-          "-25 MC",
+          "25 Pay<> FROM MC",
           "PROD[MC]",
           "NormalCityTile<Amazonis_01_01>",
           "Steel",
@@ -75,7 +94,7 @@ internal class LandshaperTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Landshaper>>", "-8 MC")
+      doTasks("ClaimMilestone<Class<Landshaper>>", "8 Pay<> FROM MC")
       doTask("Landshaper")
     }
   }
@@ -87,7 +106,7 @@ internal class LandshaperTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Landshaper>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Landshaper")
       }
     }

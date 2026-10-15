@@ -27,7 +27,7 @@ internal class PristarTest : TfmGameplayTest() {
   internal fun `An opponent's TR increase does not suppress the production bonus`() {
     kim.doTask("Pass")
     stan.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTasks("UseStandardProject<AsteroidProject>")
       autoExecNow(EAGER)
     }
 
@@ -41,7 +41,7 @@ internal class PristarTest : TfmGameplayTest() {
   @Test
   internal fun `Does not pay its production bonus after a TR increase`() {
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTasks("UseStandardProject<AsteroidProject>")
       autoExecNow(EAGER)
     }
     kim.doTask("0 StandardAction") // Decline the second action.

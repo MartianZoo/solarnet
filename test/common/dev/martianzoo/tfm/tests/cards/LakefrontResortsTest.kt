@@ -13,7 +13,7 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
         .inTurn {
           doTasks(
               "UseStandardProject<AquiferProject>",
-              "-18 MC",
+              "18 Pay<> FROM MC",
               "OceanTile<Tharsis_1_2>",
               "TerraformRating",
           )
@@ -32,7 +32,7 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
         .inTurn {
           doTasks(
               "UseStandardProject<CityProject>",
-              "-25 MC",
+              "25 Pay<> FROM MC",
               "PROD[MC]",
               "CityTile<Tharsis_2_2>",
               "Steel",
@@ -52,7 +52,7 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "UseStandardProject<CityProject>",
-              "-25 MC",
+              "25 Pay<> FROM MC",
               "PROD[MC]",
               "CityTile<Tharsis_2_2>",
               "Steel",

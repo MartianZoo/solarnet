@@ -9,13 +9,13 @@ internal class IoSulphurResearchTest : TfmSandboxTest() {
   @BeforeTest fun setUp() = newTestGame()
 
   @Test
-  internal fun `Can choose the lesser card draw despite three Venus tags`() {
+  internal fun `CORRECT BEHAVIOR - May choose lesser card draw with three Venus tags`() {
     kim.exMachina("$AerialMappers, $DeuteriumExport, $Dirigibles")
 
     kim.inTurn {
           doTasks(
               "PlayProject<Class<IoSulphurResearch>>",
-              "-17 MC",
+              "17 Pay<> FROM MC",
               "IoSulphurResearch FROM ProjectCard",
               "ProjectCard",
           )

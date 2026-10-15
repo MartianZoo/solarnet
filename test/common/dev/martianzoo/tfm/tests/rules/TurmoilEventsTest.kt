@@ -12,9 +12,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `An event stays dormant until Current and is discarded after resolving`() {
     prepareEvent("ExperimentalLifeforms") {
-      kim.doTasks("PlayProject<Class<$AdaptedLichen>>", "-9 MC")
+      kim.doTasks("PlayProject<Class<$AdaptedLichen>>")
       kim.doTask("0 StandardAction") // Decline the second action.
-      stan.doTasks("PlayProject<Class<$Archaebacteria>>", "-6 MC")
+      stan.doTasks("PlayProject<Class<$Archaebacteria>>")
       stan.doTask("0 StandardAction") // Decline the second action.
     }
     admin.count("Current<ExperimentalLifeforms>") shouldBe 1
@@ -42,7 +42,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Asteroid Mining measures this generation's influence before paying titanium`() {
     prepareEvent("MiningRestrictions")
-    kim.doTasks("PlayProject<Class<$VestaShipyard>>", "-15 MC", "Ok" /* No Titanium payment. */)
+    kim.doTasks("PlayProject<Class<$VestaShipyard>>", "Ok" /* No Titanium payment. */)
     lobbyForInfluence()
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -58,11 +58,11 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Homeworld Support caps six Earth tags before adding influence`() {
     prepareEvent("RedResistance")
-    kim.doTasks("PlayProject<Class<$EarthOffice>>", "-1 MC")
-    kim.doTasks("PlayProject<Class<$Sponsors>>", "-3 MC")
-    kim.doTasks("PlayProject<Class<$AcquiredCompany>>", "-7 MC")
+    kim.doTasks("PlayProject<Class<$EarthOffice>>")
+    kim.doTasks("PlayProject<Class<$Sponsors>>")
+    kim.doTasks("PlayProject<Class<$AcquiredCompany>>")
     kim.doTask("PlayProject<Class<$LunaGovernor>>")
-    kim.doTasks("PlayProject<Class<$Cartel>>", "-5 MC")
+    kim.doTasks("PlayProject<Class<$Cartel>>")
     lobbyForInfluence()
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -76,8 +76,8 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Productivity pays for steel production plus influence`() {
     prepareEvent("ScientificProgress")
-    kim.doTasks("PlayProject<Class<$Mine>>", "-4 MC", "Ok" /* No Steel payment. */)
-    kim.doTasks("PlayProject<Class<$IndustrialMicrobes>>", "-12 MC", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$Mine>>", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$IndustrialMicrobes>>", "Ok" /* No Steel payment. */)
     kim.autoExecNow(EAGER)
     lobbyForInfluence()
     kim.doTask("Pass")
@@ -92,7 +92,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Successful Organisms pays for plant production plus influence`() {
     prepareEvent("LocalTerraformingSupport")
-    kim.doTasks("PlayProject<Class<$AdaptedLichen>>", "-9 MC")
+    kim.doTasks("PlayProject<Class<$AdaptedLichen>>")
     lobbyForInfluence()
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -118,9 +118,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Celebrity Leaders pays the owner of played events`() {
     prepareEvent("SolarnetGlobalEvent")
-    kim.doTasks("PlayProject<Class<$InvestmentLoan>>", "-3 MC")
+    kim.doTasks("PlayProject<Class<$InvestmentLoan>>")
     kim.autoExecNow(EAGER)
-    kim.doTasks("PlayProject<Class<$BribedCommittee>>", "-7 MC")
+    kim.doTasks("PlayProject<Class<$BribedCommittee>>")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("0 MC<Stan>, 4 MC<Kim>") {
@@ -133,12 +133,12 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   internal fun `Strong Society pays only for owned cities`() {
     prepareEvent("MoralMovement")
     kim.completeOperation {
-      doTasks("UseStandardProject<CityProject>", "-25 MC")
+      doTasks("UseStandardProject<CityProject>")
       doTask("CityTile<Tharsis_3_3>")
       autoExecNow(EAGER)
     }
     kim.completeOperation {
-      doTasks("UseStandardProject<CityProject>", "-25 MC")
+      doTasks("UseStandardProject<CityProject>")
       doTask("CityTile<Tharsis_8_8>")
       autoExecNow(EAGER)
     }
@@ -153,9 +153,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Global Dust Storm consumes heat and influence reduces the building penalty`() {
     prepareEvent("HeatFirstPolicy")
-    kim.doTasks("PlayProject<Class<$Mine>>", "-4 MC", "Ok" /* No Steel payment. */)
-    kim.doTasks("PlayProject<Class<$PowerPlant>>", "-4 MC", "Ok" /* No Steel payment. */)
-    kim.doTasks("PlayProject<Class<$BuildingIndustries>>", "-6 MC", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$Mine>>", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$PowerPlant>>", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$BuildingIndustries>>", "Ok" /* No Steel payment. */)
     kim.autoExecNow(EAGER)
     lobbyForInfluence()
     kim.doTask("Pass")
@@ -173,14 +173,14 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Pandemic caps six building tags before subtracting influence`() {
     prepareEvent("ViralModificationsApproved")
-    kim.doTasks("PlayProject<Class<$Mine>>", "-4 MC", "Ok" /* No Steel payment. */)
-    kim.doTasks("PlayProject<Class<$PowerPlant>>", "-4 MC", "Ok" /* No Steel payment. */)
-    kim.doTasks("PlayProject<Class<$IndustrialMicrobes>>", "-12 MC", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$Mine>>", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$PowerPlant>>", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$IndustrialMicrobes>>", "Ok" /* No Steel payment. */)
     kim.autoExecNow(EAGER)
-    kim.doTasks("PlayProject<Class<$BuildingIndustries>>", "-6 MC", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$BuildingIndustries>>", "Ok" /* No Steel payment. */)
     kim.autoExecNow(EAGER)
-    kim.doTasks("PlayProject<Class<$TitaniumMine>>", "-7 MC", "Ok" /* No Steel payment. */)
-    kim.doTasks("PlayProject<Class<$FuelFactory>>", "-6 MC", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$TitaniumMine>>", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$FuelFactory>>", "Ok" /* No Steel payment. */)
     kim.autoExecNow(EAGER)
     lobbyForInfluence()
     kim.doTask("Pass")
@@ -196,12 +196,12 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Solarnet Shutdown counts active cards but excludes automated cards and played events`() {
     prepareEvent("AiResearch")
-    kim.doTasks("PlayProject<Class<$Pets>>", "-10 MC")
-    kim.doTasks("PlayProject<Class<$SpaceMirrors>>", "-3 MC", "Ok" /* No Titanium payment. */)
-    kim.doTasks("PlayProject<Class<$Tardigrades>>", "-4 MC")
-    kim.doTasks("PlayProject<Class<$StandardTechnology>>", "-6 MC")
-    kim.doTasks("PlayProject<Class<$Mine>>", "-4 MC", "Ok" /* No Steel payment. */)
-    kim.doTasks("PlayProject<Class<$BribedCommittee>>", "-7 MC")
+    kim.doTasks("PlayProject<Class<$Pets>>")
+    kim.doTasks("PlayProject<Class<$SpaceMirrors>>", "Ok" /* No Titanium payment. */)
+    kim.doTasks("PlayProject<Class<$Tardigrades>>")
+    kim.doTasks("PlayProject<Class<$StandardTechnology>>")
+    kim.doTasks("PlayProject<Class<$Mine>>", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$BribedCommittee>>")
     lobbyForInfluence()
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -245,7 +245,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Sabotage reduces available production without taking energy production below zero`() {
     prepareEvent("CorporateAlliance")
-    kim.doTasks("PlayProject<Class<$BuildingIndustries>>", "-6 MC", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$BuildingIndustries>>", "Ok" /* No Steel payment. */)
     kim.autoExecNow(EAGER)
     lobbyForInfluence()
     kim.doTask("Pass")
@@ -264,9 +264,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Miners on Strike takes only the titanium available`() {
     prepareEvent("RisingAlloyDemand")
-    kim.doTasks("PlayProject<Class<$VestaShipyard>>", "-3 Titanium", "-6 MC")
-    kim.doTasks("PlayProject<Class<$MirandaResort>>", "-12 MC")
-    kim.doTasks("PlayProject<Class<$JovianEmbassy>>", "-14 MC", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$VestaShipyard>>", "3 Pay<Class<Titanium>> FROM Titanium")
+    kim.doTasks("PlayProject<Class<$MirandaResort>>")
+    kim.doTasks("PlayProject<Class<$JovianEmbassy>>", "Ok" /* No Steel payment. */)
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     kim.count("Titanium") shouldBe 2
@@ -281,22 +281,22 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   internal fun `Mud Slides counts each coastal tile once even beside two oceans`() {
     prepareEvent("ThawMining")
     kim.completeOperation {
-      doTasks("UseStandardProject<CityProject>", "-25 MC")
+      doTasks("UseStandardProject<CityProject>")
       doTask("CityTile<Tharsis_4_4>")
       autoExecNow(EAGER)
     }
     kim.completeOperation {
-      doTasks("UseStandardProject<GreeneryProject>", "-23 MC")
+      doTasks("UseStandardProject<GreeneryProject>")
       doTask("GreeneryTile<Tharsis_4_5>")
       autoExecNow(EAGER)
     }
     kim.completeOperation {
-      doTasks("UseStandardProject<AquiferProject>", "-18 MC")
+      doTasks("UseStandardProject<AquiferProject>")
       doTask("OceanTile<Tharsis_5_4>")
       autoExecNow(EAGER)
     }
     kim.completeOperation {
-      doTasks("UseStandardProject<AquiferProject>", "-18 MC")
+      doTasks("UseStandardProject<AquiferProject>")
       doTask("OceanTile<Tharsis_5_5>")
       autoExecNow(EAGER)
     }
@@ -324,7 +324,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Diversity combines distinct tags with influence to reach nine`() {
     prepareDiversity()
-    kim.doTasks("PlayProject<Class<$AdaptedLichen>>", "-9 MC")
+    kim.doTasks("PlayProject<Class<$AdaptedLichen>>")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("11 MC<Kim>") {
@@ -336,10 +336,10 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Improved Energy Templates combines power tags and influence before rounding`() {
     prepareEvent("SecondEnergyCrisis")
-    kim.doTasks("PlayProject<Class<$PowerPlant>>", "-4 MC", "Ok" /* No Steel payment. */)
-    kim.doTasks("PlayProject<Class<$SpaceMirrors>>", "-3 MC", "Ok" /* No Titanium payment. */)
+    kim.doTasks("PlayProject<Class<$PowerPlant>>", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$SpaceMirrors>>", "Ok" /* No Titanium payment. */)
     kim.completeOperation {
-      doTasks("PlayProject<Class<$SolarWindPower>>", "-11 MC", "Ok" /* No Titanium payment. */)
+      doTasks("PlayProject<Class<$SolarWindPower>>", "Ok" /* No Titanium payment. */)
       autoExecNow(EAGER)
     }
     lobbyForInfluence()
@@ -357,19 +357,19 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   internal fun `Sponsored Projects grows occupied cards for both players but skips empty cards`() {
     prepareEvent("ScienceSummit") {
       kim.completeOperation {
-        doTasks("PlayProject<Class<$Research>>", "-11 MC")
+        doTasks("PlayProject<Class<$Research>>")
         autoExecNow(EAGER)
       }
       kim.doTask("0 StandardAction") // Decline the second action.
-      stan.doTasks("PlayProject<Class<$TitanShuttles>>", "-23 MC")
+      stan.doTasks("PlayProject<Class<$TitanShuttles>>")
       stan.completeOperation {
         doTask("UseCardAction<$TitanShuttles, Action1>")
         doTask("2 Floater<$TitanShuttles>")
       }
     }
-    kim.doTasks("PlayProject<Class<$AerialMappers>>", "-11 MC")
-    kim.doTasks("PlayProject<Class<$FloatingHabs>>", "-5 MC")
-    kim.doTasks("PlayProject<Class<$Tardigrades>>", "-4 MC")
+    kim.doTasks("PlayProject<Class<$AerialMappers>>")
+    kim.doTasks("PlayProject<Class<$FloatingHabs>>")
+    kim.doTasks("PlayProject<Class<$Tardigrades>>")
     kim.completeOperation {
       doTask("UseCardAction<$AerialMappers, Action1>")
       doTask("1 Floater<$AerialMappers>")
@@ -403,7 +403,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Election awards distinct first and second places`() {
     prepareEvent("SelfSufficiencyProgram")
-    kim.doTasks("PlayProject<Class<$Mine>>", "-4 MC", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$Mine>>", "Ok" /* No Steel payment. */)
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("1 TerraformRating<Kim>, 0 TerraformRating<Stan>") {
@@ -415,7 +415,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Revolution leaves a zero score alone`() {
     prepareEvent("WorldGovernmentDirectives")
-    kim.doTasks("PlayProject<Class<$EarthOffice>>", "-1 MC")
+    kim.doTasks("PlayProject<Class<$EarthOffice>>")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     // Revision -1, Revolution -2, Reds +1.
@@ -428,9 +428,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Revolution applies the first place penalty to both tied players`() {
     prepareEvent("WorldGovernmentDirectives") {
-      kim.doTasks("PlayProject<Class<$EarthOffice>>", "-1 MC")
+      kim.doTasks("PlayProject<Class<$EarthOffice>>")
       kim.doTask("0 StandardAction") // Decline the second action.
-      stan.doTasks("PlayProject<Class<$Sponsors>>", "-6 MC")
+      stan.doTasks("PlayProject<Class<$Sponsors>>")
       stan.doTask("0 StandardAction") // Decline the second action.
     }
     kim.doTask("Pass")
@@ -446,15 +446,15 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   internal fun `Cloud Societies gives everyone a floater then groups each player's influence on a card`() {
     prepareEvent("TitanVenusAlliance") {
       kim.completeOperation {
-        doTasks("PlayProject<Class<$Research>>", "-11 MC")
+        doTasks("PlayProject<Class<$Research>>")
         autoExecNow(EAGER)
       }
       kim.doTask("0 StandardAction") // Decline the second action.
-      stan.doTasks("PlayProject<Class<$TitanShuttles>>", "-23 MC")
+      stan.doTasks("PlayProject<Class<$TitanShuttles>>")
       stan.doTask("0 StandardAction") // Decline the second action.
     }
-    kim.doTasks("PlayProject<Class<$FloatingHabs>>", "-5 MC")
-    kim.doTasks("PlayProject<Class<$AerialMappers>>", "-11 MC")
+    kim.doTasks("PlayProject<Class<$FloatingHabs>>")
+    kim.doTasks("PlayProject<Class<$AerialMappers>>")
     lobbyForInfluence()
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -471,7 +471,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Corrosive Rain consumes two floaters from the same card before drawing for influence`() {
     prepareEvent("ImmigrationToVenus")
-    kim.doTasks("PlayProject<Class<$TitanShuttles>>", "-23 MC", "Ok" /* No Titanium payment. */)
+    kim.doTasks("PlayProject<Class<$TitanShuttles>>", "Ok" /* No Titanium payment. */)
     kim.completeOperation {
       doTask("UseCardAction<$TitanShuttles, Action1>")
       doTask("2 Floater<$TitanShuttles>")
@@ -493,13 +493,13 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   internal fun `Corrosive Rain charges money when floaters are split across cards`() {
     prepareEvent("ImmigrationToVenus")
     kim.completeOperation {
-      doTasks("PlayProject<Class<$Research>>", "-11 MC")
+      doTasks("PlayProject<Class<$Research>>")
       autoExecNow(EAGER)
     }
-    kim.doTasks("PlayProject<Class<$FloatingHabs>>", "-5 MC")
-    kim.doTasks("PlayProject<Class<$AerialMappers>>", "-11 MC")
+    kim.doTasks("PlayProject<Class<$FloatingHabs>>")
+    kim.doTasks("PlayProject<Class<$AerialMappers>>")
     kim.completeOperation {
-      doTasks("UseCardAction<$FloatingHabs, Action1>", "-2 MC")
+      doTasks("UseCardAction<$FloatingHabs, Action1>")
       doTask("1 Floater<$FloatingHabs>")
     }
     kim.completeOperation {
@@ -521,15 +521,15 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   internal fun `Jovian Tax Rights pays production for owned colonies and titanium for influence`() {
     prepareEvent("JovianColonyBoom")
     kim.completeOperation {
-      doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Luna>")
+      doTasks("UseStandardProject<BuildColonyProject>", "Colony<Luna>")
       autoExecNow(EAGER)
     }
     kim.completeOperation {
-      doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Ceres>")
+      doTasks("UseStandardProject<BuildColonyProject>", "Colony<Ceres>")
       autoExecNow(EAGER)
     }
     kim.completeOperation {
-      doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Triton>")
+      doTasks("UseStandardProject<BuildColonyProject>", "Colony<Triton>")
       autoExecNow(EAGER)
     }
     lobbyForInfluence()
@@ -545,15 +545,15 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   internal fun `Microgravity Health Problems subtracts influence from owned colonies`() {
     prepareEvent("Diaspora")
     kim.completeOperation {
-      doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Luna>")
+      doTasks("UseStandardProject<BuildColonyProject>", "Colony<Luna>")
       autoExecNow(EAGER)
     }
     kim.completeOperation {
-      doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Ceres>")
+      doTasks("UseStandardProject<BuildColonyProject>", "Colony<Ceres>")
       autoExecNow(EAGER)
     }
     kim.completeOperation {
-      doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Triton>")
+      doTasks("UseStandardProject<BuildColonyProject>", "Colony<Triton>")
       autoExecNow(EAGER)
     }
     lobbyForInfluence()
@@ -568,8 +568,8 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Venus Infrastructure pays for Venus tags and influence`() {
     prepareEvent("MartianProtectionism")
-    kim.doTasks("PlayProject<Class<$AerialMappers>>", "-11 MC")
-    kim.doTasks("PlayProject<Class<$Dirigibles>>", "-11 MC")
+    kim.doTasks("PlayProject<Class<$AerialMappers>>")
+    kim.doTasks("PlayProject<Class<$Dirigibles>>")
     lobbyForInfluence()
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -621,11 +621,11 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   internal fun `Generous Funding combines the post-revision rating bracket with influence`() {
     prepareEvent("TerraformingLobbying")
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTasks("UseStandardProject<AsteroidProject>")
       autoExecNow(EAGER)
     }
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTasks("UseStandardProject<AsteroidProject>")
       autoExecNow(EAGER)
     }
     lobbyForInfluence()
@@ -648,7 +648,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
       doTask("PartyDelegate<Scientists>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<Scientists>")
     }
     stan.doTask("Pass")
@@ -667,11 +667,11 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
       doTask("PartyDelegate<Unity>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<Unity>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<Unity>")
     }
     kim.doTask("Pass")
@@ -691,12 +691,12 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
       doTask("PartyDelegate<MarsFirst>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<MarsFirst>")
     }
     stan.doTask("Pass")
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<MarsFirst>")
     }
     kim.doTask("Pass")
@@ -733,19 +733,18 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
           val lobbyAction = if (round == 0) "LobbyAction<Action1>" else "LobbyAction<Action2>"
           player.completeOperation {
             doTask(lobbyAction)
-            if (round > 0) doTask("-5 MC")
 
             doTask("PartyDelegate<Scientists>")
           }
           player.completeOperation {
-            doTasks("LobbyAction<Action2>", "-5 MC")
+            doTasks("LobbyAction<Action2>")
             doTask("PartyDelegate<Scientists>")
           }
         }
       }
       listOf(first, other).forEach { player ->
         player.completeOperation {
-          doTasks("LobbyAction<Action2>", "-5 MC")
+          doTasks("LobbyAction<Action2>")
           doTask("PartyDelegate<Scientists>")
         }
         player.doTask("0 StandardAction") // Decline the second action.
@@ -786,14 +785,14 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Solo Election combines buildings and city tiles to reach five`() {
     prepareSoloRankingEvent("SelfSufficiencyProgram")
-    kim.doTasks("PlayProject<Class<$Mine>>", "-4 MC", "Ok" /* No Steel payment. */)
-    kim.doTasks("PlayProject<Class<$PowerPlant>>", "-4 MC", "Ok" /* No Steel payment. */)
-    kim.doTasks("PlayProject<Class<$IndustrialMicrobes>>", "-12 MC", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$Mine>>", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$PowerPlant>>", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$IndustrialMicrobes>>", "Ok" /* No Steel payment. */)
     kim.autoExecNow(EAGER)
-    kim.doTasks("PlayProject<Class<$BuildingIndustries>>", "-6 MC", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$BuildingIndustries>>", "Ok" /* No Steel payment. */)
     kim.autoExecNow(EAGER)
     kim.completeOperation {
-      doTasks("UseStandardProject<CityProject>", "-25 MC")
+      doTasks("UseStandardProject<CityProject>")
       doTask("CityTile<Tharsis_8_8>")
       autoExecNow(EAGER)
     }
@@ -810,9 +809,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Solo Revolution does not penalize fewer than four Earth tags and influence`() {
     prepareSoloRankingEvent("WorldGovernmentDirectives")
-    kim.doTasks("PlayProject<Class<$EarthOffice>>", "-1 MC")
-    kim.doTasks("PlayProject<Class<$Sponsors>>", "-3 MC")
-    kim.doTasks("PlayProject<Class<$AcquiredCompany>>", "-7 MC")
+    kim.doTasks("PlayProject<Class<$EarthOffice>>")
+    kim.doTasks("PlayProject<Class<$Sponsors>>")
+    kim.doTasks("PlayProject<Class<$AcquiredCompany>>")
     expectChanges("0 TerraformRating<Kim>") {
       kim.doTask("Pass")
       players.forEach { it.autoExecNow(EAGER) }
@@ -826,10 +825,10 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `Solo Revolution penalizes reaching four Earth tags`() {
     prepareSoloRankingEvent("WorldGovernmentDirectives")
-    kim.doTasks("PlayProject<Class<$EarthOffice>>", "-1 MC")
-    kim.doTasks("PlayProject<Class<$Sponsors>>", "-3 MC")
-    kim.doTasks("PlayProject<Class<$AcquiredCompany>>", "-7 MC")
-    kim.doTasks("PlayProject<Class<$Cartel>>", "-5 MC")
+    kim.doTasks("PlayProject<Class<$EarthOffice>>")
+    kim.doTasks("PlayProject<Class<$Sponsors>>")
+    kim.doTasks("PlayProject<Class<$AcquiredCompany>>")
+    kim.doTasks("PlayProject<Class<$Cartel>>")
     expectChanges("-2 TerraformRating<Kim>") {
       kim.doTask("Pass")
       players.forEach { it.autoExecNow(EAGER) }
@@ -860,12 +859,12 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
   private fun prepareDiversity() {
     prepareEvent("FreeAcademiaTreaty")
     kim.completeOperation {
-      doTasks("PlayProject<Class<$Research>>", "-11 MC")
+      doTasks("PlayProject<Class<$Research>>")
       autoExecNow(EAGER)
     }
-    kim.doTasks("PlayProject<Class<$PowerPlant>>", "-4 MC", "Ok" /* No Steel payment. */)
-    kim.doTasks("PlayProject<Class<$VestaShipyard>>", "-15 MC", "Ok" /* No Titanium payment. */)
-    kim.doTasks("PlayProject<Class<$EarthOffice>>", "-1 MC")
+    kim.doTasks("PlayProject<Class<$PowerPlant>>", "Ok" /* No Steel payment. */)
+    kim.doTasks("PlayProject<Class<$VestaShipyard>>", "Ok" /* No Titanium payment. */)
+    kim.doTasks("PlayProject<Class<$EarthOffice>>")
     lobbyForInfluence()
   }
 
@@ -875,19 +874,19 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
       doTask("PartyDelegate<MarsFirst>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<MarsFirst>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<MarsFirst>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<MarsFirst>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<MarsFirst>")
     }
   }

@@ -37,7 +37,6 @@ internal fun renderEffect(
           ?: renderPurchaseAdjustment(lowered, describers)
           ?: paymentDiscount(lowered, describers)?.let { renderPaymentDiscount(listOf(it)) }
           ?: renderResourcePaymentValue(lowered, describers)
-          ?: renderCardResourcePaymentValue(lowered, describers)
           ?: renderAcceptedPaymentResource(lowered, describers)
           ?: renderRequirementFlexibility(lowered, describers)
           ?: renderLinkedPlayedTagResourceChoice(lowered, describers)
@@ -47,55 +46,6 @@ internal fun renderEffect(
 
 private fun refusedEffect(effect: Effect, reason: RefusalReason): EnglishText =
     Sentence(Clause.RawPets(Unresolved(effect, reason))).asText()
-
-private fun renderCardResourcePaymentValue(
-    effect: Effect,
-    describers: Describers,
-): EnglishText? {
-  val choice = effect.instruction as? Instruction.Or ?: return null
-  if (choice.instructions.size != 2) return null
-  val sequence = choice.instructions.filterIsInstance<Then>().singleOrNull() ?: return null
-  val decline = choice.instructions.singleOrNull { it !== sequence } ?: return null
-  if (InstructionGroup.of(decline).instructions.singleOrNull() !is NoOp) return null
-  val resourceRemoval = sequence.stages.singleOrNull() as? Remove ?: return null
-  val resolvedResource = describers.resolveCardResource(resourceRemoval.removing) ?: return null
-  if (
-      resourceRemoval.quantifier.modality() != Modality.REQUIRED ||
-          !describers.cardResourceHasHolder(resolvedResource, describers.thisExpression) ||
-          resourceRemoval.removing.refinement != null ||
-          !describers.isCardResource(resourceRemoval.removing.className)
-  ) {
-    return null
-  }
-  val resourceScalar = resourceRemoval.count.variableQuantity() ?: return null
-  if (resourceScalar.multiple != 1) return null
-  val owed = sequence.continuation as? Remove ?: return null
-  if (owed.quantifier.modality() != Modality.BEST_EFFORT || owed.removing.refinement != null) {
-    return null
-  }
-  if (
-      describers.fact(owed.removing.className, ComponentDescriber::paymentRole) !=
-          ComponentDescriber.PaymentRole.OWED
-  ) {
-    return null
-  }
-  val currency = describers.representedClass(owed.removing) ?: return null
-  val rate = owed.count.variableQuantity()?.multiple ?: return null
-  describers.plainGainNoun(currency.className, rate) ?: return null
-  val currencyPhrase = describers.componentNounPhrase(currency.className, rate)
-  val resources = describers.cardResourceNoun(resourceRemoval.removing.className, 2) ?: return null
-  val trigger = describers.renderEventTriggerWithoutCardContext(effect.trigger) ?: return null
-  val result =
-      Clause.Simple(
-          subject = NounPhrase.plural(resources).withModifier(Modifier.Phrase("on this card")),
-          predicate =
-              Predicate(
-                  Verb("may be used"),
-                  modifiers = listOf(resourceValueModifier(currencyPhrase)),
-              ),
-      )
-  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).asText()
-}
 
 private fun renderLinkedPlayedTagResourceChoice(
     effect: Effect,
@@ -391,11 +341,6 @@ internal fun renderEffects(
       index += consumed
       continue
     }
-    renderAcceptedResourcePayment(effects.drop(index), describers)?.let { (sentence, consumed) ->
-      sentences += sentence
-      index += consumed
-      continue
-    }
     renderAcceptedCardResourcePayment(effects.drop(index), cardResourceType, describers)?.let {
         (sentence, consumed) ->
       sentences += sentence
@@ -414,10 +359,7 @@ internal fun renderEffects(
         effects
             .drop(index)
             .map { paymentDiscount(it, describers) }
-            .takeWhile {
-              it?.reduction == discount.reduction &&
-                  it?.categoryReduction == discount.categoryReduction
-            }
+            .takeWhile { it?.reduction == discount.reduction }
     sentences += renderPaymentDiscount(run.filterNotNull())
     index += run.size
   }
@@ -523,35 +465,6 @@ private fun hasUnitLatchInvariant(
       maximum.maximum == 1 && marker == contextualThis
     } == true
 
-private fun renderAcceptedResourcePayment(
-    effects: List<Effect>,
-    describers: Describers,
-): Pair<EnglishText, Int>? {
-  val acceptance = effects.getOrNull(0) ?: return null
-  val payment = effects.getOrNull(1) ?: return null
-  val accepted =
-      paymentResourceGain(
-          acceptance.instruction,
-          ComponentDescriber.PaymentRole.ACCEPTANCE,
-          describers,
-      ) ?: return null
-  if (accepted.count != 1 || accepted.resource == null) return null
-  if (describers.hasBasePaymentValue(accepted.resource)) return null
-  val spent =
-      describers.resourcePaymentEvent(payment.trigger) as? ResourcePaymentEvent.Standard
-          ?: return null
-  if (spent.resource.className != accepted.resource) return null
-  val reduction = owedReduction(payment.instruction, describers) ?: return null
-  val rendered =
-      renderAcceptedResourceValue(
-          acceptance.trigger,
-          accepted,
-          reduction.phrase,
-          describers,
-      ) ?: return null
-  return rendered to 2
-}
-
 internal fun renderAcceptedResourceValue(
     trigger: Trigger,
     accepted: ResourceAmount,
@@ -605,7 +518,7 @@ private fun renderAcceptedCardResourcePayment(
   val spent =
       describers.resourcePaymentEvent(payment.trigger) as? ResourcePaymentEvent.FromCard
           ?: return null
-  if (spent.card != describers.thisExpression || spent.resource != cardResourceType) return null
+  if (spent.card != describers.thisExpression) return null
   val reduction = owedReduction(payment.instruction, describers) ?: return null
   val resource = describers.cardResourceNoun(cardResourceType, 2) ?: return null
   val billing = describers.billingEvent(acceptance.trigger)
@@ -655,11 +568,7 @@ internal fun paymentDiscount(effect: Effect, describers: Describers): PaymentDis
           paymentDiscount(effect.copy(trigger = trigger), describers) ?: return null
         }
     val first = discounts.firstOrNull() ?: return null
-    if (
-        discounts.any {
-          it.reduction != first.reduction || it.categoryReduction != first.categoryReduction
-        }
-    ) {
+    if (discounts.any { it.reduction != first.reduction }) {
       return null
     }
     return first.copy(trigger = coordinatePaymentTriggers(discounts.map(PaymentDiscount::trigger)))
@@ -686,18 +595,7 @@ internal fun paymentDiscount(effect: Effect, describers: Describers): PaymentDis
         objectPronoun = actionTrigger?.objectPronoun ?: trigger.hasExplicitObject(),
     )
   }
-  val trigger = describers.renderPaymentDiscountTrigger(effect.trigger) ?: return null
-  val actualReduction = describers.renderPlainGainAmount(effect.instruction) ?: return null
-  val reduction =
-      trigger.categoryNoun?.let { noun ->
-        actualReduction.withNoun(noun)
-      } ?: actualReduction
-  return PaymentDiscount(
-      trigger.clause,
-      reduction,
-      categoryReduction = trigger.categoryNoun != null,
-      objectPronoun = trigger.objectPronoun,
-  )
+  return null
 }
 
 private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): EnglishText {
@@ -708,19 +606,6 @@ private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): EnglishText
         Clause.Simple(
             subject = NounPhrase.text("the cost"),
             predicate = Predicate(Verb.BE, Coordination.one(reduction.phrase)),
-        )
-      } else if (discounts.first().categoryReduction) {
-        Clause.Simple(
-            subject = NounPhrase.you(),
-            predicate =
-                Predicate(
-                    Verb("pay"),
-                    Coordination.one(NounPhrase.text("${reduction.count} less ${reduction.noun}")),
-                    modifiers =
-                        listOfNotNull(
-                            Modifier.Phrase("for it").takeIf { discounts.first().objectPronoun }
-                        ),
-                ),
         )
       } else {
         Clause.Simple(
@@ -769,11 +654,11 @@ private fun renderResourcePaymentValue(
 ): EnglishText? {
   val spent = describers.renderSpentResource(effect.trigger) ?: return null
   val reduction = owedReduction(effect.instruction, describers) ?: return null
-  return Sentence(
-          NounPhrase.text("Each $spent you pay is worth ${reduction.phrase.linearize()} extra")
-      )
-      .asText()
+  return renderExtraResourceValue(spent, reduction.phrase)
 }
+
+internal fun renderExtraResourceValue(resource: String, value: NounPhrase): EnglishText =
+    Sentence(NounPhrase.text("each $resource you pay is worth ${value.linearize()} extra")).asText()
 
 private fun Describers.renderEventTrigger(trigger: Trigger): Clause? {
   val rendered = renderEventTriggerWithoutCardContext(trigger) ?: return null
@@ -881,7 +766,6 @@ private fun Describers.renderBillingPaymentDiscountTrigger(
   val discount = use.paymentDiscount ?: return null
   return PaymentDiscount.Trigger(
       renderBillingEvent(billing) ?: return null,
-      discount.categoryNoun,
       billing.resource?.className,
       discount.objectPronoun,
   )
@@ -896,19 +780,7 @@ private fun Describers.renderActionPaymentDiscountTrigger(
   val discount = use.paymentDiscount ?: return null
   return PaymentDiscount.Trigger(
       eventTrigger(subject = NounPhrase.you(), verb = Verb(discount.predicate)),
-      discount.categoryNoun,
       objectPronoun = discount.objectPronoun,
-  )
-}
-
-private fun Describers.renderPlainGainAmount(instruction: InstructionTree): ResourceAmount? {
-  val change = instruction as? Instruction ?: return null
-  val (className, count) = standardResourceGain(change, this) ?: return null
-  return ResourceAmount(
-      count,
-      componentNoun(className, 1),
-      componentNoun(className, 2),
-      className,
   )
 }
 

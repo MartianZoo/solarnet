@@ -250,11 +250,12 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       }
       convertPlants { placeTile(6, 5) }
       playProject(StJosephOfCupertinoMission, 7)
-      cardAction1(StJosephOfCupertinoMission) {
-        pay(mc = 2, steel = 1)
+      stdAction(
+          "UseCardAction<$StJosephOfCupertinoMission, Action1>",
+          payment = { pay(mc = 2, steel = 1) },
+      ) {
         doTask("Cathedral<CityTile<Tharsis_4_6>>")
-        doTask("UseAction<CathedralOption, Action1>")
-        pay(2)
+        useStdAction("UseAction<CathedralOption, Action1>", payment = { pay(2) })
       }
       cardAction1(UndergroundDetonations)
       stdAction("LobbyAction<Action1>") {
@@ -289,11 +290,12 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         placeTile(7, 5)
         doTask("2 PartyDelegate<Greens>")
       }
-      cardAction1(StJosephOfCupertinoMission) {
-        pay(mc = 2, steel = 1)
+      stdAction(
+          "UseCardAction<$StJosephOfCupertinoMission, Action1>",
+          payment = { pay(mc = 2, steel = 1) },
+      ) {
         doTask("Cathedral<CityTile<Tharsis_7_5>>")
-        doTask("UseAction<CathedralOption, Action1>")
-        pay(2)
+        useStdAction("UseAction<CathedralOption, Action1>", payment = { pay(2) })
       }
       cardAction1(BoardOfDirectors) {
         doTask("-12 MC")
@@ -345,11 +347,9 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(GhgShipment, 3)
       playProject(KelpFarming, 17)
       stdProject("CityProject") { placeTile(4, 3) }
-      cardAction1(StJosephOfCupertinoMission) {
-        pay(5)
+      stdAction("UseCardAction<$StJosephOfCupertinoMission, Action1>", payment = { pay(5) }) {
         doTask("Cathedral<CityTile<Tharsis_4_3>>")
-        doTask("UseAction<CathedralOption, Action1>")
-        pay(2)
+        useStdAction("UseAction<CathedralOption, Action1>", payment = { pay(2) })
       }
       cardAction1(FocusedOrganization) {
         doTask("-MC")
@@ -392,11 +392,9 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       convertHeat()
       convertHeat()
       playProject(Capital, 26) { placeTile(2, 5) }
-      cardAction1(StJosephOfCupertinoMission) {
-        pay(5)
+      stdAction("UseCardAction<$StJosephOfCupertinoMission, Action1>", payment = { pay(5) }) {
         doTask("Cathedral<CityTile<Tharsis_2_5>>")
-        doTask("UseAction<CathedralOption, Action1>")
-        pay(2)
+        useStdAction("UseAction<CathedralOption, Action1>", payment = { pay(2) })
       }
       playProject(RedShips, 2)
       stdProject("CityProject") { doTask("NormalCityTile<Tharsis_6_3>") }
@@ -430,11 +428,12 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       cardAction1(RestrictedArea)
       cardAction1(SpaceElevator)
       cardAction1(SaturnSurfing)
-      cardAction1(StJosephOfCupertinoMission) {
-        pay(mc = 2, steel = 1)
+      stdAction(
+          "UseCardAction<$StJosephOfCupertinoMission, Action1>",
+          payment = { pay(mc = 2, steel = 1) },
+      ) {
         doTask("Cathedral<CityTile<Tharsis_5_3>>")
-        doTask("UseAction<CathedralOption, Action1>")
-        pay(2)
+        useStdAction("UseAction<CathedralOption, Action1>", payment = { pay(2) })
       }
       playProject(EarthCatapult, 18)
       playProject(BusinessContacts, 0)
@@ -481,11 +480,12 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       cardAction1(SpaceElevator)
       cardAction1(Meltworks)
       cardAction1(SaturnSurfing)
-      cardAction1(StJosephOfCupertinoMission) {
-        pay(mc = 2, steel = 1)
+      stdAction(
+          "UseCardAction<$StJosephOfCupertinoMission, Action1>",
+          payment = { pay(mc = 2, steel = 1) },
+      ) {
         doTask("Cathedral<CityTile<Tharsis_6_3>>")
-        doTask("UseAction<CathedralOption, Action1>")
-        pay(2)
+        useStdAction("UseAction<CathedralOption, Action1>", payment = { pay(2) })
       }
       playProject(Recruitment, 0) {
         doTask("PartyDelegate<Reds, EK FROM Neutral>")

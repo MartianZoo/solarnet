@@ -168,7 +168,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Planner>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Planner")
       }
     }
@@ -190,7 +190,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTasks("FundAward<Class<Visionary>>", "-8 MC")
+      doTasks("FundAward<Class<Visionary>>", "8 Pay<> FROM MC")
       doTask("Visionary")
     }
     victoryPoints() shouldBe listOf(20, 25)
@@ -233,7 +233,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTasks("FundAward<Class<Excentric>>", "-8 MC")
+      doTasks("FundAward<Class<Excentric>>", "8 Pay<> FROM MC")
       doTask("Excentric")
     }
     victoryPoints() shouldBe listOf(20, 28)
@@ -289,10 +289,8 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       // Hand the discount to Admin before the remaining payment is offered.
       selectTask("-16* Owed")
       doTask("-16 RobotUnit<Kim, Class<ImmigrantCity>>")
+      doTask("Ok") // The discount covers the full cost.
       doTasks("ImmigrantCity FROM ProjectCard", "PROD[-Energy]", "PROD[-2 MC]")
-      // Other optional tasks also accept Ok; identify the MC payment first.
-      selectTask("-X? MC")
-      doTask("Ok" /* No MC payment. */)
       doTasks("CityTile<Tharsis_7_4>", "PROD[MC]")
     }
 
@@ -319,7 +317,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       // Hand the discount to Admin before the remaining payment is offered.
       selectTask("-2* Owed")
       doTask("-2 RobotUnit<Kim, Class<Mine>>")
-      doTask("-2 MC")
+      doTask("2 Pay<> FROM MC")
       doTasks("Mine FROM ProjectCard", "PROD[Steel]")
     }
 
@@ -356,10 +354,8 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           // Hand the discount to Admin before the remaining payment is offered.
           selectTask("-8* Owed")
           doTask("-8 RobotUnit<Kim, Class<Mine>>")
+          doTask("Ok") // The discount covers the full cost.
           doTasks("Mine FROM ProjectCard", "PROD[Steel]")
-          // Other optional tasks also accept Ok; identify the MC payment first.
-          selectTask("-X? MC")
-          doTask("Ok" /* No MC payment. */)
         }
         .expect("0 MC")
 
@@ -404,10 +400,8 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           // Hand the discount to Admin before the remaining payment is offered.
           selectTask("-4* Owed")
           doTask("-4 RobotUnit<Kim, Class<Mine>>")
+          doTask("Ok") // The discount covers the full cost.
           doTasks("Mine FROM ProjectCard", "PROD[Steel]")
-          // Other optional tasks also accept Ok; identify the MC payment first.
-          selectTask("-X? MC")
-          doTask("Ok" /* No MC payment. */)
         }
         .expect("0 MC")
 
@@ -587,7 +581,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTask("PlayProject<Class<SponsoredAcademies>>")
-        doTasks("-9 MC", "SponsoredAcademies FROM ProjectCard")
+        doTasks("9 Pay<> FROM MC", "SponsoredAcademies FROM ProjectCard")
         // Expand the reward into separate tasks for each other player.
         selectTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")
         doTask("ProjectCard<Stan, Hand>")
@@ -627,7 +621,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           // Hand the discount to Admin before the remaining payment is offered.
           selectTask("-2* Owed")
           doTask("-2 RobotUnit<Kim, Class<ResearchOutpost>>")
-          doTask("-16 MC")
+          doTask("16 Pay<> FROM MC")
           doTasks("ResearchOutpost FROM ProjectCard")
           // Resolve the exchange offer: the empty hand leaves no card to discard.
           selectTask("(-ProjectCard<Kim, Hand>! THEN ProjectCard<Kim, Hand>!) OR Ok")
@@ -663,7 +657,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     return kim.inTurn {
       doTasks(
           "PlayProject<Class<CorroderSuits>>",
-          "-8 MC",
+          "8 Pay<> FROM MC",
           "CorroderSuits FROM ProjectCard",
           "PROD[2 MC]",
       )
@@ -708,7 +702,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     return kim.inTurn {
       doTasks(
           "PlayProject<Class<DiversitySupport>>",
-          "-1 MC",
+          "1 Pay<> FROM MC",
           "DiversitySupport FROM ProjectCard",
           "TerraformRating",
       )
@@ -757,7 +751,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
             "Animal<$Predators>, Microbe<$RegolithEaters>"
     )
     kim.inTurn {
-      doTasks("FundAward<Class<Collector>>", "-8 MC")
+      doTasks("FundAward<Class<Collector>>", "8 Pay<> FROM MC")
       doTask("Collector")
     }
   }
@@ -827,7 +821,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     return kim.inTurn {
       doTasks(
           "PlayProject<Class<CeosFavoriteProject>>",
-          "-1 MC",
+          "1 Pay<> FROM MC",
           "CeosFavoriteProject FROM ProjectCard",
       )
       // Resolve the resource offer: no eligible card already holds a resource.
@@ -903,7 +897,7 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       doTask("2 RobotUnit<Class<Mine>>")
     }
     return kim.inTurn {
-      doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
+      doTasks("PlayProject<Class<L1TradeTerminal>>", "25 Pay<> FROM MC")
       doTasks("L1TradeTerminal FROM ProjectCard")
       // Expand the bonus into a separate resource choice for each eligible card.
       selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
@@ -928,12 +922,12 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
           // Hand the discount to Admin before the remaining payment is offered.
           selectTask("-2* Owed")
           doTask("-2 RobotUnit<Kim, Class<CeosFavoriteProject>>")
+          doTask("Ok") // The discount covers the full cost.
           doTasks(
               "CeosFavoriteProject FROM ProjectCard",
           )
           // Select the resource offer before testing whether a required gain can be declined.
           selectTask("CardResource<CardFront(HAS CardResource)>*")
-          doTask("Ok" /* No MC payment. */)
           doTask("PlayedEvent<Class<$CeosFavoriteProject>> FROM $CeosFavoriteProject")
         }
         .expect("PlayedEvent<Class<$CeosFavoriteProject>>")
@@ -969,16 +963,16 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     private fun resolveSponsoredProjectsWithHostedCard(): Pair<Int, Int> {
       newTestGame(addOptions = "TurmoilExpansion, fakes:cards", playerCount = 2)
       kim.completeOperation {
-        doTasks("PlayProject<Class<$Research>>", "-11 MC")
+        doTasks("PlayProject<Class<$Research>>")
         autoExecNow(EAGER)
       }
-      kim.doTasks("PlayProject<Class<$FakeSelfReplicatingRobots>>", "-7 MC")
+      kim.doTasks("PlayProject<Class<$FakeSelfReplicatingRobots>>")
       stan.doTask("Pass")
       kim.completeOperation {
         doTask("UseCardAction<$FakeSelfReplicatingRobots, Action1>")
         doTask("StageForReplicatedProject<Class<$Mine>>")
       }
-      kim.doTasks("PlayProject<Class<$Pets>>", "-10 MC")
+      kim.doTasks("PlayProject<Class<$Pets>>")
       kim.doTask("Pass")
       players.forEach { it.autoExecNow(EAGER) }
       kim.doTask("VenusStep! BY Admin")

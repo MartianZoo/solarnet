@@ -15,7 +15,7 @@ internal class TopsoilContractTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<TopsoilContract>>",
-              "-8 MC",
+              "8 Pay<> FROM MC",
               "TopsoilContract FROM ProjectCard",
               "3 Plant",
           )

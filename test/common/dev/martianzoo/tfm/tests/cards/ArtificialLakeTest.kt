@@ -19,7 +19,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
+        doTasks("PlayProject<Class<ArtificialLake>>", "15 Pay<> FROM MC")
         doTask("ArtificialLake FROM ProjectCard")
         doTask("OceanTile<Tharsis_2_3>")
       }
@@ -35,7 +35,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
     kim.exMachina(kim.list("WaterArea").take(8).joinToString { "OceanTile<$it>" })
 
     kim.inTurn {
-      doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
+      doTasks("PlayProject<Class<ArtificialLake>>", "15 Pay<> FROM MC")
       doTasks(
           "ArtificialLake FROM ProjectCard",
           "OceanTile<Tharsis_2_3>",
@@ -53,7 +53,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks(
           "UseStandardProject<AquiferProject>",
-          "-18 MC",
+          "18 Pay<> FROM MC",
           "OceanTile<Tharsis_6_7>",
           "TerraformRating",
           "Plant",
@@ -62,7 +62,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-          doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
+          doTasks("PlayProject<Class<ArtificialLake>>", "15 Pay<> FROM MC")
           doTasks("ArtificialLake FROM ProjectCard")
           // Resolve the placement offer: the full ocean track leaves no legal placement.
           selectOnlyTask()
@@ -78,7 +78,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
+        doTasks("PlayProject<Class<ArtificialLake>>", "15 Pay<> FROM MC")
         doTask("ArtificialLake FROM ProjectCard")
         doTask("Ok")
       }

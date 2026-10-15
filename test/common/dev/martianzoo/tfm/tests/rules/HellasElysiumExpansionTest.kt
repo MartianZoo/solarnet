@@ -13,17 +13,22 @@ internal class HellasElysiumExpansionTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Specialist>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Specialist")
       }
     }
 
     kim.inTurn {
-      doTasks("UseStandardProject<CityProject>", "-25 MC", "PROD[MC]", "CityTile<Elysium_1_5>")
+      doTasks(
+          "UseStandardProject<CityProject>",
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "CityTile<Elysium_1_5>",
+      )
       doTask("ProjectCard<Kim, Hand>")
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Specialist>>", "-8 MC")
+      doTasks("ClaimMilestone<Class<Specialist>>", "8 Pay<> FROM MC")
       doTask("Specialist")
     }
   }

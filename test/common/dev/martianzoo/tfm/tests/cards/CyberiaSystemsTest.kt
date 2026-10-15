@@ -19,7 +19,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<CyberiaSystems>>",
-          "-16 MC",
+          "16 Pay<> FROM MC",
           "CyberiaSystems FROM ProjectCard",
           "PROD[Steel]",
           "CopyProductionBox<Mine>",
@@ -37,7 +37,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
     shouldThrow<TaskException> {
       kim.inTurn {
         doTask("PlayProject<Class<CyberiaSystems>>")
-        doTasks("-16 MC", "CyberiaSystems FROM ProjectCard")
+        doTasks("16 Pay<> FROM MC", "CyberiaSystems FROM ProjectCard")
         doTask("PROD[Steel]")
         doTask("CopyProductionBox<Mine>")
         doTask("PROD[Steel]")
@@ -53,7 +53,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayProject<Class<CyberiaSystems>>",
-            "-16 MC",
+            "16 Pay<> FROM MC",
             "CyberiaSystems FROM ProjectCard",
             "PROD[Steel]",
         )
@@ -73,7 +73,7 @@ internal class CyberiaSystemsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<CyberiaSystems>>",
-          "-16 MC",
+          "16 Pay<> FROM MC",
           "CyberiaSystems FROM ProjectCard",
           "PROD[Steel]",
           "Steel",

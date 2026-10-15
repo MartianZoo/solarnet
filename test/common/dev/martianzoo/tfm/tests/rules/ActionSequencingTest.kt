@@ -23,7 +23,7 @@ internal class ActionSequencingTest {
     p1.runOperation("$Steelworks, 4 Energy")
     game.testTfm(ADMIN).phase("Action")
 
-    p1.runOperation("UseAction<$Steelworks, Action1>") { p1.pay(energy = 4) }
+    p1.runOperation("UseAction<$Steelworks, Action1>")
 
     p1.count("Steel") shouldBe 2
     p2.count("Steel") shouldBe 0

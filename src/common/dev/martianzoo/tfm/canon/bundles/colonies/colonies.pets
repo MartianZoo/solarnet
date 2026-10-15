@@ -220,7 +220,7 @@ CLASS TritonSelected : SelectedColonyTile<Class<Triton>>
 "Lets the solo player discard one selected colony tile; owned so that player makes the choice"
 CLASS SoloColoniesSetup : Owned<Player>, System {
   HAS MAX 1 This
-  This: -SelectedColonyTile THEN -This!
+  This: -SelectedColonyTile THEN -This
 }
 
 "A notch on the production track of a ColonyTile; note a tile has 0 to 6 of these (not 1 to 7)"

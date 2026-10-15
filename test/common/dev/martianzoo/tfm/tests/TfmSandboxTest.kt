@@ -265,7 +265,7 @@ internal abstract class TfmSandboxTest {
       if (index == 0 && kimCorporation != null) {
         player.inTurn {
           doTask("PlayCard<Class<CorporationCard>, Class<$kimCorporation>>")
-          doWithAutoExecPolicy(EAGER) { doTask("-MC / Owed") }
+          autoExecNow(EAGER)
         }
       } else {
         player.inTurn {

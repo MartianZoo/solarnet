@@ -77,7 +77,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
           }
           .expect("3 MC")
       playProject(RotatorImpacts, titanium = 2)
-      cardAction1(RotatorImpacts) { pay(titanium = 2) }
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(titanium = 2) })
       stdAction("TradeAction<Action2>") { doTask("Trade<Luna>") }.expect("13 MC")
       playProject(RestrictedArea, 11) {
         placeTile(3, 7)
@@ -133,7 +133,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
             declineTask()
           }
           .expect("-18 MC")
-      cardAction1(RotatorImpacts) { pay(titanium = 2) }
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(titanium = 2) })
       sellPatents(3)
       playProject(LunaGovernor, 4).expect("PROD[2 MC], -4 MC")
 
@@ -177,7 +177,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       sellPatents(3)
       playProject(BusinessNetwork, 4).expect("PROD[-MC], -4 MC")
       cardAction1(BusinessNetwork) { buyCards(1) }
-      cardAction1(RotatorImpacts) { pay(titanium = 2) }
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(titanium = 2) })
       playProject(AirScrappingExpedition, 13) { addCardResources(ForcedPrecipitation) }
           .expect("-10 MC")
       cardAction2(ForcedPrecipitation)
@@ -244,7 +244,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       cardAction1(RegolithEaters)
       cardAction2(Thermophiles)
       sellPatents(3)
-      cardAction1(RotatorImpacts) { pay(titanium = 2) }
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(titanium = 2) })
       cardAction1(Extremophiles) { addCardResources(Thermophiles) }
       cardAction1(SulphurEatingBacteria)
       playProject(ExtractorBalloons, 21)

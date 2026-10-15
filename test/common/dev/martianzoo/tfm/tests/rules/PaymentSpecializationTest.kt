@@ -4,7 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.ComponentChange
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
@@ -25,7 +25,7 @@ internal class PaymentSpecializationTest {
     p1.count("Owed") shouldBe 12
     p1.count("ProjectCard<Selecting>") shouldBe 4
     p1.count("ProjectCard<Hand>") shouldBe 0
-    p1.doTasks("-12 MC")
+    p1.doTasks("12 Pay<> FROM MC")
     p1.count("ProjectCard<Hand>") shouldBe 0
     val transfer = p1.doTasks("4 ProjectCard<Hand FROM Selecting>")
     val event = transfer.changes.single { it.change is ComponentChange.Transmute }
@@ -52,13 +52,14 @@ internal class PaymentSpecializationTest {
   @Test
   internal fun `Accepting pays only with its specialized resource`() {
     val p1 = setUpGame().testTfm(PLAYER1)
+    p1.autoExecPolicy = NONE
     p1.runOperation("Steel, Titanium")
 
     p1.beginOperation(
         "Owed<Class<Steel>> THEN Billing<Class<SellPatentsProject>, Action1, Class<Steel>>"
     ) {
-      shouldThrow<NarrowingException> { doTask("-Titanium") }
-      doTask("-Steel")
+      shouldThrow<TaskException> { doTask("Pay<Class<Titanium>> FROM Titanium") }
+      doTask("Pay<Class<Steel>> FROM Steel")
     }
   }
 }

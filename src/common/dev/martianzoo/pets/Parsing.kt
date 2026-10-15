@@ -2,7 +2,6 @@ package dev.martianzoo.pets
 
 import com.github.h0tk3y.betterParse.combinators.and
 import com.github.h0tk3y.betterParse.combinators.asJust
-import com.github.h0tk3y.betterParse.combinators.leftAssociative
 import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.oneOrMore
 import com.github.h0tk3y.betterParse.combinators.optional
@@ -30,8 +29,9 @@ import dev.martianzoo.pets.ClassBody.Element.EffectElement
 import dev.martianzoo.pets.ClassBody.Element.InvariantElement
 import dev.martianzoo.pets.ClassBody.Element.NestedDeclaration
 import dev.martianzoo.pets.ClassBody.Element.PropertyElement
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.DomainException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.Exceptions.ResourceLimitException
 import dev.martianzoo.pets.api.SourceLocation
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action
@@ -80,7 +80,11 @@ import kotlin.reflect.KClass
  * of the Pets language specification.
  *
  * Every entry point extracts owner-local declarations with a real owner or rejects that syntax.
- * Returned nodes contain only ordinary expressions, with their lexical scopes resolved.
+ * Returned nodes contain only ordinary expressions, with their lexical scopes resolved. Parsing and
+ * completion reject source nested beyond 64 delimiter pairs. Parsing also rejects metric
+ * subtraction trees exceeding 128 terms, including grouped subtractions. These resource limits fail
+ * with [ResourceLimitException] before recursive parsing or AST processing exhausts the stack;
+ * punctuation in comments and quoted text does not consume delimiter depth.
  */
 public object Parsing {
   // A bare amount survives grammar alternatives so the final diagnostic can explain the missing
@@ -200,6 +204,7 @@ public object Parsing {
       source: String,
       expectedTypeDesc: String? = null,
   ): T {
+    checkNestingDepth(source)
     val matches = PetsGrammar.tokenizer.tokenize(source)
     try {
       return parser.parseToEnd(matches)
@@ -252,9 +257,46 @@ public object Parsing {
           e,
           SourceLocation(source, 0),
       )
-    } catch (e: PetException) {
+    } catch (e: DomainException) {
       if (e.sourceLocation == null) e.sourceLocation = SourceLocation(source, 0)
       throw e
+    }
+  }
+
+  // The recursive grammar and AST visitors need a bounded nesting depth. Scan the authored
+  // delimiters before entering the parser, ignoring punctuation inside comments and docstrings.
+  private fun checkNestingDepth(source: String) {
+    val closers = mutableListOf<Char>()
+    var quoted = false
+    var comment = false
+    var index = 0
+    while (index < source.length) {
+      val char = source[index]
+      when {
+        char == '\n' || char == '\r' -> comment = false
+        comment -> Unit
+        char == '"' -> quoted = !quoted
+        quoted -> Unit
+        char == '/' && source.getOrNull(index + 1) == '/' -> comment = true
+        char == '-' && source.getOrNull(index + 1) == '>' -> index++
+        char in "<([{" -> {
+          closers +=
+              when (char) {
+                '<' -> '>'
+                '(' -> ')'
+                '[' -> ']'
+                else -> '}'
+              }
+          if (closers.size > 64) {
+            throw ResourceLimitException(
+                "Pets nesting exceeds 64 levels",
+                sourceLocation = SourceLocation(source, index),
+            )
+          }
+        }
+        char in ">)]}" && closers.lastOrNull() == char -> closers.removeAt(closers.lastIndex)
+      }
+      index++
     }
   }
 
@@ -479,6 +521,8 @@ public object Parsing {
    * Whether [candidate] begins with a token that the grammar for [expectedType] would accept after
    * [source]. This is a completion hint, not proof that the complete source plus candidate parses.
    * [PetNode] itself is too broad to select a grammar and is rejected.
+   *
+   * @throws ResourceLimitException if [source] exceeds the parser's nesting limit.
    */
   public fun acceptsNextToken(
       expectedType: KClass<out PetNode>,
@@ -486,6 +530,7 @@ public object Parsing {
       candidate: String,
   ): Boolean {
     require(expectedType != PetNode::class) { "missing type info" }
+    checkNestingDepth(source)
     return nodeParser(expectedType)
         .completionAtEnd(PetsGrammar.tokenizer.tokenize(source))
         .expectedTokens
@@ -756,9 +801,18 @@ public object Parsing {
                   Metric.Eval(property, me)
                 }
         )
-    private val metricCount by expression map Metric::Count
+    // A property receiver and a component count share the whole expression prefix. Parsing it
+    // twice makes nested HAS refinements exponentially expensive.
+    private val countOrProperty by
+        locatedNode(
+            (expression and
+                optional(skip(dot) and propertyName) map
+                { (receiver, name) ->
+                  if (name == null) Metric.Count(receiver) else Property(name, receiver)
+                }) or (propertyName map ::Property)
+        )
     private val nonconstantMetric: Parser<Metric> by
-        rank or metricEval or metricTransform or property or metricCount or group(parser { metric })
+        rank or metricEval or metricTransform or countOrProperty or group(parser { metric })
     private val scaledMetric by
         integer and nonconstantMetric map { (unit, metric) -> Metric.scaled(metric, unit) }
     private val metricConstant by integer map Metric::Constant
@@ -771,8 +825,12 @@ public object Parsing {
             }
     // After an instruction/cost '/', OR belongs to that instruction/cost's container.
     private val metricSubtraction by
-        leftAssociative(metricAtom, minus) { left, _, right ->
-          Metric.Subtract(left, right)
+        mapLocated(separatedTerms(metricAtom, minus)) { terms ->
+          // Grouping must not reset the budget for the left-deep subtraction tree.
+          if (terms.size + terms.sumOf { it.descendantsOfType<Metric.Subtract>().size } > 128) {
+            throw ResourceLimitException("metric subtraction exceeds 128 terms")
+          }
+          terms.reduce(Metric::Subtract)
         }
     val metric: Parser<Metric> by
         separatedTerms(metricSubtraction, orKeyword) map
@@ -787,11 +845,17 @@ public object Parsing {
     // Requirements: atom, OR, comma conjunction. An atom is also the gate of an instruction.
     private val countedMetric by integer and metricAtom
     private val minimumRequirement: Parser<Requirement> by
-        (property map { Requirement.Min(1, it) }) or
-            mapLocated(positiveInteger and metricAtom) { (target, metric) ->
-              Requirement.Min(target, metric)
-            } or
-            mapLocated(scaledExpression(positiveScalar), Requirement::Min)
+        mapLocated(countOrProperty) { Requirement.Min(1, it) } or
+            mapLocated(positiveScalar and optional(metricAtom)) { (target, metric) ->
+              val counted =
+                  metric
+                      ?: Metric.Count(
+                          denominationlessClass.expression.copy().also {
+                            it.sourceLocation = target.sourceLocation
+                          }
+                      )
+              Requirement.Min(target.value, counted)
+            }
     private val maximumRequirement by
         skip(maxKeyword) and
             ((countedMetric map { (target, metric) -> Requirement.Max(target, metric) }) or
@@ -1209,7 +1273,7 @@ public object Parsing {
             { (location, value) ->
               try {
                 transform(value)
-              } catch (e: PetException) {
+              } catch (e: DomainException) {
                 if (e.sourceLocation == null) e.sourceLocation = location
                 throw e
               } catch (e: IllegalArgumentException) {
@@ -1242,7 +1306,7 @@ public object Parsing {
                     true
                   }
                 }
-              } catch (e: PetException) {
+              } catch (e: DomainException) {
                 e.sourceLocation = e.sourceLocation?.let(::rebase) ?: location(token)
                 throw e
               }

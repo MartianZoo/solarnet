@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.AstroDrill
@@ -36,8 +35,8 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "UseStandardProject<AsteroidProject>",
-          "-2 Asteroid<KuiperCooperative>",
-          "-12 MC",
+          "2 PayFromCard<KuiperCooperative> FROM Asteroid<KuiperCooperative>",
+          "12 Pay<> FROM MC",
       )
       doTask("TemperatureStep")
       doTask("TerraformRating")
@@ -51,8 +50,8 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "UseStandardProject<AquiferProject>",
-              "-2 Asteroid<KuiperCooperative>",
-              "-16 MC",
+              "2 PayFromCard<KuiperCooperative> FROM Asteroid<KuiperCooperative>",
+              "16 Pay<> FROM MC",
               "OceanTile<Tharsis_1_2>",
               "TerraformRating",
               "2 Steel",
@@ -65,12 +64,10 @@ internal class KuiperCooperativeTest : TfmSandboxTest() {
   internal fun `Asteroids cannot pay for another standard project`() {
     kim.exMachina("2 Asteroid<$KuiperCooperative>")
 
-    shouldThrow<NarrowingException> {
+    shouldThrow<TaskException> {
       kim.inTurn {
         doTask("UseStandardProject<PowerPlantProject>")
-        // Select the payment to test the outstanding bill independently of the pending attack.
-        selectTask("-X? MC")
-        doTask("-2 Asteroid<KuiperCooperative>")
+        doTask("2 PayFromCard<KuiperCooperative> FROM Asteroid<KuiperCooperative>")
       }
     }
   }

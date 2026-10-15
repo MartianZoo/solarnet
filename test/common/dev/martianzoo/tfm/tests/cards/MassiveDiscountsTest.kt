@@ -21,9 +21,9 @@ internal class MassiveDiscountsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<SpaceElevator>>",
-          "-1 Titanium",
-          "-1 Steel",
-          "-4 MC",
+          "1 Pay<Class<Titanium>> FROM Titanium",
+          "1 Pay<Class<Steel>> FROM Steel",
+          "4 Pay<> FROM MC",
           "SpaceElevator FROM ProjectCard",
           "PROD[Titanium]",
       )

@@ -378,9 +378,11 @@ scenarios assign `autoExecPolicy`. Use explicit `autoExecNow(EAGER)` calls to se
 routine effects, production, and phase cleanup. Put them inside the observed operation or
 `expectChanges` block when their effects belong to the assertion. An automatically selected order
 is not evidence of a required order; scripts testing that order must state the steps explicitly.
-Decline unused payment offers explicitly and explain each `Ok`. Short repeated action sequences
-are written out; loops remain appropriate for seat-order traversal and long generation/endgame
-progressions.
+Fixed payments can now complete under `CONCRETE` or `EAGER`; do not submit an already completed
+payment again. Custom helper allocations belong in the payment callback, before the result body.
+Finish or decline alternative payment offers before the exact remainder, and explain each `Ok`.
+Short repeated action sequences are written out; loops remain appropriate for seat-order traversal
+and long generation/endgame progressions.
 
 Synthetic engine checks that only need setup use `setUpGame`, which starts the game and drops setup's
 pending handoff (`startSetupOnly`), so the game stays in `SetupPhase`. `startCorporationPhaseOutOfTurn`
@@ -407,7 +409,8 @@ appear in Kim's offer. Do not add extra arguments for corporation offers or proj
 Select `kimCorporation` to give Kim the normal corporation path; other seats use the beginner path.
 Both fixtures discard five of Kim's ten offered projects before corporation play. Normal setup
 then purchases the remaining five; explicit corporation-play tests make that purchase themselves.
-The sandbox pays through `-MC / Owed` in normal setup.
+The sandbox settles normal corporation setup with `autoExecNow(EAGER)`, including the exact
+starting-card payment offered by billing.
 The default game has:
 
 - Tharsis, Venus Next, Colonies, and Promos;
@@ -459,11 +462,13 @@ pending tasks; payments, card transfers, player effects, and any player-assigned
 The sandbox exposes its players as plain `Agent`s. For corporation scenarios that exercise the
 initial play, use `newTestGameBeforeCorporationPlay` and submit the printed effects and starting-card
 purchase in the test. For ordinary named-corporation setup, the fixture submits the corporation
-play as an Agent task and runs `doWithAutoExecPolicy(EAGER)` to settle its effects and pay
-`-MC / Owed`. Kim's configured policy remains `NONE` throughout.
-Do not use this normal setup path for Pharmacy Union yet: `-MC / Owed` omits its two 4 MC disease
-losses. Its scenarios play the corporation explicitly and pay the known 15 MC starting-card cost;
-the payment defect is tracked in `TODO.md`.
+play as an Agent task and runs `autoExecNow(EAGER)` to settle its effects and exact starting-card
+payment. Kim's configured policy remains `NONE` throughout. Scenario payments finish or decline
+alternative resources before submitting the exact remainder in the bill's denomination. If those
+alternatives or a pending discount cover the full cost, submit `Ok` before the purchased result.
+Pharmacy Union's initial-play scenarios explicitly take the gated 54 MC, place each disease and
+resolve its loss, then pay the full starting-card bill. Ordinary losses do not credit a bill;
+see [PAYMENTS.md](PAYMENTS.md#ordinary-resource-losses).
 In this style, omit `.expect()` assertions that merely repeat the submitted tasks; retain assertions
 for automatic consequences, excluded outcomes, and state after rejected actions. Continue using
 `setToExMachina` for desired absolute counts rather than calculating relative fixture adjustments.
@@ -483,9 +488,9 @@ Use `doTask` for the Actor's explicit work, naming a short, meaningful instructi
 This also applies when binding X makes player work concrete. When the bound amount instead opens
 a bill through Admin, use a commented `selectOnlyTask(x = ...)`. Do not copy full rule expressions
 merely to identify the sole task.
-Write expected payment amounts explicitly, such as `-6 MC`; never pay `/ Owed` in a sandbox
-scenario. Write `kim.inTurn { ... }` directly, without redundant `with(kim)` wrappers. Inside that
-block, helpers on its operation receiver do not repeat `kim.`; another actor remains explicit.
+Write expected payment amounts explicitly, such as `6 Pay<> FROM MC`; never pay `/ Owed`
+in a sandbox scenario. Write `kim.inTurn { ... }` directly, without redundant `with(kim)` wrappers.
+Inside that block, helpers on its operation receiver do not repeat `kim.`; another actor remains explicit.
 `TfmGameplay.turn` groups the published game's turn, including declining an unused second action.
 `Agent.inTurn` provides a complete atomic operation and creates `NewTurn` when needed. Sandbox
 scenarios use the latter. Cross-player Agent calls can leave Admin work waiting within that block;

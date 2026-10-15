@@ -16,7 +16,7 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
     kim.exMachina("$ProtectedHabitats, 8 Plant")
 
     kim.inTurn {
-      doTasks("ConvertPlants", "-8 Plant")
+      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       // Hand the paid conversion to Admin to offer the legal greenery areas.
       selectTask("DefaultGreeneryTile")
       doTask("GreeneryTile<Tharsis_1_1>")
@@ -55,7 +55,7 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       stan.inTurn {
-        doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+        doTasks("PlayProject<Class<AsteroidCard>>", "14 Pay<> FROM MC")
         doTask("AsteroidCard FROM ProjectCard")
         doTask("TemperatureStep")
         doTask("2 Titanium")

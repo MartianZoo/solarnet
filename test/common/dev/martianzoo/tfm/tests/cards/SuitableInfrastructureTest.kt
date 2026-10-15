@@ -30,8 +30,8 @@ internal class SuitableInfrastructureTest : TfmGameplayTest() {
     stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
     stan.autoExecNow(EAGER)
 
-    kim.doTasks("UseStandardProject<PowerPlantProject>", "-11 MC").expect("PROD[Energy], -9 MC")
-    kim.doTasks("UseStandardProject<PowerPlantProject>", "-11 MC").expect("PROD[Energy], -9 MC")
+    kim.doTasks("UseStandardProject<PowerPlantProject>").expect("PROD[Energy], -9 MC")
+    kim.doTasks("UseStandardProject<PowerPlantProject>").expect("PROD[Energy], -9 MC")
   }
 
   @Test

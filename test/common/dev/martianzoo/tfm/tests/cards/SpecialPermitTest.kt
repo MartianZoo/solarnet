@@ -14,7 +14,7 @@ internal class SpecialPermitTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<SpecialPermit>>",
-              "-5 MC",
+              "5 Pay<> FROM MC",
               "SpecialPermit FROM ProjectCard",
               "4 Plant<Kim FROM Stan>",
           )

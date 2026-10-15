@@ -2,6 +2,7 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
+import dev.martianzoo.pets.api.Exceptions.ResourceLimitException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.systemClassDeclarations
@@ -147,6 +148,37 @@ internal class Spec02ClassesTest {
     leaf.isSubtypeOf(table.getClass(cn("Unrelated"))) shouldBe false
     childless.isSubtypeOf(childless) shouldBe true
     leaf.isSubtypeOf(childless) shouldBe false
+  }
+
+  @Test
+  internal fun `long inheritance chains fail with a resource limit instead of exhausting the stack`() {
+    val classes =
+        (0..1500).map { index ->
+          if (index == 0) "ABSTRACT CLASS Level0"
+          else "ABSTRACT CLASS Level$index : Level${index - 1}"
+        }
+    shouldThrow<ResourceLimitException> { loadTypes(*classes.reversed().toTypedArray()) }
+  }
+
+  @Test
+  internal fun `loading ancestors first cannot bypass the inheritance depth limit`() {
+    val classes =
+        (0..1500).map { index ->
+          if (index == 0) "ABSTRACT CLASS Level0"
+          else "ABSTRACT CLASS Level$index : Level${index - 1}"
+        }
+    shouldThrow<ResourceLimitException> { loadTypes(*classes.toTypedArray()) }
+  }
+
+  @Test
+  internal fun `supported inheritance still loads with descendants declared first`() {
+    val classes =
+        (0..126).map { index ->
+          if (index == 0) "ABSTRACT CLASS Level0"
+          else "ABSTRACT CLASS Level$index : Level${index - 1}"
+        }
+    val table = loadTypes(*classes.reversed().toTypedArray())
+    table.getClass(cn("Level126")).isSubtypeOf(table.getClass(cn("Level0"))) shouldBe true
   }
 
   // T2-5 Cycles

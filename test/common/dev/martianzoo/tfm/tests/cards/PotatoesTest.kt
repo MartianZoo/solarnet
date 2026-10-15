@@ -17,7 +17,7 @@ internal class PotatoesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<Potatoes>>",
-          "-2 MC",
+          "2 Pay<> FROM MC",
           "Potatoes FROM ProjectCard",
           "PROD[2 MC]",
           "Plant",
@@ -34,7 +34,7 @@ internal class PotatoesTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Tactician>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Tactician")
       }
     }

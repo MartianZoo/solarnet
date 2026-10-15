@@ -303,9 +303,12 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       playProject(Flooding, 7) { placeTile(3, 1) }.expect("3 Plant, TerraformRating")
       // "I use one Psychrophiles microbe to play Potatoes... lose two plants and get two money
       // production."
-      playProject(Potatoes, 0) {
-            doTask("-Microbe<$Psychrophiles>")
-          }
+      playProject(
+              Potatoes,
+              payment = {
+                doTask("PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
+              },
+          )
           .expect("-Microbe, -2 Plant, PROD[2 MC]")
     }
 
@@ -1055,8 +1058,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // "I spend eight on aquifer pumping. The action, that is." "Row seven, column six, I
       // believe."
       // "Yes, two plants, two money."
-      cardAction1(AquiferPumping) {
-            pay(8)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
             placeTile(7, 6)
           }
           .expect("2 Plant, -6 MC, TerraformRating")
@@ -1325,9 +1327,12 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     yellow.turn {
       // "I'll pay three psychrophiles for green houses." "Gain one plant for each city tile in
       // play. That's one, two, three, four, five."
-      playProject(Greenhouses, 0) {
-            doTask("-3 Microbe<$Psychrophiles>")
-          }
+      playProject(
+              Greenhouses,
+              payment = {
+                doTask("3 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
+              },
+          )
           .expect("5 Plant, 0 Animal<Green, $EcologicalZone<Green>>, -ProjectCard")
       // "And I will greenery boop." "It's six, six, sorry." "It's the last possible spot next to my
       // capital for two money."
@@ -1560,9 +1565,13 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     yellow.turn {
       // "My seven psychrophiles and three real." "Increase money production two steps. Increase
       // plant production three steps. Increase... No, gain two plants."
-      playProject(KelpFarming, 3) {
-            doTask("-7 Microbe<$Psychrophiles>")
-          }
+      playProject(
+              KelpFarming,
+              payment = {
+                doTask("7 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
+                pay(3)
+              },
+          )
           .expect("PROD[2 MC, 3 Plant]")
     }
 

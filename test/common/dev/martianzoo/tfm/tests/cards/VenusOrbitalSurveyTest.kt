@@ -16,7 +16,7 @@ internal class VenusOrbitalSurveyTest : TfmSandboxTest() {
           "2 ProjectCard<Selecting>",
           "TakeSelectedCard<TagFilter<Class<VenusTag>>>",
           "-0 ProjectCard<Selecting>", // Keep the other revealed card for purchase.
-          "-3 MC",
+          "3 Pay<> FROM MC",
           "ProjectCard<Hand FROM Selecting>",
       )
     }

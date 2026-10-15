@@ -16,7 +16,7 @@ internal class MartianRailsTest : TfmSandboxTest() {
     kim.setToExMachina(1, "Energy")
 
     kim.inTurn {
-          doTasks("UseCardAction<MartianRails, Action1>", "-1 Energy")
+          doTasks("UseCardAction<MartianRails, Action1>", "1 Pay<Class<Energy>> FROM Energy")
           doTask("0 MC")
         }
         .expect("-Energy, 0 MC")

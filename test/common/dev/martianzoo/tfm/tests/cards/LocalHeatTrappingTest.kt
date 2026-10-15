@@ -17,7 +17,7 @@ internal class LocalHeatTrappingTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<LocalHeatTrapping>>",
-              "-1 MC",
+              "1 Pay<> FROM MC",
               "LocalHeatTrapping FROM ProjectCard",
               "-5 Heat",
           )
@@ -38,7 +38,7 @@ internal class LocalHeatTrappingTest : TfmSandboxTest() {
         doTask("PlayProject<Class<LocalHeatTrapping>>")
 
         doTasks(
-            "-1 MC",
+            "1 Pay<> FROM MC",
             "LocalHeatTrapping FROM ProjectCard",
         )
         doTask("-5 Heat")

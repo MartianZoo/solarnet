@@ -16,7 +16,7 @@ internal class RedAppeasementTest : TfmGameplayTest(NONE) {
         "LobbyAction<Action1>",
         "PartyDelegate<Reds>",
         "LobbyAction<Action2>",
-        "-5 MC",
+        "5 Pay<> FROM MC",
         "PartyDelegate<Reds>",
     )
   }

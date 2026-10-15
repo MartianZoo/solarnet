@@ -49,7 +49,7 @@ internal class PoliticalAllianceTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<PoliticalAlliance>>",
-          "-4 MC",
+          "4 Pay<> FROM MC",
           "PoliticalAlliance FROM ProjectCard",
           "TerraformRating",
       )

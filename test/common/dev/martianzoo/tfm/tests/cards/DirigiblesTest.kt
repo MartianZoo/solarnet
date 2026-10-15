@@ -16,8 +16,8 @@ internal class DirigiblesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<AerialMappers>>",
-          "-2 Floater<Dirigibles>",
-          "-5 MC",
+          "2 PayFromCard<Dirigibles> FROM Floater<Dirigibles>",
+          "5 Pay<> FROM MC",
           "AerialMappers FROM ProjectCard",
       )
     }
@@ -32,8 +32,8 @@ internal class DirigiblesTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<StratosphericBirds>>",
-              "-3 Floater<Dirigibles>",
-              "-3 MC",
+              "3 PayFromCard<Dirigibles> FROM Floater<Dirigibles>",
+              "3 Pay<> FROM MC",
               "StratosphericBirds FROM ProjectCard",
           )
           doTask("-Floater")

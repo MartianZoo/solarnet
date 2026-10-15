@@ -16,7 +16,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<MarketManipulation>>",
-              "-1 MC",
+              "1 Pay<> FROM MC",
               "MarketManipulation FROM ProjectCard",
           )
           // Hand the transfer to Admin, which updates both colony tracks.
@@ -33,7 +33,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTask("PlayProject<Class<MarketManipulation>>")
-        doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
+        doTasks("1 Pay<> FROM MC", "MarketManipulation FROM ProjectCard")
         // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
         narrowTask("ColonyProduction<Luna FROM Triton>")
@@ -48,7 +48,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTask("PlayProject<Class<MarketManipulation>>")
-        doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
+        doTasks("1 Pay<> FROM MC", "MarketManipulation FROM ProjectCard")
         // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
         narrowTask("ColonyProduction<Luna FROM Triton>")
@@ -61,7 +61,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
     shouldThrow<ExpressionException> {
       kim.inTurn {
         doTask("PlayProject<Class<MarketManipulation>>")
-        doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
+        doTasks("1 Pay<> FROM MC", "MarketManipulation FROM ProjectCard")
         // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
         narrowTask("ColonyProduction<Luna FROM Luna>")
@@ -74,7 +74,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
     shouldThrow<DependencyException> {
       kim.inTurn {
         doTask("PlayProject<Class<MarketManipulation>>")
-        doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
+        doTasks("1 Pay<> FROM MC", "MarketManipulation FROM ProjectCard")
         // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
         narrowTask("ColonyProduction<Titan FROM Luna>")
@@ -87,7 +87,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTask("PlayProject<Class<MarketManipulation>>")
-        doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
+        doTasks("1 Pay<> FROM MC", "MarketManipulation FROM ProjectCard")
         // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
         narrowTask("ColonyProduction<Luna FROM Titan>")

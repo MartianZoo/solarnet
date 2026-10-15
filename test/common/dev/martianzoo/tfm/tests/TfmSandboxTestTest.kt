@@ -22,7 +22,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<MineralDeposit>>",
-          "-5 MC",
+          "5 Pay<> FROM MC",
           "MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
@@ -43,7 +43,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
           "35 MC",
           "PROD[Steel]",
           "Steel",
-          "-15 MC",
+          "15 Pay<> FROM MC",
           "5 ProjectCard<Hand FROM Selecting>",
       )
     }
@@ -53,7 +53,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<MineralDeposit>>",
-          "-5 MC",
+          "5 Pay<> FROM MC",
           "MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
@@ -74,7 +74,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<MineralDeposit>>",
-          "-5 MC",
+          "5 Pay<> FROM MC",
           "MineralDeposit FROM ProjectCard",
           "5 Steel",
       )
@@ -89,7 +89,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<GiantIceAsteroid>>",
-              "-36 MC",
+              "36 Pay<> FROM MC",
               "GiantIceAsteroid FROM ProjectCard",
               "TemperatureStep",
               "TemperatureStep",
@@ -195,7 +195,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     shouldThrow<IllegalStateException> { stan }.message shouldBe "Stan is sitting this game out"
     shouldThrow<IllegalStateException> { rob }.message shouldBe "Rob is sitting this game out"
     kim.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTask("TerraformRating")
     }
@@ -210,7 +210,6 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
       kim.completeOperation {
             doTask("PlayCard<Class<CorporationCard>, Class<$Manutech>>")
             autoExecNow(EAGER)
-            doTask("-15 MC")
           }
           .expect("Steel")
       stan.count("BeginnerCorporation2") shouldBe 0
@@ -218,7 +217,7 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
         doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation2>, Hand>")
         autoExecNow(EAGER)
       }
-      kim.doTasks("PlayProject<Class<$MineralDeposit>>", "-5 MC").expect("5 Steel")
+      kim.doTasks("PlayProject<Class<$MineralDeposit>>").expect("5 Steel")
     }
   }
 }

@@ -17,7 +17,7 @@ internal class KaguyaTechTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<KaguyaTech>>",
-          "-10 MC",
+          "10 Pay<> FROM MC",
           "KaguyaTech FROM ProjectCard",
           "PROD[2 MC]",
       )
@@ -33,7 +33,7 @@ internal class KaguyaTechTest : TfmSandboxTest() {
     shouldThrow<TaskException> {
       kim.inTurn {
         doTask("PlayProject<Class<KaguyaTech>>")
-        doTasks("-10 MC", "KaguyaTech FROM ProjectCard")
+        doTasks("10 Pay<> FROM MC", "KaguyaTech FROM ProjectCard")
         doTask("PROD[2 MC]")
         doTask("ProjectCard<Kim, Hand>")
         doTask("CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_2>")
@@ -48,7 +48,7 @@ internal class KaguyaTechTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<KaguyaTech>>",
-          "-10 MC",
+          "10 Pay<> FROM MC",
           "KaguyaTech FROM ProjectCard",
           "PROD[2 MC]",
       )

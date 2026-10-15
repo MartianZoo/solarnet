@@ -8,6 +8,7 @@ import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.ResourceLimitException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.DIE
@@ -63,6 +64,19 @@ internal constructor(
     public val directSuperclasses: List<Class> =
         superclasses(sourceDeclaration, loader, includeRelated),
 ) : HasClassName, Specification<Class> {
+
+  // Bound later recursive inheritance calculations even when ancestors were loaded first.
+  private val inheritanceDepth: Int =
+      1 + (directSuperclasses.maxOfOrNull { it.inheritanceDepth } ?: 0)
+
+  init {
+    if (inheritanceDepth > 128) {
+      throw ResourceLimitException(
+          "inheritance exceeds 128 levels at `${sourceDeclaration.className}`",
+          sourceLocation = sourceDeclaration.className.sourceLocation,
+      )
+    }
+  }
 
   /** The declaration with inherited header names resolved in this class's own body. */
   public val declaration: ClassDeclaration = inheritHeaderNames(sourceDeclaration)
@@ -1038,7 +1052,9 @@ internal constructor(
             binding.paths.map { path -> capturedAt(specific, path) }.distinct().singleOrNull()
                 ?: error("type variable `${binding.variable}` has conflicting values")
         // A fixed inherited dependency still has to replace its superclass's open variable.
-        if (next == previous && next.abstract) return@forEach
+        val stillAbstract =
+            if (binding.variable.selectsClass) next.rootClass.abstract else next.abstract
+        if (next == previous && stillAbstract) return@forEach
         aliases.forEach { variable -> put(variable, next) }
       }
     }

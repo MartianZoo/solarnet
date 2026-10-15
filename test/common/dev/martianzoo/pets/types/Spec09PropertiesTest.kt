@@ -146,6 +146,35 @@ internal class Spec09PropertiesTest {
   // T9-3 Concrete classes are complete
 
   @Test
+  internal fun `T9-2 T9-3 narrowing an optional requirement makes its value mandatory`() {
+    val declarations =
+        arrayOf(
+            "CLASS Plant",
+            "ABSTRACT CLASS CardFront { requirement = Requirement? }",
+            "ABSTRACT CLASS RestrictedCard : CardFront { requirement = Requirement }",
+        )
+    val table =
+        loadTypes(
+            *declarations,
+            "CLASS UnrestrictedCard : CardFront",
+            "CLASS PlantCard : RestrictedCard { requirement = HAS \"3 Plant\" }",
+        )
+
+    table.resolve(te("UnrestrictedCard")).getRequirementPropertyValue("requirement") shouldBe null
+    table.resolve(te("PlantCard")).getRequirementPropertyValue("requirement") shouldBe
+        parse<Requirement>("3 Plant")
+    shouldThrow<InvalidPetDefinitionException> {
+      loadTypes(*declarations, "CLASS IncompleteCard : RestrictedCard")
+    }
+    shouldThrow<InvalidPetDefinitionException> {
+      loadTypes(
+          *declarations,
+          "ABSTRACT CLASS WidenedCard : RestrictedCard { requirement = Requirement? }",
+      )
+    }
+  }
+
+  @Test
   internal fun `T9-3 a concrete class must fix every property it inherits`() {
     shouldThrow<InvalidPetDefinitionException> {
       loadTypes("ABSTRACT CLASS Area { row = Number }", "CLASS Tharsis_2_2 : Area")
@@ -192,20 +221,22 @@ internal class Spec09PropertiesTest {
 
   @Test
   internal fun `T9-4 a narrower fact wins when the other path merely restates its origin`() {
-    val table =
-        loadTypes(
-            """
-            ABSTRACT CLASS Area { score = Metric }
-            ABSTRACT CLASS FixedArea : Area { score = Number }
-            ABSTRACT CLASS PlainArea : Area
-            ABSTRACT CLASS RejoinedArea : FixedArea, PlainArea
-            CLASS Tharsis_2_2 : RejoinedArea { score = 8 }
-            """
-                .trimIndent()
-        )
+    for (parents in listOf("FixedArea, PlainArea", "PlainArea, FixedArea")) {
+      val table =
+          loadTypes(
+              """
+              ABSTRACT CLASS Area { score = Metric }
+              ABSTRACT CLASS FixedArea : Area { score = Number }
+              ABSTRACT CLASS PlainArea : Area
+              ABSTRACT CLASS RejoinedArea : $parents
+              CLASS Tharsis_2_2 : RejoinedArea { score = 8 }
+              """
+                  .trimIndent()
+          )
 
-    property(table, "RejoinedArea", "score") shouldBe NumberType
-    property(table, "Tharsis_2_2", "score") shouldBe NumberValue(8)
+      property(table, "RejoinedArea", "score") shouldBe NumberType
+      property(table, "Tharsis_2_2", "score") shouldBe NumberValue(8)
+    }
   }
 
   @Test
@@ -287,7 +318,9 @@ internal class Spec09PropertiesTest {
     shouldThrow<IllegalStateException> {
       table.resolve(te("Milestone")).getRequirementPropertyValue("requirement")
     }
-    shouldThrow<Exception> { table.resolve(te("Milestone")).getNumberPropertyValue("nope") }
+    shouldThrow<NoSuchElementException> {
+      table.resolve(te("Milestone")).getNumberPropertyValue("nope")
+    }
   }
 
   // T9-6 Properties are class facts

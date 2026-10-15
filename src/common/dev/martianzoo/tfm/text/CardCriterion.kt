@@ -135,30 +135,47 @@ internal fun matchingCardNoun(
     criterion: CardCriterion,
     singular: Boolean,
     describers: Describers,
-): String =
-    when (criterion) {
-      is CardCriterion.Tag -> {
-        val tag = checkNotNull(describers.tagName(criterion.className))
-        "$tag ${if (singular) "card" else "cards"}"
-      }
-      CardCriterion.NoTags -> "${if (singular) "card" else "cards"} with no tags"
-      is CardCriterion.PropertyPresence ->
-          if (singular) "card with a ${criterion.noun}" else "cards with ${criterion.noun}s"
-      is CardCriterion.ResourceIcon -> {
-        val resource = checkNotNull(describers.cardResourceNoun(criterion.className, 1))
-        "${if (singular) "card" else "cards"} with $resource ${if (singular) "icon" else "icons"}"
-      }
-      is CardCriterion.NonNegativeIcon -> {
-        val noun =
-            describers.fact(criterion.className, ComponentDescriber::score)?.singular
-                ?: describers.componentNoun(criterion.className, 1)
-        if (singular) {
-          "card with a non-negative $noun icon"
-        } else {
-          "cards with non-negative $noun icons"
+): String {
+  val card = if (singular) NounPhrase("card") else NounPhrase.plural("cards")
+  return if (criterion is CardCriterion.Tag) {
+    val tag = checkNotNull(describers.tagName(criterion.className))
+    card.withAttributiveModifier(NounPhrase.text(tag)).linearize()
+  } else {
+    card
+        .withModifier(checkNotNull(cardCriterionModifier(criterion, singular, describers)))
+        .linearize()
+  }
+}
+
+internal fun cardCriterionModifier(
+    criterion: CardCriterion,
+    singular: Boolean,
+    describers: Describers,
+): Modifier? {
+  val noun =
+      when (criterion) {
+        is CardCriterion.Tag -> {
+          val tag = describers.tagNoun(criterion.className) ?: return null
+          NounPhrase.plural(tag.plural)
+        }
+        CardCriterion.NoTags -> NounPhrase.plural("tags").withDeterminer(Determiner.NO)
+        is CardCriterion.PropertyPresence ->
+            if (singular) NounPhrase(criterion.noun, determiner = Determiner.INDEFINITE)
+            else NounPhrase.plural("${criterion.noun}s")
+        is CardCriterion.ResourceIcon -> {
+          val resource = describers.cardResourceNoun(criterion.className, 1) ?: return null
+          if (singular) NounPhrase("$resource icon") else NounPhrase.plural("$resource icons")
+        }
+        is CardCriterion.NonNegativeIcon -> {
+          val icon =
+              describers.fact(criterion.className, ComponentDescriber::score)?.singular
+                  ?: describers.componentNoun(criterion.className, 1)
+          if (singular) NounPhrase("non-negative $icon icon", determiner = Determiner.INDEFINITE)
+          else NounPhrase.plural("non-negative $icon icons")
         }
       }
-    }
+  return Modifier.Relation("with", noun)
+}
 
 private fun representedClassName(expression: Expression): ClassName? {
   if (expression.refinement != null) return null

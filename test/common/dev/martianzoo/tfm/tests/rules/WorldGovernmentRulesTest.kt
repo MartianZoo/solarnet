@@ -9,13 +9,14 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class WorldGovernmentRulesTest : TfmSandboxTest() {
-  // Resolved FAQ: Advisor may choose a completed parameter to do nothing.
+  // Unresolved adjudication (question 22, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3775830/article/48242149#48242149
   @Test
   internal fun `Advisor may choose a completed parameter while another is available`() {
     newTestGame(addOptions = "WorldGovernmentAdvisor")
     kim.exMachina("$WorldGovernmentAdvisor, 14 VenusStep")
     kim.inTurn {
-      doTasks("UseStandardProject<AirScrappingProject>", "-15 MC")
+      doTasks("UseStandardProject<AirScrappingProject>", "15 Pay<> FROM MC")
       doTask("VenusStep")
       doTask("TerraformRating")
     }
@@ -29,6 +30,8 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     kim.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1
   }
 
+  // Unresolved adjudication (question 23, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3407295/article/45199222#45199222
   @Test
   internal fun `Player Venus increase rolls back when its mandatory colony has no slot`() {
     newTestGame(addOptions = "AmazonisMap, Luna, Ceres, Triton, Ganymede, Callisto")
@@ -38,7 +41,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTask("UseStandardProject<AirScrappingProject>")
-        doTask("-15 MC")
+        doTask("15 Pay<> FROM MC")
         doTask("VenusStep")
         doTask("TerraformRating")
 
@@ -50,6 +53,8 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     kim.count("MC") shouldBe 42
   }
 
+  // Unresolved adjudication (question 24, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3407295
   @Test
   internal fun `Advisor Venus increase proceeds with full colony slots`() {
     newTestGame(
@@ -66,6 +71,8 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
         .expect("0 Colony<Anyone>, 0 TerraformRating")
   }
 
+  // Unresolved adjudication (question 24, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3407295
   @Test
   internal fun `Advisor Venus increase does not award a player colony`() {
     newTestGame(addOptions = "AmazonisMap, WorldGovernmentAdvisor")
@@ -94,8 +101,9 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     stan.setToExMachina(3, "Colony<$track>")
   }
 
-  // Resolved FAQ: Advisor remains usable even when every parameter is complete.
   // Earlier discussion: https://boardgamegeek.com/thread/3348438/article/44693194#44693194
+  // Unresolved adjudication (question 22, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3775830/article/48242149#48242149
   @Test
   internal fun `Advisor action can be spent when every global parameter is complete`() {
     newTestGame(addOptions = "WorldGovernmentAdvisor")
@@ -105,24 +113,28 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     )
     kim.setToExMachina(100, "MC")
     kim.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTask("TerraformRating")
     }
     kim.inTurn {
-      doTasks("UseStandardProject<AirScrappingProject>", "-15 MC")
+      doTasks("UseStandardProject<AirScrappingProject>", "15 Pay<> FROM MC")
       doTask("VenusStep")
       doTask("TerraformRating")
     }
     kim.inTurn {
-      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_3_3>")
+      doTasks(
+          "UseStandardProject<GreeneryProject>",
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Tharsis_3_3>",
+      )
       doTask("OxygenStep")
       doTasks("2 MC", "2 MC", "TerraformRating")
     }
     kim.inTurn {
       doTasks(
           "UseStandardProject<AquiferProject>",
-          "-18 MC",
+          "18 Pay<> FROM MC",
           "OceanTile<Tharsis_4_8>",
           "TerraformRating",
           "2 Plant",
@@ -164,7 +176,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     @Test
     internal fun `Admin terraforming does not trigger Homeostasis Bureau's owner effect`() {
       newTestGame(playerCount = 2)
-      kim.doTasks("PlayProject<Class<$HomeostasisBureau>>", "-16 MC")
+      kim.doTasks("PlayProject<Class<$HomeostasisBureau>>")
       kim.doTask("0 StandardAction") // Decline the second action.
       stan.doTask("Pass")
       kim.doTask("Pass")
@@ -245,6 +257,19 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
       }
       admin.count("VenusStep") shouldBe 0
       admin.count("TemperatureStep") shouldBe 0
+    }
+
+    // Unresolved adjudication (question 24): the government currently ignores the colony bonus.
+    // https://boardgamegeek.com/thread/3407295
+    @Test
+    internal fun `Solar World Government currently skips Amazonis Venus colony bonus`() {
+      newTestGame(addOptions = "AmazonisMap", playerCount = 2)
+      repeat(7) { finishGeneration("VenusStep") }
+      stan.doTask("Pass")
+      kim.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      stan.doTask("VenusStep! BY Admin").expect("VenusStep, 0 Colony<Anyone>, 0 TerraformRating")
+      players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
     }
 
     private fun finishGeneration(choice: String) {

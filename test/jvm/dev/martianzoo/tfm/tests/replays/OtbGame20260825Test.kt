@@ -56,8 +56,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
         }
 
         // "For the other one. Advertising for 4."
-        doTask("PlayProject<Class<$Advertising>>")
-        pay(4)
+        playProject(Advertising, payment = { pay(4) })
       }
     }
 
@@ -94,14 +93,12 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     yellow.turn {
       // Ocean at 9,7: "one plant, then Arctic Algae gives me two more plants, and Terraforming
       // Deal gives me two money."
-      cardAction1(AquiferPumping) {
-        pay(8)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
         placeTile(9, 7)
       }
       // "Vairon, to reuse aquifer pumping, spend eight." The second ocean goes at 9,6.
       cardAction1(Viron) {
-        doTask("UseAction<$AquiferPumping, Action1>")
-        pay(8)
+        useStdAction("UseAction<$AquiferPumping, Action1>", payment = { pay(8) })
         placeTile(9, 6)
       }
     }
@@ -140,8 +137,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     yellow.turn {
       // The ocean at 9,5 gives "two money and two plants for placing, two money and two plants
       // for my card bonuses."
-      cardAction1(AquiferPumping) {
-        pay(8)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
         placeTile(9, 5)
       }
     }
@@ -149,8 +145,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     yellow.turn {
       // Viron repeats Aquifer Pumping and places the ocean at 8,4.
       cardAction1(Viron) {
-        doTask("UseAction<$AquiferPumping, Action1>")
-        pay(8)
+        useStdAction("UseAction<$AquiferPumping, Action1>", payment = { pay(8) })
         placeTile(8, 4)
       }
       // Yellow spends eight plants for a greenery at 8,5.
@@ -209,11 +204,12 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     yellow.turn {
       // Aquifer Pumping places the ocean at 9,9; Yellow pays 5 M€ for an energy production and a
       // hydroelectric resource.
-      cardAction1(AquiferPumping) {
-        pay(8)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
         placeTile(9, 9)
-        doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
-        pay(5)
+        useStdAction(
+            "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
+            payment = { pay(5) },
+        )
       }
       // Yellow immediately spends eight plants for a greenery at 9,8.
       convertPlants { placeTile(9, 8) }
@@ -227,11 +223,12 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // Viron repeats Aquifer Pumping at 8,9; Yellow again pays 5 M€ for energy production and a
       // hydroelectric resource.
       cardAction1(Viron) {
-        doTask("UseAction<$AquiferPumping, Action1>")
-        pay(8)
+        useStdAction("UseAction<$AquiferPumping, Action1>", payment = { pay(8) })
         placeTile(8, 9)
-        doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
-        pay(5)
+        useStdAction(
+            "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
+            payment = { pay(5) },
+        )
       }
     }
     green.turn {
@@ -276,20 +273,22 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     yellow.turn {
       // Aquifer Pumping places an ocean at 7,9, then Neptunian Power Consultants costs 5 M€ for
       // an energy production and a hydroelectric resource.
-      cardAction1(AquiferPumping) {
-        pay(8)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
         placeTile(7, 9)
-        doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
-        pay(5)
+        useStdAction(
+            "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
+            payment = { pay(5) },
+        )
       }
       // "Viar on. Oceans are now maxed." The final ocean goes at 1,5, followed by the last
       // Neptunian Power Consultants payment.
       cardAction1(Viron) {
-        doTask("UseAction<$AquiferPumping, Action1>")
-        pay(8)
+        useStdAction("UseAction<$AquiferPumping, Action1>", payment = { pay(8) })
         placeTile(1, 5)
-        doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
-        pay(5)
+        useStdAction(
+            "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
+            payment = { pay(5) },
+        )
       }
     }
     green.turn { cardAction1(SpaceElevator) }

@@ -17,7 +17,7 @@ internal class OutdoorSportsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<OutdoorSports>>",
-          "-8 MC",
+          "8 Pay<> FROM MC",
           "OutdoorSports FROM ProjectCard",
           "PROD[2 MC]",
       )

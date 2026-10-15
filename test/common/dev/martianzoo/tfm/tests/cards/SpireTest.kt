@@ -20,7 +20,7 @@ internal class SpireTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<BusinessContacts>>",
-              "-7 MC",
+              "7 Pay<> FROM MC",
               "BusinessContacts FROM ProjectCard",
           )
           doTask("4 ProjectCard<Kim, Selecting>")
@@ -32,7 +32,7 @@ internal class SpireTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<MineralDeposit>>",
-              "-5 MC",
+              "5 Pay<> FROM MC",
               "MineralDeposit FROM ProjectCard",
               "5 Steel",
           )
@@ -52,7 +52,11 @@ internal class SpireTest : TfmSandboxTest() {
         .expect("ProjectCard")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<Research>>", "-11 MC", "Research FROM ProjectCard")
+          doTasks(
+              "PlayProject<Class<Research>>",
+              "11 Pay<> FROM MC",
+              "Research FROM ProjectCard",
+          )
           doTask("2 ProjectCard<Kim, Hand>")
           doTask("Science<Spire>")
         }
@@ -72,8 +76,8 @@ internal class SpireTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "UseStandardProject<PowerPlantProject>",
-          "-Science<Spire>",
-          "-9 MC",
+          "PayFromCard<Spire> FROM Science<Spire>",
+          "9 Pay<> FROM MC",
           "PROD[Energy]",
       )
     }
@@ -91,7 +95,7 @@ internal class SpireTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<Mine>>", "-Science<Spire>")
+        doTasks("PlayProject<Class<Mine>>", "PayFromCard<Spire> FROM Science<Spire>")
       }
     }
   }
@@ -111,7 +115,7 @@ internal class SpireTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<Mine>>", "-Science<Spire>")
+        doTasks("PlayProject<Class<Mine>>", "PayFromCard<Spire> FROM Science<Spire>")
       }
     }
   }

@@ -103,18 +103,14 @@ internal class EnglishCompositionalRenderingTest {
   @Test
   fun filteredProductionCategoryNamesTheExcludedType() {
     val describers = Describers(Canon.classTable, TerraformingMarsDescribers.descriptions)
-    checkNotNull(
-            renderRankedMetricPhrase(
-                parse<Metric>("Production<Class<StandardResource>(NOT Class<MC>)>"),
-                describers,
-            )
+    lexicalizeRankedMetricPhrase(
+            parse<Metric>("Production<Class<StandardResource>(NOT Class<MC>)>"),
+            describers,
         )
         .linearize() shouldBe "highest production excluding M€ production"
-    checkNotNull(
-            renderRankedMetricPhrase(
-                parse<Metric>("Production<Class<StandardResource>(NOT Class<Heat>)>"),
-                describers,
-            )
+    lexicalizeRankedMetricPhrase(
+            parse<Metric>("Production<Class<StandardResource>(NOT Class<Heat>)>"),
+            describers,
         )
         .linearize() shouldBe "highest production excluding heat production"
   }

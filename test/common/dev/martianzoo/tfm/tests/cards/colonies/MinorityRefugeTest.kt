@@ -16,7 +16,7 @@ internal class MinorityRefugeTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<MinorityRefuge>>", "-5 MC")
+        doTasks("PlayProject<Class<MinorityRefuge>>", "5 Pay<> FROM MC")
         doTask("MinorityRefuge FROM ProjectCard")
 
         doTask("Colony<Io>")
@@ -32,7 +32,7 @@ internal class MinorityRefugeTest : TfmSandboxTest() {
     kim.exMachina("PROD[-5 MC]")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<MinorityRefuge>>", "-5 MC")
+          doTasks("PlayProject<Class<MinorityRefuge>>", "5 Pay<> FROM MC")
           doTasks(
               "MinorityRefuge FROM ProjectCard",
               "Colony<Luna>",

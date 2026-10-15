@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -27,35 +26,37 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
       shouldThrow<NarrowingException> { doTask("UseAction<SellPatentsProject, Action1>") }
       shouldThrow<TaskException> { doTask("PlayProject<Class<Mine>>") }
       doTask("UseAction<PowerPlantProject, Action1>")
-      doTasks("-11 MC", "PROD[Energy]")
+      doTasks("11 Pay<> FROM MC", "PROD[Energy]")
 
       shouldThrow<TaskException> { doTask("Ok") }
       doTask("UseAction<PowerPlantProject, Action1>")
-      doTasks("-11 MC", "PROD[Energy]")
+      doTasks("11 Pay<> FROM MC", "PROD[Energy]")
     }
 
     kim.assertCounts(10 to "ProjectCard", 1 to "$EstablishedMethods")
   }
 
+  // Unresolved adjudication (question 10, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3334230/article/44569176#44569176
   @Test
   internal fun `First project cannot leave the mandatory second project unaffordable`() {
     newTestGame(addOptions = "PreludeExpansion")
     kim.setToExMachina(0, "MC")
     kim.setToExMachina(2, "PreludeCard")
 
-    shouldThrow<LimitsException> {
+    shouldThrow<TaskException> {
       kim.inTurn {
         doTasks(
             "PlayCard<Class<PreludeCard>, Class<EstablishedMethods>>",
             "EstablishedMethods FROM PreludeCard",
         )
         doTask("30 MC")
-        doTasks("UseAction<CityProject, Action1>", "-25 MC")
+        doTasks("UseAction<CityProject, Action1>", "25 Pay<> FROM MC")
         doTask("PROD[MC]")
         doTask("CityTile<Tharsis_3_3>")
 
         doTask("UseAction<PowerPlantProject, Action1>")
-        doTask("-11 MC")
+        doTask("11 Pay<> FROM MC")
       }
     }
     kim.assertCounts(0 to "$EstablishedMethods", 0 to "CityTile")
@@ -63,6 +64,8 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
     kim.count("MC") shouldBe 0
   }
 
+  // Unresolved adjudication (question 10, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3334230/article/44569176#44569176
   @Test
   internal fun `First project benefit can fund the mandatory second project`() {
     newTestGame(addOptions = "PreludeExpansion", kimCorporation = CrediCor)
@@ -76,12 +79,12 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
           "30 MC",
           "UseAction<CityProject, Action1>",
           "4 MC",
-          "-25 MC",
+          "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Tharsis_3_3>",
           "2 MC",
           "UseAction<PowerPlantProject, Action1>",
-          "-11 MC",
+          "11 Pay<> FROM MC",
           "PROD[Energy]",
       )
     }
@@ -99,10 +102,10 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
           "EstablishedMethods FROM PreludeCard",
           "30 MC",
           "UseAction<PowerPlantProject, Action1>",
-          "-11 MC",
+          "11 Pay<> FROM MC",
           "PROD[Energy]",
           "UseAction<CityProject, Action1>",
-          "-25 MC",
+          "25 Pay<> FROM MC",
           "PROD[MC]",
           "CityTile<Tharsis_3_5>",
       )

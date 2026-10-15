@@ -79,7 +79,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "UseStandardProject<GreeneryProject>",
-              "-23 MC",
+              "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_1_1>",
               "3 MC",
           )
@@ -99,7 +99,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<LandClaim>>",
-          "-1 MC",
+          "1 Pay<> FROM MC",
           "LandClaim FROM ProjectCard",
       )
       doTask("Community<Tharsis_1_1>")
@@ -110,7 +110,7 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "UseStandardProject<GreeneryProject>",
-              "-23 MC",
+              "23 Pay<> FROM MC",
               "GreeneryTile<Tharsis_1_1>",
               "3 MC",
           )
@@ -132,16 +132,17 @@ internal class ArcadianCommunitiesTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       stan.inTurn {
-        doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
+        doTasks("PlayProject<Class<ArtificialLake>>", "15 Pay<> FROM MC")
         doTask("ArtificialLake FROM ProjectCard")
         doTask("OceanTile<Tharsis_1_3>")
       }
     }
     kim.setToExMachina(15, "MC")
     kim.inTurn {
-          doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
+          doTask("PlayProject<Class<ArtificialLake>>")
+          doTask("Ok") // Keep the steel.
+          doTask("15 Pay<> FROM MC")
           doTasks(
-              "Ok" /* No Steel payment. */,
               "ArtificialLake FROM ProjectCard",
               "OceanTile<Tharsis_1_3>",
               "3 MC",
