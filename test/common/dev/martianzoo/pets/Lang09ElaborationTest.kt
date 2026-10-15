@@ -138,6 +138,35 @@ internal class Lang09ElaborationTest {
         "-Ooh<Plant<Xyz, It<Worked>, Gizmo>>: 5? It<Worked>, =0 It<Worked>: -Widget"
   }
 
+  @Test
+  internal fun `L9-2 This changes are mandatory independently of class defaults`() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Place {
+              CLASS Here
+              CLASS There
+            }
+            CLASS Marker<Place> {
+              DEFAULT +Marker<Here>?
+              DEFAULT -Marker<Here>*
+              This: This, -This, This?, -This?, This*, -This*
+            }
+            """
+        )
+    val elaborator = PetElaborator(table)
+    val marker = table.getClass(cn("Marker"))
+    val effect = elaborator.classEffects(marker).single()
+    effect shouldBe parse<Effect>("This: This!, -This!, This?, -This?, This*, -This*")
+
+    val exact = table.resolve(parse<Expression>("Marker<There>"))
+    elaborator.specializeEffect(marker.baseType, exact, effect, exact.expression) shouldBe
+        parse<Effect>(
+            "This: Marker<There>!, -Marker<There>!, Marker<There>?, -Marker<There>?, " +
+                "Marker<There>*, -Marker<There>*"
+        )
+  }
+
   // L9-3 Owned context
 
   @Test
@@ -284,6 +313,22 @@ internal class Lang09ElaborationTest {
         parse<InstructionTree>("Chit<Player1> FROM Plant<Player1>!")
     elaborate("Chit FROM Slug!") shouldBe
         parse<InstructionTree>("Chit<Player1> FROM Slug<Player1>!")
+  }
+
+  @Test
+  internal fun `L9-8 This contributes a mandatory transmutation quantifier`() {
+    val table =
+        loadTypes(
+            """
+            CLASS Chit { DEFAULT +Chit? }
+            CLASS Slug { DEFAULT -Slug* }
+            CLASS Marker {
+              This: Chit FROM This, This FROM Slug, Chit FROM This*, This FROM Slug?
+            }
+            """
+        )
+    PetElaborator(table).classEffects(table.getClass(cn("Marker"))).single() shouldBe
+        parse<Effect>("This: Chit FROM This!, This FROM Slug!, Chit FROM This*, This FROM Slug?")
   }
 
   // L9-9 Reserving a slot for the refinement candidate

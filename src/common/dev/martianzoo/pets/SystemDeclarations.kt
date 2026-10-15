@@ -57,7 +57,7 @@ private val systemDeclarationsSource =
 
     "An unscoped point event; `IF This` skips self-removal when no instance entered live state"
     ABSTRACT CLASS Signal : MustCleanUp {
-      This IF This:: -This!
+      This IF This:: -This
     }
 
     "A Signal whose gain also queues an instruction computed by Kotlin"

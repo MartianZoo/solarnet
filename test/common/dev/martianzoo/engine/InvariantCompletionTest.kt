@@ -554,8 +554,9 @@ internal class InvariantCompletionTest {
                 """
                 ABSTRACT CLASS Holder { HAS MAX 1 This }
                 CLASS Assembly : Holder {
+                  DEFAULT -Assembly?
                   $construction
-                  This:: -This!
+                  This:: -This
                 }
                 CLASS Marker<Holder> { HAS MAX 1 This; This:: Reward<This> }
                 CLASS Reward<Marker> { This:: Observed }

@@ -131,9 +131,12 @@ RefinementClause ::= "HAS" RequirementDisjunction | "NOT" PlainExpression
 **L1-5. `This` names the component the enclosing declaration is about.** It is a bare contextual
 expression. It cannot have a Type-variable marker, argument list, or refinement. Elaboration
 replaces it with the complete context expression (L9-2). `This` is a placeholder rather than a
-class, so it has no defaults of its own.
+class, so it has no class defaults of its own. A gain or removal of `This` is mandatory unless
+explicitly marked `*` or `?`, independently of the enclosing class's defaults. In a transmutation,
+`This` contributes a mandatory quantifier to the combination in L9-8; an explicit quantifier on the
+transmutation still takes precedence.
 
-> **Non-normative example — Inventrix's required action.** `RequiredActionsSignal: -This!` removes
+> **Non-normative example — Inventrix's required action.** `RequiredActionsSignal: -This` removes
 > that pending `RequiredAction` component, rather than some other pending required action.
 
 **L1-6. `Anyone` is an ordinary class.** It is the common supertype of `Owner` and `Actor`, the
