@@ -36,34 +36,17 @@ Narrower notes own adjacent subjects:
 - [SEQUENCING.md](SEQUENCING.md) owns ordering, `THEN`, barriers, and completion scopes.
 - [IDENTITY.md](IDENTITY.md) owns assignee, Actor, Owner, Anyone, Admin, and attribution roles.
 - [QUANTIFIERS.md](QUANTIFIERS.md) owns instruction counts and limit behavior.
-- [type-system-spec.md](../type-system-spec.md) and
-  [pets-language-spec.md](../pets-language-spec.md) own static Types and authored Pets semantics.
+- [type-system-spec.md](../../pets/docs/type-system-spec.md) and
+  [pets-language-spec.md](../../pets/docs/pets-language-spec.md) own static Types and authored Pets semantics.
 
 For proposed changes to runtime layering, public APIs, policy, or game flow, use the Solarnet roadmap
 for direction and inspect current source and tests for the implemented contract.
 
 ## From a premise to a ready World
 
-`GameConfig` is unresolved intent. Catalog resolution produces an immutable `GamePremise`: a
-single set of signed Class selections, seated Player Classes, additive setup-component adjustments,
-and premise-local declarations. Modules are derived from the selected Classes; they are not stored
-as a parallel premise choice. Unchosen catalog Classes have no selection entry; negative entries
-record explicit or policy-imposed exclusions rather than listing every unavailable Module or goal.
-Setup adjustments and game-specific setup become ordinary effects of the generated premise Class.
-The premise retains one immutable game `ClassTable` view sharing its
-Catalog's compiled master structure; separate Worlds from that premise share compiled class facts
-but no mutable game state. See
-[`GamePremise.kt`](../../src/common/dev/martianzoo/catalog/GamePremise.kt).
-
-After its inclusion closure is complete, that game Class Table also derives immutable executable
-effects for its included Classes from the shared declarations. Using only settled premise facts
-before any World exists, it removes impossible `IF` effects and fixed-true trigger or instruction
-gates. Its facts are structural `Class<T>` representatives plus selected Module counts supplied by
-`GamePremise`; arbitrary `HAS =N` invariants and configured Player counts do not qualify. Module
-conditions ask about the completed configuration, deliberately not whether those components have
-already been gained during bootstrap. Other components remain dynamic. Effect-execution consumers
-read `ClassTable.effects`; a client deliberately inspecting the reusable unspecialized form reads
-`Class.declaration.effects`.
+Catalog resolution supplies an immutable `GamePremise` and its compiled class facts. See
+[Catalogs and game premises](../../pets/docs/agents/CATALOG.md) for configuration, selection,
+and effect compilation before a World exists. Worlds share those facts, but no mutable state.
 
 `Engine.newGame` first validates its supplied Kotlin custom-Class implementations against the
 Catalog's derived custom declarations. Games without custom declarations may use the empty default;
@@ -287,29 +270,9 @@ consume, reject, choose, or split them first.
 
 ## One instruction becomes events in stages
 
-Pets moves toward executable data without pretending every stage has a separate Kotlin type:
-
-1. **Authored Pets** retains the rule-shaped AST, including omitted defaults, marked syntax, and
-   contextual names.
-2. **Elaborated Pets** applies defaults, action lowering, atomization, and registered marked-syntax
-   transformations while preserving linked variable identity.
-3. **Context-closed Pets** binds the Class, component, trigger, and Player-owned values supplied by
-   the surrounding rule. It can still contain intentional choices.
-4. **Resolved first-stage work** reads the selection-locked World and produces the small executable
-   algebra described above.
-
-`PetElaborator` owns the shared authored-to-elaborated transformations. Class effect compilation,
-session input, stored metric expansion, and custom-instruction output must reenter through the
-appropriate elaborator entry point rather than reproducing part of the pipeline.
-
-Loaded declarations deliberately retain authored effects and actions separately from executable
-effects. Consumers may inspect authored syntax as metadata or resubmit it as rule data, but
-resubmitted data must traverse normal elaboration again. Do not treat an already specialized effect
-as the declaration's source form.
-
-`This` is contextual declaration syntax, not a free-standing runtime Type. By component-effect
-compilation, ordinary `This` occurrences have become the exact effect-bearing Type. Bare `Owned`
-expressions receive the nearest lexical `Me` where the rule supplies one; literal `Anyone` stays broad.
+[Pets elaboration and specialization](../../pets/docs/agents/ELABORATION.md) supply a rule-shaped
+AST with defaults and context applied, retaining intentional choices. Resolution then reads the
+selection-locked World and produces the small executable algebra described above.
 
 String input submitted through a Player Agent resolves names, atomizes, supplies dependency
 defaults, inserts that Player for omitted `Owned` owners, and applies Catalog-registered syntax transforms.
@@ -346,17 +309,8 @@ before using `:` versus `::` to force an order.
 
 ### Wild tags
 
-**Canon integration.** Research Coordination, Research Network, Applied Science, Nobel Prize,
-and Septem Tribus create a
-`WildTag` that is itself a `TagHolder`. Assigning `EarthTag<WildTag<ResearchCoordination>>` changes
-real state; ordinary tag metrics include it. `MAX 1 Tag<This>` keeps that meaning fixed, and the
-wild's `Tag<This>: LATER Admin { -Tag<This>* }` removes the assignment when ordinary work is finished.
-The printed wild survives. There is no additional task-scheduling mechanism.
-
-Canon's `Tag` now declares `DEFAULT Tag<CardFront>:`. Printed-tag listeners explicitly accept
-that default with `EarthTag<>:` or name a holder themselves. This affects gain/removal triggers,
-not metrics or gains. Point Luna therefore reacts to Cartel's printed Earth tag, but not Earth
-assigned to a wild. `cardTags` also reports the printed wild icon as card metadata.
+The [Pets card model](../../pets/docs/agents/CARD_MODEL.md#wild-tags) describes the printed
+wild, assignment holders, authored benefits, and player choices.
 
 Requirement allocation is separate from benefit inference. `PlayCard` and `Milestone` first emit
 `AllocateRequiredWildTags`, then run their existing requirement checks. Each unused wild asks
@@ -366,28 +320,9 @@ holders by expression and filling the printed requirements in source order. It r
 remaining shortfalls after each assignment, so listener order does not choose the resulting
 allocation. Ecologist's `BioTag` requirement uses Plant by the owner's convention.
 
-Generated `LikesTag<Class<FooTag>>` roles describe positive immediate per-tag benefits and tag
-gates. The rule on each unused wild assigns that preferred tag before queued benefits. Requirements
-are excluded from this analysis. Equivalent sibling benefits choose a stable representative:
-Gyropolis uses Earth, as directed by the owner. The same analysis emits `UseAction` allocation
-for action benefits (Orbital Cleanup and Kuiper Cooperative). Venus Shuttles declares its allocation
-on `UseAction` explicitly so its Venus count is ready before the cost is calculated.
-Robotic Workforce and Cyberia Systems do not yet support wilds when selecting or counting copied
-production; see `TODO.md` and their card-test pairs. Blanket Building allocation was removed because
-it prevented wilds from contributing Earth to copied Gyropolis production.
-Corroder Suits and Maxwell Base use the analogous Venus filter and allocation on play or action use,
-allowing them to add science to Applied Science. Applied Science itself adds resources only to its
-owner's stocked cards, as directed by the owner.
-
-Special cases use ordinary player work:
-
-- Interplanetary Trade offers `EACH @WildTag { Tag<@WildTag>? }` alongside its benefit.
-- Cloud Tourism's custom instruction queues concrete Earth/Venus gains that maximize the smaller
-  count, including its own printed Venus tag. It preserves existing assignments and leaves a spare
-  wild unused when assigning it would not increase production.
-- Diversifier's `CardWatcher` offers the same optional choices when claiming it, including when
-  Diversifier is selected on another map. Its ordinary requirement still checks that eight distinct
-  types actually exist. Planetologist uses the shared minimum allocator.
+Cloud Tourism's custom instruction queues concrete Earth/Venus gains that maximize the smaller
+count, including its own printed Venus tag. It preserves existing assignments and leaves a spare
+wild unused when assigning it would not increase production.
 
 **Owner direction:** do not force players to act in their own interest. In particular, taking
 Interplanetary Trade's benefit before allocating is allowed; it simply produces less. No guard
@@ -397,14 +332,9 @@ See `WildTagHolderTest`, `WildTagTest`, and `WildTagContinuationTest` for alloca
 cleanup, and reuse scenarios. Replays use Canon cards and actual allocation choices without
 wild-tag corrections. `CONCRETE` lets replays allocate before a competing payout; `EAGER` may
 choose the payout first. Admin performs wild cleanup even when the player uses `NONE`.
-Nobel Prize uses `SearchForCard<RequirementFilter>` rather than unrestricted draws.
-English describes the printed wild's rule but omits allocation instructions.
 
-The explicit `@Tag<WildTag<@CardFront>>` spelling remains necessary: the shorter `@Tag<This>` and
-an inherited `LikesTag` self-effect lost represented-tag bindings in the initial experiments.
-Retesting the short spelling after merging main fails in `recordTypeVariableScopes`: the represented
-tag's holder is resolved while `This` is still lexical, yielding `no class named This`. Do
-not add a second assignment representation to work around those elaboration limitations.
+Represented-tag binding limitations are documented under
+[Pets elaboration](../../pets/docs/agents/ELABORATION.md#represented-tag-bindings).
 
 ## Queries, invariants, and dead ends
 
@@ -415,7 +345,7 @@ not matter. This assumption does not depend on a pruner existing today. Task ava
 selection, narrowing, and successful intermediate commands do not promise a successful turn.
 
 Protected Habitats is the concrete example. Its
-[`-Plant OR -Animal OR -Microbe BY Player(NOT Me@): Die`](../../src/common/dev/martianzoo/tfm/canon/bundles/corpera/cards.json5)
+[`-Plant OR -Animal OR -Microbe BY Player(NOT Me@): Die`](../../pets/src/common/dev/martianzoo/tfm/canon/bundles/corpera/cards.json5)
 queues a consequence of an opponent's removal. The attempted removal may happen before that
 consequence prevents completion; the caller must roll back the unsuccessful path, potentially
 the turn. The engine need not anticipate that consequence or hide the protected target. This is
@@ -586,7 +516,7 @@ issue:
   consequences.
 - [`Timeline.kt`](../../src/common/dev/martianzoo/engine/Timeline.kt) and
   [`GameEvent.kt`](../../src/common/dev/martianzoo/state/GameEvent.kt): atomic history.
-- [`PetElaborator.kt`](../../src/common/dev/martianzoo/pets/PetElaborator.kt): shared input and
+- [`PetElaborator.kt`](../../pets/src/common/dev/martianzoo/pets/PetElaborator.kt): shared input and
   effect transformation.
 - [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) and
   [`AgentImpl.kt`](../../src/common/dev/martianzoo/agent/AgentImpl.kt): current client surface and

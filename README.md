@@ -29,7 +29,10 @@
 
 * If you play a game IRL or on the app, you can sort of "log" it in Solarnet, and then be able to ask questions like "How much money did Earth Catapult actually save me that game?" easily (sort of).
 
-* It works! See [what is supported](https://github.com/MartianZoo/solarnet/blob/main/docs/what-is-supported.md).
+* It works! See [what is supported](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/what-is-supported.md).
+
+The static language and content tools now have their own build under [pets/](pets/README.md).
+See [build selection and verification](docs/agents/BUILDS.md) for local-source and artifact modes.
 
 ## Play around with it?
 
@@ -64,19 +67,20 @@ I haven't written too much yet.
 
 * A [FAQ](docs/faq.md)
 * [Cheat sheet](docs/cheat-sheet.md)
-* Overview of [component types](docs/component-types.md) -- not a bad place to start
-* Pets language [language intro](docs/language-intro.md), and its full
-  [specification](docs/pets-language-spec.md)
-* The Pets [type system](docs/type-system.md) (incomplete), and its full
-  [specification](docs/type-system-spec.md)
-* The growing project [glossary](docs/glossary.md)
+* Overview of [component types](pets/docs/component-types.md) -- not a bad place to start
+* Pets language [language intro](pets/docs/language-intro.md), and its full
+  [specification](pets/docs/pets-language-spec.md)
+* The Pets [type system](pets/docs/type-system.md) (incomplete), and its full
+  [specification](pets/docs/type-system-spec.md)
+* The [runtime glossary](docs/glossary.md) and [Pets glossary](pets/docs/glossary.md)
+* [Solarnet documentation](docs/README.md) and [Pets documentation](pets/docs/README.md)
 * API docs -- see below
 
 There is also a `docs/agents` directory, but that's where agents capture information for themselves to read later. A human didn't write it and we don't expect humans to read it; I can't personally vouch for the information there.
 
 ### Browse?
 
-Want to just [browse through](https://github.com/MartianZoo/solarnet/tree/main/src/common/dev/martianzoo/tfm/canon) how the game components are defined?
+Want to just [browse through](https://github.com/MartianZoo/solarnet/tree/main/pets/src/common/dev/martianzoo/tfm/canon) how the game components are defined?
 
 The cards are also here in [spreadsheet form](https://docs.google.com/spreadsheets/d/1A3Gt_X_0Y-6DodJNJN1C2pvy75zOnVEJgQN-dGITKDk/edit?usp=sharing) which can be easier to read.
 

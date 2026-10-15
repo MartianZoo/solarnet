@@ -38,7 +38,7 @@ public data class Task(
 
     /**
      * Whether `LATER` or `FINALLY` admitted this task ([rules L2-18 and
-     * L2-19](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
+     * L2-19](https://github.com/MartianZoo/solarnet/blob/main/pets/docs/pets-language-spec.md#2-instructions)).
      * No task may be selected while a task with an earlier [Deferral] remains. When no ordinary
      * task remains, every task with the earliest remaining deferral becomes ordinary at once.
      */

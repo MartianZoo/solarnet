@@ -62,9 +62,15 @@ if (System.getenv("CI") == null) {
           .firstOrNull { it.resolve("gradle/user-isolation.init.gradle.kts").isFile }
 
   if (worktreeRoot != null) {
-    val worktreePath = worktreeRoot.toPath().normalize().toString()
+    // Included builds and standalone -p invocations must not reuse each other's slots.
+    val buildRoot =
+        generateSequence(gradle.startParameter.currentDir.canonicalFile) { it.parentFile }
+            .first {
+              it.resolve("settings.gradle.kts").isFile || it.resolve("settings.gradle").isFile
+            }
+    val buildPath = buildRoot.toPath().normalize().toString()
     val worktreeId =
-        MessageDigest.getInstance("SHA-256").digest(worktreePath.toByteArray()).take(12).joinToString(
+        MessageDigest.getInstance("SHA-256").digest(buildPath.toByteArray()).take(12).joinToString(
             ""
         ) {
           "%02x".format(it)

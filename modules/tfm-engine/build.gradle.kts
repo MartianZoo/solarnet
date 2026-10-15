@@ -9,11 +9,15 @@ kotlin {
       dependencies {
         implementation(libs.kotlinx.coroutines.core)
         implementation(project(":agent"))
-        implementation(project(":catalog"))
+        implementation(
+            "dev.martianzoo.pets:catalog:${providers.gradleProperty("petsVersion").get()}"
+        )
         implementation(project(":engine"))
-        implementation(project(":pets"))
+        implementation("dev.martianzoo.pets:pets:${providers.gradleProperty("petsVersion").get()}")
         implementation(project(":state"))
-        implementation(project(":tfm-canon"))
+        implementation(
+            "dev.martianzoo.pets:tfm-canon:${providers.gradleProperty("petsVersion").get()}"
+        )
         implementation(project(":tfm-state"))
       }
     }

@@ -16,85 +16,23 @@ directions, not prerequisites for that step or a release schedule.
 chosen but the design may remain open. “Exploratory” means the idea still has to justify its
 conceptual cost.
 
-## Next step: separate Gradle builds
+## Independent Gradle builds
 
-**Selected 2026-10-09; not yet implemented.** Keep the current Git repository, but make Pets and
-Solarnet independently buildable inside it. Creating separate Git repositories comes later.
+**Implemented; command-line acceptance verified.** Pets lives in the self-contained `pets/` build;
+Solarnet consumes its libraries by fixed artifact coordinates or explicit local composite selection.
+Each working copy can persist its own source choice under `_local/pets-sources/`. The root build,
+test, and formatting commands cover both builds when source composition is selected.
 
-The code preparation is already in place: Catalog and the static tools have their own modules;
-Canon, Fake Canon, Almanac, and codegen do not depend on runtime modules. State tests no longer
-compile Catalog-owned test support, and the Pets browser test runs under Pets rather than Web.
-The earlier experiment compiled the two module groups using a Gradle composite, but retained all
-source files in both checkouts. It did not prove independent source trees or artifact consumption.
+The repeatable [isolation check](scripts/verify-build-separation.py) builds and tests copied source
+trees independently, publishes Pets JVM/JS libraries and Almanac, builds and tests Solarnet with no
+Pets source in its tree, runs the packaged REPL outside both trees, and proves an unpublished Pets
+edit reaches a Solarnet test. It also checks source selection and artifact override. CI runs it
+alongside the combined build.
 
-### Developer workflow requirements
-
-Developer comfort is a condition of completing the split. Prove the workflows below while the
-builds still share this Git repository; fix cumbersome setup or daily operations before creating
-separate repositories. These are acceptance requirements, not claims about the current build.
-
-- **Work against a fixed release.** A Solarnet checkout without Pets source must build using an
-  exact Pets version recorded in Git. Keep the consumed Pets libraries on the same release, with
-  upgrades made explicitly in Solarnet. The build-separation step proves this with freshly
-  published local artifacts; hosted tagged releases follow before the Git split.
-- **Edit both projects together.** Select a local Pets build and use composite substitution, so
-  editing Pets and rerunning a Solarnet test or application rebuilds the affected dependencies
-  without manual publication or copying files. Support opening both builds together in the IDE
-  for source navigation, editing, and running tests.
-- **Select Pets independently for each working copy.** For example, Solarnet `work1` can use Pets
-  `work1`, while Solarnet `work2` uses a different Pets checkout. Persist the selection locally per
-  working copy, without changing tracked dependency declarations or other worktrees. Do not infer
-  a pairing from branch names or silently select an adjacent directory. The initial combined
-  checkout may explicitly include its in-repository `pets/` build by default.
-- **Make the selected mode visible.** Report the Pets release or local source path being used.
-  Provide an explicit way to verify artifact consumption even when local source is normally
-  selected. An invalid source selection must explain how to correct it rather than silently
-  switching modes.
-- **Keep familiar daily commands.** Combined build, test, and formatting commands must cover both
-  builds, and the development server must still serve Web REPL and Almanac together.
-  Wire verification tasks explicitly: compiling an included library does not run its tests.
-  Document the actual setup, mode-switching, and verification commands when implemented.
-
-### Implementation scope
-
-1. **Give Pets a self-contained `pets/` build.** Move `pets`, `catalog`, `tfm-card-data`,
-   `tfm-card-generator`, `tfm-canon`, `tfm-fake`, `almanac`, `pets-tools`, and `codegen` there,
-   together with their source, resources, tests, and required documentation. Include the Gradle
-   wrapper, settings, conventions, version catalog, lockfiles, and configuration needed to build
-   without reaching into the Solarnet tree. Leave runtime modules in the root build. Give the
-   included convention builds distinct identities.
-2. **Make Solarnet consume Pets libraries by artifact coordinates.** For normal development in
-   this checkout, use Gradle composite substitution to build those libraries from local Pets
-   source. Also provide a way to disable substitution and use built artifacts. Keep Kotlin package
-   names and behavior unchanged; this is build separation, not an API redesign.
-3. **Preserve the combined development workflow.** Root build, test, and formatting commands and
-   CI must still cover both halves. Keep the existing JVM and browser coverage, including the
-   Pets browser test and Web's history test and selected replay. Preserve `webAppsDevelopmentRun`
-   so Web REPL and Almanac still run together: Web starts Almanac tasks in the same build and reads
-   JavaScript from the shared output layout. Update affected build and setup
-   documentation with the actual commands.
-
-### Acceptance checks
-
-- Copy only the Pets half outside this checkout. Build and test it there, including its JavaScript
-  targets and Almanac packaging. Publish the required JVM/JS libraries and dependency metadata to
-  a temporary local Maven repository.
-- Copy only the Solarnet half to a different location, with no Pets source tree. Disable composite
-  substitution, resolve Pets dependencies exclusively from those freshly built artifacts, and
-  build, test, and package the runtime applications there. Neither isolated build may read source
-  or build support from the original checkout or the other half.
-- Verify normal composite development in the combined checkout: root checks cover both builds,
-  and the shared development server serves all three applications. Record the commands and
-  results; compilation through a composite alone does not satisfy the isolated-build checks.
-- Open the combined builds in the developer's IDE and verify source navigation and editing across
-  them. Make a temporary Pets change exercised by a Solarnet test or application, rerun it, and
-  confirm that the local edit is used without publishing. Restore the temporary change afterward.
-- Demonstrate independent Pets selections in two disposable working copies, including an external
-  Pets source path. Changing either selection must leave the other unchanged. Check the reported
-  mode and the failure message for a missing selected checkout.
-- From a working copy normally using local Pets source, explicitly select artifact verification
-  and confirm that it uses the recorded version. CI must exercise both source composition and
-  artifact consumption; a successful composite build cannot establish that publication works.
+See [BUILDS.md](docs/agents/BUILDS.md) for setup and commands and [Pets README](pets/README.md) for
+the static modules. IDE source navigation and editing across the builds remains an unverified
+acceptance check, tracked in TODO.md. Creating separate hosted repositories and releases remains
+future work.
 
 ### Release workflow before the Git split
 
@@ -189,7 +127,7 @@ extraction remains a separate library-design direction below, not a prerequisite
    defaults, instruction-valued printed facts, and richer cardinality remain promising but
    unsettled. Adopt them only after inheritance, querying, binding, and materialization have a
    coherent systemic rule and the result removes existing bridges.
-   [ELSE and instruction-level `(A)*`](docs/agents/ELSE.md) are exploratory fallback candidates
+   [ELSE and instruction-level `(A)*`](pets/docs/agents/ELSE.md) are exploratory fallback candidates
    with concrete Canon uses and distinct shallow/deep semantics.
 
 ## Canon and game-rule modeling
@@ -260,5 +198,5 @@ extraction remains a separate library-design direction below, not a prerequisite
 
 This roadmap synthesizes the current priorities in
 [`VALUES.md`](docs/agents/VALUES.md), [`TODO.md`](TODO.md), the
-[repository introduction draft](docs/pets-repo-draft.md), recent mainline
+[Pets introduction](pets/README.md), recent mainline
 work, the active `english` branch, and the exploratory `codegen` module.

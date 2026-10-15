@@ -96,7 +96,7 @@ Acceptance checks the legality of that prefix without pretending that outstandin
 mandatory tasks have been completed.
 
 Icy Impactors is a concrete example already represented in
-[the card definition](../../src/common/dev/martianzoo/tfm/canon/bundles/promos/cards.json5) and
+[the card definition](../../pets/src/common/dev/martianzoo/tfm/canon/bundles/promos/cards.json5) and
 [its scenario test](../../test/common/dev/martianzoo/tfm/tests/cards/IcyImpactorsTest.kt):
 the Start Token holder chooses the ocean location, while placement is attributed to the card owner.
 The owner must be able to commit the work leading to that choice, receive the other player's

@@ -7,10 +7,14 @@ kotlin {
           listOf(rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/state"))
       )
       dependencies {
-        implementation(project(":catalog"))
-        implementation(project(":pets"))
+        implementation(
+            "dev.martianzoo.pets:catalog:${providers.gradleProperty("petsVersion").get()}"
+        )
+        implementation("dev.martianzoo.pets:pets:${providers.gradleProperty("petsVersion").get()}")
         implementation(project(":state"))
-        implementation(project(":tfm-canon"))
+        implementation(
+            "dev.martianzoo.pets:tfm-canon:${providers.gradleProperty("petsVersion").get()}"
+        )
       }
     }
   }
