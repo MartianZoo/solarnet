@@ -2,6 +2,10 @@
 
 Delete entries when they are done.
 
+- Continue adversarial Pets testing beyond parser nesting and nominal inheritance: investigate
+  dependency/default expansion, concrete-type enumeration, and automatic-effect cascades. The
+  current depth and subtraction limits are not a general execution-work budget.
+
 - Simplify Flooding and Artificial Lake's ocean instructions, preserving full-track behavior,
   mandatory placement, and Flooding's victim choice.
 - Derive `TfmActionLowerer`'s standard-resource cost classification from Pets declarations

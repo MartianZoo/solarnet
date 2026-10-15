@@ -55,20 +55,24 @@ public class PremiseClassTable(
       throw InvalidPetDefinitionException("unknown superclass name: `$superclass`")
     }
 
-    fun reaches(name: ClassName, visited: Set<ClassName>): Boolean {
+    val pending = ArrayDeque<ClassName>()
+    val visited = mutableSetOf<ClassName>()
+    pending.add(candidate)
+    while (pending.isNotEmpty()) {
+      val name = pending.removeLast()
       if (name == superclass) return true
-      if (name in visited) return false
-      val declaration = declarations[name] ?: return false
+      if (!visited.add(name)) continue
+      if (
+          masterSuperclass != null && master.findClass(name)?.isSubtypeOf(masterSuperclass) == true
+      ) {
+        return true
+      }
+      val declaration = declarations[name] ?: continue
       val directSupertypeNames =
           if (declaration.supertypes.isEmpty()) setOf(COMPONENT)
           else declaration.supertypes.mapTo(linkedSetOf()) { it.className }
-      return directSupertypeNames.any { supertypeName ->
-        supertypeName == superclass ||
-            (masterSuperclass != null &&
-                master.findClass(supertypeName)?.isSubtypeOf(masterSuperclass) == true) ||
-            reaches(supertypeName, visited + name)
-      }
+      pending.addAll(directSupertypeNames)
     }
-    return reaches(candidate, emptySet())
+    return false
   }
 }

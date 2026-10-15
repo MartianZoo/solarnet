@@ -8,6 +8,7 @@ import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.ResourceLimitException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.DIE
@@ -63,6 +64,19 @@ internal constructor(
     public val directSuperclasses: List<Class> =
         superclasses(sourceDeclaration, loader, includeRelated),
 ) : HasClassName, Specification<Class> {
+
+  // Bound later recursive inheritance calculations even when ancestors were loaded first.
+  private val inheritanceDepth: Int =
+      1 + (directSuperclasses.maxOfOrNull { it.inheritanceDepth } ?: 0)
+
+  init {
+    if (inheritanceDepth > 128) {
+      throw ResourceLimitException(
+          "inheritance exceeds 128 levels at `${sourceDeclaration.className}`",
+          sourceLocation = sourceDeclaration.className.sourceLocation,
+      )
+    }
+  }
 
   /** The declaration with inherited header names resolved in this class's own body. */
   public val declaration: ClassDeclaration = inheritHeaderNames(sourceDeclaration)
