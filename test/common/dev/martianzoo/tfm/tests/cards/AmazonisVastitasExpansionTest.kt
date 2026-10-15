@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DomainException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -72,9 +73,9 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
               "PROD[MC]",
               "CityTile<Amazonis_02_02>",
           )
-          doTask("PartyDelegate<Scientists>")
+          doTask("PartyLeader<Scientists>")
         }
-        .expect("0 LobbyActionAvailable")
+        .expect("0 LobbyDelegate")
   }
 
   @Test
@@ -88,15 +89,36 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
               "PROD[MC]",
               "CityTile<Amazonis_08_09>",
           )
-          doTask("2 PartyDelegate<Scientists>")
+          doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
         }
         .expect("PartyLeader<Scientists>, Dominant<Scientists>")
   }
 
   @Test
+  internal fun `Olympus Mons cannot split its delegates between parties`() {
+    newTestGame(addOptions = "AmazonisMap, TurmoilExpansion")
+
+    shouldThrow<TaskException> {
+      kim.inTurn {
+        doTasks(
+            "UseStandardProject<CityProject>",
+            "25 Pay<> FROM MC",
+            "PROD[MC]",
+            "CityTile<Amazonis_08_09>",
+            "PartyLeader<Scientists>",
+            "PartyLeader<Unity>",
+        )
+      }
+    }
+    kim.count("CityTile") shouldBe 0
+    kim.count("PartyDelegate") shouldBe 0
+    kim.count("MC") shouldBe 42
+  }
+
+  @Test
   internal fun `Olympus Mons requires two available delegates`() {
     newTestGame(addOptions = "AmazonisMap, TurmoilExpansion")
-    kim.exMachina("6 PartyDelegate<Unity>")
+    kim.exMachina("PartyLeader<Unity>, 5 PartyFollower<Unity>")
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
@@ -104,7 +126,7 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
         doTask("25 Pay<> FROM MC")
         doTask("PROD[MC]")
         doTask("CityTile<Amazonis_08_09>")
-        doTask("2 PartyDelegate<MarsFirst>")
+        doTasks("PartyFollower<MarsFirst>", "PartyLeader<MarsFirst>")
       }
     }
     kim.count("CityTile") shouldBe 0
@@ -122,9 +144,9 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
               "PROD[MC]",
               "CityTile<Vastitas_4_8>",
           )
-          doTask("PartyDelegate<Greens>")
+          doTask("PartyLeader<Greens>")
         }
-        .expect("0 LobbyActionAvailable")
+        .expect("0 LobbyDelegate")
   }
 
   @Test
@@ -144,7 +166,7 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
   @Test
   internal fun `Vastitas delegate spaces require an available delegate`() {
     newTestGame(addOptions = "VastitasMap, TurmoilExpansion")
-    kim.exMachina("7 PartyDelegate<Unity>")
+    kim.exMachina("PartyLeader<Unity>, 6 PartyFollower<Unity>")
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
@@ -152,7 +174,7 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
         doTask("25 Pay<> FROM MC")
         doTask("PROD[MC]")
         doTask("CityTile<Vastitas_4_8>")
-        doTask("PartyDelegate<Greens>")
+        doTask("PartyLeader<Greens>")
       }
     }
     kim.count("CityTile") shouldBe 0

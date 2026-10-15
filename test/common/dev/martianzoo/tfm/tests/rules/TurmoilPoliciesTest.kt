@@ -29,7 +29,7 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
 
   @Test
   internal fun `Mars First rewards a city placed on Mars`() {
-    electGovernment("MarsFirst")
+    electGovernment("MarsFirst", "PartyFollower", "PartyLeader")
     stan.doTask("Pass")
 
     kim.completeOperation {
@@ -74,7 +74,7 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
 
   @Test
   internal fun `Reds charges for both TR steps gained by Bribed Committee`() {
-    electGovernment("Reds")
+    electGovernment("Reds", "PartyFollower", "PartyLeader", "PartyLeader")
     stan.doTask("Pass")
 
     kim.doTasks("PlayProject<Class<$BribedCommittee>>").expect("-13 MC, 2 TerraformRating")
@@ -82,7 +82,7 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
 
   @Test
   internal fun `Reds rejects an unaffordable TR gain without charging or terraforming`() {
-    electGovernment("Reds")
+    electGovernment("Reds", "PartyFollower", "PartyLeader", "PartyLeader")
     stan.doTask("Pass")
     kim.completeOperation {
           doTasks("UseStandardProject<AsteroidProject>")
@@ -123,31 +123,37 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     admin.count("KelvinistsPolicy") shouldBe 0
   }
 
-  private fun electGovernment(party: String) {
+  private fun electGovernment(
+      party: String,
+      firstRole: String = "PartyLeader",
+      secondRole: String = "PartyFollower",
+      neutralRole: String = "PartyFollower",
+  ) {
     newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
     kim.completeOperation {
       doTask("LobbyAction")
-      doTask("PartyDelegate<$party>")
+      doTask("$firstRole<$party> FROM LobbyDelegate")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>")
-      doTask("PartyDelegate<$party>")
+      doTasks("PaidLobbyAction")
+      doTask("$secondRole<$party>")
     }
     stan.doTask("Pass")
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>")
-      doTask("PartyDelegate<$party>")
+      doTasks("PaidLobbyAction")
+      doTask("PartyFollower<$party>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>")
-      doTask("PartyDelegate<$party>")
+      doTasks("PaidLobbyAction")
+      doTask("PartyFollower<$party>")
     }
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     kim.doTask("VenusStep! BY Admin")
     players.forEach { it.autoExecNow(EAGER) }
 
-    admin.doTask("ExploreFirstDirective")
+    admin.doTask("PartyLeader<Greens, Neutral>")
+    admin.doTasks("ExploreFirstDirective", "$neutralRole<Reds, Neutral>")
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
     admin.count("Ruling<$party>") shouldBe 1
   }

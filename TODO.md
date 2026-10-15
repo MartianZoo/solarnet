@@ -48,10 +48,6 @@ Delete entries when they are done.
   unnamed overlap, not disjointness, so discarding that candidate can return a false greatest
   type. `Spec07BoundsTest` preserves the competing `Broad<Second>` and `Narrow` witness.
 
-- Let card delegate placements choose the lobby delegate even while reserve delegates remain.
-  `CulturalMetropolisTest` covers taking both from reserve and the missing reserve-plus-lobby
-  choice. Currently `LobbyActionAvailable` is consumed only when all seven delegates are placed.
-
 - Simplify Flooding and Artificial Lake's ocean instructions, preserving full-track behavior,
   mandatory placement, and Flooding's victim choice.
 - Derive `TfmActionLowerer`'s standard-resource cost classification from Pets declarations
@@ -97,11 +93,13 @@ Delete entries when they are done.
   the Pluto scenario in `ColoniesRulesTest` currently uses separate top-level calls.
 
 - Improve the bracketed English fragments exposed by removing the exact-expression phrase table,
-  using ordinary composition only where it stays small. Delegate replacement,
-  marker movement, distinct-type filters, and L1 Trade Terminal’s gift watcher
-  remain unsupported. Philantropist's class-token requirement now names cards in play but retains
-  bracketed `GainsOf`. A card instance cannot fill that metric's `Class<CardFront>` dependency;
-  Astra Mechanica also evaluates event classes after those cards leave play.
+  using ordinary composition only where it stays small. Marker effects, distinct-type filters,
+  and L1 Trade Terminal’s gift watcher remain partly unsupported. Philantropist's class-token requirement now
+  names cards in play but retains bracketed `GainsOf`. A card instance cannot fill that metric's
+  `Class<CardFront>` dependency; Astra Mechanica also evaluates event classes after those cards leave play.
+- Refresh the remaining `docs/english-wording-comparisons/` entries against current Canon and
+  rendering. Entries touched by the delegate work are current; older entries still show previous
+  invariant declarations and wording.
 - Share the `NonNegativeIconsOf` citation scan between gameplay and English; both currently walk
   authored effects independently, so a later change to the icon rule could make their answers differ.
   Briber's self-claim requirement still appears as `[Briber]`; keep it separate from the direct

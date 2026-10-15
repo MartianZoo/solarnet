@@ -212,7 +212,9 @@ internal class GoalsTest : TfmSandboxTest() {
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
+      admin.doTask("PartyLeader<Greens, Neutral>")
       admin.doTask("SolarnetGlobalEvent")
+      admin.doTask("PartyLeader<Unity, Neutral>")
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       // Generation 2: Democratic Reform adds an Admin ocean elsewhere, preserving Kim's ocean.
@@ -225,7 +227,9 @@ internal class GoalsTest : TfmSandboxTest() {
       stan.doTask("OceanTile<Tharsis_1_4> BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
+      admin.doTask("PartyFollower<Unity, Neutral>")
       admin.doTask("FreeAcademiaTreaty")
+      admin.doTask("PartyLeader<Scientists, Neutral>")
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       // Generation 3: Minimal Impact Policy's Dry Deserts removes Kim's original ocean.
@@ -236,7 +240,9 @@ internal class GoalsTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
 
       kim.doTask("-OceanTile<Tharsis_1_2>")
+      admin.doTask("PartyFollower<Greens, Neutral>")
       admin.doTask("SelfSufficiencyProgram")
+      admin.doTask("PartyFollower<Greens, Neutral>")
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
       // Generation 4: reusing the emptied area still earns another credit toward four placements.

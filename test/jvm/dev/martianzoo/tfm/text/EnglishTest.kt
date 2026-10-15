@@ -403,8 +403,9 @@ internal class EnglishTest {
   @Test
   internal fun describesPositionedComponentConversions() {
     english.describe(
-        parse<InstructionTree>("CityTile<LandArea> FROM GreeneryTile<LandArea>")
-    ) shouldBe "Change a greenery tile on any land area into a city tile on that land area."
+        parse<InstructionTree>("CityTile<@LandArea> FROM GreeneryTile<@LandArea>")
+    ) shouldBe
+        "Change a greenery tile of your own on any land area into a city tile of your own on that land area."
   }
 
   @Test

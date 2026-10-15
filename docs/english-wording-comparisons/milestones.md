@@ -627,13 +627,14 @@ Class: `Lobbyist`
 | | Text |
 | --- | --- |
 | Printed text | Having all your 7 delegates in parties (Party Leaders and Chairman also count). |
-| Generated text | \[7 Delegate\]. |
+| Generated text | Requires 7 delegates excluding lobby delegates. |
 
 Pets declaration:
 
 ```pets
 CLASS Lobbyist : Milestone {
-  requirement = HAS "7 Delegate"
+  HAS MAX 1 Lobbyist
+  requirement = HAS "7 Delegate(NOT LobbyDelegate)"
 }
 ```
 

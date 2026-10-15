@@ -1256,15 +1256,15 @@ Class: `HighCircles`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Raise your TR 1 step and draw 1 card with a PARTY REQUIREMENT. Place 2 delegates in one party. | Effect: You have +1 influence. |
-| Generated text | Raise your terraform rating 1 step. Draw 1 card with a party requirement. Place 2 delegates. | Effect: When influence is counted, gain 1 influence. |
+| Generated text | Raise your terraform rating 1 step. Draw 1 card with a party requirement. Place a delegate in a party, then place a delegate in that party. | Effect: When influence is counted, gain 1 influence. |
 
 Pets declaration:
 
 ```pets
 CLASS HighCircles : CardFront<Class<PreludeCard>> {
-  HAS =1 EarthTag<This>
+  HAS MAX 1 HighCircles, =1 EarthTag<This>
   cost = 0
-  This: TerraformRating, SearchForCard<ReferenceFilter<Class<PartyRequirement>>>, 2 PartyDelegate
+  This: TerraformRating, SearchForCard<ReferenceFilter<Class<Ruling>>>, PartyDelegate<@Party> THEN PartyDelegate<@Party>
   MeasureInfluence:: HighCirclesInfluence
 }
 ```

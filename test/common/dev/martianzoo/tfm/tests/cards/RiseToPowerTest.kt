@@ -22,12 +22,12 @@ internal class RiseToPowerTest : TfmSandboxTest() {
               "PlayCard<Class<PreludeCard>, Class<RiseToPower>>",
               "RiseToPower FROM PreludeCard",
               "PROD[3 MC]",
-              "PartyDelegate<Scientists>",
+              "PartyLeader<Scientists>",
           )
           doTask("ProjectCard<Kim, Hand>")
-          doTask("PartyDelegate<Unity>")
+          doTask("PartyLeader<Unity>")
           doTask("ProjectCard<Kim, Hand>")
-          doTask("PartyDelegate<Greens>")
+          doTask("PartyLeader<Greens>")
           doTask("ProjectCard<Kim, Hand>")
         }
         .expect("3 ProjectCard, PartyLeader<Scientists>, PartyLeader<Unity>, PartyLeader<Greens>")

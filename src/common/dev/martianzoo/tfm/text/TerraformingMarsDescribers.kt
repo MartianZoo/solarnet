@@ -27,14 +27,6 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.ClassName,
             ),
-        klass("Delegate") to
-            ComponentDescriber(
-                metricCount =
-                    ComponentDescriber.MetricCount(
-                        counted("delegate", "delegates"),
-                        unqualifiedSuffix = "",
-                    ),
-            ),
         klass("OceanCredit") to
             ComponentDescriber(
                 metricCount =
@@ -143,14 +135,6 @@ internal object TerraformingMarsDescribers {
                 changeFrame = Frame.Procedure("raise", "any global parameter"),
             ),
         klass("Admin") to ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("Admin")),
-        klass("Party") to
-            ComponentDescriber(
-                metricCount =
-                    ComponentDescriber.MetricCount(
-                        noun = ComponentDescriber.Noun.Counted("party", "parties"),
-                        unqualifiedSuffix = "",
-                    ),
-            ),
         klass("GpIncomplete") to
             ComponentDescriber(
                 requirementCondition =

@@ -315,7 +315,7 @@
         {
           "name": "HighCircles",
           "tags": [ "EarthTag" ],
-          "direct": "TerraformRating, SearchForCard<ReferenceFilter<Class<Ruling>>>, 2 PartyDelegate",
+          "direct": "TerraformRating, SearchForCard<ReferenceFilter<Class<Ruling>>>, PartyDelegate<@Party> THEN PartyDelegate<@Party>",
           "effects": [ "MeasureInfluence:: HighCirclesInfluence" ],
           "components": [
             "CLASS HighCirclesInfluence : Influence { HAS MAX 1 This }",
@@ -351,7 +351,7 @@
           "requirement": "3 VenusTag",
           "cost": 1,
           "tags": [ "VenusTag", "EventTag" ],
-          "direct": "2 PartyDelegate",
+          "direct": "PartyDelegate<@Party> THEN PartyDelegate<@Party>",
         },
         {
           "name": "FrontierTown",
@@ -376,7 +376,7 @@
           "requirement": "2 JovianTag",
           "cost": 2,
           "tags": [ "EventTag" ],
-          "direct": "2 PartyDelegate",
+          "direct": "PartyDelegate<@Party> THEN PartyDelegate<@Party>",
         },
         {
           "name": "RedAppeasement",
@@ -397,7 +397,7 @@
           "requirement": "4 EarthTag",
           "cost": 21,
           "tags": [ "EarthTag" ],
-          "direct": "3 TerraformRating, 2 PartyDelegate",
+          "direct": "3 TerraformRating, PartyDelegate<@Party> THEN PartyDelegate<@Party>",
         },
         {
           "name": "SummitLogistics",

@@ -22,7 +22,9 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
   @Test
   internal fun `Counts Earth tags Jovian tags and colonies when Venus Next is absent`() {
     newTestGame("SummitLogistics, TurmoilExpansion, -VenusNextExpansion, Luna")
-    kim.exMachina("$EarthOffice, $VestaShipyard, Colony<Luna>, 2 PartyDelegate<Scientists>")
+    kim.exMachina(
+        "$EarthOffice, $VestaShipyard, Colony<Luna>, PartyLeader<Scientists>, PartyFollower<Scientists>"
+    )
 
     kim.inTurn {
           doTasks("PlayProject<Class<SummitLogistics>>", "10 Pay<> FROM MC")
@@ -42,7 +44,7 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
         doTask("PlayProject<Class<SummitLogistics>>")
       }
     }
-    kim.exMachina("2 PartyDelegate<Scientists>")
+    kim.exMachina("PartyLeader<Scientists>, PartyFollower<Scientists>")
     kim.inTurn {
           doTasks("PlayProject<Class<SummitLogistics>>", "10 Pay<> FROM MC")
           doTasks("SummitLogistics FROM ProjectCard")
@@ -56,7 +58,7 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
   internal fun `Counts all planetary tags and each owned colony`() {
     newTestGame("SummitLogistics, TurmoilExpansion, Luna, Io")
     kim.exMachina(
-        "$EarthOffice, $VestaShipyard, $VenusGovernor, Colony<Luna>, Colony<Io>, 2 PartyDelegate<Scientists>"
+        "$EarthOffice, $VestaShipyard, $VenusGovernor, Colony<Luna>, Colony<Io>, PartyLeader<Scientists>, PartyFollower<Scientists>"
     )
     stan.exMachina("Colony<Luna>")
 
