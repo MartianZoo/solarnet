@@ -6,10 +6,8 @@ import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
-import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.types.Dependency.Key
 
@@ -228,54 +226,12 @@ private fun Describers.renderLinkedXAction(action: Action): RenderedAction? {
   return RenderedAction(cost, result)
 }
 
-private fun Describers.renderDeferredPaymentAction(
-    action: Action,
-): RenderedAction? {
-  if (action.cost != null) return null
-  val sequence = action.instruction as? Then ?: return null
-  if (sequence.stages.size != 2) return null
-
-  val owed =
-      paymentResourceGain(sequence.stages.first(), ComponentDescriber.PaymentRole.OWED, this)
-          ?: return null
-  val acceptance =
-      paymentResourceGain(
-          sequence.stages.last(),
-          ComponentDescriber.PaymentRole.ACCEPTANCE,
-          this,
-      ) ?: return null
-  if (acceptance.count != 1) return null
-
-  val gated = sequence.continuation as? Gated ?: return null
-  val barrier = gated.gate as? Requirement.Max ?: return null
-  val barrierMetric = barrier.countedMetric as? Metric.Count ?: return null
-  if (
-      barrier.maximum != 0 ||
-          !barrierMetric.expression.simple ||
-          fact(barrierMetric.expression.className, ComponentDescriber::paymentRole) !=
-              ComponentDescriber.PaymentRole.BARRIER
-  ) {
-    return null
-  }
-  val result = renderInstructions(gated.inner, this)
-  val cost =
-      Predicate(
-          Verb("spend"),
-          Coordination.one(owed.phrase),
-          listOf(Modifier.Parenthetical("${acceptance.noun} may be used")),
-      )
-  return RenderedAction(cost, result)
-}
-
 private fun renderAction(
     action: Action,
     describers: Describers,
 ): RenderedAction? {
   val lowered = describers.prepareForRendering(action)
   describers.renderLinkedXAction(lowered)?.let {
-    return it.takeIf(RenderedAction::costCanJoinResult)
-  }
-  describers.renderDeferredPaymentAction(lowered)?.let {
     return it.takeIf(RenderedAction::costCanJoinResult)
   }
   val gatedInstruction = lowered.instruction as? Gated

@@ -78,8 +78,7 @@ internal fun renderCardResourceValueEffects(
     }
     val nouns = valuesByResource.keys.map { describers.componentNoun(it.className, 1) }
     val resources = if (nouns.size == 1) nouns.single() else englishAlternatives(nouns)
-    return grants.keys to
-        Sentence(NounPhrase.text("each $resources you pay is worth $value M€ extra")).asText()
+    return grants.keys to renderExtraResourceValue(resources, NounPhrase("M€", count = value))
   }
 
   val penalty =
