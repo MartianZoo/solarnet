@@ -2,6 +2,12 @@
 
 Delete entries when they are done.
 
+- Undo the decision to hard-code the full test catalog's fingerprint in
+  `GameFileJsonTest.premiseAndCatalogFingerprintsMatchAcrossTargets`. Removing the redundant `!`
+  from the built-in Signal declaration required an unrelated hash update. Preserve verification
+  that JVM and JavaScript compute matching fingerprints without coupling the expected value to
+  evolving built-in declarations.
+
 - Continue adversarial Pets testing beyond parser nesting and nominal inheritance: investigate
   dependency/default expansion, concrete-type enumeration, and automatic-effect cascades. The
   current depth and subtraction limits are not a general execution-work budget.
