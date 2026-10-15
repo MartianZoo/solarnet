@@ -365,6 +365,14 @@ internal object TerraformingMarsDescribers {
                 countNoun = ComponentDescriber.Noun.Counted("tag", "tags"),
                 distinctKinds = ComponentDescriber.Noun.Counted("different tag", "different tags"),
             ),
+        klass("WildTag") to
+            ComponentDescriber(
+                countNoun = counted("wild tag", "wild tags"),
+                tagAssignmentHolder = true,
+                cardInvariantSentence =
+                    "While performing a future action, the wild tag can become any tag of your choice.",
+            ),
+        klass("AllocateCloudTourismWildTags") to ComponentDescriber(implicitInstruction = true),
         klass("Resource") to
             ComponentDescriber(
                 distinctKinds =

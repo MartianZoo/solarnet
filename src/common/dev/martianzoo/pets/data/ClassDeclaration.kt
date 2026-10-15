@@ -20,6 +20,7 @@ import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.ABSTRACT
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.ALL_USAGES
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.GAIN_ONLY
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.REMOVE_ONLY
+import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.DefaultKind.TRIGGER_ONLY
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.OneDefault
 
 /**
@@ -231,26 +232,29 @@ public data class ClassDeclaration(
           extraNodes.isNotEmpty()
 
   /**
-   * Authored dependency and quantifier defaults, kept separately for all uses, gains, and removals
-   * under
+   * Authored dependency and quantifier defaults, kept separately for all uses, gains, removals, and
+   * triggers under
    * [type-system rule T10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
-   * [forClass] identifies the declaring class; it may be null only when all three sets are empty.
+   * [forClass] identifies the declaring class; it may be null only when all four sets are empty.
    * Merging clauses does not resolve or inherit defaults.
    *
    * @property universal Defaults that apply in every use context.
    * @property gainOnly Additional defaults applied only to a gain.
    * @property removeOnly Additional defaults applied only to a removal.
+   * @property triggerOnly Dependency defaults applied only to gain and removal triggers.
    * @property forClass Declaring class name, or null for an empty declaration.
    */
   public data class DefaultsDeclaration(
       val universal: OneDefault = OneDefault(),
       val gainOnly: OneDefault = OneDefault(),
       val removeOnly: OneDefault = OneDefault(),
+      val triggerOnly: OneDefault = OneDefault(),
       val forClass: ClassName? = null,
   ) {
     init {
       require(
-          forClass != null || listOf(universal, gainOnly, removeOnly).all { it == OneDefault() }
+          forClass != null ||
+              listOf(universal, gainOnly, removeOnly, triggerOnly).all { it == OneDefault() }
       ) {
         "defaults without a declaring class cannot be rendered or applied"
       }
@@ -269,6 +273,7 @@ public data class ClassDeclaration(
       ALL_USAGES,
       GAIN_ONLY,
       REMOVE_ONLY,
+      TRIGGER_ONLY,
     }
 
     internal fun default(kind: DefaultKind) =
@@ -276,6 +281,7 @@ public data class ClassDeclaration(
           ALL_USAGES -> universal
           GAIN_ONLY -> gainOnly
           REMOVE_ONLY -> removeOnly
+          TRIGGER_ONLY -> triggerOnly
         }
 
     public companion object {
@@ -311,6 +317,7 @@ public data class ClassDeclaration(
             universal = mergeKind(ALL_USAGES),
             gainOnly = mergeKind(GAIN_ONLY),
             removeOnly = mergeKind(REMOVE_ONLY),
+            triggerOnly = mergeKind(TRIGGER_ONLY),
             forClass = owners.singleOrNull(),
         )
       }
@@ -332,7 +339,7 @@ public data class ClassDeclaration(
     }
 
     internal val allNodes: Set<PetNode> =
-        listOf(universal, gainOnly, removeOnly).flatMap { it.specs }.toSet()
+        listOf(universal, gainOnly, removeOnly, triggerOnly).flatMap { it.specs }.toSet()
   }
 
   /**
@@ -398,6 +405,7 @@ public data class ClassDeclaration(
       if (removeOnly.specs.isNotEmpty() || removeOnly.quantifier != null) {
         add("DEFAULT -${removeOnly.expression()}${removeOnly.quantifier?.symbol.orEmpty()}")
       }
+      if (triggerOnly.specs.isNotEmpty()) add("DEFAULT ${triggerOnly.expression()}:")
       if (isEmpty()) add("DEFAULT $owner")
     }
   }

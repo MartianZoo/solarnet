@@ -17,7 +17,7 @@ private object EnglishTextComparisonGenerator {
     val english =
         English(
             catalog.classTable,
-            TerraformingMarsDescribers.descriptions + fakeEnglishDescriptions,
+            TerraformingMarsDescribers.descriptions,
         )
     val cards =
         EnglishCardTextData.parse(readEnglishCardText("english-published-wording-evidence.tsv"))

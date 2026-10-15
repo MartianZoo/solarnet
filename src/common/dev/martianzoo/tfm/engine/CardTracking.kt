@@ -11,6 +11,7 @@ import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.Player
 import dev.martianzoo.state.toComponent
 import dev.martianzoo.tfm.canon.cardBack
+import dev.martianzoo.tfm.canon.cardRequirement
 import dev.martianzoo.tfm.canon.cardTags
 import dev.martianzoo.tfm.state.tfmCatalog
 
@@ -481,7 +482,11 @@ private constructor(
             catalog.classTable.getClass(filter.arguments.single().arguments.single().className)
         cardTags(card).elements.any { catalog.classTable.getClass(it).isSubtypeOf(tag) }
       }
-      cn("NoTagsFilter") -> cardTags(card).isEmpty()
+      cn("NoTagsFilter") ->
+          cardTags(card).elements.none {
+            catalog.classTable.getClass(it).isSubtypeOf(catalog.classTable.getClass(cn("Tag")))
+          }
+      cn("RequirementFilter") -> cardRequirement(card) != null
       cn("ReferenceFilter") -> {
         val reference =
             catalog.classTable.getClass(filter.arguments.single().arguments.single().className)

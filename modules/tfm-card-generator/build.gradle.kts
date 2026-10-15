@@ -33,7 +33,7 @@ tasks.register<JavaExec>("generateCardPets") {
   val outputDirectory = layout.buildDirectory.dir("generated/cardPets")
   outputs.dir(outputDirectory)
   inputs
-      .files(fileTree(authoredCardPetsDirectory) { include("*/cards.pets") })
+      .files(fileTree(authoredCardPetsDirectory) { include("**/*.pets") })
       .withPathSensitivity(PathSensitivity.RELATIVE)
   args(outputDirectory.get().asFile.absolutePath, authoredCardPetsDirectory.asFile.absolutePath)
 }

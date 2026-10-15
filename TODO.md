@@ -2,6 +2,16 @@
 
 Delete entries when they are done.
 
+- Wild tags are not yet supported when Robotic Workforce or Cyberia Systems copies production:
+  Research Network cannot be selected through its wild, and copied Gyropolis does not allocate
+  Earth tags for its production. Allocate only after the copy target is known; preserve Building
+  counting for Medical Lab and keep each assignment for the whole action. Bug-test pairs cover
+  the rejected Research Network copies.
+- Investigate represented-tag binding before shortening `@Tag<WildTag<@CardFront>>` to
+  `@Tag<This>` or moving the assignment rule into an inherited `LikesTag` self-effect.
+  The short spelling fails while `recordTypeVariableScopes` resolves the represented-tag usage:
+  `This` has not yet been replaced with the declaring holder. Explicit holder spelling works.
+
 - Finish faithful coverage of the 2026-10-14 unanswered-rules scenarios where current content or
   inputs cannot express the situation. `UnknownRulesTest` covers rejecting partial Celestic and
   Morning Star search counts (question 8), but not exhaustion after finding some cards: searches

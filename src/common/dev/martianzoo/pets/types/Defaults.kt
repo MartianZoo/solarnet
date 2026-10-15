@@ -7,12 +7,12 @@ import dev.martianzoo.pets.ast.Instruction.Quantifier
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.DefaultKind
 
 /**
- * The three independently inherited default sets defined by
+ * The four independently inherited default sets defined by
  * [rule T10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
  * Defaults provide authored context during elaboration; they do not change which types exist.
  *
- * @constructor Groups the independently inherited [allUsages], [gainOnly], and [removeOnly] sets
- *   separated by
+ * @constructor Groups the independently inherited [allUsages], [gainOnly], [removeOnly], and
+ *   [triggerOnly] sets separated by
  *   [rule T10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
  */
 public data class Defaults(
@@ -33,6 +33,9 @@ public data class Defaults(
      * [rules T10-1 and T10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
      */
     val removeOnly: DefaultSpec,
+
+    /** Dependency defaults applied only to gain and removal trigger expressions (T10-1). */
+    val triggerOnly: DefaultSpec,
 ) {
   internal companion object {
     /**
@@ -43,6 +46,7 @@ public data class Defaults(
       val allUsagesDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.ALL_USAGES)
       val gainDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.GAIN_ONLY)
       val removeDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.REMOVE_ONLY)
+      val triggerDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.TRIGGER_ONLY)
 
       val gainQuantifier =
           inheritDefault(klass, { it.defaultsDecl.gainOnly.quantifier }, onlyOne(klass, "gain"))!!
@@ -57,6 +61,7 @@ public data class Defaults(
           allUsages = DefaultSpec(allUsagesDeps, null),
           gainOnly = DefaultSpec(gainDeps, gainQuantifier),
           removeOnly = DefaultSpec(removeDeps, removeQuantifier),
+          triggerOnly = DefaultSpec(triggerDeps, null),
       )
     }
 

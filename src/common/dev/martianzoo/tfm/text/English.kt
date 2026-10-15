@@ -5,6 +5,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Class
@@ -199,7 +200,10 @@ internal class English(
   }
 
   private fun interpretedCardEffects(card: Class): List<Effect> =
-      cardEffects(card).map(card::interpretTypeVariablesIn)
+      cardEffects(card).map(card::interpretTypeVariablesIn).filterNot { effect ->
+        val instructions = InstructionGroup.of(effect.instruction).instructions
+        instructions.isNotEmpty() && instructions.all { isImplicitInstruction(it, describers) }
+      }
 
   private fun isSelfGainEffect(effect: Effect): Boolean {
     return (effect.automatic && effect.trigger == WhenGain) ||

@@ -179,6 +179,8 @@ private constructor(
             ComponentDescriber::cardProcedure,
             ComponentDescriber::cardLocationDependency,
             ComponentDescriber::cardInvariantSentence,
+            ComponentDescriber::tagAssignmentHolder,
+            ComponentDescriber::implicitInstruction,
         )
     classesByName.values.forEach { componentClass ->
       facts.forEach { fact ->

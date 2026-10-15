@@ -435,6 +435,7 @@ public object Parsing {
                 universal = transformDefault(defaults.universal),
                 gainOnly = transformDefault(defaults.gainOnly),
                 removeOnly = transformDefault(defaults.removeOnly),
+                triggerOnly = transformDefault(defaults.triggerOnly),
             ),
         properties =
             declaration.properties.entries.associate {
@@ -1146,6 +1147,16 @@ public object Parsing {
                   forClass = expression.className,
               )
             }
+    private val triggerDefault by
+        expression and
+            skip(colon) map
+            { expression ->
+              rejectInvalidDefaultRoot(expression)
+              DefaultsDeclaration(
+                  triggerOnly = OneDefault(expression.arguments),
+                  forClass = expression.className,
+              )
+            }
     private val universalDefault by
         expression map
             {
@@ -1154,7 +1165,7 @@ public object Parsing {
             }
     private val defaults by
         skip(defaultKeyword) and
-            (gainDefault or removeDefault or universalDefault) map
+            (gainDefault or removeDefault or triggerDefault or universalDefault) map
             ::DefaultsElement
     private val propertyAssignment by
         propertyName and

@@ -200,8 +200,9 @@ private fun Describers.unrestrictedPlayedTagEvent(expression: Expression): Event
   }
   val holder = resolved.sourceDependency(holderKey) ?: return null
   if (
-      resolved.sourceDependency(ownerKey) != anyoneExpression ||
-          resolved.sourceDependencies.keys != setOf(ownerKey, holderKey)
+      resolved.sourceDependencies.any { (key, value) ->
+        key != holderKey && (key != ownerKey || value != anyoneExpression)
+      }
   ) {
     return null
   }

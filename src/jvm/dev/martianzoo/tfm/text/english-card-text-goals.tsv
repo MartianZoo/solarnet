@@ -29,7 +29,7 @@ Poseidon	Poseidon	Gain 45 M€. As your first action, place a colony.	Effect: Wh
 StormcraftIncorporated	Stormcraft Incorporated	Gain 48 M€.	Action: Add 1 floater to any card. / Effect: You may use floaters on this card as 2 heat each.
 LakefrontResorts	Lakefront Resorts	Gain 54 M€.	Effect: When any ocean tile is placed, increase your M€ production 1 step. When you place a tile on Mars, gain 1 M€ extra per ocean tile next to that area.
 Pristar	Pristar	Gain 53 M€. Lower your terraform rating 2 steps. 1 VP per preservation resource on this card.	Effect: During production, if your terraform rating has not risen this generation, add 1 preservation resource to this card and gain 6 M€.
-FakeSeptemTribus	Septem Tribus	Gain 36 M€. When you take an action, the wild tag counts as any tag of your choice.	Action: Gain 2 M€ per party where you have at least 1 delegate.
+SeptemTribus	Septem Tribus	Gain 36 M€. When you take an action, the wild tag counts as any tag of your choice.	Action: Gain 2 M€ per party where you have at least 1 delegate.
 TerraLabsResearch	TerraLabs Research	Gain 14 M€. Lower your terraform rating 1 step.	Effect: When you buy a card, you pay 2 M€ less for it.
 UtopiaInvest	Utopia Invest	Gain 40 M€. Increase your steel production and your titanium production 1 step each.	Action: Decrease one of your productions 1 step to gain 4 of that resource.
 Ecotec	Ecotec	Gain 42 M€. Increase your plant production 1 step.	Effect: When you play a bio tag (including this), gain 1 plant or add 1 microbe to another card.
@@ -74,7 +74,7 @@ NitrogenShipment	Nitrogen Shipment	Raise your terraform rating 1 step. Increase 
 OrbitalConstructionYard	Orbital Construction Yard	Increase your titanium production 1 step. Gain 4 titanium.
 PolarIndustries	Polar Industries	Place an ocean tile. Increase your heat production 2 steps.
 PowerGeneration	Power Generation	Increase your energy production 3 steps.
-FakeResearchNetwork	Research Network	Increase your M€ production 1 step. Draw 3 cards. When you take an action, the wild tag counts as any tag of your choice.
+ResearchNetwork	Research Network	Increase your M€ production 1 step. Draw 3 cards. When you take an action, the wild tag counts as any tag of your choice.
 SelfSufficientSettlement	Self-Sufficient Settlement	Place a city tile. Increase your M€ production 2 steps.
 SmeltingPlant	Smelting Plant	Raise oxygen 2 steps. Gain 5 steel.
 SocietySupport	Society Support	Decrease your M€ production 1 step and increase your plant production, your energy production, and your heat production 1 step each.
@@ -87,7 +87,7 @@ Merger	Merger	Look at 4 corporation cards, discard 3 of them, then play the othe
 CorporateArchives	Corporate Archives	Gain 13 M€. Look at 7 cards. Draw 2 of them.
 DoubleDown	Double Down	Copy your other Prelude's direct effect.
 FakeHeadStart	Head Start	Gain 2 steel and 2 M€ per project card in your hand. Immediately take 2 actions.
-FakeAppliedScience	Applied Science	Add 6 science resources to this card.	Action: Spend 1 science resource from this card to add 1 resource to a card with 1 or more resources on it or gain 1 standard resource.
+AppliedScience	Applied Science	Add 6 science resources to this card.	Action: Spend 1 science resource from this card to add 1 resource to a card with 1 or more resources on it or gain 1 standard resource.
 AtmosphericEnhancers	Atmospheric Enhancers	Raise temperature 2 steps, oxygen 2 steps, or Venus 2 steps. Draw 2 cards with floater icons.
 BoardOfDirectors	Board of Directors	Add 4 director resources to this card.	Action: Draw 1 prelude card. Discard it, or spend 12 M€ and spend 1 director resource from this card to play it.
 ColonyTradeHub	Colony Trade Hub	Increase your energy production 1 step. Gain 2 titanium.	Effect: When any colony is placed, gain 2 M€.
@@ -98,7 +98,7 @@ FocusedOrganization	Focused Organization	Draw 1 card. Gain 1 standard resource.	
 HighCircles	High Circles	Raise your terraform rating 1 step. Draw 1 card with a party requirement. Place 2 delegates in the same party.	Effect: When influence is counted, gain 1 influence.
 IndustrialComplex	Industrial Complex	Remove 18 M€. Increase each of your productions below 1 to 1.
 MainBeltAsteroids	Main Belt Asteroids	Remove 5 M€. 1 VP per 2 asteroids on this card.	Action: Add 1 asteroid to any card. / Effect: When you add an asteroid to this card, gain 1 titanium.
-FakeNobelPrize	Nobel Prize	Gain 5 M€. Draw 2 cards with requirements.
+NobelPrize	Nobel Prize	Gain 5 M€. Draw 2 cards with requirements.
 OldMiningColony	Old Mining Colony	Increase your titanium production 1 step. Place a colony. Discard 1 card.
 PlanetaryAlliance	Planetary Alliance	Raise your terraform rating 2 steps. Draw 1 Jovian card and 1 Venus card.
 PreservationProgram	Preservation Program	Raise your terraform rating 5 steps.	Effect: Ignore the first increase to your terraform rating in each generation's action phase.
@@ -379,7 +379,7 @@ HousePrinting	House Printing	Increase your steel production 1 step.
 LavaTubeSettlement	Lava Tube Settlement	Decrease your energy production 1 step and increase your M€ production 2 steps. Place a city tile on a volcanic area if using a board that has one, otherwise place it normally.
 MartianSurvey	Martian Survey	Requires 4% oxygen or less. Draw 2 cards.
 Psychrophiles	Psychrophiles	Requires -20°C or colder.	Action: Add 1 microbe to this card. / Effect: When you play a plant tag, microbes on this card may be used as 2 M€ each.
-FakeResearchCoordination	Research Coordination	When you take an action, the wild tag counts as any tag of your choice.
+ResearchCoordination	Research Coordination	When you take an action, the wild tag counts as any tag of your choice.
 SfMemorial	SF Memorial	Draw 1 card.
 SpaceHotels	Space Hotels	Requires 2 Earth tags. Increase your M€ production 4 steps.
 Airliners	Airliners	Requires that you have 3 floaters. Increase your M€ production 2 steps. Add 2 floaters to another card.

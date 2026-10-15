@@ -128,7 +128,7 @@ The most important thing to understand about cards is that the engine supports o
 
 Even with this simplification, the whole play-a-card process is a bit complex to go into here and now.
 
-Cards can have several types of things "on" them. `Tag`s depend on a `TagHolder`: normally a `CardFront`, or temporarily the `FakeWildTagUse` supplied by a replay. `CardResource`s, `ActionUsedMarker`s, and the inert `FakeWildTag` used by incomplete wild-tag cards share the more specific `Cardbound` superclass. For every card-attached component, the `CardFront` must exist before it can, and if the `CardFront` ever went away the attached component would have to as well. This is, of course, just how dependencies work in PETS.
+Cards can have several types of things "on" them. `Tag`s depend on a `TagHolder`: normally a `CardFront`, or a `WildTag` holding a temporary assignment for the current action. The wild tag itself depends on its printed card. `CardResource`s and `ActionUsedMarker`s share the more specific `Cardbound` superclass. For every card-attached component, the `CardFront` must exist before it can, and if the `CardFront` ever went away the attached component would have to as well. This is, of course, just how dependencies work in PETS.
 
 `Cardbound` is an interesting case in that it is both `Owned`, and depends on a type (`CardFront`) which is also `Owned`. Its declaration repeats the marked `Owner` bound in both places, making the two owners always the same. Thus `Animal<Player2, Predators>` and `Animal<Predators<Player2>>` mean the same concrete type, while specifying different owners is invalid.
 

@@ -80,8 +80,9 @@ purchase discounts through `PayingFor<Class<ProjectCard>>`. Settling the bill of
 `Selecting` until the Player performs it. Zero buys leave no selected backs. Neither the World nor
 the replay ledger names rejected cards. Searches create only the matching hand card;
 there is no count of cards searched past. `SearchForCard<CardFilter>` records the externally
-verified criterion as a transient audited event. `TagFilter`, `NoTagsFilter`, and
-`ReferenceFilter` cover the supported tag, no-printed-tag, and reference criteria. The selected
+verified criterion as a transient audited event. `TagFilter`, `NoTagsFilter`,
+`ReferenceFilter`, and `RequirementFilter` cover printed tags, no printed tags, references, and
+the presence of a printed play requirement. The selected
 card's printed properties do not become hand state. One generic `TagFilter` Class serves every
 tag, with its singleton Components supplied by the rule Module. Its `Class<Tag>` dependency is the
 criterion; it has no `criteria` property because Requirement properties do not currently
@@ -166,3 +167,7 @@ selected; the narrower tracking API does not require hiding those names from oth
 Shuffle/deal policy, deck order, and identities of cards never entering a hand or play do not belong
 in the engine. Do not build scaffolding for a full dealer or real-card mode as a prerequisite for
 this narrower tracking API.
+
+Wild icons are included in `cardTags` metadata, but do not disqualify a card from `NoTagsFilter`.
+A search examines cards outside play, where the wild has no assigned tag. Ordinary printed tags,
+including Event, still disqualify a card from that search.

@@ -6,7 +6,6 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -89,7 +88,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     }
     rainbow.turn {
       // 2:17:27 PM — Rainbow: "Yeah, I got space lanes, some planet tags are too off."
-      playPrelude(FakeAppliedScience)
+      playPrelude(AppliedScience)
       // 2:17:52 PM — Rainbow: "um and this one has an action so super bonus um yeah so i get six
       // science resources"
       // 2:18:13 PM — Green: "You've got a wild tag. So remember, you've always got one more tag
@@ -154,7 +153,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 2:28:42 PM — Rainbow: "That's okay, because it's cheaper to do a floating workbinder."
       // 2:28:45 PM — Rainbow: "For seven money. Which should be 25."
       // Morning Star's wild tag supplies the third Venus tag counted aloud for this operation.
-      rainbow.exMachina(fakeWildTags("VenusTag"))
       playProject(FloatingRefinery, 5).expect("3 Floater<$FloatingRefinery>")
       // Rainbow physically paid seven before remembering Space Lanes' 2 M€ discount. Preserve the
       // recorded overpayment until the equally explicit refund below.
@@ -226,7 +224,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // [Rainbow]."
     green.pass()
     // 2:35:57 PM — Rainbow: "I believe I also pass."
-    rainbow.pass(unused = FakeAppliedScience)
+    rainbow.pass(unused = AppliedScience)
 
     // 2:36:16 PM — Yellow: "Anushkin on this two-card spot so no one gets that."
     // 2:36:20 PM — Green: "So that looks like it's eight four to me."
@@ -243,7 +241,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       assertProduction(m = 0, s = 0, t = 0, p = 0, e = 0, h = 0)
       assertResources(m = 36, s = 2, t = 4, p = 0, e = 0, h = 0)
       assertCounts(26 to "TerraformRating")
-      assertCardResources(1 to FloatingRefinery, 6 to FakeAppliedScience)
+      assertCardResources(1 to FloatingRefinery, 6 to AppliedScience)
     }
     with(blue) {
       assertProduction(m = 2, s = 0, t = 0, p = 0, e = 1, h = 5)
@@ -333,8 +331,8 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 2:53:12 PM — Rainbow: "So I'm gonna have you use applied science Sulfur-eating bacteria.
       // I'm
       // gonna pass."
-      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
-          .expect("-Science<$FakeAppliedScience>, Microbe<$SulphurEatingBacteria>")
+      cardAction1(AppliedScience) { addCardResources(SulphurEatingBacteria) }
+          .expect("-Science<$AppliedScience>, Microbe<$SulphurEatingBacteria>")
     }
     blue.pass()
     rainbow.turn {
@@ -370,7 +368,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       assertCardResources(
           2 to FloatingRefinery,
           2 to SulphurEatingBacteria,
-          5 to FakeAppliedScience,
+          5 to AppliedScience,
       )
     }
     with(blue) {
@@ -449,7 +447,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // increase my money production one step for each Venus tag I have, which is one two three
       // four
       // five and six."
-      rainbow.exMachina(fakeWildTags("VenusTag"))
       playProject(SulphurExports, 14, titanium = 1).expect("VenusStep, TerraformRating, PROD[6 MC]")
     }
     // 3:11:32 PM — Blue: "I'm gonna convert 80 to a temperature."
@@ -508,8 +505,8 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // 3:18:15 PM — Yellow: "I think I'm ready to pass out of here. Pass out."
     yellow.pass()
     rainbow.turn {
-      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
-          .expect("-Science<$FakeAppliedScience>, Microbe<$SulphurEatingBacteria>")
+      cardAction1(AppliedScience) { addCardResources(SulphurEatingBacteria) }
+          .expect("-Science<$AppliedScience>, Microbe<$SulphurEatingBacteria>")
     }
     green.pass()
     // 3:18:26 PM — Rainbow: "Okay. Then I'm going to add another microbe to self-reating bacteria.
@@ -544,7 +541,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       assertProduction(m = 6, s = 0, t = 1, p = 0, e = 0, h = 0)
       assertResources(m = 37, s = 0, t = 2, p = 0, e = 0, h = 0)
       assertCounts(28 to "TerraformRating")
-      assertCardResources(4 to SulphurEatingBacteria, 4 to FakeAppliedScience)
+      assertCardResources(4 to SulphurEatingBacteria, 4 to AppliedScience)
     }
     with(blue) {
       assertProduction(m = 2, s = 0, t = 0, p = 1, e = 4, h = 7)
@@ -585,7 +582,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // more microbes to turn into money?"
       // 3:27:49 PM — Green: "Yes, applied sciences to put one more on sulfur or whatever, eating
       // bacteria."
-      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(AppliedScience) { addCardResources(SulphurEatingBacteria) }
       // 3:27:55 PM — Rainbow: "Sulfur eating bacteria, using sulfur eating bacteria to turn five
       // microbes into 15 money."
       cardAction2(SulphurEatingBacteria, x = 5)
@@ -634,11 +631,9 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // For bacterial virus research."
       // 3:40:00 PM — Rainbow: "I get to uh add one microbe to a played card for each science tag I
       // have, including this, which is one, two, and three."
-      rainbow.exMachina(fakeWildTags("ScienceTag"))
       playProject(BactoviralResearch, 10) {
         addCardResources(SulphurEatingBacteria)
       }
-      rainbow.exMachina(fakeWildTags("ScienceTag"))
       // 3:41:02 PM — Rainbow: "Fine, then I'm gonna pay eight money for a at a Linta planitia lab,
       // which gets me two cards."
       playProject(AtalantaPlanitiaLab, 8)
@@ -663,7 +658,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       assertProduction(m = 6, s = 0, t = 1, p = 0, e = 1, h = 0)
       assertResources(m = 36, s = 0, t = 3, p = 0, e = 1, h = 0)
       assertCounts(28 to "TerraformRating")
-      assertCardResources(3 to SulphurEatingBacteria, 3 to FakeAppliedScience)
+      assertCardResources(3 to SulphurEatingBacteria, 3 to AppliedScience)
     }
     with(blue) {
       assertProduction(m = 4, s = 0, t = 0, p = 1, e = 4, h = 7)
@@ -729,7 +724,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // action, and I'm applying my science resource to Sulfur Eating Bacteria. Then I'm going to
       // take my Sulfur Eating Bacteria action. And turn these four science resources into 12
       // money."
-      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(AppliedScience) { addCardResources(SulphurEatingBacteria) }
       cardAction2(SulphurEatingBacteria, x = 4)
     }
     // 3:55:26 PM — Blue: "Okay, I'm gonna raise the temperature and convert my heat."
@@ -904,7 +899,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       assertCardResources(
           2 to FloatingRefinery,
           1 to SulphurEatingBacteria,
-          2 to FakeAppliedScience,
+          2 to AppliedScience,
       )
     }
     with(blue) {
@@ -1003,7 +998,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     rainbow.turn {
       // 3:14:27 PM — Rainbow: "Um. I'm gonna go ahead and remove a science resource from applied
       // science and put it on sulfur-eating bacteria."
-      cardAction1(FakeAppliedScience) { addCardResources(SulphurEatingBacteria) }
+      cardAction1(AppliedScience) { addCardResources(SulphurEatingBacteria) }
     }
     blue.turn {
       // 3:14:42 PM — Blue: "Okay. I'm going to play indentured workers, my bad guys, which costs
@@ -1061,7 +1056,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // bacteria. I'm going to take my floater and find a reaction to remove two floaters and gain
       // one titanium and two money. And that's two actions."
       cardAction1(Thermophiles) { addCardResources(SulphurEatingBacteria) }
-      rainbow.exMachina(fakeWildTags("VenusTag"))
       stdAction("UseCardAction<$FloatingRefinery, Action2>").expect("2 MC")
       assertCounts(21 to "MC")
     }
@@ -1083,7 +1077,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // money."
     yellow.turn { playProject(Sabotage, 1) { doTask("-7 MC<Green>") } }
     rainbow.turn {
-      rainbow.exMachina(fakeWildTags("PlantTag"))
       // 3:23:34 PM — Rainbow: "I'm spending eleven money on cloud seating. I decrease my money
       // production one step. [Blue]'s heat production one step."
       // 3:23:48 PM — Rainbow: "I decrease your heat production one step."
@@ -1103,7 +1096,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     green.turn { sellPatents(1) }
     yellow.pass()
     rainbow.turn {
-      rainbow.exMachina(fakeWildTags("MicrobeTag"))
       // 3:25:18 PM — Rainbow: "So I'm using, I'm doing my sulfur eating bacteria action, turning
       // three bacteria into nine money."
       cardAction2(SulphurEatingBacteria, x = 3).expect("9 MC")
@@ -1189,7 +1181,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       assertCardResources(
           1 to Ants,
           1 to Fish,
-          1 to FakeAppliedScience,
+          1 to AppliedScience,
       )
     }
     with(blue) {
@@ -1317,7 +1309,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 3:45:19 PM — Rainbow: "Yeah, I'm gonna place my floater."
       // 3:45:23 PM — Green: "Okay, so first action to place on floating refinery."
       cardAction1(FloatingRefinery)
-      rainbow.exMachina(fakeWildTags("VenusTag"))
       // 3:45:26 PM — Green: "Then second action spends it."
       // 3:45:28 PM — Rainbow: "Spending my ten."
       // 3:45:30 PM — Rainbow: "Yes, striped spherical birds and taking my floater off in some clown
@@ -1354,7 +1345,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     rainbow.exMachina("Microbe<$SulphurEatingBacteria>")
     rainbow.assertCardResources(1 to SulphurEatingBacteria)
     rainbow.turn {
-      cardAction1(FakeAppliedScience) {
+      cardAction1(AppliedScience) {
         addCardResources(SulphurEatingBacteria)
       }
       assertCardResources(2 to SulphurEatingBacteria)
@@ -1437,7 +1428,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // Rainbow paid 8 M€ for Miranda Resort without titanium. The table counted her wild tag as
       // Earth while resolving the card, then corrected the resulting production increase to two.
       intentionalUnderpay()
-      rainbow.exMachina(fakeWildTags("EarthTag"))
       playProject(MirandaResort, 8)
     }
     // 3:57:14 PM — Rainbow: "Alright, I'm also going to pass."
@@ -1491,7 +1481,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // Should I take away three money? I mean it might have been okay"
     // 5:26:30 PM — Green: "Let's just let it stand."
     // The table explicitly chose not to correct either state here.
-    rainbow.assertCounts(54 to "MC", 0 to "Science<$FakeAppliedScience>")
+    rainbow.assertCounts(54 to "MC", 0 to "Science<$AppliedScience>")
 
     // 5:31:27 PM — Yellow: "I think I'm gonna buy two cards. My butt hurts. Go up."
     // 5:31:46 PM — Blue: "by one card."
@@ -1751,7 +1741,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // to Venus for three titanium, no discounts. Raise Venus to 20%, get a TR. I'm going to play
     // air
     // scrapping exhibition. For thirteen money. No discounts."
-    rainbow.pass(unused = FakeAppliedScience)
+    rainbow.pass(unused = AppliedScience)
 
     green.turn {
       playProject(WaterToVenus, titanium = 3)
@@ -1841,16 +1831,15 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 3:48:27 PM, yet this recording explicitly establishes one remaining science resource. No
       // source identifies where the extra resource arose, so 6:09:38 PM is its latest possible
       // insertion point.
-      assertCounts(0 to "Science<$FakeAppliedScience>")
-      exMachina("Science<$FakeAppliedScience>")
-      assertCounts(1 to "Science<$FakeAppliedScience>")
-      cardAction1(FakeAppliedScience) { addCardResources(FloatingRefinery) }
+      assertCounts(0 to "Science<$AppliedScience>")
+      exMachina("Science<$AppliedScience>")
+      assertCounts(1 to "Science<$AppliedScience>")
+      cardAction1(AppliedScience) { addCardResources(FloatingRefinery) }
       // 6:10:48 PM — Rainbow: "Okay, I'm just gonna do this so that I don't suggest keep doing the
       // math over and over again. I need to pay for an interstellar colony ship."
       // 6:11:00 PM — Rainbow: "It costs 20. Yeah, that's what I'm gonna do. Oops, not eighteen
       // minus
       // six minus titanium and money."
-      rainbow.exMachina(fakeWildTags("ScienceTag"))
       playProject(InterstellarColonyShip, 2, titanium = 6).expect("MC")
       // The app omits Media Group's 3 M€ response to this event.
       rainbow.exMachina("-3 MC")

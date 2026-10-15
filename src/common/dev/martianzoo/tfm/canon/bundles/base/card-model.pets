@@ -67,6 +67,9 @@ CLASS NoTagsFilter : CardFilter { HAS MAX 1 This }
 "Carries the externally asserted reference to a game concept"
 CLASS ReferenceFilter<Class<Component>> : CardFilter { HAS MAX 1 This }
 
+"Carries the externally asserted presence of a printed requirement"
+CLASS RequirementFilter : CardFilter { HAS MAX 1 This }
+
 "Records the search criterion while adding only the externally selected card to the hand"
 CLASS SearchForCard<CardFilter> : Owned<Player>, Signal {
   This:: ProjectCard, Audit
@@ -83,6 +86,7 @@ CLASS ClaimCardReward<CardFilter, @ResourceCard<Class<@CardResource>, @Player>> 
 }
 
 CLASS PlayCard<Class<@CardBack>, Class<@CardFront>, @CardLocation> : Owned<Player>, Signal {
+  This:: AllocateRequiredWildTags<Class<@CardFront>>
   This:: (EVAL @CardFront<Class<@CardBack>>.requirement: Ok) OR \
     (GpRequirementShortfall<Class<@CardFront>, Class<GlobalParameter>>: \
       EACH @Class<GlobalParameter> { \
@@ -123,7 +127,26 @@ ABSTRACT CLASS CardLocation : System {
 // TODO: can this be simplified??
 ABSTRACT CLASS TagHolder : Owned<Player>
 
+"A printed wild holds its chosen tag until the action's pending work is finished"
+CLASS WildTag<@CardFront<@Player>> : TagHolder<@Player>, Real {
+  HAS MAX 1 This, MAX 1 Tag<This>
+  Tag<This>: LATER Admin { -Tag<This>* }
+  LikesTag<Class<@Tag>> IF MAX 0 Tag<This>:: @Tag<WildTag<@CardFront>>
+  AllocateRequiredWildTags<Class<@Component>> IF MAX 0 Tag<This>:: \
+    EACH Class<@Tag> { @Tag<WildTag<@CardFront>> / RequiredWildTag<Class<@Component>, WildTag<@CardFront>, Class<@Tag>> }
+}
+
+"A card whose immediate benefit prefers a particular tag"
+ABSTRACT CLASS LikesTag<Class<Tag>> : CardFront
+
+"Ask each wild to take its assignment before checking the requirement"
+CLASS AllocateRequiredWildTags<Class<Component>> : Owned<Player>, Signal, System
+
+"Selects actual tag gains that cover the shortfalls in a printed requirement"
+CLASS RequiredWildTag<Class<Component>, WildTag, Class<Tag>> : CustomMetric
+
 ABSTRACT CLASS Tag<TagHolder<@Player>> : Owned<@Player>, Atomized, Real {
+  DEFAULT Tag<CardFront>:
   CLASS BuildingTag
   CLASS SpaceTag
   CLASS ScienceTag
