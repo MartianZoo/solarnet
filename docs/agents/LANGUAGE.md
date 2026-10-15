@@ -119,6 +119,12 @@ Payment effects and persistent value grants share `renderExtraResourceValue` aft
 recognizers establish the resource and value. The best-effort qualifier is `Modifier.BEST_EFFORT`;
 modifier ordering must use that shared value rather than independently spelling its text.
 
+Production resource filters can match placement bonuses at a described site; occupant filters and
+spatial owner variables retain the tile and player relationships. A site occupant described as
+"this tile" must name a concrete class gained directly by the current card. A `PER` count of a concrete type
+whose compiled component limit is at most 1 uses the existing conditional wording. Abstract counts
+remain quantities: a limit on each specialization does not cap their combined count.
+
 `ChangeFrame` is the one axis that got this right: a closed classification, dispatched exhaustively,
 declared as data. Treat it as the template, not as a finished job.
 
@@ -242,6 +248,10 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
 - Wild-tag allocation instructions are implicit and omitted from card prose, including optional
   allocation fanouts and Cloud Tourism's allocation procedure. The printed wild card's own rule
   sentence remains visible. Tag predicates and counts still render normally.
+
+- Omit a global parameter's incomplete-track condition when it guards a single increase of that
+  same parameter, whether authored as a gate or a multiplier. Its vocabulary marks this wording
+  convention; conditions guarding other gains remain explicit.
 
 - Describe starting resources as `Gain ...` and starting production as an `Increase ... production`
   instruction, rather than using the printed `You start with ...` construction.

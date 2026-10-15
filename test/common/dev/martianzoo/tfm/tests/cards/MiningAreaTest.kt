@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.DependencyException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -57,7 +59,7 @@ internal class MiningAreaTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("NormalCityTile<Kim, Tharsis_2_1>")
 
-    shouldThrow<RequirementException> {
+    shouldThrow<DependencyException> {
       kim.inTurn {
         doTasks("PlayProject<Class<MiningArea>>", "4 Pay<> FROM MC")
         doTask("MiningArea FROM ProjectCard")
@@ -66,5 +68,41 @@ internal class MiningAreaTest : TfmSandboxTest() {
         selectOnlyTask()
       }
     }
+    kim.assertCounts(42 to "MC", 0 to "MiningArea_SpecialTile")
+  }
+
+  @Test
+  internal fun `Another player's adjacent tile does not permit placement`() {
+    newTestGame()
+    stan.exMachina("NormalCityTile<Tharsis_7_9>")
+
+    shouldThrow<DependencyException> {
+      kim.inTurn {
+        doTasks("PlayProject<Class<MiningArea>>", "4 Pay<> FROM MC", "MiningArea FROM ProjectCard")
+        doTask("MiningArea_SpecialTile<Tharsis_8_9>")
+      }
+    }
+    kim.assertCounts(42 to "MC", 0 to "MiningArea_SpecialTile")
+  }
+
+  @Test
+  internal fun `A titanium area cannot grant steel production from another player's mining tile`() {
+    newTestGame()
+    kim.exMachina("NormalCityTile<Tharsis_7_9>")
+    stan.exMachina("MiningArea_SpecialTile<Tharsis_1_1>")
+
+    shouldThrow<NarrowingException> {
+      kim.inTurn {
+        doTasks(
+            "PlayProject<Class<MiningArea>>",
+            "4 Pay<> FROM MC",
+            "MiningArea FROM ProjectCard",
+            "MiningArea_SpecialTile<Tharsis_8_9>",
+            "Titanium",
+        )
+        doTask("PROD[Steel]")
+      }
+    }
+    kim.assertCounts(42 to "MC", 0 to "MiningArea_SpecialTile", 1 to "PROD[Steel]")
   }
 }

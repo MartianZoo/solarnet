@@ -315,8 +315,7 @@
           "autoSelectWhen": "Unsafe OR MAX 0 AmazonisMap",
           "cost": 4,
           "tags": [ "BuildingTag" ],
-          "direct": "MiningArea_SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> THEN PROD[(LandArea(HAS MiningArea_SpecialTile, HAS PlacementBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningArea_SpecialTile, HAS PlacementBonus<Class<Titanium>>): Titanium)]",
-          "components": [ "CLASS MiningArea_SpecialTile : SpecialTile<LandArea>" ],
+          "direct": "SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {}, PROD[Metal(HAS PlacementBonus<LandArea(HAS MiningArea_SpecialTile)>)]",
         },
         {
           "name": "MirandaResort",

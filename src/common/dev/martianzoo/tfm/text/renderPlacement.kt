@@ -163,7 +163,7 @@ internal fun renderPlacementSites(
     val novelRequirements = authoredRequirements.filterNot { it in implicitRequirements }
     val renderedRequirements =
         (novelRequirements.ifEmpty { authoredRequirements }).map { requirement ->
-          renderPlacementSiteRequirement(requirement, describers) ?: return null
+          renderPlacementSiteRequirement(requirement, describers, references) ?: return null
         }
     modifiers += renderedRequirements
   }
@@ -181,10 +181,41 @@ internal fun Expression.Refinement.requirementsOrNull(): List<Requirement>? =
 internal fun renderPlacementSiteRequirement(
     requirement: Requirement,
     describers: Describers,
+    references: TypeVariableReferences = TypeVariableReferences.EMPTY,
 ): Modifier? =
-    renderSpatialRequirement(requirement, describers)
+    renderSpatialRequirement(requirement, describers, references)
         ?: renderPlacementBonusRequirement(requirement, describers)
+        ?: renderSiteOccupantRequirement(requirement, describers)
         ?: renderEmptySiteRequirement(requirement, describers)
+
+private fun renderSiteOccupantRequirement(
+    requirement: Requirement,
+    describers: Describers,
+): Modifier? {
+  val minimum = requirement as? Requirement.Min ?: return null
+  if (minimum.target != 1) return null
+  val expression = countedExpression(minimum) ?: return null
+  if (!expression.simple || expression.typeVariableName != null) return null
+  val frame = describers.positionedFrame(expression.className) ?: return null
+  if (
+      frame.determiner == Determiner.THIS &&
+          (!describers.concrete(expression.className) ||
+              !describers.currentCardGainsSingle(expression.className))
+  ) {
+    return null
+  }
+  val placement = resolvePlacementExpression(expression, describers) ?: return null
+  if (placement.sites.isNotEmpty() || placement.unknownDependencies.isNotEmpty()) return null
+  val occupant =
+      renderPlacedComponentNoun(
+          placement,
+          1,
+          frame,
+          describers,
+          frame.determiner != Determiner.THIS,
+      ) ?: return null
+  return Modifier.Relation("with", occupant)
+}
 
 private fun renderEmptySiteRequirement(
     requirement: Requirement,
@@ -227,6 +258,7 @@ private fun renderPlacementBonusRequirement(
 private fun renderSpatialRequirement(
     requirement: Requirement,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Modifier? {
   val counting = requirement as? Requirement.Counting ?: return null
   val relationExpression = countedExpression(counting) ?: return null
@@ -234,7 +266,8 @@ private fun renderSpatialRequirement(
   val relation =
       describers.fact(relationExpression.className, ComponentDescriber::spatialRelation)
           ?: return null
-  val target = renderSpatialTarget(relationExpression, relation, describers) ?: return null
+  val target =
+      renderSpatialTarget(relationExpression, relation, describers, references) ?: return null
 
   return when (counting) {
     is Requirement.Min -> Modifier.Relation(relation.phrase, target.minimumPhrase(counting.target))
@@ -256,6 +289,8 @@ private data class SpatialTarget(
     UNRESTRICTED,
     YOURS,
     ANYONES,
+    A_PLAYERS,
+    THAT_PLAYERS,
   }
 
   fun minimumPhrase(count: Int): NounPhrase {
@@ -287,6 +322,8 @@ private data class SpatialTarget(
         Ownership.UNRESTRICTED -> ""
         Ownership.YOURS -> "you own"
         Ownership.ANYONES -> "anyone owns"
+        Ownership.A_PLAYERS -> "a player owns"
+        Ownership.THAT_PLAYERS -> "that player owns"
       }
 }
 
@@ -294,6 +331,7 @@ private fun renderSpatialTarget(
     relationExpression: Expression,
     relation: ComponentDescriber.SpatialRelation,
     describers: Describers,
+    references: TypeVariableReferences,
 ): SpatialTarget? {
   val resolvedRelation = describers.resolveExpression(relationExpression) ?: return null
   if (resolvedRelation.sourceDependencies.isEmpty()) {
@@ -304,14 +342,29 @@ private fun renderSpatialTarget(
   val target = resolvedRelation.sourceDependencies.values.singleOrNull() ?: return null
   val resolvedTarget = describers.resolveExpression(target) ?: return null
   val ownerKey = Key(OWNED, 0)
+  val namedOwner =
+      resolvedTarget.sourceDependency(ownerKey)?.takeIf {
+        it.typeVariableName != null &&
+            !describers.expressions.isOwner(it) &&
+            it.copy(typeVariableName = null) in
+                listOf(describers.anyoneExpression, describers.playerExpression) &&
+            resolvedTarget.sourceDependencies.size == 1
+      }
   if (
       (resolvedTarget.sourceDependencies.isNotEmpty() &&
-          !resolvedTarget.hasOnlySourceDependency(ownerKey, describers.anyoneExpression)) ||
-          target.refinement != null
+          !resolvedTarget.hasOnlySourceDependency(ownerKey, describers.anyoneExpression) &&
+          namedOwner == null) || target.refinement != null
   ) {
     return null
   }
   val placement = describers.positionedFrame(target.className) ?: return null
+  if (namedOwner != null) {
+    return SpatialTarget(
+        placement.referenceNoun ?: placement.noun,
+        if (references.variableUsedAt(namedOwner) == null) SpatialTarget.Ownership.A_PLAYERS
+        else SpatialTarget.Ownership.THAT_PLAYERS,
+    )
+  }
   val explicitlyAnyOwner =
       resolvedTarget.hasOnlySourceDependency(ownerKey, describers.anyoneExpression)
   val ownership =

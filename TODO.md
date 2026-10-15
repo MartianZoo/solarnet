@@ -58,8 +58,6 @@ Delete entries when they are done.
   unnamed overlap, not disjointness, so discarding that candidate can return a false greatest
   type. `Spec07BoundsTest` preserves the competing `Broad<Second>` and `Narrow` witness.
 
-- Simplify Flooding and Artificial Lake's ocean instructions, preserving full-track behavior,
-  mandatory placement, and Flooding's victim choice.
 - Derive `TfmActionLowerer`'s standard-resource cost classification from Pets declarations
   instead of its hardcoded resource list, without adding a loading stage.
 - Decide whether to add shallow/deep ELSE or instruction-level `(A)*`; candidate uses and
@@ -117,6 +115,9 @@ Delete entries when they are done.
   `_local/replay-selected-task-instructions.txt`; the comparison is `_local/replay-task-english.txt`.
   Do not treat bracket-free counts as UI readiness.
 
+- Apply current-card identity checks to `CountedRelation.renderParticipant`: it can still call
+  an arbitrary `SpecialTile` "this tile" in adjacency metrics. Site-occupant filters now check
+  which concrete tile the current card places; no current Canon metric exposes the older gap.
 - Share the `NonNegativeIconsOf` citation scan between gameplay and English; both currently walk
   authored effects independently, so a later change to the icon rule could make their answers differ.
   Briber's self-claim requirement still appears as `[Briber]`; keep it separate from the direct

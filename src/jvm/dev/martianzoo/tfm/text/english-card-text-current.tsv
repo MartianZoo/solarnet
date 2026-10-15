@@ -166,7 +166,7 @@ BeamFromAThoriumAsteroid	Beam From A Thorium Asteroid	Requires a Jovian tag. Inc
 Mangrove	Mangrove	Requires +4°C or warmer. Place a greenery tile on an area reserved for ocean.
 Trees	Trees	Requires -4°C or warmer. Increase your plant production 3 steps. Gain 1 plant.
 MiningExpedition	Mining Expedition	Raise oxygen 1 step. You may remove up to 2 plants from any player. Gain 2 steel.
-MiningRights	Mining Rights	Place this tile, then (if this tile is on a land area with a steel placement bonus, increase your steel production 1 step, or if this tile is on a land area with a titanium placement bonus, increase your titanium production 1 step).
+MiningRights	Mining Rights	Place this tile. Increase your titanium or steel production 1 step matching a placement bonus on a land area with this tile.
 Birds	Birds	Requires 13% oxygen. Decrease any player's plant production 2 steps. 1 VP per animal on this card.	Action: Add 1 animal to this card.
 TowingAComet	Towing A Comet	Gain 2 plants. Raise oxygen 1 step. Place an ocean tile.
 SpaceMirrors	Space Mirrors		Action: Spend 7 M€ to increase your energy production 1 step.
@@ -190,7 +190,7 @@ OpenCity	Open City	Requires 12% oxygen. Decrease your energy production 1 step a
 SolarPower	Solar Power	Increase your energy production 1 step.
 BreathingFilters	Breathing Filters	Requires 7% oxygen.
 ArtificialPhotosynthesis	Artificial Photosynthesis	Increase your plant production 1 step or your energy production 2 steps.
-ArtificialLake	Artificial Lake	Requires -6°C or warmer. If the number of ocean tiles has not reached its maximum, place an ocean tile on a land area, or if the number of ocean tiles has reached its maximum, do nothing.
+ArtificialLake	Artificial Lake	Requires -6°C or warmer. Place an ocean tile on a land area.
 GeothermalPower	Geothermal Power	Increase your energy production 2 steps.
 Farming	Farming	Requires +4°C or warmer. Increase your M€ production and your plant production 2 steps each. Gain 2 plants.
 DustSeals	Dust Seals	Requires 3 or fewer ocean tiles.
@@ -244,7 +244,7 @@ IceCapMelting	Ice Cap Melting	Requires +2°C or warmer. Place an ocean tile.
 BiomassCombustors	Biomass Combustors	Requires 6% oxygen. Decrease any player's plant production 1 step and increase your energy production 2 steps.
 Livestock	Livestock	Requires 9% oxygen. Decrease your plant production 1 step and increase your M€ production 2 steps. 1 VP per animal on this card.	Action: Add 1 animal to this card.
 AquiferPumping	Aquifer Pumping		Action: Spend 8 M€ (steel may be used) to place an ocean tile.
-Flooding	Flooding	Place an ocean tile, or if the number of ocean tiles has not reached its maximum, [OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>!], then [-4? MC<@Anyone>].
+Flooding	Flooding	Place an ocean tile or (place an ocean tile on an area reserved for ocean next to a tile a player owns, then you may remove up to 4 M€ from that player).
 EnergySaving	Energy Saving	Increase your energy production 1 step per city tile in play.
 LocalHeatTrapping	Local Heat Trapping	Lose 5 heat. Gain 4 plants or add 2 animals to another card.
 PermafrostExtraction	Permafrost Extraction	Requires -8°C or warmer. Place an ocean tile.
@@ -270,7 +270,7 @@ Mine	Mine	Increase your steel production 1 step.
 VestaShipyard	Vesta Shipyard	Increase your titanium production 1 step.
 GreatEscarpmentConsortium	Great Escarpment Consortium	Requires that you have steel production. Decrease any player's steel production 1 step and increase your steel production 1 step.
 MineralDeposit	Mineral Deposit	Gain 5 steel.
-MiningArea	Mining Area	Place this tile on a land area next to a tile you own, then (if this tile is on a land area with a steel placement bonus, increase your steel production 1 step, or if this tile is on a land area with a titanium placement bonus, increase your titanium production 1 step).
+MiningArea	Mining Area	Place this tile on a land area next to a tile you own. Increase your titanium or steel production 1 step matching a placement bonus on a land area with this tile.
 BuildingIndustries	Building Industries	Decrease your energy production 1 step and increase your steel production 2 steps.
 LandClaim	Land Claim	Place a community marker.
 Sponsors	Sponsors	Increase your M€ production 2 steps.

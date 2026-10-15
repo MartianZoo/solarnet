@@ -650,11 +650,36 @@ private fun renderGated(
   val clause =
       renderLoweredInstructions(instruction.inner, describers, references).clauses.singleOrNull()
           ?: return null
-  if (describers.isAvailableProcedureClass(instruction.gate)) {
+  if (
+      describers.isAvailableProcedureClass(instruction.gate) ||
+          isImplicitGainCondition(instruction.gate, instruction.inner, describers)
+  ) {
     return clause
   }
   val condition = describers.renderGateCondition(instruction.gate, references) ?: return null
   return Clause.Prefaced(Clause.Preface.Conditional(condition), clause)
+}
+
+private fun isImplicitGainCondition(
+    requirement: Requirement,
+    instruction: InstructionTree,
+    describers: Describers,
+): Boolean {
+  val minimum = requirement as? Requirement.Min ?: return false
+  if (minimum.target != 1) return false
+  val expression = countedExpression(minimum) ?: return false
+  if (expression.refinement != null) return false
+  val frame =
+      describers.fact(expression.className, ComponentDescriber::requirementCondition)
+          as? ComponentDescriber.RequirementCondition.ArgumentState ?: return false
+  if (!frame.implicitForGain) return false
+  val resolved = describers.resolveExpression(expression) ?: return false
+  if (resolved.sourceDependencies.keys != setOf(frame.dependency)) return false
+  val argument = resolved.sourceDependency(frame.dependency) ?: return false
+  val parameter = describers.representedClassArgument(argument) ?: return false
+  if (!parameter.simple) return false
+  val gain = instruction as? Gain ?: return false
+  return gain.count.fixedQuantity() == 1 && gain.gaining.className == parameter.className
 }
 
 internal fun Describers.isAvailableProcedureClass(requirement: Requirement): Boolean {
@@ -701,12 +726,26 @@ private fun renderPer(
   )
 }
 
-/** A count divided into sets and capped at one is a one-time threshold. */
+/** A zero-or-one count, or a count of sets capped at one, makes its reward conditional. */
 private fun renderThresholdReward(
     instruction: Instruction.Per,
     describers: Describers,
     references: TypeVariableReferences,
 ): Clause? {
+  val counted =
+      (instruction.metric as? Metric.Count)?.expression?.let(describers::resolveExpression)
+  if (
+      counted != null &&
+          !counted.type.abstract &&
+          counted.type.classTable.componentLimits.limitsFor(counted.type).any { it.range.last <= 1 }
+  ) {
+    val requirement = Requirement.Min(1, instruction.metric)
+    val result =
+        renderLoweredInstructions(instruction.inner, describers, references).asCoordinatedClause()
+    if (isImplicitGainCondition(requirement, instruction.inner, describers)) return result
+    val condition = describers.renderGateCondition(requirement, references) ?: return null
+    return Clause.Prefaced(Clause.Preface.Conditional(condition), result)
+  }
   val capped = instruction.metric as? Metric.Max ?: return null
   if ((capped.maximum as? Metric.Constant)?.value != 1) return null
   val scaled = capped.inner as? Metric.Scaled ?: return null

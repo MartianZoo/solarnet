@@ -141,6 +141,7 @@ internal object TerraformingMarsDescribers {
                     Condition.ArgumentState(
                         Key(klass("GpIncomplete"), 0),
                         "has not reached its maximum",
+                        implicitForGain = true,
                     ),
             ),
         klass("GpComplete") to
