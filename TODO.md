@@ -6,8 +6,8 @@ Delete entries when they are done.
   mandatory placement, and Flooding's victim choice.
 - Derive `TfmActionLowerer`'s standard-resource cost classification from Pets declarations
   instead of its hardcoded resource list, without adding a loading stage.
-- Investigate the two versions of ELSE (if those tasks can't complete vs. if that option
-  dead-ends the turn) and what could benefit.
+- Decide whether to add shallow/deep ELSE or instruction-level `(A)*`; candidate uses and
+  restrictions are in [ELSE.md](docs/agents/ELSE.md).
 - Add Canon invariant tests for incompatibilities: self-heat removal outside Billing, except
   Local Heat Trapping, must be declared incompatible with Stormcraft. Include abstract resource choices.
 - Revisit Stormcraft plus Helion payment composition if that combination is supported.

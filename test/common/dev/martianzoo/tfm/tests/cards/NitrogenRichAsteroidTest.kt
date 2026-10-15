@@ -9,7 +9,7 @@ internal class NitrogenRichAsteroidTest : TfmSandboxTest() {
   @BeforeTest fun setUp() = newTestGame()
 
   @Test
-  internal fun `Can choose the lesser production despite three plant tags`() {
+  internal fun `CORRECT BEHAVIOR - May choose lesser production with three plant tags`() {
     kim.exMachina("$AdaptedLichen, $Lichen, $ArcticAlgae")
 
     kim.inTurn {

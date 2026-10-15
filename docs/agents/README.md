@@ -24,6 +24,7 @@ architecture change. Then choose the narrowest relevant note:
 | Payment choices, accepted resources, billing, or settlement | [`PAYMENTS.md`](PAYMENTS.md) |
 | Autoexecution policy, pruning, Admin's greedy settling, or whether an automatic command preserves player outcomes and choices | [`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md) |
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) |
+| Proposed ELSE or instruction-level `(A)*` fallbacks and their Canon uses | [`ELSE.md`](ELSE.md) |
 | Turmoil delegates, party leadership, or the proposed Leader/Follower model | [`DELEGATES.md`](DELEGATES.md) |
 | Correction, `exMachina`, `sneak`, effect suppression, or correction invariants | [`EX_MACHINA.md`](EX_MACHINA.md) |
 | Card backs, draws, purchases, reveals, or replay card tracking | [`CARD_HANDLING.md`](CARD_HANDLING.md) |
