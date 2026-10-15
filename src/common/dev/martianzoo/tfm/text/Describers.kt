@@ -16,6 +16,7 @@ import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.types.recordTypeVariableScopes
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
+import dev.martianzoo.tfm.canon.cardDirectEffect
 import dev.martianzoo.tfm.canon.cardEffects
 import dev.martianzoo.tfm.canon.cardTags
 
@@ -82,6 +83,15 @@ private constructor(
 
   internal fun currentCardResourceNoun(): String? =
       cardContext?.resourceType?.let { cardResourceNoun(it, 1) }
+
+  internal fun currentCardGainsSingle(className: ClassName): Boolean {
+    val card = cardContext?.card ?: return false
+    val gain =
+        cardDirectEffect(card)?.instructions?.filterIsInstance<Instruction.Gain>()?.singleOrNull {
+          it.gaining.className == className
+        }
+    return gain?.count?.fixedQuantity() == 1
+  }
 
   internal fun lowerProductionSyntax(instructionTree: InstructionTree): InstructionTree =
       productionSyntaxLowerer().transformInstructionTree(instructionTree)

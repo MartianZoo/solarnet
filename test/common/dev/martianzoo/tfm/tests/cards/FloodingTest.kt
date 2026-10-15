@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -48,7 +49,7 @@ internal class FloodingTest : TfmSandboxTest() {
     newTestGame(playerCount = 4)
     stan.setToExMachina(10, "MC")
 
-    shouldThrow<TaskException> {
+    shouldThrow<NarrowingException> {
       kim.inTurn {
         doTask("PlayProject<Class<Flooding>>")
 
@@ -186,8 +187,8 @@ internal class FloodingTest : TfmSandboxTest() {
               "7 Pay<> FROM MC",
               "Flooding FROM ProjectCard",
           )
-          // Resolve the placement: a full ocean track also removes the linked attack.
-          selectOnlyTask()
+          // The ordinary placement resolves to zero; the mandatory attack arm cannot finish.
+          doTask("Ok")
           doTask("PlayedEvent<Class<Flooding>> FROM Flooding")
         }
         .expect("0 OceanTile, 0 TerraformRating, 0 MC<Stan>, 0 MC<Rob>, 0 MC<Maya>")
@@ -213,6 +214,25 @@ internal class FloodingTest : TfmSandboxTest() {
           doTask("PlayedEvent<Class<Flooding>> FROM Flooding")
         }
         .expect("0 MC<Maya>")
+  }
+
+  @Test
+  internal fun `Cannot attack by attempting a tenth ocean on an empty water area`() {
+    arrangeFlooding()
+    kim.exMachina(
+        "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, " +
+            "OceanTile<Tharsis_2_6>, OceanTile<Tharsis_4_8>, OceanTile<Tharsis_5_5>, " +
+            "OceanTile<Tharsis_5_6>, OceanTile<Tharsis_6_7>, OceanTile<Tharsis_6_8>"
+    )
+
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        doTasks("PlayProject<Class<Flooding>>", "7 Pay<> FROM MC", "Flooding FROM ProjectCard")
+        doTask("OceanTile<Tharsis_5_4>! THEN -4! MC<Stan>")
+      }
+    }
+    kim.assertCounts(7 to "MC", 9 to "OceanTile", 0 to "Flooding")
+    stan.assertCounts(10 to "MC")
   }
 
   @Test
@@ -275,7 +295,7 @@ internal class FloodingTest : TfmSandboxTest() {
   internal fun `An occupied water area cannot substitute an existing ocean for a new placement`() {
     arrangeFlooding()
     kim.exMachina("OceanTile<Tharsis_1_2>")
-    shouldThrow<TaskException> {
+    shouldThrow<LimitsException> {
       kim.inTurn {
         doTask("PlayProject<Class<Flooding>>")
 
@@ -291,7 +311,7 @@ internal class FloodingTest : TfmSandboxTest() {
   @Test
   internal fun `Cannot charge a non-neighboring owner`() {
     arrangeFlooding()
-    shouldThrow<TaskException> {
+    shouldThrow<NarrowingException> {
       kim.inTurn {
         doTask("PlayProject<Class<Flooding>>")
 
@@ -307,7 +327,7 @@ internal class FloodingTest : TfmSandboxTest() {
   @Test
   internal fun `Cannot qualify the victim through a different ocean area`() {
     arrangeFlooding()
-    shouldThrow<TaskException> {
+    shouldThrow<NarrowingException> {
       kim.inTurn {
         doTask("PlayProject<Class<Flooding>>")
 

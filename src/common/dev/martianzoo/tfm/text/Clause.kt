@@ -38,6 +38,12 @@ internal sealed interface Clause {
                   member.clauses.conjunction in listOf(Conjunction.OR, Conjunction.COMMA_OR)
       if (alternatives && clauses.conjunction in listOf(Conjunction.AND, Conjunction.THEN))
           "(${member.linearize()})"
+      else if (
+          member is Coordinated &&
+              member.clauses.conjunction == Conjunction.THEN &&
+              clauses.conjunction in listOf(Conjunction.OR, Conjunction.COMMA_OR)
+      )
+          "(${member.linearize()})"
       else member.linearize()
     }
   }

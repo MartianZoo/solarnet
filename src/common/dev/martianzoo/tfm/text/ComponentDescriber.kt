@@ -170,6 +170,8 @@ internal data class ComponentDescriber(
     public data class ArgumentState(
         internal val dependency: Key,
         internal val predicate: String,
+        /** The condition is understood when gaining a single unit of its class argument. */
+        internal val implicitForGain: Boolean = false,
     ) : RequirementCondition
 
     public data class OwnedCount(

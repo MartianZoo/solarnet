@@ -97,7 +97,7 @@ private fun renderChangeOrNull(
     return it
   }
   if (describers.isProduction(expression.className))
-      return renderProductionChange(instruction, describers)
+      return renderProductionChange(instruction, describers, references)
   describers.changeFrame(expression.className)?.let { frame ->
     return when (frame) {
       ComponentDescriber.ChangeFrame.Countable ->
@@ -720,7 +720,7 @@ private fun renderCountableChange(
       resolved
           .sourceDependency(ownerKey)
           ?.takeIf { resolved.sourceDependencies.size == 1 }
-          ?.let { describers.renderEligiblePlayer(it) }
+          ?.let { describers.renderEligiblePlayer(it, references) }
   if (player != null && removal.quantifier.modality() == Modality.OPTIONAL) {
     val amount = describers.componentNounPhrase(expression.className, count).atMost()
     return Clause.Simple(
@@ -735,8 +735,23 @@ private fun renderCountableChange(
   return null
 }
 
-private fun Describers.renderEligiblePlayer(expression: Expression): NounPhrase? {
-  if (expression == anyoneExpression) return NounPhrase("player", determiner = Determiner.ANY)
+private fun Describers.renderEligiblePlayer(
+    expression: Expression,
+    references: TypeVariableReferences,
+): NounPhrase? {
+  if (expressions.isOwner(expression)) return null
+  if (
+      expression.refinement == null &&
+          expression.arguments.isEmpty() &&
+          (isGameParticipant(expression.className) ||
+              expression.className == anyoneExpression.className) &&
+          references.variableUsedAt(expression) != null
+  ) {
+    return NounPhrase("player", determiner = Determiner.THAT)
+  }
+  if (expression.copy(typeVariableName = null) == anyoneExpression) {
+    return NounPhrase("player", determiner = Determiner.ANY)
+  }
   if (expression == playerExpression) return NounPhrase("player", determiner = Determiner.THAT)
   if (
       expression.className != anyoneExpression.className ||
@@ -907,6 +922,7 @@ private fun renderCardResourceChange(
 private fun renderProductionChange(
     instruction: Instruction,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Clause? {
   val change = instruction as? Instruction.Change ?: return null
   if (change.quantifier.modality() != Modality.REQUIRED) return null
@@ -917,7 +933,7 @@ private fun renderProductionChange(
         is Transmute -> return renderProductionConversion(change, describers)
       }
   val expression = change.gaining ?: change.removing ?: return null
-  renderSelectedProductionChange(change, gaining, expression, describers)?.let {
+  renderSelectedProductionChange(change, gaining, expression, describers, references)?.let {
     return it
   }
   val production = simpleProductionChange(change, describers) ?: return null
@@ -942,6 +958,7 @@ private fun renderSelectedProductionChange(
     gaining: Boolean,
     expression: Expression,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Clause.Simple? {
   if (expression.refinement != null) {
     return null
@@ -949,19 +966,52 @@ private fun renderSelectedProductionChange(
   val resource = selectedProductionResource(expression, describers) ?: return null
   if (
       !describers.isStandardResource(resource.className) ||
-          describers.concrete(resource.className) ||
           resource.refinement is Expression.Refinement.Not
   ) {
     return null
   }
   val refinement = resource.refinement as? Expression.Refinement.Has ?: return null
+  val count = change.count.fixedQuantity() ?: return null
+  renderMatchingPlacementBonus(refinement.requirement, describers, references)?.let { bonus ->
+    return clause(
+        if (gaining) "increase" else "decrease",
+        describers
+            .productionNounPhrase(resource.className)
+            .withDeterminer(Determiner.YOUR)
+            .withModifier(Modifier.Steps(count)),
+        Modifier.Relation("matching", bonus),
+    )
+  }
+  if (describers.concrete(resource.className)) return null
   val first = refinement.requirement as? Requirement.Exact ?: return null
   if (first.target != 1 || !first.metric.isLowestStandardProductionRank(describers)) return null
-  val count = change.count.fixedQuantity() ?: return null
   return clause(
       if (gaining) "increase" else "decrease",
       NounPhrase.text("one of your lowest productions").withModifier(Modifier.Steps(count)),
   )
+}
+
+private fun renderMatchingPlacementBonus(
+    requirement: Requirement,
+    describers: Describers,
+    references: TypeVariableReferences,
+): NounPhrase? {
+  val minimum = requirement as? Requirement.Min ?: return null
+  if (minimum.target != 1) return null
+  val expression = countedExpression(minimum) ?: return null
+  if (expression.refinement != null) return null
+  val bonus =
+      describers.fact(expression.className, ComponentDescriber::placementBonus) ?: return null
+  val placement = resolvePlacementExpression(expression, describers) ?: return null
+  // The enclosing resource class supplies the bonus's resource; only its site is authored here.
+  if (placement.unknownDependencies.isNotEmpty() || placement.owner != null) return null
+  val modifiers =
+      renderPlacementSites(placement, describers, references = references) ?: return null
+  return modifiers.fold(NounPhrase(bonus.noun.singular, determiner = Determiner.INDEFINITE)) {
+      noun,
+      modifier ->
+    noun.withModifier(modifier)
+  }
 }
 
 private fun Metric.isLowestStandardProductionRank(describers: Describers): Boolean {

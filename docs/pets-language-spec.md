@@ -289,8 +289,8 @@ option, that option is unavailable; other `OR` alternatives may still proceed. S
 transmutation are point events, not self-transmutation instructions, and remain valid.
 
 > **Non-normative examples — Artificial Lake and asteroid attacks.** Artificial Lake's special
-> ocean placement is `!`: choosing that arm requires the exceptional land placement to succeed in
-> full. Asteroid cards mark an opponent's plant loss `?`, because the attacker may choose fewer
+> ocean placement is `!`: while the ocean track is incomplete, the exceptional land placement must
+> succeed in full. Asteroid cards mark an opponent's plant loss `?`, because the attacker may choose fewer
 > plants or none. One generic “optional” flag cannot express both rules.
 
 **L2-4. A transmutation may be written compactly when both sides share a class.**
@@ -1612,9 +1612,9 @@ embedded in structured card data uses this form.
 OneLineDeclaration ::= "ABSTRACT"? "CLASS" Signature OneLineBody?
 ```
 
-> **Non-normative example — Mining Rights.** Its structured card data declares
-> `CLASS MiningRights_SpecialTile : SpecialTile` in `components`, then names that tile when checking
-> the placed area's steel or titanium bonus. The standalone form accommodates that data format;
+> **Non-normative example — Robotic Workforce.** Its structured card data declares
+> `CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, CustomInstruction` in `components`.
+> The standalone form accommodates that data format;
 > a separate syntax entry point is an authoring choice, not a distinct TfM capability.
 
 **L11-12. Every class catalog includes the system declarations:**

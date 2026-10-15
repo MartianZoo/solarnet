@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
@@ -484,7 +485,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "AmazonisMap, Unsafe")
     // Prepare the disputed position: the wild placement bonus was taken as a plant.
     kim.exMachina("$card, ${card}_SpecialTile<Amazonis_05_03>, Plant")
-    shouldThrow<RequirementException> {
+    shouldThrow<DependencyException> {
       kim.inTurn {
         doTasks(
             "PlayProject<Class<RoboticWorkforce>>",
@@ -492,7 +493,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
             "RoboticWorkforce FROM ProjectCard",
         )
         doTask("CopyProductionBox<$card>")
-        // Resolve the metal-choice requirements; neither recognizes the wild placement bonus.
+        // Resolve the metal filter, which does not recognize the wild placement bonus.
         selectOnlyTask()
       }
     }

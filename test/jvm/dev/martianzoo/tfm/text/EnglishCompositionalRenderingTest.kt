@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
@@ -13,6 +14,141 @@ import kotlin.test.Test
 
 internal class EnglishCompositionalRenderingTest {
   private val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
+
+  @Test
+  fun trackAvailabilityIsImplicitOnlyForASingleIncreaseOfThatTrack() {
+    for (instruction in
+        listOf(
+            "TemperatureStep! / GpIncomplete<Class<TemperatureStep>>",
+            "GpIncomplete<Class<TemperatureStep>>: TemperatureStep!",
+        )) {
+      english.describe(parse<InstructionTree>(instruction)) shouldBe "Raise temperature 1 step."
+    }
+    english.describe(
+        parse<InstructionTree>("TemperatureStep! / GpComplete<Class<TemperatureStep>>")
+    ) shouldBe "If temperature has reached its maximum, raise temperature 1 step."
+    english.describe(
+        parse<InstructionTree>("TemperatureStep! / GpIncomplete<Class<OxygenStep>>")
+    ) shouldBe "If oxygen has not reached its maximum, raise temperature 1 step."
+    english.describe(
+        parse<InstructionTree>("2! TemperatureStep / GpIncomplete<Class<TemperatureStep>>")
+    ) shouldBe "If temperature has not reached its maximum, raise temperature 2 steps."
+  }
+
+  @Test
+  fun singletonMultipliersDescribeConditionsButRepeatedCountsRemainPer() {
+    english.describe(parse<InstructionTree>("2 MC / GpIncomplete<Class<TemperatureStep>>")) shouldBe
+        "If temperature has not reached its maximum, gain 2 M€."
+    english.describe(parse<InstructionTree>("MC / GpComplete<Class<OxygenStep>>")) shouldBe
+        "If oxygen has reached its maximum, gain 1 M€."
+    val multipleTracks = english.describe(parse<InstructionTree>("MC / GpComplete"))
+    multipleTracks shouldContain "per"
+    multipleTracks shouldNotContain "If"
+    val multipleTiles = english.describe(parse<InstructionTree>("MC / OceanTile"))
+    multipleTiles shouldContain "per"
+    multipleTiles shouldNotContain "If"
+  }
+
+  @Test
+  fun productionSelectionsMatchPlacementBonusesWithoutDroppingOtherRestrictions() {
+    english.describe(
+        parse<InstructionTree>("PROD[-2 Metal(HAS PlacementBonus<WaterArea>)]")
+    ) shouldBe
+        "Decrease your titanium or steel production 2 steps matching a placement bonus on an area reserved for ocean."
+    english.describe(
+        parse<InstructionTree>("PROD[StandardResource(HAS PlacementBonus<LandArea>)]")
+    ) shouldBe
+        "Increase your standard resource production 1 step matching a placement bonus on a land area."
+    english.describe(parse<InstructionTree>("PROD[Plant(HAS PlacementBonus<LandArea>)]")) shouldBe
+        "Increase your plant production 1 step matching a placement bonus on a land area."
+    for (selector in
+        listOf(
+            "Metal(HAS 2 PlacementBonus<LandArea>)",
+            "Metal(HAS PlacementBonus<LandArea, Class<Steel>>)",
+            "Metal(HAS PlacementBonus<LandArea>, HAS Tag)",
+        )) {
+      english.describe(parse<InstructionTree>("PROD[$selector]")) shouldContain "["
+    }
+  }
+
+  @Test
+  fun productionBonusUsesThePreviouslyChosenArea() {
+    english.describe(
+        parse<InstructionTree>(
+            "OceanTile<@LandArea>! THEN PROD[Metal(HAS PlacementBonus<@LandArea>)]"
+        )
+    ) shouldBe
+        "Place an ocean tile on a land area, then increase your titanium or steel production 1 step matching a placement bonus on that land area."
+  }
+
+  @Test
+  fun thisTileMeansTheConcreteTilePlacedByTheCurrentCard() {
+    val describers =
+        Describers(Canon.classTable, TerraformingMarsDescribers.descriptions)
+            .forCard(Canon.classTable.getClass(cn("MiningArea")), null)
+    for (occupant in listOf("SpecialTile", "MiningRights_SpecialTile")) {
+      renderInstructionTree(
+              parse<InstructionTree>("OceanTile<LandArea(HAS $occupant)>!"),
+              describers,
+          )
+          .linearize() shouldContain "["
+    }
+    renderInstructionTree(
+            parse<InstructionTree>("OceanTile<LandArea(HAS MiningArea_SpecialTile)>!"),
+            describers,
+        )
+        .linearize() shouldBe "Place an ocean tile on a land area with this tile."
+  }
+
+  @Test
+  fun siteOccupantFiltersPreserveOwnership() {
+    english.describe(parse<InstructionTree>("OceanTile<LandArea(HAS CityTile)>!")) shouldBe
+        "Place an ocean tile on a land area with a city tile of your own."
+    english.describe(
+        parse<InstructionTree>("OceanTile<LandArea(HAS CityTile<Anyone>)>!")
+    ) shouldContain "["
+  }
+
+  @Test
+  fun placementAndRemovalReferToTheSameChosenOwner() {
+    english.describe(
+        parse<InstructionTree>(
+            "GreeneryTile<LandArea(HAS Neighbor<CityTile<Chosen@Anyone>>)>! THEN -2? Plant<Chosen@Anyone>"
+        )
+    ) shouldBe
+        "Place a greenery tile on a land area next to a city tile a player owns, then you may remove up to 2 plants from that player."
+    english.describe(
+        parse<InstructionTree>(
+            "-2? Plant<Chosen@Anyone> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<Chosen@Anyone>>)>!"
+        )
+    ) shouldBe
+        "You may remove up to 2 plants from any player, then place a greenery tile on a land area next to a city tile that player owns."
+    english.describe(
+        parse<InstructionTree>(
+            "GreeneryTile<LandArea(HAS Neighbor<CityTile<Anyone>>)>! THEN -2? Plant<Anyone>"
+        )
+    ) shouldNotContain "from that player"
+  }
+
+  @Test
+  fun implicitOwnerIsNotPresentedAsAPlayerChoice() {
+    val text =
+        english.describe(
+            parse<InstructionTree>(
+                "OceanTile<LandArea(HAS Neighbor<OwnedTile<Me@Owner>>)>! THEN -2? Plant<Me@Owner>"
+            )
+        )
+    text shouldNotContain "any player"
+    text shouldNotContain "a player owns"
+  }
+
+  @Test
+  fun sequencesInsideAlternativesKeepTheirGrouping() {
+    english.describe(parse<InstructionTree>("Plant OR (Steel THEN MC)")) shouldBe
+        "Gain 1 plant or (gain 1 steel, then gain 1 M€)."
+    english.describe(parse<InstructionTree>("(Plant OR Steel) THEN MC")) shouldBe
+        "Gain 1 plant or 1 steel, then gain 1 M€."
+  }
 
   @Test
   fun amapIsTheSameModifierAcrossChanges() {

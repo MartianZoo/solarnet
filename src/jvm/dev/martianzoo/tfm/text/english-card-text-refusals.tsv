@@ -5,5 +5,3 @@ count	reason	examples
 4	UNSUPPORTED_GATE	FakeHeadStart: MAX 0 RequiredAction: StandardAction | FakeHeadStart: RequiredAction: RequiredActionsSignal
 2	UNSUPPORTED_FANOUT	Aridor: EACH @Class<Tag> { AridorTagWatcher<@Class, This> } | IcyImpactors: EACH Starter@Player(HAS StartToken) { ChooseOceanArea<Starter@Player, Me@Owner> }
 1	UNSUPPORTED_METRIC	SeptemTribus: PartyDelegate
-1	UNSUPPORTED_PLACEMENT_CHANGE	Flooding: OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>!
-1	UNSUPPORTED_STANDARD_RESOURCE_CHANGE	Flooding: -4? MC<@Anyone>
