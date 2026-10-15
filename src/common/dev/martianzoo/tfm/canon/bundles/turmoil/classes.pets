@@ -64,7 +64,7 @@ CLASS RevealComingEvent : Barrier, System {
 "Requests the next event for the Distant position"
 CLASS RevealDistantEvent : Barrier, System {
   HAS MAX 1 This
-  This: GlobalEvent THEN -This!
+  This: GlobalEvent THEN -This
 }
 
 "The lower half of a Global Event, resolved separately for each player"
@@ -262,7 +262,7 @@ CLASS PartyLeader<Delegation@Party> : Owned, Real {
   This:: -PartyLeader<Delegation@, Anyone>(NOT This)*
   -PartyDelegate<Delegation@> \
     IF MAX 0 PartyDelegate<Delegation@>:: \
-    -This! THEN \
+    -This THEN \
       EACH Leader@Owner( \
         HAS PartyDelegate<Delegation@>, \
         HAS MAX 0 PartyLeader<Delegation@>, \

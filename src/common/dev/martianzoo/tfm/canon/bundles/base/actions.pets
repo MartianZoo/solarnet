@@ -81,7 +81,7 @@ CLASS UseAction<HasActions, ActionSlot> : Owned<Player>, Signal
 "A mandatory pending action the owner must perform as their next"
 ABSTRACT CLASS RequiredAction : Owned<Player>, HasActions {
   HAS MAX 1 This
-  RequiredActionsSignal:: UseAction<This, Action1> THEN -This!
+  RequiredActionsSignal:: UseAction<This, Action1> THEN -This
 }
 
 CLASS RequiredActionsSignal : Owned<Player>, Signal

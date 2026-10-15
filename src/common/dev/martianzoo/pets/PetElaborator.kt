@@ -950,7 +950,9 @@ public class PetElaborator(public val classTable: ClassTable) {
           extractor: (Defaults) -> DefaultSpec,
           rebuild: (Expression, Instruction.Quantifier?) -> Instruction,
       ): Instruction {
-        return if (leaveItAlone(original)) {
+        return if (original.className == THIS) {
+          rebuild(original, node.quantifier ?: MANDATORY)
+        } else if (leaveItAlone(original)) {
           node // don't descend
         } else {
           val kind = if (node is Gain) "gain" else "removal"
@@ -972,7 +974,8 @@ public class PetElaborator(public val classTable: ClassTable) {
         val removeDefault = defaultFor(node.removing, { it.removeOnly }, gain = false)
         val quantifier =
             node.quantifier
-                ?: intersectQuantifiers(gainDefault?.quantifier, removeDefault?.quantifier)
+                ?: if (node.gaining.className == THIS || node.removing.className == THIS) MANDATORY
+                else intersectQuantifiers(gainDefault?.quantifier, removeDefault?.quantifier)
 
         val gaining = applyDefault(node.gaining, gainDefault, context, gain = true)
         val removing = applyDefault(node.removing, removeDefault, context, gain = false)
