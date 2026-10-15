@@ -17,7 +17,7 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
       doTask("PartyDelegate<MarsFirst>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<MarsFirst>")
     }
     stan.completeOperation {
@@ -25,16 +25,16 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
       doTask("PartyDelegate<Scientists>")
     }
     stan.completeOperation {
-      doTasks("PlayProject<Class<$VoteOfNoConfidence>>", "-5 MC")
+      doTasks("PlayProject<Class<$VoteOfNoConfidence>>")
       autoExecNow(EAGER)
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<MarsFirst>")
     }
     kim.doTask("0 StandardAction") // Decline the second action.
     stan.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<MarsFirst>")
     }
     stan.doTask("0 StandardAction") // Decline the second action.
@@ -95,7 +95,7 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
   internal fun `After an election a dominance tie favors the next party clockwise`() {
     prepareElection("MarsFirst")
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<Kelvinists>")
     }
     finishElection()
@@ -106,15 +106,15 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
   internal fun `Dominance skips a smaller party before breaking the next tie`() {
     prepareElection("MarsFirst")
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<Reds>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<Unity>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<Unity>")
     }
     finishElection()
@@ -131,8 +131,8 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
   @Test
   internal fun `Mars First pays for building tags`() {
     prepareElection("MarsFirst")
-    kim.doTasks("PlayProject<Class<$Mine>>", "-4 MC")
-    kim.doTasks("PlayProject<Class<$PowerPlant>>", "-4 MC")
+    kim.doTasks("PlayProject<Class<$Mine>>")
+    kim.doTasks("PlayProject<Class<$PowerPlant>>")
     assertRulingBonus(2, 0)
   }
 
@@ -140,7 +140,7 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
   internal fun `Scientists counts both science tags on Research`() {
     prepareElection("Scientists")
     kim.completeOperation {
-      doTasks("PlayProject<Class<$Research>>", "-11 MC")
+      doTasks("PlayProject<Class<$Research>>")
       autoExecNow(EAGER)
     }
     assertRulingBonus(2, 0)
@@ -149,24 +149,24 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
   @Test
   internal fun `Unity combines Earth and Jovian tags`() {
     prepareElection("Unity")
-    kim.doTasks("PlayProject<Class<$EarthOffice>>", "-1 MC")
-    kim.doTasks("PlayProject<Class<$VestaShipyard>>", "-15 MC")
+    kim.doTasks("PlayProject<Class<$EarthOffice>>")
+    kim.doTasks("PlayProject<Class<$VestaShipyard>>")
     assertRulingBonus(2, 0)
   }
 
   @Test
   internal fun `Greens combines plant microbe and animal tags`() {
     prepareElection("Greens")
-    kim.doTasks("PlayProject<Class<$AdaptedLichen>>", "-9 MC")
-    kim.doTasks("PlayProject<Class<$Tardigrades>>", "-4 MC")
-    kim.doTasks("PlayProject<Class<$Pets>>", "-10 MC")
+    kim.doTasks("PlayProject<Class<$AdaptedLichen>>")
+    kim.doTasks("PlayProject<Class<$Tardigrades>>")
+    kim.doTasks("PlayProject<Class<$Pets>>")
     assertRulingBonus(3, 0)
   }
 
   @Test
   internal fun `Kelvinists pays both players according to their heat production`() {
     prepareElection("Kelvinists")
-    kim.doTasks("PlayProject<Class<$MicroMills>>", "-3 MC")
+    kim.doTasks("PlayProject<Class<$MicroMills>>")
     assertRulingBonus(2, 1)
   }
 
@@ -183,7 +183,7 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
   internal fun `Reds raises only the lowest player`() {
     prepareElection("Reds")
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTasks("UseStandardProject<AsteroidProject>")
       autoExecNow(EAGER)
     }
     finishElection()
@@ -209,17 +209,17 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
       doTask("PartyDelegate<Reds>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<Reds>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<Reds>")
     }
-    kim.doTasks("PlayProject<Class<$BribedCommittee>>", "-7 MC")
+    kim.doTasks("PlayProject<Class<$BribedCommittee>>")
     if (aboveThreshold)
         kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+          doTasks("UseStandardProject<AsteroidProject>")
           autoExecNow(EAGER)
         }
     kim.count("TerraformRating") shouldBe if (aboveThreshold) 22 else 21
@@ -243,12 +243,12 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
       doTask("PartyDelegate<$party>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<$party>")
     }
     stan.doTask("Pass")
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<$party>")
     }
   }
@@ -275,32 +275,39 @@ internal class TurmoilGovernmentTest : TfmGameplayTest() {
     internal fun `A party requirement accepts its government or two of the player's delegates`() {
       newTestGame(addOptions = "TurmoilExpansion")
       kim.inTurn {
-        doTasks("PlayProject<Class<GmoContract>>", "-3 MC", "GmoContract FROM ProjectCard", "2 MC")
+        doTasks(
+            "PlayProject<Class<GmoContract>>",
+            "3 Pay<> FROM MC",
+            "GmoContract FROM ProjectCard",
+            "2 MC",
+        )
       }
       shouldThrow<RequirementException> {
         kim.inTurn {
-          doTasks("PlayProject<Class<SupportedResearch>>", "-3 MC")
+          doTasks("PlayProject<Class<SupportedResearch>>", "3 Pay<> FROM MC")
           selectTask("MAX 0 Barrier: SupportedResearch FROM ProjectCard!")
         }
       }
       kim.inTurn { doTasks("LobbyAction<Action1>", "PartyDelegate<Scientists>") }
       shouldThrow<RequirementException> {
         kim.inTurn {
-          doTasks("PlayProject<Class<SupportedResearch>>", "-3 MC")
+          doTasks("PlayProject<Class<SupportedResearch>>", "3 Pay<> FROM MC")
           selectTask("MAX 0 Barrier: SupportedResearch FROM ProjectCard!")
         }
       }
-      kim.inTurn { doTasks("LobbyAction<Action2>", "-5 MC", "PartyDelegate<Scientists>") }
+      kim.inTurn {
+        doTasks("LobbyAction<Action2>", "5 Pay<> FROM MC", "PartyDelegate<Scientists>")
+      }
       shouldThrow<RequirementException> {
         stan.inTurn {
-          doTasks("PlayProject<Class<SupportedResearch>>", "-3 MC")
+          doTasks("PlayProject<Class<SupportedResearch>>", "3 Pay<> FROM MC")
           selectTask("MAX 0 Barrier: SupportedResearch FROM ProjectCard!")
         }
       }
       kim.inTurn {
         doTasks(
             "PlayProject<Class<SupportedResearch>>",
-            "-3 MC",
+            "3 Pay<> FROM MC",
             "SupportedResearch FROM ProjectCard",
             "2 ProjectCard",
         )

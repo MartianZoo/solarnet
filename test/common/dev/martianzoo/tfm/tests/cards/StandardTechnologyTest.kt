@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.Spire
@@ -15,10 +15,10 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
     kim.exMachina("$StandardTechnology")
     kim.setToExMachina(8, "MC")
 
-    shouldThrow<LimitsException> {
+    shouldThrow<TaskException> {
       kim.inTurn {
         doTask("UseStandardProject<PowerPlantProject>")
-        doTask("-11 MC")
+        doTask("11 Pay<> FROM MC")
       }
     }
 
@@ -32,7 +32,12 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
     kim.setToExMachina(11, "MC")
 
     kim.inTurn {
-      doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]", "3 MC")
+      doTasks(
+          "UseStandardProject<PowerPlantProject>",
+          "11 Pay<> FROM MC",
+          "PROD[Energy]",
+          "3 MC",
+      )
     }
   }
 
@@ -56,16 +61,16 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
     kim.setToExMachina(7, "Science<$Spire>")
     stan.setToExMachina(18, "TemperatureStep")
     stan.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTask("TerraformRating")
     }
 
     kim.inTurn {
-          doTasks("UseStandardProject<AsteroidProject>", "-7 Science<Spire>")
+          doTasks("UseStandardProject<AsteroidProject>", "7 PayFromCard<Spire> FROM Science<Spire>")
+          doTask("Ok") // Nothing remains to pay in MC.
           doTask("TemperatureStep")
           doTask("3 MC")
-          doTask("Ok" /* No MC payment. */)
         }
         .expect("0 TemperatureStep, 0 TerraformRating")
   }

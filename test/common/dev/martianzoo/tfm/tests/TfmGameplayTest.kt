@@ -137,9 +137,6 @@ internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy
         player.completeOperation {
           doTask("PlayCard<Class<CorporationCard>, Class<$kimCorporation>>")
           autoExecNow(EAGER)
-          // Shared setup buys five projects at the corporation's actual price.
-          doTask("-${player.count("Owed")} MC")
-          autoExecNow(EAGER)
         }
       } else {
         player.completeOperation {

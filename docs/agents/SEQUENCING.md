@@ -265,11 +265,12 @@ The engine has no general completion rule for an interaction that spans queued w
 These are not the same completion point. `Barrier` and `MustCleanUp` are checks, not locks against
 intervening selection.
 
-Neptunian Power Consultants demonstrates the interaction. P1 may hand an optional decision to P2,
-but the selected-task lock ends when that task finishes. P1 can resume unrelated work while P2's
-payment remains unfinished. `FloodingTest` contains current
-observable characterizations, including resource changes that can make the payment fail;
-[`PAYMENTS.md`](PAYMENTS.md#verified-gaps) describes the payment-specific evidence.
+Neptunian Power Consultants allows P1 to hand an optional decision to P2, then resume other work
+while P2's payment remains unfinished. On 2026-10-14 the owner confirmed that Flooding making that
+purchase unaffordable is an allowed dead end: P1 voluntarily made their own turn impossible to
+finish and must roll it back. This is not evidence that delegated work needs exclusion or a join.
+`FloodingTest` covers these orders and rollback;
+[`PAYMENTS.md`](PAYMENTS.md#interleaving-and-rollback) describes the payment-specific evidence.
 
 Separate the questions before selecting a replacement. The engine must attribute each selection,
 narrowing, and execution to its current assignee and calculate the consequences of the supplied
@@ -388,9 +389,9 @@ is finished. The turn handoffs and phase changes that follow, and the offers the
 whatever comes next. `ActorEngine.requireComplete` judges cleanup components at that same point,
 from the event log; the Agents record when each operation begins and decides, and automatic
 execution is not a decision. That gives [the missing
-rule](#the-missing-rule-when-an-operation-is-over) a whole-World answer. It does not settle
-delegated control within one operation: in the Neptunian case, P1 can still select unrelated work
-while P2's payment remains.
+rule](#the-missing-rule-when-an-operation-is-over) a whole-World answer. It does not exclude
+intervening work: P1 may resolve Flooding's loss while P2's Neptunian payment remains. If that
+choice makes the turn impossible to finish, P1 must roll back the turn.
 
 ### Decisions and open questions
 
@@ -410,8 +411,8 @@ while P2's payment remains.
   modules contribute phase order without a central orchestrator. He proposed `NoPreludes` so that
   exactly one module owns each handoff out of the corporation phase.
 - **Exclusion is not deferral.** Deferral orders work; it cannot keep other work out while an
-  interaction is under way. The Neptunian payment above needs exclusion or a join, which deferral
-  does not provide.
+  interaction is under way. The Flooding–Neptunian dead ends above are allowed and do not require
+  exclusion or a join.
 - **Scope.** Deferral is global (L2-18). The August `Idle<Player>` design was per Player, so that
   one Player's empty queue could not flip another Player's event card. Narrow the scope only for a
   Terraforming Mars case that needs it.
@@ -437,4 +438,4 @@ while P2's payment remains.
 - [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt): admission and
   promotion of deferred work.
 - `TaskDispatchTest`, `PhilaresTest`, `DeferredWorkTest`, and the Neptunian cases in
-  `FloodingTest`: current observable contracts and gaps.
+  `FloodingTest`: current observable contracts, including allowed dead ends and rollback.

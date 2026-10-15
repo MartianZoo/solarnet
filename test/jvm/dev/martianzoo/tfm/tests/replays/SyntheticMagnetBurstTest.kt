@@ -156,8 +156,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
 
     green.turn {
       // Green used Aquifer Pumping action
-      cardAction1(AquiferPumping) {
-            pay(steel = 4)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(steel = 4) }) {
             // Green placed ocean tile at 46
             placeTile(7, 3)
             // Green gained 2 titanium
@@ -221,8 +220,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       // Green gained 10 M€
       playProject(InvestmentLoan, 0).expect("PROD[-1 MC], 10 MC")
       // Green used Aquifer Pumping action
-      cardAction1(AquiferPumping) {
-            pay(8)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
             // Green placed ocean tile at 35
             placeTile(5, 7)
             // Green gained 3 heat
@@ -234,7 +232,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       // Green played Rotator Impacts
       playProject(RotatorImpacts, titanium = 2)
       // Green used Rotator Impacts action
-      cardAction1(RotatorImpacts) { pay(6) }
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(6) })
       // Green added 1 Asteroid to Rotator Impacts
     }
     // Green passed
@@ -293,8 +291,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     pink.pass()
     green.turn {
       // Green used Aquifer Pumping action
-      cardAction1(AquiferPumping) {
-        pay(8)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
         // Green placed ocean tile at 26
         placeTile(4, 6)
         // Green gained 1 plant
@@ -396,7 +393,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     }
     green.turn {
       // Green used Rotator Impacts action
-      cardAction1(RotatorImpacts) { pay(6) }
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(6) })
       // Green added 1 Asteroid to Rotator Impacts
       // Green ended turn
     }
@@ -575,7 +572,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     }
     green.turn {
       // Green used Rotator Impacts action
-      cardAction1(RotatorImpacts) { pay(titanium = 2) }
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(titanium = 2) })
       // Green added 1 Asteroid to Rotator Impacts
       // Green ended turn
     }
@@ -600,8 +597,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     }
     green.turn {
       // Green used Aquifer Pumping action
-      cardAction1(AquiferPumping) {
-        pay(4, steel = 2)
+      stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(4, steel = 2) }) {
         // Green placed ocean tile at 36
         placeTile(5, 8)
         // Green gained 4 M€ from 2 ocean(s)
@@ -830,7 +826,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     }
     green.turn {
       // Green used Rotator Impacts action
-      cardAction1(RotatorImpacts) { pay(6) }
+      stdAction("UseCardAction<$RotatorImpacts, Action1>", payment = { pay(6) })
       // Green added 1 Asteroid to Rotator Impacts
       // Green ended turn
     }

@@ -29,7 +29,7 @@ internal class VitorTest : TfmSandboxTest() {
               "Vitor FROM CorporationCard",
               "45 MC",
               "3 MC",
-              "-15 MC",
+              "15 Pay<> FROM MC",
               "5 ProjectCard<Hand FROM Selecting>",
           )
         }
@@ -47,7 +47,7 @@ internal class VitorTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<SearchForLife>>",
-              "-3 MC",
+              "3 Pay<> FROM MC",
               "SearchForLife FROM ProjectCard",
               "3 MC",
           )
@@ -64,7 +64,7 @@ internal class VitorTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTasks("PlayProject<Class<Mine>>", "-4 MC")
+      doTasks("PlayProject<Class<Mine>>", "4 Pay<> FROM MC")
       doTasks("Mine FROM ProjectCard", "PROD[Steel]")
     }
   }
@@ -80,7 +80,7 @@ internal class VitorTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<BribedCommittee>>",
-          "-7 MC",
+          "7 Pay<> FROM MC",
           "BribedCommittee FROM ProjectCard",
           "2 TerraformRating",
       )
@@ -101,15 +101,15 @@ internal class VitorTest : TfmSandboxTest() {
     }
     advanceUntilActionPhase()
     stan.inTurn {
-      doTasks("FundAward<Class<Landlord>>", "-8 MC")
+      doTasks("FundAward<Class<Landlord>>", "8 Pay<> FROM MC")
       doTask("Landlord")
     }
     stan.inTurn {
-      doTasks("FundAward<Class<Banker>>", "-14 MC")
+      doTasks("FundAward<Class<Banker>>", "14 Pay<> FROM MC")
       doTask("Banker")
     }
     stan.inTurn {
-      doTasks("FundAward<Class<Scientist>>", "-20 MC")
+      doTasks("FundAward<Class<Scientist>>", "20 Pay<> FROM MC")
       doTask("Scientist")
     }
     kim.inTurn {

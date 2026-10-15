@@ -25,7 +25,7 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
     kim.exMachina("$EarthOffice, $VestaShipyard, Colony<Luna>, 2 PartyDelegate<Scientists>")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
+          doTasks("PlayProject<Class<SummitLogistics>>", "10 Pay<> FROM MC")
           doTasks("SummitLogistics FROM ProjectCard")
           doTask("3 MC")
           doTask("2 ProjectCard<Kim, Hand>")
@@ -44,7 +44,7 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
     }
     kim.exMachina("2 PartyDelegate<Scientists>")
     kim.inTurn {
-          doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
+          doTasks("PlayProject<Class<SummitLogistics>>", "10 Pay<> FROM MC")
           doTasks("SummitLogistics FROM ProjectCard")
           doTask("0 MC")
           doTask("2 ProjectCard<Kim, Hand>")
@@ -61,7 +61,7 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
     stan.exMachina("Colony<Luna>")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
+          doTasks("PlayProject<Class<SummitLogistics>>", "10 Pay<> FROM MC")
           doTasks("SummitLogistics FROM ProjectCard")
           doTask("6 MC")
           doTask("2 ProjectCard<Kim, Hand>")

@@ -21,7 +21,7 @@ internal class DiversitySupportTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<DiversitySupport>>",
-          "-1 MC",
+          "1 Pay<> FROM MC",
           "DiversitySupport FROM ProjectCard",
           "TerraformRating",
       )

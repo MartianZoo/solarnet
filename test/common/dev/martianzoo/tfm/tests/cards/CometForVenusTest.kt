@@ -15,7 +15,7 @@ internal class CometForVenusTest : TfmSandboxTest() {
     stan.exMachina("$Dirigibles")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<CometForVenus>>", "-11 MC")
+      doTasks("PlayProject<Class<CometForVenus>>", "11 Pay<> FROM MC")
       doTasks(
           "CometForVenus FROM ProjectCard",
       )

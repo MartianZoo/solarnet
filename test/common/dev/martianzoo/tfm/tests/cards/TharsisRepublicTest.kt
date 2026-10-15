@@ -16,7 +16,7 @@ internal class TharsisRepublicTest : TfmSandboxTest() {
           "40 MC",
       )
       doTask("TharsisRepublic_RequiredAction!")
-      doTasks("PROD[2 MC]", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
+      doTasks("PROD[2 MC]", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
     }
   }
 

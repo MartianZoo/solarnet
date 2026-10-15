@@ -17,15 +17,15 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "UseStandardProject<AquiferProject>",
-              "-18 MC",
+              "18 Pay<> FROM MC",
               "OceanTile<Tharsis_4_8>",
               "TerraformRating",
               "2 Plant",
           )
           doTasks(
               "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
-              "-2 Steel",
-              "-1 MC",
+              "2 Pay<Class<Steel>> FROM Steel",
+              "1 Pay<> FROM MC",
               "PROD[Energy]",
           )
           doTask("Hydroelectric<NeptunianPowerConsultants>")
@@ -40,13 +40,15 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
         .inTurn {
           doTasks(
               "UseStandardProject<AquiferProject>",
-              "-18 MC",
+              "18 Pay<> FROM MC",
               "OceanTile<Tharsis_1_2>",
               "TerraformRating",
           )
           kim.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
           doTask("2 Steel")
-          kim.doTask("-5 MC")
+          kim.doTask("5 Pay<> FROM MC")
+          // Settle Admin's bill closure after Kim's cross-player payment.
+          autoExecNow()
           kim.doTask("PROD[Energy]")
           kim.doTask("Hydroelectric<NeptunianPowerConsultants>")
         }
@@ -63,7 +65,7 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
           // Decline the unaffordable Neptunian bonus.
           doTasks(
               "UseStandardProject<AquiferProject>",
-              "-18 MC",
+              "18 Pay<> FROM MC",
               "OceanTile<Tharsis_1_2>",
               "TerraformRating",
           )

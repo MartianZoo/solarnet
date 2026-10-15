@@ -20,7 +20,12 @@ internal class VerminTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks("UseStandardProject<CityProject>", "-25 MC", "PROD[MC]", "CityTile<Tharsis_2_1>")
+          doTasks(
+              "UseStandardProject<CityProject>",
+              "25 Pay<> FROM MC",
+              "PROD[MC]",
+              "CityTile<Tharsis_2_1>",
+          )
           kim.doTask("Animal<Vermin>")
         }
         .expect("Animal<$Vermin<Kim>>")

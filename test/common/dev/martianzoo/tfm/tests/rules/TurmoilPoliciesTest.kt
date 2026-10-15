@@ -13,7 +13,7 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
   internal fun `Greens rewards greenery during action play and leaves before solar`() {
     newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
     kim.completeOperation {
-          doTasks("UseStandardProject<GreeneryProject>", "-23 MC")
+          doTasks("UseStandardProject<GreeneryProject>")
           doTask("GreeneryTile<Tharsis_3_3>")
           autoExecNow(EAGER)
         }
@@ -33,7 +33,7 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     stan.doTask("Pass")
 
     kim.completeOperation {
-          doTasks("UseStandardProject<CityProject>", "-25 MC")
+          doTasks("UseStandardProject<CityProject>")
           doTask("CityTile<Tharsis_3_3>")
           autoExecNow(EAGER)
         }
@@ -44,8 +44,8 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
   internal fun `Scientists draws three cards only once per generation`() {
     electGovernment("Scientists")
     stan.doTask("Pass")
-    kim.doTasks("UseTurmoilPolicyAction", "-10 MC").expect("-10 MC, 3 ProjectCard")
-    shouldThrow<NotNowException> { kim.doTasks("UseTurmoilPolicyAction", "-10 MC") }
+    kim.doTasks("UseTurmoilPolicyAction").expect("-10 MC, 3 ProjectCard")
+    shouldThrow<NotNowException> { kim.doTasks("UseTurmoilPolicyAction") }
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
 
@@ -57,12 +57,12 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     electGovernment("Unity")
     stan
         .completeOperation {
-          doTasks("PlayProject<Class<$SolarWindPower>>", "-1 Titanium", "-7 MC")
+          doTasks("PlayProject<Class<$SolarWindPower>>", "1 Pay<Class<Titanium>> FROM Titanium")
           autoExecNow(EAGER)
         }
         .expect("Titanium, -7 MC")
     stan.doTask("0 StandardAction") // Decline the second action.
-    kim.doTasks("PlayProject<Class<$VestaShipyard>>", "-1 Titanium", "-11 MC")
+    kim.doTasks("PlayProject<Class<$VestaShipyard>>", "1 Pay<Class<Titanium>> FROM Titanium")
         .expect("-Titanium, -11 MC")
     kim.doTask("0 StandardAction") // Decline the second action.
     stan.doTask("Pass")
@@ -77,7 +77,7 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     electGovernment("Reds")
     stan.doTask("Pass")
 
-    kim.doTasks("PlayProject<Class<$BribedCommittee>>", "-7 MC").expect("-13 MC, 2 TerraformRating")
+    kim.doTasks("PlayProject<Class<$BribedCommittee>>").expect("-13 MC, 2 TerraformRating")
   }
 
   @Test
@@ -85,12 +85,12 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     electGovernment("Reds")
     stan.doTask("Pass")
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+          doTasks("UseStandardProject<AsteroidProject>")
           autoExecNow(EAGER)
         }
         .expect("-17 MC, TemperatureStep, TerraformRating")
     kim.completeOperation {
-          doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+          doTasks("UseStandardProject<AsteroidProject>")
           autoExecNow(EAGER)
         }
         .expect("-17 MC, TemperatureStep, TerraformRating")
@@ -98,7 +98,7 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     kim.count("MC") shouldBe 14
     shouldThrow<NotNowException> {
       kim.completeOperation {
-        doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+        doTasks("UseStandardProject<AsteroidProject>")
         autoExecNow(EAGER)
       }
     }
@@ -114,7 +114,7 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
     stan.doTask("Pass")
 
     kim.completeOperation {
-          doTasks("UseTurmoilPolicyAction<Action2>", "-10 MC")
+          doTasks("UseTurmoilPolicyAction<Action2>")
           autoExecNow(EAGER)
         }
         .expect("-10 MC, PROD[Heat, Energy]")
@@ -130,16 +130,16 @@ internal class TurmoilPoliciesTest : TfmGameplayTest() {
       doTask("PartyDelegate<$party>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<$party>")
     }
     stan.doTask("Pass")
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<$party>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>", "-5 MC")
+      doTasks("LobbyAction<Action2>")
       doTask("PartyDelegate<$party>")
     }
     kim.doTask("Pass")

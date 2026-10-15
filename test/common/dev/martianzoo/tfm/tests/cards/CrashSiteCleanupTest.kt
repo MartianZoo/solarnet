@@ -14,7 +14,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
   internal fun `Can be played after removing an opponent's plant`() {
     stan.exMachina("Plant")
     kim.inTurn {
-      doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+      doTasks("PlayProject<Class<AsteroidCard>>", "14 Pay<> FROM MC")
       doTasks(
           "AsteroidCard FROM ProjectCard",
       )
@@ -26,7 +26,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<CrashSiteCleanup>>",
-          "-4 MC",
+          "4 Pay<> FROM MC",
           "CrashSiteCleanup FROM ProjectCard",
           "Titanium",
       )
@@ -38,7 +38,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
   internal fun `Cannot be played after removing the owner's plant`() {
     kim.exMachina("Plant")
     kim.inTurn {
-      doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+      doTasks("PlayProject<Class<AsteroidCard>>", "14 Pay<> FROM MC")
       doTasks(
           "AsteroidCard FROM ProjectCard",
       )
@@ -58,7 +58,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
   internal fun `Cannot be played after an opponent removes their own plant`() {
     stan.exMachina("Plant")
     stan.inTurn {
-      doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+      doTasks("PlayProject<Class<AsteroidCard>>", "14 Pay<> FROM MC")
       doTasks(
           "AsteroidCard FROM ProjectCard",
       )
@@ -78,7 +78,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
   internal fun `Cannot be played after a plant removal in the previous generation`() {
     stan.exMachina("Plant")
     kim.inTurn {
-      doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+      doTasks("PlayProject<Class<AsteroidCard>>", "14 Pay<> FROM MC")
       doTasks(
           "AsteroidCard FROM ProjectCard",
       )
@@ -99,7 +99,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
   internal fun `Cannot be played by a player who did not remove the plant`() {
     stan.exMachina("Plant")
     rob.inTurn {
-      doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+      doTasks("PlayProject<Class<AsteroidCard>>", "14 Pay<> FROM MC")
       doTasks(
           "AsteroidCard FROM ProjectCard",
       )
@@ -119,7 +119,7 @@ internal class CrashSiteCleanupTest : TfmSandboxTest() {
   internal fun `Cannot be played after declining an asteroid's plant attack`() {
     stan.exMachina("Plant")
     kim.inTurn {
-          doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+          doTasks("PlayProject<Class<AsteroidCard>>", "14 Pay<> FROM MC")
           doTasks(
               "AsteroidCard FROM ProjectCard",
           )

@@ -48,7 +48,7 @@ internal class AridorTest : TfmSandboxTest() {
     kim.setToExMachina(11, "MC")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<DevelopmentCenter>>", "-11 MC")
+      doTasks("PlayProject<Class<DevelopmentCenter>>", "11 Pay<> FROM MC")
       doTasks(
           "DevelopmentCenter FROM ProjectCard",
           "PROD[MC]",
@@ -89,14 +89,19 @@ internal class AridorTest : TfmSandboxTest() {
     kim.exMachina("$PharmacyUnion, 3 OxygenStep")
     kim.setToExMachina(16, "MC")
     kim.inTurn {
-      doTasks("PlayProject<Class<CryoSleep>>", "-10 MC", "CryoSleep FROM ProjectCard", "PROD[MC]")
+      doTasks(
+          "PlayProject<Class<CryoSleep>>",
+          "10 Pay<> FROM MC",
+          "CryoSleep FROM ProjectCard",
+          "PROD[MC]",
+      )
       doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
     }
 
     kim.inTurn {
       doTasks(
           "PlayProject<Class<Decomposers>>",
-          "-5 MC",
+          "5 Pay<> FROM MC",
           "Decomposers FROM ProjectCard",
           "PROD[MC]",
       )
@@ -119,12 +124,17 @@ internal class AridorTest : TfmSandboxTest() {
     kim.exMachina("$PharmacyUnion, $Decomposers, $Mine")
     kim.setToExMachina(23, "MC")
     kim.inTurn {
-      doTasks("PlayProject<Class<CryoSleep>>", "-10 MC", "CryoSleep FROM ProjectCard", "PROD[MC]")
+      doTasks(
+          "PlayProject<Class<CryoSleep>>",
+          "10 Pay<> FROM MC",
+          "CryoSleep FROM ProjectCard",
+          "PROD[MC]",
+      )
       doTasks("PlayedEvent FROM PharmacyUnion", "3 TerraformRating")
     }
 
     kim.inTurn {
-          doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
+          doTasks("PlayProject<Class<IndustrialMicrobes>>", "12 Pay<> FROM MC")
           doTasks(
               "IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",
@@ -149,7 +159,7 @@ internal class AridorTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<BribedCommittee>>",
-              "-7 MC",
+              "7 Pay<> FROM MC",
               "BribedCommittee FROM ProjectCard",
               "2 TerraformRating",
           )
@@ -167,6 +177,7 @@ internal class AridorTest : TfmSandboxTest() {
       doTask("4 CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
       doTask("PharmacyUnion<Kim> FROM CorporationCard<Kim, Selecting>!")
+      doTask("54 MC")
       doTask("-42 MC")
       doTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
       doTask("PROD[MC]")
@@ -192,7 +203,7 @@ internal class AridorTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<AerialMappers>>",
-          "-11 MC",
+          "11 Pay<> FROM MC",
           "AerialMappers FROM ProjectCard",
           "PROD[MC]",
       )

@@ -21,7 +21,7 @@ internal class UnexpectedApplicationTest : TfmSandboxTest() {
         doTask("PlayProject<Class<UnexpectedApplication>>")
 
         doTasks(
-            "-4 MC",
+            "4 Pay<> FROM MC",
             "UnexpectedApplication FROM ProjectCard",
         )
         doTask("-ProjectCard<Kim, Hand>")
@@ -33,7 +33,7 @@ internal class UnexpectedApplicationTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<UnexpectedApplication>>",
-          "-4 MC",
+          "4 Pay<> FROM MC",
           "UnexpectedApplication FROM ProjectCard",
       )
       doTask("-ProjectCard<Kim, Hand>")

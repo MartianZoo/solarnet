@@ -23,7 +23,11 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
     kim.exMachina("Floater<$StormcraftIncorporated>, 6 Heat")
 
     kim.inTurn {
-          doTasks("ConvertHeat", "-Floater<StormcraftIncorporated>", "-6 Heat")
+          doTasks(
+              "ConvertHeat",
+              "PayFromCard<StormcraftIncorporated> FROM Floater<StormcraftIncorporated>",
+              "6 Pay<Class<Heat>> FROM Heat",
+          )
           doTask("TemperatureStep")
           doTask("TerraformRating")
         }
@@ -37,7 +41,7 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<LocalHeatTrapping>>",
-              "-1 MC",
+              "1 Pay<> FROM MC",
               "LocalHeatTrapping FROM ProjectCard",
               "-5 Heat",
               "4 Plant",
@@ -55,7 +59,7 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<LocalHeatTrapping>>",
-              "-1 MC",
+              "1 Pay<> FROM MC",
               "LocalHeatTrapping FROM ProjectCard",
               "-5 Heat",
               "4 Plant",
@@ -73,7 +77,7 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<LocalHeatTrapping>>",
-              "-1 MC",
+              "1 Pay<> FROM MC",
               "LocalHeatTrapping FROM ProjectCard",
               "-3 Floater THEN 5 Heat",
               "5 Heat",
@@ -97,15 +101,18 @@ internal class StormcraftIncorporatedTest : TfmSandboxTest() {
     kim.exMachina("9 Floater<$StormcraftIncorporated>")
     stan.setToExMachina(2, "Heat")
     kim.inTurn {
-      doTasks("FundAward<Class<Thermalist>>", "-8 MC")
+      doTasks("FundAward<Class<Thermalist>>", "8 Pay<> FROM MC")
       doTask("Thermalist")
     }
 
     kim.inTurn {
-          doTasks("ConvertHeat", "-4 Floater<StormcraftIncorporated>")
+          doTasks(
+              "ConvertHeat",
+              "4 PayFromCard<StormcraftIncorporated> FROM Floater<StormcraftIncorporated>",
+          )
+          doTask("Ok") // Nothing remains to pay in Heat.
           doTask("TemperatureStep")
           doTask("TerraformRating")
-          doTask("Ok" /* No Heat payment. */)
         }
         .expect("TemperatureStep, 0 Heat")
 

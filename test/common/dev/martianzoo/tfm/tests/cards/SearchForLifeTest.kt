@@ -15,7 +15,7 @@ internal class SearchForLifeTest : TfmSandboxTest() {
     kim.exMachina("$SearchForLife")
 
     val result = kim.inTurn {
-      doTasks("UseCardAction<SearchForLife, Action1>", "-1 MC")
+      doTasks("UseCardAction<SearchForLife, Action1>", "1 Pay<> FROM MC")
       doTask("ProjectCard<Revealed>")
       doTask("ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>")
       doTask("-ProjectCard<Revealed>")
@@ -29,7 +29,7 @@ internal class SearchForLifeTest : TfmSandboxTest() {
     kim.exMachina("$SearchForLife")
 
     val result = kim.inTurn {
-      doTasks("UseCardAction<SearchForLife, Action1>", "-1 MC")
+      doTasks("UseCardAction<SearchForLife, Action1>", "1 Pay<> FROM MC")
       doTask("ProjectCard<Revealed>")
       doTask("0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>")
       doTask("-ProjectCard<Revealed>")

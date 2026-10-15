@@ -39,11 +39,9 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       }
 
       playPrelude(FakeHeadStart) {
-        doTask("PlayProject<Class<$OlympusConference>>")
-        pay(4, steel = 3)
+        playProject(OlympusConference, payment = { pay(4, steel = 3) })
 
-        doTask("PlayProject<Class<$StandardTechnology>>")
-        pay(6)
+        playProject(StandardTechnology, payment = { pay(6) })
         doTask("ProjectCard FROM Science")
       }
 

@@ -19,7 +19,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<AstraMechanica>>",
-              "-7 MC",
+              "7 Pay<> FROM MC",
               "AstraMechanica FROM ProjectCard",
               "ProjectCard FROM PlayedEvent<Class<MineralDeposit>>",
           )
@@ -43,7 +43,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
         doTask("PlayProject<Class<AstraMechanica>>")
 
         doTasks(
-            "-7 MC",
+            "7 Pay<> FROM MC",
             "AstraMechanica FROM ProjectCard",
             "ProjectCard FROM PlayedEvent<Class<LavaFlows>>",
         )
@@ -63,7 +63,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
         doTask("PlayProject<Class<AstraMechanica>>")
 
         doTasks(
-            "-7 MC",
+            "7 Pay<> FROM MC",
             "AstraMechanica FROM ProjectCard",
             "ProjectCard FROM PlayedEvent<Class<PharmacyUnion>>",
         )
@@ -81,7 +81,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
         doTask("PlayProject<Class<AstraMechanica>>")
 
         doTasks(
-            "-7 MC",
+            "7 Pay<> FROM MC",
             "AstraMechanica FROM ProjectCard",
             "ProjectCard FROM PlayedEvent<Stan, Class<MineralDeposit>>",
         )
@@ -96,7 +96,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTask("PlayProject<Class<AstraMechanica>>")
-        doTasks("-7 MC", "AstraMechanica FROM ProjectCard")
+        doTasks("7 Pay<> FROM MC", "AstraMechanica FROM ProjectCard")
         doTask("ProjectCard FROM PlayedEvent<Class<Flooding>>")
         doTask("ProjectCard FROM PlayedEvent<Class<Flooding>>")
       }

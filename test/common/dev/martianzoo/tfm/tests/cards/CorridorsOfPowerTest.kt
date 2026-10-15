@@ -25,7 +25,7 @@ internal class CorridorsOfPowerTest : TfmSandboxTest() {
         }
         .expect("ProjectCard")
     kim.inTurn {
-          doTasks("LobbyAction<Action2>", "-5 MC", "PartyDelegate<Scientists>")
+          doTasks("LobbyAction<Action2>", "5 Pay<> FROM MC", "PartyDelegate<Scientists>")
         }
         .expect("0 ProjectCard")
   }

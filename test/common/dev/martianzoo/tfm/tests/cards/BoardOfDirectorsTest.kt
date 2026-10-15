@@ -108,7 +108,7 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
       doTask("3 ProjectCard")
     }
     kim.inTurn {
-      doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
+      doTasks("UseStandardProject<PowerPlantProject>", "11 Pay<> FROM MC", "PROD[Energy]")
     }
   }
 
@@ -139,7 +139,7 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
       )
       // Hand the requirement waiver to Admin before playing the project.
       selectTask("-Required* / Required")
-      doTasks("-1 MC", "DustSeals FROM ProjectCard")
+      doTasks("1 Pay<> FROM MC", "DustSeals FROM ProjectCard")
     }
   }
 }

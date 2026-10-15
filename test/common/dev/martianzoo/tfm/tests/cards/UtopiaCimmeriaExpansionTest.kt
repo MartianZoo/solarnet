@@ -15,7 +15,12 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     kim.setToExMachina(35, "MC")
 
     kim.inTurn {
-          doTasks("UseStandardProject<CityProject>", "-25 MC", "PROD[MC]", "CityTile<Cimmeria_3_3>")
+          doTasks(
+              "UseStandardProject<CityProject>",
+              "25 Pay<> FROM MC",
+              "PROD[MC]",
+              "CityTile<Cimmeria_3_3>",
+          )
           doTask("CimmeriaPlacementBonus!")
         }
         .expect("0 Colony")
@@ -27,7 +32,12 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     kim.setToExMachina(35, "MC")
 
     kim.inTurn {
-      doTasks("UseStandardProject<CityProject>", "-25 MC", "PROD[MC]", "CityTile<Cimmeria_3_3>")
+      doTasks(
+          "UseStandardProject<CityProject>",
+          "25 Pay<> FROM MC",
+          "PROD[MC]",
+          "CityTile<Cimmeria_3_3>",
+      )
       doTask("CimmeriaPlacementBonus!")
       doTasks("-5 MC", "Colony<Luna>", "PROD[2 MC]")
     }
@@ -41,7 +51,12 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
 
     shouldThrow<NotFullySpecifiedException> {
       kim.inTurn {
-        doTasks("UseStandardProject<CityProject>", "-25 MC", "PROD[MC]", "CityTile<Cimmeria_3_3>")
+        doTasks(
+            "UseStandardProject<CityProject>",
+            "25 Pay<> FROM MC",
+            "PROD[MC]",
+            "CityTile<Cimmeria_3_3>",
+        )
         doTask("CimmeriaPlacementBonus!")
         doTask("-5 MC")
       }
@@ -57,7 +72,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     kim.exMachina("$Ecoline, $EarthCatapult")
     stan.exMachina("$Mine")
     kim.inTurn {
-      doTasks("PlayProject<Class<SmallAsteroid>>", "-8 MC")
+      doTasks("PlayProject<Class<SmallAsteroid>>", "8 Pay<> FROM MC")
       doTasks(
           "SmallAsteroid FROM ProjectCard",
       )
@@ -69,7 +84,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTasks("FundAward<Class<Incorporator>>", "-8 MC")
+      doTasks("FundAward<Class<Incorporator>>", "8 Pay<> FROM MC")
       doTask("Incorporator")
     }
     victoryPoints() shouldBe listOf(23, 25)
@@ -82,7 +97,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Utopia_5_5>")
 
     kim.inTurn {
-      doTasks("FundAward<Class<Suburbian>>", "-8 MC")
+      doTasks("FundAward<Class<Suburbian>>", "8 Pay<> FROM MC")
       doTask("Suburbian")
     }
     victoryPoints() shouldBe listOf(25, 20)
@@ -97,7 +112,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-      doTasks("FundAward<Class<Founder>>", "-8 MC")
+      doTasks("FundAward<Class<Founder>>", "8 Pay<> FROM MC")
       doTask("Founder")
     }
     victoryPoints() shouldBe listOf(25, 20)
@@ -110,7 +125,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     kim.setToExMachina(4, "PROD[Titanium]")
 
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Metallurgist>>", "-8 MC")
+      doTasks("ClaimMilestone<Class<Metallurgist>>", "8 Pay<> FROM MC")
       doTask("Metallurgist")
     }
   }
@@ -123,7 +138,7 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Trader>>", "-8 MC")
+      doTasks("ClaimMilestone<Class<Trader>>", "8 Pay<> FROM MC")
       doTask("Trader")
     }
   }
@@ -136,14 +151,14 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Fundraiser>>")
-        doTask("-8 MC")
+        doTask("8 Pay<> FROM MC")
         doTask("Fundraiser")
       }
     }
 
     kim.setToExMachina(12, "PROD[MC]")
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Fundraiser>>", "-8 MC")
+      doTasks("ClaimMilestone<Class<Fundraiser>>", "8 Pay<> FROM MC")
       doTask("Fundraiser")
     }
   }

@@ -18,7 +18,7 @@ internal class HiredRaidersTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<HiredRaiders>>",
-              "-1 MC",
+              "1 Pay<> FROM MC",
               "HiredRaiders FROM ProjectCard",
               "3 MC<Kim FROM Stan>",
           )
@@ -39,7 +39,7 @@ internal class HiredRaidersTest : TfmSandboxTest() {
         doTask("PlayProject<Class<HiredRaiders>>")
 
         doTasks(
-            "-1 MC",
+            "1 Pay<> FROM MC",
             "HiredRaiders FROM ProjectCard",
         )
         doTask("Ok")
@@ -56,7 +56,7 @@ internal class HiredRaidersTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<HiredRaiders>>",
-              "-1 MC",
+              "1 Pay<> FROM MC",
               "HiredRaiders FROM ProjectCard",
               "Steel<Kim FROM Rob>",
           )

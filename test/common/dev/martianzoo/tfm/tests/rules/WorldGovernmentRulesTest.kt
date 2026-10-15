@@ -16,7 +16,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "WorldGovernmentAdvisor")
     kim.exMachina("$WorldGovernmentAdvisor, 14 VenusStep")
     kim.inTurn {
-      doTasks("UseStandardProject<AirScrappingProject>", "-15 MC")
+      doTasks("UseStandardProject<AirScrappingProject>", "15 Pay<> FROM MC")
       doTask("VenusStep")
       doTask("TerraformRating")
     }
@@ -41,7 +41,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTask("UseStandardProject<AirScrappingProject>")
-        doTask("-15 MC")
+        doTask("15 Pay<> FROM MC")
         doTask("VenusStep")
         doTask("TerraformRating")
 
@@ -113,24 +113,28 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     )
     kim.setToExMachina(100, "MC")
     kim.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTask("TerraformRating")
     }
     kim.inTurn {
-      doTasks("UseStandardProject<AirScrappingProject>", "-15 MC")
+      doTasks("UseStandardProject<AirScrappingProject>", "15 Pay<> FROM MC")
       doTask("VenusStep")
       doTask("TerraformRating")
     }
     kim.inTurn {
-      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_3_3>")
+      doTasks(
+          "UseStandardProject<GreeneryProject>",
+          "23 Pay<> FROM MC",
+          "GreeneryTile<Tharsis_3_3>",
+      )
       doTask("OxygenStep")
       doTasks("2 MC", "2 MC", "TerraformRating")
     }
     kim.inTurn {
       doTasks(
           "UseStandardProject<AquiferProject>",
-          "-18 MC",
+          "18 Pay<> FROM MC",
           "OceanTile<Tharsis_4_8>",
           "TerraformRating",
           "2 Plant",
@@ -172,7 +176,7 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     @Test
     internal fun `Admin terraforming does not trigger Homeostasis Bureau's owner effect`() {
       newTestGame(playerCount = 2)
-      kim.doTasks("PlayProject<Class<$HomeostasisBureau>>", "-16 MC")
+      kim.doTasks("PlayProject<Class<$HomeostasisBureau>>")
       kim.doTask("0 StandardAction") // Decline the second action.
       stan.doTask("Pass")
       kim.doTask("Pass")

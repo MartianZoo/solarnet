@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.CarbonNanosystems
@@ -20,9 +20,10 @@ internal class SolarProbeTest : TfmSandboxTest() {
     kim.setToExMachina(8, "MC")
     kim.setToExMachina(1, "ProjectCard")
 
-    shouldThrow<LimitsException> {
+    shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<SolarProbe>>", "-9 MC")
+        doTask("PlayProject<Class<SolarProbe>>")
+        doTask("9 Pay<> FROM MC")
       }
     }
     kim.assertCounts(
@@ -39,7 +40,7 @@ internal class SolarProbeTest : TfmSandboxTest() {
     kim.setToExMachina(9, "MC")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<SolarProbe>>", "-9 MC")
+          doTasks("PlayProject<Class<SolarProbe>>", "9 Pay<> FROM MC")
           doTasks(
               "SolarProbe FROM ProjectCard",
           )

@@ -518,7 +518,7 @@ private fun renderAcceptedCardResourcePayment(
   val spent =
       describers.resourcePaymentEvent(payment.trigger) as? ResourcePaymentEvent.FromCard
           ?: return null
-  if (spent.card != describers.thisExpression || spent.resource != cardResourceType) return null
+  if (spent.card != describers.thisExpression) return null
   val reduction = owedReduction(payment.instruction, describers) ?: return null
   val resource = describers.cardResourceNoun(cardResourceType, 2) ?: return null
   val billing = describers.billingEvent(acceptance.trigger)

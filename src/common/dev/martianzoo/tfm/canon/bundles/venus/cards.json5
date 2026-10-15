@@ -115,7 +115,7 @@
           "actions": [ "-> Floater" ],
           "effects": [
             "PayingFor<Class<VenusTag>>:: AcceptingFromCard<This>",
-            "-Floater<This> BY Me@ IF AcceptingFromCard<This>:: -3 Owed"
+            "PayFromCard<This>:: -3 Owed"
           ],
         },
         {

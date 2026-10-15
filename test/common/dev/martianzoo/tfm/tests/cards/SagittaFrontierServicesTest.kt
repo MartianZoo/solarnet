@@ -20,7 +20,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
           "PROD[2 MC]",
       )
       doTask("SearchForCard<Kim, NoTagsFilter>!")
-      doTasks("4 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
+      doTasks("4 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
     }
   }
 
@@ -32,7 +32,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<AtmoCollectors>>",
-          "-15 MC",
+          "15 Pay<> FROM MC",
           "AtmoCollectors FROM ProjectCard",
           "4 MC",
       )
@@ -48,7 +48,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<Sabotage>>",
-              "-1 MC",
+              "1 Pay<> FROM MC",
               "Sabotage FROM ProjectCard",
               "MC",
               "-7 MC<Stan>",
@@ -67,7 +67,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     kim.setToExMachina(10, "MC")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
+      doTasks("PlayProject<Class<SmallAsteroid>>", "10 Pay<> FROM MC")
       doTasks(
           "SmallAsteroid FROM ProjectCard",
       )
@@ -84,7 +84,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     newTestGame("SagittaFrontierServices", kimCorporation = SagittaFrontierServices)
 
     kim.inTurn {
-      doTasks("PlayProject<Class<Mine>>", "-4 MC")
+      doTasks("PlayProject<Class<Mine>>", "4 Pay<> FROM MC")
       doTasks("Mine FROM ProjectCard", "PROD[Steel]", "MC")
     }
   }
@@ -95,7 +95,11 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     kim.setToExMachina(11, "MC")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<Research>>", "-11 MC", "Research FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<Research>>",
+          "11 Pay<> FROM MC",
+          "Research FROM ProjectCard",
+      )
       doTask("2 ProjectCard<Kim, Hand>")
     }
   }
@@ -106,7 +110,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks("PlayProject<Class<Mine>>", "-4 MC")
+          doTasks("PlayProject<Class<Mine>>", "4 Pay<> FROM MC")
           doTasks("Mine FROM ProjectCard", "PROD[Steel]")
         }
         .expect("0 MC<Kim>")

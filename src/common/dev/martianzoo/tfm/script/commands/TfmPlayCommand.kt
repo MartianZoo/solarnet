@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.script.commands
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.cardBack
@@ -15,7 +16,7 @@ internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("
       """
         Plays a Terraforming Mars card from a turn option or a granted card-play task.
         Payment text after the first comma is passed to `tfm_pay`; for example,
-        `tfm_play OlympusConference, 2 Steel, 1`.
+        `tfm_play OlympusConference, 2 Steel, 6 MC`.
       """
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
@@ -37,8 +38,15 @@ internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("
           val instruction =
               if (grantedOperation) "PlayCard<Class<$kind>, Class<$cardName>>"
               else "PlayProject<Class<$cardName>>"
-          TaskCommand(repl).withArgs(instruction)
-          if (payment.isNotEmpty()) TfmPayCommand(repl).withArgs(payment)
+          val previousPolicy = repl.agent.autoExecPolicy
+          try {
+            if (payment.isNotEmpty()) repl.agent.autoExecPolicy = NONE
+            TaskCommand(repl).withArgs(instruction)
+            if (payment.isNotEmpty()) TfmPayCommand(repl).withArgs(payment)
+          } finally {
+            repl.agent.autoExecPolicy = previousPolicy
+          }
+          repl.agent.autoExecNow()
         }
     return repl.describeExecutionResults(result)
   }

@@ -35,7 +35,7 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
 
       // Bind the shared amount before Admin opens the bill for this action.
       selectOnlyTask(x = 3)
-      doTask("-6 MC")
+      doTask("6 Pay<> FROM MC")
       doTask("3 Energy")
     }
   }
@@ -50,7 +50,7 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
           "42 MC",
           "PROD[3 Heat]",
       )
-      doTasks("-15 MC", "5 ProjectCard<Hand FROM Selecting>")
+      doTasks("15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
     kim.exMachina("$EnergyMarket")
@@ -62,7 +62,7 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
 
           // Bind the shared amount before Admin opens the bill for this action.
           selectOnlyTask(x = 3)
-          doTask("-6 Heat")
+          doTask("6 Pay<Class<Heat>> FROM Heat")
           doTask("Ok" /* No MC payment. */)
           doTask("3 Energy")
         }
@@ -92,7 +92,7 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
 
           // Bind the shared amount before Admin opens the bill for this action.
           selectOnlyTask(x = 3)
-          doTask("-3 Energy")
+          doTask("3 Pay<Class<Energy>> FROM Energy")
           // Expand the paid draw-and-keep sequence before choosing the cards.
           selectOnlyTask()
           doTask("3 ProjectCard<Kim, Selecting>")
@@ -113,7 +113,7 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
 
           // Bind the shared amount before Admin opens the bill for this action.
           selectOnlyTask(x = 4)
-          doTask("-4 Energy")
+          doTask("4 Pay<Class<Energy>> FROM Energy")
           // Expand the paid draw-and-keep sequence before choosing the cards.
           selectOnlyTask()
           doTask("4 ProjectCard<Kim, Selecting>")

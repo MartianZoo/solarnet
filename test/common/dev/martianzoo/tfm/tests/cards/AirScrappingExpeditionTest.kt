@@ -19,7 +19,7 @@ internal class AirScrappingExpeditionTest : TfmSandboxTest() {
         doTask("PlayProject<Class<AirScrappingExpedition>>")
 
         doTasks(
-            "-13 MC",
+            "13 Pay<> FROM MC",
             "AirScrappingExpedition FROM ProjectCard",
         )
         doTask("VenusStep")

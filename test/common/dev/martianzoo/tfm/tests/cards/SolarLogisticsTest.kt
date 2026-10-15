@@ -13,7 +13,7 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
     kim.exMachina("$SolarLogistics")
     // The drawn card replaces the played event in hand.
     kim.inTurn {
-          doTasks("PlayProject<Class<ImportedGhg>>", "-5 MC")
+          doTasks("PlayProject<Class<ImportedGhg>>", "5 Pay<> FROM MC")
           doTasks(
               "ImportedGhg FROM ProjectCard",
               "PROD[Heat]",
@@ -32,7 +32,7 @@ internal class SolarLogisticsTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks(
           "PlayProject<Class<$TechnologyDemonstration>>",
-          "-5 MC",
+          "5 Pay<> FROM MC",
           "$TechnologyDemonstration FROM ProjectCard",
           "2 ProjectCard",
       )

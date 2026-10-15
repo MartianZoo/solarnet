@@ -74,6 +74,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
             if (pauseForWrittenCost) {
               repl.agent.autoExecPolicy = previousAutoExecPolicy
               writtenCostPaused = false
+              repl.agent.autoExecNow()
             }
           }
         } finally {

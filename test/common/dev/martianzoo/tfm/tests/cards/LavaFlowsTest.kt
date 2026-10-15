@@ -16,7 +16,7 @@ internal class LavaFlowsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<LavaFlows>>",
-          "-18 MC",
+          "18 Pay<> FROM MC",
           "LavaFlows FROM ProjectCard",
       )
       doTask("TemperatureStep")
@@ -39,7 +39,7 @@ internal class LavaFlowsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<LavaFlows>>",
-          "-18 MC",
+          "18 Pay<> FROM MC",
           "LavaFlows FROM ProjectCard",
       )
       doTask("TemperatureStep")
@@ -69,7 +69,7 @@ internal class LavaFlowsTest : TfmSandboxTest() {
         doTask("PlayProject<Class<LavaFlows>>")
 
         doTasks(
-            "-18 MC",
+            "18 Pay<> FROM MC",
             "LavaFlows FROM ProjectCard",
         )
         doTask("TemperatureStep")

@@ -14,7 +14,7 @@ internal class GhgShipmentTest : TfmSandboxTest() {
     stan.exMachina("$AerialMappers, 2 Floater<$AerialMappers>")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<GhgShipment>>", "-3 MC")
+      doTasks("PlayProject<Class<GhgShipment>>", "3 Pay<> FROM MC")
       doTasks(
           "GhgShipment FROM ProjectCard",
           "PROD[Heat]",

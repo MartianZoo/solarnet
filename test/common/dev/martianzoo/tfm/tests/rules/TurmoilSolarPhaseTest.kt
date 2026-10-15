@@ -83,11 +83,11 @@ internal class TurmoilSolarPhaseTest : TfmGameplayTest() {
     // Generation 4: raise Kim from 18 to 20 TR before Red Influence resolves.
     stan.doTask("Pass")
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTasks("UseStandardProject<AsteroidProject>")
       autoExecNow(EAGER)
     }
     kim.completeOperation {
-      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTasks("UseStandardProject<AsteroidProject>")
       autoExecNow(EAGER)
     }
     kim.count("TerraformRating") shouldBe 20

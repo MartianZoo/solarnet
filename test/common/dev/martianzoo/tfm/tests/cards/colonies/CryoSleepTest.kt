@@ -13,7 +13,7 @@ internal class CryoSleepTest : TfmSandboxTest() {
     kim.exMachina("$CryoSleep")
 
     kim.inTurn {
-      doTasks("TradeAction<Action1>", "-8 MC")
+      doTasks("TradeAction<Action1>", "8 Pay<> FROM MC")
 
       doTasks("Trade<Io>", "3 Heat")
     }
@@ -27,7 +27,7 @@ internal class CryoSleepTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "TradeAction<Action2>",
-          "-2 Energy",
+          "2 Pay<Class<Energy>> FROM Energy",
           "Trade<Io>",
           "3 Heat",
       )
@@ -39,7 +39,7 @@ internal class CryoSleepTest : TfmSandboxTest() {
     kim.exMachina("$CryoSleep, $RimFreighters")
 
     kim.inTurn {
-      doTasks("TradeAction<Action1>", "-7 MC")
+      doTasks("TradeAction<Action1>", "7 Pay<> FROM MC")
 
       doTasks("Trade<Io>", "3 Heat")
     }

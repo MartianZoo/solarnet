@@ -13,7 +13,7 @@ internal class GmoContractTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<AdvancedEcosystems>>",
-          "-11 MC",
+          "11 Pay<> FROM MC",
           "AdvancedEcosystems FROM ProjectCard",
           "2 MC",
       )

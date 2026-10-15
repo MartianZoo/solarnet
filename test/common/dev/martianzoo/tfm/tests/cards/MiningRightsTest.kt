@@ -27,7 +27,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
   private fun playOnWildBonus(): TaskResult {
     newTestGame(addOptions = "AmazonisMap, Unsafe")
     return kim.inTurn {
-      doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
+      doTasks("PlayProject<Class<MiningRights>>", "9 Pay<> FROM MC")
       doTasks(
           "MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Amazonis_05_03>",
@@ -46,7 +46,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
     newTestGame(addOptions = "CimmeriaMap")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
+      doTasks("PlayProject<Class<MiningRights>>", "9 Pay<> FROM MC")
       doTasks(
           "MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Cimmeria_6_4>",
@@ -59,7 +59,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<RoboticWorkforce>>",
-          "-9 MC",
+          "9 Pay<> FROM MC",
           "RoboticWorkforce FROM ProjectCard",
           "CopyProductionBox<MiningRights>",
           "PROD[Titanium]",
@@ -72,7 +72,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
     newTestGame()
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
+        doTasks("PlayProject<Class<MiningRights>>", "9 Pay<> FROM MC")
         doTask("MiningRights FROM ProjectCard")
         doTask("MiningRights_SpecialTile<Tharsis_2_1>")
         // Resolve the production choice to check that this area supplies a metal bonus.
@@ -86,7 +86,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
     newTestGame(addOptions = "CimmeriaMap")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
+      doTasks("PlayProject<Class<MiningRights>>", "9 Pay<> FROM MC")
       doTasks(
           "MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Cimmeria_6_4>",
@@ -104,7 +104,7 @@ internal class MiningRightsTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<$MiningRights>>",
-          "-9 MC",
+          "9 Pay<> FROM MC",
           "$MiningRights FROM ProjectCard",
           "MiningRights_SpecialTile<Cimmeria_6_4>",
           "2 Steel",

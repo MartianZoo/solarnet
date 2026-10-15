@@ -20,7 +20,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
       doTask("SpliceTacticalGenomics_RequiredAction!")
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
-      doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
+      doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
     }
   }
 
@@ -36,7 +36,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
       doTask("SpliceTacticalGenomics_RequiredAction!")
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
-      doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
+      doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
     stan.exMachina("3 OxygenStep")
@@ -45,7 +45,11 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks("PlayProject<Class<Decomposers>>", "-5 MC", "Decomposers FROM ProjectCard")
+          doTasks(
+              "PlayProject<Class<Decomposers>>",
+              "5 Pay<> FROM MC",
+              "Decomposers FROM ProjectCard",
+          )
           // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
           selectTask("Microbe<Decomposers>*")
           kim.doTask("2 MC")
@@ -66,7 +70,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
       doTask("SpliceTacticalGenomics_RequiredAction!")
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
-      doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
+      doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
     stan.exMachina("3 OxygenStep")
@@ -75,7 +79,11 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks("PlayProject<Class<Decomposers>>", "-5 MC", "Decomposers FROM ProjectCard")
+          doTasks(
+              "PlayProject<Class<Decomposers>>",
+              "5 Pay<> FROM MC",
+              "Decomposers FROM ProjectCard",
+          )
           // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
           selectTask("Microbe<Decomposers>*")
           kim.doTask("2 MC")
@@ -96,7 +104,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
       doTask("SpliceTacticalGenomics_RequiredAction!")
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
-      doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
+      doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
     stan.exMachina("3 OxygenStep, $RegolithEaters")
@@ -105,7 +113,11 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks("PlayProject<Class<Decomposers>>", "-5 MC", "Decomposers FROM ProjectCard")
+          doTasks(
+              "PlayProject<Class<Decomposers>>",
+              "5 Pay<> FROM MC",
+              "Decomposers FROM ProjectCard",
+          )
           // Resolve Decomposers' mandatory resource separately from the optional tag bonus.
           selectTask("Microbe<Decomposers>*")
           kim.doTask("2 MC")
@@ -127,7 +139,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
       doTask("SpliceTacticalGenomics_RequiredAction!")
       // Resolve Splice's mandatory income separately from its optional tag bonus.
       selectTask("2 MC")
-      doTasks("2 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
+      doTasks("2 MC", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
     stan.setToExMachina(12, "MC")
@@ -135,7 +147,7 @@ internal class SpliceTacticalGenomicsTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
+          doTasks("PlayProject<Class<IndustrialMicrobes>>", "12 Pay<> FROM MC")
           doTasks(
               "IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",

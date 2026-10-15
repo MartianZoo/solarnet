@@ -21,7 +21,11 @@ internal class CuttingEdgeTechnologyTest : TfmSandboxTest() {
     kim.exMachina("$CuttingEdgeTechnology")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<Advertising>>", "-4 MC", "Advertising FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<Advertising>>",
+          "4 Pay<> FROM MC",
+          "Advertising FROM ProjectCard",
+      )
     }
   }
 }

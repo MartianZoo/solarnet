@@ -88,7 +88,7 @@ Delete entries when they are done.
 - actually plan out how exMachina should work
 - Keep gated System work with Admin when its condition becomes satisfied, removing unnecessary
   player selections such as those in Head Start scenarios.
-- Audit remaining non-payment `::` effects, including Pharmacy Union's starting money; retain
+- Audit remaining non-payment `::` effects; retain
   immediate execution only where a concrete gameplay need justifies it.
 
 - Revisit ownership of `Selecting`, `Hand`, and played events together, including per-player

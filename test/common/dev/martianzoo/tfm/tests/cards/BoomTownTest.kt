@@ -46,8 +46,8 @@ internal class BoomTownTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<SmallAsteroid>>",
-          "-3 Titanium",
-          "-4 MC",
+          "3 Pay<Class<Titanium>> FROM Titanium",
+          "4 Pay<> FROM MC",
           "SmallAsteroid FROM ProjectCard",
       )
       doTask("TemperatureStep")
@@ -59,8 +59,8 @@ internal class BoomTownTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks(
           "PlayProject<Class<SpaceStation>>",
-          "-1 Titanium",
-          "-7 MC",
+          "1 Pay<Class<Titanium>> FROM Titanium",
+          "7 Pay<> FROM MC",
           "SpaceStation FROM ProjectCard",
       )
     }
@@ -89,8 +89,8 @@ internal class BoomTownTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<SmallAsteroid>>",
-          "-3 Titanium",
-          "-4 MC",
+          "3 Pay<Class<Titanium>> FROM Titanium",
+          "4 Pay<> FROM MC",
           "SmallAsteroid FROM ProjectCard",
       )
       doTask("TemperatureStep")
@@ -111,7 +111,11 @@ internal class BoomTownTest : TfmSandboxTest() {
 
     // Titanium is worth 3 - 1 + 1 + 1 + 1 + 1 = 6 MC.
     kim.inTurn {
-          doTasks("UseCardAction<IcyImpactors, Action1>", "-1 Titanium", "-4 MC")
+          doTasks(
+              "UseCardAction<IcyImpactors, Action1>",
+              "1 Pay<Class<Titanium>> FROM Titanium",
+              "4 Pay<> FROM MC",
+          )
           doTask("2 Asteroid<IcyImpactors>")
         }
         .expect("2 Asteroid<$IcyImpactors>")

@@ -53,7 +53,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
     shouldThrow<LimitsException> {
       kim.inTurn {
         doTask("ConvertPlants")
-        doTask("-8 Plant")
+        doTask("8 Pay<Class<Plant>> FROM Plant")
         // Hand the paid conversion to Admin to offer the legal greenery areas.
         selectTask("DefaultGreeneryTile")
         doTasks("GreeneryTile<Amazonis_05_03>", "Steel", "OxygenStep", "TerraformRating", "-3 MC")
@@ -65,7 +65,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
     kim.count("Steel") shouldBe 0
 
     kim.inTurn {
-      doTasks("ConvertPlants", "-8 Plant")
+      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       // Hand the paid conversion to Admin to offer the legal greenery areas.
       selectTask("DefaultGreeneryTile")
       doTasks("GreeneryTile<Amazonis_05_03>", "MC")
@@ -128,7 +128,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
+        doTasks("PlayProject<Class<SmallAsteroid>>", "10 Pay<> FROM MC")
         doTasks(
             "SmallAsteroid FROM ProjectCard",
             "-Plant<Stan>",
@@ -144,7 +144,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
     stan.count("Plant") shouldBe 1
 
     kim.inTurn {
-          doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
+          doTasks("PlayProject<Class<SmallAsteroid>>", "10 Pay<> FROM MC")
           doTasks(
               "SmallAsteroid FROM ProjectCard",
               "-Plant<Stan>",
@@ -204,7 +204,7 @@ internal class DeadEndsTest : TfmSandboxTest() {
     kim.setToExMachina(30, "MC")
     shouldThrow<DependencyException> {
       kim.inTurn {
-        doTasks("UseStandardProject<CityProject>", "-25 MC")
+        doTasks("UseStandardProject<CityProject>", "25 Pay<> FROM MC")
         doTasks("CityTile<Cimmeria_3_3>", "CimmeriaPlacementBonus", "Colony<Luna>")
       }
     }

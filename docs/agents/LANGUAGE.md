@@ -264,6 +264,8 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   cost must precede the base amount, as in `Spend 2X M€ to gain X energy`. A card count linked to
   an action cost uses `that many` only when the quantities match. This distinction depends
   on the quantities, not the card. Preserve genuinely zero-inclusive choices separately.
+- Recognize payment value from explicit `Pay` and `PayFromCard` events. Ordinary resource-loss
+  triggers do not establish payment purpose.
 - Keep permission to use special payment resources concise: `Spend 8 M€ (steel may be used)`.
 - Use `raise`/`lower` for global parameters and terraform rating; `increase`/`decrease` for
   production. Spell out `terraform rating`.

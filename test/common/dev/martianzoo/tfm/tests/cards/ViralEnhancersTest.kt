@@ -15,7 +15,11 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
 
     // The unavailable animal branch has already resolved to an untyped Ok.
     kim.inTurn {
-          doTasks("PlayProject<Class<RegolithEaters>>", "-13 MC", "RegolithEaters FROM ProjectCard")
+          doTasks(
+              "PlayProject<Class<RegolithEaters>>",
+              "13 Pay<> FROM MC",
+              "RegolithEaters FROM ProjectCard",
+          )
           doTask("Ok")
         }
         .expect("0 Microbe<$RegolithEaters>, 0 Plant, 0 Animal")
@@ -27,7 +31,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<ViralEnhancers>>",
-          "-9 MC",
+          "9 Pay<> FROM MC",
           "ViralEnhancers FROM ProjectCard",
           "Plant",
       )
@@ -44,7 +48,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<AdvancedEcosystems>>",
-          "-11 MC",
+          "11 Pay<> FROM MC",
           "AdvancedEcosystems FROM ProjectCard",
           "Plant",
           "Plant",
@@ -60,7 +64,11 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     kim.exMachina("$ViralEnhancers")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<EcologicalZone>>", "-12 MC", "EcologicalZone FROM ProjectCard")
+          doTasks(
+              "PlayProject<Class<EcologicalZone>>",
+              "12 Pay<> FROM MC",
+              "EcologicalZone FROM ProjectCard",
+          )
           // Resolve Ecological Zone's resource separately from Viral Enhancers' choice.
           selectTask("Animal<EcologicalZone>*")
           // Resolve Ecological Zone's resource separately from Viral Enhancers' choice.
@@ -80,7 +88,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<Moss>>",
-              "-4 MC",
+              "4 Pay<> FROM MC",
               "Moss FROM ProjectCard",
               "PROD[Plant]",
               "Plant",
@@ -96,7 +104,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     shouldThrow<TaskException> {
       kim.inTurn {
         doTask("PlayProject<Class<RegolithEaters>>")
-        doTasks("-13 MC", "RegolithEaters FROM ProjectCard")
+        doTasks("13 Pay<> FROM MC", "RegolithEaters FROM ProjectCard")
         doTask("Microbe<NitriteReducingBacteria>")
       }
     }
@@ -108,7 +116,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<RegolithEaters>>",
-          "-13 MC",
+          "13 Pay<> FROM MC",
           "RegolithEaters FROM ProjectCard",
           "Microbe<RegolithEaters>!",
       )
@@ -132,6 +140,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
           doTask("-42 MC")
           doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
           doTask("PharmacyUnion<Kim> FROM CorporationCard<Kim, Selecting>!")
+          doTask("54 MC")
           doTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
           doTask("Disease<PharmacyUnion>")
           doTask("-4* MC")
@@ -172,7 +181,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("$ViralEnhancers")
     kim.inTurn {
-      doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
+      doTasks("PlayProject<Class<IndustrialMicrobes>>", "12 Pay<> FROM MC")
       doTasks(
           "IndustrialMicrobes FROM ProjectCard",
           "PROD[Energy]",
@@ -190,7 +199,7 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     kim.exMachina("$ViralEnhancers")
     // Choose the uncollectible bonus instead of the available plant.
     kim.inTurn {
-          doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
+          doTasks("PlayProject<Class<IndustrialMicrobes>>", "12 Pay<> FROM MC")
           doTasks(
               "IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",

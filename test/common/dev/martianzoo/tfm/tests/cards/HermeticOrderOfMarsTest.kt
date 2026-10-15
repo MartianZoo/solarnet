@@ -18,7 +18,7 @@ internal class HermeticOrderOfMarsTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<HermeticOrderOfMars>>",
-              "-10 MC",
+              "10 Pay<> FROM MC",
               "HermeticOrderOfMars FROM ProjectCard",
               "PROD[2 MC]",
           )

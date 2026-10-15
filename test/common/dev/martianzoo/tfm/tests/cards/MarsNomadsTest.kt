@@ -21,7 +21,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<MarsNomads>>",
-              "-13 MC",
+              "13 Pay<> FROM MC",
               "MarsNomads FROM ProjectCard",
               "NomadsMarker<Tharsis_1_1>",
           )
@@ -77,7 +77,11 @@ internal class MarsNomadsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTasks("UseStandardProject<CityProject>", "-25 MC", "CityTile<Tharsis_1_1>")
+        doTasks(
+            "UseStandardProject<CityProject>",
+            "25 Pay<> FROM MC",
+            "CityTile<Tharsis_1_1>",
+        )
       }
     }
     kim.assertCounts(1 to "NomadsMarker<Tharsis_1_1>", 0 to "CityTile")
@@ -91,7 +95,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     shouldThrow<DeadEndException> {
       stan.inTurn {
         doTask("UseStandardProject<GreeneryProject>")
-        doTask("-23 MC")
+        doTask("23 Pay<> FROM MC")
         doTask("GreeneryTile<Tharsis_1_1>")
       }
     }
@@ -108,7 +112,7 @@ internal class MarsNomadsTest : TfmSandboxTest() {
         .inTurn {
           doTasks(
               "PlayProject<Class<LandClaim>>",
-              "-1 MC",
+              "1 Pay<> FROM MC",
               "LandClaim FROM ProjectCard",
           )
           doTask("Community<Tharsis_1_1>")
@@ -273,14 +277,14 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     shouldThrow<DeadEndException> {
       kim.inTurn {
         doTask("ConvertPlants")
-        doTask("-8 Plant")
+        doTask("8 Pay<Class<Plant>> FROM Plant")
         // Hand the paid conversion to Admin to offer the legal greenery areas.
         selectTask("DefaultGreeneryTile")
         doTask("GreeneryTile<Tharsis_2_2>")
       }
     }
     return kim.inTurn {
-      doTasks("ConvertPlants", "-8 Plant")
+      doTasks("ConvertPlants", "8 Pay<Class<Plant>> FROM Plant")
       // Hand the paid conversion to Admin to offer the legal greenery areas.
       selectTask("DefaultGreeneryTile")
       doTask("GreeneryTile<Tharsis_9_7>")

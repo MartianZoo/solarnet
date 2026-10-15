@@ -18,7 +18,7 @@ internal class AsteroidDeflectionSystemTest : TfmSandboxTest() {
     kim.exMachina("$AsteroidDeflectionSystem, $AsteroidRights")
 
     val result = kim.inTurn {
-      doTasks("UseCardAction<AsteroidRights, Action1>", "-1 MC")
+      doTasks("UseCardAction<AsteroidRights, Action1>", "1 Pay<> FROM MC")
       doTask("Asteroid<AsteroidDeflectionSystem>")
     }
     result.expect("Asteroid<$AsteroidDeflectionSystem>")
@@ -35,7 +35,7 @@ internal class AsteroidDeflectionSystemTest : TfmSandboxTest() {
         doTask("PlayProject<Class<Virus>>")
 
         doTasks(
-            "-1 MC",
+            "1 Pay<> FROM MC",
             "Virus FROM ProjectCard",
         )
         doTask("-Plant<Kim>")

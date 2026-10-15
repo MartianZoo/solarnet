@@ -40,7 +40,7 @@
           "effects": [
             "CardFront(HAS 2 Tag): Science<This>",
             "UseAction<StandardProject(HAS cost)>:: AcceptingFromCard<This>",
-            "-Science<This> BY Me@ IF AcceptingFromCard<This>:: -2 Owed",
+            "PayFromCard<This>:: -2 Owed",
           ],
         },
       ],

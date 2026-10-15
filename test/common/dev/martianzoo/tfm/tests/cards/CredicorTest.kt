@@ -14,7 +14,7 @@ internal class CrediCorTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<EarthCatapult>>",
-          "-19 MC",
+          "19 Pay<> FROM MC",
           "EarthCatapult FROM ProjectCard",
           "4 MC",
       )
@@ -30,7 +30,7 @@ internal class CrediCorTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "UseStandardProject<CityProject>",
-          "-25 MC",
+          "25 Pay<> FROM MC",
           "CityTile<Tharsis_2_1>",
           "PROD[MC]",
           "4 MC",

@@ -13,7 +13,7 @@ internal class NitrogenRichAsteroidTest : TfmSandboxTest() {
     kim.exMachina("$AdaptedLichen, $Lichen, $ArcticAlgae")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<NitrogenRichAsteroid>>", "-31 MC")
+      doTasks("PlayProject<Class<NitrogenRichAsteroid>>", "31 Pay<> FROM MC")
       doTasks(
           "NitrogenRichAsteroid FROM ProjectCard",
           "2 TerraformRating",

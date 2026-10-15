@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -137,8 +138,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
       placeTile(8, 8)
     }
     pink.playProject(DirectedImpactors, 3, titanium = 1)
-    pink.cardAction1(DirectedImpactors) {
-      pink.pay(6)
+    pink.stdAction("UseCardAction<$DirectedImpactors, Action1>", payment = { pink.pay(6) }) {
       addCardResources(DirectedImpactors)
     }
     pink.doTask("Pass")
@@ -184,8 +184,10 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
       placeTile(1, 2)
     }
 
-    pink.cardAction1(DirectedImpactors) {
-      pink.pay(titanium = 2)
+    pink.stdAction(
+        "UseCardAction<$DirectedImpactors, Action1>",
+        payment = { pink.pay(titanium = 2) },
+    ) {
       addCardResources(DirectedImpactors)
     }
     pink.declineSecondAction()
@@ -352,8 +354,13 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
 
     purple.stdAction("ClaimMilestone<Class<Trader>>")
     purple
-        .playProject(ProtectedValley, 9, steel = 5) {
-          doTask("-2 Microbe<$Psychrophiles>")
+        .playProject(
+            ProtectedValley,
+            payment = {
+              doTask("2 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
+              purple.pay(9, steel = 5)
+            },
+        ) {
           placeTile(1, 1)
         }
         .expect("2 Plant, -5 Steel")
@@ -376,10 +383,11 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     pink.convertHeat()
     pink.cardAction1(RobinsonIndustries) { doTask("PROD[Plant]") }
 
-    // The temperature is now too high for Designed Microorganisms.
-    shouldThrow<RequirementException> {
-      green.playProject(DesignedMicroorganisms, 9)
+    // Green cannot pay Designed Microorganisms' 16 MC price with the remaining 9 MC.
+    shouldThrow<TaskException> {
+      green.playProject(DesignedMicroorganisms, 16)
     }
+    green.count("MC") shouldBe 9
     // Viral Enhancers reacts to its own tag.
     green
         .playProject(ViralEnhancers, 9) {
@@ -460,8 +468,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     purple.cardAction1(Hospitals)
 
     pink.playProject(IoMiningIndustries, 12, titanium = 9).expect("PROD[2 MC, 2 Titanium]")
-    pink.cardAction1(DirectedImpactors) {
-      pink.pay(6)
+    pink.stdAction("UseCardAction<$DirectedImpactors, Action1>", payment = { pink.pay(6) }) {
       addCardResources(DirectedImpactors)
     }
 
@@ -608,9 +615,13 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
     green.sellPatents(1)
 
     purple
-        .playProject(AdaptedLichen, 3) {
-          doTask("-3 Microbe<$Psychrophiles>")
-        }
+        .playProject(
+            AdaptedLichen,
+            payment = {
+              doTask("3 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
+              purple.pay(3)
+            },
+        )
         .expect("Animal")
     purple.cardAction1(BioPrintingFacility) { addCardResources(EcologicalZone) }
 

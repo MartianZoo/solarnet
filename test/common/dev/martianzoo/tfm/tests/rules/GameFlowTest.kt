@@ -287,8 +287,8 @@ internal class GameFlowTest {
     agents[PLAYER2].doTask("-2 ProjectCard<Selecting>")
     agents[PLAYER1].doTask("4 ProjectCard<Selecting>")
     agents[PLAYER1].doTask("-3 ProjectCard<Selecting>")
-    agents[PLAYER2].doTasks("-6 MC", "2 ProjectCard<Hand FROM Selecting>")
-    agents[PLAYER1].doTasks("-3 MC", "ProjectCard<Hand FROM Selecting>")
+    agents[PLAYER2].doTasks("6 Pay<> FROM MC", "2 ProjectCard<Hand FROM Selecting>")
+    agents[PLAYER1].doTasks("3 Pay<> FROM MC", "ProjectCard<Hand FROM Selecting>")
 
     agents[PLAYER1].count("ProjectCard") shouldBe 1
     agents[PLAYER2].count("ProjectCard") shouldBe 2

@@ -13,7 +13,7 @@ internal class MiningAreaTest : TfmSandboxTest() {
     kim.exMachina("NormalCityTile<Kim, Tharsis_7_9>")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<MiningArea>>", "-4 MC")
+      doTasks("PlayProject<Class<MiningArea>>", "4 Pay<> FROM MC")
       doTasks(
           "MiningArea FROM ProjectCard",
           "MiningArea_SpecialTile<Tharsis_8_9>",
@@ -32,7 +32,7 @@ internal class MiningAreaTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<$MiningArea>>",
-          "-4 MC",
+          "4 Pay<> FROM MC",
           "$MiningArea FROM ProjectCard",
           "MiningArea_SpecialTile<Cimmeria_6_4>",
           "2 Steel",
@@ -44,7 +44,7 @@ internal class MiningAreaTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<$RoboticWorkforce>>",
-          "-9 MC",
+          "9 Pay<> FROM MC",
           "$RoboticWorkforce FROM ProjectCard",
           "CopyProductionBox<$MiningArea>",
           "PROD[Titanium]",
@@ -59,7 +59,7 @@ internal class MiningAreaTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<MiningArea>>", "-4 MC")
+        doTasks("PlayProject<Class<MiningArea>>", "4 Pay<> FROM MC")
         doTask("MiningArea FROM ProjectCard")
         doTask("MiningArea_SpecialTile<Tharsis_3_2>")
         // Resolve the production choice to check that this area supplies a metal bonus.

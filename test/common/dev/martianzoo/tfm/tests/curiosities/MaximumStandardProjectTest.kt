@@ -159,8 +159,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       stdProject(
           "AquiferProject",
           payment = {
-            doTask("-6 Science<Spire>")
-            doTask("-6 MC")
+            doTask("6 PayFromCard<Spire> FROM Science<Spire>")
+            doTask("6 Pay<> FROM MC")
           },
       ) {
         placeTile(1, 1)
@@ -194,9 +194,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
             "GreeneryProject",
             payment = {
               doTask("4 MC", CrediCor)
-              doTask("-12 Science<Spire>")
-              // Twelve science are worth 24 MC; decline the unused MC tender after overpaying by
-              // one.
+              doTask("12 PayFromCard<Spire> FROM Science<Spire>")
+              // Twelve science are worth 24 MC; acknowledge the zero MC remainder.
               declineTask()
             },
         ) {

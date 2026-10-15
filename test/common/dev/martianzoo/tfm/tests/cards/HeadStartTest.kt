@@ -24,8 +24,8 @@ internal class HeadStartTest : TfmSandboxTest() {
           "20 MC",
       )
 
-      doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
-      doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
+      doTasks("UseStandardProject<PowerPlantProject>", "11 Pay<> FROM MC", "PROD[Energy]")
+      doTasks("UseStandardProject<PowerPlantProject>", "11 Pay<> FROM MC", "PROD[Energy]")
     }
   }
 
@@ -52,7 +52,7 @@ internal class HeadStartTest : TfmSandboxTest() {
           "PROD[Steel]",
           "6 MC",
           "UseStandardProject<PowerPlantProject>",
-          "-11 MC",
+          "11 Pay<> FROM MC",
           "PROD[Energy]",
       )
     }
@@ -103,12 +103,12 @@ internal class HeadStartTest : TfmSandboxTest() {
           "2 Steel",
       )
       doTask("20 MC")
-      doTasks("ConvertHeat", "-8 Heat")
+      doTasks("ConvertHeat", "8 Pay<Class<Heat>> FROM Heat")
       doTask("TemperatureStep")
       doTasks(
           "TerraformRating",
           "UseStandardProject<AquiferProject>",
-          "-18 MC",
+          "18 Pay<> FROM MC",
           "OceanTile<Tharsis_5_5>",
           "TerraformRating",
           "2 Plant",
@@ -130,12 +130,17 @@ internal class HeadStartTest : TfmSandboxTest() {
           "2 Steel",
       )
       doTask("0 MC")
-      doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
+      doTasks("UseStandardProject<PowerPlantProject>", "11 Pay<> FROM MC", "PROD[Energy]")
       // Resolve the bonus marker through Admin before collecting the standard-project refund.
       selectTask(
           "(SuitableInfrastructureBonus<SuitableInfrastructure<Kim>>: -SuitableInfrastructureBonus<SuitableInfrastructure<Kim>>! THEN 2! MC<Kim>) OR (MAX 0 SuitableInfrastructureBonus<SuitableInfrastructure<Kim>>: Ok)"
       )
-      doTasks("2 MC", "UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
+      doTasks(
+          "2 MC",
+          "UseStandardProject<PowerPlantProject>",
+          "11 Pay<> FROM MC",
+          "PROD[Energy]",
+      )
       // Resolve the bonus marker through Admin before collecting the standard-project refund.
       selectTask(
           "(SuitableInfrastructureBonus<SuitableInfrastructure<Kim>>: -SuitableInfrastructureBonus<SuitableInfrastructure<Kim>>! THEN 2! MC<Kim>) OR (MAX 0 SuitableInfrastructureBonus<SuitableInfrastructure<Kim>>: Ok)"
@@ -185,7 +190,7 @@ internal class HeadStartTest : TfmSandboxTest() {
       doTask("SagittaFrontierServices FROM CorporationCard<Selecting>")
       doTasks("31 MC", "PROD[Energy]", "PROD[2 MC]")
       doTask("SearchForCard<Kim, NoTagsFilter>!")
-      doTasks("4 MC", "ConvertHeat", "-8 Heat")
+      doTasks("4 MC", "ConvertHeat", "8 Pay<Class<Heat>> FROM Heat")
       doTask("TemperatureStep")
       doTask("TerraformRating")
     }

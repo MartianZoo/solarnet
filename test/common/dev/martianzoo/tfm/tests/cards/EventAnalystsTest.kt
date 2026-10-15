@@ -24,14 +24,14 @@ internal class EventAnalystsTest : TfmGameplayTest() {
     stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
     stan.autoExecNow(EAGER)
 
-    kim.doTasks("PlayProject<Class<$EventAnalysts>>", "-5 MC")
+    kim.doTasks("PlayProject<Class<$EventAnalysts>>")
     kim.completeOperation {
-      doTasks("UseStandardProject<BuildColonyProject>", "-17 MC")
+      doTasks("UseStandardProject<BuildColonyProject>")
       doTask("Colony<Luna>")
       autoExecNow(EAGER)
     }
     stan.doTask("Pass")
-    kim.doTasks("PlayProject<Class<$ColonialRepresentation>>", "-10 MC")
+    kim.doTasks("PlayProject<Class<$ColonialRepresentation>>")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     kim.doTask("VenusStep! BY Admin")
@@ -49,19 +49,16 @@ internal class EventAnalystsTest : TfmGameplayTest() {
     }
     kim.completeOperation {
       doTask("LobbyAction<Action2>")
-      doTask("-5 MC")
 
       doTask("PartyDelegate<Scientists>")
     }
     kim.completeOperation {
       doTask("LobbyAction<Action2>")
-      doTask("-5 MC")
 
       doTask("PartyDelegate<Scientists>")
     }
     kim.completeOperation {
       doTask("LobbyAction<Action2>")
-      doTask("-5 MC")
 
       doTask("PartyDelegate<Scientists>")
     }

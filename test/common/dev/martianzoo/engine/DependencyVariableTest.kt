@@ -22,6 +22,14 @@ internal class DependencyVariableTest {
           }
           CLASS InheritedLink : Linked
 
+          ABSTRACT CLASS Resource : Owned
+          CLASS Metal : Resource
+          CLASS Payment<Class<Resource>> : Owned
+          ABSTRACT CLASS Value<Class<@Resource>> : Owned {
+            Payment<Class<@Resource>>: Token<Me@Owner>
+          }
+          CLASS MetalValue : Value<Class<Metal>>
+
           CLASS Independent<Card> : Owned {
             This: Token<Me@Owner>
           }
@@ -38,6 +46,16 @@ internal class DependencyVariableTest {
         .map(LiveEffect::effect)
         .map(Any::toString)
         .shouldContainExactly("This: Token<Player1>!")
+  }
+
+  @Test
+  internal fun `a fixed represented class specializes an inherited payment trigger`() {
+    val component = Component(table.resolve(te("MetalValue<Player1>")))
+
+    LiveEffect.compile(component, elaborator)
+        .map(LiveEffect::effect)
+        .map(Any::toString)
+        .shouldContainExactly("Payment<Player1, Class<Metal>>: Token<Player1>!")
   }
 
   @Test

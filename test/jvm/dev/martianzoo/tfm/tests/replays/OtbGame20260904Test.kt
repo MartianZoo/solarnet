@@ -525,8 +525,14 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // 3:19:50 PM — Blue: "but I do get to do my Neptunian power consults so I will pay five monies
     // Yeah, so I get an energy production and I place a hydroelectric resource on Neptunian power
     // result."
-    blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
-    blue.pay(5)
+    blue.continueOperation {
+      with(blue) {
+        useStdAction(
+            "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
+            payment = { pay(5) },
+        )
+      }
+    }
 
     // board-15-20-29.jpg and all four app histories: Generation 4 before Research.
     with(yellow) {
@@ -753,23 +759,41 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
             // two plants."
             placeTile(7, 4)
             autoExecNow()
-            blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
-            blue.pay(5)
+            blue.continueOperation {
+              with(blue) {
+                useStdAction(
+                    "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
+                    payment = { pay(5) },
+                )
+              }
+            }
             // 3:59:00 PM — Green: "All right this would be nine four."
             // 3:59:01 PM — Blue: "Two money, one steel and one titanium. Where am I doing the
             // next
             // one? Only two money or two plants. Do I need another card? Do I need another card?"
             placeTile(9, 4)
             autoExecNow()
-            blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
-            blue.pay(5)
+            blue.continueOperation {
+              with(blue) {
+                useStdAction(
+                    "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
+                    payment = { pay(5) },
+                )
+              }
+            }
             // Crossing 0°C supplies Amazonis's temperature-track ocean bonus.
             // 3:59:30 PM — Green: "All right, going to 611 and you get a card. What a turn of
             // events."
             placeTile(6, 11)
             autoExecNow()
-            blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
-            blue.pay(5)
+            blue.continueOperation {
+              with(blue) {
+                useStdAction(
+                    "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
+                    payment = { pay(5) },
+                )
+              }
+            }
             doTask("-5! Plant<Yellow>")
           }
           .expect("-16 MC, -2 Titanium, Steel, 2 Plant, PROD[3 Energy<Blue>]")
@@ -808,7 +832,9 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     blue.pass()
     // 4:02:56 PM — Green: "I'm going to use Icy Impactors to spend three titanium and one real
     // money to put two roids on the card. [Yellow]'s turn."
-    green.turn { cardAction1(IcyImpactors) { pay(1, titanium = 3) } }
+    green.turn {
+      stdAction("UseCardAction<$IcyImpactors, Action1>", payment = { pay(1, titanium = 3) })
+    }
     // 4:03:17 PM — Rainbow: "going to spend four money on moss which requires me to lose a plant
     // but
     // I get plant production"
@@ -925,8 +951,10 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 3:09:29 PM — Green: "Three six for two money."
       playProject(ConvoyFromEuropa, 15) {
             placeTile(3, 6)
-            doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
-            pay(5)
+            useStdAction(
+                "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
+                payment = { pay(5) },
+            )
           }
           .expect("-16 MC")
     }
@@ -1212,8 +1240,14 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       convertHeat()
       playProject(Comet, 21) {
             placeTile(6, 5)
-            blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
-            blue.pay(5)
+            blue.continueOperation {
+              with(blue) {
+                useStdAction(
+                    "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
+                    payment = { pay(5) },
+                )
+              }
+            }
             doTask("-3 Plant<Blue>")
           }
           .expect("-19 MC")
@@ -1234,8 +1268,14 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       playProject(MoholeLake, 29, steel = 1) {
         placeTile(5, 5)
         autoExecNow()
-        blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
-        blue.pay(5)
+        blue.continueOperation {
+          with(blue) {
+            useStdAction(
+                "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
+                payment = { pay(5) },
+            )
+          }
+        }
       }
       // 3:41:04 PM — Rainbow: "Well, my second action, I will greener eyes."
       // 3:41:14 PM — Rainbow: "I'm I'm putting it there so I get another plant and four money."
@@ -1623,8 +1663,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // and
       // two more money."
       playProject(ProjectInspection, 0) {
-        doTask("UseAction<$WaterSplittingPlant, Action1>")
-        pay(energy = 3)
+        useStdAction("UseAction<$WaterSplittingPlant, Action1>", payment = { pay(energy = 3) })
       }
     }
 
@@ -1912,8 +1951,13 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // for it"
       // 9:20:50 PM — Yellow: "I pay for it because it has space tag and then science tag adds
       // carbon nano back oh right and I use University pitch and drop"
-      playProject(TransNeptuneProbe, 2) {
-            doTask("-Graphene<$CarbonNanosystems>")
+      playProject(
+              TransNeptuneProbe,
+              payment = {
+                doTask("PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>")
+                pay(2)
+              },
+          ) {
             doTask("-ProjectCard")
           }
           .expect("-2 MC")
@@ -2071,7 +2115,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       playProject(
               ImportedHydrogen,
               payment = {
-                doTask("-2 Graphene<$CarbonNanosystems>")
+                doTask("2 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>")
                 assertCardResources(0 to CarbonNanosystems)
                 pay(8)
               },

@@ -13,7 +13,7 @@ internal class FloatingRefineryTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<FloatingRefinery>>",
-              "-7 MC",
+              "7 Pay<> FROM MC",
               "FloatingRefinery FROM ProjectCard",
           )
           doTask("2 Floater<FloatingRefinery>")

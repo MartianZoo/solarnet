@@ -15,7 +15,7 @@ internal class IoSulphurResearchTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<IoSulphurResearch>>",
-              "-17 MC",
+              "17 Pay<> FROM MC",
               "IoSulphurResearch FROM ProjectCard",
               "ProjectCard",
           )

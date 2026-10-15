@@ -189,7 +189,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<CyberiaSystems>>",
-          "-16 MC",
+          "16 Pay<> FROM MC",
           "CyberiaSystems FROM ProjectCard",
           "PROD[Steel]",
       )
@@ -304,7 +304,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks(
           "PlayProject<Class<Conscription>>",
-          "-5 MC",
+          "5 Pay<> FROM MC",
           "Conscription FROM ProjectCard",
           "Conscription_NextCardEffect",
           "PlayedEvent<Class<Conscription>> FROM Conscription",
@@ -320,7 +320,12 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       doTasks("PlayCard<Class<PreludeCard>, Class<Donation>>", "Donation FROM PreludeCard", "21 MC")
     }
     kim.inTurn {
-      doTasks("PlayProject<Class<Soletta>>", "-19 MC", "Soletta FROM ProjectCard", "PROD[7 Heat]")
+      doTasks(
+          "PlayProject<Class<Soletta>>",
+          "19 Pay<> FROM MC",
+          "Soletta FROM ProjectCard",
+          "PROD[7 Heat]",
+      )
     }
   }
 
@@ -333,7 +338,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.inTurn {
           doTasks(
               "PlayProject<Class<IndustrialMicrobes>>",
-              "-12 MC",
+              "12 Pay<> FROM MC",
               "IndustrialMicrobes FROM ProjectCard",
               "PROD[Energy]",
               "PROD[Steel]",
@@ -353,7 +358,11 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.setToExMachina(2, "Steel")
     shouldThrow<ExpressionException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<HiredRaiders>>", "-1 MC", "HiredRaiders FROM ProjectCard")
+        doTasks(
+            "PlayProject<Class<HiredRaiders>>",
+            "1 Pay<> FROM MC",
+            "HiredRaiders FROM ProjectCard",
+        )
         doTask("Steel<Kim FROM Kim>")
       }
     }
@@ -370,7 +379,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.exMachina("ThorGate, Donation")
     stan.exMachina("Mine")
     advanceUntilActionPhase()
-    kim.inTurn { doTasks("FundAward<Class<Innovator>>", "-8 MC", "Innovator") }
+    kim.inTurn { doTasks("FundAward<Class<Innovator>>", "8 Pay<> FROM MC", "Innovator") }
     victoryPoints() shouldBe listOf(25, 22, 20)
   }
 
@@ -381,19 +390,23 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "Philantropist, Builder, Engineer")
     kim.exMachina("Vermin, DustSeals, AdaptationTechnology, CryoSleep, SpaceElevator")
     shouldThrow<RequirementException> {
-      kim.inTurn { doTasks("ClaimMilestone<Class<Philantropist>>", "-8 MC", "Philantropist") }
+      kim.inTurn {
+        doTasks("ClaimMilestone<Class<Philantropist>>", "8 Pay<> FROM MC", "Philantropist")
+      }
     }
     kim.count("Philantropist") shouldBe 0
     kim.setToExMachina(7, "OxygenStep")
     kim.inTurn {
       doTasks(
           "PlayProject<Class<Windmills>>",
-          "-6 MC",
+          "6 Pay<> FROM MC",
           "Windmills FROM ProjectCard",
           "PROD[Energy]",
       )
     }
-    kim.inTurn { doTasks("ClaimMilestone<Class<Philantropist>>", "-8 MC", "Philantropist") }
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Philantropist>>", "8 Pay<> FROM MC", "Philantropist")
+    }
   }
 
   // Unresolved adjudication (question 30): Vermin penalizes opponents but no cityless owner.
@@ -406,19 +419,23 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     )
     stan.exMachina("NormalCityTile<Tharsis_3_3>")
     shouldThrow<RequirementException> {
-      kim.inTurn { doTasks("ClaimMilestone<Class<Philantropist>>", "-8 MC", "Philantropist") }
+      kim.inTurn {
+        doTasks("ClaimMilestone<Class<Philantropist>>", "8 Pay<> FROM MC", "Philantropist")
+      }
     }
     kim.count("Philantropist") shouldBe 0
     kim.setToExMachina(7, "OxygenStep")
     kim.inTurn {
       doTasks(
           "PlayProject<Class<Windmills>>",
-          "-6 MC",
+          "6 Pay<> FROM MC",
           "Windmills FROM ProjectCard",
           "PROD[Energy]",
       )
     }
-    kim.inTurn { doTasks("ClaimMilestone<Class<Philantropist>>", "-8 MC", "Philantropist") }
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Philantropist>>", "8 Pay<> FROM MC", "Philantropist")
+    }
   }
 
   // Unresolved adjudication (question 31): Vitor's referenced VP icon is not its own scoring
@@ -429,20 +446,24 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "Philantropist, Builder, Engineer, Vitor")
     kim.exMachina("Vitor, DustSeals, AdaptationTechnology, CryoSleep, SpaceElevator")
     shouldThrow<RequirementException> {
-      kim.inTurn { doTasks("ClaimMilestone<Class<Philantropist>>", "-8 MC", "Philantropist") }
+      kim.inTurn {
+        doTasks("ClaimMilestone<Class<Philantropist>>", "8 Pay<> FROM MC", "Philantropist")
+      }
     }
     kim.count("Philantropist") shouldBe 0
     kim.setToExMachina(7, "OxygenStep")
     kim.inTurn {
       doTasks(
           "PlayProject<Class<Windmills>>",
-          "-6 MC",
+          "6 Pay<> FROM MC",
           "Windmills FROM ProjectCard",
           "PROD[Energy]",
           "3 MC",
       )
     }
-    kim.inTurn { doTasks("ClaimMilestone<Class<Philantropist>>", "-8 MC", "Philantropist") }
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Philantropist>>", "8 Pay<> FROM MC", "Philantropist")
+    }
   }
 
   // Unresolved adjudication (question 21); current wild-space support also blocks copying.
@@ -467,7 +488,7 @@ internal class UnknownRulesTest : TfmSandboxTest() {
       kim.inTurn {
         doTasks(
             "PlayProject<Class<RoboticWorkforce>>",
-            "-9 MC",
+            "9 Pay<> FROM MC",
             "RoboticWorkforce FROM ProjectCard",
         )
         doTask("CopyProductionBox<$card>")
@@ -526,7 +547,11 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     newTestGame()
     shouldThrow<TaskException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<HiredRaiders>>", "-1 MC", "HiredRaiders FROM ProjectCard")
+        doTasks(
+            "PlayProject<Class<HiredRaiders>>",
+            "1 Pay<> FROM MC",
+            "HiredRaiders FROM ProjectCard",
+        )
         doTask("0 MC<Kim FROM Stan>")
       }
     }

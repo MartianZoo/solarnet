@@ -14,7 +14,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
     kim.exMachina("2 PartyDelegate<MarsFirst>")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
+      doTasks("PlayProject<Class<FrontierTown>>", "11 Pay<> FROM MC")
       doTasks("FrontierTown FROM ProjectCard")
       doTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Amazonis_02_02>")
@@ -32,7 +32,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
     kim.exMachina("2 PartyDelegate<MarsFirst>")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
+      doTasks("PlayProject<Class<FrontierTown>>", "11 Pay<> FROM MC")
       doTasks("FrontierTown FROM ProjectCard")
       doTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Hellas_9_7>")
@@ -64,7 +64,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
     kim.exMachina("2 PartyDelegate<MarsFirst>")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
+      doTasks("PlayProject<Class<FrontierTown>>", "11 Pay<> FROM MC")
       doTasks("FrontierTown FROM ProjectCard")
       doTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Cimmeria_3_3>")
@@ -98,7 +98,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
 
     shouldThrow<DependencyException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
+        doTasks("PlayProject<Class<FrontierTown>>", "11 Pay<> FROM MC")
         doTask("FrontierTown FROM ProjectCard")
         doTask("FrontierTownBonus!")
         doTask("PROD[-Energy]")
@@ -136,7 +136,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
     kim.exMachina("OceanTile<Tharsis_5_5>, 2 PartyDelegate<MarsFirst>")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<FrontierTown>>", "-11 MC")
+      doTasks("PlayProject<Class<FrontierTown>>", "11 Pay<> FROM MC")
       doTasks("FrontierTown FROM ProjectCard")
       doTask("FrontierTownBonus!")
       doTasks("PROD[-Energy]", "CityTile<Tharsis_4_5>")

@@ -40,7 +40,7 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
     return kim.inTurn {
       doTasks(
           "PlayProject<Class<CulturalMetropolis>>",
-          "-20 MC",
+          "20 Pay<> FROM MC",
           "CulturalMetropolis FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
@@ -61,7 +61,7 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        doTasks("PlayProject<Class<CulturalMetropolis>>", "-20 MC")
+        doTasks("PlayProject<Class<CulturalMetropolis>>", "20 Pay<> FROM MC")
         doTask("CulturalMetropolis FROM ProjectCard")
         doTask("PROD[-Energy]")
         doTask("PROD[3 MC]")
@@ -82,7 +82,7 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
     kim.exMachina("Ruling<Unity FROM Greens>")
 
     kim.inTurn {
-          doTasks("PlayProject<Class<CulturalMetropolis>>", "-20 MC")
+          doTasks("PlayProject<Class<CulturalMetropolis>>", "20 Pay<> FROM MC")
           doTasks(
               "CulturalMetropolis FROM ProjectCard",
               "PROD[-Energy]",

@@ -70,6 +70,7 @@ internal class MergerTest : TfmSandboxTest() {
           doTask("4 CorporationCard<Kim, Selecting>")
           doTask("PlayCard<Class<CorporationCard>, Class<PharmacyUnion>>")
           doTask("PharmacyUnion<Kim> FROM CorporationCard<Kim, Selecting>!")
+          doTask("54 MC")
           doTask("-42 MC")
           doTask("SearchForCard<Kim, TagFilter<Class<ScienceTag>>>!")
           doTask("Disease<PharmacyUnion>")
@@ -109,6 +110,7 @@ internal class MergerTest : TfmSandboxTest() {
             "PlayCard<Class<CorporationCard>, Class<Recyclon>>",
             "Recyclon FROM CorporationCard<Selecting>",
             "38 MC",
+            "Disease<PharmacyUnion>",
             "-4* MC",
             "-42 MC",
         )

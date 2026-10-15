@@ -88,9 +88,9 @@ internal class StartTokenTest : TfmGameplayTest() {
       admin.beginOperation("SetupPhase FROM BootstrapPhase")
       p1.doTask("-3 ProjectCard<Selecting>")
       p2.doTask("-5 ProjectCard<Selecting>")
-      p1.doTasks("PlayCard<Class<CorporationCard>, Class<InterplanetaryCinematics>>", "-21 MC")
+      p1.doTasks("PlayCard<Class<CorporationCard>, Class<InterplanetaryCinematics>>")
       admin.sneak("StartToken<Player2> FROM StartToken<Player1>")
-      p2.doTasks("PlayCard<Class<CorporationCard>, Class<CrediCor>>", "-15 MC")
+      p2.doTasks("PlayCard<Class<CorporationCard>, Class<CrediCor>>")
 
       admin.count("ActionPhase") shouldBe 1
       game.tasks.extract { it }.filterNot { it.deferred }.map { it.assignee } shouldContainExactly

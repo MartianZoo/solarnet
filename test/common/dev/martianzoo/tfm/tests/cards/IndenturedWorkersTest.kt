@@ -19,7 +19,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
       doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
     }
     kim.inTurn {
-      doTasks("PlayProject<Class<Soletta>>", "-27 MC")
+      doTasks("PlayProject<Class<Soletta>>", "27 Pay<> FROM MC")
       doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }
@@ -39,12 +39,12 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
       doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
     }
     kim.inTurn {
-      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTasks("UseStandardProject<AsteroidProject>", "14 Pay<> FROM MC")
       doTask("TemperatureStep")
       doTask("TerraformRating")
     }
     kim.inTurn {
-      doTasks("ConvertHeat", "-8 Heat")
+      doTasks("ConvertHeat", "8 Pay<Class<Heat>> FROM Heat")
       doTask("TemperatureStep")
       doTask("TerraformRating")
     }
@@ -52,7 +52,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
       doTasks("UseStandardProject<SellPatentsProject>", "2! MC FROM ProjectCard")
     }
     kim.inTurn {
-      doTasks("PlayProject<Class<Soletta>>", "-27 MC")
+      doTasks("PlayProject<Class<Soletta>>", "27 Pay<> FROM MC")
       doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }
@@ -71,11 +71,15 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
       doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
     }
     kim.inTurn {
-      doTasks("PlayProject<Class<Soletta>>", "-27 MC")
+      doTasks("PlayProject<Class<Soletta>>", "27 Pay<> FROM MC")
       doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
     kim.inTurn {
-      doTasks("PlayProject<Class<AdvancedAlloys>>", "-9 MC", "AdvancedAlloys FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<AdvancedAlloys>>",
+          "9 Pay<> FROM MC",
+          "AdvancedAlloys FROM ProjectCard",
+      )
     }
   }
 
@@ -95,7 +99,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     kim.setToExMachina(35, "MC")
 
     kim.inTurn {
-      doTasks("PlayProject<Class<Soletta>>", "-35 MC")
+      doTasks("PlayProject<Class<Soletta>>", "35 Pay<> FROM MC")
       doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }
@@ -125,7 +129,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTasks("PlayProject<Class<Soletta>>", "-27 MC")
+      doTasks("PlayProject<Class<Soletta>>", "27 Pay<> FROM MC")
       doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }

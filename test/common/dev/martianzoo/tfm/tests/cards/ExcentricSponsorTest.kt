@@ -21,7 +21,7 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
           )
           // Hand the discount to Admin before the remaining payment is offered.
           selectTask("-25* Owed")
-          doTask("-6 MC")
+          doTask("6 Pay<> FROM MC")
           doTasks(
               "NitrogenRichAsteroid FROM ProjectCard",
               "2 TerraformRating",
@@ -45,14 +45,12 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
       )
       // Hand the discount to Admin before the remaining payment is offered.
       selectTask("-25* Owed")
+      doTask("Ok") // The discount covers the full cost.
       doTasks(
           "GhgImportFromVenus FROM ProjectCard",
       )
       doTask("VenusStep")
       doTasks("PROD[3 Heat]", "TerraformRating")
-      // Other optional tasks also accept Ok; identify the MC payment first.
-      selectTask("-X? MC")
-      doTask("Ok" /* No MC payment. */)
       doTask("PlayedEvent<Class<GhgImportFromVenus>> FROM GhgImportFromVenus")
     }
   }
@@ -69,8 +67,8 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
       )
       // Hand the discount to Admin before the remaining payment is offered.
       selectTask("-25* Owed")
+      doTask("Ok") // The discount covers the full cost.
       doTask("DustSeals FROM ProjectCard")
-      doTask("Ok" /* No MC payment. */)
     }
     kim.inTurn {
           doTasks(
@@ -80,10 +78,8 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
           doTasks("CopyPrelude<ExcentricSponsor>", "PlayCard<Class<ProjectCard>, Class<Mine>>")
           // Hand the discount to Admin before the remaining payment is offered.
           selectTask("-25* Owed")
+          doTask("Ok") // The discount covers the full cost.
           doTasks("Mine FROM ProjectCard", "PROD[Steel]")
-          // Other optional tasks also accept Ok; identify the MC payment first.
-          selectTask("-X? MC")
-          doTask("Ok" /* No MC payment. */)
         }
         .expect("$Mine, PROD[Steel], 0 MC")
   }
