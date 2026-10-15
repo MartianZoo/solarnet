@@ -2,6 +2,15 @@
 
 Delete entries when they are done.
 
+- Skip equality-incompatible subclasses in concrete-type queries (T11-1, T11-3, and T12-4).
+  Pets `BugsTest` shows `Pair<First, Second>` should retain `Independent<First, Second>` and omit
+  `Same`, whose two arguments must agree. Enumeration and automatic narrowing instead throw while
+  constructing `Same<First, Second>`; inhabitance returns true or throws depending on declaration order.
+
+- Exclude subclasses with empty dependency differences during automatic narrowing (T11-3).
+  Pets `BugsTest` shows `Tile<Area(NOT Land)>` correctly enumerates only `Ocean`, but automatic
+  narrowing returns no result because it also counts `Greenery` with the impossible `Land(NOT Land)`.
+
 - Preserve represented-class bindings when rendered types are parsed again (T5-6 and T8-10).
   Pets `BugsTest` shows a predicate that asks about `BuildingTag<Player1>` before rendering
   incorrectly asks about `Tag<Player1>` afterward. A repair must also handle candidate classes

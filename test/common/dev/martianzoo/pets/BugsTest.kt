@@ -1,6 +1,7 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -10,6 +11,7 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.types.RecordingWorld
+import dev.martianzoo.pets.types.fullWorld
 import dev.martianzoo.pets.types.loadTypes
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -19,6 +21,70 @@ import kotlin.test.Test
 
 /** Passing characterizations of known incorrect Pets behavior. */
 internal class BugsTest {
+  @Test
+  internal fun `an equality-incompatible subclass incorrectly aborts concrete-type queries`() {
+    // Synthetic subtype composition; only the order of the concrete declarations changes.
+    for (sameFirst in listOf(false, true)) {
+      val subclasses =
+          listOf("CLASS Independent : Pair", "CLASS Same : Pair<@Area, @Area>").let {
+            if (sameFirst) it.reversed() else it
+          }
+      val table =
+          loadTypes(
+              """
+              ABSTRACT CLASS Area {
+                CLASS First
+                CLASS Second
+              }
+              ABSTRACT CLASS Pair<Area, Area>
+              """,
+              *subclasses.toTypedArray(),
+          )
+      val requested = table.resolve(parse<Expression>("Pair<First, Second>"))
+      val independent = table.resolve(parse<Expression>("Independent<First, Second>"))
+      independent.isSubtypeOf(requested) shouldBe true
+
+      // T11-1/T11-3 require Independent alone. Same's equality excludes Same;
+      // constructing the incompatible candidate incorrectly aborts the query.
+      shouldThrow<ExpressionException> { table.allConcreteSubtypes(requested).toList() }
+          .detail shouldContain "dependencies disagree in `Same<First, Second>`"
+      shouldThrow<ExpressionException> { table.singleConcreteSubtype(requested, fullWorld) }
+          .detail shouldContain "dependencies disagree in `Same<First, Second>`"
+
+      // T12-4 requires true in either order. An early valid candidate hides the exception.
+      if (sameFirst) {
+        shouldThrow<ExpressionException> { table.isInhabited(requested) }.detail shouldContain
+            "dependencies disagree in `Same<First, Second>`"
+      } else {
+        table.isInhabited(requested) shouldBe true
+      }
+    }
+  }
+
+  @Test
+  internal fun `automatic narrowing incorrectly counts a subclass excluded by a dependency difference`() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Area {
+              CLASS Land
+              CLASS Water
+            }
+            ABSTRACT CLASS Tile<Area> {
+              CLASS Greenery : Tile<Land>
+              CLASS Ocean : Tile<Water>
+            }
+            """
+        )
+    val requested = table.resolve(parse<Expression>("Tile<Area(NOT Land)>"))
+    val ocean = table.resolve(parse<Expression>("Ocean"))
+    ocean.isSubtypeOf(requested) shouldBe true
+    table.allConcreteSubtypes(requested).toList() shouldBe listOf(ocean)
+
+    // T11-3 requires Ocean. Land(NOT Land) has no candidate, yet Greenery counts as a rival.
+    table.singleConcreteSubtype(requested, fullWorld) shouldBe null
+  }
+
   @Test
   internal fun `class-literal narrowing incorrectly treats a changed bound as a different predicate`() {
     val table = loadTypes("ABSTRACT CLASS Tag { CLASS BuildingTag }")

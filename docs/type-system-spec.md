@@ -1056,8 +1056,9 @@ is then absent.
 > making those card classes incomplete.
 
 **T9-2. A subclass may narrow, never override.** `Metric` may narrow to `Number`, `Number` to a
-literal, and `Requirement` to a requirement. Overriding a value a superclass already fixed is an
-error, and so is a "narrowing" that is not one.
+literal, `Requirement?` to `Requirement` or a requirement, and `Requirement` to a requirement.
+Narrowing `Requirement?` to `Requirement` removes permission to leave the property unfilled.
+Overriding a value a superclass already fixed is an error, and so is a "narrowing" that is not one.
 
 **T9-3. A concrete class must fix every property it inherits**, except an unfilled `Requirement?`
 (T9-1). A concrete class with an unfixed property is an error.
