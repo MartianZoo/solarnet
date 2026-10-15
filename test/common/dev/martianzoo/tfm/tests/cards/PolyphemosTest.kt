@@ -13,10 +13,9 @@ internal class PolyphemosTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("UseCardAction<InventorsGuild, Action1>")
-          selectOnlyTask()
-          selectOnlyTask()
-          doTasks("Ok", "-5 MC")
-          selectTask("ProjectCard<Kim, Hand FROM Selecting>! / ProjectCard<Kim, Selecting>")
+          doTask("ProjectCard<Selecting>")
+          doTasks("-0 ProjectCard<Selecting>", "-5 MC")
+          doTask("ProjectCard<Hand FROM Selecting>")
         }
         .expect("ProjectCard")
   }

@@ -30,10 +30,11 @@ internal data class ComponentDescriber(
     internal val distinctKinds: Noun.Counted? = null,
     internal val countNoun: Noun.Counted? = null,
     internal val metricCount: MetricCount? = null,
-    internal val printedIconCount: Boolean? = null,
+    internal val nonNegativeIconCount: Boolean? = null,
     internal val cardLocation: CardLocation? = null,
     internal val cardProcedure: CardProcedure? = null,
     internal val cardLocationDependency: Key? = null,
+    internal val cardInvariantSentence: String? = null,
 ) {
   internal enum class CardLocation {
     HAND,

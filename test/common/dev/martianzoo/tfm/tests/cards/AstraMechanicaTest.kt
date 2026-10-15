@@ -23,7 +23,7 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
               "AstraMechanica FROM ProjectCard",
               "ProjectCard FROM PlayedEvent<Class<MineralDeposit>>",
           )
-          selectOnlyTask()
+          doTask("ProjectCard FROM PlayedEvent<Class<InvestmentLoan>>")
         }
         .expect(
             "$AstraMechanica, ProjectCard, " +
@@ -40,9 +40,8 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<AstraMechanica>>")
-        selectTask("-X? MC")
+
         doTasks(
             "-7 MC",
             "AstraMechanica FROM ProjectCard",
@@ -61,9 +60,8 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<AstraMechanica>>")
-        selectTask("-X? MC")
+
         doTasks(
             "-7 MC",
             "AstraMechanica FROM ProjectCard",
@@ -80,9 +78,8 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<AstraMechanica>>")
-        selectTask("-X? MC")
+
         doTasks(
             "-7 MC",
             "AstraMechanica FROM ProjectCard",
@@ -98,12 +95,9 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<AstraMechanica>>")
-        selectTask("-X? MC")
         doTasks("-7 MC", "AstraMechanica FROM ProjectCard")
         doTask("ProjectCard FROM PlayedEvent<Class<Flooding>>")
-        selectOnlyTask()
         doTask("ProjectCard FROM PlayedEvent<Class<Flooding>>")
       }
     }

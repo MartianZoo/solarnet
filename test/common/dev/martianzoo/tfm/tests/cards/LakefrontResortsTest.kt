@@ -17,7 +17,7 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
               "OceanTile<Tharsis_1_2>",
               "TerraformRating",
           )
-          kim.selectTask("PROD[MC]")
+          kim.doTask("PROD[MC]")
           doTask("2 Steel")
         }
         .expect("PROD[MC<Kim>]")
@@ -57,8 +57,7 @@ internal class LakefrontResortsTest : TfmSandboxTest() {
               "CityTile<Tharsis_2_2>",
               "Steel",
           )
-          selectTask("MC! / Neighbor<OceanTile, Tharsis_2_2>")
-          doTasks("2 MC", "2 MC")
+          doTasks("6 MC")
         }
         .expect("-19 MC")
   }

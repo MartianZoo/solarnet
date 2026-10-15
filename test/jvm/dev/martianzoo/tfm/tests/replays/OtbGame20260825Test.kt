@@ -557,7 +557,9 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // Neither surveyed card had a Venus tag, so Green bought both for 1 M€ apiece through
       // TerraLabs.
       cardAction1(VenusOrbitalSurvey) {
-            doTask("Ok") // Neither offered card has a Venus tag.
+            doTask(
+                "0 TakeSelectedCard<TagFilter<Class<VenusTag>>>"
+            ) // Neither offered card has a Venus tag.
             buyCards(2)
           }
           .expect("2 ProjectCard, -2 MC")
@@ -671,7 +673,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // Fish and Ice Cap Melting have no Venus tag. Green buys Fish for 1 M€ and discards the
       // other.
       cardAction1(VenusOrbitalSurvey) {
-        doTask("Ok")
+        doTask("0 TakeSelectedCard<TagFilter<Class<VenusTag>>>")
         green.buyCards(1)
       }
     }
@@ -840,7 +842,9 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "I will use Venus Orbital Survey to reveal Research Outpost and OmniCorp [sic] and pay two
       // money for them."
       cardAction1(VenusOrbitalSurvey) {
-            doTask("Ok") // Neither offered card has a Venus tag.
+            doTask(
+                "0 TakeSelectedCard<TagFilter<Class<VenusTag>>>"
+            ) // Neither offered card has a Venus tag.
             buyCards(2)
           }
           .expect("2 ProjectCard, -2 MC")
@@ -961,7 +965,9 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "I will Venus Orbital Survey. I will look at these two cards, which are Comet and Rad
       // Suits. And then I might as well buy them."
       cardAction1(VenusOrbitalSurvey) {
-            doTask("Ok") // Neither offered card has a Venus tag.
+            doTask(
+                "0 TakeSelectedCard<TagFilter<Class<VenusTag>>>"
+            ) // Neither offered card has a Venus tag.
             buyCards(2)
           }
           .expect("2 ProjectCard, -2 MC")
@@ -979,7 +985,10 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     yellow.turn {
       // "May as well use Asteroid Deflection System ... use it tonight. You flip. Greenhouses,
       // which is not a space tag."
-      cardAction1(AsteroidDeflectionSystem) { doTask("Ok") }.expect("0 TerraformRating")
+      cardAction1(AsteroidDeflectionSystem) {
+            doTask("0 ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>")
+          }
+          .expect("0 TerraformRating")
     }
     green.turn {
       // "Damn, now I wish I'd played it at the ... going to go ahead and use Aqueduct Systems for
@@ -1103,7 +1112,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "Then you're going to lose three plants as well." "Asteroid Deflection System. You're not
       // going to lose three plants as well. Hee hee hee." "I'll do it anyway. It costs 19 and I
       // use 18 worth of titanium." The last ocean is already placed.
-      playProject(Comet, 1, titanium = 6) { doTask("Ok") }
+      playProject(Comet, 1, titanium = 6) { doTask("-0 Plant<Anyone>") }
           .expect("TemperatureStep, TerraformRating, 2 MC")
     }
     yellow.turn {
@@ -1118,7 +1127,9 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "Let's use the stupid Venus Orbital Survey to reveal Comet for Venus, which is not a Venus
       // card, and Jovian Embassy. I'll buy them both."
       cardAction1(VenusOrbitalSurvey) {
-            doTask("Ok") // Neither offered card has a Venus tag.
+            doTask(
+                "0 TakeSelectedCard<TagFilter<Class<VenusTag>>>"
+            ) // Neither offered card has a Venus tag.
             buyCards(2)
           }
           .expect("2 ProjectCard, -2 MC")
@@ -1146,7 +1157,9 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     }
     yellow.turn {
       // "Asteroid Deflection System. Reveal a card. No space tag. It is Venus Governor."
-      cardAction1(AsteroidDeflectionSystem) { doTask("Ok") }
+      cardAction1(AsteroidDeflectionSystem) {
+        doTask("0 ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>")
+      }
     }
     green.turn {
       // "I will use Extreme Cold Fungus to put two microbes on Sulphur-Eating Bacteria."

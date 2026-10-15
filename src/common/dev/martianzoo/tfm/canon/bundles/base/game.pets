@@ -96,6 +96,7 @@ ABSTRACT CLASS Player : Owner, Actor {
   SetupPhase IF MAX 0 BeginnerVariant: NonBeginnerMode<This>
   SetupPhase IF BeginnerVariant: BeginnerMode<This> OR NonBeginnerMode<This>
   ResearchPhase: 4 ProjectCard<This, Selecting> THEN -4? ProjectCard<This, Selecting> THEN BuySelectedCards<This>
+  NewTurn<This>: LATER Admin { EACH @CardBack<This, Selecting> { -@CardBack } }
   -Billing<This, Class<BuySelectedCards>, Action1>: \
     ProjectCard<This, Hand> FROM ProjectCard<This, Selecting> / ProjectCard<This, Selecting>
 }
@@ -160,6 +161,7 @@ ABSTRACT CLASS Phase : System, Real {
   }
   CLASS ResearchPhase {
     This:: Generation
+    This: LATER Admin { EACH @ProjectCard<Anyone, Selecting> { -@ProjectCard } }
     This: FINALLY { ActionPhase FROM This }
   }
   CLASS ActionPhase {

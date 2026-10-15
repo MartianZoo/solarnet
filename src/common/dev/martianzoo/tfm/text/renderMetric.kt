@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.OWNED
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Property
@@ -53,19 +55,8 @@ private fun lexicalizeMetric(
     describers: Describers,
     possessorEstablished: Boolean,
 ): MetricRendering =
-    when (metric) {
-      is Metric.Count ->
-          describers.lexicalizeCountedExpression(
-              metric.expression,
-              count = null,
-              possessorEstablished,
-          )
-      else ->
-          renderMetric(metric, describers, possessorEstablished)
-              ?: MetricRendering(
-                  NounPhrase.rawPets(Unresolved(metric, RefusalReason.UNSUPPORTED_METRIC))
-              )
-    }
+    renderMetric(metric, describers, possessorEstablished)
+        ?: MetricRendering(NounPhrase.rawPets(Unresolved(metric, RefusalReason.UNSUPPORTED_METRIC)))
 
 private fun renderMetric(
     metric: Metric,
@@ -230,8 +221,34 @@ private fun Describers.recognizeCountedExpression(
     count: Int?,
     possessorEstablished: Boolean,
 ): MetricRendering? {
-  refinedProductionCategoryExpressions(expression, this)?.let { productions ->
+  val allResourceProduction = productionCategoryExpression(expression, this)
+  if (
+      expression.refinement == null &&
+          allResourceProduction?.owner == null &&
+          allResourceProduction?.resource == cn("StandardResource")
+  ) {
+    return MetricRendering(NounPhrase("production", count = count), MetricRendering.Ranking.HIGHEST)
+  }
+  countedProductionCategories(expression, this)?.let { productions ->
     if (productions.any { it.owner != null }) return null
+    val resourceType = resolveExpression(expression)?.dependency(Key(cn("Production"), 0))
+    if (resourceType?.representedClass?.className == cn("StandardResource")) {
+      val allResources = expressions.concreteSubclassesOf(cn("StandardResource")).toSet()
+      val selectedResources = productions.map(ProductionExpression::resource).toSet()
+      val excluded = (allResources - selectedResources).singleOrNull()
+      if (
+          excluded != null &&
+              allResources.containsAll(selectedResources) &&
+              selectedResources.size == productions.size &&
+              selectedResources.size + 1 == allResources.size
+      ) {
+        return MetricRendering(
+            NounPhrase("production", count = count)
+                .withModifier(Modifier.Relation("excluding", productionNounPhrase(excluded))),
+            MetricRendering.Ranking.HIGHEST,
+        )
+      }
+    }
     val productionPhrases = productions.map { production ->
       productionNounPhrase(production.resource)
     }
@@ -265,6 +282,9 @@ private fun Describers.recognizeCountedExpression(
   val agreementCount = count ?: 1
   renderCountedRelation(expression, this)?.let { relation ->
     return MetricRendering(relation.countedObject(count))
+  }
+  renderFilteredDistinctKinds(expression, count, possessorEstablished, this)?.let {
+    return MetricRendering(it)
   }
   distinctOwnedKinds(expression, this)?.let { noun ->
     var phrase =
@@ -340,7 +360,22 @@ private fun Describers.renderFilteredPlacementCount(
   val noun =
       placementCountPhrase(expression.copy(refinement = null), count, possessorEstablished)
           ?: return null
-  val modifier = renderSpatialFilter(refinement.requirement) ?: return null
+  val modifier =
+      renderSpatialFilter(refinement.requirement, expression.className)
+          ?: renderMetricFilter(expression.className, refinement.requirement)
+          ?: return null
+  val relation = (refinement.requirement as? Requirement.Counting)?.let(::countedExpression)
+  if (
+      relation != null &&
+          relation.simple &&
+          fact(relation.className, ComponentDescriber::spatialRelation) != null
+  ) {
+    val area = resolveExpression(relation)?.dependency(Key(relation.className, 1)) ?: return null
+    val site = placementSite(area.className) ?: return null
+    val areas =
+        NounPhrase.plural(describedNoun(area.className, site.noun, 2)).withModifier(modifier)
+    return noun.withModifier(Modifier.Relation("on", areas))
+  }
   return noun.withModifier(modifier)
 }
 
@@ -353,8 +388,11 @@ private fun Describers.renderFilteredComponentCount(
   requirements.forEach { requirement ->
     val modifier =
         renderMetricFilter(expression.className, requirement)
-            ?: renderSpatialFilter(requirement)
-            ?: return null
+            ?: renderSpatialFilter(requirement, expression.className)
+            ?: Modifier.Relation(
+                "with",
+                NounPhrase.rawPets(Unresolved(requirement, RefusalReason.UNSUPPORTED_METRIC)),
+            )
     noun = noun.withModifier(modifier)
   }
   if (enteringCardCounts(expression)) {
@@ -394,21 +432,32 @@ private fun Describers.renderMetricFilter(
       is CardCriterion.PropertyPresence ->
           Modifier.Relation("with", NounPhrase.plural("${criterion.noun}s"))
       is CardCriterion.ResourceIcon -> return null
-      is CardCriterion.PrintedIcon -> {
+      is CardCriterion.NonNegativeIcon -> {
         val noun =
             fact(criterion.className, ComponentDescriber::score)?.singular
                 ?: componentNoun(criterion.className, 1)
-        Modifier.Relation("with", NounPhrase.plural("$noun icons"))
+        Modifier.Relation("with", NounPhrase.plural("non-negative $noun icons"))
       }
     }
   }
-  val frame = triggerFrame(className) as? ComponentDescriber.TriggerFrame.PlayCard ?: return null
   val counting = requirement as? Requirement.Counting ?: return null
   val property = counting.metric as? Property ?: return null
   if (property.receiver != null) return null
+  val frame = triggerFrame(className) as? ComponentDescriber.TriggerFrame.PlayCard
   val threshold =
-      frame.minimumProperties[property.propertyName.value]
-          as? ComponentDescriber.MinimumProperty.Threshold ?: return null
+      frame?.minimumProperties?.get(property.propertyName.value)
+          as? ComponentDescriber.MinimumProperty.Threshold
+  if (threshold == null) {
+    val propertyName = property.propertyName.value
+    if (placementSite(className) == null || propertyName.any { it !in 'a'..'z' }) return null
+    val comparison =
+        when (counting) {
+          is Requirement.Min -> "at least"
+          is Requirement.Max -> "at most"
+          is Requirement.Exact -> "exactly"
+        }
+    return Modifier.Phrase("whose $propertyName is $comparison ${counting.target}")
+  }
   val comparison =
       when (counting) {
         is Requirement.Min -> "or more"
@@ -472,6 +521,42 @@ internal fun distinctOwnedKinds(
   return describers.fact(kind.className, ComponentDescriber::distinctKinds)
 }
 
+private fun renderFilteredDistinctKinds(
+    expression: Expression,
+    count: Int?,
+    possessorEstablished: Boolean,
+    describers: Describers,
+): NounPhrase? {
+  val refinements =
+      (expression.refinement as? Expression.Refinement.And)?.refinements ?: return null
+  val member =
+      refinements.firstNotNullOfOrNull { refinement ->
+        distinctOwnedKinds(expression.copy(refinement = refinement), describers)?.let {
+          refinement to it
+        }
+      } ?: return null
+  var phrase =
+      NounPhrase(member.second.singular, member.second.plural, count = count)
+          .withOwnership("you have", possessorEstablished)
+  val kind = expression.arguments.singleOrNull()?.className ?: return null
+  refinements
+      .filterNot { it === member.first }
+      .forEach { refinement ->
+        val requirement = (refinement as? Expression.Refinement.Has)?.requirement ?: return null
+        phrase =
+            phrase.withModifier(
+                describers.renderMetricFilter(kind, requirement)
+                    ?: Modifier.Relation(
+                        "with",
+                        NounPhrase.rawPets(
+                            Unresolved(requirement, RefusalReason.UNSUPPORTED_METRIC)
+                        ),
+                    )
+            )
+      }
+  return phrase
+}
+
 private fun Describers.renderComponentCount(
     expression: Expression,
     count: Int?,
@@ -480,13 +565,24 @@ private fun Describers.renderComponentCount(
   val description = metricCount(expression.className) ?: return null
   val resolved = resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
+  val cardBackKey = Key(cn("CardFront"), 0)
+  val category =
+      if (
+          expression.className == cn("CardFront") &&
+              resolved.sourceDependencies.keys == setOf(cardBackKey)
+      )
+          resolved.sourceDependency(cardBackKey)?.let(::representedClassArgument)
+      else null
   val suffix =
       when {
         resolved.sourceDependencies.isEmpty() -> description.unqualifiedSuffix
         resolved.hasOnlySourceDependency(ownerKey, anyoneExpression) -> description.anyoneSuffix
+        category != null -> description.unqualifiedSuffix
         else -> return null
       } ?: return null
-  val noun = NounPhrase(description.noun.singular, description.noun.plural, count = count)
+  val categoryNoun = category?.let { fact(it.className, ComponentDescriber::countNoun) }
+  val nounType = categoryNoun ?: description.noun
+  val noun = NounPhrase(nounType.singular, nounType.plural, count = count)
   return if (suffix.isEmpty()) noun else noun.withModifier(Modifier.Phrase(suffix))
 }
 
@@ -628,11 +724,22 @@ private fun Describers.renderPlacementLocation(expression: Expression): Modifier
       }
   val authoredRefinement = expression.refinement ?: return Modifier.Relation("on", noun)
   val refinement = authoredRefinement as? Expression.Refinement.Has ?: return null
-  val modifier = renderSpatialFilter(refinement.requirement) ?: return null
+  val modifier =
+      renderSpatialFilter(refinement.requirement, expression.className)
+          ?: renderMetricFilter(expression.className, refinement.requirement)
+          ?: Modifier.Relation(
+              "that have",
+              NounPhrase.rawPets(
+                  Unresolved(refinement.requirement, RefusalReason.UNSUPPORTED_METRIC)
+              ),
+          )
   return Modifier.Relation("on", noun.withModifier(modifier))
 }
 
-private fun Describers.renderSpatialFilter(requirement: Requirement): Modifier? {
+private fun Describers.renderSpatialFilter(
+    requirement: Requirement,
+    contextClass: ClassName,
+): Modifier? {
   val counting = requirement as? Requirement.Counting ?: return null
   val expression = (counting.metric as? Metric.Count)?.expression ?: return null
   val relation = fact(expression.className, ComponentDescriber::spatialRelation)
@@ -657,19 +764,34 @@ private fun Describers.renderSpatialFilter(requirement: Requirement): Modifier? 
     )
   }
   val targetExpression = expression.arguments.singleOrNull()
-  if (targetExpression == null && counting.target != 0) return null
+  val resolved = resolveExpression(expression) ?: return null
+  val sourceType = resolved.dependency(Key(expression.className, 0))
+  val countsAdjacentAreas =
+      targetExpression == null &&
+          sourceType != null &&
+          isSubtypeOf(contextClass, sourceType.rootClass.className)
   val targetNoun =
       if (targetExpression != null) {
         spatialTarget(targetExpression, counting.target) ?: return null
+      } else if (countsAdjacentAreas) {
+        val target = resolved.dependency(Key(expression.className, 1)) ?: return null
+        val noun = placementSite(target.rootClass.className)?.noun ?: return null
+        NounPhrase.plural(describedNoun(target.rootClass.className, noun, 2))
       } else {
-        relation.defaultTarget?.let { noun ->
-          NounPhrase(
-              noun.singular,
-              noun.plural,
-              grammaticalNumber = NounPhrase.GrammaticalNumber.PLURAL,
-          )
-        } ?: return null
+        relation.defaultTarget?.let { NounPhrase.plural(it.plural) } ?: return null
       }
+  if (countsAdjacentAreas) {
+    val adjacent =
+        targetNoun.withAttributiveModifier(NounPhrase.text("adjacent")).quantified(counting.target)
+    return Modifier.Relation(
+        when (counting) {
+          is Requirement.Min -> "with at least"
+          is Requirement.Max -> "with at most"
+          is Requirement.Exact -> "with exactly"
+        },
+        adjacent,
+    )
+  }
   return when (counting) {
     is Requirement.Min ->
         Modifier.Relation("${relation.phrase} at least", targetNoun.quantified(counting.target))

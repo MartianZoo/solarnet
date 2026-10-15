@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.api.SystemClasses.OWNED
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -50,21 +51,8 @@ private fun renderLoweredInstructions(
   renderScopedInstruction(instructions, describers, localReferences)?.let {
     return it
   }
-  val rendered = mutableListOf<Pair<Instruction, Clause>>()
-  var index = 0
-  while (index < instructions.size) {
-    val cardOffer = renderCardOffer(instructions, index, describers)
-    if (cardOffer != null) {
-      rendered += instructions[index] to cardOffer.second
-      index += cardOffer.first
-      continue
-    }
-    val instruction = instructions[index]
-    val clauses = lexicalizeInstruction(instruction, describers, localReferences)
-    rendered += clauses.map { instruction to it }
-    index++
-  }
-  return RenderedInstructions(rewriteAdjacentClauses(rendered.map { it.second }))
+  val clauses = instructions.flatMap { lexicalizeInstruction(it, describers, localReferences) }
+  return RenderedInstructions(rewriteAdjacentClauses(clauses))
 }
 
 /** Total pass-one boundary for one prepared instruction. */
@@ -73,7 +61,7 @@ private fun lexicalizeInstruction(
     describers: Describers,
     references: TypeVariableReferences,
 ): List<Clause> =
-    recognizeInstructionClauses(instruction, describers, references)
+    recognizeInstructionClauses(instruction, describers, references.including(instruction))
         ?: listOf(
             Clause.RawPets(
                 Unresolved(instruction, instructionRefusalReason(instruction, describers))
@@ -118,7 +106,7 @@ private fun renderInstruction(
           renderOpponentFanout(instruction, describers, references)
               ?: renderPlayerFanout(instruction, describers, references)
               ?: renderProductionFloorFanout(instruction, describers)
-              ?: renderOwnedFanout(instruction, describers, references)
+              ?: renderComponentFanout(instruction, describers, references)
       is Instruction.Or -> renderAlternatives(instruction, describers, references)
       is Instruction.Per -> renderPer(instruction, describers, references)
       is Instruction.Gated -> renderGated(instruction, describers, references)
@@ -132,7 +120,17 @@ private fun renderInstruction(
               ?: renderSequentialThen(instruction, describers, references)
       is NoOp -> doNothingClause
       is Instruction.Transform -> error("Transforms are expanded before ordinary instructions")
-      is Instruction.By,
+      is Instruction.By -> {
+        val actor =
+            instruction.actor
+                .takeIf { it.simple }
+                ?.className
+                ?.takeIf { describers.fact(it, ComponentDescriber::noun) != null } ?: return null
+        (renderInstruction(instruction.inner, describers, references) as? Clause.Simple)
+            ?.withModifier(
+                Modifier.Parenthetical("performed by ${describers.componentNoun(actor, 1)}")
+            )
+      }
       is Instruction.Dispatch -> null
     }
 
@@ -146,9 +144,26 @@ private fun renderPlayerFanout(
       return null
   if (selector.refinement != null || selector.typeVariableName?.name != "Me") return null
   val subject = NounPhrase.text("each player")
+  val per = instruction.body as? Instruction.Per
+  val counted = (per?.metric as? Metric.Count)?.expression
+  val localCount = counted?.takeIf {
+    describers.isPlayerOwned(it.className) &&
+        describers.resolveExpression(it)?.sourceDependencies?.isEmpty() == true
+  }
   val result =
-      renderLoweredInstructions(instruction.body, describers, references).clauses.singleOrNull()
-          as? Clause.Simple ?: return null
+      if (localCount != null) {
+        val body =
+            renderLoweredInstructions(per.inner, describers, references).clauses.singleOrNull()
+                as? Clause.Simple ?: return null
+        val metric =
+            describers
+                .lexicalizeCountedExpression(localCount, null, possessorEstablished = true)
+                .phrase
+        body.withModifier(Modifier.Per(metric.withModifier(Modifier.Phrase("they own"))))
+      } else {
+        renderLoweredInstructions(instruction.body, describers, references).clauses.singleOrNull()
+            as? Clause.Simple ?: return null
+      }
   if (result.subject != null || result.unresolved().isNotEmpty()) return null
   return Clause.Simple(
       Predicate(
@@ -206,19 +221,52 @@ private fun renderProductionFloorFanout(
   )
 }
 
-private fun renderOwnedFanout(
+private fun renderComponentFanout(
     instruction: Instruction.Each,
     describers: Describers,
     references: TypeVariableReferences,
-): Clause.Simple? {
+): Clause? {
   val selector = instruction.selector
   val resolved = describers.resolveExpression(selector) ?: return null
-  if (!resolved.hasOnlySourceDependency(Key(OWNED, 0), describers.ownerExpression)) return null
-  val body = renderLoweredInstructions(instruction.body, describers, references)
-  if (body.unresolved.isNotEmpty()) return null
-  val result = body.clauses.singleOrNull() as? Clause.Simple ?: return null
-  val metric = renderMetricPhrase(Metric.Count(selector), describers) ?: return null
-  return result.withModifier(Modifier.Per(metric))
+  val implicitOwner =
+      describers.isPlayerOwned(selector.className) && resolved.sourceDependencies.isEmpty()
+  val unownedSite =
+      resolved.sourceDependencies.isEmpty() && describers.placementSite(selector.className) != null
+  if (
+      !implicitOwner &&
+          !unownedSite &&
+          !resolved.hasOnlySourceDependency(Key(OWNED, 0), describers.ownerExpression)
+  )
+      return null
+  val result =
+      renderSelectedScaleGain(instruction, describers)
+          ?: renderLoweredInstructions(instruction.body, describers, references)
+              .clauses
+              .singleOrNull()
+          ?: return null
+  if (result.unresolved().isNotEmpty()) return null
+  val selected = renderMetricPhrase(Metric.Count(selector), describers) ?: return null
+  if (selected.unresolved().isNotEmpty()) return null
+  return Clause.Prefaced(Clause.Preface.ForEach(selected), result)
+}
+
+/** An EACH selector is a local reference, outside the ordinary Type-variable scopes. */
+private fun renderSelectedScaleGain(
+    instruction: Instruction.Each,
+    describers: Describers,
+): Clause.Simple? {
+  val gain =
+      InstructionGroup.of(instruction.body).instructions.singleOrNull() as? Gain ?: return null
+  if (gain.quantifier.modality() != Modality.REQUIRED || gain.gaining.refinement != null)
+      return null
+  val selected = gain.gaining.arguments.singleOrNull() ?: return null
+  if (!sameNamedTypeVariable(selected, instruction.selector)) return null
+  val frame = describers.scaleFrame(gain.gaining.className) ?: return null
+  val count = gain.count.fixedQuantity() ?: return null
+  val track =
+      NounPhrase(frame.subject, determiner = Determiner.THAT)
+          .withModifier(Modifier.Phrase(stepCount(count)))
+  return Clause.Simple(Predicate(Verb(frame.increaseVerb), Coordination.one(track)))
 }
 
 private fun renderOpponentFanout(
@@ -287,7 +335,11 @@ private fun renderOpponentFanout(
         val resource = describers.componentNounPhrase(removal.removing.className, count)
         if (playersAct) {
           Clause.Simple(
-              Predicate(Verb("removes", "remove"), Coordination.one(resource)),
+              Predicate(
+                  Verb("removes", "remove"),
+                  Coordination.one(resource),
+                  listOf(Modifier.Parenthetical("to the extent possible")),
+              ),
               subject = NounPhrase.text("each other player"),
           )
         } else {
@@ -295,7 +347,10 @@ private fun renderOpponentFanout(
               Predicate(
                   Verb("remove"),
                   Coordination.one(resource),
-                  listOf(Modifier.Relation("from", NounPhrase.plural("each opponent"))),
+                  listOf(
+                      Modifier.Relation("from", NounPhrase.plural("each opponent")),
+                      Modifier.Parenthetical("to the extent possible"),
+                  ),
               )
           )
         }
@@ -502,13 +557,51 @@ private fun renderGated(
     describers: Describers,
     references: TypeVariableReferences,
 ): Clause? {
+  // A tag gate can select the same card passed to a card-targeted procedure.
+  val gate = instruction.gate as? Requirement.Min
+  val tag = gate?.takeIf { it.minimum == 1 }?.let(::countedExpression)
+  val tagKey = Key(cn("Tag"), 0)
+  val resolvedTag = tag?.let(describers::resolveExpression)
+  val holder = resolvedTag?.sourceDependency(tagKey)
+  val procedure = instruction.inner as? Gain
+  val target = procedure?.gaining?.arguments?.singleOrNull()
+  if (
+      tag != null &&
+          holder != null &&
+          target != null &&
+          describers.isTag(tag.className) &&
+          tag.refinement == null &&
+          holder.refinement == null &&
+          resolvedTag.hasOnlySourceDependency(tagKey, holder) &&
+          references.sameVariable(target, holder) &&
+          (describers.changeFrame(procedure.gaining.className)
+                  as? ComponentDescriber.ChangeFrame.Procedure)
+              ?.cardTargetRelation != null
+  ) {
+    val selectedCard =
+        holder.copy(
+            typeVariableName = null,
+            refinement =
+                Expression.Refinement.Has(
+                    Requirement.Min(1, Metric.Count(tag.className.expression))
+                ),
+        )
+    return renderChange(
+        procedure.copy(
+            scaledEx =
+                scaledEx(procedure.gaining.copy(arguments = listOf(selectedCard)), procedure.count)
+        ),
+        describers,
+        references,
+    )
+  }
   val clause =
       renderLoweredInstructions(instruction.inner, describers, references).clauses.singleOrNull()
           ?: return null
   if (describers.isAvailableProcedureClass(instruction.gate)) {
     return clause
   }
-  val condition = describers.renderGateCondition(instruction.gate) ?: return null
+  val condition = describers.renderGateCondition(instruction.gate, references) ?: return null
   return Clause.Prefaced(Clause.Preface.Conditional(condition), clause)
 }
 
@@ -545,16 +638,16 @@ private fun renderPer(
           ?: (instruction.metric as? Metric.Count)?.expression?.let {
             renderCountedRelationToAntecedent(it, describers, references)
           }
-          ?: return null
+          ?: lexicalizeMetricPhrase(instruction.metric, describers)
   val simple = clause as? Clause.Simple ?: return null
   val modifiers = simple.predicate.modifiers
+  val trailing = modifiers.filter {
+    it is Modifier.Supplement || it == Modifier.Parenthetical("to the extent possible")
+  }
   return simple.copy(
       predicate =
           simple.predicate.copy(
-              modifiers =
-                  modifiers.filterNot { it is Modifier.Supplement } +
-                      Modifier.Per(metric) +
-                      modifiers.filterIsInstance<Modifier.Supplement>()
+              modifiers = (modifiers - trailing.toSet()) + Modifier.Per(metric) + trailing
           )
   )
 }
@@ -629,11 +722,12 @@ private fun renderCappedProcedure(
           as? ComponentDescriber.ChangeFrame.CappedProcedure ?: return null
   val cap = instruction.metric as? Metric.Max ?: return null
   if ((cap.maximum as? Metric.Constant)?.value != 1) return null
-  val noun =
-      NounPhrase(frame.noun.singular, frame.noun.plural, count = 1).let {
-        if (gain.quantifier.modality() == Modality.BEST_EFFORT) it.atMost() else it
-      }
-  return Clause.Simple(Predicate(Verb(frame.verb), Coordination.one(noun)))
+  if (gain.quantifier.modality() == Modality.OPTIONAL) return null
+  val noun = NounPhrase(frame.noun.singular, frame.noun.plural, count = 1)
+  val result = Clause.Simple(Predicate(Verb(frame.verb), Coordination.one(noun)))
+  return if (gain.quantifier.modality() == Modality.BEST_EFFORT)
+      result.withModifier(Modifier.Parenthetical("to the extent possible"))
+  else result
 }
 
 private fun renderScopedInstruction(
@@ -774,9 +868,26 @@ private fun renderPlacementSiteFallback(
       .withModifier(Modifier.Supplement("otherwise place it normally"))
 }
 
-internal fun Describers.renderGateCondition(requirement: Requirement): Clause? {
+internal fun Describers.renderGateCondition(
+    requirement: Requirement,
+    references: TypeVariableReferences = TypeVariableReferences.EMPTY,
+): Clause? {
+  if (
+      requirement is Requirement.Max &&
+          requirement.maximum == 0 &&
+          countedExpression(requirement) == thisExpression
+  ) {
+    return Clause.Simple(
+        Predicate(Verb("is no longer in play")),
+        NounPhrase("card", determiner = Determiner.THIS),
+    )
+  }
+  renderDescribedRequirementCondition(requirement, references)?.let {
+    return it
+  }
   if (requirement is Requirement.And) {
-    val conditions = requirement.requirements.map { renderGateCondition(it) ?: return null }
+    val conditions =
+        requirement.requirements.map { renderGateCondition(it, references) ?: return null }
     return Clause.Coordinated(Coordination(conditions, Conjunction.AND))
   }
   val counting = requirement as? Requirement.Counting ?: return null
@@ -785,10 +896,34 @@ internal fun Describers.renderGateCondition(requirement: Requirement): Clause? {
   renderPlacedPieceSiteCondition(counting, expression)?.let {
     return it
   }
-  val resolved = resolveExpression(expression) ?: return null
-  renderDescribedRequirementCondition(requirement)?.let {
-    return it
+
+  val counted = renderRequirementMetricPhrase(counting.metric, counting.target, this)
+  val cardResource = resolveCardResource(expression) != null
+  if (
+      counted != null &&
+          counted.unresolved().isEmpty() &&
+          (cardResource || counting is Requirement.Max)
+  ) {
+    val amount =
+        when (counting) {
+          is Requirement.Min -> NounPhrase.text("at least ${counted.linearize()}")
+          is Requirement.Max -> NounPhrase.text("at most ${counted.linearize()}")
+          is Requirement.Exact -> counted
+        }
+    val ownerIsYou =
+        isPlayerOwned(expression.className) &&
+            resolveExpression(expression)?.sourceDependencies?.isEmpty() == true &&
+            !cardResource
+    return if (ownerIsYou) {
+      Clause.Simple(Predicate(Verb.HAVE, Coordination.one(amount)), NounPhrase.you())
+    } else {
+      Clause.Simple(
+          Predicate(Verb.BE, Coordination.one(amount)),
+          NounPhrase("there", grammaticalNumber = counted.number()),
+      )
+    }
   }
+  val resolved = resolveExpression(expression) ?: return null
   if (resolved.sourceDependencies.isNotEmpty() || expression.refinement != null) {
     return null
   }
@@ -808,21 +943,13 @@ internal fun Describers.renderGateCondition(requirement: Requirement): Clause? {
   if (
       requirement is Requirement.Max &&
           requirement.maximum == 0 &&
-          isStandardResource(expression.className)
+          fact(expression.className, ComponentDescriber::presenceCondition) != null
   ) {
+    val present =
+        renderGateCondition(Requirement.Min(1, counting.metric), references) ?: return null
     return Clause.Simple(
-        Predicate(
-            Verb.HAVE,
-            Coordination.one(
-                componentNounPhrase(expression.className, 2)
-                    .copy(
-                        count = null,
-                        determiner = Determiner.NO,
-                        grammaticalNumber = NounPhrase.GrammaticalNumber.PLURAL,
-                    )
-            ),
-        ),
-        NounPhrase.you(),
+        Predicate(Verb("is not the case"), complement = Predicate.Complement.That(present)),
+        NounPhrase.text("it"),
     )
   }
   if (requirement !is Requirement.Min) return null

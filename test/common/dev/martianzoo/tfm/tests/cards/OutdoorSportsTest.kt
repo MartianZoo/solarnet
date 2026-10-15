@@ -31,7 +31,6 @@ internal class OutdoorSportsTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<OutdoorSports>>")
       }
     }

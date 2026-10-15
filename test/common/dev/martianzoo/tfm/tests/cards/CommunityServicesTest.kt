@@ -14,13 +14,12 @@ internal class CommunityServicesTest : TfmSandboxTest() {
 
     // The beginner corporation and Community Services itself are the two tagless cards.
     kim.inTurn {
-          doTasks(
-              "PlayProject<Class<CommunityServices>>",
-              "-13 MC",
-              "CommunityServices FROM ProjectCard",
-          )
-          selectOnlyTask()
-        }
-        .expect("PROD[2 MC]")
+      doTasks(
+          "PlayProject<Class<CommunityServices>>",
+          "-13 MC",
+          "CommunityServices FROM ProjectCard",
+      )
+      doTask("PROD[2 MC]")
+    }
   }
 }

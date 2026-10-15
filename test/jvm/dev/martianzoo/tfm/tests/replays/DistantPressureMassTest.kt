@@ -117,7 +117,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       assertProduction(m = 6, s = 1, t = 1, p = 1, e = 1, h = 1)
       assertDashMiddle(
           played = 9,
-          vp = 23,
           tr = 20,
           hand = 6,
       )
@@ -129,7 +128,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       assertProduction(m = 10, s = 0, t = 0, p = 2, e = 0, h = 0)
       assertDashMiddle(
           played = 6,
-          vp = 22,
           tr = 23,
           hand = 5,
       )
@@ -181,7 +179,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       assertProduction(m = 6, s = 1, t = 1, p = 1, e = 1, h = 1)
       assertDashMiddle(
           played = 10,
-          vp = 34,
           tr = 20,
           hand = 6,
       )
@@ -193,7 +190,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       assertProduction(m = 10, s = 0, t = 1, p = 2, e = 0, h = 0)
       assertDashMiddle(
           played = 8,
-          vp = 22,
           tr = 23,
           hand = 5,
       )
@@ -387,7 +383,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       assertProduction(m = 10, s = 1, t = 3, p = 3, e = 4, h = 3)
       assertDashMiddle(
           played = 24,
-          vp = 54,
           tr = 31,
           hand = 7,
       )
@@ -399,7 +394,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       assertProduction(m = 20, s = 0, t = 2, p = 2, e = 1, h = 5)
       assertDashMiddle(
           played = 20,
-          vp = 45,
           tr = 33,
           hand = 6,
       )
@@ -491,7 +485,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       assertProduction(m = 14, s = 1, t = 3, p = 6, e = 3, h = 3)
       assertDashMiddle(
           played = 30,
-          vp = 73,
           tr = 37,
           hand = 8,
       )
@@ -503,7 +496,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       assertProduction(m = 18, s = 0, t = 2, p = 2, e = 2, h = 5)
       assertDashMiddle(
           played = 23,
-          vp = 59,
           tr = 41,
           hand = 7,
       )

@@ -15,13 +15,12 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
           "PlayProject<Class<IndenturedWorkers>>",
           "IndenturedWorkers FROM ProjectCard",
       )
-      selectOnlyTask()
+      doTask("IndenturedWorkers_NextCardEffect")
       doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "-27 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "Soletta FROM ProjectCard", "PROD[7 Heat]")
+      doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }
 
@@ -36,12 +35,12 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
           "PlayProject<Class<IndenturedWorkers>>",
           "IndenturedWorkers FROM ProjectCard",
       )
-      selectOnlyTask()
+      doTask("IndenturedWorkers_NextCardEffect")
       doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
     }
     kim.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep*")
+      doTask("TemperatureStep")
       doTask("TerraformRating")
     }
     kim.inTurn {
@@ -54,8 +53,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "-27 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "Soletta FROM ProjectCard", "PROD[7 Heat]")
+      doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }
 
@@ -69,13 +67,12 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
           "PlayProject<Class<IndenturedWorkers>>",
           "IndenturedWorkers FROM ProjectCard",
       )
-      selectOnlyTask()
+      doTask("IndenturedWorkers_NextCardEffect")
       doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "-27 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "Soletta FROM ProjectCard", "PROD[7 Heat]")
+      doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<AdvancedAlloys>>", "-9 MC", "AdvancedAlloys FROM ProjectCard")
@@ -91,7 +88,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
           "PlayProject<Class<IndenturedWorkers>>",
           "IndenturedWorkers FROM ProjectCard",
       )
-      selectOnlyTask()
+      doTask("IndenturedWorkers_NextCardEffect")
       doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
     }
     advanceUntilActionPhase()
@@ -99,8 +96,7 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "-35 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "Soletta FROM ProjectCard", "PROD[7 Heat]")
+      doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }
 
@@ -115,22 +111,20 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
           "PlayProject<Class<IndenturedWorkers>>",
           "IndenturedWorkers FROM ProjectCard",
       )
-      selectOnlyTask()
+      doTask("IndenturedWorkers_NextCardEffect")
       doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
     }
     kim.inTurn {
       doTask("UseCardAction<BoardOfDirectors, Action1>")
-      selectTask("PreludeCard<Kim, Hand>!")
-      selectOnlyTask()
+      doTask("PreludeCard<Kim, Hand>")
       doTask("-12 MC")
-      selectTask("-Director<BoardOfDirectors>!")
+      doTask("-Director<BoardOfDirectors>")
       doTasks("PlayCard<Class<PreludeCard>, Class<Donation>>", "Donation FROM PreludeCard", "21 MC")
     }
 
     kim.inTurn {
       doTasks("PlayProject<Class<Soletta>>", "-27 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "Soletta FROM ProjectCard", "PROD[7 Heat]")
+      doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
     }
   }
 }

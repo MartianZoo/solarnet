@@ -24,12 +24,11 @@ internal class RiseToPowerTest : TfmSandboxTest() {
               "PROD[3 MC]",
               "PartyDelegate<Scientists>",
           )
-          selectTask("ProjectCard<Kim, Hand>!")
+          doTask("ProjectCard<Kim, Hand>")
           doTask("PartyDelegate<Unity>")
-          selectTask("ProjectCard<Kim, Hand>!")
-          selectOnlyTask()
+          doTask("ProjectCard<Kim, Hand>")
           doTask("PartyDelegate<Greens>")
-          selectTask("ProjectCard<Kim, Hand>!")
+          doTask("ProjectCard<Kim, Hand>")
         }
         .expect("3 ProjectCard, PartyLeader<Scientists>, PartyLeader<Unity>, PartyLeader<Greens>")
   }

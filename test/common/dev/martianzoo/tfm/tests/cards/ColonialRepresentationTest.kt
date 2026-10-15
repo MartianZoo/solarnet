@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class ColonialRepresentationTest : TfmSandboxTest() {
@@ -19,7 +19,7 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
               "-10 MC",
               "ColonialRepresentation FROM ProjectCard",
           )
-          selectOnlyTask()
+          doTask("6 MC")
         }
         .expect("-4 MC")
   }
@@ -28,24 +28,29 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
     @Test
     internal fun `Its influence improves a Global Event payout even without colonies`() {
       newTestGame("ColonialRepresentation, TurmoilExpansion", playerCount = 2)
-      kim.turn { playProject(ColonialRepresentation, 10) }
-      stan.pass()
-      kim.pass()
-      kim.wgt("VenusStep")
+      kim.doTasks("PlayProject<Class<$ColonialRepresentation>>", "-10 MC")
+      kim.doTask("0 StandardAction") // Decline the second action.
+      stan.doTask("Pass")
+      kim.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      kim.doTask("VenusStep! BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
+
       admin.doTask("ExploreFirstDirective")
-      kim.buyCards(0)
-      stan.buyCards(0)
-      stan.pass()
-      kim.pass()
-      val plantsAfterProduction = kim.count("Plant")
-      val steelAfterProduction = kim.count("Steel")
+      kim.doTask("-4 ProjectCard<Selecting>")
+      stan.doTask("-4 ProjectCard<Selecting>")
+      stan.doTask("Pass")
+      kim.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
 
-      stan.wgt("VenusStep")
-      // Aquifer Released by Public Council grants resources after its neutral ocean.
-      stan.doTask("OceanTile<Tharsis_1_5> BY Admin")
+      expectChanges("1 Plant<Kim>, 1 Steel<Kim>") {
+        stan.doTask("VenusStep! BY Admin")
+        players.forEach { it.autoExecNow(EAGER) }
 
-      kim.count("Plant") shouldBe plantsAfterProduction + 1
-      kim.count("Steel") shouldBe steelAfterProduction + 1
+        // Aquifer Released by Public Council grants resources and a neutral ocean.
+        stan.doTask("OceanTile<Tharsis_1_5> BY Admin")
+        players.forEach { it.autoExecNow(EAGER) }
+      }
     }
   }
 }

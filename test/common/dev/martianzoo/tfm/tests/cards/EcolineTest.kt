@@ -11,12 +11,12 @@ internal class EcolineTest : TfmSandboxTest() {
     kim.setToExMachina(7, "Plant")
 
     kim.inTurn {
-          doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
-          selectOnlyTask()
-          doTask("GreeneryTile<Tharsis_2_1>")
-          selectTask("OxygenStep*")
-          doTask("TerraformRating")
-        }
-        .expect("-7 Plant")
+      doTasks("ConvertPlants", "-7 Plant")
+      // Hand the paid conversion to Admin to offer the legal greenery areas.
+      selectTask("DefaultGreeneryTile")
+      doTask("GreeneryTile<Tharsis_2_1>")
+      doTask("OxygenStep")
+      doTask("TerraformRating")
+    }
   }
 }

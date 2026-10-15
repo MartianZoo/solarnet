@@ -18,31 +18,29 @@ internal class UnexpectedApplicationTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<UnexpectedApplication>>")
-        selectTask("-X? MC")
+
         doTasks(
             "-4 MC",
             "UnexpectedApplication FROM ProjectCard",
         )
-        selectTask("-ProjectCard<Kim, Hand>!")
+        doTask("-ProjectCard<Kim, Hand>")
       }
     }
 
     // With a card available to discard, Venus can advance to the card-draw bonus.
     kim.setToExMachina(2, "ProjectCard")
     kim.inTurn {
-          doTasks(
-              "PlayProject<Class<UnexpectedApplication>>",
-              "-4 MC",
-              "UnexpectedApplication FROM ProjectCard",
-          )
-          selectTask("-ProjectCard<Kim, Hand>!")
-          selectTask("VenusStep*")
-          doTask("TerraformRating")
-          selectTask("ProjectCard<Kim, Hand>!")
-          doTask("PlayedEvent<Class<UnexpectedApplication>> FROM UnexpectedApplication")
-        }
-        .expect("VenusStep")
+      doTasks(
+          "PlayProject<Class<UnexpectedApplication>>",
+          "-4 MC",
+          "UnexpectedApplication FROM ProjectCard",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("VenusStep")
+      doTask("TerraformRating")
+      doTask("ProjectCard<Kim, Hand>")
+      doTask("PlayedEvent<Class<UnexpectedApplication>> FROM UnexpectedApplication")
+    }
   }
 }

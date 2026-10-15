@@ -20,10 +20,12 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
           doTask(
               "EACH Other@Player(NOT Kim) { -2! Production<Other@Player, Class<MC>> BY Other@Player }"
           )
+          // Hand the production loss to its owner before that player resolves it.
           selectTask("-2! Production<Stan, Class<MC>> BY Stan")
-          stan.selectOnlyTask()
+          stan.doTask("PROD[-2 MC]")
+          // Hand the production loss to its owner before that player resolves it.
           selectTask("-2! Production<Rob, Class<MC>> BY Rob")
-          rob.selectOnlyTask()
+          rob.doTask("PROD[-2 MC]")
           doTasks("-15 MC", "5 ProjectCard<Hand FROM Selecting>")
         }
         .expect("PROD[-2 MC<Stan>, -2 MC<Rob>]")
@@ -54,19 +56,21 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-          selectTask("4! CorporationCard<Kim, Selecting>")
-          selectTask("-3! CorporationCard<Kim, Selecting>")
+          doTask("4 CorporationCard<Kim, Selecting>")
           doTask("PlayCard<Class<CorporationCard>, Class<MonsInsurance>>")
           doTask("MonsInsurance<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTasks("48 MC", "-42 MC", "PROD[4 MC]")
+          // Expand the production losses into tasks assigned to each other player.
           selectTask(
               "EACH Other@Player(NOT Kim) { -2! Production<Other@Player, Class<MC>> BY Other@Player }"
           )
           doTask("4 MC")
+          // Hand the production loss to its owner before that player resolves it.
           selectTask("-2! Production<Stan, Class<MC>> BY Stan")
-          stan.selectOnlyTask()
+          stan.doTask("PROD[-2 MC]")
+          // Hand the production loss to its owner before that player resolves it.
           selectTask("-2! Production<Rob, Class<MC>> BY Rob")
-          rob.selectOnlyTask()
+          rob.doTask("PROD[-2 MC]")
         }
         .expect("PROD[-2 MC<Stan>, -2 MC<Rob>]")
   }
@@ -95,28 +99,27 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     kim.exMachina("$MonsInsurance")
     stan.exMachina("Plant")
 
-    with(kim) {
-      inTurn {
-            doTasks(
-                "PlayCard<Class<PreludeCard>, Class<ExcentricSponsor>>",
-                "ExcentricSponsor FROM PreludeCard",
-                "PlayCard<Class<ProjectCard>, Class<AsteroidCard>>",
-            )
-            selectTask("-25* Owed")
-            doTasks(
-                "AsteroidCard FROM ProjectCard",
-            )
-            selectTask("TemperatureStep*")
-            doTasks("2 Titanium", "TerraformRating")
-            selectTask("-X? MC")
-            doTask("Ok")
-            selectTask("-X? Titanium")
-            doTasks("Ok", "-Plant<Stan>")
-            selectOnlyTask()
-            doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
-          }
-          .expect("-Plant<Stan>, -3 MC<Kim>, 3 MC<Stan>")
-    }
+    kim.inTurn {
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<ExcentricSponsor>>",
+              "ExcentricSponsor FROM PreludeCard",
+              "PlayCard<Class<ProjectCard>, Class<AsteroidCard>>",
+          )
+          // Hand the discount to Admin before the remaining payment is offered.
+          selectTask("-25* Owed")
+          doTasks(
+              "AsteroidCard FROM ProjectCard",
+          )
+          doTask("TemperatureStep")
+          doTasks("2 Titanium", "TerraformRating")
+          // Other optional tasks also accept Ok; identify the MC payment first.
+          selectTask("-X? MC")
+          doTask("Ok" /* No MC payment. */)
+          doTasks("-Plant<Stan>")
+          doTask("3 MC<Stan FROM Kim>")
+          doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
+        }
+        .expect("-Plant<Stan>, -3 MC<Kim>, 3 MC<Stan>")
   }
 
   @Test
@@ -133,7 +136,7 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
               "Birds FROM ProjectCard",
               "PROD[-2 Plant<Stan>]",
           )
-          selectOnlyTask()
+          doTask("3 MC<Stan> FROM MC")
         }
         .expect("-13 MC<Kim>, 3 MC<Stan>")
   }
@@ -184,10 +187,13 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<IndustrialMicrobes>>", "-12 MC")
-          selectTask("-X? Steel")
-          doTasks("Ok", "IndustrialMicrobes FROM ProjectCard", "PROD[Energy]", "PROD[Steel]")
-          stan.selectTask("Disease<PharmacyUnion<Stan>>! OR (MAX 0 PharmacyUnion<Stan>: Ok)")
-          stan.selectOnlyTask()
+          doTasks(
+              "IndustrialMicrobes FROM ProjectCard",
+              "PROD[Energy]",
+              "PROD[Steel]",
+          )
+          stan.doTask("Disease<PharmacyUnion<Stan>>")
+          stan.doTask("-4 MC")
         }
         .expect("-4 MC<Stan>, Disease<$PharmacyUnion<Stan>>")
   }
@@ -200,15 +206,12 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-          selectTask("-X? Titanium")
           doTasks(
-              "Ok",
               "AsteroidCard FROM ProjectCard",
           )
-          selectTask("TemperatureStep*")
+          doTask("TemperatureStep")
           doTasks("2 Titanium", "TerraformRating")
-          selectTask("-3? Plant<Anyone>")
-          doTask("Ok")
+          doTask("-0 Plant<Anyone>")
           doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
         }
         .expect("0 Plant<Stan>, 0 MC<Stan>")
@@ -226,9 +229,11 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
               "HiredRaiders FROM ProjectCard",
               "3 MC<Kim FROM SoloOpponent>",
           )
+          // Hand the solo opponent's resource change to Admin.
           selectTask("3! MC<SoloOpponent> BY Admin")
-          selectOnlyTask()
-          selectOnlyTask()
+          doTask("3 MC<SoloOpponent> FROM MC")
+          // Hand the solo opponent's resource change to Admin.
+          selectTask("-3 MC<SoloOpponent> BY Admin")
           doTask("PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders")
         }
         .expect("-1 MC<Kim>")
@@ -243,12 +248,10 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-          selectTask("-X? Titanium")
           doTasks(
-              "Ok",
               "AsteroidCard FROM ProjectCard",
           )
-          selectTask("TemperatureStep*")
+          doTask("TemperatureStep")
           doTasks("2 Titanium", "TerraformRating", "-Plant<Kim>")
           doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
         }
@@ -274,11 +277,12 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
     stan.inTurn {
       doTasks("PlayCard<Class<PreludeCard>, Class<Recession>>", "Recession FROM PreludeCard")
       doTask("10 MC")
+      // Expand Recession into separate losses before checking compensation order.
       selectOnlyTask()
       if (compensateFirst) {
         doTask("-5 MC<Rob>")
         kim.doTask("3* MC<Rob FROM Kim>")
-        selectTask("-5* MC<Kim>")
+        doTask("-5* MC<Kim>")
       } else {
         doTasks("-5 MC<Kim>", "-5 MC<Rob>")
         kim.doTask("3* MC<Rob FROM Kim>")

@@ -20,23 +20,21 @@ generic card backs by Player and location, never by printed identity:
 - `BeginnerCard<Hand>` is the separate back used only by the beginner variant;
 - `Selecting` temporarily holds anonymous backs for project-card look-and-keep effects and the
   modeled corporation and Prelude offers. Retained project cards move to `Hand`; selected Prelude
-  and Merger corporation cards are played from `Selecting`. The effect removes the rest;
+  and Merger corporation cards are played from `Selecting`. Turn cleanup removes any remainder;
 - `Revealed` temporarily holds an already owned card for Public Plans, or one anonymous card
   revealed from outside the World for Asteroid Deflection System and Search for Life;
 - a concrete `CardFront<Class<CardBack>>` is an exact face in play; and
 - `PlayedEvent<Class<CardFront>>` preserves the exact face of a completed Event because published
   scoring and recovery rules query it.
 
-The modeled selection and reveal effects explicitly empty their temporary locations. Retained
+Modeled reveal effects explicitly empty their temporary locations. Retained
 starting project cards rest in `Selecting` after setup until their Corporation-phase purchase is
 paid and transferred. Project cards selected for a purchase also stay there while payment or the
-transfer task is outstanding. Otherwise, a card left in `Selecting` after its selection is resolved
-is a bug. The selected invariant is zero `Selecting` backs for a Player whenever that Player has no
-active selection or outstanding purchase. Setup and Prelude selections count as active selections
-even though they occur outside action-phase turns. No general check enforces this invariant yet;
-implementing one requires a reliable selection-completion point. The existing `MustCleanUp` check
-runs only for operations that declare themselves complete. Do not treat other leftover backs as a
-valid resting state or silently discard them to conceal a missing decision.
+transfer task is outstanding. Each `NewTurn` schedules Admin cleanup under `LATER`: after that turn's
+ordinary work, Admin discards remaining card backs in that Player's `Selecting` before `TurnOver`.
+Research schedules the same cleanup for project backs after every
+Player's purchase work and before its phase handoff. Setup selections still wait for the corporation
+phase. These rules do not run for isolated sandbox operations that bypass turn and phase flow.
 
 Fixed-size project-card purchase offers enter `Selecting` first. Searches intentionally have no
 selection pool: the matching card enters the hand, and skipped cards have no relevant
@@ -55,10 +53,9 @@ consequences of the declared face remain game rules for Solarnet to calculate.
 
 Prelude plays use `PlayPrelude`: play the chosen face, or discard its anonymous back, record an
 `Audit`, and gain 15 M€. The caller verifies that the selected Prelude is unplayable. This same
-signal serves the Prelude phase and additional Prelude plays granted by cards. Offered and rejected
-cards in the fixed Valley Trust, New Partner, WG Project, and Merger offers are counted in
-`Selecting`; the rejected backs are removed without names before the chosen back is played directly
-from there.
+signal serves the Prelude phase and additional Prelude plays granted by cards. Offered cards in the
+fixed Valley Trust, New Partner, WG Project, and Merger offers are counted in `Selecting`. Their
+chosen cards are played directly from there; turn cleanup discards the others.
 Each Player first gains the persistent `PlayerMode` recording their chosen setup path. Both modes
 are `System`: Admin installs a fixed mode, while the beginner-versus-normal choice remains a
 Player task when `BeginnerVariant` is enabled. The `NonBeginnerMode` path then puts both offered
@@ -90,6 +87,11 @@ tag, with its singleton Components supplied by the rule Module. Its `Class<Tag>`
 criterion; it has no `criteria` property because Requirement properties do not currently
 specialize named header variables.
 
+Party-requirement searches use `ReferenceFilter<Class<Ruling>>`: the current Canon cards cite
+`Ruling` in their ordinary `Ruling<Party> OR 2 PartyDelegate<Party>` requirements. Playing those
+cards evaluates the Pets condition directly; no custom party-requirement metric is needed.
+No current Canon card cites `Ruling` outside such a requirement.
+
 Venus Orbital Survey offers two anonymous backs in `Selecting`. The caller may keep each
 Venus-tagged card for free through the externally asserted `TakeSelectedCard<TagFilter>` signal,
 discard any unwanted remainder, and buy every back still selected. The World records the counts
@@ -114,8 +116,8 @@ relationship, preserve the missing fragment of the former expression beside it a
 only for a fact absent from the executable form; the `SearchForCard` filter records a search
 criterion. The comment records an unmodeled rule fact, not dormant implementation.
 
-The World has no general check for an abandoned `Selecting` pool. Each currently modeled effect
-drains its own pool explicitly.
+The World has no general check for an abandoned `Selecting` pool. Turn and research cleanup discard
+unselected backs. The Player still removes unwanted purchase cards before `BuySelectedCards`.
 
 ## Card-hand tracking
 

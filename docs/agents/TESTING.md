@@ -45,15 +45,18 @@ Kotlin 2.2. CI uses Temurin 25 LTS. Contributors do not need another JDK install
 Start with the smallest test or build task that verifies the changed behavior. Expand verification
 only when the change crosses a wider scope or the narrower result leaves a material risk.
 
-- `./gradlew build` checks the whole repository: the same tests as `test`, plus all production
-  JavaScript compilation and packaging. Use it only when repository-wide verification is warranted
-  by the scope of the change or explicitly requested.
+- `./gradlew build` checks the repository, including the English JVM tests, plus all production
+  JavaScript compilation and packaging. Run `./gradlew :tfm-text:test` for the English suite alone.
+  Use the full build only when repository-wide verification is warranted by the scope of the change
+  or explicitly requested.
 - `./gradlew test` runs every repository JVM test suite, every browser-specific test, and the
   `OtbGame20260828Test` replay once in a browser. The multiplatform modules' JVM test tasks are named
   `jvmTest`. Pets runs `BrowserPetsTest` through `:pets:jsBrowserTest`; Web runs its browser history
   tests and the selected replay through `:web:jsBrowserTest`; Almanac runs its English card-text
   browser test through `:almanac:jsBrowserTest`. Other generated browser tasks are
   inert outside the intentionally commented-out full-browser target in the root build.
+- `./gradlew :tfm-tests:gameplayTest` runs every `TfmGameplayTest` subclass, including gameplay
+  classes nested inside sandbox suites, without sandbox, synthetic setup, or full-game replay tests.
 - `./gradlew :tfm-tests:sandboxTest` runs every `TfmSandboxTest` subclass, including nested
   sandbox cases, without gameplay or full-game replay tests. Its class selection follows the
   shared test-source declarations; the JVM-only JUnit `@Tag` cannot label shared JVM/JS tests.
@@ -67,13 +70,17 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   `test/jvm/dev/martianzoo/tfm/tests/replays` directory, excluding only its JUnit file-export hook.
   JVM-only tools and filesystem/terminal tests remain outside this target. Comment the target back
   out after a successful run.
-- `./gradlew :tfm-tests:jvmTest` runs the replay tests and writes full `.json` and short
-  `.short.json` game files per successful `AbstractFullGameTest` subclass under that module's
-  `generated/replay-event-logs` build directory.
+- `./gradlew :tfm-tests:jvmTest` runs the replay tests without input recording or export.
+  Add `-PreplayExports` to record inputs, write full `.json` and short `.short.json` game files
+  per successful `AbstractFullGameTest` subclass, and verify reconstruction in a fresh game.
+  Files go under that module's `generated/replay-event-logs` build directory. Ordinary runs
+  leave existing exports untouched. Direct JUnit runs need `-Dsolarnet.replayExports=true` and
+  `-Djunit.jupiter.extensions.autodetection.enabled=true`.
 - `./gradlew :tfm-tests:replayTestCoverage` runs only tests in the replay package and writes HTML and
   XML production-code coverage reports under that module's `reports/jacoco/replayTestCoverage`
   build directory. Its execution data comes from the separate `replayTest` task, so card, rule,
-  random-card, and browser tests do not contribute to the report.
+  random-card, and browser tests do not contribute to the report. This coverage run excludes input
+  recording, export, and reconstruction, and ignores `-PreplayExports`.
 - `./gradlew :pets:jvmTestCoverage` runs only the Pets module's JVM test suite and writes HTML and
   XML coverage reports for Pets production code under that module's
   `reports/jacoco/jvmTestCoverage` build directory.
@@ -107,9 +114,9 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   not proof of a user choice: an automatic or queued effect carried by a Player-owned component may
   attribute its derived changes to that Player. Use the cause columns to trace derivation; because
   task events are omitted, the TSV cannot by itself classify every row as chosen versus automatic.
-- `./gradlew :tools:dumpOtbGame20260828EventLog` and
-  `./gradlew :tools:dumpOtbGame20260912EventLog` run the JVM replay suite, read those generated
-  physical-game recordings, and write every change event in the same format under
+- `./gradlew :tools:dumpOtbGame20260828EventLog -PreplayExports` and
+  `./gradlew :tools:dumpOtbGame20260912EventLog -PreplayExports` run the JVM replay suite, read the
+  generated physical-game recordings, and write every change event in the same format under
   `_local/eventlogs/`.
 - `SOLARNET_RANDOM_AUTOMATIC_EFFECTS=true ./gradlew test --rerun-tasks` runs the unchanged JVM suites
   while choosing a random execution order for each batch of independent automatic-effect listeners.
@@ -165,7 +172,8 @@ Convention plugins under `gradle/build-logic` are layered by responsibility. `so
 the policy shared by every Kotlin target: compilation, explicit API mode, dependency alignment,
 Detekt, Dokka, and test logging. `solarnet.jvm` adds the JVM plugin and the repository's standard
 Kotlin/JUnit 5 test dependencies. `solarnet.kmp-jvm-js` configures the JVM and browser targets, adds
-shared `kotlin.test`, and exposes each module's `jvmTest` as `test`.
+shared `kotlin.test`, declares the same JUnit BOM, Kotlin/JUnit 5 adapter, and platform launcher
+for `jvmTest` as the JVM convention, and exposes each module's `jvmTest` as `test`.
 The Pets module also attaches its filtered browser test to `test`; its complete shared browser
 suite remains available through the temporary full-browser target.
 Module build scripts under `modules/` keep only module-specific configuration and select their
@@ -178,6 +186,11 @@ better-parse fork commit `8e01263` (full SHA `8e01263e2887a46341cbdd81232310a865
 Pets and the common library modules `agent`, `catalog`, `engine`, `script`, `state`, `tfm-canon`,
 `tfm-card-data`, `tfm-engine`, `tfm-fake`, `tfm-state`, and `tfm-text` declare WASM/JS targets.
 `tfm-tests` also declares a WASM/JS target for shared replay tests.
+
+`./rego` asks `:repl:shadowJarPath` to build the fat jar and report its relocated path before each
+launch, including after the `rebuild` command. A Gradle failure stops the launcher. CI also executes
+the packaged jar from an empty temporary directory, creates a Canon game, checks its player count,
+and exits before uploading the artifact.
 
 All Kotlin modules use strict explicit API mode. Declarations that form a module's public API must
 spell out `public` and their public types; declarations used only within one module should be
@@ -197,8 +210,9 @@ semantics.
 > operation, never one card's rule or missing engine semantics.
 
 > **Default assertion style:** Almost every successful gameplay action that returns a `TaskResult`
-> should chain `.expect(...)` directly to that action. Prefer this over later absolute resource or
-> component counts: the chained expectation proves the net change came from the action under test,
+> should chain `.expect(...)` directly to that action in gameplay tests. Sandbox tests instead
+> submit concrete expected work explicitly and add expectations only for additional consequences.
+> Prefer relative expectations over later absolute resource or component counts: the chained expectation proves the net change came from the action under test,
 > while an absolute count can pass because of setup or an earlier action. Use an absolute assertion
 > only when the absolute state is itself the contract, no successful result exists to inspect, or a
 > source explicitly states an absolute value.
@@ -237,8 +251,8 @@ clear coverage of these contracts matters more than preserving every current tes
    observations available to a player rather than internal state or implementation details.
    `CoreRulesTest` documents game-wide rules in this same style.
 5. **Whole-game tests.** Long scenarios that show the game flow and many rules operating together,
-   especially when reconstructed from independent game records. Every successful replay test also
-   emits an exact recording.
+   especially when reconstructed from independent game records. With `-PreplayExports`, every
+   successful JVM replay test also emits an exact recording and verifies reconstruction.
 6. **Canon admissibility tests.** A compact gate confirming that the complete authority loads and
    that representative supported configurations compose into usable projected class tables and
    worlds. This is not a demand to restate the contents of every card or bundle in assertions.
@@ -260,8 +274,8 @@ the behavior under test through gameplay. For sandbox tests, establish incidenta
 preconditions through the standardized fixture and corrections by default. Use authentic
 gameplay instead when the way a precondition is reached can affect, or provide useful evidence for,
 the behavior under test.
-Use `CONCRETE` when ordering choices matter; reserve `NONE` for tests that must control otherwise
-unambiguous automatic steps.
+Sandbox players always use `NONE`. Gameplay players default to `CONCRETE`; suites that must
+control intermediate steps request `TfmGameplayTest(NONE)`, as described below.
 
 Prefer tests that exercise several pieces together. Do not mirror a production list or data object
 in a test just to detect that the list changed. Test observable behavior through the normal
@@ -316,19 +330,13 @@ player-facing scenario through sandbox or gameplay. Audit-history and arbitrary 
 checks also use `TfmTest` directly rather than claiming authentic gameplay.
 When a custom instruction reads authored card metadata from the catalog, compose the synthetic
 card into a fixture `TfmCatalog`; premise-only declarations do not populate that metadata.
-Use `placeTile(row, column)`, `addCardResources(card)`, and `wgt(choice)` instead of spelling their
-routine task expressions. The tile and card-resource helpers require a single matching pending
-choice; card-resource matching includes the destination card, so offers for different cards can
-coexist. Keep raw `doTask()` calls where multiple placements are pending.
-When unrelated optional tasks are pending, pass the pending instruction to `declineTask(instruction)`.
-Inside an existing operation that offers a repeated card action, such as Project Inspection,
-use `cardAction1()` or `cardAction2()`; the operation-body overload selects and pays that action
-without starting the usual use-card-action wrapper.
-Use `declineTask()` only when exactly one pending task accepts `Ok`, and comment what is declined.
+Sandbox and gameplay scenarios use explicit Agent task submissions rather than the helpers on
+`TfmTest` or `TfmGameplay`. The fixture-specific operation and payment conventions are described
+below.
 
 `CoreRulesTest` uses the same player-level style to document rules that belong to the game rather
 than any individual card. Its scenarios should reproduce only the important preconditions observed
-in whole games and should use the standard `TfmGameplay` actions and result expectations.
+in whole games and use explicit sandbox tasks with expectations for additional consequences.
 Full-game tests override a `config` property with a `GameConfig`, conventionally built from an
 indented multiline string followed by player-name varargs. Catalog-backed premise resolution adds
 `TerraformingMars` and, when no other map is named, `TharsisMap`; the parser already trims each
@@ -342,8 +350,8 @@ Choose the fixture by what the scenario proves, not the kind of card:
 - `TfmSandboxTest` supplies a prepared position, explicit corrections, and selected phase shortcuts.
   Use it for focused card interactions and rules that do not depend on authentic turn/phase history.
   Its game is set up and enters the corporation phase normally; the fixture then drops the turn
-  order that phase begins, so scenarios take turns ex machina and `TfmGameplay.phase` places later
-  phases without their queued start-of-phase rules. A scenario that needs a phase's real effects,
+  order that phase begins, so scenarios take turns ex machina. Its private phase correction places
+  later phases without their queued start-of-phase rules. A scenario that needs a phase's real effects,
   such as production, a solar phase, or research, belongs in `TfmGameplayTest`.
 - `TfmGameplayTest` starts the game and lets its own rules offer every turn and begin every phase.
   Reach the scenario through real play, including passing through production to obtain resources.
@@ -352,22 +360,41 @@ Choose the fixture by what the scenario proves, not the kind of card:
   convenience must not bypass their gameplay. The implemented default already plays the starting
   corporations; Prelude choices remain explicit.
 
-Gameplay tests must follow the turns the game offers. The current helpers do not enforce this:
-`Agent.inTurn` creates a turn when the acting player has no pending task, even if the game is
-waiting for another player. For example, Stan's action can succeed while Kim's turn is pending.
-Following the game's flow therefore does not by itself prove that a test follows turn order.
+Gameplay tests submit the turns the game offers through plain `Agent`s. Use `doTask`/`doTasks`
+for explicit choices, or `completeOperation { ... }` when the whole operation must finish before
+returning. Do not use `inTurn`: it can create an out-of-turn offer when the actor has no pending
+work. Decline an offered second action explicitly with `0 StandardAction`; do not insert that
+choice after both actions, after a Prelude, or when all opponents have already passed.
+
+`TfmGameplayTest` describes authentic game flow, not the `TfmGameplay` convenience class. The
+fixture owns its `World` and `Agents` directly and exposes Admin and all players as plain Agents.
+Scenario payments state concrete amounts, including research purchases; do not use `/ Owed` or
+payment helpers. Shared corporation setup alone reads the bill for its five starting projects,
+so corporations such as TerraLabs use their actual purchase price.
+
+Gameplay constructs players with `CONCRETE`; suites that exercise intermediate steps request
+`TfmGameplayTest(NONE)`. Admin uses `EAGER`. These policies stay fixed: neither the fixture nor its
+scenarios assign `autoExecPolicy`. Use explicit `autoExecNow(EAGER)` calls to settle competing
+routine effects, production, and phase cleanup. Put them inside the observed operation or
+`expectChanges` block when their effects belong to the assertion. An automatically selected order
+is not evidence of a required order; scripts testing that order must state the steps explicitly.
+Decline unused payment offers explicitly and explain each `Ok`. Short repeated action sequences
+are written out; loops remain appropriate for seat-order traversal and long generation/endgame
+progressions.
 
 Synthetic engine checks that only need setup use `setUpGame`, which starts the game and drops setup's
 pending handoff (`startSetupOnly`), so the game stays in `SetupPhase`. `startCorporationPhaseOutOfTurn`
 moves such a game into the corporation phase through that phase's own start, then drops the turn
 order it begins.
 
-Both extend the existing `TfmTest` directly. Both expose
+The sandbox owns its plain `Agent` fixture directly and must not use `TfmGameplay`, including
+through inherited helpers. Gameplay also owns its fixture directly; neither extends `TfmTest`. Both expose
 `newTestGameBeforeCorporationPlay()` for explicit corporation plays; a normal
 `newTestGame(kimCorporation = ...)` plays the corporation during setup. `kimCorporation` never
 changes the game configuration; use `addOptions` to include cards outside the default bundles.
 Each owns its setup; there is no intermediate shared base. Neither is restricted to project cards.
-Their differences should follow from sandbox versus gameplay, not separate setup policies.
+Their setup defaults remain aligned; differences follow from prepared positions versus authentic
+play and the explicit autoexecution policies described here.
 Shared rules get representative coverage using base-game content where possible: for example,
 `rules/RequiredFirstActionTest` uses Inventrix rather than repeating the same rule for each
 corporation with a required first action.
@@ -406,9 +433,10 @@ The sandbox prepares and caches up to eight recently used `World`s, keyed by opt
 player-count, Kim corporation, and entry-point combination, then gives every test an independent
 `Engine.fork` of that prepared position. A cached World is never exposed or mutated after
 preparation. The base class does not create a game automatically. Gameplay creates a fresh World and
-starts the game for every call. A uniform class declares its own `@BeforeTest` method that calls
-`newTestGame()`. A class whose methods need different compatible
-selections or player counts calls `newTestGame()` explicitly in each method, passing arguments such
+starts the game for every call. Use `@BeforeTest` when every method needs the same setup.
+When some methods need a different setup, call the common setup explicitly from the methods that
+need it and initialize the exceptions directly. Never prepare a game only to replace it at the
+start of a test. Keep scenario-specific corrections visible in the test. Pass named arguments such
 as `addOptions = "CimmeriaMap"` or `playerCount = 4` where needed. Pass `kimCorporation` only when its
 live effect is part of the scenario; Kim then plays that corporation normally and resolves its setup
 effects, while every
@@ -445,10 +473,25 @@ Do not retain Terraforming Mars gameplay helpers in sandbox scenarios, including
 policies. Preserve payment and card rules through explicit tasks; helper-only policy checks are
 outside this suite. Nested `TfmGameplayTest` suites follow the real game flow. Tests solely
 comparing autoexecution policies are omitted.
-Use `selectTask` and `selectOnlyTask` only for an unresolved choice or handoff, never to carry out
-concrete work. Use `doTask` for the Actor's explicit work, naming a short, meaningful instruction.
-This also applies when binding X would make a task concrete. Do not copy full rule expressions
+Use `selectTask` and `selectOnlyTask` only for an unresolved choice, structural expansion, or
+handoff, never to carry out concrete player work. Every retained selection must have a local
+comment explaining why it is necessary. Prefer a short named selection, such as
+`selectTask("DefaultGreeneryTile")`, to an anonymous selection. String selection also narrows the
+task; it is not a name-only lookup. Keep `selectOnlyTask` when a short instruction cannot identify
+an `EACH` group or would discard part of a linked choice, as in Flooding's placement and attack.
+Use `doTask` for the Actor's explicit work, naming a short, meaningful instruction.
+This also applies when binding X makes player work concrete. When the bound amount instead opens
+a bill through Admin, use a commented `selectOnlyTask(x = ...)`. Do not copy full rule expressions
 merely to identify the sole task.
+Write expected payment amounts explicitly, such as `-6 MC`; never pay `/ Owed` in a sandbox
+scenario. Write `kim.inTurn { ... }` directly, without redundant `with(kim)` wrappers. Inside that
+block, helpers on its operation receiver do not repeat `kim.`; another actor remains explicit.
+`TfmGameplay.turn` groups the published game's turn, including declining an unused second action.
+`Agent.inTurn` provides a complete atomic operation and creates `NewTurn` when needed. Sandbox
+scenarios use the latter. Cross-player Agent calls can leave Admin work waiting within that block;
+use a locally explained `autoExecNow()` only when it must settle before the next player choice.
+Use `doTasks` for consecutive concrete instructions. Preserve order when it matters to the scenario.
+Comment an ambiguous `Ok` to identify what is being declined.
 Write scenario actions in sequence rather than loops. Small private scenario helpers may factor
 repeated explicit task sequences, with varying bonuses passed at each written-out call.
 Call the base fixture's `advanceUntilActionPhase()` to reach the next Action phase. From Action,
@@ -500,18 +543,17 @@ same semantic pattern for another card with different literals.
 Every state change in a migrated sandbox test must come from real player-facing gameplay or from
 its explicit fixture methods. Do not use `runOperation`, `beginOperation`, `sneak`, arbitrary manual
 phase changes, or other lower-level shortcuts in either fixture's subclasses. The sandbox provides
-`startActionPhase()` to leave explicit corporation setup or skip unplayed Preludes when their play
+`advanceUntilActionPhase()` to leave explicit corporation setup or skip unplayed Preludes when their play
 is irrelevant; finish pending choices first. This is a sandbox shortcut, so other unplayed starting
 cards need not be resolved when they are irrelevant to the scenario. Gameplay leaves those choices
 to the test and advances through the game's normal flow.
 
 In sandbox tests, conditions beyond that initial state should normally be visible corrections:
 
-- Use `setToExMachina(targetCount, type)` for a desired absolute count. It calculates the gain or
+- Use `setToExMachina(targetCount, type)` for a desired absolute count. Admin may use it for
+  System markers such as colony tracks; the fixture contains the required `sneak` call. It calculates the gain or
   loss from the current count, so the scenario states its intended condition rather than assuming
-  the fixture's prior value. Production types such as `PROD[Heat]` work the same way. To establish
-  negative production, first set its production to zero, then use `exMachina` for the remaining
-  negative adjustment.
+  the fixture's prior value. Production types such as `PROD[Heat]` work the same way, including negative printed production.
 - Use `exMachina(adjustment)` for a naturally relative change or a known absent-to-present fact.
   Prefer a concrete Type such as `NormalCityTile` when an abstract Type cannot be created directly.
 - If initial play of the subject card is not being tested, install that card directly. Do not first
@@ -522,15 +564,15 @@ In sandbox tests, conditions beyond that initial state should normally be visibl
 - To test behavior at a completed global parameter, correct the track to its penultimate step and
   use an ordinary standard project for the final step when available. This preserves the real
   completion lifecycle, including `GpComplete`, instead of asking a correction to stand in for it.
-- The sandbox's retained `nextGeneration()` shortcut runs Production, Research, and Action with
-  every player buying zero cards. It does not run the full expansion Solar sequence or accommodate
-  production choices. A scenario that needs those phases or their ordering belongs in gameplay;
-  do not silently broaden this helper into another game driver.
+- `advanceUntilActionPhase()` expires generation-scoped state without production or research.
+  A scenario that needs real phase effects or their ordering belongs in gameplay; do not broaden
+  the sandbox shortcut into another game driver.
 - Use `victoryPoints()` to query final VP totals in player-seat order for the current position.
   Finish pending choices before querying. It executes the existing final-scoring phase and rolls
   back in `finally`, including on failure. It does not advance through production or final greenery;
   arrange the position to be scored explicitly. The query preserves the live game's state and
-  history for subsequent gameplay.
+  history for subsequent gameplay. Supply `victoryPoints { ... }` when scoring offers player
+  choices, such as Vermin's per-player deductions.
 
 Corrections intentionally suppress ordinary queued effects while retaining the structural work
 documented in [EX_MACHINA.md](EX_MACHINA.md). Therefore, never treat the correction itself as proof
@@ -592,14 +634,25 @@ aborted actions have no successful `TaskResult`, so assert their relevant unchan
 Use a zero scalar, such as `0 Plant` or `PROD[0 Energy]`, to assert that a particular type did not
 change.
 
-An action's result includes whatever the game's flow performs before the next decision, such as
-the next turn's offer, production, or a Turmoil phase that follows World Government Terraforming.
-To check one phase's effects, compare the relevant state immediately before and after that phase;
-for example, snapshot resources after production and before the world-government choice.
+A `TaskResult` includes its operation's changes, but subsequent completion callbacks can begin
+production or continue a Solar phase after that result was recorded. Gameplay tests use
+`expectChanges("...") { ... }` when the observation must include that follow-up work or several
+choices in the same phase. This assertion reads change events across the block without changing
+transaction or autoexecution behavior. Place it immediately around the relevant choices, and use
+explicit player holders for cross-player effects. For example, a global-event payout may occur
+before its ocean choice, so observe both World Government and that placement together. Do not
+save pre-action counts and assert arithmetic against them. Retain literal absolute assertions for
+phase identity, complete final scores, and unchanged state after a rejected operation.
 
 Cover meaningful interfaces, negative cases, non-targets, and option combinations rather than only
 the happy path. A filtering or Type-variable test should include several tempting Components that must not
 match. Preserve this coverage during refactoring.
+
+Absolute checks should be rare. Prefer `.expect()` for the action's relevant net effects. When
+an absolute check is needed, establish a known initial amount and assert a literal result; do not
+save an old count and assert `oldValue + change`. `assertCounts` remains useful for several relevant
+absolute facts, and `assertProds` reports signed printed production by subtracting `ProdOffset`.
+Neither replaces a suitable relative expectation.
 
 Assert the actual exception type with `shouldThrow<ExpectedException>`; do not use `shouldThrowAny`
 or a catch-all superclass. An unrelated failure must not satisfy a rejection test. Also check the
@@ -628,7 +681,7 @@ characterization over a disproportionate workaround.
 ## Game replay tests
 
 `Game20230521Test` deliberately exercises the raw Agent task API. Its players use `NONE` during
-the replay and score previews, while Admin retains normal autoexecution and handles fixed payment
+the replay, while Admin retains normal autoexecution and handles fixed payment
 bookkeeping and final scoring. `VictoryPoint` and `ScoreEventVps` are `System`; players do not submit
 scoring tasks. A pending negative score can wait for a positive score to supply the points.
 Follow the game's flow through the last passes, production, final greenery, and scoring; do not
@@ -647,18 +700,23 @@ Use the shared card-name constants, give every `Ok` a short inline comment to it
 the task it dismisses (for example, `// no steel paid`). Keep the replay free of `.expect()`
 calls; retain its state checkpoints and final score/winner assertions. Purchase transfers into
 `Hand` are explicit tasks from `Selecting`. Keep the replay's task calls instead of introducing
-`TfmGameplay` action or payment helpers. Shared score-preview assertions roll back their
-scoring simulation without changing any Actor's autoexecution policy.
+`TfmGameplay` action or payment helpers.
 
+Replay tests assert victory points only after the game's actual final scoring. Mid-game
+checkpoints verify the live state without simulating production or scoring; partial replays
+do not assert hypothetical victory points.
+
+Replay input recording and export are disabled by default, including in browser tests.
+With `-PreplayExports`, `ReplayExportExtension` enables recording before test setup, so
 `AbstractFullGameTest` starts `Agents.taskLog` before gameplay. After each successful JVM
-replay, `ReplayExportExtension` writes full and short game files and reexecutes the full file in a
+replay, the extension writes full and short game files and reexecutes the full file in a
 fresh game using its checked premise and recorded inputs. Every imported Actor, including Admin,
 uses `NONE`. The check compares the component changes with their Actors and causal ancestry,
 the final components, and pending tasks. Incidental ids, event ordinals, and the order of independent
 changes may differ.
 A round-trip failure fails the test. Replays must follow the game's normal flow and use
 ordinary task submissions instead of injecting operations. Partial games may stop with decisions
-pending; hypothetical scoring checks use `withScorePreview`, which restores the live game.
+pending.
 The hook reports each successful round-trip in test output.
 
 Structured inputs retain submitted syntax and record policy-executed Player and Admin work, so

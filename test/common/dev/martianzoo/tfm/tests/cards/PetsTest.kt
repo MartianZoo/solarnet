@@ -17,9 +17,7 @@ internal class PetsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseCardAction<Predators, Action1>")
-        selectOnlyTask()
         doTask("-Animal<Stan, Pets<Stan>>")
       }
     }
@@ -32,9 +30,8 @@ internal class PetsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseCardAction<Predators, Action1>")
-        selectOnlyTask()
+        doTask("-Animal<Pets<Stan>>")
       }
     }
   }

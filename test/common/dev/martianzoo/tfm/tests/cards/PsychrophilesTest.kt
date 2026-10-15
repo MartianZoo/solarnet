@@ -20,7 +20,6 @@ internal class PsychrophilesTest : TfmSandboxTest() {
               "AdaptedLichen FROM ProjectCard",
               "PROD[Plant]",
           )
-          selectOnlyTask()
           doTask("Ok")
         }
         .expect("0 Microbe<$Psychrophiles>")
@@ -38,8 +37,7 @@ internal class PsychrophilesTest : TfmSandboxTest() {
           "AdaptedLichen FROM ProjectCard",
           "PROD[Plant]",
       )
-      selectTask("-X? MC")
-      doTask("Ok")
+      doTask("Ok" /* No MC payment. */)
     }
   }
 }

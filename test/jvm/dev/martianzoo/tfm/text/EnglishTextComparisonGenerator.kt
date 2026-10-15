@@ -14,7 +14,11 @@ private object EnglishTextComparisonGenerator {
     require(args.size == 1)
     val output = File(args.single()).also { it.mkdirs() }
     val catalog = TfmCatalog(Canon, FakeCanon)
-    val english = English(catalog.classTable, TerraformingMarsDescribers.descriptions)
+    val english =
+        English(
+            catalog.classTable,
+            TerraformingMarsDescribers.descriptions + fakeEnglishDescriptions,
+        )
     val cards =
         EnglishCardTextData.parse(readEnglishCardText("english-published-wording-evidence.tsv"))
     val goals =

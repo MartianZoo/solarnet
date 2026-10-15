@@ -39,13 +39,14 @@ internal class AutoExecLoop(private val world: World, private val taskLog: TaskL
   private fun actOnce(): Boolean {
     if (allTasks.isEmpty()) return false
     val selected = allTasks.selectedTask()
+    val pending = selected?.let(::listOf) ?: allTasks.ids().filterNot(::isDeferred)
+    // Selection probes can execute and roll back tasks. Only probe when automatic work is possible.
+    if (pending.none { policy(it) != NONE }) return false
+    // Keep manual tasks among the candidates: they still compete with automatic work.
+    // A sole task has no competing choice. Selection still validates its execution,
+    // and the enclosing Agent transaction rolls back any failure.
     val candidates =
-        selected?.let(::listOf)
-            ?: allTasks.ids().filterNot(::isDeferred).let { pending ->
-              // A sole task has no competing choice. Selection still validates its execution,
-              // and the enclosing Agent transaction rolls back any failure.
-              if (pending.size == 1) pending.toList() else pending.filter(::canSelectTask)
-            }
+        if (selected != null || pending.size == 1) pending else pending.filter(::canSelectTask)
     val candidateCounts = candidates.groupingBy { allTasks.getTaskData(it).assignee }.eachCount()
     val policyOptions = candidates.filter { taskId ->
       val actor = allTasks.getTaskData(taskId).assignee

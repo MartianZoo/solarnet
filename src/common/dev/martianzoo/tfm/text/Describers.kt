@@ -5,6 +5,7 @@ import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
@@ -15,6 +16,7 @@ import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.types.recordTypeVariableScopes
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
+import dev.martianzoo.tfm.canon.cardEffects
 import dev.martianzoo.tfm.canon.cardTags
 
 /** Looks up the English description supplied for each component Class. */
@@ -172,10 +174,11 @@ private constructor(
             ComponentDescriber::distinctKinds,
             ComponentDescriber::countNoun,
             ComponentDescriber::metricCount,
-            ComponentDescriber::printedIconCount,
+            ComponentDescriber::nonNegativeIconCount,
             ComponentDescriber::cardLocation,
             ComponentDescriber::cardProcedure,
             ComponentDescriber::cardLocationDependency,
+            ComponentDescriber::cardInvariantSentence,
         )
     classesByName.values.forEach { componentClass ->
       facts.forEach { fact ->
@@ -206,6 +209,9 @@ private constructor(
 
   internal fun changeFrame(className: ClassName): ComponentDescriber.ChangeFrame? =
       fact(className, ComponentDescriber::changeFrame)
+
+  internal fun cardInvariantSentence(className: ClassName): String? =
+      fact(className, ComponentDescriber::cardInvariantSentence)
 
   internal fun triggerFrame(className: ClassName): ComponentDescriber.TriggerFrame? =
       fact(className, ComponentDescriber::triggerFrame)
@@ -432,6 +438,31 @@ private constructor(
   }
 
   private fun matches(context: CardContext, requirement: Requirement): Boolean {
+    val icon = cardCriterion(requirement) as? CardCriterion.NonNegativeIcon
+    if (icon != null) {
+      var cited = false
+      cardEffects(context.card).forEach { effect ->
+        effect.visitDescendants { node ->
+          when {
+            node is Instruction.Change -> {
+              if (
+                  node.gaining?.descendantsOfType<Expression>()?.any {
+                    it.className == icon.className
+                  } == true
+              )
+                  cited = true
+              false
+            }
+            node is Expression && node.className == icon.className -> {
+              cited = true
+              true
+            }
+            else -> true
+          }
+        }
+      }
+      return cited
+    }
     val counting = requirement as? Requirement.Counting ?: return false
     val expression = (counting.metric as? Metric.Count)?.expression ?: return false
     if (expression.refinement != null || !isTag(expression.className)) return false

@@ -16,15 +16,12 @@ internal class MinorityRefugeTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectTask("StandardAction OR Pass")
         doTasks("PlayProject<Class<MinorityRefuge>>", "-5 MC")
-        selectTask("-X? Titanium")
-        selectTask("Ok")
         doTask("MinorityRefuge FROM ProjectCard")
-        selectTask("Colony<Kim, ColonyTile(HAS MAX 0 Colony)>!")
+
         doTask("Colony<Io>")
-        selectTask("PROD[Heat]")
-        selectTask("-2! Production<Kim, Class<MC>>")
+        doTask("PROD[Heat]")
+        doTask("PROD[-2 MC]")
       }
     }
   }
@@ -36,9 +33,7 @@ internal class MinorityRefugeTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<MinorityRefuge>>", "-5 MC")
-          selectTask("-X? Titanium")
           doTasks(
-              "Ok",
               "MinorityRefuge FROM ProjectCard",
               "Colony<Luna>",
               "PROD[2 MC]",

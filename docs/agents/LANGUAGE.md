@@ -92,6 +92,16 @@ phrase-level `RawPets` refusal when none accepts the expression. Those private r
 nullable deliberately: refusal must be chosen only after every applicable protocol has had a turn,
 not used as a successful value inside another recognizer ladder.
 
+An enclosing clause can also keep a recognized head while a nested metric or `HAS` refinement
+remains unresolved. The `PER` modifier retains its rendered instruction and brackets only the metric;
+filtered component and location nouns bracket only an unrecognized refinement. This is a nested
+lexicalization point after the applicable refinement recognizers have declined it.
+An exact positive card invariant can likewise state its quantity as a gain while leaving the
+component noun in brackets. The bracket retains the full Pets expression, including its arguments.
+Vocabulary can supply a literal sentence for a specific card invariant when its printed meaning
+cannot be recovered from the inert component. The fake-card text generator supplies such a sentence
+for every fake wild tag, placing it below the artwork with the card's play-time text.
+
 `Describers` still exposes several narrower producers (`componentNounPhrase`,
 `quantifiedComponentNounPhrase`, `cardResourceNounPhrase`, `playedTagPhrase`, `describedNoun`,
 `plainGainNoun`, `plainGainCategoryNoun`) that each fuse a classification guard to a noun
@@ -189,10 +199,11 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   before implementing it.
 - Frames are closed; lexicon entries are open. A new expansion should add entries, not frame variants
   or renderer branches.
-- Never recognize a whole card. Narrow Procedure or Wrapper wording is acceptable only when it
-  delegates represented Pets back to a general renderer.
-- Bracket unsupported Pets rather than buying coverage with a one-card mechanism. Losing a row to an
-  honest refusal is a good trade for deleting a hardcoded answer.
+- Prefer structural rendering and sparse vocabulary facts. On 2026-10-14 the user requested an
+  experiment without the exact-expression phrase table. Its instruction, effect, metric, and
+  requirement substitutions are removed from the active renderer; incomplete composition remains
+  visible as bracketed Pets. Do not restore complete rule strings to improve snapshot agreement.
+  A named procedure's vocabulary still needs review when its declared behavior changes.
 - Never bend a lexical fact to hit a target string. If a component's noun changes, check every other
   place that noun appears before accepting it.
 - Change the active path and delete superseded machinery. Do not maintain parallel converters.
@@ -210,9 +221,10 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   for Terraforming Mars.
 - Treat symmetry as a question, not a mandate. Different composition rules are evidence for different
   shapes.
-- Some cases stay unresolved on purpose: Cyberia Systems' first-choice marker and Sponsored
-  Academies' grouped player fanout are each too isolated to earn permanent machinery. Reopen one
-  only with a smaller general interpretation, not a protocol built for it.
+- Sponsored Academies' grouped player fanout remains unsupported. Card-targeted procedures can use
+  a tag gate to select their card; sequential exclusions refer back through recorded Type variables.
+  An observing condition can introduce a referent before the operation supplying its value. English
+  therefore considers all earlier occurrences, not only occurrences following the declaration.
 
 ## Wording decisions
 
@@ -227,25 +239,45 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   Cost reductions and requirement waivers modify that same rendered instruction, preserving its
   deck and source rather than assuming a card from hand. Unsupported face restrictions remain
   visible as Pets.
-- Describe a fixed offer, hand transfer, and cleanup together as `Look at N cards, then keep K of
-  them, then discard the rest.` The renderer checks that the counts balance. A variable offer that
-  keeps one card uses `that many` when it follows a matching action cost.
 - `Selecting` and `Revealed` are temporary card locations. Gaining card backs into `Selecting`
-  means looking at them. Gaining them into hand means drawing them. Interpret the subsequent offer,
-  purchase, play, reward, and return procedures together from Pets. In selected Prelude and
-  corporation offers, describe the rejected cards before playing the remaining one. The selected
-  Prelude's play-or-discard choice and 15 M€ compensation are read from `PlayPrelude` Pets wherever
-  that signal is used. The `if it cannot be played` qualifier describes a caller-verified rule;
-  `PlayPrelude` Pets does not gate its discard branch on unplayability.
+  means looking at them. Moving backs from `Selecting` into the owner's hand means keeping them
+  from the selection. Render these instructions independently; do not infer an immediate discard
+  from the offer size. Current turn cleanup owns the unselected cards.
+- Interpret explicit purchase, play, reward, and return procedures from Pets. The selected Prelude's
+  play-or-discard choice and 15 M€ compensation are read from `PlayPrelude` Pets wherever that signal
+  is used. The `if it cannot be played` qualifier describes a caller-verified rule; `PlayPrelude`
+  Pets does not gate its discard branch on unplayability.
+- A required first action can contain multiple clauses. Keep all of them under its first-action
+  preface, including any narrow unresolved fragments.
+- Count production categories by their concrete members, just as for refined production selections:
+  `6 PROD[Metal]` means steel and titanium production combined, not a choice between the two.
 - Normally describe variable amounts as `1 or more`, followed by `that amount`, `the same number`,
   `twice that amount`, or `triple that amount`, as appropriate. Use X notation when a multiplied
-  cost must precede the base amount, as in `Spend 2X M€ to gain X energy`. This distinction depends
+  cost must precede the base amount, as in `Spend 2X M€ to gain X energy`. A card count linked to
+  an action cost uses `that many` only when the quantities match. This distinction depends
   on the quantities, not the card. Preserve genuinely zero-inclusive choices separately.
 - Keep permission to use special payment resources concise: `Spend 8 M€ (steel may be used)`.
 - Use `raise`/`lower` for global parameters and terraform rating; `increase`/`decrease` for
   production. Spell out `terraform rating`.
+- On 2026-10-14 the user clarified that mechanical, structurally derived text takes priority over
+  smooth goal wording. Prefer separate sequential instructions, explicit numeric conditions, and
+  actual conversions over complete-card paraphrases. The current experiment removes all exact-expression idioms, including those whose ordinary
+  composition is still incomplete.
+- Render AMAP changes with `(to the extent possible)`. Do not describe a raise followed by a loss
+  as preventing or ignoring the raise. Omit routine end-of-game timing from scoring text.
+- Card-front-to-played-event changes say `move ... to ... event pile`, without explanatory reminders.
+  Explicit `that card` and `that player` references follow recorded variable occurrences. The older
+  unmarked Anyone-to-Player normalization for interaction triggers remains a separate implicit path.
+- Equal thresholds covering every standard resource type share their amount: AND gives `each`, OR
+  gives `any`. Counted Class categories use `type`; do not add `total` to an unqualified production
+  count. A filtered tile count still counts tiles, with its area's adjacency restriction stated
+  explicitly rather than paraphrased as map edges.
 - Omit the routine oxygen reminder from greenery placement text. If a reminder is included, use
   the parenthetical form `(and raise oxygen 1 step)`.
+- Use concise `Requires ...` for milestone counts, where the claimant is implicit; keep explicit
+  ownership in card requirements. Render milestone requirements independently of their direct
+  effects: Briber's direct effect loses 12 M€, but its requirement must never be replaced by payment
+  advice.
 - Begin every requirement with `Requires`. Use `Requires that you have` for player-owned state such
   as resources, production, rating, tiles, and colonies. Use a terse noun phrase for tags and global
   counts, and `Requires that` for other clauses. Describe temperature bounds as `warmer` or `colder`,
@@ -271,8 +303,21 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   supplies a clear discounted object.
 - Introduce a triggering event with `when`, never `each time`. Describe one event; express the
   result's multiplicity when one event produces several changes.
+- In removal triggers, describe the removed component's owner without claiming that owner
+  performed the removal; `BY` is what constrains the actor.
 - Render every ratio with `per`, whatever the denominator and whether or not the result is victory
   points.
+- Render `EACH` as a repeated instruction prefaced by `For each ...:`; reserve `per` for
+  `PER` scaling. A marked selector may supply `that` inside the body.
+- For production counts over a complete resource category with one excluded type, name the
+  exclusion instead of listing all remaining concrete types.
+- A numeric property filter on a placement site can state its actual comparison when the property
+  has a simple word name: `HAS 6 row` says `whose row is at least 6`; `HAS MAX 5 row` says
+  `whose row is at most 5`. Other property names retain their Pets source unless vocabulary
+  supplies a description.
+- A class-token count with a matching component-presence filter may use that component's count noun;
+  additional `HAS` filters remain attached and bracket individually when unsupported. This keeps
+  Philantropist's class-token gameplay requirement while saying `cards in play with [GainsOf<...>]`.
 - Preserve shared implicit player identity across a trigger and its result as `that player`.
   An unrestricted `BY Anyone` or `BY Actor` constrains the performer of the event; it does not
   establish the owner of resources mentioned independently in the result.
@@ -290,7 +335,8 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   objects are restricted to Mars, say `in play on Mars`. Placement triggers say only `on Mars`, and
   player-local counts do not say `in play`.
 - Omit unconditional fixed victory-point adjustments from card regions; keep conditional and
-  metric-based victory-point behavior.
+  metric-based victory-point behavior. An `End` result without a scoring meaning must retain its
+  Pets text rather than appear as an immediate gain or loss.
 - Render `PlanetaryTag` as `planetary tag`.
 
 Card rendering calls out `including this` when the entering card contributes to a metric in its
@@ -336,7 +382,8 @@ Retain supported printed constraints in reviewed goals even when Pets does not y
 record the model gap separately. Such a target is not permission to invent a renderer special case.
 The goal-text goals may cover a selected proving corpus; the goal current snapshot covers every
 concrete goal. Current refusals are recorded mechanically in the generated `*-refusals.tsv`; do not
-restate them here.
+restate them here. Card and goal snapshot assertions collect wording differences across the entire
+corpus in each run, rather than stopping at the first mismatched component.
 
 Global Event resolution rendering is paused after its lower-half `GlobalEffect` declarations moved
 to player-owned signals. The published wording evidence remains available for a later renderer.

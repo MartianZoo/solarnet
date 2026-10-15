@@ -61,13 +61,13 @@ internal class InstructionResolutionTest {
     checkResolution("2? Plant", "2? Plant<Player1>")
     checkResolution("-Plant", "-Plant<Player1>!")
     checkResolution("-9* Plant", "-Plant<Player1>!")
-    checkResolution("-4* Heat", "Ok")
-    checkResolution("-4? Heat", "Ok")
+    checkResolution("-4* Heat", "-0! Heat<Player1>")
+    checkResolution("-4? Heat", "-0? Heat<Player1>")
     checkResolution("-CardFront*", "Ok")
     checkResolution("Heat FROM Plant*", "Heat<Player1> FROM Plant<Player1>!")
     checkResolution("9? Heat FROM Plant", "Heat<Player1> FROM Plant<Player1>?")
-    checkResolution("Plant FROM Heat*", "Ok")
-    checkResolution("Plant FROM Heat?", "Ok")
+    checkResolution("Plant FROM Heat*", "0! Plant<Player1> FROM Heat<Player1>")
+    checkResolution("Plant FROM Heat?", "0? Plant<Player1> FROM Heat<Player1>")
     checkResolution("3* Microbe", "Ok")
     checkResolution("3? Microbe", "Ok")
     checkResolution("-3* Microbe", "Ok")
@@ -122,8 +122,8 @@ internal class InstructionResolutionTest {
     checkResolution("Plant / TerraformRating", "20! Plant<Player1>")
     checkResolution("Plant / 3 TerraformRating", "6! Plant<Player1>")
     checkResolution("Plant / 3 TerraformRating MAX 2", "2! Plant<Player1>")
-    checkResolution("Plant / Steel", "Ok")
-    checkResolution("Plant / 21 TerraformRating", "Ok")
+    checkResolution("Plant / Steel", "0! Plant<Player1>")
+    checkResolution("Plant / 21 TerraformRating", "0! Plant<Player1>")
     checkResolution("-Plant* / TerraformRating", "-Plant<Player1>!")
     checkResolution("-Plant? / TerraformRating", "-Plant<Player1>?")
   }
@@ -230,7 +230,7 @@ internal class InstructionResolutionTest {
     checkResolution("PROD[Plant OR (3 PlantTag: 4 Plant)]", "Production<Player1, Class<Plant>>!")
     checkResolution(
         "Steel / 2 ProjectCard OR -Titanium? OR (Plant: 5 Steel) OR Ok OR 5 Steel",
-        "5! Steel<Player1> OR Ok",
+        "5! Steel<Player1> OR -0? Titanium<Player1> OR Ok",
     )
     shouldThrow<GameplayException> {
       preprocessAndResolve(

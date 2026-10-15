@@ -20,19 +20,15 @@ internal class LandClaimTest : TfmSandboxTest() {
           "-1 MC",
           "LandClaim FROM ProjectCard",
       )
-      selectOnlyTask()
       doTask("Community<Tharsis_1_1>")
       doTask("PlayedEvent<Class<LandClaim>> FROM LandClaim")
     }
 
     shouldThrow<LimitsException> {
       stan.inTurn {
-        selectOnlyTask()
         doTask("UseStandardProject<CityProject>")
-        selectTask("-X? MC")
         doTask("-25 MC")
-        selectTask("PROD[MC]")
-        selectOnlyTask()
+        doTask("PROD[MC]")
         doTask("CityTile<Tharsis_1_1>")
       }
     }
@@ -45,7 +41,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_1_1>")
-          selectTask("OxygenStep*")
+          doTask("OxygenStep")
           doTasks("2 Steel", "TerraformRating")
         }
         .expect("-Community")
@@ -58,12 +54,8 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       stan.inTurn {
-        selectOnlyTask()
         doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-        selectTask("-X? Steel")
-        selectTask("Ok")
         doTask("ArtificialLake FROM ProjectCard")
-        selectOnlyTask()
         doTask("OceanTile<Tharsis_1_3>")
       }
     }
@@ -79,7 +71,6 @@ internal class LandClaimTest : TfmSandboxTest() {
           doTasks(
               "PlayProject<Class<$ArtificialLake>>",
               "-15 MC",
-              "Ok", // No steel paid.
               "$ArtificialLake FROM ProjectCard",
               "OceanTile<Tharsis_1_3>",
               "TerraformRating",
@@ -110,11 +101,8 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseStandardProject<GreeneryProject>")
-        selectTask("-X? MC")
         doTask("-23 MC")
-        selectOnlyTask()
         doTask("GreeneryTile<Tharsis_4_3>")
       }
     }
@@ -127,7 +115,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_2_1>")
-          selectTask("OxygenStep*")
+          doTask("OxygenStep")
           doTask("TerraformRating")
         }
         .expect("0 Community")
@@ -140,7 +128,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_9_7>")
-          selectTask("OxygenStep*")
+          doTask("OxygenStep")
           doTask("TerraformRating")
         }
         .expect("0 Community<Stan>")
@@ -153,11 +141,8 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseStandardProject<GreeneryProject>")
-        selectTask("-X? MC")
         doTask("-23 MC")
-        selectOnlyTask()
         doTask("GreeneryTile<Tharsis_2_2>")
       }
     }
@@ -171,11 +156,8 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseStandardProject<GreeneryProject>")
-        selectTask("-X? MC")
         doTask("-23 MC")
-        selectOnlyTask()
         doTask("GreeneryTile<Tharsis_9_7>")
       }
     }
@@ -189,7 +171,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_2_2>")
-          selectTask("OxygenStep*")
+          doTask("OxygenStep")
           doTasks("Steel", "TerraformRating")
         }
         .expect("-Community")
@@ -202,11 +184,8 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseStandardProject<GreeneryProject>")
-        selectTask("-X? MC")
         doTask("-23 MC")
-        selectOnlyTask()
         doTask("GreeneryTile<Tharsis_9_7>")
       }
     }
@@ -220,7 +199,7 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_2_1>")
-          selectTask("OxygenStep*")
+          doTask("OxygenStep")
           doTask("TerraformRating")
         }
         .expect("0 Community<Stan>")
@@ -232,14 +211,12 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<LandClaim>>")
-        selectTask("-X? MC")
+
         doTasks(
             "-1 MC",
             "LandClaim FROM ProjectCard",
         )
-        selectOnlyTask()
         doTask("Community<Tharsis_1_1>")
       }
     }
@@ -252,14 +229,12 @@ internal class LandClaimTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<LandClaim>>")
-        selectTask("-X? MC")
+
         doTasks(
             "-1 MC",
             "LandClaim FROM ProjectCard",
         )
-        selectOnlyTask()
         doTask("Community<Tharsis_1_3>")
       }
     }

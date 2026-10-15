@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
+import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
@@ -19,7 +19,7 @@ internal class MarketManipulationTest : TfmSandboxTest() {
               "-1 MC",
               "MarketManipulation FROM ProjectCard",
           )
-          selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
+          // Hand the transfer to Admin, which updates both colony tracks.
           selectTask("ColonyProduction<Luna FROM Triton>!")
           doTask("PlayedEvent<Class<MarketManipulation>> FROM MarketManipulation")
         }
@@ -28,14 +28,13 @@ internal class MarketManipulationTest : TfmSandboxTest() {
 
   @Test
   internal fun `Cannot lower a colony track already at its minimum`() {
-    admin.sneak("-ColonyProduction<Triton>")
+    admin.setToExMachina(0, "ColonyProduction<Triton>")
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectTask("StandardAction OR Pass")
         doTask("PlayProject<Class<MarketManipulation>>")
-        selectTask("-X? MC")
         doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
+        // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
         narrowTask("ColonyProduction<Luna FROM Triton>")
       }
@@ -44,14 +43,13 @@ internal class MarketManipulationTest : TfmSandboxTest() {
 
   @Test
   internal fun `Cannot raise a maxed colony track`() {
-    admin.sneak("5 ColonyProduction<Luna>")
+    admin.setToExMachina(6, "ColonyProduction<Luna>")
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectTask("StandardAction OR Pass")
         doTask("PlayProject<Class<MarketManipulation>>")
-        selectTask("-X? MC")
         doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
+        // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
         narrowTask("ColonyProduction<Luna FROM Triton>")
       }
@@ -62,10 +60,9 @@ internal class MarketManipulationTest : TfmSandboxTest() {
   internal fun `Cannot select the same colony track twice`() {
     shouldThrow<ExpressionException> {
       kim.inTurn {
-        selectTask("StandardAction OR Pass")
         doTask("PlayProject<Class<MarketManipulation>>")
-        selectTask("-X? MC")
         doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
+        // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
         narrowTask("ColonyProduction<Luna FROM Luna>")
       }
@@ -74,12 +71,11 @@ internal class MarketManipulationTest : TfmSandboxTest() {
 
   @Test
   internal fun `Cannot raise Titan's delayed colony track`() {
-    shouldThrow<GameplayException> {
+    shouldThrow<DependencyException> {
       kim.inTurn {
-        selectTask("StandardAction OR Pass")
         doTask("PlayProject<Class<MarketManipulation>>")
-        selectTask("-X? MC")
         doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
+        // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
         narrowTask("ColonyProduction<Titan FROM Luna>")
       }
@@ -88,12 +84,11 @@ internal class MarketManipulationTest : TfmSandboxTest() {
 
   @Test
   internal fun `Cannot lower Titan's delayed colony track`() {
-    shouldThrow<GameplayException> {
+    shouldThrow<LimitsException> {
       kim.inTurn {
-        selectTask("StandardAction OR Pass")
         doTask("PlayProject<Class<MarketManipulation>>")
-        selectTask("-X? MC")
         doTasks("-1 MC", "MarketManipulation FROM ProjectCard")
+        // Select the track transfer before testing an invalid pair of colonies.
         selectTask("ColonyProduction<ColonyTile FROM ColonyTile>!")
         narrowTask("ColonyProduction<Luna FROM Titan>")
       }

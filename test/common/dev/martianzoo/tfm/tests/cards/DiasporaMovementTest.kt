@@ -17,7 +17,7 @@ internal class DiasporaMovementTest : TfmSandboxTest() {
               "-7 MC",
               "DiasporaMovement FROM ProjectCard",
           )
-          selectOnlyTask()
+          doTask("2 MC")
         }
         .expect("-5 MC")
   }

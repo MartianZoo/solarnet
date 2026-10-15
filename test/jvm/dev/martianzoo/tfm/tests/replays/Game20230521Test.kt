@@ -76,7 +76,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "PROD[MC]",
           "2 PreludeCard<Selecting>",
           "MC",
-          "-PreludeCard<Selecting>",
           "PlayCard<Class<PreludeCard>, Class<$UnmiContractor>>",
           "$UnmiContractor FROM PreludeCard<Selecting>",
           "3 TerraformRating",
@@ -132,7 +131,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$InventorsGuild, Action1>",
           "ProjectCard<Selecting>",
-          "Ok", // keep card
+          "-0 ProjectCard<Selecting>", // keep card
           "-3 MC",
           "ProjectCard<Hand FROM Selecting>",
       )
@@ -186,7 +185,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$CarbonateProcessing>>",
           "-6 MC",
-          "Ok", // no steel paid
           "$CarbonateProcessing FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 Heat]",
@@ -210,13 +208,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     p1.assertProduction(m = 5, s = 3, t = 0, p = 0, e = 0, h = 0)
     p1.assertResources(m = 23, s = 5, t = 0, p = 0, e = 0, h = 1)
-    p1.assertDashMiddle(played = 6, actions = 1, vp = 23, tr = 23, hand = 7)
+    p1.assertDashMiddle(played = 6, actions = 1, tr = 23, hand = 7)
     p1.assertTags(but = 2, sct = 1, eat = 2)
     p1.assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
     p2.assertProduction(m = 0, s = 1, t = 1, p = 1, e = 0, h = 3)
     p2.assertResources(m = 15, s = 1, t = 3, p = 2, e = 0, h = 3)
-    p2.assertDashMiddle(played = 7, actions = 2, vp = 20, tr = 20, hand = 5)
+    p2.assertDashMiddle(played = 7, actions = 2, tr = 20, hand = 5)
     p2.assertTags(but = 2, spt = 1, sct = 1, pot = 1, jot = 1, plt = 1, mit = 1)
     p2.assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
@@ -242,7 +240,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$InventorsGuild, Action1>",
           "ProjectCard<Selecting>",
-          "Ok", // keep card
+          "-0 ProjectCard<Selecting>", // keep card
           "-3 MC",
           "ProjectCard<Hand FROM Selecting>",
       )
@@ -299,7 +297,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$DeuteriumExport>>",
           "-11 MC",
-          "Ok", // no titanium paid
           "$DeuteriumExport FROM ProjectCard",
       )
       doTasks(
@@ -319,13 +316,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     p1.assertProduction(m = 4, s = 3, t = 0, p = 0, e = 1, h = 0)
     p1.assertResources(m = 27, s = 3, t = 0, p = 0, e = 1, h = 1)
-    p1.assertDashMiddle(played = 10, actions = 3, vp = 23, tr = 23, hand = 7)
+    p1.assertDashMiddle(played = 10, actions = 3, tr = 23, hand = 7)
     p1.assertTags(but = 3, spt = 1, sct = 2, pot = 1, eat = 3, vet = 1)
     p1.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
     p2.assertProduction(m = 0, s = 1, t = 1, p = 1, e = 0, h = 3)
     p2.assertResources(m = 21, s = 1, t = 4, p = 3, e = 0, h = 6)
-    p2.assertDashMiddle(played = 8, actions = 2, vp = 22, tr = 21, hand = 7)
+    p2.assertDashMiddle(played = 8, actions = 2, tr = 21, hand = 7)
     p2.assertTags(but = 3, spt = 1, sct = 2, pot = 1, jot = 1, plt = 1, mit = 1)
     p2.assertCounts(0 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
@@ -355,7 +352,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "-4 Titanium",
           "-2 MC",
           "$AsteroidCard FROM ProjectCard",
-          "Ok", // no plants removed
+          "-0 Plant<Anyone>", // no plants removed
           "TemperatureStep",
           "TerraformRating",
           "2 Titanium",
@@ -379,7 +376,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$OptimalAerobraking>>",
           "-7 MC",
-          "Ok", // no titanium paid
           "$OptimalAerobraking FROM ProjectCard",
       )
     }
@@ -396,7 +392,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$RotatorImpacts, Action1>",
           "-6 MC",
-          "Ok", // no titanium paid
           "Asteroid<$RotatorImpacts>",
       )
     }
@@ -412,7 +407,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$ImportedGhg>>",
           "-4 MC",
-          "Ok", // no titanium paid
           "$ImportedGhg FROM ProjectCard",
           "PROD[Heat]",
           "7 Heat",
@@ -439,13 +433,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     p1.assertProduction(m = 7, s = 3, t = 0, p = 0, e = 1, h = 1)
     p1.assertResources(m = 44, s = 3, t = 0, p = 1, e = 1, h = 10)
-    p1.assertDashMiddle(played = 13, actions = 3, vp = 21, tr = 23, hand = 6)
+    p1.assertDashMiddle(played = 13, actions = 3, tr = 23, hand = 6)
     p1.assertTags(but = 4, spt = 2, sct = 2, pot = 1, eat = 3, vet = 1, cit = 1)
     p1.assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 1 to "CityTile")
 
     p2.assertProduction(m = 0, s = 1, t = 1, p = 1, e = 1, h = 3)
     p2.assertResources(m = 29, s = 2, t = 1, p = 4, e = 1, h = 9)
-    p2.assertDashMiddle(played = 10, actions = 2, vp = 24, tr = 22, hand = 7)
+    p2.assertDashMiddle(played = 10, actions = 2, tr = 22, hand = 7)
     p2.assertTags(but = 3, spt = 2, sct = 3, pot = 1, jot = 1, plt = 1, mit = 1)
     p2.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
@@ -474,7 +468,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$InventorsGuild, Action1>",
           "ProjectCard<Selecting>",
-          "Ok", // keep card
+          "-0 ProjectCard<Selecting>", // keep card
           "-3 MC",
           "ProjectCard<Hand FROM Selecting>",
       )
@@ -484,7 +478,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$AquiferPumping, Action1>",
           "-8 MC",
-          "Ok", // no steel paid
           "OceanTile<Tharsis_2_6>",
           "TerraformRating",
           "2 ProjectCard",
@@ -525,7 +518,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "UseCardAction<$SearchForLife, Action1>",
           "-MC",
           "ProjectCard<Revealed>",
-          "Ok", // no reward
+          "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>", // no reward
           "-ProjectCard<Revealed>",
       )
     }
@@ -560,7 +553,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$SpinInducingAsteroid>>",
           "-16 MC",
-          "Ok", // no titanium paid
           "$SpinInducingAsteroid FROM ProjectCard",
           "2 VenusStep",
           "2 TerraformRating",
@@ -582,13 +574,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.doTasks("-1 ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
     p1.assertProduction(m = 7, s = 3, t = 0, p = 0, e = 4, h = 2)
     p1.assertResources(m = 28, s = 3, t = 0, p = 1, e = 4, h = 11)
-    p1.assertDashMiddle(played = 15, actions = 3, vp = 26, tr = 27, hand = 9)
+    p1.assertDashMiddle(played = 15, actions = 3, tr = 27, hand = 9)
     p1.assertTags(but = 5, spt = 2, sct = 2, pot = 2, eat = 3, vet = 1, cit = 1)
     p1.assertCounts(3 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 1 to "CityTile")
 
     p2.assertProduction(m = 0, s = 1, t = 1, p = 1, e = 1, h = 3)
     p2.assertResources(m = 15, s = 1, t = 2, p = 7, e = 1, h = 13)
-    p2.assertDashMiddle(played = 12, actions = 4, vp = 26, tr = 24, hand = 11)
+    p2.assertDashMiddle(played = 12, actions = 4, tr = 24, hand = 11)
     p2.assertTags(but = 4, spt = 2, sct = 4, pot = 1, jot = 1, plt = 1, mit = 1)
     p2.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
@@ -606,7 +598,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$SmallAsteroid>>",
           "-10 MC",
-          "Ok", // no titanium paid
           "$SmallAsteroid FROM ProjectCard",
           "-2 Plant<Player2>",
           "TemperatureStep",
@@ -680,7 +671,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$DirectedImpactors, Action1>",
           "-6 MC",
-          "Ok", // no titanium paid
           "Asteroid<$RotatorImpacts>",
       )
       doTasks(
@@ -695,7 +685,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$FueledGenerators>>",
           "-1 MC",
-          "Ok", // no steel paid
           "$FueledGenerators FROM ProjectCard",
           "PROD[-MC]",
           "PROD[Energy]",
@@ -736,7 +725,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks(
-        "Ok", // keep all four
+        "-0 ProjectCard<Selecting>", // keep all four
         "-12 MC",
         "4 ProjectCard<Hand FROM Selecting>",
     )
@@ -744,13 +733,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     p1.assertProduction(m = 9, s = 3, t = 0, p = 0, e = 5, h = 3)
     p1.assertResources(m = 31, s = 3, t = 0, p = 4, e = 5, h = 15)
-    p1.assertDashMiddle(played = 18, actions = 3, vp = 29, tr = 29, hand = 11)
+    p1.assertDashMiddle(played = 18, actions = 3, tr = 29, hand = 11)
     p1.assertTags(but = 7, spt = 2, sct = 2, pot = 3, eat = 3, vet = 1, cit = 2)
     p1.assertCounts(4 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
 
     p2.assertProduction(m = 0, s = 1, t = 1, p = 1, e = 1, h = 3)
     p2.assertResources(m = 21, s = 1, t = 1, p = 8, e = 1, h = 9)
-    p2.assertDashMiddle(played = 13, actions = 5, vp = 29, tr = 27, hand = 12)
+    p2.assertDashMiddle(played = 13, actions = 5, tr = 27, hand = 12)
     p2.assertTags(but = 4, spt = 3, sct = 4, pot = 1, jot = 1, plt = 1, mit = 1)
     p2.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
@@ -782,7 +771,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$InventorsGuild, Action1>",
           "ProjectCard<Selecting>",
-          "Ok", // keep card
+          "-0 ProjectCard<Selecting>", // keep card
           "-3 MC",
           "ProjectCard<Hand FROM Selecting>",
       )
@@ -799,7 +788,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$AquiferPumping, Action1>",
           "-8 MC",
-          "Ok", // no steel paid
           "OceanTile<Tharsis_1_5>",
           "4 MC",
           "TerraformRating",
@@ -844,7 +832,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$DuskLaserMining>>",
           "-8 MC",
-          "Ok", // no titanium paid
           "$DuskLaserMining FROM ProjectCard",
           "PROD[Titanium]",
           "PROD[-Energy]",
@@ -865,7 +852,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$Mine>>",
           "-4 MC",
-          "Ok", // no steel paid
           "$Mine FROM ProjectCard",
           "PROD[Steel]",
       )
@@ -873,7 +859,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "UseCardAction<$SearchForLife, Action1>",
           "-MC",
           "ProjectCard<Revealed>",
-          "Ok", // no reward
+          "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>", // no reward
           "-ProjectCard<Revealed>",
       )
     }
@@ -889,7 +875,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$MiningQuota>>",
           "-5 MC",
-          "Ok", // no steel paid
           "$MiningQuota FROM ProjectCard",
           "PROD[2 Steel]",
           "2 Steel",
@@ -965,13 +950,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     p1.assertProduction(m = 19, s = 5, t = 1, p = 1, e = 4, h = 3)
     p1.assertResources(m = 40, s = 7, t = 1, p = 5, e = 4, h = 14)
-    p1.assertDashMiddle(played = 27, actions = 3, vp = 34, tr = 30, hand = 10)
+    p1.assertDashMiddle(played = 27, actions = 3, tr = 30, hand = 10)
     p1.assertTags(but = 9, spt = 5, sct = 4, pot = 3, eat = 5, jot = 1, vet = 4, plt = 1, cit = 2)
     p1.assertCounts(4 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
 
     p2.assertProduction(m = 0, s = 2, t = 1, p = 1, e = 2, h = 3)
     p2.assertResources(m = 32, s = 2, t = 1, p = 3, e = 2, h = 5)
-    p2.assertDashMiddle(played = 15, actions = 5, vp = 34, tr = 31, hand = 13)
+    p2.assertDashMiddle(played = 15, actions = 5, tr = 31, hand = 13)
     p2.assertTags(but = 6, spt = 3, sct = 4, pot = 2, jot = 1, plt = 1, mit = 1)
     p2.assertCounts(1 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
@@ -1002,7 +987,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "$InventionContest FROM ProjectCard",
           "3 ProjectCard<Selecting>",
           "ProjectCard<Hand FROM Selecting>",
-          "-2 ProjectCard<Selecting>",
           "-ProjectCard",
           "ProjectCard",
           "PlayedEvent<Class<$InventionContest>> FROM $InventionContest",
@@ -1088,7 +1072,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$TitaniumMine>>",
           "-5 MC",
-          "Ok", // no steel paid
           "$TitaniumMine FROM ProjectCard",
           "PROD[Titanium]",
       )
@@ -1133,7 +1116,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     p1.assertProduction(m = 19, s = 5, t = 1, p = 1, e = 8, h = 3)
     p1.assertResources(m = 44, s = 12, t = 2, p = 6, e = 8, h = 16)
-    p1.assertDashMiddle(played = 31, actions = 5, vp = 41, tr = 31, hand = 10)
+    p1.assertDashMiddle(played = 31, actions = 5, tr = 31, hand = 10)
     p1.assertTags(
         9,
         spt = 5,
@@ -1150,7 +1133,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     p2.assertProduction(m = 0, s = 2, t = 2, p = 1, e = 4, h = 3)
     p2.assertResources(m = 25, s = 2, t = 3, p = 6, e = 4, h = 8)
-    p2.assertDashMiddle(played = 20, actions = 6, vp = 36, tr = 31, hand = 11)
+    p2.assertDashMiddle(played = 20, actions = 6, tr = 31, hand = 11)
     p2.assertTags(but = 8, spt = 3, sct = 4, pot = 3, eat = 1, jot = 1, plt = 1, mit = 1)
     p2.assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
@@ -1286,7 +1269,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$InventorsGuild, Action1>",
           "ProjectCard<Selecting>",
-          "Ok", // keep card
+          "-0 ProjectCard<Selecting>", // keep card
           "-3 MC",
           "ProjectCard<Hand FROM Selecting>",
       )
@@ -1355,13 +1338,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     p1.assertProduction(m = 27, s = 5, t = 1, p = 1, e = 8, h = 3)
     p1.assertResources(m = 56, s = 5, t = 1, p = 4, e = 8, h = 18)
-    p1.assertDashMiddle(played = 34, actions = 7, vp = 58, tr = 38, hand = 12)
+    p1.assertDashMiddle(played = 34, actions = 7, tr = 38, hand = 12)
     p1.assertTags(10, 6, sct = 5, pot = 4, eat = 5, jot = 1, vet = 8, plt = 1, ant = 1, cit = 2)
     p1.assertCounts(5 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
 
     p2.assertProduction(m = 0, s = 2, t = 3, p = 1, e = 3, h = 3)
     p2.assertResources(m = 28, s = 2, t = 5, p = 3, e = 3, h = 5)
-    p2.assertDashMiddle(played = 23, actions = 7, vp = 41, tr = 34, hand = 13)
+    p2.assertDashMiddle(played = 23, actions = 7, tr = 34, hand = 13)
     p2.assertTags(but = 9, spt = 3, sct = 6, pot = 3, eat = 1, jot = 1, vet = 1, plt = 1, mit = 1)
     p2.assertCounts(2 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
@@ -1376,7 +1359,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$InventorsGuild, Action1>",
           "ProjectCard<Selecting>",
-          "Ok", // keep card
+          "-0 ProjectCard<Selecting>", // keep card
           "-3 MC",
           "ProjectCard<Hand FROM Selecting>",
       )
@@ -1463,7 +1446,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$DirectedImpactors, Action1>",
           "-6 MC",
-          "Ok", // no titanium paid
           "Asteroid<$RotatorImpacts>",
       )
     }
@@ -1617,7 +1599,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "UseCardAction<$SearchForLife, Action1>",
           "-MC",
           "ProjectCard<Revealed>",
-          "Ok", // no reward
+          "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>", // no reward
           "-ProjectCard<Revealed>",
       )
     }
@@ -1669,13 +1651,13 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
     p1.assertProduction(m = 28, s = 5, t = 1, p = 4, e = 9, h = 3)
     p1.assertResources(m = 66, s = 5, t = 1, p = 10, e = 9, h = 16)
-    p1.assertDashMiddle(played = 40, actions = 8, vp = 78, tr = 42, hand = 8)
+    p1.assertDashMiddle(played = 40, actions = 8, tr = 42, hand = 8)
     p1.assertTags(13, 6, 5, pot = 4, eat = 5, jot = 1, vet = 9, plt = 3, mit = 1, ant = 1, cit = 2)
     p1.assertCounts(6 to "PlayedEvent", 2 to "CardFront(HAS MAX 0 Tag)", 2 to "CityTile")
 
     p2.assertProduction(m = 3, s = 2, t = 3, p = 4, e = 3, h = 3)
     p2.assertResources(m = 36, s = 3, t = 3, p = 10, e = 3, h = 9)
-    p2.assertDashMiddle(played = 28, actions = 7, vp = 58, tr = 41, hand = 13)
+    p2.assertDashMiddle(played = 28, actions = 7, tr = 41, hand = 13)
     p2.assertTags(10, 3, sct = 7, pot = 3, eat = 1, jot = 1, vet = 1, plt = 3, mit = 1, ant = 1)
     p2.assertCounts(4 to "PlayedEvent", 1 to "CardFront(HAS MAX 0 Tag)", 0 to "CityTile")
 
@@ -1806,7 +1788,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "$NitrogenRichAsteroid FROM ProjectCard",
           "PROD[4 Plant]",
           "2 TerraformRating",
-          "Ok", // temperature maxed
+          "0 TemperatureStep", // temperature maxed
           "3 MC",
           "3 Heat",
           "4 Plant",
@@ -1831,7 +1813,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$DirectedImpactors, Action1>",
           "-6 MC",
-          "Ok", // no titanium paid
           "Asteroid<$RotatorImpacts>",
       )
     }
@@ -1870,7 +1851,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$PowerInfrastructure>>",
           "-4 MC",
-          "Ok", // no steel paid
           "$PowerInfrastructure FROM ProjectCard",
       )
       doTask("UseCardAction<$PowerInfrastructure, Action1>")
@@ -1959,7 +1939,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "UseCardAction<$SearchForLife, Action1>",
           "-MC",
           "ProjectCard<Revealed>",
-          "Ok", // no reward
+          "0 ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>", // no reward
           "-ProjectCard<Revealed>",
       )
       doTasks("Pass")
@@ -2043,7 +2023,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "TerraformRating",
           "2 Steel",
           "3 MC",
-          "Ok", // temperature maxed
+          "0 TemperatureStep", // temperature maxed
           "PlayedEvent<Class<$MiningExpedition>> FROM $MiningExpedition",
       )
     }
@@ -2086,7 +2066,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$BusinessNetwork, Action1>",
           "ProjectCard<Selecting>",
-          "Ok", // keep card
+          "-0 ProjectCard<Selecting>", // keep card
           "-3 MC",
           "ProjectCard<Hand FROM Selecting>",
       )
@@ -2212,7 +2192,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$LargeConvoy>>",
           "-31 MC",
-          "Ok", // no titanium paid
           "$LargeConvoy FROM ProjectCard",
           "4 Animal<$StratosphericBirds>",
           "Ok", // oceans full
@@ -2270,7 +2249,6 @@ internal class Game20230521Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$Greenhouses>>",
           "-4 MC",
-          "Ok", // no steel paid
           "$Greenhouses FROM ProjectCard",
           "Animal<$EcologicalZone>",
           "6 Plant",
@@ -2294,7 +2272,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
           "GreeneryTile<Tharsis_4_4>",
           "Plant",
           "4 MC",
-          "Ok", // oxygen maxed
+          "0 OxygenStep", // oxygen maxed
       )
     }
 

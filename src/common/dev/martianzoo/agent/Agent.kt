@@ -154,6 +154,10 @@ public interface Agent {
    * pending task's quantifier, the pending quantifier is retained; an explicitly written quantifier
    * must be compatible with the task's quantifier.
    *
+   * A submitted zero count retains its Type constraint: `0 Foo` can match `Foo / metric` when the
+   * metric evaluates to zero. An unrelated `Ok` alternative does not identify a matching task.
+   * Executing a zero count emits no component changes.
+   *
    * If selecting the task without the submitted narrowing would hand it to another Actor, this
    * command fails. Use [selectTask] for that selection-only handoff; the receiving Actor can then
    * narrow or execute the selected task.
@@ -319,10 +323,11 @@ public interface Agent {
      * Submits each instruction in order, including all atomic changes when a chosen amount expands
      * into a group. A concrete scalar change consumes all pending gains and removals of its type
      * when at least two have the same quantifier and their signed counts equal the submitted
-     * amount. This also applies when an individual task has that amount. Gains execute before
-     * removals. Each original task executes separately, preserving its effects, cause, and
-     * continuation; newly created tasks are not included in the total. Otherwise, normal
-     * single-task matching applies. Failure rolls back the enclosing operation.
+     * amount, including zero when gains and removals cancel. This also applies when an individual
+     * task has that amount. Gains execute before removals. Each original task executes separately,
+     * preserving its effects, cause, and continuation; newly created tasks are not included in the
+     * total. Otherwise, normal single-task matching applies. Failure rolls back the enclosing
+     * operation.
      */
     public fun doTasks(vararg narrowings: String)
 

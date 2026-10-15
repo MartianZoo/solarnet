@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -21,7 +21,6 @@ internal class LocalHeatTrappingTest : TfmSandboxTest() {
               "LocalHeatTrapping FROM ProjectCard",
               "-5 Heat",
           )
-          selectOnlyTask()
           // Decline gaining plants by choosing animals when no animal holder exists.
           doTask("Ok")
           doTask("PlayedEvent<Class<LocalHeatTrapping>> FROM LocalHeatTrapping")
@@ -34,17 +33,15 @@ internal class LocalHeatTrappingTest : TfmSandboxTest() {
     kim.setToExMachina(5, "Heat")
     kim.exMachina("$Pets")
 
-    shouldThrow<NarrowingException> {
+    shouldThrow<TaskException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<LocalHeatTrapping>>")
-        selectTask("-X? MC")
+
         doTasks(
             "-1 MC",
             "LocalHeatTrapping FROM ProjectCard",
         )
-        selectTask("-5! Heat")
-        selectOnlyTask()
+        doTask("-5 Heat")
         doTask("Ok")
       }
     }

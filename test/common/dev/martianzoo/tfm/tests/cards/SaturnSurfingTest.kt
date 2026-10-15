@@ -15,8 +15,8 @@ internal class SaturnSurfingTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("UseCardAction<SaturnSurfing, Action1>")
-          selectOnlyTask()
-          selectTask("MC! / Floater<SaturnSurfing> MAX 4")
+          doTask("-Floater<SaturnSurfing>")
+          doTask("4 MC")
           doTask("MC")
         }
         .expect("-Floater, 5 MC")
@@ -29,8 +29,8 @@ internal class SaturnSurfingTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("UseCardAction<SaturnSurfing, Action1>")
-          selectOnlyTask()
-          selectTask("MC! / Floater<SaturnSurfing> MAX 4")
+          doTask("-Floater<SaturnSurfing>")
+          doTask("3 MC")
           doTask("MC")
         }
         .expect("-Floater, 4 MC")

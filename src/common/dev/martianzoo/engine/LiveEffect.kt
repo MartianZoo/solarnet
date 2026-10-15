@@ -83,6 +83,7 @@ private constructor(
             isSelf,
             reader,
             elaborator,
+            Hit(emptyList(), triggerEvent.change.count),
         ) ?: return null
     val instruction =
         try {
@@ -313,6 +314,7 @@ private constructor(
         isSelf: Boolean,
         reader: GameReader,
         elaborator: PetElaborator,
+        bindings: Hit,
     ): Hit?
 
     abstract val classToCheck: ClassName?
@@ -328,8 +330,6 @@ private constructor(
             is CountBinding -> inner.listensToOtherComponents
           }
 
-    abstract fun transform(transformer: PetTransformer): Subscription
-
     private data class AnyOf(val alternatives: List<Subscription>) : Subscription() {
       override fun checkForHit(
           currentEvent: ChangeEvent,
@@ -337,6 +337,7 @@ private constructor(
           isSelf: Boolean,
           reader: GameReader,
           elaborator: PetElaborator,
+          bindings: Hit,
       ): Hit? {
         alternatives.forEach { alternative ->
           alternative
@@ -346,6 +347,7 @@ private constructor(
                   isSelf,
                   reader,
                   elaborator,
+                  bindings,
               )
               ?.let {
                 return it
@@ -355,9 +357,6 @@ private constructor(
       }
 
       override val classToCheck = null
-
-      override fun transform(transformer: PetTransformer): Subscription =
-          copy(alternatives = alternatives.map { it.transform(transformer) })
     }
 
     private data class Regular(
@@ -371,37 +370,32 @@ private constructor(
           isSelf: Boolean,
           reader: GameReader,
           elaborator: PetElaborator,
+          bindings: Hit,
       ): Hit? {
         if (isSelf) return null
-        val change = currentEvent.change
         val changeType = resolvedChange.type(matchOnGain) ?: return null
         // Will be refinement-aware (#48)
-        val matchType = reader.resolve(match)
+        val boundMatch = bindings.specialize(match)
+        val matchType = reader.resolve(boundMatch)
         return if (changeType.narrows(matchType, reader)) {
           val binder =
               try {
                 elaborator.specializeVariables(
                     matchType,
                     changeType,
-                    match,
-                    typeVariables,
+                    boundMatch,
+                    bindings.specialize(typeVariables),
                 )
               } catch (_: NarrowingException) {
                 return null
               }
-          Hit(listOf(binder), change.count)
+          bindings.then(binder)
         } else {
           null
         }
       }
 
       override val classToCheck = match.className
-
-      override fun transform(transformer: PetTransformer): Subscription =
-          copy(
-              match = transformer.transformExpression(match),
-              typeVariables = typeVariables.transformedBy(transformer),
-          )
     }
 
     private data class Self(val context: Component, val matchOnGain: Boolean) : Subscription() {
@@ -411,20 +405,19 @@ private constructor(
           isSelf: Boolean,
           reader: GameReader,
           elaborator: PetElaborator,
+          bindings: Hit,
       ): Hit? {
         if (!isSelf) return null
         val changeType = resolvedChange.type(matchOnGain) ?: return null
 
         return if (changeType == context.type) {
-          Hit(emptyList(), currentEvent.change.count)
+          bindings
         } else {
           null
         }
       }
 
       override val classToCheck = null
-
-      override fun transform(transformer: PetTransformer): Subscription = this
     }
 
     private data class Personal(
@@ -439,29 +432,31 @@ private constructor(
           isSelf: Boolean,
           reader: GameReader,
           elaborator: PetElaborator,
+          bindings: Hit,
       ): Hit? {
         val actor = currentEvent.actor
         val actorType = reader.classTable.resolve(actor.expression)
+        val boundSelector = bindings.specialize(selector)
 
         // An explicit Actor declaration is bound before the inner trigger is matched. A use inside
         // a NOT refinement therefore receives the concrete Actor before that difference is tested.
         if (actorVariable != null) {
           val actorDomain = reader.resolve(ACTOR.expression)
-          if (!reader.classTable.matchesConstraint(actorType, selector, actorDomain, reader)) {
+          if (!reader.classTable.matchesConstraint(actorType, boundSelector, actorDomain, reader)) {
             return null
           }
-          val binding = typeVariables.bind(mapOf(actorVariable to actorType), reader.classTable)
-          val hit =
-              inner
-                  .transform(binding)
-                  .checkForHit(
-                      currentEvent,
-                      resolvedChange,
-                      isSelf,
-                      reader,
-                      elaborator,
-                  ) ?: return null
-          return hit.before(binding)
+          val binding =
+              bindings
+                  .specialize(typeVariables)
+                  .bind(mapOf(actorVariable to actorType), reader.classTable)
+          return inner.checkForHit(
+              currentEvent,
+              resolvedChange,
+              isSelf,
+              reader,
+              elaborator,
+              bindings.then(binding),
+          )
         }
 
         val hit =
@@ -471,6 +466,7 @@ private constructor(
                 isSelf,
                 reader,
                 elaborator,
+                bindings,
             ) ?: return null
 
         // BY describes the Actor that performed the triggering change, recorded on the event.
@@ -492,13 +488,6 @@ private constructor(
       }
 
       override val classToCheck = inner.classToCheck
-
-      override fun transform(transformer: PetTransformer): Subscription =
-          copy(
-              inner = inner.transform(transformer),
-              selector = transformer.transformExpression(selector),
-              typeVariables = typeVariables.transformedBy(transformer),
-          )
     }
 
     private data class Conditional(val inner: Subscription, val condition: Requirement) :
@@ -509,6 +498,7 @@ private constructor(
           isSelf: Boolean,
           reader: GameReader,
           elaborator: PetElaborator,
+          bindings: Hit,
       ): Hit? {
         val wouldHit =
             inner.checkForHit(
@@ -517,17 +507,12 @@ private constructor(
                 isSelf,
                 reader,
                 elaborator,
+                bindings,
             ) ?: return null
         return if (reader.has(wouldHit.specialize(condition))) wouldHit else null
       }
 
       override val classToCheck = inner.classToCheck
-
-      override fun transform(transformer: PetTransformer): Subscription =
-          copy(
-              inner = inner.transform(transformer),
-              condition = transformer.transformRequirement(condition),
-          )
     }
 
     private data class CountBinding(val inner: Subscription) : Subscription() {
@@ -537,6 +522,7 @@ private constructor(
           isSelf: Boolean,
           reader: GameReader,
           elaborator: PetElaborator,
+          bindings: Hit,
       ): Hit? {
         val hit =
             inner.checkForHit(
@@ -545,14 +531,12 @@ private constructor(
                 isSelf,
                 reader,
                 elaborator,
+                bindings,
             ) ?: return null
         return hit.bindCount(currentEvent.change.count)
       }
 
       override val classToCheck = inner.classToCheck
-
-      override fun transform(transformer: PetTransformer): Subscription =
-          copy(inner = inner.transform(transformer))
     }
   }
 
@@ -583,7 +567,7 @@ private constructor(
 
     fun then(transformer: PetTransformer) = copy(transformers = transformers + transformer)
 
-    fun before(transformer: PetTransformer) =
-        copy(transformers = listOf(transformer) + transformers)
+    fun specialize(scope: TypeVariableScope): TypeVariableScope =
+        transformers.fold(scope) { current, transformer -> current.transformedBy(transformer) }
   }
 }

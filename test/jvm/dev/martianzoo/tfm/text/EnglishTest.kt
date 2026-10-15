@@ -13,6 +13,7 @@ import dev.martianzoo.pets.types.Class
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.fake.FakeCanon
+import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -21,7 +22,7 @@ internal class EnglishTest {
   private val catalog = TfmCatalog(Canon, FakeCanon)
   private val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
   private val publishedEnglish =
-      English(catalog.classTable, TerraformingMarsDescribers.descriptions)
+      English(catalog.classTable, TerraformingMarsDescribers.descriptions + fakeEnglishDescriptions)
   private val cardsByClassName = Canon.cards.associateBy { it.className }
   private val published =
       EnglishCardTextData.parse(readEnglishCardText("english-published-wording-evidence.tsv"))
@@ -38,17 +39,19 @@ internal class EnglishTest {
     goals.keys.toList() shouldBe published.keys.toList()
     current.keys.toList() shouldBe published.keys.toList()
     corrected.keys.toList() shouldBe published.keys.toList()
-    current.forEach { (cardFront, expected) ->
-      withClue(cardFront.toString()) {
-        val card = catalog.classTable.getClass(cardFront)
-        val rendering = publishedEnglish.renderCard(card)
-        expected.englishName shouldBe published.getValue(cardFront).englishName
-        expected.englishName shouldBe corrected.getValue(cardFront).englishName
-        expected.englishName.contains("Fake", ignoreCase = true) shouldBe false
-        rendering.top shouldBe expected.top
-        rendering.bottom shouldBe expected.bottom
-        countRenderedPetsFallbacks(rendering.top) +
-            countRenderedPetsFallbacks(rendering.bottom) shouldBe rendering.unresolved.size
+    assertSoftly {
+      current.forEach { (cardFront, expected) ->
+        withClue(cardFront.toString()) {
+          val card = catalog.classTable.getClass(cardFront)
+          val rendering = publishedEnglish.renderCard(card)
+          expected.englishName shouldBe published.getValue(cardFront).englishName
+          expected.englishName shouldBe corrected.getValue(cardFront).englishName
+          expected.englishName.contains("Fake", ignoreCase = true) shouldBe false
+          rendering.top shouldBe expected.top
+          rendering.bottom shouldBe expected.bottom
+          countRenderedPetsFallbacks(rendering.top) +
+              countRenderedPetsFallbacks(rendering.bottom) shouldBe rendering.unresolved.size
+        }
       }
     }
   }
@@ -61,7 +64,7 @@ internal class EnglishTest {
         "When any city tile is placed on Mars, gain 1 steel."
     english.describe(
         parse<Effect>("Placement<@MarsArea>: MC / Neighbor<OceanTile, @MarsArea>")
-    ) shouldBe "When you place a tile on Mars, gain 1 M€ per ocean tile next to that area."
+    ) shouldBe "When you place a tile on Mars, gain 1 M€ per ocean tile next to that Mars area."
     english.describe(parse<Effect>("PlantTag<CardFront<Anyone>, Anyone>: Steel")) shouldBe
         "When any plant tag is played, gain 1 steel."
     english.describe(parse<Effect>("TerraformRating: 2 MC")) shouldBe
@@ -101,19 +104,19 @@ internal class EnglishTest {
     english.describe(parse<InstructionTree>("MC? / ProjectCard")) shouldBe
         "You may gain up to 1 M€ per card in hand."
     english.describe(parse<InstructionTree>("-4* MC")) shouldBe
-        "Remove 4 M€, or as much as possible."
+        "Lose 4 M€ (to the extent possible)."
     english.describe(parse<InstructionTree>("Plant / (VenusTag OR PlantTag OR Colony)")) shouldBe
         "Gain 1 plant per Venus tag you have, plant tag you have, or colony you own."
     english.describe(parse<InstructionTree>("PROD[1 MC / EarthTag MAX VenusTag]")) shouldBe
         "Increase your M€ production 1 step per pair of Earth and Venus tags you have."
     english.describe(parse<InstructionTree>("-3 MC THEN TemperatureStep")) shouldBe
         "Pay 3 M€ to raise temperature 1 step."
-    english.describe(parse<InstructionTree>("-2 Plant")) shouldBe "Remove 2 plants."
+    english.describe(parse<InstructionTree>("-2 Plant")) shouldBe "Lose 2 plants."
     english.describe(parse<InstructionTree>("Animal<This>?")) shouldBe
         "You may add up to 1 animal to this card."
     english.describe(
         parse<InstructionTree>("3* MC<Anyone> FROM MC"),
-    ) shouldBe "Pay 3 M€ to any player, or as much as possible."
+    ) shouldBe "Pay 3 M€ to any player (to the extent possible)."
     english.describe(parse<Requirement>("MAX 6 OxygenStep")) shouldBe "Requires 6% oxygen or less."
     english.describe(
         parse<Effect>("Billing<Class<ConvertPlants>, Action1>:: -Owed<Class<Plant>>")
@@ -171,7 +174,8 @@ internal class EnglishTest {
             .authoredEffects
             .single()
             .instruction
-    ) shouldBe "Each other player removes 5 M€ and decreases their own M€ production 1 step."
+    ) shouldBe
+        "Each other player removes 5 M€ (to the extent possible) and decreases their own M€ production 1 step."
     english.describe(parse<Requirement>("ScienceTag")) shouldBe "Requires a science tag."
     english.describe(parse<Requirement>("4 BioTag")) shouldBe "Requires 4 bio tags."
     english.describe(parse<Requirement>("2 EarthTag, 2 VenusTag, 2 JovianTag")) shouldBe
@@ -198,10 +202,12 @@ internal class EnglishTest {
     english.describe(parse<Effect>("End: VictoryPoint / Cathedral")) shouldBe
         "1 VP per cathedral in play."
     english.describe(parse<Effect>("-Community: 3 MC")) shouldBe
-        "When you remove a community marker, gain 3 M€."
+        "When a community marker you own is removed, gain 3 M€."
+    english.describe(parse<Effect>("-Energy: MC")) shouldBe
+        "When 1 energy is removed from you, gain 1 M€."
     english.describe(parse<InstructionTree>("Animal")) shouldBe "Add 1 animal to any card."
     english.describe(parse<InstructionTree>("MAX 0 Plant: Steel")) shouldBe
-        "If you have no plants, gain 1 steel."
+        "If you have at most 0 plants, gain 1 steel."
     english.describe(parse<InstructionTree>("OceanTile: Steel")) shouldBe
         "If there is 1 ocean tile, gain 1 steel."
     english.describe(parse<InstructionTree>("2 OceanTile: Steel")) shouldBe
@@ -410,7 +416,7 @@ internal class EnglishTest {
   @Test
   internal fun hidesPreludeBookkeepingBehindItsPrintedRule() {
     english.bottomText(requireNotNull(cardsByClassName[cn("IndustrialComplex")])) shouldBe
-        "Remove 18 M€. Increase each of your productions below 1 to 1."
+        "Lose 18 M€. Increase each of your productions below 1 to 1."
     english.topText(requireNotNull(cardsByClassName[cn("SuitableInfrastructure")])) shouldBe
         "Effect: Once per action you take, gain 2 M€ if you increase any production."
     english.bottomText(requireNotNull(cardsByClassName[cn("SuitableInfrastructure")])) shouldBe
@@ -480,7 +486,7 @@ internal class EnglishTest {
     english.describe(parse<InstructionTree>("@StandardResource THEN @StandardResource")) shouldBe
         "Gain 1 standard resource, then gain that resource."
     english.describe(parse<Effect>("Trade<@ColonyTile>: ColonyProduction<@ColonyTile>?")) shouldBe
-        "When you trade, you may raise that colony tile track 1 step."
+        "When you trade, you may increase that production track 1 step."
 
     val unintroduced =
         syntheticCard(
@@ -648,16 +654,15 @@ internal class EnglishTest {
 
   @Test
   internal fun retainsUnsupportedPetsAlongsideRenderedInstructions() {
-    english.describe(parse<InstructionTree>("2 Steel, 3 VictoryPoint")) shouldBe
-        "Gain 2 steel. [3 VictoryPoint]."
+    english.describe(parse<InstructionTree>("2 Steel, 3 Audit")) shouldBe "Gain 2 steel. [3 Audit]."
 
     val rendering =
         renderInstructionTree(
-            parse("2 Steel, 3 VictoryPoint"),
+            parse("2 Steel, 3 Audit"),
             Describers(Canon.classTable, TerraformingMarsDescribers.descriptions),
         )
     rendering.unresolved().map { it.node.toString() to it.reason } shouldBe
-        listOf("3 VictoryPoint" to RefusalReason.UNKNOWN_CHANGE_FRAME)
+        listOf("3 Audit" to RefusalReason.UNKNOWN_CHANGE_FRAME)
   }
 
   @Test
@@ -668,23 +673,23 @@ internal class EnglishTest {
 
   @Test
   internal fun retainsUnsupportedPetsWithinPaymentResults() {
-    val instruction = parse<InstructionTree>("-2 Steel THEN 3 VictoryPoint")
+    val instruction = parse<InstructionTree>("-2 Steel THEN 3 Audit")
     val rendering =
         renderInstructionTree(
             instruction,
             Describers(Canon.classTable, TerraformingMarsDescribers.descriptions),
         )
 
-    rendering.linearize() shouldBe "Pay 2 steel to [3 VictoryPoint]."
+    rendering.linearize() shouldBe "Pay 2 steel to [3 Audit]."
     rendering.unresolved().map { it.node.toString() to it.reason } shouldBe
-        listOf("3 VictoryPoint" to RefusalReason.UNKNOWN_CHANGE_FRAME)
+        listOf("3 Audit" to RefusalReason.UNKNOWN_CHANGE_FRAME)
   }
 
   @Test
   internal fun neverDropsUnsupportedExpressionRefinements() {
     val metric = "CityTile<Anyone, MarsArea(HAS Neighbor<OceanTile>, NOT NoctisArea)>"
 
-    english.describe(parse<InstructionTree>("MC / $metric")) shouldBe "[MC / $metric]."
+    english.describe(parse<InstructionTree>("MC / $metric")) shouldBe "Gain 1 M€ per [$metric]."
   }
 
   @Test

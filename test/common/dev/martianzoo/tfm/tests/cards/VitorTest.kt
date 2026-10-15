@@ -14,7 +14,6 @@ internal class VitorTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("RequiredActionsSignal")
-          selectOnlyTask()
           doTask("Landlord")
         }
         .expect("0 MC")
@@ -42,7 +41,6 @@ internal class VitorTest : TfmSandboxTest() {
     newTestGame(addOptions = "Vitor", kimCorporation = Vitor)
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectOnlyTask()
       doTask("Landlord")
     }
 
@@ -62,14 +60,12 @@ internal class VitorTest : TfmSandboxTest() {
     newTestGame(addOptions = "Vitor", kimCorporation = Vitor)
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectOnlyTask()
       doTask("Landlord")
     }
 
     kim.inTurn {
       doTasks("PlayProject<Class<Mine>>", "-4 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "Mine FROM ProjectCard", "PROD[Steel]")
+      doTasks("Mine FROM ProjectCard", "PROD[Steel]")
     }
   }
 
@@ -78,7 +74,6 @@ internal class VitorTest : TfmSandboxTest() {
     newTestGame(addOptions = "Vitor", kimCorporation = Vitor)
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectOnlyTask()
       doTask("Landlord")
     }
 
@@ -102,40 +97,37 @@ internal class VitorTest : TfmSandboxTest() {
           "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
           "BoardOfDirectors FROM PreludeCard",
       )
-      selectOnlyTask()
+      doTask("4 Director<BoardOfDirectors>")
     }
     advanceUntilActionPhase()
     stan.inTurn {
       doTasks("FundAward<Class<Landlord>>", "-8 MC")
-      selectOnlyTask()
+      doTask("Landlord")
     }
     stan.inTurn {
       doTasks("FundAward<Class<Banker>>", "-14 MC")
-      selectOnlyTask()
+      doTask("Banker")
     }
     stan.inTurn {
       doTasks("FundAward<Class<Scientist>>", "-20 MC")
-      selectOnlyTask()
+      doTask("Scientist")
     }
     kim.inTurn {
       doTask("UseCardAction<BoardOfDirectors, Action1>")
-      selectTask("PreludeCard<Kim, Hand>!")
-      selectOnlyTask()
+      doTask("PreludeCard<Kim, Hand>")
       doTask("-12 MC")
-      selectTask("-Director<BoardOfDirectors>!")
+      doTask("-Director<BoardOfDirectors>")
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      selectTask("4! CorporationCard<Kim, Selecting>")
-      selectTask("-3! CorporationCard<Kim, Selecting>")
+      doTask("4 CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<Vitor>>")
       doTask("Vitor<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTasks("45 MC", "-42 MC")
-      selectTask("Vitor_RequiredAction!")
+      doTask("Vitor_RequiredAction!")
       doTask("3 MC")
     }
 
     kim.inTurn {
           doTask("RequiredActionsSignal")
-          selectOnlyTask()
           doTask("Thermalist")
         }
         .expect("0 MC")
@@ -143,7 +135,6 @@ internal class VitorTest : TfmSandboxTest() {
     stan.setToExMachina(20, "MC")
     shouldThrow<DeadEndException> {
       stan.inTurn {
-        selectOnlyTask()
         doTask("FundAward<Class<Miner>>")
       }
     }

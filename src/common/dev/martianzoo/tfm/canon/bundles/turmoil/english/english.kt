@@ -28,6 +28,7 @@ internal val turmoilEnglishDeclarations: List<Pair<ClassName, ComponentDescriber
         cn("Ruling") to
             ComponentDescriber(
                 requirementCondition = Condition.ArgumentState(rulingParty, "is ruling"),
+                requirementKind = "party",
             ),
         cn("MarsFirst") to ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("Mars First")),
         cn("Scientists") to
@@ -38,10 +39,6 @@ internal val turmoilEnglishDeclarations: List<Pair<ClassName, ComponentDescriber
         cn("Reds") to ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("the Reds party")),
         cn("Kelvinists") to
             ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("the Kelvinists party")),
-        cn("PartyRequirement") to
-            ComponentDescriber(
-                requirementKind = "party",
-            ),
         cn("PartyDelegate") to
             ComponentDescriber(
                 changeFrame =
@@ -68,6 +65,7 @@ internal val turmoilEnglishDeclarations: List<Pair<ClassName, ComponentDescriber
         cn("PartyLeader") to
             ComponentDescriber(
                 triggerFrame = Trigger.Named("become", "a party leader"),
+                countNoun = counted("party leadership", "party leaderships"),
                 requirementCondition =
                     Condition.OwnedCount(
                         counted("party", "parties"),

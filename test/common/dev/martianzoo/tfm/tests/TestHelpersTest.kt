@@ -13,11 +13,11 @@ internal class TestHelpersTest : TfmSandboxTest() {
     newTestGame()
     val result = kim.inTurn {
       doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_6_6>")
-      selectTask("OxygenStep*")
+      doTask("OxygenStep")
       doTasks("Plant", "TerraformRating")
     }
 
-    result.expect("GreeneryTile")
+    result.expect("GreeneryTile, 0 Steel, -0 Titanium, PROD[0 Energy]")
     shouldThrow<IllegalArgumentException> { result.expect("GreeneryTile<>") }.message shouldBe
         "empty argument lists are not allowed in net-change expectations; write `GreeneryTile` instead of `GreeneryTile<>`"
   }

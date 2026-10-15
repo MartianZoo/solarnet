@@ -9,6 +9,7 @@ import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.InstructionGroup
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Actor.Companion.ADMIN
@@ -169,6 +170,7 @@ internal class TaskQueues(
           else -> null
         }
     val change = change(task.instruction) ?: return task
+    if (change.count == ActualScalar(0)) return task
     val affected = change.gaining ?: change.removing ?: return task
     val affectedType = classTable.resolve(affected)
     if (!affectedType.rootClass.isSubtypeOf(systemClass)) return task

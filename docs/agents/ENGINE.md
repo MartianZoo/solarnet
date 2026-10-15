@@ -231,6 +231,11 @@ whose declared maximum is one. The same World-based gain narrowing applies when 
 receives an explicit narrowing. `ActorEngine` separately executes a selected Task once its
 instruction is concrete.
 
+Task admission discards literal zero changes. Counts calculated while selecting an existing task
+retain their Types through matching and execute without component events.
+Typed-zero submissions cannot identify work solely through an `Ok` intersection, including an
+unrelated alternative at the start of a sequence.
+
 Resolution may leave a genuine Player choice abstract. The task's current assignee alone may narrow
 it. If resolution exposes independent instructions, the selected structural Task completes and
 admits ordinary unselected children without transferring its selection to a child.
@@ -239,6 +244,11 @@ The combined `doTask` and `tryTask` commands reject an unselected task when sele
 assignee, including through a concrete `BY`. Such a call would only select and hand off while
 silently discarding its submitted instruction. The caller must use `selectTask`; the receiving
 assignee can then narrow or execute the selected task.
+`doTask` can identify a gated task by its body, and a `/` task by its calculated action, without
+repeating the gate or metric in the submitted instruction. The task still checks those conditions.
+When matching a task by its body, a failed gate does not compete with available matches. If no
+available task matches, the failed gate can identify the task so execution reports the unmet
+requirement.
 
 When a top-level instruction-side `BY` becomes concrete, task processing resolves the named
 participating Actor, removes the wrapper, and transfers the task to that Actor. The prior assignee's
@@ -266,13 +276,14 @@ uses that Player for omitted ownership. `Cathedral<CityTile<Anyone, Tharsis_4_2>
 submitted narrowing can then resolve the existing city at that area without naming its concrete
 subclass, and fails when there is no city there.
 
-The executable first-stage forms are deliberately small: no-op, fully concrete change, or `THEN`
+The executable first-stage forms are deliberately small: no-op, zero-count change (or alternatives
+consisting entirely of zero changes and no-ops), fully concrete change, or `THEN`
 whose first stage is executable. Task processing consumes instruction-side `BY` before this point.
 Later `THEN` stages stay as Pets until earlier state changes have happened. Execution removes the
 completed Task, admits its continuation, and routes changes through the ordinary mutation/effect
-path. `Gated`, `Per`, `Or`, gains of virtual `CustomMetric` types, marked transforms, and instruction
-groups cannot reach execution as a first stage; resolution must consume, reject, choose, or split
-them first.
+path. `Gated`, `Per`, alternatives with remaining choices, gains of virtual `CustomMetric` types,
+marked transforms, and instruction groups cannot reach execution as a first stage; resolution must
+consume, reject, choose, or split them first.
 
 ## One instruction becomes events in stages
 
@@ -382,6 +393,8 @@ Ordinary gameplay selects global minimum checks through the changed components' 
 limit index. It still checks required dependents of live affected owners, including absent parts;
 unchanged global counts need no recheck. Initialization and corrections retain the full
 invariant query.
+Each World's `Limiter` reuses the immutable declared limits bound to a component type. Live counts
+and the required dependents of affected owners are still checked against current state.
 
 Prefer atomic transmutation when two faces share a stable invariant. Separate queued tasks and
 `THEN` stages outside the initiating automatic cascade cannot repair a completed operation: lifecycle
@@ -412,6 +425,9 @@ uses, but they express different operations and are not redundant special cases.
 union cannot substitute for arithmetic addition. Treat the small number of clients as evidence that
 the metric algebra is still sparse, not as a reason to collapse these operators. `Metric.Rank`
 likewise replaces game-specific ranking instructions with reusable comparison semantics.
+Ranking scores the candidate once, skips comparing it with itself, and evaluates each peer's
+later tiebreakers only while earlier scores remain tied. Scores are local to that rank query;
+they are not retained across state changes or rollback.
 
 ### Content must not compensate for an engine gap
 
@@ -429,7 +445,8 @@ replace that shape with an `AttackKind` hierarchy and per-resource watchers.
 Each World retains one policy-free `ActorEngine` per Actor. It owns attributed task and state
 commands but shares the World's changer, instructor, timeline, and Task services. `Agents(world)`
 constructs the corresponding normal client objects and prevents pairing an Agent with an unrelated
-World.
+World. Its optional `initialPolicy` function supplies each Actor's policy at construction without
+executing pending work; callers need not assign the policy afterward.
 
 For Actor attribution, receiving the request through that Actor's Agent is sufficient. The engine
 checks the task's current assignee and legal mutation, not the identity or consent of the person
@@ -452,8 +469,11 @@ unsupplied client information rolls back locally and stays pending; an explicit 
 The Terraforming Mars hand-tracking use is described in [CARD_HANDLING.md](CARD_HANDLING.md#card-hand-tracking).
 
 Current autoexecution lives in `:agent`, not in the core engine. Policy selects legal Task commands;
-it does not alter their semantics. The shared policy loop tries eligible Admin work before Player
-work, including between explicit Player steps, but continues to an executable Player option when
+it does not alter their semantics. Before probing tasks, the loop checks whether any pending
+candidate has an effective policy other than `NONE`. If none does, it returns without probes or
+execution, even when an Actor with no pending work has autoexecution enabled. When automatic work
+is available, manual tasks still compete with it. The shared policy loop tries eligible Admin work
+before Player work, including between explicit Player steps, but continues to an executable Player option when
 Admin work is abstract or temporarily unavailable. It cannot interrupt an authored `::` chain or
 supply a missing scheduling rule. Engine primitives remain available to any caller for local
 exploration, replay correction, tests, and cheats. Restricting access to those primitives

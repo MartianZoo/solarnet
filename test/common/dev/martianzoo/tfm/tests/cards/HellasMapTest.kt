@@ -18,8 +18,8 @@ internal class HellasMapTest : TfmSandboxTest() {
     shouldThrow<NarrowingException> {
       kim.inTurn {
         doTasks("ConvertPlants", "-8 Plant")
-        selectOnlyTask()
-        selectTask("GreeneryTile<Kim, LandArea(HAS Neighbor<OwnedTile>)>!")
+        // Hand the paid conversion to Admin to offer the legal greenery areas.
+        selectTask("DefaultGreeneryTile")
         doTask("GreeneryTile<Hellas_1_5>")
       }
     }
@@ -33,11 +33,12 @@ internal class HellasMapTest : TfmSandboxTest() {
     kim.setToExMachina(8, "Plant")
 
     kim.inTurn {
-          doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
-          selectOnlyTask()
+          doTasks("ConvertPlants", "-8 Plant")
+          // Hand the paid conversion to Admin to offer the legal greenery areas.
+          selectTask("DefaultGreeneryTile")
           doTask("GreeneryTile<Hellas_9_7>")
-          selectTask("OxygenStep*")
-          selectTask("MC! / Neighbor<OceanTile, Hellas_9_7>")
+          doTask("OxygenStep")
+          doTask("0 MC")
           doTasks(
               "TerraformRating",
               "OceanTile<Hellas_5_7>",
@@ -45,6 +46,7 @@ internal class HellasMapTest : TfmSandboxTest() {
               "PROD[MC]",
               "3 Heat",
           )
+          // Separate Lakefront's extra adjacency income from the ordinary ocean bonuses.
           selectTask("MC! / Neighbor<OceanTile, Hellas_5_7>")
           doTasks("2 MC", "2 MC", "-6 MC")
         }

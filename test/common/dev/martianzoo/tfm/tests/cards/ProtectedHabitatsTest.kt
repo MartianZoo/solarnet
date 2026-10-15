@@ -16,13 +16,13 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
     kim.exMachina("$ProtectedHabitats, 8 Plant")
 
     kim.inTurn {
-          doTasks("ConvertPlants", "-Plant / Owed<Class<Plant>>")
-          selectOnlyTask()
-          doTask("GreeneryTile<Tharsis_1_1>")
-          selectTask("OxygenStep*")
-          doTasks("2 Steel", "TerraformRating")
-        }
-        .expect("-8 Plant")
+      doTasks("ConvertPlants", "-8 Plant")
+      // Hand the paid conversion to Admin to offer the legal greenery areas.
+      selectTask("DefaultGreeneryTile")
+      doTask("GreeneryTile<Tharsis_1_1>")
+      doTask("OxygenStep")
+      doTasks("2 Steel", "TerraformRating")
+    }
   }
 
   @Test
@@ -31,8 +31,8 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("UseCardAction<Predators, Action1>")
-          selectOnlyTask()
-          selectOnlyTask()
+          doTask("-Animal<Fish>")
+          doTask("Animal<Predators>")
         }
         .expect("-Animal<$Fish>, Animal<$Predators>")
   }
@@ -43,8 +43,8 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("UseCardAction<Ants, Action1>")
-          selectOnlyTask()
-          selectOnlyTask()
+          doTask("-Microbe<Tardigrades>")
+          doTask("Microbe<Ants>")
         }
         .expect("-Microbe<$Tardigrades>, Microbe<$Ants>")
   }
@@ -55,14 +55,12 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       stan.inTurn {
-        selectOnlyTask()
         doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
-        selectTask("-X? Titanium")
-        selectTask("Ok")
         doTask("AsteroidCard FROM ProjectCard")
-        selectTask("TemperatureStep*")
-        selectTask("2! Titanium")
-        selectTask("TerraformRating!")
+        doTask("TemperatureStep")
+        doTask("2 Titanium")
+        doTask("TerraformRating")
+        // Resolve the attack before probing a protected target that the offer excludes.
         selectTask("-3? Plant<Anyone>")
         doTask("-Plant<Kim>")
       }
@@ -77,9 +75,7 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       stan.inTurn {
-        selectOnlyTask()
         doTask("UseCardAction<Predators, Action1>")
-        selectOnlyTask()
         doTask("-Animal<Kim, Fish<Kim>>")
       }
     }
@@ -93,9 +89,7 @@ internal class ProtectedHabitatsTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       stan.inTurn {
-        selectOnlyTask()
         doTask("UseCardAction<Ants, Action1>")
-        selectOnlyTask()
         doTask("-Microbe<Kim, Tardigrades<Kim>>")
       }
     }

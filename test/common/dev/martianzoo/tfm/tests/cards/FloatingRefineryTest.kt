@@ -16,7 +16,7 @@ internal class FloatingRefineryTest : TfmSandboxTest() {
               "-7 MC",
               "FloatingRefinery FROM ProjectCard",
           )
-          selectOnlyTask()
+          doTask("2 Floater<FloatingRefinery>")
         }
         .expect("2 Floater<$FloatingRefinery>")
   }

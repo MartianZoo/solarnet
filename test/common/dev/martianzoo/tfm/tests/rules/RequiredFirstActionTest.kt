@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -13,23 +14,26 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
     newTestGame(playerCount = 2, kimCorporation = Inventrix)
     passFirstGeneration()
 
-    kim.stdAction("RequiredActionsSignal").expect("3 ProjectCard")
+    kim.doTask("RequiredActionsSignal").expect("3 ProjectCard")
   }
 
   @Test
   internal fun `Can play a project after resolving its mandatory card draw`() {
     newTestGame(playerCount = 2, kimCorporation = Inventrix)
     passFirstGeneration()
-    kim.stdAction("RequiredActionsSignal")
+    kim.doTask("RequiredActionsSignal")
 
-    kim.playProject(Mine, 4).expect("PROD[Steel]")
+    kim.doTasks("PlayProject<Class<$Mine>>", "-4 MC", "Ok" /* No Steel payment. */)
+        .expect("PROD[Steel]")
   }
 
   @Test
   internal fun `Cannot play a project before resolving its mandatory card draw`() {
     newTestGame(playerCount = 2, kimCorporation = Inventrix)
 
-    shouldThrow<NarrowingException> { kim.playProject(Mine, 4) }
+    shouldThrow<NarrowingException> {
+      kim.doTasks("PlayProject<Class<$Mine>>", "-4 MC", "Ok" /* No Steel payment. */)
+    }
     kim.count("$Mine") shouldBe 0
     kim.count("RequiredAction") shouldBe 1
   }
@@ -39,7 +43,12 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
     newTestGame(playerCount = 2, kimCorporation = Inventrix)
     passFirstGeneration()
 
-    shouldThrow<NarrowingException> { kim.stdProject("AsteroidProject") }
+    shouldThrow<NarrowingException> {
+      kim.completeOperation {
+        doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+        autoExecNow(EAGER)
+      }
+    }
     admin.count("TemperatureStep") shouldBe 0
     kim.count("RequiredAction") shouldBe 1
   }
@@ -47,24 +56,37 @@ internal class RequiredFirstActionTest : TfmGameplayTest() {
   @Test
   internal fun `Cannot convert available heat before resolving its mandatory card draw`() {
     newTestGame(addOptions = "PreludeExpansion", playerCount = 2, kimCorporation = Inventrix)
-    with(kim) { playPrelude(ExcentricSponsor) { playProject(Soletta, 10) } }
-    kim.playPrelude(Donation)
-    stan.playPrelude(Biolab)
-    stan.playPrelude(SupplyDrop)
+    kim.completeOperation {
+      doTask("PlayCard<Class<PreludeCard>, Class<$ExcentricSponsor>>")
+      doTasks(
+          "PlayCard<Class<ProjectCard>, Class<$Soletta>>",
+          "-10 MC",
+      )
+      autoExecNow(EAGER)
+    }
+    kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
+    stan.doTask("PlayCard<Class<PreludeCard>, Class<$Biolab>>")
+    stan.autoExecNow(EAGER)
+
+    stan.doTask("PlayCard<Class<PreludeCard>, Class<$SupplyDrop>>")
+    stan.autoExecNow(EAGER)
+
     passFirstGeneration()
     kim.count("Heat") shouldBe 8
 
-    shouldThrow<NarrowingException> { kim.convertHeat() }
+    shouldThrow<NarrowingException> { kim.doTasks("ConvertHeat", "-8 Heat") }
     kim.count("Heat") shouldBe 8
     kim.count("RequiredAction") shouldBe 1
   }
 
   private fun passFirstGeneration() {
-    kim.pass()
-    stan.pass()
-    kim.wgt("OxygenStep")
-    kim.buyCards(0)
-    stan.buyCards(0)
-    stan.pass()
+    kim.doTask("Pass")
+    stan.doTask("Pass")
+    players.forEach { it.autoExecNow(EAGER) }
+    kim.doTask("OxygenStep! BY Admin")
+
+    kim.doTask("-4 ProjectCard<Selecting>")
+    stan.doTask("-4 ProjectCard<Selecting>")
+    stan.doTask("Pass")
   }
 }

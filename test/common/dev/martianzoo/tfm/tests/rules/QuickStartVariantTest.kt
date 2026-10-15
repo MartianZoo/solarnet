@@ -60,21 +60,17 @@ internal class QuickStartVariantTest : TfmSandboxTest() {
     newTestGame(addOptions = "ElysiumMap")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("ClaimMilestone<Class<Generalist2>>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
+        doTask("-8 MC")
+        doTask("Generalist2")
       }
     }
     kim.exMachina("PROD[MC, Steel, Titanium, Plant, Heat]")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("ClaimMilestone<Class<Generalist2>>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
+        doTask("-8 MC")
+        doTask("Generalist2")
       }
     }
 
@@ -82,8 +78,8 @@ internal class QuickStartVariantTest : TfmSandboxTest() {
       doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Generalist2>>", "-MC / Owed<Class<MC>>")
-      selectOnlyTask()
+      doTasks("ClaimMilestone<Class<Generalist2>>", "-8 MC")
+      doTask("Generalist2")
     }
   }
 
@@ -93,11 +89,9 @@ internal class QuickStartVariantTest : TfmSandboxTest() {
     kim.exMachina("PROD[MC, Steel, Titanium, Plant, Heat]")
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("ClaimMilestone<Class<Generalist>>")
-        selectTask("-X? MC")
-        doTask("-MC / Owed<Class<MC>>")
-        selectOnlyTask()
+        doTask("-8 MC")
+        doTask("Generalist")
       }
     }
 
@@ -105,8 +99,8 @@ internal class QuickStartVariantTest : TfmSandboxTest() {
       doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
     }
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Generalist>>", "-MC / Owed<Class<MC>>")
-      selectOnlyTask()
+      doTasks("ClaimMilestone<Class<Generalist>>", "-8 MC")
+      doTask("Generalist")
     }
   }
 }

@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -21,8 +21,7 @@ internal class KaguyaTechTest : TfmSandboxTest() {
           "KaguyaTech FROM ProjectCard",
           "PROD[2 MC]",
       )
-      selectTask("ProjectCard<Kim, Hand>!")
-      selectOnlyTask()
+      doTask("ProjectCard<Kim, Hand>")
       doTasks("CityTile<Tharsis_4_2> FROM GreeneryTile<Tharsis_4_2>", "Plant")
     }
   }
@@ -31,15 +30,12 @@ internal class KaguyaTechTest : TfmSandboxTest() {
   internal fun `Cannot replace a greenery with a city in another area`() {
     kim.exMachina("GreeneryTile<Kim, Tharsis_4_2>")
 
-    shouldThrow<NarrowingException> {
+    shouldThrow<TaskException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<KaguyaTech>>")
-        selectTask("-X? MC")
         doTasks("-10 MC", "KaguyaTech FROM ProjectCard")
-        selectTask("PROD[2 MC]")
-        selectTask("ProjectCard<Kim, Hand>!")
-        selectOnlyTask()
+        doTask("PROD[2 MC]")
+        doTask("ProjectCard<Kim, Hand>")
         doTask("CityTile<Tharsis_4_3> FROM GreeneryTile<Tharsis_4_2>")
       }
     }
@@ -56,8 +52,7 @@ internal class KaguyaTechTest : TfmSandboxTest() {
           "KaguyaTech FROM ProjectCard",
           "PROD[2 MC]",
       )
-      selectTask("ProjectCard<Kim, Hand>!")
-      selectOnlyTask()
+      doTask("ProjectCard<Kim, Hand>")
       doTasks("CityTile<Tharsis_1_2> FROM GreeneryTile<Tharsis_1_2>", "2 Steel")
     }
   }

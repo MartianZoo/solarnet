@@ -1135,7 +1135,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
         green.doTask("OceanTile<Amazonis_02_01>")
         green.doTask("TerraformRating")
         blue.selectTask("UseAction<NeptunianOption>?")
-        blue.narrowTask("Ok")
+        blue.narrowTask("0 UseAction<NeptunianOption<NeptunianPowerConsultants>>")
       }
     }
     green.pass(unused = VenusShuttles)
@@ -2143,7 +2143,9 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 9:38:11 PM — Rainbow: "Now no space tag."
       // 9:38:15 PM — Rainbow: "But I still took the asteroid deflection system action, so I put a
       // cube on my card."
-      cardAction1(AsteroidDeflectionSystem) { doTask("Ok") }
+      cardAction1(AsteroidDeflectionSystem) {
+        doTask("0 ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>")
+      }
     }
     green.turn {
       // 9:38:27 PM — Green: "Um, well, I mean, actually, I might as well spend the four on ishtar

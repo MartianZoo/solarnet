@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -32,13 +32,10 @@ internal class InsulationTest : TfmSandboxTest() {
     kim.setToExMachina(0, "PROD[MC]")
     kim.setToExMachina(3, "PROD[Heat]")
 
-    shouldThrow<NarrowingException> {
+    shouldThrow<TaskException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<Insulation>>")
-        selectTask("-X? MC")
         doTasks("-2 MC", "Insulation FROM ProjectCard")
-        selectOnlyTask()
         doTask("Ok")
       }
     }

@@ -12,7 +12,11 @@ private object EnglishCardTextCurrentGenerator {
     val output = File(args[0])
     val refusalOutput = File(args[1])
     val catalog = TfmCatalog(Canon, FakeCanon)
-    val english = English(catalog.classTable, TerraformingMarsDescribers.descriptions)
+    val english =
+        English(
+            catalog.classTable,
+            TerraformingMarsDescribers.descriptions + fakeEnglishDescriptions,
+        )
     val published =
         EnglishCardTextData.parse(readEnglishCardText("english-published-wording-evidence.tsv"))
     val orderedCards = published.keys.map(catalog.classTable::getClass)

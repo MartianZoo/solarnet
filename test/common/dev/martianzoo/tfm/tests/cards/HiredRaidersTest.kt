@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
@@ -33,16 +33,14 @@ internal class HiredRaidersTest : TfmSandboxTest() {
     kim.setToExMachina(1, "MC")
     stan.setToExMachina(3, "MC")
 
-    shouldThrow<NarrowingException> {
+    shouldThrow<TaskException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<HiredRaiders>>")
-        selectTask("-X? MC")
+
         doTasks(
             "-1 MC",
             "HiredRaiders FROM ProjectCard",
         )
-        selectOnlyTask()
         doTask("Ok")
       }
     }

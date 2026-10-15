@@ -9,8 +9,8 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 
 /**
- * The combination of a positive integer (or `X`) with an [Expression], as a gain or removal writes
- * it ([rule
+ * The combination of a nonnegative integer (or `X`) with an [Expression], as a gain or removal
+ * writes it ([rule
  * L2-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
  * A missing count is one.
  */
@@ -50,7 +50,7 @@ private constructor(
    * How many, in a [ScaledExpression]: either a fixed [ActualScalar] or an [XScalar] left open
    * ([rule
    * L2-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
-   * Zero is rejected wherever a count is required.
+   * Instruction counts permit zero; requirements and metric units impose their own restrictions.
    */
   public sealed class Scalar private constructor() : PetNode(), Specification<Scalar> {
     override val kind: kotlin.reflect.KClass<out PetNode> = Scalar::class
@@ -127,7 +127,8 @@ private constructor(
         if (this != that) throw NarrowingException("`$this` does not narrow `$that`")
       }
 
-      override fun times(multiple: Int) = copy(multiple = this.multiple * multiple)
+      override fun times(multiple: Int): Scalar =
+          if (multiple == 0) ActualScalar(0) else copy(multiple = this.multiple * multiple)
 
       override fun toString(): String = if (multiple == 1) "X" else "${multiple}X"
     }

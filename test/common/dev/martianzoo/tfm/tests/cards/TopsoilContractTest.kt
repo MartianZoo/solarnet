@@ -19,7 +19,7 @@ internal class TopsoilContractTest : TfmSandboxTest() {
               "TopsoilContract FROM ProjectCard",
               "3 Plant",
           )
-          selectTask("Microbe<Decomposers>*")
+          doTask("Microbe<Decomposers>*")
           doTask("MC")
         }
         .expect("Microbe<$Decomposers>")

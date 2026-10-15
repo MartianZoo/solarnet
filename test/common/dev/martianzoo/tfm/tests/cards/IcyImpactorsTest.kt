@@ -15,12 +15,13 @@ internal class IcyImpactorsTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTask("UseCardAction<IcyImpactors, Action2>")
-          selectOnlyTask()
+          doTask("-Asteroid<IcyImpactors>")
+          // Expand the start-player choice; its System signal is executed by Admin.
           selectOnlyTask()
           kim.doTask("OceanTile<Tharsis_2_6> BY Stan")
-          selectOnlyTask()
+          doTask("OceanTile<Tharsis_2_6>")
           doTask("TerraformRating")
-          selectOnlyTask()
+          doTask("2 ProjectCard")
         }
         .expect("0 TerraformRating<Kim>")
   }

@@ -149,7 +149,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$GiantIceAsteroid>>",
           "-36 MC",
-          "Ok", // no titanium paid
           "$GiantIceAsteroid FROM ProjectCard",
           "2 TemperatureStep",
           "2 TerraformRating",
@@ -232,7 +231,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$ElectroCatapult>>",
           "-17 MC",
-          "Ok", // no steel paid
           "$ElectroCatapult FROM ProjectCard",
           "PROD[-Energy]",
       )
@@ -246,7 +244,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$ResearchOutpost>>",
           "-18 MC",
-          "Ok", // no steel paid
           "$ResearchOutpost FROM ProjectCard",
           "CityTile<Vastitas_9_9>",
           "Steel",
@@ -258,7 +255,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$Casinos>>",
           "-5 MC",
-          "Ok", // no steel paid
           "$Casinos FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[4 MC]",
@@ -327,7 +323,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$IndustrialCenter>>",
           "-4 MC",
-          "Ok", // no steel paid
           "$IndustrialCenter FROM ProjectCard",
           "IndustrialCenter_SpecialTile<Vastitas_8_8>",
           "Steel",
@@ -356,7 +351,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "$InventionContest FROM ProjectCard",
           "3 ProjectCard<Selecting>",
           "ProjectCard<Hand FROM Selecting>",
-          "-2 ProjectCard<Selecting>",
           "PlayedEvent<Class<$InventionContest>> FROM $InventionContest",
       )
     }
@@ -389,7 +383,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
     p2.doTasks(
-        "Ok", // keep all four research cards
+        "-0 ProjectCard<Selecting>", // keep all four research cards
         "-12 MC",
         "4 ProjectCard<Hand FROM Selecting>",
     )
@@ -609,7 +603,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$CorporateStronghold>>",
           "-11 MC",
-          "Ok", // no steel paid
           "$CorporateStronghold FROM ProjectCard",
           "PROD[-Energy]",
           "PROD[3 MC]",
@@ -701,7 +694,11 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
     p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
-    p2.doTasks("Ok", "-12 MC", "4 ProjectCard<Hand FROM Selecting>") // keep all four
+    p2.doTasks(
+        "-0 ProjectCard<Selecting>",
+        "-12 MC",
+        "4 ProjectCard<Hand FROM Selecting>",
+    ) // keep all four
 
     p2.turn {
       doTasks(
@@ -759,7 +756,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks(
           "PlayProject<Class<$SixteenPsyche>>",
           "-31 MC",
-          "Ok", // no titanium paid
           "$SixteenPsyche FROM ProjectCard",
           "PROD[2 Titanium]",
           "3 Titanium",
@@ -820,7 +816,11 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     // Generation 7 Research. Aqua keeps four cards; Pink keeps one.
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("Ok", "-12 MC", "4 ProjectCard<Hand FROM Selecting>") // keep all four
+    p1.doTasks(
+        "-0 ProjectCard<Selecting>",
+        "-12 MC",
+        "4 ProjectCard<Hand FROM Selecting>",
+    ) // keep all four
     p2.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard<Hand FROM Selecting>")
 
     // The transcript's "Rune Chatter in Tax" is Rotator Impacts: its three-M€
@@ -1068,7 +1068,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     // Generation 8 Research. Aqua buys four cards; Pink buys three.
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("Ok", "-12 MC", "4 ProjectCard<Hand FROM Selecting>")
+    p1.doTasks("-0 ProjectCard<Selecting>", "-12 MC", "4 ProjectCard<Hand FROM Selecting>")
     p2.doTasks("-ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
     p2.turn {
       doTasks(
@@ -1369,7 +1369,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "Plant",
           "OxygenStep",
           "TerraformRating",
-          "Ok", // decline TemperatureStep. at the oxygen threshold
+          "0 TemperatureStep", // decline TemperatureStep. at the oxygen threshold
       )
       // "You got the non-existent bonus." The table does not take the 8% temperature bonus.
     }
@@ -1556,7 +1556,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     }
     p1.turn {
       doTasks("UseCardAction<$InventorsGuild, Action1>", "ProjectCard<Selecting>")
-      doTasks("Ok", "-3 MC", "ProjectCard<Hand FROM Selecting>")
+      doTasks("-0 ProjectCard<Selecting>", "-3 MC", "ProjectCard<Hand FROM Selecting>")
     }
     p2.turn {
       doTasks(
@@ -1624,7 +1624,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "3 MC", // Media Group
           "ProjectCard", // Solar Logistics
       )
-      declineTask("-X? Titanium<Pink>") // no titanium paid
       doTask("PlayedEvent<Class<$HydrogenToVenus>> FROM $HydrogenToVenus")
     }
     p1.turn {
@@ -1860,7 +1859,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "-23 MC",
           "GreeneryTile<Vastitas_7_9>",
           "3 MC",
-          "Ok", // decline OxygenStep.; oxygen is already maxed
+          "0 OxygenStep", // decline OxygenStep.; oxygen is already maxed
       )
     }
     p2.turn {
@@ -1955,8 +1954,6 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
           "-27 MC",
           "$LargeConvoy FROM ProjectCard",
       )
-      selectTask("-X? Titanium<Pink>")
-      declineTask("-X? Titanium<Pink>") // no titanium paid
       doTasks(
           "Ok", // all oceans are already placed
           "2 ProjectCard",
@@ -1988,7 +1985,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       doTasks(
           "UseCardAction<$RotatorImpacts, Action2>",
           "-Asteroid<$RotatorImpacts>",
-          "Ok", // Venus is already maxed
+          "0 VenusStep", // Venus is already maxed
       )
     }
     p2.turn {
@@ -2023,7 +2020,11 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     p2.turn {
       doTasks("ConvertPlants", "-8 Plant")
       selectTask("MAX 0 Billing: DefaultGreeneryTile")
-      doTasks("GreeneryTile<Vastitas_2_3>", "2 MC", "Ok") // decline OxygenStep.; oxygen is maxed
+      doTasks(
+          "GreeneryTile<Vastitas_2_3>",
+          "2 MC",
+          "0 OxygenStep",
+      ) // decline OxygenStep.; oxygen is maxed
       doTasks("UseStandardProject<SellPatentsProject>", "5 MC FROM ProjectCard")
     }
     p1.turn {

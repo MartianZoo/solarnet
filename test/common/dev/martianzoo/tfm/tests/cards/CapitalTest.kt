@@ -24,8 +24,8 @@ internal class CapitalTest : TfmSandboxTest() {
     )
 
     kim.inTurn {
-      doTasks("ClaimMilestone<Class<Manager>>", "-MC / Owed<Class<MC>>")
-      selectOnlyTask()
+      doTasks("ClaimMilestone<Class<Manager>>", "-8 MC")
+      doTask("Manager")
     }
   }
 
@@ -36,7 +36,7 @@ internal class CapitalTest : TfmSandboxTest() {
     stan.exMachina("GreeneryTile<Stan, Cimmeria_2_2>")
     stan.inTurn {
       doTasks("FundAward<Class<Founder>>", "-8 MC")
-      selectOnlyTask()
+      doTask("Founder")
     }
 
     victoryPoints() shouldBe listOf(21, 26)
@@ -56,15 +56,13 @@ internal class CapitalTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("PlayProject<Class<Capital>>", "-26 MC")
-          selectTask("-X? Steel")
           doTasks(
-              "Ok",
               "Capital FROM ProjectCard",
               "PROD[-2 Energy]",
               "PROD[5 MC]",
               "CapitalTile<Tharsis_3_3>",
           )
-          kim.selectTask("PROD[MC]")
+          kim.doTask("PROD[MC]")
         }
         .expect("PROD[MC<Kim>]")
   }

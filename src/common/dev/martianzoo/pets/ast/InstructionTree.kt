@@ -20,8 +20,9 @@ public sealed class InstructionTree : PetElement(), Specification<InstructionTre
    * Whether this tree still requires a gameplay choice or other narrowing. Per
    * [rule L3-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)
    * that means an unfixed `X`, an absent or optional quantifier, an abstract expression, or an
-   * `OR`. This judgment is about *elaborated* instructions: an authored change carries no
-   * quantifier until elaboration supplies one.
+   * `OR`. Zero-count changes and alternatives consisting entirely of zero changes or [NoOp] require
+   * no gameplay choice. This judgment is about *elaborated* instructions: an authored change
+   * carries no quantifier until elaboration supplies one.
    */
   public abstract override fun isAbstract(info: TypeInfo): Boolean
 
@@ -30,10 +31,11 @@ public sealed class InstructionTree : PetElement(), Specification<InstructionTre
    * null when no common narrowing can be represented. Fixed structure (including gates, metrics,
    * performers and stage counts) must agree; this does not resolve instructions or choose among the
    * remaining alternatives. Surviving alternatives are checked against both operands' narrowing
-   * rules, including shared choices within sequences and transmutations. An overlapping Type domain
-   * without a single expressible bound, or a combined tree unable to retain shared choices, throws
-   * [NarrowingException] rather than guessing or treating the inputs as disjoint. The caller must
-   * supply a more specific choice.
+   * rules, including shared choices within sequences and transmutations. Two changes must intersect
+   * in their Types; a shared ability to decline does not supply that intersection. An overlapping
+   * Type domain without a single expressible bound, or a combined tree unable to retain shared
+   * choices, throws [NarrowingException] rather than guessing or treating the inputs as disjoint.
+   * The caller must supply a more specific choice.
    */
   public fun intersect(
       that: InstructionTree,
@@ -48,7 +50,7 @@ public sealed class InstructionTree : PetElement(), Specification<InstructionTre
    *
    * Narrowing preserves the kind of node, the number of `THEN` stages and the size of a group, with
    * exactly two exceptions: any instruction may narrow an [Or] by narrowing one arm, and [NoOp] may
-   * narrow an optional change ([rule
+   * narrow an optional or zero-count change ([rule
    * L3-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    *
    * @throws NarrowingException if this tree does not narrow [that], saying why. A failure caused by

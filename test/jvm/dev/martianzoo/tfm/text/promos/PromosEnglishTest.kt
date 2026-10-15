@@ -40,6 +40,6 @@ internal class PromosEnglishTest {
             .single()
     ) shouldBe
         "When any player has their resources removed by another player, or has their production " +
-            "decreased by another player, pay 3 M€ to that player, or as much as possible."
+            "decreased by another player, pay 3 M€ to that player (to the extent possible)."
   }
 }

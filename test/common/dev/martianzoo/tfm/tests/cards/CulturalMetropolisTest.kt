@@ -16,16 +16,12 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayProject<Class<CulturalMetropolis>>", "-20 MC")
-        selectTask("-X? Steel")
-        selectTask("Ok")
         doTask("CulturalMetropolis FROM ProjectCard")
-        selectTask("PROD[-Energy]")
-        selectTask("PROD[3 MC]")
+        doTask("PROD[-Energy]")
+        doTask("PROD[3 MC]")
         doTask("CityTile<Tharsis_4_2>")
-        selectTask("Plant!")
-        selectOnlyTask()
+        doTask("Plant")
         doTask("2 PartyDelegate<Scientists>")
       }
     }
@@ -42,16 +38,13 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<CulturalMetropolis>>", "-20 MC")
-          selectTask("-X? Steel")
           doTasks(
-              "Ok",
               "CulturalMetropolis FROM ProjectCard",
               "PROD[-Energy]",
               "PROD[3 MC]",
               "CityTile<Tharsis_4_2>",
               "Plant",
           )
-          selectOnlyTask()
           doTask("2 PartyDelegate<Scientists>")
         }
         .expect("-LobbyActionAvailable")

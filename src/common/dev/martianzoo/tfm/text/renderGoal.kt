@@ -15,6 +15,7 @@ internal fun renderGoal(goal: Class, describers: Describers): EnglishText =
         renderRequirement(
             replaceThisExpressionsWith(goal.className.expression).transformRequirement(requirement),
             describers,
+            terse = true,
         )
       }
       goal.isSubtypeOf(goal.classTable.getClass(AWARD)) -> {

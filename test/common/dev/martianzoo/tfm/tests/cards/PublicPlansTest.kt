@@ -19,9 +19,8 @@ internal class PublicPlansTest : TfmSandboxTest() {
           "-7 MC",
           "PublicPlans FROM ProjectCard",
       )
-      selectOnlyTask()
       doTask("2 ProjectCard<Revealed FROM Hand>")
-      selectOnlyTask()
+      doTask("2 ProjectCard FROM ProjectCard<Revealed>")
       doTask("2 MC")
       doTask("PlayedEvent<Class<PublicPlans>> FROM PublicPlans")
     }
@@ -37,9 +36,8 @@ internal class PublicPlansTest : TfmSandboxTest() {
           "-7 MC",
           "PublicPlans FROM ProjectCard",
       )
-      selectOnlyTask()
       doTask("ProjectCard<Revealed FROM Hand>")
-      selectOnlyTask()
+      doTask("ProjectCard FROM ProjectCard<Revealed>")
       doTask("MC")
       doTask("PlayedEvent<Class<PublicPlans>> FROM PublicPlans")
     }
@@ -51,14 +49,12 @@ internal class PublicPlansTest : TfmSandboxTest() {
 
     shouldThrow<NotNowException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<PublicPlans>>")
-        selectTask("-X? MC")
+
         doTasks(
             "-7 MC",
             "PublicPlans FROM ProjectCard",
         )
-        selectOnlyTask()
         doTask("ProjectCard<Revealed FROM Hand>")
       }
     }

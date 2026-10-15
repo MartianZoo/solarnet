@@ -19,6 +19,7 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
               "-5 MC",
               "VoteOfNoConfidence FROM ProjectCard",
           )
+          // Hand the chairmanship transfer to Admin, which updates the political state.
           selectTask("Chairman<Kim FROM Neutral>!")
           doTask("TerraformRating")
           doTask("PlayedEvent<Class<VoteOfNoConfidence>> FROM VoteOfNoConfidence")
@@ -33,11 +34,10 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
 
     shouldThrow<DeadEndException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<VoteOfNoConfidence>>")
-        selectTask("-X? MC")
         doTasks("-5 MC", "VoteOfNoConfidence FROM ProjectCard")
-        selectTask("TerraformRating!")
+        doTask("TerraformRating")
+        // Hand the chairmanship transfer to Admin, which updates the political state.
         selectTask("Chairman<Kim FROM Neutral>!")
       }
     }
@@ -54,11 +54,10 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<VoteOfNoConfidence>>")
-        selectTask("-X? MC")
         doTasks("-5 MC", "VoteOfNoConfidence FROM ProjectCard")
-        selectTask("TerraformRating!")
+        doTask("TerraformRating")
+        // Hand the chairmanship transfer to Admin, which updates the political state.
         selectTask("Chairman<Kim FROM Neutral>!")
       }
     }

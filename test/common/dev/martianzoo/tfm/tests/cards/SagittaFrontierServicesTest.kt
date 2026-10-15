@@ -19,7 +19,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
           "PROD[Energy]",
           "PROD[2 MC]",
       )
-      selectTask("SearchForCard<Kim, NoTagsFilter>!")
+      doTask("SearchForCard<Kim, NoTagsFilter>!")
       doTasks("4 MC", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
   }
@@ -36,7 +36,6 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
           "AtmoCollectors FROM ProjectCard",
           "4 MC",
       )
-      selectTask("2* Floater")
       doTask("2* Floater<AtmoCollectors>")
     }
   }
@@ -69,12 +68,11 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<SmallAsteroid>>", "-10 MC")
-      selectTask("-X? Titanium")
       doTasks(
-          "Ok",
           "SmallAsteroid FROM ProjectCard",
       )
-      selectTask("TemperatureStep*")
+      doTask("TemperatureStep")
+      // Resolve the optional attack: no unprotected plant target is available.
       selectTask("-2? Plant<Anyone>")
       doTask("TerraformRating")
       doTask("PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid")
@@ -87,8 +85,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<Mine>>", "-4 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "Mine FROM ProjectCard", "PROD[Steel]", "MC")
+      doTasks("Mine FROM ProjectCard", "PROD[Steel]", "MC")
     }
   }
 
@@ -99,7 +96,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<Research>>", "-11 MC", "Research FROM ProjectCard")
-      selectTask("2! ProjectCard<Kim, Hand>")
+      doTask("2 ProjectCard<Kim, Hand>")
     }
   }
 
@@ -110,8 +107,7 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     stan
         .inTurn {
           doTasks("PlayProject<Class<Mine>>", "-4 MC")
-          selectTask("-X? Steel")
-          doTasks("Ok", "Mine FROM ProjectCard", "PROD[Steel]")
+          doTasks("Mine FROM ProjectCard", "PROD[Steel]")
         }
         .expect("0 MC<Kim>")
   }
@@ -133,13 +129,12 @@ internal class SagittaFrontierServicesTest : TfmSandboxTest() {
     kim.setToExMachina(54, "MC")
     return kim.inTurn {
       doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-      selectTask("4! CorporationCard<Kim, Selecting>")
+      doTask("4 CorporationCard<Kim, Selecting>")
       doTask("-42 MC")
-      selectTask("-3! CorporationCard<Kim, Selecting>")
       doTask("PlayCard<Class<CorporationCard>, Class<SagittaFrontierServices>>")
       doTask("SagittaFrontierServices<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTasks("31 MC", "PROD[Energy]", "PROD[2 MC]")
-      selectTask("SearchForCard<Kim, NoTagsFilter>!")
+      doTask("SearchForCard<Kim, NoTagsFilter>!")
       doTask("4 MC")
     }
   }

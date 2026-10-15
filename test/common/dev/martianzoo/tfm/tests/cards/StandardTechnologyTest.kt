@@ -17,9 +17,7 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseStandardProject<PowerPlantProject>")
-        selectTask("-X? MC")
         doTask("-11 MC")
       }
     }
@@ -51,24 +49,23 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
     newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectOnlyTask()
-      selectTask("-3! ProjectCard<Kim, Hand>")
+      doTask("4 ProjectCard")
+      doTask("-3 ProjectCard<Kim, Hand>")
     }
     kim.exMachina("$StandardTechnology")
     kim.setToExMachina(7, "Science<$Spire>")
     stan.setToExMachina(18, "TemperatureStep")
     stan.inTurn {
       doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
-      selectTask("TemperatureStep*")
+      doTask("TemperatureStep")
       doTask("TerraformRating")
     }
 
     kim.inTurn {
           doTasks("UseStandardProject<AsteroidProject>", "-7 Science<Spire>")
-          selectTask("TemperatureStep*")
+          doTask("TemperatureStep")
           doTask("3 MC")
-          selectTask("-X? MC")
-          doTask("Ok")
+          doTask("Ok" /* No MC payment. */)
         }
         .expect("0 TemperatureStep, 0 TerraformRating")
   }

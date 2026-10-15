@@ -95,6 +95,32 @@ internal class ByTriggerCharacterizationTest {
   }
 
   @Test
+  internal fun actorBindingReachesAnInnerConditionAndCountedTrigger() {
+    val game = newGame()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = EAGER }
+    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = EAGER }
+    p2.sneak("WrappedActorBindingProbe!, Steel<Player2>!")
+
+    p2.runOperation("3! OwnedActorTrigger<Player1>")
+
+    p1.count("Heat") shouldBe 3
+    p2.count("Plant") shouldBe 1
+  }
+
+  @Test
+  internal fun actorBindingRejectsAnInnerConditionMetOnlyByAnotherPlayer() {
+    val game = newGame()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = EAGER }
+    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = EAGER }
+    p2.sneak("WrappedActorBindingProbe!, Steel<Player1>!")
+
+    p2.runOperation("3! OwnedActorTrigger<Player1>")
+
+    p1.count("Heat") shouldBe 0
+    p2.count("Plant") shouldBe 0
+  }
+
+  @Test
   internal fun byPlayerRejectsAdmin() {
     val game = newGame()
     val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
@@ -253,6 +279,10 @@ private object ProbeDeclarations : TfmCatalog() {
 
               CLASS ActorBindingProbe {
                 -OwnedActorTrigger<Other@Owner(NOT ActingPlayer@Player)> BY ActingPlayer@Player: Steel<ActingPlayer@Player>, Heat<Other@Owner>
+              }
+
+              CLASS WrappedActorBindingProbe {
+                (X OwnedActorTrigger<Other@Owner(NOT Acting@Player)> IF Steel<Acting@Player>) BY Acting@Player: X Heat<Other@Owner>, Plant<Acting@Player>
               }
 
               CLASS RepeatedHolderProbe : Owned {

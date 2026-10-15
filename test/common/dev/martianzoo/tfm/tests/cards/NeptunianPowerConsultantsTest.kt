@@ -22,14 +22,13 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
               "TerraformRating",
               "2 Plant",
           )
-          selectOnlyTask()
           doTasks(
               "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
               "-2 Steel",
               "-1 MC",
               "PROD[Energy]",
           )
-          selectOnlyTask()
+          doTask("Hydroelectric<NeptunianPowerConsultants>")
         }
         .expect("Hydroelectric")
   }
@@ -47,11 +46,9 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
           )
           kim.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
           doTask("2 Steel")
-          kim.selectTask("-X? Steel<Kim>")
-          kim.doTask("Ok")
           kim.doTask("-5 MC")
-          kim.selectTask("PROD[Energy]")
-          kim.selectOnlyTask()
+          kim.doTask("PROD[Energy]")
+          kim.doTask("Hydroelectric<NeptunianPowerConsultants>")
         }
         .expect("-5 MC<Kim>, Hydroelectric<Kim>, PROD[Energy<Kim>]")
   }
@@ -70,7 +67,7 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
               "OceanTile<Tharsis_1_2>",
               "TerraformRating",
           )
-          kim.doTask("Ok")
+          kim.doTask("0 UseAction<NeptunianOption<NeptunianPowerConsultants>>")
           doTask("2 Steel")
         }
         .expect("0 Hydroelectric<Kim>")

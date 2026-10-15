@@ -413,10 +413,27 @@ internal class CardTrackingTest : TfmTest() {
             "PreludeExpansion, VenusNextExpansion, prelude2:cards, promos:cards, TurmoilExpansion"
         )
     tracking.expectArrivals(player, cn("SupportedResearch"))
-    agents[player].runOperation("SearchForCard<ReferenceFilter<Class<PartyRequirement>>>")
+    agents[player].runOperation("SearchForCard<ReferenceFilter<Class<Ruling>>>")
 
     tracking.hand(player) shouldBe setOf(cn("SupportedResearch"))
     tracking.requireComplete()
+  }
+
+  @Test
+  internal fun aPartyRequirementSearchRejectsACardThatOnlyMovesDelegates() {
+    val (tracking, player) =
+        newTrackedGame(
+            "PreludeExpansion, VenusNextExpansion, prelude2:cards, promos:cards, TurmoilExpansion"
+        )
+    tracking.expectArrivals(player, cn("BannedDelegate"))
+    val before = game.timeline.checkpoint()
+
+    shouldThrow<IllegalStateException> {
+      agents[player].runOperation("SearchForCard<ReferenceFilter<Class<Ruling>>>")
+    }
+
+    game.timeline.checkpoint() shouldBe before
+    tracking.hand(player) shouldBe emptySet()
   }
 
   @Test

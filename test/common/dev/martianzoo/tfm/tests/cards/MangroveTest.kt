@@ -15,15 +15,14 @@ internal class MangroveTest : TfmSandboxTest() {
     kim.exMachina("NormalCityTile<Kim, Tharsis_9_5>")
 
     kim.inTurn {
-          doTasks(
-              "PlayProject<Class<Mangrove>>",
-              "-12 MC",
-              "Mangrove FROM ProjectCard",
-              "GreeneryTile<Tharsis_1_2>",
-          )
-          selectTask("OxygenStep*")
-          doTasks("2 Steel", "TerraformRating")
-        }
-        .expect("OxygenStep")
+      doTasks(
+          "PlayProject<Class<Mangrove>>",
+          "-12 MC",
+          "Mangrove FROM ProjectCard",
+          "GreeneryTile<Tharsis_1_2>",
+      )
+      doTask("OxygenStep")
+      doTasks("2 Steel", "TerraformRating")
+    }
   }
 }

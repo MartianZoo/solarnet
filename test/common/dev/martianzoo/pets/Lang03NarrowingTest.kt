@@ -152,8 +152,10 @@ internal class Lang03NarrowingTest {
   // L3-5 Ok
 
   @Test
-  internal fun `L3-5 Ok narrows an optional change and nothing else`() {
+  internal fun `L3-5 Ok narrows an optional or zero-count change`() {
     narrows("2? Plant", "Ok") shouldBe true
+    narrows("0! Plant", "Ok") shouldBe true
+    narrows("0* Plant", "Ok") shouldBe true
     refuses("2! Plant", "Ok")
     refuses("2* Plant", "Ok")
   }
@@ -198,8 +200,8 @@ internal class Lang03NarrowingTest {
 
   @Test
   internal fun `L3-7 X is at least one`() {
-    // A written zero is already rejected when parsed (L2-2), so this is the only way to propose
-    // one.
+    refuses("X Plant", "0 Plant")
+    refuses("X? Plant", "0 Plant")
     shouldThrow<NarrowingException> { ActualScalar(0).ensureNarrows(XScalar(1), langWorld) }
     ActualScalar(3).ensureNarrows(XScalar(1), langWorld)
   }

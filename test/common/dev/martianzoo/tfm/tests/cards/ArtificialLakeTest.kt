@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.ArtificialLake
@@ -19,12 +19,8 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-        selectTask("-X? Steel")
-        selectTask("Ok")
         doTask("ArtificialLake FROM ProjectCard")
-        selectOnlyTask()
         doTask("OceanTile<Tharsis_2_3>")
       }
     }
@@ -40,9 +36,7 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-      selectTask("-X? Steel")
       doTasks(
-          "Ok",
           "ArtificialLake FROM ProjectCard",
           "OceanTile<Tharsis_2_3>",
           "TerraformRating",
@@ -69,8 +63,8 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-          selectTask("-X? Steel")
-          doTasks("Ok", "ArtificialLake FROM ProjectCard")
+          doTasks("ArtificialLake FROM ProjectCard")
+          // Resolve the placement offer: the full ocean track leaves no legal placement.
           selectOnlyTask()
         }
         .expect("0 OceanTile, 0 TerraformRating")
@@ -82,14 +76,10 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
     kim.setToExMachina(12, "TemperatureStep")
     kim.exMachina(kim.list("WaterArea").take(9).joinToString { "OceanTile<$it>" })
 
-    shouldThrow<NarrowingException> {
+    shouldThrow<TaskException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
-        selectTask("-X? Steel")
-        selectTask("Ok")
         doTask("ArtificialLake FROM ProjectCard")
-        selectOnlyTask()
         doTask("Ok")
       }
     }

@@ -13,13 +13,15 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
   internal fun `Raises the track before trade income`() {
     kim.exMachina("$TradeEnvoys")
     kim.setToExMachina(9, "MC")
-    admin.sneak("3 ColonyProduction<Luna>")
+    admin.setToExMachina(4, "ColonyProduction<Luna>")
 
     kim.inTurn {
-          doTasks("TradeAction", "-MC / Owed<Class<MC>>")
-          selectTask("Trade!")
+          doTasks("TradeAction", "-9 MC")
+
           doTasks("Trade<Luna>")
+          // Hand the colony-track change to Admin before collecting trade income.
           selectTask("ColonyProduction<Luna>?")
+          // Hand the colony-track change to Admin before collecting trade income.
           selectTask("ColonyProduction<Luna>!")
           doTask("13 MC")
         }
@@ -32,14 +34,16 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
   internal fun `Raises the track when Titan Floating Launch-Pad trades`() {
     kim.exMachina("$TradeEnvoys, $TitanFloatingLaunchPad, 2 Floater<$TitanFloatingLaunchPad>")
     kim.setToExMachina(0, "MC")
-    admin.sneak("3 ColonyProduction<Luna>")
+    admin.setToExMachina(4, "ColonyProduction<Luna>")
 
     kim.inTurn {
       doTask("UseCardAction<TitanFloatingLaunchPad, Action2>")
-      selectTask("-Floater<TitanFloatingLaunchPad>!")
-      selectTask("Trade!")
+      doTask("-Floater<TitanFloatingLaunchPad>")
+
       doTasks("Trade<Luna>")
+      // Hand the colony-track change to Admin before collecting trade income.
       selectTask("ColonyProduction<Luna>?")
+      // Hand the colony-track change to Admin before collecting trade income.
       selectTask("ColonyProduction<Luna>!")
       doTask("13 MC")
     }
@@ -51,12 +55,13 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
   internal fun `Does not increase a maxed track`() {
     kim.exMachina("$TradeEnvoys")
     kim.setToExMachina(9, "MC")
-    admin.sneak("5 ColonyProduction<Luna>")
+    admin.setToExMachina(6, "ColonyProduction<Luna>")
 
     kim.inTurn {
-          doTasks("TradeAction", "-MC / Owed<Class<MC>>")
-          selectTask("Trade!")
+          doTasks("TradeAction", "-9 MC")
+
           doTasks("Trade<Luna>")
+          // Hand the colony-track change to Admin before collecting trade income.
           selectTask("ColonyProduction<Luna>?")
           doTask("17 MC")
         }
@@ -69,17 +74,20 @@ internal class TradeEnvoysTest : TfmSandboxTest() {
   internal fun `Both track decisions precede trade income`() {
     kim.exMachina("$TradeEnvoys, $TradingColony")
     kim.setToExMachina(9, "MC")
-    admin.sneak("3 ColonyProduction<Luna>")
+    admin.setToExMachina(4, "ColonyProduction<Luna>")
 
     kim.inTurn {
           // Decline the other card's additional optional track increase.
-          doTasks("TradeAction", "-MC / Owed<Class<MC>>")
-          selectTask("Trade!")
+          doTasks("TradeAction", "-9 MC")
+
           doTasks("Trade<Luna>")
+          // Hand the colony-track change to Admin before collecting trade income.
           selectTask("ColonyProduction<Luna>?")
+          // Hand the colony-track change to Admin before collecting trade income.
           selectTask("ColonyProduction<Luna>!")
+          // Hand the colony-track change to Admin before collecting trade income.
           selectTask("ColonyProduction<Luna>?")
-          doTasks("Ok", "13 MC")
+          doTasks("0 ColonyProduction<Luna>", "13 MC")
         }
         .expect("4 MC")
 

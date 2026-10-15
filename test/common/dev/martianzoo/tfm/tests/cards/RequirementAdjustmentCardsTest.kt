@@ -12,7 +12,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Inventrix)
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectOnlyTask()
+      doTask("3 ProjectCard")
     }
     kim.exMachina(
         "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_6>, OceanTile<Tharsis_4_8>"
@@ -34,7 +34,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Inventrix)
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectOnlyTask()
+      doTask("3 ProjectCard")
     }
     kim.exMachina("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>")
 
@@ -54,7 +54,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Inventrix)
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectOnlyTask()
+      doTask("3 ProjectCard")
     }
     kim.exMachina(
         "OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>, OceanTile<Tharsis_2_6>, OceanTile<Tharsis_4_8>"
@@ -70,7 +70,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Inventrix)
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectOnlyTask()
+      doTask("3 ProjectCard")
     }
     kim.exMachina("$AdaptationTechnology")
     kim.setToExMachina(11, "TemperatureStep")
@@ -81,7 +81,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
           "-4 MC",
           "SpecialDesign FROM ProjectCard",
       )
-      selectOnlyTask()
+      doTask("SpecialDesign_NextCardEffect")
       doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
     }
 
@@ -102,7 +102,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     newTestGame(kimCorporation = Inventrix)
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectOnlyTask()
+      doTask("3 ProjectCard")
     }
     kim.exMachina("$AdaptationTechnology")
     kim.setToExMachina(11, "TemperatureStep")
@@ -113,7 +113,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
           "-4 MC",
           "SpecialDesign FROM ProjectCard",
       )
-      selectOnlyTask()
+      doTask("SpecialDesign_NextCardEffect")
       doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
     }
     kim.inTurn {
@@ -129,11 +129,10 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<Birds>>")
-        selectTask("-X? MC")
         doTask("-10 MC")
-        selectOnlyTask()
+        // Resolve the pending play to evaluate the card requirement before transferring it.
+        selectTask("Birds FROM ProjectCard")
       }
     }
   }
@@ -143,14 +142,13 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     newTestGame(kimCorporation = MorningStarInc)
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectOnlyTask()
+      doTask("3 SearchForCard<TagFilter<Class<VenusTag>>>")
     }
     kim.setToExMachina(9, "VenusStep")
 
     kim.inTurn {
       doTasks("PlayProject<Class<RotatorImpacts>>", "-6 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "RotatorImpacts FROM ProjectCard")
+      doTasks("RotatorImpacts FROM ProjectCard")
     }
   }
 
@@ -159,17 +157,16 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     newTestGame(kimCorporation = MorningStarInc)
     kim.inTurn {
       doTask("RequiredActionsSignal")
-      selectOnlyTask()
+      doTask("3 SearchForCard<TagFilter<Class<VenusTag>>>")
     }
     kim.setToExMachina(9, "VenusStep")
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<Algae>>")
-        selectTask("-X? MC")
         doTask("-10 MC")
-        selectOnlyTask()
+        // Resolve the pending play to evaluate the card requirement before transferring it.
+        selectTask("Algae FROM ProjectCard")
       }
     }
   }
@@ -184,22 +181,20 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
           "-4 MC",
           "SpecialDesign FROM ProjectCard",
       )
-      selectOnlyTask()
+      doTask("SpecialDesign_NextCardEffect")
       doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<Mine>>", "-4 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "Mine FROM ProjectCard", "PROD[Steel]")
+      doTasks("Mine FROM ProjectCard", "PROD[Steel]")
     }
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<ArcticAlgae>>")
-        selectTask("-X? MC")
         doTask("-12 MC")
-        selectOnlyTask()
+        // Resolve the pending play to evaluate the card requirement before transferring it.
+        selectTask("ArcticAlgae FROM ProjectCard")
       }
     }
   }
@@ -214,7 +209,7 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
           "-4 MC",
           "SpecialDesign FROM ProjectCard",
       )
-      selectOnlyTask()
+      doTask("SpecialDesign_NextCardEffect")
       doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
     }
     kim.inTurn {
@@ -223,11 +218,10 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<ArcticAlgae>>")
-        selectTask("-X? MC")
         doTask("-12 MC")
-        selectOnlyTask()
+        // Resolve the pending play to evaluate the card requirement before transferring it.
+        selectTask("ArcticAlgae FROM ProjectCard")
       }
     }
   }
@@ -244,15 +238,14 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
           "-4 MC",
           "SpecialDesign FROM ProjectCard",
       )
-      selectOnlyTask()
+      doTask("SpecialDesign_NextCardEffect")
       doTask("PlayedEvent<Class<SpecialDesign>> FROM SpecialDesign")
     }
     kim.inTurn {
       doTask("UseCardAction<BoardOfDirectors, Action1>")
-      selectTask("PreludeCard<Kim, Hand>!")
-      selectOnlyTask()
+      doTask("PreludeCard<Kim, Hand>")
       doTask("-12 MC")
-      selectTask("-Director<BoardOfDirectors>!")
+      doTask("-Director<BoardOfDirectors>")
       doTasks("PlayCard<Class<PreludeCard>, Class<Donation>>", "Donation FROM PreludeCard", "21 MC")
     }
 

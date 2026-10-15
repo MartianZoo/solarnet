@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
@@ -24,7 +25,6 @@ internal class DoubleDownTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayCard<Class<PreludeCard>, Class<DoubleDown>>", "DoubleDown FROM PreludeCard")
-          selectOnlyTask()
           doTasks("CopyPrelude<BiosphereSupport>", "PROD[-MC]", "PROD[2 Plant]")
         }
         .expect("PROD[0 Steel, 0 Titanium, 0 Energy, 0 Heat]")
@@ -38,12 +38,11 @@ internal class DoubleDownTest : TfmSandboxTest() {
           "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
           "BoardOfDirectors FROM PreludeCard",
       )
-      selectOnlyTask()
+      doTask("4 Director<BoardOfDirectors>")
     }
 
     kim.inTurn {
           doTasks("PlayCard<Class<PreludeCard>, Class<DoubleDown>>", "DoubleDown FROM PreludeCard")
-          selectOnlyTask()
           doTask("CopyPrelude<BoardOfDirectors>")
         }
         .expect("0 Director")
@@ -58,14 +57,15 @@ internal class DoubleDownTest : TfmSandboxTest() {
           "EarlyColonization FROM PreludeCard",
           "3 Energy",
       )
+      // Expand the increase into separate track changes for each active colony.
       selectTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
       doTasks("Colony<Luna>", "PROD[2 MC]")
     }
 
     kim.inTurn {
           doTasks("PlayCard<Class<PreludeCard>, Class<DoubleDown>>", "DoubleDown FROM PreludeCard")
-          selectOnlyTask()
           doTasks("CopyPrelude<EarlyColonization>", "3 Energy")
+          // Expand the increase into separate track changes for each active colony.
           selectTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
           doTasks("Colony<Ceres>", "PROD[Steel]")
         }
@@ -86,9 +86,7 @@ internal class DoubleDownTest : TfmSandboxTest() {
 
     shouldThrow<DependencyException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayCard<Class<PreludeCard>, Class<DoubleDown>>", "DoubleDown FROM PreludeCard")
-        selectOnlyTask()
         doTask("CopyPrelude<MartianIndustries>")
       }
     }
@@ -111,14 +109,12 @@ internal class DoubleDownTest : TfmSandboxTest() {
           "UnmiContractor FROM PreludeCard",
           "3 TerraformRating",
       )
-      selectTask("ProjectCard<Stan, Hand>!")
+      doTask("ProjectCard<Stan, Hand>")
     }
 
     shouldThrow<DependencyException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayCard<Class<PreludeCard>, Class<DoubleDown>>", "DoubleDown FROM PreludeCard")
-        selectOnlyTask()
         doTask("CopyPrelude<UnmiContractor>")
       }
     }
@@ -138,9 +134,7 @@ internal class DoubleDownTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayCard<Class<PreludeCard>, Class<DoubleDown>>", "DoubleDown FROM PreludeCard")
-        selectOnlyTask()
         doTask("CopyPrelude<CrediCor>")
       }
     }
@@ -168,27 +162,24 @@ internal class DoubleDownTest : TfmSandboxTest() {
     kim.setToExMachina(7, "MC")
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
-        selectTask("4! CorporationCard<Kim, Selecting>")
-        selectTask("-3! CorporationCard<Kim, Selecting>")
-        selectTask("PlayCard<Kim, Class<CorporationCard>, Class<CardFront>, Selecting>!")
+        doTask("4 CorporationCard<Kim, Selecting>")
+
         doTask("PlayCard<Class<CorporationCard>, Class<NirgalEnterprises>>")
         doTask("NirgalEnterprises<Kim> FROM CorporationCard<Kim, Selecting>!")
-        selectTask("30! MC")
-        selectTask("PROD[Energy]")
-        selectTask("PROD[Plant]")
-        selectTask("PROD[Steel]")
-        selectOnlyTask()
+        doTask("30 MC")
+        doTask("PROD[Energy]")
+        doTask("PROD[Plant]")
+        doTask("PROD[Steel]")
+        // Resolve Merger's payment to expose the unaffordable corporation.
+        doTask("-42 MC")
       }
     }
     kim.inTurn { doTasks("-PreludeCard", "Audit", "15 MC") }.expect("0 $Merger")
 
     shouldThrow<DependencyException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayCard<Class<PreludeCard>, Class<DoubleDown>>", "DoubleDown FROM PreludeCard")
-        selectOnlyTask()
         doTask("CopyPrelude<Merger>")
       }
     }
@@ -205,13 +196,12 @@ internal class DoubleDownTest : TfmSandboxTest() {
               "PROD[4 MC]",
               "3 MC",
           )
-          selectTask("ProjectCard<Kim, Hand>!")
+          doTask("ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard, EarthTag")
 
     kim.inTurn {
           doTasks("PlayCard<Class<PreludeCard>, Class<DoubleDown>>", "DoubleDown FROM PreludeCard")
-          selectOnlyTask()
           doTasks("CopyPrelude<AlliedBank>", "PROD[4 MC]", "3 MC")
         }
         .expect("0 ProjectCard, 0 EarthTag")
@@ -228,6 +218,7 @@ internal class DoubleDownTest : TfmSandboxTest() {
           "IndustrialComplex FROM PreludeCard",
           "-18 MC",
       )
+      // Expand the copied production box into its separate resource increases.
       selectOnlyTask()
       doTasks(
           "PROD[7 MC]",
@@ -242,8 +233,8 @@ internal class DoubleDownTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayCard<Class<PreludeCard>, Class<DoubleDown>>", "DoubleDown FROM PreludeCard")
-          selectOnlyTask()
           doTasks("CopyPrelude<IndustrialComplex>", "-18 MC")
+          // Expand the copied production box into its separate resource increases.
           selectOnlyTask()
           doTask("PROD[Steel]")
         }
@@ -254,13 +245,25 @@ internal class DoubleDownTest : TfmSandboxTest() {
     @Test
     internal fun `Copying Preservation Program adds TR without another Action phase skip`() {
       newTestGame("PreludeExpansion, PreservationProgram", playerCount = 2)
-      kim.playPrelude(PreservationProgram)
-      kim.playPrelude(DoubleDown) { doTask("CopyPrelude<$PreservationProgram>") }
+      kim.doTask("PlayCard<Class<PreludeCard>, Class<$PreservationProgram>>")
+      kim.completeOperation {
+            doTask("PlayCard<Class<PreludeCard>, Class<$DoubleDown>>")
+            doTask("CopyPrelude<$PreservationProgram>")
+            autoExecNow(EAGER)
+          }
           .expect("5 TerraformRating")
-      stan.playPrelude(Supplier)
-      stan.playPrelude(MetalsCompany)
+      stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
+      stan.autoExecNow(EAGER)
 
-      kim.playProject(Comet, 21) { placeTile(1, 2) }.expect("TerraformRating")
+      stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
+      stan.autoExecNow(EAGER)
+
+      kim.completeOperation {
+            doTasks("PlayProject<Class<$Comet>>", "-21 MC", "Ok" /* No Titanium payment. */)
+            doTask("OceanTile<Tharsis_1_2>")
+            autoExecNow(EAGER)
+          }
+          .expect("TerraformRating")
     }
   }
 }

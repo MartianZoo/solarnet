@@ -12,8 +12,8 @@ internal class SpireTest : TfmSandboxTest() {
     newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
           doTask("RequiredActionsSignal")
-          selectOnlyTask()
-          selectTask("-3! ProjectCard<Kim, Hand>")
+          doTask("4 ProjectCard")
+          doTask("-3 ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
 
@@ -23,10 +23,9 @@ internal class SpireTest : TfmSandboxTest() {
               "-7 MC",
               "BusinessContacts FROM ProjectCard",
           )
-          selectTask("4! ProjectCard<Kim, Selecting>")
-          selectTask("2! ProjectCard<Kim, Hand FROM Selecting>")
-          selectTask("-2! ProjectCard<Kim, Selecting>")
-          selectOnlyTask()
+          doTask("4 ProjectCard<Kim, Selecting>")
+          doTask("2 ProjectCard<Kim, Hand FROM Selecting>")
+          doTask("Science<Spire>")
           doTask("PlayedEvent<Class<BusinessContacts>> FROM BusinessContacts")
         }
         .expect("Science<$Spire>")
@@ -47,15 +46,15 @@ internal class SpireTest : TfmSandboxTest() {
     newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
           doTask("RequiredActionsSignal")
-          selectOnlyTask()
-          selectTask("-3! ProjectCard<Kim, Hand>")
+          doTask("4 ProjectCard")
+          doTask("-3 ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
 
     kim.inTurn {
           doTasks("PlayProject<Class<Research>>", "-11 MC", "Research FROM ProjectCard")
-          selectTask("2! ProjectCard<Kim, Hand>")
-          selectOnlyTask()
+          doTask("2 ProjectCard<Kim, Hand>")
+          doTask("Science<Spire>")
         }
         .expect("Science<$Spire>")
   }
@@ -65,20 +64,19 @@ internal class SpireTest : TfmSandboxTest() {
     newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
           doTask("RequiredActionsSignal")
-          selectOnlyTask()
-          selectTask("-3! ProjectCard<Kim, Hand>")
+          doTask("4 ProjectCard")
+          doTask("-3 ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
 
     kim.inTurn {
-          doTasks(
-              "UseStandardProject<PowerPlantProject>",
-              "-Science<Spire>",
-              "-MC / Owed",
-              "PROD[Energy]",
-          )
-        }
-        .expect("-9 MC")
+      doTasks(
+          "UseStandardProject<PowerPlantProject>",
+          "-Science<Spire>",
+          "-9 MC",
+          "PROD[Energy]",
+      )
+    }
   }
 
   @Test
@@ -86,14 +84,13 @@ internal class SpireTest : TfmSandboxTest() {
     newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
           doTask("RequiredActionsSignal")
-          selectOnlyTask()
-          selectTask("-3! ProjectCard<Kim, Hand>")
+          doTask("4 ProjectCard")
+          doTask("-3 ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayProject<Class<Mine>>", "-Science<Spire>")
       }
     }
@@ -104,8 +101,8 @@ internal class SpireTest : TfmSandboxTest() {
     newTestGame(addOptions = "Spire", kimCorporation = Spire)
     kim.inTurn {
           doTask("RequiredActionsSignal")
-          selectOnlyTask()
-          selectTask("-3! ProjectCard<Kim, Hand>")
+          doTask("4 ProjectCard")
+          doTask("-3 ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
     kim.inTurn {
@@ -114,7 +111,6 @@ internal class SpireTest : TfmSandboxTest() {
 
     shouldThrow<TaskException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayProject<Class<Mine>>", "-Science<Spire>")
       }
     }

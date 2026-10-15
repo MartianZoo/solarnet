@@ -13,10 +13,9 @@ internal class FactorumTest : TfmSandboxTest() {
     kim.setToExMachina(3, "PROD[Energy]")
 
     kim.inTurn {
-          doTask("UseCardAction<Factorum, Action1>")
-          selectOnlyTask()
-        }
-        .expect("PROD[Energy]")
+      doTask("UseCardAction<Factorum, Action1>")
+      doTask("PROD[Energy]")
+    }
   }
 
   @Test
@@ -26,9 +25,9 @@ internal class FactorumTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseCardAction<Factorum, Action1>")
-        selectOnlyTask()
+        // Resolve the production reward so the stored-energy requirement is checked.
+        selectTask("Production")
       }
     }
   }

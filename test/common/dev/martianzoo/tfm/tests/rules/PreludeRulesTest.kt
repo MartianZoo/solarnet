@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -12,8 +13,12 @@ internal class PreludeRulesTest : TfmGameplayTest() {
     val checkpoint = game.timeline.checkpoint()
 
     // Follow mode accepts the player's declaration that their physical Prelude was unplayable.
-    kim.inTurn { doTask("-PreludeCard") }.expect("15 MC, -PreludeCard")
-    kim.playPrelude(DomeFarming).expect("$DomeFarming, -PreludeCard")
+    kim.completeOperation { doTask("-PreludeCard") }.expect("15 MC, -PreludeCard")
+    kim.completeOperation {
+          doTask("PlayCard<Class<PreludeCard>, Class<$DomeFarming>>")
+          autoExecNow(EAGER)
+        }
+        .expect("$DomeFarming, -PreludeCard")
 
     kim.count("PreludeCard") shouldBe 0
     kim.auditGainsSince(checkpoint) shouldBe 1
@@ -26,10 +31,15 @@ internal class PreludeRulesTest : TfmGameplayTest() {
     kim.count("PreludeCard") shouldBe 2
     stan.count("PreludeCard") shouldBe 2
 
-    kim.playPrelude(Donation)
-    kim.playPrelude(DomeFarming)
-    stan.playPrelude(Supplier)
-    stan.playPrelude(MetalsCompany)
+    kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
+    kim.doTask("PlayCard<Class<PreludeCard>, Class<$DomeFarming>>")
+    kim.autoExecNow(EAGER)
+
+    stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
+    stan.autoExecNow(EAGER)
+
+    stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
+    stan.autoExecNow(EAGER)
 
     admin.count("ActionPhase") shouldBe 1
     kim.count("PreludeCard") shouldBe 0

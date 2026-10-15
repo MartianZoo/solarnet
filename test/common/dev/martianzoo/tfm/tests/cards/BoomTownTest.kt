@@ -13,20 +13,16 @@ internal class BoomTownTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayCard<Class<PreludeCard>, Class<BoomTown>>", "BoomTown FROM PreludeCard")
-        selectTask("PROD[2 Titanium]")
-        selectOnlyTask()
+        doTask("PROD[2 Titanium]")
         doTask("CityTile<Tharsis_4_2>")
       }
     }
     kim.exMachina("NormalCityTile<Tharsis_2_1>")
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        selectOnlyTask()
         doTasks("PlayCard<Class<PreludeCard>, Class<BoomTown>>", "BoomTown FROM PreludeCard")
-        selectTask("PROD[2 Titanium]")
-        selectOnlyTask()
+        doTask("PROD[2 Titanium]")
         doTask("CityTile<Tharsis_1_1>")
       }
     }
@@ -54,7 +50,8 @@ internal class BoomTownTest : TfmSandboxTest() {
           "-4 MC",
           "SmallAsteroid FROM ProjectCard",
       )
-      selectTask("TemperatureStep*")
+      doTask("TemperatureStep")
+      // Resolve the optional attack: no unprotected plant target is available.
       selectTask("-2? Plant<Anyone>")
       doTask("TerraformRating")
       doTask("PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid")
@@ -83,7 +80,6 @@ internal class BoomTownTest : TfmSandboxTest() {
     }
     kim.inTurn {
       doTasks("PlayCard<Class<PreludeCard>, Class<DoubleDown>>", "DoubleDown FROM PreludeCard")
-      selectOnlyTask()
       doTasks("CopyPrelude<BoomTown>", "PROD[2 Titanium]", "CityTile<Tharsis_8_9>", "Titanium")
     }
 
@@ -97,7 +93,8 @@ internal class BoomTownTest : TfmSandboxTest() {
           "-4 MC",
           "SmallAsteroid FROM ProjectCard",
       )
-      selectTask("TemperatureStep*")
+      doTask("TemperatureStep")
+      // Resolve the optional attack: no unprotected plant target is available.
       selectTask("-2? Plant<Anyone>")
       doTask("TerraformRating")
       doTask("PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid")
@@ -115,7 +112,7 @@ internal class BoomTownTest : TfmSandboxTest() {
     // Titanium is worth 3 - 1 + 1 + 1 + 1 + 1 = 6 MC.
     kim.inTurn {
           doTasks("UseCardAction<IcyImpactors, Action1>", "-1 Titanium", "-4 MC")
-          selectOnlyTask()
+          doTask("2 Asteroid<IcyImpactors>")
         }
         .expect("2 Asteroid<$IcyImpactors>")
   }

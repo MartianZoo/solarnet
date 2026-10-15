@@ -12,6 +12,7 @@ import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.types.Dependency.Key
 
@@ -28,11 +29,10 @@ internal fun renderChange(
         is Transmute -> instruction.gaining
         else -> return null
       }
-  renderChangeOrNull(instruction, expression, describers, references)?.let {
-    return it
-  }
   val change = instruction as? Instruction.Change ?: return null
-  if (change.quantifier.modality() != Modality.BEST_EFFORT) return null
+  if (change.quantifier.modality() != Modality.BEST_EFFORT) {
+    return renderChangeOrNull(instruction, expression, describers, references)
+  }
   val mandatory =
       when (change) {
         is Gain -> change.copy(quantifier = Instruction.Quantifier.MANDATORY)
@@ -42,7 +42,7 @@ internal fun renderChange(
   val rendered =
       renderChangeOrNull(mandatory, expression, describers, references) as? Clause.Simple
           ?: return null
-  return rendered.withModifier(Modifier.Supplement("or as much as possible"))
+  return rendered.withModifier(Modifier.Parenthetical("to the extent possible"))
 }
 
 internal fun changeRefusalReason(
@@ -74,6 +74,12 @@ private fun renderChangeOrNull(
     }
   }
   if (instruction is Transmute) {
+    renderCardMove(instruction, describers, references)?.let {
+      return it
+    }
+    renderResourceConversion(instruction, describers, references)?.let {
+      return it
+    }
     renderCardBackExchange(instruction, describers)?.let {
       return it
     }
@@ -97,15 +103,19 @@ private fun renderChangeOrNull(
       return renderProductionChange(instruction, describers)
   describers.changeFrame(expression.className)?.let { frame ->
     return when (frame) {
-      ComponentDescriber.ChangeFrame.Countable -> renderCountableChange(instruction, describers)
+      ComponentDescriber.ChangeFrame.Countable ->
+          renderCountableChange(instruction, describers, references)
       is ComponentDescriber.ChangeFrame.Held -> renderCardResourceChange(instruction, describers)
       is ComponentDescriber.ChangeFrame.Scale ->
           renderScaleChange(instruction, expression, frame, references)
       is ComponentDescriber.ChangeFrame.Positioned ->
           renderPlacement(instruction, frame, describers)
       ComponentDescriber.ChangeFrame.Deck ->
-          renderDiscard(instruction, describers) ?: renderCardDrawOrLook(instruction, describers)
-      is ComponentDescriber.ChangeFrame.Procedure -> renderProcedure(instruction, frame, describers)
+          renderCardKeep(instruction, describers)
+              ?: renderDiscard(instruction, describers)
+              ?: renderCardDrawOrLook(instruction, describers)
+      is ComponentDescriber.ChangeFrame.Procedure ->
+          renderProcedure(instruction, frame, describers, references)
       is ComponentDescriber.ChangeFrame.CountedProcedure ->
           renderCountedProcedure(instruction, frame, describers)
       is ComponentDescriber.ChangeFrame.State -> renderStateChange(instruction, frame, describers)
@@ -264,6 +274,34 @@ private fun renderStateChange(
       ?: Clause.Simple(Predicate(Verb(procedure.verb)))
 }
 
+/** A retained card moves from the selection into the same player's hand. */
+private fun renderCardKeep(instruction: Instruction, describers: Describers): Clause? {
+  val move = instruction as? Transmute ?: return null
+  if (move.quantifier.modality() != Modality.REQUIRED) return null
+  val count = move.count.fixedQuantity() ?: return null
+  val gaining = move.gaining
+  val removing = move.removing
+  if (
+      gaining.className != removing.className ||
+          gaining.refinement != null ||
+          removing.refinement != null
+  )
+      return null
+  val locationKey =
+      describers.fact(gaining.className, ComponentDescriber::cardLocationDependency) ?: return null
+  val destination = describers.resolveExpression(gaining) ?: return null
+  val source = describers.resolveExpression(removing) ?: return null
+  if (
+      destination.sourceDependencies.keys.any { it != locationKey } ||
+          source.sourceDependencies.keys.any { it != locationKey } ||
+          describers.location(gaining) != ComponentDescriber.CardLocation.HAND ||
+          describers.location(removing) != ComponentDescriber.CardLocation.SELECTING
+  )
+      return null
+  return clause("keep", describers.quantifiedComponentNounPhrase(gaining.className, count))
+      .withModifier(Modifier.Relation("from", NounPhrase.text("the selection")))
+}
+
 private fun renderDiscard(
     instruction: Instruction,
     describers: Describers,
@@ -288,6 +326,11 @@ private fun renderCardDrawOrLook(
           gain.gaining.refinement == null &&
           describers.location(gain.gaining) == ComponentDescriber.CardLocation.SELECTING
   ) {
+    val locationKey =
+        describers.fact(gain.gaining.className, ComponentDescriber::cardLocationDependency)
+            ?: return null
+    val resolved = describers.resolveExpression(gain.gaining) ?: return null
+    if (resolved.sourceDependencies.keys.any { it != locationKey }) return null
     val count = gain.count.fixedQuantity() ?: return null
     return clause(
         "look at",
@@ -319,6 +362,7 @@ private fun renderProcedure(
     instruction: Instruction,
     frame: ComponentDescriber.ChangeFrame.Procedure,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Clause.Simple? {
   val gain = instruction as? Gain ?: return null
   if (gain.quantifier.modality() != Modality.REQUIRED || gain.count.fixedQuantity() != 1) {
@@ -331,7 +375,9 @@ private fun renderProcedure(
     return clause(frame.verb, NounPhrase.text(objectPhrase))
   }
   if (gain.gaining.refinement != null) return null
-  val target = gain.gaining.arguments.singleOrNull()?.let(describers::cardSelector) ?: return null
+  val target =
+      gain.gaining.arguments.singleOrNull()?.let { describers.cardSelector(it, references) }
+          ?: return null
   return clause(
       frame.verb,
       NounPhrase.text(objectPhrase).withModifier(Modifier.Relation(targetRelation, target)),
@@ -443,8 +489,7 @@ private fun renderRequiredAction(
   val actionUse = describers.actionUseEvent(effect.trigger) ?: return null
   if (actionUse.provider != describers.thisExpression) return null
   if (actionUse.slot != ClassName.cn("Action1").expression) return null
-  val result =
-      renderInstructions(effect.instruction, describers).clauses.singleOrNull() ?: return null
+  val result = renderInstructions(effect.instruction, describers).asCoordinatedClause()
   return Clause.Prefaced(Clause.Preface.FirstAction, result)
 }
 
@@ -519,6 +564,86 @@ private fun renderNextCardEffect(
   )
 }
 
+/** A card's identity is retained when its front becomes a played event. */
+private fun renderCardMove(
+    change: Transmute,
+    describers: Describers,
+    references: TypeVariableReferences,
+): Clause? {
+  if (change.quantifier.modality() != Modality.REQUIRED || change.count.fixedQuantity() != 1)
+      return null
+  val destination = change.gaining
+  if (destination.className != cn("PlayedEvent") || destination.refinement != null) return null
+  val representation =
+      destination.arguments.singleOrNull { it.className == cn("Class") } ?: return null
+  if (representation.refinement != null) return null
+  val represented = representation.arguments.singleOrNull() ?: return null
+  if (represented != change.removing) return null
+  val card =
+      if (change.removing == describers.thisExpression)
+          NounPhrase("card", determiner = Determiner.THIS)
+      else describers.cardSelector(change.removing, references) ?: return null
+  val owner = destination.arguments.filterNot { it === representation }.singleOrNull()
+  if (destination.arguments.size > 2) return null
+  val pile =
+      when {
+        owner == null || owner == describers.ownerExpression -> "your event pile"
+        references.variableUsedAt(owner) != null -> "that player's event pile"
+        else -> return null
+      }
+  return clause("move", card, Modifier.Relation("to", NounPhrase.text(pile)))
+}
+
+/** Different resource kinds are a conversion; resource-to-scale changes are a cost and result. */
+private fun renderResourceConversion(
+    change: Transmute,
+    describers: Describers,
+    references: TypeVariableReferences,
+): Clause? {
+  val count = change.count.fixedQuantity() ?: return null
+  val modality = change.quantifier.modality()
+  if (modality == Modality.BEST_EFFORT || modality == Modality.OPTIONAL && count != 1) return null
+  val from = change.removing
+  val to = change.gaining
+  if (
+      from.simple &&
+          to.simple &&
+          from.className != to.className &&
+          describers.isStandardResource(from.className) &&
+          describers.isStandardResource(to.className)
+  ) {
+    return Clause.Simple(
+        Predicate(
+            Verb(if (modality == Modality.OPTIONAL) "may convert" else "convert"),
+            Coordination.one(describers.componentNounPhrase(from.className, count)),
+            listOf(Modifier.Relation("to", describers.componentNounPhrase(to.className, count))),
+        ),
+        NounPhrase.you().takeIf { modality == Modality.OPTIONAL },
+    )
+  }
+  if (
+      modality != Modality.REQUIRED ||
+          from.className !in describers.expressions.classesByName ||
+          !describers.isCardResource(from.className) ||
+          describers.scaleFrame(to.className) == null
+  )
+      return null
+  val removal =
+      renderChange(
+          Remove.remove(scaledEx(from, change.count)),
+          describers,
+          references,
+      )
+          as? Clause.Simple ?: return null
+  val gain =
+      renderChange(
+          Gain.gain(scaledEx(to, change.count)),
+          describers,
+          references,
+      ) ?: return null
+  return attachPurpose(listOf(removal), gain)
+}
+
 private fun renderCardBackExchange(
     transmute: Transmute,
     describers: Describers,
@@ -572,6 +697,7 @@ private fun renderCardResourceDrawExchange(
 private fun renderCountableChange(
     instruction: Instruction,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Clause? {
   concreteMandatoryGain(instruction)?.let { (className, count) ->
     val noun = describers.componentNounPhrase(className, count)
@@ -596,7 +722,7 @@ private fun renderCountableChange(
     }
   }
   (instruction as? Transmute)?.let {
-    return renderStandardResourceTransfer(it, describers)
+    return renderStandardResourceTransfer(it, describers, references)
   }
   val removal = instruction as? Remove ?: return null
   val expression = removal.removing
@@ -606,13 +732,8 @@ private fun renderCountableChange(
   if (expression.simple) {
     val amount = describers.componentNounPhrase(expression.className, count)
     return when (removal.quantifier.modality()) {
-      Modality.REQUIRED -> clause("remove", amount)
-      Modality.BEST_EFFORT ->
-          clause(
-              "remove",
-              amount,
-              Modifier.Supplement("or as much as possible"),
-          )
+      Modality.REQUIRED -> clause("lose", amount)
+      Modality.BEST_EFFORT,
       Modality.OPTIONAL -> null
     }
   }
@@ -672,6 +793,7 @@ private fun Describers.renderEligiblePlayer(expression: Expression): NounPhrase?
 private fun renderStandardResourceTransfer(
     transmute: Transmute,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Clause? {
   val gaining = transmute.gaining
   val removing = transmute.removing
@@ -681,8 +803,8 @@ private fun renderStandardResourceTransfer(
   }
   if (!describers.concrete(gaining.className)) return null
   if (!describers.isStandardResource(gaining.className)) return null
-  val recipient = renderTransferParty(gaining, describers) ?: return null
-  val payer = renderTransferParty(removing, describers) ?: return null
+  val recipient = renderTransferParty(gaining, describers, references) ?: return null
+  val payer = renderTransferParty(removing, describers, references) ?: return null
   val (verb, preposition, otherParty) =
       when {
         recipient == TransferParty.YOU && payer != TransferParty.YOU ->
@@ -694,18 +816,11 @@ private fun renderStandardResourceTransfer(
   val count = transmute.count.fixedQuantity() ?: return null
   val noun = describers.componentNounPhrase(gaining.className, count)
   val amount = if (transmute.quantifier.modality() == Modality.OPTIONAL) noun.atMost() else noun
-  val completion =
-      if (transmute.quantifier.modality() == Modality.BEST_EFFORT)
-          Modifier.Supplement("or as much as possible")
-      else null
   val predicate =
       Predicate(
           Verb(if (transmute.quantifier.modality() == Modality.OPTIONAL) "may $verb" else verb),
           Coordination.one(amount),
-          listOfNotNull(
-              Modifier.Phrase("$preposition ${otherParty.objectPhrase}"),
-              completion,
-          ),
+          listOf(Modifier.Phrase("$preposition ${otherParty.objectPhrase}")),
       )
   return Clause.Simple(
       predicate,
@@ -722,6 +837,7 @@ private enum class TransferParty(val objectPhrase: String) {
 private fun renderTransferParty(
     expression: Expression,
     describers: Describers,
+    references: TypeVariableReferences,
 ): TransferParty? {
   val resolved = describers.resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
@@ -733,7 +849,8 @@ private fun renderTransferParty(
     resolved.hasOnlySourceDependency(ownerKey, describers.playerExpression) ->
         TransferParty.THAT_PLAYER
     resolved.sourceDependencies.size == 1 &&
-        resolved.sourceDependency(ownerKey)?.typeVariableName != null -> TransferParty.THAT_PLAYER
+        resolved.sourceDependency(ownerKey)?.let(references::variableUsedAt) != null ->
+        TransferParty.THAT_PLAYER
     else -> null
   }
 }

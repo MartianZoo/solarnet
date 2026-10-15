@@ -38,7 +38,6 @@ internal class DiversitySupportTest : TfmSandboxTest() {
 
     shouldThrow<RequirementException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<DiversitySupport>>")
       }
     }

@@ -1,15 +1,20 @@
 package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.agent.exMachina
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.Player
+import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.engine.TfmEngine
@@ -18,7 +23,24 @@ import dev.martianzoo.tfm.engine.TfmEngine
  * Focused scenarios with explicit corrections and selected phase shortcuts. The game is set up and
  * enters the corporation phase normally, but scenarios then act outside the game's turn order.
  */
-internal abstract class TfmSandboxTest : TfmTest() {
+internal abstract class TfmSandboxTest {
+  protected var game: World
+    get() = agents.world
+    set(value) {
+      agents = Agents(value)
+    }
+
+  protected lateinit var agents: Agents
+    private set
+
+  protected val admin: Agent
+    get() = agents[ADMIN]
+
+  protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
+
+  protected fun Agent.auditGainsSince(checkpoint: Checkpoint): Int =
+      game.events.changesSince(checkpoint).count { it.change.gaining?.type == resolve("Audit") }
+
   protected lateinit var players: List<Agent>
     private set
 
@@ -53,7 +75,8 @@ internal abstract class TfmSandboxTest : TfmTest() {
     val prepared =
         preparedWorlds.getOrPut(key) {
           createWorld(addOptions, playerCount)
-          admin.startGame()
+          agents.taskLog.gameStarted()
+          admin.beginOperation("SetupPhase FROM BootstrapPhase")
           if (
               playerCount == 1 &&
                   GameConfig(addOptions).includedClassNames.none {
@@ -67,7 +90,7 @@ internal abstract class TfmSandboxTest : TfmTest() {
           leaveTurnOrder()
           if (playCorporations) {
             playStartingCorporations(kimCorporation)
-            admin.phase(if (admin.count("PreludeExpansion") > 0) "Prelude" else "Action")
+            setPhase(if (admin.count("PreludeExpansion") > 0) "Prelude" else "Action")
           }
           game.timeline.recordPosition()
           game
@@ -96,8 +119,14 @@ internal abstract class TfmSandboxTest : TfmTest() {
       check(admin.count("CorporationPhase") + admin.count("PreludePhase") == 1) {
         "Expected Corporation, Prelude, or Action phase"
       }
-      admin.phase("Action")
+      setPhase("Action")
     }
+  }
+
+  private fun setPhase(phase: String) {
+    check(game.tasks.isEmpty()) { "Finish pending choices before changing phase" }
+    val current = admin.list("Phase").elements.single()
+    admin.sneak("${phase}Phase FROM $current")
   }
 
   /**
@@ -139,17 +168,25 @@ internal abstract class TfmSandboxTest : TfmTest() {
     } else {
       val difference = targetCount - count(type)
       if (difference == 0) return
-      exMachina("$difference $type")
+      // Sandbox setup may place Admin-owned System markers, such as colony tracks.
+      if (actor == ADMIN && resolvedType.isSubtypeOf(resolve("System"))) {
+        sneak("$difference $type")
+      } else {
+        exMachina("$difference $type")
+      }
     }
   }
 
-  /** Scores the current position in seat order without retaining scoring effects or history. */
-  protected fun victoryPoints(): List<Int> {
+  /**
+   * Scores the current position in seat order without retaining scoring effects or history. [body]
+   * resolves any player choices offered during scoring.
+   */
+  protected fun victoryPoints(body: OperationBlock = {}): List<Int> {
     check(game.tasks.isEmpty()) { "Finish pending choices before querying victory points" }
     game.timeline.recordPosition()
     val checkpoint = game.timeline.checkpoint()
     try {
-      admin.runOperation("End FROM Phase")
+      admin.runOperation("End FROM Phase", body)
       check(game.tasks.isEmpty()) { "Final scoring has unresolved choices" }
       return players.map { it.count("VictoryPoint") }
     } finally {
@@ -181,6 +218,7 @@ internal abstract class TfmSandboxTest : TfmTest() {
 
   private fun chooseStartingCards(kimCorporation: ClassName?, playCorporations: Boolean) {
     players.forEachIndexed { index, player ->
+      // Resolve setup mode before narrowing it; the selected mode hands setup to Admin.
       player.selectTask("BeginnerMode OR NonBeginnerMode")
       player.narrowTask(
           if (index == 0 && (kimCorporation != null || !playCorporations)) "NonBeginnerMode"
@@ -201,7 +239,9 @@ internal abstract class TfmSandboxTest : TfmTest() {
         player.doTasks("4 PreludeCard", "-2 PreludeCard")
       }
     }
-    revealTurmoilSetupEvents(game)
+    if (admin.count("RevealComingEvent") > 0) {
+      admin.doTasks("DemocraticReform", "MinimalImpactPolicy")
+    }
     if (players.size == 1) {
       val placements =
           when {

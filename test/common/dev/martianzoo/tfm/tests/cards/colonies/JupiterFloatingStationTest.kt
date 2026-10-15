@@ -28,8 +28,8 @@ internal class JupiterFloatingStationTest : TfmSandboxTest() {
 
     shouldThrow<NarrowingException> {
       kim.inTurn {
-        selectTask("StandardAction OR Pass")
         doTask("UseCardAction<JupiterFloatingStation, Action1>")
+        // Select the Jovian-only offer before attempting to use a non-Jovian card.
         selectTask("Floater<CardFront(HAS JovianTag)>*")
         doTask("Floater<AtmoCollectors>")
       }
@@ -41,9 +41,8 @@ internal class JupiterFloatingStationTest : TfmSandboxTest() {
     kim.exMachina("$JupiterFloatingStation, 6 Floater<$JupiterFloatingStation>")
 
     kim.inTurn {
-          doTask("UseCardAction<JupiterFloatingStation, Action2>")
-          selectTask("MC! / Floater<JupiterFloatingStation> MAX 4")
-        }
-        .expect("4 MC")
+      doTask("UseCardAction<JupiterFloatingStation, Action2>")
+      doTask("4 MC")
+    }
   }
 }

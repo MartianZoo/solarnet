@@ -135,6 +135,10 @@ flow on or off.
   its end is `FINALLY` work, and all pending `FINALLY` work becomes ordinary together. A handoff
   dispatched as the Corporation, Prelude, Action, or final greenery phase began would therefore run
   after its first turn; these phases instead say what follows each turn.
+- **Selection cleanup.** Each `NewTurn` schedules Admin's `LATER` removal of any card backs still in
+  that Player's `Selecting`. It runs after the turn's choices, including purchase payment and
+  transfer, and before `TurnOver`. ResearchPhase schedules analogous
+  project-card cleanup for all Players before its `FINALLY` handoff.
 - **Turn order.** `TakeTurn<P>` only invites `P` to take a turn; whatever governs that player's
   turns answers it. The corporation, Prelude, and final greenery phases give `NewTurn<P>` and
   dispatch `FINALLY { TurnOver<P> }`, and each says what follows `TurnOver`. In the action phase

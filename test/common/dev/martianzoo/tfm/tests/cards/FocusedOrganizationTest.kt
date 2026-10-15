@@ -17,11 +17,10 @@ internal class FocusedOrganizationTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("UseCardAction<FocusedOrganization, Action1>")
-          selectTask("-ProjectCard<Kim, Hand>!")
-          selectOnlyTask()
+          doTask("-ProjectCard<Kim, Hand>")
           doTask("-Steel")
-          selectTask("ProjectCard<Kim, Hand>!")
-          selectTask("StandardResource!")
+          doTask("ProjectCard<Kim, Hand>")
+
           doTask("Plant")
         }
         .expect("0 ProjectCard")
@@ -39,11 +38,11 @@ internal class FocusedOrganizationTest : TfmSandboxTest() {
   @Test
   internal fun `BUG - Rejects a Stormcraft floater when spending a standard resource`() {
     setupStormcraftFloater()
-    val projectCardsBefore = kim.count("ProjectCard")
+    kim.setToExMachina(1, "ProjectCard")
 
     shouldThrow<TaskException> { useStormcraftFloaterForFocusedOrganization() }
     kim.count("Floater<$StormcraftIncorporated>") shouldBe 1
-    kim.count("ProjectCard") shouldBe projectCardsBefore
+    kim.count("ProjectCard") shouldBe 1
     kim.count("$FocusedOrganization") shouldBe 1
   }
 
@@ -54,8 +53,8 @@ internal class FocusedOrganizationTest : TfmSandboxTest() {
 
   private fun useStormcraftFloaterForFocusedOrganization(): TaskResult = kim.inTurn {
     doTask("UseCardAction<FocusedOrganization, Action1>")
-    selectTask("-ProjectCard<Kim, Hand>!")
-    selectOnlyTask()
+    doTask("-ProjectCard<Kim, Hand>")
+    doTask("-MC")
     doTask("-Floater<$StormcraftIncorporated>")
     doTask("Plant")
   }

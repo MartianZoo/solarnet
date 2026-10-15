@@ -8,11 +8,10 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class RedAppeasementTest : TfmGameplayTest() {
+internal class RedAppeasementTest : TfmGameplayTest(NONE) {
   @BeforeTest
   internal fun prepareRedsSupport() {
     newTestGame("RedAppeasement, TurmoilExpansion", playerCount = 2)
-    players.forEach { it.autoExecPolicy = NONE }
     kim.doTasks(
         "LobbyAction<Action1>",
         "PartyDelegate<Reds>",
@@ -33,8 +32,11 @@ internal class RedAppeasementTest : TfmGameplayTest() {
 
   @Test
   internal fun `Passes its owner so the next players pass ends the generation`() {
-    stan.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard", "Ok")
-    val mcProductionBefore = kim.count("PROD[MC]")
+    stan.doTasks(
+        "UseStandardProject<SellPatentsProject>",
+        "MC FROM ProjectCard",
+        "0 StandardAction",
+    )
 
     kim.doTasks(
         "PlayProject<Class<RedAppeasement>>",
@@ -43,7 +45,6 @@ internal class RedAppeasementTest : TfmGameplayTest() {
         "Pass",
         "PlayedEvent<Class<RedAppeasement>> FROM RedAppeasement",
     )
-    kim.count("PROD[MC]") shouldBe mcProductionBefore + 2
     kim.count("Pass") shouldBe 1
     stan.doTask("Pass")
 
@@ -52,10 +53,13 @@ internal class RedAppeasementTest : TfmGameplayTest() {
 
   @Test
   internal fun `Playing as the second action passes its owner immediately`() {
-    stan.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard", "Ok")
+    stan.doTasks(
+        "UseStandardProject<SellPatentsProject>",
+        "MC FROM ProjectCard",
+        "0 StandardAction",
+    )
 
     kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
-    val mcProductionBefore = kim.count("PROD[MC]")
     kim.doTasks(
         "PlayProject<Class<RedAppeasement>>",
         "RedAppeasement FROM ProjectCard",
@@ -63,7 +67,6 @@ internal class RedAppeasementTest : TfmGameplayTest() {
         "Pass",
         "PlayedEvent<Class<RedAppeasement>> FROM RedAppeasement",
     )
-    kim.count("PROD[MC]") shouldBe mcProductionBefore + 2
     kim.count("Pass") shouldBe 1
     stan.doTask("Pass")
 

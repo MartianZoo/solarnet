@@ -19,9 +19,7 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
 
     shouldThrow<NotFullySpecifiedException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseCardAction<PowerInfrastructure, Action1>")
-        selectOnlyTask()
       }
     }
   }
@@ -33,18 +31,17 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
     kim.setToExMachina(6, "MC")
 
     kim.inTurn {
-          doTask("UseCardAction<EnergyMarket, Action1>")
-          selectOnlyTask()
-          selectOnlyTask(x = 3)
-          doTask("-MC / Owed<Class<MC>>")
-          selectOnlyTask()
-        }
-        .expect("-6 MC, 3 Energy")
+      doTask("UseCardAction<EnergyMarket, Action1>")
+
+      // Bind the shared amount before Admin opens the bill for this action.
+      selectOnlyTask(x = 3)
+      doTask("-6 MC")
+      doTask("3 Energy")
+    }
   }
 
   @Test
   internal fun `Energy Market accepts Heat instead of MC for FakeHelion`() {
-    // Its starting purchase offers Heat payment, which this test declines explicitly.
     newTestGameBeforeCorporationPlay(addOptions = "fakes:cards")
     kim.inTurn {
       doTasks(
@@ -53,8 +50,7 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
           "42 MC",
           "PROD[3 Heat]",
       )
-      selectTask("-X? Heat")
-      doTasks("Ok", "-15 MC", "5 ProjectCard<Hand FROM Selecting>")
+      doTasks("-15 MC", "5 ProjectCard<Hand FROM Selecting>")
     }
     advanceUntilActionPhase()
     kim.exMachina("$EnergyMarket")
@@ -63,12 +59,12 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTask("UseCardAction<EnergyMarket, Action1>")
-          selectOnlyTask()
+
+          // Bind the shared amount before Admin opens the bill for this action.
           selectOnlyTask(x = 3)
           doTask("-6 Heat")
-          selectTask("-X? MC")
-          doTask("Ok")
-          selectOnlyTask()
+          doTask("Ok" /* No MC payment. */)
+          doTask("3 Energy")
         }
         .expect("0 MC, 3 Energy")
   }
@@ -80,48 +76,48 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
 
     shouldThrow<NotFullySpecifiedException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseCardAction<HiTechLab, Action1>")
-        selectOnlyTask()
       }
     }
   }
 
   @Test
-  internal fun `Hi-Tech Lab discards every card it did not keep`() {
+  internal fun `Hi-Tech Lab keeps a card from its selection`() {
     newTestGame()
     kim.exMachina("$HiTechLab")
     kim.setToExMachina(3, "Energy")
 
     kim.inTurn {
           doTask("UseCardAction<HiTechLab, Action1>")
-          selectOnlyTask()
+
+          // Bind the shared amount before Admin opens the bill for this action.
           selectOnlyTask(x = 3)
-          doTask("-Energy / Owed<Class<Energy>>")
+          doTask("-3 Energy")
+          // Expand the paid draw-and-keep sequence before choosing the cards.
           selectOnlyTask()
-          selectTask("3! ProjectCard<Kim, Selecting>")
-          selectOnlyTask()
-          selectOnlyTask()
+          doTask("3 ProjectCard<Kim, Selecting>")
+          doTask("ProjectCard<Hand FROM Selecting>")
         }
         .expect("-3 Energy, ProjectCard")
     kim.assertCounts(0 to "ProjectCard<Selecting>")
   }
 
   @Test
-  internal fun `Tycho Magnetics discards every card it did not keep`() {
+  internal fun `Tycho Magnetics keeps a card from its selection`() {
     newTestGame()
     kim.exMachina("$TychoMagnetics")
     kim.setToExMachina(4, "Energy")
 
     kim.inTurn {
           doTask("UseCardAction<TychoMagnetics, Action1>")
-          selectOnlyTask()
+
+          // Bind the shared amount before Admin opens the bill for this action.
           selectOnlyTask(x = 4)
-          doTask("-Energy / Owed<Class<Energy>>")
+          doTask("-4 Energy")
+          // Expand the paid draw-and-keep sequence before choosing the cards.
           selectOnlyTask()
-          selectTask("4! ProjectCard<Kim, Selecting>")
-          selectOnlyTask()
-          selectOnlyTask()
+          doTask("4 ProjectCard<Kim, Selecting>")
+          doTask("ProjectCard<Hand FROM Selecting>")
         }
         .expect("-4 Energy, ProjectCard")
     kim.assertCounts(0 to "ProjectCard<Selecting>")
@@ -133,9 +129,7 @@ internal class VariableAmountActionsTest : TfmSandboxTest() {
 
     shouldThrow<PetSyntaxException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("UseStandardProject<SellPatentsProject>")
-        selectOnlyTask()
         doTask("0 MC FROM ProjectCard!")
       }
     }

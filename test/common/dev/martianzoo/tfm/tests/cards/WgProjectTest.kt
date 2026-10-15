@@ -16,13 +16,11 @@ internal class WgProjectTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<WgProject>>", "-9 MC", "WgProject FROM ProjectCard")
-          selectTask("3! PreludeCard<Kim, Selecting>")
-          selectTask("-2! PreludeCard<Kim, Selecting>")
+          doTask("3 PreludeCard<Kim, Selecting>")
           doTask("PlayCard<Class<PreludeCard>, Class<HighCircles>>")
-          selectOnlyTask()
+          doTask("HighCircles FROM PreludeCard<Selecting>")
           doTask("TerraformRating")
-          selectTask("SearchForCard<Kim, ReferenceFilter<Class<PartyRequirement>>>!")
-          selectOnlyTask()
+          doTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
           doTask("2 PartyDelegate<Unity>")
         }
         .expect("$HighCircles, 0 PreludeCard, 0 PreludeCard<Selecting>")
@@ -37,23 +35,19 @@ internal class WgProjectTest : TfmSandboxTest() {
 
     shouldThrow<LimitsException> {
       kim.inTurn {
-        selectOnlyTask()
         doTask("PlayProject<Class<WgProject>>")
-        selectTask("-X? MC")
         doTasks("-9 MC", "WgProject FROM ProjectCard")
-        selectTask("3! PreludeCard<Kim, Selecting>")
-        selectTask("-2! PreludeCard<Kim, Selecting>")
-        selectOnlyTask()
+        doTask("3 PreludeCard<Kim, Selecting>")
         doTask("PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>")
-        selectOnlyTask()
-        selectTask("-18! MC")
+        doTask("IndustrialComplex FROM PreludeCard<Selecting>")
+        doTask("-18 MC")
       }
     }
     kim.inTurn {
           doTasks("PlayProject<Class<WgProject>>", "-9 MC", "WgProject FROM ProjectCard")
-          selectTask("3! PreludeCard<Kim, Selecting>")
-          selectTask("-2! PreludeCard<Kim, Selecting>")
+          doTask("3 PreludeCard<Kim, Selecting>")
           doTask("-PreludeCard<Selecting>")
+          // Hand the fizzle audit to Admin before receiving compensation.
           selectTask("Audit!")
           doTask("15 MC")
         }
@@ -72,8 +66,7 @@ internal class WgProjectTest : TfmSandboxTest() {
     kim.setToExMachina(1, "ProjectCard")
     return kim.inTurn {
       doTasks("PlayProject<Class<WgProject>>", "-9 MC", "WgProject FROM ProjectCard")
-      selectTask("3! PreludeCard<Kim, Selecting>")
-      selectTask("-2! PreludeCard<Kim, Selecting>")
+      doTask("3 PreludeCard<Kim, Selecting>")
       doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
       doTask("Donation<Kim> FROM PreludeCard<Kim, Selecting>!")
       doTask("21 MC")

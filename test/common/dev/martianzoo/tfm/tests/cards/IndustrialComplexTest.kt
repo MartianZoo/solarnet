@@ -18,6 +18,7 @@ internal class IndustrialComplexTest : TfmSandboxTest() {
               "IndustrialComplex FROM PreludeCard",
               "-18 MC",
           )
+          // Expand the production box into its separate resource increases.
           selectOnlyTask()
           doTasks("PROD[6 MC]", "PROD[Energy]", "PROD[Heat]", "PROD[Steel]")
         }
@@ -37,6 +38,7 @@ internal class IndustrialComplexTest : TfmSandboxTest() {
               "IndustrialComplex FROM PreludeCard",
               "-18 MC",
           )
+          // Expand the production box into its separate resource increases.
           selectOnlyTask()
           doTasks("PROD[7 MC]", "PROD[Energy]", "PROD[2 Plant]", "PROD[Heat]", "PROD[Steel]")
         }

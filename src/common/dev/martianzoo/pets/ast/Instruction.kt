@@ -16,7 +16,6 @@ import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.pets.types.GroundType
 import dev.martianzoo.pets.types.TypeVariable
@@ -36,11 +35,12 @@ import dev.martianzoo.pets.util.invoke
 public sealed class Instruction : InstructionTree() {
   /**
    * Returns an instruction that (in essence) does this instruction [factor] times. The [factor]
-   * must be non-negative, and if zero, [NoOp] is returned.
+   * must be non-negative. A [Change] retains its Types when scaled to zero; other instructions
+   * scaled to zero become [NoOp].
    */
   final override operator fun times(factor: Int): Instruction {
-    if (factor == 0) return NoOp
-    require(factor > 0)
+    if (factor == 0 && this !is Change) return NoOp
+    require(factor >= 0)
     if (factor == 1) return this
     return scale(factor).also { it.sourceLocation = sourceLocation }
   }
@@ -48,9 +48,8 @@ public sealed class Instruction : InstructionTree() {
   override val kind: kotlin.reflect.KClass<out PetNode> = Instruction::class
 
   /**
-   * Subclass operation used by [times] after zero and unity are handled. [factor] is greater than
-   * one; the result must represent that many repetitions while preserving this instruction's
-   * remaining choices.
+   * Subclass operation used by [times] after unity is handled. [factor] is greater than one, or
+   * zero for a [Change]; the result retains the change's Types even when its count becomes zero.
    */
   protected abstract fun scale(factor: Int): Instruction
 
@@ -58,7 +57,7 @@ public sealed class Instruction : InstructionTree() {
    * The instruction leaving a state unchanged without events, spelled `Ok` ([rule
    * L2-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * It vanishes from a group rather than appearing as an empty member, and a group left with
-   * nothing in it *is* `Ok`. `Ok` narrows an optional change and nothing else ([rule
+   * nothing in it *is* `Ok`. `Ok` narrows an optional or zero-count change ([rule
    * L3-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    */
   public object NoOp : Instruction() {
@@ -92,7 +91,6 @@ public sealed class Instruction : InstructionTree() {
       ): Instruction {
         require(count >= 0)
         return when {
-          count == 0 -> NoOp
           removing == null -> Gain.gain(gaining!!, count, quantifier)
           gaining == null -> Remove.remove(removing, count, quantifier)
           else -> Transmute(Full(gaining, removing), ActualScalar(count), quantifier)
@@ -101,10 +99,10 @@ public sealed class Instruction : InstructionTree() {
     }
 
     /**
-     * How many components change: a positive integer or an `X` standing for an amount left open
-     * ([rule
+     * How many components change: a nonnegative integer or an `X` standing for a positive amount
+     * left open ([rule
      * L2-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
-     * Zero is rejected.
+     * Zero retains the changed Types for matching and executes without events.
      */
     public abstract val count: Scalar
 
@@ -126,6 +124,7 @@ public sealed class Instruction : InstructionTree() {
     public abstract val quantifier: Quantifier?
 
     override fun isAbstract(info: TypeInfo): Boolean {
+      if (count == ActualScalar(0)) return false
       return count.isAbstract(info) ||
           quantifier?.isAbstract(info) != false ||
           (gaining?.isAbstract(info) == true) ||
@@ -137,9 +136,10 @@ public sealed class Instruction : InstructionTree() {
     }
 
     /**
-     * Verifies that [proposed] is a compatible choice for [authored]. An optional change accepts
-     * [NoOp]; otherwise the proposal must remain a change, narrow its count and quantifier, and
-     * narrow each present gained or removed expression. Failure throws [NarrowingException].
+     * Verifies that [proposed] is a compatible choice for [authored]. An optional or zero-count
+     * change accepts [NoOp]; otherwise the proposal must remain a change, narrow its count and
+     * quantifier, and narrow each present gained or removed expression. Failure throws
+     * [NarrowingException].
      */
     protected fun ensureChangeIsNarrowedBy(
         authored: Change,
@@ -147,7 +147,7 @@ public sealed class Instruction : InstructionTree() {
         info: TypeInfo,
     ) {
       val quantifier = authored.quantifier
-      if (proposed == NoOp && quantifier == OPTIONAL) return
+      if (proposed == NoOp && (quantifier == OPTIONAL || authored.count == ActualScalar(0))) return
       proposed as? Change
           ?: throw NarrowingException("expected a change narrowing of `$this`, found `$proposed`")
       proposed.quantifier!!.ensureNarrows(quantifier!!, info)
@@ -212,10 +212,6 @@ public sealed class Instruction : InstructionTree() {
     override fun toString(): String =
         if (count == ActualScalar(1)) "$gaining${quantifier?.symbol ?: ""}"
         else "$count${quantifier?.symbol ?: ""} $gaining"
-
-    init {
-      checkNonzero(count)
-    }
   }
 
   /**
@@ -257,10 +253,6 @@ public sealed class Instruction : InstructionTree() {
     override fun toString(): String =
         if (count == ActualScalar(1)) "-$removing${quantifier?.symbol ?: ""}"
         else "-$count${quantifier?.symbol ?: ""} $removing"
-
-    init {
-      checkNonzero(count)
-    }
   }
 
   /**
@@ -291,10 +283,6 @@ public sealed class Instruction : InstructionTree() {
       val quantifierText = quantifier?.symbol ?: ""
       return if (scalar == ActualScalar(1)) "$fromEx$quantifierText"
       else "$scalar$quantifierText $fromEx"
-    }
-
-    init {
-      checkNonzero(count)
     }
 
     override fun precedence(): Int = if (fromEx is Full) 7 else 10
@@ -1013,11 +1001,11 @@ public sealed class Instruction : InstructionTree() {
    * The parser rejects duplicate authored alternatives. Construction and rewriting collapse arms
    * that have become equal; a single remaining outcome is returned without an `Or` wrapper.
    *
-   * An `OR` that remains is always abstract ([rule
+   * An `OR` is abstract unless every arm is [NoOp] or a zero-count [Change] ([rule
    * L3-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    * It is also one of only two exceptions to a narrowing preserving node shape — the other being
-   * [NoOp] narrowing an optional change: any instruction narrows an `OR` by narrowing one arm,
-   * while a proposed `OR` narrows it only when every arm does ([rules L3-2 and
+   * [NoOp] narrowing an optional or zero-count change: any instruction narrows an `OR` by narrowing
+   * one arm, while a proposed `OR` narrows it only when every arm does ([rules L3-2 and
    * L3-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    */
   @ConsistentCopyVisibility
@@ -1040,7 +1028,9 @@ public sealed class Instruction : InstructionTree() {
 
     override fun precedence(): Int = 6
 
-    override fun isAbstract(info: TypeInfo): Boolean = true
+    override fun isAbstract(info: TypeInfo): Boolean = instructions.any {
+      it != NoOp && (it !is Change || it.count != ActualScalar(0))
+    }
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       if (proposed is Or) {

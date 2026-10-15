@@ -16,10 +16,10 @@ internal class MarsUniversityTest : TfmSandboxTest() {
 
     kim.inTurn {
           doTasks("PlayProject<Class<Research>>", "-11 MC", "Research FROM ProjectCard")
-          selectTask("2! ProjectCard<Kim, Hand>")
+          doTask("2 ProjectCard<Kim, Hand>")
           doTasks("-ProjectCard", "-ProjectCard")
-          selectTask("ProjectCard<Kim, Hand>!")
-          selectTask("ProjectCard<Kim, Hand>!")
+          doTask("ProjectCard<Kim, Hand>")
+          doTask("ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
   }
@@ -31,8 +31,8 @@ internal class MarsUniversityTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<MarsUniversity>>", "-8 MC")
-      selectTask("-X? Steel")
-      doTasks("Ok", "MarsUniversity FROM ProjectCard")
+      doTasks("MarsUniversity FROM ProjectCard")
+      // Resolve the exchange offer: the empty hand leaves no card to discard.
       selectTask("(-ProjectCard<Kim, Hand>! THEN ProjectCard<Kim, Hand>!) OR Ok")
     }
   }
@@ -45,7 +45,6 @@ internal class MarsUniversityTest : TfmSandboxTest() {
 
     kim.inTurn {
       doTasks("PlayProject<Class<SearchForLife>>", "-3 MC", "SearchForLife FROM ProjectCard")
-      selectTask("(-ProjectCard<Kim, Hand>! THEN ProjectCard<Kim, Hand>!) OR Ok")
       doTask("Ok")
     }
   }

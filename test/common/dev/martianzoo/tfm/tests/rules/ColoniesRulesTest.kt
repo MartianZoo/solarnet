@@ -37,11 +37,10 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
           "-11 MC",
           "NitriteReducingBacteria FROM ProjectCard",
       )
-      selectOnlyTask()
+      doTask("3 Microbe<NitriteReducingBacteria>")
     }
     kim.inTurn {
       doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Enceladus>")
-      selectTask("3* Microbe")
       doTask("3 Microbe<NitriteReducingBacteria>")
     }
 
@@ -49,7 +48,6 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
       doTasks("TradeAction<Action1>", "-9 MC")
       run {
         doTasks("Trade<Enceladus>", "Microbe<$RegolithEaters>")
-        kim.selectTask("Microbe<Kim>*")
         kim.doTask("Microbe<$NitriteReducingBacteria>")
       }
     }
@@ -63,19 +61,18 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "Pluto, Luna, Ceres, Triton, Ganymede", playerCount = 2)
     kim.inTurn {
       doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Pluto>")
-      selectTask("2! ProjectCard<Kim, Hand>")
+      doTask("2 ProjectCard<Kim, Hand>")
     }
     kim.setToExMachina(0, "ProjectCard")
     stan.exMachina("3 Energy")
     stan.setToExMachina(0, "ProjectCard")
 
     stan.inTurn {
-      doTasks("TradeAction<Action2>", "-Energy / Owed<Class<Energy>>")
-      selectOnlyTask()
+      doTasks("TradeAction<Action2>", "-3 Energy")
       doTasks("Trade<Pluto>")
-      selectTask("ProjectCard<Stan, Hand>!")
-      kim.selectTask("ProjectCard<Kim, Hand>!")
-      kim.selectTask("-ProjectCard<Kim, Hand>!")
+      doTask("ProjectCard<Stan, Hand>")
+      kim.doTask("ProjectCard<Kim, Hand>")
+      kim.doTask("-ProjectCard<Kim, Hand>")
     }
 
     kim.count("ProjectCard") shouldBe 0
@@ -88,42 +85,42 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     stan.exMachina("3 Energy")
     stan.inTurn {
       doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Pluto>")
-      selectOnlyTask()
+      doTask("2 ProjectCard")
     }
     stan.setToExMachina(0, "ProjectCard")
     kim.inTurn {
       doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Pluto>")
-      selectTask("2! ProjectCard<Kim, Hand>")
+      doTask("2 ProjectCard<Kim, Hand>")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<ResearchColony>>", "-20 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "ResearchColony FROM ProjectCard")
-      selectTask("2! ProjectCard<Kim, Hand>")
-      selectOnlyTask()
+      doTasks("ResearchColony FROM ProjectCard")
+      doTask("2 ProjectCard<Kim, Hand>")
       doTask("Colony<Pluto>")
-      selectTask("2! ProjectCard<Kim, Hand>")
+      doTask("2 ProjectCard<Kim, Hand>")
     }
     kim.setToExMachina(0, "ProjectCard")
 
-    stan.beginOperation("NewTurn")
-    stan.doTasks(
-        "TradeAction<Action2>",
-        "-3 Energy",
-        "Trade<Pluto>",
-        "2 ProjectCard",
-    )
-    kim.doTask("ProjectCard<Kim>")
-    shouldThrow<TaskException> { stan.doTask("ProjectCard<Kim>") }
-    kim.count("ProjectCard") shouldBe 1
-    stan.doTask("ProjectCard<Stan>")
-    stan.count("ProjectCard") shouldBe 3
-    stan.doTask("-ProjectCard<Stan>")
-    kim.doTask("-ProjectCard<Kim>")
-    kim.doTask("ProjectCard<Kim>")
-    kim.count("ProjectCard") shouldBe 1
-    kim.doTask("-ProjectCard<Kim>")
-    stan.completeOperation {}
+    stan.inTurn {
+      doTasks(
+          "TradeAction<Action2>",
+          "-3 Energy",
+          "Trade<Pluto>",
+          "2 ProjectCard",
+      )
+      kim.doTask("ProjectCard<Kim>")
+      shouldThrow<TaskException> { doTask("ProjectCard<Kim>") }
+      kim.count("ProjectCard") shouldBe 1
+      doTask("ProjectCard<Stan>")
+      stan.count("ProjectCard") shouldBe 3
+      doTask("-ProjectCard<Stan>")
+      kim.doTask("-ProjectCard<Kim>")
+      // Release Kim's Pluto lock after her cross-player discard.
+      autoExecNow()
+      kim.doTask("ProjectCard<Kim>")
+      kim.count("ProjectCard") shouldBe 1
+      kim.doTask("-ProjectCard<Kim>")
+    }
 
     kim.count("ProjectCard") shouldBe 0
     stan.count("ProjectCard") shouldBe 2
@@ -144,15 +141,14 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
           "2 Titanium",
       )
     }
-    val ratingBefore = kim.count("TerraformRating")
 
     kim.inTurn {
           doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Europa>")
+          // Resolve the ocean offer separately from other pending placement effects.
           selectTask("OceanTile<WaterArea(HAS MAX 0 Tile)>*")
         }
-        .expect("0 OceanTile")
+        .expect("0 OceanTile, 0 TerraformRating")
 
-    kim.count("TerraformRating") shouldBe ratingBefore
     admin.count("OceanTile") shouldBe 9
   }
 
@@ -166,10 +162,10 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
 
     stan
         .inTurn {
-          doTasks("TradeAction<Action2>", "-Energy / Owed<Class<Energy>>")
-          selectOnlyTask()
+          doTasks("TradeAction<Action2>", "-3 Energy")
           doTasks("Trade<Enceladus>")
-          selectOnlyTask()
+          // Resolve the trade reward: this player has no card that can hold microbes.
+          selectTask("Microbe")
         }
         .expect("0 Microbe<Anyone>")
 
@@ -194,40 +190,30 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
           "-21 MC",
           "ExtractorBalloons FROM ProjectCard",
       )
-      selectOnlyTask()
+      doTask("3 Floater<ExtractorBalloons>")
     }
     kim.inTurn {
       doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Titan>")
-      selectOnlyTask()
       doTask("3* Floater<ForcedPrecipitation>")
     }
     kim.inTurn {
       doTasks("PlayProject<Class<ResearchColony>>", "-20 MC")
-      selectTask("-X? Titanium")
-      doTasks("Ok", "ResearchColony FROM ProjectCard")
-      selectTask("2! ProjectCard<Kim, Hand>")
-      selectOnlyTask()
+      doTasks("ResearchColony FROM ProjectCard")
+      doTask("2 ProjectCard<Kim, Hand>")
       doTask("Colony<Titan>")
-      selectOnlyTask()
       doTask("3* Floater<ExtractorBalloons>")
     }
     stan.inTurn {
       doTasks("PlayProject<Class<Dirigibles>>", "-11 MC", "Dirigibles FROM ProjectCard")
     }
-    val precipitationBefore = kim.count("Floater<$ForcedPrecipitation>")
-    val balloonsBefore = kim.count("Floater<$ExtractorBalloons>")
 
-    stan.inTurn {
-      doTasks("TradeAction<Action2>", "-Energy / Owed<Class<Energy>>")
-      selectOnlyTask()
-      doTasks("Trade<Titan>", "Floater<Dirigibles>")
-      kim.selectTask("Floater<Kim>*")
-      kim.doTask("Floater<ForcedPrecipitation>*")
-      kim.selectTask("Floater<Kim>*")
-      kim.doTask("Floater<ExtractorBalloons>*")
-    }
-
-    kim.count("Floater<$ForcedPrecipitation>") shouldBe precipitationBefore + 1
-    kim.count("Floater<$ExtractorBalloons>") shouldBe balloonsBefore + 1
+    stan
+        .inTurn {
+          doTasks("TradeAction<Action2>", "-3 Energy")
+          doTasks("Trade<Titan>", "Floater<Dirigibles>")
+          kim.doTask("Floater<ForcedPrecipitation>*")
+          kim.doTask("Floater<ExtractorBalloons>*")
+        }
+        .expect("Floater<$ForcedPrecipitation<Kim>>, Floater<$ExtractorBalloons<Kim>>")
   }
 }

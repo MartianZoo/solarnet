@@ -74,13 +74,13 @@ internal class Lang02InstructionsTest {
   }
 
   @Test
-  internal fun `L2-2 a count is a positive integer or X, with an optional coefficient`() {
+  internal fun `L2-2 a count is a nonnegative integer or X, with an optional coefficient`() {
     (parse<Instruction>("Plant") as Gain).count shouldBe ActualScalar(1)
     (parse<Instruction>("11 Plant") as Gain).count shouldBe ActualScalar(11)
     (parse<Instruction>("X Plant") as Gain).count shouldBe XScalar(1)
     (parse<Instruction>("2X Plant") as Gain).count shouldBe XScalar(2)
-    shouldThrow<PetSyntaxException> { parse<Instruction>("0 Plant") }
-    shouldThrow<PetSyntaxException> { parse<Instruction>("-0 Plant") }
+    (parse<Instruction>("0 Plant") as Gain).count shouldBe ActualScalar(0)
+    (parse<Instruction>("-0 Plant") as Remove).count shouldBe ActualScalar(0)
     shouldThrow<IllegalArgumentException> { parse<Instruction>("Plant") * -1 }
   }
 
