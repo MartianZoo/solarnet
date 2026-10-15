@@ -1,37 +1,75 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
-import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class RedAppeasementTest : TfmGameplayTest() {
+internal class RedAppeasementTest : TfmGameplayTest(NONE) {
+  @BeforeTest
+  internal fun prepareRedsSupport() {
+    newTestGame("RedAppeasement, TurmoilExpansion", playerCount = 2)
+    kim.doTasks(
+        "LobbyAction<Action1>",
+        "PartyDelegate<Reds>",
+        "LobbyAction<Action2>",
+        "-5 MC",
+        "PartyDelegate<Reds>",
+    )
+  }
+
   @Test
   internal fun `Cannot be played after another player has passed`() {
-    newTestGame("RedAppeasement, TurmoilExpansion", playerCount = 2)
-    kim.turn {
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Reds>") }
-      stdAction("LobbyAction<Action2>", payment = { pay(5) }) { doTask("PartyDelegate<Reds>") }
-    }
-    stan.pass()
+    stan.doTask("Pass")
 
-    shouldThrow<RequirementException> { kim.playProject(RedAppeasement, 0) }
+    shouldThrow<RequirementException> {
+      kim.doTasks("PlayProject<Class<RedAppeasement>>", "RedAppeasement FROM ProjectCard")
+    }
   }
 
   @Test
   internal fun `Passes its owner so the next players pass ends the generation`() {
-    newTestGame("RedAppeasement, TurmoilExpansion", playerCount = 2)
-    kim.turn {
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Reds>") }
-      stdAction("LobbyAction<Action2>", payment = { pay(5) }) { doTask("PartyDelegate<Reds>") }
-    }
-    stan.turn { sellPatents(1) }
+    stan.doTasks(
+        "UseStandardProject<SellPatentsProject>",
+        "MC FROM ProjectCard",
+        "0 StandardAction",
+    )
 
-    kim.playProject(RedAppeasement, 0).expect("PROD[2 MC], Pass, 0 Pass<Stan>")
-    stan.pass()
+    kim.doTasks(
+        "PlayProject<Class<RedAppeasement>>",
+        "RedAppeasement FROM ProjectCard",
+        "PROD[2 MC]",
+        "Pass",
+        "PlayedEvent<Class<RedAppeasement>> FROM RedAppeasement",
+    )
+    kim.count("Pass") shouldBe 1
+    stan.doTask("Pass")
 
-    admin.count("VenusSolarPhase") shouldBe 1
+    admin.count("ProductionPhase") shouldBe 1
+  }
+
+  @Test
+  internal fun `Playing as the second action passes its owner immediately`() {
+    stan.doTasks(
+        "UseStandardProject<SellPatentsProject>",
+        "MC FROM ProjectCard",
+        "0 StandardAction",
+    )
+
+    kim.doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
+    kim.doTasks(
+        "PlayProject<Class<RedAppeasement>>",
+        "RedAppeasement FROM ProjectCard",
+        "PROD[2 MC]",
+        "Pass",
+        "PlayedEvent<Class<RedAppeasement>> FROM RedAppeasement",
+    )
+    kim.count("Pass") shouldBe 1
+    stan.doTask("Pass")
+
+    admin.count("ProductionPhase") shouldBe 1
   }
 }

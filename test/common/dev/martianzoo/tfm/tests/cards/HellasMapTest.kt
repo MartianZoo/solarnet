@@ -15,23 +15,41 @@ internal class HellasMapTest : TfmSandboxTest() {
     kim.exMachina("8 Plant")
     kim.setToExMachina(0, "MC")
 
-    kim.stdAction("ConvertPlants") {
-      shouldThrow<NarrowingException> { doTask("GreeneryTile<Hellas_1_5>") }
-      abort()
+    shouldThrow<NarrowingException> {
+      kim.inTurn {
+        doTasks("ConvertPlants", "-8 Plant")
+        // Hand the paid conversion to Admin to offer the legal greenery areas.
+        selectTask("DefaultGreeneryTile")
+        doTask("GreeneryTile<Hellas_1_5>")
+      }
     }
   }
 
   @Test
   internal fun `Ocean income from the south pole bonus can fund its payment`() {
-    newTestGame(addOptions = "HellasMap", kimCorporation = LakefrontResorts)
+    newTestGame(addOptions = "HellasMap, LakefrontResorts", kimCorporation = LakefrontResorts)
     kim.exMachina("OceanTile<Hellas_4_7>, OceanTile<Hellas_5_6>")
     kim.setToExMachina(0, "MC")
     kim.setToExMachina(8, "Plant")
 
-    kim.stdAction("ConvertPlants") {
+    kim.inTurn {
+          doTasks("ConvertPlants", "-8 Plant")
+          // Hand the paid conversion to Admin to offer the legal greenery areas.
+          selectTask("DefaultGreeneryTile")
           doTask("GreeneryTile<Hellas_9_7>")
-          placeTile(5, 7)
+          doTask("OxygenStep")
+          doTask("0 MC")
+          doTasks(
+              "TerraformRating",
+              "OceanTile<Hellas_5_7>",
+              "TerraformRating",
+              "PROD[MC]",
+              "3 Heat",
+          )
+          // Separate Lakefront's extra adjacency income from the ordinary ocean bonuses.
+          selectTask("MC! / Neighbor<OceanTile, Hellas_5_7>")
+          doTasks("2 MC", "2 MC", "-6 MC")
         }
-        .expect("0 MC, OceanTile<Hellas_5_7>")
+        .expect("0 MC")
   }
 }

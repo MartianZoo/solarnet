@@ -15,12 +15,11 @@ import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.state.actors
-import dev.martianzoo.state.visibleLogEvents
+import dev.martianzoo.state.realLogEvents
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.Access.BlueMode
 import dev.martianzoo.tfm.script.Access.GreenMode
 import dev.martianzoo.tfm.script.Access.PurpleMode
@@ -97,10 +96,13 @@ public class ScriptSession(
   ) {
     val candidateAgents = Agents(candidateGame)
     val candidateAgent = candidateAgents[ADMIN] // default autoexec policy
-    if (purple) {
-      TfmWorkflow.Automatic(candidateAgents).launch()
-    } else {
-      TfmWorkflow.Stepwise(candidateAgents).setupPhase()
+    candidateAgents.tfm(ADMIN).startGame()
+    if (!purple) {
+      // Outside purple mode the user changes phases, so the game does not leave setup on its own.
+      candidateGame.tasks
+          .extract { it }
+          .filter { it.deferred }
+          .forEach { candidateAgents[it.assignee].dropTask(it.id) }
     }
     optionCodes = candidateOptionCodes
     playerCount = candidatePlayerCount
@@ -124,12 +126,13 @@ public class ScriptSession(
       playerNames: List<String>,
       purple: Boolean = false,
   ) {
-    val premise = Canon.gamePremise(GameConfig(configText, *playerNames.toTypedArray()))
+    val config = GameConfig(configText, *playerNames.toTypedArray())
+    val premise = Canon.gamePremise(config)
     val options = OptionCodeTranslation.recognizedOptions(premise.modules)
     val candidateGame = TfmEngine.newGame(premise)
     installGame(
         candidateGame,
-        OptionCodeTranslation.optionCodes(options),
+        OptionCodeTranslation.optionCodes(options, config.includedCardBundles),
         premise.actors.count { it is Player },
         purple,
     )
@@ -315,7 +318,7 @@ public class ScriptSession(
       }
 
   internal fun describeExecutionResults(result: TaskResult): List<String> {
-    val changes = result.changes.visibleLogEvents(game.reader).map { it.toString() }
+    val changes = result.changes.realLogEvents(game.reader).map { it.toString() }
 
     val newTaskLines = taskLines(result.tasksSpawned)
     val taskLines =
@@ -387,7 +390,7 @@ public class ScriptSession(
     YELLOW("Task integrity: changes have consequences", MC),
     GREEN("Operation integrity: clear task queue before starting new operation", PLANT),
     BLUE("Turn integrity: must perform a valid game turn for this phase", OCEAN_TILE),
-    PURPLE("Game integrity: the engine fully controls the workflow", ENERGY),
+    PURPLE("Game integrity: the game's own rules drive every turn and phase", ENERGY),
   }
 
   internal fun actor(name: String): Actor {
@@ -409,6 +412,7 @@ internal fun createGame(setup: OptionCodeTranslation.Setup): World {
       GameConfig.create(
           included = setup.options + setup.selectedColonies,
           excluded = setup.excludedOptions,
+          includedCardBundles = setup.includedCardBundles,
           playerNames =
               if (setup.players == 1) listOf(cn("Me"))
               else (1..setup.players).map { cn("Player$it") },

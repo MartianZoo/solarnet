@@ -13,7 +13,17 @@ internal class CeresTechMarketTest : TfmSandboxTest() {
     kim.exMachina("$CeresTechMarket")
     kim.setToExMachina(4, "ProjectCard")
 
-    shouldThrow<LimitsException> { kim.cardAction1(CeresTechMarket, x = 5) }
-    kim.cardAction1(CeresTechMarket, x = 4).expect("-4 ProjectCard, 8 MC")
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        doTask("UseCardAction<CeresTechMarket, Action1>")
+        doTask("-5 ProjectCard THEN 10 MC")
+      }
+    }
+    kim.inTurn {
+          doTask("UseCardAction<CeresTechMarket, Action1>")
+          doTask("-4 ProjectCard THEN 8 MC")
+          doTask("8 MC")
+        }
+        .expect("-4 ProjectCard")
   }
 }

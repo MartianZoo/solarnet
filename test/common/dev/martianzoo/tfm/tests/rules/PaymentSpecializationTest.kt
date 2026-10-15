@@ -5,6 +5,7 @@ import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.state.ComponentChange
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
@@ -22,11 +23,15 @@ internal class PaymentSpecializationTest {
 
     p1.beginOperation("BuySelectedCards")
     p1.count("Owed") shouldBe 12
-    p1.count("ProjectCard<Selecting>") shouldBe 0
+    p1.count("ProjectCard<Selecting>") shouldBe 4
     p1.count("ProjectCard<Hand>") shouldBe 0
     p1.doTasks("-12 MC")
     p1.count("ProjectCard<Hand>") shouldBe 0
-    p1.doTasks("4 ProjectCard FROM BuyCard")
+    val transfer = p1.doTasks("4 ProjectCard<Hand FROM Selecting>")
+    val event = transfer.changes.single { it.change is ComponentChange.Transmute }
+    event.change.toString() shouldBe
+        "+4 ProjectCard<Player1, Hand> FROM ProjectCard<Player1, Selecting>"
+    event.actor shouldBe PLAYER1
 
     p1.count("MC") shouldBe 8
     p1.count("ProjectCard<Hand>") shouldBe 4

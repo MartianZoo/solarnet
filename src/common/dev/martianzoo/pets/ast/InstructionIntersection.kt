@@ -107,7 +107,7 @@ internal class InstructionIntersection(private val table: ClassTable, private va
           narrow.ensureNarrows(wide, info)
           values += narrow.value / wide.multiple
         } else if (wide::class == narrow::class && wide !is Or) {
-          wide.immediateChildren().zip(narrow.immediateChildren()).forEach { (w, n) ->
+          wide.childNodes().zip(narrow.childNodes()).forEach { (w, n) ->
             captureX(w, n)
           }
         }
@@ -135,8 +135,7 @@ internal class InstructionIntersection(private val table: ClassTable, private va
   }
 
   private fun changes(left: Change, right: Change): InstructionTree? {
-    val skip = NoOp.takeIf { it.narrows(left, info) && it.narrows(right, info) }
-    if (left::class != right::class) return skip
+    if (left::class != right::class) return null
     val leftQuantifier = left.quantifier!!
     val rightQuantifier = right.quantifier!!
     val quantifier =
@@ -175,8 +174,8 @@ internal class InstructionIntersection(private val table: ClassTable, private va
       return common?.takeIf(table::isInhabited)?.let(::checkRefinements)?.expressionFull
     }
 
-    val gaining = left.gaining?.let { expression(it, right.gaining!!) ?: return skip }
-    val removing = left.removing?.let { expression(it, right.removing!!) ?: return skip }
+    val gaining = left.gaining?.let { expression(it, right.gaining!!) ?: return null }
+    val removing = left.removing?.let { expression(it, right.removing!!) ?: return null }
     return when (left) {
       is Gain -> Gain.gain(scaledEx(gaining!!, count), quantifier)
       is Remove -> Remove.remove(scaledEx(removing!!, count), quantifier)

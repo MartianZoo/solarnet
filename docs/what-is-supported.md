@@ -47,6 +47,7 @@ Deal nor Turmoil is present.
 | Decomposers | Ecology Experts | Played through Ecology Experts, Decomposers gains 1 rather than 3 microbes. |
 | GMO Contract | Ecology Experts | Played through Ecology Experts, GMO Contract misses 4 M€ from Ecology Experts' plant and microbe tags. |
 | Merger | Sagitta Frontier Services | When Merger plays Sagitta, Sagitta misses 4 M€ for Merger's lack of tags. |
+| Focused Organization | Stormcraft Incorporated | Focused Organization cannot spend a Stormcraft floater as heat for its action. |
 | Terraforming Deal | Preservation Program | Terraforming Deal pays 2 M€ for TR that Preservation Program reverses. |
 | Turmoil expansion | Preservation Program | Reds Party charges 3 M€ for TR that Preservation Program reverses. |
 | Amazonis Planitia | Mining Guild | A wild-resource placement grants steel production and an Audit even when the chosen resource is not metal. |

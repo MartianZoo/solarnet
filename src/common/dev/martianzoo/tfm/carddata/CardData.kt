@@ -7,14 +7,20 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.decodeFromJsonElement
 
-/** Card definitions embedded for data consumers and Pets generation. */
+/** Access to embedded authored card resources, before their conversion to Pets declarations. */
 public object CardData {
+  /** Bundle directory names that have embedded card-data resources. */
   public val bundleNames: Set<String>
     get() =
         GeneratedCardDataResources.filenames.mapTo(linkedSetOf()) { filename ->
           filename.removePrefix("carddata/").substringBefore('/')
         }
 
+  /**
+   * Reads [bundleName]'s `cards.json5` and returns its cards in deck order, then card order. Every
+   * card inherits its enclosing deck; a card cannot repeat a `deck` field. Parsing and
+   * [CardDefinition] validation fail for malformed or missing resource data.
+   */
   public fun definitions(bundleName: String): List<CardDefinition> =
       JSON5.decodeFromString<CardFile>(
               GeneratedCardDataResources.read("carddata/$bundleName/cards.json5")

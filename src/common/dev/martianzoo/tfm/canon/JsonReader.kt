@@ -5,10 +5,23 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 internal object JsonReader {
+  fun readBundleManifest(json5: String): Map<String, String?> = fromJson5(json5)
 
   /** Reads one bundle language file keyed by canonical class name. */
   public fun readDisplayNames(json5: String): Map<dev.martianzoo.pets.ast.ClassName, String> =
       fromJson5<Map<String, String>>(json5).mapKeys { (className) -> cn(className) }
+
+  /** Reads replacement Content names, keyed by the replacement item. */
+  public fun readReplacements(
+      json5: String
+  ): Map<dev.martianzoo.pets.ast.ClassName, dev.martianzoo.pets.ast.ClassName> =
+      fromJson5<Map<String, String>>(json5)
+          .mapKeys { (replacement) -> cn(replacement) }
+          .mapValues { (_, replaced) -> cn(replaced) }
+
+  /** Reads cards omitted only from automatic bundle pool selection. */
+  public fun readExcludedDefaultCards(json5: String): Set<dev.martianzoo.pets.ast.ClassName> =
+      fromJson5<List<String>>(json5).mapTo(linkedSetOf(), ::cn)
 
   // HELPERS
 

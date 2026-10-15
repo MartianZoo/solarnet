@@ -1,0 +1,35 @@
+"Marks the winner after final scoring"
+CLASS Victory : Owned<Player>, Real { HAS MAX 1 This }
+
+CLASS VictoryPoint : Owned<Player>, System, Real
+
+"A milestone that has been claimed"
+ABSTRACT CLASS Milestone : Owned<Player>, Real {
+  HAS MAX 3 Milestone
+  autoSelectWhen = Requirement?
+  requirement = Requirement
+
+  OWN[This:: (EVAL This.requirement: Ok)]
+  OWN[End: 5 VictoryPoint]
+}
+
+"An award that has been funded"
+ABSTRACT CLASS Award : Real {
+  HAS MAX 1 This
+  // HAS MAX 3 Award - actually it is only the FundAward standard action that can't fund a 4th award
+  metric = Metric
+
+  OWN[End: MeasureAward<This>]
+}
+
+"Places one funded award's first and second place"
+CLASS MeasureAward<@Award> : Signal, System {
+  OWN[This:: EACH Me@Player(HAS =1 (RANK Me@Player { EVAL @Award.metric })) { FirstPlace<@Award> }]
+  OWN[This IF 3 Player:: EACH Me@Player(HAS =2 (RANK Me@Player { EVAL @Award.metric })) { SecondPlace<@Award> }]
+}
+
+CLASS FirstPlace<Award> : Owned<Player>, Real { OWN[This: 5 VictoryPoint] }
+CLASS SecondPlace<Award> : Owned<Player>, Real { OWN[This: 2 VictoryPoint] }
+
+"A scoring Signal whose instruction is computed from a played event's printed effects"
+CLASS ScoreEventVps<Class<CardFront>> : Owned<Player>, CustomInstruction, System

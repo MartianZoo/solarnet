@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -14,7 +14,11 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     newTestGame(addOptions = "CimmeriaMap, -ColoniesExpansion", playerCount = 2)
     kim.setToExMachina(35, "MC")
 
-    kim.stdProject("CityProject") { placeTile(3, 3) }.expect("-25 MC, 0 Colony")
+    kim.inTurn {
+          doTasks("UseStandardProject<CityProject>", "-25 MC", "PROD[MC]", "CityTile<Cimmeria_3_3>")
+          doTask("CimmeriaPlacementBonus!")
+        }
+        .expect("0 Colony")
   }
 
   @Test
@@ -22,11 +26,11 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     newTestGame(addOptions = "CimmeriaMap, Luna, Ceres, Triton, Ganymede, Callisto")
     kim.setToExMachina(35, "MC")
 
-    kim.stdProject("CityProject") {
-          placeTile(3, 3)
-          doTask("Colony<Luna>")
-        }
-        .expect("-30 MC, Colony<Luna>")
+    kim.inTurn {
+      doTasks("UseStandardProject<CityProject>", "-25 MC", "PROD[MC]", "CityTile<Cimmeria_3_3>")
+      doTask("CimmeriaPlacementBonus!")
+      doTasks("-5 MC", "Colony<Luna>", "PROD[2 MC]")
+    }
   }
 
   // https://boardgamegeek.com/thread/3242862/msl-curiosity-question
@@ -35,7 +39,13 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     newTestGame(addOptions = "CimmeriaMap, Luna, Ceres, Triton, Ganymede, Callisto")
     kim.exMachina("Colony<Luna>, Colony<Ceres>, Colony<Triton>, Colony<Ganymede>, Colony<Callisto>")
 
-    shouldThrowAny { kim.stdProject("CityProject") { placeTile(3, 3) } }
+    shouldThrow<NotFullySpecifiedException> {
+      kim.inTurn {
+        doTasks("UseStandardProject<CityProject>", "-25 MC", "PROD[MC]", "CityTile<Cimmeria_3_3>")
+        doTask("CimmeriaPlacementBonus!")
+        doTask("-5 MC")
+      }
+    }
 
     kim.count("CityTile<Cimmeria_3_3>") shouldBe 0
     kim.count("MC") shouldBe 42
@@ -46,9 +56,22 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     newTestGame(addOptions = "UtopiaMap", playerCount = 2)
     kim.exMachina("$Ecoline, $EarthCatapult")
     stan.exMachina("$Mine")
-    kim.playProject(SmallAsteroid, 8)
+    kim.inTurn {
+      doTasks("PlayProject<Class<SmallAsteroid>>", "-8 MC")
+      doTasks(
+          "SmallAsteroid FROM ProjectCard",
+      )
+      doTask("TemperatureStep")
+      // Resolve the optional attack: no unprotected plant target is available.
+      selectTask("-2? Plant<Anyone>")
+      doTask("TerraformRating")
+      doTask("PlayedEvent<Class<SmallAsteroid>> FROM SmallAsteroid")
+    }
 
-    kim.stdAction("FundAward<Class<Incorporator>>")
+    kim.inTurn {
+      doTasks("FundAward<Class<Incorporator>>", "-8 MC")
+      doTask("Incorporator")
+    }
     victoryPoints() shouldBe listOf(23, 25)
   }
 
@@ -58,7 +81,10 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     kim.exMachina("NormalCityTile<Utopia_1_1>")
     stan.exMachina("NormalCityTile<Utopia_5_5>")
 
-    kim.stdAction("FundAward<Class<Suburbian>>")
+    kim.inTurn {
+      doTasks("FundAward<Class<Suburbian>>", "-8 MC")
+      doTask("Suburbian")
+    }
     victoryPoints() shouldBe listOf(25, 20)
   }
 
@@ -70,7 +96,10 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
         "MiningRights_SpecialTile<Cimmeria_3_2>, NaturalPreserve_SpecialTile<Cimmeria_3_4>"
     )
 
-    kim.stdAction("FundAward<Class<Founder>>")
+    kim.inTurn {
+      doTasks("FundAward<Class<Founder>>", "-8 MC")
+      doTask("Founder")
+    }
     victoryPoints() shouldBe listOf(25, 20)
   }
 
@@ -80,7 +109,10 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     kim.setToExMachina(2, "PROD[Steel]")
     kim.setToExMachina(4, "PROD[Titanium]")
 
-    kim.stdAction("ClaimMilestone<Class<Metallurgist>>").expect("-8 MC, Metallurgist")
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Metallurgist>>", "-8 MC")
+      doTask("Metallurgist")
+    }
   }
 
   @Test
@@ -90,7 +122,10 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
         "$SearchForLife, Science<$SearchForLife>, $Predators, Animal<$Predators>, $RegolithEaters, Microbe<$RegolithEaters>"
     )
 
-    kim.stdAction("ClaimMilestone<Class<Trader>>").expect("-8 MC, Trader")
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Trader>>", "-8 MC")
+      doTask("Trader")
+    }
   }
 
   @Test
@@ -99,10 +134,17 @@ internal class UtopiaCimmeriaExpansionTest : TfmSandboxTest() {
     kim.setToExMachina(11, "PROD[MC]")
 
     shouldThrow<RequirementException> {
-      kim.stdAction("ClaimMilestone<Class<Fundraiser>>")
+      kim.inTurn {
+        doTask("ClaimMilestone<Class<Fundraiser>>")
+        doTask("-8 MC")
+        doTask("Fundraiser")
+      }
     }
 
     kim.setToExMachina(12, "PROD[MC]")
-    kim.stdAction("ClaimMilestone<Class<Fundraiser>>").expect("Fundraiser")
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Fundraiser>>", "-8 MC")
+      doTask("Fundraiser")
+    }
   }
 }

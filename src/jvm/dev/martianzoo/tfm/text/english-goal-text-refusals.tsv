@@ -1,0 +1,3 @@
+count	reason	examples
+1	UNKNOWN_REQUIREMENT_FRAME	Briber: Briber
+1	UNSUPPORTED_METRIC	Philantropist: GainsOf<Class<VictoryPoint>>

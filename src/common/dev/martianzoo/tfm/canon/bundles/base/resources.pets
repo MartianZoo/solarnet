@@ -1,0 +1,37 @@
+// Anything represented by a copper cube IRL
+ABSTRACT CLASS Resource : Owned, Real {
+  "A resource that doesn't need a card to live on"
+  ABSTRACT CLASS StandardResource {
+    CLASS MC
+    ABSTRACT CLASS Metal {
+      CLASS Steel
+      CLASS Titanium
+    }
+    CLASS Plant
+    CLASS Energy { OWN[ProductionPhase: Heat FROM This] }
+    CLASS Heat
+  }
+
+  "A resource cube living on a compatible card, such as `Animal<Pets>`"
+  // The explicit Owned occurrence ties the holder's owner to this resource's inherited Me.
+  ABSTRACT CLASS CardResource<ResourceHolder<Class<This>, @Owner>> : Owned<@Owner> {
+    DEFAULT +CardResource*
+
+    CLASS Microbe
+    CLASS Animal
+    CLASS Science
+    CLASS Asteroid
+    CLASS Floater
+  }
+}
+
+"Each instance of this creates an instance of a standard resource during ProductionPhase"
+CLASS Production<Class<@StandardResource>> : Owned, Real {
+  OWN[ProductionPhase: @StandardResource]
+}
+
+"TODO: consider rename to ProductionBasement"
+CLASS ProdOffset<Class<@StandardResource>> : Owned<Player>, System {
+  OWN[This: PROD[@StandardResource] BY Admin]
+  OWN[ProductionPhase: -@StandardResource]
+}

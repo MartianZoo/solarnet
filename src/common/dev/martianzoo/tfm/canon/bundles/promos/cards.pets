@@ -1,0 +1,55 @@
+"The disease cubes used by Pharmacy Union and Hospitals"
+CLASS Disease : CardResource
+
+"The moving marker placed by Mars Nomads"
+CLASS NomadsMarker : Owned<Player>, AreaPiece<@LandArea> {
+  HAS MAX 1 This
+  OWN[Tile<@LandArea> BY Anyone: Die]
+}
+
+// Published promotional Global Events, appended to the generated cards.
+CLASS JovianColonyBoom : GePartyDistant<Scientists>, GePartyCurrent<Unity> {
+  HAS Class<Colony>
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<JovianTaxRights>>]
+}
+
+CLASS JovianTaxRights : GlobalEffect {
+  OWN[This: PROD[MC / Colony MAX 5], Titanium / Influence]
+}
+
+CLASS Diaspora : GePartyDistant<MarsFirst>, GePartyCurrent<Scientists> {
+  HAS Class<Colony>
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<MicrogravityHealthProblems>>]
+}
+
+CLASS MicrogravityHealthProblems : GlobalEffect {
+  OWN[This: -3* MC / (Colony MAX 5 - Influence)]
+}
+
+CLASS MartianProtectionism : GePartyDistant<MarsFirst>, GePartyCurrent<Unity> {
+  HAS Class<VenusTag>
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<VenusInfrastructure>>]
+}
+
+CLASS VenusInfrastructure : GlobalEffect {
+  OWN[This: 2 MC / VenusTag MAX 5, 2 MC / Influence]
+}
+
+CLASS TitanVenusAlliance : GePartyDistant<Unity>, GePartyCurrent<Reds> {
+  HAS Class<VenusTag>, Class<Colony>
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<CloudSocieties>>]
+}
+
+CLASS CloudSocieties : GlobalEffect {
+  OWN[This IF StartToken: EACH @ResourceCard<Class<Floater>, Anyone> { Floater<@ResourceCard> BY Admin }]
+  OWN[This: Floater<ResourceCard<Class<Floater>>> / Influence]
+}
+
+CLASS ImmigrationToVenus : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
+  HAS Class<VenusTag>, Class<Colony>
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<CorrosiveRain>>]
+}
+
+CLASS CorrosiveRain : GlobalEffect {
+  OWN[This: (-2! Floater OR -10* MC) THEN ProjectCard / Influence]
+}

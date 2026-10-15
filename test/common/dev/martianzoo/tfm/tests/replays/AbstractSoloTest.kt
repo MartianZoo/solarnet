@@ -1,15 +1,12 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import kotlin.test.BeforeTest
 
-/** Follow-along solo tests driven by the engine-owned game workflow. */
+/** Follow-along solo tests, played as the game's own rules offer each turn and phase. */
 internal abstract class AbstractSoloTest : AbstractFullGameTest() {
   protected lateinit var me: TfmGameplay
     private set
-
-  private lateinit var workflow: TfmWorkflow.Automatic
 
   protected abstract fun cityAreas(): Pair<String, String>
 
@@ -20,7 +17,7 @@ internal abstract class AbstractSoloTest : AbstractFullGameTest() {
     super.commonSetup()
 
     me = p1
-    workflow = TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     resolveExpansionSetupTasks()
 
     admin.doTask("CityTile<${cityAreas().first}, SoloOpponent>")

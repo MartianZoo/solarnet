@@ -19,8 +19,9 @@ internal class IceAsteroidTest : TfmSandboxTest() {
     )
 
     shouldThrow<NarrowingException> {
-      kim.playProject(IceAsteroid, 23) {
-        doTask("OceanTile<Tharsis_1_2>")
+      kim.inTurn {
+        doTasks("PlayProject<Class<IceAsteroid>>", "-23 MC")
+        doTasks("IceAsteroid FROM ProjectCard", "OceanTile<Tharsis_1_2>")
       }
     }
   }

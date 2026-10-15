@@ -29,7 +29,7 @@ dependency bounds. It is not itself a Pets dependency argument; expression recon
 only the generated parameters that represent open dependency roots.
 
 Direct supertypes retain the subtype's resolved dependency projection. Concrete inherited bounds
-are written directly instead of receiving redundant Kotlin parameters. Parameter names derive from
+are written instead of receiving redundant Kotlin parameters. Parameter names derive from
 their bound class abbreviations, with numeric suffixes only when independent parameters would
 otherwise have the same name.
 

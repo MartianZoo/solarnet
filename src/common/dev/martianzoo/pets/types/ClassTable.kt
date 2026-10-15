@@ -39,13 +39,16 @@ public abstract class ClassTable {
 
   /**
    * Creates a dispatcher for OWN and this table's catalog-defined transformations, using [scope]
-   * for lexical bindings. An absent Me is not supplied implicitly; OWN may introduce it only for a
-   * marked whole effect. The dispatcher retains deferred property marks for later expansion. See
+   * for lexical bindings, dispatching only [kinds] and retaining other marks. An absent Me is not
+   * supplied implicitly; OWN may introduce it only for a marked whole effect. The dispatcher
+   * retains deferred property marks for later expansion. See
    * [section 8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-transform-blocks).
    */
   public fun transformDispatcher(
-      scope: TransformHandler.Scope = TransformHandler.Scope()
-  ): PetTransformer = TransformHandler.dispatcher(transformHandlers, scope)
+      scope: TransformHandler.Scope = TransformHandler.Scope(),
+      kinds: Set<String> = transformHandlers.keys,
+  ): PetTransformer =
+      TransformHandler.dispatcher(transformHandlers.filterKeys(kinds::contains), scope)
 
   /** The Catalog-scoped table whose compiled Classes back this game table. */
   internal abstract val masterTable: ClassTable
@@ -135,6 +138,36 @@ public abstract class ClassTable {
 
   /** Every nominal class in this combined universe, including classes excluded from its view. */
   internal abstract fun allKnownClasses(): Set<Class>
+
+  /**
+   * Guesses whether [klass] contributes an aspect to several kinds of component rather than
+   * defining a kind itself. This is a declaration-structure heuristic, not a type-system judgment.
+   * It returns false for concrete classes and for abstract classes with fewer than two direct
+   * subclasses, which lack enough evidence.
+   *
+   * The guess uses every known class, including classes excluded from this game's premise. A class
+   * is probably an aspect when at most a quarter of its direct subclasses inherit it without an
+   * unrelated superclass, or when it has no body and its subclasses combine it with at least three
+   * different unrelated superclasses.
+   *
+   * @throws IllegalArgumentException if [klass] belongs to another Catalog.
+   */
+  public fun isProbableAspect(klass: Class): Boolean {
+    require(accepts(klass.classTable)) { "`$klass` belongs to a different Catalog" }
+    if (!klass.abstract) return false
+
+    val children = allKnownClasses().filter { klass in it.directSuperclasses }
+    if (children.size < 2) return false
+
+    val unrelatedParents = children.map { child ->
+      child.directSuperclasses.filter { parent ->
+        parent !== klass && !parent.isSubtypeOf(klass) && !klass.isSubtypeOf(parent)
+      }
+    }
+    if (unrelatedParents.count(List<Class>::isEmpty) * 4 <= children.size) return true
+
+    return !klass.declaration.hasBody() && unrelatedParents.flatten().distinct().size >= 3
+  }
 
   /** Every class name included by this view's premise closure. */
   public abstract val allClassNames: Set<ClassName>

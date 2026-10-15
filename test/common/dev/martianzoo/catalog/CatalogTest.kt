@@ -38,7 +38,18 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun specializedThisInvariantCanLimitOneConcreteClassAcrossPlayers() {
+  internal fun exclusionsMustChangeTheResolvedPremise() {
+    val catalog = testCatalog("CLASS OptionalPiece")
+
+    val failure =
+        shouldThrow<InvalidGameConfigException> {
+          catalog.gamePremise(GameConfig("-OptionalPiece"))
+        }
+    failure.message.orEmpty() shouldContain "-OptionalPiece"
+  }
+
+  @Test
+  internal fun concreteClassInvariantLimitsCopiesAcrossPlayers() {
     val table =
         catalog(
                 *parseClasses(
@@ -48,10 +59,8 @@ internal class CatalogTest {
                           CLASS Player1
                           CLASS Player2
                         }
-                        ABSTRACT CLASS CardFront<@Player> : Owned<@Player> {
-                          HAS MAX 1 This<Player>
-                        }
-                        CLASS ExampleCard : CardFront
+                        ABSTRACT CLASS CardFront<@Player> : Owned<@Player>
+                        CLASS ExampleCard : CardFront { HAS MAX 1 ExampleCard }
                         """
                             .trimIndent()
                     )

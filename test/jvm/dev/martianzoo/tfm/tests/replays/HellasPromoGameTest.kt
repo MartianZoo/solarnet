@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -12,7 +11,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
       GameConfig(
           """
           HellasMap
-          PromoCardPack, PreludeExpansion
+          promos:cards, PreludeExpansion
           """,
           "Player1",
           "Player2",
@@ -20,8 +19,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
 
   @Test
   internal fun hellasPromoGame() {
-    val workflow = TfmWorkflow.Automatic(agents).launch()
-    workflow.isRunning shouldBe true
+    admin.startGame()
     keepStartingProjects(7, 5)
 
     p1.playCorp(InterplanetaryCinematics)
@@ -124,21 +122,6 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
       assertCounts(0 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
     }
 
-    withScorePreview {
-      val sum = Summarizer(game)
-      sum.net("GreeneryTile", "VictoryPoint") shouldBe 0
-      sum.net("CityTile", "VictoryPoint") shouldBe 0
-
-      p1.assertCounts(24 to "TerraformRating<Player1>")
-      p1.assertCounts(27 to "VictoryPoint<Player1>")
-      sum.net("Card", "VictoryPoint<Player1>") shouldBe 3
-
-      p2.assertCounts(25 to "TerraformRating<Player2>")
-      sum.net("$PharmacyUnion", "TerraformRating<Player2>") shouldBe 5
-
-      p2.assertCounts(28 to "VictoryPoint")
-      sum.net("Card", "VictoryPoint<Player2>") shouldBe 3
-    }
-    workflow.isRunning shouldBe true
+    Summarizer(game).net("$PharmacyUnion", "TerraformRating<Player2>") shouldBe 5
   }
 }

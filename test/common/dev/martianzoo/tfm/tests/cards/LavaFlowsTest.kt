@@ -13,8 +13,22 @@ internal class LavaFlowsTest : TfmSandboxTest() {
     newTestGame()
     kim.setToExMachina(18, "MC")
 
-    kim.playProject(LavaFlows, 18) { placeTile(2, 2) }
-        .expect("2 TemperatureStep, LavaFlows_SpecialTile")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<LavaFlows>>",
+          "-18 MC",
+          "LavaFlows FROM ProjectCard",
+      )
+      doTask("TemperatureStep")
+      doTask("TemperatureStep")
+      doTasks(
+          "TerraformRating",
+          "TerraformRating",
+          "LavaFlows_SpecialTile<Tharsis_2_2>",
+          "Steel",
+      )
+      doTask("PlayedEvent<Class<$LavaFlows>> FROM $LavaFlows")
+    }
   }
 
   @Test
@@ -22,8 +36,22 @@ internal class LavaFlowsTest : TfmSandboxTest() {
     newTestGame(addOptions = "HellasMap")
     kim.setToExMachina(18, "MC")
 
-    kim.playProject(LavaFlows, 18) { placeTile(1, 5) }
-        .expect("2 TemperatureStep, LavaFlows_SpecialTile")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<LavaFlows>>",
+          "-18 MC",
+          "LavaFlows FROM ProjectCard",
+      )
+      doTask("TemperatureStep")
+      doTask("TemperatureStep")
+      doTasks(
+          "TerraformRating",
+          "TerraformRating",
+          "LavaFlows_SpecialTile<Hellas_1_5>",
+          "Plant",
+      )
+      doTask("PlayedEvent<Class<$LavaFlows>> FROM $LavaFlows")
+    }
   }
 
   @Test
@@ -34,14 +62,28 @@ internal class LavaFlowsTest : TfmSandboxTest() {
         "GreeneryTile<Tharsis_2_2>, GreeneryTile<Tharsis_3_1>, " +
             "GreeneryTile<Tharsis_4_1>, GreeneryTile<Tharsis_5_1>"
     )
-    val cardsBefore = kim.count("ProjectCard")
+    kim.setToExMachina(1, "ProjectCard")
 
-    shouldThrow<LimitsException> { kim.playProject(LavaFlows, 18) { placeTile(2, 2) } }
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        doTask("PlayProject<Class<LavaFlows>>")
+
+        doTasks(
+            "-18 MC",
+            "LavaFlows FROM ProjectCard",
+        )
+        doTask("TemperatureStep")
+        doTask("TemperatureStep")
+        doTask("TerraformRating")
+        doTask("TerraformRating")
+        doTask("LavaFlows_SpecialTile<Tharsis_2_2>")
+      }
+    }
 
     kim.count("MC") shouldBe 18
-    kim.count("ProjectCard") shouldBe cardsBefore
+    kim.count("ProjectCard") shouldBe 1
     kim.count("Tile<Tharsis_2_2>") shouldBe 1
     kim.count("$LavaFlows") shouldBe 0
-    kim.temperatureC() shouldBe -30
+    kim.count("TemperatureStep") shouldBe 0
   }
 }

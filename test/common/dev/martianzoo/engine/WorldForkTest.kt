@@ -3,6 +3,8 @@ package dev.martianzoo.engine
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.types.Type
@@ -118,10 +120,10 @@ internal class WorldForkTest {
     val forkAgent = fork.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
 
     shouldThrow<IllegalArgumentException> {
-      fork.timeline.rollBack(Checkpoint(forkPoint.ordinal - 1))
+      fork.timeline.seek(Checkpoint(forkPoint.ordinal - 1))
     }
     forkAgent.doTask("Choice")
-    fork.timeline.rollBack(forkPoint)
+    fork.timeline.seek(forkPoint)
 
     fork.tasks.isEmpty() shouldBe false
     forkAgent.count("Choice") shouldBe 0
@@ -180,7 +182,8 @@ internal class WorldForkTest {
     forkAgent.runOperation("Ping")
     fork.tasks.isEmpty() shouldBe true
 
-    fork.timeline.rollBack(forkPoint)
+    fork.timeline.seek(forkPoint)
+    fork.timeline.truncate()
     forkAgent.runOperation("Ping") {
       doTask("Pong")
       doTask("Pong")
@@ -193,9 +196,9 @@ internal class WorldForkTest {
   internal fun forkRejectsAnIncompleteGameplayPosition() {
     val source = Engine.newGame(testGamePremise("CLASS Token"))
     source.testAgent(PLAYER1).runOperation("Token")
-    val completed = source.timeline.checkpoint()
-    source.timeline.rollBack(Checkpoint(completed.ordinal - 1))
+    source.actorEngine(PLAYER1).addTasks(InstructionGroup.of(parse<Instruction>("Token")))
 
     shouldThrow<IllegalStateException> { Engine.fork(source) }
+    shouldThrow<IllegalStateException> { source.recording() }
   }
 }

@@ -69,7 +69,34 @@ internal class CanonClassesTest {
     assertNamedIntersection("OwnedOccupant", "Owned", "Occupant")
     assertNamedIntersection("OwnedTile", "Owned", "Tile")
     assertNamedIntersection("ResourceCard", "ResourceHolder", "CardFront")
-    assertNamedIntersection("TemporaryScope", "Temporary", "Scope")
+  }
+
+  @Test
+  internal fun probableAspectsDistinguishKindsFromSharedRoles() {
+    val table = Canon.classTable
+
+    listOf(
+            "Tile",
+            "GlobalParameter",
+            "ColonyTile",
+            "CardFront",
+            "AreaPiece",
+            "Occupant",
+            "Owner",
+            "Policy",
+        )
+        .forEach { name ->
+          withClue("$name defines a kind") {
+            table.isProbableAspect(table.getClass(cn(name))) shouldBe false
+          }
+        }
+
+    val aspects = listOf("Owned", "Real", "System", "HasActions", "ColonyTileSelection")
+    aspects.forEach { name ->
+      withClue("$name adds an aspect") {
+        table.isProbableAspect(table.getClass(cn(name))) shouldBe true
+      }
+    }
   }
 
   @Test

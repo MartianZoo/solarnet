@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.script
 
+import dev.martianzoo.agenttestsupport.startSetupOnly
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.World
@@ -8,7 +9,6 @@ import dev.martianzoo.state.Player
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -20,7 +20,7 @@ internal fun setUpGame(
   val setup = OptionCodeTranslation.setup(optionCodes, players)
   return createGame(setup).apply {
     val agents = testAgents()
-    TfmWorkflow.Stepwise(agents).setupPhase()
+    startSetupOnly()
     actors.filterIsInstance<Player>().forEach { player ->
       agents.tfm(player).keepStartingProjects(0)
     }
@@ -82,9 +82,9 @@ internal class BasicTest {
     val game = setUpGame()
     val session = game.testTfm(PLAYER1)
 
-    session.runOperation("3 Heat!")
-    session.runOperation("4 Heat.")
-    session.runOperation("-9 Heat.")
+    session.runOperation("3! Heat")
+    session.runOperation("4* Heat")
+    session.runOperation("-9* Heat")
     assertEquals(0, session.count("Heat"))
   }
 
@@ -101,7 +101,7 @@ internal class BasicTest {
     session.runOperation("-6 Heat")
     assertEquals(1, session.count("Heat"))
 
-    game.timeline.rollBack(checkpoint)
+    game.timeline.seek(checkpoint)
     assertEquals(7, session.count("Heat"))
   }
 

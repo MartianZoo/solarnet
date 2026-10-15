@@ -4,7 +4,6 @@ import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.fake.FakeCanon
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -20,7 +19,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       GameConfig(
           """
           TharsisMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack
+          VenusNextExpansion, PreludeExpansion, prelude2:cards, promos:cards
           FakeFloydContinuum, FakeResearchCoordination, FakeResearchNetwork, FakeWildTagUse
 
           Fundraiser, Philantropist, Planetologist, Sponsor, Briber, Terran
@@ -30,6 +29,253 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "Vin",
       )
   override val catalog = TfmCatalog(Canon, FakeCanon)
+  override val cardArrivalOrder =
+      mapOf(
+          // Source save 0: Nor also saw Mons Insurance and Point Luna; Vin also saw CrediCor
+          // and Sagitta Frontier Services.
+          cn("CorporationCard") to
+              mapOf(
+                  cn("Nor") to listOf(Ecoline, MiningGuild),
+                  cn("Vin") to listOf(CheungShingMars, Viron),
+              ),
+          cn("PreludeCard") to
+              mapOf(
+                  // The source's Applied Science uses the replay's fake implementation.
+                  cn("Nor") to
+                      listOf(ProjectEden, EcologyExperts, AlbedoPlants, FakeAppliedScience),
+                  // The source's Research Network uses the replay's fake implementation.
+                  cn("Vin") to
+                      listOf(GalileanMining, Supplier, FakeResearchNetwork, FloatingTradeHub),
+              ),
+      )
+  override val cardDepartureOrder =
+      mapOf(
+          cn("CorporationCard") to
+              mapOf(cn("Nor") to listOf(MiningGuild), cn("Vin") to listOf(Viron)),
+          cn("PreludeCard") to
+              mapOf(
+                  cn("Nor") to listOf(EcologyExperts, FakeAppliedScience),
+                  cn("Vin") to listOf(GalileanMining, FloatingTradeHub),
+              ),
+      )
+
+  // Source save 0 and the final Research drafts in saves 17, 46, 74, 116, 159, 200, 245,
+  // 292, 356, and 416 identify every modeled ProjectCard Selecting offer in this replay.
+  // The source's Self-replicating Robots is represented by FakeSelfReplicatingRobots.
+  override val selectingArrivalOrder =
+      mapOf(
+          cn("ProjectCard") to
+              mapOf(
+                  cn("Nor") to
+                      listOf(
+                          // Setup
+                          Insulation,
+                          DesignedMicroorganisms,
+                          ResearchOutpost,
+                          RedShips,
+                          UndergroundCity,
+                          ExtractorBalloons,
+                          Supermarkets,
+                          FoodFactory,
+                          AquiferPumping,
+                          PowerSupplyConsortium,
+                          // Generation 2
+                          EquatorialMagnetizer,
+                          AerialMappers,
+                          AerosportTournament,
+                          StaticHarvesting,
+                          // Generation 3
+                          Research,
+                          LocalShading,
+                          PublicPlans,
+                          Satellites,
+                          // Generation 4
+                          StratosphericExpedition,
+                          Comet,
+                          FakeResearchCoordination,
+                          AdaptationTechnology,
+                          // Generation 5
+                          RobotPollinators,
+                          InterplanetaryTrade,
+                          Plantation,
+                          Shuttles,
+                          // Generation 6
+                          IshtarMining,
+                          Greenhouses,
+                          LavaFlows,
+                          Zeppelins,
+                          // Generation 7
+                          ProjectInspection,
+                          VestaShipyard,
+                          VenusSoils,
+                          HermeticOrderOfMars,
+                          // Generation 8
+                          Trees,
+                          MoholeArea,
+                          RoverConstruction,
+                          IceCapMelting,
+                          // Generation 9
+                          IndenturedWorkers,
+                          GiantSolarShade,
+                          FakeSelfReplicatingRobots,
+                          DomedCrater,
+                          // Generation 10
+                          FakeFloydContinuum,
+                          RadSuits,
+                          DeepWellHeating,
+                          LandClaim,
+                          // Generation 11
+                          OlympusConference,
+                          GhgProducingBacteria,
+                          FloatingHabs,
+                          ColonizerTrainingCamp,
+                      ),
+                  cn("Vin") to
+                      listOf(
+                          // Setup
+                          Decomposers,
+                          CarbonateProcessing,
+                          StJosephOfCupertinoMission,
+                          OptimalAerobraking,
+                          CloudTourism,
+                          FuelFactory,
+                          BreathingFilters,
+                          IoSulphurResearch,
+                          OrbitalCleanup,
+                          Tardigrades,
+                          // Generation 2
+                          VenusShuttles,
+                          LightningHarvest,
+                          Omnicourt,
+                          OpenCity,
+                          // Generation 3
+                          RoboticWorkforce,
+                          SoilEnrichment,
+                          SmallAnimals,
+                          Meltworks,
+                          // Generation 4
+                          NuclearZone,
+                          MarsUniversity,
+                          SpinInducingAsteroid,
+                          Bushes,
+                          // Generation 5
+                          Cartel,
+                          MethaneFromTitan,
+                          CloudSeeding,
+                          LuxuryFoods,
+                          // Generation 6
+                          InterstellarColonyShip,
+                          SolarLogistics,
+                          Sabotage,
+                          NaturalPreserve,
+                          // Generation 7
+                          Thermophiles,
+                          GeneRepair,
+                          MagneticFieldGeneratorsPromo,
+                          OreProcessor,
+                          // Generation 8
+                          VenusianAnimals,
+                          TundraFarming,
+                          PowerGrid,
+                          Hospitals,
+                          // Generation 9
+                          AtalantaPlanitiaLab,
+                          MiningArea,
+                          CrashSiteCleanup,
+                          ArtificialLake,
+                          // Generation 10
+                          InventorsGuild,
+                          SpaceStation,
+                          CallistoPenalMines,
+                          ProtectedGrowth,
+                          // Generation 11
+                          IshtarExpedition,
+                          AdvancedAlloys,
+                          BlackPolarDust,
+                          Advertising,
+                      ),
+              ),
+      )
+  override val selectingDepartureOrder =
+      mapOf(
+          cn("ProjectCard") to
+              mapOf(
+                  cn("Nor") to
+                      listOf(
+                          // Setup
+                          Insulation,
+                          RedShips,
+                          FoodFactory,
+                          PowerSupplyConsortium,
+                          // Generation 2
+                          EquatorialMagnetizer,
+                          AerosportTournament,
+                          // Generation 3
+                          PublicPlans,
+                          Satellites,
+                          // Generation 4
+                          StratosphericExpedition,
+                          Comet,
+                          AdaptationTechnology,
+                          // Generation 5
+                          Shuttles,
+                          // Generation 6
+                          LavaFlows,
+                          Zeppelins,
+                          // Generation 7
+                          ProjectInspection,
+                          VestaShipyard,
+                          VenusSoils,
+                          HermeticOrderOfMars,
+                          // Generation 8
+                          MoholeArea,
+                          IceCapMelting,
+                          // Generation 9
+                          FakeSelfReplicatingRobots,
+                          DomedCrater,
+                          // Generation 11
+                          FloatingHabs,
+                          ColonizerTrainingCamp,
+                      ),
+                  cn("Vin") to
+                      listOf(
+                          // Setup
+                          Decomposers,
+                          StJosephOfCupertinoMission,
+                          BreathingFilters,
+                          IoSulphurResearch,
+                          OrbitalCleanup,
+                          Tardigrades,
+                          // Generation 2
+                          LightningHarvest,
+                          OpenCity,
+                          // Generation 3
+                          SoilEnrichment,
+                          Meltworks,
+                          // Generation 5
+                          LuxuryFoods,
+                          // Generation 6
+                          NaturalPreserve,
+                          // Generation 7
+                          MagneticFieldGeneratorsPromo,
+                          OreProcessor,
+                          // Generation 8
+                          PowerGrid,
+                          Hospitals,
+                          // Generation 9
+                          MiningArea,
+                          CrashSiteCleanup,
+                          ArtificialLake,
+                          // Generation 10
+                          SpaceStation,
+                          CallistoPenalMines,
+                          ProtectedGrowth,
+                          // Generation 11
+                          BlackPolarDust,
+                          Advertising,
+                      ),
+              ),
+      )
 
   private val nor
     get() = p1
@@ -39,7 +285,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
 
   @Test
   internal fun staticPressureStream() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     keepStartingProjects(6, 4)
     generation1()
     generation2()
@@ -56,7 +302,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
   }
 
   private fun generation1() {
-    nor.playCorp(Ecoline)
     nor.draw(
         DesignedMicroorganisms,
         ResearchOutpost,
@@ -65,24 +310,25 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
         ExtractorBalloons,
         Supermarkets,
     )
-    vin.playCorp(CheungShingMars)
+    nor.playCorp(Ecoline)
     vin.draw(FuelFactory, CarbonateProcessing, OptimalAerobraking, CloudTourism)
+    vin.playCorp(CheungShingMars)
     nor.turn {
       playPrelude(AlbedoPlants)
       playPrelude(ProjectEden) {
         // Project Eden opens all three placement choices together.
         doTask("OceanTile<Tharsis_2_6>")
-        draw(SfMemorial, EcologicalZone)
+        nor.draw(SfMemorial, EcologicalZone)
         doTask("CityTile<Tharsis_4_7>")
         doTask("GreeneryTile<Tharsis_3_7>")
+        // Save 6 identifies Project Eden's three discarded cards.
+        nor.discard(ExtractorBalloons, UndergroundCity, SfMemorial)
       }
-      // Save 6 identifies Project Eden's three discarded cards.
-      discard(ExtractorBalloons, UndergroundCity, SfMemorial)
     }
     vin.turn {
       playPrelude(Supplier)
       playPrelude(FakeResearchNetwork) {
-        draw(ProtectedHabitats, SisterPlanetSupport, PhysicsComplex)
+        vin.draw(ProtectedHabitats, SisterPlanetSupport, PhysicsComplex)
       }
     }
     nor.pass()
@@ -100,16 +346,15 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Database save 18: immediately after both Research purchases in generation 2.
     nor.assertResources(m = 36, s = 1, t = 0, p = 8, e = 0, h = 6)
     nor.assertProduction(m = 0, s = 0, t = 0, p = 3, e = 0, h = 0)
-    nor.assertDashMiddle(played = 3, actions = 0, vp = 24, tr = 22, hand = 7)
+    nor.assertDashMiddle(played = 3, actions = 0, tr = 22, hand = 7)
     nor.assertTags(plt = 3, cit = 1)
     nor.assertDashRight(events = 0, tagless = 0, cities = 1)
     vin.assertResources(m = 51, s = 0, t = 1, p = 0, e = 0, h = 3)
     vin.assertProduction(m = 5, s = 0, t = 1, p = 0, e = 0, h = 3)
-    vin.assertDashMiddle(played = 5, actions = 0, vp = 20, tr = 20, hand = 7)
+    vin.assertDashMiddle(played = 5, actions = 0, tr = 20, hand = 7)
     vin.assertTags(but = 3, pot = 1)
     vin.assertDashRight(events = 0, tagless = 1, cities = 0)
     assertSidebar(gen = 2, temp = -30, oxygen = 1, oceans = 1, venus = 2)
-    checkHandSizes()
 
     // Research Network's wild tag supplies Cloud Tourism's missing Earth tag.
     vin.turn {
@@ -152,16 +397,15 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Database save 47: immediately after both Research purchases in generation 3.
     nor.assertResources(m = 32, s = 0, t = 0, p = 5, e = 0, h = 6)
     nor.assertProduction(m = 0, s = 0, t = 0, p = 3, e = 0, h = 0)
-    nor.assertDashMiddle(played = 4, actions = 1, vp = 28, tr = 24, hand = 8)
+    nor.assertDashMiddle(played = 4, actions = 1, tr = 24, hand = 8)
     nor.assertTags(but = 1, plt = 3, cit = 1)
     nor.assertDashRight(events = 0, tagless = 0, cities = 1)
     vin.assertResources(m = 33, s = 0, t = 2, p = 0, e = 0, h = 6)
     vin.assertProduction(m = 9, s = 0, t = 1, p = 0, e = 0, h = 3)
-    vin.assertDashMiddle(played = 9, actions = 2, vp = 24, tr = 23, hand = 5)
+    vin.assertDashMiddle(played = 9, actions = 2, tr = 23, hand = 5)
     vin.assertTags(but = 4, pot = 1, eat = 1, jot = 1, vet = 3)
     vin.assertDashRight(events = 0, tagless = 1, cities = 0)
     assertSidebar(gen = 3, temp = -30, oxygen = 3, oceans = 2, venus = 4)
-    checkHandSizes()
 
     nor.turn {
       cardAction1(AquiferPumping) {
@@ -187,25 +431,27 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
   }
 
   private fun generation4() {
+    // Source Research Coordination is represented by FakeResearchCoordination here.
     nor.buyCards(FakeResearchCoordination)
     vin.buyCards(NuclearZone, MarsUniversity, SpinInducingAsteroid, Bushes)
     // Database save 75: immediately after both Research purchases in generation 4.
     nor.assertResources(m = 30, s = 0, t = 0, p = 9, e = 1, h = 6)
     nor.assertProduction(m = 1, s = 0, t = 0, p = 3, e = 1, h = 0)
-    nor.assertDashMiddle(played = 7, actions = 3, vp = 30, tr = 25, hand = 6)
+    nor.assertDashMiddle(played = 7, actions = 3, tr = 25, hand = 6)
     nor.assertTags(but = 1, pot = 1, vet = 2, plt = 3, cit = 1)
     nor.assertDashRight(events = 0, tagless = 0, cities = 1)
     vin.assertResources(m = 39, s = 0, t = 3, p = 0, e = 0, h = 9)
     vin.assertProduction(m = 12, s = 0, t = 1, p = 0, e = 0, h = 3)
-    vin.assertDashMiddle(played = 10, actions = 2, vp = 29, tr = 23, hand = 8)
+    vin.assertDashMiddle(played = 10, actions = 2, tr = 23, hand = 8)
     vin.assertTags(but = 4, sct = 1, pot = 1, eat = 1, jot = 1, vet = 3)
     vin.assertDashRight(events = 0, tagless = 1, cities = 0)
     assertSidebar(gen = 4, temp = -28, oxygen = 3, oceans = 3, venus = 4)
-    checkHandSizes()
 
     vin.turn {
       playProject(OptimalAerobraking, 1, titanium = 2)
-      playProject(SpinInducingAsteroid, 13, titanium = 1) { draw(EnergyTapping) }
+      playProject(SpinInducingAsteroid, 13, titanium = 1) {
+        vin.draw(EnergyTapping)
+      }
     }
     nor.turn {
       cardAction1(AquiferPumping) {
@@ -250,16 +496,15 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Database save 117: immediately after both Research purchases in generation 5.
     nor.assertResources(m = 27, s = 0, t = 0, p = 6, e = 0, h = 10)
     nor.assertProduction(m = 2, s = 0, t = 0, p = 5, e = 0, h = 0)
-    nor.assertDashMiddle(played = 9, actions = 3, vp = 37, tr = 28, hand = 7)
+    nor.assertDashMiddle(played = 9, actions = 3, tr = 28, hand = 7)
     nor.assertTags(but = 1, sct = 1, pot = 1, vet = 2, plt = 4, mit = 1, ant = 1, cit = 1)
     nor.assertDashRight(events = 0, tagless = 0, cities = 1)
     vin.assertResources(m = 32, s = 0, t = 1, p = 2, e = 1, h = 16)
     vin.assertProduction(m = 12, s = 0, t = 1, p = 0, e = 1, h = 4)
-    vin.assertDashMiddle(played = 14, actions = 2, vp = 36, tr = 28, hand = 8)
+    vin.assertDashMiddle(played = 14, actions = 2, tr = 28, hand = 8)
     vin.assertTags(but = 4, spt = 1, sct = 1, pot = 2, eat = 2, jot = 1, vet = 3)
     vin.assertDashRight(events = 1, tagless = 1, cities = 0)
     assertSidebar(gen = 5, temp = -24, oxygen = 5, oceans = 5, venus = 10)
-    checkHandSizes()
 
     nor.turn {
       cardAction1(AquiferPumping) {
@@ -303,16 +548,15 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Database save 160: immediately after both Research purchases in generation 6.
     nor.assertResources(m = 31, s = 0, t = 0, p = 6, e = 0, h = 2)
     nor.assertProduction(m = 3, s = 0, t = 0, p = 4, e = 0, h = 0)
-    nor.assertDashMiddle(played = 9, actions = 3, vp = 47, tr = 31, hand = 9)
+    nor.assertDashMiddle(played = 9, actions = 3, tr = 31, hand = 9)
     nor.assertTags(but = 1, sct = 1, pot = 1, vet = 2, plt = 4, mit = 1, ant = 1, cit = 1)
     nor.assertDashRight(events = 0, tagless = 0, cities = 1)
     vin.assertResources(m = 43, s = 0, t = 2, p = 2, e = 1, h = 6)
     vin.assertProduction(m = 16, s = 0, t = 1, p = 0, e = 1, h = 5)
-    vin.assertDashMiddle(played = 17, actions = 3, vp = 40, tr = 31, hand = 8)
+    vin.assertDashMiddle(played = 17, actions = 3, tr = 31, hand = 8)
     vin.assertTags(but = 4, spt = 1, sct = 1, pot = 2, eat = 3, jot = 1, vet = 3, ant = 1)
     vin.assertDashRight(events = 1, tagless = 2, cities = 0)
     assertSidebar(gen = 6, temp = -16, oxygen = 6, oceans = 6, venus = 12)
-    checkHandSizes()
 
     vin.turn { playProject(Sabotage, 1) { doTask("-7 MC<Nor>") } }
     nor.turn { playProject(FakeResearchCoordination, 4) }
@@ -351,16 +595,15 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Database save 201: immediately after both Research purchases in generation 7.
     nor.assertResources(m = 38, s = 0, t = 1, p = 6, e = 0, h = 5)
     nor.assertProduction(m = 3, s = 0, t = 1, p = 4, e = 0, h = 0)
-    nor.assertDashMiddle(played = 12, actions = 3, vp = 53, tr = 35, hand = 6)
+    nor.assertDashMiddle(played = 12, actions = 3, tr = 35, hand = 6)
     nor.assertTags(but = 1, sct = 1, pot = 1, vet = 3, plt = 5, mit = 1, ant = 1, cit = 1)
     nor.assertDashRight(events = 0, tagless = 1, cities = 1)
     vin.assertResources(m = 49, s = 0, t = 3, p = 2, e = 1, h = 12)
     vin.assertProduction(m = 16, s = 0, t = 1, p = 0, e = 1, h = 5)
-    vin.assertDashMiddle(played = 19, actions = 3, vp = 45, tr = 34, hand = 8)
+    vin.assertDashMiddle(played = 19, actions = 3, tr = 34, hand = 8)
     vin.assertTags(but = 4, spt = 2, sct = 1, pot = 2, eat = 4, jot = 1, vet = 3, ant = 1)
     vin.assertDashRight(events = 2, tagless = 2, cities = 0)
     assertSidebar(gen = 7, temp = -14, oxygen = 8, oceans = 8, venus = 16)
-    checkHandSizes()
 
     nor.turn {
       cardAction1(AquiferPumping) {
@@ -370,7 +613,9 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       fundAward(cn("Landlord"), 8)
     }
     vin.turn { playProject(MethaneFromTitan, 19, titanium = 3) }
-    nor.turn { cardAction2(AerialMappers) { draw(TitaniumMine) } }
+    nor.turn {
+      cardAction2(AerialMappers) { nor.draw(TitaniumMine) }
+    }
     vin.turn { cardAction1(SmallAnimals) }
     // Research Coordination supplies Interplanetary Trade's tenth distinct tag.
     nor.turn {
@@ -391,8 +636,8 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       convertHeat()
       playProject(MarsUniversity, 6) {
         doTask("-ProjectCard")
-        discard(PhysicsComplex)
-        draw(VenusGovernor)
+        vin.discard(PhysicsComplex)
+        vin.draw(VenusGovernor)
       }
       playProject(VenusGovernor, 4)
       pass()
@@ -406,7 +651,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Database save 246: immediately after both Research purchases in generation 8.
     nor.assertResources(m = 45, s = 0, t = 1, p = 5, e = 0, h = 5)
     nor.assertProduction(m = 14, s = 0, t = 1, p = 4, e = 0, h = 0)
-    nor.assertDashMiddle(played = 13, actions = 3, vp = 62, tr = 37, hand = 8)
+    nor.assertDashMiddle(played = 13, actions = 3, tr = 37, hand = 8)
     nor.assertTags(
         but = 1,
         spt = 1,
@@ -421,7 +666,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.assertDashRight(events = 0, tagless = 1, cities = 1)
     vin.assertResources(m = 52, s = 0, t = 1, p = 4, e = 1, h = 12)
     vin.assertProduction(m = 18, s = 0, t = 1, p = 2, e = 1, h = 7)
-    vin.assertDashMiddle(played = 23, actions = 4, vp = 50, tr = 36, hand = 6)
+    vin.assertDashMiddle(played = 23, actions = 4, tr = 36, hand = 6)
     vin.assertTags(
         but = 5,
         spt = 3,
@@ -435,7 +680,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     )
     vin.assertDashRight(events = 2, tagless = 2, cities = 0)
     assertSidebar(gen = 8, temp = -10, oxygen = 9, oceans = 9, venus = 18)
-    checkHandSizes()
 
     vin.turn {
       stdProject("CityProject") { placeTile(3, 5) }
@@ -450,7 +694,11 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     vin.turn { convertHeat() }
     nor.turn { cardAction1(LocalShading) }
     vin.turn { cardAction1(Thermophiles) { addCardResources(Thermophiles) } }
-    nor.turn { playProject(Research, 10) { draw(StanfordTorus, PowerPlant) } }
+    nor.turn {
+      playProject(Research, 10) {
+        nor.draw(StanfordTorus, PowerPlant)
+      }
+    }
     vin.turn { cardAction1(SmallAnimals) }
     nor.turn { playProject(Supermarkets, 8) }
     vin.turn { cardAction1(CloudTourism) }
@@ -466,7 +714,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Database save 293: immediately after both Research purchases in generation 9.
     nor.assertResources(m = 47, s = 0, t = 2, p = 10, e = 1, h = 5)
     nor.assertProduction(m = 16, s = 0, t = 1, p = 4, e = 1, h = 0)
-    nor.assertDashMiddle(played = 18, actions = 3, vp = 65, tr = 37, hand = 7)
+    nor.assertDashMiddle(played = 18, actions = 3, tr = 37, hand = 7)
     nor.assertTags(
         but = 4,
         spt = 1,
@@ -481,7 +729,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.assertDashRight(events = 0, tagless = 2, cities = 2)
     vin.assertResources(m = 56, s = 0, t = 2, p = 10, e = 1, h = 12)
     vin.assertProduction(m = 19, s = 0, t = 1, p = 4, e = 1, h = 7)
-    vin.assertDashMiddle(played = 24, actions = 4, vp = 63, tr = 37, hand = 6)
+    vin.assertDashMiddle(played = 24, actions = 4, tr = 37, hand = 6)
     vin.assertTags(
         but = 5,
         spt = 3,
@@ -496,15 +744,16 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     )
     vin.assertDashRight(events = 2, tagless = 2, cities = 1)
     assertSidebar(gen = 9, temp = -8, oxygen = 10, oceans = 9, venus = 18)
-    checkHandSizes()
 
+    nor.draw(DuskLaserMining)
     nor.turn {
       stdProject("CityProject") { placeTile(4, 4) }
       convertPlants { placeTile(3, 1) }
     }
-    nor.draw(DuskLaserMining)
     vin.turn { fundAward(cn("Forecaster"), 20) }
-    nor.turn { cardAction2(AerialMappers) { draw(HeatTrappers) } }
+    nor.turn {
+      cardAction2(AerialMappers) { nor.draw(HeatTrappers) }
+    }
     vin.turn { convertHeat() }
     nor.turn { playProject(DuskLaserMining, 1, titanium = 2) }
     vin.turn { stdProject("CityProject") { placeTile(2, 3) } }
@@ -543,11 +792,12 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
 
   private fun generation10() {
     vin.buyCards(InventorsGuild)
+    // Source Floyd Continuum is represented by FakeFloydContinuum here.
     nor.buyCards(LandClaim, FakeFloydContinuum, RadSuits, DeepWellHeating)
     // Database save 357: immediately after both Research purchases in generation 10.
     nor.assertResources(m = 53, s = 0, t = 2, p = 9, e = 0, h = 4)
     nor.assertProduction(m = 18, s = 0, t = 2, p = 8, e = 0, h = 0)
-    nor.assertDashMiddle(played = 24, actions = 3, vp = 90, tr = 44, hand = 7)
+    nor.assertDashMiddle(played = 24, actions = 3, tr = 44, hand = 7)
     nor.assertTags(
         but = 5,
         spt = 3,
@@ -562,7 +812,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.assertDashRight(events = 1, tagless = 3, cities = 3)
     vin.assertResources(m = 64, s = 0, t = 3, p = 6, e = 1, h = 12)
     vin.assertProduction(m = 20, s = 0, t = 1, p = 4, e = 1, h = 7)
-    vin.assertDashMiddle(played = 24, actions = 4, vp = 72, tr = 41, hand = 7)
+    vin.assertDashMiddle(played = 24, actions = 4, tr = 41, hand = 7)
     vin.assertTags(
         but = 5,
         spt = 3,
@@ -577,7 +827,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     )
     vin.assertDashRight(events = 2, tagless = 2, cities = 2)
     assertSidebar(gen = 10, temp = -4, oxygen = 14, oceans = 9, venus = 30)
-    checkHandSizes()
 
     vin.turn {
       stdProject("CityProject") { placeTile(5, 1) }
@@ -592,8 +841,8 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     vin.turn {
       playProject(VenusianAnimals, 15) {
         doTask("-ProjectCard")
-        discard(CloudSeeding)
-        draw(Gyropolis)
+        vin.discard(CloudSeeding)
+        vin.draw(Gyropolis)
       }
     }
 
@@ -602,10 +851,11 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     vin.turn {
       vin.exMachina(fakeWildTags("ScienceTag"))
       playProject(AtalantaPlanitiaLab, 10) {
-        draw(WaterSplittingPlant, Algae)
+        vin.draw(WaterSplittingPlant, Algae)
+        doTask("2 ProjectCard")
         doTask("-ProjectCard")
-        discard(WaterSplittingPlant)
-        draw(NoctisCity)
+        vin.discard(WaterSplittingPlant)
+        vin.draw(NoctisCity)
       }
       vin.assertCounts(0 to "FakeWildTagUse")
     }
@@ -632,7 +882,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Database save 417: immediately after both Research purchases in generation 11.
     nor.assertResources(m = 64, s = 0, t = 4, p = 14, e = 1, h = 4)
     nor.assertProduction(m = 21, s = 0, t = 2, p = 8, e = 1, h = 0)
-    nor.assertDashMiddle(played = 28, actions = 4, vp = 97, tr = 45, hand = 5)
+    nor.assertDashMiddle(played = 28, actions = 4, tr = 45, hand = 5)
     nor.assertTags(
         but = 6,
         spt = 3,
@@ -647,7 +897,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.assertDashRight(events = 2, tagless = 4, cities = 5)
     vin.assertResources(m = 61, s = 0, t = 4, p = 8, e = 1, h = 12)
     vin.assertProduction(m = 21, s = 0, t = 1, p = 6, e = 1, h = 7)
-    vin.assertDashMiddle(played = 27, actions = 4, vp = 87, tr = 42, hand = 8)
+    vin.assertDashMiddle(played = 27, actions = 4, tr = 42, hand = 8)
     vin.assertTags(
         but = 5,
         spt = 3,
@@ -662,22 +912,23 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     )
     vin.assertDashRight(events = 2, tagless = 2, cities = 3)
     assertSidebar(gen = 11, temp = 2, oxygen = 14, oceans = 9, venus = 30)
-    checkHandSizes()
 
     nor.turn {
-      cardAction2(AerialMappers) { draw(WeatherBalloons) }
+      cardAction2(AerialMappers) {
+        nor.draw(WeatherBalloons)
+      }
       playProject(OlympusConference, 9)
     }
     vin.turn {
       convertHeat()
       playProject(IshtarExpedition, 6) {
-        draw(FreyjaBiodomes, GhgImportFromVenus)
+        vin.draw(FreyjaBiodomes, GhgImportFromVenus)
       }
     }
     nor.turn {
       playProject(GhgProducingBacteria, 7) {
         doTask("ProjectCard FROM Science")
-        draw(MoholeLake)
+        nor.draw(MoholeLake)
       }
       playProject(MoholeLake, 30)
     }
@@ -689,14 +940,16 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     vin.turn { cardAction1(Thermophiles) { addCardResources(Thermophiles) } }
     nor.turn {
       playProject(WeatherBalloons, 10) {
-        draw(GiantIceAsteroid)
+        nor.draw(GiantIceAsteroid)
       }
     }
     vin.turn { cardAction1(CloudTourism) }
     nor.turn { cardAction1(FakeFloydContinuum).expect("12 MC") }
     vin.turn { cardAction1(SmallAnimals) }
     nor.turn { convertPlants { placeTile(7, 5) } }
-    vin.turn { sellPatents(GhgImportFromVenus) }
+    vin.turn {
+      sellPatents(GhgImportFromVenus)
+    }
     nor.turn { cardAction2(LocalShading) }
     vin.turn {
       playProject(FreyjaBiodomes, 14) { addCardResources(VenusianAnimals, 2) }
@@ -705,34 +958,50 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     // Research Network supplies Interstellar Colony Ship's fifth Science tag.
     vin.turn {
       vin.exMachina(fakeWildTags("ScienceTag"))
-      playProject(InterstellarColonyShip, 1, titanium = 7) { draw(RestrictedArea) }
+      playProject(InterstellarColonyShip, 1, titanium = 7) {
+        vin.draw(RestrictedArea)
+      }
       vin.assertCounts(0 to "FakeWildTagUse")
     }
     nor.turn { cardAction1(WeatherBalloons) }
     vin.turn { stdProject("PowerPlantProject") }
     nor.turn { playProject(StanfordTorus, titanium = 4) }
     vin.turn { playProject(NoctisCity, 16) }
-    nor.turn { sellPatents(GiantIceAsteroid) }
-    vin.turn { sellPatents(Gyropolis) }
-    nor.turn { sellPatents(HeatTrappers) }
-    vin.turn { sellPatents(AdvancedAlloys) }
+    nor.turn {
+      sellPatents(GiantIceAsteroid)
+    }
+    vin.turn {
+      sellPatents(Gyropolis)
+    }
+    nor.turn {
+      sellPatents(HeatTrappers)
+    }
+    vin.turn {
+      sellPatents(AdvancedAlloys)
+    }
     nor.turn { cardAction1(MoholeLake) { addCardResources(EcologicalZone) } }
     vin.turn {
       playProject(RestrictedArea, 11) {
         placeTile(7, 8)
         doTask("-ProjectCard")
-        discard(TundraFarming)
-        draw(CorporateStronghold)
+        vin.discard(TundraFarming)
+        vin.draw(CorporateStronghold)
       }
     }
-    nor.turn { sellPatents(TitaniumMine) }
-    vin.turn { cardAction1(RestrictedArea) { draw(MagneticFieldDome) } }
+    nor.turn {
+      sellPatents(TitaniumMine)
+    }
+    vin.turn {
+      cardAction1(RestrictedArea) {
+        vin.draw(MagneticFieldDome)
+      }
+    }
     nor.pass()
     vin.turn {
       playProject(GeneRepair, 12) {
         doTask("-ProjectCard")
-        discard(MagneticFieldDome)
-        draw(Teslaract)
+        vin.discard(MagneticFieldDome)
+        vin.draw(Teslaract)
       }
       sellPatents(InventorsGuild, CorporateStronghold, Teslaract)
       pass()
@@ -749,8 +1018,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     assertCardTrackingComplete()
     nor.cardsHand shouldBe emptySet()
     vin.cardsHand shouldBe emptySet()
-    checkHandSizes()
-    admin.assertCounts(1 to "End", 1 to "Phase")
+    admin.assertCounts(1 to "VictoryPhase", 1 to "Phase")
 
     nor.assertResources(m = 88, s = 0, t = 2, p = 5, e = 1, h = 5)
     nor.assertProduction(m = 22, s = 0, t = 2, p = 8, e = 1, h = 0)

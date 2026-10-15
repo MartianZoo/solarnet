@@ -1,0 +1,87 @@
+// A goal reprinted from a loaded map keeps the declaration from that map bundle. This bundle
+// supplies the remaining supported goals and revised goals with distinct implementations.
+
+CLASS Briber : Milestone {
+  HAS MAX 1 Briber
+  requirement = HAS "This"
+  OWN[This: -12 MC]
+}
+CLASS Builder : Milestone {
+  HAS MAX 1 Builder
+  requirement = HAS "7 BuildingTag"
+}
+CLASS Hydrologist : Milestone {
+  HAS MAX 1 Hydrologist
+  HAS Class<HydrologistWatcher>
+  requirement = HAS "4 OceanCredit"
+}
+
+"Tracks ocean placements only while Hydrologist is in the milestone pool"
+CLASS HydrologistWatcher<Class<Hydrologist>> : CardWatcher {
+  OceanTile BY @Player: OceanCredit<@Player>
+}
+
+"A player's credit for placing an ocean"
+CLASS OceanCredit : Owned<Player>
+
+CLASS Legend : Milestone {
+  HAS MAX 1 Legend
+  requirement = HAS "4 PlayedEvent"
+}
+CLASS Merchant : Milestone {
+  HAS MAX 1 Merchant
+  requirement = HAS "2 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat"
+}
+CLASS Philantropist : Milestone {
+  HAS MAX 1 Philantropist
+  requirement = HAS "5 Class<@CardFront>(HAS @CardFront, HAS GainsOf<Class<VictoryPoint>>)"
+}
+CLASS GainsOf<Class<CardFront>, Class<Component>> : CustomMetric
+CLASS Pioneer : Milestone {
+  HAS MAX 1 Pioneer
+  requirement = HAS "4 Colony"
+}
+CLASS Producer : Milestone {
+  HAS MAX 1 Producer
+  requirement = HAS "16 (PROD[StandardResource] - ProdOffset)"
+}
+CLASS Producer22 : Milestone {
+  HAS MAX 1 Producer22
+  autoSelectWhen = HAS "QuickStartVariant"
+  requirement = HAS "22 (PROD[StandardResource] - ProdOffset)"
+}
+CLASS Tactician : Milestone {
+  HAS MAX 1 Tactician
+  requirement = HAS "4 CardFront(HAS requirement)"
+}
+CLASS Terraformer : Milestone {
+  HAS MAX 1 Terraformer
+  requirement = HAS "29 TerraformRating"
+}
+"Counts temperature increases made by the claiming player"
+CLASS Thawer : Milestone {
+  HAS MAX 1 Thawer
+  HAS Class<ThawerWatcher>
+  requirement = HAS "5 ThawerCredit"
+}
+
+CLASS ThawerWatcher<Class<Thawer>> : CardWatcher {
+  TemperatureStep BY @Player: ThawerCredit<@Player>
+  Thawer: -This!
+}
+
+CLASS ThawerCredit : Owned<Player>
+
+CLASS Tycoon : Milestone {
+  HAS MAX 1 Tycoon
+  requirement = HAS "10 CardFront<Class<ProjectCard>>"
+}
+
+CLASS Administrator : Award { metric = COUNT "CardFront(HAS MAX 0 Tag)" }
+CLASS Biologist : Award { metric = COUNT "BioTag" }
+CLASS Politician : Award {
+  metric = COUNT "PartyLeader OR Influence"
+  // Refresh every player's influence before any award is measured.
+  End:: EACH Scored@Player { MeasureInfluence<Scored@> }
+}
+CLASS Visionary : Award { metric = COUNT "ProjectCard" }

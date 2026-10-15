@@ -18,12 +18,23 @@ import kotlin.test.assertTrue
 
 /**
  * Canon invariants checked during the build, not universal Terraforming Mars rules. A failure names
- * cards whose addition or rewrite requires revisiting the invariant and its consumers. See
+ * classes whose addition or rewrite requires revisiting the invariant and its consumers. See
  * docs/agents/GAME_HACKS.md for the corresponding composition hazards.
  */
 internal class CanonInvariantsTest {
   private val table = Canon.classTable
   private val cards = Canon.cards
+
+  @Test
+  internal fun signalsAreNotReal() {
+    val signal = table.getClass(cn("Signal"))
+    val real = table.getClass(cn("Real"))
+    val offenders = table.allClasses().filter { it.isSubtypeOf(signal) && it.isSubtypeOf(real) }
+    assertTrue(
+        offenders.isEmpty(),
+        "Signal types cannot also be Real:\n${offenders.joinToString("\n") { it.className.toString() }}",
+    )
+  }
 
   // GAME_HACKS 3: stored MC production includes the production-floor offset.
   @Test
@@ -53,6 +64,24 @@ internal class CanonInvariantsTest {
   @Test
   internal fun cardCategoriesMatchTheirTagsAndPersistentBehavior() {
     validateCardClassification(Canon)
+  }
+
+  @Test
+  internal fun everyConcreteCardAndMilestoneDeclaresItsClassWideLimit() {
+    listOf("CardFront", "Milestone").forEach { rootName ->
+      val root = table.getClass(cn(rootName))
+      val concrete = table.allClasses().filter { !it.abstract && it.isSubtypeOf(root) }
+      assertTrue(concrete.isNotEmpty(), "No concrete $rootName classes examined")
+      val missing = concrete.filter { klass ->
+        parse<Requirement>("MAX 1 ${klass.className}") !in
+            Requirement.split(klass.declaration.invariants)
+      }
+      assertTrue(
+          missing.isEmpty(),
+          "Concrete $rootName classes need their own class-wide limit:\n" +
+              missing.joinToString("\n") { it.className.toString() },
+      )
+    }
   }
 
   @Test
@@ -110,7 +139,7 @@ internal class CanonInvariantsTest {
 
   // GAME_HACKS 12: CopyProductionBox extracts a subtree and discards its ancestors.
   @Test
-  internal fun buildingCardsHaveAtMostASingleImmediateProductionBox() {
+  internal fun buildingCardsHaveAtMostASingleDirectEffectProductionBox() {
     checkCards("CopyProductionBox cannot copy multiple PROD blocks", buildingCards()) {
       cardProductionBoxes(it).size <= 1
     }
@@ -133,7 +162,7 @@ internal class CanonInvariantsTest {
       // THEN is intentional for Mining Area/Rights: copying repeats production after the tile
       // already exists. Conditions, choices, scaling and bindings must travel with the box.
       var valid = true
-      cardImmediate(card)?.visitDescendants { node ->
+      cardDirectEffect(card)?.visitDescendants { node ->
         if (node is InstructionTransform && node.transformKind == TfmClasses.PROD) {
           false
         } else {
@@ -155,7 +184,7 @@ internal class CanonInvariantsTest {
 
   // GAME_HACKS 13: CopyPrelude reads only nonautomatic, bare This effects.
   // Boom Town's automatic removal installs a persistent penalty; copying must not repeat it.
-  // This checks direct gains, not benefits reached indirectly through support components.
+  // This checks authored gain instructions, not benefits reached through support components.
   @Test
   internal fun preludeSelfGainBenefitsAreVisibleToCopyPrelude() {
     checkCards(
@@ -247,6 +276,29 @@ internal class CanonInvariantsTest {
     assertTrue(
         offenders.isEmpty(),
         "Artificial heat would be observable by:\n${offenders.joinToString("\n")}",
+    )
+  }
+
+  @Test
+  internal fun tileGainsSpecifyArguments() {
+    val offenders =
+        Canon.explicitClassDeclarations.flatMap { declaration ->
+          declaration.allNodes
+              .flatMap { it.descendantsOfType<Instruction.Change>() }
+              .filter { change ->
+                change.gaining?.let { gain ->
+                  when (gain.className) {
+                    cn("GreeneryTile") -> gain.arguments.isEmpty()
+                    cn("CityTile") -> !gain.argumentsSpecified
+                    else -> false
+                  }
+                } == true
+              }
+              .map { "${declaration.className}: $it" }
+        }
+    assertTrue(
+        offenders.isEmpty(),
+        "GreeneryTile gains need an area (or use DefaultGreeneryTile); CityTile gains need explicit arguments or <>:\n${offenders.joinToString("\n")}",
     )
   }
 

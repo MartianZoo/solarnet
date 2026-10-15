@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.SystemClasses.DIE
+import dev.martianzoo.pets.ast.Deferral
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
@@ -19,39 +20,45 @@ import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.state.Actor
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
 
-internal fun newTasks(
-    firstId: TaskId,
-    controller: Actor,
-    instruction: InstructionGroup,
+/**
+ * The independent tasks after normalization. Literal zero changes need no task; zero counts
+ * discovered when selecting an existing task remain typed until its submitted choice is checked.
+ */
+internal fun taskInstructions(instruction: InstructionGroup): List<Instruction> =
+    InstructionGroup.of(instruction.instructions.map { normalizeForTask(it, discardZero = true) })
+        .instructions
+
+/** One normalized task for a single [instruction] from [taskInstructions]. */
+internal fun newTask(
+    id: TaskId,
+    assignee: Actor,
+    instruction: Instruction,
     cause: Cause?,
-    selectionAssignee: Actor = controller,
     isAbstract: ((Expression) -> Boolean)? = null,
-): List<Task> {
-  var nextOrdinal = firstId.ordinal
-  val normalized =
-      InstructionGroup.of(instruction.instructions.map(::normalizeForTask)).instructions
-  return normalized.map {
+    deferral: Deferral = Deferral.NONE,
+): Task =
     normalizeTask(
         Task(
-            id = TaskId(nextOrdinal++),
-            controller = controller,
-            selectionAssignee = selectionAssignee,
-            instruction = it,
+            id = id,
+            assignee = assignee,
+            instruction = instruction,
             cause = cause,
+            deferral = deferral,
         ),
         isAbstract,
     )
-  }
-}
 
-private fun normalizeForTask(tree: InstructionTree): InstructionTree =
+private fun normalizeForTask(tree: InstructionTree, discardZero: Boolean = false): InstructionTree =
     when (tree) {
-      is InstructionGroup -> InstructionGroup.of(tree.instructions.map(::normalizeForTask))
+      is InstructionGroup ->
+          InstructionGroup.of(tree.instructions.map { normalizeForTask(it, discardZero) })
+      is Change if discardZero && tree.count == ActualScalar(0) -> NoOp
       is Change if tree.gaining != DIE.expression -> tree
       is Change ->
           if (tree.quantifier == OPTIONAL || tree.quantifier == AMAP) NoOp
@@ -61,7 +68,7 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
                   sourceLocation = tree.sourceLocation,
               )
       is By -> {
-        val inner = normalizeForTask(tree.inner)
+        val inner = normalizeForTask(tree.inner, discardZero)
         when (inner) {
           is NoOp -> NoOp
           is Then ->
@@ -70,13 +77,18 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
         }
       }
       is Each ->
-          when (val body = normalizeForTask(tree.body)) {
+          when (val body = normalizeForTask(tree.body, discardZero)) {
             is NoOp -> NoOp
             else -> tree.copy(body = body)
           }
-      is Gated -> Gated.createTree(tree.gate, normalizeForTask(tree.inner))
+      is Instruction.Dispatch ->
+          when (val body = normalizeForTask(tree.body, discardZero)) {
+            is NoOp -> NoOp
+            else -> tree.copy(body = body)
+          }
+      is Gated -> Gated.createTree(tree.gate, normalizeForTask(tree.inner, discardZero))
       is Per -> {
-        val inner = normalizeForTask(tree.inner)
+        val inner = normalizeForTask(tree.inner, discardZero)
         if (inner is NoOp) {
           NoOp
         } else {
@@ -93,7 +105,7 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
         val liveOptions =
             tree.instructions.mapNotNull {
               try {
-                normalizeForTask(it)
+                normalizeForTask(it, discardZero)
               } catch (_: DeadEndException) {
                 null
               }
@@ -102,7 +114,8 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
         Or.createTree(liveOptions)
       }
       is Then -> {
-        val live = tree.instructions.map(::normalizeForTask).filterNot { it is NoOp }
+        val live =
+            tree.instructions.map { normalizeForTask(it, discardZero) }.filterNot { it is NoOp }
         when (live.size) {
           0 -> NoOp
           1 -> live.single()
@@ -131,7 +144,8 @@ internal fun normalizeTask(
           ?: throw TaskException(
               "task input must be split into individual instructions: `${task.instruction}`"
           )
-  val then = task.then?.let(::normalizeForTask)?.let(InstructionGroup::of)?.takeIf { !it.isEmpty() }
+  val then =
+      task.then?.let { normalizeForTask(it) }?.let(InstructionGroup::of)?.takeIf { !it.isEmpty() }
   val normalized = task.copy(instruction = instruction, then = then)
   val sequence = normalized.instruction as? Then ?: return normalized
   val runtimeSequence =

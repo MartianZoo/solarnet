@@ -10,6 +10,7 @@ import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.TransformNode
 import dev.martianzoo.pets.data.ClassDeclaration
 
+// TODO: Contract this temporary tfm-canon seam.
 /**
  * Lowers parsed owner-local Classes to ordinary, stably named Class declarations, as defined by
  * [section 12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-owner-local-classes).
@@ -24,8 +25,10 @@ import dev.martianzoo.pets.data.ClassDeclaration
  * system never sees anything but ordinary declarations. Naming a base class with no local body is
  * still just that base class ([rule
  * L12-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-owner-local-classes)).
+ * A local declaration inside a transform block retains its enclosing marks on the extracted rules
+ * ([rule
+ * L8-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-transform-blocks)).
  */
-// TODO: Contract this temporary tfm-canon seam.
 public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer() {
   private val transforms = mutableListOf<String>()
   private val declarationsByBase = linkedMapOf<ClassName, ClassDeclaration>()
@@ -57,7 +60,7 @@ public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer(
     val bodyNodes = body.asDerivedDeclaration(generated, base.expression).allNodes
     // Rule L12-5: owner-local Classes do not nest, in the body or in an argument of the occurrence.
     if (
-        node.immediateChildren().any { it.containsDerivedClass() } ||
+        node.childNodes().any { it.containsDerivedClass() } ||
             bodyNodes.any { it.containsDerivedClass() }
     ) {
       throw PetSyntaxException(

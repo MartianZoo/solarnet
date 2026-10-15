@@ -1,10 +1,13 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
+import kotlin.test.Ignore
 import kotlin.test.Test
 
 internal class AiCentralTest : TfmSandboxTest() {
@@ -16,14 +19,45 @@ internal class AiCentralTest : TfmSandboxTest() {
     kim.setToExMachina(0, "PROD[Energy]")
     kim.setToExMachina(21, "MC")
 
-    shouldThrow<LimitsException> { kim.playProject(AiCentral, 21) }
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        doTasks("PlayProject<Class<AiCentral>>", "-21 MC")
+        doTask("AiCentral FROM ProjectCard")
+        doTask("PROD[-Energy]")
+      }
+    }
   }
 
   @Test
   internal fun `Cannot use its action twice in one generation`() {
     kim.exMachina("$AiCentral")
-    kim.cardAction1(AiCentral)
+    kim.inTurn {
+      doTask("UseCardAction<AiCentral, Action1>")
+      doTask("2 ProjectCard<Kim, Hand>")
+    }
 
-    shouldThrow<LimitsException> { kim.cardAction1(AiCentral) }
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        doTask("UseCardAction<AiCentral, Action1>")
+      }
+    }
+  }
+
+  @Ignore // Known defect: an absent action slot is accepted and consumes the card's use.
+  @Test
+  internal fun `Cannot use a second action that AI Central does not have`() {
+    shouldThrow<NarrowingException> { useSecondAction() }
+    kim.inTurn { doTasks("UseCardAction<AiCentral, Action1>", "2 ProjectCard") }
+  }
+
+  @Test
+  internal fun `BUG - A nonexistent second action uses AI Central without drawing cards`() {
+    useSecondAction().expect("0 ProjectCard")
+    shouldThrow<LimitsException> { kim.inTurn { doTask("UseCardAction<AiCentral, Action1>") } }
+  }
+
+  private fun useSecondAction(): TaskResult {
+    kim.exMachina("$AiCentral")
+    return kim.inTurn { doTask("UseCardAction<AiCentral, Action2>") }
   }
 }

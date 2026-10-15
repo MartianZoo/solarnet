@@ -9,6 +9,8 @@ import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.EffectTree
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
@@ -22,21 +24,13 @@ import dev.martianzoo.pets.types.PremiseClassTable
 import dev.martianzoo.pets.util.associateByStrict
 
 /**
- * A Terraforming Mars Catalog with declarations, structured card/map data, and selection rules.
- * Canon's card-authoring conventions are audited during the build by its tests, not when a Catalog
- * is loaded. Pets structural validation and game-configuration checks still apply to every Catalog.
+ * A Terraforming Mars [Catalog] with declarations, structured card/map data, and selection rules.
+ * The constructor composes the supplied catalogs; their [bundles] and [marsMapDefinitions] are
+ * collected in argument order. [card] and [marsMap] search that composed content. Canon's
+ * card-authoring conventions are audited during the build by its tests, not when a Catalog is
+ * loaded. Pets structural validation and game-configuration checks still apply to every Catalog.
  */
 public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
-  final override val customClassDependencies: Map<ClassName, Set<ClassName>> = buildMap {
-    putAll(super.customClassDependencies)
-    TFM_CUSTOM_CLASS_DEPENDENCIES.forEach { (name, dependencies) ->
-      val previous = put(name, dependencies)
-      require(previous == null || previous == dependencies) {
-        "Conflicting custom class dependencies for $name"
-      }
-    }
-  }
-
   final override val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> =
       mapOf(
           TfmClasses.PROD to Prod::handler,
@@ -45,13 +39,83 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
   private val universe: ClassTable
     get() = classTable
 
-  /** Organizational bundles from which this Catalog is assembled. */
+  /** Source bundles contributed by the supplied Terraforming Mars catalogs, in argument order. */
   public open val bundles: List<Bundle> =
       catalogs.filterIsInstance<TfmCatalog>().flatMap { it.bundles }
 
-  /** Concrete subclasses of [superclass] whose declarations live in [bundleName]. */
+  final override val fingerprintMetadata: Map<String, String>
+    get() =
+        super.fingerprintMetadata +
+            buildMap {
+              bundles.forEach { bundle ->
+                put(
+                    "bundle:${bundle.bundleName}",
+                    listOf(
+                            bundle.primaryModuleName.toString(),
+                            bundle.cardResourceClassNames
+                                .map { it.toString() }
+                                .sorted()
+                                .joinToString(),
+                            bundle.excludedDefaultCards
+                                .map { it.toString() }
+                                .sorted()
+                                .joinToString(),
+                            bundle.replacements.entries
+                                .sortedBy { it.key.toString() }
+                                .joinToString { "${it.key}=${it.value}" },
+                        )
+                        .joinToString("\u0000"),
+                )
+              }
+              marsMapDefinitions.forEach { map ->
+                put(
+                    "map:${map.className}",
+                    map.areas.joinToString("\u0000") { area ->
+                      listOf(
+                              area.className,
+                              area.row,
+                              area.column,
+                              area.kind,
+                              area.bonusText,
+                              area.code,
+                          )
+                          .joinToString("\u0001")
+                    },
+                )
+              }
+            }
+
+  private val replacements: Map<ClassName, ClassName> by lazy {
+    buildMap {
+      bundles.forEach { bundle ->
+        bundle.replacements.forEach { (replacement, replaced) ->
+          require(replacement != replaced) { "$replacement cannot replace itself" }
+          require(replacement in allClassNames && replaced in allClassNames) {
+            "unknown replacement relationship: $replacement replaces $replaced"
+          }
+          require(
+              listOf(TfmClasses.CARD_FRONT, TfmClasses.MILESTONE, TfmClasses.AWARD).any { kind ->
+                isSubtypeOf(replacement, kind) && isSubtypeOf(replaced, kind)
+              }
+          ) {
+            "replacement must relate the same kind of Content: $replacement replaces $replaced"
+          }
+          val previous = put(replacement, replaced)
+          require(previous == null || previous == replaced) {
+            "conflicting replacement relationships for $replacement"
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Names of concrete subclasses of [superclass] declared directly in the uniquely named
+   * [bundleName], including declarations that may not be selected in a particular game. Fails
+   * unless exactly one loaded bundle has that name.
+   */
   public fun classNamesInBundle(
-      bundleName: ClassName,
+      bundleName: String,
       superclass: ClassName,
   ): Set<ClassName> {
     val matchingBundles = bundles.filter { it.bundleName == bundleName }
@@ -65,16 +129,8 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
   final override val classAvailabilityModules: Map<ClassName, Set<ClassName>> by lazy {
     buildMap<ClassName, MutableSet<ClassName>> {
           bundles.forEach { bundle ->
-            val availabilityModules = buildSet {
-              val sameNamedModule =
-                  bundle.bundleName in allClassNames && isSubtypeOf(bundle.bundleName, MODULE_CLASS)
-              if (sameNamedModule) {
-                add(bundle.bundleName)
-              } else {
-                bundle.marsMapDefinitions.mapTo(this, MarsMapDefinition::className)
-              }
-            }
-            if (availabilityModules.isNotEmpty()) {
+            val primaryModule = bundle.primaryModuleName
+            if (primaryModule != null) {
               val goalDeclarations =
                   listOf(TfmClasses.MILESTONE, TfmClasses.AWARD).flatMap { goalClass ->
                     bundleClassesBelow(bundle, goalClass, includeAbstract = true)
@@ -102,7 +158,7 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
               ambientClassNames
                   .filterNot { isSubtypeOf(it, MODULE_CLASS) }
                   .forEach { className ->
-                    getOrPut(className, ::linkedSetOf).addAll(availabilityModules)
+                    getOrPut(className, ::linkedSetOf).add(primaryModule)
                   }
             }
           }
@@ -115,12 +171,16 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
    * applying Catalog defaults and selection policies. Modules are Classes in the same selection
    * set; their ambient-rule role determines how their closure is resolved.
    *
-   * Structured inputs use canonical Class Names. Naming any milestones or awards selects the exact
-   * configured pool for that category; an explicitly named milestone bypasses automatic pool
-   * preferences. A playable Terraforming Mars Catalog requires at least one player name in seat
-   * order. Missing names and the generated concrete `Premise` Class belong to the premise-local
-   * declaration table; their immediate effects create the resolved Modules, Players, and exact
-   * starting Components without recompiling this Catalog's master table.
+   * Class inputs use canonical Class Names; `name:cards` inputs select compatible cards from the
+   * named bundle independently of its gameplay Module. Naming any milestones or awards selects the
+   * exact configured pool for that category; an explicitly named milestone bypasses automatic pool
+   * preferences. An explicitly named card may count an unavailable class in its on-gain effect as
+   * zero; automatic card pools still require all referenced Modules. A selected primary Module
+   * whose bundle declares colony tiles requires at least one named colony tile. A playable
+   * Terraforming Mars Catalog requires at least one player name in seat order. Missing names and
+   * the generated concrete `Premise` Class belong to the premise-local declaration table; their
+   * on-gain effects create the resolved Modules, Players, and exact starting Components without
+   * recompiling this Catalog's master table.
    */
   final override fun configurePremise(builder: GamePremiseBuilder) {
     if (PLAYER in allClassNames && builder.playerNames.isEmpty()) {
@@ -178,6 +238,18 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
       }
     }
     val moduleNames = builder.moduleNames
+    val moduleRequiringColonyTile =
+        bundles
+            .firstOrNull { bundle ->
+              bundle.primaryModuleName in moduleNames &&
+                  bundle.explicitClassDeclarations.any { it.className in colonyTileClassNames }
+            }
+            ?.primaryModuleName
+    if (moduleRequiringColonyTile != null && included.none { it in colonyTileClassNames }) {
+      throw InvalidGameConfigException(
+          "$moduleRequiringColonyTile requires at least one selected colony tile"
+      )
+    }
     val selectedMilestoneNames =
         selectGoalPool(
             moduleNames,
@@ -197,13 +269,8 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
             configurationTable,
         )
     included.addAll(selectedMilestoneNames + selectedAwardNames)
+    val selectedCardNames = selectCardPools(builder)
     val individualNames = included - moduleNames
-    if (selectedMilestoneNames.isNotEmpty()) {
-      builder.excluded.addAll(goalClassNames(TfmClasses.MILESTONE) - selectedMilestoneNames)
-    }
-    if (selectedAwardNames.isNotEmpty()) {
-      builder.excluded.addAll(goalClassNames(TfmClasses.AWARD) - selectedAwardNames)
-    }
     val selectedByModules =
         moduleNames
             .flatMap { modules.getValue(it) }
@@ -222,6 +289,50 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
     if (MODULES_READY in allClassNames) {
       builder.initializationEffects.add(parse("This: ModulesReady"))
     }
+    builder.omitImpossibleDefaults(
+        (selectedMilestoneNames + selectedAwardNames + selectedCardNames) - explicitlyIncluded
+    )
+  }
+
+  private fun selectCardPools(builder: GamePremiseBuilder): Set<ClassName> {
+    val pools =
+        bundles
+            .filter { it.cardResourceClassNames.isNotEmpty() }
+            .associateByStrict(Bundle::bundleName)
+    val unknown = (builder.includedCardBundles + builder.excludedCardBundles) - pools.keys
+    if (unknown.isNotEmpty()) {
+      throw InvalidGameConfigException("unknown card bundle: ${unknown.joinToString()}")
+    }
+
+    builder.excludedCardBundles.forEach { poolName ->
+      val names = pools.getValue(poolName).cardResourceClassNames
+      builder.excluded.addAll(names.intersect(cardClassNames) - builder.explicitlyIncluded)
+    }
+    val selections = linkedSetOf<ClassSelection>()
+    builder.includedCardBundles.forEach { poolName ->
+      val bundle = pools.getValue(poolName)
+      selections.addCards(
+          cards.filter {
+            it.className in bundle.cardResourceClassNames &&
+                it.className !in bundle.excludedDefaultCards
+          }
+      )
+      selections.addCardResourceRoots(bundle.cardResourceClassNames)
+    }
+    val configuredNames = builder.included.toSet()
+    val selectedNames =
+        selections
+            .filter { it.appliesTo(configuredNames, builder.configurationTable) }
+            .mapTo(linkedSetOf(), ClassSelection::className)
+    val replacedNames =
+        replacedBy(
+            selectedNames + builder.explicitlyIncluded,
+            configuredNames + selectedNames,
+            builder.configurationTable,
+        ) - builder.explicitlyIncluded
+    builder.included.addAll(selectedNames - replacedNames)
+    builder.excluded.addAll(replacedNames)
+    return selectedNames - replacedNames
   }
 
   private fun selectGoalPool(
@@ -237,22 +348,49 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
     if (explicitlySelected.isNotEmpty()) return explicitlySelected
     if (MULTIPLAYER_MODE !in moduleNames) return emptySet()
 
-    return bundles
-        .filter { bundle -> bundle.bundleName in moduleNames }
-        .flatMap { bundle -> classNamesInBundle(bundle.bundleName, goalClass) }
-        .map { className ->
-          val declaration = classDeclaration(className)
-          ClassSelection(
-              className,
-              requirement = goalAutomaticSelectionRequirement(declaration),
-          )
-        }
-        .filter { selection -> selection.appliesTo(configuredClassNames, configurationTable) }
-        .mapTo(linkedSetOf(), ClassSelection::className)
-        .minus(explicitlyExcluded)
+    val selected =
+        bundles
+            .filter { bundle -> bundle.primaryModuleName in moduleNames }
+            .flatMap { bundle -> classNamesInBundle(bundle.bundleName, goalClass) }
+            .map { className ->
+              val declaration = classDeclaration(className)
+              ClassSelection(
+                  className,
+                  requirement = goalAutomaticSelectionRequirement(declaration),
+              )
+            }
+            .filter { selection -> selection.appliesTo(configuredClassNames, configurationTable) }
+            .mapTo(linkedSetOf(), ClassSelection::className)
+            .minus(explicitlyExcluded)
+    return selected - replacedBy(selected, configuredClassNames + selected, configurationTable)
   }
 
-  /** Catalog-known concrete subclasses of the ordinary Pets `ColonyTile` class. */
+  private fun replacedBy(
+      selected: Set<ClassName>,
+      configured: Set<ClassName>,
+      configurationTable: PremiseClassTable,
+  ): Set<ClassName> =
+      selected.mapNotNullTo(linkedSetOf()) { replacement ->
+        val replaced = replacements[replacement] ?: return@mapNotNullTo null
+        val condition =
+            (classDeclaration(replacement).properties[AUTO_SELECT_WHEN] as? RequirementValue)?.value
+        // A card's condition can allow coexistence only when it names the displaced card.
+        // Consider that card even when a Module will select it after card-pool replacements.
+        if (
+            replacement in cardClassNames &&
+                condition != null &&
+                replaced in condition.descendantsOfType<ClassName>() &&
+                ClassSelection(replacement, requirement = condition)
+                    .appliesTo(configured + replaced, configurationTable)
+        )
+            null
+        else replaced
+      }
+
+  /**
+   * Names of nonabstract `ColonyTile` subclasses in this catalog's class table. Empty when the
+   * catalog has no `ColonyTile` class.
+   */
   public val colonyTileClassNames: Set<ClassName> by lazy {
     val colonyTile = universe.findClass(COLONY_TILE) ?: return@lazy emptySet()
     universe
@@ -334,12 +472,16 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
           }
         }
     val selections = linkedSetOf<ClassSelection>()
-    owner.moduleCardClassNames[moduleName]?.let { names ->
-      val cards = cards.filterTo(linkedSetOf()) { it.className in names }
+    if (moduleName == owner.primaryModuleName && owner.cardResourceClassNames.isNotEmpty()) {
+      val names = owner.cardResourceClassNames
+      val cards =
+          cards.filterTo(linkedSetOf()) {
+            it.className in names && it.className !in owner.excludedDefaultCards
+          }
       selections.addCards(cards)
-      selections.addCardResourceRoots(owner.moduleCardClassNames.getValue(moduleName))
+      selections.addCardResourceRoots(names)
     }
-    if (moduleName == owner.bundleName) {
+    if (moduleName == owner.primaryModuleName) {
       owner.explicitClassDeclarations
           .filter { declaration ->
             !declaration.abstract &&
@@ -414,9 +556,12 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
       )
 
   private fun cardCompatibilityRequirement(card: PetClass): Requirement? =
-      cardBundleCompatibilityRequirement(card)
+      cardBundleCompatibilityRequirement(card, allowUnavailableCounts = true)
 
-  private fun cardBundleCompatibilityRequirement(card: PetClass): Requirement? {
+  private fun cardBundleCompatibilityRequirement(
+      card: PetClass,
+      allowUnavailableCounts: Boolean = false,
+  ): Requirement? {
     val declarations = linkedMapOf<ClassName, ClassDeclaration>()
     val pending = ArrayDeque<ClassName>().apply { add(card.className) }
     while (pending.isNotEmpty()) {
@@ -426,7 +571,11 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
           .flatMap { node -> node.descendantsOfType<ClassName>() }
           .filterTo(pending) { referencedName -> referencedName in cardAuxiliaryClassNames }
     }
-    return bundleCompatibilityRequirement(card.className, declarations.values.toList())
+    return bundleCompatibilityRequirement(
+        card.className,
+        declarations.values.toList(),
+        allowUnavailableCounts,
+    )
   }
 
   private val cardAuxiliaryClassNames: Set<ClassName> by lazy {
@@ -439,11 +588,29 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
   private fun bundleCompatibilityRequirement(
       className: ClassName,
       declarations: List<ClassDeclaration>,
+      allowUnavailableCounts: Boolean = false,
   ): Requirement? {
     val referencedClassNames =
         declarations
             .flatMap { it.allNodes }
-            .flatMapTo(linkedSetOf()) { node -> node.descendantsOfType<ClassName>() }
+            .flatMapTo(linkedSetOf()) { node ->
+              if (
+                  !allowUnavailableCounts ||
+                      className !in cardClassNames ||
+                      node !is EffectTree ||
+                      node.untransformed.trigger != Effect.Trigger.WhenGain
+              ) {
+                return@flatMapTo node.descendantsOfType<ClassName>()
+              }
+              val required = linkedSetOf<ClassName>()
+              node.visitDescendants { part ->
+                // A play-time count of an unavailable class contributes zero.
+                if (part is Count) return@visitDescendants false
+                if (part is ClassName) required.add(part)
+                true
+              }
+              required
+            }
             .filter { it != className && it in allClassNames }
     val derived =
         listOfNotNull(availabilityRequirement(className)) +
@@ -458,6 +625,10 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
 
   // STRUCTURED CONTENT DATA
 
+  /**
+   * Returns the resolved concrete card-face class named [name]. A class that exists but is not a
+   * card face is not a match. Throws [IllegalArgumentException] if no card has that name.
+   */
   public fun card(name: ClassName): PetClass =
       cardsByClassName[name] ?: throw IllegalArgumentException("No card named $name")
 
@@ -480,22 +651,16 @@ public open class TfmCatalog(vararg catalogs: Catalog) : Catalog(*catalogs) {
     cards.associateByStrict(PetClass::className)
   }
 
+  /** Returns the map definition named [name], or throws [IllegalArgumentException] if absent. */
   public fun marsMap(name: ClassName): MarsMapDefinition =
       marsMapDefinitions.firstOrNull { it.className == name }
           ?: throw IllegalArgumentException("No `$name` in this Catalog")
 
+  /** Map definitions supplied by the composed Terraforming Mars catalogs. */
   public open val marsMapDefinitions: Set<MarsMapDefinition> =
       catalogs.filterIsInstance<TfmCatalog>().flatMapTo(linkedSetOf()) { it.marsMapDefinitions }
 
   private companion object {
-    private val TFM_CUSTOM_CLASS_DEPENDENCIES: Map<ClassName, Set<ClassName>> =
-        mapOf(
-            cn("PartyDistance") to setOf(cn("AfterParty")),
-            cn("PlayerDistance") to setOf(cn("AfterMe")),
-            cn("PartyRequirement") to setOf(cn("PartyDelegate"), cn("Ruling")),
-            cn("PriceAspectCount") to setOf(cn("ProjectCard")),
-        )
-
     private val BOOTSTRAP_PHASE = cn("BootstrapPhase")
     private val MODULE_CLASS = cn("Module")
     private val MODULES_READY = cn("ModulesReady")

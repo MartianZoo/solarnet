@@ -1,13 +1,16 @@
 package dev.martianzoo.tfm.canon
 
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+
 internal object CanonResources {
   fun read(filename: String): String = GeneratedCanonResources.read(filename)
 
-  val bundleNames: Set<String>
-    get() =
-        GeneratedCanonResources.filenames
-            .map { filename -> filename.removePrefix("bundles/").substringBefore('/') }
-            .toSet()
+  val bundleModules: Map<String, ClassName?> by lazy {
+    JsonReader.readBundleManifest(read("bundles/manifest.json5")).mapValues { (_, module) ->
+      module?.let(::cn)
+    }
+  }
 
   fun filenames(directory: String): Set<String> {
     val prefix = directory.trimEnd('/') + "/"

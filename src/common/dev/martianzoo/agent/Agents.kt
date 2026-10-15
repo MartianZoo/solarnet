@@ -8,8 +8,15 @@ import dev.martianzoo.state.Actor
  * A [World] together with the Agents that act on it: exactly one stable [Agent] per Actor, sharing
  * one autoexecution loop. Clients hold this rather than a World and a separate collection of
  * Agents, so an Agent can never be paired with a World it does not act on.
+ *
+ * [initialPolicy] supplies each Actor's initial automatic-execution policy, defaulting to
+ * [AutoExecPolicy.EAGER]. It is evaluated once per Actor. Construction does not execute pending
+ * tasks; subsequent Agent commands use the supplied policies.
  */
-public class Agents(public val world: World) {
+public class Agents(
+    public val world: World,
+    initialPolicy: (Actor) -> AutoExecPolicy = { AutoExecPolicy.EAGER },
+) {
   /** Opt-in task recording, including Player autoexecution; see [TaskLog] for supported scope. */
   public val taskLog: TaskLog = TaskLog(world)
 
@@ -18,7 +25,14 @@ public class Agents(public val world: World) {
 
   private val agents: Map<Actor, Agent> =
       world.actors.associateWith {
-        AgentImpl(world, world.actorEngine(it), elaborator, autoExecLoop, taskLog)
+        AgentImpl(
+            world,
+            world.actorEngine(it),
+            elaborator,
+            autoExecLoop,
+            taskLog,
+            initialPolicy(it),
+        )
       }
 
   /** This world's Agent for [actor]. */

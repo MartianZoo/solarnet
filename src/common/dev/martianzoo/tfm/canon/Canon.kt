@@ -1,7 +1,12 @@
 package dev.martianzoo.tfm.canon
 
 private val canonBundles: Array<TfmCatalog> =
-    CanonResources.bundleNames.map(::StandardFormBundle).toTypedArray()
+    CanonResources.bundleModules
+        .map { (name, primaryModule) -> StandardFormBundle(name, primaryModule) }
+        .toTypedArray()
 
-/** Terraforming Mars Catalog assembled from its declarative resource directories. */
+/**
+ * Catalog assembled from the bundles listed in `bundles/manifest.json5`. Use a smaller [TfmCatalog]
+ * when only selected authored sources should be available for configuration.
+ */
 public object Canon : TfmCatalog(*canonBundles)

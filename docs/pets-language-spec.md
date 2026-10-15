@@ -128,17 +128,13 @@ RefinementClause ::= "HAS" RequirementDisjunction | "NOT" PlainExpression
 > after `PROD[Steel]` is expanded. Production must exist even when the player has no steel cubes;
 > a reference to an actual steel component would impose the wrong dependency (T4-7).
 
-**L1-5. `This` names the component the enclosing declaration is about.** It is an expression like
-any other and may take arguments: `This<Foo>` keeps the arguments and adopts the context's class.
-Elaboration replaces it (L9-2). `This` is a placeholder rather than a class, so it has no defaults
-of its own and an empty argument list on it accepts nothing: `This<>` *is* the bare placeholder.
-Every construct that recognizes the placeholder recognizes both spellings, even though the two are
-different expressions (L1-2).
+**L1-5. `This` names the component the enclosing declaration is about.** It is a bare contextual
+expression. It cannot have a Type-variable marker, argument list, or refinement. Elaboration
+replaces it with the complete context expression (L9-2). `This` is a placeholder rather than a
+class, so it has no defaults of its own.
 
 > **Non-normative example — Inventrix's required action.** `RequiredActionsSignal: -This!` removes
 > that pending `RequiredAction` component, rather than some other pending required action.
-> Recognizing `This<>` too is a uniformity rule for the placeholder; no current canonical card uses
-> that spelling or needs it as an additional capability.
 
 **L1-6. `Anyone` is an ordinary class.** It is the common supertype of `Owner` and `Actor`, the
 identities that can own components or perform operations. `Player` is both; Admin is only an Actor; passive owners are only Owners.
@@ -217,7 +213,8 @@ T5-5).
 An instruction denotes a transition from a before-state to an after-state together with its gain
 and removal events. It is the only kind of element that does. Projecting away those events gives a
 relation between component multisets, but that relation alone does not distinguish `Ok` from a
-direct Signal gain (L2-1): both leave the multiset unchanged, and only the signal fires triggers.
+Signal gain without transmutation (L2-1): both leave the multiset unchanged, and only the signal
+fires triggers.
 
 **L2-1. The elementary instructions are gain, removal and transmutation.** `n Foo` says the after
 state holds n more components of type `Foo`; `-n Foo` that it holds n fewer; `n Foo FROM Bar` that
@@ -225,17 +222,17 @@ n components of `Bar` have become n of `Foo`.
 
 ```ebnf
 ElementaryChange ::= Gain | Removal | Transmutation
-Gain             ::= ScaledExpression Quantifier?
-Removal          ::= "-" ScaledExpression Quantifier?
-Transmutation    ::= Scalar? FromExpression Quantifier?
+Gain             ::= Scalar Quantifier? Expression | Expression Quantifier?
+Removal          ::= "-" (Scalar Quantifier? Expression | Expression Quantifier?)
+Transmutation    ::= Scalar Quantifier? FromExpression | FromExpression Quantifier?
 ```
 
-A direct gain of the system `Signal` class fires both gain and removal triggers while its count
-remains unchanged. Both changes are real — that is how a signal does its work, by what its gain and
+A gain of the system `Signal` class without transmutation fires both gain and removal triggers
+while its count remains unchanged. Both changes are real — that is how a signal does its work, by what its gain and
 the effects its gain and removal trigger (L6) — and no signal component remains behind. This
 point-event behavior
-belongs only to a direct Signal gain; writing `SignalSubtype FROM SignalSubtype` is a forbidden
-self-transmutation. A `Signal` gained by an explicit transmutation from another type is gained normally,
+belongs only to a Signal gain without transmutation; writing `SignalSubtype FROM SignalSubtype`
+is a forbidden self-transmutation. A `Signal` gained by an explicit transmutation from another type is gained normally,
 then removes itself.
 
 > **Non-normative example — placement bonuses.** Gaining a tile emits `Placement<This>` for its
@@ -243,8 +240,10 @@ then removes itself.
 > could be counted or awarded again. This motivates a point event; the transmutation edge cases
 > above have no separate canonical card witness.
 
-**L2-2. A count is a positive integer or `X`.** `X` denotes an amount left open, and may carry a
-coefficient: `2X Plant` is an even number of plants. A count of zero is rejected.
+**L2-2. A count is a nonnegative integer or `X`.** `X` denotes a positive amount left open, and may
+carry a coefficient: `2X Plant` is an even number of plants. A zero-count change retains its Types
+for matching but executes without changing components or emitting events. Scaling a change by zero
+also retains its Types.
 
 ```ebnf
 ScaledExpression ::= Scalar? Expression
@@ -255,12 +254,15 @@ Scalar           ::= Integer | Integer? "X"
 > choose how many microbes to spend while fixing the three-to-one exchange rate. Replacing `X` with
 > unrelated open counts would allow the paid and received amounts to drift apart.
 
-**L2-3. A quantifier says how much of the count must happen.** `!` means the whole amount, `.` as
+**L2-3. A quantifier says how much of the count must happen.** `!` means the whole amount, `*` as
 much of it as possible, and `?` any part of it including none. An authored change may omit the
 quantifier; elaboration then supplies the class's default (T10-2, L9-5).
+When a scalar is written, its quantifier follows that scalar: `3? Plant`. When the scalar is
+omitted, its quantifier follows the type: `Plant?`. The two forms express the same amount when the
+scalar is `1`.
 
 ```ebnf
-Quantifier ::= "!" | "." | "?"
+Quantifier ::= "!" | "*" | "?"
 ```
 
 The three differ in *who* settles the amount, which is why later rules treat them so differently:
@@ -269,19 +271,19 @@ The three differ in *who* settles the amount, which is why later rules treat the
 | --- | --- | --- |
 | `!` | already fixed | nobody; the change happens in full or not at all |
 | `?` | an open choice | whoever settles the instruction, who may choose none (L3-1) |
-| `.` | fixed, but not yet known | the state the change is carried out against |
+| `*` | fixed, but not yet known | the state the change is carried out against |
 
-So `!` is concrete, `?` is abstract, and `.` is neither: it leaves no choice, but its amount is
+So `!` is concrete, `?` is abstract, and `*` is neither: it leaves no choice, but its amount is
 read off a state rather than written down. Narrowing can settle a choice (L3); only
-resolution against a state can settle a `.`.
+resolution against a state can settle a `*`.
 
 A transmutation must change its concrete Type. Equal concrete Types (T5-1) on both sides are
 invalid regardless of spelling, source count, or quantifier. A shared variable such as
 `@Abstract FROM @Abstract` is also invalid: it forces both sides to select the same Type.
 Unmarked `Abstract FROM Abstract` retains independent choices and is valid while open, but each
 concrete narrowing must select different Types. If automatic narrowing leaves only a self-targeting
-option, that option is unavailable; other `OR` alternatives may still proceed. Direct Signal gains
-are point events, not self-transmutation instructions, and remain valid.
+option, that option is unavailable; other `OR` alternatives may still proceed. Signal gains without
+transmutation are point events, not self-transmutation instructions, and remain valid.
 
 > **Non-normative examples — Artificial Lake and asteroid attacks.** Artificial Lake's special
 > ocean placement is `!`: choosing that arm requires the exceptional land placement to succeed in
@@ -379,6 +381,9 @@ themselves and is right-associative, so `A THEN B THEN C` is one sequence of thr
 nested pairs. Every stage before the last must be a single instruction: a group or another sequence
 on the left is rejected. A group is only an envelope around independent instructions (L2-9) — there
 is no shell around `(A, B)` for a `THEN` to relate to, and nothing that "before" could name.
+A direct `EACH` stage may not be followed by `THEN`: completing its fanout admits independent
+tasks, and `THEN` would not wait for those tasks to finish. `TASK { EACH ... } THEN B` is allowed;
+the `TASK` stage finishes when it enqueues the fanout.
 
 ```ebnf
 InstructionSequence ::= GatedInstruction ( "THEN" GatedInstruction )*
@@ -425,10 +430,6 @@ one side may instead belong to an enclosing `THEN` sequence when that sequence a
 > `CityTile<@MarsArea> FROM GreeneryTile<@MarsArea>` replaces a greenery with a city in
 > that same area. The unmarked form chooses its source and destination areas independently.
 
-> **Non-normative example — Market Manipulation.**
-> `ColonyProduction(NOT Source@ColonyProduction) FROM Source@ColonyProduction` chooses a source
-> colony track and excludes that same track from the destination choice.
-
 > **Non-normative example — Changing Times.** Turmoil advances events with
 > `EACH Event@GlobalEvent(HAS Coming) { Current<Event@GlobalEvent> FROM Coming<Event@GlobalEvent> }`.
 > Both sides must reuse the event selected by `EACH`. Treating the inner transmutation's markers as
@@ -442,10 +443,11 @@ an argument-free marked reference retains the selector's dependency arguments th
 while the selector's refinement filters candidates but is not part of that exposed value. The
 selector's scope includes nested sequences and full transmutations, which claim only matching
 markers not already supplied by the selector. Other body expressions retain their ordinary
-meanings. Equal occurrences produce equal but independent branches. The selector may serve only as
-the repetition source, so the body need not name the selected component. The body may not be empty,
-fanouts do not nest, and a concrete selector is rejected where the fanout is resolved against a
-world.
+meanings. Equal occurrences produce equal but independent branches. When a task consists of `EACH`,
+selecting it fulfills the task by admitting those branches as tasks, even when there is exactly one.
+The selector may serve only as the repetition source, so the body need not name the selected
+component. The body may not be empty, fanouts do not nest, and a concrete selector is rejected where
+the fanout is resolved against a world.
 
 ```ebnf
 Each ::= "EACH" PlainExpression "{" InstructionGroup "}"
@@ -480,7 +482,7 @@ AttributedInstruction ::= PrimaryInstruction ( "BY" Expression )?
 > action and recursively mirrored; canonical source does not currently need the group-distribution
 > shorthand.
 
-**L2-16. Precedence, tightest first:** a scaled expression and its quantifier, `/`, `BY`, `OR`, the
+**L2-16. Precedence, tightest first:** a change and its quantifier, `/`, `BY`, `OR`, the
 gate `:`, `THEN`, `,`. Parentheses group, and rendering re-inserts grouping wherever re-parsing
 would otherwise read the tree differently. A transmutation written in full binds tighter than
 `OR`, so `Plant FROM Heat OR Steel` chooses between the transmutation and gaining Steel.
@@ -488,6 +490,7 @@ would otherwise read the tree differently. A transmutation written in full binds
 ```ebnf
 PrimaryInstruction ::= Change
                      | Each
+                     | TaskDispatch
                      | TransformKind "[" InstructionGroup "]"
                      | "(" InstructionGroup ")"
 ```
@@ -496,6 +499,59 @@ PrimaryInstruction ::= Change
 > state-gated fallback sequence, and an `OR`. The precedence ladder—and the renderer's extra
 > parentheses—keeps “spend a disease for TR” separate from “if none remain, archive the corporation
 > and gain three TR.”
+
+**L2-17. `TASK Recipient { body }` dispatches unresolved work.** The recipient is optional and
+must identify a fixed participating Actor when the dispatch is performed: a concrete Actor, or a
+marker already bound by an enclosing `EACH` or trigger-side `BY @Player`. An open expression,
+including a refined `Player(HAS StartToken)` that currently matches just one Player, is not a
+recipient. Write `EACH @Player(HAS StartToken) { TASK @Player { body } }` to bind that Player first.
+
+A dispatch is performed as soon as the work containing it is ordinary, the way a finished `THEN`
+stage releases the next one: `TASK` admits `body` as unresolved ordinary tasks for the recipient.
+Since nothing about a dispatch is left to choose, it is never a task of its own. The recipient
+selects and narrows the admitted tasks later. Narrowing a dispatch that sits in an open choice
+cannot change its recipient or any part of its body. When the recipient is omitted, it is the rule's
+lexical `Me`: its owner, an enclosing `EACH Me@…` selection, or the submitting player. With no
+lexical `Me`, it is Admin. The recipient supplies `Me` inside the body. OWN uses this binding to fill omitted owners;
+unmarked body syntax retains its written owner arguments. Thus
+`EACH @Player { TASK @Player { OWN[Choice] } }` and `EACH Me@Player { TASK { OWN[Choice] } }` each dispatch
+one choice to every Player. `EACH` itself gives every match more work to the current assignee;
+`TASK` gives a piece of work to its recipient. `TASK` cannot occur in an automatic `::` effect,
+which creates no tasks (L2-15).
+
+```ebnf
+TaskDispatch ::= ( "TASK" | "LATER" | "FINALLY" ) Expression? "{" InstructionGroup "}"
+```
+
+**L2-18. `LATER Recipient { body }` dispatches deferred work.** It is `TASK` (L2-17) in every
+respect but one: the work it admits is deferred. No actor may carry out deferred work while ordinary
+work is pending, whichever actor that work belongs to. When no ordinary task remains, all `LATER`
+work becomes ordinary at once, unordered among itself; work deferred after that moment, including by
+that work, waits for the next such moment. Deferred work is still pending work, so anything that
+waits for all pending work also waits for it. A `LATER` nested in another is performed when the
+work containing it becomes ordinary: it defers its body again, behind the ordinary work pending
+then.
+
+Deferral settles nothing early. Admitted work is resolved when it is carried out, like any task, so
+`LATER { Done / Flag }` counts the flags present then.
+
+> **Non-normative example — played events.** `EventCard`'s
+> `This: LATER { PlayedEvent<Class<This>> FROM This* }` keeps a just-played event face up until the
+> work its play caused has finished; then its owner moves it to the played-event pile. Solar Probe
+> draws a card per three science tags, counting its own. As ordinary work, the flip would be an
+> independent task (L2-9) that could be performed first. The `*` lets the flip find nothing when Law
+> Suit has already moved itself into another player's pile.
+
+> **Non-normative example — trading.** `Trade` dispatches `LATER { FinishTrade<@ColonyTile> }`,
+> which pays income from the colony's track position and then resets the track. Deferral lets
+> reactions to the trade, such as Trade Envoys' optional `ColonyProduction<@ColonyTile>` step, move
+> the track first. A `THEN` orders only the trade's own stages; it cannot wait for other cards'
+> reactions.
+
+**L2-19. `FINALLY Recipient { body }` dispatches final work.** It is `LATER` (L2-18), except that
+final work also waits for `LATER` work: no actor may carry out final work while ordinary or `LATER`
+work is pending. When none remains, all final work becomes ordinary at once. Final work therefore
+follows every consequence of the work pending before it, including work that `LATER` work defers.
 
 ---
 
@@ -508,9 +564,9 @@ could have brought about, and every choice P still leaves open retains Q's const
 relationships. The rules below define that relation; discharging a `HAS` condition also consults
 the world in which the choice is made.
 
-**Narrowing is not resolution.** Settling `3 Plant.` against a state with room for two yields
-`2 Plant!`, and that is not a narrowing: nothing in the two instructions says so, and in another
-state the same `.` settles differently. Narrowing restricts an open choice; resolution determines
+**Narrowing is not resolution.** Settling `3* Plant` against a state with room for two yields
+`2! Plant`, and that is not a narrowing: nothing in the two instructions says so, and in another
+state the same `*` settles differently. Narrowing restricts an open choice; resolution determines
 the change permitted by a state. Every narrowing rule here is state-independent, except where a
 `HAS` refinement asks a world about a candidate (T8-8).
 
@@ -518,17 +574,18 @@ This section is about *elaborated* instructions. An authored change carries no q
 elaboration supplies one (L2-3), and narrowing has nothing to compare until it does.
 
 **L3-1. An instruction is abstract when something is still open:** an unfixed
-`X`, an absent or optional quantifier, an abstract expression (T5-3), or an `OR`. `2 Plant<Player1>!`
-is not abstract; `2 Plant<Player1>?` is, because doing less is permitted and nothing has said how
-much less.
+`X`, an absent or optional quantifier, an abstract expression (T5-3), or an `OR`. `2! Plant<Player1>`
+is not abstract; `2? Plant<Player1>` is, because doing less is permitted and nothing has said how
+much less. A zero-count change is not abstract, even when its Type or quantifier is open. An `OR`
+whose arms are all zero-count changes or `Ok` likewise requires no decision.
 
-> **Non-normative example — Virus.** Its `-2 Animal<Anyone>? OR -5 Plant<Anyone>?` remains open even
+> **Non-normative example — Virus.** Its `-2? Animal<Anyone> OR -5? Plant<Anyone>` remains open even
 > after one arm is selected: the target player and how much optional loss actually occurs still need
 > settlement. Calling the authored card concrete would skip choices printed on it.
 
 **L3-2. A proposal must have the same shape.** A narrowing preserves the kind of node, the number of
 `THEN` stages and the size of a group. Two exceptions, and only two: any instruction may narrow an
-`OR` by narrowing one of its arms, and `Ok` may narrow an optional change.
+`OR` by narrowing one of its arms, and `Ok` may narrow an optional or zero-count change.
 
 > **Non-normative example — Flooding.** Choosing its ordinary ocean arm may replace the surrounding
 > `OR`; choosing the compensation arm must retain both its ocean-placement and payment stages.
@@ -549,17 +606,19 @@ For example, `Tile<Place(HAS Marker)>` may narrow to `Tile<First>` when First ha
 `Tile<Place(HAS Marker)>`. It cannot narrow to `Tile<Place>` merely because some place has a marker:
 a later choice would otherwise be free to select an unmarked place.
 
-Only `?` leaves a choice, so only `?` narrows: it may become `!`, `.` or a smaller count. `!` and
-`.` leave no choice at all, so neither narrows to the other (L2-3). In particular a proposal may not
-turn `3 Plant.` into `3 Plant!`: as much as possible is not the same claim as all of it, and which
-amount `.` means is for resolution, not for the settler, to decide.
+Only `?` leaves a choice, so only `?` narrows: it may become `!`, `*` or a smaller count. `!` and
+`*` leave no choice at all, so neither narrows to the other (L2-3). In particular a proposal may not
+turn `3* Plant` into `3! Plant`: as much as possible is not the same claim as all of it, and which
+amount `*` means is for resolution, not for the settler, to decide.
 
 > **Non-normative example — Comet.** Its optional loss of up to three plants may narrow to one, two,
 > three, or none, but its mandatory temperature and ocean gains may not shrink. The quantifier—not
 > merely the number—carries that printed asymmetry.
 
-**L3-5. `Ok` narrows an optional change and nothing else.** Declining `2 Plant?` entirely is a
-narrowing; declining `2 Plant!` or `2 Plant.` is not.
+**L3-5. `Ok` narrows an optional or zero-count change.** Declining `2? Plant` entirely is a
+narrowing; declining `2! Plant` or `2* Plant` is not. `0 Plant` can narrow `2? Plant` while retaining
+the named Type. Two change instructions intersect only through compatible Types and counts; their
+shared ability to do nothing does not make unrelated Types a match.
 
 > **Non-normative example — Virus.** If no useful opponent target is chosen, `Ok` is a valid
 > realization of the selected optional removal. Letting it replace a mandatory or
@@ -890,9 +949,8 @@ TriggerChange ::= "-"? "X"? Expression
 > replay setup for each city or pay only when the corporation component itself appeared.
 
 **L6-4. A self trigger is not a subscription to its own type.** There is no way to spell one as the
-other: writing the bare `This` placeholder as a subscription target *is* the self trigger, however
-its empty argument list was written (L1-5). `This` is about changes to this very component, while a
-subscription is about changes anywhere that match an expression.
+other: writing `This` as a subscription target *is* the self trigger (L1-5). `This` is about changes
+to this very component, while a subscription is about changes anywhere that match an expression.
 
 They also scale differently, which is part of what each one means:
 
@@ -904,9 +962,10 @@ They also scale differently, which is part of what each one means:
 - An `X` trigger (L6-5) takes that n as the value of `X` instead of multiplying, so the rule reacts
   once and can speak about the size of what happened.
 
-> **Non-normative example — played events.** The generic event rule's `-This` follows the removal of
-> that exact face-up event into `PlayedEvent<Class<This>>`. A subscription to the card's type could
-> fire once for every matching event-rule bearer instead of closing over the component being removed.
+> **Non-normative example — played events.** The generic event rule's `This` closes over the exact
+> face-up event that it later turns into `PlayedEvent<Class<This>>` (L2-18). A subscription to the
+> card's type could fire once for every matching event-rule bearer instead of closing over the
+> component just played.
 
 **L6-5. `X` before a trigger's expression binds the size of the change.** `X Plant: X Heat` reacts to
 a gain of any number of plants with the same number of heat. A removal is written `-X Plant`.
@@ -1052,12 +1111,12 @@ card: the first action is `Action1`. Swapping actions changes which action each 
 > positions (L7-5), but no card requires this concatenation order to give authored effects execution
 > priority. It specifies the resulting declaration's order, not a gameplay scheduling rule.
 
-**L7-7. An instruction that happens on gain is the effect `This: I`.** This is how a card's "do this
-now" section becomes an ordinary rule; an immediate `Ok` produces no effect at all.
+**L7-7. An instruction that happens on gain is the effect `This: I`.** This is how a card's direct
+effect becomes an ordinary rule; an on-gain `Ok` produces no effect at all.
 
-> **Non-normative example — Protected Valley.** Its immediate production increase and special greenery
-> placement are written `This: ...`, so they happen when that card component enters play. Treating
-> the instruction as free-floating would offer the bonus without playing the card.
+> **Non-normative example — Protected Valley.** Its direct effect raises production and places
+> a special greenery. These instructions are written `This: ...`, so they happen when that card
+> enters play. Treating the instruction as free-floating would offer the bonus without playing the card.
 
 **L7-8. Actions round-trip.** The cost keeps its authored form, and the result's grouping is
 L2-16's.
@@ -1140,6 +1199,7 @@ the enclosing transform marks, in order, on its effects and actions. Copying an 
 instruction likewise retains the enclosing marks; the copy's caller supplies any removed trigger
 bindings.
 
+
 ---
 
 ## 9. Elaboration
@@ -1169,8 +1229,8 @@ contracts are documented on [Agent](../src/common/dev/martianzoo/agent/Agent.kt)
 > each defaulted to the setting-up player. Atomizing before defaulting means each card is defaulted
 > in its own right, rather than one aggregate pseudo-card being split afterward.
 
-**L9-2. `This` is replaced by the context expression.** `Class<This>` becomes the class literal for
-the context's class, and `This<Foo>` keeps its own arguments while adopting the context's class.
+**L9-2. `This` is replaced by the complete context expression.** `Class<This>` becomes the class
+literal for the context's class.
 
 > **Non-normative example — Asteroid.** The inherited event cleanup creates
 > `PlayedEvent<Class<This>>`. Specializing the rule for Asteroid must produce
@@ -1246,17 +1306,17 @@ syntax remains compact; defaulting its two projections does not duplicate a reta
 Where the transmutation writes no quantifier of its own, it must satisfy both projections' defaults
 at once, and takes the one quantifier that permits exactly the amounts both of them permit.
 
-That is not a ranking of the three quantifiers (L3-4 keeps `!` and `.` incomparable); it is what
-their policies leave in common. `!` permits only the full count; `.` permits only the most the state
-allows; `?` permits anything up to that. So `!` with `.` permits the full count when the state
-allows it and nothing otherwise, which is `!`; `.` with `?` permits only the most possible, which is
-`.`; and `!` with `?` is `!`. Written as a table, the combination is:
+That is not a ranking of the three quantifiers (L3-4 keeps `!` and `*` incomparable); it is what
+their policies leave in common. `!` permits only the full count; `*` permits only the most the state
+allows; `?` permits anything up to that. So `!` with `*` permits the full count when the state
+allows it and nothing otherwise, which is `!`; `*` with `?` permits only the most possible, which is
+`*`; and `!` with `?` is `!`. Written as a table, the combination is:
 
-| | `!` | `.` | `?` |
+| | `!` | `*` | `?` |
 | --- | --- | --- | --- |
 | **`!`** | `!` | `!` | `!` |
-| **`.`** | `!` | `.` | `.` |
-| **`?`** | `!` | `.` | `?` |
+| **`*`** | `!` | `*` | `*` |
+| **`?`** | `!` | `*` | `?` |
 
 > **Non-normative example — Olympus Conference.** Its `ProjectCard FROM Science<This>` removes
 > a science resource from this card and draws a project card into hand. The gained card inherits
@@ -1284,12 +1344,12 @@ default (L9-7).
 > the card owner's context would incorrectly count resources on other cards in that tableau.
 
 **L9-10. Inside a refinement, an ordinary declared default is deferred when its dependency is a
-direct use of a class-header type variable** (T13-2), so candidate substitution can bind it through
+bare reference to a class-header type variable** (T13-2), so candidate substitution can bind it through
 that occurrence. Candidate binding also precedes omitted-owner insertion under L9-9. Writing `<>`
 accepts a declared default explicitly; it cannot accept a default that does not exist.
 
 > **Non-normative design note — no current TfM witness for this extra deferral.** Current canonical
-> `DEFAULT` clauses do not refer directly to header variables. CEO's Favorite Project demonstrates
+> `DEFAULT` clauses do not name header variables. CEO's Favorite Project demonstrates
 > candidate binding (L9-9), but does not require this additional header-variable default rule.
 > Its necessity remains an open fidelity-audit question, not an established card requirement.
 
@@ -1383,15 +1443,15 @@ Thus `GreeneryTile`, `Tharsis_2_2`, `A_foo`, `L1TradeTerminal`, `MC`, and `TOOLO
 > lowercase identifiers and prose labels out.
 
 **L10-2. Keywords are reserved and case-sensitive.** `ABSTRACT`, `BY`, `CLASS`, `COUNT`,
-`DEFAULT`, `EACH`, `EVAL`, `FROM`, `HAS`, `IF`, `MAX`, `NOT`, `OR`, `RANK`, `THEN` and `X`, together
-with the property-value words `Metric`, `Number` and `Requirement`, are the words the grammar itself
+`DEFAULT`, `EACH`, `EVAL`, `FINALLY`, `FROM`, `HAS`, `IF`, `LATER`, `MAX`, `NOT`, `OR`, `RANK`,
+`TASK`, `THEN` and `X`, together with the property-value words `Metric`, `Number` and `Requirement`, are the words the grammar itself
 uses, and none of them may be a class name. Because the reserved spellings are exact, `Max`, `By`
 and `Has` are perfectly good class names.
 
 ```ebnf
-Keyword ::= "ABSTRACT" | "BY" | "CLASS" | "COUNT" | "DEFAULT" | "EACH" | "EVAL"
-          | "FROM" | "HAS" | "IF" | "MAX" | "NOT" | "OR" | "RANK" | "THEN" | "X"
-          | "Metric" | "Number" | "Requirement"
+Keyword ::= "ABSTRACT" | "BY" | "CLASS" | "COUNT" | "DEFAULT" | "EACH" | "EVAL" | "FINALLY"
+          | "FROM" | "HAS" | "IF" | "LATER" | "MAX" | "NOT" | "OR" | "RANK" | "TASK" | "THEN"
+          | "X" | "Metric" | "Number" | "Requirement"
 ```
 
 **L10-3. A property name is lowerCamelCase**: a lowercase letter followed by letters and digits.
@@ -1749,17 +1809,20 @@ InstructionChoice     ::= AttributedInstruction ( "OR" AttributedInstruction )* 
 AttributedInstruction ::= PrimaryInstruction ( "BY" Expression )?                /* L2-15 */
 PrimaryInstruction    ::= Change                                                 /* L2-16 */
                         | Each
+                        | TaskDispatch
                         | TransformKind "[" InstructionGroup "]"
                         | "(" InstructionGroup ")"
 
 Each                  ::= "EACH" PlainExpression "{" InstructionGroup "}"        /* L2-14 */
+TaskDispatch          ::= ( "TASK" | "LATER" | "FINALLY" ) Expression?
+                          "{" InstructionGroup "}"                      /* L2-17 to L2-19 */
 
 Change                ::= ElementaryChange ( "/" MetricDifference )?             /* L2-6 */
 ElementaryChange      ::= Gain | Removal | Transmutation                         /* L2-1 */
-Gain                  ::= ScaledExpression Quantifier?                           /* L2-1 */
-Removal               ::= "-" ScaledExpression Quantifier?                       /* L2-1 */
-Transmutation         ::= Scalar? FromExpression Quantifier?                     /* L2-1 */
-Quantifier            ::= "!" | "." | "?"                                        /* L2-3 */
+Gain                  ::= Scalar Quantifier? Expression | Expression Quantifier? /* L2-1 */
+Removal               ::= "-" (Scalar Quantifier? Expression | Expression Quantifier?) /* L2-1 */
+Transmutation         ::= Scalar Quantifier? FromExpression | FromExpression Quantifier? /* L2-1 */
+Quantifier            ::= "!" | "*" | "?"                                        /* L2-3 */
 ```
 
 ### Metrics
@@ -1868,8 +1931,8 @@ ClassName     ::= ( [A-Z] [A-Za-z0-9_]* ) - Keyword                             
 TransformKind ::= ( [A-Z] [A-Z0-9_]* ) - Keyword                                       /* L10-4 */
 PropertyName  ::= [a-z] [A-Za-z0-9]*                                                   /* L10-3 */
 Keyword       ::= "ABSTRACT" | "BY" | "CLASS" | "COUNT" | "DEFAULT" | "EACH" | "EVAL"  /* L10-2 */
-                | "FROM" | "HAS" | "IF" | "MAX" | "NOT" | "OR" | "RANK" | "THEN" | "X"
-                | "Metric" | "Number" | "Requirement"
+                | "FINALLY" | "FROM" | "HAS" | "IF" | "LATER" | "MAX" | "NOT" | "OR" | "RANK"
+                | "TASK" | "THEN" | "X" | "Metric" | "Number" | "Requirement"
 Integer       ::= "0" | [1-9] [0-9]*                                                   /* L11-9 */
 QuotedText    ::= '"' [^"]* '"'                                                        /* L11-7 */
 
@@ -1885,7 +1948,7 @@ The grammar is context-free. Among the rules that reject sources it admits:
   component count (L4-6).
 - Every `THEN` stage but the last is one instruction, containing no group or sequence (L2-10), and a
   gate does not directly contain another gate (L2-7).
-- No count, minimum or metric unit is zero (L2-2, L5-3, L4-3).
+- No minimum or metric unit is zero (L5-3, L4-3); instruction counts may be zero (L2-2).
 - A signature carries no refinement (L11-4), and a body assigns each property at most once (L11-9).
 - A Type-variable marker is matched by another occurrence in its scope (L1-7).
 - `RANK` omits its selector only inside a `HAS` refinement (L4-8).

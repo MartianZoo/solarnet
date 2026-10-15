@@ -27,25 +27,13 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 public object Transforming {
   /**
    * Replaces each occurrence of the special `This` expression with [contextType], replacing
-   * `Class<This>` with the class literal for the context's class as well. An explicitly specialized
-   * `This<Foo>` keeps its authored arguments and adopts the context's class, becoming (for example)
-   * `Bar<Foo>`. This is
+   * `Class<This>` with the class literal for the context's class as well. This is
    * [rule L9-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration).
    */
   public fun replaceThisExpressionsWith(contextType: Expression): PetTransformer =
       chain(
           replacer(THIS.classExpression(), contextType.className.classExpression()),
-          object : PetTransformer() {
-            override fun transformNode(node: PetNode): PetNode {
-              if (node is Expression && node.isBare(THIS)) return contextType
-              val transformed = transformChildren(node)
-              return if (transformed is Expression && transformed.className == THIS) {
-                transformed.copy(className = contextType.className)
-              } else {
-                transformed
-              }
-            }
-          },
+          replacer(THIS.expression, contextType),
       )
 
   /**
@@ -96,12 +84,12 @@ public object Transforming {
           ?: throw PetSyntaxException("action index must be between 1 and 3: `$index1Ref`")
 
   /**
-   * Returns the effect `This: instruction`, which is how a card's "do this now" section becomes an
-   * ordinary rule ([rule
+   * Returns the self-gain effect `This: instruction` (or `This:: instruction` when
+   * [effectIsAutomatic] is true), used to express a card's direct effect ([rule
    * L7-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-actions)).
-   * An immediate `Ok` produces no effect at all, so this returns null for one.
+   * An on-gain `Ok` produces no effect at all, so this returns null for one.
    */
-  public fun immediateToEffect(
+  public fun onGainEffect(
       instruction: InstructionTree,
       effectIsAutomatic: Boolean = false,
   ): Effect? {

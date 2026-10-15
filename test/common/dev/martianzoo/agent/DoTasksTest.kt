@@ -134,7 +134,7 @@ internal class DoTasksTest {
     val game = Engine.newGame(testGamePremise("CLASS Coin"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     player.runOperation("5 Coin")
-    player.addTasks("-2 Coin!, -3 Coin!")
+    player.addTasks("-2! Coin, -3! Coin")
 
     player.completeOperation { doTasks("-5 Coin") }
 
@@ -143,10 +143,46 @@ internal class DoTasksTest {
   }
 
   @Test
+  internal fun combinesNetGainWithAnEarlierRemovalWithoutRequiringStartingStock() {
+    val game = Engine.newGame(testGamePremise("CLASS Coin"))
+    val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
+    player.addTasks("-5! Coin, 6! Coin, 35! Coin")
+
+    player.doTasks("36 Coin")
+
+    player.count("Coin") shouldBe 36
+    game.isIdle() shouldBe true
+  }
+
+  @Test
+  internal fun doesNotUseASameDirectionSubsetWhenOtherChangesArePending() {
+    val game = Engine.newGame(testGamePremise("CLASS Coin"))
+    val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
+    val tasks = player.addTasks("-4! Coin, 2! Coin, 2! Coin")
+
+    shouldThrow<TaskException> { player.continueOperation { doTasks("4 Coin") } }
+
+    player.count("Coin") shouldBe 0
+    player.tasks.ids() shouldBe tasks.toSet()
+  }
+
+  @Test
+  internal fun usesTheWholeNetTotalEvenWhenAnIndividualTaskHasThatAmount() {
+    val game = Engine.newGame(testGamePremise("CLASS Coin"))
+    val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
+    player.addTasks("-5! Coin, 27! Coin, 5! Coin")
+
+    player.doTasks("27 Coin")
+
+    player.count("Coin") shouldBe 27
+    game.isIdle() shouldBe true
+  }
+
+  @Test
   internal fun rollsBackEverySummedTaskIfALaterTaskFails() {
     val game = Engine.newGame(testGamePremise("CLASS Coin { HAS MAX 3 This }"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
-    player.addTasks("2 Coin!, 2 Coin!")
+    player.addTasks("2! Coin, 2! Coin")
     val before = game.timeline.checkpoint()
 
     shouldThrow<LimitsException> { player.continueOperation { doTasks("4 Coin") } }
@@ -159,7 +195,7 @@ internal class DoTasksTest {
   internal fun doesNotFallBackAfterAMatchingTaskFailsExecution() {
     val game = Engine.newGame(testGamePremise("CLASS Coin { HAS MAX 1 This }"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
-    player.addTasks("2 Coin!, Coin!, Coin!")
+    player.addTasks("2! Coin, Coin!, Coin!")
     val before = game.timeline.checkpoint()
 
     shouldThrow<LimitsException> { player.continueOperation { doTasks("2 Coin") } }
@@ -172,7 +208,7 @@ internal class DoTasksTest {
   internal fun doesNotResolveAnAmbiguousMatchByCombiningIt() {
     val game = Engine.newGame(testGamePremise("CLASS Coin"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
-    player.addTasks("2 Coin!, 2 Coin?")
+    player.addTasks("2! Coin, 2? Coin")
     val before = game.timeline.checkpoint()
 
     shouldThrow<TaskException> { player.continueOperation { doTasks("2 Coin") } }
@@ -185,7 +221,7 @@ internal class DoTasksTest {
   internal fun doesNotCombineTasksWithDifferentQuantifiers() {
     val game = Engine.newGame(testGamePremise("CLASS Coin"))
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
-    player.addTasks("2 Coin!, 3 Coin?")
+    player.addTasks("2! Coin, 3? Coin")
     val before = game.timeline.checkpoint()
 
     shouldThrow<TaskException> { player.continueOperation { doTasks("5 Coin") } }

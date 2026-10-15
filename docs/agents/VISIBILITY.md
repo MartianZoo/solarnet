@@ -226,9 +226,7 @@ primary usage-discovery algorithm.
 
 The experiment accepted 48 decisions. Two merely spelled `internal` on overrides that already
 inherited internal visibility; removing those no-op edits leaves 46 actual visibility reductions.
-Those reductions remain useful, but the methodology is not acceptable for another audit. The failed
-tool is preserved locally at
-`_local/BAD-visibility-audit-experiment-2026-10-09/`.
+Those reductions remain useful, but the methodology is not acceptable for another audit.
 
 Concrete results:
 
@@ -244,7 +242,7 @@ Concrete results:
   producing better rules.
 - Compiler success was too weak: privatizing protected `testAgent` changed which function subclass
   calls resolved to without causing a compile error. Behavioral testing found the problem; a
-  before/after resolved-symbol comparison would have identified it directly.
+  before/after resolved-symbol comparison would have identified it.
 - Byte offsets made convenient mutation keys but poor durable symbol identities. Formatting or
   unrelated edits can invalidate them.
 - The parsed inventory and visibility-only diff checker demonstrated useful supporting techniques.

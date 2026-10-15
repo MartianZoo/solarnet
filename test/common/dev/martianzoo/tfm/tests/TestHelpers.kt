@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.tests
 
+import dev.martianzoo.agent.Agent
+import dev.martianzoo.agenttestsupport.startSetupOnly
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.catalog.ClassSelection
@@ -37,12 +39,23 @@ import io.kotest.matchers.shouldBe
 internal fun setUpGame(premise: GamePremise): World =
     TfmEngine.newGame(premise).apply {
       val agents = testAgents()
-      TfmWorkflow.Stepwise(agents).setupPhase()
+      startSetupOnly()
       actors.filterIsInstance<Player>().forEach { player ->
         agents.tfm(player).keepStartingProjects(0)
       }
       revealTurmoilSetupEvents(this)
     }
+
+/**
+ * Moves a setup-only game into the corporation phase through that phase's own start, so its queued
+ * rules (such as realizing the selected colony tiles) run, then drops the corporation turn order it
+ * begins: the scenario plays out of turn.
+ */
+internal fun World.startCorporationPhaseOutOfTurn() {
+  val agents = testAgents()
+  agents[ADMIN].beginOperation("CorporationPhase FROM SetupPhase")
+  tasks.extract { it.id to it.assignee }.forEach { (id, assignee) -> agents[assignee].dropTask(id) }
+}
 
 internal fun revealTurmoilSetupEvents(game: World) {
   val admin = game.testAgent(ADMIN)
@@ -95,8 +108,10 @@ internal fun canonicalPremise(
 ): GamePremise {
   val config =
       GameConfig.create(
-          included = options.map(TestOption::className) + colonyTiles,
-          excluded = excludedOptions.map(TestOption::className),
+          included = options.mapNotNull(TestOption::className) + colonyTiles,
+          excluded = excludedOptions.mapNotNull(TestOption::className),
+          includedCardBundles = options.mapNotNull(TestOption::cardBundleName),
+          excludedCardBundles = excludedOptions.mapNotNull(TestOption::cardBundleName),
           playerNames = Player.players(players).map(Player::className),
       )
   val defaultCatalog = canonicalCatalog(config)
@@ -118,10 +133,41 @@ internal fun canonicalPremise(
 }
 
 internal fun canonicalCatalog(config: GameConfig): TfmCatalog =
-    canonicalCatalog(cn("FakeStuffBundle") in config.includedClassNames)
+    canonicalCatalog(
+        FakeCanon.bundles.any { it.bundleName in config.includedCardBundles } ||
+            config.includedClassNames.any { it in FakeCanon.allClassNames }
+    )
 
 internal fun canonicalCatalog(includeFakeCards: Boolean): TfmCatalog =
     if (includeFakeCards) CANON_WITH_FAKE_CARDS else Canon
+
+/**
+ * Applies fixture defaults while retaining exclusions that also override the game's own defaults.
+ */
+internal fun fixtureConfig(options: GameConfig, defaults: GameConfig): GameConfig {
+  val corporateEra = cn("CorporateEraExpansion")
+  val quickStart = cn("QuickStartVariant")
+  val inferredDefaults =
+      if (corporateEra in options.excludedClassNames) setOf(corporateEra, quickStart)
+      else setOf(corporateEra)
+  val colonies = cn("ColoniesExpansion")
+  val selected =
+      (defaults.includedClassNames + options.includedClassNames) - options.excludedClassNames
+  val colonyTile =
+      if (colonies in selected && selected.none { it in Canon.colonyTileClassNames })
+          setOf(cn("Callisto"))
+      else emptySet()
+  return options.copy(
+      includedClassNames = selected + colonyTile,
+      excludedClassNames =
+          (options.excludedClassNames - defaults.includedClassNames) +
+              (options.excludedClassNames intersect inferredDefaults),
+      includedCardBundles =
+          (defaults.includedCardBundles + options.includedCardBundles) -
+              options.excludedCardBundles,
+      excludedCardBundles = options.excludedCardBundles - defaults.includedCardBundles,
+  )
+}
 
 private val CANON_WITH_FAKE_CARDS: TfmCatalog by lazy { TfmCatalog(Canon, FakeCanon) }
 
@@ -151,11 +197,13 @@ internal object TestHelpers {
     return selected.take(count).toSet()
   }
 
-  fun TfmGameplay.assertCounts(vararg pairs: Pair<Int, String>) =
+  fun Agent.assertCounts(vararg pairs: Pair<Int, String>) =
       pairs.map { this.count(it.second) } shouldBe pairs.map { it.first }
 
-  fun TfmGameplay.assertProds(vararg pairs: Pair<Int, String>) =
-      pairs.map { production(cn(it.second)) } shouldBe pairs.map { it.first }
+  fun Agent.assertProds(vararg pairs: Pair<Int, String>) =
+      pairs.map {
+        (count("PROD[${it.second}]") - count("ProdOffset<Class<${it.second}>>"))
+      } shouldBe pairs.map { it.first }
 
   fun assertNetChanges(
       result: TaskResult,
@@ -188,11 +236,7 @@ internal object TestHelpers {
             game.classTable.transformDispatcher(),
         )
 
-    // Zero is not a valid instruction scalar, so preserve its position with a value that can pass
-    // through the normal parser and transformers before restoring it as an expected count.
-    val parseableExpectations =
-        expectedAsInstructions.replace(ZERO_SCALAR_REGEX, ZERO_SCALAR_SENTINEL.toString())
-    val parsedExpectations = Parsing.parse<InstructionTree>(parseableExpectations)
+    val parsedExpectations = Parsing.parse<InstructionTree>(expectedAsInstructions)
     val emptyArgumentList =
         parsedExpectations.descendantsOfType<Expression>().firstOrNull {
           it.argumentsSpecified && it.arguments.isEmpty()
@@ -207,11 +251,8 @@ internal object TestHelpers {
     val expectedCountsToTypes: List<Pair<Int, Expression>> =
         InstructionGroup.of(instruction).instructions.map {
           when (it) {
-            is Gain ->
-                (it.scaledEx.scalar as ActualScalar).value.expectedCount() to it.scaledEx.expression
-            is Remove ->
-                -(it.scaledEx.scalar as ActualScalar).value.expectedCount() to
-                    it.scaledEx.expression
+            is Gain -> (it.scaledEx.scalar as ActualScalar).value to it.scaledEx.expression
+            is Remove -> -(it.scaledEx.scalar as ActualScalar).value to it.scaledEx.expression
             else -> error("")
           }
         }
@@ -231,12 +272,10 @@ internal object TestHelpers {
     actuals shouldBe expectedCounts
   }
 
-  private fun Int.expectedCount(): Int = if (this == ZERO_SCALAR_SENTINEL) 0 else this
-
   private fun TaskResult.inferredExpectationHolder(game: World): Player? {
-    // The first change normally retains the agent caller. An explicit `BY Admin` loses that
-    // signal, so fall back only when every owned change points to the same Player.
-    (changes.firstOrNull()?.actor as? Player)?.let {
+    // Admin bookkeeping can precede the Player's action. Infer from the first Player-performed
+    // change, or fall back to ownership when every owned change points to the same Player.
+    (changes.firstOrNull { it.actor is Player }?.actor as? Player)?.let {
       return it
     }
 
@@ -251,9 +290,6 @@ internal object TestHelpers {
         .distinct()
         .singleOrNull()
   }
-
-  private const val ZERO_SCALAR_SENTINEL = 987_654_321
-  private val ZERO_SCALAR_REGEX = Regex("(?<![A-Za-z0-9_])0(?=\\s|\\]|$)")
 
   private val TEST_COLONY_TILES =
       listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io", "Europa", "Pluto")

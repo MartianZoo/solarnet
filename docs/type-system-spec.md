@@ -503,9 +503,12 @@ occurrence. Neither can anchor the existence of another component.
 
 > **Non-normative example — action-used markers.** `ActionUsedMarker` is `Cardbound<ActionCard>`:
 > `ActionUsedMarker<Player1, Predators<Player1>>` marks one exact card. It can do so because
-> `CardFront` declares `HAS MAX 1 This<Player>`, so at most one Predators card is ever in play.
+> Predators declares `HAS MAX 1 Predators`, so at most one Predators card is ever in play.
 > Otherwise the marker would identify no card in particular, and Project Inspection could reuse the
 > action of the wrong one.
+
+The named count covers every concrete owner specialization of Predators. `HAS MAX 1 This` would
+instead constrain each fully specialized type separately (L1-5, L9-2).
 
 **T3-10. Dependency maps and paths.** A type's dependencies form a finite map from keys to bounds.
 Two dependency maps are equal when they map the same keys to equal bounds, whatever order the keys
@@ -1114,13 +1117,13 @@ The gain default says that a special tile placed without saying where goes on a 
 > not invent a placement target. That is why the gain, removal and all-uses defaults cannot be one
 > set.
 
-**T10-2. Quantifiers.** A gain or removal default may also carry a quantifier: `!` mandatory, `.`
+**T10-2. Quantifiers.** A gain or removal default may also carry a quantifier: `!` mandatory, `*`
 as much as possible, or `?` optional. `Component` supplies `!` for both, so every class inherits
 one. Gain and removal quantifiers are inherited independently, and supertypes that disagree about
 one are an error.
 
 > **Non-normative example — paying `Owed`.** Creating a debt is mandatory, while removing one
-> defaults to as-much-as-possible (`DEFAULT -Owed<Class<MC>>.`), so a debt can be paid off in parts
+> defaults to as-much-as-possible (`DEFAULT -Owed<Class<MC>>*`), so a debt can be paid off in parts
 > from mixed sources. A single inherited quantifier for both directions would make either the debt
 > optional or partial payment illegal.
 
@@ -1534,10 +1537,6 @@ markers on its gained and removed sides share one choice. A non-observing marker
 supply that choice, so the destination may use the selected source in a refinement just as the
 source may use the selected destination. Compact `FROM` has its own instruction syntax and declares
 no variable (L2-4).
-
-> **Non-normative example — Market Manipulation.**
-> `ColonyProduction(NOT Source@ColonyProduction) FROM Source@ColonyProduction` moves one step to a
-> different colony track. The source marker supplies the track that the destination excludes.
 
 > **Non-normative example — Kaguya Tech.** `CityTile<@MarsArea> FROM GreeneryTile<@MarsArea>`
 > replaces one of its owner's greeneries with a city in the same area. Neither marker has a

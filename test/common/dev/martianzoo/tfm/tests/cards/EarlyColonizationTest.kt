@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TfmGameplayTest
@@ -13,9 +14,18 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
   @Test
   internal fun `Advances active tracks from their current positions and leaves inactive tiles alone`() {
     newTestGame("PreludeExpansion, EarlyColonization, Luna, Ceres, Miranda, Titan, Enceladus")
-    kim.setToExMachina(3, "ColonyProduction<Luna>")
+    admin.setToExMachina(3, "ColonyProduction<Luna>")
 
-    kim.playPrelude(EarlyColonization) { doTask("Colony<Luna>") }
+    kim.inTurn {
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<EarlyColonization>>",
+              "EarlyColonization FROM PreludeCard",
+              "3 Energy",
+          )
+          // Expand the increase into separate track changes for each active colony.
+          selectTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
+          doTasks("Colony<Luna>", "PROD[2 MC]")
+        }
         .expect(
             "2 ColonyProduction<Luna>, 2 ColonyProduction<Ceres>, 0 ColonyProduction<Miranda>, " +
                 "0 ColonyProduction<Titan>, 0 ColonyProduction<Enceladus>, Colony<Luna>, 3 Energy"
@@ -27,7 +37,19 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
     newTestGame("PreludeExpansion, EarlyColonization, Luna, Ceres, Miranda, Titan, Enceladus")
     kim.exMachina("Colony<Luna>, Colony<Ceres>")
 
-    shouldThrow<DependencyException> { kim.playPrelude(EarlyColonization) }
+    shouldThrow<DependencyException> {
+      kim.inTurn {
+        doTasks(
+            "PlayCard<Class<PreludeCard>, Class<EarlyColonization>>",
+            "EarlyColonization FROM PreludeCard",
+        )
+        doTask("3 Energy")
+        // Expand the increase into separate track changes for each active colony.
+        selectTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
+        // Resolve the colony offer to prove that no eligible active tile remains.
+        selectTask("Colony<>")
+      }
+    }
   }
 
   @Test
@@ -42,21 +64,45 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
 
   private fun fizzleAtPosition(position: Int) {
     newTestGame("PreludeExpansion, EarlyColonization, BoardOfDirectors, Luna, Ceres")
-    kim.playPrelude(BoardOfDirectors)
-    startActionPhase()
-    kim.setToExMachina(position, "ColonyProduction<Luna>")
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
+          "BoardOfDirectors FROM PreludeCard",
+      )
+      doTask("4 Director<BoardOfDirectors>")
+    }
+    advanceUntilActionPhase()
+    admin.setToExMachina(position, "ColonyProduction<Luna>")
 
     shouldThrow<LimitsException> {
-      kim.cardAction1(BoardOfDirectors) {
+      kim.inTurn {
+        doTask("UseCardAction<BoardOfDirectors, Action1>")
+        doTask("PreludeCard<Kim, Hand>")
         doTask("-12 MC")
-        kim.playPrelude(EarlyColonization) { doTask("Colony<Ceres>") }
+        doTask("-Director<BoardOfDirectors>")
+        doTasks(
+            "PlayCard<Class<PreludeCard>, Class<EarlyColonization>>",
+            "EarlyColonization FROM PreludeCard",
+        )
+        doTask("3 Energy")
+        // Expand the increase into separate track changes for each active colony.
+        selectTask("EACH @ColonyTile { 2! ColonyProduction<@ColonyTile> }")
+
+        doTask("Colony<Ceres>")
+        doTask("PROD[Steel]")
       }
     }
-    kim.cardAction1(BoardOfDirectors) {
+    kim.inTurn {
+          doTask("UseCardAction<BoardOfDirectors, Action1>")
+          doTask("PreludeCard<Kim, Hand>")
           doTask("-12 MC")
+          doTask("-Director<BoardOfDirectors>")
           doTask("-PreludeCard")
+          // Hand the fizzle audit to Admin before receiving compensation.
+          selectTask("Audit!")
+          doTask("15 MC")
         }
-        .expect("3 MC, 0 $EarlyColonization, 0 Colony<Ceres>, 0 Energy, 0 ColonyProduction<Luna>")
+        .expect("0 $EarlyColonization, 0 Colony<Ceres>, 0 Energy, 0 ColonyProduction<Luna>")
   }
 
   internal class Gameplay : TfmGameplayTest() {
@@ -66,17 +112,24 @@ internal class EarlyColonizationTest : TfmSandboxTest() {
           "PreludeExpansion, EarlyColonization, Luna, Ceres, Miranda, Titan, Enceladus",
           playerCount = 2,
       )
-      kim.playPrelude(EarlyColonization) { doTask("Colony<Luna>") }
-      kim.playPrelude(Donation)
-      stan.playPrelude(Supplier)
-      stan.playPrelude(MetalsCompany)
-      kim.pass()
-      stan.pass()
-      admin.count("ColonyProduction<Luna>") shouldBe 3
-      admin.count("ColonyProduction<Ceres>") shouldBe 3
+      kim.completeOperation {
+        doTask("PlayCard<Class<PreludeCard>, Class<$EarlyColonization>>")
+        doTask("Colony<Luna>")
+        autoExecNow(EAGER)
+      }
+      kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
+      stan.doTask("PlayCard<Class<PreludeCard>, Class<$Supplier>>")
+      stan.autoExecNow(EAGER)
 
-      kim.wgt("VenusStep")
+      stan.doTask("PlayCard<Class<PreludeCard>, Class<$MetalsCompany>>")
+      stan.autoExecNow(EAGER)
 
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+
+      // The tracks advance as the Solar phase begins, without waiting for World Government.
+      admin.count("SolarPhase") shouldBe 1
       admin.count("ColonyProduction<Luna>") shouldBe 4
       admin.count("ColonyProduction<Ceres>") shouldBe 4
       admin.count("ColonyProduction<Miranda>") shouldBe 0

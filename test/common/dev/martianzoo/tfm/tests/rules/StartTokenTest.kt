@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agenttestsupport.testAgents
-import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
@@ -16,98 +16,105 @@ import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class StartTokenTest {
+internal class StartTokenTest : TfmGameplayTest() {
   @Test
-  internal fun startsWithPlayer1AndPassesAfterEachResearchPhase() {
-    val game = setUpGame(players = 3)
-    val admin = game.testTfm(ADMIN)
+  internal fun `Start token begins with the first player and passes after each research phase`() {
+    newTestGame(playerCount = 3)
 
     admin.assertCounts(
         3 to "AfterMe",
-        1 to "AfterMe<Player1, Player2>",
-        1 to "AfterMe<Player2, Player3>",
-        1 to "AfterMe<Player3, Player1>",
+        1 to "AfterMe<Kim, Stan>",
+        1 to "AfterMe<Stan, Rob>",
+        1 to "AfterMe<Rob, Kim>",
     )
-    admin.assertCounts(1 to "StartToken<Player1>", 0 to "StartToken<Player2>")
+    admin.assertCounts(1 to "StartToken<Kim>", 0 to "StartToken<Stan>")
 
-    admin.nextGeneration(0, 0, 0)
-    admin.assertCounts(0 to "StartToken<Player1>", 1 to "StartToken<Player2>")
+    finishGeneration(kim, stan, rob)
+    admin.assertCounts(0 to "StartToken<Kim>", 1 to "StartToken<Stan>")
 
-    admin.nextGeneration(0, 0, 0)
-    admin.assertCounts(0 to "StartToken<Player2>", 1 to "StartToken<Player3>")
+    finishGeneration(stan, rob, kim)
+    admin.assertCounts(0 to "StartToken<Stan>", 1 to "StartToken<Rob>")
 
-    admin.nextGeneration(0, 0, 0)
-    admin.assertCounts(1 to "StartToken<Player1>", 0 to "StartToken<Player3>")
+    finishGeneration(rob, kim, stan)
+    admin.assertCounts(1 to "StartToken<Kim>", 0 to "StartToken<Rob>")
     admin.assertCounts(1 to "StartToken")
-    shouldThrow<LimitsException> { admin.runOperation("-StartToken<Player1>") }
-    shouldThrow<LimitsException> { admin.runOperation("AfterMe<Player1, Player3>") }
-    shouldThrow<LimitsException> { admin.runOperation("AfterMe<Player3, Player2>") }
   }
 
   @Test
-  internal fun passesAccordingToTheExplicitAfterMeRelation() {
-    val game = setUpGame(players = 3)
-    val admin = game.testTfm(ADMIN)
-    // Reverse the whole ring in one correction, preserving one predecessor and successor each.
-    admin.sneak(
-        "AfterMe<Player1, Player3> FROM AfterMe<Player1, Player2>, " +
-            "AfterMe<Player3, Player2> FROM AfterMe<Player3, Player1>, " +
-            "AfterMe<Player2, Player1> FROM AfterMe<Player2, Player3>"
-    )
+  internal fun `Start token stays with the only player in a solo game`() {
+    newTestGame(playerCount = 1)
 
-    admin.nextGeneration(0, 0, 0)
+    finishGeneration(kim)
 
-    admin.assertCounts(0 to "StartToken<Player1>", 1 to "StartToken<Player3>")
+    admin.assertCounts(1 to "StartToken<Kim>", 0 to "AfterMe")
   }
 
-  @Test
-  internal fun staysWithPlayer1InAnActualOnePlayerSetup() {
-    val game = setUpGame(players = 1)
-    val admin = game.testTfm(ADMIN)
+  /**
+   * Every player passes in turn order, the start player chooses World Government's step, and no
+   * player buys research cards.
+   */
+  private fun finishGeneration(vararg inTurnOrder: Agent) {
+    inTurnOrder.forEach { it.doTask("Pass") }
+    players.forEach { it.autoExecNow(EAGER) }
+    inTurnOrder.first().doTask("VenusStep! BY Admin")
 
-    admin.doTask("CityTile<Tharsis_4_1>")
-    admin.doTask("GreeneryTile<Tharsis_5_1>")
-    admin.doTask("CityTile<Tharsis_2_2>")
-    admin.doTask("GreeneryTile<Tharsis_2_3>")
-    admin.nextGeneration(0)
-
-    admin.assertCounts(
-        1 to "StartToken<Player1>",
-        0 to "AfterMe<Player1, Player1>",
-        0 to "AfterMe",
-    )
+    players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
   }
 
-  @Test
-  internal fun `solo setup links each greenery to its own city`() {
-    val admin = setUpGame(players = 1).testTfm(ADMIN)
+  internal class Setup : TfmTest() {
+    @Test
+    internal fun `solo setup links each greenery to its own city`() {
+      val admin = setUpGame(players = 1).testAgent(ADMIN)
 
-    admin.doTask("CityTile<Tharsis_4_1>")
-    admin.doTask("GreeneryTile<Tharsis_5_1>")
-    admin.doTask("CityTile<Tharsis_5_8>")
+      admin.doTask("CityTile<Tharsis_4_1>")
+      admin.doTask("GreeneryTile<Tharsis_5_1>")
+      admin.doTask("CityTile<Tharsis_5_8>")
 
-    // This area neighbors the first city, but not the selected second city.
-    shouldThrow<NarrowingException> { admin.doTask("GreeneryTile<Tharsis_3_1>") }
-  }
+      // This area neighbors the first city, but not the selected second city.
+      shouldThrow<NarrowingException> { admin.doTask("GreeneryTile<Tharsis_3_1>") }
+    }
 
-  @Test
-  internal fun autoWorkflowReadsTheTokenHolder() {
-    val setup = canonicalPremise(Hellas, PromoCardPack, players = 2)
-    val game = TfmEngine.newGame(setup)
-    val admin = game.testTfm(ADMIN)
-    val p1 = game.testTfm(PLAYER1)
-    val p2 = game.testTfm(PLAYER2)
+    @Test
+    internal fun `Turn order reads the start token holder`() {
+      val setup = canonicalPremise(Hellas, PromoCards, players = 2)
+      val game = TfmEngine.newGame(setup)
+      val admin = game.testAgent(ADMIN)
+      val p1 = game.testAgent(PLAYER1)
+      val p2 = game.testAgent(PLAYER2)
 
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
-    p1.keepStartingProjects(7)
-    p2.keepStartingProjects(5)
-    p1.playCorp(InterplanetaryCinematics)
-    admin.sneak("StartToken<Player2> FROM StartToken<Player1>")
-    p2.playCorp(CrediCor)
+      admin.beginOperation("SetupPhase FROM BootstrapPhase")
+      p1.doTask("-3 ProjectCard<Selecting>")
+      p2.doTask("-5 ProjectCard<Selecting>")
+      p1.doTasks("PlayCard<Class<CorporationCard>, Class<InterplanetaryCinematics>>", "-21 MC")
+      admin.sneak("StartToken<Player2> FROM StartToken<Player1>")
+      p2.doTasks("PlayCard<Class<CorporationCard>, Class<CrediCor>>", "-15 MC")
 
-    game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
-    workflow.shutdown()
+      admin.count("ActionPhase") shouldBe 1
+      game.tasks.extract { it }.filterNot { it.deferred }.map { it.assignee } shouldContainExactly
+          listOf(PLAYER2)
+    }
+
+    @Test
+    internal fun `Research passes the token according to the explicit seat order`() {
+      game = setUpGame(players = 3)
+      admin.sneak(
+          "AfterMe<Player1, Player3> FROM AfterMe<Player1, Player2>, " +
+              "AfterMe<Player3, Player2> FROM AfterMe<Player3, Player1>, " +
+              "AfterMe<Player2, Player1> FROM AfterMe<Player2, Player3>"
+      )
+      admin.beginOperation("ResearchPhase FROM SetupPhase")
+      admin.assertCounts(0 to "StartToken<Player1>", 1 to "StartToken<Player3>")
+    }
+
+    @Test
+    internal fun `Seat order and start token reject invalid corrections`() {
+      game = setUpGame(players = 3)
+      shouldThrow<LimitsException> { admin.sneak("-StartToken<Player1>") }
+      shouldThrow<LimitsException> { admin.sneak("AfterMe<Player1, Player3>") }
+      shouldThrow<LimitsException> { admin.sneak("AfterMe<Player3, Player2>") }
+    }
   }
 }

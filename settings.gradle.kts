@@ -18,6 +18,7 @@ val modules =
     listOf(
         "pets",
         "catalog",
+        "tfm-text",
         "state",
         "engine",
         "agent",
@@ -33,7 +34,6 @@ val modules =
         "web",
         "almanac",
         "pets-tools",
-        "viewer",
         "tools",
         "codegen",
         "benchmarks",

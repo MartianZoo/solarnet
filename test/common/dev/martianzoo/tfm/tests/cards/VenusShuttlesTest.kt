@@ -12,6 +12,10 @@ internal class VenusShuttlesTest : TfmSandboxTest() {
         "$VenusGovernor, $VenusWaystation, $ForcedPrecipitation, $VenusMagnetizer, $VenusShuttles"
     )
 
-    kim.cardAction1(VenusShuttles).expect("-6 MC, VenusStep, TerraformRating")
+    kim.inTurn {
+      doTasks("UseCardAction<VenusShuttles, Action1>", "-6 MC")
+      doTask("VenusStep")
+      doTask("TerraformRating")
+    }
   }
 }

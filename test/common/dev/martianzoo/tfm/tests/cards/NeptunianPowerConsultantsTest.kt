@@ -14,22 +14,41 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
     kim.setToExMachina(19, "MC")
     kim.setToExMachina(2, "Steel")
 
-    kim.stdProject("AquiferProject") {
-          placeTile(4, 8)
-          doTask("UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>")
-          kim.pay(mc = 1, steel = 2)
+    kim.inTurn {
+          doTasks(
+              "UseStandardProject<AquiferProject>",
+              "-18 MC",
+              "OceanTile<Tharsis_4_8>",
+              "TerraformRating",
+              "2 Plant",
+          )
+          doTasks(
+              "UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>",
+              "-2 Steel",
+              "-1 MC",
+              "PROD[Energy]",
+          )
+          doTask("Hydroelectric<NeptunianPowerConsultants>")
         }
-        .expect("-2 Steel, 2 Plant, Hydroelectric, PROD[Energy]")
+        .expect("Hydroelectric")
   }
 
   @Test
   internal fun `Owner chooses and pays when an opponent places the ocean`() {
     kim.exMachina("$NeptunianPowerConsultants")
     stan
-        .stdProject("AquiferProject") {
-          placeTile(1, 2)
-          kim.doTask("UseAction<NeptunianOption<$NeptunianPowerConsultants>, Action1>")
-          kim.pay(5)
+        .inTurn {
+          doTasks(
+              "UseStandardProject<AquiferProject>",
+              "-18 MC",
+              "OceanTile<Tharsis_1_2>",
+              "TerraformRating",
+          )
+          kim.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
+          doTask("2 Steel")
+          kim.doTask("-5 MC")
+          kim.doTask("PROD[Energy]")
+          kim.doTask("Hydroelectric<NeptunianPowerConsultants>")
         }
         .expect("-5 MC<Kim>, Hydroelectric<Kim>, PROD[Energy<Kim>]")
   }
@@ -40,11 +59,17 @@ internal class NeptunianPowerConsultantsTest : TfmSandboxTest() {
     kim.setToExMachina(0, "MC")
 
     stan
-        .stdProject("AquiferProject") {
-          placeTile(1, 2)
+        .inTurn {
           // Decline the unaffordable Neptunian bonus.
-          kim.declineTask()
+          doTasks(
+              "UseStandardProject<AquiferProject>",
+              "-18 MC",
+              "OceanTile<Tharsis_1_2>",
+              "TerraformRating",
+          )
+          kim.doTask("0 UseAction<NeptunianOption<NeptunianPowerConsultants>>")
+          doTask("2 Steel")
         }
-        .expect("OceanTile, TerraformRating<Stan>, 0 Hydroelectric<Kim>")
+        .expect("0 Hydroelectric<Kim>")
   }
 }

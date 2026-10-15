@@ -10,9 +10,13 @@ import kotlin.test.Test
 internal class SummitLogisticsTest : TfmSandboxTest() {
   @Test
   internal fun `Is unavailable when Turmoil is absent`() {
-    newTestGame("Prelude2CardPack")
+    newTestGame("prelude2:cards")
 
-    shouldThrow<DeadEndException> { kim.playProject(SummitLogistics, 10) }
+    shouldThrow<DeadEndException> {
+      kim.inTurn {
+        doTask("PlayProject<Class<SummitLogistics>>")
+      }
+    }
   }
 
   @Test
@@ -20,16 +24,32 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
     newTestGame("SummitLogistics, TurmoilExpansion, -VenusNextExpansion, Luna")
     kim.exMachina("$EarthOffice, $VestaShipyard, Colony<Luna>, 2 PartyDelegate<Scientists>")
 
-    kim.playProject(SummitLogistics, 10).expect("-7 MC, ProjectCard")
+    kim.inTurn {
+          doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
+          doTasks("SummitLogistics FROM ProjectCard")
+          doTask("3 MC")
+          doTask("2 ProjectCard<Kim, Hand>")
+        }
+        .expect("-7 MC, ProjectCard")
   }
 
   @Test
   internal fun `Two delegates satisfy its requirement without Scientists ruling`() {
-    newTestGame("SummitLogistics, TurmoilExpansion")
+    newTestGame("SummitLogistics, TurmoilExpansion, -ColoniesExpansion")
 
-    shouldThrow<RequirementException> { kim.playProject(SummitLogistics, 10) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTask("PlayProject<Class<SummitLogistics>>")
+      }
+    }
     kim.exMachina("2 PartyDelegate<Scientists>")
-    kim.playProject(SummitLogistics, 10).expect("ProjectCard")
+    kim.inTurn {
+          doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
+          doTasks("SummitLogistics FROM ProjectCard")
+          doTask("0 MC")
+          doTask("2 ProjectCard<Kim, Hand>")
+        }
+        .expect("ProjectCard")
   }
 
   @Test
@@ -40,6 +60,12 @@ internal class SummitLogisticsTest : TfmSandboxTest() {
     )
     stan.exMachina("Colony<Luna>")
 
-    kim.playProject(SummitLogistics, 10).expect("-4 MC, ProjectCard")
+    kim.inTurn {
+          doTasks("PlayProject<Class<SummitLogistics>>", "-10 MC")
+          doTasks("SummitLogistics FROM ProjectCard")
+          doTask("6 MC")
+          doTask("2 ProjectCard<Kim, Hand>")
+        }
+        .expect("-4 MC, ProjectCard")
   }
 }

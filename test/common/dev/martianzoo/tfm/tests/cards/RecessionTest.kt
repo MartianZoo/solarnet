@@ -17,22 +17,50 @@ internal class RecessionTest : TfmSandboxTest() {
     rob.setToExMachina(5, "MC")
     rob.setToExMachina(2, "PROD[MC]")
 
-    kim.playPrelude(Recession)
-        .expect("10 MC, -4 MC<Stan>, -5 MC<Rob>, PROD[0 MC, -MC<Stan>, -MC<Rob>]")
+    kim.inTurn {
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<Recession>>",
+              "Recession FROM PreludeCard",
+              "10 MC",
+          )
+          // Expand the effect into separate losses for each other player.
+          selectOnlyTask()
+          doTask("-5* MC<Stan>")
+          doTask("PROD[-MC<Stan>]")
+          doTask("-5* MC<Rob>")
+          doTask("PROD[-MC<Rob>]")
+        }
+        .expect("-4 MC<Stan>, -5 MC<Rob>, PROD[0 MC, -MC<Stan>, -MC<Rob>]")
   }
 
   @Test
   internal fun `An opponent at minimum production prevents play through Board of Directors`() {
     newTestGame("PreludeExpansion, Recession, BoardOfDirectors")
-    kim.playPrelude(BoardOfDirectors)
-    startActionPhase()
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
+          "BoardOfDirectors FROM PreludeCard",
+      )
+      doTask("4 Director<BoardOfDirectors>")
+    }
+    advanceUntilActionPhase()
     stan.setToExMachina(-5, "PROD[MC]")
     stan.setToExMachina(8, "MC")
 
     shouldThrow<LimitsException> {
-      kim.cardAction1(BoardOfDirectors) {
+      kim.inTurn {
+        doTask("UseCardAction<BoardOfDirectors, Action1>")
+        doTask("PreludeCard<Kim, Hand>")
         doTask("-12 MC")
-        kim.playPrelude(Recession)
+        doTask("-Director<BoardOfDirectors>")
+        doTasks("PlayCard<Class<PreludeCard>, Class<Recession>>", "Recession FROM PreludeCard")
+        doTask("10 MC")
+        // Expand the effect into separate losses for each other player.
+        selectOnlyTask()
+        doTask("-5* MC<Stan>")
+        doTask("-5* MC<Rob>")
+        doTask("PROD[-MC<Rob>]")
+        doTask("PROD[-MC<Stan>]")
       }
     }
     kim.assertCounts(42 to "MC", 4 to "Director<$BoardOfDirectors>", 0 to "$Recession")
@@ -45,8 +73,19 @@ internal class RecessionTest : TfmSandboxTest() {
     newTestGame("PreludeExpansion, Recession")
     stan.setToExMachina(-5, "PROD[MC]")
 
-    shouldThrow<LimitsException> { kim.playPrelude(Recession) }
-    kim.inTurn { doTask("-PreludeCard") }
-        .expect("15 MC, 0 MC<Stan>, 0 MC<Rob>, PROD[0 MC<Stan>, 0 MC<Rob>]")
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        doTasks("PlayCard<Class<PreludeCard>, Class<Recession>>", "Recession FROM PreludeCard")
+        doTask("10 MC")
+        // Expand the effect into separate losses for each other player.
+        selectOnlyTask()
+        doTask("-5* MC<Stan>")
+        doTask("-5* MC<Rob>")
+        doTask("PROD[-MC<Rob>]")
+        doTask("PROD[-MC<Stan>]")
+      }
+    }
+    kim.inTurn { doTasks("-PreludeCard", "Audit", "15 MC") }
+        .expect("0 MC<Stan>, 0 MC<Rob>, PROD[0 MC<Stan>, 0 MC<Rob>]")
   }
 }

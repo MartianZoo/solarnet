@@ -11,6 +11,12 @@ internal class PolyphemosTest : TfmSandboxTest() {
     kim.exMachina("$InventorsGuild")
     kim.setToExMachina(5, "MC")
 
-    kim.cardAction1(InventorsGuild) { kim.buyCards(1) }.expect("ProjectCard, -5 MC")
+    kim.inTurn {
+          doTask("UseCardAction<InventorsGuild, Action1>")
+          doTask("ProjectCard<Selecting>")
+          doTasks("-0 ProjectCard<Selecting>", "-5 MC")
+          doTask("ProjectCard<Hand FROM Selecting>")
+        }
+        .expect("ProjectCard")
   }
 }

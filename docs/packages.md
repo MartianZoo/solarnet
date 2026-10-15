@@ -41,6 +41,12 @@ Various non-Terraforming-specific helpers.
 Static Catalog composition, configuration, premise resolution, filtered Class Tables, and display
 names. It depends only on Pets and can be used without runtime game state or execution.
 
+## module TFM-TEXT
+
+### <a href="tfm-text/dev.martianzoo.tfm.text/index.html">dev.martianzoo.tfm.text</a>
+
+English text for Terraforming Mars cards.
+
 ## module TFM-CANON
 
 ### <a href="tfm-canon/dev.martianzoo.tfm.canon/index.html">dev.martianzoo.tfm.canon</a>
@@ -71,15 +77,13 @@ The engine knows how to modify a Game World by executing card Instructions.
 
 ### <a href="tfm-state/dev.martianzoo.tfm.state/index.html">dev.martianzoo.tfm.state</a>
 
-Terraforming Mars-specific read-only projections over live and recorded Game World state. It lets
-the engine and passive viewer share Catalog-backed queries without making the viewer depend on
-execution.
+Terraforming Mars-specific read-only projections over live and recorded Game World state.
 
 ## module TFM-ENGINE
 
 ### <a href="tfm-engine/dev.martianzoo.tfm.engine/index.html">dev.martianzoo.tfm.engine</a>
 
-Terraforming Mars-specific gameplay, workflow, and shared presentation rules.
+Terraforming Mars-specific gameplay and shared presentation rules.
 
 ## module SCRIPT
 
@@ -103,15 +107,8 @@ An early rough browser version of REgo PLastics.
 
 ### <a href="almanac/dev.martianzoo.tfm.web.almanac/index.html">dev.martianzoo.tfm.web.almanac</a>
 
-Pets Almanac, a searchable viewer for Canon's normalized Pets declarations and type information.
-
-## module VIEWER
-
-### <a href="viewer/dev.martianzoo.tfm.web.viewer/index.html">dev.martianzoo.tfm.web.viewer</a>
-
-An engine-free browser viewer that discovers generated replay-test recordings and navigates their
-event-log timelines through passive state playback. The REPL and viewer use assets owned by
-`dev/martianzoo/tfm/web/shared`.
+Pets Almanac, a searchable viewer for Canon's normalized Pets declarations, type information, and
+derived card text.
 
 ## module PETS-TOOLS
 

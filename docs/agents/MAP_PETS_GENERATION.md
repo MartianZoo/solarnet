@@ -9,7 +9,7 @@
 
 ## Source map
 
-- [Tharsis `tharsis.pets`](../../src/common/dev/martianzoo/tfm/canon/TharsisMap/tharsis.pets) — an
+- [Tharsis `tharsis.pets`](../../src/common/dev/martianzoo/tfm/canon/bundles/tharsis/tharsis.pets) — an
   example authored diagram followed by generated area declarations.
 - [`MarsMapReader.kt`](../../src/common/dev/martianzoo/tfm/canon/MarsMapReader.kt) — diagram, area
   kind, and bonus-sigil decoding.

@@ -18,9 +18,9 @@ import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.TestOption.Elysium
 import dev.martianzoo.tfm.tests.TestOption.Hellas
-import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
+import dev.martianzoo.tfm.tests.TestOption.Prelude2Cards
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
+import dev.martianzoo.tfm.tests.TestOption.PromoCards
 import dev.martianzoo.tfm.tests.TestOption.Tharsis
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.TestOption.Utopia
@@ -45,7 +45,6 @@ internal class CanonAdmissibilityTest {
       (implementation is CustomMetric) shouldBe declaration.customMetric
       (implementation is CustomInstruction) shouldBe declaration.customInstruction
     }
-    Canon.customClassDependencies.keys.all(declarations::containsKey) shouldBe true
   }
 
   @Test
@@ -79,16 +78,17 @@ internal class CanonAdmissibilityTest {
             Cimmeria,
             VenusNextExpansion,
             PreludeExpansion,
-            Prelude2CardPack,
+            Prelude2Cards,
             ColoniesExpansion,
             TurmoilExpansion,
-            PromoCardPack,
+            PromoCards,
             WorldGovernmentRule,
         )
 
     val world = TfmEngine.newGame(canonicalPremise(*selected, colonyTiles = colonies))
 
-    selected.forEach { world.classTable.isInhabited(it.className) shouldBe true }
+    selected.mapNotNull { it.className }.forEach { world.classTable.isInhabited(it) shouldBe true }
+    world.classTable.isInhabited(cn("MonsInsurance")) shouldBe true
     colonies.forEach { world.classTable.isInhabited(it) shouldBe true }
     world.classTable.isInhabited(cn("CimmeriaMap")) shouldBe true
     world.isIdle() shouldBe true

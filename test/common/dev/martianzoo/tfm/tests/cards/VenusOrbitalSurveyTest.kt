@@ -10,10 +10,15 @@ internal class VenusOrbitalSurveyTest : TfmSandboxTest() {
     newTestGame("VenusOrbitalSurvey")
     kim.exMachina("$VenusOrbitalSurvey")
 
-    kim.cardAction1(VenusOrbitalSurvey) {
-          doTask("TakeSelectedCard<TagFilter<Class<VenusTag>>>")
-          kim.buyCards(1)
-        }
-        .expect("2 ProjectCard, -3 MC")
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<$VenusOrbitalSurvey, Action1>",
+          "2 ProjectCard<Selecting>",
+          "TakeSelectedCard<TagFilter<Class<VenusTag>>>",
+          "-0 ProjectCard<Selecting>", // Keep the other revealed card for purchase.
+          "-3 MC",
+          "ProjectCard<Hand FROM Selecting>",
+      )
+    }
   }
 }

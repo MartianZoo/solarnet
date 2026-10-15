@@ -24,28 +24,6 @@ internal class PremiseSelectionTest {
   }
 
   @Test
-  internal fun `custom class requirements are included with the custom class only`() {
-    val declarations =
-        """
-        CLASS DependencySource : CustomInstruction
-        CLASS RuntimeDependency
-        """
-            .trimIndent()
-    val catalog =
-        testCatalog(
-            declarations,
-            customClassDependencies =
-                mapOf(cn("DependencySource") to setOf(cn("RuntimeDependency"))),
-        )
-
-    val unselected = gameView(catalog)
-    unselected.allClassNames.contains(cn("RuntimeDependency")) shouldBe false
-
-    val selected = gameView(catalog, "DependencySource")
-    selected.allClassNames.contains(cn("RuntimeDependency")) shouldBe true
-  }
-
-  @Test
   internal fun `custom classes cannot be declared only for a premise`() {
     val catalog = testCatalog("")
 
@@ -256,7 +234,7 @@ internal class PremiseSelectionTest {
             ABSTRACT CLASS Empty
             ABSTRACT CLASS AlsoEmpty
             CLASS Available
-            CLASS Direct { This:: -Empty! }
+            CLASS BareRemoval { This:: -Empty! }
             CLASS Nested { This:: Available THEN -Empty! }
             CLASS EveryAlternative { This:: (-Empty! OR -AlsoEmpty!) }
             CLASS Optional { This:: -Empty? }
@@ -268,7 +246,7 @@ internal class PremiseSelectionTest {
                 .trimIndent()
         )
 
-    listOf("Direct", "Nested", "EveryAlternative", "NonzeroTimes").forEach { selected ->
+    listOf("BareRemoval", "Nested", "EveryAlternative", "NonzeroTimes").forEach { selected ->
       shouldThrow<InvalidGameConfigException> { gameView(catalog, selected) }
     }
     listOf("Optional", "OneAlternative", "FalseGate", "ZeroTimes").forEach { selected ->

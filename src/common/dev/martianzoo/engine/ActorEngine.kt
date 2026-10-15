@@ -10,14 +10,18 @@ import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
+import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Deferral.FINALLY
+import dev.martianzoo.pets.ast.Deferral.NONE
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
+import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Remove
@@ -28,7 +32,10 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.state.Actor
+import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.GameEvent.TaskEditedEvent
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.GameWorld
@@ -40,11 +47,14 @@ import dev.martianzoo.state.TaskResult
 /**
  * Policy-free task and state mutation mechanics attributed to [actor].
  *
- * Tasks that gain a `System` component with a fixed scalar or remove a concrete `System` component
- * are assigned to Admin. Player choices remain with the Player until narrowing makes the change
- * concrete. Selection reapplies this rule after resolving enclosing instructions, while explicit
- * instruction-side `BY` remains authoritative. The original controller and selection recipient are
- * retained for continuations and queued effects.
+ * Concrete changes that gain or remove a `System` component are assigned to Admin. Player choices
+ * remain with the Player until narrowing makes the change concrete. Selection reapplies this rule
+ * after resolving enclosing instructions, while explicit instruction-side `BY` remains
+ * authoritative.
+ *
+ * This is a low-level mutation surface. Task methods can change the live world immediately; callers
+ * that need a failure-atomic interaction enclose the sequence in [transact]. Automatic task policy
+ * belongs to the Agent layer, not this engine.
  */
 public class ActorEngine
 internal constructor(
@@ -54,7 +64,7 @@ internal constructor(
     private val taskQueues: TaskQueues,
     /** The live game state read by this engine. */
     public val reader: GameReader,
-    private val timeline: Timeline,
+    private val timeline: TimelineImpl,
     /** The Actor to which ordinary mutations through this engine are attributed. */
     public val actor: Actor,
     private val instructor: Instructor,
@@ -73,7 +83,13 @@ internal constructor(
 
   private val possibleWorldFacts = narrowingFacts(requirementsHold = true)
 
-  /** Runs one engine transaction and returns its net result. */
+  /**
+   * Runs [block] atomically, then calls [settle] to advance eligible work and [validateCompletion]
+   * to reject an unfinished result. Settlement can run again if idle cleanup creates more work. A
+   * failure in these stages rolls back the interaction; a successful result reports its changes and
+   * newly created tasks still pending. For an outermost transaction, the world's completion
+   * callback runs after the first commit.
+   */
   public fun transact(
       settle: () -> Unit,
       validateCompletion: () -> Unit = {},
@@ -98,7 +114,10 @@ internal constructor(
   // CHANGES LAYER
 
   /**
-   * Applies and validates a correction with automatic effects, but no queued effects or cleanup.
+   * Applies and validates [changes] as a correction attributed to [actor], with automatic effects
+   * but no queued effects, task settlement, or idle cleanup. Failure rolls back the correction; the
+   * caller-facing Agent records a position when its method returns. The world's completion callback
+   * is not called.
    */
   public fun sneak(changes: InstructionGroup, cause: Cause? = null): TaskResult =
       worldTransaction.correct {
@@ -107,9 +126,17 @@ internal constructor(
 
   // TASKS LAYER
 
+  /**
+   * Adds [instructions] as pending tasks controlled by [actor] and returns their ids in creation
+   * order. [firstCause], when supplied, identifies the source of the initial task.
+   */
   public fun addTasks(instructions: InstructionGroup, firstCause: Cause? = null): List<TaskId> =
       taskQueues.addTasks(instructions, actor, firstCause).map { it.task.id }
 
+  /**
+   * Removes [taskId] from this actor's queue and returns its removal event. Fails if the task is
+   * absent or belongs to another actor. No task instruction is executed.
+   */
   public fun dropTask(taskId: TaskId): TaskRemovedEvent {
     val task = tasks.getTaskData(taskId)
     return taskQueues.removeTask(task)
@@ -124,21 +151,55 @@ internal constructor(
     taskQueues.editTask(task)
   }
 
-  /** Requires that no new pending task or cleanup component remains. */
-  public fun requireComplete(allowedPendingTasks: Set<TaskId> = emptySet()) {
+  /**
+   * Requires that the operation's work is over and left no cleanup component. Its work is over when
+   * no new pending task remains, or when the World's `FINALLY` work has begun since [lastDecision]:
+   * that happens only once no ordinary or `LATER` work remains (L2-19), and work admitted from then
+   * on belongs to whatever comes next. Cleanup is judged at that same point.
+   */
+  public fun requireComplete(
+      allowedPendingTasks: Set<TaskId> = emptySet(),
+      lastDecision: Checkpoint? = null,
+  ) {
     val pending = allTasks.extract { it }.filter { it.id !in allowedPendingTasks }
-    if (pending.isNotEmpty()) {
+    val workOver = lastDecision?.let(::finalWorkBegan)
+    if (pending.isNotEmpty() && workOver == null) {
       if (pending.any { it.instruction.isAbstract(reader) }) {
         throw NotFullySpecifiedException("pending abstract tasks:\n${pending.joinToString("\n")}")
       }
       throw TaskException("pending tasks:\n${pending.joinToString("\n")}")
     }
-    if (!reader.has(parse("MAX 0 $MUST_CLEAN_UP"))) {
+    val cleanupLeft =
+        if (pending.isEmpty() || workOver == null) !reader.has(parse("MAX 0 $MUST_CLEAN_UP"))
+        else cleanupComponentsAt(workOver) > 0
+    if (cleanupLeft) {
       throw DeadEndException(
           "components requiring cleanup remained after the operation: " +
               reader.getComponents(MUST_CLEAN_UP.expression).elements
       )
     }
+  }
+
+  /** Where the World's `FINALLY` work first began since [checkpoint], if it has. */
+  private fun finalWorkBegan(checkpoint: Checkpoint): Checkpoint? =
+      gameWorld.events
+          .entriesSince(checkpoint)
+          .firstOrNull {
+            it is TaskEditedEvent && it.oldTask.deferral == FINALLY && it.task.deferral == NONE
+          }
+          ?.let { Checkpoint(it.ordinal) }
+
+  /** How many cleanup components existed at [checkpoint]: those present now, less later change. */
+  private fun cleanupComponentsAt(checkpoint: Checkpoint): Int {
+    val mustCleanUp = reader.classTable.getClass(MUST_CLEAN_UP)
+    fun cleanup(component: Component?) =
+        component?.type?.rootClass?.isSubtypeOf(mustCleanUp) == true
+    val changeSince =
+        gameWorld.events.changesSince(checkpoint).sumOf {
+          (if (cleanup(it.change.gaining)) it.change.count else 0) -
+              (if (cleanup(it.change.removing)) it.change.count else 0)
+        }
+    return reader.count(reader.resolve(MUST_CLEAN_UP.expression)) - changeSince
   }
 
   /**
@@ -149,9 +210,8 @@ internal constructor(
     task.then?.let {
       taskQueues.addTasks(
           it,
-          task.controller,
+          task.assignee,
           task.cause,
-          task.selectionAssignee,
       )
     }
     val stored = queue.getTaskData(task.id)
@@ -170,6 +230,11 @@ internal constructor(
 
   // TASK COMMANDS
 
+  /**
+   * Narrows this actor's currently selected task with [narrowing]. An omitted quantifier can be
+   * retained from the pending task when [quantifierOmitted] is true. A concrete result may execute
+   * or be assigned to another actor; incompatible narrowing fails.
+   */
   public fun narrowTask(narrowing: InstructionTree, quantifierOmitted: Boolean = false) {
     val taskId = tasks.selectedTask() ?: throw TaskException("`$actor` has no selected task")
     narrowSelectedTask(taskId, narrowing, quantifierOmitted)
@@ -235,7 +300,13 @@ internal constructor(
                 "`$contextualAssignee`"
         )
       }
-      val selected = selectTask(tasks, task) ?: return
+      val selected =
+          selectTask(tasks, task)
+              ?: if (narrowsBeforeHandoff) {
+                throw TaskException(
+                    "task $taskId splits during selection; select it before narrowing its child tasks"
+                )
+              } else return
       val selectedTask = allTasks.getTaskData(selected)
       if (selectedTask.assignee != actor) {
         if (narrowsBeforeHandoff) {
@@ -273,16 +344,21 @@ internal constructor(
 
     // A selected group completes structurally before its children resolve against successive
     // worlds.
-    val replacement =
+    val resolved =
         if (effectiveNarrowing is Instruction)
             instructor.resolve(effectiveNarrowing, worldGainNarrowing = true)
         else effectiveNarrowing
-    replace1WithN(tasks, task, replacement, then = continuation)
+    applyResolution(tasks, task, resolved, then = continuation)
     if (taskId in allTasks) executeSelectedIfConcrete(taskId)
   }
 
   @Suppress("TooGenericExceptionCaught") // TODO narrow? log?
+  /**
+   * Whether selecting [taskId] could complete normally in the current world. The probe rolls back
+   * its own changes and returns false on any thrown failure.
+   */
   public fun canSelectTask(taskId: TaskId): Boolean {
+    timeline.requireAtEnd()
     return try {
       timeline.atomic {
         val selected = selectTask(tasks, tasks.getTaskData(taskId))
@@ -304,7 +380,12 @@ internal constructor(
   }
 
   @Suppress("TooGenericExceptionCaught") // Keep this probe aligned with canSelectTask for now.
+  /**
+   * Whether [taskId] could be selected and finished now without a remaining task or handoff. The
+   * probe rolls back its own changes and returns false on any thrown failure.
+   */
   public fun canExecuteTask(taskId: TaskId): Boolean {
+    timeline.requireAtEnd()
     return try {
       timeline.atomic {
         doTask(taskId)
@@ -319,6 +400,10 @@ internal constructor(
     }
   }
 
+  /**
+   * Selects [taskId] from this actor's queue, resolving and executing it if concrete. An abstract
+   * or reassigned task remains pending for its current assignee.
+   */
   public fun selectTask(taskId: TaskId) {
     val task = tasks.getTaskData(taskId)
     if (actor != task.assignee) {
@@ -327,8 +412,56 @@ internal constructor(
     selectAndExecuteIfConcrete(tasks, taskId)
   }
 
-  public fun selectTask(instruction: Instruction): Unit =
-      selectTask(taskWithInstruction(instruction))
+  /**
+   * Finds a task compatible with [narrowing] (or [taskId] when given), selects it, and submits the
+   * narrowing. [quantifierOmitted] preserves a stronger pending quantifier when appropriate.
+   * Ambiguous distinct matches or a handoff that prevents narrowing fail; equivalent matches that
+   * differ only by id are interchangeable.
+   */
+  public fun selectTask(
+      narrowing: InstructionTree,
+      quantifierOmitted: Boolean = false,
+      taskId: TaskId? = null,
+  ) {
+    val evaluated = evaluatePer(narrowing)
+    val id =
+        (if (taskId == null && tasks.selectedTask() == null) {
+          val exact =
+              tasks.extract { it }.filter { it.assignee == actor && it.instruction == narrowing }
+          if (exact.isNotEmpty()) uniqueMatchingTask(exact)
+          else matchingTask(evaluated, quantifierOmitted = quantifierOmitted)
+        } else matchingTask(evaluated, taskId, quantifierOmitted))
+            ?: throw TaskException(
+                "no matching task; available tasks: ${if (tasks.isEmpty()) "none" else "\n$tasks"}"
+            )
+    val task = tasks.getTaskData(id)
+    if (narrowing == task.instruction || evaluated == task.instruction) {
+      selectTask(id)
+      return
+    }
+    val intersection = intersectTask(evaluated, task.instruction, quantifierOmitted)
+    if (intersection != null) {
+      narrowTask(id, intersection, quantifierOmitted)
+      return
+    }
+    if (!task.selected && selectionHandsOff(tasks, task)) {
+      throw TaskException(
+          "`$actor` cannot narrow task $id because selection assigns it to another Actor"
+      )
+    }
+    val selected =
+        selectTask(tasks, task)
+            ?: throw TaskException(
+                "task $id splits during selection; select it before narrowing its child tasks"
+            )
+    val selectedTask = allTasks.getTaskData(selected)
+    if (selectedTask.assignee != actor) return
+    narrowTask(
+        id,
+        intersectTask(evaluated, selectedTask.instruction, quantifierOmitted) ?: evaluated,
+        quantifierOmitted,
+    )
+  }
 
   private fun selectAndExecuteIfConcrete(queue: TaskQueue, taskId: TaskId) {
     val selected = selectTask(queue, queue.getTaskData(taskId)) ?: return
@@ -344,9 +477,12 @@ internal constructor(
 
   private fun selectTask(queue: TaskQueue, task: Task): TaskId? {
     enforceSelectLock(task.id)
+    if (task.deferred) {
+      throw TaskException("task ${task.id} is deferred until no earlier work remains: $task")
+    }
     if (task.selected) return task.id
-    val replacement = instructor.resolve(task.instruction, worldGainNarrowing = true)
-    replace1WithN(queue, task, replacement, then = task.then)
+    val resolved = instructor.resolve(task.instruction, worldGainNarrowing = true)
+    applyResolution(queue, task, resolved, then = task.then)
     return task.id.takeIf { it in allTasks }
   }
 
@@ -363,19 +499,18 @@ internal constructor(
     }
   }
 
-  private fun replace1WithN(
+  private fun applyResolution(
       queue: TaskQueue,
       original: Task,
-      replacement: InstructionTree,
+      resolved: InstructionTree,
       then: InstructionGroup?,
   ) {
-    val group = InstructionGroup.of(replacement)
-    if (group.size == 1) {
+    val group = InstructionGroup.of(resolved)
+    // A group is independent work even when it currently contains only one instruction.
+    if (resolved !is InstructionGroup && group.size == 1) {
       var updated =
           taskQueues.normalizeForSelection(
               original.copy(
-                  assignee =
-                      if (original.selected) original.assignee else original.selectionAssignee,
                   selected = true,
                   instruction = group.instructions.single(),
                   then = then,
@@ -394,18 +529,21 @@ internal constructor(
         validateConcreteHandoff(updated.id)
       }
     } else {
-      // Structural completion replaces the selected task with ordinary pending siblings. No child
-      // inherits selection; a later player input must select whichever sibling comes next.
+      // Structural completion admits ordinary pending work and fulfills the selected task. No child
+      // inherits selection; a later player input must select whichever child comes next.
       taskQueues.addTasks(
           group,
-          original.controller,
+          original.assignee,
           original.cause,
-          original.selectionAssignee,
       )
       handleTask(queue, original.copy(then = then))
     }
   }
 
+  /**
+   * Selects and attempts to finish [taskId]. A handoff leaves it pending for the receiving actor;
+   * an abstract instruction requires further narrowing.
+   */
   public fun doTask(taskId: TaskId) {
     doTask(tasks, taskId)
   }
@@ -433,8 +571,6 @@ internal constructor(
             selectedTask.instruction,
             selectedTask.cause,
             executingActor,
-            selectedTask.controller,
-            selectedTask.selectionAssignee,
         )
     newTasks.forEach(taskQueues::addTasks)
     handleTask(queue, selectedTask)
@@ -453,9 +589,12 @@ internal constructor(
   }
 
   /**
-   * Executes a matching task. With [combineScalars], a missing match can instead execute every
-   * concrete scalar-only match when their total equals the submitted change. Existing matches,
-   * including ambiguous matches, take precedence; newly caused tasks do not join that total.
+   * With [combineScalars], a submitted scalar total executes all pending concrete gains and
+   * removals of its type when their signed sum matches. Newly caused tasks do not join the total.
+   * Gains precede removals. Otherwise, executes a single matching task. A Player's submitted
+   * narrowing cannot perform a `System` change assigned to Admin; use [narrowTask] for that choice.
+   * A submitted action may omit an enclosing gate or `/` metric; the matched task still checks its
+   * gate and calculated amount against the live World.
    */
   public fun doTask(
       narrowing: InstructionTree,
@@ -466,9 +605,15 @@ internal constructor(
       combineScalars: Boolean = false,
   ) {
     val evaluated = evaluatePer(narrowing)
+    if (
+        combineScalars &&
+            taskId == null &&
+            tasks.selectedTask() == null &&
+            executeScalarSum(evaluated, quantifierOmitted, contextClass)
+    )
+        return
     val id = matchingTask(evaluated, taskId, quantifierOmitted, contextClass)
     if (id == null) {
-      if (combineScalars && executeScalarSum(evaluated, quantifierOmitted, contextClass)) return
       throw TaskException(
           "no matching task; available tasks: ${if (tasks.isEmpty()) "none" else "\n$tasks"}"
       )
@@ -493,6 +638,20 @@ internal constructor(
           intersectTask(evaluated, instruction, quantifierOmitted) ?: evaluated,
           quantifierOmitted,
       )
+    }
+    if (id in allTasks) {
+      val narrowedTask = allTasks.getTaskData(id)
+      val change = narrowedTask.instruction as? Change
+      val affected = change?.gaining ?: change?.removing
+      if (
+          narrowedTask.assignee != actor &&
+              affected != null &&
+              reader.resolve(affected).rootClass.isSubtypeOf(reader.classTable.getClass(SYSTEM))
+      ) {
+        throw TaskException(
+            "`$actor` cannot do System task $id; commit the choice with narrowTask instead"
+        )
+      }
     }
     if (id !in tasks) {
       if (executeSubmittedGroup) {
@@ -524,7 +683,17 @@ internal constructor(
             change.removing == first.removing &&
             (quantifierOmitted || change.quantifier == first.quantifier)
     if (changes.any { !sameChange(it) }) return false
-    val total = changes.sumOf { (it.count as ActualScalar).value.toLong() }
+    val target = first.gaining ?: first.removing
+    fun sameScalarTarget(change: Change): Boolean =
+        if (first.gaining != null && first.removing != null) sameChange(change)
+        else
+            (change.gaining == target && change.removing == null ||
+                change.removing == target && change.gaining == null)
+    fun signedCount(change: Change): Long {
+      val count = (change.count as ActualScalar).value.toLong()
+      return if (change.gaining == null) -count else count
+    }
+    val total = changes.sumOf(::signedCount)
     val matches =
         tasks
             .extract { it }
@@ -534,17 +703,22 @@ internal constructor(
                   try {
                     instructor.resolve(task.instruction)
                   } catch (_: NotNowException) {
-                    return@mapNotNull null
+                    (task.instruction as? Change)?.takeUnless { it.isAbstract(reader) }
+                        ?: return@mapNotNull null
                   }
-              (resolved as? Change)?.takeIf(::sameChange)?.let { task.copy(instruction = it) }
+              (resolved as? Change)?.takeIf(::sameScalarTarget)?.let {
+                task.copy(instruction = it)
+              }
             }
     if (matches.size < 2) return false
-    if (matches.map { (it.instruction as Change).quantifier }.distinct().size != 1) return false
-    val amounts = matches.map {
-      (it.instruction as Change).count as? ActualScalar ?: return false
-    }
-    if (amounts.sumOf { it.value.toLong() } != total) return false
-    matches.forEach { doTask(it.instruction, taskId = it.id) }
+    val amounts = matches.map { it.instruction as Change }
+    if (amounts.map { it.quantifier }.distinct().size != 1) return false
+    if (!quantifierOmitted && amounts.any { it.quantifier != first.quantifier }) return false
+    if (amounts.any { it.count !is ActualScalar }) return false
+    if (amounts.sumOf(::signedCount) != total) return false
+    matches
+        .sortedBy { (it.instruction as Change).gaining == null }
+        .forEach { doTask(it.instruction, taskId = it.id) }
     return true
   }
 
@@ -586,8 +760,8 @@ internal constructor(
       val matches = assigned.filter(::weCanNarrowIt)
       if (matches.isNotEmpty()) return uniqueMatchingTask(matches)
 
-      // A failed live refinement can still identify the intended task. Let normal narrowing report
-      // which requirement failed instead of replacing that reason with a generic no-task match.
+      // A failed gate or live refinement can still identify the intended task. Let normal narrowing
+      // report which requirement failed instead of replacing it with a generic no-task match.
       val possibleMatches = assigned.filter { task ->
         intersectTask(narrowing, task.instruction, quantifierOmitted, possibleWorldFacts) != null
       }
@@ -623,10 +797,17 @@ internal constructor(
       quantifierOmitted: Boolean,
       info: TypeInfo = reader,
   ): InstructionTree? {
+    val typedZero = narrowing is Change && narrowing.count == ActualScalar(0)
     val effective =
         effectiveNarrowing(narrowing, existing, quantifierOmitted, info, intersect = true)
     effective.intersect(existing, reader.classTable, info)?.let {
-      return it
+      // A shared no-op does not establish that the submitted Type identifies this task.
+      return it.takeUnless { typedZero && it == NoOp }
+    }
+    if (existing is Gated && info.has(existing.gate)) {
+      effective.intersect(existing.inner, reader.classTable, info)?.let {
+        return Gated.createTree(existing.gate, it)
+      }
     }
     if (selectFirstStageOrNull(existing, effective) != null) return effective
     val sequences =
@@ -642,7 +823,9 @@ internal constructor(
           val head =
               effectiveNarrowing(narrowing, selectable, quantifierOmitted, info, intersect = true)
                   .intersect(selectable, reader.classTable, info)
-          head?.takeIf { selectFirstStageOrNull(existing, it) != null }
+          head
+              ?.takeUnless { typedZero && it == NoOp }
+              ?.takeIf { selectFirstStageOrNull(existing, it) != null }
         }
         .distinct()
         .singleOrNull()
@@ -739,9 +922,6 @@ internal constructor(
     )
   }
 
-  private fun taskWithInstruction(instruction: Instruction): TaskId =
-      uniqueMatchingTask(tasks.extract { it }.filter { it.instruction == instruction })
-
   private fun uniqueMatchingTask(matches: List<Task>): TaskId {
     val first =
         matches.firstOrNull()
@@ -771,6 +951,12 @@ internal constructor(
     }
   }
 
+  /**
+   * Tries [narrowing] against [taskId], or a compatible task when no id is supplied. Incomplete or
+   * currently unavailable work leaves the task and event history unchanged. Invalid selection or
+   * narrowing still fails. [executeSubmittedGroup] treats an explicitly supplied group as a single
+   * bundled command.
+   */
   public fun tryTask(
       narrowing: InstructionTree,
       quantifierOmitted: Boolean = false,
@@ -791,6 +977,11 @@ internal constructor(
   }
 
   // Similar to tryTask, but a NotNowException is unrecoverable once selection holds the lock.
+  /**
+   * Attempts the world's currently selected task. Returns true if it finishes, false if it still
+   * needs a choice; an unavailable selected task is a dead end and throws. Requires a selected
+   * task.
+   */
   public fun trySelectedTask(): Boolean {
     val taskId = allTasks.selectedTask()!!
     return try {

@@ -14,10 +14,17 @@ internal class FreyjaBiodomesTest : TfmSandboxTest() {
     kim.setToExMachina(5, "VenusStep")
     kim.exMachina("$VenusianAnimals, Animal<$VenusianAnimals>")
 
-    kim.playProject(FreyjaBiodomes, 14) {
+    kim.inTurn {
           // Decline adding animals to Venusian Animals by choosing the unavailable microbe gain.
-          declineTask()
+          doTasks(
+              "PlayProject<Class<FreyjaBiodomes>>",
+              "-14 MC",
+              "FreyjaBiodomes FROM ProjectCard",
+              "PROD[-Energy]",
+              "PROD[2 MC]",
+          )
+          doTask("Ok")
         }
-        .expect("PROD[-Energy, 2 MC], 0 Animal<$VenusianAnimals>")
+        .expect("0 Animal<$VenusianAnimals>")
   }
 }

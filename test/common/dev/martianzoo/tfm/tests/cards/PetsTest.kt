@@ -16,7 +16,10 @@ internal class PetsTest : TfmSandboxTest() {
     kim.exMachina("$Predators, Animal<$Predators>")
 
     shouldThrow<DeadEndException> {
-      kim.cardAction1(Predators) { doTask("-Animal<Stan, $Pets<Stan>>") }
+      kim.inTurn {
+        doTask("UseCardAction<Predators, Action1>")
+        doTask("-Animal<Stan, Pets<Stan>>")
+      }
     }
   }
 
@@ -25,6 +28,11 @@ internal class PetsTest : TfmSandboxTest() {
     stan.exMachina("$Pets, Animal<$Pets>")
     kim.exMachina("$Predators")
 
-    shouldThrow<DeadEndException> { kim.cardAction1(Predators) }
+    shouldThrow<DeadEndException> {
+      kim.inTurn {
+        doTask("UseCardAction<Predators, Action1>")
+        doTask("-Animal<Pets<Stan>>")
+      }
+    }
   }
 }

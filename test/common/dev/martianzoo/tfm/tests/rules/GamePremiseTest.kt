@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testAgents
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.catalog.ClassSelection
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
@@ -18,7 +18,6 @@ import dev.martianzoo.tfm.canon.Bundle
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.cards.cardnames.ColonizerTrainingCamp
 import io.kotest.assertions.throwables.shouldThrow
@@ -70,13 +69,20 @@ internal class GamePremiseTest {
   }
 
   @Test
+  internal fun unchosenOptionsNeedNoNegativePremiseSelections() {
+    val premise = Canon.gamePremise(GameConfig("", "Player1", "Player2"))
+
+    premise.classSelections.filterNot(ClassSelection::included).shouldBeEmpty()
+  }
+
+  @Test
   internal fun worldsFromOnePremiseShareTheClassModelButNotLiveState() {
     val premise = Canon.gamePremise(GameConfig("", "Player1", "Player2"))
     val first = TfmEngine.newGame(premise)
     val second = TfmEngine.newGame(premise)
 
     first.classTable shouldBe second.classTable
-    TfmWorkflow.Stepwise(first.testAgents()).setupPhase()
+    first.testTfm(ADMIN).startGame()
     first.testAgent(ADMIN).count("SetupPhase") shouldBe 1
     second.testAgent(ADMIN).count("SetupPhase") shouldBe 0
   }
@@ -109,7 +115,7 @@ internal class GamePremiseTest {
   @Test
   internal fun observationalModuleReferencesDoNotCreateBootstrapDependencies() {
     val observers =
-        object : Bundle(cn("Observers")) {
+        object : Bundle("observers") {
           override val explicitClassDeclarations =
               parseClasses(
                       """
@@ -148,7 +154,7 @@ internal class GamePremiseTest {
     game.actors.shouldContainExactly(Player(blue), Player(yellow), ADMIN)
     game.reader.getComponents(cn("Player").expression).map { it.className }.toSet() shouldBe
         setOf(blue, yellow)
-    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    game.testTfm(ADMIN).startGame()
     game.testAgent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
     game.testAgent(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
     game.reader
@@ -164,7 +170,7 @@ internal class GamePremiseTest {
         TfmEngine.newGame(
                 Canon.gamePremise(
                     GameConfig(
-                        "PreludeExpansion, Prelude2CardPack, -Prelude1CardPack",
+                        "PreludeExpansion, prelude2:cards, -prelude:cards",
                         "Player1",
                         "Player2",
                     )
@@ -209,7 +215,6 @@ internal class GamePremiseTest {
             )
         )
     val admin = game.testAgent(ADMIN)
-    val workflow = TfmWorkflow.Stepwise(game.testAgents())
 
     admin.count("SelectedColonyTile") shouldBe 3
     admin.count("CallistoSelected") shouldBe 1
@@ -217,8 +222,10 @@ internal class GamePremiseTest {
     admin.count("EnceladusSelected") shouldBe 1
     admin.count("SelectedColonyTile<Class<Ceres>>") shouldBe 0
 
-    workflow.setupPhase()
-    workflow.corporationPhase()
+    game.testTfm(ADMIN).startGame()
+    game.testTfm(Player(cn("Player1"))).keepStartingProjects(0)
+    game.testTfm(Player(cn("Player2"))).keepStartingProjects(0)
+    admin.count("CorporationPhase") shouldBe 1
 
     admin.count("SelectedColonyTile") shouldBe 0
     admin.count("Callisto") shouldBe 1
@@ -320,10 +327,11 @@ internal class GamePremiseTest {
     goalSelections
         .filter { it.included && Canon.classTable.getClass(it.className).isSubtypeOf(award) }
         .size shouldBe 4
-    goalSelections.mapTo(linkedSetOf(), ClassSelection::className) shouldBe
-        (Canon.classTable.allSubclasses(milestone) + Canon.classTable.allSubclasses(award))
-            .filterNot { it.abstract }
-            .mapTo(linkedSetOf()) { it.className }
+    goalSelections.all(ClassSelection::included) shouldBe true
+    val selectedNames = goalSelections.mapTo(linkedSetOf(), ClassSelection::className)
+    (Canon.classTable.allSubclasses(milestone) + Canon.classTable.allSubclasses(award))
+        .filterNot { it.abstract || it.className in selectedNames }
+        .forEach { premise.classTable.isInhabited(it.className) shouldBe false }
   }
 
   @Test

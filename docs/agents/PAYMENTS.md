@@ -39,11 +39,30 @@ Cards, printed actions, conversions, milestones, and awards use this same type. 
 The slot defaults to `Action1` and the currency to M€. Currency-only listeners must leave the
 reason broad, as in `Billing<Class<Component>, Class<Heat>>`.
 
-`Owed`, `PayingFor`, and `Billing` are `System` bookkeeping. Fixed gains run as Admin,
-including scaled debt and gains inside automatic effects. A variable amount such as `X Owed`
-stays with the Player until they choose the amount; Admin then performs the concrete gain.
-The resulting payment choices remain assigned to the Player, whose resource removals retain
-that Player as their event Actor.
+`Owed`, `PayingFor`, `Billing`, `Accepting`, and `AcceptingFromCard` are `System` bookkeeping.
+Fixed, concrete gains run as Admin, including scaled debt and gains inside automatic effects.
+An abstract type or variable amount such as `X Owed` stays with the Player until narrowed; Admin
+then performs the concrete gain. Acceptance opens resource-removal offers, which remain assigned
+to the Player. The Player's chosen removals retain that Player as their event Actor.
+`Accepting` opens that offer only if the payer holds the accepted standard resource when `Billing`
+fires or owes that denomination. Empty alternatives such as Steel on an M€ bill therefore need no
+explicit decline. The bill's own denomination stays offered because starting-card billing can
+precede the corporation's starting cash. Acceptance itself remains in place until settlement;
+this check does not search for substitutes or reopen an alternative offer if stock arrives later.
+Both fixed and variable standard-resource action costs use billing so acceptance and price
+adjustments can apply. A variable cost keeps its shared `X` in the sequence from `Owed` through
+`Billing` to the action's result. Choosing `X = 4` for `X Energy -> X MC` opens a bill for 4 Energy;
+only after settlement does the sequence offer 4 M€. Energy Market's `2X MC -> X Energy` can
+therefore accept Heat through FakeHelion's ordinary billing listener instead of forcing an M€ loss.
+
+The linked `X` choice still appears after `UseCardAction` fires, so `ActionUsedMarker` may exist
+while the choice is open. The intended later design would let a client set `X` on the printed
+action before committing its use, then perform an ordinary concrete action. That requires action
+invocation and its consequences to share the same choice. Inferring `X` backwards when a caller
+tries to perform `3 Foo` against `X Foo` is optional and does not justify extra machinery by itself.
+A client that already knows `X = 5` can submit `selectTask(task.bindXTo(5))` directly. `TaskForm`
+remains optional for discovering open choices. This still selects the pending consequence after
+`UseCardAction`; moving the choice to the printed action before invocation remains future work.
 
 ## Verified gaps
 
@@ -54,9 +73,9 @@ case. Do not add transaction identity for hypothetical concurrent invoices witho
 systemic rule.
 
 Delegated payment also exposes a routing and completion question. P1 can hand a Neptunian decision
-to P2, but current selection delegates only that selected task. Admin opens the fixed bill;
-its payment offers still have P1 as controller and hand off to P2 on selection. The `pay` helper
-bridges the gap by selecting through each task's current assignee. Calling those Agents is legitimate
+to P2, but the select lock covers only that selected task. Admin opens the fixed bill;
+payment offers are routed by their effect owner, changed component owner, or triggering Actor. The
+`pay` helper selects through each task's current assignee. Calling those Agents is legitimate
 calculator use. A helper-driven scenario can succeed without establishing which selections each
 Agent requires or whether intervening work changes the
 payment result; inspect those game semantics separately from authorization of the external caller.
@@ -111,10 +130,10 @@ settled rules defect.
 
 Start with:
 
-- [`payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets)
-- [`card-model.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets)
+- [`payment.pets`](../../src/common/dev/martianzoo/tfm/canon/bundles/base/payment.pets)
+- [`card-model.pets`](../../src/common/dev/martianzoo/tfm/canon/bundles/base/card-model.pets)
 - [`TfmActionLowerer.kt`](../../src/common/dev/martianzoo/tfm/canon/TfmActionLowerer.kt)
-- `PaymentSpecializationTest`, `TfmGameplayTest`, `DirigiblesTest`, `PsychrophilesTest`,
+- `PaymentSpecializationTest`, `DirigiblesTest`, `PsychrophilesTest`,
   `KuiperCooperativeTest`, `StormcraftIncorporatedTest`, `BoomTownTest`, and
   `StandardTechnologyTest`
 

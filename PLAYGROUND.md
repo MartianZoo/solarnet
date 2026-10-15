@@ -84,12 +84,12 @@ history navigation still needs design; do not assume Compose provides that mappi
 - Start with a dialog for expansions, player count, and other game options. Label a configuration
   **Unofficial** when no rulebook explicitly permits that combination (for example, solo without
   Corporate Era), but allow it. This label concerns configuration, not scenario plausibility.
-- Sandbox mode allows direct manipulation: move tiles freely, adjust resources and production with
+- Sandbox mode allows manual editing: move tiles freely, adjust resources and production with
   up/down controls, assign the starting-player token, and select the phase. Support dragging and
   click-to-pick-up/click-to-place.
 - Find cards by name with autocomplete and place them in a player's hand, event pile, or in play,
   provided the card is not already assigned elsewhere.
-- Sandbox does not pay costs or fire normal direct effects. Structural invariants must still hold:
+- Sandbox does not pay costs or fire queued gameplay effects. Structural invariants must still hold:
   for example, putting a card into play must provide its tags. Some engine work is still needed.
 - This is a playground: manipulation is not cheating. Prevent patently bogus states, without
   requiring that the scenario could have arisen through normal play.

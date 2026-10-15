@@ -29,7 +29,7 @@
    context.
 2. Count matching events and effect activations. Repeated components normally scale through
    repeated hits, not an added `AMAP` or authored count.
-3. Add `!`, `?`, or `.` only when the rule intentionally differs from the inherited default.
+3. Add `!`, `?`, or `*` only when the rule intentionally differs from the inherited default.
 4. Keep the quantifier responsible only for the count of one change; choice, targeting, gates, and
    sequencing have separate rules.
 
@@ -51,7 +51,7 @@ compose with quantification but have their own rules.
 
 ## Vocabulary and evaluation time
 
-- The **requested count** `n` is the positive count written on the change, or one when omitted.
+- The **requested count** `n` is the nonnegative count written on the change, or one when omitted.
   A metric may later multiply it to zero.
 - A **concrete target** is one fully resolved Type, including every dependency argument. An abstract
   target denotes possible concrete Types.
@@ -62,13 +62,14 @@ compose with quantification but have their own rules.
   physical source count. AMAP and optional quantities use it. Mandatory quantities require physical
   sources immediately and satisfy count bounds at operation completion. Negative capacity is
   clamped to zero.
-- `Ok` is the resolved representation of executing no change. Pets has no zero-count `Change` node.
+- Zero-count changes retain their gained/removed Types through resolution and task matching.
+  Execution emits no component changes. `Ok` remains an untyped no-op and can narrow a zero change.
 
 Instructions normally resolve against the World in which their task is selected, not the World in
 which an effect originally created the task. The resolved instruction must execute next against that
 same World. Quantifiers do not preserve trigger-time target existence.
 
-Resolution checks immediate prerequisites and calculates quantities; it does not predict whether
+Resolution checks execution prerequisites and calculates quantities; it does not predict whether
 the completed operation will satisfy count invariants. Mandatory choices can lead to recoverable
 dead ends. Exploring and pruning those branches for a client belongs to its Agent, not engine
 resolution.
@@ -114,7 +115,10 @@ select the new value; the cleanup does not choose the winner.
 | --- | --- | --- |
 | `!` | mandatory | Execute exactly `n`: require sources and dependencies immediately, validate count bounds at operation completion. |
 | `?` | optional | Let the player choose any count from zero through `min(n, m)`. |
-| `.` | AMAP | Execute `min(n, m)`; the engine, not the player, chooses the count. |
+| `*` | AMAP | Execute `min(n, m)`; the engine, not the player, chooses the count. |
+
+With an explicit scalar, place the quantifier immediately after it (`3? Plant`). With the default
+scalar of one, place the quantifier after the type (`Plant?`).
 
 An omitted quantifier is filled from the changed Class before play. `Component` supplies mandatory
 gain and removal defaults. A subclass may override either direction independently. For example,
@@ -129,12 +133,12 @@ side still supplies its own dependency defaults before the Types are resolved.
 
 ## Concrete pure gains
 
-The destination dependency is checked before its invariant limit. Given requested count `n`:
+For positive requested count `n`, the destination dependency is checked before its invariant limit:
 
 | Current World | mandatory | optional | AMAP |
 | --- | --- | --- | --- |
 | Destination dependency is missing | `DependencyException` | `Ok` | `DependencyException` |
-| Dependency exists and `m = 0` | `n!`, validated at operation completion | `Ok` | `Ok` |
+| Dependency exists and `m = 0` | `n!`, validated at operation completion | `0?` | `0!` |
 | `0 < m < n` | `n!`, validated at operation completion | `m?` | `m!` |
 | `m >= n` | `n!` | `n?` | `n!` |
 
@@ -148,14 +152,15 @@ quantifiers.
 
 ## Concrete pure removals
 
-A removal does not require the removed Type's dependency component to exist separately: if no
+For a positive requested count, a removal does not require the removed Type's dependency component
+to exist separately: if no
 matching removable component exists, its footroom is zero. A mandatory removal requires all `n`
 physical copies immediately and validates declared minimums at operation completion. Optional and
 AMAP removals use the invariant-limited footroom:
 
 | Limit | mandatory | optional | AMAP |
 | --- | --- | --- | --- |
-| `m = 0` | `n!` if physically available, validated at operation completion | `Ok` | `Ok` |
+| `m = 0` | `n!` if physically available, validated at operation completion | `0?` | `0!` |
 | `0 < m < n` | `n!` if physically available, validated at operation completion | `m?` | `m!` |
 | `m >= n` | `n!` | `n?` | `n!` |
 
@@ -170,13 +175,14 @@ transfer.
 
 When the destination dependency exists, the concrete quantifier rules above apply to the pair. A
 missing destination dependency makes the pair unavailable for every quantifier; optional and AMAP
-do not convert it to `Ok`. If source footroom is zero, however, optional and AMAP do become `Ok`.
+do not convert it to `Ok`. If source footroom is zero, however, optional and AMAP retain a
+zero-count transmutation.
 
 Transmuting a concrete Type into itself is invalid for every quantifier, including when a trigger,
 class header, or `EACH` binding makes the Types equal. Content must exclude those bindings, as Mons
 Insurance and StartToken do. A self-target selected by automatic narrowing of an open transfer has
 zero capacity instead: mandatory resolution fails, while optional and AMAP can become `Ok`.
-Direct Signal gains remain valid point events (L2-1), not self-transmutation instructions.
+Signal gains without transmutation remain valid point events (L2-1), not self-transmutation instructions.
 
 A zero AMAP transmutation can still bind Type Variables in a
 following `THEN`; target selection and component movement are separate consequences of that stage.
@@ -193,7 +199,7 @@ search ignores declared count bounds; AMAP requires at least one candidate with 
 under those bounds. Target narrowing uses identity and present dependencies, without filtering by
 capacity. Neither search executes consequences or predicts the result of an operation.
 
-- Mandatory uses required count `n`. If no candidate meets the immediate prerequisites for all `n`,
+- Mandatory uses required count `n`. If no candidate meets the execution prerequisites for all `n`,
   resolution throws `LimitsException`. A selected candidate must execute all `n` and satisfy
   invariants at operation completion. It can fail then even when resolution left it available.
 - AMAP uses required count one when deciding whether a useful target exists. If no candidate can
@@ -232,8 +238,22 @@ An uninhabited Type has a provably empty domain in the current premise. A change
 uninhabited target is `Ok` when optional or AMAP and a `DeadEndException` when mandatory. It does
 not auto-narrow, fire triggers, or participate in abstract feasibility.
 
-When a `PER` metric or other scalar calculation makes the requested count zero, resolution returns
-`Ok` before positive-count quantifier behavior is needed.
+When a `PER` metric or other scalar calculation makes the requested count zero, resolution retains
+the zero-count change before positive-count quantifier behavior is needed. Concrete limit
+calculations likewise retain the Types at zero. Such changes need no target selection, existing
+dependency, or System handoff to execute; they emit no change events. `0 Foo` can therefore identify
+a zero-valued `Foo / metric` task without identifying a zero-valued `Bar / metric` task.
+Task matching also rejects an intersection consisting only of `Ok` for a typed-zero submission:
+`0 Foo` cannot identify unrelated work through an explicit or resolved `Ok` alternative.
+This is a task-identification rule; Pets intersection remains symmetric, and a submitted `Ok` can
+still complete a zero-count task. Batch submissions through `doTasks` retain their signed-total
+semantics: a zero total may execute offsetting positive gains and removals, including their effects.
+Task admission discards literal zero changes as no-ops; a count calculated during selection stays
+typed until the submitted narrowing has been checked and the selected task executes.
+
+Unavailable abstract targets, uninhabited Types, and optional missing-dependency fallbacks still
+produce `Ok`. Extending retained counts to those paths remains open; their lost Type information
+means a typed zero cannot identify those resolved outcomes. They still require `Ok`.
 
 ## Composition
 
@@ -241,9 +261,10 @@ When a `PER` metric or other scalar calculation makes the requested count zero, 
   physical sources or dependencies, and mandatory uninhabited changes can eliminate arms. Declared
   count bounds do not eliminate mandatory arms, even when no automatic consequence will repair
   them. A surviving arm can fail at execution; the transaction then rolls back. `Ok` is a real
-  surviving arm, and equal surviving arms are deduplicated. If no arm survives, the `OR` reports the
-  strongest applicable failure rather than becoming `Ok`. An automatic effect must still resolve
-  without a choice: use an authored condition if one arm is intended, or queued work if an Actor
+  surviving arm, and equal surviving arms are deduplicated. An alternative containing only zero
+  changes and `Ok` requires no decision, while retaining its Types for matching. If no arm survives,
+  the `OR` reports the strongest applicable failure rather than becoming `Ok`. An automatic effect
+  must still resolve without a choice: use an authored condition if one arm is intended, or queued work if an Actor
   should choose. Admin can make such ordinary queued choices too.
 - `A THEN B`: only `A` resolves initially. `B` resolves against the World produced by `A`, after
   Type Variables selected by `A` have been substituted. `B` still follows when nonmandatory `A`
@@ -252,9 +273,9 @@ When a `PER` metric or other scalar calculation makes the requested count zero, 
   which it is selected, and either may be selected first unless another mechanism orders them.
 - `requirement: A`: the requirement is checked before `A`. Failure makes that arm unavailable; it
   does not change `A`'s quantifier.
-- `A / metric`: the metric is evaluated first and multiplies `A`'s requested count. Zero becomes
-  `Ok`; a positive gain of an `Atomized` type splits into independent gains of one before resolving
-  their choices and limits. Other changes follow the normal rules.
+- `A / metric`: the metric is evaluated first and multiplies `A`'s requested count. Zero retains
+  the change and its Types; a positive gain of an `Atomized` type splits into independent gains of
+  one before resolving their choices and limits. Other changes follow the normal rules.
 - `A BY actor`: `BY` changes the performer, not the target domain, count, or limit.
 - `PROD[A]`: production lowering changes the component Types first; the resulting changes
   then follow this specification.

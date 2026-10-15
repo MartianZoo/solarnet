@@ -11,10 +11,18 @@ internal class ColonialEnvoysTest : TfmSandboxTest() {
     kim.exMachina("2 Colony<Luna>, 2 PartyDelegate<Unity>")
     stan.exMachina("Colony<Io>")
 
-    kim.playProject(ColonialEnvoys, 4) {
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<ColonialEnvoys>>",
+              "-4 MC",
+              "ColonialEnvoys FROM ProjectCard",
+          )
+          // Expand the per-colony reward into separate delegate choices.
+          selectOnlyTask()
           doTask("PartyDelegate<Scientists>")
           doTask("PartyDelegate<Greens>")
+          doTask("PlayedEvent<Class<ColonialEnvoys>> FROM ColonialEnvoys")
         }
-        .expect("PartyDelegate<Scientists>, PartyDelegate<Greens>, 0 PartyDelegate<Stan>")
+        .expect("0 PartyDelegate<Stan>")
   }
 }

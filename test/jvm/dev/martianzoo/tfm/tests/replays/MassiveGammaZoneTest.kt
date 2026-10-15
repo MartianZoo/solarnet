@@ -21,9 +21,9 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       GameConfig(
           """
           TharsisMap
-          PreludeExpansion, Prelude2CardPack, PromoCardPack, TurmoilExpansion
+          PreludeExpansion, prelude2:cards, promos:cards, TurmoilExpansion
           Tr63SoloObjective
-          FakeStuffBundle
+          fakes:cards
           """,
           "EK",
       )
@@ -212,13 +212,14 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       admin.autoExecPolicy = CONCRETE
       try {
         doTask("-OceanTile<Tharsis_2_6>")
-        val resourceChoices = game.tasks.extract { it }
+        val resourceChoices = game.tasks.extract { it }.filterNot { it.deferred }
         doTask("Titanium", resourceChoices[0].id)
         doTask("Heat", resourceChoices[1].id)
-        admin.doTask("TerraformingLobbying")
       } finally {
         admin.autoExecPolicy = previousAdminPolicy
       }
+      admin.autoExecNow()
+      admin.doTask("TerraformingLobbying")
     }
   }
 
@@ -240,12 +241,12 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(BiomassCombustors, mc = 1, steel = 1) {
         // The archive's solo implementation omitted the mandatory plant-production reduction.
         // Drop only that unsupported effect so the replay preserves the sourced action and state.
-        me.dropTask(game.tasks.extract { it }.single().id)
+        me.dropTask(game.tasks.extract { it }.single { !it.deferred }.id)
       }
       playProject(GhgFactories, steel = 4)
       playProject(HeatTrappers, steel = 2) {
         // As with Biomass Combustors, the archive omitted the solo production reduction.
-        me.dropTask(game.tasks.extract { it }.single().id)
+        me.dropTask(game.tasks.extract { it }.single { !it.deferred }.id)
       }
       convertPlants { placeTile(6, 5) }
       playProject(StJosephOfCupertinoMission, 7)
@@ -270,10 +271,11 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       admin.autoExecPolicy = CONCRETE
       try {
         doTask("OceanTile<Tharsis_1_5> BY Admin")
-        admin.doTask("ThawMining")
       } finally {
         admin.autoExecPolicy = previousAdminPolicy
       }
+      admin.autoExecNow()
+      admin.doTask("ThawMining")
     }
   }
 
@@ -324,6 +326,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       } finally {
         admin.autoExecPolicy = previousAdminPolicy
       }
+      admin.autoExecNow()
     }
   }
 
@@ -408,7 +411,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(CuttingEdgeTechnology, 12)
       playProject(CloudSeeding, 9) {
         // The archive again omitted a solo-only production target.
-        me.dropTask(game.tasks.extract { it }.single().id)
+        me.dropTask(game.tasks.extract { it }.single { !it.deferred }.id)
       }
       stdProject("AsteroidProject")
       stdProject("AsteroidProject")
@@ -530,7 +533,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       convertPlants { placeTile(2, 3) }
       declineTask() // Decline another final greenery with only 5 plants remaining.
       assertCounts(0 to "ProjectCard")
-      admin.assertCounts(1 to "End", 1 to "Phase")
+      admin.assertCounts(1 to "VictoryPhase", 1 to "Phase")
 
       // Player-record evidence: complete final dashboard and score table.
       assertResources(m = 124, s = 4, t = 2, p = 5, e = 0, h = 27)

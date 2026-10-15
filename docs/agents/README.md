@@ -21,11 +21,14 @@ architecture change. Then choose the narrowest relevant note:
 | Live World construction, components, tasks, effects, transactions, rollback, or Agent responsibilities | [`ENGINE.md`](ENGINE.md) |
 | Actor attribution, on-turn identity, Admin, assignment, delegated narrowing, or context ownership | [`IDENTITY.md`](IDENTITY.md) |
 | OWN, lexical `Me`, ownership insertion, producer wrapping, or the ownership transition | [`OWNERSHIP.md`](OWNERSHIP.md) |
-| Turns and offers, Head Start timing, task order, `THEN`, automatic effects, delegated control, cleanup, or task priority | [`SEQUENCING.md`](SEQUENCING.md) |
+| Game flow, turns and offers, Head Start timing, task order, `THEN`, automatic effects, delegated control, cleanup, or task priority | [`SEQUENCING.md`](SEQUENCING.md) |
 | Payment choices, accepted resources, billing, or settlement | [`PAYMENTS.md`](PAYMENTS.md) |
+| Autoexecution policy, pruning, Admin's greedy settling, or whether an automatic command preserves player outcomes and choices | [`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md) |
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) |
-| Direct correction, `exMachina`, `sneak`, effect suppression, or correction invariants | [`EX_MACHINA.md`](EX_MACHINA.md) |
+| Turmoil delegates, party leadership, or the proposed Leader/Follower model | [`DELEGATES.md`](DELEGATES.md) |
+| Correction, `exMachina`, `sneak`, effect suppression, or correction invariants | [`EX_MACHINA.md`](EX_MACHINA.md) |
 | Card backs, draws, purchases, reveals, or replay card tracking | [`CARD_HANDLING.md`](CARD_HANDLING.md) |
+| Authored actions, action identity, invocation, or missing action slots | [`ACTIONS.md`](ACTIONS.md) |
 | Who may submit a player's decisions, hidden information, accepted game history, or agreed undo | [`ADVERSARIAL.md`](ADVERSARIAL.md) |
 
 Solarnet calculates game consequences for the Actor whose Agent receives the request. It does not
@@ -33,10 +36,13 @@ authenticate the person or program using that Agent. Before treating caller auth
 custody, or agreement on a live game as an engine gap, use the adversarial-play route above: those
 responsibilities belong to the surrounding application, whose implementation remains open.
 
-For actions, workflow, public client APIs, automatic policy, export, runtime layering, diagnostics,
-or content selection, inspect the current source and tests for implemented behavior. Use the matching
+For public client APIs, automatic policy, export, runtime layering, diagnostics, or content
+selection, inspect the current source and tests for implemented behavior. Use the matching
 roadmap to locate the owning design note and understand its priority and status. Keep detailed
 decisions in that note rather than duplicating them in the roadmap.
+
+For game export/import design, read [`EXPORT.md`](EXPORT.md), then inspect current recording,
+decision-log, premise, and replay code for implemented behavior.
 
 ## API specifications and KDoc
 
@@ -51,6 +57,7 @@ implementation defects. Inspect the relevant source, specifications, and tests a
 | --- | --- |
 | Classes, Types, refinements, dependencies, properties, defaults, or Type variables | The cited rule in [`type-system-spec.md`](../type-system-spec.md) and its matching `Spec*Test.kt` |
 | Pets declarations, expressions, instructions, effects, actions, ownership, fanout, or elaboration | The cited rule in [`pets-language-spec.md`](../pets-language-spec.md) and its matching `Lang*Test.kt` |
+| English rendering, renderer architecture, or card layout | [`LANGUAGE.md`](LANGUAGE.md) |
 | Class and display names | [`NAMING.md`](NAMING.md) |
 | Canon invariants and latent composition hazards | [`GAME_HACKS.md`](GAME_HACKS.md), then its linked current source and checks |
 | Generated Kotlin types for the canonical Pets vocabulary | [`PETS_TYPE_GENERATOR.md`](PETS_TYPE_GENERATOR.md) |

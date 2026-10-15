@@ -44,6 +44,53 @@ internal class OwnTransformTest {
   }
 
   @Test
+  internal fun `a deferred body uses the recipient inferred by its whole effect mark`() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+      CLASS Prize : Owned<Player>
+      CLASS Pulse : Owned<Player>, Signal, System
+      CLASS Rule : System { OWN[Pulse: LATER { Prize }] }
+    """,
+                players = 2,
+            )
+        )
+    val admin = game.testAgent(ADMIN)
+    val p1 = game.testAgent(PLAYER1)
+    val p2 = game.testAgent(PLAYER2)
+    admin.runOperation("Rule")
+    p2.runOperation("Pulse")
+    p1.count("Prize") shouldBe 0
+    p2.count("Prize") shouldBe 1
+  }
+
+  @Test
+  internal fun `dispatch ownership follows its recipient and leaves unmarked work open`() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+      CLASS Prize : Owned<Player>
+      CLASS Rule : Owned<Player> { OWN[This: TASK Player2 { Prize }] }
+      CLASS GlobalRule : System { OWN[This: TASK Player2 { Prize }] }
+    """,
+                players = 2,
+            )
+        )
+    val admin = game.testAgent(ADMIN)
+    val p1 = game.testAgent(PLAYER1)
+    val p2 = game.testAgent(PLAYER2)
+    p1.runOperation("Rule")
+    admin.runOperation("GlobalRule")
+    p1.count("Prize") shouldBe 0
+    p2.count("Prize") shouldBe 2
+
+    admin.addTasks("TASK Player2 { Prize }")
+    p2.tasks.extract { it.instruction.toString() } shouldBe listOf("Prize!")
+  }
+
+  @Test
   internal fun `use site distinguishes player count from global count of the same property`() {
     val game =
         Engine.newGame(

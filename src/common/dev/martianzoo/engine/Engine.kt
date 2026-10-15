@@ -7,12 +7,9 @@ import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
-import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
-import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
@@ -20,7 +17,6 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.ModuleProperties.PREMISE_REQUIREMENT
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.state.Actor
-import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.CustomClass
 import dev.martianzoo.state.GameReader
@@ -28,10 +24,16 @@ import dev.martianzoo.state.GameWorld
 import dev.martianzoo.state.actors
 import dev.martianzoo.state.validateCustomClasses
 
-/** Entry point to the solarnet engine -- create new games here. */
+/** Constructs live [World] instances from resolved [GamePremise]s. */
 public object Engine {
 
-  /** Creates a game at its committed initialization state, ready to be given to a workflow. */
+  /**
+   * Creates a game at its committed initialization state. [customClasses] must supply the runtime
+   * implementations required by the premise's custom declarations, with no conflicting identities.
+   * Setup creates the Admin, selected class representatives, and starting components before the
+   * world is returned; it may leave tasks pending. Invalid configuration or setup fails without
+   * returning a partial world.
+   */
   public fun newGame(
       premise: GamePremise,
       customClasses: Set<CustomClass> = emptySet(),
@@ -41,22 +43,21 @@ public object Engine {
   }
 
   /**
-   * Creates an independently mutable live World at the same completed gameplay position as
-   * [source]. Immutable premise data is shared, while state and every engine service are rebuilt.
-   * Application callbacks, component listeners, Agents, provisional forms, and workflow control
-   * state are not copied.
+   * Creates an independently mutable live World at the end of [source]'s completed gameplay
+   * history. Immutable premise data is shared, while state and every engine service are rebuilt.
+   * Application callbacks, component listeners, Agents, and provisional forms are not copied.
    *
    * @throws IllegalArgumentException if [source] was not created by this Engine
-   * @throws IllegalStateException if [source] is between completed gameplay positions
+   * @throws IllegalStateException if [source] is not at the end of its completed history
    */
   public fun fork(source: World): World {
     val wholeWorld =
         source as? WholeWorld
             ?: throw IllegalArgumentException("Unknown World implementation: ${source::class}")
     val current = source.timeline.checkpoint()
-    val positions = wholeWorld.recordingPositions.snapshot()
+    val positions = source.timeline.positions
     check(positions.lastOrNull() == current) {
-      "cannot fork a World between completed gameplay positions"
+      "cannot fork a World away from the end of completed gameplay history"
     }
     val gameWorld = wholeWorld.gameWorld.fork()
     return Wiring(gameWorld.premise, gameWorld).createFork(positions, wholeWorld.effector)
@@ -73,19 +74,13 @@ public object Engine {
 
     // Effect compilation needs the reader, but no effect is read until state begins changing.
     private val effector: Effector = Effector(elaborator, customClasses) { reader }
-    private val taskQueues = TaskQueues(gameWorld)
-    private val recordingPositions = RecordingPositions()
+    private val taskQueues: TaskQueues = TaskQueues(gameWorld) { timeline.requireAtEnd() }
     private val reader: GameReader = gameWorld.reader
-    private val changer = Changer(reader, gameWorld, effector)
-    private val timeline = TimelineImpl(gameWorld, changer, recordingPositions)
+    private val changer: Changer = Changer(reader, gameWorld, effector) { timeline.requireAtEnd() }
+    private val timeline: TimelineImpl = TimelineImpl(gameWorld, changer)
     private val limiter = Limiter(classTable, gameWorld)
     private val worldTransaction: WorldTransaction =
-        WorldTransaction(
-            timeline,
-            { world.onTransactionComplete() },
-            recordingPositions,
-            ::removeTemporaryComponent,
-        )
+        WorldTransaction(timeline) { world.onTransactionComplete() }
     private val instructor =
         Instructor(reader, limiter, changer, effector, classTable, elaborator, timeline)
     private val actorEngines: Map<Actor, ActorEngine> =
@@ -109,7 +104,6 @@ public object Engine {
             reader,
             classTable,
             actorEngines,
-            recordingPositions,
             effector,
         )
 
@@ -130,14 +124,14 @@ public object Engine {
             e.sourceLocation,
         )
       }
-      recordingPositions.record(timeline.checkpoint().ordinal)
+      timeline.recordCompletedPosition()
       requireSignedSelectionsMatchClassComponents()
       return world
     }
 
     internal fun createFork(positions: List<Checkpoint>, sourceEffector: Effector): WholeWorld {
       effector.copyIndexFrom(sourceEffector)
-      positions.forEach { recordingPositions.record(it.ordinal) }
+      timeline.restoreCompletedPositions(positions)
       timeline.commit()
       limiter.checkRequiredCounts = true
       requireSignedSelectionsMatchClassComponents()
@@ -172,33 +166,6 @@ public object Engine {
           if (unexpected.isNotEmpty()) append("; unexpected: ${unexpected.joinToString()}")
         }
       }
-    }
-
-    /**
-     * Removes all copies of one eligible concrete `Temporary` Type.
-     *
-     * Cleanup is offered only while the whole task pool is empty. A Type is ineligible while any
-     * direct or indirect dependent is itself `Temporary` or `MustCleanUp`, which makes nested
-     * lifetimes retire from the inside out. Returning after one Type lets transaction settlement
-     * process removal effects and re-read both tasks and dependencies before the next attempt.
-     */
-    private fun removeTemporaryComponent(): Boolean {
-      if (!gameWorld.tasks.isEmpty()) return false
-      val temporary = classTable.getClass(TEMPORARY).baseType
-      val temporaryComponents = reader.getComponents(temporary)
-      if (temporaryComponents.isEmpty()) return false
-
-      val mustCleanUp = classTable.getClass(MUST_CLEAN_UP).baseType
-      val type =
-          temporaryComponents.elements.firstOrNull { type ->
-            !gameWorld.components.hasDependentMatching(type, mustCleanUp, reader) &&
-                !gameWorld.components.hasDependentMatching(type, temporary, reader)
-          } ?: return false
-
-      instructor
-          .execute(remove(type, reader.countComponent(type)), cause = null, actor = ADMIN)
-          .forEach(taskQueues::addTasks)
-      return true
     }
 
     private fun validatePremise(classTable: ClassTable) {

@@ -12,6 +12,12 @@ internal class TitanFloatingLaunchPadTest : TfmSandboxTest() {
   internal fun `Can fund a trade with a floater`() {
     kim.exMachina("$TitanFloatingLaunchPad, Floater<$TitanFloatingLaunchPad>")
 
-    kim.cardAction2(TitanFloatingLaunchPad) { doTask("Trade<Io>") }.expect("-Floater, 3 Heat")
+    kim.inTurn {
+          doTask("UseCardAction<TitanFloatingLaunchPad, Action2>")
+          doTask("-Floater<TitanFloatingLaunchPad>")
+
+          doTasks("Trade<Io>", "3 Heat")
+        }
+        .expect("-Floater, 3 Heat")
   }
 }

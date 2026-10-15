@@ -22,9 +22,9 @@ the router.
 > dozens of lines of custom machinery and present that as a completed solution.
 
 Keep embedded Pets declarations multiline when they do not fit comfortably on one line; do not
-replace them with `parseOneLinerClass` merely to shorten Kotlin. Keep viewer recordings compact:
+replace them with `parseOneLinerClass` merely to shorten Kotlin. Keep replay recordings compact:
 source evidence, commentary, and assertions belong in the corresponding replay test, not in the
-recording used by the viewer.
+generated recording.
 
 ## Always apply these principles
 
@@ -45,6 +45,11 @@ recording used by the viewer.
 
 Solarnet seeks the smallest coherent set of rules from which the real game follows. Correct behavior
 is necessary, but an implementation that merely works can still be a design failure.
+
+English realization must remain game-neutral. English interpretation may directly model common
+game concepts such as cards, actions, resources, production, placement, payment, and scoring.
+Concrete component identities and expansion-specific recognizers belong in supplied vocabulary
+data. A new component using existing mechanics should normally render without renderer changes.
 
 - Judge cost primarily by permanent conceptual complexity: new abstractions, APIs, layers,
   exceptions, representations, and interactions.
@@ -86,6 +91,13 @@ a behavior or architecture change.
 ### Be exact about evidence
 
 - Separate verified current behavior, proposed behavior, and aspiration.
+- Judge whether a gameplay abstraction or behavior is necessary against actual Canon cards and
+  rules. Synthetic and non-Canon tests can characterize current mechanics, but their failure is not
+  itself a reason to preserve those mechanics. When claiming a redesign has a gameplay cost, name
+  the affected Canon card or rule and its concrete consequence; if none is known, say so.
+- Downstream helpers, workflows, renderers, and tests must adapt to a selected model change. Their
+  current assumptions cannot veto that model. Trace failures to the underlying Canon rule before
+  adding machinery to the model; change downstream code when it encodes the old assumptions.
 - Prefer original logs, images, rules, and data over artifacts derived from them.
 - Do not invent game rules, requirements, abstractions, or explanations for surprising behavior.
 - Passing compilation or one narrow test is not enough evidence of success. Review the resulting

@@ -26,9 +26,9 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
   override val help: String =
       """
         Uses one of a Terraforming Mars card's actions. The card must already be owned, and the
-        action number must be 1, 2, or 3. It selects the card directly from the offered
-        turn option or granted card-action task. Payment text after the first comma either drives the action's `tfm_pay`
-        workflow or selects its direct resource-removal cost.
+        action number must be 1, 2, or 3. It selects the card from the offered
+        turn option or granted card-action task. Payment text after the first comma either pays
+        the action's cost as `tfm_pay` would or selects its resource-removal cost.
       """
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
@@ -96,19 +96,19 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
           paymentGains(payment).single { gain ->
             gain.scaledEx.expression.className in owed.gaining!!.descendantsOfType<ClassName>()
           }
-      repl.agent.doTask("${supplied.scaledEx.scalar} ${owed.gaining}")
+      repl.agent.selectTask("${supplied.scaledEx.scalar} ${owed.gaining}")
     }
     if (repl.agent.count("Billing") > 0) {
       TfmPayCommand(repl).withArgs(payment)
       return
     }
 
-    val directCosts = costTasks.filter { it.instruction.descendantsOfType<Remove>().any() }
+    val removalCosts = costTasks.filter { it.instruction.descendantsOfType<Remove>().any() }
     val removals = paymentRemovals(payment)
-    check(removals.size == directCosts.size) {
-      "Action requires ${directCosts.size} direct payment(s), but ${removals.size} were supplied"
+    check(removals.size == removalCosts.size) {
+      "Action requires ${removalCosts.size} resource payment(s), but ${removals.size} were supplied"
     }
-    directCosts.zip(removals).forEach { (task, removal) ->
+    removalCosts.zip(removals).forEach { (task, removal) ->
       val narrowing = specializeVariableCost(task.instruction, removal)
       repl.agent.selectTask(task.id)
       repl.agent.narrowTask(narrowing.toString())
@@ -116,14 +116,14 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
   }
 
   private fun specializeVariableCost(task: Instruction, removal: Instruction): Instruction {
-    val directRemoval = removal as Remove
+    val suppliedRemoval = removal as Remove
     val matchingVariableCosts =
         task.descendantsOfType<Remove>().filter {
           it.scaledEx.scalar.abstract &&
-              directRemoval.scaledEx.expression.className == it.scaledEx.expression.className
+              suppliedRemoval.scaledEx.expression.className == it.scaledEx.expression.className
         }
     val variableCost = matchingVariableCosts.singleOrNull() ?: return removal
-    val supplied = directRemoval.scaledEx.scalar.toString().toInt()
+    val supplied = suppliedRemoval.scaledEx.scalar.toString().toInt()
     val authored = variableCost.scaledEx.scalar.toString()
     val authoredMultiple = authored.removeSuffix("X").ifEmpty { "1" }.toInt()
     check(supplied % authoredMultiple == 0) { "$supplied isn't a multiple of $authoredMultiple" }

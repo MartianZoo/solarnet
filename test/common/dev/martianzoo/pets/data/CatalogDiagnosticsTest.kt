@@ -485,10 +485,13 @@ internal class CatalogDiagnosticsTest {
     val source = "CLASS Garden { requirement = HAS \"0 Plant\" }"
     val error = assertFailsWith<PetSyntaxException> { loadTypes(source) }
 
-    assertEquals("count must be positive; found 0", error.detail)
+    assertEquals(
+        "expected `(` or `=` or `@` or `EVAL` or `MAX` or a class name or a non-negative integer or a property name; found `0`",
+        error.detail,
+    )
     assertEquals(
         """
-        |count must be positive; found 0 at 1:35
+        |expected `(` or `=` or `@` or `EVAL` or `MAX` or a class name or a non-negative integer or a property name; found `0` at 1:35
         |CLASS Garden { requirement = HAS "0 Plant" }
         |                                  ^
         """
@@ -690,10 +693,13 @@ internal class CatalogDiagnosticsTest {
     val source = "CLASS Garden { HAS 0 Plant }"
     val error = assertFailsWith<PetSyntaxException> { loadTypes(source) }
 
-    assertEquals("count must be positive; found 0", error.detail)
+    assertEquals(
+        "expected `(` or `=` or `@` or `EVAL` or `MAX` or a class name or a non-negative integer or a property name; found `0`",
+        error.detail,
+    )
     assertEquals(
         """
-        |count must be positive; found 0 at 1:20
+        |expected `(` or `=` or `@` or `EVAL` or `MAX` or a class name or a non-negative integer or a property name; found `0` at 1:20
         |CLASS Garden { HAS 0 Plant }
         |                   ^
         """
@@ -751,23 +757,6 @@ internal class CatalogDiagnosticsTest {
         |money amounts must name `MC` explicitly at 1:20
         |CLASS Garden { HAS 3 }
         |                   ^
-        """
-            .trimMargin(),
-        error.message,
-    )
-  }
-
-  @Test
-  internal fun zeroInstructionCount() {
-    val source = "CLASS Garden { This: 0 Plant }"
-    val error = assertFailsWith<PetSyntaxException> { loadTypes(source) }
-
-    assertEquals("count must be positive; found 0", error.detail)
-    assertEquals(
-        """
-        |count must be positive; found 0 at 1:22
-        |CLASS Garden { This: 0 Plant }
-        |                     ^
         """
             .trimMargin(),
         error.message,
@@ -1720,7 +1709,7 @@ internal class CatalogDiagnosticsTest {
   internal fun conflictingInheritedQuantifiers() {
     val source =
         """
-        ABSTRACT CLASS Eager { DEFAULT +Eager. }
+        ABSTRACT CLASS Eager { DEFAULT +Eager* }
         ABSTRACT CLASS Choosy { DEFAULT +Choosy? }
         CLASS Garden : Eager, Choosy
         """
@@ -1728,13 +1717,13 @@ internal class CatalogDiagnosticsTest {
     val error = assertFailsWith<InvalidPetDefinitionException> { loadTypes(source) }
 
     assertEquals(
-        "`Garden` inherits conflicting gain quantifier defaults: `.`, `?`",
+        "`Garden` inherits conflicting gain quantifier defaults: `*`, `?`",
         error.detail,
     )
     // Prefer highlighting `Eager, Choosy` and showing their conflicting default clauses.
     assertEquals(
         """
-        |`Garden` inherits conflicting gain quantifier defaults: `.`, `?` at 3:7
+        |`Garden` inherits conflicting gain quantifier defaults: `*`, `?` at 3:7
         |CLASS Garden : Eager, Choosy
         |      ^
         """
@@ -1851,12 +1840,12 @@ internal class CatalogDiagnosticsTest {
     val error = assertFailsWith<PetSyntaxException> { loadTypes(source) }
 
     assertEquals(
-        "expected `(` or `-` or `=` or `@` or `EACH` or `EVAL` or `MAX` or `X` or a class name or a non-negative integer or a property name; found `}`",
+        "expected `(` or `-` or `=` or `@` or `EACH` or `EVAL` or `FINALLY` or `LATER` or `MAX` or `TASK` or `X` or a class name or a non-negative integer or a property name; found `}`",
         error.detail,
     )
     assertEquals(
         """
-        |expected `(` or `-` or `=` or `@` or `EACH` or `EVAL` or `MAX` or `X` or a class name or a non-negative integer or a property name; found `}` at 1:25
+        |expected `(` or `-` or `=` or `@` or `EACH` or `EVAL` or `FINALLY` or `LATER` or `MAX` or `TASK` or `X` or a class name or a non-negative integer or a property name; found `}` at 1:25
         |CLASS Garden { Plant -> }
         |                        ^
         """
@@ -1871,12 +1860,12 @@ internal class CatalogDiagnosticsTest {
     val error = assertFailsWith<PetSyntaxException> { loadTypes(source) }
 
     assertEquals(
-        "expected `(` or `-` or `@` or `EACH` or `X` or a class name or a non-negative integer; found `}`",
+        "expected `(` or `-` or `@` or `EACH` or `FINALLY` or `LATER` or `TASK` or `X` or a class name or a non-negative integer; found `}`",
         error.detail,
     )
     assertEquals(
         """
-        |expected `(` or `-` or `@` or `EACH` or `X` or a class name or a non-negative integer; found `}` at 1:31
+        |expected `(` or `-` or `@` or `EACH` or `FINALLY` or `LATER` or `TASK` or `X` or a class name or a non-negative integer; found `}` at 1:31
         |CLASS Garden { This: Plant OR }
         |                              ^
         """

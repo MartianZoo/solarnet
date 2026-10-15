@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -16,8 +15,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       GameConfig(
           """
           HellasMap
-          VenusNextExpansion, PreludeExpansion, PromoCardPack
-          FakeStuffBundle
+          VenusNextExpansion, PreludeExpansion, promos:cards
+          fakes:cards
 
           RimSettler, Ecologist, Producer, Fundraiser, Philantropist, Terraformer
           Traveller, Collector, Excentric, Investor, Suburbian, Magnate
@@ -34,7 +33,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
 
   @Test
   internal fun erraticCarbonCurrent() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     keepStartingProjects(6, 4)
     generation1()
     generation2()
@@ -49,16 +48,27 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
   }
 
   private fun generation1() {
+    blue.draw(
+        Potatoes,
+        Hackers,
+        Lichen,
+        NeutralizerFactory,
+        SpaceHotels,
+        ExtractorBalloons,
+    )
     blue.playCorp(CrediCor)
+    pink.draw(VestaShipyard, MiningRights, BuildingIndustries, Ants)
     pink.playCorp(Ecoline)
 
     blue.turn {
       playPrelude(AlbedoPlants)
-      playPrelude(FakeResearchNetwork)
+      playPrelude(FakeResearchNetwork) {
+        draw(Windmills, UndergroundCity, AerobrakedAmmoniaAsteroid)
+      }
     }
     pink.turn {
       playPrelude(BiosphereSupport)
-      playPrelude(Biolab)
+      playPrelude(Biolab) { draw(AstraMechanica, Moss, SymbioticFungus) }
     }
 
     blue.turn { playProject(AerobrakedAmmoniaAsteroid, 26) }
@@ -72,8 +82,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
   }
 
   private fun generation2() {
-    pink.buyCards(3)
-    blue.buyCards(2)
+    pink.buyCards(ExtremeColdFungus, MarsUniversity, BigAsteroid)
+    blue.buyCards(SmallAsteroid, HermeticOrderOfMars)
     // Database save 23 evidence: after both research purchases.
     blue.assertResources(m = 32, s = 0, t = 0, p = 3, e = 0, h = 6)
     blue.assertProduction(m = 1, s = 0, t = 0, p = 2, e = 0, h = 3)
@@ -83,7 +93,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
 
     pink.turn { convertPlants { placeTile(3, 4) } }
     blue.turn { playProject(Potatoes, 2) }
-    pink.turn { sellPatents(SymbioticFungus) }
+    pink.turn {
+      sellPatents(SymbioticFungus)
+    }
     blue.turn {
       convertHeat()
       playProject(SmallAsteroid, 10) { doTask("-Plant<Pink>") }
@@ -100,8 +112,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
   }
 
   private fun generation3() {
-    blue.buyCards(3)
-    pink.buyCards(1)
+    // Source Research Coordination uses FakeResearchCoordination here.
+    blue.buyCards(FakeResearchCoordination, GreatEscarpmentConsortium, Worms)
+    pink.buyCards(NitrophilicMoss)
     // Database save 48 evidence: after both research purchases.
     blue.assertResources(m = 21, s = 0, t = 0, p = 4, e = 0, h = 8)
     blue.assertProduction(m = 3, s = 0, t = 0, p = 3, e = 0, h = 4)
@@ -127,8 +140,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
   }
 
   private fun generation4() {
-    pink.buyCards(2)
-    blue.buyCards(2)
+    pink.buyCards(EarthOffice, LargeConvoy)
+    blue.buyCards(AdaptedLichen, ResearchOutpost)
     // Database save 69 evidence: after both research purchases.
     blue.assertResources(m = 29, s = 0, t = 0, p = 3, e = 0, h = 4)
     blue.assertProduction(m = 7, s = 0, t = 0, p = 3, e = 0, h = 4)
@@ -140,7 +153,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.turn { playProject(ResearchOutpost, 18) { placeTile(2, 5) } }
     pink.turn {
       playProject(LargeConvoy, 18, titanium = 5) {
+        draw(NoctisCity, MartianSurvey)
         doTask("5 Plant")
+        draw(Harvest)
         placeTile(5, 6)
       }
       convertPlants { placeTile(5, 5) }
@@ -148,8 +163,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.turn { playProject(HermeticOrderOfMars, 9) }
     pink.turn {
       playProject(MarsUniversity, steel = 4) {
+        draw(Plantation)
         doTask("-ProjectCard")
-        discard(NoctisCity)
+        pink.discard(NoctisCity)
       }
     }
     blue.turn { playProject(AdaptedLichen, 8) }
@@ -159,8 +175,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
   }
 
   private fun generation5() {
-    blue.buyCards(1)
-    pink.buyCards(3)
+    blue.buyCards(NitrogenRichAsteroid)
+    pink.buyCards(MarsNomads, BusinessNetwork, ReleaseOfInertGases)
     // Database save 98 evidence: after both research purchases.
     blue.assertResources(m = 29, s = 0, t = 0, p = 8, e = 0, h = 11)
     blue.assertProduction(m = 9, s = 0, t = 0, p = 4, e = 0, h = 4)
@@ -197,8 +213,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
   }
 
   private fun generation6() {
-    pink.buyCards(3)
-    blue.buyCards(2)
+    pink.buyCards(ImportedGhg, KelpFarming, LavaTubeSettlement)
+    blue.buyCards(Insects, PowerGrid)
     // Database save 133 evidence: after both research purchases.
     blue.assertResources(m = 32, s = 0, t = 0, p = 8, e = 1, h = 7)
     blue.assertProduction(m = 9, s = 0, t = 0, p = 8, e = 1, h = 4)
@@ -226,7 +242,9 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       blue.exMachina(fakeWildTags("MicrobeTag", 2))
       playProject(Worms, 7).expect("PROD[2 Plant]")
     }
-    pink.turn { sellPatents(BuildingIndustries, MartianSurvey) }
+    pink.turn {
+      sellPatents(BuildingIndustries, MartianSurvey)
+    }
     blue.turn { cardAction2(ExtractorBalloons) }
     pink.turn { playProject(Moss, 4) }
     blue.pass()
@@ -235,8 +253,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
   }
 
   private fun generation7() {
-    pink.buyCards(2)
-    blue.buyCards(2)
+    pink.buyCards(CarbonNanosystems, EcologicalZone)
+    blue.buyCards(IoSulphurResearch, AiCentral)
     // Database save 173 evidence: after both research purchases.
     blue.assertProduction(m = 9, s = 0, t = 0, p = 16, e = 1, h = 4)
     blue.assertResources(m = 34, s = 1, t = 0, p = 17, e = 1, h = 12)
@@ -250,6 +268,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     }
     pink.turn {
       playProject(EcologicalZone, 12) { placeTile(2, 3) }
+      draw(FieldCappedCity)
       convertPlants {
         placeTile(7, 6)
       }
@@ -269,7 +288,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.turn { claimMilestone(cn("Producer")) }
     pink.turn {
       playProject(BusinessNetwork, 1)
-      cardAction1(BusinessNetwork) { buyCards(1) }
+      cardAction1(BusinessNetwork) { buyCards(ImportOfAdvancedGhg) }
     }
     blue.turn { convertHeat() }
     pink.turn {
@@ -284,8 +303,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
   }
 
   private fun generation8() {
-    pink.buyCards(2)
-    blue.buyCards(4)
+    pink.buyCards(Pets, AsteroidCard)
+    blue.buyCards(AqueductSystems, OlympusConference, NoctisFarming, VenusSoils)
 
     // Database save 214 evidence: after both research purchases.
     blue.assertResources(m = 30, s = 2, t = 0, p = 20, e = 3, h = 9)
@@ -303,6 +322,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       // Research Outpost and Olympus Conference supply the other two science tags.
       blue.exMachina(fakeWildTags("ScienceTag", 2))
       playProject(AiCentral, 20) {
+        draw(InterstellarColonyShip)
         doTask("ProjectCard FROM Science")
       }
     }
@@ -312,8 +332,10 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       }
     }
     blue.turn {
-      playProject(AqueductSystems, 8) {}
-      cardAction1(AiCentral)
+      playProject(AqueductSystems, 8) {
+        draw(UndergroundDetonations, HeatTrappers, MagneticFieldGeneratorsPromo)
+      }
+      cardAction1(AiCentral) { draw(FloatingHabs, ArcticAlgae) }
     }
     pink.turn {
       cardAction1(MarsNomads) {
@@ -341,8 +363,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
   }
 
   private fun generation9() {
-    blue.buyCards(2)
-    pink.buyCards(2)
+    blue.buyCards(HiredRaiders, Algae)
+    pink.buyCards(Virus, Comet)
     // Database save 257 evidence: after both research purchases.
     blue.assertResources(m = 38, s = 2, t = 0, p = 21, e = 2, h = 8)
     blue.assertProduction(m = 9, s = 2, t = 0, p = 16, e = 2, h = 4)
@@ -362,8 +384,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       }
     }
     blue.turn {
-      cardAction1(AiCentral)
-      playProject(InventionContest, 1) {}
+      cardAction1(AiCentral) { draw(InventionContest, Zeppelins) }
+      playProject(InventionContest, 1) { draw(MediaArchives) }
     }
     pink.turn {
       playProject(Virus, 1) { doTask("-5 Plant<Blue>") }
@@ -385,16 +407,21 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     }
     pink.turn { convertPlants { placeTile(7, 5) } }
     blue.turn { fundAward(cn("Magnate"), 8) }
-    pink.turn { sellPatents(FieldCappedCity) }
+    pink.turn {
+      sellPatents(FieldCappedCity)
+    }
     blue.turn { convertPlants { placeTile(8, 8) } }
     pink.turn {
       cardAction1(BusinessNetwork) { buyCards(0) }
       playProject(CarbonNanosystems, steel = 7) {
+        draw(EosChasmaNationalPark)
         doTask("-ProjectCard")
-        discard(Plantation)
+        pink.discard(Plantation)
       }
     }
-    blue.turn { sellPatents(ArcticAlgae) }
+    blue.turn {
+      sellPatents(ArcticAlgae)
+    }
     pink.pass()
     blue.turn {
       cardAction1(FloatingHabs) { addCardResources(ExtractorBalloons) }
@@ -405,8 +432,8 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
   }
 
   private fun generation10() {
-    blue.buyCards(2)
-    pink.buyCards(2)
+    blue.buyCards(AirScrappingExpedition, TropicalResort)
+    pink.buyCards(InvestmentLoan, PublicBaths)
     // Database save 307 evidence: after both research purchases.
     blue.assertResources(m = 42, s = 4, t = 1, p = 20, e = 2, h = 6)
     blue.assertProduction(m = 9, s = 2, t = 0, p = 16, e = 2, h = 4)
@@ -415,11 +442,11 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     assertSidebar(gen = 10, temp = 8, oxygen = 14, oceans = 9, venus = 6)
 
     pink.turn {
-      stdProject("AirScrappingProject")
+      stdProject("AirScrappingProject") { draw(Decomposers) }
       cardAction1(BusinessNetwork) { buyCards(0) }
     }
     blue.turn {
-      cardAction1(AiCentral)
+      cardAction1(AiCentral) { draw(ConvoyFromEuropa, Grass) }
       // The source records an explicit unused second action.
     }
     pink.turn {
@@ -432,20 +459,20 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.turn {
       playProject(InvestmentLoan, 0)
       playProject(AstraMechanica, 7) {
+        draw(GreatDamPromo)
         doWithoutAutoExec(pink) {
           doTask("ProjectCard FROM PlayedEvent<Class<$InvestmentLoan>>")
-          returnToHand(InvestmentLoan)
           doTask("ProjectCard FROM PlayedEvent<Class<$Harvest>>")
-          returnToHand(Harvest)
         }
         doTask("-ProjectCard")
-        discard(Decomposers)
+        pink.discard(Decomposers)
       }
     }
     blue.turn { fundAward(cn("Suburbian"), 14) }
     pink.turn {
       playProject(Harvest, 4)
       cardAction1(MarsNomads) {
+        draw(ColonizerTrainingCamp)
         doTask("NomadsMarker<Hellas_8_5 FROM Hellas_8_6>")
       }
     }
@@ -458,6 +485,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       fundAward(cn("Excentric"), 20)
     }
     blue.turn {
+      draw(Atmoscoop)
       convertPlants {
         placeTile(3, 7)
       }
@@ -512,8 +540,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     assertCardTrackingComplete()
     blue.cardsHand shouldBe emptySet()
     pink.cardsHand shouldBe emptySet()
-    checkHandSizes()
-    admin.assertCounts(1 to "End", 1 to "Phase")
+    admin.assertCounts(1 to "VictoryPhase", 1 to "Phase")
 
     blue.assertCounts(45 to "TerraformRating", 102 to "VictoryPoint", 1 to "Victory")
     pink.assertCounts(41 to "TerraformRating", 85 to "VictoryPoint", 0 to "Victory")
@@ -536,91 +563,255 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 1, s = 1, t = 1, p = 11, e = 0, h = 4)
   }
 
-  override val projectCardArrivalOrder =
+  override val cardArrivalOrder =
       mapOf(
-          cn("Blue") to
-              listOf(
-                  Potatoes,
-                  Hackers,
-                  Lichen,
-                  NeutralizerFactory,
-                  SpaceHotels,
-                  ExtractorBalloons,
-                  Windmills,
-                  UndergroundCity,
-                  AerobrakedAmmoniaAsteroid,
-                  SmallAsteroid,
-                  HermeticOrderOfMars,
-                  FakeResearchCoordination,
-                  GreatEscarpmentConsortium,
-                  Worms,
-                  AdaptedLichen,
-                  ResearchOutpost,
-                  NitrogenRichAsteroid,
-                  Insects,
-                  PowerGrid,
-                  IoSulphurResearch,
-                  AiCentral,
-                  AqueductSystems,
-                  OlympusConference,
-                  NoctisFarming,
-                  VenusSoils,
-                  InterstellarColonyShip,
-                  UndergroundDetonations,
-                  HeatTrappers,
-                  MagneticFieldGeneratorsPromo,
-                  FloatingHabs,
-                  ArcticAlgae,
-                  HiredRaiders,
-                  Algae,
-                  InventionContest,
-                  Zeppelins,
-                  MediaArchives,
-                  AirScrappingExpedition,
-                  TropicalResort,
-                  ConvoyFromEuropa,
-                  Grass,
-                  Atmoscoop,
+          // Source save 0: Blue's third corporation was Splice, Pink's was Mons Insurance.
+          cn("CorporationCard") to
+              mapOf(
+                  cn("Blue") to listOf(Viron, CrediCor),
+                  cn("Pink") to listOf(Ecoline, Inventrix),
               ),
-          cn("Pink") to
-              listOf(
-                  VestaShipyard,
-                  MiningRights,
-                  BuildingIndustries,
-                  Ants,
-                  AstraMechanica,
-                  Moss,
-                  SymbioticFungus,
-                  BigAsteroid,
-                  MarsUniversity,
-                  ExtremeColdFungus,
-                  NitrophilicMoss,
-                  EarthOffice,
-                  LargeConvoy,
-                  NoctisCity,
-                  MartianSurvey,
-                  Harvest,
-                  Plantation,
-                  ReleaseOfInertGases,
-                  BusinessNetwork,
-                  MarsNomads,
-                  ImportedGhg,
-                  KelpFarming,
-                  LavaTubeSettlement,
-                  CarbonNanosystems,
-                  EcologicalZone,
-                  FieldCappedCity,
-                  ImportOfAdvancedGhg,
-                  Pets,
-                  AsteroidCard,
-                  Comet,
-                  Virus,
-                  EosChasmaNationalPark,
-                  InvestmentLoan,
-                  PublicBaths,
-                  Decomposers,
-                  GreatDamPromo,
-                  ColonizerTrainingCamp,
+          cn("PreludeCard") to
+              mapOf(
+                  // The source's Research Network uses the replay's fake implementation.
+                  cn("Blue") to
+                      listOf(UnmiContractor, AlbedoPlants, NewPartner, FakeResearchNetwork),
+                  cn("Pink") to
+                      listOf(MetalsCompany, BiosphereSupport, GiantSolarCollector, Biolab),
+              ),
+      )
+
+  override val cardDepartureOrder =
+      mapOf(
+          cn("CorporationCard") to
+              mapOf(cn("Blue") to listOf(Viron), cn("Pink") to listOf(Inventrix)),
+          cn("PreludeCard") to
+              mapOf(
+                  cn("Blue") to listOf(UnmiContractor, NewPartner),
+                  cn("Pink") to listOf(MetalsCompany, GiantSolarCollector),
+              ),
+      )
+
+  // Source save 0 and the final Research drafts in saves 22, 47, 68, 97, 132, 172, 213,
+  // 256, and 306 identify the setup and Research offers. The source also identifies the
+  // Business Network offers. Test assignments: Herbivores and Predators are invented
+  // Invention Contest rejects; the archive names only the retained Media Archives.
+  override val selectingArrivalOrder =
+      mapOf(
+          cn("ProjectCard") to
+              mapOf(
+                  cn("Blue") to
+                      listOf(
+                          // Setup
+                          Hackers,
+                          Lichen,
+                          NeutralizerFactory,
+                          OrbitalCleanup,
+                          Potatoes,
+                          Trees,
+                          Supermarkets,
+                          CityParks,
+                          SpaceHotels,
+                          ExtractorBalloons,
+                          // Generation 2
+                          SmallAsteroid,
+                          HermeticOrderOfMars,
+                          CallistoPenalMines,
+                          EnergyMarket,
+                          // Generation 3
+                          FakeResearchCoordination,
+                          GreatEscarpmentConsortium,
+                          Worms,
+                          CaretakerContract,
+                          // Generation 4
+                          AdaptedLichen,
+                          EnergyTapping,
+                          ResearchOutpost,
+                          OutdoorSports,
+                          // Generation 5
+                          NitrogenRichAsteroid,
+                          DeuteriumExport,
+                          ElectroCatapult,
+                          BeamFromAThoriumAsteroid,
+                          // Generation 6
+                          Insects,
+                          PowerGrid,
+                          JovianEmbassy,
+                          SoilFactory,
+                          // Generation 7
+                          IoSulphurResearch,
+                          AiCentral,
+                          SpaceElevator,
+                          IndustrialCenter,
+                          // Generation 8
+                          OlympusConference,
+                          NoctisFarming,
+                          AqueductSystems,
+                          VenusSoils,
+                          // Generation 9
+                          HiredRaiders,
+                          Algae,
+                          MiningExpedition,
+                          Livestock,
+                          // Invention Contest
+                          MediaArchives,
+                          Herbivores,
+                          Predators,
+                          // Generation 10
+                          AirScrappingExpedition,
+                          TropicalResort,
+                          ProtectedValley,
+                          AcquiredCompany,
+                      ),
+                  cn("Pink") to
+                      listOf(
+                          // Setup
+                          DustSeals,
+                          RadSuits,
+                          Shuttles,
+                          MiningRights,
+                          BuildingIndustries,
+                          Penguins,
+                          VestaShipyard,
+                          BactoviralResearch,
+                          UrbanizedArea,
+                          Ants,
+                          // Generation 2
+                          BigAsteroid,
+                          MarsUniversity,
+                          ExtremeColdFungus,
+                          Bushes,
+                          // Generation 3
+                          Casinos,
+                          NitrophilicMoss,
+                          QuantumExtractor,
+                          ArtificialLake,
+                          // Generation 4
+                          EarthOffice,
+                          LargeConvoy,
+                          EquatorialMagnetizer,
+                          SulphurExports,
+                          // Generation 5
+                          ReleaseOfInertGases,
+                          BusinessNetwork,
+                          MarsNomads,
+                          BioPrintingFacility,
+                          // Generation 6
+                          LavaTubeSettlement,
+                          KelpFarming,
+                          ImportedGhg,
+                          Ironworks,
+                          // Generation 7
+                          EcologicalZone,
+                          CarbonNanosystems,
+                          CeosFavoriteProject,
+                          VenusWaystation,
+                          // Business Network, generation 7
+                          ImportOfAdvancedGhg,
+                          // Generation 8
+                          AsteroidCard,
+                          Pets,
+                          FreyjaBiodomes,
+                          WaterImportFromEuropa,
+                          // Business Network, generation 8
+                          LawSuit,
+                          // Generation 9
+                          Comet,
+                          PeroxidePower,
+                          Virus,
+                          DesignedMicroorganisms,
+                          // Business Network, generation 9
+                          MiningQuota,
+                          // Generation 10
+                          PublicBaths,
+                          InvestmentLoan,
+                          OreProcessor,
+                          LightningHarvest,
+                          // Business Network, generation 10
+                          AerialMappers,
+                      ),
+              ),
+      )
+  override val selectingDepartureOrder =
+      mapOf(
+          cn("ProjectCard") to
+              mapOf(
+                  cn("Blue") to
+                      listOf(
+                          // Setup
+                          OrbitalCleanup,
+                          Trees,
+                          Supermarkets,
+                          CityParks,
+                          // Generation 2
+                          CallistoPenalMines,
+                          EnergyMarket,
+                          // Generation 3
+                          CaretakerContract,
+                          // Generation 4
+                          EnergyTapping,
+                          OutdoorSports,
+                          // Generation 5
+                          DeuteriumExport,
+                          ElectroCatapult,
+                          BeamFromAThoriumAsteroid,
+                          // Generation 6
+                          JovianEmbassy,
+                          SoilFactory,
+                          // Generation 7
+                          SpaceElevator,
+                          IndustrialCenter,
+                          // Generation 9
+                          MiningExpedition,
+                          Livestock,
+                          // Invention Contest
+                          Herbivores,
+                          Predators,
+                          // Generation 10
+                          ProtectedValley,
+                          AcquiredCompany,
+                      ),
+                  cn("Pink") to
+                      listOf(
+                          // Setup
+                          DustSeals,
+                          RadSuits,
+                          Shuttles,
+                          Penguins,
+                          BactoviralResearch,
+                          UrbanizedArea,
+                          // Generation 2
+                          Bushes,
+                          // Generation 3
+                          Casinos,
+                          QuantumExtractor,
+                          ArtificialLake,
+                          // Generation 4
+                          EquatorialMagnetizer,
+                          SulphurExports,
+                          // Generation 5
+                          BioPrintingFacility,
+                          // Generation 6
+                          Ironworks,
+                          // Generation 7
+                          CeosFavoriteProject,
+                          VenusWaystation,
+                          // Generation 8
+                          FreyjaBiodomes,
+                          WaterImportFromEuropa,
+                          // Business Network, generation 8
+                          LawSuit,
+                          // Generation 9
+                          PeroxidePower,
+                          DesignedMicroorganisms,
+                          // Business Network, generation 9
+                          MiningQuota,
+                          // Generation 10
+                          OreProcessor,
+                          LightningHarvest,
+                          // Business Network, generation 10
+                          AerialMappers,
+                      ),
               ),
       )
 }

@@ -16,10 +16,31 @@ internal class UnexpectedApplicationTest : TfmSandboxTest() {
     kim.setToExMachina(1, "ProjectCard")
     kim.setToExMachina(3, "VenusStep")
 
-    shouldThrow<LimitsException> { kim.playProject(UnexpectedApplication, 4) }
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        doTask("PlayProject<Class<UnexpectedApplication>>")
+
+        doTasks(
+            "-4 MC",
+            "UnexpectedApplication FROM ProjectCard",
+        )
+        doTask("-ProjectCard<Kim, Hand>")
+      }
+    }
 
     // With a card available to discard, Venus can advance to the card-draw bonus.
     kim.setToExMachina(2, "ProjectCard")
-    kim.playProject(UnexpectedApplication, 4).expect("-ProjectCard, VenusStep, TerraformRating")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<UnexpectedApplication>>",
+          "-4 MC",
+          "UnexpectedApplication FROM ProjectCard",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("VenusStep")
+      doTask("TerraformRating")
+      doTask("ProjectCard<Kim, Hand>")
+      doTask("PlayedEvent<Class<UnexpectedApplication>> FROM UnexpectedApplication")
+    }
   }
 }

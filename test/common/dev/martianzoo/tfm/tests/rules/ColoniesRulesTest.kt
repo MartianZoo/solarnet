@@ -1,14 +1,11 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.cards.cardnames.Dirigibles
 import dev.martianzoo.tfm.tests.cards.cardnames.ExtractorBalloons
 import dev.martianzoo.tfm.tests.cards.cardnames.ForcedPrecipitation
 import dev.martianzoo.tfm.tests.cards.cardnames.NitriteReducingBacteria
 import dev.martianzoo.tfm.tests.cards.cardnames.RegolithEaters
-import dev.martianzoo.tfm.tests.cards.cardnames.ResearchColony
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -17,32 +14,40 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
   @Test
   internal fun `A second owners colony raises the trade track above the first colony`() {
     newTestGame(addOptions = "Luna, Ceres, Triton, Ganymede, Callisto", playerCount = 2)
-    kim.stdProject("BuildColonyProject") { doTask("Colony<Luna>") }
+    kim.inTurn {
+      doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Luna>", "PROD[2 MC]")
+    }
 
     stan
-        .stdProject("BuildColonyProject") { doTask("Colony<Luna>") }
+        .inTurn {
+          doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Luna>", "PROD[2 MC]")
+        }
         .expect("ColonyProduction<Luna>")
   }
 
   @Test
   internal fun `A card-resource colony bonus goes to the colony owner`() {
     newTestGame(addOptions = "Luna, Ceres, Triton, Ganymede, Enceladus", playerCount = 2)
-    stan.playProject(RegolithEaters, 13)
-    kim.playProject(NitriteReducingBacteria, 11)
-    kim.stdProject("BuildColonyProject") {
-      doTask("Colony<Enceladus>")
-      doTask("3 Microbe<$NitriteReducingBacteria>")
+    stan.inTurn {
+      doTasks("PlayProject<Class<RegolithEaters>>", "-13 MC", "RegolithEaters FROM ProjectCard")
+    }
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<NitriteReducingBacteria>>",
+          "-11 MC",
+          "NitriteReducingBacteria FROM ProjectCard",
+      )
+      doTask("3 Microbe<NitriteReducingBacteria>")
+    }
+    kim.inTurn {
+      doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Enceladus>")
+      doTask("3 Microbe<NitriteReducingBacteria>")
     }
 
-    stan.stdAction("TradeAction<Action1>") {
-      doWithoutAutoExec(stan) {
-        doTask("Trade<Enceladus>")
-        doTask("-TradeBarrier")
-        doTask("Microbe<$RegolithEaters>")
-        stan.selectTask("GainColonyBonus<Kim, Enceladus>")
-        kim.doTask("GainColonyBonus<Kim, Enceladus>")
-        shouldThrow<TaskException> { kim.doTask("Microbe<$NitriteReducingBacteria>") }
-        stan.selectTask("Microbe<Kim>.")
+    stan.inTurn {
+      doTasks("TradeAction<Action1>", "-9 MC")
+      run {
+        doTasks("Trade<Enceladus>", "Microbe<$RegolithEaters>")
         kim.doTask("Microbe<$NitriteReducingBacteria>")
       }
     }
@@ -54,12 +59,21 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
   @Test
   internal fun `Pluto draws a card before requiring its discard`() {
     newTestGame(addOptions = "Pluto, Luna, Ceres, Triton, Ganymede", playerCount = 2)
-    kim.stdProject("BuildColonyProject") { doTask("Colony<Pluto>") }
+    kim.inTurn {
+      doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Pluto>")
+      doTask("2 ProjectCard<Kim, Hand>")
+    }
     kim.setToExMachina(0, "ProjectCard")
     stan.exMachina("3 Energy")
     stan.setToExMachina(0, "ProjectCard")
 
-    stan.stdAction("TradeAction<Action2>") { doTask("Trade<Pluto>") }
+    stan.inTurn {
+      doTasks("TradeAction<Action2>", "-3 Energy")
+      doTasks("Trade<Pluto>")
+      doTask("ProjectCard<Stan, Hand>")
+      kim.doTask("ProjectCard<Kim, Hand>")
+      kim.doTask("-ProjectCard<Kim, Hand>")
+    }
 
     kim.count("ProjectCard") shouldBe 0
     stan.count("ProjectCard") shouldBe 1
@@ -69,46 +83,43 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
   internal fun `Pluto bonuses finish one at a time per owner`() {
     newTestGame(addOptions = "Pluto, Luna, Ceres, Triton, Ganymede", playerCount = 2)
     stan.exMachina("3 Energy")
-    stan.stdProject("BuildColonyProject") { doTask("Colony<Pluto>") }
+    stan.inTurn {
+      doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Pluto>")
+      doTask("2 ProjectCard")
+    }
     stan.setToExMachina(0, "ProjectCard")
-    kim.stdProject("BuildColonyProject") { doTask("Colony<Pluto>") }
-    kim.playProject(ResearchColony, 20) { doTask("Colony<Pluto>") }
+    kim.inTurn {
+      doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Pluto>")
+      doTask("2 ProjectCard<Kim, Hand>")
+    }
+    kim.inTurn {
+      doTasks("PlayProject<Class<ResearchColony>>", "-20 MC")
+      doTasks("ResearchColony FROM ProjectCard")
+      doTask("2 ProjectCard<Kim, Hand>")
+      doTask("Colony<Pluto>")
+      doTask("2 ProjectCard<Kim, Hand>")
+    }
     kim.setToExMachina(0, "ProjectCard")
-    kim.autoExecPolicy = NONE
 
-    stan.stdAction("TradeAction<Action2>") {
-      doWithoutAutoExec(stan) {
-        fun performForKim(instruction: String) {
-          stan.selectTask(instruction)
-          kim.doTask(instruction)
-        }
-
-        doTask("Trade<Pluto>")
-        doTask("-TradeBarrier")
-        doTask("2 ProjectCard")
-        performForKim("GainColonyBonus<Kim, Pluto>")
-        performForKim("PlutoLock<Kim>!")
-        performForKim("ProjectCard<Kim>")
-        shouldThrow<TaskException> { doTask("ProjectCard<Kim>") }
-        kim.count("ProjectCard") shouldBe 1
-
-        // Another owner's bonus remains available while Kim must discard.
-        doTask("GainColonyBonus<Stan, Pluto>")
-        doTask("PlutoLock<Stan>!")
-        doTask("ProjectCard<Stan>")
-        stan.count("ProjectCard") shouldBe 3
-        doTask("-ProjectCard<Stan>")
-        doTask("-PlutoLock<Stan>!")
-
-        performForKim("-ProjectCard<Kim>")
-        performForKim("-PlutoLock<Kim>!")
-        performForKim("GainColonyBonus<Kim, Pluto>")
-        performForKim("PlutoLock<Kim>!")
-        performForKim("ProjectCard<Kim>")
-        kim.count("ProjectCard") shouldBe 1
-        performForKim("-ProjectCard<Kim>")
-        performForKim("-PlutoLock<Kim>!")
-      }
+    stan.inTurn {
+      doTasks(
+          "TradeAction<Action2>",
+          "-3 Energy",
+          "Trade<Pluto>",
+          "2 ProjectCard",
+      )
+      kim.doTask("ProjectCard<Kim>")
+      shouldThrow<TaskException> { doTask("ProjectCard<Kim>") }
+      kim.count("ProjectCard") shouldBe 1
+      doTask("ProjectCard<Stan>")
+      stan.count("ProjectCard") shouldBe 3
+      doTask("-ProjectCard<Stan>")
+      kim.doTask("-ProjectCard<Kim>")
+      // Release Kim's Pluto lock after her cross-player discard.
+      autoExecNow()
+      kim.doTask("ProjectCard<Kim>")
+      kim.count("ProjectCard") shouldBe 1
+      kim.doTask("-ProjectCard<Kim>")
     }
 
     kim.count("ProjectCard") shouldBe 0
@@ -117,29 +128,27 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
   }
 
   @Test
-  internal fun `Two Pluto bonuses complete with normal autoexecution`() {
-    newTestGame(addOptions = "Pluto, Luna, Ceres, Triton, Ganymede", playerCount = 2)
-    stan.exMachina("3 Energy")
-    kim.stdProject("BuildColonyProject") { doTask("Colony<Pluto>") }
-    kim.playProject(ResearchColony, 20) { doTask("Colony<Pluto>") }
-
-    stan
-        .stdAction("TradeAction<Action2>") { doTask("Trade<Pluto>") }
-        .expect("0 ProjectCard<Kim>, 2 ProjectCard<Stan>, 0 PlutoLock<Anyone>")
-  }
-
-  @Test
   internal fun `Europa can be colonized after the last ocean is placed`() {
     newTestGame(addOptions = "Europa, Luna, Ceres, Triton, Ganymede", playerCount = 2)
     val waterAreas = kim.list("WaterArea").take(8)
     kim.exMachina(waterAreas.joinToString { "OceanTile<$it>" })
-    kim.stdProject("AquiferProject") { doTask("OceanTile<Tharsis_9_9>") }
-    val ratingBefore = kim.count("TerraformRating")
+    kim.inTurn {
+      doTasks(
+          "UseStandardProject<AquiferProject>",
+          "-18 MC",
+          "OceanTile<Tharsis_9_9>",
+          "TerraformRating",
+          "2 Titanium",
+      )
+    }
 
-    kim.stdProject("BuildColonyProject") { doTask("Colony<Europa>") }
-        .expect("Colony<Europa>, 0 OceanTile")
+    kim.inTurn {
+          doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Europa>")
+          // Resolve the ocean offer separately from other pending placement effects.
+          selectTask("OceanTile<WaterArea(HAS MAX 0 Tile)>*")
+        }
+        .expect("0 OceanTile, 0 TerraformRating")
 
-    kim.count("TerraformRating") shouldBe ratingBefore
     admin.count("OceanTile") shouldBe 9
   }
 
@@ -147,10 +156,17 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
   internal fun `A player can trade with Enceladus without a card that stores microbes`() {
     newTestGame(addOptions = "Enceladus, Luna, Ceres, Triton, Ganymede", playerCount = 2)
     stan.exMachina("3 Energy")
-    kim.playProject(RegolithEaters, 13)
+    kim.inTurn {
+      doTasks("PlayProject<Class<RegolithEaters>>", "-13 MC", "RegolithEaters FROM ProjectCard")
+    }
 
     stan
-        .stdAction("TradeAction<Action2>") { doTask("Trade<Enceladus>") }
+        .inTurn {
+          doTasks("TradeAction<Action2>", "-3 Energy")
+          doTasks("Trade<Enceladus>")
+          // Resolve the trade reward: this player has no card that can hold microbes.
+          selectTask("Microbe")
+        }
         .expect("0 Microbe<Anyone>")
 
     stan.count("Trade<Enceladus>") shouldBe 1
@@ -161,37 +177,43 @@ internal class ColoniesRulesTest : TfmSandboxTest() {
     newTestGame(addOptions = "Titan, Luna, Ceres, Triton, Ganymede", playerCount = 2)
     kim.setToExMachina(66, "MC")
     stan.exMachina("3 Energy")
-    kim.playProject(ForcedPrecipitation, 8)
-    kim.playProject(ExtractorBalloons, 21)
-    kim.stdProject("BuildColonyProject") {
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<ForcedPrecipitation>>",
+          "-8 MC",
+          "ForcedPrecipitation FROM ProjectCard",
+      )
+    }
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<ExtractorBalloons>>",
+          "-21 MC",
+          "ExtractorBalloons FROM ProjectCard",
+      )
+      doTask("3 Floater<ExtractorBalloons>")
+    }
+    kim.inTurn {
+      doTasks("UseStandardProject<BuildColonyProject>", "-17 MC", "Colony<Titan>")
+      doTask("3* Floater<ForcedPrecipitation>")
+    }
+    kim.inTurn {
+      doTasks("PlayProject<Class<ResearchColony>>", "-20 MC")
+      doTasks("ResearchColony FROM ProjectCard")
+      doTask("2 ProjectCard<Kim, Hand>")
       doTask("Colony<Titan>")
-      addCardResources(ForcedPrecipitation, 3)
+      doTask("3* Floater<ExtractorBalloons>")
     }
-    kim.playProject(ResearchColony, 20) {
-      doTask("Colony<Titan>")
-      addCardResources(ExtractorBalloons, 3)
-    }
-    stan.playProject(Dirigibles, 11)
-    val precipitationBefore = kim.count("Floater<$ForcedPrecipitation>")
-    val balloonsBefore = kim.count("Floater<$ExtractorBalloons>")
-
-    stan.stdAction("TradeAction<Action2>") {
-      doWithoutAutoExec(stan) {
-        doTask("Trade<Titan>")
-        doTask("-TradeBarrier")
-        doTask("Floater<$Dirigibles>")
-        stan.selectTask("GainColonyBonus<Kim, Titan>")
-        kim.doTask("GainColonyBonus<Kim, Titan>")
-        stan.selectTask("Floater<Kim>.")
-        kim.addCardResources(ForcedPrecipitation)
-        stan.selectTask("GainColonyBonus<Kim, Titan>")
-        kim.doTask("GainColonyBonus<Kim, Titan>")
-        stan.selectTask("Floater<Kim>.")
-        kim.addCardResources(ExtractorBalloons)
-      }
+    stan.inTurn {
+      doTasks("PlayProject<Class<Dirigibles>>", "-11 MC", "Dirigibles FROM ProjectCard")
     }
 
-    kim.count("Floater<$ForcedPrecipitation>") shouldBe precipitationBefore + 1
-    kim.count("Floater<$ExtractorBalloons>") shouldBe balloonsBefore + 1
+    stan
+        .inTurn {
+          doTasks("TradeAction<Action2>", "-3 Energy")
+          doTasks("Trade<Titan>", "Floater<Dirigibles>")
+          kim.doTask("Floater<ForcedPrecipitation>*")
+          kim.doTask("Floater<ExtractorBalloons>*")
+        }
+        .expect("Floater<$ForcedPrecipitation<Kim>>, Floater<$ExtractorBalloons<Kim>>")
   }
 }

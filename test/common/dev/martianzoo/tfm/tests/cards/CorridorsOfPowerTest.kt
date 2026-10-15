@@ -8,13 +8,24 @@ internal class CorridorsOfPowerTest : TfmSandboxTest() {
   @Test
   internal fun `Draws for gaining leadership rather than for every delegate placed`() {
     newTestGame("PreludeExpansion, CorridorsOfPower, TurmoilExpansion")
-    kim.playPrelude(CorridorsOfPower)
-    startActionPhase()
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<CorridorsOfPower>>",
+          "CorridorsOfPower FROM PreludeCard",
+          "TerraformRating",
+          "4 MC",
+      )
+    }
+    advanceUntilActionPhase()
 
-    kim.stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Scientists>") }
-        .expect("ProjectCard")
-    kim.stdAction("LobbyAction<Action2>", payment = { kim.pay(5) }) {
+    kim.inTurn {
+          doTask("LobbyAction<Action1>")
           doTask("PartyDelegate<Scientists>")
+          doTask("ProjectCard<Kim, Hand>")
+        }
+        .expect("ProjectCard")
+    kim.inTurn {
+          doTasks("LobbyAction<Action2>", "-5 MC", "PartyDelegate<Scientists>")
         }
         .expect("0 ProjectCard")
   }

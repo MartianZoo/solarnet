@@ -11,7 +11,15 @@ internal class SpecialPermitTest : TfmSandboxTest() {
     stan.exMachina("4 Plant")
     rob.exMachina("4 Plant")
 
-    kim.playProject(SpecialPermit, 5) { doTask("4 Plant<Kim FROM Stan>") }
-        .expect("4 Plant, -4 Plant<Stan>, 0 Plant<Rob>")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<SpecialPermit>>",
+              "-5 MC",
+              "SpecialPermit FROM ProjectCard",
+              "4 Plant<Kim FROM Stan>",
+          )
+          doTask("PlayedEvent<Class<SpecialPermit>> FROM SpecialPermit")
+        }
+        .expect("0 Plant<Rob>")
   }
 }

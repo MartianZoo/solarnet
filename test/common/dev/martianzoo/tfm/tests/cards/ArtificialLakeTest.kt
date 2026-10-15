@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.ArtificialLake
@@ -17,7 +17,13 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
     val land = (kim.list("LandArea") + kim.list("VolcanicArea")).distinct()
     kim.exMachina(land.joinToString { "GreeneryTile<Kim, $it>" })
 
-    shouldThrow<LimitsException> { kim.playProject(ArtificialLake, 15) { placeTile(2, 3) } }
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
+        doTask("ArtificialLake FROM ProjectCard")
+        doTask("OceanTile<Tharsis_2_3>")
+      }
+    }
 
     kim.assertCounts(42 to "MC", 10 to "ProjectCard", 0 to "$ArtificialLake", 8 to "OceanTile")
   }
@@ -28,7 +34,15 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
     kim.setToExMachina(12, "TemperatureStep")
     kim.exMachina(kim.list("WaterArea").take(8).joinToString { "OceanTile<$it>" })
 
-    kim.playProject(ArtificialLake, 15) { placeTile(2, 3) }.expect("OceanTile, TerraformRating")
+    kim.inTurn {
+      doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
+      doTasks(
+          "ArtificialLake FROM ProjectCard",
+          "OceanTile<Tharsis_2_3>",
+          "TerraformRating",
+          "2 MC",
+      )
+    }
   }
 
   @Test
@@ -36,11 +50,24 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
     newTestGame()
     kim.setToExMachina(12, "TemperatureStep")
     kim.exMachina(kim.list("WaterArea").take(8).joinToString { "OceanTile<$it>" })
-    stan.stdProject("AquiferProject") {
-      doTask("OceanTile<${stan.list("WaterArea(HAS MAX 0 Tile)").first()}>")
+    stan.inTurn {
+      doTasks(
+          "UseStandardProject<AquiferProject>",
+          "-18 MC",
+          "OceanTile<Tharsis_6_7>",
+          "TerraformRating",
+          "Plant",
+          "2 MC",
+      )
     }
 
-    kim.playProject(ArtificialLake, 15).expect("0 OceanTile, 0 TerraformRating")
+    kim.inTurn {
+          doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
+          doTasks("ArtificialLake FROM ProjectCard")
+          // Resolve the placement offer: the full ocean track leaves no legal placement.
+          selectOnlyTask()
+        }
+        .expect("0 OceanTile, 0 TerraformRating")
   }
 
   @Test
@@ -49,8 +76,12 @@ internal class ArtificialLakeTest : TfmSandboxTest() {
     kim.setToExMachina(12, "TemperatureStep")
     kim.exMachina(kim.list("WaterArea").take(9).joinToString { "OceanTile<$it>" })
 
-    shouldThrow<NarrowingException> {
-      kim.playProject(ArtificialLake, 15) { declineTask() }
+    shouldThrow<TaskException> {
+      kim.inTurn {
+        doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
+        doTask("ArtificialLake FROM ProjectCard")
+        doTask("Ok")
+      }
     }
     kim.assertCounts(42 to "MC", 10 to "ProjectCard", 9 to "OceanTile")
   }

@@ -33,10 +33,12 @@ import dev.martianzoo.pets.ClassBody.Element.PropertyElement
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SourceLocation
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.ActionTree
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Deferral
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.EffectTree
@@ -148,6 +150,12 @@ public object Parsing {
       parseNode(expectedType, elementSource)
 
   // TODO: Contract this temporary tfm-canon seam.
+  /**
+   * Parses [elementSource] as [expectedType], extracting owner-local classes into [derivedClasses]
+   * as it goes. The lowerer retains those generated declarations for its owning declaration; this
+   * overload therefore accepts inline class bodies that ordinary [parse] rejects. Invalid syntax or
+   * an element of the wrong kind fails instead of returning a partial node.
+   */
   public fun <P : PetNode> parse(
       expectedType: KClass<P>,
       elementSource: String,
@@ -210,7 +218,8 @@ public object Parsing {
                   "ALLCAPS",
                   "mixed-case class name" -> "a class name"
                   "lowerCamel" -> "a property name"
-                  "scalar" -> "a non-negative integer"
+                  "scalar",
+                  "zero" -> "a non-negative integer"
                   "\n" -> "a newline"
                   "\"[^\"]*\"" -> "quoted text"
                   "arrow" -> "`->`"
@@ -469,6 +478,11 @@ public object Parsing {
     }
   }
 
+  /**
+   * Whether [candidate] begins with a token that the grammar for [expectedType] would accept after
+   * [source]. This is a completion hint, not proof that the complete source plus candidate parses.
+   * [PetNode] itself is too broad to select a grammar and is rejected.
+   */
   public fun acceptsNextToken(
       expectedType: KClass<out PetNode>,
       source: String,
@@ -529,6 +543,7 @@ public object Parsing {
     private val comma by literalToken(",", ",")
     private val minus by literalToken("-", "-")
     private val dot by literalToken(".", ".")
+    private val star by literalToken("*", "*")
     private val slash by literalToken("/", "/")
     private val colon by literalToken(":", ":")
     private val semicolon by literalToken(";", ";")
@@ -547,13 +562,16 @@ public object Parsing {
     private val countKeyword by keyword("COUNT")
     private val eachKeyword by keyword("EACH")
     private val evalKeyword by keyword("EVAL")
+    private val finallyKeyword by keyword("FINALLY")
     private val fromKeyword by keyword("FROM")
     private val hasKeyword by keyword("HAS")
     private val ifKeyword by keyword("IF")
+    private val laterKeyword by keyword("LATER")
     private val maxKeyword by keyword("MAX")
     private val notKeyword by keyword("NOT")
     private val orKeyword by keyword("OR")
     private val rankKeyword by keyword("RANK")
+    private val taskKeyword by keyword("TASK")
     private val thenKeyword by keyword("THEN")
     private val xKeyword by keyword("X")
     private val abstractKeyword by keyword("ABSTRACT")
@@ -569,7 +587,8 @@ public object Parsing {
         )
     private val allCapsName by regexToken(Regex("""\b[A-Z][A-Z0-9_]*\b"""), "ALLCAPS")
     private val lowerCamelName by regexToken(Regex("""\b[a-z][A-Za-z0-9]*\b"""), "lowerCamel")
-    private val integerToken by regexToken(Regex("""\b(0|[1-9][0-9]*)"""), "scalar")
+    private val integerToken by regexToken(Regex("""\b[1-9][0-9]*"""), "scalar")
+    private val zeroToken by regexToken(Regex("""\b0"""), "zero")
 
     private val sourcePosition: Parser<SourceLocation?> =
         object : Parser<SourceLocation?> {
@@ -595,7 +614,7 @@ public object Parsing {
             {
               PropertyName(it.text).also { name -> name.sourceLocation = location(it) }
             }
-    private val integer by
+    private val positiveInteger by
         integerToken map
             {
               it.text.toIntOrNull()
@@ -604,12 +623,14 @@ public object Parsing {
                       sourceLocation = location(it),
                   )
             }
+    private val integer by positiveInteger or (zeroToken asJust 0)
     private val quotedText by quotedToken map { it.text.removeSurrounding("\"") }
     private val numericScalar by locatedNode(integer map ::ActualScalar)
+    private val positiveScalar by locatedNode(positiveInteger map ::ActualScalar)
     private val xScalar by optional(integer) and skip(xKeyword) map { XScalar(it ?: 1) }
     val scalar: Parser<Scalar> by xScalar or numericScalar
     private val quantifier by
-        optional((bang asJust MANDATORY) or (dot asJust AMAP) or (question asJust OPTIONAL))
+        optional((bang asJust MANDATORY) or (star asJust AMAP) or (question asJust OPTIONAL))
 
     // Expressions recurse through arguments and refinements. Selectors and class headers cannot
     // consume an owner-local body: their following braces belong to the enclosing production.
@@ -772,8 +793,10 @@ public object Parsing {
     private val countedMetric by integer and metricAtom
     private val minimumRequirement: Parser<Requirement> by
         (property map { Requirement.Min(1, it) }) or
-            mapLocated(countedMetric) { (target, metric) -> Requirement.Min(target, metric) } or
-            mapLocated(requirementAmount, Requirement::Min)
+            mapLocated(positiveInteger and metricAtom) { (target, metric) ->
+              Requirement.Min(target, metric)
+            } or
+            mapLocated(scaledExpression(positiveScalar), Requirement::Min)
     private val maximumRequirement by
         skip(maxKeyword) and
             ((countedMetric map { (target, metric) -> Requirement.Max(target, metric) }) or
@@ -811,26 +834,50 @@ public object Parsing {
         commaSeparated(requirementDisjunction) map Requirement.And.Companion::create
 
     // Instructions: change, per, BY, OR, gate, THEN, comma group (L2-16).
-    private val gain by
-        scaledExpression and
+    private val prefixedChange by
+        scalar and
+            quantifier and
+            optional(expression) map
+            { (scalar, quantifier, expression) ->
+              val denomination =
+                  expression
+                      ?: denominationlessClass.expression.copy().also {
+                        it.sourceLocation = scalar.sourceLocation
+                      }
+              ScaledExpression.scaledEx(denomination, scalar) to quantifier
+            }
+    private val unscaledChange by
+        expression and
             quantifier map
+            { (expression, quantifier) ->
+              ScaledExpression.scaledEx(expression) to quantifier
+            }
+    private val quantifiedChange by prefixedChange or unscaledChange
+    private val gain by
+        quantifiedChange map
             { (amount, quantifier) ->
               Instruction.Gain.gain(amount, quantifier)
             }
     private val remove by
         skip(minus) and
-            scaledExpression and
-            quantifier map
+            quantifiedChange map
             { (amount, quantifier) ->
               Instruction.Remove.remove(amount, quantifier)
             }
-    private val transmute by
-        optional(scalar) and
-            fromExpression and
-            quantifier map
-            { (scalar, from, quantifier) ->
-              Instruction.Transmute(from, scalar ?: ActualScalar(1), quantifier)
+    private val prefixedTransmute by
+        scalar and
+            quantifier and
+            fromExpression map
+            { (scalar, quantifier, from) ->
+              Instruction.Transmute(from, scalar, quantifier)
             }
+    private val unscaledTransmute by
+        fromExpression and
+            quantifier map
+            { (from, quantifier) ->
+              Instruction.Transmute(from, ActualScalar(1), quantifier)
+            }
+    private val transmute by prefixedTransmute or unscaledTransmute
     private val change by locatedNode(transmute or gain or remove)
     private val perInstruction by
         change and
@@ -854,8 +901,23 @@ public object Parsing {
             { (selector, body) ->
               Instruction.Each(selector, body)
             }
+    private val dispatchInstruction by
+        ((taskKeyword asJust Deferral.NONE) or
+            (laterKeyword asJust Deferral.LATER) or
+            (finallyKeyword asJust Deferral.FINALLY)) and
+            optional(expression) and
+            skip(lbrace) and
+            parser { instructionSyntax } and
+            skip(rbrace) map
+            { (deferral, actor, body) ->
+              Instruction.Dispatch(actor, body, deferral)
+            }
     private val instructionPrimary: Parser<InstructionTree> by
-        each or instructionTransform or perInstruction or group(parser { instructionSyntax })
+        each or
+            dispatchInstruction or
+            instructionTransform or
+            perInstruction or
+            group(parser { instructionSyntax })
     private val instructionAtom by
         instructionPrimary and
             optional(skip(byKeyword) and expression) map
@@ -1084,7 +1146,7 @@ public object Parsing {
         ) { (doc, signature, body) ->
           (body ?: ClassBody()).toDeclarations(signature, doc)
         }
-    // Pass this production directly to completionAtEnd: its analyzer understands combinators,
+    // Pass this production to completionAtEnd: its analyzer understands combinators,
     // while a Grammar wrapper would fall back to executing the parser and its semantic maps.
     override val rootParser: Parser<List<ClassDeclaration>> by
         zeroOrMore(declaration) and skip(newlines) map { it.flatten() }
@@ -1124,6 +1186,12 @@ public object Parsing {
         args: List<Expression>?,
         ref: Refinement?,
     ): Expression {
+      if (clazz == THIS && (marker != null || args != null || ref != null)) {
+        throw PetSyntaxException(
+            "`This` cannot have a marker, arguments, or refinement",
+            sourceLocation = clazz.sourceLocation,
+        )
+      }
       return Expression(
               clazz,
               args.orEmpty(),

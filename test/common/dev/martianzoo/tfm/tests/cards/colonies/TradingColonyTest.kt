@@ -13,13 +13,16 @@ internal class TradingColonyTest : TfmSandboxTest() {
   internal fun `May decline its track increase before trade income`() {
     kim.exMachina("$TradingColony, Colony<Europa>")
     kim.setToExMachina(9, "MC")
-    kim.setToExMachina(2, "ColonyProduction<Europa>")
+    admin.setToExMachina(2, "ColonyProduction<Europa>")
 
-    kim.stdAction("TradeAction") {
-          doTask("Trade<Europa>")
-          declineTask()
-        }
-        .expect("PROD[Energy]")
+    kim.inTurn {
+      doTasks("TradeAction", "-9 MC")
+
+      doTasks("Trade<Europa>")
+      // Hand the colony-track change to Admin before collecting trade income.
+      selectTask("ColonyProduction<Europa>?")
+      doTasks("0 ColonyProduction<Europa>", "PROD[Energy]", "MC")
+    }
 
     kim.assertCounts(1 to "ColonyProduction<Europa>")
   }

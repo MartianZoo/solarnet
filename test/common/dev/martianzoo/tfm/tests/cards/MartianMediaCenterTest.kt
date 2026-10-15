@@ -13,8 +13,11 @@ internal class MartianMediaCenterTest : TfmSandboxTest() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("$MartianMediaCenter")
 
-    kim.cardAction1(MartianMediaCenter) { doTask("PartyDelegate<Greens>") }
-        .expect("PartyDelegate<Greens>, -3 MC, 0 LobbyActionAvailable")
+    kim.inTurn {
+          doTasks("UseCardAction<MartianMediaCenter, Action1>", "-3 MC")
+          doTask("PartyDelegate<Greens>")
+        }
+        .expect("-3 MC, 0 LobbyActionAvailable")
   }
 
   @Test
@@ -23,8 +26,11 @@ internal class MartianMediaCenterTest : TfmSandboxTest() {
     kim.exMachina("$MartianMediaCenter")
     kim.exMachina("6 PartyDelegate<Unity>")
 
-    kim.cardAction1(MartianMediaCenter) { doTask("PartyDelegate<Greens>") }
-        .expect("PartyDelegate<Greens>, -3 MC, -LobbyActionAvailable")
+    kim.inTurn {
+          doTasks("UseCardAction<MartianMediaCenter, Action1>", "-3 MC")
+          doTask("PartyDelegate<Greens>")
+        }
+        .expect("-3 MC, -LobbyActionAvailable")
   }
 
   @Test
@@ -34,7 +40,11 @@ internal class MartianMediaCenterTest : TfmSandboxTest() {
     kim.exMachina("7 PartyDelegate<Unity>")
 
     shouldThrow<DeadEndException> {
-      kim.cardAction1(MartianMediaCenter) { doTask("PartyDelegate<Greens>") }
+      kim.inTurn {
+        doTask("UseCardAction<MartianMediaCenter, Action1>")
+        doTask("-3 MC")
+        doTask("PartyDelegate<Greens>")
+      }
     }
 
     kim.count("MC") shouldBe 42

@@ -3,14 +3,13 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.state.Checkpoint
-import dev.martianzoo.state.EventLogJson
-import dev.martianzoo.state.GameWorld
-import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.state.GameFileJson
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
+import kotlinx.coroutines.test.runTest
 
 /** Live game begun Tue 2026-08-18. Quoted evidence is verbatim from the supplied transcripts. */
 internal class OtbGame20260818Test : AbstractFullGameTest() {
@@ -26,8 +25,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
           """
           UtopiaMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion
-          PromoCardPack
-          FakeStuffBundle
+          promos:cards
+          fakes:cards
 
           Ecologist, Merchant, Metallurgist, Tactician, Hoverlord
           Constructor, Excentric, Highlander, Mogul, Traveller, Venuphile
@@ -39,7 +38,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
   @Test
   internal fun otbGame20260818() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     val green = player(1)
     val yellow = player(2)
     keepStartingProjects(7, 5)
@@ -641,7 +640,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // Yellow: "I pay one for Market Manipulation. Increase the colony track one step."
       // Green: "So she's increasing Pluto." Yellow: "Yes. Decrease Io."
       playProject(MarketManipulation, 1) {
-        doTask("ColonyProduction<Pluto> FROM ColonyProduction<Io>")
+        selectTask("ColonyProduction FROM ColonyProduction")
+        narrowTask("ColonyProduction<Pluto> FROM ColonyProduction<Io>")
       }
       // Yellow: "Then I will spend three energy to trade with Pluto, which now gives me three
       // cards." Green: "Nice. Three cards free and clear."
@@ -1550,7 +1550,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // go on to the New Zealand insects."
       stdAction("TradeAction<Action2>") {
         doTask("Trade<Enceladus>")
-        doTask("ColonyProduction<Enceladus>")
+        selectTask("ColonyProduction<Enceladus>?")
+        narrowTask("ColonyProduction<Enceladus>")
         doTask("3 Microbe<$VenusianInsects>")
         doTask("Microbe<$VenusianInsects>")
       }
@@ -1663,17 +1664,25 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       assertCounts(44 to "TerraformRating", 11 to "Animal<$Pets>")
     }
 
-    val originalEvents = game.events.entriesSince(Checkpoint(0))
-    val decodedEvents = EventLogJson.decode(EventLogJson.encode(originalEvents), game.classTable)
-    val reconstructed = GameWorld(gamePremise, decodedEvents)
-    val allComponents = game.classTable.componentClass.baseType
+    if (exportReplay) {
+      runTest {
+        val originalEvents = game.events.entriesSince(Checkpoint(0))
+        val reconstructed =
+            GameFileJson.parse(checkNotNull(completedGameFileJson()))
+                .decode(gamePremise)
+                .open()
+                .world
+        val decodedEvents = reconstructed.events.entriesSince(Checkpoint(0))
+        val allComponents = game.classTable.componentClass.baseType
 
-    decodedEvents shouldBe originalEvents
-    decodedEvents.map { it.notes } shouldBe originalEvents.map { it.notes }
-    reconstructed.events.entriesSince(Checkpoint(0)) shouldBe originalEvents
-    reconstructed.tasks.extract { it } shouldBe game.tasks.extract { it }
-    reconstructed.components.getAll(allComponents, NoGameState).entries shouldBe
-        game.components.getAll(allComponents, NoGameState).entries
+        decodedEvents shouldBe originalEvents
+        decodedEvents.map { it.notes } shouldBe originalEvents.map { it.notes }
+        reconstructed.events.entriesSince(Checkpoint(0)) shouldBe originalEvents
+        reconstructed.tasks.extract { it } shouldBe game.tasks.extract { it }
+        reconstructed.components.getAll(allComponents, NoGameState).entries shouldBe
+            game.components.getAll(allComponents, NoGameState).entries
+      }
+    }
 
     // "So I'm going to 1-2 and 1-3."
     green.convertPlants { placeTile(1, 2) }.expect("-8 Plant")

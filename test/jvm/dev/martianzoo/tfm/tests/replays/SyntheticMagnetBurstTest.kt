@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -16,13 +15,13 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
   // Government, two players, and these full-random milestone and award pools.
   // This replay still uses Builder and Sponsor stand-ins for Thawer and Briber.
   // Player-record evidence: Merger was dealt despite promo cards being disabled, so it is included
-  // individually without enabling PromoCardPack.
+  // individually without enabling promos:cards.
   override val config =
       GameConfig(
           """
           HellasMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, Merger, SagittaFrontierServices, Unsafe
-          FakeStuffBundle
+          VenusNextExpansion, PreludeExpansion, prelude2:cards, Merger, SagittaFrontierServices, Unsafe
+          fakes:cards
 
           Energizer, Builder, Generalist, Diversifier, Terraformer, Sponsor
           Scientist, Landscaper, Founder, Contractor, Forecaster, Incorporator
@@ -33,7 +32,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
 
   @Test
   internal fun gameThroughGeneration10() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     val pink = p1
     val green = p2
     keepStartingProjects(7, 4)
@@ -1215,7 +1214,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
     green.assertCounts(0 to "ProjectCard")
 
     // This game id was ga5237bd2fb08
-    admin.assertCounts(1 to "End", 1 to "Phase")
+    admin.assertCounts(1 to "VictoryPhase", 1 to "Phase")
 
     pink.assertCounts(
         41 to "TerraformRating",

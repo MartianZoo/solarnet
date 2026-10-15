@@ -16,8 +16,14 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
   internal fun `Can return two differently typed played events`() {
     kim.exMachina("PlayedEvent<Class<$MineralDeposit>>, PlayedEvent<Class<$InvestmentLoan>>")
 
-    kim.playProject(AstraMechanica, 7) {
-          doTask("ProjectCard FROM PlayedEvent<Class<$MineralDeposit>>")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<AstraMechanica>>",
+              "-7 MC",
+              "AstraMechanica FROM ProjectCard",
+              "ProjectCard FROM PlayedEvent<Class<MineralDeposit>>",
+          )
+          doTask("ProjectCard FROM PlayedEvent<Class<InvestmentLoan>>")
         }
         .expect(
             "$AstraMechanica, ProjectCard, " +
@@ -33,8 +39,14 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
     )
 
     shouldThrow<NarrowingException> {
-      kim.playProject(AstraMechanica, 7) {
-        doTask("ProjectCard FROM PlayedEvent<Class<$LavaFlows>>")
+      kim.inTurn {
+        doTask("PlayProject<Class<AstraMechanica>>")
+
+        doTasks(
+            "-7 MC",
+            "AstraMechanica FROM ProjectCard",
+            "ProjectCard FROM PlayedEvent<Class<LavaFlows>>",
+        )
       }
     }
   }
@@ -47,8 +59,14 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
     )
 
     shouldThrow<TaskException> {
-      kim.playProject(AstraMechanica, 7) {
-        doTask("ProjectCard FROM PlayedEvent<Class<$PharmacyUnion>>")
+      kim.inTurn {
+        doTask("PlayProject<Class<AstraMechanica>>")
+
+        doTasks(
+            "-7 MC",
+            "AstraMechanica FROM ProjectCard",
+            "ProjectCard FROM PlayedEvent<Class<PharmacyUnion>>",
+        )
       }
     }
   }
@@ -59,8 +77,14 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
     kim.exMachina("PlayedEvent<Class<$InvestmentLoan>>, PlayedEvent<Class<$BribedCommittee>>")
 
     shouldThrow<TaskException> {
-      kim.playProject(AstraMechanica, 7) {
-        doTask("ProjectCard FROM PlayedEvent<Stan, Class<$MineralDeposit>>")
+      kim.inTurn {
+        doTask("PlayProject<Class<AstraMechanica>>")
+
+        doTasks(
+            "-7 MC",
+            "AstraMechanica FROM ProjectCard",
+            "ProjectCard FROM PlayedEvent<Stan, Class<MineralDeposit>>",
+        )
       }
     }
   }
@@ -70,8 +94,11 @@ internal class AstraMechanicaTest : TfmSandboxTest() {
     kim.exMachina("PlayedEvent<Class<$Flooding>>")
 
     shouldThrow<LimitsException> {
-      kim.playProject(AstraMechanica, 7) {
-        doTask("ProjectCard FROM PlayedEvent<Class<$Flooding>>")
+      kim.inTurn {
+        doTask("PlayProject<Class<AstraMechanica>>")
+        doTasks("-7 MC", "AstraMechanica FROM ProjectCard")
+        doTask("ProjectCard FROM PlayedEvent<Class<Flooding>>")
+        doTask("ProjectCard FROM PlayedEvent<Class<Flooding>>")
       }
     }
   }

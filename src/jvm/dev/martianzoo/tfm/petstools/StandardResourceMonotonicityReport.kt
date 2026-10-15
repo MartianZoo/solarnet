@@ -579,13 +579,13 @@ internal object StandardResourceMonotonicityReport {
                           "PreludeExpansion",
                           "ColoniesExpansion",
                           "TurmoilExpansion",
-                          "PromoCardPack",
                           "Callisto",
                           "Ceres",
                           "Luna",
                           "Triton",
                       )
                       .map(::cn),
+              includedCardBundles = listOf("promos"),
               playerNames = listOf(cn("SoloPlayer")),
           )
       )

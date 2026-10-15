@@ -1,11 +1,18 @@
 package dev.martianzoo.state
 
-/** One fully resolved change to the component state of a game. */
+/**
+ * A fully resolved change to a world's component multiset. [count] is positive; [gaining] and
+ * [removing] identify the exact component types affected, with null for an absent side.
+ */
 public sealed class ComponentChange private constructor() {
+  /** Positive number of component instances affected. */
   public abstract val count: Int
+  /** Component type gained, or null for a pure removal. */
   public abstract val gaining: Component?
+  /** Component type removed, or null for a pure gain. */
   public abstract val removing: Component?
 
+  /** Gains [count] copies of [component], with [count] greater than zero. */
   public data class Gain(
       override val count: Int = 1,
       public val component: Component,
@@ -21,6 +28,7 @@ public sealed class ComponentChange private constructor() {
       get() = null
   }
 
+  /** Removes [count] copies of [component], with [count] greater than zero. */
   public data class Remove(
       override val count: Int = 1,
       public val component: Component,
@@ -36,6 +44,7 @@ public sealed class ComponentChange private constructor() {
       get() = component
   }
 
+  /** Replaces [count] copies of [removing] with [gaining]; [count] must be positive. */
   public data class Transmute(
       override val count: Int = 1,
       override val gaining: Component,

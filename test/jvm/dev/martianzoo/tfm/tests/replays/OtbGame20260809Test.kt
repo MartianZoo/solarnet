@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -21,7 +20,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
           """
           HellasMap
           VenusNextExpansion, PreludeExpansion, ColoniesExpansion
-          PromoCardPack
+          promos:cards
 
           Coastguard, Landshaper, Mayor, Producer, Sponsor, Hoverlord
           Botanist, Founder, Landlord, Magnate, Metropolist, Venuphile
@@ -33,7 +32,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
   @Test
   internal fun otbGame20260809() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     val yellow = player(1)
     val green = player(2)
     keepStartingProjects(6, 4)
@@ -53,7 +52,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
         .playCorp(MonsInsurance) {
           yellow.selectTask(
               "EACH Other@Player(NOT Yellow) { " +
-                  "-2 Production<Other@Player, Class<MC>>! BY Other@Player }"
+                  "-2! Production<Other@Player, Class<MC>> BY Other@Player }"
           )
           autoExecNow()
         }

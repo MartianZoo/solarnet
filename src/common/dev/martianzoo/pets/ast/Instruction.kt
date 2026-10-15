@@ -16,7 +16,6 @@ import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.pets.types.GroundType
 import dev.martianzoo.pets.types.TypeVariable
@@ -36,24 +35,29 @@ import dev.martianzoo.pets.util.invoke
 public sealed class Instruction : InstructionTree() {
   /**
    * Returns an instruction that (in essence) does this instruction [factor] times. The [factor]
-   * must be non-negative, and if zero, [NoOp] is returned.
+   * must be non-negative. A [Change] retains its Types when scaled to zero; other instructions
+   * scaled to zero become [NoOp].
    */
   final override operator fun times(factor: Int): Instruction {
-    if (factor == 0) return NoOp
-    require(factor > 0)
+    if (factor == 0 && this !is Change) return NoOp
+    require(factor >= 0)
     if (factor == 1) return this
     return scale(factor).also { it.sourceLocation = sourceLocation }
   }
 
   override val kind: kotlin.reflect.KClass<out PetNode> = Instruction::class
 
+  /**
+   * Subclass operation used by [times] after unity is handled. [factor] is greater than one, or
+   * zero for a [Change]; the result retains the change's Types even when its count becomes zero.
+   */
   protected abstract fun scale(factor: Int): Instruction
 
   /**
    * The instruction leaving a state unchanged without events, spelled `Ok` ([rule
    * L2-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * It vanishes from a group rather than appearing as an empty member, and a group left with
-   * nothing in it *is* `Ok`. `Ok` narrows an optional change and nothing else ([rule
+   * nothing in it *is* `Ok`. `Ok` narrows an optional or zero-count change ([rule
    * L3-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    */
   public object NoOp : Instruction() {
@@ -87,7 +91,6 @@ public sealed class Instruction : InstructionTree() {
       ): Instruction {
         require(count >= 0)
         return when {
-          count == 0 -> NoOp
           removing == null -> Gain.gain(gaining!!, count, quantifier)
           gaining == null -> Remove.remove(removing, count, quantifier)
           else -> Transmute(Full(gaining, removing), ActualScalar(count), quantifier)
@@ -96,10 +99,10 @@ public sealed class Instruction : InstructionTree() {
     }
 
     /**
-     * How many components change: a positive integer or an `X` standing for an amount left open
-     * ([rule
+     * How many components change: a nonnegative integer or an `X` standing for a positive amount
+     * left open ([rule
      * L2-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
-     * Zero is rejected.
+     * Zero retains the changed Types for matching and executes without events.
      */
     public abstract val count: Scalar
 
@@ -121,6 +124,7 @@ public sealed class Instruction : InstructionTree() {
     public abstract val quantifier: Quantifier?
 
     override fun isAbstract(info: TypeInfo): Boolean {
+      if (count == ActualScalar(0)) return false
       return count.isAbstract(info) ||
           quantifier?.isAbstract(info) != false ||
           (gaining?.isAbstract(info) == true) ||
@@ -131,13 +135,19 @@ public sealed class Instruction : InstructionTree() {
       ensureChangeIsNarrowedBy(this, proposed, info)
     }
 
+    /**
+     * Verifies that [proposed] is a compatible choice for [authored]. An optional or zero-count
+     * change accepts [NoOp]; otherwise the proposal must remain a change, narrow its count and
+     * quantifier, and narrow each present gained or removed expression. Failure throws
+     * [NarrowingException].
+     */
     protected fun ensureChangeIsNarrowedBy(
         authored: Change,
         proposed: InstructionTree,
         info: TypeInfo,
     ) {
       val quantifier = authored.quantifier
-      if (proposed == NoOp && quantifier == OPTIONAL) return
+      if (proposed == NoOp && (quantifier == OPTIONAL || authored.count == ActualScalar(0))) return
       proposed as? Change
           ?: throw NarrowingException("expected a change narrowing of `$this`, found `$proposed`")
       proposed.quantifier!!.ensureNarrows(quantifier!!, info)
@@ -199,11 +209,9 @@ public sealed class Instruction : InstructionTree() {
 
     override fun scale(factor: Int): Instruction = copy(scaledEx = scaledEx * factor)
 
-    override fun toString(): String = "$scaledEx${quantifier?.symbol ?: ""}"
-
-    init {
-      checkNonzero(count)
-    }
+    override fun toString(): String =
+        if (count == ActualScalar(1)) "$gaining${quantifier?.symbol ?: ""}"
+        else "$count${quantifier?.symbol ?: ""} $gaining"
   }
 
   /**
@@ -242,11 +250,9 @@ public sealed class Instruction : InstructionTree() {
 
     override fun scale(factor: Int): Instruction = copy(scaledEx = scaledEx * factor)
 
-    override fun toString(): String = "-$scaledEx${quantifier?.symbol ?: ""}"
-
-    init {
-      checkNonzero(count)
-    }
+    override fun toString(): String =
+        if (count == ActualScalar(1)) "-$removing${quantifier?.symbol ?: ""}"
+        else "-$count${quantifier?.symbol ?: ""} $removing"
   }
 
   /**
@@ -274,12 +280,9 @@ public sealed class Instruction : InstructionTree() {
     override fun scale(factor: Int): Instruction = copy(scalar = scalar * factor)
 
     override fun toString(): String {
-      val scalText = if (scalar == ActualScalar(1)) "" else "$scalar "
-      return "$scalText$fromEx${quantifier?.symbol ?: ""}"
-    }
-
-    init {
-      checkNonzero(count)
+      val quantifierText = quantifier?.symbol ?: ""
+      return if (scalar == ActualScalar(1)) "$fromEx$quantifierText"
+      else "$scalar$quantifierText $fromEx"
     }
 
     override fun precedence(): Int = if (fromEx is Full) 7 else 10
@@ -430,6 +433,48 @@ public sealed class Instruction : InstructionTree() {
   }
 
   /**
+   * `TASK`, `LATER`, or `FINALLY`: dispatches [body] as unresolved work for a fixed [actor], with
+   * the given [deferral] ([rules L2-17 to
+   * L2-19](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
+   * The body may stay abstract. A missing recipient is filled from lexical `Me`, or Admin, during
+   * elaboration.
+   */
+  public data class Dispatch(
+      val actor: Expression?,
+      val body: InstructionTree,
+      val deferral: Deferral = Deferral.NONE,
+  ) : Instruction() {
+    init {
+      if (body == NoOp) throw PetSyntaxException("`${deferral.keyword}` requires a non-`Ok` body")
+    }
+
+    override fun visitChildren(visitor: Visitor) {
+      actor?.let { visitor.visit(it) }
+      visitor.visit(body)
+    }
+
+    override fun scale(factor: Int): Instruction = copy(body = body * factor)
+
+    override fun isAbstract(info: TypeInfo): Boolean = actor?.isAbstract(info) != false
+
+    override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
+      if (proposed !is Dispatch || proposed.deferral != deferral) {
+        throw NarrowingException("`$proposed` does not preserve `${deferral.keyword}` to `$actor`")
+      }
+      if (proposed.actor != actor) {
+        throw NarrowingException("cannot change task recipient `$actor` to `${proposed.actor}`")
+      }
+      if (proposed.body != body) {
+        throw NarrowingException(
+            "cannot change a dispatched task's body from `$body` to `${proposed.body}`"
+        )
+      }
+    }
+
+    override fun toString(): String = "${deferral.keyword}${actor?.let { " $it" } ?: ""} { $body }"
+  }
+
+  /**
    * Makes [inner] available only while [gate] holds ([rule
    * L2-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * The gate is not a choice: it decides whether the result is available at all, and a proposal
@@ -562,10 +607,15 @@ public sealed class Instruction : InstructionTree() {
       if (continuation is Then) {
         throw PetSyntaxException("`THEN` continuation cannot contain another `THEN`")
       }
+      if (stages.any { it is Each }) {
+        throw PetSyntaxException("`EACH` cannot be followed by `THEN`")
+      }
       // Every left operand must remain one task and cannot itself contain an enqueue sequence.
       if (
           stages.any {
-            it.descendantsOfType<InstructionGroup>().any() || it.descendantsOfType<Then>().any()
+            it !is Dispatch &&
+                (it.descendantsOfType<InstructionGroup>().any() ||
+                    it.descendantsOfType<Then>().any())
           }
       ) {
         throw PetSyntaxException("`THEN` left operands cannot contain groups or other `THEN`s")
@@ -616,8 +666,7 @@ public sealed class Instruction : InstructionTree() {
       fun firstChoice(wide: PetNode, narrow: PetNode): Pair<Or, InstructionTree>? {
         if (wide is Or) return (narrow as? InstructionTree)?.let { wide to it }
         if (wide::class != narrow::class) return null
-        return wide.immediateChildren().zip(narrow.immediateChildren()).firstNotNullOfOrNull {
-            (w, n) ->
+        return wide.childNodes().zip(narrow.childNodes()).firstNotNullOfOrNull { (w, n) ->
           firstChoice(w, n)
         }
       }
@@ -833,8 +882,8 @@ public sealed class Instruction : InstructionTree() {
         }
         if (narrowNode == NoOp) return unbound
 
-        val wideChildren = wideNode.immediateChildren()
-        val narrowChildren = narrowNode.immediateChildren()
+        val wideChildren = wideNode.childNodes()
+        val narrowChildren = narrowNode.childNodes()
         if (wideChildren.size != narrowChildren.size) return emptySet()
         return wideChildren.zip(narrowChildren).fold(unbound) { result, (wideChild, narrowChild) ->
           merge(result, bindings(wideChild, narrowChild))
@@ -928,7 +977,7 @@ public sealed class Instruction : InstructionTree() {
               ) {
                 return true
               }
-              return node.immediateChildren().any(::usedOutside)
+              return node.childNodes().any(::usedOutside)
             }
             if (usedOutside(then)) {
               throw PetSyntaxException(
@@ -952,11 +1001,11 @@ public sealed class Instruction : InstructionTree() {
    * The parser rejects duplicate authored alternatives. Construction and rewriting collapse arms
    * that have become equal; a single remaining outcome is returned without an `Or` wrapper.
    *
-   * An `OR` that remains is always abstract ([rule
+   * An `OR` is abstract unless every arm is [NoOp] or a zero-count [Change] ([rule
    * L3-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    * It is also one of only two exceptions to a narrowing preserving node shape — the other being
-   * [NoOp] narrowing an optional change: any instruction narrows an `OR` by narrowing one arm,
-   * while a proposed `OR` narrows it only when every arm does ([rules L3-2 and
+   * [NoOp] narrowing an optional or zero-count change: any instruction narrows an `OR` by narrowing
+   * one arm, while a proposed `OR` narrows it only when every arm does ([rules L3-2 and
    * L3-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    */
   @ConsistentCopyVisibility
@@ -979,7 +1028,9 @@ public sealed class Instruction : InstructionTree() {
 
     override fun precedence(): Int = 6
 
-    override fun isAbstract(info: TypeInfo): Boolean = true
+    override fun isAbstract(info: TypeInfo): Boolean = instructions.any {
+      it != NoOp && (it !is Change || it.count != ActualScalar(0))
+    }
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       if (proposed is Or) {
@@ -1077,8 +1128,12 @@ public sealed class Instruction : InstructionTree() {
    * so neither narrows to the other ([rule
    * L3-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    */
-  public enum class Quantifier(public val symbol: String, public val abstract: Boolean = false) :
-      Specification<Quantifier> {
+  public enum class Quantifier(
+      /** Pets punctuation emitted for this quantifier. */
+      public val symbol: String,
+      /** Whether this quantifier still requires a narrowing choice. */
+      public val abstract: Boolean = false,
+  ) : Specification<Quantifier> {
     /** The full amount must be gained/removed/transmuted. */
     MANDATORY("!"),
 
@@ -1086,7 +1141,7 @@ public sealed class Instruction : InstructionTree() {
      * Do "as much as possible" of the amount. What that resolves to against a real state is
      * `QUANTIFIERS.md`'s subject.
      */
-    AMAP("."),
+    AMAP("*"),
 
     /** The player can choose how much of the amount to do, including none of it. */
     OPTIONAL("?", true),

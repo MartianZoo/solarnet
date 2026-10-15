@@ -18,12 +18,16 @@ internal class SolarProbeTest : TfmSandboxTest() {
   internal fun `Must be paid before its science tag supplies Carbon Nanosystems graphene`() {
     kim.exMachina("$CarbonNanosystems")
     kim.setToExMachina(8, "MC")
-    val cardsBefore = kim.count("ProjectCard")
+    kim.setToExMachina(1, "ProjectCard")
 
-    shouldThrow<LimitsException> { kim.playProject(SolarProbe, 9) }
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        doTasks("PlayProject<Class<SolarProbe>>", "-9 MC")
+      }
+    }
     kim.assertCounts(
         8 to "MC",
-        cardsBefore to "ProjectCard",
+        1 to "ProjectCard",
         0 to "Graphene<$CarbonNanosystems>",
         0 to "PlayedEvent<Class<$SolarProbe>>",
     )
@@ -34,7 +38,15 @@ internal class SolarProbeTest : TfmSandboxTest() {
     kim.exMachina("$TransNeptuneProbe, $PhysicsComplex")
     kim.setToExMachina(9, "MC")
 
-    kim.playProject(SolarProbe, 9).expect("-9 MC, 0 ProjectCard")
+    kim.inTurn {
+          doTasks("PlayProject<Class<SolarProbe>>", "-9 MC")
+          doTasks(
+              "SolarProbe FROM ProjectCard",
+          )
+          doTask("ProjectCard")
+          doTask("PlayedEvent<Class<$SolarProbe>> FROM $SolarProbe")
+        }
+        .expect("0 ProjectCard")
 
     kim.assertCounts(
         0 to "$SolarProbe",

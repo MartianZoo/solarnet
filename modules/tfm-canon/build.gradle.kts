@@ -8,6 +8,7 @@ plugins {
 
 val canonSourceDirectory =
     rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/canon")
+val canonBundleDirectory = canonSourceDirectory.dir("bundles")
 val canonInputsDirectory = layout.buildDirectory.dir("generated/canonInputs")
 val generatedCardPetsDirectory =
     project(":tfm-card-generator").layout.buildDirectory.dir("generated/cardPets")
@@ -15,7 +16,7 @@ val generatedCardPetsDirectory =
 val prepareCanonInputs by
     tasks.registering(Sync::class) {
       dependsOn(":tfm-card-generator:generateCardPets")
-      from(canonSourceDirectory) {
+      from(canonBundleDirectory) {
         exclude("**/*.kt")
         exclude("*/cards.json5")
         exclude("*/cards.pets")
@@ -38,11 +39,13 @@ kotlin {
   sourceSets {
     commonMain {
       kotlin.setSrcDirs(listOf(canonSourceDirectory))
+      kotlin.exclude("**/english/**")
       kotlin.srcDir(generateCanonSources)
       dependencies {
         implementation(libs.kotlinx.serialization.json)
         implementation(project(":catalog"))
         implementation(project(":pets"))
+        implementation(project(":tfm-card-data"))
       }
     }
     commonTest {

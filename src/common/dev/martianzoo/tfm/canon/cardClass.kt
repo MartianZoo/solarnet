@@ -48,8 +48,11 @@ public fun cardTags(card: Class): Multiset<ClassName> {
   return HashMultiset.of(names)
 }
 
-/** Instructions performed when this card enters play. */
-public fun cardImmediate(card: Class): InstructionGroup? {
+/**
+ * The card's direct effect, collected from its authored, nonautomatic `This:` effects. Returns null
+ * when none are declared. Automatic and conditional self-gain effects are excluded.
+ */
+public fun cardDirectEffect(card: Class): InstructionGroup? {
   val instructions =
       card.declaration.authoredEffects
           .filter { !it.untransformed.automatic && it.untransformed.trigger == WhenGain }
@@ -60,9 +63,9 @@ public fun cardImmediate(card: Class): InstructionGroup? {
 }
 
 /**
- * Authored instruction-position `PROD` blocks in this card's [cardImmediate] instructions. `Plant /
- * PROD[Energy]` contains a production metric and contributes no production box. Returns every
- * instruction block with its enclosing transform marks; callers must check cardinality and
+ * Authored instruction-position `PROD` blocks in this card's [cardDirectEffect] instructions.
+ * `Plant / PROD[Energy]` contains a production metric and contributes no production box. Returns
+ * every instruction block with its enclosing transform marks; callers must check cardinality and
  * enclosing choices or bindings before extracting a block for copying. No elaboration is applied.
  */
 public fun cardProductionBoxes(card: Class): List<InstructionTree> {
@@ -71,15 +74,21 @@ public fun cardProductionBoxes(card: Class): List<InstructionTree> {
         is InstructionTransform ->
             if (node.transformKind == TfmClasses.PROD) listOf(node)
             else collect(node.instruction).map { InstructionTransform(it, node.transformKind) }
-        else -> node.immediateChildren().flatMap(::collect)
+        else -> node.childNodes().flatMap(::collect)
       }
-  return cardImmediate(card)?.let(::collect).orEmpty()
+  return cardDirectEffect(card)?.let(::collect).orEmpty()
 }
 
-/** Actions authored by this card declaration. */
+/**
+ * Returns this card's authored actions in declaration order, retaining enclosing transform marks.
+ */
 public fun cardActions(card: Class): List<ActionTree> = card.declaration.authoredActions
 
-/** Non-action effects authored by this card declaration. */
+/**
+ * Returns authored effects other than the nonautomatic `This:` gain effects exposed by
+ * [cardDirectEffect], retaining enclosing transform marks. Automatic effects remain in the result;
+ * lowered action effects do not.
+ */
 public fun cardEffects(card: Class): List<EffectTree> =
     card.declaration.authoredEffects.filterNot { effect ->
       effect.untransformed.trigger == WhenGain && !effect.untransformed.automatic

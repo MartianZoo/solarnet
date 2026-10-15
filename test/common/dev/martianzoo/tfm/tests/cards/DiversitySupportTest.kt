@@ -18,7 +18,15 @@ internal class DiversitySupportTest : TfmSandboxTest() {
             "Animal<$Pets>, Microbe<$Decomposers>, Floater<$ForcedPrecipitation>"
     )
 
-    kim.playProject(DiversitySupport, 1).expect("-MC, TerraformRating")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<DiversitySupport>>",
+          "-1 MC",
+          "DiversitySupport FROM ProjectCard",
+          "TerraformRating",
+      )
+      doTask("PlayedEvent<Class<DiversitySupport>> FROM DiversitySupport")
+    }
   }
 
   @Test
@@ -28,6 +36,10 @@ internal class DiversitySupportTest : TfmSandboxTest() {
             "$Pets, $Decomposers, Animal<$Pets>, Microbe<$Decomposers>"
     )
 
-    shouldThrow<RequirementException> { kim.playProject(DiversitySupport, 1) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTask("PlayProject<Class<DiversitySupport>>")
+      }
+    }
   }
 }

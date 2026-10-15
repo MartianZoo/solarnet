@@ -8,54 +8,132 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class CrashSiteCleanupTest : TfmSandboxTest() {
-  @BeforeTest fun setUp() = newTestGame()
+  @BeforeTest fun setUp() = newTestGame(addOptions = "-promos:cards, CrashSiteCleanup")
 
   @Test
   internal fun `Can be played after removing an opponent's plant`() {
     stan.exMachina("Plant")
-    kim.playProject(AsteroidCard, 14) { doTask("-Plant<Stan>") }
+    kim.inTurn {
+      doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+      doTasks(
+          "AsteroidCard FROM ProjectCard",
+      )
+      doTask("TemperatureStep")
+      doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
+      doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
+    }
 
-    kim.playProject(CrashSiteCleanup, 4) { doTask("Titanium") }.expect("Titanium")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<CrashSiteCleanup>>",
+          "-4 MC",
+          "CrashSiteCleanup FROM ProjectCard",
+          "Titanium",
+      )
+      doTask("PlayedEvent<Class<CrashSiteCleanup>> FROM CrashSiteCleanup")
+    }
   }
 
   @Test
   internal fun `Cannot be played after removing the owner's plant`() {
     kim.exMachina("Plant")
-    kim.playProject(AsteroidCard, 14) { doTask("-Plant<Kim>") }
+    kim.inTurn {
+      doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+      doTasks(
+          "AsteroidCard FROM ProjectCard",
+      )
+      doTask("TemperatureStep")
+      doTasks("2 Titanium", "TerraformRating", "-Plant")
+      doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
+    }
 
-    shouldThrow<RequirementException> { kim.playProject(CrashSiteCleanup, 4) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTask("PlayProject<Class<CrashSiteCleanup>>")
+      }
+    }
   }
 
   @Test
   internal fun `Cannot be played after an opponent removes their own plant`() {
     stan.exMachina("Plant")
-    stan.playProject(AsteroidCard, 14) { doTask("-Plant<Stan>") }
+    stan.inTurn {
+      doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+      doTasks(
+          "AsteroidCard FROM ProjectCard",
+      )
+      doTask("TemperatureStep")
+      doTasks("2 Titanium", "TerraformRating", "-Plant")
+      doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
+    }
 
-    shouldThrow<RequirementException> { kim.playProject(CrashSiteCleanup, 4) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTask("PlayProject<Class<CrashSiteCleanup>>")
+      }
+    }
   }
 
   @Test
   internal fun `Cannot be played after a plant removal in the previous generation`() {
     stan.exMachina("Plant")
-    kim.playProject(AsteroidCard, 14) { doTask("-Plant<Stan>") }
-    nextGeneration()
+    kim.inTurn {
+      doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+      doTasks(
+          "AsteroidCard FROM ProjectCard",
+      )
+      doTask("TemperatureStep")
+      doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
+      doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
+    }
+    advanceUntilActionPhase()
 
-    shouldThrow<RequirementException> { kim.playProject(CrashSiteCleanup, 4) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTask("PlayProject<Class<CrashSiteCleanup>>")
+      }
+    }
   }
 
   @Test
   internal fun `Cannot be played by a player who did not remove the plant`() {
     stan.exMachina("Plant")
-    rob.playProject(AsteroidCard, 14) { doTask("-Plant<Stan>") }
+    rob.inTurn {
+      doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+      doTasks(
+          "AsteroidCard FROM ProjectCard",
+      )
+      doTask("TemperatureStep")
+      doTasks("2 Titanium", "TerraformRating", "-Plant<Stan>")
+      doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
+    }
 
-    shouldThrow<RequirementException> { kim.playProject(CrashSiteCleanup, 4) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTask("PlayProject<Class<CrashSiteCleanup>>")
+      }
+    }
   }
 
   @Test
   internal fun `Cannot be played after declining an asteroid's plant attack`() {
     stan.exMachina("Plant")
-    kim.playProject(AsteroidCard, 14) { declineTask() }.expect("0 Plant<Stan>")
+    kim.inTurn {
+          doTasks("PlayProject<Class<AsteroidCard>>", "-14 MC")
+          doTasks(
+              "AsteroidCard FROM ProjectCard",
+          )
+          doTask("TemperatureStep")
+          doTasks("2 Titanium", "TerraformRating")
+          doTask("-0 Plant<Anyone>")
+          doTask("PlayedEvent<Class<AsteroidCard>> FROM AsteroidCard")
+        }
+        .expect("0 Plant<Stan>")
 
-    shouldThrow<RequirementException> { kim.playProject(CrashSiteCleanup, 4) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTask("PlayProject<Class<CrashSiteCleanup>>")
+      }
+    }
   }
 }

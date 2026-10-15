@@ -10,28 +10,44 @@ import kotlin.test.Test
 internal class RobinsonIndustriesTest : TfmSandboxTest() {
   @BeforeTest
   fun initializeGame() {
-    newTestGame(kimCorporation = RobinsonIndustries)
-    listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
-      kim.setToExMachina(0, "PROD[$it]")
-    }
+    newTestGame(addOptions = "RobinsonIndustries", kimCorporation = RobinsonIndustries)
+    kim.setToExMachina(0, "PROD[MC]")
+    kim.setToExMachina(0, "PROD[Steel]")
+    kim.setToExMachina(0, "PROD[Titanium]")
+    kim.setToExMachina(0, "PROD[Plant]")
+    kim.setToExMachina(0, "PROD[Energy]")
+    kim.setToExMachina(0, "PROD[Heat]")
   }
 
   @Test
   internal fun `Can raise MC production from a negative level`() {
     kim.exMachina("PROD[-1 MC]")
-    kim.cardAction1(RobinsonIndustries).expect("PROD[1 MC]")
+    kim.inTurn {
+          doTasks("UseCardAction<RobinsonIndustries, Action1>", "-4 MC")
+          doTask("PROD[MC]")
+        }
+        .expect("PROD[1 MC]")
   }
 
   @Test
   internal fun `Can raise uniquely lowest titanium production`() {
     kim.exMachina("PROD[1 MC, Steel, Plant, Energy, Heat]")
-    kim.cardAction1(RobinsonIndustries).expect("PROD[Titanium]")
+    kim.inTurn {
+      doTasks("UseCardAction<RobinsonIndustries, Action1>", "-4 MC")
+      doTask("PROD[Titanium]")
+    }
   }
 
   @Test
   internal fun `Can choose titanium production when tied for lowest`() {
     seedProductionTie()
-    kim.cardAction1(RobinsonIndustries) { doTask("PROD[Titanium]") }.expect("PROD[Titanium]")
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<RobinsonIndustries, Action1>",
+          "-4 MC",
+          "PROD[Titanium]",
+      )
+    }
   }
 
   @Test
@@ -39,7 +55,11 @@ internal class RobinsonIndustriesTest : TfmSandboxTest() {
     seedProductionTie()
 
     shouldThrow<NarrowingException> {
-      kim.cardAction1(RobinsonIndustries) { doTask("PROD[Steel]") }
+      kim.inTurn {
+        doTask("UseCardAction<RobinsonIndustries, Action1>")
+        doTask("-4 MC")
+        doTask("PROD[Steel]")
+      }
     }
   }
 

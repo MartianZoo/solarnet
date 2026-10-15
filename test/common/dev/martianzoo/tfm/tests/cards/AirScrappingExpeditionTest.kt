@@ -15,7 +15,17 @@ internal class AirScrappingExpeditionTest : TfmSandboxTest() {
     kim.exMachina("$ForcedPrecipitation, $AtmoCollectors, 2 Floater<$AtmoCollectors>")
 
     shouldThrow<NarrowingException> {
-      kim.playProject(AirScrappingExpedition, 13) { addCardResources(AtmoCollectors) }
+      kim.inTurn {
+        doTask("PlayProject<Class<AirScrappingExpedition>>")
+
+        doTasks(
+            "-13 MC",
+            "AirScrappingExpedition FROM ProjectCard",
+        )
+        doTask("VenusStep")
+        doTask("TerraformRating")
+        doTask("3* Floater<AtmoCollectors>")
+      }
     }
   }
 }

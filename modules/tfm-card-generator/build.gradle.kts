@@ -5,7 +5,7 @@ plugins { id("solarnet.jvm") }
 val generatorSourceDirectory =
     rootProject.layout.projectDirectory.dir("src/jvm/dev/martianzoo/tfm/cardgenerator")
 val authoredCardPetsDirectory =
-    rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/canon")
+    rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/canon/bundles")
 
 kotlin {
   sourceSets {

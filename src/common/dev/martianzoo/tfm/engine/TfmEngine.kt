@@ -42,23 +42,30 @@ import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.toComponent
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.cardBack
+import dev.martianzoo.tfm.canon.cardDirectEffect
 import dev.martianzoo.tfm.canon.cardEffects
-import dev.martianzoo.tfm.canon.cardImmediate
 import dev.martianzoo.tfm.canon.cardProductionBoxes
 import dev.martianzoo.tfm.canon.cardTags
 import dev.martianzoo.tfm.state.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.state.tfmCatalog
 import kotlin.math.abs
 
-/** Terraforming Mars runtime entry point and its complete Kotlin implementation set. */
+/**
+ * Terraforming Mars runtime entry point. A [GamePremise] supplies selected Pets declarations and
+ * starting components; [customClasses] supplies the Kotlin implementations needed by the canonical
+ * game vocabulary. Card and phase rules still come from the configured premise.
+ */
 public object TfmEngine {
   private val preludeCard = cn("PreludeCard")
   private val projectCard = cn("ProjectCard")
 
-  /** Starts a live game with every Terraforming Mars custom implementation available. */
+  /**
+   * Builds a live [World] from [premise] with this engine's [customClasses] available. Invalid
+   * premises or missing custom declarations fail during world construction.
+   */
   public fun newGame(premise: GamePremise): World = Engine.newGame(premise, customClasses)
 
-  /** Kotlin implementations known to this Terraforming Mars engine. */
+  /** Custom instructions and metrics recognized when constructing a Terraforming Mars world. */
   public val customClasses: Set<CustomClass> =
       setOf(
           CopyPrelude,
@@ -68,7 +75,6 @@ public object TfmEngine {
           Neighbor,
           NonNegativeIconsOf,
           PartyDistance,
-          PartyRequirement,
           PlacementBonus,
           PlayerDistance,
           PriceAspectCount,
@@ -86,12 +92,12 @@ public object TfmEngine {
       if (card.className == cn("DoubleDown")) {
         throw NarrowingException("Cute, but Double Down can't copy itself")
       }
-      val immediate = cardImmediate(card) ?: return NoOp
+      val directEffect = cardDirectEffect(card) ?: return NoOp
       return PetElaborator(reader.classTable)
           .specializeEffect(
               card.defaultType,
               card.defaultType,
-              Effect(WhenGain, immediate),
+              Effect(WhenGain, directEffect),
               cn("DoubleDown").expression,
           )
           .instruction
@@ -101,13 +107,13 @@ public object TfmEngine {
   private object CopyProductionBox : CustomInstruction() {
     override fun translate(reader: GameReader, owner: Type, cardType: Type): InstructionTree {
       val card = reader.tfmCatalog.card(cardType.className)
-      val immediate =
-          cardImmediate(card)
-              ?: throw NarrowingException("card ${card.className} has no immediate instruction")
+      val directEffect =
+          cardDirectEffect(card)
+              ?: throw NarrowingException("card ${card.className} has no direct effect")
       val matches = cardProductionBoxes(card)
 
       if (
-          immediate.descendantsOfType<Instruction.Each>().any { each ->
+          directEffect.descendantsOfType<Instruction.Each>().any { each ->
             each.descendantsOfType<InstructionTransform>().any { it.transformKind == PROD }
           }
       ) {
@@ -117,7 +123,7 @@ public object TfmEngine {
       }
 
       return when (matches.size) {
-        0 -> throw NarrowingException("must choose a card that has an immediate PROD box")
+        0 -> throw NarrowingException("must choose a card that has a PROD box in its direct effect")
         1 -> matches.first()
         else -> error("Card ${card.className} is malformed, has ${matches.size} PROD blocks")
       }
@@ -223,25 +229,6 @@ public object TfmEngine {
         if (current == target) return distance
       }
       error("$target is not reachable from $source through AfterParty")
-    }
-  }
-
-  private object PartyRequirement : CustomMetric() {
-    private val party = cn("Party")
-    private val partyDelegate = cn("PartyDelegate")
-    private val ruling = cn("Ruling")
-
-    override fun count(game: GameReader, type: Type): Int {
-      val partyType = game.resolve(party.expression)
-      val partyTypeArgument =
-          type.typeDependencies.map { it.boundType }.single { it.narrows(partyType, game) }
-      val player = checkNotNull(type.toComponent().owningPlayer)
-      val isRuling = game.count(game.resolve(ruling.of(partyTypeArgument.expression))) == 1
-      val delegates =
-          game.count(
-              game.resolve(partyDelegate.of(partyTypeArgument.expression, player.expression))
-          )
-      return if (isRuling || delegates >= 2) 1 else 0
     }
   }
 

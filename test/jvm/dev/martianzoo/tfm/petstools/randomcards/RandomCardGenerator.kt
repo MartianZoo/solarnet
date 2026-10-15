@@ -90,7 +90,7 @@ internal class RandomCardGenerator(seed: Int) :
       val resourceTypes: Set<ClassName> = emptySet(),
   )
 
-  private data class Immediate(val values: List<InstructionPart>)
+  private data class DirectEffect(val values: List<InstructionPart>)
 
   private data class ActionCost(
       val source: String?,
@@ -129,18 +129,18 @@ internal class RandomCardGenerator(seed: Int) :
       val actions: Actions,
       val persistentEffects: PersistentEffects,
       val scoring: Scoring,
-      val immediate: Immediate,
+      val directEffect: DirectEffect,
       val eventKind: EventKind,
   ) {
     fun toDeclaration(name: ClassName): ClassDeclaration? {
-      val immediateEffect =
-          immediate.values
+      val onGainEffect =
+          directEffect.values
               .takeIf { it.isNotEmpty() }
               ?.let { instructions ->
                 parse<Effect>("This: ${instructions.joinToString { it.source }}")
               }
       val effects =
-          listOfNotNull(tags.effect(event = false), immediateEffect, scoring.value?.value) +
+          listOfNotNull(tags.effect(event = false), onGainEffect, scoring.value?.value) +
               persistentEffects.values.map(PersistentEffect::value)
       val ruleNodeCount =
           actions.values.sumOf { it.value.descendantsOfType<PetNode>().size } +
@@ -148,7 +148,7 @@ internal class RandomCardGenerator(seed: Int) :
       if (ruleNodeCount < MIN_RULE_NODE_COUNT) return null
 
       val resourceTypes =
-          (immediate.values.flatMap(InstructionPart::resourceTypes) +
+          (directEffect.values.flatMap(InstructionPart::resourceTypes) +
                   actions.values.flatMap(ActionPart::resourceTypes) +
                   persistentEffects.values.flatMap(PersistentEffect::resourceTypes) +
                   scoring.value?.resourceTypes.orEmpty())
@@ -158,7 +158,7 @@ internal class RandomCardGenerator(seed: Int) :
       val active = actions.values.isNotEmpty() || persistentEffects.values.isNotEmpty()
       val event = eventKind.event && !active && resourceTypes.isEmpty() && scoring.value == null
       val authoredEffects =
-          listOfNotNull(tags.effect(event), immediateEffect, scoring.value?.value) +
+          listOfNotNull(tags.effect(event), onGainEffect, scoring.value?.value) +
               persistentEffects.values.map(PersistentEffect::value)
       val supertypes = buildList {
         add(
@@ -543,7 +543,7 @@ internal class RandomCardGenerator(seed: Int) :
       }
       register {
         val count = choose(6 to 0, 35 to 1, 43 to 2, 16 to 3)
-        Immediate(listOfSize(count))
+        DirectEffect(listOfSize(count))
       }
       register {
         chooseS(

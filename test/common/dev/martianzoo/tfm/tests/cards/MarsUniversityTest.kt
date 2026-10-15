@@ -14,9 +14,12 @@ internal class MarsUniversityTest : TfmSandboxTest() {
     kim.setToExMachina(2, "ProjectCard")
     kim.setToExMachina(11, "MC")
 
-    kim.playProject(Research, 11) {
-          kim.doTask("-ProjectCard")
-          kim.doTask("-ProjectCard")
+    kim.inTurn {
+          doTasks("PlayProject<Class<Research>>", "-11 MC", "Research FROM ProjectCard")
+          doTask("2 ProjectCard<Kim, Hand>")
+          doTasks("-ProjectCard", "-ProjectCard")
+          doTask("ProjectCard<Kim, Hand>")
+          doTask("ProjectCard<Kim, Hand>")
         }
         .expect("ProjectCard")
   }
@@ -26,7 +29,12 @@ internal class MarsUniversityTest : TfmSandboxTest() {
     kim.setToExMachina(1, "ProjectCard")
     kim.setToExMachina(8, "MC")
 
-    kim.playProject(MarsUniversity, 8).expect("-ProjectCard")
+    kim.inTurn {
+      doTasks("PlayProject<Class<MarsUniversity>>", "-8 MC")
+      doTasks("MarsUniversity FROM ProjectCard")
+      // Resolve the exchange offer: the empty hand leaves no card to discard.
+      selectTask("(-ProjectCard<Kim, Hand>! THEN ProjectCard<Kim, Hand>!) OR Ok")
+    }
   }
 
   @Test
@@ -35,6 +43,9 @@ internal class MarsUniversityTest : TfmSandboxTest() {
     kim.setToExMachina(2, "ProjectCard")
     kim.setToExMachina(3, "MC")
 
-    kim.playProject(SearchForLife, 3) { declineTask() }.expect("-ProjectCard")
+    kim.inTurn {
+      doTasks("PlayProject<Class<SearchForLife>>", "-3 MC", "SearchForLife FROM ProjectCard")
+      doTask("Ok")
+    }
   }
 }

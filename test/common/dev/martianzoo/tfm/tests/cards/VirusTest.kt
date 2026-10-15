@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -15,9 +15,15 @@ internal class VirusTest : TfmSandboxTest() {
   internal fun `Cannot split animal removal across two cards`() {
     stan.exMachina("$Birds, $Fish, Animal<$Birds>, Animal<$Fish>")
 
-    shouldThrow<NarrowingException> {
-      kim.playProject(Virus, 1) {
-        doTask("-Animal<Stan, $Birds<Stan>>, -Animal<Stan, $Fish<Stan>>")
+    shouldThrow<TaskException> {
+      kim.inTurn {
+        doTask("PlayProject<Class<Virus>>")
+
+        doTasks(
+            "-1 MC",
+            "Virus FROM ProjectCard",
+        )
+        doTask("-Animal<Stan, Birds<Stan>>, -Animal<Stan, Fish<Stan>>")
       }
     }
   }

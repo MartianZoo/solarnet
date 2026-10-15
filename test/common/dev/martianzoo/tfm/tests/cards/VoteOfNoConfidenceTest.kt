@@ -13,8 +13,18 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
   internal fun `Vote of No Confidence can appoint the final available delegate as chairman`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("6 PartyDelegate<Greens>")
-    kim.playProject(VoteOfNoConfidence, 5)
-        .expect("Chairman, -Chairman<Neutral>, TerraformRating, -LobbyActionAvailable")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<VoteOfNoConfidence>>",
+              "-5 MC",
+              "VoteOfNoConfidence FROM ProjectCard",
+          )
+          // Hand the chairmanship transfer to Admin, which updates the political state.
+          selectTask("Chairman<Kim FROM Neutral>!")
+          doTask("TerraformRating")
+          doTask("PlayedEvent<Class<VoteOfNoConfidence>> FROM VoteOfNoConfidence")
+        }
+        .expect("-LobbyActionAvailable")
   }
 
   @Test
@@ -22,7 +32,15 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("7 PartyDelegate<Greens>")
 
-    shouldThrow<DeadEndException> { kim.playProject(VoteOfNoConfidence, 5) }
+    shouldThrow<DeadEndException> {
+      kim.inTurn {
+        doTask("PlayProject<Class<VoteOfNoConfidence>>")
+        doTasks("-5 MC", "VoteOfNoConfidence FROM ProjectCard")
+        doTask("TerraformRating")
+        // Hand the chairmanship transfer to Admin, which updates the political state.
+        selectTask("Chairman<Kim FROM Neutral>!")
+      }
+    }
 
     admin.count("Chairman<Neutral>") shouldBe 1
     kim.count("Chairman") shouldBe 0
@@ -32,9 +50,17 @@ internal class VoteOfNoConfidenceTest : TfmSandboxTest() {
   internal fun `Vote of No Confidence cannot replace a non-neutral chairman`() {
     newTestGame(addOptions = "TurmoilExpansion")
     kim.exMachina("2 PartyDelegate<Greens>")
-    kim.exMachina("Chairman<Stan> FROM Chairman<Neutral>")
+    kim.exMachina("Chairman<Stan FROM Neutral>")
 
-    shouldThrow<LimitsException> { kim.playProject(VoteOfNoConfidence, 5) }
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        doTask("PlayProject<Class<VoteOfNoConfidence>>")
+        doTasks("-5 MC", "VoteOfNoConfidence FROM ProjectCard")
+        doTask("TerraformRating")
+        // Hand the chairmanship transfer to Admin, which updates the political state.
+        selectTask("Chairman<Kim FROM Neutral>!")
+      }
+    }
 
     kim.count("MC") shouldBe 42
     kim.count("Chairman") shouldBe 0

@@ -20,7 +20,7 @@ internal class ComponentGraphIndexTest {
     val componentCount = agent.count("Component")
     val checkpoint = game.timeline.checkpoint()
 
-    agent.runOperation("3 BothBranches!")
+    agent.runOperation("3! BothBranches")
 
     agent.count("LeftBranch") shouldBe 3
     agent.count("RightBranch") shouldBe 3
@@ -29,7 +29,7 @@ internal class ComponentGraphIndexTest {
     game.reader.getComponents(game.reader.resolve(parse<Expression>("Component"))).size shouldBe
         componentCount + 3
 
-    game.timeline.rollBack(checkpoint)
+    game.timeline.seek(checkpoint)
 
     agent.count("LeftBranch") shouldBe 0
     agent.count("RightBranch") shouldBe 0

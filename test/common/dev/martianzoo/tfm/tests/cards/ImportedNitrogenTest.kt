@@ -17,7 +17,17 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
     // Opponent-owned holders cannot receive the imported resources.
     stan.exMachina("$Tardigrades, $Pets")
 
-    kim.playProject(ImportedNitrogen, 23)
+    kim.inTurn {
+          doTasks("PlayProject<Class<ImportedNitrogen>>", "-23 MC")
+          doTasks(
+              "ImportedNitrogen FROM ProjectCard",
+              "TerraformRating",
+              "4 Plant",
+          )
+          doTask("3* Microbe")
+          doTask("2* Animal")
+          doTask("PlayedEvent<Class<ImportedNitrogen>> FROM ImportedNitrogen")
+        }
         .expect(
             "TerraformRating, 4 Plant, 0 Microbe, 0 Animal, -23 MC, " +
                 "0 Microbe<Stan>, 0 Animal<Stan>"
@@ -31,9 +41,17 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
     )
     kim.setToExMachina(23, "MC")
 
-    kim.playProject(ImportedNitrogen, 23) {
-          addCardResources(Tardigrades)
-          addCardResources(Pets)
+    kim.inTurn {
+          doTasks("PlayProject<Class<ImportedNitrogen>>", "-23 MC")
+          doTasks(
+              "ImportedNitrogen FROM ProjectCard",
+              "TerraformRating",
+              "4 Plant",
+              "3* Microbe<Tardigrades>",
+              "3 MC",
+          )
+          doTasks("2* Animal<Pets>", "4 MC")
+          doTask("PlayedEvent<Class<ImportedNitrogen>> FROM ImportedNitrogen")
         }
         .expect(
             "TerraformRating, 4 Plant, 3 Microbe<$Tardigrades>, 2 Animal<$Pets>, " +
@@ -47,7 +65,16 @@ internal class ImportedNitrogenTest : TfmSandboxTest() {
     kim.setToExMachina(23, "MC")
 
     shouldThrow<NarrowingException> {
-      kim.playProject(ImportedNitrogen, 23) { doTask("Microbe<$Tardigrades>") }
+      kim.inTurn {
+        doTasks("PlayProject<Class<ImportedNitrogen>>", "-23 MC")
+        doTask("ImportedNitrogen FROM ProjectCard")
+        doTask("TerraformRating")
+        doTask("4 Plant")
+        doTask("2* Animal")
+        // Select the full microbe reward before attempting to split it between cards.
+        selectTask("3* Microbe")
+        doTask("Microbe<Tardigrades>")
+      }
     }
   }
 }

@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.GameplayException
+import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -12,7 +12,14 @@ internal class MiningAreaTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("NormalCityTile<Kim, Tharsis_7_9>")
 
-    kim.playProject(MiningArea, 4) { placeTile(8, 9) }.expect("-4 MC, Titanium, PROD[Titanium]")
+    kim.inTurn {
+      doTasks("PlayProject<Class<MiningArea>>", "-4 MC")
+      doTasks(
+          "MiningArea FROM ProjectCard",
+          "MiningArea_SpecialTile<Tharsis_8_9>",
+      )
+      doTasks("Titanium", "PROD[Titanium]")
+    }
   }
 
   @Test
@@ -21,17 +28,27 @@ internal class MiningAreaTest : TfmSandboxTest() {
     newTestGame(addOptions = "CimmeriaMap")
     kim.exMachina("NormalCityTile<Kim, Cimmeria_5_4>")
 
-    kim.playProject(MiningArea, 4) {
-          placeTile(6, 4)
-          doTask("PROD[Steel]")
-        }
-        .expect("-4 MC, Titanium, 2 Steel, PROD[Steel]")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<$MiningArea>>",
+          "-4 MC",
+          "$MiningArea FROM ProjectCard",
+          "MiningArea_SpecialTile<Cimmeria_6_4>",
+          "2 Steel",
+          "Titanium",
+          "PROD[Steel]",
+      )
+    }
 
-    kim.playProject(RoboticWorkforce, 9) {
-          doTask("CopyProductionBox<$MiningArea>")
-          doTask("PROD[Titanium]")
-        }
-        .expect("-9 MC, PROD[Titanium]")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<$RoboticWorkforce>>",
+          "-9 MC",
+          "$RoboticWorkforce FROM ProjectCard",
+          "CopyProductionBox<$MiningArea>",
+          "PROD[Titanium]",
+      )
+    }
   }
 
   @Test
@@ -39,6 +56,14 @@ internal class MiningAreaTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("NormalCityTile<Kim, Tharsis_2_1>")
 
-    shouldThrow<GameplayException> { kim.playProject(MiningArea, 4) { placeTile(3, 2) } }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTasks("PlayProject<Class<MiningArea>>", "-4 MC")
+        doTask("MiningArea FROM ProjectCard")
+        doTask("MiningArea_SpecialTile<Tharsis_3_2>")
+        // Resolve the production choice to check that this area supplies a metal bonus.
+        selectOnlyTask()
+      }
+    }
   }
 }

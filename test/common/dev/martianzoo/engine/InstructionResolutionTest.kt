@@ -32,7 +32,7 @@ internal class InstructionResolutionTest {
           effector,
           game.classTable,
           elaborator,
-          TimelineImpl(gameWorld, Changer(game.reader, gameWorld, effector), RecordingPositions()),
+          TimelineImpl(gameWorld, Changer(game.reader, gameWorld, effector)),
       )
 
   init {
@@ -56,25 +56,25 @@ internal class InstructionResolutionTest {
   @Test
   internal fun testResolveChange() {
     checkResolution("Ok", "Ok")
-    checkResolution("2 Plant", "2 Plant<Player1>!")
-    checkResolution("2 Plant.", "2 Plant<Player1>!")
-    checkResolution("2 Plant?", "2 Plant<Player1>?")
+    checkResolution("2 Plant", "2! Plant<Player1>")
+    checkResolution("2* Plant", "2! Plant<Player1>")
+    checkResolution("2? Plant", "2? Plant<Player1>")
     checkResolution("-Plant", "-Plant<Player1>!")
-    checkResolution("-9 Plant.", "-Plant<Player1>!")
-    checkResolution("-4 Heat.", "Ok")
-    checkResolution("-4 Heat?", "Ok")
-    checkResolution("-CardFront.", "Ok")
-    checkResolution("Heat FROM Plant.", "Heat<Player1> FROM Plant<Player1>!")
-    checkResolution("9 Heat FROM Plant?", "Heat<Player1> FROM Plant<Player1>?")
-    checkResolution("Plant FROM Heat.", "Ok")
-    checkResolution("Plant FROM Heat?", "Ok")
-    checkResolution("3 Microbe.", "Ok")
-    checkResolution("3 Microbe?", "Ok")
-    checkResolution("-3 Microbe.", "Ok")
-    checkResolution("-3 Microbe?", "Ok")
-    shouldThrow<DependencyException> { preprocessAndResolve("Microbe<Ants>.") }
-    shouldThrow<DependencyException> { preprocessAndResolve("3 Microbe!") }
-    shouldThrow<LimitsException> { preprocessAndResolve("-3 Microbe!") }
+    checkResolution("-9* Plant", "-Plant<Player1>!")
+    checkResolution("-4* Heat", "-0! Heat<Player1>")
+    checkResolution("-4? Heat", "-0? Heat<Player1>")
+    checkResolution("-CardFront*", "Ok")
+    checkResolution("Heat FROM Plant*", "Heat<Player1> FROM Plant<Player1>!")
+    checkResolution("9? Heat FROM Plant", "Heat<Player1> FROM Plant<Player1>?")
+    checkResolution("Plant FROM Heat*", "0! Plant<Player1> FROM Heat<Player1>")
+    checkResolution("Plant FROM Heat?", "0? Plant<Player1> FROM Heat<Player1>")
+    checkResolution("3* Microbe", "Ok")
+    checkResolution("3? Microbe", "Ok")
+    checkResolution("-3* Microbe", "Ok")
+    checkResolution("-3? Microbe", "Ok")
+    shouldThrow<DependencyException> { preprocessAndResolve("Microbe<Ants>*") }
+    shouldThrow<DependencyException> { preprocessAndResolve("3! Microbe") }
+    shouldThrow<LimitsException> { preprocessAndResolve("-3! Microbe") }
     shouldThrow<LimitsException> { preprocessAndResolve("-2 Plant") }
     shouldThrow<LimitsException> { preprocessAndResolve("Plant FROM Heat") }
     shouldThrow<LimitsException> { preprocessAndResolve("2 Heat FROM Plant") }
@@ -84,7 +84,7 @@ internal class InstructionResolutionTest {
         "OxygenStep FROM TerraformRating<Player1>!",
     )
     shouldThrow<ExpressionException> {
-      preprocessAndResolve("2 OxygenStep FROM TerraformRating!")
+      preprocessAndResolve("2! OxygenStep FROM TerraformRating")
     }
   }
 
@@ -112,28 +112,28 @@ internal class InstructionResolutionTest {
 
   @Test
   internal fun reflexiveTransmutationIsRejectedRegardlessOfQuantifier() {
-    shouldThrow<ExpressionException> { preprocessAndResolve("2 Plant FROM Plant!") }
-    shouldThrow<ExpressionException> { preprocessAndResolve("2 Plant FROM Plant?") }
-    shouldThrow<ExpressionException> { preprocessAndResolve("2 Plant FROM Plant.") }
+    shouldThrow<ExpressionException> { preprocessAndResolve("2! Plant FROM Plant") }
+    shouldThrow<ExpressionException> { preprocessAndResolve("2? Plant FROM Plant") }
+    shouldThrow<ExpressionException> { preprocessAndResolve("2* Plant FROM Plant") }
   }
 
   @Test
   internal fun testResolvePer() {
-    checkResolution("Plant / TerraformRating", "20 Plant<Player1>!")
-    checkResolution("Plant / 3 TerraformRating", "6 Plant<Player1>!")
-    checkResolution("Plant / 3 TerraformRating MAX 2", "2 Plant<Player1>!")
-    checkResolution("Plant / Steel", "Ok")
-    checkResolution("Plant / 21 TerraformRating", "Ok")
-    checkResolution("-Plant. / TerraformRating", "-Plant<Player1>!")
+    checkResolution("Plant / TerraformRating", "20! Plant<Player1>")
+    checkResolution("Plant / 3 TerraformRating", "6! Plant<Player1>")
+    checkResolution("Plant / 3 TerraformRating MAX 2", "2! Plant<Player1>")
+    checkResolution("Plant / Steel", "0! Plant<Player1>")
+    checkResolution("Plant / 21 TerraformRating", "0! Plant<Player1>")
+    checkResolution("-Plant* / TerraformRating", "-Plant<Player1>!")
     checkResolution("-Plant? / TerraformRating", "-Plant<Player1>?")
   }
 
   @Test
   internal fun testResolveGated() {
     checkResolution("10 TerraformRating: Plant", "Plant<Player1>!")
-    checkResolution("10 TerraformRating: Plant / TerraformRating", "20 Plant<Player1>!")
+    checkResolution("10 TerraformRating: Plant / TerraformRating", "20! Plant<Player1>")
     // TODO I'm nervous about the <Anyone> disappearing
-    checkResolution("10 TerraformRating: Plant<Anyone> / TerraformRating", "20 Plant!")
+    checkResolution("10 TerraformRating: Plant<Anyone> / TerraformRating", "20! Plant")
     checkResolution(
         "10 TerraformRating: Titanium OR TerraformRating",
         "Titanium<Player1>! OR TerraformRating<Player1>!",
@@ -147,7 +147,7 @@ internal class InstructionResolutionTest {
     checkResolution("EACH Me@Player { Plant }", "Plant<Player1>!, Plant<Player2>!")
     checkResolution(
         "EACH Me@Player { 2 Plant, Heat }",
-        "2 Plant<Player1>!, Heat<Player1>!, 2 Plant<Player2>!, Heat<Player2>!",
+        "2! Plant<Player1>, Heat<Player1>!, 2! Plant<Player2>, Heat<Player2>!",
     )
   }
 
@@ -218,19 +218,19 @@ internal class InstructionResolutionTest {
     checkResolution(
         "-2 Plant OR Plant FROM Heat OR (TerraformRating: 8 Steel) OR " +
             "2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TerraformRating: Plant)",
-        "8 Steel<Player1>!",
+        "8! Steel<Player1>",
     )
 
     checkResolution(
-        "-2 Plant OR Plant FROM Heat OR -Plant. / TerraformRating OR 8 Steel OR " +
+        "-2 Plant OR Plant FROM Heat OR -Plant* / TerraformRating OR 8 Steel OR " +
             "2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TerraformRating: Plant)",
-        "-Plant<Player1>! OR 8 Steel<Player1>!",
+        "-Plant<Player1>! OR 8! Steel<Player1>",
     )
 
     checkResolution("PROD[Plant OR (3 PlantTag: 4 Plant)]", "Production<Player1, Class<Plant>>!")
     checkResolution(
         "Steel / 2 ProjectCard OR -Titanium? OR (Plant: 5 Steel) OR Ok OR 5 Steel",
-        "5 Steel<Player1>! OR Ok",
+        "5! Steel<Player1> OR -0? Titanium<Player1> OR Ok",
     )
     shouldThrow<GameplayException> {
       preprocessAndResolve(

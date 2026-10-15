@@ -1,50 +1,98 @@
 package dev.martianzoo.tfm.tests
 
+import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.agent.exMachina
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.Player
+import dev.martianzoo.state.TaskResult
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.engine.TfmEngine
-import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmWorkflow
 
-/** Focused scenarios with explicit corrections and selected phase shortcuts. */
-internal abstract class TfmSandboxTest : TfmTest() {
-  protected lateinit var players: List<TfmGameplay>
+/**
+ * Focused scenarios with explicit corrections and selected phase shortcuts. The game is set up and
+ * enters the corporation phase normally, but scenarios then act outside the game's turn order.
+ */
+internal abstract class TfmSandboxTest {
+  protected var game: World
+    get() = agents.world
+    set(value) {
+      agents = Agents(value)
+    }
+
+  protected lateinit var agents: Agents
     private set
 
-  protected val kim: TfmGameplay
+  protected val admin: Agent
+    get() = agents[ADMIN]
+
+  protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
+
+  protected fun Agent.auditGainsSince(checkpoint: Checkpoint): Int =
+      game.events.changesSince(checkpoint).count { it.change.gaining?.type == resolve("Audit") }
+
+  protected lateinit var players: List<Agent>
+    private set
+
+  protected val kim: Agent
     get() = players[0]
 
-  protected val stan: TfmGameplay
+  protected val stan: Agent
     get() = checkNotNull(players.getOrNull(1)) { "Stan is sitting this game out" }
 
-  protected val rob: TfmGameplay
+  protected val rob: Agent
     get() = checkNotNull(players.getOrNull(2)) { "Rob is sitting this game out" }
 
   protected fun newTestGame(
       addOptions: String = "",
       playerCount: Int = 3,
       kimCorporation: ClassName? = null,
-      startAtCorporation: Boolean = false,
+  ) = prepareTestGame(addOptions, playerCount, kimCorporation, playCorporations = true)
+
+  /** Prepares Kim to choose and play a corporation explicitly. */
+  protected fun newTestGameBeforeCorporationPlay(
+      addOptions: String = "",
+      playerCount: Int = 3,
+  ) = prepareTestGame(addOptions, playerCount, null, playCorporations = false)
+
+  private fun prepareTestGame(
+      addOptions: String,
+      playerCount: Int,
+      kimCorporation: ClassName?,
+      playCorporations: Boolean,
   ) {
-    val key = Triple(addOptions, playerCount, kimCorporation) to startAtCorporation
+    val key = Triple(addOptions, playerCount, kimCorporation) to playCorporations
     val prepared =
         preparedWorlds.getOrPut(key) {
-          createWorld(addOptions, playerCount, kimCorporation)
-          val workflow = TfmWorkflow.Stepwise(agents)
-          workflow.setupPhase()
-          chooseStartingCards(kimCorporation)
-          workflow.corporationPhase()
-          if (!startAtCorporation) {
-            playStartingCorporations(kimCorporation)
-            if (admin.count("PreludeExpansion") > 0) workflow.preludePhase()
-            else workflow.actionPhase()
+          createWorld(addOptions, playerCount)
+          agents.taskLog.gameStarted()
+          admin.beginOperation("SetupPhase FROM BootstrapPhase")
+          if (
+              playerCount == 1 &&
+                  GameConfig(addOptions).includedClassNames.none {
+                    it in Canon.colonyTileClassNames
+                  } &&
+                  admin.count("SoloColoniesSetup") == 1
+          ) {
+            kim.doTask("-SelectedColonyTile<Class<Callisto>>")
           }
+          chooseStartingCards(kimCorporation, playCorporations)
+          leaveTurnOrder()
+          if (playCorporations) {
+            playStartingCorporations(kimCorporation)
+            setPhase(if (admin.count("PreludeExpansion") > 0) "Prelude" else "Action")
+          }
+          game.timeline.recordPosition()
           game
         }
     // Move the prepared world to the newest position before evicting the oldest.
@@ -55,18 +103,45 @@ internal abstract class TfmSandboxTest : TfmTest() {
     }
     game = Engine.fork(prepared)
     bindPlayers()
+    players.forEach { it.autoExecPolicy = NONE }
   }
 
-  /** Starts focused action tests, skipping any unplayed corporations and Preludes. */
-  protected fun startActionPhase() {
-    check(admin.count("CorporationPhase") + admin.count("PreludePhase") == 1) {
-      "Expected Corporation or Prelude phase"
+  /**
+   * Advances to the next Action phase. From Action, expires generation-scoped state without
+   * simulating production or research; from Corporation or Prelude, skips remaining setup plays.
+   * Pending choices must be completed before advancing.
+   */
+  protected fun advanceUntilActionPhase() {
+    check(game.tasks.isEmpty()) { "Finish pending choices before advancing to Action phase" }
+    if (admin.count("ActionPhase") == 1) {
+      admin.runOperation("Generation")
+    } else {
+      check(admin.count("CorporationPhase") + admin.count("PreludePhase") == 1) {
+        "Expected Corporation, Prelude, or Action phase"
+      }
+      setPhase("Action")
     }
-    check(game.tasks.isEmpty()) { "Finish pending choices before starting Action phase" }
-    TfmWorkflow.Stepwise(agents).actionPhase()
   }
 
-  protected fun TfmGameplay.setToExMachina(targetCount: Int, type: String) {
+  private fun setPhase(phase: String) {
+    check(game.tasks.isEmpty()) { "Finish pending choices before changing phase" }
+    val current = admin.list("Phase").elements.single()
+    admin.sneak("${phase}Phase FROM $current")
+  }
+
+  /**
+   * Setup has handed off to the corporation phase, whose turn order now offers the start player a
+   * corporation. Drops that pending turn order, so that scenarios take their turns ex machina.
+   */
+  private fun leaveTurnOrder() {
+    game.tasks
+        .extract { it.id to it.assignee }
+        .forEach { (id, assignee) ->
+          agents[assignee].dropTask(id)
+        }
+  }
+
+  protected fun Agent.setToExMachina(targetCount: Int, type: String) {
     val countedExpression =
         (parseAs(Metric::class, type) as? Metric.Count)?.expression
             ?: error("Absolute correction requires a countable type: `$type`")
@@ -80,7 +155,8 @@ internal abstract class TfmSandboxTest : TfmTest() {
                       .representedClass
               )
               .className
-      val difference = targetCount - production(resource)
+      val difference =
+          targetCount - count("PROD[$resource]") + count("ProdOffset<Class<$resource>>")
       if (difference == 0) return
       val adjustment =
           when (difference) {
@@ -92,60 +168,80 @@ internal abstract class TfmSandboxTest : TfmTest() {
     } else {
       val difference = targetCount - count(type)
       if (difference == 0) return
-      exMachina("$difference $type")
+      // Sandbox setup may place Admin-owned System markers, such as colony tracks.
+      if (actor == ADMIN && resolvedType.isSubtypeOf(resolve("System"))) {
+        sneak("$difference $type")
+      } else {
+        exMachina("$difference $type")
+      }
     }
   }
 
-  protected fun nextGeneration() {
-    admin.nextGeneration(*IntArray(players.size))
-  }
-
-  /** Scores the current position in seat order without retaining scoring effects or history. */
-  protected fun victoryPoints(): List<Int> {
+  /**
+   * Scores the current position in seat order without retaining scoring effects or history. [body]
+   * resolves any player choices offered during scoring.
+   */
+  protected fun victoryPoints(body: OperationBlock = {}): List<Int> {
     check(game.tasks.isEmpty()) { "Finish pending choices before querying victory points" }
+    game.timeline.recordPosition()
     val checkpoint = game.timeline.checkpoint()
     try {
-      TfmWorkflow.Stepwise(agents).endPhase()
+      admin.runOperation("End FROM Phase", body)
       check(game.tasks.isEmpty()) { "Final scoring has unresolved choices" }
       return players.map { it.count("VictoryPoint") }
     } finally {
-      game.timeline.rollBack(checkpoint)
+      game.timeline.recordPosition()
+      game.timeline.seek(checkpoint)
+      game.timeline.truncate()
     }
   }
 
-  protected fun TfmGameplay.exMachina(adjustment: String) {
+  protected fun Agent.exMachina(adjustment: String) {
     agents.exMachina(actor, adjustment)
   }
 
-  private fun createWorld(addOptions: String, playerCount: Int, kimCorporation: ClassName?) {
+  private fun createWorld(addOptions: String, playerCount: Int) {
     require(playerCount in 1..PLAYER_NAMES.size) {
       "The fixture supports one to ${PLAYER_NAMES.size} players: $playerCount"
     }
-    val options =
-        GameConfig(
-            listOf(addOptions, kimCorporation?.toString().orEmpty()).joinToString(),
-            *PLAYER_NAMES.take(playerCount).toTypedArray(),
-        )
-    val config =
-        options.copy(
-            includedClassNames =
-                (GameConfig(BASE_GAME_OPTIONS).includedClassNames + options.includedClassNames) -
-                    options.excludedClassNames
-        )
+    val options = GameConfig(addOptions, *PLAYER_NAMES.take(playerCount).toTypedArray())
+    val defaults = GameConfig(BASE_GAME_OPTIONS)
+    val config = fixtureConfig(options, defaults)
     game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
     bindPlayers()
+    players.forEach { it.autoExecPolicy = NONE }
   }
 
   private fun bindPlayers() {
-    players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
+    players = game.actors.filterIsInstance<Player>().map { agents[it] }
   }
 
-  private fun chooseStartingCards(kimCorporation: ClassName?) {
+  private fun chooseStartingCards(kimCorporation: ClassName?, playCorporations: Boolean) {
     players.forEachIndexed { index, player ->
-      player.doTask(if (index == 0 && kimCorporation != null) "NonBeginnerMode" else "BeginnerMode")
+      // Resolve setup mode before narrowing it; the selected mode hands setup to Admin.
+      player.selectTask("BeginnerMode OR NonBeginnerMode")
+      player.narrowTask(
+          if (index == 0 && (kimCorporation != null || !playCorporations)) "NonBeginnerMode"
+          else "BeginnerMode"
+      )
+      player.doTask(if (players.size == 1) "14 TerraformRating" else "20 TerraformRating")
+      if (index == 0 && (kimCorporation != null || !playCorporations)) {
+        player.doTasks(
+            "2 CorporationCard",
+            "-CorporationCard",
+            "10 ProjectCard<Selecting>",
+            "-5 ProjectCard<Selecting>",
+        )
+      } else {
+        player.doTask("BeginnerCard")
+      }
+      if (admin.count("PreludeExpansion") > 0) {
+        player.doTasks("4 PreludeCard", "-2 PreludeCard")
+      }
     }
-    if (kimCorporation != null) kim.keepStartingProjects(10)
-    revealTurmoilSetupEvents(game)
+    if (admin.count("RevealComingEvent") > 0) {
+      admin.doTasks("DemocraticReform", "MinimalImpactPolicy")
+    }
     if (players.size == 1) {
       val placements =
           when {
@@ -167,11 +263,18 @@ internal abstract class TfmSandboxTest : TfmTest() {
   private fun playStartingCorporations(kimCorporation: ClassName?) {
     players.forEachIndexed { index, player ->
       if (index == 0 && kimCorporation != null) {
-        player.playCorp(kimCorporation)
+        player.inTurn {
+          doTask("PlayCard<Class<CorporationCard>, Class<$kimCorporation>>")
+          doWithAutoExecPolicy(EAGER) { doTask("-MC / Owed") }
+        }
       } else {
         player.inTurn {
-          doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation${index + 1}>, Hand>")
-          player.pay()
+          doTasks(
+              "PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation${index + 1}>, Hand>",
+              "BeginnerCorporation${index + 1} FROM BeginnerCard",
+              "42 MC",
+              "10 ProjectCard",
+          )
         }
       }
     }
@@ -182,7 +285,7 @@ internal abstract class TfmSandboxTest : TfmTest() {
 
     private const val BASE_GAME_OPTIONS =
         "CorporateEraExpansion, VenusNextExpansion, ColoniesExpansion, " +
-            "PromoCardPack, BeginnerVariant, QuickStartVariant"
+            "promos:cards, BeginnerVariant, QuickStartVariant"
 
     private val PLAYER_NAMES = listOf("Kim", "Stan", "Rob", "Maya", "Nadia")
 

@@ -118,12 +118,12 @@ CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
 ```
 
 The last line is our original Source Effect. The preceding lines are generated from the card's tags,
-immediate instruction, cost, deck, and derived resource role. Tags use the same exact-count invariant
+direct effect, cost, deck, and derived resource role. Tags use the same exact-count invariant
 and automatic creation path as fixed card attachments. Generation preserves the authored order of
 Effects. The parsed declaration enters the Catalog without a card-mode transformation.
 
 **Postcondition:** the Effect now has a Class Declaration as its Context. The declaration says what
-Recyclon directly contributes, but remains inert: it is not yet a Class and has not inherited
+Recyclon contributes, but remains inert: it is not yet a Class and has not inherited
 behavior or received Class-level defaults.
 
 ## 4. The Class Declaration is loaded
@@ -224,7 +224,7 @@ Bar: Bar
 So a Class Effect on `Bar` can already use the Class-header variable declared by `Foo`, while still
 saying `This` elsewhere. An unrelated occurrence of the same Class Name remains an ordinary Type.
 
-Recyclon's selected Effect is declared directly on Recyclon, so it does not visibly exercise this
+Recyclon's selected Effect is declared on Recyclon, so it does not visibly exercise this
 replacement. Its `This` occurrences do exercise the separate late binding in the next stage.
 
 **Postcondition:** a Class Effect has all inherited Class Context, defaults, Quantifiers, and
@@ -370,7 +370,7 @@ First-stage narrowing binds authored Type Variables shared across `THEN` through
 `TypeVariableScope`, followed by `bindXTo` when stages share `X`. When marked syntax has lowered a
 removal's source form, the same scope captures the selected Ground Type from the lowered form before
 applying `invalidChangesToDie`. Recyclon's `THEN` shares neither a Type Variable nor `X`, and its
-removal needs no binding, so selecting its first stage changes the Task structure directly.
+removal needs no binding, so selecting its first stage changes the Task structure.
 
 Recyclon used `:`, so its Triggered Instruction becomes a Task in Player1's Task Queue. Had it used
 `::`, it would have been an Automatic Effect and would not offer this client-visible Task.
@@ -416,7 +416,7 @@ before the selected first stage completes.
 ## 10. Selecting, resolving, and executing the first stage
 
 **PetTransformers, in order:** none during resolution or execution of Recyclon's ordinary Change
-Instruction. Resolution handles its count, Quantifier, Type, and Limits directly. If the client
+Instruction. Resolution handles its count, Quantifier, Type, and Limits. If the client
 identifies the Task by Pets text rather than Task ID, that text uses the client-input pipeline
 listed in stage 9 before resolution begins.
 

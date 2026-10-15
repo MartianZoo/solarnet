@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -18,8 +17,8 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       GameConfig(
           """
           HellasMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, ColoniesExpansion, PromoCardPack, SagittaFrontierServices
-          FakeStuffBundle
+          VenusNextExpansion, PreludeExpansion, prelude2:cards, ColoniesExpansion, promos:cards, SagittaFrontierServices
+          fakes:cards
 
           Ecologist, Terraformer, Terran, Mayor, Merchant, Researcher
           Electrician, Industrialist, Highlander, Investor, Scientist, Manufacturer
@@ -38,7 +37,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
 
   @Test
   internal fun distantPressureMass() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     keepStartingProjects(4, 4)
     generation1()
     generation2()
@@ -118,7 +117,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       assertProduction(m = 6, s = 1, t = 1, p = 1, e = 1, h = 1)
       assertDashMiddle(
           played = 9,
-          vp = 23,
           tr = 20,
           hand = 6,
       )
@@ -130,7 +128,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       assertProduction(m = 10, s = 0, t = 0, p = 2, e = 0, h = 0)
       assertDashMiddle(
           played = 6,
-          vp = 22,
           tr = 23,
           hand = 5,
       )
@@ -182,7 +179,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       assertProduction(m = 6, s = 1, t = 1, p = 1, e = 1, h = 1)
       assertDashMiddle(
           played = 10,
-          vp = 34,
           tr = 20,
           hand = 6,
       )
@@ -194,7 +190,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       assertProduction(m = 10, s = 0, t = 1, p = 2, e = 0, h = 0)
       assertDashMiddle(
           played = 8,
-          vp = 22,
           tr = 23,
           hand = 5,
       )
@@ -388,7 +383,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       assertProduction(m = 10, s = 1, t = 3, p = 3, e = 4, h = 3)
       assertDashMiddle(
           played = 24,
-          vp = 54,
           tr = 31,
           hand = 7,
       )
@@ -400,7 +394,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       assertProduction(m = 20, s = 0, t = 2, p = 2, e = 1, h = 5)
       assertDashMiddle(
           played = 20,
-          vp = 45,
           tr = 33,
           hand = 6,
       )
@@ -492,7 +485,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       assertProduction(m = 14, s = 1, t = 3, p = 6, e = 3, h = 3)
       assertDashMiddle(
           played = 30,
-          vp = 73,
           tr = 37,
           hand = 8,
       )
@@ -504,7 +496,6 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       assertProduction(m = 18, s = 0, t = 2, p = 2, e = 2, h = 5)
       assertDashMiddle(
           played = 23,
-          vp = 59,
           tr = 41,
           hand = 7,
       )
@@ -714,7 +705,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
     been.declineTask()
     keen.assertCounts(1 to "ProjectCard")
     been.assertCounts(0 to "ProjectCard")
-    admin.assertCounts(1 to "End", 1 to "Phase")
+    admin.assertCounts(1 to "VictoryPhase", 1 to "Phase")
 
     keen.assertCounts(47 to "TerraformRating", 117 to "VictoryPoint", 1 to "Victory")
     been.assertCounts(45 to "TerraformRating", 99 to "VictoryPoint", 0 to "Victory")

@@ -1,0 +1,71 @@
+class_name	english_name	published_text
+Briber	Briber	Pay 12 M€ to receive this milestone, in addition to the normal claim cost of 8 M€ (so, 20 M€ total).
+Builder	Builder	7 building tags.
+Coastguard	Coastguard	3 tiles adjacent to ocean.
+Diversifier	Diversifier	8 different tags.
+Ecologist	Ecologist	4 bio tags.
+Energizer	Energizer	6 energy production.
+Engineer	Engineer	10 energy production and heat production combined.
+Farmer	Farmer	5 animal and microbe resources combined.
+Forester	Forester	3 plant production.
+Fundraiser	Fundraiser	12 M€ production.
+Gardener	Gardener	3 greeneries.
+Generalist	Generalist	1 production of each resource. (If you play without the Corporate Era, you need 2 production of each resource instead.)
+Geologist	Geologist	3 tiles on, or adjacent to, volcanic areas (marked with bold text on the maps). If playing with a map without volcanic areas, replace this milestone.
+Hydrologist	Hydrologist	Having placed 4 oceans. (Place owner markers on each ocean until claimed. This owner marker does not make the ocean tile yours, though.)
+Landshaper	Landshaper	1 city, 1 greenery, and 1 special tile.
+Legend	Legend	4 event cards.
+Lobbyist	Lobbyist	Having all your 7 delegates in parties (Party Leaders and Chairman also count).
+Mayor	Mayor	3 cities.
+Merchant	Merchant	2 of each standard resource (after paying the claim cost).
+Metallurgist	Metallurgist	6 steel production and titanium production combined.
+Philantropist	Philantropist	5 cards with non-negative VP. (Cards that count 1 VP per 2 microbes or similar cards also count.)
+Pioneer	Pioneer	4 colonies.
+Planetologist	Planetologist	2 Earth tags, 2 Venus tags, and 2 Jovian tags.
+Planner	Planner	16 cards in hand (when claiming this milestone).
+Producer	Producer	Combined total production of at least 16. Not all types need to be represented, and negative M€ production subtracts from the total.
+Researcher	Researcher	4 science tags.
+RimSettler	Rim Settler	3 Jovian tags.
+Spacefarer	Spacefarer	4 space tags.
+Sponsor	Sponsor	3 cards with a cost of 20 M€ or more.
+Tactician	Tactician	4 cards with requirements.
+Terraformer	Terraformer	29 TR.
+Terran	Terran	5 Earth tags.
+Thawer	Thawer	Having raised temperature 5 times. (Mark with your player marker on the temperature track each time you raise temperature until claimed.)
+Trader	Trader	3 different types of resources on cards.
+Tycoon	Tycoon	10 blue and green cards combined.
+Administrator	Administrator	Most cards with no tags (don’t forget the corporation and Prelude cards).
+Banker	Banker	Highest M€ production.
+Benefactor	Benefactor	Highest TR. If you play with this Award, count it before all other Awards and Milestones!
+Biologist	Biologist	Most bio tags combined (plant, microbe, and animal).
+Botanist	Botanist	Highest plant production.
+Celebrity	Celebrity	Most cards that have a cost of 20 M€ or more.
+Collector	Collector	Most different types of resources, both on your player board and on your cards.
+Constructor	Constructor	Most colonies and cities combined.
+Contractor	Contractor	Most building tags.
+Cultivator	Cultivator	Most greeneries.
+Electrician	Electrician	Most power tags.
+EstateDealer	Estate Dealer	Most tiles next to ocean.
+Excentric	Excentric	Most resources on cards.
+Forecaster	Forecaster	Most cards with requirements.
+Founder	Founder	Most tiles adjacent to special tiles.
+Highlander	Highlander	Most tiles not adjacent to ocean.
+Incorporator	Incorporator	Most cards costing 10 M€ or less.
+Industrialist	Industrialist	Most steel and energy resources combined.
+Investor	Investor	Most Earth tags.
+Landlord	Landlord	Most tiles.
+Landscaper	Landscaper	Most tiles connected together (each player counts his/her largest group of tiles).
+Magnate	Magnate	Most green cards.
+Manufacturer	Manufacturer	Highest production of steel and heat combined.
+Metropolist	Metropolist	Most cities.
+Miner	Miner	Having most steel and titanium resources combined.
+Mogul	Mogul	Highest production of steel, titanium, plants, energy, and heat combined (all except M€ production).
+Politician	Politician	Most Party Leaders and influence combined.
+Promoter	Promoter	Most cards in your event pile.
+Scientist	Scientist	Most science tags.
+SpaceBaron	Space Baron	Most space tags.
+Suburbian	Suburbian	Most tiles on areas along the edges of the map.
+Thermalist	Thermalist	Most heat resources.
+Traveller	Traveller	Most Jovian and Earth tags combined.
+Visionary	Visionary	Most cards in hand.
+Zoologist	Zoologist	Most animal and microbe resources combined.

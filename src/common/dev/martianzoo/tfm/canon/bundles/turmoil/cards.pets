@@ -1,0 +1,259 @@
+// Turmoil declarations that accompany the generated project cards.
+
+// Published Turmoil Global Events.
+CLASS DemocraticReform : GePartyDistant<MarsFirst>, GePartyCurrent<Greens> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<AquiferReleasedByPublicCouncil>>]
+}
+
+CLASS AquiferReleasedByPublicCouncil : GlobalEffect {
+  OWN[This IF StartToken, GpIncomplete<Class<OceanTile>>: OceanTile<> BY Admin]
+  OWN[This: Plant / Influence, Steel / Influence]
+}
+
+CLASS MiningRestrictions : GePartyDistant<Reds>, GePartyCurrent<Unity> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<AsteroidMiningGlobalEffect>>]
+}
+
+CLASS AsteroidMiningGlobalEffect : GlobalEffect {
+  OWN[This: Titanium / JovianTag MAX 5, Titanium / Influence]
+}
+
+CLASS SolarnetGlobalEvent : GePartyDistant<Unity>, GePartyCurrent<Greens> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<CelebrityLeaders>>]
+}
+
+CLASS CelebrityLeaders : GlobalEffect {
+  OWN[This: 2 MC / PlayedEvent MAX 5, 2 MC / Influence]
+}
+
+CLASS FreeAcademiaTreaty : GePartyDistant<Scientists>, GePartyCurrent<Scientists> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<Diversity>>]
+}
+
+CLASS Diversity : GlobalEffect {
+  OWN[This: 10 MC / (9 (Class<@Tag>(HAS @Tag) OR Influence) MAX 1)]
+}
+
+CLASS MinimalImpactPolicy : GePartyDistant<Reds>, GePartyCurrent<Unity> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<DryDeserts>>]
+}
+
+CLASS DryDeserts : GlobalEffect {
+  OWN[This IF StartToken, GpIncomplete<Class<OceanTile>>: -OceanTile]
+  OWN[This: EACH Influence { StandardResource }]
+}
+
+CLASS ExperimentalLifeforms : GePartyDistant<Greens>, GePartyCurrent<Reds> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<EcoSabotage>>]
+}
+
+CLASS EcoSabotage : GlobalEffect {
+  OWN[This: -Plant! / (Plant - Influence - 3)]
+}
+
+CLASS SelfSufficiencyProgram : GePartyDistant<Greens>, GePartyCurrent<MarsFirst> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<Election>>]
+}
+
+CLASS Election : GlobalEffect {
+  OWN[This IF MultiplayerMode, Me@Player(HAS =1 (RANK Ranked@Player { Influence<Ranked@> OR BuildingTag<Ranked@> OR CityTile<Ranked@> })): 2 TerraformRating]
+  OWN[This IF MultiplayerMode, Me@Player(HAS =2 (RANK Ranked@Player { Influence<Ranked@> OR BuildingTag<Ranked@> OR CityTile<Ranked@> })): TerraformRating]
+  OWN[This IF SoloMode: TerraformRating / 5 (Influence OR BuildingTag OR CityTile) MAX 2]
+}
+
+CLASS TerraformingLobbying : GePartyDistant<Kelvinists>, GePartyCurrent<Unity> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<GenerousFunding>>]
+}
+
+CLASS GenerousFunding : GlobalEffect {
+  OWN[This: 2 MC / 5 (TerraformRating - 15) MAX 5, 2 MC / Influence]
+}
+
+CLASS HeatFirstPolicy : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<GlobalDustStorm>>]
+}
+
+CLASS GlobalDustStorm : GlobalEffect {
+  OWN[This: -Heat! / Heat, -2* MC / (BuildingTag MAX 5 - Influence)]
+}
+
+CLASS RedResistance : GePartyDistant<Reds>, GePartyCurrent<Unity> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<HomeworldSupport>>]
+}
+
+CLASS HomeworldSupport : GlobalEffect {
+  OWN[This: 2 MC / EarthTag MAX 5, 2 MC / Influence]
+}
+
+CLASS SecondEnergyCrisis : GePartyDistant<Scientists>, GePartyCurrent<Kelvinists> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<ImprovedEnergyTemplates>>]
+}
+
+CLASS ImprovedEnergyTemplates : GlobalEffect {
+  OWN[This: PROD[Energy / 2 (PowerTag OR Influence)]]
+}
+
+CLASS CharismaticWgPresident : GePartyDistant<Unity>, GePartyCurrent<Unity> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<InterplanetaryTradeGlobalEffect>>]
+}
+
+CLASS InterplanetaryTradeGlobalEffect : GlobalEffect {
+  OWN[This: 2 MC / SpaceTag MAX 5, 2 MC / Influence]
+}
+
+CLASS RisingAlloyDemand : GePartyDistant<MarsFirst>, GePartyCurrent<Greens> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<MinersOnStrike>>]
+}
+
+CLASS MinersOnStrike : GlobalEffect {
+  OWN[This: -Titanium* / (JovianTag MAX 5 - Influence)]
+}
+
+CLASS ThawMining : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<MudSlides>>]
+}
+
+CLASS MudSlides : GlobalEffect {
+  OWN[This: -4* MC / (OwnedTile<MarsArea(HAS Neighbor<OceanTile>)> MAX 5 - Influence)]
+}
+
+CLASS ViralModificationsApproved : GePartyDistant<Greens>, GePartyCurrent<MarsFirst> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<Pandemic>>]
+}
+
+CLASS Pandemic : GlobalEffect {
+  OWN[This: -3* MC / (BuildingTag MAX 5 - Influence)]
+}
+
+CLASS ScientificConsensus : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<ParadigmBreakdown>>]
+}
+
+CLASS ParadigmBreakdown : GlobalEffect {
+  OWN[This: -2* ProjectCard, 2 MC / Influence]
+}
+
+CLASS ScientificProgress : GePartyDistant<Scientists>, GePartyCurrent<MarsFirst> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<Productivity>>]
+}
+
+CLASS Productivity : GlobalEffect {
+  OWN[This: Steel / PROD[Steel] MAX 5, Steel / Influence]
+}
+
+CLASS AntarcticaMelts : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<RedInfluence>>]
+}
+
+CLASS RedInfluence : GlobalEffect {
+  OWN[This: -3* MC / (5 (TerraformRating - 10) MAX 5), PROD[1 MC / Influence]]
+}
+
+CLASS WorldGovernmentDirectives : GePartyDistant<Unity>, GePartyCurrent<MarsFirst> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<Revolution>>]
+}
+
+CLASS Revolution : GlobalEffect {
+  OWN[This IF MultiplayerMode, Me@Player(HAS 1 (EarthTag OR Influence), HAS =1 (RANK Ranked@Player { EarthTag<Ranked@> OR Influence<Ranked@> })): -2* TerraformRating]
+  OWN[This IF MultiplayerMode, Me@Player(HAS 1 (EarthTag OR Influence), HAS =2 (RANK Ranked@Player { EarthTag<Ranked@> OR Influence<Ranked@> })): -TerraformRating*]
+  OWN[This IF SoloMode, Me@Player(HAS 4 (EarthTag OR Influence)): -2* TerraformRating]
+}
+
+CLASS IndependenceMovement : GePartyDistant<MarsFirst>, GePartyCurrent<Reds> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<Riots>>]
+}
+
+CLASS Riots : GlobalEffect {
+  OWN[This: -4* MC / (CityTile MAX 5 - Influence)]
+}
+
+CLASS CorporateAlliance : GePartyDistant<Unity>, GePartyCurrent<Reds> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<SabotageGlobalEffect>>]
+}
+
+CLASS SabotageGlobalEffect : GlobalEffect {
+  OWN[This: PROD[-Steel*, -Energy*], Steel / Influence]
+}
+
+CLASS ExploreFirstDirective : GePartyDistant<Reds>, GePartyCurrent<Scientists> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<ScientificCommunity>>]
+}
+
+CLASS ScientificCommunity : GlobalEffect {
+  OWN[This: 1 MC / ProjectCard, 1 MC / Influence]
+}
+
+CLASS MoholeLakeGlobalEvent : GePartyDistant<Kelvinists>, GePartyCurrent<Kelvinists> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<SnowCover>>]
+}
+
+CLASS SnowCover : GlobalEffect {
+  OWN[This IF StartToken, GpIncomplete<Class<TemperatureStep>>: -2 TemperatureStep BY Admin]
+  OWN[This: ProjectCard / Influence]
+}
+
+CLASS IncreasedInterplanetaryTrade : GePartyDistant<Unity>, GePartyCurrent<Kelvinists> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<SolarFlare>>]
+}
+
+CLASS SolarFlare : GlobalEffect {
+  OWN[This: -3* MC / (SpaceTag MAX 5 - Influence)]
+}
+
+CLASS AiResearch : GePartyDistant<Scientists>, GePartyCurrent<MarsFirst> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<SolarnetShutdown>>]
+}
+
+CLASS SolarnetShutdown : GlobalEffect {
+  OWN[This: -3* MC / (ActiveCard MAX 5 - Influence)]
+}
+
+CLASS BioengineeringBoom : GePartyDistant<Greens>, GePartyCurrent<Scientists> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<SpinOffProducts>>]
+}
+
+CLASS SpinOffProducts : GlobalEffect {
+  OWN[This: 2 MC / ScienceTag MAX 5, 2 MC / Influence]
+}
+
+CLASS ScienceSummit : GePartyDistant<Scientists>, GePartyCurrent<Greens> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<SponsoredProjects>>]
+}
+
+CLASS SponsoredProjects : GlobalEffect {
+  OWN[This IF StartToken: EACH Card@ResourceCard<Anyone>(HAS CardResource) { CardResource<Card@> BY Admin }]
+  OWN[This: ProjectCard / Influence]
+}
+
+CLASS MoralMovement : GePartyDistant<Reds>, GePartyCurrent<MarsFirst> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<StrongSociety>>]
+}
+
+CLASS StrongSociety : GlobalEffect {
+  OWN[This: 2 MC / CityTile MAX 5, 2 MC / Influence]
+}
+
+CLASS LocalTerraformingSupport : GePartyDistant<MarsFirst>, GePartyCurrent<Scientists> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<SuccessfulOrganisms>>]
+}
+
+CLASS SuccessfulOrganisms : GlobalEffect {
+  OWN[This: Plant / PROD[Plant] MAX 5, Plant / Influence]
+}
+
+CLASS PateraBoring : GePartyDistant<Scientists>, GePartyCurrent<Kelvinists> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<VolcanicEruptions>>]
+}
+
+CLASS VolcanicEruptions : GlobalEffect {
+  OWN[This IF StartToken: 2 TemperatureStep BY Admin]
+  OWN[This: PROD[Heat / Influence]]
+}
+
+CLASS SeparatistMovement : GePartyDistant<MarsFirst>, GePartyCurrent<Kelvinists> {
+  OWN[Current<This>:: PendingGlobalEffect<Current<This>, Class<WarOnEarth>>]
+}
+
+CLASS WarOnEarth : GlobalEffect {
+  OWN[This: -TerraformRating* / (4 - Influence)]
+}

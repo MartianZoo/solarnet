@@ -19,6 +19,7 @@ import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Resolution
 import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.FromExpression.Unchanged
+import dev.martianzoo.pets.ast.Instruction.Dispatch
 import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
@@ -136,6 +137,10 @@ internal class Own(private val classTable: ClassTable) : TransformHandler {
                   (node is Requirement.Eval && node.me == null))
       )
           return true
+      if (node is Dispatch) {
+        return (node.actor?.let { needsMe(it, available) } ?: false) ||
+            needsMe(node.body, available || node.actor != null)
+      }
       if (node is Each) {
         val selected = available || selectedMe(node.selector) != null
         return needsMe(node.selector, selected) || needsMe(node.body, selected)
@@ -169,7 +174,7 @@ internal class Own(private val classTable: ClassTable) : TransformHandler {
             }
         return node.refinement?.let(::needsMeInRefinement) ?: false
       }
-      return node.immediateChildren().any { needsMe(it, available) }
+      return node.childNodes().any { needsMe(it, available) }
     }
 
     fun supplyFromTrigger(trigger: Effect.Trigger): Pair<Effect.Trigger, Expression> {

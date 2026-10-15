@@ -13,18 +13,33 @@ import dev.martianzoo.pets.ast.ClassName
  * requires another Pets supertype. Maps currently fill both roles, while parties do not yet support
  * individual selection.
  *
- * The current conventional loader associates card resources and colony tiles with a same-named
- * Module when one exists. That naming convention is packaging policy, not the semantic identity of
- * the Bundle, Module, or Content.
+ * A bundle has a short lowercase source name independent of its Classes. Its primary Module, when
+ * present, controls default selection of the bundle's cards, goals, and colony tiles, plus
+ * availability of supporting declarations. Canon supplies this association from its authored bundle
+ * manifest.
  */
 public abstract class Bundle(
-    public val bundleName: ClassName,
+    /** Source identity, also used by `name:cards`; never a Pets Class Name. */
+    public val bundleName: String,
+    /** Gameplay Module governing this bundle's default Content and support availability, if any. */
+    internal val primaryModuleName: ClassName? = null,
 ) : TfmCatalog() {
+  init {
+    require(BUNDLE_NAME.matches(bundleName)) { "invalid bundle name: $bundleName" }
+  }
+
   /** Declarations that live in this bundle's card resource, including auxiliary classes. */
   internal open val cardResourceClassNames: Set<ClassName> = emptySet()
 
-  /** Card-resource declaration names grouped by the Module matching their resource directory. */
-  internal open val moduleCardClassNames: Map<ClassName, Set<ClassName>> = emptyMap()
+  /** Direct Content relationships keyed by the replacement. */
+  internal open val replacements: Map<ClassName, ClassName> = emptyMap()
+
+  /** Cards omitted from this bundle's default pool while remaining individually selectable. */
+  internal open val excludedDefaultCards: Set<ClassName> = emptySet()
 
   final override val bundles: List<Bundle> = listOf(this)
+
+  private companion object {
+    private val BUNDLE_NAME = Regex("[a-z][a-z0-9]*")
+  }
 }

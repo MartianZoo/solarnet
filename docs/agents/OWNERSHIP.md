@@ -49,7 +49,7 @@ The current contracts are defined on [Agent](../../src/common/dev/martianzoo/age
 | --- | --- |
 | Player Agent input | Always wrap the entire input, including text already containing OWN. |
 | Admin Agent or direct PetElaborator input | Never add a mark; explicit marks still apply. |
-| Compiled card immediate effects, actions, effects, and supporting rules | Always add OWN. |
+| Compiled card direct effects, actions, effects, and supporting rules | Always add OWN. |
 | Card requirement property | Keep literal; PlayCard applies OWN at its use. |
 | Card static invariants and auto-selection predicates | Keep literal, without implicit player scope. |
 | Generated map placement rules | Add OWN. Handwritten Canon marks the rules that need it. |
@@ -77,7 +77,8 @@ implementation responsibilities are:
 - [Own](../../src/common/dev/martianzoo/pets/Own.kt) fills omitted owner dependencies from Me,
   respecting explicit recipients, Anyone, linked dependencies, HAS candidates, and whole-Type
   references. It also emits explicit BY filters for unowned, non-System subscriptions when Me is
-  visible. A named EACH or RANK selector can provide a new Me.
+  visible. A named EACH or RANK selector can provide a new Me. TASK, LATER, and FINALLY provide their
+  recipient as Me inside their bodies; OWN uses that recipient without changing unmarked bodies.
 - [PetElaborator](../../src/common/dev/martianzoo/pets/PetElaborator.kt) applies ordinary defaults
   before transforms, records Type-variable scopes after structural rewrites, and expands properties.
   Every marked EVAL initially defers its transform, including properties that can expand in the
@@ -178,6 +179,12 @@ candidate field to transform scope did not solve property expansion for defaults
 `PROD[@StandardResource]: OWN[@StandardResource]`, an instruction-level mark can see the trigger's
 old component-choice role rather than the Class-selection role produced by PROD. Whole-effect OWN
 sees the rewritten trigger. No current Canon occurrence is known.
+
+A separate reproduced case uses a represented Class from a class header inside a locally bound
+fanout: `OWN[Resolve: EACH Me@Player { @GlobalEffect }]` attempts to transform the header variable
+metadata without an outer Me. The current `PendingGlobalEffect` instead marks the gain inside the
+fanout: `ResolveGlobalEvent: EACH Me@Player { OWN[@GlobalEffect] }`. Investigate the outer mark's
+metadata traversal without changing that explicit local spelling merely for uniformity.
 
 Reproduce the difference before selecting a fix. **Tentative:** record the role on the declaration
 that a transform changes, instead of reconstructing it in another pass. Retain access to header and

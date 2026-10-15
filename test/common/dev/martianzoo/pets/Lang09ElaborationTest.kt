@@ -43,39 +43,21 @@ internal class Lang09ElaborationTest {
     return PetElaborator(table).elaborateMetricInput(parse(source), parse("Area"))
   }
 
-  @Test
-  internal fun `L9-13 an ownerless System trigger cannot infer a Player actor`() {
-    listOf("Phase", "This").forEach { trigger ->
-      val table =
-          loadTypes(
-              "ABSTRACT CLASS Player : Owner, Actor",
-              "CLASS Player1 : Player",
-              "CLASS Player2 : Player",
-              "CLASS Plant : Owned<Player>",
-              "CLASS Phase : System",
-              "CLASS Rule : System { OWN[$trigger: Plant] }",
-          )
-      shouldThrow<InvalidPetDefinitionException> {
-            PetElaborator(table).classEffects(table.getClass(cn("Rule")))
-          }
-          .message
-          .orEmpty() shouldContain "a System trigger cannot implicitly supply a Player"
-    }
-  }
+  // L9-1 The stages
 
   @Test
   internal fun `L9-1 scopes follow defaults without making references request defaults`() {
     val table =
         loadTypes(
             """
-      ABSTRACT CLASS Area {
-        CLASS First
-        CLASS Second
-      }
-      CLASS Piece<Area> { DEFAULT +Piece<First>; DEFAULT -Piece<Second> }
-      CLASS Marker
-      CLASS Notice<Piece<Area>>
-    """
+                ABSTRACT CLASS Area {
+                  CLASS First
+                  CLASS Second
+                }
+                CLASS Piece<Area> { DEFAULT +Piece<First>; DEFAULT -Piece<Second> }
+                CLASS Marker
+                CLASS Notice<Piece<Area>>
+                """
         )
     val elaborator = PetElaborator(table)
     val cases =
@@ -112,8 +94,6 @@ internal class Lang09ElaborationTest {
       binding.transformInstructionTree(lowered) shouldBe parse<InstructionTree>(expected)
     }
   }
-
-  // L9-1 The stages
 
   @Test
   internal fun `L9-1 a submitted element goes through the submitted pipeline's stages`() {
@@ -152,11 +132,10 @@ internal class Lang09ElaborationTest {
 
     bound.transformInstructionTree(parse("Plant<This>")).toString() shouldBe "Plant<It<Worked>>"
     bound.transformInstructionTree(parse("Class<This>")).toString() shouldBe "Class<It>"
-    bound.transformInstructionTree(parse("This<Plant>")).toString() shouldBe "It<Plant>"
     bound
-        .transformEffect(parse("-Ooh<Plant<Xyz, This, Gizmo>>: 5 This?, =0 This: -Widget"))
+        .transformEffect(parse("-Ooh<Plant<Xyz, This, Gizmo>>: 5? This, =0 This: -Widget"))
         .toString() shouldBe
-        "-Ooh<Plant<Xyz, It<Worked>, Gizmo>>: 5 It<Worked>?, =0 It<Worked>: -Widget"
+        "-Ooh<Plant<Xyz, It<Worked>, Gizmo>>: 5? It<Worked>, =0 It<Worked>: -Widget"
   }
 
   // L9-3 Owned context
@@ -363,11 +342,11 @@ internal class Lang09ElaborationTest {
 
   @Test
   internal fun `L9-8 the two default quantifiers are intersected, the stricter winning`() {
-    // `Chit` defaults its gain to `?`; `Slug` defaults its removal to `.`; `Plant` inherits `!`.
+    // `Chit` defaults its gain to `?`; `Slug` defaults its removal to `*`; `Plant` inherits `!`.
     elaborate("Chit") shouldBe parse<InstructionTree>("Chit<Player1>?")
-    elaborate("-Slug") shouldBe parse<InstructionTree>("-Slug<Player1>.")
+    elaborate("-Slug") shouldBe parse<InstructionTree>("-Slug<Player1>*")
 
-    elaborate("Chit FROM Slug") shouldBe parse<InstructionTree>("Chit<Player1> FROM Slug<Player1>.")
+    elaborate("Chit FROM Slug") shouldBe parse<InstructionTree>("Chit<Player1> FROM Slug<Player1>*")
     elaborate("Chit FROM Plant") shouldBe
         parse<InstructionTree>("Chit<Player1> FROM Plant<Player1>!")
     elaborate("Chit FROM Slug!") shouldBe
@@ -452,7 +431,7 @@ internal class Lang09ElaborationTest {
             "ProjectCard<Player1>!, ProjectCard<Player1>!, ProjectCard<Player1>!"
         )
     elaborate("ProjectCard") shouldBe parse<InstructionTree>("ProjectCard<Player1>!")
-    elaborate("-3 ProjectCard") shouldBe parse<InstructionTree>("-3 ProjectCard<Player1>!")
+    elaborate("-3 ProjectCard") shouldBe parse<InstructionTree>("-3! ProjectCard<Player1>")
   }
 
   // L9-12 EVAL
@@ -581,6 +560,45 @@ internal class Lang09ElaborationTest {
   // L9-13 Class effects
 
   @Test
+  internal fun `L9-13 an ownerless System trigger cannot infer a Player actor`() {
+    listOf("Phase", "-Phase", "This", "-This").forEach { trigger ->
+      val table =
+          loadTypes(
+              "ABSTRACT CLASS Player : Owner, Actor",
+              "CLASS Player1 : Player",
+              "CLASS Player2 : Player",
+              "CLASS Plant : Owned<Player>",
+              "CLASS Phase : System",
+              "CLASS Rule : System { OWN[$trigger: Plant] }",
+          )
+      shouldThrow<InvalidPetDefinitionException> {
+            PetElaborator(table).classEffects(table.getClass(cn("Rule")))
+          }
+          .message
+          .orEmpty() shouldContain "a System trigger cannot implicitly supply a Player"
+    }
+  }
+
+  @Test
+  internal fun `L9-13 System triggers can use an owned event or an explicit recipient`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Player : Owner, Actor",
+            "CLASS Player1 : Player",
+            "CLASS Player2 : Player",
+            "CLASS Plant : Owned<Player>",
+            "CLASS Phase : System",
+            "CLASS PlayerPhase : System, Owned<Player>",
+            "CLASS Rule { OWN[PlayerPhase: Plant]; Phase: Plant<Player2> }",
+        )
+    PetElaborator(table).classEffects(table.getClass(cn("Rule"))) shouldBe
+        listOf(
+            parse<Effect>("PlayerPhase<Me@Player>: Plant<Me@Player>!"),
+            parse<Effect>("Phase: Plant<Player2>!"),
+        )
+  }
+
+  @Test
   internal fun `L9-13 effects are gathered from every superclass and elaborated in context`() {
     classEffects("SimpleRule").size shouldBe 1
     classEffects("OwnedRule").single().toString() shouldBe "This: Plant<Me@Owner>!"
@@ -630,12 +648,12 @@ internal class Lang09ElaborationTest {
 
     specialize("This: Steel<Seat1>!").instruction shouldBe parse<InstructionTree>("Die!")
     specialize("This: Steel<Seat1>?").instruction shouldBe parse<InstructionTree>("Ok")
-    specialize("This: Steel<Seat1>.").instruction shouldBe parse<InstructionTree>("Ok")
+    specialize("This: Steel<Seat1>*").instruction shouldBe parse<InstructionTree>("Ok")
     specialize("This: Empty!").instruction shouldBe parse<InstructionTree>("Die!")
     specialize("This: Empty?").instruction shouldBe parse<InstructionTree>("Ok")
     specialize("This: Plant<This>!").instruction shouldBe parse<InstructionTree>("Die!")
     specialize("This: Plant<This>?").instruction shouldBe parse<InstructionTree>("Ok")
-    specialize("This: Plant<This>.").instruction shouldBe parse<InstructionTree>("Ok")
+    specialize("This: Plant<This>*").instruction shouldBe parse<InstructionTree>("Ok")
     specialize("This: Empty? / Plant<Seat1>").instruction shouldBe parse<InstructionTree>("Ok")
     specialize("This: EACH Plant<Seat1> { Empty? }").instruction shouldBe
         parse<InstructionTree>("Ok")

@@ -75,8 +75,8 @@ internal class ClassDefinitionBoundaryTest {
   @Test
   internal fun `Prelude 2 cards needing Venus wait for Venus Next`() {
     val standardGame = classesInGame("")
-    val prelude2Game = classesInGame("Prelude2CardPack")
-    val prelude2WithVenus = classesInGame("Prelude2CardPack, VenusNextExpansion")
+    val prelude2Game = classesInGame("prelude2:cards")
+    val prelude2WithVenus = classesInGame("prelude2:cards, VenusNextExpansion")
 
     standardGame.shouldNotContain(cn("Ecotec"))
     prelude2Game.shouldContain(cn("Ecotec"))
@@ -110,7 +110,7 @@ internal class ClassDefinitionBoundaryTest {
   @Test
   internal fun `the promo pack selects the new Deimos Down instead of the original`() {
     val standardGame = classesInGame("")
-    val promoGame = classesInGame("PromoCardPack")
+    val promoGame = classesInGame("promos:cards")
 
     standardGame.shouldContain(cn("DeimosDown"))
     standardGame.shouldNotContain(cn("DeimosDownPromo"))
@@ -120,8 +120,8 @@ internal class ClassDefinitionBoundaryTest {
 
   @Test
   internal fun `Refugee Camps brings its Camp resource unless the card is excluded`() {
-    val coloniesGame = classesInGame("ColoniesExpansion")
-    val withoutRefugeeCamps = classesInGame("ColoniesExpansion, -RefugeeCamps")
+    val coloniesGame = classesInGame("ColoniesExpansion, Callisto")
+    val withoutRefugeeCamps = classesInGame("ColoniesExpansion, Callisto, -RefugeeCamps")
     val gameSelectingCampDirectly = classesInGame("Camp")
 
     coloniesGame.shouldContain(cn("Camp"))
@@ -142,7 +142,7 @@ internal class ClassDefinitionBoundaryTest {
 
   @Test
   internal fun `choosing a colony tile enables its solo setup`() {
-    val soloWithoutTileChoice = classesInGame("ColoniesExpansion", players = 1)
+    val soloWithoutTileChoice = classesInGame("", players = 1)
     val soloWithTileChoice = classesInGame("ColoniesExpansion, Callisto", players = 1)
     val multiplayerWithTileChoice = classesInGame("ColoniesExpansion, Callisto", players = 2)
 

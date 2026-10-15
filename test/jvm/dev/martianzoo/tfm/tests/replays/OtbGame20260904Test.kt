@@ -4,7 +4,6 @@ import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -22,8 +21,8 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       GameConfig(
           """
           AmazonisMap, Unsafe
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack
-          FakeStuffBundle
+          VenusNextExpansion, PreludeExpansion, prelude2:cards, promos:cards
+          fakes:cards
 
           Builder, Diversifier, Generalist, Landshaper, Tactician
           Administrator, Excentric, Highlander, Promoter, Thermalist
@@ -48,7 +47,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
 
   @Test
   internal fun otbGame20260904() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     val yellow = p1.requireExplicitUnusedActionCards()
     val rainbow = p2.requireExplicitUnusedActionCards()
     val blue = p3.requireExplicitUnusedActionCards()
@@ -137,7 +136,6 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     rainbow.turn {
       // 2:23:34 PM — Rainbow: "Okay. I draw cards until I get three Venus."
       stdAction("RequiredActionsSignal")
-      rainbow.exMachina(fakeWildTags("VenusTag"))
     }
     // 2:26:16 PM — Green: "you paid sixteen for that full price, you got two heat production."
     blue.turn { playProject(HomeostasisBureau, 16).expect("PROD[2 Heat]") }
@@ -772,7 +770,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
             autoExecNow()
             blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
-            doTask("-5 Plant<Yellow>!")
+            doTask("-5! Plant<Yellow>")
           }
           .expect("-16 MC, -2 Titanium, Steel, 2 Plant, PROD[3 Energy<Blue>]")
     }
@@ -1136,8 +1134,8 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
         rainbow.doTask("OceanTile<Amazonis_02_01> BY Green")
         green.doTask("OceanTile<Amazonis_02_01>")
         green.doTask("TerraformRating")
-        selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
-        blue.narrowTask("Ok")
+        blue.selectTask("UseAction<NeptunianOption>?")
+        blue.narrowTask("0 UseAction<NeptunianOption<NeptunianPowerConsultants>>")
       }
     }
     green.pass(unused = VenusShuttles)
@@ -1462,7 +1460,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // that A_I_ knows that I need to buy two. Yeah. Um I have bought two cards. It is also stupid
     // of
     // me to buy two, but whatever."
-    // Research is submitted below in workflow order; the quotes remain in recording order.
+    // Research is submitted below in the game's order; the quotes remain in recording order.
     green.buyCards(3)
     yellow.buyCards(2)
     rainbow.buyCards(2)
@@ -1775,7 +1773,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // 6:06:19 PM — Blue: "Pigeon, I'm I'm buying two cards. I'm by one card."
     // 6:06:32 PM — Green: "I would buy one card."
     // All four app histories supply the otherwise unspoken Yellow and Rainbow counts. Research is
-    // submitted in workflow order.
+    // submitted in the game's order.
     yellow.buyCards(2)
     rainbow.buyCards(2)
     blue.buyCards(1)
@@ -1846,7 +1844,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 6:13:16 PM — Green: "Two cubes. Says you take two floaters off."
       // 6:13:23 PM — Rainbow: "was dumb of me I could have put my applied science somewhere super
       // better all right fine two off for one titanium and two money D aww, yeah,"
-      cardAction2(FloatingRefinery) { doTask("-2 Floater<$FloatingRefinery>!") }
+      cardAction2(FloatingRefinery) { doTask("-2! Floater<$FloatingRefinery>") }
       // The app records a 3 M€ gain for the card's 2 M€ action.
       rainbow.exMachina("MC")
       // 6:14:06 PM — Rainbow: "I'm gonna take my thermal viol back, that too out a microbe to any
@@ -2051,7 +2049,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 9:32:57 PM — Yellow: "Base bird."
       assertCardResources(6 to StratosphericBirds)
       // Rainbow physically used Maxwell Base at both 9:21:58 and 9:32:51 in the same generation.
-      // The first use consumed its action, so record the directly evidenced illegal second bird.
+      // The first use consumed its action, so record the recorded illegal second bird.
       exMachina("Animal<$StratosphericBirds>")
       assertCardResources(7 to StratosphericBirds)
     }
@@ -2105,7 +2103,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // 9:35:59 PM — Yellow: "I pass."
     yellow.pass(unused = SpaceMirrors)
     // Yellow's app has no entries for CEO's Favorite or either late patent sale. Those three
-    // directly evidenced actions net +1 M€, but the next app balance remains 2 M€ before the
+    // recorded actions net +1 M€, but the next app balance remains 2 M€ before the
     // 44 M€ production credit. Reconcile that recorded one-M€ omission at Yellow's final action.
     yellow.assertCounts(3 to "MC")
     yellow.exMachina("-MC")
@@ -2145,7 +2143,9 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 9:38:11 PM — Rainbow: "Now no space tag."
       // 9:38:15 PM — Rainbow: "But I still took the asteroid deflection system action, so I put a
       // cube on my card."
-      cardAction1(AsteroidDeflectionSystem) { doTask("Ok") }
+      cardAction1(AsteroidDeflectionSystem) {
+        doTask("0 ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>")
+      }
     }
     green.turn {
       // 9:38:27 PM — Green: "Um, well, I mean, actually, I might as well spend the four on ishtar

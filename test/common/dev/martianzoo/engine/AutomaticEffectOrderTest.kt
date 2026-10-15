@@ -3,6 +3,7 @@ package dev.martianzoo.engine
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -43,19 +44,21 @@ internal class AutomaticEffectOrderTest {
     if (randomAutomaticEffectOrderEnabled) return
 
     val world = Engine.newGame(premise) as WholeWorld
-    val admin = world.testAgent(ADMIN)
-    admin.runOperation("Earlier")
-    admin.runOperation("Later")
-    admin.runOperation("Token")
+    val player = world.testAgent(PLAYER1)
+    player.runOperation("Earlier")
+    player.runOperation("Later")
+    player.runOperation("Token")
     val baseline = world.timeline.checkpoint()
 
-    val firstContext = removalContext(world, admin)
-    world.timeline.rollBack(baseline)
+    val firstContext = removalContext(world, player)
+    world.timeline.seek(baseline)
+    world.timeline.truncate()
 
-    admin.runOperation("-Earlier")
-    world.timeline.rollBack(baseline)
+    player.runOperation("-Earlier")
+    world.timeline.seek(baseline)
+    world.timeline.truncate()
 
-    removalContext(world, admin) shouldBe firstContext
+    removalContext(world, player) shouldBe firstContext
   }
 
   private fun removalContext(world: WholeWorld, admin: Agent): String {
@@ -76,7 +79,7 @@ internal class AutomaticEffectOrderTest {
               This:: Watcher<This>
               This:: Pulse
             }
-            CLASS Watcher<Subject> { Pulse:: Observed. }
+            CLASS Watcher<Subject> { Pulse:: Observed* }
             CLASS Pulse
             CLASS Observed
             """,
@@ -88,10 +91,10 @@ internal class AutomaticEffectOrderTest {
             """
             CLASS Trigger : Signal
             CLASS Token
-            CLASS Earlier { Trigger:: -Token. }
-            CLASS Later { Trigger:: -Token. }
+            CLASS Earlier { Trigger:: -Token* }
+            CLASS Later { Trigger:: -Token* }
             """,
-            players = 0,
+            players = 1,
         )
   }
 }

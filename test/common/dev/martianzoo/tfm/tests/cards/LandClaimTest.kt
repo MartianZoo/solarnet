@@ -14,10 +14,23 @@ internal class LandClaimTest : TfmSandboxTest() {
 
   @Test
   internal fun `Prevents an opponent from building on the claimed area`() {
-    kim.playProject(LandClaim, 1) { doTask("Community<Tharsis_1_1>") }
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<LandClaim>>",
+          "-1 MC",
+          "LandClaim FROM ProjectCard",
+      )
+      doTask("Community<Tharsis_1_1>")
+      doTask("PlayedEvent<Class<LandClaim>> FROM LandClaim")
+    }
 
     shouldThrow<LimitsException> {
-      stan.stdProject("CityProject") { placeTile(1, 1) }
+      stan.inTurn {
+        doTask("UseStandardProject<CityProject>")
+        doTask("-25 MC")
+        doTask("PROD[MC]")
+        doTask("CityTile<Tharsis_1_1>")
+      }
     }
     kim.assertCounts(1 to "Community<Tharsis_1_1>", 0 to "Tile<Tharsis_1_1>")
   }
@@ -26,7 +39,12 @@ internal class LandClaimTest : TfmSandboxTest() {
   internal fun `Removes the claim when its owner builds there`() {
     kim.exMachina("Community<Tharsis_1_1>")
 
-    kim.stdProject("GreeneryProject") { placeTile(1, 1) }.expect("-Community")
+    kim.inTurn {
+          doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_1_1>")
+          doTask("OxygenStep")
+          doTasks("2 Steel", "TerraformRating")
+        }
+        .expect("-Community")
   }
 
   @Test
@@ -35,7 +53,11 @@ internal class LandClaimTest : TfmSandboxTest() {
     kim.setToExMachina(12, "TemperatureStep")
 
     shouldThrow<LimitsException> {
-      stan.playProject(ArtificialLake, 15) { placeTile(1, 3) }
+      stan.inTurn {
+        doTasks("PlayProject<Class<ArtificialLake>>", "-15 MC")
+        doTask("ArtificialLake FROM ProjectCard")
+        doTask("OceanTile<Tharsis_1_3>")
+      }
     }
     kim.assertCounts(1 to "Community<Tharsis_1_3>", 0 to "OceanTile<Tharsis_1_3>")
   }
@@ -45,14 +67,32 @@ internal class LandClaimTest : TfmSandboxTest() {
     kim.exMachina("Community<Tharsis_1_3>")
     kim.setToExMachina(12, "TemperatureStep")
 
-    kim.playProject(ArtificialLake, 15) { placeTile(1, 3) }.expect("OceanTile, -Community")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<$ArtificialLake>>",
+              "-15 MC",
+              "$ArtificialLake FROM ProjectCard",
+              "OceanTile<Tharsis_1_3>",
+              "TerraformRating",
+          )
+        }
+        .expect("-Community")
   }
 
   @Test
   internal fun `Keeps the claim when an unrelated tile is placed`() {
     kim.exMachina("Community<Tharsis_1_3>")
 
-    kim.stdProject("CityProject") { placeTile(4, 2) }.expect("0 Community")
+    kim.inTurn {
+          doTasks(
+              "UseStandardProject<CityProject>",
+              "-25 MC",
+              "PROD[MC]",
+              "CityTile<Tharsis_4_2>",
+              "Plant",
+          )
+        }
+        .expect("0 Community")
   }
 
   @Test
@@ -60,7 +100,11 @@ internal class LandClaimTest : TfmSandboxTest() {
     kim.exMachina("Community<Tharsis_4_2>, NormalCityTile<Kim, Tharsis_1_1>")
 
     shouldThrow<NarrowingException> {
-      kim.stdProject("GreeneryProject") { placeTile(4, 3) }
+      kim.inTurn {
+        doTask("UseStandardProject<GreeneryProject>")
+        doTask("-23 MC")
+        doTask("GreeneryTile<Tharsis_4_3>")
+      }
     }
     kim.assertCounts(1 to "Community<Tharsis_4_2>", 0 to "GreeneryTile<Tharsis_4_3>")
   }
@@ -69,7 +113,12 @@ internal class LandClaimTest : TfmSandboxTest() {
   internal fun `Allows greenery beside an owned tile while a distant claim remains`() {
     kim.exMachina("Community<Tharsis_4_2>, NormalCityTile<Kim, Tharsis_1_1>")
 
-    kim.stdProject("GreeneryProject") { placeTile(2, 1) }.expect("GreeneryTile, 0 Community")
+    kim.inTurn {
+          doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_2_1>")
+          doTask("OxygenStep")
+          doTask("TerraformRating")
+        }
+        .expect("0 Community")
   }
 
   @Test
@@ -77,7 +126,12 @@ internal class LandClaimTest : TfmSandboxTest() {
     kim.exMachina("GreeneryTile<Kim, Tharsis_1_1>")
     stan.exMachina("NormalCityTile<Stan, Tharsis_2_1>, Community<Tharsis_2_2>")
 
-    kim.stdProject("GreeneryProject") { placeTile(9, 7) }.expect("GreeneryTile, 0 Community<Stan>")
+    kim.inTurn {
+          doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_9_7>")
+          doTask("OxygenStep")
+          doTask("TerraformRating")
+        }
+        .expect("0 Community<Stan>")
   }
 
   @Test
@@ -86,7 +140,11 @@ internal class LandClaimTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Stan, Tharsis_2_1>, Community<Tharsis_2_2>")
 
     shouldThrow<LimitsException> {
-      kim.stdProject("GreeneryProject") { placeTile(2, 2) }
+      kim.inTurn {
+        doTask("UseStandardProject<GreeneryProject>")
+        doTask("-23 MC")
+        doTask("GreeneryTile<Tharsis_2_2>")
+      }
     }
     stan.assertCounts(1 to "Community<Tharsis_2_2>", 0 to "Tile<Tharsis_2_2>")
   }
@@ -97,7 +155,11 @@ internal class LandClaimTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Stan, Tharsis_2_1>")
 
     shouldThrow<NarrowingException> {
-      kim.stdProject("GreeneryProject") { placeTile(9, 7) }
+      kim.inTurn {
+        doTask("UseStandardProject<GreeneryProject>")
+        doTask("-23 MC")
+        doTask("GreeneryTile<Tharsis_9_7>")
+      }
     }
     kim.assertCounts(1 to "Community<Tharsis_2_2>", 0 to "Tile<Tharsis_9_7>")
   }
@@ -107,7 +169,12 @@ internal class LandClaimTest : TfmSandboxTest() {
     kim.exMachina("GreeneryTile<Kim, Tharsis_1_1>, Community<Tharsis_2_2>")
     stan.exMachina("NormalCityTile<Stan, Tharsis_2_1>")
 
-    kim.stdProject("GreeneryProject") { placeTile(2, 2) }.expect("GreeneryTile, -Community")
+    kim.inTurn {
+          doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_2_2>")
+          doTask("OxygenStep")
+          doTasks("Steel", "TerraformRating")
+        }
+        .expect("-Community")
   }
 
   @Test
@@ -116,7 +183,11 @@ internal class LandClaimTest : TfmSandboxTest() {
     stan.exMachina("Community<Tharsis_2_2>")
 
     shouldThrow<NarrowingException> {
-      kim.stdProject("GreeneryProject") { placeTile(9, 7) }
+      kim.inTurn {
+        doTask("UseStandardProject<GreeneryProject>")
+        doTask("-23 MC")
+        doTask("GreeneryTile<Tharsis_9_7>")
+      }
     }
     kim.assertCounts(0 to "Tile<Tharsis_9_7>")
   }
@@ -126,7 +197,12 @@ internal class LandClaimTest : TfmSandboxTest() {
     kim.exMachina("GreeneryTile<Kim, Tharsis_1_1>")
     stan.exMachina("Community<Tharsis_2_2>")
 
-    kim.stdProject("GreeneryProject") { placeTile(2, 1) }.expect("GreeneryTile, 0 Community<Stan>")
+    kim.inTurn {
+          doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_2_1>")
+          doTask("OxygenStep")
+          doTask("TerraformRating")
+        }
+        .expect("0 Community<Stan>")
   }
 
   @Test
@@ -134,7 +210,15 @@ internal class LandClaimTest : TfmSandboxTest() {
     kim.exMachina("GreeneryTile<Kim, Tharsis_1_1>")
 
     shouldThrow<LimitsException> {
-      kim.playProject(LandClaim, 1) { doTask("Community<Tharsis_1_1>") }
+      kim.inTurn {
+        doTask("PlayProject<Class<LandClaim>>")
+
+        doTasks(
+            "-1 MC",
+            "LandClaim FROM ProjectCard",
+        )
+        doTask("Community<Tharsis_1_1>")
+      }
     }
     kim.assertCounts(0 to "Community<Tharsis_1_1>", 1 to "GreeneryTile<Tharsis_1_1>")
   }
@@ -144,7 +228,15 @@ internal class LandClaimTest : TfmSandboxTest() {
     stan.exMachina("Community<Tharsis_1_3>")
 
     shouldThrow<LimitsException> {
-      kim.playProject(LandClaim, 1) { doTask("Community<Tharsis_1_3>") }
+      kim.inTurn {
+        doTask("PlayProject<Class<LandClaim>>")
+
+        doTasks(
+            "-1 MC",
+            "LandClaim FROM ProjectCard",
+        )
+        doTask("Community<Tharsis_1_3>")
+      }
     }
     stan.assertCounts(1 to "Community<Tharsis_1_3>")
     kim.assertCounts(0 to "Community<Tharsis_1_3>")

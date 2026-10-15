@@ -7,26 +7,58 @@ import kotlin.test.Test
 internal class LakefrontResortsTest : TfmSandboxTest() {
   @Test
   internal fun `An opponent's ocean placement raises MC production`() {
-    newTestGame(kimCorporation = LakefrontResorts)
+    newTestGame(addOptions = "LakefrontResorts", kimCorporation = LakefrontResorts)
 
-    stan.stdProject("AquiferProject") { placeTile(1, 2) }.expect("PROD[MC<Kim>]")
+    stan
+        .inTurn {
+          doTasks(
+              "UseStandardProject<AquiferProject>",
+              "-18 MC",
+              "OceanTile<Tharsis_1_2>",
+              "TerraformRating",
+          )
+          kim.doTask("PROD[MC]")
+          doTask("2 Steel")
+        }
+        .expect("PROD[MC<Kim>]")
   }
 
   @Test
   internal fun `Does not pay when an opponent places a tile adjacent to an ocean`() {
-    newTestGame(kimCorporation = LakefrontResorts)
+    newTestGame(addOptions = "LakefrontResorts", kimCorporation = LakefrontResorts)
     kim.exMachina("OceanTile<Tharsis_1_2>")
 
-    stan.stdProject("CityProject") { placeTile(2, 2) }.expect("-23 MC<Stan>, 0 MC<Kim>")
+    stan
+        .inTurn {
+          doTasks(
+              "UseStandardProject<CityProject>",
+              "-25 MC",
+              "PROD[MC]",
+              "CityTile<Tharsis_2_2>",
+              "Steel",
+              "2 MC",
+          )
+        }
+        .expect("0 MC<Kim>")
   }
 
   @Test
   internal fun `Pays for each ocean adjacency`() {
-    newTestGame(kimCorporation = LakefrontResorts)
+    newTestGame(addOptions = "LakefrontResorts", kimCorporation = LakefrontResorts)
     kim.exMachina("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_2_1>")
     kim.setToExMachina(25, "MC")
 
     // Two ordinary adjacency bonuses plus two Lakefront bonuses total 6 MC.
-    kim.stdProject("CityProject") { placeTile(2, 2) }.expect("-19 MC")
+    kim.inTurn {
+          doTasks(
+              "UseStandardProject<CityProject>",
+              "-25 MC",
+              "PROD[MC]",
+              "CityTile<Tharsis_2_2>",
+              "Steel",
+          )
+          doTasks("6 MC")
+        }
+        .expect("-19 MC")
   }
 }

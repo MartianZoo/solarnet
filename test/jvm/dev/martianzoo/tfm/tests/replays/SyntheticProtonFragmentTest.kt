@@ -5,7 +5,6 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -21,7 +20,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
       GameConfig(
           """
           HellasMap
-          PreludeExpansion, PromoCardPack
+          PreludeExpansion, promos:cards
 
           Mayor, Diversifier, Trader, Sponsor, Tycoon
           Biologist, SpaceBaron, Forecaster, Botanist, Collector
@@ -38,7 +37,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
 
   @Test
   internal fun game20260811() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     val purple = p1
     val pink = p2
     val green = p3

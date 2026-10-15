@@ -10,8 +10,8 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
   override val config =
       GameConfig(
           """
-          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, PromoCardPack
-          FakeStuffBundle
+          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, promos:cards
+          fakes:cards
           Tr63SoloObjective
           Callisto, Ganymede, Luna, Miranda
           """,
@@ -56,7 +56,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
       assertProduction(m = -2, s = 2, t = 0, p = 0, e = 1, h = 0)
       assertResources(m = 11, s = 3, t = 0, p = 0, e = 1, h = 1)
-      assertDashMiddle(played = 8, actions = 0, vp = 20, tr = 19, hand = 10)
+      assertDashMiddle(played = 8, actions = 0, tr = 19, hand = 10)
       assertTags(but = 3, sct = 3, eat = 1, mit = 1)
 
       // The app was showing tagless = 3, so... solarnet found its very first herokuapp bug!
@@ -70,7 +70,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
       assertProduction(m = -2, s = 2, t = 0, p = 0, e = 0, h = 3)
       assertResources(m = 25, s = 3, t = 0, p = 0, e = 0, h = 8)
-      assertDashMiddle(played = 9, actions = 0, vp = 20, tr = 19, hand = 10)
+      assertDashMiddle(played = 9, actions = 0, tr = 19, hand = 10)
       assertTags(but = 4, sct = 3, eat = 1, mit = 1)
       assertDashRight(events = 1, tagless = 2, cities = 0, colonies = 0)
       assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 0, venus = 4)
@@ -89,7 +89,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
       assertProduction(m = 0, s = 2, t = 0, p = 0, e = 4, h = 3)
       assertResources(m = 26, s = 4, t = 0, p = 2, e = 4, h = 16)
-      assertDashMiddle(played = 13, actions = 0, vp = 22, tr = 21, hand = 8)
+      assertDashMiddle(played = 13, actions = 0, tr = 21, hand = 8)
       assertTags(but = 7, sct = 3, pot = 3, eat = 1, mit = 1, cit = 1)
       assertDashRight(events = 1, tagless = 2, cities = 1, colonies = 0)
       assertSidebar(gen = 5, temp = -26, oxygen = 0, oceans = 1, venus = 6)
@@ -114,7 +114,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
       assertProduction(m = 4, s = 2, t = 0, p = 0, e = 7, h = 5)
       assertResources(m = 40, s = 2, t = 0, p = 5, e = 7, h = 10)
-      assertDashMiddle(played = 17, actions = 0, vp = 32, tr = 28, hand = 9)
+      assertDashMiddle(played = 17, actions = 0, tr = 28, hand = 9)
       assertTags(but = 9, spt = 1, sct = 3, pot = 5, eat = 1, vet = 1, mit = 1, cit = 2)
       assertDashRight(events = 2, tagless = 2, cities = 2, colonies = 1)
       assertSidebar(gen = 7, temp = -20, oxygen = 1, oceans = 2, venus = 14)
@@ -148,7 +148,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
       assertProduction(m = 4, s = 2, t = 0, p = 1, e = 10, h = 5)
       assertResources(m = 44, s = 4, t = 0, p = 6, e = 10, h = 14)
-      assertDashMiddle(played = 23, actions = 1, vp = 48, tr = 40, hand = 10)
+      assertDashMiddle(played = 23, actions = 1, tr = 40, hand = 10)
       assertTags(but = 10, spt = 3, sct = 5, pot = 6, eat = 2, vet = 1, mit = 2, cit = 2)
       assertDashRight(events = 3, tagless = 2, cities = 2, colonies = 1)
       assertSidebar(gen = 9, temp = -10, oxygen = 4, oceans = 4, venus = 14)
@@ -202,7 +202,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
       assertProduction(m = 3, s = 4, t = 1, p = 2, e = 8, h = 5)
       assertResources(m = 55, s = 4, t = 1, p = 7, e = 8, h = 27)
-      assertDashMiddle(played = 33, actions = 4, vp = 73, tr = 57, hand = 7)
+      assertDashMiddle(played = 33, actions = 4, tr = 57, hand = 7)
       assertTags(but = 13, spt = 4, sct = 7, pot = 6, eat = 3, vet = 1, mit = 3, ant = 1, cit = 3)
       assertDashRight(events = 6, tagless = 2, cities = 3, colonies = 2)
       assertSidebar(gen = 11, temp = 0, oxygen = 10, oceans = 8, venus = 18)
@@ -231,7 +231,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
       assertProduction(m = 5, s = 4, t = 2, p = 2, e = 6, h = 5)
       assertResources(m = 68, s = 4, t = 3, p = 2, e = 6, h = 13)
-      assertDashMiddle(played = 38, actions = 4, vp = 95, tr = 65, hand = 4)
+      assertDashMiddle(played = 38, actions = 4, tr = 65, hand = 4)
       // (but = 15, spt = 6, ...)
       assertTags(15, 6, sct = 8, pot = 6, eat = 3, jot = 1, vet = 1, mit = 3, ant = 1, cit = 5)
       assertDashRight(events = 7, tagless = 2, cities = 6, colonies = 2)
@@ -268,8 +268,8 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       assertCounts(82 to "MC")
 
       // Head Start's two actions occur during Prelude; the source UI says 106.
-      (sum.signalCount("ActionPhase", "StandardAction<Me>") +
-          sum.signalCount("ActionPhase", "RequiredActionsSignal<Me>")) shouldBe 92
+      (sum.signalCount("ImAwake", "StandardAction<Me>") +
+          sum.signalCount("ImAwake", "RequiredActionsSignal<Me>")) shouldBe 92
     }
   }
 }

@@ -18,12 +18,10 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     kim.setToExMachina(1, "ProjectCard")
 
     kim.inTurn {
-          doTask("PlayProject<Class<$SpaceElevator>>")
-          doTask("-7 Steel")
-          doTask("-5 Titanium")
-          doTask("Ok")
+          doTasks("PlayProject<Class<$SpaceElevator>>", "-7 Steel", "-5 Titanium", "Ok")
+          doTasks("SpaceElevator FROM ProjectCard", "PROD[Titanium]")
         }
-        .expect("-7 Steel, -5 Titanium, -ProjectCard, $SpaceElevator, 0 MC")
+        .expect("0 MC")
   }
 
   // The resolved late-Merger ruling does not settle first-action timing during Prelude.
@@ -31,12 +29,23 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   // https://boardgamegeek.com/thread/2874012/article/40859020#40859020
   @Test
   internal fun `Valley Trust Merger Tharsis currently places the city in the first required action`() {
-    newTestGame(addOptions = "PreludeExpansion", kimCorporation = ValleyTrust)
-    kim.playPrelude(Merger) { kim.playCorp(TharsisRepublic) }
-    startActionPhase()
+    newTestGame(addOptions = "PreludeExpansion, ValleyTrust", kimCorporation = ValleyTrust)
+    kim.inTurn {
+      doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
+      doTask("4 CorporationCard<Kim, Selecting>")
+      doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
+      doTask("TharsisRepublic<Kim> FROM CorporationCard<Kim, Selecting>!")
+      doTasks("40 MC", "-42 MC")
+      doTask("TharsisRepublic_RequiredAction!")
+    }
+    advanceUntilActionPhase()
 
-    kim.stdAction("RequiredActionsSignal") {
-      kim.playPrelude(Donation) { placeTile(3, 3) }
+    kim.inTurn {
+      doTask("RequiredActionsSignal")
+      doTask("3 PreludeCard<Kim, Selecting>")
+      doTask("PlayCard<Class<PreludeCard>, Class<Donation>>")
+      doTask("Donation<Kim> FROM PreludeCard<Kim, Selecting>!")
+      doTasks("21 MC", "CityTile<Tharsis_3_3>", "PROD[MC]", "3 MC")
     }
     kim.count("CityTile<Tharsis_3_3>") shouldBe 1
     kim.count("RequiredAction") shouldBe 0
@@ -46,18 +55,30 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   // https://boardgamegeek.com/thread/2993276/article/41447529#41447529
   @Test
   internal fun `Head Start Board Merger Tharsis currently uses the next granted action for its city`() {
-    newTestGame(addOptions = "PreludeExpansion, FakeStuffBundle, BoardOfDirectors")
+    newTestGame(addOptions = "PreludeExpansion, fakes:cards, BoardOfDirectors")
     kim.exMachina("$BoardOfDirectors, Director<$BoardOfDirectors>")
     kim.setToExMachina(54, "MC")
 
-    kim.turn {
-      playPrelude(FakeHeadStart) {
-        useStdAction("UseCardAction<$BoardOfDirectors, Action1>", payment = {}) {
-          doTask("-12 MC")
-          playPrelude(Merger) { playCorp(TharsisRepublic) }
-        }
-        placeTile(3, 3)
-      }
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<FakeHeadStart>>",
+          "FakeHeadStart FROM PreludeCard",
+          "2 Steel",
+      )
+      doTask("20 MC")
+      doTask("UseCardAction<BoardOfDirectors, Action1>")
+      doTask("PreludeCard<Kim, Hand>")
+      doTask("-12 MC")
+      doTask("-Director<BoardOfDirectors>")
+      doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
+      doTask("4 CorporationCard<Kim, Selecting>")
+      doTask("-42 MC")
+      doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
+      doTask("TharsisRepublic<Kim> FROM CorporationCard<Kim, Selecting>!")
+      doTask("40 MC")
+      doTask("TharsisRepublic_RequiredAction!")
+      doTask("RequiredActionsSignal")
+      doTasks("CityTile<Tharsis_3_3>", "PROD[MC]", "3 MC")
     }
 
     kim.count("CityTile<Tharsis_3_3>") shouldBe 1
@@ -72,7 +93,11 @@ internal class UnknownRulesTest : TfmSandboxTest() {
     fillSelectedColonySlots()
 
     shouldThrow<LimitsException> {
-      kim.stdAction("RequiredActionsSignal") { doTask("Colony<Luna>") }
+      kim.inTurn {
+        doTask("RequiredActionsSignal")
+
+        doTask("Colony<Luna>")
+      }
     }
     kim.count("RequiredAction") shouldBe 1
     kim.count("Colony") shouldBe 0
@@ -83,24 +108,45 @@ internal class UnknownRulesTest : TfmSandboxTest() {
   @Test
   internal fun `Merger Poseidon currently remains acquired when its later first colony is impossible`() {
     newTestGame(addOptions = "PreludeExpansion, Luna, Ceres, Triton, Ganymede, Callisto")
-    kim.playPrelude(Merger) { kim.playCorp(Poseidon) }
-    val moneyAfterMerger = kim.count("MC")
+    kim.inTurn {
+      doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
+      doTask("4 CorporationCard<Kim, Selecting>")
+      doTask("-42 MC")
+      doTask("PlayCard<Class<CorporationCard>, Class<Poseidon>>")
+      doTask("Poseidon FROM CorporationCard<Selecting>")
+      doTask("45 MC")
+      doTask("Poseidon_RequiredAction")
+    }
+    kim.setToExMachina(20, "MC")
     fillSelectedColonySlots()
-    startActionPhase()
+    advanceUntilActionPhase()
 
     shouldThrow<LimitsException> {
-      kim.stdAction("RequiredActionsSignal") { doTask("Colony<Luna>") }
+      kim.inTurn {
+        doTask("RequiredActionsSignal")
+
+        doTask("Colony<Luna>")
+      }
     }
     kim.count("$Poseidon") shouldBe 1
     kim.count("$Merger") shouldBe 1
-    kim.count("MC") shouldBe moneyAfterMerger
+    kim.count("MC") shouldBe 20
     kim.count("RequiredAction") shouldBe 1
     kim.count("Colony") shouldBe 0
   }
 
   private fun fillSelectedColonySlots() {
-    listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto").forEach { track ->
-      repeat(3) { stan.exMachina("Colony<$track>") }
-    }
+    fillColonySlots("Luna")
+    fillColonySlots("Ceres")
+    fillColonySlots("Triton")
+    fillColonySlots("Ganymede")
+    fillColonySlots("Callisto")
+  }
+
+  private fun fillColonySlots(track: String) {
+    // Keep separate placements: a batched gain of three colonies overshoots the track.
+    stan.setToExMachina(1, "Colony<$track>")
+    stan.setToExMachina(2, "Colony<$track>")
+    stan.setToExMachina(3, "Colony<$track>")
   }
 }

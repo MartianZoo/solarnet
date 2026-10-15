@@ -13,14 +13,14 @@ internal class DirigiblesTest : TfmSandboxTest() {
     kim.exMachina("$Dirigibles, 2 Floater<$Dirigibles>")
     kim.setToExMachina(5, "MC")
 
-    kim.playProject(
-            AerialMappers,
-            payment = {
-              doTask("-2 Floater<$Dirigibles>")
-              doTask("-5 MC")
-            },
-        )
-        .expect("-2 Floater<$Dirigibles>, -5 MC")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<AerialMappers>>",
+          "-2 Floater<Dirigibles>",
+          "-5 MC",
+          "AerialMappers FROM ProjectCard",
+      )
+    }
   }
 
   @Test
@@ -29,13 +29,15 @@ internal class DirigiblesTest : TfmSandboxTest() {
     kim.setToExMachina(3, "MC")
     kim.setToExMachina(6, "VenusStep")
 
-    kim.playProject(
-            StratosphericBirds,
-            payment = {
-              doTask("-3 Floater<$Dirigibles>")
-              doTask("-3 MC")
-            },
-        )
-        .expect("-4 Floater<$Dirigibles>, -3 MC")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<StratosphericBirds>>",
+              "-3 Floater<Dirigibles>",
+              "-3 MC",
+              "StratosphericBirds FROM ProjectCard",
+          )
+          doTask("-Floater")
+        }
+        .expect("-4 Floater<$Dirigibles>")
   }
 }

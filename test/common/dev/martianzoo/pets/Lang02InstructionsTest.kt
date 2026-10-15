@@ -55,7 +55,7 @@ internal class Lang02InstructionsTest {
     moved.removing shouldBe parse<Expression>("Plant<Player2>")
 
     gain(cn("Plant")) shouldBe parse<Instruction>("Plant!")
-    remove(cn("Plant"), count = 3, quantifier = AMAP) shouldBe parse<Instruction>("-3 Plant.")
+    remove(cn("Plant"), count = 3, quantifier = AMAP) shouldBe parse<Instruction>("-3* Plant")
   }
 
   @Test
@@ -74,13 +74,13 @@ internal class Lang02InstructionsTest {
   }
 
   @Test
-  internal fun `L2-2 a count is a positive integer or X, with an optional coefficient`() {
+  internal fun `L2-2 a count is a nonnegative integer or X, with an optional coefficient`() {
     (parse<Instruction>("Plant") as Gain).count shouldBe ActualScalar(1)
     (parse<Instruction>("11 Plant") as Gain).count shouldBe ActualScalar(11)
     (parse<Instruction>("X Plant") as Gain).count shouldBe XScalar(1)
     (parse<Instruction>("2X Plant") as Gain).count shouldBe XScalar(2)
-    shouldThrow<PetSyntaxException> { parse<Instruction>("0 Plant") }
-    shouldThrow<PetSyntaxException> { parse<Instruction>("-0 Plant") }
+    (parse<Instruction>("0 Plant") as Gain).count shouldBe ActualScalar(0)
+    (parse<Instruction>("-0 Plant") as Remove).count shouldBe ActualScalar(0)
     shouldThrow<IllegalArgumentException> { parse<Instruction>("Plant") * -1 }
   }
 
@@ -88,10 +88,15 @@ internal class Lang02InstructionsTest {
 
   @Test
   internal fun `L2-3 a quantifier says how much of the count must happen`() {
-    (parse<Instruction>("2 Plant!") as Gain).quantifier shouldBe MANDATORY
-    (parse<Instruction>("2 Plant.") as Gain).quantifier shouldBe AMAP
-    (parse<Instruction>("2 Plant?") as Gain).quantifier shouldBe OPTIONAL
+    (parse<Instruction>("2! Plant") as Gain).quantifier shouldBe MANDATORY
+    (parse<Instruction>("2* Plant") as Gain).quantifier shouldBe AMAP
+    (parse<Instruction>("2? Plant") as Gain).quantifier shouldBe OPTIONAL
+    (parse<Instruction>("Plant?") as Gain).quantifier shouldBe OPTIONAL
+    (parse<Instruction>("Plant*") as Gain).quantifier shouldBe AMAP
+    (parse<Instruction>("2? Plant FROM Heat") as Transmute).quantifier shouldBe OPTIONAL
     (parse<Instruction>("2 Plant") as Gain).quantifier shouldBe null
+    shouldThrow<PetSyntaxException> { parse<Instruction>("2 Plant?") }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant.") }
     shouldThrow<PetSyntaxException> { parse<Instruction>("2 Plant!?") }
   }
 
@@ -208,6 +213,17 @@ internal class Lang02InstructionsTest {
     shouldThrow<PetSyntaxException> { parse<Instruction>("((Plant THEN Heat) OR Steel) THEN Ore") }
     parse<InstructionTree>("Plant THEN (Heat, Steel)").toString() shouldBe
         "Plant THEN (Heat, Steel)"
+  }
+
+  @Test
+  internal fun `L2-10 EACH cannot be followed by THEN`() {
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("EACH Player { Plant } THEN Heat")
+    }
+    roundTrip<Instruction>("Plant THEN EACH Player { Heat }")
+    roundTrip<Instruction>("EACH Player { Plant THEN Heat }")
+    roundTrip<Instruction>("TASK Player1 { EACH Player { Plant } } THEN Heat")
+    shouldThrow<PetSyntaxException> { parse<Instruction>("TASK<Player1> { Plant }") }
   }
 
   // L2-11 X across one instruction
@@ -422,20 +438,20 @@ internal class Lang02InstructionsTest {
         Qux?
         -5 MC
         X Foo
-        -X MC?
+        -X? MC
         Plant?
-        X Foo?
+        X? Foo
         2 Plant
-        2X Abc.
+        2X* Abc
         X Plant
         -11X Bar
         -5 Plant
-        -X Plant?
-        2X Plant.
+        -X? Plant
+        2X* Plant
         -11X Plant
         -Foo<Qux>?
         -MC, X Foo
-        X Wau<Qux>?
+        X? Wau<Qux>
         5 Foo BY Wau
         Foo<Eep<Qux>>
         -Plant, X Heat
@@ -454,10 +470,10 @@ internal class Lang02InstructionsTest {
         (Foo: Xyz) OR -Bar / Foo
         2 Heat THEN Plant: Steel
         Abc(HAS 5 Foo(NOT Bar))?
-        -11X MC?, PROD[Bar] OR Ok
+        -11X? MC, PROD[Bar] OR Ok
         Heat / PROD[Plant], Steel
         (MAX 0 Foo, MAX 1 Foo): Ok
-        Qux THEN X Qux, MC, 5 Foo.
+        Qux THEN X Qux, MC, 5* Foo
         Foo(NOT Abc<Foo<Bar<Foo>>>)
         (5 Xyz FROM Bar) BY Ooh<Wau>
         -Steel / 2 Plant MAX 5, Heat
@@ -474,14 +490,14 @@ internal class Lang02InstructionsTest {
         Ok BY Steel<Plant(NOT Heat<Heat>)>
         2 Abc(HAS MC) FROM Foo, 5 MC, 5 Bar
         Foo(HAS Abc)!, Xyz OR 2 Abc<Ooh>, MC
-        11X Wau<Ahh>(HAS MC OR Abc) FROM Abc.
-        2X Qux / 2 Abc OR (-2 Ahh<Foo>., Qux)
-        -2 Abc<Xyz<Qux>, Bar<Foo>>., Ok OR Abc
+        11X* Wau<Ahh>(HAS MC OR Abc) FROM Abc
+        2X Qux / 2 Abc OR (-2* Ahh<Foo>, Qux)
+        -2* Abc<Xyz<Qux>, Bar<Foo>>, Ok OR Abc
         PROD[Ok OR (MC: Foo)], PROD[2 Ahh / Qux]
-        Bar(HAS Abc) / Eep<Abc>, 5 Bar., MC / Bar
+        Bar(HAS Abc) / Eep<Abc>, 5* Bar, MC / Bar
         2 Ahh, MAX 0 MC: Qux?, Abc?, Qux<Bar, Qux>
         EACH Player(NOT Player1) { Plant<Player> }
-        X Ooh<Qux<Abc<Qux>>>?, -Qux<Xyz<Qux<Abc>>>
+        X? Ooh<Qux<Abc<Qux>>>, -Qux<Xyz<Qux<Abc>>>
         MC, X Foo, Foo? / Ooh, Ok THEN Ok THEN 2 Bar
         (-Foo, Foo, MC) OR Foo BY Qux, PROD[Xyz<Abc>]
         2 Heat(HAS Plant) FROM Steel, 5 Plant, 5 Heat
@@ -490,16 +506,16 @@ internal class Lang02InstructionsTest {
         -2 Ooh OR Foo / Foo, Xyz, -X Abc, Ooh FROM Bar
         X Ahh FROM Bar<Qux<Xyz(HAS MC OR (MC OR Qux))>>
         Bar<Ooh<Bar>> FROM Qux, Abc FROM Abc / 2 (3 Foo)
-        MC, Abc<Foo<Ahh>, Foo<Abc<Bar>, Foo, Foo>, Xyz>.
-        MC, 5X Ahh., Bar / PROD[Foo], PROD[Ok BY Foo<Bar>]
-        ((Foo OR =1 MC) OR MAX 2 Ooh): (MC, Bar.) OR X Bar.
+        MC, Abc<Foo<Ahh>, Foo<Abc<Bar>, Foo, Foo>, Xyz>*
+        MC, 5X* Ahh, Bar / PROD[Foo], PROD[Ok BY Foo<Bar>]
+        ((Foo OR =1 MC) OR MAX 2 Ooh): (MC, Bar*) OR X* Bar
         MC?, -Bar<Qux> / PROD[Bar], Foo<Ooh<Foo, Bar, Bar>>!
         -5 Foo OR (Eep OR Foo), Bar BY Foo, MC, -Qux<Qux> / Bar
-        2 Qux!, Foo FROM Foo, X Bar<Qux<Foo>>. BY Wau<Xyz, Ahh>
-        X MC? OR Foo<Qux>. / Xyz<Bar> OR -X Foo<Abc<Foo, Foo>>.
-        MC / PROD[PROD[Bar]], 5X Ahh FROM Bar<Foo, Foo<Bar, Foo>>!
+        2! Qux, Foo FROM Foo, X* Bar<Qux<Foo>> BY Wau<Xyz, Ahh>
+        X? MC OR Foo<Qux>* / Xyz<Bar> OR -X* Foo<Abc<Foo, Foo>>
+        MC / PROD[PROD[Bar]], 5X! Ahh FROM Bar<Foo, Foo<Bar, Foo>>
         (Foo OR Ahh<Qux>): (Ok BY Foo(NOT Bar)) BY Eep<Foo<Abc<Qux>>>
-        Qux / 2 Abc<Bar>, MC OR (Foo, Qux, MC), -Foo, 2 Bar FROM Wau?
+        Qux / 2 Abc<Bar>, MC OR (Foo, Qux, MC), -Foo, 2? Bar FROM Wau
         Wau<Foo> FROM Foo!, (MC: 2 MC) OR (MC, 2 MC / Foo) OR -Qux / Foo
         (Plant OR Heat): (Ok BY Plant(NOT Steel)) BY Heat<Plant<Steel<Heat>>>
         -X Wau<Ahh<Ahh>, Bar(NOT Foo<Abc>)>, PROD[-MC OR Foo FROM Qux<Abc>]
@@ -524,12 +540,32 @@ internal class Lang02InstructionsTest {
     roundTrip<Effect>("ScienceTag: ProjectCard FROM ProjectCard OR Ok")
     roundTrip<InstructionTree>("Plant OR Heat THEN Steel", "(Plant OR Heat) THEN Steel")
     roundTrip<InstructionTree>(
-        "PROD[MC, -MC., PROD[MC: -MC], (MC, (Bar, 5 Foo))]",
-        "PROD[MC, -MC., PROD[MC: -MC], MC, Bar, 5 Foo]",
+        "PROD[MC, -MC*, PROD[MC: -MC], (MC, (Bar, 5 Foo))]",
+        "PROD[MC, -MC*, PROD[MC: -MC], MC, Bar, 5 Foo]",
     )
     roundTrip<InstructionTree>(
         "PROD[(Ooh / MC, Foo, MC), Bar / Bar THEN MC, MC]",
         "PROD[Ooh / MC, Foo, MC, Bar / Bar THEN MC, MC]",
     )
+  }
+
+  // L2-18 LATER and L2-19 FINALLY
+
+  @Test
+  internal fun `L2-18 LATER and L2-19 FINALLY dispatch like TASK`() {
+    roundTrip<Instruction>("LATER { Plant }")
+    roundTrip<Instruction>("LATER Player1 { Plant, Heat }")
+    roundTrip<Instruction>("FINALLY { Plant }")
+    roundTrip<Instruction>("Heat THEN LATER { Plant }")
+    roundTrip<Effect>("Foo: LATER { -This* }")
+    shouldThrow<PetSyntaxException> { parse<Instruction>("LATER { Ok }") }
+    shouldThrow<PetSyntaxException> { parse<Effect>("Foo:: LATER { Plant }") }
+    shouldThrow<PetSyntaxException> { parse<Effect>("Foo:: FINALLY { Plant }") }
+  }
+
+  @Test
+  internal fun `L2-18 a LATER may contain another`() {
+    roundTrip<Instruction>("LATER { LATER { Plant } }")
+    roundTrip<Instruction>("FINALLY { LATER { Plant } }")
   }
 }

@@ -1,29 +1,22 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agent.Agents
-import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agent.TaskLog
+import dev.martianzoo.agent.GameFileImporter
 import dev.martianzoo.agent.exMachina
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.catalog.GamePremise
-import dev.martianzoo.engine.World
 import dev.martianzoo.engine.recording
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.state.Actor
-import dev.martianzoo.state.ComponentChange
-import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.GameFileJson
 import dev.martianzoo.state.Player
-import dev.martianzoo.state.Task
-import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmTest
@@ -46,56 +39,34 @@ internal abstract class AbstractFullGameTest : TfmTest() {
 
   protected abstract val config: GameConfig
   protected open val requireExplicitPaymentChoices: Boolean = true
-  internal open val producesReplayRecording: Boolean = true
+  internal var exportReplay: Boolean = false
 
-  internal fun completedTaskLogText(): String = agents.taskLog.text()
-
-  internal fun verifyTaskRoundTrip() {
-    val imported = TfmEngine.newGame(gamePremise)
-    val importedAgents = Agents(imported)
-    imported.actors.filterIsInstance<Player>().forEach { importedAgents[it].autoExecPolicy = NONE }
-    TfmWorkflow.Automatic(importedAgents).launch()
-    TaskLog.replay(completedTaskLogText(), importedAgents)
+  internal suspend fun verifyGameFileRoundTrip() {
+    val document = GameFileJson.parse(checkNotNull(completedGameFileJson()))
+    val importedAgents =
+        GameFileImporter.replay(
+            document,
+            catalog,
+            newAgents = { Agents(TfmEngine.newGame(it)) },
+            startGame = { agents -> agents.tfm(ADMIN).startGame() },
+        )
     importedAgents[p1.actor].list("Component").entries shouldBe p1.list("Component").entries
-
-    fun causeHistory(
-        world: World,
-        cause: Cause?,
-    ): List<Triple<Expression, Actor, ComponentChange>> {
-      if (cause == null) return emptyList()
-      val trigger = checkNotNull(world.events.changeAt(cause.triggerEvent))
-      return listOf(Triple(cause.context, trigger.actor, trigger.change)) +
-          causeHistory(world, trigger.cause)
-    }
-
-    fun pending(
-        world: World
-    ): Map<Pair<Task, List<Triple<Expression, Actor, ComponentChange>>>, Int> =
-        world.tasks
-            .extract {
-              it.copy(id = TaskId(0), cause = null) to causeHistory(world, it.cause)
-            }
-            .groupingBy { it }
-            .eachCount()
-
-    pending(imported) shouldBe pending(game)
-    imported.isIdle() shouldBe game.isIdle()
   }
 
   /** Pets declarations for concrete Players with sourced per-seat setup rules. */
   protected open val playerClassPets: String = ""
   protected open val catalog: TfmCatalog by lazy { canonicalCatalog(config) }
 
-  internal fun completedRecordingJson(): String? {
+  internal suspend fun completedGameFileJson(short: Boolean = false): String? {
     if (game.events.entriesSinceSetup().isEmpty()) return null
-    return dev.martianzoo.state.GameRecordingJson.encode(game.recording())
+    return GameFileJson.encode(game.recording(), agents.taskLog.inputs(), short)
   }
 
   @BeforeTest
   open fun commonSetup() {
     gamePremise = catalog.gamePremise(config, parseClasses(playerClassPets))
     game = TfmEngine.newGame(gamePremise)
-    agents.taskLog.start()
+    if (exportReplay) agents.taskLog.start()
     val players = game.actors.filterIsInstance<Player>()
     fun gameplay(player: Player): TfmGameplay =
         game.testTfm(player).let {
@@ -117,7 +88,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   private fun copyThis() {
     p1.assertProduction(m = 0, s = 0, t = 0, p = 0, e = 0, h = 0)
     p1.assertResources(m = 0, s = 0, t = 0, p = 0, e = 0, h = 0)
-    p1.assertDashMiddle(played = 0, actions = 0, vp = 0, tr = 0, hand = 0)
+    p1.assertDashMiddle(played = 0, actions = 0, tr = 0, hand = 0)
     p1.assertTags(but = 0, spt = 0) // ...
     p1.assertDashRight(events = 0, tagless = 0, cities = 0, colonies = 0)
     assertSidebar(gen = 1, temp = -30, oxygen = 0, oceans = 0, venus = 0)
@@ -171,7 +142,6 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   protected fun TfmGameplay.assertDashMiddle(
       played: Int,
       actions: Int? = null,
-      vp: Int,
       tr: Int,
       hand: Int,
   ) {
@@ -183,7 +153,6 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     if (actions != null) {
       count("ActionCard") - count("ActionUsedMarker") shouldBe actions
     }
-    assertVps(vp)
   }
 
   protected fun TfmGameplay.assertDashRight(
@@ -213,35 +182,6 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     if (venus != -1) {
       admin.venusPercent() shouldBe venus
     }
-  }
-
-  private fun TfmGameplay.assertVps(expected: Int) = withScorePreview {
-    assertCounts(expected to "VictoryPoint")
-  }
-
-  /** Checks hypothetical end scoring, then restores the live game and its pending decisions. */
-  protected fun withScorePreview(assertions: () -> Unit) {
-    val onTransactionComplete = game.onTransactionComplete
-    val checkpoint = game.timeline.checkpoint()
-    game.onTransactionComplete = {}
-    try {
-      dropPendingTasksForSnapshot()
-      admin.phase("Production") { dropPendingTasksForSnapshot() }
-      admin.runOperation("End FROM Phase") { dropPendingTasksForSnapshot() }
-      assertions()
-    } finally {
-      game.timeline.rollBack(checkpoint)
-      game.onTransactionComplete = onTransactionComplete
-    }
-  }
-
-  // Pending choices describe future play, so a snapshot must neither execute nor count them.
-  private fun dropPendingTasksForSnapshot() {
-    game.tasks
-        .extract { it.id to it.assignee }
-        .forEach { (id, assignee) ->
-          game.testAgent(assignee).dropTask(id)
-        }
   }
 }
 

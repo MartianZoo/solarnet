@@ -7,28 +7,41 @@ import kotlin.test.Test
 internal class RecyclonTest : TfmSandboxTest() {
   @Test
   internal fun `Its own building tag adds a starting microbe`() {
-    newTestGame(kimCorporation = Recyclon, startAtCorporation = true)
-
-    kim.playCorp(Recyclon) { doTask("Microbe<$Recyclon>") }.expect("Microbe<$Recyclon>")
+    newTestGameBeforeCorporationPlay()
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<Recyclon>>",
+          "Recyclon FROM CorporationCard",
+          "38 MC",
+          "PROD[Steel]",
+          "Microbe<Recyclon>",
+          "-15 MC",
+          "5 ProjectCard<Hand FROM Selecting>",
+      )
+    }
   }
 
   @Test
   internal fun `Gains a microbe when its owner plays a building card`() {
-    newTestGame(kimCorporation = Recyclon, startAtCorporation = true)
-    kim.playCorp(Recyclon) { doTask("Microbe<$Recyclon>") }
-    startActionPhase()
+    newTestGame(kimCorporation = Recyclon)
 
-    kim.playProject(Mine, 4).expect("Microbe<$Recyclon>")
+    kim.inTurn {
+          doTasks("PlayProject<Class<Mine>>", "-4 MC")
+          doTasks("Mine FROM ProjectCard", "PROD[Steel]")
+          doTask("Microbe<Recyclon>")
+        }
+        .expect("Microbe<$Recyclon>")
   }
 
   @Test
   internal fun `Converts accumulated microbes including the new building microbe into production`() {
-    newTestGame(kimCorporation = Recyclon, startAtCorporation = true)
-    kim.playCorp(Recyclon) { doTask("Microbe<$Recyclon>") }
-    startActionPhase()
-    kim.exMachina("2 Microbe<$Recyclon>")
+    newTestGame(kimCorporation = Recyclon)
+    kim.exMachina("Microbe<$Recyclon>")
 
-    kim.playProject(TitaniumMine, 7) { doTask("-2 Microbe THEN PROD[Plant]") }
-        .expect("-2 Microbe, PROD[Plant]")
+    kim.inTurn {
+      doTasks("PlayProject<Class<TitaniumMine>>", "-7 MC")
+      doTasks("TitaniumMine FROM ProjectCard", "PROD[Titanium]")
+      doTasks("-2 Microbe THEN PROD[Plant]", "PROD[Plant]")
+    }
   }
 }

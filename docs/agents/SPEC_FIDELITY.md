@@ -78,6 +78,10 @@ If its visibility appears inappropriate, raise that as a separate design questio
 excuse missing documentation or authorize a visibility change during documentation work. Protected
 members intended for subclass authors also need their applicable contract explained.
 
+Name-only `ClassName` constants, such as those in `SystemClasses` and `TfmClasses`, need no member
+KDoc that repeats the represented Pets class's meaning. The authored Pets class documentation owns
+that meaning.
+
 Class KDoc is the starting point for understanding the class's contract. Explain shared rules there,
 or link directly from it to their common explanation in another class's KDoc or an owning
 specification section. A reader must be able to find applicable rules without inspecting
@@ -90,6 +94,17 @@ failure conditions, and what remains changed after failure. State meaningful ord
 and callback guarantees where the API depends on them. For data APIs, explain field meaning,
 defaults, absence, and invariants. Use concrete examples for distinctions that signatures alone
 cannot convey; avoid boilerplate that merely repeats names and types.
+
+For prose style, use the Guava Javadocs on classes credited to Kevin Bourrillion as a reference,
+especially [Splitter](https://github.com/google/guava/blob/6b3a8d7498a7fde122967ba37a023ba3dcb47792/guava/src/com/google/common/base/Splitter.java),
+[Range](https://github.com/google/guava/blob/6b3a8d7498a7fde122967ba37a023ba3dcb47792/guava/src/com/google/common/collect/Range.java),
+and [ImmutableMap](https://github.com/google/guava/blob/6b3a8d7498a7fde122967ba37a023ba3dcb47792/guava/src/com/google/common/collect/ImmutableMap.java).
+Start with the promised result, then explain the cases a caller might guess wrong: empty inputs,
+ordering, defaults, failure, and whether returned data is a copy or live view. Give a small input
+and its exact outcome when it makes such a rule concrete. Put shared terms and rules on the class;
+member KDoc should state the member's particular result. Use a short inline example for a single
+call and a snippet when the order of several calls matters. Credit on a class does not establish
+authorship of every member comment, so treat this as a style corpus rather than a personal canon.
 
 ## Evidence and conformance
 

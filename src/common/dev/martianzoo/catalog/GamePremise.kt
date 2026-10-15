@@ -16,26 +16,30 @@ import dev.martianzoo.pets.types.PremiseClassTable
 /**
  * The complete immutable, resolved input from which equivalent playable worlds are constructed.
  *
- * [classSelections] records every signed Class choice, [componentAdjustments] changes Module-owned
- * setup quantities, and [playerNames] fixes seat order. [classTable] forms their inclusion closure
- * over the Catalog's reusable master table and derives executable effects using fixed structural
- * Class presence and selected Module counts. Known Classes outside that closure remain uninhabited;
+ * [classSelections] records selected Classes and explicit or policy-imposed exclusions. Unmentioned
+ * catalog Classes need no negative entry. [componentAdjustments] changes Module-owned setup
+ * quantities, and [playerNames] fixes seat order. [classTable] forms their inclusion closure over
+ * the Catalog's reusable master table and derives executable effects using fixed structural Class
+ * presence and selected Module counts. Known Classes outside that closure remain uninhabited;
  * closure that reaches an excluded Class or an unrequested Module is invalid.
  *
+ * @property catalog Reusable source namespace from which this premise is resolved.
+ * @property classSelections Exact signed class choices after catalog selection policy is applied.
+ * @property componentAdjustments Signed changes to initial component counts after modules are made.
+ * @property playerNames Concrete player class names in seat order.
+ * @property bootstrapClassName Optional component Admin creates before the generated premise class.
+ * @property premiseClassName Generated configuration class, when setup requires one.
+ * @property premiseClassDeclarations Declarations local to this premise, absent from [catalog]'s
+ *   reusable master table.
  * @throws InvalidGameConfigException if its fields cannot describe a playable game configuration
  */
 public data class GamePremise(
     public val catalog: Catalog,
     public val classSelections: Set<ClassSelection>,
-    /** Signed setup-component changes applied after selected Modules are created. */
     public val componentAdjustments: Map<ClassName, Int> = emptyMap(),
-    /** Concrete Player Class Names in seat order. */
     public val playerNames: List<ClassName> = emptyList(),
-    /** Concrete Component created by Admin immediately before the generated premise Class. */
     public val bootstrapClassName: ClassName? = null,
-    /** Concrete configuration Class created during bootstrap, when the Catalog supplies one. */
     public val premiseClassName: ClassName? = null,
-    /** Generated and ad-hoc declarations owned only by this premise. */
     public val premiseClassDeclarations: Set<ClassDeclaration> = emptySet(),
 ) {
   /** Selected ambient-rule Classes, derived from the unified signed Class selections. */
@@ -54,21 +58,28 @@ public data class GamePremise(
   private val premiseClassTable: PremiseClassTable
     get() = premiseClassTableLazy.value
 
-  /**
-   * The immutable premise-selected class-table view shared by every World built from this premise.
-   * Its normal effect lookup is premise-specialized; each Class declaration remains the reusable
-   * backing form.
-   */
   private val classTableLazy = lazy(::createClassTable)
+  /**
+   * Immutable premise-selected class-table view shared by every World built from this premise.
+   * Effect lookup is premise-specialized while the underlying class declarations remain reusable.
+   * The view is created on first access and rejects invalid closure, exclusions, or starting
+   * choices instead of returning a partially usable table.
+   */
   public val classTable: ClassTable
     get() = classTableLazy.value
+
+  /** Finds selected roots with provably impossible behavior before final premise validation. */
+  internal fun impossibleSelectedClasses(names: Set<ClassName>): Set<ClassName> {
+    val table = createClassTable(validateViability = false)
+    return PremiseViability.impossibleSelections(table, names.intersect(table.allClassNames)).keys
+  }
 
   /**
    * Forms and freezes this premise's playable view, reusing the Catalog's compiled objects as
    * required by
    * [rules T12-1 through T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
    */
-  private fun createClassTable(): ClassTable {
+  private fun createClassTable(validateViability: Boolean = true): ClassTable {
     val premiseTable = premiseClassTable
     val masterTable = premiseTable.master
     val configurationNames: Set<ClassName> =
@@ -117,9 +128,6 @@ public data class GamePremise(
         ClassLoader.forPremise(
             premiseTable = premiseTable,
             roots = roots,
-            additionalRequiredClasses = {
-              catalog.customClassDependencies[it.className].orEmpty()
-            },
             checkAvailability = ::checkAvailability,
             exactCount = ::configuredCount,
             selectedModuleCount = ::selectedModuleCount,
@@ -150,7 +158,7 @@ public data class GamePremise(
           "structural selection conflicts with excluded classes: ${includedExclusions.joinToString { "`$it`" }}"
       )
     }
-    PremiseViability.validate(table, roots)
+    if (validateViability) PremiseViability.validate(table, roots)
     return table
   }
 

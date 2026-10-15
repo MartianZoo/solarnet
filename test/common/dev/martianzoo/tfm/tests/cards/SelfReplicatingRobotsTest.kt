@@ -1,10 +1,11 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -22,16 +23,28 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   internal fun `Action can be used only once per generation`() {
     initialize(2)
 
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
     shouldThrow<LimitsException> {
-      kim.cardAction1(FakeSelfReplicatingRobots) {
-        doTask("StageForReplicatedProject<Class<$TitaniumMine>>")
+      kim.inTurn {
+        doTask("UseCardAction<FakeSelfReplicatingRobots, Action1>")
       }
     }
 
-    nextGeneration()
-    kim.cardAction1(FakeSelfReplicatingRobots) {
-      doTask("StageForReplicatedProject<Class<$TitaniumMine>>")
+    advanceUntilActionPhase()
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<TitaniumMine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<TitaniumMine>>")
     }
   }
 
@@ -39,43 +52,79 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   internal fun `Action can stage a card with two resources or double its resources`() {
     initialize(1)
 
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
     kim.assertCounts(2 to "RobotUnit<Class<$Mine>>")
 
-    nextGeneration()
-    kim.cardAction2(FakeSelfReplicatingRobots)
+    advanceUntilActionPhase()
+    kim.inTurn {
+      doTask("UseCardAction<FakeSelfReplicatingRobots, Action2>")
+      doTask("ReplicateForStagedProject<Class<Mine>>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
     kim.assertCounts(4 to "RobotUnit<Class<$Mine>>")
   }
 
   @Test
   internal fun `Staged cards retain independent robot unit counts`() {
-    val cards = stagedCards.take(5)
-    initialize(cards.size)
+    initialize(5)
 
-    cards.forEachIndexed { index, card ->
-      kim.cardAction1(FakeSelfReplicatingRobots) {
-        doTask("StageForReplicatedProject<Class<$card>>")
-      }
-      if (index != cards.lastIndex) nextGeneration()
-    }
+    stage("Mine")
+    advanceUntilActionPhase()
+    stage("TitaniumMine")
+    advanceUntilActionPhase()
+    stage("MartianRails")
+    advanceUntilActionPhase()
+    stage("SpaceStation")
+    advanceUntilActionPhase()
+    stage("PowerPlant")
 
-    kim.assertCounts(0 to "ProjectCard", 10 to "RobotUnit")
-    cards.forEach { card ->
-      kim.count("RobotUnit<Class<$card>>") shouldBe 2
-    }
+    kim.assertCounts(
+        0 to "ProjectCard",
+        10 to "RobotUnit",
+        2 to "RobotUnit<Class<Mine>>",
+        2 to "RobotUnit<Class<TitaniumMine>>",
+        2 to "RobotUnit<Class<MartianRails>>",
+        2 to "RobotUnit<Class<SpaceStation>>",
+        2 to "RobotUnit<Class<PowerPlant>>",
+    )
   }
 
   @Test
   internal fun `Doubling chooses one card rather than every card`() {
     initialize(2)
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
-    nextGeneration()
-    kim.cardAction1(FakeSelfReplicatingRobots) {
-      doTask("StageForReplicatedProject<Class<$TitaniumMine>>")
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
     }
-    nextGeneration()
+    advanceUntilActionPhase()
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<TitaniumMine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<TitaniumMine>>")
+    }
+    advanceUntilActionPhase()
 
-    kim.cardAction2(FakeSelfReplicatingRobots) { doTask("ReplicateForStagedProject<Class<$Mine>>") }
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action2>",
+          "ReplicateForStagedProject<Class<Mine>>",
+      )
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
 
     kim.assertCounts(
         4 to "RobotUnit<Class<$Mine>>",
@@ -85,46 +134,84 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
 
   @Test
   internal fun `More than five cards can be staged`() {
-    initialize(stagedCards.size)
-    stagedCards.forEachIndexed { index, card ->
-      kim.cardAction1(FakeSelfReplicatingRobots) {
-        doTask("StageForReplicatedProject<Class<$card>>")
-      }
-      if (index != stagedCards.lastIndex) nextGeneration()
-    }
+    initialize(6)
+    stage("Mine")
+    advanceUntilActionPhase()
+    stage("TitaniumMine")
+    advanceUntilActionPhase()
+    stage("MartianRails")
+    advanceUntilActionPhase()
+    stage("SpaceStation")
+    advanceUntilActionPhase()
+    stage("PowerPlant")
+    advanceUntilActionPhase()
+    stage("VestaShipyard")
 
     kim.assertCounts(0 to "ProjectCard", 12 to "RobotUnit")
   }
 
   @Test
   internal fun `Staged cards remain outside hand for Planner`() {
-    newTestGame(addOptions = "FakeStuffBundle")
+    newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeSelfReplicatingRobots")
     kim.setToExMachina(16, "ProjectCard")
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
 
     kim.count("ProjectCard") shouldBe 15
-    shouldThrow<RequirementException> { kim.claimMilestone(cn("Planner")) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTask("ClaimMilestone<Class<Planner>>")
+        doTask("-8 MC")
+        doTask("Planner")
+      }
+    }
   }
 
   @Test
   internal fun `Staged cards remain outside hand for Visionary`() {
-    newTestGame(addOptions = "FakeStuffBundle, Visionary, Landlord, Banker", playerCount = 2)
+    newTestGame(addOptions = "fakes:cards, Visionary, Landlord, Banker", playerCount = 2)
     kim.exMachina("$FakeSelfReplicatingRobots")
     kim.setToExMachina(2, "ProjectCard")
     stan.setToExMachina(2, "ProjectCard")
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
 
-    kim.fundAward(cn("Visionary"), 8)
+    kim.inTurn {
+      doTasks("FundAward<Class<Visionary>>", "-8 MC")
+      doTask("Visionary")
+    }
     victoryPoints() shouldBe listOf(20, 25)
   }
 
   @Test
   internal fun `Sell Patents cannot sell a staged card`() {
     initialize(2)
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
 
-    kim.sellPatents(1).expect("MC, -ProjectCard, 0 RobotUnit")
+    kim.inTurn {
+          doTasks("UseStandardProject<SellPatentsProject>", "1! MC FROM ProjectCard")
+        }
+        .expect("0 RobotUnit")
 
     kim.count("ProjectCard") shouldBe 0
     kim.count("RobotUnit<Class<$Mine>>") shouldBe 2
@@ -132,46 +219,81 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
 
   @Test
   internal fun `Excentric ignores resources on a card that is not in play`() {
-    newTestGame(addOptions = "HellasMap, FakeStuffBundle", playerCount = 2)
+    newTestGame(addOptions = "HellasMap, fakes:cards", playerCount = 2)
     kim.exMachina("$FakeSelfReplicatingRobots")
     kim.setToExMachina(1, "ProjectCard")
     stan.exMachina("$SearchForLife, Science<$SearchForLife>")
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
 
-    kim.fundAward(cn("Excentric"), 8)
+    kim.inTurn {
+      doTasks("FundAward<Class<Excentric>>", "-8 MC")
+      doTask("Excentric")
+    }
     victoryPoints() shouldBe listOf(20, 28)
   }
 
   @Test
   internal fun `A card may be staged before its play requirement is met`() {
     initialize(1)
-    kim.cardAction1(FakeSelfReplicatingRobots) {
-      doTask("StageForReplicatedProject<Class<$DiversitySupport>>")
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<DiversitySupport>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<DiversitySupport>>")
     }
 
-    shouldThrow<RequirementException> { kim.playProject(DiversitySupport, 0) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTask("PlayProject<Class<DiversitySupport>>")
+      }
+    }
 
     kim.assertCounts(0 to "$DiversitySupport", 2 to "RobotUnit<Class<$DiversitySupport>>")
   }
 
   @Test
   internal fun `Staging a card does not fire its play effects or triggers`() {
-    newTestGame(addOptions = "FakeStuffBundle")
+    newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeSelfReplicatingRobots, PROD[2 MC, Energy]")
     kim.setToExMachina(1, "ProjectCard")
-    kim.cardAction1(FakeSelfReplicatingRobots) {
-      doTask("StageForReplicatedProject<Class<$ImmigrantCity>>")
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<ImmigrantCity>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<ImmigrantCity>>")
     }
-    repeat(3) {
-      nextGeneration()
-      kim.cardAction2(FakeSelfReplicatingRobots)
-    }
+    advanceUntilActionPhase()
+    replicateImmigrantCity()
+    advanceUntilActionPhase()
+    replicateImmigrantCity()
+    advanceUntilActionPhase()
+    replicateImmigrantCity()
 
     kim.assertProds(3 to "MC", 2 to "Energy")
     kim.count("CityTile") shouldBe 0
 
-    kim.playProject(ImmigrantCity, 0) {
-      placeTile(7, 4)
+    kim.inTurn {
+      doTask("PlayProject<Class<ImmigrantCity>>")
+      doTask("ProjectCard<Kim, Hand>")
+      // Hand the discount to Admin before the remaining payment is offered.
+      selectTask("-16* Owed")
+      doTask("-16 RobotUnit<Kim, Class<ImmigrantCity>>")
+      doTasks("ImmigrantCity FROM ProjectCard", "PROD[-Energy]", "PROD[-2 MC]")
+      // Other optional tasks also accept Ok; identify the MC payment first.
+      selectTask("-X? MC")
+      doTask("Ok" /* No MC payment. */)
+      doTasks("CityTile<Tharsis_7_4>", "PROD[MC]")
     }
 
     kim.assertProds(2 to "MC", 1 to "Energy")
@@ -182,9 +304,24 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   internal fun `Resources reduce a staged cards play cost one MC each`() {
     initialize(1)
     kim.setToExMachina(2, "MC")
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
 
-    kim.playProject(Mine, 2).expect("-2 MC")
+    kim.inTurn {
+      doTask("PlayProject<Class<Mine>>")
+      doTask("ProjectCard<Kim, Hand>")
+      // Hand the discount to Admin before the remaining payment is offered.
+      selectTask("-2* Owed")
+      doTask("-2 RobotUnit<Kim, Class<Mine>>")
+      doTask("-2 MC")
+      doTasks("Mine FROM ProjectCard", "PROD[Steel]")
+    }
 
     kim.assertCounts(0 to "ProjectCard", 1 to "$Mine")
   }
@@ -192,13 +329,39 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   @Test
   internal fun `A staged card discount cannot reduce its cost below zero`() {
     initialize(1)
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
-    nextGeneration()
-    kim.cardAction2(FakeSelfReplicatingRobots)
-    nextGeneration()
-    kim.cardAction2(FakeSelfReplicatingRobots)
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
+    advanceUntilActionPhase()
+    kim.inTurn {
+      doTask("UseCardAction<FakeSelfReplicatingRobots, Action2>")
+      doTask("ReplicateForStagedProject<Class<Mine>>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
+    advanceUntilActionPhase()
+    kim.inTurn {
+      doTask("UseCardAction<FakeSelfReplicatingRobots, Action2>")
+      doTask("ReplicateForStagedProject<Class<Mine>>")
+      doTask("4 RobotUnit<Class<Mine>>")
+    }
 
-    kim.playProject(Mine, 0).expect("0 MC")
+    kim.inTurn {
+          doTask("PlayProject<Class<Mine>>")
+          doTask("ProjectCard<Kim, Hand>")
+          // Hand the discount to Admin before the remaining payment is offered.
+          selectTask("-8* Owed")
+          doTask("-8 RobotUnit<Kim, Class<Mine>>")
+          doTasks("Mine FROM ProjectCard", "PROD[Steel]")
+          // Other optional tasks also accept Ok; identify the MC payment first.
+          selectTask("-X? MC")
+          doTask("Ok" /* No MC payment. */)
+        }
+        .expect("0 MC")
 
     kim.assertCounts(
         1 to "$Mine",
@@ -209,15 +372,44 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   @Test
   internal fun `Playing one staged card discards only that cards resources`() {
     initialize(2)
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
-    nextGeneration()
-    kim.cardAction1(FakeSelfReplicatingRobots) {
-      doTask("StageForReplicatedProject<Class<$TitaniumMine>>")
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
     }
-    nextGeneration()
-    kim.cardAction2(FakeSelfReplicatingRobots) { doTask("ReplicateForStagedProject<Class<$Mine>>") }
+    advanceUntilActionPhase()
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<TitaniumMine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<TitaniumMine>>")
+    }
+    advanceUntilActionPhase()
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action2>",
+          "ReplicateForStagedProject<Class<Mine>>",
+      )
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
 
-    kim.playProject(Mine, 0).expect("0 MC")
+    kim.inTurn {
+          doTask("PlayProject<Class<Mine>>")
+          doTask("ProjectCard<Kim, Hand>")
+          // Hand the discount to Admin before the remaining payment is offered.
+          selectTask("-4* Owed")
+          doTask("-4 RobotUnit<Kim, Class<Mine>>")
+          doTasks("Mine FROM ProjectCard", "PROD[Steel]")
+          // Other optional tasks also accept Ok; identify the MC payment first.
+          selectTask("-X? MC")
+          doTask("Ok" /* No MC payment. */)
+        }
+        .expect("0 MC")
 
     kim.assertCounts(
         1 to "$Mine",
@@ -231,11 +423,23 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   internal fun `Viron can stage a second card in the same generation`() {
     initialize(2)
     kim.exMachina("$Viron")
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
 
-    kim.cardAction1(Viron) {
-      doTask("UseAction<$FakeSelfReplicatingRobots, Action1>")
-      doTask("StageForReplicatedProject<Class<$TitaniumMine>>")
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<Viron, Action1>",
+          "UseAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<TitaniumMine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<TitaniumMine>>")
     }
 
     kim.assertCounts(
@@ -249,10 +453,19 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   internal fun `Viron can stage and then double that card in the same generation`() {
     initialize(1)
     kim.exMachina("$Viron")
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
 
-    kim.cardAction1(Viron) {
-      doTask("UseAction<$FakeSelfReplicatingRobots, Action2>")
+    kim.inTurn {
+      doTasks("UseCardAction<Viron, Action1>", "UseAction<FakeSelfReplicatingRobots, Action2>")
+      doTask("ReplicateForStagedProject<Class<Mine>>")
+      doTask("2 RobotUnit<Class<Mine>>")
     }
 
     kim.count("RobotUnit<Class<$Mine>>") shouldBe 4
@@ -262,12 +475,25 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   internal fun `Viron can double a staged card twice in one generation`() {
     initialize(1)
     kim.exMachina("$Viron")
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
-    nextGeneration()
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
+    advanceUntilActionPhase()
 
-    kim.cardAction2(FakeSelfReplicatingRobots)
-    kim.cardAction1(Viron) {
-      doTask("UseAction<$FakeSelfReplicatingRobots, Action2>")
+    kim.inTurn {
+      doTask("UseCardAction<FakeSelfReplicatingRobots, Action2>")
+      doTask("ReplicateForStagedProject<Class<Mine>>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
+    kim.inTurn {
+      doTasks("UseCardAction<Viron, Action1>", "UseAction<FakeSelfReplicatingRobots, Action2>")
+      doTask("ReplicateForStagedProject<Class<Mine>>")
+      doTask("4 RobotUnit<Class<Mine>>")
     }
 
     kim.count("RobotUnit<Class<$Mine>>") shouldBe 8
@@ -277,17 +503,39 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   internal fun `Viron can double two different staged cards`() {
     initialize(2)
     kim.exMachina("$Viron")
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
-    nextGeneration()
-    kim.cardAction1(FakeSelfReplicatingRobots) {
-      doTask("StageForReplicatedProject<Class<$TitaniumMine>>")
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
     }
-    nextGeneration()
+    advanceUntilActionPhase()
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<TitaniumMine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<TitaniumMine>>")
+    }
+    advanceUntilActionPhase()
 
-    kim.cardAction2(FakeSelfReplicatingRobots) { doTask("ReplicateForStagedProject<Class<$Mine>>") }
-    kim.cardAction1(Viron) {
-      doTask("UseAction<$FakeSelfReplicatingRobots, Action2>")
-      doTask("ReplicateForStagedProject<Class<$TitaniumMine>>")
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action2>",
+          "ReplicateForStagedProject<Class<Mine>>",
+      )
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<Viron, Action1>",
+          "UseAction<FakeSelfReplicatingRobots, Action2>",
+          "ReplicateForStagedProject<Class<TitaniumMine>>",
+      )
+      doTask("2 RobotUnit<Class<TitaniumMine>>")
     }
 
     kim.assertCounts(
@@ -297,21 +545,56 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   }
 
   private fun initialize(cards: Int) {
-    newTestGame(addOptions = "FakeStuffBundle")
+    newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeSelfReplicatingRobots")
     kim.setToExMachina(cards, "ProjectCard")
   }
 
-  private val stagedCards =
-      listOf(Mine, TitaniumMine, MartianRails, SpaceStation, PowerPlant, VestaShipyard)
+  private fun stage(card: String) {
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<$card>>",
+          "-ProjectCard",
+          "2 RobotUnit<Class<$card>>",
+      )
+    }
+  }
+
+  private fun replicateImmigrantCity() {
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action2>",
+          "ReplicateForStagedProject<Class<ImmigrantCity>>",
+          "RobotUnit<Class<ImmigrantCity>> / RobotUnit<Class<ImmigrantCity>>",
+      )
+    }
+  }
 
   @Test
   internal fun `Sponsored Academies cannot discard a card hosted on Self-Replicating Robots`() {
     initialize(2)
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
     kim.count("ProjectCard") shouldBe 1
 
-    shouldThrow<LimitsException> { kim.playProject(SponsoredAcademies, 9) }
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        doTask("PlayProject<Class<SponsoredAcademies>>")
+        doTasks("-9 MC", "SponsoredAcademies FROM ProjectCard")
+        // Expand the reward into separate tasks for each other player.
+        selectTask("EACH Other@Player(NOT Kim) { ProjectCard<Other@Player, Hand>! }")
+        doTask("ProjectCard<Stan, Hand>")
+        doTask("ProjectCard<Rob, Hand>")
+        doTask("-ProjectCard<Kim, Hand>")
+      }
+    }
     kim.count("ProjectCard") shouldBe 1
     kim.count("RobotUnit<Class<$Mine>>") shouldBe 2
   }
@@ -320,13 +603,36 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   internal fun `Mars University cannot discard a hosted card when a staged science card is played`() {
     initialize(2)
     kim.exMachina("$MarsUniversity")
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
-    nextGeneration()
-    kim.cardAction1(FakeSelfReplicatingRobots) {
-      doTask("StageForReplicatedProject<Class<$ResearchOutpost>>")
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
+    advanceUntilActionPhase()
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<ResearchOutpost>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<ResearchOutpost>>")
     }
 
-    kim.playProject(ResearchOutpost, 16) { placeTile(4, 2) }
+    kim.inTurn {
+          doTask("PlayProject<Class<ResearchOutpost>>")
+          doTask("ProjectCard<Kim, Hand>")
+          // Hand the discount to Admin before the remaining payment is offered.
+          selectTask("-2* Owed")
+          doTask("-2 RobotUnit<Kim, Class<ResearchOutpost>>")
+          doTask("-16 MC")
+          doTasks("ResearchOutpost FROM ProjectCard")
+          // Resolve the exchange offer: the empty hand leaves no card to discard.
+          selectTask("(-ProjectCard<Kim, Hand>! THEN ProjectCard<Kim, Hand>!) OR Ok")
+          doTasks("CityTile<Tharsis_4_2>", "Plant")
+        }
         .expect("0 ProjectCard, 0 RobotUnit<Class<$Mine>>")
     kim.count("RobotUnit<Class<$Mine>>") shouldBe 2
   }
@@ -343,13 +649,27 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   }
 
   private fun playCorroderWithHostedVenusCard(): TaskResult {
-    newTestGame(addOptions = "FakeStuffBundle")
+    newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeSelfReplicatingRobots")
     kim.setToExMachina(2, "ProjectCard")
-    kim.cardAction1(FakeSelfReplicatingRobots) {
-      doTask("StageForReplicatedProject<Class<$VenusWaystation>>")
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<VenusWaystation>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<VenusWaystation>>")
     }
-    return kim.playProject(CorroderSuits, 8)
+    return kim.inTurn {
+      doTasks(
+          "PlayProject<Class<CorroderSuits>>",
+          "-8 MC",
+          "CorroderSuits FROM ProjectCard",
+          "PROD[2 MC]",
+      )
+      // Resolve the resource offer: the hosted Venus card is not an eligible destination.
+      selectTask("CardResource")
+    }
   }
 
   @Ignore // RobotUnit is counted as a distinct resource type.
@@ -365,22 +685,35 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   }
 
   private fun setUpEightResourceTypesWithRobots() {
-    newTestGame(addOptions = "AmazonisMap, FakeStuffBundle")
+    newTestGame(addOptions = "AmazonisMap, fakes:cards")
     val standardResources = "MC, Steel, Titanium, Plant, Energy, Heat"
     kim.setToExMachina(2, "ProjectCard")
     kim.exMachina(
         "$FakeSelfReplicatingRobots, $standardResources, " +
             "$Pets, $Decomposers, Animal<$Pets>, Microbe<$Decomposers>"
     )
-    kim.cardAction1(FakeSelfReplicatingRobots) {
-      doTask("StageForReplicatedProject<Class<$AerialMappers>>")
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<AerialMappers>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<AerialMappers>>")
     }
     kim.setToExMachina(10, "MC")
   }
 
   private fun playDiversityWithRobotUnits(): TaskResult {
     setUpEightResourceTypesWithRobots()
-    return kim.playProject(DiversitySupport, 1)
+    return kim.inTurn {
+      doTasks(
+          "PlayProject<Class<DiversitySupport>>",
+          "-1 MC",
+          "DiversitySupport FROM ProjectCard",
+          "TerraformRating",
+      )
+      doTask("PlayedEvent<Class<$DiversitySupport>> FROM $DiversitySupport")
+    }
   }
 
   @Ignore // Collector counts the RobotUnit resource type.
@@ -391,17 +724,42 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
 
   @Test
   internal fun `BUG - Robot units break a tie for Collector`() {
-    scoreCollectorWithRobotUnits() shouldBe listOf(25, 23, 20)
+    fundCollectorWithRobotUnits()
+    val checkpoint = game.timeline.checkpoint()
+
+    victoryPoints {
+      kim.auditGainsSince(checkpoint) shouldBe 1
+      stan.auditGainsSince(checkpoint) shouldBe 0
+    } shouldBe listOf(25, 23, 20)
+  }
+
+  @Test
+  internal fun `Second-place Collector scoring with robot units records an Audit`() {
+    fundCollectorWithRobotUnits()
+    kim.exMachina("-Plant, -Heat")
+    val checkpoint = game.timeline.checkpoint()
+
+    victoryPoints {
+      kim.auditGainsSince(checkpoint) shouldBe 1
+      stan.auditGainsSince(checkpoint) shouldBe 0
+    } shouldBe listOf(22, 26, 20)
   }
 
   private fun scoreCollectorWithRobotUnits(): List<Int> {
+    fundCollectorWithRobotUnits()
+    return victoryPoints()
+  }
+
+  private fun fundCollectorWithRobotUnits() {
     setUpEightResourceTypesWithRobots()
     stan.exMachina(
         "MC, Steel, Titanium, Plant, Energy, Heat, $Predators, $RegolithEaters, " +
             "Animal<$Predators>, Microbe<$RegolithEaters>"
     )
-    kim.fundAward(cn("Collector"), 8)
-    return victoryPoints()
+    kim.inTurn {
+      doTasks("FundAward<Class<Collector>>", "-8 MC")
+      doTask("Collector")
+    }
   }
 
   @Ignore // Hosted cards are not resource destinations.
@@ -414,20 +772,28 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   @Test
   internal fun `BUG - Maxwell Base rejects a hosted Venus card`() {
     useMaxwellWithHostedVenusCard {
-          shouldThrow<NarrowingException> { doTask("RobotUnit<Class<$VenusWaystation>>") }
-          addCardResources(AerialMappers)
+          shouldThrow<TaskException> { doTask("RobotUnit<Class<$VenusWaystation>>") }
+          doTask("Floater<AerialMappers>")
         }
         .expect("0 RobotUnit, Floater<$AerialMappers>")
   }
 
   private fun useMaxwellWithHostedVenusCard(choice: OperationBlock): TaskResult {
-    newTestGame(addOptions = "FakeStuffBundle")
+    newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeSelfReplicatingRobots, " + "$AerialMappers, Floater<$AerialMappers>")
-    kim.cardAction1(FakeSelfReplicatingRobots) {
-      doTask("StageForReplicatedProject<Class<$VenusWaystation>>")
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<VenusWaystation>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<VenusWaystation>>")
     }
     kim.exMachina("$MaxwellBase")
-    return kim.cardAction1(MaxwellBase, choice)
+    return kim.inTurn {
+      doTask("UseCardAction<MaxwellBase, Action1>")
+      choice()
+    }
   }
 
   @Ignore // Hosted cards are not resource destinations.
@@ -441,17 +807,34 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   internal fun `BUG - CEO's Favorite Project rejects a hosted card`() {
     playCeosFavoriteWithHostedCard {
           shouldThrow<NarrowingException> { doTask("RobotUnit<Class<$Mine>>") }
-          addCardResources(Pets)
+          doTask("Animal<Pets>")
         }
         .expect("0 RobotUnit, Animal<$Pets>")
   }
 
   private fun playCeosFavoriteWithHostedCard(choice: OperationBlock): TaskResult {
-    newTestGame(addOptions = "FakeStuffBundle")
+    newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeSelfReplicatingRobots, $Pets, Animal<$Pets>")
     kim.setToExMachina(2, "ProjectCard")
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
-    return kim.playProject(CeosFavoriteProject, 1, body = choice)
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
+    return kim.inTurn {
+      doTasks(
+          "PlayProject<Class<CeosFavoriteProject>>",
+          "-1 MC",
+          "CeosFavoriteProject FROM ProjectCard",
+      )
+      // Resolve the resource offer: no eligible card already holds a resource.
+      selectTask("CardResource<CardFront(HAS CardResource)>*")
+      choice()
+      doTask("PlayedEvent<Class<$CeosFavoriteProject>> FROM $CeosFavoriteProject")
+    }
   }
 
   @Ignore // Hosted cards are not resource destinations.
@@ -464,26 +847,36 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   @Test
   internal fun `BUG - Applied Science rejects a hosted card`() {
     useAppliedScienceWithHostedCard {
-          shouldThrow<NarrowingException> { doTask("RobotUnit<Class<$Mine>>") }
+          shouldThrow<TaskException> { doTask("RobotUnit<Class<$Mine>>") }
           doTask("Steel")
         }
         .expect("0 RobotUnit")
   }
 
   private fun useAppliedScienceWithHostedCard(choice: OperationBlock): TaskResult {
-    newTestGame(addOptions = "FakeStuffBundle")
+    newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeSelfReplicatingRobots, $FakeAppliedScience, Science<$FakeAppliedScience>")
     kim.setToExMachina(1, "ProjectCard")
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
-    return kim.cardAction1(FakeAppliedScience, choice)
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
+    return kim.inTurn {
+      doTask("UseCardAction<FakeAppliedScience, Action1>")
+      doTask("-Science<FakeAppliedScience>")
+      choice()
+    }
   }
 
   @Ignore // Hosted cards are not resource destinations.
   @Test
   internal fun `L1 Trade Terminal can add to a hosted card`() {
     playTerminalWithHostedCard {
-          doTask("RobotUnit<Class<$Mine>>")
-          addCardResources(Pets)
+          doTasks("RobotUnit<Class<$Mine>>", "Animal<Pets>")
         }
         .expect("RobotUnit<Class<$Mine>>, Animal<$Pets>")
   }
@@ -491,18 +884,31 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   @Test
   internal fun `BUG - L1 Trade Terminal rejects a hosted card`() {
     playTerminalWithHostedCard {
-          shouldThrow<NarrowingException> { doTask("RobotUnit<Class<$Mine>>") }
-          addCardResources(Pets)
+          shouldThrow<TaskException> { doTask("RobotUnit<Class<$Mine>>") }
+          doTask("Animal<Pets>")
         }
         .expect("0 RobotUnit, Animal<$Pets>")
   }
 
   private fun playTerminalWithHostedCard(choice: OperationBlock): TaskResult {
-    newTestGame(addOptions = "Prelude2CardPack, ColoniesExpansion, FakeStuffBundle")
+    newTestGame(addOptions = "prelude2:cards, ColoniesExpansion, fakes:cards")
     kim.exMachina("$FakeSelfReplicatingRobots, $Pets, Animal<$Pets>")
     kim.setToExMachina(2, "ProjectCard")
-    kim.cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
-    return kim.playProject(L1TradeTerminal, 25, body = choice)
+    kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<Mine>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<Mine>>")
+    }
+    return kim.inTurn {
+      doTasks("PlayProject<Class<L1TradeTerminal>>", "-25 MC")
+      doTasks("L1TradeTerminal FROM ProjectCard")
+      // Expand the bonus into a separate resource choice for each eligible card.
+      selectTask("EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }")
+      choice()
+    }
   }
 
   // https://boardgamegeek.com/thread/1861808/article/28914878#28914878
@@ -516,15 +922,34 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   @Test
   internal fun `BUG - Can host a card without a Building or Space tag`() {
     stageCardWithoutEligibleTag().expect("2 RobotUnit<Class<$CeosFavoriteProject>>")
-    kim.playProject(CeosFavoriteProject, 0).expect("PlayedEvent<Class<$CeosFavoriteProject>>")
+    kim.inTurn {
+          doTask("PlayProject<Class<CeosFavoriteProject>>")
+          doTask("ProjectCard<Kim, Hand>")
+          // Hand the discount to Admin before the remaining payment is offered.
+          selectTask("-2* Owed")
+          doTask("-2 RobotUnit<Kim, Class<CeosFavoriteProject>>")
+          doTasks(
+              "CeosFavoriteProject FROM ProjectCard",
+          )
+          // Select the resource offer before testing whether a required gain can be declined.
+          selectTask("CardResource<CardFront(HAS CardResource)>*")
+          doTask("Ok" /* No MC payment. */)
+          doTask("PlayedEvent<Class<$CeosFavoriteProject>> FROM $CeosFavoriteProject")
+        }
+        .expect("PlayedEvent<Class<$CeosFavoriteProject>>")
   }
 
   private fun stageCardWithoutEligibleTag(): TaskResult {
-    newTestGame(addOptions = "FakeStuffBundle")
+    newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeSelfReplicatingRobots")
     kim.setToExMachina(1, "ProjectCard")
-    return kim.cardAction1(FakeSelfReplicatingRobots) {
-      doTask("StageForReplicatedProject<Class<$CeosFavoriteProject>>")
+    return kim.inTurn {
+      doTasks(
+          "UseCardAction<FakeSelfReplicatingRobots, Action1>",
+          "StageForReplicatedProject<Class<CeosFavoriteProject>>",
+      )
+      doTask("-ProjectCard<Kim, Hand>")
+      doTask("2 RobotUnit<Class<CeosFavoriteProject>>")
     }
   }
 
@@ -542,41 +967,57 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
     }
 
     private fun resolveSponsoredProjectsWithHostedCard(): Pair<Int, Int> {
-      newTestGame(addOptions = "TurmoilExpansion, FakeStuffBundle", playerCount = 2)
-      kim.turn {
-        playProject(Research, 11)
-        playProject(FakeSelfReplicatingRobots, 7)
+      newTestGame(addOptions = "TurmoilExpansion, fakes:cards", playerCount = 2)
+      kim.completeOperation {
+        doTasks("PlayProject<Class<$Research>>", "-11 MC")
+        autoExecNow(EAGER)
       }
-      stan.pass()
-      kim.turn {
-        cardAction1(FakeSelfReplicatingRobots) { doTask("StageForReplicatedProject<Class<$Mine>>") }
-        playProject(Pets, 10)
-        pass()
+      kim.doTasks("PlayProject<Class<$FakeSelfReplicatingRobots>>", "-7 MC")
+      stan.doTask("Pass")
+      kim.completeOperation {
+        doTask("UseCardAction<$FakeSelfReplicatingRobots, Action1>")
+        doTask("StageForReplicatedProject<Class<$Mine>>")
       }
-      kim.wgt("VenusStep")
+      kim.doTasks("PlayProject<Class<$Pets>>", "-10 MC")
+      kim.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      kim.doTask("VenusStep! BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
+
       admin.doTask("ScienceSummit")
-      kim.buyCards(0)
-      stan.buyCards(0)
+      kim.doTask("-4 ProjectCard<Selecting>")
+      stan.doTask("-4 ProjectCard<Selecting>")
 
-      stan.pass()
-      kim.pass()
-      stan.wgt("VenusStep")
+      stan.doTask("Pass")
+      kim.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      stan.doTask("VenusStep! BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
+
       stan.doTask("OceanTile<Tharsis_1_5> BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
+
       admin.doTask("ExploreFirstDirective")
-      kim.buyCards(0)
-      stan.buyCards(0)
+      kim.doTask("-4 ProjectCard<Selecting>")
+      stan.doTask("-4 ProjectCard<Selecting>")
 
-      kim.pass()
-      stan.pass()
-      kim.wgt("VenusStep")
+      kim.doTask("Pass")
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      kim.doTask("VenusStep! BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
+
       admin.doTask("MoralMovement")
-      kim.buyCards(0)
-      stan.buyCards(0)
+      kim.doTask("-4 ProjectCard<Selecting>")
+      stan.doTask("-4 ProjectCard<Selecting>")
 
-      stan.pass()
-      kim.pass()
-      stan.wgt("VenusStep")
-      // The workflow resolves the event after the world-government action returns.
+      stan.doTask("Pass")
+      kim.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      stan.doTask("VenusStep! BY Admin")
+      players.forEach { it.autoExecNow(EAGER) }
+
+      // The game resolves the event after the world-government action returns.
       return kim.count("RobotUnit<Class<$Mine>>") to kim.count("Animal<$Pets>")
     }
   }

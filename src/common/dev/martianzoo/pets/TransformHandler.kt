@@ -1,6 +1,7 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.SystemClasses.ADMIN
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action.Cost
@@ -58,46 +59,61 @@ public fun interface TransformHandler {
     /** Lexical context for the current node; changes apply to its recursive traversal. */
     protected var scope: Scope = initialScope
 
+    private var markedDepth = 0
+
     final override fun transformNode(node: PetNode): PetNode {
+      val scopedNode =
+          if (node is Instruction.Dispatch && markedDepth == 0)
+              node.copy(actor = node.actor ?: scope.me ?: ADMIN.expression).also {
+                it.sourceLocation = node.sourceLocation
+              }
+          else node
       val previous = scope
+      val previousDepth = markedDepth
+      // An enclosing transform may still supply the omitted recipient.
+      if (node is TransformNode<*>) markedDepth++
       scope =
-          when (node) {
+          when (scopedNode) {
             is Effect ->
                 scope.copy(
-                    me = scope.me ?: triggerMe(node.trigger),
+                    me = scope.me ?: triggerMe(scopedNode.trigger),
                     representedClassMarkers =
                         scope.representedClassMarkers +
-                            node.typeVariables.variables
+                            scopedNode.typeVariables.variables
                                 .filter { it.selectsClass }
                                 .mapNotNull {
                                   it.declaration.expression.typeVariableName?.identity
                                 } +
-                            node.trigger
+                            scopedNode.trigger
                                 .descendantsOfType<Expression>()
                                 .filter { it.className == CLASS }
                                 .flatMap { it.arguments }
                                 .mapNotNull { it.typeVariableName?.identity },
                 )
-            is Instruction.Each -> scope.copy(me = selectedMe(node.selector) ?: scope.me)
-            is Metric.Rank -> scope.copy(me = node.selector?.let(::selectedMe) ?: scope.me)
+            is Instruction.Dispatch -> scope.copy(me = scopedNode.actor ?: scope.me)
+            is Instruction.Each -> scope.copy(me = selectedMe(scopedNode.selector) ?: scope.me)
+            is Metric.Rank -> scope.copy(me = scopedNode.selector?.let(::selectedMe) ?: scope.me)
             else -> scope
           }
       return try {
             // Other deferred transforms stay outside EVAL in the same order. The new transform
             // encloses them rather than traversing and reversing their composition.
             if (
-                node is Metric.Eval ||
-                    node is Requirement.Eval ||
-                    (kind != null && node is TransformNode<*> && deferredEvaluation(node) != null)
+                scopedNode is Metric.Eval ||
+                    scopedNode is Requirement.Eval ||
+                    (kind != null &&
+                        scopedNode is TransformNode<*> &&
+                        deferredEvaluation(scopedNode) != null)
             ) {
-              val captured = captureDeferred(node)
+              val captured = captureDeferred(scopedNode)
               if (kind == null) captured else wrap(captured, kind)
-            } else rewrite(node)
+            } else rewrite(scopedNode)
           } finally {
             scope = previous
+            markedDepth = previousDepth
           }
           .also { result ->
-            if (result.sourceLocation == null) result.sourceLocation = node.sourceLocation
+            if (result.sourceLocation == null) result.sourceLocation = scopedNode.sourceLocation
           }
     }
 
@@ -138,8 +154,9 @@ public fun interface TransformHandler {
       return selector.copy(
           refinement = null,
           typeVariableName =
-              Reference(marker.name, marker.boundClassName)
-                  .resolved(requireNotNull(marker.resolution)),
+              Reference(marker.name, marker.boundClassName).let { reference ->
+                marker.resolution?.let(reference::resolved) ?: reference
+              },
       )
     }
 

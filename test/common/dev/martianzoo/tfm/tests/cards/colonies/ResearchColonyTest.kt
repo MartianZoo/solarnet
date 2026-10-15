@@ -14,7 +14,13 @@ internal class ResearchColonyTest : TfmSandboxTest() {
   internal fun `Can be played when its owner already has a colony on Luna`() {
     kim.exMachina("Colony<Luna>")
 
-    kim.playProject(ResearchColony, 20) { doTask("Colony<Luna>") }.expect("-20 MC, Colony<Luna>")
+    kim.inTurn {
+      doTasks("PlayProject<Class<ResearchColony>>", "-20 MC")
+      doTasks("ResearchColony FROM ProjectCard")
+      doTask("2 ProjectCard<Kim, Hand>")
+
+      doTasks("Colony<Luna>", "PROD[2 MC]")
+    }
   }
 
   @Test
@@ -22,7 +28,14 @@ internal class ResearchColonyTest : TfmSandboxTest() {
     kim.exMachina("Colony<Kim, Luna>, Colony<Stan, Luna>, Colony<Rob, Luna>")
 
     shouldThrow<LimitsException> {
-      kim.playProject(ResearchColony, 20) { doTask("Colony<Luna>") }
+      kim.inTurn {
+        doTasks(
+            "PlayProject<Class<$ResearchColony>>",
+            "-20 MC",
+            "$ResearchColony FROM ProjectCard",
+            "Colony<Luna>",
+        )
+      }
     }
   }
 }

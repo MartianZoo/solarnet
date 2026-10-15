@@ -70,10 +70,10 @@ internal class Lang08TransformsTest {
   @Test
   internal fun `L8-2 a Catalog must define every transform kind its source uses`() {
     shouldThrow<InvalidPetDefinitionException> {
-          loadTypes("CLASS Result\nCLASS Marked { This: LATER[Result] }")
+          loadTypes("CLASS Result\nCLASS Marked { This: DELAY[Result] }")
         }
         .message
-        .orEmpty() shouldContain "transform kind `LATER`"
+        .orEmpty() shouldContain "transform kind `DELAY`"
   }
 
   @Test
@@ -85,19 +85,19 @@ internal class Lang08TransformsTest {
               premiseTable =
                   PremiseClassTable(
                       universe,
-                      parseClasses("CLASS LocalMarked { This: LATER[Result] }").toSet(),
+                      parseClasses("CLASS LocalMarked { This: DELAY[Result] }").toSet(),
                   ),
               roots = setOf(),
           )
         }
         .message
-        .orEmpty() shouldContain "transform kind `LATER`"
+        .orEmpty() shouldContain "transform kind `DELAY`"
   }
 
   @Test
   internal fun `L8-2 one pass leaves another pass's kind in place`() {
-    identity.transformInstructionTree(parse("MARK[LATER[Plant]]")).toString() shouldBe
-        "LATER[Plant]"
+    identity.transformInstructionTree(parse("MARK[DELAY[Plant]]")).toString() shouldBe
+        "DELAY[Plant]"
   }
 
   @Test
@@ -110,13 +110,13 @@ internal class Lang08TransformsTest {
   @Test
   internal fun `L8-2 preserved blocks must be handled before semantic operations`() {
     shouldThrow<ExpressionException> {
-      parse<Metric>("LATER[Plant]").evaluate({ 0 }, { 0 }, { 0 }, { 0 })
+      parse<Metric>("DELAY[Plant]").evaluate({ 0 }, { 0 }, { 0 }, { 0 })
     }
     shouldThrow<ExpressionException> {
-      parse<Requirement>("LATER[Plant]").isMetBy { 0 }
+      parse<Requirement>("DELAY[Plant]").isMetBy { 0 }
     }
 
-    val instruction = parse<Instruction>("LATER[Plant]")
+    val instruction = parse<Instruction>("DELAY[Plant]")
     shouldThrow<ExpressionException> { instruction.isAbstract(langWorld) }
     shouldThrow<ExpressionException> { instruction.ensureNarrows(instruction, langWorld) }
   }
@@ -175,7 +175,7 @@ internal class Lang08TransformsTest {
 
   @Test
   internal fun `L8-5 blocks of different kinds nest freely`() {
-    roundTrip<InstructionTree>("PROD[LATER[Plant]]")
+    roundTrip<InstructionTree>("PROD[DELAY[Plant]]")
 
     val both =
         TransformHandler.dispatcher(

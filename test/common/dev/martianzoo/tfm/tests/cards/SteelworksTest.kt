@@ -14,8 +14,16 @@ internal class SteelworksTest : TfmSandboxTest() {
     kim.exMachina("$Steelworks")
     kim.setToExMachina(13, "OxygenStep")
     kim.setToExMachina(4, "Energy")
-    kim.stdProject("GreeneryProject") { placeTile(5, 2) }
+    kim.inTurn {
+      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Tharsis_5_2>")
+      doTask("OxygenStep")
+      doTasks("2 Plant", "TerraformRating")
+    }
 
-    kim.cardAction1(Steelworks).expect("-4 Energy, 2 Steel, 0 OxygenStep, 0 TerraformRating")
+    kim.inTurn {
+          doTasks("UseCardAction<Steelworks, Action1>", "-4 Energy", "2 Steel")
+          doTask("OxygenStep")
+        }
+        .expect("-4 Energy, 0 OxygenStep, 0 TerraformRating")
   }
 }

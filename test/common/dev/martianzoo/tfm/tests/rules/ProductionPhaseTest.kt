@@ -12,7 +12,7 @@ import kotlin.test.Test
 
 internal class ProductionPhaseTest {
   @Test
-  internal fun existingEnergyBecomesHeatBeforeNewEnergyIsProduced() {
+  internal fun playerConvertsExistingEnergyBeforeNewEnergyProduction() {
     val game = setUpGame()
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
@@ -21,9 +21,9 @@ internal class ProductionPhaseTest {
     p1.autoExecPolicy = NONE
 
     manual.beginOperation("ProductionPhase FROM Phase") {
-      p1.count("Energy") shouldBe 0
-      p1.count("Heat") shouldBe 2
-      p1.doTask("Energy")
+      p1.count("Energy") shouldBe 2
+      p1.count("Heat") shouldBe 0
+      p1.doTasks("2 Heat FROM Energy", "Energy")
     }
 
     p1.count("Energy") shouldBe 1

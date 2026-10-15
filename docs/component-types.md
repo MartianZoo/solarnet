@@ -1,7 +1,7 @@
 # Terraforming Mars component classes
 
 Here's an overview of the component classes that (currently) make up the core of the game. Refer to
-the Terraforming Mars [`.pets` sources](https://github.com/MartianZoo/solarnet/tree/main/src/common/dev/martianzoo/tfm/canon/TerraformingMars)
+the Terraforming Mars [`.pets` sources](https://github.com/MartianZoo/solarnet/tree/main/src/common/dev/martianzoo/tfm/canon/bundles/base)
 as you read.
 
 ## Communal / non-player-owned
@@ -20,7 +20,7 @@ limits and bonuses without changing the global-parameter classes.
 Completion removes the matching `GpIncomplete` marker, and the resulting `GpComplete` component
 rejects any attempted removal after completion.
 
-The definition of the `GlobalParameter` Class includes the line `+This.`. Any gain/remove Instruction in PETS can be followed by a Quantifier: either `!` meaning "mandatory", `?` meaning "optional", or `.` meaning "to the extent possible". The `Component` Class sets a default gain Quantifier of `!`, because most things in the game are mandatory. This line in `GlobalParameter` says that all gains of `GlobalParameter` instances default to "if possible". At the selected track's limit, the Instruction remains executable and simply does nothing. As you might guess if you know the TfM rules well, `CardResource` also has the same default.
+The definition of the `GlobalParameter` Class includes the line `DEFAULT +GlobalParameter*`. Any gain/remove Instruction in PETS can carry a Quantifier: either `!` meaning "mandatory", `?` meaning "optional", or `*` meaning "to the extent possible". The `Component` Class sets a default gain Quantifier of `!`, because most things in the game are mandatory. This line in `GlobalParameter` says that all gains of `GlobalParameter` instances default to "if possible". At the selected track's limit, the Instruction remains executable and simply does nothing. As you might guess if you know the TfM rules well, `CardResource` also has the same default.
 
 ### Maps
 
@@ -124,7 +124,7 @@ We discussed the `Phase` types above. As much as possible, these types do nothin
 
 It took a while to realize that `CardBack` and `CardFront` should actually be completely different, unrelated types -- just like `CityTile` and `GreeneryTile` are, despite the fact that they also are two sides of the same physical component. `CardBack` is very uninteresting; the base game has `ProjectCard` and `CorporationCard`, the beginner variant adds its distinct `BeginnerCard`, and Prelude adds `PreludeCard`. That's about it. (Remember these things have no attributes either.)
 
-The most important thing to understand about cards is that the engine supports only "follow mode". A client supplies the concrete history to process, including draws, reveals, discards, and plays, and the engine calculates the resulting state. It neither owns hidden information nor tries to authenticate that history against a separate physical or online game. Thus, if the client says that `EarthCatapult` was played, the engine applies that play and subtracts one generic `ProjectCard` from the hand. Ordinary card-location procedures execute directly. Source-level `CARDS` transforms remain only where printed-face knowledge must be neutralized to a follow-mode outcome supplied by the client.
+The most important thing to understand about cards is that the engine supports only "follow mode". A client supplies the concrete history to process, including draws, reveals, discards, and plays, and the engine calculates the resulting state. It neither owns hidden information nor tries to authenticate that history against a separate physical or online game. Thus, if the client says that `EarthCatapult` was played, the engine applies that play and subtracts one generic `ProjectCard` from the hand. Ordinary card-location procedures execute as authored. Source-level `CARDS` transforms remain only where printed-face knowledge must be neutralized to a follow-mode outcome supplied by the client.
 
 Even with this simplification, the whole play-a-card process is a bit complex to go into here and now.
 

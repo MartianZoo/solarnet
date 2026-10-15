@@ -1,9 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
-import dev.martianzoo.pets.api.Exceptions.GameplayException
+import dev.martianzoo.pets.api.Exceptions.DomainException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -16,9 +15,20 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
     kim.setToExMachina(10, "MC")
     kim.exMachina("3 Steel, 3 Titanium, 3 Plant, 3 Energy, 3 Heat")
 
-    shouldThrow<RequirementException> { kim.claimMilestone(cn("Merchant3")) }
-    kim.sellPatents(1)
-    kim.claimMilestone(cn("Merchant3")).expect("-8 MC, Merchant3")
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTask("ClaimMilestone<Class<Merchant3>>")
+        doTask("-8 MC")
+        doTask("Merchant3")
+      }
+    }
+    kim.inTurn {
+      doTasks("UseStandardProject<SellPatentsProject>", "1! MC FROM ProjectCard")
+    }
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Merchant3>>", "-8 MC")
+      doTask("Merchant3")
+    }
   }
 
   @Test
@@ -28,7 +38,10 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
     kim.setToExMachina(2, "PROD[Heat]")
     stan.setToExMachina(0, "PROD[Steel]")
     stan.setToExMachina(4, "PROD[Heat]")
-    kim.fundAward(cn("Manufacturer"), 8)
+    kim.inTurn {
+      doTasks("FundAward<Class<Manufacturer>>", "-8 MC")
+      doTask("Manufacturer")
+    }
 
     victoryPoints() shouldBe listOf(25, 20)
   }
@@ -37,29 +50,47 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
   internal fun `Amazonis delegate bonuses are inert without Turmoil`() {
     newTestGame(addOptions = "AmazonisMap")
 
-    kim.stdProject("CityProject") { placeTile(2, 2) }.expect("0 ProjectCard, 0 Titanium")
+    kim.inTurn {
+          doTasks(
+              "UseStandardProject<CityProject>",
+              "-25 MC",
+              "PROD[MC]",
+              "CityTile<Amazonis_02_02>",
+          )
+        }
+        .expect("0 ProjectCard, 0 Titanium")
   }
 
   @Test
   internal fun `An Amazonis delegate bonus leaves the Lobby delegate available`() {
     newTestGame(addOptions = "AmazonisMap, TurmoilExpansion")
 
-    kim.stdProject("CityProject") {
-          placeTile(2, 2)
+    kim.inTurn {
+          doTasks(
+              "UseStandardProject<CityProject>",
+              "-25 MC",
+              "PROD[MC]",
+              "CityTile<Amazonis_02_02>",
+          )
           doTask("PartyDelegate<Scientists>")
         }
-        .expect("PartyDelegate<Scientists>, 0 LobbyActionAvailable")
+        .expect("0 LobbyActionAvailable")
   }
 
   @Test
   internal fun `Olympus Mons sends both delegates to the chosen party`() {
     newTestGame(addOptions = "AmazonisMap, TurmoilExpansion")
 
-    kim.stdProject("CityProject") {
-          placeTile(8, 9)
+    kim.inTurn {
+          doTasks(
+              "UseStandardProject<CityProject>",
+              "-25 MC",
+              "PROD[MC]",
+              "CityTile<Amazonis_08_09>",
+          )
           doTask("2 PartyDelegate<Scientists>")
         }
-        .expect("2 PartyDelegate<Scientists>, PartyLeader<Scientists>, Dominant<Scientists>")
+        .expect("PartyLeader<Scientists>, Dominant<Scientists>")
   }
 
   @Test
@@ -68,8 +99,11 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
     kim.exMachina("6 PartyDelegate<Unity>")
 
     shouldThrow<DeadEndException> {
-      kim.stdProject("CityProject") {
-        placeTile(8, 9)
+      kim.inTurn {
+        doTask("UseStandardProject<CityProject>")
+        doTask("-25 MC")
+        doTask("PROD[MC]")
+        doTask("CityTile<Amazonis_08_09>")
         doTask("2 PartyDelegate<MarsFirst>")
       }
     }
@@ -81,18 +115,20 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
   internal fun `A Vastitas delegate bonus leaves the Lobby delegate available`() {
     newTestGame(addOptions = "VastitasMap, TurmoilExpansion")
 
-    kim.stdProject("CityProject") {
-          placeTile(4, 8)
+    kim.inTurn {
+          doTasks("UseStandardProject<CityProject>", "-25 MC", "PROD[MC]", "CityTile<Vastitas_4_8>")
           doTask("PartyDelegate<Greens>")
         }
-        .expect("PartyDelegate<Greens>, 0 LobbyActionAvailable")
+        .expect("0 LobbyActionAvailable")
   }
 
   @Test
   internal fun `Vastitas delegate bonuses are inert without Turmoil`() {
     newTestGame(addOptions = "VastitasMap")
 
-    kim.stdProject("CityProject") { placeTile(4, 8) }.expect("CityTile")
+    kim.inTurn {
+      doTasks("UseStandardProject<CityProject>", "-25 MC", "PROD[MC]", "CityTile<Vastitas_4_8>")
+    }
   }
 
   @Test
@@ -101,8 +137,11 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
     kim.exMachina("7 PartyDelegate<Unity>")
 
     shouldThrow<DeadEndException> {
-      kim.stdProject("CityProject") {
-        placeTile(4, 8)
+      kim.inTurn {
+        doTask("UseStandardProject<CityProject>")
+        doTask("-25 MC")
+        doTask("PROD[MC]")
+        doTask("CityTile<Vastitas_4_8>")
         doTask("PartyDelegate<Greens>")
       }
     }
@@ -114,9 +153,18 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
     newTestGame(addOptions = "VastitasMap")
     kim.exMachina("LavaFlows_SpecialTile<Vastitas_4_1>, RestrictedArea_SpecialTile<Vastitas_3_1>")
 
-    shouldThrow<RequirementException> { kim.claimMilestone(cn("Geologist")) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTask("ClaimMilestone<Class<Geologist>>")
+        doTask("-8 MC")
+        doTask("Geologist")
+      }
+    }
     kim.exMachina("CommercialDistrict_SpecialTile<Vastitas_4_2>")
-    kim.claimMilestone(cn("Geologist")).expect("Geologist")
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Geologist>>", "-8 MC")
+      doTask("Geologist")
+    }
   }
 
   @Test
@@ -127,14 +175,21 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
     )
 
     kim.count("TileInLargestGroup") shouldBe 3
-    kim.fundAward(cn("Landscaper"), 8).expect("Landscaper")
+    kim.inTurn {
+      doTasks("FundAward<Class<Landscaper>>", "-8 MC")
+      doTask("Landscaper")
+    }
   }
 
   @Test
   internal fun `The Vastitas north pole adds four MC to placement cost and raises temperature`() {
     newTestGame(addOptions = "VastitasMap")
 
-    kim.stdProject("CityProject") { placeTile(5, 5) }.expect("-29 MC, TemperatureStep")
+    kim.inTurn {
+      doTasks("UseStandardProject<CityProject>", "-25 MC", "PROD[MC]", "CityTile<Vastitas_5_5>")
+      doTask("TemperatureStep")
+      doTasks("-4 MC", "TerraformRating")
+    }
   }
 
   @Test
@@ -142,8 +197,15 @@ internal class AmazonisVastitasExpansionTest : TfmSandboxTest() {
     newTestGame(addOptions = "VastitasMap")
     kim.setToExMachina(28, "MC")
 
-    shouldThrow<GameplayException> {
-      kim.stdProject("CityProject") { placeTile(5, 5) }
+    shouldThrow<DomainException> {
+      kim.inTurn {
+        doTask("UseStandardProject<CityProject>")
+        doTask("-25 MC")
+        doTask("PROD[MC]")
+        doTask("CityTile<Vastitas_5_5>")
+        doTask("TemperatureStep")
+        doTask("TerraformRating")
+      }
     }
     kim.count("CityTile") shouldBe 0
     kim.count("MC") shouldBe 28

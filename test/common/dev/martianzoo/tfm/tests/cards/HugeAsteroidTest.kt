@@ -11,7 +11,16 @@ internal class HugeAsteroidTest : TfmSandboxTest() {
     newTestGame("PreludeExpansion")
     kim.setToExMachina(19, "TemperatureStep")
 
-    kim.playPrelude(HugeAsteroid)
-        .expect("$HugeAsteroid, -5 MC, 0 TemperatureStep, 0 TerraformRating")
+    kim.inTurn {
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<HugeAsteroid>>",
+              "HugeAsteroid FROM PreludeCard",
+          )
+          doTask("TemperatureStep")
+          doTask("TemperatureStep")
+          doTask("TemperatureStep")
+          doTask("-5 MC")
+        }
+        .expect("0 TemperatureStep, 0 TerraformRating")
   }
 }

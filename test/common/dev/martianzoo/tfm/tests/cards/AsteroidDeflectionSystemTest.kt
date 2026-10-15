@@ -17,7 +17,10 @@ internal class AsteroidDeflectionSystemTest : TfmSandboxTest() {
   internal fun `Asteroids added by another card do not claim a revealed card`() {
     kim.exMachina("$AsteroidDeflectionSystem, $AsteroidRights")
 
-    val result = kim.cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidDeflectionSystem>") }
+    val result = kim.inTurn {
+      doTasks("UseCardAction<AsteroidRights, Action1>", "-1 MC")
+      doTask("Asteroid<AsteroidDeflectionSystem>")
+    }
     result.expect("Asteroid<$AsteroidDeflectionSystem>")
     result.changes.count { it.change.gaining?.className == AUDIT } shouldBe 0
   }
@@ -28,7 +31,15 @@ internal class AsteroidDeflectionSystemTest : TfmSandboxTest() {
     kim.setToExMachina(1, "Plant")
 
     shouldThrow<DeadEndException> {
-      stan.playProject(Virus, 1) { doTask("-Plant<Kim>") }
+      stan.inTurn {
+        doTask("PlayProject<Class<Virus>>")
+
+        doTasks(
+            "-1 MC",
+            "Virus FROM ProjectCard",
+        )
+        doTask("-Plant<Kim>")
+      }
     }
     kim.assertCounts(1 to "Plant")
   }
@@ -37,10 +48,12 @@ internal class AsteroidDeflectionSystemTest : TfmSandboxTest() {
   internal fun `Its action claims a revealed space card`() {
     kim.exMachina("$AsteroidDeflectionSystem")
 
-    val result =
-        kim.cardAction1(AsteroidDeflectionSystem) {
-          doTask("ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>")
-        }
+    val result = kim.inTurn {
+      doTask("UseCardAction<AsteroidDeflectionSystem, Action1>")
+      doTask("ProjectCard<Revealed>")
+      doTask("ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>")
+      doTask("-ProjectCard<Revealed>")
+    }
     result.expect("Asteroid<$AsteroidDeflectionSystem>, 0 ProjectCard<Revealed>")
     result.changes.count { it.change.gaining?.className == AUDIT } shouldBe 1
   }

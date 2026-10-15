@@ -10,6 +10,14 @@ internal class FloatingRefineryTest : TfmSandboxTest() {
     newTestGame("FloatingRefinery")
     kim.exMachina("$ForcedPrecipitation")
 
-    kim.playProject(FloatingRefinery, 7).expect("2 Floater<$FloatingRefinery>")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<FloatingRefinery>>",
+              "-7 MC",
+              "FloatingRefinery FROM ProjectCard",
+          )
+          doTask("2 Floater<FloatingRefinery>")
+        }
+        .expect("2 Floater<$FloatingRefinery>")
   }
 }

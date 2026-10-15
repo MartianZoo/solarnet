@@ -7,6 +7,8 @@
 > changing Player Class Names, editing a `language/*.json5` file, or deciding whether a concept needs a
 > separate identifier.
 >
+> **Skip when:** changing only grammatical wording; use [LANGUAGE.md](LANGUAGE.md).
+>
 > **Status:** current naming model and intentional exceptions.
 
 ## Source map
@@ -19,11 +21,26 @@
   display lookup; `defaultEnglishDisplayName` defines the display default.
 - [`GamePremise.kt`](../../src/common/dev/martianzoo/catalog/GamePremise.kt) — search for
   `playerNames` when changing configured Player identities.
-- [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) — read before adding a Module,
-  for the bundle-name coincidence rule.
-- Bundle `language/en.json5` files under
-  [`src/common/dev/martianzoo/tfm/canon`](../../src/common/dev/martianzoo/tfm/canon) own localized
-  printed names; inspect only the bundle containing the renamed Class.
+- [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) — read before adding a Module
+  or naming a source bundle.
+- Bundle `en.json5` files under
+  [`src/common/dev/martianzoo/tfm/canon/bundles`](../../src/common/dev/martianzoo/tfm/canon/bundles)
+  own localized printed names; inspect only the bundle containing the renamed Class.
+
+## Effect and change terminology
+
+Use **direct effect** for the card behavior performed when the card enters play: `direct` in
+card data and `cardDirectEffect` in the card API. Use **self-gain effect** for the structural Pets
+category, which also includes effects that install persistent rules. The renderer handles these
+alongside the card's direct effect; that placement does not make their purposes identical.
+
+Use **elementary change** for a gain, removal, or transmutation instruction, and **correction** for
+`sneak` or `exMachina` adjustments. Distinguish explicit correction targets from derived changes.
+Retain established relationship terms such as **direct superclass** and **direct dependency** when
+the contrast with an indirect relationship matters. Avoid other invented uses of “direct”.
+
+Double-colon effects remain **automatic**; renaming that category is a separate decision. Ordinary
+timing adverbs and quoted source evidence retain their meaning and wording.
 
 ## Identity
 
@@ -114,7 +131,7 @@ others carry a numeric qualifier.**
 The bare name goes to the version we consider primary:
 
 - Across reprints, the newer revision — the one the designers preferred. `Builder` (7 building tags,
-  from `MilestonesAwardsExpansion`) over `Builder8` (the original Tharsis printing).
+  from the `goals` bundle) over `Builder8` (the original Tharsis printing).
 - Across rules variants of one goal, the standard version. `Producer` (16 total production,
   including Quick Start production when present) over the optional Quick Start-adjusted
   `Producer22`, whose threshold is 22. Likewise `Generalist` over `Generalist2`, which asks for 2 of
@@ -155,8 +172,9 @@ pays its owner when someone trades — Productive Outpost says "gain all your co
 
 Global Event cards use their upper printed title, such as `ExperimentalLifeforms`; their
 `GlobalEffect` uses the lower title, such as `EcoSabotage`. The card creates its effect with
-`Current<This>:: EcoSabotage<This>`. The effect depends on that card and disappears when the card
-is discarded; only the active effect listens to the untargeted `ResolveGlobalEvent` signal.
+`Current<This>:: PendingGlobalEffect<Current<This>, Class<EcoSabotage>>`. The pending component
+depends on `Current` and disappears with it. When `ResolveGlobalEvent` fires, that component
+creates one player-owned `EcoSabotage` signal per player.
 The titles come from the [physical card scans](https://tm.hadronikle.com/).
 
 Printed-name collisions retain the smallest category qualifier: `SolarnetGlobalEvent` and
@@ -185,7 +203,7 @@ looking it up.
   as "when you ___": `PlayCard`, `AdvanceColonyTracks`; `PayingFor` reads as "while paying
   for ___". Write the name so that phrase reads back.
 - **Other `MustCleanUp` state** — the transient thing sitting on the table during an action, not the
-  event — is a noun or a past participle: `Owed`, `Required`, `Billing`, `TradeBarrier`. Do not give it
+  event — is a noun or a past participle: `Owed`, `Required`, `Billing`. Do not give it
   the bare-verb shape that belongs to Signals.
 - **Custom instructions** are imperative verb phrases: `CopyProductionBox`. Use the
   published verb when the game prints one — Robotic Workforce
@@ -218,26 +236,30 @@ The Catalog and Bundle APIs define Bundle, Module, and Content selection. The co
 concern their Class Names.
 
 Most genuine `Module` subtypes extend `Module` directly, and that is fine — they need no
-intermediate supertype just to justify a suffix. Four loose families exist today:
+intermediate supertype just to justify a suffix. Three loose families exist today:
 
-1. **Ambient rules** — published products contributing ambient rules use their own noun:
-   `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, `PreludeExpansion`, and
-   `TurmoilExpansion`.
-2. **Content-group controls** — `Prelude1CardPack`, `Prelude2CardPack`, and `PromoCardPack` use the
-   current transitional Module representation.
-3. **Exclusive choices** — a closed set behind an abstract supertype, exactly one selected. These
+1. **Published expansions** — selected products use their own noun:
+   `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, `PreludeExpansion`,
+   `Prelude2Expansion`, and `TurmoilExpansion`. `Prelude2Expansion` contributes its cards and
+   requires `PreludeExpansion`; it has no additional rules of its own.
+2. **Exclusive choices** — a closed set behind an abstract supertype, exactly one selected. These
    already borrow the supertype's word, which reads well: `MultiplayerMode` and `SoloMode` under
    `GameMode`; `TharsisMap` and `HellasMap` under `MarsMap`; `StandardSoloObjective` and
    `Tr63SoloObjective` under `SoloObjective`.
-4. **Independent toggles** — optional rules switched on or off on their own:
+3. **Independent toggles** — optional rules switched on or off on their own:
    `QuickStartVariant`, `WorldGovernmentRule`, `MandatoryVenusVariant`.
 
-The third family currently uses two words for the same role. Do not add an abstract supertype merely
+The second family currently uses two words for the same role. Do not add an abstract supertype merely
 to supply a shared suffix.
 
-A Module whose Class Name equals its bundle name currently selects that bundle's cards and colony
-tiles by default. Check [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) before
-renaming either side; the coincidence has a selection consequence.
+Bundles have short lowercase source names matching their resource directories, independent of Class
+Names. For example, the `venus` bundle declares the `VenusNextExpansion` Module, and the `prelude`
+bundle declares the `PreludeExpansion` Module, and the `prelude2` bundle declares the
+`Prelude2Expansion` Module. A bundle's explicitly associated Module selects its cards and colony
+tiles by default; `name:cards` can select or exclude its card pool independently.
+`PreludeExpansion` therefore always names the Module, while `prelude` names the bundle. See
+[`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) and
+[`Canon.kt`](../../src/common/dev/martianzoo/tfm/canon/Canon.kt).
 
 ## Display names and localization
 
@@ -303,7 +325,7 @@ names `TerraLabs`. Jacob's forum posts and the official
 
 ## Intentional exceptions
 
-The `Fake`-prefixed cards in FakeCanon's explicitly selected `FakeStuffBundle` are deliberate
+The `Fake`-prefixed cards in FakeCanon's explicitly selected `fakes:cards` pool are deliberate
 incomplete stand-ins. The wild-tag cards preserve every other modeled behavior while creating only
 an inert `FakeWildTag`; replays add the chosen ordinary tag explicitly when source evidence requires
 it. The other stand-ins preserve only their documented subset of the printed card. Their names must
@@ -326,12 +348,12 @@ is clearer than treating each copy as a separately named token.
 `Barrier` and `GameEndBarrier` are **unrelated supertypes** that both use the word. `Barrier :
 MustCleanUp` means "the player must remove this to unblock a task" and backs the open-ended query
 `MAX 0 Barrier` in
-[`card-model.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets),
-which spans `Required` there, `Owed` and `Billing` in
-[`payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets),
-and `TradeBarrier` in Colonies. `GameEndBarrier` extends nothing, means "the game
-may not end yet", and is queried by name from
-[`TfmWorkflow.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt) and four tests. We are
+[`card-model.pets`](../../src/common/dev/martianzoo/tfm/canon/bundles/base/card-model.pets),
+which spans `Required` there and `Owed` and `Billing` in
+[`payment.pets`](../../src/common/dev/martianzoo/tfm/canon/bundles/base/payment.pets).
+`GameEndBarrier` extends nothing, means "the game
+may not end yet", and is queried by name from `ProductionPhase`'s handoff in
+[`game.pets`](../../src/common/dev/martianzoo/tfm/canon/bundles/base/game.pets) and several tests. We are
 keeping the shared word. The trap to watch: a new class that blocks game end will compile just as
 happily under `Barrier`, and would then silently join the payment query — check which supertype you
 mean.

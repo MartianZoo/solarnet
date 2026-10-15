@@ -67,7 +67,7 @@ internal class Initializer(
         )
   }
 
-  /** Executes a generated premise recipe, or directly creates an uncompiled custom premise. */
+  /** Executes a generated premise recipe, or creates an uncompiled custom premise. */
   private fun createConfiguredComponents(premiseCause: Cause, fallbackCause: Cause) {
     premise.premiseClassName?.let {
       executeAdminTask("$it", premiseCause)

@@ -15,7 +15,12 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
     kim.exMachina("$StandardTechnology")
     kim.setToExMachina(8, "MC")
 
-    shouldThrow<LimitsException> { kim.stdProject("PowerPlantProject") }
+    shouldThrow<LimitsException> {
+      kim.inTurn {
+        doTask("UseStandardProject<PowerPlantProject>")
+        doTask("-11 MC")
+      }
+    }
 
     kim.assertCounts(8 to "MC", 1 to "PROD[Energy]", 0 to "Owed", 0 to "Billing")
   }
@@ -26,7 +31,9 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
     kim.exMachina("$StandardTechnology")
     kim.setToExMachina(11, "MC")
 
-    kim.stdProject("PowerPlantProject").expect("-8 MC, PROD[Energy]")
+    kim.inTurn {
+      doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]", "3 MC")
+    }
   }
 
   @Test
@@ -34,25 +41,32 @@ internal class StandardTechnologyTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("$StandardTechnology")
 
-    kim.sellPatents(1).expect("MC")
+    kim.inTurn { doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard") }
   }
 
   @Test
   internal fun `Receives a rebate when Spire pays with science after temperature is complete`() {
-    newTestGame(kimCorporation = Spire)
-    kim.stdAction("RequiredActionsSignal")
+    newTestGame(addOptions = "Spire", kimCorporation = Spire)
+    kim.inTurn {
+      doTask("RequiredActionsSignal")
+      doTask("4 ProjectCard")
+      doTask("-3 ProjectCard<Kim, Hand>")
+    }
     kim.exMachina("$StandardTechnology")
     kim.setToExMachina(7, "Science<$Spire>")
     stan.setToExMachina(18, "TemperatureStep")
-    stan.stdProject("AsteroidProject")
+    stan.inTurn {
+      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTask("TemperatureStep")
+      doTask("TerraformRating")
+    }
 
-    kim.stdProject(
-            "AsteroidProject",
-            payment = {
-              doTask("-7 Science<$Spire>")
-              declineTask()
-            },
-        )
-        .expect("3 MC, -7 Science<$Spire>, 0 TemperatureStep, 0 TerraformRating")
+    kim.inTurn {
+          doTasks("UseStandardProject<AsteroidProject>", "-7 Science<Spire>")
+          doTask("TemperatureStep")
+          doTask("3 MC")
+          doTask("Ok" /* No MC payment. */)
+        }
+        .expect("0 TemperatureStep, 0 TerraformRating")
   }
 }

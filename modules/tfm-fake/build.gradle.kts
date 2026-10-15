@@ -5,7 +5,7 @@ plugins { id("solarnet.kmp-jvm-js") }
 val generateFakeCanonSources by
     tasks.registering(GenerateCatalogSources::class) {
       inputDirectory.set(
-          rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/fake")
+          rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/fake/bundles")
       )
       logicalPrefix.set("bundles")
       packageName.set("dev.martianzoo.tfm.fake")

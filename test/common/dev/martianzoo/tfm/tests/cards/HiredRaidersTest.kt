@@ -1,8 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.cards.cardnames.HiredRaiders
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -16,8 +15,16 @@ internal class HiredRaidersTest : TfmSandboxTest() {
     kim.setToExMachina(1, "MC")
     stan.setToExMachina(3, "MC")
 
-    kim.playProject(HiredRaiders, 1) { doTask("3 MC FROM MC<Stan>") }
-        .expect("2 MC<Kim>, -3 MC<Stan>, 0 Steel<Kim>")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<HiredRaiders>>",
+              "-1 MC",
+              "HiredRaiders FROM ProjectCard",
+              "3 MC<Kim FROM Stan>",
+          )
+          doTask("PlayedEvent<Class<HiredRaiders>> FROM HiredRaiders")
+        }
+        .expect("0 Steel<Kim>")
   }
 
   // Resolved FAQ: Hired Raiders may steal less than its maximum, but must steal at least one.
@@ -26,7 +33,17 @@ internal class HiredRaidersTest : TfmSandboxTest() {
     kim.setToExMachina(1, "MC")
     stan.setToExMachina(3, "MC")
 
-    shouldThrow<NarrowingException> { kim.playProject(HiredRaiders, 1) { declineTask() } }
+    shouldThrow<TaskException> {
+      kim.inTurn {
+        doTask("PlayProject<Class<HiredRaiders>>")
+
+        doTasks(
+            "-1 MC",
+            "HiredRaiders FROM ProjectCard",
+        )
+        doTask("Ok")
+      }
+    }
   }
 
   @Test
@@ -35,9 +52,15 @@ internal class HiredRaidersTest : TfmSandboxTest() {
     stan.setToExMachina(2, "Steel")
     rob.setToExMachina(2, "Steel")
 
-    kim.playProject(HiredRaiders, 1) {
-          doTask("Steel FROM Steel<Rob>")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<HiredRaiders>>",
+              "-1 MC",
+              "HiredRaiders FROM ProjectCard",
+              "Steel<Kim FROM Rob>",
+          )
+          doTask("PlayedEvent<Class<HiredRaiders>> FROM HiredRaiders")
         }
-        .expect("Steel<Kim>, -Steel<Rob>, 0 Steel<Stan>")
+        .expect("0 Steel<Stan>")
   }
 }

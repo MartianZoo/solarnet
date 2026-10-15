@@ -10,7 +10,10 @@ internal class CloudTourismTest : TfmSandboxTest() {
     newTestGame("CloudTourism")
     kim.exMachina("$Sponsors, $EarthOffice, $VenusGovernor, $VenusWaystation, $ForcedPrecipitation")
 
-    kim.playProject(CloudTourism, 9).expect("PROD[2 MC]")
+    kim.inTurn {
+      doTasks("PlayProject<Class<CloudTourism>>", "-9 MC", "CloudTourism FROM ProjectCard")
+      doTask("PROD[2 MC]")
+    }
   }
 
   @Test
@@ -20,6 +23,9 @@ internal class CloudTourismTest : TfmSandboxTest() {
         "$Sponsors, $EarthOffice, $EarthCatapult, $AcquiredCompany, $MediaGroup, $ForcedPrecipitation"
     )
 
-    kim.playProject(CloudTourism, 9).expect("PROD[2 MC]")
+    kim.inTurn {
+      doTasks("PlayProject<Class<CloudTourism>>", "-9 MC", "CloudTourism FROM ProjectCard")
+      doTask("PROD[2 MC]")
+    }
   }
 }

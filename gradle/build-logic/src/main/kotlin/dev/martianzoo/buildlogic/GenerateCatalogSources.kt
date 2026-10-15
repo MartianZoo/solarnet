@@ -40,6 +40,7 @@ public abstract class GenerateCatalogSources : DefaultTask() {
     val prefix = logicalPrefix.get().trim('/')
     val includedNames = includedFileNames.get()
     require(prefix.isNotEmpty()) { "Catalog logical prefix must not be empty" }
+    val rootResources = mutableListOf<Pair<String, String>>()
     val resourcesByBundle =
         input
             .walkTopDown()
@@ -48,11 +49,15 @@ public abstract class GenerateCatalogSources : DefaultTask() {
                   it.extension != "kt" &&
                   (includedNames.isEmpty() || it.name in includedNames)
             }
-            .map { file ->
+            .mapNotNull { file ->
               val relativePath = file.relativeTo(input).invariantSeparatorsPath
               val segments = relativePath.split('/')
-              require(segments.size >= 2) {
-                "Catalog source is not inside a bundle directory: $relativePath"
+              if (segments.size == 1) {
+                require(relativePath == "manifest.json5") {
+                  "Catalog source is not inside a bundle directory: $relativePath"
+                }
+                rootResources.add("$prefix/$relativePath" to file.readText())
+                return@mapNotNull null
               }
               val bundle = segments.first()
               require(bundle.matches(Regex("[A-Za-z_][A-Za-z0-9_]*"))) {
@@ -82,7 +87,7 @@ public abstract class GenerateCatalogSources : DefaultTask() {
     }
     packageDirectory
         .resolve("Generated${sourceName.get()}Resources.kt")
-        .writeText(renderRegistry(resourcesByBundle.keys))
+        .writeText(renderRegistry(resourcesByBundle.keys, rootResources))
   }
 
   private fun renderBundle(
@@ -103,7 +108,10 @@ public abstract class GenerateCatalogSources : DefaultTask() {
     appendLine("}")
   }
 
-  private fun renderRegistry(bundles: Set<String>): String = buildString {
+  private fun renderRegistry(
+      bundles: Set<String>,
+      rootResources: List<Pair<String, String>>,
+  ): String = buildString {
     appendLine("package ${packageName.get()}")
     appendLine()
     appendLine("internal object Generated${sourceName.get()}Resources {")
@@ -111,6 +119,11 @@ public abstract class GenerateCatalogSources : DefaultTask() {
     appendLine("      buildMap {")
     bundles.forEach { bundle ->
       appendLine("        putAll(${bundle}${sourceName.get()}Sources.resources)")
+    }
+    rootResources.forEach { (path, contents) ->
+      appendLine("        put(${path.asKotlinLiteral()},")
+      append(renderContents(contents))
+      appendLine(")")
     }
     appendLine("      }")
     appendLine()

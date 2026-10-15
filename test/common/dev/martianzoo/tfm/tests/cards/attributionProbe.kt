@@ -18,10 +18,11 @@ internal fun attributionProbeDeclarations(seats: Int): Set<ClassDeclaration> {
       }
   return parseClasses(
           """
-          CLASS Attribution<Actor> : Hidden
+          CLASS Attribution<Actor>
 
           CLASS AttributionProbe : ActiveCard {
             cost = 0
+            HAS MAX 1 AttributionProbe
 
             $watchers
           }

@@ -19,13 +19,17 @@ internal class GenerateCardPetsTest {
             name = "EventFirst",
             deck = "ProjectCard",
             tags = listOf("EventTag", "SpaceTag"),
-            immediate = "Plant",
+            direct = "Plant",
         )
     val card = CardPetsGenerator.GeneratedCard(data).declaration
     assertEquals("EventCard", data.projectKind)
     assertEquals(listOf("EventCard"), card.supertypes.map { it.className.toString() })
     assertEquals(
-        setOf(parse<Requirement>("=1 EventTag<This>"), parse<Requirement>("=1 SpaceTag<This>")),
+        setOf(
+            parse<Requirement>("MAX 1 EventFirst"),
+            parse<Requirement>("=1 EventTag<This>"),
+            parse<Requirement>("=1 SpaceTag<This>"),
+        ),
         Requirement.split(card.invariants).toSet(),
     )
   }
@@ -73,7 +77,7 @@ internal class GenerateCardPetsTest {
                     "=2 MicrobeTag<This>",
                 ),
             effects = listOf("This:: 5 MC"),
-            immediate = "2 Plant",
+            direct = "2 Plant",
         )
     val generated = CardPetsGenerator.GeneratedCard(data)
     val rendered = generated.render()
@@ -82,7 +86,9 @@ internal class GenerateCardPetsTest {
     assertEquals(1, rendered.lineSequence().count { it.trimStart().startsWith("HAS ") })
 
     assertEquals(
-        (data.invariants + "=1 BuildingTag<This>").map { parse<Requirement>(it) }.toSet(),
+        (data.invariants + "=1 BuildingTag<This>" + "MAX 1 Example")
+            .map { parse<Requirement>(it) }
+            .toSet(),
         Requirement.split(card.invariants).toSet(),
     )
     assertEquals(
@@ -115,7 +121,7 @@ internal class GenerateCardPetsTest {
     val card = parseClasses(CardPetsGenerator.GeneratedCard(data).render()).single()
 
     assertEquals(
-        data.invariants.map { parse<Requirement>(it) }.toSet(),
+        (data.invariants + "MAX 1 Example").map { parse<Requirement>(it) }.toSet(),
         Requirement.split(card.invariants).toSet(),
     )
     assertTrue(card.authoredEffects.isEmpty())
@@ -140,18 +146,21 @@ internal class GenerateCardPetsTest {
             name = "Example",
             deck = "ProjectCard",
             tags = listOf("ScienceTag"),
-            immediate = "ProjectCard",
+            direct = "ProjectCard",
         )
     val card = parseClasses(CardPetsGenerator.GeneratedCard(data).render()).single()
 
     assertEquals("AutomatedCard", data.projectKind)
-    assertEquals(setOf(parse<Requirement>("=1 ScienceTag<This>")), card.invariants)
+    assertEquals(
+        setOf(parse<Requirement>("MAX 1 Example"), parse<Requirement>("=1 ScienceTag<This>")),
+        Requirement.split(card.invariants).toSet(),
+    )
     assertEquals(listOf(parse<EffectTree>("OWN[This: ProjectCard]")), card.authoredEffects)
   }
 
   @Test
   internal fun groupedDecksPreserveCardDefinitionsAndDeriveProjectKinds() {
-    val cards = CardData.definitions("TerraformingMars").associateBy { it.name }
+    val cards = CardData.definitions("base").associateBy { it.name }
 
     assertEquals("CorporationCard", cards.getValue("CrediCor").deck)
     assertEquals(null, cards.getValue("CrediCor").projectKind)
@@ -163,7 +172,7 @@ internal class GenerateCardPetsTest {
 
   @Test
   internal fun supportingDeclarationsFollowTheirCard() {
-    val colonies = CardPetsGenerator.renderBundle("ColoniesExpansion")
+    val colonies = CardPetsGenerator.renderBundle("colonies")
     assertInOrder(
         colonies,
         "CLASS Aridor :",
@@ -174,7 +183,7 @@ internal class GenerateCardPetsTest {
 
   @Test
   internal fun authoredSpecialCardsFollowGeneratedCardsInTheSameResource() {
-    val cards = renderCardPets("TurmoilExpansion", "CLASS ExampleGlobalEvent : GlobalEvent\n")
+    val cards = renderCardPets("turmoil", "CLASS ExampleGlobalEvent : GlobalEvent\n")
 
     assertInOrder(cards, "CLASS AerialLenses :", "CLASS ExampleGlobalEvent : GlobalEvent")
     assertTrue(cards.endsWith('\n'))

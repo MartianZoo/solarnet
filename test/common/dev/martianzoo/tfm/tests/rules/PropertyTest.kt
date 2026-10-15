@@ -64,7 +64,7 @@ internal class PropertyTest {
     val game = TfmEngine.newGame(canonicalPremise(catalog = catalog, players = 2))
     val p1 = game.testTfm(PLAYER1)
 
-    p1.runOperation("3 TemperatureStep!, MetricPropertyProbe")
+    p1.runOperation("3! TemperatureStep, MetricPropertyProbe")
 
     p1.count("MetricPropertyResult") shouldBe 3
     p1.count("FixedMetricPropertyResult") shouldBe 8

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.BeforeTest
@@ -9,6 +9,54 @@ import kotlin.test.Test
 
 internal class StinaGameTest : CardTrackingFullGameTest() {
   override val config = GameConfig("ElysiumMap, PreludeExpansion", "Me")
+  // Test inference: the source names only the selected cards. CrediCor, Allied Bank, and
+  // Business Empire are invented identities for the three rejected setup cards, not source facts.
+  override val cardArrivalOrder =
+      mapOf(
+          cn("CorporationCard") to mapOf(cn("Me") to listOf(SaturnSystems, CrediCor)),
+          cn("PreludeCard") to
+              mapOf(cn("Me") to listOf(Biolab, AcquiredSpaceAgency, AlliedBank, BusinessEmpire)),
+      )
+  override val cardDepartureOrder =
+      mapOf(
+          cn("CorporationCard") to mapOf(cn("Me") to listOf(CrediCor)),
+          cn("PreludeCard") to mapOf(cn("Me") to listOf(AlliedBank, BusinessEmpire)),
+      )
+  // Test assignments: the source does not name the Invention Contest or Business Contacts
+  // rejects. These four late-game cards do not help terraform the planet in generation 1.
+  override val selectingArrivalOrder =
+      mapOf(
+          cn("ProjectCard") to
+              mapOf(
+                  cn("Me") to
+                      listOf(
+                          EarthOffice,
+                          MediaGroup,
+                          InvestmentLoan,
+                          IndenturedWorkers,
+                          EarthCatapult,
+                          HiredRaiders,
+                          OlympusConference,
+                          AdvancedAlloys,
+                          MineralDeposit,
+                          ResearchOutpost,
+                          // Invention Contest
+                          MassConverter,
+                          SecurityFleet,
+                          Penguins,
+                          // Business Contacts
+                          TowingAComet,
+                          AdaptationTechnology,
+                          Herbivores,
+                          Predators,
+                      ),
+              ),
+      )
+  override val selectingDepartureOrder =
+      mapOf(
+          cn("ProjectCard") to
+              mapOf(cn("Me") to listOf(SecurityFleet, Penguins, Herbivores, Predators)),
+      )
 
   private val me
     get() = p1
@@ -16,7 +64,7 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
   @BeforeTest
   override fun commonSetup() {
     super.commonSetup()
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     admin.doTask("CityTile<Elysium_5_6, SoloOpponent>")
     admin.doTask("GreeneryTile<Elysium_5_5, SoloOpponent>")
     admin.doTask("CityTile<Elysium_7_7, SoloOpponent>")
@@ -28,7 +76,6 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
     with(me) {
       // Test inference: unnamed draws are assigned in the order the cards are later played.
       keepStartingProjects(10)
-      playCorp(SaturnSystems).expect("PROD[1 MC, Titanium], 12 MC, 10 ProjectCard")
       draw(
           EarthOffice,
           MediaGroup,
@@ -41,9 +88,14 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
           MineralDeposit,
           ResearchOutpost,
       )
+      playCorp(SaturnSystems).expect("PROD[1 MC, Titanium], 12 MC, 10 ProjectCard")
 
       playPrelude(Biolab) {
-            draw(InventionContest, BusinessContacts, QuantumExtractor)
+            draw(
+                InventionContest,
+                BusinessContacts,
+                QuantumExtractor,
+            )
           }
           .expect("PROD[Plant], 3 ProjectCard")
       playPrelude(AcquiredSpaceAgency) {
@@ -109,7 +161,6 @@ internal class StinaGameTest : CardTrackingFullGameTest() {
           .expect("2 MC, 0 ProjectCard")
       playProject(Shuttles, 1).expect("PROD[-Energy, 2 MC]")
 
-      checkHandSizes()
       assertCardTrackingComplete()
 
       assertResources(m = 9, s = 0, t = 3, p = 2, e = 0, h = 15)

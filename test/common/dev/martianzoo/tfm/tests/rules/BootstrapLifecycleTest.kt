@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
@@ -48,7 +48,7 @@ internal class BootstrapLifecycleTest {
     game.tasks.isEmpty() shouldBe true
     game.events.entriesSinceSetup().shouldBeEmpty()
 
-    shouldThrow<IllegalArgumentException> { game.timeline.rollBack(Checkpoint(0)) }
+    shouldThrow<IllegalArgumentException> { game.timeline.seek(Checkpoint(0)) }
         .message
         .orEmpty()
         .shouldInclude("committed through")
@@ -68,7 +68,7 @@ internal class BootstrapLifecycleTest {
             Scenario(emptyList(), players = 1, map = Tharsis),
             Scenario(listOf(Hellas, PreludeExpansion), players = 2, map = Hellas),
             Scenario(
-                listOf(Amazonis, VenusNextExpansion, PreludeExpansion, Prelude2CardPack),
+                listOf(Amazonis, VenusNextExpansion, PreludeExpansion, Prelude2Cards),
                 players = 3,
                 map = Amazonis,
             ),
@@ -114,24 +114,33 @@ internal class BootstrapLifecycleTest {
   }
 
   @Test
-  internal fun manualWorkflowStartsFullyEffectfulGenerationOneSetup() {
+  internal fun startingTheGameRunsFullyEffectfulGenerationOneSetup() {
     val game = TfmEngine.newGame(canonicalPremise())
-    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    game.testTfm(ADMIN).startGame()
 
     val admin = game.testAgent(ADMIN)
     admin.count("BootstrapPhase") shouldBe 0
     admin.count("SetupPhase") shouldBe 1
     admin.count("Generation") shouldBe 1
     admin.count("StartToken<Player1>") shouldBe 1
+    admin.count("TerraformRating<Player1>") shouldBe 0
+    admin.count("TerraformRating<Player2>") shouldBe 0
+    p1.doTask("20 TerraformRating")
+    p2.doTask("20 TerraformRating")
     admin.count("TerraformRating<Player1>") shouldBe 20
     admin.count("TerraformRating<Player2>") shouldBe 20
   }
 
   @Test
-  internal fun soloModeProvidesItsStartingTerraformRatingDirectly() {
+  internal fun soloPlayerTakesStartingTerraformRatingDuringSetup() {
     val game = TfmEngine.newGame(canonicalPremise(players = 1))
-    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    val player = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    game.testTfm(ADMIN).startGame()
 
+    game.testAgent(ADMIN).count("TerraformRating<Player1>") shouldBe 0
+    player.doTask("14 TerraformRating")
     game.testAgent(ADMIN).count("TerraformRating<Player1>") shouldBe 14
   }
 
@@ -139,7 +148,7 @@ internal class BootstrapLifecycleTest {
   internal fun soloNeutralCitiesCannotBePlacedNextToEachOther() {
     val game = TfmEngine.newGame(canonicalPremise(players = 1))
     val admin = game.testAgent(ADMIN)
-    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    game.testTfm(ADMIN).startGame()
 
     admin.doTask("CityTile<Tharsis_4_1>")
     admin.doTask("GreeneryTile<Tharsis_5_1>")
@@ -152,15 +161,6 @@ internal class BootstrapLifecycleTest {
     admin.doTask("GreeneryTile<Tharsis_2_3>")
     admin.count("CityTile<SoloOpponent>") shouldBe 2
     admin.count("GreeneryTile<SoloOpponent>") shouldBe 2
-  }
-
-  @Test
-  internal fun soloColoniesSetupIsAbsentWithoutSelectedColonies() {
-    val game = TfmEngine.newGame(canonicalPremise(ColoniesExpansion, players = 1))
-
-    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
-
-    game.testAgent(ADMIN).count("SoloColoniesSetup") shouldBe 0
   }
 
   @Test
@@ -180,7 +180,7 @@ internal class BootstrapLifecycleTest {
     admin.count("SelectedColonyTile") shouldBe 4
     admin.count("SoloColoniesSetup") shouldBe 0
 
-    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    game.testTfm(ADMIN).startGame()
     admin.doTask("CityTile<Tharsis_4_1>")
     admin.doTask("GreeneryTile<Tharsis_5_1>")
     admin.doTask("CityTile<Tharsis_2_2>")
@@ -201,17 +201,18 @@ internal class BootstrapLifecycleTest {
             colonyTiles = setOf(cn("Callisto"), cn("Enceladus")),
         )
     val game = TfmEngine.newGame(premise)
-    val workflow = TfmWorkflow.Stepwise(game.testAgents())
     val admin = game.testAgent(ADMIN)
 
     admin.count("SelectedColonyTile") shouldBe 2
     admin.count("Callisto") shouldBe 0
     admin.count("DelayedEnceladus") shouldBe 0
 
-    workflow.setupPhase()
+    game.testTfm(ADMIN).startGame()
     admin.count("SelectedColonyTile") shouldBe 2
 
-    workflow.corporationPhase()
+    game.testTfm(PLAYER1).keepStartingProjects(0)
+    game.testTfm(PLAYER2).keepStartingProjects(0)
+    admin.count("CorporationPhase") shouldBe 1
 
     admin.count("SelectedColonyTile") shouldBe 0
     admin.count("Callisto") shouldBe 1
@@ -220,9 +221,9 @@ internal class BootstrapLifecycleTest {
   }
 
   @Test
-  internal fun automaticSetupWaitsForStartingProjectSelection() {
+  internal fun setupWaitsForStartingProjectSelection() {
     val game = TfmEngine.newGame(canonicalPremise(PreludeExpansion))
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    game.testTfm(ADMIN).startGame()
     val admin = game.testAgent(ADMIN)
     val p1 = game.testTfm(PLAYER1)
 
@@ -237,23 +238,18 @@ internal class BootstrapLifecycleTest {
     p1.playCorp(cn("InterplanetaryCinematics"))
 
     p1.count("ProjectCard") shouldBe 7
-    workflow.shutdown()
   }
 
   @Test
-  internal fun automaticWorkflowWaitsForSoloSetupChoices() {
+  internal fun soloSetupWaitsForItsChoices() {
     val setup = canonicalPremise(players = 1)
     val game = TfmEngine.newGame(setup)
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    game.testTfm(ADMIN).startGame()
 
     val admin = game.testAgent(ADMIN)
     admin.count("SetupPhase") shouldBe 1
     admin.count("CorporationPhase") shouldBe 0
     admin.count("Generation") shouldBe 1
     game.tasks.isEmpty() shouldBe false
-    workflow.isRunning shouldBe true
-
-    workflow.shutdown()
-    workflow.isRunning shouldBe false
   }
 }

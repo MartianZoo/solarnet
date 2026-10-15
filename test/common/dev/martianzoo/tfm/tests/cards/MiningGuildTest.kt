@@ -14,7 +14,16 @@ internal class MiningGuildTest : TfmSandboxTest() {
     kim.setToExMachina(25, "MC")
     val checkpoint = game.timeline.checkpoint()
 
-    kim.stdProject("CityProject") { placeTile(1, 1) }.expect("2 Steel, PROD[Steel]")
+    kim.inTurn {
+      doTasks(
+          "UseStandardProject<CityProject>",
+          "-25 MC",
+          "PROD[MC]",
+          "CityTile<Tharsis_1_1>",
+          "PROD[Steel]",
+          "2 Steel",
+      )
+    }
     kim.auditGainsSince(checkpoint) shouldBe 0
   }
 
@@ -24,7 +33,16 @@ internal class MiningGuildTest : TfmSandboxTest() {
     kim.setToExMachina(25, "MC")
     val checkpoint = game.timeline.checkpoint()
 
-    kim.stdProject("CityProject") { placeTile(8, 9) }.expect("Titanium, PROD[Steel]")
+    kim.inTurn {
+      doTasks(
+          "UseStandardProject<CityProject>",
+          "-25 MC",
+          "PROD[MC]",
+          "CityTile<Tharsis_8_9>",
+          "PROD[Steel]",
+          "Titanium",
+      )
+    }
     kim.auditGainsSince(checkpoint) shouldBe 0
   }
 
@@ -33,7 +51,16 @@ internal class MiningGuildTest : TfmSandboxTest() {
     newTestGame(kimCorporation = MiningGuild)
     kim.setToExMachina(25, "MC")
 
-    kim.stdProject("CityProject") { placeTile(4, 4) }.expect("Plant, PROD[0 Steel]")
+    kim.inTurn {
+          doTasks(
+              "UseStandardProject<CityProject>",
+              "-25 MC",
+              "PROD[MC]",
+              "CityTile<Tharsis_4_4>",
+              "Plant",
+          )
+        }
+        .expect("PROD[0 Steel]")
   }
 
   // BGG exact Mining Guild ruling:
@@ -44,11 +71,16 @@ internal class MiningGuildTest : TfmSandboxTest() {
     kim.setToExMachina(23, "MC")
     val checkpoint = game.timeline.checkpoint()
 
-    kim.stdProject("GreeneryProject") {
-          placeTile(5, 3)
-          doTask("Titanium")
-        }
-        .expect("Titanium, PROD[Steel]")
+    kim.inTurn {
+      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_05_03>")
+      doTask("OxygenStep")
+      doTask("PROD[Steel]")
+      // Hand the fizzle audit to Admin before receiving compensation.
+      selectTask("Audit!")
+      doTask("TerraformRating")
+
+      doTask("Titanium")
+    }
     kim.auditGainsSince(checkpoint) shouldBe 1
   }
 
@@ -67,8 +99,14 @@ internal class MiningGuildTest : TfmSandboxTest() {
   private fun takeNonmetalWildBonus(): TaskResult {
     newTestGame(addOptions = "AmazonisMap, Unsafe", kimCorporation = MiningGuild)
     kim.setToExMachina(23, "MC")
-    return kim.stdProject("GreeneryProject") {
-      placeTile(5, 3)
+    return kim.inTurn {
+      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_05_03>")
+      doTask("OxygenStep")
+      doTask("PROD[Steel]")
+      // Hand the fizzle audit to Admin before receiving compensation.
+      selectTask("Audit!")
+      doTask("TerraformRating")
+
       doTask("Plant")
     }
   }

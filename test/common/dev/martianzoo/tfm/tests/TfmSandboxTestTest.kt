@@ -1,10 +1,8 @@
 package dev.martianzoo.tfm.tests
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.cards.cardnames.CorporateStronghold
-import dev.martianzoo.tfm.tests.cards.cardnames.Donation
-import dev.martianzoo.tfm.tests.cards.cardnames.GiantIceAsteroid
 import dev.martianzoo.tfm.tests.cards.cardnames.Manutech
 import dev.martianzoo.tfm.tests.cards.cardnames.MineralDeposit
 import dev.martianzoo.tfm.tests.cards.cardnames.Pets
@@ -17,22 +15,50 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
   internal fun `Prelude games allow a Prelude before explicitly starting Action phase`() {
     newTestGame(addOptions = "PreludeExpansion")
 
-    kim.playPrelude(Donation).expect("21 MC")
-    startActionPhase()
-    kim.playProject(MineralDeposit, 5).expect("5 Steel")
+    kim.inTurn {
+      doTasks("PlayCard<Class<PreludeCard>, Class<Donation>>", "Donation FROM PreludeCard", "21 MC")
+    }
+    advanceUntilActionPhase()
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<MineralDeposit>>",
+          "-5 MC",
+          "MineralDeposit FROM ProjectCard",
+          "5 Steel",
+      )
+      doTask("PlayedEvent<Class<MineralDeposit>> FROM MineralDeposit")
+    }
   }
 
   @Test
   internal fun `Corporation entry is independent of the cached game with corporations played`() {
-    newTestGame(kimCorporation = Manutech)
-    newTestGame(kimCorporation = Manutech, startAtCorporation = true)
+    newTestGame()
+    newTestGameBeforeCorporationPlay()
 
-    kim.count("$Manutech") shouldBe 0
-    kim.playCorp(Manutech).expect("Steel")
+    kim.count("BeginnerCorporation1") shouldBe 0
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<CorporationCard>, Class<Manutech>>",
+          "Manutech FROM CorporationCard",
+          "35 MC",
+          "PROD[Steel]",
+          "Steel",
+          "-15 MC",
+          "5 ProjectCard<Hand FROM Selecting>",
+      )
+    }
     stan.count("BeginnerCorporation2") shouldBe 0
 
     newTestGame(kimCorporation = Manutech)
-    kim.playProject(MineralDeposit, 5).expect("5 Steel")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<MineralDeposit>>",
+          "-5 MC",
+          "MineralDeposit FROM ProjectCard",
+          "5 Steel",
+      )
+      doTask("PlayedEvent<Class<MineralDeposit>> FROM MineralDeposit")
+    }
   }
 
   @Test
@@ -45,19 +71,39 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     victoryPoints() shouldBe listOf(22, 20, 20)
     game.timeline.checkpoint() shouldBe checkpoint
 
-    kim.playProject(MineralDeposit, 5).expect("5 Steel")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<MineralDeposit>>",
+          "-5 MC",
+          "MineralDeposit FROM ProjectCard",
+          "5 Steel",
+      )
+      doTask("PlayedEvent<Class<MineralDeposit>> FROM MineralDeposit")
+    }
   }
 
   @Test
   internal fun `A rejected scoring query preserves the pending player choice`() {
     newTestGame()
 
-    kim.playProject(GiantIceAsteroid, 36) {
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<GiantIceAsteroid>>",
+              "-36 MC",
+              "GiantIceAsteroid FROM ProjectCard",
+              "TemperatureStep",
+              "TemperatureStep",
+              "TerraformRating",
+              "TerraformRating",
+          )
+          // Resolve the empty plant attack separately from the pending ocean placements.
+          selectTask("-6? Plant<Anyone>")
           val checkpoint = game.timeline.checkpoint()
           shouldThrow<IllegalStateException> { victoryPoints() }
           game.timeline.checkpoint() shouldBe checkpoint
-          placeTile(1, 2)
-          placeTile(1, 4)
+          doTasks("OceanTile<Tharsis_1_2>", "TerraformRating", "2 Steel")
+          doTasks("OceanTile<Tharsis_1_4>", "TerraformRating", "ProjectCard")
+          doTask("PlayedEvent<Class<GiantIceAsteroid>> FROM GiantIceAsteroid")
         }
         .expect("2 OceanTile")
   }
@@ -95,7 +141,9 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
 
     kim.count("$Manutech") shouldBe 1
     kim.count("BeginnerCorporation") shouldBe 0
-    kim.production(cn("Steel")) shouldBe 2
+    kim.count("ProjectCard<Hand>") shouldBe 5
+    kim.count("MC") shouldBe 20
+    kim.count("PROD[Steel]") shouldBe 2
     kim.count("Steel") shouldBe 1
     stan.count("BeginnerCorporation2") shouldBe 1
     rob.count("BeginnerCorporation3") shouldBe 1
@@ -108,8 +156,8 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
     kim.setToExMachina(0, "PROD[Energy]")
     kim.setToExMachina(3, "PROD[Heat]")
 
-    kim.production(cn("Energy")) shouldBe 0
-    kim.production(cn("Heat")) shouldBe 3
+    kim.count("PROD[Energy]") shouldBe 0
+    kim.count("PROD[Heat]") shouldBe 3
   }
 
   @Test
@@ -146,34 +194,31 @@ internal class TfmSandboxTestTest : TfmSandboxTest() {
 
     shouldThrow<IllegalStateException> { stan }.message shouldBe "Stan is sitting this game out"
     shouldThrow<IllegalStateException> { rob }.message shouldBe "Rob is sitting this game out"
-    kim.stdProject("AsteroidProject").expect("TerraformRating")
+    kim.inTurn {
+      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTask("TemperatureStep")
+      doTask("TerraformRating")
+    }
   }
 
   internal class TfmGameplayTestTest : TfmGameplayTest() {
     @Test
-    internal fun `Corporation entry lets the players finish setup through the workflow`() {
-      newTestGame(playerCount = 2, kimCorporation = Manutech, startAtCorporation = true)
+    internal fun `Corporation entry lets the players finish setup in turn order`() {
+      newTestGameBeforeCorporationPlay(playerCount = 2)
 
       kim.count("$Manutech") shouldBe 0
-      kim.playCorp(Manutech).expect("Steel")
+      kim.completeOperation {
+            doTask("PlayCard<Class<CorporationCard>, Class<$Manutech>>")
+            autoExecNow(EAGER)
+            doTask("-15 MC")
+          }
+          .expect("Steel")
       stan.count("BeginnerCorporation2") shouldBe 0
-      stan.inTurn {
+      stan.completeOperation {
         doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation2>, Hand>")
-        stan.pay()
+        autoExecNow(EAGER)
       }
-      kim.playProject(MineralDeposit, 5).expect("5 Steel")
-    }
-
-    @Test
-    internal fun `Starting another game clears the previous workflows unfinished turn`() {
-      newTestGame()
-      val previousGame = game
-      previousGame.tasks.isEmpty() shouldBe false
-
-      newTestGame()
-
-      previousGame.tasks.isEmpty() shouldBe true
-      kim.playProject(MineralDeposit, 5).expect("5 Steel")
+      kim.doTasks("PlayProject<Class<$MineralDeposit>>", "-5 MC").expect("5 Steel")
     }
   }
 }

@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.cards.colonies
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
-import dev.martianzoo.tfm.tests.cards.cardnames.MinorityRefuge
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -16,7 +15,14 @@ internal class MinorityRefugeTest : TfmSandboxTest() {
     kim.exMachina("PROD[-5 MC]")
 
     shouldThrow<LimitsException> {
-      kim.playProject(MinorityRefuge, 5) { doTask("Colony<Io>") }
+      kim.inTurn {
+        doTasks("PlayProject<Class<MinorityRefuge>>", "-5 MC")
+        doTask("MinorityRefuge FROM ProjectCard")
+
+        doTask("Colony<Io>")
+        doTask("PROD[Heat]")
+        doTask("PROD[-2 MC]")
+      }
     }
   }
 
@@ -25,6 +31,15 @@ internal class MinorityRefugeTest : TfmSandboxTest() {
     kim.setToExMachina(0, "PROD[MC]")
     kim.exMachina("PROD[-5 MC]")
 
-    kim.playProject(MinorityRefuge, 5) { doTask("Colony<Luna>") }.expect("Colony<Luna>, PROD[0 MC]")
+    kim.inTurn {
+          doTasks("PlayProject<Class<MinorityRefuge>>", "-5 MC")
+          doTasks(
+              "MinorityRefuge FROM ProjectCard",
+              "Colony<Luna>",
+              "PROD[2 MC]",
+              "PROD[-2 MC]",
+          )
+        }
+        .expect("Colony<Luna>, PROD[0 MC]")
   }
 }

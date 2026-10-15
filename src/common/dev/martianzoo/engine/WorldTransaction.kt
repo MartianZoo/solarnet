@@ -5,19 +5,14 @@ import dev.martianzoo.state.TaskResult
 /**
  * Coordinates nested game mutations as one failure-atomic interaction.
  *
- * For ordinary gameplay, the outermost call and a direct reentry from its completion callback,
- * settle configured policy, repeatedly offer the engine one eligible idle-cleanup step, and
- * validate the caller's completion rule. The outermost call then records the resulting position and
- * reports completion. Work started synchronously by that callback is settled and cleaned up before
- * the final position is recorded. A cleanup step can create new work; [settleAndCleanUp] settles it
- * before another cleanup step can be attempted. Corrections use [correct] to validate and record
- * state without advancing gameplay.
+ * The outermost gameplay call and a reentry from its completion callback settle configured policy
+ * and validate the caller's completion rule. The outermost call reports completion and settles work
+ * started by its callback. The caller-facing Agent records a position when its method returns.
+ * Corrections use [correct] without advancing gameplay.
  */
 internal class WorldTransaction(
-    private val timeline: Timeline,
+    private val timeline: TimelineImpl,
     private val onComplete: () -> Unit,
-    private val recordingPositions: RecordingPositions,
-    private val removeTemporaryComponent: () -> Boolean,
 ) {
   private var depth: Int = 0
   private var reportingCompletion: Boolean = false
@@ -35,21 +30,19 @@ internal class WorldTransaction(
           .atomic {
             block()
             if (outermost || completionFollowUp) {
-              settleAndCleanUp(settle)
+              settle()
               validateCompletion()
             }
           }
           .also {
             if (outermost) {
-              recordingPositions.record(timeline.checkpoint().ordinal)
               reportingCompletion = true
               try {
                 onComplete()
               } finally {
                 reportingCompletion = false
               }
-              timeline.atomic { settleAndCleanUp(settle) }
-              recordingPositions.record(timeline.checkpoint().ordinal)
+              if (timeline.atEnd) timeline.atomic { settle() }
             }
           }
     } finally {
@@ -58,14 +51,5 @@ internal class WorldTransaction(
   }
 
   /** Corrections preserve state validity without advancing gameplay. */
-  internal fun correct(block: () -> Unit): TaskResult =
-      timeline.atomic(block).also {
-        if (depth == 0) recordingPositions.record(timeline.checkpoint().ordinal)
-      }
-
-  private fun settleAndCleanUp(settle: () -> Unit) {
-    do {
-      settle()
-    } while (removeTemporaryComponent())
-  }
+  internal fun correct(block: () -> Unit): TaskResult = timeline.atomic(block)
 }

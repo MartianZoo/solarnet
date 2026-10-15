@@ -14,9 +14,12 @@ import dev.martianzoo.pets.util.HashMultiset
 import dev.martianzoo.pets.util.Multiset
 
 /**
- * A multiset of [Component] instances; the "present" state of a game in progress. It is a plain
- * multiset, but called a "graph" because these component instances have references to their
- * dependencies which are also stored in the multiset.
+ * Live counts of concrete [Component] instances in a game, with links to each component's direct
+ * dependencies. A dependency must be present while any dependent remains. Construction seeds a
+ * `Class<C>` component for each inhabited concrete class; later game events change the counts.
+ * Queries using a [Type][dev.martianzoo.pets.types.Type] include matching subtypes and refinements,
+ * while [countComponent] addresses an exact component. Count listeners observe changes to their
+ * query after registration; see [listenToCount] for the initial callback and cancellation rules.
  */
 public class ComponentGraph
 internal constructor(
@@ -25,6 +28,7 @@ internal constructor(
 ) {
   /** A removable listener registered with [listenToCount]. */
   public fun interface CountSubscription {
+    /** Stops future notifications; it does not retract the initial callback. */
     public fun cancel()
   }
 
@@ -116,6 +120,10 @@ internal constructor(
     }
   }
 
+  /**
+   * Whether this graph currently has any component matching [parentType], including subtypes and
+   * refinements evaluated with [info]. Returns false for an uninhabited type.
+   */
   public fun containsAny(parentType: Type, info: TypeInfo): Boolean {
     requireOwnClassTable(parentType)
     return if (!classTable.isInhabited(parentType)) {
@@ -198,7 +206,7 @@ internal constructor(
       }
     }
     // This is the authoritative state invariant. Live engines may predict it while resolving an
-    // instruction, but passive replay and direct GameWorld use cannot rely on an engine check.
+    // instruction, but passive replay and engine-free GameWorld use cannot rely on an engine check.
     gaining?.let { component ->
       val missing =
           component.dependencyComponents.filter { dependency ->
@@ -270,6 +278,10 @@ internal constructor(
     }
   }
 
+  /**
+   * Exact component types that currently depend directly on [component]. The returned set may
+   * reflect later graph changes; copy it if a stable snapshot is needed.
+   */
   public fun dependentsOf(component: Component): Set<Component> =
       dependentsByDependency[component].orEmpty()
 

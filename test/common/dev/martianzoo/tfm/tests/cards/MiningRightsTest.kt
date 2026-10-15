@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -27,10 +26,16 @@ internal class MiningRightsTest : TfmSandboxTest() {
 
   private fun playOnWildBonus(): TaskResult {
     newTestGame(addOptions = "AmazonisMap, Unsafe")
-    return kim.playProject(MiningRights, 9) {
-      placeTile(5, 3)
+    return kim.inTurn {
+      doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
+      doTasks(
+          "MiningRights FROM ProjectCard",
+          "MiningRights_SpecialTile<Amazonis_05_03>",
+      )
+
       doTask("Steel")
-      doTask("PROD[Steel]")
+      // Resolve the production choice to expose the known wild-area requirement failure.
+      selectOnlyTask()
     }
   }
 
@@ -40,44 +45,72 @@ internal class MiningRightsTest : TfmSandboxTest() {
     // https://boardgamegeek.com/thread/2663453/rule-opinions-mining-rights-robotic-workforce
     newTestGame(addOptions = "CimmeriaMap")
 
-    kim.playProject(MiningRights, 9) {
-          placeTile(6, 4)
-          doTask("PROD[Steel]")
-        }
-        .expect("-9 MC, Titanium, 2 Steel, PROD[Steel]")
+    kim.inTurn {
+      doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
+      doTasks(
+          "MiningRights FROM ProjectCard",
+          "MiningRights_SpecialTile<Cimmeria_6_4>",
+          "Titanium",
+          "2 Steel",
+          "PROD[Steel]",
+      )
+    }
 
-    kim.playProject(RoboticWorkforce, 9) {
-          doTask("CopyProductionBox<$MiningRights>")
-          doTask("PROD[Titanium]")
-        }
-        .expect("-9 MC, PROD[Titanium]")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<RoboticWorkforce>>",
+          "-9 MC",
+          "RoboticWorkforce FROM ProjectCard",
+          "CopyProductionBox<MiningRights>",
+          "PROD[Titanium]",
+      )
+    }
   }
 
   @Test
   internal fun `Cannot select an area without a metal placement bonus`() {
     newTestGame()
-    shouldThrow<GameplayException> { kim.playProject(MiningRights, 9) { placeTile(2, 1) } }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
+        doTask("MiningRights FROM ProjectCard")
+        doTask("MiningRights_SpecialTile<Tharsis_2_1>")
+        // Resolve the production choice to check that this area supplies a metal bonus.
+        selectOnlyTask()
+      }
+    }
   }
 
   @Test
   internal fun `A mixed metal placement grants both resources and steel production`() {
     newTestGame(addOptions = "CimmeriaMap")
 
-    kim.playProject(MiningRights, 9) {
-          placeTile(6, 4)
-          doTask("PROD[Steel]")
-        }
-        .expect("-9 MC, 2 Steel, Titanium, PROD[Steel]")
+    kim.inTurn {
+      doTasks("PlayProject<Class<MiningRights>>", "-9 MC")
+      doTasks(
+          "MiningRights FROM ProjectCard",
+          "MiningRights_SpecialTile<Cimmeria_6_4>",
+          "Titanium",
+          "2 Steel",
+          "PROD[Steel]",
+      )
+    }
   }
 
   @Test
   internal fun `A mixed metal placement grants both resources and titanium production`() {
     newTestGame(addOptions = "CimmeriaMap")
 
-    kim.playProject(MiningRights, 9) {
-          placeTile(6, 4)
-          doTask("PROD[Titanium]")
-        }
-        .expect("-9 MC, 2 Steel, Titanium, PROD[Titanium]")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<$MiningRights>>",
+          "-9 MC",
+          "$MiningRights FROM ProjectCard",
+          "MiningRights_SpecialTile<Cimmeria_6_4>",
+          "2 Steel",
+          "Titanium",
+          "PROD[Titanium]",
+      )
+    }
   }
 }

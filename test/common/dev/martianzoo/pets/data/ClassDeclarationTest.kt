@@ -20,6 +20,14 @@ import kotlin.test.Test
 
 internal class ClassDeclarationTest {
   @Test
+  internal fun hasBodyCountsOwnMembersRatherThanBracesOrHeader() {
+    Parsing.parseClasses("CLASS Bare<Owner>").single().hasBody() shouldBe false
+    Parsing.parseClasses("CLASS Empty<Owner> {}").single().hasBody() shouldBe false
+    Parsing.parseClasses("ABSTRACT CLASS Parent { CLASS Child }").first().hasBody() shouldBe false
+    Parsing.parseClasses("CLASS Ruled { HAS MAX 1 This }").single().hasBody() shouldBe true
+  }
+
+  @Test
   internal fun parsesClassNameWithInitialLetterNumberSegment() {
     Parsing.parseClasses("CLASS L1TradeTerminal").single().className shouldBe cn("L1TradeTerminal")
   }

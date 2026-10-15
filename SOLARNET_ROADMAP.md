@@ -1,7 +1,7 @@
 # Solarnet roadmap
 
 Solarnet is the runtime side of the planned repository split: Game World, the engine, Agents,
-Terraforming Mars gameplay and workflow, recordings and replays, and applications that execute or
+Terraforming Mars gameplay, recordings and replays, and applications that execute or
 explore a game. The [Pets roadmap](PETS_ROADMAP.md) owns the static language and type model, Canon,
 derived English and iconography, and the Almanac. Goals that require both static meaning and live
 execution belong in both roadmaps, with each document describing its part and linking to the other.
@@ -25,18 +25,22 @@ after review. **Selected** means the direction is chosen while some design remai
 
 1. **Make actions, payments, delegated control, and completion a single intelligible lifecycle.**
    **Selected; active design.** Unify the lifecycle while preserving choice, rollback, and Actor
-   authority. See [turns and turn offers](docs/agents/SEQUENCING.md#turns-and-turn-offers), including
+   authority. Fix action identity as a necessary part of this work: a nonexistent second action on
+   AI Central currently succeeds and consumes its use without drawing cards. See
+   [action identity and invocation](docs/agents/ACTIONS.md),
+   [turns and turn offers](docs/agents/SEQUENCING.md#turns-and-turn-offers), including
    the Head Start variant, [on-turn identity and routing](docs/agents/IDENTITY.md#who-is-on-turn-and-who-decides),
-   and [task priority](docs/agents/SEQUENCING.md#task-priority-working-direction). Ordering delegated
+   and [deferred work](docs/agents/SEQUENCING.md#deferred-work). Ordering delegated
    responses and their payments remains open; see [completion](docs/agents/SEQUENCING.md#the-missing-rule-when-an-operation-is-over)
    and [payment gaps](docs/agents/PAYMENTS.md#verified-gaps).
 
 2. **Make the game advance through authored rules instead of a mirrored Kotlin workflow.**
    **Selected.** Phase order, player rotation, setup, expansion phases, final greenery, scoring, and
-   victory should arise from live game components and ordinary engine scheduling. The working
-   direction makes the next turn or phase P3 work in the
-   [task priority](docs/agents/SEQUENCING.md#task-priority-working-direction) bands, selectable
-   only after all other work and its settlement finish. The `workflow` branch removed the
+   victory should arise from live game components and ordinary engine scheduling.
+   [Deferred work](docs/agents/SEQUENCING.md#deferred-work) settles work within an operation, and
+   `FINALLY` work, which waits for everything else including `LATER` work, carries the next turn or
+   phase. The [game flow](docs/agents/SEQUENCING.md#game-flow) is now authored this way and
+   `TfmWorkflow` is deleted; a turn scope remains open. The `workflow` branch removed the
    coroutine-owned phase sequence but is not intended to land. It measured the cost of representing
    deferred work as components: per-rule mode guards, continuation components, and a compiler for
    expansion phase order. Preserve full-game replay evidence through the change.
@@ -60,25 +64,25 @@ after review. **Selected** means the direction is chosen while some design remai
    submit the same Actor-authorized commands. Agent policy may choose among legal actions; it must
    never provide missing ordering, control, or completion semantics. Finish task-form support where
    real interactions need it, make policies attachable and composable only as experience demands,
-   and keep proof-oriented automation distinct from strategy.
+   and keep [proof-oriented automation](docs/agents/SMART_AUTOEXEC.md) distinct from strategy.
 
 6. **Give manual experimentation honest modes.** **Selected direction.** Purple plays the full
    game; blue grants a turn; green initiates an arbitrary operation; yellow permits deliberate task
    abandonment; red applies corrections without advancing gameplay. Make those promises real in
    the REPL and reusable by Mars Playground. Mode changes must handle existing work explicitly and
-   must not smuggle a second workflow into application code.
+   must not smuggle a Kotlin game driver into application code.
 
 ## Code clarity and confidence
 
 1. **Collapse the engine-to-functional-test stack.** **Active.** Ordinary scenarios should express
-   player-visible setup and actions through the full workflow, not rebuild phases, relocate rule
+   player-visible setup and actions through the full game flow, not rebuild phases, relocate rule
    components, chase task causes, or rely on rendered instruction text. Keep focused lower-level
    tests where they prove an engine contract; delete gameplay conveniences that exist only to
    compensate for missing semantics.
 
 2. **Preserve and deepen source-backed whole-game evidence.** Full replays are the strongest proof
    that independent rules compose. Keep original logs, screenshots, and corrections visible in the
-   replay tests while keeping viewer recordings compact. Finish the incomplete 2026-08-20 replay
+   replay tests while keeping generated recordings compact. Finish the incomplete 2026-08-20 replay
    from its preserved evidence, retain the recovered final-greenery scenarios on `work1`, and use
    the preserved TFMBot games as additional integration evidence where their source decisions can
    be represented honestly.
@@ -104,23 +108,19 @@ after review. **Selected** means the direction is chosen while some design remai
 
 ## Game records and reconstruction
 
-1. **Make decision export and import faithful and clean.** **Selected; preserved experiment.** The
-   desired small file records what Actors decided or supplied from outside the rules, without task
-   ids or incidental engine choreography, and can reconstruct the same game using the same
-   declarations and implementation. The earlier round-trip experiment established useful syntax
-   and failure cases. Premise declarations, workflow start, external card identities, and explicit
-   disambiguation still need to become a complete file format. Keep decisions distinct from
-   their calculated consequences.
-   Replay tests now check task-text round-trips with Player autoexecution disabled and
-   Admin aggressive, comparing all components and pending work. Inconsequential intermediate form
-   choices need not survive export. The caller still supplies the premise and workflow.
+1. **Make full and faithful export/import round-trip.** **Active.** `work4` has a shared full/short
+   JSON format, hashes of Catalog data and the resolved premise, state-only exact import, and
+   Agent replay with every Actor policy disabled. Replay tests now emit both forms and compare
+   component changes and pending work without requiring matching task IDs or event ordinals.
+   Finish production card-input capture and replay with the uncommitted `work1` tracker, then
+   connect Playground's upload path. A public-database ingester and friendlier discrepancy flow
+   follow later. [Export design](docs/agents/EXPORT.md) owns the details.
 
 2. **Keep exact event recordings independently useful.** **Implemented foundation.** A recording
    must reconstruct components, pending tasks, history, and approved navigation points without an
    engine, firing effects, or needing the original live World. Continue treating this exact stream
-   and the decision stream as separate views of the same game. A future combined file should allow
-   passive playback and independent engine reconstruction, then compare their results rather than
-   letting either stream repair the other.
+   and the decision stream as separate views of the same game. The combined file permits passive
+   playback and independent Agent reconstruction, then compares their results.
 
 3. **Make game provenance durable.** Record enough premise and implementation identity to know
    which rules produced a game and to diagnose mismatches later. Saving and resuming an unfinished
@@ -141,15 +141,15 @@ after review. **Selected** means the direction is chosen while some design remai
 2. **Enable complete human and autonomous play through the same capabilities.** **Selected
    direction.** End-to-end solo and multiplayer operation is desirable, including computer-driven
    play, but it must not split into separate gameplay architectures. Card tracking, task forms,
-   Agent policies, workflow, and decision records should compose into a usable game-playing surface.
+   Agent policies, and decision records should compose into a usable game-playing surface.
    The preserved TFMBot replay work is evidence and a future corpus, not permission to create a
    special bot engine or to confuse eager execution with strategy.
 
-3. **Turn replay viewing and reconstruction into a compelling way to explore games.** Extend the
-   existing engine-free viewer around exact recordings, coherent history positions, useful queries,
-   and trustworthy provenance. Pair it eventually with the compact decision format so a game can
-   be read as both an exact evolving World and an explanatory sequence of choices. Broader causal
-   analytics remain conditional on being derived cheaply from these foundations.
+3. **Turn replay viewing and reconstruction into a compelling way to explore games.** Use Mars
+   Playground to browse exact recordings, coherent history positions, useful queries, and trustworthy
+   provenance. Pair it eventually with the compact decision format so a game can be read as both an
+   exact evolving World and an explanatory sequence of choices. Broader causal analytics remain
+   conditional on being derived cheaply from these foundations.
 
 4. **Continue the dual-engine parity experiment.** **Active exploratory branch.** The
    `heroku-experiment` branch proves a Kotlin/JS facade that can accept semantic moves, drive a
@@ -160,7 +160,7 @@ after review. **Selected** means the direction is chosen while some design remai
    disagreements. The app-side projector, comparator, transcript persistence, and broader move
    families remain before this becomes a complete parity proof.
 
-5. **Keep REgo as the immediate experimental workbench.** The command-line interface remains the
+5. **Keep REgo as the current experimental workbench.** The command-line interface remains the
    fastest place to inspect state, submit tasks, apply corrections, and test the color-mode model.
    Improve it where that exposes genuine runtime capabilities—especially task forms, mode
    integrity, and state exploration—without mistaking terminal polish or the low-priority `list`

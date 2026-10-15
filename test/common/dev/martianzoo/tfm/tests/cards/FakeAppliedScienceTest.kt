@@ -9,36 +9,41 @@ import kotlin.test.Test
 internal class FakeAppliedScienceTest : TfmSandboxTest() {
   @Test
   internal fun `Can replenish an existing director`() {
-    newTestGame(addOptions = "FakeStuffBundle, BoardOfDirectors")
+    newTestGame(addOptions = "fakes:cards, BoardOfDirectors")
     kim.exMachina(
         "$FakeAppliedScience, Science<$FakeAppliedScience>, $BoardOfDirectors, Director<$BoardOfDirectors>"
     )
 
-    kim.cardAction1(FakeAppliedScience) { addCardResources(BoardOfDirectors) }
+    kim.inTurn {
+          doTask("UseCardAction<FakeAppliedScience, Action1>")
+          doTask("-Science<FakeAppliedScience>")
+          doTask("Director<BoardOfDirectors>*")
+        }
         .expect("Director<$BoardOfDirectors>")
   }
 
   @Test
   internal fun `Cannot replenish an empty board`() {
-    newTestGame(addOptions = "FakeStuffBundle, BoardOfDirectors")
+    newTestGame(addOptions = "fakes:cards, BoardOfDirectors")
     kim.exMachina("$FakeAppliedScience, Science<$FakeAppliedScience>, $BoardOfDirectors")
 
-    kim.cardAction1(FakeAppliedScience) {
+    kim.inTurn {
+          doTasks("UseCardAction<FakeAppliedScience, Action1>", "-Science<FakeAppliedScience>")
           shouldThrow<NarrowingException> { doTask("Director<$BoardOfDirectors>") }
           doTask("Steel")
         }
-        .expect("Steel, 0 Director<$BoardOfDirectors>")
+        .expect("0 Director<$BoardOfDirectors>")
   }
 
   @Test
   internal fun `Spending the last science leaves only the standard resource option`() {
-    newTestGame(addOptions = "FakeStuffBundle")
+    newTestGame(addOptions = "fakes:cards")
     kim.exMachina("$FakeAppliedScience, Science<$FakeAppliedScience>")
 
-    kim.cardAction1(FakeAppliedScience) {
-          shouldThrow<NarrowingException> { doTask("Science<$FakeAppliedScience>") }
-          doTask("Steel")
-        }
-        .expect("-Science<$FakeAppliedScience>, Steel")
+    kim.inTurn {
+      doTasks("UseCardAction<FakeAppliedScience, Action1>", "-Science<FakeAppliedScience>")
+      shouldThrow<NarrowingException> { doTask("Science<$FakeAppliedScience>") }
+      doTask("Steel")
+    }
   }
 }

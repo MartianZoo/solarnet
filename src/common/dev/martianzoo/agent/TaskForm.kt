@@ -30,6 +30,7 @@ import dev.martianzoo.state.TaskResult
  */
 public class TaskForm
 internal constructor(
+    /** Id of the live task this form must recheck before choosing or committing. */
     public val taskId: TaskId,
     initialInstruction: InstructionTree,
     private val agent: AgentImpl,
@@ -40,14 +41,21 @@ internal constructor(
   @ConsistentCopyVisibility
   public data class Decision
   internal constructor(
+      /** Which part of the instruction this decision chooses. */
       public val kind: Kind,
       /** The first unresolved type part for [Kind.TARGET], or null for other decisions. */
       public val focus: Expression?,
       private val instruction: InstructionTree,
   ) {
+    /** An `OR` arm, a component target, or a numeric amount for the current instruction. */
     public enum class Kind {
+      /** Selects among the current instruction's alternative arms. */
       ALTERNATIVE,
+      /** Narrows the unresolved component type identified by [Decision.focus]. */
       TARGET,
+      /**
+       * Fixes a variable numeric quantity; [choose] accepts its decimal text or `Ok` when offered.
+       */
       AMOUNT,
     }
   }

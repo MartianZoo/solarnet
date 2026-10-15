@@ -1,23 +1,21 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agent.exMachina
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
-// Sources: _local/replays/Game20261009/{transcript-afternoon,transcript-evening,sources}.md.
-// Recorded through generation 5; the players stopped before generation 6 Research.
+// Sources: _local/replays/Game20261009/{transcript-afternoon,transcript-evening,
+// transcript-middle,transcript-end,sources}.md.
 // Player tasks are explicit. Admin retains normal autoexecution, as in Game20230521Test.
 internal class OtbGame20261009Test : AbstractFullGameTest() {
   override val config =
       GameConfig(
           """
           VastitasMap
-          CorporateEraExpansion, PreludeExpansion, Prelude2CardPack, VenusNextExpansion
-          ColoniesExpansion, PromoCardPack, FakeStuffBundle
+          CorporateEraExpansion, PreludeExpansion, prelude2:cards, VenusNextExpansion
+          ColoniesExpansion, promos:cards, fakes:cards
           Callisto, Enceladus, Io, Miranda, Triton
           Diversifier, Engineer, Forester, Legend, Researcher
           Botanist, Investor, Landscaper, Manufacturer, Traveller
@@ -27,10 +25,13 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
       )
 
   @Test
-  internal fun game20261009ThroughGeneration5() {
+  internal fun game20261009() {
     p1.autoExecPolicy = NONE
     p2.autoExecPolicy = NONE
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
+    // Each player takes their starting TR before their other setup tasks.
+    p1.doTasks("20 TerraformRating")
+    p2.doTasks("20 TerraformRating")
     p1.doTasks(
         "2 CorporationCard",
         "-CorporationCard",
@@ -49,6 +50,9 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     )
 
     // Afternoon 13:44:57–13:45:37: Kevin/Aqua keeps five; Ellie/Pink keeps eight.
+    // "Arcadian communities. That gives me 40 money and 10 steel. And then I'm keeping five
+    // cards, so I spend 15." "I believe I am Tractor [Teractor], and I'm buying eight cards.
+    // I know, crazy." "Oh, damn, money bags."
     p1.doTasks(
         "PlayCard<Class<CorporationCard>, Class<$ArcadianCommunities>>",
         "$ArcadianCommunities FROM CorporationCard",
@@ -56,17 +60,19 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "10 Steel",
         "ArcadianCommunities_RequiredAction",
         "-15 MC",
-        "5 ProjectCard FROM BuyCard",
+        "5 ProjectCard<Hand FROM Selecting>",
     )
     p2.doTasks(
         "PlayCard<Class<CorporationCard>, Class<$Teractor>>",
         "$Teractor FROM CorporationCard",
         "60 MC",
         "-24 MC",
-        "8 ProjectCard FROM BuyCard",
+        "8 ProjectCard<Hand FROM Selecting>",
     )
 
     // "I chose my preludes because they rhyme. I'm just kidding."
+    // "Boomtown!" "Oh wow." "You need to help me remember that my titanium is only worth two,
+    // just like my steel."
     p1.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$BoomTown>>",
         "$BoomTown FROM PreludeCard",
@@ -74,6 +80,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "CityTile<Vastitas_6_9>",
         "2 Titanium",
     )
+    // "Oh, is it double down?" "Double down!" "It's actually pretty funny."
     p1.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$DoubleDown>>",
         "$DoubleDown FROM PreludeCard",
@@ -85,6 +92,7 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     )
     p1.assertCounts(4 to "PROD[Titanium]", 2 to "ResourceValue<Class<Titanium>>")
 
+    // "That has altered my plans. This is a little wild." "Yeah, that's why I bought a bunch."
     p2.doTasks(
         "PlayCard<Class<PreludeCard>, Class<$AquiferTurbines>>",
         "$AquiferTurbines FROM PreludeCard",
@@ -106,7 +114,8 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
         "CityTile<Vastitas_4_5>",
         "2 MC",
         "GreeneryTile<Vastitas_5_5>",
-        "4 MC",
+        "2 MC",
+        "2 MC",
         "-4 MC",
         "TemperatureStep",
         "OxygenStep",
@@ -115,78 +124,92 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     )
     // The table omitted Project Eden's oxygen and TR. The 13:53:05 photo shows oxygen 0,
     // TR 23; at 22:31:08 they notice the missing oxygen, but never restore this TR.
-    agents.exMachina(p2.actor, "-OxygenStep, -TerraformRating")
+    p2.exMachina("-OxygenStep, -TerraformRating")
     // board-13-53-05.jpg, after Preludes.
     p2.assertResources(m = 37, s = 0, t = 0, p = 3, e = 0, h = 2)
     p2.assertProduction(m = 0, s = 0, t = 0, p = 0, e = 2, h = 0)
     p2.assertCounts(23 to "TerraformRating", 5 to "ProjectCard")
     assertSidebar(gen = 1, temp = -28, oxygen = 0, oceans = 2, venus = 0)
 
-    p1.doTasks("RequiredActionsSignal", "Community<Vastitas_7_8>")
-    p1.doTasks(
-        "PlayProject<Class<$NuclearPower>>",
-        "-5 Steel",
-        "Ok", // no MC paid
-        "$NuclearPower FROM ProjectCard",
-        "PROD[-2 MC]",
-        "PROD[3 Energy]",
-    )
+    p1.turn {
+      doTasks("RequiredActionsSignal", "Community<Vastitas_7_8>")
+      doTasks(
+          "PlayProject<Class<$NuclearPower>>",
+          "-5 Steel",
+          "Ok", // no MC paid
+          "$NuclearPower FROM ProjectCard",
+          "PROD[-2 MC]",
+          "PROD[3 Energy]",
+      )
+    }
 
-    // "Giant ice asteroid. Crazy play for first turn."
-    p2.doTasks(
-        "PlayProject<Class<$GiantIceAsteroid>>",
-        "-36 MC",
-        "Ok", // no titanium paid
-        "$GiantIceAsteroid FROM ProjectCard",
-        "2 TemperatureStep",
-        "2 TerraformRating",
-        "OceanTile<Vastitas_6_7>",
-        "TerraformRating",
-        "4 MC",
-        "ProjectCard",
-        "OceanTile<Vastitas_5_7>",
-        "TerraformRating",
-        "4 MC",
-        "2 Plant",
-        "-Plant<Aqua>",
-        "PROD[Heat]",
-    )
-    // Pink's logs show no heat production and +1 heat (entry 27), apparently confusing
-    // the −24°C production bonus with a resource.
-    agents.exMachina(p2.actor, "PROD[-Heat]")
-    p2.doTasks("Ok") // end turn
-    // "Can you believe that three cities already got played before it?"
-    p1.doTasks(
-        "PlayProject<Class<$ImmigrantCity>>",
-        "-6 Steel",
-        "-1 MC",
-        "$ImmigrantCity FROM ProjectCard",
-        "PROD[-Energy]",
-        "PROD[-2 MC]",
-        "CityTile<Vastitas_7_8>",
-        "PROD[MC]",
-        "5 MC",
-        "Plant",
-    )
-    p1.doTasks("Ok") // end turn
+    // "Giant ice asteroid. Crazy play for first turn." "I knew you had something that would get
+    // you two temperature, obviously." "Amazing play."
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$GiantIceAsteroid>>",
+          "-36 MC",
+          "$GiantIceAsteroid FROM ProjectCard",
+          "2 TemperatureStep",
+          "2 TerraformRating",
+          "OceanTile<Vastitas_6_7>",
+          "TerraformRating",
+          "4 MC",
+          "ProjectCard",
+          "OceanTile<Vastitas_5_7>",
+          "TerraformRating",
+          "4 MC",
+          "2 Plant",
+          "-Plant<Aqua>",
+          "PROD[Heat]",
+          "PlayedEvent<Class<$GiantIceAsteroid>> FROM $GiantIceAsteroid",
+      )
+      // Pink's logs show no heat production and +1 heat (entry 27), apparently confusing
+      // the −24°C production bonus with a resource.
+      exMachina("PROD[-Heat]")
+    }
+    // "I just want you to see how sad this is and it may even make you wonder why I'm even doing
+    // it." "Immigrant city. Can you believe that three cities already got played before it?"
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$ImmigrantCity>>",
+          "-6 Steel",
+          "-1 MC",
+          "$ImmigrantCity FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[-2 MC]",
+          "CityTile<Vastitas_7_8>",
+          "PROD[MC]",
+          "5 MC",
+          "Plant",
+      )
+    }
     // Pink log entry 27 records +1 heat before Pets' payment at entry 28.
-    agents.exMachina(p2.actor, "Heat")
-    p2.doTasks(
-        "PlayProject<Class<$Pets>>",
-        "-7 MC",
-        "$Pets FROM ProjectCard",
-        "Animal<$Pets>",
-    )
-    p2.doTasks("Ok") // end turn
-    p1.doTasks(
-        "UseCardAction<$ArcadianCommunities, Action1>",
-        "Community<Vastitas_7_7>",
-    )
-    p1.doTasks("Ok") // end turn
-    p2.doTasks("Pass")
-    p1.doTasks("Pass")
-    p1.doTasks("22 MC", "-5 MC", "4 Titanium", "2 Energy")
-    p2.doTasks("32 MC", "-5 MC")
+    p2.exMachina("Heat")
+    // "I think I may as well pets for a sec." "Oh, pets. I can see why you would not have expected
+    // me to be playing more cities already."
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$Pets>>",
+          "-7 MC",
+          "$Pets FROM ProjectCard",
+          "Animal<$Pets>",
+      )
+    }
+    p1.turn {
+      doTasks(
+          "UseCardAction<$ArcadianCommunities, Action1>",
+          "Community<Vastitas_7_7>",
+      )
+    }
+    p2.turn {
+      doTasks("Pass")
+    }
+    p1.turn {
+      doTasks("Pass")
+    }
+    p1.doTasks("17 MC", "4 Titanium", "2 Energy")
+    p2.doTasks("27 MC")
     p2.doTasks("2 Energy")
     p1.doTasks("VenusStep! BY Admin")
 
@@ -200,67 +223,77 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     // Generation 2. Evening 21:55:19–21:55:55; drafting is represented by its kept counts.
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard FROM BuyCard")
-    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
+    p1.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
     // "Just in case you have any ideas, I'm gonna immediately spend plant gain seven."
-    p2.doTasks(
-        "PlayProject<Class<$ElectroCatapult>>",
-        "-17 MC",
-        "Ok", // no steel paid
-        "$ElectroCatapult FROM ProjectCard",
-        "PROD[-Energy]",
-    )
-    p2.doTasks(
-        "UseCardAction<$ElectroCatapult, Action1>",
-        "-Plant",
-        "7 MC",
-    )
-    p1.doTasks(
-        "PlayProject<Class<$ResearchOutpost>>",
-        "-18 MC",
-        "Ok", // no steel paid
-        "$ResearchOutpost FROM ProjectCard",
-        "CityTile<Vastitas_9_9>",
-        "Steel",
-        "PROD[MC]",
-    )
-    p1.selectTask("Animal<$Pets<Pink>>")
-    p2.doTasks("Animal<$Pets>")
-    p1.doTasks("Ok") // end turn
-    p2.doTasks(
-        "PlayProject<Class<$Casinos>>",
-        "-5 MC",
-        "Ok", // no steel paid
-        "$Casinos FROM ProjectCard",
-        "PROD[-Energy]",
-        "PROD[4 MC]",
-    )
-    p2.doTasks("Ok") // end turn
+    // "I think it's time for me to play a city tile, maybe. Yep. Research outpost."
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$ElectroCatapult>>",
+          "-17 MC",
+          "$ElectroCatapult FROM ProjectCard",
+          "PROD[-Energy]",
+      )
+      doTasks(
+          "UseCardAction<$ElectroCatapult, Action1>",
+          "-Plant",
+          "7 MC",
+      )
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$ResearchOutpost>>",
+          "-18 MC",
+          "$ResearchOutpost FROM ProjectCard",
+          "CityTile<Vastitas_9_9>",
+          "Steel",
+          "PROD[MC]",
+      )
+      p2.doTasks("Animal<$Pets>")
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$Casinos>>",
+          "-5 MC",
+          "$Casinos FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[4 MC]",
+      )
+    }
+    // "It's so weird that I did this Boomtown thing in a game where the only decent colony is
+    // Triton." "I shouldn't be laughing."
     // Include the five-MC payment correction acknowledged at 22:00:27–22:00:47 here.
-    p1.doTasks(
-        "PlayProject<Class<$TradingColony>>",
-        "-5 Titanium",
-        "-7 MC",
-        "$TradingColony FROM ProjectCard",
-        "Colony<Triton>",
-        "3 Titanium",
-    )
-    p1.doTasks("Ok") // end turn
-    p2.doTasks("Pass")
-    p1.doTasks(
-        "PlayProject<Class<$GiantSpaceMirror>>",
-        "-4 Titanium",
-        "-8 MC",
-        "$GiantSpaceMirror FROM ProjectCard",
-        "PROD[3 Energy]",
-    )
-    p1.doTasks(
-        "UseCardAction<$ArcadianCommunities, Action1>",
-        "Community<Vastitas_6_8>",
-    )
-    p1.doTasks("Pass")
-    p1.doTasks("23 MC", "-5 MC", "4 Titanium", "5 Energy")
-    p2.doTasks("36 MC", "-5 MC")
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$TradingColony>>",
+          "-5 Titanium",
+          "-7 MC",
+          "$TradingColony FROM ProjectCard",
+          "Colony<Triton>",
+          "3 Titanium",
+      )
+    }
+    p2.turn {
+      doTasks("Pass")
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$GiantSpaceMirror>>",
+          "-4 Titanium",
+          "-8 MC",
+          "$GiantSpaceMirror FROM ProjectCard",
+          "PROD[3 Energy]",
+      )
+      // "Then, my Arcadian community, let me put a little cubie bobber right here on 6, 8."
+      doTasks(
+          "UseCardAction<$ArcadianCommunities, Action1>",
+          "Community<Vastitas_6_8>",
+      )
+      doTasks("Pass")
+    }
+    // Production 2 -> 3: each player's 2 remaining energy becomes heat.
+    p1.doTasks("2 Heat FROM Energy", "18 MC", "4 Titanium", "5 Energy")
+    p2.doTasks("2 Heat FROM Energy", "31 MC")
     p2.doTasks("OceanTile<Vastitas_3_3>! BY Admin")
     // board-22-02-46.jpg; Aqua entries 46–51, Pink 49–54.
     p1.assertResources(m = 28, s = 1, t = 4, p = 1, e = 5, h = 2)
@@ -271,60 +304,72 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     assertSidebar(gen = 3, temp = -24, oxygen = 0, oceans = 5, venus = 2)
 
     // Generation 3, 22:05:39–22:11:19.
+    // "It is now round three. That was a really fast generation."
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-ProjectCard<Selecting>", "-9 MC", "3 ProjectCard FROM BuyCard")
-    p2.doTasks("-ProjectCard<Selecting>", "-9 MC", "3 ProjectCard FROM BuyCard")
-    p1.doTasks(
-        "TradeAction<Action2>",
-        "-3 Energy",
-        "Trade<Io>",
-        "ColonyProduction<Io>",
-        "-2 TradeBarrier<Io>",
-        "8 Heat",
-        "-4 ColonyProduction<Io>",
-    )
-    p1.doTasks("Ok") // end turn
-    p2.doTasks(
-        "PlayProject<Class<$IndustrialCenter>>",
-        "-4 MC",
-        "Ok", // no steel paid
-        "$IndustrialCenter FROM ProjectCard",
-        "IndustrialCenter_SpecialTile<Vastitas_8_8>",
-        "Steel",
-    )
-    p2.doTasks("Ok") // end turn
+    p1.doTasks("-ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
+    p1.turn {
+      doTasks(
+          "TradeAction<Action2>",
+          "-3 Energy",
+          "Trade<Io>",
+      )
+      selectTask("ColonyProduction<Io>?")
+      narrowTask("ColonyProduction<Io>")
+      doTasks("8 Heat")
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$IndustrialCenter>>",
+          "-4 MC",
+          "$IndustrialCenter FROM ProjectCard",
+          "IndustrialCenter_SpecialTile<Vastitas_8_8>",
+          "Steel",
+      )
+    }
+    // "Oh, I should have taken my turn to put the Arcadian down." "To do the Arcadian thing and
+    // just grab more of the spots that you could take away from me."
     // The coordinate is unspoken at 22:07:33; board-22-11-07.jpg shows the cube at 9-8.
-    p1.doTasks(
-        "UseCardAction<$ArcadianCommunities, Action1>",
-        "Community<Vastitas_9_8>",
-    )
-    p1.doTasks("Ok") // end turn
-    p2.doTasks(
-        "UseCardAction<$IndustrialCenter, Action1>",
-        "-7 MC",
-        "PROD[Steel]",
-    )
-    p2.doTasks("Ok") // end turn
-    p1.doTasks(
-        "PlayProject<Class<$InventionContest>>",
-        "-1 MC",
-        "$InventionContest FROM ProjectCard",
-        "3 ProjectCard<Selecting>",
-        "ProjectCard<Hand FROM Selecting>",
-        "-2 ProjectCard<Selecting>",
-    )
-    p1.doTasks("Ok") // end turn
-    p2.doTasks(
-        "UseCardAction<$ElectroCatapult, Action1>",
-        "-Plant",
-        "7 MC",
-    )
-    p2.doTasks("Ok") // end turn
-    p1.doTasks("Pass")
-    p2.doTasks("Pass")
-    p1.doTasks("23 MC", "-5 MC", "4 Titanium", "5 Energy")
-    p2.doTasks("36 MC", "-5 MC", "Steel")
+    p1.turn {
+      doTasks(
+          "UseCardAction<$ArcadianCommunities, Action1>",
+          "Community<Vastitas_9_8>",
+      )
+    }
+    p2.turn {
+      doTasks(
+          "UseCardAction<$IndustrialCenter, Action1>",
+          "-7 MC",
+          "PROD[Steel]",
+      )
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$InventionContest>>",
+          "-1 MC",
+          "$InventionContest FROM ProjectCard",
+          "3 ProjectCard<Selecting>",
+          "ProjectCard<Hand FROM Selecting>",
+          "PlayedEvent<Class<$InventionContest>> FROM $InventionContest",
+      )
+    }
+    p2.turn {
+      doTasks(
+          "UseCardAction<$ElectroCatapult, Action1>",
+          "-Plant",
+          "7 MC",
+      )
+    }
+    p1.turn {
+      doTasks("Pass")
+    }
+    p2.turn {
+      doTasks("Pass")
+    }
+    // Production 3 -> 4: Aqua's 2 remaining energy becomes heat.
+    p1.doTasks("2 Heat FROM Energy", "18 MC", "4 Titanium", "5 Energy")
+    p2.doTasks("31 MC", "Steel")
     p1.doTasks("OxygenStep! BY Admin")
     // board-22-11-07.jpg; Aqua entries 62–67, Pink 68–73.
     p1.assertResources(m = 36, s = 1, t = 8, p = 1, e = 5, h = 12)
@@ -336,103 +381,129 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     // Generation 4, 22:13:17–22:22:15.
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
+    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
     p2.doTasks(
-        "Ok", // keep all four research cards
+        "-0 ProjectCard<Selecting>", // keep all four research cards
         "-12 MC",
-        "4 ProjectCard FROM BuyCard",
+        "4 ProjectCard<Hand FROM Selecting>",
     )
-    p2.doTasks(
-        "PlayProject<Class<$LocalShading>>",
-        "-4 MC",
-        "$LocalShading FROM ProjectCard",
-    )
-    p2.doTasks("Ok") // end turn
-    p1.doTasks(
-        "PlayProject<Class<$MarketManipulation>>",
-        "$MarketManipulation FROM ProjectCard",
-        "ColonyProduction<Triton> FROM ColonyProduction<Miranda>",
-    )
-    p1.doTasks(
-        "TradeAction<Action2>",
-        "-3 Energy",
-        "Trade<Triton>",
-        "ColonyProduction<Triton>",
-        "-2 TradeBarrier<Triton>",
-    )
-    p1.selectTask("GainColonyBonus<Triton>")
-    p1.doTasks("6 Titanium", "-5 ColonyProduction<Triton>")
-    p2.doTasks(
-        "UseCardAction<$ElectroCatapult, Action1>",
-        "-Plant",
-        "7 MC",
-    )
-    p2.doTasks("Ok") // end turn
-    // "I will also play a catapult. Earth catapult."
-    p1.doTasks(
-        "PlayProject<Class<$EarthCatapult>>",
-        "-22 MC",
-        "$EarthCatapult FROM ProjectCard",
-    )
-    p1.doTasks("Ok") // end turn
-    p2.doTasks(
-        "UseCardAction<$LocalShading, Action1>",
-        "Floater<$LocalShading>",
-    )
-    p2.doTasks("Ok") // end turn
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$LocalShading>>",
+          "-4 MC",
+          "$LocalShading FROM ProjectCard",
+      )
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$MarketManipulation>>",
+          "$MarketManipulation FROM ProjectCard",
+      )
+      selectTask("ColonyProduction FROM ColonyProduction")
+      narrowTask("ColonyProduction<Triton> FROM ColonyProduction<Miranda>")
+      doTask("PlayedEvent<Class<$MarketManipulation>> FROM $MarketManipulation")
+      doTasks(
+          "TradeAction<Action2>",
+          "-3 Energy",
+          "Trade<Triton>",
+      )
+      selectTask("ColonyProduction<Triton>?")
+      narrowTask("ColonyProduction<Triton>")
+      doTasks("6 Titanium")
+    }
+    p2.turn {
+      doTasks(
+          "UseCardAction<$ElectroCatapult, Action1>",
+          "-Plant",
+          "7 MC",
+      )
+    }
+    // "I will also play a catapult." "Is it earth?" "Earth catapult. Earth catapult. Cost me
+    // 22. Back to you."
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$EarthCatapult>>",
+          "-22 MC",
+          "$EarthCatapult FROM ProjectCard",
+      )
+    }
+    p2.turn {
+      doTasks(
+          "UseCardAction<$LocalShading, Action1>",
+          "Floater<$LocalShading>",
+      )
+    }
     // Research Coordination uses the existing inert wild-tag stand-in.
-    p1.doTasks(
-        "PlayProject<Class<$FakeResearchCoordination>>",
-        "-1 MC",
-        "$FakeResearchCoordination FROM ProjectCard",
-    )
-    p1.doTasks(
-        "UseCardAction<$ArcadianCommunities, Action1>",
-        "Community<Vastitas_8_9>",
-    )
-    p2.doTasks(
-        "PlayProject<Class<$ViralEnhancers>>",
-        "-9 MC",
-        "$ViralEnhancers FROM ProjectCard",
-        "Plant",
-    )
-    p2.doTasks(
-        "ClaimMilestone<Class<Diversifier>>",
-        "-8 MC",
-        "Diversifier",
-    )
-    // 22:18:07: the wild tag supplies Conscription's second Earth tag.
-    agents.exMachina(p1.actor, "FakeWildTagUse, EarthTag<FakeWildTagUse>")
-    p1.doTasks(
-        "PlayProject<Class<$Conscription>>",
-        "-2 MC",
-        "$Conscription FROM ProjectCard",
-        "Conscription_NextCardEffect",
-    )
-    p1.doTasks("Ok") // end turn
-    p2.doTasks(
-        "UseCardAction<$IndustrialCenter, Action1>",
-        "-7 MC",
-        "PROD[Steel]",
-    )
-    p2.doTasks("Ok") // end turn
-    // "Titan floating launch pad for free. That doesn't happen every day, does it?"
-    p1.doTasks(
-        "PlayProject<Class<$TitanFloatingLaunchPad>>",
-        "$TitanFloatingLaunchPad FROM ProjectCard",
-        "2 Floater<$TitanFloatingLaunchPad>",
-    )
-    p1.doTasks("Ok") // end turn
-    p2.doTasks("Pass")
-    p1.doTasks(
-        "UseCardAction<$TitanFloatingLaunchPad, Action1>",
-        "Floater<$TitanFloatingLaunchPad>",
-    )
-    // Pink's phone in board-22-21-43.jpg still displays this pre-production balance.
-    p2.assertResources(m = 24, s = 2, t = 0, p = 3, e = 0, h = 5)
-    p1.doTasks("Pass")
-    p1.doTasks("23 MC", "-5 MC", "4 Titanium", "5 Energy")
-    p2.doTasks("36 MC", "-5 MC", "2 Steel")
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$FakeResearchCoordination>>",
+          "-1 MC",
+          "$FakeResearchCoordination FROM ProjectCard",
+      )
+      doTasks(
+          "UseCardAction<$ArcadianCommunities, Action1>",
+          "Community<Vastitas_8_9>",
+      )
+    }
+    // "I'm gonna pay nine. For viral enhancement-ers, which the effect automatically gives me a
+    // planta. Now, I have building energy, earth, Venus, science, animal, microbe, and city.
+    // That's eight thingy thing eight." "So it is done."
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$ViralEnhancers>>",
+          "-9 MC",
+          "$ViralEnhancers FROM ProjectCard",
+          "Plant",
+      )
+      doTasks(
+          "ClaimMilestone<Class<Diversifier>>",
+          "-8 MC",
+          "Diversifier",
+      )
+      // 22:18:07: the wild tag supplies Conscription's second Earth tag.
+      p1.exMachina("FakeWildTagUse, EarthTag<FakeWildTagUse>")
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$Conscription>>",
+          "-2 MC",
+          "$Conscription FROM ProjectCard",
+          "Conscription_NextCardEffect",
+          "PlayedEvent<Class<$Conscription>> FROM $Conscription",
+          "-FakeWildTagUse",
+      )
+    }
+    p2.turn {
+      doTasks(
+          "UseCardAction<$IndustrialCenter, Action1>",
+          "-7 MC",
+          "PROD[Steel]",
+      )
+    }
+    // "Titan floating launch pad for free. That doesn't happen every day, does it? And add two
+    // floaters and a Joveen card. I choose to add them to Titan floating launch pad."
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$TitanFloatingLaunchPad>>",
+          "$TitanFloatingLaunchPad FROM ProjectCard",
+          "2 Floater<$TitanFloatingLaunchPad>",
+      )
+    }
+    p2.turn {
+      doTasks("Pass")
+    }
+    p1.turn {
+      doTasks(
+          "UseCardAction<$TitanFloatingLaunchPad, Action1>",
+          "Floater<$TitanFloatingLaunchPad>",
+      )
+      // Pink's phone in board-22-21-43.jpg still displays this pre-production balance.
+      p2.assertResources(m = 24, s = 2, t = 0, p = 3, e = 0, h = 5)
+      doTasks("Pass")
+    }
+    // Production 4 -> 5: Aqua's 2 remaining energy becomes heat.
+    p1.doTasks("2 Heat FROM Energy", "18 MC", "4 Titanium", "5 Energy")
+    p2.doTasks("31 MC", "2 Steel")
     p2.doTasks("OceanTile<Vastitas_4_3>! BY Admin")
     // Aqua entries 77–82; Pink 88–93. Spoken production is at 22:20:10;
     // Pink's app timestamps this at 22:12:12 and its photographed display lags the ledger.
@@ -445,123 +516,139 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     assertSidebar(gen = 5, temp = -24, oxygen = 1, oceans = 6, venus = 2)
 
     // Generation 5, 22:24:37–22:33:16.
+    // "Oh my God, I have eighteen titanium. I can't believe I used energy to trade last time."
+    // "I have got to stop laughing at you." "I know."
     p1.doTasks("4 ProjectCard<Selecting>")
     p2.doTasks("4 ProjectCard<Selecting>")
-    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
-    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard FROM BuyCard")
+    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
     // At 22:25:50 both players agree to undo the titanium payment for this trade and
     // use the Launch-Pad instead. Replay the accepted choice at the original trade.
-    p1.doTasks(
-        "UseCardAction<$TitanFloatingLaunchPad, Action2>",
-        "-Floater<$TitanFloatingLaunchPad>",
-        "Trade<Callisto>",
-        "ColonyProduction<Callisto>",
-        "-2 TradeBarrier<Callisto>",
-        "13 Energy",
-        "-6 ColonyProduction<Callisto>",
-    )
-    p1.doTasks("Ok") // end turn
-    // "Requires six ocean tiles. Thank you, me."
-    p2.doTasks(
-        "PlayProject<Class<$KelpFarming>>",
-        "-17 MC",
-        "$KelpFarming FROM ProjectCard",
-        "PROD[2 MC]",
-        "PROD[3 Plant]",
-        "2 Plant",
-        "Plant",
-    )
-    p2.doTasks("Ok") // end turn
-    // "Wow, this is the first TR I've ever gotten."
-    p1.doTasks(
-        "UseStandardProject<AsteroidProject>",
-        "-14 MC",
-        "TemperatureStep",
-        "TerraformRating",
-    )
-    p1.doTasks(
-        "ConvertHeat",
-        "-8 Heat",
-        "TemperatureStep",
-        "TerraformRating",
-        "PROD[Heat]",
-    )
-    // Aqua never recorded the −20°C production bonus: entries 97 and 106 show
-    // 6 heat before production, then 24 from converting 18 energy, with no heat income.
-    agents.exMachina(p1.actor, "PROD[-Heat]")
-    p2.doTasks(
-        "ClaimMilestone<Class<Forester>>",
-        "-8 MC",
-        "Forester",
-    )
-    p2.doTasks("Ok") // end turn
-    p1.doTasks(
-        "UseCardAction<$ArcadianCommunities, Action1>",
-        "Community<Vastitas_7_9>",
-    )
-    p1.doTasks("Ok") // end turn
-    p2.doTasks(
-        "PlayProject<Class<$AdvancedAlloys>>",
-        "-9 MC",
-        "$AdvancedAlloys FROM ProjectCard",
-    )
-    p2.doTasks("Ok") // end turn
-    p1.doTasks("Pass")
-    // "My four steel is 12 money."
-    p2.doTasks(
-        "PlayProject<Class<$IndustrialMicrobes>>",
-        "-4 Steel",
-        "Ok", // no MC paid
-        "$IndustrialMicrobes FROM ProjectCard",
-        "PROD[Energy]",
-        "PROD[Steel]",
-        "Plant",
-    )
-    p2.doTasks(
-        "PlayProject<Class<$CorporateStronghold>>",
-        "-11 MC",
-        "Ok", // no steel paid
-        "$CorporateStronghold FROM ProjectCard",
-        "PROD[-Energy]",
-        "PROD[3 MC]",
-        "CityTile<Vastitas_5_4>",
-        "2 MC",
-        "2 Plant",
-        "Animal<$Pets>",
-    )
-    p2.selectTask("PROD[MC<Aqua>]")
-    p1.doTasks("PROD[MC]")
-    p2.doTasks("ConvertPlants", "-8 Plant")
-    p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
-    p2.doTasks(
-        "GreeneryTile<Vastitas_4_4>",
-        "Plant",
-        "4 MC",
-        "OxygenStep",
-        "TerraformRating",
-    )
-    // 22:31:08–22:31:24: both greeneries' oxygen is finally recorded. This greenery's
-    // step has just resolved normally; restore the missed Project Eden step without its TR.
-    agents.exMachina(p2.actor, "OxygenStep")
-    p2.doTasks(
-        "UseCardAction<$ElectroCatapult, Action1>",
-        "-Plant",
-        "7 MC",
-    )
-    p2.doTasks(
-        "UseCardAction<$LocalShading, Action2>",
-        "-Floater<$LocalShading>",
-        "PROD[MC]",
-    )
-    p2.doTasks(
-        "PlayProject<Class<$TerraformingContract>>",
-        "-8 MC",
-        "$TerraformingContract FROM ProjectCard",
-        "PROD[4 MC]",
-    )
-    p2.doTasks("Pass")
-    p1.doTasks("26 MC", "-5 MC", "4 Titanium", "5 Energy")
-    p2.doTasks("47 MC", "-5 MC", "3 Steel", "3 Plant")
+    p1.turn {
+      doTasks(
+          "UseCardAction<$TitanFloatingLaunchPad, Action2>",
+          "-Floater<$TitanFloatingLaunchPad>",
+          "Trade<Callisto>",
+      )
+      selectTask("ColonyProduction<Callisto>?")
+      narrowTask("ColonyProduction<Callisto>")
+      doTasks("13 Energy")
+    }
+    // "Requires six ocean tiles. Thank you, me. Gain two money production, gain three plant
+    // production, gain two plants, and viral enhancements gives me a third."
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$KelpFarming>>",
+          "-17 MC",
+          "$KelpFarming FROM ProjectCard",
+          "PROD[2 MC]",
+          "PROD[3 Plant]",
+          "2 Plant",
+          "Plant",
+      )
+    }
+    // "So I did it both through the app, so it would have given me TR for both of them. Wow, this
+    // is the first TR I've ever gotten."
+    p1.turn {
+      doTasks(
+          "UseStandardProject<AsteroidProject>",
+          "-14 MC",
+          "TemperatureStep",
+          "TerraformRating",
+      )
+      doTasks(
+          "ConvertHeat",
+          "-8 Heat",
+          "TemperatureStep",
+          "TerraformRating",
+          "PROD[Heat]",
+      )
+      // Aqua never recorded the −20°C production bonus: entries 97 and 106 show
+      // 6 heat before production, then 24 from converting 18 energy, with no heat income.
+      exMachina("PROD[-Heat]")
+    }
+    p2.turn {
+      doTasks(
+          "ClaimMilestone<Class<Forester>>",
+          "-8 MC",
+          "Forester",
+      )
+    }
+    p1.turn {
+      doTasks(
+          "UseCardAction<$ArcadianCommunities, Action1>",
+          "Community<Vastitas_7_9>",
+      )
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$AdvancedAlloys>>",
+          "-9 MC",
+          "$AdvancedAlloys FROM ProjectCard",
+      )
+    }
+    p1.turn {
+      doTasks("Pass")
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$IndustrialMicrobes>>",
+          "-4 Steel",
+          "Ok", // no MC paid
+          "$IndustrialMicrobes FROM ProjectCard",
+          "PROD[Energy]",
+          "PROD[Steel]",
+          "Plant",
+      )
+      doTasks(
+          "PlayProject<Class<$CorporateStronghold>>",
+          "-11 MC",
+          "$CorporateStronghold FROM ProjectCard",
+          "PROD[-Energy]",
+          "PROD[3 MC]",
+          "CityTile<Vastitas_5_4>",
+          "2 MC",
+          "2 Plant",
+          "Animal<$Pets>",
+      )
+      p1.doTasks("PROD[MC]")
+      doTasks("ConvertPlants", "-8 Plant")
+      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      doTasks(
+          "GreeneryTile<Vastitas_4_4>",
+          "Plant",
+          "4 MC",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      // "Oh good, there won't be any more six times as many cities as there are greeneries. Now
+      // it's only three times as many cities."
+      // "Oh gosh! We need to raise this two times." "They both should have raised the oxygen."
+      // 22:31:08–22:31:24: both greeneries' oxygen is finally recorded. This greenery's
+      // step has just resolved normally; restore the missed Project Eden step without its TR.
+      exMachina("OxygenStep")
+      // "You haven't even used your electrocatapult yet?" "Who are you?" "I know, I'm crazy."
+      doTasks(
+          "UseCardAction<$ElectroCatapult, Action1>",
+          "-Plant",
+          "7 MC",
+      )
+      doTasks(
+          "UseCardAction<$LocalShading, Action2>",
+          "-Floater<$LocalShading>",
+          "PROD[MC]",
+      )
+      doTasks(
+          "PlayProject<Class<$TerraformingContract>>",
+          "-8 MC",
+          "$TerraformingContract FROM ProjectCard",
+          "PROD[4 MC]",
+      )
+      doTasks("Pass")
+    }
+    // Production 5 -> 6: Aqua's 18 remaining energy becomes heat.
+    p1.doTasks("18 Heat FROM Energy", "21 MC", "4 Titanium", "5 Energy")
+    p2.doTasks("42 MC", "3 Steel", "3 Plant")
     p1.doTasks("TemperatureStep! BY Admin")
 
     // board-22-32-56.jpg; Aqua entries 102–107; Pink 126–131. No generation-6 draws yet.
@@ -590,5 +677,1392 @@ internal class OtbGame20261009Test : AbstractFullGameTest() {
     p1.assertCounts(3 to "ProjectCard<Hand>", 0 to "ProjectCard<Selecting>")
     p2.assertCounts(5 to "ProjectCard<Hand>", 0 to "ProjectCard<Selecting>")
     admin.assertCounts(1 to "ResearchPhase", 0 to "End")
+
+    // October 10, before generation 6 Research: the players apply the agreed corrections.
+    // Aqua's -20 C bonus was missed at generation 5 production.
+    p1.exMachina("PROD[Heat], Heat")
+    // Project Eden's generation-1 TR missed five productions; Pink's -24 C bonus was
+    // entered as one heat resource rather than production, missing four further heat.
+    p2.exMachina("TerraformRating, 5 MC, PROD[Heat], 4 Heat")
+    p1.assertResources(m = 24, s = 1, t = 22, p = 1, e = 5, h = 25)
+    p2.assertResources(m = 56, s = 3, t = 0, p = 4, e = 0, h = 9)
+
+    // "I pay 11 for research. I get two cards."
+    // "I believe I have 1, 2, 3, 4 science tags. Yep. So I'd also spend eight to claim Risocha."
+    // "How do you feel about that?" "I guess I won't do those things."
+    // Generation 6 Research: Aqua buys two cards; Pink buys four.
+    p1.doTasks("4 ProjectCard<Selecting>")
+    p2.doTasks("4 ProjectCard<Selecting>")
+    p1.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks(
+        "-0 ProjectCard<Selecting>",
+        "-12 MC",
+        "4 ProjectCard<Hand FROM Selecting>",
+    ) // keep all four
+
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$Research>>",
+          "-11 MC",
+          "$Research FROM ProjectCard",
+          "2 ProjectCard",
+      )
+      doTasks("ClaimMilestone<Class<Researcher>>", "-8 MC", "Researcher")
+    }
+
+    // "Since I have so much titanium, I took spaceport colony and it cost me 24 and I can do that
+    // as 12 titanium." "Oh, are you just not getting a lot of space cards?"
+    // "I still have 10 left." Space Port Colony costs twelve titanium after discounts.
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$SpacePortColony>>",
+          "-12 Titanium",
+          "Ok", // no MC paid
+          "$SpacePortColony FROM ProjectCard",
+          "Colony<Io>",
+          "PROD[Heat]",
+          "TradeFleet",
+      )
+      doTasks(
+          "UseCardAction<$TitanFloatingLaunchPad, Action2>",
+          "-Floater<$TitanFloatingLaunchPad>",
+          "Trade<Io>",
+      )
+      selectTask("ColonyProduction<Io>?")
+      narrowTask("ColonyProduction<Io>")
+      doTasks("2 Heat", "8 Heat")
+    }
+    p2.turn {
+      doTasks("UseCardAction<$ElectroCatapult, Action2>", "-Steel", "7 MC")
+    }
+
+    p1.turn {
+      doTasks("UseCardAction<$ArcadianCommunities, Action1>", "Community<Vastitas_5_9>")
+      // "And I'm very sorry for this, but it just looks too good for you."
+      // "Goodbye animals from Miranda, they all go away." "Well played."
+      // "I have to push this colony advantage, that's kind of all I got. Your milestone advantage."
+      // Miranda's trade empties its track; Aqua has no animal card to receive animals.
+      doTasks(
+          "TradeAction<Action3>",
+          "-3 Titanium",
+          "Trade<Miranda>",
+      )
+      selectTask("ColonyProduction<Miranda>?")
+      narrowTask("ColonyProduction<Miranda>")
+      // The printed three-animal trade reward had no legal holder and yielded nothing.
+      agents[p1.actor].dropTask(game.tasks.extract { it }.single { !it.deferred }.id)
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$SixteenPsyche>>",
+          "-31 MC",
+          "$SixteenPsyche FROM ProjectCard",
+          "PROD[2 Titanium]",
+          "3 Titanium",
+      )
+    }
+
+    p1.turn {
+      doTasks("PlayProject<Class<$EnergyMarket>>", "$EnergyMarket FROM ProjectCard")
+    }
+    p2.turn {
+      doTasks("UseCardAction<$LocalShading, Action1>", "Floater<$LocalShading>")
+    }
+    p1.turn {
+      doTasks("UseCardAction<$EnergyMarket, Action2>", "PROD[-Energy]", "8 MC")
+    }
+    p2.turn {
+      doTasks("ConvertHeat", "-8 Heat", "TemperatureStep", "TerraformRating")
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$CommunityServices>>",
+          "-10 MC",
+          "$CommunityServices FROM ProjectCard",
+          "PROD[4 MC]",
+      )
+    }
+    p2.turn {
+      doTasks("Pass")
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$LunarBeam>>",
+          "-10 MC",
+          "$LunarBeam FROM ProjectCard",
+          "PROD[-2 MC]",
+          "PROD[2 Heat]",
+          "PROD[2 Energy]",
+      )
+      repeat(4) {
+        p1.doTasks("ConvertHeat", "-8 Heat", "TemperatureStep", "TerraformRating")
+      }
+      doTasks("Pass")
+    }
+    // Production 6 -> 7: Aqua's 5 remaining energy becomes heat.
+    p1.doTasks("5 Heat FROM Energy", "27 MC", "4 Titanium", "6 Energy", "4 Heat")
+    p2.doTasks("44 MC", "3 Steel", "2 Titanium", "3 Plant", "Heat")
+    p2.doTasks("VenusStep! BY Admin")
+    // board-11-23-10.jpg; phone logs at the generation 7 checkpoint.
+    p1.assertResources(m = 33, s = 1, t = 11, p = 1, e = 6, h = 12)
+    p1.assertProduction(m = 1, s = 0, t = 4, p = 0, e = 6, h = 4)
+    p2.assertResources(m = 45, s = 5, t = 5, p = 7, e = 0, h = 2)
+    p2.assertProduction(m = 14, s = 3, t = 2, p = 3, e = 0, h = 1)
+    p1.assertCounts(26 to "TerraformRating")
+    p2.assertCounts(30 to "TerraformRating")
+    assertSidebar(gen = 7, temp = -8, oxygen = 3, oceans = 6, venus = 4)
+
+    // "They're all reasonable." "How terrible. I think I'll buy one." "I'm buying them all."
+    // Generation 7 Research. Aqua keeps four cards; Pink keeps one.
+    p1.doTasks("4 ProjectCard<Selecting>")
+    p2.doTasks("4 ProjectCard<Selecting>")
+    p1.doTasks(
+        "-0 ProjectCard<Selecting>",
+        "-12 MC",
+        "4 ProjectCard<Hand FROM Selecting>",
+    ) // keep all four
+    p2.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard<Hand FROM Selecting>")
+
+    // The transcript's "Rune Chatter in Tax" is Rotator Impacts: its three-M€
+    // discounted price and the asteroid action used later identify it.
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$RotatorImpacts>>",
+          "-Titanium",
+          "-MC",
+          "$RotatorImpacts FROM ProjectCard",
+      )
+    }
+    // "Oh, I hate that card when I don't have it."
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$SolarLogistics>>",
+          "-4 Titanium",
+          "-MC",
+          "$SolarLogistics FROM ProjectCard",
+          "2 Titanium",
+      )
+      doTasks(
+          "PlayProject<Class<$ImportedGhg>>",
+          "-2 MC",
+          "Ok", // no titanium paid
+          "$ImportedGhg FROM ProjectCard",
+          "PROD[Heat]",
+          "3 Heat",
+          "ProjectCard", // Solar Logistics sees the space event
+          "PlayedEvent<Class<$ImportedGhg>> FROM $ImportedGhg",
+      )
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$Dirigibles>>",
+          "-8 MC",
+          "$Dirigibles FROM ProjectCard",
+      )
+    }
+    p2.turn {
+      doTasks("UseCardAction<$ElectroCatapult, Action2>", "-Steel", "7 MC")
+      doTasks(
+          "PlayProject<Class<$AstraMechanica>>",
+          "-7 MC",
+          "$AstraMechanica FROM ProjectCard",
+          "ProjectCard FROM PlayedEvent<Class<$GiantIceAsteroid>>",
+          "ProjectCard FROM PlayedEvent<Class<$ImportedGhg>>",
+      )
+    }
+    p1.turn {
+      doTasks("UseCardAction<$EnergyMarket, Action2>", "PROD[-Energy]", "8 MC")
+    }
+
+    // "There goes my plan." "The final ocean already?" "Oh my god."
+    // "Yeah, this game is wild." "If by wild you mean I'm losing badly, yeah."
+    // Giant Ice Asteroid's two oceans are 3-2 and 6-5. The transcript and app
+    // record their bonuses separately, although the app combines nearby money changes.
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$GiantIceAsteroid>>",
+          "-3 Titanium",
+          "-24 MC",
+          "$GiantIceAsteroid FROM ProjectCard",
+          "2 TemperatureStep",
+          "2 TerraformRating",
+          "OceanTile<Vastitas_3_2>",
+          "TerraformRating",
+          "4 MC",
+          "2 Plant",
+          "OceanTile<Vastitas_6_5>",
+          "TerraformRating",
+          "2 MC",
+          "2 Heat",
+          "-Plant<Aqua>",
+          "ProjectCard", // Solar Logistics sees the space event
+          "PlayedEvent<Class<$GiantIceAsteroid>> FROM $GiantIceAsteroid",
+      )
+      doTasks(
+          "PlayProject<Class<$LavaFlows>>",
+          "-18 MC",
+          "$LavaFlows FROM ProjectCard",
+          "2 TemperatureStep",
+          "2 TerraformRating",
+          "LavaFlows_SpecialTile<Vastitas_2_6>",
+          "ProjectCard",
+          "OceanTile<Vastitas_5_3>", // the 0 C threshold grants the final ocean
+          "TerraformRating",
+          "Plant",
+          "2 MC",
+          "PlayedEvent<Class<$LavaFlows>> FROM $LavaFlows",
+      )
+    }
+    p1.turn {
+      doTasks(
+          "UseCardAction<$RotatorImpacts, Action1>",
+          "-3 Titanium",
+          "Ok", // no MC paid
+          "Asteroid<$RotatorImpacts>",
+      )
+    }
+    p2.turn {
+      doTasks("ConvertPlants", "-8 Plant")
+      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      doTasks(
+          "GreeneryTile<Vastitas_4_6>",
+          "ProjectCard",
+          "4 MC",
+          "OxygenStep",
+          "TerraformRating",
+      )
+    }
+    p1.turn {
+      doTasks("UseCardAction<$ArcadianCommunities, Action1>", "Community<Vastitas_9_7>")
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$FloatingRefinery>>",
+          "-7 MC",
+          "$FloatingRefinery FROM ProjectCard",
+          "2 Floater<$FloatingRefinery>",
+      )
+    }
+    p1.turn {
+      doTasks("UseCardAction<$Dirigibles, Action1>", "Floater<$Dirigibles>")
+    }
+    p2.turn {
+      doTasks(
+          "UseCardAction<$FloatingRefinery, Action2>",
+          "-2 Floater<$FloatingRefinery>",
+          "Titanium",
+          "2 MC",
+      )
+    }
+    // "I've come to my big play, which is so silly. But I have all this titanium."
+    // "Which as you can see I just spent the last several turns making sure I would be able to
+    // do that."
+    // The L1 gift is placed on the three cards Aqua prepared in the preceding turns.
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$L1TradeTerminal>>",
+          "-7 Titanium",
+          "-8 MC",
+          "$L1TradeTerminal FROM ProjectCard",
+      )
+      selectTask(
+          game.tasks.extract { it }.single { !it.deferred }.id
+      ) // L1's three distinct holders
+      doTasks(
+          "Asteroid<$RotatorImpacts>",
+          "Floater<$Dirigibles>",
+          "Floater<$TitanFloatingLaunchPad>",
+      )
+      // Choose L1's two track steps and decline Trading Colony's optional third step.
+      doTasks(
+          "UseCardAction<$TitanFloatingLaunchPad, Action2>",
+          "-Floater<$TitanFloatingLaunchPad>",
+          "Trade<Triton>",
+      )
+      selectTask("2 ColonyProduction<Triton> OR Ok")
+      narrowTask("2 ColonyProduction<Triton>")
+      declineTask("ColonyProduction<Triton>?") // decline Trading Colony's one step
+      doTasks("Titanium", "5 Titanium")
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$ImportedGhg>>",
+          "-2 MC",
+          "Ok", // no titanium paid
+          "$ImportedGhg FROM ProjectCard",
+          "PROD[Heat]",
+          "3 Heat",
+          "ProjectCard", // Solar Logistics
+          "PlayedEvent<Class<$ImportedGhg>> FROM $ImportedGhg",
+      )
+      doTasks("ConvertHeat", "-8 Heat", "TemperatureStep", "TerraformRating")
+    }
+    p1.turn {
+      doTasks("ConvertHeat", "-8 Heat", "TemperatureStep", "TerraformRating")
+    }
+
+    p2.turn {
+      doTasks("UseStandardProject<SellPatentsProject>", "3 MC FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<$SolarProbe>>",
+          "-Titanium",
+          "-5 MC",
+          "$SolarProbe FROM ProjectCard",
+          "2 ProjectCard", // six science tags
+          "ProjectCard", // Solar Logistics
+          "PlayedEvent<Class<$SolarProbe>> FROM $SolarProbe",
+      )
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$InventorsGuild>>",
+          "-6 MC",
+          "$InventorsGuild FROM ProjectCard",
+      )
+    }
+    p2.turn {
+      doTasks("UseCardAction<$LocalShading, Action1>", "Floater<$LocalShading>")
+    }
+
+    p1.turn {
+      doTasks(
+          "TradeAction<Action2>",
+          "-3 Energy",
+          "Trade<Io>",
+      )
+      selectTask("ColonyProduction<Io>?") // Trading Colony
+      narrowTask("ColonyProduction<Io>")
+      selectTask("2 ColonyProduction<Io> OR Ok") // L1 Trade Terminal
+      narrowTask("2 ColonyProduction<Io>")
+      doTasks("2 Heat", "10 Heat")
+      doTasks("ConvertHeat", "-8 Heat", "TemperatureStep", "TerraformRating")
+    }
+    p2.turn {
+      doTasks("Pass")
+    }
+    p1.turn {
+      doTasks("ConvertHeat", "-8 Heat", "TemperatureStep", "TerraformRating")
+      // "Check out this badass card. It's potatoes. I can't build it because it needs plants."
+      // Inventors' Guild reveals Potatoes; Aqua declines the purchase.
+      doTasks(
+          "UseCardAction<$InventorsGuild, Action1>",
+          "ProjectCard<Selecting>",
+          "-ProjectCard<Selecting>",
+      )
+      doTasks("Pass")
+    }
+    // Production 7 -> 8: Aqua's 3 remaining energy becomes heat.
+    p1.doTasks("3 Heat FROM Energy", "30 MC", "4 Titanium", "5 Energy", "4 Heat")
+    p2.doTasks("53 MC", "3 Steel", "2 Titanium", "3 Plant", "3 Heat")
+    p1.doTasks("OxygenStep! BY Admin")
+    // board-11-44-28.jpg; the logs show these balances before generation 8 Research.
+    p1.assertResources(m = 36, s = 1, t = 10, p = 0, e = 5, h = 7)
+    p1.assertProduction(m = 1, s = 0, t = 4, p = 0, e = 5, h = 4)
+    p2.assertResources(m = 53, s = 7, t = 2, p = 5, e = 0, h = 5)
+    p2.assertProduction(m = 14, s = 3, t = 2, p = 3, e = 0, h = 3)
+    p1.assertCounts(29 to "TerraformRating")
+    p2.assertCounts(39 to "TerraformRating")
+    assertSidebar(gen = 8, temp = 8, oxygen = 5, oceans = 9, venus = 4)
+
+    // "Show me greenery tiles." "Show me the greenery."
+    // Generation 8 Research. Aqua buys four cards; Pink buys three.
+    p1.doTasks("4 ProjectCard<Selecting>")
+    p2.doTasks("4 ProjectCard<Selecting>")
+    p1.doTasks("-0 ProjectCard<Selecting>", "-12 MC", "4 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$RedSpotObservatory>>",
+          "-17 MC",
+          "$RedSpotObservatory FROM ProjectCard",
+          "2 ProjectCard",
+      )
+    }
+
+    p1.turn {
+      doTasks(
+          "UseStandardProject<AirScrappingProject>",
+          "-15 MC",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseCardAction<$RotatorImpacts, Action2>",
+          "-Asteroid<$RotatorImpacts>",
+          "VenusStep",
+          "TerraformRating",
+          "ProjectCard", // Venus 8% bonus
+      )
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$SulphurEatingBacteria>>",
+          "-6 MC",
+          "$SulphurEatingBacteria FROM ProjectCard",
+          "Microbe<$SulphurEatingBacteria>", // Viral Enhancers on the microbe tag
+      )
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$HiredRaiders>>",
+          "$HiredRaiders FROM ProjectCard",
+          "3 MC FROM MC<Pink>",
+          "PlayedEvent<Class<$HiredRaiders>> FROM $HiredRaiders",
+      )
+      doTasks(
+          "PlayProject<Class<$Decomposers>>",
+          "-2 MC",
+          "$Decomposers FROM ProjectCard",
+          "Microbe<$Decomposers>",
+      )
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$MartianLumberCorp>>",
+          "-2 Steel",
+          "Ok", // no MC paid
+          "$MartianLumberCorp FROM ProjectCard",
+          "PROD[Plant]",
+          "Plant", // Viral Enhancers on the plant tag
+      )
+    }
+
+    p1.turn {
+      doTasks("UseCardAction<$EnergyMarket, Action2>", "PROD[-Energy]", "8 MC")
+    }
+    p2.turn {
+      doTasks("UseCardAction<$ElectroCatapult, Action2>", "-Steel", "7 MC")
+    }
+    p1.turn {
+      doTasks(
+          "TradeAction<Action2>",
+          "-3 Energy",
+          "Trade<Enceladus>",
+      )
+      selectTask("ColonyProduction<Enceladus>?")
+      narrowTask("ColonyProduction<Enceladus>")
+      selectTask("2 ColonyProduction<Enceladus> OR Ok")
+      narrowTask("2 ColonyProduction<Enceladus>")
+      doTasks("4 Microbe<$Decomposers>")
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$VenusShuttles>>",
+          "-9 MC",
+          "$VenusShuttles FROM ProjectCard",
+          "2 Floater<$FloatingRefinery>",
+      )
+    }
+    // "I don't love how this game is going. Okay. I'm gonna use Inventor's Guild to look at the
+    // best card in the game." "And it requires two Jovian."
+    // Inventors' Guild reveals an unaffordable card; Aqua lets it go.
+    p1.turn {
+      doTasks(
+          "UseCardAction<$InventorsGuild, Action1>",
+          "ProjectCard<Selecting>",
+          "-ProjectCard<Selecting>",
+      )
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$CoronaExtractor>>",
+          "-2 Titanium",
+          "-2 MC",
+          "$CoronaExtractor FROM ProjectCard",
+          "PROD[4 Energy]",
+      )
+    }
+    p1.turn {
+      doTasks(
+          "UseCardAction<$TitanFloatingLaunchPad, Action2>",
+          "-Floater<$TitanFloatingLaunchPad>",
+          "Trade<Triton>",
+      )
+      selectTask("ColonyProduction<Triton>?")
+      narrowTask("ColonyProduction<Triton>")
+      selectTask("2 ColonyProduction<Triton> OR Ok")
+      narrowTask("2 ColonyProduction<Triton>")
+      doTasks("Titanium", "4 Titanium")
+    }
+    p2.turn {
+      doTasks(
+          "UseCardAction<$VenusShuttles, Action1>",
+          "-8 MC",
+          "VenusStep",
+          "TerraformRating",
+      )
+    }
+
+    // The agreed Dirigibles discount replaces Aqua's initial four-M€ payment.
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$NeutralizerFactory>>",
+          "-Floater<$Dirigibles>",
+          "-MC",
+          "$NeutralizerFactory FROM ProjectCard",
+          "VenusStep",
+          "TerraformRating",
+      )
+      doTasks(
+          "PlayProject<Class<$OrbitalReflectors>>",
+          "-Floater<$Dirigibles>",
+          "-10 Titanium",
+          "Ok", // no MC paid
+          "$OrbitalReflectors FROM ProjectCard",
+          "2 VenusStep",
+          "3 TerraformRating", // includes the Venus 16% threshold
+          "PROD[2 Heat]",
+      )
+    }
+    p2.turn {
+      doTasks(
+          "UseCardAction<$FloatingRefinery, Action2>",
+          "-2 Floater<$FloatingRefinery>",
+          "Titanium",
+          "2 MC",
+      )
+    }
+    // This floater was placed later than Aqua first recalled in the conversation.
+    p1.turn {
+      doTasks("UseCardAction<$Dirigibles, Action1>", "Floater<$Dirigibles>")
+    }
+    p2.turn {
+      doTasks(
+          "UseCardAction<$LocalShading, Action2>",
+          "-Floater<$LocalShading>",
+          "PROD[MC]",
+      )
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$UrbanDecomposers>>",
+          "-3 MC",
+          "$UrbanDecomposers FROM ProjectCard",
+          "PROD[Plant]",
+          "2 Microbe<$Decomposers>",
+          "Microbe<$Decomposers>", // Decomposers reacts to the microbe tag
+      )
+    }
+    p2.turn {
+      doTasks("UseCardAction<$RedSpotObservatory, Action1>", "Floater<$RedSpotObservatory>")
+    }
+    // Viking 2's delegate space is visible in the final photograph; "5-9" was a slip.
+    p1.turn {
+      doTasks("UseCardAction<$ArcadianCommunities, Action1>", "Community<Vastitas_4_8>")
+    }
+    p2.turn {
+      doTasks(
+          "UseCardAction<$SulphurEatingBacteria, Action1>",
+          "Microbe<$SulphurEatingBacteria>",
+      )
+    }
+    // "How are we ever going to get this oxygen up? It's going to be stuck like this forever."
+    p1.turn {
+      doTasks("Pass")
+    }
+    // "So you have 23 mega credit production and I have one."
+    // "I get 36. Hey, they're the same with the digits reversed." "You're the inverse."
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$Sponsors>>",
+          "-MC",
+          "$Sponsors FROM ProjectCard",
+          "PROD[2 MC]",
+      )
+      doTasks(
+          "PlayProject<Class<$Cartel>>",
+          "-3 MC",
+          "$Cartel FROM ProjectCard",
+          "PROD[6 MC]",
+      )
+      doTasks("Pass")
+    }
+
+    // Production 8 -> 9: Aqua's 2 remaining energy becomes heat.
+    p1.doTasks("2 Heat FROM Energy", "36 MC", "4 Titanium", "Plant", "4 Energy", "6 Heat")
+    p2.doTasks("63 MC", "3 Steel", "2 Titanium", "4 Plant", "4 Energy", "3 Heat")
+    p2.doTasks("OxygenStep! BY Admin")
+    // board-12-00-57.jpg; before generation 9 Research.
+    p1.assertResources(m = 50, s = 1, t = 9, p = 1, e = 4, h = 15)
+    p1.assertProduction(m = 1, s = 0, t = 4, p = 1, e = 4, h = 6)
+    p2.assertResources(m = 67, s = 7, t = 3, p = 10, e = 4, h = 8)
+    p2.assertProduction(m = 23, s = 3, t = 2, p = 4, e = 4, h = 3)
+    p1.assertCounts(35 to "TerraformRating")
+    p2.assertCounts(40 to "TerraformRating")
+    assertSidebar(gen = 9, temp = 8, oxygen = 6, oceans = 9, venus = 16)
+
+    // Generation 9. Both players buy three of the drafted cards.
+    p1.doTasks("4 ProjectCard<Selecting>")
+    p2.doTasks("4 ProjectCard<Selecting>")
+    p1.doTasks("-ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
+
+    // "I'll go to Triton, bump it up three times, which gives me five, gives me four plus one,
+    // and then might as well spend three titanium too, to then go to enchiladas, bump it up three
+    // times, and get four. Microbials." "Pretty crazy."
+    p1.turn {
+      doTasks("TradeAction<Action2>", "-3 Energy", "Trade<Triton>")
+      selectTask("ColonyProduction<Triton>?")
+      narrowTask("ColonyProduction<Triton>")
+      selectTask("2 ColonyProduction<Triton> OR Ok")
+      narrowTask("2 ColonyProduction<Triton>")
+      doTasks("Titanium", "4 Titanium")
+      doTasks("TradeAction<Action3>", "-3 Titanium", "Trade<Enceladus>")
+      selectTask("ColonyProduction<Enceladus>?")
+      narrowTask("ColonyProduction<Enceladus>")
+      selectTask("2 ColonyProduction<Enceladus> OR Ok")
+      narrowTask("2 ColonyProduction<Enceladus>")
+      doTasks("4 Microbe<$Decomposers>")
+    }
+    // "I think I will fund the investor and the traveler, which will be a total of 22."
+    // "You're winning in all five awards, so except the one we're tied."
+    p2.turn {
+      doTasks("FundAward<Class<Investor>>", "-8 MC", "Investor")
+      doTasks("FundAward<Class<Traveller>>", "-14 MC", "Traveller")
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$HeavyTaxation>>",
+          "$HeavyTaxation FROM ProjectCard",
+          "PROD[2 MC]",
+          "4 MC",
+      )
+    }
+    p2.turn {
+      doTasks(
+          "UseCardAction<$RedSpotObservatory, Action2>",
+          "-Floater<$RedSpotObservatory>",
+          "ProjectCard",
+      )
+    }
+    // "I'm gonna spend the twenty three to plant a forest, which raised the oxygen to seven."
+    // "Seven seven?" "Which gives me seven money and two plants."
+    p1.turn {
+      doTasks(
+          "UseStandardProject<GreeneryProject>",
+          "-23 MC",
+          "GreeneryTile<Vastitas_7_7>",
+          "7 MC",
+          "2 Plant",
+          "OxygenStep",
+          "TerraformRating",
+      )
+    }
+    p2.turn {
+      doTasks("TradeAction<Action2>", "-3 Energy", "Trade<Miranda>", "2 Animal<$Pets>")
+    }
+    // "I'm going to use my inventor's guild to look at a shitty card. It is a shitty card."
+    // "But it's a shitty time."
+    p1.turn {
+      doTasks(
+          "UseCardAction<$InventorsGuild, Action1>",
+          "ProjectCard<Selecting>",
+          "-ProjectCard<Selecting>",
+      )
+    }
+    p2.turn {
+      doTasks("ConvertPlants", "-8 Plant")
+      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      doTasks(
+          "GreeneryTile<Vastitas_6_4>",
+          "4 MC",
+          "Plant",
+          "OxygenStep",
+          "TerraformRating",
+          "0 TemperatureStep", // decline TemperatureStep. at the oxygen threshold
+      )
+      // "You got the non-existent bonus." The table does not take the 8% temperature bonus.
+    }
+    p1.turn {
+      doTasks("UseCardAction<$EnergyMarket, Action2>", "PROD[-Energy]", "8 MC")
+    }
+    p2.turn {
+      doTasks("UseCardAction<$ElectroCatapult, Action2>", "-Steel", "7 MC")
+    }
+    p1.turn {
+      doTasks(
+          "UseCardAction<$RotatorImpacts, Action2>",
+          "-Asteroid<$RotatorImpacts>",
+          "VenusStep",
+          "TerraformRating",
+      )
+    }
+    p2.turn {
+      doTasks("UseCardAction<$LocalShading, Action1>", "Floater<$LocalShading>")
+    }
+    // Aqua first says Titan Floating Launch-Pad, then corrects the floater to Dirigibles.
+    p1.turn {
+      doTasks("UseCardAction<$Dirigibles, Action1>", "Floater<$Dirigibles>")
+    }
+    p2.turn {
+      doTasks(
+          "UseCardAction<$FloatingRefinery, Action2>",
+          "-2 Floater<$LocalShading>",
+          "Titanium",
+          "2 MC",
+      )
+    }
+    p1.turn {
+      doTasks(
+          "UseCardAction<$TitanFloatingLaunchPad, Action1>",
+          "Floater<$TitanFloatingLaunchPad>",
+      )
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$JovianLanterns>>",
+          "-20 MC",
+          "$JovianLanterns FROM ProjectCard",
+          "TerraformRating",
+          "2 Floater<$JovianLanterns>",
+      )
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$IoSulphurResearch>>",
+          "-14 MC",
+          "$IoSulphurResearch FROM ProjectCard",
+          "3 ProjectCard",
+      )
+    }
+    p2.turn {
+      doTasks(
+          "UseCardAction<$JovianLanterns, Action1>",
+          "-Titanium",
+          "2 Floater<$JovianLanterns>",
+      )
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$ImmigrationShuttles>>",
+          "-11 Titanium",
+          "-6 MC",
+          "$ImmigrationShuttles FROM ProjectCard",
+          "PROD[5 MC]",
+      )
+    }
+    p2.turn {
+      doTasks(
+          "UseCardAction<$VenusShuttles, Action1>",
+          "-8 MC",
+          "VenusStep",
+          "TerraformRating",
+      )
+    }
+    p1.turn {
+      doTasks("UseCardAction<$ArcadianCommunities, Action1>", "Community<Vastitas_4_7>")
+    }
+    p2.turn {
+      doTasks("UseCardAction<$SulphurEatingBacteria, Action1>", "Microbe<$SulphurEatingBacteria>")
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$AdaptedLichen>>",
+          "-6 MC",
+          "$AdaptedLichen FROM ProjectCard",
+          "PROD[Plant]",
+          "Microbe<$Decomposers>",
+      )
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$MethaneFromTitan>>",
+          "-3 Titanium",
+          "-16 MC",
+          "$MethaneFromTitan FROM ProjectCard",
+          "PROD[2 Heat]",
+          "PROD[2 Plant]",
+      )
+    }
+    p1.turn {
+      doTasks("Pass")
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$MedicalLab>>",
+          "-4 Steel",
+          "-MC",
+          "$MedicalLab FROM ProjectCard",
+          "PROD[3 MC]",
+      )
+      declineTask("-X? Plant<Pink>") // no plants paid
+      doTasks("Pass")
+    }
+
+    // Production 9 -> 10; Aqua chooses oxygen in the world-government phase.
+    p1.doTasks("Heat FROM Energy", "45 MC", "4 Titanium", "2 Plant", "3 Energy", "6 Heat")
+    p2.doTasks(
+        "Heat FROM Energy",
+        "69 MC",
+        "3 Steel",
+        "2 Titanium",
+        "6 Plant",
+        "4 Energy",
+        "5 Heat",
+    )
+    p1.doTasks("OxygenStep! BY Admin")
+    // board-16-04-56.jpg, before generation 10 Research.
+    p1.assertResources(m = 56, s = 1, t = 4, p = 5, e = 3, h = 22)
+    p2.assertResources(m = 73, s = 5, t = 2, p = 9, e = 4, h = 14)
+    assertSidebar(gen = 10, temp = 8, oxygen = 9, oceans = 9, venus = 20)
+
+    // Generation 10. Aqua says "I'm buying one card"; Pink's phone log records two purchases.
+    p1.doTasks("4 ProjectCard<Selecting>")
+    p2.doTasks("4 ProjectCard<Selecting>")
+    p1.doTasks("-3 ProjectCard<Selecting>", "-3 MC", "ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-2 ProjectCard<Selecting>", "-6 MC", "2 ProjectCard<Hand FROM Selecting>")
+    // "Oh my god." "You're placing so many late colonies."
+    p2.turn {
+      doTasks(
+          "UseStandardProject<BuildColonyProject>",
+          "-17 MC",
+          "Colony<Miranda>",
+          "Animal<$Pets>",
+      )
+      doTasks(
+          "PlayProject<Class<$ResearchColony>>",
+          "-Titanium",
+          "-16 MC",
+          "$ResearchColony FROM ProjectCard",
+          "Colony<Miranda>",
+          "Animal<$Pets>",
+          "2 ProjectCard",
+      )
+    }
+    // "I have considered flying my boat to Miranda, but not that mean."
+    // "Why is that so hard to say? And then my boat will go, let's do the same thing as last
+    // time. It goes to Triton and it gets five titanium."
+    // "I'm not gonna win the game like this, but I'm not gonna win the game anyway."
+    p1.turn {
+      doTasks(
+          "UseCardAction<$TitanFloatingLaunchPad, Action2>",
+          "-Floater<$TitanFloatingLaunchPad>",
+          "Trade<Triton>",
+      )
+      selectTask("ColonyProduction<Triton>?")
+      narrowTask("ColonyProduction<Triton>")
+      selectTask("2 ColonyProduction<Triton> OR Ok")
+      narrowTask("2 ColonyProduction<Triton>")
+      doTasks("Titanium", "4 Titanium")
+      doTasks("TradeAction<Action3>", "-3 Titanium", "Trade<Enceladus>")
+      selectTask("ColonyProduction<Enceladus>?")
+      narrowTask("ColonyProduction<Enceladus>")
+      selectTask("2 ColonyProduction<Enceladus> OR Ok")
+      narrowTask("2 ColonyProduction<Enceladus>")
+      doTasks("4 Microbe<$Decomposers>")
+    }
+    p2.turn {
+      doTasks("PlayProject<Class<$MediaGroup>>", "-MC", "$MediaGroup FROM ProjectCard")
+    }
+    p1.turn {
+      doTasks("UseCardAction<$InventorsGuild, Action1>", "ProjectCard<Selecting>")
+      doTasks("-0 ProjectCard<Selecting>", "-3 MC", "ProjectCard<Hand FROM Selecting>")
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$VenusianInsects>>",
+          "-5 MC",
+          "$VenusianInsects FROM ProjectCard",
+          "Microbe<$VenusianInsects>", // Viral Enhancers
+      )
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$SubZeroSaltFish>>",
+          "-2 MC",
+          "$SubZeroSaltFish FROM ProjectCard",
+          "PROD[-Plant<Pink>]",
+          "Microbe<$Decomposers>",
+      )
+    }
+    p2.turn {
+      doTasks("UseCardAction<$JovianLanterns, Action1>", "-Titanium", "2 Floater<$JovianLanterns>")
+    }
+    p1.turn {
+      doTasks(
+          "UseStandardProject<GreeneryProject>",
+          "-23 MC",
+          "GreeneryTile<Vastitas_6_8>",
+          "7 MC",
+          "Plant",
+          "OxygenStep",
+          "TerraformRating",
+      )
+    }
+    p2.turn {
+      doTasks("ConvertPlants", "-8 Plant")
+      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      doTasks(
+          "GreeneryTile<Vastitas_3_4>",
+          "2 MC",
+          "2 Plant",
+          "OxygenStep",
+          "TerraformRating",
+      )
+    }
+    p1.turn {
+      doTasks(
+          "UseStandardProject<GreeneryProject>",
+          "-23 MC",
+          "GreeneryTile<Vastitas_5_9>",
+          "3 MC",
+          "2 ProjectCard",
+          "OxygenStep",
+          "TerraformRating",
+      )
+    }
+    // "I am doubting you'll have two more greeneries up your sleeve."
+    // "With 12 money that would be a little difficult."
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$HydrogenToVenus>>",
+          "-11 MC",
+          "$HydrogenToVenus FROM ProjectCard",
+          "VenusStep",
+          "TerraformRating",
+          "3 Floater<$LocalShading>",
+          "3 MC", // Media Group
+          "ProjectCard", // Solar Logistics
+      )
+      doTask("PlayedEvent<Class<$HydrogenToVenus>> FROM $HydrogenToVenus")
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$MineralDeposit>>",
+          "-2 MC",
+          "$MineralDeposit FROM ProjectCard",
+          "5 Steel",
+          "PlayedEvent<Class<$MineralDeposit>> FROM $MineralDeposit",
+      )
+      doTasks("UseCardAction<$ArcadianCommunities, Action1>", "Community<Vastitas_3_6>")
+    }
+    p2.turn {
+      doTasks(
+          "UseCardAction<$FloatingRefinery, Action2>",
+          "-2 Floater<$LocalShading>",
+          "Titanium",
+          "2 MC",
+      )
+    }
+    p1.turn {
+      doTasks("UseCardAction<$EnergyMarket, Action2>", "PROD[-Energy]", "8 MC")
+    }
+    p2.turn {
+      doTasks(
+          "TradeAction<Action2>",
+          "-3 Energy",
+          "Trade<Miranda>",
+          "Animal<$Pets>",
+          "2 ProjectCard",
+      )
+    }
+    p1.turn {
+      doTasks(
+          "UseCardAction<$RotatorImpacts, Action1>",
+          "-3 Titanium",
+          "Ok", // no MC paid
+          "Asteroid<$RotatorImpacts>",
+      )
+    }
+    p2.turn {
+      doTasks("UseCardAction<$LocalShading, Action1>", "Floater<$LocalShading>")
+    }
+    p1.turn {
+      doTasks("UseCardAction<$Dirigibles, Action1>", "Floater<$TitanFloatingLaunchPad>")
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$Atmoscoop>>",
+          "-Titanium",
+          "-18 MC",
+          "$Atmoscoop FROM ProjectCard",
+          "2 VenusStep",
+          "2 TerraformRating",
+          "2 Floater<$JovianLanterns>",
+      )
+    }
+    // "I pass. Wish I hadn't passed now."
+    p1.turn {
+      doTasks("Pass")
+    }
+    p2.turn {
+      doTasks("UseCardAction<$ElectroCatapult, Action2>", "-Steel", "7 MC")
+      doTasks("UseCardAction<$VenusShuttles, Action1>", "-7 MC", "VenusStep", "TerraformRating")
+      doTasks("UseCardAction<$RedSpotObservatory, Action1>", "Floater<$RedSpotObservatory>")
+      doTasks("UseCardAction<$VenusianInsects, Action1>", "Microbe<$VenusianInsects>")
+      doTasks("UseCardAction<$SulphurEatingBacteria, Action1>", "Microbe<$SulphurEatingBacteria>")
+      doTasks("Pass")
+    }
+
+    // Production 10 -> 11. The phone logs combine energy conversion and new production.
+    p1.doTasks("3 Heat FROM Energy", "47 MC", "4 Titanium", "2 Plant", "2 Energy", "6 Heat")
+    p2.doTasks(
+        "Heat FROM Energy",
+        "74 MC",
+        "3 Steel",
+        "2 Titanium",
+        "5 Plant",
+        "4 Energy",
+        "5 Heat",
+    )
+    p2.doTasks("VenusStep! BY Admin")
+    // board-16-22-18.jpg, before generation 11 Research.
+    p1.assertResources(m = 65, s = 6, t = 7, p = 8, e = 2, h = 31)
+    p2.assertResources(m = 80, s = 7, t = 2, p = 8, e = 4, h = 20)
+    assertSidebar(gen = 11, temp = 8, oxygen = 12, oceans = 9, venus = 30)
+
+    // "This will surely be the last generation." "These are all so bad."
+    // "I think I'm buying none of them." "I think I'm buying three of them."
+    // Generation 11. Pink buys nothing; Aqua keeps three cards.
+    p1.doTasks("4 ProjectCard<Selecting>")
+    p2.doTasks("4 ProjectCard<Selecting>")
+    p1.doTasks("-ProjectCard<Selecting>", "-9 MC", "3 ProjectCard<Hand FROM Selecting>")
+    p2.doTasks("-4 ProjectCard<Selecting>")
+    // "Well, I think I'm going to plant a forest. She takes oxygen to 13."
+    // "Then I'd better hurry up and pay 23 as well. That maxes out the oxygen."
+    p1.turn {
+      doTasks("ConvertPlants", "-8 Plant")
+      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      doTasks(
+          "GreeneryTile<Vastitas_9_8>",
+          "Titanium",
+          "3 MC",
+          "OxygenStep",
+          "TerraformRating",
+      )
+      doTasks(
+          "UseStandardProject<GreeneryProject>",
+          "-23 MC",
+          "GreeneryTile<Vastitas_8_9>",
+          "Plant",
+          "3 MC",
+          "OxygenStep",
+          "TerraformRating",
+      )
+    }
+    // "I'm a landscaper, so you had to do it."
+    // "Well you swept every award and every milestone. Amazing."
+    p2.turn {
+      doTasks(
+          "UseCardAction<$RedSpotObservatory, Action2>",
+          "-Floater<$RedSpotObservatory>",
+          "ProjectCard",
+      )
+      doTasks("FundAward<Class<Landscaper>>", "-20 MC", "Landscaper")
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$LunaGovernor>>",
+          "-MC",
+          "$LunaGovernor FROM ProjectCard",
+          "PROD[2 MC]",
+      )
+    }
+    // "This time I get two animals, so I get gold pets and two cards. Cool."
+    p2.turn {
+      doTasks(
+          "TradeAction<Action2>",
+          "-3 Energy",
+          "Trade<Miranda>",
+          "2 Animal<$Pets>",
+          "2 ProjectCard",
+      )
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$AsteroidRights>>",
+          "-3 Titanium",
+          "-MC",
+          "$AsteroidRights FROM ProjectCard",
+          "2 Asteroid<$AsteroidRights>",
+      )
+    }
+    // "Flip a greenery into a city."
+    // "Oh, I should have used my thing to block you. Damn it. I gotta think more clearly."
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$KaguyaTech>>",
+          "-10 MC",
+          "$KaguyaTech FROM ProjectCard",
+          "PROD[2 MC]",
+          "ProjectCard",
+          "CityTile<Vastitas_3_4> FROM GreeneryTile<Vastitas_3_4>",
+          "2 Plant",
+          "2 MC",
+          "Animal<$Pets>",
+      )
+      // Pink records only the two placement plants, missing Viral Enhancers' optional plant.
+      declineTask("Plant<Pink>! OR Ok")
+      p1.doTasks("PROD[MC]")
+      doTasks("ConvertPlants", "-8 Plant")
+      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      doTasks("GreeneryTile<Vastitas_3_5>", "Plant")
+      selectTask("OxygenStep") // oxygen is already maxed
+    }
+    p1.turn {
+      doTasks(
+          "UseCardAction<$TitanFloatingLaunchPad, Action2>",
+          "-Floater<$TitanFloatingLaunchPad>",
+          "Trade<Triton>",
+      )
+      selectTask("ColonyProduction<Triton>?")
+      narrowTask("ColonyProduction<Triton>")
+      selectTask("2 ColonyProduction<Triton> OR Ok")
+      narrowTask("2 ColonyProduction<Triton>")
+      doTasks("Titanium", "4 Titanium")
+    }
+    p2.turn {
+      doTasks("PlayProject<Class<$WarpDrive>>", "-14 MC", "$WarpDrive FROM ProjectCard")
+    }
+    p1.turn {
+      doTasks("TradeAction<Action3>", "-3 Titanium", "Trade<Enceladus>")
+      selectTask("ColonyProduction<Enceladus>?")
+      narrowTask("ColonyProduction<Enceladus>")
+      selectTask("2 ColonyProduction<Enceladus> OR Ok")
+      narrowTask("2 ColonyProduction<Enceladus>")
+      doTasks("4 Microbe<$Decomposers>")
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$ImportedNutrients>>",
+          "-Titanium",
+          "-MC",
+          "$ImportedNutrients FROM ProjectCard",
+          "4 Plant",
+          "4 Microbe<$VenusianInsects>",
+          "3 MC", // Media Group
+          "ProjectCard", // Solar Logistics
+          "PlayedEvent<Class<$ImportedNutrients>> FROM $ImportedNutrients",
+      )
+    }
+    // "Whoo, this is what I'm reduced to." "You are reduced to produce."
+    p1.turn {
+      doTasks("UseCardAction<$AsteroidRights, Action2>", "-Asteroid<$AsteroidRights>", "PROD[MC]")
+    }
+    p2.turn {
+      doTasks(
+          "UseCardAction<$FloatingRefinery, Action2>",
+          "-2 Floater<$LocalShading>",
+          "Titanium",
+          "2 MC",
+      )
+    }
+    p1.turn {
+      doTasks("PlayProject<Class<$Advertising>>", "-MC", "$Advertising FROM ProjectCard")
+    }
+    p2.turn {
+      doTasks("UseCardAction<$JovianLanterns, Action1>", "-Titanium", "2 Floater<$JovianLanterns>")
+    }
+    p1.turn {
+      doTasks(
+          "UseStandardProject<GreeneryProject>",
+          "-23 MC",
+          "GreeneryTile<Vastitas_7_9>",
+          "3 MC",
+          "0 OxygenStep", // decline OxygenStep.; oxygen is already maxed
+      )
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$BactoviralResearch>>",
+          "-10 MC",
+          "$BactoviralResearch FROM ProjectCard",
+          "ProjectCard",
+          "10 Microbe<$VenusianInsects>",
+          "Plant", // Viral Enhancers
+      )
+    }
+    p1.turn {
+      doTasks("UseCardAction<$EnergyMarket, Action2>", "PROD[-Energy]", "8 MC")
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$TerraformingGanymede>>",
+          "-Titanium",
+          "-29 MC",
+          "$TerraformingGanymede FROM ProjectCard",
+          "5 TerraformRating",
+      )
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$MolecularPrinting>>",
+          "-8 MC",
+          "$MolecularPrinting FROM ProjectCard",
+          "11 MC",
+      )
+    }
+    p2.turn {
+      doTasks("UseCardAction<$VenusianInsects, Action1>", "Microbe<$VenusianInsects>")
+    }
+    // "This card is going to be the thing that saves everything. Natural preserve. That did not
+    // save everything." "I don't buy it."
+    p1.turn {
+      doTasks(
+          "UseCardAction<$InventorsGuild, Action1>",
+          "ProjectCard<Selecting>",
+          "-ProjectCard<Selecting>",
+      )
+    }
+    p2.turn {
+      doTasks(
+          "UseCardAction<$SulphurEatingBacteria, Action2>",
+          "-4 Microbe<$SulphurEatingBacteria>",
+          "12 MC",
+      )
+    }
+    p1.turn {
+      doTasks("UseCardAction<$Dirigibles, Action1>", "Floater<$Dirigibles>")
+    }
+    p2.turn {
+      doTasks("UseCardAction<$LocalShading, Action1>", "Floater<$LocalShading>")
+      doTasks(
+          "PlayProject<Class<$MagneticFieldGeneratorsPromo>>",
+          "-7 Steel",
+          "-MC",
+          "$MagneticFieldGeneratorsPromo FROM ProjectCard",
+          "PROD[-4 Energy]",
+          "PROD[2 Plant]",
+          "3 TerraformRating",
+          "MagneticFieldGeneratorsPromo_SpecialTile<Vastitas_2_2>",
+          "4 MC",
+          "2 Plant",
+      )
+      declineTask("-X? Plant<Pink>") // no plants paid
+    }
+    p1.turn {
+      doTasks("UseCardAction<$ArcadianCommunities, Action1>", "Community<Vastitas_8_6>")
+    }
+    p2.turn {
+      doTasks("UseCardAction<$ElectroCatapult, Action1>", "-Plant", "7 MC")
+    }
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$MediaArchives>>",
+          "-5 MC",
+          "$MediaArchives FROM ProjectCard",
+          "11 MC",
+      )
+    }
+    // "I'm kind of surprised I'm even able to do this." "I pitched two cards."
+    // "Oh my. You spent all your money exactly." "I should have waited."
+    // Pink sells two cards to pay for Large Convoy.
+    p2.turn {
+      doTasks("UseStandardProject<SellPatentsProject>", "2 MC FROM ProjectCard")
+      doTasks(
+          "PlayProject<Class<$LargeConvoy>>",
+          "-27 MC",
+          "$LargeConvoy FROM ProjectCard",
+      )
+      doTasks(
+          "Ok", // all oceans are already placed
+          "2 ProjectCard",
+          "4 Animal<$Pets>",
+          "3 MC", // Media Group
+          "ProjectCard", // Solar Logistics
+          "PlayedEvent<Class<$LargeConvoy>> FROM $LargeConvoy",
+      )
+    }
+    // "Probably not actually better but I'm just gonna do it anyway to be different."
+    // "I think if not for your pet, it would have been a total wash which way I went."
+    // "I don't get more animals. I just like that my four dinky little bronzes are upgraded to a
+    // silver."
+    p1.turn {
+      doTasks(
+          "UseStandardProject<CityProject>",
+          "-25 MC",
+          "CityTile<Vastitas_3_6>",
+          "3 MC", // Arcadian community
+          "PROD[MC]", // Immigrant City
+      )
+      p2.doTasks("Animal<$Pets>")
+      doTasks("PROD[MC]") // the city's own production, in addition to Immigrant City
+    }
+    p2.turn {
+      doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
+    }
+    p1.turn {
+      doTasks(
+          "UseCardAction<$RotatorImpacts, Action2>",
+          "-Asteroid<$RotatorImpacts>",
+          "0 VenusStep", // Venus is already maxed
+      )
+    }
+    p2.turn {
+      doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
+    }
+    // "It's all about the tiebreaker, which I'm definitely going to need in this game for sure."
+    p1.turn {
+      doTasks(
+          "PlayProject<Class<$CorroderSuits>>",
+          "-2 Floater<$Dirigibles>",
+          "$CorroderSuits FROM ProjectCard",
+          "PROD[2 MC]",
+          "Floater<$Dirigibles>",
+      )
+      declineTask("-X? MC<Aqua>") // no cash paid
+    }
+    p2.turn {
+      doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
+    }
+    p1.turn {
+      doTasks("UseCardAction<$SubZeroSaltFish, Action1>", "Animal<$SubZeroSaltFish>")
+    }
+    p2.turn {
+      doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
+    }
+    // "I pitch a card." "So looks like you're pretty much out."
+    // "Yeah, I think there's nothing else I can do. Now what are you gonna do?"
+    // Aqua's final sale accounts for the recorded extra M€.
+    p1.turn {
+      doTasks("UseStandardProject<SellPatentsProject>", "MC FROM ProjectCard")
+    }
+    p2.turn {
+      doTasks("ConvertPlants", "-8 Plant")
+      selectTask("MAX 0 Billing: DefaultGreeneryTile")
+      doTasks(
+          "GreeneryTile<Vastitas_2_3>",
+          "2 MC",
+          "0 OxygenStep",
+      ) // decline OxygenStep.; oxygen is maxed
+      doTasks("UseStandardProject<SellPatentsProject>", "5 MC FROM ProjectCard")
+    }
+    p1.turn {
+      doTasks("Pass")
+    }
+    p2.turn {
+      doTasks(
+          "PlayProject<Class<$BreathingFilters>>",
+          "-11 MC",
+          "$BreathingFilters FROM ProjectCard",
+      )
+      doTasks("Pass")
+    }
+
+    // The last production is recorded before Pink's final greenery.
+    p1.doTasks("2 Heat FROM Energy", "57 MC", "4 Titanium", "2 Plant", "Energy", "6 Heat")
+    p2.doTasks("Heat FROM Energy", "84 MC", "3 Steel", "2 Titanium", "7 Plant", "5 Heat")
+    p1.assertResources(m = 69, s = 6, t = 11, p = 3, e = 1, h = 39)
+    p2.assertResources(m = 87, s = 3, t = 2, p = 8, e = 0, h = 26)
+    // The phone app advances its display to generation 12; Solarnet keeps the final played
+    // generation.
+    assertSidebar(gen = 11, temp = 8, oxygen = 14, oceans = 9, venus = 30)
+    p1.doTasks("Done") // only three plants; no final greenery
+    // "Do you replace, you don't." "I do actually." "You do." "Probably on two four."
+    // The final photo shows Pink's last greenery here.
+    p2.doTasks("ConvertPlants", "-8 Plant")
+    p2.selectTask("MAX 0 Billing: DefaultGreeneryTile")
+    p2.doTasks("GreeneryTile<Vastitas_2_4>")
+    p2.doTasks("Done") // no more plants to convert
+    // board-16-47-03.jpg, after final greenery.
+    p2.assertCounts(7 to "GreeneryTile", 3 to "CityTile", 56 to "TerraformRating")
+    // "Almost completely shut me out, but not quite."
+    // "Wow, this is a really meager pile of cards I've got." "It was a fun game." "Always is."
+    // "138." "Well, if you take off the one and you reverse the other two digits, you have my
+    // score. Congratulations, son." "Good game."
+    p1.assertCounts(83 to "VictoryPoint", 0 to "Victory")
+    // Engine categories total 139: 56 TR, 15 milestones, 10 awards, 7 greeneries,
+    // 11 cities, and 40 card points. The spoken 138 has no supplied category breakdown.
+    p2.assertCounts(139 to "VictoryPoint", 1 to "Victory")
   }
 }

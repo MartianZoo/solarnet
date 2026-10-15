@@ -12,7 +12,7 @@ import kotlin.test.assertTrue
 internal class FakeCanonTest {
   @Test
   internal fun `fake cards are available only when FakeCanon is composed with Canon`() {
-    val config = GameConfig("PreludeExpansion, FakeStuffBundle", "Player1", "Player2")
+    val config = GameConfig("PreludeExpansion, fakes:cards", "Player1", "Player2")
     assertFailsWith<InvalidGameConfigException> { Canon.gamePremise(config) }
 
     val premise = TfmCatalog(Canon, FakeCanon).gamePremise(config)

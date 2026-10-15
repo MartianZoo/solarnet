@@ -4,6 +4,7 @@ import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.state.GameEvent
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
@@ -28,12 +29,12 @@ internal class TaskResolutionTest {
 
   @Test
   internal fun `selecting resolves an abstract task and takes the select-lock`() {
-    initiate("2 Plant?")
-    agent.selectTask("2 Plant?")
+    initiate("2? Plant")
+    agent.selectTask("2? Plant")
 
     val task = tasks.extract { it }.single()
     task.selected shouldBe true
-    "${task.instruction}" shouldBe "2 Plant<Player1>?"
+    "${task.instruction}" shouldBe "2? Plant<Player1>"
     assertHistoryTypes(
         TaskAddedEvent::class,
         TaskEditedEvent::class,
@@ -41,13 +42,14 @@ internal class TaskResolutionTest {
   }
 
   @Test
-  internal fun `selection that resolves to NoOp completes the task`() {
-    initiate("-2 Plant?")
-    agent.selectTask("-2 Plant?")
+  internal fun `selection that resolves to zero completes the task`() {
+    initiate("-2? Plant")
+    agent.selectTask("-2? Plant")
 
     tasks.isEmpty() shouldBe true
     assertHistoryTypes(
         TaskAddedEvent::class,
+        TaskEditedEvent::class,
         TaskRemovedEvent::class,
     )
   }
@@ -69,9 +71,9 @@ internal class TaskResolutionTest {
 
   @Test
   internal fun `selection resolves limits before narrowing`() {
-    initiate("-30 TerraformRating?")
-    agent.selectTask("-30 TerraformRating?")
-    tasksAsText().shouldContainExactlyInAnyOrder("-20 TerraformRating<Player1>?")
+    initiate("-30? TerraformRating")
+    agent.selectTask("-30? TerraformRating")
+    tasksAsText().shouldContainExactlyInAnyOrder("-20? TerraformRating<Player1>")
     tasks.extract { it.selected }.shouldContainExactly(true)
   }
 
@@ -110,6 +112,63 @@ internal class TaskResolutionTest {
     game.timeline.checkpoint() shouldBe before
     agent.doTask("Heat!")
     agent.count("Heat") shouldBe 1
+  }
+
+  @Test
+  internal fun `doing a gated action names the action without its gate`() {
+    initiate("MAX 0 Heat: StandardResource")
+
+    agent.doTask("Plant")
+
+    agent.count("Plant") shouldBe 1
+    tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun `doing a gated action still checks its gate`() {
+    agent.sneak("Heat")
+    initiate("MAX 0 Heat: Plant")
+    val before = game.timeline.checkpoint()
+
+    shouldThrow<RequirementException> { agent.doTask("Plant") }
+
+    agent.count("Plant") shouldBe 0
+    game.timeline.checkpoint() shouldBe before
+  }
+
+  @Test
+  internal fun `an unavailable gated task does not hide an ordinary task`() {
+    agent.sneak("Heat")
+    val unavailable = initiate("MAX 0 Heat: Plant").single()
+    initiate("Plant")
+
+    agent.doTask("Plant")
+
+    agent.count("Plant") shouldBe 1
+    tasks.ids().shouldContainExactly(unavailable)
+  }
+
+  @Test
+  internal fun `an available gated task takes precedence over an unavailable gated task`() {
+    agent.sneak("Heat")
+    val unavailable = initiate("MAX 0 Heat: Plant").single()
+    initiate("Heat: Plant")
+
+    agent.doTask("Plant")
+
+    agent.count("Plant") shouldBe 1
+    tasks.ids().shouldContainExactly(unavailable)
+  }
+
+  @Test
+  internal fun `doing a scaled action names the calculated amount without its metric`() {
+    agent.sneak("2 Heat")
+    initiate("Plant / Heat")
+
+    agent.doTask("2 Plant")
+
+    agent.count("Plant") shouldBe 2
+    tasks.isEmpty() shouldBe true
   }
 
   private fun initiate(ins: String) = (agent as Agent).addTasks(ins)

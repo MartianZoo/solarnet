@@ -83,7 +83,7 @@ internal class GameRecordingTest {
   }
 
   @Test
-  internal fun automaticFollowUpWorkIsOneSeparateRecordedStep() {
+  internal fun callbackAgentCallsHaveSeparateRecordedSteps() {
     val game = TfmEngine.newGame(canonicalPremise())
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     var addAutomaticResources = true
@@ -101,7 +101,7 @@ internal class GameRecordingTest {
     playback.positions.size shouldBe 3
     playback.seek(1)
     playback.world.reader.count(playback.world.reader.resolve(parse("Heat<Player1>"))) shouldBe 1
-    playback.world.reader.count(playback.world.reader.resolve(parse("Plant<Player1>"))) shouldBe 0
+    playback.world.reader.count(playback.world.reader.resolve(parse("Plant<Player1>"))) shouldBe 1
     playback.world.reader.count(playback.world.reader.resolve(parse("Steel<Player1>"))) shouldBe 0
     playback.seek(2)
     playback.world.reader.count(playback.world.reader.resolve(parse("Plant<Player1>"))) shouldBe 1

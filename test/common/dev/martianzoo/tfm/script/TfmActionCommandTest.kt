@@ -6,7 +6,7 @@ import kotlin.test.assertTrue
 
 internal class TfmActionCommandTest {
   @Test
-  internal fun `tfm action selects the requested card directly from the turn offer`() {
+  internal fun `tfm action selects the requested card from the turn offer`() {
     val repl = actionGame("PROD[Energy], AiCentral")
 
     val output = repl.command("tfm_action AiCentral 1")
@@ -44,7 +44,7 @@ internal class TfmActionCommandTest {
   }
 
   @Test
-  internal fun `tfm action forwards inline payment through an accept workflow`() {
+  internal fun `tfm action pays its owed cost from inline payment`() {
     val repl = actionGame("WaterImportFromEuropa, 12 MC")
 
     val output = repl.command("tfm_action WaterImportFromEuropa 1, 12 MC")

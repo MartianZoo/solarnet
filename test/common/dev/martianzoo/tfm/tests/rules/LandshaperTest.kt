@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -15,9 +14,19 @@ internal class LandshaperTest : TfmSandboxTest() {
   @Test
   internal fun `Capital and one greenery do not satisfy Landshaper`() {
     setupLandshaperCapital()
-    kim.stdProject("GreeneryProject") { placeTile(5, 2) }
+    kim.inTurn {
+      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_05_02>")
+      doTask("OxygenStep")
+      doTasks("Plant", "TerraformRating")
+    }
 
-    shouldThrow<RequirementException> { kim.claimMilestone(cn("Landshaper")) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTask("ClaimMilestone<Class<Landshaper>>")
+        doTask("-8 MC")
+        doTask("Landshaper")
+      }
+    }
     kim.count("OwnedTile") shouldBe 2
     kim.count("Landshaper") shouldBe 0
   }
@@ -25,10 +34,24 @@ internal class LandshaperTest : TfmSandboxTest() {
   @Test
   internal fun `Capital and two greeneries do not satisfy Landshaper`() {
     setupLandshaperCapital()
-    kim.stdProject("GreeneryProject") { placeTile(5, 2) }
-    kim.stdProject("GreeneryProject") { placeTile(6, 1) }
+    kim.inTurn {
+      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_05_02>")
+      doTask("OxygenStep")
+      doTasks("Plant", "TerraformRating")
+    }
+    kim.inTurn {
+      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_06_01>")
+      doTask("OxygenStep")
+      doTasks("Plant", "TerraformRating")
+    }
 
-    shouldThrow<RequirementException> { kim.claimMilestone(cn("Landshaper")) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTask("ClaimMilestone<Class<Landshaper>>")
+        doTask("-8 MC")
+        doTask("Landshaper")
+      }
+    }
     kim.count("OwnedTile") shouldBe 3
     kim.count("Landshaper") shouldBe 0
   }
@@ -36,16 +59,37 @@ internal class LandshaperTest : TfmSandboxTest() {
   @Test
   internal fun `Capital and distinct city and greenery satisfy Landshaper`() {
     setupLandshaperCapital()
-    kim.stdProject("GreeneryProject") { placeTile(5, 2) }
-    kim.stdProject("CityProject") { doTask("NormalCityTile<Amazonis_01_01>") }
+    kim.inTurn {
+      doTasks("UseStandardProject<GreeneryProject>", "-23 MC", "GreeneryTile<Amazonis_05_02>")
+      doTask("OxygenStep")
+      doTasks("Plant", "TerraformRating")
+    }
+    kim.inTurn {
+      doTasks(
+          "UseStandardProject<CityProject>",
+          "-25 MC",
+          "PROD[MC]",
+          "NormalCityTile<Amazonis_01_01>",
+          "Steel",
+      )
+    }
 
-    kim.claimMilestone(cn("Landshaper")).expect("Landshaper")
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Landshaper>>", "-8 MC")
+      doTask("Landshaper")
+    }
   }
 
   private fun setupLandshaperCapital() {
     newTestGame(addOptions = "AmazonisMap")
     kim.exMachina("$Capital, CapitalTile<$Capital, Amazonis_05_01>")
     kim.setToExMachina(80, "MC")
-    shouldThrow<RequirementException> { kim.claimMilestone(cn("Landshaper")) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTask("ClaimMilestone<Class<Landshaper>>")
+        doTask("-8 MC")
+        doTask("Landshaper")
+      }
+    }
   }
 }

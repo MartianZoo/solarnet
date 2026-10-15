@@ -131,7 +131,7 @@ internal class GameWorldTest {
     val task =
         Task(
             id = TaskId(0),
-            controller = ADMIN,
+            assignee = ADMIN,
             instruction = parse<Instruction>("Token!"),
             cause = null,
         )
@@ -174,7 +174,7 @@ internal class GameWorldTest {
     val task =
         Task(
             id = TaskId(0),
-            controller = ADMIN,
+            assignee = ADMIN,
             instruction = parse<Instruction>("Token!"),
             cause = null,
         )

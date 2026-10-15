@@ -1,9 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER3
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
+import dev.martianzoo.tfm.tests.TestOption.PromoCards
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalCatalog
@@ -19,7 +18,12 @@ internal class VerminTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("$Vermin")
 
-    stan.stdProject("CityProject") { placeTile(2, 1) }.expect("Animal<$Vermin<Kim>>")
+    stan
+        .inTurn {
+          doTasks("UseStandardProject<CityProject>", "-25 MC", "PROD[MC]", "CityTile<Tharsis_2_1>")
+          kim.doTask("Animal<Vermin>")
+        }
+        .expect("Animal<$Vermin<Kim>>")
   }
 
   @Test
@@ -27,7 +31,10 @@ internal class VerminTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("$Vermin, $Decomposers")
 
-    kim.cardAction1(Vermin) { addCardResources(Decomposers) }.expect("Microbe<$Decomposers>")
+    kim.inTurn {
+          doTasks("UseCardAction<Vermin, Action1>", "Microbe<Decomposers>*")
+        }
+        .expect("Microbe<$Decomposers>")
   }
 
   @Test
@@ -39,7 +46,10 @@ internal class VerminTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Tharsis_3_2>")
     rob.exMachina("NormalCityTile<Tharsis_3_3>")
 
-    victoryPoints() shouldBe listOf(18, 19, 19)
+    victoryPoints {
+      // Expand the per-player deductions; Admin applies the scoring changes.
+      kim.selectOnlyTask()
+    } shouldBe listOf(18, 19, 19)
   }
 
   // This synthetic listener tests engine attribution, rather than Vermin's player-facing result.
@@ -49,14 +59,14 @@ internal class VerminTest : TfmSandboxTest() {
       game =
           setUpGame(
               canonicalPremise(
-                  PromoCardPack,
+                  PromoCards,
                   players = 3,
                   catalog = canonicalCatalog(false),
                   additionalClassDeclarations = attributionProbeDeclarations(3),
               )
           )
-      val kim = game.testTfm(PLAYER1)
-      val p3 = game.testTfm(PLAYER3)
+      val kim = agents[PLAYER1]
+      val p3 = agents[PLAYER3]
       kim.runOperation("$Vermin, 10 Animal<$Vermin>, CityTile<Tharsis_2_1>, $attributionProbe")
       p3.runOperation("CityTile<Tharsis_3_3>")
 

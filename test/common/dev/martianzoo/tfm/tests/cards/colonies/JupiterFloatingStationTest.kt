@@ -16,7 +16,9 @@ internal class JupiterFloatingStationTest : TfmSandboxTest() {
   internal fun `First action adds a floater to another Jovian card`() {
     kim.exMachina("$JupiterFloatingStation, $TitanShuttles")
 
-    kim.cardAction1(JupiterFloatingStation) { addCardResources(TitanShuttles) }
+    kim.inTurn {
+          doTasks("UseCardAction<JupiterFloatingStation, Action1>", "Floater<TitanShuttles>*")
+        }
         .expect("Floater<$TitanShuttles>")
   }
 
@@ -25,7 +27,12 @@ internal class JupiterFloatingStationTest : TfmSandboxTest() {
     kim.exMachina("$JupiterFloatingStation, $AtmoCollectors, Floater<$AtmoCollectors>")
 
     shouldThrow<NarrowingException> {
-      kim.cardAction1(JupiterFloatingStation) { doTask("Floater<$AtmoCollectors>") }
+      kim.inTurn {
+        doTask("UseCardAction<JupiterFloatingStation, Action1>")
+        // Select the Jovian-only offer before attempting to use a non-Jovian card.
+        selectTask("Floater<CardFront(HAS JovianTag)>*")
+        doTask("Floater<AtmoCollectors>")
+      }
     }
   }
 
@@ -33,6 +40,9 @@ internal class JupiterFloatingStationTest : TfmSandboxTest() {
   internal fun `Second action pays at most four MC`() {
     kim.exMachina("$JupiterFloatingStation, 6 Floater<$JupiterFloatingStation>")
 
-    kim.cardAction2(JupiterFloatingStation).expect("4 MC")
+    kim.inTurn {
+      doTask("UseCardAction<JupiterFloatingStation, Action2>")
+      doTask("4 MC")
+    }
   }
 }

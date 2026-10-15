@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -11,64 +11,135 @@ internal class BoardOfDirectorsTest : TfmSandboxTest() {
   @Test
   internal fun `Remains available after Prelude phase and spends a director to play another Prelude`() {
     newTestGame("PreludeExpansion, BoardOfDirectors")
-    kim.playPrelude(BoardOfDirectors)
-    startActionPhase()
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
+          "BoardOfDirectors FROM PreludeCard",
+      )
+      doTask("4 Director<BoardOfDirectors>")
+    }
+    advanceUntilActionPhase()
 
-    kim.cardAction1(BoardOfDirectors) {
+    kim.inTurn {
+          doTask("UseCardAction<BoardOfDirectors, Action1>")
+          doTask("PreludeCard<Kim, Hand>")
           doTask("-12 MC")
-          kim.playPrelude(Donation)
+          doTask("-Director<BoardOfDirectors>")
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<Donation>>",
+              "Donation FROM PreludeCard",
+              "21 MC",
+          )
         }
-        .expect("-Director<$BoardOfDirectors>, 0 $BoardOfDirectors, $Donation, 9 MC")
+        .expect("0 $BoardOfDirectors")
   }
 
   @Test
   internal fun `Still spends its money and director when the selected Prelude fizzles`() {
     newTestGame("PreludeExpansion, BoardOfDirectors, IndustrialComplex")
-    kim.playPrelude(BoardOfDirectors)
-    startActionPhase()
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
+          "BoardOfDirectors FROM PreludeCard",
+      )
+      doTask("4 Director<BoardOfDirectors>")
+    }
+    advanceUntilActionPhase()
     kim.setToExMachina(24, "MC")
 
     shouldThrow<LimitsException> {
-      kim.cardAction1(BoardOfDirectors) {
+      kim.inTurn {
+        doTask("UseCardAction<BoardOfDirectors, Action1>")
+        doTask("PreludeCard<Kim, Hand>")
         doTask("-12 MC")
-        kim.playPrelude(IndustrialComplex)
+        doTask("-Director<BoardOfDirectors>")
+        doTasks(
+            "PlayCard<Class<PreludeCard>, Class<IndustrialComplex>>",
+            "IndustrialComplex FROM PreludeCard",
+        )
+        doTask("-18 MC")
       }
     }
-    kim.cardAction1(BoardOfDirectors) {
+    kim.inTurn {
+          doTask("UseCardAction<BoardOfDirectors, Action1>")
+          doTask("PreludeCard<Kim, Hand>")
           doTask("-12 MC")
+          doTask("-Director<BoardOfDirectors>")
           doTask("-PreludeCard")
+          // Hand the fizzle audit to Admin before receiving compensation.
+          selectTask("Audit!")
+          doTask("15 MC")
         }
-        .expect("3 MC, -Director<$BoardOfDirectors>, 0 $IndustrialComplex")
+        .expect("0 $IndustrialComplex")
   }
 
   @Test
   internal fun `A corporation acquired through Merger requires its first action`() {
     newTestGame("PreludeExpansion, BoardOfDirectors")
-    kim.playPrelude(BoardOfDirectors)
-    startActionPhase()
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
+          "BoardOfDirectors FROM PreludeCard",
+      )
+      doTask("4 Director<BoardOfDirectors>")
+    }
+    advanceUntilActionPhase()
 
-    kim.cardAction1(BoardOfDirectors) {
+    kim.inTurn {
+          doTask("UseCardAction<BoardOfDirectors, Action1>")
+          doTask("PreludeCard<Kim, Hand>")
           doTask("-12 MC")
-          kim.playPrelude(Merger) { kim.playCorp(Inventrix) }
+          doTask("-Director<BoardOfDirectors>")
+          doTasks("PlayCard<Class<PreludeCard>, Class<Merger>>", "Merger FROM PreludeCard")
+          doTask("4 CorporationCard<Kim, Selecting>")
+          doTask("PlayCard<Class<CorporationCard>, Class<Inventrix>>")
+          doTask("Inventrix<Kim> FROM CorporationCard<Kim, Selecting>!")
+          doTasks("45 MC", "-42 MC")
+          doTask("Inventrix_RequiredAction")
         }
         .expect("$Inventrix")
-    shouldThrow<NarrowingException> { kim.stdProject("PowerPlantProject") }
-    kim.stdAction("RequiredActionsSignal").expect("3 ProjectCard")
-    kim.stdProject("PowerPlantProject").expect("PROD[Energy]")
+    shouldThrow<TaskException> {
+      kim.inTurn {
+        doTask("UseStandardProject<PowerPlantProject>")
+      }
+    }
+    kim.inTurn {
+      doTask("RequiredActionsSignal")
+      doTask("3 ProjectCard")
+    }
+    kim.inTurn {
+      doTasks("UseStandardProject<PowerPlantProject>", "-11 MC", "PROD[Energy]")
+    }
   }
 
   @Test
   internal fun `Sky Docks discounts the project played through Ecology Experts`() {
     newTestGame("PreludeExpansion, BoardOfDirectors, EcologyExperts, Unsafe")
-    kim.playPrelude(BoardOfDirectors)
-    startActionPhase()
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<BoardOfDirectors>>",
+          "BoardOfDirectors FROM PreludeCard",
+      )
+      doTask("4 Director<BoardOfDirectors>")
+    }
+    advanceUntilActionPhase()
     kim.exMachina("$SkyDocks")
     kim.setToExMachina(13, "MC")
 
-    kim.cardAction1(BoardOfDirectors) {
-          doTask("-12 MC")
-          with(kim) { playPrelude(EcologyExperts) { playProject(DustSeals, 1) } }
-        }
-        .expect("-13 MC, $EcologyExperts, $DustSeals")
+    kim.inTurn {
+      doTask("UseCardAction<BoardOfDirectors, Action1>")
+      doTask("PreludeCard<Kim, Hand>")
+      doTask("-12 MC")
+      doTask("-Director<BoardOfDirectors>")
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<EcologyExperts>>",
+          "EcologyExperts FROM PreludeCard",
+          "PROD[Plant]",
+          "PlayCard<Class<ProjectCard>, Class<DustSeals>>",
+      )
+      // Hand the requirement waiver to Admin before playing the project.
+      selectTask("-Required* / Required")
+      doTasks("-1 MC", "DustSeals FROM ProjectCard")
+    }
   }
 }

@@ -18,7 +18,15 @@ internal class MarsNomadsTest : TfmSandboxTest() {
   internal fun `Places its initial marker without collecting a placement bonus`() {
     newTestGame()
 
-    kim.playProject(MarsNomads, 13) { doTask("NomadsMarker<Tharsis_1_1>") }.expect("0 Steel")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<MarsNomads>>",
+              "-13 MC",
+              "MarsNomads FROM ProjectCard",
+              "NomadsMarker<Tharsis_1_1>",
+          )
+        }
+        .expect("0 Steel")
   }
 
   @Test
@@ -26,8 +34,10 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_2_1>")
 
-    kim.cardAction1(MarsNomads) { doTask("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>") }
-        .expect("2 Steel")
+    kim.inTurn {
+      doTask("UseCardAction<MarsNomads, Action1>")
+      doTasks("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>", "2 Steel")
+    }
   }
 
   @Test
@@ -35,8 +45,11 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_1_1>")
 
-    shouldThrow<NarrowingException> {
-      kim.cardAction1(MarsNomads) { doTask("NomadsMarker<Tharsis_4_2 FROM Tharsis_1_1>") }
+    shouldThrow<TaskException> {
+      kim.inTurn {
+        doTask("UseCardAction<MarsNomads, Action1>")
+        doTask("NomadsMarker<Tharsis_4_2 FROM Tharsis_1_1>")
+      }
     }
     kim.assertCounts(1 to "NomadsMarker<Tharsis_1_1>", 0 to "NomadsMarker<Tharsis_4_2>")
   }
@@ -47,8 +60,11 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_1_1>")
     stan.exMachina("Community<Tharsis_2_2>")
 
-    shouldThrow<NarrowingException> {
-      kim.cardAction1(MarsNomads) { doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>") }
+    shouldThrow<TaskException> {
+      kim.inTurn {
+        doTask("UseCardAction<MarsNomads, Action1>")
+        doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>")
+      }
     }
     kim.assertCounts(1 to "NomadsMarker<Tharsis_1_1>")
     stan.assertCounts(1 to "Community<Tharsis_2_2>")
@@ -59,7 +75,11 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_1_1>")
 
-    shouldThrow<DeadEndException> { kim.stdProject("CityProject") { placeTile(1, 1) } }
+    shouldThrow<DeadEndException> {
+      kim.inTurn {
+        doTasks("UseStandardProject<CityProject>", "-25 MC", "CityTile<Tharsis_1_1>")
+      }
+    }
     kim.assertCounts(1 to "NomadsMarker<Tharsis_1_1>", 0 to "CityTile")
   }
 
@@ -68,7 +88,13 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_1_1>")
 
-    shouldThrow<DeadEndException> { stan.stdProject("GreeneryProject") { placeTile(1, 1) } }
+    shouldThrow<DeadEndException> {
+      stan.inTurn {
+        doTask("UseStandardProject<GreeneryProject>")
+        doTask("-23 MC")
+        doTask("GreeneryTile<Tharsis_1_1>")
+      }
+    }
     kim.assertCounts(1 to "NomadsMarker<Tharsis_1_1>")
     stan.assertCounts(0 to "GreeneryTile")
   }
@@ -79,8 +105,16 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_1_1>")
 
     stan
-        .playProject(LandClaim, 1) { doTask("Community<Tharsis_1_1>") }
-        .expect("Community<Stan, Tharsis_1_1>, 0 NomadsMarker<Kim>")
+        .inTurn {
+          doTasks(
+              "PlayProject<Class<LandClaim>>",
+              "-1 MC",
+              "LandClaim FROM ProjectCard",
+          )
+          doTask("Community<Tharsis_1_1>")
+          doTask("PlayedEvent<Class<LandClaim>> FROM LandClaim")
+        }
+        .expect("0 NomadsMarker<Kim>")
   }
 
   @Test
@@ -90,16 +124,23 @@ internal class MarsNomadsTest : TfmSandboxTest() {
         "$MarsNomads, NomadsMarker<Tharsis_4_7>, OceanTile<Tharsis_5_6>, OceanTile<Tharsis_6_7>, OceanTile<Tharsis_6_8>"
     )
 
-    kim.cardAction1(MarsNomads) { doTask("NomadsMarker<Tharsis_5_7 FROM Tharsis_4_7>") }
-        .expect("6 MC")
+    kim.inTurn {
+      doTask("UseCardAction<MarsNomads, Action1>")
+      doTasks("NomadsMarker<Tharsis_5_7 FROM Tharsis_4_7>", "2 Plant", "2 MC", "2 MC", "2 MC")
+    }
   }
 
   @Test
   internal fun `Collects the larger ocean bonus with Lakefront Resorts`() {
-    newTestGame(kimCorporation = LakefrontResorts)
+    newTestGame(addOptions = "LakefrontResorts", kimCorporation = LakefrontResorts)
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_4_6>, OceanTile<Tharsis_4_8>")
 
-    kim.cardAction1(MarsNomads) { doTask("NomadsMarker<Tharsis_4_7 FROM Tharsis_4_6>") }
+    kim.inTurn {
+          doTask("UseCardAction<MarsNomads, Action1>")
+          doTasks("NomadsMarker<Tharsis_4_7 FROM Tharsis_4_6>", "Plant")
+          doTask("MC")
+          doTask("2 MC")
+        }
         .expect("3 MC")
   }
 
@@ -108,27 +149,39 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     newTestGame(kimCorporation = MiningGuild)
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_2_1>")
 
-    kim.cardAction1(MarsNomads) { doTask("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>") }
-        .expect("2 Steel, PROD[0 Steel]")
+    kim.inTurn {
+          doTask("UseCardAction<MarsNomads, Action1>")
+          doTasks("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>", "2 Steel")
+        }
+        .expect("PROD[0 Steel]")
   }
 
   @Test
   internal fun `Collects its placement bonus without triggering Mars First`() {
     newTestGame(addOptions = "TurmoilExpansion")
-    kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_2_1>, Ruling<MarsFirst> FROM Ruling<Greens>")
+    kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_2_1>, Ruling<MarsFirst FROM Greens>")
 
-    kim.cardAction1(MarsNomads) { doTask("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>") }
-        .expect("2 Steel")
+    kim.inTurn {
+      doTask("UseCardAction<MarsNomads, Action1>")
+      doTasks("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>", "2 Steel")
+    }
   }
 
   @Test
   internal fun `Does not trigger Philares when moving beside an opponent's tile`() {
     newTestGame(kimCorporation = Philares)
-    kim.stdAction("RequiredActionsSignal") { placeTile(2, 2) }
+    kim.inTurn {
+      doTasks("RequiredActionsSignal", "GreeneryTile<Tharsis_2_2>")
+      doTask("OxygenStep")
+      doTasks("Steel", "TerraformRating")
+    }
     stan.exMachina("$MarsNomads, NomadsMarker<Tharsis_2_1>")
 
     stan
-        .cardAction1(MarsNomads) { doTask("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>") }
+        .inTurn {
+          doTask("UseCardAction<MarsNomads, Action1>")
+          doTasks("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>", "2 Steel")
+        }
         .expect("0 StandardResource<Kim>")
     shouldThrow<TaskException> { kim.doTask("Steel") }
   }
@@ -138,8 +191,11 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_1_1>, NormalCityTile<Kim, Tharsis_2_1>")
 
-    shouldThrow<NarrowingException> {
-      kim.cardAction1(MarsNomads) { doTask("NomadsMarker<Tharsis_2_1 FROM Tharsis_1_1>") }
+    shouldThrow<TaskException> {
+      kim.inTurn {
+        doTask("UseCardAction<MarsNomads, Action1>")
+        doTask("NomadsMarker<Tharsis_2_1 FROM Tharsis_1_1>")
+      }
     }
     kim.assertCounts(1 to "NomadsMarker<Tharsis_1_1>", 0 to "NomadsMarker<Tharsis_2_1>")
   }
@@ -149,8 +205,11 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("$MarsNomads, NomadsMarker<Tharsis_1_1>, GreeneryTile<Kim, Tharsis_2_2>")
 
-    shouldThrow<NarrowingException> {
-      kim.cardAction1(MarsNomads) { doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>") }
+    shouldThrow<TaskException> {
+      kim.inTurn {
+        doTask("UseCardAction<MarsNomads, Action1>")
+        doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>")
+      }
     }
     kim.assertCounts(1 to "NomadsMarker<Tharsis_1_1>", 0 to "NomadsMarker<Tharsis_2_2>")
   }
@@ -160,11 +219,13 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     newTestGame(addOptions = "CimmeriaMap, Luna, Ceres, Triton, Io, Europa")
     kim.exMachina("$MarsNomads, NomadsMarker<Cimmeria_3_2>")
 
-    kim.cardAction1(MarsNomads) {
+    kim.inTurn {
+          doTask("UseCardAction<MarsNomads, Action1>")
           doTask("NomadsMarker<Cimmeria_3_3 FROM Cimmeria_3_2>")
-          doTask("Colony<Luna>")
+          doTask("CimmeriaPlacementBonus!")
+          doTasks("-5 MC", "Colony<Luna>", "PROD[2 MC]")
         }
-        .expect("-5 MC, Colony<Luna>, PROD[2 MC], 0 OwnedTile")
+        .expect("0 OwnedTile")
   }
 
   @Test
@@ -175,7 +236,14 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     )
 
     shouldThrow<DependencyException> {
-      kim.cardAction1(MarsNomads) { doTask("NomadsMarker<Cimmeria_3_3 FROM Cimmeria_3_2>") }
+      kim.inTurn {
+        doTask("UseCardAction<MarsNomads, Action1>")
+        doTask("NomadsMarker<Cimmeria_3_3 FROM Cimmeria_3_2>")
+        doTask("CimmeriaPlacementBonus!")
+        doTask("-5 MC")
+        // Resolve the colony offer to prove that no eligible colony tile remains.
+        selectTask("Colony<>")
+      }
     }
     kim.assertCounts(
         1 to "NomadsMarker<Cimmeria_3_2>",
@@ -202,7 +270,20 @@ internal class MarsNomadsTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("GreeneryTile<Tharsis_1_1>, 8 Plant")
     stan.exMachina("NormalCityTile<Tharsis_2_1>, $MarsNomads, NomadsMarker<Tharsis_2_2>")
-    shouldThrow<DeadEndException> { kim.convertPlants { placeTile(2, 2) } }
-    return kim.convertPlants { placeTile(9, 7) }
+    shouldThrow<DeadEndException> {
+      kim.inTurn {
+        doTask("ConvertPlants")
+        doTask("-8 Plant")
+        // Hand the paid conversion to Admin to offer the legal greenery areas.
+        selectTask("DefaultGreeneryTile")
+        doTask("GreeneryTile<Tharsis_2_2>")
+      }
+    }
+    return kim.inTurn {
+      doTasks("ConvertPlants", "-8 Plant")
+      // Hand the paid conversion to Admin to offer the legal greenery areas.
+      selectTask("DefaultGreeneryTile")
+      doTask("GreeneryTile<Tharsis_9_7>")
+    }
   }
 }

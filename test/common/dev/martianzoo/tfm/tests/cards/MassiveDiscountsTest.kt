@@ -18,7 +18,16 @@ internal class MassiveDiscountsTest : TfmSandboxTest() {
     kim.setToExMachina(4, "MC")
     kim.setToExMachina(1, "Titanium")
 
-    kim.playProject(SpaceElevator, 4, steel = 1, titanium = 1).expect("-4 MC, -Steel, -Titanium")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<SpaceElevator>>",
+          "-1 Titanium",
+          "-1 Steel",
+          "-4 MC",
+          "SpaceElevator FROM ProjectCard",
+          "PROD[Titanium]",
+      )
+    }
   }
 
   @Test
@@ -26,6 +35,8 @@ internal class MassiveDiscountsTest : TfmSandboxTest() {
     newTestGame()
     kim.exMachina("$EarthOffice, $AcquiredCompany, $MediaGroup")
 
-    kim.playProject(LunaGovernor, 0).expect("PROD[2 MC]")
+    kim.inTurn {
+      doTasks("PlayProject<Class<LunaGovernor>>", "LunaGovernor FROM ProjectCard", "PROD[2 MC]")
+    }
   }
 }

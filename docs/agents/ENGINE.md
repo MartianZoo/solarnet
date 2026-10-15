@@ -34,12 +34,12 @@ is unresolved work. `GameReader` supplies higher-level queries over the same sta
 Narrower notes own adjacent subjects:
 
 - [SEQUENCING.md](SEQUENCING.md) owns ordering, `THEN`, barriers, and completion scopes.
-- [IDENTITY.md](IDENTITY.md) owns controller, assignee, Actor, Owner, Anyone, Admin, and attribution roles.
+- [IDENTITY.md](IDENTITY.md) owns assignee, Actor, Owner, Anyone, Admin, and attribution roles.
 - [QUANTIFIERS.md](QUANTIFIERS.md) owns instruction counts and limit behavior.
 - [type-system-spec.md](../type-system-spec.md) and
   [pets-language-spec.md](../pets-language-spec.md) own static Types and authored Pets semantics.
 
-For proposed changes to runtime layering, public APIs, policy, or workflow, use the Solarnet roadmap
+For proposed changes to runtime layering, public APIs, policy, or game flow, use the Solarnet roadmap
 for direction and inspect current source and tests for the implemented contract.
 
 ## From a premise to a ready World
@@ -47,8 +47,10 @@ for direction and inspect current source and tests for the implemented contract.
 `GameConfig` is unresolved intent. Catalog resolution produces an immutable `GamePremise`: a
 single set of signed Class selections, seated Player Classes, additive setup-component adjustments,
 and premise-local declarations. Modules are derived from the selected Classes; they are not stored
-as a parallel premise choice. Setup adjustments and game-specific setup become ordinary effects of
-the generated premise Class. The premise retains one immutable game `ClassTable` view sharing its
+as a parallel premise choice. Unchosen catalog Classes have no selection entry; negative entries
+record explicit or policy-imposed exclusions rather than listing every unavailable Module or goal.
+Setup adjustments and game-specific setup become ordinary effects of the generated premise Class.
+The premise retains one immutable game `ClassTable` view sharing its
 Catalog's compiled master structure; separate Worlds from that premise share compiled class facts
 but no mutable game state. See
 [`GamePremise.kt`](../../src/common/dev/martianzoo/catalog/GamePremise.kt).
@@ -71,7 +73,7 @@ limiter, instructor, changer, and Actor Engines. Initialization crosses three co
 
 1. Structural construction installs the included concrete `Class<T>` representatives and runtime
    indexes. This is not an Actor mutation and creates no Change Events.
-2. The initializer directly creates `Admin`, the minimum concrete Actor state needed to receive
+2. The initializer creates `Admin`, the minimum concrete Actor state needed to receive
    ordinary work.
 3. Admin Tasks create `BootstrapPhase` and the premise component. Ordinary effects of the premise,
    Modules, and Players create the remaining selected state.
@@ -85,7 +87,7 @@ selection representing an inhabited concrete Class has a live `Class<T>` compone
 negative selection lacks one.
 
 Bootstrap does not change ordinary Pets meaning to force progress: it must not turn queued `:`
-effects into automatic `::` effects or discard a change's `?`, `.`, or `!` quantifier. Starting
+effects into automatic `::` effects or discard a change's `?`, `*`, or `!` quantifier. Starting
 state that requires a Player choice remains exact premise state which opens that choice during
 ordinary setup; bootstrap does not make it on the Player's behalf.
 
@@ -94,12 +96,12 @@ except one. If several legal concrete targets remain, the gain stays abstract. U
 do not use capacity as an implicit choice.
 
 `Engine.fork` constructs an independently mutable live World only at a completed gameplay
-position. It shares the immutable premise and Class Table, directly copies the passive component,
+position. It shares the immutable premise and Class Table, copies the passive component,
 dependency, task, event, completed-position, and live-effect-index collections, and builds fresh
 engine services around them. Immutable compiled live effects are shared, while index storage is
 independent and retains source registration order. The fork point is the new timeline commit floor,
 so the fork cannot roll back into source history. Application callbacks, component listeners,
-transactions, Agents, and workflow control remain fresh.
+transactions, and Agents remain fresh.
 
 The generated premise is executable output of configuration resolution. Live initialization does
 not reconsider Module defaults or assemble a second representation of the premise. Required state
@@ -116,8 +118,8 @@ Removing the final target cascades through existing dependents before the reques
 retried. The graph owns the reverse-dependency index, while the engine owns the decision to cascade.
 
 Every live mutation is an exact gain, removal, or transmutation. A transmutation removes before it
-gains. A transmutation must change its concrete Type. A direct Signal uses a paired gain/removal
-event without requiring an existing source; that event represents a signal, not a self-transmutation.
+gains. A transmutation must change its concrete Type. A Signal gain without transmutation uses a paired
+gain/removal event without requiring an existing source; that event represents a signal, not a self-transmutation.
 `CustomMetric` types never become components. `CustomInstruction` classes are ordinary Signals:
 their gains are recorded, their Pets effects run, and Kotlin supplies one additional queued effect.
 
@@ -136,10 +138,19 @@ Ordinary game mechanics react to the current World and the event being processed
 arbitrary event history. Event ordinals and Task ids are causal and diagnostic identities, not game
 resources or presentation order.
 
-`Timeline` adds checkpoints, failure-atomic blocks, rollback, and a commit floor. An atomic failure
-restores components, Tasks, events, and derived indexes together.
+`Timeline` owns the positions between caller-facing Player Agent methods, its retained future when
+seeking backward, failure-atomic blocks, and a commit floor. Public seeking accepts only completed
+positions at or after that floor; stepping moves between the same positions. Seeking preserves later
+events and restores components, Tasks, and derived indexes in either direction. Gameplay cannot
+mutate the World while a future is retained; `truncate()` deliberately discards it before new play.
+A Player Agent method records a position after its work finishes, including an `OperationScope`
+method inside an enclosing client block. Admin calls do not automatically create positions. The
+enclosing block remains failure-atomic; it does not hide positions between its nested Player calls.
+Seeking inside an atomic call cannot cross that call's start. An atomic failure instead discards
+that interaction's events and restores its starting state.
 `Exceptions.AbortTransactionException` requests that restoration without surfacing as a caller
-failure. The commit floor prevents rollback across initialization or a committed workflow boundary.
+failure. The commit floor prevents navigation across initialization or a fork point. Gameplay
+commits nothing, so seeking may cross turn and phase changes.
 
 These commits are local timeline mechanics, not acceptance of a shared game's Git history. They
 do not grant or deny a takeback between players. [ADVERSARIAL.md](ADVERSARIAL.md) places that
@@ -158,18 +169,20 @@ A Task retains:
 
 - a `TaskId` derived from its original add-event ordinal and preserved across edits;
 - one task-shaped `Instruction`;
-- the controlling Actor that ordered the work;
-- the Actor who receives it upon selection;
 - its current assignee;
 - whether it is selected;
 - an optional `THEN` continuation; and
 - its cause.
 
-The three Actor fields are independent. An unselected task normally starts assigned to its
-controller. A normalized task that directly gains a `System` Component, alone or under a top-level
-instruction-side `BY`, instead starts assigned to Admin before its add event is recorded. Contextual
-selection reapplies that assignment before a concrete instruction-side `BY` performs its later,
-authoritative handoff. Use [IDENTITY.md](IDENTITY.md) before changing them.
+An unselected task normally starts assigned to the Actor that admitted it. A normalized task
+containing an elementary gain of a `System` Component, alone or under top-level instruction-side
+`BY`, instead starts assigned to Admin. Contextual selection reapplies that rule before a concrete
+`BY` performs its later handoff. If that Admin assignment interrupts a `THEN` sequence, the engine
+encodes the previous assignee in a `TASK Actor { body }` continuation. Admin executes the System
+step, then dispatches the remaining work back to that Actor. An authored `TASK Actor { body }`
+likewise admits unresolved body instructions for its named Actor as soon as the work holding it is
+ordinary; a dispatch is never a task of its own.
+See [IDENTITY.md](IDENTITY.md).
 
 Queue admission normalizes an `InstructionGroup` into one Task per independent member. `A THEN B`
 stores A as current work and B as a continuation; completing A admits B as ordinary work with no
@@ -186,6 +199,14 @@ The current engine admits committed narrowing of a selected Task. It resolves th
 the live World, and each accepted partial choice becomes a `TaskEditedEvent`. It also validates a
 proposed narrowing without changing an unselected or selected Task, and can commit a narrowing by
 TaskId, selecting that Task if necessary. `Agent.narrowTask` still requires an already selected Task.
+`Agent.selectTask(instruction)` finds a unique compatible task and commits the supplied narrowing
+while selecting it. An exact instruction takes priority over other compatible tasks. If selecting
+the task alone transfers it to another Actor, a submitted choice fails instead of crossing the
+handoff. Clients with a task id can pass a copy of that `Task` to `selectTask`; `Task.bindXTo(4)`
+provides such a copy with its linked `X` choice set to 4.
+If contextual selection splits the original task before its supplied narrowing can be applied,
+the request fails without changing the World. Select the original task first, then narrow the
+resulting tasks; neither `selectTask` nor a form commit may silently discard that choice.
 
 An Agent-created `TaskForm` keeps a disposable narrowing draft before or after task selection.
 Its choice analysis makes no game mutation and claims no selection or assignment. The form
@@ -194,9 +215,15 @@ authoritative. If committing an unchanged form selects a task that changes assig
 performs only that handoff. A form containing a choice instead fails, because the former assignee's
 draft cannot cross it.
 
+**Intended client API rule:** No game choice or task operation may require `TaskForm`. Clients may
+use it to query options and prepare a choice, but must also be able to make every known choice and
+complete every task through `Agent` commands. If a replay must construct a form or enumerate
+its decisions merely to submit a known choice, that exposes an `Agent` API gap. A
+Terraforming Mars-specific helper that hides the form does not close the gap.
+
 After selection, resolution repeatedly evaluates state-dependent structure until it reaches a
 remaining choice or the first stage is executable. It handles metrics and gates, eliminates `OR`
-arms whose immediate prerequisites fail, narrows an abstract gain when present dependencies
+arms whose execution prerequisites fail, narrows an abstract gain when present dependencies
 identify one target, resolves quantities, and translates concrete custom instructions. Mandatory
 resolution checks physical availability and dependencies; AMAP and optional quantities also use
 current count bounds. This may settle a location as well as a class, or an existing dependency
@@ -204,15 +231,24 @@ whose declared maximum is one. The same World-based gain narrowing applies when 
 receives an explicit narrowing. `ActorEngine` separately executes a selected Task once its
 instruction is concrete.
 
-Resolution may leave a genuine Player choice abstract. Selection transfers the same task to its
-recorded selection assignee, who alone may narrow it. If resolution exposes independent
-instructions, the selected structural Task is replaced by ordinary unselected siblings rather than
-transferring its selection to one arbitrarily.
+Task admission discards literal zero changes. Counts calculated while selecting an existing task
+retain their Types through matching and execute without component events.
+Typed-zero submissions cannot identify work solely through an `Ok` intersection, including an
+unrelated alternative at the start of a sequence.
+
+Resolution may leave a genuine Player choice abstract. The task's current assignee alone may narrow
+it. If resolution exposes independent instructions, the selected structural Task completes and
+admits ordinary unselected children without transferring its selection to a child.
 
 The combined `doTask` and `tryTask` commands reject an unselected task when selection alone changes
 assignee, including through a concrete `BY`. Such a call would only select and hand off while
 silently discarding its submitted instruction. The caller must use `selectTask`; the receiving
 assignee can then narrow or execute the selected task.
+`doTask` can identify a gated task by its body, and a `/` task by its calculated action, without
+repeating the gate or metric in the submitted instruction. The task still checks those conditions.
+When matching a task by its body, a failed gate does not compete with available matches. If no
+available task matches, the failed gate can identify the task so execution reports the unmet
+requirement.
 
 When a top-level instruction-side `BY` becomes concrete, task processing resolves the named
 participating Actor, removes the wrapper, and transfers the task to that Actor. The prior assignee's
@@ -223,12 +259,13 @@ Task normalization distributes `BY` across `THEN` stages when they become separa
 inside a sequence that must remain a single Task is rejected; the engine has no partial-execution
 state for changing assignee midway through such a Task, and Canon has no use requiring it.
 
-The original controller receives those siblings and continuations even when the selected choice
-was delegated to another Actor. Triggered work retains a Player controller; Admin-controlled work
-instead uses the ownership fallback described in [IDENTITY.md](IDENTITY.md). There is no task
-priority or persistent delegated operation in current task data. Neptunian's payment stages return
-to the original controller for selection before the payer supplies the assigned choices. The
-remaining routing and completion questions are in
+The finishing task's assignee receives structural children and continuations. A System handoff
+encodes the former assignee in its continuation, so Admin executes the System step and returns later
+work to that Actor. Authored `TASK` dispatch can also give work to another Actor. Queued reactions
+use ownership and event attribution as described in [IDENTITY.md](IDENTITY.md). Deferral by `LATER`
+and `FINALLY` is the only task priority ([SEQUENCING.md](SEQUENCING.md#deferred-work)), and there
+is no persistent delegated
+operation in current task data. The remaining routing and completion questions are in
 [SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over). Any game-rule restriction
 on which task may execute must apply equally to explicit commands and autoexecution. Protecting a
 player from somebody else calling their Agent is instead an external submission concern covered
@@ -239,13 +276,14 @@ uses that Player for omitted ownership. `Cathedral<CityTile<Anyone, Tharsis_4_2>
 submitted narrowing can then resolve the existing city at that area without naming its concrete
 subclass, and fails when there is no city there.
 
-The executable first-stage forms are deliberately small: no-op, fully concrete change, or `THEN`
+The executable first-stage forms are deliberately small: no-op, zero-count change (or alternatives
+consisting entirely of zero changes and no-ops), fully concrete change, or `THEN`
 whose first stage is executable. Task processing consumes instruction-side `BY` before this point.
 Later `THEN` stages stay as Pets until earlier state changes have happened. Execution removes the
 completed Task, admits its continuation, and routes changes through the ordinary mutation/effect
-path. `Gated`, `Per`, `Or`, gains of virtual `CustomMetric` types, marked transforms, and instruction
-groups cannot reach execution as a first stage; resolution must consume, reject, choose, or split
-them first.
+path. `Gated`, `Per`, alternatives with remaining choices, gains of virtual `CustomMetric` types,
+marked transforms, and instruction groups cannot reach execution as a first stage; resolution must
+consume, reject, choose, or split them first.
 
 ## One instruction becomes events in stages
 
@@ -295,7 +333,7 @@ An owned effect listening to an unowned event defaults to its Player owner unles
 `System` or the effect explicitly says `BY Anyone`. Unowned System events are necessarily performed
 by Admin and are observed table-wide; Player-specific System events carry an owner. Trigger-side
 `BY` filters the triggering Actor. On queued work, instruction-side `BY`
-changes the task's assignee once its instruction is concrete. It does not directly rewrite event
+changes the task's assignee once its instruction is concrete. It does not rewrite event
 attribution.
 
 Queued `:` effects produce pending Tasks. Automatic `::` effects execute recursively before queued
@@ -311,7 +349,7 @@ current graph. A metric union is a multiset union: for each concrete Type it ret
 matching multiplicity rather than double-counting overlapping arms. Custom metrics over abstract
 dependencies normally specialize only through live dependency targets, not the full structural
 cross-product.
-Resolution's component-existence checks use `Limiter` to query the graph directly, stopping at the
+Resolution's component-existence checks use `Limiter` to query the graph, stopping at the
 first match without constructing a result collection. Refinements still use the current World.
 
 The game `ClassTable` view compiles inherited invariants into immutable per-Class limits. Each
@@ -338,7 +376,7 @@ invariant templates used for validation.
 Abstract or refined Types, minimum-only bounds, self-counts, and indirect or unrelated requirements
 remain constraints; construction neither chooses their components nor invents missing prerequisites.
 Signals do not reconstruct parts. Ordinary instruction execution and
-direct `sneak` corrections share this construction rule; corrections suppress queued reactions.
+`sneak` corrections share this construction rule; corrections suppress queued reactions.
 
 Completed-state validation instantiates a self-count for every inhabited concrete specialization.
 A dependent count containing `This` is instantiated only for live declaring Types, so an absent
@@ -346,15 +384,17 @@ owner does not itself require dependent state.
 
 For component-count validation, a full operation is one initiating change and all its recursive
 automatic effects. Intermediate counts may cross declared bounds; the completed operation must
-satisfy them. Source availability and dependency integrity remain immediate. Resolution never
+satisfy them. Source availability and dependency integrity are checked at execution. Resolution never
 executes consequences to predict a choice's outcome; failure at completion uses the existing
 transaction rollback path. [QUANTIFIERS.md](QUANTIFIERS.md#invariants-at-operation-completion) owns
 the bounds and choice-resolution contract.
 Initialization still audits all applicable positive minimums after constructing the initial world.
 Ordinary gameplay selects global minimum checks through the changed components' existing per-Class
 limit index. It still checks required dependents of live affected owners, including absent parts;
-unchanged global counts need no recheck. Initialization and direct corrections retain the full
+unchanged global counts need no recheck. Initialization and corrections retain the full
 invariant query.
+Each World's `Limiter` reuses the immutable declared limits bound to a component type. Live counts
+and the required dependents of affected owners are still checked against current state.
 
 Prefer atomic transmutation when two faces share a stable invariant. Separate queued tasks and
 `THEN` stages outside the initiating automatic cascade cannot repair a completed operation: lifecycle
@@ -385,6 +425,9 @@ uses, but they express different operations and are not redundant special cases.
 union cannot substitute for arithmetic addition. Treat the small number of clients as evidence that
 the metric algebra is still sparse, not as a reason to collapse these operators. `Metric.Rank`
 likewise replaces game-specific ranking instructions with reusable comparison semantics.
+Ranking scores the candidate once, skips comparing it with itself, and evaluates each peer's
+later tiebreakers only while earlier scores remain tied. Scores are local to that rank query;
+they are not retained across state changes or rollback.
 
 ### Content must not compensate for an engine gap
 
@@ -394,7 +437,7 @@ general mechanism or leave marginal content unsupported with an explicit blocker
 
 The promo attack model is the reference case: one generic victim-owned watcher records removed
 resources and decreased production while retaining the attacked Type and Actor. Crash Site Cleanup
-and Mons Insurance consume those records; prevention rules remain direct removal triggers. Do not
+and Mons Insurance consume those records; prevention rules remain removal triggers. Do not
 replace that shape with an `AttackKind` hierarchy and per-resource watchers.
 
 ## Actor Engines and Agents
@@ -402,7 +445,8 @@ replace that shape with an `AttackKind` hierarchy and per-resource watchers.
 Each World retains one policy-free `ActorEngine` per Actor. It owns attributed task and state
 commands but shares the World's changer, instructor, timeline, and Task services. `Agents(world)`
 constructs the corresponding normal client objects and prevents pairing an Agent with an unrelated
-World.
+World. Its optional `initialPolicy` function supplies each Actor's policy at construction without
+executing pending work; callers need not assign the policy afterward.
 
 For Actor attribution, receiving the request through that Actor's Agent is sufficient. The engine
 checks the task's current assignee and legal mutation, not the identity or consent of the person
@@ -414,17 +458,25 @@ pre-existing unselected Tasks, and rejects newly unfinished Tasks or `MustCleanU
 start while a pre-existing selected Task holds the World lock. `sneak` applies a fully concrete
 correction group, constructs exact required parts, removes dependents, and audits every applicable
 count invariant. The entire group rolls back on failure. It runs automatic effects and suppresses queued effects recursively
-while bypassing settlement, idle cleanup, and completion callbacks. `exMachina` rejects direct System,
-Hidden, and MustCleanUp targets and any correction that leaves new MustCleanUp state.
+while bypassing settlement and completion callbacks. `exMachina` rejects explicit
+System and MustCleanUp targets and any correction that leaves new MustCleanUp state.
 It additionally restores and resumes an existing selection within one atomic lifecycle. See
 [EX_MACHINA.md](EX_MACHINA.md) for the contract and the remaining canon consistency gaps.
 
+A World may install one `AgentTransactionGuard` before Agent commands begin. Every Agent mutation
+then validates the guard before its transaction can commit. An automatic candidate that needs
+unsupplied client information rolls back locally and stays pending; an explicit Agent request fails.
+The Terraforming Mars hand-tracking use is described in [CARD_HANDLING.md](CARD_HANDLING.md#card-hand-tracking).
+
 Current autoexecution lives in `:agent`, not in the core engine. Policy selects legal Task commands;
-it does not alter their semantics. The shared policy loop tries eligible Admin work before Player
-work, including between explicit Player steps, but continues to an executable Player option when
+it does not alter their semantics. Before probing tasks, the loop checks whether any pending
+candidate has an effective policy other than `NONE`. If none does, it returns without probes or
+execution, even when an Actor with no pending work has autoexecution enabled. When automatic work
+is available, manual tasks still compete with it. The shared policy loop tries eligible Admin work
+before Player work, including between explicit Player steps, but continues to an executable Player option when
 Admin work is abstract or temporarily unavailable. It cannot interrupt an authored `::` chain or
-supply a missing scheduling rule. Direct engine primitives remain available to any caller for local
-exploration, workflow, replay correction, tests, and cheats. Restricting access to those primitives
+supply a missing scheduling rule. Engine primitives remain available to any caller for local
+exploration, replay correction, tests, and cheats. Restricting access to those primitives
 is not an engine responsibility. [ADVERSARIAL.md](ADVERSARIAL.md) describes how external participants
 or software decide which proposed results and supplied facts to accept as shared play.
 

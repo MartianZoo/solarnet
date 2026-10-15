@@ -1,0 +1,259 @@
+{
+  "decks": [
+    {
+      "deck": "CorporationCard",
+      "cards": [
+        {
+          "name": "CheungShingMars",
+          "tags": [ "BuildingTag" ],
+          "direct": "44 MC, PROD[3 MC]",
+          "effects": [ "PayingFor<Class<BuildingTag>>:: -2 Owed" ],
+        },
+        {
+          "name": "PointLuna",
+          "tags": [ "EarthTag", "SpaceTag" ],
+          "direct": "38 MC, PROD[Titanium]",
+          "effects": [ "EarthTag: ProjectCard" ],
+        },
+        {
+          "name": "RobinsonIndustries",
+          "direct": "47 MC",
+          "actions": [ "4 MC -> PROD[StandardResource(HAS =1 (RANK @Class<StandardResource> { Production<Class<StandardResource>(NOT @Class)> OR ProdOffset<@Class> }))]" ],
+        },
+        {
+          "name": "ValleyTrust",
+          "tags": [ "EarthTag" ],
+          "direct": "37 MC, RequiredAction { -> 3 PreludeCard<Selecting>, PlayPrelude<Selecting> }",
+          "effects": [ "PayingFor<Class<ScienceTag>>:: -2 Owed" ],
+        },
+        {
+          "name": "Vitor",
+          "tags": [ "EarthTag" ],
+          "direct": "45 MC",
+          "effects": [
+            "This IF Class<Award>: RequiredAction { -> Award }",
+            "CardFront(HAS NonNegativeIconsOf<Class<VictoryPoint>>): 3 MC"
+          ],
+          "components": [
+            "CLASS NonNegativeIconsOf<CardFront, Class<Component>> : CustomMetric",
+          ],
+        },
+      ],
+    },
+    {
+      "deck": "PreludeCard",
+      "cards": [
+        {
+          "name": "AcquiredSpaceAgency",
+          "direct": "6 Titanium, 2 SearchForCard<TagFilter<Class<SpaceTag>>>",
+        },
+        {
+          "name": "AlliedBank",
+          "tags": [ "EarthTag" ],
+          "direct": "PROD[4 MC], 3 MC",
+        },
+        {
+          "name": "AquiferTurbines",
+          "tags": [ "PowerTag" ],
+          "direct": "OceanTile<>, PROD[2 Energy], -3 MC",
+        },
+        {
+          "name": "Biofuels",
+          "tags": [ "MicrobeTag" ],
+          "direct": "PROD[Plant, Energy], 2 Plant",
+        },
+        {
+          "name": "Biolab",
+          "tags": [ "ScienceTag" ],
+          "direct": "PROD[Plant], 3 ProjectCard",
+        },
+        {
+          "name": "BiosphereSupport",
+          "tags": [ "PlantTag" ],
+          "direct": "PROD[-1 MC, 2 Plant]",
+        },
+        {
+          "name": "BusinessEmpire",
+          "tags": [ "EarthTag" ],
+          "direct": "PROD[6 MC], -6 MC",
+        },
+        {
+          "name": "DomeFarming",
+          "tags": [ "PlantTag", "BuildingTag" ],
+          "direct": "PROD[Plant, 2 MC]",
+        },
+        {
+          "name": "Donation",
+          "direct": "21 MC",
+        },
+        {
+          "name": "EarlySettlement",
+          "tags": [ "CityTag", "BuildingTag" ],
+          "direct": "CityTile<>, PROD[Plant]",
+        },
+        {
+          "name": "EcologyExperts",
+          "tags": [ "PlantTag", "MicrobeTag" ],
+          "direct": "PROD[Plant], PlayCard<Class<ProjectCard>, Class<CardFront>, Hand> THEN -Required / Required",
+        },
+        {
+          "name": "ExcentricSponsor",
+          "direct": "PlayCard<Class<ProjectCard>, Class<CardFront>, Hand> THEN -25 Owed",
+        },
+        {
+          "name": "ExperimentalForest",
+          "tags": [ "PlantTag" ],
+          "direct": "DefaultGreeneryTile, 2 SearchForCard<TagFilter<Class<PlantTag>>>",
+        },
+        {
+          "name": "GalileanMining",
+          "tags": [ "JovianTag" ],
+          "direct": "PROD[2 Titanium], -5 MC",
+        },
+        {
+          "name": "GreatAquifer",
+          "direct": "2 OceanTile<>",
+        },
+        {
+          "name": "HugeAsteroid",
+          "direct": "3 TemperatureStep, -5 MC",
+        },
+        {
+          "name": "IoResearchOutpost",
+          "tags": [ "ScienceTag", "JovianTag" ],
+          "direct": "PROD[Titanium], ProjectCard",
+        },
+        {
+          "name": "Loan",
+          "direct": "PROD[-2 MC], 30 MC",
+        },
+        {
+          "name": "MartianIndustries",
+          "tags": [ "BuildingTag" ],
+          "direct": "PROD[Energy, Steel], 6 MC",
+        },
+        {
+          "name": "MetalRichAsteroid",
+          "direct": "TemperatureStep, 4 Titanium, 4 Steel",
+        },
+        {
+          "name": "MetalsCompany",
+          "direct": "PROD[1 MC, Steel, Titanium]",
+        },
+        {
+          "name": "MiningOperations",
+          "tags": [ "BuildingTag" ],
+          "direct": "PROD[2 Steel], 4 Steel",
+        },
+        {
+          "name": "Mohole",
+          "tags": [ "BuildingTag" ],
+          "direct": "PROD[3 Heat], 3 Heat",
+        },
+        {
+          "name": "MoholeExcavation",
+          "tags": [ "BuildingTag" ],
+          "direct": "PROD[Steel, 2 Heat], 2 Heat",
+        },
+        {
+          "name": "NitrogenShipment",
+          "direct": "TerraformRating, PROD[Plant], 5 MC",
+        },
+        {
+          "name": "OrbitalConstructionYard",
+          "tags": [ "SpaceTag" ],
+          "direct": "PROD[Titanium], 4 Titanium",
+        },
+        {
+          "name": "PolarIndustries",
+          "tags": [ "BuildingTag" ],
+          "direct": "OceanTile<>, PROD[2 Heat]",
+        },
+        {
+          "name": "PowerGeneration",
+          "tags": [ "PowerTag" ],
+          "direct": "PROD[3 Energy]",
+        },
+        {
+          "name": "SelfSufficientSettlement",
+          "tags": [ "CityTag", "BuildingTag" ],
+          "direct": "CityTile<>, PROD[2 MC]",
+        },
+        {
+          "name": "SmeltingPlant",
+          "tags": [ "BuildingTag" ],
+          "direct": "2 OxygenStep, 5 Steel",
+        },
+        {
+          "name": "SocietySupport",
+          "direct": "PROD[-1 MC, Plant, Energy, Heat]",
+        },
+        {
+          "name": "Supplier",
+          "tags": [ "PowerTag" ],
+          "direct": "PROD[2 Energy], 4 Steel",
+        },
+        {
+          "name": "SupplyDrop",
+          "direct": "3 Titanium, 8 Steel, 3 Plant",
+        },
+        {
+          "name": "UnmiContractor",
+          "tags": [ "EarthTag" ],
+          "direct": "3 TerraformRating, ProjectCard",
+        },
+      ],
+    },
+    {
+      "deck": "ProjectCard",
+      "cards": [
+        {
+          "name": "HousePrinting",
+          "cost": 10,
+          "tags": [ "BuildingTag" ],
+          "direct": "PROD[Steel]",
+          "effects": [ "End: VictoryPoint" ],
+        },
+        {
+          "name": "LavaTubeSettlement",
+          "cost": 15,
+          "tags": [ "CityTag", "BuildingTag" ],
+          "direct": "PROD[-Energy, 2 MC], CityTile<VolcanicArea> OR (MAX 0 VolcanicArea: CityTile<>)",
+        },
+        {
+          "name": "MartianSurvey",
+          "requirement": "MAX 4 OxygenStep",
+          "cost": 9,
+          "tags": [ "ScienceTag", "EventTag" ],
+          "direct": "2 ProjectCard",
+          "effects": [ "End: VictoryPoint" ],
+        },
+        {
+          "name": "Psychrophiles",
+          "requirement": "MAX 5 TemperatureStep",
+          "cost": 2,
+          "tags": [ "MicrobeTag" ],
+          "actions": [ "-> Microbe<This>" ],
+          "effects": [
+            "PayingFor<Class<PlantTag>>:: AcceptingFromCard<This>",
+            "-Microbe<This> BY Me@ IF AcceptingFromCard<This>:: -2 Owed"
+          ],
+        },
+        {
+          "name": "SfMemorial",
+          "cost": 7,
+          "tags": [ "BuildingTag" ],
+          "direct": "ProjectCard",
+          "effects": [ "End: VictoryPoint" ],
+        },
+        {
+          "name": "SpaceHotels",
+          "requirement": "2 EarthTag",
+          "cost": 12,
+          "tags": [ "EarthTag", "SpaceTag" ],
+          "direct": "PROD[4 MC]",
+        },
+      ],
+    },
+  ],
+}

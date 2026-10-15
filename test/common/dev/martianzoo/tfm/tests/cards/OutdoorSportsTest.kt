@@ -14,7 +14,14 @@ internal class OutdoorSportsTest : TfmSandboxTest() {
   internal fun `Can be played with an opponent's city beside an ocean`() {
     stan.exMachina("NormalCityTile<Stan, Tharsis_1_3>, OceanTile<Tharsis_1_2>")
 
-    kim.playProject(OutdoorSports, 8).expect("PROD[2 MC]")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<OutdoorSports>>",
+          "-8 MC",
+          "OutdoorSports FROM ProjectCard",
+          "PROD[2 MC]",
+      )
+    }
   }
 
   @Test
@@ -22,6 +29,10 @@ internal class OutdoorSportsTest : TfmSandboxTest() {
     stan.exMachina("NormalCityTile<Stan, Tharsis_1_3>")
     kim.exMachina("OceanTile<Tharsis_1_5>")
 
-    shouldThrow<RequirementException> { kim.playProject(OutdoorSports, 8) }
+    shouldThrow<RequirementException> {
+      kim.inTurn {
+        doTask("PlayProject<Class<OutdoorSports>>")
+      }
+    }
   }
 }

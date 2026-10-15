@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.catalog.GameConfig
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -19,8 +18,8 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
       GameConfig(
           """
           ElysiumMap
-          PreludeExpansion, PromoCardPack
-          FakeStuffBundle
+          PreludeExpansion, promos:cards
+          fakes:cards
 
           Builder, Philantropist, Spacefarer, Terraformer, Energizer
           Incorporator, Botanist, Founder, Benefactor, Banker
@@ -32,7 +31,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
 
   @Test
   internal fun game20260819() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     val JR = p1
     val KB = p2
     val ER = p3
@@ -51,7 +50,7 @@ internal class SolarFusionStreamTest : AbstractFullGameTest() {
     KB.playCorp(MonsInsurance) {
           doTask(
               "EACH Other@Player(NOT KB) { " +
-                  "-2 Production<Other@Player, Class<MC>>! BY Other@Player }"
+                  "-2! Production<Other@Player, Class<MC>> BY Other@Player }"
           )
         }
         .expect("PROD[-2 MC<JR>, -2 MC<ER>]")

@@ -1,80 +1,117 @@
 package dev.martianzoo.tfm.tests
 
+import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy
+import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.catalog.GameConfig
+import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.Player
+import dev.martianzoo.state.TaskResult
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmEngine
-import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmWorkflow
-import kotlin.test.AfterTest
 
 /**
- * Scenarios reached through play under the real automatic workflow. Tests must follow the offered
- * turn order; the current gameplay helpers do not reject out-of-turn actions.
+ * Scenarios reached through play, with the game's own rules offering every turn and beginning every
+ * phase. Players submit offered tasks through plain Agents with a fixed policy. Explicit
+ * autoExecNow calls settle competing consequences when their order is not the subject.
  */
-internal abstract class TfmGameplayTest : TfmTest() {
-  protected lateinit var players: List<TfmGameplay>
+internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy = CONCRETE) {
+  protected lateinit var game: World
     private set
 
-  protected val kim: TfmGameplay
+  protected lateinit var agents: Agents
+    private set
+
+  protected val admin: Agent
+    get() = agents[ADMIN]
+
+  protected fun TaskResult.expect(expected: String) =
+      TestHelpers.assertNetChanges(this, game, expected)
+
+  /** Includes phase follow-up work that runs after an individual TaskResult is recorded. */
+  protected fun expectChanges(expected: String, body: () -> Unit) {
+    val checkpoint = game.timeline.checkpoint()
+    body()
+    TaskResult(changes = game.events.changesSince(checkpoint)).expect(expected)
+  }
+
+  protected fun Agent.auditGainsSince(checkpoint: Checkpoint): Int =
+      game.events.changesSince(checkpoint).count { it.change.gaining?.type == resolve("Audit") }
+
+  protected lateinit var players: List<Agent>
+    private set
+
+  protected val kim: Agent
     get() = players[0]
 
-  protected val stan: TfmGameplay
+  protected val stan: Agent
     get() = checkNotNull(players.getOrNull(1)) { "Stan is sitting this game out" }
 
-  protected val rob: TfmGameplay
+  protected val rob: Agent
     get() = checkNotNull(players.getOrNull(2)) { "Rob is sitting this game out" }
-
-  private var workflow: TfmWorkflow.Automatic? = null
 
   protected fun newTestGame(
       addOptions: String = "",
       playerCount: Int = 3,
       kimCorporation: ClassName? = null,
-      startAtCorporation: Boolean = false,
+  ) = prepareTestGame(addOptions, playerCount, kimCorporation, playCorporations = true)
+
+  /** Prepares Kim to choose and play a corporation explicitly. */
+  protected fun newTestGameBeforeCorporationPlay(
+      addOptions: String = "",
+      playerCount: Int = 3,
+  ) = prepareTestGame(addOptions, playerCount, null, playCorporations = false)
+
+  private fun prepareTestGame(
+      addOptions: String,
+      playerCount: Int,
+      kimCorporation: ClassName?,
+      playCorporations: Boolean,
   ) {
-    shutdownWorkflow()
-    createWorld(addOptions, playerCount, kimCorporation)
-    workflow = TfmWorkflow.Automatic(agents).launch()
-    chooseStartingCards(kimCorporation)
-    if (!startAtCorporation) playStartingCorporations(kimCorporation)
+    createWorld(addOptions, playerCount)
+    admin.beginOperation("SetupPhase FROM BootstrapPhase")
+    if (
+        playerCount == 1 &&
+            GameConfig(addOptions).includedClassNames.none { it in Canon.colonyTileClassNames } &&
+            admin.count("SoloColoniesSetup") == 1
+    ) {
+      kim.doTask("-SelectedColonyTile<Class<Callisto>>")
+    }
+    chooseStartingCards(kimCorporation, playCorporations)
+    if (playCorporations) playStartingCorporations(kimCorporation)
   }
 
-  @AfterTest
-  fun shutdownWorkflow() {
-    workflow?.shutdown()
-    workflow = null
-  }
-
-  private fun createWorld(addOptions: String, playerCount: Int, kimCorporation: ClassName?) {
+  private fun createWorld(addOptions: String, playerCount: Int) {
     require(playerCount in 1..PLAYER_NAMES.size) {
       "The fixture supports one to ${PLAYER_NAMES.size} players: $playerCount"
     }
-    val options =
-        GameConfig(
-            listOf(addOptions, kimCorporation?.toString().orEmpty()).joinToString(),
-            *PLAYER_NAMES.take(playerCount).toTypedArray(),
-        )
-    val config =
-        options.copy(
-            includedClassNames =
-                (GameConfig(BASE_GAME_OPTIONS).includedClassNames + options.includedClassNames) -
-                    options.excludedClassNames
-        )
+    val options = GameConfig(addOptions, *PLAYER_NAMES.take(playerCount).toTypedArray())
+    val defaults = GameConfig(BASE_GAME_OPTIONS)
+    val config = fixtureConfig(options, defaults)
     game = TfmEngine.newGame(canonicalCatalog(config).gamePremise(config))
-    bindPlayers()
+    agents = Agents(game) { if (it == ADMIN) EAGER else playerPolicy }
+    players = game.actors.filterIsInstance<Player>().map { agents[it] }
   }
 
-  private fun bindPlayers() {
-    players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
-  }
-
-  private fun chooseStartingCards(kimCorporation: ClassName?) {
+  private fun chooseStartingCards(kimCorporation: ClassName?, playCorporations: Boolean) {
     players.forEachIndexed { index, player ->
-      player.doTask(if (index == 0 && kimCorporation != null) "NonBeginnerMode" else "BeginnerMode")
+      // Choose the mode for Admin's System task; a player cannot execute that task directly.
+      player.selectTask("BeginnerMode OR NonBeginnerMode")
+      player.narrowTask(
+          if (index == 0 && (kimCorporation != null || !playCorporations)) "NonBeginnerMode"
+          else "BeginnerMode"
+      )
     }
-    if (kimCorporation != null) kim.keepStartingProjects(10)
-    revealTurmoilSetupEvents(game)
+    players.forEach { it.autoExecNow(EAGER) }
+    if (kimCorporation != null || !playCorporations) kim.doTask("-5 ProjectCard<Selecting>")
+    if (admin.count("RevealComingEvent") > 0) {
+      admin.doTasks("DemocraticReform", "MinimalImpactPolicy")
+    }
     if (players.size == 1) {
       val placements =
           when {
@@ -96,11 +133,18 @@ internal abstract class TfmGameplayTest : TfmTest() {
   private fun playStartingCorporations(kimCorporation: ClassName?) {
     players.forEachIndexed { index, player ->
       if (index == 0 && kimCorporation != null) {
-        player.playCorp(kimCorporation)
+        // Resolve the corporation's concrete starting benefits before the five-card purchase.
+        player.completeOperation {
+          doTask("PlayCard<Class<CorporationCard>, Class<$kimCorporation>>")
+          autoExecNow(EAGER)
+          // Shared setup buys five projects at the corporation's actual price.
+          doTask("-${player.count("Owed")} MC")
+          autoExecNow(EAGER)
+        }
       } else {
-        player.inTurn {
+        player.completeOperation {
           doTask("PlayCard<Class<BeginnerCard>, Class<BeginnerCorporation${index + 1}>, Hand>")
-          player.pay()
+          autoExecNow(EAGER)
         }
       }
     }
@@ -109,7 +153,7 @@ internal abstract class TfmGameplayTest : TfmTest() {
   private companion object {
     private const val BASE_GAME_OPTIONS =
         "CorporateEraExpansion, VenusNextExpansion, ColoniesExpansion, " +
-            "PromoCardPack, BeginnerVariant, QuickStartVariant"
+            "promos:cards, BeginnerVariant, QuickStartVariant"
 
     private val PLAYER_NAMES = listOf("Kim", "Stan", "Rob", "Maya", "Nadia")
   }

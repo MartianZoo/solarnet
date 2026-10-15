@@ -2,28 +2,58 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class ExcentricSponsorTest : TfmSandboxTest() {
-  @BeforeTest
-  fun initializeGame() {
+
+  private fun initializeGame() {
     newTestGame(addOptions = "PreludeExpansion")
   }
 
   @Test
   internal fun `Can apply its full discount to the next card`() {
-    with(kim) {
-      playPrelude(ExcentricSponsor) { playProject(NitrogenRichAsteroid, 6) }
-          .expect("-6 MC, PROD[Plant], 3 TerraformRating")
-    }
+    initializeGame()
+    kim.inTurn {
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<ExcentricSponsor>>",
+              "ExcentricSponsor FROM PreludeCard",
+              "PlayCard<Class<ProjectCard>, Class<NitrogenRichAsteroid>>",
+          )
+          // Hand the discount to Admin before the remaining payment is offered.
+          selectTask("-25* Owed")
+          doTask("-6 MC")
+          doTasks(
+              "NitrogenRichAsteroid FROM ProjectCard",
+              "2 TerraformRating",
+          )
+          doTask("TemperatureStep")
+          doTask("PROD[Plant]")
+          doTask("TerraformRating")
+          doTask("PlayedEvent<Class<NitrogenRichAsteroid>> FROM NitrogenRichAsteroid")
+        }
+        .expect("-6 MC, PROD[Plant], 3 TerraformRating")
   }
 
   @Test
   internal fun `Can play a card costing less than its full discount`() {
-    with(kim) {
-      playPrelude(ExcentricSponsor) { playProject(GhgImportFromVenus, 0) }
-          .expect("PROD[3 Heat], TerraformRating")
+    initializeGame()
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<ExcentricSponsor>>",
+          "ExcentricSponsor FROM PreludeCard",
+          "PlayCard<Class<ProjectCard>, Class<GhgImportFromVenus>>",
+      )
+      // Hand the discount to Admin before the remaining payment is offered.
+      selectTask("-25* Owed")
+      doTasks(
+          "GhgImportFromVenus FROM ProjectCard",
+      )
+      doTask("VenusStep")
+      doTasks("PROD[3 Heat]", "TerraformRating")
+      // Other optional tasks also accept Ok; identify the MC payment first.
+      selectTask("-X? MC")
+      doTask("Ok" /* No MC payment. */)
+      doTask("PlayedEvent<Class<GhgImportFromVenus>> FROM GhgImportFromVenus")
     }
   }
 
@@ -31,13 +61,30 @@ internal class ExcentricSponsorTest : TfmSandboxTest() {
   internal fun `Double Down copies its project play and discount`() {
     newTestGame(addOptions = "PreludeExpansion")
 
-    with(kim) {
-      playPrelude(ExcentricSponsor) { playProject(DustSeals, 0) }
-      playPrelude(DoubleDown) {
-            doTask("CopyPrelude<$ExcentricSponsor>")
-            playProject(Mine, 0)
-          }
-          .expect("$Mine, PROD[Steel], 0 MC")
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<ExcentricSponsor>>",
+          "ExcentricSponsor FROM PreludeCard",
+          "PlayCard<Class<ProjectCard>, Class<DustSeals>>",
+      )
+      // Hand the discount to Admin before the remaining payment is offered.
+      selectTask("-25* Owed")
+      doTask("DustSeals FROM ProjectCard")
+      doTask("Ok" /* No MC payment. */)
     }
+    kim.inTurn {
+          doTasks(
+              "PlayCard<Class<PreludeCard>, Class<DoubleDown>>",
+              "DoubleDown FROM PreludeCard",
+          )
+          doTasks("CopyPrelude<ExcentricSponsor>", "PlayCard<Class<ProjectCard>, Class<Mine>>")
+          // Hand the discount to Admin before the remaining payment is offered.
+          selectTask("-25* Owed")
+          doTasks("Mine FROM ProjectCard", "PROD[Steel]")
+          // Other optional tasks also accept Ok; identify the MC payment first.
+          selectTask("-X? MC")
+          doTask("Ok" /* No MC payment. */)
+        }
+        .expect("$Mine, PROD[Steel], 0 MC")
   }
 }

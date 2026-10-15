@@ -10,8 +10,18 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     newTestGame()
     kim.setToExMachina(27, "MC")
 
-    kim.playProject(IndenturedWorkers, 0)
-    kim.playProject(Soletta, 27).expect("-27 MC, PROD[7 Heat]")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<IndenturedWorkers>>",
+          "IndenturedWorkers FROM ProjectCard",
+      )
+      doTask("IndenturedWorkers_NextCardEffect")
+      doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
+    }
+    kim.inTurn {
+      doTasks("PlayProject<Class<Soletta>>", "-27 MC")
+      doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
+    }
   }
 
   @Test
@@ -20,11 +30,31 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     kim.setToExMachina(39, "MC")
     kim.setToExMachina(8, "Heat")
 
-    kim.playProject(IndenturedWorkers, 0)
-    kim.stdProject("AsteroidProject")
-    kim.convertHeat()
-    kim.sellPatents(2)
-    kim.playProject(Soletta, 27).expect("-27 MC, PROD[7 Heat]")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<IndenturedWorkers>>",
+          "IndenturedWorkers FROM ProjectCard",
+      )
+      doTask("IndenturedWorkers_NextCardEffect")
+      doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
+    }
+    kim.inTurn {
+      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      doTask("TemperatureStep")
+      doTask("TerraformRating")
+    }
+    kim.inTurn {
+      doTasks("ConvertHeat", "-8 Heat")
+      doTask("TemperatureStep")
+      doTask("TerraformRating")
+    }
+    kim.inTurn {
+      doTasks("UseStandardProject<SellPatentsProject>", "2! MC FROM ProjectCard")
+    }
+    kim.inTurn {
+      doTasks("PlayProject<Class<Soletta>>", "-27 MC")
+      doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
+    }
   }
 
   @Test
@@ -32,34 +62,69 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     newTestGame()
     kim.setToExMachina(36, "MC")
 
-    kim.playProject(IndenturedWorkers, 0)
-    kim.playProject(Soletta, 27).expect("-27 MC, PROD[7 Heat]")
-    kim.playProject(AdvancedAlloys, 9).expect("-9 MC")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<IndenturedWorkers>>",
+          "IndenturedWorkers FROM ProjectCard",
+      )
+      doTask("IndenturedWorkers_NextCardEffect")
+      doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
+    }
+    kim.inTurn {
+      doTasks("PlayProject<Class<Soletta>>", "-27 MC")
+      doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
+    }
+    kim.inTurn {
+      doTasks("PlayProject<Class<AdvancedAlloys>>", "-9 MC", "AdvancedAlloys FROM ProjectCard")
+    }
   }
 
   @Test
   internal fun `Expires at the end of the generation`() {
     newTestGame()
 
-    kim.playProject(IndenturedWorkers, 0)
-    nextGeneration()
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<IndenturedWorkers>>",
+          "IndenturedWorkers FROM ProjectCard",
+      )
+      doTask("IndenturedWorkers_NextCardEffect")
+      doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
+    }
+    advanceUntilActionPhase()
     kim.setToExMachina(35, "MC")
 
-    kim.playProject(Soletta, 35).expect("-35 MC, PROD[7 Heat]")
+    kim.inTurn {
+      doTasks("PlayProject<Class<Soletta>>", "-35 MC")
+      doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
+    }
   }
 
   @Test
   internal fun `Intervening Prelude leaves the discount for the next project card`() {
-    newTestGame(addOptions = "PreludeExpansion, Prelude2CardPack")
-    startActionPhase()
+    newTestGame(addOptions = "PreludeExpansion, prelude2:cards")
+    advanceUntilActionPhase()
     kim.exMachina("$BoardOfDirectors, Director<$BoardOfDirectors>")
 
-    kim.playProject(IndenturedWorkers, 0)
-    kim.cardAction1(BoardOfDirectors) {
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<IndenturedWorkers>>",
+          "IndenturedWorkers FROM ProjectCard",
+      )
+      doTask("IndenturedWorkers_NextCardEffect")
+      doTask("PlayedEvent<Class<IndenturedWorkers>> FROM IndenturedWorkers")
+    }
+    kim.inTurn {
+      doTask("UseCardAction<BoardOfDirectors, Action1>")
+      doTask("PreludeCard<Kim, Hand>")
       doTask("-12 MC")
-      kim.playPrelude(Donation)
+      doTask("-Director<BoardOfDirectors>")
+      doTasks("PlayCard<Class<PreludeCard>, Class<Donation>>", "Donation FROM PreludeCard", "21 MC")
     }
 
-    kim.playProject(Soletta, 27).expect("-27 MC, PROD[7 Heat]")
+    kim.inTurn {
+      doTasks("PlayProject<Class<Soletta>>", "-27 MC")
+      doTasks("Soletta FROM ProjectCard", "PROD[7 Heat]")
+    }
   }
 }

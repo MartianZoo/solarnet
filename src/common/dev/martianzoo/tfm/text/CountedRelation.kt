@@ -1,0 +1,164 @@
+package dev.martianzoo.tfm.text
+
+import dev.martianzoo.pets.api.SystemClasses.OWNED
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.types.Dependency.Key
+
+/** One countable component related spatially to another component. */
+internal data class CountedRelation(
+    val source: Participant,
+    val target: Participant,
+    val phrase: String,
+) {
+  internal data class Participant(
+      val singular: String,
+      val plural: String,
+      val determiner: Determiner,
+      val ownership: ComponentDescriber.OwnershipPhrase,
+      val modifiers: List<Modifier> = emptyList(),
+  ) {
+    val ownedByYou: Boolean
+      get() = ownership == ComponentDescriber.OwnershipPhrase.YOURS
+
+    fun reference(): NounPhrase = nounPhrase(determiner = determiner)
+
+    fun referenceWithoutOwnership(determiner: Determiner): NounPhrase =
+        NounPhrase(singular, plural, determiner = determiner)
+
+    fun counted(count: Int?): NounPhrase = nounPhrase(count = count)
+
+    private fun nounPhrase(
+        count: Int? = null,
+        determiner: Determiner? = null,
+    ): NounPhrase {
+      var noun = NounPhrase(singular, plural, count = count, determiner = determiner)
+      if (ownership == ComponentDescriber.OwnershipPhrase.ANYONES) {
+        noun = noun.withModifier(Modifier.Phrase("anyone owns"))
+      }
+      return modifiers.fold(noun, NounPhrase::withModifier)
+    }
+  }
+
+  fun countedObject(count: Int?): NounPhrase =
+      target.counted(count).withModifier(Modifier.Relation(phrase, source.reference()))
+
+  fun asRequirement(): NounPhrase =
+      source.reference().withModifier(Modifier.Relation(phrase, target.reference()))
+}
+
+internal fun renderCountedRelation(
+    expression: Expression,
+    describers: Describers,
+): CountedRelation? {
+  if (expression.refinement != null) return null
+  val relation =
+      describers.fact(expression.className, ComponentDescriber::spatialRelation) ?: return null
+  if (!relation.countedPair) return null
+  val resolved = describers.resolveExpression(expression) ?: return null
+  val sourceExpression = resolved.sourceDependency(Key(ADJACENCY, 0)) ?: return null
+  val targetExpression = resolved.sourceDependency(Key(ADJACENCY, 1)) ?: return null
+  val source = renderParticipant(sourceExpression, describers) ?: return null
+  val target = renderParticipant(targetExpression, describers) ?: return null
+  return CountedRelation(source, target, relation.phrase)
+}
+
+internal fun renderCountedRelationToAntecedent(
+    expression: Expression,
+    describers: Describers,
+    references: TypeVariableReferences,
+): NounPhrase? {
+  if (expression.refinement != null) return null
+  val relation =
+      describers.fact(expression.className, ComponentDescriber::spatialRelation) ?: return null
+  val resolved = describers.resolveExpression(expression) ?: return null
+  val sourceKey = Key(expression.className, 0)
+  val targetKey = Key(expression.className, 1)
+  if (resolved.sourceDependencies.keys != setOf(sourceKey, targetKey)) return null
+  val source =
+      resolved.sourceDependency(sourceKey)?.let { renderParticipant(it, describers) } ?: return null
+  val target = resolved.sourceDependency(targetKey) ?: return null
+  if (target.refinement != null || references.variableUsedAt(target) == null) return null
+  val site = describers.placementSite(target.className) ?: return null
+  val targetNoun = describers.describedNoun(target.className, site.noun, 1)
+  return source
+      .counted(null)
+      .withModifier(
+          Modifier.Relation(
+              relation.phrase,
+              NounPhrase(targetNoun, determiner = Determiner.THAT),
+          )
+      )
+}
+
+private fun renderParticipant(
+    expression: Expression,
+    describers: Describers,
+): CountedRelation.Participant? {
+  val placement = describers.positionedFrame(expression.className) ?: return null
+  val resolved = describers.resolveExpression(expression) ?: return null
+  val ownerKey = Key(OWNED, 0)
+  val explicitlyUnrestricted = resolved.sourceDependency(ownerKey) == describers.anyoneExpression
+  val (determiner, ownership) =
+      when {
+        explicitlyUnrestricted ->
+            when (placement.anyoneOwnership ?: return null) {
+              ComponentDescriber.OwnershipPhrase.IMPLICIT ->
+                  placement.determiner to ComponentDescriber.OwnershipPhrase.IMPLICIT
+              ComponentDescriber.OwnershipPhrase.ANYONES ->
+                  Determiner.INDEFINITE to ComponentDescriber.OwnershipPhrase.ANYONES
+              ComponentDescriber.OwnershipPhrase.YOURS -> return null
+            }
+        resolved.sourceDependencies.isNotEmpty() -> return null
+        placement.determiner == Determiner.THIS ->
+            Determiner.THIS to ComponentDescriber.OwnershipPhrase.IMPLICIT
+        else ->
+            when (placement.unqualifiedOwnership) {
+              ComponentDescriber.OwnershipPhrase.YOURS ->
+                  Determiner.YOUR to ComponentDescriber.OwnershipPhrase.YOURS
+              ComponentDescriber.OwnershipPhrase.ANYONES ->
+                  Determiner.INDEFINITE to ComponentDescriber.OwnershipPhrase.ANYONES
+              ComponentDescriber.OwnershipPhrase.IMPLICIT,
+              null -> placement.determiner to ComponentDescriber.OwnershipPhrase.IMPLICIT
+            }
+      }
+  val placementNoun = placement.noun
+  val noun =
+      if (determiner == Determiner.THIS) placementNoun else placement.referenceNoun ?: placementNoun
+  val modifiers =
+      listOfNotNull(Modifier.Phrase("in play").takeIf { explicitlyUnrestricted }) +
+          expression.refinement
+              ?.let { refinement ->
+                val presence = refinement as? Expression.Refinement.Has ?: return null
+                val minimum = presence.requirement as? Requirement.Min ?: return null
+                val contained = (minimum.metric as? Metric.Count)?.expression ?: return null
+                if (
+                    minimum.minimum != 1 ||
+                        !contained.simple ||
+                        !describers.concrete(contained.className)
+                ) {
+                  return null
+                }
+                val containedNoun =
+                    describers.positionedFrame(contained.className)?.noun?.singular
+                        ?: describers.componentNoun(contained.className, 1)
+                listOf(
+                    Modifier.Relation(
+                        "with",
+                        NounPhrase(containedNoun, determiner = Determiner.INDEFINITE),
+                    )
+                )
+              }
+              .orEmpty()
+  return CountedRelation.Participant(
+      noun.singular,
+      noun.plural,
+      determiner,
+      ownership,
+      modifiers,
+  )
+}
+
+private val ADJACENCY = cn("Adjacency")

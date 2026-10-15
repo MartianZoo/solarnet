@@ -3,24 +3,24 @@ package dev.martianzoo.tfm.tools
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.api.SystemClasses.HIDDEN
-import dev.martianzoo.pets.api.SystemClasses.SYSTEM
+import dev.martianzoo.pets.api.SystemClasses.REAL
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.EventLog
 import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.GameFileJson
 import dev.martianzoo.state.GameReader
-import dev.martianzoo.state.GameRecordingJson
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmEngine
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.fake.FakeCanon
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlinx.coroutines.runBlocking
 
 private val gameOptions: Set<ClassName> =
     linkedSetOf(
@@ -29,26 +29,26 @@ private val gameOptions: Set<ClassName> =
         cn("CorporateEraExpansion"),
         cn("VenusNextExpansion"),
         cn("PreludeExpansion"),
-        cn("Prelude2CardPack"),
         cn("ColoniesExpansion"),
         cn("TurmoilExpansion"),
-        cn("PromoCardPack"),
-        cn("FakeCardsCardPack"),
     )
 
 private fun createGame(playerCount: Int): World {
   val colonyCount = if (playerCount == 1) 4 else if (playerCount == 2) 5 else playerCount + 2
   val colonies = Canon.colonyTileClassNames.sorted().take(colonyCount)
   val premise =
-      Canon.gamePremise(
-          GameConfig.create(
-              included = gameOptions + colonies,
-              playerNames = (1..playerCount).map { cn("Player$it") },
+      TfmCatalog(Canon, FakeCanon)
+          .gamePremise(
+              GameConfig.create(
+                  included = gameOptions + colonies,
+                  includedCardBundles =
+                      listOf("promos", "prelude2") + FakeCanon.bundles.map { it.bundleName },
+                  playerNames = (1..playerCount).map { cn("Player$it") },
+              )
           )
-      )
   return TfmEngine.newGame(premise).also { game ->
     val agents = Agents(game)
-    TfmWorkflow.Stepwise(agents).setupPhase()
+    agents.tfm(ADMIN).startGame()
     val players = game.actors.filterIsInstance<Player>()
     if (playerCount == 1) {
       agents.tfm(players.first()).doTask("-SelectedColonyTile<Class<${colonies.first()}>>")
@@ -56,24 +56,15 @@ private fun createGame(playerCount: Int): World {
     players.forEachIndexed { index, player ->
       agents.tfm(player).keepStartingProjects(if (index == 0) 4 else 0)
     }
-    TfmWorkflow.Stepwise(agents).corporationPhase()
     agents.tfm(players.first()).playCorp(cn("InterplanetaryCinematics"))
   }
 }
 
-private fun specialSupertypes(reader: GameReader, event: ChangeEvent): String {
-  val hidden = reader.classTable.getClass(HIDDEN)
-  val system = reader.classTable.getClass(SYSTEM)
-  return listOfNotNull(event.change.gaining, event.change.removing)
-      .flatMap { component ->
-        buildList {
-          val changedClass = component.type.rootClass
-          if (changedClass.isSubtypeOf(system)) add("System")
-          if (changedClass.isSubtypeOf(hidden)) add("Hidden")
-        }
-      }
-      .distinct()
-      .joinToString(",")
+private fun isReal(reader: GameReader, event: ChangeEvent): Boolean {
+  val real = reader.classTable.getClass(REAL)
+  return listOfNotNull(event.change.gaining, event.change.removing).any {
+    it.type.rootClass.isSubtypeOf(real)
+  }
 }
 
 private fun tsv(value: Any?): String = value?.toString().orEmpty()
@@ -87,7 +78,7 @@ private fun toTsv(reader: GameReader, event: ChangeEvent): String =
             tsv(event.change.removing),
             tsv(event.cause?.context),
             event.cause?.triggerEvent ?: "",
-            specialSupertypes(reader, event),
+            isReal(reader, event),
         )
         .joinToString("\t")
 
@@ -96,7 +87,7 @@ private fun dump(reader: GameReader, events: EventLog, output: Path) {
   Files.createDirectories(output.parent)
   Files.newBufferedWriter(output).use { writer ->
     writer.appendLine(
-        "ordinal\tactor\tcount\tgaining\tremoving\tcause_context\tcause_trigger\tspecial_supertypes"
+        "ordinal\tactor\tcount\tgaining\tremoving\tcause_context\tcause_trigger\tReal?"
     )
     changes.forEach { writer.appendLine(toTsv(reader, it)) }
   }
@@ -107,16 +98,18 @@ public fun main(args: Array<String>) {
   when {
     args.size == 2 && args[0].endsWith(".json") -> {
       val text = Files.readString(Path.of(args[0]))
-      val document = GameRecordingJson.parse(text)
+      val document = GameFileJson.parse(text)
       val config = document.config
       val catalog =
-          if (cn("FakeStuffBundle") in config.includedClassNames) {
+          if (
+              FakeCanon.bundles.any { it.bundleName in config.includedCardBundles } ||
+                  config.includedClassNames.any { it in FakeCanon.allClassNames }
+          ) {
             TfmCatalog(Canon, FakeCanon)
           } else {
             Canon
           }
-      val premise = catalog.gamePremise(config)
-      val world = document.decode(premise).open().world
+      val world = runBlocking { document.open(catalog).world }
       dump(world.reader, world.events, Path.of(args[1]))
     }
     args.size == 2 -> {
@@ -125,7 +118,7 @@ public fun main(args: Array<String>) {
     }
     else ->
         error(
-            "Usage: dumpEventlog <recording.json> <game.tsv> OR " +
+            "Usage: dumpEventlog <game.json> <game.tsv> OR " +
                 "dumpEventlog <three-player.tsv> <solo.tsv>"
         )
   }

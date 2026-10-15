@@ -12,6 +12,15 @@ internal class NitrogenRichAsteroidTest : TfmSandboxTest() {
   internal fun `Can choose the lesser production despite three plant tags`() {
     kim.exMachina("$AdaptedLichen, $Lichen, $ArcticAlgae")
 
-    kim.playProject(NitrogenRichAsteroid, 31) { doTask("PROD[Plant]") }.expect("PROD[Plant]")
+    kim.inTurn {
+      doTasks("PlayProject<Class<NitrogenRichAsteroid>>", "-31 MC")
+      doTasks(
+          "NitrogenRichAsteroid FROM ProjectCard",
+          "2 TerraformRating",
+      )
+      doTask("TemperatureStep")
+      doTasks("TerraformRating", "PROD[Plant]")
+      doTask("PlayedEvent<Class<NitrogenRichAsteroid>> FROM NitrogenRichAsteroid")
+    }
   }
 }

@@ -104,19 +104,23 @@ internal class Lang01ExpressionsTest {
   // L1-5 This
 
   @Test
-  internal fun `L1-5 This is an expression and may take arguments`() {
+  internal fun `L1-5 This is a bare expression`() {
     parse<Expression>("This").className shouldBe cn("This")
-    parse<Expression>("This<Player1>").toString() shouldBe "This<Player1>"
     parse<Expression>("Marker<This>").arguments shouldContainExactly listOf(parse("This"))
   }
 
   @Test
-  internal fun `L1-5 an empty argument list on This accepts nothing`() {
+  internal fun `L1-5 This cannot be decorated`() {
+    listOf("This<Player1>", "This<>", "This(HAS Marker)", "@This").forEach { source ->
+      shouldThrow<PetSyntaxException> { parse<Expression>(source) }
+    }
+  }
+
+  @Test
+  internal fun `L1-5 This keeps the complete context type`() {
     val bound = Transforming.replaceThisExpressionsWith(parse("Ants<Player1>"))
 
-    bound.transformExpression(parse("This<>")) shouldBe parse<Expression>("Ants<Player1>")
     bound.transformExpression(parse("This")) shouldBe parse<Expression>("Ants<Player1>")
-    bound.transformExpression(parse("This<Steel>")) shouldBe parse<Expression>("Ants<Steel>")
   }
 
   // L1-6 Anyone

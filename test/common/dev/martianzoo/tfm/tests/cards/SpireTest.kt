@@ -9,54 +9,110 @@ import kotlin.test.Test
 internal class SpireTest : TfmSandboxTest() {
   @Test
   internal fun `Counts event tags toward its two-tag threshold`() {
-    newTestGame(kimCorporation = Spire)
-    kim.stdAction("RequiredActionsSignal").expect("ProjectCard")
+    newTestGame(addOptions = "Spire", kimCorporation = Spire)
+    kim.inTurn {
+          doTask("RequiredActionsSignal")
+          doTask("4 ProjectCard")
+          doTask("-3 ProjectCard<Kim, Hand>")
+        }
+        .expect("ProjectCard")
 
-    kim.playProject(BusinessContacts, 7).expect("Science<$Spire>")
-    kim.playProject(MineralDeposit, 5).expect("0 Science<$Spire>")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<BusinessContacts>>",
+              "-7 MC",
+              "BusinessContacts FROM ProjectCard",
+          )
+          doTask("4 ProjectCard<Kim, Selecting>")
+          doTask("2 ProjectCard<Kim, Hand FROM Selecting>")
+          doTask("Science<Spire>")
+          doTask("PlayedEvent<Class<BusinessContacts>> FROM BusinessContacts")
+        }
+        .expect("Science<$Spire>")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<MineralDeposit>>",
+              "-5 MC",
+              "MineralDeposit FROM ProjectCard",
+              "5 Steel",
+          )
+          doTask("PlayedEvent<Class<MineralDeposit>> FROM MineralDeposit")
+        }
+        .expect("0 Science<$Spire>")
   }
 
   @Test
   internal fun `Repeated science tags earn a single resource`() {
-    newTestGame(kimCorporation = Spire)
-    kim.stdAction("RequiredActionsSignal").expect("ProjectCard")
+    newTestGame(addOptions = "Spire", kimCorporation = Spire)
+    kim.inTurn {
+          doTask("RequiredActionsSignal")
+          doTask("4 ProjectCard")
+          doTask("-3 ProjectCard<Kim, Hand>")
+        }
+        .expect("ProjectCard")
 
-    kim.playProject(Research, 11).expect("Science<$Spire>")
+    kim.inTurn {
+          doTasks("PlayProject<Class<Research>>", "-11 MC", "Research FROM ProjectCard")
+          doTask("2 ProjectCard<Kim, Hand>")
+          doTask("Science<Spire>")
+        }
+        .expect("Science<$Spire>")
   }
 
   @Test
   internal fun `Science pays two MC toward a standard project`() {
-    newTestGame(kimCorporation = Spire)
-    kim.stdAction("RequiredActionsSignal").expect("ProjectCard")
+    newTestGame(addOptions = "Spire", kimCorporation = Spire)
+    kim.inTurn {
+          doTask("RequiredActionsSignal")
+          doTask("4 ProjectCard")
+          doTask("-3 ProjectCard<Kim, Hand>")
+        }
+        .expect("ProjectCard")
 
-    kim.stdProject(
-            "PowerPlantProject",
-            payment = {
-              doTask("-Science<$Spire>")
-              doTask("-MC / Owed")
-            },
-        )
-        .expect("-Science<$Spire>, -9 MC, PROD[Energy]")
+    kim.inTurn {
+      doTasks(
+          "UseStandardProject<PowerPlantProject>",
+          "-Science<Spire>",
+          "-9 MC",
+          "PROD[Energy]",
+      )
+    }
   }
 
   @Test
   internal fun `Science cannot pay for project cards`() {
-    newTestGame(kimCorporation = Spire)
-    kim.stdAction("RequiredActionsSignal").expect("ProjectCard")
+    newTestGame(addOptions = "Spire", kimCorporation = Spire)
+    kim.inTurn {
+          doTask("RequiredActionsSignal")
+          doTask("4 ProjectCard")
+          doTask("-3 ProjectCard<Kim, Hand>")
+        }
+        .expect("ProjectCard")
 
     shouldThrow<TaskException> {
-      kim.playProject(Mine, payment = { doTask("-Science<$Spire>") })
+      kim.inTurn {
+        doTasks("PlayProject<Class<Mine>>", "-Science<Spire>")
+      }
     }
   }
 
   @Test
   internal fun `Selling patents does not offer science for the following project payment`() {
-    newTestGame(kimCorporation = Spire)
-    kim.stdAction("RequiredActionsSignal").expect("ProjectCard")
-    kim.sellPatents(1).expect("MC, -ProjectCard")
+    newTestGame(addOptions = "Spire", kimCorporation = Spire)
+    kim.inTurn {
+          doTask("RequiredActionsSignal")
+          doTask("4 ProjectCard")
+          doTask("-3 ProjectCard<Kim, Hand>")
+        }
+        .expect("ProjectCard")
+    kim.inTurn {
+      doTasks("UseStandardProject<SellPatentsProject>", "1! MC FROM ProjectCard")
+    }
 
     shouldThrow<TaskException> {
-      kim.playProject(Mine, payment = { doTask("-Science<$Spire>") })
+      kim.inTurn {
+        doTasks("PlayProject<Class<Mine>>", "-Science<Spire>")
+      }
     }
   }
 }

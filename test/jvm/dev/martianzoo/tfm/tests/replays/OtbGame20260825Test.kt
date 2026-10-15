@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -16,8 +15,8 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       GameConfig(
           """
           CimmeriaMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack, TerraLabsResearch
-          FakeStuffBundle
+          VenusNextExpansion, PreludeExpansion, prelude2:cards, promos:cards, TerraLabsResearch
+          fakes:cards
 
           Energizer, Farmer, Philantropist, Producer, RimSettler, Hoverlord
           Magnate, Manufacturer, Metropolist, SpaceBaron, Suburbian, Venuphile
@@ -28,7 +27,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
 
   @Test
   internal fun otbGame20260825() {
-    TfmWorkflow.Automatic(agents).launch()
+    admin.startGame()
     val green = player(1)
     val yellow = player(2)
     keepStartingProjects(10, 5)
@@ -49,7 +48,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "I had to experience what it might be like to have Terra Labs and have money at the same
       // time." Head Start gains two steel and 22 M€ for the eleven project cards in hand.
       playPrelude(FakeHeadStart) {
-        // The first immediate action reuses Focused Organization: discard Red Ships and 1 M€,
+        // Head Start grants an action to reuse Focused Organization: discard Red Ships and 1 M€,
         // then draw a card and take titanium.
         cardAction1(FocusedOrganization) {
           doTask("-MC")
@@ -133,7 +132,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 2, temp = -30, oxygen = 1, oceans = 3, venus = 0)
 
-    // 9:47:18 pm: Green's direct TerraLabs buttons record four one-M€ purchases; Yellow's app
+    // 9:47:18 pm: Green's TerraLabs purchase buttons record four one-M€ purchases; Yellow's app
     // records two ordinary purchases for six M€.
     yellow.buyCards(2)
     green.buyCards(4)
@@ -558,7 +557,9 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // Neither surveyed card had a Venus tag, so Green bought both for 1 M€ apiece through
       // TerraLabs.
       cardAction1(VenusOrbitalSurvey) {
-            doTask("Ok") // Neither offered card has a Venus tag.
+            doTask(
+                "0 TakeSelectedCard<TagFilter<Class<VenusTag>>>"
+            ) // Neither offered card has a Venus tag.
             buyCards(2)
           }
           .expect("2 ProjectCard, -2 MC")
@@ -672,7 +673,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // Fish and Ice Cap Melting have no Venus tag. Green buys Fish for 1 M€ and discards the
       // other.
       cardAction1(VenusOrbitalSurvey) {
-        doTask("Ok")
+        doTask("0 TakeSelectedCard<TagFilter<Class<VenusTag>>>")
         green.buyCards(1)
       }
     }
@@ -841,7 +842,9 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "I will use Venus Orbital Survey to reveal Research Outpost and OmniCorp [sic] and pay two
       // money for them."
       cardAction1(VenusOrbitalSurvey) {
-            doTask("Ok") // Neither offered card has a Venus tag.
+            doTask(
+                "0 TakeSelectedCard<TagFilter<Class<VenusTag>>>"
+            ) // Neither offered card has a Venus tag.
             buyCards(2)
           }
           .expect("2 ProjectCard, -2 MC")
@@ -962,7 +965,9 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "I will Venus Orbital Survey. I will look at these two cards, which are Comet and Rad
       // Suits. And then I might as well buy them."
       cardAction1(VenusOrbitalSurvey) {
-            doTask("Ok") // Neither offered card has a Venus tag.
+            doTask(
+                "0 TakeSelectedCard<TagFilter<Class<VenusTag>>>"
+            ) // Neither offered card has a Venus tag.
             buyCards(2)
           }
           .expect("2 ProjectCard, -2 MC")
@@ -980,7 +985,10 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     yellow.turn {
       // "May as well use Asteroid Deflection System ... use it tonight. You flip. Greenhouses,
       // which is not a space tag."
-      cardAction1(AsteroidDeflectionSystem) { doTask("Ok") }.expect("0 TerraformRating")
+      cardAction1(AsteroidDeflectionSystem) {
+            doTask("0 ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>")
+          }
+          .expect("0 TerraformRating")
     }
     green.turn {
       // "Damn, now I wish I'd played it at the ... going to go ahead and use Aqueduct Systems for
@@ -1104,7 +1112,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "Then you're going to lose three plants as well." "Asteroid Deflection System. You're not
       // going to lose three plants as well. Hee hee hee." "I'll do it anyway. It costs 19 and I
       // use 18 worth of titanium." The last ocean is already placed.
-      playProject(Comet, 1, titanium = 6) { doTask("Ok") }
+      playProject(Comet, 1, titanium = 6) { doTask("-0 Plant<Anyone>") }
           .expect("TemperatureStep, TerraformRating, 2 MC")
     }
     yellow.turn {
@@ -1119,7 +1127,9 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "Let's use the stupid Venus Orbital Survey to reveal Comet for Venus, which is not a Venus
       // card, and Jovian Embassy. I'll buy them both."
       cardAction1(VenusOrbitalSurvey) {
-            doTask("Ok") // Neither offered card has a Venus tag.
+            doTask(
+                "0 TakeSelectedCard<TagFilter<Class<VenusTag>>>"
+            ) // Neither offered card has a Venus tag.
             buyCards(2)
           }
           .expect("2 ProjectCard, -2 MC")
@@ -1147,7 +1157,9 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     }
     yellow.turn {
       // "Asteroid Deflection System. Reveal a card. No space tag. It is Venus Governor."
-      cardAction1(AsteroidDeflectionSystem) { doTask("Ok") }
+      cardAction1(AsteroidDeflectionSystem) {
+        doTask("0 ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>")
+      }
     }
     green.turn {
       // "I will use Extreme Cold Fungus to put two microbes on Sulphur-Eating Bacteria."
@@ -1294,7 +1306,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // to the next one." The final photograph identifies the adjacent space.
       convertPlants { placeTile(7, 7) }
       // Green says "now I'll sell two more cards" while working out whether another greenery is
-      // possible, but does not complete that sale: the app goes directly from 8 M€ to the
+      // possible, but does not complete that sale: the app goes from 8 M€ to the
       // House Printing payment, and the sourced card ledger leaves only the later two-card sale.
       // "I cannot quite make it. So I'm just going to do stupid House Printing for stupid all of
       // my money, and technically I get a steel production from that."

@@ -4,19 +4,19 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.util.toSetStrict
 
+// TODO: Replace this temporary tfm-canon seam with the generic Catalog contract.
 /**
  * Pets runtime declarations that are available to every Catalog, as required by
  * [rule L11-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations):
  * the universal `Audit` signal plus the classes this language and the type system depend on,
  * including `Component` and `Class`, the identity root `Anyone`, ownership vocabulary `Owner` and
  * `Owned`, the actor root `Actor`, the identity signal `Ok`, the impossible type `Die`, and
- * `Atomized` and `CustomMetric` and `CustomInstruction`. A catalog's own source is loaded alongside
- * them.
+ * `Atomized`, `CustomMetric`, `CustomInstruction`, and `Real`. A catalog's own source is loaded
+ * alongside them.
  *
  * `GamePremise.classTable` always roots `Audit`; it decides which of the remaining declarations a
  * particular game contains.
  */
-// TODO: Replace this temporary tfm-canon seam with the generic Catalog contract.
 public val systemClassDeclarations: Set<ClassDeclaration> by lazy {
   parseClasses(systemDeclarationsSource).toSetStrict()
 }
@@ -38,10 +38,10 @@ private val systemDeclarationsSource =
     "Extend this to have plural instructions automatically split into individual instructions"
     ABSTRACT CLASS Atomized
 
-    "Implementation detail normally omitted from user-facing output"
-    ABSTRACT CLASS Hidden
+    "Really it means tangible: something a human player 'cares about' directly."
+    ABSTRACT CLASS Real
 
-    "Admin bookkeeping; fixed gains and concrete removals normally execute as Admin"
+    "Admin bookkeeping; fully specified gains and removals normally execute as Admin"
     ABSTRACT CLASS System {
       This BY Actor(NOT Admin): Die
     }
@@ -49,22 +49,14 @@ private val systemDeclarationsSource =
     "Mandatory unfinished state that a completed operation may not leave behind"
     ABSTRACT CLASS MustCleanUp
 
-    "Removed only at a whole-World empty task pool, once no dependent Temporary or MustCleanUp remains"
-    ABSTRACT CLASS Temporary
-
     "A lifetime anchor for components that depend on it"
     ABSTRACT CLASS Scope
-
-    "A child Scope combining whole-World idle removal with mandatory completion"
-    ABSTRACT CLASS TemporaryScope<Scope> : Scope, Temporary, MustCleanUp {
-      HAS MAX 1 This
-    }
 
     "Mandatory unfinished state removed by its owning game rule; `MAX 0 Barrier:` is a common gate"
     ABSTRACT CLASS Barrier : MustCleanUp
 
     "An unscoped point event; `IF This` skips self-removal when no instance entered live state"
-    ABSTRACT CLASS Signal : MustCleanUp, Hidden {
+    ABSTRACT CLASS Signal : MustCleanUp {
       This IF This:: -This!
     }
 

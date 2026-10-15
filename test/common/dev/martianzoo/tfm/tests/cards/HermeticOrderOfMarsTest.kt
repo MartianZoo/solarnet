@@ -15,6 +15,15 @@ internal class HermeticOrderOfMarsTest : TfmSandboxTest() {
         "OceanTile<Tharsis_1_2>, Community<Tharsis_2_1>, " + "NormalCityTile<Stan, Tharsis_2_2>"
     )
 
-    kim.playProject(HermeticOrderOfMars, 10).expect("PROD[2 MC], -9 MC")
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<HermeticOrderOfMars>>",
+              "-10 MC",
+              "HermeticOrderOfMars FROM ProjectCard",
+              "PROD[2 MC]",
+          )
+          doTask("MC")
+        }
+        .expect("-9 MC")
   }
 }

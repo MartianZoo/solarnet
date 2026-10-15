@@ -1,47 +1,56 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.tfm.tests.TfmGameplayTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 internal class PristarTest : TfmGameplayTest() {
+  @BeforeTest
+  fun initializeGame() {
+    newTestGame(addOptions = "Pristar", playerCount = 2, kimCorporation = Pristar)
+  }
+
   @Test
   internal fun `Pays its production bonus when TR did not increase`() {
-    newTestGame(playerCount = 2, kimCorporation = Pristar)
-    kim.pass()
-    val money = kim.count("MC")
-    val income = kim.count("TerraformRating") + kim.production(cn("MC")) + 6
-
-    stan.pass()
-
-    admin.count("VenusSolarPhase") shouldBe 1
-    kim.count("Preservation<$Pristar>") shouldBe 1
-    kim.count("MC") shouldBe money + income
+    kim.doTask("Pass")
+    expectChanges("25 MC<Kim>, Preservation<Pristar<Kim>>") {
+      stan.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+    }
+    admin.count("SolarPhase") shouldBe 1
   }
 
   @Test
   internal fun `An opponent's TR increase does not suppress the production bonus`() {
-    newTestGame(playerCount = 2, kimCorporation = Pristar)
-    kim.pass()
-    stan.stdProject("AsteroidProject")
+    kim.doTask("Pass")
+    stan.completeOperation {
+      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      autoExecNow(EAGER)
+    }
 
-    stan.pass()
+    stan.doTask("Pass")
+    players.forEach { it.autoExecNow(EAGER) }
 
-    admin.count("VenusSolarPhase") shouldBe 1
+    admin.count("SolarPhase") shouldBe 1
     kim.count("Preservation<$Pristar>") shouldBe 1
   }
 
   @Test
   internal fun `Does not pay its production bonus after a TR increase`() {
-    newTestGame(playerCount = 2, kimCorporation = Pristar)
-    kim.turn { stdProject("AsteroidProject") }
-    stan.pass()
+    kim.completeOperation {
+      doTasks("UseStandardProject<AsteroidProject>", "-14 MC")
+      autoExecNow(EAGER)
+    }
+    kim.doTask("0 StandardAction") // Decline the second action.
+    stan.doTask("Pass")
 
-    kim.pass()
+    kim.doTask("Pass")
+    players.forEach { it.autoExecNow(EAGER) }
 
-    admin.count("VenusSolarPhase") shouldBe 1
+    admin.count("SolarPhase") shouldBe 1
     kim.count("Preservation<$Pristar>") shouldBe 0
   }
 }
