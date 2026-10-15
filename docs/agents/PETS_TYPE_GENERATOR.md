@@ -19,6 +19,12 @@ tracks the test runtime classpath, including Canon and the generator, so changes
 the output. This verification also runs through the normal repository `test`, `check`, and `build`
 tasks. It checks JVM compilation, not execution of the generated classes or JavaScript compilation.
 
+The generated compilation check disables Kotlin incremental compilation for this source set only.
+Earlier merge builds reported duplicate helper functions from a file containing a single copy;
+cleaning `codegen` restored compilation. The precise trigger has not been reproduced. This scoped
+workaround compiles the complete generated file when its inputs change, while retaining Gradle's
+up-to-date checks and build cache. Other Kotlin compilation tasks keep their incremental behavior.
+
 The generator writes the supplied vocabulary to one Kotlin file. Abstract Pets classes become
 interfaces and concrete classes become final classes. Generated components retain their Pets
 `Expression`, expose authored effects and resolved class properties, and use typed root

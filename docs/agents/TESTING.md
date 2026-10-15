@@ -76,6 +76,8 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   Files go under that module's `generated/replay-event-logs` build directory. Ordinary runs
   leave existing exports untouched. Direct JUnit runs need `-Dsolarnet.replayExports=true` and
   `-Djunit.jupiter.extensions.autodetection.enabled=true`.
+  See [When to regenerate replay exports](EXPORT.md#when-to-regenerate-replay-exports) before
+  reusing or distributing generated recordings after rules, runtime, or replay changes.
 - `./gradlew :tfm-tests:replayTestCoverage` runs only tests in the replay package and writes HTML and
   XML production-code coverage reports under that module's `reports/jacoco/replayTestCoverage`
   build directory. Its execution data comes from the separate `replayTest` task, so card, rule,

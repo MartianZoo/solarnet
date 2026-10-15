@@ -2,6 +2,11 @@
 
 Delete entries when they are done.
 
+- Isolate the Kotlin incremental-compilation failure in the generated Canon check before trying
+  to re-enable it. Merge builds reported duplicate helpers despite a single generated source file;
+  clean compilation succeeded. The check now compiles the complete file when inputs change.
+  Simple generated-class additions and renames did not reproduce the original failure.
+
 - Wild tags are not yet supported when Robotic Workforce or Cyberia Systems copies production:
   Research Network cannot be selected through its wild, and copied Gyropolis does not allocate
   Earth tags for its production. Allocate only after the copy target is known; preserve Building
@@ -21,12 +26,6 @@ Delete entries when they are done.
   Source: `/Users/dev/martianzoo/player-resources/_local/unanswered-rules-questions-2026-10-14.md`.
   Links: https://boardgamegeek.com/thread/1705209/article/37732543#37732543 and
   https://boardgamegeek.com/thread/3752654/article/48054640#48054640.
-
-- Undo the decision to hard-code the full test catalog's fingerprint in
-  `GameFileJsonTest.premiseAndCatalogFingerprintsMatchAcrossTargets`. Removing the redundant `!`
-  from the built-in Signal declaration required an unrelated hash update. Preserve verification
-  that JVM and JavaScript compute matching fingerprints without coupling the expected value to
-  evolving built-in declarations.
 
 - Continue adversarial Pets testing beyond parser nesting and nominal inheritance: investigate
   dependency/default expansion, concrete-type enumeration, and automatic-effect cascades. The

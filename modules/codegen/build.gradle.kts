@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
   id("solarnet.jvm")
 }
@@ -42,5 +44,11 @@ val generatedCanon by sourceSets.creating {
 configurations[generatedCanon.implementationConfigurationName].extendsFrom(
     configurations.implementation.get()
 )
+
+tasks.named<KotlinCompile>(generatedCanon.getCompileTaskName("kotlin")) {
+  // This check replaces a single generated file. Incremental compilation has reported duplicate
+  // helper functions after merges; compile the complete file when its inputs change instead.
+  incremental = false
+}
 
 tasks.named("test") { dependsOn(generatedCanon.classesTaskName) }
