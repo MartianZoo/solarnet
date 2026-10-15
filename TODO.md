@@ -2,6 +2,9 @@
 
 Delete entries when they are done.
 
+- Let card delegate placements choose the lobby delegate even while reserve delegates remain.
+  `CulturalMetropolisTest` covers taking both from reserve and the missing reserve-plus-lobby
+  choice. Currently `LobbyActionAvailable` is consumed only when all seven delegates are placed.
 - Simplify Flooding and Artificial Lake's ocean instructions, preserving full-track behavior,
   mandatory placement, and Flooding's victim choice.
 - Derive `TfmActionLowerer`'s standard-resource cost classification from Pets declarations
