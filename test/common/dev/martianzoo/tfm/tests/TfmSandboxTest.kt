@@ -240,7 +240,12 @@ internal abstract class TfmSandboxTest {
       }
     }
     if (admin.count("RevealComingEvent") > 0) {
-      admin.doTasks("DemocraticReform", "MinimalImpactPolicy")
+      admin.doTasks(
+          "DemocraticReform",
+          "PartyLeader<MarsFirst, Neutral>",
+          "MinimalImpactPolicy",
+          "PartyLeader<Reds, Neutral>",
+      )
     }
     if (players.size == 1) {
       val placements =

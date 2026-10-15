@@ -110,7 +110,12 @@ internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy
     players.forEach { it.autoExecNow(EAGER) }
     if (kimCorporation != null || !playCorporations) kim.doTask("-5 ProjectCard<Selecting>")
     if (admin.count("RevealComingEvent") > 0) {
-      admin.doTasks("DemocraticReform", "MinimalImpactPolicy")
+      admin.doTasks(
+          "DemocraticReform",
+          "PartyLeader<MarsFirst, Neutral>",
+          "MinimalImpactPolicy",
+          "PartyLeader<Reds, Neutral>",
+      )
     }
     if (players.size == 1) {
       val placements =

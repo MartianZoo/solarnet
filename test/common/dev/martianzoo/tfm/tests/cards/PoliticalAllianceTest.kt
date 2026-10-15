@@ -32,7 +32,7 @@ internal class PoliticalAllianceTest : TfmSandboxTest() {
   @Test
   internal fun `Cannot substitute the chairmanship for a second party leader`() {
     newTestGame(addOptions = "TurmoilExpansion")
-    kim.exMachina("-Chairman<Neutral>, Chairman, PartyDelegate<Scientists>")
+    kim.exMachina("-Chairman<Neutral>, Chairman, PartyLeader<Scientists>")
 
     shouldThrow<RequirementException> {
       kim.inTurn {
@@ -44,7 +44,7 @@ internal class PoliticalAllianceTest : TfmSandboxTest() {
   @Test
   internal fun `Can be played with two party leaders and no chairmanship`() {
     newTestGame(addOptions = "TurmoilExpansion")
-    kim.exMachina("PartyDelegate<Scientists>, PartyDelegate<Unity>")
+    kim.exMachina("PartyLeader<Scientists>, PartyLeader<Unity>")
 
     kim.inTurn {
       doTasks(

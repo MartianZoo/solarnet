@@ -26,7 +26,9 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
 
   override fun resolveExpansionSetupTasks() {
     admin.doTask("DemocraticReform")
+    admin.doTask("PartyLeader<MarsFirst, Neutral>")
     admin.doTask("MinimalImpactPolicy")
+    admin.doTask("PartyLeader<Reds, Neutral>")
   }
 
   @Test
@@ -62,7 +64,9 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
     }
 
     me.pass()
+    admin.doTask("PartyLeader<Greens, Neutral>")
     admin.doTask("FreeAcademiaTreaty")
+    admin.doTask("PartyLeader<Scientists, Neutral>")
     me.buyCards(3)
 
     me.turn {
@@ -72,14 +76,18 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
     }
     me.pass()
     me.doTask("OceanTile<Hellas_1_1> BY Admin")
+    admin.doTask("PartyLeader<Unity, Neutral>")
     admin.doTask("PateraBoring")
+    admin.doTask("PartyFollower<Scientists, Neutral>")
     me.buyCards(3)
 
     me.turn {
       playProject(AcquiredCompany, 7)
     }
     me.pass()
+    admin.doTask("PartyLeader<Scientists, Neutral>")
     admin.doTask("ScienceSummit")
+    admin.doTask("PartyFollower<Scientists, Neutral>")
     me.buyCards(4)
 
     me.turn {
@@ -87,14 +95,18 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       playProject(MediaArchives, 5)
     }
     me.pass()
+    admin.doTask("PartyLeader<Kelvinists, Neutral>")
     admin.doTask("TerraformingLobbying")
+    admin.doTask("PartyFollower<Kelvinists, Neutral>")
     me.buyCards(4)
 
     me.turn {
       playProject(HomeostasisBureau, 16)
     }
     me.pass()
+    admin.doTask("PartyFollower<Greens, Neutral>")
     admin.doTask("CharismaticWgPresident")
+    admin.doTask("PartyFollower<Unity, Neutral>")
     me.buyCards(4)
 
     me.turn {
@@ -104,7 +116,9 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       playProject(LavaFlows, 18) { doTask("LavaFlows_SpecialTile<Hellas_2_2>") }
     }
     me.pass()
+    admin.doTask("PartyFollower<Unity, Neutral>")
     admin.doTask("SolarnetGlobalEvent")
+    admin.doTask("PartyFollower<Unity, Neutral>")
     me.buyCards(3)
 
     me.turn {
@@ -121,7 +135,9 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       }
     }
     me.pass()
+    admin.doTask("PartyLeader<Unity, Neutral>")
     admin.doTask("BioengineeringBoom")
+    admin.doTask("PartyLeader<Greens, Neutral>")
     me.buyCards(4)
 
     me.turn {
@@ -144,12 +160,14 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       }
     }
     me.pass()
+    admin.doTask("PartyFollower<Greens, Neutral>")
     admin.doTask("SelfSufficiencyProgram")
+    admin.doTask("PartyFollower<Greens, Neutral>")
     me.buyCards(4)
 
     me.turn {
-      stdAction("LobbyAction<Action1>") { doTask("PartyDelegate<Greens>") }
-      stdAction("LobbyAction<Action2>") { doTask("PartyDelegate<Greens>") }
+      stdAction("LobbyAction") { doTask("PartyFollower<Greens> FROM LobbyDelegate") }
+      stdAction("PaidLobbyAction") { doTask("PartyFollower<Greens>") }
       playProject(ProtectedValley, 11, steel = 6) { placeTile(2, 1) }
       playProject(Plantation, 15) { placeTile(1, 4) }
       playProject(Algae, 10)
@@ -168,7 +186,9 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       convertPlants { placeTile(1, 5) }
     }
     me.pass()
+    admin.doTask("PartyLeader<Scientists, Neutral>")
     admin.doTask("RedResistance")
+    admin.doTask("PartyLeader<Reds, Neutral>")
     me.buyCards(4)
 
     me.turn {

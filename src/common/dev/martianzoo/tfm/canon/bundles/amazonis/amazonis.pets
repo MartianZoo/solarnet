@@ -41,7 +41,7 @@ CLASS Sponsor : Milestone {
 }
 CLASS Lobbyist : Milestone {
   HAS MAX 1 Lobbyist
-  requirement = HAS "7 Delegate"
+  requirement = HAS "7 Delegate(NOT LobbyDelegate)"
 }
 
 CLASS Collector : Award { metric = COUNT "Class<@Resource>(HAS @Resource)" }
@@ -147,7 +147,7 @@ CLASS Amazonis_08_05 :     LandArea { row = 8; column = 5; Placement<This>: Plan
 CLASS Amazonis_08_06 :     LandArea { row = 8; column = 6; Placement<This>: Energy }
 CLASS Amazonis_08_07 :     LandArea { row = 8; column = 7; Placement<This>: 2 Energy }
 CLASS Amazonis_08_08 :     LandArea { row = 8; column = 8; Placement<This>: Plant }
-CLASS Amazonis_08_09 : VolcanicArea { row = 8; column = 9; Placement<This> IF Class<PartyDelegate>: 2 PartyDelegate }
+CLASS Amazonis_08_09 : VolcanicArea { row = 8; column = 9; Placement<This> IF Class<PartyDelegate>: PartyDelegate<@Party> THEN PartyDelegate<@Party> }
 CLASS Amazonis_08_10 :     LandArea { row = 8; column = 10; Placement<This>: Steel }
 CLASS Amazonis_08_11 :     LandArea { row = 8; column = 11 }
 

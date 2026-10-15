@@ -76,7 +76,7 @@ Hoverlord	Hoverlord	Requires 7 floaters.
 Hydrologist	Hydrologist	Requires 4 ocean tiles you have placed.
 Innovator	Innovator	Most cards in play and cards in your event pile combined.
 Legend5	Legend	Requires 5 cards in your event pile.
-Lobbyist	Lobbyist	Requires 7 delegates.
+Lobbyist	Lobbyist	Requires 7 delegates excluding lobby delegates.
 Manager	Manager	Requires 3 special tiles.
 Merchant3	Merchant	Requires 3 of each standard resource type.
 Physicist	Physicist	Most science tags and space tags combined.

@@ -11,7 +11,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
   @Test
   internal fun `Triples a delegate placement bonus when Turmoil is present`() {
     newTestGame(addOptions = "AmazonisMap, FrontierTown, TurmoilExpansion")
-    kim.exMachina("2 PartyDelegate<MarsFirst>")
+    kim.exMachina("PartyFollower<MarsFirst>, PartyLeader<MarsFirst>")
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "11 Pay<> FROM MC")
@@ -21,15 +21,15 @@ internal class FrontierTownTest : TfmSandboxTest() {
       doTask("-FrontierTownBonus!")
       // Hand the repeat-bonus signal to Admin so the area offers its bonus again.
       selectTask("RepeatPlacementBonus<Kim, Amazonis_02_02>!")
-      doTasks("PartyDelegate<Scientists>", "PartyDelegate<Scientists>")
-      doTask("PartyDelegate<Scientists>")
+      doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
+      doTask("PartyFollower<Scientists>")
     }
   }
 
   @Test
   internal fun `An ocean placement reward does not consume the city's remaining repeated bonus`() {
     newTestGame(addOptions = "HellasMap, FrontierTown, TurmoilExpansion")
-    kim.exMachina("2 PartyDelegate<MarsFirst>")
+    kim.exMachina("PartyFollower<MarsFirst>, PartyLeader<MarsFirst>")
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "11 Pay<> FROM MC")
@@ -61,7 +61,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
     newTestGame(
         addOptions = "CimmeriaMap, FrontierTown, TurmoilExpansion, Luna, Ceres, Triton, Io, Europa"
     )
-    kim.exMachina("2 PartyDelegate<MarsFirst>")
+    kim.exMachina("PartyFollower<MarsFirst>, PartyLeader<MarsFirst>")
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "11 Pay<> FROM MC")
@@ -94,7 +94,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
         addOptions =
             "CimmeriaMap, FrontierTown, TurmoilExpansion, Luna, Ceres, Miranda, Titan, Enceladus"
     )
-    kim.exMachina("2 PartyDelegate<MarsFirst>")
+    kim.exMachina("PartyFollower<MarsFirst>, PartyLeader<MarsFirst>")
 
     shouldThrow<DependencyException> {
       kim.inTurn {
@@ -133,7 +133,7 @@ internal class FrontierTownTest : TfmSandboxTest() {
   @Test
   internal fun `Repeats the printed bonus without repeating the ocean adjacency payout`() {
     newTestGame("FrontierTown, TurmoilExpansion")
-    kim.exMachina("OceanTile<Tharsis_5_5>, 2 PartyDelegate<MarsFirst>")
+    kim.exMachina("OceanTile<Tharsis_5_5>, PartyFollower<MarsFirst>, PartyLeader<MarsFirst>")
 
     kim.inTurn {
       doTasks("PlayProject<Class<FrontierTown>>", "11 Pay<> FROM MC")

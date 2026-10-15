@@ -11,8 +11,7 @@ internal class FakeSeptemTribusTest : TfmSandboxTest() {
     kim.exMachina("$FakeSeptemTribus")
     kim.exMachina("-Chairman<Neutral>")
     kim.exMachina(
-        "Chairman, PartyDelegate<MarsFirst>, PartyDelegate<MarsFirst>, " +
-            "PartyDelegate<Scientists>"
+        "Chairman, PartyFollower<MarsFirst>, PartyLeader<MarsFirst>, " + "PartyLeader<Scientists>"
     )
 
     kim.inTurn {

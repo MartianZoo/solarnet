@@ -426,18 +426,22 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     newProgramGame(extraOptions = "TurmoilExpansion, Unsafe")
     playPreludes()
     kim.completeOperation {
-      doTask("LobbyAction<Action1>")
-      doTask("PartyDelegate<Scientists>")
+      doTask("LobbyAction")
+      doTask("PartyLeader<Scientists> FROM LobbyDelegate")
     }
     kim.completeOperation {
-      doTask("LobbyAction<Action2>")
+      doTask("PaidLobbyAction")
 
-      doTask("PartyDelegate<Scientists>")
+      doTask("PartyFollower<Scientists>")
     }
     stan.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("0 TerraformRating<Kim>") {
-      passGeneration(nextEvent = "ExploreFirstDirective")
+      passGeneration(
+          nextEvent = "ExploreFirstDirective",
+          neutralPlacements =
+              listOf("PartyLeader<Greens, Neutral>", "PartyFollower<Reds, Neutral>"),
+      )
       kim.count("Chairman") shouldBe 1
       // Turmoil's TR revision loses a step, then becoming chairman restores it.
     }
@@ -605,13 +609,13 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     stan.autoExecNow(EAGER)
     stan.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
     kim.completeOperation {
-      doTask("LobbyAction<Action1>")
-      doTask("PartyDelegate<Reds>")
+      doTask("LobbyAction")
+      doTask("PartyFollower<Reds> FROM LobbyDelegate")
     }
     kim.completeOperation {
-      doTask("LobbyAction<Action2>")
+      doTask("PaidLobbyAction")
 
-      doTask("PartyDelegate<Reds>")
+      doTask("PartyLeader<Reds>")
     }
     stan.completeOperation {
       doTasks("UseStandardProject<AsteroidProject>")
@@ -633,7 +637,11 @@ internal class PreservationProgramTest : TfmGameplayTest() {
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
     }
-    admin.doTask("ExploreFirstDirective")
+    admin.doTasks(
+        "PartyLeader<Greens, Neutral>",
+        "ExploreFirstDirective",
+        "PartyLeader<Reds, Neutral>",
+    )
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
     stan.doTask("Pass")
 
@@ -721,7 +729,11 @@ internal class PreservationProgramTest : TfmGameplayTest() {
   }
 
   /** Called at the start of a generation, or after Stan has passed and Kim finishes play. */
-  private fun passGeneration(worldGovernment: String = "VenusStep", nextEvent: String? = null) {
+  private fun passGeneration(
+      worldGovernment: String = "VenusStep",
+      nextEvent: String? = null,
+      neutralPlacements: List<String> = emptyList(),
+  ) {
     val first = players.indexOfFirst { it.count("StartToken") == 1 }
     val order = players.drop(first) + players.take(first)
     order.filter { it.count("Pass") == 0 }.forEach { it.doTask("Pass") }
@@ -729,7 +741,9 @@ internal class PreservationProgramTest : TfmGameplayTest() {
     order.first().doTask("$worldGovernment! BY Admin")
     players.forEach { it.autoExecNow(EAGER) }
 
-    if (nextEvent != null) admin.doTask(nextEvent)
+    if (nextEvent != null) {
+      admin.doTasks(neutralPlacements[0], nextEvent, neutralPlacements[1])
+    }
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
   }
 
@@ -772,7 +786,13 @@ internal class PreservationProgramTest : TfmGameplayTest() {
   @Ignore // Reds charges before Preservation Program removes the TR.
   @Test
   internal fun `Reds charges nothing for the prevented TR`() {
-    startPaymentDefectGame(deal = false, rulingParty = "Reds")
+    startPaymentDefectGame(
+        deal = false,
+        rulingParty = "Reds",
+        firstRole = "PartyFollower",
+        secondRole = "PartyLeader",
+        neutralRole = "PartyLeader",
+    )
     kim.completeOperation {
           doTasks("UseStandardProject<AsteroidProject>")
           autoExecNow(EAGER)
@@ -782,7 +802,13 @@ internal class PreservationProgramTest : TfmGameplayTest() {
 
   @Test
   internal fun `BUG - Reds charges for the prevented TR`() {
-    startPaymentDefectGame(deal = false, rulingParty = "Reds")
+    startPaymentDefectGame(
+        deal = false,
+        rulingParty = "Reds",
+        firstRole = "PartyFollower",
+        secondRole = "PartyLeader",
+        neutralRole = "PartyLeader",
+    )
     kim.completeOperation {
           doTasks("UseStandardProject<AsteroidProject>")
           autoExecNow(EAGER)
@@ -793,7 +819,13 @@ internal class PreservationProgramTest : TfmGameplayTest() {
   @Ignore // Both payments respond before Preservation Program removes the TR.
   @Test
   internal fun `Reds and Terraforming Deal both count only retained TR`() {
-    startPaymentDefectGame(deal = true, rulingParty = "Reds")
+    startPaymentDefectGame(
+        deal = true,
+        rulingParty = "Reds",
+        firstRole = "PartyFollower",
+        secondRole = "PartyLeader",
+        neutralRole = "PartyLeader",
+    )
     kim.completeOperation {
           doTasks(
               "PlayProject<Class<$MagneticFieldGeneratorsPromo>>",
@@ -807,7 +839,13 @@ internal class PreservationProgramTest : TfmGameplayTest() {
 
   @Test
   internal fun `BUG - Reds and Terraforming Deal both count reversed TR`() {
-    startPaymentDefectGame(deal = true, rulingParty = "Reds")
+    startPaymentDefectGame(
+        deal = true,
+        rulingParty = "Reds",
+        firstRole = "PartyFollower",
+        secondRole = "PartyLeader",
+        neutralRole = "PartyLeader",
+    )
     kim.completeOperation {
           doTasks(
               "PlayProject<Class<$MagneticFieldGeneratorsPromo>>",
@@ -840,7 +878,13 @@ internal class PreservationProgramTest : TfmGameplayTest() {
   }
 
   private fun prepareAffordableTwoStepGain() {
-    startPaymentDefectGame(deal = false, rulingParty = "Reds")
+    startPaymentDefectGame(
+        deal = false,
+        rulingParty = "Reds",
+        firstRole = "PartyFollower",
+        secondRole = "PartyLeader",
+        neutralRole = "PartyLeader",
+    )
     // Ordinary purchases leave exactly 17 MC and a card, without using the generation's TR skip.
     kim.doTasks("UseStandardProject<PowerPlantProject>")
     kim.doTasks("UseStandardProject<PowerPlantProject>")
@@ -873,19 +917,25 @@ internal class PreservationProgramTest : TfmGameplayTest() {
         .expect("0 TerraformRating, -12 MC")
   }
 
-  private fun startPaymentDefectGame(deal: Boolean, rulingParty: String? = null) {
+  private fun startPaymentDefectGame(
+      deal: Boolean,
+      rulingParty: String? = null,
+      firstRole: String = "PartyLeader",
+      secondRole: String = "PartyFollower",
+      neutralRole: String = "PartyFollower",
+  ) {
     val politics = if (rulingParty == null) "" else ", TurmoilExpansion"
     newProgramGame(extraOptions = "TerraformingDeal, Unsafe$politics")
     playPreludes(PreservationProgram, if (deal) TerraformingDeal else PowerGeneration)
     if (rulingParty != null) {
       kim.completeOperation {
-        doTask("LobbyAction<Action1>")
-        doTask("PartyDelegate<$rulingParty>")
+        doTask("LobbyAction")
+        doTask("$firstRole<$rulingParty> FROM LobbyDelegate")
       }
       kim.completeOperation {
-        doTask("LobbyAction<Action2>")
+        doTask("PaidLobbyAction")
 
-        doTask("PartyDelegate<$rulingParty>")
+        doTask("$secondRole<$rulingParty>")
       }
     } else {
       kim.doTasks(
@@ -898,7 +948,10 @@ internal class PreservationProgramTest : TfmGameplayTest() {
         kim.doTasks(
             "PlayProject<Class<$GiantSpaceMirror>>",
         )
-    passGeneration(nextEvent = if (rulingParty == null) null else "ExploreFirstDirective")
+    passGeneration(
+        nextEvent = if (rulingParty == null) null else "ExploreFirstDirective",
+        neutralPlacements = listOf("PartyLeader<Greens, Neutral>", "$neutralRole<Reds, Neutral>"),
+    )
     stan.doTask("Pass")
   }
 }

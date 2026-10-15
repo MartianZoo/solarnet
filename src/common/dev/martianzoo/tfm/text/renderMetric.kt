@@ -213,6 +213,19 @@ private fun Describers.recognizeCountedExpression(
     count: Int?,
     possessorEstablished: Boolean,
 ): MetricRendering? {
+  val exclusion = expression.refinement as? Expression.Refinement.Not
+  if (exclusion != null) {
+    val included =
+        recognizeCountedExpression(expression.copy(refinement = null), count, possessorEstablished)
+            ?: return null
+    val excluded =
+        recognizeCountedExpression(exclusion.excluded, null, possessorEstablished = true)
+            ?: return null
+    return included.copy(
+        phrase =
+            included.phrase.withModifier(Modifier.Relation("excluding", excluded.phrase.asPlural()))
+    )
+  }
   val allResourceProduction = productionCategoryExpression(expression, this)
   if (
       expression.refinement == null &&
@@ -672,14 +685,18 @@ private fun Describers.renderPlacementLocation(expression: Expression): Modifier
     }
   }
   val site = placementSite(expression.className) ?: return null
+  val namedSite =
+      fact(expression.className, ComponentDescriber::noun) as? ComponentDescriber.Noun.Fixed
   val noun =
-      when (val described = site.noun) {
-        is ComponentDescriber.Noun.Counted -> NounPhrase.plural(described.plural)
-        is ComponentDescriber.Noun.Fixed -> NounPhrase.text(described.text)
-        ComponentDescriber.Noun.ClassName ->
-            NounPhrase.plural(componentNoun(expression.className, 2))
-      }
-  val authoredRefinement = expression.refinement ?: return Modifier.Relation("on", noun)
+      if (concrete(expression.className) && namedSite != null) NounPhrase.text(namedSite.text)
+      else
+          when (val described = site.noun) {
+            is ComponentDescriber.Noun.Counted -> NounPhrase.plural(described.plural)
+            is ComponentDescriber.Noun.Fixed -> NounPhrase.text(described.text)
+            ComponentDescriber.Noun.ClassName ->
+                NounPhrase.plural(componentNoun(expression.className, 2))
+          }
+  val authoredRefinement = expression.refinement ?: return Modifier.Relation(site.relation, noun)
   val refinement = authoredRefinement as? Expression.Refinement.Has ?: return null
   val modifier =
       renderSpatialFilter(refinement.requirement, expression.className)
@@ -690,7 +707,7 @@ private fun Describers.renderPlacementLocation(expression: Expression): Modifier
                   Unresolved(refinement.requirement, RefusalReason.UNSUPPORTED_METRIC)
               ),
           )
-  return Modifier.Relation("on", noun.withModifier(modifier))
+  return Modifier.Relation(site.relation, noun.withModifier(modifier))
 }
 
 private fun Describers.renderSpatialFilter(

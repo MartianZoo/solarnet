@@ -14,7 +14,7 @@ internal class EventAnalystsTest : TfmGameplayTest() {
     )
     kim.completeOperation {
       doTask("PlayCard<Class<PreludeCard>, Class<$HighCircles>>")
-      doTask("2 PartyDelegate<Scientists>")
+      doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
       autoExecNow(EAGER)
     }
     kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
@@ -37,30 +37,34 @@ internal class EventAnalystsTest : TfmGameplayTest() {
     kim.doTask("VenusStep! BY Admin")
     players.forEach { it.autoExecNow(EAGER) }
 
-    admin.doTask("ExploreFirstDirective")
+    admin.doTasks(
+        "PartyLeader<Greens, Neutral>",
+        "ExploreFirstDirective",
+        "PartyFollower<Reds, Neutral>",
+    )
     kim.doTask("-4 ProjectCard<Selecting>")
     stan.doTask("-4 ProjectCard<Selecting>")
     stan.doTask("Pass")
     // The chairman retains its influence; the dominant party supplies leader and delegate
     // influence.
     kim.completeOperation {
-      doTask("LobbyAction<Action1>")
-      doTask("PartyDelegate<Scientists>")
+      doTask("LobbyAction")
+      doTask("PartyLeader<Scientists> FROM LobbyDelegate")
     }
     kim.completeOperation {
-      doTask("LobbyAction<Action2>")
+      doTask("PaidLobbyAction")
 
-      doTask("PartyDelegate<Scientists>")
+      doTask("PartyFollower<Scientists>")
     }
     kim.completeOperation {
-      doTask("LobbyAction<Action2>")
+      doTask("PaidLobbyAction")
 
-      doTask("PartyDelegate<Scientists>")
+      doTask("PartyFollower<Scientists>")
     }
     kim.completeOperation {
-      doTask("LobbyAction<Action2>")
+      doTask("PaidLobbyAction")
 
-      doTask("PartyDelegate<Scientists>")
+      doTask("PartyFollower<Scientists>")
     }
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }

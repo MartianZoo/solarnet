@@ -11,7 +11,17 @@ import kotlin.test.Test
 internal class TurmoilEventsTest : TfmGameplayTest() {
   @Test
   internal fun `An event stays dormant until Current and is discarded after resolving`() {
-    prepareEvent("ExperimentalLifeforms") {
+    prepareEvent(
+        "ExperimentalLifeforms",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Greens, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    ) {
       kim.doTasks("PlayProject<Class<$AdaptedLichen>>")
       kim.doTask("0 StandardAction") // Decline the second action.
       stan.doTasks("PlayProject<Class<$Archaebacteria>>")
@@ -35,15 +45,29 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     admin.count("Current<ExploreFirstDirective>") shouldBe 1
     admin.count("Coming<MoralMovement>") shouldBe 1
     admin.count("Distant") shouldBe 0
-    admin.doTask("ScientificProgress")
+    admin.doTasks(
+        "PartyLeader<Scientists, Neutral>",
+        "ScientificProgress",
+        "PartyFollower<Scientists, Neutral>",
+    )
     admin.count("Distant<ScientificProgress>") shouldBe 1
   }
 
   @Test
   internal fun `Asteroid Mining measures this generation's influence before paying titanium`() {
-    prepareEvent("MiningRestrictions")
+    prepareEvent(
+        "MiningRestrictions",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("PlayProject<Class<$VestaShipyard>>", "Ok" /* No Titanium payment. */)
-    lobbyForInfluence()
+    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("3 Titanium<Kim>") {
@@ -57,13 +81,23 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Homeworld Support caps six Earth tags before adding influence`() {
-    prepareEvent("RedResistance")
+    prepareEvent(
+        "RedResistance",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("PlayProject<Class<$EarthOffice>>")
     kim.doTasks("PlayProject<Class<$Sponsors>>")
     kim.doTasks("PlayProject<Class<$AcquiredCompany>>")
     kim.doTask("PlayProject<Class<$LunaGovernor>>")
     kim.doTasks("PlayProject<Class<$Cartel>>")
-    lobbyForInfluence()
+    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     // Five counted tags, plus two influence, at 2 MC each.
@@ -75,11 +109,21 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Productivity pays for steel production plus influence`() {
-    prepareEvent("ScientificProgress")
+    prepareEvent(
+        "ScientificProgress",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Scientists, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<MarsFirst, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("PlayProject<Class<$Mine>>", "Ok" /* No Steel payment. */)
     kim.doTasks("PlayProject<Class<$IndustrialMicrobes>>", "Ok" /* No Steel payment. */)
     kim.autoExecNow(EAGER)
-    lobbyForInfluence()
+    lobbyForInfluence("PartyFollower", "PartyLeader", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     // Three production and two influence.
@@ -91,9 +135,19 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Successful Organisms pays for plant production plus influence`() {
-    prepareEvent("LocalTerraformingSupport")
+    prepareEvent(
+        "LocalTerraformingSupport",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<MarsFirst, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<Scientists, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("PlayProject<Class<$AdaptedLichen>>")
-    lobbyForInfluence()
+    lobbyForInfluence("PartyFollower", "PartyLeader", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("1 Plant<Stan>, 4 Plant<Kim>") {
@@ -104,9 +158,19 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Scientific Community pays for the current hand and influence`() {
-    prepareEvent("ExploreFirstDirective")
+    prepareEvent(
+        "ExploreFirstDirective",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Scientists, Neutral>",
+            "PartyFollower<Scientists, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("UseStandardProject<SellPatentsProject>", "7 MC FROM ProjectCard")
-    lobbyForInfluence()
+    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("10 MC<Stan>, 5 MC<Kim>") {
@@ -117,7 +181,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Celebrity Leaders pays the owner of played events`() {
-    prepareEvent("SolarnetGlobalEvent")
+    prepareEvent(
+        "SolarnetGlobalEvent",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyFollower<Greens, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("PlayProject<Class<$InvestmentLoan>>")
     kim.autoExecNow(EAGER)
     kim.doTasks("PlayProject<Class<$BribedCommittee>>")
@@ -131,7 +205,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Strong Society pays only for owned cities`() {
-    prepareEvent("MoralMovement")
+    prepareEvent(
+        "MoralMovement",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<MarsFirst, Neutral>",
+            "PartyLeader<Greens, Neutral>",
+        ),
+    )
     kim.completeOperation {
       doTasks("UseStandardProject<CityProject>")
       doTask("CityTile<Tharsis_3_3>")
@@ -152,12 +236,22 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Global Dust Storm consumes heat and influence reduces the building penalty`() {
-    prepareEvent("HeatFirstPolicy")
+    prepareEvent(
+        "HeatFirstPolicy",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Kelvinists, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("PlayProject<Class<$Mine>>", "Ok" /* No Steel payment. */)
     kim.doTasks("PlayProject<Class<$PowerPlant>>", "Ok" /* No Steel payment. */)
     kim.doTasks("PlayProject<Class<$BuildingIndustries>>", "Ok" /* No Steel payment. */)
     kim.autoExecNow(EAGER)
-    lobbyForInfluence()
+    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("1 MC<Kim>") {
@@ -172,7 +266,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Pandemic caps six building tags before subtracting influence`() {
-    prepareEvent("ViralModificationsApproved")
+    prepareEvent(
+        "ViralModificationsApproved",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Greens, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyLeader<MarsFirst, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("PlayProject<Class<$Mine>>", "Ok" /* No Steel payment. */)
     kim.doTasks("PlayProject<Class<$PowerPlant>>", "Ok" /* No Steel payment. */)
     kim.doTasks("PlayProject<Class<$IndustrialMicrobes>>", "Ok" /* No Steel payment. */)
@@ -182,7 +286,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     kim.doTasks("PlayProject<Class<$TitaniumMine>>", "Ok" /* No Steel payment. */)
     kim.doTasks("PlayProject<Class<$FuelFactory>>", "Ok" /* No Steel payment. */)
     kim.autoExecNow(EAGER)
-    lobbyForInfluence()
+    lobbyForInfluence("PartyFollower", "PartyLeader", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("-3 MC<Kim>") {
@@ -195,14 +299,24 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Solarnet Shutdown counts active cards but excludes automated cards and played events`() {
-    prepareEvent("AiResearch")
+    prepareEvent(
+        "AiResearch",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Scientists, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<MarsFirst, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("PlayProject<Class<$Pets>>")
     kim.doTasks("PlayProject<Class<$SpaceMirrors>>", "Ok" /* No Titanium payment. */)
     kim.doTasks("PlayProject<Class<$Tardigrades>>")
     kim.doTasks("PlayProject<Class<$StandardTechnology>>")
     kim.doTasks("PlayProject<Class<$Mine>>", "Ok" /* No Steel payment. */)
     kim.doTasks("PlayProject<Class<$BribedCommittee>>")
-    lobbyForInfluence()
+    lobbyForInfluence("PartyFollower", "PartyLeader", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("-5 MC<Kim>") {
@@ -215,8 +329,18 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `War on Earth reduces rating loss for influence while still charging other players`() {
-    prepareEvent("SeparatistMovement")
-    lobbyForInfluence()
+    prepareEvent(
+        "SeparatistMovement",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<MarsFirst, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<Kelvinists, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
+    lobbyForInfluence("PartyFollower", "PartyLeader", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     // Kim loses two plus revision, then becomes chairman; Stan loses four plus revision.
@@ -228,9 +352,19 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Paradigm Breakdown discards the last card without demanding a second`() {
-    prepareEvent("ScientificConsensus")
+    prepareEvent(
+        "ScientificConsensus",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Kelvinists, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("UseStandardProject<SellPatentsProject>", "9 MC FROM ProjectCard")
-    lobbyForInfluence()
+    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("4 MC<Kim>") {
@@ -244,10 +378,20 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Sabotage reduces available production without taking energy production below zero`() {
-    prepareEvent("CorporateAlliance")
+    prepareEvent(
+        "CorporateAlliance",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("PlayProject<Class<$BuildingIndustries>>", "Ok" /* No Steel payment. */)
     kim.autoExecNow(EAGER)
-    lobbyForInfluence()
+    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("2 Steel<Kim>") {
@@ -263,7 +407,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Miners on Strike takes only the titanium available`() {
-    prepareEvent("RisingAlloyDemand")
+    prepareEvent(
+        "RisingAlloyDemand",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<MarsFirst, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("PlayProject<Class<$VestaShipyard>>", "3 Pay<Class<Titanium>> FROM Titanium")
     kim.doTasks("PlayProject<Class<$MirandaResort>>")
     kim.doTasks("PlayProject<Class<$JovianEmbassy>>", "Ok" /* No Steel payment. */)
@@ -279,7 +433,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Mud Slides counts each coastal tile once even beside two oceans`() {
-    prepareEvent("ThawMining")
+    prepareEvent(
+        "ThawMining",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Kelvinists, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.completeOperation {
       doTasks("UseStandardProject<CityProject>")
       doTask("CityTile<Tharsis_4_4>")
@@ -335,14 +499,24 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Improved Energy Templates combines power tags and influence before rounding`() {
-    prepareEvent("SecondEnergyCrisis")
+    prepareEvent(
+        "SecondEnergyCrisis",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Scientists, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<Kelvinists, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("PlayProject<Class<$PowerPlant>>", "Ok" /* No Steel payment. */)
     kim.doTasks("PlayProject<Class<$SpaceMirrors>>", "Ok" /* No Titanium payment. */)
     kim.completeOperation {
       doTasks("PlayProject<Class<$SolarWindPower>>", "Ok" /* No Titanium payment. */)
       autoExecNow(EAGER)
     }
-    lobbyForInfluence()
+    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("PROD[2 Energy<Kim>]") {
@@ -355,7 +529,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Sponsored Projects grows occupied cards for both players but skips empty cards`() {
-    prepareEvent("ScienceSummit") {
+    prepareEvent(
+        "ScienceSummit",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Scientists, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    ) {
       kim.completeOperation {
         doTasks("PlayProject<Class<$Research>>")
         autoExecNow(EAGER)
@@ -374,7 +558,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
       doTask("UseCardAction<$AerialMappers, Action1>")
       doTask("1 Floater<$AerialMappers>")
     }
-    lobbyForInfluence()
+    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("2 ProjectCard<Kim>") {
@@ -390,7 +574,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Election awards tied first places without a second prize`() {
-    prepareEvent("SelfSufficiencyProgram")
+    prepareEvent(
+        "SelfSufficiencyProgram",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Greens, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyLeader<MarsFirst, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+        ),
+    )
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     // Revision -1, tied first +2.
@@ -402,7 +596,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Election awards distinct first and second places`() {
-    prepareEvent("SelfSufficiencyProgram")
+    prepareEvent(
+        "SelfSufficiencyProgram",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Greens, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyLeader<MarsFirst, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("PlayProject<Class<$Mine>>", "Ok" /* No Steel payment. */)
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -414,7 +618,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Revolution leaves a zero score alone`() {
-    prepareEvent("WorldGovernmentDirectives")
+    prepareEvent(
+        "WorldGovernmentDirectives",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<MarsFirst, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("PlayProject<Class<$EarthOffice>>")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -427,7 +641,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Revolution applies the first place penalty to both tied players`() {
-    prepareEvent("WorldGovernmentDirectives") {
+    prepareEvent(
+        "WorldGovernmentDirectives",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<MarsFirst, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    ) {
       kim.doTasks("PlayProject<Class<$EarthOffice>>")
       kim.doTask("0 StandardAction") // Decline the second action.
       stan.doTasks("PlayProject<Class<$Sponsors>>")
@@ -444,7 +668,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Cloud Societies gives everyone a floater then groups each player's influence on a card`() {
-    prepareEvent("TitanVenusAlliance") {
+    prepareEvent(
+        "TitanVenusAlliance",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    ) {
       kim.completeOperation {
         doTasks("PlayProject<Class<$Research>>")
         autoExecNow(EAGER)
@@ -455,7 +689,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     }
     kim.doTasks("PlayProject<Class<$FloatingHabs>>")
     kim.doTasks("PlayProject<Class<$AerialMappers>>")
-    lobbyForInfluence()
+    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     stan.doTask("VenusStep! BY Admin")
@@ -470,13 +704,23 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Corrosive Rain consumes two floaters from the same card before drawing for influence`() {
-    prepareEvent("ImmigrationToVenus")
+    prepareEvent(
+        "ImmigrationToVenus",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Kelvinists, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("PlayProject<Class<$TitanShuttles>>", "Ok" /* No Titanium payment. */)
     kim.completeOperation {
       doTask("UseCardAction<$TitanShuttles, Action1>")
       doTask("2 Floater<$TitanShuttles>")
     }
-    lobbyForInfluence()
+    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("0 ProjectCard<Kim>") {
@@ -491,7 +735,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Corrosive Rain charges money when floaters are split across cards`() {
-    prepareEvent("ImmigrationToVenus")
+    prepareEvent(
+        "ImmigrationToVenus",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Kelvinists, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.completeOperation {
       doTasks("PlayProject<Class<$Research>>")
       autoExecNow(EAGER)
@@ -506,7 +760,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
       doTask("UseCardAction<$AerialMappers, Action1>")
       doTask("1 Floater<$AerialMappers>")
     }
-    lobbyForInfluence()
+    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("-10 MC<Kim>") {
@@ -519,7 +773,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Jovian Tax Rights pays production for owned colonies and titanium for influence`() {
-    prepareEvent("JovianColonyBoom")
+    prepareEvent(
+        "JovianColonyBoom",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Scientists, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.completeOperation {
       doTasks("UseStandardProject<BuildColonyProject>", "Colony<Luna>")
       autoExecNow(EAGER)
@@ -532,7 +796,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
       doTasks("UseStandardProject<BuildColonyProject>", "Colony<Triton>")
       autoExecNow(EAGER)
     }
-    lobbyForInfluence()
+    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("PROD[0 MC<Stan>], PROD[3 MC<Kim>], 2 Titanium<Kim>") {
@@ -543,7 +807,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Microgravity Health Problems subtracts influence from owned colonies`() {
-    prepareEvent("Diaspora")
+    prepareEvent(
+        "Diaspora",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<MarsFirst, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<Scientists, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.completeOperation {
       doTasks("UseStandardProject<BuildColonyProject>", "Colony<Luna>")
       autoExecNow(EAGER)
@@ -556,7 +830,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
       doTasks("UseStandardProject<BuildColonyProject>", "Colony<Triton>")
       autoExecNow(EAGER)
     }
-    lobbyForInfluence()
+    lobbyForInfluence("PartyFollower", "PartyLeader", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("0 MC<Stan>, -3 MC<Kim>") {
@@ -567,10 +841,20 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Venus Infrastructure pays for Venus tags and influence`() {
-    prepareEvent("MartianProtectionism")
+    prepareEvent(
+        "MartianProtectionism",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<MarsFirst, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("PlayProject<Class<$AerialMappers>>")
     kim.doTasks("PlayProject<Class<$Dirigibles>>")
-    lobbyForInfluence()
+    lobbyForInfluence("PartyFollower", "PartyLeader", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("8 MC<Kim>") {
@@ -581,11 +865,54 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Snow Cover cannot lower a completed temperature track`() {
-    prepareTemperatureEvent("MoholeLakeGlobalEvent", 19)
+    prepareTemperatureEvent(
+        "MoholeLakeGlobalEvent",
+        19,
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Greens, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<Scientists, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<Scientists, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Greens, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyFollower<Scientists, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<Scientists, Neutral>",
+            "PartyLeader<Kelvinists, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyFollower<Kelvinists, Neutral>",
+            "PartyLeader<Greens, Neutral>",
+        ),
+    )
     val first = players.single { it.count("StartToken") == 1 }
     first.doTask("Pass")
     // Generation 20 starts with Stan; Kim can still lobby before passing.
-    lobbyForInfluence()
+    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("2 ProjectCard<Kim>") {
@@ -598,10 +925,41 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Volcanic Eruptions lets the first player place the threshold ocean for Admin`() {
-    prepareTemperatureEvent("PateraBoring", 13)
+    prepareTemperatureEvent(
+        "PateraBoring",
+        13,
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Greens, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<Scientists, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<Scientists, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Scientists, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<Kelvinists, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     val first = players.single { it.count("StartToken") == 1 }
     first.doTask("Pass")
-    lobbyForInfluence()
+    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
     expectChanges("-1 TerraformRating<${first.actor}>, PROD[2 Heat<Kim>]") {
@@ -619,7 +977,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Generous Funding combines the post-revision rating bracket with influence`() {
-    prepareEvent("TerraformingLobbying")
+    prepareEvent(
+        "TerraformingLobbying",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Kelvinists, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.completeOperation {
       doTasks("UseStandardProject<AsteroidProject>")
       autoExecNow(EAGER)
@@ -628,7 +996,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
       doTasks("UseStandardProject<AsteroidProject>")
       autoExecNow(EAGER)
     }
-    lobbyForInfluence()
+    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
     kim.count("TerraformRating") shouldBe 20
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -645,11 +1013,11 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
     kim.completeOperation {
       doTask("LobbyAction")
-      doTask("PartyDelegate<Scientists>")
+      doTask("PartyLeader<Scientists> FROM LobbyDelegate")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>")
-      doTask("PartyDelegate<Scientists>")
+      doTasks("PaidLobbyAction")
+      doTask("PartyFollower<Scientists>")
     }
     stan.doTask("Pass")
     kim.doTask("Pass")
@@ -657,22 +1025,22 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     kim.doTask("VenusStep! BY Admin")
     players.forEach { it.autoExecNow(EAGER) }
 
-    admin.doTask("RedResistance")
+    admin.doTasks("PartyLeader<Greens, Neutral>", "RedResistance", "PartyFollower<Reds, Neutral>")
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
     // Kim is chairman and takes Unity's leadership and an ordinary delegate's influence.
     stan.doTask("Pass")
     kim.completeOperation {
       doTask("LobbyAction")
-      doTask("PartyDelegate<Unity>")
+      doTask("PartyLeader<Unity> FROM LobbyDelegate")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>")
-      doTask("PartyDelegate<Unity>")
+      doTasks("PaidLobbyAction")
+      doTask("PartyFollower<Unity>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>")
-      doTask("PartyDelegate<Unity>")
+      doTasks("PaidLobbyAction")
+      doTask("PartyFollower<Unity>")
     }
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -683,21 +1051,25 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
       stan.doTask("OceanTile<Tharsis_1_2> BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
     }
-    admin.doTask("CharismaticWgPresident")
+    admin.doTasks(
+        "PartyLeader<Unity, Neutral>",
+        "CharismaticWgPresident",
+        "PartyFollower<Unity, Neutral>",
+    )
     players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
 
     kim.completeOperation {
       doTask("LobbyAction")
-      doTask("PartyDelegate<MarsFirst>")
+      doTask("PartyFollower<MarsFirst> FROM LobbyDelegate")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>")
-      doTask("PartyDelegate<MarsFirst>")
+      doTasks("PaidLobbyAction")
+      doTask("PartyLeader<MarsFirst>")
     }
     stan.doTask("Pass")
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>")
-      doTask("PartyDelegate<MarsFirst>")
+      doTasks("PaidLobbyAction")
+      doTask("PartyFollower<MarsFirst>")
     }
     kim.doTask("Pass")
     players.forEach { it.autoExecNow(EAGER) }
@@ -725,27 +1097,44 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
             "TerraformingLobbying",
             "SolarnetGlobalEvent",
         )
+    val neutralPlacements =
+        listOf(
+            listOf("PartyLeader<Greens, Neutral>", "PartyLeader<Unity, Neutral>"),
+            listOf("PartyFollower<Unity, Neutral>", "PartyFollower<Reds, Neutral>"),
+            listOf("PartyFollower<Unity, Neutral>", "PartyLeader<Kelvinists, Neutral>"),
+            listOf("PartyFollower<Unity, Neutral>", "PartyFollower<Unity, Neutral>"),
+            listOf("PartyFollower<Unity, Neutral>", "PartyFollower<Unity, Neutral>"),
+            listOf("PartyFollower<Greens, Neutral>", "PartyFollower<Reds, Neutral>"),
+            listOf(null, null),
+        )
     repeat(7) { generation ->
       val first = players.single { it.count("StartToken") == 1 }
       val other = players.single { it != first }
       repeat(2) { round ->
-        listOf(first, other).forEach { player ->
-          val lobbyAction = if (round == 0) "LobbyAction<Action1>" else "LobbyAction<Action2>"
+        listOf(first, other).forEachIndexed { seat, player ->
+          val lobbyAction = if (round == 0) "LobbyAction" else "PaidLobbyAction"
           player.completeOperation {
             doTask(lobbyAction)
 
-            doTask("PartyDelegate<Scientists>")
+            doTask(
+                if (round == 0) {
+                  listOf(
+                      "PartyLeader<Scientists> FROM LobbyDelegate",
+                      "PartyFollower<Scientists> FROM LobbyDelegate",
+                  )[seat]
+                } else "PartyFollower<Scientists>"
+            )
           }
           player.completeOperation {
-            doTasks("LobbyAction<Action2>")
-            doTask("PartyDelegate<Scientists>")
+            doTasks("PaidLobbyAction")
+            doTask("PartyFollower<Scientists>")
           }
         }
       }
       listOf(first, other).forEach { player ->
         player.completeOperation {
-          doTasks("LobbyAction<Action2>")
-          doTask("PartyDelegate<Scientists>")
+          doTasks("PaidLobbyAction")
+          doTask("PartyFollower<Scientists>")
         }
         player.doTask("0 StandardAction") // Decline the second action.
       }
@@ -764,7 +1153,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
           players.forEach { player ->
             player.tasks.extract { it.id }.forEach { player.doTask("Heat", it) }
           }
+      neutralPlacements[generation][0]?.let { admin.doTask(it) }
       admin.doTask(reveals[generation % reveals.size])
+      neutralPlacements[generation][1]?.let { admin.doTask(it) }
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
     }
     admin.count("Delegate<Neutral>") shouldBe 14
@@ -773,7 +1164,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Solo Election requires five points rather than awarding an automatic first place`() {
-    prepareSoloRankingEvent("SelfSufficiencyProgram")
+    prepareSoloRankingEvent(
+        "SelfSufficiencyProgram",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Greens, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyLeader<MarsFirst, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+        ),
+    )
     expectChanges("-1 TerraformRating<Kim>") {
       kim.doTask("Pass")
       players.forEach { it.autoExecNow(EAGER) }
@@ -784,7 +1185,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Solo Election combines buildings and city tiles to reach five`() {
-    prepareSoloRankingEvent("SelfSufficiencyProgram")
+    prepareSoloRankingEvent(
+        "SelfSufficiencyProgram",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyFollower<Greens, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+            "PartyLeader<MarsFirst, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("PlayProject<Class<$Mine>>", "Ok" /* No Steel payment. */)
     kim.doTasks("PlayProject<Class<$PowerPlant>>", "Ok" /* No Steel payment. */)
     kim.doTasks("PlayProject<Class<$IndustrialMicrobes>>", "Ok" /* No Steel payment. */)
@@ -808,7 +1219,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Solo Revolution does not penalize fewer than four Earth tags and influence`() {
-    prepareSoloRankingEvent("WorldGovernmentDirectives")
+    prepareSoloRankingEvent(
+        "WorldGovernmentDirectives",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<MarsFirst, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("PlayProject<Class<$EarthOffice>>")
     kim.doTasks("PlayProject<Class<$Sponsors>>")
     kim.doTasks("PlayProject<Class<$AcquiredCompany>>")
@@ -824,7 +1245,17 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
 
   @Test
   internal fun `Solo Revolution penalizes reaching four Earth tags`() {
-    prepareSoloRankingEvent("WorldGovernmentDirectives")
+    prepareSoloRankingEvent(
+        "WorldGovernmentDirectives",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyFollower<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyLeader<MarsFirst, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.doTasks("PlayProject<Class<$EarthOffice>>")
     kim.doTasks("PlayProject<Class<$Sponsors>>")
     kim.doTasks("PlayProject<Class<$AcquiredCompany>>")
@@ -839,7 +1270,7 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     }
   }
 
-  private fun prepareSoloRankingEvent(event: String) {
+  private fun prepareSoloRankingEvent(event: String, neutralPlacements: List<String>) {
     newTestGame(addOptions = "TurmoilExpansion", playerCount = 1)
     listOf(event, "ExploreFirstDirective", "MoralMovement").forEachIndexed { index, reveal ->
       kim.doTask("Pass")
@@ -851,13 +1282,24 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         kim.doTask("OceanTile<Tharsis_1_2> BY Admin")
         players.forEach { it.autoExecNow(EAGER) }
       }
-      admin.doTask(reveal)
+      admin.doTask(neutralPlacements[index * 2])
+      admin.doTasks(reveal, neutralPlacements[index * 2 + 1])
       kim.doTask("-4 ProjectCard<Selecting>")
     }
   }
 
   private fun prepareDiversity() {
-    prepareEvent("FreeAcademiaTreaty")
+    prepareEvent(
+        "FreeAcademiaTreaty",
+        listOf(
+            "PartyLeader<Greens, Neutral>",
+            "PartyLeader<Scientists, Neutral>",
+            "PartyLeader<Unity, Neutral>",
+            "PartyLeader<Reds, Neutral>",
+            "PartyFollower<Scientists, Neutral>",
+            "PartyFollower<Reds, Neutral>",
+        ),
+    )
     kim.completeOperation {
       doTasks("PlayProject<Class<$Research>>")
       autoExecNow(EAGER)
@@ -865,33 +1307,37 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
     kim.doTasks("PlayProject<Class<$PowerPlant>>", "Ok" /* No Steel payment. */)
     kim.doTasks("PlayProject<Class<$VestaShipyard>>", "Ok" /* No Titanium payment. */)
     kim.doTasks("PlayProject<Class<$EarthOffice>>")
-    lobbyForInfluence()
+    lobbyForInfluence("PartyLeader", "PartyFollower", "PartyFollower")
   }
 
-  private fun lobbyForInfluence() {
+  private fun lobbyForInfluence(
+      firstRole: String = "PartyLeader",
+      secondRole: String = "PartyFollower",
+      thirdRole: String = "PartyFollower",
+  ) {
     kim.completeOperation {
       doTask("LobbyAction")
-      doTask("PartyDelegate<MarsFirst>")
+      doTask("$firstRole<MarsFirst> FROM LobbyDelegate")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>")
-      doTask("PartyDelegate<MarsFirst>")
+      doTasks("PaidLobbyAction")
+      doTask("$secondRole<MarsFirst>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>")
-      doTask("PartyDelegate<MarsFirst>")
+      doTasks("PaidLobbyAction")
+      doTask("$thirdRole<MarsFirst>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>")
-      doTask("PartyDelegate<MarsFirst>")
+      doTasks("PaidLobbyAction")
+      doTask("PartyFollower<MarsFirst>")
     }
     kim.completeOperation {
-      doTasks("LobbyAction<Action2>")
-      doTask("PartyDelegate<MarsFirst>")
+      doTasks("PaidLobbyAction")
+      doTask("PartyFollower<MarsFirst>")
     }
   }
 
-  private fun prepareEvent(event: String, setup: () -> Unit = {}) {
+  private fun prepareEvent(event: String, neutralPlacements: List<String>, setup: () -> Unit = {}) {
     newTestGame(
         addOptions = "TurmoilExpansion, Luna, Ceres, Triton, Ganymede, Callisto",
         playerCount = 2,
@@ -916,13 +1362,18 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
             players.forEach { it.autoExecNow(EAGER) }
           } // Democratic Reform.
           // Minimal Impact Policy removes that sole ocean automatically in generation 3.
-          admin.doTask(reveal)
+          admin.doTask(neutralPlacements[index * 2])
+          admin.doTasks(reveal, neutralPlacements[index * 2 + 1])
           players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
         }
     stan.doTask("Pass") // Kim may now prepare the subject's relevant position in generation 4.
   }
 
-  private fun prepareTemperatureEvent(event: String, temperature: Int) {
+  private fun prepareTemperatureEvent(
+      event: String,
+      temperature: Int,
+      neutralPlacements: List<String>,
+  ) {
     newTestGame(addOptions = "TurmoilExpansion", playerCount = 2)
     val laterEvents =
         listOf(
@@ -947,7 +1398,9 @@ internal class TurmoilEventsTest : TfmGameplayTest() {
         first.doTask("OceanTile<Tharsis_1_2> BY Admin")
         players.forEach { it.autoExecNow(EAGER) }
       } // Temperature threshold.
+      admin.doTask(neutralPlacements[index * 2])
       admin.doTask(if (index == temperature - 3) event else laterEvents[index % laterEvents.size])
+      admin.doTask(neutralPlacements[index * 2 + 1])
       players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
     }
     admin.count("Current<$event>") shouldBe 1
