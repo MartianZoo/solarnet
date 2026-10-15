@@ -100,11 +100,11 @@ internal abstract class TfmGameplayTest(private val playerPolicy: AutoExecPolicy
 
   private fun chooseStartingCards(kimCorporation: ClassName?, playCorporations: Boolean) {
     players.forEachIndexed { index, player ->
-      // Choose the mode for Admin's System task; a player cannot execute that task directly.
-      player.selectTask("BeginnerMode OR NonBeginnerMode")
+      // Choose the setup path for Admin's System task; a player cannot execute that task directly.
+      player.selectTask("BeginnerOption OR StandardOption")
       player.narrowTask(
-          if (index == 0 && (kimCorporation != null || !playCorporations)) "NonBeginnerMode"
-          else "BeginnerMode"
+          if (index == 0 && (kimCorporation != null || !playCorporations)) "StandardOption"
+          else "BeginnerOption"
       )
     }
     players.forEach { it.autoExecNow(EAGER) }

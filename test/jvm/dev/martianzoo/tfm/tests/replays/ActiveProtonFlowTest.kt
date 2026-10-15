@@ -86,14 +86,14 @@ internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
 
     green.autoExecPolicy = NONE
     pink.autoExecPolicy = NONE
-    pink.selectTask("BeginnerMode OR NonBeginnerMode")
-    pink.narrowTask("NonBeginnerMode")
+    pink.selectTask("BeginnerOption OR StandardOption")
+    pink.narrowTask("StandardOption")
     pink.doTask("2 CorporationCard")
     pink.doTask("10 ProjectCard<Selecting>")
     pink.doTask("-CorporationCard")
     pink.doTask("-5 ProjectCard<Selecting>")
-    green.selectTask("BeginnerMode OR NonBeginnerMode")
-    green.narrowTask("BeginnerMode")
+    green.selectTask("BeginnerOption OR StandardOption")
+    green.narrowTask("BeginnerOption")
     green.doTask("BeginnerCard")
     green.autoExecPolicy = CONCRETE
     pink.autoExecPolicy = CONCRETE
