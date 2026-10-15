@@ -333,6 +333,25 @@ internal class TaskNarrowingTest {
   }
 
   @Test
+  internal fun `an optional X choice includes the first amount that reaches the resource limit`() {
+    writer.sneak("3 Plant")
+    val form = writer.fillInTask(initiate("2X? Heat FROM Plant").single())
+    val x = form.decisions().single()
+
+    x.kind shouldBe AMOUNT
+    form.options(x).toList() shouldBe listOf("Ok", "1", "2")
+    form.choose(x, "2")
+
+    // X = 2 requests four, allowing the optional change to use all three available plants.
+    form.commit()
+    writer.doTask("3 Heat FROM Plant")
+
+    writer.count("Plant") shouldBe 0
+    writer.count("Heat") shouldBe 3
+    tasks.isEmpty() shouldBe true
+  }
+
+  @Test
   internal fun `an uncapped X remains a lazy choice sequence`() {
     val id = initiate("X! Plant").single()
     val form = writer.fillInTask(id)
