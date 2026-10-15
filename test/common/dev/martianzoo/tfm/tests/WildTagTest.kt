@@ -1,0 +1,307 @@
+package dev.martianzoo.tfm.tests
+
+import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.tfm.tests.cards.cardnames.SeptemTribus
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
+import kotlin.test.Test
+
+internal class WildTagTest : TfmSandboxTest() {
+  @Test
+  internal fun `Three played wilds enable Advanced Ecosystems then five enable Diversifier`() {
+    newTestGame(
+        "PreludeExpansion, TurmoilExpansion, Diversifier, AppliedScience, NobelPrize, ResearchNetwork, ResearchCoordination",
+        kimCorporation = SeptemTribus,
+    )
+    // The sandbox supplies an extra Prelude back; the subject is allocation across actual card
+    // plays.
+    kim.exMachina("PreludeCard")
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<ResearchNetwork>>",
+          "ResearchNetwork FROM PreludeCard",
+          "PROD[MC]",
+          "3 ProjectCard",
+      )
+    }
+    kim.inTurn {
+      doTasks(
+          "PlayCard<Class<PreludeCard>, Class<AppliedScience>>",
+          "AppliedScience FROM PreludeCard",
+          "6 Science<AppliedScience>",
+      )
+    }
+    kim.count("WildTag") shouldBe 3
+    kim.count("Tag") shouldBe 0
+    // Invoke the plays directly: this scenario tests card effects, not phase offers.
+    kim.runOperation("PlayProject<Class<AdvancedEcosystems>>") {
+      kim.count("PlantTag<WildTag<AppliedScience>>") shouldBe 1
+      kim.count("MicrobeTag<WildTag<ResearchNetwork>>") shouldBe 1
+      kim.count("AnimalTag<WildTag<SeptemTribus>>") shouldBe 1
+      doTasks("11 Pay<> FROM MC", "AdvancedEcosystems FROM ProjectCard")
+    }
+    kim.count("Tag<WildTag>") shouldBe 0
+    kim.count("Tag<AdvancedEcosystems>") shouldBe 3
+    kim.runOperation("PlayProject<Class<ResearchCoordination>>") {
+      doTasks("4 Pay<> FROM MC", "ResearchCoordination FROM ProjectCard")
+    }
+    // Start the extra Prelude play directly; obtaining that play is outside this sandbox scenario.
+    kim.runOperation("PlayCard<Class<PreludeCard>, Class<NobelPrize>, Hand>") {
+      doTasks("NobelPrize FROM PreludeCard", "5 MC", "2 SearchForCard<RequirementFilter>")
+    }
+    kim.count("WildTag") shouldBe 5
+    kim.runOperation("ClaimMilestone<Class<Diversifier>>") {
+          selectTask("EACH @WildTag { Tag<@WildTag>? }")
+          doTasks(
+              "BuildingTag<WildTag<AppliedScience>>",
+              "SpaceTag<WildTag<NobelPrize>>",
+              "ScienceTag<WildTag<ResearchCoordination>>",
+              "EarthTag<WildTag<ResearchNetwork>>",
+              "JovianTag<WildTag<SeptemTribus>>",
+          )
+          kim.count("Class<@Tag>(HAS @Tag)") shouldBe 8
+          doTasks("8 Pay<> FROM MC", "Diversifier")
+        }
+        .expect("Diversifier, 0 Tag<WildTag>, 0 WildTag")
+    kim.count("Tag<WildTag>") shouldBe 0
+    kim.count("WildTag") shouldBe 5
+  }
+
+  @Test
+  internal fun `All five Canon wild cards satisfy a science requirement and can be reused as Earth`() {
+    val cards =
+        listOf(
+            "ResearchCoordination",
+            "ResearchNetwork",
+            "AppliedScience",
+            "NobelPrize",
+            "SeptemTribus",
+        )
+    newTestGame("TurmoilExpansion, " + cards.joinToString())
+    kim.exMachina(cards.joinToString())
+    kim.inTurn {
+      doTask("PlayProject<Class<MassConverter>>")
+      cards.forEach { kim.count("ScienceTag<WildTag<$it>>") shouldBe 1 }
+      doTasks("8 Pay<> FROM MC", "MassConverter FROM ProjectCard", "PROD[6 Energy]")
+    }
+    kim.inTurn {
+      doTasks("PlayProject<Class<Cartel>>", "8 Pay<> FROM MC", "Cartel FROM ProjectCard")
+      cards.forEach { kim.count("EarthTag<WildTag<$it>>") shouldBe 1 }
+      doTask("PROD[6 MC]")
+    }
+    kim.count("Tag<WildTag>") shouldBe 0
+    kim.count("WildTag") shouldBe 5
+  }
+
+  @Test
+  internal fun `science requirement uses only its shortfall and cleans up after the benefit`() {
+    newTestGame("ResearchCoordination, ResearchNetwork")
+    kim.exMachina(
+        "ResearchCoordination, ResearchNetwork, Research, SearchForLife, DevelopmentCenter"
+    )
+    kim.inTurn {
+      kim.doTasks("PlayProject<Class<MassConverter>>")
+          .expect("ScienceTag<WildTag<ResearchCoordination>>")
+      kim.count("Tag<WildTag>") shouldBe 1
+      doTask("8 Pay<> FROM MC")
+      doTask("MassConverter FROM ProjectCard")
+      doTask("PROD[6 Energy]")
+    }
+    kim.count("Tag<WildTag>") shouldBe 0
+    kim.count("WildTag") shouldBe 2
+  }
+
+  @Test
+  internal fun `a mixed requirement assigns distinct meanings`() {
+    newTestGame("ResearchCoordination, ResearchNetwork")
+    kim.exMachina("ResearchCoordination, ResearchNetwork, Ecoline")
+    kim.inTurn {
+      kim.doTasks("PlayProject<Class<AdvancedEcosystems>>")
+          .expect("MicrobeTag<WildTag<ResearchCoordination>>, AnimalTag<WildTag<ResearchNetwork>>")
+      kim.count("Tag<WildTag>") shouldBe 2
+      doTasks("11 Pay<> FROM MC", "AdvancedEcosystems FROM ProjectCard")
+    }
+    stan.count("Tag<WildTag>") shouldBe 0
+  }
+
+  @Test
+  internal fun `a missing requirement cannot count a wild twice`() {
+    newTestGame("ResearchCoordination")
+    kim.exMachina("ResearchCoordination, Ecoline")
+    shouldThrow<RequirementException> {
+      kim.inTurn { doTask("PlayProject<Class<AdvancedEcosystems>>") }
+    }
+    kim.count("Tag<WildTag>") shouldBe 0
+  }
+
+  @Test
+  internal fun `greedy benefits reuse wilds on later actions without extra Point Luna draws`() {
+    newTestGame("ResearchCoordination, ResearchNetwork, PointLuna")
+    kim.exMachina("ResearchNetwork, PointLuna")
+    kim.inTurn {
+      doTasks("PlayProject<Class<ResearchCoordination>>", "4 Pay<> FROM MC")
+      kim.doTasks("ResearchCoordination FROM ProjectCard").expect("WildTag<ResearchCoordination>")
+    }
+    kim.inTurn {
+      doTasks("PlayProject<Class<Cartel>>", "8 Pay<> FROM MC")
+      kim.doTasks("Cartel FROM ProjectCard")
+          .expect("EarthTag<WildTag<ResearchCoordination>>, EarthTag<WildTag<ResearchNetwork>>")
+      doTasks("ProjectCard", "PROD[4 MC]")
+    }
+    kim.inTurn {
+      doTasks("PlayProject<Class<Satellites>>", "10 Pay<> FROM MC")
+      kim.doTasks("Satellites FROM ProjectCard")
+          .expect("SpaceTag<WildTag<ResearchCoordination>>, SpaceTag<WildTag<ResearchNetwork>>")
+      doTask("PROD[4 MC]")
+    }
+  }
+
+  @Test
+  internal fun `Gyropolis chooses Earth by convention`() {
+    newTestGame("ResearchCoordination")
+    kim.exMachina("ResearchCoordination, PROD[2 Energy]")
+    kim.inTurn {
+      doTasks("PlayProject<Class<Gyropolis>>", "20 Pay<> FROM MC")
+      kim.doTasks("Gyropolis FROM ProjectCard").expect("EarthTag<WildTag<ResearchCoordination>>")
+      doTasks("PROD[-2 Energy]", "PROD[0 MC]", "PROD[1 MC]", "CityTile<Tharsis_1_1>", "2 Steel")
+    }
+  }
+
+  @Test
+  internal fun `an opponents wild cannot satisfy a requirement or take a greedy assignment`() {
+    newTestGame("ResearchCoordination, ResearchNetwork")
+    kim.exMachina("ResearchCoordination, Ecoline")
+    stan.exMachina("ResearchNetwork")
+    shouldThrow<RequirementException> {
+      kim.inTurn { doTask("PlayProject<Class<AdvancedEcosystems>>") }
+    }
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<Cartel>>",
+          "8 Pay<> FROM MC",
+          "Cartel FROM ProjectCard",
+          "PROD[2 MC]",
+      )
+    }
+    stan.count("Tag<WildTag>") shouldBe 0
+  }
+
+  @Test
+  internal fun `Saturn Systems sees another players printed Jovian but not their assignment`() {
+    newTestGame("ResearchCoordination")
+    kim.exMachina("SaturnSystems")
+    stan.exMachina("ResearchCoordination")
+    stan.inTurn {
+      doTasks(
+          "PlayProject<Class<TerraformingGanymede>>",
+          "33 Pay<> FROM MC",
+          "TerraformingGanymede FROM ProjectCard",
+      )
+      kim.doTask("PROD[1 MC]")
+      doTask("2 TerraformRating")
+    }
+  }
+
+  @Test
+  internal fun `Cloud Tourism splits wilds between Earth and Venus without firing Point Luna`() {
+    newTestGame("CloudTourism, ResearchCoordination, ResearchNetwork, PointLuna")
+    kim.exMachina("ResearchCoordination, ResearchNetwork, PointLuna")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<CloudTourism>>",
+          "11 Pay<> FROM MC",
+          "CloudTourism FROM ProjectCard",
+      )
+      doTasks("EarthTag<WildTag<ResearchCoordination>>", "VenusTag<WildTag<ResearchNetwork>>")
+      doTask("PROD[2 MC]")
+    }
+  }
+
+  @Test
+  internal fun `Cloud Tourism leaves a spare wild unused when it cannot improve production`() {
+    newTestGame("CloudTourism, ResearchCoordination, ResearchNetwork")
+    kim.exMachina("ResearchCoordination, ResearchNetwork")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<CloudTourism>>",
+          "11 Pay<> FROM MC",
+          "CloudTourism FROM ProjectCard",
+      )
+      doTask("EarthTag<WildTag<ResearchCoordination>>")
+      kim.count("Tag<WildTag<ResearchNetwork>>") shouldBe 0
+      doTask("PROD[1 MC]")
+    }
+  }
+
+  @Test
+  internal fun `Interplanetary Trade accepts distinct tag choices and declining a wild`() {
+    newTestGame("ResearchCoordination, ResearchNetwork")
+    kim.exMachina("ResearchCoordination, ResearchNetwork, Ecoline")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<InterplanetaryTrade>>",
+          "27 Pay<> FROM MC",
+          "InterplanetaryTrade FROM ProjectCard",
+      )
+      selectTask("EACH @WildTag { Tag<@WildTag>? }")
+      doTasks("EventTag<WildTag<ResearchCoordination>>", "0 EarthTag<WildTag<ResearchNetwork>>")
+      doTask("PROD[3 MC]")
+    }
+  }
+
+  @Test
+  internal fun `Interplanetary Trade lets the player take production before allocating`() {
+    newTestGame("ResearchCoordination")
+    kim.exMachina("ResearchCoordination")
+    kim.inTurn {
+      doTasks(
+          "PlayProject<Class<InterplanetaryTrade>>",
+          "27 Pay<> FROM MC",
+          "InterplanetaryTrade FROM ProjectCard",
+      )
+      doTask("PROD[1 MC]")
+      selectTask("EACH @WildTag { Tag<@WildTag>? }")
+      doTask("EventTag<WildTag<ResearchCoordination>>")
+    }
+  }
+
+  @Test
+  internal fun `Ecologist uses Plant by convention and leaves an unneeded wild unused`() {
+    newTestGame("ElysiumMap, ResearchCoordination, ResearchNetwork")
+    kim.exMachina("ResearchCoordination, ResearchNetwork, AdvancedEcosystems")
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Ecologist>>", "8 Pay<> FROM MC")
+      kim.doTask("Ecologist").expect("PlantTag<WildTag<ResearchCoordination>>")
+    }
+    kim.count("Tag<WildTag>") shouldBe 0
+  }
+
+  @Test
+  internal fun `Planetologist fills separate planetary shortfalls`() {
+    newTestGame("CimmeriaMap, ResearchCoordination, ResearchNetwork")
+    kim.exMachina(
+        "ResearchCoordination, ResearchNetwork, Sponsors, VenusGovernor, IoMiningIndustries"
+    )
+    kim.inTurn {
+      doTasks("ClaimMilestone<Class<Planetologist>>", "8 Pay<> FROM MC")
+      kim.doTask("Planetologist")
+          .expect("EarthTag<WildTag<ResearchCoordination>>, JovianTag<WildTag<ResearchNetwork>>")
+    }
+    kim.count("Tag<WildTag>") shouldBe 0
+  }
+
+  @Test
+  internal fun `Diversifier offers wild tag choices before claiming`() {
+    newTestGame("TharsisMap, Diversifier, ResearchCoordination, ResearchNetwork")
+    kim.exMachina(
+        "AdvancedEcosystems, ResearchOutpost, Satellites, ResearchCoordination, ResearchNetwork"
+    )
+    kim.inTurn {
+      doTask("ClaimMilestone<Class<Diversifier>>")
+      selectTask("EACH @WildTag { Tag<@WildTag>? }")
+      doTask("EarthTag<WildTag<ResearchCoordination>>")
+      doTask("0 EventTag<WildTag<ResearchNetwork>>")
+      doTasks("8 Pay<> FROM MC", "Diversifier")
+    }
+  }
+}

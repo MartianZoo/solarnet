@@ -344,6 +344,68 @@ probes propagate it rather than reporting an unavailable choice. Because automat
 no Task, their instructions cannot use instruction-side `BY`. Read [SEQUENCING.md](SEQUENCING.md)
 before using `:` versus `::` to force an order.
 
+### Wild tags
+
+**Canon integration.** Research Coordination, Research Network, Applied Science, Nobel Prize,
+and Septem Tribus create a
+`WildTag` that is itself a `TagHolder`. Assigning `EarthTag<WildTag<ResearchCoordination>>` changes
+real state; ordinary tag metrics include it. `MAX 1 Tag<This>` keeps that meaning fixed, and the
+wild's `Tag<This>: LATER Admin { -Tag<This>* }` removes the assignment when ordinary work is finished.
+The printed wild survives. There is no additional task-scheduling mechanism.
+
+Canon's `Tag` now declares `DEFAULT Tag<CardFront>:`. Printed-tag listeners explicitly accept
+that default with `EarthTag<>:` or name a holder themselves. This affects gain/removal triggers,
+not metrics or gains. Point Luna therefore reacts to Cartel's printed Earth tag, but not Earth
+assigned to a wild. `cardTags` also reports the printed wild icon as card metadata.
+
+Requirement allocation is separate from benefit inference. `PlayCard` and `Milestone` first emit
+`AllocateRequiredWildTags`, then run their existing requirement checks. Each unused wild asks
+`RequiredWildTag` which concrete tag to gain. That metric selects actual assignments rather than
+inflating a tag count. It covers the current direct tag minima and conjunctions, sorting available
+holders by expression and filling the printed requirements in source order. It recalculates the
+remaining shortfalls after each assignment, so listener order does not choose the resulting
+allocation. Ecologist's `BioTag` requirement uses Plant by the owner's convention.
+
+Generated `LikesTag<Class<FooTag>>` roles describe positive immediate per-tag benefits and tag
+gates. The rule on each unused wild assigns that preferred tag before queued benefits. Requirements
+are excluded from this analysis. Equivalent sibling benefits choose a stable representative:
+Gyropolis uses Earth, as directed by the owner. The same analysis emits `UseAction` allocation
+for action benefits (Orbital Cleanup and Kuiper Cooperative). Venus Shuttles declares its allocation
+on `UseAction` explicitly so its Venus count is ready before the cost is calculated.
+Robotic Workforce and Cyberia Systems do not yet support wilds when selecting or counting copied
+production; see `TODO.md` and their card-test pairs. Blanket Building allocation was removed because
+it prevented wilds from contributing Earth to copied Gyropolis production.
+Corroder Suits and Maxwell Base use the analogous Venus filter and allocation on play or action use,
+allowing them to add science to Applied Science. Applied Science itself adds resources only to its
+owner's stocked cards, as directed by the owner.
+
+Special cases use ordinary player work:
+
+- Interplanetary Trade offers `EACH @WildTag { Tag<@WildTag>? }` alongside its benefit.
+- Cloud Tourism's custom instruction queues concrete Earth/Venus gains that maximize the smaller
+  count, including its own printed Venus tag. It preserves existing assignments and leaves a spare
+  wild unused when assigning it would not increase production.
+- Diversifier's `CardWatcher` offers the same optional choices when claiming it, including when
+  Diversifier is selected on another map. Its ordinary requirement still checks that eight distinct
+  types actually exist. Planetologist uses the shared minimum allocator.
+
+**Owner direction:** do not force players to act in their own interest. In particular, taking
+Interplanetary Trade's benefit before allocating is allowed; it simply produces less. No guard
+forces the beneficial task order.
+
+See `WildTagHolderTest`, `WildTagTest`, and `WildTagContinuationTest` for allocation, ownership,
+cleanup, and reuse scenarios. Replays use Canon cards and actual allocation choices without
+wild-tag corrections. `CONCRETE` lets replays allocate before a competing payout; `EAGER` may
+choose the payout first. Admin performs wild cleanup even when the player uses `NONE`.
+Nobel Prize uses `SearchForCard<RequirementFilter>` rather than unrestricted draws.
+English describes the printed wild's rule but omits allocation instructions.
+
+The explicit `@Tag<WildTag<@CardFront>>` spelling remains necessary: the shorter `@Tag<This>` and
+an inherited `LikesTag` self-effect lost represented-tag bindings in the initial experiments.
+Retesting the short spelling after merging main fails in `recordTypeVariableScopes`: the represented
+tag's holder is resolved while `This` is still lexical, yielding `no class named This`. Do
+not add a second assignment representation to work around those elaboration limitations.
+
 ## Queries, invariants, and dead ends
 
 **Owner direction (2026-10-14): decision-tree pruning is the player's agent or client's

@@ -52,6 +52,13 @@ internal class EnglishCompositionalRenderingTest {
   }
 
   @Test
+  fun cardResourceTargetsIncludeTagsHeldByAnAssignmentHolder() {
+    english.describe(
+        parse<InstructionTree>("CardResource<CardFront(HAS VenusTag OR WildTag(HAS VenusTag))>")
+    ) shouldBe "Add 1 resource to a Venus card."
+  }
+
+  @Test
   fun cardMovesRetainIdentityAndReadThePileOwner() {
     english.describe(parse<InstructionTree>("PlayedEvent<Class<This>> FROM This")) shouldBe
         "Move this card to your event pile."

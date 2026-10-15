@@ -18,7 +18,6 @@ import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.fakeWildTags
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -147,11 +146,11 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // get one energy production, one plant production, and two plants."
       fillInTask("PlayCard")
           .chooseAlternative("PlayCard", outOf = 2)
-          .choose("CardFront" to "Biofuels", outOf = 92)
+          .choose("CardFront" to "Biofuels", outOf = 93)
           .done()
       fillInTask("PlayCard")
           .chooseAlternative("PlayCard", outOf = 2)
-          .choose("CardFront" to "Supplier", outOf = 92)
+          .choose("CardFront" to "Supplier", outOf = 93)
           .done()
     }
     blue.turn {
@@ -159,7 +158,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // That's row two, column one, for two titanium." The second placement is stated below.
       fillInTask("PlayCard")
           .chooseAlternative("PlayCard", outOf = 2)
-          .choose("CardFront" to "GreatAquifer", outOf = 92)
+          .choose("CardFront" to "GreatAquifer", outOf = 93)
           .done()
       fillInTask("OceanTile").choose("WaterArea" to "Cimmeria_2_1", outOf = 12).done()
       fillInTask("OceanTile").choose("WaterArea" to "Cimmeria_9_5", outOf = 12).done()
@@ -168,7 +167,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // two steps."
       fillInTask("PlayCard")
           .chooseAlternative("PlayCard", outOf = 2)
-          .choose("CardFront" to "AtmosphericEnhancers", outOf = 92)
+          .choose("CardFront" to "AtmosphericEnhancers", outOf = 93)
           .done()
       fillInTask("VenusStep").chooseAlternative("VenusStep", outOf = 3).done()
     }
@@ -176,13 +175,13 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Orbital Construction Yard: I gain titanium production and four titanium."
       fillInTask("PlayCard")
           .chooseAlternative("PlayCard", outOf = 2)
-          .choose("CardFront" to "OrbitalConstructionYard", outOf = 92)
+          .choose("CardFront" to "OrbitalConstructionYard", outOf = 93)
           .done()
       // "Early Colonization: I place a colony on Luna, which means I gain 2 money production, I
       // gain 3 energy—not energy production, 3 energy—and raise all colony tracks 2 steps."
       fillInTask("PlayCard")
           .chooseAlternative("PlayCard", outOf = 2)
-          .choose("CardFront" to "EarlyColonization", outOf = 92)
+          .choose("CardFront" to "EarlyColonization", outOf = 93)
           .done()
       fillInTask("Colony").choose("ColonyTile" to "Luna", outOf = 4).done()
     }
@@ -1480,7 +1479,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Oh God, you like the wild tags."
       // "I love them. They're so useful."
       // "You like to live on the wild side."
-      playProject(FakeResearchCoordination, 3)
+      playProject(ResearchCoordination, 3)
       fillInTask("StandardAction").choose("StandardAction" to "Ok", outOf = 9).done()
     }
     blue.turn {
@@ -1631,7 +1630,6 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       }
       // Green keeps exactly the two titanium used for Palladin Shipping later this generation.
       intentionalUnderpay()
-      green.exMachina(fakeWildTags("EarthTag"))
       playProject(SkyDocks, 5, titanium = 4)
     }
     blue.turn {
@@ -1916,7 +1914,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       fillInTask("StandardAction")
           .chooseAlternative("StandardAction", outOf = 2)
           .choose("StandardAction" to "PlayProject", outOf = 8)
-          .choose("CardFront" to "EventCard", outOf = 92)
+          .choose("CardFront" to "EventCard", outOf = 93)
           .choose("EventCard" to "MarketManipulation", outOf = 67)
           .done()
       fillInTask("ColonyProduction")
@@ -1936,7 +1934,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       fillInTask("StandardAction")
           .chooseAlternative("StandardAction", outOf = 2)
           .choose("StandardAction" to "PlayProject", outOf = 8)
-          .choose("CardFront" to "EventCard", outOf = 92)
+          .choose("CardFront" to "EventCard", outOf = 93)
           .choose("EventCard" to "IndenturedWorkers", outOf = 67)
           .done()
       // "I'm going to pay one titanium and 25 money." "I took your one plant, and I'm going to
@@ -1960,7 +1958,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       fillInTask("StandardAction")
           .chooseAlternative("StandardAction", outOf = 2)
           .choose("StandardAction" to "PlayProject", outOf = 8)
-          .choose("CardFront" to "EventCard", outOf = 92)
+          .choose("CardFront" to "EventCard", outOf = 93)
           .choose("EventCard" to "InventionContest", outOf = 67)
           .done()
       fillInTask("StandardAction").choose("StandardAction" to "Ok", outOf = 9).done()
@@ -2126,7 +2124,6 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I have one, two, three, four, five, six, seven science tags."
       // The seven are Research Outpost, Research Colony, Olympus Conference, Inventors' Guild,
       // Quantum Extractor, Molecular Printing, and Research Coordination's wild tag.
-      green.exMachina(fakeWildTags("ScienceTag"))
       playProject(AntiGravityTechnology, 12) {
         fillInTask("ProjectCard")
             .chooseAlternative(
@@ -2177,7 +2174,6 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     }
     green.turn {
       // "This makes it four Earth tags. And that cost me seven money ... two titanium production."
-      green.exMachina(fakeWildTags("EarthTag"))
       playProject(LunarMining, 7)
       fillInTask("StandardAction").choose("StandardAction" to "Ok", outOf = 9).done()
     }
@@ -2197,7 +2193,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       fillInTask("StandardAction")
           .chooseAlternative("StandardAction", outOf = 2)
           .choose("StandardAction" to "PlayProject", outOf = 8)
-          .choose("CardFront" to "AutomatedCard", outOf = 92)
+          .choose("CardFront" to "AutomatedCard", outOf = 93)
           .choose("AutomatedCard" to "LunaGovernor", outOf = 189)
           .done()
       fillInTask("StandardAction").choose("StandardAction" to "Ok", outOf = 9).done()
@@ -2582,7 +2578,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       fillInTask("StandardAction")
           .chooseAlternative("StandardAction", outOf = 2)
           .choose("StandardAction" to "PlayProject", outOf = 8)
-          .choose("CardFront" to "AutomatedCard", outOf = 92)
+          .choose("CardFront" to "AutomatedCard", outOf = 93)
           .choose("AutomatedCard" to "TransNeptuneProbe", outOf = 189)
           .done()
       fillInTask("ProjectCard")

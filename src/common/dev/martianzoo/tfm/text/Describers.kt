@@ -179,6 +179,8 @@ private constructor(
             ComponentDescriber::cardProcedure,
             ComponentDescriber::cardLocationDependency,
             ComponentDescriber::cardInvariantSentence,
+            ComponentDescriber::tagAssignmentHolder,
+            ComponentDescriber::implicitInstruction,
         )
     classesByName.values.forEach { componentClass ->
       facts.forEach { fact ->
@@ -313,6 +315,9 @@ private constructor(
         ComponentDescriber.Noun.ClassName,
         null -> unCamelCase(className.toString())
       }
+
+  internal fun namedComponent(className: ClassName): NounPhrase =
+      NounPhrase.text(className.toString())
 
   internal fun plainGainNoun(className: ClassName, count: Int): String? =
       componentNoun(className, count).takeIf {

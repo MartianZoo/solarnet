@@ -28,6 +28,8 @@ internal fun Describers.cardFilterCriterion(filter: Expression): CardCriterion? 
       tag?.takeIf(::isTag)?.let(CardCriterion::Tag)
     }
     cn("NoTagsFilter") -> CardCriterion.NoTags.takeIf { filter.simple }
+    cn("RequirementFilter") ->
+        CardCriterion.PropertyPresence("requirement").takeIf { filter.simple }
     cn("ReferenceFilter") -> {
       val referenced =
           filter.arguments.singleOrNull()?.let(::representedClassArgument)?.className ?: return null
@@ -38,9 +40,28 @@ internal fun Describers.cardFilterCriterion(filter: Expression): CardCriterion? 
 }
 
 internal fun Describers.cardCriterion(requirement: Requirement): CardCriterion? {
+  if (requirement is Requirement.Or) {
+    val alternatives = requirement.requirements.map { cardCriterion(it) ?: return null }
+    return alternatives.distinct().singleOrNull()
+  }
   val counting = requirement as? Requirement.Counting ?: return null
   if (counting is Requirement.Min && counting.target == 1) {
     val metric = counting.metric
+    if (metric is Metric.Or) {
+      return metric.metrics
+          .map { cardCriterion(Requirement.Min(1, it)) ?: return null }
+          .distinct()
+          .singleOrNull()
+    }
+    if (
+        metric is Metric.Count &&
+            metric.expression.arguments.isEmpty() &&
+            fact(metric.expression.className, ComponentDescriber::tagAssignmentHolder) == true
+    ) {
+      val held =
+          (metric.expression.refinement as? Expression.Refinement.Has)?.requirement ?: return null
+      return cardCriterion(held) as? CardCriterion.Tag
+    }
     if (metric is Metric.Count && metric.expression.simple) {
       tagName(metric.expression.className)?.let {
         return CardCriterion.Tag(metric.expression.className)
@@ -108,6 +129,9 @@ internal fun Describers.cardSelector(
       return NounPhrase("card", determiner = Determiner.THAT)
   val resolved = resolveExpression(expression.copy(refinement = null)) ?: return null
   if (resolved.sourceDependencies.isNotEmpty()) return null
+  if (concrete(expression.className)) {
+    return namedComponent(expression.className).takeIf { expression.refinement == null }
+  }
   val refinements =
       when (val refinement = expression.refinement) {
         is Expression.Refinement.And -> refinement.refinements

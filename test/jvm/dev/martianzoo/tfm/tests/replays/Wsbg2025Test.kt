@@ -7,7 +7,6 @@ import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.fakeWildTags
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -55,7 +54,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     }
     jacopo.turn {
       playPrelude(Biofuels)
-      playPrelude(FakeResearchNetwork)
+      playPrelude(ResearchNetwork)
     }
     jon.turn {
       playPrelude(EarlySettlement) { placeTile(8, 8) }
@@ -87,7 +86,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
       declineSecondAction()
     }
     jacopo.turn {
-      playProject(FakeResearchCoordination, 4)
+      playProject(ResearchCoordination, 4)
       declineSecondAction()
     }
     jon.pass()
@@ -118,7 +117,6 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
 
     jacopo.turn {
       playProject(Archaebacteria, 6)
-      jacopo.exMachina(fakeWildTags("PlantTag", 2))
       claimMilestone(cn("Ecologist"))
     }
     jon.turn {

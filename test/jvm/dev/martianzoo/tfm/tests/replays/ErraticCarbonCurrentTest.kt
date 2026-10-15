@@ -4,7 +4,6 @@ import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -62,7 +61,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
 
     blue.turn {
       playPrelude(AlbedoPlants)
-      playPrelude(FakeResearchNetwork) {
+      playPrelude(ResearchNetwork) {
         draw(Windmills, UndergroundCity, AerobrakedAmmoniaAsteroid)
       }
     }
@@ -104,7 +103,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.turn {
       playProject(Lichen, 7)
       // Test inference: Research Network's wild tag supplies the fourth bio tag.
-      blue.exMachina(fakeWildTags("PlantTag"))
       claimMilestone(cn("Ecologist"))
     }
     blue.pass()
@@ -112,8 +110,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
   }
 
   private fun generation3() {
-    // Source Research Coordination uses FakeResearchCoordination here.
-    blue.buyCards(FakeResearchCoordination, GreatEscarpmentConsortium, Worms)
+    blue.buyCards(ResearchCoordination, GreatEscarpmentConsortium, Worms)
     pink.buyCards(NitrophilicMoss)
     // Database save 48 evidence: after both research purchases.
     blue.assertResources(m = 21, s = 0, t = 0, p = 4, e = 0, h = 8)
@@ -122,13 +119,12 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = -1, s = 1, t = 1, p = 5, e = 0, h = 0)
     assertSidebar(gen = 3, temp = -24, oxygen = 2, oceans = 0, venus = 0)
 
-    blue.turn { playProject(FakeResearchCoordination, 4) }
+    blue.turn { playProject(ResearchCoordination, 4) }
     pink.turn {
       playProject(BigAsteroid, 21, titanium = 2) { doTask("-4 Plant<Blue>") }
     }
     blue.turn {
       // Blue has no printed Earth tags yet, so Space Hotels needs both wild tags.
-      blue.exMachina(fakeWildTags("EarthTag", 2))
       playProject(SpaceHotels, 12)
     }
     pink.pass()
@@ -237,9 +233,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       }
     }
     blue.turn {
-      blue.exMachina(fakeWildTags("PlantTag", 2))
       playProject(Insects, 8).expect("PROD[6 Plant]")
-      blue.exMachina(fakeWildTags("MicrobeTag", 2))
       playProject(Worms, 7).expect("PROD[2 Plant]")
     }
     pink.turn {
@@ -274,7 +268,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
       }
     }
     blue.turn {
-      blue.exMachina(fakeWildTags("PowerTag", 2))
       playProject(PowerGrid, 17).expect("PROD[4 Energy]")
       playProject(UndergroundCity, 13, steel = 2) { placeTile(7, 7) }
     }
@@ -320,7 +313,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.turn {
       playProject(OlympusConference, 5, steel = 2).expect("Science<$OlympusConference>")
       // Research Outpost and Olympus Conference supply the other two science tags.
-      blue.exMachina(fakeWildTags("ScienceTag", 2))
       playProject(AiCentral, 20) {
         draw(InterstellarColonyShip)
         doTask("ProjectCard FROM Science")
@@ -393,7 +385,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     }
     blue.turn {
       // Three printed science tags remain in play; Invention Contest is already an event.
-      blue.exMachina(fakeWildTags("ScienceTag", 2))
       playProject(InterstellarColonyShip, 23)
     }
     pink.turn {
@@ -573,9 +564,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
               ),
           cn("PreludeCard") to
               mapOf(
-                  // The source's Research Network uses the replay's fake implementation.
-                  cn("Blue") to
-                      listOf(UnmiContractor, AlbedoPlants, NewPartner, FakeResearchNetwork),
+                  cn("Blue") to listOf(UnmiContractor, AlbedoPlants, NewPartner, ResearchNetwork),
                   cn("Pink") to
                       listOf(MetalsCompany, BiosphereSupport, GiantSolarCollector, Biolab),
               ),
@@ -619,7 +608,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
                           CallistoPenalMines,
                           EnergyMarket,
                           // Generation 3
-                          FakeResearchCoordination,
+                          ResearchCoordination,
                           GreatEscarpmentConsortium,
                           Worms,
                           CaretakerContract,

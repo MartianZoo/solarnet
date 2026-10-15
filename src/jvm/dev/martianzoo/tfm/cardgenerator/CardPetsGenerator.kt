@@ -26,8 +26,8 @@ import dev.martianzoo.tfm.carddata.CardData
 import dev.martianzoo.tfm.carddata.CardDefinition
 
 internal object CardPetsGenerator {
-  internal fun renderBundle(bundleName: String): String {
-    val cards = CardData.definitions(bundleName).map(::GeneratedCard)
+  internal fun renderBundle(bundleName: String, classes: RawClassIndex): String {
+    val cards = CardData.definitions(bundleName).map { GeneratedCard(it, classes) }
     val renderedSupport = mutableSetOf<ClassDeclaration>()
     return buildString {
       appendLine(GENERATED_HEADER)
@@ -43,7 +43,10 @@ internal object CardPetsGenerator {
         .trimEnd() + '\n'
   }
 
-  internal class GeneratedCard(private val data: CardDefinition) {
+  internal class GeneratedCard(
+      private val data: CardDefinition,
+      private val classes: RawClassIndex,
+  ) {
     private val className = cn(data.name)
     private val derivedClasses = DerivedClassLowerer(className)
 
@@ -56,6 +59,14 @@ internal object CardPetsGenerator {
     private val projectKind = data.projectKind?.let(::cn)
     private val directEffect = data.direct?.let { parseAuthored<InstructionTree>(it) }
     private val actions = data.actions.map { parseAuthored<Action>(it) }
+    private val actionAllocations = actions.mapIndexedNotNull { index, action ->
+      WantedTagTypes(classes).forBenefit(listOf(action.node.instruction))?.let { tag ->
+        parseAuthored<Effect>(
+            "UseAction<This, Action${index + 1}>:: " +
+                "EACH @WildTag(HAS MAX 0 Tag) { $tag<@WildTag> }"
+        )
+      }
+    }
     private val effects = data.effects.map { parseAuthored<Effect>(it) }
     private val authoredAutomaticThisEffects = effects.filter {
       it.node.automatic && it.node.trigger == Effect.Trigger.WhenGain
@@ -64,6 +75,8 @@ internal object CardPetsGenerator {
       !it.node.automatic && it.node.trigger == Effect.Trigger.WhenGain
     }
     private val otherEffects = effects.filter { it.node.trigger != Effect.Trigger.WhenGain }
+    private val benefitInstructions =
+        listOfNotNull(directEffect?.node) + authoredThisEffects.map { it.node.instruction }
     private val tagCounts = data.tags.groupingBy(::cn).eachCount()
     private val invariants =
         (listOf("MAX 1 $className") +
@@ -95,6 +108,9 @@ internal object CardPetsGenerator {
       val roles =
           listOfNotNull(
               projectKind?.expression,
+              WantedTagTypes(classes).forBenefit(benefitInstructions)?.let {
+                cn("LikesTag").of(it.classExpression())
+              },
               resourceType?.let { RESOURCE_CARD.of(it.classExpression()) },
               ACTION_CARD.expression.takeIf { actions.isNotEmpty() },
           )
@@ -121,7 +137,8 @@ internal object CardPetsGenerator {
                       ?.let(Requirement.And::create)
               ),
           authoredEffects =
-              authoredAutomaticThisEffects.map(Parsed<Effect>::node) +
+              actionAllocations.map(Parsed<Effect>::node) +
+                  authoredAutomaticThisEffects.map(Parsed<Effect>::node) +
                   onPlayEffects +
                   authoredThisEffects.map(Parsed<Effect>::node) +
                   otherEffects.map(Parsed<Effect>::node),
@@ -144,6 +161,7 @@ internal object CardPetsGenerator {
         appendLine(invariants.joinToString(", ", "  HAS ") { it.render() })
       }
       val renderedEffects = buildList {
+        actionAllocations.mapTo(this) { it.render() }
         authoredAutomaticThisEffects.mapTo(this) { it.render() }
         directEffect?.let { add("This: ${it.render()}") }
         authoredThisEffects.mapTo(this) { it.render() }

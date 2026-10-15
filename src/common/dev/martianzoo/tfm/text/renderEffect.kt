@@ -27,6 +27,10 @@ internal fun renderEffect(
     effect: Effect,
     describers: Describers,
 ): EnglishText {
+  val instructions = InstructionGroup.of(effect.instruction).instructions
+  if (instructions.isNotEmpty() && instructions.all { isImplicitInstruction(it, describers) }) {
+    return EnglishText.Empty
+  }
   val lowered = describers.prepareForRendering(effect)
   if (isEndEffect(lowered, describers)) {
     return renderEndEffect(lowered, describers)

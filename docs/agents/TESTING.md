@@ -324,9 +324,10 @@ name their gameplay objects. Use `runOperation()` when an operation's resulting 
 correction is not suitable. Card and rule scenarios do not call `sneak` directly; eligible
 project-card scenarios use the fixture's explicit `exMachina` setup methods.
 Synthetic engine checks can construct a premise from `TfmTest`, using the existing
-`canonicalPremise` and `setUpGame` functions. `FakeWildTagTest` exercises explicit temporary-tag
-injection, and `VerminTest.Attribution` supplies a synthetic listener; neither represents a
-player-facing scenario through sandbox or gameplay. Audit-history and arbitrary task-selection
+`canonicalPremise` and `setUpGame` functions. `ResearchWildTagTest` retains legacy operation-level
+coverage of assigned tags, and `VerminTest.Attribution` supplies a synthetic listener; neither uses
+the sandbox or gameplay fixture. `WildTagTest` and `WildTagContinuationTest` cover allocation and
+cleanup through sandbox actions. Audit-history and arbitrary task-selection
 checks also use `TfmTest` directly rather than claiming authentic gameplay.
 When a custom instruction reads authored card metadata from the catalog, compose the synthetic
 card into a fixture `TfmCatalog`; premise-only declarations do not populate that metadata.

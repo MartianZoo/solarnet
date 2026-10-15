@@ -99,8 +99,11 @@ lexicalization point after the applicable refinement recognizers have declined i
 An exact positive card invariant can likewise state its quantity as a gain while leaving the
 component noun in brackets. The bracket retains the full Pets expression, including its arguments.
 Vocabulary can supply a literal sentence for a specific card invariant when its printed meaning
-cannot be recovered from the inert component. The fake-card text generator supplies such a sentence
-for every fake wild tag, placing it below the artwork with the card's play-time text.
+needs explanation beyond the component count. The Terraforming Mars vocabulary supplies the wild
+tag's printed explanation, placing it below the artwork with the card's play-time text. Its
+`tagAssignmentHolder` fact also enables generic `EACH` wording for assigning unused holders and
+card filters accepting a tag either directly or through an assignment holder. The same tag
+criterion is retained across a card-copy sequence; concrete holder identities stay in vocabulary data.
 
 `Describers` still exposes several narrower producers (`componentNounPhrase`,
 `quantifiedComponentNounPhrase`, `cardResourceNounPhrase`, `playedTagPhrase`, `describedNoun`,
@@ -235,6 +238,10 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   therefore considers all earlier occurrences, not only occurrences following the declaration.
 
 ## Wording decisions
+
+- Wild-tag allocation instructions are implicit and omitted from card prose, including optional
+  allocation fanouts and Cloud Tourism's allocation procedure. The printed wild card's own rule
+  sentence remains visible. Tag predicates and counts still render normally.
 
 - Describe starting resources as `Gain ...` and starting production as an `Increase ... production`
   instruction, rather than using the printed `You start with ...` construction.
@@ -388,6 +395,30 @@ invariants remain visible as unresolved Pets in the effect region until their me
 Tags remain card metadata. Lexical `Me` references mean the current owner; a named player fanout
 must explicitly target its selected player, while `EACH Me@Player` rebinds ownership in its body.
 Event attribution uses `Actor`, independently of ownership.
+
+Standalone `English.describe(instruction, player)` optionally addresses a concrete player as
+`you`. `playerRelativeInstruction` rewrites the AST before interpretation, omitting that player's
+ownership only when the remaining arguments keep their dependency roles. Compact transfers are
+expanded to preserve both endpoints; `BY` retains its actor and can say `performed by you`.
+Instructions already containing a lexical `Me` are left unchanged to avoid capturing a fanout's
+owner. This is an internal experimental entry point, not a public gameplay-UI API.
+Concrete card selectors, placement sites, named card-resource holders, and card action providers
+retain their names; explicit action slots remain visible. For named content targets (cards, goals, colony tiles, parties, and similar selected items),
+use literal Class Names directly. The owner explicitly authorized this policy; do not add per-item
+describers merely to supply display names. Procedure `targetRelation` also
+supports named placement sites (such as trading with a colony tile). Explicit `Hand` gains/removals
+use the ordinary draw/discard wording; discards from `Selecting` and `Revealed` name their source.
+Typed resource destinations use "any card" when their resource type matches the change, retaining
+extra restrictions such as a science tag; removals retain "your" ownership. Optional changes
+preserve the quantity and target. Only mandatory discards are phrased as costs for a later result;
+optional discards retain sequential wording so the reward remains unconditional. Explicit
+resource-payment transmutations say "spend", using the existing payment-event interpretation;
+actions and standard projects retain their provider and explicit slot. A sequence inside an OR
+branch is parenthesized, and coordination must not flatten AND objects into OR alternatives.
+Readable output is not proof of complete task rendering: named award/card-play targets, variable
+payments, and additional internal bookkeeping remain follow-ups in `TODO.md`. Recognized `Audit`
+gains are omitted from instruction groups/sequences with the owner's approval; payment obligations,
+gates, and unknown System work are not suppressed.
 
 The once-per-action production reward recognizer accepts a fixed marker gain either as an
 automatic effect or as queued `System` work performed by Admin. Its unit limit, production trigger,

@@ -13,7 +13,7 @@
           "name": "PointLuna",
           "tags": [ "EarthTag", "SpaceTag" ],
           "direct": "38 MC, PROD[Titanium]",
-          "effects": [ "EarthTag: ProjectCard" ],
+          "effects": [ "EarthTag<>: ProjectCard" ],
         },
         {
           "name": "RobinsonIndustries",
@@ -175,6 +175,11 @@
           "direct": "PROD[3 Energy]",
         },
         {
+          "name": "ResearchNetwork",
+          "tags": [ "WildTag" ],
+          "direct": "PROD[1 MC], 3 ProjectCard",
+        },
+        {
           "name": "SelfSufficientSettlement",
           "tags": [ "CityTag", "BuildingTag" ],
           "direct": "CityTile<>, PROD[2 MC]",
@@ -245,6 +250,11 @@
           "tags": [ "BuildingTag" ],
           "direct": "ProjectCard",
           "effects": [ "End: VictoryPoint" ],
+        },
+        {
+          "name": "ResearchCoordination",
+          "cost": 4,
+          "tags": [ "WildTag" ],
         },
         {
           "name": "SpaceHotels",
