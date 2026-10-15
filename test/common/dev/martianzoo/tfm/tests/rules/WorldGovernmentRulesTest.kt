@@ -9,7 +9,8 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class WorldGovernmentRulesTest : TfmSandboxTest() {
-  // Resolved FAQ: Advisor may choose a completed parameter to do nothing.
+  // Unresolved adjudication (question 22, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3775830/article/48242149#48242149
   @Test
   internal fun `Advisor may choose a completed parameter while another is available`() {
     newTestGame(addOptions = "WorldGovernmentAdvisor")
@@ -29,6 +30,8 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     kim.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1
   }
 
+  // Unresolved adjudication (question 23, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3407295/article/45199222#45199222
   @Test
   internal fun `Player Venus increase rolls back when its mandatory colony has no slot`() {
     newTestGame(addOptions = "AmazonisMap, Luna, Ceres, Triton, Ganymede, Callisto")
@@ -50,6 +53,8 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     kim.count("MC") shouldBe 42
   }
 
+  // Unresolved adjudication (question 24, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3407295
   @Test
   internal fun `Advisor Venus increase proceeds with full colony slots`() {
     newTestGame(
@@ -66,6 +71,8 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
         .expect("0 Colony<Anyone>, 0 TerraformRating")
   }
 
+  // Unresolved adjudication (question 24, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3407295
   @Test
   internal fun `Advisor Venus increase does not award a player colony`() {
     newTestGame(addOptions = "AmazonisMap, WorldGovernmentAdvisor")
@@ -94,8 +101,9 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
     stan.setToExMachina(3, "Colony<$track>")
   }
 
-  // Resolved FAQ: Advisor remains usable even when every parameter is complete.
   // Earlier discussion: https://boardgamegeek.com/thread/3348438/article/44693194#44693194
+  // Unresolved adjudication (question 22, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3775830/article/48242149#48242149
   @Test
   internal fun `Advisor action can be spent when every global parameter is complete`() {
     newTestGame(addOptions = "WorldGovernmentAdvisor")
@@ -245,6 +253,19 @@ internal class WorldGovernmentRulesTest : TfmSandboxTest() {
       }
       admin.count("VenusStep") shouldBe 0
       admin.count("TemperatureStep") shouldBe 0
+    }
+
+    // Unresolved adjudication (question 24): the government currently ignores the colony bonus.
+    // https://boardgamegeek.com/thread/3407295
+    @Test
+    internal fun `Solar World Government currently skips Amazonis Venus colony bonus`() {
+      newTestGame(addOptions = "AmazonisMap", playerCount = 2)
+      repeat(7) { finishGeneration("VenusStep") }
+      stan.doTask("Pass")
+      kim.doTask("Pass")
+      players.forEach { it.autoExecNow(EAGER) }
+      stan.doTask("VenusStep! BY Admin").expect("VenusStep, 0 Colony<Anyone>, 0 TerraformRating")
+      players.forEach { it.doTask("-4 ProjectCard<Selecting>") }
     }
 
     private fun finishGeneration(choice: String) {

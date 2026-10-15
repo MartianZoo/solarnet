@@ -74,6 +74,8 @@ internal class AridorTest : TfmSandboxTest() {
         .expect("PROD[0 MC]")
   }
 
+  // Unresolved adjudication (question 14, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3068230
   @Test
   internal fun `A microbe tag lost when Pharmacy Union flips can be rewarded again`() {
     newTestGame(kimCorporation = Aridor)
@@ -102,6 +104,8 @@ internal class AridorTest : TfmSandboxTest() {
     }
   }
 
+  // Unresolved adjudication (question 14, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3068230
   @Test
   internal fun `A surviving microbe tag prevents a fresh reward after Pharmacy Union flips`() {
     newTestGame(kimCorporation = Aridor)

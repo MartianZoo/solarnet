@@ -37,6 +37,8 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
     kim.assertCounts(10 to "ProjectCard", 1 to "$EstablishedMethods")
   }
 
+  // Unresolved adjudication (question 10, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3334230/article/44569176#44569176
   @Test
   internal fun `First project cannot leave the mandatory second project unaffordable`() {
     newTestGame(addOptions = "PreludeExpansion")
@@ -63,6 +65,8 @@ internal class EstablishedMethodsTest : TfmSandboxTest() {
     kim.count("MC") shouldBe 0
   }
 
+  // Unresolved adjudication (question 10, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3334230/article/44569176#44569176
   @Test
   internal fun `First project benefit can fund the mandatory second project`() {
     newTestGame(addOptions = "PreludeExpansion", kimCorporation = CrediCor)

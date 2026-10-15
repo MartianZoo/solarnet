@@ -2,6 +2,16 @@
 
 Delete entries when they are done.
 
+- Finish faithful coverage of the 2026-10-14 unanswered-rules scenarios where current content or
+  inputs cannot express the situation. `UnknownRulesTest` covers rejecting partial Celestic and
+  Morning Star search counts (question 8), but not exhaustion after finding some cards: searches
+  have no deck or discard supply. Question 16 (Helion retaining 2 MC while paying partial Mons
+  Insurance with heat) needs real Helion; only `FakeHelion`, explicitly lacking correct payment
+  allocation, exists. Do not treat that stand-in as evidence for the Canon interaction.
+  Source: `/Users/dev/martianzoo/player-resources/_local/unanswered-rules-questions-2026-10-14.md`.
+  Links: https://boardgamegeek.com/thread/1705209/article/37732543#37732543 and
+  https://boardgamegeek.com/thread/3752654/article/48054640#48054640.
+
 - Undo the decision to hard-code the full test catalog's fingerprint in
   `GameFileJsonTest.premiseAndCatalogFingerprintsMatchAcrossTargets`. Removing the redundant `!`
   from the built-in Signal declaration required an unrelated hash update. Preserve verification

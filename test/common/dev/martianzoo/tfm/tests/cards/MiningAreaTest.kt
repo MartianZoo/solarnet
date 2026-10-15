@@ -22,9 +22,10 @@ internal class MiningAreaTest : TfmSandboxTest() {
     }
   }
 
+  // Unresolved adjudication (question 21, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/2663453
   @Test
   internal fun `Robotic Workforce re-evaluates its production box instead of remembering steel`() {
-    // Resolved FAQ: copying allows any originally available metal, regardless of the first choice.
     newTestGame(addOptions = "CimmeriaMap")
     kim.exMachina("NormalCityTile<Kim, Cimmeria_5_4>")
 

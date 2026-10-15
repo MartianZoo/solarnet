@@ -39,10 +39,10 @@ internal class MiningRightsTest : TfmSandboxTest() {
     }
   }
 
+  // Unresolved adjudication (question 21, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/2663453
   @Test
   internal fun `Robotic Workforce re-evaluates its production box instead of remembering steel`() {
-    // Resolved FAQ: copying allows any originally available metal, regardless of the first choice.
-    // https://boardgamegeek.com/thread/2663453/rule-opinions-mining-rights-robotic-workforce
     newTestGame(addOptions = "CimmeriaMap")
 
     kim.inTurn {

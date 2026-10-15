@@ -142,6 +142,8 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
         .expect("2 Disease<$PharmacyUnion>")
   }
 
+  // Unresolved adjudication (question 12, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3775830/article/48238727#48238727
   @Test
   internal fun `Viral Enhancers cannot add a disease to Pharmacy Union`() {
     newTestGame(addOptions = "PreludeExpansion")
@@ -180,7 +182,8 @@ internal class ViralEnhancersTest : TfmSandboxTest() {
     }
   }
 
-  // Resolved FAQ: choosing an uncollectible animal or microbe may yield nothing.
+  // Unresolved adjudication (question 13, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/1650981/article/30704489#30704489
   @Test
   internal fun `Viral Enhancers may choose nothing even when a plant is available`() {
     newTestGame()

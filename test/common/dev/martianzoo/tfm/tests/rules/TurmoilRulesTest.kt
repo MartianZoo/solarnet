@@ -35,6 +35,8 @@ internal class TurmoilRulesTest : TfmSandboxTest() {
     }
   }
 
+  // Unresolved adjudication (question 20, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3775830
   @Test
   internal fun `Paid lobbying reserves the last delegate for the free lobby action`() {
     newTestGame(addOptions = "TurmoilExpansion")

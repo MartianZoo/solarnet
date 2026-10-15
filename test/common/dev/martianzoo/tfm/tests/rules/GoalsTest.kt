@@ -193,6 +193,8 @@ internal class GoalsTest : TfmSandboxTest() {
   }
 
   internal class Gameplay : dev.martianzoo.tfm.tests.TfmGameplayTest() {
+    // Unresolved adjudication (question 27, 2026-10-14); this records current behavior.
+    // https://boardgamegeek.com/thread/3478406/article/47218204#47218204
     @Test
     internal fun `Dry Deserts does not erase Hydrologist credit for a removed ocean`() {
       newTestGame(addOptions = "TurmoilExpansion, Hydrologist, Builder, Engineer", playerCount = 2)

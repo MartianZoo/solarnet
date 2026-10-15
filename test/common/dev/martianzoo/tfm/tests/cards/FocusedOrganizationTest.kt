@@ -35,6 +35,8 @@ internal class FocusedOrganizationTest : TfmSandboxTest() {
         .expect("-Floater<$StormcraftIncorporated>, Plant, 0 Heat, 0 ProjectCard")
   }
 
+  // Unresolved adjudication (question 15, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3443314/article/45507249#45507249
   @Test
   internal fun `BUG - Rejects a Stormcraft floater when spending a standard resource`() {
     setupStormcraftFloater()
@@ -54,7 +56,6 @@ internal class FocusedOrganizationTest : TfmSandboxTest() {
   private fun useStormcraftFloaterForFocusedOrganization(): TaskResult = kim.inTurn {
     doTask("UseCardAction<FocusedOrganization, Action1>")
     doTask("-ProjectCard<Kim, Hand>")
-    doTask("-MC")
     doTask("-Floater<$StormcraftIncorporated>")
     doTask("Plant")
   }

@@ -27,7 +27,8 @@ internal class HiredRaidersTest : TfmSandboxTest() {
         .expect("0 Steel<Kim>")
   }
 
-  // Resolved FAQ: Hired Raiders may steal less than its maximum, but must steal at least one.
+  // Unresolved adjudication (question 17, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3415045/article/48261869#48261869
   @Test
   internal fun `Cannot decline when an opponent has resources`() {
     kim.setToExMachina(1, "MC")

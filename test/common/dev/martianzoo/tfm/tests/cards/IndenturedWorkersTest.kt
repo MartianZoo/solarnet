@@ -100,6 +100,8 @@ internal class IndenturedWorkersTest : TfmSandboxTest() {
     }
   }
 
+  // Unresolved adjudication (question 11, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3775830/article/48238727#48238727
   @Test
   internal fun `Intervening Prelude leaves the discount for the next project card`() {
     newTestGame(addOptions = "PreludeExpansion, prelude2:cards")

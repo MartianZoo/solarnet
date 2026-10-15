@@ -8,9 +8,8 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class LandshaperTest : TfmSandboxTest() {
-  // Resolved FAQ: the city, greenery, and special tile must be three distinct tiles.
-  // Earlier question:
-  // https://boardgamegeek.com/thread/3512556/article/46088087#46088087
+  // Unresolved adjudication (question 26, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3512556
   @Test
   internal fun `Capital and one greenery do not satisfy Landshaper`() {
     setupLandshaperCapital()
@@ -31,6 +30,8 @@ internal class LandshaperTest : TfmSandboxTest() {
     kim.count("Landshaper") shouldBe 0
   }
 
+  // Unresolved adjudication (question 26, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3512556
   @Test
   internal fun `Capital and two greeneries do not satisfy Landshaper`() {
     setupLandshaperCapital()
@@ -56,6 +57,8 @@ internal class LandshaperTest : TfmSandboxTest() {
     kim.count("Landshaper") shouldBe 0
   }
 
+  // Unresolved adjudication (question 26, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3512556
   @Test
   internal fun `Capital and distinct city and greenery satisfy Landshaper`() {
     setupLandshaperCapital()

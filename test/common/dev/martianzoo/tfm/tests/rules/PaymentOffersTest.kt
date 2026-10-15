@@ -1,9 +1,23 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.tfm.tests.TfmSandboxTest
+import dev.martianzoo.tfm.tests.cards.cardnames.SpaceElevator
 import kotlin.test.Test
 
 internal class PaymentOffersTest : TfmSandboxTest() {
+  @Test
+  internal fun `Mixed-metal payment currently accepts seven steel and five titanium for Space Elevator`() {
+    newTestGame()
+    kim.exMachina("10 Steel, 10 Titanium")
+    kim.setToExMachina(1, "ProjectCard")
+
+    kim.inTurn {
+          doTasks("PlayProject<Class<$SpaceElevator>>", "-7 Steel", "-5 Titanium", "Ok")
+          doTasks("SpaceElevator FROM ProjectCard", "PROD[Titanium]")
+        }
+        .expect("0 MC")
+  }
+
   @Test
   internal fun `A card with both metal tags needs no metal decisions when only another player has metals`() {
     newTestGame()

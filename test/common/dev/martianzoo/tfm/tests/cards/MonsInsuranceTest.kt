@@ -50,6 +50,8 @@ internal class MonsInsuranceTest : TfmSandboxTest() {
         .expect("PROD[0 MC<SoloOpponent>]")
   }
 
+  // Unresolved adjudication (question 9, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/3067197
   @Test
   internal fun `Merger after Manutech pays for its own production gain only`() {
     newTestGame(addOptions = "PreludeExpansion", kimCorporation = Manutech)

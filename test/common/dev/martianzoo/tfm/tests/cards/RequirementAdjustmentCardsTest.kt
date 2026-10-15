@@ -226,6 +226,8 @@ internal class RequirementAdjustmentCardsTest : TfmSandboxTest() {
     }
   }
 
+  // Unresolved adjudication (question 11, 2026-10-14); this records current behavior.
+  // https://boardgamegeek.com/thread/2143393
   @Test
   internal fun `Keeps Special Design when a Prelude intervenes before the next project`() {
     newTestGame(addOptions = "PreludeExpansion, prelude2:cards")
