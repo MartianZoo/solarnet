@@ -83,7 +83,7 @@ ABSTRACT CLASS Player : Owner, Actor {
   HAS =1 This
   HAS MAX 1 AfterMe<This, Anyone>, MAX 1 AfterMe<Anyone, This>
   HAS MAX 0 AfterMe<This, This>
-  HAS MAX 1 PlayerMode<This>
+  HAS MAX 1 CorporationOption<This>
   HAS MAX 1 RoundStatus<This>
 
   This:: StartToken<This>*
@@ -93,8 +93,8 @@ ABSTRACT CLASS Player : Owner, Actor {
   This: 5 ProdOffset<This, Class<MC>> BY Admin
   This: 2 BaseResourceValue<This, Class<Steel>>, 3 BaseResourceValue<This, Class<Titanium>>
 
-  SetupPhase IF MAX 0 BeginnerVariant: NonBeginnerMode<This>
-  SetupPhase IF BeginnerVariant: BeginnerMode<This> OR NonBeginnerMode<This>
+  SetupPhase IF MAX 0 BeginnerVariant: StandardOption<This>
+  SetupPhase IF BeginnerVariant: BeginnerOption<This> OR StandardOption<This>
   ResearchPhase: 4 ProjectCard<This, Selecting> THEN -4? ProjectCard<This, Selecting> THEN BuySelectedCards<This>
   NewTurn<This>: LATER Admin { EACH @CardBack<This, Selecting> { -@CardBack } }
   -Billing<This, Class<BuySelectedCards>, Action1>: \
@@ -102,7 +102,7 @@ ABSTRACT CLASS Player : Owner, Actor {
 }
 
 "A player's persistent choice of starting procedure"
-ABSTRACT CLASS PlayerMode : Owned<Player>, System {
+ABSTRACT CLASS CorporationOption : Owned<Player>, System {
   This IF MultiplayerMode: 20 TerraformRating
   This IF SoloMode: 14 TerraformRating
 }
@@ -110,8 +110,8 @@ ABSTRACT CLASS PlayerMode : Owned<Player>, System {
 "A unit in the configured number of corporation cards offered to each player"
 CLASS SelectableCorporationCount : System
 
-"The normal starting-card procedure"
-CLASS NonBeginnerMode : PlayerMode {
+"Records that this player chose the standard starting-card procedure"
+CLASS StandardOption : CorporationOption {
   This: CorporationCard / SelectableCorporationCount, \
     -CorporationCard / (SelectableCorporationCount - 1), \
     10 ProjectCard<Selecting>, -10? ProjectCard<Selecting>

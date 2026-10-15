@@ -4,7 +4,7 @@ CLASS PreludeExpansion : Module {
   X SoloGenerationsLeft: -2 SoloGenerationsLeft
   This:: 4 SelectablePreludeCount
 
-  PlayerMode: PreludeCard / SelectablePreludeCount, \
+  CorporationOption: PreludeCard / SelectablePreludeCount, \
     -PreludeCard / (SelectablePreludeCount - 2)
 
   RoundOver IF CorporationPhase: PreludePhase FROM CorporationPhase

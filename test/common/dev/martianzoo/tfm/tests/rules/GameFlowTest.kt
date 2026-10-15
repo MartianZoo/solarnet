@@ -85,23 +85,23 @@ internal class GameFlowTest {
         0 to "CorporationCard",
         0 to "PreludeCard",
         0 to "ProjectCard",
-        0 to "PlayerMode",
+        0 to "CorporationOption",
     )
     p2.assertCounts(
         0 to "BeginnerCard",
         0 to "CorporationCard",
         0 to "PreludeCard",
         0 to "ProjectCard",
-        0 to "PlayerMode",
+        0 to "CorporationOption",
     )
-    p1.selectTask("BeginnerMode OR NonBeginnerMode")
-    p1.narrowTask("BeginnerMode")
-    p1.assertCounts(1 to "BeginnerMode", 0 to "BeginnerCard", 0 to "PreludeCard")
+    p1.selectTask("BeginnerOption OR StandardOption")
+    p1.narrowTask("BeginnerOption")
+    p1.assertCounts(1 to "BeginnerOption", 0 to "BeginnerCard", 0 to "PreludeCard")
     p1.doTask("BeginnerCard")
     p1.doTask("4 PreludeCard")
-    p2.selectTask("BeginnerMode OR NonBeginnerMode")
-    p2.narrowTask("NonBeginnerMode")
-    p2.assertCounts(1 to "NonBeginnerMode", 0 to "CorporationCard", 0 to "PreludeCard")
+    p2.selectTask("BeginnerOption OR StandardOption")
+    p2.narrowTask("StandardOption")
+    p2.assertCounts(1 to "StandardOption", 0 to "CorporationCard", 0 to "PreludeCard")
     p2.doTask("2 CorporationCard")
     p2.doTask("4 PreludeCard")
     p2.doTask("10 ProjectCard<Selecting>")
@@ -163,8 +163,8 @@ internal class GameFlowTest {
 
     game.testTfm(ADMIN).startGame()
     listOf(p1, p2).forEach { player ->
-      player.selectTask("BeginnerMode OR NonBeginnerMode")
-      player.narrowTask("BeginnerMode")
+      player.selectTask("BeginnerOption OR StandardOption")
+      player.narrowTask("BeginnerOption")
       player.doTask("BeginnerCard")
       player.doTask("20 TerraformRating")
     }
@@ -187,13 +187,13 @@ internal class GameFlowTest {
     p2.doTask("10 ProjectCard")
 
     p1.assertCounts(
-        1 to "BeginnerMode",
+        1 to "BeginnerOption",
         1 to "BeginnerCorporation1",
         42 to "MC",
         10 to "ProjectCard",
     )
     p2.assertCounts(
-        1 to "BeginnerMode",
+        1 to "BeginnerOption",
         1 to "BeginnerCorporation2",
         42 to "MC",
         10 to "ProjectCard",
@@ -211,13 +211,13 @@ internal class GameFlowTest {
     p2.autoExecPolicy = NONE
     game.testTfm(ADMIN).startGame()
     p1.assertCounts(
-        1 to "NonBeginnerMode",
+        1 to "StandardOption",
         0 to "CorporationCard",
         0 to "PreludeCard",
         0 to "ProjectCard",
     )
     p2.assertCounts(
-        1 to "NonBeginnerMode",
+        1 to "StandardOption",
         0 to "CorporationCard",
         0 to "PreludeCard",
         0 to "ProjectCard",
@@ -236,11 +236,11 @@ internal class GameFlowTest {
     p2.doTask("-2 PreludeCard")
 
     p1.count("CorporationCard") shouldBe 1
-    p1.count("NonBeginnerMode") shouldBe 1
+    p1.count("StandardOption") shouldBe 1
     p1.count("PreludeCard") shouldBe 2
     p1.count("ProjectCard") shouldBe 0
     p2.count("CorporationCard") shouldBe 1
-    p2.count("NonBeginnerMode") shouldBe 1
+    p2.count("StandardOption") shouldBe 1
     p2.count("PreludeCard") shouldBe 2
     p2.count("ProjectCard") shouldBe 0
   }

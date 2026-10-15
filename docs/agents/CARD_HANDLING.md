@@ -56,13 +56,14 @@ Prelude plays use `PlayPrelude`: play the chosen face, or discard its anonymous 
 signal serves the Prelude phase and additional Prelude plays granted by cards. Offered cards in the
 fixed Valley Trust, New Partner, WG Project, and Merger offers are counted in `Selecting`. Their
 chosen cards are played directly from there; turn cleanup discards the others.
-Each Player first gains the persistent `PlayerMode` recording their chosen setup path. Both modes
-are `System`: Admin installs a fixed mode, while the beginner-versus-normal choice remains a
-Player task when `BeginnerVariant` is enabled. The `NonBeginnerMode` path then puts both offered
+Each Player first gains the persistent, owned `CorporationOption` recording their chosen setup path.
+Both choices are `System`: Admin records the standard choice when the variant is disabled, while
+the beginner-versus-standard choice remains a Player task when `BeginnerVariant` is enabled.
+The `StandardOption` path then puts both offered
 corporations in `Hand` and ten project cards in `Selecting`; one corporation and any unwanted
-project cards are discarded. The `BeginnerMode` path creates only `BeginnerCard`; the beginner
+project cards are discarded. The `BeginnerOption` path creates only `BeginnerCard`; the beginner
 corporation later adds ten project cards directly to `Hand`, without moving cards from `Selecting`.
-Prelude's setup rule reacts to `PlayerMode` and owns its deal and discard.
+Prelude's setup rule reacts to `CorporationOption` and owns its deal and discard.
 Corporation phase plays the retained corporation or beginner card from `Hand`. Gaining that
 `CardFront` triggers `BuySelectedCards`, so the corporation's purchase modifiers are already live
 when Admin starts the purchase. Completing the earlier `PlayCard` signal is not sufficient.

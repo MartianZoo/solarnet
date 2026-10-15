@@ -218,11 +218,11 @@ internal abstract class TfmSandboxTest {
 
   private fun chooseStartingCards(kimCorporation: ClassName?, playCorporations: Boolean) {
     players.forEachIndexed { index, player ->
-      // Resolve setup mode before narrowing it; the selected mode hands setup to Admin.
-      player.selectTask("BeginnerMode OR NonBeginnerMode")
+      // Resolve the setup choice before narrowing it; Admin records the selected choice.
+      player.selectTask("BeginnerOption OR StandardOption")
       player.narrowTask(
-          if (index == 0 && (kimCorporation != null || !playCorporations)) "NonBeginnerMode"
-          else "BeginnerMode"
+          if (index == 0 && (kimCorporation != null || !playCorporations)) "StandardOption"
+          else "BeginnerOption"
       )
       player.doTask(if (players.size == 1) "14 TerraformRating" else "20 TerraformRating")
       if (index == 0 && (kimCorporation != null || !playCorporations)) {
