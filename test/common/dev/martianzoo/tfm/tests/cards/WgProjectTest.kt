@@ -25,7 +25,7 @@ internal class WgProjectTest : TfmSandboxTest() {
           doTask("HighCircles FROM PreludeCard<Selecting>")
           doTask("TerraformRating")
           doTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
-          doTask("2 PartyDelegate<Unity>")
+          doTasks("PartyLeader<Unity>", "PartyFollower<Unity>")
         }
         .expect("$HighCircles, 0 PreludeCard, 0 PreludeCard<Selecting>")
   }

@@ -7,26 +7,42 @@ import dev.martianzoo.tfm.tests.TfmSandboxTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import kotlin.test.Ignore
 import kotlin.test.Test
 
 internal class CulturalMetropolisTest : TfmSandboxTest() {
   @Test
+  internal fun `Cultural Metropolis cannot split its placements between parties`() {
+    newTestGame(addOptions = "TurmoilExpansion")
+    kim.exMachina("Ruling<Unity FROM Greens>")
+    shouldThrow<TaskException> {
+      kim.inTurn {
+        doTasks(
+            "PlayProject<Class<CulturalMetropolis>>",
+            "20 Pay<> FROM MC",
+            "CulturalMetropolis FROM ProjectCard",
+            "PROD[-Energy]",
+            "PROD[3 MC]",
+            "CityTile<Tharsis_4_2>",
+            "Plant",
+            "PartyLeader<Scientists>",
+            "PartyLeader<Greens>",
+        )
+      }
+    }
+    kim.count("PartyDelegate") shouldBe 0
+    kim.count("MC") shouldBe 42
+  }
+
+  @Test
   internal fun `Cultural Metropolis can take both delegates from reserve and leave the lobby available`() {
-    playWithFullReserve(useLobby = false).expect("0 LobbyActionAvailable")
-  }
-
-  @Ignore // Known defect: card placements cannot choose the lobby before the reserve is empty.
-  @Test
-  internal fun `Cultural Metropolis can use the lobby while five delegates remain in reserve`() {
-    playWithFullReserve(useLobby = true).expect("-LobbyActionAvailable")
+    playWithFullReserve(useLobby = false).expect("0 LobbyDelegate")
   }
 
   @Test
-  internal fun `BUG - Cultural Metropolis cannot choose the lobby while delegates remain in reserve`() {
+  internal fun `Forced-lobby variant does not let Cultural Metropolis choose the lobby while reserve delegates remain`() {
     shouldThrow<TaskException> { playWithFullReserve(useLobby = true) }
-    kim.count("LobbyActionAvailable") shouldBe 1
-    kim.count("Delegate") shouldBe 0
+    kim.count("LobbyDelegate") shouldBe 1
+    kim.count("Delegate") shouldBe 1
     kim.count("CulturalMetropolis") shouldBe 0
     kim.count("CityTile") shouldBe 0
     kim.count("MC") shouldBe 42
@@ -46,17 +62,41 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
           "PROD[3 MC]",
           "CityTile<Tharsis_4_2>",
           "Plant",
-          "2 PartyDelegate<Scientists>",
+          "PartyLeader<Scientists>",
+          "PartyFollower<Scientists>",
       )
-      // Choosing the lobby for a card placement must consume its free action too.
-      if (useLobby) doTask("-LobbyActionAvailable")
+      // The selected variant does not offer this voluntary removal.
+      if (useLobby) doTask("-LobbyDelegate")
     }
+  }
+
+  @Test
+  internal fun `Cultural Metropolis can tie with its first delegate and take leadership with its second`() {
+    newTestGame("TurmoilExpansion")
+    kim.exMachina("Ruling<Unity FROM Greens>, PartyLeader<Scientists, Neutral>")
+
+    kim.inTurn {
+          doTasks(
+              "PlayProject<Class<CulturalMetropolis>>",
+              "20 Pay<> FROM MC",
+              "CulturalMetropolis FROM ProjectCard",
+              "PROD[-Energy]",
+              "PROD[3 MC]",
+              "CityTile<Tharsis_4_2>",
+              "Plant",
+              "PartyFollower<Scientists>",
+              "PartyLeader<Scientists>",
+          )
+        }
+        .expect(
+            "-PartyLeader<Scientists, Neutral>, PartyFollower<Scientists, Neutral>, 0 LobbyDelegate"
+        )
   }
 
   @Test
   internal fun `Cultural Metropolis cannot be played with only one delegate available`() {
     newTestGame(addOptions = "TurmoilExpansion")
-    kim.exMachina("6 PartyDelegate<MarsFirst>")
+    kim.exMachina("PartyLeader<Unity>, 5 PartyFollower<Unity>")
     kim.exMachina("Ruling<Unity FROM Greens>")
 
     shouldThrow<DeadEndException> {
@@ -67,18 +107,18 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
         doTask("PROD[3 MC]")
         doTask("CityTile<Tharsis_4_2>")
         doTask("Plant")
-        doTask("2 PartyDelegate<Scientists>")
+        doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
       }
     }
 
-    kim.count("Delegate") shouldBe 6
+    kim.count("Delegate") shouldBe 7
     kim.count("CityTile") shouldBe 0
   }
 
   @Test
   internal fun `Cultural Metropolis uses the last reserve delegate and the lobby delegate`() {
     newTestGame(addOptions = "TurmoilExpansion")
-    kim.exMachina("5 PartyDelegate<MarsFirst>")
+    kim.exMachina("PartyLeader<Unity>, 4 PartyFollower<Unity>")
     kim.exMachina("Ruling<Unity FROM Greens>")
 
     kim.inTurn {
@@ -90,8 +130,8 @@ internal class CulturalMetropolisTest : TfmSandboxTest() {
               "CityTile<Tharsis_4_2>",
               "Plant",
           )
-          doTask("2 PartyDelegate<Scientists>")
+          doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
         }
-        .expect("-LobbyActionAvailable")
+        .expect("-LobbyDelegate")
   }
 }

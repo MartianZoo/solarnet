@@ -36,7 +36,9 @@ internal class ColonialRepresentationTest : TfmSandboxTest() {
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
+      admin.doTask("PartyLeader<Greens, Neutral>")
       admin.doTask("ExploreFirstDirective")
+      admin.doTask("PartyFollower<Reds, Neutral>")
       kim.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("Pass")

@@ -8,7 +8,7 @@ internal class DiasporaMovementTest : TfmSandboxTest() {
   @Test
   internal fun `Counts its own Jovian tag and ignores an opponents tag`() {
     newTestGame(addOptions = "TurmoilExpansion")
-    kim.exMachina("2 PartyDelegate<Reds>")
+    kim.exMachina("PartyFollower<Reds>, PartyLeader<Reds>")
     stan.exMachina("$ColonizerTrainingCamp")
 
     kim.inTurn {

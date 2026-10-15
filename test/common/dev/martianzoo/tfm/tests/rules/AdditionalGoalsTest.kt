@@ -44,7 +44,9 @@ internal class AdditionalGoalsTest : TfmSandboxTest() {
   @Test
   internal fun `Lobbyist counts a chairman and six delegates without double counting leaders`() {
     newTestGame(addOptions = "TurmoilExpansion, Lobbyist, Builder, Engineer")
-    kim.exMachina("5 PartyDelegate<Scientists>, Chairman<Kim FROM Neutral>")
+    kim.exMachina(
+        "PartyLeader<Scientists>, 4 PartyFollower<Scientists>, Chairman<Kim FROM Neutral>"
+    )
     shouldThrow<RequirementException> {
       kim.inTurn {
         doTask("ClaimMilestone<Class<Lobbyist>>")
@@ -54,8 +56,8 @@ internal class AdditionalGoalsTest : TfmSandboxTest() {
     }
 
     kim.inTurn {
-      doTask("LobbyAction<Action1>")
-      doTask("PartyDelegate<Scientists>")
+      doTask("LobbyAction")
+      doTask("PartyFollower<Scientists> FROM LobbyDelegate")
     }
     kim.inTurn {
       doTasks("ClaimMilestone<Class<Lobbyist>>", "8 Pay<> FROM MC")

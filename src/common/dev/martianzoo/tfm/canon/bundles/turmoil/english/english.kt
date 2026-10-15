@@ -30,6 +30,16 @@ internal val turmoilEnglishDeclarations: List<Pair<ClassName, ComponentDescriber
                 requirementCondition = Condition.ArgumentState(rulingParty, "is ruling"),
                 requirementKind = "party",
             ),
+        cn("Party") to
+            ComponentDescriber(
+                placementSite =
+                    ComponentDescriber.PlacementSite(counted("party", "parties"), relation = "in"),
+                metricCount =
+                    ComponentDescriber.MetricCount(
+                        counted("party", "parties"),
+                        unqualifiedSuffix = "",
+                    ),
+            ),
         cn("MarsFirst") to ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("Mars First")),
         cn("Scientists") to
             ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("the Scientists party")),
@@ -39,13 +49,26 @@ internal val turmoilEnglishDeclarations: List<Pair<ClassName, ComponentDescriber
         cn("Reds") to ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("the Reds party")),
         cn("Kelvinists") to
             ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("the Kelvinists party")),
+        cn("Neutral") to ComponentDescriber(ownerAdjective = "neutral"),
+        cn("Delegate") to
+            ComponentDescriber(
+                metricCount =
+                    ComponentDescriber.MetricCount(
+                        delegateNoun,
+                        unqualifiedSuffix = "",
+                        forSubclasses = false,
+                    ),
+            ),
+        cn("LobbyDelegate") to
+            ComponentDescriber(countNoun = counted("lobby delegate", "lobby delegates")),
         cn("PartyDelegate") to
             ComponentDescriber(
                 changeFrame =
-                    Frame.CountedProcedure(
-                        "place",
+                    Frame.Positioned(
+                        Determiner.INDEFINITE,
                         delegateNoun,
-                        singularDeterminer = Determiner.INDEFINITE,
+                        unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
+                        anyoneOwnership = ComponentDescriber.OwnershipPhrase.IMPLICIT,
                     ),
                 requirementCondition =
                     Condition.OwnedCount(
@@ -54,23 +77,47 @@ internal val turmoilEnglishDeclarations: List<Pair<ClassName, ComponentDescriber
                         qualifierRelation = "in",
                         unboundQualifier = "any party",
                         ownerDependency = owner,
-                        ownerAdjectives = mapOf(cn("Neutral") to "neutral"),
-                        differences =
-                            mapOf(
-                                cn("PartyLeader") to
-                                    counted("non-leader delegate", "non-leader delegates")
-                            ),
+                    ),
+            ),
+        cn("PartyFollower") to
+            ComponentDescriber(
+                changeFrame =
+                    Frame.Positioned(
+                        Determiner.INDEFINITE,
+                        counted("non-leader delegate", "non-leader delegates"),
+                        unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
+                        anyoneOwnership = ComponentDescriber.OwnershipPhrase.IMPLICIT,
+                    ),
+                countNoun = counted("non-leader delegate", "non-leader delegates"),
+                requirementCondition =
+                    Condition.OwnedCount(
+                        counted("non-leader delegate", "non-leader delegates"),
+                        qualifierDependency = party,
+                        qualifierRelation = "in",
+                        unboundQualifier = "any party",
+                        ownerDependency = owner,
                     ),
             ),
         cn("PartyLeader") to
             ComponentDescriber(
+                changeFrame =
+                    Frame.Positioned(
+                        Determiner.INDEFINITE,
+                        counted("party leader", "party leaders"),
+                        unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
+                        anyoneOwnership = ComponentDescriber.OwnershipPhrase.IMPLICIT,
+                    ),
                 triggerFrame = Trigger.Named("become", "a party leader"),
                 countNoun = counted("party leadership", "party leaderships"),
+                metricCount =
+                    ComponentDescriber.MetricCount(
+                        counted("party leadership", "party leaderships"),
+                        unqualifiedSuffix = "",
+                    ),
                 requirementCondition =
                     Condition.OwnedCount(
                         counted("party", "parties"),
                         ownerDependency = owner,
-                        ownerAdjectives = mapOf(cn("Neutral") to "neutral"),
                         ownerVerb = "lead",
                     ),
             ),
@@ -93,7 +140,6 @@ internal val turmoilEnglishDeclarations: List<Pair<ClassName, ComponentDescriber
                     Condition.OwnedCount(
                         counted("chairman", "chairmen"),
                         ownerDependency = owner,
-                        ownerAdjectives = mapOf(cn("Neutral") to "neutral"),
                         singleOwnerState = "are chairman",
                     ),
             ),

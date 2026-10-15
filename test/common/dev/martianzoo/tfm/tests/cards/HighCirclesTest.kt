@@ -18,7 +18,7 @@ internal class HighCirclesTest : TfmSandboxTest() {
           "TerraformRating",
       )
       doTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
-      doTask("2 PartyDelegate<Scientists>")
+      doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
     }
 
     kim.inTurn {
@@ -49,7 +49,7 @@ internal class HighCirclesTest : TfmSandboxTest() {
           "TerraformRating",
       )
       doTask("SearchForCard<Kim, ReferenceFilter<Class<Ruling>>>!")
-      doTask("2 PartyDelegate<Scientists>")
+      doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
     }
 
     kim.inTurn {
@@ -73,7 +73,7 @@ internal class HighCirclesTest : TfmSandboxTest() {
       newTestGame("PreludeExpansion, HighCircles, TurmoilExpansion", playerCount = 2)
       kim.completeOperation {
         doTask("PlayCard<Class<PreludeCard>, Class<$HighCircles>>")
-        doTask("2 PartyDelegate<Scientists>")
+        doTasks("PartyLeader<Scientists>", "PartyFollower<Scientists>")
         autoExecNow(EAGER)
       }
       kim.doTask("PlayCard<Class<PreludeCard>, Class<$Donation>>")
@@ -90,7 +90,11 @@ internal class HighCirclesTest : TfmSandboxTest() {
       players.forEach { it.autoExecNow(EAGER) }
 
       kim.count("Chairman") shouldBe 1
-      admin.doTask("ExploreFirstDirective")
+      admin.doTasks(
+          "PartyLeader<Greens, Neutral>",
+          "ExploreFirstDirective",
+          "PartyFollower<Reds, Neutral>",
+      )
       kim.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("Pass")

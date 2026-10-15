@@ -4,8 +4,6 @@ count	reason	examples
 4	UNSUPPORTED_EFFECT_TRIGGER	FakeHelion: Billing<Class<Component>, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>> | MiningGuild: Tile<MarsArea(HAS 1 (PlacementBonus<Class<StandardResource>> - PlacementBonus<Class<MC>> - PlacementBonus<Class<Metal>> - PlacementBonus<Class<Plant>> - PlacementBonus<Class<Energy>> - PlacementBonus<Class<Heat>>), HAS MAX 0 PlacementBonus<Class<Metal>>)>: PROD[Steel], Audit
 4	UNSUPPORTED_GATE	FakeHeadStart: MAX 0 RequiredAction: StandardAction | FakeHeadStart: RequiredAction: RequiredActionsSignal
 2	UNSUPPORTED_FANOUT	Aridor: EACH @Class<Tag> { AridorTagWatcher<@Class, This> } | IcyImpactors: EACH Starter@Player(HAS StartToken) { ChooseOceanArea<Starter@Player, Me@Owner> }
-2	UNSUPPORTED_PLACEMENT_CHANGE	Flooding: OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>! | MarsNomads: NomadsMarker<NewHome@LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker>) FROM LandArea>
-1	UNSUPPORTED_DECLARED_CHANGE	Recruitment: PartyDelegate<Party(HAS 1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)), Me@Owner FROM Neutral>
 1	UNSUPPORTED_METRIC	FakeSeptemTribus: PartyDelegate
-1	UNSUPPORTED_SCALING	BannedDelegate: BannedDelegateRemoval<Party, Anyone>* / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1
+1	UNSUPPORTED_PLACEMENT_CHANGE	Flooding: OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>!
 1	UNSUPPORTED_STANDARD_RESOURCE_CHANGE	Flooding: -4? MC<@Anyone>

@@ -978,7 +978,9 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
+      admin.doTask("PartyLeader<Greens, Neutral>")
       admin.doTask("ScienceSummit")
+      admin.doTask("PartyLeader<Scientists, Neutral>")
       kim.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("-4 ProjectCard<Selecting>")
 
@@ -991,7 +993,9 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       stan.doTask("OceanTile<Tharsis_1_5> BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
+      admin.doTask("PartyLeader<Unity, Neutral>")
       admin.doTask("ExploreFirstDirective")
+      admin.doTask("PartyLeader<Reds, Neutral>")
       kim.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("-4 ProjectCard<Selecting>")
 
@@ -1001,7 +1005,9 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       kim.doTask("VenusStep! BY Admin")
       players.forEach { it.autoExecNow(EAGER) }
 
+      admin.doTask("PartyLeader<Greens, Neutral>")
       admin.doTask("MoralMovement")
+      admin.doTask("PartyFollower<Reds, Neutral>")
       kim.doTask("-4 ProjectCard<Selecting>")
       stan.doTask("-4 ProjectCard<Selecting>")
 
