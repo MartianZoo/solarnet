@@ -99,8 +99,11 @@ lexicalization point after the applicable refinement recognizers have declined i
 An exact positive card invariant can likewise state its quantity as a gain while leaving the
 component noun in brackets. The bracket retains the full Pets expression, including its arguments.
 Vocabulary can supply a literal sentence for a specific card invariant when its printed meaning
-cannot be recovered from the inert component. The fake-card text generator supplies such a sentence
-for every fake wild tag, placing it below the artwork with the card's play-time text.
+needs explanation beyond the component count. The Terraforming Mars vocabulary supplies the wild
+tag's printed explanation, placing it below the artwork with the card's play-time text. Its
+`tagAssignmentHolder` fact also enables generic `EACH` wording for assigning unused holders and
+card filters accepting a tag either directly or through an assignment holder. The same tag
+criterion is retained across a card-copy sequence; concrete holder identities stay in vocabulary data.
 
 `Describers` still exposes several narrower producers (`componentNounPhrase`,
 `quantifiedComponentNounPhrase`, `cardResourceNounPhrase`, `playedTagPhrase`, `describedNoun`,
@@ -235,6 +238,10 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   therefore considers all earlier occurrences, not only occurrences following the declaration.
 
 ## Wording decisions
+
+- Wild-tag allocation instructions are implicit and omitted from card prose, including optional
+  allocation fanouts and Cloud Tourism's allocation procedure. The printed wild card's own rule
+  sentence remains visible. Tag predicates and counts still render normally.
 
 - Describe starting resources as `Gain ...` and starting production as an `Increase ... production`
   instruction, rather than using the printed `You start with ...` construction.

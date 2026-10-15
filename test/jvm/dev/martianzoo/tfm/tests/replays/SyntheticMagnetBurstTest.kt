@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -80,7 +80,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
 
     green.turn {
       // Green played Nobel Prize
-      playPrelude(FakeNobelPrize) {
+      playPrelude(NobelPrize) {
             // Green gained 5 M€
             /* Discarded 6 cards Dirigibles,Asteroid Mining,Viral Enhancers,Soletta,Sabotage,Big Asteroid */
             // Green drew Insects,Stratopolis
@@ -204,7 +204,6 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       // Power Supply Consortium requires Nobel Prize's wild icon to count as Green's second power
       // tag.
       // Green played Power Supply Consortium
-      green.exMachina(fakeWildTags("PowerTag"))
       playProject(PowerSupplyConsortium, 5) {
         // Green stole 1 energy production from Pink
         doTask("PROD[-Energy<Pink>]")
@@ -333,12 +332,16 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       // Miranda Resort counted Nobel Prize's wild icon as Green's third earth tag.
       // Green gained 3 M€ production
       // Green gained 2 M€ from Suitable Infrastructure
-      green.exMachina(fakeWildTags("EarthTag"))
       playProject(MirandaResort, 12).expect("PROD[3 MC], -10 MC")
       // Nobel Prize's wild icon counts as Green's eighth distinct tag.
       // Green claimed Diversifier milestone
-      green.exMachina(fakeWildTags("MicrobeTag"))
-      stdAction("ClaimMilestone<Class<Diversifier>>")
+      inTurn {
+        doWithAutoExecPolicy(CONCRETE) {
+          useStdAction("ClaimMilestone<Class<Diversifier>>") {
+            doTask("MicrobeTag<WildTag<NobelPrize>>")
+          }
+        }
+      }
     }
     pink.turn {
       // Pink played Titanium Mine
@@ -611,7 +614,6 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       // Nobel Prize's wild icon counts as Green's second science tag.
       // Green gained 3 energy production
       // Green gained 2 M€ from Suitable Infrastructure
-      green.exMachina(fakeWildTags("ScienceTag"))
       playProject(TectonicStressPower, 18)
       // Green passed
       pass()
@@ -998,7 +1000,6 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
       // Nobel Prize's wild icon counts as Green's second plant tag.
       // Green gained 2 plant production
       // Green gained 2 M€ from Suitable Infrastructure
-      green.exMachina(fakeWildTags("PlantTag"))
       playProject(Insects, 9)
     }
     pink.turn {

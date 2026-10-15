@@ -623,6 +623,26 @@ CLASS UtopiaInvest : ActionCard<Class<CorporationCard>> {
 }
 ```
 
+### Septem Tribus
+
+Class: `SeptemTribus`
+
+| | Bottom | Top |
+| --- | --- | --- |
+| Printed text | You start with 36 M€. When you perform an action, the wild tag counts as any tag of your choice. | Action: Gain 2 M€ for EACH PARTY WHERE YOU HAVE AT LEAST 1 DELEGATE. |
+| Generated text | Gain 36 M€. While performing a future action, the wild tag can become any tag of your choice. | Action: Gain 2 M€ per party with \[PartyDelegate\]. |
+
+Pets declaration:
+
+```pets
+CLASS SeptemTribus : ActionCard<Class<CorporationCard>> {
+  HAS MAX 1 SeptemTribus, =1 WildTag<This>
+  cost = 0
+  This: 36 MC
+  -> 2 MC / Party(HAS PartyDelegate)
+}
+```
+
 ## Promo Card Pack
 
 ### Arcadian Communities
@@ -959,26 +979,5 @@ CLASS FakeHelion : CardFront<Class<CorporationCard>> {
   This:: BaseResourceValue<Class<Heat>>
   This: 42 MC, PROD[3 Heat]
   Billing<Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
-}
-```
-
-### Septem Tribus
-
-Class: `FakeSeptemTribus`
-
-| | Bottom | Top |
-| --- | --- | --- |
-| Printed text | You start with 36 M€. When you perform an action, the wild tag counts as any tag of your choice. | Action: Gain 2 M€ for EACH PARTY WHERE YOU HAVE AT LEAST 1 DELEGATE. |
-| Generated text | Gain 36 M€. | Action: \[2 MC / Class&lt;@Party&gt;(HAS PartyDelegate&lt;@Party&gt;)\]. / Effect: \[=1 FakeWildTag&lt;This&gt;\]. |
-
-Pets declaration:
-
-```pets
-"Septem Tribus with an inert wild tag"
-CLASS FakeSeptemTribus : ActionCard<Class<CorporationCard>> {
-  HAS =1 FakeWildTag<This>
-  cost = 0
-  This: 36 MC
-  -> 2 MC / Class<@Party>(HAS PartyDelegate<@Party>)
 }
 ```

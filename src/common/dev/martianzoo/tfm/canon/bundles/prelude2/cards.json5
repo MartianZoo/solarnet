@@ -7,7 +7,7 @@
           "name": "Ecotec",
           "tags": [ "MicrobeTag", "PlantTag" ],
           "direct": "42 MC, PROD[Plant]",
-          "effects": [ "BioTag: Plant OR Microbe" ],
+          "effects": [ "BioTag<>: Plant OR Microbe" ],
         },
         {
           "name": "NirgalEnterprises",
@@ -48,6 +48,12 @@
     {
       "deck": "PreludeCard",
       "cards": [
+        {
+          "name": "AppliedScience",
+          "tags": [ "WildTag" ],
+          "direct": "6 Science<This>",
+          "actions": [ "Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource" ],
+        },
         {
           "name": "AtmosphericEnhancers",
           "tags": [ "VenusTag" ],
@@ -108,6 +114,12 @@
           ],
         },
         {
+          "name": "NobelPrize",
+          "tags": [ "WildTag" ],
+          "direct": "5 MC, 2 SearchForCard<RequirementFilter>",
+          "effects": [ "End: 2 VictoryPoint" ],
+        },
+        {
           "name": "OldMiningColony",
           "tags": [ "SpaceTag" ],
           "direct": "PROD[Titanium], Colony<>, -ProjectCard",
@@ -144,7 +156,7 @@
           "name": "SoilBacteria",
           "tags": [ "MicrobeTag" ],
           "direct": "2 SearchForCard<TagFilter<Class<MicrobeTag>>>, 3 Plant",
-          "effects": [ "PlantTag OR MicrobeTag: Plant" ],
+          "effects": [ "PlantTag<> OR MicrobeTag<>: Plant" ],
         },
         {
           "name": "SpaceLanes",
@@ -207,7 +219,11 @@
           "tags": [ "JovianTag", "VenusTag" ],
           "direct": "PROD[1 MC / EarthTag MAX VenusTag]",
           "actions": [ "-> Floater<This>" ],
-          "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
+          "effects": [
+            "This:: AllocateCloudTourismWildTags",
+            "End: VictoryPoint / 3 Floater<This>",
+          ],
+          "components": [ "CLASS AllocateCloudTourismWildTags : Owned<Player>, CustomInstruction, System" ],
         },
         {
           "name": "FloatingRefinery",
@@ -284,6 +300,7 @@
         },
         {
           "name": "VenusShuttles",
+          "effects": [ "UseAction<This, Action1>:: EACH @WildTag(HAS MAX 0 Tag) { VenusTag<@WildTag> }" ],
           "cost": 9,
           "tags": [ "VenusTag" ],
           "direct": "2 Floater<CardFront(HAS VenusTag)>",

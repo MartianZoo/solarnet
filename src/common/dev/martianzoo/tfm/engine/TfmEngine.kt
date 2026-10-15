@@ -67,6 +67,7 @@ public object TfmEngine {
   /** Custom instructions and metrics recognized when constructing a Terraforming Mars world. */
   public val customClasses: Set<CustomClass> =
       setOf(
+          AllocateCloudTourismWildTags,
           CopyPrelude,
           CopyProductionBox,
           GainsOf,
@@ -78,6 +79,7 @@ public object TfmEngine {
           PlayerDistance,
           PriceAspectCount,
           RepeatPlacementBonus,
+          RequiredWildTag,
           ScoreEventVps,
           TileInLargestGroup,
       )

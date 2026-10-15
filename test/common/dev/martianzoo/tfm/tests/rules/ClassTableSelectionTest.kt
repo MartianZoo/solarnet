@@ -71,9 +71,25 @@ internal class ClassTableSelectionTest {
   }
 
   @Test
-  internal fun `Unselected Hydrologist omits its credit tracking support`() {
+  internal fun `Unselected milestones omit their support`() {
     assertValidView("Builder, Legend, Merchant") { view ->
-      assertOmitted(view, setOf(cn("Hydrologist"), cn("OceanCredit"), cn("HydrologistWatcher")))
+      assertOmitted(
+          view,
+          setOf(
+              cn("Hydrologist"),
+              cn("OceanCredit"),
+              cn("HydrologistWatcher"),
+              cn("Diversifier"),
+              cn("DiversifierWatcher"),
+          ),
+      )
+    }
+  }
+
+  @Test
+  internal fun `Hellas selects Diversifier and its allocation watcher together`() {
+    assertValidView("HellasMap") { view ->
+      assertSelected(view, setOf(cn("Diversifier"), cn("DiversifierWatcher")))
     }
   }
 
@@ -344,8 +360,7 @@ internal class ClassTableSelectionTest {
     val table = gameView("AmazonisMap", "Player1", "Player2").classTable
     val milestone = table.getClass(cn("Milestone"))
 
-    milestone.declaration.effects.size shouldBe 2
-    table.effects(milestone).size shouldBe 2
+    table.effects(milestone).size shouldBe milestone.declaration.effects.size
     milestone.declaration.effects.zip(table.effects(milestone)).forEach { (backing, executable) ->
       assertSame(backing, executable)
     }

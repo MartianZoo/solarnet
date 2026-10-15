@@ -1103,12 +1103,13 @@ A `DEFAULT` clause records context that the physical game leaves implicit: that 
 land area, or that a resource belongs to the player in context. It changes how an authored
 expression *resolves*. It never changes which types exist.
 
-**T10-1. Three separate sets.** Defaults are gathered independently for all uses
-(`DEFAULT Foo<...>`), for gains (`DEFAULT +Foo<...>`) and for removals (`DEFAULT -Foo<...>`). A
-class's all-uses defaults give it a **default template**, its base type written with those
-defaults filled in, and a **default type**, the type that template denotes. The two differ only as
+**T10-1. Four separate sets.** Defaults are gathered independently for all uses
+(`DEFAULT Foo<...>`), for gains (`DEFAULT +Foo<...>`), for removals (`DEFAULT -Foo<...>`), and for
+gain/removal triggers (`DEFAULT Foo<...>:`). A class's all-uses defaults give it a **default template**,
+its base type written with those defaults filled in, and a **default type**, the type that template
+denotes. The two differ only as
 T10-5 says. Elaboration applies defaults according to the expression's use (L9-4 through L9-8);
-resolution alone applies none of the three sets.
+resolution alone applies none of the four sets.
 
 ```pets
 ABSTRACT CLASS SpecialTile : Tile<MarsArea> {

@@ -15,7 +15,7 @@ private object EnglishCardTextCurrentGenerator {
     val english =
         English(
             catalog.classTable,
-            TerraformingMarsDescribers.descriptions + fakeEnglishDescriptions,
+            TerraformingMarsDescribers.descriptions,
         )
     val published =
         EnglishCardTextData.parse(readEnglishCardText("english-published-wording-evidence.tsv"))

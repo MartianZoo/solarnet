@@ -36,6 +36,8 @@ internal data class ComponentDescriber(
     internal val cardProcedure: CardProcedure? = null,
     internal val cardLocationDependency: Key? = null,
     internal val cardInvariantSentence: String? = null,
+    internal val tagAssignmentHolder: Boolean? = null,
+    internal val implicitInstruction: Boolean? = null,
 ) {
   internal enum class CardLocation {
     HAND,

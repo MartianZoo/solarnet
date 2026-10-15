@@ -1191,17 +1191,18 @@ private fun Describers.renderCardResourceHolder(
     else NounPhrase(holder.singular, determiner = Determiner.ANY)
   }
   val refinement = expression.refinement as? Expression.Refinement.Has ?: return null
-  val minimum = refinement.requirement as? Requirement.Min ?: return null
-  val metric = minimum.metric as? Metric.Count ?: return null
-  if (!metric.expression.simple) return null
-  tagName(metric.expression.className)?.let { tag ->
-    if (minimum.target != 1) return null
+  val criterion = cardCriterion(refinement.requirement)
+  if (criterion is CardCriterion.Tag) {
+    val tag = tagName(criterion.className) ?: return null
     return if (owned) {
       NounPhrase.text("one of your $tag ${holder.plural}")
     } else {
       NounPhrase("$tag ${holder.singular}", determiner = Determiner.INDEFINITE)
     }
   }
+  val minimum = refinement.requirement as? Requirement.Min ?: return null
+  val metric = minimum.metric as? Metric.Count ?: return null
+  if (!metric.expression.simple) return null
   val resource =
       cardResourceNoun(metric.expression.className, maxOf(2, minimum.target)) ?: return null
   val subject =

@@ -19,7 +19,10 @@ internal fun renderInstructionTree(
     instructionTree: InstructionTree,
     describers: Describers,
 ): EnglishText {
-  val prepared = describers.prepareForRendering(instructionTree)
+  val instructions = InstructionGroup.of(instructionTree).instructions
+  val visible = instructions.filterNot { isImplicitInstruction(it, describers) }
+  if (instructions.isNotEmpty() && visible.isEmpty()) return EnglishText.Empty
+  val prepared = describers.prepareForRendering(InstructionGroup.of(visible))
   val rendered =
       renderPreparedInstructions(prepared, describers, TypeVariableReferences.from(prepared))
   return rendered.asSentences()
@@ -145,6 +148,42 @@ private fun renderInstruction(
       }
       is Instruction.Dispatch -> null
     }
+
+/** Allocation is implicit bookkeeping, omitted from human-readable card instructions. */
+internal fun isImplicitInstruction(instruction: Instruction, describers: Describers): Boolean =
+    when (instruction) {
+      is Instruction.Each -> isTagAssignmentFanout(instruction, describers)
+      is Gain ->
+          describers.fact(instruction.gaining.className, ComponentDescriber::implicitInstruction) ==
+              true
+      else -> false
+    }
+
+private fun isTagAssignmentFanout(
+    instruction: Instruction.Each,
+    describers: Describers,
+): Boolean {
+  val selector = instruction.selector
+  if (describers.fact(selector.className, ComponentDescriber::tagAssignmentHolder) != true)
+      return false
+  if (selector.arguments.isNotEmpty()) return false
+  if (selector.refinement != null) {
+    val absent =
+        (selector.refinement as? Expression.Refinement.Has)?.requirement as? Requirement.Max
+            ?: return false
+    val counted = (absent.metric as? Metric.Count)?.expression ?: return false
+    if (absent.target != 0 || counted != cn("Tag").expression) return false
+  }
+  val gain =
+      InstructionGroup.of(instruction.body).instructions.singleOrNull() as? Gain ?: return false
+  if (gain.count.fixedQuantity() != 1 || gain.gaining.refinement != null) return false
+  val holder = gain.gaining.arguments.singleOrNull() ?: return false
+  if (!sameNamedTypeVariable(holder, selector) || !describers.isTag(gain.gaining.className))
+      return false
+  val modality = gain.quantifier.modality()
+  if (modality == Modality.BEST_EFFORT) return false
+  return true
+}
 
 private fun renderPlayerFanout(
     instruction: Instruction.Each,

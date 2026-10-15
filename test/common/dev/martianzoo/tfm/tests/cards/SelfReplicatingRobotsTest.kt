@@ -848,8 +848,8 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
   }
 
   private fun useAppliedScienceWithHostedCard(choice: OperationBlock): TaskResult {
-    newTestGame(addOptions = "fakes:cards")
-    kim.exMachina("$FakeSelfReplicatingRobots, $FakeAppliedScience, Science<$FakeAppliedScience>")
+    newTestGame(addOptions = "fakes:cards, AppliedScience")
+    kim.exMachina("$FakeSelfReplicatingRobots, $AppliedScience, Science<$AppliedScience>")
     kim.setToExMachina(1, "ProjectCard")
     kim.inTurn {
       doTasks(
@@ -860,8 +860,8 @@ internal class SelfReplicatingRobotsTest : TfmSandboxTest() {
       doTask("2 RobotUnit<Class<Mine>>")
     }
     return kim.inTurn {
-      doTask("UseCardAction<FakeAppliedScience, Action1>")
-      doTask("-Science<FakeAppliedScience>")
+      doTask("UseCardAction<AppliedScience, Action1>")
+      doTask("-Science<AppliedScience>")
       choice()
     }
   }

@@ -297,8 +297,9 @@ operation.
 
 Nothing is removed merely because the World is idle. A component whose end is future work
 schedules that work as a deferred task: an event card's move to `PlayedEvent`, `L1GiftWatcher`'s
-removal, and `FakeWildTagUse`'s removal after its owner's next action. The owner performs each such
-task, so a test whose Players do not autoexecute performs it explicitly.
+removal, and removal of the tag assigned to a `WildTag` after ordinary action work finishes.
+Wild assignments use `LATER Admin`, so Admin performs their cleanup even when players use `NONE`.
+Other deferred work remains with the actor named by its rule.
 
 ## Deferred work
 
@@ -331,7 +332,7 @@ Devices replaced by deferral:
 | `TradeBarrier` | `Trade`'s `This: LATER { FinishTrade<@ColonyTile> }` |
 | `TurmoilSolarOperation` | `SolarPhase: LATER { TurmoilPhase }`; `TurmoilPhase: ResolveGlobalEvent, LATER { FormGovernment THEN ChangingTimes }` |
 | `L1GiftWatcher` as `Temporary` | `LATER { -This }` beside the gift fanout |
-| `FakeWildTagUse` as `Temporary` | `StandardAction: LATER { -This* }` and `PlayPrelude: LATER { -This* }` |
+| Temporary wild-tag use | The printed `WildTag` holds the assignment: `Tag<This>: LATER { -Tag<This>* }` |
 
 `FinalScoringPending` and the `Temporary` `MeasureAward` were replaced by a phase instead: `End`
 scores, and the terminal `VictoryPhase` names the winner after that work has finished. With these
@@ -423,7 +424,7 @@ choice makes the turn impossible to finish, P1 must roll back the turn.
   and fanouts, groups, nesting, final work, and rollback.
 - `Lang02InstructionsTest`: L2-18 and L2-19 syntax; `TaskDispatchTest`: dispatch recipients.
 - `SolarProbeTest`, `TradeEnvoysTest`, `L1TradeTerminalTest`, `SolarPhaseOrderingTest`,
-  `AwardsTest`, `VictoryTest`, and `FakeWildTagTest`: the converted devices.
+  `AwardsTest`, `VictoryTest`, `WildTagTest`, and `WildTagContinuationTest`: the converted devices.
 - `SolarPhaseOrderingTest` reaches solar phases through gameplay and observes ocean removal,
   TR brackets, influence payouts, ruling bonuses, delegate availability, dominance ties, optional
   payment affordability, and next-generation corporation eligibility. It does not assert execution

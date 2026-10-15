@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.canon.Canon
@@ -7,7 +8,6 @@ import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.fake.FakeCanon
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -20,7 +20,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           """
           TharsisMap
           VenusNextExpansion, PreludeExpansion, prelude2:cards, promos:cards
-          FakeFloydContinuum, FakeResearchCoordination, FakeResearchNetwork, FakeWildTagUse
+          FakeFloydContinuum, ResearchCoordination, ResearchNetwork
 
           Fundraiser, Philantropist, Planetologist, Sponsor, Briber, Terran
           Scientist, Landlord, Industrialist, Benefactor, Forecaster, Excentric
@@ -40,12 +40,8 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
               ),
           cn("PreludeCard") to
               mapOf(
-                  // The source's Applied Science uses the replay's fake implementation.
-                  cn("Nor") to
-                      listOf(ProjectEden, EcologyExperts, AlbedoPlants, FakeAppliedScience),
-                  // The source's Research Network uses the replay's fake implementation.
-                  cn("Vin") to
-                      listOf(GalileanMining, Supplier, FakeResearchNetwork, FloatingTradeHub),
+                  cn("Nor") to listOf(ProjectEden, EcologyExperts, AlbedoPlants, AppliedScience),
+                  cn("Vin") to listOf(GalileanMining, Supplier, ResearchNetwork, FloatingTradeHub),
               ),
       )
   override val cardDepartureOrder =
@@ -54,7 +50,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
               mapOf(cn("Nor") to listOf(MiningGuild), cn("Vin") to listOf(Viron)),
           cn("PreludeCard") to
               mapOf(
-                  cn("Nor") to listOf(EcologyExperts, FakeAppliedScience),
+                  cn("Nor") to listOf(EcologyExperts, AppliedScience),
                   cn("Vin") to listOf(GalileanMining, FloatingTradeHub),
               ),
       )
@@ -92,7 +88,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
                           // Generation 4
                           StratosphericExpedition,
                           Comet,
-                          FakeResearchCoordination,
+                          ResearchCoordination,
                           AdaptationTechnology,
                           // Generation 5
                           RobotPollinators,
@@ -327,7 +323,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     }
     vin.turn {
       playPrelude(Supplier)
-      playPrelude(FakeResearchNetwork) {
+      playPrelude(ResearchNetwork) {
         vin.draw(ProtectedHabitats, SisterPlanetSupport, PhysicsComplex)
       }
     }
@@ -358,9 +354,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
 
     // Research Network's wild tag supplies Cloud Tourism's missing Earth tag.
     vin.turn {
-      vin.exMachina(fakeWildTags("EarthTag"))
       playProject(CloudTourism, 11).expect("PROD[MC]")
-      vin.assertCounts(0 to "FakeWildTagUse")
     }
     nor.turn {
       convertPlants { placeTile(3, 6) }
@@ -368,9 +362,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     }
     // Research Network supplies Sister Planet Support's missing Earth tag.
     vin.turn {
-      vin.exMachina(fakeWildTags("EarthTag"))
       playProject(SisterPlanetSupport, 7).expect("PROD[3 MC]")
-      vin.assertCounts(0 to "FakeWildTagUse")
     }
     nor.turn {
       stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
@@ -382,9 +374,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     vin.turn {
       cardAction1(CloudTourism)
       playProject(VenusShuttles, 9) { addCardResources(CloudTourism, 2) }
-      vin.exMachina(fakeWildTags("VenusTag"))
       cardAction1(VenusShuttles)
-      vin.assertCounts(0 to "FakeWildTagUse")
       pass()
     }
     vin.wgt("OxygenStep")
@@ -429,8 +419,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
   }
 
   private fun generation4() {
-    // Source Research Coordination is represented by FakeResearchCoordination here.
-    nor.buyCards(FakeResearchCoordination)
+    nor.buyCards(ResearchCoordination)
     vin.buyCards(NuclearZone, MarsUniversity, SpinInducingAsteroid, Bushes)
     // Database save 75: immediately after both Research purchases in generation 4.
     nor.assertResources(m = 30, s = 0, t = 0, p = 9, e = 1, h = 6)
@@ -460,15 +449,11 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     vin.turn {
       playProject(NuclearZone, 10) { placeTile(5, 7) }
       // Research Network supplies Planetologist's second Jovian tag.
-      vin.exMachina(fakeWildTags("JovianTag"))
       claimMilestone(cn("Planetologist"))
-      vin.assertCounts(0 to "FakeWildTagUse")
     }
     nor.turn { playProject(DesignedMicroorganisms, 16) }
     vin.turn {
-      vin.exMachina(fakeWildTags("VenusTag"))
       cardAction1(VenusShuttles)
-      vin.assertCounts(0 to "FakeWildTagUse")
     }
     nor.turn {
       playProject(EcologicalZone, 12) {
@@ -517,15 +502,11 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     vin.turn { cardAction1(CloudTourism) }
     nor.turn { cardAction1(AerialMappers) { addCardResources(LocalShading) } }
     vin.turn {
-      vin.exMachina(fakeWildTags("EarthTag"))
       playProject(Cartel, 8)
-      vin.assertCounts(0 to "FakeWildTagUse")
     }
     nor.turn { cardAction2(LocalShading) }
     vin.turn {
-      vin.exMachina(fakeWildTags("VenusTag"))
       cardAction1(VenusShuttles)
-      vin.assertCounts(0 to "FakeWildTagUse")
     }
     nor.turn { claimMilestone(cn("Briber")) }
     vin.turn { playProject(SmallAnimals, 6) }
@@ -555,17 +536,13 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     assertSidebar(gen = 6, temp = -16, oxygen = 6, oceans = 6, venus = 12)
 
     vin.turn { playProject(Sabotage, 1) { doTask("-7 MC<Nor>") } }
-    nor.turn { playProject(FakeResearchCoordination, 4) }
+    nor.turn { playProject(ResearchCoordination, 4) }
     vin.turn {
-      vin.exMachina(fakeWildTags("VenusTag"))
       cardAction1(VenusShuttles)
-      vin.assertCounts(0 to "FakeWildTagUse")
       stdProject("AirScrappingProject")
     }
     nor.turn {
-      nor.exMachina(fakeWildTags("ScienceTag"))
       playProject(Plantation, 15) { placeTile(4, 5) }
-      nor.assertCounts(0 to "FakeWildTagUse")
       convertPlants { placeTile(3, 4) }
     }
     vin.turn { cardAction1(SmallAnimals) }
@@ -613,9 +590,14 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     vin.turn { cardAction1(SmallAnimals) }
     // Research Coordination supplies Interplanetary Trade's tenth distinct tag.
     nor.turn {
-      nor.exMachina(fakeWildTags("JovianTag"))
-      playProject(InterplanetaryTrade, 24, titanium = 1)
-      nor.assertCounts(0 to "FakeWildTagUse")
+      inTurn {
+        doWithAutoExecPolicy(CONCRETE) {
+          playProject(InterplanetaryTrade, 24, titanium = 1) {
+            selectTask("EACH @WildTag { Tag<@WildTag>? }")
+            doTask("JovianTag<WildTag<ResearchCoordination>>")
+          }
+        }
+      }
     }
     vin.turn { playProject(Thermophiles, 9) }
     nor.turn { convertPlants { placeTile(3, 3) } }
@@ -624,9 +606,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     vin.turn { cardAction1(Thermophiles) { addCardResources(Thermophiles) } }
     nor.pass()
     vin.turn {
-      vin.exMachina(fakeWildTags("VenusTag"))
       cardAction1(VenusShuttles)
-      vin.assertCounts(0 to "FakeWildTagUse")
       convertHeat()
       playProject(MarsUniversity, 6) {
         doTask("-ProjectCard")
@@ -764,15 +744,11 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     vin.turn { cardAction2(Thermophiles) }
     // Research Coordination supplies the eighth Plant tag counted by Robot Pollinators.
     nor.turn {
-      nor.exMachina(fakeWildTags("PlantTag"))
       playProject(RobotPollinators, 8)
-      nor.assertCounts(0 to "FakeWildTagUse")
       convertPlants { placeTile(5, 2) }
     }
     vin.turn {
-      vin.exMachina(fakeWildTags("VenusTag"))
       cardAction1(VenusShuttles)
-      vin.assertCounts(0 to "FakeWildTagUse")
     }
     nor.turn { convertPlants { placeTile(4, 1) } }
     vin.pass()
@@ -843,7 +819,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.turn { playProject(FakeFloydContinuum, 3) }
     // Research Network supplies Atalanta Planitia Lab's third Science tag.
     vin.turn {
-      vin.exMachina(fakeWildTags("ScienceTag"))
       playProject(AtalantaPlanitiaLab, 10) {
         vin.draw(WaterSplittingPlant, Algae)
         doTask("2 ProjectCard")
@@ -851,7 +826,6 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
         vin.discard(WaterSplittingPlant)
         vin.draw(NoctisCity)
       }
-      vin.assertCounts(0 to "FakeWildTagUse")
     }
     nor.turn { cardAction1(AerialMappers) { addCardResources(AerialMappers) } }
     vin.turn { cardAction1(SmallAnimals) }
@@ -951,11 +925,9 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.turn { cardAction1(GhgProducingBacteria) }
     // Research Network supplies Interstellar Colony Ship's fifth Science tag.
     vin.turn {
-      vin.exMachina(fakeWildTags("ScienceTag"))
       playProject(InterstellarColonyShip, 1, titanium = 7) {
         vin.draw(RestrictedArea)
       }
-      vin.assertCounts(0 to "FakeWildTagUse")
     }
     nor.turn { cardAction1(WeatherBalloons) }
     vin.turn { stdProject("PowerPlantProject") }

@@ -22,7 +22,7 @@ internal class EnglishTest {
   private val catalog = TfmCatalog(Canon, FakeCanon)
   private val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
   private val publishedEnglish =
-      English(catalog.classTable, TerraformingMarsDescribers.descriptions + fakeEnglishDescriptions)
+      English(catalog.classTable, TerraformingMarsDescribers.descriptions)
   private val cardsByClassName = Canon.cards.associateBy { it.className }
   private val published =
       EnglishCardTextData.parse(readEnglishCardText("english-published-wording-evidence.tsv"))
@@ -66,6 +66,8 @@ internal class EnglishTest {
         parse<Effect>("Placement<@MarsArea>: MC / Neighbor<OceanTile, @MarsArea>")
     ) shouldBe "When you place a tile on Mars, gain 1 M€ per ocean tile next to that Mars area."
     english.describe(parse<Effect>("PlantTag<CardFront<Anyone>, Anyone>: Steel")) shouldBe
+        "When any plant tag is played, gain 1 steel."
+    english.describe(parse<Effect>("PlantTag<CardFront<Anyone>>: Steel")) shouldBe
         "When any plant tag is played, gain 1 steel."
     english.describe(parse<Effect>("TerraformRating: 2 MC")) shouldBe
         "When you raise your terraform rating 1 step, gain 2 M€."

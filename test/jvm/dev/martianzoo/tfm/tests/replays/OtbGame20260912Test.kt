@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.catalog.GameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.fakeWildTags
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -55,7 +55,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
 
     // "Septim Triboos [Septem Tribus]. I get 36 money, and then I buy 10 cards. Don't tell me I
     // bought 10."
-    green.playCorp(FakeSeptemTribus)
+    green.playCorp(SeptemTribus)
     // "Pristar. I get 53 money. I lose two TR. Not super happy. And I buy seven cards."
     yellow.playCorp(Pristar)
     // "My corporation is Tycho Magnetics. I start with 42. Not 42 money production. But one energy
@@ -64,7 +64,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
 
     green.turn {
       // "Nobel Prize. My second wild tag. I have no tags, but I have two wild tags."
-      playPrelude(FakeNobelPrize)
+      playPrelude(NobelPrize)
       // "Experimental Forest. My greenery. I'm going to go on six two. For dos cardos. And for
       // moneyos."
       playPrelude(ExperimentalForest) { placeTile(6, 2) }
@@ -88,7 +88,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       playPrelude(MartianIndustries)
       // "Applied Science is a wild tag, not that it counts for anything yet. I immediately add six
       // science resources, and it's going to let me gain stuff. Stuff and stuff."
-      playPrelude(FakeAppliedScience)
+      playPrelude(AppliedScience)
       // "Established methods. Gain 30 monies." "Wow." "I'm gonna greenery for 23. I'm gonna put
       // it here for two cards... And that gave me the temperatura."
       playPrelude(EstablishedMethods) {
@@ -166,7 +166,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     green.turn {
       // "Well, that's good in some ways. I think I'll go ahead and use my Septim Tribus [Septem
       // Tribus] action now. And that means I get six money, right?" "Six McSeas."
-      cardAction1(FakeSeptemTribus).expect("6 MC")
+      cardAction1(SeptemTribus).expect("6 MC")
     }
     yellow.turn {
       // "Soych for life [Search for Life] for three."
@@ -188,8 +188,8 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     blue.pass(unused = DirectedHeatUsage, TychoMagnetics)
     green.turn {
       // "I will use Orbital Cleanup to take three money." Artificial Photosynthesis supplies one
-      // printed Science tag; the fake wild tags are reconciled at the pre-WGT checkpoint.
-      cardAction1(OrbitalCleanup).expect("MC")
+      // printed Science tag, and both wild tags are assigned Science for this action.
+      cardAction1(OrbitalCleanup).expect("3 MC")
     }
     yellow.turn {
       // "Decisions, decisions." "You should take mine." "We're reducing blue's energy production
@@ -197,11 +197,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       playProject(EnergyTapping, 3) { doTask("PROD[-Energy<Blue>]") }
     }
     green.pass()
-    yellow.pass(unused = FakeAppliedScience)
-
-    // Green chose the two inert wild tags on Septem Tribus and Nobel Prize as Science, making the
-    // recorded Orbital Cleanup payout 3 M€ rather than the engine's printed-tag payout of 1 M€.
-    green.exMachina("2 MC")
+    yellow.pass(unused = AppliedScience)
 
     // Complete phone-ledger resource checkpoint after Generation 1 production. World Government
     // is pending, so the Turmoil TR revision must not have happened yet.
@@ -261,11 +257,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
         1 to "Coming<MartianProtectionism>",
         1 to "Distant<ScienceSummit>",
     )
-
-    // Green consistently uses the inert wild tags on Septem Tribus and Nobel Prize as Science for
-    // every sourced Generation 2-3 action that observes them. No intervening rule observes Science
-    // tags, so materialize that choice once and remove it after the final such action.
-    green.exMachina("ScienceTag<$FakeSeptemTribus>, ScienceTag<$FakeNobelPrize>")
 
     // Generation 2 Research: "I buy four"; Yellow buys two; Blue buys three.
     green.buyCards(4)
@@ -352,14 +343,14 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     yellow.turn {
       // "Applied Science floater onto Local Shading."
-      cardAction1(FakeAppliedScience) { addCardResources(LocalShading) }
-          .expect("-Science<$FakeAppliedScience>, Floater<$LocalShading>")
+      cardAction1(AppliedScience) { addCardResources(LocalShading) }
+          .expect("-Science<$AppliedScience>, Floater<$LocalShading>")
     }
     green.turn {
       // "I am going to use my Septem Tribus action to take ten money." Green is represented in
       // five parties; the recovered Generation 1 Scientist delegate became chairman rather than
       // remaining in Mars First.
-      cardAction1(FakeSeptemTribus).expect("10 MC")
+      cardAction1(SeptemTribus).expect("10 MC")
     }
     yellow.pass()
 
@@ -486,18 +477,14 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     green.turn {
       // "I'm going to use my Septem Tribus action to take 10 money."
-      cardAction1(FakeSeptemTribus).expect("10 MC")
+      cardAction1(SeptemTribus).expect("10 MC")
     }
-    // Materialize Applied Science's wild tag as Earth only for Space Hotels' requirement. Removing
-    // it afterward keeps the later Unity policy from treating that wild tag as a printed tag.
-    yellow.exMachina("EarthTag<$FakeAppliedScience>")
     yellow.turn {
       // "I spend two titanium and six real on Space Hotels. Increase money production four
       // steps." Sponsored Academies supplies one Earth tag; Applied Science's wild tag is the
       // second Earth tag for the requirement.
       playProject(SpaceHotels, 6, titanium = 2)
     }
-    yellow.exMachina("-EarthTag<$FakeAppliedScience>")
     blue.turn {
       // "Blue is spending one steel and seven money ... Natural Preserve ... up here for two
       // steel."
@@ -512,7 +499,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.turn {
       // "Apply Science floater onto Local Shading. And I will pay two steel for Mine to get a
       // steel production."
-      cardAction1(FakeAppliedScience) { addCardResources(LocalShading) }
+      cardAction1(AppliedScience) { addCardResources(LocalShading) }
       playProject(Mine, steel = 2)
     }
     blue.turn {
@@ -538,7 +525,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // tags as Science.
       cardAction1(OrbitalCleanup).expect("4 MC")
     }
-    green.exMachina("-ScienceTag<$FakeSeptemTribus>, -ScienceTag<$FakeNobelPrize>")
     blue.pass()
     green.pass()
 
@@ -640,7 +626,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     green.turn {
       // "I will use Orbital Cleanup to get five money."
-      exMachina(fakeWildTags("ScienceTag", 2))
       cardAction1(OrbitalCleanup).expect("5 MC")
     }
     yellow.turn {
@@ -660,16 +645,24 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.turn {
       // "Research Coordination for four. And then Interplanetary Trade." Its nine-step increase
       // brings Yellow's M€ production from nine to the photographed 18.
-      playProject(FakeResearchCoordination, 4)
-      exMachina(fakeWildTags("JovianTag", "PlantTag"))
-      playProject(InterplanetaryTrade, 27).expect("PROD[9 MC]")
+      playProject(ResearchCoordination, 4)
+      inTurn {
+            doWithAutoExecPolicy(CONCRETE) {
+              playProject(InterplanetaryTrade, 27) {
+                selectTask("EACH @WildTag { Tag<@WildTag>? }")
+                doTask("JovianTag<WildTag<AppliedScience>>")
+                doTask("PlantTag<WildTag<ResearchCoordination>>")
+              }
+            }
+          }
+          .expect("PROD[9 MC]")
     }
     blue.turn {
       // "Bioprinting Facility ... one steel and five money." "Spend two energy, gain two plants."
       playProject(BioPrintingFacility, 5, steel = 1)
       cardAction1(BioPrintingFacility) { doTask("2 Plant") }
     }
-    green.turn { cardAction1(FakeSeptemTribus).expect("8 MC") }
+    green.turn { cardAction1(SeptemTribus).expect("8 MC") }
     yellow.turn {
       cardAction1(SearchForLife) { declineTask() }.expect("-MC, 0 Science")
     }
@@ -687,7 +680,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       stdAction("LobbyAction") { doTask("PartyFollower<Greens> FROM LobbyDelegate") }
     }
     green.pass()
-    yellow.turn { cardAction1(FakeAppliedScience) { addCardResources(SecurityFleet) } }
+    yellow.turn { cardAction1(AppliedScience) { addCardResources(SecurityFleet) } }
     blue.turn { cardAction1(DirectedHeatUsage) { doTask("4 MC") } }
     yellow.pass()
     blue.turn {
@@ -767,7 +760,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.turn {
       // Dusk Laser Mining: one titanium and five M€. Satellites: three titanium and one M€.
       playProject(DuskLaserMining, 5, titanium = 1)
-      exMachina(fakeWildTags("SpaceTag", 2))
       playProject(Satellites, 1, titanium = 3).expect("PROD[7 MC]")
     }
     blue.turn { cardAction1(AsteroidHollowing) }
@@ -779,7 +771,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     blue.turn {
       stdAction("LobbyAction") { doTask("PartyFollower<MarsFirst> FROM LobbyDelegate") }
     }
-    green.turn { cardAction1(FakeSeptemTribus).expect("8 MC") }
+    green.turn { cardAction1(SeptemTribus).expect("8 MC") }
     yellow.turn {
       // Symbiotic Fungus is revealed, so Search for Life succeeds.
       cardAction1(SearchForLife) {
@@ -792,7 +784,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // worth four, so the recorded payment is two titanium and one M€.
       playProject(DeuteriumExport, 1, titanium = 2)
     }
-    yellow.turn { cardAction1(FakeAppliedScience) { addCardResources(SecurityFleet) } }
+    yellow.turn { cardAction1(AppliedScience) { addCardResources(SecurityFleet) } }
     blue.turn {
       playProject(AsteroidDeflectionSystem, 8, steel = 1, titanium = 1)
       // The physical game also omitted Asteroid Deflection System's energy-production decrease.
@@ -802,9 +794,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.turn { playProject(ImportOfAdvancedGhg, 9) }
     blue.turn { playProject(DustSeals, 2) }
     green.turn {
-      exMachina("ScienceTag<$FakeSeptemTribus>, ScienceTag<$FakeNobelPrize>")
       cardAction1(OrbitalCleanup).expect("5 MC")
-      exMachina("-ScienceTag<$FakeSeptemTribus>, -ScienceTag<$FakeNobelPrize>")
     }
     yellow.turn { playProject(RedShips, 2) }
     blue.turn { cardAction1(DirectedHeatUsage) { doTask("4 MC") } }
@@ -914,7 +904,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     yellow.turn {
       // "I'm going to envoys from Venus ... put two delegates in one party ... unity."
-      exMachina(fakeWildTags("VenusTag", 2))
       playProject(EnvoysFromVenus, 1) {
         doTask("PartyFollower<Unity>")
         doTask("PartyFollower<Unity>")
@@ -950,13 +939,11 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     yellow.turn {
       // Summit Logistics: two steel, one titanium, three M€, then five planetary tags.
-      exMachina(fakeWildTags("EarthTag", 2))
       intentionalUnderpay()
       playProject(SummitLogistics, 3, steel = 2, titanium = 1).expect("2 MC")
     }
     blue.turn { cardAction1(BioPrintingFacility) { doTask("2 Plant") } }
     green.turn {
-      exMachina(fakeWildTags("AnimalTag"))
       playProject(AdvancedEcosystems, 9)
     }
     yellow.turn { playProject(DiversitySupport, 1) }
@@ -979,7 +966,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     blue.turn { cardAction1(Stratopolis) { addCardResources(Stratopolis, 2) } }
     // The wrong-color Envoys placement above supplies Green's photographed Unity representation
     // and the fifth party counted by this Septem Tribus action.
-    green.turn { cardAction1(FakeSeptemTribus).expect("10 MC") }
+    green.turn { cardAction1(SeptemTribus).expect("10 MC") }
     yellow.turn {
       playProject(AstraMechanica, 7) {
         doWithoutAutoExec(yellow) {
@@ -1000,7 +987,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // "I'm going to spend sixteen on aquifer pumping"; Green kept its plants.
       playProject(AquiferPumping, 16)
     }
-    yellow.turn { cardAction1(FakeAppliedScience) { addCardResources(SecurityFleet) } }
+    yellow.turn { cardAction1(AppliedScience) { addCardResources(SecurityFleet) } }
     blue.turn { stdAction("PaidLobbyAction") { doTask("PartyFollower<Unity>") } }
     green.turn {
       stdAction("UseCardAction<$AquiferPumping, Action1>", payment = { pay(8) }) {
@@ -1010,9 +997,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.turn { cardAction2(LocalShading) }
     blue.pass(unused = DirectedHeatUsage)
     green.turn {
-      exMachina("ScienceTag<$FakeSeptemTribus>, ScienceTag<$FakeNobelPrize>")
       cardAction1(OrbitalCleanup).expect("6 MC")
-      exMachina("-ScienceTag<$FakeSeptemTribus>, -ScienceTag<$FakeNobelPrize>")
       // Toll Station is visible in board-21-53-02.jpg and its cost/production are the remaining
       // Green ledger changes, although the transcript does not name the play.
       playProject(TollStation, 10).expect("PROD[8 MC]")
@@ -1107,7 +1092,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     green.turn { playProject(OrbitalReflectors, 24) }
     yellow.turn {
-      exMachina(fakeWildTags("ScienceTag", 2))
       playProject(AntiGravityTechnology, 14)
     }
     blue.turn { cardAction1(DirectedHeatUsage) { doTask("4 MC") } }
@@ -1122,16 +1106,14 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       playProject(SpaceStation, 5, titanium = 1)
     }
     blue.turn { cardAction1(AsteroidHollowing) }
-    green.turn { cardAction1(FakeSeptemTribus).expect("10 MC") }
+    green.turn { cardAction1(SeptemTribus).expect("10 MC") }
     yellow.turn { cardAction1(SecurityFleet) }
     blue.turn { playProject(MartianMediaCenter, 7) }
     green.turn { playProject(Grass, 9) }
     yellow.turn { playProject(Virus, 0) { doTask("-4 Plant<Green>") } }
     blue.turn { playProject(ProtectedValley, 23) { placeTile(3, 2) } }
     green.turn {
-      exMachina("ScienceTag<$FakeSeptemTribus>, ScienceTag<$FakeNobelPrize>")
       cardAction1(OrbitalCleanup).expect("6 MC")
-      exMachina("-ScienceTag<$FakeSeptemTribus>, -ScienceTag<$FakeNobelPrize>")
       // The name is lost under "brain says" in the transcript; Green's ledger records its exact
       // seven-M€ cost and production, and the next photograph shows Adapted Lichen in the tableau.
       playProject(AdaptedLichen, 7)
@@ -1142,7 +1124,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       stdAction("LobbyAction") { doTask("PartyLeader<Greens> FROM LobbyDelegate") }
     }
     green.turn { convertHeat() }
-    yellow.turn { cardAction1(FakeAppliedScience) { addCardResources(SecurityFleet) } }
+    yellow.turn { cardAction1(AppliedScience) { addCardResources(SecurityFleet) } }
     blue.turn { cardAction1(MartianMediaCenter) { doTask("PartyFollower<Unity>") } }
     green.turn { convertHeat() }
     yellow.turn { playProject(SnowAlgae, 10) }
@@ -1278,7 +1260,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     yellow.turn { playProject(SolarWindPower, 3, titanium = 1) }
     blue.turn { cardAction1(Stratopolis) { addCardResources(Stratopolis, 2) } }
-    green.turn { cardAction1(FakeSeptemTribus).expect("8 MC") }
+    green.turn { cardAction1(SeptemTribus).expect("8 MC") }
     yellow.turn { cardAction1(SecurityFleet) }
     blue.turn {
       // The revealed project has a Space tag, so Asteroid Deflection System succeeds.
@@ -1302,20 +1284,17 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       cardAction1(MartianMediaCenter) { doTask("PartyFollower<Greens>") }
     }
     green.turn {
-      exMachina("ScienceTag<$FakeSeptemTribus>, ScienceTag<$FakeNobelPrize>")
       cardAction1(OrbitalCleanup).expect("6 MC")
-      exMachina("-ScienceTag<$FakeSeptemTribus>, -ScienceTag<$FakeNobelPrize>")
     }
     yellow.turn { cardAction1(MoholeLake) { addCardResources(EcologicalZone) } }
     blue.turn { cardAction1(StratosphericBirds) }
     green.turn { cardAction2(DeuteriumExport) }
-    yellow.turn { cardAction1(FakeAppliedScience) { addCardResources(SecurityFleet) } }
+    yellow.turn { cardAction1(AppliedScience) { addCardResources(SecurityFleet) } }
     blue.turn { cardAction1(TychoMagnetics, x = 1) }
     green.turn { playProject(ParliamentHall, 6) }
     yellow.turn { cardAction1(RedShips).expect("7 MC") }
     blue.turn { sellPatents(4) }
     green.turn {
-      exMachina(fakeWildTags("EarthTag", "JovianTag", "VenusTag"))
       playProject(LuxuryFoods, 6)
     }
     yellow.turn { playProject(Farming, 14) }
@@ -1423,19 +1402,17 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.turn { playProject(Decomposers, 3) }
     blue.turn { cardAction1(AsteroidHollowing) }
     green.turn {
-      exMachina("ScienceTag<$FakeSeptemTribus>, ScienceTag<$FakeNobelPrize>")
       cardAction1(OrbitalCleanup).expect("7 MC")
-      exMachina("-ScienceTag<$FakeSeptemTribus>, -ScienceTag<$FakeNobelPrize>")
       fundAward(cn("Landscaper"), 14)
     }
     yellow.turn {
-      // The replay has eleven Science tags here, while the spoken physical count is twelve. This
-      // proves a one-tag discrepancy by Bactoviral Research, not that this count caused it: an
-      // earlier Science-tag play could be absent from the incomplete record, or the table could
-      // have overcounted. Add the consequential microbe here while leaving the cause unresolved.
-      playProject(BactoviralResearch, 8) { addCardResources(Decomposers) }
-          .expect("11 Microbe<$Decomposers>")
-      exMachina("Microbe<$Decomposers>")
+      // 16:13:50: twelve Science tags including both wilds, plus Decomposers' printed-tag
+      // reaction, give the spoken thirteen microbes.
+      playProject(BactoviralResearch, 8) {
+            yellow.assertCounts(12 to "ScienceTag")
+            addCardResources(Decomposers)
+          }
+          .expect("13 Microbe<$Decomposers>")
     }
     blue.turn { cardAction1(MartianMediaCenter) { doTask("PartyFollower<Reds>") } }
     green.turn { playProject(Mangrove, 10) { placeTile(6, 5) } }
@@ -1452,12 +1429,11 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // Both physical wild tags are chosen as Jovian for MicrogravityHealthProblems Movement.
       // Together with the
       // card's own Jovian tag, they explain the spoken three-M€ payout.
-      exMachina(fakeWildTags("JovianTag", 2))
       playProject(DiasporaMovement, 5).expect("-2 MC")
     }
     yellow.turn { cardAction1(LocalShading) }
     blue.turn { stdAction("LobbyAction") { doTask("PartyFollower<Unity> FROM LobbyDelegate") } }
-    green.turn { cardAction1(FakeSeptemTribus).expect("8 MC") }
+    green.turn { cardAction1(SeptemTribus).expect("8 MC") }
     yellow.turn { cardAction2(EnergyMarket).expect("PROD[-Energy], 8 MC") }
     blue.turn {
       cardAction1(AsteroidDeflectionSystem) {
@@ -1509,19 +1485,17 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     }
     blue.pass(unused = TychoMagnetics, BioPrintingFacility)
     yellow.turn { stdAction("PaidLobbyAction") { doTask("PartyFollower<Kelvinists>") } }
-    yellow.pass(unused = SearchForLife, FakeAppliedScience)
+    yellow.pass(unused = SearchForLife, AppliedScience)
 
     // Green once more retained Supercapacitors' energy during final production.
     green.declineTask()
     // Once MicrogravityHealthProblems Movement receives the two evidenced wild Jovian tags above,
     // Green reaches the
     // photographed final cash without any residual adjustment.
-    // The final photograph has one more Decomposers microbe than the action record; the surviving
-    // records do not locate this difference. It also has twelve animals although the final Mohole
-    // Lake action explicitly adds an "eagle" to Ecological Zone; an animal was missed or removed
-    // sometime after Ecological Zone's Generation 6 play, but the surviving records cannot identify
-    // the responsible trigger.
-    yellow.exMachina("Microbe<$Decomposers>, -Animal<$EcologicalZone>")
+    // The final photograph has twelve animals although the final Mohole Lake action explicitly
+    // adds an "eagle" to Ecological Zone; an animal was missed or removed sometime after Ecological
+    // Zone's Generation 6 play, but the surviving records cannot identify the responsible trigger.
+    yellow.exMachina("-Animal<$EcologicalZone>")
 
     with(green) {
       assertProduction(m = 16, s = 0, t = 0, p = 7, e = 8, h = 7)

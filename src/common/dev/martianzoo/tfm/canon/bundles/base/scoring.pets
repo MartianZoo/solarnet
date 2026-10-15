@@ -9,6 +9,7 @@ ABSTRACT CLASS Milestone : Owned<Player>, Real {
   autoSelectWhen = Requirement?
   requirement = Requirement
 
+  This:: AllocateRequiredWildTags<Class<This>>
   This:: (EVAL This.requirement: Ok)
   End: 5 VictoryPoint
 }

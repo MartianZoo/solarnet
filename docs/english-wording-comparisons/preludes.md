@@ -642,6 +642,25 @@ CLASS UnmiContractor : CardFront<Class<PreludeCard>> {
 }
 ```
 
+### Research Network
+
+Class: `ResearchNetwork`
+
+| | Bottom | Top |
+| --- | --- | --- |
+| Printed text | Draw 3 cards, and increase your M€ production 1 step. After being played, when you perform an action, the wild tag is any tag of your choice. | — |
+| Generated text | Increase your M€ production 1 step. Draw 3 cards. While performing a future action, the wild tag can become any tag of your choice. | — |
+
+Pets declaration:
+
+```pets
+CLASS ResearchNetwork : CardFront<Class<PreludeCard>> {
+  HAS MAX 1 ResearchNetwork, =1 WildTag<This>
+  cost = 0
+  This: PROD[MC], 3 ProjectCard
+}
+```
+
 ## Promo Card Pack
 
 ### Albedo Plants
@@ -1287,26 +1306,47 @@ CLASS RiseToPower : CardFront<Class<PreludeCard>> {
 }
 ```
 
-## Replay-only models
+### Applied Science
 
-### Research Network
-
-Class: `FakeResearchNetwork`
+Class: `AppliedScience`
 
 | | Bottom | Top |
 | --- | --- | --- |
-| Printed text | Draw 3 cards, and increase your M€ production 1 step. After being played, when you perform an action, the wild tag is any tag of your choice. | — |
-| Generated text | Increase your M€ production 1 step. Draw 3 cards. | Effect: \[=1 FakeWildTag&lt;This&gt;\]. |
+| Printed text | Add 6 science resources here. | Action: Remove 1 science resource here to either add 1 resource to ANY CARD WITH A RESOURCE or gain 1 standard resource. |
+| Generated text | Add 6 science resources to this card. While performing a future action, the wild tag can become any tag of your choice. | Action: Spend 1 science resource from this card to add 1 resource to a card with 1 or more resources on it or gain 1 standard resource. |
 
 Pets declaration:
 
 ```pets
-CLASS FakeResearchNetwork : CardFront<Class<PreludeCard>> {
-  HAS =1 FakeWildTag<This>
+CLASS AppliedScience : ResourceCard<Class<Science>, Class<PreludeCard>>, ActionCard {
+  HAS MAX 1 AppliedScience, =1 WildTag<This>
   cost = 0
-  This: PROD[MC], 3 ProjectCard
+  This: 6 Science<This>
+  Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource
 }
 ```
+
+### Nobel Prize
+
+Class: `NobelPrize`
+
+| | Bottom | Top |
+| --- | --- | --- |
+| Printed text | Gain 5 M€. Draw 2 cards with requirements. | — |
+| Generated text | Gain 5 M€. Draw 2 cards with requirements. While performing a future action, the wild tag can become any tag of your choice. | — |
+
+Pets declaration:
+
+```pets
+CLASS NobelPrize : CardFront<Class<PreludeCard>> {
+  HAS MAX 1 NobelPrize, =1 WildTag<This>
+  cost = 0
+  This: 5 MC, 2 SearchForCard<RequirementFilter>
+  End: 2 VictoryPoint
+}
+```
+
+## Replay-only models
 
 ### Head Start
 
@@ -1325,45 +1365,5 @@ CLASS FakeHeadStart : CardFront<Class<PreludeCard>> {
   cost = 0
   This:: Audit
   This: 2 Steel, 2 MC / ProjectCard, UseAction<StandardAction>!, UseAction<StandardAction>!
-}
-```
-
-### Applied Science
-
-Class: `FakeAppliedScience`
-
-| | Bottom | Top |
-| --- | --- | --- |
-| Printed text | Add 6 science resources here. | Action: Remove 1 science resource here to either add 1 resource to ANY CARD WITH A RESOURCE or gain 1 standard resource. |
-| Generated text | Add 6 science resources to this card. | Action: Spend 1 science resource from this card to add 1 resource to a card with 1 or more resources on it or gain 1 standard resource. / Effect: \[=1 FakeWildTag&lt;This&gt;\]. |
-
-Pets declaration:
-
-```pets
-CLASS FakeAppliedScience : ActionCard, ResourceCard<Class<Science>, Class<PreludeCard>> {
-  HAS =1 FakeWildTag<This>
-  cost = 0
-  This: 6 Science<This>
-  Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource
-}
-```
-
-### Nobel Prize
-
-Class: `FakeNobelPrize`
-
-| | Bottom | Top |
-| --- | --- | --- |
-| Printed text | Gain 5 M€. Draw 2 cards with requirements. | — |
-| Generated text | Gain 5 M€. Draw 2 cards. | Effect: \[=1 FakeWildTag&lt;This&gt;\]. |
-
-Pets declaration:
-
-```pets
-CLASS FakeNobelPrize : CardFront<Class<PreludeCard>> {
-  HAS =1 FakeWildTag<This>
-  cost = 0
-  This: 5 MC, 2 ProjectCard
-  End: 2 VictoryPoint
 }
 ```

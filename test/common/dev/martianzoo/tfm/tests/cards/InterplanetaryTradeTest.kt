@@ -25,6 +25,7 @@ internal class InterplanetaryTradeTest : TfmSandboxTest() {
     kim.inTurn {
       doTasks("PlayProject<Class<InterplanetaryTrade>>", "27 Pay<> FROM MC")
       doTasks("InterplanetaryTrade FROM ProjectCard")
+      selectTask("EACH @WildTag { Tag<@WildTag>? }")
       doTask("PROD[4 MC]")
     }
   }
