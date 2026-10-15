@@ -115,7 +115,7 @@ workable after a later choice. No new representation is needed to name an edge.
   missing ordering, exclusion, or completion rule, and it cannot make a forbidden intervention
   safe. Delegated payment must be correct under `NONE` before any policy can claim to preserve it.
   See [SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over) and roadmap item 5
-  in [SOLARNET_ROADMAP.md](../../SOLARNET_ROADMAP.md).
+  in [SOLARNET_ROADMAP.md](../SOLARNET_ROADMAP.md).
 
 - **R7. Analysis leaves the live World unchanged.** Exploration uses rolled-back transactions
   (`Timeline.atomic` with an abort, as `ActorEngine.canSelectTask` does) or `Engine.fork`.

@@ -8,8 +8,8 @@
 > **Skip when:** performing a mechanical, behavior-preserving edit whose ownership is settled.
 >
 > **Status:** durable working rules. Project priorities and future programs belong in
-> [`SOLARNET_ROADMAP.md`](../../SOLARNET_ROADMAP.md) and
-> [`PETS_ROADMAP.md`](../../PETS_ROADMAP.md).
+> [`SOLARNET_ROADMAP.md`](../SOLARNET_ROADMAP.md) and
+> [`PETS_ROADMAP.md`](../PETS_ROADMAP.md).
 
 Repository-level instructions in [`AGENTS.md`](../../AGENTS.md) remain authoritative.
 

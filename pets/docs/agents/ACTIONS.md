@@ -6,7 +6,7 @@
 > action-specific payment identity.
 >
 > **Status:** verified defect and required behavior; the replacement representation is still a
-> proposal. The [Solarnet roadmap](../../../SOLARNET_ROADMAP.md#internal-design-and-game-execution)
+> proposal. The [Solarnet roadmap](../../../docs/SOLARNET_ROADMAP.md#internal-design-and-game-execution)
 > indexes the broader action lifecycle work.
 
 ## Current behavior and urgent defect

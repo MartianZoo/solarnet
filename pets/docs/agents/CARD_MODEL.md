@@ -140,7 +140,7 @@ Gyropolis uses Earth, as directed by the owner. The same analysis emits `UseActi
 for action benefits (Orbital Cleanup and Kuiper Cooperative). Venus Shuttles declares its allocation
 on `UseAction` explicitly so its Venus count is ready before the cost is calculated.
 Robotic Workforce and Cyberia Systems do not yet support wilds when selecting or counting copied
-production; see [Solarnet TODO](../../../TODO.md) and their card-test pairs. Blanket Building allocation was removed because
+production; see [Solarnet TODO](../../../docs/TODO.md) and their card-test pairs. Blanket Building allocation was removed because
 it prevented wilds from contributing Earth to copied Gyropolis production.
 Corroder Suits and Maxwell Base use the analogous Venus filter and allocation on play or action use,
 allowing them to add science to Applied Science. Applied Science itself adds resources only to its

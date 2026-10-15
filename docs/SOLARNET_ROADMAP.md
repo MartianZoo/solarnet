@@ -6,7 +6,7 @@ explore a game. The [Pets roadmap](PETS_ROADMAP.md) owns the static language and
 derived English and iconography, and the Almanac. Goals that require both static meaning and live
 execution belong in both roadmaps, with each document describing its part and linking to the other.
 
-This roadmap indexes priorities, status, and the owning notes in [`docs/agents/`](docs/agents/README.md).
+This roadmap indexes priorities, status, and the owning notes in [`docs/agents/`](agents/README.md).
 Detailed design decisions belong in those individual notes, including decisions not yet implemented.
 
 The central runtime problem is not missing features. It is the accumulated machinery between
@@ -27,19 +27,19 @@ after review. **Selected** means the direction is chosen while some design remai
    **Selected; active design.** Unify the lifecycle while preserving choice, rollback, and Actor
    authority. Fix action identity as a necessary part of this work: a nonexistent second action on
    AI Central currently succeeds and consumes its use without drawing cards. See
-   [action identity and invocation](pets/docs/agents/ACTIONS.md),
-   [turns and turn offers](pets/docs/agents/GAME_FLOW.md#turns-and-turn-offers), including
-   the Head Start variant, [on-turn identity and routing](docs/agents/IDENTITY.md#who-is-on-turn-and-who-decides),
-   and [deferred work](docs/agents/SEQUENCING.md#deferred-work). Ordering delegated
-   responses and their payments remains open; see [completion](docs/agents/SEQUENCING.md#the-missing-rule-when-an-operation-is-over)
-   and [payment gaps](docs/agents/PAYMENTS.md#allocation-validation).
+   [action identity and invocation](../pets/docs/agents/ACTIONS.md),
+   [turns and turn offers](../pets/docs/agents/GAME_FLOW.md#turns-and-turn-offers), including
+   the Head Start variant, [on-turn identity and routing](agents/IDENTITY.md#who-is-on-turn-and-who-decides),
+   and [deferred work](agents/SEQUENCING.md#deferred-work). Ordering delegated
+   responses and their payments remains open; see [completion](agents/SEQUENCING.md#the-missing-rule-when-an-operation-is-over)
+   and [payment gaps](agents/PAYMENTS.md#allocation-validation).
 
 2. **Make the game advance through authored rules instead of a mirrored Kotlin workflow.**
    **Selected.** Phase order, player rotation, setup, expansion phases, final greenery, scoring, and
    victory should arise from live game components and ordinary engine scheduling.
-   [Deferred work](docs/agents/SEQUENCING.md#deferred-work) settles work within an operation, and
+   [Deferred work](agents/SEQUENCING.md#deferred-work) settles work within an operation, and
    `FINALLY` work, which waits for everything else including `LATER` work, carries the next turn or
-   phase. The [game flow](pets/docs/agents/GAME_FLOW.md#game-flow) is now authored this way and
+   phase. The [game flow](../pets/docs/agents/GAME_FLOW.md#game-flow) is now authored this way and
    `TfmWorkflow` is deleted; a turn scope remains open. The `workflow` branch removed the
    coroutine-owned phase sequence but is not intended to land. It measured the cost of representing
    deferred work as components: per-rule mode guards, continuation components, and a compiler for
@@ -64,7 +64,7 @@ after review. **Selected** means the direction is chosen while some design remai
    submit the same Actor-authorized commands. Agent policy may choose among legal actions; it must
    never provide missing ordering, control, or completion semantics. Finish task-form support where
    real interactions need it, make policies attachable and composable only as experience demands,
-   and keep [proof-oriented automation](docs/agents/SMART_AUTOEXEC.md) distinct from strategy.
+   and keep [proof-oriented automation](agents/SMART_AUTOEXEC.md) distinct from strategy.
 
 6. **Give manual experimentation honest modes.** **Selected direction.** Purple plays the full
    game; blue grants a turn; green initiates an arbitrary operation; yellow permits deliberate task
@@ -114,7 +114,7 @@ after review. **Selected** means the direction is chosen while some design remai
    component changes and pending work without requiring matching task IDs or event ordinals.
    Finish production card-input capture and replay with the uncommitted `work1` tracker, then
    connect Playground's upload path. A public-database ingester and friendlier discrepancy flow
-   follow later. [Export design](docs/agents/EXPORT.md) owns the details.
+   follow later. [Export design](agents/EXPORT.md) owns the details.
 
 2. **Keep exact event recordings independently useful.** **Implemented foundation.** A recording
    must reconstruct components, pending tasks, history, and approved navigation points without an
@@ -209,7 +209,7 @@ after review. **Selected** means the direction is chosen while some design remai
   work.
 
 This roadmap synthesizes current priorities in
-[`VALUES.md`](docs/agents/VALUES.md), [`TODO.md`](TODO.md), [`PLAYGROUND.md`](PLAYGROUND.md), the
+[`VALUES.md`](agents/VALUES.md), [`TODO.md`](TODO.md), [`PLAYGROUND.md`](PLAYGROUND.md), the
 focused runtime contracts under
 `docs/agents/`, open issues, recent mainline work, the `workflow` branch, the exploratory
 `heroku-experiment` branch, and preserved decision-import and TFMBot experiments.

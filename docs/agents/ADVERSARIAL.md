@@ -42,7 +42,7 @@ in progress is committed to Git. “Type 3 export” refers to the combined reco
 export design: a premise recipe, an Actor decision stream, and an exact event stream. The decisions
 explain the result; the events record what happened. The historical export note described these as
 the third of three views, and the
-[current roadmap](../../SOLARNET_ROADMAP.md#game-records-and-reconstruction) retains that direction.
+[current roadmap](../SOLARNET_ROADMAP.md#game-records-and-reconstruction) retains that direction.
 The combined format remains unspecified and unimplemented. A state digest alone would not replace
 the exact events needed for its independent passive playback.
 
@@ -249,7 +249,7 @@ and does not establish complete tracking of every offer or deck movement.
 playback. The same file can carry Actor inputs for independent replay and change comparison, but
 does not establish shared-player authorization, an appendable live log, or resumption of arbitrary
 unfinished operations. The
-[existing export direction](../../SOLARNET_ROADMAP.md#game-records-and-reconstruction)
+[existing export direction](../SOLARNET_ROADMAP.md#game-records-and-reconstruction)
 already distinguishes decision reconstruction from exact event playback and records unfinished work.
 
 The next useful design work is to settle the acceptance and information-release agreement, then

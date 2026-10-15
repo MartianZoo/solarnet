@@ -23,13 +23,13 @@ Solarnet consumes its libraries by fixed artifact coordinates or explicit local 
 Each working copy can persist its own source choice under `_local/pets-sources/`. The root build,
 test, and formatting commands cover both builds when source composition is selected.
 
-The repeatable [isolation check](scripts/verify-build-separation.py) builds and tests copied source
+The repeatable [isolation check](../scripts/verify-build-separation.py) builds and tests copied source
 trees independently, publishes Pets JVM/JS libraries and Almanac, builds and tests Solarnet with no
 Pets source in its tree, runs the packaged REPL outside both trees, and proves an unpublished Pets
 edit reaches a Solarnet test. It also checks source selection and artifact override. CI runs it
 alongside the combined build.
 
-See [BUILDS.md](docs/agents/BUILDS.md) for setup and commands and [Pets README](pets/README.md) for
+See [BUILDS.md](agents/BUILDS.md) for setup and commands and [Pets README](../pets/README.md) for
 the static modules. IDE source navigation and editing across the builds remains an unverified
 acceptance check, tracked in TODO.md. Creating separate hosted repositories and releases remains
 future work.
@@ -127,7 +127,7 @@ extraction remains a separate library-design direction below, not a prerequisite
    defaults, instruction-valued printed facts, and richer cardinality remain promising but
    unsettled. Adopt them only after inheritance, querying, binding, and materialization have a
    coherent systemic rule and the result removes existing bridges.
-   [ELSE and instruction-level `(A)*`](pets/docs/agents/ELSE.md) are exploratory fallback candidates
+   [ELSE and instruction-level `(A)*`](../pets/docs/agents/ELSE.md) are exploratory fallback candidates
    with concrete Canon uses and distinct shallow/deep semantics.
 
 ## Canon and game-rule modeling
@@ -197,6 +197,6 @@ extraction remains a separate library-design direction below, not a prerequisite
   player product remain conditional rather than active programs.
 
 This roadmap synthesizes the current priorities in
-[`VALUES.md`](docs/agents/VALUES.md), [`TODO.md`](TODO.md), the
-[Pets introduction](pets/README.md), recent mainline
+[`VALUES.md`](agents/VALUES.md), [`TODO.md`](TODO.md), the
+[Pets introduction](../pets/README.md), recent mainline
 work, the active `english` branch, and the exploratory `codegen` module.

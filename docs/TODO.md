@@ -1,6 +1,6 @@
 # TODO
 
-Delete entries when they are done. Static-language and English work lives in [Pets TODO](pets/TODO.md).
+Delete entries when they are done. Static-language and English work lives in [Pets TODO](../pets/TODO.md).
 
 - Investigate the local configuration-cache invalidation caused by the injected
   `kotlin.project.persistent.dir` property. Repeated `help` commands reproduce it on the
@@ -30,7 +30,7 @@ Delete entries when they are done. Static-language and English work lives in [Pe
 - Derive `TfmActionLowerer`'s standard-resource cost classification from Pets declarations
   instead of its hardcoded resource list, without adding a loading stage.
 - Decide whether to add shallow/deep ELSE or instruction-level `(A)*`; candidate uses and
-  restrictions are in [ELSE.md](pets/docs/agents/ELSE.md).
+  restrictions are in [ELSE.md](../pets/docs/agents/ELSE.md).
 - Add Canon invariant tests for incompatibilities: self-heat removal outside Billing, except
   Local Heat Trapping, must be declared incompatible with Stormcraft. Include abstract resource choices.
 - Revisit Stormcraft plus Helion payment composition if that combination is supported.

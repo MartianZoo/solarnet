@@ -20,7 +20,7 @@ Almost all the published game content except Automa works.
 | Automa | - | - | - | - | 0 / 1 | - | - | - | - | - | - | the whole thing |
 
 Wild-tag cards now belong to Canon. Copying production with wild tags still has known gaps for
-Robotic Workforce and Cyberia Systems; see [Solarnet TODO](../../TODO.md).
+Robotic Workforce and Cyberia Systems; see [Solarnet TODO](../../docs/TODO.md).
 
 ## Still to implement
 

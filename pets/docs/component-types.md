@@ -26,7 +26,7 @@ The definition of the `GlobalParameter` Class includes the line `DEFAULT +Global
 
 One `MarsMap` instance will exist, such as `HellasMap`. Creating it creates every active Area by fanning out over the structural Class representatives, and every area is its own component instance.
 
-The created areas have names like `Hellas_1_1`, `Hellas_1_2`, etc. The coordinate system is easy to understand if you try the `map` command in the command-line REPL tool (`./rego`).
+The created areas have names like `Hellas_1_1`, `Hellas_1_2`, etc. The coordinate system is easy to understand if you try the `map` command in the command-line REPL tool (`./scripts/rego`).
 
 Each area has a supertype that is one of `RemoteArea`, `WaterArea`, `LandArea`, `VolcanicArea`, or `NoctisArea`. `VolcanicArea` itself has `LandArea` as a supertype, so volcanic areas count as land areas. `NoctisArea` is *not* a `LandArea` because it doesn't function like one.
 

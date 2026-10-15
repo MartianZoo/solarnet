@@ -176,7 +176,7 @@ Dependency and plugin versions are declared in `gradle/libs.versions.toml`, whil
 repositories are declared centrally in `settings.gradle.kts`; JitPack is restricted to the pinned
 better-parse fork.
 
-`./rego` asks `:repl:shadowJarPath` to build the fat jar and report its relocated path before each
+`./scripts/rego` asks `:repl:shadowJarPath` to build the fat jar and report its relocated path before each
 launch, including after the `rebuild` command. A Gradle failure stops the launcher. CI also executes
 the packaged jar from an empty temporary directory, creates a Canon game, checks its player count,
 and exits before uploading the artifact.

@@ -16,7 +16,7 @@ plugins {
 
 detekt {
   buildUponDefaultConfig = true
-  config.setFrom(rootProject.file("detekt.yml"))
+  config.setFrom(rootProject.file("gradle/detekt.yml"))
 }
 
 plugins.withType<KotlinBasePlugin>().configureEach {

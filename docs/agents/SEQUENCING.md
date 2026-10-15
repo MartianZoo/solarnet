@@ -7,7 +7,7 @@
 >
 > **Status:** current contracts, including deferred work; a verified missing completion rule; and
 > selected turn semantics. This note owns sequencing design decisions; unimplemented behavior is
-> labeled separately. The [roadmap](../../SOLARNET_ROADMAP.md) indexes the work.
+> labeled separately. The [roadmap](../SOLARNET_ROADMAP.md) indexes the work.
 
 ## Current model
 

@@ -42,7 +42,7 @@ It is *supposed* to be as simple as this:
 git clone https://github.com/MartianZoo/solarnet.git
 cd solarnet
 JAVA_HOME=<home of a JDK 17 or newer>
-./rego
+./scripts/rego
 help
 ```
 

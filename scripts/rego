@@ -4,7 +4,7 @@
 set -o pipefail
 
 # https://stackoverflow.com/q/59895/113632
-cd "$(dirname "${BASH_SOURCE[0]}")" || exit
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit
 
 readonly REBUILD_EXIT_CODE=5
 
