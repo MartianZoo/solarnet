@@ -422,8 +422,13 @@ choice makes the turn impossible to finish, P1 must roll back the turn.
 - `DeferredWorkTest`: selection, promotion batches, every Actor's work, late evaluation of metrics
   and fanouts, groups, nesting, final work, and rollback.
 - `Lang02InstructionsTest`: L2-18 and L2-19 syntax; `TaskDispatchTest`: dispatch recipients.
-- `SolarProbeTest`, `TradeEnvoysTest`, `L1TradeTerminalTest`, `TurmoilSolarPhaseTest`,
+- `SolarProbeTest`, `TradeEnvoysTest`, `L1TradeTerminalTest`, `SolarPhaseOrderingTest`,
   `AwardsTest`, `VictoryTest`, and `FakeWildTagTest`: the converted devices.
+- `SolarPhaseOrderingTest` reaches solar phases through gameplay and observes ocean removal,
+  TR brackets, influence payouts, ruling bonuses, delegate availability, dominance ties, optional
+  payment affordability, and next-generation corporation eligibility. It does not assert execution
+  traces or a complete prescribed sequence. Forecast-information timing remains untested without
+  a hidden global-event deck.
 
 ## Source evidence
 
