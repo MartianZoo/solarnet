@@ -122,7 +122,6 @@ internal class VitorTest : TfmSandboxTest() {
       doTask("PlayCard<Class<CorporationCard>, Class<Vitor>>")
       doTask("Vitor<Kim> FROM CorporationCard<Kim, Selecting>!")
       doTasks("45 MC", "-42 MC")
-      doTask("Vitor_RequiredAction!")
       doTask("3 MC")
     }
 

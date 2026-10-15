@@ -149,6 +149,10 @@ the initiating operation.
 Card-purchase, requirement, global-parameter-status, solo-countdown, and dominance bookkeeping use
 `System` for their concrete changes.
 
+`RequiredAction` is also `System`: Admin creates and removes the pending corporation-action
+marker. Its Player owner still chooses `RequiredActionsSignal` and performs the required action;
+neither that signal nor `UseAction` is `System`.
+
 ### Deferred System classifications
 
 `PlayCard` remains open. An isolated `System` trial passed corporation selection and New Partner's

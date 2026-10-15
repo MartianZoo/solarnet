@@ -79,7 +79,7 @@ ABSTRACT CLASS ActionSlot : System {
 CLASS UseAction<HasActions, ActionSlot> : Owned<Player>, Signal
 
 "A mandatory pending action the owner must perform as their next"
-ABSTRACT CLASS RequiredAction : Owned<Player>, HasActions {
+ABSTRACT CLASS RequiredAction : Owned<Player>, HasActions, System {
   HAS MAX 1 This
   RequiredActionsSignal:: UseAction<This, Action1> THEN -This
 }

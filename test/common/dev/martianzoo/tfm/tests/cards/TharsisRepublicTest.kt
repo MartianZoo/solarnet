@@ -15,7 +15,6 @@ internal class TharsisRepublicTest : TfmSandboxTest() {
           "TharsisRepublic FROM CorporationCard",
           "40 MC",
       )
-      doTask("TharsisRepublic_RequiredAction!")
       doTasks("PROD[2 MC]", "15 Pay<> FROM MC", "5 ProjectCard<Hand FROM Selecting>")
     }
   }
@@ -32,7 +31,6 @@ internal class TharsisRepublicTest : TfmSandboxTest() {
           doTask("PlayCard<Class<CorporationCard>, Class<TharsisRepublic>>")
           doTask("TharsisRepublic<Kim> FROM CorporationCard<Kim, Selecting>!")
           doTasks("40 MC", "-42 MC")
-          doTask("TharsisRepublic_RequiredAction!")
         }
         .expect("PROD[0 MC]")
   }
