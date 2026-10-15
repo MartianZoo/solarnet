@@ -152,6 +152,38 @@ internal class Spec07BoundsTest {
     table.glb(table.resolve(te("Left<Water1>")), table.resolve(te("Right"))) shouldBe null
   }
 
+  @Test
+  internal fun `T7-1 an unresolved dependency intersection cannot discard a competing root`() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Resource
+            ABSTRACT CLASS LeftResource : Resource
+            ABSTRACT CLASS RightResource : Resource
+            CLASS First : LeftResource, RightResource
+            CLASS Second : LeftResource, RightResource
+            ABSTRACT CLASS Holder<Resource>
+            ABSTRACT CLASS Left : Holder
+            ABSTRACT CLASS Right : Holder
+            CLASS Broad : Left, Right
+            CLASS Narrow : Left<First>, Right<First>
+            """
+        )
+    val left = table.resolve(te("Left<LeftResource>"))
+    val right = table.resolve(te("Right<RightResource>"))
+    val narrow = table.resolve(te("Narrow"))
+    val broadSecond = table.resolve(te("Broad<Second>"))
+
+    // Narrow is a common lower bound, but Broad<Second> is another that it does not cover.
+    narrow.isSubtypeOf(left) shouldBe true
+    narrow.isSubtypeOf(right) shouldBe true
+    broadSecond.isSubtypeOf(left) shouldBe true
+    broadSecond.isSubtypeOf(right) shouldBe true
+    broadSecond.isSubtypeOf(narrow) shouldBe false
+    table.glb(left, right) shouldBe null
+    table.glb(right, left) shouldBe null
+  }
+
   // T7-2 Algebraic shape
 
   @Test

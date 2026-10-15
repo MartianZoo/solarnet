@@ -2,6 +2,23 @@
 
 Delete entries when they are done.
 
+- Preserve represented-class bindings when rendered types are parsed again (T5-6 and T8-10).
+  Pets `BugsTest` shows a predicate that asks about `BuildingTag<Player1>` before rendering
+  incorrectly asks about `Tag<Player1>` afterward. A repair must also handle candidate classes
+  with fixed dependencies and nested declarations sharing the candidate's bound without losing
+  their distinct bindings.
+
+- Recognize the same represented-class predicate under a narrower bound (T8-1 and T8-10).
+  Pets `BugsTest` shows `Class<@BuildingTag>(HAS @BuildingTag)` incorrectly fails to narrow
+  `Class<@Tag>(HAS @Tag)`, although both predicates ask about the selected class.
+
+- Implement T7-1's greatest-lower-bound promise beyond the current root-first calculation.
+  Pets `BugsTest` shows `CardFront` intersected with `ResourceHolder<Class<Animal>>` returns no result
+  even when `Pets` is the greatest common type and the only rival, `Ants`, is excluded by its resource kind.
+  A bounded candidate-search experiment was rejected: a failed dependency meet can mean an
+  unnamed overlap, not disjointness, so discarding that candidate can return a false greatest
+  type. `Spec07BoundsTest` preserves the competing `Broad<Second>` and `Narrow` witness.
+
 - Simplify Flooding and Artificial Lake's ocean instructions, preserving full-track behavior,
   mandatory placement, and Flooding's victim choice.
 - Derive `TfmActionLowerer`'s standard-resource cost classification from Pets declarations

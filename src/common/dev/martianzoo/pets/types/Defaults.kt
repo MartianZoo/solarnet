@@ -74,7 +74,7 @@ public data class Defaults(
     private fun <T> inheritDefault(
         klass: Class,
         extractor: (Class) -> T?,
-        merger: (List<T>) -> T = { it.single() },
+        merger: (List<T>) -> T? = { it.single() },
     ): T? {
       val haveDefault: List<Class> = klass.allSuperclasses().filter { extractor(it) != null }
 
@@ -109,19 +109,19 @@ public data class Defaults(
           klass.dependencies.keys.mapNotNull { key ->
             inheritDefault(
                 klass,
-                { origin ->
-                  val inherited = declared.getValue(origin).getIfPresent(key)
-                  inherited?.let { klass.classTable.glb(it, klass.dependencies.get(key)) }
-                },
+                { origin -> declared.getValue(origin).getIfPresent(key) },
                 { deps: List<Dependency> ->
-                  deps.reduce { left, right ->
-                    klass.classTable.glb(left, right)
-                        ?: throw InvalidPetDefinitionException(
-                            "`${klass.className}` inherits incompatible defaults for `$key`: " +
-                                "`$left` and `$right`",
-                            sourceLocation = klass.className.sourceLocation,
-                        )
-                  }
+                  // Decide overrides before omitting defaults incompatible with this class.
+                  deps
+                      .mapNotNull { klass.classTable.glb(it, klass.dependencies.get(key)) }
+                      .reduceOrNull { left, right ->
+                        klass.classTable.glb(left, right)
+                            ?: throw InvalidPetDefinitionException(
+                                "`${klass.className}` inherits incompatible defaults for `$key`: " +
+                                    "`$left` and `$right`",
+                                sourceLocation = klass.className.sourceLocation,
+                            )
+                      }
                 },
             )
           }

@@ -9,14 +9,100 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.types.RecordingWorld
 import dev.martianzoo.pets.types.loadTypes
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 /** Passing characterizations of known incorrect Pets behavior. */
 internal class BugsTest {
+  @Test
+  internal fun `class-literal narrowing incorrectly treats a changed bound as a different predicate`() {
+    val table = loadTypes("ABSTRACT CLASS Tag { CLASS BuildingTag }")
+    val general = table.resolve(parse<Expression>("Class<@Tag>(HAS @Tag)"))
+    val specific = table.resolve(parse<Expression>("Class<@BuildingTag>(HAS @BuildingTag)"))
+    val candidate = table.resolve(parse<Expression>("Class<BuildingTag>"))
+
+    for (refined in listOf(general, specific)) {
+      val world = RecordingWorld()
+      candidate.narrows(refined, world) shouldBe true
+      world.questions shouldBe listOf("BuildingTag")
+    }
+    specific.isSubtypeOf(table.resolve(parse<Expression>("Class<Tag>"))) shouldBe true
+
+    // T8-1 and T8-10 require true: the domain narrows while the predicate still tests
+    // the same candidate class. The implementation instead compares the original bounds.
+    specific.isSubtypeOf(general) shouldBe false
+  }
+
+  @Test
+  internal fun `rendering a class-literal meet incorrectly loses its represented-class binding`() {
+    val table =
+        loadTypes(
+            """
+            CLASS Player1 : Owner
+            CLASS Player2 : Owner
+            ABSTRACT CLASS Tag : Owned {
+              CLASS BuildingTag
+              CLASS SpaceTag
+            }
+            """
+        )
+    val refined =
+        table.resolve(parse<Expression>("Class<@Tag>(HAS @Tag<Player1>, HAS Tag<Player2>)"))
+    val building = table.resolve(parse<Expression>("Class<BuildingTag>"))
+    val intersection = table.glb(refined, building)!!
+
+    for (expression in listOf(intersection.expression, intersection.expressionFull)) {
+      table.resolve(expression) shouldBe intersection
+      val retainedWorld = RecordingWorld()
+      building.narrows(table.resolve(expression), retainedWorld) shouldBe true
+      retainedWorld.questions shouldBe listOf("BuildingTag<Player1>", "Tag<Player2>")
+
+      val reparsed = table.resolve(parse<Expression>(expression.toString()))
+      val reparsedWorld = RecordingWorld()
+      building.narrows(reparsed, reparsedWorld) shouldBe true
+      // T5-6 requires the same type and world questions. Text instead loses the T8-10
+      // candidate binding; the unmarked Player2 predicate stays unchanged.
+      reparsed shouldNotBe intersection
+      reparsedWorld.questions shouldBe listOf("Tag<Player1>", "Tag<Player2>")
+    }
+  }
+
+  @Test
+  internal fun `a meet incorrectly ignores dependencies that identify a greatest common type`() {
+    // Simplified Pets and Ants: keep only their distinct resource kinds.
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS CardResource {
+              CLASS Animal
+              CLASS Microbe
+            }
+            ABSTRACT CLASS ResourceHolder<Class<CardResource>>
+            ABSTRACT CLASS CardFront
+            CLASS Pets : CardFront, ResourceHolder<Class<Animal>>
+            CLASS Ants : CardFront, ResourceHolder<Class<Microbe>>
+            """
+        )
+    val card = table.resolve(parse<Expression>("CardFront"))
+    val animalHolder = table.resolve(parse<Expression>("ResourceHolder<Class<Animal>>"))
+    val pets = table.resolve(parse<Expression>("Pets"))
+
+    pets.isSubtypeOf(card) shouldBe true
+    pets.isSubtypeOf(animalHolder) shouldBe true
+    table.resolve(parse<Expression>("Ants")).isSubtypeOf(animalHolder) shouldBe false
+    table.allConcreteSubtypes(card).filter { it.isSubtypeOf(animalHolder) }.toList() shouldBe
+        listOf(pets)
+
+    // T7-1 requires Pets, but the implementation stops at the ambiguous root classes.
+    table.glb(card, animalHolder) shouldBe null
+    table.glb(animalHolder, card) shouldBe null
+  }
+
   @Test
   internal fun `EACH and RANK inconsistently scope Me in their selector refinements`() {
     val table =
